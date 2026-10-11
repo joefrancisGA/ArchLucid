@@ -4,6 +4,7 @@ import Link from "next/link";
 
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
 
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
@@ -298,6 +299,8 @@ export function HelpWhichModeAmIInGuideView(props: HelpWhichModeAmIInGuideViewPr
             </p>
           </section>
         </div>
+
+        <SponsorSendPathHonestyPanel testIdPrefix="help-which-mode-am-i-in" showSsoOptional={false} />
 
         <HelpTopicTableOfContents headings={MODE_GRAVITY_HELP_WHICH_MODE_GUIDE_HEADINGS} enableScrollSpy />
       </div>

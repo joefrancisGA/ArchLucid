@@ -4,6 +4,7 @@ import { HelpConfigurationReferenceActionPanel } from "@/app/(operator)/help/_se
 import { HelpConfigurationReferenceCatalogSection } from "@/app/(operator)/help/_sections/HelpConfigurationReferenceCatalogSection";
 import { HELP_CONFIGURATION_REFERENCE_PRINT_PREPARE_EVENT } from "@/lib/help/help-configuration-reference-print-events";
 import { HelpConfigurationReferenceProvenanceFooter } from "@/app/(operator)/help/_sections/HelpConfigurationReferenceProvenanceFooter";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { ConfigurationReferenceHelpClaimDisciplineStrip } from "@/components/help/ConfigurationReferenceHelpClaimDisciplineStrip";
 import { HelpConfigurationReferenceBreadcrumb } from "@/app/(operator)/help/_sections/HelpConfigurationReferenceBreadcrumb";
@@ -231,6 +232,8 @@ export function HelpConfigurationReferenceGuideView(
 
           <HelpConfigurationReferenceProvenanceFooter entry={entry} />
         </div>
+
+        <SponsorSendPathHonestyPanel testIdPrefix="help-configuration-reference" showSsoOptional={false} />
 
         <HelpTopicTableOfContents headings={CONFIGURATION_REFERENCE_HELP_GUIDE_HEADINGS} enableScrollSpy />
       </div>

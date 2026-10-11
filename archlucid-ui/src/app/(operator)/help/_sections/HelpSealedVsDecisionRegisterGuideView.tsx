@@ -4,6 +4,7 @@ import Link from "next/link";
 
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
 
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
@@ -322,6 +323,8 @@ export function HelpSealedVsDecisionRegisterGuideView(
             </p>
           </section>
         </div>
+
+        <SponsorSendPathHonestyPanel testIdPrefix="help-sealed-vs-decision-register" showSsoOptional={false} />
 
         <HelpTopicTableOfContents headings={DESK_IA_HELP_SEALED_VS_REGISTER_GUIDE_HEADINGS} enableScrollSpy />
       </div>

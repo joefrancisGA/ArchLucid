@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
@@ -316,6 +317,8 @@ export function HelpProxyTimeoutRealExecuteGuideView(
             </p>
           </section>
         </div>
+
+        <SponsorSendPathHonestyPanel testIdPrefix="help-proxy-timeout-real-execute" showSsoOptional={false} />
 
         <HelpTopicTableOfContents headings={DAYTIME_WAIT_HELP_PROXY_TIMEOUT_GUIDE_HEADINGS} enableScrollSpy />
       </div>

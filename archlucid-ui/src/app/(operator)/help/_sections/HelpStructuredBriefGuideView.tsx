@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { StructuredBriefHelpClaimDisciplineStrip } from "@/components/help/StructuredBriefHelpClaimDisciplineStrip";
 import { StructuredBriefHelpEvidenceOrientationStrip } from "@/components/help/StructuredBriefHelpEvidenceOrientationStrip";
@@ -310,6 +311,8 @@ export function HelpStructuredBriefGuideView(props: HelpStructuredBriefGuideView
             </p>
           </section>
         </div>
+
+        <SponsorSendPathHonestyPanel testIdPrefix="help-structured-brief" showSsoOptional={false} />
 
         <HelpTopicTableOfContents headings={guideHeadings} enableScrollSpy />
       </div>
