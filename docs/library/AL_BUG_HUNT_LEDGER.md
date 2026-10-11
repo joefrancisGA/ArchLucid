@@ -36118,6 +36118,8 @@ ABQ-09 churn hotspot.
 
 ## Zone: securenow-question-queue
 
+2026-10-11 seed hunt (seed-only): completed the selected disposition, compiler, controller, persistence, contract, and queue reread after the optional-dependency fix. No fresh hunt-ready mechanism survived cheap-disproof without duplicating the already-proven evidence, normalization, or optional-load classes; retained the existing bounded compiler, relationship-suppression, and API answer-code candidates. The focused Application SecureNowQuestion suite passed 22/22 and the queue UI suite passed 13/13; no production or regression code changed.
+
 2026-10-11 seed hunt (seed-only): re-read the selected disposition, compiler, controller, persistence, contract, and queue paths after the optional-dependency fix. No fresh hunt-ready mechanism survived cheap-disproof without duplicating the already-proven evidence, normalization, or optional-load classes; retained the existing bounded compiler, relationship-suppression, and API answer-code candidates. The focused Application SecureNowQuestion suite passed 22/22 and the queue UI suite passed 13/13; no production or regression code changed.
 
 2026-10-11 seed hunt (seed→hit): proved a reachable inventory answer threw when optional inferred-connection loading failed, because answer validation called the full question list before persisting; inventory validation now compiles without the optional inferred-connection dependency. Regression `Inventory_answer_does_not_depend_on_inferred_connection_availability`; the focused Application SecureNowQuestion suite passed 22/22 and the queue UI suite passed 13/13.
@@ -36142,7 +36144,7 @@ ABQ-09 churn hotspot.
 - **aliases:** securenow question queue; question disposition
 - **paths:** ArchLucid.Application/InfraEvidence/SecureNowQuestionDispositions/; ArchLucid.Api/Controllers/InfraEvidence/InfraEvidenceSecureNowQuestionsController.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/ISecureNowQuestionDispositionRepository.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/ISecureNowQuestionDispositionService.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/SecureNowQuestionDispositionRecord.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/SecureNowQuestionRecord.cs; ArchLucid.Persistence/InfraEvidence/NoOpSecureNowQuestionDispositionRepository.cs; ArchLucid.Persistence/InfraEvidence/SqlSecureNowQuestionDispositionRepository.cs; ArchLucid.Contracts/InfraEvidence/SecureNowQuestionDispositionContracts.cs; archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
-- **hunts:** 22
+- **hunts:** 23
 - **bugs-found:** 11
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-11
