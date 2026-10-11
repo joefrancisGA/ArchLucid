@@ -33970,6 +33970,8 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 2026-10-11 seed hunt (seed-only): re-read the anonymous `/see-it`, showcase, and signup-verification paths; no candidate met the same-run hunt-ready promotion bar. Seeded three bounded candidates for multi-trailing-slash API bases and JWT resend redirect failure. Four focused marketing suites passed 67/67; no production or regression code changed.
 
+2026-10-11 thorough hunt #31 (hit): proved that `/see-it` and showcase API-base normalizers removed only one trailing slash, so deployment values ending in multiple slashes generated malformed request URLs and could fall back to static/not-available marketing states; normalize all trailing slashes and added regressions for `https://demo-api.test///`. The JWT resend redirect candidate was attempted but its pre-fix regression did not fail, so it remains valid-no-repro. Three focused marketing suites passed 52/52.
+
 2026-10-08 thorough hunt #27 (hit): proved duplicate pipeline `eventId` values passed showcase validation; cheap-disproved four other `(candidate)` rows from hunt #26; seeded five follow-on `(candidate)` rows; 17 scoped showcase-page vitest tests passed.
 
 2026-10-08 thorough hunt #26 (hit): proved sparse pipeline timeline rows missing `eventId` passed showcase fetch validation; cheap-disproved four other `(candidate)` rows from hunt #25; seeded five follow-on `(candidate)` rows; 16 scoped showcase-page vitest tests passed.
@@ -33990,11 +33992,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** marketing pages; pricing; trust center UI
 - **paths:** archlucid-ui/src/app/(marketing)/
 - **test-filter:** marketing
-- **hunts:** 30
-- **bugs-found:** 32
-- **consecutive-dry-hunts:** 1
+- **hunts:** 31
+- **bugs-found:** 33
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-11
-- **last-bug:** 2026-10-08 — duplicate showcase pipeline eventId values
+- **last-bug:** 2026-10-11 — marketing API bases with multiple trailing slashes
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -34008,9 +34010,9 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ### Hypotheses
 
-- [ ] (candidate) `resolveSeeItDemoApiBase` removes only one trailing slash — an environment base with multiple trailing slashes can produce a request URL containing a doubled path separator; input: `NEXT_PUBLIC_DEMO_API_BASE="https://demo.example///"`; wrong outcome: the anonymous `/see-it` preview request can miss `/v1/demo/preview` and fall back to the static snapshot; reachability: deployment-provided public demo API environment configuration.
-- [ ] (candidate) `resolveShowcaseApiBase` removes only one trailing slash — an environment base with multiple trailing slashes can produce a malformed `/v1/marketing/showcase/{runId}` URL; input: `NEXT_PUBLIC_DEMO_PREVIEW_API_BASE="https://demo.example///"`; wrong outcome: a reachable showcase API request falls into not-available or static fallback instead of loading the live payload; reachability: deployment-provided public demo preview API configuration.
-- [ ] (candidate) `SignupVerifyClient.handleResend` marks resend cooldown before JWT redirect initiation — if `initiateOidcRedirect` throws, the UI reports failure while the newly written cooldown disables the resend retry; input: JWT auth mode with redirect initiation failure after clicking resend; wrong outcome: a failed redirect strands the user behind a cooldown rather than permitting a retry; reachability: the visible `signup-verify-resend-email` action and the JWT auth-mode branch.
+- [x] (proven) `resolveSeeItDemoApiBase` removes only one trailing slash — **hit 2026-10-11 thorough hunt #31:** `NEXT_PUBLIC_DEMO_API_BASE="https://demo.example///"` produced a malformed preview URL; normalize all trailing slashes; regression in `see-it.test.tsx`.
+- [x] (proven) `resolveShowcaseApiBase` removes only one trailing slash — **hit 2026-10-11 thorough hunt #31:** `NEXT_PUBLIC_DEMO_PREVIEW_API_BASE="https://demo.example///"` produced a malformed showcase URL; normalize all trailing slashes; regression in `showcase-page-server-resolution.test.ts`.
+- [x] (valid-no-repro) `SignupVerifyClient.handleResend` marks resend cooldown before JWT redirect initiation — **attempted 2026-10-11 thorough hunt #31:** the pre-fix JWT redirect-failure regression passed, so no failing repro established the claimed cooldown wrong outcome; production ordering change and temporary regression were reverted.
 
 - [x] (invalid) Marketing form submits PII to the wrong API environment — Quick Scan and pricing quote POST through `/api/proxy/v1/marketing/...` (`proxy-route-anonymous-marketing.test.ts`, `QuickScanClient.tsx`).
 - [x] (invalid) Pricing page shows an internal-only plan tier to anonymous visitors — anonymous pricing loads public `loadPricingDoc()`; no internal tier leak found in seed read.
