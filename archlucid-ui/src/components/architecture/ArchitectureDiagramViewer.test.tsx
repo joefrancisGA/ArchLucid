@@ -417,6 +417,83 @@ describe('ArchitectureDiagramViewer', () => {
     });
   });
 
+  it('adds the authorization hint when a focused node has a May access edge', async () => {
+    const forestLayoutSvg = [
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 120">',
+      '  <g class="node" id="node-app"><title>orders-api</title><rect class="node-card" width="80" height="20"/></g>',
+      '  <g class="edge" data-from="app" data-to="sql"><title>May access</title><path d="M20 20L80 20"/></g>',
+      '</svg>',
+    ].join('');
+
+    render(
+      <ArchitectureDiagramViewer
+        mermaidSource={'flowchart TD\n  app["orders-api"] --> sql["orders-db"]'}
+        layoutSvg={forestLayoutSvg}
+        outline={{
+          nodes: [],
+          edges: [{
+            from: 'app',
+            to: 'sql',
+            label: 'May access',
+            source: 'probable',
+            confidenceBand: 'probable',
+            provenanceKind: 'DerivedFact',
+            inferenceSource: 'inventory-app-authorized-access',
+            declaredConnectionId: null,
+          }],
+        }}
+        textAlternative="Inventory topology"
+      />,
+    );
+
+    const host = await screen.findByTestId('architecture-diagram-svg-host');
+    fireEvent.click(host.querySelector('#node-app')!);
+
+    expect(await screen.findByTestId('diagram-click-focus-status')).toHaveTextContent(
+      'Authorization from managed identity and RBAC — does not prove runtime traffic.',
+    );
+    expect(screen.getByTestId('diagram-click-focus-status')).not.toHaveTextContent('Observed traffic occurred');
+  });
+
+  it('does not add a connection hint for an observed structural edge', async () => {
+    const forestLayoutSvg = [
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 120">',
+      '  <g class="node" id="node-vnet"><title>core-vnet</title><rect class="node-card" width="80" height="20"/></g>',
+      '  <g class="edge" data-from="vnet" data-to="subnet"><title>connects</title><path d="M20 20L80 20"/></g>',
+      '</svg>',
+    ].join('');
+
+    render(
+      <ArchitectureDiagramViewer
+        mermaidSource={'flowchart TD\n  vnet["core-vnet"] --> subnet["core-subnet"]'}
+        layoutSvg={forestLayoutSvg}
+        outline={{
+          nodes: [],
+          edges: [{
+            from: 'vnet',
+            to: 'subnet',
+            label: 'connects',
+            source: 'observed',
+            confidenceBand: 'observed',
+            provenanceKind: 'ObservedFact',
+            inferenceSource: 'inventory-private-endpoint',
+            declaredConnectionId: null,
+          }],
+        }}
+        textAlternative="Inventory topology"
+      />,
+    );
+
+    const host = await screen.findByTestId('architecture-diagram-svg-host');
+    fireEvent.click(host.querySelector('#node-vnet')!);
+
+    expect(await screen.findByTestId('diagram-click-focus-status')).toHaveTextContent(
+      'Showing connections for core-vnet.',
+    );
+    expect(screen.getByTestId('diagram-click-focus-status')).not.toHaveTextContent('Authorization from managed identity');
+    expect(screen.getByTestId('diagram-click-focus-status')).not.toHaveTextContent('Hostname match in app settings');
+  });
+
   it('labels a rollup focus with its member-list title', async () => {
     const forestLayoutSvg = [
       '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 120">',
