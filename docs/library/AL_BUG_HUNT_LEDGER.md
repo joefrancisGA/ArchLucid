@@ -35229,6 +35229,8 @@ ABQ-09 churn hotspot; intake wizard route tree.
 
 ## Zone: ui-governance-findings-queue
 
+2026-10-11 seed hunt (seed→hit): `GovernanceFindingsQueueDesktopTable` passed `showInsightDensityScore` into the virtualized body, but `GovernanceFindingsQueueVirtualizedTableBody` dropped it before rendering rows. A reachable working-mode queue with 50+ findings therefore omitted density scores only on the virtualized path; regression `preserves insight density scores in the virtualized body` failed first and passed after forwarding the prop. Desktop-table and related governance regressions passed 12/12.
+
 2026-10-11 thorough hunt (dry): cheap-disproved the five open candidates. Decision-row links have no selected-file decision-detail contract showing the shared inspect href is wrong; date rendering rejects unparsable values and has no demonstrated instant mismatch; ITSM prefetch explicitly extracts finding rows only; secondary-view presentation has no decision-first wrong CTA established; and the assigned-count fallback has no reachable pagination/count contract showing page size is misleading. No failing repro was established. The picker-scoped client file ran 22 tests: 11 passed and 11 failed on the known external-store/update-depth and workspace-label baselines.
 
 2026-10-11 seed hunt (seed-only): reread the queue row identity/linking paths, operational date rendering, synopsis prefetch derivation, and assigned-to-me count presentation; no fresh row met the full hunt-ready bar. Seeded five bounded candidates for decision-row inspect routing, invalid API dates, mixed-row ITSM prefetch ids, decision-row secondary-view presentation, and assigned-count fallback semantics. The focused queue tests retained the known external-store/update-depth and workspace-label baselines; no production or regression change.
@@ -35249,11 +35251,11 @@ ABQ-09 churn hotspot; intake wizard route tree.
 - **aliases:** governance findings queue
 - **paths:** archlucid-ui/src/app/(operator)/governance/findings/
 - **test-filter:** FullyQualifiedName~GovernanceFindingsQueueClient
-- **hunts:** 40
-- **bugs-found:** 28
+- **hunts:** 41
+- **bugs-found:** 29
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-11
-- **last-bug:** 2026-10-11 — optional risk-register finding ID reached bulk selection
+- **last-bug:** 2026-10-11 — virtualized queue omitted insight density scores
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -35290,6 +35292,8 @@ ABQ-09 churn hotspot.
 - [x] (valid-no-repro) `GovernanceFindingsQueueClient.clearAllFilters` / `showAllFilteredFindings` — a reachable rapid filter interaction may update local facet state before the router replacement commits and leave the visible queue temporarily out of sync with the final cleared URL — **cheap-disproof 2026-10-11 thorough hunt:** the final URL helpers rebuild from the active query and the saved-view hook regression verifies atomic filter clearing; no stale-render or wrong-URL outcome was reproduced.
 - [x] (valid-no-repro) `GovernanceFindingsQueueClient.availableFindingIds` — duplicate finding rows returned by the reachable queue source collapse in the `Set`, which may make selection counts or page-level checkbox state disagree with rendered duplicate rows — **cheap-disproof 2026-10-11 thorough hunt:** selection is intentionally ID-based, and no reachable queue contract or focused test established duplicate row identities as distinct actionable findings; no wrong-selection outcome was reproduced.
 - [x] (valid-no-repro) `GovernanceFindingsQueueClient.onLoadFindingsSavedView` — a reachable saved view with a structurally valid but semantically unexpected facet payload may pass the filter cast and normalize to a different queue than the saved-view contract promises — **cheap-disproof 2026-10-11 thorough hunt:** persisted null, array, invalid-type, and malformed natural-language facet payloads normalize to safe defaults; saved-view URL tests passed with no contract mismatch.
+
+- [x] (proven) `GovernanceFindingsQueueDesktopTable` / `GovernanceFindingsQueueVirtualizedTableBody` — large working-mode queues passed `showInsightDensityScore` into the table body, but the virtualized body dropped the prop before rendering rows, so density scores disappeared only after virtualization activated — **hit 2026-10-11 seed hunt:** forward `showInsightDensityScore` to `GovernanceFindingsQueueTableRow`; regression `preserves insight density scores in the virtualized body`.
 
 - [x] (valid-no-repro) `GovernanceFindingsQueueTableRow` — a reachable mixed queue row with `recordKind: "decision"` still builds its title/action links through `governanceFindingInspectHref(runId, findingId)`, which may route a recorded decision id into the finding-inspect page instead of the decision detail — **cheap-disproof 2026-10-11 thorough hunt:** the selected files expose no decision-detail route contract that contradicts the shared inspect href; the buyer-facing label changes to “View decision,” but no wrong destination was established.
 - [x] (valid-no-repro) `GovernanceFindingsQueueOperationalRowCells.formatRiskRegisterUtcLabel` — an API risk-register date with a parseable-but-unrenderable value may produce a locale label that looks valid while representing a different instant — **cheap-disproof 2026-10-11 thorough hunt:** invalid dates become “Date not readable,” and valid values are intentionally rendered as local calendar dates; no concrete timezone/date contract or wrong instant was reachable.

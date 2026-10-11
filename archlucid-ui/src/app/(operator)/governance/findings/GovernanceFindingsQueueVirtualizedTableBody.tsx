@@ -27,6 +27,7 @@ export function GovernanceFindingsQueueVirtualizedTableBody(
     rowVirtualizer,
     isRowNewSinceLastVisit,
     onRowOpened,
+    showInsightDensityScore = false,
     ariaRowCount,
   } = props;
 
@@ -67,6 +68,7 @@ export function GovernanceFindingsQueueVirtualizedTableBody(
             isFocused={isRowFocused?.(virtualRow.index)}
             style={rowStyle}
             showNewSinceLastVisit={isRowNewSinceLastVisit?.(row) ?? false}
+            showInsightDensityScore={showInsightDensityScore}
             severityMeaning={
               row.recordKind === "finding" &&
               !rows.slice(0, virtualRow.index).some(
