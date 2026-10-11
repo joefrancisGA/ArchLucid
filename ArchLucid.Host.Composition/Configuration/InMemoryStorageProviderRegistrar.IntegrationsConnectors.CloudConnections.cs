@@ -1,6 +1,7 @@
 using ArchLucid.Core.AwsExtractor;
 using ArchLucid.Core.AzureExtractor;
 using ArchLucid.Core.GcpExtractor;
+using ArchLucid.Core.Persistence.ApplicationPorts.Data.Repositories;
 using ArchLucid.Core.Search;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.AwsExtractor;
@@ -8,6 +9,7 @@ using ArchLucid.Persistence.AzureExtractor;
 using ArchLucid.Persistence.GcpExtractor;
 using ArchLucid.Persistence.Search;
 using ArchLucid.Persistence.Tenancy;
+using ArchLucid.Persistence.SecureNow;
 
 using Microsoft.Extensions.DependencyInjection;
 
@@ -21,6 +23,7 @@ internal sealed partial class InMemoryStorageProviderRegistrar
         services.AddSingleton<ITenantAwsConnectionRepository, InMemoryTenantAwsConnectionRepository>();
         services.AddSingleton<ITenantGcpConnectionRepository, InMemoryTenantGcpConnectionRepository>();
         services.AddSingleton<IGlobalSearchRepository, InMemoryGlobalSearchRepository>();
+        services.AddSingleton<ICollectionRunRepository, InMemoryCollectionRunRepository>();
         services.AddSingleton<ITenantFirstValueReportBrandingRepository, InMemoryTenantFirstValueReportBrandingRepository>();
     }
 }

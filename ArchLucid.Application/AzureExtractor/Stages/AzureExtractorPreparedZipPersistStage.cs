@@ -51,7 +51,8 @@ public sealed class AzureExtractorPreparedZipPersistStage(
         ScopeContext scope = context.Scope;
         byte[] zipBytes = context.ZipBytes;
         Guid? runId = context.RunId;
-        Guid packageId = Guid.NewGuid();
+            Guid packageId = Guid.NewGuid();
+            Guid? snapshotId = null;
         ActivityScopeTags.ApplyEvidencePackageId(Activity.Current, packageId);
         using (LogContext.PushProperty("EvidencePackageId", packageId.ToString("D")))
         {
@@ -80,8 +81,9 @@ public sealed class AzureExtractorPreparedZipPersistStage(
                         allowRecapture: false,
                         ct);
 
-                if (headerResult.Succeeded && headerResult.SnapshotId is Guid snapshotId)
+                if (headerResult.Succeeded && headerResult.SnapshotId is Guid createdSnapshotId)
                 {
+                    snapshotId = createdSnapshotId;
                     AzureInventoryCaptureMethod captureMethod = manifest.RawJson.Contains(
                         "\"captureMethod\":\"HostedReader\"",
                         StringComparison.OrdinalIgnoreCase)
@@ -133,7 +135,13 @@ public sealed class AzureExtractorPreparedZipPersistStage(
                 HeldCheckInputCode.AzureInventoryZip,
                 packageId,
                 ct);
-            return new AzureExtractorIngestResult { Succeeded = true, PackageId = packageId, IsSchemaRejection = false };
+            return new AzureExtractorIngestResult
+            {
+                Succeeded = true,
+                PackageId = packageId,
+                SnapshotId = snapshotId,
+                IsSchemaRejection = false,
+            };
         }
     }
 

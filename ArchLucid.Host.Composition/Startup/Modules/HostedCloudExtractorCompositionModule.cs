@@ -4,6 +4,7 @@ using ArchLucid.Application.AzureExtractor;
 using ArchLucid.Application.AzureExtractor.Stages;
 using ArchLucid.Application.AwsExtractor;
 using ArchLucid.Application.GcpExtractor;
+using ArchLucid.Application.SecureNow;
 using ArchLucid.Contracts.Abstractions.Integrations;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Http;
@@ -86,6 +87,8 @@ public static class HostedCloudExtractorCompositionModule
         services.AddScoped<IAzureExtractorPreparedZipValidateStage, AzureExtractorPreparedZipValidateStage>();
         services.AddScoped<IAzureExtractorPreparedZipPersistStage, AzureExtractorPreparedZipPersistStage>();
         services.AddScoped<IAzureExtractorIngestService, AzureExtractorIngestService>();
+        services.AddScoped<CollectionRunIngestService>();
+        services.AddScoped<ICollectionRunDiscovery, PollingCollectionRunDiscovery>();
         services.AddScoped<IAzureExtractorResultEnricher, AzureExtractorResultEnricher>();
         services.Configure<AzureExtractorEnrichmentOptions>(
             configuration.GetSection(AzureExtractorEnrichmentOptions.SectionPath));

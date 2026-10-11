@@ -17,8 +17,10 @@ using ArchLucid.Persistence.Tenancy;
 using ArchLucid.Persistence.Value;
 using ArchLucid.Persistence.Architecture;
 using ArchLucid.Core.Evidence;
+using ArchLucid.Core.Persistence.ApplicationPorts.Data.Repositories;
 using ArchLucid.Persistence.Evidence;
 using ArchLucid.Persistence.InfraEvidence;
+using ArchLucid.Persistence.SecureNow;
 using ArchLucid.Provenance;
 
 using Microsoft.Extensions.DependencyInjection;
@@ -38,6 +40,7 @@ internal sealed partial class SqlStorageProviderRegistrar
         services.AddScoped<IProvenanceGraphAccessService, ProvenanceGraphAccessService>();
         services.AddScoped<IProvenanceQueryService, ProvenanceQueryService>();
         services.AddScoped<IAzureExtractorPackageRepository, SqlAzureExtractorPackageRepository>();
+        services.AddScoped<ICollectionRunRepository, SqlCollectionRunRepository>();
         services.AddScoped<ICloudInventoryExtractorPackageRepository, SqlCloudInventoryExtractorPackageRepository>();
         services.AddScoped<SqlAzureInventorySnapshotRepository>();
         services.AddScoped<IAzureInventorySnapshotRepository>(static sp =>
