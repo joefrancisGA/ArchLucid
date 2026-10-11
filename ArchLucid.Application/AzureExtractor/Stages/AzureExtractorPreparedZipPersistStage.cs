@@ -95,7 +95,7 @@ public sealed class AzureExtractorPreparedZipPersistStage(
 
                     await _inventorySnapshotMaterializer.TryMaterializePackageAsync(
                         scope,
-                        snapshotId,
+                        createdSnapshotId,
                         packageId,
                         zipBytes,
                         captureMethod,

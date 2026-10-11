@@ -114,10 +114,16 @@ public sealed class CollectionRunIngestService(
     private static byte[] ResolveHash(CollectionRunManifest manifest, byte[] zipBytes)
     {
         if (!string.IsNullOrWhiteSpace(manifest.ZipSha256) &&
-            Convert.TryFromHexString(manifest.ZipSha256, new Span<byte>(new byte[32]), out int bytesWritten) &&
-            bytesWritten == 32)
+            manifest.ZipSha256.Length == 64 &&
+            manifest.ZipSha256.All(static character => Uri.IsHexDigit(character)))
         {
-            return Convert.FromHexString(manifest.ZipSha256);
+            try
+            {
+                return Convert.FromHexString(manifest.ZipSha256);
+            }
+            catch (FormatException)
+            {
+            }
         }
 
         return SHA256.HashData(zipBytes);
