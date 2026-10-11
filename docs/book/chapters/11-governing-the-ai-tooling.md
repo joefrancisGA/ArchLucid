@@ -489,7 +489,7 @@ The governance work itself is a reasonable place for models, under the same rule
 - **Drafting the Terraform and policy definitions** for the tooling, checked by `terraform validate`, `plan`, and review.
 - **Reviewing pull requests to prompts and validator rules** for changes that make the pipeline more permissive, as a prompt to the human reviewer, not a replacement for one.
 - **Summarizing audit records**: "which prompt versions had the highest validator failure rate this month?" over the structured audit store is ordinary grounded summarization.
-- **Generating leakage and injection test cases** for sections 11.7 and Chapter 8.
+- **Generating leakage and injection test cases** for section 11.7 and Chapter 8.
 
 And the jobs models shouldn't do:
 

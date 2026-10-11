@@ -59,6 +59,8 @@ The book calls the lab subscription `sub-payments-prod`. Terraform doesn't renam
 
 ### Entra objects
 
+The Hop column uses the hop IDs from Chapter 7's evidence pack (section 7.3).
+
 | Book name | Object | Configuration | Hop |
 |-----------|--------|---------------|-----|
 | `payments-deploy` | App registration and service principal | Contributor on `rg-payments-prod` | H4, H5 |

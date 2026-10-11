@@ -361,7 +361,7 @@ Chapter 4 built an identity graph with typed, cited edges, and searched only edg
 
 **As a derived edge.** `canReach` from a position node (Internet, a subnet, on-premises) to an endpoint node (a resource's public or private endpoint), with the port and the evidence that decided it. Like Chapter 4's `canControlCode`, it's derived from evidence-only facts: properties, rules, routes. The search never walks raw NSG rules.
 
-**As a condition on data-plane edges.** Chapter 4's hop H7 was "Contributor can list `custdata`'s keys, and shared key access is enabled, so the holder can read its blob data." With network evidence, that becomes a set of `grants` edges, one per position from which the blob endpoint is reachable:
+**As a condition on data-plane edges.** The list-keys hop on Chapter 4's paths (H7 in Chapter 7's evidence pack) says "Contributor can list `custdata`'s keys, and shared key access is enabled, so the holder can read its blob data." With network evidence, that becomes a set of `grants` edges, one per position from which the blob endpoint is reachable:
 
 | Position | Reachable? | Evidence |
 |----------|-----------|----------|
