@@ -94,6 +94,17 @@ bash scripts/ci/retrigger_private_beta_smoke_branch.sh cursor/al-beta-private-be
 
 Artifact names use the `-smoke-branch` suffix (e.g. `ui-e2e-live-beta-access-smoke-branch-playwright-report`).
 
+Before changing `scripts/ci/private_beta_frozen_branch.sha`, pass the latest completed
+JwtBearer conclusion through the witness guard:
+
+```bash
+python3 scripts/ci/check_private_beta_pin_witness.py --conclusion success
+```
+
+The guard rejects `failure`, `cancelled`, and other non-success conclusions. With no
+conclusion it prints a notice and authorizes no pin change; the caller must still leave
+the pin unchanged. Do not advance the pin while the current frozen smoke is running.
+
 ## Artifacts
 
 On failure, download from the workflow run (newest non-cancelled run on the target SHA):
@@ -165,6 +176,42 @@ cd archlucid-ui && npx playwright test live-api-private-beta-access.spec.ts --wo
 ```bash
 cd archlucid-ui && npx playwright test live-api-scim-invite-substitute-smoke.spec.ts live-api-invite-flow.spec.ts live-api-private-beta-wave-3.spec.ts live-api-private-beta-access.spec.ts --workers=1
 ```
+
+## RC35 Cursor repair-set handoff
+
+Use this checklist when `RC35` trails `master` after a private-beta repair batch. It is a release handoff, not permission to push directly to `RC35`.
+
+| Order | Master repair | Release-cut evidence required |
+| ---: | --- | --- |
+| 1 | #4434 — `ArmResourceIdNormalizer` import and frozen-pin warning contract | `.NET: OpenAPI v1 contract snapshot (fail-fast)` and `CI: beta-readiness wiring guards` both rerun on the new RC35 SHA |
+| 2 | `0d1e7d903d` — preserve structured 404s for missing reviews | JwtBearer dead-review checks reach `branded-not-found` |
+| 3 | #4458/#4459 — dead-review diagnostics and independent invitee journeys | JwtBearer reports `[dead-link-404]` and `[reviews-hub-timeout]` separately; TB-927 cases are not hidden by a serial failure |
+| 4 | #4461/#4483 — OpenAPI build-failure annotations and compiler-code extraction | A build failure identifies `CS####`/`MSB####` before snapshot drift is investigated |
+| 5 | #4465/#4470 — parity markers and correct readiness-helper path | `check_private_beta_ref_parity.py --base-ref origin/master --release-ref origin/RC35` passes |
+| 6 | #4476 — warning-only live ruleset drift diagnostics | Ruleset drift is recorded without masking the JwtBearer access-path result |
+
+After the repair set is present on the release cut:
+
+1. Re-run `ui-typecheck-on-push.yml`, `private-beta-access-on-push.yml`, and `openapi-snapshot-refresh.yml` on the same RC35 SHA.
+2. Confirm the release gate and the private-beta access-path result separately; do not treat a green release gate as a green JwtBearer witness.
+3. Record the run IDs and SHA in the RC evidence bundle.
+4. Keep Gate 1, G-REAL-06, G-REAL-07, and ruleset application as separate owner actions.
+
+### Observed RC35 evidence row — 2026-10-11
+
+| Field | Observed value |
+| --- | --- |
+| RC35 head | `c8c9102b2e8f120e6a0251e40d648d925cf4d399` |
+| UI typecheck / beta-readiness guards / push corset | **PASS** — run `38148276151` |
+| UI typecheck / OpenAPI fail-fast | **PASS** — run `38148276151` |
+| OpenAPI refresh | **No run observed** — no refresh run exists for this head |
+| Private-beta JwtBearer access path | **FAIL** — run `38148276113` |
+| RC release gate | **PASS** — run `38148276259` |
+| Staging deployment | **No run observed** |
+| Gate 1 | **UNKNOWN** |
+| G-REAL-06 | **Not started** |
+
+This row records CI observations only. It is not a staging witness, Real-mode pilot proof, ruleset application, or customer evidence.
 
 ## Golden-cohort apply (owner, after first green)
 
