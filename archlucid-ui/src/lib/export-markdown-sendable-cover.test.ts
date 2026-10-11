@@ -69,6 +69,18 @@ describe("formatSendableExportCoverMarkdown", () => {
     expect(storedEmpty).not.toContain("Verdict summary was not stored.");
     expect(storedEmpty).not.toContain("Gate summary:");
   });
+
+  it("reports an omitted verdict kind and preserves unexpected stored kinds", () => {
+    const missing = formatSendableExportCoverMarkdown({
+      feasibilityVerdict: { kind: undefined as never, summary: "No kind." },
+    });
+    const unexpected = formatSendableExportCoverMarkdown({
+      feasibilityVerdict: { kind: "FutureKind" as never, summary: "Unknown kind." },
+    });
+
+    expect(missing).toContain("Verdict kind was not stored.");
+    expect(unexpected).toContain("**Gate outcome:** FutureKind");
+  });
 });
 
 describe("resolveSendableExportCoverFindings", () => {

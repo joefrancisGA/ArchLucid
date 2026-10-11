@@ -93,7 +93,8 @@ export function ArchitectureStructuredSectionView(
   );
   const { section } = props;
   const hasNarrative = (section.narrativeMarkdown?.trim().length ?? 0) > 0;
-  const hasEntities = section.entities.length > 0;
+  const entities = section.entities ?? [];
+  const hasEntities = entities.length > 0;
   const isEmpty = !hasNarrative && !hasEntities;
   const sectionOpen =
     openSectionKey === section.key || (openSectionKey === "" && props.defaultOpen === true);
@@ -149,7 +150,7 @@ export function ArchitectureStructuredSectionView(
 
         {hasEntities ? (
           <ul className="m-0 grid list-none gap-2 p-0 sm:grid-cols-2" data-testid="architecture-structured-entity-list">
-            {section.entities.map((entity) => (
+            {entities.map((entity) => (
               <li
                 key={`${section.key}-${entity.label}-${entity.detail ?? ""}`}
                 className="rounded-md border border-neutral-100 bg-neutral-50/80 p-3 dark:border-neutral-800 dark:bg-neutral-900/40"
