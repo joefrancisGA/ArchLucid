@@ -32,6 +32,12 @@ public sealed class InfrastructureDiagramDocumentationDecision
         init;
     } = string.Empty;
 
+    public string CarryForwardState
+    {
+        get;
+        init;
+    } = string.Empty;
+
     public DateTime UpdatedUtc
     {
         get;

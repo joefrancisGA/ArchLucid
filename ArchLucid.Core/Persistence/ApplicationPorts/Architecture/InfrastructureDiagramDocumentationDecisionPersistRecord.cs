@@ -44,6 +44,12 @@ public sealed class InfrastructureDiagramDocumentationDecisionPersistRecord
         init;
     } = string.Empty;
 
+    public string EvidenceFingerprint
+    {
+        get;
+        init;
+    } = string.Empty;
+
     public string? SavedByUserOid
     {
         get;

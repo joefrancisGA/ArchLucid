@@ -12,4 +12,10 @@ public interface IInfrastructureDiagramDocumentationDecisionRepository
         string subjectKind,
         string subjectKey,
         CancellationToken cancellationToken = default);
+
+    Task<InfrastructureDiagramDocumentationDecisionPersistRecord?> TryGetLatestBySubjectAsync(
+        Guid tenantId,
+        string subjectKind,
+        string subjectKey,
+        CancellationToken cancellationToken = default);
 }

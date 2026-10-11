@@ -33,6 +33,25 @@ public sealed class InMemoryInfrastructureDiagramDocumentationDecisionRepository
         return Task.FromResult(record);
     }
 
+    public Task<InfrastructureDiagramDocumentationDecisionPersistRecord?> TryGetLatestBySubjectAsync(
+        Guid tenantId,
+        string subjectKind,
+        string subjectKey,
+        CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        InfrastructureDiagramDocumentationDecisionPersistRecord? record = this.records.Values
+            .Where(candidate =>
+                candidate.TenantId == tenantId
+                && string.Equals(candidate.SubjectKind, subjectKind, StringComparison.Ordinal)
+                && string.Equals(candidate.SubjectKey, subjectKey, StringComparison.Ordinal))
+            .OrderByDescending(candidate => candidate.UpdatedUtc)
+            .FirstOrDefault();
+
+        return Task.FromResult(record);
+    }
+
     private static string BuildKey(Guid tenantId, Guid scopeId, string subjectKind, string subjectKey) =>
         $"{tenantId:D}:{scopeId:D}:{subjectKind}:{subjectKey}";
 }
