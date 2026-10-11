@@ -1,4 +1,5 @@
 using ArchLucid.Core.Authorization;
+using ArchLucid.Application.Common;
 using ArchLucid.Application.SecureNow;
 using ArchLucid.Core.Persistence.ApplicationPorts.Data.Repositories;
 using ArchLucid.Core.Scoping;
