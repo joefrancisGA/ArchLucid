@@ -17009,6 +17009,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: agent-runtime-evaluation
 
+2026-10-11 seed hunt (seed→hit): `AgentOutputEvaluator` also compared its fixed structural JSON keys ordinal-case-sensitively, so a reachable agent payload using valid casing variants received a zero structural completeness score. Structural, reference-case, and harness required-key matching now use ordinal-ignore-case comparison; regression `Evaluate_When_expected_keys_use_different_case_counts_them_as_present` extends the prior required-key regressions.
+
+- [x] (proven) `AgentOutputEvaluator.CollectPropertyNames` — valid case variants of the serialized agent-result keys were treated as missing, producing an incorrect zero structural score — **hit 2026-10-11 seed hunt:** use ordinal-ignore-case property-name matching; regression `Evaluate_When_expected_keys_use_different_case_counts_them_as_present`.
+
 2026-10-11 seed hunt (seed→hit): `AgentOutputReferenceCaseRunEvaluator` and `AgentOutputEvaluationHarness` compared required JSON property names ordinal-case-sensitively, so reachable agent output using valid casing such as `FINDINGS` failed configured required-key checks despite Web/camelCase deserialization being case-insensitive. Required-key matching now ignores case in both evaluation paths; regressions `ComputeAnyPassingReferenceCase_matches_required_json_keys_case_insensitively` and `Evaluate_matches_required_json_keys_case_insensitively`.
 
 - [x] (proven) `AgentOutputReferenceCaseRunEvaluator.EvaluateCaseRules` / `AgentOutputEvaluationHarness.Evaluate` — required JSON-key checks compared names ordinal-case-sensitively, so valid case variants from serialized agent output could falsely fail reference and harness expectations — **hit 2026-10-11 seed hunt:** use ordinal-ignore-case required-key sets; regressions `ComputeAnyPassingReferenceCase_matches_required_json_keys_case_insensitively` and `Evaluate_matches_required_json_keys_case_insensitively`.

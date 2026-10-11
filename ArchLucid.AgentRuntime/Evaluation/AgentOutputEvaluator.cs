@@ -103,7 +103,7 @@ public sealed class AgentOutputEvaluator : IAgentOutputEvaluator
 
     private static HashSet<string> CollectPropertyNames(JsonElement root)
     {
-        HashSet<string> names = new(StringComparer.Ordinal);
+        HashSet<string> names = new(StringComparer.OrdinalIgnoreCase);
 
         foreach (JsonProperty p in root.EnumerateObject())
 
