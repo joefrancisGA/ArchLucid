@@ -19411,6 +19411,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: retrieval
 
+2026-10-11 thorough hunt (hit): proved two independent configuration/input defects. `AcceptedManifestTrainingDataExporter` coerced `MaxManifestsPerExport = 0` to one and emitted training data; the clamp now permits zero. `PolicyPackCorpusIndexer` preserved an explicit blank `rulePackId` instead of falling back to the pack directory; null, empty, and whitespace IDs now use the fallback. Regressions `ExportAsync_with_zero_manifest_limit_exports_no_manifests` and `BuildDocumentsAsync_blank_rule_pack_id_falls_back_to_pack_directory_name`; 364 scoped Retrieval/Indexing tests passed.
+
 2026-10-10 seed hunt (seed-only): re-read embedding cardinality, summarization, agentic retry, fine-tuning export, and policy-pack indexing paths; no new hunt-ready row was promoted. The exact Retrieval/Indexing filter passed 362/362; seeded five bounded candidates and made no production code change.
 
 2026-10-10 seed hunt (seed→hit): `StructureAwareTextChunker` closed a valid four-backtick Markdown fence on an inner three-backtick content line, so long manifest/artifact code blocks lost fence wrappers during chunking; fence closure now requires the opener length; regression `Chunk_preserves_four_backtick_fence_when_body_contains_three_backticks`; 362 scoped Retrieval/Indexing tests passed.
@@ -19455,11 +19457,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** retrieval indexing; embedding; pricing retrieval
 - **paths:** ArchLucid.Retrieval/
 - **test-filter:** FullyQualifiedName~Retrieval|FullyQualifiedName~Indexing
-- **hunts:** 68
-- **last-hunt:** 2026-10-10
-- **bugs-found:** 30
+- **hunts:** 69
+- **last-hunt:** 2026-10-11
+- **bugs-found:** 32
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-10 — shorter inner Markdown fences fragmented four-backtick code blocks
+- **last-bug:** 2026-10-11 — zero export limit and blank policy-pack identity
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -19512,11 +19514,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ### Hypotheses
 
 - [x] (proven) `StructureAwareTextChunker` treated any three-backtick line inside a longer fenced block as a closing delimiter — **hit 2026-10-10 seed hunt:** a reachable four-backtick manifest/artifact code block containing a three-backtick line was split into unwrapped chunks; closure now requires at least the opener's fence length; regression `Chunk_preserves_four_backtick_fence_when_body_contains_three_backticks`.
-- [ ] (candidate) `CachingEmbeddingService.EmbedManyAsync` converts nullable/blank batch entries to empty strings before delegating, so an embedding provider that filters blank inputs could return fewer vectors than the original batch; reachable callers include the faithfulness scorer and retrieval indexer, but their current chunkers remove blank chunks before dispatch.
-- [ ] (candidate) `AcceptedManifestTrainingDataExporter.ExportAsync` coerces `MaxManifestsPerExport = 0` to one manifest, so a deployment configuration intending to disable export volume may still emit training data; the input is `Retrieval:FineTuning:MaxManifestsPerExport`.
-- [ ] (candidate) `AcceptedManifestTrainingDataExporter.ExportAsync` preserves duplicate `ManifestDocument` entries supplied by online fine-tuning orchestration, so duplicate records could be serialized into one training job; the reachable input is the orchestration manifest batch.
-- [ ] (candidate) `PolicyPackCorpusIndexer.ReadRuleDocumentsAsync` accepts a blank `rulePackId` from a reachable `compliance-rules.json`, making indexed policy-pack rules unassignable by rule-pack ID; the input is the deployed policy-pack template file.
-- [ ] (candidate) `ManifestChunkSummarizer.MaybeSummarizeAsync` keys summaries by `ChunkId` and updates only the first matching hit, so a reachable duplicate-hit list could leave later duplicate chunks unsummarized; the input is the vector-search hit list.
+- [x] (valid-no-repro) `CachingEmbeddingService.EmbedManyAsync` converts nullable/blank batch entries to empty strings before delegating, so an embedding provider that filters blank inputs could return fewer vectors than the original batch — **cheap-disproof 2026-10-11 thorough hunt:** scoped chunkers remove blank chunks before dispatch; no reachable mixed batch with blank entries was established.
+- [x] (proven) `AcceptedManifestTrainingDataExporter.ExportAsync` coerced `MaxManifestsPerExport = 0` to one manifest, so a deployment configuration intending to disable export volume emitted training data — **hit 2026-10-11 thorough hunt:** clamp now permits zero; regression `ExportAsync_with_zero_manifest_limit_exports_no_manifests`.
+- [x] (valid-no-repro) `AcceptedManifestTrainingDataExporter.ExportAsync` preserves duplicate `ManifestDocument` entries supplied by online fine-tuning orchestration, so duplicate records could be serialized into one training job — **cheap-disproof 2026-10-11 thorough hunt:** no deduplication contract or wrong downstream outcome was established for the caller-provided batch.
+- [x] (proven) `PolicyPackCorpusIndexer.ReadRuleDocumentsAsync` accepted a blank `rulePackId` from a reachable `compliance-rules.json`, making indexed policy-pack rules unassignable by rule-pack ID — **hit 2026-10-11 thorough hunt:** null, empty, and whitespace IDs now fall back to the pack directory; regression `BuildDocumentsAsync_blank_rule_pack_id_falls_back_to_pack_directory_name`.
+- [x] (valid-no-repro) `ManifestChunkSummarizer.MaybeSummarizeAsync` keys summaries by `ChunkId` and updates only the first matching hit, so a reachable duplicate-hit list could leave later duplicate chunks unsummarized — **cheap-disproof 2026-10-11 thorough hunt:** no retrieval/index response path establishing duplicate `ChunkId` hits was found.
 - [x] (proven) Index query returns chunks from another tenant's corpus — **hit 2026-08-18:** Azure policy-pack OData filter omitted platform sentinel `tenantId`, allowing cross-tenant `PolicyPack` matches when `IncludePlatformCorpora` is on.
 - [x] (valid-no-repro) Pricing estimate uses the wrong model tariff for the tenant plan — EA multiplier and cache keys are tenant-scoped; covered by existing pricing tests.
 - [x] (valid-no-repro) Reindex job deletes vectors for the wrong workspace — `RetrievalIndexingService` validates scope and passes all four scope fields to delete.
