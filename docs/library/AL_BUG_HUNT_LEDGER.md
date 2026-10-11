@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-11 seed hunt (seed-only): `retrieval` — reread retrieval query planning, in-memory/Azure vector indexing, scope validation, chunkers, and embedding cache paths; no fresh row met the full hunt-ready bar. Seeded three bounded `(candidate)` rows for non-positive chunk-size handling, duplicate document identity within one indexing batch, and duplicate chunk-id overwrite semantics. The exact Retrieval/Indexing filter passed 364/364. No production or regression code changed.
+
 2026-10-11 thorough hunt (dry): `finding-inspect-sql` — cheap-disproof closed the digest-shape candidate because the inspect path has no reachable caller contract requiring validation beyond display normalization; closed malformed agent-trace `modelAlias` loss because `JSON_VALUE` null behavior is an intentional projection fallback with no alternate in-zone source; and closed arbitrary disposition-pointer selection because migration 370 enforces one current pointer per scoped finding with `PK_FindingCurrentDispositions`. The focused Persistence inspect filter passed 425/425. No production or regression code changed.
 
 2026-10-11 seed hunt (seed-only): `finding-inspect-sql` — reread the selected inspect SQL, Dapper reader, mapper, and focused tests; no new row met the full hunt-ready bar. Seeded three bounded `(candidate)` rows for digest-shape validation, malformed agent-trace model-alias projection, and disposition-pointer singleton ordering. The focused Persistence inspect filter passed 425/425. No production or regression code changed.
@@ -19468,7 +19470,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** retrieval indexing; embedding; pricing retrieval
 - **paths:** ArchLucid.Retrieval/
 - **test-filter:** FullyQualifiedName~Retrieval|FullyQualifiedName~Indexing
-- **hunts:** 70
+- **hunts:** 71
 - **last-hunt:** 2026-10-11
 - **bugs-found:** 32
 - **consecutive-dry-hunts:** 0
@@ -19561,6 +19563,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `RetrievalIndexingService.IndexDocumentsAsync` — multi-document batch removed prior vectors per document before all `EmbedManyAsync` calls finished, so a later embedding failure left earlier documents without vectors and unchanged catalog hashes — **hit 2026-10-04 seed hunt #51:** defer `RemoveChunksForDocumentAsync` until after all embeddings succeed, immediately before `UpsertChunksAsync`; regression `IndexDocumentsAsync_when_later_document_embed_fails_does_not_leave_earlier_document_vectors_deleted`.
 - [x] (proven) `RetrievalIndexingService.IndexDocumentsAsync` — batched reindex removed prior vectors for every document before `UpsertChunksAsync`, so upsert failures left the whole batch without searchable vectors while catalog hashes stayed stale — **hit 2026-10-04 seed hunt #52:** upsert new chunks first and remove-then-reupsert only when catalog `IndexedChunkCount` exceeds the new chunk count; regression `IndexDocumentsAsync_when_batch_upsert_fails_does_not_leave_prior_document_vectors_deleted`.
 - [x] (proven) `RetrievalIndexingService.IndexDocumentsAsync` — content-shrink cleanup removed all document chunks then re-upserted, so re-upsert failure after batch upsert left zero searchable vectors — **hit 2026-10-04 seed hunt #53:** delete only stale higher-ordinal `chunkId` values via `RemoveChunkIdsAsync`; regression `IndexDocumentsAsync_when_content_shrinks_keeps_new_chunks_when_stale_ordinal_cleanup_reupsert_would_fail`.
+- [ ] (candidate) `SimpleTextChunker.Chunk` / `StructureAwareTextChunker.Chunk` — a reachable non-positive `maxChars` argument can return no chunks or throw for non-empty content instead of rejecting invalid chunk configuration; direct `ITextChunker` callers can supply the input, but production option reachability and intended failure semantics are not established.
+- [ ] (candidate) `RetrievalIndexingService.IndexDocumentsAsync` — two reachable `RetrievalDocument` entries with the same `DocumentId` in one batch generate colliding `{documentId}-chunk-{ordinal}` ids and let the later document overwrite the earlier one; batch uniqueness is not enforced in the selected path.
+- [ ] (candidate) `InMemoryVectorIndex.UpsertChunksAsync` — two reachable chunks with the same `ChunkId` but different scope/content are applied sequentially and the later row replaces the earlier row; global chunk-id uniqueness is not established for all indexing callers.
 
 2026-09-12 thorough hunt #1961 (hit): proved Louvain edge/node casing mismatch; cheap-disproof closed PolicyPackChunker colon-split on shipped templates; scoped Louvain tests passed.
 
