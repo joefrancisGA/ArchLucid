@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-11 seed hunt (seed-only): `ui-infra-resource-hub` — re-read `ResourceHubClient.tsx`, its shortcut hook/shared header handoffs, and the three focused suites; no new reachable mechanism-backed wrong outcome met the promotion bar. The focused ResourceHubClient suites passed 52/52. No production or regression code changed.
+
 2026-10-11 thorough hunt (dry): `host-core-jobs` — cheap-disproved the four retained candidates: terminal failure SQL state-guard risk remains unproven without a reachable SQL concurrency repro; retry re-read behavior preserves the supported `Pending` reclaim state; uploaded result retention is storage hygiene behind a succeeded-state download gate; and in-memory file retention is likewise inaccessible for canceled rows and bounded by eviction. The focused host-core filter passed 76/76. No failing repro or production change.
 
 2026-10-11 thorough hunt (dry): `cli-tenant-isolation` — cheap-disproved all five retained candidates: the 204 replay mismatch is covered by the existing 2xx verified-absent trust rule, 201 is not a reachable API status for this list contract, primary visibility has no reachable 204/304 caller path, description text is not the canonical top-level `runId`, and cursors are read from decoded JSON before one URL-escape. The focused `TenantIsolationNegativeTestRunnerTests` filter passed 54/54. No failing repro or production change.
