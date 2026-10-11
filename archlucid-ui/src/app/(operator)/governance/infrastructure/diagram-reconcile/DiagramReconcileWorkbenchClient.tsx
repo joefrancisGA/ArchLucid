@@ -29,11 +29,13 @@ import {
   compareInfrastructureDiagramAdvisory,
   fetchArchitectureDiagramModel,
   fetchArchitectureDiagramReconciliation,
+  fetchInfrastructureDiagramDocumentationDecision,
   formatInfraEvidenceDiagramReconcileApiError,
   ingestArchitectureDiagram,
   ingestOperationalSecurityFindings,
   lookupOperationalSecurityFindings,
   reconcileArchitectureDiagram,
+  saveInfrastructureDiagramDocumentationDecision,
   saveInfrastructureDiagramNodeMapping,
 } from "@/lib/infra-evidence/infra-evidence-diagram-reconcile-api";
 import { diagramIngestMutationBlockedReason } from "@/lib/infra-evidence/diagram-ingest-mutation-blocked-reason";
@@ -94,6 +96,7 @@ import type {
   DiagramInfrastructureCorrespondenceRow,
   DiagramInfrastructureReconciliationResult,
   DiagramReconcileMatchKindFilter,
+  InfrastructureDiagramDocumentationDecision,
 } from "@/lib/infra-evidence/infra-evidence-diagram-reconcile-types";
 import {
   fetchInfraEvidenceSnapshots,
@@ -191,6 +194,13 @@ const MATCH_KIND_FILTERS: readonly { value: DiagramReconcileMatchKindFilter; lab
   { value: "Exact", label: "Exact" },
   { value: "Probable", label: "Probable" },
 ];
+
+function documentationDecisionKey(
+  subjectKind: InfrastructureDiagramDocumentationDecision["subjectKind"],
+  subjectKey: string,
+): string {
+  return `${subjectKind}:${subjectKey}`;
+}
 
 function normalizeDiagramLabelForMapping(label: string): string {
   const trimmed = label.trim();
@@ -332,6 +342,9 @@ export function DiagramReconcileWorkbenchClient() {
   const initialSnapshotUrlSyncedRef = useRef(false);
   const [findingBusyId, setFindingBusyId] = useState<string | null>(null);
   const [ingestedFindingIds, setIngestedFindingIds] = useState<Record<string, string>>({});
+  const [documentationDecisions, setDocumentationDecisions] = useState<Record<string, InfrastructureDiagramDocumentationDecision>>({});
+  const [documentationDecisionPick, setDocumentationDecisionPick] = useState<Record<string, string>>({});
+  const [documentationDecisionBusyKey, setDocumentationDecisionBusyKey] = useState<string | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [diagramSourceActionError, setDiagramSourceActionError] = useState<string | null>(null);
   const [reconcileActionError, setReconcileActionError] = useState<string | null>(null);
@@ -931,6 +944,99 @@ export function DiagramReconcileWorkbenchClient() {
       cancelled = true;
     };
   }, [advisoryComparisonPath, reconciliation, runId, selectedSnapshotId]);
+
+  useEffect(() => {
+    if (!advisoryComparisonPath || comparisonId == null || reconciliation == null) {
+      setDocumentationDecisions({});
+      return;
+    }
+
+    const subjects: Array<{
+      subjectKind: InfrastructureDiagramDocumentationDecision["subjectKind"];
+      subjectKey: string;
+    }> = [
+      ...reconciliation.rows
+        .filter((row) => row.matchKind === "DiagramOnly" && row.diagramNodeId != null)
+        .map((row) => ({ subjectKind: "DiagramNode" as const, subjectKey: row.diagramNodeId as string })),
+      ...(reconciliation.edgeGaps ?? []).map((gap) => ({
+        subjectKind: "EdgeGap" as const,
+        subjectKey: gap.edgeGapId,
+      })),
+    ];
+
+    if (subjects.length === 0) {
+      setDocumentationDecisions({});
+      return;
+    }
+
+    let cancelled = false;
+
+    async function loadDocumentationDecisions() {
+      const loaded = await Promise.all(
+        subjects.map(async (subject) => {
+          try {
+            return await fetchInfrastructureDiagramDocumentationDecision(
+              comparisonId,
+              subject.subjectKind,
+              subject.subjectKey,
+            );
+          } catch {
+            return null;
+          }
+        }),
+      );
+
+      if (cancelled) {
+        return;
+      }
+
+      const next: Record<string, InfrastructureDiagramDocumentationDecision> = {};
+      loaded.forEach((decision) => {
+        if (decision != null) {
+          next[documentationDecisionKey(decision.subjectKind, decision.subjectKey)] = decision;
+        }
+      });
+      setDocumentationDecisions(next);
+    }
+
+    void loadDocumentationDecisions();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [advisoryComparisonPath, comparisonId, reconciliation]);
+
+  const saveDocumentationDecision = useCallback(
+    async (
+      subjectKind: InfrastructureDiagramDocumentationDecision["subjectKind"],
+      subjectKey: string,
+    ) => {
+      if (comparisonId == null) {
+        return;
+      }
+
+      const key = documentationDecisionKey(subjectKind, subjectKey);
+      const decision = documentationDecisionPick[key];
+      if (decision == null || decision.length === 0) {
+        return;
+      }
+
+      setDocumentationDecisionBusyKey(key);
+
+      try {
+        const saved = await saveInfrastructureDiagramDocumentationDecision(comparisonId, {
+          snapshotId: selectedSnapshotId,
+          subjectKind,
+          subjectKey,
+          decision: decision as InfrastructureDiagramDocumentationDecision["decision"],
+        });
+        setDocumentationDecisions((current) => ({ ...current, [key]: saved }));
+      } finally {
+        setDocumentationDecisionBusyKey(null);
+      }
+    },
+    [comparisonId, documentationDecisionPick, selectedSnapshotId],
+  );
 
   const handleWorkbenchModeChange = useCallback(
     (nextMode: string) => {
@@ -2050,6 +2156,57 @@ export function DiagramReconcileWorkbenchClient() {
                             Create operational finding
                           </Button>
                         ) : null}
+                        {advisoryComparisonPath
+                          && comparisonId != null
+                          && row.matchKind === "DiagramOnly"
+                          && row.diagramNodeId != null ? (
+                          <div className="flex flex-col gap-1" onClick={(event) => event.stopPropagation()}>
+                            <Label
+                              className={OPERATOR_TYPOGRAPHY.helper}
+                              htmlFor={`infra-diagram-reconcile-decision-${row.correspondenceId}`}
+                            >
+                              Documentation decision
+                            </Label>
+                            <select
+                              id={`infra-diagram-reconcile-decision-${row.correspondenceId}`}
+                              className={cnField}
+                              data-testid={`infra-diagram-reconcile-decision-${row.correspondenceId}`}
+                              value={
+                                documentationDecisionPick[documentationDecisionKey("DiagramNode", row.diagramNodeId)]
+                                ?? documentationDecisions[documentationDecisionKey("DiagramNode", row.diagramNodeId)]?.decision
+                                ?? ""
+                              }
+                              onChange={(event) => {
+                                setDocumentationDecisionPick((current) => ({
+                                  ...current,
+                                  [documentationDecisionKey("DiagramNode", row.diagramNodeId as string)]: event.target.value,
+                                }));
+                              }}
+                            >
+                              <option value="">Select decision</option>
+                              <option value="UpdateDrawing">Update the drawing</option>
+                              <option value="AcceptAsUndocumented">Accept as undocumented</option>
+                              <option value="CheckInventory">Check the inventory</option>
+                            </select>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              disabled={
+                                documentationDecisionBusyKey
+                                === documentationDecisionKey("DiagramNode", row.diagramNodeId)
+                              }
+                              onClick={() => {
+                                void saveDocumentationDecision("DiagramNode", row.diagramNodeId as string);
+                              }}
+                            >
+                              Save decision
+                            </Button>
+                            {documentationDecisions[documentationDecisionKey("DiagramNode", row.diagramNodeId)] != null ? (
+                              <StatusTag kind="ready" label="Decision saved" />
+                            ) : null}
+                          </div>
+                        ) : null}
                         {rowActionError != null && rowActionError.correspondenceId === row.correspondenceId ? (
                           <OperatorMutationInlineError
                             message={rowActionError.message}
@@ -2139,6 +2296,7 @@ export function DiagramReconcileWorkbenchClient() {
                     <EnterpriseTableHeaderCell>Inventory association</EnterpriseTableHeaderCell>
                     <EnterpriseTableHeaderCell>Gap kind</EnterpriseTableHeaderCell>
                     <EnterpriseTableHeaderCell>Explanation</EnterpriseTableHeaderCell>
+                    <EnterpriseTableHeaderCell>Actions</EnterpriseTableHeaderCell>
                   </EnterpriseTableRow>
                 </EnterpriseTableHead>
                 <EnterpriseTableBody>
@@ -2158,6 +2316,49 @@ export function DiagramReconcileWorkbenchClient() {
                         />
                       </EnterpriseTableCell>
                       <EnterpriseTableCell>{gap.explainText}</EnterpriseTableCell>
+                      <EnterpriseTableCell>
+                        {advisoryComparisonPath && comparisonId != null ? (
+                          <div className="flex flex-col gap-1">
+                            <select
+                              className={cnField}
+                              data-testid={`infra-diagram-reconcile-edge-gap-decision-${gap.edgeGapId}`}
+                              value={
+                                documentationDecisionPick[documentationDecisionKey("EdgeGap", gap.edgeGapId)]
+                                ?? documentationDecisions[documentationDecisionKey("EdgeGap", gap.edgeGapId)]?.decision
+                                ?? ""
+                              }
+                              onChange={(event) => {
+                                setDocumentationDecisionPick((current) => ({
+                                  ...current,
+                                  [documentationDecisionKey("EdgeGap", gap.edgeGapId)]: event.target.value,
+                                }));
+                              }}
+                            >
+                              <option value="">Select decision</option>
+                              <option value="UpdateDrawing">Update the drawing</option>
+                              <option value="AcceptAsUndocumented">Accept as undocumented</option>
+                              <option value="CheckInventory">Check the inventory</option>
+                            </select>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              disabled={
+                                documentationDecisionBusyKey
+                                === documentationDecisionKey("EdgeGap", gap.edgeGapId)
+                              }
+                              onClick={() => {
+                                void saveDocumentationDecision("EdgeGap", gap.edgeGapId);
+                              }}
+                            >
+                              Save decision
+                            </Button>
+                            {documentationDecisions[documentationDecisionKey("EdgeGap", gap.edgeGapId)] != null ? (
+                              <StatusTag kind="ready" label="Decision saved" />
+                            ) : null}
+                          </div>
+                        ) : null}
+                      </EnterpriseTableCell>
                     </EnterpriseTableRow>
                   ))}
                 </EnterpriseTableBody>
