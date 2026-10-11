@@ -19304,6 +19304,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-oidc
 
+2026-10-11 seed hunt (seed→hit): proved the sync-order fix's blocking promise chain could let a hung older BFF request prevent a newer session from establishing its cookie; replaced it with concurrent sync plus latest-request replay so newer sessions proceed and late responses converge on the newest cookie; regression `does not block a newer sync behind a hung older request`; focused OIDC suite passed 76/76.
+
 2026-10-11 seed hunt (seed→hit): proved concurrent same-session token-to-BFF syncs could complete out of order, letting an older provider response overwrite a newer BFF cookie; serialized token sync writes with a recovery-safe promise chain; regression `keeps an older token sync from overwriting a newer same-session sync`; focused OIDC suite passed 75/75.
 
 2026-10-11 seed hunt (seed→hit): proved `persistNonSensitiveSessionHints` retained the previous user's display name and subject when a replacement token omitted optional identity claims; clear both hints before applying each token response; regression `clears stale identity hints when a replacement token has no identity claims`; focused OIDC suite passed 74/74.
@@ -19360,11 +19362,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 42
-- **bugs-found:** 37
+- **hunts:** 43
+- **bugs-found:** 38
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-11
-- **last-bug:** 2026-10-11 — older OIDC sync overwrote newer BFF cookie
+- **last-bug:** 2026-10-11 — hung OIDC sync blocked newer BFF session
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -19372,6 +19374,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
+- [x] (proven) `persistTokenResponse` — a hung older token-to-BFF sync blocks a newer same-session sync, preventing the replacement session from establishing its cookie — **hit 2026-10-11 seed hunt:** the sync-order promise chain awaited every older request; concurrent sync plus latest-request replay lets the newer request proceed and converges late completions on the latest token; regression `does not block a newer sync behind a hung older request` in `session.test.ts`.
 - [x] (proven) `persistTokenResponse` — concurrent same-session token-to-BFF syncs can complete out of order, allowing an older provider response to overwrite a newer BFF cookie — **hit 2026-10-11 seed hunt:** each token response started its own asynchronous sync with no ordering guard; serialize sync writes through a recovery-safe promise chain; regression `keeps an older token sync from overwriting a newer same-session sync` in `session.test.ts`.
 - [x] (proven) `persistNonSensitiveSessionHints` — a replacement token without optional display-name or subject claims leaves the prior user's identity hints in `sessionStorage` — **hit 2026-10-11 seed hunt:** hint writes were conditional but stale keys were never removed, so a same-browser user replacement could display the previous user's name/subject; clear both hint keys before applying each token response; regression `clears stale identity hints when a replacement token has no identity claims` in `session.test.ts`.
 - [x] (proven) `resolveExpiresInSeconds` — a token endpoint JSON response with `expires_in: null` is coerced to zero, causing an immediate client/BFF expiry and refresh path — **hit 2026-10-11 seed hunt:** `Number(null)` returns `0`; reject null and boolean scalars before coercion and use the default lifetime; regression `maps a null provider expires_in to the default lifetime` in `resolve-expires-in-seconds.test.ts`.

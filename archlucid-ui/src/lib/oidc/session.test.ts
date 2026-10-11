@@ -264,6 +264,29 @@ describe("persistTokenResponse", () => {
 
     expect(bffAccessToken).toBe("newer-token");
   });
+
+  it("does not block a newer sync behind a hung older request", async () => {
+    let bffAccessToken = "";
+    const syncMock = vi
+      .spyOn(bffSessionSync, "syncBffSessionCookieFromTokenResponse")
+      .mockImplementation(async (tokens) => {
+        if (tokens.access_token === "hung-token") {
+          await new Promise<void>(() => {});
+        }
+
+        bffAccessToken = tokens.access_token;
+      });
+
+    persistTokenResponse({ access_token: "hung-token", expires_in: 3600 });
+    await Promise.resolve();
+    await Promise.resolve();
+    await vi.waitUntil(() => syncMock.mock.calls.length === 1);
+
+    persistTokenResponse({ access_token: "newer-token", expires_in: 3600 });
+    await vi.waitUntil(() => syncMock.mock.calls.length === 2);
+
+    expect(bffAccessToken).toBe("newer-token");
+  });
 });
 
 describe("consumePkceState", () => {
