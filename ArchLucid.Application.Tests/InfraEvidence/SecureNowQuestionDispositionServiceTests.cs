@@ -263,9 +263,30 @@ public async Task Foreign_snapshot_cannot_read_or_write()
         repository.Rows.Should().BeEmpty();
     }
 
+    [Fact]
+    public async Task Answer_code_must_be_one_of_the_compiled_question_choices()
+    {
+        InMemoryDispositionRepository repository = new();
+        SecureNowQuestionDispositionService sut = CreateSut(repository, includeQuestion: true);
+
+        SecureNowQuestionDispositionMutationResult result = await sut.AnswerAsync(
+            Scope,
+            SnapshotId,
+            CreateWriteRequest("sub-1", "/subscriptions/sub-1/resource") with
+            {
+                AnswerCode = "InventedAnswer",
+            },
+            "actor");
+
+        result.Succeeded.Should().BeFalse();
+        result.ErrorMessage.Should().Be("AnswerCode is invalid.");
+        repository.Rows.Should().BeEmpty();
+    }
+
     private static SecureNowQuestionDispositionService CreateSut(
         InMemoryDispositionRepository repository,
-        bool snapshotOwned = true)
+        bool snapshotOwned = true,
+        bool includeQuestion = false)
     {
         Mock<IAzureInventorySnapshotRepository> snapshots = new();
         snapshots
@@ -284,6 +305,15 @@ public async Task Foreign_snapshot_cannot_read_or_write()
                             WorkspaceId = Scope.WorkspaceId,
                             ProjectId = Scope.ProjectId,
                         },
+                        Resources = includeQuestion
+                            ? [
+                                new AzureInventoryResourceRecord
+                                {
+                                    AzureResourceId = "/subscriptions/sub-1/resource",
+                                    ResourceType = "Microsoft.DataFactory/factories",
+                                },
+                            ]
+                            : [],
                     }
                     : null);
 

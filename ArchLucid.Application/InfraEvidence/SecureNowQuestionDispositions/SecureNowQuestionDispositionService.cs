@@ -193,6 +193,17 @@ public sealed class SecureNowQuestionDispositionService(
         if (!await OwnsSnapshotAsync(scope, snapshotId, request.SubscriptionId, cancellationToken))
             return Failed("Snapshot was not found.");
 
+        if (status == SecureNowQuestionDispositionStatus.Answered)
+        {
+            string? answerValidationError = await ValidateAnswerCodeAsync(
+                scope,
+                snapshotId,
+                request,
+                cancellationToken);
+            if (answerValidationError is not null)
+                return Failed(answerValidationError);
+        }
+
         DateTime now = TimeProvider.System.UtcNowDateTime();
         DateTime expirationUtc = request.ExpirationUtc ?? now.Add(MaximumDispositionLifetime);
         SecureNowQuestionDispositionRecord? existing =
@@ -259,6 +270,29 @@ public sealed class SecureNowQuestionDispositionService(
                    Normalize(snapshot.Header.SubscriptionId),
                    Normalize(subscriptionId),
                    StringComparison.Ordinal);
+    }
+
+    private async Task<string?> ValidateAnswerCodeAsync(
+        ScopeContext scope,
+        Guid snapshotId,
+        SecureNowQuestionDispositionWriteRequest request,
+        CancellationToken cancellationToken)
+    {
+        IReadOnlyList<SecureNowQuestionRecord> questions =
+            await ListQuestionsAsync(scope, snapshotId, cancellationToken);
+        SecureNowQuestionRecord? question = questions.FirstOrDefault(item =>
+            string.Equals(item.SubscriptionId, Normalize(request.SubscriptionId), StringComparison.OrdinalIgnoreCase)
+            && string.Equals(item.ResourceId, NormalizeResourceId(request.ResourceId), StringComparison.OrdinalIgnoreCase)
+            && string.Equals(item.QuestionKey, request.QuestionKey.Trim(), StringComparison.Ordinal));
+
+        if (question is null)
+            return "Question was not found.";
+
+        return question.AnswerCodes.Contains(
+                   request.AnswerCode!.Trim(),
+                   StringComparer.OrdinalIgnoreCase)
+            ? null
+            : "AnswerCode is invalid.";
     }
 
     private static string? ValidateWriteRequest(
