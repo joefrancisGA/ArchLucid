@@ -66,4 +66,25 @@ describe("fetchReviewsHubPagedInventory", () => {
       scopeHeaders: { "x-tenant-id": "t1" },
     });
   });
+
+  it("uses scope-wide inventory for the default hub request", async () => {
+    vi.mocked(fetchPagedReviewsInventory).mockResolvedValue({ items: [], totalCount: 0 });
+
+    await fetchReviewsHubPagedInventory({
+      projectId: "default",
+      page: 1,
+      pageSize: 50,
+      cursor: undefined,
+      scopeHeaders: { "x-tenant-id": "t1" },
+      listAcrossProjectSlugs: true,
+    });
+
+    expect(fetchPagedReviewsInventory).toHaveBeenCalledWith({
+      projectId: "default",
+      page: 1,
+      pageSize: 50,
+      cursor: undefined,
+      scopeHeaders: { "x-tenant-id": "t1" },
+    });
+  });
 });
