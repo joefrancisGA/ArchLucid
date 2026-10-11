@@ -70,6 +70,8 @@ The common approach is to give each factor a number and add them up: consequence
 
 A simpler rule is easier to defend: sort by the most important factor first, and use the next factor only to break ties. Consequence first, then entry exposure, then data-plane reach, then confidence, then length.
 
+<!-- listing: lab/listings/python/ch09_remediation.py#rank_key -->
+
 ```python
 RULESET_VERSION = "contoso-path-ranking-2026-10-01"
 
@@ -137,6 +139,8 @@ Three things in that table deserve attention.
 
 With changes listed, a greedy method is easy to follow: repeatedly pick the allowed change that closes the most remaining paths per unit of cost, until no allowed change closes anything.
 
+<!-- listing: lab/listings/python/ch09_remediation.py#greedy_plan -->
+
 ```python
 from dataclasses import dataclass
 
@@ -202,6 +206,8 @@ The cost numbers (1, 2, 3) are a convenience for comparison, not a measurement. 
 
 The greedy method works on the paths you enumerated. Chapter 4's search caps path length, so a cut set computed from enumerated paths can miss a longer route that avoids every chosen change. Always verify by removing the plan's edges from the graph and searching again:
 
+<!-- listing: lab/listings/python/ch09_remediation.py#open_paths_after -->
+
 ```python
 def open_paths_after(
     edges: list[Edge], plan: list[Change], entries: list[str], targets: list[str]
@@ -232,6 +238,8 @@ The plan above has a flaw that the path graph can't show unless you ask.
 Disabling shared key access on `custdata` is a configuration change. Who can change it back? Anyone with write access to the storage account, and that includes `payments-deploy`, which still holds Contributor on the resource group. And P4 is still open: the production pipeline can still become `payments-deploy`. So an attacker who takes over the pipeline can turn shared key access back on, list the keys, and read `custdata`. The plan closed P1 on paper and left it one configuration change away.
 
 The check is mechanical. For each change, record who could reverse it (`reversible_by`). After applying the plan, find every node still reachable from any entry point. If any of them can reverse a change, the change isn't durable:
+
+<!-- listing: lab/listings/python/ch09_remediation.py#undoable_changes -->
 
 ```python
 def reachable_nodes(edges: list[Edge], entries: list[str]) -> set[str]:
@@ -408,6 +416,8 @@ Most organizations track changes in an IT service management (ITSM) system such 
 **Owners come from evidence, not guesses.** The owning team comes from ownership metadata, such as tags, a configuration management database, or the Terraform repository's owners. Those are human assertions, so record which source was used. If there's no owner, route to a triage queue and report the missing ownership as a finding.
 
 **Stable IDs prevent duplicates.** The analysis runs every week. Without a stable ID, every run opens new tickets for the same recommendations. Derive the ID from what the recommendation *is*: the changes and the paths' entry and target nodes, not the snapshot or the run:
+
+<!-- listing: lab/listings/python/ch09_remediation.py#recommendation_id -->
 
 ```python
 import hashlib

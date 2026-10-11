@@ -30,6 +30,14 @@ resource "azurerm_resource_group" "payments_runtime" {
   location = var.location
 }
 
+# custarchive lives outside rg-payments-prod too. Contributor there can list storage keys, so an archive in that
+# group would be readable directly and add three paths the book doesn't count; P4 to P6 reach it only through
+# mi-pay-reconcile's data role.
+resource "azurerm_resource_group" "payments_archive" {
+  name     = "rg-payments-archive"
+  location = var.location
+}
+
 resource "azurerm_resource_group" "network" {
   name     = "rg-network"
   location = var.location

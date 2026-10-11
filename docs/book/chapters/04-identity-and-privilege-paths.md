@@ -243,6 +243,8 @@ Only the resulting privilege edges go into search. A Reader assignment produces 
 
 The sketch below uses only the Python standard library. It is the loader's derivation, not a second authorization system inside the search.
 
+<!-- listing: lab/listings/python/ch04_paths.py#identity_graph -->
+
 ```python
 from collections import deque
 from dataclasses import dataclass

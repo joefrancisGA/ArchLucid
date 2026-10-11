@@ -339,12 +339,16 @@ jobs:
           cd scripts/ci
           python -m unittest test_check_doc_scope_header test_backfill_doc_scope_headers
 
-      - name: Book case-study sanitization (draft mode) + checker unit tests
+      - name: Book case-study sanitization (draft mode), listing sync, and book tests
         # Draft mode fails on identifiers that must never be published; unfilled placeholders are allowed
         # until the author runs --publish before the appendix leaves the repository.
+        # check_listings fails when a Python listing in the manuscript differs from its tested module.
+        # Both test suites are standard-library only and offline.
         run: |
           python docs/book/tools/check_case_study.py docs/book/appendices/d-case-study.md
+          python docs/book/tools/check_listings.py
           python -m unittest discover -s docs/book/tools -p "test_*.py"
+          python -m unittest discover -s docs/book/lab/listings/python/tests
 
   doc-markdown-links:
     name: "Docs: markdown link integrity"

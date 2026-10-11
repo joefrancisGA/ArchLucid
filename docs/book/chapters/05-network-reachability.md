@@ -101,6 +101,8 @@ The portal presents these as three choices, which map roughly as follows:
 
 A deterministic classifier over the collected properties is short:
 
+<!-- listing: lab/listings/python/ch05_reachability.py#storage_public_exposure -->
+
 ```python
 def storage_public_exposure(account: dict) -> tuple[str, list[str]]:
     """Classify a storage account's public data-plane exposure from its ARM properties."""
@@ -144,7 +146,7 @@ Three details in that code matter more than they look:
 
 - **An unset value isn't "secure".** Older accounts may not carry `publicNetworkAccess` at all, and their behavior is governed by the firewall alone. Treating a missing value as disabled would mark the oldest, least-reviewed accounts as the safest.
 - **Unknown values return "unknown".** Azure adds options over time. `SecuredByPerimeter` is a recent example: the answer depends on the perimeter's rules, which this function doesn't read. A value your code doesn't recognize is a reason to stop and evaluate, not to guess.
-- **Every result carries reasons.** "Restricted" is useless without the list of what it's restricted to. An IP rule for a partner's whole address range, or a subnet rule for a development subnet, is often the actual finding. Even "private only" carries the bypass, because Microsoft documents that trusted-service exceptions take precedence and stay in effect after public access is disabled.
+- **Every result carries reasons.** "Restricted" is useless without the list of what it's restricted to. An IP rule for a partner's whole address range, or a subnet rule for a development subnet, is often the actual finding. Disabling public access doesn't earn "private only" by itself: a bypass that still admits trusted Azure services makes the result "restricted", because Microsoft documents that trusted-service exceptions take precedence and stay in effect after public access is disabled.
 
 ### The same pattern elsewhere
 
@@ -212,6 +214,8 @@ The first default rule is where many surprises live. The `VirtualNetwork` servic
 When NSGs are attached at both the subnet and the network interface, traffic must be allowed by both. Inbound traffic is evaluated against the subnet's NSG first, then the interface's; outbound, the reverse.
 
 A minimal evaluator for inbound traffic, with service tags resolved from data you supply:
+
+<!-- listing: lab/listings/python/ch05_reachability.py#nsg_inbound -->
 
 ```python
 import ipaddress
@@ -505,7 +509,7 @@ This lab reproduces the opening story and separates its four kinds of reachabili
 ## Author notes (remove before submission)
 
 - Verified 2026-10-10 (revision pass 1): storage `publicNetworkAccess` values and bypass precedence; SQL `AllowAllWindowsAzureIps`; `scmIpSecurityRestrictionsUseMain`; NSG priorities, default rules, `VirtualNetwork` scope and evaluation order; private endpoint network policies default; Azure Firewall processing order; flow log retirement dates; Network Watcher feature names.
-- `storage_public_exposure` and `evaluate_inbound` pass offline fixtures. Still to do: run the Resource Graph query against a live tenant with mixed resource types.
+- `storage_public_exposure` and `evaluate_inbound` pass offline fixtures (`lab/listings/python/tests/test_ch05_reachability.py`). Testing showed the bullet on "private only" contradicted the code, which returns "restricted" whenever a bypass is set; the bullet now matches the code (2026-10-11). Still to do: run the Resource Graph query against a live tenant with mixed resource types.
 - "Most, in my experience, are unfinished projects" is an author-experience claim; keep it attributed.
 - Consider a figure showing the payments hub-and-spoke with the four positions.
 - Add the Chapter 5 fact checks to GTM **M-306** when it is picked up.
