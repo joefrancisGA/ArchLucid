@@ -37,6 +37,38 @@ public sealed class PolicyPackCorpusIndexerTests
         docs[0].ContentHash.Should().Be(first.ContentHash);
     }
 
+    [Fact]
+    public async Task BuildDocumentsAsync_blank_rule_pack_id_falls_back_to_pack_directory_name()
+    {
+        string packsRoot = Path.Combine(Path.GetTempPath(), $"archlucid-policy-pack-{Guid.NewGuid():N}");
+        Directory.CreateDirectory(packsRoot);
+
+        try
+        {
+            string packDirectory = Path.Combine(packsRoot, "blank-id-pack");
+            Directory.CreateDirectory(packDirectory);
+            string rulesPath = Path.Combine(packDirectory, "compliance-rules.json");
+            await File.WriteAllTextAsync(
+                rulesPath,
+                """{"rulePackId":"", "version":"1.0.0", "rules":[{"ruleId":"rule-1","controlName":"Control","description":"Description"}]}""");
+
+            MockOptionsMonitor<PolicyPackCorpusIndexerOptions> options = new(new PolicyPackCorpusIndexerOptions
+            {
+                PolicyPacksDirectory = packsRoot,
+                RulesFileName = "compliance-rules.json",
+            });
+
+            PolicyPackCorpusIndexer sut = new(options);
+            IReadOnlyList<RetrievalDocument> docs = await sut.BuildDocumentsAsync(CancellationToken.None);
+
+            docs.Should().ContainSingle().Which.PolicyPackRulePackId.Should().Be("blank-id-pack");
+        }
+        finally
+        {
+            Directory.Delete(packsRoot, recursive: true);
+        }
+    }
+
     private static string ResolveRepoPolicyPacksDirectory()
     {
         DirectoryInfo? current = new(AppContext.BaseDirectory);
