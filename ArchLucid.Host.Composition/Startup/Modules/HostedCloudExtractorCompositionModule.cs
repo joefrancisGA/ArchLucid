@@ -12,6 +12,7 @@ using ArchLucid.Host.Core.Http;
 using ArchLucid.Integrations.AzureExtractor;
 using ArchLucid.Integrations.AwsExtractor;
 using ArchLucid.Integrations.GcpExtractor;
+using ArchLucid.Host.Composition.SecureNow;
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -90,7 +91,9 @@ public static class HostedCloudExtractorCompositionModule
         services.AddScoped<CollectionRunIngestService>();
         services.AddScoped<ICollectionRunDiscovery, PollingCollectionRunDiscovery>();
         services.AddScoped<ICollectionRunTrigger, AutomationCollectionRunTrigger>();
-        services.AddScoped<IAutomationRunbookStarter, UnavailableAutomationRunbookStarter>();
+        services.AddHttpClient<IAutomationRunbookStarter, AzureAutomationRunbookStarter>();
+        services.Configure<AutomationRunbookOptions>(
+            configuration.GetSection(AutomationRunbookOptions.SectionName));
         services.Configure<CollectionRunStorageOptions>(
             configuration.GetSection(CollectionRunStorageOptions.SectionName));
         services.AddScoped<IAzureExtractorResultEnricher, AzureExtractorResultEnricher>();
