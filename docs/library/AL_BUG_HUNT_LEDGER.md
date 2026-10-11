@@ -19411,6 +19411,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: retrieval
 
+2026-10-11 seed hunt (seed-only): re-read retrieval indexing, scope validation, in-memory vector cleanup, Azure filter construction, embedding normalization, and graph-neighbor bounds; no new row met the full hunt-ready bar. The exact Retrieval/Indexing filter passed 364/364. Seeded three bounded candidates for zero-cap configuration semantics, zero-neighbor graph bounds, and chunk-ID-only cleanup scope; no production or regression change.
+
 2026-10-11 thorough hunt (hit): proved two independent configuration/input defects. `AcceptedManifestTrainingDataExporter` coerced `MaxManifestsPerExport = 0` to one and emitted training data; the clamp now permits zero. `PolicyPackCorpusIndexer` preserved an explicit blank `rulePackId` instead of falling back to the pack directory; null, empty, and whitespace IDs now use the fallback. Regressions `ExportAsync_with_zero_manifest_limit_exports_no_manifests` and `BuildDocumentsAsync_blank_rule_pack_id_falls_back_to_pack_directory_name`; 364 scoped Retrieval/Indexing tests passed.
 
 2026-10-10 seed hunt (seed-only): re-read embedding cardinality, summarization, agentic retry, fine-tuning export, and policy-pack indexing paths; no new hunt-ready row was promoted. The exact Retrieval/Indexing filter passed 362/362; seeded five bounded candidates and made no production code change.
@@ -19457,7 +19459,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** retrieval indexing; embedding; pricing retrieval
 - **paths:** ArchLucid.Retrieval/
 - **test-filter:** FullyQualifiedName~Retrieval|FullyQualifiedName~Indexing
-- **hunts:** 69
+- **hunts:** 70
 - **last-hunt:** 2026-10-11
 - **bugs-found:** 32
 - **consecutive-dry-hunts:** 0
@@ -19519,6 +19521,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `AcceptedManifestTrainingDataExporter.ExportAsync` preserves duplicate `ManifestDocument` entries supplied by online fine-tuning orchestration, so duplicate records could be serialized into one training job — **cheap-disproof 2026-10-11 thorough hunt:** no deduplication contract or wrong downstream outcome was established for the caller-provided batch.
 - [x] (proven) `PolicyPackCorpusIndexer.ReadRuleDocumentsAsync` accepted a blank `rulePackId` from a reachable `compliance-rules.json`, making indexed policy-pack rules unassignable by rule-pack ID — **hit 2026-10-11 thorough hunt:** null, empty, and whitespace IDs now fall back to the pack directory; regression `BuildDocumentsAsync_blank_rule_pack_id_falls_back_to_pack_directory_name`.
 - [x] (valid-no-repro) `ManifestChunkSummarizer.MaybeSummarizeAsync` keys summaries by `ChunkId` and updates only the first matching hit, so a reachable duplicate-hit list could leave later duplicate chunks unsummarized — **cheap-disproof 2026-10-11 thorough hunt:** no retrieval/index response path establishing duplicate `ChunkId` hits was found.
+- (candidate) `RetrievalIndexingService.IndexDocumentsAsync` treats `MaxChunksPerIndexOperation = 0` as an unlimited cap rather than an explicit zero-work limit; reachable input is `Retrieval:EmbeddingCaps:MaxChunksPerIndexOperation`, but the option’s zero semantics are not documented in this zone.
+- (candidate) `GraphRagBoundedNeighborCollector.Collect` coerces `maxNeighbors = 0` to one neighbor, so a reachable zero-neighbor request may still expand graph context; the input is the graph retrieval bound, but zero-as-disabled semantics are not established.
+- (candidate) `InMemoryVectorIndex.RemoveChunkIdsAsync` removes by chunk ID without tenant/workspace/project scope, so a reachable cleanup list containing a colliding ID could delete another scope’s vector; the input is the internal stale-chunk cleanup path, but global chunk-ID uniqueness is not established.
 - [x] (proven) Index query returns chunks from another tenant's corpus — **hit 2026-08-18:** Azure policy-pack OData filter omitted platform sentinel `tenantId`, allowing cross-tenant `PolicyPack` matches when `IncludePlatformCorpora` is on.
 - [x] (valid-no-repro) Pricing estimate uses the wrong model tariff for the tenant plan — EA multiplier and cache keys are tenant-scoped; covered by existing pricing tests.
 - [x] (valid-no-repro) Reindex job deletes vectors for the wrong workspace — `RetrievalIndexingService` validates scope and passes all four scope fields to delete.
