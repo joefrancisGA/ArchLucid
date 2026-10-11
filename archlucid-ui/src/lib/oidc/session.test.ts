@@ -211,6 +211,26 @@ describe("persistTokenResponse", () => {
     expect(sessionStorage.getItem(OIDC_USER_SUBJECT_KEY)).toBe("user-123");
     expect(sessionStorage.getItem(OIDC_ACCESS_TOKEN_KEY)).toBeNull();
   });
+
+  it("clears stale identity hints when a replacement token has no identity claims", () => {
+    const header = Buffer.from(JSON.stringify({ alg: "none", typ: "JWT" })).toString("base64url");
+    const previousPayload = Buffer.from(JSON.stringify({ sub: "previous-user", name: "Previous User" })).toString(
+      "base64url",
+    );
+    const replacementPayload = Buffer.from(JSON.stringify({})).toString("base64url");
+
+    persistTokenResponse({
+      access_token: `${header}.${previousPayload}.sig`,
+      expires_in: 3600,
+    });
+    persistTokenResponse({
+      access_token: `${header}.${replacementPayload}.sig`,
+      expires_in: 3600,
+    });
+
+    expect(sessionStorage.getItem(OIDC_DISPLAY_NAME_KEY)).toBeNull();
+    expect(sessionStorage.getItem(OIDC_USER_SUBJECT_KEY)).toBeNull();
+  });
 });
 
 describe("consumePkceState", () => {

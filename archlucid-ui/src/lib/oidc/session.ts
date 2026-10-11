@@ -68,6 +68,7 @@ function removeOidcKeys(keys: readonly string[]): void {
 }
 
 function persistNonSensitiveSessionHints(tokens: OidcTokenResponse, expiresAtMs: number): void {
+  removeOidcKeys([OIDC_DISPLAY_NAME_KEY, OIDC_USER_SUBJECT_KEY]);
   sessionStorage.setItem(OIDC_EXPIRES_AT_MS_KEY, String(expiresAtMs));
 
   const accessPayload = decodeJwtPayload(tokens.access_token);
