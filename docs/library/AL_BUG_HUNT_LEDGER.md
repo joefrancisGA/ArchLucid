@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-11 seed hunt (seed-only): `extraction-router` — re-read `DifficultyBasedExtractionRouter` and its Classify, Extract, and LifecycleHelpers partials plus the focused router tests; no new reachable mechanism-backed wrong outcome met the promotion bar. The picker filter passed 32/32. No production or regression code changed.
+
 2026-10-11 thorough hunt (dry): `cli-tenant-isolation` — reran the selected zone; the five candidates remain below the reachability bar, with no failing repro, and the focused `TenantIsolationNegativeTestRunner` filter passed 54/54. No production change.
 
 2026-10-11 thorough hunt (dry): `cli-tenant-isolation` — repeated the selected-zone review; no candidate met the reachable wrong-outcome bar for a failing repro, and the focused `TenantIsolationNegativeTestRunner` filter passed 54/54. No production change.
