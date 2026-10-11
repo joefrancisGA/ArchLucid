@@ -8,6 +8,8 @@ using Moq;
 
 namespace ArchLucid.Application.Tests.InfraEvidence;
 
+[Trait("Category", "Unit")]
+[Trait("Suite", "Application")]
 public sealed class AzureInventorySnapshotParentChildEdgePolicyTests
 {
     private const string Prefix = "/subscriptions/sub/resourcegroups/rg/providers/";
@@ -26,6 +28,7 @@ public sealed class AzureInventorySnapshotParentChildEdgePolicyTests
         GraphEdge[] edges = graph.Edges.Where(edge => edge.EdgeType == GraphEdgeTypes.Contains).ToArray();
         Assert.Equal(mode == "missing" ? 0 : mode == "reverse" ? 2 : 1, edges.Length);
         Assert.DoesNotContain(graph.Nodes, node => node.Properties.ContainsKey("inventory.collectionStatus"));
+
         if (mode == "missing") return;
         GraphEdge contains = Assert.Single(edges, edge => graph.Nodes.Single(node => node.NodeId == edge.FromNodeId).SourceId == parent);
         Assert.Equal(child, graph.Nodes.Single(node => node.NodeId == contains.ToNodeId).SourceId);
@@ -35,6 +38,7 @@ public sealed class AzureInventorySnapshotParentChildEdgePolicyTests
         Assert.Equal(GraphEdgeTypes.Contains, contains.Label);
         Assert.Equal(1d, contains.Weight);
         Assert.Equal($"edge-{contains.FromNodeId}|{contains.ToNodeId}|{GraphEdgeTypes.Contains}", contains.EdgeId);
+
         if (mode == "reverse")
         {
             GraphEdge reverse = Assert.Single(edges, edge => edge.FromNodeId == contains.ToNodeId);
@@ -149,6 +153,7 @@ public sealed class AzureInventorySnapshotParentChildEdgePolicyTests
         Guid snapshotId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
         Guid tenantId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
         List<AzureInventoryResourceRecord> resources = [Resource(child, childType, 2)];
+
         if (mode != "missing") resources.Insert(0, Resource(parent, parentType, 1));
         AzureInventorySnapshotDetailReadModel snapshot = new()
         {

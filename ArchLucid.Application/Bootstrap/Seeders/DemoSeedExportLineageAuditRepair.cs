@@ -43,16 +43,21 @@ internal static class DemoSeedExportLineageAuditRepair
 
         string ruleSetId = string.IsNullOrWhiteSpace(golden.RuleSetId) ? DemoRuleSetId : golden.RuleSetId;
 
-        await deps.AuditService.LogAsync(
-            new AuditEvent
-            {
-                EventType = AuditEventTypes.ManifestGenerated,
-                RunId = runId,
-                ManifestId = golden.ManifestId,
-                DataJson = JsonSerializer.Serialize(
-                    new { ManifestHash = recomputedHash, RuleSetId = ruleSetId },
-                    AuditJsonSerializationOptions.Instance),
-            },
-            cancellationToken);
+        await DurableAuditLogRetry.LogOrThrowAsync(
+            ct => deps.AuditService.LogAsync(
+                new AuditEvent
+                {
+                    EventType = AuditEventTypes.ManifestGenerated,
+                    RunId = runId,
+                    ManifestId = golden.ManifestId,
+                    DataJson = JsonSerializer.Serialize(
+                        new { ManifestHash = recomputedHash, RuleSetId = ruleSetId },
+                        AuditJsonSerializationOptions.Instance),
+                },
+                ct),
+            deps.Logger,
+            $"{AuditEventTypes.ManifestGenerated}:{runId:N}",
+            cancellationToken,
+            auditEventTypeForMetrics: AuditEventTypes.ManifestGenerated);
     }
 }

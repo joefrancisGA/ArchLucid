@@ -13,7 +13,7 @@ class TestAdoptionBatch5BN(unittest.TestCase):
         path = REPO_ROOT / "ArchLucid.Api" / "Controllers" / "Admin" / "AdminCustomerSuccessController.cs"
         text = path.read_text(encoding="utf-8")
         self.assertIn("tenant-health", text)
-        self.assertIn("AdminAuthority", text)
+        self.assertIn("PlatformInternalOperationsAuthority", text)
         self.assertIn("AdminTenantHealthListResponse", text)
 
     def test_tb_228_sql_reader(self) -> None:

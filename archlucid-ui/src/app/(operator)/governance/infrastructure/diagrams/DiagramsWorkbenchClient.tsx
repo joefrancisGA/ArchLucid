@@ -11,6 +11,7 @@ import {
 } from "@/components/architecture/ArchitectureDiagramViewer";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { CopyIdButton } from "@/components/CopyIdButton";
+import { SponsorExportSendHonestyStrip } from "@/components/exports/SponsorExportSendHonestyStrip";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import {
   SecureNowQuestionQueueBar,
@@ -2465,7 +2466,8 @@ export function DiagramsWorkbenchClient() {
         </section>
       ) : null}
 
-      <section className={cn("flex flex-col gap-3", cnCard)} aria-label="Diagram export actions">
+      <section className={cn("flex flex-col gap-3", cnCard)} aria-label="Diagram export actions" data-testid="infra-diagrams-export">
+        <SponsorExportSendHonestyStrip testIdPrefix="infra-diagrams-export" />
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="flex flex-wrap items-center gap-2">
             <Button

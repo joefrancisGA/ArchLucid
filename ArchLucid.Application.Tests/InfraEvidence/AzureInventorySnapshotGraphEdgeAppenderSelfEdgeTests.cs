@@ -3,6 +3,8 @@ using ArchLucid.Contracts.Persistence.Graph;
 
 namespace ArchLucid.Application.Tests.InfraEvidence;
 
+[Trait("Category", "Unit")]
+[Trait("Suite", "Application")]
 public sealed class AzureInventorySnapshotGraphEdgeAppenderSelfEdgeTests
 {
     [Theory]
@@ -14,6 +16,7 @@ public sealed class AzureInventorySnapshotGraphEdgeAppenderSelfEdgeTests
         HashSet<string> keys = new(StringComparer.Ordinal);
         GraphEdge? result = AzureInventorySnapshotGraphEdgeAppender.TryAdd(edges, keys, "same", "same", "type", "source",
             allowSelfEdges: allow);
+
         if (allow)
         {
             Assert.Same(Assert.Single(edges), result);

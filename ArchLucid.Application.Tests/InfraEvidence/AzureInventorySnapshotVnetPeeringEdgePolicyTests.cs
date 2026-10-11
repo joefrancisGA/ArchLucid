@@ -9,6 +9,8 @@ using Moq;
 
 namespace ArchLucid.Application.Tests.InfraEvidence;
 
+[Trait("Category", "Unit")]
+[Trait("Suite", "Application")]
 public sealed class AzureInventorySnapshotVnetPeeringEdgePolicyTests
 {
     private const string Local = "/subscriptions/sub/resourcegroups/rg/providers/microsoft.network/virtualnetworks/local";
@@ -28,6 +30,7 @@ public sealed class AzureInventorySnapshotVnetPeeringEdgePolicyTests
         string mode = scenario.Split(':')[1];
         GraphSnapshot graph = await ResolveScenarioAsync(scenario);
         GraphEdge[] peerings = graph.Edges.Where(edge => edge.EdgeType == GraphEdgeTypes.PeersWith).ToArray();
+
         if (mode is "self" or "blank" or "malformed")
         {
             Assert.Empty(peerings);
@@ -45,6 +48,7 @@ public sealed class AzureInventorySnapshotVnetPeeringEdgePolicyTests
         Assert.Equal(GraphEdgeTypes.PeersWith, edge.Label);
         Assert.Equal(1d, edge.Weight);
         Assert.Equal($"edge-{edge.FromNodeId}|{edge.ToNodeId}|{GraphEdgeTypes.PeersWith}", edge.EdgeId);
+
         if (hasChildTarget)
         {
             GraphEdge childTarget = Assert.Single(peerings, candidate => candidate != edge);
@@ -57,6 +61,7 @@ public sealed class AzureInventorySnapshotVnetPeeringEdgePolicyTests
         GraphNode[] stubs = graph.Nodes.Where(node => node.Properties.ContainsKey("arm.stub")).ToArray();
         Assert.Equal(mode == "both-missing" ? 2 : mode == "remote-missing" ? 1 : 0, stubs.Length);
         Assert.All(stubs, node => Assert.Equal("remote-vnet", node.Properties["arm.stub"]));
+
         if (mode == "remote-missing") Assert.Equal(Remote, Assert.Single(stubs).SourceId);
     }
 
@@ -187,9 +192,12 @@ public sealed class AzureInventorySnapshotVnetPeeringEdgePolicyTests
         string mode = scenario.Split(':')[1];
         List<AzureInventoryResourceRecord> resources = [];
         List<AzureInventoryResourcePropertyReadModel> properties = [];
+
         if (mode != "both-missing") resources.Add(Resource(Local, "Microsoft.Network/virtualNetworks", 1));
+
         if (mode is not "remote-missing" and not "both-missing") resources.Add(Resource(Remote, "Microsoft.Network/virtualNetworks", 2));
         AddPeering(Local, mode == "self" ? Local : Remote, 1, 3);
+
         if (mode == "reciprocal") AddPeering(Remote, Local, 2, 4);
         return new()
         {
@@ -220,6 +228,7 @@ public sealed class AzureInventorySnapshotVnetPeeringEdgePolicyTests
                     new { properties = new { remoteVirtualNetwork = new { id = target } } },
                 }),
             });
+
             if (kind is "child" or "both")
             {
                 resources.Add(Resource(local + "/virtualnetworkpeerings/peer", "Microsoft.Network/virtualNetworks/virtualNetworkPeerings", childOrdinal));

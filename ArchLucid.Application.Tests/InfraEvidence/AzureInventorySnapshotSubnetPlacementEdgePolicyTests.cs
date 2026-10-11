@@ -8,6 +8,8 @@ using Moq;
 
 namespace ArchLucid.Application.Tests.InfraEvidence;
 
+[Trait("Category", "Unit")]
+[Trait("Suite", "Application")]
 public sealed class AzureInventorySnapshotSubnetPlacementEdgePolicyTests
 {
     private const string Prefix = "/subscriptions/sub/resourcegroups/rg/providers/";
@@ -33,6 +35,7 @@ public sealed class AzureInventorySnapshotSubnetPlacementEdgePolicyTests
         string[] expectedTargets = edges.Length == 0 ? [] : mode == "fanout"
             ? [target, target + "/serviceAssociationLinks/one", target + "/serviceAssociationLinks/two"] : [target];
         Assert.Equal(expectedTargets.Order(StringComparer.Ordinal), edges.Select(edge => graph.Nodes.Single(node => node.NodeId == edge.ToNodeId).SourceId!).Order(StringComparer.Ordinal));
+
         foreach (GraphEdge edge in edges)
         {
             Assert.Equal(placement.SourceId, graph.Nodes.Single(node => node.NodeId == edge.FromNodeId).SourceId);
@@ -113,11 +116,14 @@ public sealed class AzureInventorySnapshotSubnetPlacementEdgePolicyTests
         string collectedTarget = mode == "ancestor" ? AncestorTarget(placement) : placement.TargetId;
         string collectedType = mode == "ancestor" && placement.PropertyKey != "subnets" ? "Microsoft.Network/virtualNetworks" : placement.TargetType;
         List<AzureInventoryResourceRecord> resources = [Resource(placement.SourceId, placement.SourceType, 1)];
+
         if (mode is not "missing" and not "self")
             resources.Add(Resource(collectedTarget, collectedType, 2));
         // Collected subnets include their VNet so diagram group membership has a real parent.
+
         if (placement.PropertyKey != "subnets" && mode is "normal" or "duplicate" or "fanout")
             resources.Add(Resource(Prefix + "microsoft.network/virtualnetworks/vnet", "Microsoft.Network/virtualNetworks", 5));
+
         if (mode == "fanout")
         {
             resources.Add(Resource(placement.TargetId + "/serviceAssociationLinks/one", "Microsoft.Network/virtualNetworks/subnets/serviceAssociationLinks", 3));
@@ -126,6 +132,7 @@ public sealed class AzureInventorySnapshotSubnetPlacementEdgePolicyTests
         string value = placement.PropertyKey != "subnets" ? citedTarget
             : "[{\"properties\":{\"" + (placement.TargetType.Contains("networkSecurityGroups", StringComparison.Ordinal) ? "networkSecurityGroup" : "routeTable") + "\":{\"id\":\"" + citedTarget + "\"}}}]";
         List<AzureInventoryResourceRelationshipReadModel> relationships = [];
+
         if (mode == "duplicate")
             relationships.Add(new AzureInventoryResourceRelationshipReadModel
             {

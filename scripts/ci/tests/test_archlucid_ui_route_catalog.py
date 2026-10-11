@@ -90,7 +90,7 @@ def test_migrate_workbook_path_no_longer_maps_retired_help_bookmarks() -> None:
     for legacy_path in RETIRED_HELP_BOOKMARK_PATHS:
         assert migrate_workbook_path(legacy_path) == legacy_path
 
-    assert migrate_workbook_path("/help/policy-pack-delta-demo") == "/help/policy-packs#policy-pack-delta-demo"
+    assert migrate_workbook_path("/help/policy-pack-delta-demo") == "/help/policy-pack-delta-demo"
 
 
 def test_build_catalog_keeps_tb2050_retired_aliases_out() -> None:

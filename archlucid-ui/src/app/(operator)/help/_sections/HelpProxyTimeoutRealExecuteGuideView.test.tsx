@@ -56,7 +56,7 @@ describe("HelpProxyTimeoutRealExecuteGuideView (DW-007 / EPX Phase 2)", () => {
     expect(screen.getByTestId("help-proxy-timeout-real-execute-overview").className).toContain(
       HELP_PAGE_LAYOUT.readingBody,
     );
-    expect(screen.queryByTestId("help-proxy-timeout-real-execute-honesty-panel")).not.toBeInTheDocument();
+    expect(screen.getByTestId("help-proxy-timeout-real-execute-honesty-panel")).toBeInTheDocument();
 
     for (const heading of DAYTIME_WAIT_HELP_PROXY_TIMEOUT_GUIDE_HEADINGS) {
       expect(screen.getByRole("heading", { level: heading.level, name: heading.title })).toHaveAttribute(

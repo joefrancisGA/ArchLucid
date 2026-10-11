@@ -73,7 +73,7 @@ describe("HelpBackgroundWaitGuideView (DW-015 / HBA)", () => {
       /stay on this page/i,
     );
     expect(screen.queryByTestId("help-background-wait-desk-helper")).not.toBeInTheDocument();
-    expect(screen.queryByTestId("help-background-wait-honesty-panel")).not.toBeInTheDocument();
+    expect(screen.getByTestId("help-background-wait-honesty-panel")).toBeInTheDocument();
 
     for (const heading of DAYTIME_WAIT_HELP_BACKGROUND_WAIT_GUIDE_HEADINGS) {
       expect(screen.getByRole("heading", { level: heading.level, name: heading.title })).toHaveAttribute(

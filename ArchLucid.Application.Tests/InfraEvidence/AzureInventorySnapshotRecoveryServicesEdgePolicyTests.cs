@@ -11,6 +11,8 @@ using Moq;
 
 namespace ArchLucid.Application.Tests.InfraEvidence;
 
+[Trait("Category", "Unit")]
+[Trait("Suite", "Application")]
 public sealed class AzureInventorySnapshotRecoveryServicesEdgePolicyTests
 {
     private const string Prefix = "/subscriptions/sub/resourcegroups/rg/providers/";
@@ -39,6 +41,7 @@ public sealed class AzureInventorySnapshotRecoveryServicesEdgePolicyTests
             or "null-json" or "empty-json" or "blank-value" or "missing-vault" or "wrong-row"
             or "failed" or "blank-source" or "invalid-source";
         Assert.Equal(suppressed ? 0 : 1, forward.Length);
+
         foreach (GraphEdge edge in forward)
         {
             Assert.Equal(mode == "self" ? Vault : Source, graph.Nodes.Single(node => node.NodeId == edge.ToNodeId).SourceId);
@@ -51,6 +54,7 @@ public sealed class AzureInventorySnapshotRecoveryServicesEdgePolicyTests
             Assert.Equal(mode == "explicit" ? Declaration.ToString() : null, edge.DeclaredConnectionId);
             Assert.Equal(1d, edge.Weight);
             Assert.Equal($"edge-{edge.FromNodeId}|{edge.ToNodeId}|{GraphEdgeTypes.Protects}", edge.EdgeId);
+
             if (mode is "explicit" or "no-metadata" or "blank-metadata")
             {
                 Assert.False(edge.Properties.ContainsKey(AzureInventoryRecoveryServices.EdgeTargetRegionPropertyKey));
@@ -63,6 +67,7 @@ public sealed class AzureInventorySnapshotRecoveryServicesEdgePolicyTests
             }
         }
         Assert.DoesNotContain(graph.Nodes, node => node.Properties.GetValueOrDefault("arm.stub") == "referenced-resource");
+
         if (mode == "reverse")
         {
             GraphEdge reverse = Assert.Single(graph.Edges, edge => edge.EdgeType == GraphEdgeTypes.Protects && !forward.Contains(edge));
@@ -91,6 +96,7 @@ public sealed class AzureInventorySnapshotRecoveryServicesEdgePolicyTests
         original.Properties["other"] = "kept";
         List<GraphEdge> edges = [original];
         HashSet<string> keys = new(StringComparer.Ordinal);
+
         if (keyPresent) keys.Add($"vault|vm|{GraphEdgeTypes.Protects}");
         Hydrate("backup", NodeMap(), edges, keys);
         Assert.Equal(keyPresent ? 1 : 2, edges.Count);
@@ -106,6 +112,7 @@ public sealed class AzureInventorySnapshotRecoveryServicesEdgePolicyTests
         Assert.Equal("original region", original.Properties[AzureInventoryRecoveryServices.EdgeTargetRegionPropertyKey]);
         Assert.Equal("kept", original.Properties["other"]);
         Assert.Equal(2, original.Properties.Count);
+
         if (!keyPresent)
         {
             Assert.Equal(nameof(ProvenanceKind.ObservedFact), edges[1].ProvenanceKind);
@@ -158,6 +165,7 @@ public sealed class AzureInventorySnapshotRecoveryServicesEdgePolicyTests
     public void Missing_or_blank_resolved_node_adds_no_edge_or_key(string nodeId)
     {
         Dictionary<string, string> map = NodeMap();
+
         if (nodeId == "missing") map.Remove(Vault);
         else map[Source] = nodeId;
         List<GraphEdge> edges = [];
@@ -212,6 +220,7 @@ public sealed class AzureInventorySnapshotRecoveryServicesEdgePolicyTests
         };
         bool replication = mode is "replication" or "replication-first";
         List<AzureInventoryRecoveryServicesProtectedItemRow> items = [Item(replication)];
+
         if (mode is "backup-first" or "replication-first") items.Add(Item(!replication, true));
         string value = mode switch
         {
@@ -225,11 +234,13 @@ public sealed class AzureInventorySnapshotRecoveryServicesEdgePolicyTests
             PropertyValue = propertyValue, IsRedacted = mode == "redacted",
         };
         List<AzureInventoryResourceRecord> resources = [];
+
         if (mode != "missing-vault") resources.Add(new()
         {
             ResourceRowId = VaultRow, AzureResourceId = Vault, ResourceType = mode == "wrong-type" ? "Microsoft.Custom/other" : AzureInventoryRecoveryServices.VaultResourceType.ToUpperInvariant(),
             ResourceGroup = "rg", SubscriptionId = "sub",
         });
+
         if (mode is not "missing-source" and not "self") resources.Add(new()
         {
             ResourceRowId = Guid.Parse("00000000-0000-0000-0000-000000000002"), AzureResourceId = Source,

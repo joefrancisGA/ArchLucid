@@ -8,6 +8,8 @@ using Moq;
 
 namespace ArchLucid.Application.Tests.InfraEvidence;
 
+[Trait("Category", "Unit")]
+[Trait("Suite", "Application")]
 public sealed class AzureInventorySnapshotGraphResolverRelationshipEdgeTests
 {
     private const string Source = "/subscriptions/sub/resourcegroups/rg/providers/microsoft.storage/storageaccounts/source";
@@ -26,6 +28,7 @@ public sealed class AzureInventorySnapshotGraphResolverRelationshipEdgeTests
     public async Task Explicit_edges_preserve_first_duplicate_and_relationship_metadata(string scenario)
     {
         GraphSnapshot graph = await ResolveScenarioAsync(scenario);
+
         if (scenario == "self")
         {
             Assert.Empty(graph.Edges);
@@ -49,8 +52,10 @@ public sealed class AzureInventorySnapshotGraphResolverRelationshipEdgeTests
         Assert.Equal(1d, edge.Weight);
         Assert.Equal($"edge-{edge.FromNodeId}|{edge.ToNodeId}|{expectedType}", edge.EdgeId);
         Assert.Equal(scenario is "reverse-direction" or "different-type" ? 2 : 1, graph.Edges.Count);
+
         if (scenario == "reverse-direction")
             Assert.Contains(graph.Edges, candidate => candidate.FromNodeId == edge.ToNodeId && candidate.ToNodeId == edge.FromNodeId);
+
         if (scenario == "different-type")
             Assert.Contains(graph.Edges, candidate => candidate.EdgeType == "CUSTOM_TYPE");
     }
