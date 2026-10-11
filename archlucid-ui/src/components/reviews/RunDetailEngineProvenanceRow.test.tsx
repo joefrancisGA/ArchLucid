@@ -48,7 +48,7 @@ describe("RunDetailEngineProvenanceRow", () => {
 
     if (expectedValue === "") {
       const outputSchemaLabel = screen.getByText("Output schema");
-      expect(outputSchemaLabel.nextElementSibling).toHaveTextContent("");
+      expect(outputSchemaLabel.nextElementSibling).toBeEmptyDOMElement();
     } else {
       expect(screen.getByText(expectedValue)).toBeInTheDocument();
     }
