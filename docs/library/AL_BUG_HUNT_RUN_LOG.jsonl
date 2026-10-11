@@ -9562,3 +9562,4 @@
 {"at":"2026-10-11T23:25:33.6855742Z","zoneId":"host-core-coordination","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Host.Core/Coordination/"]}
 {"at":"2026-10-11T23:37:18.9927262Z","zoneId":"ui-governance-findings-queue","outcome":"seed-only","productLine":"securenow","paths":["archlucid-ui/src/app/(operator)/governance/findings/"]}
 {"at":"2026-10-11T23:43:27.0972967Z","zoneId":"ui-governance-findings-queue","outcome":"hit","productLine":"securenow","paths":["archlucid-ui/src/app/(operator)/governance/findings/"]}
+{"at":"2026-10-11T23:47:23.9585151Z","zoneId":"ui-governance-findings-queue","outcome":"hit","productLine":"securenow","paths":["archlucid-ui/src/app/(operator)/governance/findings/"]}
