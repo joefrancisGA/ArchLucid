@@ -17009,6 +17009,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: agent-runtime-evaluation
 
+2026-10-11 seed hunt (seed-only): re-read the evaluation JSON readers after the case-variant fixes; no distinct new reachable wrong outcome met the same-run promotion bar. The scoped Evaluation suite passed 212/212; no production or regression code changed.
+
+- [ ] (candidate) `HeuristicAgentOutputClaimEvidenceStage.Evaluate` — nested claim fields such as `evidenceRefs` and `evidence` still use exact-case lookups, which may under-score a reachable case-variant payload in the heuristic semantic path; requires a focused caller-level repro before promotion.
+
 2026-10-11 seed hunt (seed→hit): `AgentOutputTraceFindingCitationCoverageApplicator.TryParseFindings` required an exact lowercase top-level `findings` property, so a reachable case-variant real-agent payload left finding-citation coverage unset and could alter PilotStrict evaluation. Top-level finding lookup now ignores case; regression `Apply_real_task_matches_case_variant_findings_property`.
 
 - [x] (proven) `AgentOutputTraceFindingCitationCoverageApplicator.TryParseFindings` — case-variant top-level findings were ignored for Real-task citation coverage — **hit 2026-10-11 seed hunt:** use case-insensitive lookup before deserializing findings; regression `Apply_real_task_matches_case_variant_findings_property`.
