@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-11 thorough hunt (dry): `host-core-jobs` — cheap-disproved the four retained candidates: terminal failure SQL state-guard risk remains unproven without a reachable SQL concurrency repro; retry re-read behavior preserves the supported `Pending` reclaim state; uploaded result retention is storage hygiene behind a succeeded-state download gate; and in-memory file retention is likewise inaccessible for canceled rows and bounded by eviction. The focused host-core filter passed 76/76. No failing repro or production change.
+
 2026-10-11 thorough hunt (dry): `cli-tenant-isolation` — cheap-disproved all five retained candidates: the 204 replay mismatch is covered by the existing 2xx verified-absent trust rule, 201 is not a reachable API status for this list contract, primary visibility has no reachable 204/304 caller path, description text is not the canonical top-level `runId`, and cursors are read from decoded JSON before one URL-escape. The focused `TenantIsolationNegativeTestRunnerTests` filter passed 54/54. No failing repro or production change.
 
 2026-10-11 seed hunt (seed-only): `extraction-router` — repeated the selected-file reread; no new reachable mechanism-backed wrong outcome or candidate met the promotion bar. The focused filter passed 32/32. No production or regression code changed.
@@ -14839,10 +14841,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** background jobs; hosted services; durable job queue
 - **paths:** ArchLucid.Host.Core/Jobs/; ArchLucid.Host.Core/Hosted/
 - **test-filter:** FullyQualifiedName~ArchLucidJob|FullyQualifiedName~BackgroundJob|FullyQualifiedName~Hosted
-- **hunts:** 45
+- **hunts:** 46
 - **bugs-found:** 31
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-07
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-10-11
 - **last-bug:** 2026-10-07 — stale MarkSucceeded after watchdog reclaim to Pending
 - **related-pd-tb:** none
 - **code-changed-since:** yes
