@@ -37,9 +37,9 @@ class TestAdoptionBatch5AL(unittest.TestCase):
             / "SponsorRoiTrendSection.tsx"
         )
         text = path.read_text(encoding="utf-8")
-        self.assertIn("realRunCount", text)
+        self.assertIn("isSponsorRoiTrendSimulatorOnlyPeriod", text)
         self.assertIn("exec-roi-trend-mixed-mode-footnote", text)
-        self.assertIn("Simulator-only", text)
+        self.assertIn("exec-roi-trend-simulator-only", text)
 
     def test_tb_239_extended_service_test_covers_pro_rated_savings(self) -> None:
         path = REPO_ROOT / "ArchLucid.Application.Tests" / "Roi" / "SponsorRoiSummaryServiceExtendedTests.cs"
