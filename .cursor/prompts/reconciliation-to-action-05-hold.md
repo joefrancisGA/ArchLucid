@@ -1,4 +1,4 @@
-# RTA-05 — Hold
+# RTA-HOLD — Hold
 
 **Wave:** Reconciliation to action (**RTA**). **Not implementation.**
 
@@ -14,6 +14,9 @@ Paste this file only when a session starts a new finding for every gap, a dispos
 | Auto-close a finding because the next capture lacks the row | RTA-04 labels the documentation decision. Finding status stays put. |
 | Count Accept as undocumented as Matched | The match kind is unchanged. |
 | Let a documentation decision emit Confirmed or Exact | DIC-02 is a saved human mapping. AI cannot mint Exact. |
+| Add a diagram-document table to separate drawings | RTA-05 hashes the parsed nodes and edges onto the existing comparison. |
+| List every tenant decision to find a removed box | RTA-06 lists decisions for the current drawing fingerprint. |
+| Save a sealed decision through the advisory comparison route | RTA-07 adds a run-linked route. The sealed-manifest guard stays. |
 | Delete or skip `DiagramInfrastructureReconciliationSealedManifestHashGuard` | The sealed route stays sealed. |
 | Terraform apply, or pushing a gap into Azure | Plane section 8. Verify on a later capture. |
 | A second collector or Azure HTTP during compare | The capture and the uploaded file are the inputs. |
@@ -23,4 +26,4 @@ Paste this file only when a session starts a new finding for every gap, a dispos
 
 ## If a session is already implementing a hold item
 
-Stop. Revert the uncommitted hold-item code. Point at **RTA-01** through **RTA-04**.
+Stop. Revert the uncommitted hold-item code. Point at **RTA-01** through **RTA-07**.
