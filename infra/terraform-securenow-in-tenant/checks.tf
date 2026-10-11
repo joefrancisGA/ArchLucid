@@ -6,6 +6,21 @@ locals {
     local.enabled ? try(azurerm_automation_account.collection[0].id, "") : "",
     local.enabled ? trimspace(var.azure_openai_account_id) : "",
   ]
+
+  declared_role_names = [
+    "Storage Blob Data Contributor",
+    "Reader",
+    "Key Vault Secrets Officer",
+    "Key Vault Secrets User",
+    "Automation Job Operator",
+    "Cognitive Services OpenAI User",
+  ]
+
+  prohibited_role_names = [
+    "Owner",
+    "Contributor",
+    "User Access Administrator",
+  ]
 }
 
 check "uhg_names_are_product_owned" {
@@ -100,7 +115,7 @@ check "role_scopes_are_resource_scoped" {
 
 check "no_broad_role_names" {
   assert {
-    condition     = true
+    condition     = alltrue([for role_name in local.declared_role_names : !contains(local.prohibited_role_names, role_name)])
     error_message = "This root intentionally uses data-plane roles and Reader/Automation Job Operator only; do not add Owner, Contributor, or User Access Administrator."
   }
 }

@@ -48,6 +48,7 @@ resource "azurerm_virtual_network" "this" {
   tags                = var.tags
 
   depends_on = [azurerm_resource_group.this]
+
 }
 
 resource "azurerm_subnet" "private_endpoints" {
@@ -113,8 +114,6 @@ module "storage" {
   public_network_access_enabled = false
   network_rule_subnet_ids       = []
   tags                          = var.tags
-
-  depends_on = [azurerm_resource_group.this]
 }
 
 resource "azurerm_storage_container" "collection" {
@@ -442,11 +441,6 @@ module "container_apps" {
   azure_openai_chat_deployment_name                = var.azure_openai_chat_deployment_name
   azure_openai_embedding_deployment_name           = var.azure_openai_embedding_deployment_name
 
-  depends_on = [
-    azurerm_resource_group.this,
-    azurerm_role_assignment.api_key_vault_user,
-    azurerm_role_assignment.worker_key_vault_user,
-  ]
 }
 
 resource "azurerm_role_assignment" "api_openai_user" {
