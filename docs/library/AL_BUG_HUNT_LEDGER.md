@@ -27822,6 +27822,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ## Zone: context-ingestion
 
+2026-10-11 seed hunt (seed-only): re-read the selected JSON/HCL canonicalization, uploaded-config inference, and context-scope paths; no fresh row met the full reachability and wrong-outcome bar. The scoped ContextIngestion/Canonicalization filter passed 829/829; no production or regression code changed.
+
+- [ ] (candidate) `CanonicalTfJsonSerializer.WriteValue` — reachable ARM/Terraform security-rule arrays are sorted by serialized value during canonical storage, which could change rule precedence for a downstream consumer that evaluates order; promote only after identifying that consumer and a real ordered input path.
+- [ ] (candidate) `AppSettingsJsonInfrastructureDeclarationParser.WalkJsonElement` — numeric or boolean appsettings values are skipped while string values are inferred, which could omit a reachable host-bearing value only if a supported configuration contract permits non-string connection settings; requires a source-backed contract and consumer before promotion.
+
 2026-10-11 seed hunt (seed→hit): `InMemoryContextSnapshotRepository` allowed a scoped reader to fall back to snapshots saved without scope metadata, so an unscoped snapshot for a shared project could cross into a later tenant-scoped read. Latest and ID reads now fail closed when scoped metadata is absent or mismatched; regressions `GetLatestAsync_does_not_return_unscoped_snapshot_to_scoped_reader` and `GetByIdAsync_does_not_return_unscoped_snapshot_to_scoped_reader`; full ContextIngestion tests passed 829/829 and the scoped compile check passed with 0 warnings and 0 errors.
 
 - [x] (proven) `InMemoryContextSnapshotRepository.GetLatestAsync` / `GetByIdAsync` — a snapshot saved while scope metadata was absent remained visible to a later scoped reader for the same project — **hit 2026-10-11 seed hunt:** require saved scope metadata and exact tenant/workspace/project matching for scoped reads; regressions `GetLatestAsync_does_not_return_unscoped_snapshot_to_scoped_reader` and `GetByIdAsync_does_not_return_unscoped_snapshot_to_scoped_reader`.
