@@ -8,7 +8,7 @@ This matrix complements **[PRODUCT_PACKAGING.md](PRODUCT_PACKAGING.md)** four-bo
 
 | Signal | Current value |
 | --- | --- |
-| Registry rows | **252** controller route families (`route-tier-policy-nav-registry-count`) |
+| Registry rows | **253** controller route families (`route-tier-policy-nav-registry-count`) |
 | Executable registry | `scripts/ci/data/route_tier_policy_nav_registry.json` |
 | CI command | `python scripts/ci/assert_route_tier_policy_nav.py` |
 | Regenerate intentionally | `python scripts/ci/assert_route_tier_policy_nav.py --sync` |
@@ -68,7 +68,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 - **Allowlist / exemption reasons:** `scripts/ci/data/route_tier_policy_nav_exemptions.json`.
 - **Nav / exemption overrides:** `scripts/ci/data/route_tier_policy_nav_overrides.json`.
 
-<!-- route-tier-policy-nav-registry-count:252 -->
+<!-- route-tier-policy-nav-registry-count:253 -->
 
 | Controller source | API prefix (normalized) | commercial_tier (class) | class_policy | Operator nav href (parity only) | Exemption code |
 | --- | --- | --- | --- | --- | --- |
@@ -168,6 +168,7 @@ Merge-blocking check: `python scripts/ci/assert_route_tier_policy_nav.py` after 
 | `Authority/AwsTier2ConnectionController.cs` | `/v1/aws-extractor/connections` | none | ExecuteAuthority | /integrations/cloud-connections |  |
 | `Authority/AzureExtractorUploadController.cs` | `/v1/azure-extractor` | none | ReadAuthority |  |  |
 | `Authority/CloudInventoryExtractorUploadController.cs` | `/v1/extractor` | none | ReadAuthority |  |  |
+| `Authority/CollectionRunsController.cs` | `/v1/collection-runs` | none | ReadAuthority |  |  |
 | `Authority/DocxExportController.cs` | `/v1/docx` | standard | ReadAuthority |  |  |
 | `Authority/EvidenceBulkUploadController.cs` | `/v1/architecture/review/{runId:guid}/evidence` | none | ExecuteAuthority |  |  |
 | `Authority/EvidenceDocumentTextExtractionController.cs` | `/v1/architecture/evidence` | none | ReadAuthority |  |  |
