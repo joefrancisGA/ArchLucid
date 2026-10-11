@@ -9074,9 +9074,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: review-recurrence
 
+2026-10-11 seed hunt (seed-only): repeated the selected recurrence calculator review against its complete focused suite; production delegation, UTC normalization, strict advancement, and bounded preview inputs remain covered, with no fresh reachable mechanism-backed hypothesis. The focused suite passed 47/47; no production or regression code changed.
+
 2026-10-11 seed hunt (seed-only): re-read `ArchitectureReviewRecurrenceNextRunCalculator` and its production caller boundary; the scheduler implementation returns UTC-normalized occurrences, the facade bounds reachable preview counts, and no fresh mechanism-backed candidate met the promotion bar. The focused recurrence suite passed 47/47; no production or regression code changed.
 
-- **hunts:** 33
+- **hunts:** 34
 - **last-hunt:** 2026-10-10
 
 2026-10-11 seed hunt (seed-only): `review-recurrence` — re-read the unchanged calculator and focused tests, including all public single-run/batch inputs and the scheduler delegation boundary. The focused suite passed 47/47; no fresh reachable mechanism-backed hypothesis emerged and no production or regression code changed.
