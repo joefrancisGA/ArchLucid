@@ -1,5 +1,9 @@
-import { expect, type Page } from "@playwright/test";
+import { expect, type Page, type Response } from "@playwright/test";
 
+import {
+  isArchitectureRequestCreateJsonResponse,
+  readCreatedRunIdFromArchitectureRequestBody,
+} from "./architecture-request-create-response";
 import { liveE2eArchitectureDescription } from "./live-api-client";
 import { formatSimplifiedPilotWizardMountFailure } from "./simplified-pilot-wizard-mount-failure";
 import { waitAndDismissFirstSessionPurposeChooser } from "./live-seat-scope-assertions";
@@ -93,23 +97,33 @@ export async function submitPrivateBetaSimplifiedPilotWizard(page: Page): Promis
   });
 
   const createRespPromise = page.waitForResponse(
-    (response) =>
-      response.url().includes("/api/proxy/v1/architecture/request") && response.request().method() === "POST",
+    (response) => isArchitectureRequestCreateJsonResponse(toCreateJsonResponseArgs(response)),
     { timeout: liveE2ePrivateBetaWizardCreateTimeoutMs() },
   );
 
   await page.getByRole("button", { name: "Start an architecture review" }).click();
 
   const createResp = await createRespPromise;
+  const bodyText = await createResp.text();
 
-  expect(createResp.ok(), await createResp.text()).toBeTruthy();
+  expect(
+    createResp.ok(),
+    `POST /architecture/request failed ${createResp.status()}: ${bodyText}`,
+  ).toBeTruthy();
 
-  const createJson = (await createResp.json()) as { run?: { runId?: string } };
-  const runId = createJson.run?.runId ?? "";
+  return readCreatedRunIdFromArchitectureRequestBody(bodyText);
+}
 
-  expect(runId.length).toBeGreaterThan(0);
-
-  return runId;
+function toCreateJsonResponseArgs(response: Response): {
+  url: string;
+  method: string;
+  contentType: string | undefined;
+} {
+  return {
+    url: response.url(),
+    method: response.request().method(),
+    contentType: response.headers()["content-type"],
+  };
 }
 
 function liveE2ePrivateBetaWizardCreateTimeoutMs(): number {

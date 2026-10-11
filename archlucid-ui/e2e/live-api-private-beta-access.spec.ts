@@ -347,7 +347,8 @@ test.describe(
     await primePrivateBetaBrowserPage(page, accessToken);
     await page.goto("/", { waitUntil: "domcontentloaded" });
     await waitAndDismissFirstSessionPurposeChooser(page);
-    await expectPrivateBetaStartIntakeSurface(page);
+    // Home is not Start review / Create architecture; prove a live seat without hub locators.
+    await assertLiveSeatOperatorScopeChrome(page);
 
     await clearJwtBrowserSession(page);
     await page.goto(
@@ -378,7 +379,8 @@ test.describe(
       await primePrivateBetaBrowserPage(page, accessToken);
       await page.goto("/", { waitUntil: "domcontentloaded" });
       await waitAndDismissFirstSessionPurposeChooser(page);
-      await expectPrivateBetaStartIntakeSurface(page);
+      // Home is not Start review / Create architecture; prove a live seat without hub locators.
+      await assertLiveSeatOperatorScopeChrome(page);
 
       await clearJwtBrowserSession(page);
       await page.goto(
