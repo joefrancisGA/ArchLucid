@@ -2273,7 +2273,7 @@ describe("ArchitectureIntelligencePageClient", () => {
     expect(screen.queryByTestId("architecture-intelligence-next-review-footer-stub")).not.toBeInTheDocument();
     expect(screen.getByTestId("architecture-intelligence-publish-button")).toBeDisabled();
     expect(
-      within(screen.getByTestId("architecture-intelligence-analysis-setup-step-analyze")).getByText("Pending"),
+      within(screen.getByTestId("architecture-intelligence-analysis-setup-step-analyze")).getByText("In progress"),
     ).toBeInTheDocument();
   });
 
