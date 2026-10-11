@@ -39,6 +39,11 @@ SCAN_REL_PATHS: tuple[str, ...] = (
     "docs/library/FIRST_15_MINUTES_FOR_PRINCIPAL_ARCHITECTS.md",
     "archlucid-ui/src/components/marketing/welcome-marketing-copy.ts",
     "archlucid-ui/src/lib/cloud-neutral-primary-copy.ts",
+    "archlucid-ui/src/lib/export-markdown-sendable-cover.ts",
+    "archlucid-ui/src/components/reviews/RunDetailPackageSpineExportCoLocationStrip.tsx",
+    "archlucid-ui/src/components/runs/RunScopedAuditExportButton.tsx",
+    "archlucid-ui/src/components/audit/AuditDualChannelHonestyNote.tsx",
+    "archlucid-ui/src/lib/audit/audit-export-career-posture.ts",
 )
 
 

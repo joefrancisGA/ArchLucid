@@ -2,13 +2,22 @@ import { expect, type Page } from "@playwright/test";
 
 import { liveE2eArchitectureDescription } from "./live-api-client";
 import { formatSimplifiedPilotWizardMountFailure } from "./simplified-pilot-wizard-mount-failure";
+import { waitAndDismissFirstSessionPurposeChooser } from "./live-seat-scope-assertions";
+
+/**
+ * Working desks redirect `/architecture/reviews/new` when `path` is absent (DA-09).
+ * Keep `path=detailed` so `baseline=1` can mount SimplifiedPilotWizard instead of Create architecture.
+ */
+export const PRIVATE_BETA_SIMPLIFIED_PILOT_WIZARD_HREF =
+  "/architecture/reviews/new?path=detailed&baseline=1";
 
 /**
  * Submits the baseline simplified pilot wizard (`?baseline=1`) and returns the created run id.
  * Skips optional ZIP evidence on step 2 to keep private-beta invitee journeys within CI budget.
  */
 export async function submitPrivateBetaSimplifiedPilotWizard(page: Page): Promise<string> {
-  await page.goto("/architecture/reviews/new?baseline=1", { waitUntil: "domcontentloaded" });
+  await page.goto(PRIVATE_BETA_SIMPLIFIED_PILOT_WIZARD_HREF, { waitUntil: "domcontentloaded" });
+  await waitAndDismissFirstSessionPurposeChooser(page);
 
   try {
     await expect(page.getByTestId("simplified-pilot-wizard")).toBeVisible({ timeout: 60_000 });

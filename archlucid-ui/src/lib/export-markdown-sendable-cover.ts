@@ -100,10 +100,10 @@ export function formatSendableExportCoverMarkdown(input: SendableExportCoverInpu
   if (feasibilityVerdict !== null) {
     lines.push(`- **Gate outcome:** ${feasibilityVerdictKindLabel(feasibilityVerdict.kind)}`);
 
-    const gateSummary = feasibilityVerdict.summary?.trim();
-
-    if (gateSummary !== null && gateSummary !== undefined && gateSummary.length > 0) {
-      lines.push(`- **Gate summary:** ${gateSummary}`);
+    if (feasibilityVerdict.summary === null || feasibilityVerdict.summary === undefined) {
+      lines.push("- **Gate summary:** Verdict summary was not stored.");
+    } else if (feasibilityVerdict.summary.trim().length > 0) {
+      lines.push(`- **Gate summary:** ${feasibilityVerdict.summary.trim()}`);
     }
   } else {
     lines.push("- **Gate outcome:** Gate outcome was not stored");

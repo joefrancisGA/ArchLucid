@@ -30,6 +30,10 @@ public sealed class TenantCostEstimateService(ITenantRepository tenantRepository
             TenantTier.Free => (0, 0),
             _ => throw new InvalidOperationException("Tenant tier is not defined."),
         };
+
+        if (low < 0m || high < 0m)
+            return null;
+
         if (tenant.Tier is TenantTier.Free)
             factors.Add("Free tier: guidance defaults to zero — activate a commercial plan for a non-zero band.");
         return new TenantCostEstimate(rates.Currency, tenant.Tier, low, high, factors, rates.MethodologyNote);

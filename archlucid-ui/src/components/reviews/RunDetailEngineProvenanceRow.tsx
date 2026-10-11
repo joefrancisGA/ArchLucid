@@ -106,9 +106,10 @@ export function RunDetailEngineProvenanceRow(props: RunDetailEngineProvenanceRow
         {provenance.policyPackVersion ? (
           <ProvenanceField label="Policy pack" value={provenance.policyPackVersion} />
         ) : null}
-        {provenance.outputSchemaVersion ? (
-          <ProvenanceField label="Output schema" value={provenance.outputSchemaVersion} />
-        ) : null}
+        <ProvenanceField
+          label="Output schema"
+          value={provenance.outputSchemaVersion ?? "Output schema version was not stored."}
+        />
         <ProvenanceField
           label="Run"
           value={formatReviewEngineRunTimestamp(provenance.runTimestampUtc)}

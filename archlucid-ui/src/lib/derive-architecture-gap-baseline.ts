@@ -19,7 +19,7 @@ function sectionNarrativeText(section: ArchitectureStructuredSection | undefined
     return narrative;
   }
 
-  return section.entities
+  return (section.entities ?? [])
     .map((entity) => entity.label.trim())
     .filter((label) => label.length > 0)
     .join(" ");
@@ -33,7 +33,7 @@ function entitiesAsPeopleAndSystems(
     return [];
   }
 
-  return section.entities
+  return (section.entities ?? [])
     .map((entity) => ({
       label: entity.label.trim(),
       kind: defaultKind,

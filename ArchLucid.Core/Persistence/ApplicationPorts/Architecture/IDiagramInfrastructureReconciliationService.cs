@@ -16,4 +16,17 @@ public interface IDiagramInfrastructureReconciliationService
         Guid runId,
         Guid snapshotId,
         CancellationToken cancellationToken = default);
+
+    Task<InfrastructureDiagramDocumentationDecision> SaveDocumentationDecisionAsync(
+        ScopeContext scope,
+        Guid runId,
+        InfrastructureDiagramDocumentationDecisionSaveRequest request,
+        string? savedByUserOid,
+        CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyList<InfrastructureDiagramDocumentationDecision>?> TryListDocumentationDecisionsAsync(
+        ScopeContext scope,
+        Guid runId,
+        Guid snapshotId,
+        CancellationToken cancellationToken = default);
 }

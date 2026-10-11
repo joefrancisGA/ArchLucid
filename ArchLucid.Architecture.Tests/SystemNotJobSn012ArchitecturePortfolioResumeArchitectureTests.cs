@@ -47,7 +47,7 @@ public sealed class SystemNotJobSn012ArchitecturePortfolioResumeArchitectureTest
             Path.Combine(RepoRoot, "archlucid-ui", "src", "lib", "system-not-job-portfolio-resume-href.test.ts"));
 
         test.Should().Contain("SN-012");
-        test.Should().Contain("lands Working resume on the architecture desk when architecture id is known");
+        test.Should().Contain("nests Working resume review href on the architecture desk when architecture id is known");
         test.Should().Contain("parses run id from nested and peer review hrefs");
     }
 

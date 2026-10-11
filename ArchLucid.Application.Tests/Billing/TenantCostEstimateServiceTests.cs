@@ -84,6 +84,21 @@ public sealed class TenantCostEstimateServiceTests
         enterprise.EstimatedMonthlyUsdHigh.Should().Be(900);
     }
 
+    [SkippableFact]
+    public async Task TryGetEstimateAsync_rejects_negative_configured_standard_rates()
+    {
+        BillingUnitRatesOptions rates = new()
+        {
+            Currency = "USD",
+            StandardMonthlyUsdLow = -10,
+            StandardMonthlyUsdHigh = -1,
+        };
+
+        TenantCostEstimate? result = await EstimateAsync(TenantTier.Standard, rates);
+
+        result.Should().BeNull();
+    }
+
     private static async Task<TenantCostEstimate?> EstimateAsync(TenantTier tier, BillingUnitRatesOptions rates)
     {
         Mock<ITenantRepository> tenants = new();

@@ -139,4 +139,36 @@ describe("parseAzureExtractorUploadFailure", () => {
     expect(presentation.copyPayload.correlationId).toBe("corr-1");
     expect(presentation.docPath).toContain("AZURE_EXTRACTOR.md");
   });
+
+  it("describes a product-line refusal without blaming the ZIP", () => {
+    const presentation = parseAzureExtractorUploadFailure(
+      {
+        detail: "The active product line cannot access this API route.",
+        title: "Product line cannot use this route",
+        status: 403,
+        errorCode: "FORBIDDEN",
+      },
+      "Upload failed",
+      "corr-forbidden",
+    );
+
+    expect(presentation.errorCode).toBe("AZURE_EXTRACTOR_UPLOAD_PRODUCT_LINE_FORBIDDEN");
+    expect(presentation.heading).toBe("This product cannot use this upload route");
+    expect(presentation.guidance).toContain("was not inspected");
+    expect(presentation.guidance).not.toContain("extractor package");
+  });
+
+  it("does not classify a different forbidden detail as a product-line refusal", () => {
+    const presentation = parseAzureExtractorUploadFailure(
+      {
+        detail: "Missing permission to upload inventory.",
+        status: 403,
+        errorCode: "FORBIDDEN",
+      },
+      "Upload failed",
+      null,
+    );
+
+    expect(presentation.errorCode).toBe("AZURE_EXTRACTOR_UPLOAD_UNKNOWN");
+  });
 });

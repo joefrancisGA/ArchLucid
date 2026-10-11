@@ -1,11 +1,11 @@
-> **Scope:** Chapter 5 first draft for the book draft *Managing Azure Security with AI*. Author working text; not product documentation and not a description of any vendor's internals.
-> **Status:** draft
+> **Scope:** Chapter 5 revised draft for the book draft *Managing Azure Security with AI*. Author working text; not product documentation and not a description of any vendor's internals.
+> **Status:** draft — revised (revision pass 1, 2026-10-10)
 
 # Chapter 5 — Network reachability
 
 **Spine:** [`../README.md`](../README.md) · **Outline:** [`../OUTLINE.md`](../OUTLINE.md)
 
-> *Draft status: first draft. Target 7,000 words. Facts about Azure networking behavior, property names, and defaults must be re-verified against Microsoft documentation before submission.*
+> *Draft status: revised (revision pass 1, 2026-10-10). Target 7,000 words. Facts about Azure networking behavior, property names, and defaults were checked against Microsoft documentation in October 2026; re-check them before submission.*
 
 ---
 
@@ -88,7 +88,7 @@ For platform services (storage, Key Vault, SQL Database, Cosmos DB, App Service,
 
 A storage account's public exposure comes from two settings that work together:
 
-- **`publicNetworkAccess`**: `Enabled` or `Disabled`. When disabled, the public endpoint refuses traffic and only private endpoints work.
+- **`publicNetworkAccess`**: `Enabled`, `Disabled`, or `SecuredByPerimeter`. When disabled, ordinary public traffic is refused, but configured trusted-service exceptions remain effective; otherwise only private endpoints work. `SecuredByPerimeter` hands the decision to a network security perimeter, which is a separate resource with its own rules.
 - **`networkAcls`**: the storage firewall. Its **`defaultAction`** is `Allow` or `Deny`. With `Deny`, traffic is accepted only from listed **IP rules** (public address ranges), **virtual network rules** (subnets with a storage service endpoint), **resource instance rules** (specific Azure resources), and the **bypass** list, which can let trusted Azure services through.
 
 The portal presents these as three choices, which map roughly as follows:
@@ -101,6 +101,8 @@ The portal presents these as three choices, which map roughly as follows:
 
 A deterministic classifier over the collected properties is short:
 
+<!-- listing: lab/listings/python/ch05_reachability.py#storage_public_exposure -->
+
 ```python
 def storage_public_exposure(account: dict) -> tuple[str, list[str]]:
     """Classify a storage account's public data-plane exposure from its ARM properties."""
@@ -110,10 +112,18 @@ def storage_public_exposure(account: dict) -> tuple[str, list[str]]:
     acls = props.get("networkAcls") or {}
 
     if public == "disabled":
-        return "private only", ["publicNetworkAccess is Disabled"]
+        reasons = ["publicNetworkAccess is Disabled"]
+
+        # Trusted-service exceptions stay in effect even when public access is disabled.
+        bypass = acls.get("bypass")
+        if bypass and bypass.lower() != "none":
+            return "restricted", reasons + [f"bypass {bypass} still admits trusted Azure services"]
+
+        return "private only", reasons
 
     if public != "enabled":
-        return "unknown", [f"publicNetworkAccess is '{props.get('publicNetworkAccess')}'; evaluate it explicitly"]
+        setting = props.get("publicNetworkAccess")
+        return "unknown", [f"publicNetworkAccess is '{setting}'; evaluate it explicitly"]
 
     if (acls.get("defaultAction") or "Allow").lower() == "allow":
         return "internet", ["publicNetworkAccess is Enabled", "networkAcls.defaultAction is Allow"]
@@ -121,7 +131,10 @@ def storage_public_exposure(account: dict) -> tuple[str, list[str]]:
     reasons = ["networkAcls.defaultAction is Deny"]
     reasons += [f"IP rule {rule.get('value')}" for rule in acls.get("ipRules") or []]
     reasons += [f"subnet rule {rule.get('id')}" for rule in acls.get("virtualNetworkRules") or []]
-    reasons += [f"resource instance rule {rule.get('resourceId')}" for rule in acls.get("resourceAccessRules") or []]
+    reasons += [
+        f"resource instance rule {rule.get('resourceId')}"
+        for rule in acls.get("resourceAccessRules") or []
+    ]
 
     if acls.get("bypass") and acls["bypass"].lower() != "none":
         reasons.append(f"bypass {acls['bypass']}")
@@ -132,27 +145,25 @@ def storage_public_exposure(account: dict) -> tuple[str, list[str]]:
 Three details in that code matter more than they look:
 
 - **An unset value isn't "secure".** Older accounts may not carry `publicNetworkAccess` at all, and their behavior is governed by the firewall alone. Treating a missing value as disabled would mark the oldest, least-reviewed accounts as the safest.
-- **Unknown values return "unknown".** Azure adds options over time. A value your code doesn't recognize is a reason to stop and evaluate, not to guess.
-- **Every result carries reasons.** "Restricted" is useless without the list of what it's restricted to. An IP rule for a partner's whole address range, or a subnet rule for a development subnet, is often the actual finding.
-
-> **As of 2026-10:** Verify the current `publicNetworkAccess` values for storage (including any value tied to network security perimeters), the behavior when the property is unset, and how the trusted-services bypass interacts with `Disabled`.
+- **Unknown values return "unknown".** Azure adds options over time. `SecuredByPerimeter` is a recent example: the answer depends on the perimeter's rules, which this function doesn't read. A value your code doesn't recognize is a reason to stop and evaluate, not to guess.
+- **Every result carries reasons.** "Restricted" is useless without the list of what it's restricted to. An IP rule for a partner's whole address range, or a subnet rule for a development subnet, is often the actual finding. Disabling public access doesn't earn "private only" by itself: a bypass that still admits trusted Azure services makes the result "restricted", because Microsoft documents that trusted-service exceptions take precedence and stay in effect after public access is disabled.
 
 ### The same pattern elsewhere
 
 Most PaaS services follow the same shape, with service-specific twists worth knowing:
 
 - **Key Vault** has `publicNetworkAccess` and a `networkAcls` firewall with a trusted-services bypass, much like storage.
-- **Azure SQL Database** has `publicNetworkAccess` on the logical server and server-level firewall rules. One rule deserves special attention: **Allow Azure services and resources to access this server**, which appears as a firewall rule from `0.0.0.0` to `0.0.0.0`. It admits traffic from any Azure public address, including resources in other customers' subscriptions. It's not "our Azure resources". It's "anyone's".
-- **App Service and Function Apps** have `publicNetworkAccess`, inbound **access restrictions**, and a separate set of restrictions for the advanced tools (Kudu, or "SCM") site, which can be configured to follow the main site's rules or not. A locked-down app whose SCM site is open is not locked down.
+- **Azure SQL Database** has `publicNetworkAccess` on the logical server and server-level firewall rules. One rule deserves special attention: **Allow Azure services and resources to access this server**, which appears as a firewall rule named `AllowAllWindowsAzureIps` from `0.0.0.0` to `0.0.0.0`. It admits traffic from any Azure public address, including resources in other customers' subscriptions. It's not "our Azure resources". It's "anyone's".
+- **App Service and Function Apps** have `publicNetworkAccess`, inbound **access restrictions**, and a separate set of restrictions for the advanced tools (Kudu, or "SCM") site, which can be configured to follow the main site's rules or not ("Use main site rules" in the portal, `scmIpSecurityRestrictionsUseMain` in ARM). A locked-down app whose SCM site is open is not locked down.
 - **Cosmos DB, Event Hubs, Service Bus, Azure AI services** and many others carry their own variants of public access flags, IP rules, and virtual network rules.
-
-> **As of 2026-10:** Verify the SQL "Allow Azure services" rule representation, the App Service SCM restriction inheritance setting name, and the public access property names for each service listed.
 
 ### Private endpoints don't close public endpoints
 
 A **private endpoint** is a network interface in your virtual network with a private IP address, connected to one sub-resource of a PaaS service (for storage: `blob`, `file`, `queue`, `table`, `dfs`, or `web`). Traffic from inside your network can reach the service on that private address.
 
 It doesn't change the public endpoint. The opening story's mistake is common enough to deserve its own query, and it's the first step of this chapter's lab:
+
+<!-- listing: lab/listings/kql/appb-resources-with-a-private-endpoint-and.kql -->
 
 ```kusto
 resources
@@ -165,6 +176,8 @@ resources
     defaultAction = tostring(properties.networkAcls.defaultAction),
     privateEndpoints = array_length(properties.privateEndpointConnections)
 ```
+
+The query works across resource types, but its columns don't mean the same thing everywhere. `publicNetworkAccess` exists on most PaaS types. `networkAcls.defaultAction` is meaningful for storage and Key Vault; SQL keeps its rules in server firewall rules instead, so that column is empty for SQL rows. Use the query to find candidates, then classify each type with its own logic, as `storage_public_exposure` does for storage.
 
 Every row is a resource where someone did the work of adding a private path and the public path is still open, or at least not explicitly closed. Some rows are deliberate: a storage account serving public static content through one endpoint and private traffic through another. Most, in my experience, are unfinished projects. The query can't tell which. The intended reachability, from the owner, can.
 
@@ -203,6 +216,8 @@ The first default rule is where many surprises live. The `VirtualNetwork` servic
 When NSGs are attached at both the subnet and the network interface, traffic must be allowed by both. Inbound traffic is evaluated against the subnet's NSG first, then the interface's; outbound, the reverse.
 
 A minimal evaluator for inbound traffic, with service tags resolved from data you supply:
+
+<!-- listing: lab/listings/python/ch05_reachability.py#nsg_inbound -->
 
 ```python
 import ipaddress
@@ -288,14 +303,9 @@ def evaluate_inbound(
 This leaves out destination prefixes and application security groups to stay short, and it handles one NSG. For a subnet and interface pair, run it on both and require both to allow. The important behavior is the `Unknown` result. If a rule references a service tag whose address prefixes you didn't collect, the evaluator can't decide, and it says so rather than skipping the rule. Skipping it would silently change the answer. Microsoft publishes service tag prefixes as a downloadable file and through an API. Collect them with the snapshot and record their version.
 
 Network Watcher can also evaluate this for you. **IP flow verify** tells you whether a specific flow to or from a VM would be allowed and which rule decided it. **Effective security rules** shows the combined rules applied to an interface. Both are Azure's own evaluation of configuration, which makes them good derived facts and a good way to test your evaluator. They're per-flow and per-interface, so they don't replace computing reachability across an estate.
-
-> **As of 2026-10:** Verify NSG priority range, default rule names and priorities, the scope of the `VirtualNetwork` service tag, subnet-then-interface evaluation order, and Network Watcher feature names.
-
 ### NSGs and private endpoints
 
-NSG rules don't apply to private endpoints unless the subnet's **private endpoint network policies** setting enables them. For a long time the default was disabled, so many existing private endpoint subnets ignore their NSGs entirely. If your model applies NSG rules to private endpoint traffic without checking that setting, it will report restrictions that don't exist.
-
-> **As of 2026-10:** Verify the `privateEndpointNetworkPolicies` property values and the current default for new subnets.
+NSG rules don't apply to private endpoints unless the subnet's **private endpoint network policies** setting enables them. The default is disabled, so many private endpoint subnets ignore their NSGs entirely. In ARM the setting is the subnet's `privateEndpointNetworkPolicies` property. If your model applies NSG rules to private endpoint traffic without checking that setting, it will report restrictions that don't exist.
 
 ### Routes
 
@@ -316,9 +326,6 @@ Peering also expands the `VirtualNetwork` service tag. When a new spoke is peere
 Azure Firewall, or a third-party network virtual appliance, filters traffic routed through it. Azure Firewall processes rule collections in a defined order (destination NAT rules, then network rules, then application rules) and denies traffic that no rule allows.
 
 For reachability, the firewall is a filter applied to edges that routing sends through it. Model the rules the same way as NSG rules: priority, match, action, with `Unknown` for anything your evaluator can't decide, such as fully qualified domain name (FQDN) rules whose targets resolve differently over time. And treat broad rules as findings. The opening story's `10.0.0.0/8` to `10.0.0.0/8` rule turns a hub-and-spoke design into a flat network, regardless of how carefully the spokes were separated.
-
-> **As of 2026-10:** Verify Azure Firewall rule processing order with firewall policy, including rule collection group priorities.
-
 ### Public IP addresses
 
 Finally, the direct exposures: VMs with public IP addresses, load balancers and application gateways with public frontends, and NAT rules on firewalls. For each, the question is the same: what's listening behind it, and what do the NSGs and firewall rules allow from `Internet`? A management port such as SSH (22) or RDP (3389) open to the internet is the classic finding. Azure Bastion and just-in-time VM access exist to remove it.
@@ -364,7 +371,7 @@ Chapter 4 built an identity graph with typed, cited edges, and searched only edg
 
 **As a derived edge.** `canReach` from a position node (Internet, a subnet, on-premises) to an endpoint node (a resource's public or private endpoint), with the port and the evidence that decided it. Like Chapter 4's `canControlCode`, it's derived from evidence-only facts: properties, rules, routes. The search never walks raw NSG rules.
 
-**As a condition on data-plane edges.** Chapter 4's hop H7 was "Contributor can list `custdata`'s keys, and shared key access is enabled, so the holder can read its blob data." With network evidence, that becomes a set of `grants` edges, one per position from which the blob endpoint is reachable:
+**As a condition on data-plane edges.** The list-keys hop on Chapter 4's paths (H7 in Chapter 7's evidence pack) says "Contributor can list `custdata`'s keys, and shared key access is enabled, so the holder can read its blob data." With network evidence, that becomes a set of `grants` edges, one per position from which the blob endpoint is reachable:
 
 | Position | Reachable? | Evidence |
 |----------|-----------|----------|
@@ -395,12 +402,10 @@ Treat anything you can't read, such as a firewall policy in a subscription the c
 
 Configuration says what can happen. To say what did, you need logs that record connections. Azure has several, at different layers:
 
-- **Virtual network flow logs** record flows through a virtual network, with source and destination addresses, ports, and whether the flow was allowed. They replace the older **NSG flow logs**, which Microsoft is retiring.
+- **Virtual network flow logs** record flows through a virtual network, with source and destination addresses, ports, and whether the flow was allowed. They replace the older **NSG flow logs**, which Microsoft is retiring: new NSG flow logs can't be created after June 30, 2025, and existing ones stop working after September 30, 2027.
 - **Azure Firewall logs** record flows the firewall allowed or denied, and which rule decided.
 - **Resource logs on PaaS services** record requests to the service itself. For storage, the blob logs include the caller's IP address, the operation, and the authentication type. That's the most direct evidence of who reached `custdata` and from where.
 - **Traffic Analytics** summarizes flow logs into a queryable workspace.
-
-> **As of 2026-10:** Verify the NSG flow log retirement timeline, virtual network flow log availability and schema, storage blob resource log fields (`CallerIpAddress`, `AuthenticationType`), and Traffic Analytics positioning.
 
 Observed reachability answers questions configuration can't:
 
@@ -505,13 +510,8 @@ This lab reproduces the opening story and separates its four kinds of reachabili
 
 ## Author notes (remove before submission)
 
-- Verify: storage `publicNetworkAccess` values (including perimeter-related values) and unset behavior; `networkAcls` fields (`ipRules`, `virtualNetworkRules`, `resourceAccessRules`, `bypass`); portal label wording; interaction of trusted-services bypass with `Disabled`.
-- Verify: SQL "Allow Azure services and resources to access this server" representation as `0.0.0.0`–`0.0.0.0` and its scope; App Service SCM access restriction inheritance setting; App Service `publicNetworkAccess`.
-- Verify: NSG priority range, default rules, `VirtualNetwork` tag scope (peered networks, gateway-connected on-premises), subnet/interface evaluation order; private endpoint network policies property and default.
-- Verify: Azure Firewall rule processing order under firewall policy; peering settings names.
-- Verify: NSG flow log retirement dates, virtual network flow logs, storage blob log fields, Traffic Analytics.
-- Verify: Network Watcher IP flow verify, effective security rules, and effective routes feature names and scope.
-- Test `storage_public_exposure` and `evaluate_inbound` against lab data, and the Resource Graph query against a tenant with mixed resource types (some types store `publicNetworkAccess` elsewhere or not at all).
+- Verified 2026-10-10 (revision pass 1): storage `publicNetworkAccess` values and bypass precedence; SQL `AllowAllWindowsAzureIps`; `scmIpSecurityRestrictionsUseMain`; NSG priorities, default rules, `VirtualNetwork` scope and evaluation order; private endpoint network policies default; Azure Firewall processing order; flow log retirement dates; Network Watcher feature names.
+- `storage_public_exposure` and `evaluate_inbound` pass offline fixtures (`lab/listings/python/tests/test_ch05_reachability.py`). Testing showed the bullet on "private only" contradicted the code, which returns "restricted" whenever a bypass is set; the bullet now matches the code (2026-10-11). Still to do: run the Resource Graph query against a live tenant with mixed resource types.
 - "Most, in my experience, are unfinished projects" is an author-experience claim; keep it attributed.
 - Consider a figure showing the payments hub-and-spoke with the four positions.
 - Add the Chapter 5 fact checks to GTM **M-306** when it is picked up.

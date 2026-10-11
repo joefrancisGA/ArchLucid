@@ -235,6 +235,22 @@ After the repair set is present on the release cut:
 3. Record the run IDs and SHA in the RC evidence bundle.
 4. Keep Gate 1, G-REAL-06, G-REAL-07, and ruleset application as separate owner actions.
 
+### Observed RC35 evidence row — 2026-10-10
+
+| Field | Observed value |
+| --- | --- |
+| RC35 head | `11c35de4762785ea1f99bd16475a09660f24374a` |
+| UI typecheck / beta-readiness guards | **FAIL** — run `38063851079` |
+| UI typecheck / OpenAPI fail-fast | **FAIL** — run `38063851079`; `CS0103` for `ArmResourceIdNormalizer` |
+| OpenAPI refresh | **FAIL** — run `38063851100` |
+| Private-beta JwtBearer access path | **FAIL** — run `38063851075` |
+| RC release gate | **PASS** — run `38063851076` |
+| Staging deployment | **No run observed** |
+| Gate 1 | **UNKNOWN** |
+| G-REAL-06 | **Not started** |
+
+This row records CI observations only. It is not a staging witness, Real-mode pilot proof, ruleset application, or customer evidence.
+
 ### Observed RC35 evidence row — 2026-10-11
 
 | Field | Observed value |
@@ -243,13 +259,13 @@ After the repair set is present on the release cut:
 | UI typecheck / beta-readiness guards / push corset | **PASS** — run `38148276151` |
 | UI typecheck / OpenAPI fail-fast | **PASS** — run `38148276151` |
 | OpenAPI refresh | **No run observed** — no refresh run exists for this head |
-| Private-beta JwtBearer access path | **FAIL** — run `38148276113` |
-| RC release gate | **PASS** — run `38148276259` |
+| Private-beta JwtBearer access path | **In progress** — run `38148276113` |
+| RC release gate | **In progress** — run `38148276259` |
 | Staging deployment | **No run observed** |
 | Gate 1 | **UNKNOWN** |
 | G-REAL-06 | **Not started** |
 
-This row records CI observations only. It is not a staging witness, Real-mode pilot proof, ruleset application, or customer evidence.
+The refresh workflow is path-filtered to contract-layer paths; the RC35 repair set changed tests, UI, CI guards, and runbook documentation. This row records CI observations only and is not a staging witness, Real-mode pilot proof, ruleset application, or customer evidence.
 ## Golden-cohort apply (owner, after first green)
 
 When `Operator UI: private-beta access-path (JwtBearer)` completes green at least once on `master`:

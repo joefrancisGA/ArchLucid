@@ -35,6 +35,10 @@ export function resolveFinalizedReviewRecordLabel(manifestId: string | null | un
     : "Finalized review record was not stored.";
 }
 
+export function resolveArtifactBundleIdLabel(artifactBundleId: string | null | undefined): string {
+  return artifactBundleId ?? "Artifact bundle id was not stored.";
+}
+
 /** Full-operator review trail: manifest link + collapsible audit identifiers. */
 export function RunDetailAuthorityChainSection(props: RunDetailAuthorityChainSectionProps): ReactElement {
   const { run, manifestId } = props;
@@ -207,7 +211,7 @@ export function RunDetailAuthorityChainSection(props: RunDetailAuthorityChainSec
                 </span>
                 <span className="flex min-w-0 flex-1 items-center justify-end gap-2">
                   <code className={monoCodeClass}>
-                    {run.artifactBundleId ?? "Not returned"}
+                    {resolveArtifactBundleIdLabel(run.artifactBundleId)}
                   </code>
                   {run.artifactBundleId ? (
                     <CopyIdButton value={run.artifactBundleId} aria-label="Copy artifact bundle ID" />

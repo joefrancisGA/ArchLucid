@@ -272,6 +272,61 @@ describe('ArchitectureDiagramViewer', () => {
     );
   });
 
+  it('reports missing questionable actions while preserving stored empty actions', async () => {
+    const forestLayoutSvg =
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 60">' +
+      '  <g class="node" id="node-vm" transform="translate(10,10)"><title>avd01-nprod-0</title><rect class="node-card-questionable" width="80" height="30"/></g>' +
+      '</svg>';
+
+    const { rerender } = render(
+      <ArchitectureDiagramViewer
+        mermaidSource={'flowchart TD\n  vm["avd01-nprod-0"]'}
+        layoutSvg={forestLayoutSvg}
+        outline={{
+          nodes: [{
+            id: 'vm',
+            label: 'avd01-nprod-0',
+            resourceType: 'Microsoft.Compute/virtualMachines',
+            resourceGroup: 'rg-avd',
+            questionableReason: 'Not registered',
+            questionableAction: null,
+          }],
+          edges: [],
+        }}
+        textAlternative="Inventory topology"
+      />,
+    );
+
+    const host = await screen.findByTestId('architecture-diagram-svg-host');
+    fireEvent.click(host.querySelector('#node-vm')!);
+    expect(await screen.findByTestId('infra-diagrams-questionable-panel')).toHaveTextContent(
+      'Recommended action: Recommended action was not stored.',
+    );
+
+    rerender(
+      <ArchitectureDiagramViewer
+        mermaidSource={'flowchart TD\n  vm["avd01-nprod-0"]'}
+        layoutSvg={forestLayoutSvg}
+        outline={{
+          nodes: [{
+            id: 'vm',
+            label: 'avd01-nprod-0',
+            resourceType: 'Microsoft.Compute/virtualMachines',
+            resourceGroup: 'rg-avd',
+            questionableReason: 'Not registered',
+            questionableAction: '',
+          }],
+          edges: [],
+        }}
+        textAlternative="Inventory topology"
+      />,
+    );
+
+    expect(screen.getByTestId('infra-diagrams-questionable-panel')).not.toHaveTextContent(
+      'Recommended action was not stored.',
+    );
+  });
+
   it('dims unrelated forest ink without changing the camera viewBox', async () => {
     const forestLayoutSvg = [
       '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 120">',
@@ -314,6 +369,51 @@ describe('ArchitectureDiagramViewer', () => {
     await waitFor(() => {
       expect(screen.queryByTestId('diagram-click-focus-status')).toBeNull();
       expect(host.querySelector('#node-other')).not.toHaveClass('diagram-click-dim');
+    });
+  });
+
+  it('reports connector clicks and dims other connectors when selected', async () => {
+    const onSelectConnector = vi.fn();
+    const forestLayoutSvg = [
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 120">',
+      '  <g class="edge" data-from="app" data-to="sql"><title>May access</title><path d="M20 20L80 20"/></g>',
+      '  <g class="edge" data-from="app" data-to="storage"><title>Writes to</title><path d="M20 40L80 40"/></g>',
+      '</svg>',
+    ].join('');
+
+    const { rerender } = render(
+      <ArchitectureDiagramViewer
+        mermaidSource={'flowchart TD\n  app["app"] --> sql["sql"]'}
+        layoutSvg={forestLayoutSvg}
+        outline={{ nodes: [], edges: [] }}
+        textAlternative="Inventory topology"
+        onSelectConnector={onSelectConnector}
+      />,
+    );
+
+    const host = await screen.findByTestId('architecture-diagram-svg-host');
+    const selectedEdge = host.querySelector('g.edge[data-from="app"][data-to="sql"]')!;
+    fireEvent.click(selectedEdge.querySelector('path')!);
+
+    expect(onSelectConnector).toHaveBeenCalledWith({
+      from: 'app',
+      to: 'sql',
+      label: 'May access',
+    });
+
+    rerender(
+      <ArchitectureDiagramViewer
+        mermaidSource={'flowchart TD\n  app["app"] --> sql["sql"]'}
+        layoutSvg={forestLayoutSvg}
+        outline={{ nodes: [], edges: [] }}
+        textAlternative="Inventory topology"
+        selectedConnector={{ from: 'app', to: 'sql', label: 'May access' }}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(selectedEdge).not.toHaveClass('diagram-click-dim');
+      expect(host.querySelector('g.edge[data-from="app"][data-to="storage"]')).toHaveClass('diagram-click-dim');
     });
   });
 

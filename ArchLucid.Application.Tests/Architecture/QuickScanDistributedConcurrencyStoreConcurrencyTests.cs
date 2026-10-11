@@ -117,6 +117,42 @@ public sealed class QuickScanDistributedConcurrencyStoreConcurrencyTests
         promote.Promoted.Should().BeFalse();
     }
 
+    [Fact]
+    public async Task TryPromoteAsync_preserves_enqueue_order_when_waiters_share_the_same_timestamp()
+    {
+        InMemoryQuickScanDistributedConcurrencyStore store = new();
+        Guid activeLeaseId = Guid.NewGuid();
+        Guid earlierQueueEntryId = Guid.NewGuid();
+        Guid laterQueueEntryId = Guid.NewGuid();
+
+        QuickScanConcurrencyAdmitResult direct = await store.TryAdmitAsync(
+            BuildAdmitRequest(activeLeaseId, Guid.NewGuid(), "active", maxConcurrent: 1, maxQueued: 2));
+        direct.Outcome.Should().Be(QuickScanConcurrencyAdmitOutcome.DirectLease);
+
+        QuickScanConcurrencyAdmitResult earlier = await store.TryAdmitAsync(
+            BuildAdmitRequest(Guid.NewGuid(), earlierQueueEntryId, "earlier", maxConcurrent: 1, maxQueued: 2));
+        QuickScanConcurrencyAdmitResult later = await store.TryAdmitAsync(
+            BuildAdmitRequest(Guid.NewGuid(), laterQueueEntryId, "later", maxConcurrent: 1, maxQueued: 2));
+
+        earlier.Outcome.Should().Be(QuickScanConcurrencyAdmitOutcome.Queued);
+        later.Outcome.Should().Be(QuickScanConcurrencyAdmitOutcome.Queued);
+
+        await store.ReleaseLeaseAsync(activeLeaseId);
+
+        QuickScanConcurrencyPromoteResult laterPromotion = await store.TryPromoteAsync(
+            new QuickScanConcurrencyPromoteRequest
+            {
+                QueueEntryId = laterQueueEntryId,
+                LeaseId = Guid.NewGuid(),
+                HolderInstanceId = "test",
+                UtcNow = BaseUtc,
+                MaxConcurrentScans = 1,
+                LeaseDuration = TimeSpan.FromSeconds(60),
+            });
+
+        laterPromotion.Promoted.Should().BeFalse();
+    }
+
     private static QuickScanConcurrencyAdmitRequest BuildAdmitRequest(
         Guid leaseId,
         Guid queueEntryId,

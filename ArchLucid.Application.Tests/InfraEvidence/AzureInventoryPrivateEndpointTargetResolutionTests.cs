@@ -7,6 +7,8 @@ using ArchLucid.Persistence.InfraEvidence;
 
 namespace ArchLucid.Application.Tests.InfraEvidence;
 
+[Trait("Category", "Unit")]
+[Trait("Suite", "Application")]
 public sealed class AzureInventoryPrivateEndpointTargetResolutionTests
 {
     private const string Pe = "/subscriptions/sub/resourcegroups/rg/providers/microsoft.network/privateendpoints/pe";
@@ -59,6 +61,7 @@ public sealed class AzureInventoryPrivateEndpointTargetResolutionTests
         HashSet<string> seen = new(nodes.Select(node => node.NodeId), StringComparer.Ordinal);
         HashSet<string> collected = new(mappings.Keys, StringComparer.OrdinalIgnoreCase);
         HashSet<string> hidden = new(StringComparer.OrdinalIgnoreCase);
+
         if (scenario.StartsWith("hidden-collected", StringComparison.Ordinal)) hidden.Add(Server);
         bool includeHidden = scenario.EndsWith("-included", StringComparison.Ordinal);
         int initialNodeCount = nodes.Count;
@@ -90,6 +93,7 @@ public sealed class AzureInventoryPrivateEndpointTargetResolutionTests
         Assert.Equal(firstEdgeIds, edges.Select(edge => edge.EdgeId));
 
         bool placeholderExpected = scenario is "missing" or "hidden-absent-included";
+
         if (placeholderExpected)
         {
             GraphNode placeholder = Assert.Single(nodes, node => node.Properties.ContainsKey("inventory.collectionStatus"));
@@ -106,6 +110,7 @@ public sealed class AzureInventoryPrivateEndpointTargetResolutionTests
         }
         Assert.Equal(expectedTargets.Order(StringComparer.Ordinal), edges.Select(edge => edge.ToNodeId).Order(StringComparer.Ordinal));
         Assert.Equal(expectedTargets.Length, edgeKeys.Count);
+
         foreach (GraphEdge edge in edges)
         {
             Assert.Equal("pe", edge.FromNodeId);

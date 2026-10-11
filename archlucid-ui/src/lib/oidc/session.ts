@@ -45,6 +45,16 @@ const EXPIRY_SKEW_MS = 60_000;
 
 let refreshInFlight: Promise<void> | null = null;
 let refreshSessionGeneration = 0;
+let latestTokenSyncGeneration = -1;
+let tokenSyncSequence = 0;
+
+type TokenSyncRequest = {
+  readonly sequence: number;
+  readonly generation: number;
+  readonly tokens: OidcTokenResponse;
+};
+
+let latestTokenSyncRequest: TokenSyncRequest | null = null;
 
 function readSessionKey(key: string): string | null {
   if (typeof sessionStorage === "undefined") {
@@ -67,6 +77,7 @@ function removeOidcKeys(keys: readonly string[]): void {
 }
 
 function persistNonSensitiveSessionHints(tokens: OidcTokenResponse, expiresAtMs: number): void {
+  removeOidcKeys([OIDC_DISPLAY_NAME_KEY, OIDC_USER_SUBJECT_KEY]);
   sessionStorage.setItem(OIDC_EXPIRES_AT_MS_KEY, String(expiresAtMs));
 
   const accessPayload = decodeJwtPayload(tokens.access_token);
@@ -86,6 +97,31 @@ function persistNonSensitiveSessionHints(tokens: OidcTokenResponse, expiresAtMs:
   }
 }
 
+async function syncTokenToBff(request: TokenSyncRequest): Promise<void> {
+  if (request.generation !== refreshSessionGeneration) {
+    return;
+  }
+
+  await syncBffSessionCookieFromTokenResponse(request.tokens);
+
+  if (request.generation !== refreshSessionGeneration) {
+    // Keep stale sign-in cleanup from deleting a replacement session's cookie.
+    if (latestTokenSyncGeneration !== refreshSessionGeneration) {
+      await clearBffSessionCookie();
+    }
+
+    return;
+  }
+
+  const latestRequest = latestTokenSyncRequest;
+
+  if (latestRequest && latestRequest.sequence !== request.sequence) {
+    // A newer request may have completed before this response. Reapply it so
+    // a late older response cannot become the final BFF cookie value.
+    await syncTokenToBff(latestRequest);
+  }
+}
+
 /**
  * Persists OIDC sign-in state for Working GA (LK-06 P2).
  * Token material is issued only to the HttpOnly BFF cookie; PKCE verifier/state may remain in sessionStorage.
@@ -100,17 +136,15 @@ export function persistTokenResponse(tokens: OidcTokenResponse): void {
 
   persistNonSensitiveSessionHints(tokens, expiresAtMs);
   const generationAtPersist = refreshSessionGeneration;
-  void (async () => {
-    if (generationAtPersist !== refreshSessionGeneration) {
-      return;
-    }
+  latestTokenSyncGeneration = generationAtPersist;
+  const request: TokenSyncRequest = {
+    sequence: ++tokenSyncSequence,
+    generation: generationAtPersist,
+    tokens,
+  };
+  latestTokenSyncRequest = request;
 
-    await syncBffSessionCookieFromTokenResponse(tokens);
-
-    if (generationAtPersist !== refreshSessionGeneration) {
-      await clearBffSessionCookie();
-    }
-  })();
+  void syncTokenToBff(request);
 }
 
 export type ClearOidcSessionOptions = {

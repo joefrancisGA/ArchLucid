@@ -1,11 +1,11 @@
-> **Scope:** Chapter 7 first draft for the book draft *Managing Azure Security with AI*. Author working text; not product documentation and not a description of any vendor's internals.
-> **Status:** draft
+> **Scope:** Chapter 7 revised draft for the book draft *Managing Azure Security with AI*. Author working text; not product documentation and not a description of any vendor's internals.
+> **Status:** draft — revised (revision pass 1, 2026-10-10)
 
 # Chapter 7 — Where LLMs help
 
 **Spine:** [`../README.md`](../README.md) · **Outline:** [`../OUTLINE.md`](../OUTLINE.md)
 
-> *Draft status: first draft. Target 8,000 words. Facts about Azure AI services, model features, and pricing must be re-verified against Microsoft documentation before submission.*
+> *Draft status: revised (revision pass 1, 2026-10-10). Target 8,000 words. Facts about Azure AI services and model features were checked against Microsoft documentation in October 2026; dated "As of" notes mark the ones to re-check before submission.*
 
 ---
 
@@ -93,40 +93,135 @@ The rest of this chapter takes the stages in order.
 
 The evidence pack is a small JSON document generated from your derivation step. It is *not* the snapshot. It's a deliberate selection: the paths relevant to the question, their hops, the gaps that affect them, and any recommended cut points.
 
+<!-- listing: lab/listings/json/ch07-building-the-evidence-pack.json -->
+
 ```json
 {
   "packId": "payments-paths-2026-10-06",
   "snapshotId": "2026-10-06T09-10-00Z-prod",
   "question": "Summarize access paths to customer data in the payments estate.",
   "hops": [
-    { "id": "H1", "claim": "Workflows on main in contoso/payments can sign in as payments-deploy.", "category": "deterministic inference", "assumptions": ["Branch protection allows the merge"], "assumptionsChecked": false },
-    { "id": "H2", "claim": "User dev-lead is an owner of the payments-deploy app registration and can add credentials to it.", "category": "observed fact" },
-    { "id": "H3", "claim": "User helpdesk-07 holds Cloud Application Administrator, which can add credentials to payments-deploy.", "category": "derived fact" },
-    { "id": "H4", "claim": "Any credential on the payments-deploy app lets the holder sign in as its service principal.", "category": "derived fact" },
-    { "id": "H5", "claim": "The payments-deploy service principal holds Contributor on rg-payments-prod.", "category": "observed fact" },
-    { "id": "H6", "claim": "custdata and the Function App pay-reconcile are in rg-payments-prod.", "category": "observed fact" },
-    { "id": "H7", "claim": "Contributor can list custdata's keys, and shared key access is enabled, so the holder can read its blob data.", "category": "deterministic inference", "assumptionsChecked": true },
-    { "id": "H8", "claim": "Contributor can deploy code to pay-reconcile, which runs as managed identity mi-pay-reconcile.", "category": "derived fact" },
-    { "id": "H9", "claim": "mi-pay-reconcile holds Storage Blob Data Reader on custarchive.", "category": "observed fact" }
+    {
+      "id": "H1",
+      "claim": "Workflows on main in contoso/payments can sign in as payments-deploy.",
+      "category": "deterministic inference",
+      "assumptions": ["Branch protection allows the merge"],
+      "assumptionsChecked": false
+    },
+    {
+      "id": "H2",
+      "claim": "User dev-lead is an owner of the payments-deploy app registration and can add credentials to it.",
+      "category": "observed fact"
+    },
+    {
+      "id": "H3",
+      "claim": "User helpdesk-07 holds Cloud Application Administrator, which can add credentials to payments-deploy.",
+      "category": "derived fact"
+    },
+    {
+      "id": "H4",
+      "claim": "Any credential on the payments-deploy app lets the holder sign in as its service principal.",
+      "category": "derived fact"
+    },
+    {
+      "id": "H5",
+      "claim": "The payments-deploy service principal holds Contributor on rg-payments-prod.",
+      "category": "observed fact"
+    },
+    {
+      "id": "H6",
+      "claim": "custdata and the Function App pay-reconcile are in rg-payments-prod.",
+      "category": "observed fact"
+    },
+    {
+      "id": "H7",
+      "claim": "Contributor can list custdata's keys, and shared key access is enabled, so the holder can read its blob data.",
+      "category": "deterministic inference",
+      "assumptionsChecked": true
+    },
+    {
+      "id": "H8",
+      "claim": "Contributor can deploy code to pay-reconcile, which runs as managed identity mi-pay-reconcile.",
+      "category": "derived fact"
+    },
+    {
+      "id": "H9",
+      "claim": "mi-pay-reconcile holds Storage Blob Data Reader on custarchive.",
+      "category": "observed fact"
+    }
   ],
   "paths": [
-    { "id": "P1", "hops": ["H1", "H4", "H5", "H6", "H7"], "target": "Read customer data in custdata", "confidence": "Medium" },
-    { "id": "P2", "hops": ["H2", "H4", "H5", "H6", "H7"], "target": "Read customer data in custdata", "confidence": "High" },
-    { "id": "P3", "hops": ["H3", "H4", "H5", "H6", "H7"], "target": "Read customer data in custdata", "confidence": "High" },
-    { "id": "P4", "hops": ["H1", "H4", "H5", "H6", "H8", "H9"], "target": "Read archived customer data in custarchive", "confidence": "Medium" },
-    { "id": "P5", "hops": ["H2", "H4", "H5", "H6", "H8", "H9"], "target": "Read archived customer data in custarchive", "confidence": "High" },
-    { "id": "P6", "hops": ["H3", "H4", "H5", "H6", "H8", "H9"], "target": "Read archived customer data in custarchive", "confidence": "High" }
+    {
+      "id": "P1",
+      "hops": ["H1", "H4", "H5", "H6", "H7"],
+      "target": "Read customer data in custdata",
+      "confidence": "Medium"
+    },
+    {
+      "id": "P2",
+      "hops": ["H2", "H4", "H5", "H6", "H7"],
+      "target": "Read customer data in custdata",
+      "confidence": "High"
+    },
+    {
+      "id": "P3",
+      "hops": ["H3", "H4", "H5", "H6", "H7"],
+      "target": "Read customer data in custdata",
+      "confidence": "High"
+    },
+    {
+      "id": "P4",
+      "hops": ["H1", "H4", "H5", "H6", "H8", "H9"],
+      "target": "Read archived customer data in custarchive",
+      "confidence": "Medium"
+    },
+    {
+      "id": "P5",
+      "hops": ["H2", "H4", "H5", "H6", "H8", "H9"],
+      "target": "Read archived customer data in custarchive",
+      "confidence": "High"
+    },
+    {
+      "id": "P6",
+      "hops": ["H3", "H4", "H5", "H6", "H8", "H9"],
+      "target": "Read archived customer data in custarchive",
+      "confidence": "High"
+    }
   ],
   "targets": [
-    { "id": "T1", "claim": "custdata holds production customer records.", "category": "human assertion", "assertedBy": "Data Protection Officer", "assertedAt": "2026-09-14", "expiresAt": "2027-03-14" },
-    { "id": "T2", "claim": "custarchive holds archived customer records.", "category": "human assertion", "assertedBy": "Data Protection Officer", "assertedAt": "2026-09-14", "expiresAt": "2027-03-14" }
+    {
+      "id": "T1",
+      "claim": "custdata holds production customer records.",
+      "category": "human assertion",
+      "assertedBy": "Data Protection Officer",
+      "assertedAt": "2026-09-14",
+      "expiresAt": "2027-03-14"
+    },
+    {
+      "id": "T2",
+      "claim": "custarchive holds archived customer records.",
+      "category": "human assertion",
+      "assertedBy": "Data Protection Officer",
+      "assertedAt": "2026-09-14",
+      "expiresAt": "2027-03-14"
+    }
   ],
   "gaps": [
-    { "id": "G1", "claim": "Blob read logging is not enabled on custdata, so use of any path cannot be determined." },
-    { "id": "G2", "claim": "Blob read logging is not enabled on custarchive, so use of any path cannot be determined." }
+    {
+      "id": "G1",
+      "claim": "Blob read logging is not enabled on custdata, so use of any path cannot be determined."
+    },
+    {
+      "id": "G2",
+      "claim": "Blob read logging is not enabled on custarchive, so use of any path cannot be determined."
+    }
   ],
   "cutPoints": [
-    { "id": "C1", "claim": "Narrowing payments-deploy from Contributor to the specific roles its deployments need would close P1 through P3. P4 through P6 stay open while the pipeline deploys pay-reconcile, because deploying code lets the deployer act as that code.", "closes": ["P1", "P2", "P3"] }
+    {
+      "id": "C1",
+      "claim": "Narrowing payments-deploy from Contributor to the specific roles its deployments need would close P1 through P3. P4 through P6 stay open while the pipeline deploys pay-reconcile, because deploying code lets the deployer act as that code.",
+      "closes": ["P1", "P2", "P3"]
+    }
   ]
 }
 ```
@@ -170,28 +265,38 @@ Rules:
 4. Never state or imply that access has occurred. If the pack has a gap about
    observing access, say plainly that use cannot be determined.
 5. Do not include numbers, percentages, or estimates that are not in the pack.
-6. If the pack does not contain enough to answer, say "The evidence pack does not
-   contain enough information to answer this" and stop.
+6. If the pack does not contain enough to answer, set "status" to
+   "insufficient_evidence", return no sentences, and stop.
 ```
 
 Rule 6 matters more than it looks. Without an explicit way out, a model asked an unanswerable question will produce an answer anyway. With one, you can test whether it uses the exit when it should (Chapter 8).
+
+The exit is a field in the output rather than a sentence for the model to write. Matching a fixed sentence is fragile: a model that paraphrases it ("The pack doesn't include that") has used the exit, but a string match says it hasn't. A field is either set or not. Your code can then produce a consistent message for the reader, and a test can assert whether the exit was taken.
 
 ### Structured output
 
 Prose is pleasant to read and hard to check. Ask for structured output instead and assemble the prose afterwards:
 
+<!-- listing: lab/listings/json/ch07-structured-output.json -->
+
 ```json
 {
+  "status": "answered",
   "sentences": [
-    { "text": "Six access paths lead from people and pipelines to customer data in two storage accounts.", "cites": ["P1", "P2", "P3", "P4", "P5", "P6"] },
+    {
+      "text": "Six access paths lead from people and pipelines to customer data in two storage accounts.",
+      "cites": ["P1", "P2", "P3", "P4", "P5", "P6"]
+    },
     { "text": "All six pass through one deployment identity, payments-deploy.", "cites": ["H4"] }
   ]
 }
 ```
 
-Many model services, including Azure OpenAI, can constrain output to a JSON schema you supply, which removes a whole class of parsing failures. Even without that feature, asking for this shape makes validation far simpler than parsing citations out of free text.
+`status` is either `answered` or `insufficient_evidence`. An exit looks like `{"status": "insufficient_evidence", "sentences": []}`. A draft that sets the exit and still returns sentences has broken rule 6, and the validator treats it as a failure.
 
-> **As of 2026-10:** Verify which Azure OpenAI models and API versions support schema-constrained ("structured") outputs.
+Many model services, including Azure OpenAI, can constrain output to a JSON schema you supply, which removes a whole class of parsing failures. A schema can also limit `status` to its two values, so the exit can't be misspelled. Even without that feature, asking for this shape makes validation far simpler than parsing citations out of free text. Appendix C, section C.1, gives the full schema.
+
+> **As of 2026-10:** Azure OpenAI structured outputs need API version `2024-08-01-preview` or later (or the v1 API) and a model on Microsoft's supported list. The list changes as models are added and retired, so check it before you pick a deployment.
 
 ### Settings
 
@@ -209,10 +314,13 @@ Checks worth running on every draft:
 2. **Every cited ID exists** in the pack.
 3. **No activity verbs** ("accessed", "exfiltrated", "stole", "breached", "has been exposed", "was used") unless a cited item records observed activity. In most packs, none does.
 4. **No numbers that aren't in the pack.** This catches invented percentages, timelines, and counts.
-5. **No names that aren't in the pack.** Resource names, role names, and identity names in the draft must appear in a cited claim. This catches invented roles and resources.
+5. **No names that aren't in the pack.** Resource names, role names, and identity names in the draft must appear in the pack's claims, path targets, or provenance (the snapshot ID, and who asserted a target and when). This catches invented roles and resources.
 6. **Inference language is preserved.** A sentence citing only deterministic inferences shouldn't use "is" or "has" for the inferred capability. This is hard to check exactly; a simple heuristic catches the common slips.
+7. **The exit is clean.** A draft with `status` set to `insufficient_evidence` returns no sentences.
 
 A minimal validator in Python:
+
+<!-- listing: lab/listings/python/ch07_validator.py#validate -->
 
 ```python
 import re
@@ -223,11 +331,13 @@ ACTIVITY_PATTERNS = [
 ]
 NUMBER_PATTERN = re.compile(r"\b\d+(?:[.,]\d+)?%?")
 NAME_PATTERN = re.compile(r"`([^`]+)`|\b([a-z]+(?:-[a-z0-9]+)+)\b")
+# Item fields a draft may draw names and numbers from. untrustedText is deliberately absent.
+SOURCE_FIELDS = ("claim", "target", "assertedBy", "assertedAt", "expiresAt")
 
 
 def expand_range(citation: str) -> list[str]:
-    """Turn 'P1-P3' into ['P1', 'P2', 'P3']; leave single IDs alone."""
-    match = re.fullmatch(r"([A-Z])(\d+)-\1?(\d+)", citation)
+    """Turn 'P1-P3' or 'P1–P3' into ['P1', 'P2', 'P3']; leave single IDs alone."""
+    match = re.fullmatch(r"([A-Z])(\d+)[-\u2013]\1?(\d+)", citation)
 
     if not match:
         return [citation]
@@ -238,10 +348,21 @@ def expand_range(citation: str) -> list[str]:
 
 
 def validate(draft: dict, pack: dict) -> list[str]:
-    items = {item["id"]: item for key in ("hops", "paths", "targets", "gaps", "cutPoints") for item in pack.get(key, [])}
-    pack_text = " ".join(item.get("claim", "") for item in items.values())
+    items = {
+        item["id"]: item
+        for key in ("hops", "paths", "targets", "gaps", "cutPoints")
+        for item in pack.get(key, [])
+    }
+    sources = [pack.get("snapshotId", "")]
+    sources += [
+        str(item[field]) for item in items.values() for field in SOURCE_FIELDS if field in item
+    ]
+    pack_text = " ".join(sources)
     pack_numbers = set(NUMBER_PATTERN.findall(pack_text)) | {str(len(pack.get("paths", [])))}
     problems: list[str] = []
+
+    if draft.get("status") == "insufficient_evidence" and draft.get("sentences"):
+        problems.append("Draft sets status insufficient_evidence but still returns sentences.")
 
     for index, sentence in enumerate(draft.get("sentences", []), start=1):
         text = sentence.get("text", "")
@@ -256,7 +377,10 @@ def validate(draft: dict, pack: dict) -> list[str]:
 
         for pattern in ACTIVITY_PATTERNS:
             if re.search(pattern, text, re.IGNORECASE):
-                problems.append(f"Sentence {index}: activity wording '{pattern}' with no observed activity in the pack.")
+                problems.append(
+                    f"Sentence {index}: activity wording '{pattern}' "
+                    "with no observed activity in the pack."
+                )
 
         for number in NUMBER_PATTERN.findall(text):
             if number not in pack_numbers:
@@ -271,7 +395,7 @@ def validate(draft: dict, pack: dict) -> list[str]:
     return problems
 ```
 
-Run against the board summary from the opening of this chapter, this validator rejects it immediately: no citations, "has been exposed", and "85%". Run against the second summary, it passes. One wrinkle: the validator allows the number of paths ("six") because the pack implies it, and a word like "six" isn't caught by a digit pattern at all. Validators need tuning to your conventions, and they're never perfect.
+Run against the board summary from the opening of this chapter, this validator rejects it immediately: no citations, "has been exposed", and "85%". Run against the second summary, it passes. One wrinkle: the validator allows the number of paths ("six") because the pack implies it, and a word like "six" isn't caught by a digit pattern at all. The name check errs the other way: it treats any lowercase hyphenated word, such as "high-risk", as a resource name. Validators need tuning to your conventions, and they're never perfect.
 
 ### What validation doesn't catch
 
@@ -300,11 +424,11 @@ The same evidence pack can produce explanations for very different readers. Only
 
 **Engineer on the payments team** — what to change and in what order:
 
-> The highest-leverage change is to replace the Contributor assignment for `payments-deploy` on `rg-payments-prod` with roles scoped to what the pipeline deploys [H5, C1]. That closes the three paths to `custdata`; the archive paths remain because the pipeline must still deploy `pay-reconcile` [C1]. Before changing it, list which resource types the pipeline actually deploys, so the replacement roles don't break releases. Separately, removing `dev-lead` as an owner of the app registration closes the ownership entry point [H2].
+> The change with the most leverage is to replace the Contributor assignment for `payments-deploy` on `rg-payments-prod` with roles scoped to what the pipeline deploys [H5, C1]. That closes the three paths to `custdata`; the archive paths remain because the pipeline must still deploy `pay-reconcile` [C1]. Before changing it, list which resource types the pipeline actually deploys, so the replacement roles don't break releases. Separately, removing `dev-lead` as an owner of the app registration closes the ownership entry point [H2].
 
 **Auditor** — evidence chain and time:
 
-> Each path is derived from snapshot `2026-10-06T09-10-00Z-prod` [P1–P6]. Role assignments and app ownership are observed facts from that snapshot [H2, H5, H9]. The customer-data classification of both stores is an assertion by the Data Protection Officer dated 2026-09-14, valid until 2027-03-14 [T1, T2]. Use of the paths cannot be determined from available logs [G1, G2].
+> Each path is derived from snapshot `2026-10-06T09-10-00Z-prod` [P1–P6]. Role assignments and app ownership are observed facts from that snapshot [H2, H5, H9]. The classification of both stores as customer data is an assertion by the Data Protection Officer dated 2026-09-14, valid until 2027-03-14 [T1, T2]. Use of the paths cannot be determined from available logs [G1, G2].
 
 Writing four versions by hand would take an analyst most of a morning. With a pack, a prompt per audience, and a validator, it takes minutes, and each version is checkable against the same citations. In practice, this is often the first place teams see a real return on using models in security work.
 
@@ -325,6 +449,8 @@ Give the model the cut-point record and the relevant hops, and ask for:
 
 For example, asking for a Terraform change to disable shared key access on `custdata` (one of the alternative cut points from Chapter 4) might produce:
 
+<!-- listing: lab/listings/terraform/ch07-custdata-shared-key.tf -->
+
 ```hcl
 resource "azurerm_storage_account" "custdata" {
   # ...existing configuration...
@@ -342,7 +468,7 @@ A few rules keep this safe:
 - **Check the draft against the provider's documentation.** Models produce plausible attribute names that don't exist or were renamed. `terraform validate` and `plan` catch many of these; review catches the rest.
 - **Preconditions are the valuable part.** The change is often one line. Knowing what it might break is what saves the outage, and models are good at listing the categories of things to check, even though they can't check them.
 
-> **As of 2026-10:** Verify the current `azurerm` provider attribute name for disabling shared key access, and any related settings such as default-to-Entra-ID-authentication options.
+In the current `azurerm` provider the property is `shared_access_key_enabled`. A related setting, `default_to_oauth_authentication`, makes the portal use Entra ID by default; it doesn't block keys, so a draft that sets only that one hasn't made the change.
 
 ---
 
@@ -402,7 +528,7 @@ Most current model services, including Azure OpenAI, support this "tool calling"
 
 There are two broad options for teams working in Azure, and many organizations use both.
 
-**Azure OpenAI, through Azure AI Foundry.** You deploy specific models in your own subscription and call them from your own code. This is the natural fit for the grounding pattern in this chapter, because you control the evidence pack, the prompt, structured output, tool definitions, and the validator. Questions to settle with your security and privacy teams:
+**Azure OpenAI, through Microsoft Foundry (formerly Azure AI Foundry).** You deploy specific models in your own subscription and call them from your own code. This is the natural fit for the grounding pattern in this chapter, because you control the evidence pack, the prompt, structured output, tool definitions, and the validator. Questions to settle with your security and privacy teams:
 
 - **Data handling.** What the service retains, whether prompts are used for training (generally no, for Azure OpenAI), and what abuse monitoring applies and whether you need an exemption for sensitive data.
 - **Network.** Whether you can reach the deployment over a private endpoint and disable public access (Chapter 11).
@@ -412,7 +538,9 @@ There are two broad options for teams working in Azure, and many organizations u
 
 **Microsoft Security Copilot.** A Microsoft security product built on large language models and integrated with Microsoft's security tools, such as Defender, Sentinel, Entra, and Intune. It suits analysts working inside those products. It's less suited to the custom pipeline in this chapter, because you have less control over the evidence passed to the model and how its output is checked. It can still be valuable alongside your own pipeline, for example in incident investigation inside Sentinel.
 
-> **As of 2026-10:** Verify current product names (Security Copilot was earlier branded Copilot for Security), Azure OpenAI data-handling and abuse-monitoring terms, private endpoint support, structured output and tool-calling support by model, and regional availability.
+Microsoft renamed Copilot for Security to Security Copilot in 2024, so older material uses the earlier name. On data handling, Azure OpenAI doesn't use prompts or completions to train models. Abuse monitoring applies by default, and modified abuse monitoring, which stops prompts being stored for review, is a Limited Access program you apply for.
+
+> **As of 2026-10:** Model availability by region, and which models support structured outputs and tool calling, change often. Check the current Azure OpenAI documentation for the region you deploy in.
 
 Whichever you choose, the deployment that receives evidence packs is now a sensitive system. It sees summaries of your most serious exposures. Chapter 11 covers governing it.
 
@@ -449,7 +577,7 @@ This lab builds the full pattern for the payments paths. It extends Chapter 2's 
 
 1. Remove gaps G1 and G2 from the pack. Does the board summary still say that use can't be determined? (It shouldn't be able to, and the validator can't catch the omission. This is a pack-construction failure, which is why gaps must always be included.)
 2. Add an AI-inferred hop ("`custarchive` likely contains payment card data (AI-inferred)") and check whether the output preserves "likely" and the AI label.
-3. Ask a question the pack can't answer ("How much would a breach cost?") and confirm the model uses the rule 6 exit rather than inventing a figure.
+3. Ask a question the pack can't answer ("How much would a breach cost?") and confirm the model sets `status` to `insufficient_evidence` (the rule 6 exit) rather than inventing a figure.
 4. Paste the opening story's board summary into the validator and confirm every problem is reported.
 
 **Step 6 — Measure.** Time how long it takes you to review and approve the four outputs, and compare it with how long writing one of them by hand would take.
@@ -484,10 +612,8 @@ This lab builds the full pattern for the payments paths. It extends Chapter 2's 
 
 ## Author notes (remove before submission)
 
-- Verify: Azure OpenAI structured output support by model and API version; tool/function calling support; data retention, training use, and abuse-monitoring terms and exemption process; private endpoint support; model version pinning and retirement policy.
-- Verify: Microsoft Security Copilot current name, positioning, and integrations.
-- Verify: `azurerm_storage_account` attribute `shared_access_key_enabled` and related Entra-default settings in the current provider version.
-- The validator is intentionally simple; test it against the opening story and the lab outputs before publication, and make sure the name regex doesn't flag ordinary hyphenated English words in practice.
+- Verified 2026-10-10 (revision pass 1): structured output API version and model list; training use, abuse monitoring and the modified abuse monitoring application; private endpoint support; Security Copilot naming; `shared_access_key_enabled` and `default_to_oauth_authentication`.
+- The validator is intentionally simple. `lab/listings/python/tests/test_ch07_validator.py` checks it against this chapter's pack and every printed summary (2026-10-11). That run changed the listing in two ways. `expand_range` now accepts an en dash, because the printed summaries cite `[P1–P6]` and the old pattern rejected them. Names and numbers may now come from path targets and provenance (snapshot ID, `assertedBy`, `assertedAt`, `expiresAt`) as well as claims, because the auditor version quotes the snapshot ID and the DPO's dates. Untrusted text still never counts. The run also confirmed that the name regex flags hyphenated English words ("highest-leverage" in the engineer version, now reworded); section 7.5 now says so.
 - The "85% likelihood" and other figures in the opening are fictional.
 - Consider a figure for the grounding pipeline in section 7.2.
 - Add the Chapter 7 fact checks to GTM **M-306** when it is picked up.

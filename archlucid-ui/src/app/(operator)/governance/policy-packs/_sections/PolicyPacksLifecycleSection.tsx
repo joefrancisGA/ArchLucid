@@ -50,6 +50,7 @@ export type PolicyPacksLifecycleSectionProps = {
   packType: string;
   onPackTypeChange: (value: string) => void;
   createJson: string;
+  createPlaceholderValidationMessage: string | null;
   onCreateJsonChange: (value: string) => void;
   onCreate: () => void;
   readonly createLastSavedUtc: string | null;
@@ -87,6 +88,7 @@ export function PolicyPacksLifecycleSection(props: PolicyPacksLifecycleSectionPr
     packType,
     onPackTypeChange,
     createJson,
+    createPlaceholderValidationMessage,
     onCreateJsonChange,
     onCreate,
     createLastSavedUtc,
@@ -254,10 +256,15 @@ export function PolicyPacksLifecycleSection(props: PolicyPacksLifecycleSectionPr
               onChange={onCreateJsonChange}
               readOnly={!canMutatePacks}
             />
+            {createPlaceholderValidationMessage !== null ? (
+              <p className={cn("m-0 text-amber-800 dark:text-amber-200", OPERATOR_TYPOGRAPHY.helper)} role="alert">
+                {createPlaceholderValidationMessage}
+              </p>
+            ) : null}
             <button
               type="button"
               onClick={() => void onCreate()}
-              disabled={loading || !canMutatePacks}
+              disabled={loading || !canMutatePacks || createPlaceholderValidationMessage !== null}
               className={cn(
                 !canMutatePacks &&
                   "rounded border border-neutral-300 bg-neutral-50 text-neutral-600 dark:border-neutral-600 dark:bg-neutral-900/50 dark:text-neutral-400",

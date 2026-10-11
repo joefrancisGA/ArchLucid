@@ -89,6 +89,12 @@ const EMPTY_FOCUS_NODE_IDS: readonly string[] = [];
 
 export type ArchitectureDiagramSourceKind = 'html' | 'image';
 
+export type ArchitectureDiagramConnectorSelection = {
+  readonly from: string;
+  readonly to: string;
+  readonly label: string | null;
+};
+
 export type ArchitectureDiagramMermaidViewerProps = {
   readonly mermaidSource: string;
   /** Server-side Graphviz layout SVG; when present, client Mermaid layout is skipped. */
@@ -112,6 +118,10 @@ export type ArchitectureDiagramMermaidViewerProps = {
   readonly questionSubjectNodeId?: string | null;
   /** Logical inventory outline used for click-focus neighborhood membership. */
   readonly outline?: InfraEvidenceMermaidOutline | null;
+  /** Reports a painted connector click without changing node focus. */
+  readonly onSelectConnector?: (selection: ArchitectureDiagramConnectorSelection | null) => void;
+  /** Connector selected by the owning workbench; other connectors are dimmed. */
+  readonly selectedConnector?: ArchitectureDiagramConnectorSelection | null;
   /** Optional max-height override for the scrolling camera (inventory workbench uses a taller frame). */
   readonly cameraMaxHeightClassName?: string;
   /** Docked inside the diagram viewport frame (inline and fullscreen). */
@@ -262,6 +272,35 @@ function readClickFocusFacts(svg: SVGSVGElement): DiagramClickFocusFacts {
 function clearClickFocusClasses(svg: SVGSVGElement): void {
   svg.querySelectorAll('.diagram-click-dim').forEach((element) => {
     element.classList.remove('diagram-click-dim');
+  });
+}
+
+function applyConnectorSelectionClasses(
+  svg: SVGSVGElement,
+  selection: ArchitectureDiagramConnectorSelection | null | undefined,
+): void {
+  if (selection == null) {
+    return;
+  }
+
+  const selectedFrom = normalizeDiagramFocusToken(selection.from);
+  const selectedTo = normalizeDiagramFocusToken(selection.to);
+  const selectedLabel = selection.label?.trim() ?? '';
+
+  [...svg.querySelectorAll('g.edge')].forEach((edge) => {
+    const fromTokens = (edge.getAttribute('data-bundle-from') ?? edge.getAttribute('data-from') ?? '')
+      .split(/\s+/u)
+      .filter(Boolean)
+      .map(normalizeDiagramFocusToken);
+    const toTokens = (edge.getAttribute('data-bundle-to') ?? edge.getAttribute('data-to') ?? '')
+      .split(/\s+/u)
+      .filter(Boolean)
+      .map(normalizeDiagramFocusToken);
+    const label = edge.querySelector('title')?.textContent?.trim() ?? '';
+    const sameEndpoints = fromTokens.includes(selectedFrom) && toTokens.includes(selectedTo);
+    const sameLabel = selectedLabel.length === 0 || label === selectedLabel;
+
+    edge.classList.toggle('diagram-click-dim', !(sameEndpoints && sameLabel));
   });
 }
 
@@ -502,6 +541,8 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
     focusNonce = 0,
     questionSubjectNodeId = null,
     outline = null,
+    onSelectConnector,
+    selectedConnector = null,
     cameraMaxHeightClassName = 'max-h-[36rem]',
     viewportHeader = null,
   } = props;
@@ -970,6 +1011,7 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
       }
 
       clearClickFocusClasses(svg);
+      applyConnectorSelectionClasses(svg, selectedConnector);
 
       if (clickFocus === null) {
         return;
@@ -1024,6 +1066,20 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
         return;
       }
 
+      const edge = target.closest('g.edge');
+
+      if (edge !== null) {
+        const from = edge.getAttribute('data-from') ?? edge.getAttribute('data-bundle-from') ?? '';
+        const to = edge.getAttribute('data-to') ?? edge.getAttribute('data-bundle-to') ?? '';
+        const label = edge.querySelector('title')?.textContent?.trim() ?? null;
+
+        if (from.length > 0 && to.length > 0) {
+          onSelectConnector?.({ from, to, label });
+        }
+
+        return;
+      }
+
       const node = target.closest('g.node');
 
       if (node === null) {
@@ -1055,7 +1111,7 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
     return (): void => {
       hosts.forEach((host) => host.removeEventListener('click', handleClick));
     };
-  }, [clickFocus, fullscreenOpen, layoutSvg, outline, sanitizedSvg]);
+  }, [clickFocus, fullscreenOpen, layoutSvg, onSelectConnector, outline, sanitizedSvg, selectedConnector]);
 
   useEffect(() => {
     setClickFocus(null);
@@ -1080,6 +1136,7 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
       if (event.key === 'Escape') {
         event.preventDefault();
         setClickFocus(null);
+        onSelectConnector?.(null);
         return;
       }
 
@@ -1105,7 +1162,7 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
     return (): void => {
       frame.removeEventListener('keydown', onKeyDown);
     };
-  }, [zoom]);
+  }, [onSelectConnector, zoom]);
 
   const onWheel = useCallback(
     (event: React.WheelEvent<HTMLDivElement>) => {
@@ -1270,12 +1327,12 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
             </Button>
           </div>
           <p className="m-0">{questionableNode.questionableReason}</p>
-          {questionableNode.questionableAction != null ? (
-            <p className="m-0">
-              <span className="font-semibold">Recommended action: </span>
-              {questionableNode.questionableAction}
-            </p>
-          ) : null}
+          <p className="m-0">
+            <span className="font-semibold">Recommended action: </span>
+            {questionableNode.questionableAction === null || questionableNode.questionableAction === undefined
+              ? "Recommended action was not stored."
+              : questionableNode.questionableAction}
+          </p>
         </aside>
       ) : null}
 

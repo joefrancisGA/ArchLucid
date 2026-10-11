@@ -5,6 +5,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { CopyIdButton } from "@/components/CopyIdButton";
+import { SponsorExportSendHonestyStrip } from "@/components/exports/SponsorExportSendHonestyStrip";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
@@ -305,6 +306,7 @@ export function AuditEvidenceControlLineageClient(props: AuditEvidenceControlLin
               <ShortcutHint shortcut={AUDIT_EVIDENCE_CONTROL_LINEAGE_PACKAGE_DOWNLOAD_SHORTCUT} /> download.
               <span className="sr-only">{keyboardAffordance}</span>
             </p>
+            <SponsorExportSendHonestyStrip className="w-full max-w-xl" testIdPrefix="audit-evidence-package" />
           </div>
         }
       />

@@ -47,6 +47,8 @@ export type PolicyPacksPageViewModel = {
   readonly setPackType: Dispatch<SetStateAction<string>>;
   readonly createJson: string;
   readonly setCreateJson: Dispatch<SetStateAction<string>>;
+  readonly createPlaceholderValidationMessage: string | null;
+  readonly unresolvedCreatePlaceholders: readonly string[];
   readonly selectedPackId: string;
   readonly setSelectedPackId: Dispatch<SetStateAction<string>>;
   readonly publishVersion: string;

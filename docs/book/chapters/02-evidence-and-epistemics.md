@@ -1,11 +1,11 @@
-> **Scope:** Chapter 2 first draft for the book draft *Managing Azure Security with AI*. Author working text; not product documentation and not a description of any vendor's internals.
-> **Status:** draft
+> **Scope:** Chapter 2 revised draft for the book draft *Managing Azure Security with AI*. Author working text; not product documentation and not a description of any vendor's internals.
+> **Status:** draft — revised (revision pass 1, 2026-10-10)
 
 # Chapter 2 — Evidence and epistemics
 
 **Spine:** [`../README.md`](../README.md) · **Outline:** [`../OUTLINE.md`](../OUTLINE.md)
 
-> *Draft status: first draft. Target 6,000–7,000 words. Facts about Azure behavior must be re-verified against Microsoft documentation before submission.*
+> *Draft status: revised (revision pass 1, 2026-10-10). Target 6,000–7,000 words. Facts about Azure behavior were checked against Microsoft documentation in October 2026; dated "As of" notes mark the ones to re-check before submission.*
 
 ---
 
@@ -67,7 +67,7 @@ An **observed fact** is something you read directly from an authoritative source
 
 Examples:
 
-- Role assignment `ra-7f3…` grants the role **Contributor** to service principal `sp-payments-deploy` at the scope of resource group `rg-payments-prod`.
+- Role assignment `ra-7f3…` grants the role **Contributor** to the `payments-deploy` service principal at the scope of resource group `rg-payments-prod`.
 - Storage account `custdata` has the property `allowSharedKeyAccess` set to `true`.
 - App registration `payments-deploy` has a federated identity credential whose subject is `repo:contoso/payments:ref:refs/heads/main`.
 
@@ -85,7 +85,7 @@ A **derived fact** is computed from observed facts using rules that have no mean
 
 Examples:
 
-- Because `sp-payments-deploy` holds Contributor at `rg-payments-prod`, and `custdata` lives in `rg-payments-prod`, the service principal holds Contributor on `custdata`. (RBAC inheritance from a parent scope to a child resource is defined behavior.)
+- Because the `payments-deploy` service principal holds Contributor at `rg-payments-prod`, and `custdata` lives in `rg-payments-prod`, the service principal holds Contributor on `custdata`. (RBAC inheritance from a parent scope to a child resource is defined behavior.)
 - Because user `alice` is a member of group `payments-admins`, which is a member of group `platform-ops`, and `platform-ops` holds Reader on the subscription, `alice` effectively holds Reader on the subscription.
 - The snapshot taken today differs from the snapshot taken yesterday by one added role assignment.
 
@@ -99,14 +99,14 @@ A **deterministic inference** is a repeatable, rule-based conclusion that depend
 
 Examples:
 
-- Contributor includes the action `Microsoft.Storage/storageAccounts/listKeys/action`. `custdata` allows shared key access. Therefore `sp-payments-deploy` **can obtain the account keys and read blob data**, *assuming* no deny assignment, network rule, or policy blocks the key-based data-plane request from wherever the attacker is operating.
+- Contributor includes the action `Microsoft.Storage/storageAccounts/listKeys/action`. `custdata` allows shared key access. Therefore the `payments-deploy` service principal **can obtain the account keys and read blob data**, *assuming* no deny assignment, network rule, or policy blocks the key-based data-plane request from wherever the attacker is operating.
 - The storage account's network rules allow access from a subnet where a virtual machine runs. Therefore the VM **can reach** the storage endpoint, *assuming* no NSG, firewall, or route table blocks the flow.
 
 The difference from a derived fact is the word *assuming*. The first example is a strong inference. The role definition really does include that action, and shared key access really is enabled. But the conclusion "can read blob data" depends on conditions the collected evidence may not cover: network restrictions evaluated at request time, a deny assignment you couldn't read, or a condition on the role assignment.
 
 Deterministic inference is the workhorse of path analysis. Almost every interesting hop on an attack path is one. That's fine, as long as the assumptions are **stated, not implied**. A good inference record looks like this:
 
-- **Conclusion:** `sp-payments-deploy` can read blob data in `custdata`.
+- **Conclusion:** the `payments-deploy` service principal can read blob data in `custdata`.
 - **Rule:** Contributor permits `listKeys`, and shared key access is enabled, so key-based data access is possible.
 - **Inputs:** role assignment `ra-7f3…`, storage property `allowSharedKeyAccess = true`, role definition for Contributor.
 - **Assumptions:** no deny assignment applies; storage network rules permit the caller's network location; no role assignment condition restricts the action.
@@ -144,7 +144,7 @@ A **human assertion** is something a named person states to be true. Humans know
 Examples:
 
 - "`custdata` holds production customer records." — asserted by Priya Shah, Data Protection Officer, 2026-09-14, expires 2027-03-14.
-- "The Contributor assignment for `sp-payments-deploy` is required for current deployments." — asserted by the payments platform lead, 2026-10-01, expires 2026-12-31.
+- "The Contributor assignment for `payments-deploy` is required for current deployments." — asserted by the payments platform lead, 2026-10-01, expires 2026-12-31.
 
 Human assertions are often the most important context in a report, and the most neglected. Three properties make them trustworthy:
 
@@ -208,6 +208,8 @@ Human assertions sit outside that line, because their strength depends on who ma
 
 The code example below applies Rule 1 only to the four ordered machine-grounding categories. Human assertions are excluded; assess their source, scope, and freshness separately before using one as a required input.
 
+<!-- listing: lab/listings/python/ch02_evidence.py#machine_grounding -->
+
 ```python
 from enum import IntEnum
 
@@ -235,6 +237,8 @@ Rule 1 is deliberately pessimistic. It means a single guess anywhere in the chai
 When an AI inference is stored in a database, passed through a rules engine, or summarized by another model, it is still an AI inference. The same goes for every category. A deterministic component that reads an AI-inferred "sensitive data" flag and outputs "severity: critical" has produced a conclusion that depends on an AI inference.
 
 This sounds obvious. In practice it's the most common way honest tooling becomes dishonest. A classifier writes `isSensitive = true` into a column. Six months later, a different team writes a rule that reads the column. Nobody remembers it was a guess. Store the category **next to** the value, not in documentation:
+
+<!-- listing: lab/listings/json/ch02-hop-record.json -->
 
 ```json
 {
@@ -400,7 +404,8 @@ Run the same prompt three times. Note how the answers differ. That variation is 
 
 ## Author notes (remove before submission)
 
-- Verify against current Microsoft docs: Contributor's inclusion of `Microsoft.Storage/storageAccounts/listKeys/action`; `allowSharedKeyAccess` default behavior; federated credential subject format for GitHub Actions; `authorizationresources` table coverage of role assignments, deny assignments, and conditions.
+- Verified 2026-10-10 (revision pass 1): Contributor's `*` actions include `listKeys`; a null `allowSharedKeyAccess` behaves as `true`; GitHub federated credential subject formats.
+- Still to verify: `authorizationresources` coverage of deny assignments and conditions (shared with Chapter 3).
 - Consider a sidebar on Microsoft Entra ID sign-in and audit logs as an "observed activity" source, cross-referenced to Chapter 6.
 - Possible figure: the hop table from 2.3 rendered as a diagram, with a different line style per evidence category.
 - Running example (payments → `custdata`) should be reused in Chapters 4, 9, and 10.

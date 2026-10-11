@@ -125,6 +125,31 @@ describe("ReviewsNewRouteBody (AO-22)", () => {
     },
   );
 
+  it("Working Start still redirects when baseline=1 is set without path=", async () => {
+    useSearchParams.mockReturnValue(new URLSearchParams("baseline=1"));
+    replace.mockClear();
+
+    render(<ReviewsNewRouteBody />);
+
+    expect(screen.getByTestId("reviews-new-working-redirect")).toBeInTheDocument();
+    expect(screen.queryByTestId("reviews-new-path-switcher-stub")).toBeNull();
+
+    await waitFor(() => {
+      expect(replace).toHaveBeenCalledWith("/architecture/architectures/arch-1");
+    });
+  });
+
+  it("keeps the path switcher for path=detailed&baseline=1 so the simplified wizard can mount", () => {
+    useSearchParams.mockReturnValue(new URLSearchParams("path=detailed&baseline=1"));
+    replace.mockClear();
+
+    render(<ReviewsNewRouteBody />);
+
+    expect(screen.getByTestId("reviews-new-path-switcher-stub")).toBeInTheDocument();
+    expect(screen.queryByTestId("reviews-new-working-redirect")).toBeNull();
+    expect(replace).not.toHaveBeenCalled();
+  });
+
   it("opens guided questions when Working guided-intake has no architectures", async () => {
     useSearchParams.mockReturnValue(new URLSearchParams("path=guided-intake"));
     useArchitectureIdentitiesListQuery.mockReturnValue({

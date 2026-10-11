@@ -48,6 +48,24 @@ public sealed class AgentOutputTraceFindingCitationCoverageApplicatorTests
     }
 
     [Fact]
+    public void Apply_real_task_matches_case_variant_findings_property()
+    {
+        AgentOutputSemanticScore semantic = new();
+        string parsedJson =
+            """
+            {"FINDINGS":[{"findingId":"f-cited","severity":"High","description":"Long enough description text.","enforcementTier":"PolicyViolation","evidenceRefs":["ev-1"]}]}
+            """;
+
+        AgentOutputTraceFindingCitationCoverageApplicator.Apply(
+            semantic,
+            parsedJson,
+            StructuralExecutionMode.Real,
+            hostAgentExecutionMode: "Simulator");
+
+        semantic.FindingCitationCoverageRatio.Should().Be(1.0);
+    }
+
+    [Fact]
     public void Apply_simulator_task_leaves_finding_citation_coverage_ratio_null()
     {
         AgentOutputSemanticScore semantic = new();

@@ -1,11 +1,11 @@
-> **Scope:** Chapter 1 first draft for the book draft *Managing Azure Security with AI*. Author working text; not product documentation and not a description of any vendor's internals.
-> **Status:** draft
+> **Scope:** Chapter 1 revised draft for the book draft *Managing Azure Security with AI*. Author working text; not product documentation and not a description of any vendor's internals.
+> **Status:** draft — revised (revision pass 1, 2026-10-10)
 
 # Chapter 1 — Why checklists fail
 
 **Spine:** [`../README.md`](../README.md) · **Outline:** [`../OUTLINE.md`](../OUTLINE.md)
 
-> *Draft status: first draft. Target 6,000 words. Facts about Azure behavior must be re-verified against Microsoft documentation before submission.*
+> *Draft status: revised (revision pass 1, 2026-10-10). Target 6,000 words. Facts about Azure behavior were checked against Microsoft documentation in October 2026; dated "As of" notes mark the ones to re-check before submission.*
 
 ---
 
@@ -156,7 +156,7 @@ Thinking this way changes three things.
 
 Path thinking isn't new, and this book doesn't claim to have invented it. Attack graphs have decades of academic history. Tools that compute attack paths through Active Directory changed on-premises security assessments in the 2010s. Several cloud security products, including Microsoft's own Defender for Cloud through its cloud security posture management (CSPM) plan, now offer attack path analysis for Azure.
 
-> **As of 2026-10:** Check the current Defender for Cloud documentation for which attack-path scenarios and resource types are covered on your plan. Coverage changes frequently.
+> **As of 2026-10:** Attack path analysis requires the paid Defender CSPM plan; the free foundational CSPM tier doesn't include it. Which scenarios and resource types it covers changes often, so check the current Defender for Cloud documentation.
 
 So why a book? For three reasons.
 
@@ -248,7 +248,7 @@ The book follows the path from evidence to verified outcome:
 - **Part III — AI in the loop.** Chapter 7 covers where language models help. Chapter 8 covers how they fail and how to contain the failures, including prompt injection through your own resource metadata.
 - **Part IV — Closing the loop.** Chapter 9 covers advisory remediation and cut points. Chapter 10 covers verifying fixes and measuring outcomes. Chapter 11 covers governing the AI tooling itself, which is now one of your more sensitive systems.
 
-The Contoso payments path runs through all of it. You'll see it labeled in Chapter 2, collected in Chapter 3, extended in Chapter 4, explained by a model in Chapter 7, attacked through a resource tag in Chapter 8, cut in Chapter 9, and verified in Chapter 10.
+The Contoso payments path runs through all of it. You'll see it labeled in Chapter 2, collected in Chapter 3, extended through identity, network, and data flow in Chapters 4 to 6, explained by a model in Chapter 7, attacked through an app registration's display name in Chapter 8, cut in Chapter 9, and verified in Chapter 10. Chapter 11 turns the same methods on the tooling itself.
 
 ---
 
@@ -269,7 +269,7 @@ This lab makes the chapter's argument concrete. It uses the companion lab tenant
 | Key vaults without purge protection (two) | Hygiene |
 | Missing diagnostic settings on several resources | Hygiene |
 | Guest account with no recent sign-in | Hygiene |
-| Storage accounts without minimum TLS version set | Hygiene |
+| Sandbox storage accounts that allow anonymous blob access | Hygiene |
 | NSG allowing RDP from a single corporate IP range | Hygiene; not internet-wide |
 | Untagged resources | Hygiene |
 
@@ -316,7 +316,7 @@ This lab makes the chapter's argument concrete. It uses the companion lab tenant
 ## Author notes (remove before submission)
 
 - Verify the John Lambert quote wording and source (2015 GitHub post "Defender's mindset"); confirm attribution permission is not needed for a short quotation.
-- Verify current names: "Storage accounts should prevent shared key access" (Azure Policy built-in display name); Defender for Cloud CSPM attack path analysis plan requirements.
+- Verified 2026-10-10 (revision pass 1): the policy display name "Storage accounts should prevent shared key access"; attack path analysis requires the Defender CSPM plan.
 - The posture figures (61% → 78%, 512 → 371 recommendations, 41 / 63 / 88 item buckets) are invented for the narrative; keep them clearly fictional.
-- Lab table must stay in sync with Appendix A once the Terraform lab exists.
+- Lab table is in sync with Appendix A and `docs/book/lab/terraform` (2026-10-10). The "minimum TLS not set" row was replaced, because the provider always sends a TLS version; keep the two in step on future edits.
 - Consider a figure: the same 20 lab items drawn as a list on the left and as a graph on the right, with the path highlighted.

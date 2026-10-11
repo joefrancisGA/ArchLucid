@@ -1,5 +1,5 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { ProductLineHomeSwitch } from "@/components/product-line/ProductLineHomeSwitch";
 import { INTERNAL_PRODUCT_LINE_PATH } from "@/lib/product-line/product-line-catalog";
@@ -26,6 +26,10 @@ vi.mock("@/app/(operator)/governance/infrastructure/_sections/InfrastructureOver
 }));
 
 describe("ProductLineHomeSwitch", () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
   it("renders the architecture home slot when the shell is Architecture", () => {
     productLineMock.value = "architecture";
 
@@ -64,6 +68,18 @@ describe("ProductLineHomeSwitch", () => {
     expect(screen.getByTestId("infrastructure-overview-home-stub")).toBeInTheDocument();
     expect(screen.queryByTestId("architecture-home-stub")).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Review an architecture" })).toBeInTheDocument();
+  });
+
+  it("hides the architecture job on the UHG edition", () => {
+    productLineMock.value = "security";
+    vi.stubEnv("NEXT_PUBLIC_SECURENOW_EDITION", "uhg");
+
+    render(
+      <ProductLineHomeSwitch architectureHome={<p data-testid="architecture-home-stub">architecture home</p>} />,
+    );
+
+    expect(screen.getByTestId("infrastructure-overview-home-stub")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Review an architecture" })).not.toBeInTheDocument();
   });
 
   it("shows the dual-start hint with an Internal product-line link", () => {

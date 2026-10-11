@@ -74,6 +74,23 @@ public sealed class HeuristicAgentOutputSemanticEvaluatorTests
     }
 
     [SkippableFact]
+    public void Evaluate_matches_case_variant_claims_and_evidence_properties()
+    {
+        const string json = """
+                            {
+                                "CLAIMS": [
+                                    { "text": "A", "EVIDENCEREFS": [{ "id": "e1" }] }
+                                ]
+                            }
+                            """;
+
+        AgentOutputSemanticScore score = _sut.Evaluate("t1", json, AgentType.Topology);
+
+        score.ClaimsQualityRatio.Should().Be(1.0);
+        score.OverallSemanticScore.Should().Be(1.0);
+    }
+
+    [SkippableFact]
     public void Evaluate_findings_with_mixed_completeness_returns_expected_ratio()
     {
         const string json = """

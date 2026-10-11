@@ -23,17 +23,16 @@ internal static class AzureInventorySnapshotLogicAppConnectionHydrator
         AzureInventorySnapshotDetailReadModel snapshot,
         Dictionary<string, string> nodeIdByArmId,
         List<GraphEdge> edges,
-        HashSet<string> edgeKeys)
+        HashSet<string> edgeKeys,
+        AzureInventorySnapshotPropertyIndex? propertyIndex = null)
     {
         ArgumentNullException.ThrowIfNull(snapshot);
         ArgumentNullException.ThrowIfNull(nodeIdByArmId);
         ArgumentNullException.ThrowIfNull(edges);
         ArgumentNullException.ThrowIfNull(edgeKeys);
 
-        Dictionary<Guid, List<AzureInventoryResourcePropertyReadModel>> propertiesByRowId =
-            snapshot.Properties
-                .GroupBy(property => property.ResourceRowId)
-                .ToDictionary(group => group.Key, group => group.ToList());
+        IReadOnlyDictionary<Guid, List<AzureInventoryResourcePropertyReadModel>> propertiesByRowId =
+            (propertyIndex ?? AzureInventorySnapshotPropertyIndex.Create(snapshot)).ByResourceRowId;
 
         List<AzureInventoryResourceRecord> logicApps = [];
         List<AzureInventoryResourceRecord> connections = [];

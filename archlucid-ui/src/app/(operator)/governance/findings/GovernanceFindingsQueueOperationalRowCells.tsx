@@ -236,9 +236,9 @@ export function GovernanceFindingsQueueOperationalRowCells(props: GovernanceFind
       </EnterpriseTableCell>
       <EnterpriseTableCell className={DESIGN_TOKENS.table.cellSecondary}>
         {row.recordKind === "finding"
-          ? row.agingDays !== undefined
+          ? row.agingDays !== null && row.agingDays !== undefined
             ? `${row.agingDays}d`
-            : "Not returned"
+            : "Aging days were not stored."
           : "Does not apply to decision rows"}
       </EnterpriseTableCell>
       <EnterpriseTableCell className={DESIGN_TOKENS.table.cellSecondary}>

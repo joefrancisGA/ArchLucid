@@ -11,6 +11,7 @@ import {
   readProductLineAssignmentOverrides,
 } from "@/lib/product-line/product-line-storage";
 import { resolveProductLineId, resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
+import { isSecureNowUhgEdition } from "@/lib/product-line/resolve-securenow-edition-id";
 
 export type ProductLineContextValue = {
   readonly productLine: ProductLineId;
@@ -24,7 +25,9 @@ export type ProductLineContextValue = {
 const ProductLineContext = createContext<ProductLineContextValue | null>(null);
 
 export function ProductLineProvider(props: { readonly children: ReactNode }): React.JSX.Element {
-  const [productLine, setProductLineState] = useState<ProductLineId>(resolveProductLineIdFromEnv);
+  const [productLine, setProductLineState] = useState<ProductLineId>(
+    isSecureNowUhgEdition() ? "security" : resolveProductLineIdFromEnv,
+  );
   const [assignmentOverrides, setAssignmentOverrides] = useState<Readonly<Record<string, ProductLineAssignment>>>(
     {},
   );
@@ -39,6 +42,12 @@ export function ProductLineProvider(props: { readonly children: ReactNode }): Re
       productLine,
       assignmentOverrides,
       setProductLine: (next) => {
+        if (isSecureNowUhgEdition()) {
+          setProductLineState("security");
+
+          return;
+        }
+
         persistProductLineCookie(next === resolveProductLineIdFromEnv() ? null : next);
         setProductLineState(next);
       },

@@ -1,0 +1,17 @@
+authorizationresources
+| where type =~ 'microsoft.authorization/roleassignments'
+| extend
+    principalId = tostring(properties.principalId),
+    principalType = tostring(properties.principalType),
+    scope = tostring(properties.scope),
+    roleDefinitionGuid = tostring(split(tostring(properties.roleDefinitionId), '/')[-1]),
+    condition = tostring(properties.condition)
+| join kind=leftouter (
+    authorizationresources
+    | where type =~ 'microsoft.authorization/roledefinitions'
+    | extend roleDefinitionGuid = tostring(split(id, '/')[-1]),
+             roleName = tostring(properties.roleName)
+    | project roleDefinitionGuid, roleName
+    | distinct roleDefinitionGuid, roleName
+) on roleDefinitionGuid
+| project id, principalId, principalType, roleName, scope, condition

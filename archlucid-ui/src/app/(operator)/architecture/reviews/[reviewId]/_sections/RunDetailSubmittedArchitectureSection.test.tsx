@@ -30,4 +30,26 @@ describe("RunDetailSubmittedArchitectureSection narrative rendering", () => {
     expect(within(preview).getByRole("table")).toBeInTheDocument();
     expect(screen.queryByText("## Sponsor report")).toBeNull();
   });
+
+  it("distinguishes omitted architecture text from stored empty text", () => {
+    const { rerender } = render(
+      <RunDetailSubmittedArchitectureSection
+        architectureText={null}
+        canEditSource={false}
+        editHref={null}
+      />,
+    );
+
+    expect(screen.getByText("Submitted architecture text was not stored.")).toBeInTheDocument();
+
+    rerender(
+      <RunDetailSubmittedArchitectureSection
+        architectureText=""
+        canEditSource={false}
+        editHref={null}
+      />,
+    );
+
+    expect(screen.getByText("Open the Evidence tab to view submitted documents and diagrams.")).toBeInTheDocument();
+  });
 });

@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
 import { HelpTopicPrintButton } from "@/components/help/HelpTopicPrintButton";
@@ -309,6 +310,8 @@ export function HelpPolicyPackDeltaDemoGuideView(
               </Link>
             </p>
           </section>
+
+          <SponsorSendPathHonestyPanel testIdPrefix="help-policy-pack-delta-demo" showSsoOptional={false} />
         </div>
 
         <HelpTopicTableOfContents headings={guideHeadings} enableScrollSpy />

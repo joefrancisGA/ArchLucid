@@ -59,7 +59,26 @@ export function formatTransparencyTrailMarkdownSection(
 
   if (section.asserted.length > 0) {
     for (const entry of section.asserted) {
-      lines.push(`- ${entry.key}: ${entry.value}`);
+      const responder =
+        typeof entry.responderLabel === "string" && entry.responderLabel.length > 0
+          ? ` — ${entry.responderLabel}`
+          : entry.responderLabel === null || entry.responderLabel === undefined
+            ? " — Responder was not stored."
+            : "";
+      const questionId =
+        typeof entry.questionId === "string" && entry.questionId.length > 0
+          ? ` — Question id: ${entry.questionId}`
+          : entry.questionId === null || entry.questionId === undefined
+            ? " — Question id was not stored."
+            : "";
+      const recordedUtc =
+        typeof entry.recordedUtc === "string" && entry.recordedUtc.length > 0
+          ? ` — Answer recorded time: ${entry.recordedUtc}`
+          : entry.recordedUtc === null || entry.recordedUtc === undefined
+            ? " — Answer recorded time was not stored."
+            : "";
+
+      lines.push(`- ${entry.key}: ${entry.value}${responder}${questionId}${recordedUtc}`);
     }
   } else {
     lines.push("_None recorded._");

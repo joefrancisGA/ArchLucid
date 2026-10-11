@@ -6,6 +6,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
@@ -69,6 +70,11 @@ function normalize(value: string): string {
   return value.trim().toLowerCase();
 }
 
+// The API question key is generated with the same punctuation-to-hyphen rule.
+function normalizeRuleKey(value: string): string {
+  return value.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+}
+
 function questionIdentity(question: SecureNowQuestion): string {
   return `${normalize(question.subscriptionId)}|${normalize(question.resourceId)}|${normalize(question.questionKey)}`;
 }
@@ -96,7 +102,7 @@ function findInferredConnection(
     const resourceMatches =
       normalize(connection.fromArmId ?? "") === normalize(question.resourceId)
       || normalize(connection.toArmId ?? "") === normalize(question.resourceId);
-    return resourceMatches && normalize(connection.ruleName ?? "") === ruleKey;
+    return resourceMatches && normalizeRuleKey(connection.ruleName ?? "") === ruleKey;
   }) ?? null;
 }
 
@@ -115,6 +121,7 @@ export function SecureNowQuestionQueueProvider(
   const [visitedQuestionKeys, setVisitedQuestionKeys] = useState<ReadonlySet<string>>(() => new Set());
   const [loading, setLoading] = useState(false);
   const [busy, setBusy] = useState(false);
+  const loadSequence = useRef(0);
   const [error, setError] = useState<OperatorInferredConnectionPanelError | null>(null);
   const [sessionSkippedQuestionKeys, setSessionSkippedQuestionKeys] = useState<ReadonlySet<string>>(
     () => new Set(),
@@ -127,6 +134,7 @@ export function SecureNowQuestionQueueProvider(
 
   const loadQuestions = useCallback(async () => {
     if (snapshotId.trim().length === 0) return;
+    const requestSequence = ++loadSequence.current;
     setLoading(true);
     setError(null);
     try {
@@ -137,6 +145,9 @@ export function SecureNowQuestionQueueProvider(
       if (questionsResult.status === "rejected") {
         throw questionsResult.reason;
       }
+
+      // Snapshot navigation can leave older requests in flight; only the newest request owns queue state.
+      if (requestSequence !== loadSequence.current) return;
 
       setQuestions(questionsResult.value);
       if (connectionsResult.status === "fulfilled") {
@@ -155,6 +166,8 @@ export function SecureNowQuestionQueueProvider(
       setSelectedAnswer(null);
       setReason("");
     } catch (loadError) {
+      if (requestSequence !== loadSequence.current) return;
+
       setError(
         operatorInferredConnectionPanelErrorFromUnknown(
           loadError,
@@ -163,7 +176,9 @@ export function SecureNowQuestionQueueProvider(
         ),
       );
     } finally {
-      setLoading(false);
+      if (requestSequence === loadSequence.current) {
+        setLoading(false);
+      }
     }
   }, [snapshotId]);
 

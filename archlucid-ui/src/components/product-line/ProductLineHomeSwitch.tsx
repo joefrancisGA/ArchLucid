@@ -9,6 +9,7 @@ import { InfrastructureOverviewClient } from "@/app/(operator)/governance/infras
 import { ProductLineHomeJobChooser } from "@/components/product-line/ProductLineHomeJobChooser";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { OPERATOR_LAYOUT, OPERATOR_LINK } from "@/lib/design-tokens";
+import { secureNowEditionShowsProductLineSwitch } from "@/lib/editions/lock-product-line-for-securenow-edition";
 import { INTERNAL_PRODUCT_LINE_PATH } from "@/lib/product-line/product-line-catalog";
 import {
   ARCHITECTURE_HOME_SECURITY_ENV_HINT_BODY,
@@ -20,11 +21,12 @@ export function ProductLineHomeSwitch(props: { readonly architectureHome?: React
   const { productLine, setProductLine } = useProductLine();
   // SecureNow does not review architectures. Offer that job only when this process hosts the architecture home.
   const architectureReviewAvailable = props.architectureHome !== undefined;
+  const showProductLineSwitch = secureNowEditionShowsProductLineSwitch();
 
   if (productLine === "security") {
     return (
       <>
-        {architectureReviewAvailable ? (
+        {architectureReviewAvailable && showProductLineSwitch ? (
           <ProductLineHomeJobChooser
             selectedProductLine={productLine}
             onSelect={setProductLine}
@@ -38,10 +40,12 @@ export function ProductLineHomeSwitch(props: { readonly architectureHome?: React
   if (props.architectureHome !== undefined) {
     return (
       <>
-        <ProductLineHomeJobChooser
-          selectedProductLine={productLine}
-          onSelect={setProductLine}
-        />
+        {showProductLineSwitch ? (
+          <ProductLineHomeJobChooser
+            selectedProductLine={productLine}
+            onSelect={setProductLine}
+          />
+        ) : null}
         {props.architectureHome}
       </>
     );

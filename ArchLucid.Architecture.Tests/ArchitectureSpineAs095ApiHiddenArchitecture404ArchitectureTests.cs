@@ -37,8 +37,7 @@ public sealed class ArchitectureSpineAs095ApiHiddenArchitecture404ArchitectureTe
 
         string source = ArchitectureSourceProbe.ReadPathWithPartials(path);
 
-        source.Should().Contain("NotFoundProblem");
-        source.Should().Contain("ProblemTypes.ResourceNotFound");
+        source.Should().Contain("ArchitectureShareNotVisibleAsNotFoundResponsePolicy.ArchitectureNotFound");
         source.Should().NotContain("ForbiddenProblem");
     }
 

@@ -1,0 +1,7 @@
+AzureActivity
+| where TimeGenerated > ago(7d)
+| where OperationNameValue in~ (
+    "MICROSOFT.AUTHORIZATION/ROLEASSIGNMENTS/WRITE",
+    "MICROSOFT.AUTHORIZATION/ROLEASSIGNMENTS/DELETE")
+| where ActivityStatusValue =~ "Success"
+| project TimeGenerated, Caller, OperationNameValue, _ResourceId, Properties

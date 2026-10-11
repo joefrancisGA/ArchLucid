@@ -369,6 +369,28 @@ test.describe(
       await stubEmptyArchitectureDraftListRoute(page);
     });
 
+    test("session-expiry recovery is independent of the Reviews hub", async ({ page }) => {
+      test.setTimeout(120_000);
+
+      const { accessToken } = requireLivePrivateBetaJwtEnv();
+      const reviewPath = `/architecture/reviews/${toRunGuidPathSegment("00000000-0000-4000-8000-000000000000")}`;
+
+      await primePrivateBetaBrowserPage(page, accessToken);
+      await page.goto("/", { waitUntil: "domcontentloaded" });
+      await waitAndDismissFirstSessionPurposeChooser(page);
+      await expectPrivateBetaStartIntakeSurface(page);
+
+      await clearJwtBrowserSession(page);
+      await page.goto(
+        `/auth/session-expired?reason=idle-timeout&returnUrl=${encodeURIComponent(reviewPath)}`,
+        { waitUntil: "domcontentloaded" },
+      );
+
+      await expect(page.getByTestId("session-expired-heading")).toBeVisible({ timeout: 30_000 });
+      await expect(page.getByRole("button", { name: /sign in/i })).toBeVisible({ timeout: 30_000 });
+      await expect(page.getByTestId("fatal-page-report-problem-row")).toBeVisible({ timeout: 30_000 });
+    });
+
     test("invite → auth session → tenant scope → review → expiry recovery → deep-link round-trip", async ({
       page,
       request,
@@ -597,11 +619,9 @@ test.describe(
     const reviewPath = `/architecture/reviews/${encodeURIComponent(toRunGuidPathSegment(runId))}`;
 
     // Buyer-polished hub rows expose `reviews-hub-row-{runId}` — link accessible names are titles, not GUID prefixes.
-    // The default hub URL lists every authority project slug in the current scope.
-    // scope.projectId is a JWT scope GUID, not an authority project slug.
-    await page.goto("/architecture/reviews", { waitUntil: "domcontentloaded" });
+    await page.goto(`/architecture/reviews?projectId=${encodeURIComponent(scope.projectId)}`, { waitUntil: "domcontentloaded" });
     await expectLiveReviewsHubHeading(page);
-    await expectLiveReviewsHubListReady(page, { timeoutMs: 90_000 });
+    await expectLiveReviewsHubListReady(page, { timeoutMs: 90_000, projectId: scope.projectId });
     const reviewsHubRow = page.locator(
       `[data-testid="reviews-hub-row-${runId}"], [data-testid="reviews-hub-row-${toRunGuidPathSegment(runId)}"]`,
     );

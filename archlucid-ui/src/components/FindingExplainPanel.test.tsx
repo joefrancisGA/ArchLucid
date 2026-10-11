@@ -62,6 +62,7 @@ describe("FindingExplainPanel", () => {
 
     expect(screen.getByText(/user/)).toBeInTheDocument();
     expect(screen.getByText(/resp/)).toBeInTheDocument();
+    expect(screen.getByText(/Model: sim/)).toBeInTheDocument();
     expect(screen.getByText(/Evidence chain/)).toBeInTheDocument();
     expect(screen.getByText("v1-run")).toBeInTheDocument();
     expect(spy).toHaveBeenCalledWith("run-a", "f-1");
@@ -116,5 +117,43 @@ describe("FindingExplainPanel", () => {
     });
 
     postSpy.mockRestore();
+  });
+
+  it("labels a missing model deployment name without changing stored names", async () => {
+    const sample: FindingLlmAudit = {
+      traceId: "abc",
+      agentType: "Topology",
+      systemPromptRedacted: "s",
+      userPromptRedacted: "u",
+      rawResponseRedacted: "r",
+      modelDeploymentName: null,
+      modelVersion: "1",
+      redactionCountsByCategory: {},
+    };
+
+    vi.spyOn(api, "getFindingLlmAudit").mockResolvedValue(sample);
+    vi.spyOn(api, "getFindingEvidenceChain").mockResolvedValue({
+      runId: "run-a",
+      findingId: "f-1",
+      manifestVersion: null,
+      findingsSnapshotId: null,
+      contextSnapshotId: null,
+      decisionTraceId: null,
+      goldenManifestId: null,
+      relatedGraphNodeIds: [],
+      agentExecutionTraceIds: [],
+    });
+
+    render(<FindingExplainPanel runId="run-a" findingId="f-1" />);
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /technical audit details/i })).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /technical audit details/i }));
+
+    await waitFor(() => {
+      expect(screen.getByText(/Model: Model deployment name was not stored\./)).toBeInTheDocument();
+    });
   });
 });

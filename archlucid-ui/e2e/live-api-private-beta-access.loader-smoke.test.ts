@@ -12,7 +12,34 @@ describe("live-api-private-beta-access loader smoke", () => {
     await import("./helpers/live-api-client");
     await import("./helpers/operator-journey");
     await import("./helpers/live-page-readiness");
+    await import("./helpers/private-beta-simplified-pilot-wizard");
     await import("./fixtures");
+  });
+
+  it("asserts the Reviews hub page-title test id instead of a stale H2 locator", async () => {
+    const readiness = await import("./helpers/live-page-readiness");
+
+    expect(readiness.LIVE_REVIEWS_HUB_TITLE_TEST_ID).toBe("reviews-hub-page-title");
+
+    const source = readFileSync(join(process.cwd(), "e2e/helpers/live-page-readiness.ts"), "utf8");
+
+    expect(source).toContain("getByTestId(LIVE_REVIEWS_HUB_TITLE_TEST_ID)");
+    expect(source).not.toContain('getByRole("heading", { level: 2, name: /^Reviews$/i })');
+  });
+
+  it("opens the simplified wizard with path=detailed so Working DA-09 does not redirect", async () => {
+    const wizard = await import("./helpers/private-beta-simplified-pilot-wizard");
+
+    expect(wizard.PRIVATE_BETA_SIMPLIFIED_PILOT_WIZARD_HREF).toBe(
+      "/architecture/reviews/new?path=detailed&baseline=1",
+    );
+
+    const source = readFileSync(
+      join(process.cwd(), "e2e/helpers/private-beta-simplified-pilot-wizard.ts"),
+      "utf8",
+    );
+
+    expect(source).toContain("waitAndDismissFirstSessionPurposeChooser");
   });
 
   it("loads the sandbox mock chain used by live-e2e Next bundles", async () => {

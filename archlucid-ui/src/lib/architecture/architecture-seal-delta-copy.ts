@@ -13,7 +13,11 @@ export const ARCHITECTURE_SEAL_DELTA_RETRY_LABEL = "Retry" as const;
 export const ARCHITECTURE_SEAL_DELTA_DIFF_COUNT_LABEL = (count: number): string =>
   count === 1 ? "1 change" : `${count} changes`;
 
-export const architectureSealDeltaSectionLabel = (section: string): string => {
+export const architectureSealDeltaSectionLabel = (section: string | null | undefined): string => {
+  if (section === null || section === undefined) {
+    return "Section was not stored.";
+  }
+
   switch (section) {
     case "Assumptions":
       return "Assumptions";

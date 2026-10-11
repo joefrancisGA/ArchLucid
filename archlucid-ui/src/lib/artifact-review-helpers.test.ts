@@ -107,6 +107,19 @@ describe("getArtifactFormatLabel", () => {
   it("passes through unknown formats unchanged", () => {
     expect(getArtifactFormatLabel("xlsx")).toBe("xlsx");
   });
+
+  it("passes through an unknown MIME format unchanged", () => {
+    expect(getArtifactFormatLabel("text/html")).toBe("text/html");
+  });
+
+  it("preserves an explicitly stored empty format", () => {
+    expect(getArtifactFormatLabel("")).toBe("");
+  });
+
+  it("explains when the format was not stored", () => {
+    expect(getArtifactFormatLabel(null)).toBe("Artifact format was not stored.");
+    expect(getArtifactFormatLabel(undefined)).toBe("Artifact format was not stored.");
+  });
 });
 
 describe("getArtifactTypeLabel", () => {

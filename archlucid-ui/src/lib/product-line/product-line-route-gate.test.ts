@@ -75,4 +75,20 @@ describe("product-line-route-gate", () => {
 
     vi.unstubAllEnvs();
   });
+
+  it("ignores an architecture cookie when the edition is uhg", () => {
+    vi.stubEnv("NEXT_PUBLIC_SECURENOW_EDITION", "uhg");
+    vi.stubEnv("NEXT_PUBLIC_ARCHLUCID_PRODUCT", "architecture");
+
+    const request = {
+      cookies: {
+        get: (name: string) =>
+          name === "archlucid_product_line_v1" ? { value: "architecture" } : undefined,
+      },
+    } as Parameters<typeof resolveProductLineIdFromRequest>[0];
+
+    expect(resolveProductLineIdFromRequest(request)).toBe("security");
+
+    vi.unstubAllEnvs();
+  });
 });

@@ -56,6 +56,31 @@ describe("formatSendableExportCoverMarkdown", () => {
 
     expect(markdown).not.toContain(SEMANTIC_SUPPORT_BAND_ASYNC_MAY_LAG_COPY);
   });
+
+  it("distinguishes a missing verdict summary from a stored empty summary", () => {
+    const missing = formatSendableExportCoverMarkdown({
+      feasibilityVerdict: { kind: "SoftInfeasible", summary: null as never },
+    });
+    const storedEmpty = formatSendableExportCoverMarkdown({
+      feasibilityVerdict: { kind: "SoftInfeasible", summary: "" },
+    });
+
+    expect(missing).toContain("Verdict summary was not stored.");
+    expect(storedEmpty).not.toContain("Verdict summary was not stored.");
+    expect(storedEmpty).not.toContain("Gate summary:");
+  });
+
+  it("reports an omitted verdict kind and preserves unexpected stored kinds", () => {
+    const missing = formatSendableExportCoverMarkdown({
+      feasibilityVerdict: { kind: undefined as never, summary: "No kind." },
+    });
+    const unexpected = formatSendableExportCoverMarkdown({
+      feasibilityVerdict: { kind: "FutureKind" as never, summary: "Unknown kind." },
+    });
+
+    expect(missing).toContain("Verdict kind was not stored.");
+    expect(unexpected).toContain("**Gate outcome:** FutureKind");
+  });
 });
 
 describe("resolveSendableExportCoverFindings", () => {

@@ -245,6 +245,9 @@ public sealed class ArchitectureFindingJsonConverter : JsonConverter<Architectur
         if (element.ValueKind == JsonValueKind.String &&
             Enum.TryParse(element.GetString(), ignoreCase: true, out FindingSemanticSupportBand parsed))
         {
+            if (!Enum.IsDefined(parsed))
+                throw new JsonException($"Unknown finding semantic support band value '{element.GetString()}'.");
+
             supportBand = parsed;
             return true;
         }

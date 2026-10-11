@@ -258,7 +258,11 @@ export function OperatorInferredConnectionsPanel(
                   <EnterpriseTableCell>
                     {formatStoredValue(row.settingName, "Setting name was not stored")}
                   </EnterpriseTableCell>
-                  <EnterpriseTableCell>{row.sourceFileFormat ?? row.source}</EnterpriseTableCell>
+                  <EnterpriseTableCell>
+                    {row.sourceFileFormat === null || row.sourceFileFormat === undefined
+                      ? "Source file format was not stored."
+                      : row.sourceFileFormat}
+                  </EnterpriseTableCell>
                   <EnterpriseTableCell>{row.status}</EnterpriseTableCell>
                 </EnterpriseTableRow>
               ))}

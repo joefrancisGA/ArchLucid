@@ -17,7 +17,6 @@ trap 'rm -f "${BUILD_LOG}"' EXIT
 
 if ! bash scripts/ci/ensure_openapi_contract_build.sh 2>&1 | tee "${BUILD_LOG}"; then
   error_codes="$(grep -oE '(CS|MSB)[0-9]{4}' "${BUILD_LOG}" | sort -u | paste -sd ',' - || true)"
-
   if [ -z "${error_codes}" ]; then
     error_codes="unclassified"
   fi
