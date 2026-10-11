@@ -17009,6 +17009,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: agent-runtime-evaluation
 
+2026-10-11 seed hunt (seed→hit): `AgentResultEvidenceFaithfulnessChecker` and `AgentResultJsonEvidenceGrounding` used exact-case lookups for claims/findings and their evidence fields, so a reachable case-variant agent payload skipped faithfulness checks or lost its grounding text. Faithfulness JSON field lookup now ignores case; regression `Evaluate_matches_case_variant_top_level_claims_property`.
+
+- [x] (proven) `AgentResultEvidenceFaithfulnessChecker.Evaluate` / `AgentResultJsonEvidenceGrounding` — case-variant claims/findings fields were ignored at the untrusted agent JSON boundary, producing incomplete faithfulness reports — **hit 2026-10-11 seed hunt:** use case-insensitive lookups for top-level and nested grounding fields; regression `Evaluate_matches_case_variant_top_level_claims_property`.
+
 2026-10-11 seed hunt (seed→hit): `AgentOutputLlmSemanticJudge` used exact-case lookups for reachable external judge response keys, so valid casing variants such as `OVERALL_QUALITY` and `RATIONALE` were discarded and semantic judging returned no score. Judge response property lookup now ignores case; regression `TryJudgeAsync_parses_completion_json_keys_without_case_sensitivity`.
 
 - [x] (proven) `AgentOutputLlmSemanticJudge.ReadQuality` / `ReadRationale` — valid case variants in an external judge JSON response were not parsed, causing a missing semantic score — **hit 2026-10-11 seed hunt:** use case-insensitive property lookup for camel and snake response keys; regression `TryJudgeAsync_parses_completion_json_keys_without_case_sensitivity`.

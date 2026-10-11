@@ -59,7 +59,7 @@ public sealed class AgentResultEvidenceFaithfulnessChecker(IOptions<AgentFaithfu
             int findingsSupported = 0;
             List<string> unsupported = [];
 
-            if (doc.RootElement.TryGetProperty("claims", out JsonElement claimsEl) &&
+            if (TryGetPropertyIgnoreCase(doc.RootElement, "claims", out JsonElement claimsEl) &&
                 claimsEl.ValueKind == JsonValueKind.Array)
             {
                 foreach (JsonElement claim in claimsEl.EnumerateArray())
@@ -108,7 +108,7 @@ public sealed class AgentResultEvidenceFaithfulnessChecker(IOptions<AgentFaithfu
                 }
             }
 
-            if (doc.RootElement.TryGetProperty("findings", out JsonElement findingsEl) &&
+            if (TryGetPropertyIgnoreCase(doc.RootElement, "findings", out JsonElement findingsEl) &&
                 findingsEl.ValueKind == JsonValueKind.Array)
             {
                 foreach (JsonElement finding in findingsEl.EnumerateArray())
@@ -307,5 +307,26 @@ public sealed class AgentResultEvidenceFaithfulnessChecker(IOptions<AgentFaithfu
         }
 
         return list;
+    }
+
+    private static bool TryGetPropertyIgnoreCase(
+        JsonElement element,
+        string propertyName,
+        out JsonElement value)
+    {
+        if (element.TryGetProperty(propertyName, out value))
+            return true;
+
+        foreach (JsonProperty property in element.EnumerateObject())
+        {
+            if (string.Equals(property.Name, propertyName, StringComparison.OrdinalIgnoreCase))
+            {
+                value = property.Value;
+                return true;
+            }
+        }
+
+        value = default;
+        return false;
     }
 }
