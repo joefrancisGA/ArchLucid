@@ -1918,7 +1918,7 @@
 
 2026-10-09 seed hunt (seed-only): re-read the selected topology merge orchestration files and focused tests; no fresh reachable mechanism-backed candidate met the seed quality bar and no hypothesis was promoted. The focused topology test run was blocked by unrelated `ARCH002` in `ArchLucid.Core/Auth/Saml/SamlMetadataDiscoveryParser.cs`.
 
-**Hunts:** 1624 · **Bugs found:** 981
+**Hunts:** 1625 · **Bugs found:** 981
 
 2026-10-09 seed hunt (seed-only): re-read all seven selected topology orchestration files and focused tests; no candidate met the hunt-ready bar, so no hypothesis was promoted. Seeded five mechanism-backed `(candidate)` rows; the focused topology test run was blocked by unrelated `ARCH002` in `ArchLucid.Core/Auth/Saml/SamlMetadataDiscoveryParser.cs`.
 
@@ -27819,6 +27819,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 ---
 
 ## Zone: context-ingestion
+
+2026-10-11 seed hunt (seed-only): re-read the context ingestion actor metadata and canonicalization paths; malformed/null actor elements are saturated `null-deref` siblings rather than a distinct mechanism, and no other fresh reachable wrong outcome met the hunt-ready bar. No production or regression code changed; the full ContextIngestion suite passed 827/827.
 
 2026-10-11 seed hunt (seed-only): re-read the Terraform/Bicep block scanners and the shared canonical property bag after the sensitive HCL redaction fix; the helper covers the block-body forms emitted by these parsers, and no distinct reachable mechanism-backed wrong outcome met the hunt-ready bar. No new candidate was added; all 827 ContextIngestion tests and the scoped compile check passed.
 
