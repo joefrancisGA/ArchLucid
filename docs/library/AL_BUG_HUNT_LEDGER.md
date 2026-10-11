@@ -1,5 +1,17 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-11 seed hunt (seed-only): `host-core-coordination` — reread the shared recoverable outbox processor, retry/dead-letter handler, option verifier, and sibling processors; no fresh row met the full hunt-ready bar. Retained the existing five bounded candidates covering cancellation reconciliation, hook cancellation visibility, zero max-batch normalization, transient missing-detail skips, and non-retryable export failures. The focused coordination/outbox filter passed 21/21. No production or regression code changed.
+
+2026-10-11 seed hunt (seed-only): `architecture-recommendation` — reread the selected recommendation engine and trade-off builder plus the focused alternatives/proposed-change tests; no fresh row met the full hunt-ready bar. Retained the two bounded caller/contract candidates and seeded three additional candidates for null/duplicate finding handling and priority-resolution semantics. The exact Alternatives/ProposedChange filter passed 45/45. No production or regression code changed.
+
+2026-10-11 seed hunt (seed-only): `retrieval` — reread retrieval query planning, in-memory/Azure vector indexing, scope validation, chunkers, and embedding cache paths; no fresh row met the full hunt-ready bar. Seeded three bounded `(candidate)` rows for non-positive chunk-size handling, duplicate document identity within one indexing batch, and duplicate chunk-id overwrite semantics. The exact Retrieval/Indexing filter passed 364/364. No production or regression code changed.
+
+2026-10-11 thorough hunt (dry): `finding-inspect-sql` — cheap-disproof closed the digest-shape candidate because the inspect path has no reachable caller contract requiring validation beyond display normalization; closed malformed agent-trace `modelAlias` loss because `JSON_VALUE` null behavior is an intentional projection fallback with no alternate in-zone source; and closed arbitrary disposition-pointer selection because migration 370 enforces one current pointer per scoped finding with `PK_FindingCurrentDispositions`. The focused Persistence inspect filter passed 425/425. No production or regression code changed.
+
+2026-10-11 seed hunt (seed-only): `finding-inspect-sql` — reread the selected inspect SQL, Dapper reader, mapper, and focused tests; no new row met the full hunt-ready bar. Seeded three bounded `(candidate)` rows for digest-shape validation, malformed agent-trace model-alias projection, and disposition-pointer singleton ordering. The focused Persistence inspect filter passed 425/425. No production or regression code changed.
+
+2026-10-11 thorough hunt (hit): `finding-inspect-sql` — `FindingInspectReadSql.FollowUpBatch` limited trace-rule retrieval to `TOP 1`, so a format-only first rule row prevented the Dapper path from applying the same first-substantive-rule normalization as in-memory inspect; return all ordered rule rows and resolve with `ResolveFirstTraceRuleText`; regression `FollowUpBatch_reads_all_trace_rules_for_in_memory_normalization` failed before the fix, then the focused Persistence inspect filter passed 425/425. Cheap-disproof closed the agent-trace digest fallback and related-node order candidates as valid-no-repro: in-memory inspect consumes hydrated `Finding` trace/node collections, while relational digest/order are distinct persisted contracts.
+
 2026-10-11 seed hunt (seed→hit): `TenantCostEstimateService.TryGetEstimateAsync` returned negative monthly cost guidance when reachable `Billing:UnitRates` configuration supplied negative rates; the service now rejects any negative computed band. Regression `TryGetEstimateAsync_rejects_negative_configured_standard_rates` failed before the fix; the scoped billing filter passed 26/26. The Application compile check timed out after no compiler errors.
 
 2026-10-11 seed hunt (seed→hit): `ArchitectureFindingJsonConverter.TryReadFindingSemanticSupportBand` accepted undefined numeric strings such as `"99"` because the string enum path omitted `Enum.IsDefined`; fixed with the same defined-value guard used by sibling enum readers. The focused Contracts filter passed 521/521, and the changed contracts project compiled with zero warnings and errors.
@@ -8332,11 +8344,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** finding inspect; dapper inspect read
 - **paths:** ArchLucid.Persistence/Findings/DapperFindingInspectReadRepository.cs; ArchLucid.Persistence/Findings/FindingInspectReadModelMapper.cs; ArchLucid.Persistence/Sql/FindingInspectReadSql.cs
 - **test-filter:** FullyQualifiedName~FindingInspectReadModelMapperTests|FullyQualifiedName~FindingInspectReadSqlTests|FullyQualifiedName~FindingInspectReadRepositoryCoreTests|FullyQualifiedName~FindingInspectEndpointTests
-- **hunts:** 82
-- **bugs-found:** 24
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-05
-- **last-bug:** 2026-10-05 — in-memory inspect trace fallback ignored substantive rules after invisible prefix entries
+- **hunts:** 85
+- **bugs-found:** 25
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-10-11
+- **last-bug:** 2026-10-11 — Dapper inspect trace-rule retrieval ignored substantive rules after invisible prefix entries
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -8841,11 +8853,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `InMemoryFindingInspectReadRepository.GetInspectAsync` — `ModelAlias` from `Finding.ModelAlias` vs Dapper `JSON_VALUE(aet.TraceJson, '$.modelAlias')` — **cheap-disproof 2026-10-05 thorough hunt:** in-memory storage inspect resolves from hydrated `RunDetailDto` findings without `AgentExecutionTraces` join; SQL path is relational contract (#1636 model-alias projection already covered for Dapper).
 - [x] (valid-no-repro) `InMemoryFindingInspectReadRepository.GetInspectAsync` — disposition/waiver/audit follow-up always null — **cheap-disproof 2026-10-05 thorough hunt:** demo finding ids intentionally omit `FindingCurrentDispositions` / waiver / audit child hydration; relational inspect covered by ADR 0076 pointer regressions.
 
-- [ ] (candidate) `DapperFindingInspectReadRepository` follow-up batch — `TOP 1 tra.RuleText ORDER BY tra.SortOrder` does not skip invisible-only first trace rows when `AppliedRuleIdsJson` is absent; in-memory now uses `ResolveFirstTraceRuleText` so parity may diverge when SortOrder=0 rule text is format-only but SortOrder=1 is substantive.
-- [ ] (candidate) `InMemoryFindingInspectReadRepository.GetInspectAsync` — `ReasoningTraceDigestSha256` is normalized on read but never populated from `RunDetailDto` agent traces when the finding field is null (Dapper projects digest from `AgentExecutionTraces`).
-- [ ] (candidate) `FindingInspectReadRepositoryCore.BuildEvidenceFromRelatedNodes` — in-memory passes `RelatedNodeIds` while SQL follow-up orders by `frn.SortOrder`; inspect evidence order may diverge when the hydrated list order differs from persisted child sort order.
+- [x] (proven) `DapperFindingInspectReadRepository` follow-up batch — `TOP 1 tra.RuleText ORDER BY tra.SortOrder` did not skip invisible-only first trace rows when `AppliedRuleIdsJson` was absent; **hit 2026-10-11 thorough hunt:** return all ordered trace-rule rows and resolve the first substantive rule with `ResolveFirstTraceRuleText`; regression `FollowUpBatch_reads_all_trace_rules_for_in_memory_normalization`.
+- [x] (valid-no-repro) `InMemoryFindingInspectReadRepository.GetInspectAsync` — `ReasoningTraceDigestSha256` is normalized on read but never populated from `RunDetailDto` agent traces when the finding field is null — **cheap-disproof 2026-10-11 thorough hunt:** the in-memory demo storage contract reads the hydrated finding trace, while the Dapper digest projection is a relational `AgentExecutionTraces` contract; no reachable in-memory wrong outcome was established.
+- [x] (valid-no-repro) `FindingInspectReadRepositoryCore.BuildEvidenceFromRelatedNodes` — in-memory passes `RelatedNodeIds` while SQL follow-up orders by `frn.SortOrder` — **cheap-disproof 2026-10-11 thorough hunt:** in-memory inspect consumes the already hydrated `RunDetailDto` node order; no contract requires re-sorting that demo collection against relational child-table order.
 - [x] (valid-no-repro) `FindingInspectReadModelMapper.ParseFindingSeverity` invalid stored severity — **cheap-disproof 2026-10-05 thorough hunt:** fail-closed `InvalidDataException` is the documented contract (replacing silent `Info` default after #1309); regressions `ParseFindingSeverity_rejects_unrecognized_or_undefined_values` and related mapper tests.
 - [x] (invalid) `FindingInspectReadRepositoryCore.ResolveInspectSemanticSupportBand` overlay format characters — **cheap-disproof 2026-10-05 thorough hunt:** migration `379_FindingSemanticSupportBandOverlays` `CK_FindingSemanticSupportBandOverlays_Band` allows only `Supported`/`Unchecked`/`Unsupported`/`NotScored`; embedded format characters cannot be persisted in the overlay column.
+- [x] (valid-no-repro) `DapperFindingInspectReadRepository.MapInspectResponse` — `ReasoningTraceDigestSha256` is display-normalized but not validated as a SHA-256 hex digest — **cheap-disproof 2026-10-11 thorough hunt:** no reachable inspect caller contract in this zone requires digest validation beyond display normalization; the writer persists the trace-provided digest as metadata.
+- [x] (valid-no-repro) `FindingInspectReadSql.MainInspectWithTypedPayload` / `MainInspectWithoutTypedPayload` — `JSON_VALUE(aet.TraceJson, '$.modelAlias')` silently returns null for malformed JSON or a non-scalar `modelAlias` — **cheap-disproof 2026-10-11 thorough hunt:** null projection is SQL Server’s conservative behavior and the selected inspect paths expose no alternate model-alias source or required fallback contract.
+- [x] (invalid) `DapperFindingInspectReadRepository.LoadDispositionJoinAsync` — the disposition result uses `SELECT TOP 1` without an `ORDER BY` — **cheap-disproof 2026-10-11 thorough hunt:** migration 370 declares `PK_FindingCurrentDispositions (TenantId, WorkspaceId, ProjectId, FindingId)`, so one current pointer exists per scoped finding and the query cannot select among multiple current-pointer rows.
 
 2026-09-26 seed hunt (seed→hit): reseeded finding-inspect-sql; proved undefined insight-density storage bytes on inspect read; 183 mapper/SQL/codec + 7 resolve-inspect regressions passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
 
@@ -9698,6 +9713,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [ ] (candidate) `ArchitectureRecommendationEngine.BuildRecommendations` — the supplied `ArchitectureKnowledgeModel.IsProvisionalSynthesis` is not consulted at this locus, so a direct caller passing a provisional model with a Fail finding could emit a remediation recommendation instead of evidence-first output — input: the `context.Model` passed by `ClosedLoopRecommendationStage` while framing is incomplete; upstream `ClosedLoopReviewStage` currently gates those findings, so caller/contract evidence is still needed.
 - [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.ApplyTradeOffs` — only Security/Cost, Security/Reliability, and Reliability/Cost pairs are synthesized, so a reachable Security plus DataArchitecture finding pair receives no competing-dimension trade-off — input: specialist review findings with `QualityDimension.Security` and `QualityDimension.DataArchitecture`; no selected contract currently states that every dimension pair must produce a trade-off.
+- [ ] (candidate) `ArchitectureRecommendationEngine.BuildRecommendations` — a reachable null entry inside the `findings` list throws through `IsActionableFinding` instead of being skipped or reported as invalid input; the list is caller-provided, but collection-element nullability is not established by the selected contract.
+- [ ] (candidate) `ArchitectureRecommendationEngine.BuildRecommendations` — duplicate actionable findings with the same title/dimension can emit duplicate recommendations with separate stable identities; the selected engine does not deduplicate findings before creating recommendations, but no caller contract establishes whether duplicate specialist rows are valid.
+- [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.PriorityListPrefersDimension` — when declared priorities mention both dimensions in different entries, the resolver balances instead of honoring list order; `DeclaredPriorities` is reachable operator input, but precedence semantics are not established by the selected contract.
 
 2026-10-11 seed hunt (seed→hit): `ArchitectureRecommendationTradeOffBuilder` treated the reachable operator priority `Security is not a priority for phase one` as Security-first because postpositive negation was not recognized; added generalized `is not`/`isn't` priority and prioritization matching; regression `BuildRecommendations_balances_security_cost_trade_off_when_priority_says_security_is_not_a_priority`; the exact Alternatives/ProposedChange filter passed 45/45 and the TradeOffBuilder suite passed 14/14.
 
@@ -9859,7 +9877,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** recommendation engine; alternatives
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationEngine.cs; ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationTradeOffBuilder.cs
 - **test-filter:** FullyQualifiedName~ArchitectureRecommendationAlternativesTests|FullyQualifiedName~ArchitectureRecommendationProposedChangeTests
-- **hunts:** 61
+- **hunts:** 62
 - **last-hunt:** 2026-10-11
 - **bugs-found:** 24
 - **consecutive-dry-hunts:** 0
@@ -11467,7 +11485,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** scim; entra provisioning users
 - **paths:** ArchLucid.Api/Controllers/Scim/ScimUsersController.cs
 - **test-filter:** FullyQualifiedName~ScimUsers
-- **hunts:** 30
+- **hunts:** 31
 - **bugs-found:** 21
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-09
@@ -16843,7 +16861,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** marketplace billing; checkout mutation; billing application layer
 - **paths:** ArchLucid.Application/Billing/
 - **test-filter:** FullyQualifiedName~Marketplace|FullyQualifiedName~BillingCheckout|FullyQualifiedName~TenantLlmCostReporting
-- **hunts:** 26
+- **hunts:** 30
 - **bugs-found:** 15
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-11
@@ -16851,9 +16869,19 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
+2026-10-11 seed hunt (seed-only): re-read the remaining billing interfaces, admin COGS tests, and scoped reporting edge cases; 26 scoped tests passed. No new row met the same-run failing-repro bar. Seeded two bounded candidates for requested dashboard-window clamping and suspended/offboarded tenant visibility.
+
+2026-10-11 seed hunt (seed-only): re-read the billing application sources and the scoped Marketplace, BillingCheckout, and TenantLlmCostReporting tests; 26 scoped tests passed. No candidate met the same-run failing-repro bar. Seeded five follow-on candidates covering unknown Marketplace plan-id fallback, provider-error detail exposure, invalid checkout quantities, warning-threshold configuration, and blank billing currency.
+
 2026-10-11 seed hunt (seed-only): re-read `ArchLucid.Application/Billing/` and the scoped Marketplace, BillingCheckout, and TenantLlmCostReporting tests; 26 scoped tests passed. Existing candidates were rechecked, but none met the full failing-repro bar.
 
 2026-10-11 seed hunt (seed-only): re-read the Marketplace mutation handlers, webhook publisher, tenant estimate service, and their scoped tests; 26 scoped tests passed. No new reachable candidate met the failing-repro bar.
+
+2026-10-11 seed hunt (seed-only): re-read the billing result contracts, connectivity interface, estimate/ranking interfaces, and remaining scoped tests; 26 scoped tests passed. No new reachable candidate met the failing-repro bar.
+
+2026-10-11 seed hunt (seed-only): re-read the top-run ranker, its focused tests, billing unit-rate/estimate contracts, and checkout facade contract; 26 scoped tests passed. No new reachable candidate met the failing-repro bar.
+
+2026-10-11 seed hunt (seed-only): re-read the webhook publisher, connectivity interface, admin COGS service, and its focused tests; 26 scoped tests passed. No new reachable candidate met the failing-repro bar.
 
 2026-10-09 seed hunt (seed→hit): promoted inverted `Billing:UnitRates` bands. Why ArchLucid renders low — high, and Standard 500/100 plus Enterprise 900/200 displayed backwards. Both commercial bands now order the lower amount first. Regression `TryGetEstimateAsync_orders_inverted_standard_and_enterprise_bands`. 30 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, and TenantCostEstimate tests passed.
 
@@ -16892,6 +16920,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `BillingCheckoutFacade.CreatePortalSessionAsync` returned `Success` when a provider result contained an empty portal URL or provider session id — **hit 2026-10-03:** Stripe maps a nullable portal URL to an empty string, and the facade returned that unusable handoff as success; fixed by rejecting incomplete provider results; regression `BillingCheckoutFacadeTests.CreatePortalSessionAsync_rejects_incomplete_provider_result`.
 - [x] (proven) `BillingCheckoutFacade.TryParseCheckoutTier` — checkout `TargetTier` values differing only by case (for example `team`) were treated as unknown and returned `RequestBodyRequired` even though the API documents canonical tier names; **hit 2026-10-04:** ordinal case-insensitive tier parsing; regression `CreateCheckoutSessionAsync_accepts_case_insensitive_target_tier`.
 - [x] (proven) `TenantLlmCostTopRunRanker.RankAsync` — unpriced reasoning-only runs lost the cost tie-break to smaller prompt runs because the sort ignored `ReasoningTokens` — **hit 2026-10-09 seed hunt (seed→hit):** tie-break counts prompt, completion, and reasoning tokens; regression `RankAsync_ranks_unpriced_reasoning_only_run_above_smaller_prompt_run`.
+- (candidate) `MarketplaceChangePlanWebhookMutationHandler.HandleAsync` — a non-empty but unknown `planId` maps to `TenantTier.Standard` and mutates the subscription instead of deferring the malformed ChangePlan input; reachable through a GA-enabled Marketplace webhook, but no partner contract in this zone establishes whether unknown plan identifiers are valid Standard plans.
+- (candidate) `BillingCheckoutFacade.CreateCheckoutSessionAsync` / `CreatePortalSessionAsync` — provider exception text is copied into `ErrorMessage` and exposed by the billing controller's validation response; reachable through provider transport or API failures, but the seed pass did not establish that configured providers return sensitive details.
+- (candidate) `BillingCheckoutFacade.CreateCheckoutSessionAsync` — negative `Seats` or `Workspaces` values are accepted into the application request and forwarded to the provider; reachable through the admin checkout body, but current providers clamp values to one before creating a session.
+- (candidate) `AdminFleetLlmCogsService.BuildDashboardAsync` — `WarnFraction` outside the expected 0–1 range can produce warning thresholds below zero or above the hard cap; reachable through bound budget configuration, but no configuration validator or real deployment value establishes the intended range.
+- (candidate) `TenantCostEstimateService.TryGetEstimateAsync` — blank `Billing:UnitRates:Currency` is returned as an unlabeled estimate currency; reachable through bound billing configuration, but this is a presentation-quality concern without a demonstrated wrong consumer outcome.
+- (candidate) `TenantLlmCostReportingService.BuildDashboardAsync` — requested `days` values outside 1–90 are silently clamped, so a caller asking for a longer historical window receives a shorter dashboard without a disposition or response indicator; reachable through the billing dashboard query input, but the bounded-window contract is not explicit in this zone.
+- (candidate) `AdminFleetLlmCogsService.BuildDashboardAsync` — suspended or offboarded tenants are omitted from fleet rows and aggregate counts; reachable through tenant lifecycle state, but the admin dashboard may intentionally report only active cost-bearing tenants.
 - (candidate) `TenantLlmCostReportingService.BuildDashboardAsync` — a negative `LlmTenantBudgetStateReadModel.TotalUsdPressure` would be copied into daily and tenant-wide cost rows; reachable through the monthly budget state populated by the configured LLM cost-estimation path, but this seed pass did not prove that a negative state can be persisted.
 - (candidate) `TenantCostEstimateService.TryGetEstimateAsync` — a blank or whitespace `Billing:UnitRates:Currency` configuration value would produce an estimate with no currency label; reachable through the bound billing configuration, but this is a presentation-quality candidate and no failing repro was attempted in this seed-only pass.
 - (candidate) `BillingCheckoutFacade.CreateCheckoutSessionAsync` — a provider exception message is returned as `ErrorMessage` and the API exposes it in a validation problem response; reachable through the configured checkout provider’s transport/error path, but the seed pass did not establish that provider messages contain sensitive data.
@@ -16943,13 +16978,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** buyer proof pack; board pack; pilot artifacts
 - **paths:** ArchLucid.Application/Pilots/
 - **test-filter:** FullyQualifiedName~BuyerProofPack|FullyQualifiedName~BoardPack
-- **hunts:** 43
+- **hunts:** 44
 - **bugs-found:** 29
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-10-09
+- **consecutive-dry-hunts:** 2
+- **last-hunt:** 2026-10-11
 - **last-bug:** 2026-10-09 — board-pack digest week extended outside the requested period
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-11 thorough hunt (dry): cheap-disproved five picker candidates: findings-by-severity presence is intentionally true for a resolved zero-row slice; LLM call counts carry a separate unresolved attestation flag; buyer-proof ZIP generation fails closed at each artifact boundary; `ExecDigestComposer` already trims configured operator URL slashes; and boolean parsing accepts canonical strings while rejecting malformed values. No hunt-ready row or failing repro; 29 scoped BuyerProofPack/BoardPack tests passed.
 
 2026-10-09 seed hunt (seed-only): re-read `BuyerProofPackBuilder`, `BoardPackPdfBuilder`, `BuyerProofPackCommitGuard`, `BoardPackSealedExportReceiptGuard`, and `PilotProofPackageCompletenessMapper`; no new hypothesis met the same-run failing-repro bar. Seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
 
@@ -17170,13 +17207,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** agent evaluation; evaluation runner
 - **paths:** ArchLucid.AgentRuntime/Evaluation/
 - **test-filter:** FullyQualifiedName~Evaluation
-- **hunts:** 48
+- **hunts:** 50
 - **bugs-found:** 31
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-10
+- **last-hunt:** 2026-10-11
 - **last-bug:** 2026-10-10 — reference-case catalog stayed empty after configuration enablement
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
+
+2026-10-11 seed hunt (seed-only): re-read the selected evaluation quality-gate, JSON grounding, semantic-judge, and trace-quality paths; 213 scoped Evaluation tests passed. No distinct reachable wrong outcome met the promotion bar after the recent case-insensitive JSON fixes and existing candidate review.
+
+2026-10-11 seed hunt (seed-only): re-read citation gating, LLM faithfulness parsing, evaluation harness, recent evaluation commits, and remaining candidates; 213 scoped Evaluation tests passed. No new reachable candidate met the failing-repro bar.
 
 2026-10-10 seed hunt (seed→hit): `AgentResultEvidenceFaithfulnessChecker.CategoryIsGrounded` treated undefined numeric finding category `"99"` as a defined `AgentType`, so matching finding text was counted as grounded. The parser now requires `Enum.IsDefined`; regression `Evaluate_undefined_numeric_finding_category_does_not_count_as_grounded`; 203 scoped Evaluation tests passed.
 
@@ -19388,6 +19429,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: retrieval
 
+2026-10-11 seed hunt (seed-only): re-read retrieval indexing, scope validation, in-memory vector cleanup, Azure filter construction, embedding normalization, and graph-neighbor bounds; no new row met the full hunt-ready bar. The exact Retrieval/Indexing filter passed 364/364. Seeded three bounded candidates for zero-cap configuration semantics, zero-neighbor graph bounds, and chunk-ID-only cleanup scope; no production or regression change.
+
+2026-10-11 thorough hunt (hit): proved two independent configuration/input defects. `AcceptedManifestTrainingDataExporter` coerced `MaxManifestsPerExport = 0` to one and emitted training data; the clamp now permits zero. `PolicyPackCorpusIndexer` preserved an explicit blank `rulePackId` instead of falling back to the pack directory; null, empty, and whitespace IDs now use the fallback. Regressions `ExportAsync_with_zero_manifest_limit_exports_no_manifests` and `BuildDocumentsAsync_blank_rule_pack_id_falls_back_to_pack_directory_name`; 364 scoped Retrieval/Indexing tests passed.
+
 2026-10-10 seed hunt (seed-only): re-read embedding cardinality, summarization, agentic retry, fine-tuning export, and policy-pack indexing paths; no new hunt-ready row was promoted. The exact Retrieval/Indexing filter passed 362/362; seeded five bounded candidates and made no production code change.
 
 2026-10-10 seed hunt (seed→hit): `StructureAwareTextChunker` closed a valid four-backtick Markdown fence on an inner three-backtick content line, so long manifest/artifact code blocks lost fence wrappers during chunking; fence closure now requires the opener length; regression `Chunk_preserves_four_backtick_fence_when_body_contains_three_backticks`; 362 scoped Retrieval/Indexing tests passed.
@@ -19432,11 +19477,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** retrieval indexing; embedding; pricing retrieval
 - **paths:** ArchLucid.Retrieval/
 - **test-filter:** FullyQualifiedName~Retrieval|FullyQualifiedName~Indexing
-- **hunts:** 68
-- **last-hunt:** 2026-10-10
-- **bugs-found:** 30
+- **hunts:** 71
+- **last-hunt:** 2026-10-11
+- **bugs-found:** 32
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-10 — shorter inner Markdown fences fragmented four-backtick code blocks
+- **last-bug:** 2026-10-11 — zero export limit and blank policy-pack identity
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -19489,11 +19534,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ### Hypotheses
 
 - [x] (proven) `StructureAwareTextChunker` treated any three-backtick line inside a longer fenced block as a closing delimiter — **hit 2026-10-10 seed hunt:** a reachable four-backtick manifest/artifact code block containing a three-backtick line was split into unwrapped chunks; closure now requires at least the opener's fence length; regression `Chunk_preserves_four_backtick_fence_when_body_contains_three_backticks`.
-- [ ] (candidate) `CachingEmbeddingService.EmbedManyAsync` converts nullable/blank batch entries to empty strings before delegating, so an embedding provider that filters blank inputs could return fewer vectors than the original batch; reachable callers include the faithfulness scorer and retrieval indexer, but their current chunkers remove blank chunks before dispatch.
-- [ ] (candidate) `AcceptedManifestTrainingDataExporter.ExportAsync` coerces `MaxManifestsPerExport = 0` to one manifest, so a deployment configuration intending to disable export volume may still emit training data; the input is `Retrieval:FineTuning:MaxManifestsPerExport`.
-- [ ] (candidate) `AcceptedManifestTrainingDataExporter.ExportAsync` preserves duplicate `ManifestDocument` entries supplied by online fine-tuning orchestration, so duplicate records could be serialized into one training job; the reachable input is the orchestration manifest batch.
-- [ ] (candidate) `PolicyPackCorpusIndexer.ReadRuleDocumentsAsync` accepts a blank `rulePackId` from a reachable `compliance-rules.json`, making indexed policy-pack rules unassignable by rule-pack ID; the input is the deployed policy-pack template file.
-- [ ] (candidate) `ManifestChunkSummarizer.MaybeSummarizeAsync` keys summaries by `ChunkId` and updates only the first matching hit, so a reachable duplicate-hit list could leave later duplicate chunks unsummarized; the input is the vector-search hit list.
+- [x] (valid-no-repro) `CachingEmbeddingService.EmbedManyAsync` converts nullable/blank batch entries to empty strings before delegating, so an embedding provider that filters blank inputs could return fewer vectors than the original batch — **cheap-disproof 2026-10-11 thorough hunt:** scoped chunkers remove blank chunks before dispatch; no reachable mixed batch with blank entries was established.
+- [x] (proven) `AcceptedManifestTrainingDataExporter.ExportAsync` coerced `MaxManifestsPerExport = 0` to one manifest, so a deployment configuration intending to disable export volume emitted training data — **hit 2026-10-11 thorough hunt:** clamp now permits zero; regression `ExportAsync_with_zero_manifest_limit_exports_no_manifests`.
+- [x] (valid-no-repro) `AcceptedManifestTrainingDataExporter.ExportAsync` preserves duplicate `ManifestDocument` entries supplied by online fine-tuning orchestration, so duplicate records could be serialized into one training job — **cheap-disproof 2026-10-11 thorough hunt:** no deduplication contract or wrong downstream outcome was established for the caller-provided batch.
+- [x] (proven) `PolicyPackCorpusIndexer.ReadRuleDocumentsAsync` accepted a blank `rulePackId` from a reachable `compliance-rules.json`, making indexed policy-pack rules unassignable by rule-pack ID — **hit 2026-10-11 thorough hunt:** null, empty, and whitespace IDs now fall back to the pack directory; regression `BuildDocumentsAsync_blank_rule_pack_id_falls_back_to_pack_directory_name`.
+- [x] (valid-no-repro) `ManifestChunkSummarizer.MaybeSummarizeAsync` keys summaries by `ChunkId` and updates only the first matching hit, so a reachable duplicate-hit list could leave later duplicate chunks unsummarized — **cheap-disproof 2026-10-11 thorough hunt:** no retrieval/index response path establishing duplicate `ChunkId` hits was found.
+- (candidate) `RetrievalIndexingService.IndexDocumentsAsync` treats `MaxChunksPerIndexOperation = 0` as an unlimited cap rather than an explicit zero-work limit; reachable input is `Retrieval:EmbeddingCaps:MaxChunksPerIndexOperation`, but the option’s zero semantics are not documented in this zone.
+- (candidate) `GraphRagBoundedNeighborCollector.Collect` coerces `maxNeighbors = 0` to one neighbor, so a reachable zero-neighbor request may still expand graph context; the input is the graph retrieval bound, but zero-as-disabled semantics are not established.
+- (candidate) `InMemoryVectorIndex.RemoveChunkIdsAsync` removes by chunk ID without tenant/workspace/project scope, so a reachable cleanup list containing a colliding ID could delete another scope’s vector; the input is the internal stale-chunk cleanup path, but global chunk-ID uniqueness is not established.
 - [x] (proven) Index query returns chunks from another tenant's corpus — **hit 2026-08-18:** Azure policy-pack OData filter omitted platform sentinel `tenantId`, allowing cross-tenant `PolicyPack` matches when `IncludePlatformCorpora` is on.
 - [x] (valid-no-repro) Pricing estimate uses the wrong model tariff for the tenant plan — EA multiplier and cache keys are tenant-scoped; covered by existing pricing tests.
 - [x] (valid-no-repro) Reindex job deletes vectors for the wrong workspace — `RetrievalIndexingService` validates scope and passes all four scope fields to delete.
@@ -19522,6 +19570,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `RetrievalIndexingService.IndexDocumentsAsync` — multi-document batch removed prior vectors per document before all `EmbedManyAsync` calls finished, so a later embedding failure left earlier documents without vectors and unchanged catalog hashes — **hit 2026-10-04 seed hunt #51:** defer `RemoveChunksForDocumentAsync` until after all embeddings succeed, immediately before `UpsertChunksAsync`; regression `IndexDocumentsAsync_when_later_document_embed_fails_does_not_leave_earlier_document_vectors_deleted`.
 - [x] (proven) `RetrievalIndexingService.IndexDocumentsAsync` — batched reindex removed prior vectors for every document before `UpsertChunksAsync`, so upsert failures left the whole batch without searchable vectors while catalog hashes stayed stale — **hit 2026-10-04 seed hunt #52:** upsert new chunks first and remove-then-reupsert only when catalog `IndexedChunkCount` exceeds the new chunk count; regression `IndexDocumentsAsync_when_batch_upsert_fails_does_not_leave_prior_document_vectors_deleted`.
 - [x] (proven) `RetrievalIndexingService.IndexDocumentsAsync` — content-shrink cleanup removed all document chunks then re-upserted, so re-upsert failure after batch upsert left zero searchable vectors — **hit 2026-10-04 seed hunt #53:** delete only stale higher-ordinal `chunkId` values via `RemoveChunkIdsAsync`; regression `IndexDocumentsAsync_when_content_shrinks_keeps_new_chunks_when_stale_ordinal_cleanup_reupsert_would_fail`.
+- [ ] (candidate) `SimpleTextChunker.Chunk` / `StructureAwareTextChunker.Chunk` — a reachable non-positive `maxChars` argument can return no chunks or throw for non-empty content instead of rejecting invalid chunk configuration; direct `ITextChunker` callers can supply the input, but production option reachability and intended failure semantics are not established.
+- [ ] (candidate) `RetrievalIndexingService.IndexDocumentsAsync` — two reachable `RetrievalDocument` entries with the same `DocumentId` in one batch generate colliding `{documentId}-chunk-{ordinal}` ids and let the later document overwrite the earlier one; batch uniqueness is not enforced in the selected path.
+- [ ] (candidate) `InMemoryVectorIndex.UpsertChunksAsync` — two reachable chunks with the same `ChunkId` but different scope/content are applied sequentially and the later row replaces the earlier row; global chunk-id uniqueness is not established for all indexing callers.
 
 2026-09-12 thorough hunt #1961 (hit): proved Louvain edge/node casing mismatch; cheap-disproof closed PolicyPackChunker colon-split on shipped templates; scoped Louvain tests passed.
 
@@ -25413,7 +25464,7 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** commercial tenant; billing; budgeting; split from archlucid-core
 - **paths:** ArchLucid.Core/Identity/; ArchLucid.Core/Billing/; ArchLucid.Core/Budgeting/
 - **test-filter:** FullyQualifiedName~CommercialTenant
-- **hunts:** 33
+- **hunts:** 34
 - **bugs-found:** 11
 - **consecutive-dry-hunts:** 2
 - **last-hunt:** 2026-10-10
@@ -30647,7 +30698,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **hunts:** 61
 - **bugs-found:** 45
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-06
+- **last-hunt:** 2026-10-11
 - **last-bug:** 2026-10-06 — operator base userinfo leaked into exec digest unsubscribe links
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -35617,6 +35668,8 @@ ABQ-09 churn hotspot; intake wizard route tree.
 
 ## Zone: ui-governance-findings-queue
 
+2026-10-11 thorough hunt (dry): cheap-disproved the four open candidates. The client trims `runId` before exposing scope state, the more-filters disclosure has URL/effect synchronization and focused coverage, assigned-mode active chips are derived from the complete filter state, and derivation disclosure ids are trimmed before comparison. No failing repro was established. Candidate-specific URL, scope, filter-chip, and disclosure tests passed 13/13; the picker-scoped client file remained at 22 tests with 11 known external-store/update-depth and workspace-label baseline failures.
+
 2026-10-11 seed hunt (seed-only): reread the queue shell, toolbar, scope, results, outcome, triage, and assigned-row paths after the whitespace-scope fix; no new row met the full hunt-ready bar. Seeded four bounded candidates for raw whitespace scope in the results footer, URL-backed disclosure state transitions, assigned-scope filter visibility, and derivation disclosure identity. No production or regression change.
 
 2026-10-11 seed hunt (seed→hit): `GovernanceFindingsQueueScopeSection` treated any non-empty raw `scopedRunId` as an active review scope even when the client’s trimmed `scopedRunFilterActive` was false. A reachable `runId=%20` URL therefore rendered a blank review-scope banner and encoded whitespace into the Open review link; regression `does not render a review scope banner for a whitespace-only run id` failed first and passed after using `scopedRunFilterActive` for both scope branches. Scope-section tests passed 5/5.
@@ -35643,9 +35696,9 @@ ABQ-09 churn hotspot; intake wizard route tree.
 - **aliases:** governance findings queue
 - **paths:** archlucid-ui/src/app/(operator)/governance/findings/
 - **test-filter:** FullyQualifiedName~GovernanceFindingsQueueClient
-- **hunts:** 43
+- **hunts:** 44
 - **bugs-found:** 30
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-11
 - **last-bug:** 2026-10-11 — whitespace run id rendered review scope
 - **related-pd-tb:** none
@@ -35665,10 +35718,10 @@ ABQ-09 churn hotspot.
 
 ### Hypotheses
 
-- [ ] (candidate) `GovernanceFindingsQueueResultsSection` — a reachable whitespace-only `runId` can satisfy the raw `scopedRunId.length > 0` footer guard even when trimmed scope filtering is inactive, potentially rendering a next-review footer for an invalid scope; requires the footer contract and a falsifiable rendered/API outcome.
-- [ ] (candidate) `GovernanceFindingsQueueToolbarSection` — a URL-backed `governanceFindingsMoreFiltersOpen` transition may leave the native `<details>` open state and the query parameter out of sync during a rapid toggle/router update; requires a reachable toggle sequence and a wrong disclosure state after navigation settles.
-- [ ] (candidate) `GovernanceFindingsQueueToolbarSection` — assigned-to-me active filter chips are gated by `activeFiltersSummary`, so a valid assigned queue filter represented outside that summary may hide the clear affordance; requires a concrete filter-state contract and a reachable missing-chip outcome.
-- [ ] (candidate) `GovernanceFindingsQueueAssignedToMeRowCells` — a reachable derivation disclosure id containing surrounding whitespace may fail the raw equality check against `row.findingId`, leaving the persisted disclosure closed for the selected finding; requires a reachable URL/row-id normalization contract and a visible disclosure mismatch.
+- [x] (invalid) `GovernanceFindingsQueueResultsSection` — a reachable whitespace-only `runId` can satisfy the raw `scopedRunId.length > 0` footer guard even when trimmed scope filtering is inactive — **invalid 2026-10-11 thorough hunt:** `scopedRunIdFromQuery` trims URL input before the Results section receives it; the whitespace-only prerequisite is not reachable there.
+- [x] (valid-no-repro) `GovernanceFindingsQueueToolbarSection` — a URL-backed `governanceFindingsMoreFiltersOpen` transition may leave the native `<details>` open state and the query parameter out of sync during a rapid toggle/router update — **cheap-disproof 2026-10-11 thorough hunt:** the controlled disclosure writes through the URL helper and the effect rehydrates state from the settled parameter; focused URL/scope tests passed.
+- [x] (valid-no-repro) `GovernanceFindingsQueueToolbarSection` — assigned-to-me active filter chips are gated by `activeFiltersSummary`, so a valid assigned queue filter represented outside that summary may hide the clear affordance — **cheap-disproof 2026-10-11 thorough hunt:** the summary is derived from register, job-view, natural-language, and search filters, matching the chip inputs; no separate assigned filter state is present in this boundary.
+- [x] (invalid) `GovernanceFindingsQueueAssignedToMeRowCells` — a reachable derivation disclosure id containing surrounding whitespace may fail the raw equality check against `row.findingId` — **invalid 2026-10-11 thorough hunt:** `parseGovernanceFindingDerivationIdFromSearch` trims the URL value before row comparison; focused disclosure tests passed.
 
 - [x] (invalid) `GovernanceFindingsQueueClient` — `governanceApprovalProvenance` is hard-coded to `null`, so a reachable loaded approval provenance record may never render the governance approval banner — **cheap-disproof 2026-10-10 thorough hunt:** no approval provenance source or caller exists in the selected client boundary; the null value is the conservative absent-record state.
 - [x] (valid-no-repro) `GovernanceFindingsQueueClient.onLoadFindingsSavedView` — a reachable saved-view payload with a malformed or missing `filters` object is cast without runtime validation and may abort queue rendering — **cheap-disproof 2026-10-10 thorough hunt:** `applyFindingsSavedViewFilters` accepts non-object input as `{}` and supplies safe defaults; no throw or wrong queue state is reachable.

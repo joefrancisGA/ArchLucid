@@ -146,7 +146,7 @@ internal static class FindingInspectReadSql
                                          AND r.RunId = @RunId
                                        ORDER BY frn.SortOrder;
 
-                                       SELECT TOP 1 tra.RuleText
+                                       SELECT tra.RuleText
                                        FROM dbo.FindingTraceRulesApplied tra
                                        INNER JOIN dbo.FindingRecords fr ON fr.FindingRecordId = tra.FindingRecordId
                                        INNER JOIN dbo.FindingsSnapshots fs ON fs.FindingsSnapshotId = fr.FindingsSnapshotId
