@@ -7724,7 +7724,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** ARCH006; tenant scoped query analyzer
 - **paths:** ArchLucid.Analyzers/TenantScopedQueryScopeBindingAnalyzer.cs
 - **test-filter:** FullyQualifiedName~TenantScopedQueryScopeBindingAnalyzerTests
-- **hunts:** 36
+- **hunts:** 37
 - **bugs-found:** 22
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-09
@@ -11151,10 +11151,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **hunts:** 36
 - **bugs-found:** 24
 - **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-10-04
+- **last-hunt:** 2026-10-11
 - **last-bug:** 2026-10-04 — golden-test result exposed publish action intended only for reasoning output
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+- [ ] (candidate) `ArchitectureIntelligencePageClient` publish action during source-context failure — after a previously successful reasoning run, a reachable 503 during the deep-linked product-context refetch may leave `runState.kind === "reasoning"` while `showIntakeForm` still renders the publish button; input: a hydrated review whose subsequent source-context request fails; reachability: the page's deep-link `runId` source-context fetch and retry path.
+- [ ] (candidate) `ArchitectureIntelligencePageClient` action controls during a failed deep-linked context load — the failure panel intentionally restores freeform intake, but the page still constructs every action control from the prior hook state; input: a deep-linked review whose source-context request fails after an earlier action state; reachability: the UI's retry/fixture recovery path from `ArchitectureIntelligenceProductContextLoadFailure`.
+- [ ] (candidate) `ArchitectureIntelligencePageClient` reasoning-result boundary after recovery — a successful retry can restore hydrated intake while stale action state is supplied by the hook; input: retry succeeds after a failed source-context load following an in-progress or completed action; reachability: the page's visible retry button invokes `retryProductContextLoad` and then re-enters the normal intake/result branches.
 
 2026-10-03 thorough hunt (dry): cheap-disproof found no raw URL parsing or whitespace-producing run-id path in the picked component; `activeRunId` is supplied by the page hook, so the malformed-run candidates were not reachable from this zone file. The golden-result checklist candidate was intentional because the checklist's Analyze step represents reasoning analysis, not the separate golden harness. The two scoped page-client suites passed 52/52.
 
