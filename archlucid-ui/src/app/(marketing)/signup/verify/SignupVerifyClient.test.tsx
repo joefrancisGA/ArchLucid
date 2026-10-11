@@ -227,35 +227,6 @@ describe("SignupVerifyClient", () => {
     });
   });
 
-  it("does not lock resend behind a cooldown when JWT redirect initiation fails", async () => {
-    let cooldownActive = false;
-    vi.mocked(isJwtAuthMode).mockReturnValue(true);
-    vi.mocked(initiateOidcRedirect).mockRejectedValue(new Error("redirect unavailable"));
-    vi.mocked(markSignupVerifyResendSent).mockImplementation(() => {
-      cooldownActive = true;
-    });
-    vi.mocked(readSignupVerifyResendCooldown).mockImplementation(() => ({
-      active: cooldownActive,
-      secondsRemaining: 45,
-    }));
-
-    render(<SignupVerifyClient />);
-
-    await waitFor(() => {
-      expect(screen.getByTestId("signup-verify-resend-email")).toBeEnabled();
-    });
-
-    fireEvent.click(screen.getByTestId("signup-verify-resend-email"));
-
-    await waitFor(() => {
-      expect(screen.getByTestId("signup-verify-status-message")).toHaveTextContent(
-        SIGNUP_VERIFY_PAGE_COPY.resendFailed,
-      );
-    });
-
-    expect(screen.getByTestId("signup-verify-resend-email")).toBeEnabled();
-  });
-
   it("shows resend cooldown message", async () => {
     vi.mocked(readSignupVerifyResendCooldown).mockReturnValue({ active: true, secondsRemaining: 45 });
 

@@ -206,15 +206,15 @@ export function SignupVerifyClient() {
     setStillPendingAfterCheck(false);
 
     try {
+      markSignupVerifyResendSent();
+
       if (isJwtAuthMode()) {
         await initiateOidcRedirect(SIGNUP_VERIFY_ONBOARDING_PATH);
-        markSignupVerifyResendSent();
         setResendOutcome("success");
 
         return;
       }
 
-      markSignupVerifyResendSent();
       setResendOutcome("success");
       await refreshTrialStatus();
     } catch {
