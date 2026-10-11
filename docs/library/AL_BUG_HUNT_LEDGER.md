@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-11 thorough hunt (dry): `cli-tenant-isolation` — repeated the selected focused run after the prior dry result; all five candidates remain unsupported by a reachable wrong outcome in the selected CLI files, and the existing tests cover the relevant 2xx/4xx/5xx, malformed-list, pagination, and cursor paths. The focused `TenantIsolationNegativeTestRunner` filter passed 54/54. No production change.
+
 2026-10-11 thorough hunt (dry): `cli-tenant-isolation` — repeated the selected runner and aggregator review after the prior dry result; the same five candidates remained non-hunt-ready because their proposed statuses/payloads are not reachable through the documented API contracts or are already covered by focused regressions. The focused `TenantIsolationNegativeTestRunner` filter passed 54/54. No production change.
 
 2026-10-11 thorough hunt (dry): `cli-tenant-isolation` — cheap-disproved the five candidate rows against the selected offline/live runner paths: 204/201 responses are handled as unavailable or do not match the reachable API contracts, primary visibility only receives the documented success/deny statuses, parsed list items use top-level `runId`, and cursor values are encoded once from the decoded JSON value. No candidate met the hunt-ready bar for a failing repro. The focused `TenantIsolationNegativeTestRunner` filter passed 54/54. No production change.
