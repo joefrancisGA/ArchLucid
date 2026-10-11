@@ -11,10 +11,12 @@ const {
   ingestArchitectureDiagramMock,
   reconcileArchitectureDiagramMock,
   fetchArchitectureDiagramReconciliationMock,
+  lookupOperationalSecurityFindingsMock,
 } = vi.hoisted(() => ({
   ingestArchitectureDiagramMock: vi.fn(async () => ({ warnings: [], sourceFingerprints: ["fp1"], model: { nodes: [], edges: [] } })),
   reconcileArchitectureDiagramMock: vi.fn(),
   fetchArchitectureDiagramReconciliationMock: vi.fn(),
+  lookupOperationalSecurityFindingsMock: vi.fn(),
 }));
 
 let searchParams = new URLSearchParams(
@@ -89,6 +91,7 @@ vi.mock("@/lib/infra-evidence/infra-evidence-diagram-reconcile-api", () => ({
   ingestArchitectureDiagram: ingestArchitectureDiagramMock,
   reconcileArchitectureDiagram: reconcileArchitectureDiagramMock,
   ingestOperationalSecurityFindings: vi.fn(async () => ({ items: [] })),
+  lookupOperationalSecurityFindings: lookupOperationalSecurityFindingsMock,
   formatInfraEvidenceDiagramReconcileApiError: (error: unknown) => String(error),
 }));
 
@@ -163,6 +166,8 @@ describe("DiagramReconcileWorkbenchClient", () => {
         },
       ],
     });
+    lookupOperationalSecurityFindingsMock.mockReset();
+    lookupOperationalSecurityFindingsMock.mockResolvedValue([]);
   });
 
   it("renders wizard controls, filter, and conflict row with both sides", async () => {
@@ -196,6 +201,34 @@ describe("DiagramReconcileWorkbenchClient", () => {
 
     expect(screen.getByTestId("infra-diagram-reconcile-row-diagram-node-1")).toBeInTheDocument();
     expect(screen.queryByTestId("infra-diagram-reconcile-row-infra-only-1")).not.toBeInTheDocument();
+  });
+
+  it("reloads a recorded finding and keeps the finding and factory links", async () => {
+    lookupOperationalSecurityFindingsMock.mockResolvedValueOnce([
+      {
+        findingId: "99999999-aaaa-bbbb-cccc-dddddddddddd",
+        sourceFindingId: "diagram-reconcile:aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee:11111111-1111-1111-1111-111111111111:diagram-node-1",
+        status: "Open",
+      },
+    ]);
+
+    render(<DiagramReconcileWorkbenchClient />);
+
+    const conflictRow = await screen.findByTestId("infra-diagram-reconcile-row-diagram-node-1");
+
+    await waitFor(() => {
+      expect(within(conflictRow).getByText("Finding recorded")).toBeInTheDocument();
+    });
+
+    expect(within(conflictRow).getByTestId("infra-diagram-reconcile-finding-link-diagram-node-1")).toHaveAttribute(
+      "href",
+      "/architecture/reviews/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/findings/99999999-aaaa-bbbb-cccc-dddddddddddd/evidence",
+    );
+    expect(within(conflictRow).getByTestId("infra-diagram-reconcile-remediation-diagram-node-1")).toHaveAttribute(
+      "href",
+      expect.stringContaining("findingId=99999999-aaaa-bbbb-cccc-dddddddddddd"),
+    );
+    expect(within(conflictRow).queryByText("Create operational finding")).not.toBeInTheDocument();
   });
 
   it("clears selected correspondence when match-kind filter hides the selected row", async () => {

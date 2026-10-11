@@ -1,17 +1,17 @@
-> **Scope:** Chapter 4 first draft for the book draft *Managing Azure Security with AI*. Author working text; not product documentation and not a description of any vendor's internals.
-> **Status:** draft
+> **Scope:** Chapter 4 revised draft for the book draft *Managing Azure Security with AI*. Author working text; not product documentation and not a description of any vendor's internals.
+> **Status:** draft — revised (revision pass 1, 2026-10-10)
 
 # Chapter 4 — Identity and privilege paths
 
 **Spine:** [`../README.md`](../README.md) · **Outline:** [`../OUTLINE.md`](../OUTLINE.md)
 
-> *Draft status: first draft. Target 9,000 words. Facts about Azure and Entra ID behavior must be re-verified against Microsoft documentation before submission.*
+> *Draft status: revised (revision pass 1, 2026-10-10). Target 9,000 words. Facts about Azure and Entra ID behavior were checked against Microsoft documentation in October 2026; dated "As of" notes mark the ones to re-check before submission.*
 
 ---
 
 ## The fix that didn't close the path
 
-In this fictional scenario, Contoso's payments team acted on the path from Chapter 1. They changed the federated credential on `payments-deploy` so that it trusted only the `production` GitHub environment, which requires two approvals before a workflow can run. Merging to `main` was no longer enough to sign in as the deployment identity. They closed the ticket.
+In this fictional scenario, Contoso's payments team acted on the path from Chapter 1. They changed the federated credential on `payments-deploy` so that it trusted only the `production` GitHub environment, which requires approval from a designated reviewer before a deployment job can run. Merging to `main` was no longer enough to sign in as the deployment identity. They closed the ticket.
 
 Two weeks later, a review of the identity graph found three more ways to reach the same storage account. None of them involved GitHub at all:
 
@@ -90,7 +90,7 @@ With Privileged Identity Management (PIM), an assignment can be **eligible** rat
 
 Represent eligible assignments as a distinct edge type, "can activate", carrying the activation requirements. A path through an eligible Owner assignment that requires approval from a separate team is meaningfully harder to use than one through an active assignment. It's still a path, and it belongs in the graph.
 
-> **As of 2026-10:** Verify how PIM eligibility for Azure resource roles and Entra roles is exposed via ARM and Microsoft Graph, and which permissions are needed to read it.
+The two kinds of eligibility live in different places. Eligibility for Azure resource roles is an ARM resource, `Microsoft.Authorization/roleEligibilitySchedules`, readable at the scope it applies to. Eligibility for Entra directory roles is in Microsoft Graph, under `roleManagement/directory/roleEligibilitySchedules`, and reading it needs a Graph permission such as `RoleEligibilitySchedule.Read.Directory`. A collector that reads only one of them will miss half the "can activate" edges.
 
 ### Effective access is a derived fact
 
@@ -119,7 +119,9 @@ The subject decides how wide the door is. For GitHub Actions, typical subjects l
 
 Reading a subject is only half the job. The other half is outside Azure: who can merge to `main`, what the environment's protection rules require, whether pull requests from forks can request tokens. That evidence lives in GitHub, not Entra. You can collect it from GitHub's API, or record it as a human assertion with an owner and date. Either way, label it. Don't assume.
 
-> **As of 2026-10:** Verify GitHub's current OIDC subject formats, subject customization options, fork pull request token behavior, and Entra ID support for wildcard or expression-based ("flexible") federated credential matching.
+By default, workflows triggered by pull requests from forks don't receive an OIDC token, so the `pull_request` row is usually limited to branches in the repository itself. Check whether anyone has changed that default. Entra's flexible federated credentials, still in preview, match subjects with a `claimsMatchingExpression` instead of an exact string. Read the expression the way you'd read a firewall rule: work out the widest set of subjects it accepts.
+
+> **As of 2026-10:** GitHub subject formats change. Repositories created after July 15, 2026, repositories renamed or transferred after that date, and existing repositories that opt in use immutable subjects containing owner and repository IDs (`repo:owner@id/repo@id:…`), so a federated credential written for the old format won't match them. Re-check the formats and the flexible credential syntax before you rely on them.
 
 ### Owners and credential management
 
@@ -130,9 +132,10 @@ That makes app ownership one of the most overlooked privilege hops. Owners are o
 Several Entra directory roles grant the same capability across many apps:
 
 - **Application Administrator** and **Cloud Application Administrator** can manage credentials on application registrations and enterprise applications across the tenant.
-- **Global Administrator** and **Privileged Role Administrator** can do this and much more.
+- **Global Administrator** can do this and much more.
+- **Privileged Role Administrator** doesn't manage credentials directly, but it can assign itself any directory role, including the ones above. That's a granting hop (section 4.4), not a "become" hop.
 
-> **As of 2026-10:** Verify the exact credential-management scope of Application Administrator and Cloud Application Administrator, including any restrictions on apps holding privileged roles.
+Microsoft's own role documentation warns about the consequence: a holder of Application Administrator can add a credential to an app and then do anything that app's identity can do. The role doesn't exclude apps that hold privileged permissions, so treat these roles as able to become every application in their scope.
 
 ### Managed identities and control of compute
 
@@ -157,7 +160,7 @@ The opening story's third path was exactly this: Contributor on `rg-payments-pro
 |-----|----------|-----------------|
 | Federated credential | Producing a token with the trusted issuer and subject | Graph (credential) + external system (who can produce it) |
 | Add credential as owner | Ownership of the app or service principal | Graph (owners) |
-| Add credential via directory role | Application Administrator, Cloud Application Administrator, or higher | Graph (directory role assignments) |
+| Add credential via directory role | Application Administrator, Cloud Application Administrator, or Global Administrator | Graph (directory role assignments) |
 | Act as a managed identity | Control of code running on the attached resource | ARG (identity attachments) + effective access to the resource |
 | Attach a user-assigned identity | Assign permission on the identity + write on the compute resource | ARG + effective access |
 
@@ -181,14 +184,11 @@ A **Global Administrator** in Entra ID can turn on a setting that grants them Us
 
 Service principals can hold Microsoft Graph **application permissions**, granted via admin consent. Some of these are effectively directory administration:
 
-- permission to assign directory roles,
-- permission to grant app role assignments (including Graph permissions) to any service principal, itself included,
-- permission to manage all applications' credentials.
+- permission to assign directory roles (`RoleManagement.ReadWrite.Directory`),
+- permission to grant app role assignments, including Graph permissions, to any service principal, itself included (`AppRoleAssignment.ReadWrite.All`),
+- permission to manage all applications' credentials (`Application.ReadWrite.All`).
 
 A service principal holding one of these is a privileged identity, even if it has no Azure roles at all. It belongs in the graph with "can grant" edges, and so does everyone who can become it (section 4.3).
-
-> **As of 2026-10:** Verify which Microsoft Graph application permissions allow self-escalation (for example, role management and app role assignment write permissions) and their current names.
-
 ---
 
 ## 4.5 Building the identity graph
@@ -646,9 +646,6 @@ Section 4.2 introduced the most important conversion in Azure paths: a control-p
 Each row becomes a `grants` edge in the graph with its condition attached. Most are deterministic inferences: the conversion is real if the condition holds, and the condition is usually something your snapshot can check.
 
 The first and third rows of that table explain why Microsoft has spent years pushing customers toward Azure RBAC for Key Vault and toward disabling shared key access on storage. Both changes remove control-to-data conversions, so a control-plane role stays a control-plane role.
-
-> **As of 2026-10:** Verify each conversion against current service documentation and built-in role definitions.
-
 ---
 
 ## 4.7 Directory roles and Azure roles are different systems
@@ -828,7 +825,7 @@ Write those to `role-definitions.json`, `deny-assignments.json`, `compute-identi
 1. `memberOf` from `transitive-memberships.json`.
 2. `canSignInAs` from federated credentials, from an entry-point node named after the subject.
 3. `canAddCredential` from `application-owners.json` (owner to application).
-4. `canAddCredential` from a directory role holder to each application, only when the role is Application Administrator, Cloud Application Administrator, Global Administrator, or Privileged Role Administrator, and `directoryScopeId` is tenant-wide (`/`). Any other directory role, and any assignment scoped to an administrative unit, must not fan out to every app.
+4. `canAddCredential` from a directory role holder to each application, only when the role is Application Administrator, Cloud Application Administrator, or Global Administrator, and `directoryScopeId` is tenant-wide (`/`). Any other directory role, and any assignment scoped to an administrative unit, must not fan out to every app.
 5. `appFor` links joined through `appId`.
 6. `runsAs` from `compute-identities.json` (observed): the compute resource to each attached managed identity's principal id.
 7. `canControlCode` and `grants` only from `derive_capability_edges`, after role definitions, inheritance, transitive membership, denies, and conditions. Pick the code-control action from the deployment-actions table for the resource `type`. For storage, emit `grants` for list keys only when shared key is `enabled` or `not set`, and emit `grants` for blob read only from DataActions.
@@ -877,12 +874,9 @@ If you find fewer than six paths, the usual misses are the `appId` join, transit
 
 ## Author notes (remove before submission)
 
-- Verify: Contributor's NotActions and absence of DataActions; built-in roles with `roleAssignments/write`; deny assignment creation sources (managed apps, deployment stacks); role assignment conditions for storage and for constrained delegation; PIM eligibility APIs and read permissions.
-- Verify: credential-management scope of Application Administrator and Cloud Application Administrator; Global Administrator elevation to root User Access Administrator; Graph application permissions that allow self-escalation (current names).
-- Verify: GitHub OIDC subject formats and customization; fork pull request token behavior; Entra flexible federated identity credential support and syntax.
-- Verify each control-to-data conversion in section 4.6, especially Key Vault access-policy modification, VM password reset, and database Entra administrator change.
+- Verified 2026-10-10 (revision pass 1): Contributor NotActions; roles with `roleAssignments/write`; PIM eligibility APIs and read permission; Application Administrator and Cloud Application Administrator credential scope; Privileged Role Administrator removed from `canAddCredential` because it escalates by assignment; Global Administrator elevation; Graph self-escalation permission names; GitHub fork token default and immutable subjects; flexible credential syntax; section 4.6 conversions.
 - Verify: managed identity attach permissions (assign action on user-assigned identity) and which built-in roles include code deployment for Functions, App Service, Automation, and Logic Apps. The lab uses `Microsoft.Web/sites/write` as the representative Function App action; confirm whether publish uses that action, `Microsoft.Web/sites/publish/action`, or both.
 - Verify Step 0 cmdlets and payload shapes: `Get-MgApplicationOwner`, `Get-MgRoleManagementDirectoryRoleAssignment`, `Get-MgRoleManagementDirectoryRoleDefinition`, `Get-MgGroupTransitiveMember`; directory role template ids; `identity.userAssignedIdentities` principalId; deny assignment `principals` and `doNotApplyToChildScopes`; management group `properties.details.parent.id`.
-- Built-in directory role template ids used as a sanity check on `directory-role-assignments.json` (verify before publication): Cloud Application Administrator `158c047a-c907-4556-b7ef-446551a6b5f7`, Application Administrator `9b895d92-2cd3-44c7-9d02-a6ac2d5ea5c3`, Privileged Role Administrator `e8611ab8-c189-46e8-94e1-60213ab1f814`, Global Administrator `62e90394-69f5-4237-9190-012177145e10`.
+- Built-in directory role template ids used as a sanity check on `directory-role-assignments.json` (verified 2026-10-10): Cloud Application Administrator `158c047a-c907-4556-b7ef-446551a6b5f7`, Application Administrator `9b895d92-2cd3-44c7-9d02-a6ac2d5ea5c3`, Global Administrator `62e90394-69f5-4237-9190-012177145e10`.
 - Consider a figure for section 4.5's payments graph instead of ASCII.
 - Add the Chapter 4 fact checks to GTM **M-306** when it is picked up.

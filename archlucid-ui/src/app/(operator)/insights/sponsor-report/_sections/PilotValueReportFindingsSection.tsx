@@ -119,7 +119,7 @@ export function PilotValueReportFindingsSection(props: Props) {
               <InlineMetadataLabel label="Policy packs applied" /> {data.policyPackAssignments}
             </li>
             <li>
-              <InlineMetadataLabel label="Exceptions or waivers" /> Not available
+              <InlineMetadataLabel label="Exceptions or waivers" /> Exceptions or waivers were not stored.
             </li>
           </ul>
           <h3 className={cn("m-0 mb-2 mt-4", OPERATOR_TYPOGRAPHY.cardTitle)}>Architecture-change signals</h3>
@@ -136,13 +136,13 @@ export function PilotValueReportFindingsSection(props: Props) {
               <InlineMetadataLabel label="Recommendations generated" /> {data.totalRecommendationsProduced}
             </li>
             <li>
-              <InlineMetadataLabel label="Recommendations accepted" /> Not available
+              <InlineMetadataLabel label="Recommendations accepted" /> Recommendations accepted were not stored.
             </li>
             <li>
-              <InlineMetadataLabel label="Remediation assignments" /> Not available
+              <InlineMetadataLabel label="Remediation assignments" /> Remediation assignments were not stored.
             </li>
             <li>
-              <InlineMetadataLabel label="Findings remediated" /> Not available
+              <InlineMetadataLabel label="Findings remediated" /> Findings remediated were not stored.
             </li>
           </ul>
           <h2 className={cn("m-0 mb-2 mt-6", OPERATOR_TYPOGRAPHY.sectionTitle)}>Analysis coverage</h2>

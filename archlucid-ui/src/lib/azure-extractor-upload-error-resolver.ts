@@ -21,6 +21,7 @@ export type AzureExtractorUploadSemanticCode =
   | "AZURE_EXTRACTOR_RUN_SCOPE_MISMATCH"
   | "AZURE_EXTRACTOR_ZIP_TOO_LARGE"
   | "AZURE_EXTRACTOR_NO_FILE_UPLOADED"
+  | "AZURE_EXTRACTOR_UPLOAD_PRODUCT_LINE_FORBIDDEN"
   | "AZURE_EXTRACTOR_UPLOAD_UNKNOWN";
 
 export type AzureExtractorUploadErrorResolution = {
@@ -55,8 +56,19 @@ function readFailureKind(problem: ApiProblemDetails | null, detail: string): Azu
   return "unknown";
 }
 
-function resolveSemanticCode(detail: string, failureKind: AzureExtractorUploadFailureKind): AzureExtractorUploadSemanticCode {
+function resolveSemanticCode(
+  detail: string,
+  failureKind: AzureExtractorUploadFailureKind,
+  apiErrorCode: string | undefined,
+): AzureExtractorUploadSemanticCode {
   const normalized = detail.toLowerCase();
+
+  if (
+    detail === "The active product line cannot access this API route." &&
+    (apiErrorCode === undefined || apiErrorCode.toUpperCase() === "FORBIDDEN")
+  ) {
+    return "AZURE_EXTRACTOR_UPLOAD_PRODUCT_LINE_FORBIDDEN";
+  }
 
   if (normalized.includes("unsupported manifest schemaversion")) {
     return "AZURE_EXTRACTOR_UNSUPPORTED_SCHEMA_VERSION";
@@ -150,6 +162,8 @@ function guidanceForSemanticCode(
       return "Reduce extractor scope (subscription or resource group) or use chunked upload when enabled. Confirm the ZIP is within the server size limit.";
     case "AZURE_EXTRACTOR_NO_FILE_UPLOADED":
       return "Select a .zip file in the upload control. The multipart form field must be named file.";
+    case "AZURE_EXTRACTOR_UPLOAD_PRODUCT_LINE_FORBIDDEN":
+      return "The ZIP was not inspected. The active product line cannot call this API route. Include the copied error details when opening a support ticket.";
     case "AZURE_EXTRACTOR_UPLOAD_UNKNOWN":
       return "Review the error detail, fix the extractor package, and retry. Include the copied error details when opening a support ticket.";
     default: {
@@ -163,6 +177,10 @@ function headingForSemanticCode(
   code: AzureExtractorUploadSemanticCode,
   failureKind: AzureExtractorUploadFailureKind,
 ): string {
+  if (code === "AZURE_EXTRACTOR_UPLOAD_PRODUCT_LINE_FORBIDDEN") {
+    return "This product cannot use this upload route";
+  }
+
   if (code === "AZURE_EXTRACTOR_COMPANION_NOT_ARRAY" || code === "AZURE_EXTRACTOR_PACKAGE_SCHEMA_INVALID") {
     return "Extractor package rejected";
   }
@@ -202,7 +220,7 @@ export function resolveAzureExtractorUploadError(
 ): AzureExtractorUploadErrorResolution {
   const detail = problem?.detail?.trim() ?? fallbackMessage.trim();
   const failureKind = readFailureKind(problem, detail);
-  const semanticCode = resolveSemanticCode(detail, failureKind);
+  const semanticCode = resolveSemanticCode(detail, failureKind, problem?.errorCode?.trim());
 
   return {
     semanticCode,

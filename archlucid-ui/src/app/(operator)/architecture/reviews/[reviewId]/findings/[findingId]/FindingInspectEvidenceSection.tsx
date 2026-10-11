@@ -159,7 +159,7 @@ function EvidenceCitationList(props: {
           >
             <p className="m-0 font-medium text-neutral-900 dark:text-neutral-100">{title}</p>
             {excerpt.length > 0 && excerpt !== title ? <EvidenceExcerptBody text={excerpt} /> : null}
-            {buyerPolishedShell && (row.lineRange || row.artifactId) ? (
+            {buyerPolishedShell && (row.lineRange !== "" || row.artifactId !== "") ? (
               <details
                 className="mt-2"
                 open={citationOpen}
@@ -172,16 +172,32 @@ function EvidenceCitationList(props: {
                   View technical citation
                 </summary>
                 <div className={cn("mt-1 space-y-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                  {row.lineRange ? <p className="m-0">Lines: {row.lineRange}</p> : null}
-                  {row.artifactId ? <p className="m-0 font-mono">Artifact id: {row.artifactId}</p> : null}
+                  {row.lineRange === null || row.lineRange === undefined ? (
+                    <p className="m-0">Line range was not stored.</p>
+                  ) : row.lineRange ? (
+                    <p className="m-0">Lines: {row.lineRange}</p>
+                  ) : null}
+                  {row.artifactId === null || row.artifactId === undefined ? (
+                    <p className="m-0 font-mono">Evidence artifact id was not stored.</p>
+                  ) : row.artifactId ? (
+                    <p className="m-0 font-mono">Artifact id: {row.artifactId}</p>
+                  ) : null}
                 </div>
               </details>
             ) : (
               <>
-                {row.lineRange ? (
+                {row.lineRange === null || row.lineRange === undefined ? (
+                  <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                    Line range was not stored.
+                  </p>
+                ) : row.lineRange ? (
                   <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Lines: {row.lineRange}</p>
                 ) : null}
-                {row.artifactId ? (
+                {row.artifactId === null || row.artifactId === undefined ? (
+                  <p className={cn("m-0 mt-1 font-mono text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                    Evidence artifact id was not stored.
+                  </p>
+                ) : row.artifactId ? (
                   <p className={cn("m-0 mt-1 font-mono text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                     Artifact id: {row.artifactId}
                   </p>

@@ -164,7 +164,11 @@ export function ArchitectureStructuredSectionView(
                     </span>
                   ) : null}
                 </div>
-                {entity.detail !== null && entity.detail.length > 0 ? (
+                {entity.detail === null ? (
+                  <p className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+                    Detail was not stored.
+                  </p>
+                ) : entity.detail.length > 0 ? (
                   <p className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                     {entity.detail}
                   </p>

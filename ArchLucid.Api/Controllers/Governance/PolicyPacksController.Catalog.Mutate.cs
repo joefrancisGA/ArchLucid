@@ -42,6 +42,8 @@ public sealed partial class PolicyPacksController
         if (sealedGuardResult is not null)
             return sealedGuardResult;
 
+        string? normalizedVersion = request.Version?.Trim();
+
         PolicyPackHttpResult<PolicyPackCatalogEntryDetail> result;
         try
         {
@@ -49,7 +51,7 @@ public sealed partial class PolicyPacksController
                 new PolicyPackPromoteCatalogBody
                 {
                     SourcePolicyPackId = request.SourcePolicyPackId,
-                    Version = request.Version,
+                    Version = normalizedVersion,
                 },
                 ct).ConfigureAwait(false);
         }

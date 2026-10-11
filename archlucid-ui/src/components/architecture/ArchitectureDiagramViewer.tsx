@@ -1270,12 +1270,12 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
             </Button>
           </div>
           <p className="m-0">{questionableNode.questionableReason}</p>
-          {questionableNode.questionableAction != null ? (
-            <p className="m-0">
-              <span className="font-semibold">Recommended action: </span>
-              {questionableNode.questionableAction}
-            </p>
-          ) : null}
+          <p className="m-0">
+            <span className="font-semibold">Recommended action: </span>
+            {questionableNode.questionableAction === null || questionableNode.questionableAction === undefined
+              ? "Recommended action was not stored."
+              : questionableNode.questionableAction}
+          </p>
         </aside>
       ) : null}
 

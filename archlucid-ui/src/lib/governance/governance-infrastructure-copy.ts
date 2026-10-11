@@ -29,7 +29,7 @@ export const GOVERNANCE_INFRASTRUCTURE_OVERVIEW_HUB_INTRO =
   `${GOVERNANCE_INFRASTRUCTURE_OVERVIEW_HUB_INTRO_WORKBENCHES} ${GOVERNANCE_INFRASTRUCTURE_OVERVIEW_HUB_INTRO_DESTINATIONS}` as const;
 
 export const SECURENOW_HOME_GROUPED_SECTIONS_INTRO =
-  `${GOVERNANCE_INFRASTRUCTURE_OVERVIEW_HUB_INTRO_DESTINATIONS} Security, compliance, and infrastructure destinations are grouped below.` as const;
+  `${GOVERNANCE_INFRASTRUCTURE_OVERVIEW_HUB_INTRO_DESTINATIONS} Findings, environment, remediation, compliance, and data sources are grouped below.` as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_OVERVIEW_START_HERE_TITLE = "Start here" as const;
 

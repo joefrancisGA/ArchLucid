@@ -11384,6 +11384,7 @@ BEGIN
         Scope                   NVARCHAR(1024)    NOT NULL,
         PrincipalId             NVARCHAR(256)     NOT NULL,
         RoleDefinitionId        NVARCHAR(1024)    NOT NULL,
+        PimEligibilityKind      NVARCHAR(64)      NULL,
         SourceEvidenceReference NVARCHAR(512)     NULL,
         CONSTRAINT FK_AzureInventoryRoleAssignments_Snapshots FOREIGN KEY (SnapshotId) REFERENCES dbo.AzureInventorySnapshots (SnapshotId)
     );

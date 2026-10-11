@@ -90,6 +90,11 @@ export function ClarificationAnswerCapturePanel(
               <Label htmlFor={answerId} className={OPERATOR_TYPOGRAPHY.body}>
                 {question.prompt}
               </Label>
+              <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+                {question.missingItem === null || question.missingItem === undefined
+                  ? "Missing item was not stored."
+                  : question.missingItem}
+              </p>
               <Textarea
                 id={answerId}
                 value={answer}

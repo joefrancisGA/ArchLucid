@@ -23,7 +23,7 @@ function buildProps(
     clearReviewScopeHref: "/governance/findings",
     pageTitle: "Findings",
     scopedRunId: "run-1",
-    scopedRunFilterActive: false,
+    scopedRunFilterActive: true,
     scopedFindingLifecycleCompareHref: null,
     secondaryViewPresentation: null,
     findingsQueueTriageSteps: [],
@@ -104,6 +104,16 @@ describe("GovernanceFindingsQueueScopeSection", () => {
   it("renders scoped run banner when a review is selected", () => {
     render(<GovernanceFindingsQueueScopeSection {...buildProps()} />);
     expect(screen.getByTestId("governance-findings-run-scope-banner")).toHaveTextContent("run-1");
+  });
+
+  it("does not render a review scope banner for a whitespace-only run id", () => {
+    render(
+      <GovernanceFindingsQueueScopeSection
+        {...buildProps({ scopedRunId: " ", scopedRunFilterActive: false })}
+      />,
+    );
+
+    expect(screen.queryByTestId("governance-findings-run-scope-banner")).toBeNull();
   });
 
   it("IP-011: hides run-scope Open review banner on inhabited nested findings", () => {

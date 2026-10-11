@@ -94,10 +94,14 @@ function ForensicsTableHeaderLabel(props: { readonly label: string; readonly hin
 }
 
 function notesPreview(full: string | null | undefined): { text: string } {
+  if (full === null || full === undefined) {
+    return { text: "Judge notes were not stored." };
+  }
+
   const s = full?.trim() ?? "";
 
   if (s.length === 0)
-    return { text: "Not returned" };
+    return { text: "" };
 
   if (s.length <= notesPreviewMax)
     return { text: s };
@@ -344,7 +348,7 @@ export async function RunAgentForensicsSection(props: { runId: string }) {
                 <EnterpriseTableRow key={t.traceId}>
                   <EnterpriseTableCell className="whitespace-nowrap">{buyerLabelForAgentType(t.agentType)}</EnterpriseTableCell>
                   <EnterpriseTableCell className="whitespace-nowrap font-mono text-neutral-600 dark:text-neutral-400">
-                    {t.modelAlias?.trim() ? t.modelAlias : "Not returned"}
+                    {t.modelAlias ?? "Model alias was not stored."}
                   </EnterpriseTableCell>
                   <EnterpriseTableCell className="whitespace-nowrap text-neutral-600 dark:text-neutral-400">
                     {wallClockDeltaFromPriorAgent(prevCreated, t.createdUtc)}
@@ -352,7 +356,11 @@ export async function RunAgentForensicsSection(props: { runId: string }) {
                   <EnterpriseTableCell className={cn("font-mono", OPERATOR_TYPOGRAPHY.helper)}>{t.traceId}</EnterpriseTableCell>
                   <EnterpriseTableCell>{t.parseSucceeded ? "yes" : "no"}</EnterpriseTableCell>
                   <EnterpriseTableCell>
-                    {t.blobUploadFailed === true ? "failed" : t.blobUploadFailed === false ? "ok" : "Not returned"}
+                    {t.blobUploadFailed === true
+                      ? "failed"
+                      : t.blobUploadFailed === false
+                        ? "ok"
+                        : "Blob upload result was not stored."}
                   </EnterpriseTableCell>
                   <EnterpriseTableCell>
                     {sc

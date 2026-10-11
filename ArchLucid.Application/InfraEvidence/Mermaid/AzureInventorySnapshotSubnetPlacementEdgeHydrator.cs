@@ -20,17 +20,16 @@ internal static class AzureInventorySnapshotSubnetPlacementEdgeHydrator
         AzureInventorySnapshotDetailReadModel snapshot,
         Dictionary<string, string> nodeIdByArmId,
         List<GraphEdge> edges,
-        HashSet<string> edgeKeys)
+        HashSet<string> edgeKeys,
+        AzureInventorySnapshotPropertyIndex? propertyIndex = null)
     {
         ArgumentNullException.ThrowIfNull(snapshot);
         ArgumentNullException.ThrowIfNull(nodeIdByArmId);
         ArgumentNullException.ThrowIfNull(edges);
         ArgumentNullException.ThrowIfNull(edgeKeys);
 
-        Dictionary<Guid, List<AzureInventoryResourcePropertyReadModel>> propertiesByRowId =
-            snapshot.Properties
-                .GroupBy(property => property.ResourceRowId)
-                .ToDictionary(group => group.Key, group => group.ToList());
+        IReadOnlyDictionary<Guid, List<AzureInventoryResourcePropertyReadModel>> propertiesByRowId =
+            (propertyIndex ?? AzureInventorySnapshotPropertyIndex.Create(snapshot)).ByResourceRowId;
 
         foreach (AzureInventoryResourceRecord resource in snapshot.Resources)
         {
@@ -63,18 +62,15 @@ internal static class AzureInventorySnapshotSubnetPlacementEdgeHydrator
                              nodeIdByArmId,
                              hop.ToArmId))
                 {
-                    if (string.Equals(fromNodeId, toNodeId, StringComparison.Ordinal))
-                    {
-                        continue;
-                    }
-
-                    TryAddEdge(
+                    AzureInventorySnapshotGraphEdgeAppender.TryAdd(
                         edges,
                         edgeKeys,
                         fromNodeId,
                         toNodeId,
                         hop.EdgeType,
-                        hop.InferenceSource);
+                        hop.InferenceSource,
+                        provenanceKind: ProvenanceKind.ObservedFact.ToString(),
+                        promoteStrongerProvenance: false);
                 }
             }
         }
@@ -246,34 +242,6 @@ internal static class AzureInventorySnapshotSubnetPlacementEdgeHydrator
         string? id = idElement.GetString();
 
         return string.IsNullOrWhiteSpace(id) ? null : id;
-    }
-
-    private static void TryAddEdge(
-        List<GraphEdge> edges,
-        HashSet<string> edgeKeys,
-        string fromNodeId,
-        string toNodeId,
-        string edgeType,
-        string inferenceSource)
-    {
-        string edgeKey = $"{fromNodeId}|{toNodeId}|{edgeType}";
-
-        if (!edgeKeys.Add(edgeKey))
-        {
-            return;
-        }
-
-        edges.Add(new GraphEdge
-        {
-            EdgeId = $"edge-{edgeKey}",
-            FromNodeId = fromNodeId,
-            ToNodeId = toNodeId,
-            EdgeType = edgeType,
-            Label = edgeType,
-            Weight = 1.0d,
-            InferenceSource = inferenceSource,
-            ProvenanceKind = ProvenanceKind.ObservedFact.ToString(),
-        });
     }
 
     private sealed record PlacementHop(string ToArmId, string EdgeType, string InferenceSource);

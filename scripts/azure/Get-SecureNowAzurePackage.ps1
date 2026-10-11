@@ -790,7 +790,21 @@ try
             }
         }
 
-        [object[]]$federatedCredentialRows = @(Get-ArchLucidAzureFederatedCredentialCompanionRows -InventoryResources @($resources))
+        [object]$federatedCredentialResult = Invoke-ArchLucidSecurityInventoryCompanion `
+            -CompanionName "federated-credentials.json" `
+            -Collector {
+                Get-ArchLucidAzureFederatedCredentialCompanionRows -InventoryResources @($resources)
+            }
+        [object[]]$federatedCredentialRows = @($federatedCredentialResult.rows)
+
+        if (-not [string]::IsNullOrWhiteSpace($federatedCredentialResult.errorMessage))
+        {
+            Add-ArchLucidExtractorWarning `
+                -Telemetry $telemetry `
+                -Step SecurityInventory `
+                -Message ("federated-credentials.json collection failed; continuing with other companions. {0}" -f $federatedCredentialResult.errorMessage) `
+                -Context @{ scope = $scopeDescriptor }
+        }
         [object[]]$effectiveNetworkControlRows = @(Get-ArchLucidAzureEffectiveNetworkControlCompanionRows -InventoryResources @($resources))
         [object[]]$policyAssignmentRows = @(Get-ArchLucidAzurePolicyAssignmentCompanionRows -PolicyAssignments @($policyData.policyAssignments))
         [object[]]$diagnosticSettingRows = @(Get-ArchLucidAzureDiagnosticSettingCompanionRows -InventoryResources @($resources))

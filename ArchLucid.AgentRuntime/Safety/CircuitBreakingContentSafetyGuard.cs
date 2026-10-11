@@ -85,8 +85,9 @@ public sealed class CircuitBreakingContentSafetyGuard(
 
             return result;
         }
-        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        catch (OperationCanceledException)
         {
+            // Inner client timeouts and caller cancellation both represent an interrupted safety check.
             throw;
         }
         catch (Exception ex)

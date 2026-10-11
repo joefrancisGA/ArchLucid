@@ -1,6 +1,9 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { shouldServeShowcaseStaticOnly } from "./showcase-page-server-resolution";
+import {
+  resolveShowcaseApiBase,
+  shouldServeShowcaseStaticOnly,
+} from "./showcase-page-server-resolution";
 
 describe("shouldServeShowcaseStaticOnly", () => {
   afterEach(() => {
@@ -11,5 +14,11 @@ describe("shouldServeShowcaseStaticOnly", () => {
     vi.stubEnv("SHOWCASE_STATIC_ONLY", "True");
 
     expect(shouldServeShowcaseStaticOnly()).toBe(true);
+  });
+
+  it("normalizes multiple trailing slashes on the configured preview API base", () => {
+    vi.stubEnv("NEXT_PUBLIC_DEMO_PREVIEW_API_BASE", "https://demo-api.test///");
+
+    expect(resolveShowcaseApiBase()).toBe("https://demo-api.test");
   });
 });

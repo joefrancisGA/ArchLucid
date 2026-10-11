@@ -33,4 +33,14 @@ describe("ProductLineSwitchBar", () => {
 
     expect(productLineState.setProductLine).toHaveBeenCalledWith("security");
   });
+
+  it("hides the product shell switch in the UHG edition", () => {
+    vi.stubEnv("NEXT_PUBLIC_SECURENOW_EDITION", "uhg");
+
+    render(<ProductLineSwitchBar />);
+
+    expect(screen.queryByRole("group", { name: "Product shell" })).not.toBeInTheDocument();
+
+    vi.unstubAllEnvs();
+  });
 });

@@ -118,6 +118,9 @@ public sealed class HostedAzureManagementPostReadClient(
                     if (!string.IsNullOrWhiteSpace(next))
                     {
                         HostedAzureArmNextLinkValidator.EnsureTargetsSubscription(next, subscriptionId);
+                        HostedAzureArmNextLinkValidator.EnsureTargetsArmRelativeListingPath(
+                            next,
+                            $"subscriptions/{subscriptionId.Trim()}/providers/Microsoft.CostManagement/query");
                         cursor = next;
                     }
                 }
@@ -125,7 +128,7 @@ public sealed class HostedAzureManagementPostReadClient(
 
             return MergeActualCostPages(pages, "MonthToDate");
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogWarning(
                 ex,
@@ -208,11 +211,14 @@ public sealed class HostedAzureManagementPostReadClient(
                 if (!string.IsNullOrWhiteSpace(nextAbsolute))
                 {
                     HostedAzureArmNextLinkValidator.EnsureTargetsSubscription(nextAbsolute, subscriptionId);
+                    HostedAzureArmNextLinkValidator.EnsureTargetsArmRelativeListingPath(
+                        nextAbsolute,
+                        $"subscriptions/{subscriptionId.Trim()}/providers/Microsoft.PolicyInsights/policyStates/latest/queryResults");
                     cursor = TryToRelativePath(nextAbsolute) ?? nextAbsolute;
                 }
             }
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogWarning(
                 ex,
