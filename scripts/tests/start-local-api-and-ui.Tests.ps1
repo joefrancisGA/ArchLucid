@@ -105,6 +105,12 @@ Describe 'start-local-api-and-ui.helpers.ps1' {
         $command | Should -Match 'npx --no-install next dev --webpack -p 3000'
         $command | Should -Not -Match 'npm run dev'
         $command | Should -Not -Match 'NEXT_PUBLIC_ARCHLUCID_PRODUCT=architecture next'
+
+        [string]$fromSite = Get-LocalUiWindowCommandForSite `
+            -UiRoot 'C:\ArchLucid\archlucid-ui' `
+            -Site (Get-LocalUiSiteSpecs)[0]
+        $fromSite | Should -Match '\$env:NEXT_PUBLIC_SECURENOW_EDITION = ''generic'''
+        $fromSite | Should -Not -Match 'NEXT_DIST_DIR'
     }
 
     It 'builds the Security UI window command on a separate port without a Unix env prefix' {
@@ -120,6 +126,22 @@ Describe 'start-local-api-and-ui.helpers.ps1' {
         $command | Should -Not -Match 'NEXT_PUBLIC_ARCHLUCID_PRODUCT=security next'
     }
 
+    It 'builds generic and UHG SecureNow window commands with distinct editions and dist dirs' {
+        $sites = @(Get-LocalUiSiteSpecs -IncludeArchitecture $false -IncludeUhgSecurity $true)
+        [string]$generic = Get-LocalUiWindowCommandForSite -UiRoot 'C:\ArchLucid\archlucid-ui' -Site $sites[0]
+        [string]$uhg = Get-LocalUiWindowCommandForSite -UiRoot 'C:\ArchLucid\archlucid-ui' -Site $sites[1]
+
+        $generic | Should -Match '\$env:NEXT_PUBLIC_ARCHLUCID_PRODUCT = ''security'''
+        $generic | Should -Match '\$env:NEXT_PUBLIC_SECURENOW_EDITION = ''generic'''
+        $generic | Should -Match '\$env:NEXT_DIST_DIR = ''.next-security'''
+        $generic | Should -Match 'npx --no-install next dev --webpack -p 3001'
+        $generic | Should -Not -Match 'npm run dev'
+        $uhg | Should -Match '\$env:NEXT_PUBLIC_SECURENOW_EDITION = ''uhg'''
+        $uhg | Should -Match '\$env:NEXT_DIST_DIR = ''.next-security-uhg'''
+        $uhg | Should -Match 'npx --no-install next dev --webpack -p 3002'
+        $uhg | Should -Not -Match 'NEXT_PUBLIC_SECURENOW_EDITION=uhg next'
+    }
+
     It 'doubles apostrophes in the UI root for the spawned window command' {
         [string]$command = Get-LocalUiWindowCommand -UiRoot "C:\O'Brien\archlucid-ui"
 
@@ -132,6 +154,7 @@ Describe 'start-local-api-and-ui.helpers.ps1' {
         $sites.Count | Should -Be 2
         $sites[0].Name | Should -Be 'Architecture'
         $sites[0].ProductLine | Should -Be 'architecture'
+        $sites[0].Edition | Should -Be 'generic'
         $sites[0].Port | Should -Be 3000
         $sites[0].RootUrl | Should -Be 'http://127.0.0.1:3000/'
         $sites[0].ProxyHealthUrl | Should -Be 'http://127.0.0.1:3000/api/proxy/health/live'
@@ -154,7 +177,34 @@ Describe 'start-local-api-and-ui.helpers.ps1' {
 
         $sites.Count | Should -Be 1
         $sites[0].ProductLine | Should -Be 'security'
+        $sites[0].Edition | Should -Be 'generic'
         $sites[0].Port | Should -Be 3001
+    }
+
+    It 'adds a UHG SecureNow site on port 3002 when requested' {
+        $sites = @(Get-LocalUiSiteSpecs -IncludeArchitecture $false -IncludeUhgSecurity $true)
+
+        $sites.Count | Should -Be 2
+        $sites[0].SiteKey | Should -Be 'security-generic'
+        $sites[0].Edition | Should -Be 'generic'
+        $sites[0].Port | Should -Be 3001
+        $sites[0].ReadyLabel | Should -Be 'SecureNow'
+        $sites[1].SiteKey | Should -Be 'security-uhg'
+        $sites[1].Name | Should -Be 'SecureNow UHG'
+        $sites[1].Edition | Should -Be 'uhg'
+        $sites[1].DistDir | Should -Be '.next-security-uhg'
+        $sites[1].Port | Should -Be 3002
+        $sites[1].RootUrl | Should -Be 'http://127.0.0.1:3002/'
+        $sites[1].ProxyHealthUrl | Should -Be 'http://127.0.0.1:3002/api/proxy/health/live'
+    }
+
+    It 'opens SecureNow home when Architecture is omitted' {
+        Get-LocalUiBrowserOpenPath -ProductLine 'security' -RequestedOpenPath '/reviews' -ArchitectureIncluded $false |
+            Should -Be '/'
+        Get-LocalUiBrowserOpenPath -ProductLine 'architecture' -RequestedOpenPath '/reviews' -ArchitectureIncluded $true |
+            Should -Be '/reviews'
+        Get-LocalUiBrowserOpenPath -ProductLine 'security' -RequestedOpenPath '/reviews' -ArchitectureIncluded $true |
+            Should -Be '/reviews'
     }
 
     It 'throws when both Architecture and Security are omitted' {
@@ -164,6 +214,11 @@ Describe 'start-local-api-and-ui.helpers.ps1' {
 
     It 'throws when Architecture and Security ports are the same' {
         { Get-LocalUiSiteSpecs -ArchitecturePort 3000 -SecurityPort 3000 -IncludeSecurity $true } |
+            Should -Throw '*ports must differ*'
+    }
+
+    It 'throws when generic and UHG SecureNow ports are the same' {
+        { Get-LocalUiSiteSpecs -IncludeArchitecture $false -IncludeUhgSecurity $true -SecurityPort 3001 -UhgSecurityPort 3001 } |
             Should -Throw '*ports must differ*'
     }
 
@@ -243,11 +298,13 @@ Describe 'start-local-securenow.ps1' {
         Test-Path -LiteralPath $script:secureNowScript | Should -Be $true
     }
 
-    It 'delegates to start-local-api-and-ui.ps1 with -SkipArchitectureUi' {
+    It 'delegates to start-local-api-and-ui.ps1 with generic and UHG SecureNow' {
         [string]$content = Get-Content -LiteralPath $script:secureNowScript -Raw
 
         $content | Should -Match 'start-local-api-and-ui\.ps1'
         $content | Should -Match '-SkipArchitectureUi'
+        $content | Should -Match '-IncludeUhgSecurityUi'
+        $content | Should -Match 'UhgSecurityUiPort'
         $content | Should -Not -Match '-SkipSecurityUi'
     }
 }

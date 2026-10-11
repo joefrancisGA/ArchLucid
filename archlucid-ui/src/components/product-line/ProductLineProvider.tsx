@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 
+import { lockProductLineForSecureNowEdition } from "@/lib/editions/lock-product-line-for-securenow-edition";
 import type { ProductLineAssignment } from "@/lib/product-line/product-line-assignment";
 import type { ProductLineId } from "@/lib/product-line/product-line-id";
 import {
@@ -39,8 +40,10 @@ export function ProductLineProvider(props: { readonly children: ReactNode }): Re
       productLine,
       assignmentOverrides,
       setProductLine: (next) => {
-        persistProductLineCookie(next === resolveProductLineIdFromEnv() ? null : next);
-        setProductLineState(next);
+        const locked = lockProductLineForSecureNowEdition(next);
+
+        persistProductLineCookie(locked === resolveProductLineIdFromEnv() ? null : locked);
+        setProductLineState(locked);
       },
       setHrefAssignment: (href, assignment) => {
         setAssignmentOverrides((current) => {

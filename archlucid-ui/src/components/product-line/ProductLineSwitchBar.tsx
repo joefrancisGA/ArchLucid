@@ -3,11 +3,16 @@
 import { Button } from "@/components/ui/button";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { secureNowEditionShowsProductLineSwitch } from "@/lib/editions/lock-product-line-for-securenow-edition";
 import { PRODUCT_LINE_LABELS } from "@/lib/product-line/product-line-copy";
 import { PRODUCT_LINE_IDS } from "@/lib/product-line/product-line-id";
 
-export function ProductLineSwitchBar(): React.JSX.Element {
+export function ProductLineSwitchBar(): React.JSX.Element | null {
   const { productLine, setProductLine } = useProductLine();
+
+  if (!secureNowEditionShowsProductLineSwitch()) {
+    return null;
+  }
 
   return (
     <div className="flex flex-col gap-2" data-testid="product-line-switch-bar">
