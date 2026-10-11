@@ -32,6 +32,7 @@ import {
   formatInfraEvidenceDiagramReconcileApiError,
   ingestArchitectureDiagram,
   ingestOperationalSecurityFindings,
+  lookupOperationalSecurityFindings,
   reconcileArchitectureDiagram,
   saveInfrastructureDiagramNodeMapping,
 } from "@/lib/infra-evidence/infra-evidence-diagram-reconcile-api";
@@ -69,6 +70,7 @@ import { resolveDiagramReconcileSnapshotSelectionSummary } from "@/lib/infra-evi
 import { DIAGRAM_RECONCILE_WORKBENCH_PAGE_SHORTCUTS } from "@/lib/infra-evidence/infra-evidence-diagram-reconcile-page-shortcuts";
 import {
   buildDiagramReconcileOperationalFindingRequestItem,
+  buildDiagramReconcileOperationalFindingFingerprint,
   formatDiagramReconcileExplanation,
   formatDiagramReconcileResourceLabelForDisplay,
 } from "@/lib/infra-evidence/infra-evidence-diagram-reconcile-explanation";
@@ -864,6 +866,71 @@ export function DiagramReconcileWorkbenchClient() {
       cancelled = true;
     };
   }, [advisoryComparisonPath, matchKindFilter, runId, selectedSnapshotId, syncUrl, urlCorrespondenceId, workbenchRetryNonce]);
+
+  useEffect(() => {
+    if (
+      advisoryComparisonPath
+      || runId.trim().length === 0
+      || selectedSnapshotId.trim().length === 0
+      || reconciliation == null
+    ) {
+      setIngestedFindingIds({});
+      return;
+    }
+
+    const sourceFindingIds = reconciliation.rows
+      .map((row) => buildDiagramReconcileOperationalFindingFingerprint(
+        runId.trim(),
+        selectedSnapshotId.trim(),
+        row.correspondenceId,
+      ));
+
+    if (sourceFindingIds.length === 0) {
+      setIngestedFindingIds({});
+      return;
+    }
+
+    let cancelled = false;
+
+    async function loadExistingFindings() {
+      try {
+        const findings = await lookupOperationalSecurityFindings({
+          sourceSystem: "DiagramReconciliation",
+          sourceFindingIds,
+        });
+
+        if (cancelled) {
+          return;
+        }
+
+        const findingIdsByCorrespondenceId: Record<string, string> = {};
+
+        for (const finding of findings) {
+          const prefix = `diagram-reconcile:${runId.trim()}:${selectedSnapshotId.trim()}:`;
+          if (!finding.sourceFindingId.startsWith(prefix)) {
+            continue;
+          }
+
+          const correspondenceId = finding.sourceFindingId.slice(prefix.length);
+          if (correspondenceId.length > 0 && finding.findingId.length > 0) {
+            findingIdsByCorrespondenceId[correspondenceId] = finding.findingId;
+          }
+        }
+
+        setIngestedFindingIds(findingIdsByCorrespondenceId);
+      } catch {
+        if (!cancelled) {
+          setIngestedFindingIds({});
+        }
+      }
+    }
+
+    void loadExistingFindings();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [advisoryComparisonPath, reconciliation, runId, selectedSnapshotId]);
 
   const handleWorkbenchModeChange = useCallback(
     (nextMode: string) => {
@@ -1964,7 +2031,9 @@ export function DiagramReconcileWorkbenchClient() {
                               Open finding
                             </Link>
                           </div>
-                        ) : (
+                        ) : !advisoryComparisonPath
+                          && runId.trim().length > 0
+                          && (row.securityDiscrepancy || row.matchKind === "Conflict") ? (
                           <Button
                             type="button"
                             variant="outline"
@@ -1980,7 +2049,7 @@ export function DiagramReconcileWorkbenchClient() {
                             ) : null}
                             Create operational finding
                           </Button>
-                        )}
+                        ) : null}
                         {rowActionError != null && rowActionError.correspondenceId === row.correspondenceId ? (
                           <OperatorMutationInlineError
                             message={rowActionError.message}

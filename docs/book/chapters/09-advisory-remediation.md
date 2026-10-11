@@ -279,7 +279,7 @@ An open path the business accepts is still a path. It shouldn't vanish from the 
 
 Two rules keep acceptances honest:
 
-- **Check compensating controls as evidence.** "Two approvals required" is a property of the GitHub environment that a collector can read. Chapter 4's hop H1 carried an unchecked assumption about branch protection. A risk acceptance that relies on approvals should turn that assumption into a checked fact, and lapse if it stops being true.
+- **Check compensating controls as evidence.** "Two approvals required" is a property of the GitHub environment that a collector can read. The federated credential hop (H1 in Chapter 7's evidence pack) carried an unchecked assumption about branch protection. A risk acceptance that relies on approvals should turn that assumption into a checked fact, and lapse if it stops being true.
 - **Acceptances come from the register, never from the evidence.** Chapter 8's opening story was an app registration named "approved security exception SEC-1142". An exception is real only if it exists in the register, with an owner who can be asked. Text in tags, names, or descriptions is never an acceptance.
 
 Accepted paths stay in the ranking, marked "accepted until 2027-04-01". They drop below open paths for work planning, and they come back automatically on the expiry date or whenever the path changes.

@@ -1,11 +1,27 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
+import { FormProvider, useForm } from "react-hook-form";
+import type { ReactNode } from "react";
 
 import { WizardNavButtons } from "@/components/wizard/WizardNavButtons";
 import { WizardStepReview } from "@/components/wizard/steps/WizardStepReview";
 import { WizardFormTestHarness } from "@/components/wizard/wizard-form-test-utils";
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-copy";
-import type { WizardFormValues } from "@/lib/wizard-schema";
+import { buildDefaultWizardValues, type WizardFormValues } from "@/lib/wizard-schema";
+
+function DirectWizardFormProvider(props: {
+  readonly values: Readonly<Record<string, unknown>>;
+  readonly children: ReactNode;
+}) {
+  const methods = useForm<WizardFormValues>({
+    defaultValues: {
+      ...buildDefaultWizardValues(),
+      ...props.values,
+    } as WizardFormValues,
+  });
+
+  return <FormProvider {...methods}>{props.children}</FormProvider>;
+}
 
 describe("WizardStepReview", () => {
   const richValues: Partial<WizardFormValues> = {
@@ -62,6 +78,27 @@ describe("WizardStepReview", () => {
     const advancedSection = screen.getByRole("heading", { name: "Advanced" }).closest("section");
     expect(advancedSection?.textContent).toContain("None recorded on this draft");
     expect(advancedSection?.textContent).toContain("0 attached");
+  });
+
+  it("distinguishes missing declarations and capabilities from stored empty lists", () => {
+    const { unmount } = render(
+      <DirectWizardFormProvider values={{ infrastructureDeclarations: null, requiredCapabilities: null }}>
+        <WizardStepReview />
+      </DirectWizardFormProvider>,
+    );
+
+    expect(screen.getByText("Infrastructure declaration count was not stored.")).toBeInTheDocument();
+    expect(screen.getByText("Required capabilities were not stored.")).toBeInTheDocument();
+    unmount();
+
+    render(
+      <DirectWizardFormProvider values={{ infrastructureDeclarations: [], requiredCapabilities: [] }}>
+        <WizardStepReview />
+      </DirectWizardFormProvider>,
+    );
+
+    expect(screen.getByText("0 declaration(s)")).toBeInTheDocument();
+    expect(screen.queryByText("Required capabilities were not stored.")).not.toBeInTheDocument();
   });
 
   it("shows the start-review primary action when paired with WizardNavButtons on the review step", () => {

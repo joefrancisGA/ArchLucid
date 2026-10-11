@@ -82,7 +82,7 @@ export function ArchitectureIntelligencePageClient() {
 
   const reviewPicked = (activeRunId?.trim() ?? "").length > 0;
   const descriptionWritten = architectureDescription.trim().length > 0;
-  const analysisComplete = runState?.kind === "reasoning";
+  const analysisComplete = showReasoningWorkspace && runState?.kind === "reasoning";
   const analysisChecklistInput = {
     reviewPicked,
     descriptionWritten,
@@ -247,6 +247,7 @@ export function ArchitectureIntelligencePageClient() {
                 isBusy ||
                 activeRunId === null ||
                 runState?.kind !== "reasoning" ||
+                productContextLoadFailed ||
                 blocksLlmExecution
               }
               onClick={() => void publishRun()}

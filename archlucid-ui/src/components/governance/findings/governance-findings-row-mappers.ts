@@ -20,7 +20,8 @@ import type { GovernanceFindingQueueRow } from "@/app/(operator)/governance/find
 import { governanceFindingsDemoPhiRow } from "@/components/governance/findings/governance-findings-demo-rows";
 
 export function riskRegisterRows(entries: ArchitectureRiskRegisterEntry[]): GovernanceFindingQueueRow[] {
-  return entries.map((entry) => {
+  // OpenAPI marks findingId optional; malformed register rows must not become selectable queue items.
+  return entries.filter((entry) => entry.findingId?.trim().length > 0).map((entry) => {
     const runId = (entry.runId ?? "").trim();
     const systemName = (entry.systemName ?? "").trim();
     const resourceId = (entry.resourceId ?? "").trim();

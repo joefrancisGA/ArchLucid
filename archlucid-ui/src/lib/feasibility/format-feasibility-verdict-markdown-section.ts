@@ -18,15 +18,23 @@ export const SOFT_INFEASIBLE_ENVELOPE_EXPORT_LEAD =
 
 function formatHardCitationLines(verdict: ManifestFeasibilityVerdict): string[] {
   const lines: string[] = [];
-  const citations = verdict.hardCitations ?? [];
+  const citations = verdict.hardCitations;
+
+  if (citations === null || citations === undefined) {
+    return ["### Authority citations", "", "Authority citations were not stored.", ""];
+  }
 
   if (citations.length > 0) {
     lines.push("### Authority citations");
     lines.push("");
 
     for (const citation of citations) {
-      const reference = (citation.reference ?? "").trim();
-      const kind = (citation.kind ?? "").trim();
+      const reference = citation.reference === null || citation.reference === undefined
+        ? ""
+        : citation.reference.trim();
+      const kind = citation.kind === null || citation.kind === undefined
+        ? ""
+        : citation.kind.trim();
       const invariantKeys = citation.invariantKeys;
       const suffix =
         invariantKeys !== null && invariantKeys !== undefined && invariantKeys.length > 0
@@ -35,6 +43,14 @@ function formatHardCitationLines(verdict: ManifestFeasibilityVerdict): string[] 
 
       if (reference.length > 0) {
         lines.push(`- ${reference}${kind.length > 0 ? ` — ${kind}` : ""}${suffix}`);
+      }
+
+      if (citation.reference === null || citation.reference === undefined) {
+        lines.push("- Citation reference was not stored.");
+      }
+
+      if (citation.kind === null || citation.kind === undefined) {
+        lines.push("- Citation kind was not stored.");
       }
 
       if (invariantKeys === null || invariantKeys === undefined) {
@@ -148,14 +164,26 @@ export function formatFeasibilityVerdictMarkdownSection(
   }
 
   lines.push("");
-  lines.push(verdict.summary.trim());
+  if (verdict.summary === null || verdict.summary === undefined) {
+    lines.push("Verdict summary was not stored.");
+  } else {
+    lines.push(verdict.summary.trim());
+  }
   lines.push("");
 
   if (verdict.kind === "SoftInfeasible") {
     lines.push(...formatSoftEnvelopeLines(verdict));
   }
 
-  if (verdict.kind === "HardInfeasible" && hasHardInfeasibleCitation(verdict)) {
+  if (
+    verdict.kind === "HardInfeasible" &&
+    (
+      hasHardInfeasibleCitation(verdict)
+      || verdict.hardCitations === null
+      || verdict.hardCitations === undefined
+      || verdict.hardCitations.length > 0
+    )
+  ) {
     lines.push(...formatHardCitationLines(verdict));
   } else if (verdict.kind === "HardInfeasible" && display.missingHardCitationDefect) {
     lines.push(

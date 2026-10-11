@@ -205,6 +205,20 @@ describe("formatGoldenManifestMarkdown", () => {
     expect(storedEmpty).not.toContain("Review record hash was not stored.");
   });
 
+  it("reports missing topology collections while preserving stored empty collections", () => {
+    const missing = formatGoldenManifestMarkdown({
+      topology: { selectedPatterns: null, gaps: undefined },
+    });
+    const storedEmpty = formatGoldenManifestMarkdown({
+      topology: { selectedPatterns: [], gaps: [] },
+    });
+
+    expect(missing).toContain("Selected patterns were not stored.");
+    expect(missing).toContain("Topology gaps were not stored.");
+    expect(storedEmpty).not.toContain("Selected patterns were not stored.");
+    expect(storedEmpty).not.toContain("Topology gaps were not stored.");
+  });
+
   it("reports omitted service purpose and preserves an empty purpose", () => {
     const omitted = formatGoldenManifestMarkdown({
       topology: { services: [{ serviceName: "API", purpose: null }] },
@@ -401,6 +415,27 @@ describe("formatGoldenManifestMarkdown", () => {
     expect(md).toContain("**Decisions:** 4");
     expect(md).toContain("One-line operator summary.");
     expect(md).toContain("Measurement floor");
+  });
+
+  it("distinguishes a missing operator summary from a stored empty summary", () => {
+    const base: ManifestSummary = {
+      manifestId: "m9",
+      runId: "r9",
+      createdUtc: "2026-01-01T00:00:00Z",
+      manifestHash: "hash",
+      ruleSetId: "p1",
+      ruleSetVersion: "2.0",
+      status: "Committed",
+      decisionCount: 0,
+      warningCount: 0,
+      unresolvedIssueCount: 0,
+    };
+
+    expect(formatGoldenManifestMarkdown(null, { manifestSummaryFallback: base }))
+      .toContain("Operator summary was not stored.");
+    expect(formatGoldenManifestMarkdown(null, {
+      manifestSummaryFallback: { ...base, operatorSummary: "" },
+    })).toContain("_No operator summary was returned by the API._");
   });
 
   it("fallback measurement floor names skipped actor engines when graph context is provided", () => {

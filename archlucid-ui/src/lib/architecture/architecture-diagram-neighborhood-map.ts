@@ -1,11 +1,11 @@
 export type DiagramNeighborhoodType = {
-  readonly name: string;
+  readonly name: string | null;
   readonly count: number | null;
 };
 
 export type DiagramNeighborhood = {
   readonly id: string;
-  readonly kind: string;
+  readonly kind: string | null;
   readonly title: string | null;
   readonly resourceCount: number | null;
   readonly memberIds: readonly string[];
@@ -42,7 +42,11 @@ export type DiagramNeighborhoodSection = {
   readonly neighborhoods: readonly DiagramNeighborhood[];
 };
 
-function identityForNeighborhoodKind(kind: string): { readonly id: string; readonly heading: string } {
+function identityForNeighborhoodKind(kind: string | null): { readonly id: string; readonly heading: string } {
+  if (kind === null) {
+    return { id: "unspecified", heading: "Neighborhood kind was not stored." };
+  }
+
   if (kind === "vnet") {
     return { id: "virtual-networks", heading: "Virtual networks" };
   }
@@ -122,7 +126,7 @@ export function parseDiagramNeighborhoodMap(markup: string): DiagramNeighborhood
   const neighborhoods = [...metadata.querySelectorAll(":scope > neighborhood")]
     .map((element): DiagramNeighborhood => ({
       id: element.getAttribute("id") ?? "",
-      kind: element.getAttribute("kind") ?? "",
+      kind: element.getAttribute("kind"),
       title: element.getAttribute("title"),
       resourceCount: readNonNegativeInteger(element, "resource-count"),
       memberIds: [...element.querySelectorAll(":scope > member")]
@@ -133,10 +137,10 @@ export function parseDiagramNeighborhoodMap(markup: string): DiagramNeighborhood
         .filter(Boolean),
       types: [...element.querySelectorAll(":scope > type")]
         .map((type) => ({
-          name: type.getAttribute("name") ?? "",
+          name: type.getAttribute("name"),
           count: readNonNegativeInteger(type, "count"),
         }))
-        .filter((type) => type.name.length > 0),
+        .filter((type) => type.name !== null && type.name.length > 0),
     }))
     .filter((neighborhood) => neighborhood.id.length > 0);
 

@@ -77,6 +77,16 @@ describe("parseDiagramNeighborhoodMap", () => {
     expect(parsed?.neighborhoods[0]?.title).toBeNull();
     expect(parsed?.links.map((link) => link.count)).toEqual([null, 0]);
   });
+
+  it("preserves a missing neighborhood kind as null", () => {
+    const parsed = parseDiagramNeighborhoodMap(`
+      <svg><metadata id="diagram-neighborhoods">
+        <neighborhood id="rg" title="rg"/>
+      </metadata></svg>
+    `);
+
+    expect(parsed?.neighborhoods[0]?.kind).toBeNull();
+  });
 });
 
 describe("shouldAutoOpenDiagramNeighborhoodMap", () => {

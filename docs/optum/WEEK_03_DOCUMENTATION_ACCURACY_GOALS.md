@@ -299,6 +299,10 @@ Resume the [primary week-3 goals](#proposed-week-3-feature-goals) in order: snap
 | Edge reconciliation | **DIC-03** — [`.cursor/prompts/diagram-import-comparison-03-edge-gaps.md`](../../.cursor/prompts/diagram-import-comparison-03-edge-gaps.md) |
 | Scorecard + export | **DIC-04** — [`.cursor/prompts/diagram-import-comparison-04-scorecard-export.md`](../../.cursor/prompts/diagram-import-comparison-04-scorecard-export.md) |
 | Canvas overlay on the imported drawing | **DIC-05** — [`.cursor/prompts/diagram-import-comparison-05-canvas-overlay.md`](../../.cursor/prompts/diagram-import-comparison-05-canvas-overlay.md). Inventory-canvas overlay stays **DAU-08**. |
+| Reload a recorded operational finding | **RTA-01** — [`.cursor/prompts/reconciliation-to-action-01-restore-finding-link.md`](../../.cursor/prompts/reconciliation-to-action-01-restore-finding-link.md) |
+| Security-row finding gate | **RTA-02** — [`.cursor/prompts/reconciliation-to-action-02-security-finding-gate.md`](../../.cursor/prompts/reconciliation-to-action-02-security-finding-gate.md) |
+| Documentation decision | **RTA-03** — [`.cursor/prompts/reconciliation-to-action-03-documentation-decision.md`](../../.cursor/prompts/reconciliation-to-action-03-documentation-decision.md) |
+| Later-capture check | **RTA-04** — [`.cursor/prompts/reconciliation-to-action-04-next-capture-check.md`](../../.cursor/prompts/reconciliation-to-action-04-next-capture-check.md) |
 | **Fallback:** drift report export | Drift workbench + `InfraEvidenceDiffsController` / narrative export |
 | **Fallback:** documentation gap report | Inventory metadata + orphan classifiers; aggregated export |
 | **Fallback:** diagram PNG packs | `InfraEvidenceSnapshotMermaidService` export bundling |

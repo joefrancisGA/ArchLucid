@@ -464,52 +464,67 @@ ADJACENT PACKS (do not duplicate — cross-link via frameworkMappings instead):
 
 ---
 
-## Wave 4 — OWASP ASVS (pack #33)
+## Wave 4 — Microsoft cloud security benchmark (pack #34)
 
 ```
-PACK_DISPLAY_NAME:   OWASP Application Security Verification Standard (ASVS)
-PACK_DESCRIPTION:    Architecture-review baseline aligned to OWASP ASVS v4.0.3 — the verification-level counterpart to OWASP API Security Top 10. Covers all 14 chapters (V1–V14) at architecture-level evidence: authentication, session, access control, input validation, cryptography, error handling, data protection, communications, malicious code, business logic, files, API, and configuration. Organized by ASVS Level 1/2/3 mapped to P0/P1/P2. Not OWASP certification.
-PACK_CATEGORY:       Application Security
-SLUG:                owasp-asvs
-RULE_PREFIX:         asvs-
-TARGET_RULE_COUNT:   50
-FRAMEWORK_SHORT_NAME: OWASP ASVS
+PACK_DISPLAY_NAME:   Microsoft cloud security benchmark v2 architecture baseline
+PACK_DESCRIPTION:    Architecture-review baseline aligned to selected Microsoft cloud security benchmark v2 preview controls. Covers network security, identity management, privileged access, data protection, asset management, logging and threat detection, incident response, posture and vulnerability management, endpoint security, backup and recovery, and DevOps security. Each rule names the Microsoft surface that already reports on the control. Not Microsoft certification or compliance attestation.
+PACK_CATEGORY:       Security
+SLUG:                microsoft-cloud-security-benchmark
+RULE_PREFIX:         mcsb-
+TARGET_RULE_COUNT:   55
+FRAMEWORK_SHORT_NAME: Microsoft cloud security benchmark v2 (preview)
 
 SUB-CORPORA AND RULE DISTRIBUTION:
-| Prefix         | Chapter                                              | Target rules | Priority skew |
-|----------------|------------------------------------------------------|-------------|---------------|
-| asvs-v1-       | V1 Architecture, Design, and Threat Modelling        | 5           | P0-heavy (L1) |
-| asvs-v2-       | V2 Authentication                                    | 5           | P0/P1 (L1/L2) |
-| asvs-v3-       | V3 Session Management                                | 3           | P0/P1         |
-| asvs-v4-       | V4 Access Control                                    | 4           | P0-heavy      |
-| asvs-v5-       | V5 Validation, Sanitization and Encoding             | 3           | P0/P1         |
-| asvs-v6-       | V6 Stored Cryptography                               | 3           | P0-heavy      |
-| asvs-v7-       | V7 Error Handling and Logging                        | 3           | P1            |
-| asvs-v8-       | V8 Data Protection                                   | 4           | P0/P1         |
-| asvs-v9-       | V9 Communications                                    | 3           | P0-heavy      |
-| asvs-v10-      | V10 Malicious Code                                   | 3           | P1            |
-| asvs-v11-      | V11 Business Logic                                   | 3           | P1/P2         |
-| asvs-v12-      | V12 Files and Resources                              | 3           | P1            |
-| asvs-v13-      | V13 API and Web Service                              | 4           | P0/P1         |
-| asvs-v14-      | V14 Configuration                                    | 5           | P0/P1         |
+| Prefix | Domain | Target rules |
+|--------|--------|--------------|
+| mcsb-ns- | Network security | 5 |
+| mcsb-im- | Identity management | 5 |
+| mcsb-pa- | Privileged access | 5 |
+| mcsb-dp- | Data protection | 5 |
+| mcsb-am- | Asset management | 5 |
+| mcsb-lt- | Logging and threat detection | 5 |
+| mcsb-ir- | Incident response | 5 |
+| mcsb-pv- | Posture and vulnerability management | 5 |
+| mcsb-es- | Endpoint security | 5 |
+| mcsb-br- | Backup and recovery | 5 |
+| mcsb-ds- | DevOps security | 5 |
 
 SOURCE FRAMEWORK SUMMARY:
-Authoritative sources: OWASP Application Security Verification Standard v4.0.3 (2021). Chapters V1–V14 define numbered requirements at three levels: L1 (minimum, all apps), L2 (standard, sensitive data), L3 (advanced, critical/high-assurance).
+Authoritative source: Microsoft cloud security benchmark v2 (preview), confirmed from Microsoft Learn on 2026-10-11. MCSB v2 supersedes v1 and adds expanded Azure guidance, Azure Policy mappings, and an Artificial Intelligence Security domain. This starter pack covers the ten requested operational domains above; AI security remains a later extension because the prompt's identifier contract does not include an AI prefix.
 
-Level → Priority mapping: L1 requirements → P0; L2 requirements → P1; L3 requirements → P2.
+TOOLING LINK RULE:
+Each rule has a relatedMicrosoftTooling list naming only confirmed reporting surfaces: Defender for Cloud recommendation, Azure Policy built-in, Entra ID, or Microsoft Sentinel. These signals supplement architecture evidence; they do not establish complete compliance.
 
-Key themes for rule authoring:
-- V1 ARCHITECTURE: threat model documented; security architecture documented; component inventory for all trust boundaries.
-- V2 AUTHENTICATION: TOTP/FIDO2 for level 2+; breached-password check; credential storage using bcrypt/Argon2; no hardcoded credentials.
-- V3 SESSION: session tokens with sufficient entropy; inactivity timeout; session invalidation on logout and privilege change.
-- V4 ACCESS CONTROL: least privilege; deny by default; access control enforced server-side; IDOR prevention.
-- V5 INPUT VALIDATION: input validation for all untrusted data; output encoding; parameterised queries / ORMs.
-- V6 CRYPTOGRAPHY: FIPS-approved or NIST-recommended algorithms; key management documented; no weak algorithms (MD5, SHA-1, DES, RC4).
-- V7 LOGGING: security-relevant events logged; logs protected from tampering; no sensitive data in logs.
-- V8 DATA PROTECTION: sensitive data classified; data at rest and in transit encrypted; PII minimized.
-- V9 COMMUNICATIONS: TLS 1.2+ enforced; certificate pinning for mobile; HSTS headers.
-- V13 API: REST/SOAP security headers; GraphQL depth limiting; API authentication (OAuth 2.0 / API keys with expiry).
-- V14 CONFIGURATION: security headers (CSP, X-Frame-Options, HSTS); dependency scanning; secrets management; no debug features in production.
+SCOPE:
+- Architecture and deployment evidence only; do not copy Microsoft implementation guidance or claim benchmark certification.
+- Azure is the current applicability scope. The rule shape leaves room for AWS and GCP extensions.
+- No Critical severity is used. P0/P1 expresses review priority, not Microsoft's MCSB criticality classification.
+
+DISCLAIMER TEXT:
+"Thematic architecture-review mapping; not Microsoft cloud security benchmark certification, Defender for Cloud attestation, or Azure Policy compliance proof."
+```
+
+---
+
+## Wave 4 — OWASP ASVS architecture baseline (pack #33)
+
+```
+PACK_DISPLAY_NAME:   OWASP Application Security Verification Standard 5.0 architecture baseline
+PACK_DESCRIPTION:    Architecture-review baseline aligned to selected OWASP ASVS 5.0 requirements. Covers authentication, credential handling, authorization, input and output boundaries, cryptography, error handling, data protection, communications, dependencies, business-logic abuse, and secure development. These are original paraphrases for architecture and deployment evidence, not application test cases or OWASP certification.
+PACK_CATEGORY:       Application Security
+SLUG:                owasp-asvs-architecture-v1
+RULE_PREFIX:         owasp-asvs-
+TARGET_RULE_COUNT:   12
+FRAMEWORK_SHORT_NAME: OWASP ASVS
+
+SOURCE FRAMEWORK SUMMARY:
+Authoritative source: OWASP Application Security Verification Standard 5.0. Rules map selected ASVS requirement identifiers to architecture evidence; they do not reproduce the source text.
+
+SCOPE:
+- Architecture and deployment evidence only: identity boundaries, secrets, authorization, validation, cryptography, logging, data protection, communications, dependencies, abuse controls, and secure delivery.
+- Azure is the current applicability scope; the rule narratives remain provider-neutral enough to extend to AWS and GCP.
+- No Critical severity is used in this starter pack; P0/P1 expresses review priority, not an ASVS verification level.
 
 DISCLAIMER TEXT:
 "Thematic architecture-review mapping; not OWASP ASVS certification or formal security verification report."

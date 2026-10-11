@@ -90,7 +90,11 @@ export function RunDetailManifestSummarySection(
           <RunDetailManifestSummaryHeading buyerPolishedShell={buyerPolishedShell} />
         </CardHeader>
         <CardContent className="space-y-4">
-          {manifestSummary.operatorSummary ? (
+          {manifestSummary.operatorSummary === null || manifestSummary.operatorSummary === undefined ? (
+            <p className={cn("m-0 leading-relaxed text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+              Operator summary was not stored.
+            </p>
+          ) : manifestSummary.operatorSummary ? (
             <p className={cn("m-0 leading-relaxed text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
               {manifestSummary.operatorSummary}
             </p>

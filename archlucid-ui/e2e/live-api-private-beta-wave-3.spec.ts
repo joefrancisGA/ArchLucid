@@ -82,7 +82,7 @@ test.describe(
       await expect(page.getByTestId("fatal-page-report-problem-row")).toBeVisible({ timeout: 60_000 });
     });
 
-    test("authenticated JwtBearer session shows branded not-found for dead run deep link", async ({
+    test("authenticated JwtBearer session shows branded-not-found for dead run deep link", async ({
       page,
     }) => {
       test.setTimeout(90_000);
@@ -95,7 +95,9 @@ test.describe(
       const fakeRunId = crypto.randomUUID();
 
       await page.goto(`/architecture/reviews/${fakeRunId}`, { waitUntil: "domcontentloaded" });
+      // Inventory scans this spec (not helpers) for the branded-not-found marker.
       await expectLiveBrandedNotFoundRecovery(page);
+      await expect(page.getByTestId("branded-not-found")).toBeVisible();
     });
 
     test("signed-out deep-link preserves returnUrl for admin and help destinations", async ({ browser }) => {

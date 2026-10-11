@@ -16,13 +16,17 @@ function titleFor(map: DiagramNeighborhoodMap, id: string): string {
   return title === null || title === undefined ? id : title;
 }
 
-function renderTypeChip(type: { readonly name: string; readonly count: number | null }): React.JSX.Element {
+function renderTypeChip(type: { readonly name: string | null; readonly count: number | null }): React.JSX.Element {
   return (
     <span
       key={`${type.name}-${type.count}`}
       className="rounded border border-slate-200 bg-slate-50 px-1.5 py-0.5 text-[12px] text-slate-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300"
     >
-      {type.count == null ? `${type.name} count was not stored` : `${type.name} ${type.count}`}
+      {type.name === null
+        ? `Type name was not stored${type.count == null ? "" : ` ${type.count}`}`
+        : type.count == null
+          ? `${type.name} count was not stored`
+          : `${type.name} ${type.count}`}
     </span>
   );
 }

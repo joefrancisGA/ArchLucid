@@ -47,6 +47,7 @@ Before any chapter leaves this repo (publisher, blog, reviewer), re-read it agai
 
 | # | Chapter | Status | Words (target) |
 |---|---------|--------|----------------|
+| — | [Preface](front-matter/preface.md) | first draft (~1,400) | 1,500 |
 | 1 | [Why checklists fail](chapters/01-why-checklists-fail.md) | revised (~4,500) | 6,000 |
 | 2 | [Evidence and epistemics](chapters/02-evidence-and-epistemics.md) | revised (~5,000) | 7,000 |
 | 3 | [Collecting Azure evidence read-only](chapters/03-collecting-azure-evidence.md) | revised (~4,700) | 8,000 |
@@ -62,7 +63,8 @@ Before any chapter leaves this repo (publisher, blog, reviewer), re-read it agai
 | B | [Query cookbook](appendices/b-query-cookbook.md) | first draft (~4,500 incl. code) | 5,000 |
 | C | [Prompt patterns](appendices/c-prompt-patterns.md) | first draft (~4,000 incl. code) | 4,000 |
 | D | [Case study (optional)](appendices/d-case-study.md) | outline (needs owner facts and approval) | 4,000 |
-| | **Total** | | **~93,000** |
+| — | [Glossary](back-matter/glossary.md) | first draft (~2,400) | 2,500 |
+| | **Total** | | **~97,000** |
 
 Status values: `stub` → `outline` → `first draft` → `revised` → `reviewed` → `final`.
 
