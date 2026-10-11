@@ -110,6 +110,12 @@ variable "private_endpoint_name" {
   default     = "pe-sql-app"
 }
 
+variable "private_dns_zone_ids" {
+  type        = list(string)
+  description = "Optional private DNS zone IDs attached to the SQL private endpoint."
+  default     = []
+}
+
 variable "block_public_sql_access" {
   type        = bool
   description = "Disable public network access and add deny-all firewall rule."

@@ -176,6 +176,7 @@ module "sql" {
   enable_private_endpoint    = true
   private_endpoint_subnet_id = try(azurerm_subnet.private_endpoints[0].id, "")
   private_endpoint_name      = "${local.prefix}-sql-pe"
+  private_dns_zone_ids       = try([azurerm_private_dns_zone.sql[0].id], [])
   block_public_sql_access    = true
   enable_sql_monitoring      = false
 
@@ -195,6 +196,11 @@ resource "azurerm_private_endpoint" "storage" {
     subresource_names              = ["blob"]
     is_manual_connection           = false
   }
+
+  private_dns_zone_group {
+    name                 = "blob-zones"
+    private_dns_zone_ids = [azurerm_private_dns_zone.blob[0].id]
+  }
 }
 
 resource "azurerm_private_endpoint" "key_vault" {
@@ -210,6 +216,11 @@ resource "azurerm_private_endpoint" "key_vault" {
     subresource_names              = ["vault"]
     is_manual_connection           = false
   }
+
+  private_dns_zone_group {
+    name                 = "key-vault-zones"
+    private_dns_zone_ids = [azurerm_private_dns_zone.key_vault[0].id]
+  }
 }
 
 resource "azurerm_private_endpoint" "openai" {
@@ -224,6 +235,11 @@ resource "azurerm_private_endpoint" "openai" {
     private_connection_resource_id = var.azure_openai_account_id
     subresource_names              = ["account"]
     is_manual_connection           = false
+  }
+
+  private_dns_zone_group {
+    name                 = "openai-zones"
+    private_dns_zone_ids = [azurerm_private_dns_zone.openai[0].id]
   }
 }
 
@@ -281,50 +297,6 @@ resource "azurerm_private_dns_zone_virtual_network_link" "openai" {
   resource_group_name   = local.resource_group_name
   private_dns_zone_name = azurerm_private_dns_zone.openai[0].name
   virtual_network_id    = azurerm_virtual_network.this[0].id
-}
-
-resource "azurerm_private_dns_zone_group" "storage" {
-  count               = local.enabled ? 1 : 0
-  name                = "default"
-  private_endpoint_id = azurerm_private_endpoint.storage[0].id
-
-  private_dns_zone_configs {
-    name                = "blob"
-    private_dns_zone_id = azurerm_private_dns_zone.blob[0].id
-  }
-}
-
-resource "azurerm_private_dns_zone_group" "key_vault" {
-  count               = local.enabled ? 1 : 0
-  name                = "default"
-  private_endpoint_id = azurerm_private_endpoint.key_vault[0].id
-
-  private_dns_zone_configs {
-    name                = "vault"
-    private_dns_zone_id = azurerm_private_dns_zone.key_vault[0].id
-  }
-}
-
-resource "azurerm_private_dns_zone_group" "openai" {
-  count               = local.enabled && length(trimspace(var.azure_openai_account_id)) > 0 ? 1 : 0
-  name                = "default"
-  private_endpoint_id = azurerm_private_endpoint.openai[0].id
-
-  private_dns_zone_configs {
-    name                = "openai"
-    private_dns_zone_id = azurerm_private_dns_zone.openai[0].id
-  }
-}
-
-resource "azurerm_private_dns_zone_group" "sql" {
-  count               = local.enabled ? 1 : 0
-  name                = "default"
-  private_endpoint_id = module.sql[0].private_endpoint_id
-
-  private_dns_zone_configs {
-    name                = "sql"
-    private_dns_zone_id = azurerm_private_dns_zone.sql[0].id
-  }
 }
 
 resource "azurerm_role_assignment" "api_collection_blob" {

@@ -66,6 +66,14 @@ resource "azurerm_private_endpoint" "sql" {
     subresource_names              = ["sqlServer"]
     is_manual_connection           = false
   }
+
+  dynamic "private_dns_zone_group" {
+    for_each = length(var.private_dns_zone_ids) > 0 ? [1] : []
+    content {
+      name                 = "sql-zones"
+      private_dns_zone_ids = var.private_dns_zone_ids
+    }
+  }
 }
 
 resource "azurerm_mssql_firewall_rule" "deny_all" {
