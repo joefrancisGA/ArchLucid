@@ -33968,6 +33968,8 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 2026-10-11 thorough hunt #29 (dry): cheap-disproved five open `(candidate)` rows: `fetchShowcasePayload` already rejects whitespace-only `eventType`; showcase validation rejects duplicate trimmed timeline `eventId` values before `DemoPreviewMarketingBody` renders; curated `http_error` fallback already carries `api_fallback` telemetry; `SignupVerifyClient` polling does not mutate `initialLoadFailed`; and `buildSignInTrialHref` intentionally uses the fixed `source=get-started` onboarding return path rather than forwarding URL query attribution. No production change; 45 scoped marketing vitest tests passed.
 
+2026-10-11 seed hunt (seed-only): re-read the anonymous `/see-it`, showcase, and signup-verification paths; no candidate met the same-run hunt-ready promotion bar. Seeded three bounded candidates for multi-trailing-slash API bases and JWT resend redirect failure. Four focused marketing suites passed 67/67; no production or regression code changed.
+
 2026-10-08 thorough hunt #27 (hit): proved duplicate pipeline `eventId` values passed showcase validation; cheap-disproved four other `(candidate)` rows from hunt #26; seeded five follow-on `(candidate)` rows; 17 scoped showcase-page vitest tests passed.
 
 2026-10-08 thorough hunt #26 (hit): proved sparse pipeline timeline rows missing `eventId` passed showcase fetch validation; cheap-disproved four other `(candidate)` rows from hunt #25; seeded five follow-on `(candidate)` rows; 16 scoped showcase-page vitest tests passed.
@@ -33988,7 +33990,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** marketing pages; pricing; trust center UI
 - **paths:** archlucid-ui/src/app/(marketing)/
 - **test-filter:** marketing
-- **hunts:** 29
+- **hunts:** 30
 - **bugs-found:** 32
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-11
@@ -34005,6 +34007,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) `DemoPreviewMarketingBody.toAuthorityPipelineItems` dereferenced null timeline entries after `fetchShowcasePayload` validated only the array container, so malformed live JSON crashed the showcase page — **hit 2026-09-30 seed hunt:** reject null/non-object timeline rows as invalid; regression `treats API payloads with a null timeline row as invalid` in `showcase-page.test.tsx`.
 
 ### Hypotheses
+
+- [ ] (candidate) `resolveSeeItDemoApiBase` removes only one trailing slash — an environment base with multiple trailing slashes can produce a request URL containing a doubled path separator; input: `NEXT_PUBLIC_DEMO_API_BASE="https://demo.example///"`; wrong outcome: the anonymous `/see-it` preview request can miss `/v1/demo/preview` and fall back to the static snapshot; reachability: deployment-provided public demo API environment configuration.
+- [ ] (candidate) `resolveShowcaseApiBase` removes only one trailing slash — an environment base with multiple trailing slashes can produce a malformed `/v1/marketing/showcase/{runId}` URL; input: `NEXT_PUBLIC_DEMO_PREVIEW_API_BASE="https://demo.example///"`; wrong outcome: a reachable showcase API request falls into not-available or static fallback instead of loading the live payload; reachability: deployment-provided public demo preview API configuration.
+- [ ] (candidate) `SignupVerifyClient.handleResend` marks resend cooldown before JWT redirect initiation — if `initiateOidcRedirect` throws, the UI reports failure while the newly written cooldown disables the resend retry; input: JWT auth mode with redirect initiation failure after clicking resend; wrong outcome: a failed redirect strands the user behind a cooldown rather than permitting a retry; reachability: the visible `signup-verify-resend-email` action and the JWT auth-mode branch.
 
 - [x] (invalid) Marketing form submits PII to the wrong API environment — Quick Scan and pricing quote POST through `/api/proxy/v1/marketing/...` (`proxy-route-anonymous-marketing.test.ts`, `QuickScanClient.tsx`).
 - [x] (invalid) Pricing page shows an internal-only plan tier to anonymous visitors — anonymous pricing loads public `loadPricingDoc()`; no internal tier leak found in seed read.
