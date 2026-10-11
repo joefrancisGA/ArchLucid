@@ -1,6 +1,6 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
-2026-10-11 seed hunt (seed-only): `extraction-router` — re-read the selected `DifficultyBasedExtractionRouter` partials and focused tests, including bounded marker detection, regulatory precedence, lifecycle boundary ordering, and extraction provenance mapping. No new reachable mechanism-backed wrong outcome met the promotion bar. The focused `DifficultyBasedExtractionRouterTests` filter passed 32/32. No production or regression code changed.
+2026-10-11 seed hunt (seed-only): `extraction-router` — re-read the four selected router partials and all focused router tests, checking marker boundaries, regulatory precedence, lifecycle ordering, fallback extraction, and provenance mapping. No new reachable mechanism-backed wrong outcome met the promotion bar, so no candidate was promoted and no passing regression was added. The focused filter passed 32/32. No production or regression code changed.
 
 2026-10-11 seed hunt (seed-only): `extraction-router` — re-read `DifficultyBasedExtractionRouter` and its Classify, Extract, and LifecycleHelpers partials plus the focused router tests; no new reachable mechanism-backed wrong outcome met the promotion bar. The picker filter passed 32/32. No production or regression code changed.
 
