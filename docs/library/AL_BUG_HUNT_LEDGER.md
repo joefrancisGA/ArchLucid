@@ -30575,6 +30575,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ## Zone: artifact-synthesis
 
+2026-10-11 seed hunt (seed-only): repeated the selected artifact-synthesis and DOCX review with no production-path change; no fresh hunt-ready row met the reachability and wrong-outcome bar. The scoped application ArtifactSynthesis/Docx filter passed 101/102 with one intentional skip; no production or regression code changed.
+
 2026-10-11 seed hunt (seed-only): repeated the selected artifact-synthesis and DOCX review; no fresh hunt-ready row met the reachability and wrong-outcome bar. The scoped application ArtifactSynthesis/Docx filter passed 101/102 with one intentional skip; no production or regression code changed.
 
 2026-10-11 seed hunt (seed-only): repeated the selected artifact-synthesis and DOCX review with no production-path change; no fresh hunt-ready row met the reachability and wrong-outcome bar. The scoped application ArtifactSynthesis/Docx filter passed 101/102 with one intentional skip; no production or regression code changed.
@@ -30593,7 +30595,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** artifact synthesis; docx generator; packaging sanitization
 - **paths:** ArchLucid.ArtifactSynthesis/
 - **test-filter:** FullyQualifiedName~ArtifactSynthesis|FullyQualifiedName~Docx
-- **hunts:** 50
+- **hunts:** 51
 - **last-hunt:** 2026-10-11
 - **bugs-found:** 46
 - **consecutive-dry-hunts:** 0
