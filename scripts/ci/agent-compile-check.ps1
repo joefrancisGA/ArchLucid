@@ -96,6 +96,49 @@ function Stop-ProcessTree {
     $Process.WaitForExit(5000) | Out-Null
 }
 
+function Resolve-ExecutablePath {
+    param([string] $Name)
+
+    $runningOnWindows = $env:OS -like '*Windows*'
+
+    if ($runningOnWindows) {
+        # Node installs npm as npm.ps1 + npm.cmd; Get-Command prefers the .ps1, which Start-Process cannot launch.
+        $windowsCommand = Get-Command "$Name.exe", "$Name.cmd" -CommandType Application -ErrorAction SilentlyContinue |
+            Select-Object -First 1
+
+        if ($null -eq $windowsCommand) {
+            throw "Executable not found on PATH: $Name (.exe or .cmd)"
+        }
+
+        return $windowsCommand.Source
+    }
+
+    return (Get-Command $Name -CommandType Application -ErrorAction Stop | Select-Object -First 1).Source
+}
+
+function Wait-ProcessWithHeartbeat {
+    param(
+        [System.Diagnostics.Process] $Process,
+        [int] $TimeoutSeconds,
+        [int] $HeartbeatSeconds = 8
+    )
+
+    $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
+
+    while ($stopwatch.Elapsed.TotalSeconds -lt $TimeoutSeconds) {
+        $remainingMs = [int](($TimeoutSeconds - $stopwatch.Elapsed.TotalSeconds) * 1000)
+        $waitMs = [Math]::Max(1, [Math]::Min($HeartbeatSeconds * 1000, $remainingMs))
+
+        if ($Process.WaitForExit($waitMs)) {
+            return $true
+        }
+
+        Write-Host ("STILL EXECUTING... {0}" -f (Get-Date -Format 'HH:mm:ss'))
+    }
+
+    return $Process.HasExited
+}
+
 function Invoke-TimedExternalProcess {
     param(
         [string] $FileName,
@@ -118,8 +161,10 @@ function Invoke-TimedExternalProcess {
             -RedirectStandardError $stderrFile `
             -Wait:$false
 
-        $timeoutMs = $TimeoutSeconds * 1000
-        $exitedInTime = $process.WaitForExit($timeoutMs)
+        # Without touching Handle while the process runs, ExitCode is $null after a redirected Start-Process exits.
+        $null = $process.Handle
+
+        $exitedInTime = Wait-ProcessWithHeartbeat -Process $process -TimeoutSeconds $TimeoutSeconds
 
         $stdout = Get-Content -LiteralPath $stdoutFile -Raw -ErrorAction SilentlyContinue
         $stderr = Get-Content -LiteralPath $stderrFile -Raw -ErrorAction SilentlyContinue
@@ -157,6 +202,10 @@ function Invoke-TimedExternalProcess {
             $exitCode = 0
         }
 
+        if (Test-HasCompileErrors -Output $combined) {
+            $exitCode = 1
+        }
+
         return @{
             ExitCode       = $exitCode
             CombinedOutput = $combined
@@ -176,9 +225,8 @@ if ($Ui) {
         throw "UI directory not found: $uiRoot"
     }
 
-    $npm = Get-Command npm -ErrorAction Stop
     $result = Invoke-TimedExternalProcess `
-        -FileName $npm.Source `
+        -FileName (Resolve-ExecutablePath -Name 'npm') `
         -ArgumentList @('run', 'typecheck') `
         -WorkingDirectory $uiRoot `
         -TimeoutSeconds $TimeoutSeconds
@@ -205,9 +253,8 @@ $outDir = Join-Path $env:TEMP ('archlucid-agent-build-' + [Guid]::NewGuid().ToSt
 New-Item -ItemType Directory -Path $outDir -Force | Out-Null
 
 try {
-    $dotnet = Get-Command dotnet -ErrorAction Stop
     $result = Invoke-TimedExternalProcess `
-        -FileName $dotnet.Source `
+        -FileName (Resolve-ExecutablePath -Name 'dotnet') `
         -ArgumentList @(
             'build', $projectFullPath
             '-c', 'Release'
