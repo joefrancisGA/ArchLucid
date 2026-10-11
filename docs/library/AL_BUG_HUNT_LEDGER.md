@@ -27451,6 +27451,8 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 ---
 ## Zone: core-explanation-json
 
+2026-10-11 seed hunt (seed-only): re-read the parser, shared readers, prompt schema, and existing candidate rows; no new mechanism-backed row met the same-run promotion bar, so the four bounded candidates were retained without duplication. The focused `RunExplanation` suite passed 47/47; no production or regression code changed.
+
 2026-10-11 seed hunt (seed-only): re-read the canonical candidate rows against the parser and focused tests; no row met the full same-run promotion bar, and no duplicate candidates were added. The focused `RunExplanation` suite passed 47/47; no production or regression code changed.
 
 2026-10-11 seed hunt (seed-only): re-read the same explanation sources and focused suite; no candidate was promoted because the four bounded rows remain either outside this zone’s writable path or lack a confirmed contract-level wrong outcome. Corrected their tags to canonical `- [ ] (candidate)` syntax so the picker can score them; `RunExplanation` passed 47/47 and no production or regression code changed.
@@ -27493,7 +27495,7 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 - **aliases:** run explanation; explanation json; split from archlucid-core
 - **paths:** ArchLucid.Core/Explanation/
 - **test-filter:** FullyQualifiedName~RunExplanation
-- **hunts:** 52
+- **hunts:** 53
 - **bugs-found:** 33
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-11
