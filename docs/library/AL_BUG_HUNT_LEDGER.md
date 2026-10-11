@@ -31298,6 +31298,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ## Zone: api-governance-tenancy-controllers
 
+2026-10-11 seed hunt (seed-only): the picker exposed only this ledger path for the retired controller mega-zone; existing actor-id parity rows are closed and no new source-backed candidate or hunt-ready row could be seeded without inventing a hypothesis. The solution-level scoped filter was blocked by unrelated compile errors, and the direct API test project was blocked by existing `TenantTrialControllerTests` `IActorContext` compile errors. No production or regression change.
+
 2026-10-10 seed hunt (seed→hit): promoted `TenantTrialController.LinkEntraAsync` / `ConvertTrialAsync` actor propagation; both routes passed `User.Identity?.Name` into the trial facade, so platform audits stored a display name as `ActorUserId`; inject `IActorContext` and pass `GetActorId()`; regression `LinkEntraAsync_passes_stable_actor_id_to_trial_facade`. The focused API xUnit command remains blocked by the pre-existing duplicate `CreateEmptyAgentResultRepository` member in `AuthorityPipelineStagesExecutorTestFactory.cs`; isolated controller repro failed before the fix and passed afterward.
 
 2026-10-10 seed hunt (seed-only): re-read `TenantTrialController` and its trial facade boundary; retained the source-backed `(candidate)` for canonical actor-id propagation, but the focused repro could not execute because unrelated analyzer/controller errors and merge-conflict markers blocked the API test build. No row was promoted or fixed.
@@ -31316,8 +31318,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** governance controllers; tenancy controllers; retired mega-zone
 - **paths:** docs/library/AL_BUG_HUNT_LEDGER.md
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 322
-- **last-hunt:** 2026-10-10
+- **hunts:** 323
+- **last-hunt:** 2026-10-11
 - **bugs-found:** 519
 - **consecutive-dry-hunts:** 0
 - **last-bug:** 2026-10-10 — trial lifecycle passed display name instead of actor-context id

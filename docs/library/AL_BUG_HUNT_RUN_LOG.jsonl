@@ -9344,3 +9344,4 @@
 {"at":"2026-10-11T00:40:47.2786967Z","zoneId":"ui-governance-findings-queue","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(operator)/governance/findings/"]}
 {"at":"2026-10-11T00:44:47.5086586Z","zoneId":"ui-governance-findings-queue","outcome":"seed-only","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(operator)/governance/findings/"]}
 {"at":"2026-10-11T00:49:36.0698977Z","zoneId":"archlucid-core","outcome":"seed-only","productLine":"archlucid-shared","paths":["docs/library/AL_BUG_HUNT_LEDGER.md"]}
+{"at":"2026-10-11T00:55:57.2996893Z","zoneId":"api-governance-tenancy-controllers","outcome":"seed-only","productLine":"archlucid-shared","paths":["docs/library/AL_BUG_HUNT_LEDGER.md"]}
