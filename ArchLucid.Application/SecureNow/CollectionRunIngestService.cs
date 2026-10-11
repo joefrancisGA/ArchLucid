@@ -35,6 +35,20 @@ public sealed class CollectionRunIngestService(
 
         CollectionRun collectionRun = CreateRun(scope, manifest, zipHash);
 
+        if (manifest.TenantId is Guid manifestTenantId && manifestTenantId != scope.TenantId)
+        {
+            collectionRun = WithStatus(collectionRun, CollectionRunStatus.Rejected, "Collection manifest tenant does not match the current scope.");
+            await _collectionRunRepository.UpsertAsync(collectionRun, cancellationToken);
+            return collectionRun;
+        }
+
+        if (!IsManifestHashValid(manifest, zipHash))
+        {
+            collectionRun = WithStatus(collectionRun, CollectionRunStatus.Rejected, "Collection package hash does not match the manifest.");
+            await _collectionRunRepository.UpsertAsync(collectionRun, cancellationToken);
+            return collectionRun;
+        }
+
         if (manifest.SchemaVersion != AzureExtractorPackageZipValidator.SupportedSchemaVersion)
         {
             collectionRun = WithStatus(collectionRun, CollectionRunStatus.Rejected, "Unsupported collection manifest schema version.");
@@ -129,8 +143,25 @@ public sealed class CollectionRunIngestService(
         return SHA256.HashData(zipBytes);
     }
 
+    private static bool IsManifestHashValid(CollectionRunManifest manifest, byte[] actualHash)
+    {
+        if (string.IsNullOrWhiteSpace(manifest.ZipSha256))
+            return true;
+
+        try
+        {
+            return Convert.FromHexString(manifest.ZipSha256).SequenceEqual(actualHash);
+        }
+        catch (FormatException)
+        {
+            return false;
+        }
+    }
+
     private static CollectionRunStatus ParseStatus(string status) =>
-        Enum.TryParse(status, ignoreCase: true, out CollectionRunStatus parsed)
-            ? parsed
-            : CollectionRunStatus.Failed;
+        status.Equals("Partial", StringComparison.OrdinalIgnoreCase)
+            ? CollectionRunStatus.PartiallySucceeded
+            : Enum.TryParse(status, ignoreCase: true, out CollectionRunStatus parsed)
+                ? parsed
+                : CollectionRunStatus.Failed;
 }

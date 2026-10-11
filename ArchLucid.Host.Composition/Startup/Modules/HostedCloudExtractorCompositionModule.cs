@@ -89,6 +89,8 @@ public static class HostedCloudExtractorCompositionModule
         services.AddScoped<IAzureExtractorIngestService, AzureExtractorIngestService>();
         services.AddScoped<CollectionRunIngestService>();
         services.AddScoped<ICollectionRunDiscovery, PollingCollectionRunDiscovery>();
+        services.Configure<CollectionRunStorageOptions>(
+            configuration.GetSection(CollectionRunStorageOptions.SectionName));
         services.AddScoped<IAzureExtractorResultEnricher, AzureExtractorResultEnricher>();
         services.Configure<AzureExtractorEnrichmentOptions>(
             configuration.GetSection(AzureExtractorEnrichmentOptions.SectionPath));
