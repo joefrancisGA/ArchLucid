@@ -2732,6 +2732,138 @@
       "priority": "P2"
     },
     {
+      "ruleId": "nist-800-53-001",
+      "controlId": "NIST-800-53-AC-2",
+      "controlName": "Account management boundaries",
+      "appliesToCategory": "compliance",
+      "requiredNodeType": "Identity",
+      "requiredEdgeType": "AUTHORIZES",
+      "severity": "High",
+      "description": "Architecture evidence should identify account ownership, lifecycle boundaries, and the systems that enforce joiner, mover, and leaver changes.",
+      "priority": "P0"
+    },
+    {
+      "ruleId": "nist-800-53-002",
+      "controlId": "NIST-800-53-AC-6",
+      "controlName": "Least privilege authorization",
+      "appliesToCategory": "compliance",
+      "requiredNodeType": "Identity",
+      "requiredEdgeType": "AUTHORIZES",
+      "severity": "High",
+      "description": "Architecture evidence should show that permissions are assigned to the smallest role and scope that supports the intended operation.",
+      "priority": "P0"
+    },
+    {
+      "ruleId": "nist-800-53-003",
+      "controlId": "NIST-800-53-AU-2",
+      "controlName": "Audit record generation",
+      "appliesToCategory": "compliance",
+      "requiredNodeType": "Logging",
+      "requiredEdgeType": "MONITORS",
+      "severity": "High",
+      "description": "Architecture evidence should identify which security-relevant actions produce audit records and where those records are retained.",
+      "priority": "P0"
+    },
+    {
+      "ruleId": "nist-800-53-004",
+      "controlId": "NIST-800-53-AU-9",
+      "controlName": "Audit record protection",
+      "appliesToCategory": "compliance",
+      "requiredNodeType": "Logging",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "High",
+      "description": "Architecture evidence should show that audit records are protected from unauthorized change, deletion, and access.",
+      "priority": "P1"
+    },
+    {
+      "ruleId": "nist-800-53-005",
+      "controlId": "NIST-800-53-CM-3",
+      "controlName": "Configuration change control",
+      "appliesToCategory": "compliance",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Architecture evidence should connect production configuration changes to an approved change process and an accountable owner.",
+      "priority": "P1"
+    },
+    {
+      "ruleId": "nist-800-53-006",
+      "controlId": "NIST-800-53-SC-7",
+      "controlName": "Boundary protection",
+      "appliesToCategory": "compliance",
+      "requiredNodeType": "Network",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "High",
+      "description": "Architecture evidence should identify trust boundaries and the controls that limit traffic crossing each boundary.",
+      "priority": "P0"
+    },
+    {
+      "ruleId": "nist-800-53-007",
+      "controlId": "NIST-800-53-SC-8",
+      "controlName": "Cryptographic protection",
+      "appliesToCategory": "compliance",
+      "requiredNodeType": "DataStore",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "High",
+      "description": "Architecture evidence should identify where sensitive data is protected in transit and at rest and who controls the keys.",
+      "priority": "P0"
+    },
+    {
+      "ruleId": "nist-800-53-008",
+      "controlId": "NIST-800-53-RA-5",
+      "controlName": "Vulnerability monitoring",
+      "appliesToCategory": "compliance",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "MONITORS",
+      "severity": "High",
+      "description": "Architecture evidence should show how vulnerabilities are identified, prioritized, assigned, and tracked to closure.",
+      "priority": "P1"
+    },
+    {
+      "ruleId": "nist-800-53-009",
+      "controlId": "NIST-800-53-IR-4",
+      "controlName": "Incident response preparation",
+      "appliesToCategory": "compliance",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "High",
+      "description": "Architecture evidence should identify the people, telemetry, dependencies, and recovery paths needed to respond to an incident.",
+      "priority": "P1"
+    },
+    {
+      "ruleId": "nist-800-53-010",
+      "controlId": "NIST-800-53-CP-2",
+      "controlName": "Contingency planning dependencies",
+      "appliesToCategory": "compliance",
+      "requiredNodeType": "DataStore",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "High",
+      "description": "Architecture evidence should identify recovery objectives, critical dependencies, and the locations of recoverable data.",
+      "priority": "P1"
+    },
+    {
+      "ruleId": "nist-800-53-011",
+      "controlId": "NIST-800-53-SR-3",
+      "controlName": "Supply-chain component accountability",
+      "appliesToCategory": "compliance",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Architecture evidence should identify important suppliers, managed services, and component ownership at system boundaries.",
+      "priority": "P2"
+    },
+    {
+      "ruleId": "nist-800-53-012",
+      "controlId": "NIST-800-53-PL-8",
+      "controlName": "Security and privacy architecture",
+      "appliesToCategory": "compliance",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "High",
+      "description": "Architecture evidence should make security and privacy requirements traceable to components, data flows, and accountable decisions.",
+      "priority": "P0"
+    },
+    {
       "ruleId": "supply-chain-001",
       "controlId": "SUPPLY-CHAIN-001",
       "controlName": "Software Bill of Materials (SBOM)",
