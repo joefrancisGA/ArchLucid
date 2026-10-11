@@ -163,6 +163,8 @@ A **private endpoint** is a network interface in your virtual network with a pri
 
 It doesn't change the public endpoint. The opening story's mistake is common enough to deserve its own query, and it's the first step of this chapter's lab:
 
+<!-- listing: lab/listings/kql/appb-resources-with-a-private-endpoint-and.kql -->
+
 ```kusto
 resources
 | where isnotnull(properties.privateEndpointConnections)

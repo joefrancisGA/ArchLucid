@@ -1,0 +1,7 @@
+{
+  "id": "A1",
+  "claim": "mi-pay-reconcile read 412 blobs from custarchive.",
+  "category": "observed activity",
+  "window": { "start": "2026-09-01", "end": "2026-09-30" },
+  "source": "StorageBlobLogs, GetBlob, success, Entra-authenticated"
+}

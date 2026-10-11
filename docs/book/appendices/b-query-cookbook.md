@@ -33,6 +33,8 @@ Two more come from the later chapters:
 
 Use Chapter 3's `Invoke-ArgQuery` (section 3.10, Step 1). It pages with the skip token, runs at tenant scope with `-UseTenantScope`, and turns any failure into a `partialResult` gap. Every Resource Graph recipe below is written to be saved as a `.kql` file and passed to it:
 
+<!-- listing: lab/listings/powershell/appb-running-resource-graph-queries.ps1 -->
+
 ```powershell
 Invoke-ArgQuery -Name 'nsg-rules' -Query (Get-Content queries/nsg-rules.kql -Raw)
 ```
@@ -55,6 +57,8 @@ Some evidence isn't in Resource Graph at all: diagnostic settings, App Service a
 
 The subscriptions the collector can read (Chapter 3, section 3.3):
 
+<!-- listing: lab/queries/subscriptions.kql -->
+
 ```kusto
 resourcecontainers
 | where type =~ 'microsoft.resources/subscriptions'
@@ -62,6 +66,8 @@ resourcecontainers
 ```
 
 The scope hierarchy, so role assignments at a management group or resource group can be inherited down to the resources beneath them (Chapter 4, Step 0):
+
+<!-- listing: lab/listings/kql/appb-management-group-hierarchy.kql -->
 
 ```kusto
 resourcecontainers
@@ -85,6 +91,8 @@ resourcecontainers
 ### Role assignments with role names
 
 From Chapter 3, section 3.3. It's the query behind hops H5 and H9.
+
+<!-- listing: lab/queries/role-assignments.kql -->
 
 ```kusto
 authorizationresources
@@ -112,6 +120,8 @@ authorizationresources
 
 From Chapter 4, Step 0. Paths come from actions, not role names, so this is what turns "Contributor" into "can list storage keys".
 
+<!-- listing: lab/listings/kql/appb-role-definitions-with-their-actions.kql -->
+
 ```kusto
 authorizationresources
 | where type =~ 'microsoft.authorization/roledefinitions'
@@ -131,6 +141,8 @@ authorizationresources
 
 From Chapter 4, Step 0. A deny assignment can remove an edge that a role assignment created.
 
+<!-- listing: lab/listings/kql/appb-deny-assignments.kql -->
+
 ```kusto
 authorizationresources
 | where type =~ 'microsoft.authorization/denyassignments'
@@ -149,6 +161,8 @@ authorizationresources
 ### Eligible Azure roles (Privileged Identity Management)
 
 Chapter 4's Rule 5 says eligible isn't active, and Chapter 11 asks the search to report eligible paths separately. Eligibility isn't in the role assignment rows. Read it through ARM at each scope you collect:
+
+<!-- listing: lab/listings/powershell/appb-eligible-azure-roles-privileged-identity-management.ps1 -->
 
 ```powershell
 Get-AzRoleEligibilityScheduleInstance -Scope "/subscriptions/$subscriptionId" |
@@ -172,6 +186,8 @@ Chapter 3, section 3.4, prints the loop. It reads every application with `Get-Mg
 ### Federated credentials on user-assigned managed identities
 
 Managed identities can trust external tokens too, and Chapter 3's loop doesn't see them, because they live in Azure rather than in the application list. A federated credential on `mi-payments-api` would be an entry point straight to `custdata`. Collect them per identity:
+
+<!-- listing: lab/listings/powershell/appb-federated-credentials-on-user-assigned-managed.ps1 -->
 
 ```powershell
 $identities = Search-AzGraph -UseTenantScope -First 1000 -Query @'
@@ -204,6 +220,8 @@ Application owners can add credentials to the application (hop H2). Chapter 4, S
 
 Service principals have owners of their own, separate from the application's, and an owner of a service principal can manage it too. Collect them the same way:
 
+<!-- listing: lab/listings/powershell/appb-owners-applications-and-service-principals.ps1 -->
+
 ```powershell
 $spProperties = 'id,appId,displayName,servicePrincipalType'
 $servicePrincipals = Get-MgServicePrincipal -All -Property $spProperties
@@ -224,6 +242,8 @@ Chapter 4, Step 0, prints the assignment loop: `Get-MgRoleManagementDirectoryRol
 
 Eligible directory roles come from a different call, under the same permission:
 
+<!-- listing: lab/listings/powershell/appb-directory-role-assignments-and-eligibility.ps1 -->
+
 ```powershell
 Get-MgRoleManagementDirectoryRoleEligibilitySchedule -All |
     Select-Object PrincipalId, RoleDefinitionId, DirectoryScopeId, MemberType
@@ -238,6 +258,8 @@ Chapter 4, Step 0: `Get-MgGroupTransitiveMember -GroupId $groupId -All` for ever
 ### Microsoft Graph application permissions
 
 A service principal with a powerful Graph application permission, such as `RoleManagement.ReadWrite.Directory` or `Application.ReadWrite.All`, can create paths of its own. List what each service principal holds against Microsoft Graph:
+
+<!-- listing: lab/listings/powershell/appb-microsoft-graph-application-permissions.ps1 -->
 
 ```powershell
 $graphSp = Get-MgServicePrincipal -Filter "appId eq '00000003-0000-0000-c000-000000000000'"
@@ -261,6 +283,8 @@ The collector's own four permissions should appear in the output. That's a cheap
 
 ### Guests
 
+<!-- listing: lab/listings/powershell/appb-guests.ps1 -->
+
 ```powershell
 Get-MgUser -All -Filter "userType eq 'Guest'" `
     -Property 'id,displayName,mail,externalUserState,createdDateTime'
@@ -277,6 +301,8 @@ Get-MgUser -All -Filter "userType eq 'Guest'" `
 ### Storage accounts: shared key and exposure
 
 Chapter 3's query, with its shared key handling, and the network fields Chapter 5's `storage_public_exposure` reads. It's hops H6 and H7, and the input to the Chapter 1 checklist.
+
+<!-- listing: lab/listings/kql/appb-storage-accounts-shared-key-and-exposure.kql -->
 
 ```kusto
 resources
@@ -303,6 +329,8 @@ resources
 
 Shared key is storage's name for a pattern that recurs: a key or connection string that works without an identity, and destroys attribution (Chapter 6). Other services expose it as `disableLocalAuth`, where absent usually means local authentication is **allowed**:
 
+<!-- listing: lab/listings/kql/appb-local-authentication-on-other-services.kql -->
+
 ```kusto
 resources
 | where type in~ (
@@ -321,6 +349,8 @@ resources
 
 ### Key vaults
 
+<!-- listing: lab/listings/kql/appb-key-vaults.kql -->
+
 ```kusto
 resources
 | where type =~ 'microsoft.keyvault/vaults'
@@ -338,6 +368,8 @@ resources
 ### Compute identities
 
 From Chapter 4, Step 0. It links each workload to the identities it runs as (hop H8):
+
+<!-- listing: lab/listings/kql/appb-compute-identities.kql -->
 
 ```kusto
 resources
@@ -358,6 +390,8 @@ resources
 ### Resources with a private endpoint and an open public endpoint
 
 From Chapter 5, section 5.3. It's the first step of that chapter's lab:
+
+<!-- listing: lab/listings/kql/appb-resources-with-a-private-endpoint-and.kql -->
 
 ```kusto
 resources
@@ -382,6 +416,8 @@ Use it to find candidates, then classify each type with its own logic.
 Chapter 6's declared flows come from configuration: which store an app is configured to talk to, and as which identity. This is the one place where Reader isn't enough, and where the read-only rule and the never-collect-secrets rule (Chapter 3, section 3.6) collide.
 
 **Site configuration** is readable with Reader. It holds the inbound access restrictions Chapter 5 needs, including whether the advanced tools (SCM) site follows the main site's rules:
+
+<!-- listing: lab/listings/powershell/appb-declared-flows-app-configuration.ps1 -->
 
 ```powershell
 $response = Invoke-AzRestMethod -Method GET -Path "$($site.id)/config/web?api-version=2023-12-01"
@@ -414,6 +450,8 @@ Chapter 5, section 5.6, lists what reachability needs. These are the queries beh
 
 ### NSG rules
 
+<!-- listing: lab/listings/kql/appb-nsg-rules.kql -->
+
 ```kusto
 resources
 | where type =~ 'microsoft.network/networksecuritygroups'
@@ -441,6 +479,8 @@ Keep the default rules too. `AllowVnetInBound` is why "no custom rule" doesn't m
 
 ### Virtual networks, subnets, and peerings
 
+<!-- listing: lab/listings/kql/appb-virtual-networks-subnets-and-peerings.kql -->
+
 ```kusto
 resources
 | where type =~ 'microsoft.network/virtualnetworks'
@@ -457,6 +497,8 @@ Each subnet entry carries `networkSecurityGroup.id`, `routeTable.id`, `serviceEn
 
 ### Route tables
 
+<!-- listing: lab/listings/kql/appb-route-tables.kql -->
+
 ```kusto
 resources
 | where type =~ 'microsoft.network/routetables'
@@ -472,6 +514,8 @@ resources
 
 ### Private endpoints and private DNS
 
+<!-- listing: lab/listings/kql/appb-private-endpoints-and-private-dns.kql -->
+
 ```kusto
 resources
 | where type =~ 'microsoft.network/privateendpoints'
@@ -485,6 +529,8 @@ resources
     groupIds = connection.properties.groupIds,
     status = tostring(connection.properties.privateLinkServiceConnectionState.status)
 ```
+
+<!-- listing: lab/listings/kql/appb-private-endpoints-and-private-dns-2.kql -->
 
 ```kusto
 resources
@@ -500,6 +546,8 @@ resources
 
 ### Public IP addresses
 
+<!-- listing: lab/listings/kql/appb-public-ip-addresses.kql -->
+
 ```kusto
 resources
 | where type =~ 'microsoft.network/publicipaddresses'
@@ -514,6 +562,8 @@ resources
 ### Firewall policy rules
 
 Rule collection groups are child resources of a firewall policy. Read them through ARM:
+
+<!-- listing: lab/listings/powershell/appb-firewall-policy-rules.ps1 -->
 
 ```powershell
 $policy = Get-AzFirewallPolicy -ResourceGroupName 'rg-network' -Name 'afwp-hub'
@@ -546,6 +596,8 @@ $firewallRules = foreach ($groupRef in $policy.RuleCollectionGroups) {
 
 ### SQL server firewall rules
 
+<!-- listing: lab/listings/powershell/appb-sql-server-firewall-rules.ps1 -->
+
 ```powershell
 $serverArgs = @{ ResourceGroupName = $server.ResourceGroupName; ServerName = $server.ServerName }
 Get-AzSqlServerFirewallRule @serverArgs |
@@ -555,6 +607,8 @@ Get-AzSqlServerFirewallRule @serverArgs |
 A rule from `0.0.0.0` to `0.0.0.0` (named `AllowAllWindowsAzureIps`) admits any Azure public address, including other customers' resources (Chapter 5).
 
 ### Service tags
+
+<!-- listing: lab/listings/powershell/appb-service-tags.ps1 -->
 
 ```powershell
 $tags = Get-AzNetworkServiceTag -Location 'eastus2'
@@ -571,6 +625,8 @@ Record `ChangeNumber` in the manifest. Service tag prefixes change, and a reacha
 **Chapters:** 5, 6, 10. **Snapshot file:** `diagnostic-settings.json`.
 
 Whether logging is on decides whether "did access" can be answered at all (Chapter 6). Diagnostic settings are extension resources and aren't in Resource Graph. Read them through ARM, per resource:
+
+<!-- listing: lab/listings/powershell/appb-telemetry-configuration.ps1 -->
 
 ```powershell
 $targets = @(
@@ -604,6 +660,8 @@ $settings = foreach ($target in $targets) {
 
 From Chapter 6, Step 4:
 
+<!-- listing: lab/listings/kql/appb-blob-reads-by-caller-and-authentication.kql -->
+
 ```kusto
 StorageBlobLogs
 | where TimeGenerated > ago(1d)
@@ -621,6 +679,8 @@ Use your suffixed account names from Appendix A's `book_names` output.
 
 From Chapter 6, Step 5:
 
+<!-- listing: lab/listings/kql/appb-storage-key-listing.kql -->
+
 ```kusto
 AzureActivity
 | where TimeGenerated > ago(1d)
@@ -631,6 +691,8 @@ AzureActivity
 ### Role assignment changes
 
 For Chapter 10's question "did anything else change in the window?":
+
+<!-- listing: lab/listings/kql/appb-role-assignment-changes.kql -->
 
 ```kusto
 AzureActivity
@@ -645,6 +707,8 @@ AzureActivity
 ### Entra credential, owner, and role changes
 
 These need the Entra audit logs exported to the workspace through Entra's own diagnostic settings, which is a tenant-level setting the lab doesn't create. Without it, the `AuditLogs` table doesn't exist, and the absence is a gap, not a clean result.
+
+<!-- listing: lab/listings/kql/appb-entra-credential-owner-and-role-changes.kql -->
 
 ```kusto
 AuditLogs
@@ -665,6 +729,8 @@ AuditLogs
 ### Resource property changes
 
 From Chapter 10, section 10.3. Resource Graph, not Log Analytics, and only the last 14 days:
+
+<!-- listing: lab/listings/kql/appb-resource-property-changes.kql -->
 
 ```kusto
 resourcechanges
@@ -713,6 +779,7 @@ resourcechanges
 
 - **Taken from the chapters, matching their text:** the scope, role assignment, role definition, deny assignment, compute identity, scope hierarchy, private-endpoint, `StorageBlobLogs`, and list-keys queries; the Graph calls referenced from Chapters 3 and 4. If a chapter's query changes, change it here.
 - **New in this appendix, not yet run against a live tenant:** the combined storage query in B.5 (Chapter 3's columns plus Chapter 5's network fields); managed identity federated credentials; service principal owners; directory role eligibility; Graph application permissions; guests; local authentication; key vaults; site configuration; NSG, virtual network, route table, private endpoint, private DNS link, public IP, firewall policy, SQL firewall, and service tag recipes; diagnostic settings; role assignment and Entra audit queries; `resourcechanges`. Run each against Appendix A's lab and record the result before submission.
-- Specific things to confirm: that Resource Graph indexes `microsoft.network/privatednszones/virtualnetworklinks` in every cloud the book targets; the `Get-AzFederatedIdentityCredential` parameter names in the current Az.ManagedServiceIdentity module; the exact Entra audit operation names for federated credential changes on applications (they may appear as a generic "Update application" with a modified property); and that the `??` operator in B.8 is acceptable given the book requires PowerShell 7.
+- Specific things to confirm: that Resource Graph indexes `microsoft.network/privatednszones/virtualnetworklinks` in every cloud the book targets; the `Get-AzFederatedIdentityCredential` parameter names in the current Az.ManagedServiceIdentity module; the exact Entra audit operation names for federated credential changes on applications (they may appear as a generic "Update application" with a modified property). (The `??` operator in B.8 is fine: the book requires PowerShell 7, and `tools/check_powershell_listings.ps1` parses every listing with it.)
+- 2026-10-11 (listing sync): every KQL block here is synced from `lab/listings/kql/` or `lab/queries/`. `tools/check_kql_listings.py` only checks structure (balanced brackets and quotes, a known table first, no leading pipe). It doesn't prove a query runs; the live runbook ([`../lab/live-validation-runbook.md`](../lab/live-validation-runbook.md)) does.
 - Appendix A's `checklist.kql` matches only `destinationPortRange`, which is correct for the lab. Its header comment now points readers at B.7's fuller pattern.
 - Consider moving the recipes the labs run (B.4 managed identity credentials, B.7 network) into `lab/queries` once Chapter 5's lab is walked against a live tenant.

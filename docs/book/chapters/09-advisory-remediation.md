@@ -329,6 +329,8 @@ So the analysis side holds **read-only access**: Reader on Azure, the read-only 
 
 Every recommendation should be a structured record that can be reviewed, tracked, and later verified (Chapter 10):
 
+<!-- listing: lab/listings/json/ch09-the-recommendation-record.json -->
+
 ```json
 {
   "id": "rec-7f3a91c2",
@@ -366,6 +368,8 @@ A few fields matter more than the rest:
 When the estate is managed as code, the fix should be a code change, reviewed and applied like any other. That way the change goes through the same review, plan, approval, and audit trail as everything else, and it doesn't get reverted the next time the pipeline applies the old configuration.
 
 The three changes in the payments plan, as Terraform:
+
+<!-- listing: lab/listings/terraform/ch09-payments-plan.tf -->
 
 ```hcl
 # 1. Remove dev-lead as an owner of the payments-deploy app registration.

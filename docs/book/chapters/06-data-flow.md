@@ -317,6 +317,8 @@ This reuses `expand_range` from Chapter 7 and replaces its simpler activity chec
 
 An observed-activity item in the pack looks like this:
 
+<!-- listing: lab/listings/json/ch06-observed-activity-item.json -->
+
 ```json
 {
   "id": "A1",
@@ -341,6 +343,8 @@ This lab builds the capability-versus-flow table for the payments estate, observ
 
 **Step 4 — Observe.** Enable blob read logging on `custarchive` and `custdata`, sending it to a Log Analytics workspace. Trigger `pay-reconcile` and the payments API. Then, from your own machine, read one blob from `custdata` using the account key. Query the results:
 
+<!-- listing: lab/listings/kql/appb-blob-reads-by-caller-and-authentication.kql -->
+
 ```kusto
 StorageBlobLogs
 | where TimeGenerated > ago(1d)
@@ -353,6 +357,8 @@ StorageBlobLogs
 Confirm that the managed identity reads are attributed to their object IDs, and that your key-authenticated read shows the account key and your address, with no identity.
 
 **Step 5 — Look for key listing.** Query the Activity Log for key-listing operations on `custdata` in the same window, and find your own. Note what it does and doesn't tell you about who used the key.
+
+<!-- listing: lab/listings/kql/appb-storage-key-listing.kql -->
 
 ```kusto
 AzureActivity
