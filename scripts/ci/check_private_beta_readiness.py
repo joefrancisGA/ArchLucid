@@ -63,22 +63,84 @@ def _check_required_files(root: Path) -> list[str]:
     ]
 
 
-_AUTH_ROUTING_CI_PERMIT_ASSIGNMENT = 'RateLimiting__AuthRouting__PermitLimit: "500"'
-_API_RESTART_STEP_MARKER = "Restart API after Enterprise grant"
+_AUTH_ROUTING_ENV_KEY = "RateLimiting__AuthRouting__PermitLimit"
+_AUTH_ROUTING_CI_PERMIT_VALUE = "500"
+_API_START_STEP_NAME = "Start ArchLucid.Api (background, JwtBearer + local PEM)"
+_API_RESTART_STEP_NAME = "Restart API after Enterprise grant (refresh tenant-tier cache)"
+_JOB_STEP_NAME_PREFIX = "      - name: "
+
+
+def _iter_job_steps(content: str) -> list[tuple[str, str]]:
+    parts = content.split("\n" + _JOB_STEP_NAME_PREFIX)
+    steps: list[tuple[str, str]] = []
+
+    for index, part in enumerate(parts):
+        if index == 0 and not content.startswith(_JOB_STEP_NAME_PREFIX):
+            continue
+
+        body_source = part if index > 0 else part[len(_JOB_STEP_NAME_PREFIX) :]
+        name_line, separator, rest = body_source.partition("\n")
+
+        if not separator:
+            continue
+
+        steps.append((name_line.strip().strip("\"'"), rest))
+
+    return steps
+
+
+def _parse_step_env(step_body: str) -> dict[str, str]:
+    env: dict[str, str] = {}
+    in_env = False
+
+    for line in step_body.splitlines():
+        if not in_env:
+            if line.startswith("        env:"):
+                in_env = True
+
+            continue
+
+        stripped = line.strip()
+
+        # GitHub Actions env maps may include comments between keys.
+        if stripped == "" or stripped.startswith("#"):
+            continue
+
+        if line.startswith("          ") and ":" in line:
+            key, _, raw_value = line.strip().partition(":")
+            env[key.strip()] = raw_value.strip().strip("\"'")
+            continue
+
+        break
+
+    return env
+
+
+def _named_step_env(content: str, step_name: str) -> dict[str, str] | None:
+    for name, body in _iter_job_steps(content):
+        if name == step_name:
+            return _parse_step_env(body)
+
+    return None
+
+
+def _step_has_auth_routing_ci_permit(env: dict[str, str] | None) -> bool:
+    if env is None:
+        return False
+
+    return env.get(_AUTH_ROUTING_ENV_KEY) == _AUTH_ROUTING_CI_PERMIT_VALUE
 
 
 def _check_auth_routing_ci_permit(content: str) -> list[str]:
-    start_block, separator, restart_block = content.partition(_API_RESTART_STEP_MARKER)
+    start_env = _named_step_env(content, _API_START_STEP_NAME)
+    restart_env = _named_step_env(content, _API_RESTART_STEP_NAME)
 
-    if not separator:
+    if start_env is None or restart_env is None:
         return [
             "private-beta workflow must raise the auth-routing invitation-validate rate limit for CI"
         ]
 
-    if (
-        _AUTH_ROUTING_CI_PERMIT_ASSIGNMENT not in start_block
-        or _AUTH_ROUTING_CI_PERMIT_ASSIGNMENT not in restart_block
-    ):
+    if not _step_has_auth_routing_ci_permit(start_env) or not _step_has_auth_routing_ci_permit(restart_env):
         return [
             'private-beta workflow must set RateLimiting__AuthRouting__PermitLimit: "500" '
             "in both API-start environment blocks"
