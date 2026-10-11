@@ -27451,6 +27451,13 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 ---
 ## Zone: core-explanation-json
 
+2026-10-11 seed hunt (seed-only): re-read the structured parser, shared JSON token readers, prompt schema, and the focused `RunExplanation` suite; no fresh hypothesis met the full mechanism-and-contract bar for same-run promotion. The focused suite passed 47/47; no production or regression code changed. Seeded four bounded follow-on `(candidate)` rows.
+
+- **(candidate)** `StructuredExplanationParser` / `StrictSchemaVersionReader` — a reachable JSON `schemaVersion: 1e300` may be accepted after an out-of-range floating-point to `int` conversion rather than defaulting to schema version 1; locus: schema-version read at `StructuredExplanationParser.cs` ~47–51 and the shared reader call; input: model-produced structured explanation with an oversized finite schema version.
+- **(candidate)** `TryReadStringList` — malformed object entries inside a reachable `evidenceRefs` array are silently dropped while valid entries remain, potentially hiding an omitted citation without marking the structured payload invalid; locus: `CollectStringListEntries` ~49–64; input: LLM JSON `evidenceRefs` containing one valid `{ "id": ... }` and one object with no `id`/`text`.
+- **(candidate)** `TryReadReasoningText` — malformed entries inside a reachable reasoning array are silently dropped and the remaining text is accepted, potentially producing an incomplete explanation while reporting structured success; locus: `CollectReasoningParts` ~123–141; input: LLM JSON `reasoning` array mixing a valid paragraph with an object lacking `id`/`text`.
+- **(candidate)** `TryReadNonEmptyTextToken` — very large finite numeric values in reachable list fields fall back to raw numeric text after integer coercion fails, potentially exposing a scientific-notation token as an evidence or caveat identifier; locus: numeric branch ~67–91; input: model JSON evidence or caveat token `1e300`.
+
 2026-10-11 seed hunt (seed→hit): structured confidence reused aggregate boolean compatibility parsing, so a reachable LLM payload with `confidence: "true"` became `1.0` and could present malformed output as full confidence. Structured parsing now rejects boolean values and boolean word synonyms while preserving numeric `"0"`/`"1"` and percentage forms; regression `TryNormalizeStructuredJson_ignores_string_boolean_confidence` failed first with `1M`, the compatibility regression `TryNormalizeStructuredJson_preserves_numeric_one_confidence_string` passed, and the scoped `RunExplanation` filter passed 47/47.
 
 - **(proven)** `StructuredExplanationParser.TryNormalizeStructuredJson` — string boolean confidence is coerced to full confidence — **hit 2026-10-11 seed hunt:** aggregate compatibility boolean synonyms were reused for a numeric structured field; reject boolean tokens at the structured boundary; regression `TryNormalizeStructuredJson_ignores_string_boolean_confidence`.
@@ -27478,7 +27485,7 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 - **aliases:** run explanation; explanation json; split from archlucid-core
 - **paths:** ArchLucid.Core/Explanation/
 - **test-filter:** FullyQualifiedName~RunExplanation
-- **hunts:** 47
+- **hunts:** 48
 - **bugs-found:** 33
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-11
