@@ -951,6 +951,7 @@ export function DiagramReconcileWorkbenchClient() {
       return;
     }
 
+    const comparisonIdValue = comparisonId;
     const subjects: Array<{
       subjectKind: InfrastructureDiagramDocumentationDecision["subjectKind"];
       subjectKey: string;
@@ -979,7 +980,7 @@ export function DiagramReconcileWorkbenchClient() {
         subjects.map(async (subject) => {
           try {
             return await fetchInfrastructureDiagramDocumentationDecision(
-              comparisonId,
+              comparisonIdValue,
               subject.subjectKind,
               subject.subjectKey,
             );
