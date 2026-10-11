@@ -7,11 +7,11 @@ import { PRODUCT_LINE_LABELS } from "@/lib/product-line/product-line-copy";
 import { PRODUCT_LINE_IDS } from "@/lib/product-line/product-line-id";
 import { isSecureNowUhgEdition } from "@/lib/product-line/resolve-securenow-edition-id";
 
-export function ProductLineSwitchBar(): React.JSX.Element {
+export function ProductLineSwitchBar(): React.JSX.Element | null {
   const { productLine, setProductLine } = useProductLine();
 
   if (isSecureNowUhgEdition()) {
-    return <></>;
+    return null;
   }
 
   return (

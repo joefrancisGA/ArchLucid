@@ -1,5 +1,6 @@
 import { cookies } from "next/headers";
 
+import { lockProductLineForSecureNowEdition } from "@/lib/editions/lock-product-line-for-securenow-edition";
 import { isProductLineId, type ProductLineId } from "@/lib/product-line/product-line-id";
 import { PRODUCT_LINE_COOKIE } from "@/lib/product-line/product-line-storage";
 import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
@@ -15,7 +16,7 @@ export async function resolveProductLineIdForServer(): Promise<ProductLineId> {
   const raw = cookieStore.get(PRODUCT_LINE_COOKIE)?.value?.trim().toLowerCase();
 
   if (isProductLineId(raw)) {
-    return raw;
+    return lockProductLineForSecureNowEdition(raw);
   }
 
   return resolveProductLineIdFromEnv();
