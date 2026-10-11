@@ -322,9 +322,9 @@ export function HelpSealedVsDecisionRegisterGuideView(
               </Link>
             </p>
           </section>
-        </div>
 
-        <SponsorSendPathHonestyPanel testIdPrefix="help-sealed-vs-decision-register" showSsoOptional={false} />
+          <SponsorSendPathHonestyPanel testIdPrefix="help-sealed-vs-decision-register" showSsoOptional={false} />
+        </div>
 
         <HelpTopicTableOfContents headings={DESK_IA_HELP_SEALED_VS_REGISTER_GUIDE_HEADINGS} enableScrollSpy />
       </div>

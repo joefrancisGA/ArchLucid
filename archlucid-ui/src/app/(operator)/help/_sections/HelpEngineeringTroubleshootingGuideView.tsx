@@ -278,9 +278,9 @@ export function HelpEngineeringTroubleshootingGuideView(
           </section>
 
           <HelpEngineeringTroubleshootingProvenanceFooter entry={entry} />
-        </div>
 
-        <SponsorSendPathHonestyPanel testIdPrefix="help-engineering-troubleshooting" showSsoOptional={false} />
+          <SponsorSendPathHonestyPanel testIdPrefix="help-engineering-troubleshooting" showSsoOptional={false} />
+        </div>
 
         {showSectionNav ? (
           <HelpTopicTableOfContents headings={guideHeadings} enableScrollSpy placement="sidebar" />

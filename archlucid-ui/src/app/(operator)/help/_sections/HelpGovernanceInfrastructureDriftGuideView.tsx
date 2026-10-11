@@ -393,9 +393,9 @@ export function HelpGovernanceInfrastructureDriftGuideView(
               </Link>
             </p>
           </section>
-        </div>
 
-        <SponsorSendPathHonestyPanel testIdPrefix="help-governance-infrastructure-drift" showSsoOptional={false} />
+          <SponsorSendPathHonestyPanel testIdPrefix="help-governance-infrastructure-drift" showSsoOptional={false} />
+        </div>
 
         <HelpTopicTableOfContents headings={guideHeadings} enableScrollSpy />
       </div>

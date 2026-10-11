@@ -380,9 +380,9 @@ export function HelpBackgroundWaitGuideView(props: HelpBackgroundWaitGuideViewPr
               </Link>
             </p>
           </section>
-        </div>
 
-        <SponsorSendPathHonestyPanel testIdPrefix="help-background-wait" showSsoOptional={false} />
+          <SponsorSendPathHonestyPanel testIdPrefix="help-background-wait" showSsoOptional={false} />
+        </div>
 
         <HelpTopicTableOfContents headings={DAYTIME_WAIT_HELP_BACKGROUND_WAIT_GUIDE_HEADINGS} enableScrollSpy />
       </div>
