@@ -222,7 +222,7 @@ describe("DiagramReconcileWorkbenchClient", () => {
 
     expect(within(conflictRow).getByTestId("infra-diagram-reconcile-finding-link-diagram-node-1")).toHaveAttribute(
       "href",
-      "/architecture/reviews/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/findings/99999999-aaaa-bbbb-cccc-dddddddddddd/evidence",
+      "/architecture/reviews/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/findings/99999999-aaaa-bbbb-cccc-dddddddddddd/evidence-trace",
     );
     expect(within(conflictRow).getByTestId("infra-diagram-reconcile-remediation-diagram-node-1")).toHaveAttribute(
       "href",
