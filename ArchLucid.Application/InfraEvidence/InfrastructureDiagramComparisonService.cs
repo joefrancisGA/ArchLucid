@@ -33,17 +33,20 @@ public sealed class InfrastructureDiagramComparisonService : IInfrastructureDiag
     private readonly IAzureInventorySnapshotRepository snapshotRepository;
     private readonly IInfrastructureDiagramComparisonRepository comparisonRepository;
     private readonly IInfrastructureDiagramNodeMappingRepository mappingRepository;
+    private readonly IInfrastructureDiagramDocumentationDecisionRepository documentationDecisionRepository;
 
     public InfrastructureDiagramComparisonService(
         StructuredDiagramParseRouter parseRouter,
         IAzureInventorySnapshotRepository snapshotRepository,
         IInfrastructureDiagramComparisonRepository comparisonRepository,
-        IInfrastructureDiagramNodeMappingRepository mappingRepository)
+        IInfrastructureDiagramNodeMappingRepository mappingRepository,
+        IInfrastructureDiagramDocumentationDecisionRepository documentationDecisionRepository)
     {
         this.parseRouter = parseRouter;
         this.snapshotRepository = snapshotRepository;
         this.comparisonRepository = comparisonRepository;
         this.mappingRepository = mappingRepository;
+        this.documentationDecisionRepository = documentationDecisionRepository;
     }
 
     public async Task<DiagramInfrastructureReconciliationResult> CompareAsync(
@@ -216,6 +219,129 @@ public sealed class InfrastructureDiagramComparisonService : IInfrastructureDiag
 
         return result;
     }
+
+    public async Task<InfrastructureDiagramDocumentationDecision> SaveDocumentationDecisionAsync(
+        ScopeContext scope,
+        Guid comparisonId,
+        InfrastructureDiagramDocumentationDecisionSaveRequest request,
+        string? savedByUserOid,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        ArgumentNullException.ThrowIfNull(request);
+
+        InfrastructureDiagramComparisonPersistRecord? comparison =
+            await this.comparisonRepository.TryGetAsync(scope.TenantId, comparisonId, cancellationToken);
+
+        if (comparison is null)
+        {
+            throw new InvalidOperationException("Diagram comparison was not found in the current scope.");
+        }
+
+        DiagramInfrastructureReconciliationResult? result =
+            JsonSerializer.Deserialize<DiagramInfrastructureReconciliationResult>(comparison.ResultJson, JsonOptions);
+
+        if (result is null || !CanSaveDocumentationDecision(result, request.SubjectKind, request.SubjectKey))
+        {
+            throw new ArgumentException("Documentation decisions are only allowed for documentation-only reconciliation gaps.", nameof(request));
+        }
+
+        ValidateDocumentationDecision(request.Decision);
+
+        DateTime utcNow = TimeProvider.System.UtcNowDateTime();
+        InfrastructureDiagramDocumentationDecisionPersistRecord record = new()
+        {
+            DecisionId = Guid.NewGuid(),
+            TenantId = scope.TenantId,
+            ScopeId = comparisonId,
+            SnapshotId = request.SnapshotId,
+            SubjectKind = request.SubjectKind.Trim(),
+            SubjectKey = request.SubjectKey.Trim(),
+            Decision = request.Decision.Trim(),
+            SavedByUserOid = savedByUserOid,
+            CreatedUtc = utcNow,
+            UpdatedUtc = utcNow,
+        };
+
+        await this.documentationDecisionRepository.UpsertAsync(record, cancellationToken);
+
+        return ToDocumentationDecision(record);
+    }
+
+    public async Task<InfrastructureDiagramDocumentationDecision?> TryGetDocumentationDecisionAsync(
+        ScopeContext scope,
+        Guid comparisonId,
+        string subjectKind,
+        string subjectKey,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        InfrastructureDiagramDocumentationDecisionPersistRecord? record =
+            await this.documentationDecisionRepository.TryGetAsync(
+                scope.TenantId,
+                comparisonId,
+                subjectKind.Trim(),
+                subjectKey.Trim(),
+                cancellationToken);
+
+        return record is null ? null : ToDocumentationDecision(record);
+    }
+
+    private static bool CanSaveDocumentationDecision(
+        DiagramInfrastructureReconciliationResult result,
+        string subjectKind,
+        string subjectKey)
+    {
+        string normalizedSubjectKind = subjectKind.Trim();
+        string normalizedSubjectKey = subjectKey.Trim();
+
+        if (normalizedSubjectKind == "DiagramNode")
+        {
+            return result.Rows.Any(row =>
+                row.MatchKind == DiagramInfrastructureMatchKinds.DiagramOnly
+                && string.Equals(row.DiagramNodeId, normalizedSubjectKey, StringComparison.Ordinal));
+        }
+
+        if (normalizedSubjectKind == "InventoryResource")
+        {
+            return result.Rows.Any(row =>
+                row.MatchKind == DiagramInfrastructureMatchKinds.InfrastructureOnly
+                && row.CloudResourceId.HasValue
+                && row.CloudResourceId.Value.ToString("D") == normalizedSubjectKey);
+        }
+
+        if (normalizedSubjectKind == "EdgeGap")
+        {
+            return result.EdgeGaps.Any(edgeGap =>
+                string.Equals(edgeGap.EdgeGapId, normalizedSubjectKey, StringComparison.Ordinal));
+        }
+
+        return false;
+    }
+
+    private static void ValidateDocumentationDecision(string decision)
+    {
+        if (decision is not
+            InfrastructureDiagramDocumentationDecisionValues.UpdateDrawing
+            and not InfrastructureDiagramDocumentationDecisionValues.AcceptAsUndocumented
+            and not InfrastructureDiagramDocumentationDecisionValues.CheckInventory)
+        {
+            throw new ArgumentException("Decision is not supported.", nameof(decision));
+        }
+    }
+
+    private static InfrastructureDiagramDocumentationDecision ToDocumentationDecision(
+        InfrastructureDiagramDocumentationDecisionPersistRecord record) =>
+        new()
+        {
+            ScopeId = record.ScopeId,
+            SnapshotId = record.SnapshotId,
+            SubjectKind = record.SubjectKind,
+            SubjectKey = record.SubjectKey,
+            Decision = record.Decision,
+            UpdatedUtc = record.UpdatedUtc,
+        };
 
     private async Task PersistComparisonAsync(
         ScopeContext scope,
