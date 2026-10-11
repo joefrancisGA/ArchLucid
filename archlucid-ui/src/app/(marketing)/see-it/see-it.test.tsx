@@ -54,6 +54,32 @@ describe("loadSeeItDemoPreview", () => {
     );
   });
 
+  it("normalizes multiple trailing slashes on the configured demo API base", async () => {
+    vi.stubEnv("NEXT_PUBLIC_DEMO_API_BASE", "https://demo-api.test///");
+
+    const livePayload = createMinimalDemoPreviewPayload();
+    livePayload.run.runId = SHOWCASE_STATIC_DEMO_RUN_ID;
+    livePayload.run.description = CUSTOMER_INTAKE_BUYER_REVIEW_TITLE;
+    const fetchFn = vi.fn().mockResolvedValue(
+      new Response(JSON.stringify(livePayload), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+
+    await loadSeeItDemoPreview({
+      fetchFn,
+      readSnapshotFile: () => {
+        throw new Error("snapshot must not be read on showcase live success path");
+      },
+    });
+
+    expect(fetchFn).toHaveBeenCalledWith(
+      "https://demo-api.test/v1/demo/preview",
+      expect.objectContaining({ method: "GET" }),
+    );
+  });
+
   it("falls back to showcase snapshot when live payload is Contoso (TB-981)", async () => {
     vi.stubEnv("NEXT_PUBLIC_DEMO_API_BASE", "https://demo-api.test");
 

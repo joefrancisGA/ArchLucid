@@ -92,6 +92,23 @@ describe("GovernanceFindingsQueueDesktopTable", () => {
     expect(mountedRiskTitles.length).toBeLessThan(rows.length);
   });
 
+  it("preserves insight density scores in the virtualized body", () => {
+    const rows = Array.from({ length: GOVERNANCE_FINDINGS_QUEUE_VIRTUALIZE_MIN_ROWS }, (_, index) =>
+      sampleRow(index),
+    );
+    rows[0] = { ...rows[0]!, insightDensityScore: 87 };
+
+    render(
+      <GovernanceFindingsQueueDesktopTable
+        rows={rows}
+        buyerPolishedShell={false}
+        showInsightDensityScore
+      />,
+    );
+
+    expect(screen.getByTestId("governance-row-insight-density-finding-0")).toHaveTextContent("Density 87");
+  });
+
   it("renders all rows in the DOM for small flat lists", () => {
     const rows = Array.from({ length: GOVERNANCE_FINDINGS_QUEUE_VIRTUALIZE_MIN_ROWS - 1 }, (_, index) =>
       sampleRow(index),

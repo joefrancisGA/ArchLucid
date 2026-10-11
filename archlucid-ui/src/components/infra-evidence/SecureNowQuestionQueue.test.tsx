@@ -201,6 +201,35 @@ describe("SecureNowQuestionQueue", () => {
     expect(mocks.ignoreQuestion).not.toHaveBeenCalled();
   });
 
+  it("confirms an inferred connection when its rule name contains spaces", async () => {
+    const inferredQuestion = {
+      ...question,
+      source: "InferredConnection",
+      questionKey: "unresolved-host@v1",
+      answerCodes: ["Yes", "No", "NotSure"],
+    };
+    mocks.listQuestions.mockResolvedValue([inferredQuestion]);
+    mocks.listConnections.mockResolvedValue([
+      {
+        connectionId: "connection-1",
+        fromArmId: question.resourceId,
+        ruleName: "Unresolved host",
+      },
+    ]);
+    mocks.confirmConnection.mockResolvedValue(undefined);
+
+    render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
+    fireEvent.click(await screen.findByRole("button", { name: "Review" }));
+    fireEvent.click(screen.getByRole("button", { name: "Yes" }));
+    fireEvent.click(screen.getByRole("button", { name: "Continue" }));
+
+    await waitFor(() => {
+      expect(mocks.confirmConnection).toHaveBeenCalledWith("snapshot-1", {
+        connectionId: "connection-1",
+      });
+    });
+  });
+
   it("keeps another resource with the same question key after skipping one", async () => {
     mocks.listQuestions.mockResolvedValue([
       question,
@@ -233,6 +262,40 @@ describe("SecureNowQuestionQueue", () => {
     view.rerender(<SecureNowQuestionQueue snapshotId="snapshot-2" />);
 
     expect(await screen.findByText(question.questionText)).toBeInTheDocument();
+  });
+
+  it("keeps the newest snapshot question when an older load finishes later", async () => {
+    let resolveFirstLoad: ((value: typeof question[]) => void) | undefined;
+    let resolveSecondLoad: ((value: typeof question[]) => void) | undefined;
+    const firstLoad = new Promise<typeof question[]>((resolve) => {
+      resolveFirstLoad = resolve;
+    });
+    const secondLoad = new Promise<typeof question[]>((resolve) => {
+      resolveSecondLoad = resolve;
+    });
+    mocks.listQuestions
+      .mockImplementationOnce(() => firstLoad)
+      .mockImplementationOnce(() => secondLoad);
+
+    const view = render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
+    await waitFor(() => expect(mocks.listQuestions).toHaveBeenCalledTimes(1));
+
+    view.rerender(<SecureNowQuestionQueue snapshotId="snapshot-2" />);
+    await waitFor(() => expect(mocks.listQuestions).toHaveBeenCalledTimes(2));
+
+    const newestQuestion = {
+      ...question,
+      snapshotId: "snapshot-2",
+      questionText: "Newest snapshot question",
+    };
+    resolveSecondLoad?.([newestQuestion]);
+
+    fireEvent.click(await screen.findByRole("button", { name: "Review" }));
+    expect(await screen.findByText("Newest snapshot question")).toBeInTheDocument();
+
+    resolveFirstLoad?.([question]);
+    await waitFor(() => expect(screen.getByTestId("infra-diagrams-question-snapshot-promo")).toHaveTextContent("1 open question"));
+    expect(screen.queryByText("Newest snapshot question")).toBeInTheDocument();
   });
 
   it("requires a reason before ignoring a question", async () => {

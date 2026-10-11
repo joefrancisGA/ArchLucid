@@ -128,9 +128,44 @@ public sealed class StructuredExplanationParserTests
     }
 
     [Fact]
+    public void TryNormalizeStructuredJson_nulls_finite_confidence_beyond_decimal_range_without_throwing()
+    {
+        const string json = """{"reasoning":"x","confidence":1e300}""";
+
+        Action act = () => StructuredExplanationParser.TryNormalizeStructuredJson(json, out _);
+
+        act.Should().NotThrow();
+        StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s).Should().BeTrue();
+        s!.Confidence.Should().BeNull();
+    }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_rejects_rounded_decimal_boundary_without_throwing()
+    {
+        const string json = """{"reasoning":"x","confidence":7.922816251426434e28}""";
+
+        Action act = () => StructuredExplanationParser.TryNormalizeStructuredJson(json, out _);
+
+        act.Should().NotThrow();
+        StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s).Should().BeTrue();
+        s!.Confidence.Should().BeNull();
+    }
+
+    [Fact]
     public void TryNormalizeStructuredJson_ignores_boolean_confidence()
     {
         const string json = """{"reasoning":"x","confidence":true}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Confidence.Should().BeNull();
+    }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_ignores_string_boolean_confidence()
+    {
+        const string json = """{"reasoning":"x","confidence":"true"}""";
 
         bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
 
@@ -147,6 +182,17 @@ public sealed class StructuredExplanationParserTests
 
         ok.Should().BeTrue();
         s!.Confidence.Should().Be(0.75m);
+    }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_preserves_numeric_one_confidence_string()
+    {
+        const string json = """{"reasoning":"Main","confidence":"1"}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Confidence.Should().Be(1m);
     }
 
     [Fact]

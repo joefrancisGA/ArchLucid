@@ -25,11 +25,16 @@ public static class TopologyProposalRelationshipEdgeMapper
 
         HashSet<string> unindexedTerraformEndpointIdentities = [];
         HashSet<string> indexedTerraformEndpointIdentities = [];
+        // A root address may resolve to an indexed node only when that root has one inventoried instance.
+        Dictionary<string, string> uniqueIndexedTerraformEndpointNodeIds = new(StringComparer.OrdinalIgnoreCase);
+        HashSet<string> ambiguousIndexedTerraformEndpointIdentities = [];
         Dictionary<string, string> endpointKeyToNodeId = BuildEndpointResolutionIndex(
             topologyNodes,
             endpointAliases,
             unindexedTerraformEndpointIdentities,
-            indexedTerraformEndpointIdentities);
+            indexedTerraformEndpointIdentities,
+            uniqueIndexedTerraformEndpointNodeIds,
+            ambiguousIndexedTerraformEndpointIdentities);
 
         List<GraphEdge> edges = [];
 
@@ -71,7 +76,9 @@ public static class TopologyProposalRelationshipEdgeMapper
         IReadOnlyList<GraphNode> topologyNodes,
         IReadOnlyDictionary<string, string>? endpointAliases,
         HashSet<string> unindexedTerraformEndpointIdentities,
-        HashSet<string> indexedTerraformEndpointIdentities)
+        HashSet<string> indexedTerraformEndpointIdentities,
+        Dictionary<string, string> uniqueIndexedTerraformEndpointNodeIds,
+        HashSet<string> ambiguousIndexedTerraformEndpointIdentities)
     {
         Dictionary<string, string> endpointKeyToNodeId = new(StringComparer.OrdinalIgnoreCase);
 
@@ -94,7 +101,27 @@ public static class TopologyProposalRelationshipEdgeMapper
             if (withoutInstanceKey is null)
                 unindexedTerraformEndpointIdentities.Add(terraformEndpointIdentity);
             else
+            {
                 indexedTerraformEndpointIdentities.Add(withoutInstanceKey);
+
+                if (ambiguousIndexedTerraformEndpointIdentities.Contains(withoutInstanceKey))
+                    continue;
+
+                if (!uniqueIndexedTerraformEndpointNodeIds.TryAdd(withoutInstanceKey, node.NodeId))
+                {
+                    uniqueIndexedTerraformEndpointNodeIds.Remove(withoutInstanceKey);
+                    ambiguousIndexedTerraformEndpointIdentities.Add(withoutInstanceKey);
+                }
+            }
+        }
+
+        foreach (KeyValuePair<string, string> uniqueIndexedEndpoint in uniqueIndexedTerraformEndpointNodeIds)
+        {
+            if (unindexedTerraformEndpointIdentities.Contains(uniqueIndexedEndpoint.Key)
+                || ambiguousIndexedTerraformEndpointIdentities.Contains(uniqueIndexedEndpoint.Key))
+                continue;
+
+            endpointKeyToNodeId.TryAdd(uniqueIndexedEndpoint.Key, uniqueIndexedEndpoint.Value);
         }
 
         foreach (GraphNode node in topologyNodes)
