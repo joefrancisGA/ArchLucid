@@ -27451,6 +27451,10 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 ---
 ## Zone: core-explanation-json
 
+2026-10-11 seed hunt (seed→hit): the prior confidence overflow guard compared against `(double)decimal.MaxValue`, whose rounded representation is itself above the decimal limit, so a reachable JSON confidence at `7.922816251426434e28` still threw during conversion. The guard now limits conversion to the parser's accepted `[-100, 100]` confidence domain; regression `TryNormalizeStructuredJson_rejects_rounded_decimal_boundary_without_throwing` failed first with `OverflowException`, and the scoped `RunExplanation` filter passed 47/47.
+
+- **(proven)** `StructuredExplanationParser.TryNormalizeStructuredJson` — rounded `decimal.MaxValue` double boundary still overflows despite a decimal-range precheck — **hit 2026-10-11 seed hunt:** `(double)decimal.MaxValue` rounds above the decimal maximum; bound conversion to the accepted confidence domain; regression `TryNormalizeStructuredJson_rejects_rounded_decimal_boundary_without_throwing`.
+
 2026-10-11 seed hunt (seed→hit): `StructuredExplanationParser` cast a finite JSON confidence value above `decimal.MaxValue` after `double` parsing, so reachable malformed LLM output such as `confidence: 1e300` threw `OverflowException` instead of following the parser's never-throws fallback contract. The parser now bounds the double before conversion; regression `TryNormalizeStructuredJson_nulls_finite_confidence_beyond_decimal_range_without_throwing` failed first with `OverflowException`, and the scoped `RunExplanation` filter passed 47/47.
 
 - **(proven)** `StructuredExplanationParser.TryNormalizeStructuredJson` — finite JSON confidence above the decimal range throws during `double` to `decimal` conversion — **hit 2026-10-11 seed hunt:** structured LLM JSON can supply a finite `double` outside the decimal model; bound the conversion and retain a null confidence; regression `TryNormalizeStructuredJson_nulls_finite_confidence_beyond_decimal_range_without_throwing`.
@@ -27470,11 +27474,11 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 - **aliases:** run explanation; explanation json; split from archlucid-core
 - **paths:** ArchLucid.Core/Explanation/
 - **test-filter:** FullyQualifiedName~RunExplanation
-- **hunts:** 45
-- **bugs-found:** 31
+- **hunts:** 46
+- **bugs-found:** 32
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-10
-- **last-bug:** 2026-10-11 — oversized finite structured confidence threw during decimal conversion
+- **last-hunt:** 2026-10-11
+- **last-bug:** 2026-10-11 — rounded decimal boundary still threw during structured confidence conversion
 - **related-pd-tb:** none
 - **code-changed-since:** no
 

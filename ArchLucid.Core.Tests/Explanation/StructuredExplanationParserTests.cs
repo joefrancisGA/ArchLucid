@@ -140,6 +140,18 @@ public sealed class StructuredExplanationParserTests
     }
 
     [Fact]
+    public void TryNormalizeStructuredJson_rejects_rounded_decimal_boundary_without_throwing()
+    {
+        const string json = """{"reasoning":"x","confidence":7.922816251426434e28}""";
+
+        Action act = () => StructuredExplanationParser.TryNormalizeStructuredJson(json, out _);
+
+        act.Should().NotThrow();
+        StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s).Should().BeTrue();
+        s!.Confidence.Should().BeNull();
+    }
+
+    [Fact]
     public void TryNormalizeStructuredJson_ignores_boolean_confidence()
     {
         const string json = """{"reasoning":"x","confidence":true}""";
