@@ -27451,6 +27451,10 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 ---
 ## Zone: core-explanation-json
 
+2026-10-11 seed hunt (seed→hit): structured confidence reused aggregate boolean compatibility parsing, so a reachable LLM payload with `confidence: "true"` became `1.0` and could present malformed output as full confidence. Structured parsing now rejects boolean values and boolean synonym strings while preserving numeric and percentage forms; regression `TryNormalizeStructuredJson_ignores_string_boolean_confidence` failed first with `1M`, and the scoped `RunExplanation` filter passed 47/47.
+
+- **(proven)** `StructuredExplanationParser.TryNormalizeStructuredJson` — string boolean confidence is coerced to full confidence — **hit 2026-10-11 seed hunt:** aggregate compatibility boolean synonyms were reused for a numeric structured field; reject boolean tokens at the structured boundary; regression `TryNormalizeStructuredJson_ignores_string_boolean_confidence`.
+
 2026-10-11 seed hunt (seed→hit): the prior confidence overflow guard compared against `(double)decimal.MaxValue`, whose rounded representation is itself above the decimal limit, so a reachable JSON confidence at `7.922816251426434e28` still threw during conversion. The guard now limits conversion to the parser's accepted `[-100, 100]` confidence domain; regression `TryNormalizeStructuredJson_rejects_rounded_decimal_boundary_without_throwing` failed first with `OverflowException`, and the scoped `RunExplanation` filter passed 47/47.
 
 - **(proven)** `StructuredExplanationParser.TryNormalizeStructuredJson` — rounded `decimal.MaxValue` double boundary still overflows despite a decimal-range precheck — **hit 2026-10-11 seed hunt:** `(double)decimal.MaxValue` rounds above the decimal maximum; bound conversion to the accepted confidence domain; regression `TryNormalizeStructuredJson_rejects_rounded_decimal_boundary_without_throwing`.
@@ -27474,11 +27478,11 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 - **aliases:** run explanation; explanation json; split from archlucid-core
 - **paths:** ArchLucid.Core/Explanation/
 - **test-filter:** FullyQualifiedName~RunExplanation
-- **hunts:** 46
-- **bugs-found:** 32
+- **hunts:** 47
+- **bugs-found:** 33
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-11
-- **last-bug:** 2026-10-11 — rounded decimal boundary still threw during structured confidence conversion
+- **last-bug:** 2026-10-11 — string boolean structured confidence was accepted as full confidence
 - **related-pd-tb:** none
 - **code-changed-since:** no
 

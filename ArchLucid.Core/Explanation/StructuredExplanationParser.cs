@@ -55,10 +55,7 @@ public static partial class StructuredExplanationParser
 
             if (RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitive(root, "confidence", out JsonElement confidenceElement))
             {
-                // Structured confidence is numeric; boolean coercion is reserved for aggregate compatibility fields.
-                double? finiteConfidence = confidenceElement.ValueKind is JsonValueKind.True or JsonValueKind.False
-                    ? null
-                    : RunExplanationAggregateJsonReader.TryReadFiniteDouble(confidenceElement);
+                double? finiteConfidence = TryReadStructuredConfidence(confidenceElement);
 
                 if (finiteConfidence is { } numericConfidence
                     && numericConfidence >= -100
@@ -85,6 +82,21 @@ public static partial class StructuredExplanationParser
         {
             return false;
         }
+    }
+
+    private static double? TryReadStructuredConfidence(JsonElement element)
+    {
+        // Structured confidence is numeric; boolean coercion is reserved for aggregate compatibility fields.
+        if (element.ValueKind is JsonValueKind.True or JsonValueKind.False)
+            return null;
+
+        if (element.ValueKind == JsonValueKind.String
+            && JsonBooleanStringReader.TryParseBooleanString(element.GetString(), out _))
+        {
+            return null;
+        }
+
+        return RunExplanationAggregateJsonReader.TryReadFiniteDouble(element);
     }
 
     /// <summary>
