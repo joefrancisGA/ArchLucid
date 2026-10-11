@@ -254,6 +254,7 @@ public sealed class InfrastructureDiagramComparisonService : IInfrastructureDiag
         ValidateDocumentationDecision(request.Decision);
 
         DateTime utcNow = TimeProvider.System.UtcNowDateTime();
+        string evidenceFingerprint = BuildEvidenceFingerprint(result, request.SubjectKind, request.SubjectKey);
         InfrastructureDiagramDocumentationDecisionPersistRecord record = new()
         {
             DecisionId = Guid.NewGuid(),
@@ -263,6 +264,7 @@ public sealed class InfrastructureDiagramComparisonService : IInfrastructureDiag
             SubjectKind = request.SubjectKind.Trim(),
             SubjectKey = request.SubjectKey.Trim(),
             Decision = request.Decision.Trim(),
+            EvidenceFingerprint = evidenceFingerprint,
             SavedByUserOid = savedByUserOid,
             CreatedUtc = utcNow,
             UpdatedUtc = utcNow,
@@ -270,7 +272,7 @@ public sealed class InfrastructureDiagramComparisonService : IInfrastructureDiag
 
         await this.documentationDecisionRepository.UpsertAsync(record, cancellationToken);
 
-        return ToDocumentationDecision(record);
+        return ToDocumentationDecision(record, InfrastructureDiagramDocumentationDecisionValues.StillOpen);
     }
 
     public async Task<InfrastructureDiagramDocumentationDecision?> TryGetDocumentationDecisionAsync(
@@ -282,15 +284,38 @@ public sealed class InfrastructureDiagramComparisonService : IInfrastructureDiag
     {
         ArgumentNullException.ThrowIfNull(scope);
 
+        InfrastructureDiagramComparisonPersistRecord? comparison =
+            await this.comparisonRepository.TryGetAsync(scope.TenantId, comparisonId, cancellationToken);
+
+        if (comparison is null)
+        {
+            return null;
+        }
+
+        DiagramInfrastructureReconciliationResult? result =
+            JsonSerializer.Deserialize<DiagramInfrastructureReconciliationResult>(comparison.ResultJson, JsonOptions);
         InfrastructureDiagramDocumentationDecisionPersistRecord? record =
-            await this.documentationDecisionRepository.TryGetAsync(
+            await this.documentationDecisionRepository.TryGetLatestBySubjectAsync(
                 scope.TenantId,
-                comparisonId,
                 subjectKind.Trim(),
                 subjectKey.Trim(),
                 cancellationToken);
 
-        return record is null ? null : ToDocumentationDecision(record);
+        if (record is null)
+        {
+            return null;
+        }
+
+        string? currentFingerprint = result is null
+            ? null
+            : TryBuildEvidenceFingerprint(result, subjectKind, subjectKey);
+        string carryForwardState = currentFingerprint is null
+            ? InfrastructureDiagramDocumentationDecisionValues.NoLongerInCapture
+            : string.Equals(currentFingerprint, record.EvidenceFingerprint, StringComparison.Ordinal)
+                ? InfrastructureDiagramDocumentationDecisionValues.StillOpen
+                : InfrastructureDiagramDocumentationDecisionValues.EvidenceChanged;
+
+        return ToDocumentationDecision(record, carryForwardState);
     }
 
     private static bool CanSaveDocumentationDecision(
@@ -336,8 +361,60 @@ public sealed class InfrastructureDiagramComparisonService : IInfrastructureDiag
         }
     }
 
+    private static string BuildEvidenceFingerprint(
+        DiagramInfrastructureReconciliationResult result,
+        string subjectKind,
+        string subjectKey) =>
+        TryBuildEvidenceFingerprint(result, subjectKind, subjectKey)
+        ?? throw new ArgumentException("The documentation decision subject was not found.", nameof(subjectKey));
+
+    private static string? TryBuildEvidenceFingerprint(
+        DiagramInfrastructureReconciliationResult result,
+        string subjectKind,
+        string subjectKey)
+    {
+        string normalizedSubjectKind = subjectKind.Trim();
+        string normalizedSubjectKey = subjectKey.Trim();
+
+        if (normalizedSubjectKind == "DiagramNode")
+        {
+            DiagramInfrastructureCorrespondenceRow? row = result.Rows.FirstOrDefault(candidate =>
+                candidate.MatchKind == DiagramInfrastructureMatchKinds.DiagramOnly
+                && string.Equals(candidate.DiagramNodeId, normalizedSubjectKey, StringComparison.Ordinal));
+
+            return row is null
+                ? null
+                : $"{normalizedSubjectKind}:{row.MatchKind}:{row.CloudResourceId}:{row.SecurityDiscrepancy}";
+        }
+
+        if (normalizedSubjectKind == "InventoryResource")
+        {
+            DiagramInfrastructureCorrespondenceRow? row = result.Rows.FirstOrDefault(candidate =>
+                candidate.MatchKind == DiagramInfrastructureMatchKinds.InfrastructureOnly
+                && candidate.CloudResourceId.HasValue
+                && candidate.CloudResourceId.Value.ToString("D") == normalizedSubjectKey);
+
+            return row is null
+                ? null
+                : $"{normalizedSubjectKind}:{row.MatchKind}:{row.CloudResourceId}:{row.SecurityDiscrepancy}";
+        }
+
+        if (normalizedSubjectKind == "EdgeGap")
+        {
+            DiagramInfrastructureEdgeGapRow? edgeGap = result.EdgeGaps.FirstOrDefault(candidate =>
+                string.Equals(candidate.EdgeGapId, normalizedSubjectKey, StringComparison.Ordinal));
+
+            return edgeGap is null
+                ? null
+                : $"{normalizedSubjectKind}:{edgeGap.GapKind}:{edgeGap.FromCloudResourceId}:{edgeGap.ToCloudResourceId}:{edgeGap.AssociationType}";
+        }
+
+        return null;
+    }
+
     private static InfrastructureDiagramDocumentationDecision ToDocumentationDecision(
-        InfrastructureDiagramDocumentationDecisionPersistRecord record) =>
+        InfrastructureDiagramDocumentationDecisionPersistRecord record,
+        string carryForwardState) =>
         new()
         {
             ScopeId = record.ScopeId,
@@ -345,6 +422,7 @@ public sealed class InfrastructureDiagramComparisonService : IInfrastructureDiag
             SubjectKind = record.SubjectKind,
             SubjectKey = record.SubjectKey,
             Decision = record.Decision,
+            CarryForwardState = carryForwardState,
             UpdatedUtc = record.UpdatedUtc,
         };
 

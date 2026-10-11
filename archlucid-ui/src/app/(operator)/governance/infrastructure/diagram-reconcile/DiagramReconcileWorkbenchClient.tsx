@@ -202,6 +202,18 @@ function documentationDecisionKey(
   return `${subjectKind}:${subjectKey}`;
 }
 
+function formatDocumentationDecisionState(state: string): string {
+  if (state === "EvidenceChanged") {
+    return "Evidence changed";
+  }
+
+  if (state === "NoLongerInCapture") {
+    return "No longer in this capture";
+  }
+
+  return "Still open";
+}
+
 function normalizeDiagramLabelForMapping(label: string): string {
   const trimmed = label.trim();
   const parenIndex = trimmed.indexOf("(");
@@ -2068,8 +2080,13 @@ export function DiagramReconcileWorkbenchClient() {
                                   >
                                     Save decision
                                   </Button>
-                                  {documentationDecisions[resourceDecisionKey] != null ? (
-                                    <StatusTag kind="ready" label="Decision saved" />
+                            {documentationDecisions[resourceDecisionKey] != null ? (
+                              <StatusTag
+                                kind="ready"
+                                label={formatDocumentationDecisionState(
+                                  documentationDecisions[resourceDecisionKey].carryForwardState,
+                                )}
+                              />
                                   ) : null}
                                 </>
                               ) : null}
@@ -2254,7 +2271,12 @@ export function DiagramReconcileWorkbenchClient() {
                               Save decision
                             </Button>
                             {documentationDecisions[documentationDecisionKey("DiagramNode", row.diagramNodeId)] != null ? (
-                              <StatusTag kind="ready" label="Decision saved" />
+                              <StatusTag
+                                kind="ready"
+                                label={formatDocumentationDecisionState(
+                                  documentationDecisions[documentationDecisionKey("DiagramNode", row.diagramNodeId)].carryForwardState,
+                                )}
+                              />
                             ) : null}
                           </div>
                         ) : null}
@@ -2405,7 +2427,12 @@ export function DiagramReconcileWorkbenchClient() {
                               Save decision
                             </Button>
                             {documentationDecisions[documentationDecisionKey("EdgeGap", gap.edgeGapId)] != null ? (
-                              <StatusTag kind="ready" label="Decision saved" />
+                              <StatusTag
+                                kind="ready"
+                                label={formatDocumentationDecisionState(
+                                  documentationDecisions[documentationDecisionKey("EdgeGap", gap.edgeGapId)].carryForwardState,
+                                )}
+                              />
                             ) : null}
                           </div>
                         ) : null}

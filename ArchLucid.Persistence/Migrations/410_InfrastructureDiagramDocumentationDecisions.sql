@@ -16,6 +16,7 @@ BEGIN
         SubjectKind      NVARCHAR(64)     NOT NULL,
         SubjectKey       NVARCHAR(512)    NOT NULL,
         Decision         NVARCHAR(64)     NOT NULL,
+        EvidenceFingerprint NVARCHAR(1024) NOT NULL,
         SavedByUserOid   NVARCHAR(128)    NULL,
         CreatedUtc       DATETIME2        NOT NULL,
         UpdatedUtc       DATETIME2        NOT NULL,

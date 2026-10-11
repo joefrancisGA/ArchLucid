@@ -28,15 +28,16 @@ public sealed class SqlInfrastructureDiagramDocumentationDecisionRepository(
                 UPDATE SET
                     SnapshotId = @SnapshotId,
                     Decision = @Decision,
+                    EvidenceFingerprint = @EvidenceFingerprint,
                     SavedByUserOid = @SavedByUserOid,
                     UpdatedUtc = @UpdatedUtc
             WHEN NOT MATCHED THEN
                 INSERT (
                     DecisionId, TenantId, ScopeId, SnapshotId, SubjectKind,
-                    SubjectKey, Decision, SavedByUserOid, CreatedUtc, UpdatedUtc)
+                    SubjectKey, Decision, EvidenceFingerprint, SavedByUserOid, CreatedUtc, UpdatedUtc)
                 VALUES (
                     @DecisionId, @TenantId, @ScopeId, @SnapshotId, @SubjectKind,
-                    @SubjectKey, @Decision, @SavedByUserOid, @CreatedUtc, @UpdatedUtc);
+                    @SubjectKey, @Decision, @EvidenceFingerprint, @SavedByUserOid, @CreatedUtc, @UpdatedUtc);
             """;
 
         using System.Data.IDbConnection connection =
@@ -54,7 +55,7 @@ public sealed class SqlInfrastructureDiagramDocumentationDecisionRepository(
     {
         const string sql = """
             SELECT DecisionId, TenantId, ScopeId, SnapshotId, SubjectKind,
-                   SubjectKey, Decision, SavedByUserOid, CreatedUtc, UpdatedUtc
+                   SubjectKey, Decision, EvidenceFingerprint, SavedByUserOid, CreatedUtc, UpdatedUtc
             FROM dbo.InfrastructureDiagramDocumentationDecisions
             WHERE TenantId = @TenantId
               AND ScopeId = @ScopeId
@@ -69,6 +70,32 @@ public sealed class SqlInfrastructureDiagramDocumentationDecisionRepository(
             new CommandDefinition(
                 sql,
                 new { TenantId = tenantId, ScopeId = scopeId, SubjectKind = subjectKind, SubjectKey = subjectKey },
+                cancellationToken: cancellationToken));
+    }
+
+    public async Task<InfrastructureDiagramDocumentationDecisionPersistRecord?> TryGetLatestBySubjectAsync(
+        Guid tenantId,
+        string subjectKind,
+        string subjectKey,
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+            SELECT TOP (1) DecisionId, TenantId, ScopeId, SnapshotId, SubjectKind,
+                   SubjectKey, Decision, EvidenceFingerprint, SavedByUserOid, CreatedUtc, UpdatedUtc
+            FROM dbo.InfrastructureDiagramDocumentationDecisions
+            WHERE TenantId = @TenantId
+              AND SubjectKind = @SubjectKind
+              AND SubjectKey = @SubjectKey
+            ORDER BY UpdatedUtc DESC;
+            """;
+
+        using System.Data.IDbConnection connection =
+            await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        return await connection.QuerySingleOrDefaultAsync<InfrastructureDiagramDocumentationDecisionPersistRecord>(
+            new CommandDefinition(
+                sql,
+                new { TenantId = tenantId, SubjectKind = subjectKind, SubjectKey = subjectKey },
                 cancellationToken: cancellationToken));
     }
 }
