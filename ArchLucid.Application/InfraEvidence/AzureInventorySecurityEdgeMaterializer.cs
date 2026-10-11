@@ -161,11 +161,6 @@ public static class AzureInventorySecurityEdgeMaterializer
                 warnings);
         }
 
-        AzureInventoryPrivateEndpointReachableEdgeMapper.MapPeReachableTargets(
-            relationships,
-            relationshipKeys,
-            warnings);
-
         AddObservedVnetPeeringsFromResourceProperties(resources, relationships, relationshipKeys);
 
         AzureInventoryNetworkAssociationEdgeMapper.AddRelationshipCompletenessWarnings(
@@ -271,6 +266,11 @@ public static class AzureInventorySecurityEdgeMaterializer
                 relationshipKeys,
                 warnings);
         }
+
+        AzureInventoryPrivateEndpointReachableEdgeMapper.MapPeReachableTargets(
+            relationships,
+            relationshipKeys,
+            warnings);
 
         if (sqlDatabasePrincipalsFilePresent)
         {
