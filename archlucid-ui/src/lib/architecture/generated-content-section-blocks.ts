@@ -245,8 +245,9 @@ export function finalizeSections(drafts: Map<ArchitectureStructuredSectionKey, M
   for (const key of ARCHITECTURE_STRUCTURED_SECTION_KEYS) {
     const draft = drafts.get(key)!;
     const narrativeMarkdown = draft.narrativeLines.join("\n\n").trim();
+    const entities = draft.entities.length > 0 ? draft.entities : undefined;
 
-    if (narrativeMarkdown.length === 0 && draft.entities.length === 0) {
+    if (narrativeMarkdown.length === 0 && entities === undefined) {
       continue;
     }
 
@@ -255,7 +256,7 @@ export function finalizeSections(drafts: Map<ArchitectureStructuredSectionKey, M
         key,
         title: ARCHITECTURE_STRUCTURED_SECTION_TITLES[key],
         narrativeMarkdown: narrativeMarkdown.length > 0 ? narrativeMarkdown : null,
-        entities: draft.entities,
+        ...(entities === undefined ? {} : { entities }),
         provenance: draft.provenance,
       }),
     );
@@ -282,13 +283,17 @@ export function estimatePartialParseFailure(
 
   const structuredCharCount = sections.reduce((total, section) => {
     const narrativeLength = section.narrativeMarkdown?.length ?? 0;
-    const entityLength = section.entities.reduce((entityTotal, entity) => entityTotal + entity.label.length + (entity.detail?.length ?? 0), 0);
+    const entityLength = (section.entities ?? []).reduce(
+      (entityTotal, entity) => entityTotal + entity.label.length + (entity.detail?.length ?? 0),
+      0,
+    );
 
     return total + narrativeLength + entityLength;
   }, 0);
 
   const coverageRatio = structuredCharCount / Math.max(trimmed.length, 1);
-  const pipeHeavy = (trimmed.match(/\|/g)?.length ?? 0) >= 6 && sections.every((section) => section.entities.length === 0);
+  const pipeHeavy =
+    (trimmed.match(/\|/g)?.length ?? 0) >= 6 && sections.every((section) => (section.entities ?? []).length === 0);
 
   const strippedRatio = cleanedText.length / Math.max(trimmed.length, 1);
 

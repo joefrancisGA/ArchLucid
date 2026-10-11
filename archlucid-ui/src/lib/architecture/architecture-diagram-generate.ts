@@ -13,7 +13,7 @@ export function buildArchitectureDiagramContentFingerprint(
   architectureName: string,
 ): string {
   const sectionDigest = parseResult.sections
-    .map((section) => `${section.key}:${section.narrativeMarkdown ?? ""}:${section.entities.map((entity) => entity.label).join(",")}`)
+    .map((section) => `${section.key}:${section.narrativeMarkdown ?? ""}:${(section.entities ?? []).map((entity) => entity.label).join(",")}`)
     .join("|");
 
   return `${architectureName.trim()}::${sectionDigest}::${parseResult.sourceText.length}`;

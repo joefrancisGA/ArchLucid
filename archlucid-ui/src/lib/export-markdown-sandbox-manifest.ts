@@ -13,12 +13,20 @@ export function formatSandboxStyleGoldenManifest(m: Record<string, unknown>): st
   lines.push(`# ${title}`);
   lines.push("");
 
-  if (env || cloud || status) {
+  if (
+    typeof m.environment === "string" ||
+    m.environment === null ||
+    m.environment === undefined ||
+    cloud ||
+    status
+  ) {
     lines.push("## Document metadata");
     lines.push("");
 
-    if (env) {
-      lines.push(`- **Environment:** ${env}`);
+    if (m.environment === null || m.environment === undefined) {
+      lines.push("- Environment was not stored.");
+    } else if (typeof m.environment === "string") {
+      lines.push(`- **Environment:** ${env ?? ""}`);
     }
 
     if (cloud) {
@@ -103,8 +111,10 @@ export function formatSandboxStyleGoldenManifest(m: Record<string, unknown>): st
         lines.push(`- **Category:** ${category}`);
       }
 
-      if (disposition) {
-        lines.push(`- **Disposition:** ${disposition}`);
+      if (h.disposition === null || h.disposition === undefined) {
+        lines.push("- Disposition was not stored.");
+      } else if (typeof h.disposition === "string") {
+        lines.push(`- **Disposition:** ${disposition ?? ""}`);
       }
 
       if (rationale) {

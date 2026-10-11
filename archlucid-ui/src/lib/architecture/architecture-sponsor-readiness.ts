@@ -78,7 +78,7 @@ function sectionHasContent(
 
   const narrative = section.narrativeMarkdown?.trim() ?? "";
 
-  return narrative.length > 0 || section.entities.length > 0;
+  return narrative.length > 0 || (section.entities?.length ?? 0) > 0;
 }
 
 function issue(
