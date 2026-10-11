@@ -67,10 +67,14 @@ export function demoteOpenQuestionsStructuredSectionProvenance(
   return {
     ...section,
     provenance: "inferred",
-    entities: entities.map((entity) => ({
-      ...entity,
-      provenance: "inferred",
-    })),
+    ...(section.entities === undefined
+      ? {}
+      : {
+          entities: section.entities.map((entity) => ({
+            ...entity,
+            provenance: "inferred",
+          })),
+        }),
   };
 }
 
