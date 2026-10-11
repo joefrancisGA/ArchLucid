@@ -464,6 +464,49 @@ ADJACENT PACKS (do not duplicate — cross-link via frameworkMappings instead):
 
 ---
 
+## Wave 4 — Microsoft cloud security benchmark (pack #34)
+
+```
+PACK_DISPLAY_NAME:   Microsoft cloud security benchmark v2 architecture baseline
+PACK_DESCRIPTION:    Architecture-review baseline aligned to selected Microsoft cloud security benchmark v2 preview controls. Covers network security, identity management, privileged access, data protection, asset management, logging and threat detection, incident response, posture and vulnerability management, endpoint security, backup and recovery, and DevOps security. Each rule names the Microsoft surface that already reports on the control. Not Microsoft certification or compliance attestation.
+PACK_CATEGORY:       Security
+SLUG:                microsoft-cloud-security-benchmark
+RULE_PREFIX:         mcsb-
+TARGET_RULE_COUNT:   55
+FRAMEWORK_SHORT_NAME: Microsoft cloud security benchmark v2 (preview)
+
+SUB-CORPORA AND RULE DISTRIBUTION:
+| Prefix | Domain | Target rules |
+|--------|--------|--------------|
+| mcsb-ns- | Network security | 5 |
+| mcsb-im- | Identity management | 5 |
+| mcsb-pa- | Privileged access | 5 |
+| mcsb-dp- | Data protection | 5 |
+| mcsb-am- | Asset management | 5 |
+| mcsb-lt- | Logging and threat detection | 5 |
+| mcsb-ir- | Incident response | 5 |
+| mcsb-pv- | Posture and vulnerability management | 5 |
+| mcsb-es- | Endpoint security | 5 |
+| mcsb-br- | Backup and recovery | 5 |
+| mcsb-ds- | DevOps security | 5 |
+
+SOURCE FRAMEWORK SUMMARY:
+Authoritative source: Microsoft cloud security benchmark v2 (preview), confirmed from Microsoft Learn on 2026-10-11. MCSB v2 supersedes v1 and adds expanded Azure guidance, Azure Policy mappings, and an Artificial Intelligence Security domain. This starter pack covers the ten requested operational domains above; AI security remains a later extension because the prompt's identifier contract does not include an AI prefix.
+
+TOOLING LINK RULE:
+Each rule has a relatedMicrosoftTooling list naming only confirmed reporting surfaces: Defender for Cloud recommendation, Azure Policy built-in, Entra ID, or Microsoft Sentinel. These signals supplement architecture evidence; they do not establish complete compliance.
+
+SCOPE:
+- Architecture and deployment evidence only; do not copy Microsoft implementation guidance or claim benchmark certification.
+- Azure is the current applicability scope. The rule shape leaves room for AWS and GCP extensions.
+- No Critical severity is used. P0/P1 expresses review priority, not Microsoft's MCSB criticality classification.
+
+DISCLAIMER TEXT:
+"Thematic architecture-review mapping; not Microsoft cloud security benchmark certification, Defender for Cloud attestation, or Azure Policy compliance proof."
+```
+
+---
+
 ## Wave 4 — OWASP ASVS architecture baseline (pack #33)
 
 ```
