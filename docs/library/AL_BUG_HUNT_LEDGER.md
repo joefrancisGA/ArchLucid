@@ -12435,13 +12435,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-10 seed hunt (seed-only): repeated the selected source review with no production-path change since the prior pass. No new reachable mechanism-backed candidate met the hunt-ready bar, no hypothesis was promoted, and no regression test was added.
 
+2026-10-11 seed hunt (seed-only): re-read the selected scope-binding middleware/filter files and focused security tests. No new row met the full hunt-ready bar; seeded four bounded candidates for multi-identity principal replacement, `AllowCrossTenantRoute` versus production scope-guard asymmetry, endpoint-metadata timing, and internal-path carve-out reachability. The source test project was blocked by unrelated `TenantTrialControllerTests.cs` compile errors; the existing API test assembly reported 96 passed, 2 stale ADR 0037 expectation failures, and 6 SQL-backed integration failures due to unavailable SQL Server.
+
 - **id:** scope-binding-middleware
 - **status:** open
 - **impact:** high
 - **aliases:** scope binding; tenant scope middleware; route tenant filter
 - **paths:** ArchLucid.Api/Middleware/ScopeIdentityBindingMiddleware.cs; ArchLucid.Api/Middleware/ScopeResolutionGuardMiddleware.cs; ArchLucid.Api/Security/RouteTenantScopeBindingFilter.cs
 - **test-filter:** FullyQualifiedName~ScopeIdentityBinding|FullyQualifiedName~ScopeResolutionGuard|FullyQualifiedName~RouteTenantScopeBinding
-- **hunts:** 55
+- **hunts:** 56
 - **bugs-found:** 15
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-09
@@ -12471,6 +12473,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [ ] (candidate) `RouteTenantScopeBindingFilter.MetadataDeclaresPolicy` — a custom `IAuthorizeData` implementation carrying the platform deletion policy may differ from the built-in metadata shapes handled by the filter.
 - [ ] (candidate) `RouteTenantScopeBindingFilter.OnActionExecutionAsync` — a valid route `tenantId` represented by a non-string route value must compare identically to the ambient tenant scope.
 - [ ] (candidate) `ScopeIdentityBindingValidator.TryParseHeaderGuid` — empty and malformed header segments surrounding one parseable GUID may produce a different duplicate/steering result than the request header parser.
+- (candidate) `ScopeIdentityBindingMiddleware.TryAuthenticateScimBearerForScopeBindingAsync` — an authenticated principal whose first identity is unauthenticated but whose later identity is authenticated may trigger SCIM authentication and replace the principal, losing the later identity's bound scope claims; multi-scheme authentication can supply the input, but the selected files do not establish that this principal shape reaches a production route.
+- (candidate) `ScopeResolutionGuardMiddleware.InvokeAsync` — a production-like request carrying `AllowCrossTenantRouteAttribute` without `AllowUnscopedRouteAttribute` may be rejected by the middleware before the route filter's explicit cross-tenant exemption runs; the selected filter exposes the exemption, but the reachable endpoint metadata and intended cross-tenant scope contract are outside these files.
+- (candidate) `ScopeResolutionGuardMiddleware.ShouldSkip` — endpoint metadata may be unavailable when this middleware evaluates an `AllowAnonymous` or `AllowUnscopedRoute` endpoint, producing a false 403 before authorization; the selected pipeline file shows the middleware registration but does not establish routing metadata timing for every hosted path.
+- (candidate) `ScopeResolutionGuardMiddleware.ShouldSkip` — a reachable public route whose URL contains `/internal/` may inherit the unscoped bypass even when it lacks internal authorization metadata; the string carve-out is present, but the selected files do not show a public route with that segment.
 
 2026-10-06 seed hunt (seed→hit): promoted double-leading-slash health probe TB-304 gap; proved and fixed; cheap-disproof closed duplicate `tenant_id` and comma-joined policy candidates; reseeded three follow-on candidates; 91 scoped scope-binding unit tests passed.
 
