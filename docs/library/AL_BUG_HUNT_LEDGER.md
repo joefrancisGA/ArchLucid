@@ -1918,7 +1918,7 @@
 
 2026-10-09 seed hunt (seed-only): re-read the selected topology merge orchestration files and focused tests; no fresh reachable mechanism-backed candidate met the seed quality bar and no hypothesis was promoted. The focused topology test run was blocked by unrelated `ARCH002` in `ArchLucid.Core/Auth/Saml/SamlMetadataDiscoveryParser.cs`.
 
-**Hunts:** 1610 · **Bugs found:** 978
+**Hunts:** 1611 · **Bugs found:** 978
 
 2026-10-09 seed hunt (seed-only): re-read all seven selected topology orchestration files and focused tests; no candidate met the hunt-ready bar, so no hypothesis was promoted. Seeded five mechanism-backed `(candidate)` rows; the focused topology test run was blocked by unrelated `ARCH002` in `ArchLucid.Core/Auth/Saml/SamlMetadataDiscoveryParser.cs`.
 
@@ -9577,6 +9577,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ---
 
 ## Zone: architecture-recommendation
+
+2026-10-11 seed hunt (seed-only): re-read the selected recommendation engine and trade-off builder; no fresh reachable mechanism-backed candidate met the hunt-ready bar beyond the retained bounded candidates, so none was promoted. The exact Alternatives/ProposedChange filter passed 45/45; no production or regression code changed.
 
 2026-10-11 seed hunt (seed-only): repeated the selected engine/trade-off review and focused tests after the prior seed-only pass; no fresh reachable mechanism-backed candidate emerged, and the retained candidates still lack a contract-backed wrong outcome. The exact filter passed 45/45; no production or regression code changed.
 
