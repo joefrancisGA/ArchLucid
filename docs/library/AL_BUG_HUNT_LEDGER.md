@@ -36023,6 +36023,8 @@ ABQ-09 churn hotspot.
 
 ## Zone: securenow-question-queue
 
+2026-10-11 seed hunt (seed-only): repeated the selected disposition, compiler, controller, persistence, contract, and queue review; no fresh hunt-ready row met the reachability and wrong-outcome bar, and the existing bounded candidates were retained without duplication. The Application SecureNowQuestion filter passed 19/19 and the queue UI suite passed 12/12; no production or regression code changed.
+
 2026-10-11 seed hunt (seed-only): re-read the selected disposition, compiler, controller, persistence, contract, and queue paths. No candidate met the full same-run hunt-ready bar; seeded four bounded candidates for answer-code validation, duplicate inferred-connection identity suppression, relationship-backed candidate suppression with an incomplete peer, and blank API answer-code rendering. The Application SecureNowQuestion filter passed 19/19 and the queue UI suite passed 12/12; no production or regression change.
 
 2026-10-11 seed hunt (seed-only): repeated the selected disposition, compiler, controller, persistence, contract, and queue review. No fresh hunt-ready row was found; the four existing bounded candidates remain the only seed lenses and were not duplicated. The Application SecureNowQuestion filter passed 19/19 and the queue UI suite passed 12/12; no production or regression change.
@@ -36035,10 +36037,10 @@ ABQ-09 churn hotspot.
 - **aliases:** securenow question queue; question disposition
 - **paths:** ArchLucid.Application/InfraEvidence/SecureNowQuestionDispositions/; ArchLucid.Api/Controllers/InfraEvidence/InfraEvidenceSecureNowQuestionsController.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/ISecureNowQuestionDispositionRepository.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/ISecureNowQuestionDispositionService.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/SecureNowQuestionDispositionRecord.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/SecureNowQuestionRecord.cs; ArchLucid.Persistence/InfraEvidence/NoOpSecureNowQuestionDispositionRepository.cs; ArchLucid.Persistence/InfraEvidence/SqlSecureNowQuestionDispositionRepository.cs; ArchLucid.Contracts/InfraEvidence/SecureNowQuestionDispositionContracts.cs; archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
-- **hunts:** 15
+- **hunts:** 16
 - **bugs-found:** 6
 - **consecutive-dry-hunts:** 2
-- **last-hunt:** 2026-10-10
+- **last-hunt:** 2026-10-11
 - **last-bug:** 2026-10-04 — reopening an expired question disposition preserved its expired timestamp
 - **related-pd-tb:** none
 - **code-changed-since:** yes
