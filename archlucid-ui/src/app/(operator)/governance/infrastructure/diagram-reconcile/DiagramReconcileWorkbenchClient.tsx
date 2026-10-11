@@ -29,6 +29,7 @@ import {
   compareInfrastructureDiagramAdvisory,
   fetchArchitectureDiagramModel,
   fetchArchitectureDiagramReconciliation,
+  fetchAbsentInfrastructureDiagramDocumentationDecisions,
   fetchInfrastructureDiagramDocumentationDecision,
   formatInfraEvidenceDiagramReconcileApiError,
   ingestArchitectureDiagram,
@@ -214,6 +215,22 @@ function formatDocumentationDecisionState(state: string): string {
   return "Still open";
 }
 
+function formatDocumentationDecision(decision: string): string {
+  if (decision === "UpdateDrawing") {
+    return "Update the drawing";
+  }
+
+  if (decision === "AcceptAsUndocumented") {
+    return "Accept as undocumented";
+  }
+
+  if (decision === "CheckInventory") {
+    return "Check the inventory";
+  }
+
+  return decision;
+}
+
 function normalizeDiagramLabelForMapping(label: string): string {
   const trimmed = label.trim();
   const parenIndex = trimmed.indexOf("(");
@@ -355,6 +372,9 @@ export function DiagramReconcileWorkbenchClient() {
   const [findingBusyId, setFindingBusyId] = useState<string | null>(null);
   const [ingestedFindingIds, setIngestedFindingIds] = useState<Record<string, string>>({});
   const [documentationDecisions, setDocumentationDecisions] = useState<Record<string, InfrastructureDiagramDocumentationDecision>>({});
+  const [absentDocumentationDecisions, setAbsentDocumentationDecisions] = useState<
+    InfrastructureDiagramDocumentationDecision[]
+  >([]);
   const [documentationDecisionPick, setDocumentationDecisionPick] = useState<Record<string, string>>({});
   const [documentationDecisionBusyKey, setDocumentationDecisionBusyKey] = useState<string | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -960,6 +980,7 @@ export function DiagramReconcileWorkbenchClient() {
   useEffect(() => {
     if (!advisoryComparisonPath || comparisonId == null || reconciliation == null) {
       setDocumentationDecisions({});
+      setAbsentDocumentationDecisions([]);
       return;
     }
 
@@ -980,27 +1001,25 @@ export function DiagramReconcileWorkbenchClient() {
       })),
     ];
 
-    if (subjects.length === 0) {
-      setDocumentationDecisions({});
-      return;
-    }
-
     let cancelled = false;
 
     async function loadDocumentationDecisions() {
-      const loaded = await Promise.all(
-        subjects.map(async (subject) => {
-          try {
-            return await fetchInfrastructureDiagramDocumentationDecision(
-              comparisonIdValue,
-              subject.subjectKind,
-              subject.subjectKey,
-            );
-          } catch {
-            return null;
-          }
-        }),
-      );
+      const [loaded, absent] = await Promise.all([
+        Promise.all(
+          subjects.map(async (subject) => {
+            try {
+              return await fetchInfrastructureDiagramDocumentationDecision(
+                comparisonIdValue,
+                subject.subjectKind,
+                subject.subjectKey,
+              );
+            } catch {
+              return null;
+            }
+          }),
+        ),
+        fetchAbsentInfrastructureDiagramDocumentationDecisions(comparisonIdValue).catch(() => []),
+      ]);
 
       if (cancelled) {
         return;
@@ -1013,6 +1032,7 @@ export function DiagramReconcileWorkbenchClient() {
         }
       });
       setDocumentationDecisions(next);
+      setAbsentDocumentationDecisions(absent);
     }
 
     void loadDocumentationDecisions();
@@ -2441,6 +2461,27 @@ export function DiagramReconcileWorkbenchClient() {
                   ))}
                 </EnterpriseTableBody>
               </EnterpriseTable>
+          {absentDocumentationDecisions.length > 0 ? (
+            <section
+              className="mt-4 rounded-md border border-slate-200 bg-slate-50 p-3"
+              aria-label="Decisions no longer in this capture"
+              data-testid="infra-diagram-reconcile-absent-decisions"
+            >
+              <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.label)}>
+                Decisions no longer in this capture
+              </h3>
+              <ul className="m-0 mt-2 grid gap-1 pl-5">
+                {absentDocumentationDecisions.map((decision) => (
+                  <li
+                    key={documentationDecisionKey(decision.subjectKind, decision.subjectKey)}
+                    data-testid={`infra-diagram-reconcile-absent-decision-${decision.subjectKey}`}
+                  >
+                    {decision.subjectKey}: {formatDocumentationDecision(decision.decision)}
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ) : null}
             </div>
           ) : null}
         </section>

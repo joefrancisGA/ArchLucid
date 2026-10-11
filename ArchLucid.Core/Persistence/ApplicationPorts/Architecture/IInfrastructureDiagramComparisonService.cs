@@ -36,4 +36,9 @@ public interface IInfrastructureDiagramComparisonService
         string subjectKind,
         string subjectKey,
         CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyList<InfrastructureDiagramDocumentationDecision>?> TryListAbsentDocumentationDecisionsAsync(
+        ScopeContext scope,
+        Guid comparisonId,
+        CancellationToken cancellationToken = default);
 }

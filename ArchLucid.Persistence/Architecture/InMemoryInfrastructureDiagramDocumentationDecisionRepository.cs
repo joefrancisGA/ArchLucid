@@ -54,6 +54,26 @@ public sealed class InMemoryInfrastructureDiagramDocumentationDecisionRepository
         return Task.FromResult(record);
     }
 
+    public Task<IReadOnlyList<InfrastructureDiagramDocumentationDecisionPersistRecord>> ListByDiagramFingerprintAsync(
+        Guid tenantId,
+        string diagramFingerprint,
+        CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        IReadOnlyList<InfrastructureDiagramDocumentationDecisionPersistRecord> records = this.records.Values
+            .Where(candidate =>
+                candidate.TenantId == tenantId
+                && string.Equals(candidate.DiagramFingerprint, diagramFingerprint, StringComparison.Ordinal))
+            .GroupBy(candidate => (candidate.SubjectKind, candidate.SubjectKey))
+            .Select(group => group.OrderByDescending(candidate => candidate.UpdatedUtc).First())
+            .OrderBy(candidate => candidate.SubjectKind, StringComparer.Ordinal)
+            .ThenBy(candidate => candidate.SubjectKey, StringComparer.Ordinal)
+            .ToList();
+
+        return Task.FromResult(records);
+    }
+
     private static string BuildKey(Guid tenantId, Guid scopeId, string subjectKind, string subjectKey) =>
         $"{tenantId:D}:{scopeId:D}:{subjectKind}:{subjectKey}";
 }

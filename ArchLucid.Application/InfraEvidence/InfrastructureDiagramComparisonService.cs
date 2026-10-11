@@ -337,6 +337,44 @@ public sealed class InfrastructureDiagramComparisonService : IInfrastructureDiag
         return ToDocumentationDecision(record, carryForwardState);
     }
 
+    public async Task<IReadOnlyList<InfrastructureDiagramDocumentationDecision>?> TryListAbsentDocumentationDecisionsAsync(
+        ScopeContext scope,
+        Guid comparisonId,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        InfrastructureDiagramComparisonPersistRecord? comparison =
+            await this.comparisonRepository.TryGetAsync(scope.TenantId, comparisonId, cancellationToken);
+
+        if (comparison is null || string.IsNullOrWhiteSpace(comparison.DiagramFingerprint))
+        {
+            return null;
+        }
+
+        DiagramInfrastructureReconciliationResult? result =
+            JsonSerializer.Deserialize<DiagramInfrastructureReconciliationResult>(comparison.ResultJson, JsonOptions);
+
+        if (result is null)
+        {
+            return [];
+        }
+
+        HashSet<(string SubjectKind, string SubjectKey)> presentSubjects = BuildPresentDocumentationSubjects(result);
+        IReadOnlyList<InfrastructureDiagramDocumentationDecisionPersistRecord> records =
+            await this.documentationDecisionRepository.ListByDiagramFingerprintAsync(
+                scope.TenantId,
+                comparison.DiagramFingerprint,
+                cancellationToken);
+
+        return records
+            .Where(record => !presentSubjects.Contains((record.SubjectKind, record.SubjectKey)))
+            .Select(record => ToDocumentationDecision(
+                record,
+                InfrastructureDiagramDocumentationDecisionValues.NoLongerInCapture))
+            .ToList();
+    }
+
     private static bool CanSaveDocumentationDecision(
         DiagramInfrastructureReconciliationResult result,
         string subjectKind,
@@ -367,6 +405,34 @@ public sealed class InfrastructureDiagramComparisonService : IInfrastructureDiag
         }
 
         return false;
+    }
+
+    private static HashSet<(string SubjectKind, string SubjectKey)> BuildPresentDocumentationSubjects(
+        DiagramInfrastructureReconciliationResult result)
+    {
+        HashSet<(string SubjectKind, string SubjectKey)> subjects = [];
+
+        foreach (DiagramInfrastructureCorrespondenceRow row in result.Rows)
+        {
+            if (row.MatchKind == DiagramInfrastructureMatchKinds.DiagramOnly
+                && row.DiagramNodeId is not null)
+            {
+                subjects.Add(("DiagramNode", row.DiagramNodeId));
+            }
+
+            if (row.MatchKind == DiagramInfrastructureMatchKinds.InfrastructureOnly
+                && row.CloudResourceId.HasValue)
+            {
+                subjects.Add(("InventoryResource", row.CloudResourceId.Value.ToString("D")));
+            }
+        }
+
+        foreach (DiagramInfrastructureEdgeGapRow edgeGap in result.EdgeGaps)
+        {
+            subjects.Add(("EdgeGap", edgeGap.EdgeGapId));
+        }
+
+        return subjects;
     }
 
     private static void ValidateDocumentationDecision(string decision)

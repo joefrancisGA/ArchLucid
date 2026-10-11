@@ -107,4 +107,43 @@ public sealed class SqlInfrastructureDiagramDocumentationDecisionRepository(
                 },
                 cancellationToken: cancellationToken));
     }
+
+    public async Task<IReadOnlyList<InfrastructureDiagramDocumentationDecisionPersistRecord>> ListByDiagramFingerprintAsync(
+        Guid tenantId,
+        string diagramFingerprint,
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+            WITH ranked AS
+            (
+                SELECT DecisionId, TenantId, ScopeId, SnapshotId, SubjectKind,
+                       SubjectKey, Decision, DiagramFingerprint, EvidenceFingerprint,
+                       SavedByUserOid, CreatedUtc, UpdatedUtc,
+                       ROW_NUMBER() OVER (
+                           PARTITION BY SubjectKind, SubjectKey
+                           ORDER BY UpdatedUtc DESC, DecisionId DESC) AS RowNumber
+                FROM dbo.InfrastructureDiagramDocumentationDecisions
+                WHERE TenantId = @TenantId
+                  AND DiagramFingerprint = @DiagramFingerprint
+            )
+            SELECT DecisionId, TenantId, ScopeId, SnapshotId, SubjectKind,
+                   SubjectKey, Decision, DiagramFingerprint, EvidenceFingerprint,
+                   SavedByUserOid, CreatedUtc, UpdatedUtc
+            FROM ranked
+            WHERE RowNumber = 1
+            ORDER BY SubjectKind, SubjectKey;
+            """;
+
+        using System.Data.IDbConnection connection =
+            await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        IEnumerable<InfrastructureDiagramDocumentationDecisionPersistRecord> records =
+            await connection.QueryAsync<InfrastructureDiagramDocumentationDecisionPersistRecord>(
+                new CommandDefinition(
+                    sql,
+                    new { TenantId = tenantId, DiagramFingerprint = diagramFingerprint },
+                    cancellationToken: cancellationToken));
+
+        return records.ToList();
+    }
 }

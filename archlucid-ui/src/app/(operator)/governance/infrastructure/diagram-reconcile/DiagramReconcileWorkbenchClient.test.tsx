@@ -11,11 +11,13 @@ const {
   ingestArchitectureDiagramMock,
   reconcileArchitectureDiagramMock,
   fetchArchitectureDiagramReconciliationMock,
+  fetchAbsentInfrastructureDiagramDocumentationDecisionsMock,
   lookupOperationalSecurityFindingsMock,
 } = vi.hoisted(() => ({
   ingestArchitectureDiagramMock: vi.fn(async () => ({ warnings: [], sourceFingerprints: ["fp1"], model: { nodes: [], edges: [] } })),
   reconcileArchitectureDiagramMock: vi.fn(),
   fetchArchitectureDiagramReconciliationMock: vi.fn(),
+  fetchAbsentInfrastructureDiagramDocumentationDecisionsMock: vi.fn(async () => []),
   lookupOperationalSecurityFindingsMock: vi.fn(),
 }));
 
@@ -88,6 +90,7 @@ vi.mock("@/hooks/use-run-summary-query", () => ({
 vi.mock("@/lib/infra-evidence/infra-evidence-diagram-reconcile-api", () => ({
   fetchArchitectureDiagramModel: vi.fn(async () => ({ nodes: [{ id: "n1", label: "api" }], edges: [] })),
   fetchArchitectureDiagramReconciliation: fetchArchitectureDiagramReconciliationMock,
+  fetchAbsentInfrastructureDiagramDocumentationDecisions: fetchAbsentInfrastructureDiagramDocumentationDecisionsMock,
   ingestArchitectureDiagram: ingestArchitectureDiagramMock,
   reconcileArchitectureDiagram: reconcileArchitectureDiagramMock,
   ingestOperationalSecurityFindings: vi.fn(async () => ({ items: [] })),

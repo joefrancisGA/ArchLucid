@@ -8962,6 +8962,84 @@
         },
         "type": "object"
       },
+      "CollectionRun": {
+        "properties": {
+          "agentVersion": {
+            "type": "string"
+          },
+          "errorSummary": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "finishedUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "importedSnapshotId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "projectId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "runId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "startedUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/CollectionRunStatus"
+          },
+          "subscriptionsCoveredJson": {
+            "type": "string"
+          },
+          "tenantId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "workspaceId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "zipPath": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "zipSha256": {
+            "format": "byte",
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "CollectionRunStatus": {
+        "enum": [
+          "Running",
+          "Succeeded",
+          "PartiallySucceeded",
+          "Failed",
+          "Imported",
+          "Rejected"
+        ],
+        "type": "string"
+      },
       "CommitRunCommittedArtifactInventoryEntry": {
         "properties": {
           "artifactName": {
@@ -48532,6 +48610,9 @@
     },
     {
       "name": "CloudResourceEvidenceHub"
+    },
+    {
+      "name": "CollectionRuns"
     },
     {
       "name": "Comparison"
