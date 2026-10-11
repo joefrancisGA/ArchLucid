@@ -256,6 +256,7 @@ function buildSecureNowNavGroup(
       label,
       surface: sourceGroup.surface,
       caption,
+      hideHeading: id === SECURENOW_HOME_NAV_GROUP_ID,
       links: links.map(applySecureNowNavLabel).map(applySecureNowNavTooltip),
     },
     visibleLinks: links.map(applySecureNowNavLabel).map(applySecureNowNavTooltip),
@@ -282,7 +283,7 @@ export function reshapeNavGroupsForSecureNow(
   reshaped.push(
     buildSecureNowNavGroup(
       SECURENOW_HOME_NAV_GROUP_ID,
-      "Overview",
+      "Home",
       undefined,
       [SECURENOW_SECURITY_HOME_LINK],
       sourceGroup,
