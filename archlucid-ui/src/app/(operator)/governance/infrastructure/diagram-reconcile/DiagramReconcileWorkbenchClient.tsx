@@ -2049,7 +2049,7 @@ export function DiagramReconcileWorkbenchClient() {
                             ) : null}
                             Create operational finding
                           </Button>
-                        )}
+                        ) : null}
                         {rowActionError != null && rowActionError.correspondenceId === row.correspondenceId ? (
                           <OperatorMutationInlineError
                             message={rowActionError.message}
