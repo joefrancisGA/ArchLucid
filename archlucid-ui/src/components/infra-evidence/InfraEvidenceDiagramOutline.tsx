@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import { InfraEvidenceDeclaredConnectionDetailPanel } from "@/components/infra-evidence/InfraEvidenceDeclaredConnectionDetailPanel";
 import { InfraEvidenceInventoryEdgeDetailPanel } from "@/components/infra-evidence/InfraEvidenceInventoryEdgeDetailPanel";
@@ -139,6 +139,8 @@ function formatLedgerDropLabel(
 type InfraEvidenceDiagramOutlineProps = {
   readonly outline: InfraEvidenceMermaidOutline;
   readonly onFocusNeighborhood?: (node: InfraEvidenceMermaidOutlineNode) => void;
+  readonly selectedInventoryEdge?: InfraEvidenceMermaidOutlineEdge | null;
+  readonly onSelectInventoryEdge?: (edge: InfraEvidenceMermaidOutlineEdge | null) => void;
   readonly defaultNodesOpen?: boolean;
   readonly defaultEdgesOpen?: boolean;
 };
@@ -381,6 +383,8 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
   const {
     outline,
     onFocusNeighborhood,
+    selectedInventoryEdge: selectedInventoryEdgeProp,
+    onSelectInventoryEdge,
     defaultNodesOpen = false,
     defaultEdgesOpen = false,
   } = props;
@@ -391,17 +395,45 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
   const [nodesOpen, setNodesOpen] = useState(defaultNodesOpen);
   const [edgesOpen, setEdgesOpen] = useState(defaultEdgesOpen);
   const [selectedDeclaredEdge, setSelectedDeclaredEdge] = useState<InfraEvidenceMermaidOutlineEdge | null>(null);
-  const [selectedInventoryEdge, setSelectedInventoryEdge] = useState<InfraEvidenceMermaidOutlineEdge | null>(null);
+  const [localSelectedInventoryEdge, setLocalSelectedInventoryEdge] = useState<InfraEvidenceMermaidOutlineEdge | null>(null);
+  const inventoryEdgePanelRef = useRef<HTMLDivElement>(null);
   const [declaredConnections, setDeclaredConnections] = useState<SecurityDeclaredConnectionRow[]>([]);
   const [declaredConnectionsLoading, setDeclaredConnectionsLoading] = useState(false);
   const [declaredConnectionsError, setDeclaredConnectionsError] = useState<string | null>(null);
+  const selectedInventoryEdge = selectedInventoryEdgeProp === undefined
+    ? localSelectedInventoryEdge
+    : selectedInventoryEdgeProp;
+
+  const selectInventoryEdge = (edge: InfraEvidenceMermaidOutlineEdge | null): void => {
+    setLocalSelectedInventoryEdge(edge);
+    onSelectInventoryEdge?.(edge);
+  };
 
   useEffect(() => {
     setSelectedDeclaredEdge(null);
-    setSelectedInventoryEdge(null);
+    setLocalSelectedInventoryEdge(null);
     setDeclaredConnections([]);
     setDeclaredConnectionsError(null);
   }, [outline]);
+
+  useEffect(() => {
+    if (selectedInventoryEdgeProp == null) {
+      return;
+    }
+
+    setSelectedDeclaredEdge(null);
+    setEdgesOpen(true);
+    window.requestAnimationFrame(() => {
+      const panel = inventoryEdgePanelRef.current;
+
+      if (panel === null) {
+        return;
+      }
+
+      panel.scrollIntoView?.({ block: "nearest" });
+      panel.focus();
+    });
+  }, [selectedInventoryEdgeProp]);
 
   useEffect(() => {
     const storedNodesOpen = readOutlineSectionOpenFromSessionStorage(OUTLINE_NODES_OPEN_STORAGE_KEY);
@@ -721,11 +753,16 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
                   </div>
                 ) : null}
                 {selectedInventoryEdge != null ? (
-                  <div className="mb-4">
+                  <div
+                    ref={inventoryEdgePanelRef}
+                    className="mb-4"
+                    data-testid="infra-evidence-inventory-edge-detail-panel-container"
+                    tabIndex={-1}
+                  >
                     <InfraEvidenceInventoryEdgeDetailPanel
                       edge={selectedInventoryEdge}
                       onClose={() => {
-                        setSelectedInventoryEdge(null);
+                        selectInventoryEdge(null);
                       }}
                     />
                   </div>
@@ -798,13 +835,15 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
                                 data-testid={`infra-diagrams-declared-edge-${edge.from}-${edge.to}`}
                                 aria-label={`View declared connection from ${fromNode?.label ?? edge.from} to ${toNode?.label ?? edge.to}`}
                                 onClick={() => {
-                                  setSelectedInventoryEdge(null);
+                                  selectInventoryEdge(null);
                                   setSelectedDeclaredEdge(edge);
                                 }}
                               >
                                 {formatOutlineEdgeSource(edge.source)}
                               </Button>
-                            ) : edge.source === "probable" || edge.source === "inferred" ? (
+                            ) : edge.source === "observed"
+                              || edge.source === "probable"
+                              || edge.source === "inferred" ? (
                               <Button
                                 type="button"
                                 size="sm"
@@ -813,7 +852,7 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
                                 aria-label={`View connection evidence from ${fromNode?.label ?? edge.from} to ${toNode?.label ?? edge.to}`}
                                 onClick={() => {
                                   setSelectedDeclaredEdge(null);
-                                  setSelectedInventoryEdge(edge);
+                                  selectInventoryEdge(edge);
                                 }}
                               >
                                 {formatOutlineEdgeSource(edge.source)}
