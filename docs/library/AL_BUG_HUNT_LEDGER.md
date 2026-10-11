@@ -12437,16 +12437,18 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-11 seed hunt (seed-only): re-read the selected scope-binding middleware/filter files and focused security tests. No new row met the full hunt-ready bar; seeded four bounded candidates for multi-identity principal replacement, `AllowCrossTenantRoute` versus production scope-guard asymmetry, endpoint-metadata timing, and internal-path carve-out reachability. The source test project was blocked by unrelated `TenantTrialControllerTests.cs` compile errors; the existing API test assembly reported 96 passed, 2 stale ADR 0037 expectation failures, and 6 SQL-backed integration failures due to unavailable SQL Server.
 
+2026-10-11 seed hunt (seed-only): repeated the selected source and focused-test reread after the prior scope-binding reseed. No fresh mechanism-backed candidate met the hunt-ready bar and no row was promoted; the four existing candidates remain bounded lenses. The scoped unit assembly reported 57 passed and the same 2 stale ADR 0037 API-key expectations; no production or regression change.
+
 - **id:** scope-binding-middleware
 - **status:** open
 - **impact:** high
 - **aliases:** scope binding; tenant scope middleware; route tenant filter
 - **paths:** ArchLucid.Api/Middleware/ScopeIdentityBindingMiddleware.cs; ArchLucid.Api/Middleware/ScopeResolutionGuardMiddleware.cs; ArchLucid.Api/Security/RouteTenantScopeBindingFilter.cs
 - **test-filter:** FullyQualifiedName~ScopeIdentityBinding|FullyQualifiedName~ScopeResolutionGuard|FullyQualifiedName~RouteTenantScopeBinding
-- **hunts:** 56
+- **hunts:** 57
 - **bugs-found:** 15
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-09
+- **last-hunt:** 2026-10-11
 - **last-bug:** 2026-10-09 — empty and dot segments on health probe paths hit TB-304 on staging-like hosts
 - **related-pd-tb:** none
 - **code-changed-since:** yes
