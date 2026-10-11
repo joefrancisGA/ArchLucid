@@ -2864,6 +2864,138 @@
       "priority": "P0"
     },
     {
+      "ruleId": "owasp-asvs-001",
+      "controlId": "OWASP-ASVS-V1.1.1",
+      "controlName": "Authentication boundary",
+      "appliesToCategory": "compliance",
+      "requiredNodeType": "Identity",
+      "requiredEdgeType": "AUTHORIZES",
+      "severity": "High",
+      "description": "Architecture evidence should identify the authentication authority, trust boundary, and protection applied before an application accepts a session.",
+      "priority": "P0"
+    },
+    {
+      "ruleId": "owasp-asvs-002",
+      "controlId": "OWASP-ASVS-V2.1.1",
+      "controlName": "Credential and secret handling",
+      "appliesToCategory": "compliance",
+      "requiredNodeType": "Identity",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "High",
+      "description": "Architecture evidence should show where application credentials are stored, how access is granted, and how rotation is performed.",
+      "priority": "P0"
+    },
+    {
+      "ruleId": "owasp-asvs-003",
+      "controlId": "OWASP-ASVS-V4.1.1",
+      "controlName": "Authorization enforcement",
+      "appliesToCategory": "compliance",
+      "requiredNodeType": "Identity",
+      "requiredEdgeType": "AUTHORIZES",
+      "severity": "High",
+      "description": "Architecture evidence should identify the component that enforces resource and function authorization for every trust boundary.",
+      "priority": "P0"
+    },
+    {
+      "ruleId": "owasp-asvs-004",
+      "controlId": "OWASP-ASVS-V5.1.1",
+      "controlName": "Input validation boundary",
+      "appliesToCategory": "compliance",
+      "requiredNodeType": "Network",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "High",
+      "description": "Architecture evidence should show where untrusted input is validated before it reaches interpreters, data stores, or downstream services.",
+      "priority": "P1"
+    },
+    {
+      "ruleId": "owasp-asvs-005",
+      "controlId": "OWASP-ASVS-V6.1.1",
+      "controlName": "Output and browser boundary",
+      "appliesToCategory": "compliance",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "High",
+      "description": "Architecture evidence should identify the controls that prevent untrusted output from becoming active content in a client or browser.",
+      "priority": "P1"
+    },
+    {
+      "ruleId": "owasp-asvs-006",
+      "controlId": "OWASP-ASVS-V7.1.1",
+      "controlName": "Cryptographic services",
+      "appliesToCategory": "compliance",
+      "requiredNodeType": "DataStore",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "High",
+      "description": "Architecture evidence should identify approved cryptographic services, key ownership, and the data flows that require protection.",
+      "priority": "P0"
+    },
+    {
+      "ruleId": "owasp-asvs-007",
+      "controlId": "OWASP-ASVS-V8.1.1",
+      "controlName": "Error and exception handling",
+      "appliesToCategory": "compliance",
+      "requiredNodeType": "Logging",
+      "requiredEdgeType": "MONITORS",
+      "severity": "Medium",
+      "description": "Architecture evidence should show how failures are contained, logged, and returned without exposing sensitive implementation details.",
+      "priority": "P1"
+    },
+    {
+      "ruleId": "owasp-asvs-008",
+      "controlId": "OWASP-ASVS-V9.1.1",
+      "controlName": "Data protection and privacy",
+      "appliesToCategory": "compliance",
+      "requiredNodeType": "DataStore",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "High",
+      "description": "Architecture evidence should identify sensitive data classes, their storage locations, retention, and access boundaries.",
+      "priority": "P0"
+    },
+    {
+      "ruleId": "owasp-asvs-009",
+      "controlId": "OWASP-ASVS-V10.1.1",
+      "controlName": "Communication security",
+      "appliesToCategory": "compliance",
+      "requiredNodeType": "Network",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "High",
+      "description": "Architecture evidence should identify protected communication paths between clients, services, data stores, and external dependencies.",
+      "priority": "P0"
+    },
+    {
+      "ruleId": "owasp-asvs-010",
+      "controlId": "OWASP-ASVS-V14.1.1",
+      "controlName": "Malicious code and dependency controls",
+      "appliesToCategory": "compliance",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "High",
+      "description": "Architecture evidence should show how third-party components and build outputs are selected, scanned, and promoted.",
+      "priority": "P1"
+    },
+    {
+      "ruleId": "owasp-asvs-011",
+      "controlId": "OWASP-ASVS-V11.1.1",
+      "controlName": "Business logic abuse boundaries",
+      "appliesToCategory": "compliance",
+      "requiredNodeType": "Network",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Medium",
+      "description": "Architecture evidence should identify rate, quota, replay, and workflow controls for operations that can be abused at scale.",
+      "priority": "P1"
+    },
+    {
+      "ruleId": "owasp-asvs-012",
+      "controlId": "OWASP-ASVS-V1.14.1",
+      "controlName": "Secure development architecture",
+      "appliesToCategory": "compliance",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "High",
+      "description": "Architecture evidence should connect security requirements, design review, testing, deployment approval, and residual risk ownership.",
+      "priority": "P0"
+    },
+    {
       "ruleId": "supply-chain-001",
       "controlId": "SUPPLY-CHAIN-001",
       "controlName": "Software Bill of Materials (SBOM)",
