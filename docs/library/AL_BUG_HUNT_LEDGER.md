@@ -16843,7 +16843,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** marketplace billing; checkout mutation; billing application layer
 - **paths:** ArchLucid.Application/Billing/
 - **test-filter:** FullyQualifiedName~Marketplace|FullyQualifiedName~BillingCheckout|FullyQualifiedName~TenantLlmCostReporting
-- **hunts:** 26
+- **hunts:** 27
 - **bugs-found:** 15
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-11
@@ -16854,6 +16854,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-10-11 seed hunt (seed-only): re-read `ArchLucid.Application/Billing/` and the scoped Marketplace, BillingCheckout, and TenantLlmCostReporting tests; 26 scoped tests passed. Existing candidates were rechecked, but none met the full failing-repro bar.
 
 2026-10-11 seed hunt (seed-only): re-read the Marketplace mutation handlers, webhook publisher, tenant estimate service, and their scoped tests; 26 scoped tests passed. No new reachable candidate met the failing-repro bar.
+
+2026-10-11 seed hunt (seed-only): re-read the billing result contracts, connectivity interface, estimate/ranking interfaces, and remaining scoped tests; 26 scoped tests passed. No new reachable candidate met the failing-repro bar.
 
 2026-10-09 seed hunt (seed→hit): promoted inverted `Billing:UnitRates` bands. Why ArchLucid renders low — high, and Standard 500/100 plus Enterprise 900/200 displayed backwards. Both commercial bands now order the lower amount first. Regression `TryGetEstimateAsync_orders_inverted_standard_and_enterprise_bands`. 30 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, and TenantCostEstimate tests passed.
 
