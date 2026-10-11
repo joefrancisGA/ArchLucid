@@ -26,7 +26,6 @@ import { AzureLabDemoScenarioPicker } from "@/components/wizard/AzureLabDemoScen
 import { AzureExtractorDemoScenarioPicker } from "@/components/wizard/AzureExtractorDemoScenarioPicker";
 import { CloudInventoryExtractorCommandPanel } from "@/components/wizard/CloudInventoryExtractorCommandPanel";
 import { buildGetArchLucidCloudPackageCommandLine } from "@/lib/get-archlucid-cloud-package-command";
-import type { CloudInventoryPlatform } from "@/lib/cloud-inventory-platform";
 import { cloudInventoryPlatformLabel } from "@/lib/cloud-inventory-platform";
 import {
   DESIGN_TOKENS,
@@ -67,10 +66,8 @@ import {
   EXTRACT_UPLOAD_STEP_UPLOAD_TITLE,
   EXTRACT_UPLOAD_UPLOADING_PACKAGE_STATUS_LABEL,
   EXTRACT_UPLOAD_UPLOAD_ERROR_TOAST_TITLE,
-  EXTRACT_UPLOAD_VALIDATE_AWS_CLI_COMMAND,
-  EXTRACT_UPLOAD_VALIDATE_CLI_COMMAND,
   EXTRACT_UPLOAD_VALIDATE_DISCLOSURE_SUMMARY,
-  EXTRACT_UPLOAD_VALIDATE_GCP_CLI_COMMAND,
+  extractUploadValidateCliCommand,
   EXTRACT_UPLOAD_SETTINGS_FIRST_VIEWPORT_TEST_ID,
   EXTRACT_UPLOAD_SETTINGS_PRIMARY_CONTENT_ID,
   EXTRACT_UPLOAD_SETTINGS_SKIP_LINK_LABEL,
@@ -88,22 +85,6 @@ import { useExtractUploadPageClient } from "./use-extract-upload-page-client";
 import { useExtractUploadShortcuts } from "./use-extract-upload-shortcuts";
 import { ExtractUploadAcceptedPackagePanel } from "./ExtractUploadAcceptedPackagePanel";
 import { isAzureLabDemoScenarioId } from "@/lib/azure-lab-inventory-demo-scenarios";
-
-function validateCommandForPlatform(platform: CloudInventoryPlatform): string {
-  switch (platform) {
-    case "azure":
-      return EXTRACT_UPLOAD_VALIDATE_CLI_COMMAND;
-    case "aws":
-      return EXTRACT_UPLOAD_VALIDATE_AWS_CLI_COMMAND;
-    case "gcp":
-      return EXTRACT_UPLOAD_VALIDATE_GCP_CLI_COMMAND;
-    default: {
-      const _exhaustive: never = platform;
-
-      return _exhaustive;
-    }
-  }
-}
 
 function reviewBindingStepLabel(associateRunId: string | null): string | null {
   const trimmed = associateRunId?.trim() ?? "";
@@ -176,7 +157,8 @@ function ExtractUploadSettingsPageClientInner() {
     };
   }, []);
 
-  const validateCommand = validateCommandForPlatform(selectedPlatform);
+  const validateCommand = extractUploadValidateCliCommand(selectedPlatform, productLine);
+  const orientationSources = extractUploadSettingsSources(productLine);
   const platformLabel = cloudInventoryPlatformLabel(selectedPlatform);
   const showScriptDownload = selectedPlatform === "azure";
   const reviewBindingLabel = reviewBindingStepLabel(associateRunId);
@@ -222,9 +204,9 @@ function ExtractUploadSettingsPageClientInner() {
             OPERATOR_LAYOUT.majorSectionGap,
           )}
         >
-          <ExtractUploadSettingsBuyerChrome />
+          <ExtractUploadSettingsBuyerChrome sources={orientationSources} />
 
-          <ExtractUploadSettingsEvidenceOrientationStrip sources={extractUploadSettingsSources(productLine)} />
+          {!buyerPolishedShell ? <ExtractUploadSettingsEvidenceOrientationStrip sources={orientationSources} /> : null}
 
           {lastAcceptedPackage !== null ? (
             <ExtractUploadAcceptedPackagePanel record={lastAcceptedPackage} productLineId={productLine} />
