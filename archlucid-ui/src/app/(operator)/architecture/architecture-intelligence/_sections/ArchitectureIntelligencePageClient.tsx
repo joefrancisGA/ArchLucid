@@ -247,6 +247,7 @@ export function ArchitectureIntelligencePageClient() {
                 isBusy ||
                 activeRunId === null ||
                 runState?.kind !== "reasoning" ||
+                productContextLoadFailed ||
                 blocksLlmExecution
               }
               onClick={() => void publishRun()}
