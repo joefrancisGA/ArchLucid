@@ -53,7 +53,7 @@ export type ArchitectureCreatedClarificationsPanelProps = {
 function hasOpenQuestionEntities(
   section: ReturnType<typeof parseArchitectureGeneratedContent>["sections"][number] | undefined,
 ): boolean {
-  if (section === undefined || section.entities === undefined) {
+  if (section === undefined || section.entities == null) {
     return false;
   }
 
