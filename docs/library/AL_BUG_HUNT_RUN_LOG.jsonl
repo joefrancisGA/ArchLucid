@@ -9550,3 +9550,4 @@
 {"at":"2026-10-11T22:14:16.3411634Z","zoneId":"ui-governance-findings-queue","outcome":"dry","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(operator)/governance/findings/"]}
 {"at":"2026-10-11T22:32:47.9833870Z","zoneId":"retrieval","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Retrieval/"]}
 {"at":"2026-10-11T22:38:15.7884702Z","zoneId":"retrieval","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Retrieval/"]}
+{"at":"2026-10-11T22:48:57.6977960Z","zoneId":"finding-inspect-sql","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Persistence/Findings/","ArchLucid.Persistence/Sql/"]}

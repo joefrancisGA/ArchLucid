@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-11 thorough hunt (hit): `finding-inspect-sql` — `FindingInspectReadSql.FollowUpBatch` limited trace-rule retrieval to `TOP 1`, so a format-only first rule row prevented the Dapper path from applying the same first-substantive-rule normalization as in-memory inspect; return all ordered rule rows and resolve with `ResolveFirstTraceRuleText`; regression `FollowUpBatch_reads_all_trace_rules_for_in_memory_normalization` failed before the fix, then the focused Persistence inspect filter passed 425/425. Cheap-disproof closed the agent-trace digest fallback and related-node order candidates as valid-no-repro: in-memory inspect consumes hydrated `Finding` trace/node collections, while relational digest/order are distinct persisted contracts.
+
 2026-10-11 seed hunt (seed→hit): `TenantCostEstimateService.TryGetEstimateAsync` returned negative monthly cost guidance when reachable `Billing:UnitRates` configuration supplied negative rates; the service now rejects any negative computed band. Regression `TryGetEstimateAsync_rejects_negative_configured_standard_rates` failed before the fix; the scoped billing filter passed 26/26. The Application compile check timed out after no compiler errors.
 
 2026-10-11 seed hunt (seed→hit): `ArchitectureFindingJsonConverter.TryReadFindingSemanticSupportBand` accepted undefined numeric strings such as `"99"` because the string enum path omitted `Enum.IsDefined`; fixed with the same defined-value guard used by sibling enum readers. The focused Contracts filter passed 521/521, and the changed contracts project compiled with zero warnings and errors.
@@ -8332,11 +8334,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** finding inspect; dapper inspect read
 - **paths:** ArchLucid.Persistence/Findings/DapperFindingInspectReadRepository.cs; ArchLucid.Persistence/Findings/FindingInspectReadModelMapper.cs; ArchLucid.Persistence/Sql/FindingInspectReadSql.cs
 - **test-filter:** FullyQualifiedName~FindingInspectReadModelMapperTests|FullyQualifiedName~FindingInspectReadSqlTests|FullyQualifiedName~FindingInspectReadRepositoryCoreTests|FullyQualifiedName~FindingInspectEndpointTests
-- **hunts:** 82
-- **bugs-found:** 24
+- **hunts:** 83
+- **bugs-found:** 25
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-05
-- **last-bug:** 2026-10-05 — in-memory inspect trace fallback ignored substantive rules after invisible prefix entries
+- **last-hunt:** 2026-10-11
+- **last-bug:** 2026-10-11 — Dapper inspect trace-rule retrieval ignored substantive rules after invisible prefix entries
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -8841,9 +8843,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `InMemoryFindingInspectReadRepository.GetInspectAsync` — `ModelAlias` from `Finding.ModelAlias` vs Dapper `JSON_VALUE(aet.TraceJson, '$.modelAlias')` — **cheap-disproof 2026-10-05 thorough hunt:** in-memory storage inspect resolves from hydrated `RunDetailDto` findings without `AgentExecutionTraces` join; SQL path is relational contract (#1636 model-alias projection already covered for Dapper).
 - [x] (valid-no-repro) `InMemoryFindingInspectReadRepository.GetInspectAsync` — disposition/waiver/audit follow-up always null — **cheap-disproof 2026-10-05 thorough hunt:** demo finding ids intentionally omit `FindingCurrentDispositions` / waiver / audit child hydration; relational inspect covered by ADR 0076 pointer regressions.
 
-- [ ] (candidate) `DapperFindingInspectReadRepository` follow-up batch — `TOP 1 tra.RuleText ORDER BY tra.SortOrder` does not skip invisible-only first trace rows when `AppliedRuleIdsJson` is absent; in-memory now uses `ResolveFirstTraceRuleText` so parity may diverge when SortOrder=0 rule text is format-only but SortOrder=1 is substantive.
-- [ ] (candidate) `InMemoryFindingInspectReadRepository.GetInspectAsync` — `ReasoningTraceDigestSha256` is normalized on read but never populated from `RunDetailDto` agent traces when the finding field is null (Dapper projects digest from `AgentExecutionTraces`).
-- [ ] (candidate) `FindingInspectReadRepositoryCore.BuildEvidenceFromRelatedNodes` — in-memory passes `RelatedNodeIds` while SQL follow-up orders by `frn.SortOrder`; inspect evidence order may diverge when the hydrated list order differs from persisted child sort order.
+- [x] (proven) `DapperFindingInspectReadRepository` follow-up batch — `TOP 1 tra.RuleText ORDER BY tra.SortOrder` did not skip invisible-only first trace rows when `AppliedRuleIdsJson` was absent; **hit 2026-10-11 thorough hunt:** return all ordered trace-rule rows and resolve the first substantive rule with `ResolveFirstTraceRuleText`; regression `FollowUpBatch_reads_all_trace_rules_for_in_memory_normalization`.
+- [x] (valid-no-repro) `InMemoryFindingInspectReadRepository.GetInspectAsync` — `ReasoningTraceDigestSha256` is normalized on read but never populated from `RunDetailDto` agent traces when the finding field is null — **cheap-disproof 2026-10-11 thorough hunt:** the in-memory demo storage contract reads the hydrated finding trace, while the Dapper digest projection is a relational `AgentExecutionTraces` contract; no reachable in-memory wrong outcome was established.
+- [x] (valid-no-repro) `FindingInspectReadRepositoryCore.BuildEvidenceFromRelatedNodes` — in-memory passes `RelatedNodeIds` while SQL follow-up orders by `frn.SortOrder` — **cheap-disproof 2026-10-11 thorough hunt:** in-memory inspect consumes the already hydrated `RunDetailDto` node order; no contract requires re-sorting that demo collection against relational child-table order.
 - [x] (valid-no-repro) `FindingInspectReadModelMapper.ParseFindingSeverity` invalid stored severity — **cheap-disproof 2026-10-05 thorough hunt:** fail-closed `InvalidDataException` is the documented contract (replacing silent `Info` default after #1309); regressions `ParseFindingSeverity_rejects_unrecognized_or_undefined_values` and related mapper tests.
 - [x] (invalid) `FindingInspectReadRepositoryCore.ResolveInspectSemanticSupportBand` overlay format characters — **cheap-disproof 2026-10-05 thorough hunt:** migration `379_FindingSemanticSupportBandOverlays` `CK_FindingSemanticSupportBandOverlays_Band` allows only `Supported`/`Unchecked`/`Unsupported`/`NotScored`; embedded format characters cannot be persisted in the overlay column.
 
