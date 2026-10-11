@@ -202,7 +202,7 @@ public sealed class AgentOutputReferenceCaseRunEvaluator(
                     return false;
                 }
 
-                HashSet<string> names = new(StringComparer.Ordinal);
+                HashSet<string> names = new(StringComparer.OrdinalIgnoreCase);
 
                 foreach (JsonProperty p in doc.RootElement.EnumerateObject())
 

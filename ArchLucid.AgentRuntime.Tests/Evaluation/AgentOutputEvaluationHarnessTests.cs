@@ -137,6 +137,28 @@ public sealed class AgentOutputEvaluationHarnessTests
 
     [SkippableFact]
     [Trait("Suite", "Core")]
+    public void Evaluate_matches_required_json_keys_case_insensitively()
+    {
+        AgentResult actual = new()
+        {
+            TaskId = "t1",
+            RunId = Guid.NewGuid().ToString("N"),
+            AgentType = AgentType.Topology,
+            Claims = ["c1"],
+            EvidenceRefs = [],
+            Confidence = 0.5,
+        };
+
+        AgentOutputHarnessResult result = _harness.Evaluate(
+            AgentType.Topology,
+            actual,
+            new AgentOutputExpectation { RequiredJsonKeys = ["FINDINGS"] });
+
+        result.Passed.Should().BeTrue();
+    }
+
+    [SkippableFact]
+    [Trait("Suite", "Core")]
     public void Evaluate_returns_failed_result_when_findings_contains_null_entry()
     {
         AgentResult actual = new()
