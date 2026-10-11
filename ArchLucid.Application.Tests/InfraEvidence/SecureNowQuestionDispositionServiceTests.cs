@@ -274,6 +274,7 @@ public async Task Foreign_snapshot_cannot_read_or_write()
             SnapshotId,
             CreateWriteRequest("sub-1", "/subscriptions/sub-1/resource") with
             {
+                QuestionKey = "unknown-evidence@v1",
                 AnswerCode = "InventedAnswer",
             },
             "actor");
