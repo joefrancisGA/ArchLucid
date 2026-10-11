@@ -372,6 +372,51 @@ describe('ArchitectureDiagramViewer', () => {
     });
   });
 
+  it('reports connector clicks and dims other connectors when selected', async () => {
+    const onSelectConnector = vi.fn();
+    const forestLayoutSvg = [
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 120">',
+      '  <g class="edge" data-from="app" data-to="sql"><title>May access</title><path d="M20 20L80 20"/></g>',
+      '  <g class="edge" data-from="app" data-to="storage"><title>Writes to</title><path d="M20 40L80 40"/></g>',
+      '</svg>',
+    ].join('');
+
+    const { rerender } = render(
+      <ArchitectureDiagramViewer
+        mermaidSource={'flowchart TD\n  app["app"] --> sql["sql"]'}
+        layoutSvg={forestLayoutSvg}
+        outline={{ nodes: [], edges: [] }}
+        textAlternative="Inventory topology"
+        onSelectConnector={onSelectConnector}
+      />,
+    );
+
+    const host = await screen.findByTestId('architecture-diagram-svg-host');
+    const selectedEdge = host.querySelector('g.edge[data-from="app"][data-to="sql"]')!;
+    fireEvent.click(selectedEdge.querySelector('path')!);
+
+    expect(onSelectConnector).toHaveBeenCalledWith({
+      from: 'app',
+      to: 'sql',
+      label: 'May access',
+    });
+
+    rerender(
+      <ArchitectureDiagramViewer
+        mermaidSource={'flowchart TD\n  app["app"] --> sql["sql"]'}
+        layoutSvg={forestLayoutSvg}
+        outline={{ nodes: [], edges: [] }}
+        textAlternative="Inventory topology"
+        selectedConnector={{ from: 'app', to: 'sql', label: 'May access' }}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(selectedEdge).not.toHaveClass('diagram-click-dim');
+      expect(host.querySelector('g.edge[data-from="app"][data-to="storage"]')).toHaveClass('diagram-click-dim');
+    });
+  });
+
   it('labels a rollup focus with its member-list title', async () => {
     const forestLayoutSvg = [
       '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 120">',

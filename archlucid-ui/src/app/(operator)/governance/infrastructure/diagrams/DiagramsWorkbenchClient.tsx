@@ -7,6 +7,7 @@ import { Loader2 } from "lucide-react";
 
 import {
   ArchitectureDiagramViewer,
+  type ArchitectureDiagramConnectorSelection,
   type ArchitectureDiagramMermaidViewerProps,
 } from "@/components/architecture/ArchitectureDiagramViewer";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
@@ -135,6 +136,7 @@ import {
   parseInfraEvidenceMermaidOutline,
   resolveInfraEvidenceOutlineSeedNodeId,
   type InfraEvidenceMermaidOutline,
+  type InfraEvidenceMermaidOutlineEdge,
   type InfraEvidenceMermaidOutlineNode,
 } from "@/lib/infra-evidence/parse-infra-evidence-mermaid-outline";
 import {
@@ -336,6 +338,35 @@ function infraDiagramModeJobCaptionBlock(mode: string): React.ReactNode | null {
   );
 }
 
+function normalizeConnectorEndpoint(value: string): string {
+  return value.trim().replace(/^node-/u, "").toLowerCase();
+}
+
+function resolveConnectorOutlineEdge(
+  selection: ArchitectureDiagramConnectorSelection,
+  outline: InfraEvidenceMermaidOutline | null,
+): InfraEvidenceMermaidOutlineEdge | null {
+  if (outline == null) {
+    return null;
+  }
+
+  const from = normalizeConnectorEndpoint(selection.from);
+  const to = normalizeConnectorEndpoint(selection.to);
+  const matchingEdges = outline.edges.filter(
+    (edge) =>
+      normalizeConnectorEndpoint(edge.from) === from
+      && normalizeConnectorEndpoint(edge.to) === to,
+  );
+
+  if (matchingEdges.length === 0) {
+    return null;
+  }
+
+  const selectedLabel = selection.label?.trim() ?? "";
+
+  return matchingEdges.find((edge) => edge.label?.trim() === selectedLabel) ?? matchingEdges[0];
+}
+
 function FallbackCard(props: {
   readonly artifact: InfraEvidenceMermaidFallbackArtifactSummary;
   readonly selected: boolean;
@@ -440,6 +471,7 @@ export function DiagramsWorkbenchClient() {
   >([]);
   const [selectedSnapshotId, setSelectedSnapshotId] = useState<string>(urlSnapshotId);
   const [selectedMode, setSelectedMode] = useState<string>(urlMermaidMode);
+  const [selectedInventoryEdge, setSelectedInventoryEdge] = useState<InfraEvidenceMermaidOutlineEdge | null>(null);
   const [showPrivateEndpoints, setShowPrivateEndpoints] = useState(urlIncludePrivateEndpoints);
   const [showNetworkDetails, setShowNetworkDetails] = useState(
     urlIncludeNetworkDetails || (urlMermaidMode === "full" && urlIncludePrivateEndpoints),
@@ -862,6 +894,43 @@ export function DiagramsWorkbenchClient() {
 
     return filterInfraEvidenceMermaidOutline(mermaidOutline, includeNeverShow);
   }, [includeNeverShow, mermaidOutline]);
+
+  const handleConnectorSelect = useCallback(
+    (selection: ArchitectureDiagramConnectorSelection | null) => {
+      if (selection == null) {
+        setSelectedInventoryEdge(null);
+        return;
+      }
+
+      const edge = resolveConnectorOutlineEdge(selection, visibleMermaidOutline);
+
+      if (edge == null) {
+        setSelectedInventoryEdge(null);
+        return;
+      }
+
+      setSelectedInventoryEdge((current) => (
+        current?.from === edge.from
+        && current?.to === edge.to
+        && current?.label === edge.label
+          ? null
+          : edge
+      ));
+    },
+    [visibleMermaidOutline],
+  );
+
+  const selectedConnector = selectedInventoryEdge == null
+    ? null
+    : {
+        from: selectedInventoryEdge.from,
+        to: selectedInventoryEdge.to,
+        label: selectedInventoryEdge.label,
+      };
+
+  useEffect(() => {
+    setSelectedInventoryEdge(null);
+  }, [visibleMermaidOutline]);
 
   const visibleSeedCatalogOutline = useMemo(() => {
     if (seedCatalogOutline == null) {
@@ -2587,6 +2656,8 @@ export function DiagramsWorkbenchClient() {
             <InfraEvidenceDiagramOutline
               outline={visibleMermaidOutline}
               onFocusNeighborhood={handleOutlineFocusNeighborhood}
+              selectedInventoryEdge={selectedInventoryEdge}
+              onSelectInventoryEdge={setSelectedInventoryEdge}
             />
           ) : null}
         </>
@@ -2676,6 +2747,8 @@ export function DiagramsWorkbenchClient() {
             focusNodeIds={cameraFocusNodeIds}
             focusNonce={cameraFocusNonce}
             outline={visibleMermaidOutline}
+            selectedConnector={selectedConnector}
+            onSelectConnector={handleConnectorSelect}
             onRenderFailure={handleRenderFailure}
             onRetry={handleRenderRetry}
             onExportableSvgMarkupChange={setExportableSvgMarkup}
@@ -2689,6 +2762,8 @@ export function DiagramsWorkbenchClient() {
             <InfraEvidenceDiagramOutline
               outline={visibleMermaidOutline}
               onFocusNeighborhood={handleOutlineFocusNeighborhood}
+              selectedInventoryEdge={selectedInventoryEdge}
+              onSelectInventoryEdge={setSelectedInventoryEdge}
             />
           ) : null}
         </>
