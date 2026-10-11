@@ -58,14 +58,16 @@ export function demoteOpenQuestionsStructuredSectionProvenance(
     return section;
   }
 
-  if (section.provenance === "inferred" && section.entities.every((entity) => entity.provenance === "inferred")) {
+  const entities = section.entities ?? [];
+
+  if (section.provenance === "inferred" && entities.every((entity) => entity.provenance === "inferred")) {
     return section;
   }
 
   return {
     ...section,
     provenance: "inferred",
-    entities: section.entities.map((entity) => ({
+    entities: entities.map((entity) => ({
       ...entity,
       provenance: "inferred",
     })),
