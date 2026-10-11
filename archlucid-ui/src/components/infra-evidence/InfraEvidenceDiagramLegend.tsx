@@ -47,6 +47,17 @@ function PrivateEndpointAccessGlyph(): React.JSX.Element {
   );
 }
 
+function DiagramStrokeSample(props: { readonly style: "solid" | "dashed" | "dotted" }): React.JSX.Element {
+  return (
+    <span
+      aria-hidden="true"
+      className="inline-block w-10 shrink-0 border-t-2 border-neutral-500 dark:border-neutral-300"
+      data-testid={`infra-evidence-diagram-legend-stroke-${props.style}`}
+      style={{ borderTopStyle: props.style }}
+    />
+  );
+}
+
 export type InfraEvidenceDiagramLegendProps = {
   readonly outline: InfraEvidenceMermaidOutline | null;
   readonly mermaidSource?: string | null;
@@ -55,12 +66,13 @@ export type InfraEvidenceDiagramLegendProps = {
 
 /** Inventory diagram legend for connector styles and left-edge category colors. */
 export function InfraEvidenceDiagramLegend(props: InfraEvidenceDiagramLegendProps): React.JSX.Element | null {
+  const hasObserved = props.outline?.edges.some((edge) => edge.source === "observed") === true;
   const hasDeclared = hasInfraEvidenceDeclaredDiagramEdges(props.outline, props.mermaidSource);
   const hasProbable = hasInfraEvidenceProbableDiagramEdges(props.outline, props.mermaidSource);
   const hasInferred = hasInfraEvidenceInferredDiagramEdges(props.outline, props.mermaidSource);
   const accentKinds = collectInfraEvidenceDiagramAccentKinds(props.layoutSvg);
   const hasPrivateEndpointAccess = props.layoutSvg?.includes("private-endpoint-access") === true;
-  const showConnectorLegend = hasDeclared || hasProbable || hasInferred || hasPrivateEndpointAccess;
+  const showConnectorLegend = hasObserved || hasDeclared || hasProbable || hasInferred || hasPrivateEndpointAccess;
 
   if (!showConnectorLegend && accentKinds.length === 0) {
     return null;
@@ -78,10 +90,28 @@ export function InfraEvidenceDiagramLegend(props: InfraEvidenceDiagramLegendProp
               {INFRA_EVIDENCE_DIAGRAM_LEGEND_HEADING}
             </p>
             <ul className={cn("m-0 list-disc space-y-1 pl-5 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
-              <li>{INFRA_EVIDENCE_DIAGRAM_LEGEND_OBSERVED}</li>
-              {hasDeclared ? <li>{INFRA_EVIDENCE_DIAGRAM_LEGEND_DECLARED}</li> : null}
-              {hasProbable ? <li>{INFRA_EVIDENCE_DIAGRAM_LEGEND_PROBABLE}</li> : null}
-              {hasInferred ? <li>{INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED}</li> : null}
+              <li className="flex items-center gap-2">
+                <DiagramStrokeSample style="solid" />
+                <span>{INFRA_EVIDENCE_DIAGRAM_LEGEND_OBSERVED}</span>
+              </li>
+              {hasDeclared ? (
+                <li className="flex items-center gap-2">
+                  <DiagramStrokeSample style="dashed" />
+                  <span>{INFRA_EVIDENCE_DIAGRAM_LEGEND_DECLARED}</span>
+                </li>
+              ) : null}
+              {hasProbable ? (
+                <li className="flex items-center gap-2">
+                  <DiagramStrokeSample style="dashed" />
+                  <span>{INFRA_EVIDENCE_DIAGRAM_LEGEND_PROBABLE}</span>
+                </li>
+              ) : null}
+              {hasInferred ? (
+                <li className="flex items-center gap-2">
+                  <DiagramStrokeSample style="dotted" />
+                  <span>{INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED}</span>
+                </li>
+              ) : null}
             </ul>
             {hasPrivateEndpointAccess ? (
               <div

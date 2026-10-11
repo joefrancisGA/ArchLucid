@@ -18,25 +18,14 @@ import {
 } from "@/lib/infra-evidence/infra-evidence-diagram-copy";
 
 describe("InfraEvidenceDiagramLegend", () => {
-  it("is hidden when no declared or inferred edges exist", () => {
+  it("is hidden when no connector or resource-category evidence exists", () => {
     const { container } = render(
       <InfraEvidenceDiagramLegend
         outline={{
           nodes: [],
-          edges: [
-            {
-              from: "a",
-              to: "b",
-              label: "connects",
-              source: "observed",
-              confidenceBand: "observed",
-              provenanceKind: null,
-              inferenceSource: null,
-              declaredConnectionId: null,
-            },
-          ],
+          edges: [],
         }}
-        layoutSvg='<svg><g class="private-endpoint-access"/></svg>'
+        layoutSvg="<svg />"
       />,
     );
 
@@ -69,6 +58,8 @@ describe("InfraEvidenceDiagramLegend", () => {
     expect(screen.getByText(INFRA_EVIDENCE_DIAGRAM_LEGEND_HEADING)).toBeInTheDocument();
     expect(screen.getByText(INFRA_EVIDENCE_DIAGRAM_LEGEND_OBSERVED)).toBeInTheDocument();
     expect(screen.getByText(INFRA_EVIDENCE_DIAGRAM_LEGEND_DECLARED)).toBeInTheDocument();
+    expect(screen.getByTestId("infra-evidence-diagram-legend-stroke-solid")).toBeInTheDocument();
+    expect(screen.getByTestId("infra-evidence-diagram-legend-stroke-dashed")).toBeInTheDocument();
     const privateEndpointLegend = screen.getByTestId("infra-evidence-diagram-legend-private-endpoint");
     expect(privateEndpointLegend).toHaveTextContent("Private endpoint");
     expect(screen.getByTestId("infra-evidence-private-endpoint-access-glyph")).toBeInTheDocument();
@@ -132,6 +123,7 @@ describe("InfraEvidenceDiagramLegend", () => {
     );
 
     expect(screen.getByText(INFRA_EVIDENCE_DIAGRAM_LEGEND_PROBABLE)).toBeInTheDocument();
+    expect(screen.getByTestId("infra-evidence-diagram-legend-stroke-dashed")).toBeInTheDocument();
   });
 
   const observedOutline = {
@@ -164,8 +156,8 @@ describe("InfraEvidenceDiagramLegend", () => {
     );
 
     expect(screen.getByTestId("infra-evidence-diagram-legend")).toBeInTheDocument();
-    expect(screen.queryByText(INFRA_EVIDENCE_DIAGRAM_LEGEND_HEADING)).not.toBeInTheDocument();
-    expect(screen.queryByText(INFRA_EVIDENCE_DIAGRAM_LEGEND_OBSERVED)).not.toBeInTheDocument();
+    expect(screen.getByText(INFRA_EVIDENCE_DIAGRAM_LEGEND_HEADING)).toBeInTheDocument();
+    expect(screen.getByText(INFRA_EVIDENCE_DIAGRAM_LEGEND_OBSERVED)).toBeInTheDocument();
     expect(screen.getByText(INFRA_EVIDENCE_DIAGRAM_LEGEND_RESOURCE_CATEGORY)).toBeInTheDocument();
     expect(screen.getByText(INFRA_EVIDENCE_DIAGRAM_LEGEND_ACCENT_IDENTITY)).toBeInTheDocument();
     expect(screen.getByText(INFRA_EVIDENCE_DIAGRAM_LEGEND_ACCENT_COMPUTE)).toBeInTheDocument();
@@ -207,6 +199,7 @@ describe("InfraEvidenceDiagramLegend", () => {
     );
 
     expect(screen.getByText(INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED)).toBeInTheDocument();
+    expect(screen.getByTestId("infra-evidence-diagram-legend-stroke-dotted")).toBeInTheDocument();
     expect(screen.getByTestId("infra-evidence-diagram-legend-resource-category")).toBeInTheDocument();
     expect(screen.getByText("Dotted hostname edges are inferred. They are not observed connections.")).toBeInTheDocument();
   });
