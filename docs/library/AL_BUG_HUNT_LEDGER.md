@@ -33970,6 +33970,8 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: ui-marketing-surfaces
 
+2026-10-11 seed hunt (seed→hit): `DemoPreviewArtifactNav` selected the active artifact from only the latest `IntersectionObserver` entries, so a later callback containing a less-visible section could override the actually most-visible section. Persisted intersection ratios per section and selected from the full known visibility state; regression `keeps the most visible section active when a later observer callback reports only another section`; three focused artifact-navigation suites passed 6/6.
+
 2026-10-11 thorough hunt #29 (dry): cheap-disproved five open `(candidate)` rows: `fetchShowcasePayload` already rejects whitespace-only `eventType`; showcase validation rejects duplicate trimmed timeline `eventId` values before `DemoPreviewMarketingBody` renders; curated `http_error` fallback already carries `api_fallback` telemetry; `SignupVerifyClient` polling does not mutate `initialLoadFailed`; and `buildSignInTrialHref` intentionally uses the fixed `source=get-started` onboarding return path rather than forwarding URL query attribution. No production change; 45 scoped marketing vitest tests passed.
 
 2026-10-11 seed hunt (seed-only): re-read the anonymous `/see-it`, showcase, and signup-verification paths; no candidate met the same-run hunt-ready promotion bar. Seeded three bounded candidates for multi-trailing-slash API bases and JWT resend redirect failure. Four focused marketing suites passed 67/67; no production or regression code changed.
@@ -33996,8 +33998,8 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** marketing pages; pricing; trust center UI
 - **paths:** archlucid-ui/src/app/(marketing)/
 - **test-filter:** marketing
-- **hunts:** 31
-- **bugs-found:** 33
+- **hunts:** 32
+- **bugs-found:** 34
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-11
 - **last-bug:** 2026-10-11 — marketing API bases with multiple trailing slashes
@@ -34017,6 +34019,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) `resolveSeeItDemoApiBase` removes only one trailing slash — **hit 2026-10-11 thorough hunt #31:** `NEXT_PUBLIC_DEMO_API_BASE="https://demo.example///"` produced a malformed preview URL; normalize all trailing slashes; regression in `see-it.test.tsx`.
 - [x] (proven) `resolveShowcaseApiBase` removes only one trailing slash — **hit 2026-10-11 thorough hunt #31:** `NEXT_PUBLIC_DEMO_PREVIEW_API_BASE="https://demo.example///"` produced a malformed showcase URL; normalize all trailing slashes; regression in `showcase-page-server-resolution.test.ts`.
 - [x] (valid-no-repro) `SignupVerifyClient.handleResend` marks resend cooldown before JWT redirect initiation — **attempted 2026-10-11 thorough hunt #31:** the pre-fix JWT redirect-failure regression passed, so no failing repro established the claimed cooldown wrong outcome; production ordering change and temporary regression were reverted.
+- [x] (proven) `DemoPreviewArtifactNav` selected the active section from only the latest `IntersectionObserver` entries — **hit 2026-10-11 seed hunt:** a less-visible later callback overrode a more-visible section; persist per-section intersection ratios before selecting the highest visible ratio; regression `keeps the most visible section active when a later observer callback reports only another section`.
 
 - [x] (invalid) Marketing form submits PII to the wrong API environment — Quick Scan and pricing quote POST through `/api/proxy/v1/marketing/...` (`proxy-route-anonymous-marketing.test.ts`, `QuickScanClient.tsx`).
 - [x] (invalid) Pricing page shows an internal-only plan tier to anonymous visitors — anonymous pricing loads public `loadPricingDoc()`; no internal tier leak found in seed read.
