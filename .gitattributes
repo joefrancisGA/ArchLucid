@@ -51,6 +51,9 @@ scripts/git-hooks/** text eol=lf
 #*.png   binary
 #*.gif   binary
 
+# Generated PDFs (for example docs/book's draft). text=auto can misdetect them as text and rewrite line endings.
+*.pdf   binary
+
 ###############################################################################
 # diff behavior for common document formats
 # 

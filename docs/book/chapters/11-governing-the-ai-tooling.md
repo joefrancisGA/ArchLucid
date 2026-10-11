@@ -179,13 +179,14 @@ COUNT_FIELDS = frozenset({"validatorProblems", "attempt", "inputTokens", "output
 HASH_FIELDS = frozenset({"packSha256", "outputSha256"})
 FLAG_FIELDS = frozenset({"contentRetained"})
 DECISIONS = frozenset({"approved", "rejected", "pending"})
-# Every other field is an identifier, version, or timestamp: short and without spaces, so prose can't fit.
+# Every other field is an identifier, version, or timestamp:
+# short and without spaces, so prose can't fit.
 IDENTIFIER = re.compile(r"[A-Za-z0-9._:@/+-]{1,128}")
 SHA256_HEX = re.compile(r"[0-9a-f]{64}")
 
 
 def sha256_of(value: object) -> str:
-    """Stable hash of a JSON-serializable value: same content, same hash, regardless of key order."""
+    """Stable hash of a JSON-serializable value: same content, same hash, whatever the key order."""
     canonical = json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
 
     return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
@@ -214,13 +215,20 @@ def audit_value_problem(name: str, value: object) -> str | None:
 
 
 def audit_record(**fields: object) -> dict:
-    """Build an audit record. Unknown fields and free-text values raise, so a prompt or a draft can't be logged by accident."""
+    """Build an audit record.
+
+    Unknown fields and free-text values raise, so a prompt or a draft can't be logged by accident.
+    """
     unknown = sorted(set(fields) - AUDIT_FIELDS)
 
     if unknown:
         raise ValueError(f"not allowed in an audit record: {', '.join(unknown)}")
 
-    problems = [f"{name} {problem}" for name, value in fields.items() if (problem := audit_value_problem(name, value))]
+    problems = [
+        f"{name} {problem}"
+        for name, value in fields.items()
+        if (problem := audit_value_problem(name, value))
+    ]
 
     if problems:
         raise ValueError("; ".join(problems))
@@ -278,6 +286,7 @@ Your application isn't the only thing that can log content. Check every componen
 - **Application telemetry.** SDKs and logging frameworks may capture request bodies or exceptions that include them. The opening story's leak came from here.
 
 Then add the log workspaces to the tooling targets from section 11.2, and let the path search tell you who can read them.
+
 ---
 
 ## 11.7 Isolation when the tooling is shared
@@ -305,7 +314,14 @@ Three controls cover most of it.
 **Cache by everything that determines the output.** An explanation depends on the tenant, the pack, the audience, the prompt template, and the model version. Whether it may be served also depends on the validator that approved it. If none of those changed, the explanation doesn't need to be regenerated:
 
 ```python
-def explanation_cache_key(tenant_id: str, pack_sha256: str, audience: str, prompt_version: str, model_version: str, validator_version: str) -> str:
+def explanation_cache_key(
+    tenant_id: str,
+    pack_sha256: str,
+    audience: str,
+    prompt_version: str,
+    model_version: str,
+    validator_version: str,
+) -> str:
     """Every input and policy version governing a cached explanation is part of the key."""
     parts = [tenant_id, pack_sha256, audience, prompt_version, model_version, validator_version]
 
@@ -321,7 +337,10 @@ Using the pack hash rather than the snapshot ID means an unchanged pack from a n
 
 ```python
 class TokenBudget:
-    """Tracks token use for one run. Reserves each call's worst case first, so the limit can't be overshot."""
+    """Tracks token use for one run.
+
+    Reserves each call's worst case first, so the limit can't be overshot.
+    """
 
     def __init__(self, limit: int) -> None:
         if limit <= 0:
@@ -332,7 +351,10 @@ class TokenBudget:
         self.reserved = 0
 
     def reserve(self, input_tokens: int, max_output_tokens: int) -> int | None:
-        """Reserve the most a call can use. Returns the reservation, or None if the call must not be made."""
+        """Reserve the most a call can use.
+
+        Returns the reservation, or None if the call must not be made.
+        """
         if input_tokens < 0 or max_output_tokens <= 0:
             raise ValueError("token counts must be positive")
 
@@ -408,7 +430,8 @@ resource "azurerm_cognitive_account" "openai" {
   location                      = var.location
   kind                          = "OpenAI"
   sku_name                      = "S0"
-  custom_subdomain_name         = var.openai_account_name   # required for Entra ID auth and private endpoints
+  # A custom subdomain is required for Entra ID auth and private endpoints.
+  custom_subdomain_name         = var.openai_account_name
   local_auth_enabled            = false
   public_network_access_enabled = false
 }

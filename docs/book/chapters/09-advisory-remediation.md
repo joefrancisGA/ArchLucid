@@ -148,14 +148,23 @@ def edge_key(edge: Edge) -> tuple[str, str, str]:
 @dataclass(frozen=True)
 class Change:
     name: str
-    removes: frozenset[tuple[str, str, str]]   # edge keys this change eliminates
-    cost: int                                  # ordinal tier used only for comparison: 1 low, 2 medium, 3 high
-    removes_required: bool = False             # True if it breaks a confirmed flow or required function
-    reversible_by: frozenset[str] = frozenset()  # nodes that could undo the change
+    # Edge keys this change eliminates.
+    removes: frozenset[tuple[str, str, str]]
+    # Ordinal tier used only for comparison: 1 low, 2 medium, 3 high.
+    cost: int
+    # True if it breaks a confirmed flow or required function.
+    removes_required: bool = False
+    # Nodes that could undo the change.
+    reversible_by: frozenset[str] = frozenset()
 
 
-def greedy_plan(paths: list[list[Edge]], changes: list[Change]) -> tuple[list[Change], list[list[Edge]]]:
-    """Choose changes that close the most paths per unit of cost. Returns (plan, paths left open)."""
+def greedy_plan(
+    paths: list[list[Edge]], changes: list[Change]
+) -> tuple[list[Change], list[list[Edge]]]:
+    """Choose changes that close the most paths per unit of cost.
+
+    Returns (plan, paths left open).
+    """
     remaining = list(paths)
     allowed = [change for change in changes if not change.removes_required]
     plan: list[Change] = []
@@ -172,7 +181,9 @@ def greedy_plan(paths: list[list[Edge]], changes: list[Change]) -> tuple[list[Ch
         # Most paths closed per cost tier; then cheaper; then name, so ties are deterministic.
         best = max(useful, key=lambda c: (closes(c) / c.cost, -c.cost, c.name))
         plan.append(best)
-        remaining = [path for path in remaining if not any(edge_key(e) in best.removes for e in path)]
+        remaining = [
+            path for path in remaining if not any(edge_key(e) in best.removes for e in path)
+        ]
 
     return plan, remaining
 ```
@@ -192,7 +203,9 @@ The cost numbers (1, 2, 3) are a convenience for comparison, not a measurement. 
 The greedy method works on the paths you enumerated. Chapter 4's search caps path length, so a cut set computed from enumerated paths can miss a longer route that avoids every chosen change. Always verify by removing the plan's edges from the graph and searching again:
 
 ```python
-def open_paths_after(edges: list[Edge], plan: list[Change], entries: list[str], targets: list[str]) -> dict:
+def open_paths_after(
+    edges: list[Edge], plan: list[Change], entries: list[str], targets: list[str]
+) -> dict:
     """Re-run the Chapter 4 search with the plan's edges removed."""
     removed = set().union(*(change.removes for change in plan)) if plan else set()
     kept = [edge for edge in edges if edge_key(edge) not in removed]
@@ -402,7 +415,8 @@ import hashlib
 
 def recommendation_id(change_names: list[str], path_endpoints: list[tuple[str, str]]) -> str:
     """Same changes for the same entry/target pairs give the same ID, run after run."""
-    material = "|".join(sorted(change_names)) + "#" + "|".join(sorted(f"{a}->{b}" for a, b in path_endpoints))
+    endpoints = sorted(f"{a}->{b}" for a, b in path_endpoints)
+    material = "|".join(sorted(change_names)) + "#" + "|".join(endpoints)
 
     return "rec-" + hashlib.sha256(material.encode("utf-8")).hexdigest()[:8]
 ```

@@ -66,8 +66,10 @@ The scope hierarchy, so role assignments at a management group or resource group
 ```kusto
 resourcecontainers
 | extend parentId = case(
-    type =~ 'microsoft.resources/subscriptions/resourcegroups', strcat('/subscriptions/', subscriptionId),
-    type =~ 'microsoft.management/managementgroups', tostring(properties.details.parent.id),
+    type =~ 'microsoft.resources/subscriptions/resourcegroups',
+        strcat('/subscriptions/', subscriptionId),
+    type =~ 'microsoft.management/managementgroups',
+        tostring(properties.details.parent.id),
     '')
 | project id, name, type, parentId
 ```
@@ -203,7 +205,8 @@ Application owners can add credentials to the application (hop H2). Chapter 4, S
 Service principals have owners of their own, separate from the application's, and an owner of a service principal can manage it too. Collect them the same way:
 
 ```powershell
-$servicePrincipals = Get-MgServicePrincipal -All -Property 'id,appId,displayName,servicePrincipalType'
+$spProperties = 'id,appId,displayName,servicePrincipalType'
+$servicePrincipals = Get-MgServicePrincipal -All -Property $spProperties
 
 $spOwners = foreach ($sp in $servicePrincipals) {
     Get-MgServicePrincipalOwner -ServicePrincipalId $sp.Id -All |
@@ -544,7 +547,8 @@ $firewallRules = foreach ($groupRef in $policy.RuleCollectionGroups) {
 ### SQL server firewall rules
 
 ```powershell
-Get-AzSqlServerFirewallRule -ResourceGroupName $server.ResourceGroupName -ServerName $server.ServerName |
+$serverArgs = @{ ResourceGroupName = $server.ResourceGroupName; ServerName = $server.ServerName }
+Get-AzSqlServerFirewallRule @serverArgs |
     Select-Object FirewallRuleName, StartIpAddress, EndIpAddress
 ```
 
@@ -581,7 +585,8 @@ $settings = foreach ($target in $targets) {
                 target      = $target
                 name        = $_.Name
                 workspaceId = $_.WorkspaceId
-                logs        = ($_.Log | Where-Object Enabled | ForEach-Object { $_.Category ?? $_.CategoryGroup }) -join ','
+                logs        = ($_.Log | Where-Object Enabled |
+                    ForEach-Object { $_.Category ?? $_.CategoryGroup }) -join ','
             }
         }
 }
@@ -649,7 +654,9 @@ AuditLogs
                          "Add owner to service principal")
     or OperationName startswith "Add member to role"
 | project TimeGenerated, OperationName, Result,
-    actor = coalesce(tostring(InitiatedBy.user.userPrincipalName), tostring(InitiatedBy.app.displayName)),
+    actor = coalesce(
+        tostring(InitiatedBy.user.userPrincipalName),
+        tostring(InitiatedBy.app.displayName)),
     target = tostring(TargetResources[0].displayName)
 ```
 

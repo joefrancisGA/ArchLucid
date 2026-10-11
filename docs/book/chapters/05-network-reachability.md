@@ -120,7 +120,8 @@ def storage_public_exposure(account: dict) -> tuple[str, list[str]]:
         return "private only", reasons
 
     if public != "enabled":
-        return "unknown", [f"publicNetworkAccess is '{props.get('publicNetworkAccess')}'; evaluate it explicitly"]
+        setting = props.get("publicNetworkAccess")
+        return "unknown", [f"publicNetworkAccess is '{setting}'; evaluate it explicitly"]
 
     if (acls.get("defaultAction") or "Allow").lower() == "allow":
         return "internet", ["publicNetworkAccess is Enabled", "networkAcls.defaultAction is Allow"]
@@ -128,7 +129,10 @@ def storage_public_exposure(account: dict) -> tuple[str, list[str]]:
     reasons = ["networkAcls.defaultAction is Deny"]
     reasons += [f"IP rule {rule.get('value')}" for rule in acls.get("ipRules") or []]
     reasons += [f"subnet rule {rule.get('id')}" for rule in acls.get("virtualNetworkRules") or []]
-    reasons += [f"resource instance rule {rule.get('resourceId')}" for rule in acls.get("resourceAccessRules") or []]
+    reasons += [
+        f"resource instance rule {rule.get('resourceId')}"
+        for rule in acls.get("resourceAccessRules") or []
+    ]
 
     if acls.get("bypass") and acls["bypass"].lower() != "none":
         reasons.append(f"bypass {acls['bypass']}")

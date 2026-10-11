@@ -279,7 +279,10 @@ Never answer from your own knowledge.
         "additionalProperties": false,
         "required": ["resource", "action"],
         "properties": {
-          "resource": { "type": "string", "description": "Resource name as it appears in the snapshot, for example custdata." },
+          "resource": {
+            "type": "string",
+            "description": "Resource name as it appears in the snapshot, for example custdata."
+          },
           "action": { "type": "string", "enum": ["read", "write", "delete"] }
         }
       }
@@ -294,9 +297,7 @@ Never answer from your own knowledge.
         "type": "object",
         "additionalProperties": false,
         "required": ["identity"],
-        "properties": {
-          "identity": { "type": "string" }
-        }
+        "properties": { "identity": { "type": "string" } }
       }
     }
   }
@@ -361,7 +362,12 @@ If you find none, return an empty list.
 from pathlib import Path
 
 
-def probable_flow_problems(flows: list[dict], repo_root: Path, known_stores: set[str], setting_values: dict[str, str]) -> list[str]:
+def probable_flow_problems(
+    flows: list[dict],
+    repo_root: Path,
+    known_stores: set[str],
+    setting_values: dict[str, str],
+) -> list[str]:
     """Reject proposed flows whose cited line doesn't exist or doesn't point at the store."""
     problems: list[str] = []
 
@@ -390,7 +396,10 @@ def probable_flow_problems(flows: list[dict], repo_root: Path, known_stores: set
         settings_for_store = [name for name, value in setting_values.items() if value == store]
 
         if store not in text and not any(name in text for name in settings_for_store):
-            problems.append(f"Flow {index}: line {line_number} of '{flow.get('file')}' does not mention {store}.")
+            problems.append(
+                f"Flow {index}: line {line_number} of '{flow.get('file')}' "
+                f"does not mention {store}."
+            )
 
     return problems
 ```

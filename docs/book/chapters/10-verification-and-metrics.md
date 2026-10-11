@@ -118,11 +118,21 @@ class Postcondition:
     text: str                       # what must be true, in words a reviewer can check
     needs: frozenset[str]           # snapshot files the check reads
     scopes: frozenset[str]          # scopes the check depends on, named as in the gap list
-    check: Callable[[dict], bool]   # True when the postcondition holds; raise LookupError if the subject is absent
+    # True when the postcondition holds; raise LookupError if the subject is absent.
+    check: Callable[[dict], bool]
 
 
-def verify(post: Postcondition, manifest: dict, data: dict, change_applied_at: str, expected_files: set[str]) -> tuple[str, str]:
-    """Return (verdict, reason). Anything the snapshot can't answer is NOT_VERIFIED, never VERIFIED."""
+def verify(
+    post: Postcondition,
+    manifest: dict,
+    data: dict,
+    change_applied_at: str,
+    expected_files: set[str],
+) -> tuple[str, str]:
+    """Return (verdict, reason).
+
+    Anything the snapshot can't answer is NOT_VERIFIED, never VERIFIED.
+    """
     if parse_utc(manifest["collectedAtUtc"]) <= parse_utc(change_applied_at):
         return NOT_VERIFIED, "snapshot collection started before the change was applied"
 
@@ -172,7 +182,9 @@ shared_key_off = Postcondition(
     text="custdata has shared key access disabled",
     needs=frozenset({"storage-accounts.json"}),
     scopes=frozenset({"subscription sub-payments-prod"}),
-    check=lambda data: the_row(data["storage-accounts.json"], name="custdata")["sharedKey"] == "disabled",
+    check=lambda data: (
+        the_row(data["storage-accounts.json"], name="custdata")["sharedKey"] == "disabled"
+    ),
 )
 ```
 
@@ -230,10 +242,14 @@ KIND_SOURCES = {
     "canAddCredential": {"application-owners.json", "directory-role-assignments.json"},
     "appFor": {"service-principals.json"},
     "runsAs": {"compute-identities.json"},
-    "canControlCode": {"role-assignments.json", "role-definitions.json", "deny-assignments.json",
-                       "scope-parents.json", "transitive-memberships.json", "compute-identities.json"},
-    "grants": {"role-assignments.json", "role-definitions.json", "deny-assignments.json",
-               "scope-parents.json", "transitive-memberships.json", "storage-accounts.json"},
+    "canControlCode": {
+        "role-assignments.json", "role-definitions.json", "deny-assignments.json",
+        "scope-parents.json", "transitive-memberships.json", "compute-identities.json",
+    },
+    "grants": {
+        "role-assignments.json", "role-definitions.json", "deny-assignments.json",
+        "scope-parents.json", "transitive-memberships.json", "storage-accounts.json",
+    },
 }
 
 
@@ -241,8 +257,13 @@ def path_signature(path: list[Edge]) -> tuple[tuple[str, str, str], ...]:
     return tuple(edge_key(edge) for edge in path)
 
 
-def diff_paths(before: list[list[Edge]], after: list[list[Edge]], incomplete: set[str]) -> dict[str, list]:
-    """Classify paths between two snapshots. A missing path counts as closed only if its evidence was complete."""
+def diff_paths(
+    before: list[list[Edge]], after: list[list[Edge]], incomplete: set[str]
+) -> dict[str, list]:
+    """Classify paths between two snapshots.
+
+    A missing path counts as closed only if its evidence was complete.
+    """
     after_by_signature = {path_signature(path): path for path in after}
     before_signatures = {path_signature(path) for path in before}
     result: dict[str, list] = {"closed": [], "unresolved": [], "persisted": [], "new": []}
@@ -252,7 +273,11 @@ def diff_paths(before: list[list[Edge]], after: list[list[Edge]], incomplete: se
 
         if later is not None:
             # Same hops, possibly for a different reason. Report what changed in the citations.
-            changed = [(old.detail, new.detail) for old, new in zip(path, later) if old.detail != new.detail]
+            changed = [
+                (old.detail, new.detail)
+                for old, new in zip(path, later)
+                if old.detail != new.detail
+            ]
             result["persisted"].append((path, changed))
         elif any(KIND_SOURCES[edge.kind] & incomplete for edge in path):
             result["unresolved"].append(path)
@@ -272,7 +297,10 @@ SUBSCRIPTION_FILES = frozenset({
 
 
 def files_in_doubt(manifest: dict, expected_files: set[str]) -> set[str]:
-    """Partial or missing files, plus every per-subscription file if any subscription was unreadable."""
+    """Partial or missing files.
+
+    Adds every per-subscription file if any subscription was unreadable.
+    """
     doubtful = incomplete_files(manifest, expected_files)
 
     if unreadable_scopes(manifest):
@@ -295,7 +323,8 @@ The opening story's two Mondays run through this function very differently.
 P6 persisted
   hop 1  user:helpdesk-07 -canAddCredential-> app:payments-deploy
          before: directory-role-assignments.json row 41 (Cloud Application Administrator, scope /)
-         after:  directory-role-assignments.json row 57 (Application Administrator, scope /, via group helpdesk-tier2)
+         after:  directory-role-assignments.json row 57
+                 (Application Administrator, scope /, via group helpdesk-tier2)
 ```
 
 That changed citation is the most useful line in the report. It says the fix happened and the exposure didn't change, and it says why.
@@ -406,7 +435,10 @@ from datetime import timedelta
 
 
 def open_intervals(observations: list[tuple[str, str]]) -> list[dict]:
-    """observations: (snapshot collectedAtUtc, 'open' | 'closed' | 'unknown') for one path, in any order."""
+    """Open intervals for one path.
+
+    observations: (snapshot collectedAtUtc, 'open' | 'closed' | 'unknown'), in any order.
+    """
     intervals: list[dict] = []
     current: dict | None = None
     last_closed: str | None = None
@@ -414,7 +446,12 @@ def open_intervals(observations: list[tuple[str, str]]) -> list[dict]:
     for at, state in sorted(observations, key=lambda item: parse_utc(item[0])):
         if state == "open":
             if current is None:
-                current = {"lastSeenClosedBefore": last_closed, "firstSeenOpen": at, "lastSeenOpen": at, "firstSeenClosed": None}
+                current = {
+                    "lastSeenClosedBefore": last_closed,
+                    "firstSeenOpen": at,
+                    "lastSeenOpen": at,
+                    "firstSeenClosed": None,
+                }
 
             current["lastSeenOpen"] = at
         elif state == "closed":
@@ -434,7 +471,11 @@ def open_intervals(observations: list[tuple[str, str]]) -> list[dict]:
 
 
 def open_duration_bounds(interval: dict, now: str) -> tuple[timedelta, timedelta | None]:
-    """At least: first to last time seen open. At most: last seen closed before, to first seen closed after (or now)."""
+    """(at least, at most) for how long a path was open.
+
+    At least: first to last time seen open.
+    At most: last seen closed before, to first seen closed after (or now).
+    """
     lower = parse_utc(interval["lastSeenOpen"]) - parse_utc(interval["firstSeenOpen"])
 
     if interval["lastSeenClosedBefore"] is None:
@@ -468,7 +509,8 @@ Payments estate: paths to customer data          Snapshot 2026-10-20T14-02-00Z-p
 
 Open paths to customer data          6  →  1     (start of quarter → now)
 Accepted, with controls verified     0  →  1     P4, accepted until 2027-04-01
-Changes needed to close the rest           1     Help desk directory role (ticket rec-5e09b7a1, reopened)
+Changes needed to close the rest           1     Help desk directory role
+                                                 (ticket rec-5e09b7a1, reopened)
 
 What changed
   Verified closed: P1, P2, P3, P5 (owner removal; shared key disabled with policy deny)
