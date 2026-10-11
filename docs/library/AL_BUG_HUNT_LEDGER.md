@@ -19304,6 +19304,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-oidc
 
+2026-10-11 seed hunt (seed-only): re-read the latest concurrent BFF sync/replay, token normalization, discovery endpoint validation, and refresh-hint paths; no new row met the full hunt-ready bar for same-run repro. Seeded three bounded `(candidate)` rows; the focused OIDC suite passed 76/76. No production or regression code changed.
+
 2026-10-11 seed hunt (seed→hit): proved the sync-order fix's blocking promise chain could let a hung older BFF request prevent a newer session from establishing its cookie; replaced it with concurrent sync plus latest-request replay so newer sessions proceed and late responses converge on the newest cookie; regression `does not block a newer sync behind a hung older request`; focused OIDC suite passed 76/76.
 
 2026-10-11 seed hunt (seed→hit): proved concurrent same-session token-to-BFF syncs could complete out of order, letting an older provider response overwrite a newer BFF cookie; serialized token sync writes with a recovery-safe promise chain; regression `keeps an older token sync from overwriting a newer same-session sync`; focused OIDC suite passed 75/75.
@@ -19362,7 +19364,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 43
+- **hunts:** 44
 - **bugs-found:** 38
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-11
@@ -19374,6 +19376,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
+- [ ] (candidate) `syncTokenToBff` — latest-request replay may recursively reapply BFF syncs during rapid primary/Google callback completions — locus: `session.ts`; input: reachable overlapping primary and supplemental OIDC redirects from `initiate-redirect.ts`; wrong outcome: duplicate or unbounded BFF session POSTs during a burst; mechanism: every stale completion recursively replays the current latest request, but the bounded request sequence and convergence behavior need a repro.
+- [ ] (candidate) `syncBffSessionCookieFromTokenResponse` — refresh and ID tokens are forwarded without the access-token trim normalization — locus: `bff-session-sync.ts`; input: token endpoint JSON with a whitespace-padded `refresh_token` or `id_token`; wrong outcome: BFF stores a credential that later fails refresh or nonce validation; mechanism: only `access_token` is trimmed before transport; reachability is the provider token response boundary.
+- [ ] (candidate) `parseDiscoveryDocument` — HTTP(S) endpoint validation permits user-info-bearing authorization URLs — locus: `discovery.ts`; input: configured issuer discovery JSON with `authorization_endpoint: "https://user:pass@issuer.example/authorize"`; wrong outcome: browser authorization navigation exposes credentials in URL/referrer context; mechanism: `new URL()` plus scheme checking does not reject `username`/`password` components; reachability is the configured provider discovery response.
 - [x] (proven) `persistTokenResponse` — a hung older token-to-BFF sync blocks a newer same-session sync, preventing the replacement session from establishing its cookie — **hit 2026-10-11 seed hunt:** the sync-order promise chain awaited every older request; concurrent sync plus latest-request replay lets the newer request proceed and converges late completions on the latest token; regression `does not block a newer sync behind a hung older request` in `session.test.ts`.
 - [x] (proven) `persistTokenResponse` — concurrent same-session token-to-BFF syncs can complete out of order, allowing an older provider response to overwrite a newer BFF cookie — **hit 2026-10-11 seed hunt:** each token response started its own asynchronous sync with no ordering guard; serialize sync writes through a recovery-safe promise chain; regression `keeps an older token sync from overwriting a newer same-session sync` in `session.test.ts`.
 - [x] (proven) `persistNonSensitiveSessionHints` — a replacement token without optional display-name or subject claims leaves the prior user's identity hints in `sessionStorage` — **hit 2026-10-11 seed hunt:** hint writes were conditional but stale keys were never removed, so a same-browser user replacement could display the previous user's name/subject; clear both hint keys before applying each token response; regression `clears stale identity hints when a replacement token has no identity claims` in `session.test.ts`.
