@@ -312,6 +312,30 @@ test.describe(
       await expect(page.getByTestId("not-found-review-packages")).toBeVisible({ timeout: 30_000 });
     });
 
+  test("signed-out deep-link round-trip is independent of the Reviews hub", async ({ page }) => {
+    test.setTimeout(120_000);
+
+    const { accessToken } = requireLivePrivateBetaJwtEnv();
+    const fakeRunId = "00000000-0000-4000-8000-000000000000";
+    const reviewPath = `/architecture/reviews/${toRunGuidPathSegment(fakeRunId)}`;
+
+    await stubEmptyArchitectureDraftListRoute(page);
+    await clearJwtBrowserSession(page);
+    await page.goto(reviewPath, { waitUntil: "domcontentloaded" });
+
+    await expect(page).toHaveURL(/\/auth\/signin(\?|$)/, { timeout: 60_000 });
+
+    const signInUrl = new URL(page.url());
+    const returnUrl = signInUrl.searchParams.get("returnUrl") ?? "";
+
+    expect(decodeURIComponent(returnUrl)).toContain(toRunGuidPathSegment(fakeRunId));
+
+    await writeJwtBrowserSession(page, accessToken);
+    await page.goto(reviewPath, { waitUntil: "domcontentloaded" });
+    await expect(page.getByTestId("branded-not-found")).toBeVisible({ timeout: 60_000 });
+    await expect(page.getByTestId("not-found-review-packages")).toBeVisible({ timeout: 60_000 });
+  });
+
   test.describe("browser journeys", () => {
     test.describe.configure({ mode: "serial" });
 
