@@ -11,6 +11,59 @@ namespace ArchLucid.Integrations.AzureExtractor.Tests;
 public sealed class HostedAzureManagementPostReadClientTests
 {
     [Fact]
+    public async Task QueryPolicyComplianceAsync_rejects_same_subscription_next_link_for_another_resource()
+    {
+        const string subscriptionId = "11111111-1111-1111-1111-111111111111";
+        const string wrongResourceNextLink =
+            $"https://management.azure.com/subscriptions/{subscriptionId}/providers/Microsoft.Authorization/roleAssignments";
+
+        string firstPageBody = """
+                               {
+                                 "value": [
+                                   {
+                                     "policyAssignmentId": "policy-1",
+                                     "complianceState": "Compliant"
+                                   }
+                                 ],
+                                 "@odata.nextLink": "WRONG_RESOURCE_LINK"
+                               }
+                               """.Replace("WRONG_RESOURCE_LINK", wrongResourceNextLink, StringComparison.Ordinal);
+
+        int requestCount = 0;
+        HttpMessageHandler handler = new RecordingHandler(
+            (request, _) =>
+            {
+                int current = Interlocked.Increment(ref requestCount);
+
+                if (current == 1)
+                {
+                    return Task.FromResult(
+                        new HttpResponseMessage(HttpStatusCode.OK)
+                        {
+                            Content = new StringContent(firstPageBody, Encoding.UTF8, "application/json")
+                        });
+                }
+
+                throw new InvalidOperationException(
+                    "Test hang guard: policy compliance query followed a nextLink for another resource.");
+            });
+
+        HostedAzureManagementPostReadClient client = new(
+            new HttpClient(handler),
+            NullLogger<HostedAzureManagementPostReadClient>.Instance);
+
+        HostedAzurePolicyComplianceDocument document = await client.QueryPolicyComplianceAsync(
+            "token-abc",
+            subscriptionId,
+            "subscription",
+            "2026-09-26T00:00:00Z",
+            CancellationToken.None);
+
+        Assert.Equal(1, requestCount);
+        Assert.Single(document.Records);
+    }
+
+    [Fact]
     public async Task QueryPolicyComplianceAsync_rejects_next_link_for_different_subscription_id()
     {
         const string subscriptionId = "11111111-1111-1111-1111-111111111111";
@@ -163,6 +216,61 @@ public sealed class HostedAzureManagementPostReadClientTests
 
         HttpClient httpClient = new(handler);
         HostedAzureManagementPostReadClient client = new(httpClient, NullLogger<HostedAzureManagementPostReadClient>.Instance);
+
+        HostedAzureActualCostSummary? summary = await client.TryQueryActualCostSummaryAsync(
+            "token-abc",
+            subscriptionId,
+            CancellationToken.None);
+
+        Assert.Equal(1, requestCount);
+        Assert.Null(summary);
+    }
+
+    [Fact]
+    public async Task TryQueryActualCostSummaryAsync_rejects_same_subscription_next_link_for_another_resource()
+    {
+        const string subscriptionId = "11111111-1111-1111-1111-111111111111";
+        const string wrongResourceNextLink =
+            $"https://management.azure.com/subscriptions/{subscriptionId}/providers/Microsoft.CostManagement/budgets";
+
+        string firstPageBody = """
+                               {
+                                 "properties": {
+                                   "columns": [
+                                     { "name": "PreTaxCost", "type": "Number" },
+                                     { "name": "ServiceName", "type": "String" },
+                                     { "name": "Currency", "type": "String" }
+                                   ],
+                                   "rows": [
+                                     [ 10.0, "Storage", "USD" ]
+                                   ],
+                                   "nextLink": "WRONG_RESOURCE_LINK"
+                                 }
+                               }
+                               """.Replace("WRONG_RESOURCE_LINK", wrongResourceNextLink, StringComparison.Ordinal);
+
+        int requestCount = 0;
+        HttpMessageHandler handler = new RecordingHandler(
+            (request, _) =>
+            {
+                int current = Interlocked.Increment(ref requestCount);
+
+                if (current == 1)
+                {
+                    return Task.FromResult(
+                        new HttpResponseMessage(HttpStatusCode.OK)
+                        {
+                            Content = new StringContent(firstPageBody, Encoding.UTF8, "application/json")
+                        });
+                }
+
+                throw new InvalidOperationException(
+                    "Test hang guard: ActualCost query followed a nextLink for another resource.");
+            });
+
+        HostedAzureManagementPostReadClient client = new(
+            new HttpClient(handler),
+            NullLogger<HostedAzureManagementPostReadClient>.Instance);
 
         HostedAzureActualCostSummary? summary = await client.TryQueryActualCostSummaryAsync(
             "token-abc",

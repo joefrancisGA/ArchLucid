@@ -30885,16 +30885,18 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ## Zone: cloud-extractors
 
+2026-10-11 thorough hunt (hit): hosted Azure Policy Insights and Actual Cost pagination validated same-subscription cursors but not the collection path, so reachable `@odata.nextLink` / `properties.nextLink` values for `roleAssignments` or `CostManagement/budgets` were fetched and merged as if they belonged to the original query. Reused `EnsureTargetsArmRelativeListingPath` for both expected query paths; regressions `QueryPolicyComplianceAsync_rejects_same_subscription_next_link_for_another_resource` and `TryQueryActualCostSummaryAsync_rejects_same_subscription_next_link_for_another_resource` failed first and passed after the fix.
+
 - **id:** cloud-extractors
 - **status:** open
 - **impact:** high
 - **aliases:** aws extractor; gcp extractor; azure extractor
 - **paths:** ArchLucid.Integrations.AwsExtractor/; ArchLucid.Integrations.GcpExtractor/; ArchLucid.Integrations.AzureExtractor/
 - **test-filter:** FullyQualifiedName~AwsExtractor|FullyQualifiedName~GcpExtractor|FullyQualifiedName~AzureExtractor
-- **hunts:** 78
-- **bugs-found:** 42
+- **hunts:** 79
+- **bugs-found:** 43
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-08
+- **last-hunt:** 2026-10-11
 - **last-bug:** 2026-10-08 — Defender secure score listing followed same-subscription cross-collection next links
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -30925,8 +30927,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - [x] (proven) `ListSubscriptionDefenderSummariesAsync` — a same-subscription ARM `nextLink` into `roleAssignments` passed subscription-only validation and was followed while reading Defender secure scores — **hit 2026-10-08 seed hunt:** required the secureScores listing path after the subscription check; regression `ListSubscriptionDefenderSummariesAsync_rejects_next_link_for_different_security_collection`.
 
-- [ ] (candidate) `HostedAzureManagementPostReadClient.QueryPolicyComplianceAsync` — a same-subscription `@odata.nextLink` whose path is not `policyStates/latest/queryResults` is accepted by `EnsureTargetsSubscription`, then `value` rows from that page are appended. Input: Policy Insights query response whose next link is `https://management.azure.com/subscriptions/{id}/providers/Microsoft.Authorization/roleAssignments`.
-- [ ] (candidate) `HostedAzureManagementPostReadClient.TryQueryActualCostSummaryAsync` — a same-subscription `properties.nextLink` whose path is not the Actual Cost query is accepted by `EnsureTargetsSubscription`, then that page is merged into the cost summary. Input: Cost Management response whose next link is `https://management.azure.com/subscriptions/{id}/providers/Microsoft.CostManagement/budgets`.
+- [x] (proven) `HostedAzureManagementPostReadClient.QueryPolicyComplianceAsync` — a same-subscription Policy Insights `@odata.nextLink` into `Microsoft.Authorization/roleAssignments` was accepted by subscription-only validation and its rows were appended — **hit 2026-10-11 thorough hunt:** require the exact `policyStates/latest/queryResults` listing path; regression `QueryPolicyComplianceAsync_rejects_same_subscription_next_link_for_another_resource`.
+- [x] (proven) `HostedAzureManagementPostReadClient.TryQueryActualCostSummaryAsync` — a same-subscription Actual Cost `properties.nextLink` into `Microsoft.CostManagement/budgets` was accepted by subscription-only validation and fetched as a cost page — **hit 2026-10-11 thorough hunt:** require the exact Cost Management query path; regression `TryQueryActualCostSummaryAsync_rejects_same_subscription_next_link_for_another_resource`.
 
 - [x] (proven) `ListSubscriptionPolicyAssignmentDocumentsAsync` — a same-subscription ARM `nextLink` into `policyDefinitions` passed subscription-only validation and could be followed while reading policy-assignment documents — **hit 2026-10-04 seed hunt:** required the exact subscription policy-assignment listing path; regression `ListSubscriptionPolicyAssignmentDocumentsAsync_rejects_next_link_for_different_policy_collection`.
 
