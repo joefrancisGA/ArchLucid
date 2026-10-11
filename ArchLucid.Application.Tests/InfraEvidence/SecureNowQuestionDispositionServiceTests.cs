@@ -276,6 +276,7 @@ public async Task Foreign_snapshot_cannot_read_or_write()
             {
                 QuestionKey = "unknown-evidence@v1",
                 AnswerCode = "InventedAnswer",
+                EvidenceFingerprint = "C70C7C824299E81D30618883C7BF8C4833B97799C8BBD8B92017CC6CE1E7C9AD",
             },
             "actor");
 
