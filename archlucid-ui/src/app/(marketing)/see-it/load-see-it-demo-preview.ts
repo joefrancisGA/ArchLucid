@@ -32,22 +32,22 @@ export function resolveSeeItDemoApiBase(): string {
   const demoApi = process.env.NEXT_PUBLIC_DEMO_API_BASE?.trim();
 
   if (demoApi)
-    return demoApi.replace(/\/$/, "");
+    return demoApi.replace(/\/+$/, "");
 
   const preview = process.env.NEXT_PUBLIC_DEMO_PREVIEW_API_BASE?.trim();
 
   if (preview)
-    return preview.replace(/\/$/, "");
+    return preview.replace(/\/+$/, "");
 
   const server = process.env.ARCHLUCID_API_BASE_URL?.trim();
 
   if (server)
-    return server.replace(/\/$/, "");
+    return server.replace(/\/+$/, "");
 
   const pub = process.env.NEXT_PUBLIC_ARCHLUCID_API_BASE_URL?.trim();
 
   if (pub)
-    return pub.replace(/\/$/, "");
+    return pub.replace(/\/+$/, "");
 
   return "";
 }
