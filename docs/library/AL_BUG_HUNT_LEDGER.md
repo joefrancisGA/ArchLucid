@@ -17009,6 +17009,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: agent-runtime-evaluation
 
+2026-10-11 seed hunt (seed-only): repeated the selected evaluation source reread after the case-variant fixes; no distinct reachable wrong outcome met the hunt-ready bar. The scoped Evaluation suite passed 213/213; no production or regression code changed.
+
 2026-10-11 seed hunt (seed-only): reread the selected evaluation control paths and remaining heuristic finding/embedding readers; exact-key observations were the already-closed JSON-casing class, and no separate reachable wrong outcome met promotion. The scoped Evaluation suite passed 213/213; no production or regression code changed.
 
 2026-10-11 seed hunt (seed-only): repeated the selected evaluation reread across heuristic trace quality, embedding faithfulness, semantic judging, and cancellation paths; no distinct reachable wrong outcome met the promotion bar after the JSON-boundary fixes. The scoped Evaluation suite passed 213/213; no production or regression code changed.
