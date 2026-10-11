@@ -17009,9 +17009,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: agent-runtime-evaluation
 
+2026-10-11 seed hunt (seed→hit): `HeuristicAgentOutputClaimEvidenceStage` and `HeuristicAgentOutputSemanticEvaluator` used exact-case lookups for claims/evidence fields, so valid case-variant agent output received zero heuristic semantic quality. Claim evidence and overall presence checks now ignore case; regression `Evaluate_matches_case_variant_claims_and_evidence_properties`.
+
+- [x] (proven) `HeuristicAgentOutputClaimEvidenceStage.Evaluate` / `HeuristicAgentOutputSemanticEvaluator.ComputeOverallScore` — case-variant claims and evidence references were ignored, producing an incorrect zero semantic score — **hit 2026-10-11 seed hunt:** use case-insensitive lookups for claim/evidence fields; regression `Evaluate_matches_case_variant_claims_and_evidence_properties`.
+
 2026-10-11 seed hunt (seed-only): re-read the evaluation JSON readers after the case-variant fixes; no distinct new reachable wrong outcome met the same-run promotion bar. The scoped Evaluation suite passed 212/212; no production or regression code changed.
 
-- [ ] (candidate) `HeuristicAgentOutputClaimEvidenceStage.Evaluate` — nested claim fields such as `evidenceRefs` and `evidence` still use exact-case lookups, which may under-score a reachable case-variant payload in the heuristic semantic path; requires a focused caller-level repro before promotion.
+- [x] (proven) `HeuristicAgentOutputClaimEvidenceStage.Evaluate` — nested claim fields such as `evidenceRefs` and `evidence` used exact-case lookups and under-scored a reachable case-variant payload — **hit 2026-10-11 seed hunt:** claim/evidence lookup now ignores case; regression `Evaluate_matches_case_variant_claims_and_evidence_properties`.
 
 2026-10-11 seed hunt (seed→hit): `AgentOutputTraceFindingCitationCoverageApplicator.TryParseFindings` required an exact lowercase top-level `findings` property, so a reachable case-variant real-agent payload left finding-citation coverage unset and could alter PilotStrict evaluation. Top-level finding lookup now ignores case; regression `Apply_real_task_matches_case_variant_findings_property`.
 
