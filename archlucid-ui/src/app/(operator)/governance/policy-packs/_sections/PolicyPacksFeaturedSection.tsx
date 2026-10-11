@@ -1,0 +1,39 @@
+"use client";
+
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { StatusTag } from "@/components/ui/status-tag";
+import type { PolicyPackWorkspaceSelectionItem } from "@/types/policy-packs";
+
+type Props = {
+  readonly items: readonly PolicyPackWorkspaceSelectionItem[];
+};
+
+export function PolicyPacksFeaturedSection(props: Props): React.JSX.Element | null {
+  if (props.items.length === 0) {
+    return null;
+  }
+
+  return (
+    <section aria-labelledby="policy-packs-featured-heading" data-testid="policy-packs-featured">
+      <div className="mb-2 flex items-center gap-2">
+        <h2 id="policy-packs-featured-heading" className={OPERATOR_TYPOGRAPHY.cardTitle}>
+          Featured
+        </h2>
+        <StatusTag kind="neutral" label="Recommended starting frameworks" />
+      </div>
+      <ul className="m-0 list-none divide-y rounded-md border p-0">
+        {props.items.map((item) => (
+          <li key={item.assignmentId} className="flex items-center justify-between gap-3 px-3 py-2">
+            <div className="min-w-0">
+              <p className={OPERATOR_TYPOGRAPHY.body}>{item.name}</p>
+              {item.description ? (
+                <p className={OPERATOR_TYPOGRAPHY.helper}>{item.description}</p>
+              ) : null}
+            </div>
+            <StatusTag kind={item.isEnabled ? "ready" : "neutral"} label={item.isEnabled ? "Enabled" : "Available"} />
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
