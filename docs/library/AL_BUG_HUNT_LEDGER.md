@@ -35227,6 +35227,8 @@ ABQ-09 churn hotspot; intake wizard route tree.
 
 ## Zone: ui-governance-findings-queue
 
+2026-10-11 seed hunt (seed-only): `ui-governance-findings-queue` — reread the selected queue client, synopsis/results path, visibility URL handling, and focused client tests; no new hunt-ready row met the reachability and wrong-outcome bar. The exact client file ran 22 tests with 11 existing external-store/update-depth and workspace-label baseline failures; seeded bounded candidates for filter-state/router replacement ordering, duplicate loaded finding identities, and saved-view facet-shape normalization, with no production or regression change.
+
 2026-10-11 thorough hunt (hit): the generated risk-register contract marks `findingId` optional, but `riskRegisterRows` copied an absent value into a finding row. The queue then exposed a bulk-selection checkbox whose URL builder called `.trim()` on `undefined`; regression `drops risk-register entries without a finding id before queue selection` failed first and passed after filtering blank IDs. The direct mapper test passed; the picker-scoped client file retained 11 existing external-store/update-depth and workspace-label baseline failures.
 
 2026-10-10 thorough hunt (dry): cheap-disproved the approval-provenance candidate because the selected client has no reachable provenance source, and the malformed saved-view candidate because `applyFindingsSavedViewFilters` normalizes non-object filters to safe defaults. The blank finding-id candidate lacks an established API contract and did not meet the failing-repro bar; the focused client file ran 22 tests with 11 existing external-store/update-depth and workspace-label baseline failures. No production change.
@@ -35239,7 +35241,7 @@ ABQ-09 churn hotspot; intake wizard route tree.
 - **aliases:** governance findings queue
 - **paths:** archlucid-ui/src/app/(operator)/governance/findings/
 - **test-filter:** FullyQualifiedName~GovernanceFindingsQueueClient
-- **hunts:** 39
+- **hunts:** 40
 - **bugs-found:** 28
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-11
@@ -35276,6 +35278,10 @@ ABQ-09 churn hotspot.
 - [x] (valid-no-repro) `useGovernanceFindingsQueueSynopsis` — `firstFindingTriageTarget` is derived after density filtering, so working-mode low-density hiding may skip the earliest loaded finding in the first-finding action — **cheap-disproof 2026-10-10 thorough hunt:** the action intentionally targets the first visible actionable row after the user’s active filters; no wrong navigation outcome was reachable in the selected files.
 - [x] (invalid) `useGovernanceFindingsQueueSynopsis` — sponsor handoff is derived from `scopedRunId` alone, so an architecture-scoped queue without `runId` may lose the active architecture context in the handoff URL — **cheap-disproof 2026-10-10 thorough hunt:** the helper’s destination is a review-package route that requires a concrete review run; architecture-only scope has no review-package handoff contract in the selected files.
 - [x] (valid-no-repro) `useGovernanceFindingsQueueFacets.clearFacetFilters` — chained URL replacement can rebuild from a render-time query while App Router changes the queue URL, potentially restoring a removed job view or natural-language facet — **cheap-disproof 2026-10-10 thorough hunt:** the cleared NL query is explicitly passed into the final job-view helper and the URL-sync regression preserves unrelated run/search scope; seven focused helper/hook tests passed.
+
+- [ ] (candidate) `GovernanceFindingsQueueClient.clearAllFilters` / `showAllFilteredFindings` — a reachable rapid filter interaction may update local facet state before the router replacement commits and leave the visible queue temporarily out of sync with the final cleared URL; requires a distinct stale-render outcome beyond the existing atomic URL-helper coverage.
+- [ ] (candidate) `GovernanceFindingsQueueClient.availableFindingIds` — duplicate finding rows returned by the reachable queue source collapse in the `Set`, which may make selection counts or page-level checkbox state disagree with rendered duplicate rows; requires an API fixture and a wrong-selection outcome.
+- [ ] (candidate) `GovernanceFindingsQueueClient.onLoadFindingsSavedView` — a reachable saved view with a structurally valid but semantically unexpected facet payload may pass the filter cast and normalize to a different queue than the saved-view contract promises; requires a concrete saved-view payload contract and a falsifiable mismatch.
 
 - [x] (invalid) `GovernanceFindingsQueueClient` / `useOperatorScopeRecord` — **cheap-disproof 2026-10-09 thorough hunt:** `readOperatorScopeFromStorage` caches the parsed snapshot by raw storage value, so the selected route does not supply the proposed fresh-object snapshot mechanism.
 - [x] (valid-no-repro) `GovernanceFindingsQueueClient` — **cheap-disproof 2026-10-09 thorough hunt:** the workspace-label baseline fails under the existing empty-storage test setup, but the synchronous render reads the same cached scope reader and no storage transition reproduced a label mismatch reachable from the route.
