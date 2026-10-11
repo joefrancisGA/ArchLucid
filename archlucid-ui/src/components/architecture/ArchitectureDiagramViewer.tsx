@@ -63,6 +63,10 @@ import {
 } from '@/lib/architecture/architecture-diagram-click-focus';
 import type { InfraEvidenceMermaidOutline } from '@/lib/infra-evidence/parse-infra-evidence-mermaid-outline';
 import {
+  INFRA_EVIDENCE_INVENTORY_EDGE_PANEL_AUTHORIZATION_HINT,
+  INFRA_EVIDENCE_INVENTORY_EDGE_PANEL_HOSTNAME_HINT,
+} from '@/lib/infra-evidence/infra-evidence-diagram-copy';
+import {
   applyMermaidSvgViewportZoom,
   fitMermaidSvgElementToHost,
   fitMermaidSvgElementToViewport,
@@ -275,6 +279,36 @@ function clearClickFocusClasses(svg: SVGSVGElement): void {
   svg.querySelectorAll('.diagram-click-dim').forEach((element) => {
     element.classList.remove('diagram-click-dim');
   });
+}
+
+function resolveFocusedNodeConnectionHint(
+  nodeId: string,
+  outline: InfraEvidenceMermaidOutline | null,
+): string | null {
+  if (outline === null) {
+    return null;
+  }
+
+  const normalizedNodeId = normalizeDiagramFocusToken(nodeId);
+  const incidentEdges = outline.edges.filter((edge) => (
+    normalizeDiagramFocusToken(edge.from) === normalizedNodeId
+    || normalizeDiagramFocusToken(edge.to) === normalizedNodeId
+  ));
+  const hasAuthorizationEdge = incidentEdges.some((edge) => (
+    edge.inferenceSource === 'inventory-app-authorized-access'
+    || edge.label?.toLowerCase().includes('may access') === true
+  ));
+
+  if (hasAuthorizationEdge) {
+    return INFRA_EVIDENCE_INVENTORY_EDGE_PANEL_AUTHORIZATION_HINT;
+  }
+
+  const hasHostnameEdge = incidentEdges.some((edge) => (
+    edge.inferenceSource === 'inventory-hostname-inferred-target'
+    || edge.label?.toLowerCase().includes('likely connected') === true
+  ));
+
+  return hasHostnameEdge ? INFRA_EVIDENCE_INVENTORY_EDGE_PANEL_HOSTNAME_HINT : null;
 }
 
 function applyConnectorSelectionClasses(
@@ -1277,6 +1311,9 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
       node.id === clickFocus.id
       || node.seedNodeId === clickFocus.id
     )) ?? null;
+  const focusedNodeConnectionHint = clickFocus === null || clickFocus.memberNames !== undefined
+    ? null
+    : resolveFocusedNodeConnectionHint(clickFocus.id, outline);
 
   const renderMermaidInk = (
     hostRef: React.RefObject<HTMLDivElement | null>,
@@ -1344,6 +1381,9 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
               ? clickFocus.name
               : `Showing connections for ${clickFocus.name}.`}
           </p>
+          {focusedNodeConnectionHint !== null ? (
+            <p className="m-0 mt-1">{focusedNodeConnectionHint}</p>
+          ) : null}
           {clickFocus.memberNames !== undefined ? (
             <ul className="m-0 mt-1 list-disc pl-5">
               {clickFocus.memberNames.map((memberName) => (
