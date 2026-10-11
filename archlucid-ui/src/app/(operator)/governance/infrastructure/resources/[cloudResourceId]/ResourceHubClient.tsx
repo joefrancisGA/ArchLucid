@@ -1378,10 +1378,10 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                 <div className="mb-2 flex flex-wrap items-center gap-2">
                   <StatusTag
                     kind={resolveDiagramCorrespondenceStatusKind(
-                      hub.diagramCorrespondence.matchKind,
+                      hub.diagramCorrespondence.matchKind ?? "",
                       hub.diagramCorrespondence.confidenceBand,
                     )}
-                    label={hub.diagramCorrespondence.matchKind}
+                    label={hub.diagramCorrespondence.matchKind ?? "Match kind was not stored."}
                   />
                   <StatusTag
                     kind={resolveDiagramCorrespondenceConfidenceStatusKind(hub.diagramCorrespondence.confidenceBand)}
@@ -1391,7 +1391,9 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                 <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
                   Match kind describes how the captured resource and diagram item correspond. Confidence band describes the evidence strength for that correspondence.
                 </p>
-                <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{hub.diagramCorrespondence.explainText}</p>
+                <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
+                  {hub.diagramCorrespondence.explainText ?? "Correspondence explanation was not stored."}
+                </p>
                 <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
                   This explanation describes the recorded correspondence result, not observed runtime traffic.
                 </p>
@@ -1518,7 +1520,9 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
             {[hub.operationalSecurityFindings, hub.architectureReviewFindings].map((stream) => (
               <section key={stream.streamKind} className={cnCard}>
                 <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-                  <h2 className={OPERATOR_TYPOGRAPHY.sectionTitle}>{stream.streamLabel}</h2>
+                  <h2 className={OPERATOR_TYPOGRAPHY.sectionTitle}>
+                    {stream.streamLabel ?? "Findings stream label was not stored."}
+                  </h2>
                   {formatResourceHubFindingStreamCaption(stream.items.length, stream.totalCount, stream.hasMore) != null ? (
                     <Link
                       className={OPERATOR_LINK.inline}
@@ -1539,7 +1543,9 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                     testId={`infra-resource-hub-findings-empty-${stream.streamKind}`}
                   />
                 ) : (
-                  <EnterpriseTable ariaLabel={`${stream.streamLabel} findings`}>
+                  <EnterpriseTable
+                    ariaLabel={`${stream.streamLabel ?? "Findings stream label was not stored."} findings`}
+                  >
                     <EnterpriseTableHead>
                       <EnterpriseTableRow>
                         <EnterpriseTableHeaderCell>

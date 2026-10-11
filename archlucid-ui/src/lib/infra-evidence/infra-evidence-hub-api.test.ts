@@ -1,6 +1,9 @@
 import { describe, expect, it, vi } from "vitest";
 
-import { fetchCloudResourceExplorerPage } from "@/lib/infra-evidence/infra-evidence-hub-api";
+import {
+  fetchCloudResourceEvidenceHub,
+  fetchCloudResourceExplorerPage,
+} from "@/lib/infra-evidence/infra-evidence-hub-api";
 import { proxyJsonGet } from "@/lib/proxy-json-client";
 
 vi.mock("@/lib/proxy-json-client", () => ({
@@ -41,5 +44,28 @@ describe("infra-evidence-hub-api", () => {
         lastSeenUtc: "2026-09-25T12:00:00Z",
       }),
     ]);
+  });
+
+  it("preserves missing versus empty hub correspondence and stream values", async () => {
+    vi.mocked(proxyJsonGet).mockResolvedValueOnce({
+      cloudResourceId: "resource-1",
+      externalResourceId: "external-1",
+      diagramCorrespondence: {
+        correspondenceId: "corr-1",
+        matchKind: "",
+        explainText: "",
+      },
+      operationalSecurityFindings: { streamKind: "operational" },
+      architectureReviewFindings: { streamKind: "architecture", streamLabel: "" },
+    });
+
+    const hub = await fetchCloudResourceEvidenceHub("resource-1", {});
+
+    expect(hub.diagramCorrespondence).toEqual(expect.objectContaining({
+      matchKind: "",
+      explainText: "",
+    }));
+    expect(hub.operationalSecurityFindings.streamLabel).toBeNull();
+    expect(hub.architectureReviewFindings.streamLabel).toBe("");
   });
 });

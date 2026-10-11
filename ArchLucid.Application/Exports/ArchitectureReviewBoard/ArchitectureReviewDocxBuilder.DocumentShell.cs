@@ -119,7 +119,15 @@ public sealed partial class ArchitectureReviewDocxBuilder
             ArchitectureReviewDocxOpenXmlPrimitives.AddCenteredStyledParagraph(body, cover.Subtitle, "DocSubtitle");
         }
 
-        if (!string.IsNullOrWhiteSpace(cover.PreparedForTenantName))
+        if (cover.PreparedForTenantName is null)
+        {
+            ArchitectureReviewDocxOpenXmlPrimitives.AddSpacer(body, 2);
+            ArchitectureReviewDocxOpenXmlPrimitives.AddCenteredStyledParagraph(
+                body,
+                ArchitectureReviewBoardCoverPageContent.PreparedForTenantNameNotStoredNotice,
+                "BodyText");
+        }
+        else
         {
             ArchitectureReviewDocxOpenXmlPrimitives.AddSpacer(body, 2);
             ArchitectureReviewDocxOpenXmlPrimitives.AddCenteredStyledParagraph(

@@ -205,7 +205,11 @@ function documentationDecisionKey(
   return `${subjectKind}:${subjectKey}`;
 }
 
-function formatDocumentationDecisionState(state: string): string {
+export function formatDocumentationDecisionState(state: string | null | undefined): string {
+  if (state == null) {
+    return "Carry-forward state was not stored.";
+  }
+
   if (state === "EvidenceChanged") {
     return "Evidence changed";
   }
@@ -2431,7 +2435,9 @@ export function DiagramReconcileWorkbenchClient() {
                           label={formatDiagramReconcileEdgeGapKindLabel(gap.gapKind)}
                         />
                       </EnterpriseTableCell>
-                      <EnterpriseTableCell>{gap.explainText}</EnterpriseTableCell>
+                      <EnterpriseTableCell>
+                        {gap.explainText ?? "Connector gap explanation was not stored."}
+                      </EnterpriseTableCell>
                       <EnterpriseTableCell>
                         {documentationDecisionAvailable ? (
                           <div className="flex flex-col gap-1">

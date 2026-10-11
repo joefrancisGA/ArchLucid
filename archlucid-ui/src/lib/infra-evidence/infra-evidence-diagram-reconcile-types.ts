@@ -33,9 +33,9 @@ export type DiagramInfrastructureCorrespondenceRow = {
   resourceType: string | null;
   resourceGroup: string | null;
   terraformAddress: string | null;
-  matchKind: string;
+  matchKind?: string | null;
   confidenceBand: string;
-  explainText: string;
+  explainText?: string | null;
   aiRationale: string | null;
   securityDiscrepancy: boolean;
 };
@@ -47,7 +47,7 @@ export type DiagramInfrastructureEdgeGapRow = {
   diagramEdgeId: string | null;
   associationType: string | null;
   gapKind: string;
-  explainText: string;
+  explainText?: string | null;
 };
 
 export type DiagramInfrastructureReconciliationResult = {
@@ -77,7 +77,7 @@ export type InfrastructureDiagramDocumentationDecision = {
   subjectKind: "DiagramNode" | "InventoryResource" | "EdgeGap";
   subjectKey: string;
   decision: "UpdateDrawing" | "AcceptAsUndocumented" | "CheckInventory";
-  carryForwardState: "StillOpen" | "NoLongerInCapture" | "EvidenceChanged";
+  carryForwardState?: "StillOpen" | "NoLongerInCapture" | "EvidenceChanged" | null;
   updatedUtc: string;
 };
 
