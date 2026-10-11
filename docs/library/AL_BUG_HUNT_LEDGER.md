@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-11 seed hunt (seed-only): `host-core-coordination` — re-read the processor isolation shell and option verification path; the existing candidate set remains contract-dependent and no new reachable wrong outcome emerged. The focused coordination/outbox filter passed 21/21. No production or regression code changed.
+
 2026-10-11 seed hunt (seed-only): `host-core-coordination` — repeated the option-verifier, retry-calculator, shared failure-handler, and processor-isolation review; no fresh reachable mechanism-backed candidate emerged and the five existing bounded candidates remain unchanged. The focused coordination/outbox filter passed 21/21. No production or regression code changed.
 
 2026-10-11 seed hunt (seed-only): `host-core-coordination` — repeated the same selected coordination files and completion/error paths; no new reachable wrong outcome or hunt-ready row emerged, so the five bounded candidates remain unchanged. The focused coordination/outbox filter passed 21/21. No production or regression code changed.
@@ -7858,7 +7860,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** ARCH006; tenant scoped query analyzer
 - **paths:** ArchLucid.Analyzers/TenantScopedQueryScopeBindingAnalyzer.cs
 - **test-filter:** FullyQualifiedName~TenantScopedQueryScopeBindingAnalyzerTests
-- **hunts:** 37
+- **hunts:** 38
 - **bugs-found:** 22
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-09
