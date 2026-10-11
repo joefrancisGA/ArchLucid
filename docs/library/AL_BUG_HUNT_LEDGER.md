@@ -33970,6 +33970,8 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: ui-marketing-surfaces
 
+2026-10-11 seed hunt (seed-only): re-read Quick Scan browser/session identity helpers, sample loading and submit lifecycle, showcase telemetry, and the demo artifact body; no fresh row met the same-run hunt-ready bar. Seeded five bounded candidates for whitespace-padded browser identifiers, overlapping sample-result requests, status-transition sample overwrite, duplicate showcase-view telemetry on render-mode changes, and missing optional artifact sections. Three focused artifact-navigation suites passed 6/6; no production or regression code changed.
+
 2026-10-11 seed hunt (seed→hit): `DemoPreviewArtifactNav` selected the active artifact from only the latest `IntersectionObserver` entries, so a later callback containing a less-visible section could override the actually most-visible section. Persisted intersection ratios per section and selected from the full known visibility state; regression `keeps the most visible section active when a later observer callback reports only another section`; three focused artifact-navigation suites passed 6/6.
 
 2026-10-11 thorough hunt #29 (dry): cheap-disproved five open `(candidate)` rows: `fetchShowcasePayload` already rejects whitespace-only `eventType`; showcase validation rejects duplicate trimmed timeline `eventId` values before `DemoPreviewMarketingBody` renders; curated `http_error` fallback already carries `api_fallback` telemetry; `SignupVerifyClient` polling does not mutate `initialLoadFailed`; and `buildSignInTrialHref` intentionally uses the fixed `source=get-started` onboarding return path rather than forwarding URL query attribution. No production change; 45 scoped marketing vitest tests passed.
@@ -33998,7 +34000,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** marketing pages; pricing; trust center UI
 - **paths:** archlucid-ui/src/app/(marketing)/
 - **test-filter:** marketing
-- **hunts:** 32
+- **hunts:** 33
 - **bugs-found:** 34
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-11
@@ -34015,6 +34017,12 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) `DemoPreviewMarketingBody.toAuthorityPipelineItems` dereferenced null timeline entries after `fetchShowcasePayload` validated only the array container, so malformed live JSON crashed the showcase page — **hit 2026-09-30 seed hunt:** reject null/non-object timeline rows as invalid; regression `treats API payloads with a null timeline row as invalid` in `showcase-page.test.tsx`.
 
 ### Hypotheses
+
+- [ ] (candidate) `ensureSessionId` — a whitespace-padded existing `localStorage` value is forwarded unchanged as `X-Quick-Scan-Session`; input: browser storage contains `" session-id "`; wrong outcome: the anonymous Quick Scan request can use a non-canonical rate-limit/session identity; reachability: browser-controlled `al_quick_scan_session` storage and the POST header in `useQuickScanClient`.
+- [ ] (candidate) `ensureBrowserId` — a whitespace-padded existing `localStorage` value is forwarded unchanged as `X-Quick-Scan-Browser`; input: browser storage contains `" browser-id "`; wrong outcome: browser-level abuse accounting can split or miss the intended identity; reachability: browser-controlled `al_quick_scan_browser` storage and the POST header in `useQuickScanClient`.
+- [ ] (candidate) `useQuickScanClient.showSampleResult` — overlapping sample requests can commit in completion order rather than activation order; input: two reachable “View sample” clicks with delayed responses; wrong outcome: an older sample response can replace the later selected sample state; reachability: the visible sample links in `QuickScanWorkspaceSection`.
+- [ ] (candidate) `ShowcasePageTelemetry` — a client-side render-mode prop transition records another `showcase_viewed` event for the same run; input: the same route changes from `api` to `api_fallback`; wrong outcome: page-view analytics overcounts a single showcase visit; reachability: the server-selected render mode is passed to the mounted client telemetry component.
+- [ ] (candidate) `DemoPreviewArtifactNav` — static navigation buttons remain rendered when an optional artifact section is absent; input: a preview body omits one artifact section while the nav remains mounted; wrong outcome: a visible guided-path control scrolls to no target; reachability: `document.getElementById` filtering in the nav and the preview section composition.
 
 - [x] (proven) `resolveSeeItDemoApiBase` removes only one trailing slash — **hit 2026-10-11 thorough hunt #31:** `NEXT_PUBLIC_DEMO_API_BASE="https://demo.example///"` produced a malformed preview URL; normalize all trailing slashes; regression in `see-it.test.tsx`.
 - [x] (proven) `resolveShowcaseApiBase` removes only one trailing slash — **hit 2026-10-11 thorough hunt #31:** `NEXT_PUBLIC_DEMO_PREVIEW_API_BASE="https://demo.example///"` produced a malformed showcase URL; normalize all trailing slashes; regression in `showcase-page-server-resolution.test.ts`.
