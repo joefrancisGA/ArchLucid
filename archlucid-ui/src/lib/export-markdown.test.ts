@@ -386,6 +386,61 @@ describe("formatGoldenManifestMarkdown", () => {
     expect(md).toContain("**W1:** Add probes.");
   });
 
+  it("distinguishes missing highlights from stored empty highlights", () => {
+    const base = {
+      schemaVersion: "archlucid.golden-manifest.v1",
+      summary: {},
+    };
+
+    expect(formatGoldenManifestMarkdown({ ...base, highlights: null })).toContain(
+      "Highlights were not stored.",
+    );
+    expect(formatGoldenManifestMarkdown(base)).toContain("Highlights were not stored.");
+    expect(formatGoldenManifestMarkdown({ ...base, highlights: [] })).toContain(
+      "_No highlights were present._",
+    );
+    expect(formatGoldenManifestMarkdown({ ...base, highlights: [] })).not.toContain(
+      "Highlights were not stored.",
+    );
+  });
+
+  it("distinguishes missing manifest versions from stored blank versions", () => {
+    expect(formatGoldenManifestMarkdown({ metadata: null })).toContain("Review record version was not stored.");
+    expect(formatGoldenManifestMarkdown({ metadata: { manifestVersion: null } })).toContain(
+      "Review record version was not stored.",
+    );
+    expect(formatGoldenManifestMarkdown({ metadata: { manifestVersion: "" } })).not.toContain(
+      "Review record version was not stored.",
+    );
+    expect(formatGoldenManifestMarkdown({ metadata: { manifestVersion: "  " } })).not.toContain(
+      "Review record version was not stored.",
+    );
+  });
+
+  it("distinguishes missing trust notices from stored blank notices", () => {
+    const base: RunTrustEvidenceCard = {
+      selfAttestationNotice: "",
+      executionMode: { title: "Execution mode", status: "Available", detail: null },
+      goldenManifest: { title: "Golden manifest", status: "Available", detail: null },
+      auditTrail: { title: "Audit trail", status: "Available", detail: null },
+      agentTraces: { title: "Agent traces", status: "Available", detail: null },
+      artifactBundlePointer: { title: "Artifact bundle", status: "Available", detail: null },
+      traceabilityExport: { title: "Traceability export", status: "Available", detail: null },
+      aiExplainability: { title: "AI explainability", status: "Available", detail: null },
+      topFinding: null,
+      links: [],
+    };
+    expect(formatTrustEvidenceCardMarkdown({ ...base, selfAttestationNotice: null })).toContain(
+      "Self-attestation notice was not stored.",
+    );
+    expect(formatTrustEvidenceCardMarkdown({ ...base, selfAttestationNotice: undefined })).toContain(
+      "Self-attestation notice was not stored.",
+    );
+    expect(formatTrustEvidenceCardMarkdown({ ...base, selfAttestationNotice: "" })).not.toContain(
+      "Self-attestation notice was not stored.",
+    );
+  });
+
   it("falls back to manifest summary when JSON is missing", () => {
     const summary: ManifestSummary = {
       manifestId: "m9",
