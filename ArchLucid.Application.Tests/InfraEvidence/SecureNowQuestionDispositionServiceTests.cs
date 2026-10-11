@@ -284,6 +284,28 @@ public async Task Foreign_snapshot_cannot_read_or_write()
         repository.Rows.Should().BeEmpty();
     }
 
+    [Fact]
+    public async Task Stale_evidence_fingerprint_is_rejected_before_persisting_an_answer()
+    {
+        InMemoryDispositionRepository repository = new();
+        SecureNowQuestionDispositionService sut = CreateSut(repository, includeQuestion: true);
+
+        SecureNowQuestionDispositionMutationResult result = await sut.AnswerAsync(
+            Scope,
+            SnapshotId,
+            CreateWriteRequest("sub-1", "/subscriptions/sub-1/resource") with
+            {
+                QuestionKey = "unknown-evidence@v1",
+                AnswerCode = "NamePeer",
+                EvidenceFingerprint = "stale-fingerprint",
+            },
+            "actor");
+
+        result.Succeeded.Should().BeFalse();
+        result.ErrorMessage.Should().Be("Question evidence has changed.");
+        repository.Rows.Should().BeEmpty();
+    }
+
     private static SecureNowQuestionDispositionService CreateSut(
         InMemoryDispositionRepository repository,
         bool snapshotOwned = true,

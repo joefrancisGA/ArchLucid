@@ -288,6 +288,12 @@ public sealed class SecureNowQuestionDispositionService(
         if (question is null)
             return "Question was not found.";
 
+        if (!string.Equals(
+                question.EvidenceFingerprint,
+                request.EvidenceFingerprint.Trim(),
+                StringComparison.Ordinal))
+            return "Question evidence has changed.";
+
         return question.AnswerCodes.Contains(
                    request.AnswerCode!.Trim(),
                    StringComparer.OrdinalIgnoreCase)
