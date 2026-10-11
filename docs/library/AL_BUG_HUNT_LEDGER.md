@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-11 thorough hunt (dry): `cli-tenant-isolation` — repeated the selected zone after another unchanged picker result; the five candidates remain candidate-only, with no reachable input producing a wrong outcome in the selected CLI paths. The focused `TenantIsolationNegativeTestRunner` filter passed 54/54. No production change.
+
 2026-10-11 thorough hunt (dry): `cli-tenant-isolation` — repeated the selected runner hunt; no candidate reached the required locus/input/wrong-outcome/mechanism/reachability bar, and the 54 focused tests remained green. No failing repro or production change.
 
 2026-10-11 thorough hunt (dry): `cli-tenant-isolation` — repeated the selected focused run after the prior dry result; all five candidates remain unsupported by a reachable wrong outcome in the selected CLI files, and the existing tests cover the relevant 2xx/4xx/5xx, malformed-list, pagination, and cursor paths. The focused `TenantIsolationNegativeTestRunner` filter passed 54/54. No production change.
