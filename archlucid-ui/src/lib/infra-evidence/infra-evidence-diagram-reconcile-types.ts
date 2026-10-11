@@ -77,6 +77,7 @@ export type InfrastructureDiagramDocumentationDecision = {
   subjectKind: "DiagramNode" | "InventoryResource" | "EdgeGap";
   subjectKey: string;
   decision: "UpdateDrawing" | "AcceptAsUndocumented" | "CheckInventory";
+  carryForwardState: "StillOpen" | "NoLongerInCapture" | "EvidenceChanged";
   updatedUtc: string;
 };
 
