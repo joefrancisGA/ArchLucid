@@ -113,8 +113,8 @@ export function formatSandboxStyleGoldenManifest(m: Record<string, unknown>): st
 
       if (h.disposition === null || h.disposition === undefined) {
         lines.push("- Disposition was not stored.");
-      } else {
-        lines.push(`- **Disposition:** ${h.disposition}`);
+      } else if (typeof h.disposition === "string") {
+        lines.push(`- **Disposition:** ${disposition ?? ""}`);
       }
 
       if (rationale) {
