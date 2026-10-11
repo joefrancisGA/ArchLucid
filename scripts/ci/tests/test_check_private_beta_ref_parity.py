@@ -45,7 +45,9 @@ class TestPrivateBetaRefParity(unittest.TestCase):
         workflow = "\n".join(sut.REQUIRED_MARKERS)
         spec = " ".join(sut.REQUIRED_SPEC_MARKERS)
         helper = " ".join(sut.REQUIRED_HELPER_MARKERS)
-        readiness = " ".join(marker for marker in sut.REQUIRED_READINESS_MARKERS if marker != "[dead-link-404]")
+        readiness = " ".join(
+            marker for marker in sut.REQUIRED_READINESS_MARKERS if marker != "[dead-link-404]"
+        )
 
         def fake_show(ref: str, path: str) -> str:
             if path == sut.WORKFLOW_PATH:

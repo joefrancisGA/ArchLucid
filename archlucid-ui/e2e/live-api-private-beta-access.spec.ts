@@ -312,6 +312,54 @@ test.describe(
       await expectLiveBrandedNotFoundRecovery(page);
     });
 
+  test("signed-out deep-link round-trip is independent of the Reviews hub", async ({ page }) => {
+    test.setTimeout(120_000);
+
+    const { accessToken } = requireLivePrivateBetaJwtEnv();
+    const fakeRunId = "00000000-0000-4000-8000-000000000000";
+    const reviewPath = `/architecture/reviews/${toRunGuidPathSegment(fakeRunId)}`;
+
+    await stubEmptyArchitectureDraftListRoute(page);
+    await clearJwtBrowserSession(page);
+    await page.goto(reviewPath, { waitUntil: "domcontentloaded" });
+
+    await expect(page).toHaveURL(/\/auth\/signin(\?|$)/, { timeout: 60_000 });
+
+    const signInUrl = new URL(page.url());
+    const returnUrl = signInUrl.searchParams.get("returnUrl") ?? "";
+
+    expect(returnUrl).toBe(reviewPath);
+
+    await writeJwtBrowserSession(page, accessToken);
+    await expect(async () => {
+      await page.goto(reviewPath, { waitUntil: "domcontentloaded" });
+      await expect(page.getByTestId("branded-not-found")).toBeVisible({ timeout: 10_000 });
+    }).toPass({ timeout: 60_000, intervals: [1_000, 3_000, 5_000] });
+    await expect(page.getByTestId("not-found-review-packages")).toBeVisible({ timeout: 60_000 });
+  });
+
+  test("session-expiry recovery is independent of the Reviews hub", async ({ page }) => {
+    test.setTimeout(120_000);
+
+    const { accessToken } = requireLivePrivateBetaJwtEnv();
+    const reviewPath = `/architecture/reviews/${toRunGuidPathSegment("00000000-0000-4000-8000-000000000000")}`;
+
+    await primePrivateBetaBrowserPage(page, accessToken);
+    await page.goto("/", { waitUntil: "domcontentloaded" });
+    await waitAndDismissFirstSessionPurposeChooser(page);
+    await expectPrivateBetaStartIntakeSurface(page);
+
+    await clearJwtBrowserSession(page);
+    await page.goto(
+      `/auth/session-expired?reason=idle-timeout&returnUrl=${encodeURIComponent(reviewPath)}`,
+      { waitUntil: "domcontentloaded" },
+    );
+
+    await expect(page.getByTestId("session-expired-heading")).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByRole("button", { name: /sign in/i })).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByTestId("fatal-page-report-problem-row")).toBeVisible({ timeout: 30_000 });
+  });
+
   test.describe("browser journeys", () => {
     // Keep independent invitee journeys running after a Reviews-hub failure so one
     // diagnostic timeout cannot hide the remaining private-beta access coverage.

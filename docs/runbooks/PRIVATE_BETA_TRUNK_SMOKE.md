@@ -177,6 +177,44 @@ cd archlucid-ui && npx playwright test live-api-private-beta-access.spec.ts --wo
 cd archlucid-ui && npx playwright test live-api-scim-invite-substitute-smoke.spec.ts live-api-invite-flow.spec.ts live-api-private-beta-wave-3.spec.ts live-api-private-beta-access.spec.ts --workers=1
 ```
 
+## RC35 staging-dispatch record — `c8c9102b2e`
+
+| Field | Recorded value |
+| --- | --- |
+| RC35 SHA | `c8c9102b2e8f120e6a0251e40d648d925cf4d399` |
+| Staging workflow | `.github/workflows/cd-staging-on-merge.yml` |
+| Dispatch status | **Not dispatched** |
+| Staging deployment | **No run observed** |
+| Gate 1 | **UNKNOWN** |
+
+This is a release-cut record only. It does not dispatch staging, claim a staging deployment,
+or establish the observed first-review Gate 1 evidence. An owner must dispatch and witness the
+staging first review separately.
+
+## Wizard-fixed RC35 witness handoff — `04b3c68226`
+
+| Field | Recorded value |
+| --- | --- |
+| RC35 SHA | `04b3c68226b236bc5a92beec93cf6047c206fee9` |
+| Wizard fix | **Present** — Working-mode `?baseline=1` stays on the reviews wizard path |
+| JwtBearer witness | **In progress** — run `38173652466` |
+| Push corset | **Queued** — run `38173652475` |
+| Frozen pin | `c059d8a2e2` |
+
+Do not bump the frozen pin until a JwtBearer run on a SHA containing the wizard fix
+completes successfully.
+
+### OpenAPI refresh note — RC35 SHA `c8c9102b2e`
+
+No `openapi-snapshot-refresh.yml` run was observed for
+`c8c9102b2e8f120e6a0251e40d648d925cf4d399` because the push workflow is path-filtered to
+contract-layer paths (`ArchLucid.Api/**`, `ArchLucid.Api.Tests/**`, contracts, core,
+and related schema/build files). The repair set on that SHA changed UI, CI, runbook,
+and `ArchLucid.Application.Tests/**` paths; the latter is not an OpenAPI refresh trigger
+path. The OpenAPI fail-fast job in `ui-typecheck-on-push.yml` did run and passed in
+`38148276151`. This note records trigger behavior; it does not dispatch a refresh or
+claim that a snapshot was regenerated.
+
 ## RC35 Cursor repair-set handoff
 
 Use this checklist when `RC35` trails `master` after a private-beta repair batch. It is a release handoff, not permission to push directly to `RC35`.
@@ -228,7 +266,6 @@ This row records CI observations only. It is not a staging witness, Real-mode pi
 | G-REAL-06 | **Not started** |
 
 The refresh workflow is path-filtered to contract-layer paths; the RC35 repair set changed tests, UI, CI guards, and runbook documentation. This row records CI observations only and is not a staging witness, Real-mode pilot proof, ruleset application, or customer evidence.
-
 ## Golden-cohort apply (owner, after first green)
 
 When `Operator UI: private-beta access-path (JwtBearer)` completes green at least once on `master`:

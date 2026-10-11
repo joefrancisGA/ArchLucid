@@ -1,6 +1,7 @@
 import { expect, type Page } from "@playwright/test";
 
 import { liveE2eArchitectureDescription } from "./live-api-client";
+import { formatSimplifiedPilotWizardMountFailure } from "./simplified-pilot-wizard-mount-failure";
 import { waitAndDismissFirstSessionPurposeChooser } from "./live-seat-scope-assertions";
 
 /**
@@ -18,7 +19,38 @@ export async function submitPrivateBetaSimplifiedPilotWizard(page: Page): Promis
   await page.goto(PRIVATE_BETA_SIMPLIFIED_PILOT_WIZARD_HREF, { waitUntil: "domcontentloaded" });
   await waitAndDismissFirstSessionPurposeChooser(page);
 
-  await expect(page.getByTestId("simplified-pilot-wizard")).toBeVisible({ timeout: 60_000 });
+  try {
+    await expect(page.getByTestId("simplified-pilot-wizard")).toBeVisible({ timeout: 60_000 });
+  } catch (error: unknown) {
+    const visibleShells = [
+      (await page.getByTestId("reviews-new-working-redirect").isVisible().catch(() => false))
+        ? "reviews-new-working-redirect"
+        : null,
+      (await page.getByTestId("reviews-new-path-switcher").isVisible().catch(() => false))
+        ? "reviews-new-path-switcher"
+        : null,
+      (await page.getByTestId("simplified-pilot-progress").isVisible().catch(() => false))
+        ? "simplified-pilot-progress"
+        : null,
+      (await page.getByText(/Something went wrong/i).isVisible().catch(() => false))
+        ? "generic-error-shell"
+        : null,
+    ].filter((marker): marker is string => marker !== null);
+    const stepOneRendered = await page
+      .getByTestId("simplified-pilot-progress")
+      .getByText(/step 1 of 4/i)
+      .isVisible()
+      .catch(() => false);
+    throw new Error(
+      formatSimplifiedPilotWizardMountFailure({
+        pageUrl: page.url(),
+        visibleShells,
+        stepOneRendered,
+      }),
+      { cause: error },
+    );
+  }
+
   await expect(page.getByTestId("simplified-pilot-progress")).toContainText(/step 1 of 4/i, {
     timeout: 30_000,
   });

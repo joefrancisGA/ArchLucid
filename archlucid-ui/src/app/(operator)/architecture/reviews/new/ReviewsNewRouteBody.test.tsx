@@ -96,6 +96,35 @@ describe("ReviewsNewRouteBody (AO-22)", () => {
     expect(screen.queryByTestId("reviews-new-path-switcher-stub")).toBeNull();
   });
 
+  it("keeps the baseline wizard deep link in Working mode", async () => {
+    useSearchParams.mockReturnValue(new URLSearchParams("baseline=1"));
+
+    render(<ReviewsNewRouteBody />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("reviews-new-path-switcher-stub")).toBeInTheDocument();
+    });
+
+    expect(replace).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("reviews-new-working-redirect")).toBeNull();
+  });
+
+  it.each(["preset=greenfield", "accelerator=ai-llm-workload"])(
+    "keeps wizard deep link %s in Working mode",
+    async (query) => {
+      useSearchParams.mockReturnValue(new URLSearchParams(query));
+
+      render(<ReviewsNewRouteBody />);
+
+      await waitFor(() => {
+        expect(screen.getByTestId("reviews-new-path-switcher-stub")).toBeInTheDocument();
+      });
+
+      expect(replace).not.toHaveBeenCalled();
+      expect(screen.queryByTestId("reviews-new-working-redirect")).toBeNull();
+    },
+  );
+
   it("Working Start still redirects when baseline=1 is set without path=", async () => {
     useSearchParams.mockReturnValue(new URLSearchParams("baseline=1"));
     replace.mockClear();
