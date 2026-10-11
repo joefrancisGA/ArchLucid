@@ -16843,13 +16843,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** marketplace billing; checkout mutation; billing application layer
 - **paths:** ArchLucid.Application/Billing/
 - **test-filter:** FullyQualifiedName~Marketplace|FullyQualifiedName~BillingCheckout|FullyQualifiedName~TenantLlmCostReporting
-- **hunts:** 29
+- **hunts:** 30
 - **bugs-found:** 15
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-11
 - **last-bug:** 2026-10-11 — negative tenant billing rates produced negative cost guidance
 - **related-pd-tb:** none
 - **code-changed-since:** no
+
+2026-10-11 seed hunt (seed-only): re-read the billing application sources and the scoped Marketplace, BillingCheckout, and TenantLlmCostReporting tests; 26 scoped tests passed. No candidate met the same-run failing-repro bar. Seeded five follow-on candidates covering unknown Marketplace plan-id fallback, provider-error detail exposure, invalid checkout quantities, warning-threshold configuration, and blank billing currency.
 
 2026-10-11 seed hunt (seed-only): re-read `ArchLucid.Application/Billing/` and the scoped Marketplace, BillingCheckout, and TenantLlmCostReporting tests; 26 scoped tests passed. Existing candidates were rechecked, but none met the full failing-repro bar.
 
@@ -16898,6 +16900,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `BillingCheckoutFacade.CreatePortalSessionAsync` returned `Success` when a provider result contained an empty portal URL or provider session id — **hit 2026-10-03:** Stripe maps a nullable portal URL to an empty string, and the facade returned that unusable handoff as success; fixed by rejecting incomplete provider results; regression `BillingCheckoutFacadeTests.CreatePortalSessionAsync_rejects_incomplete_provider_result`.
 - [x] (proven) `BillingCheckoutFacade.TryParseCheckoutTier` — checkout `TargetTier` values differing only by case (for example `team`) were treated as unknown and returned `RequestBodyRequired` even though the API documents canonical tier names; **hit 2026-10-04:** ordinal case-insensitive tier parsing; regression `CreateCheckoutSessionAsync_accepts_case_insensitive_target_tier`.
 - [x] (proven) `TenantLlmCostTopRunRanker.RankAsync` — unpriced reasoning-only runs lost the cost tie-break to smaller prompt runs because the sort ignored `ReasoningTokens` — **hit 2026-10-09 seed hunt (seed→hit):** tie-break counts prompt, completion, and reasoning tokens; regression `RankAsync_ranks_unpriced_reasoning_only_run_above_smaller_prompt_run`.
+- (candidate) `MarketplaceChangePlanWebhookMutationHandler.HandleAsync` — a non-empty but unknown `planId` maps to `TenantTier.Standard` and mutates the subscription instead of deferring the malformed ChangePlan input; reachable through a GA-enabled Marketplace webhook, but no partner contract in this zone establishes whether unknown plan identifiers are valid Standard plans.
+- (candidate) `BillingCheckoutFacade.CreateCheckoutSessionAsync` / `CreatePortalSessionAsync` — provider exception text is copied into `ErrorMessage` and exposed by the billing controller's validation response; reachable through provider transport or API failures, but the seed pass did not establish that configured providers return sensitive details.
+- (candidate) `BillingCheckoutFacade.CreateCheckoutSessionAsync` — negative `Seats` or `Workspaces` values are accepted into the application request and forwarded to the provider; reachable through the admin checkout body, but current providers clamp values to one before creating a session.
+- (candidate) `AdminFleetLlmCogsService.BuildDashboardAsync` — `WarnFraction` outside the expected 0–1 range can produce warning thresholds below zero or above the hard cap; reachable through bound budget configuration, but no configuration validator or real deployment value establishes the intended range.
+- (candidate) `TenantCostEstimateService.TryGetEstimateAsync` — blank `Billing:UnitRates:Currency` is returned as an unlabeled estimate currency; reachable through bound billing configuration, but this is a presentation-quality concern without a demonstrated wrong consumer outcome.
 - (candidate) `TenantLlmCostReportingService.BuildDashboardAsync` — a negative `LlmTenantBudgetStateReadModel.TotalUsdPressure` would be copied into daily and tenant-wide cost rows; reachable through the monthly budget state populated by the configured LLM cost-estimation path, but this seed pass did not prove that a negative state can be persisted.
 - (candidate) `TenantCostEstimateService.TryGetEstimateAsync` — a blank or whitespace `Billing:UnitRates:Currency` configuration value would produce an estimate with no currency label; reachable through the bound billing configuration, but this is a presentation-quality candidate and no failing repro was attempted in this seed-only pass.
 - (candidate) `BillingCheckoutFacade.CreateCheckoutSessionAsync` — a provider exception message is returned as `ErrorMessage` and the API exposes it in a validation problem response; reachable through the configured checkout provider’s transport/error path, but the seed pass did not establish that provider messages contain sensitive data.
