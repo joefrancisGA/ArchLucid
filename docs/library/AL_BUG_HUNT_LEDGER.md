@@ -16949,13 +16949,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** buyer proof pack; board pack; pilot artifacts
 - **paths:** ArchLucid.Application/Pilots/
 - **test-filter:** FullyQualifiedName~BuyerProofPack|FullyQualifiedName~BoardPack
-- **hunts:** 43
+- **hunts:** 44
 - **bugs-found:** 29
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-10-09
+- **consecutive-dry-hunts:** 2
+- **last-hunt:** 2026-10-11
 - **last-bug:** 2026-10-09 — board-pack digest week extended outside the requested period
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-11 thorough hunt (dry): cheap-disproved five picker candidates: findings-by-severity presence is intentionally true for a resolved zero-row slice; LLM call counts carry a separate unresolved attestation flag; buyer-proof ZIP generation fails closed at each artifact boundary; `ExecDigestComposer` already trims configured operator URL slashes; and boolean parsing accepts canonical strings while rejecting malformed values. No hunt-ready row or failing repro; 29 scoped BuyerProofPack/BoardPack tests passed.
 
 2026-10-09 seed hunt (seed-only): re-read `BuyerProofPackBuilder`, `BoardPackPdfBuilder`, `BuyerProofPackCommitGuard`, `BoardPackSealedExportReceiptGuard`, and `PilotProofPackageCompletenessMapper`; no new hypothesis met the same-run failing-repro bar. Seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
 
