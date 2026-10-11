@@ -19,4 +19,9 @@ public interface IInfrastructureDiagramDocumentationDecisionRepository
         string subjectKind,
         string subjectKey,
         CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyList<InfrastructureDiagramDocumentationDecisionPersistRecord>> ListByDiagramFingerprintAsync(
+        Guid tenantId,
+        string diagramFingerprint,
+        CancellationToken cancellationToken = default);
 }

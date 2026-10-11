@@ -100,6 +100,14 @@ export async function fetchInfrastructureDiagramDocumentationDecision(
   );
 }
 
+export async function fetchAbsentInfrastructureDiagramDocumentationDecisions(
+  comparisonId: string,
+): Promise<InfrastructureDiagramDocumentationDecision[]> {
+  return proxyJsonGet<InfrastructureDiagramDocumentationDecision[]>(
+    `${ADVISORY_DIAGRAM_COMPARISONS_BASE}/${comparisonId}/documentation-decisions/absent`,
+  );
+}
+
 export async function ingestOperationalSecurityFindings(
   request: OperationalSecurityFindingIngestRequest,
 ): Promise<OperationalSecurityFindingBatchIngestResult> {

@@ -216,6 +216,30 @@ public sealed class InfrastructureDiagramComparisonsController(
         return result is null ? NotFound() : Ok(result);
     }
 
+    [HttpGet("{comparisonId:guid}/documentation-decisions/absent")]
+    [ProducesResponseType(typeof(IReadOnlyList<InfrastructureDiagramDocumentationDecision>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetAbsentDocumentationDecisions(
+        Guid comparisonId,
+        CancellationToken cancellationToken = default)
+    {
+        if (comparisonId == Guid.Empty)
+        {
+            return this.BadRequestProblem(
+                "ComparisonId is required.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        ScopeContext scope = _scopeProvider.GetCurrentScope();
+        IReadOnlyList<InfrastructureDiagramDocumentationDecision>? result =
+            await _comparisonService.TryListAbsentDocumentationDecisionsAsync(
+                scope,
+                comparisonId,
+                cancellationToken);
+
+        return result is null ? NotFound() : Ok(result);
+    }
+
     private string? ResolveActorOid() =>
         User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("sub");
 }
