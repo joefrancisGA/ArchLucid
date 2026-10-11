@@ -171,4 +171,24 @@ describe("DiagramNeighborhoodMapView", () => {
     expect(screen.getByText("vnet:app — Link count was not stored — vnet:app")).toBeInTheDocument();
     expect(screen.getByText("vnet:app — 0 — vnet:app")).toBeInTheDocument();
   });
+
+  it("labels missing kinds and type names without changing stored counts", () => {
+    render(
+      <DiagramNeighborhoodMapView
+        map={{
+          neighborhoods: [{
+            ...map.neighborhoods[0],
+            kind: null,
+            types: [{ name: null, count: 0 }, { name: "", count: 2 }],
+          }],
+          links: [],
+        }}
+        onOpenNeighborhood={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByRole("heading", { name: "Neighborhood kind was not stored." })).toBeInTheDocument();
+    expect(screen.getByText("Type name was not stored 0")).toBeInTheDocument();
+    expect(screen.getByTestId("architecture-diagram-neighborhood-tile-vnet:app")).toHaveTextContent("2");
+  });
 });

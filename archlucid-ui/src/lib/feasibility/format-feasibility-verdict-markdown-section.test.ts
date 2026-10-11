@@ -161,4 +161,42 @@ describe("formatFeasibilityVerdictMarkdownSection (FC-30 / FC-31)", () => {
     expect(storedEmpty).not.toContain("Relaxation invariant key was not stored.");
     expect(storedEmpty).not.toContain("Trade-off description was not stored.");
   });
+
+  it("distinguishes missing verdict and citation fields from stored empty values", () => {
+    const missing = formatFeasibilityVerdictMarkdownSection({
+      kind: "HardInfeasible",
+      summary: null as never,
+      hardCitations: [{ kind: null, reference: null }],
+      unsatCoreInvariantKeys: ["INV-1"],
+    });
+    const storedEmpty = formatFeasibilityVerdictMarkdownSection({
+      kind: "HardInfeasible",
+      summary: "",
+      hardCitations: [{ kind: "", reference: "" }],
+      unsatCoreInvariantKeys: ["INV-1"],
+    });
+
+    expect(missing).toContain("Verdict summary was not stored.");
+    expect(missing).toContain("Citation reference was not stored.");
+    expect(missing).toContain("Citation kind was not stored.");
+    expect(storedEmpty).not.toContain("Verdict summary was not stored.");
+    expect(storedEmpty).not.toContain("Citation reference was not stored.");
+    expect(storedEmpty).not.toContain("Citation kind was not stored.");
+  });
+
+  it("distinguishes missing authority citations from a stored empty collection", () => {
+    const missing = formatFeasibilityVerdictMarkdownSection({
+      kind: "HardInfeasible",
+      summary: "Not feasible.",
+      hardCitations: null,
+    });
+    const storedEmpty = formatFeasibilityVerdictMarkdownSection({
+      kind: "HardInfeasible",
+      summary: "Not feasible.",
+      hardCitations: [],
+    });
+
+    expect(missing).toContain("Authority citations were not stored.");
+    expect(storedEmpty).not.toContain("Authority citations were not stored.");
+  });
 });

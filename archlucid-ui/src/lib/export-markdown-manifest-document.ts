@@ -146,9 +146,17 @@ export function formatManifestDocumentShape(m: Record<string, unknown>): string 
   if (topology !== null) {
     lines.push("### Architecture structure");
     lines.push("");
-    pushBulletLines(lines, topology.selectedPatterns, undefined);
+    if (topology.selectedPatterns === null || topology.selectedPatterns === undefined) {
+      lines.push("Selected patterns were not stored.");
+    } else {
+      pushBulletLines(lines, topology.selectedPatterns, undefined);
+    }
     pushBulletLines(lines, topology.resources, undefined);
-    pushBulletLines(lines, topology.gaps, undefined);
+    if (topology.gaps === null || topology.gaps === undefined) {
+      lines.push("Topology gaps were not stored.");
+    } else {
+      pushBulletLines(lines, topology.gaps, undefined);
+    }
     lines.push("");
   } else {
     lines.push("Architecture structure was not stored.");
