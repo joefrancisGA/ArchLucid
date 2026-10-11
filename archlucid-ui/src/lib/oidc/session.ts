@@ -45,6 +45,7 @@ const EXPIRY_SKEW_MS = 60_000;
 
 let refreshInFlight: Promise<void> | null = null;
 let refreshSessionGeneration = 0;
+let latestTokenSyncGeneration = -1;
 
 function readSessionKey(key: string): string | null {
   if (typeof sessionStorage === "undefined") {
@@ -100,6 +101,8 @@ export function persistTokenResponse(tokens: OidcTokenResponse): void {
 
   persistNonSensitiveSessionHints(tokens, expiresAtMs);
   const generationAtPersist = refreshSessionGeneration;
+  latestTokenSyncGeneration = generationAtPersist;
+
   void (async () => {
     if (generationAtPersist !== refreshSessionGeneration) {
       return;
@@ -108,7 +111,10 @@ export function persistTokenResponse(tokens: OidcTokenResponse): void {
     await syncBffSessionCookieFromTokenResponse(tokens);
 
     if (generationAtPersist !== refreshSessionGeneration) {
-      await clearBffSessionCookie();
+      // Keep stale sign-in cleanup from deleting a replacement session's cookie.
+      if (latestTokenSyncGeneration !== refreshSessionGeneration) {
+        await clearBffSessionCookie();
+      }
     }
   })();
 }

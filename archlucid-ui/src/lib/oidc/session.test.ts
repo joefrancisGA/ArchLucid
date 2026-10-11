@@ -166,6 +166,38 @@ describe("persistTokenResponse", () => {
     expect(bffSessionSync.clearBffSessionCookie).toHaveBeenCalledTimes(2);
   });
 
+  it("does not let stale token sync cleanup clear a replacement session cookie", async () => {
+    let releaseStaleSync: (() => void) | undefined;
+    let syncCall = 0;
+
+    vi.spyOn(bffSessionSync, "syncBffSessionCookieFromTokenResponse").mockImplementation(
+      () => {
+        syncCall += 1;
+
+        if (syncCall === 1) {
+          return new Promise<void>((resolve) => {
+            releaseStaleSync = resolve;
+          });
+        }
+
+        return Promise.resolve();
+      },
+    );
+    const clearBffSessionCookieMock = vi
+      .spyOn(bffSessionSync, "clearBffSessionCookie")
+      .mockResolvedValue();
+
+    persistTokenResponse({ access_token: "stale-token", expires_in: 3600 });
+    clearOidcSession();
+    persistTokenResponse({ access_token: "replacement-token", expires_in: 3600 });
+
+    releaseStaleSync?.();
+    await vi.waitUntil(() => syncCall === 2);
+    await Promise.resolve();
+
+    expect(clearBffSessionCookieMock).toHaveBeenCalledTimes(1);
+  });
+
   it("stores non-sensitive display name and subject hints from JWT claims", () => {
     const header = Buffer.from(JSON.stringify({ alg: "none", typ: "JWT" })).toString("base64url");
     const payload = Buffer.from(
