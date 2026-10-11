@@ -17170,13 +17170,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** agent evaluation; evaluation runner
 - **paths:** ArchLucid.AgentRuntime/Evaluation/
 - **test-filter:** FullyQualifiedName~Evaluation
-- **hunts:** 48
+- **hunts:** 49
 - **bugs-found:** 31
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-10
 - **last-bug:** 2026-10-10 — reference-case catalog stayed empty after configuration enablement
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
+
+2026-10-11 seed hunt (seed-only): re-read the selected evaluation quality-gate, JSON grounding, semantic-judge, and trace-quality paths; 213 scoped Evaluation tests passed. No distinct reachable wrong outcome met the promotion bar after the recent case-insensitive JSON fixes and existing candidate review.
 
 2026-10-10 seed hunt (seed→hit): `AgentResultEvidenceFaithfulnessChecker.CategoryIsGrounded` treated undefined numeric finding category `"99"` as a defined `AgentType`, so matching finding text was counted as grounded. The parser now requires `Enum.IsDefined`; regression `Evaluate_undefined_numeric_finding_category_does_not_count_as_grounded`; 203 scoped Evaluation tests passed.
 
