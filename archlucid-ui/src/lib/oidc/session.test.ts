@@ -159,11 +159,48 @@ describe("persistTokenResponse", () => {
     vi.spyOn(bffSessionSync, "clearBffSessionCookie").mockResolvedValue();
 
     persistTokenResponse({ access_token: "tok", expires_in: 3600 });
+    await Promise.resolve();
+    await Promise.resolve();
     clearOidcSession();
     releaseSync?.();
     await vi.waitUntil(() => vi.mocked(bffSessionSync.clearBffSessionCookie).mock.calls.length >= 2);
 
     expect(bffSessionSync.clearBffSessionCookie).toHaveBeenCalledTimes(2);
+  });
+
+  it("does not let stale token sync cleanup clear a replacement session cookie", async () => {
+    let releaseStaleSync: (() => void) | undefined;
+    let syncCall = 0;
+
+    vi.spyOn(bffSessionSync, "syncBffSessionCookieFromTokenResponse").mockImplementation(
+      () => {
+        syncCall += 1;
+
+        if (syncCall === 1) {
+          return new Promise<void>((resolve) => {
+            releaseStaleSync = resolve;
+          });
+        }
+
+        return Promise.resolve();
+      },
+    );
+    const clearBffSessionCookieMock = vi
+      .spyOn(bffSessionSync, "clearBffSessionCookie")
+      .mockResolvedValue();
+
+    persistTokenResponse({ access_token: "stale-token", expires_in: 3600 });
+    await Promise.resolve();
+    await Promise.resolve();
+    clearOidcSession();
+    persistTokenResponse({ access_token: "replacement-token", expires_in: 3600 });
+
+    await Promise.resolve();
+    releaseStaleSync?.();
+    await vi.waitUntil(() => syncCall === 2);
+    await Promise.resolve();
+
+    expect(clearBffSessionCookieMock).toHaveBeenCalledTimes(1);
   });
 
   it("stores non-sensitive display name and subject hints from JWT claims", () => {
@@ -178,6 +215,77 @@ describe("persistTokenResponse", () => {
     expect(sessionStorage.getItem(OIDC_DISPLAY_NAME_KEY)).toBe("Jane Operator");
     expect(sessionStorage.getItem(OIDC_USER_SUBJECT_KEY)).toBe("user-123");
     expect(sessionStorage.getItem(OIDC_ACCESS_TOKEN_KEY)).toBeNull();
+  });
+
+  it("clears stale identity hints when a replacement token has no identity claims", () => {
+    const header = Buffer.from(JSON.stringify({ alg: "none", typ: "JWT" })).toString("base64url");
+    const previousPayload = Buffer.from(JSON.stringify({ sub: "previous-user", name: "Previous User" })).toString(
+      "base64url",
+    );
+    const replacementPayload = Buffer.from(JSON.stringify({})).toString("base64url");
+
+    persistTokenResponse({
+      access_token: `${header}.${previousPayload}.sig`,
+      expires_in: 3600,
+    });
+    persistTokenResponse({
+      access_token: `${header}.${replacementPayload}.sig`,
+      expires_in: 3600,
+    });
+
+    expect(sessionStorage.getItem(OIDC_DISPLAY_NAME_KEY)).toBeNull();
+    expect(sessionStorage.getItem(OIDC_USER_SUBJECT_KEY)).toBeNull();
+  });
+
+  it("keeps an older token sync from overwriting a newer same-session sync", async () => {
+    let releaseOlderSync: (() => void) | undefined;
+    let bffAccessToken = "";
+    const syncMock = vi
+      .spyOn(bffSessionSync, "syncBffSessionCookieFromTokenResponse")
+      .mockImplementation(async (tokens) => {
+        if (tokens.access_token === "older-token") {
+          await new Promise<void>((resolve) => {
+            releaseOlderSync = resolve;
+          });
+        }
+
+        bffAccessToken = tokens.access_token;
+      });
+
+    persistTokenResponse({ access_token: "older-token", expires_in: 3600 });
+    await Promise.resolve();
+    await Promise.resolve();
+    await vi.waitUntil(() => syncMock.mock.calls.length === 1);
+
+    persistTokenResponse({ access_token: "newer-token", expires_in: 3600 });
+    releaseOlderSync?.();
+    await vi.waitUntil(() => syncMock.mock.calls.length === 2);
+    await vi.waitUntil(() => bffAccessToken === "newer-token");
+
+    expect(bffAccessToken).toBe("newer-token");
+  });
+
+  it("does not block a newer sync behind a hung older request", async () => {
+    let bffAccessToken = "";
+    const syncMock = vi
+      .spyOn(bffSessionSync, "syncBffSessionCookieFromTokenResponse")
+      .mockImplementation(async (tokens) => {
+        if (tokens.access_token === "hung-token") {
+          await new Promise<void>(() => {});
+        }
+
+        bffAccessToken = tokens.access_token;
+      });
+
+    persistTokenResponse({ access_token: "hung-token", expires_in: 3600 });
+    await Promise.resolve();
+    await Promise.resolve();
+    await vi.waitUntil(() => syncMock.mock.calls.length === 1);
+
+    persistTokenResponse({ access_token: "newer-token", expires_in: 3600 });
+    await vi.waitUntil(() => syncMock.mock.calls.length === 2);
+
+    expect(bffAccessToken).toBe("newer-token");
   });
 });
 

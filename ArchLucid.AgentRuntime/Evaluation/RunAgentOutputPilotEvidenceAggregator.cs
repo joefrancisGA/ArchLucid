@@ -94,8 +94,7 @@ public sealed class RunAgentOutputPilotEvidenceAggregator(
 
         foreach (AgentExecutionTrace trace in tracesForEvaluation)
         {
-            AgentResult? matchingResult = agentResults.FirstOrDefault(r =>
-                string.Equals(r.TaskId, trace.TaskId, StringComparison.OrdinalIgnoreCase));
+            AgentResult? matchingResult = AgentResultLatestForTaskSelector.Select(agentResults, trace.TaskId);
 
             AgentOutputTraceQualityEvaluator.TraceQualityEvaluationResult? evaluated =
                 await AgentOutputTraceQualityEvaluator.TryEvaluateTraceAsync(

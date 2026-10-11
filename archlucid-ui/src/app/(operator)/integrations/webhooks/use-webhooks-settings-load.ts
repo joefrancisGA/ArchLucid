@@ -42,6 +42,7 @@ export function useWebhooksSettingsLoad(
   const scopeKey = `${scope.tenantId}:${scope.workspaceId}:${scope.projectId}`;
   const previousScopeKeyRef = useRef(scopeKey);
   const scopeGenerationRef = useRef(0);
+  const loadRequestRef = useRef(0);
   const lastLoadFailureRef = useRef<ApiLoadFailureState | null>(null);
 
   const webhookRows = useMemo(
@@ -56,13 +57,15 @@ export function useWebhooksSettingsLoad(
 
   const load = useCallback(async (): Promise<boolean> => {
     const generation = scopeGenerationRef.current;
+    const requestId = ++loadRequestRef.current;
     setLoading(true);
     setFailure(null);
 
     try {
       const data = await listAlertRoutingSubscriptions();
 
-      if (scopeGenerationRef.current !== generation) {
+      // A refresh and a mutation-triggered reload can overlap in one scope; only the newest response may replace rows.
+      if (scopeGenerationRef.current !== generation || loadRequestRef.current !== requestId) {
         return false;
       }
 
@@ -72,7 +75,7 @@ export function useWebhooksSettingsLoad(
 
       return true;
     } catch (error: unknown) {
-      if (scopeGenerationRef.current !== generation) {
+      if (scopeGenerationRef.current !== generation || loadRequestRef.current !== requestId) {
         return false;
       }
 
@@ -83,7 +86,7 @@ export function useWebhooksSettingsLoad(
 
       return false;
     } finally {
-      if (scopeGenerationRef.current === generation) {
+      if (scopeGenerationRef.current === generation && loadRequestRef.current === requestId) {
         setLoading(false);
       }
     }

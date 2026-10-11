@@ -63,7 +63,7 @@ export function GovernanceFindingsQueueScopeSection(
         />
       ) : null}
 
-      {props.scopedRunId && !suppressPipelineChrome ? (
+      {props.scopedRunFilterActive && props.scopedRunId !== null && !suppressPipelineChrome ? (
         <p
           className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
           data-testid="governance-findings-run-scope-banner"
@@ -91,7 +91,7 @@ export function GovernanceFindingsQueueScopeSection(
         </p>
       ) : !suppressPipelineChrome &&
         !props.isAssignedToMe &&
-        (props.scopedRunId === null || props.scopedRunId.length === 0) ? (
+        !props.scopedRunFilterActive ? (
         <FindingsQueuePickReviewBeforeTriageStrip
           selectedReviewId=""
           onSelectReview={props.onPickReviewForTriage}

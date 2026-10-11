@@ -14,4 +14,8 @@ describe("resolveExpiresInSeconds", () => {
   it("maps negative expires_in to the default lifetime", () => {
     expect(resolveExpiresInSeconds(-30)).toBe(3600);
   });
+
+  it("maps a null provider expires_in to the default lifetime", () => {
+    expect(resolveExpiresInSeconds(null as unknown as number)).toBe(3600);
+  });
 });
