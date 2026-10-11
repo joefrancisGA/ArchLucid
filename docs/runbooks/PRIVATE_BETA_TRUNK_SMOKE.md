@@ -166,6 +166,20 @@ cd archlucid-ui && npx playwright test live-api-private-beta-access.spec.ts --wo
 cd archlucid-ui && npx playwright test live-api-scim-invite-substitute-smoke.spec.ts live-api-invite-flow.spec.ts live-api-private-beta-wave-3.spec.ts live-api-private-beta-access.spec.ts --workers=1
 ```
 
+## RC35 staging-dispatch record — `c8c9102b2e`
+
+| Field | Recorded value |
+| --- | --- |
+| RC35 SHA | `c8c9102b2e8f120e6a0251e40d648d925cf4d399` |
+| Staging workflow | `.github/workflows/cd-staging-on-merge.yml` |
+| Dispatch status | **Not dispatched** |
+| Staging deployment | **No run observed** |
+| Gate 1 | **UNKNOWN** |
+
+This is a release-cut record only. It does not dispatch staging, claim a staging deployment,
+or establish the observed first-review Gate 1 evidence. An owner must dispatch and witness the
+staging first review separately.
+
 ## Golden-cohort apply (owner, after first green)
 
 When `Operator UI: private-beta access-path (JwtBearer)` completes green at least once on `master`:
