@@ -9356,3 +9356,4 @@
 {"at":"2026-10-11T01:43:11.0900575Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/lib/oidc/"],"severity":"high","defectClass":"state-machine-gap"}
 {"at":"2026-10-11T01:47:59.4944035Z","zoneId":"ui-oidc","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/lib/oidc/"],"severity":"high","defectClass":"state-machine-gap"}
 {"at":"2026-10-11T01:51:27.8621965Z","zoneId":"ui-oidc","outcome":"seed-only","productLine":"archlucid-shared","paths":["archlucid-ui/src/lib/oidc/"]}
+{"at":"2026-10-11T01:56:56.8430181Z","zoneId":"cloud-extractors","outcome":"dry","productLine":"archlucid-shared","paths":["ArchLucid.Integrations.AwsExtractor/","ArchLucid.Integrations.GcpExtractor/","ArchLucid.Integrations.AzureExtractor/"]}
