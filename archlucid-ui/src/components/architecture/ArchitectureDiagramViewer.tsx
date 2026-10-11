@@ -122,6 +122,8 @@ export type ArchitectureDiagramMermaidViewerProps = {
   readonly onSelectConnector?: (selection: ArchitectureDiagramConnectorSelection | null) => void;
   /** Connector selected by the owning workbench; other connectors are dimmed. */
   readonly selectedConnector?: ArchitectureDiagramConnectorSelection | null;
+  /** Connector identities that remain visible when an evidence-family filter is active. */
+  readonly visibleConnectors?: readonly ArchitectureDiagramConnectorSelection[] | null;
   /** Optional max-height override for the scrolling camera (inventory workbench uses a taller frame). */
   readonly cameraMaxHeightClassName?: string;
   /** Docked inside the diagram viewport frame (inline and fullscreen). */
@@ -287,7 +289,7 @@ function applyConnectorSelectionClasses(
   const selectedTo = normalizeDiagramFocusToken(selection.to);
   const selectedLabel = selection.label?.trim() ?? '';
 
-  [...svg.querySelectorAll('g.edge')].forEach((edge) => {
+  [...svg.querySelectorAll<SVGGElement>('g.edge')].forEach((edge) => {
     const fromTokens = (edge.getAttribute('data-bundle-from') ?? edge.getAttribute('data-from') ?? '')
       .split(/\s+/u)
       .filter(Boolean)
@@ -301,6 +303,37 @@ function applyConnectorSelectionClasses(
     const sameLabel = selectedLabel.length === 0 || label === selectedLabel;
 
     edge.classList.toggle('diagram-click-dim', !(sameEndpoints && sameLabel));
+  });
+}
+
+function applyConnectorVisibility(
+  svg: SVGSVGElement,
+  visibleConnectors: readonly ArchitectureDiagramConnectorSelection[] | null | undefined,
+): void {
+  [...svg.querySelectorAll<SVGGElement>('g.edge')].forEach((edge) => {
+    edge.classList.remove('diagram-family-hidden');
+    edge.style.removeProperty('display');
+  });
+
+  if (visibleConnectors == null) {
+    return;
+  }
+
+  [...svg.querySelectorAll<SVGGElement>('g.edge')].forEach((edge) => {
+    const from = edge.getAttribute('data-from') ?? '';
+    const to = edge.getAttribute('data-to') ?? '';
+    const label = edge.querySelector('title')?.textContent?.trim() ?? null;
+    const isVisible = visibleConnectors.some(
+      (connector) =>
+        normalizeDiagramFocusToken(connector.from) === normalizeDiagramFocusToken(from)
+        && normalizeDiagramFocusToken(connector.to) === normalizeDiagramFocusToken(to)
+        && (connector.label?.trim() ?? null) === label,
+    );
+
+    if (!isVisible) {
+      edge.classList.add('diagram-family-hidden');
+      edge.style.display = 'none';
+    }
   });
 }
 
@@ -543,6 +576,7 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
     outline = null,
     onSelectConnector,
     selectedConnector = null,
+    visibleConnectors = null,
     cameraMaxHeightClassName = 'max-h-[36rem]',
     viewportHeader = null,
   } = props;
@@ -998,6 +1032,7 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
 
         if (svg instanceof SVGSVGElement) {
           clearClickFocusClasses(svg);
+          applyConnectorVisibility(svg, null);
         }
       });
       return;
@@ -1011,6 +1046,7 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
       }
 
       clearClickFocusClasses(svg);
+      applyConnectorVisibility(svg, visibleConnectors);
       applyConnectorSelectionClasses(svg, selectedConnector);
 
       if (clickFocus === null) {
@@ -1111,7 +1147,16 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
     return (): void => {
       hosts.forEach((host) => host.removeEventListener('click', handleClick));
     };
-  }, [clickFocus, fullscreenOpen, layoutSvg, onSelectConnector, outline, sanitizedSvg, selectedConnector]);
+  }, [
+    clickFocus,
+    fullscreenOpen,
+    layoutSvg,
+    onSelectConnector,
+    outline,
+    sanitizedSvg,
+    selectedConnector,
+    visibleConnectors,
+  ]);
 
   useEffect(() => {
     setClickFocus(null);
