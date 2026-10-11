@@ -36118,6 +36118,8 @@ ABQ-09 churn hotspot.
 
 ## Zone: securenow-question-queue
 
+2026-10-11 seed hunt (seed→hit): proved `SecureNowQuestionDispositionService.WriteAsync` accepted a reachable answered mutation whose `AnswerCode` was not in the compiled question's finite choices, persisting an invalid answer as answered. Answered mutations now validate membership against the compiled question; regression `Answer_code_must_be_one_of_the_compiled_question_choices`. The focused Application SecureNowQuestion suite passed 20/20 and the queue UI suite passed 12/12.
+
 2026-10-11 seed hunt (seed-only): repeated the selected disposition, compiler, controller, persistence, contract, and queue review; no fresh hunt-ready row met the reachability and wrong-outcome bar, and the existing bounded candidates were retained without duplication. The Application SecureNowQuestion filter passed 19/19 and the queue UI suite passed 12/12; no production or regression code changed.
 
 2026-10-11 seed hunt (seed-only): re-read the selected disposition, compiler, controller, persistence, contract, and queue paths. No candidate met the full same-run hunt-ready bar; seeded four bounded candidates for answer-code validation, duplicate inferred-connection identity suppression, relationship-backed candidate suppression with an incomplete peer, and blank API answer-code rendering. The Application SecureNowQuestion filter passed 19/19 and the queue UI suite passed 12/12; no production or regression change.
@@ -36132,11 +36134,11 @@ ABQ-09 churn hotspot.
 - **aliases:** securenow question queue; question disposition
 - **paths:** ArchLucid.Application/InfraEvidence/SecureNowQuestionDispositions/; ArchLucid.Api/Controllers/InfraEvidence/InfraEvidenceSecureNowQuestionsController.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/ISecureNowQuestionDispositionRepository.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/ISecureNowQuestionDispositionService.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/SecureNowQuestionDispositionRecord.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/SecureNowQuestionRecord.cs; ArchLucid.Persistence/InfraEvidence/NoOpSecureNowQuestionDispositionRepository.cs; ArchLucid.Persistence/InfraEvidence/SqlSecureNowQuestionDispositionRepository.cs; ArchLucid.Contracts/InfraEvidence/SecureNowQuestionDispositionContracts.cs; archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
-- **hunts:** 16
-- **bugs-found:** 6
-- **consecutive-dry-hunts:** 2
+- **hunts:** 17
+- **bugs-found:** 7
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-11
-- **last-bug:** 2026-10-04 — reopening an expired question disposition preserved its expired timestamp
+- **last-bug:** 2026-10-11 — invalid SecureNow answer code was persisted as answered
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -36178,7 +36180,7 @@ ABQ-09 churn hotspot.
 - [x] (valid-no-repro) `InfraEvidenceSecureNowQuestionsController.TryMapWriteRequest` — numeric strings such as `"1"` pass `Enum.TryParse` plus `Enum.IsDefined` for `Source` or `ScopeKind` — **cheap-disproof 2026-10-04 thorough hunt:** the values map to defined enum members and the selected files establish no harmful persistence or user-visible wrong outcome.
 - [x] (proven) `SecureNowQuestionQueue` — `sessionSkippedQuestionKeys` and `visitedQuestionKeys` survived a `snapshotId` change, so a same-identity question in the next snapshot could remain hidden and the visit cap could carry over; reset both sets when the snapshot changes, with regression `clears skipped question state when the snapshot changes`.
 
-- (candidate) `SecureNowQuestionDispositionService.WriteAsync` — a reachable `POST /answer` body can supply an `AnswerCode` not present in the compiled question's finite `AnswerCodes`, and the service has no question-choice membership check before persisting an answered disposition; wrong outcome would be an invalid answer shown as answered.
+- [x] (proven) `SecureNowQuestionDispositionService.WriteAsync` — a reachable `POST /answer` body supplied an `AnswerCode` not present in the compiled question's finite `AnswerCodes`, and the service had no question-choice membership check before persisting an answered disposition; fixed by validating membership against the compiled question; regression `Answer_code_must_be_one_of_the_compiled_question_choices`.
 - (candidate) `SecureNowQuestionCompiler.AddQuestion` — two proposed `OperatorInferredConnectionRecord` inputs with the same normalized resource/question identity but different endpoints are collapsed by `emitted`, so one actionable inferred connection may disappear; input originates from the inferred-connection list passed into compilation.
 - (candidate) `SecureNowQuestionDispositionService.BuildDiagramCandidates` — an inventory resource is suppressed whenever its ID appears in any relationship, even when the relationship's peer endpoint is missing or unresolved; input originates from persisted inventory relationship records and could hide an unknown-evidence question.
 - (candidate) `securenow-question-queue-api.mapQuestion` — an API response containing blank string entries in `answerCodes` passes the type-only filter and can render a blank answer button; input is the reachable question API response.
