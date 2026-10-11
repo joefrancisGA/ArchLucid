@@ -19,6 +19,7 @@ export type DiagramReconcileInventoryGroup = {
   readonly resourceType: string;
   readonly count: number;
   readonly resourceNames: readonly string[];
+  readonly resourceRows: readonly DiagramInfrastructureCorrespondenceRow[];
 };
 
 export function buildDiagramReconcileScorecard(
@@ -46,6 +47,7 @@ export function groupDiagramReconcileInventoryOnlyRows(
     resourceGroup: string;
     resourceType: string;
     resourceNames: string[];
+    resourceRows: DiagramInfrastructureCorrespondenceRow[];
   }>();
 
   rows
@@ -54,8 +56,9 @@ export function groupDiagramReconcileInventoryOnlyRows(
       const resourceGroup = row.resourceGroup?.trim() || "Unassigned resource group";
       const resourceType = row.resourceType?.trim() || "Unknown resource type";
       const key = `${resourceGroup}\u0000${resourceType}`;
-      const group = groups.get(key) ?? { resourceGroup, resourceType, resourceNames: [] };
+      const group = groups.get(key) ?? { resourceGroup, resourceType, resourceNames: [], resourceRows: [] };
       group.resourceNames.push(displayInventoryResourceName(row));
+      group.resourceRows.push(row);
       groups.set(key, group);
     });
 
@@ -67,6 +70,7 @@ export function groupDiagramReconcileInventoryOnlyRows(
       resourceType: group.resourceType,
       count: group.resourceNames.length,
       resourceNames: [...group.resourceNames].sort((left, right) => left.localeCompare(right)),
+      resourceRows: [...group.resourceRows],
     }));
 }
 

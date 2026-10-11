@@ -958,6 +958,9 @@ export function DiagramReconcileWorkbenchClient() {
       ...reconciliation.rows
         .filter((row) => row.matchKind === "DiagramOnly" && row.diagramNodeId != null)
         .map((row) => ({ subjectKind: "DiagramNode" as const, subjectKey: row.diagramNodeId as string })),
+      ...reconciliation.rows
+        .filter((row) => row.matchKind === "InfrastructureOnly" && row.cloudResourceId != null)
+        .map((row) => ({ subjectKind: "InventoryResource" as const, subjectKey: row.cloudResourceId as string })),
       ...(reconciliation.edgeGaps ?? []).map((gap) => ({
         subjectKind: "EdgeGap" as const,
         subjectKey: gap.edgeGapId,
@@ -2024,7 +2027,54 @@ export function DiagramReconcileWorkbenchClient() {
                         {group.count} resource(s)
                       </summary>
                       <ul className="m-0 mt-2 list-disc pl-5">
-                        {group.resourceNames.map((name) => <li key={name}>{name}</li>)}
+                        {group.resourceRows.map((resourceRow) => {
+                          const resourceSubjectKey = resourceRow.cloudResourceId?.trim() ?? "";
+                          const resourceDecisionKey = documentationDecisionKey("InventoryResource", resourceSubjectKey);
+
+                          return (
+                            <li key={resourceRow.correspondenceId} className="flex flex-wrap items-center gap-2">
+                              <span>{formatDiagramReconcileResourceLabelForDisplay(resourceRow)}</span>
+                              {advisoryComparisonPath && comparisonId != null && resourceSubjectKey.length > 0 ? (
+                                <>
+                                  <select
+                                    className={cnField}
+                                    data-testid={`infra-diagram-reconcile-decision-${resourceRow.correspondenceId}`}
+                                    value={
+                                      documentationDecisionPick[resourceDecisionKey]
+                                      ?? documentationDecisions[resourceDecisionKey]?.decision
+                                      ?? ""
+                                    }
+                                    onChange={(event) => {
+                                      setDocumentationDecisionPick((current) => ({
+                                        ...current,
+                                        [resourceDecisionKey]: event.target.value,
+                                      }));
+                                    }}
+                                  >
+                                    <option value="">Select decision</option>
+                                    <option value="UpdateDrawing">Update the drawing</option>
+                                    <option value="AcceptAsUndocumented">Accept as undocumented</option>
+                                    <option value="CheckInventory">Check the inventory</option>
+                                  </select>
+                                  <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    disabled={documentationDecisionBusyKey === resourceDecisionKey}
+                                    onClick={() => {
+                                      void saveDocumentationDecision("InventoryResource", resourceSubjectKey);
+                                    }}
+                                  >
+                                    Save decision
+                                  </Button>
+                                  {documentationDecisions[resourceDecisionKey] != null ? (
+                                    <StatusTag kind="ready" label="Decision saved" />
+                                  ) : null}
+                                </>
+                              ) : null}
+                            </li>
+                          );
+                        })}
                       </ul>
                     </details>
                   </EnterpriseTableCell>
