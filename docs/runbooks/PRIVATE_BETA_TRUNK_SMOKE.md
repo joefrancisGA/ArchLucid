@@ -202,6 +202,22 @@ After the repair set is present on the release cut:
 
 This row records CI observations only. It is not a staging witness, Real-mode pilot proof, ruleset application, or customer evidence.
 
+### Observed RC35 evidence row — 2026-10-11
+
+| Field | Observed value |
+| --- | --- |
+| RC35 head | `c8c9102b2e8f120e6a0251e40d648d925cf4d399` |
+| UI typecheck / beta-readiness guards / push corset | **PASS** — run `38148276151` |
+| UI typecheck / OpenAPI fail-fast | **PASS** — run `38148276151` |
+| OpenAPI refresh | **No run observed** — no refresh run exists for this head |
+| Private-beta JwtBearer access path | **In progress** — run `38148276113` |
+| RC release gate | **In progress** — run `38148276259` |
+| Staging deployment | **No run observed** |
+| Gate 1 | **UNKNOWN** |
+| G-REAL-06 | **Not started** |
+
+The refresh workflow is path-filtered to contract-layer paths; the RC35 repair set changed tests, UI, CI guards, and runbook documentation. This row records CI observations only and is not a staging witness, Real-mode pilot proof, ruleset application, or customer evidence.
+
 ## Golden-cohort apply (owner, after first green)
 
 When `Operator UI: private-beta access-path (JwtBearer)` completes green at least once on `master`:
