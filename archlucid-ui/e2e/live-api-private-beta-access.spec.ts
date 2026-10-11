@@ -346,8 +346,7 @@ test.describe(
 
     await primePrivateBetaBrowserPage(page, accessToken);
     await page.goto("/", { waitUntil: "domcontentloaded" });
-    await waitAndDismissFirstSessionPurposeChooser(page);
-    await expectPrivateBetaStartIntakeSurface(page);
+    await assertLiveSeatOperatorScopeChrome(page);
 
     await clearJwtBrowserSession(page);
     await page.goto(

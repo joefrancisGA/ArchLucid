@@ -1,6 +1,6 @@
 import { expect, type Locator, type Page } from "@playwright/test";
 
-import { dismissFirstSessionPurposeChooserIfVisible } from "./live-seat-scope-assertions";
+import { ensureFirstSessionPurposeChooserClosed } from "./live-seat-scope-assertions";
 
 /** Radix Dialog / AlertDialog backdrop that intercepts pointer events when left open. */
 const BLOCKING_MODAL_OVERLAY =
@@ -12,7 +12,7 @@ const DISMISS_DIALOG_BUTTON =
 /** Best-effort dismissal of stray Radix modal layers. Returns true when no blocking overlay remains. */
 export async function dismissBlockingModalOverlays(page: Page): Promise<boolean> {
   // Close-without-choice on the first-session chooser does not persist; it reopens and eats clicks.
-  await dismissFirstSessionPurposeChooserIfVisible(page);
+  await ensureFirstSessionPurposeChooserClosed(page);
 
   const overlay = page.locator(BLOCKING_MODAL_OVERLAY);
 
@@ -21,7 +21,7 @@ export async function dismissBlockingModalOverlays(page: Page): Promise<boolean>
       return true;
     }
 
-    await dismissFirstSessionPurposeChooserIfVisible(page);
+    await ensureFirstSessionPurposeChooserClosed(page);
 
     const openDialog = page.getByRole("alertdialog").or(page.getByRole("dialog"));
 
