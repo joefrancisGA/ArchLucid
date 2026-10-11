@@ -36118,6 +36118,8 @@ ABQ-09 churn hotspot.
 
 ## Zone: securenow-question-queue
 
+2026-10-11 seed hunt (seed-only): re-read the selected disposition, compiler, controller, persistence, contract, and queue paths after the stale-load fix. No fresh row was promoted because the reachable in-flight snapshot-action candidate overlaps the saturated state-machine class, while the case-variant disposition collision needs a focused persistence repro; seeded both bounded candidates. The focused Application SecureNowQuestion suite passed 22/22 and the queue UI suite passed 14/14; no production or regression code changed.
+
 2026-10-11 seed hunt (seed→hit): a reachable snapshot navigation change let an older `loadQuestions` request overwrite the newer snapshot's questions, so the queue displayed stale questions after rapid snapshot changes. The provider now gives only the newest request ownership of question, error, and loading state; regression `keeps the newest snapshot question when an older load finishes later`; the queue UI suite passed 14/14 and the focused Application SecureNowQuestion suite passed 22/22.
 
 2026-10-11 seed hunt (seed-only): completed the selected disposition, compiler, controller, persistence, contract, and queue reread after the optional-dependency fix. No fresh hunt-ready mechanism survived cheap-disproof without duplicating the already-proven evidence, normalization, or optional-load classes; retained the existing bounded compiler, relationship-suppression, and API answer-code candidates. The focused Application SecureNowQuestion suite passed 22/22 and the queue UI suite passed 13/13; no production or regression code changed.
@@ -36146,7 +36148,7 @@ ABQ-09 churn hotspot.
 - **aliases:** securenow question queue; question disposition
 - **paths:** ArchLucid.Application/InfraEvidence/SecureNowQuestionDispositions/; ArchLucid.Api/Controllers/InfraEvidence/InfraEvidenceSecureNowQuestionsController.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/ISecureNowQuestionDispositionRepository.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/ISecureNowQuestionDispositionService.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/SecureNowQuestionDispositionRecord.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/SecureNowQuestionRecord.cs; ArchLucid.Persistence/InfraEvidence/NoOpSecureNowQuestionDispositionRepository.cs; ArchLucid.Persistence/InfraEvidence/SqlSecureNowQuestionDispositionRepository.cs; ArchLucid.Contracts/InfraEvidence/SecureNowQuestionDispositionContracts.cs; archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
-- **hunts:** 24
+- **hunts:** 25
 - **bugs-found:** 12
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-11
@@ -36200,6 +36202,8 @@ ABQ-09 churn hotspot.
 - (candidate) `SecureNowQuestionCompiler.AddQuestion` — two proposed `OperatorInferredConnectionRecord` inputs with the same normalized resource/question identity but different endpoints are collapsed by `emitted`, so one actionable inferred connection may disappear; input originates from the inferred-connection list passed into compilation.
 - (candidate) `SecureNowQuestionDispositionService.BuildDiagramCandidates` — an inventory resource is suppressed whenever its ID appears in any relationship, even when the relationship's peer endpoint is missing or unresolved; input originates from persisted inventory relationship records and could hide an unknown-evidence question.
 - (candidate) `securenow-question-queue-api.mapQuestion` — an API response containing blank string entries in `answerCodes` passes the type-only filter and can render a blank answer button; input is the reachable question API response.
+- (candidate) `SecureNowQuestionCompiler.Compile` — `dispositions.ToDictionary` uses case-insensitive identity keys while the SQL identity hash preserves `QuestionKey` casing, so two reachable API ignore mutations differing only by question-key case can persist and make question compilation throw; input originates from the controller's `POST /ignore` body.
+- (candidate) `SecureNowQuestionQueueProvider` — while a new `snapshotId` request is in flight, the old question remains actionable, so a queue answer can submit the old question identity under the new snapshot; input originates from snapshot navigation followed by a queue action before the new load completes.
 
 
 ## Zone: infra-evidence-diagrams
