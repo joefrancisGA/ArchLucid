@@ -1918,7 +1918,7 @@
 
 2026-10-09 seed hunt (seed-only): re-read the selected topology merge orchestration files and focused tests; no fresh reachable mechanism-backed candidate met the seed quality bar and no hypothesis was promoted. The focused topology test run was blocked by unrelated `ARCH002` in `ArchLucid.Core/Auth/Saml/SamlMetadataDiscoveryParser.cs`.
 
-**Hunts:** 1613 · **Bugs found:** 980
+**Hunts:** 1614 · **Bugs found:** 980
 
 2026-10-09 seed hunt (seed-only): re-read all seven selected topology orchestration files and focused tests; no candidate met the hunt-ready bar, so no hypothesis was promoted. Seeded five mechanism-backed `(candidate)` rows; the focused topology test run was blocked by unrelated `ARCH002` in `ArchLucid.Core/Auth/Saml/SamlMetadataDiscoveryParser.cs`.
 
@@ -9577,6 +9577,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ---
 
 ## Zone: architecture-recommendation
+
+2026-10-11 seed hunt (seed-only): re-read the selected recommendation engine and trade-off builder after the explicit-priority negation fixes; upstream provisional gating prevents the strongest model-state concern from being reachable as a wrong outcome, and the selected contract does not require every dimension pair to receive a trade-off. The exact Alternatives/ProposedChange filter passed 45/45; retained two bounded candidates and made no production or regression code change.
+
+- [ ] (candidate) `ArchitectureRecommendationEngine.BuildRecommendations` — the supplied `ArchitectureKnowledgeModel.IsProvisionalSynthesis` is not consulted at this locus, so a direct caller passing a provisional model with a Fail finding could emit a remediation recommendation instead of evidence-first output — input: the `context.Model` passed by `ClosedLoopRecommendationStage` while framing is incomplete; upstream `ClosedLoopReviewStage` currently gates those findings, so caller/contract evidence is still needed.
+- [ ] (candidate) `ArchitectureRecommendationTradeOffBuilder.ApplyTradeOffs` — only Security/Cost, Security/Reliability, and Reliability/Cost pairs are synthesized, so a reachable Security plus DataArchitecture finding pair receives no competing-dimension trade-off — input: specialist review findings with `QualityDimension.Security` and `QualityDimension.DataArchitecture`; no selected contract currently states that every dimension pair must produce a trade-off.
 
 2026-10-11 seed hunt (seed→hit): `ArchitectureRecommendationTradeOffBuilder` treated the reachable operator priority `Security is not a priority for phase one` as Security-first because postpositive negation was not recognized; added generalized `is not`/`isn't` priority and prioritization matching; regression `BuildRecommendations_balances_security_cost_trade_off_when_priority_says_security_is_not_a_priority`; the exact Alternatives/ProposedChange filter passed 45/45 and the TradeOffBuilder suite passed 14/14.
 
