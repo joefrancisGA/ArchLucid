@@ -54,6 +54,8 @@ public sealed class AzureInventoryAdfLinkedServiceTargetResolverTests
         Dictionary<string, string> hostIndex = AzureInventoryAdfLinkedServiceTargetResolver.BuildHostIndex(resources);
 
         hostIndex.Should().NotContainKey("sa1.blob.core.windows.net");
+        hostIndex.Should().NotContainKey("sa1.privatelink.blob.core.windows.net");
+        hostIndex.Should().NotContainKey("sa1.queue.core.windows.net");
     }
 
     [Fact]
@@ -160,6 +162,78 @@ public sealed class AzureInventoryAdfLinkedServiceTargetResolverTests
         hostIndex["openai-dev.cognitiveservices.azure.com"].Should().Be(ArmResourceIdNormalizer.Normalize(cognitiveArmId));
         hostIndex.Should().ContainKey("search-dev.search.windows.net");
         hostIndex["search-dev.search.windows.net"].Should().Be(ArmResourceIdNormalizer.Normalize(searchArmId));
+    }
+
+    [Fact]
+    public void BuildHostIndex_maps_private_link_storage_and_key_vault_hosts()
+    {
+        const string storageArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1";
+        const string keyVaultArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.KeyVault/vaults/kv1";
+
+        List<AzureExtractorExtendedResourceRow> resources =
+        [
+            new()
+            {
+                AzureResourceId = storageArmId,
+                ResourceType = "Microsoft.Storage/storageAccounts",
+                Name = "sa1",
+            },
+            new()
+            {
+                AzureResourceId = keyVaultArmId,
+                ResourceType = "Microsoft.KeyVault/vaults",
+                Name = "kv1",
+            },
+        ];
+
+        Dictionary<string, string> hostIndex =
+            AzureInventoryAdfLinkedServiceTargetResolver.BuildHostIndex(resources);
+        string normalizedStorageId = ArmResourceIdNormalizer.Normalize(storageArmId);
+        string normalizedKeyVaultId = ArmResourceIdNormalizer.Normalize(keyVaultArmId);
+
+        hostIndex.Should().ContainKey("sa1.queue.core.windows.net");
+        hostIndex.Should().ContainKey("sa1.table.core.windows.net");
+        hostIndex.Should().ContainKey("sa1.file.core.windows.net");
+        hostIndex.Should().ContainKey("sa1.privatelink.blob.core.windows.net");
+        hostIndex["sa1.privatelink.blob.core.windows.net"].Should().Be(normalizedStorageId);
+        hostIndex["sa1.privatelink.queue.core.windows.net"].Should().Be(normalizedStorageId);
+        hostIndex["kv1.vault.azure.net"].Should().Be(normalizedKeyVaultId);
+        hostIndex["kv1.privatelink.vaultcore.azure.net"].Should().Be(normalizedKeyVaultId);
+        hostIndex.Should().NotContainKey("kv1.privatelink.vault.azure.net");
+    }
+
+    [Fact]
+    public void BuildHostIndex_maps_private_link_sql_catalog_key()
+    {
+        const string serverArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Sql/servers/prodsql";
+        const string databaseArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Sql/servers/prodsql/databases/archlucid";
+
+        List<AzureExtractorExtendedResourceRow> resources =
+        [
+            new()
+            {
+                AzureResourceId = serverArmId,
+                ResourceType = "Microsoft.Sql/servers",
+                Name = "prodsql",
+            },
+            new()
+            {
+                AzureResourceId = databaseArmId,
+                ResourceType = "Microsoft.Sql/servers/databases",
+                Name = "archlucid",
+            },
+        ];
+
+        Dictionary<string, string> hostIndex =
+            AzureInventoryAdfLinkedServiceTargetResolver.BuildHostIndex(resources);
+
+        hostIndex.Should().ContainKey("prodsql.privatelink.database.windows.net");
+        hostIndex["prodsql.privatelink.database.windows.net|archlucid"].Should().Be(
+            ArmResourceIdNormalizer.Normalize(databaseArmId));
     }
 
     [Fact]

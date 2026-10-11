@@ -141,6 +141,63 @@ public sealed class AzureInventoryPrivateEndpointReachableEdgeMapperTests
             relationship.InferenceSource == GraphEdgeInferenceSources.InventoryPeReachableTarget);
     }
 
+    [Fact]
+    public void MapPeReachableTargets_missing_dns_warns_only_for_collected_usage()
+    {
+        string vnet = BuildVnet("vnet-a");
+        string subnet = BuildSubnet(vnet, "subnet-a");
+        string app = BuildWebApp("orders-api");
+        string sql = BuildSqlServer("sql1");
+        string storage = BuildStorageAccount("archive");
+        string sqlPe = BuildPrivateEndpoint("pe-sql");
+        string storagePe = BuildPrivateEndpoint("pe-storage");
+
+        List<AzureInventoryResourceRelationshipWrite> relationships =
+        [
+            Observed(app, subnet, GraphEdgeInferenceSources.InventoryAppServiceSubnet),
+            Observed(sqlPe, sql, GraphEdgeInferenceSources.InventoryPrivateEndpoint),
+            Observed(storagePe, storage, GraphEdgeInferenceSources.InventoryPrivateEndpoint),
+            Observed(app, sql, GraphEdgeInferenceSources.InventoryHostnameInferredTarget),
+        ];
+        List<string> warnings = [];
+
+        AzureInventoryPrivateEndpointReachableEdgeMapper.MapPeReachableTargets(
+            relationships,
+            new HashSet<string>(StringComparer.OrdinalIgnoreCase),
+            warnings);
+
+        warnings.Should().ContainSingle(
+            $"{AzureInventoryRelationshipCompletenessWarningCodes.PeReachableDnsLinkMissing}:{ArmResourceIdNormalizer.Normalize(app)}:{ArmResourceIdNormalizer.Normalize(sql)}");
+        relationships.Should().NotContain(relationship =>
+            relationship.InferenceSource == GraphEdgeInferenceSources.InventoryPeReachableTarget);
+    }
+
+    [Fact]
+    public void MapPeReachableTargets_usage_of_child_warns_for_private_endpoint_parent()
+    {
+        string vnet = BuildVnet("vnet-a");
+        string subnet = BuildSubnet(vnet, "subnet-a");
+        string app = BuildWebApp("orders-api");
+        string sql = BuildSqlServer("sql1");
+        string database = $"{sql}/databases/orders";
+        string pe = BuildPrivateEndpoint("pe-sql");
+        List<AzureInventoryResourceRelationshipWrite> relationships =
+        [
+            Observed(app, subnet, GraphEdgeInferenceSources.InventoryAppServiceSubnet),
+            Observed(pe, sql, GraphEdgeInferenceSources.InventoryPrivateEndpoint),
+            Observed(app, database, GraphEdgeInferenceSources.InventoryHostnameInferredTarget),
+        ];
+        List<string> warnings = [];
+
+        AzureInventoryPrivateEndpointReachableEdgeMapper.MapPeReachableTargets(
+            relationships,
+            new HashSet<string>(StringComparer.OrdinalIgnoreCase),
+            warnings);
+
+        warnings.Should().ContainSingle(
+            $"{AzureInventoryRelationshipCompletenessWarningCodes.PeReachableDnsLinkMissing}:{ArmResourceIdNormalizer.Normalize(app)}:{ArmResourceIdNormalizer.Normalize(sql)}");
+    }
+
     private static AzureInventoryResourceRelationshipWrite Observed(
         string fromArmId,
         string toArmId,
@@ -167,6 +224,9 @@ public sealed class AzureInventoryPrivateEndpointReachableEdgeMapperTests
 
     private static string BuildSqlServer(string name) =>
         $"/subscriptions/{SubscriptionId}/resourceGroups/rg-data/providers/Microsoft.Sql/servers/{name}";
+
+    private static string BuildStorageAccount(string name) =>
+        $"/subscriptions/{SubscriptionId}/resourceGroups/rg-data/providers/Microsoft.Storage/storageAccounts/{name}";
 
     private static string BuildPrivateEndpoint(string name) =>
         $"/subscriptions/{SubscriptionId}/resourceGroups/rg-net/providers/Microsoft.Network/privateEndpoints/{name}";
