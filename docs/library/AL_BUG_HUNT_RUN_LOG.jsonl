@@ -9531,3 +9531,4 @@
 {"at":"2026-10-11T19:58:29.0000000Z","zoneId":"archlucid-contracts","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Contracts/"]}
 {"at":"2026-10-11T20:03:08.0000000Z","zoneId":"archlucid-contracts","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Contracts/"]}
 {"at":"2026-10-11T20:08:52.9192150Z","zoneId":"archlucid-contracts","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Contracts/"]}
+{"at":"2026-10-11T20:14:48.6734160Z","zoneId":"core-explanation-json","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Core/Explanation/"]}

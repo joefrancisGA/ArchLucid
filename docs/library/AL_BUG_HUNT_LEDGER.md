@@ -2,6 +2,8 @@
 
 2026-10-11 seed hunt (seed→hit): `ArchitectureFindingJsonConverter.TryReadFindingSemanticSupportBand` accepted undefined numeric strings such as `"99"` because the string enum path omitted `Enum.IsDefined`; fixed with the same defined-value guard used by sibling enum readers. The focused Contracts filter passed 521/521, and the changed contracts project compiled with zero warnings and errors.
 
+2026-10-11 seed hunt (seed-only): `core-explanation-json` — re-read the structured parser, shared token readers, prompt schema, and existing candidate rows. The four bounded candidates remain provider-contract or downstream-semantics questions rather than same-run hunt-ready defects; the focused `RunExplanation` suite passed 47/47. No production or regression code changed.
+
 2026-10-11 seed hunt (seed-only): `archlucid-contracts` — rechecked the selected documentation-decision contracts, decision values, architecture finding converter, and focused contract coverage; no new reachable mechanism-backed wrong outcome met the promotion bar. The focused Contracts filter passed 520/520. No candidate was promoted and no production or regression code changed.
 
 2026-10-11 seed hunt (seed-only): `archlucid-contracts` — reread the selected documentation-decision contracts, decision values, architecture finding converter, and focused contract coverage; no new reachable mechanism-backed wrong outcome met the promotion bar. The focused Contracts filter passed 520/520. No candidate was promoted and no production or regression code changed.
@@ -27679,7 +27681,7 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 - **aliases:** run explanation; explanation json; split from archlucid-core
 - **paths:** ArchLucid.Core/Explanation/
 - **test-filter:** FullyQualifiedName~RunExplanation
-- **hunts:** 53
+- **hunts:** 54
 - **bugs-found:** 33
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-11
