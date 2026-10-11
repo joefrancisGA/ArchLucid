@@ -124,7 +124,7 @@ export function traceRowsForRun(run: RunSummary, traces: FindingTraceConfidenceD
         findingId,
         title: titleRaw.length > 0 ? titleRaw : findingId,
         severity: severityFromTrace(t.traceConfidenceLabel),
-        category: (t.ruleId ?? "Not returned").replace(/;/g, ", "),
+        category: ruleHint.length > 0 ? ruleHint.replace(/;/g, ", ") : "Not returned",
         status: "Open",
         recommended:
           ruleHint.length > 0

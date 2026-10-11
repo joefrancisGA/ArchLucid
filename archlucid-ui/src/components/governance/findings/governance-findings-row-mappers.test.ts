@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import type { ArchitectureRiskRegisterEntry } from "@/lib/api/governance-stickiness-api";
 import { matchesRiskRegisterFilter } from "@/lib/architecture/architecture-risk-register-page";
 
-import { decisionRegisterRows, riskRegisterRows } from "./governance-findings-row-mappers";
+import { decisionRegisterRows, riskRegisterRows, traceRowsForRun } from "./governance-findings-row-mappers";
 
 describe("riskRegisterRows", () => {
   it("drops risk-register entries without a finding id before queue selection", () => {
@@ -74,5 +74,14 @@ describe("riskRegisterRows", () => {
 
     expect(row?.status).toBe("");
     expect(() => (row === undefined ? false : matchesRiskRegisterFilter(row, "open"))).not.toThrow();
+  });
+
+  it("uses the missing-rule label for whitespace-only trace rule ids", () => {
+    const rows = traceRowsForRun(
+      { runId: "run-3", projectId: "project-3", createdUtc: "2026-10-11T00:00:00.000Z" },
+      [{ findingId: "finding-3", findingTitle: "Trace finding", ruleId: "   " }],
+    );
+
+    expect(rows[0]?.category).toBe("Not returned");
   });
 });

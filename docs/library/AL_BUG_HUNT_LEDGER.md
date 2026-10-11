@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-11 thorough hunt (hit): `ui-governance-findings-queue` — a whitespace-only optional trace `ruleId` passed through as a blank category even though the mapper had a “Not returned” fallback, hiding traceability context in the queue. The mapper now trims before applying the fallback; regression `uses the missing-rule label for whitespace-only trace rule ids` failed first and passed after the fix. Mapper tests passed 5/5.
+
 2026-10-11 seed hunt (seed-only): `ui-governance-findings-queue` — reread the normalized register mappers, fallback trace-row mapping, synopsis/filter derivation, and queue header paths. No fresh row met the full hunt-ready bar; retained bounded candidates for whitespace-only trace rule labels, owner-label normalization, and decision-category normalization. The focused mapper tests passed 4/4; the picker-scoped client file ran 11 passed and 11 known external-store/update-depth and workspace-label baseline failures. No production or regression change.
 
 2026-10-11 seed hunt (seed→hit): `ui-governance-findings-queue` — generated risk-register text fields are optional, but `riskRegisterRows` passed omitted status/title/severity/category values into queue filtering and `row.status.toLowerCase()` could throw. The mapper now normalizes optional text fields; regression `normalizes optional risk-register text fields before queue filtering` failed first and passed after the fix. Mapper tests passed 4/4.
@@ -35710,11 +35712,11 @@ ABQ-09 churn hotspot; intake wizard route tree.
 - **aliases:** governance findings queue
 - **paths:** archlucid-ui/src/app/(operator)/governance/findings/
 - **test-filter:** FullyQualifiedName~GovernanceFindingsQueueClient
-- **hunts:** 47
-- **bugs-found:** 31
+- **hunts:** 48
+- **bugs-found:** 32
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-11
-- **last-bug:** 2026-10-11 — optional risk-register text crashed queue filtering
+- **last-bug:** 2026-10-11 — whitespace trace rule id hid missing-category context
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -35732,9 +35734,9 @@ ABQ-09 churn hotspot.
 
 ### Hypotheses
 
-- [ ] (candidate) `traceRowsForRun` — a reachable trace with an omitted or whitespace-only `ruleId` maps to a blank category because the mapper uses `ruleId ?? "Not returned"` without trimming before the fallback; the explanation API permits an optional rule id, but the user-visible traceability harm is not yet established.
-- [ ] (candidate) `riskRegisterRows` — a reachable owner identifier containing only whitespace is preserved in the recommended-action sentence as `Owner:   ` even though the row cell treats it as unassigned; the register API permits an optional owner string, but no downstream wrong action has been shown.
-- [ ] (candidate) `decisionRegisterRows` — a reachable decision category with surrounding whitespace is checked after trimming but emitted untrimmed, so the mixed queue can display padded category text; the decision API permits an optional category string, but no material navigation or filtering outcome is established.
+- [x] (proven) `traceRowsForRun` — a reachable trace with a whitespace-only optional `ruleId` mapped to a blank category because the fallback checked nullishness before trimming; **hit 2026-10-11 thorough hunt:** trim the rule hint before choosing `"Not returned"`; regression `uses the missing-rule label for whitespace-only trace rule ids`.
+- [x] (valid-no-repro) `riskRegisterRows` — a reachable owner identifier containing only whitespace is preserved in the recommended-action sentence as `Owner:   ` even though the row cell treats it as unassigned — **cheap-disproof 2026-10-11 thorough hunt:** no downstream action consumes the recommendation as an owner assertion, and the owner cell already renders the safe unassigned label.
+- [x] (valid-no-repro) `decisionRegisterRows` — a reachable decision category with surrounding whitespace is checked after trimming but emitted untrimmed, so the mixed queue can display padded category text — **cheap-disproof 2026-10-11 thorough hunt:** category is display-only in the selected queue path; no filtering, navigation, or disposition behavior depends on its whitespace.
 
 - [x] (proven) `riskRegisterRows` — generated optional risk-register `statusLabel`, `title`, `severity`, or `category` values can be omitted, but the mapper passed `status` through as `undefined`; the open-filter path then called `.toLowerCase()` and could fail queue rendering — **hit 2026-10-11 seed hunt:** normalize optional text fields to safe strings before building queue rows; regression `normalizes optional risk-register text fields before queue filtering`.
 
