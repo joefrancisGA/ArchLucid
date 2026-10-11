@@ -5,6 +5,8 @@ using ArchLucid.Persistence.InfraEvidence;
 
 namespace ArchLucid.Application.Tests.InfraEvidence;
 
+[Trait("Category", "Unit")]
+[Trait("Suite", "Application")]
 public sealed class AzureInventorySnapshotPropertyIndexTests
 {
     [Fact]

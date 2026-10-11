@@ -53,7 +53,7 @@ public sealed class DefaultPolicyPackCoverageTests
 
         IReadOnlyList<DefaultPolicyPackBundleDefinition> bundles = DefaultPolicyPackBundledManifest.LoadBundles();
 
-        bundles.Should().HaveCount(45);
+        bundles.Should().HaveCount(48);
 
         foreach (DefaultPolicyPackBundleDefinition bundle in bundles)
         {

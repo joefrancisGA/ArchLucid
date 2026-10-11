@@ -8,6 +8,8 @@ using Moq;
 
 namespace ArchLucid.Application.Tests.InfraEvidence;
 
+[Trait("Category", "Unit")]
+[Trait("Suite", "Application")]
 public sealed class AzureInventorySnapshotGraphResolverPropertyHydrationTests
 {
     private const string Subnet = "/subscriptions/sub/resourcegroups/rg/providers/microsoft.network/virtualnetworks/vnet/subnets/app";

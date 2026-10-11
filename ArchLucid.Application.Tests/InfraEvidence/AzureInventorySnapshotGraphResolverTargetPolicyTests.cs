@@ -9,6 +9,8 @@ using Moq;
 
 namespace ArchLucid.Application.Tests.InfraEvidence;
 
+[Trait("Category", "Unit")]
+[Trait("Suite", "Application")]
 public sealed class AzureInventorySnapshotGraphResolverTargetPolicyTests
 {
     private const string Source = "/subscriptions/sub/resourcegroups/rg/providers/microsoft.storage/storageaccounts/source";

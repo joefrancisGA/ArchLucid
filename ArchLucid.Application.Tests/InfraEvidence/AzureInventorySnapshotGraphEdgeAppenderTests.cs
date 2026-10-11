@@ -3,6 +3,8 @@ using ArchLucid.Contracts.Persistence.Graph;
 
 namespace ArchLucid.Application.Tests.InfraEvidence;
 
+[Trait("Category", "Unit")]
+[Trait("Suite", "Application")]
 public sealed class AzureInventorySnapshotGraphEdgeAppenderTests
 {
     [Theory]

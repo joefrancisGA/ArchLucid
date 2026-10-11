@@ -9,6 +9,8 @@ using Moq;
 
 namespace ArchLucid.Application.Tests.InfraEvidence;
 
+[Trait("Category", "Unit")]
+[Trait("Suite", "Application")]
 public sealed class AzureInventorySnapshotVnetPeeringEdgePolicyTests
 {
     private const string Local = "/subscriptions/sub/resourcegroups/rg/providers/microsoft.network/virtualnetworks/local";

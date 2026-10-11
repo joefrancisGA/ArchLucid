@@ -8,6 +8,8 @@ using Moq;
 
 namespace ArchLucid.Application.Tests.InfraEvidence;
 
+[Trait("Category", "Unit")]
+[Trait("Suite", "Application")]
 public sealed class AzureInventorySnapshotParentChildEdgePolicyTests
 {
     private const string Prefix = "/subscriptions/sub/resourcegroups/rg/providers/";

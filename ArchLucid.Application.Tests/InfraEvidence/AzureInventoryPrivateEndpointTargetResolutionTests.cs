@@ -7,6 +7,8 @@ using ArchLucid.Persistence.InfraEvidence;
 
 namespace ArchLucid.Application.Tests.InfraEvidence;
 
+[Trait("Category", "Unit")]
+[Trait("Suite", "Application")]
 public sealed class AzureInventoryPrivateEndpointTargetResolutionTests
 {
     private const string Pe = "/subscriptions/sub/resourcegroups/rg/providers/microsoft.network/privateendpoints/pe";

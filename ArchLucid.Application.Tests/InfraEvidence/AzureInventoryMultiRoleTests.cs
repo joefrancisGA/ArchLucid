@@ -6,6 +6,8 @@ using ArchLucid.Persistence.InfraEvidence;
 
 namespace ArchLucid.Application.Tests.InfraEvidence;
 
+[Trait("Category", "Unit")]
+[Trait("Suite", "Application")]
 public sealed class AzureInventoryMultiRoleTests
 {
     private const string Principal = "aaaaaaaa-1111-1111-1111-111111111111";

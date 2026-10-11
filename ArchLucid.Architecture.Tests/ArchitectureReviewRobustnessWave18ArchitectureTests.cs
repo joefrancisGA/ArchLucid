@@ -41,7 +41,7 @@ public sealed class ArchitectureReviewRobustnessWave18ArchitectureTests
 
         string tests = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application.Tests/Exports/DecisionReceiptServiceTests.cs");
 
-        tests.Should().Contain("BuildForRunAsync_MissingFeasibilityVerdict_ReturnsSealedReceiptIncomplete");
+        tests.Should().Contain("BuildForRunAsync_MissingFeasibilityVerdict_ReturnsNotFound");
     }
 
     [Fact]

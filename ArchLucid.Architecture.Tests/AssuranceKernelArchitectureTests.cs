@@ -50,7 +50,7 @@ public sealed class AssuranceKernelArchitectureTests
             "InfraEvidence",
             "SecurityEvidencePathGuard.cs");
         File.ReadAllText(guardPath).Should().Contain(
-            "AiInference hops cannot use Confirmed confidence",
+            "LLM-inferred hops cannot use Confirmed confidence.",
             "the truth kernel must reject LLM-inferred hops rather than call an LLM");
     }
 
