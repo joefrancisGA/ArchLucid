@@ -22623,6 +22623,35 @@
         },
         "type": "object"
       },
+      "OperationalSecurityFindingLookupItem": {
+        "properties": {
+          "findingId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "sourceFindingId": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "OperationalSecurityFindingLookupRequest": {
+        "properties": {
+          "sourceFindingIds": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "sourceSystem": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "OperationalSecurityFindingMetadataRecord": {
         "properties": {
           "findingId": {
