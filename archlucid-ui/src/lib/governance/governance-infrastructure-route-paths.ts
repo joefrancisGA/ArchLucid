@@ -61,6 +61,9 @@ export const SECURENOW_INFRASTRUCTURE_DECLARED_CONNECTIONS_PATH =
 /** SecureNow shell — extract and upload intake (Infrastructure URL namespace). */
 export const SECURENOW_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH = "/infrastructure/extract-upload" as const;
 
+/** SecureNow collection agent health and on-demand trigger page. */
+export const SECURENOW_COLLECTION_AGENT_PATH = "/infrastructure/collection-agent" as const;
+
 function pathMatchesInfrastructureNamespace(bare: string, basePath: string): boolean {
   return bare === basePath || bare.startsWith(`${basePath}/`);
 }

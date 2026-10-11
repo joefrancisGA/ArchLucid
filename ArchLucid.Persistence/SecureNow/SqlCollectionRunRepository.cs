@@ -16,6 +16,7 @@ public sealed class SqlCollectionRunRepository(ISqlConnectionFactory connectionF
         const string sql = """
                            UPDATE dbo.SecureNowCollectionRuns
                            SET AgentVersion = @AgentVersion,
+                               ScheduleDescription = @ScheduleDescription,
                                StartedUtc = @StartedUtc,
                                FinishedUtc = @FinishedUtc,
                                Status = @Status,
@@ -30,10 +31,10 @@ public sealed class SqlCollectionRunRepository(ISqlConnectionFactory connectionF
                            IF @@ROWCOUNT = 0
                            BEGIN
                                INSERT INTO dbo.SecureNowCollectionRuns
-                               (TenantId, WorkspaceId, ProjectId, RunId, AgentVersion, StartedUtc, FinishedUtc,
+                               (TenantId, WorkspaceId, ProjectId, RunId, AgentVersion, ScheduleDescription, StartedUtc, FinishedUtc,
                                 Status, SubscriptionsCoveredJson, ErrorSummary, ZipPath, ZipSha256, ImportedSnapshotId)
                                VALUES
-                               (@TenantId, @WorkspaceId, @ProjectId, @RunId, @AgentVersion, @StartedUtc, @FinishedUtc,
+                               (@TenantId, @WorkspaceId, @ProjectId, @RunId, @AgentVersion, @ScheduleDescription, @StartedUtc, @FinishedUtc,
                                 @Status, @SubscriptionsCoveredJson, @ErrorSummary, @ZipPath, @ZipSha256, @ImportedSnapshotId);
                            END;
                            """;
@@ -49,6 +50,7 @@ public sealed class SqlCollectionRunRepository(ISqlConnectionFactory connectionF
                 collectionRun.ProjectId,
                 collectionRun.RunId,
                 collectionRun.AgentVersion,
+                collectionRun.ScheduleDescription,
                 collectionRun.StartedUtc,
                 collectionRun.FinishedUtc,
                 Status = (int)collectionRun.Status,
@@ -68,7 +70,7 @@ public sealed class SqlCollectionRunRepository(ISqlConnectionFactory connectionF
     {
         ArgumentNullException.ThrowIfNull(scope);
         const string sql = """
-                           SELECT TenantId, WorkspaceId, ProjectId, RunId, AgentVersion, StartedUtc, FinishedUtc,
+                           SELECT TenantId, WorkspaceId, ProjectId, RunId, AgentVersion, ScheduleDescription, StartedUtc, FinishedUtc,
                                   Status, SubscriptionsCoveredJson, ErrorSummary, ZipPath, ZipSha256, ImportedSnapshotId
                            FROM dbo.SecureNowCollectionRuns
                            WHERE TenantId = @TenantId AND WorkspaceId = @WorkspaceId
@@ -91,7 +93,7 @@ public sealed class SqlCollectionRunRepository(ISqlConnectionFactory connectionF
     {
         ArgumentNullException.ThrowIfNull(scope);
         const string sql = """
-                           SELECT TenantId, WorkspaceId, ProjectId, RunId, AgentVersion, StartedUtc, FinishedUtc,
+                           SELECT TenantId, WorkspaceId, ProjectId, RunId, AgentVersion, ScheduleDescription, StartedUtc, FinishedUtc,
                                   Status, SubscriptionsCoveredJson, ErrorSummary, ZipPath, ZipSha256, ImportedSnapshotId
                            FROM dbo.SecureNowCollectionRuns
                            WHERE TenantId = @TenantId AND WorkspaceId = @WorkspaceId AND ProjectId = @ProjectId
@@ -134,6 +136,35 @@ public sealed class SqlCollectionRunRepository(ISqlConnectionFactory connectionF
             cancellationToken: cancellationToken));
     }
 
+    public async Task<CollectionRun?> TryGetRecentPendingAsync(
+        ScopeContext scope,
+        TimeSpan window,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        const string sql = """
+                           SELECT TOP (1) TenantId, WorkspaceId, ProjectId, RunId, AgentVersion, ScheduleDescription,
+                                  StartedUtc, FinishedUtc, Status, SubscriptionsCoveredJson, ErrorSummary, ZipPath,
+                                  ZipSha256, ImportedSnapshotId
+                           FROM dbo.SecureNowCollectionRuns
+                           WHERE TenantId = @TenantId AND WorkspaceId = @WorkspaceId AND ProjectId = @ProjectId
+                             AND Status = @Status AND StartedUtc >= @ThresholdUtc
+                           ORDER BY StartedUtc DESC, RunId DESC;
+                           """;
+        using System.Data.IDbConnection connection =
+            await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        CollectionRunRow? row = await connection.QuerySingleOrDefaultAsync<CollectionRunRow>(
+            new CommandDefinition(sql, new
+            {
+                scope.TenantId,
+                scope.WorkspaceId,
+                scope.ProjectId,
+                Status = (int)CollectionRunStatus.Running,
+                ThresholdUtc = DateTime.UtcNow.Subtract(window),
+            }, cancellationToken: cancellationToken));
+        return row?.ToModel();
+    }
+
     private sealed class CollectionRunRow
     {
         public Guid TenantId { get; init; }
@@ -141,6 +172,7 @@ public sealed class SqlCollectionRunRepository(ISqlConnectionFactory connectionF
         public Guid ProjectId { get; init; }
         public Guid RunId { get; init; }
         public string AgentVersion { get; init; } = string.Empty;
+        public string? ScheduleDescription { get; init; }
         public DateTime StartedUtc { get; init; }
         public DateTime? FinishedUtc { get; init; }
         public int Status { get; init; }
@@ -157,6 +189,7 @@ public sealed class SqlCollectionRunRepository(ISqlConnectionFactory connectionF
             ProjectId = ProjectId,
             RunId = RunId,
             AgentVersion = AgentVersion,
+            ScheduleDescription = ScheduleDescription,
             StartedUtc = StartedUtc,
             FinishedUtc = FinishedUtc,
             Status = Enum.IsDefined(typeof(CollectionRunStatus), Status)

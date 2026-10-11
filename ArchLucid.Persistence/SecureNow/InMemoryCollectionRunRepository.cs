@@ -64,6 +64,22 @@ public sealed class InMemoryCollectionRunRepository : ICollectionRunRepository
         return Task.FromResult(result);
     }
 
+    public Task<CollectionRun?> TryGetRecentPendingAsync(
+        ScopeContext scope,
+        TimeSpan window,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        DateTime threshold = DateTime.UtcNow.Subtract(window);
+        CollectionRun? result = _runs.Values
+            .Where(run => IsInScope(run, scope))
+            .Where(run => run.StartedUtc >= threshold)
+            .Where(run => run.Status is CollectionRunStatus.Running)
+            .OrderByDescending(run => run.StartedUtc)
+            .FirstOrDefault();
+        return Task.FromResult(result);
+    }
+
     private static bool IsInScope(CollectionRun run, ScopeContext scope) =>
         run.TenantId == scope.TenantId &&
         run.WorkspaceId == scope.WorkspaceId &&

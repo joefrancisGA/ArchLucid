@@ -22,4 +22,9 @@ public interface ICollectionRunRepository
         ScopeContext scope,
         byte[] zipSha256,
         CancellationToken cancellationToken = default);
+
+    Task<CollectionRun?> TryGetRecentPendingAsync(
+        ScopeContext scope,
+        TimeSpan window,
+        CancellationToken cancellationToken = default);
 }

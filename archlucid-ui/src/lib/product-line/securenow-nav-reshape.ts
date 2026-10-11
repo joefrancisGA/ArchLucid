@@ -1,4 +1,4 @@
-import { Home } from "lucide-react";
+import { Activity, Home } from "lucide-react";
 
 import {
   AUDIT_EVIDENCE_LINEAGE_LOOKUP_PATH,
@@ -22,6 +22,7 @@ import {
   SECURENOW_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH,
   SECURENOW_INFRASTRUCTURE_RESOURCES_PATH,
   SECURENOW_INFRASTRUCTURE_TERRAFORM_PATH,
+  SECURENOW_COLLECTION_AGENT_PATH,
   SECURENOW_REMEDIATION_INSTANCES_PATH,
 } from "@/lib/governance/governance-infrastructure-route-paths";
 import {
@@ -64,6 +65,15 @@ export const SECURENOW_DATA_SOURCES_NAV_GROUP_ID = "securenow-data-sources" as c
 export const SECURENOW_INTEGRATION_NAV_GROUP_ID = "securenow-integrations" as const;
 export const SECURENOW_INTEGRATION_NAV_GROUP_LABEL = "Integrations" as const;
 export const SECURENOW_AZURE_CONNECTIONS_NAV_LABEL = "Azure connections" as const;
+
+export const SECURENOW_COLLECTION_AGENT_NAV_LINK: NavLinkItem = {
+  href: SECURENOW_COLLECTION_AGENT_PATH,
+  label: "Collection agent",
+  title: "Whether scheduled collection is running and what it found.",
+  icon: Activity,
+  tier: "extended",
+  requiredAuthority: "ReadAuthority",
+};
 
 /** SecureNow Security shell — pilot Home is filtered out before reshape, so inject it here. */
 export const SECURENOW_SECURITY_HOME_LINK: NavLinkItem = {
@@ -360,6 +370,7 @@ export function reshapeNavGroupsForSecureNow(
   }
 
   const dataSourceLinks = [
+    SECURENOW_COLLECTION_AGENT_NAV_LINK,
     ...applySecureNowIntegrationNavLinkLabels(
       pickNavLinks(linksByHref, [CLOUD_CONNECTIONS_PATH]),
     ),

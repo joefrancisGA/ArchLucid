@@ -1,4 +1,5 @@
 using ArchLucid.Core.Authorization;
+using ArchLucid.Application.SecureNow;
 using ArchLucid.Core.Persistence.ApplicationPorts.Data.Repositories;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.SecureNow;
@@ -16,7 +17,9 @@ namespace ArchLucid.Api.Controllers.Authority;
 [Route("v{version:apiVersion}/collection-runs")]
 public sealed class CollectionRunsController(
     ICollectionRunRepository collectionRunRepository,
-    IScopeContextProvider scopeContextProvider) : ControllerBase
+    IScopeContextProvider scopeContextProvider,
+    ICollectionRunTrigger collectionRunTrigger,
+    IActorContext actorContext) : ControllerBase
 {
     [HttpGet]
     [ProducesResponseType(typeof(IReadOnlyList<CollectionRun>), StatusCodes.Status200OK)]
@@ -45,5 +48,26 @@ public sealed class CollectionRunsController(
         CollectionRun? collectionRun = await collectionRunRepository.GetAsync(scope, runId, cancellationToken);
 
         return collectionRun is null ? NotFound() : Ok(collectionRun);
+    }
+
+    [HttpPost(":trigger")]
+    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
+    [ProducesResponseType(StatusCodes.Status202Accepted)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+    public async Task<IActionResult> TriggerAsync(CancellationToken cancellationToken = default)
+    {
+        CollectionRunTriggerResult result = await collectionRunTrigger.TriggerAsync(
+            actorContext.GetActorId(),
+            cancellationToken);
+
+        if (!result.Succeeded)
+            return UnprocessableEntity(new ProblemDetails { Detail = result.FailureDetail });
+
+        return Accepted(new
+        {
+            runId = result.RunId,
+            alreadyPending = result.AlreadyPending,
+        });
     }
 }
