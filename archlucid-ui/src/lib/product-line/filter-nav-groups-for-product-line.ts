@@ -1,4 +1,5 @@
 import type { NavGroupConfig, NavLinkItem } from "@/lib/nav-config.types";
+import { ADMINISTRATION_SYSTEM_HEALTH_PATH } from "@/lib/administration-route-paths";
 import { GOVERNANCE_INFRASTRUCTURE_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
 import { productLineAssignmentIncludes, type ProductLineAssignment } from "@/lib/product-line/product-line-assignment";
 import { resolveProductLineAssignmentForPath } from "@/lib/product-line/product-line-path-access";
