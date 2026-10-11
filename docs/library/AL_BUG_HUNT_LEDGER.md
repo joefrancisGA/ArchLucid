@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-11 seed hunt (seed-only): `host-core-coordination` — repeated the option-verifier, retry-calculator, shared failure-handler, and processor-isolation review; no fresh reachable mechanism-backed candidate emerged and the five existing bounded candidates remain unchanged. The focused coordination/outbox filter passed 21/21. No production or regression code changed.
+
 2026-10-11 seed hunt (seed-only): `host-core-coordination` — repeated the same selected coordination files and completion/error paths; no new reachable wrong outcome or hunt-ready row emerged, so the five bounded candidates remain unchanged. The focused coordination/outbox filter passed 21/21. No production or regression code changed.
 
 2026-10-11 seed hunt (seed-only): `host-core-coordination` — repeated the selected coordination review across the shared isolation shell, retry/dead-letter persistence, option clamping, and sibling completion paths; no new reachable wrong outcome emerged beyond the existing five bounded candidates. The focused coordination/outbox filter passed 21/21. No production or regression code changed.
@@ -8894,7 +8896,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** llm wallet; tenant wallet; billing wallet
 - **paths:** ArchLucid.Api/Controllers/Billing/WalletController.cs; ArchLucid.Application/Budgeting/LlmTenantWalletService.cs; ArchLucid.Persistence/Data/Repositories/SqlLlmTenantWalletRepository.cs
 - **test-filter:** FullyQualifiedName~LlmTenantWalletServiceTests
-- **hunts:** 36
+- **hunts:** 37
 - **bugs-found:** 19
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-09
