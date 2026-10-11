@@ -11467,7 +11467,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** scim; entra provisioning users
 - **paths:** ArchLucid.Api/Controllers/Scim/ScimUsersController.cs
 - **test-filter:** FullyQualifiedName~ScimUsers
-- **hunts:** 30
+- **hunts:** 31
 - **bugs-found:** 21
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-09
@@ -16851,6 +16851,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
+2026-10-11 seed hunt (seed-only): re-read the remaining billing interfaces, admin COGS tests, and scoped reporting edge cases; 26 scoped tests passed. No new row met the same-run failing-repro bar. Seeded two bounded candidates for requested dashboard-window clamping and suspended/offboarded tenant visibility.
+
 2026-10-11 seed hunt (seed-only): re-read the billing application sources and the scoped Marketplace, BillingCheckout, and TenantLlmCostReporting tests; 26 scoped tests passed. No candidate met the same-run failing-repro bar. Seeded five follow-on candidates covering unknown Marketplace plan-id fallback, provider-error detail exposure, invalid checkout quantities, warning-threshold configuration, and blank billing currency.
 
 2026-10-11 seed hunt (seed-only): re-read `ArchLucid.Application/Billing/` and the scoped Marketplace, BillingCheckout, and TenantLlmCostReporting tests; 26 scoped tests passed. Existing candidates were rechecked, but none met the full failing-repro bar.
@@ -16905,6 +16907,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - (candidate) `BillingCheckoutFacade.CreateCheckoutSessionAsync` — negative `Seats` or `Workspaces` values are accepted into the application request and forwarded to the provider; reachable through the admin checkout body, but current providers clamp values to one before creating a session.
 - (candidate) `AdminFleetLlmCogsService.BuildDashboardAsync` — `WarnFraction` outside the expected 0–1 range can produce warning thresholds below zero or above the hard cap; reachable through bound budget configuration, but no configuration validator or real deployment value establishes the intended range.
 - (candidate) `TenantCostEstimateService.TryGetEstimateAsync` — blank `Billing:UnitRates:Currency` is returned as an unlabeled estimate currency; reachable through bound billing configuration, but this is a presentation-quality concern without a demonstrated wrong consumer outcome.
+- (candidate) `TenantLlmCostReportingService.BuildDashboardAsync` — requested `days` values outside 1–90 are silently clamped, so a caller asking for a longer historical window receives a shorter dashboard without a disposition or response indicator; reachable through the billing dashboard query input, but the bounded-window contract is not explicit in this zone.
+- (candidate) `AdminFleetLlmCogsService.BuildDashboardAsync` — suspended or offboarded tenants are omitted from fleet rows and aggregate counts; reachable through tenant lifecycle state, but the admin dashboard may intentionally report only active cost-bearing tenants.
 - (candidate) `TenantLlmCostReportingService.BuildDashboardAsync` — a negative `LlmTenantBudgetStateReadModel.TotalUsdPressure` would be copied into daily and tenant-wide cost rows; reachable through the monthly budget state populated by the configured LLM cost-estimation path, but this seed pass did not prove that a negative state can be persisted.
 - (candidate) `TenantCostEstimateService.TryGetEstimateAsync` — a blank or whitespace `Billing:UnitRates:Currency` configuration value would produce an estimate with no currency label; reachable through the bound billing configuration, but this is a presentation-quality candidate and no failing repro was attempted in this seed-only pass.
 - (candidate) `BillingCheckoutFacade.CreateCheckoutSessionAsync` — a provider exception message is returned as `ErrorMessage` and the API exposes it in a validation problem response; reachable through the configured checkout provider’s transport/error path, but the seed pass did not establish that provider messages contain sensitive data.
