@@ -24400,7 +24400,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** azure extractor; manifest schema; split from archlucid-core
 - **paths:** ArchLucid.Core/AzureExtractor/
 - **test-filter:** FullyQualifiedName~AzureExtractor
-- **hunts:** 54
+- **hunts:** 55
 - **bugs-found:** 36
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-09
@@ -30214,6 +30214,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
+2026-10-11 seed hunt (seed-only): re-read graph projection/delta, edge inference, snapshot repository, serialization/cache, and provenance build/analysis paths. No fresh reachable row was promoted; the KnowledgeGraph schema-surface failure is pre-existing (`GraphEdge` exposes `DeclaredConnectionId` and `ProvenanceKind` without the expected schema-test update), while two bounded repository/inference candidates were seeded. KnowledgeGraph had 372 passed and 1 pre-existing schema-stability failure; Provenance passed 58/58. No production change.
+
 2026-10-10 seed hunt (seed-only): reread graph service truncation, JSON/MessagePack serialization, temporal graph response mapping, WAF trade-off indexing, declaration identity resolution, quality-attribute parsing, and inference-edge deduplication; no fresh reachability-backed wrong-outcome hypothesis survived the hunt-ready bar. KnowledgeGraph had 370 passed with 3 pre-existing unrelated failures; Provenance passed 58/58. No production change.
 
 2026-10-10 seed hunt (seed-only): reread graph projection/delta extraction, MessagePack serialization, snapshot repository scope behavior, provenance completeness/algorithms, revision hashing, and declaration path materialization; no fresh reachability-backed wrong-outcome hypothesis survived the hunt-ready bar. KnowledgeGraph had 370 passed with 3 pre-existing unrelated failures; Provenance passed 58/58. No production change.
@@ -30352,6 +30354,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (valid-no-repro) `GraphEdgeInferenceHelpers.Deduplicate` — endpoint whitespace dedupe keys — **cheap-disproof 2026-10-10 thorough hunt:** active inferrers emit canonical `GraphNode.NodeId` values and target-token parsing trims inputs; no reachable non-canonical duplicate edge path produced a repro.
 
 - [x] (invalid) Graph merge links a node to provenance from another tenant — `DefaultGraphBuilder` / `ProvenanceBuilder` build from a single scoped snapshot; tenant isolation is repository/query scope, not a merge defect in these files
+- (candidate) `InMemoryGraphSnapshotRepository.GetLatestByContextSnapshotIdAsync` — graph snapshots for one context with equal `CreatedUtc` values are resolved by dictionary insertion order rather than a stable snapshot tie-breaker, so a reachable rapid projection can return the older graph; input originates from repeated graph saves for the same context snapshot.
+- (candidate) `DefaultGraphEdgeInferer.InferEdges` — duplicate graph nodes whose `NodeId` values differ only by case cause `NodeById = nodes.ToDictionary(..., OrdinalIgnoreCase)` to throw before edge inference, so a reachable persisted context graph with duplicate identity rows can fail graph materialization; input originates from the context snapshot node list.
 - [x] (invalid) Lineage query traverses into a sibling tenant's artifact store — `ArchLucid.Provenance` query/build paths do not open cross-tenant artifact stores; persistence uses `ScopeContext` on snapshot reads/writes
 - [x] (invalid) Provenance record is written without workspace scope — `SqlProvenanceSnapshotRepository` and `ProvenanceGraphAccessService` persist/query with `TenantId` + `WorkspaceId` + `ProjectId`
 - [x] (proven) Topology projected-spend enrichment overwrites parsed constraint spend when property keys use non-canonical casing — **hit 2026-08-19:** `CostConstraintProjectedSpendEnricher.HasProjectedSpend` used case-sensitive `ContainsKey` while deserialized `GraphNode.Properties` can use PascalCase keys
