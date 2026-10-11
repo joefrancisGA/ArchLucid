@@ -2,6 +2,8 @@
 
 2026-10-11 seed hunt (seed-only): `extraction-router` — repeated the selected-file reread with no new reachable mechanism-backed wrong outcome or candidate meeting the promotion bar. The focused filter passed 32/32. No production or regression code changed.
 
+2026-10-11 seed hunt (seed-only): `extraction-router` — repeated the selected-file reread with no new reachable mechanism-backed wrong outcome or candidate meeting the promotion bar. The focused filter passed 32/32. No production or regression code changed.
+
 2026-10-11 seed hunt (seed-only): `extraction-router` — repeated the selected-file reread; no new reachable mechanism-backed wrong outcome or candidate met the promotion bar. The focused filter passed 32/32. No production or regression code changed.
 
 2026-10-11 seed hunt (seed-only): `extraction-router` — repeated the selected-file reread after the prior seed-only pass; marker boundaries, regulatory precedence, lifecycle ordering, fallback extraction, and provenance mapping still exposed no new reachable mechanism-backed wrong outcome. No candidate was promoted and no passing regression was added. The focused filter passed 32/32. No production or regression code changed.
