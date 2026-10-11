@@ -33833,6 +33833,8 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: ui-marketing-surfaces
 
+2026-10-11 thorough hunt #29 (dry): cheap-disproved five open `(candidate)` rows: `fetchShowcasePayload` already rejects whitespace-only `eventType`; showcase validation rejects duplicate trimmed timeline `eventId` values before `DemoPreviewMarketingBody` renders; curated `http_error` fallback already carries `api_fallback` telemetry; `SignupVerifyClient` polling does not mutate `initialLoadFailed`; and `buildSignInTrialHref` intentionally uses the fixed `source=get-started` onboarding return path rather than forwarding URL query attribution. No production change; 45 scoped marketing vitest tests passed.
+
 2026-10-08 thorough hunt #27 (hit): proved duplicate pipeline `eventId` values passed showcase validation; cheap-disproved four other `(candidate)` rows from hunt #26; seeded five follow-on `(candidate)` rows; 17 scoped showcase-page vitest tests passed.
 
 2026-10-08 thorough hunt #26 (hit): proved sparse pipeline timeline rows missing `eventId` passed showcase fetch validation; cheap-disproved four other `(candidate)` rows from hunt #25; seeded five follow-on `(candidate)` rows; 16 scoped showcase-page vitest tests passed.
@@ -33853,10 +33855,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** marketing pages; pricing; trust center UI
 - **paths:** archlucid-ui/src/app/(marketing)/
 - **test-filter:** marketing
-- **hunts:** 28
+- **hunts:** 29
 - **bugs-found:** 32
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-08
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-10-11
 - **last-bug:** 2026-10-08 — duplicate showcase pipeline eventId values
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -33948,11 +33950,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (valid-no-repro) `loadSeeItDemoPreview` — HTTP 304 with empty body treated as success — **cheap-disproof 2026-10-08 thorough hunt #27:** 304 returns `readSnapshot()` payload, not empty JSON (`see-it.test.tsx`).
 - [x] (invalid) `MarketingTrustCenterBuyerBody` — evidence pack ZIP link omits proxy prefix when `NEXT_PUBLIC_ARCHLUCID_API_BASE_URL` unset — **cheap-disproof 2026-10-08 thorough hunt #27:** `TRUST_CENTER_EVIDENCE_PACK_ZIP_HREF` is `/api/proxy/v1/marketing/trust-center/evidence-pack.zip` (fixed 2026-08-21).
 
-- [ ] (candidate) `fetchShowcasePayload` — whitespace-only `eventType` on timeline rows passes after trim guard omission — locus: `isUsableShowcasePipelineTimelineRow`; input: API row with `eventType: "   "`; wrong outcome: compact timeline renders blank event labels.
-- [ ] (candidate) `DemoPreviewMarketingBody` — `toAuthorityPipelineItems` accepts duplicate `eventId` on static demo payloads — locus: `DemoPreviewMarketingBody.tsx`; input: curated static fixture with colliding ids; wrong outcome: timeline UI collapses rows without API fetch gate.
-- [ ] (candidate) `resolveShowcasePageRenderPlan` — `http_error` serves static fallback for curated slug without `api_fallback` banner — locus: `showcase-page-server-resolution.ts` switch; input: curated slug with transient 503; wrong outcome: buyer sees live API chrome without offline disclosure.
-- [ ] (candidate) `SignupVerifyClient` — poll errors flip `initialLoadFailed` after successful probe — locus: `SignupVerifyClient.tsx` status poll; input: flaky poll after pending inbox state; wrong outcome: delivery-failure copy replaces check-inbox UX (reopen #813 scope).
-- [ ] (candidate) `get-started` trial href — `buildSignInTrialHref` omits marketing `source` query when only `utm_*` present — locus: `get-started-content.ts`; input: `/get-started?utm_source=email` without `source`; wrong outcome: post-sign-in trial attribution drops email source.
+- [x] (invalid) `fetchShowcasePayload` — whitespace-only `eventType` on timeline rows passes after trim guard omission — locus: `isUsableShowcasePipelineTimelineRow`; input: API row with `eventType: "   "`; wrong outcome: compact timeline renders blank event labels — cheap-disproved: the validator trims `eventType` and requires a non-empty result.
+- [x] (invalid) `DemoPreviewMarketingBody` — `toAuthorityPipelineItems` accepts duplicate `eventId` on static demo payloads — locus: `DemoPreviewMarketingBody.tsx`; input: curated static fixture with colliding ids; wrong outcome: timeline UI collapses rows without API fetch gate — cheap-disproved: showcase validation rejects duplicate trimmed IDs and the curated fixture has no duplicate reachable input.
+- [x] (invalid) `resolveShowcasePageRenderPlan` — `http_error` serves static fallback for curated slug without `api_fallback` banner — locus: `showcase-page-server-resolution.ts` switch; input: curated slug with transient 503; wrong outcome: buyer sees live API chrome without offline disclosure — cheap-disproved: the `http_error` branch uses `staticPayloadPlan(..., "api-fallback", "api_fallback")`.
+- [x] (invalid) `SignupVerifyClient` — poll errors flip `initialLoadFailed` after successful probe — locus: `SignupVerifyClient.tsx` status poll; input: flaky poll after pending inbox state; wrong outcome: delivery-failure copy replaces check-inbox UX (reopen #813 scope) — cheap-disproved: polling only calls `refreshTrialStatus`; `initialLoadFailed` is assigned only by initial loading.
+- [x] (invalid) `get-started` trial href — `buildSignInTrialHref` omits marketing `source` query when only `utm_*` present — locus: `get-started-content.ts`; input: `/get-started?utm_source=email` without `source`; wrong outcome: post-sign-in trial attribution drops email source — cheap-disproved: the helper intentionally constructs a fixed `source=get-started` onboarding return path and receives no query state.
 
 ## Zone: capabilities-cost-mcp
 
