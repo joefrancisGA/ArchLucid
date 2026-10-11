@@ -79,6 +79,7 @@ public sealed class OperationalSecurityFindingsController(
         return Ok(findings);
     }
 
+    // idempotency-posture: dry-run-no-persist
     [HttpPost("lookup")]
     [MutatingAuditExcluded("Read-only finding lookup.")]
     [ProducesResponseType(typeof(IReadOnlyList<OperationalSecurityFindingLookupItem>), StatusCodes.Status200OK)]
