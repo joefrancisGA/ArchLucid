@@ -19500,6 +19500,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: archlucid-core
 
+2026-10-11 seed hunt (seed-only): the picker exposed only this ledger path for the retired mega-zone; no source-backed candidate or hunt-ready row could be seeded without inventing a product hypothesis. The scoped Core filter reached the existing retired extra-`k` week-UOM baseline (7,307 passed, 6 failed), which is explicitly invalid for hunting. No production or regression change.
+
 2026-10-10 seed hunt (seed-only): re-read the picker-selected ledger section for retired `archlucid-core`; the raw `bugs-found`/`hunts` invariant violation is accounting metadata, not a reachable source-level defect, so no candidate or production change was warranted.
 
 2026-10-10 seed hunt (seed-only): re-read the picker-selected retired `archlucid-core` ledger section; the raw `bugs-found`/`hunts` invariant violation remains accounting metadata, with no source-level candidate or production change warranted.
@@ -19534,8 +19536,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models; retired mega-zone
 - **paths:** docs/library/AL_BUG_HUNT_LEDGER.md
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 472
-- **last-hunt:** 2026-10-10
+- **hunts:** 473
+- **last-hunt:** 2026-10-11
 - **bugs-found:** 3511
 - **consecutive-dry-hunts:** 0
 - **last-bug:** 2026-10-09 — Event Grid destination fields nested under properties were ignored
