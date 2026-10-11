@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-11 seed hunt (seed-only): `ui-governance-findings-queue` — reread the normalized register mappers, fallback trace-row mapping, synopsis/filter derivation, and queue header paths. No fresh row met the full hunt-ready bar; retained bounded candidates for whitespace-only trace rule labels, owner-label normalization, and decision-category normalization. The focused mapper tests passed 4/4; the picker-scoped client file ran 11 passed and 11 known external-store/update-depth and workspace-label baseline failures. No production or regression change.
+
 2026-10-11 seed hunt (seed→hit): `ui-governance-findings-queue` — generated risk-register text fields are optional, but `riskRegisterRows` passed omitted status/title/severity/category values into queue filtering and `row.status.toLowerCase()` could throw. The mapper now normalizes optional text fields; regression `normalizes optional risk-register text fields before queue filtering` failed first and passed after the fix. Mapper tests passed 4/4.
 
 2026-10-11 thorough hunt (hit): `ui-governance-findings-queue` — risk and decision register mappers admitted malformed identifier shapes from the generated optional API fields: padded finding ids destabilized bulk-selection identity after URL normalization, while an omitted decision id could throw during title construction. The mappers now drop missing decision ids and normalize accepted ids; regressions cover both paths. Mapper tests passed 3/3; the picker-scoped client file retained 11 known external-store/update-depth and workspace-label baseline failures.
@@ -14917,8 +14919,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** background jobs; hosted services; durable job queue
 - **paths:** ArchLucid.Host.Core/Jobs/; ArchLucid.Host.Core/Hosted/
 - **test-filter:** FullyQualifiedName~ArchLucidJob|FullyQualifiedName~BackgroundJob|FullyQualifiedName~Hosted
-- **hunts:** 47
-- **bugs-found:** 32
+- **hunts:** 46
+- **bugs-found:** 31
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-11
 - **last-bug:** 2026-10-07 — stale MarkSucceeded after watchdog reclaim to Pending
@@ -35708,7 +35710,7 @@ ABQ-09 churn hotspot; intake wizard route tree.
 - **aliases:** governance findings queue
 - **paths:** archlucid-ui/src/app/(operator)/governance/findings/
 - **test-filter:** FullyQualifiedName~GovernanceFindingsQueueClient
-- **hunts:** 46
+- **hunts:** 47
 - **bugs-found:** 31
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-11
@@ -35729,6 +35731,10 @@ ABQ-09 churn hotspot.
 2026-10-09 thorough hunt (dry): cheap-disproved all five candidates; no failing repro was established and no fix was shipped. Candidate-specific tests ran 19 tests: 16 passed and 3 failed on the existing workspace-label expectation baseline. The focused queue files ran 29 tests: 17 passed and 12 failed on known external-store/update-depth, workspace-label, and buyer-polished contextual-help baselines.
 
 ### Hypotheses
+
+- [ ] (candidate) `traceRowsForRun` — a reachable trace with an omitted or whitespace-only `ruleId` maps to a blank category because the mapper uses `ruleId ?? "Not returned"` without trimming before the fallback; the explanation API permits an optional rule id, but the user-visible traceability harm is not yet established.
+- [ ] (candidate) `riskRegisterRows` — a reachable owner identifier containing only whitespace is preserved in the recommended-action sentence as `Owner:   ` even though the row cell treats it as unassigned; the register API permits an optional owner string, but no downstream wrong action has been shown.
+- [ ] (candidate) `decisionRegisterRows` — a reachable decision category with surrounding whitespace is checked after trimming but emitted untrimmed, so the mixed queue can display padded category text; the decision API permits an optional category string, but no material navigation or filtering outcome is established.
 
 - [x] (proven) `riskRegisterRows` — generated optional risk-register `statusLabel`, `title`, `severity`, or `category` values can be omitted, but the mapper passed `status` through as `undefined`; the open-filter path then called `.toLowerCase()` and could fail queue rendering — **hit 2026-10-11 seed hunt:** normalize optional text fields to safe strings before building queue rows; regression `normalizes optional risk-register text fields before queue filtering`.
 
