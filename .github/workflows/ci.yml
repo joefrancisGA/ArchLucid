@@ -2800,6 +2800,9 @@ jobs:
       - name: assert_terraform_roots_valid (PowerShell + Terraform, no cloud auth)
         run: python3 scripts/ci/assert_terraform_roots_valid.py
 
+      - name: verify SecureNow UHG Terraform names
+        run: python3 scripts/ci/verify_securenow_terraform_names.py
+
   # Empty catalog only: invokes DatabaseMigrator.Run (embedded DbUp scripts) without starting ArchLucid.Api.
   sql-dbup-empty-catalog:
     name: ".NET: Tier 1.5 â€” DbUp migrations on empty catalog (Docker SQL)"

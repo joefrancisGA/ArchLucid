@@ -96,6 +96,24 @@ variable "worker_container_image" {
   default     = ""
 }
 
+variable "api_environment_variables" {
+  type        = map(string)
+  description = "Additional non-secret environment variables for the API Container App."
+  default     = {}
+}
+
+variable "worker_environment_variables" {
+  type        = map(string)
+  description = "Additional non-secret environment variables for the Worker Container App."
+  default     = {}
+}
+
+variable "ui_environment_variables" {
+  type        = map(string)
+  description = "Additional non-secret environment variables for the UI Container App."
+  default     = {}
+}
+
 variable "worker_min_replicas" {
   type        = number
   description = "Minimum worker replicas (use 1 so hosted background loops run in a single instance)."
@@ -285,10 +303,10 @@ variable "api_key_tenant_id" {
     condition = (
       (length(trimspace(var.api_key_tenant_id)) == 0 &&
         length(trimspace(var.api_key_workspace_id)) == 0 &&
-        length(trimspace(var.api_key_project_id)) == 0) ||
+      length(trimspace(var.api_key_project_id)) == 0) ||
       (length(trimspace(var.api_key_tenant_id)) > 0 &&
         length(trimspace(var.api_key_workspace_id)) > 0 &&
-        length(trimspace(var.api_key_project_id)) > 0)
+      length(trimspace(var.api_key_project_id)) > 0)
     )
     error_message = "Set api_key_tenant_id, api_key_workspace_id, and api_key_project_id together (all empty or all non-empty)."
   }

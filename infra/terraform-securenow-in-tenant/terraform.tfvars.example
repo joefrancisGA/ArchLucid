@@ -1,0 +1,45 @@
+enable_deployment = false
+
+location            = "eastus"
+resource_group_name = "rg-securenow-uhg"
+name_prefix         = "securenow-uhg"
+edition             = "uhg"
+hosting_mode        = "InTenant"
+
+api_container_image    = "example.azurecr.io/securenow-api:replace-me"
+worker_container_image = "example.azurecr.io/securenow-worker:replace-me"
+ui_container_image     = "example.azurecr.io/securenow-ui:replace-me"
+acr_resource_id        = ""
+
+tenant_id           = "00000000-0000-0000-0000-000000000000"
+entra_admin_login   = "replace-with-entra-admin"
+entra_admin_object_id = "00000000-0000-0000-0000-000000000000"
+sql_admin_login     = "replace-with-break-glass-login"
+sql_admin_password  = "replace-with-secret-from-environment"
+
+vnet_address_space             = ["10.80.0.0/16"]
+private_endpoints_subnet_prefix = "10.80.1.0/24"
+container_apps_subnet_prefix   = "10.80.2.0/23"
+
+storage_account_name   = "replace-with-globally-unique-name"
+account_replication_type = "LRS"
+key_vault_name          = "replace-with-globally-unique-vault"
+key_vault_admin_object_ids = [
+  "00000000-0000-0000-0000-000000000000",
+]
+
+azure_openai_account_id              = ""
+azure_openai_endpoint                = ""
+azure_openai_chat_deployment_name    = ""
+azure_openai_embedding_deployment_name = ""
+
+# Use a resource or resource-group scope; do not use /subscriptions/<id>.
+collection_read_scope = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-security-inventory"
+
+enable_collection_schedule   = false
+collection_schedule_frequency = "Day"
+collection_schedule_interval  = 1
+collection_schedule_start_time = "2027-01-01T00:00:00Z"
+
+# Replace with the approved customer runbook. Do not put credentials in it.
+collection_runbook_content = "# SecureNow collection runbook placeholder"

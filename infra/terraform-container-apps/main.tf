@@ -231,6 +231,14 @@ resource "azurerm_container_app" "api" {
         value = "Api"
       }
 
+      dynamic "env" {
+        for_each = var.api_environment_variables
+        content {
+          name  = env.key
+          value = env.value
+        }
+      }
+
       # TB-304 trusted ApiKey scope claims (omit when unset — see variables api_key_*_id).
       dynamic "env" {
         for_each = local.api_key_scope_bound ? [1] : []
@@ -565,9 +573,9 @@ resource "azurerm_container_app" "worker" {
 
 
   template {
-    min_replicas                      = var.worker_min_replicas
-    max_replicas                      = var.worker_max_replicas
-    termination_grace_period_seconds  = var.worker_termination_grace_period_seconds
+    min_replicas                     = var.worker_min_replicas
+    max_replicas                     = var.worker_max_replicas
+    termination_grace_period_seconds = var.worker_termination_grace_period_seconds
 
     container {
       name    = "archlucid-worker"
@@ -585,6 +593,15 @@ resource "azurerm_container_app" "worker" {
         name  = "Hosting__Role"
         value = "Worker"
       }
+
+      dynamic "env" {
+        for_each = var.worker_environment_variables
+        content {
+          name  = env.key
+          value = env.value
+        }
+      }
+
       dynamic "env" {
         for_each = local.worker_keyvault_uami_enabled && length(trimspace(var.worker_keyvault_user_assigned_identity_client_id)) > 0 ? [1] : []
         content {
@@ -881,6 +898,14 @@ resource "azurerm_container_app" "ui" {
       env {
         name  = "ARCHLUCID_UI_ROLE"
         value = "operator"
+      }
+
+      dynamic "env" {
+        for_each = var.ui_environment_variables
+        content {
+          name  = env.key
+          value = env.value
+        }
       }
 
       # Lightweight UI process health (build fingerprint JSON). Does not call the API.
