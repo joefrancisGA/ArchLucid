@@ -35,7 +35,8 @@ public sealed class PolicyPackRuleTemplatesServiceTests
         using JsonDocument document = JsonDocument.Parse(template.ContentJson);
         JsonElement keys = document.RootElement.GetProperty("complianceRuleKeys");
 
+        // CS8122: FluentAssertions OnlyContain compiles to an expression tree; use != null instead of `is not null`.
         keys.EnumerateArray().Select(key => key.GetString()).Should().OnlyContain(
-            key => key is not null && key.StartsWith("org-", StringComparison.Ordinal));
+            key => key != null && key.StartsWith("org-", StringComparison.Ordinal));
     }
 }
