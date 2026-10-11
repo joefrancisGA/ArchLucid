@@ -160,7 +160,7 @@ public sealed class SqlCollectionRunRepository(ISqlConnectionFactory connectionF
                 scope.WorkspaceId,
                 scope.ProjectId,
                 Status = (int)CollectionRunStatus.Running,
-                ThresholdUtc = DateTime.UtcNow.Subtract(window),
+                ThresholdUtc = TimeProvider.System.GetUtcNow().UtcDateTime.Subtract(window),
             }, cancellationToken: cancellationToken));
         return row?.ToModel();
     }

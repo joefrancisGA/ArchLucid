@@ -70,7 +70,7 @@ public sealed class InMemoryCollectionRunRepository : ICollectionRunRepository
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(scope);
-        DateTime threshold = DateTime.UtcNow.Subtract(window);
+        DateTime threshold = TimeProvider.System.GetUtcNow().UtcDateTime.Subtract(window);
         CollectionRun? result = _runs.Values
             .Where(run => IsInScope(run, scope))
             .Where(run => run.StartedUtc >= threshold)

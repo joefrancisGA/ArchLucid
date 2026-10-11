@@ -35,7 +35,7 @@ public sealed class AutomationCollectionRunTrigger(
             ProjectId = scope.ProjectId,
             RunId = Guid.NewGuid(),
             AgentVersion = "pending",
-            StartedUtc = DateTime.UtcNow,
+            StartedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
             Status = CollectionRunStatus.Running,
             SubscriptionsCoveredJson = "[]",
         };
@@ -55,7 +55,7 @@ public sealed class AutomationCollectionRunTrigger(
                 run with
                 {
                     Status = CollectionRunStatus.Failed,
-                    FinishedUtc = DateTime.UtcNow,
+                    FinishedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
                     ErrorSummary = "The collection Automation runbook could not be started.",
                 },
                 cancellationToken);
