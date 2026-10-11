@@ -33,6 +33,15 @@ public sealed class CollectionRunIngestService(
         CollectionRunManifest manifest = artifact.Manifest;
         byte[] zipHash = ResolveHash(manifest, artifact.ZipBytes);
 
+        CollectionRun? existingRun = await _collectionRunRepository.GetAsync(
+            scope,
+            manifest.RunId,
+            cancellationToken);
+        if (existingRun?.Status == CollectionRunStatus.Imported &&
+            existingRun.ZipSha256 is not null &&
+            existingRun.ZipSha256.SequenceEqual(zipHash))
+            return existingRun;
+
         CollectionRun collectionRun = CreateRun(scope, manifest, zipHash);
 
         if (manifest.TenantId is Guid manifestTenantId && manifestTenantId != scope.TenantId)
