@@ -27451,6 +27451,10 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 ---
 ## Zone: core-explanation-json
 
+2026-10-11 seed hunt (seed→hit): `StructuredExplanationParser` cast a finite JSON confidence value above `decimal.MaxValue` after `double` parsing, so reachable malformed LLM output such as `confidence: 1e300` threw `OverflowException` instead of following the parser's never-throws fallback contract. The parser now bounds the double before conversion; regression `TryNormalizeStructuredJson_nulls_finite_confidence_beyond_decimal_range_without_throwing` failed first with `OverflowException`, and the scoped `RunExplanation` filter passed 47/47.
+
+- **(proven)** `StructuredExplanationParser.TryNormalizeStructuredJson` — finite JSON confidence above the decimal range throws during `double` to `decimal` conversion — **hit 2026-10-11 seed hunt:** structured LLM JSON can supply a finite `double` outside the decimal model; bound the conversion and retain a null confidence; regression `TryNormalizeStructuredJson_nulls_finite_confidence_beyond_decimal_range_without_throwing`.
+
 2026-10-10 thorough hunt (dry): re-ran the exact `RunExplanation` filter with 47 passing tests and classified the stale duplicate-property row as proven by the preceding hit; no production change.
 
 2026-10-10 thorough hunt (hit): promoted `RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitive` — duplicate case-variant properties in model-produced JSON used the first value, allowing an empty `reasoning` or list field to hide a later usable value. The lookup now retains the last case-insensitive match; regression `TryNormalizeStructuredJson_uses_non_empty_case_variant_when_first_reasoning_property_is_empty`. The scoped `RunExplanation` filter passed 47 tests.
@@ -27466,11 +27470,11 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 - **aliases:** run explanation; explanation json; split from archlucid-core
 - **paths:** ArchLucid.Core/Explanation/
 - **test-filter:** FullyQualifiedName~RunExplanation
-- **hunts:** 44
-- **bugs-found:** 30
-- **consecutive-dry-hunts:** 1
+- **hunts:** 45
+- **bugs-found:** 31
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-10
-- **last-bug:** 2026-10-10 — duplicate case-variant explanation property hid later valid reasoning
+- **last-bug:** 2026-10-11 — oversized finite structured confidence threw during decimal conversion
 - **related-pd-tb:** none
 - **code-changed-since:** no
 

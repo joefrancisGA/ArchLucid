@@ -128,6 +128,18 @@ public sealed class StructuredExplanationParserTests
     }
 
     [Fact]
+    public void TryNormalizeStructuredJson_nulls_finite_confidence_beyond_decimal_range_without_throwing()
+    {
+        const string json = """{"reasoning":"x","confidence":1e300}""";
+
+        Action act = () => StructuredExplanationParser.TryNormalizeStructuredJson(json, out _);
+
+        act.Should().NotThrow();
+        StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s).Should().BeTrue();
+        s!.Confidence.Should().BeNull();
+    }
+
+    [Fact]
     public void TryNormalizeStructuredJson_ignores_boolean_confidence()
     {
         const string json = """{"reasoning":"x","confidence":true}""";

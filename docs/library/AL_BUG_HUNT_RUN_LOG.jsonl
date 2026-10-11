@@ -9389,3 +9389,4 @@
 {"at":"2026-10-11T03:54:44.086Z","zoneId":"artifact-synthesis","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.ArtifactSynthesis/"]}
 {"at":"2026-10-11T03:57:35.963Z","zoneId":"ui-auth-callback","outcome":"seed-only","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(operator)/auth/callback/AuthCallbackAccessPanel.tsx"]}
 {"at":"2026-10-11T04:03:17.0525640Z","zoneId":"ui-auth-callback","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(operator)/auth/callback/AuthCallbackAccessPanel.tsx"]}
+{"at":"2026-10-11T04:07:52.2346140Z","zoneId":"core-explanation-json","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Core/Explanation/"]}

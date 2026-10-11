@@ -60,8 +60,13 @@ public static partial class StructuredExplanationParser
                     ? null
                     : RunExplanationAggregateJsonReader.TryReadFiniteDouble(confidenceElement);
 
-                if (finiteConfidence is { } numericConfidence)
+                if (finiteConfidence is { } numericConfidence
+                    && numericConfidence >= (double)decimal.MinValue
+                    && numericConfidence <= (double)decimal.MaxValue)
+                {
+                    // Json numbers can fit in double while still overflowing the decimal model used by this contract.
                     confidence = ClampConfidence((decimal)numericConfidence);
+                }
             }
 
             structured = new StructuredExplanation
