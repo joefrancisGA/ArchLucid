@@ -9358,3 +9358,4 @@
 {"at":"2026-10-11T01:51:27.8621965Z","zoneId":"ui-oidc","outcome":"seed-only","productLine":"archlucid-shared","paths":["archlucid-ui/src/lib/oidc/"]}
 {"at":"2026-10-11T01:56:56.8430181Z","zoneId":"cloud-extractors","outcome":"dry","productLine":"archlucid-shared","paths":["ArchLucid.Integrations.AwsExtractor/","ArchLucid.Integrations.GcpExtractor/","ArchLucid.Integrations.AzureExtractor/"]}
 {"at":"2026-10-11T02:04:16.4758178Z","zoneId":"cloud-extractors","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Integrations.AwsExtractor/","ArchLucid.Integrations.GcpExtractor/","ArchLucid.Integrations.AzureExtractor/"],"severity":"medium","defectClass":"other"}
+{"at":"2026-10-11T02:12:28.5823846Z","zoneId":"cloud-extractors","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Integrations.AwsExtractor/","ArchLucid.Integrations.GcpExtractor/","ArchLucid.Integrations.AzureExtractor/"]}
