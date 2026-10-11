@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-11 thorough hunt (dry): `finding-inspect-sql` — cheap-disproof closed the digest-shape candidate because the inspect path has no reachable caller contract requiring validation beyond display normalization; closed malformed agent-trace `modelAlias` loss because `JSON_VALUE` null behavior is an intentional projection fallback with no alternate in-zone source; and closed arbitrary disposition-pointer selection because migration 370 enforces one current pointer per scoped finding with `PK_FindingCurrentDispositions`. The focused Persistence inspect filter passed 425/425. No production or regression code changed.
+
 2026-10-11 seed hunt (seed-only): `finding-inspect-sql` — reread the selected inspect SQL, Dapper reader, mapper, and focused tests; no new row met the full hunt-ready bar. Seeded three bounded `(candidate)` rows for digest-shape validation, malformed agent-trace model-alias projection, and disposition-pointer singleton ordering. The focused Persistence inspect filter passed 425/425. No production or regression code changed.
 
 2026-10-11 thorough hunt (hit): `finding-inspect-sql` — `FindingInspectReadSql.FollowUpBatch` limited trace-rule retrieval to `TOP 1`, so a format-only first rule row prevented the Dapper path from applying the same first-substantive-rule normalization as in-memory inspect; return all ordered rule rows and resolve with `ResolveFirstTraceRuleText`; regression `FollowUpBatch_reads_all_trace_rules_for_in_memory_normalization` failed before the fix, then the focused Persistence inspect filter passed 425/425. Cheap-disproof closed the agent-trace digest fallback and related-node order candidates as valid-no-repro: in-memory inspect consumes hydrated `Finding` trace/node collections, while relational digest/order are distinct persisted contracts.
@@ -8336,9 +8338,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** finding inspect; dapper inspect read
 - **paths:** ArchLucid.Persistence/Findings/DapperFindingInspectReadRepository.cs; ArchLucid.Persistence/Findings/FindingInspectReadModelMapper.cs; ArchLucid.Persistence/Sql/FindingInspectReadSql.cs
 - **test-filter:** FullyQualifiedName~FindingInspectReadModelMapperTests|FullyQualifiedName~FindingInspectReadSqlTests|FullyQualifiedName~FindingInspectReadRepositoryCoreTests|FullyQualifiedName~FindingInspectEndpointTests
-- **hunts:** 84
+- **hunts:** 85
 - **bugs-found:** 25
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-11
 - **last-bug:** 2026-10-11 — Dapper inspect trace-rule retrieval ignored substantive rules after invisible prefix entries
 - **related-pd-tb:** none
@@ -8850,9 +8852,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `FindingInspectReadRepositoryCore.BuildEvidenceFromRelatedNodes` — in-memory passes `RelatedNodeIds` while SQL follow-up orders by `frn.SortOrder` — **cheap-disproof 2026-10-11 thorough hunt:** in-memory inspect consumes the already hydrated `RunDetailDto` node order; no contract requires re-sorting that demo collection against relational child-table order.
 - [x] (valid-no-repro) `FindingInspectReadModelMapper.ParseFindingSeverity` invalid stored severity — **cheap-disproof 2026-10-05 thorough hunt:** fail-closed `InvalidDataException` is the documented contract (replacing silent `Info` default after #1309); regressions `ParseFindingSeverity_rejects_unrecognized_or_undefined_values` and related mapper tests.
 - [x] (invalid) `FindingInspectReadRepositoryCore.ResolveInspectSemanticSupportBand` overlay format characters — **cheap-disproof 2026-10-05 thorough hunt:** migration `379_FindingSemanticSupportBandOverlays` `CK_FindingSemanticSupportBandOverlays_Band` allows only `Supported`/`Unchecked`/`Unsupported`/`NotScored`; embedded format characters cannot be persisted in the overlay column.
-- [ ] (candidate) `DapperFindingInspectReadRepository.MapInspectResponse` — `ReasoningTraceDigestSha256` is display-normalized but not validated as a SHA-256 hex digest; reachable persisted trace metadata with an invalid digest could be surfaced as authoritative inspect metadata.
-- [ ] (candidate) `FindingInspectReadSql.MainInspectWithTypedPayload` / `MainInspectWithoutTypedPayload` — `JSON_VALUE(aet.TraceJson, '$.modelAlias')` silently returns null for malformed JSON or a non-scalar `modelAlias`, potentially dropping a reachable agent-trace model alias without an explicit mapper distinction.
-- [ ] (candidate) `DapperFindingInspectReadRepository.LoadDispositionJoinAsync` — the disposition result uses `SELECT TOP 1` without an `ORDER BY`; if a data-integrity breach produces multiple current-pointer matches, SQL may choose an arbitrary event before `ReadSingleOrDefaultAsync` maps it.
+- [x] (valid-no-repro) `DapperFindingInspectReadRepository.MapInspectResponse` — `ReasoningTraceDigestSha256` is display-normalized but not validated as a SHA-256 hex digest — **cheap-disproof 2026-10-11 thorough hunt:** no reachable inspect caller contract in this zone requires digest validation beyond display normalization; the writer persists the trace-provided digest as metadata.
+- [x] (valid-no-repro) `FindingInspectReadSql.MainInspectWithTypedPayload` / `MainInspectWithoutTypedPayload` — `JSON_VALUE(aet.TraceJson, '$.modelAlias')` silently returns null for malformed JSON or a non-scalar `modelAlias` — **cheap-disproof 2026-10-11 thorough hunt:** null projection is SQL Server’s conservative behavior and the selected inspect paths expose no alternate model-alias source or required fallback contract.
+- [x] (invalid) `DapperFindingInspectReadRepository.LoadDispositionJoinAsync` — the disposition result uses `SELECT TOP 1` without an `ORDER BY` — **cheap-disproof 2026-10-11 thorough hunt:** migration 370 declares `PK_FindingCurrentDispositions (TenantId, WorkspaceId, ProjectId, FindingId)`, so one current pointer exists per scoped finding and the query cannot select among multiple current-pointer rows.
 
 2026-09-26 seed hunt (seed→hit): reseeded finding-inspect-sql; proved undefined insight-density storage bytes on inspect read; 183 mapper/SQL/codec + 7 resolve-inspect regressions passed (`FindingInspectEndpointTests` skipped — no SQL Server in cloud VM).
 
