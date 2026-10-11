@@ -8,7 +8,6 @@ import {
 } from "./export-markdown";
 import type { ManifestSummary, RunTrustEvidenceCard } from "@/types/authority";
 import { pushPolicyAtCommitMarkdownLines } from "./export-markdown-policy-section";
-import { formatSandboxStyleGoldenManifest } from "./export-markdown-sandbox-manifest";
 
 describe("isUsableGoldenManifestExportJson", () => {
   it("rejects placeholders and empty objects", () => {
@@ -388,10 +387,21 @@ describe("formatGoldenManifestMarkdown", () => {
   });
 
   it("distinguishes missing highlights from stored empty highlights", () => {
-    expect(formatSandboxStyleGoldenManifest({ highlights: null })).toContain("Highlights were not stored.");
-    expect(formatSandboxStyleGoldenManifest({ highlights: undefined })).toContain("Highlights were not stored.");
-    expect(formatSandboxStyleGoldenManifest({ highlights: [] })).toContain("_No highlights were present._");
-    expect(formatSandboxStyleGoldenManifest({ highlights: [] })).not.toContain("Highlights were not stored.");
+    const base = {
+      schemaVersion: "archlucid.golden-manifest.v1",
+      summary: {},
+    };
+
+    expect(formatGoldenManifestMarkdown({ ...base, highlights: null })).toContain(
+      "Highlights were not stored.",
+    );
+    expect(formatGoldenManifestMarkdown(base)).toContain("Highlights were not stored.");
+    expect(formatGoldenManifestMarkdown({ ...base, highlights: [] })).toContain(
+      "_No highlights were present._",
+    );
+    expect(formatGoldenManifestMarkdown({ ...base, highlights: [] })).not.toContain(
+      "Highlights were not stored.",
+    );
   });
 
   it("distinguishes missing manifest versions from stored blank versions", () => {
