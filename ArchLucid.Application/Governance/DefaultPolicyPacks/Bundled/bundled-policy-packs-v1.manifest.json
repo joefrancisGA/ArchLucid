@@ -3,6 +3,7 @@
   "contentFiles": [
     "ai-governance-responsible-ai.json",
     "security-architecture-baseline.json",
+    "nist-800-53-r5-architecture.json",
     "reliability-and-resilience.json",
     "azure-waf.json",
     "azure-caf-landing-zone.json",
