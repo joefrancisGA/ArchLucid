@@ -67,7 +67,7 @@ export function presentOpenQuestionEntityCount(
     return "Not returned";
   }
 
-  if (section.entities === undefined) {
+  if (section.entities == null) {
     return "Open question count was not stored.";
   }
 
