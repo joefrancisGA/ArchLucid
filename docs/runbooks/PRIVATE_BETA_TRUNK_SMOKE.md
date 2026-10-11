@@ -190,6 +190,17 @@ cd archlucid-ui && npx playwright test live-api-scim-invite-substitute-smoke.spe
 This is a release-cut record only. It does not dispatch staging, claim a staging deployment,
 or establish the observed first-review Gate 1 evidence. An owner must dispatch and witness the
 staging first review separately.
+### OpenAPI refresh note — RC35 SHA `c8c9102b2e`
+
+No `openapi-snapshot-refresh.yml` run was observed for
+`c8c9102b2e8f120e6a0251e40d648d925cf4d399` because the push workflow is path-filtered to
+contract-layer paths (`ArchLucid.Api/**`, `ArchLucid.Api.Tests/**`, contracts, core,
+and related schema/build files). The repair set on that SHA changed UI, CI, runbook,
+and `ArchLucid.Application.Tests/**` paths; the latter is not an OpenAPI refresh trigger
+path. The OpenAPI fail-fast job in `ui-typecheck-on-push.yml` did run and passed in
+`38148276151`. This note records trigger behavior; it does not dispatch a refresh or
+claim that a snapshot was regenerated.
+
 ## RC35 Cursor repair-set handoff
 
 Use this checklist when `RC35` trails `master` after a private-beta repair batch. It is a release handoff, not permission to push directly to `RC35`.
