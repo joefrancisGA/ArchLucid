@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-11 seed hunt (seed-only): `archlucid-contracts` — reread the selected documentation-decision contracts, decision values, architecture finding converter, and focused contract coverage; no new reachable mechanism-backed wrong outcome met the promotion bar. The focused Contracts filter passed 520/520. No candidate was promoted and no production or regression code changed.
+
 2026-10-11 seed hunt (seed-only): `archlucid-contracts` — rechecked the selected documentation-decision contracts, decision values, architecture finding converter, and focused contract coverage; no new reachable mechanism-backed wrong outcome met the promotion bar. The focused Contracts filter passed 520/520. No candidate was promoted and no production or regression code changed.
 
 2026-10-11 seed hunt (seed-only): `archlucid-contracts` — reread the selected documentation-decision contracts, decision values, architecture finding converter, and focused contract coverage; no new reachable mechanism-backed wrong outcome met the promotion bar. The focused Contracts filter passed 520/520. No candidate was promoted and no production or regression code changed.
