@@ -9074,8 +9074,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: review-recurrence
 
-- **hunts:** 29
+- **hunts:** 30
 - **last-hunt:** 2026-10-10
+
+2026-10-11 seed hunt (seed-only): `review-recurrence` — repeated the calculator/source and focused-test review against the unchanged production path; no new reachable mechanism-backed hypothesis survived the promotion bar. The focused suite passed 47/47; no production or regression code changed.
 
 2026-10-11 seed hunt (seed-only): `review-recurrence` — re-read `ArchitectureReviewRecurrenceNextRunCalculator` and its focused tests; production callers use the UTC-normalizing `SimpleScanScheduleCalculator`, and the focused suite passed 47/47. No new reachable mechanism-backed hypothesis met the promotion bar; no production or regression code changed.
 
