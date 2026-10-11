@@ -4,8 +4,9 @@
 
 # ADR 0103: SecureNow in-tenant collection agent and blob handoff
 
-- **Status:** Proposed
+- **Status:** Accepted
 - **Date:** 2026-10-11
+- **Owner decision:** Accepted 2026-10-11 without amendment. SN-COL-02 run records and blob ingest are already on `master`. SN-COL-03 and SN-DEP-01 may proceed. SN-DEP-02 and SN-DEP-03 still wait for an accepted SN-DEP-01.
 
 ## Context
 
@@ -216,7 +217,7 @@ Azure Automation is cheaper and faster to adopt than a new container host, but g
 - Azure Automation PowerShell 7 runtime support, job duration, module availability, concurrency, and package limits must be verified before deployment.
 - Terraform must represent the customer-side resources and assignments; manual portal-only setup is not the target operating model.
 - The UHG edition must keep ArchLucid out of customer-facing names and logs while retaining one shared evidence schema.
-- This ADR does not authorize collection APIs, run records, blob-ingest code, UI, or scheduled/on-demand implementation. Those belong to subsequent prompts after this decision is accepted.
+- This ADR does not itself add collection APIs, run records, blob-ingest code, UI, or scheduled/on-demand implementation. The owner accepted it on 2026-10-11, so later prompts may build those surfaces inside this decision.
 
 ## Expected impact
 
@@ -234,7 +235,7 @@ Azure Automation is cheaper and faster to adopt than a new container host, but g
 
 - **Positive:** Customer-owned collection, least-privilege handoff, replay-safe ingestion, and a clear path for both deployment modes.
 - **Negative:** Customers must operate more Azure resources; polling and cross-tenant federation add operational seams; Automation limits remain a deployment verification item.
-- **Follow-ups:** Owner acceptance or amendment; then SN-COL-02 can implement run records and blob ingest. SN-DEP-01 should use this ADR as an input, and SN-DEP-02 should encode the module boundaries listed above.
+- **Follow-ups:** Accepted 2026-10-11 without amendment. SN-COL-02 is already on `master`. SN-COL-03 may add the collection-agent page, and SN-DEP-01 should use this ADR as an input. SN-DEP-02 should encode the module boundaries listed above only after SN-DEP-01 is accepted.
 
 ## Links
 

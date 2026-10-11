@@ -33,4 +33,4 @@ Copy-paste docs index: [`docs/architecture/SECURENOW_MENU_AND_EDITIONS_LUNA_PROM
 | 20 | **SN-HAND-01** | Design note: engineer-to-analyst handoff. |
 | — | **SN-MENU-HOLD** | Stop list. Paste only when a session drifts. |
 
-**SN-MENU-HOLD** is not a build step. SN-COL-02 waits for an accepted SN-COL-01. SN-DEP-02 and SN-DEP-03 wait for an accepted SN-DEP-01.
+**SN-MENU-HOLD** is not a build step. The owner accepted SN-COL-01 (ADR 0103) on 2026-10-11, and SN-COL-02 is on `master`. SN-DEP-02 and SN-DEP-03 wait for an accepted SN-DEP-01.
