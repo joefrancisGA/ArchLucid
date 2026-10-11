@@ -89,6 +89,32 @@ export const EXTRACT_UPLOAD_VALIDATE_AWS_CLI_COMMAND =
 export const EXTRACT_UPLOAD_VALIDATE_GCP_CLI_COMMAND =
   "archlucid gcp validate-zip --path <your-package.zip>" as const;
 
+function extractUploadValidateCliCommandForPlatform(platform: CloudInventoryPlatform): string {
+  switch (platform) {
+    case "azure":
+      return EXTRACT_UPLOAD_VALIDATE_CLI_COMMAND;
+    case "aws":
+      return EXTRACT_UPLOAD_VALIDATE_AWS_CLI_COMMAND;
+    case "gcp":
+      return EXTRACT_UPLOAD_VALIDATE_GCP_CLI_COMMAND;
+    default: {
+      const _exhaustive: never = platform;
+
+      return _exhaustive;
+    }
+  }
+}
+
+/** SecureNow ships the same CLI under the `securenow` executable name. */
+export function extractUploadValidateCliCommand(
+  platform: CloudInventoryPlatform,
+  productLineId: ProductLineId,
+): string {
+  const command = extractUploadValidateCliCommandForPlatform(platform);
+
+  return isSecureNowProductLine(productLineId) ? command.replace(/^archlucid\b/, "securenow") : command;
+}
+
 export const EXTRACT_UPLOAD_DEMO_ASIDE_TITLE = "Try demo data" as const;
 
 export const EXTRACT_UPLOAD_DEMO_ASIDE_DESCRIPTION =
