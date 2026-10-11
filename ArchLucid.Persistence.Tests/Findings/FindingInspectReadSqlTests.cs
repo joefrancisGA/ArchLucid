@@ -339,6 +339,15 @@ public sealed class FindingInspectReadSqlTests
     }
 
     [Fact]
+    public void FollowUpBatch_reads_all_trace_rules_for_in_memory_normalization()
+    {
+        string traceRulesSql = ExtractStatementContaining(FindingInspectReadSql.FollowUpBatch, "FROM dbo.FindingTraceRulesApplied");
+
+        traceRulesSql.Should().NotContain("SELECT TOP 1 tra.RuleText");
+        traceRulesSql.Should().Contain("ORDER BY tra.SortOrder");
+    }
+
+    [Fact]
     public void FollowUpBatch_scopes_recommended_actions_child_table_to_request_scope()
     {
         string actionsSql = ExtractStatementContaining(FindingInspectReadSql.FollowUpBatch, "FROM dbo.FindingRecommendedActions");
