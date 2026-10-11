@@ -91,10 +91,12 @@ vi.mock("@/lib/infra-evidence/infra-evidence-diagram-reconcile-api", () => ({
   fetchArchitectureDiagramModel: vi.fn(async () => ({ nodes: [{ id: "n1", label: "api" }], edges: [] })),
   fetchArchitectureDiagramReconciliation: fetchArchitectureDiagramReconciliationMock,
   fetchAbsentInfrastructureDiagramDocumentationDecisions: fetchAbsentInfrastructureDiagramDocumentationDecisionsMock,
+  fetchSealedInfrastructureDiagramDocumentationDecisions: vi.fn(async () => []),
   ingestArchitectureDiagram: ingestArchitectureDiagramMock,
   reconcileArchitectureDiagram: reconcileArchitectureDiagramMock,
   ingestOperationalSecurityFindings: vi.fn(async () => ({ items: [] })),
   lookupOperationalSecurityFindings: lookupOperationalSecurityFindingsMock,
+  saveSealedInfrastructureDiagramDocumentationDecision: vi.fn(),
   formatInfraEvidenceDiagramReconcileApiError: (error: unknown) => String(error),
 }));
 

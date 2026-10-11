@@ -146,4 +146,39 @@ public sealed class SqlInfrastructureDiagramDocumentationDecisionRepository(
 
         return records.ToList();
     }
+
+    public async Task<IReadOnlyList<InfrastructureDiagramDocumentationDecisionPersistRecord>> ListByScopeAndDiagramFingerprintAsync(
+        Guid tenantId,
+        Guid scopeId,
+        string diagramFingerprint,
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+            SELECT DecisionId, TenantId, ScopeId, SnapshotId, SubjectKind,
+                   SubjectKey, Decision, DiagramFingerprint, EvidenceFingerprint,
+                   SavedByUserOid, CreatedUtc, UpdatedUtc
+            FROM dbo.InfrastructureDiagramDocumentationDecisions
+            WHERE TenantId = @TenantId
+              AND ScopeId = @ScopeId
+              AND DiagramFingerprint = @DiagramFingerprint
+            ORDER BY SubjectKind, SubjectKey;
+            """;
+
+        using System.Data.IDbConnection connection =
+            await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        IEnumerable<InfrastructureDiagramDocumentationDecisionPersistRecord> records =
+            await connection.QueryAsync<InfrastructureDiagramDocumentationDecisionPersistRecord>(
+                new CommandDefinition(
+                    sql,
+                    new
+                    {
+                        TenantId = tenantId,
+                        ScopeId = scopeId,
+                        DiagramFingerprint = diagramFingerprint,
+                    },
+                    cancellationToken: cancellationToken));
+
+        return records.ToList();
+    }
 }

@@ -1,7 +1,4 @@
 using System.Text.Json;
-using System.Security.Cryptography;
-using System.Text;
-
 using ArchLucid.Application.InfraEvidence.DiagramReconciliation;
 using ArchLucid.ContextIngestion;
 using ArchLucid.ContextIngestion.Diagram;
@@ -73,7 +70,7 @@ public sealed class InfrastructureDiagramComparisonService : IInfrastructureDiag
         ValidateSources(request.Sources);
 
         ArchitectureDiagramModelRecord diagram = ParseDiagram(request.Sources);
-        string diagramFingerprint = ComputeDiagramFingerprint(diagram);
+        string diagramFingerprint = InfrastructureDiagramFingerprint.Compute(diagram);
 
         AzureInventorySnapshotDetailReadModel? snapshot = await this.snapshotRepository.TryGetSnapshotDetailAsync(
             scope,
@@ -214,7 +211,7 @@ public sealed class InfrastructureDiagramComparisonService : IInfrastructureDiag
             comparisonId);
 
         string diagramFingerprint = comparison.DiagramFingerprint
-            ?? ComputeDiagramFingerprint(diagram);
+            ?? InfrastructureDiagramFingerprint.Compute(diagram);
 
         await PersistComparisonAsync(
             scope,
@@ -260,7 +257,7 @@ public sealed class InfrastructureDiagramComparisonService : IInfrastructureDiag
         }
 
         string diagramFingerprint = comparison.DiagramFingerprint
-            ?? ComputeDiagramFingerprint(ParseDiagram(
+            ?? InfrastructureDiagramFingerprint.Compute(ParseDiagram(
                 JsonSerializer.Deserialize<List<DiagramSourceReference>>(comparison.SourcesJson, JsonOptions) ?? []));
 
         ValidateDocumentationDecision(request.Decision);
@@ -375,7 +372,7 @@ public sealed class InfrastructureDiagramComparisonService : IInfrastructureDiag
             .ToList();
     }
 
-    private static bool CanSaveDocumentationDecision(
+    internal static bool CanSaveDocumentationDecision(
         DiagramInfrastructureReconciliationResult result,
         string subjectKind,
         string subjectKey)
@@ -446,14 +443,14 @@ public sealed class InfrastructureDiagramComparisonService : IInfrastructureDiag
         }
     }
 
-    private static string BuildEvidenceFingerprint(
+    internal static string BuildEvidenceFingerprint(
         DiagramInfrastructureReconciliationResult result,
         string subjectKind,
         string subjectKey) =>
         TryBuildEvidenceFingerprint(result, subjectKind, subjectKey)
         ?? throw new ArgumentException("The documentation decision subject was not found.", nameof(subjectKey));
 
-    private static string? TryBuildEvidenceFingerprint(
+    internal static string? TryBuildEvidenceFingerprint(
         DiagramInfrastructureReconciliationResult result,
         string subjectKind,
         string subjectKey)
@@ -497,7 +494,7 @@ public sealed class InfrastructureDiagramComparisonService : IInfrastructureDiag
         return null;
     }
 
-    private static InfrastructureDiagramDocumentationDecision ToDocumentationDecision(
+    internal static InfrastructureDiagramDocumentationDecision ToDocumentationDecision(
         InfrastructureDiagramDocumentationDecisionPersistRecord record,
         string carryForwardState) =>
         new()
@@ -555,29 +552,6 @@ public sealed class InfrastructureDiagramComparisonService : IInfrastructureDiag
         }
 
         return merged;
-    }
-
-    private static string ComputeDiagramFingerprint(ArchitectureDiagramModelRecord diagram)
-    {
-        ArgumentNullException.ThrowIfNull(diagram);
-
-        string canonicalPayload = JsonSerializer.Serialize(
-            new
-            {
-                nodes = diagram.Nodes
-                    .OrderBy(node => node.Id, StringComparer.Ordinal)
-                    .ThenBy(node => node.Label, StringComparer.Ordinal)
-                    .Select(node => new { id = node.Id, label = node.Label }),
-                edges = diagram.Edges
-                    .OrderBy(edge => edge.SourceId, StringComparer.Ordinal)
-                    .ThenBy(edge => edge.TargetId, StringComparer.Ordinal)
-                    .ThenBy(edge => edge.Label, StringComparer.Ordinal)
-                    .Select(edge => new { source = edge.SourceId, target = edge.TargetId, label = edge.Label }),
-            },
-            JsonOptions);
-
-        byte[] digest = SHA256.HashData(Encoding.UTF8.GetBytes(canonicalPayload));
-        return Convert.ToHexString(digest).ToLowerInvariant();
     }
 
     private static void ValidateSources(IReadOnlyList<DiagramSourceReference> sources)

@@ -53,6 +53,26 @@ export async function fetchArchitectureDiagramReconciliation(
   );
 }
 
+export async function saveSealedInfrastructureDiagramDocumentationDecision(
+  runId: string,
+  request: InfrastructureDiagramDocumentationDecisionSaveRequest,
+): Promise<InfrastructureDiagramDocumentationDecision> {
+  return proxyJsonPut<InfrastructureDiagramDocumentationDecision>(
+    `${diagramsBasePath(runId)}/documentation-decisions`,
+    request,
+  );
+}
+
+export async function fetchSealedInfrastructureDiagramDocumentationDecisions(
+  runId: string,
+  snapshotId: string,
+): Promise<InfrastructureDiagramDocumentationDecision[]> {
+  const params = new URLSearchParams({ snapshotId });
+  return proxyJsonGet<InfrastructureDiagramDocumentationDecision[]>(
+    `${diagramsBasePath(runId)}/documentation-decisions?${params.toString()}`,
+  );
+}
+
 const ADVISORY_DIAGRAM_COMPARISONS_BASE = "/api/proxy/v1/infrastructure/diagram-comparisons";
 
 export async function compareInfrastructureDiagramAdvisory(
