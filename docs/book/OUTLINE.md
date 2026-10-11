@@ -5,6 +5,10 @@
 
 **Spine:** [`README.md`](README.md)
 
+## Front matter
+
+- Preface: who the book is for, reading paths, the companion lab, conventions. First draft: [front-matter/preface.md](front-matter/preface.md).
+
 ## Part I — Foundations
 
 1. **Why checklists fail.** Misconfiguration lists versus exploitable paths. Why "500 findings" does not tell a team what to fix first.
@@ -34,3 +38,8 @@
 - B. Query cookbook (Resource Graph KQL, Microsoft Graph). First draft: [appendices/b-query-cookbook.md](appendices/b-query-cookbook.md).
 - C. Prompt patterns for grounded security explanations. First draft: [appendices/c-prompt-patterns.md](appendices/c-prompt-patterns.md).
 - D. Optional case study (owner-approved, sanitized). Scaffold: [appendices/d-case-study.md](appendices/d-case-study.md), with sanitization check `tools/check_case_study.py`.
+
+## Back matter
+
+- Glossary: every chapter's key terms plus acronyms. First draft: [back-matter/glossary.md](back-matter/glossary.md).
+- Index: built from final page proofs.
