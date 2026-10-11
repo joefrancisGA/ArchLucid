@@ -28,16 +28,17 @@ public sealed class SqlInfrastructureDiagramDocumentationDecisionRepository(
                 UPDATE SET
                     SnapshotId = @SnapshotId,
                     Decision = @Decision,
+                    DiagramFingerprint = @DiagramFingerprint,
                     EvidenceFingerprint = @EvidenceFingerprint,
                     SavedByUserOid = @SavedByUserOid,
                     UpdatedUtc = @UpdatedUtc
             WHEN NOT MATCHED THEN
                 INSERT (
                     DecisionId, TenantId, ScopeId, SnapshotId, SubjectKind,
-                    SubjectKey, Decision, EvidenceFingerprint, SavedByUserOid, CreatedUtc, UpdatedUtc)
+                    SubjectKey, Decision, DiagramFingerprint, EvidenceFingerprint, SavedByUserOid, CreatedUtc, UpdatedUtc)
                 VALUES (
                     @DecisionId, @TenantId, @ScopeId, @SnapshotId, @SubjectKind,
-                    @SubjectKey, @Decision, @EvidenceFingerprint, @SavedByUserOid, @CreatedUtc, @UpdatedUtc);
+                    @SubjectKey, @Decision, @DiagramFingerprint, @EvidenceFingerprint, @SavedByUserOid, @CreatedUtc, @UpdatedUtc);
             """;
 
         using System.Data.IDbConnection connection =
@@ -55,7 +56,7 @@ public sealed class SqlInfrastructureDiagramDocumentationDecisionRepository(
     {
         const string sql = """
             SELECT DecisionId, TenantId, ScopeId, SnapshotId, SubjectKind,
-                   SubjectKey, Decision, EvidenceFingerprint, SavedByUserOid, CreatedUtc, UpdatedUtc
+                   SubjectKey, Decision, DiagramFingerprint, EvidenceFingerprint, SavedByUserOid, CreatedUtc, UpdatedUtc
             FROM dbo.InfrastructureDiagramDocumentationDecisions
             WHERE TenantId = @TenantId
               AND ScopeId = @ScopeId
@@ -75,6 +76,7 @@ public sealed class SqlInfrastructureDiagramDocumentationDecisionRepository(
 
     public async Task<InfrastructureDiagramDocumentationDecisionPersistRecord?> TryGetLatestBySubjectAsync(
         Guid tenantId,
+        string diagramFingerprint,
         string subjectKind,
         string subjectKey,
         CancellationToken cancellationToken = default)
@@ -86,6 +88,7 @@ public sealed class SqlInfrastructureDiagramDocumentationDecisionRepository(
             WHERE TenantId = @TenantId
               AND SubjectKind = @SubjectKind
               AND SubjectKey = @SubjectKey
+              AND DiagramFingerprint = @DiagramFingerprint
             ORDER BY UpdatedUtc DESC;
             """;
 
@@ -95,7 +98,13 @@ public sealed class SqlInfrastructureDiagramDocumentationDecisionRepository(
         return await connection.QuerySingleOrDefaultAsync<InfrastructureDiagramDocumentationDecisionPersistRecord>(
             new CommandDefinition(
                 sql,
-                new { TenantId = tenantId, SubjectKind = subjectKind, SubjectKey = subjectKey },
+                new
+                {
+                    TenantId = tenantId,
+                    DiagramFingerprint = diagramFingerprint,
+                    SubjectKind = subjectKind,
+                    SubjectKey = subjectKey,
+                },
                 cancellationToken: cancellationToken));
     }
 }

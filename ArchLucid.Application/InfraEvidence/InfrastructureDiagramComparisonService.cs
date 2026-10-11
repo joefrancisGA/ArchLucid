@@ -1,4 +1,6 @@
 using System.Text.Json;
+using System.Security.Cryptography;
+using System.Text;
 
 using ArchLucid.Application.InfraEvidence.DiagramReconciliation;
 using ArchLucid.ContextIngestion;
@@ -71,6 +73,7 @@ public sealed class InfrastructureDiagramComparisonService : IInfrastructureDiag
         ValidateSources(request.Sources);
 
         ArchitectureDiagramModelRecord diagram = ParseDiagram(request.Sources);
+        string diagramFingerprint = ComputeDiagramFingerprint(diagram);
 
         AzureInventorySnapshotDetailReadModel? snapshot = await this.snapshotRepository.TryGetSnapshotDetailAsync(
             scope,
@@ -99,6 +102,7 @@ public sealed class InfrastructureDiagramComparisonService : IInfrastructureDiag
             comparisonId,
             request.SnapshotId,
             request.Sources,
+            diagramFingerprint,
             result,
             cancellationToken);
 
@@ -209,11 +213,15 @@ public sealed class InfrastructureDiagramComparisonService : IInfrastructureDiag
             mappings,
             comparisonId);
 
+        string diagramFingerprint = comparison.DiagramFingerprint
+            ?? ComputeDiagramFingerprint(diagram);
+
         await PersistComparisonAsync(
             scope,
             comparisonId,
             comparison.SnapshotId,
             sources,
+            diagramFingerprint,
             result,
             cancellationToken);
 
@@ -251,6 +259,10 @@ public sealed class InfrastructureDiagramComparisonService : IInfrastructureDiag
             throw new ArgumentException("Documentation decisions are only allowed for documentation-only reconciliation gaps.", nameof(request));
         }
 
+        string diagramFingerprint = comparison.DiagramFingerprint
+            ?? ComputeDiagramFingerprint(ParseDiagram(
+                JsonSerializer.Deserialize<List<DiagramSourceReference>>(comparison.SourcesJson, JsonOptions) ?? []));
+
         ValidateDocumentationDecision(request.Decision);
 
         DateTime utcNow = TimeProvider.System.UtcNowDateTime();
@@ -264,6 +276,7 @@ public sealed class InfrastructureDiagramComparisonService : IInfrastructureDiag
             SubjectKind = request.SubjectKind.Trim(),
             SubjectKey = request.SubjectKey.Trim(),
             Decision = request.Decision.Trim(),
+            DiagramFingerprint = diagramFingerprint,
             EvidenceFingerprint = evidenceFingerprint,
             SavedByUserOid = savedByUserOid,
             CreatedUtc = utcNow,
@@ -292,11 +305,17 @@ public sealed class InfrastructureDiagramComparisonService : IInfrastructureDiag
             return null;
         }
 
+        if (string.IsNullOrWhiteSpace(comparison.DiagramFingerprint))
+        {
+            return null;
+        }
+
         DiagramInfrastructureReconciliationResult? result =
             JsonSerializer.Deserialize<DiagramInfrastructureReconciliationResult>(comparison.ResultJson, JsonOptions);
         InfrastructureDiagramDocumentationDecisionPersistRecord? record =
             await this.documentationDecisionRepository.TryGetLatestBySubjectAsync(
                 scope.TenantId,
+                comparison.DiagramFingerprint,
                 subjectKind.Trim(),
                 subjectKey.Trim(),
                 cancellationToken);
@@ -431,6 +450,7 @@ public sealed class InfrastructureDiagramComparisonService : IInfrastructureDiag
         Guid comparisonId,
         Guid snapshotId,
         List<DiagramSourceReference> sources,
+        string diagramFingerprint,
         DiagramInfrastructureReconciliationResult result,
         CancellationToken cancellationToken)
     {
@@ -450,6 +470,7 @@ public sealed class InfrastructureDiagramComparisonService : IInfrastructureDiag
                 TenantId = scope.TenantId,
                 SnapshotId = snapshotId,
                 SourcesJson = sourcesJson,
+                DiagramFingerprint = diagramFingerprint,
                 ResultJson = resultJson,
                 CreatedUtc = existing?.CreatedUtc ?? utcNow,
                 UpdatedUtc = utcNow,
@@ -468,6 +489,29 @@ public sealed class InfrastructureDiagramComparisonService : IInfrastructureDiag
         }
 
         return merged;
+    }
+
+    private static string ComputeDiagramFingerprint(ArchitectureDiagramModelRecord diagram)
+    {
+        ArgumentNullException.ThrowIfNull(diagram);
+
+        string canonicalPayload = JsonSerializer.Serialize(
+            new
+            {
+                nodes = diagram.Nodes
+                    .OrderBy(node => node.Id, StringComparer.Ordinal)
+                    .ThenBy(node => node.Label, StringComparer.Ordinal)
+                    .Select(node => new { id = node.Id, label = node.Label }),
+                edges = diagram.Edges
+                    .OrderBy(edge => edge.SourceId, StringComparer.Ordinal)
+                    .ThenBy(edge => edge.TargetId, StringComparer.Ordinal)
+                    .ThenBy(edge => edge.Label, StringComparer.Ordinal)
+                    .Select(edge => new { source = edge.SourceId, target = edge.TargetId, label = edge.Label }),
+            },
+            JsonOptions);
+
+        byte[] digest = SHA256.HashData(Encoding.UTF8.GetBytes(canonicalPayload));
+        return Convert.ToHexString(digest).ToLowerInvariant();
     }
 
     private static void ValidateSources(IReadOnlyList<DiagramSourceReference> sources)

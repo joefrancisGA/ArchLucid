@@ -35,6 +35,7 @@ public sealed class InMemoryInfrastructureDiagramDocumentationDecisionRepository
 
     public Task<InfrastructureDiagramDocumentationDecisionPersistRecord?> TryGetLatestBySubjectAsync(
         Guid tenantId,
+        string diagramFingerprint,
         string subjectKind,
         string subjectKey,
         CancellationToken cancellationToken = default)
@@ -44,6 +45,7 @@ public sealed class InMemoryInfrastructureDiagramDocumentationDecisionRepository
         InfrastructureDiagramDocumentationDecisionPersistRecord? record = this.records.Values
             .Where(candidate =>
                 candidate.TenantId == tenantId
+                && string.Equals(candidate.DiagramFingerprint, diagramFingerprint, StringComparison.Ordinal)
                 && string.Equals(candidate.SubjectKind, subjectKind, StringComparison.Ordinal)
                 && string.Equals(candidate.SubjectKey, subjectKey, StringComparison.Ordinal))
             .OrderByDescending(candidate => candidate.UpdatedUtc)
