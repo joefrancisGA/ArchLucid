@@ -6,6 +6,7 @@ import { reshapeNavGroupsForSecureNow } from "@/lib/product-line/securenow-nav-r
 import type { ProductLineId } from "@/lib/product-line/product-line-id";
 import { resolveSecureNowEditionNavOverlay, applySecureNowEditionNavOverlay, type SecureNowEditionNavOverlay } from "@/lib/editions/securenow-edition-nav-overlay";
 import { resolveSecureNowEditionIdFromEnv } from "@/lib/product-line/resolve-securenow-edition-id";
+import { isSecureNowInTenantFromEnv } from "@/lib/product-line/resolve-securenow-hosting-mode";
 
 export type ProductLineNavGroupRow = {
   readonly group: NavGroupConfig;
@@ -60,6 +61,40 @@ export function mergeInternalNavUnderAdministration(
     .map((row) => (row.group.id === "operator-admin" ? mergedAdminRow : row));
 }
 
+const SECURENOW_IN_TENANT_ADMINISTRATION_CAPTION =
+  "Users, identity, notifications, AI models, and system health.";
+
+function shapeSecureNowAdministrationForHosting(
+  rows: readonly ProductLineNavGroupRow[],
+): ProductLineNavGroupRow[] {
+  const adminIndex = rows.findIndex((row) => row.group.id === "operator-admin");
+
+  if (adminIndex < 0 || !isSecureNowInTenantFromEnv()) {
+    return [...rows];
+  }
+
+  const adminRow = rows[adminIndex];
+  const visibleLinks = adminRow.visibleLinks.filter((link) => link.href !== "/administration/billing");
+  const firstLinks = [
+    visibleLinks.find((link) => link.href === ADMINISTRATION_SYSTEM_HEALTH_PATH),
+    visibleLinks.find((link) => link.href === "/administration/identity-providers"),
+  ].filter((link): link is NavLinkItem => link !== undefined);
+  const firstHrefSet = new Set(firstLinks.map((link) => link.href));
+
+  const shapedAdminRow: ProductLineNavGroupRow = {
+    group: {
+      ...adminRow.group,
+      caption: SECURENOW_IN_TENANT_ADMINISTRATION_CAPTION,
+    },
+    visibleLinks: [
+      ...firstLinks,
+      ...visibleLinks.filter((link) => !firstHrefSet.has(link.href)),
+    ],
+  };
+
+  return rows.map((row, index) => (index === adminIndex ? shapedAdminRow : row));
+}
+
 /**
  * Drops sidebar rows that are not assigned to the active product.
  * Unlisted hrefs default to Architecture, so the Architecture shell keeps the full catalog
@@ -93,9 +128,13 @@ export function filterNavGroupsForProductLine(
     const overlay = options.editionNavOverlay
       ?? resolveSecureNowEditionNavOverlay(resolveSecureNowEditionIdFromEnv());
 
-    return mergeInternalNavUnderAdministration(
+    const hostingShaped = shapeSecureNowAdministrationForHosting(
       applySecureNowEditionNavOverlay(reshaped, overlay, options.assignmentOverrides),
     );
+
+    return isSecureNowInTenantFromEnv()
+      ? hostingShaped
+      : mergeInternalNavUnderAdministration(hostingShaped);
   }
 
   return shaped;

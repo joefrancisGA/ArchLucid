@@ -5,11 +5,14 @@ import { usePathname } from "next/navigation";
 import { ProductLineRouteBlockedView } from "@/components/product-line/ProductLineRouteBlockedView";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { isPathAllowedForProductLine } from "@/lib/product-line/product-line-path-access";
+import { isSecureNowInTenantHostedOnlyPath } from "@/lib/product-line/securenow-hosting-route-blocked";
 
 export function ProductLineRouteGate(props: { readonly children: React.ReactNode }): React.JSX.Element {
   const pathname = usePathname() ?? "/";
   const { productLine, assignmentOverrides } = useProductLine();
-  const allowed = isPathAllowedForProductLine(pathname, productLine, { assignmentOverrides });
+  const allowed =
+    isPathAllowedForProductLine(pathname, productLine, { assignmentOverrides }) &&
+    !(productLine === "security" && isSecureNowInTenantHostedOnlyPath(pathname));
 
   if (allowed) {
     return <>{props.children}</>;

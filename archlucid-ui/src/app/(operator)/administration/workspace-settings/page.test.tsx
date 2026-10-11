@@ -126,6 +126,7 @@ describe("TenantSettingsPage", () => {
 
   afterEach(() => {
     vi.unstubAllGlobals();
+    vi.unstubAllEnvs();
   });
 
   it("renders workspace settings for tenant administrators", async () => {
@@ -185,5 +186,17 @@ describe("TenantSettingsPage", () => {
 
     expect(await screen.findByTestId("tenant-settings-restricted")).toBeInTheDocument();
     expect(screen.queryByTestId("tenant-settings-page")).not.toBeInTheDocument();
+  });
+
+  it("hides hosted trial fields for SecureNow InTenant deployments", async () => {
+    vi.stubEnv("NEXT_PUBLIC_SECURENOW_HOSTING", "InTenant");
+
+    const page = await TenantSettingsPage();
+
+    renderWithOperatorQuery(page);
+
+    expect(await screen.findByTestId("tenant-settings-page")).toBeInTheDocument();
+    expect(screen.queryByText("Pilot / trial")).not.toBeInTheDocument();
+    expect(screen.getByText("Active workspace and projects")).toBeInTheDocument();
   });
 });

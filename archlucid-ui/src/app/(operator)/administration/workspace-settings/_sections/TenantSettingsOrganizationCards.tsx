@@ -3,6 +3,7 @@
 import { cn } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { isSecureNowInTenantFromEnv } from "@/lib/product-line/resolve-securenow-hosting-mode";
 
 import { TenantSettingsOrganizationSummary } from "./TenantSettingsOrganizationSummary";
 import { TenantWorkspaceProjectsCard } from "./TenantWorkspaceProjectsCard";
@@ -40,7 +41,7 @@ export function TenantSettingsOrganizationCards({
         <TenantWorkspaceProjectsCard tenantDisplayName={tenantDisplayName} scope={scope} />
       )}
 
-      {model.trial != null && model.trial.status != null && model.trial.status !== "None" ? (
+      {!isSecureNowInTenantFromEnv() && model.trial != null && model.trial.status != null && model.trial.status !== "None" ? (
         <Card>
           <CardHeader>
             <CardTitle as="h3" className={OPERATOR_TYPOGRAPHY.cardTitle}>
