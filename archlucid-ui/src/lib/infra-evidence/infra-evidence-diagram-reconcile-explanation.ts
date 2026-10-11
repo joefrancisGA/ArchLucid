@@ -29,7 +29,11 @@ export const DIAGRAM_RECONCILE_NOTES_DO_NOT_RAISE_BAND_LINE =
 export function formatDiagramReconcileExplanation(row: DiagramInfrastructureCorrespondenceRow): string {
   const parts: string[] = [];
 
-  if (row.explainText.trim().length > 0) {
+  if (row.explainText == null) {
+    parts.push("Correspondence explanation was not stored.");
+  }
+
+  if (row.explainText != null && row.explainText.trim().length > 0) {
     parts.push(row.explainText.trim());
   }
 
@@ -103,7 +107,7 @@ export function buildDiagramReconcileOperationalFindingRequestItem(
       runId,
       snapshotId,
       correspondenceId: row.correspondenceId,
-      matchKind: row.matchKind,
+      matchKind: row.matchKind ?? "",
       confidenceBand: row.confidenceBand,
       diagramNodeId: row.diagramNodeId,
     },

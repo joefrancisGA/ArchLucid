@@ -43,6 +43,32 @@ public sealed class ArchitectureReviewBoardCoverPageContentTests
     }
 
     [Fact]
+    public void Resolve_preserves_empty_tenant_display_name()
+    {
+        ArchitectureReviewBoardCoverPageContent cover = ArchitectureReviewBoardCoverPageContent.Resolve(
+            new ArchitectureReviewBoardExportDocumentModel { RunId = "run-1", TenantDisplayName = string.Empty },
+            whitelabel: null,
+            new DateTimeOffset(2026, 5, 22, 0, 0, 0, TimeSpan.Zero),
+            activeTrialExportNotice: null);
+
+        cover.PreparedForTenantName.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void Resolve_uses_omission_copy_when_tenant_display_name_is_not_stored()
+    {
+        ArchitectureReviewBoardCoverPageContent cover = ArchitectureReviewBoardCoverPageContent.Resolve(
+            new ArchitectureReviewBoardExportDocumentModel { RunId = "run-1" },
+            whitelabel: null,
+            new DateTimeOffset(2026, 5, 22, 0, 0, 0, TimeSpan.Zero),
+            activeTrialExportNotice: null);
+
+        cover.PreparedForTenantName.Should().BeNull();
+        ArchitectureReviewBoardCoverPageContent.PreparedForTenantNameNotStoredNotice
+            .Should().Be("Prepared for tenant name was not stored.");
+    }
+
+    [Fact]
     public void Resolve_whitelabel_uses_firm_title_and_engagement_subtitle()
     {
         WhitelabelConfiguration whitelabel = new()

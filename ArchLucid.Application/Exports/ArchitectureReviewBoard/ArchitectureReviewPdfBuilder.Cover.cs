@@ -81,7 +81,14 @@ public sealed partial class ArchitectureReviewPdfBuilder
                 column.Item().Height(8);
             }
 
-            if (!string.IsNullOrWhiteSpace(cover.PreparedForTenantName))
+            if (cover.PreparedForTenantName is null)
+            {
+                column.Item()
+                    .Text(ArchitectureReviewBoardCoverPageContent.PreparedForTenantNameNotStoredNotice)
+                    .FontSize(11);
+                column.Item().Height(12);
+            }
+            else
             {
                 column.Item().Text($"Prepared for {cover.PreparedForTenantName}").FontSize(11);
                 column.Item().Height(12);

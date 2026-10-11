@@ -96,7 +96,13 @@ public static partial class ArchitectureReviewBoardExportDocumentFactory
             TraceabilityLines = BuildExtraTraceLines(detail),
             RecommendedNextActions = BuildRecommendedActions(report, detail),
             IsDemoTenant = demo,
-            TenantDisplayName = string.IsNullOrWhiteSpace(tenantDisplayName) ? null : tenantDisplayName.Trim(),
+            TenantDisplayName = tenantDisplayName is null
+                ? null
+                : tenantDisplayName.Length == 0
+                    ? string.Empty
+                    : string.IsNullOrWhiteSpace(tenantDisplayName)
+                        ? null
+                        : tenantDisplayName.Trim(),
             ExplanationConfidenceCallout = string.IsNullOrWhiteSpace(explanationConfidenceCallout)
                 ? null
                 : explanationConfidenceCallout.Trim(),

@@ -5,6 +5,7 @@ import {
   DiagramReconcileWorkbenchClient,
   formatDiagramReconcileAssociationType,
   formatDiagramReconcileAzureResourceId,
+  formatDocumentationDecisionState,
 } from "@/app/(operator)/governance/infrastructure/diagram-reconcile/DiagramReconcileWorkbenchClient";
 
 const {
@@ -118,6 +119,11 @@ describe("DiagramReconcileWorkbenchClient", () => {
     expect(formatDiagramReconcileAssociationType("PrivateEndpoint")).toBe("PrivateEndpoint");
     expect(formatDiagramReconcileAzureResourceId(null)).toBe("Azure resource id was not stored.");
     expect(formatDiagramReconcileAzureResourceId("/subscriptions/sub/resource")).toBe("/subscriptions/sub/resource");
+    expect(formatDocumentationDecisionState(null)).toBe("Carry-forward state was not stored.");
+    expect(formatDocumentationDecisionState("StillOpen")).toBe("Still open");
+    expect(formatDocumentationDecisionState("EvidenceChanged")).toBe("Evidence changed");
+    expect(formatDocumentationDecisionState("NoLongerInCapture")).toBe("No longer in this capture");
+    expect(formatDocumentationDecisionState("")).toBe("Still open");
   });
 
   beforeEach(() => {
