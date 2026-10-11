@@ -193,10 +193,12 @@ public sealed partial class AgentOutputLlmSemanticJudge
 
     private static double ReadQuality(JsonElement root)
     {
-        if (root.TryGetProperty("overallQuality", out JsonElement named) && TryGetDouble(named, out double v1))
+        if (TryGetPropertyIgnoreCase(root, "overallQuality", out JsonElement named)
+            && TryGetDouble(named, out double v1))
             return v1;
 
-        if (root.TryGetProperty("overall_quality", out JsonElement snake) && TryGetDouble(snake, out double v2))
+        if (TryGetPropertyIgnoreCase(root, "overall_quality", out JsonElement snake)
+            && TryGetDouble(snake, out double v2))
             return v2;
 
         return double.NaN;
@@ -217,7 +219,8 @@ public sealed partial class AgentOutputLlmSemanticJudge
 
     private static string? ReadRationale(JsonElement root)
     {
-        if (!root.TryGetProperty("rationale", out JsonElement r) || r.ValueKind != JsonValueKind.String)
+        if (!TryGetPropertyIgnoreCase(root, "rationale", out JsonElement r)
+            || r.ValueKind != JsonValueKind.String)
             return null;
 
         string? s = r.GetString();
@@ -228,5 +231,26 @@ public sealed partial class AgentOutputLlmSemanticJudge
         string t = s.Trim();
 
         return t.Length <= 400 ? t : t[..400];
+    }
+
+    private static bool TryGetPropertyIgnoreCase(
+        JsonElement root,
+        string propertyName,
+        out JsonElement value)
+    {
+        if (root.TryGetProperty(propertyName, out value))
+            return true;
+
+        foreach (JsonProperty property in root.EnumerateObject())
+        {
+            if (string.Equals(property.Name, propertyName, StringComparison.OrdinalIgnoreCase))
+            {
+                value = property.Value;
+                return true;
+            }
+        }
+
+        value = default;
+        return false;
     }
 }

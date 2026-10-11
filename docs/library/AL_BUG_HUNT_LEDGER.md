@@ -17009,6 +17009,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: agent-runtime-evaluation
 
+2026-10-11 seed hunt (seed→hit): `AgentOutputLlmSemanticJudge` used exact-case lookups for reachable external judge response keys, so valid casing variants such as `OVERALL_QUALITY` and `RATIONALE` were discarded and semantic judging returned no score. Judge response property lookup now ignores case; regression `TryJudgeAsync_parses_completion_json_keys_without_case_sensitivity`.
+
+- [x] (proven) `AgentOutputLlmSemanticJudge.ReadQuality` / `ReadRationale` — valid case variants in an external judge JSON response were not parsed, causing a missing semantic score — **hit 2026-10-11 seed hunt:** use case-insensitive property lookup for camel and snake response keys; regression `TryJudgeAsync_parses_completion_json_keys_without_case_sensitivity`.
+
 2026-10-11 seed hunt (seed→hit): `AgentOutputEvaluator` also compared its fixed structural JSON keys ordinal-case-sensitively, so a reachable agent payload using valid casing variants received a zero structural completeness score. Structural, reference-case, and harness required-key matching now use ordinal-ignore-case comparison; regression `Evaluate_When_expected_keys_use_different_case_counts_them_as_present` extends the prior required-key regressions.
 
 - [x] (proven) `AgentOutputEvaluator.CollectPropertyNames` — valid case variants of the serialized agent-result keys were treated as missing, producing an incorrect zero structural score — **hit 2026-10-11 seed hunt:** use ordinal-ignore-case property-name matching; regression `Evaluate_When_expected_keys_use_different_case_counts_them_as_present`.
