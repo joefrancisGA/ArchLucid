@@ -358,6 +358,8 @@ If you find none, return an empty list.
 
 **Checks:** this pattern gets a check of its own, because its output is a claim about files you have:
 
+<!-- listing: lab/listings/python/appc_prompt_patterns.py#probable_flow_problems -->
+
 ```python
 from pathlib import Path
 
@@ -370,13 +372,19 @@ def probable_flow_problems(
 ) -> list[str]:
     """Reject proposed flows whose cited line doesn't exist or doesn't point at the store."""
     problems: list[str] = []
+    root = repo_root.resolve()
 
     for index, flow in enumerate(flows, start=1):
         store = flow.get("store") or ""
-        path = repo_root / (flow.get("file") or "")
+        path = (root / (flow.get("file") or "")).resolve()
 
         if store not in known_stores:
             problems.append(f"Flow {index}: store '{store}' is not in the snapshot.")
+            continue
+
+        # The file name comes from the model. Never open anything outside the repository.
+        if not path.is_relative_to(root):
+            problems.append(f"Flow {index}: file '{flow.get('file')}' is outside the repository.")
             continue
 
         if not path.is_file():
@@ -499,5 +507,5 @@ Change any part, including the base system message every template shares, and th
 - **From the chapters, matching their text:** the base system message (rules 1–6 from Chapter 7, section 7.4, which adopted the `status` exit on 2026-10-10; rule 7 from Chapter 8, section 8.5); the support checker prompt; the jobs-and-anti-jobs framing. If those change in Chapters 7 or 8, change them here.
 - **New here, not yet run against a live deployment:** the strict output schemas in C.1, C.5, and C.7; the audience blocks in C.2; the gap, change, remediation, tool-selection, probable-flow, and adversarial prompts; `probable_flow_problems`. Run each against the lab packs from Chapters 7 and 8 and record pass rates before submission.
 - Confirm that Azure OpenAI structured outputs accept `$defs` and `$ref` in the C.5 schema in the API version the book cites, and that strict mode still requires every property in `required`. If `$ref` isn't supported, inline the step schema three times.
-- `probable_flow_problems` was exercised against Appendix A's Function App code: it accepts the real `ARCHIVE_ACCOUNT` line (13) and rejects a fabricated line, an out-of-range line, a missing file, an unknown store, and the wrong store for the setting.
+- `probable_flow_problems` was exercised against Appendix A's Function App code: it accepts the real `ARCHIVE_ACCOUNT` line (13) and rejects a fabricated line, an out-of-range line, a missing file, an unknown store, and the wrong store for the setting. Those cases are now tests in `lab/listings/python/tests/test_appc_prompt_patterns.py`. On 2026-10-11 the listing gained a check that the proposed file is inside the repository: the path comes from the model, and the earlier version would open `../` paths outside it.
 - The C.10 table is a candidate for a sidebar in Chapter 7 if a reviewer finds the appendix too long.

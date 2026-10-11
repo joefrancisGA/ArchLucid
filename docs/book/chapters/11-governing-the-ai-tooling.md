@@ -163,6 +163,8 @@ Model outputs are different. They're not reproducible, because the same pack can
 
 So the audit record holds identifiers, versions, hashes, results, and decisions, and nothing else:
 
+<!-- listing: lab/listings/python/ch11_governance.py#audit_record -->
+
 ```python
 import hashlib
 import json
@@ -237,6 +239,8 @@ def audit_record(**fields: object) -> dict:
 ```
 
 A record for one draft looks like this:
+
+<!-- listing: lab/listings/python/ch11_governance.py#audit_record_example -->
 
 ```python
 record = audit_record(
@@ -313,6 +317,8 @@ Three controls cover most of it.
 
 **Cache by everything that determines the output.** An explanation depends on the tenant, the pack, the audience, the prompt template, and the model version. Whether it may be served also depends on the validator that approved it. If none of those changed, the explanation doesn't need to be regenerated:
 
+<!-- listing: lab/listings/python/ch11_governance.py#explanation_cache_key -->
+
 ```python
 def explanation_cache_key(
     tenant_id: str,
@@ -334,6 +340,8 @@ def explanation_cache_key(
 Using the pack hash rather than the snapshot ID means an unchanged pack from a new snapshot is a cache hit, which is the common case for a stable estate. Including the prompt and model versions means a change to either regenerates everything, which is what you want after an upgrade. Including the validator version means that tightening a rule invalidates every explanation the old rules approved, instead of letting them keep coming back as cache hits. Including the tenant is the isolation rule from section 11.7. Each part is prefixed with its length, so no choice of IDs can make two different sets of inputs produce the same key. With a plain `:` join, tenant `a:b` with pack `c` and tenant `a` with pack `b:c` would collide. Cache only explanations that passed validation and were approved, so the cache can't serve a draft that a reviewer rejected.
 
 **Budget tokens, and fail closed.** Give each run and each tenant a token budget. When it's exhausted, the pipeline stops calling the model and reports "explanation unavailable" for the remaining items. It must never skip validation or review to save tokens, or fall back to an unvalidated cached draft:
+
+<!-- listing: lab/listings/python/ch11_governance.py#token_budget -->
 
 ```python
 class TokenBudget:

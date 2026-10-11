@@ -85,6 +85,8 @@ A postcondition check can end three ways:
 
 ### Postconditions as code
 
+<!-- listing: lab/listings/python/ch10_verification.py#verify -->
+
 ```python
 from dataclasses import dataclass
 from datetime import datetime
@@ -166,6 +168,8 @@ Four details in that code carry most of the weight.
 
 **An absent subject is not a passing check.** The most common bug in verification code is a check like "every storage account named `custdata` has shared key disabled." If `custdata` isn't in the snapshot, every one of zero accounts passes. Write checks so that a missing subject raises:
 
+<!-- listing: lab/listings/python/ch10_verification.py#the_row -->
+
 ```python
 def the_row(rows: list[dict], **match: str) -> dict:
     """Exactly one row must match. Zero or several is a question the snapshot can't answer."""
@@ -193,6 +197,8 @@ The shared key check also tests `sharedKey == "disabled"` rather than "not enabl
 ### Path postconditions
 
 A path postcondition reuses the search. It depends on every file the derivation reads, because any of them can create an edge:
+
+<!-- listing: lab/listings/python/ch10_verification.py#no_path -->
 
 ```python
 PATH_FILES = frozenset({
@@ -234,6 +240,8 @@ Postconditions check what a recommendation promised. A **snapshot diff** checks 
 To compare paths across snapshots, each path needs an identity that doesn't depend on the run. The sequence of edge keys works: source, kind, and target for each hop. That's Chapter 9's `edge_key`, so a path's signature is stable as long as the same identities hold the same kinds of capability.
 
 A path that disappears isn't necessarily closed. If the evidence that produced one of its edges is incomplete in the later snapshot, the honest status is "unresolved." To decide that, the diff needs to know which files each edge kind comes from. Chapter 4's lab listed them:
+
+<!-- listing: lab/listings/python/ch10_verification.py#diff_paths -->
 
 ```python
 KIND_SOURCES = {
@@ -429,6 +437,8 @@ A reader who sees "1 open path, 1 change away from 0" understands the state of t
 "How long was this path open?" sounds like a simple subtraction. With snapshots, it isn't. You never see the moment a path opened or closed. You see it open in one snapshot and closed in a later one, and the change happened somewhere in between. A gap snapshot in the middle tells you nothing either way.
 
 Report the window as bounds:
+
+<!-- listing: lab/listings/python/ch10_verification.py#exposure_windows -->
 
 ```python
 from datetime import timedelta

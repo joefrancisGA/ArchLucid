@@ -310,11 +310,13 @@ Checks worth running on every draft:
 2. **Every cited ID exists** in the pack.
 3. **No activity verbs** ("accessed", "exfiltrated", "stole", "breached", "has been exposed", "was used") unless a cited item records observed activity. In most packs, none does.
 4. **No numbers that aren't in the pack.** This catches invented percentages, timelines, and counts.
-5. **No names that aren't in the pack.** Resource names, role names, and identity names in the draft must appear in a cited claim. This catches invented roles and resources.
+5. **No names that aren't in the pack.** Resource names, role names, and identity names in the draft must appear in the pack's claims, path targets, or provenance (the snapshot ID, and who asserted a target and when). This catches invented roles and resources.
 6. **Inference language is preserved.** A sentence citing only deterministic inferences shouldn't use "is" or "has" for the inferred capability. This is hard to check exactly; a simple heuristic catches the common slips.
 7. **The exit is clean.** A draft with `status` set to `insufficient_evidence` returns no sentences.
 
 A minimal validator in Python:
+
+<!-- listing: lab/listings/python/ch07_validator.py#validate -->
 
 ```python
 import re
@@ -325,11 +327,13 @@ ACTIVITY_PATTERNS = [
 ]
 NUMBER_PATTERN = re.compile(r"\b\d+(?:[.,]\d+)?%?")
 NAME_PATTERN = re.compile(r"`([^`]+)`|\b([a-z]+(?:-[a-z0-9]+)+)\b")
+# Item fields a draft may draw names and numbers from. untrustedText is deliberately absent.
+SOURCE_FIELDS = ("claim", "target", "assertedBy", "assertedAt", "expiresAt")
 
 
 def expand_range(citation: str) -> list[str]:
-    """Turn 'P1-P3' into ['P1', 'P2', 'P3']; leave single IDs alone."""
-    match = re.fullmatch(r"([A-Z])(\d+)-\1?(\d+)", citation)
+    """Turn 'P1-P3' or 'P1–P3' into ['P1', 'P2', 'P3']; leave single IDs alone."""
+    match = re.fullmatch(r"([A-Z])(\d+)[-\u2013]\1?(\d+)", citation)
 
     if not match:
         return [citation]
@@ -345,7 +349,11 @@ def validate(draft: dict, pack: dict) -> list[str]:
         for key in ("hops", "paths", "targets", "gaps", "cutPoints")
         for item in pack.get(key, [])
     }
-    pack_text = " ".join(item.get("claim", "") for item in items.values())
+    sources = [pack.get("snapshotId", "")]
+    sources += [
+        str(item[field]) for item in items.values() for field in SOURCE_FIELDS if field in item
+    ]
+    pack_text = " ".join(sources)
     pack_numbers = set(NUMBER_PATTERN.findall(pack_text)) | {str(len(pack.get("paths", [])))}
     problems: list[str] = []
 
@@ -383,7 +391,7 @@ def validate(draft: dict, pack: dict) -> list[str]:
     return problems
 ```
 
-Run against the board summary from the opening of this chapter, this validator rejects it immediately: no citations, "has been exposed", and "85%". Run against the second summary, it passes. One wrinkle: the validator allows the number of paths ("six") because the pack implies it, and a word like "six" isn't caught by a digit pattern at all. Validators need tuning to your conventions, and they're never perfect.
+Run against the board summary from the opening of this chapter, this validator rejects it immediately: no citations, "has been exposed", and "85%". Run against the second summary, it passes. One wrinkle: the validator allows the number of paths ("six") because the pack implies it, and a word like "six" isn't caught by a digit pattern at all. The name check errs the other way: it treats any lowercase hyphenated word, such as "high-risk", as a resource name. Validators need tuning to your conventions, and they're never perfect.
 
 ### What validation doesn't catch
 
@@ -412,11 +420,11 @@ The same evidence pack can produce explanations for very different readers. Only
 
 **Engineer on the payments team** — what to change and in what order:
 
-> The highest-leverage change is to replace the Contributor assignment for `payments-deploy` on `rg-payments-prod` with roles scoped to what the pipeline deploys [H5, C1]. That closes the three paths to `custdata`; the archive paths remain because the pipeline must still deploy `pay-reconcile` [C1]. Before changing it, list which resource types the pipeline actually deploys, so the replacement roles don't break releases. Separately, removing `dev-lead` as an owner of the app registration closes the ownership entry point [H2].
+> The change with the most leverage is to replace the Contributor assignment for `payments-deploy` on `rg-payments-prod` with roles scoped to what the pipeline deploys [H5, C1]. That closes the three paths to `custdata`; the archive paths remain because the pipeline must still deploy `pay-reconcile` [C1]. Before changing it, list which resource types the pipeline actually deploys, so the replacement roles don't break releases. Separately, removing `dev-lead` as an owner of the app registration closes the ownership entry point [H2].
 
 **Auditor** — evidence chain and time:
 
-> Each path is derived from snapshot `2026-10-06T09-10-00Z-prod` [P1–P6]. Role assignments and app ownership are observed facts from that snapshot [H2, H5, H9]. The customer-data classification of both stores is an assertion by the Data Protection Officer dated 2026-09-14, valid until 2027-03-14 [T1, T2]. Use of the paths cannot be determined from available logs [G1, G2].
+> Each path is derived from snapshot `2026-10-06T09-10-00Z-prod` [P1–P6]. Role assignments and app ownership are observed facts from that snapshot [H2, H5, H9]. The classification of both stores as customer data is an assertion by the Data Protection Officer dated 2026-09-14, valid until 2027-03-14 [T1, T2]. Use of the paths cannot be determined from available logs [G1, G2].
 
 Writing four versions by hand would take an analyst most of a morning. With a pack, a prompt per audience, and a validator, it takes minutes, and each version is checkable against the same citations. In practice, this is often the first place teams see a real return on using models in security work.
 
@@ -599,7 +607,7 @@ This lab builds the full pattern for the payments paths. It extends Chapter 2's 
 ## Author notes (remove before submission)
 
 - Verified 2026-10-10 (revision pass 1): structured output API version and model list; training use, abuse monitoring and the modified abuse monitoring application; private endpoint support; Security Copilot naming; `shared_access_key_enabled` and `default_to_oauth_authentication`.
-- The validator is intentionally simple. It passes the opening story and offline fixtures; still check against live lab outputs that the name regex doesn't flag ordinary hyphenated English words.
+- The validator is intentionally simple. `lab/listings/python/tests/test_ch07_validator.py` checks it against this chapter's pack and every printed summary (2026-10-11). That run changed the listing in two ways. `expand_range` now accepts an en dash, because the printed summaries cite `[P1–P6]` and the old pattern rejected them. Names and numbers may now come from path targets and provenance (snapshot ID, `assertedBy`, `assertedAt`, `expiresAt`) as well as claims, because the auditor version quotes the snapshot ID and the DPO's dates. Untrusted text still never counts. The run also confirmed that the name regex flags hyphenated English words ("highest-leverage" in the engineer version, now reworded); section 7.5 now says so.
 - The "85% likelihood" and other figures in the opening are fictional.
 - Consider a figure for the grounding pipeline in section 7.2.
 - Add the Chapter 7 fact checks to GTM **M-306** when it is picked up.

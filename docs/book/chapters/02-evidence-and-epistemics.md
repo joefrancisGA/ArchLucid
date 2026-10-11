@@ -208,6 +208,8 @@ Human assertions sit outside that line, because their strength depends on who ma
 
 The code example below applies Rule 1 only to the four ordered machine-grounding categories. Human assertions are excluded; assess their source, scope, and freshness separately before using one as a required input.
 
+<!-- listing: lab/listings/python/ch02_evidence.py#machine_grounding -->
+
 ```python
 from enum import IntEnum
 

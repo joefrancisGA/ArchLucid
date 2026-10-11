@@ -49,13 +49,15 @@ The book calls the lab subscription `sub-payments-prod`. Terraform doesn't renam
 |-----------|----------|---------------|----------|
 | `rg-payments-prod` | Resource group | Holds the payments workloads and data | All |
 | `custdata` | Storage account, container `customers` | Shared key enabled; public network access enabled from all networks; private endpoint in the payments spoke; no diagnostic setting; tag `owner = payments` | 1–10 |
-| `custarchive` | Storage account, container `settlements` | Shared key enabled; no diagnostic setting | 4, 6, 7, 9, 10 |
+| `custarchive` | Storage account, container `settlements`, in `rg-payments-archive` | Shared key enabled; no diagnostic setting | 4, 6, 7, 9, 10 |
 | `pay-reconcile` | Linux Function App on a Basic plan | Runs as `mi-pay-reconcile`; app setting `ARCHIVE_ACCOUNT`; virtual network integration in the payments spoke | 4–6, 9, 10 |
 | payments API | Linux web app on the same plan, in `rg-payments-runtime` | Runs as `mi-payments-api`; app setting `CUSTOMER_ACCOUNT`; virtual network integration in the payments spoke | 6 |
 | `mi-pay-reconcile` | User-assigned managed identity | Storage Blob Data Reader on `custarchive` (account scope) | 4, 6, 9, 10 |
 | `mi-payments-api` | User-assigned managed identity, in `rg-payments-runtime` | Storage Blob Data Contributor on `custdata` | 6 |
 
 `rg-payments-runtime` holds what `payments-deploy`'s Contributor role must not reach: the Functions host's own storage account, the payments API, and the API's identity. The App Service plan stays in `rg-payments-prod`, because changing a plan doesn't deploy code to the apps on it.
+
+`custarchive` has its own group, `rg-payments-archive`, for the same reason. Contributor on `rg-payments-prod` can list storage keys there, so an archive in that group would be readable directly, and the search would find three extra paths to it. Kept apart, it's reachable only through `mi-pay-reconcile`'s data role, which is what P4 to P6 describe.
 
 ### Entra objects
 
@@ -126,6 +128,19 @@ These are Chapter 1's list-view noise. None of them leads to customer data.
 
 Chapter 11's tooling module is separate. Its lab deploys it into its own resource group.
 
+### Tested listings
+
+The book's Python listings are copies of modules in `lab/listings/python/`, one per chapter (`ch04_paths.py`, `ch07_validator.py`, and so on). Each listing in the text names the region it was copied from, and `tools/check_listings.py` fails if the two differ. The tests in `lab/listings/python/tests/` build the payments estate above as a graph and check the book's claims about it: Chapter 4's search finds exactly the six paths and nothing for `analyst-04`, Chapter 7's validator rejects the opening summary and passes the grounded one, Chapter 9's greedy plan picks the three changes the chapter names, and Chapter 10's diff classifies the two Mondays the way the chapter says.
+
+The tests are offline. They use only the standard library, make no Azure calls, and replace the Azure SDK modules with stand-ins when they run the Function App code. Passing them shows that the listings do what the book says on the book's examples. It doesn't show that Azure behaves the way the fixtures assume. The labs do that.
+
+Last run on 2026-10-11 with Python 3.14, from `docs/book`:
+
+```text
+python tools/check_listings.py
+python -m unittest discover -s lab/listings/python/tests
+```
+
 ---
 
 ## A.4 Before you deploy
@@ -173,6 +188,8 @@ terraform output -json user_passwords
 ### Deploy the app code
 
 Terraform creates the Function App and the web app empty. Chapters 5 and 6 need them to touch the data stores. A minimal HTTP-triggered function for `pay-reconcile`, in the Python v2 programming model, is enough:
+
+<!-- listing: lab/listings/python/appa_function_app.py#function_app -->
 
 ```python
 import os

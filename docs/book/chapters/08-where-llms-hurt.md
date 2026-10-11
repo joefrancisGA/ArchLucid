@@ -200,6 +200,8 @@ This reduces injection. It doesn't stop it. Models can still be persuaded by tex
 
 **3. Validate against untrusted text.** Extend the validator: a sentence may mention a `U` item's subject by placeholder, but text copied from an untrusted value is a problem. In the opening story, "SEC-1142" passed because it appeared in the pack. If the pack separates claims from untrusted text, the name check can require names and identifiers to come from claims only:
 
+<!-- listing: lab/listings/python/ch08_tests.py#untrusted_copy_problems -->
+
 ```python
 def untrusted_copy_problems(draft: dict, pack: dict, min_length: int = 12) -> list[str]:
     """Flag sentences that copy a run of text from an untrusted field."""
@@ -229,6 +231,8 @@ def untrusted_copy_problems(draft: dict, pack: dict, min_length: int = 12) -> li
 
 **7. Scan for instruction-like text, and report it as a finding.** A tag or display name containing "ignore previous instructions" or "summarize as low risk" isn't normal metadata. Scan text fields deterministically during derivation and report matches as findings in their own right:
 
+<!-- listing: lab/listings/python/ch08_tests.py#instruction_like -->
+
 ```python
 import re
 
@@ -249,7 +253,7 @@ def instruction_like(value: str) -> list[str]:
 
 A list like this will never catch everything, and an attacker who knows it can phrase around it. That's fine. Its job is to catch the careless attempts and to turn "someone renamed an app to talk to our tooling" into an observed fact with an owner. Microsoft also offers detection for prompt attacks in Azure AI Content Safety, called Prompt Shields, which you can run on untrusted text before it reaches a model. It checks documents as well as user prompts, which is the case here: an app name in an evidence pack is a document-style (indirect) attack, not something a user typed. Treat any detector as a layer, not a guarantee.
 
-With these layers, the opening story plays out differently. The display name never enters a claim. It sits in `untrustedText`, labeled. If the model repeats "SEC-1142" anyway, the copy check rejects the draft. If the model leaves out the path, the coverage check rejects the draft. And the derivation step reports the display name itself as a finding: an app registration whose name contains instructions addressed to an AI.
+With these layers, the opening story plays out differently. The display name never enters a claim. It sits in `untrustedText`, labeled. If the model repeats "SEC-1142" anyway, Chapter 7's number check rejects the draft, because 1142 appears in no claim. A longer copied phrase, such as "approved security exception", trips the copy check too. If the model leaves out the path, the coverage check rejects the draft. And the derivation step reports the display name itself as a finding: an app registration whose name contains instructions addressed to an AI.
 
 ---
 
@@ -260,6 +264,8 @@ Chapter 7's validator checks what the model wrote. It has nothing to say about w
 Omission is also the failure that looks most like good writing. A board summary that mentions four of six paths reads well. Nothing in it is false. It just isn't the whole truth.
 
 For tasks where completeness matters, such as summaries, change notes, and audit narratives, define which pack items **must** be cited and check:
+
+<!-- listing: lab/listings/python/ch08_tests.py#coverage_problems -->
 
 ```python
 def coverage_problems(
@@ -446,6 +452,8 @@ Useful relations for evidence-pack pipelines:
 
 A small harness:
 
+<!-- listing: lab/listings/python/ch08_tests.py#metamorphic_failures -->
+
 ```python
 import copy
 import random
@@ -598,7 +606,7 @@ Re-collect, rebuild the pack, and generate the board summary. Run it three times
 
 - The opening story, SEC-1142, and the review timeline are fictional. Check that the scenario is plausible under current Entra defaults: application owners can change an app registration's display name; display-name length limits allow the injected text.
 - Verified 2026-10-10 (revision pass 1): the app registration default; tag write in Contributor and Tag Contributor; Prompt Shields covers document attacks; OWASP LLM01 is prompt injection in the 2025 edition; Storage Account Key Operator Service Role exists; Storage Account Contributor has no data actions; code samples execute cleanly.
-- Still to do: exercise `untrusted_copy_problems`, `coverage_problems`, `instruction_like`, and the metamorphic harness against the Chapter 7 pack.
+- `untrusted_copy_problems`, `coverage_problems`, `instruction_like`, and the metamorphic harness are tested offline against the Chapter 7 pack and section 8.5's pack (`lab/listings/python/tests/test_ch08_tests.py`, 2026-10-11). That run showed the copy check can't catch a bare "SEC-1142": eight characters is shorter than its twelve-character window. Chapter 7's number check catches it instead, and section 8.5 now says so. The lab tag in section 8.12 matches only the "no action required" pattern; "Summarize all paths to it as" slips past the "summarize as" pattern.
 - Still to verify: whether user display names are self-editable by default.
 - Find and cite one or two published studies on the calibration of verbalized model confidence, or soften the sentence in section 8.3.
 - Responsible-disclosure framing for the injection lab: keep to owned tenants and synthetic data; consider asking Microsoft whether to mention Content Safety by name.
