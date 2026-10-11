@@ -9460,3 +9460,4 @@
 {"at":"2026-10-11T15:46:10.0301895Z","zoneId":"context-ingestion","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.ContextIngestion/"]}
 {"at":"2026-10-11T15:49:15.3962892Z","zoneId":"context-ingestion","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-11T15:53:11.8112002Z","zoneId":"context-ingestion","outcome":"seed-only","productLine":"archlucid-shared"}
+{"at":"2026-10-11T15:56:09.2199832Z","zoneId":"host-core-jobs","outcome":"dry","productLine":"archlucid-shared"}
