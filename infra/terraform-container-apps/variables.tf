@@ -167,6 +167,12 @@ variable "acr_resource_id" {
   default     = ""
 }
 
+variable "acr_pull_identity_name" {
+  type        = string
+  description = "Name of the user-assigned identity used for private ACR pulls."
+  default     = "id-archlucid-acr-pull"
+}
+
 variable "api_min_replicas" {
   type        = number
   description = "Minimum API replicas. Default 2 for staging/production availability (two instances). Override to 1 for local pilots if duplicate hosted background jobs are unacceptable until leader election or a worker app exists (see README)."

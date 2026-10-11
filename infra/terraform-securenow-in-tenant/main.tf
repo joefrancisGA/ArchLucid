@@ -397,6 +397,7 @@ module "container_apps" {
   worker_container_image                           = var.worker_container_image
   ui_container_image                               = var.ui_container_image
   acr_resource_id                                  = var.acr_resource_id
+  acr_pull_identity_name                           = "${local.prefix}-acr-pull"
   api_ingress_external                             = false
   ui_ingress_external                              = false
   artifact_blob_service_uri                        = module.storage.primary_blob_endpoint

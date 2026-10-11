@@ -151,7 +151,7 @@ resource "azurerm_user_assigned_identity" "acr_pull" {
 
   location            = local.azure_location
   resource_group_name = local.resource_group_name
-  name                = "id-archlucid-acr-pull"
+  name                = var.acr_pull_identity_name
   tags                = local.merged_tags
 }
 
