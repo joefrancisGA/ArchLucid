@@ -27451,6 +27451,8 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 ---
 ## Zone: core-explanation-json
 
+2026-10-11 seed hunt (seed-only): re-read the parser, strict schema-version boundary, list flattening, numeric token fallback, and focused tests; no new mechanism-backed hypothesis met the same-run promotion bar. The four previously seeded `(candidate)` rows remain the bounded search set, the focused `RunExplanation` suite passed 47/47, and no production or regression code changed.
+
 2026-10-11 seed hunt (seed-only): re-read the structured parser, shared JSON token readers, prompt schema, and the focused `RunExplanation` suite; no fresh hypothesis met the full mechanism-and-contract bar for same-run promotion. The focused suite passed 47/47; no production or regression code changed. Seeded four bounded follow-on `(candidate)` rows.
 
 - **(candidate)** `StructuredExplanationParser` / `StrictSchemaVersionReader` — a reachable JSON `schemaVersion: 1e300` may be accepted after an out-of-range floating-point to `int` conversion rather than defaulting to schema version 1; locus: schema-version read at `StructuredExplanationParser.cs` ~47–51 and the shared reader call; input: model-produced structured explanation with an oversized finite schema version.
@@ -27485,7 +27487,7 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 - **aliases:** run explanation; explanation json; split from archlucid-core
 - **paths:** ArchLucid.Core/Explanation/
 - **test-filter:** FullyQualifiedName~RunExplanation
-- **hunts:** 48
+- **hunts:** 49
 - **bugs-found:** 33
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-11
