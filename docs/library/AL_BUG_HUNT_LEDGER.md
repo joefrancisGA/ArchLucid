@@ -30885,6 +30885,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ## Zone: cloud-extractors
 
+2026-10-11 seed hunt (seed-only): reread AWS Resource Explorer, GCP workload-identity/asset collection, and Azure ARM property-expansion paths after the pagination-path hit. No new row met the full hunt-ready bar; the scoped Azure extractor run reported 127 passed and 1 unrelated network-association baseline failure. Seeded two bounded ARM-property candidates for raw Logic Apps `$connections` capture and AKS `networkProfile` capture; no production or regression change.
+
 2026-10-11 thorough hunt (hit): hosted Azure Policy Insights and Actual Cost pagination validated same-subscription cursors but not the collection path, so reachable `@odata.nextLink` / `properties.nextLink` values for `roleAssignments` or `CostManagement/budgets` were fetched and merged as if they belonged to the original query. Reused `EnsureTargetsArmRelativeListingPath` for both expected query paths; regressions `QueryPolicyComplianceAsync_rejects_same_subscription_next_link_for_another_resource` and `TryQueryActualCostSummaryAsync_rejects_same_subscription_next_link_for_another_resource` failed first and passed after the fix.
 
 - **id:** cloud-extractors
@@ -30893,7 +30895,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** aws extractor; gcp extractor; azure extractor
 - **paths:** ArchLucid.Integrations.AwsExtractor/; ArchLucid.Integrations.GcpExtractor/; ArchLucid.Integrations.AzureExtractor/
 - **test-filter:** FullyQualifiedName~AwsExtractor|FullyQualifiedName~GcpExtractor|FullyQualifiedName~AzureExtractor
-- **hunts:** 79
+- **hunts:** 80
 - **bugs-found:** 43
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-11
@@ -30924,6 +30926,9 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 2026-10-03 seed hunt (hit): promoted the subscription policy-assignment pagination candidate; `ListPolicyAssignmentsAtRestPathAsync` validated only the subscription, so an ARM `nextLink` into `policyDefinitions` was followed and could merge another collection's rows. Fixed with exact listing-path validation for subscription and management-group policy assignments; regression `ListSubscriptionPolicyAssignmentsAsync_rejects_next_link_for_different_policy_collection`; 1 focused Azure extractor test passed.
 
 ### Hypotheses
+
+- [ ] (candidate) `HostedAzureInventoryResourcePropertyExpander.AddSiteWorkflowConnectionParameters` — an ARM Logic Apps resource with `properties.parameters.$connections` containing credential-bearing connection metadata is copied with `GetRawText()` into inventory properties without structured redaction; input originates from the reachable `Microsoft.Logic/workflows` ARM payload, but a concrete secret-bearing field and downstream exposed output remain unverified.
+- [ ] (candidate) `HostedAzureInventoryResourcePropertyExpander.AddManagedClusterProperties` — an ARM AKS resource with a `properties.networkProfile` field containing sensitive connection metadata is copied with `GetRawText()` into inventory properties; input originates from the reachable `Microsoft.ContainerService/managedClusters` ARM payload, but a concrete sensitive field and wrong exported outcome remain unverified.
 
 - [x] (proven) `ListSubscriptionDefenderSummariesAsync` — a same-subscription ARM `nextLink` into `roleAssignments` passed subscription-only validation and was followed while reading Defender secure scores — **hit 2026-10-08 seed hunt:** required the secureScores listing path after the subscription check; regression `ListSubscriptionDefenderSummariesAsync_rejects_next_link_for_different_security_collection`.
 
