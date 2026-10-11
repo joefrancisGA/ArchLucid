@@ -25,8 +25,8 @@ export function formatSandboxStyleGoldenManifest(m: Record<string, unknown>): st
 
     if (m.environment === null || m.environment === undefined) {
       lines.push("- Environment was not stored.");
-    } else {
-      lines.push(`- **Environment:** ${m.environment}`);
+    } else if (typeof m.environment === "string") {
+      lines.push(`- **Environment:** ${env ?? ""}`);
     }
 
     if (cloud) {
