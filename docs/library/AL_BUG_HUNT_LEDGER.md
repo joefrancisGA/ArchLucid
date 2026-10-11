@@ -7860,7 +7860,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** ARCH006; tenant scoped query analyzer
 - **paths:** ArchLucid.Analyzers/TenantScopedQueryScopeBindingAnalyzer.cs
 - **test-filter:** FullyQualifiedName~TenantScopedQueryScopeBindingAnalyzerTests
-- **hunts:** 38
+- **hunts:** 37
 - **bugs-found:** 22
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-09
@@ -8898,7 +8898,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** llm wallet; tenant wallet; billing wallet
 - **paths:** ArchLucid.Api/Controllers/Billing/WalletController.cs; ArchLucid.Application/Budgeting/LlmTenantWalletService.cs; ArchLucid.Persistence/Data/Repositories/SqlLlmTenantWalletRepository.cs
 - **test-filter:** FullyQualifiedName~LlmTenantWalletServiceTests
-- **hunts:** 37
+- **hunts:** 35
 - **bugs-found:** 19
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-09
@@ -9217,7 +9217,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-11 seed hunt (seed-only): re-read `ArchitectureReviewRecurrenceNextRunCalculator` and its production caller boundary; the scheduler implementation returns UTC-normalized occurrences, the facade bounds reachable preview counts, and no fresh mechanism-backed candidate met the promotion bar. The focused recurrence suite passed 47/47; no production or regression code changed.
 
-- **hunts:** 35
+- **hunts:** 34
 - **last-hunt:** 2026-10-10
 
 2026-10-11 seed hunt (seed-only): `review-recurrence` — re-read the unchanged calculator and focused tests, including all public single-run/batch inputs and the scheduler delegation boundary. The focused suite passed 47/47; no fresh reachable mechanism-backed hypothesis emerged and no production or regression code changed.
@@ -25472,7 +25472,7 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** commercial tenant; billing; budgeting; split from archlucid-core
 - **paths:** ArchLucid.Core/Identity/; ArchLucid.Core/Billing/; ArchLucid.Core/Budgeting/
 - **test-filter:** FullyQualifiedName~CommercialTenant
-- **hunts:** 34
+- **hunts:** 33
 - **bugs-found:** 11
 - **consecutive-dry-hunts:** 2
 - **last-hunt:** 2026-10-10
@@ -30706,7 +30706,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **hunts:** 61
 - **bugs-found:** 45
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-11
+- **last-hunt:** 2026-10-06
 - **last-bug:** 2026-10-06 — operator base userinfo leaked into exec digest unsubscribe links
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -33958,10 +33958,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** host coordination; export outbox; backfill
 - **paths:** ArchLucid.Host.Core/Coordination/
 - **test-filter:** FullyQualifiedName~Coordination|FullyQualifiedName~OutboxProcessor
-- **hunts:** 33
+- **hunts:** 38
 - **bugs-found:** 23
 - **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-10-06
+- **last-hunt:** 2026-10-11
 - **last-bug:** 2026-10-06 — retrieval/cosmos skip paths logged before mark-processed
 - **related-pd-tb:** none
 - **code-changed-since:** yes
