@@ -310,9 +310,9 @@ export function HelpPolicyPackDeltaDemoGuideView(
               </Link>
             </p>
           </section>
-        </div>
 
-        <SponsorSendPathHonestyPanel testIdPrefix="help-policy-pack-delta-demo" showSsoOptional={false} />
+          <SponsorSendPathHonestyPanel testIdPrefix="help-policy-pack-delta-demo" showSsoOptional={false} />
+        </div>
 
         <HelpTopicTableOfContents headings={guideHeadings} enableScrollSpy />
       </div>

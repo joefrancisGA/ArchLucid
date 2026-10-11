@@ -298,9 +298,9 @@ export function HelpWhichModeAmIInGuideView(props: HelpWhichModeAmIInGuideViewPr
               </Link>
             </p>
           </section>
-        </div>
 
-        <SponsorSendPathHonestyPanel testIdPrefix="help-which-mode-am-i-in" showSsoOptional={false} />
+          <SponsorSendPathHonestyPanel testIdPrefix="help-which-mode-am-i-in" showSsoOptional={false} />
+        </div>
 
         <HelpTopicTableOfContents headings={MODE_GRAVITY_HELP_WHICH_MODE_GUIDE_HEADINGS} enableScrollSpy />
       </div>

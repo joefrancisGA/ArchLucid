@@ -316,9 +316,9 @@ export function HelpProxyTimeoutRealExecuteGuideView(
               </Link>
             </p>
           </section>
-        </div>
 
-        <SponsorSendPathHonestyPanel testIdPrefix="help-proxy-timeout-real-execute" showSsoOptional={false} />
+          <SponsorSendPathHonestyPanel testIdPrefix="help-proxy-timeout-real-execute" showSsoOptional={false} />
+        </div>
 
         <HelpTopicTableOfContents headings={DAYTIME_WAIT_HELP_PROXY_TIMEOUT_GUIDE_HEADINGS} enableScrollSpy />
       </div>

@@ -231,9 +231,9 @@ export function HelpConfigurationReferenceGuideView(
           />
 
           <HelpConfigurationReferenceProvenanceFooter entry={entry} />
-        </div>
 
-        <SponsorSendPathHonestyPanel testIdPrefix="help-configuration-reference" showSsoOptional={false} />
+          <SponsorSendPathHonestyPanel testIdPrefix="help-configuration-reference" showSsoOptional={false} />
+        </div>
 
         <HelpTopicTableOfContents headings={CONFIGURATION_REFERENCE_HELP_GUIDE_HEADINGS} enableScrollSpy />
       </div>
