@@ -166,6 +166,17 @@ cd archlucid-ui && npx playwright test live-api-private-beta-access.spec.ts --wo
 cd archlucid-ui && npx playwright test live-api-scim-invite-substitute-smoke.spec.ts live-api-invite-flow.spec.ts live-api-private-beta-wave-3.spec.ts live-api-private-beta-access.spec.ts --workers=1
 ```
 
+### OpenAPI refresh note — RC35 SHA `c8c9102b2e`
+
+No `openapi-snapshot-refresh.yml` run was observed for
+`c8c9102b2e8f120e6a0251e40d648d925cf4d399` because the push workflow is path-filtered to
+contract-layer paths (`ArchLucid.Api/**`, `ArchLucid.Api.Tests/**`, contracts, core,
+and related schema/build files). The repair set on that SHA changed UI, CI, runbook,
+and `ArchLucid.Application.Tests/**` paths; the latter is not an OpenAPI refresh trigger
+path. The OpenAPI fail-fast job in `ui-typecheck-on-push.yml` did run and passed in
+`38148276151`. This note records trigger behavior; it does not dispatch a refresh or
+claim that a snapshot was regenerated.
+
 ## Golden-cohort apply (owner, after first green)
 
 When `Operator UI: private-beta access-path (JwtBearer)` completes green at least once on `master`:
