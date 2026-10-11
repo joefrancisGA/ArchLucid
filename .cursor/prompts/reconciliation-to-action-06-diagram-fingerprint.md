@@ -4,7 +4,7 @@
 
 **Repo:** `c:\ArchLucid`
 
-**Wave:** Reconciliation to action (**RTA**). **Depends on:** RTA-04 on the current reconciliation-to-action branch.
+**Wave:** Reconciliation to action (**RTA**). **Depends on:** RTA-04. Today that code is on `cursor/rta-luna-prompts-f8f4` (`410_InfrastructureDiagramDocumentationDecisions.sql` and `TryGetLatestBySubjectAsync`). It is not on `master`. `master` has RTA-01 and RTA-02 only.
 
 ## Goal
 
@@ -26,7 +26,7 @@ A new diagram-document table is not the fix. The parsed drawing is already the i
 
 ## What to build
 
-1. Branch `cursor/rta-05-diagram-fingerprint` from the current reconciliation-to-action branch.
+1. Branch `cursor/rta-05-diagram-fingerprint` from `cursor/rta-luna-prompts-f8f4`, or from whichever tip has already landed that decision migration. Do not branch from `master`.
 2. Add `DiagramFingerprint` to `dbo.InfrastructureDiagramComparisons` and `dbo.InfrastructureDiagramDocumentationDecisions`. Use the next unused migration prefix. Make the column nullable for rows already stored. New comparisons and decisions write it. This is a new column. Do not reuse `EvidenceFingerprint`. That column is the row evidence RTA-04 already stores (match class, resource, and security discrepancy, or edge-gap kind and endpoints).
 3. Compute the fingerprint from the parsed `ArchitectureDiagramModelRecord`, not from the file name or raw text. Include each node id and label, and each edge source, target, and label. Sort before hashing. Use SHA-256 and store lowercase hex. Whitespace that does not change the parsed model keeps the same fingerprint.
 4. `TryGetLatestBySubjectAsync` takes the fingerprint and returns a decision only when the tenant, fingerprint, subject kind, and subject key match. A null fingerprint on an old row does not match a new drawing.

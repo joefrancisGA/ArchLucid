@@ -7,7 +7,7 @@
 
 Paste **one** prompt per Luna session. Do not implement from this index.
 
-DIC-01 through DIC-05 are on `master`. **RTA-01** through **RTA-04** are implemented on the reconciliation-to-action branch. The sealed workbench reloads a finding by natural key. Documentation decisions save on advisory compare and classify as still open, no longer in this capture, or evidence changed when the page asks for a subject that is still in the result.
+DIC-01 through DIC-05 are on `master`. **RTA-01** and **RTA-02** are on `master` (#4511): the sealed workbench reloads a finding by natural key, and Create operational finding is limited to a security discrepancy or a multi-candidate conflict. **RTA-03** and **RTA-04** are implemented on `cursor/rta-luna-prompts-f8f4` and are not on `master`. That branch saves documentation decisions on advisory compare and classifies a subject the page still asks about as still open, no longer in this capture, or evidence changed. Land that branch before pasting **RTA-05**.
 
 The latest decision lookup is tenant plus subject only. An inventory subject is a cloud resource id, so a second drawing can inherit a decision for a shared resource. A removed box is never requested, so its decision leaves the screen. Sealed reconcile does not create an advisory comparison row, so it cannot save a decision. A new diagram-document table is not the next step. The parsed nodes and edges already identify the drawing.
 
@@ -24,7 +24,7 @@ The latest decision lookup is tenant plus subject only. An inventory subject is 
 
 ## Run order
 
-**RTA-01** through **RTA-04** are already implemented. **05 → owner look → 06 → 07.** Do not run two of these in one session.
+**RTA-01** and **RTA-02** are on `master`. Land **RTA-03** and **RTA-04** from `cursor/rta-luna-prompts-f8f4` before **RTA-05**. Then **05 → owner look → 06 → 07.** Do not run two of these in one session. **RTA-04** does not list a subject the current result no longer contains. That list is **RTA-06**.
 
 ## How to check
 

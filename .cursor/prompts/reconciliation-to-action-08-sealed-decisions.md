@@ -4,7 +4,7 @@
 
 **Repo:** `c:\ArchLucid`
 
-**Wave:** Reconciliation to action (**RTA**). **Depends on:** RTA-06 on the current reconciliation-to-action branch.
+**Wave:** Reconciliation to action (**RTA**). **Depends on:** RTA-06. The sealed decision route is not on `master`.
 
 ## Goal
 
@@ -24,7 +24,7 @@ The decision control renders only when `advisoryComparisonPath` and `comparisonI
 
 ## What to build
 
-1. Branch `cursor/rta-07-sealed-decisions` from the current reconciliation-to-action branch.
+1. Branch `cursor/rta-07-sealed-decisions` from the RTA-06 tip (`cursor/rta-06-absent-subject-list` once that branch exists). Do not branch from `master`.
 2. Add save and list routes under the existing run-linked diagram API. Suggested: `PUT` and `GET /v1/architecture/runs/{runId}/diagrams/documentation-decisions`. Require the snapshot id. Use the same execute policy as sealed reconcile.
 3. Keep the sealed-manifest guard. An unsealed review still returns 409. Do not reuse the advisory route to bypass it.
 4. Store the decision with the RTA-05 fingerprint of the sealed diagram model. Scope it by tenant, run id, and fingerprint. A decision saved on advisory compare is not copied onto the sealed path unless the fingerprint matches and the operator saved it there.

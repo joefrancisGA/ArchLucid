@@ -4,7 +4,7 @@
 
 **Repo:** `c:\ArchLucid`
 
-**Wave:** Reconciliation to action (**RTA**). **Depends on:** RTA-05 on the current reconciliation-to-action branch.
+**Wave:** Reconciliation to action (**RTA**). **Depends on:** RTA-05. That fingerprint is not on `master`.
 
 ## Goal
 
@@ -23,7 +23,7 @@ RTA-04 classifies a decision only after the page asks for a subject that is stil
 
 ## What to build
 
-1. Branch `cursor/rta-06-absent-subject-list` from the current reconciliation-to-action branch.
+1. Branch `cursor/rta-06-absent-subject-list` from the RTA-05 tip (`cursor/rta-05-diagram-fingerprint` once that branch exists). Do not branch from `master`.
 2. Add a read that lists documentation decisions for the current comparison’s fingerprint and tenant. Keep the existing single-subject `GET /v1/infrastructure/diagram-comparisons/{comparisonId}/documentation-decisions` as it is: `subjectKind` and `subjectKey` stay required. Add a sibling for the absent list, suggested `GET /v1/infrastructure/diagram-comparisons/{comparisonId}/documentation-decisions/absent`. Return subject kind, subject key, decision, snapshot id, and carry-forward state. Do not return another tenant’s rows.
 3. A subject that is absent from the current rows and edge gaps is **No longer in this capture**. A subject that is present keeps the RTA-04 state from the existing single-subject read.
 4. Under the correspondence table, show those absent decisions in sentence case. Name the subject key and the saved decision. Do not delete the stored row.
