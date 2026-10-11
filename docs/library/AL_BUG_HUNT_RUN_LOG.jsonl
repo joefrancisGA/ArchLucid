@@ -9336,3 +9336,4 @@
 {"at":"2026-10-11T00:03:55.6998003Z","zoneId":"agent-runtime-safety","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.AgentRuntime/Safety/","ArchLucid.AgentRuntime/PromptInjection/"]}
 {"at":"2026-10-11T00:09:11.1258301Z","zoneId":"ui-governance-findings-queue","outcome":"hit","productLine":"securenow","paths":["archlucid-ui/src/app/(operator)/governance/findings/","archlucid-ui/src/components/governance/findings/"]}
 {"at":"2026-10-11T00:12:25.9629079Z","zoneId":"ui-governance-findings-queue","outcome":"seed-only","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(operator)/governance/findings/"]}
+{"at":"2026-10-11T00:19:18.0670315Z","zoneId":"ui-governance-findings-queue","outcome":"dry","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(operator)/governance/findings/"]}
