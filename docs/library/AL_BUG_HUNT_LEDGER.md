@@ -30575,6 +30575,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ## Zone: artifact-synthesis
 
+2026-10-11 seed hunt (seed-only): re-read the selected artifact-synthesis and DOCX paths after the prior DOCX sanitization hit; no fresh hunt-ready row met the reachability and wrong-outcome bar. The scoped application ArtifactSynthesis/Docx filter passed 101/102 with one intentional skip; the dedicated ArtifactSynthesis test project was blocked before discovery by existing `CS8625` in `DiagramAstGraphvizDotEmitterTests.cs`; no production or regression code changed.
+
 2026-10-11 thorough hunt (hit): `DocxExportService.BuildDocumentAsync` wrote persisted `RuleSetId` and `RuleSetVersion` directly into the provenance table, so a reachable manifest rule-set field containing an OpenXML-invalid control character caused DOCX export to throw while saving. Sanitized the combined rule-set display value; regression `ExportAsync_sanitizes_control_characters_in_provenance_rule_set_fields` failed first and passed after the fix. The branded PNG length candidate was invalid because `TryExtractInnerPng` has no production caller.
 
 - **id:** artifact-synthesis
@@ -30583,7 +30585,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** artifact synthesis; docx generator; packaging sanitization
 - **paths:** ArchLucid.ArtifactSynthesis/
 - **test-filter:** FullyQualifiedName~ArtifactSynthesis|FullyQualifiedName~Docx
-- **hunts:** 45
+- **hunts:** 46
 - **last-hunt:** 2026-10-11
 - **bugs-found:** 46
 - **consecutive-dry-hunts:** 0
