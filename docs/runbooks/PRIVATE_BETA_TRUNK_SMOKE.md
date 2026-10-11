@@ -190,6 +190,20 @@ cd archlucid-ui && npx playwright test live-api-scim-invite-substitute-smoke.spe
 This is a release-cut record only. It does not dispatch staging, claim a staging deployment,
 or establish the observed first-review Gate 1 evidence. An owner must dispatch and witness the
 staging first review separately.
+
+## Wizard-fixed RC35 witness handoff — `04b3c68226`
+
+| Field | Recorded value |
+| --- | --- |
+| RC35 SHA | `04b3c68226b236bc5a92beec93cf6047c206fee9` |
+| Wizard fix | **Present** — Working-mode `?baseline=1` stays on the reviews wizard path |
+| JwtBearer witness | **In progress** — run `38173652466` |
+| Push corset | **Queued** — run `38173652475` |
+| Frozen pin | `c059d8a2e2` |
+
+Do not bump the frozen pin until a JwtBearer run on a SHA containing the wizard fix
+completes successfully.
+
 ### OpenAPI refresh note — RC35 SHA `c8c9102b2e`
 
 No `openapi-snapshot-refresh.yml` run was observed for

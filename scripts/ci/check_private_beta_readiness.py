@@ -94,6 +94,14 @@ def _check_workflow(root: Path) -> list[str]:
     if "check_private_beta_frozen_branch_pin.py" not in content:
         issues.append("private-beta workflow must include frozen-branch pin freshness diagnostics")
 
+    if "RateLimiting__AuthRouting__PermitLimit: \"500\"" not in content:
+        issues.append("private-beta workflow must raise auth-routing rate limits for invite-wave CI")
+
+    release_gate = _read(root, ".github/workflows/rc-release-gate.yml")
+
+    if "RateLimiting__AuthRouting__PermitLimit: \"500\"" not in release_gate:
+        issues.append("RC release gate must raise auth-routing rate limits for invite-wave CI")
+
     return issues
 
 

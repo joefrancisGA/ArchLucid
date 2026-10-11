@@ -45,6 +45,25 @@ class TestPrivateBetaReadiness(unittest.TestCase):
                 issues,
             )
 
+    def test_workflow_requires_auth_routing_rate_limit(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            root = Path(temporary_directory)
+            workflow_path = root / ".github/workflows/private-beta-access-on-push.yml"
+            release_gate_path = root / ".github/workflows/rc-release-gate.yml"
+            workflow_path.parent.mkdir(parents=True)
+            workflow_path.write_text(
+                'branches: [main, master, RC35]\nRateLimiting__AuthRouting__PermitLimit: "500"\n',
+                encoding="utf-8",
+            )
+            release_gate_path.write_text("workflow: rc\n", encoding="utf-8")
+
+            issues = sut._check_workflow(root)
+
+            self.assertIn(
+                "RC release gate must raise auth-routing rate limits for invite-wave CI",
+                issues,
+            )
+
     def test_ruleset_requires_rc34_and_all_contexts(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_directory:
             root = Path(temporary_directory)
