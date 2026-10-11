@@ -1,13 +1,13 @@
 using ArchLucid.Api.Attributes;
-using ArchLucid.Api.Controllers.OperationalSecurity;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Common;
+using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.InfraEvidence;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
-using ArchLucid.Contracts.InfraEvidence;
 using ArchLucid.Persistence.InfraEvidence;
 
 using Asp.Versioning;
@@ -79,7 +79,9 @@ public sealed class OperationalSecurityFindingsController(
         return Ok(findings);
     }
 
+    // idempotency-posture: dry-run-no-persist
     [HttpPost("lookup")]
+    [MutatingAuditExcluded("Read-only natural-key lookup; does not persist domain mutations.")]
     [ProducesResponseType(typeof(IReadOnlyList<OperationalSecurityFindingLookupItem>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Lookup(
@@ -91,7 +93,7 @@ public sealed class OperationalSecurityFindingsController(
             return this.BadRequestProblem("SourceSystem is required.", ProblemTypes.ValidationFailed);
         }
 
-        List<string> sourceFindingIds = request.SourceFindingIds
+        List<string> sourceFindingIds = (request.SourceFindingIds ?? [])
             .Where(sourceFindingId => !string.IsNullOrWhiteSpace(sourceFindingId))
             .Select(sourceFindingId => sourceFindingId.Trim())
             .Distinct(StringComparer.Ordinal)
@@ -109,6 +111,8 @@ public sealed class OperationalSecurityFindingsController(
 
         ScopeContext scope = scopeProvider.GetCurrentScope();
         List<OperationalSecurityFindingLookupItem> matches = [];
+
+        // Diagram-reconciliation ingest stores CloudProvider.Azure; lookup uses the same natural key.
 
         foreach (string sourceFindingId in sourceFindingIds)
         {
