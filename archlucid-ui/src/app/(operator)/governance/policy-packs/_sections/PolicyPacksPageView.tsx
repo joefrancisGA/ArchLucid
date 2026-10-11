@@ -268,6 +268,7 @@ export function PolicyPacksPageView(props: Props) {
                     packType={m.packType}
                     onPackTypeChange={m.setPackType}
                     createJson={m.createJson}
+                    createPlaceholderValidationMessage={m.createPlaceholderValidationMessage}
                     onCreateJsonChange={m.setCreateJson}
                     onCreate={m.onCreate}
                     createLastSavedUtc={m.createLastSavedUtc}
