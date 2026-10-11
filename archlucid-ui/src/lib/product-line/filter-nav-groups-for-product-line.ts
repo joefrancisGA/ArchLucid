@@ -134,7 +134,7 @@ export function filterNavGroupsForProductLine(
     );
 
     return isSecureNowInTenantFromEnv()
-      ? hostingShaped
+      ? hostingShaped.filter((row) => row.group.id !== "operator-system-admin")
       : mergeInternalNavUnderAdministration(hostingShaped);
   }
 
