@@ -30933,6 +30933,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 2026-10-11 seed hunt (seed-only): repeated the selected AWS role, GCP workload-identity, and Azure ARM next-link contract reread with no code churn. No fresh reachable mechanism-backed candidate met the hunt-ready bar; no row was promoted or added. Scoped assemblies again reported 79 AWS/GCP passes and 129/130 Azure passes with the same unrelated network-association baseline failure.
 
+2026-10-11 seed hunt (seed-only): repeated the selected hosted AWS/GCP clients and Azure property-expansion contract reread with no code churn. No fresh reachable mechanism-backed candidate met the hunt-ready bar; no row was promoted or added. Scoped assemblies again reported 79 AWS/GCP passes and 129/130 Azure passes with the same unrelated network-association baseline failure.
+
 2026-10-11 thorough hunt (hit): hosted Azure Policy Insights and Actual Cost pagination validated same-subscription cursors but not the collection path, so reachable `@odata.nextLink` / `properties.nextLink` values for `roleAssignments` or `CostManagement/budgets` were fetched and merged as if they belonged to the original query. Reused `EnsureTargetsArmRelativeListingPath` for both expected query paths; regressions `QueryPolicyComplianceAsync_rejects_same_subscription_next_link_for_another_resource` and `TryQueryActualCostSummaryAsync_rejects_same_subscription_next_link_for_another_resource` failed first and passed after the fix.
 
 - **id:** cloud-extractors
@@ -30941,7 +30943,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** aws extractor; gcp extractor; azure extractor
 - **paths:** ArchLucid.Integrations.AwsExtractor/; ArchLucid.Integrations.GcpExtractor/; ArchLucid.Integrations.AzureExtractor/
 - **test-filter:** FullyQualifiedName~AwsExtractor|FullyQualifiedName~GcpExtractor|FullyQualifiedName~AzureExtractor
-- **hunts:** 88
+- **hunts:** 89
 - **bugs-found:** 44
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-11
