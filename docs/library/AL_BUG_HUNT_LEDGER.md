@@ -30923,6 +30923,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 2026-10-11 seed hunt (seed-only): reread AWS Resource Explorer pagination, GCP workload-identity validation and Asset Inventory collection, and Azure ARM property flattening. No fresh row met the full hunt-ready bar; seeded three bounded candidates for private-link connection index collisions, VMSS subnet index compaction, and provider-resource-name shape validation. Scoped AWS/GCP application and Azure integration extractor tests were run; one pre-existing Azure network-association baseline remained.
 
+2026-10-11 seed hunt (seed-only): repeated the selected AWS/GCP/Azure extractor reread after the prior cloud-extractor seed. No fresh mechanism-backed candidate met the full hunt-ready bar and no row was promoted; the existing three candidates remain bounded lenses. Scoped tests passed 79 AWS/GCP cases and 129/130 Azure cases, with the same pre-existing network-association baseline failure.
+
 2026-10-11 thorough hunt (hit): hosted Azure Policy Insights and Actual Cost pagination validated same-subscription cursors but not the collection path, so reachable `@odata.nextLink` / `properties.nextLink` values for `roleAssignments` or `CostManagement/budgets` were fetched and merged as if they belonged to the original query. Reused `EnsureTargetsArmRelativeListingPath` for both expected query paths; regressions `QueryPolicyComplianceAsync_rejects_same_subscription_next_link_for_another_resource` and `TryQueryActualCostSummaryAsync_rejects_same_subscription_next_link_for_another_resource` failed first and passed after the fix.
 
 - **id:** cloud-extractors
@@ -30931,7 +30933,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** aws extractor; gcp extractor; azure extractor
 - **paths:** ArchLucid.Integrations.AwsExtractor/; ArchLucid.Integrations.GcpExtractor/; ArchLucid.Integrations.AzureExtractor/
 - **test-filter:** FullyQualifiedName~AwsExtractor|FullyQualifiedName~GcpExtractor|FullyQualifiedName~AzureExtractor
-- **hunts:** 83
+- **hunts:** 84
 - **bugs-found:** 44
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-11
