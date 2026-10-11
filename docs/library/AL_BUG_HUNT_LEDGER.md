@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-11 seed hunt (seed-only): `host-core-coordination` — reread the shared recoverable outbox processor, retry/dead-letter handler, option verifier, and sibling processors; no fresh row met the full hunt-ready bar. Retained the existing five bounded candidates covering cancellation reconciliation, hook cancellation visibility, zero max-batch normalization, transient missing-detail skips, and non-retryable export failures. The focused coordination/outbox filter passed 21/21. No production or regression code changed.
+
 2026-10-11 seed hunt (seed-only): `architecture-recommendation` — reread the selected recommendation engine and trade-off builder plus the focused alternatives/proposed-change tests; no fresh row met the full hunt-ready bar. Retained the two bounded caller/contract candidates and seeded three additional candidates for null/duplicate finding handling and priority-resolution semantics. The exact Alternatives/ProposedChange filter passed 45/45. No production or regression code changed.
 
 2026-10-11 seed hunt (seed-only): `retrieval` — reread retrieval query planning, in-memory/Azure vector indexing, scope validation, chunkers, and embedding cache paths; no fresh row met the full hunt-ready bar. Seeded three bounded `(candidate)` rows for non-positive chunk-size handling, duplicate document identity within one indexing batch, and duplicate chunk-id overwrite semantics. The exact Retrieval/Indexing filter passed 364/364. No production or regression code changed.
@@ -25462,7 +25464,7 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** commercial tenant; billing; budgeting; split from archlucid-core
 - **paths:** ArchLucid.Core/Identity/; ArchLucid.Core/Billing/; ArchLucid.Core/Budgeting/
 - **test-filter:** FullyQualifiedName~CommercialTenant
-- **hunts:** 33
+- **hunts:** 34
 - **bugs-found:** 11
 - **consecutive-dry-hunts:** 2
 - **last-hunt:** 2026-10-10
@@ -30696,7 +30698,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **hunts:** 61
 - **bugs-found:** 45
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-06
+- **last-hunt:** 2026-10-11
 - **last-bug:** 2026-10-06 — operator base userinfo leaked into exec digest unsubscribe links
 - **related-pd-tb:** none
 - **code-changed-since:** yes
