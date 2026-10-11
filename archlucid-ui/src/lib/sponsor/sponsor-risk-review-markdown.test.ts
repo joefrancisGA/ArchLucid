@@ -107,6 +107,26 @@ describe("buildSponsorRiskReviewMarkdown", () => {
     expect(zero).not.toContain("Compliance gap count was not stored.");
     expect(positive).toContain("2 compliance gaps");
   });
+
+  it("reports missing finding and faithfulness counts while preserving zero and strings", () => {
+    const missing = buildSponsorRiskReviewMarkdown(
+      "r",
+      "H",
+      stubSummary({ findingCount: null, faithfulnessSupportRatio: null }),
+      [],
+    );
+    const stored = buildSponsorRiskReviewMarkdown(
+      "r",
+      "H",
+      stubSummary({ findingCount: 0, faithfulnessSupportRatio: "stored" as never }),
+      [],
+    );
+
+    expect(missing).toContain("Finding count was not stored.");
+    expect(missing).toContain("Faithfulness support ratio was not stored.");
+    expect(stored).toContain("0 architecture findings");
+    expect(stored).toContain("Faithfulness support ratio: stored.");
+  });
 });
 
 describe("executiveRiskReviewMarkdownFilename", () => {

@@ -147,6 +147,9 @@ export function WizardStepReview(props: { readonly focusedPilotModeEnabled?: boo
               <li key={c}>{c}</li>
             ))}
           </ul>
+          {v.requiredCapabilities === null || v.requiredCapabilities === undefined ? (
+            <p className="m-0">Required capabilities were not stored.</p>
+          ) : null}
           <p className={cn("mt-2 m-0 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>Assumptions</p>
           <ul className="mt-1 list-disc pl-5">
             {(v.assumptions ?? []).map((c) => (
@@ -180,7 +183,9 @@ export function WizardStepReview(props: { readonly focusedPilotModeEnabled?: boo
           </p>
           <p className={cn("mt-2 m-0 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>Infrastructure declarations</p>
           <p className="m-0">
-            {(v.infrastructureDeclarations ?? []).filter((d) => d.name.trim()).length} declaration(s)
+            {v.infrastructureDeclarations === null || v.infrastructureDeclarations === undefined
+              ? "Infrastructure declaration count was not stored."
+              : `${v.infrastructureDeclarations.filter((d) => d.name.trim()).length} declaration(s)`}
           </p>
         </ReadOnlyBlock>
 
