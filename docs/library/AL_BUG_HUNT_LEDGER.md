@@ -11140,13 +11140,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-architecture-intelligence
 
+2026-10-11 seed hunt (seed-only): re-read the page composition, deep-link/loading/failure gates, stale-result reset coverage, and the two focused page-client suites; no fresh mechanism-backed hypothesis met the same-run promotion bar. The focused suites passed 55/55; no production or regression code changed.
+
 - **id:** ui-architecture-intelligence
 - **status:** open
 - **impact:** medium
 - **aliases:** architecture intelligence page; ai page client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligencePageClient.tsx
 - **test-filter:** ArchitectureIntelligencePageClient
-- **hunts:** 35
+- **hunts:** 36
 - **bugs-found:** 24
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-04
