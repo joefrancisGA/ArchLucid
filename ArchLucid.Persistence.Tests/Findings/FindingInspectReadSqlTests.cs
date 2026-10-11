@@ -207,11 +207,12 @@ public sealed class FindingInspectReadSqlTests
     }
 
     [Fact]
-    public void FollowUpBatch_trace_rules_subquery_uses_top_one_for_first_rule_text()
+    public void FollowUpBatch_trace_rules_subquery_returns_ordered_rule_text_rows()
     {
         string traceRulesSql = ExtractStatementContaining(FindingInspectReadSql.FollowUpBatch, "FROM dbo.FindingTraceRulesApplied");
 
-        traceRulesSql.Should().Contain("SELECT TOP 1 tra.RuleText");
+        traceRulesSql.Should().Contain("SELECT tra.RuleText");
+        traceRulesSql.Should().Contain("ORDER BY tra.SortOrder");
     }
 
     [Fact]
@@ -481,7 +482,7 @@ public sealed class FindingInspectReadSqlTests
     {
         string traceRulesSql = ExtractStatementContaining(FindingInspectReadSql.FollowUpBatch, "FROM dbo.FindingTraceRulesApplied");
 
-        traceRulesSql.Should().Contain("SELECT TOP 1 tra.RuleText");
+        traceRulesSql.Should().Contain("SELECT tra.RuleText");
     }
 
     [Fact]
