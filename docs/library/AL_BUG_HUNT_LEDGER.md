@@ -1918,7 +1918,7 @@
 
 2026-10-09 seed hunt (seed-only): re-read the selected topology merge orchestration files and focused tests; no fresh reachable mechanism-backed candidate met the seed quality bar and no hypothesis was promoted. The focused topology test run was blocked by unrelated `ARCH002` in `ArchLucid.Core/Auth/Saml/SamlMetadataDiscoveryParser.cs`.
 
-**Hunts:** 1626 · **Bugs found:** 982
+**Hunts:** 1627 · **Bugs found:** 982
 
 2026-10-09 seed hunt (seed-only): re-read all seven selected topology orchestration files and focused tests; no candidate met the hunt-ready bar, so no hypothesis was promoted. Seeded five mechanism-backed `(candidate)` rows; the focused topology test run was blocked by unrelated `ARCH002` in `ArchLucid.Core/Auth/Saml/SamlMetadataDiscoveryParser.cs`.
 
@@ -17008,6 +17008,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ---
 
 ## Zone: agent-runtime-evaluation
+
+2026-10-11 seed hunt (seed-only): re-read evaluation trace selection, evidence grounding, citation gates, reference-case evaluation, and semantic-score handling; no fresh reachable mechanism-backed wrong outcome met the hunt-ready bar, and remaining malformed-input ideas were saturated or fail-closed. The scoped Evaluation suite passed 206/206; no production or regression code changed.
 
 2026-10-10 seed hunt (seed-only): repeated the selected evaluation-path reread after the required-key and judge-score candidate seed; no fresh mechanism met the promotion bar, and the remaining score-validation row would duplicate a saturated class. The scoped Evaluation suite passed 202/202. No production or regression code was changed.
 
