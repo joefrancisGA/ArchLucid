@@ -31,4 +31,26 @@ describe("RunDetailEngineProvenanceRow", () => {
     expect(screen.getByText("FindingsSnapshot v2")).toBeInTheDocument();
     expect(screen.getByText("$0.0042")).toBeInTheDocument();
   });
+
+  it.each([
+    [null, "Output schema version was not stored."],
+    [undefined, "Output schema version was not stored."],
+    ["", ""],
+    ["FindingsSnapshot v3", "FindingsSnapshot v3"],
+  ])("always renders the output schema value %s", (outputSchemaVersion, expectedValue) => {
+    render(
+      <RunDetailEngineProvenanceRow
+        provenance={{ ...sampleProvenance, outputSchemaVersion }}
+      />,
+    );
+
+    expect(screen.getByText("Output schema")).toBeInTheDocument();
+
+    if (expectedValue === "") {
+      const outputSchemaLabel = screen.getByText("Output schema");
+      expect(outputSchemaLabel.nextElementSibling).toHaveTextContent("");
+    } else {
+      expect(screen.getByText(expectedValue)).toBeInTheDocument();
+    }
+  });
 });

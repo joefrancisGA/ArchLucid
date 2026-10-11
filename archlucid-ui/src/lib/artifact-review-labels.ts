@@ -70,9 +70,14 @@ const ARTIFACT_TYPE_COPY: Record<string, { label: string; description: string }>
 
 /**
  * Maps raw format strings (API values like "markdown", "json") to a short business label
- * suitable for a sponsor-facing artifact table. Avoids surfacing MIME types or raw identifiers.
+ * suitable for an artifact table. Unknown stored values remain visible so the table does not
+ * turn an unrecognized format into an unsupported guess.
  */
-export function getArtifactFormatLabel(format: string): string {
+export function getArtifactFormatLabel(format: string | null | undefined): string {
+  if (format === null || format === undefined) {
+    return "Artifact format was not stored.";
+  }
+
   const normalized = format.trim().toLowerCase();
 
   return (
@@ -92,8 +97,7 @@ export function getArtifactFormatLabel(format: string): string {
       "text/csv": "CSV",
       "application/pdf": "PDF",
       "text/mermaid": "Diagram source",
-    }[normalized] ??
-    (normalized.includes("/") ? "Document" : format)
+    }[normalized] ?? format
   );
 }
 
