@@ -9486,3 +9486,4 @@
 {"at":"2026-10-11T16:57:45.3562085Z","zoneId":"host-core-jobs","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-10-11T17:00:16.9251548Z","zoneId":"host-core-jobs","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-10-11T17:03:18.4580010Z","zoneId":"ui-infra-resource-hub","outcome":"hit","productLine":"securenow","paths":["@(archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx,archlucid-ui/src/components/infra-evidence/InfraEvidenceWorkbenchHeaderActions.tsx)"]}
+{"at":"2026-10-11T17:05:55.3160419Z","zoneId":"ui-infra-resource-hub","outcome":"seed-only","productLine":"securenow"}
