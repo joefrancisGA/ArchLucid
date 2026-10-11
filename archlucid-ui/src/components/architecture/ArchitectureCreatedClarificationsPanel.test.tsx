@@ -7,10 +7,21 @@ vi.mock("next/navigation", () => ({
   useSearchParams: () => new URLSearchParams("tab=clarifications"),
 }));
 
-import { ArchitectureCreatedClarificationsPanel } from "@/components/architecture/ArchitectureCreatedClarificationsPanel";
+import {
+  ArchitectureCreatedClarificationsPanel,
+  presentOpenQuestionEntityCount,
+} from "@/components/architecture/ArchitectureCreatedClarificationsPanel";
 import { buildArchitectureCreatedHomeModel } from "@/lib/architecture/architecture-created-home-model";
 
 describe("ArchitectureCreatedClarificationsPanel", () => {
+  it("preserves missing section, missing entity collection, and empty entity count states", () => {
+    expect(presentOpenQuestionEntityCount(undefined)).toBe("Not returned");
+    expect(presentOpenQuestionEntityCount({ entities: undefined } as never)).toBe(
+      "Open question count was not stored.",
+    );
+    expect(presentOpenQuestionEntityCount({ entities: [] } as never)).toBe("0");
+  });
+
   it("uses run-scoped guided questions href and omits intake wording", () => {
     const model = buildArchitectureCreatedHomeModel({
       runId: "run-abc",

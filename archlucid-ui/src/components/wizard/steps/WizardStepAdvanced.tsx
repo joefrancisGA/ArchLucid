@@ -292,14 +292,14 @@ export function WizardStepAdvanced(): ReactElement {
                     control={control}
                     render={({ field }) => (
                       <Select
-                        value={field.value || "json"}
+                        value={field.value ?? ""}
                         onValueChange={(v) => {
                           clearErrors(`infrastructureDeclarations.${index}.format` as FieldPath<WizardFormValues>);
                           field.onChange(v);
                         }}
                       >
                         <SelectTrigger id={`infra-format-${index}`}>
-                          <SelectValue placeholder="Format" />
+                          <SelectValue placeholder="Format was not stored." />
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="json">json</SelectItem>

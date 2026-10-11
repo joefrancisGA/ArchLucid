@@ -2,6 +2,8 @@ import type { FeasibilityVerdictKind } from "@/types/feasibility-verdict";
 
 export type VerdictTier = "Proceed" | "Remediate" | "Hold";
 
+export const VERDICT_KIND_NOT_STORED_LABEL = "Verdict kind was not stored." as const;
+
 export function verdictTierFromFeasibilityKind(kind: FeasibilityVerdictKind): VerdictTier {
   switch (kind) {
     case "Feasible":
@@ -15,6 +17,21 @@ export function verdictTierFromFeasibilityKind(kind: FeasibilityVerdictKind): Ve
 
     default:
       return "Remediate";
+  }
+}
+
+export function verdictKindLabel(kind: FeasibilityVerdictKind | null | undefined): string {
+  if (kind === null || kind === undefined) {
+    return VERDICT_KIND_NOT_STORED_LABEL;
+  }
+
+  switch (kind) {
+    case "Feasible":
+    case "SoftInfeasible":
+    case "HardInfeasible":
+      return verdictTierFromFeasibilityKind(kind);
+    default:
+      return String(kind);
   }
 }
 

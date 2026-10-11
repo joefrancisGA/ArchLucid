@@ -158,4 +158,24 @@ describe("RunDetailFeasibilityVerdictSection", () => {
       "Trade-off description was not stored.",
     );
   });
+
+  it("reports an omitted verdict kind and preserves unexpected stored kinds", () => {
+    const { rerender } = render(
+      <RunDetailFeasibilityVerdictSection
+        verdict={{ kind: undefined as never, summary: "No kind." }}
+        runId="run-1"
+      />,
+    );
+
+    expect(screen.getByText("Verdict kind was not stored.")).toBeInTheDocument();
+
+    rerender(
+      <RunDetailFeasibilityVerdictSection
+        verdict={{ kind: "FutureKind" as never, summary: "Unknown kind." }}
+        runId="run-1"
+      />,
+    );
+
+    expect(screen.getByText("FutureKind")).toBeInTheDocument();
+  });
 });
