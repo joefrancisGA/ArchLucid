@@ -7,6 +7,7 @@ using ArchLucid.Core.Authorization;
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
+using ArchLucid.Contracts.InfraEvidence;
 using ArchLucid.Persistence.InfraEvidence;
 
 using Asp.Versioning;
@@ -76,6 +77,63 @@ public sealed class OperationalSecurityFindingsController(
             cancellationToken);
 
         return Ok(findings);
+    }
+
+    [HttpPost("lookup")]
+    [ProducesResponseType(typeof(IReadOnlyList<OperationalSecurityFindingLookupItem>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> Lookup(
+        [FromBody] OperationalSecurityFindingLookupRequest? request,
+        CancellationToken cancellationToken = default)
+    {
+        if (request is null || string.IsNullOrWhiteSpace(request.SourceSystem))
+        {
+            return this.BadRequestProblem("SourceSystem is required.", ProblemTypes.ValidationFailed);
+        }
+
+        List<string> sourceFindingIds = request.SourceFindingIds
+            .Where(sourceFindingId => !string.IsNullOrWhiteSpace(sourceFindingId))
+            .Select(sourceFindingId => sourceFindingId.Trim())
+            .Distinct(StringComparer.Ordinal)
+            .ToList();
+
+        if (sourceFindingIds.Count == 0)
+        {
+            return this.BadRequestProblem("At least one source finding id is required.", ProblemTypes.ValidationFailed);
+        }
+
+        if (sourceFindingIds.Count > 200)
+        {
+            return this.BadRequestProblem("At most 200 source finding ids may be looked up.", ProblemTypes.ValidationFailed);
+        }
+
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+        List<OperationalSecurityFindingLookupItem> matches = [];
+
+        foreach (string sourceFindingId in sourceFindingIds)
+        {
+            OperationalSecurityFindingRecord? finding =
+                await repository.TryGetByNaturalKeyInScopeAsync(
+                    scope.ToProjectScopeKey(),
+                    CloudProvider.Azure,
+                    request.SourceSystem.Trim(),
+                    sourceFindingId,
+                    cancellationToken);
+
+            if (finding is null)
+            {
+                continue;
+            }
+
+            matches.Add(new OperationalSecurityFindingLookupItem
+            {
+                FindingId = finding.FindingId,
+                SourceFindingId = finding.SourceFindingId,
+                Status = finding.Status.ToString(),
+            });
+        }
+
+        return Ok(matches);
     }
 
     [HttpGet("{findingId:guid}")]

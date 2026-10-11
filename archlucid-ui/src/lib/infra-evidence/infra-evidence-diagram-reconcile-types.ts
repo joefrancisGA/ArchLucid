@@ -128,6 +128,17 @@ export type OperationalSecurityFindingBatchIngestResult = {
   items: OperationalSecurityFindingIngestItemResult[];
 };
 
+export type OperationalSecurityFindingLookupRequest = {
+  sourceSystem: string;
+  sourceFindingIds: string[];
+};
+
+export type OperationalSecurityFindingLookupItem = {
+  findingId: string;
+  sourceFindingId: string;
+  status: string;
+};
+
 export type OperationalSecurityFindingIngestItemResult = {
   sourceFindingId: string;
   findingId: string | null;
