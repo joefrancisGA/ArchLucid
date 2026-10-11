@@ -10682,7 +10682,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-auth-callback
 
-**Hunts:** 38 · **Bugs found:** 4 · **Consecutive dry hunts:** 8
+**Hunts:** 39 · **Bugs found:** 4 · **Consecutive dry hunts:** 8
+
+2026-10-11 seed hunt (seed-only): re-read `AuthCallbackAccessPanel.tsx` and the focused 63-test component suite; no fresh reachable mechanism-backed wrong outcome met the hunt-ready bar. The focused `AuthCallbackAccessPanel` Vitest suite passed 63/63; no production or regression code changed.
 
 2026-10-08 seed hunt (seed-only): no hunt-ready hypotheses were available after reading the selected component; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
 
