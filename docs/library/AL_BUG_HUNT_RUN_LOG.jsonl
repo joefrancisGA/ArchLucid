@@ -9518,3 +9518,4 @@
 {"at":"2026-10-11T19:05:33.0309343Z","zoneId":"ui-infra-resource-hub","outcome":"seed-only","productLine":"securenow","paths":["archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx"]}
 {"at":"2026-10-11T19:08:42.0000000Z","zoneId":"ui-infra-resource-hub","outcome":"seed-only","productLine":"securenow","paths":["archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx"]}
 {"at":"2026-10-11T19:10:42.0000000Z","zoneId":"ui-infra-resource-hub","outcome":"seed-only","productLine":"securenow","paths":["archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx"]}
+{"at":"2026-10-11T19:13:12.0000000Z","zoneId":"ui-infra-resource-hub","outcome":"seed-only","productLine":"securenow","paths":["archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx"]}
