@@ -162,7 +162,7 @@ public sealed class DiagramAstGraphvizDotEmitterTests
             ],
             Subgraphs =
             [
-                new DiagramSubgraph { SubgraphId = "missing", Label = null, OrderKey = 0 },
+                new DiagramSubgraph { SubgraphId = "missing", Label = null!, OrderKey = 0 },
                 new DiagramSubgraph { SubgraphId = "blank", Label = " ", OrderKey = 1 },
             ],
         };
