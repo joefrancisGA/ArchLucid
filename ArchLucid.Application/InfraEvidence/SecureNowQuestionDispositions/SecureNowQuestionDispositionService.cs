@@ -27,6 +27,19 @@ public sealed class SecureNowQuestionDispositionService(
         Guid snapshotId,
         CancellationToken cancellationToken = default)
     {
+        return await CompileQuestionsAsync(
+            scope,
+            snapshotId,
+            includeInferredConnections: true,
+            cancellationToken);
+    }
+
+    private async Task<IReadOnlyList<SecureNowQuestionRecord>> CompileQuestionsAsync(
+        ScopeContext scope,
+        Guid snapshotId,
+        bool includeInferredConnections,
+        CancellationToken cancellationToken)
+    {
         ArgumentNullException.ThrowIfNull(scope);
 
         AzureInventorySnapshotDetailReadModel? snapshot =
@@ -40,7 +53,7 @@ public sealed class SecureNowQuestionDispositionService(
                 Normalize(snapshot.Header.SubscriptionId),
                 cancellationToken);
         IReadOnlyList<OperatorInferredConnectionRecord> inferred =
-            inferredConnectionRepository is null
+            !includeInferredConnections || inferredConnectionRepository is null
                 ? []
                 : await inferredConnectionRepository.ListBySnapshotAsync(
                     scope.TenantId,
@@ -199,6 +212,7 @@ public sealed class SecureNowQuestionDispositionService(
                 scope,
                 snapshotId,
                 request,
+                request.Source == SecureNowQuestionSource.InferredConnection,
                 cancellationToken);
             if (answerValidationError is not null)
                 return Failed(answerValidationError);
@@ -276,10 +290,15 @@ public sealed class SecureNowQuestionDispositionService(
         ScopeContext scope,
         Guid snapshotId,
         SecureNowQuestionDispositionWriteRequest request,
+        bool includeInferredConnections,
         CancellationToken cancellationToken)
     {
         IReadOnlyList<SecureNowQuestionRecord> questions =
-            await ListQuestionsAsync(scope, snapshotId, cancellationToken);
+            await CompileQuestionsAsync(
+                scope,
+                snapshotId,
+                includeInferredConnections,
+                cancellationToken);
         SecureNowQuestionRecord? question = questions.FirstOrDefault(item =>
             string.Equals(item.SubscriptionId, Normalize(request.SubscriptionId), StringComparison.OrdinalIgnoreCase)
             && string.Equals(item.ResourceId, NormalizeResourceId(request.ResourceId), StringComparison.OrdinalIgnoreCase)
