@@ -36021,13 +36021,15 @@ ABQ-09 churn hotspot.
 
 ## Zone: securenow-question-queue
 
+2026-10-11 seed hunt (seed-only): re-read the selected disposition, compiler, controller, persistence, contract, and queue paths. No candidate met the full same-run hunt-ready bar; seeded four bounded candidates for answer-code validation, duplicate inferred-connection identity suppression, relationship-backed candidate suppression with an incomplete peer, and blank API answer-code rendering. The Application SecureNowQuestion filter passed 19/19 and the queue UI suite passed 12/12; no production or regression change.
+
 - **id:** securenow-question-queue
 - **status:** open
 - **impact:** medium
 - **aliases:** securenow question queue; question disposition
 - **paths:** ArchLucid.Application/InfraEvidence/SecureNowQuestionDispositions/; ArchLucid.Api/Controllers/InfraEvidence/InfraEvidenceSecureNowQuestionsController.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/ISecureNowQuestionDispositionRepository.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/ISecureNowQuestionDispositionService.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/SecureNowQuestionDispositionRecord.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/SecureNowQuestionRecord.cs; ArchLucid.Persistence/InfraEvidence/NoOpSecureNowQuestionDispositionRepository.cs; ArchLucid.Persistence/InfraEvidence/SqlSecureNowQuestionDispositionRepository.cs; ArchLucid.Contracts/InfraEvidence/SecureNowQuestionDispositionContracts.cs; archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
-- **hunts:** 12
+- **hunts:** 13
 - **bugs-found:** 6
 - **consecutive-dry-hunts:** 2
 - **last-hunt:** 2026-10-10
@@ -36072,6 +36074,12 @@ ABQ-09 churn hotspot.
 - [x] (invalid) `SecureNowQuestionDispositionService.BuildDiagramCandidates` — a resource with a non-empty `ParentResourceId` absent from the snapshot resource set is skipped before it can become an orphan question — **cheap-disproof 2026-10-04 thorough hunt:** the selected `SecureNowQuestionCompiler` contract explicitly suppresses `IsKnownMissingAzureObject` candidates, so missing-parent inventory objects are intentionally excluded from the queue.
 - [x] (valid-no-repro) `InfraEvidenceSecureNowQuestionsController.TryMapWriteRequest` — numeric strings such as `"1"` pass `Enum.TryParse` plus `Enum.IsDefined` for `Source` or `ScopeKind` — **cheap-disproof 2026-10-04 thorough hunt:** the values map to defined enum members and the selected files establish no harmful persistence or user-visible wrong outcome.
 - [x] (proven) `SecureNowQuestionQueue` — `sessionSkippedQuestionKeys` and `visitedQuestionKeys` survived a `snapshotId` change, so a same-identity question in the next snapshot could remain hidden and the visit cap could carry over; reset both sets when the snapshot changes, with regression `clears skipped question state when the snapshot changes`.
+
+- (candidate) `SecureNowQuestionDispositionService.WriteAsync` — a reachable `POST /answer` body can supply an `AnswerCode` not present in the compiled question's finite `AnswerCodes`, and the service has no question-choice membership check before persisting an answered disposition; wrong outcome would be an invalid answer shown as answered.
+- (candidate) `SecureNowQuestionCompiler.AddQuestion` — two proposed `OperatorInferredConnectionRecord` inputs with the same normalized resource/question identity but different endpoints are collapsed by `emitted`, so one actionable inferred connection may disappear; input originates from the inferred-connection list passed into compilation.
+- (candidate) `SecureNowQuestionDispositionService.BuildDiagramCandidates` — an inventory resource is suppressed whenever its ID appears in any relationship, even when the relationship's peer endpoint is missing or unresolved; input originates from persisted inventory relationship records and could hide an unknown-evidence question.
+- (candidate) `securenow-question-queue-api.mapQuestion` — an API response containing blank string entries in `answerCodes` passes the type-only filter and can render a blank answer button; input is the reachable question API response.
+
 
 ## Zone: infra-evidence-diagrams
 
