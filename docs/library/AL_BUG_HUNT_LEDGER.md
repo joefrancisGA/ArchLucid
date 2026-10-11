@@ -1918,7 +1918,7 @@
 
 2026-10-09 seed hunt (seed-only): re-read the selected topology merge orchestration files and focused tests; no fresh reachable mechanism-backed candidate met the seed quality bar and no hypothesis was promoted. The focused topology test run was blocked by unrelated `ARCH002` in `ArchLucid.Core/Auth/Saml/SamlMetadataDiscoveryParser.cs`.
 
-**Hunts:** 1625 · **Bugs found:** 981
+**Hunts:** 1626 · **Bugs found:** 982
 
 2026-10-09 seed hunt (seed-only): re-read all seven selected topology orchestration files and focused tests; no candidate met the hunt-ready bar, so no hypothesis was promoted. Seeded five mechanism-backed `(candidate)` rows; the focused topology test run was blocked by unrelated `ARCH002` in `ArchLucid.Core/Auth/Saml/SamlMetadataDiscoveryParser.cs`.
 
@@ -27819,6 +27819,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 ---
 
 ## Zone: context-ingestion
+
+2026-10-11 seed hunt (seed→hit): `InMemoryContextSnapshotRepository` allowed a scoped reader to fall back to snapshots saved without scope metadata, so an unscoped snapshot for a shared project could cross into a later tenant-scoped read. Latest and ID reads now fail closed when scoped metadata is absent or mismatched; regressions `GetLatestAsync_does_not_return_unscoped_snapshot_to_scoped_reader` and `GetByIdAsync_does_not_return_unscoped_snapshot_to_scoped_reader`; full ContextIngestion tests passed 829/829 and the scoped compile check passed with 0 warnings and 0 errors.
+
+- [x] (proven) `InMemoryContextSnapshotRepository.GetLatestAsync` / `GetByIdAsync` — a snapshot saved while scope metadata was absent remained visible to a later scoped reader for the same project — **hit 2026-10-11 seed hunt:** require saved scope metadata and exact tenant/workspace/project matching for scoped reads; regressions `GetLatestAsync_does_not_return_unscoped_snapshot_to_scoped_reader` and `GetByIdAsync_does_not_return_unscoped_snapshot_to_scoped_reader`.
 
 2026-10-11 seed hunt (seed-only): re-read the context ingestion actor metadata and canonicalization paths; malformed/null actor elements are saturated `null-deref` siblings rather than a distinct mechanism, and no other fresh reachable wrong outcome met the hunt-ready bar. No production or regression code changed; the full ContextIngestion suite passed 827/827.
 
