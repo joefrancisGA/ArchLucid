@@ -17009,6 +17009,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: agent-runtime-evaluation
 
+2026-10-11 seed hunt (seed→hit): `AgentOutputTraceFindingCitationCoverageApplicator.TryParseFindings` required an exact lowercase top-level `findings` property, so a reachable case-variant real-agent payload left finding-citation coverage unset and could alter PilotStrict evaluation. Top-level finding lookup now ignores case; regression `Apply_real_task_matches_case_variant_findings_property`.
+
+- [x] (proven) `AgentOutputTraceFindingCitationCoverageApplicator.TryParseFindings` — case-variant top-level findings were ignored for Real-task citation coverage — **hit 2026-10-11 seed hunt:** use case-insensitive lookup before deserializing findings; regression `Apply_real_task_matches_case_variant_findings_property`.
+
 2026-10-11 seed hunt (seed→hit): `AgentResultEvidenceFaithfulnessChecker` and `AgentResultJsonEvidenceGrounding` used exact-case lookups for claims/findings and their evidence fields, so a reachable case-variant agent payload skipped faithfulness checks or lost its grounding text. Faithfulness JSON field lookup now ignores case; regression `Evaluate_matches_case_variant_top_level_claims_property`.
 
 - [x] (proven) `AgentResultEvidenceFaithfulnessChecker.Evaluate` / `AgentResultJsonEvidenceGrounding` — case-variant claims/findings fields were ignored at the untrusted agent JSON boundary, producing incomplete faithfulness reports — **hit 2026-10-11 seed hunt:** use case-insensitive lookups for top-level and nested grounding fields; regression `Evaluate_matches_case_variant_top_level_claims_property`.
