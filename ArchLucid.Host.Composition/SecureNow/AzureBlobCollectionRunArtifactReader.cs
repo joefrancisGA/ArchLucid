@@ -7,7 +7,7 @@ using Azure.Storage.Blobs.Models;
 
 using Microsoft.Extensions.Options;
 
-namespace ArchLucid.Persistence.SecureNow;
+namespace ArchLucid.Host.Composition.SecureNow;
 
 public sealed class AzureBlobCollectionRunArtifactReader(
     BlobServiceClient blobServiceClient,

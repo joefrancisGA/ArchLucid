@@ -8,12 +8,12 @@ namespace ArchLucid.Persistence.SecureNow;
 
 public sealed class InMemoryCollectionRunRepository : ICollectionRunRepository
 {
-    private readonly ConcurrentDictionary<Guid, CollectionRun> _runs = new();
+    private readonly ConcurrentDictionary<string, CollectionRun> _runs = new(StringComparer.Ordinal);
 
     public Task UpsertAsync(CollectionRun collectionRun, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(collectionRun);
-        _runs[collectionRun.RunId] = collectionRun;
+        _runs[Key(collectionRun.TenantId, collectionRun.WorkspaceId, collectionRun.ProjectId, collectionRun.RunId)] = collectionRun;
         return Task.CompletedTask;
     }
 
@@ -24,8 +24,7 @@ public sealed class InMemoryCollectionRunRepository : ICollectionRunRepository
     {
         ArgumentNullException.ThrowIfNull(scope);
 
-        CollectionRun? result = _runs.TryGetValue(runId, out CollectionRun? run) &&
-                                IsInScope(run, scope)
+        CollectionRun? result = _runs.TryGetValue(Key(scope.TenantId, scope.WorkspaceId, scope.ProjectId, runId), out CollectionRun? run)
             ? run
             : null;
         return Task.FromResult(result);
@@ -69,4 +68,7 @@ public sealed class InMemoryCollectionRunRepository : ICollectionRunRepository
         run.TenantId == scope.TenantId &&
         run.WorkspaceId == scope.WorkspaceId &&
         run.ProjectId == scope.ProjectId;
+
+    private static string Key(Guid tenantId, Guid workspaceId, Guid projectId, Guid runId) =>
+        $"{tenantId:N}:{workspaceId:N}:{projectId:N}:{runId:N}";
 }

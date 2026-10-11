@@ -16,6 +16,7 @@ using ArchLucid.Persistence.Provenance;
 using ArchLucid.Persistence.Search;
 using ArchLucid.Persistence.Tenancy;
 using ArchLucid.Persistence.Value;
+using ArchLucid.Host.Composition.SecureNow;
 using ArchLucid.Persistence.Architecture;
 using ArchLucid.Core.Evidence;
 using ArchLucid.Core.Persistence.ApplicationPorts.Data.Repositories;
