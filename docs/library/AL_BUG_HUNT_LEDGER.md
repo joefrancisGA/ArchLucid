@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-11 thorough hunt (dry): `cli-tenant-isolation` — repeated the selected CLI runner/aggregator review; no reachable mechanism-backed wrong outcome emerged from the five candidates, and the focused filter passed 54/54. No production change.
+
 2026-10-11 thorough hunt (dry): `cli-tenant-isolation` — revalidated the unchanged candidate set; no candidate has a reachable wrong outcome in the selected files, and the focused `TenantIsolationNegativeTestRunner` filter passed 54/54. No production change.
 
 2026-10-11 thorough hunt (dry): `cli-tenant-isolation` — reran the selected zone with the unchanged five candidate rows; none has a reachable wrong outcome for repro, and the focused `TenantIsolationNegativeTestRunner` filter passed 54/54. No production change.
