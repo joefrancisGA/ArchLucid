@@ -11144,17 +11144,19 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-11 thorough hunt (dry): cheap-disproof closed the two remaining candidates. The failed-context action controls intentionally remain available for freeform/fixture recovery, while retry increments `productContextReloadNonce` and the inbound-run reset clears prior reasoning state before successful hydration. The focused suites passed 55/55; no production or regression code changed.
 
+2026-10-11 seed hunt (seed→hit): reseeded the page-client state boundary and proved that a source-context failure hid prior reasoning results while the visible analysis checklist still marked “Start analysis” as Done. The checklist now counts reasoning complete only when `showReasoningWorkspace` is true; regression `does not show reasoning results when product context load failure panel is visible` asserts the recovery state is In progress. The focused suites passed 55/55.
+
 - **id:** ui-architecture-intelligence
 - **status:** open
 - **impact:** medium
 - **aliases:** architecture intelligence page; ai page client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligencePageClient.tsx
 - **test-filter:** ArchitectureIntelligencePageClient
-- **hunts:** 38
-- **bugs-found:** 25
-- **consecutive-dry-hunts:** 1
+- **hunts:** 39
+- **bugs-found:** 26
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-11
-- **last-bug:** 2026-10-11 — source-context failure left the publish action enabled after prior reasoning
+- **last-bug:** 2026-10-11 — source-context failure left the analysis checklist marked complete
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -11171,6 +11173,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ### Hypotheses
 
 - [x] (proven) `ArchitectureIntelligencePageClient` publish action during source-context failure — a reachable source-context 503 after reasoning completed hid the reasoning results but left `runState.kind === "reasoning"` and the publish button enabled; fixed by requiring `!productContextLoadFailed`; regression `does not show reasoning results when product context load failure panel is visible` now asserts the publish button is disabled.
+- [x] (proven) `ArchitectureIntelligencePageClient` analysis checklist during source-context failure — a reachable source-context 503 hid the reasoning workspace but `analysisComplete` still read `runState.kind === "reasoning"`, so “Start analysis” displayed Done; fixed by requiring `showReasoningWorkspace`; regression `does not show reasoning results when product context load failure panel is visible` asserts In progress.
 - [x] (valid-no-repro) `ArchitectureIntelligencePageClient` action controls during a failed deep-linked context load — **cheap-disproof 2026-10-11 thorough hunt:** the failure panel explicitly restores freeform intake and golden-fixture recovery, so run/golden controls remain available for operator-supplied replacement input; existing failure-state coverage exercises the recovery form.
 - [x] (valid-no-repro) `ArchitectureIntelligencePageClient` reasoning-result boundary after recovery — **cheap-disproof 2026-10-11 thorough hunt:** `retryProductContextLoad` increments `productContextReloadNonce`, and the inbound-run reset effect clears `runState` before the refetch can hydrate the page; no stale result survives the retry boundary.
 
