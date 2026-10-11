@@ -1918,7 +1918,7 @@
 
 2026-10-09 seed hunt (seed-only): re-read the selected topology merge orchestration files and focused tests; no fresh reachable mechanism-backed candidate met the seed quality bar and no hypothesis was promoted. The focused topology test run was blocked by unrelated `ARCH002` in `ArchLucid.Core/Auth/Saml/SamlMetadataDiscoveryParser.cs`.
 
-**Hunts:** 1621 · **Bugs found:** 980
+**Hunts:** 1622 · **Bugs found:** 980
 
 2026-10-09 seed hunt (seed-only): re-read all seven selected topology orchestration files and focused tests; no candidate met the hunt-ready bar, so no hypothesis was promoted. Seeded five mechanism-backed `(candidate)` rows; the focused topology test run was blocked by unrelated `ARCH002` in `ArchLucid.Core/Auth/Saml/SamlMetadataDiscoveryParser.cs`.
 
@@ -5432,6 +5432,8 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: ui-form-validation
 
+2026-10-11 seed hunt (seed-only): re-read `SignupForm.tsx` and the focused `SignupForm` tests; response status/body handling, retries, navigation and storage failures, attribution, duplicate submission, optional-field transitions, and validation boundaries remain covered. No fresh reachable mechanism-backed wrong outcome met the hunt-ready bar, no new candidate was added, and the focused suite passed 99/99 without production or regression changes.
+
 2026-10-11 seed hunt (seed-only): reviewed `SignupForm.tsx` and its focused tests; the only promoted telemetry-exception theory was invalid because `recordFirstTenantFunnelEvent` is implemented as a non-throwing, fire-and-forget helper and the failing repro required replacing it with a throwing mock. No reachable mechanism-backed wrong outcome met the hunt-ready bar; the focused `SignupForm` suite passed 99/99 after the temporary repro was reverted, and no production or regression code changed.
 
 2026-10-11 seed hunt (seed-only): repeated the selected `SignupForm.tsx` review; focused tests cover response status/body variants, retries, navigation and storage failures, attribution, duplicate submission, and validation. No fresh reachable mechanism-backed wrong outcome met the hunt-ready bar; the focused `SignupForm` suite passed 99/99 and no production or regression code changed.
@@ -5452,7 +5454,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 2026-10-10 seed hunt (seed-only): re-read `SignupForm.tsx` submit gating, payload shaping, response handling, first-touch attribution, and optional-field state transitions; no new hunt-ready row was promoted. The exact SignupForm filter passed 99/99; retained the existing bounded candidates and made no production code change.
 
-**Hunts:** 69 · **Bugs found:** 9 · **Consecutive dry hunts:** 9
+**Hunts:** 70 · **Bugs found:** 9 · **Consecutive dry hunts:** 9
 
 2026-10-08 seed hunt (seed-only): no hunt-ready hypotheses were available after reading `SignupForm.tsx`; seeded five reachable follow-on `(candidate)` rows; 94 focused SignupForm tests passed; no production code changed and no regression was added.
 
