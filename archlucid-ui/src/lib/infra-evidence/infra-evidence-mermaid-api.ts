@@ -20,6 +20,11 @@ import {
   triggerBrowserBlobDownload,
 } from "@/lib/api/downloads-blob-trigger-browser";
 import { assertBinaryDownloadContentType } from "@/lib/api/downloads-blob-trigger-guard";
+import {
+  appendInfraEvidencePngReadingStrip,
+  buildInfraEvidencePngReadingStripLines,
+  type InfraEvidencePngReadingStripInput,
+} from "@/lib/infra-evidence/infra-evidence-png-reading-strip";
 import type {
   InfraEvidenceMermaidPreviewResponse,
   InfraEvidenceMermaidRenderResponse,
@@ -44,6 +49,7 @@ export type InfraEvidenceMermaidPngDownloadOptions = {
   readonly fallbackMermaidSource?: string | null;
   readonly fallbackSvgMarkup?: string | null;
   readonly dark?: boolean;
+  readonly readingStrip?: InfraEvidencePngReadingStripInput;
 };
 
 export type InfraEvidenceMermaidPngDownloadResult = {
@@ -130,6 +136,7 @@ function buildInfraEvidenceMermaidPngFileName(snapshotId: string, query: InfraEv
 async function downloadInfraEvidenceMermaidPngFromServer(
   snapshotId: string,
   query: InfraEvidenceMermaidRenderQuery,
+  options: InfraEvidenceMermaidPngDownloadOptions,
 ): Promise<void> {
   await ensureOidcBearerReady();
   const url = `${SNAPSHOTS_PATH}/${snapshotId}/mermaid/export.png${buildMermaidQuery(query)}`;
@@ -155,7 +162,11 @@ async function downloadInfraEvidenceMermaidPngFromServer(
     parseFilenameFromContentDisposition(response.headers.get("Content-Disposition"))
     ?? buildInfraEvidenceMermaidPngFileName(snapshotId, query);
   const blob = await response.blob();
-  await triggerBrowserBlobDownload(blob, fileName);
+  const readingStripLines = options.readingStrip == null
+    ? []
+    : buildInfraEvidencePngReadingStripLines(options.readingStrip);
+  const exportBlob = await appendInfraEvidencePngReadingStrip(blob, readingStripLines);
+  await triggerBrowserBlobDownload(exportBlob, fileName);
 }
 
 export async function downloadInfraEvidenceMermaidPng(
@@ -168,7 +179,7 @@ export async function downloadInfraEvidenceMermaidPng(
   }
 
   try {
-    await downloadInfraEvidenceMermaidPngFromServer(snapshotId, query);
+    await downloadInfraEvidenceMermaidPngFromServer(snapshotId, query, options);
 
     return { usedBrowserFallback: false };
   }
@@ -189,7 +200,11 @@ export async function downloadInfraEvidenceMermaidPng(
             dark,
             renderId: `infra-evidence-mermaid-export-${snapshotId}`,
           });
-    await triggerBrowserBlobDownload(blob, buildInfraEvidenceMermaidPngFileName(snapshotId, query));
+    const readingStripLines = options.readingStrip == null
+      ? []
+      : buildInfraEvidencePngReadingStripLines(options.readingStrip);
+    const exportBlob = await appendInfraEvidencePngReadingStrip(blob, readingStripLines);
+    await triggerBrowserBlobDownload(exportBlob, buildInfraEvidenceMermaidPngFileName(snapshotId, query));
 
     return { usedBrowserFallback: true };
   }

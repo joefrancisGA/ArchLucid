@@ -1781,9 +1781,14 @@ export function DiagramsWorkbenchClient() {
 
     try {
       const query = renderQuery;
+      const readingStrip = {
+        mode: selectedMode,
+        outline: familyFilteredOutline,
+        completenessWarnings,
+      };
 
       if (tooLargeForBrowser) {
-        await downloadInfraEvidenceMermaidPng(selectedSnapshotId, query);
+        await downloadInfraEvidenceMermaidPng(selectedSnapshotId, query, { readingStrip });
         return;
       }
 
@@ -1791,6 +1796,7 @@ export function DiagramsWorkbenchClient() {
         fallbackMermaidSource: mermaidSource,
         fallbackSvgMarkup: exportableSvgMarkup,
         dark,
+        readingStrip,
       });
 
       if (result.usedBrowserFallback) {
