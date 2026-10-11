@@ -9367,3 +9367,4 @@
 {"at":"2026-10-11T02:38:48.1523199Z","zoneId":"cloud-extractors","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-11T02:42:46.4937238Z","zoneId":"cloud-extractors","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-11T02:45:51.2423029Z","zoneId":"cloud-extractors","outcome":"seed-only","productLine":"archlucid-shared"}
+{"at":"2026-10-11T02:51:12.446Z","zoneId":"scope-binding-middleware","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Api/Middleware/ScopeIdentityBindingMiddleware.cs","ArchLucid.Api/Middleware/ScopeResolutionGuardMiddleware.cs","ArchLucid.Api/Security/RouteTenantScopeBindingFilter.cs"]}
