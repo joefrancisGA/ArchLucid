@@ -96,6 +96,19 @@ describe("ReviewsNewRouteBody (AO-22)", () => {
     expect(screen.queryByTestId("reviews-new-path-switcher-stub")).toBeNull();
   });
 
+  it("keeps the baseline wizard deep link in Working mode", async () => {
+    useSearchParams.mockReturnValue(new URLSearchParams("baseline=1"));
+
+    render(<ReviewsNewRouteBody />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("reviews-new-path-switcher-stub")).toBeInTheDocument();
+    });
+
+    expect(replace).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("reviews-new-working-redirect")).toBeNull();
+  });
+
   it("opens guided questions when Working guided-intake has no architectures", async () => {
     useSearchParams.mockReturnValue(new URLSearchParams("path=guided-intake"));
     useArchitectureIdentitiesListQuery.mockReturnValue({
