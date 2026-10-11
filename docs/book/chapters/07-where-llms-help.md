@@ -93,6 +93,8 @@ The rest of this chapter takes the stages in order.
 
 The evidence pack is a small JSON document generated from your derivation step. It is *not* the snapshot. It's a deliberate selection: the paths relevant to the question, their hops, the gaps that affect them, and any recommended cut points.
 
+<!-- listing: lab/listings/json/ch07-building-the-evidence-pack.json -->
+
 ```json
 {
   "packId": "payments-paths-2026-10-06",
@@ -275,6 +277,8 @@ The exit is a field in the output rather than a sentence for the model to write.
 
 Prose is pleasant to read and hard to check. Ask for structured output instead and assemble the prose afterwards:
 
+<!-- listing: lab/listings/json/ch07-structured-output.json -->
+
 ```json
 {
   "status": "answered",
@@ -444,6 +448,8 @@ Give the model the cut-point record and the relevant hops, and ask for:
 - how to **roll it back**.
 
 For example, asking for a Terraform change to disable shared key access on `custdata` (one of the alternative cut points from Chapter 4) might produce:
+
+<!-- listing: lab/listings/terraform/ch07-custdata-shared-key.tf -->
 
 ```hcl
 resource "azurerm_storage_account" "custdata" {

@@ -398,6 +398,8 @@ The tooling's security depends on settings that are easy to change in the portal
 
 A minimal module for the two resources that hold the most sensitive data:
 
+<!-- listing: lab/listings/terraform/ch11-tooling/main.tf -->
+
 ```hcl
 # Evidence store: Entra ID only, no public endpoint, append-only snapshots.
 resource "azurerm_storage_account" "evidence" {
@@ -405,7 +407,7 @@ resource "azurerm_storage_account" "evidence" {
   resource_group_name             = azurerm_resource_group.tooling.name
   location                        = var.location
   account_tier                    = "Standard"
-  account_replication_type        = "ZRS"     # zone-redundant; stays in the chosen region
+  account_replication_type        = "ZRS" # zone-redundant; stays in the chosen region
   shared_access_key_enabled       = false
   public_network_access           = "Disabled"
   allow_nested_items_to_be_public = false
@@ -433,11 +435,11 @@ resource "azurerm_storage_container_immutability_policy" "snapshots" {
 
 # Model service: no API keys, no public endpoint, pinned model version.
 resource "azurerm_cognitive_account" "openai" {
-  name                          = var.openai_account_name
-  resource_group_name           = azurerm_resource_group.tooling.name
-  location                      = var.location
-  kind                          = "OpenAI"
-  sku_name                      = "S0"
+  name                = var.openai_account_name
+  resource_group_name = azurerm_resource_group.tooling.name
+  location            = var.location
+  kind                = "OpenAI"
+  sku_name            = "S0"
   # A custom subdomain is required for Entra ID auth and private endpoints.
   custom_subdomain_name         = var.openai_account_name
   local_auth_enabled            = false
@@ -451,11 +453,11 @@ resource "azurerm_cognitive_deployment" "explain" {
   model {
     format  = "OpenAI"
     name    = var.model_name
-    version = var.model_version   # pinned; upgrades go through the test set (Chapter 8)
+    version = var.model_version # pinned; upgrades go through the test set (Chapter 8)
   }
 
   sku {
-    name = var.deployment_type    # recorded residency decision (section 11.5)
+    name = var.deployment_type # recorded residency decision (section 11.5)
   }
 }
 
@@ -487,9 +489,9 @@ resource "azurerm_role_assignment" "explainer_calls_model" {
 
 The blob private endpoint, the private DNS zones and their virtual network links, the remaining role assignments, the log workspace, and the diagnostic settings follow the same pattern.
 
-Two provider details matter. Storage accounts take `public_network_access = "Disabled"`, while Cognitive Services accounts take `public_network_access_enabled = false`; the two resources use different argument shapes. And because the storage account rejects shared keys, set `storage_use_azuread = true` in the `azurerm` provider block, so Terraform itself uses Entra ID for blob operations. The identity running Terraform then needs a storage data-plane role.
+Two provider details matter. The module targets version 5 of the `azurerm` provider, where storage accounts take `public_network_access = "Disabled"` while Cognitive Services accounts take `public_network_access_enabled = false`; the two resources use different argument shapes. In version 4, which the companion lab pins, storage accounts take the boolean `public_network_access_enabled` as well; version 5 deprecates that form for storage accounts. And because the storage account rejects shared keys, set `storage_use_azuread = true` in the `azurerm` provider block, so Terraform itself uses Entra ID for blob operations. The identity running Terraform then needs a storage data-plane role.
 
-> **As of 2026-10:** Arguments checked against the `azurerm` provider documentation in October 2026. Re-check them against the provider version you pin.
+> **As of 2026-10:** Arguments checked against the `azurerm` provider documentation in October 2026, and the module validated with `terraform validate` against `azurerm` 5.9.0. Re-check them against the provider version you pin.
 
 Three practices make the module more than a template.
 
@@ -596,5 +598,6 @@ That division is the argument of the book. Models make security work faster to c
 - The opening story, identity counts, versions, and budgets are illustrative and fictional. Keep the scope header's statement that they aren't any product's design.
 - Verified 2026-10-10 (revision pass 1): Cognitive Services OpenAI User role; `disableLocalAuth`; private endpoint sub-resources and private DNS zones; deployment types and processing locations; abuse monitoring and modified abuse monitoring; `RequestResponse` payload logging; API Management LLM logging off by default; locked vs unlocked immutability (text corrected).
 - Verified 2026-10-10 (revision pass 1): section 11.9 Terraform arguments, including storage `public_network_access` (corrected from `public_network_access_enabled`), the immutability policy resource, the cognitive deployment `sku` block, the private endpoint `account` sub-resource, and `storage_use_azuread`.
+- 2026-10-11 (listing sync): section 11.9's module is now `lab/listings/terraform/ch11-tooling/main.tf`, validated with supporting files against `azurerm` 5.9.0. `public_network_access` exists only in `azurerm` 5.x, while the companion lab pins 4.x (its private DNS link fails `validate` on 5.x), so the prose now names the major version. The block was also `terraform fmt`-ed, which changed comment alignment only. Decide whether to move the lab to 5.x before publication.
 - Consider a reference architecture figure with Azure icons (permitted in architectural diagrams under Microsoft's terms), showing the components, identities, private endpoints, and the content-free audit path.
 - Add the Chapter 11 fact checks to GTM **M-306** when it is picked up.

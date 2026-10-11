@@ -125,33 +125,35 @@ ARG exposes several tables. The three you'll use most:
 
 ### Storage accounts and shared key access
 
+<!-- listing: lab/queries/storage-accounts.kql -->
+
 ```kusto
 resources
 | where type =~ 'microsoft.storage/storageaccounts'
+| extend sharedKey = case(
+    isnull(properties.allowSharedKeyAccess), 'not set (platform default)',
+    tobool(properties.allowSharedKeyAccess), 'enabled',
+    'disabled')
 | project
     id,
     name,
     subscriptionId,
     resourceGroup,
     allowSharedKeyAccess = properties.allowSharedKeyAccess,
+    sharedKey,
     publicNetworkAccess = properties.publicNetworkAccess,
     minimumTlsVersion = properties.minimumTlsVersion
 ```
 
 One trap: `allowSharedKeyAccess` is often **absent** from the properties rather than set to `true`. Absent means the platform default applies, and the default has historically been to *allow* shared key access. A query that filters on `allowSharedKeyAccess == true` will miss every account where the property was never set, which in older estates is most of them.
 
-Handle absence explicitly and keep it visible:
-
-```kusto
-| extend sharedKey = case(
-    isnull(properties.allowSharedKeyAccess), 'not set (platform default)',
-    tobool(properties.allowSharedKeyAccess), 'enabled',
-    'disabled')
-```
+That's why the query handles absence explicitly and keeps it visible. Its `extend` turns a missing property into `not set (platform default)` instead of letting it fall silently into either bucket, and the raw `allowSharedKeyAccess` column stays alongside it.
 
 Recording "not set (platform default)" rather than collapsing it to "enabled" keeps the observation honest. Your *derivation* can then apply the default rule and say so. Chapter 2 called this the difference between an observed fact and a derived fact. The rule to apply is Microsoft's documented one: a null `allowSharedKeyAccess` behaves as `true`, so shared key requests are accepted.
 
 ### Role assignments with role names
+
+<!-- listing: lab/queries/role-assignments.kql -->
 
 ```kusto
 authorizationresources
@@ -188,6 +190,8 @@ ARG returns results in pages, so a collector that reads only the first page will
 Back to the opening story. ARG evaluates each query against the subscriptions the caller can read, and returns results only from those. A subscription you can't read doesn't raise an error. It simply contributes zero rows.
 
 That behavior is convenient for interactive use and dangerous for security collection. The fix is to collect the **expected** scope separately and compare:
+
+<!-- listing: lab/queries/subscriptions.kql -->
 
 ```kusto
 resourcecontainers
@@ -228,6 +232,8 @@ Get this join wrong, for example by matching the application's object ID to a ro
 
 With the Microsoft Graph PowerShell SDK:
 
+<!-- listing: lab/listings/powershell/ch03-collecting-federated-identity-credentials.ps1 -->
+
 ```powershell
 Connect-MgGraph -Identity
 
@@ -266,6 +272,8 @@ Collect it as observed data with its source, then let your derivation step compu
 A collection is only useful as evidence if you can say exactly what it contains, when it was taken, and that it hasn't changed since. Package each collection as a **snapshot**: a set of data files plus a manifest that describes them.
 
 ### The manifest
+
+<!-- listing: lab/listings/json/ch03-the-manifest.json -->
 
 ```json
 {
@@ -426,6 +434,8 @@ This lab builds a minimal collector and uses it to gather every observed fact in
 
 **Step 1 — Collect with paging and gap capture.**
 
+<!-- listing: lab/listings/powershell/ch03-lab-collect-the-payments-path.ps1 -->
+
 ```powershell
 Connect-AzAccount -Identity | Out-Null
 Connect-MgGraph -Identity | Out-Null
@@ -523,5 +533,6 @@ Invoke-ArgQuery -Name 'subscriptions'    -Query (Get-Content queries/subscriptio
 - Verify cmdlet details: `Search-AzGraph` `-First` maximum, `-SkipToken` and `-UseTenantScope` parameters, and the shape of its return object (`.Data`, `.SkipToken`) in the current Az.ResourceGraph version; `Get-MgApplicationFederatedIdentityCredential` parameter names.
 - Decide whether PIM eligibility for Azure resources belongs here or in Chapter 4.
 - The lab's query files live in `docs/book/lab/queries/` (Appendix A); keep them in sync with sections 3.3 and 3.10.
+- 2026-10-11 (listing sync): `tools/check_listings.py` now enforces that sync. The section 3.3 storage block had drifted from `lab/queries/storage-accounts.kql` (it lacked the `sharedKey` column), and the `| extend` fragment after it couldn't be synced as a standalone query, so it became a sentence describing the query's `extend`.
 - Consider a figure: the application → service principal → role assignment join, with the wrong join (application object ID) shown crossed out.
 - Add the Chapter 3 fact checks to GTM **M-306** when it is picked up.

@@ -134,11 +134,22 @@ The book's Python listings are copies of modules in `lab/listings/python/`, one 
 
 The tests are offline. They use only the standard library, make no Azure calls, and replace the Azure SDK modules with stand-ins when they run the Function App code. Passing them shows that the listings do what the book says on the book's examples. It doesn't show that Azure behaves the way the fixtures assume. The labs do that.
 
-Last run on 2026-10-11 with Python 3.14, from `docs/book`:
+The other listings are synced the same way, from `lab/listings/powershell/`, `lab/listings/kql/`, `lab/listings/json/`, and `lab/listings/terraform/`, or from the lab's own `queries` folder. Each language gets a weaker check than the Python tests, and it's worth knowing how much weaker:
+
+- **PowerShell** is parsed by the PowerShell 7 parser. That catches syntax errors, not wrong cmdlet parameters.
+- **KQL** has no offline compiler, so it's only structure-checked: brackets and quotes balance, and each query starts with a table rather than a pipe. Whether a query runs is something only Resource Graph or Log Analytics can tell you.
+- **JSON** must parse, and every schema used with strict structured outputs must follow Appendix C's strict-mode rules.
+- **Terraform** is validated with `terraform validate` against the real providers. Each lab change is checked inside a copy of this module, and Chapter 11's module is checked on its own. Nothing is planned or applied.
+
+Last run on 2026-10-11 with Python 3.14, PowerShell 7.6, Terraform with `azurerm` 4.81.0 for the lab and 5.9.0 for Chapter 11's module, from `docs/book`:
 
 ```text
 python tools/check_listings.py
 python -m unittest discover -s lab/listings/python/tests
+pwsh -NoProfile -File tools/check_powershell_listings.ps1
+python tools/check_kql_listings.py
+python tools/check_json_listings.py
+python tools/check_terraform_listings.py
 ```
 
 ---
@@ -260,6 +271,8 @@ Comment out `azurerm_role_assignment.collector_reader` in `collector.tf` and app
 
 Add to `identity.tf`, apply, and remove it after the step:
 
+<!-- listing: lab/listings/terraform/appa-analyst-04-reader.tf -->
+
 ```hcl
 resource "azurerm_role_assignment" "analyst_04_reader" {
   scope                = azurerm_resource_group.payments_prod.id
@@ -280,6 +293,8 @@ Keep that value for the rest of the book. Chapters 9 and 10 assume the narrowed 
 ### Chapters 5 and 6 — Blob read logging
 
 Add one diagnostic setting per store. For `custdata`:
+
+<!-- listing: lab/listings/terraform/appa-custdata-blob-logging.tf -->
 
 ```hcl
 resource "azurerm_monitor_diagnostic_setting" "custdata_blob" {
@@ -305,6 +320,8 @@ Chapter 6 Step 4 asks for a key-authenticated read from your own machine. If you
 
 Add the tag in Terraform, so it survives the next apply:
 
+<!-- listing: lab/listings/terraform/appa-notes-tag.tf#notes_tag -->
+
 ```hcl
 tags = {
   owner = "payments"
@@ -320,6 +337,8 @@ Remove it when you finish the chapter.
 ### Chapter 10 — Apply, botch, and fix
 
 **Step 3.** Apply Chapter 9's changes. Delete `azuread_application_owner.payments_deploy_dev_lead`. Set `shared_access_key_enabled = false` on `custdata`. Add Chapter 9's `azurerm_resource_group_policy_assignment.deny_storage_shared_key`; the lab already declares the variable it uses. Then reproduce the help desk mistake: delete `azuread_directory_role_assignment.helpdesk_07_cloud_app_admin` and add:
+
+<!-- listing: lab/listings/terraform/appa-helpdesk-tier2.tf -->
 
 ```hcl
 resource "azuread_group" "helpdesk_tier2" {
@@ -386,5 +405,6 @@ Deleting the Entra objects removes them to the deleted items list for 30 days. T
 - The live run is scripted in [`../lab/live-validation-runbook.md`](../lab/live-validation-runbook.md), which also covers Appendices B and C.
 - Untested against a live tenant: `queries/checklist.kql`; the Function App code in section A.5; whether `azuread_application_owner.payments_deploy_platform` conflicts with an owner the API adds automatically for the caller; the resource count quoted in A.5.
 - Confirm the container-scope ID for narrowing `mi_pay_reconcile_archive_reader` in azurerm 4.x, and add the exact HCL to A.7.
+- 2026-10-11 (listing sync): the HCL blocks in A.7 and in Chapters 7, 9, and 11 are synced from `lab/listings/terraform/` and validated by `tools/check_terraform_listings.py` (not in CI, which has no Terraform). The `terraform.tfvars` line in A.5 is deliberately unsynced.
 - Add a rough monthly cost table once a live deployment has run for a week.
 - Consider an optional `lab/terraform-github` module for the repository environment, if readers ask for it.

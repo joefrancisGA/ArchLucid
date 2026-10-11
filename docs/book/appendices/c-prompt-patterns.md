@@ -79,6 +79,8 @@ The delimiters help the model see where the pack starts and ends. They aren't a 
 
 Ask for structured output, and supply a schema the service enforces where it can. Azure OpenAI's structured outputs mode takes a `response_format` like this:
 
+<!-- listing: lab/listings/json/appc-grounded-draft-response-format.json -->
+
 ```json
 {
   "type": "json_schema",
@@ -214,6 +216,8 @@ Do not claim the change is safe. List what it could break.
 
 **Output:**
 
+<!-- listing: lab/listings/json/appc-remediation-output.schema.json -->
+
 ```json
 {
   "type": "object",
@@ -266,6 +270,8 @@ Never answer from your own knowledge.
 ```
 
 **Tools:** read-only queries over the snapshot, described in the function-calling format most model services accept:
+
+<!-- listing: lab/listings/json/appc-tool-definitions.json -->
 
 ```json
 [
@@ -330,6 +336,8 @@ If you find none, return an empty list.
 ```
 
 **Output:**
+
+<!-- listing: lab/listings/json/appc-probable-flows-output.schema.json -->
 
 ```json
 {

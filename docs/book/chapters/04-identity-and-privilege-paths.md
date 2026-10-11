@@ -722,6 +722,8 @@ Confirm `role-assignments.json` still has the `condition` column from section 3.
 
 **Step 0 — Collect the missing inputs.** Reuse `Invoke-ArgQuery`, `Connect-MgGraph -Identity`, `$snapshotDir`, and the `$applications` list from the Chapter 3 lab. The same Graph application permissions are enough: `Application.Read.All` covers owners, `GroupMember.Read.All` covers transitive membership, and `RoleManagement.Read.Directory` covers directory roles.
 
+<!-- listing: lab/listings/powershell/ch04-step0-graph-owners-roles-memberships.ps1 -->
+
 ```powershell
 $owners = foreach ($app in $applications) {
     Get-MgApplicationOwner -ApplicationId $app.Id -All |
@@ -774,6 +776,8 @@ Write those three results to `application-owners.json`, `directory-role-assignme
 
 Then collect the Azure rows the derivation reads. `identity.userAssignedIdentities` is a map from identity resource id to `{clientId, principalId}`. Keep the map. The principal id is what joins to `role-assignments.json`.
 
+<!-- listing: lab/listings/kql/appb-role-definitions-with-their-actions.kql -->
+
 ```kusto
 authorizationresources
 | where type =~ 'microsoft.authorization/roledefinitions'
@@ -786,6 +790,8 @@ authorizationresources
     dataActions = permission.dataActions,
     notDataActions = permission.notDataActions
 ```
+
+<!-- listing: lab/listings/kql/appb-deny-assignments.kql -->
 
 ```kusto
 authorizationresources
@@ -802,6 +808,8 @@ authorizationresources
     notDataActions = permission.notDataActions
 ```
 
+<!-- listing: lab/listings/kql/appb-compute-identities.kql -->
+
 ```kusto
 resources
 | where isnotempty(identity)
@@ -815,6 +823,8 @@ resources
     systemAssignedPrincipalId = tostring(identity.principalId),
     userAssignedIdentities = identity.userAssignedIdentities
 ```
+
+<!-- listing: lab/listings/kql/appb-management-group-hierarchy.kql -->
 
 ```kusto
 resourcecontainers

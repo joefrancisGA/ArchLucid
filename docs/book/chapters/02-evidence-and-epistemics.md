@@ -238,6 +238,8 @@ When an AI inference is stored in a database, passed through a rules engine, or 
 
 This sounds obvious. In practice it's the most common way honest tooling becomes dishonest. A classifier writes `isSensitive = true` into a column. Six months later, a different team writes a rule that reads the column. Nobody remembers it was a guess. Store the category **next to** the value, not in documentation:
 
+<!-- listing: lab/listings/json/ch02-hop-record.json -->
+
 ```json
 {
   "resourceId": "/subscriptions/…/storageAccounts/custdata",

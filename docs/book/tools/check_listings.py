@@ -6,8 +6,10 @@ A listing in the book is synced by an HTML comment directly above its fenced blo
     <!-- listing: lab/listings/python/ch04_paths.py#identity_graph -->
 
 The path is relative to ``docs/book``. ``#name`` selects the lines between ``# region name`` and
-``# endregion name`` in that file; without ``#name`` the whole file is compared. The fenced block
-must match the source exactly, ignoring trailing whitespace and leading or trailing blank lines.
+``# endregion name`` in that file (``// region name`` in languages that comment with ``//``, such as
+KQL); without ``#name`` the whole file is compared. A region is dedented first, so a fragment nested
+inside a Terraform block can match an unindented listing. The fenced block must match the source
+exactly, ignoring trailing whitespace and leading or trailing blank lines.
 
 Usage: python docs/book/tools/check_listings.py [--book-root docs/book] [--list-unmarked]
 Exit 0 when every marker matches, 1 otherwise. Standard library only.
@@ -18,6 +20,7 @@ from __future__ import annotations
 import argparse
 import re
 import sys
+import textwrap
 from pathlib import Path
 
 BOOK_ROOT = Path(__file__).resolve().parents[1]
@@ -25,6 +28,7 @@ MANUSCRIPT_DIRS = ("front-matter", "chapters", "appendices", "back-matter")
 MARKER = re.compile(r"^<!--\s*listing:\s*(?P<path>[^#\s]+)(?:#(?P<region>[\w-]+))?\s*-->\s*$")
 FENCE_OPEN = re.compile(r"^```(?P<lang>\S*)\s*$")
 FENCE_CLOSE = re.compile(r"^```\s*$")
+COMMENT_PREFIXES = ("#", "//")
 
 
 def normalized(lines: list[str]) -> list[str]:
@@ -40,22 +44,35 @@ def normalized(lines: list[str]) -> list[str]:
     return stripped
 
 
+def comment_text(line: str) -> str | None:
+    """The text of a '#' or '//' comment line, or None for any other line."""
+    stripped = line.strip()
+
+    for prefix in COMMENT_PREFIXES:
+        if stripped.startswith(prefix):
+            return stripped[len(prefix):].strip()
+
+    return None
+
+
 def region_lines(source: list[str], region: str | None) -> list[str] | None:
-    """The lines of ``region`` in ``source``, the whole source when region is None, or None if absent."""
+    """The dedented lines of ``region`` in ``source``, the whole source when region is None, or None if absent."""
     if region is None:
         return source
 
-    start = f"# region {region}"
-    end = f"# endregion {region}"
-    stripped = [line.strip() for line in source]
+    comments = [comment_text(line) for line in source]
 
-    if start not in stripped or end not in stripped:
+    if f"region {region}" not in comments:
         return None
 
-    first = stripped.index(start)
-    last = stripped.index(end, first)
+    first = comments.index(f"region {region}")
 
-    return source[first + 1:last]
+    if f"endregion {region}" not in comments[first:]:
+        return None
+
+    last = comments.index(f"endregion {region}", first)
+
+    return textwrap.dedent("\n".join(source[first + 1:last])).split("\n")
 
 
 def fenced_block_after(lines: list[str], index: int) -> tuple[int, list[str]] | None:

@@ -87,3 +87,27 @@ This writes [`Managing-Azure-Security-with-AI-draft.pdf`](Managing-Azure-Securit
 - The build stops if any fenced code line is longer than 100 characters, and lists each one by file and line. Fix the source; `--allow-long-lines` overrides. A JSON line holding a single long string value is exempt, because it can't be broken.
 - Code uses a monospace TrueType font with box-drawing glyphs when one is installed (DejaVu Sans Mono or Consolas), otherwise Courier.
 - Tests: `python -m unittest discover -s docs/book/tools -p "test_*.py"`. The PDF build test also needs `pypdf` and is skipped without it.
+
+## Checking the listings
+
+Every code listing with a `<!-- listing: ... -->` marker is a copy of a file under `lab/listings/` or `lab/queries/`. From the repository root:
+
+```bash
+python docs/book/tools/check_listings.py                         # each marked block equals its source
+python -m unittest discover -s docs/book/lab/listings/python/tests
+pwsh -NoProfile -File docs/book/tools/check_powershell_listings.ps1   # PowerShell 7 parse
+python docs/book/tools/check_kql_listings.py                     # KQL structure only
+python docs/book/tools/check_json_listings.py                    # JSON parse and strict schemas
+```
+
+CI runs all five. The Terraform check needs the `terraform` CLI and downloads the providers, so it runs locally only:
+
+```bash
+export TF_PLUGIN_CACHE_DIR="$HOME/.terraform.d/plugin-cache"   # optional; avoids re-downloading
+mkdir -p "$TF_PLUGIN_CACHE_DIR"                                 # terraform ignores a missing cache folder
+python docs/book/tools/check_terraform_listings.py [--terraform /path/to/terraform]
+```
+
+It runs `terraform fmt -check` on every listing, then `init -backend=false` and `validate`. Each lab snippet is validated inside a temporary copy of `lab/terraform`: a block that redeclares a lab resource goes into an override file, so a one-argument change merges into the lab's resource. Each subfolder of `lab/listings/terraform/` is a standalone module and is validated on its own. No Azure credentials are needed.
+
+Two kinds of block are deliberately not synced: Appendix A's one-line `terraform.tfvars`, which is a setting the reader types rather than code, and the Mermaid diagrams, which are figures. Command lines in `text` blocks aren't synced either.

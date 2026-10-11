@@ -167,6 +167,8 @@ No single defense is enough. Together, they make injection hard to pull off and 
 
 **2. When you need the text, quote it and label it.** Sometimes the name is the point: a reviewer needs to recognize the app. Then carry it as a separate, explicitly untrusted item rather than inside a claim:
 
+<!-- listing: lab/listings/json/ch08-defenses-in-layers.json -->
+
 ```json
 {
   "hops": [
@@ -410,6 +412,8 @@ The challenge is that model output varies. You can't assert that the board summa
 ### Golden test sets
 
 A golden test case is a pack, a task, and a set of expected properties:
+
+<!-- listing: lab/listings/json/ch08-golden-test-sets.json -->
 
 ```json
 {

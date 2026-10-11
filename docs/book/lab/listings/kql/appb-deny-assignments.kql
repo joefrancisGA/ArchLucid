@@ -1,0 +1,12 @@
+authorizationresources
+| where type =~ 'microsoft.authorization/denyassignments'
+| mv-expand permission = properties.permissions
+| project
+    id,
+    scope = tostring(properties.scope),
+    doNotApplyToChildScopes = tobool(properties.doNotApplyToChildScopes),
+    principals = properties.principals,
+    actions = permission.actions,
+    notActions = permission.notActions,
+    dataActions = permission.dataActions,
+    notDataActions = permission.notDataActions

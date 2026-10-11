@@ -10,6 +10,7 @@ from pathlib import Path
 
 from check_listings import (
     check_file,
+    comment_text,
     fenced_block_after,
     first_difference,
     main,
@@ -59,6 +60,26 @@ class Helpers(unittest.TestCase):
         self.assertEqual(region_lines(lines, "greet"), ["def greet() -> str:", '    return "hi"'])
         self.assertIs(region_lines(lines, None), lines)
         self.assertIsNone(region_lines(lines, "missing"))
+
+    def test_comment_text(self) -> None:
+        self.assertEqual(comment_text("  # region tag"), "region tag")
+        self.assertEqual(comment_text("// endregion q"), "endregion q")
+        self.assertIsNone(comment_text("resources"))
+
+    def test_region_with_slash_comments(self) -> None:
+        lines = ["// region q", "resources", "| take 1", "// endregion q"]
+
+        self.assertEqual(region_lines(lines, "q"), ["resources", "| take 1"])
+
+    def test_region_is_dedented(self) -> None:
+        lines = ['resource "a" "b" {', "  # region tags", "  tags = {", "    owner = 1", "  }",
+                 "  # endregion tags", "}"]
+
+        self.assertEqual(region_lines(lines, "tags"), ["tags = {", "  owner = 1", "}"])
+
+    def test_region_without_end_is_missing(self) -> None:
+        self.assertIsNone(region_lines(["# region open", "x = 1"], "open"))
+        self.assertIsNone(region_lines(["# endregion late", "# region late", "x = 1"], "late"))
 
     def test_fenced_block_after(self) -> None:
         lines = ["marker", "", "```python", "x = 1", "```"]
