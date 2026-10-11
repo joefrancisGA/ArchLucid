@@ -24,4 +24,10 @@ public interface IInfrastructureDiagramDocumentationDecisionRepository
         Guid tenantId,
         string diagramFingerprint,
         CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyList<InfrastructureDiagramDocumentationDecisionPersistRecord>> ListByScopeAndDiagramFingerprintAsync(
+        Guid tenantId,
+        Guid scopeId,
+        string diagramFingerprint,
+        CancellationToken cancellationToken = default);
 }

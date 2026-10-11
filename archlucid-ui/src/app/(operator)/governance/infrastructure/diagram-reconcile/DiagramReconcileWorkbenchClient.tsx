@@ -31,6 +31,7 @@ import {
   fetchArchitectureDiagramReconciliation,
   fetchAbsentInfrastructureDiagramDocumentationDecisions,
   fetchInfrastructureDiagramDocumentationDecision,
+  fetchSealedInfrastructureDiagramDocumentationDecisions,
   formatInfraEvidenceDiagramReconcileApiError,
   ingestArchitectureDiagram,
   ingestOperationalSecurityFindings,
@@ -38,6 +39,7 @@ import {
   reconcileArchitectureDiagram,
   saveInfrastructureDiagramDocumentationDecision,
   saveInfrastructureDiagramNodeMapping,
+  saveSealedInfrastructureDiagramDocumentationDecision,
 } from "@/lib/infra-evidence/infra-evidence-diagram-reconcile-api";
 import { diagramIngestMutationBlockedReason } from "@/lib/infra-evidence/diagram-ingest-mutation-blocked-reason";
 import { diagramReconcileMutationBlockedReason } from "@/lib/infra-evidence/diagram-reconcile-mutation-blocked-reason";
@@ -416,6 +418,8 @@ export function DiagramReconcileWorkbenchClient() {
   const workbenchModeStatusLabel = advisoryComparisonPath ? "Advisory compare" : "Sealed reconcile";
   const validRunId = isDiagramReconcileRunIdInputValid(runId);
   const validMermaidInput = diagramMermaid.trim().length > 0;
+  const documentationDecisionAvailable =
+    reconciliation != null && (comparisonId != null || (!advisoryComparisonPath && validRunId));
 
   const scopeStatusBadge = useMemo(() => {
     if (urlCloudResourceId.length > 0) {
@@ -978,7 +982,7 @@ export function DiagramReconcileWorkbenchClient() {
   }, [advisoryComparisonPath, reconciliation, runId, selectedSnapshotId]);
 
   useEffect(() => {
-    if (!advisoryComparisonPath || comparisonId == null || reconciliation == null) {
+    if (!documentationDecisionAvailable || reconciliation == null) {
       setDocumentationDecisions({});
       setAbsentDocumentationDecisions([]);
       return;
@@ -1004,8 +1008,11 @@ export function DiagramReconcileWorkbenchClient() {
     let cancelled = false;
 
     async function loadDocumentationDecisions() {
-      const [loaded, absent] = await Promise.all([
-        Promise.all(
+      let loaded: Array<InfrastructureDiagramDocumentationDecision | null> = [];
+      let absent: InfrastructureDiagramDocumentationDecision[] = [];
+
+      if (advisoryComparisonPath && comparisonIdValue != null) {
+        loaded = await Promise.all(
           subjects.map(async (subject) => {
             try {
               return await fetchInfrastructureDiagramDocumentationDecision(
@@ -1017,9 +1024,16 @@ export function DiagramReconcileWorkbenchClient() {
               return null;
             }
           }),
-        ),
-        fetchAbsentInfrastructureDiagramDocumentationDecisions(comparisonIdValue).catch(() => []),
-      ]);
+        );
+        absent = await fetchAbsentInfrastructureDiagramDocumentationDecisions(comparisonIdValue).catch(() => []);
+      } else if (validRunId) {
+        const sealedDecisions = await fetchSealedInfrastructureDiagramDocumentationDecisions(
+          runId,
+          selectedSnapshotId,
+        ).catch(() => []);
+        loaded = sealedDecisions;
+        absent = sealedDecisions.filter((decision) => decision.carryForwardState === "NoLongerInCapture");
+      }
 
       if (cancelled) {
         return;
@@ -1040,14 +1054,22 @@ export function DiagramReconcileWorkbenchClient() {
     return () => {
       cancelled = true;
     };
-  }, [advisoryComparisonPath, comparisonId, reconciliation]);
+  }, [
+    advisoryComparisonPath,
+    comparisonId,
+    documentationDecisionAvailable,
+    reconciliation,
+    runId,
+    selectedSnapshotId,
+    validRunId,
+  ]);
 
   const saveDocumentationDecision = useCallback(
     async (
       subjectKind: InfrastructureDiagramDocumentationDecision["subjectKind"],
       subjectKey: string,
     ) => {
-      if (comparisonId == null) {
+      if (!documentationDecisionAvailable) {
         return;
       }
 
@@ -1060,18 +1082,21 @@ export function DiagramReconcileWorkbenchClient() {
       setDocumentationDecisionBusyKey(key);
 
       try {
-        const saved = await saveInfrastructureDiagramDocumentationDecision(comparisonId, {
+        const request = {
           snapshotId: selectedSnapshotId,
           subjectKind,
           subjectKey,
           decision: decision as InfrastructureDiagramDocumentationDecision["decision"],
-        });
+        };
+        const saved = comparisonId != null
+          ? await saveInfrastructureDiagramDocumentationDecision(comparisonId, request)
+          : await saveSealedInfrastructureDiagramDocumentationDecision(runId, request);
         setDocumentationDecisions((current) => ({ ...current, [key]: saved }));
       } finally {
         setDocumentationDecisionBusyKey(null);
       }
     },
-    [comparisonId, documentationDecisionPick, selectedSnapshotId],
+    [comparisonId, documentationDecisionAvailable, documentationDecisionPick, runId, selectedSnapshotId],
   );
 
   const handleWorkbenchModeChange = useCallback(
@@ -2067,7 +2092,7 @@ export function DiagramReconcileWorkbenchClient() {
                           return (
                             <li key={resourceRow.correspondenceId} className="flex flex-wrap items-center gap-2">
                               <span>{formatDiagramReconcileResourceLabelForDisplay(resourceRow)}</span>
-                              {advisoryComparisonPath && comparisonId != null && resourceSubjectKey.length > 0 ? (
+                              {documentationDecisionAvailable && resourceSubjectKey.length > 0 ? (
                                 <>
                                   <select
                                     className={cnField}
@@ -2244,8 +2269,7 @@ export function DiagramReconcileWorkbenchClient() {
                             Create operational finding
                           </Button>
                         ) : null}
-                        {advisoryComparisonPath
-                          && comparisonId != null
+                        {documentationDecisionAvailable
                           && row.matchKind === "DiagramOnly"
                           && row.diagramNodeId != null ? (
                           <div className="flex flex-col gap-1" onClick={(event) => event.stopPropagation()}>
@@ -2316,8 +2340,7 @@ export function DiagramReconcileWorkbenchClient() {
                             </Link>
                           </Button>
                         ) : null}
-                        {advisoryComparisonPath
-                          && comparisonId != null
+                        {documentationDecisionAvailable
                           && row.matchKind === "DiagramOnly"
                           && infrastructureOnlyRows.length > 0 ? (
                           <div
@@ -2410,7 +2433,7 @@ export function DiagramReconcileWorkbenchClient() {
                       </EnterpriseTableCell>
                       <EnterpriseTableCell>{gap.explainText}</EnterpriseTableCell>
                       <EnterpriseTableCell>
-                        {advisoryComparisonPath && comparisonId != null ? (
+                        {documentationDecisionAvailable ? (
                           <div className="flex flex-col gap-1">
                             <select
                               className={cnField}
