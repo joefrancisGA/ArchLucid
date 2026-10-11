@@ -69,6 +69,11 @@ function normalize(value: string): string {
   return value.trim().toLowerCase();
 }
 
+// The API question key is generated with the same punctuation-to-hyphen rule.
+function normalizeRuleKey(value: string): string {
+  return value.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+}
+
 function questionIdentity(question: SecureNowQuestion): string {
   return `${normalize(question.subscriptionId)}|${normalize(question.resourceId)}|${normalize(question.questionKey)}`;
 }
@@ -96,7 +101,7 @@ function findInferredConnection(
     const resourceMatches =
       normalize(connection.fromArmId ?? "") === normalize(question.resourceId)
       || normalize(connection.toArmId ?? "") === normalize(question.resourceId);
-    return resourceMatches && normalize(connection.ruleName ?? "") === ruleKey;
+    return resourceMatches && normalizeRuleKey(connection.ruleName ?? "") === ruleKey;
   }) ?? null;
 }
 

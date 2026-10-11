@@ -201,6 +201,35 @@ describe("SecureNowQuestionQueue", () => {
     expect(mocks.ignoreQuestion).not.toHaveBeenCalled();
   });
 
+  it("confirms an inferred connection when its rule name contains spaces", async () => {
+    const inferredQuestion = {
+      ...question,
+      source: "InferredConnection",
+      questionKey: "unresolved-host@v1",
+      answerCodes: ["Yes", "No", "NotSure"],
+    };
+    mocks.listQuestions.mockResolvedValue([inferredQuestion]);
+    mocks.listConnections.mockResolvedValue([
+      {
+        connectionId: "connection-1",
+        fromArmId: question.resourceId,
+        ruleName: "Unresolved host",
+      },
+    ]);
+    mocks.confirmConnection.mockResolvedValue(undefined);
+
+    render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
+    fireEvent.click(await screen.findByRole("button", { name: "Review" }));
+    fireEvent.click(screen.getByRole("button", { name: "Yes" }));
+    fireEvent.click(screen.getByRole("button", { name: "Continue" }));
+
+    await waitFor(() => {
+      expect(mocks.confirmConnection).toHaveBeenCalledWith("snapshot-1", {
+        connectionId: "connection-1",
+      });
+    });
+  });
+
   it("keeps another resource with the same question key after skipping one", async () => {
     mocks.listQuestions.mockResolvedValue([
       question,
