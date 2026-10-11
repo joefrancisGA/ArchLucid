@@ -11140,7 +11140,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-architecture-intelligence
 
-2026-10-11 seed hunt (seed-only): re-read the page composition, deep-link/loading/failure gates, stale-result reset coverage, and the two focused page-client suites; no fresh mechanism-backed hypothesis met the same-run promotion bar. The focused suites passed 55/55; no production or regression code changed.
+2026-10-11 seed hunt (seed→hit): re-read `ArchitectureIntelligencePageClient` and both focused page-client suites; proved that a source-context refetch failure hid prior reasoning results but left the Publish to findings/advisory button enabled. Added `productContextLoadFailed` to the publish gate; regression `does not show reasoning results when product context load failure panel is visible` now also asserts the publish button is disabled. The focused suites passed 55/55.
 
 - **id:** ui-architecture-intelligence
 - **status:** open
@@ -11148,17 +11148,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** architecture intelligence page; ai page client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligencePageClient.tsx
 - **test-filter:** ArchitectureIntelligencePageClient
-- **hunts:** 36
-- **bugs-found:** 24
-- **consecutive-dry-hunts:** 1
+- **hunts:** 37
+- **bugs-found:** 25
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-11
-- **last-bug:** 2026-10-04 — golden-test result exposed publish action intended only for reasoning output
+- **last-bug:** 2026-10-11 — source-context failure left the publish action enabled after prior reasoning
 - **related-pd-tb:** none
 - **code-changed-since:** yes
-
-- [ ] (candidate) `ArchitectureIntelligencePageClient` publish action during source-context failure — after a previously successful reasoning run, a reachable 503 during the deep-linked product-context refetch may leave `runState.kind === "reasoning"` while `showIntakeForm` still renders the publish button; input: a hydrated review whose subsequent source-context request fails; reachability: the page's deep-link `runId` source-context fetch and retry path.
-- [ ] (candidate) `ArchitectureIntelligencePageClient` action controls during a failed deep-linked context load — the failure panel intentionally restores freeform intake, but the page still constructs every action control from the prior hook state; input: a deep-linked review whose source-context request fails after an earlier action state; reachability: the UI's retry/fixture recovery path from `ArchitectureIntelligenceProductContextLoadFailure`.
-- [ ] (candidate) `ArchitectureIntelligencePageClient` reasoning-result boundary after recovery — a successful retry can restore hydrated intake while stale action state is supplied by the hook; input: retry succeeds after a failed source-context load following an in-progress or completed action; reachability: the page's visible retry button invokes `retryProductContextLoad` and then re-enters the normal intake/result branches.
 
 2026-10-03 thorough hunt (dry): cheap-disproof found no raw URL parsing or whitespace-producing run-id path in the picked component; `activeRunId` is supplied by the page hook, so the malformed-run candidates were not reachable from this zone file. The golden-result checklist candidate was intentional because the checklist's Analyze step represents reasoning analysis, not the separate golden harness. The two scoped page-client suites passed 52/52.
 
@@ -11171,6 +11167,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Product-context load failure blocks intake recovery affordances — **hit 2026-09-27 seed hunt:** `showIntakeForm` gated on `!productContextLoadFailed`; fixed in `use-architecture-intelligence-product-context.ts`; regression `shows intake form when product context load failure panel is visible`.
 
 ### Hypotheses
+
+- [x] (proven) `ArchitectureIntelligencePageClient` publish action during source-context failure — a reachable source-context 503 after reasoning completed hid the reasoning results but left `runState.kind === "reasoning"` and the publish button enabled; fixed by requiring `!productContextLoadFailed`; regression `does not show reasoning results when product context load failure panel is visible` now asserts the publish button is disabled.
+- [ ] (candidate) `ArchitectureIntelligencePageClient` action controls during a failed deep-linked context load — the failure panel intentionally restores freeform intake, but the page still constructs every action control from the prior hook state; input: a deep-linked review whose source-context request fails after an earlier action state; reachability: the UI's retry/fixture recovery path from `ArchitectureIntelligenceProductContextLoadFailure`.
+- [ ] (candidate) `ArchitectureIntelligencePageClient` reasoning-result boundary after recovery — a successful retry can restore hydrated intake while stale action state is supplied by the hook; input: retry succeeds after a failed source-context load following an in-progress or completed action; reachability: the page's visible retry button invokes `retryProductContextLoad` and then re-enters the normal intake/result branches.
 
 - [x] (valid-no-repro) `ArchitectureIntelligencePageClient` scope banner — the existing failure-state contract intentionally keeps the selected review scope visible while offering paste/fixture recovery; `ArchitectureIntelligencePageClient.test.tsx` covers the banner during product-context failure.
 - [x] (proven) `ArchitectureIntelligencePageClient` publish action gate — a deep-linked review populated `activeRunId` before any analysis result existed, enabling “Publish to findings/advisory”; the button now also requires non-null `runState`; regression `keeps publish disabled for a deep-linked review before analysis produces a result`.
