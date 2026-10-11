@@ -1918,7 +1918,7 @@
 
 2026-10-09 seed hunt (seed-only): re-read the selected topology merge orchestration files and focused tests; no fresh reachable mechanism-backed candidate met the seed quality bar and no hypothesis was promoted. The focused topology test run was blocked by unrelated `ARCH002` in `ArchLucid.Core/Auth/Saml/SamlMetadataDiscoveryParser.cs`.
 
-**Hunts:** 1622 · **Bugs found:** 980
+**Hunts:** 1623 · **Bugs found:** 981
 
 2026-10-09 seed hunt (seed-only): re-read all seven selected topology orchestration files and focused tests; no candidate met the hunt-ready bar, so no hypothesis was promoted. Seeded five mechanism-backed `(candidate)` rows; the focused topology test run was blocked by unrelated `ARCH002` in `ArchLucid.Core/Auth/Saml/SamlMetadataDiscoveryParser.cs`.
 
@@ -27819,6 +27819,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 ---
 
 ## Zone: context-ingestion
+
+2026-10-11 seed hunt (seed→hit): `CanonicalInfrastructurePropertyBag.TryAddTfBlockProperty` retained sensitive assignments inside reachable Terraform/Bicep HCL block bodies, so uploaded infrastructure could persist a password-bearing block as canonical `tf.*` data. Block bodies now redact when the block name or an assignment key matches the shared sensitive-key rules; regression `TryAddTfBlockProperty_redacts_sensitive_keys_in_block_body`; all 827 ContextIngestion tests passed and the scoped compile check passed with 0 warnings and 0 errors.
+
+- [x] (proven) `CanonicalInfrastructurePropertyBag.TryAddTfBlockProperty` — a reachable HCL block body such as `password = "supersecret"` bypassed scalar/JSON redaction and retained the secret in `tf.site_config` — **hit 2026-10-11 seed hunt:** detect sensitive assignment keys before storing the bounded block body; regression `TryAddTfBlockProperty_redacts_sensitive_keys_in_block_body`.
 
 2026-10-10 seed hunt (seed→hit): duplicate pre-dedup topology object ids no longer throw during sensitivity expansion; 819 scoped ContextIngestion/Canonicalization tests passed.
 
