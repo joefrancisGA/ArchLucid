@@ -33,7 +33,7 @@ describe("CollectionAgentPageClient", () => {
 
     render(<CollectionAgentPageClient />);
 
-    expect(await screen.findByText("Needs attention")).toBeInTheDocument();
+    expect(await screen.findByText("Blocked")).toBeInTheDocument();
     expect(screen.getByText("Daily at 02:00 UTC")).toBeInTheDocument();
     expect(screen.getByText("Resource Graph throttled the subscription.")).toBeInTheDocument();
     expect(screen.getByText("1 covered")).toBeInTheDocument();
@@ -82,6 +82,6 @@ describe("CollectionAgentPageClient", () => {
     render(<CollectionAgentPageClient />);
 
     expect(await screen.findByRole("alert")).toHaveTextContent("Collection storage is unavailable.");
-    expect(screen.queryByText("No collection runs yet.")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("collection-agent-empty-state")).not.toBeInTheDocument();
   });
 });

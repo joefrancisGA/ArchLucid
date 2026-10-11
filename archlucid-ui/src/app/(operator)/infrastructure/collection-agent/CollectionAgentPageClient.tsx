@@ -218,7 +218,10 @@ function CollectionRunsTable({ runs }: { readonly runs: readonly CollectionRun[]
 
 function EmptyCollectionRuns(): React.JSX.Element {
   return (
-    <div className="rounded-md border border-dashed border-neutral-300 p-6 dark:border-neutral-700">
+    <div
+      className="rounded-md border border-dashed border-neutral-300 p-6 dark:border-neutral-700"
+      data-testid="collection-agent-empty-state"
+    >
       <p className="m-0 font-medium text-neutral-900 dark:text-neutral-100">No collection runs yet.</p>
       <p className="m-0 mt-1 text-sm text-neutral-600 dark:text-neutral-400">
         Set up the collection agent or use a ZIP while live collection is unavailable.
