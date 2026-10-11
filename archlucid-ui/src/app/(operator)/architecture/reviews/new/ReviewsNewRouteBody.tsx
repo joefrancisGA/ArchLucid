@@ -17,6 +17,7 @@ import { ReviewsNewWorkingArchitecturePicker } from "./ReviewsNewWorkingArchitec
 
 /**
  * Working `/architecture/reviews/new` without `?path=` follows resolveWorkingStartHref (DA-09).
+ * `?baseline=1` stays on the path switcher so the simplified pilot wizard can mount.
  * Guided/eval keeps the first-run path switcher.
  * Working guided-intake without `sourceArchitectureId` uses guided intake for an empty workspace
  * and an architecture picker when there are architectures to choose from (AO-22).
@@ -27,6 +28,7 @@ export function ReviewsNewRouteBody(): React.JSX.Element {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathQuery = searchParams?.get("path")?.trim() ?? "";
+  const baselineFirst = searchParams?.get("baseline") === "1";
   const sourceArchitectureId = searchParams?.get(SOURCE_ARCHITECTURE_QUERY_PARAM)?.trim() ?? "";
   const workingStart = useWorkingStartHref();
   const shouldResolveWorkingArchitectureStart =
@@ -36,14 +38,14 @@ export function ReviewsNewRouteBody(): React.JSX.Element {
   });
 
   useEffect(() => {
-    if (evalChrome || pathQuery.length > 0) {
+    if (evalChrome || pathQuery.length > 0 || baselineFirst) {
       return;
     }
 
     router.replace(workingStart);
-  }, [evalChrome, pathQuery, router, workingStart]);
+  }, [baselineFirst, evalChrome, pathQuery, router, workingStart]);
 
-  if (!evalChrome && pathQuery.length === 0) {
+  if (!evalChrome && pathQuery.length === 0 && !baselineFirst) {
     return (
       <p className="text-al-text-secondary" data-testid="reviews-new-working-redirect" role="status">
         Opening your architecture desk…
