@@ -36114,16 +36114,18 @@ ABQ-09 churn hotspot.
 
 ## Zone: ui-architecture-diagram
 
+2026-10-11 thorough hunt (dry): cheap-disproved promotion of the focus-token collision candidate because the selected files and reachable production outline did not establish colliding short/long IDs; no failing repro was justified. Camera/click focus tests passed 9/9; the broader viewer file had 13 pre-existing failures.
+
 - **id:** ui-architecture-diagram
-- **status:** open
+- **status:** cooling
 - **impact:** medium
 - **aliases:** architecture diagram viewer; neighborhood map
 - **paths:** archlucid-ui/src/components/architecture/ArchitectureDiagram; archlucid-ui/src/components/architecture/DiagramNeighborhoodMapView.tsx; archlucid-ui/src/lib/architecture/architecture-diagram-
 - **test-filter:** ArchitectureDiagram
-- **hunts:** 15
+- **hunts:** 16
 - **bugs-found:** 9
-- **consecutive-dry-hunts:** 2
-- **last-hunt:** 2026-10-10
+- **consecutive-dry-hunts:** 3
+- **last-hunt:** 2026-10-11
 - **last-bug:** 2026-10-09 — architecture name was counted twice when it repeated the only system
 - **related-pd-tb:** none
 - **code-changed-since:** yes
