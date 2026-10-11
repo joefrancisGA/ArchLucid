@@ -128,7 +128,7 @@ public sealed class HostedAzureManagementPostReadClient(
 
             return MergeActualCostPages(pages, "MonthToDate");
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogWarning(
                 ex,
@@ -218,7 +218,7 @@ public sealed class HostedAzureManagementPostReadClient(
                 }
             }
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogWarning(
                 ex,

@@ -30907,6 +30907,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ## Zone: cloud-extractors
 
+2026-10-11 seed hunt (seed→hit): proved `HostedAzureManagementPostReadClient` swallowed `OperationCanceledException` in both Policy Insights and Actual Cost reads, returning partial/empty success after the caller canceled extraction; cancellation now propagates while non-cancellation failures retain best-effort behavior; regressions `QueryPolicyComplianceAsync_propagates_cancellation_instead_of_returning_partial_success` and `TryQueryActualCostSummaryAsync_propagates_cancellation_instead_of_returning_null`; focused management-client suite passed 6/6, picker-wide filter passed 129/130 with one pre-existing network-association baseline failure.
+
 2026-10-11 thorough hunt (dry): cheap-disproved both Azure property candidates: Logic Apps `$connections` capture contains connection references and the selected ZIP/collector output exposes only normalized resource IDs/hosts/status fields, not credential material; AKS `networkProfile` capture contains network topology settings and no credential-bearing field or exported secret outcome. The focused `HostedAzureInventoryResourcePropertyExpanderTests` passed 10/10; no production change.
 
 2026-10-11 seed hunt (seed-only): reread AWS Resource Explorer, GCP workload-identity/asset collection, and Azure ARM property-expansion paths after the pagination-path hit. No new row met the full hunt-ready bar; the scoped Azure extractor run reported 127 passed and 1 unrelated network-association baseline failure. Seeded two bounded ARM-property candidates for raw Logic Apps `$connections` capture and AKS `networkProfile` capture; no production or regression change.
@@ -30919,11 +30921,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** aws extractor; gcp extractor; azure extractor
 - **paths:** ArchLucid.Integrations.AwsExtractor/; ArchLucid.Integrations.GcpExtractor/; ArchLucid.Integrations.AzureExtractor/
 - **test-filter:** FullyQualifiedName~AwsExtractor|FullyQualifiedName~GcpExtractor|FullyQualifiedName~AzureExtractor
-- **hunts:** 81
-- **bugs-found:** 43
-- **consecutive-dry-hunts:** 1
+- **hunts:** 82
+- **bugs-found:** 44
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-11
-- **last-bug:** 2026-10-08 — Defender secure score listing followed same-subscription cross-collection next links
+- **last-bug:** 2026-10-11 — Azure post-read swallowed cancellation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -30951,6 +30953,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ### Hypotheses
 
+- [x] (proven) `HostedAzureManagementPostReadClient.TryQueryActualCostSummaryAsync` / `QueryPolicyComplianceAsync` — cancellation during an ARM post-read was caught as a normal failure, returning null or a partial document instead of honoring the caller's cancellation — **hit 2026-10-11 seed hunt:** both broad `catch (Exception)` blocks swallowed `OperationCanceledException`; filter cancellation explicitly so only non-cancellation failures use best-effort fallback; regressions `QueryPolicyComplianceAsync_propagates_cancellation_instead_of_returning_partial_success` and `TryQueryActualCostSummaryAsync_propagates_cancellation_instead_of_returning_null` in `HostedAzureManagementPostReadClientTests`.
 - [x] (invalid) `HostedAzureInventoryResourcePropertyExpander.AddSiteWorkflowConnectionParameters` — an ARM Logic Apps resource with `properties.parameters.$connections` containing credential-bearing connection metadata is copied with `GetRawText()` into inventory properties without structured redaction; input originates from the reachable `Microsoft.Logic/workflows` ARM payload, but a concrete secret-bearing field and downstream exposed output remain unverified — cheap-disproved 2026-10-11: the selected collector/ZIP paths expose connection resource IDs, names, hosts, status, and warning fields; no credential field or secret-bearing export was present.
 - [x] (invalid) `HostedAzureInventoryResourcePropertyExpander.AddManagedClusterProperties` — an ARM AKS resource with a `properties.networkProfile` field containing sensitive connection metadata is copied with `GetRawText()` into inventory properties; input originates from the reachable `Microsoft.ContainerService/managedClusters` ARM payload, but a concrete sensitive field and wrong exported outcome remain unverified — cheap-disproved 2026-10-11: the selected expander captures network profile topology JSON, with no credential-bearing field or downstream secret exposure established.
 

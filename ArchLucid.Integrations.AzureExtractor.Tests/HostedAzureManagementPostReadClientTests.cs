@@ -281,6 +281,42 @@ public sealed class HostedAzureManagementPostReadClientTests
         Assert.Null(summary);
     }
 
+    [Fact]
+    public async Task QueryPolicyComplianceAsync_propagates_cancellation_instead_of_returning_partial_success()
+    {
+        using CancellationTokenSource cancellationTokenSource = new();
+        HttpMessageHandler handler = new RecordingHandler(
+            (_, cancellationToken) => throw new OperationCanceledException(cancellationToken));
+        HostedAzureManagementPostReadClient client = new(
+            new HttpClient(handler),
+            NullLogger<HostedAzureManagementPostReadClient>.Instance);
+
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() =>
+            client.QueryPolicyComplianceAsync(
+                "token-abc",
+                "11111111-1111-1111-1111-111111111111",
+                "subscription",
+                "2026-09-26T00:00:00Z",
+                cancellationTokenSource.Token));
+    }
+
+    [Fact]
+    public async Task TryQueryActualCostSummaryAsync_propagates_cancellation_instead_of_returning_null()
+    {
+        using CancellationTokenSource cancellationTokenSource = new();
+        HttpMessageHandler handler = new RecordingHandler(
+            (_, cancellationToken) => throw new OperationCanceledException(cancellationToken));
+        HostedAzureManagementPostReadClient client = new(
+            new HttpClient(handler),
+            NullLogger<HostedAzureManagementPostReadClient>.Instance);
+
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() =>
+            client.TryQueryActualCostSummaryAsync(
+                "token-abc",
+                "11111111-1111-1111-1111-111111111111",
+                cancellationTokenSource.Token));
+    }
+
     private sealed class RecordingHandler(Func<HttpRequestMessage, CancellationToken, Task<HttpResponseMessage>> responder)
         : HttpMessageHandler
     {
