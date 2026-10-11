@@ -46,6 +46,8 @@ export type NavGroupConfig = {
   surface: NavShellSurface;
   /** One line under the group title — what this layer is for (see docs/library/OPERATOR_DECISION_GUIDE.md). */
   caption?: string;
+  /** When true, render the group's links without a redundant visible section heading. */
+  hideHeading?: boolean;
   /** When true, group renders only in ArchLucid staff/internal operator shells. */
   staffInternalOnly?: boolean;
   links: NavLinkItem[];

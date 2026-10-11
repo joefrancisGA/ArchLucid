@@ -79,12 +79,15 @@ describe("filterNavGroupsForProductLine (Security shell)", () => {
     const integrationLinks = rows.find((row) => row.group.id === SECURENOW_INTEGRATION_NAV_GROUP_ID)?.visibleLinks ?? [];
 
     const homeLinks = rows.find((row) => row.group.id === "securenow-home")?.visibleLinks ?? [];
+    const homeGroup = rows.find((row) => row.group.id === "securenow-home")?.group;
     const findingsLinks = rows.find((row) => row.group.id === SECURENOW_FINDINGS_NAV_GROUP_ID)?.visibleLinks ?? [];
     const environmentLinks = rows.find((row) => row.group.id === SECURENOW_ENVIRONMENT_NAV_GROUP_ID)?.visibleLinks ?? [];
     const remediationLinks = rows.find((row) => row.group.id === SECURENOW_REMEDIATION_NAV_GROUP_ID)?.visibleLinks ?? [];
     const dataSourceLinks = rows.find((row) => row.group.id === SECURENOW_DATA_SOURCES_NAV_GROUP_ID)?.visibleLinks ?? [];
 
     expect(homeLinks.map((link) => link.href)).toEqual(["/"]);
+    expect(homeGroup?.label).toBe("Home");
+    expect(homeGroup?.hideHeading).toBe(true);
     expect(findingsLinks.map((link) => link.href)).toEqual([
       "/security/assigned-to-me",
       "/compliance/findings",
