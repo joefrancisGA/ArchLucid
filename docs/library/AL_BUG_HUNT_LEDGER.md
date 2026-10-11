@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-11 thorough hunt (dry): `api-key-auth` — the selected raw-route audit payload candidate has a real route and controller/service locus, but the proposed noncanonical `keyId` is not established as a wrong audit contract; the focused repro attempt was blocked before test discovery by pre-existing `IActorContext` compile errors in `TenantTrialControllerTests`. No production or regression code changed.
+
 2026-10-11 seed hunt (seed-only): `ui-infra-resource-hub` — reread the selected component’s request, navigation, audit, remediation, and disclosure paths plus all three focused suites; no new reachable mechanism-backed wrong outcome met the promotion bar. The focused ResourceHubClient suites passed 52/52. No candidate was promoted and no production or regression code changed.
 
 2026-10-11 seed hunt (seed-only): `ui-infra-resource-hub` — rechecked the selected component’s request, navigation, audit, remediation, and disclosure paths plus all three focused suites; no new reachable mechanism-backed wrong outcome met the promotion bar. The focused ResourceHubClient suites passed 52/52. No candidate was promoted and no production or regression code changed.
