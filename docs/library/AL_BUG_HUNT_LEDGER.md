@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-11 seed hunt (seed-only): `ui-infra-resource-hub` — reread `ResourceHubClient.tsx`, the resource-hub shortcut handoff, and all three focused suites; no new reachable mechanism-backed wrong outcome met the promotion bar, so no candidate was promoted and no passing regression was added. The focused ResourceHubClient suites passed 52/52. No production or regression code changed.
+
 2026-10-11 seed hunt (seed-only): `ui-infra-resource-hub` — re-read `ResourceHubClient.tsx`, its shortcut hook/shared header handoffs, and the three focused suites; no new reachable mechanism-backed wrong outcome met the promotion bar. The focused ResourceHubClient suites passed 52/52. No production or regression code changed.
 
 2026-10-11 thorough hunt (dry): `host-core-jobs` — cheap-disproved the four retained candidates: terminal failure SQL state-guard risk remains unproven without a reachable SQL concurrency repro; retry re-read behavior preserves the supported `Pending` reclaim state; uploaded result retention is storage hygiene behind a succeeded-state download gate; and in-memory file retention is likewise inaccessible for canceled rows and bounded by eviction. The focused host-core filter passed 76/76. No failing repro or production change.
