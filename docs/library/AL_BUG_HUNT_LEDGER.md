@@ -19302,6 +19302,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-oidc
 
+2026-10-11 thorough hunt (dry): cheap-disproved all five candidates. Primary and supplemental authorities pass through the same discovery URL normalization; configured scopes are deployment input with no reproduced negotiation failure; cleanup is called only from browser redirect flows; 16-byte state is standard high-entropy opaque state with no reachable truncation; and local logout fallback is intentional when the provider publishes no RP logout endpoint. No failing repro or fix was established. The focused OIDC suite passed 71/71.
+
 2026-10-10 seed hunt (seed-only): re-read BFF synchronization, refresh, discovery, token persistence, and JWT hint boundaries; no new row met the full hunt-ready bar for promotion. Seeded five bounded `(candidate)` rows. The focused OIDC suite passed 71/71.
 
 2026-10-10 thorough hunt (dry): cheap-disproved all five seeded candidates: issuer metadata is unused by the in-zone flow; malformed successful token JSON has no accepted-session path; provider-supplied extreme lifetimes have no configured maximum or attacker reachability; the one-minute refresh skew is intentional; and supplemental scopes are deployment configuration with a safe default. No failing repro or fix was established. The focused OIDC suite passed 71/71.
@@ -19348,10 +19350,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 37
+- **hunts:** 38
 - **bugs-found:** 33
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-10-10
+- **consecutive-dry-hunts:** 2
+- **last-hunt:** 2026-10-11
 - **last-bug:** 2026-10-10 — UTF-8 JWT display-name mojibake
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -19488,11 +19490,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `readSessionKey` — whitespace-only storage values are treated as present for PKCE and return-path state — **cheap-disproof 2026-10-10 thorough hunt:** production callers write generated PKCE values and safe return paths; no selected-file caller writes malformed whitespace state.
 - [x] (invalid) `consumePkceState` — matching state is consumed from either flow without explicit provider binding — **cheap-disproof 2026-10-10 thorough hunt:** independently generated states must collide for cross-provider selection, and the callback flow is selected by the stored state pair; no reachable collision was established.
 
-- [ ] (candidate) `getGoogleOidcAuthority` / `initiateSupplementalOidcRedirect` — supplemental authority normalization may differ from the primary authority path for unusual scheme-less or trailing-slash values.
-- [ ] (candidate) `getOidcScopes` — a configured scope string containing duplicate or conflicting scopes is forwarded unchanged, so provider-specific scope negotiation may produce an incomplete identity response.
-- [ ] (candidate) `clearPkceState` / `clearPostSignInReturnUrl` — cleanup assumes browser `sessionStorage` exists, so a reachable server-rendered or constrained callback path may throw while handling a failed redirect.
-- [ ] (candidate) `randomOpaqueState` — the fixed 16-byte state generation may be insufficient if a reachable provider or browser truncates the URL-safe value during authorization.
-- [ ] (candidate) `signOutAndRedirectHome` — absent RP logout metadata falls back to `/` after local cleanup, so a reachable provider without `end_session_endpoint` may leave federated state active.
+- [x] (valid-no-repro) `getGoogleOidcAuthority` / `initiateSupplementalOidcRedirect` — supplemental authority normalization may differ from the primary authority path for unusual scheme-less or trailing-slash values — **cheap-disproof 2026-10-11 thorough hunt:** both primary and supplemental callback flows use `loadDiscoveryDocument`, whose shared normalization trims the authority, adds `https://` when needed, and removes trailing slashes; no provider-selection mismatch was reproduced.
+- [x] (valid-no-repro) `getOidcScopes` — a configured scope string containing duplicate or conflicting scopes is forwarded unchanged, so provider-specific scope negotiation may produce an incomplete identity response — **cheap-disproof 2026-10-11 thorough hunt:** scope text is deployment configuration passed to the provider; no in-zone caller or provider response contract established a wrong identity outcome, and the OIDC suite passed 71/71.
+- [x] (invalid) `clearPkceState` / `clearPostSignInReturnUrl` — cleanup assumes browser `sessionStorage` exists, so a reachable server-rendered or constrained callback path may throw while handling a failed redirect — **cheap-disproof 2026-10-11 thorough hunt:** selected callers invoke cleanup only inside browser redirect functions, and no server-rendered or constrained callback caller exists in `archlucid-ui/src/lib/oidc/`.
+- [x] (invalid) `randomOpaqueState` — the fixed 16-byte state generation may be insufficient if a reachable provider or browser truncates the URL-safe value during authorization — **cheap-disproof 2026-10-11 thorough hunt:** the function emits 128 bits of cryptographic randomness and no selected-file provider/browser path can truncate or weaken it.
+- [x] (valid-no-repro) `signOutAndRedirectHome` — absent RP logout metadata falls back to `/` after local cleanup, so a reachable provider without `end_session_endpoint` may leave federated state active — **cheap-disproof 2026-10-11 thorough hunt:** the optional endpoint is discovery-derived; local cleanup and home navigation are the intentional fallback when the provider offers no RP logout endpoint, with no alternate wrong outcome in the selected files.
 
 ---
 
