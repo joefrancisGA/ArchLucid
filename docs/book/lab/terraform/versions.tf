@@ -7,7 +7,7 @@ terraform {
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "~> 4.0"
+      version = "~> 5.0"
     }
     azuread = {
       source  = "hashicorp/azuread"
@@ -26,6 +26,20 @@ terraform {
 
 provider "azurerm" {
   subscription_id = var.subscription_id
+
+  # azurerm 5.x registers no resource providers by default, and a fresh lab subscription has few registered.
+  # These are the namespaces the lab and the chapters' lab changes deploy into.
+  resource_providers_to_register = [
+    "Microsoft.Automation",
+    "Microsoft.Compute",
+    "Microsoft.Insights",
+    "Microsoft.KeyVault",
+    "Microsoft.ManagedIdentity",
+    "Microsoft.Network",
+    "Microsoft.OperationalInsights",
+    "Microsoft.Storage",
+    "Microsoft.Web",
+  ]
 
   features {
     key_vault {

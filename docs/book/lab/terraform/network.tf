@@ -248,10 +248,9 @@ resource "azurerm_private_dns_zone" "blob" {
 resource "azurerm_private_dns_zone_virtual_network_link" "blob_payments" {
   count = local.network_count
 
-  name                  = "payments"
-  resource_group_name   = azurerm_resource_group.network.name
-  private_dns_zone_name = azurerm_private_dns_zone.blob[0].name
-  virtual_network_id    = azurerm_virtual_network.payments[0].id
+  name                = "payments"
+  private_dns_zone_id = azurerm_private_dns_zone.blob[0].id
+  virtual_network_id  = azurerm_virtual_network.payments[0].id
 }
 
 resource "azurerm_private_endpoint" "custdata_blob" {

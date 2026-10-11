@@ -1,5 +1,5 @@
 # Scaffolding so Chapter 11's tooling module (main.tf, printed in section 11.9) validates on its own.
-# It pins azurerm 5.x, where storage accounts take public_network_access; the companion lab pins 4.x.
+# It pins azurerm 5.x, like the companion lab.
 
 terraform {
   required_version = ">= 1.6.0"
@@ -17,6 +17,14 @@ provider "azurerm" {
 
   # The evidence account rejects shared keys, so Terraform must use Entra ID for blob operations.
   storage_use_azuread = true
+
+  # azurerm 5.x registers no resource providers by default.
+  resource_providers_to_register = [
+    "Microsoft.CognitiveServices",
+    "Microsoft.ManagedIdentity",
+    "Microsoft.Network",
+    "Microsoft.Storage",
+  ]
 
   features {}
 }

@@ -48,6 +48,7 @@ terraform apply lab.tfplan
 | ID | Check | Expected | If not |
 |----|-------|----------|--------|
 | L3 | Apply succeeds first time | No errors. Record wall-clock time | Record the error verbatim |
+| L3a | Resource provider registration | In a brand-new subscription, no `MissingSubscriptionRegistration` error: azurerm 5.x registers only the namespaces in `versions.tf`'s `resource_providers_to_register` | Add the namespace the error names to that list and to the Appendix A author note |
 | L4 | Platform owner | `azuread_application_owner.payments_deploy_platform` applies without "already exists" or a conflict, even though the API may add the caller as owner automatically (A, author notes) | If it conflicts, note the message; the fix is in `identity.tf` |
 | L5 | Container ID shape | `terraform state show azurerm_storage_container.settlements` shows an `id` that starts with `/subscriptions/` and ends `/blobServices/default/containers/settlements` | Record the actual shape; it decides the HCL A.7 uses to narrow `mi_pay_reconcile_archive_reader` |
 

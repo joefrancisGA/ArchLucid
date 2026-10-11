@@ -11,7 +11,7 @@ resource "azurerm_storage_account" "custdata" {
   shared_access_key_enabled = true
 
   # Chapter 5's opening story: a private endpoint exists, and the public endpoint is still open to all networks.
-  public_network_access_enabled = true
+  public_network_access = "Enabled"
 
   allow_nested_items_to_be_public = false
 

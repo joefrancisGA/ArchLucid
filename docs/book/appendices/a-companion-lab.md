@@ -5,7 +5,7 @@
 
 **Spine:** [`../README.md`](../README.md) · **Outline:** [`../OUTLINE.md`](../OUTLINE.md) · **Terraform:** [`../lab/terraform`](../lab/terraform) · **Queries:** [`../lab/queries`](../lab/queries)
 
-> *Draft status: first draft. The module passes `terraform validate` and `terraform fmt -check` against azurerm 4.81, azuread 3.10, random 3.9, and tls 4.4. It has not yet been applied in a live tenant; see the author notes.*
+> *Draft status: first draft. The module passes `terraform validate` and `terraform fmt -check` against azurerm 5.9, azuread 3.10, random 3.9, and tls 4.4. It has not yet been applied in a live tenant; see the author notes.*
 
 Every chapter's lab runs against the same small estate: Contoso's payments platform, with the six paths from Chapter 4 built in on purpose, a network with the mistakes from Chapter 5, and enough ordinary hygiene noise to make Chapter 1's point. This appendix describes what the lab builds, how to deploy it, and how each chapter changes it.
 
@@ -141,7 +141,7 @@ The other listings are synced the same way, from `lab/listings/powershell/`, `la
 - **JSON** must parse, and every schema used with strict structured outputs must follow Appendix C's strict-mode rules.
 - **Terraform** is validated with `terraform validate` against the real providers. Each lab change is checked inside a copy of this module, and Chapter 11's module is checked on its own. Nothing is planned or applied.
 
-Last run on 2026-10-11 with Python 3.14, PowerShell 7.6, Terraform with `azurerm` 4.81.0 for the lab and 5.9.0 for Chapter 11's module, from `docs/book`:
+Last run on 2026-10-11 with Python 3.14, PowerShell 7.6, and Terraform with `azurerm` 5.9.0, from `docs/book`:
 
 ```text
 python tools/check_listings.py
@@ -159,7 +159,7 @@ python tools/check_terraform_listings.py
 You need:
 
 - **Terraform** 1.6 or later, and the **Azure CLI** signed in with `az login` to the lab tenant.
-- **Owner** on the lab subscription, so Terraform can create role assignments.
+- **Owner** on the lab subscription, so Terraform can create role assignments and register the resource providers the lab uses. Version 5 of the `azurerm` provider registers only the ones listed in `versions.tf`.
 - **Entra roles** that can create users and groups, register applications, assign directory roles, and grant Graph application permissions. Global Administrator covers all of it. In a dedicated lab tenant that's simplest; if you prefer narrower roles, you need User Administrator, Application Administrator, and Privileged Role Administrator together.
 - **PowerShell 7** with the Az.ResourceGraph and Microsoft.Graph modules, for the collector in Chapter 3.
 
@@ -312,7 +312,7 @@ Chapter 6 adds the same for `custarchive`. Record when you applied each one. Tha
 
 ### Chapter 5 Step 8 — The network fix
 
-In `payments.tf`, set `public_network_access_enabled = false` on `custdata`. In `network.tf`, narrow the firewall rule so the dev spoke is no longer a source, for example `source_addresses = ["10.1.0.0/16"]` and `destination_addresses = ["10.0.0.0/16"]`. Then re-collect and re-compute.
+In `payments.tf`, set `public_network_access = "Disabled"` on `custdata`. In `network.tf`, narrow the firewall rule so the dev spoke is no longer a source, for example `source_addresses = ["10.1.0.0/16"]` and `destination_addresses = ["10.0.0.0/16"]`. Then re-collect and re-compute.
 
 Chapter 6 Step 4 asks for a key-authenticated read from your own machine. If you've disabled public access, re-enable it for that step, or make the read from inside the payments spoke.
 
@@ -401,10 +401,11 @@ Deleting the Entra objects removes them to the deleted items list for 30 days. T
 
 ## Author notes (remove before submission)
 
-- The module passes `terraform validate` and `terraform fmt -check` (Terraform 1.16.5; azurerm 4.81.0, azuread 3.10.0, random 3.9.1, tls 4.4.1). It has **not** been applied in a live tenant. Before publication, apply it end to end, confirm six paths with Chapter 4's code, and walk every chapter's lab against it.
+- The module passes `terraform validate` and `terraform fmt -check` (Terraform 1.16.5; azurerm 5.9.0, azuread 3.10.0, random 3.9.1, tls 4.4.1). It has **not** been applied in a live tenant. Before publication, apply it end to end, confirm six paths with Chapter 4's code, and walk every chapter's lab against it.
 - The live run is scripted in [`../lab/live-validation-runbook.md`](../lab/live-validation-runbook.md), which also covers Appendices B and C.
 - Untested against a live tenant: `queries/checklist.kql`; the Function App code in section A.5; whether `azuread_application_owner.payments_deploy_platform` conflicts with an owner the API adds automatically for the caller; the resource count quoted in A.5.
-- Confirm the container-scope ID for narrowing `mi_pay_reconcile_archive_reader` in azurerm 4.x, and add the exact HCL to A.7.
+- Confirm the container-scope ID for narrowing `mi_pay_reconcile_archive_reader` in azurerm 5.x, and add the exact HCL to A.7.
+- 2026-10-11 (azurerm 5.x): the module moved from azurerm 4.x to 5.x, following the 5.0 upgrade guide. Changes: the private DNS link takes `private_dns_zone_id`; `custdata` uses `public_network_access = "Enabled"` (the boolean is deprecated); the provider block lists `resource_providers_to_register`, because 5.x registers none by default. Unchanged but checked: sandbox accounts set `allow_nested_items_to_be_public = true` explicitly (5.x defaults it to `false`), key vaults already set `rbac_authorization_enabled` (now required), and `min_tls_version` still always defaults to `TLS1_2`, so A.8's TLS point stands. Whether registration succeeds in a brand-new subscription is part of the live run.
 - 2026-10-11 (listing sync): the HCL blocks in A.7 and in Chapters 7, 9, and 11 are synced from `lab/listings/terraform/` and validated by `tools/check_terraform_listings.py` (not in CI, which has no Terraform). The `terraform.tfvars` line in A.5 is deliberately unsynced.
 - Add a rough monthly cost table once a live deployment has run for a week.
 - Consider an optional `lab/terraform-github` module for the repository environment, if readers ask for it.
