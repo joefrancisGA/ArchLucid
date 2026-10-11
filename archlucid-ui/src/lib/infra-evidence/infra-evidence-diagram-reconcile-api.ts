@@ -11,6 +11,8 @@ import type {
   InfrastructureDiagramNodeMappingSaveRequest,
   OperationalSecurityFindingBatchIngestResult,
   OperationalSecurityFindingIngestRequest,
+  OperationalSecurityFindingLookupItem,
+  OperationalSecurityFindingLookupRequest,
   StructuredDiagramIngestRequest,
   StructuredDiagramIngestResult,
 } from "@/lib/infra-evidence/infra-evidence-diagram-reconcile-types";
@@ -80,6 +82,15 @@ export async function ingestOperationalSecurityFindings(
 ): Promise<OperationalSecurityFindingBatchIngestResult> {
   return proxyJsonPost<OperationalSecurityFindingBatchIngestResult>(
     "/api/proxy/v1/operational-security/findings/ingest",
+    request,
+  );
+}
+
+export async function lookupOperationalSecurityFindings(
+  request: OperationalSecurityFindingLookupRequest,
+): Promise<OperationalSecurityFindingLookupItem[]> {
+  return proxyJsonPost<OperationalSecurityFindingLookupItem[]>(
+    "/api/proxy/v1/operational-security/findings/lookup",
     request,
   );
 }
