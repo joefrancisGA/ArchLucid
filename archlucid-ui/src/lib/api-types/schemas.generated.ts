@@ -6539,6 +6539,16 @@ export interface components {
             subscriptionOrAccountId?: null | string;
             title?: string;
         };
+        OperationalSecurityFindingLookupItem: {
+            /** Format: uuid */
+            findingId?: string;
+            sourceFindingId?: string;
+            status?: string;
+        };
+        OperationalSecurityFindingLookupRequest: {
+            sourceFindingIds?: string[];
+            sourceSystem?: string;
+        };
         OperationalSecurityFindingMetadataRecord: {
             /** Format: uuid */
             findingId?: string;
