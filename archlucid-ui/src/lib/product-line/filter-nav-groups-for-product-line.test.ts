@@ -108,6 +108,7 @@ describe("filterNavGroupsForProductLine (Security shell)", () => {
       "/compliance/audit-evidence",
     ]);
     expect(dataSourceLinks.map((link) => link.href)).toEqual([
+      "/infrastructure/collection-agent",
       "/integrations/cloud-connections",
       "/infrastructure/declared-connections",
       "/administration/connection-status",
@@ -147,6 +148,7 @@ describe("filterNavGroupsForProductLine (Security shell)", () => {
       "Audit evidence",
     ]);
     expect(dataSourceLinks.map((link) => link.label)).toEqual([
+      "Collection agent",
       "Azure connections",
       "Declared connections",
       "Connection status",
