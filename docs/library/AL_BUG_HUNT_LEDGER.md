@@ -15500,6 +15500,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: agent-runtime-safety
 
+2026-10-10 seed hunt (seed-only): re-read the selected Content Safety guards and prompt-injection sanitizers; the exact picker filter passed 584/584. No fresh reachable mechanism-backed wrong outcome met the hunt-ready bar. Seeded bounded candidates for configured severity-threshold range handling and degraded-audit attribution; no production or regression code changed.
+
 2026-10-10 seed hunt (seed-only): repeated the selected Safety and PromptInjection reread; no new hunt-ready row was found, and the exact picker filter passed 584 tests. No production or regression code changed.
 
 2026-10-10 seed hunt (seed-only): repeated the selected Safety and PromptInjection reread; no new hunt-ready row was found, and the exact picker filter passed 584 tests. No production or regression code changed.
@@ -16388,7 +16390,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** content safety guard; prompt injection sanitizer; agent evidence untrusted input
 - **paths:** ArchLucid.AgentRuntime/Safety/; ArchLucid.AgentRuntime/PromptInjection/
 - **test-filter:** FullyQualifiedName~AzureContentSafetyGuard|FullyQualifiedName~AgentEvidenceUntrustedInputSanitizer|FullyQualifiedName~PromptInjection
-- **hunts:** 70
+- **hunts:** 71
 - **last-hunt:** 2026-10-10
 - **bugs-found:** 24
 - **consecutive-dry-hunts:** 1
@@ -16417,6 +16419,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-12 seed hunt #2073 (seed-only): reseeded agent-runtime-safety; 4 scoped tests passed; no new hunt-ready rows
 
 ### Hypotheses
+
+- [ ] (candidate) `AzureContentSafetyGuard.MapResult` — a reachable Azure response containing multiple blocking categories returns whichever blocking category appears first, while Azure response ordering is not established as stable; diagnostic category/reason text could vary across equivalent blocked inputs.
+- [ ] (candidate) `AzureContentSafetyGuard.AnalyzeAsync` — a reachable `ArchLucid:ContentSafety:BlockSeverityThreshold` value outside the documented four-level scale is passed directly to comparison logic, potentially changing block behavior without startup validation; configuration validation is outside the selected files.
+- [ ] (candidate) `CircuitBreakingContentSafetyGuard.TryAuditAsync` — fail-open degraded safety events always use `Guid.Empty` tenant/workspace/project identifiers, potentially losing tenant attribution for a reachable circuit-open request; the selected guard has no request-scope source to establish whether system-level attribution is intentional.
 
 - [x] (invalid) `AzureResourceTagPromptSanitizer.SanitizeTagMap` — an externally populated tag map with a null value reaches `StripControlChars` through a non-nullable string contract — **cheap-disproof 2026-10-10 thorough hunt:** no selected production caller passes a nullable Azure tag map into this sanitizer; the proposed JSON input has no reachability citation in the selected paths.
 - [x] (invalid) `AgentEvidenceUntrustedInputSanitizer.SanitizeAsync` — an externally populated evidence payload with a null collection reaches a direct `foreach` over `Policies`, `ServiceCatalog`, `Patterns`, or `Notes` — **cheap-disproof 2026-10-10 thorough hunt:** the selected runtime assembles `AgentEvidencePackage` in process and provides initialized collections; no selected JSON/API deserialization boundary supplies a null collection.

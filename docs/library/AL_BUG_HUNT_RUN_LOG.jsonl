@@ -9333,3 +9333,4 @@
 {"at":"2026-10-10T23:51:30.4234963Z","zoneId":"architecture-recommendation","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationEngine.cs","ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationTradeOffBuilder.cs"]}
 {"at":"2026-10-10T23:55:53.6211683Z","zoneId":"ui-governance-findings-queue","outcome":"seed-only","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(operator)/governance/findings/"]}
 {"at":"2026-10-10T23:58:11.7972268Z","zoneId":"ui-governance-findings-queue","outcome":"dry","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(operator)/governance/findings/"]}
+{"at":"2026-10-11T00:03:55.6998003Z","zoneId":"agent-runtime-safety","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.AgentRuntime/Safety/","ArchLucid.AgentRuntime/PromptInjection/"]}
