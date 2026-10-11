@@ -6,6 +6,7 @@ import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { secureNowEditionShowsProductLineSwitch } from "@/lib/editions/lock-product-line-for-securenow-edition";
 import { INTERNAL_PRODUCT_LINE_PATH } from "@/lib/product-line/product-line-catalog";
 import {
   PRODUCT_LINE_OPEN_INTERNAL_LINK_LABEL,
@@ -51,7 +52,7 @@ export function ProductLineRouteBlockedView(props: ProductLineRouteBlockedViewPr
       </header>
 
       <div className="flex flex-wrap gap-2">
-        {presentation.switchToProductLine !== null ? (
+        {presentation.switchToProductLine !== null && secureNowEditionShowsProductLineSwitch() ? (
           <Button
             type="button"
             variant="primary"

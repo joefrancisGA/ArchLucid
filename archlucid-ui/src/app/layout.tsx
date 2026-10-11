@@ -7,11 +7,13 @@ import {
 } from "@/lib/build-identity-html-meta";
 import { MARKETING_ROOT_OG_DESCRIPTION } from "@/lib/marketing-open-graph";
 import {
+  resolveSecureNowWorkspaceDocumentTitle,
+  resolveSecureNowWorkspaceTitleTemplate,
+} from "@/lib/editions/securenow-edition-document-title";
+import {
   productLineDisplayName,
-  productLineDocumentTitle,
   productLineRootManifestPath,
   productLineRootMetadataIcons,
-  productLineTitleTemplate,
 } from "@/lib/product-line/product-line-display-name";
 import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
 import { getSiteMetadataBaseUrl } from "@/lib/site-metadata-base";
@@ -37,8 +39,8 @@ export const viewport: Viewport = { themeColor: "#1E3A5F" };
 export const metadata: Metadata = {
   metadataBase: siteUrl,
   title: {
-    default: productLineDocumentTitle(buildTimeProductLine),
-    template: productLineTitleTemplate(buildTimeProductLine),
+    default: resolveSecureNowWorkspaceDocumentTitle(buildTimeProductLine),
+    template: resolveSecureNowWorkspaceTitleTemplate(buildTimeProductLine),
   },
   description: MARKETING_ROOT_OG_DESCRIPTION,
   manifest: productLineRootManifestPath(buildTimeProductLine),

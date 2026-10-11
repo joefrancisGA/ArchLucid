@@ -1,13 +1,13 @@
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Common;
+using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.InfraEvidence;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
-using ArchLucid.Contracts.Common;
-using ArchLucid.Contracts.InfraEvidence;
 using ArchLucid.Persistence.InfraEvidence;
 
 using Asp.Versioning;
@@ -81,7 +81,7 @@ public sealed class OperationalSecurityFindingsController(
 
     // idempotency-posture: dry-run-no-persist
     [HttpPost("lookup")]
-    [MutatingAuditExcluded("Read-only finding lookup.")]
+    [MutatingAuditExcluded("Read-only natural-key lookup; does not persist domain mutations.")]
     [ProducesResponseType(typeof(IReadOnlyList<OperationalSecurityFindingLookupItem>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Lookup(
