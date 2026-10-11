@@ -34,6 +34,18 @@ export function resolveExtractUploadPackageEmphasizedStepId(input: {
   return incomplete?.id ?? "parse";
 }
 
+/** The accepted-package panel already confirms a finished upload; keep the checklist only while a step is open. */
+export function shouldShowExtractUploadPackageChecklist(
+  hasAcceptedPackage: boolean,
+  steps: readonly IntegrationConnectChecklistStep[] | null | undefined,
+): boolean {
+  if (!hasAcceptedPackage || steps == null) {
+    return true;
+  }
+
+  return steps.some((step) => !step.complete);
+}
+
 export function resolveExtractUploadHasInventoryOnFile(input: {
   readonly hasBaselineArtifacts: boolean | null;
   readonly packageId: string | null;

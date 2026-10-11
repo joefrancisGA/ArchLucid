@@ -80,6 +80,8 @@ import { truncateExtractUploadPackageId } from "@/lib/extract-upload-accepted-pa
 import { ExtractUploadSettingsPageHeader } from "./ExtractUploadSettingsPageHeader";
 import { ExtractUploadSettingsBuyerChrome } from "./ExtractUploadSettingsBuyerChrome";
 import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
+import { extractUploadSettingsSources } from "@/lib/extract-upload-settings-evidence-copy";
+import { shouldShowExtractUploadPackageChecklist } from "@/lib/extract-upload-package-checklist";
 import { ExtractUploadSettingsEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { useExtractUploadPageClient } from "./use-extract-upload-page-client";
@@ -178,6 +180,7 @@ function ExtractUploadSettingsPageClientInner() {
   const platformLabel = cloudInventoryPlatformLabel(selectedPlatform);
   const showScriptDownload = selectedPlatform === "azure";
   const reviewBindingLabel = reviewBindingStepLabel(associateRunId);
+  const showUploadChecklist = shouldShowExtractUploadPackageChecklist(lastAcceptedPackage !== null, extractUploadSteps);
 
   return (
     <div
@@ -221,18 +224,20 @@ function ExtractUploadSettingsPageClientInner() {
         >
           <ExtractUploadSettingsBuyerChrome />
 
-          <ExtractUploadSettingsEvidenceOrientationStrip />
+          <ExtractUploadSettingsEvidenceOrientationStrip sources={extractUploadSettingsSources(productLine)} />
 
           {lastAcceptedPackage !== null ? (
             <ExtractUploadAcceptedPackagePanel record={lastAcceptedPackage} productLineId={productLine} />
           ) : null}
 
-          <IntegrationConnectChecklist
-            title="Upload checklist"
-            steps={extractUploadSteps}
-            emphasizedStepId={extractUploadEmphasizedStepId}
-            testIdPrefix="extract-upload-package"
-          />
+          {showUploadChecklist ? (
+            <IntegrationConnectChecklist
+              title="Upload checklist"
+              steps={extractUploadSteps}
+              emphasizedStepId={extractUploadEmphasizedStepId}
+              testIdPrefix="extract-upload-package"
+            />
+          ) : null}
 
           {extractorUpdateBanner ? (
             <div

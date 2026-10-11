@@ -4,6 +4,7 @@ import {
   resolveExtractUploadHasInventoryOnFile,
   resolveExtractUploadPackageEmphasizedStepId,
   resolveExtractUploadPackageSteps,
+  shouldShowExtractUploadPackageChecklist,
 } from "@/lib/extract-upload-package-checklist";
 
 describe("resolveExtractUploadHasInventoryOnFile", () => {
@@ -96,5 +97,27 @@ describe("resolveExtractUploadPackageSteps", () => {
         replacingInventory: true,
       }),
     ).toBe("upload");
+  });
+});
+
+describe("shouldShowExtractUploadPackageChecklist", () => {
+  const allDone = resolveExtractUploadPackageSteps({ packageAccepted: true, inventoryParsed: true });
+  const parsePending = resolveExtractUploadPackageSteps({ packageAccepted: true, inventoryParsed: false });
+
+  it("shows the checklist when no package has been accepted", () => {
+    expect(shouldShowExtractUploadPackageChecklist(false, allDone)).toBe(true);
+  });
+
+  it("hides the checklist once a package is accepted and every step is done", () => {
+    expect(shouldShowExtractUploadPackageChecklist(true, allDone)).toBe(false);
+  });
+
+  it("keeps the checklist while an accepted package still has an open step", () => {
+    expect(shouldShowExtractUploadPackageChecklist(true, parsePending)).toBe(true);
+  });
+
+  it("shows the checklist when steps are missing", () => {
+    expect(shouldShowExtractUploadPackageChecklist(true, null)).toBe(true);
+    expect(shouldShowExtractUploadPackageChecklist(true, undefined)).toBe(true);
   });
 });

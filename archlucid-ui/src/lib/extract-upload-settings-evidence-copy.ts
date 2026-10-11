@@ -37,6 +37,25 @@ export function extractUploadSettingsSources(productLineId: ProductLineId = "arc
     : EXTRACT_UPLOAD_SETTINGS_SOURCES;
 }
 
+/** The single action an accepted package unlocks; remaining follow-ups stay in "Where to go next". */
+export const EXTRACT_UPLOAD_ACCEPTED_PACKAGE_NEXT_ACTION: EvidenceSourceLink = {
+  label: "Start a review",
+  href: "/architecture/reviews/new",
+};
+
+export const EXTRACT_UPLOAD_ACCEPTED_PACKAGE_NEXT_ACTION_SECURENOW: EvidenceSourceLink = {
+  label: "Review findings",
+  href: SECURENOW_FINDINGS_PATH,
+};
+
+export function extractUploadAcceptedPackageNextAction(
+  productLineId: ProductLineId = "architecture",
+): EvidenceSourceLink {
+  return isSecureNowProductLine(productLineId)
+    ? EXTRACT_UPLOAD_ACCEPTED_PACKAGE_NEXT_ACTION_SECURENOW
+    : EXTRACT_UPLOAD_ACCEPTED_PACKAGE_NEXT_ACTION;
+}
+
 /** Orientation-strip Sources — same follow-ups as operator Sources. */
 export const EXTRACT_UPLOAD_SETTINGS_ORIENTATION_SOURCES: readonly EvidenceSourceLink[] =
   EXTRACT_UPLOAD_SETTINGS_SOURCES;
