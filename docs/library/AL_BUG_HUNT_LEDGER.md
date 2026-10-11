@@ -27858,6 +27858,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ## Zone: context-ingestion
 
+2026-10-11 seed hunt (seed-only): repeated the selected context-ingestion parser and canonicalization reread; no fresh reachable wrong outcome met the hunt-ready bar. The scoped ContextIngestion/Canonicalization filter passed 829/829; no production or regression code changed.
+
 2026-10-11 seed hunt (seed-only): re-read the selected canonical property, diagram intake, infrastructure parser, and scope paths; no fresh reachable wrong outcome met the promotion bar. The scoped ContextIngestion/Canonicalization filter passed 829/829; no production or regression code changed.
 
 2026-10-11 seed hunt (seed-only): re-read the selected JSON/HCL canonicalization, uploaded-config inference, and context-scope paths; no fresh row met the full reachability and wrong-outcome bar. The scoped ContextIngestion/Canonicalization filter passed 829/829; no production or regression code changed.
