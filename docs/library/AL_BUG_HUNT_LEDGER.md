@@ -30531,15 +30531,17 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ## Zone: artifact-synthesis
 
+2026-10-11 thorough hunt (hit): `DocxExportService.BuildDocumentAsync` wrote persisted `RuleSetId` and `RuleSetVersion` directly into the provenance table, so a reachable manifest rule-set field containing an OpenXML-invalid control character caused DOCX export to throw while saving. Sanitized the combined rule-set display value; regression `ExportAsync_sanitizes_control_characters_in_provenance_rule_set_fields` failed first and passed after the fix. The branded PNG length candidate was invalid because `TryExtractInnerPng` has no production caller.
+
 - **id:** artifact-synthesis
 - **status:** open
 - **impact:** medium
 - **aliases:** artifact synthesis; docx generator; packaging sanitization
 - **paths:** ArchLucid.ArtifactSynthesis/
 - **test-filter:** FullyQualifiedName~ArtifactSynthesis|FullyQualifiedName~Docx
-- **hunts:** 44
-- **last-hunt:** 2026-10-09
-- **bugs-found:** 45
+- **hunts:** 45
+- **last-hunt:** 2026-10-11
+- **bugs-found:** 46
 - **consecutive-dry-hunts:** 0
 - **last-bug:** 2026-10-08 — Graphviz cluster IDs collided after sanitization
 - **related-pd-tb:** none
@@ -30547,8 +30549,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ### Hypotheses
 
-- [ ] (candidate) `BrandedDiagramExportContainer.TryExtractInnerPng` — a branded payload with a valid magic/version header and a hostile 32-bit PNG length can overflow `offset + pngLength`, causing an exception instead of returning `null`; the public branded-export reader accepts arbitrary `ReadOnlySpan<byte>` payloads, but a caller-controlled production import path still needs confirmation.
-- [ ] (candidate) `DocxExportService.BuildDocumentAsync` provenance appendix — a committed manifest with control characters in `RuleSetId` or `RuleSetVersion` may reach OpenXML table text without the same artifact-text sanitization applied to other manifest fields; the values originate from persisted manifest metadata, but a concrete production manifest path and wrong rendered outcome need confirmation.
+- [x] (invalid) `BrandedDiagramExportContainer.TryExtractInnerPng` — hostile length overflow claim — **cheap-disproof 2026-10-11 thorough hunt:** `TryExtractInnerPng` has no production caller in the selected repository; only its own unit test reaches it, so no caller-controlled import path is reachable.
+- [x] (proven) `DocxExportService.BuildDocumentAsync` provenance appendix — persisted manifest `RuleSetId` / `RuleSetVersion` control characters reached OpenXML table text and caused export save failure through `DocxExportController` — **hit 2026-10-11 thorough hunt:** sanitize the combined rule-set display value with `SanitizeArtifactText`; regression `ExportAsync_sanitizes_control_characters_in_provenance_rule_set_fields`.
 
 2026-10-09 seed hunt (seed-only): re-read artifact synthesis and DOCX/export paths after recent diagram and missing-value changes; no candidate met the full hunt-ready reachability and wrong-outcome bar. Added two mechanism-backed candidates for the branded payload length parser and provenance appendix sanitization. The scoped filter reported 693 passed, 17 pre-existing Mermaid inventory expectation failures, and 2 skipped Terraform tests.
 
