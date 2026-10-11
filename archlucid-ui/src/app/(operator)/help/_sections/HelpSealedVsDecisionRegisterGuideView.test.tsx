@@ -83,6 +83,6 @@ describe("HelpSealedVsDecisionRegisterGuideView (DI-023 / SEX Phase 2)", () => {
       DESK_IA_HELP_SEALED_VS_REGISTER_HELP_RETURN.href,
     );
 
-    expect(screen.queryByTestId("help-sealed-vs-decision-register-honesty-panel")).not.toBeInTheDocument();
+    expect(screen.getByTestId("help-sealed-vs-decision-register-honesty-panel")).toBeInTheDocument();
   });
 });

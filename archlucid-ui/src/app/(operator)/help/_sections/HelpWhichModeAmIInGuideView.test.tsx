@@ -75,6 +75,6 @@ describe("HelpWhichModeAmIInGuideView (MG-012 / HEH Phase 2)", () => {
       MODE_GRAVITY_HELP_WHICH_MODE_HELP_RETURN.href,
     );
 
-    expect(screen.queryByTestId("help-which-mode-am-i-in-honesty-panel")).not.toBeInTheDocument();
+    expect(screen.getByTestId("help-which-mode-am-i-in-honesty-panel")).toBeInTheDocument();
   });
 });
