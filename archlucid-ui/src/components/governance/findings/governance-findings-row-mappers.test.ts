@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import type { ArchitectureRiskRegisterEntry } from "@/lib/api/governance-stickiness-api";
+import { matchesRiskRegisterFilter } from "@/lib/architecture/architecture-risk-register-page";
 
 import { decisionRegisterRows, riskRegisterRows } from "./governance-findings-row-mappers";
 
@@ -53,5 +54,25 @@ describe("riskRegisterRows", () => {
 
     expect(() => decisionRegisterRows([entry])).not.toThrow();
     expect(decisionRegisterRows([entry])).toEqual([]);
+  });
+
+  it("normalizes optional risk-register text fields before queue filtering", () => {
+    const entry = {
+      findingId: "finding-2",
+      runId: "run-2",
+      manifestId: "manifest-2",
+      title: undefined,
+      severity: undefined,
+      category: undefined,
+      statusLabel: undefined,
+      agingDays: 1,
+      isStale: false,
+      evidenceHref: "",
+    } as unknown as ArchitectureRiskRegisterEntry;
+
+    const [row] = riskRegisterRows([entry]);
+
+    expect(row?.status).toBe("");
+    expect(() => (row === undefined ? false : matchesRiskRegisterFilter(row, "open"))).not.toThrow();
   });
 });

@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-11 seed hunt (seed→hit): `ui-governance-findings-queue` — generated risk-register text fields are optional, but `riskRegisterRows` passed omitted status/title/severity/category values into queue filtering and `row.status.toLowerCase()` could throw. The mapper now normalizes optional text fields; regression `normalizes optional risk-register text fields before queue filtering` failed first and passed after the fix. Mapper tests passed 4/4.
+
 2026-10-11 thorough hunt (hit): `ui-governance-findings-queue` — risk and decision register mappers admitted malformed identifier shapes from the generated optional API fields: padded finding ids destabilized bulk-selection identity after URL normalization, while an omitted decision id could throw during title construction. The mappers now drop missing decision ids and normalize accepted ids; regressions cover both paths. Mapper tests passed 3/3; the picker-scoped client file retained 11 known external-store/update-depth and workspace-label baseline failures.
 
 2026-10-11 seed hunt (seed-only): `host-core-coordination` — re-read the processor isolation shell and option verification path; the existing candidate set remains contract-dependent and no new reachable wrong outcome emerged. The focused coordination/outbox filter passed 21/21. No production or regression code changed.
@@ -14915,8 +14917,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** background jobs; hosted services; durable job queue
 - **paths:** ArchLucid.Host.Core/Jobs/; ArchLucid.Host.Core/Hosted/
 - **test-filter:** FullyQualifiedName~ArchLucidJob|FullyQualifiedName~BackgroundJob|FullyQualifiedName~Hosted
-- **hunts:** 46
-- **bugs-found:** 31
+- **hunts:** 47
+- **bugs-found:** 32
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-11
 - **last-bug:** 2026-10-07 — stale MarkSucceeded after watchdog reclaim to Pending
@@ -35710,7 +35712,7 @@ ABQ-09 churn hotspot; intake wizard route tree.
 - **bugs-found:** 31
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-11
-- **last-bug:** 2026-10-11 — malformed register identifiers destabilized governance queue rows
+- **last-bug:** 2026-10-11 — optional risk-register text crashed queue filtering
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -35727,6 +35729,8 @@ ABQ-09 churn hotspot.
 2026-10-09 thorough hunt (dry): cheap-disproved all five candidates; no failing repro was established and no fix was shipped. Candidate-specific tests ran 19 tests: 16 passed and 3 failed on the existing workspace-label expectation baseline. The focused queue files ran 29 tests: 17 passed and 12 failed on known external-store/update-depth, workspace-label, and buyer-polished contextual-help baselines.
 
 ### Hypotheses
+
+- [x] (proven) `riskRegisterRows` — generated optional risk-register `statusLabel`, `title`, `severity`, or `category` values can be omitted, but the mapper passed `status` through as `undefined`; the open-filter path then called `.toLowerCase()` and could fail queue rendering — **hit 2026-10-11 seed hunt:** normalize optional text fields to safe strings before building queue rows; regression `normalizes optional risk-register text fields before queue filtering`.
 
 - [x] (proven) `riskRegisterRows` — an API risk-register `findingId` containing surrounding whitespace was admitted after the trimmed emptiness check but retained untrimmed, so bulk-selection identity diverged after the URL helper normalized the same id; **hit 2026-10-11 thorough hunt:** normalize accepted risk-register finding ids before queue selection and links; regression `normalizes surrounding whitespace from risk-register finding ids`.
 - [x] (proven) `decisionRegisterRows` — an API decision-register entry with omitted optional identity/title fields reached `.trim()` through the title fallback and threw during queue mapping; **hit 2026-10-11 thorough hunt:** drop entries without a non-empty decision id and use the normalized id for title/finding identity; regression `drops decision-register entries without a decision id before queue rendering`.

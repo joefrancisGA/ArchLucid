@@ -26,6 +26,10 @@ export function riskRegisterRows(entries: ArchitectureRiskRegisterEntry[]): Gove
     const runId = (entry.runId ?? "").trim();
     const systemName = (entry.systemName ?? "").trim();
     const resourceId = (entry.resourceId ?? "").trim();
+    const title = (entry.title ?? "").trim();
+    const severity = (entry.severity ?? "").trim();
+    const category = (entry.category ?? "").trim();
+    const statusLabel = (entry.statusLabel ?? "").trim();
     const recommended =
       entry.latestDisposition !== null && entry.latestDisposition !== undefined
         ? `Latest disposition: ${entry.latestDisposition}. Owner: ${entry.ownerUserId ?? "unassigned"}.`
@@ -38,10 +42,10 @@ export function riskRegisterRows(entries: ArchitectureRiskRegisterEntry[]): Gove
       runLabel,
       manifestId: (entry.manifestId ?? "").trim(),
       findingId,
-      title: entry.title,
-      severity: entry.severity,
-      category: entry.category,
-      status: entry.isStale ? `${entry.statusLabel} · stale` : entry.statusLabel,
+      title,
+      severity,
+      category,
+      status: entry.isStale ? `${statusLabel} · stale` : statusLabel,
       recommended,
       recordKind: "finding",
       traceConfidenceLevel: null,
@@ -61,7 +65,7 @@ export function riskRegisterRows(entries: ArchitectureRiskRegisterEntry[]): Gove
           : null,
       systemName: systemName.length > 0 ? systemName : null,
       resourceId: resourceId.length > 0 ? resourceId : null,
-      policyRuleId: coerceComplianceRuleKey(entry.category),
+      policyRuleId: coerceComplianceRuleKey(category),
     };
   });
 }
