@@ -191,7 +191,8 @@ internal static class ArchitectureRecommendationTradeOffBuilder
             || CreateExceptDimensionPattern(dimensionToken).IsMatch(priority)
             || CreateAvoidDimensionPattern(dimensionToken).IsMatch(priority)
             || CreateOmitDimensionPattern(dimensionToken).IsMatch(priority)
-            || CreateExplicitDeprioritizationPattern(dimensionToken).IsMatch(priority);
+            || CreateExplicitDeprioritizationPattern(dimensionToken).IsMatch(priority)
+            || CreatePostpositiveNegationPattern(dimensionToken).IsMatch(priority);
     }
 
     private static Regex CreateAvoidDimensionPattern(string dimensionToken)
@@ -212,6 +213,13 @@ internal static class ArchitectureRecommendationTradeOffBuilder
     {
         return new Regex(
             $@"\b(?:do\s+not|don['’]t)\s+(?:depriorit(?:ize|ise)|priorit(?:y|ize|ise)|select|favor|favour|prefer|rank)\s+{Regex.Escape(dimensionToken)}\b",
+            RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+    }
+
+    private static Regex CreatePostpositiveNegationPattern(string dimensionToken)
+    {
+        return new Regex(
+            $@"\b{Regex.Escape(dimensionToken)}\s+(?:is\s+not|isn['’]t)\s+(?:a\s+)?(?:priority|prioritized|prioritised)\b",
             RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
     }
 

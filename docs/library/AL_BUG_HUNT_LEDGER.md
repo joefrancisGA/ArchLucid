@@ -1918,7 +1918,7 @@
 
 2026-10-09 seed hunt (seed-only): re-read the selected topology merge orchestration files and focused tests; no fresh reachable mechanism-backed candidate met the seed quality bar and no hypothesis was promoted. The focused topology test run was blocked by unrelated `ARCH002` in `ArchLucid.Core/Auth/Saml/SamlMetadataDiscoveryParser.cs`.
 
-**Hunts:** 1612 · **Bugs found:** 979
+**Hunts:** 1613 · **Bugs found:** 980
 
 2026-10-09 seed hunt (seed-only): re-read all seven selected topology orchestration files and focused tests; no candidate met the hunt-ready bar, so no hypothesis was promoted. Seeded five mechanism-backed `(candidate)` rows; the focused topology test run was blocked by unrelated `ARCH002` in `ArchLucid.Core/Auth/Saml/SamlMetadataDiscoveryParser.cs`.
 
@@ -9577,6 +9577,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ---
 
 ## Zone: architecture-recommendation
+
+2026-10-11 seed hunt (seed→hit): `ArchitectureRecommendationTradeOffBuilder` treated the reachable operator priority `Security is not a priority for phase one` as Security-first because postpositive negation was not recognized; added generalized `is not`/`isn't` priority and prioritization matching; regression `BuildRecommendations_balances_security_cost_trade_off_when_priority_says_security_is_not_a_priority`; the exact Alternatives/ProposedChange filter passed 45/45 and the TradeOffBuilder suite passed 14/14.
+
+- [x] (proven) `ArchitectureRecommendationTradeOffBuilder.IsNegatedDimensionMention` — postpositive phrases such as `{dimension} is not a priority` falsely selected that dimension — **hit 2026-10-11 seed hunt:** `ClosedLoopReasoningRequest.DeclaredPriorities` reaches the matcher; postpositive negation now keeps the Security/Cost resolution balanced; regression `BuildRecommendations_balances_security_cost_trade_off_when_priority_says_security_is_not_a_priority`.
 
 2026-10-11 seed hunt (seed→hit): `ArchitectureRecommendationTradeOffBuilder` treated the reachable operator priority `Do not prioritize security in phase one` as Security-first because explicit “do not prioritize” wording was not recognized as negation; added generalized explicit deprioritization matching for do-not/don't plus prioritization, selection, favoring, preference, ranking, and deprioritization verbs; regression `BuildRecommendations_balances_security_cost_trade_off_when_priority_says_do_not_prioritize_security`; the exact Alternatives/ProposedChange filter passed 45/45 and the TradeOffBuilder suite passed 13/13.
 
