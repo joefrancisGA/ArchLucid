@@ -16,6 +16,7 @@ public sealed class AzureInventorySnapshotGraphEdgeAppenderSelfEdgeTests
         HashSet<string> keys = new(StringComparer.Ordinal);
         GraphEdge? result = AzureInventorySnapshotGraphEdgeAppender.TryAdd(edges, keys, "same", "same", "type", "source",
             allowSelfEdges: allow);
+
         if (allow)
         {
             Assert.Same(Assert.Single(edges), result);

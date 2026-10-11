@@ -43,6 +43,7 @@ public sealed class AzureInventorySnapshotRoleAssignmentEdgePolicyTests
             or "missing-principal" or "blank-principal" or "blank-scope";
         bool multiple = mode is "reader-first" or "owner-first" or "duplicate-scopes" or "two-principals";
         Assert.Equal(suppressed ? 0 : multiple ? 2 : 1, roles.Length);
+
         foreach (GraphEdge edge in roles)
         {
             Assert.Equal(Workload, graph.Nodes.Single(node => node.NodeId == edge.FromNodeId).SourceId);
@@ -51,6 +52,7 @@ public sealed class AzureInventorySnapshotRoleAssignmentEdgePolicyTests
                 && ArmResourceIdNormalizer.Normalize(assignment.Scope) == edge.Properties["scope"]
                 && assignment.RoleDefinitionId == edge.Properties["roleDefinitionId"]);
             Assert.Equal(assignment.RoleDefinitionId, edge.Properties["roleDefinitionId"]);
+
             if (mode == "unknown-role") Assert.False(edge.Properties.ContainsKey("roleName"));
             else Assert.Equal(edge.Properties["roleDefinitionId"] == Owner ? "Owner" : "Reader", edge.Properties["roleName"]);
             Assert.Equal(GraphEdgeTypes.HasRole, edge.Label);
@@ -60,9 +62,11 @@ public sealed class AzureInventorySnapshotRoleAssignmentEdgePolicyTests
             Assert.Equal($"edge-{edge.FromNodeId}|{edge.ToNodeId}|{GraphEdgeTypes.HasRole}|"
                 + AzureInventoryRoleAssignmentIdentity.Create(assignment.PrincipalId, assignment.Scope, assignment.RoleDefinitionId), edge.EdgeId);
             Assert.Null(edge.DeclaredConnectionId);
+
             if (mode is "unknown-scope" or "subscription") Assert.StartsWith("role-scope-", edge.ToNodeId);
             else Assert.Equal(mode == "self" ? Workload : Target, graph.Nodes.Single(node => node.NodeId == edge.ToNodeId).SourceId);
         }
+
         if (mode is "reader-first" or "owner-first" or "duplicate-scopes" or "two-principals")
         {
             Assert.Equal(2, Snapshot(mode).RoleAssignments.Count);
@@ -90,6 +94,7 @@ public sealed class AzureInventorySnapshotRoleAssignmentEdgePolicyTests
         original.Properties["scope"] = "original scope";
         List<GraphEdge> edges = [original];
         HashSet<string> keys = new(StringComparer.Ordinal);
+
         if (keyPresent) keys.Add($"workload|target|{GraphEdgeTypes.HasRole}");
         Hydrate(Snapshot("exact"), edges, keys);
         Assert.Equal(2, edges.Count);

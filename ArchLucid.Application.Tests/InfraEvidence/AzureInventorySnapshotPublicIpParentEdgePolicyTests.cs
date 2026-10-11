@@ -28,6 +28,7 @@ public sealed class AzureInventorySnapshotPublicIpParentEdgePolicyTests
         GraphSnapshot graph = await ResolveScenarioAsync(scenario);
         GraphEdge[] exposures = graph.Edges.Where(edge => edge.EdgeType == GraphEdgeTypes.Exposes).ToArray();
         Assert.Equal(mode is "missing" or "redacted" or "blank" or "malformed" ? 0 : mode == "reverse" ? 2 : 1, exposures.Length);
+
         if (exposures.Length == 0) return;
         GraphEdge edge = Assert.Single(exposures, edge => graph.Nodes.Single(node => node.NodeId == edge.FromNodeId).SourceId == PublicIp);
         Assert.Equal(Parent(scenario.Split(':')[0]), graph.Nodes.Single(node => node.NodeId == edge.ToNodeId).SourceId);
@@ -37,6 +38,7 @@ public sealed class AzureInventorySnapshotPublicIpParentEdgePolicyTests
         Assert.Equal(GraphEdgeTypes.Exposes, edge.Label);
         Assert.Equal(1d, edge.Weight);
         Assert.Equal($"edge-{edge.FromNodeId}|{edge.ToNodeId}|{GraphEdgeTypes.Exposes}", edge.EdgeId);
+
         if (mode == "reverse")
         {
             GraphEdge reverse = Assert.Single(exposures, candidate => candidate.FromNodeId == edge.ToNodeId);
@@ -183,6 +185,7 @@ public sealed class AzureInventorySnapshotPublicIpParentEdgePolicyTests
             ResourceRowId = publicIpRow, AzureResourceId = PublicIp,
             ResourceType = "Microsoft.Network/publicIPAddresses", ResourceGroup = "rg", SubscriptionId = "sub",
         }];
+
         if (mode != "missing") resources.Insert(0, new()
         {
             ResourceRowId = Guid.Parse("00000000-0000-0000-0000-000000000001"), AzureResourceId = parent,

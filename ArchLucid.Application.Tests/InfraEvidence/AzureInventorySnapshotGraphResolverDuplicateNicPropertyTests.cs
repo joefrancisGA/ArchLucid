@@ -55,12 +55,14 @@ public sealed class AzureInventorySnapshotGraphResolverDuplicateNicPropertyTests
     {
         GraphSnapshot graph = await ResolveScenarioAsync(scenario);
         string[] omitted = ExpectedOmitted(scenario);
+
         foreach (string nic in new[] { NicA, NicB, NicC })
         {
             Assert.Equal(!omitted.Contains(nic, StringComparer.Ordinal), graph.Nodes.Any(node => node.SourceId == nic));
         }
         Assert.Contains(graph.Nodes, node => node.SourceId == Vm);
         Assert.Contains(graph.Nodes, node => node.SourceId == Pe);
+
         if (scenario.StartsWith("recovery:", StringComparison.Ordinal))
         {
             GraphEdge edge = Assert.Single(graph.Edges, candidate => candidate.EdgeType == GraphEdgeTypes.Protects);
@@ -129,6 +131,7 @@ public sealed class AzureInventorySnapshotGraphResolverDuplicateNicPropertyTests
                     VaultResourceId = Vault, SourceResourceId = Vm,
                     ItemKind = replication ? AzureInventoryRecoveryServices.ReplicationItemKind : AzureInventoryRecoveryServices.BackupItemKind,
                 } });
+
                 if (duplicate) Pair(6, AzureInventoryRecoveryServices.ProtectedItemsPropertyKey, Items(false), Items(true));
                 else properties.Add(new() { ResourceRowId = Row(6), PropertyKey = AzureInventoryRecoveryServices.ProtectedItemsPropertyKey, PropertyValue = Items(false) });
                 break;

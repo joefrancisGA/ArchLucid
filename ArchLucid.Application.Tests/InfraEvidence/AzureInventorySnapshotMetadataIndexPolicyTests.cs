@@ -32,6 +32,7 @@ public sealed class AzureInventorySnapshotMetadataIndexPolicyTests
         Assert.Equal(Target, first.Properties[metadataKey]);
         string currencyKey = scenario.StartsWith("connection:", StringComparison.Ordinal)
             ? InventoryDiagramNodeRelationshipPropertyKeys.EvidenceCurrency : InventoryDiagramParentAttachmentPropertyKeys.EvidenceCurrency;
+
         if (currency == "missing") Assert.False(first.Properties.ContainsKey(currencyKey));
         else Assert.Equal(currency == "current" ? "Current" : currency == "configured" ? "Configured" : "Observed", first.Properties[currencyKey]);
         Assert.Equal("first", first.Properties["marker"]);

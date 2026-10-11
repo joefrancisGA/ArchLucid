@@ -41,6 +41,7 @@ public sealed class AzureInventorySnapshotPrivateEndpointEdgePolicyTests
         bool suppressed = mode is "redacted" or "blank" or "invalid" or "self" or "wrong-index"
             || (!included && mode is "hidden-collected" or "hidden-absent");
         Assert.Equal(suppressed ? 0 : mode == "descendants" ? 2 : 1, forward.Length);
+
         foreach (GraphEdge edge in forward)
         {
             string targetArmId = ReferenceTarget(mode);
@@ -58,12 +59,14 @@ public sealed class AzureInventorySnapshotPrivateEndpointEdgePolicyTests
             Assert.Equal(mode == "indexed" ? "privateLinkServiceId[10]" : "privateLinkServiceId", edge.Properties["evidence.propertyKey"]);
             Assert.Equal(OwnerRow.ToString("D"), edge.Properties["evidence.resourceRowId"]);
             Assert.Equal(targetArmId, edge.Properties["evidence.targetArmId"]);
+
             if (mode == "no-reference") Assert.False(edge.Properties.ContainsKey("evidence.sourceReference"));
             else Assert.Equal(SourceReference, edge.Properties["evidence.sourceReference"]);
         }
         GraphNode[] references = graph.Nodes.Where(node => node.Properties.GetValueOrDefault("arm.stub") == "referenced-resource").ToArray();
         Assert.Equal(mode == "missing" || (mode == "hidden-absent" && included) ? 1 : 0, references.Length);
         Assert.All(references, node => Assert.Equal("referenced-not-collected", node.Properties["inventory.collectionStatus"]));
+
         if (mode == "reverse")
         {
             GraphEdge reverse = Assert.Single(graph.Edges, edge => edge.EdgeType == EdgeType && !forward.Contains(edge));
@@ -95,6 +98,7 @@ public sealed class AzureInventorySnapshotPrivateEndpointEdgePolicyTests
         original.Properties["other"] = "kept";
         List<GraphEdge> edges = [original];
         HashSet<string> keys = new(StringComparer.Ordinal);
+
         if (keyPresent) keys.Add($"source|target|{EdgeType}");
         Hydrate(NodeMap(), edges, keys);
         Assert.Same(original, Assert.Single(edges));
@@ -207,12 +211,14 @@ public sealed class AzureInventorySnapshotPrivateEndpointEdgePolicyTests
             ResourceRowId = OwnerRow, AzureResourceId = Source, ResourceType = mode == "by-id" ? "Microsoft.Custom/other" : "Microsoft.Network/privateEndpoints",
             ResourceGroup = "rg", SubscriptionId = "sub", SourceEvidenceReference = mode == "no-reference" ? " " : SourceReference,
         }];
+
         if (mode is not "missing" and not "hidden-absent" and not "children-only" and not "self") resources.Add(new()
         {
             ResourceRowId = Guid.Parse("00000000-0000-0000-0000-000000000002"), AzureResourceId = mode == "ancestor" ? Target : target,
             ResourceType = mode == "hidden-collected" ? "Microsoft.ManagedIdentity/userAssignedIdentities" : "Microsoft.Storage/storageAccounts",
             ResourceGroup = "rg", SubscriptionId = "sub",
         });
+
         if (mode is "descendants" or "children-only") resources.Add(new()
         {
             ResourceRowId = Guid.Parse("00000000-0000-0000-0000-000000000003"), AzureResourceId = Child,

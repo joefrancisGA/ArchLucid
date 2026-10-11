@@ -39,6 +39,7 @@ public sealed class AzureInventorySnapshotGraphResolverTargetPolicyTests
             "peering" => [RemoteVnet],
             _ => [],
         };
+
         if (scenario == "external")
         {
             GraphEdge target = Assert.Single(targets);
@@ -49,6 +50,7 @@ public sealed class AzureInventorySnapshotGraphResolverTargetPolicyTests
         {
             Assert.Equal(expectedIds.Order(StringComparer.Ordinal), targets.Select(edge => graph.Nodes.Single(node => node.NodeId == edge.ToNodeId).SourceId!).Order(StringComparer.Ordinal));
         }
+
         foreach (GraphEdge edge in targets)
         {
             Assert.Equal(nameof(ProvenanceKind.ObservedFact), edge.ProvenanceKind);
@@ -57,6 +59,7 @@ public sealed class AzureInventorySnapshotGraphResolverTargetPolicyTests
             Assert.Equal(1d, edge.Weight);
             Assert.Equal(edgeType, edge.Label);
         }
+
         if (scenario == "missing")
         {
             GraphNode placeholder = Assert.Single(graph.Nodes, node => node.Properties.ContainsKey("inventory.collectionStatus"));
@@ -67,8 +70,10 @@ public sealed class AzureInventorySnapshotGraphResolverTargetPolicyTests
         {
             Assert.DoesNotContain(graph.Nodes, node => node.Properties.ContainsKey("inventory.collectionStatus"));
         }
+
         if (scenario == "peering")
             Assert.Equal("remote-vnet", graph.Nodes.Single(node => node.SourceId == RemoteVnet).Properties["arm.stub"]);
+
         if (scenario is "hidden-collected" or "hidden-absent")
             Assert.DoesNotContain(graph.Nodes, node => node.SourceId == Identity);
     }
@@ -80,14 +85,18 @@ public sealed class AzureInventorySnapshotGraphResolverTargetPolicyTests
         string target = scenario.StartsWith("hidden-", StringComparison.Ordinal) ? Identity : scenario == "ancestor" ? Database
             : scenario == "invalid" ? "invalid-arm-id" : scenario == "peering" ? RemoteVnet : Server;
         List<AzureInventoryResourceRecord> resources = [Resource(source, scenario == "external" ? "Microsoft.DataFactory/factories" : scenario == "peering" ? "Microsoft.Network/virtualNetworks" : "Microsoft.Storage/storageAccounts", 1)];
+
         if (scenario is "exact" or "exact-with-children" or "ancestor") resources.Add(Resource(Server, "Microsoft.Sql/servers", 2));
+
         if (scenario is "exact-with-children" or "children-only")
         {
             resources.Add(Resource(Database, "Microsoft.Sql/servers/databases", 3));
             resources.Add(Resource(Server + "/databases/second", "Microsoft.Sql/servers/databases", 4));
         }
+
         if (scenario is "hidden-collected" or "hidden-included") resources.Add(Resource(Identity, "Microsoft.ManagedIdentity/userAssignedIdentities", 2));
         List<AzureInventoryAdfExternalSourceReadModel> external = [];
+
         if (scenario == "external")
         {
             target = AzureInventoryAdfExternalSourceNodeFactory.BuildNodeKey(source, "remote-service");
