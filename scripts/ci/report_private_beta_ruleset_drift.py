@@ -94,6 +94,11 @@ def main() -> int:
     parser.add_argument("--repository-ruleset", type=Path, required=True)
     parser.add_argument("--live-ruleset", type=Path, required=True)
     parser.add_argument("--json-out", type=Path, required=True)
+    parser.add_argument(
+        "--warn-only",
+        action="store_true",
+        help="Report HOLD as a warning and return success for non-blocking diagnostics.",
+    )
     args = parser.parse_args()
 
     try:
@@ -103,6 +108,10 @@ def main() -> int:
 
     args.json_out.parent.mkdir(parents=True, exist_ok=True)
     args.json_out.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
+    if report["disposition"] == "HOLD" and args.warn_only:
+        print(f"::warning::private-beta ruleset drift: {report['disposition']} ({'; '.join(report['issues'])})")
+        return 0
+
     print(f"private-beta ruleset drift: {report['disposition']}")
     return 0 if report["disposition"] == "PASS" else 1
 
