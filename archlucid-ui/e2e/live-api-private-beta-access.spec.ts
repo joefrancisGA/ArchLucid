@@ -328,7 +328,7 @@ test.describe(
     const signInUrl = new URL(page.url());
     const returnUrl = signInUrl.searchParams.get("returnUrl") ?? "";
 
-    expect(decodeURIComponent(returnUrl)).toContain(toRunGuidPathSegment(fakeRunId));
+    expect(returnUrl).toBe(reviewPath);
 
     await writeJwtBrowserSession(page, accessToken);
     await expect(async () => {
