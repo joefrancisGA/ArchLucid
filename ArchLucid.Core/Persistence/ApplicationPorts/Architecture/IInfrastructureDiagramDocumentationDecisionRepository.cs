@@ -15,6 +15,7 @@ public interface IInfrastructureDiagramDocumentationDecisionRepository
 
     Task<InfrastructureDiagramDocumentationDecisionPersistRecord?> TryGetLatestBySubjectAsync(
         Guid tenantId,
+        string diagramFingerprint,
         string subjectKind,
         string subjectKey,
         CancellationToken cancellationToken = default);

@@ -19520,6 +19520,53 @@
         },
         "type": "object"
       },
+      "InfrastructureDiagramDocumentationDecision": {
+        "properties": {
+          "carryForwardState": {
+            "type": "string"
+          },
+          "decision": {
+            "type": "string"
+          },
+          "scopeId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "snapshotId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "subjectKey": {
+            "type": "string"
+          },
+          "subjectKind": {
+            "type": "string"
+          },
+          "updatedUtc": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "InfrastructureDiagramDocumentationDecisionSaveRequest": {
+        "properties": {
+          "decision": {
+            "type": "string"
+          },
+          "snapshotId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "subjectKey": {
+            "type": "string"
+          },
+          "subjectKind": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "InfrastructureDiagramNodeMappingSaveRequest": {
         "properties": {
           "cloudResourceId": {
