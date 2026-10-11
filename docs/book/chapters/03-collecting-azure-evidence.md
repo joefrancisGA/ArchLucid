@@ -290,13 +290,36 @@ A collection is only useful as evidence if you can say exactly what it contains,
     "expectedSource": "Human assertion: cloud platform team list, 2026-10-01"
   },
   "files": [
-    { "name": "storage-accounts.json", "sha256": "…", "rows": 214, "query": "queries/storage-accounts.kql" },
-    { "name": "role-assignments.json", "sha256": "…", "rows": 3920, "query": "queries/role-assignments.kql" },
-    { "name": "federated-credentials.json", "sha256": "…", "rows": 37, "query": "graph:applications/federatedIdentityCredentials" }
+    {
+      "name": "storage-accounts.json",
+      "sha256": "…",
+      "rows": 214,
+      "query": "queries/storage-accounts.kql"
+    },
+    {
+      "name": "role-assignments.json",
+      "sha256": "…",
+      "rows": 3920,
+      "query": "queries/role-assignments.kql"
+    },
+    {
+      "name": "federated-credentials.json",
+      "sha256": "…",
+      "rows": 37,
+      "query": "graph:applications/federatedIdentityCredentials"
+    }
   ],
   "gaps": [
-    { "kind": "scopeNotReadable", "target": "subscription sub-payments-prod", "detail": "Not visible to collector; present in expected list" },
-    { "kind": "scopeNotReadable", "target": "subscription sub-legacy-03", "detail": "Not visible to collector; present in expected list" }
+    {
+      "kind": "scopeNotReadable",
+      "target": "subscription sub-payments-prod",
+      "detail": "Not visible to collector; present in expected list"
+    },
+    {
+      "kind": "scopeNotReadable",
+      "target": "subscription sub-legacy-03",
+      "detail": "Not visible to collector; present in expected list"
+    }
   ]
 }
 ```
@@ -420,7 +443,8 @@ function Invoke-ArgQuery {
 
     try {
         do {
-            # Search-AzGraph returns at most 1,000 rows per call; the skip token fetches the next page.
+            # Search-AzGraph returns at most 1,000 rows per call;
+            # the skip token fetches the next page.
             $page = if ($skipToken) {
                 Search-AzGraph -Query $Query -First 1000 -SkipToken $skipToken -UseTenantScope
             } else {
@@ -433,10 +457,15 @@ function Invoke-ArgQuery {
     }
     catch {
         # A failed query is a gap, never an empty result.
-        $gaps.Add([pscustomobject]@{ kind = 'partialResult'; target = $Name; detail = $_.Exception.Message })
+        $gaps.Add([pscustomobject]@{
+            kind   = 'partialResult'
+            target = $Name
+            detail = $_.Exception.Message
+        })
     }
 
-    ConvertTo-Json -InputObject ([object[]] $rows) -Depth 20 | Set-Content (Join-Path $snapshotDir "$Name.json")
+    ConvertTo-Json -InputObject ([object[]] $rows) -Depth 20 |
+        Set-Content (Join-Path $snapshotDir "$Name.json")
 }
 
 Invoke-ArgQuery -Name 'storage-accounts' -Query (Get-Content queries/storage-accounts.kql -Raw)

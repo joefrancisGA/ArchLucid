@@ -20,5 +20,5 @@ export function countOpenQuestionEntities(
   const parseResult = parseArchitectureGeneratedContent(sourceText, userAssertions);
   const openQuestions = parseResult.sections.find((section) => section.key === "open-questions");
 
-  return openQuestions?.entities.length ?? 0;
+  return openQuestions?.entities?.length ?? 0;
 }

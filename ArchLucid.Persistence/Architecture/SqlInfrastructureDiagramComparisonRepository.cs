@@ -19,6 +19,7 @@ public sealed class SqlInfrastructureDiagramComparisonRepository(ISqlConnectionF
             WHEN MATCHED THEN
                 UPDATE SET
                     SnapshotId = @SnapshotId,
+                    DiagramFingerprint = @DiagramFingerprint,
                     SourcesJson = @SourcesJson,
                     ResultJson = @ResultJson,
                     UpdatedUtc = @UpdatedUtc
@@ -27,6 +28,7 @@ public sealed class SqlInfrastructureDiagramComparisonRepository(ISqlConnectionF
                     ComparisonId,
                     TenantId,
                     SnapshotId,
+                    DiagramFingerprint,
                     SourcesJson,
                     ResultJson,
                     CreatedUtc,
@@ -35,6 +37,7 @@ public sealed class SqlInfrastructureDiagramComparisonRepository(ISqlConnectionF
                     @ComparisonId,
                     @TenantId,
                     @SnapshotId,
+                    @DiagramFingerprint,
                     @SourcesJson,
                     @ResultJson,
                     @CreatedUtc,
@@ -56,6 +59,7 @@ public sealed class SqlInfrastructureDiagramComparisonRepository(ISqlConnectionF
                 ComparisonId,
                 TenantId,
                 SnapshotId,
+                DiagramFingerprint,
                 SourcesJson,
                 ResultJson,
                 CreatedUtc,

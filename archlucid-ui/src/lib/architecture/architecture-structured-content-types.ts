@@ -27,7 +27,7 @@ export type ArchitectureStructuredSection = {
   readonly key: ArchitectureStructuredSectionKey;
   readonly title: string;
   readonly narrativeMarkdown: string | null;
-  readonly entities: readonly ArchitectureStructuredEntity[];
+  readonly entities?: readonly ArchitectureStructuredEntity[];
   readonly provenance: ArchitectureContentProvenance;
 };
 

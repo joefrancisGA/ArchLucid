@@ -9,6 +9,8 @@ import type {
   DiagramInfrastructureReconciliationResult,
   InfrastructureDiagramComparisonCreateRequest,
   InfrastructureDiagramNodeMappingSaveRequest,
+  InfrastructureDiagramDocumentationDecision,
+  InfrastructureDiagramDocumentationDecisionSaveRequest,
   OperationalSecurityFindingBatchIngestResult,
   OperationalSecurityFindingIngestRequest,
   OperationalSecurityFindingLookupItem,
@@ -74,6 +76,27 @@ export async function saveInfrastructureDiagramNodeMapping(
   return proxyJsonPut<DiagramInfrastructureReconciliationResult>(
     `${ADVISORY_DIAGRAM_COMPARISONS_BASE}/${comparisonId}/node-mappings`,
     request,
+  );
+}
+
+export async function saveInfrastructureDiagramDocumentationDecision(
+  comparisonId: string,
+  request: InfrastructureDiagramDocumentationDecisionSaveRequest,
+): Promise<InfrastructureDiagramDocumentationDecision> {
+  return proxyJsonPut<InfrastructureDiagramDocumentationDecision>(
+    `${ADVISORY_DIAGRAM_COMPARISONS_BASE}/${comparisonId}/documentation-decisions`,
+    request,
+  );
+}
+
+export async function fetchInfrastructureDiagramDocumentationDecision(
+  comparisonId: string,
+  subjectKind: InfrastructureDiagramDocumentationDecision["subjectKind"],
+  subjectKey: string,
+): Promise<InfrastructureDiagramDocumentationDecision> {
+  const params = new URLSearchParams({ subjectKind, subjectKey });
+  return proxyJsonGet<InfrastructureDiagramDocumentationDecision>(
+    `${ADVISORY_DIAGRAM_COMPARISONS_BASE}/${comparisonId}/documentation-decisions?${params.toString()}`,
   );
 }
 

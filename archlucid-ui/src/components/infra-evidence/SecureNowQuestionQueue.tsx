@@ -168,11 +168,11 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
           ) : null}
           {currentQuestion != null && currentQuestion.status !== "Open" ? (
             <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-diagrams-question-answer">
-              Answer: {currentQuestion.answerText?.trim() || (
-                currentQuestion.answerCode != null
+              Answer: {currentQuestion.answerText !== null && currentQuestion.answerText !== undefined
+                ? currentQuestion.answerText
+                : currentQuestion.answerCode != null
                   ? secureNowQuestionAnswerLabel(currentQuestion.answerCode)
-                  : "Stored answer was not on this question"
-              )}
+                  : "Stored answer was not on this question"}
             </p>
           ) : null}
         </div>
@@ -195,13 +195,13 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
         <div className="mt-2 space-y-2">
           {currentQuestion.status === "Open" ? (
             <>
-              {currentQuestion.answerCodes.length === 0 ? (
+              {currentQuestion.answerCodes === null ? (
                 <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                   No answer choices were stored on this question.
                 </p>
               ) : null}
               <div className="flex flex-wrap gap-2">
-                {currentQuestion.answerCodes.map((answerCode) => (
+                {currentQuestion.answerCodes?.map((answerCode) => (
                   <Button
                     key={answerCode}
                     type="button"

@@ -58,6 +58,32 @@ public sealed class AgentResultEvidenceFaithfulnessCheckerTests
     }
 
     [Fact]
+    public void Evaluate_matches_case_variant_top_level_claims_property()
+    {
+        AgentEvidencePackage evidence = new()
+        {
+            Patterns =
+            [
+                new PatternEvidence
+                {
+                    PatternId = "pattern-front-door",
+                    Name = "Front Door edge",
+                    Summary = "Edge TLS termination",
+                }
+            ],
+        };
+
+        const string json = """
+                            {"CLAIMS":[{"detail":"Front Door terminates TLS per pattern-front-door guidance.","evidenceRefs":["pattern-front-door"]}],"findings":[]}
+                            """;
+
+        AgentResultEvidenceFaithfulnessReport report = _sut.Evaluate(json, evidence);
+
+        report.ClaimsChecked.Should().Be(1);
+        report.SupportRatio.Should().Be(1.0);
+    }
+
+    [Fact]
     public void Evaluate_unresolved_evidence_ref_lowers_ratio()
     {
         AgentEvidencePackage evidence = new();

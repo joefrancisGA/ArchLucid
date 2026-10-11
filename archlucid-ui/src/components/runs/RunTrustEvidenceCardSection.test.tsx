@@ -195,6 +195,18 @@ describe("RunTrustEvidenceCardSection", () => {
     expect(within(technical).getByText(/db2fd94d-33df-4737-ac0e-fc38a96a2620/)).toBeInTheDocument();
   });
 
+  it("distinguishes a missing self-attestation notice from a stored blank notice", () => {
+    const { rerender } = render(
+      <RunTrustEvidenceCardSection card={card({ selfAttestationNotice: null })} runId={RUN_ID} />,
+    );
+
+    expect(screen.getByText("Self-attestation notice was not stored.")).toBeInTheDocument();
+
+    rerender(<RunTrustEvidenceCardSection card={card({ selfAttestationNotice: "" })} runId={RUN_ID} />);
+
+    expect(screen.queryByText("Self-attestation notice was not stored.")).not.toBeInTheDocument();
+  });
+
   it("does not present an absence finding as verified proof", () => {
     render(
       <RunTrustEvidenceCardSection

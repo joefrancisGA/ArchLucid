@@ -43,7 +43,7 @@ internal static class DemoSeedExportLineageAuditRepair
 
         string ruleSetId = string.IsNullOrWhiteSpace(golden.RuleSetId) ? DemoRuleSetId : golden.RuleSetId;
 
-        await DurableAuditLogRetry.TryLogAsync(
+        await DurableAuditLogRetry.LogOrThrowAsync(
             ct => deps.AuditService.LogAsync(
                 new AuditEvent
                 {

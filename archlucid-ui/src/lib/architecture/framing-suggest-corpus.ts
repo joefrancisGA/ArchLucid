@@ -164,7 +164,7 @@ export function extractScopeLines(combinedText: string): string | null {
 
   if (scopeSection !== undefined) {
     const narrative = scopeSection.narrativeMarkdown?.trim() ?? "";
-    const entityLabels = scopeSection.entities.map((entity) => entity.label).join("; ");
+    const entityLabels = (scopeSection.entities ?? []).map((entity) => entity.label).join("; ");
 
     if (narrative.length > 0 && entityLabels.length > 0) {
       return `${narrative} · ${entityLabels}`;
@@ -183,13 +183,13 @@ export function extractScopeLines(combinedText: string): string | null {
   const outsideLabels: string[] = [];
 
   if (systemsSection !== undefined) {
-    for (const entity of systemsSection.entities) {
+    for (const entity of systemsSection.entities ?? []) {
       insideLabels.push(entity.label);
     }
   }
 
   if (integrationsSection !== undefined) {
-    for (const entity of integrationsSection.entities) {
+    for (const entity of integrationsSection.entities ?? []) {
       outsideLabels.push(entity.label);
     }
   }

@@ -5641,6 +5641,25 @@ export interface components {
             snapshotId?: string;
             sources?: components["schemas"]["DiagramSourceReference"][];
         };
+        InfrastructureDiagramDocumentationDecision: {
+            carryForwardState?: string;
+            decision?: string;
+            /** Format: uuid */
+            scopeId?: string;
+            /** Format: uuid */
+            snapshotId?: string;
+            subjectKey?: string;
+            subjectKind?: string;
+            /** Format: date-time */
+            updatedUtc?: string;
+        };
+        InfrastructureDiagramDocumentationDecisionSaveRequest: {
+            decision?: string;
+            /** Format: uuid */
+            snapshotId?: string;
+            subjectKey?: string;
+            subjectKind?: string;
+        };
         InfrastructureDiagramNodeMappingSaveRequest: {
             /** Format: uuid */
             cloudResourceId?: string;

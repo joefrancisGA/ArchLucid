@@ -71,3 +71,19 @@ Status values: `stub` → `outline` → `first draft` → `revised` → `reviewe
 ## Cadence
 
 Target ~2,000 words per week (two 1,000-word sessions). First full draft in roughly 9 months.
+
+## Building the PDF
+
+From the repository root:
+
+```bash
+pip install markdown reportlab
+python docs/book/tools/build_book_pdf.py
+```
+
+This writes [`Managing-Azure-Security-with-AI-draft.pdf`](Managing-Azure-Security-with-AI-draft.pdf) with a linked contents page and bookmarks. The cover takes its title and subtitle from the **Working title** and **Working subtitle** lines above.
+
+- Files that still contain `[[OWNER: ...]]` placeholders are left out, and the cover names them. Pass `--include-unfinished` to render them anyway.
+- The build stops if any fenced code line is longer than 100 characters, and lists each one by file and line. Fix the source; `--allow-long-lines` overrides. A JSON line holding a single long string value is exempt, because it can't be broken.
+- Code uses a monospace TrueType font with box-drawing glyphs when one is installed (DejaVu Sans Mono or Consolas), otherwise Courier.
+- Tests: `python -m unittest discover -s docs/book/tools -p "test_*.py"`. The PDF build test also needs `pypdf` and is skipped without it.

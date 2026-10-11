@@ -99,34 +99,127 @@ The evidence pack is a small JSON document generated from your derivation step. 
   "snapshotId": "2026-10-06T09-10-00Z-prod",
   "question": "Summarize access paths to customer data in the payments estate.",
   "hops": [
-    { "id": "H1", "claim": "Workflows on main in contoso/payments can sign in as payments-deploy.", "category": "deterministic inference", "assumptions": ["Branch protection allows the merge"], "assumptionsChecked": false },
-    { "id": "H2", "claim": "User dev-lead is an owner of the payments-deploy app registration and can add credentials to it.", "category": "observed fact" },
-    { "id": "H3", "claim": "User helpdesk-07 holds Cloud Application Administrator, which can add credentials to payments-deploy.", "category": "derived fact" },
-    { "id": "H4", "claim": "Any credential on the payments-deploy app lets the holder sign in as its service principal.", "category": "derived fact" },
-    { "id": "H5", "claim": "The payments-deploy service principal holds Contributor on rg-payments-prod.", "category": "observed fact" },
-    { "id": "H6", "claim": "custdata and the Function App pay-reconcile are in rg-payments-prod.", "category": "observed fact" },
-    { "id": "H7", "claim": "Contributor can list custdata's keys, and shared key access is enabled, so the holder can read its blob data.", "category": "deterministic inference", "assumptionsChecked": true },
-    { "id": "H8", "claim": "Contributor can deploy code to pay-reconcile, which runs as managed identity mi-pay-reconcile.", "category": "derived fact" },
-    { "id": "H9", "claim": "mi-pay-reconcile holds Storage Blob Data Reader on custarchive.", "category": "observed fact" }
+    {
+      "id": "H1",
+      "claim": "Workflows on main in contoso/payments can sign in as payments-deploy.",
+      "category": "deterministic inference",
+      "assumptions": ["Branch protection allows the merge"],
+      "assumptionsChecked": false
+    },
+    {
+      "id": "H2",
+      "claim": "User dev-lead is an owner of the payments-deploy app registration and can add credentials to it.",
+      "category": "observed fact"
+    },
+    {
+      "id": "H3",
+      "claim": "User helpdesk-07 holds Cloud Application Administrator, which can add credentials to payments-deploy.",
+      "category": "derived fact"
+    },
+    {
+      "id": "H4",
+      "claim": "Any credential on the payments-deploy app lets the holder sign in as its service principal.",
+      "category": "derived fact"
+    },
+    {
+      "id": "H5",
+      "claim": "The payments-deploy service principal holds Contributor on rg-payments-prod.",
+      "category": "observed fact"
+    },
+    {
+      "id": "H6",
+      "claim": "custdata and the Function App pay-reconcile are in rg-payments-prod.",
+      "category": "observed fact"
+    },
+    {
+      "id": "H7",
+      "claim": "Contributor can list custdata's keys, and shared key access is enabled, so the holder can read its blob data.",
+      "category": "deterministic inference",
+      "assumptionsChecked": true
+    },
+    {
+      "id": "H8",
+      "claim": "Contributor can deploy code to pay-reconcile, which runs as managed identity mi-pay-reconcile.",
+      "category": "derived fact"
+    },
+    {
+      "id": "H9",
+      "claim": "mi-pay-reconcile holds Storage Blob Data Reader on custarchive.",
+      "category": "observed fact"
+    }
   ],
   "paths": [
-    { "id": "P1", "hops": ["H1", "H4", "H5", "H6", "H7"], "target": "Read customer data in custdata", "confidence": "Medium" },
-    { "id": "P2", "hops": ["H2", "H4", "H5", "H6", "H7"], "target": "Read customer data in custdata", "confidence": "High" },
-    { "id": "P3", "hops": ["H3", "H4", "H5", "H6", "H7"], "target": "Read customer data in custdata", "confidence": "High" },
-    { "id": "P4", "hops": ["H1", "H4", "H5", "H6", "H8", "H9"], "target": "Read archived customer data in custarchive", "confidence": "Medium" },
-    { "id": "P5", "hops": ["H2", "H4", "H5", "H6", "H8", "H9"], "target": "Read archived customer data in custarchive", "confidence": "High" },
-    { "id": "P6", "hops": ["H3", "H4", "H5", "H6", "H8", "H9"], "target": "Read archived customer data in custarchive", "confidence": "High" }
+    {
+      "id": "P1",
+      "hops": ["H1", "H4", "H5", "H6", "H7"],
+      "target": "Read customer data in custdata",
+      "confidence": "Medium"
+    },
+    {
+      "id": "P2",
+      "hops": ["H2", "H4", "H5", "H6", "H7"],
+      "target": "Read customer data in custdata",
+      "confidence": "High"
+    },
+    {
+      "id": "P3",
+      "hops": ["H3", "H4", "H5", "H6", "H7"],
+      "target": "Read customer data in custdata",
+      "confidence": "High"
+    },
+    {
+      "id": "P4",
+      "hops": ["H1", "H4", "H5", "H6", "H8", "H9"],
+      "target": "Read archived customer data in custarchive",
+      "confidence": "Medium"
+    },
+    {
+      "id": "P5",
+      "hops": ["H2", "H4", "H5", "H6", "H8", "H9"],
+      "target": "Read archived customer data in custarchive",
+      "confidence": "High"
+    },
+    {
+      "id": "P6",
+      "hops": ["H3", "H4", "H5", "H6", "H8", "H9"],
+      "target": "Read archived customer data in custarchive",
+      "confidence": "High"
+    }
   ],
   "targets": [
-    { "id": "T1", "claim": "custdata holds production customer records.", "category": "human assertion", "assertedBy": "Data Protection Officer", "assertedAt": "2026-09-14", "expiresAt": "2027-03-14" },
-    { "id": "T2", "claim": "custarchive holds archived customer records.", "category": "human assertion", "assertedBy": "Data Protection Officer", "assertedAt": "2026-09-14", "expiresAt": "2027-03-14" }
+    {
+      "id": "T1",
+      "claim": "custdata holds production customer records.",
+      "category": "human assertion",
+      "assertedBy": "Data Protection Officer",
+      "assertedAt": "2026-09-14",
+      "expiresAt": "2027-03-14"
+    },
+    {
+      "id": "T2",
+      "claim": "custarchive holds archived customer records.",
+      "category": "human assertion",
+      "assertedBy": "Data Protection Officer",
+      "assertedAt": "2026-09-14",
+      "expiresAt": "2027-03-14"
+    }
   ],
   "gaps": [
-    { "id": "G1", "claim": "Blob read logging is not enabled on custdata, so use of any path cannot be determined." },
-    { "id": "G2", "claim": "Blob read logging is not enabled on custarchive, so use of any path cannot be determined." }
+    {
+      "id": "G1",
+      "claim": "Blob read logging is not enabled on custdata, so use of any path cannot be determined."
+    },
+    {
+      "id": "G2",
+      "claim": "Blob read logging is not enabled on custarchive, so use of any path cannot be determined."
+    }
   ],
   "cutPoints": [
-    { "id": "C1", "claim": "Narrowing payments-deploy from Contributor to the specific roles its deployments need would close P1 through P3. P4 through P6 stay open while the pipeline deploys pay-reconcile, because deploying code lets the deployer act as that code.", "closes": ["P1", "P2", "P3"] }
+    {
+      "id": "C1",
+      "claim": "Narrowing payments-deploy from Contributor to the specific roles its deployments need would close P1 through P3. P4 through P6 stay open while the pipeline deploys pay-reconcile, because deploying code lets the deployer act as that code.",
+      "closes": ["P1", "P2", "P3"]
+    }
   ]
 }
 ```
@@ -186,7 +279,10 @@ Prose is pleasant to read and hard to check. Ask for structured output instead a
 {
   "status": "answered",
   "sentences": [
-    { "text": "Six access paths lead from people and pipelines to customer data in two storage accounts.", "cites": ["P1", "P2", "P3", "P4", "P5", "P6"] },
+    {
+      "text": "Six access paths lead from people and pipelines to customer data in two storage accounts.",
+      "cites": ["P1", "P2", "P3", "P4", "P5", "P6"]
+    },
     { "text": "All six pass through one deployment identity, payments-deploy.", "cites": ["H4"] }
   ]
 }
@@ -244,7 +340,11 @@ def expand_range(citation: str) -> list[str]:
 
 
 def validate(draft: dict, pack: dict) -> list[str]:
-    items = {item["id"]: item for key in ("hops", "paths", "targets", "gaps", "cutPoints") for item in pack.get(key, [])}
+    items = {
+        item["id"]: item
+        for key in ("hops", "paths", "targets", "gaps", "cutPoints")
+        for item in pack.get(key, [])
+    }
     pack_text = " ".join(item.get("claim", "") for item in items.values())
     pack_numbers = set(NUMBER_PATTERN.findall(pack_text)) | {str(len(pack.get("paths", [])))}
     problems: list[str] = []
@@ -265,7 +365,10 @@ def validate(draft: dict, pack: dict) -> list[str]:
 
         for pattern in ACTIVITY_PATTERNS:
             if re.search(pattern, text, re.IGNORECASE):
-                problems.append(f"Sentence {index}: activity wording '{pattern}' with no observed activity in the pack.")
+                problems.append(
+                    f"Sentence {index}: activity wording '{pattern}' "
+                    "with no observed activity in the pack."
+                )
 
         for number in NUMBER_PATTERN.findall(text):
             if number not in pack_numbers:

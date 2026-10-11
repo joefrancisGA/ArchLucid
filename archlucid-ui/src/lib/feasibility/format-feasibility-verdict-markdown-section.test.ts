@@ -199,4 +199,18 @@ describe("formatFeasibilityVerdictMarkdownSection (FC-30 / FC-31)", () => {
     expect(missing).toContain("Authority citations were not stored.");
     expect(storedEmpty).not.toContain("Authority citations were not stored.");
   });
+
+  it("reports an omitted verdict kind and preserves unexpected stored kinds", () => {
+    const missing = formatFeasibilityVerdictMarkdownSection({
+      kind: undefined as never,
+      summary: "No kind.",
+    });
+    const unexpected = formatFeasibilityVerdictMarkdownSection({
+      kind: "FutureKind" as never,
+      summary: "Unknown kind.",
+    });
+
+    expect(missing).toContain("Verdict kind was not stored.");
+    expect(unexpected).toContain("- **Class:** FutureKind");
+  });
 });

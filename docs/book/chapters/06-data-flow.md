@@ -277,13 +277,14 @@ Chapter 7's validator rejects activity words such as "accessed" and "has been ex
 import re
 
 ACTIVITY_WORDS = re.compile(
-    r"\b(?:read|wrote|accessed|downloaded|exfiltrat\w*|exposed|stole|stolen|breach\w*|compromised)\b|\bwas used\b",
+    r"\b(?:read|wrote|accessed|downloaded|exfiltrat\w*|exposed|stole|stolen|breach\w*"
+    r"|compromised)\b|\bwas used\b",
     re.IGNORECASE,
 )
 
 
 def activity_problems(index: int, sentence: dict, items: dict) -> list[str]:
-    """Activity wording needs a cited observed-activity item, and its time window in the sentence."""
+    """Activity wording needs a cited observed-activity item and its time window in the sentence."""
     text = sentence.get("text") or ""
 
     if not ACTIVITY_WORDS.search(text):
@@ -303,7 +304,9 @@ def activity_problems(index: int, sentence: dict, items: dict) -> list[str]:
         end = window.get("end")
 
         if not start or not end or start not in text or end not in text:
-            problems.append(f"Sentence {index}: activity from {item['id']} stated without its window.")
+            problems.append(
+                f"Sentence {index}: activity from {item['id']} stated without its window."
+            )
 
     return problems
 ```

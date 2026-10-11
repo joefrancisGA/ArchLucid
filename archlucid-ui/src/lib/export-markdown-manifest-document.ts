@@ -87,6 +87,8 @@ export function formatManifestDocumentShape(m: Record<string, unknown>): string 
 
   if (manifestVersion) {
     lines.push(`- **Review record version:** ${manifestVersion}`);
+  } else if (meta === null || meta.manifestVersion === null || meta.manifestVersion === undefined) {
+    lines.push("Review record version was not stored.");
   }
 
   pushPolicyAtCommitMarkdownLines(m, lines);
@@ -206,11 +208,13 @@ export function formatManifestDocumentShape(m: Record<string, unknown>): string 
   lines.push("");
 
   const decisions = Array.isArray(m.decisions) ? m.decisions : [];
-  const services = topology !== null && Array.isArray(topology.services) ? topology.services : [];
-  const datastores =
-    topology !== null && Array.isArray(topology.datastores) ? topology.datastores : [];
-  const relationships =
-    topology !== null && Array.isArray(topology.relationships) ? topology.relationships : [];
+  const servicesValue = topology?.services;
+  const datastoresValue = topology?.datastores;
+  const relationshipsValue = topology?.relationships;
+  const decisionsValue = m.decisions;
+  const services = Array.isArray(servicesValue) ? servicesValue : [];
+  const datastores = Array.isArray(datastoresValue) ? datastoresValue : [];
+  const relationships = Array.isArray(relationshipsValue) ? relationshipsValue : [];
 
   if (services.length > 0) {
     lines.push("### Services");
@@ -350,12 +354,34 @@ export function formatManifestDocumentShape(m: Record<string, unknown>): string 
   }
 
   if (
+    Array.isArray(servicesValue) &&
+    Array.isArray(datastoresValue) &&
+    Array.isArray(relationshipsValue) &&
+    Array.isArray(decisionsValue) &&
     services.length === 0 &&
     datastores.length === 0 &&
     relationships.length === 0 &&
     decisions.length === 0
   ) {
     lines.push("_No services, datastores, relationships, or decisions were present._");
+    lines.push("");
+  } else {
+    if (!Array.isArray(servicesValue)) {
+      lines.push("Services were not stored.");
+    }
+
+    if (!Array.isArray(datastoresValue)) {
+      lines.push("Datastores were not stored.");
+    }
+
+    if (!Array.isArray(relationshipsValue)) {
+      lines.push("Relationships were not stored.");
+    }
+
+    if (!Array.isArray(decisionsValue)) {
+      lines.push("Decisions were not stored.");
+    }
+
     lines.push("");
   }
 

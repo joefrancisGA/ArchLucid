@@ -21,10 +21,16 @@ export type InfraEvidenceWorkbenchHeaderActionsProps = {
 export function InfraEvidenceWorkbenchHeaderActions(
   props: InfraEvidenceWorkbenchHeaderActionsProps,
 ): React.JSX.Element {
-  const { scopeStatusBadge, extraShortcutHints, showShortcutHints = true, contextualHelpTriggerText } = props;
+  const {
+    shortcutsTestId,
+    scopeStatusBadge,
+    extraShortcutHints,
+    showShortcutHints = true,
+    contextualHelpTriggerText,
+  } = props;
 
   return (
-    <div className="flex flex-col items-end gap-2">
+    <div className="flex flex-col items-end gap-2" data-testid={shortcutsTestId}>
       <div className="flex flex-wrap items-center justify-end gap-2">
         {scopeStatusBadge}
         <PageContextualHelpButton

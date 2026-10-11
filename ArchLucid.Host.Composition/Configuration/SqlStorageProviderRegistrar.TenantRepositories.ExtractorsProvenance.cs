@@ -1,6 +1,7 @@
 using ArchLucid.Application.Advisory;
 using ArchLucid.Application.InfraEvidence;
 using ArchLucid.Application.Provenance;
+using ArchLucid.Application.SecureNow;
 using ArchLucid.Core.AwsExtractor;
 using ArchLucid.Core.AzureExtractor;
 using ArchLucid.Core.GcpExtractor;
@@ -15,13 +16,18 @@ using ArchLucid.Persistence.Provenance;
 using ArchLucid.Persistence.Search;
 using ArchLucid.Persistence.Tenancy;
 using ArchLucid.Persistence.Value;
+using ArchLucid.Host.Composition.SecureNow;
 using ArchLucid.Persistence.Architecture;
 using ArchLucid.Core.Evidence;
+using ArchLucid.Core.Persistence.ApplicationPorts.Data.Repositories;
 using ArchLucid.Persistence.Evidence;
 using ArchLucid.Persistence.InfraEvidence;
+using ArchLucid.Persistence.SecureNow;
 using ArchLucid.Provenance;
 
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
+using Azure.Storage.Blobs;
 
 namespace ArchLucid.Host.Composition.Configuration;
 
@@ -38,6 +44,16 @@ internal sealed partial class SqlStorageProviderRegistrar
         services.AddScoped<IProvenanceGraphAccessService, ProvenanceGraphAccessService>();
         services.AddScoped<IProvenanceQueryService, ProvenanceQueryService>();
         services.AddScoped<IAzureExtractorPackageRepository, SqlAzureExtractorPackageRepository>();
+        services.AddScoped<ICollectionRunRepository, SqlCollectionRunRepository>();
+        services.AddScoped<ICollectionRunArtifactReader>(static sp =>
+        {
+            BlobServiceClient? blobServiceClient = sp.GetService<BlobServiceClient>();
+            return blobServiceClient is null
+                ? new EmptyCollectionRunArtifactReader()
+                : new AzureBlobCollectionRunArtifactReader(
+                    blobServiceClient,
+                    sp.GetRequiredService<IOptions<CollectionRunStorageOptions>>());
+        });
         services.AddScoped<ICloudInventoryExtractorPackageRepository, SqlCloudInventoryExtractorPackageRepository>();
         services.AddScoped<SqlAzureInventorySnapshotRepository>();
         services.AddScoped<IAzureInventorySnapshotRepository>(static sp =>
@@ -88,6 +104,7 @@ internal sealed partial class SqlStorageProviderRegistrar
         services.AddScoped<IArchitectureDiagramReconciliationRepository, SqlArchitectureDiagramReconciliationRepository>();
         services.AddScoped<IInfrastructureDiagramComparisonRepository, SqlInfrastructureDiagramComparisonRepository>();
         services.AddScoped<IInfrastructureDiagramNodeMappingRepository, SqlInfrastructureDiagramNodeMappingRepository>();
+        services.AddScoped<IInfrastructureDiagramDocumentationDecisionRepository, SqlInfrastructureDiagramDocumentationDecisionRepository>();
         services.AddScoped<SqlTenantBrandingProfileRepository>();
         services.AddScoped<ITenantBrandingProfileRepository>(static sp =>
             new TenantBrandingProfileRepositoryWithCacheInvalidation(

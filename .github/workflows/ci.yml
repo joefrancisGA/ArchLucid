@@ -322,6 +322,9 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Install book PDF test dependencies
+        run: python -m pip install markdown reportlab pypdf
+
       - name: Check relative markdown links
         run: python scripts/ci/check_md_links.py
 

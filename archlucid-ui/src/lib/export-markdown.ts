@@ -252,7 +252,6 @@ function formatManifestSummaryFallback(
 
 function looksLikeSandboxGoldenManifest(m: Record<string, unknown>): boolean {
   return (
-    Array.isArray(m.highlights) &&
     isRecord(m.summary) &&
     typeof m.schemaVersion === "string"
   );

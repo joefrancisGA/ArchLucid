@@ -189,6 +189,7 @@ Service principals can hold Microsoft Graph **application permissions**, granted
 - permission to manage all applications' credentials (`Application.ReadWrite.All`).
 
 A service principal holding one of these is a privileged identity, even if it has no Azure roles at all. It belongs in the graph with "can grant" edges, and so does everyone who can become it (section 4.3).
+
 ---
 
 ## 4.5 Building the identity graph
@@ -318,7 +319,9 @@ def pattern_covers(patterns: list[str], action: str) -> bool:
 
         tail = pieces[-1]
 
-        if tail == "" or (action_folded.endswith(tail) and cursor <= len(action_folded) - len(tail)):
+        tail_fits = action_folded.endswith(tail) and cursor <= len(action_folded) - len(tail)
+
+        if tail == "" or tail_fits:
             return True
 
     return False
@@ -452,9 +455,11 @@ def derive_capability_edges(
     """Emit canControlCode and grants from effective actions.
 
     assignments: principal, role_name, scope, condition, citation.
-    role_definitions[role_name]['permissions']: actions, not_actions, data_actions, not_data_actions.
+    role_definitions[role_name]['permissions']: actions, not_actions, data_actions,
+    not_data_actions.
     children_of: parent scope id to child scope ids, including resource ids.
-    denies: principals ('*' means all), scope, apply_to_children, permissions, in the same shape as a role.
+    denies: principals ('*' means all), scope, apply_to_children, permissions, in the same
+    shape as a role.
     resources: id, scope, type ('compute' or 'storage'), and for storage a shared_key of
     'enabled', 'not set', or 'disabled', plus capability (the grants target).
 
@@ -495,7 +500,9 @@ def derive_capability_edges(
 
             if resource["type"] == "compute":
                 citation = _granting_citation(blocks, CODE_CONTROL_ACTION, "control")
-                denied = _deny_hits(denies, children_of, principal, scope, CODE_CONTROL_ACTION, "control")
+                denied = _deny_hits(
+                    denies, children_of, principal, scope, CODE_CONTROL_ACTION, "control"
+                )
 
                 if citation and not denied:
                     remember(
@@ -514,7 +521,9 @@ def derive_capability_edges(
 
             if shared_key in ("enabled", "not set", "not set (platform default)"):
                 keys_citation = _granting_citation(blocks, LIST_KEYS_ACTION, "control")
-                keys_denied = _deny_hits(denies, children_of, principal, scope, LIST_KEYS_ACTION, "control")
+                keys_denied = _deny_hits(
+                    denies, children_of, principal, scope, LIST_KEYS_ACTION, "control"
+                )
 
                 if keys_citation and not keys_denied:
                     qualifier = (
@@ -526,7 +535,9 @@ def derive_capability_edges(
                     hit_citation = keys_citation
 
             blob_citation = _granting_citation(blocks, BLOB_READ_ACTION, "data")
-            blob_denied = _deny_hits(denies, children_of, principal, scope, BLOB_READ_ACTION, "data")
+            blob_denied = _deny_hits(
+                denies, children_of, principal, scope, BLOB_READ_ACTION, "data"
+            )
 
             if blob_citation and not blob_denied:
                 hit_notes.append(BLOB_READ_ACTION)
@@ -582,7 +593,8 @@ def find_paths(
         if len(path) >= max_hops:
             continue
 
-        # Avoid revisiting nodes already on this path, so cycles in group nesting can't loop forever.
+        # Avoid revisiting nodes already on this path,
+        # so cycles in group nesting can't loop forever.
         visited = {entry} | {edge.target for edge in path}
 
         for edge in outgoing.get(node, []):
@@ -646,6 +658,7 @@ Section 4.2 introduced the most important conversion in Azure paths: a control-p
 Each row becomes a `grants` edge in the graph with its condition attached. Most are deterministic inferences: the conversion is real if the condition holds, and the condition is usually something your snapshot can check.
 
 The first and third rows of that table explain why Microsoft has spent years pushing customers toward Azure RBAC for Key Vault and toward disabling shared key access on storage. Both changes remove control-to-data conversions, so a control-plane role stays a control-plane role.
+
 ---
 
 ## 4.7 Directory roles and Azure roles are different systems
@@ -733,7 +746,8 @@ $directoryRoles = Get-MgRoleManagementDirectoryRoleAssignment -All |
         }
     }
 
-$roleAssignments = Get-Content (Join-Path $snapshotDir 'role-assignments.json') -Raw | ConvertFrom-Json
+$roleAssignments = Get-Content (Join-Path $snapshotDir 'role-assignments.json') -Raw |
+    ConvertFrom-Json
 $azureRoleGroupIds = $roleAssignments |
     Where-Object { $_.principalType -eq 'Group' } |
     Select-Object -ExpandProperty principalId -Unique
@@ -803,8 +817,10 @@ resources
 ```kusto
 resourcecontainers
 | extend parentId = case(
-    type =~ 'microsoft.resources/subscriptions/resourcegroups', strcat('/subscriptions/', subscriptionId),
-    type =~ 'microsoft.management/managementgroups', tostring(properties.details.parent.id),
+    type =~ 'microsoft.resources/subscriptions/resourcegroups',
+        strcat('/subscriptions/', subscriptionId),
+    type =~ 'microsoft.management/managementgroups',
+        tostring(properties.details.parent.id),
     '')
 | project id, name, type, parentId
 ```

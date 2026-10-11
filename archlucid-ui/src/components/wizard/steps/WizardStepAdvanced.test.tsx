@@ -78,4 +78,30 @@ describe("WizardStepAdvanced", () => {
     const summaryBadge = policyDetails!.querySelector("summary .font-mono");
     expect(summaryBadge).toHaveTextContent("1");
   });
+
+  it("does not substitute json for a stored empty infrastructure format", () => {
+    const { container, getByRole } = render(
+      <TooltipProvider delayDuration={0}>
+        <WizardFormTestHarness
+          values={{
+            infrastructureDeclarations: [{ name: "declaration", format: "", content: "{}" }],
+          }}
+        >
+          <WizardStepAdvanced />
+        </WizardFormTestHarness>
+      </TooltipProvider>,
+    );
+
+    fireEvent.click(getByRole("button", { name: /advanced options/i }));
+
+    const infrastructureDetails = Array.from(container.querySelectorAll("details")).find((d) =>
+      d.textContent?.includes("Infrastructure declarations"),
+    );
+    expect(infrastructureDetails).toBeTruthy();
+    fireEvent.click(infrastructureDetails!.querySelector("summary")!);
+
+    const formatTrigger = container.querySelector("#infra-format-0");
+    expect(formatTrigger).toHaveTextContent("Format was not stored.");
+    expect(formatTrigger).not.toHaveTextContent("json");
+  });
 });

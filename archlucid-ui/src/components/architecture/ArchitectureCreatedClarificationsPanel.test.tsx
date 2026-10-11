@@ -7,10 +7,35 @@ vi.mock("next/navigation", () => ({
   useSearchParams: () => new URLSearchParams("tab=clarifications"),
 }));
 
-import { ArchitectureCreatedClarificationsPanel } from "@/components/architecture/ArchitectureCreatedClarificationsPanel";
+import {
+  ArchitectureCreatedClarificationsPanel,
+  presentOpenQuestionEntityCount,
+} from "@/components/architecture/ArchitectureCreatedClarificationsPanel";
 import { buildArchitectureCreatedHomeModel } from "@/lib/architecture/architecture-created-home-model";
+import { parseArchitectureGeneratedContent } from "@/lib/architecture/architecture-generated-content-parser";
+import type { ArchitectureStructuredSection } from "@/lib/architecture/architecture-structured-content-types";
 
 describe("ArchitectureCreatedClarificationsPanel", () => {
+  it("preserves missing section, omitted entity collection, and empty entity count states", () => {
+    const openQuestions = parseArchitectureGeneratedContent("## Open questions\nConfirm the retention owner.", null).sections.find(
+      (section) => section.key === "open-questions",
+    );
+
+    expect(presentOpenQuestionEntityCount(undefined)).toBe("Not returned");
+    expect(presentOpenQuestionEntityCount(openQuestions)).toBe(
+      "Open question count was not stored.",
+    );
+    const emptyOpenQuestions: ArchitectureStructuredSection = {
+      key: "open-questions",
+      title: "Open questions",
+      narrativeMarkdown: null,
+      entities: [],
+      provenance: "inferred",
+    };
+
+    expect(presentOpenQuestionEntityCount(emptyOpenQuestions)).toBe("0");
+  });
+
   it("uses run-scoped guided questions href and omits intake wording", () => {
     const model = buildArchitectureCreatedHomeModel({
       runId: "run-abc",

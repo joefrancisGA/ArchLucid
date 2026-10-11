@@ -5,6 +5,7 @@
     "security-architecture-baseline.json",
     "nist-800-53-r5-architecture.json",
     "microsoft-cloud-security-benchmark.json",
+    "organization-security-architecture-starter.json",
     "reliability-and-resilience.json",
     "azure-waf.json",
     "azure-caf-landing-zone.json",

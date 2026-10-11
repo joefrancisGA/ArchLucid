@@ -71,6 +71,23 @@ export type InfrastructureDiagramNodeMappingSaveRequest = {
   cloudResourceId: string;
 };
 
+export type InfrastructureDiagramDocumentationDecision = {
+  scopeId: string;
+  snapshotId: string;
+  subjectKind: "DiagramNode" | "InventoryResource" | "EdgeGap";
+  subjectKey: string;
+  decision: "UpdateDrawing" | "AcceptAsUndocumented" | "CheckInventory";
+  carryForwardState: "StillOpen" | "NoLongerInCapture" | "EvidenceChanged";
+  updatedUtc: string;
+};
+
+export type InfrastructureDiagramDocumentationDecisionSaveRequest = {
+  snapshotId: string;
+  subjectKind: InfrastructureDiagramDocumentationDecision["subjectKind"];
+  subjectKey: string;
+  decision: InfrastructureDiagramDocumentationDecision["decision"];
+};
+
 export type StructuredDiagramIngestRequest = {
   sources: DiagramSourceReference[];
 };
