@@ -51,7 +51,7 @@ Routes do not change. Only group membership, order, labels, tooltips, and captio
 | **SN-PACK-02** | [securenow-menu-10-pack-owasp-asvs.md](../../.cursor/prompts/securenow-menu-10-pack-owasp-asvs.md) | — | Bundled OWASP ASVS architecture pack |
 | **SN-PACK-03** | [securenow-menu-11-pack-mcsb.md](../../.cursor/prompts/securenow-menu-11-pack-mcsb.md) | — | Bundled Microsoft cloud security benchmark pack, cross-referenced to Microsoft tools |
 | **SN-PACK-04** | [securenow-menu-12-pack-organization-starter.md](../../.cursor/prompts/securenow-menu-12-pack-organization-starter.md) | SN-ED-03 | A starter for organization policy and architecture packs |
-| **SN-COL-01** | [securenow-menu-13-collection-agent-adr.md](../../.cursor/prompts/securenow-menu-13-collection-agent-adr.md) | — | ADR: in-tenant collection agent and blob handoff. Design only |
+| **SN-COL-01** | [securenow-menu-13-collection-agent-adr.md](../../.cursor/prompts/securenow-menu-13-collection-agent-adr.md) | — | ADR 0103: in-tenant collection agent and blob handoff. Accepted 2026-10-11 |
 | **SN-COL-02** | [securenow-menu-14-collection-run-ingest.md](../../.cursor/prompts/securenow-menu-14-collection-run-ingest.md) | SN-COL-01 | Collection run records and blob ingest |
 | **SN-COL-03** | [securenow-menu-15-collection-agent-page.md](../../.cursor/prompts/securenow-menu-15-collection-agent-page.md) | SN-COL-02, SN-MENU-01 | Collection agent page. Read-only status |
 | **SN-COL-04** | [securenow-menu-16-collection-run-now.md](../../.cursor/prompts/securenow-menu-16-collection-run-now.md) | SN-COL-03 | Run now and schedule display, as SN-COL-01 decided |
@@ -61,7 +61,7 @@ Routes do not change. Only group membership, order, labels, tooltips, and captio
 | **SN-HAND-01** | [securenow-menu-20-engineer-analyst-handoff.md](../../.cursor/prompts/securenow-menu-20-engineer-analyst-handoff.md) | SN-MENU-04, SN-ED-03 | Design note: one shared finding-to-control workflow. Design only |
 | **SN-MENU-HOLD** | [securenow-menu-hold.md](../../.cursor/prompts/securenow-menu-hold.md) | — | Forbidden scope |
 
-**Wave A** (SN-MENU-01 to 04) is UI only and stays in order. **Wave B** (SN-ED-01 to 04) follows SN-MENU-01. SN-ED-02, 03, and 04 can run in any order after SN-ED-01. **Wave C** (SN-PACK-01 to 03) has no UI dependency and can run any time. SN-PACK-04 follows SN-ED-03. **Wave D** starts with the SN-COL-01 ADR. Do not start SN-COL-02 until the owner accepts that ADR. **Wave E** starts with the SN-DEP-01 ADR, which follows SN-COL-01. Do not start SN-DEP-02 or 03 until the owner accepts it. **SN-HAND-01** writes a design note only.
+**Wave A** (SN-MENU-01 to 04) is UI only and stays in order. **Wave B** (SN-ED-01 to 04) follows SN-MENU-01. SN-ED-02, 03, and 04 can run in any order after SN-ED-01. **Wave C** (SN-PACK-01 to 03) has no UI dependency and can run any time. SN-PACK-04 follows SN-ED-03. **Wave D** starts with the SN-COL-01 ADR. The owner accepted ADR 0103 on 2026-10-11, and SN-COL-02 is on `master`. **Wave E** starts with the SN-DEP-01 ADR, which follows SN-COL-01. Do not start SN-DEP-02 or 03 until the owner accepts it. **SN-HAND-01** writes a design note only.
 
 ## Settled reading
 
