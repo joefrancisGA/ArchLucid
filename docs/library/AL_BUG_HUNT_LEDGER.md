@@ -36118,6 +36118,8 @@ ABQ-09 churn hotspot.
 
 ## Zone: securenow-question-queue
 
+2026-10-11 seed hunt (seed→hit): proved a reachable inferred-connection question with rule `Unresolved host` could not be confirmed because the compiler generated `unresolved-host@v1` while the queue matched the raw spaced rule name; the UI now applies the compiler's punctuation-to-hyphen normalization before lookup. Regression `confirms an inferred connection when its rule name contains spaces`; the focused queue suite passed 13/13.
+
 2026-10-11 seed hunt (seed→hit): proved a reachable answered mutation with a stale `EvidenceFingerprint` returned success and persisted a disposition even though compilation would not join it to the current question; answered mutations now reject changed question evidence before persistence. Regression `Stale_evidence_fingerprint_is_rejected_before_persisting_an_answer`. The focused Application SecureNowQuestion suite passed 21/21 and the queue UI suite passed 12/12.
 
 2026-10-11 seed hunt (seed→hit): proved `SecureNowQuestionDispositionService.WriteAsync` accepted a reachable answered mutation whose `AnswerCode` was not in the compiled question's finite choices, persisting an invalid answer as answered. Answered mutations now validate membership against the compiled question; regression `Answer_code_must_be_one_of_the_compiled_question_choices`. The focused Application SecureNowQuestion suite passed 20/20 and the queue UI suite passed 12/12.
@@ -36136,11 +36138,11 @@ ABQ-09 churn hotspot.
 - **aliases:** securenow question queue; question disposition
 - **paths:** ArchLucid.Application/InfraEvidence/SecureNowQuestionDispositions/; ArchLucid.Api/Controllers/InfraEvidence/InfraEvidenceSecureNowQuestionsController.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/ISecureNowQuestionDispositionRepository.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/ISecureNowQuestionDispositionService.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/SecureNowQuestionDispositionRecord.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/SecureNowQuestionRecord.cs; ArchLucid.Persistence/InfraEvidence/NoOpSecureNowQuestionDispositionRepository.cs; ArchLucid.Persistence/InfraEvidence/SqlSecureNowQuestionDispositionRepository.cs; ArchLucid.Contracts/InfraEvidence/SecureNowQuestionDispositionContracts.cs; archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
-- **hunts:** 18
-- **bugs-found:** 8
+- **hunts:** 19
+- **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-11
-- **last-bug:** 2026-10-11 — stale SecureNow evidence fingerprint was persisted as an answer
+- **last-bug:** 2026-10-11 — inferred SecureNow rule names with spaces could not be confirmed
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -36184,6 +36186,7 @@ ABQ-09 churn hotspot.
 
 - [x] (proven) `SecureNowQuestionDispositionService.WriteAsync` — a reachable `POST /answer` body supplied an `AnswerCode` not present in the compiled question's finite `AnswerCodes`, and the service had no question-choice membership check before persisting an answered disposition; fixed by validating membership against the compiled question; regression `Answer_code_must_be_one_of_the_compiled_question_choices`.
 - [x] (proven) `SecureNowQuestionDispositionService.WriteAsync` — a reachable `POST /answer` body supplied a stale `EvidenceFingerprint`; compilation only joins dispositions whose fingerprint matches current evidence, so the API could report success while leaving the question open; fixed by rejecting changed question evidence before persistence; regression `Stale_evidence_fingerprint_is_rejected_before_persisting_an_answer`.
+- [x] (proven) `SecureNowQuestionQueueProvider.findInferredConnection` — a reachable persisted inferred-connection rule such as `Unresolved host` was compared as a space-preserving string while the compiler emitted `unresolved-host@v1`, so Yes/No actions reported that the connection was unavailable; fixed by sharing punctuation-to-hyphen normalization; regression `confirms an inferred connection when its rule name contains spaces`.
 - (candidate) `SecureNowQuestionCompiler.AddQuestion` — two proposed `OperatorInferredConnectionRecord` inputs with the same normalized resource/question identity but different endpoints are collapsed by `emitted`, so one actionable inferred connection may disappear; input originates from the inferred-connection list passed into compilation.
 - (candidate) `SecureNowQuestionDispositionService.BuildDiagramCandidates` — an inventory resource is suppressed whenever its ID appears in any relationship, even when the relationship's peer endpoint is missing or unresolved; input originates from persisted inventory relationship records and could hide an unknown-evidence question.
 - (candidate) `securenow-question-queue-api.mapQuestion` — an API response containing blank string entries in `answerCodes` passes the type-only filter and can render a blank answer button; input is the reachable question API response.
