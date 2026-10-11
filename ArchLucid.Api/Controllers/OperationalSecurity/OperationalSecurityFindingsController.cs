@@ -112,7 +112,7 @@ public sealed class OperationalSecurityFindingsController(
         ScopeContext scope = scopeProvider.GetCurrentScope();
         List<OperationalSecurityFindingLookupItem> matches = [];
 
-        // Diagram-reconciliation ingest stores CloudProvider.Azure; lookup uses the same natural key.
+        // Diagram-reconciliation ingest stores CloudProvider.Azure (enum 1); lookup uses the same natural key.
 
         foreach (string sourceFindingId in sourceFindingIds)
         {
