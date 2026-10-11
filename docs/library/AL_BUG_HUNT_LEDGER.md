@@ -9574,6 +9574,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: architecture-recommendation
 
+2026-10-11 seed hunt (seed-only): re-read the selected recommendation engine and trade-off builder plus the focused Alternatives/ProposedChange tests; no fresh mechanism-backed hypothesis met the reachability and wrong-outcome bar beyond the retained bounded candidates, so none was promoted. The exact filter passed 45/45; no production or regression code changed.
+
 2026-10-11 seed hunt (seed-only): re-read the selected recommendation engine and trade-off builder with the Alternatives/ProposedChange tests; no fresh hunt-ready row met the reachability and wrong-outcome bar, and existing bounded candidates were retained without duplication. The exact filter passed 45/45; no production or regression code changed.
 
 2026-10-10 seed hunt (seed-only): reread `ArchitectureRecommendationEngine` and `ArchitectureRecommendationTradeOffBuilder` plus the focused Alternatives/ProposedChange tests; no new hunt-ready row met the reachability and wrong-outcome bar. Existing bounded candidates remain open for caller/contract evidence; the exact filter passed 45/45 and no production or regression code changed.
@@ -9720,7 +9722,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** recommendation engine; alternatives
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationEngine.cs; ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationTradeOffBuilder.cs
 - **test-filter:** FullyQualifiedName~ArchitectureRecommendationAlternativesTests|FullyQualifiedName~ArchitectureRecommendationProposedChangeTests
-- **hunts:** 59
+- **hunts:** 60
 - **last-hunt:** 2026-10-11
 - **bugs-found:** 24
 - **consecutive-dry-hunts:** 0
