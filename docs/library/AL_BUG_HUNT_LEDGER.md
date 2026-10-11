@@ -36396,3 +36396,4 @@ ABQ-09 churn hotspot.
 
 2026-10-11 thorough hunt (dry): `host-core-jobs` — cheap-disproved the hosted/in-memory retry and result-retention candidates against their cancellation/state re-reads. The SQL `MarkFailedTerminalAsync` stale-worker candidate remains plausible, but no SQL-backed concurrent failing repro was reachable; the scoped host-core job suite passed 76/76. No production change.
 2026-10-11 thorough hunt (dry): `host-core-jobs` — repeated the selected candidate review after the prior dry hunt; no new failing repro or reachable mechanism beyond the unresolved SQL concurrency candidate. The scoped host-core job suite passed 76/76. No production change.
+2026-10-11 thorough hunt (dry): `host-core-jobs` — repeated the selected candidate review; the SQL stale-worker candidate still lacks a reachable SQL-backed failing repro, while hosted/in-memory paths retain cancellation guards. The scoped host-core job suite passed 76/76. No production change.
