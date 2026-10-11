@@ -77,7 +77,11 @@ export function formatSandboxStyleGoldenManifest(m: Record<string, unknown>): st
   const highlights = Array.isArray(m.highlights) ? m.highlights : [];
 
   if (highlights.length === 0) {
-    lines.push("_No highlights were present._");
+    if (m.highlights === null || m.highlights === undefined) {
+      lines.push("Highlights were not stored.");
+    } else {
+      lines.push("_No highlights were present._");
+    }
   } else {
     for (const h of highlights) {
       if (!isRecord(h)) {

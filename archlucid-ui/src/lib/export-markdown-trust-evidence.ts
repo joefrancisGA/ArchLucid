@@ -31,7 +31,11 @@ export function formatTrustEvidenceCardMarkdown(card: RunTrustEvidenceCard): str
 
   lines.push("## Evidence basis (operational)");
   lines.push("");
-  lines.push(card.selfAttestationNotice ?? "");
+  if (card.selfAttestationNotice === null || card.selfAttestationNotice === undefined) {
+    lines.push("Self-attestation notice was not stored.");
+  } else {
+    lines.push(card.selfAttestationNotice);
+  }
   lines.push("");
   pushField(
     PROOF_CONFIDENCE_FIELD_LABEL,

@@ -87,6 +87,8 @@ export function formatManifestDocumentShape(m: Record<string, unknown>): string 
 
   if (manifestVersion) {
     lines.push(`- **Review record version:** ${manifestVersion}`);
+  } else if (meta === null || meta.manifestVersion === null || meta.manifestVersion === undefined) {
+    lines.push("Review record version was not stored.");
   }
 
   pushPolicyAtCommitMarkdownLines(m, lines);
