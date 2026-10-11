@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-11 seed hunt (seed-only): `ui-infra-resource-hub` — reread the selected component’s loading, URL synchronization, tab/shortcut, audit-scope, remediation, and disclosure paths plus all three focused suites; no reachable mechanism-backed wrong outcome met the promotion bar. The focused ResourceHubClient suites passed 52/52. No candidate was promoted and no production or regression code changed.
+
 2026-10-11 seed hunt (seed-only): `ui-infra-resource-hub` — reread `ResourceHubClient.tsx`, the resource-hub shortcut handoff, and all three focused suites; no new reachable mechanism-backed wrong outcome met the promotion bar, so no candidate was promoted and no passing regression was added. The focused ResourceHubClient suites passed 52/52. No production or regression code changed.
 
 2026-10-11 seed hunt (seed-only): `ui-infra-resource-hub` — re-read `ResourceHubClient.tsx`, its shortcut hook/shared header handoffs, and the three focused suites; no new reachable mechanism-backed wrong outcome met the promotion bar. The focused ResourceHubClient suites passed 52/52. No production or regression code changed.
