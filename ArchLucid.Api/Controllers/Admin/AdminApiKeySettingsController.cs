@@ -94,7 +94,7 @@ public sealed class AdminApiKeySettingsController(
                 AuditEventTypes.ApiKeyRotated,
                 new
                 {
-                    keyId = keyId,
+                    keyId = response.Slot,
                     slot = response.Slot,
                     deploymentAction = response.DeploymentAction,
                     configPath = response.ConfigPath
