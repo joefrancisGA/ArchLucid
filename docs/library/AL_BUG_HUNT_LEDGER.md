@@ -6,6 +6,8 @@
 
 2026-10-11 seed hunt (seed-only): `core-explanation-json` — repeated the source-backed review of structured normalization, numeric/text token coercion, duplicate-property handling, and prompt-schema reachability. The retained candidates still lack a confirmed producer contract plus wrong outcome; `RunExplanation` passed 47/47. No production or regression code changed.
 
+2026-10-11 seed hunt (seed-only): `archlucid-contracts` — reread architecture diagram records, common enum converters, and their round-trip/converter coverage; no fresh reachable contract-only wrong outcome met the promotion bar. The focused Contracts filter passed 521/521. No production or regression code changed.
+
 2026-10-11 seed hunt (seed-only): `archlucid-contracts` — rechecked the selected documentation-decision contracts, decision values, architecture finding converter, and focused contract coverage; no new reachable mechanism-backed wrong outcome met the promotion bar. The focused Contracts filter passed 520/520. No candidate was promoted and no production or regression code changed.
 
 2026-10-11 seed hunt (seed-only): `archlucid-contracts` — reread the selected documentation-decision contracts, decision values, architecture finding converter, and focused contract coverage; no new reachable mechanism-backed wrong outcome met the promotion bar. The focused Contracts filter passed 520/520. No candidate was promoted and no production or regression code changed.
@@ -27809,7 +27811,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 43
+- **hunts:** 44
 - **bugs-found:** 32
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-11
