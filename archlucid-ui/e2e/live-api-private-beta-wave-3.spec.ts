@@ -97,6 +97,7 @@ test.describe(
       await page.goto(`/architecture/reviews/${fakeRunId}`, { waitUntil: "domcontentloaded" });
       // Inventory scans this spec (not helpers) for the branded-not-found marker.
       await expectLiveBrandedNotFoundRecovery(page);
+      await expect(page.getByTestId("branded-not-found")).toBeVisible();
     });
 
     test("signed-out deep-link preserves returnUrl for admin and help destinations", async ({ browser }) => {
