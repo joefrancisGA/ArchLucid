@@ -4,7 +4,7 @@
 
 # ADR 0104: SecureNow in-tenant deployment
 
-- **Status:** Proposed
+- **Status:** Accepted
 - **Date:** 2026-10-11
 
 ## Context
