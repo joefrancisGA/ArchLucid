@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-11 seed hunt (seed-only): `ui-governance-findings-queue` — reread the selected queue client, findings/decision row mappers, query fallback, table/body, scope, toolbar, and outcome paths. No fresh row met the full hunt-ready bar; retained bounded candidates for whitespace-padded API finding identifiers, whitespace/empty decision identifiers, and fallback trace-row run identity normalization. The picker-scoped client file ran 22 tests with 11 known external-store/update-depth and workspace-label baseline failures. No production or regression change.
+
 2026-10-11 seed hunt (seed-only): `host-core-coordination` — re-read the processor isolation shell and option verification path; the existing candidate set remains contract-dependent and no new reachable wrong outcome emerged. The focused coordination/outbox filter passed 21/21. No production or regression code changed.
 
 2026-10-11 seed hunt (seed-only): `host-core-coordination` — repeated the option-verifier, retry-calculator, shared failure-handler, and processor-isolation review; no fresh reachable mechanism-backed candidate emerged and the five existing bounded candidates remain unchanged. The focused coordination/outbox filter passed 21/21. No production or regression code changed.
@@ -35704,7 +35706,7 @@ ABQ-09 churn hotspot; intake wizard route tree.
 - **aliases:** governance findings queue
 - **paths:** archlucid-ui/src/app/(operator)/governance/findings/
 - **test-filter:** FullyQualifiedName~GovernanceFindingsQueueClient
-- **hunts:** 44
+- **hunts:** 45
 - **bugs-found:** 30
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-11
@@ -35725,6 +35727,10 @@ ABQ-09 churn hotspot.
 2026-10-09 thorough hunt (dry): cheap-disproved all five candidates; no failing repro was established and no fix was shipped. Candidate-specific tests ran 19 tests: 16 passed and 3 failed on the existing workspace-label expectation baseline. The focused queue files ran 29 tests: 17 passed and 12 failed on known external-store/update-depth, workspace-label, and buyer-polished contextual-help baselines.
 
 ### Hypotheses
+
+- [ ] (candidate) `riskRegisterRows` — an API risk-register `findingId` containing surrounding whitespace is admitted after the trimmed emptiness check but retained untrimmed, so inspect links and bulk-selection identity may encode or submit a non-canonical finding id; reachable from the generated risk-register `findingId` string contract, but the API’s canonical identifier formatting and wrong downstream outcome remain unproven.
+- [ ] (candidate) `decisionRegisterRows` — an API decision-register `decisionId` that is empty or whitespace is copied into `findingId` after the title fallback, so a rendered decision row may expose an empty-id inspect link; reachable from the generated decision-register string contract, but server-side non-empty enforcement and the user-visible wrong route remain unproven.
+- [ ] (candidate) `traceRowsForRun` — a fallback explanation row keeps the source `RunSummary.runId` without the normalization used for register rows, so a reachable padded run id could produce a mismatched review/evidence URL or dedupe key; the fallback caller supplies API run summaries, but canonical run-id formatting and a wrong navigation outcome remain unproven.
 
 - [x] (invalid) `GovernanceFindingsQueueResultsSection` — a reachable whitespace-only `runId` can satisfy the raw `scopedRunId.length > 0` footer guard even when trimmed scope filtering is inactive — **invalid 2026-10-11 thorough hunt:** `scopedRunIdFromQuery` trims URL input before the Results section receives it; the whitespace-only prerequisite is not reachable there.
 - [x] (valid-no-repro) `GovernanceFindingsQueueToolbarSection` — a URL-backed `governanceFindingsMoreFiltersOpen` transition may leave the native `<details>` open state and the query parameter out of sync during a rapid toggle/router update — **cheap-disproof 2026-10-11 thorough hunt:** the controlled disclosure writes through the URL helper and the effect rehydrates state from the settled parameter; focused URL/scope tests passed.
