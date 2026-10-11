@@ -185,6 +185,17 @@ public sealed class StructuredExplanationParserTests
     }
 
     [Fact]
+    public void TryNormalizeStructuredJson_preserves_numeric_one_confidence_string()
+    {
+        const string json = """{"reasoning":"Main","confidence":"1"}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Confidence.Should().Be(1m);
+    }
+
+    [Fact]
     public void TryNormalizeStructuredJson_coerces_percent_suffixed_confidence()
     {
         const string json = """{"reasoning":"Main","confidence":"75%"}""";

@@ -90,9 +90,13 @@ public static partial class StructuredExplanationParser
         if (element.ValueKind is JsonValueKind.True or JsonValueKind.False)
             return null;
 
-        if (element.ValueKind == JsonValueKind.String
-            && JsonBooleanStringReader.TryParseBooleanString(element.GetString(), out _))
+        string? raw = element.ValueKind == JsonValueKind.String ? element.GetString()?.Trim() : null;
+
+        if (raw is not null
+            && raw is not "0" and not "1"
+            && JsonBooleanStringReader.TryParseBooleanString(raw, out _))
         {
+            // Numeric "0" and "1" remain valid confidence values even though aggregate flags accept them as booleans.
             return null;
         }
 

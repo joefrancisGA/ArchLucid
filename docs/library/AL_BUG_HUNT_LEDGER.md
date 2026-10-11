@@ -27451,7 +27451,7 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 ---
 ## Zone: core-explanation-json
 
-2026-10-11 seed hunt (seed→hit): structured confidence reused aggregate boolean compatibility parsing, so a reachable LLM payload with `confidence: "true"` became `1.0` and could present malformed output as full confidence. Structured parsing now rejects boolean values and boolean synonym strings while preserving numeric and percentage forms; regression `TryNormalizeStructuredJson_ignores_string_boolean_confidence` failed first with `1M`, and the scoped `RunExplanation` filter passed 47/47.
+2026-10-11 seed hunt (seed→hit): structured confidence reused aggregate boolean compatibility parsing, so a reachable LLM payload with `confidence: "true"` became `1.0` and could present malformed output as full confidence. Structured parsing now rejects boolean values and boolean word synonyms while preserving numeric `"0"`/`"1"` and percentage forms; regression `TryNormalizeStructuredJson_ignores_string_boolean_confidence` failed first with `1M`, the compatibility regression `TryNormalizeStructuredJson_preserves_numeric_one_confidence_string` passed, and the scoped `RunExplanation` filter passed 47/47.
 
 - **(proven)** `StructuredExplanationParser.TryNormalizeStructuredJson` — string boolean confidence is coerced to full confidence — **hit 2026-10-11 seed hunt:** aggregate compatibility boolean synonyms were reused for a numeric structured field; reject boolean tokens at the structured boundary; regression `TryNormalizeStructuredJson_ignores_string_boolean_confidence`.
 
