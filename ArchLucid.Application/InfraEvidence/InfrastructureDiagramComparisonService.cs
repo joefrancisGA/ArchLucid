@@ -238,6 +238,11 @@ public sealed class InfrastructureDiagramComparisonService : IInfrastructureDiag
             throw new InvalidOperationException("Diagram comparison was not found in the current scope.");
         }
 
+        if (request.SnapshotId != comparison.SnapshotId)
+        {
+            throw new ArgumentException("SnapshotId does not match the selected diagram comparison.", nameof(request));
+        }
+
         DiagramInfrastructureReconciliationResult? result =
             JsonSerializer.Deserialize<DiagramInfrastructureReconciliationResult>(comparison.ResultJson, JsonOptions);
 
