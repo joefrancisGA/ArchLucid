@@ -33049,7 +33049,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** governance stickiness; posture; pre-finalize checklist; split from api-governance-tenancy-controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Attestation.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Dispositions.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Exceptions.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Registers.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Schedules.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessControllerCore.cs; ArchLucid.Api/Controllers/Governance/GovernancePostureController.cs; ArchLucid.Api/Controllers/Governance/GovernancePreCommitSimulationController.cs; ArchLucid.Application/Governance/PreFinalizeChecklistService.cs; ArchLucid.Application/Governance/PreFinalizeChecklistService.Dispositions.cs; ArchLucid.Application/Governance/PreFinalizeChecklistService.Items.cs; ArchLucid.Application/Governance/PreFinalizeChecklistService.TrustAndPolicy.cs; ArchLucid.Application/Governance/PreFinalizeActiveFindingCounter.cs; ArchLucid.Application/Governance/Stickiness/GovernanceStickinessFacade.Findings.Dispositions.cs
 - **test-filter:** FullyQualifiedName~GovernanceStickiness|FullyQualifiedName~GovernancePosture|FullyQualifiedName~PreFinalizeChecklist
-- **hunts:** 25
+- **hunts:** 26
 - **bugs-found:** 15
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-09
@@ -36161,6 +36161,8 @@ ABQ-09 churn hotspot.
 - **last-bug:** 2026-10-11 — stale snapshot load overwrote newer question state
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-11 seed hunt (seed-only): re-read the selected disposition, compiler, controller, persistence, contract, and queue paths with no production churn since the stale-load fix. The retained case-variant disposition and in-flight snapshot-action lenses remain unproven and overlap saturated validation/state-machine classes; no fresh hunt-ready mechanism was promoted. The focused Application SecureNowQuestion suite passed 22/22 and the queue UI suite passed 14/14; no production or regression code changed.
 
 2026-10-10 thorough hunt (dry): cheap-disproof confirmed the concurrent API answer/ignore path reaches `SqlSecureNowQuestionDispositionRepository.UpsertAsync` and its unhinted `MERGE`, but no SQL Server or SQL integration test execution was available for the required failing repro. The Application `SecureNowQuestion` filter was blocked before test execution by pre-existing `CS0111` in `AuthorityPipelineStagesExecutorTestFactory.cs`; candidate retained without a production change.
 
