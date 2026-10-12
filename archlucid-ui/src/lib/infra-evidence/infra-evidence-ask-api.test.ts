@@ -28,7 +28,7 @@ describe("submitInfraEvidenceAsk", () => {
       insufficientEvidence: false,
       answer: null,
       citations: null,
-      viewPlan: { mermaidMode: "network", honestyLabel: null },
+      viewPlan: { mermaidMode: null, honestyLabel: null },
     });
 
     const omitted = await submitInfraEvidenceAsk({ question: "What changed?" });
@@ -36,5 +36,20 @@ describe("submitInfraEvidenceAsk", () => {
     expect(omitted.answer).toBeNull();
     expect(omitted.citations).toBeNull();
     expect(omitted.viewPlan?.honestyLabel).toBeNull();
+    expect(omitted.viewPlan?.mermaidMode).toBeNull();
+  });
+
+  it("keeps citations with omitted kind and id", async () => {
+    vi.mocked(proxyJsonPost).mockResolvedValueOnce({
+      topicKind: "ResourceOverview",
+      answer: "Answer",
+      insufficientEvidence: false,
+      citations: [{ kind: null, id: null, label: null }],
+      viewPlan: null,
+    });
+
+    const response = await submitInfraEvidenceAsk({ question: "What changed?" });
+
+    expect(response.citations).toEqual([{ kind: null, id: null, label: null }]);
   });
 });

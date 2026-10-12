@@ -1,7 +1,7 @@
 /** Wire shape for Infrastructure Ask diagram view plans (DAU-02). */
 
 export type DiagramViewPlan = {
-  readonly mermaidMode: string;
+  readonly mermaidMode: string | null;
   readonly resourceGroupName: string | null;
   readonly seedNodeId: string | null;
   readonly snapshotId: string | null;

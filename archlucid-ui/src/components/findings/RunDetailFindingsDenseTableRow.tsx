@@ -112,7 +112,9 @@ export function RunDetailFindingsDenseTableRow(props: RunDetailFindingsDenseTabl
               </p>
             ) : null}
           </div>
-        ) : null}
+        ) : (
+          <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>Classification was not stored</p>
+        )}
         <p className={cn("m-0 mt-0.5 font-mono text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>
           {finding.findingId}
         </p>

@@ -151,6 +151,18 @@ describe("SecureNowQuestionQueue", () => {
     );
   });
 
+  it("labels missing subscription id and expiration status in details", async () => {
+    mocks.listQuestions.mockResolvedValue([
+      { ...question, subscriptionId: null, isExpired: null },
+    ]);
+
+    render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
+    fireEvent.click(await screen.findByRole("button", { name: "Review" }));
+
+    expect(screen.getByText("Subscription: Subscription id was not stored.")).toBeInTheDocument();
+    expect(screen.getByText(/Expiration status was not stored/)).toBeInTheDocument();
+  });
+
   it("shows omitted question source and scope in details", async () => {
     mocks.listQuestions.mockResolvedValue([
       { ...question, source: null, scopeKind: null },

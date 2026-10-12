@@ -194,9 +194,12 @@ export function RunDetailManifestSummarySection(
                   </p>
                   <p className="m-0">
                     Cloud target: {manifestSummary.reviewStandardsAtCommit.cloudProvider ?? "Cloud target was not stored."}
-                    {manifestSummary.reviewStandardsAtCommit.focusedPilotModeEnabled
+                    {manifestSummary.reviewStandardsAtCommit.focusedPilotModeEnabled === true
                       ? " · Focused review scope"
-                      : null}
+                      : manifestSummary.reviewStandardsAtCommit.focusedPilotModeEnabled === null
+                        || manifestSummary.reviewStandardsAtCommit.focusedPilotModeEnabled === undefined
+                        ? " · Focused review scope was not stored."
+                        : null}
                   </p>
                   {manifestSummary.reviewStandardsAtCommit.policyReferences === undefined
                   || manifestSummary.reviewStandardsAtCommit.policyReferences === null ? (

@@ -78,7 +78,7 @@ function normalizeRuleKey(value: string): string {
 }
 
 function questionIdentity(question: SecureNowQuestion): string {
-  return `${normalize(question.subscriptionId)}|${normalize(question.resourceId ?? "")}|${normalize(question.questionKey)}`;
+  return `${normalize(question.subscriptionId ?? "")}|${normalize(question.resourceId ?? "")}|${normalize(question.questionKey)}`;
 }
 
 function isDismissed(question: SecureNowQuestion): boolean {
@@ -88,7 +88,7 @@ function isDismissed(question: SecureNowQuestion): boolean {
 function filterQuestions(questions: readonly SecureNowQuestion[], filter: QueueFilter): SecureNowQuestion[] {
   return questions.filter((question) => {
     if (filter === "Open") {
-      return question.status !== "Answered" && !isDismissed(question) && !question.isExpired;
+      return question.status !== "Answered" && !isDismissed(question) && question.isExpired !== true;
     }
     if (filter === "Answered") return question.status === "Answered";
     return isDismissed(question);
@@ -194,7 +194,7 @@ export function SecureNowQuestionQueueProvider(
 
   const openQuestions = useMemo(
     () => questions.filter(
-      (question) => question.status !== "Answered" && !isDismissed(question) && !question.isExpired,
+      (question) => question.status !== "Answered" && !isDismissed(question) && question.isExpired !== true,
     ),
     [questions],
   );
@@ -235,6 +235,7 @@ export function SecureNowQuestionQueueProvider(
         operatorInferredConnectionPanelErrorFromUnknown(
           new Error("Resource id was not stored."),
           "Could not save the question update.",
+          "mutation",
         ),
       );
       return;
@@ -245,7 +246,7 @@ export function SecureNowQuestionQueueProvider(
     try {
       if (action === "ignore") {
         await ignoreSecureNowQuestion(snapshotId, {
-          subscriptionId: currentQuestion.subscriptionId,
+          subscriptionId: currentQuestion.subscriptionId ?? "",
           resourceId: currentQuestion.resourceId,
           questionKey: currentQuestion.questionKey,
           source: currentQuestion.source ?? "",
@@ -255,7 +256,7 @@ export function SecureNowQuestionQueueProvider(
         });
       } else if (action === "reopen") {
         await reopenSecureNowQuestion(snapshotId, {
-          subscriptionId: currentQuestion.subscriptionId,
+          subscriptionId: currentQuestion.subscriptionId ?? "",
           resourceId: currentQuestion.resourceId,
           questionKey: currentQuestion.questionKey,
           reason: reason.trim(),
@@ -272,7 +273,7 @@ export function SecureNowQuestionQueueProvider(
         }
       } else {
         await answerSecureNowQuestion(snapshotId, {
-          subscriptionId: currentQuestion.subscriptionId,
+          subscriptionId: currentQuestion.subscriptionId ?? "",
           resourceId: currentQuestion.resourceId,
           questionKey: currentQuestion.questionKey,
           source: currentQuestion.source ?? "",

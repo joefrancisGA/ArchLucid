@@ -3,7 +3,7 @@ import { proxyJsonGet, proxyJsonPost } from "@/lib/proxy-json-client";
 export type SecureNowQuestion = {
   readonly dispositionId: string | null;
   readonly snapshotId: string;
-  readonly subscriptionId: string;
+  readonly subscriptionId: string | null;
   readonly resourceId: string | null;
   readonly questionKey: string;
   readonly source: string | null;
@@ -17,14 +17,14 @@ export type SecureNowQuestion = {
   readonly answerCodes: readonly string[] | null;
   readonly evidenceFingerprint: string;
   readonly expirationUtc: string | null;
-  readonly isExpired: boolean;
+  readonly isExpired: boolean | null;
   readonly answerCode: string | null;
   readonly answerText: string | null;
   readonly reason: string | null;
 };
 
 export type SecureNowQuestionWrite = {
-  readonly subscriptionId: string;
+  readonly subscriptionId: string | null;
   readonly resourceId: string;
   readonly questionKey: string;
   readonly source: string;
@@ -37,7 +37,7 @@ export type SecureNowQuestionWrite = {
 };
 
 export type SecureNowQuestionReopen = {
-  readonly subscriptionId: string;
+  readonly subscriptionId: string | null;
   readonly resourceId: string;
   readonly questionKey: string;
   readonly reason: string;
@@ -53,7 +53,11 @@ function mapQuestion(raw: Record<string, unknown>): SecureNowQuestion {
   return {
     dispositionId: typeof raw.dispositionId === "string" ? raw.dispositionId : null,
     snapshotId: stringOrDefault(raw.snapshotId),
-    subscriptionId: stringOrDefault(raw.subscriptionId),
+    subscriptionId: typeof raw.subscriptionId === "string"
+      ? raw.subscriptionId
+      : raw.subscriptionId === null || raw.subscriptionId === undefined
+        ? null
+        : "",
     resourceId: raw.resourceId === null || raw.resourceId === undefined ? null : stringOrDefault(raw.resourceId),
     questionKey: stringOrDefault(raw.questionKey),
     source: typeof raw.source === "string" ? raw.source : null,
@@ -69,7 +73,7 @@ function mapQuestion(raw: Record<string, unknown>): SecureNowQuestion {
       : null,
     evidenceFingerprint: stringOrDefault(raw.evidenceFingerprint),
     expirationUtc: typeof raw.expirationUtc === "string" ? raw.expirationUtc : null,
-    isExpired: raw.isExpired === true,
+    isExpired: raw.isExpired === true ? true : raw.isExpired === false ? false : null,
     answerCode: typeof raw.answerCode === "string" ? raw.answerCode : null,
     answerText: typeof raw.answerText === "string" ? raw.answerText : null,
     reason: typeof raw.reason === "string" ? raw.reason : null,

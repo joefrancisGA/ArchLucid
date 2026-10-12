@@ -147,7 +147,11 @@ export function formatManifestDocumentShape(m: Record<string, unknown>): string 
   if (constraints !== null) {
     lines.push("### Constraints");
     lines.push("");
-    pushBulletLines(lines, constraints.mandatoryConstraints, "_No mandatory constraints._");
+    if (constraints.mandatoryConstraints === null || constraints.mandatoryConstraints === undefined) {
+      lines.push("Mandatory constraints were not stored.");
+    } else {
+      pushBulletLines(lines, constraints.mandatoryConstraints, "_No mandatory constraints._");
+    }
 
     if (constraints.preferences === null || constraints.preferences === undefined) {
       lines.push("Preferences were not stored.");
@@ -437,6 +441,11 @@ export function formatManifestDocumentShape(m: Record<string, unknown>): string 
   lines.push("");
 
   if (security !== null) {
+    if (security.controls === null || security.controls === undefined) {
+      lines.push("Security controls were not stored.");
+      lines.push("");
+    }
+
     const controls = Array.isArray(security.controls) ? security.controls : [];
 
     if (controls.length > 0) {
@@ -486,7 +495,9 @@ export function formatManifestDocumentShape(m: Record<string, unknown>): string 
   }
 
   const feasibilityVerdict = isRecord(m.feasibilityVerdict) ? m.feasibilityVerdict : null;
-  const feasibilityVerdictMarkdown = formatFeasibilityVerdictMarkdownSection(feasibilityVerdict);
+  const feasibilityVerdictMarkdown = formatFeasibilityVerdictMarkdownSection(
+    feasibilityVerdict as Parameters<typeof formatFeasibilityVerdictMarkdownSection>[0],
+  );
 
   if (feasibilityVerdictMarkdown.trim().length > 0) {
     lines.push(feasibilityVerdictMarkdown.trim());

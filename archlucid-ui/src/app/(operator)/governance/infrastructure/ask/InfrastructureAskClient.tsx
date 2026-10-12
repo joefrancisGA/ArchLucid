@@ -865,7 +865,9 @@ export function InfrastructureAskClient({ presentation = "page" }: Infrastructur
                 <p className={cn("m-0 text-sm text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                   Topic identifies the kind of inventory question answered.
                 </p>
-                <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{turn.response.answer}</p>
+                <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
+                  {turn.response.answer === null ? "Answer was not stored." : turn.response.answer}
+                </p>
 
               {turn.response.viewPlan != null ? (
                 <div className="grid gap-2" data-testid="infra-ask-apply-view">
@@ -913,21 +915,29 @@ export function InfrastructureAskClient({ presentation = "page" }: Infrastructur
               <div className="grid gap-2">
                 <h3 className={OPERATOR_TYPOGRAPHY.sectionTitle}>Citations</h3>
                 <ul className="m-0 grid gap-2 pl-5">
-                  {turn.response.citations.map((citation) => {
+                  {turn.response.citations.map((citation, citationIndex) => {
                     const link = resolveInfraEvidenceAskCitationLink(citation, citationContext);
-                    const key = `${citation.kind}:${citation.id}`;
+                    const citationKind = citation.kind ?? "missing-kind";
+                    const citationId = citation.id ?? "missing-id";
+                    const key = `${citationKind}:${citationId}:${citationIndex}`;
 
                     return (
-                      <li key={key} data-testid={`infra-ask-citation-${citation.kind}-${citation.id}`}>
+                      <li key={key} data-testid={`infra-ask-citation-${citationKind}-${citationId}`}>
+                        {citation.kind === null ? (
+                          <span className="text-al-text-secondary">Citation kind was not stored. </span>
+                        ) : null}
+                        {citation.id === null ? (
+                          <span className="text-al-text-secondary">Citation id was not stored. </span>
+                        ) : null}
                         {link != null ? (
                           <Link className="text-al-link hover:underline" href={link.href}>
                             Open cited inventory evidence
                           </Link>
                         ) : (
                           <span>
-                            {citation.label == null || citation.label.trim().length === 0
+                            {citation.label === null
                               ? "Citation label was not stored."
-                              : citation.label.trim()}
+                              : citation.label}
                             {" This citation has no page to open."}
                           </span>
                         )}

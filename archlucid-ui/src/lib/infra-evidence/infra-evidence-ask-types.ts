@@ -3,8 +3,8 @@
 import type { DiagramViewPlan } from "@/lib/infra-evidence/diagram-view-plan-types";
 
 export type InfraEvidenceAskCitation = {
-  kind: string;
-  id: string;
+  kind: string | null;
+  id: string | null;
   label: string | null;
 };
 
