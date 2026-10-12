@@ -61,4 +61,40 @@ public sealed class InMemoryVerifiedRemediationControlAssociationRepository
 
         return Task.FromResult(matches);
     }
+
+    public Task<IReadOnlyList<VerifiedRemediationControlAssociationRecord>> ListByControlAndVerificationSnapshotIdsAsync(
+        ProjectScopeKey scope,
+        Guid controlId,
+        IReadOnlyList<Guid> verificationSnapshotIds,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        ArgumentNullException.ThrowIfNull(verificationSnapshotIds);
+        cancellationToken.ThrowIfCancellationRequested();
+
+        if (controlId == Guid.Empty || verificationSnapshotIds.Count == 0)
+        {
+            return Task.FromResult<IReadOnlyList<VerifiedRemediationControlAssociationRecord>>([]);
+        }
+
+        HashSet<Guid> linkedSnapshotIds = verificationSnapshotIds
+            .Where(candidate => candidate != Guid.Empty)
+            .ToHashSet();
+
+        if (linkedSnapshotIds.Count == 0)
+        {
+            return Task.FromResult<IReadOnlyList<VerifiedRemediationControlAssociationRecord>>([]);
+        }
+
+        IReadOnlyList<VerifiedRemediationControlAssociationRecord> matches = this.records.Values
+            .Where(candidate =>
+                candidate.ControlId == controlId
+                && linkedSnapshotIds.Contains(candidate.VerificationSnapshotId)
+                && scope.Matches(candidate.TenantId, candidate.WorkspaceId, candidate.ProjectId))
+            .OrderByDescending(candidate => candidate.UpdatedUtc)
+            .ThenBy(candidate => candidate.AssociationId)
+            .ToArray();
+
+        return Task.FromResult(matches);
+    }
 }

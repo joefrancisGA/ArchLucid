@@ -1866,6 +1866,7 @@ export interface components {
             readyForPositiveCheckbox?: boolean;
             requirementChains?: components["schemas"]["AuditEvidenceLineageRequirementChain"][];
             snapshotHashVerified?: boolean;
+            verifiedRemediationAssociations?: components["schemas"]["AuditEvidenceLineageVerifiedRemediationAssociation"][];
         };
         AuditEvidenceLineageRequirementChain: {
             evidence?: components["schemas"]["AuditEvidenceLineageEvidenceNode"][];
@@ -1873,6 +1874,17 @@ export interface components {
             /** Format: uuid */
             requirementId?: string;
             requirementName?: string;
+        };
+        AuditEvidenceLineageVerifiedRemediationAssociation: {
+            /** Format: uuid */
+            associationId?: string;
+            /** Format: uuid */
+            controlId?: string;
+            /** Format: uuid */
+            instanceId?: string;
+            status?: components["schemas"]["RemediationInstanceStatus"];
+            /** Format: uuid */
+            verificationSnapshotId?: string;
         };
         AuthDiagnosticEntry: {
             audience?: null | string;

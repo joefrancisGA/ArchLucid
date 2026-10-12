@@ -6326,6 +6326,12 @@
           },
           "snapshotHashVerified": {
             "type": "boolean"
+          },
+          "verifiedRemediationAssociations": {
+            "items": {
+              "$ref": "#/components/schemas/AuditEvidenceLineageVerifiedRemediationAssociation"
+            },
+            "type": "array"
           }
         },
         "type": "object"
@@ -6346,6 +6352,30 @@
             "type": "string"
           },
           "requirementName": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "AuditEvidenceLineageVerifiedRemediationAssociation": {
+        "properties": {
+          "associationId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "controlId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "instanceId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/RemediationInstanceStatus"
+          },
+          "verificationSnapshotId": {
+            "format": "uuid",
             "type": "string"
           }
         },

@@ -17,10 +17,18 @@ namespace ArchLucid.Application.Tests.InfraEvidence;
 [Trait("Suite", "Application")]
 public sealed class AuditEvidenceLineageServiceTests
 {
+    private static ScopeContext CreateScopeContext(Guid? tenantId = null) =>
+        new()
+        {
+            TenantId = tenantId ?? Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+
     [Fact]
     public async Task TryGetControlLineageAsync_two_resources_and_one_exception_returns_all_ids()
     {
-        ScopeContext scope = new() { TenantId = Guid.NewGuid() };
+        ScopeContext scope = CreateScopeContext();
         Guid assessmentId = Guid.NewGuid();
         Guid frameworkId = Guid.NewGuid();
         Guid controlId = Guid.NewGuid();
@@ -38,6 +46,8 @@ public sealed class AuditEvidenceLineageServiceTests
         {
             AssessmentId = assessmentId,
             TenantId = scope.TenantId,
+            WorkspaceId = scope.WorkspaceId,
+            ProjectId = scope.ProjectId,
             FrameworkId = frameworkId,
             Status = AuditAssessmentStatus.Collecting,
             FrameworkVersion = "1.0",
@@ -180,12 +190,199 @@ public sealed class AuditEvidenceLineageServiceTests
             .Should().BeEquivalentTo([evidenceItemOneId, evidenceItemTwoId]);
         result.Lineage.ChainComplete.Should().BeTrue();
         result.Lineage.ReadyForPositiveCheckbox.Should().BeTrue();
+        result.Lineage.VerifiedRemediationAssociations.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task TryGetControlLineageAsync_linked_inventory_and_matching_control_returns_association()
+    {
+        LineageAssociationFixture fixture = await CreateLineageAssociationFixtureAsync(includeInventoryLink: true);
+        Guid associationId = Guid.NewGuid();
+        Guid instanceId = Guid.NewGuid();
+
+        await fixture.Associations.UpsertAsync(
+            fixture.Scope.ToProjectScopeKey(),
+            new VerifiedRemediationControlAssociationRecord
+            {
+                AssociationId = associationId,
+                TenantId = fixture.Scope.TenantId,
+                WorkspaceId = fixture.Scope.WorkspaceId,
+                ProjectId = fixture.Scope.ProjectId,
+                InstanceId = instanceId,
+                VerificationSnapshotId = fixture.InventorySnapshotId,
+                ControlId = fixture.ControlId,
+                CreatedUtc = DateTime.UtcNow,
+                UpdatedUtc = DateTime.UtcNow,
+            });
+
+        AuditEvidenceLineageQueryResult result = await fixture.Service.TryGetControlLineageAsync(
+            fixture.Scope,
+            fixture.AssessmentId,
+            fixture.AuditEvidenceSnapshotId,
+            fixture.ControlId);
+
+        result.Succeeded.Should().BeTrue();
+        result.Lineage!.VerifiedRemediationAssociations.Should().ContainSingle();
+        AuditEvidenceLineageVerifiedRemediationAssociation row = result.Lineage.VerifiedRemediationAssociations[0];
+        row.AssociationId.Should().Be(associationId);
+        row.InstanceId.Should().Be(instanceId);
+        row.ControlId.Should().Be(fixture.ControlId);
+        row.VerificationSnapshotId.Should().Be(fixture.InventorySnapshotId);
+        row.Status.Should().Be(RemediationInstanceStatus.Verified);
+    }
+
+    [Fact]
+    public async Task TryGetControlLineageAsync_without_inventory_link_returns_empty_associations_and_unchanged_lineage()
+    {
+        LineageAssociationFixture fixture = await CreateLineageAssociationFixtureAsync(includeInventoryLink: false);
+
+        await fixture.Associations.UpsertAsync(
+            fixture.Scope.ToProjectScopeKey(),
+            new VerifiedRemediationControlAssociationRecord
+            {
+                AssociationId = Guid.NewGuid(),
+                TenantId = fixture.Scope.TenantId,
+                WorkspaceId = fixture.Scope.WorkspaceId,
+                ProjectId = fixture.Scope.ProjectId,
+                InstanceId = Guid.NewGuid(),
+                VerificationSnapshotId = fixture.InventorySnapshotId,
+                ControlId = fixture.ControlId,
+                CreatedUtc = DateTime.UtcNow,
+                UpdatedUtc = DateTime.UtcNow,
+            });
+
+        AuditEvidenceLineageQueryResult result = await fixture.Service.TryGetControlLineageAsync(
+            fixture.Scope,
+            fixture.AssessmentId,
+            fixture.AuditEvidenceSnapshotId,
+            fixture.ControlId);
+
+        result.Succeeded.Should().BeTrue();
+        result.Lineage!.VerifiedRemediationAssociations.Should().BeEmpty();
+        result.Lineage.ChainComplete.Should().BeTrue();
+        result.Lineage.ReadyForPositiveCheckbox.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task TryGetControlLineageAsync_different_control_returns_empty_associations()
+    {
+        LineageAssociationFixture fixture = await CreateLineageAssociationFixtureAsync(includeInventoryLink: true);
+
+        await fixture.Associations.UpsertAsync(
+            fixture.Scope.ToProjectScopeKey(),
+            new VerifiedRemediationControlAssociationRecord
+            {
+                AssociationId = Guid.NewGuid(),
+                TenantId = fixture.Scope.TenantId,
+                WorkspaceId = fixture.Scope.WorkspaceId,
+                ProjectId = fixture.Scope.ProjectId,
+                InstanceId = Guid.NewGuid(),
+                VerificationSnapshotId = fixture.InventorySnapshotId,
+                ControlId = Guid.NewGuid(),
+                CreatedUtc = DateTime.UtcNow,
+                UpdatedUtc = DateTime.UtcNow,
+            });
+
+        AuditEvidenceLineageQueryResult result = await fixture.Service.TryGetControlLineageAsync(
+            fixture.Scope,
+            fixture.AssessmentId,
+            fixture.AuditEvidenceSnapshotId,
+            fixture.ControlId);
+
+        result.Succeeded.Should().BeTrue();
+        result.Lineage!.VerifiedRemediationAssociations.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task TryGetControlLineageAsync_two_instances_for_same_snapshot_and_control_return_newest_first()
+    {
+        LineageAssociationFixture fixture = await CreateLineageAssociationFixtureAsync(includeInventoryLink: true);
+        Guid olderInstanceId = Guid.NewGuid();
+        Guid newerInstanceId = Guid.NewGuid();
+        DateTime olderUtc = new(2026, 10, 12, 10, 0, 0, DateTimeKind.Utc);
+        DateTime newerUtc = new(2026, 10, 12, 11, 0, 0, DateTimeKind.Utc);
+
+        await fixture.Associations.UpsertAsync(
+            fixture.Scope.ToProjectScopeKey(),
+            new VerifiedRemediationControlAssociationRecord
+            {
+                AssociationId = Guid.NewGuid(),
+                TenantId = fixture.Scope.TenantId,
+                WorkspaceId = fixture.Scope.WorkspaceId,
+                ProjectId = fixture.Scope.ProjectId,
+                InstanceId = olderInstanceId,
+                VerificationSnapshotId = fixture.InventorySnapshotId,
+                ControlId = fixture.ControlId,
+                CreatedUtc = olderUtc,
+                UpdatedUtc = olderUtc,
+            });
+        await fixture.Associations.UpsertAsync(
+            fixture.Scope.ToProjectScopeKey(),
+            new VerifiedRemediationControlAssociationRecord
+            {
+                AssociationId = Guid.NewGuid(),
+                TenantId = fixture.Scope.TenantId,
+                WorkspaceId = fixture.Scope.WorkspaceId,
+                ProjectId = fixture.Scope.ProjectId,
+                InstanceId = newerInstanceId,
+                VerificationSnapshotId = fixture.InventorySnapshotId,
+                ControlId = fixture.ControlId,
+                CreatedUtc = newerUtc,
+                UpdatedUtc = newerUtc,
+            });
+
+        AuditEvidenceLineageQueryResult result = await fixture.Service.TryGetControlLineageAsync(
+            fixture.Scope,
+            fixture.AssessmentId,
+            fixture.AuditEvidenceSnapshotId,
+            fixture.ControlId);
+
+        result.Succeeded.Should().BeTrue();
+        result.Lineage!.VerifiedRemediationAssociations.Should().HaveCount(2);
+        result.Lineage.VerifiedRemediationAssociations[0].InstanceId.Should().Be(newerInstanceId);
+        result.Lineage.VerifiedRemediationAssociations[1].InstanceId.Should().Be(olderInstanceId);
+    }
+
+    [Fact]
+    public async Task TryGetControlLineageAsync_association_does_not_change_ready_for_positive_checkbox()
+    {
+        LineageAssociationFixture fixture = await CreateLineageAssociationFixtureAsync(includeInventoryLink: true);
+
+        AuditEvidenceLineageQueryResult before = await fixture.Service.TryGetControlLineageAsync(
+            fixture.Scope,
+            fixture.AssessmentId,
+            fixture.AuditEvidenceSnapshotId,
+            fixture.ControlId);
+
+        await fixture.Associations.UpsertAsync(
+            fixture.Scope.ToProjectScopeKey(),
+            new VerifiedRemediationControlAssociationRecord
+            {
+                AssociationId = Guid.NewGuid(),
+                TenantId = fixture.Scope.TenantId,
+                WorkspaceId = fixture.Scope.WorkspaceId,
+                ProjectId = fixture.Scope.ProjectId,
+                InstanceId = Guid.NewGuid(),
+                VerificationSnapshotId = fixture.InventorySnapshotId,
+                ControlId = fixture.ControlId,
+                CreatedUtc = DateTime.UtcNow,
+                UpdatedUtc = DateTime.UtcNow,
+            });
+
+        AuditEvidenceLineageQueryResult after = await fixture.Service.TryGetControlLineageAsync(
+            fixture.Scope,
+            fixture.AssessmentId,
+            fixture.AuditEvidenceSnapshotId,
+            fixture.ControlId);
+
+        after.Lineage!.ReadyForPositiveCheckbox.Should().Be(before.Lineage!.ReadyForPositiveCheckbox);
+        after.Lineage.VerifiedRemediationAssociations.Should().ContainSingle();
     }
 
     [Fact]
     public async Task TryGetControlLineageAsync_missing_raw_blob_breaks_hash_and_checkbox()
     {
-        ScopeContext scope = new() { TenantId = Guid.NewGuid() };
+        ScopeContext scope = CreateScopeContext();
         Guid assessmentId = Guid.NewGuid();
         Guid frameworkId = Guid.NewGuid();
         Guid controlId = Guid.NewGuid();
@@ -198,6 +395,8 @@ public sealed class AuditEvidenceLineageServiceTests
         {
             AssessmentId = assessmentId,
             TenantId = scope.TenantId,
+            WorkspaceId = scope.WorkspaceId,
+            ProjectId = scope.ProjectId,
             FrameworkId = frameworkId,
             Status = AuditAssessmentStatus.Collecting,
             FrameworkVersion = "1.0",
@@ -321,7 +520,14 @@ public sealed class AuditEvidenceLineageServiceTests
     public async Task TryGetControlLineageAsync_wrong_tenant_returns_not_found()
     {
         Guid ownerTenantId = Guid.NewGuid();
-        ScopeContext otherTenantScope = new() { TenantId = Guid.NewGuid() };
+        Guid ownerWorkspaceId = Guid.NewGuid();
+        Guid ownerProjectId = Guid.NewGuid();
+        ScopeContext otherTenantScope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = ownerWorkspaceId,
+            ProjectId = ownerProjectId,
+        };
 
         InMemoryAuditAssessmentRepository assessmentRepository = new();
         Guid assessmentId = Guid.NewGuid();
@@ -329,6 +535,8 @@ public sealed class AuditEvidenceLineageServiceTests
         {
             AssessmentId = assessmentId,
             TenantId = ownerTenantId,
+            WorkspaceId = ownerWorkspaceId,
+            ProjectId = ownerProjectId,
             FrameworkId = Guid.NewGuid(),
             Status = AuditAssessmentStatus.Collecting,
             FrameworkVersion = "1.0",
@@ -361,18 +569,226 @@ public sealed class AuditEvidenceLineageServiceTests
         result.ErrorMessage.Should().Contain("Assessment was not found");
     }
 
+    [Fact]
+    public async Task TryGetControlLineageAsync_other_tenant_does_not_leak_association_rows()
+    {
+        LineageAssociationFixture fixture = await CreateLineageAssociationFixtureAsync(includeInventoryLink: true);
+        await fixture.Associations.UpsertAsync(
+            fixture.Scope.ToProjectScopeKey(),
+            new VerifiedRemediationControlAssociationRecord
+            {
+                AssociationId = Guid.NewGuid(),
+                TenantId = fixture.Scope.TenantId,
+                WorkspaceId = fixture.Scope.WorkspaceId,
+                ProjectId = fixture.Scope.ProjectId,
+                InstanceId = Guid.NewGuid(),
+                VerificationSnapshotId = fixture.InventorySnapshotId,
+                ControlId = fixture.ControlId,
+                CreatedUtc = DateTime.UtcNow,
+                UpdatedUtc = DateTime.UtcNow,
+            });
+
+        ScopeContext otherTenantScope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = fixture.Scope.WorkspaceId,
+            ProjectId = fixture.Scope.ProjectId,
+        };
+
+        AuditEvidenceLineageQueryResult result = await fixture.Service.TryGetControlLineageAsync(
+            otherTenantScope,
+            fixture.AssessmentId,
+            fixture.AuditEvidenceSnapshotId,
+            fixture.ControlId);
+
+        result.Succeeded.Should().BeFalse();
+        result.Lineage.Should().BeNull();
+        result.ErrorMessage.Should().NotContain(fixture.ControlId.ToString());
+    }
+
+    private static async Task<LineageAssociationFixture> CreateLineageAssociationFixtureAsync(bool includeInventoryLink)
+    {
+        ScopeContext scope = CreateScopeContext();
+        Guid assessmentId = Guid.NewGuid();
+        Guid frameworkId = Guid.NewGuid();
+        Guid controlId = Guid.NewGuid();
+        Guid requirementId = Guid.NewGuid();
+        Guid auditEvidenceSnapshotId = Guid.NewGuid();
+        Guid evaluationId = Guid.NewGuid();
+        Guid resourceId = Guid.NewGuid();
+        Guid inventorySnapshotId = Guid.NewGuid();
+
+        InMemoryAuditAssessmentRepository assessmentRepository = new();
+        await assessmentRepository.InsertAsync(new AuditAssessmentRecord
+        {
+            AssessmentId = assessmentId,
+            TenantId = scope.TenantId,
+            WorkspaceId = scope.WorkspaceId,
+            ProjectId = scope.ProjectId,
+            FrameworkId = frameworkId,
+            Status = AuditAssessmentStatus.Collecting,
+            FrameworkVersion = "1.0",
+            ScopeJson = "{}",
+            RequestedBy = "test",
+            CreatedUtc = DateTime.UtcNow,
+        });
+
+        AuditEvidenceSnapshotItemRecord snapshotItem = CreateHashedSnapshotItem(
+            Guid.NewGuid(),
+            auditEvidenceSnapshotId,
+            requirementId,
+            scope.TenantId,
+            resourceId,
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/publicIPAddresses/pip-1");
+
+        InMemoryAuditEvidenceSnapshotRepository snapshotRepository = new();
+        await snapshotRepository.InsertSnapshotAsync(new AuditEvidenceSnapshotPersistRequest
+        {
+            Header = new AuditEvidenceSnapshotHeaderRecord
+            {
+                AuditEvidenceSnapshotId = auditEvidenceSnapshotId,
+                AssessmentId = assessmentId,
+                TenantId = scope.TenantId,
+                EvidenceHashSha256 = AuditEvidenceSnapshotHasher.ComputeRootHash([snapshotItem]),
+                CollectionStartedUtc = DateTime.UtcNow,
+                CollectionCompletedUtc = DateTime.UtcNow,
+                CreatedUtc = DateTime.UtcNow,
+                InventorySnapshotIds = includeInventoryLink ? [inventorySnapshotId] : [],
+            },
+            Items = [snapshotItem],
+        });
+
+        InMemoryAuditControlEvaluationRepository evaluationRepository = new();
+        evaluationRepository.Evaluation = new AuditControlEvaluationRecord
+        {
+            EvaluationId = evaluationId,
+            ControlId = controlId,
+            FrameworkId = frameworkId,
+            SnapshotId = auditEvidenceSnapshotId,
+            TenantId = scope.TenantId,
+            Outcome = AuditEvaluationOutcome.TechnicallySupported,
+            PassCount = 1,
+            ApplicableCount = 1,
+            Confidence = 1.0m,
+            EvaluationText = "Supported.",
+            Formula = "1/1 pass",
+            RequirementIds = [requirementId],
+            ExceptionIds = [],
+            ProvenanceKind = ProvenanceKind.DeterministicInference,
+            CreatedUtc = DateTime.UtcNow,
+        };
+
+        evaluationRepository.EvidenceItems =
+        [
+            new AuditEvidenceItemRecord
+            {
+                EvidenceItemId = Guid.NewGuid(),
+                EvaluationId = evaluationId,
+                RequirementId = requirementId,
+                TenantId = scope.TenantId,
+                CloudResourceId = resourceId,
+                AzureResourceId = snapshotItem.AzureResourceId,
+                EvidenceType = AuditEvidenceTypeNames.Network,
+                Summary = "pip-1",
+                CollectionStatus = AuditEvidenceCollectionStatus.Collected,
+                ProvenanceKind = ProvenanceKind.ObservedFact,
+                CreatedUtc = DateTime.UtcNow,
+            },
+        ];
+
+        InMemoryVerifiedRemediationControlAssociationRepository associations = new();
+        Mock<IAuditEvidenceSnapshotVerificationService> verificationService = new();
+        verificationService
+            .Setup(service => service.TryVerifyInScopeAsync(
+                It.IsAny<ProjectScopeKey>(),
+                auditEvidenceSnapshotId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new AuditEvidenceSnapshotVerificationResult { IsValid = true });
+
+        AuditEvidenceLineageService service = CreateLineageService(
+            assessmentRepository,
+            new InMemoryAuditFrameworkRepository(frameworkId, scope.TenantId, controlId),
+            new InMemoryAuditEvidenceRequirementRepository(
+                frameworkId,
+                scope.TenantId,
+                requirementId,
+                controlId,
+                AuditEvidenceTypeNames.Network),
+            snapshotRepository,
+            evaluationRepository,
+            verificationService.Object,
+            associations);
+
+        return new LineageAssociationFixture
+        {
+            Scope = scope,
+            AssessmentId = assessmentId,
+            ControlId = controlId,
+            AuditEvidenceSnapshotId = auditEvidenceSnapshotId,
+            InventorySnapshotId = inventorySnapshotId,
+            Associations = associations,
+            Service = service,
+        };
+    }
+
+    private sealed class LineageAssociationFixture
+    {
+        public required ScopeContext Scope
+        {
+            get;
+            init;
+        }
+
+        public required Guid AssessmentId
+        {
+            get;
+            init;
+        }
+
+        public required Guid ControlId
+        {
+            get;
+            init;
+        }
+
+        public required Guid AuditEvidenceSnapshotId
+        {
+            get;
+            init;
+        }
+
+        public required Guid InventorySnapshotId
+        {
+            get;
+            init;
+        }
+
+        public required InMemoryVerifiedRemediationControlAssociationRepository Associations
+        {
+            get;
+            init;
+        }
+
+        public required AuditEvidenceLineageService Service
+        {
+            get;
+            init;
+        }
+    }
+
     private static AuditEvidenceLineageService CreateLineageService(
         IAuditAssessmentRepository assessmentRepository,
         IAuditFrameworkRepository frameworkRepository,
         IAuditEvidenceRequirementRepository requirementRepository,
         IAuditEvidenceSnapshotRepository snapshotRepository,
         IAuditControlEvaluationRepository evaluationRepository,
-        IAuditEvidenceSnapshotVerificationService verificationService)
+        IAuditEvidenceSnapshotVerificationService verificationService,
+        IVerifiedRemediationControlAssociationRepository? associationRepository = null)
     {
         Mock<IAuditManualEvidenceRepository> manualEvidenceRepository = new();
         manualEvidenceRepository
-            .Setup(repository => repository.ListArchitectureLinksByControlAsync(
-                It.IsAny<Guid>(),
+            .Setup(repository => repository.ListArchitectureLinksByControlInScopeAsync(
+                It.IsAny<ProjectScopeKey>(),
                 It.IsAny<Guid>(),
                 It.IsAny<Guid>(),
                 It.IsAny<CancellationToken>()))
@@ -388,6 +804,7 @@ public sealed class AuditEvidenceLineageServiceTests
             verificationService,
             Mock.Of<IAuthorityQueryService>(),
             Mock.Of<IManifestHashService>(),
+            associationRepository ?? new InMemoryVerifiedRemediationControlAssociationRepository(),
             NullLogger<AuditEvidenceLineageService>.Instance);
     }
 
