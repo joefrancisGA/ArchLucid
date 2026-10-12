@@ -14,12 +14,33 @@ from dataclasses import dataclass
 
 
 @dataclass(frozen=True)
+class UnmodeledControl:
+    """A control the derivation found but can't evaluate, so it can't tell whether the hop holds."""
+    kind: str        # "roleCondition", "missingRoleDefinition", "denyWithCondition"
+    principal: str
+    scope: str
+    role: str        # role name, or the deny assignment's name
+    condition: str   # raw condition text; empty for a missing role definition
+    citation: str
+
+    def assumption(self) -> str:
+        """The control as a checkable assumption for a hop table."""
+        where = f"'{self.role}' at {self.scope} ({self.citation})"
+
+        if self.kind == "missingRoleDefinition":
+            return f"role {where} allows this hop; its definition wasn't collected"
+
+        return f"{self.kind} on {where} allows this hop: {self.condition}"
+
+
+@dataclass(frozen=True)
 class Edge:
     source: str
     target: str
     kind: str
     evidence: str   # "observed", "derived", "inference", "ai", "human"
     detail: str     # citation: snapshot file and row, or rule name
+    control: UnmodeledControl | None = None   # set when the hop rests on an unevaluated control
 
 
 # Kinds find_paths may walk. hasRoleAt and contains are deliberately absent.
@@ -44,6 +65,8 @@ STRUCTURAL_KINDS = frozenset({"hasRoleAt", "contains"})
 CODE_CONTROL_ACTION = "Microsoft.Web/sites/write"
 LIST_KEYS_ACTION = "Microsoft.Storage/storageAccounts/listKeys/action"
 BLOB_READ_ACTION = "Microsoft.Storage/storageAccounts/blobServices/containers/blobs/read"
+# Stand-in for a role whose definition wasn't collected: assume the most it could grant.
+UNKNOWN_ROLE_PERMISSIONS = [{"actions": ["*"], "data_actions": ["*"]}]
 
 
 def pattern_covers(patterns: list[str], action: str) -> bool:
@@ -155,12 +178,35 @@ def expand_group_assignments(
     return expanded
 
 
-def _granting_citation(blocks: list[tuple[list[dict], str]], action: str, plane: str) -> str | None:
-    for permissions, citation in blocks:
-        if action_permitted(permissions, action, plane):
-            return citation
+Grant = tuple[list[dict], str, UnmodeledControl | None]   # permissions, citation, control
 
-    return None
+
+def _granting(
+    blocks: list[Grant], action: str, plane: str
+) -> tuple[str, UnmodeledControl | None] | None:
+    """(citation, control) of a grant for action, preferring one with no unmodeled control."""
+    hits = [(citation, control) for permissions, citation, control in blocks
+            if action_permitted(permissions, action, plane)]
+    plain = [hit for hit in hits if hit[1] is None]
+
+    return (plain or hits or [None])[0]
+
+
+def _assignment_control(
+    assignment: dict, role_definitions: dict[str, dict]
+) -> UnmodeledControl | None:
+    """The control that keeps this assignment from being evaluated, if any."""
+    condition = (assignment.get("condition") or "").strip()
+
+    if assignment["role_name"] not in role_definitions:
+        kind = "missingRoleDefinition"
+    elif condition:
+        kind = "roleCondition"
+    else:
+        return None
+
+    return UnmodeledControl(kind, assignment["principal"], assignment["scope"],
+                            assignment["role_name"], condition, assignment["citation"])
 
 
 def _folded_children(children_of: dict[str, list[str]]) -> dict[str, list[str]]:
@@ -178,21 +224,27 @@ def _folded_children(children_of: dict[str, list[str]]) -> dict[str, list[str]]:
     return folded
 
 
-def _deny_hits(
+def _deny_result(
     denies: list[dict],
     children_of: dict[str, list[str]],
     principal: str,
     scope: str,
     action: str,
     plane: str,
-) -> bool:
+) -> tuple[bool, UnmodeledControl | None]:
+    """(blocked, control). A deny with a condition might block, so it labels the hop instead."""
     principal_key = principal.lower()
+    unevaluated: UnmodeledControl | None = None
 
     for deny in denies:
         principals = deny.get("principals") or []
         principal_keys = {item.lower() for item in principals}
+        excluded = {item.lower() for item in deny.get("exclude_principals") or []}
 
         if principal_key not in principal_keys and "*" not in principals:
+            continue
+
+        if principal_key in excluded:
             continue
 
         deny_scope = scope_key(deny["scope"])
@@ -204,10 +256,47 @@ def _deny_hits(
         if scope not in deny_scopes:
             continue
 
-        if action_permitted(deny["permissions"], action, plane):
-            return True
+        for block in deny["permissions"]:
+            if not action_permitted([block], action, plane):
+                continue
 
-    return False
+            # A condition can sit on the deny assignment or on one of its permission blocks.
+            condition = (deny.get("condition") or block.get("condition") or "").strip()
+
+            if not condition:
+                return True, None
+
+            unevaluated = unevaluated or UnmodeledControl(
+                "denyWithCondition", principal, deny["scope"], deny.get("name", "deny assignment"),
+                condition, deny.get("citation", "deny-assignments.json"),
+            )
+
+    return False, unevaluated
+
+
+def _route(
+    blocks: list[Grant],
+    denies: list[dict],
+    children_of: dict[str, list[str]],
+    principal: str,
+    scope: str,
+    action: str,
+    plane: str,
+) -> tuple[str, UnmodeledControl | None] | None:
+    """(citation, control) when action is granted and not definitely denied, else None."""
+    grant = _granting(blocks, action, plane)
+
+    if grant is None:
+        return None
+
+    blocked, deny_control = _deny_result(denies, children_of, principal, scope, action, plane)
+
+    if blocked:
+        return None
+
+    citation, control = grant
+
+    return citation, control or deny_control
 
 
 def derive_capability_edges(
@@ -223,38 +312,38 @@ def derive_capability_edges(
     role_definitions[role_name]['permissions']: actions, not_actions, data_actions,
     not_data_actions.
     children_of: parent scope id to child scope ids, including resource ids.
-    denies: principals ('*' means all), scope, apply_to_children, permissions, in the same
-    shape as a role.
+    denies: principals ('*' means all), exclude_principals, scope, apply_to_children,
+    condition, and permissions in the same shape as a role (a block may carry a condition).
     resources: id, scope, type ('compute' or 'storage'), and for storage a shared_key of
     'enabled', 'not set', or 'disabled', plus capability (the grants target).
 
-    A non-empty condition is not evaluated here. Emitting an edge for it would invent a path.
+    Conditions and missing role definitions are not evaluated here. Skipping them would hide
+    a path that may exist; a plain edge would invent one. So each yields an edge carrying an
+    UnmodeledControl, granting the most the assignment could: a condition only narrows a role.
     """
-    grants_at: dict[tuple[str, str], list[tuple[list[dict], str]]] = {}
+    grants_at: dict[tuple[str, str], list[Grant]] = {}
     children_of = _folded_children(children_of)
 
     for assignment in assignments:
-        condition = (assignment.get("condition") or "").strip()
-
-        if condition:
-            continue
-
+        control = _assignment_control(assignment, role_definitions)
         role = role_definitions.get(assignment["role_name"])
-
-        if role is None:
-            continue
-
+        permissions = role["permissions"] if role is not None else UNKNOWN_ROLE_PERMISSIONS
         assignment_scope = scope_key(assignment["scope"])
         scopes = [assignment_scope, *descendants_of(children_of, assignment_scope)]
 
         for scope in scopes:
             key = (assignment["principal"], scope)
-            grants_at.setdefault(key, []).append((role["permissions"], assignment["citation"]))
+            grants_at.setdefault(key, []).append((permissions, assignment["citation"], control))
 
-    pending: dict[tuple[str, str, str], str] = {}
+    pending: dict[tuple[str, str, str], tuple[str, UnmodeledControl | None]] = {}
 
-    def remember(source: str, target: str, kind: str, detail: str) -> None:
-        pending.setdefault((source, target, kind), detail)
+    def remember(source: str, target: str, kind: str, detail: str,
+                 control: UnmodeledControl | None) -> None:
+        # A hop that holds without any unmodeled control replaces one that needs it.
+        earlier = pending.get((source, target, kind))
+
+        if earlier is None or (earlier[1] is not None and control is None):
+            pending[(source, target, kind)] = (detail, control)
 
     for resource in resources:
         scope = scope_key(resource["scope"])
@@ -263,64 +352,50 @@ def derive_capability_edges(
             if granted_scope != scope:
                 continue
 
-            if resource["type"] == "compute":
-                citation = _granting_citation(blocks, CODE_CONTROL_ACTION, "control")
-                denied = _deny_hits(
-                    denies, children_of, principal, scope, CODE_CONTROL_ACTION, "control"
-                )
+            def route(action: str, plane: str) -> tuple[str, UnmodeledControl | None] | None:
+                return _route(blocks, denies, children_of, principal, scope, action, plane)
 
-                if citation and not denied:
-                    remember(
-                        principal,
-                        resource["id"],
-                        "canControlCode",
-                        f"{citation}; {CODE_CONTROL_ACTION}",
-                    )
+            if resource["type"] == "compute":
+                code = route(CODE_CONTROL_ACTION, "control")
+
+                if code is not None:
+                    remember(principal, resource["id"], "canControlCode",
+                             f"{code[0]}; {CODE_CONTROL_ACTION}", code[1])
 
             if resource["type"] != "storage":
                 continue
 
-            hit_notes: list[str] = []
-            hit_citation: str | None = None
+            # (note, citation, control) for each way this principal can read the data.
+            routes: list[tuple[str, str, UnmodeledControl | None]] = []
             shared_key = resource.get("shared_key")
 
             if shared_key in ("enabled", "not set", "not set (platform default)"):
-                keys_citation = _granting_citation(blocks, LIST_KEYS_ACTION, "control")
-                keys_denied = _deny_hits(
-                    denies, children_of, principal, scope, LIST_KEYS_ACTION, "control"
-                )
+                keys = route(LIST_KEYS_ACTION, "control")
 
-                if keys_citation and not keys_denied:
+                if keys is not None:
                     qualifier = (
                         "platform default assumed enabled"
                         if shared_key in ("not set", "not set (platform default)")
                         else "enabled"
                     )
-                    hit_notes.append(f"{LIST_KEYS_ACTION} ({qualifier})")
-                    hit_citation = keys_citation
+                    routes.append((f"{LIST_KEYS_ACTION} ({qualifier})", *keys))
 
-            blob_citation = _granting_citation(blocks, BLOB_READ_ACTION, "data")
-            blob_denied = _deny_hits(
-                denies, children_of, principal, scope, BLOB_READ_ACTION, "data"
-            )
+            blob = route(BLOB_READ_ACTION, "data")
 
-            if blob_citation and not blob_denied:
-                hit_notes.append(BLOB_READ_ACTION)
+            if blob is not None:
+                routes.append((BLOB_READ_ACTION, *blob))
 
-                if hit_citation is None:
-                    hit_citation = blob_citation
-
-            if hit_notes and hit_citation is not None:
-                remember(
-                    principal,
-                    resource["capability"],
-                    "grants",
-                    f"{hit_citation}; {'; '.join(hit_notes)}",
-                )
+            if routes:
+                plain = [item for item in routes if item[2] is None]
+                _, citation, control = (plain or routes)[0]
+                notes = "; ".join(note for note, _, _ in routes)
+                remember(principal, resource["capability"], "grants",
+                         f"{citation}; {notes}", control)
 
     return [
-        Edge(source=source, target=target, kind=kind, evidence="derived", detail=detail)
-        for (source, target, kind), detail in pending.items()
+        Edge(source=source, target=target, kind=kind, evidence="derived", detail=detail,
+             control=control)
+        for (source, target, kind), (detail, control) in pending.items()
     ]
 
 
@@ -368,3 +443,31 @@ def find_paths(
 
     return paths
 # endregion identity_graph
+
+
+# region path_verdict
+INSUFFICIENT = "Insufficient evidence"
+
+
+def unmodeled_on(path: list[Edge]) -> list[UnmodeledControl]:
+    """Every unmodeled control the path depends on, in hop order."""
+    return [edge.control for edge in path if edge.control is not None]
+
+
+def path_confidence(path: list[Edge], otherwise: str) -> str:
+    """Insufficient evidence if any hop rests on an unmodeled control; otherwise the band
+    the hop assumptions earn (Chapter 2)."""
+    return INSUFFICIENT if unmodeled_on(path) else otherwise
+
+
+def hop_table(path: list[Edge], otherwise: str) -> list[str]:
+    """Chapter 2's hop table as text, each unmodeled control listed as an assumption to check."""
+    lines = [f"Confidence: {path_confidence(path, otherwise)}"]
+    lines += [
+        f"{number}. {edge.source} --{edge.kind}--> {edge.target} [{edge.evidence}] {edge.detail}"
+        for number, edge in enumerate(path, start=1)
+    ]
+    lines += [f"Assumption to check: {control.assumption()}" for control in unmodeled_on(path)]
+
+    return lines
+# endregion path_verdict

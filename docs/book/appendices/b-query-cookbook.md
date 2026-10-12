@@ -152,11 +152,16 @@ authorizationresources
     scope = tostring(properties.scope),
     doNotApplyToChildScopes = tobool(properties.doNotApplyToChildScopes),
     principals = properties.principals,
+    excludePrincipals = properties.excludePrincipals,
+    condition = tostring(properties.condition),
     actions = permission.actions,
     notActions = permission.notActions,
     dataActions = permission.dataActions,
-    notDataActions = permission.notDataActions
+    notDataActions = permission.notDataActions,
+    permissionCondition = tostring(permission.condition)
 ```
+
+**Trap.** Keep `excludePrincipals`, `condition`, and `permissionCondition`. An excluded principal escapes the deny. A deny with a condition might not apply, so Chapter 4's derivation labels the hop as an unmodeled control instead of treating it as blocked.
 
 ### Eligible Azure roles (Privileged Identity Management)
 
