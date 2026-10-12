@@ -179,8 +179,16 @@ public sealed class BackgroundJobQueueProcessorHostedService(
 
             current = await repository.GetAsync(jobId, stoppingToken);
 
-            if (current is not null
-                && string.Equals(current.State, nameof(BackgroundJobState.Canceled), StringComparison.OrdinalIgnoreCase))
+            if (!IsRunningJobRow(current))
+            {
+                await queueClient.DeleteMessageAsync(message.MessageId, message.PopReceipt, stoppingToken);
+
+                return;
+            }
+
+            current = await repository.GetAsync(jobId, stoppingToken);
+
+            if (!IsRunningJobRow(current))
             {
                 await queueClient.DeleteMessageAsync(message.MessageId, message.PopReceipt, stoppingToken);
 
@@ -313,8 +321,16 @@ public sealed class BackgroundJobQueueProcessorHostedService(
 
                 current = await repository.GetAsync(jobId, stoppingToken);
 
-                if (current is not null
-                    && string.Equals(current.State, nameof(BackgroundJobState.Canceled), StringComparison.OrdinalIgnoreCase))
+                if (current is not null && !IsRunningJobRow(current))
+                {
+                    await queueClient.DeleteMessageAsync(message.MessageId, message.PopReceipt, stoppingToken);
+
+                    return;
+                }
+
+                current = await repository.GetAsync(jobId, stoppingToken);
+
+                if (current is not null && !IsRunningJobRow(current))
                 {
                     await queueClient.DeleteMessageAsync(message.MessageId, message.PopReceipt, stoppingToken);
 
