@@ -1,4 +1,8 @@
 output "sql_server_id" { value = azurerm_mssql_server.primary.id }
+output "public_network_access_enabled" {
+  description = "Whether the logical SQL server allows public network access."
+  value       = azurerm_mssql_server.primary.public_network_access_enabled
+}
 output "sql_server_fqdn" { value = azurerm_mssql_server.primary.fully_qualified_domain_name }
 output "app_database_id" { value = azurerm_mssql_database.app.id }
 output "app_database_name" { value = azurerm_mssql_database.app.name }

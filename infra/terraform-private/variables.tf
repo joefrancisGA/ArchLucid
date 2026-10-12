@@ -88,3 +88,45 @@ variable "key_vault_workload_principal_ids" {
   description = "Principal IDs (API, Worker, etc.) granted Key Vault Secrets User on var.key_vault_id when private data plane is enabled."
   default     = []
 }
+
+variable "resource_group_location" {
+  type        = string
+  description = "Location to use when create_resource_group is false and the caller creates the resource group in the same configuration. Empty keeps the existing data-source lookup."
+  default     = ""
+}
+
+variable "sql_private_endpoint_name" {
+  type        = string
+  description = "SQL private endpoint name. Default matches the historical hosted name."
+  default     = "pe-archlucid-sql"
+}
+
+variable "blob_private_endpoint_name" {
+  type        = string
+  description = "Blob private endpoint name. Default matches the historical hosted name."
+  default     = "pe-archlucid-blob"
+}
+
+variable "search_private_endpoint_name" {
+  type        = string
+  description = "Azure AI Search private endpoint name. Default matches the historical hosted name."
+  default     = "pe-archlucid-search"
+}
+
+variable "key_vault_private_endpoint_name" {
+  type        = string
+  description = "Key Vault private endpoint name. Default matches the historical hosted name."
+  default     = "pe-archlucid-keyvault"
+}
+
+variable "openai_account_id" {
+  type        = string
+  description = "Cognitive Services account resource ID for Azure OpenAI. Empty skips the OpenAI private endpoint."
+  default     = ""
+}
+
+variable "openai_private_endpoint_name" {
+  type        = string
+  description = "Azure OpenAI private endpoint name when openai_account_id is set."
+  default     = "pe-archlucid-openai"
+}

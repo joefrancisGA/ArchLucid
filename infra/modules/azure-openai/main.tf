@@ -1,10 +1,11 @@
 resource "azurerm_cognitive_account" "openai" {
-  name                  = var.account_name
-  location              = var.location
-  resource_group_name   = var.resource_group_name
-  kind                  = "OpenAI"
-  sku_name              = "S0"
-  custom_subdomain_name = var.account_name
+  name                          = var.account_name
+  location                      = var.location
+  resource_group_name           = var.resource_group_name
+  kind                          = "OpenAI"
+  sku_name                      = "S0"
+  custom_subdomain_name         = var.account_name
+  public_network_access_enabled = var.public_network_access_enabled
 
   tags = var.tags
 }

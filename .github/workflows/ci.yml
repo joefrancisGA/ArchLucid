@@ -415,6 +415,11 @@ jobs:
           python scripts/ci/assert_terraform_posture_tier_examples.py
           python -m unittest discover -s scripts/ci/tests -p "test_assert_terraform_posture_tier_examples.py"
 
+      - name: In-tenant SecureNow UHG names
+        run: |
+          python3 scripts/ci/assert_securenow_in_tenant_names.py
+          python -m unittest discover -s scripts/ci/tests -p "test_assert_securenow_in_tenant_names.py"
+
       - name: Terraform SQL backup redundancy guard (unit tests)
         continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_assert_sql_backup_regions.py"
@@ -1801,7 +1806,7 @@ jobs:
       # Throttle parallel registry.terraform.io downloads (grafana/azurerm) to avoid HTTP 429.
       max-parallel: 4
       matrix:
-        directory: [infra/terraform, infra/terraform-edge, infra/terraform-entra, infra/terraform-acr, infra/terraform-container-apps, infra/terraform-storage, infra/terraform-redis, infra/terraform-cosmos, infra/terraform-monitoring, infra/terraform-sql-failover, infra/terraform-openai, infra/terraform-keyvault, infra/terraform-orchestrator, infra/terraform-logicapps, infra/terraform-servicebus, infra/terraform-pilot, infra/terraform/prod]
+        directory: [infra/terraform, infra/terraform-edge, infra/terraform-entra, infra/terraform-acr, infra/terraform-container-apps, infra/terraform-storage, infra/terraform-redis, infra/terraform-cosmos, infra/terraform-monitoring, infra/terraform-sql-failover, infra/terraform-openai, infra/terraform-keyvault, infra/terraform-orchestrator, infra/terraform-logicapps, infra/terraform-servicebus, infra/terraform-pilot, infra/terraform/prod, infra/terraform-securenow-in-tenant]
     steps:
       - uses: actions/checkout@v7
 
@@ -1823,6 +1828,10 @@ jobs:
         if: needs.ci-path-lanes.outputs.run_terraform == 'true'
         working-directory: ${{ matrix.directory }}
         run: terraform validate
+
+      - name: In-tenant UHG resource names
+        if: needs.ci-path-lanes.outputs.run_terraform == 'true' && matrix.directory == 'infra/terraform-securenow-in-tenant'
+        run: python3 scripts/ci/assert_securenow_in_tenant_names.py
 
       - name: terraform fmt (check only)
         if: needs.ci-path-lanes.outputs.run_terraform == 'true'
