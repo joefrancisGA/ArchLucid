@@ -182,7 +182,7 @@ describe("SecureNowQuestionQueue", () => {
 
     render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
 
-    expect(await screen.findByTestId("infra-diagrams-question-snapshot-promo")).toHaveTextContent("1 open question");
+    expect(await screen.findByTestId("infra-diagrams-question-snapshot-promo")).toHaveTextContent("Questions could not be loaded.");
     expect(screen.getByText("inferred connections unavailable")).toBeInTheDocument();
   });
 

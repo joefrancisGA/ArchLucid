@@ -6,6 +6,7 @@ import {
 } from "@/lib/findings/review-detail-findings-classification-band";
 import { countFindingsByTreatmentBand } from "@/lib/review-quality/compare-treatment-band-delta";
 import { compareFindingSeverity } from "@/lib/quick-decision-severity-labels";
+import { severityBadgeLabel } from "@/lib/quick-decision-severity-labels";
 import {
   countDecisionGradeSemanticSupportBandsForPresentation,
   formatStampSemanticSupportBandLineForPresentation,
@@ -26,7 +27,9 @@ export type FirstReviewSpineBandSummary = {
   readonly decisionGradeCount: number;
   readonly checklistCount: number;
   readonly uncitedCount: number;
+  readonly evidenceReferenceCountNotStored: boolean;
   readonly topFindingTitle: string | null;
+  readonly topFindingPolicyMapped: boolean;
   readonly topFindingSeverityLabel: string | null;
   readonly semanticSupportLine: string | null;
   readonly showLaneBHonesty: boolean;
@@ -46,6 +49,10 @@ export function countUncitedFindings(findings: readonly QuickDecisionFinding[]):
   }
 
   return uncited;
+}
+
+function hasMissingEvidenceReferenceCount(findings: readonly QuickDecisionFinding[]): boolean {
+  return findings.some((finding) => finding.evidenceRefCount === null || finding.evidenceRefCount === undefined);
 }
 
 function resolveTopDecisionGradeFinding(
@@ -103,26 +110,6 @@ function formatTreatmentSummaryLine(
   return segments.join(" · ");
 }
 
-function severityLabelFromValue(severityValue: number | null): string {
-  if (severityValue === null) {
-    return "Severity was not stored";
-  }
-
-  if (severityValue >= 3) {
-    return "Critical";
-  }
-
-  if (severityValue === 2) {
-    return "High";
-  }
-
-  if (severityValue === 1) {
-    return "Medium";
-  }
-
-  return "Low";
-}
-
 /** Compact first-viewport spine: gate outcome, execution mode, classification counts, top finding. */
 export function deriveFirstReviewSpineBandSummary(input: {
   readonly feasibilityVerdict: ManifestFeasibilityVerdict | null | undefined;
@@ -132,12 +119,12 @@ export function deriveFirstReviewSpineBandSummary(input: {
   const findings = input.findings;
   const classificationCounts = countFindingsByClassificationBand(findings);
   const uncitedCount = countUncitedFindings(findings);
+  const evidenceReferenceCountNotStored = hasMissingEvidenceReferenceCount(findings);
   const topFinding = resolveTopDecisionGradeFinding(findings);
   const feasibilityVerdict = input.feasibilityVerdict ?? null;
 
   if (
     feasibilityVerdict === null
-    && (input.structuralExecutionMode === null || input.structuralExecutionMode === undefined)
     && classificationCounts.decisionGrade + classificationCounts.checklist === 0
     && topFinding === null
   ) {
@@ -145,13 +132,20 @@ export function deriveFirstReviewSpineBandSummary(input: {
   }
 
   const gateOutcomeLabel =
-    feasibilityVerdict !== null ? feasibilityVerdictKindLabel(feasibilityVerdict.kind) : "Gate pending";
+    feasibilityVerdict !== null ? feasibilityVerdictKindLabel(feasibilityVerdict.kind) : "Gate outcome was not stored";
   const gateOutcomeTone =
     feasibilityVerdict !== null ? feasibilityVerdictTone(feasibilityVerdict.kind) : "warning";
-  const gateOutcomeDetail = feasibilityVerdict?.summary?.trim() ?? null;
+  const gateOutcomeDetail =
+    feasibilityVerdict === null
+      ? null
+      : feasibilityVerdict.summary === null || feasibilityVerdict.summary === undefined
+        ? "Verdict summary was not stored."
+        : feasibilityVerdict.summary.trim().length > 0
+          ? feasibilityVerdict.summary.trim()
+          : null;
   const executionModeLabel =
     input.structuralExecutionMode === null || input.structuralExecutionMode === undefined
-      ? null
+      ? "Execution mode was not stored"
       : formatStructuralExecutionModeLabel(input.structuralExecutionMode);
   const semanticSupportCounts = countDecisionGradeSemanticSupportBandsForPresentation(
     findings,
@@ -176,9 +170,11 @@ export function deriveFirstReviewSpineBandSummary(input: {
     decisionGradeCount: classificationCounts.decisionGrade,
     checklistCount: classificationCounts.checklist,
     uncitedCount,
+    evidenceReferenceCountNotStored,
     topFindingTitle: topFinding?.title?.trim() ?? null,
+    topFindingPolicyMapped: typeof topFinding?.policyRuleId === "string" && topFinding.policyRuleId.trim().length > 0,
     topFindingSeverityLabel:
-      topFinding !== null ? severityLabelFromValue(topFinding.severityValue) : null,
+      topFinding !== null ? severityBadgeLabel(topFinding.severityValue) : null,
     semanticSupportLine,
     showLaneBHonesty,
     treatmentSummaryLine,

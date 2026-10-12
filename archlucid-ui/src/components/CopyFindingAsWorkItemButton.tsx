@@ -345,7 +345,7 @@ export type CopyGovernanceQueueWorkItemButtonProps = {
   findingTitle: string;
   severityLabel: string;
   recommendedAction: string;
-  statusLabel: string;
+  statusLabel: string | null;
   manifestVersion?: string | null;
   /** Compact layout for queue table cells. */
   compact?: boolean;

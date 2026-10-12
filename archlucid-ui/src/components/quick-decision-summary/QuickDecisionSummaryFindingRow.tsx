@@ -270,7 +270,11 @@ export function QuickDecisionSummaryFindingRow({
                   findingTitle={finding.title}
                   severityLabel={quickDecisionWorkItemSeverityLabel(finding.severityValue)}
                   recommendedAction={finding.recommendation}
-                  statusLabel="Open"
+                  statusLabel={
+                    finding.humanReviewStatus === null || finding.humanReviewStatus === undefined
+                      ? null
+                      : humanReviewStatusDisplay(finding.humanReviewStatus).label
+                  }
                   compact
                 />
                 <ItsmOutboundQuickActions findingId={finding.findingId} compact />

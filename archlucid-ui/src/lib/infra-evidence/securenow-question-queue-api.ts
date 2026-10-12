@@ -4,7 +4,7 @@ export type SecureNowQuestion = {
   readonly dispositionId: string | null;
   readonly snapshotId: string;
   readonly subscriptionId: string;
-  readonly resourceId: string;
+  readonly resourceId: string | null;
   readonly questionKey: string;
   readonly source: string;
   readonly scopeKind: string;
@@ -54,7 +54,7 @@ function mapQuestion(raw: Record<string, unknown>): SecureNowQuestion {
     dispositionId: typeof raw.dispositionId === "string" ? raw.dispositionId : null,
     snapshotId: stringOrDefault(raw.snapshotId),
     subscriptionId: stringOrDefault(raw.subscriptionId),
-    resourceId: stringOrDefault(raw.resourceId),
+    resourceId: raw.resourceId === null || raw.resourceId === undefined ? null : stringOrDefault(raw.resourceId),
     questionKey: stringOrDefault(raw.questionKey),
     source: stringOrDefault(raw.source),
     scopeKind: stringOrDefault(raw.scopeKind),

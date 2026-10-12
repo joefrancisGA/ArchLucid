@@ -27,6 +27,7 @@ function sampleFinding(
     enforcementTier: "PolicyViolation",
     classification: FINDING_CLASSIFICATION_DECISION_GRADE,
     semanticSupportBand: "Unsupported",
+    semanticSupportBandScorerVersion: FINDING_SEMANTIC_SUPPORT_BAND_SCORER_VERSION,
     ...overrides,
   };
 }
@@ -45,6 +46,15 @@ describe("finding-semantic-support-band-export (AS-071)", () => {
         sampleFinding({ classification: FINDING_CLASSIFICATION_CHECKLIST_COVERAGE }),
       ),
     ).toBeNull();
+  });
+
+  it("reports an omitted scorer version without replacing it", () => {
+    expect(resolveFindingSemanticSupportBandExportFields(sampleFinding({
+      semanticSupportBandScorerVersion: null,
+    }))).toEqual({
+      semanticSupportBand: "Unsupported",
+      semanticSupportBandScorerVersion: "Semantic support band scorer version was not stored",
+    });
   });
 
   it("buildSemanticSupportBandExportStamp matches stamp counts", () => {

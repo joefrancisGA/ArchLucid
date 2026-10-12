@@ -78,7 +78,7 @@ function normalizeRuleKey(value: string): string {
 }
 
 function questionIdentity(question: SecureNowQuestion): string {
-  return `${normalize(question.subscriptionId)}|${normalize(question.resourceId)}|${normalize(question.questionKey)}`;
+  return `${normalize(question.subscriptionId)}|${normalize(question.resourceId ?? "")}|${normalize(question.questionKey)}`;
 }
 
 function isDismissed(question: SecureNowQuestion): boolean {
@@ -102,8 +102,8 @@ function findInferredConnection(
   const ruleKey = normalize(question.questionKey.split("@", 1)[0]);
   return connections.find((connection) => {
     const resourceMatches =
-      normalize(connection.fromArmId ?? "") === normalize(question.resourceId)
-      || normalize(connection.toArmId ?? "") === normalize(question.resourceId);
+      normalize(connection.fromArmId ?? "") === normalize(question.resourceId ?? "")
+      || normalize(connection.toArmId ?? "") === normalize(question.resourceId ?? "");
     return resourceMatches && normalizeRuleKey(connection.ruleName ?? "") === ruleKey;
   }) ?? null;
 }
@@ -230,6 +230,10 @@ export function SecureNowQuestionQueueProvider(
     if (action === "ignore" && reason.trim().length === 0) return;
     if (action === "reopen" && reason.trim().length === 0) return;
     if (action === "answer" && selectedAnswer == null) return;
+    if (currentQuestion.resourceId === null || currentQuestion.resourceId === undefined) {
+      setError(operatorInferredConnectionPanelErrorFromUnknown(new Error("Resource id was not stored.")));
+      return;
+    }
 
     setBusy(true);
     setError(null);
@@ -376,7 +380,7 @@ export function useSecureNowQuestionQueue(): SecureNowQuestionQueueContextValue 
 
 export function useSecureNowQuestionSubjectNodeId(): string | null {
   const { drawerOpen, currentQuestion } = useSecureNowQuestionQueue();
-  const resourceId = currentQuestion?.resourceId.trim() ?? "";
+  const resourceId = currentQuestion?.resourceId?.trim() ?? "";
 
   if (!drawerOpen || resourceId.length === 0) {
     return null;
