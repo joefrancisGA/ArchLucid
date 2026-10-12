@@ -1,10 +1,13 @@
 import { expect, type Page, type Response } from "@playwright/test";
 
 import {
-  isArchitectureRequestCreateJsonResponse,
-  readCreatedRunIdFromArchitectureRequestBody,
+  isArchitectureRequestCreateObservedResponse,
+  readCreatedRunIdFromArchitectureRequestResponse,
 } from "./architecture-request-create-response";
-import { liveE2eArchitectureDescription } from "./live-api-client";
+import {
+  architectureDescriptionPassesLiveE2eAdmission,
+  liveE2eArchitectureDescription,
+} from "./live-api-payloads";
 import { formatSimplifiedPilotWizardMountFailure } from "./simplified-pilot-wizard-mount-failure";
 import { waitAndDismissFirstSessionPurposeChooser } from "./live-seat-scope-assertions";
 
@@ -73,7 +76,7 @@ export async function submitPrivateBetaSimplifiedPilotWizard(page: Page): Promis
   const description = page.getByRole("textbox", { name: "Description" });
   const descriptionText = (await description.inputValue()).trim();
 
-  if (descriptionText.length < 10) {
+  if (descriptionText.length < 10 || !architectureDescriptionPassesLiveE2eAdmission(descriptionText)) {
     await description.fill(
       liveE2eArchitectureDescription("Private beta invitee UI wizard first meaningful action."),
     );
@@ -97,7 +100,7 @@ export async function submitPrivateBetaSimplifiedPilotWizard(page: Page): Promis
   });
 
   const createRespPromise = page.waitForResponse(
-    (response) => isArchitectureRequestCreateJsonResponse(toCreateJsonResponseArgs(response)),
+    (response) => isArchitectureRequestCreateObservedResponse(toCreateObservedResponseArgs(response)),
     { timeout: liveE2ePrivateBetaWizardCreateTimeoutMs() },
   );
 
@@ -111,18 +114,34 @@ export async function submitPrivateBetaSimplifiedPilotWizard(page: Page): Promis
     `POST /architecture/request failed ${createResp.status()}: ${bodyText}`,
   ).toBeTruthy();
 
-  return readCreatedRunIdFromArchitectureRequestBody(bodyText);
+  try {
+    return readCreatedRunIdFromArchitectureRequestResponse({
+      status: createResp.status(),
+      bodyText,
+      location: createResp.headers().location,
+    });
+  } catch (error: unknown) {
+    const trackedRunId = (await page.getByTestId("wizard-track-review-id").textContent())?.trim() ?? "";
+
+    if (trackedRunId.length > 0) {
+      return trackedRunId;
+    }
+
+    throw error;
+  }
 }
 
-function toCreateJsonResponseArgs(response: Response): {
+function toCreateObservedResponseArgs(response: Response): {
   url: string;
   method: string;
   contentType: string | undefined;
+  status: number;
 } {
   return {
     url: response.url(),
     method: response.request().method(),
     contentType: response.headers()["content-type"],
+    status: response.status(),
   };
 }
 
