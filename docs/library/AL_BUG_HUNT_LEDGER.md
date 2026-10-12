@@ -35118,12 +35118,12 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** run execute lease; execute ownership; orchestration ownership
 - **paths:** ArchLucid.Application/Runs/Orchestration/ArchitectureRunExecuteOrchestrator.cs; ArchLucid.Application/Runs/ExecuteOwnership/RunExecuteOwnershipLeaseService.cs; ArchLucid.Application/Runs/ExecuteOwnership/RunExecuteOwnershipLeaseRenewalScope.cs
 - **test-filter:** FullyQualifiedName~RunExecuteOwnership|FullyQualifiedName~ArchitectureRunExecuteOrchestrator
-- **hunts:** 48
+- **hunts:** 49
 - **bugs-found:** 26
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-06
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-10-12
 - **last-bug:** 2026-10-06 — concurrent acquire TryAdd loser left SQL lease pinned without repository rollback
-- **code-changed-since:** yes
+- **code-changed-since:** no
 - **related-pd-tb:** none
 
 2026-10-06 seed hunt (seed→hit): promoted concurrent local acquire race; proved two `AcquireAsync` calls on one process could both succeed at `TryAcquireOrRenewAsync` then lose `TryAdd`, throwing local conflict while leaving SQL pinned; roll back with `TryReleaseAsync` before the conflict; regression `AcquireAsync_when_concurrent_repository_success_and_tryadd_loses_rolls_back_sql_lease`; seeded four `(candidate)` rows; 70 scoped ownership/orchestrator tests passed.
@@ -35184,10 +35184,12 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ### Hypotheses
 
-- [ ] (candidate) `RunExecuteOwnershipLeaseRenewalScope.DisposeAsync` — disposal awaits the renewal task after loop cancellation; if `RenewAsync` ignores the linked token briefly, dispose can delay orchestrator `finally` release and extend the SQL pin; reachable when renewal storage is slow under cancellation.
-- [ ] (candidate) `ArchitectureRunExecuteOrchestrator` — `ReleaseAsync` outcomes are not surfaced to execute callers, so a repository release failure after a successful batch can leave operators without audit signal while the local pin is cleared; reachable when `TryReleaseAsync` throws after execute completes.
-- [ ] (candidate) `RunExecuteOwnershipLeaseService.ReleaseAllHeldByThisInstanceAsync` — returns aggregate delete count without distinguishing repository failures from zero held rows, so shutdown drain may log success while leases remain; reachable when bulk release partially fails.
-- [ ] (candidate) `ArchitectureRunExecuteOrchestrator.ExecuteSelectiveRunAsync` — caller cancellation during the long pre-acquire validation chain can abort before `AcquireAsync` while earlier validations already performed destructive reads on scheduled tasks in other code paths; reachable when cancellation lands mid-await between eligibility checks (selective path does not delete until owned core).
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseRenewalScope.DisposeAsync` — disposal awaits the renewal task after loop cancellation; **cheap-disproof 2026-10-12 thorough hunt:** the loop receives the linked cancellation token and `DisposeAsync` intentionally waits for it to stop before the orchestrator releases ownership; a storage implementation that ignores cancellation is not established by the selected files.
+- [x] (invalid) `ArchitectureRunExecuteOrchestrator` — `ReleaseAsync` outcomes are not surfaced to execute callers. **Cheap-disproof 2026-10-12 thorough hunt:** `ReleaseAsync` is awaited in the `finally` block, so repository exceptions propagate to the execute caller; the selected code does not silently report success or clear the pin before release.
+- [x] (invalid) `RunExecuteOwnershipLeaseService.ReleaseAllHeldByThisInstanceAsync` — returns aggregate delete count without distinguishing repository failures from zero held rows. **Cheap-disproof 2026-10-12 thorough hunt:** each repository call is awaited without swallowing failures, so a failure aborts the drain rather than returning a false success count.
+- [x] (invalid) `ArchitectureRunExecuteOrchestrator.ExecuteSelectiveRunAsync` — caller cancellation during pre-acquire validation causes destructive work. **Cheap-disproof 2026-10-12 thorough hunt:** the selected pre-acquire chain only reads and validates run/task state; result deletion occurs in `ExecuteSelectiveRunOwnedCoreAsync` after ownership acquisition.
+
+2026-10-12 thorough hunt (dry): cheap-disproved all four picker candidates; release failures propagate, selective pre-acquire work is read-only, and renewal disposal uses linked cancellation by design. The scoped ownership/orchestrator filter was blocked before test discovery on both attempts by the unrelated `AzureInventorySecurityEdgeMaterializer.cs` compile errors (`unmappedRoles` and `warnings`). No production or regression code changed.
 - [x] (proven) `RunExecuteOwnershipLeaseService.AcquireAsync` — concurrent acquires on one host could both succeed at `TryAcquireOrRenewAsync` then lose `_activeHolderInstanceIds.TryAdd`, throwing local conflict without rolling back SQL — **hit 2026-10-06 seed hunt:** `TryReleaseAsync` before conflict when `TryAdd` fails; regression `AcquireAsync_when_concurrent_repository_success_and_tryadd_loses_rolls_back_sql_lease`.
 - [x] (valid-no-repro) `ArchitectureRunExecuteOrchestrator.ExecuteRunAsync` — duplicated pre-acquire eligibility reads are intentional race guards; the existing run-deleted-immediately-before-acquire regression establishes the second read's fail-closed purpose, with no separate wrong outcome from the extra read.
 - [x] (valid-no-repro) `ArchitectureRunExecuteOrchestrator.ExecuteSelectiveRunAsync` — repeated eligibility and forced-task validations are intentional race guards; existing commit/delete/schedule-clear regressions establish the checks prevent ownership admission during transitions, with no separate wrong outcome from the repeated reads.
