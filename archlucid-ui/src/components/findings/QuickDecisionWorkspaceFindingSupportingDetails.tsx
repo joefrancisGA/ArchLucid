@@ -14,6 +14,7 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { buildFindingPolicyEvidenceCitationsFromQuickDecision } from "@/lib/findings/finding-policy-evidence-citations";
 import { quickDecisionWorkItemSeverityLabel } from "@/lib/quick-decision-finding-links";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
+import { humanReviewStatusDisplay } from "@/lib/quick-decision-summary-derive";
 import {
   parseWorkspaceIntegrationsFindingIdFromSearch,
   workspaceIntegrationsDisclosureHrefFromSearch,
@@ -196,7 +197,11 @@ export function QuickDecisionWorkspaceFindingSupportingDetails(
                 findingTitle={finding.title}
                 severityLabel={quickDecisionWorkItemSeverityLabel(finding.severityValue)}
                 recommendedAction={finding.recommendation}
-                statusLabel="Open"
+                statusLabel={
+                  finding.humanReviewStatus === null || finding.humanReviewStatus === undefined
+                    ? null
+                    : humanReviewStatusDisplay(finding.humanReviewStatus).label
+                }
                 compact
               />
               <ItsmOutboundQuickActions

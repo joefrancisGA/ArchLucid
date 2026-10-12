@@ -101,4 +101,11 @@ describe("resolveSendableExportCoverFindings", () => {
 
     expect(findings[0]?.semanticSupportBand).toBe("Unchecked");
   });
+
+  it("preserves a missing findings snapshot as an omission", () => {
+    expect(resolveSendableExportCoverFindings({
+      exportFindings: null,
+      findingsSnapshot: null,
+    })).toBeNull();
+  });
 });

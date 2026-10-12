@@ -177,7 +177,7 @@ describe("QuickDecisionWorkspace finding cards (PC-10)", () => {
 
     expect(screen.getByText("Evidence reference count was not stored")).toBeInTheDocument();
     expect(screen.getByText("Remediation owner was not stored")).toBeInTheDocument();
-    expect(screen.getByText("Decision state was not stored")).toBeInTheDocument();
+    expect(screen.getAllByText("Human review status was not stored").length).toBeGreaterThan(0);
 
     render(
       <QuickDecisionWorkspacePrimaryFindingCard

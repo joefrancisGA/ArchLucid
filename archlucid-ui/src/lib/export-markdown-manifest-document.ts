@@ -28,6 +28,8 @@ function formatRequirementItems(items: unknown, heading: string, lines: string[]
 
     if (status) {
       lines.push(`  - Coverage: ${status}`);
+    } else if (raw.coverageStatus === null || raw.coverageStatus === undefined) {
+      lines.push("  - Coverage status was not stored.");
     }
 
     if (text) {
@@ -75,6 +77,8 @@ export function formatManifestDocumentShape(m: Record<string, unknown>): string 
 
   if (runId) {
     lines.push(`- **Review id:** \`${runId}\``);
+  } else if (m.runId === null || m.runId === undefined) {
+    lines.push("Review id was not stored.");
   }
 
   if (ruleSetId && ruleSetVersion) {
@@ -318,6 +322,7 @@ export function formatManifestDocumentShape(m: Record<string, unknown>): string 
 
       const desc = normalizeInlineText(r.description);
       const relId = normalizeInlineText(r.relationshipId);
+      const missingRelId = r.relationshipId === null || r.relationshipId === undefined;
       const src = normalizeInlineText(r.sourceId);
       const tgt = normalizeInlineText(r.targetId);
       const parts = [
@@ -330,11 +335,11 @@ export function formatManifestDocumentShape(m: Record<string, unknown>): string 
         && (r.sourceId === null || r.sourceId === undefined)
         && (r.targetId === null || r.targetId === undefined)
       ) {
-        lines.push(`- Relationship description was not stored.${relId ? ` (\`${relId}\`)` : ""}`);
+        lines.push(`- Relationship description was not stored.${relId ? ` (\`${relId}\`)` : ""}${missingRelId ? " Relationship id was not stored." : ""}`);
       } else if (desc) {
-        lines.push(`- ${desc}${relId ? ` (\`${relId}\`)` : ""}`);
+        lines.push(`- ${desc}${relId ? ` (\`${relId}\`)` : ""}${missingRelId ? " Relationship id was not stored." : ""}`);
       } else if (parts) {
-        lines.push(`- ${parts}${relId ? ` (\`${relId}\`)` : ""}`);
+        lines.push(`- ${parts}${relId ? ` (\`${relId}\`)` : ""}${missingRelId ? " Relationship id was not stored." : ""}`);
       }
     }
 
@@ -375,6 +380,8 @@ export function formatManifestDocumentShape(m: Record<string, unknown>): string 
 
       if (category) {
         lines.push(`- **Category:** ${category}`);
+      } else if (d.category === null || d.category === undefined) {
+        lines.push("- Decision category was not stored.");
       }
 
       if (d.selectedOption === null || d.selectedOption === undefined) {
@@ -386,6 +393,8 @@ export function formatManifestDocumentShape(m: Record<string, unknown>): string 
       if (rationale) {
         lines.push("");
         lines.push(rationale);
+      } else if (d.rationale === null || d.rationale === undefined) {
+        lines.push("- Decision rationale was not stored.");
       }
 
       lines.push("");
@@ -444,7 +453,17 @@ export function formatManifestDocumentShape(m: Record<string, unknown>): string 
         const impact = normalizeInlineText(c.impact);
 
         if (cname) {
-          lines.push(`- **${cname}**${status ? ` — ${status}` : ""}${impact ? ` (${impact})` : ""}`);
+          lines.push(
+            `- **${cname}**${
+              status
+                ? ` — ${status}`
+                : c.status === null || c.status === undefined
+                  ? " — Control status was not stored."
+                  : ""
+            }${impact ? ` (${impact})` : ""}`,
+          );
+        } else if (c.controlName === null || c.controlName === undefined) {
+          lines.push("- Control name was not stored.");
         }
       }
 
