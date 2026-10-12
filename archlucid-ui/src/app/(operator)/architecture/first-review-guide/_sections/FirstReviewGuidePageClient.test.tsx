@@ -188,7 +188,7 @@ describe("FirstReviewGuidePageClient", () => {
 
     expect(screen.getByTestId("first-review-guide-header-loading")).toBeInTheDocument();
     expect(screen.getByTestId("first-review-guide-progress-loading")).toBeInTheDocument();
-    expect(screen.getByTestId("first-review-guide-walkthrough-loading")).toBeInTheDocument();
+    expect(screen.getByTestId("first-review-guide-walkthrough-loading")).toHaveAttribute("role", "status");
     expect(screen.queryByTestId("first-review-guide-readiness")).not.toBeInTheDocument();
     expect(screen.queryByText("Ready to start")).not.toBeInTheDocument();
   });

@@ -18,6 +18,7 @@ function AlertsInboxListLoadingSkeleton(): React.JSX.Element {
     <div
       className="grid gap-3"
       data-testid="alerts-inbox-list-loading-skeleton"
+      role="status"
       aria-busy="true"
       aria-label="Loading alerts"
     >

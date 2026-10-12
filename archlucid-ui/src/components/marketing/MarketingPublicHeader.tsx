@@ -17,7 +17,7 @@ type MarketingPublicHeaderProps = {
 /**
  * Plain nav links (not Button/ghost): ghost `text-neutral-900` (#171717) fails axe on dark
  * `bg-al-surface-base` when dark: text utilities lose. Colors come from globals.css
- * `.marketing-public-nav-link` hex rules so contrast does not depend on Tailwind `dark:` merge.
+ * `.marketing-public-nav-link` using `--al-text-primary` so contrast tracks the header surface.
  */
 const MARKETING_NAV_LINK_CLASS = MARKETING_PUBLIC_NAV_LINK_CLASS;
 
