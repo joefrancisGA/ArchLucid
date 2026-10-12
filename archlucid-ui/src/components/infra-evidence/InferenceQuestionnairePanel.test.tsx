@@ -110,6 +110,47 @@ describe("InferenceQuestionnairePanel", () => {
     );
   });
 
+  it("renders read, write, and nothing choices for an unmapped data-plane role", async () => {
+    vi.mocked(operatorInferredConnectionApi.listInferenceQuestionnaireItems).mockResolvedValue({
+      ...questionnaireResponse,
+      items: [{
+        ...questionnaireResponse.items[0],
+        ruleName: "Unmapped data-plane role",
+        questionText: "What does payments do with storage: read, write, or nothing?",
+      }],
+    });
+
+    render(<InferenceQuestionnairePanel snapshotId="snapshot-1" />);
+
+    expect(await screen.findByTestId("inference-questionnaire-read")).toBeInTheDocument();
+    expect(screen.getByTestId("inference-questionnaire-write")).toBeInTheDocument();
+    expect(screen.getByTestId("inference-questionnaire-nothing")).toBeInTheDocument();
+    expect(screen.queryByTestId("inference-questionnaire-yes")).not.toBeInTheDocument();
+  });
+
+  it("sends the read answer for an unmapped data-plane role", async () => {
+    vi.mocked(operatorInferredConnectionApi.listInferenceQuestionnaireItems).mockResolvedValue({
+      ...questionnaireResponse,
+      items: [{
+        ...questionnaireResponse.items[0],
+        ruleName: "Unmapped data-plane role",
+      }],
+    });
+
+    render(<InferenceQuestionnairePanel snapshotId="snapshot-1" />);
+
+    fireEvent.click(await screen.findByTestId("inference-questionnaire-read"));
+    fireEvent.click(screen.getByTestId("inference-questionnaire-submit"));
+
+    expect(operatorInferredConnectionApi.confirmOperatorInferredConnection).toHaveBeenCalledWith(
+      "snapshot-1",
+      expect.objectContaining({
+        connectionId: "11111111-1111-1111-1111-111111111111",
+        dataPlaneAnswer: "Read",
+      }),
+    );
+  });
+
   it("shows the API message and api-problem recovery when list throws ApiLoadFailureState", async () => {
     vi.mocked(operatorInferredConnectionApi.listInferenceQuestionnaireItems).mockRejectedValue(
       apiLoadFailure("Could not generate questionnaire items."),
