@@ -9613,3 +9613,4 @@
 {"at":"2026-10-12T04:41:38.8410512Z","zoneId":"core-explanation-json","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Core/Explanation/"]}
 {"at":"2026-10-12T04:45:01.5132063Z","zoneId":"core-explanation-json","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Core/Explanation/"]}
 {"at":"2026-10-12T04:48:07.5837662Z","zoneId":"core-explanation-json","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Core/Explanation/"]}
+{"at":"2026-10-12T04:55:14.0986533Z","zoneId":"tenant-erasure","outcome":"dry","productLine":"archlucid-shared","paths":["ArchLucid.Application/Tenancy/TenantErasureCommandService.cs,ArchLucid.Api/Middleware/TenantErasureQuarantineMiddleware.cs"]}
