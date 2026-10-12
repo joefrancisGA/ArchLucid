@@ -148,6 +148,35 @@ public abstract class VerifiedRemediationControlAssociationRepositoryContractTes
         await act.Should().ThrowAsync<ArgumentException>();
     }
 
+    [SkippableFact]
+    public async Task List_by_control_and_linked_snapshots_returns_only_matching_rows()
+    {
+        SkipIfUnavailable();
+        ProjectScopeKey scope = CreateScope();
+        IVerifiedRemediationControlAssociationRepository repository = CreateRepository();
+        Guid controlId = Guid.NewGuid();
+        Guid inventorySnapshotId = Guid.NewGuid();
+        Guid otherControlId = Guid.NewGuid();
+        Guid instanceOne = Guid.NewGuid();
+        Guid instanceTwo = Guid.NewGuid();
+
+        await repository.UpsertAsync(
+            scope,
+            CreateRecord(scope, instanceOne, inventorySnapshotId, controlId, new DateTime(2026, 10, 12, 12, 0, 0, DateTimeKind.Utc)));
+        await repository.UpsertAsync(
+            scope,
+            CreateRecord(scope, instanceTwo, inventorySnapshotId, otherControlId));
+
+        IReadOnlyList<VerifiedRemediationControlAssociationRecord> matches =
+            await repository.ListByControlAndVerificationSnapshotIdsAsync(
+                scope,
+                controlId,
+                [inventorySnapshotId, Guid.NewGuid()]);
+
+        matches.Should().ContainSingle();
+        matches[0].InstanceId.Should().Be(instanceOne);
+    }
+
     private static ProjectScopeKey CreateScope() =>
         ProjectScopeKey.Create(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid());
 

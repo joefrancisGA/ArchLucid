@@ -1,4 +1,5 @@
 using ArchLucid.Application.InfraEvidence.AuditEvidence;
+using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.InfraEvidence;
@@ -18,8 +19,12 @@ public sealed class AuditEvidenceLineageService(
     IAuditEvidenceSnapshotVerificationService verificationService,
     IAuthorityQueryService authorityQueryService,
     IManifestHashService manifestHashService,
+    IVerifiedRemediationControlAssociationRepository associationRepository,
     ILogger<AuditEvidenceLineageService> logger) : IAuditEvidenceLineageService
 {
+    private readonly IVerifiedRemediationControlAssociationRepository _associationRepository =
+        associationRepository ?? throw new ArgumentNullException(nameof(associationRepository));
+
     public async Task<AuditEvidenceLineageQueryResult> TryGetControlLineageAsync(
         ScopeContext scope,
         Guid assessmentId,
@@ -189,6 +194,13 @@ public sealed class AuditEvidenceLineageService(
                 requirementChains,
                 verification.IsValid);
 
+            IReadOnlyList<AuditEvidenceLineageVerifiedRemediationAssociation> verifiedRemediationAssociations =
+                await ListVerifiedRemediationAssociationsAsync(
+                    scope,
+                    controlId,
+                    snapshotHeader.InventorySnapshotIds,
+                    cancellationToken);
+
             return new AuditEvidenceLineageQueryResult
             {
                 Succeeded = true,
@@ -205,6 +217,7 @@ public sealed class AuditEvidenceLineageService(
                     BrokenLinkReasons = brokenLinkReasons.Distinct(StringComparer.Ordinal).ToList(),
                     Evaluation = evaluationNode,
                     RequirementChains = requirementChains,
+                    VerifiedRemediationAssociations = verifiedRemediationAssociations,
                 },
             };
         }
@@ -222,5 +235,46 @@ public sealed class AuditEvidenceLineageService(
                 ErrorMessage = ex.Message,
             };
         }
+    }
+
+    private async Task<IReadOnlyList<AuditEvidenceLineageVerifiedRemediationAssociation>> ListVerifiedRemediationAssociationsAsync(
+        ScopeContext scope,
+        Guid controlId,
+        IReadOnlyList<Guid> linkedInventorySnapshotIds,
+        CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        ArgumentNullException.ThrowIfNull(linkedInventorySnapshotIds);
+
+        if (linkedInventorySnapshotIds.Count == 0)
+        {
+            return [];
+        }
+
+        IReadOnlyList<VerifiedRemediationControlAssociationRecord> rows =
+            await _associationRepository.ListByControlAndVerificationSnapshotIdsAsync(
+                scope.ToProjectScopeKey(),
+                controlId,
+                linkedInventorySnapshotIds,
+                cancellationToken);
+
+        return rows
+            .Select(MapVerifiedRemediationAssociation)
+            .ToList();
+    }
+
+    private static AuditEvidenceLineageVerifiedRemediationAssociation MapVerifiedRemediationAssociation(
+        VerifiedRemediationControlAssociationRecord record)
+    {
+        ArgumentNullException.ThrowIfNull(record);
+
+        return new AuditEvidenceLineageVerifiedRemediationAssociation
+        {
+            AssociationId = record.AssociationId,
+            InstanceId = record.InstanceId,
+            Status = RemediationInstanceStatus.Verified,
+            VerificationSnapshotId = record.VerificationSnapshotId,
+            ControlId = record.ControlId,
+        };
     }
 }

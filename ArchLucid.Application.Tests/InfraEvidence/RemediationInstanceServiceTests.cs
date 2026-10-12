@@ -1421,5 +1421,12 @@ public sealed class RemediationInstanceServiceTests
             Guid instanceId,
             CancellationToken cancellationToken = default) =>
             Task.FromResult<IReadOnlyList<VerifiedRemediationControlAssociationRecord>>([]);
+
+        public Task<IReadOnlyList<VerifiedRemediationControlAssociationRecord>> ListByControlAndVerificationSnapshotIdsAsync(
+            ProjectScopeKey scope,
+            Guid controlId,
+            IReadOnlyList<Guid> verificationSnapshotIds,
+            CancellationToken cancellationToken = default) =>
+            Task.FromResult<IReadOnlyList<VerifiedRemediationControlAssociationRecord>>([]);
     }
 }

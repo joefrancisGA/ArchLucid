@@ -127,4 +127,59 @@ public sealed class SqlVerifiedRemediationControlAssociationRepository(ISqlConne
 
         return rows.ToArray();
     }
+
+    public async Task<IReadOnlyList<VerifiedRemediationControlAssociationRecord>> ListByControlAndVerificationSnapshotIdsAsync(
+        ProjectScopeKey scope,
+        Guid controlId,
+        IReadOnlyList<Guid> verificationSnapshotIds,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        ArgumentNullException.ThrowIfNull(verificationSnapshotIds);
+        ArgumentNullException.ThrowIfNull(connectionFactory);
+
+        if (controlId == Guid.Empty || verificationSnapshotIds.Count == 0)
+        {
+            return [];
+        }
+
+        Guid[] linkedSnapshotIds = verificationSnapshotIds
+            .Where(candidate => candidate != Guid.Empty)
+            .Distinct()
+            .ToArray();
+
+        if (linkedSnapshotIds.Length == 0)
+        {
+            return [];
+        }
+
+        const string sql = """
+            SELECT AssociationId, TenantId, WorkspaceId, ProjectId, InstanceId,
+                   VerificationSnapshotId, ControlId, AssessmentId, CreatedUtc, UpdatedUtc
+            FROM dbo.VerifiedRemediationControlAssociations
+            WHERE TenantId = @TenantId
+              AND WorkspaceId = @WorkspaceId
+              AND ProjectId = @ProjectId
+              AND ControlId = @ControlId
+              AND VerificationSnapshotId IN @VerificationSnapshotIds
+            ORDER BY UpdatedUtc DESC, AssociationId;
+            """;
+
+        using System.Data.IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        IEnumerable<VerifiedRemediationControlAssociationRecord> rows =
+            await connection.QueryAsync<VerifiedRemediationControlAssociationRecord>(
+                new CommandDefinition(
+                    sql,
+                    new
+                    {
+                        scope.TenantId,
+                        scope.WorkspaceId,
+                        scope.ProjectId,
+                        ControlId = controlId,
+                        VerificationSnapshotIds = linkedSnapshotIds,
+                    },
+                    cancellationToken: cancellationToken));
+
+        return rows.ToArray();
+    }
 }

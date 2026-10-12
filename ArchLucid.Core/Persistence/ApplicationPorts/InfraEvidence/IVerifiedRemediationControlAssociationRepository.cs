@@ -18,4 +18,10 @@ public interface IVerifiedRemediationControlAssociationRepository
         ProjectScopeKey scope,
         Guid instanceId,
         CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyList<VerifiedRemediationControlAssociationRecord>> ListByControlAndVerificationSnapshotIdsAsync(
+        ProjectScopeKey scope,
+        Guid controlId,
+        IReadOnlyList<Guid> verificationSnapshotIds,
+        CancellationToken cancellationToken = default);
 }
