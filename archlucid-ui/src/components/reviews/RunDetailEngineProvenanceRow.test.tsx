@@ -53,4 +53,37 @@ describe("RunDetailEngineProvenanceRow", () => {
       expect(screen.getByText(expectedValue)).toBeInTheDocument();
     }
   });
+
+  it("renders engine profile and task evaluation provenance honestly", () => {
+    render(
+      <RunDetailEngineProvenanceRow
+        provenance={{
+          ...sampleProvenance,
+          engineProfileId: null,
+          taskEvaluationSnapshotsAtSelection: null,
+        }}
+      />,
+    );
+
+    expect(screen.getByText("Engine profile was not stored.")).toBeInTheDocument();
+    expect(screen.getByText("Task evaluations were not stored.")).toBeInTheDocument();
+  });
+
+  it("preserves stored empty and task evaluation values", () => {
+    render(
+      <RunDetailEngineProvenanceRow
+        provenance={{
+          ...sampleProvenance,
+          engineProfileId: "",
+          taskEvaluationSnapshotsAtSelection: [
+            { taskType: "Finding", evaluationState: "Passed" },
+          ],
+        }}
+      />,
+    );
+
+    expect(screen.getByText("Engine profile").nextElementSibling).toBeEmptyDOMElement();
+    expect(screen.getByText("Task evaluation: Finding")).toBeInTheDocument();
+    expect(screen.getByText("Passed")).toBeInTheDocument();
+  });
 });

@@ -425,4 +425,40 @@ describe("adr-from-run", () => {
     expect(slice?.deterministicFallbackUsed).toBe(true);
     expect(slice?.faithfulnessWarning).toBe("warn");
   });
+
+  it("preserves missing ADR honesty flags and stored empty warning", () => {
+    const summary = {
+      explanation: null,
+      themeSummaries: [],
+      overallAssessment: "",
+      riskPosture: "",
+      findingCount: 0,
+      decisionCount: 0,
+      unresolvedIssueCount: 0,
+      complianceGapCount: 0,
+    } as RunExplanationSummary;
+
+    const slice = buildAdrExplanationSlice(summary);
+
+    expect(slice?.deterministicFallbackUsed).toBeNull();
+    expect(slice?.faithfulnessWarning).toBeNull();
+
+    const markdown = buildMadrMarkdownFromRun({
+      runId: "r",
+      projectId: "p",
+      reviewTitle: "Review",
+      createdUtc: "2026-01-01T00:00:00Z",
+      manifestStatusLabel: null,
+      policyPackLabel: null,
+      manifestCounts: null,
+      explanation: {
+        ...slice!,
+        faithfulnessWarning: "",
+      },
+      findings: [],
+    });
+
+    expect(markdown).toContain("Deterministic fallback was not stored.");
+    expect(markdown).not.toContain("Faithfulness warning was not stored.");
+  });
 });

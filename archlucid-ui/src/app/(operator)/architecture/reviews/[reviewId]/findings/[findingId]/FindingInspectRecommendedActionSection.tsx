@@ -2,7 +2,6 @@ import { cn } from "@/lib/utils";
 import type { ReactElement } from "react";
 
 import {
-  BUYER_SHOWCASE_RESIDUAL_RISK_MONITORING_CADENCE,
   resolveBuyerShowcaseResidualRiskNextReviewIso,
   BUYER_SHOWCASE_RESIDUAL_RISK_OWNER,
 } from "@/lib/buyer/buyer-polish-copy";
@@ -58,7 +57,7 @@ export function FindingInspectRecommendedActionSection({
               Monitoring cadence
             </dt>
             <dd className="m-0 mt-0.5 text-al-text-primary">
-              {BUYER_SHOWCASE_RESIDUAL_RISK_MONITORING_CADENCE}
+              Monitoring cadence was not stored.
             </dd>
           </div>
           <div>

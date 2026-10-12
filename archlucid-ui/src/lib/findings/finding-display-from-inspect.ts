@@ -1,7 +1,6 @@
 import {
   BUYER_FINDING_POST_APPROVAL_LEAD,
   BUYER_FINDING_POST_APPROVAL_VALIDATION,
-  BUYER_SHOWCASE_RESIDUAL_RISK_MONITORING_CADENCE,
   resolveBuyerShowcaseResidualRiskNextReviewIso,
   BUYER_SHOWCASE_RESIDUAL_RISK_OWNER,
 } from "@/lib/buyer/buyer-polish-copy";
@@ -275,7 +274,7 @@ export function phiMinimizationBuyerConsequenceNarrative(): string {
     "expanding breach impact, audit scope, and downstream processing obligations. " +
     "The finalized review documents classification at ingress, adapter boundaries, and retention controls; " +
     "the evidence trail shows how those controls tie to this observation. " +
-    `Monitoring owner ${BUYER_SHOWCASE_RESIDUAL_RISK_OWNER} tracks exception paths, attachment volume, and OCR bypass rates on a ${BUYER_SHOWCASE_RESIDUAL_RISK_MONITORING_CADENCE.toLowerCase()} cadence; next review ${resolveBuyerShowcaseResidualRiskNextReviewIso()}.`
+    `Monitoring owner ${BUYER_SHOWCASE_RESIDUAL_RISK_OWNER} tracks exception paths, attachment volume, and OCR bypass rates. Monitoring cadence was not stored.; next review ${resolveBuyerShowcaseResidualRiskNextReviewIso()}.`
   );
 }
 

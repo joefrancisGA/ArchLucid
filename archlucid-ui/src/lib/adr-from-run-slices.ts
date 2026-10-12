@@ -20,7 +20,7 @@ export type AdrGeneratorExplanationSlice = {
   caveats: readonly string[] | null;
   provenanceLine: string | null;
   faithfulnessWarning: string | null;
-  deterministicFallbackUsed: boolean;
+  deterministicFallbackUsed: boolean | null;
 };
 
 export type AdrGeneratorFindingSlice = {
