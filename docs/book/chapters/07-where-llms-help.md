@@ -295,9 +295,9 @@ Prose is pleasant to read and hard to check. Ask for structured output instead a
 
 `status` is either `answered` or `insufficient_evidence`. An exit looks like `{"status": "insufficient_evidence", "sentences": []}`. A draft that sets the exit and still returns sentences has broken rule 6, and the validator treats it as a failure.
 
-Many model services, including Azure OpenAI, can constrain output to a JSON schema you supply, which removes a whole class of parsing failures. A schema can also limit `status` to its two values, so the exit can't be misspelled. Even without that feature, asking for this shape makes validation far simpler than parsing citations out of free text. Appendix C, section C.1, gives the full schema.
+Many model services, including Azure OpenAI, can constrain output to a JSON schema you supply, which removes a whole class of parsing failures [S1]. A schema can also limit `status` to its two values, so the exit can't be misspelled [S1]. Even without that feature, asking for this shape makes validation far simpler than parsing citations out of free text. Appendix C, section C.1, gives the full schema.
 
-> **As of 2026-10:** Azure OpenAI structured outputs need API version `2024-08-01-preview` or later (or the v1 API) and a model on Microsoft's supported list. The list changes as models are added and retired, so check it before you pick a deployment.
+> **As of 2026-10:** Azure OpenAI structured outputs need API version `2024-08-01-preview` or later (or the v1 API) and a model on Microsoft's supported list [S1]. The list changes as models are added and retired, so check it before you pick a deployment [S1].
 
 ### Settings
 
@@ -480,7 +480,7 @@ A few rules keep this safe:
 - **Check the draft against the provider's documentation.** Models produce plausible attribute names that don't exist or were renamed. `terraform validate` and `plan` catch many of these; review catches the rest.
 - **Preconditions are the valuable part.** The change is often one line. Knowing what it might break is what saves the outage, and models are good at listing the categories of things to check, even though they can't check them.
 
-In the current `azurerm` provider the property is `shared_access_key_enabled`. A related setting, `default_to_oauth_authentication`, makes the portal use Entra ID by default; it doesn't block keys, so a draft that sets only that one hasn't made the change.
+In the current `azurerm` provider the property is `shared_access_key_enabled` [S2]. A related setting, `default_to_oauth_authentication`, makes the portal use Entra ID by default; it doesn't block keys [S3], so a draft that sets only that one hasn't made the change [S4, S3].
 
 ---
 
@@ -532,7 +532,7 @@ evidence pack: 4 principals, 6 paths, 1 gap
 validator ──▶ answer
 ```
 
-Most current model services, including Azure OpenAI, support this "tool calling" or "function calling" pattern directly. The important design choice isn't the API. It's that **the answer comes from the tool, and the model only chooses the tool and explains the result.** If no tool fits the question, the right answer is "I can't answer that from the available evidence", not an improvised one.
+Most current model services, including Azure OpenAI, support this "tool calling" or "function calling" pattern directly [S5]. The important design choice isn't the API. It's that **the answer comes from the tool, and the model only chooses the tool and explains the result.** If no tool fits the question, the right answer is "I can't answer that from the available evidence", not an improvised one.
 
 ---
 
@@ -540,19 +540,19 @@ Most current model services, including Azure OpenAI, support this "tool calling"
 
 There are two broad options for teams working in Azure, and many organizations use both.
 
-**Azure OpenAI, through Microsoft Foundry (formerly Azure AI Foundry).** You deploy specific models in your own subscription and call them from your own code. This is the natural fit for the grounding pattern in this chapter, because you control the evidence pack, the prompt, structured output, tool definitions, and the validator. Questions to settle with your security and privacy teams:
+**Azure OpenAI, through Microsoft Foundry (formerly Azure AI Foundry) [S6].** You deploy specific models in your own subscription and call them from your own code [S7]. This is the natural fit for the grounding pattern in this chapter, because you control the evidence pack, the prompt, structured output, tool definitions, and the validator. Questions to settle with your security and privacy teams:
 
-- **Data handling.** What the service retains, whether prompts are used for training (generally no, for Azure OpenAI), and what abuse monitoring applies and whether you need an exemption for sensitive data.
-- **Network.** Whether you can reach the deployment over a private endpoint and disable public access (Chapter 11).
-- **Region and residency.** Where the model runs and whether that satisfies your data residency requirements.
-- **Model lifecycle.** Pin model versions explicitly. Models are retired on a schedule, and a version change can change output behavior. Re-run your test set (Chapter 8) when you change versions.
+- **Data handling.** What the service retains, whether prompts are used for training (generally no, for Azure OpenAI), and what abuse monitoring applies and whether you need an exemption for sensitive data [S8, S9, S10].
+- **Network.** Whether you can reach the deployment over a private endpoint and disable public access (Chapter 11) [S11].
+- **Region and residency.** Where the model runs and whether that satisfies your data residency requirements [S8].
+- **Model lifecycle.** Pin model versions explicitly. Models are retired on a schedule, and a version change can change output behavior [S12]. Re-run your test set (Chapter 8) when you change versions.
 - **Cost.** Packs are small, so explanation work is usually cheap. Cache explanations per snapshot and audience rather than regenerating them on every page view.
 
-**Microsoft Security Copilot.** A Microsoft security product built on large language models and integrated with Microsoft's security tools, such as Defender, Sentinel, Entra, and Intune. It suits analysts working inside those products. It's less suited to the custom pipeline in this chapter, because you have less control over the evidence passed to the model and how its output is checked. It can still be valuable alongside your own pipeline, for example in incident investigation inside Sentinel.
+**Microsoft Security Copilot.** A Microsoft security product built on large language models and integrated with Microsoft's security tools, such as Defender, Sentinel, Entra, and Intune [S13]. It suits analysts working inside those products. It's less suited to the custom pipeline in this chapter, because you have less control over the evidence passed to the model and how its output is checked. It can still be valuable alongside your own pipeline, for example in incident investigation inside Sentinel.
 
-Microsoft renamed Copilot for Security to Security Copilot in 2024, so older material uses the earlier name. On data handling, Azure OpenAI doesn't use prompts or completions to train models. Abuse monitoring applies by default, and modified abuse monitoring, which stops prompts being stored for review, is a Limited Access program you apply for.
+Microsoft renamed Copilot for Security to Security Copilot in 2024, so older material uses the earlier name [S14]. On data handling, Azure OpenAI doesn't use prompts or completions to train models [S8]. Abuse monitoring applies by default [S9], and modified abuse monitoring, which stops prompts being stored for review, is a Limited Access program you apply for [S10].
 
-> **As of 2026-10:** Model availability by region, and which models support structured outputs and tool calling, change often. Check the current Azure OpenAI documentation for the region you deploy in.
+> **As of 2026-10:** Model availability by region, and which models support structured outputs and tool calling, change often [S15]. Check the current Azure OpenAI documentation for the region you deploy in [S15].
 
 Whichever you choose, the deployment that receives evidence packs is now a sensitive system. It sees summaries of your most serious exposures. Chapter 11 covers governing it.
 
@@ -599,6 +599,26 @@ This lab builds the full pattern for the payments paths. It extends Chapter 2's 
 
 ---
 
+## Sources
+
+- **[S1]** How to use structured outputs with Azure OpenAI in Microsoft Foundry Models. Microsoft Foundry. <https://learn.microsoft.com/azure/ai-services/openai/how-to/structured-outputs> Checked 2026-10-12. Version: API `2024-08-01-preview`; v1. Kind: documented.
+- **[S2]** azurerm_storage_account. HashiCorp Terraform Registry. <https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/storage_account> Checked 2026-10-12. Kind: documented.
+- **[S3]** Authorize access to blob data in the Azure portal. Microsoft Learn. <https://learn.microsoft.com/azure/storage/blobs/authorize-data-operations-portal> Checked 2026-10-12. Kind: documented.
+- **[S4]** Prevent authorization with Shared Key. Microsoft Learn. <https://learn.microsoft.com/azure/storage/common/shared-key-authorization-prevent> Checked 2026-10-12. Kind: documented.
+- **[S5]** How to use function calling with Microsoft Foundry Models. Microsoft Foundry. <https://learn.microsoft.com/azure/foundry/openai/how-to/function-calling> Checked 2026-10-12. Kind: documented.
+- **[S6]** What is Microsoft Foundry? Microsoft Foundry. <https://learn.microsoft.com/azure/foundry/what-is-foundry> Checked 2026-10-12. Kind: documented.
+- **[S7]** How-to: Create and deploy an Azure OpenAI in Microsoft Foundry Models resource (classic). Microsoft Foundry. <https://learn.microsoft.com/azure/ai-foundry/openai/how-to/create-resource> Checked 2026-10-12. Kind: documented.
+- **[S8]** Data, privacy, and security for Foundry Models sold by Azure in Microsoft Foundry. Microsoft Foundry. <https://learn.microsoft.com/legal/cognitive-services/openai/data-privacy> Checked 2026-10-12. Kind: documented.
+- **[S9]** Foundry Models sold by Azure abuse monitoring. Microsoft Foundry. <https://learn.microsoft.com/azure/ai-foundry/openai/concepts/abuse-monitoring> Checked 2026-10-12. Kind: documented.
+- **[S10]** Limited access to Azure OpenAI in Microsoft Foundry Models. Microsoft Foundry. <https://learn.microsoft.com/azure/ai-foundry/responsible-ai/openai/limited-access> Checked 2026-10-12. Kind: documented.
+- **[S11]** Securing Azure OpenAI inside a virtual network with private endpoints (classic). Microsoft Foundry. <https://learn.microsoft.com/azure/ai-foundry/openai/how-to/network> Checked 2026-10-12. Kind: documented.
+- **[S12]** Foundry Models lifecycle and support policy. Microsoft Foundry. <https://learn.microsoft.com/azure/foundry/openai/concepts/model-retirements> Checked 2026-10-12. Kind: documented.
+- **[S13]** What is Microsoft Security Copilot? Microsoft Learn. <https://learn.microsoft.com/copilot/security/microsoft-security-copilot> Checked 2026-10-12. Kind: documented.
+- **[S14]** Microsoft Copilot for Security is generally available on April 1, 2024, with new capabilities. Microsoft Security Blog. <https://www.microsoft.com/security/blog/2024/03/13/microsoft-copilot-for-security-is-generally-available-on-april-1-2024-with-new-capabilities/> Checked 2026-10-12. Kind: documented.
+- **[S15]** Foundry Models sold by Azure. Microsoft Foundry. <https://learn.microsoft.com/azure/ai-foundry/openai/concepts/models> Checked 2026-10-12. Kind: documented.
+
+---
+
 ## Summary
 
 - Language models are strong at **explaining, translating for audiences, summarizing, drafting, and acting as an interface to deterministic tools**. They shouldn't establish facts, interpret roles, search graphs, rank paths, or declare fixes complete.
@@ -629,6 +649,7 @@ This lab builds the full pattern for the payments paths. It extends Chapter 2's 
 - The validator is intentionally simple. `lab/listings/python/tests/test_ch07_validator.py` checks it against this chapter's pack and every printed summary (2026-10-11). That run changed the listing in two ways. `expand_range` now accepts an en dash, because the printed summaries cite `[P1–P6]` and the old pattern rejected them. Names and numbers may now come from path targets and provenance (snapshot ID, `assertedBy`, `assertedAt`, `expiresAt`) as well as claims, because the auditor version quotes the snapshot ID and the DPO's dates. Untrusted text still never counts. The run also confirmed that the name regex flags hyphenated English words ("highest-leverage" in the engineer version, now reworded); section 7.5 now says so.
 - 2026-10-11 (review comment on unmodeled controls): paths may now list `gaps`, and the validator checks that a draft citing such a path cites its gaps. The check is scoped to listed gaps so the architect and engineer versions, which omit G1 and G2, still pass. Tests in `test_ch07_validator.py` cover a missing gap, a gap cited in another sentence, and an uncited path. Added Step 5 case 5.
 - 2026-10-12 (review comment on temporal consistency): a temporally inconsistent path becomes a `temporallyInconsistent` gap listed on the path, so the same validator check applies; no code change.
+- 2026-10-12 (sources): added 15 sources. Changed: none. Softened: none. Unverified: none.
 - The "85% likelihood" and other figures in the opening are fictional.
 - Consider a figure for the grounding pipeline in section 7.2.
 - Add the Chapter 7 fact checks to GTM **M-306** when it is picked up.
