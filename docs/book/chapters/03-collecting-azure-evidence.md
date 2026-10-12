@@ -7,6 +7,8 @@
 
 > *Draft status: revised (revision pass 1, 2026-10-10). Target 8,000 words. Facts about Azure behavior and API names were checked against Microsoft documentation in October 2026; dated "As of" notes mark the ones to re-check. Cmdlet parameters still need a live check before submission.*
 
+**Builds on:** Chapter 1 (paths and targets, sections 1.4 and 1.7), Chapter 2 (evidence categories and the payments hop table, sections 2.2 and 2.3).
+
 ---
 
 ## The clean report
@@ -50,7 +52,7 @@ The fifth row is easy to forget. It doesn't create paths. It tells you whether y
 
 Two kinds of evidence are deliberately *not* in this chapter:
 
-- **Activity**: sign-in logs, Activity Log entries, storage access logs. These are evidence of what *happened*, not what's *possible*. They matter for confirming flows (Chapter 6) and verifying fixes (Chapter 10), and they have different retention, cost, and privacy considerations.
+- **Activity**: sign-in logs, Activity Log entries, storage access logs. These are evidence of what *happened*, not what's *possible*. They matter for confirming flows (section 6.4) and verifying fixes (section 10.2), and they have different retention, cost, and privacy considerations.
 - **Secret values**: keys, connection strings, passwords, tokens. Section 3.6 explains why the collector should never hold them.
 
 ### Map the payments path to evidence
@@ -105,7 +107,7 @@ Avoid `Directory.Read.All` unless you need its breadth. Every application permis
 
 Run the collector with a **managed identity** if it runs in Azure, or with **workload identity federation** if it runs in a CI system. That's the same mechanism as `payments-deploy`, and for the same reason: there's no stored secret to leak.
 
-That's a nice irony. The collector looking for over-privileged federated identities should itself be a narrowly privileged federated identity. Chapter 11 returns to governing the collector as a sensitive system in its own right.
+That's a nice irony. The collector looking for over-privileged federated identities should itself be a narrowly privileged federated identity.
 
 ### Don't run it as yourself
 
@@ -149,7 +151,7 @@ One trap: `allowSharedKeyAccess` is often **absent** from the properties rather 
 
 That's why the query handles absence explicitly and keeps it visible. Its `extend` turns a missing property into `not set (platform default)` instead of letting it fall silently into either bucket, and the raw `allowSharedKeyAccess` column stays alongside it.
 
-Recording "not set (platform default)" rather than collapsing it to "enabled" keeps the observation honest. Your *derivation* can then apply the default rule and say so. Chapter 2 called this the difference between an observed fact and a derived fact. The rule to apply is Microsoft's documented one: a null `allowSharedKeyAccess` behaves as `true`, so shared key requests are accepted [S13].
+Recording "not set (platform default)" rather than collapsing it to "enabled" keeps the observation honest. Your *derivation* can then apply the default rule and say so. That's the difference between an observed fact and a derived fact (section 2.2). The rule to apply is Microsoft's documented one: a null `allowSharedKeyAccess` behaves as `true`, so shared key requests are accepted [S13].
 
 ### Role assignments with role names
 
@@ -253,7 +255,7 @@ $federated = foreach ($app in $applications) {
 }
 ```
 
-For GitHub Actions, the `issuer` is GitHub's token service and the `subject` encodes what's trusted, such as a repository and branch (`repo:contoso/payments:ref:refs/heads/main`) or an environment. Record the subject exactly as stored. Chapter 4 covers how to interpret subjects, including the broader patterns that trust far more than one branch.
+For GitHub Actions, the `issuer` is GitHub's token service and the `subject` encodes what's trusted, such as a repository and branch (`repo:contoso/payments:ref:refs/heads/main`) or an environment. Record the subject exactly as stored. Section 4.3 covers how to interpret subjects, including the broader patterns that trust far more than one branch.
 
 > **As of 2026-10:** GitHub's issuer is `https://token.actions.githubusercontent.com` [S18]. Repositories created after July 15, 2026, repositories renamed or transferred after that date, and existing repositories that opt in use immutable subjects containing owner and repository IDs (`repo:owner@id/repo@id:…`) [S18, S19], so expect both formats in one tenant. Re-check the formats before you write rules that parse them [S18].
 
@@ -368,7 +370,7 @@ So the guarantee is narrower than it looks:
 - **It does guarantee** what each file contained, when it was read, how, and by whom, and that none of it has changed since.
 - **It doesn't guarantee** that the files agree with each other at any one instant.
 
-Two habits close most of the gap. Keep a run short, and read the files a path joins close together. And carry the read times forward: Chapter 4 gives every path an **input span**, from its earliest read to its latest, and labels a path whose span is too wide, or that saw a change inside it. Chapter 10 does the same for verification.
+Two habits close most of the gap. Keep a run short, and read the files a path joins close together. And carry the read times forward: Section 4.5 gives every path an **input span**, from its earliest read to its latest, and labels a path whose span is too wide, or that saw a change inside it. Section 10.2 does the same for verification.
 
 ### Store snapshots so they can't be quietly edited
 
@@ -380,7 +382,7 @@ Treat snapshots as the raw observations and keep derivation (effective permissio
 
 - When you fix a bug in path logic, you re-run it on last month's snapshot and see what changes.
 - When someone challenges a path, you show exactly which snapshot files it came from.
-- When you compare two points in time (Chapter 10), you compare snapshots, not your memory of what the environment looked like.
+- When you compare two points in time (section 10.3), you compare snapshots, not your memory of what the environment looked like.
 
 ---
 
@@ -422,7 +424,7 @@ That paragraph would have turned the opening story's clean report into an obviou
 
 ### Gaps change conclusions
 
-Chapter 2 introduced "insufficient evidence" as a state separate from "path exists" and "no path". Gaps are what produce it. A derivation step that reads a snapshot should check the gap list before saying "no path": if a required kind of evidence for that region of the estate is missing, the honest answer is "insufficient evidence", not "clean".
+"Insufficient evidence" is a state separate from "path exists" and "no path" (section 2.6), and gaps are what produce it. A derivation step that reads a snapshot should check the gap list before saying "no path": if a required kind of evidence for that region of the estate is missing, the honest answer is "insufficient evidence", not "clean".
 
 ---
 
@@ -431,7 +433,7 @@ Chapter 2 introduced "insufficient evidence" as a state separate from "path exis
 Snapshots age. How often to collect depends on how fast your estate changes and what you're using the evidence for:
 
 - **Path discovery and prioritization:** daily is usually enough. Most risky configurations persist for weeks.
-- **Verifying a fix** (Chapter 10): collect on demand after the change, so the verification uses evidence newer than the fix.
+- **Verifying a fix** (section 10.2): collect on demand after the change, so the verification uses evidence newer than the fix.
 - **Investigations:** use activity sources and change history, not just the latest snapshot.
 
 Azure Resource Graph also exposes recent resource **change history**, which can tell you when a property changed between snapshots. It keeps 14 days and covers Azure resources only, not Entra objects [S1, S3], so treat it as a short-term supplement to snapshots, not a replacement.
@@ -444,7 +446,7 @@ Whatever cadence you choose, every derived result should carry the snapshot ID a
 
 Mostly, it doesn't, and that's deliberate.
 
-Collection is where facts enter the system. Everything downstream (derivation, paths, rankings, explanations) inherits its trustworthiness from what was collected. If a model is involved in deciding what a role assignment says, every later conclusion depends on an AI inference, by Chapter 2's first rule.
+Collection is where facts enter the system. Everything downstream (derivation, paths, rankings, explanations) inherits its trustworthiness from what was collected. If a model is involved in deciding what a role assignment says, every later conclusion depends on an AI inference, by Rule 1 (section 2.4).
 
 There are two places where AI genuinely helps:
 
@@ -639,6 +641,7 @@ The federated-credential loop calls Graph once per application, so its read wind
 
 ## Author notes (remove before submission)
 
+- 2026-10-12 (BR-10, repetition edit): recap and signpost references to other chapters were cut or turned into section pointers, and the **Builds on** line now carries the dependencies. No technical content, code, labs, or evidence categories changed. `tools/check_cross_refs.py` checks every reference.
 - Verified 2026-10-10 (revision pass 1): Reader excludes list-secrets actions; Graph permission names, including `RoleManagement.Read.Directory` and PIM eligibility; `allowSharedKeyAccess` null behavior; GitHub issuer, subject formats and immutable subjects; `resourcechanges` 14-day retention.
 - Resolved 2026-10-12: the Resource Graph table reference doesn't list deny assignments under `authorizationresources`, so hop 6 uses the ARM deny-assignment API [S4], and Chapter 4 and Appendix B's deny listing is now a REST call (`appb-deny-assignments.ps1`) instead of a Resource Graph query.
 - Unverified (2026-10-12): whether role assignment `condition` values are always present in `authorizationresources` query results (property is documented on role assignments [S5]).

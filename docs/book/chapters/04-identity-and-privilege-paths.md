@@ -7,6 +7,8 @@
 
 > *Draft status: revised (revision pass 1, 2026-10-10). Target 9,000 words. Facts about Azure and Entra ID behavior were checked against Microsoft documentation in October 2026; dated "As of" notes mark the ones to re-check before submission.*
 
+**Builds on:** Chapter 2 (evidence categories and Rule 1, sections 2.2 and 2.4), Chapter 3 (the snapshot, its read times, and its gaps, sections 3.5 and 3.7).
+
 ---
 
 ## The fix that didn't close the path
@@ -43,7 +45,7 @@ The sections below take these one at a time, then combine them into a graph you 
 
 ## 4.2 Effective access: from assignments to "can"
 
-Chapter 3 collected role assignments: principal, role, scope. Turning those into "what can this identity actually do, where" is a derivation with several rules. Get any of them wrong and you'll either miss paths or invent them.
+Section 3.3 collected role assignments: principal, role, scope. Turning those into "what can this identity actually do, where" is a derivation with several rules. Get any of them wrong and you'll either miss paths or invent them.
 
 ### Rule 1: Scopes inherit downward
 
@@ -61,7 +63,7 @@ Contributor at a subscription is Contributor on every resource group and resourc
 
 ### Rule 2: Groups expand transitively
 
-An assignment to a group applies to every member, including members of nested groups [S10, S11]. Collect transitive membership for exactly this reason: Chapter 3 explains why direct members are not enough, and this chapter's lab writes the file. Effective access for a user is the union of their direct assignments and those of every group they're in, at any depth [S11].
+An assignment to a group applies to every member, including members of nested groups [S10, S11]. Collect transitive membership for exactly this reason: Section 3.4 explains why direct members are not enough, and this chapter's lab writes the file. Effective access for a user is the union of their direct assignments and those of every group they're in, at any depth [S11].
 
 ### Rule 3: Roles are sets of actions, in two planes
 
@@ -96,7 +98,7 @@ The two kinds of eligibility live in different places. Eligibility for Azure res
 
 ### Effective access is a derived fact
 
-Every rule above is deterministic and well-defined, which makes effective access a **derived fact** in Chapter 2's terms, as long as each rule is implemented correctly and the inputs are complete. Keep the inputs (which assignments, which memberships, which role definition) attached to every derived permission, so anyone can retrace it.
+Every rule above is deterministic and well-defined, which makes effective access a **derived fact** (section 2.2), as long as each rule is implemented correctly and the inputs are complete. Keep the inputs (which assignments, which memberships, which role definition) attached to every derived permission, so anyone can retrace it.
 
 ---
 
@@ -213,7 +215,7 @@ Capability nodes are worth the extra modeling. Targets are usually capabilities,
 
 ### Edges
 
-Every edge has a **type**, the **evidence** behind it, and its **evidence category** from Chapter 2:
+Every edge has a **type**, the **evidence** behind it, and its **evidence category** (section 2.2):
 
 | Edge type | From → To | Typical category |
 |-----------|-----------|------------------|
@@ -732,7 +734,7 @@ def hop_table(path: list[Edge], otherwise: str, temporal: str | None = None) -> 
     return lines
 ```
 
-A path with no labeled hop keeps the confidence its evidence earns. A path with one is "Insufficient evidence", the band Chapter 2 uses when a path may or may not exist. The hop table names the assumption, so a reviewer can resolve it: read the condition, check the container or tag it refers to, or collect the missing role definition. Chapter 7 makes sure a summary that cites the path also cites the gap, and Chapter 10 refuses to call a fix verified while a path survives only through a control nobody evaluated.
+A path with no labeled hop keeps the confidence its evidence earns. A path with one is "Insufficient evidence", the band for a path that may or may not exist (section 2.5). The hop table names the assumption, so a reviewer can resolve it: read the condition, check the container or tag it refers to, or collect the missing role definition. Chapter 7 makes sure a summary that cites the path also cites the gap, and Chapter 10 refuses to call a fix verified while a path survives only through a control nobody evaluated.
 
 ### Paths across time
 
@@ -907,7 +909,7 @@ The first and third rows of that table explain why Microsoft has spent years pus
 | Local authentication (keys or SAS held outside Azure, anonymous blob access) | Not modeled | Not drawn. A "no path" result says nothing about it. |
 | Conditional Access for workload identities | Not modeled | The path is reported even if a policy would block the sign-in. |
 
-Read the third column for the direction of each error. The labeled rows and the Conditional Access row can report a path that doesn't hold, and the label or the contract says so. The PIM, SAS, and local-authentication rows can miss a path. Those are the rows to name whenever you say "no path". Chapter 5 covers the network rows. Publish the contract with the analysis, and change it when the code changes.
+Read the third column for the direction of each error. The labeled rows and the Conditional Access row can report a path that doesn't hold, and the label or the contract says so. The PIM, SAS, and local-authentication rows can miss a path. Those are the rows to name whenever you say "no path". Section 5.6 covers the network rows. Publish the contract with the analysis, and change it when the code changes.
 
 ---
 
@@ -950,11 +952,11 @@ Identity paths are where AI explanation shines and AI reasoning fails most visib
 
 > A developer who owns the `payments-deploy` app registration can add a password to it [hop 2]. That password lets them sign in as the payments deployment identity [hop 3], which can manage everything in the production payments resource group [hop 4]. That includes deploying code to the reconciliation Function App [hop 6], which runs as an identity that can read the customer archive [hops 7–8].
 
-That's genuinely useful, and Chapter 7 shows how to keep it grounded.
+That's genuinely useful, if it stays grounded (section 7.2).
 
 **Reasoning about roles fails.** Ask a model "can Contributor read blob data?" and you'll often get a confident answer that's either too simple ("no") or wrong in the details. Ask it what a custom role named `Payments Operator` can do, and it will guess from the name. Models don't know your custom roles, and their knowledge of built-in roles is frozen at their training date, while role definitions change.
 
-So: **never let a model decide what a role permits.** Look it up in the role definitions you collected (Chapter 3), compute effective actions deterministically, and give the model the result to explain.
+So: **never let a model decide what a role permits.** Look it up in the role definitions you collected (section 3.3), compute effective actions deterministically, and give the model the result to explain.
 
 **Graph search fails.** Ask a model to "find all the ways to reach `custdata`" from a large dump of role assignments and memberships, and it will find some, miss others, and occasionally invent an edge, such as a membership that doesn't exist or a role at the wrong scope. Graph search is exactly the exhaustive, repeatable work that deterministic code does well and models don't.
 
@@ -1145,7 +1147,7 @@ None of the six paths carries an unmodeled control, because the lab has no condi
 
 **Step 4 — Apply the original fix.** Change the federated credential to the `production` environment subject in the lab. Re-run the Chapter 3 collector and Step 0, then search again. Confirm that the `main` entry point is replaced by the narrower production-environment entry, and that the four paths through the app owner and the help-desk user are unchanged.
 
-**Step 5 — Find a better fix.** Look at the graph and answer: which single change removes the most paths? Candidates include removing the developer's app ownership, removing the directory role, narrowing `payments-deploy` from Contributor, and disabling shared key access. Write down your answer. Chapter 9 returns to this question formally as cut-point analysis.
+**Step 5 — Find a better fix.** Look at the graph and answer: which single change removes the most paths? Candidates include removing the developer's app ownership, removing the directory role, narrowing `payments-deploy` from Contributor, and disabling shared key access. Write down your answer. Section 9.3 answers it formally as cut-point analysis.
 
 **What you should see.** With the Step 0 files loaded and capability edges derived, the original fix narrows only the two paths that start from the GitHub workflow. It does not touch the four paths through the app owner and the help-desk user. All six paths converge on `payments-deploy`, so narrowing its role is the obvious next idea, and it closes the three paths to `custdata`, because Contributor's list-keys action is what produced that `grants` edge [S6, S12]. It doesn't close the three archive paths while the pipeline deploys `pay-reconcile`: the narrowed role must still allow code deployment, so `canControlCode` stays, and whoever deploys code can act as that code [S6, S5]. That convergence is the lesson of this chapter: protect the identities that many paths pass through, not just the doors in front of them. Chapter 9 works out which combination of changes closes the rest. A search over the Chapter 3 files alone, or over raw `hasRoleAt` and `contains`, is not this result.
 
@@ -1225,6 +1227,7 @@ None of the six paths carries an unmodeled control, because the lab has no condi
 
 ## Author notes (remove before submission)
 
+- 2026-10-12 (BR-10, repetition edit): recap and signpost references to other chapters were cut or turned into section pointers, and the **Builds on** line now carries the dependencies. No technical content, code, labs, or evidence categories changed. `tools/check_cross_refs.py` checks every reference.
 - 2026-10-12 (sources): added 34 sources. Changed: Step 0's deny listing was a Resource Graph query on a type the table reference doesn't list [S33]; it's now `appb-deny-assignments.ps1`, a REST call with the same columns [S34]. The deny fields question in the 2026-10-11 note is answered by the REST reference, not Resource Graph. Softened: none. Unverified: managed-identity attach permissions and Function App publish action (existing Verify note); Conditional Access blocking managed identities (contract row only).
 - Verified 2026-10-10 (revision pass 1): Contributor NotActions [S6]; roles with `roleAssignments/write` [S4, S6]; PIM eligibility APIs and read permission [S12-S14]; Application Administrator and Cloud Application Administrator credential scope [S3]; Privileged Role Administrator removed from `canAddCredential` because it escalates by assignment [S3]; Global Administrator elevation [S25]; Graph self-escalation permission names [S26]; GitHub fork token default and immutable subjects [S20, S22, S23]; flexible credential syntax [S21]; section 4.6 conversions [S12, S30].
 - Verify: managed identity attach permissions (assign action on user-assigned identity) and which built-in roles include code deployment for Functions, App Service, Automation, and Logic Apps. The lab uses `Microsoft.Web/sites/write` as the representative Function App action; confirm whether publish uses that action, `Microsoft.Web/sites/publish/action`, or both.

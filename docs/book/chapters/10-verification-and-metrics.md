@@ -7,6 +7,8 @@
 
 > *Draft status: revised (revision pass 1, 2026-10-10). Target 6,000 words. Azure Policy error codes, Resource Graph change history retention, and GitHub environment API fields were checked against current documentation in October 2026; re-check them before submission.*
 
+**Builds on:** Chapter 2 (evidence categories and the zero trap, sections 2.2 and 2.6), Chapter 3 (snapshots, read times, and gaps, sections 3.5 and 3.7), Chapter 4 (the loader, search, and `KIND_SOURCES`, section 4.5), Chapter 9 (the plan and the recommendation record, sections 9.3 and 9.7).
+
 ---
 
 ## Three green tickets
@@ -35,7 +37,7 @@ This chapter is about the difference between those two Mondays: what it takes to
 
 ## 10.1 "Fixed" is a claim
 
-Chapter 2 asked, for every statement about a path, what kind of evidence supports it. A fix deserves the same question. The statement "the help desk path is fixed" can rest on very different things:
+Every statement about a path should say what kind of evidence supports it (section 2.2), and a fix deserves the same question. The statement "the help desk path is fixed" can rest on very different things:
 
 | Evidence | Category | What it shows |
 |----------|----------|---------------|
@@ -55,13 +57,13 @@ Three separate questions hide inside "is it fixed?":
 
 The help desk ticket in the opening story passed the first question and failed the second. The shared key change, if someone with Contributor turned it back on next month, would pass the first two and fail the third. Each question needs its own check, and only the snapshot can answer them.
 
-That's why Chapter 7 put "decide a fix is complete" in the column of jobs that belong to code, not a model, and why Chapter 9's recommendation record carried a `verification` field written "in terms the next snapshot can check." This chapter runs those checks.
+That's why deciding a fix is complete belongs to code, not a model (section 7.1), and why the recommendation record carries a `verification` field written "in terms the next snapshot can check" (section 9.7). This chapter runs those checks.
 
 ---
 
 ## 10.2 Postconditions
 
-A **postcondition** is a statement that must be true after a change, written so that code can test it against a snapshot. Chapter 9's record for removing `dev-lead` as owner had two:
+A **postcondition** is a statement that must be true after a change, written so that code can test it against a snapshot. The section 9.7 record for removing `dev-lead` as owner had two:
 
 - "Re-collected snapshot shows no owner of `payments-deploy` other than the platform automation identity."
 - "Path search from `user:dev-lead` to read `custdata` and read `custarchive` returns no paths."
@@ -69,7 +71,7 @@ A **postcondition** is a statement that must be true after a change, written so 
 Those are two different kinds, and every recommendation should have both:
 
 - A **state postcondition** checks a property of a resource: a setting's value, the presence or absence of a role assignment, an owner, a policy assignment. It answers "did the change happen?"
-- A **path postcondition** re-runs the search from Chapter 4 between specific entry points and targets. It answers "did the path close?"
+- A **path postcondition** re-runs the path search (section 4.5) between specific entry points and targets. It answers "did the path close?"
 
 State postconditions are precise and easy to explain. Path postconditions are what the plan actually promised. The opening story is the case for keeping both: the help desk's state postcondition ("Cloud Application Administrator assignment absent") passed, and its path postcondition failed. Had the ticket carried only the state check, the dashboard would still be green.
 
@@ -81,7 +83,7 @@ A postcondition check can end three ways:
 - **Failed:** the snapshot is newer than the change, it contains everything the check needs, and the check doesn't hold.
 - **Not verified:** the snapshot can't answer the question. It started before the change, a file the check needs is missing or incomplete, the resource the check is about isn't in the snapshot at all, or the answer depends on a control the derivation can't evaluate.
 
-"Not verified" is Chapter 2's "insufficient evidence" applied to fixes. It's the verdict the opening story's first report should have given, and it's the one most tools leave out. A tool that only knows "passed" and "failed" has to put a missing subscription into one of them, and "nothing found" usually lands in "passed."
+"Not verified" is "insufficient evidence" (section 2.5) applied to fixes. It's the verdict the opening story's first report should have given, and it's the one most tools leave out. A tool that only knows "passed" and "failed" has to put a missing subscription into one of them, and "nothing found" usually lands in "passed."
 
 ### Postconditions as code
 
@@ -163,11 +165,11 @@ def verify(
     return (VERIFIED, post.text) if holds else (FAILED, post.text)
 ```
 
-`data` maps each snapshot file name to its rows, after the manifest's hashes have been checked (Chapter 3). The gap list is Chapter 3's, with one addition: a gap that affects a single file, such as a throttled query, names that file in a `file` field.
+`data` maps each snapshot file name to its rows, after the manifest's hashes have been checked (section 3.5). The gap list is the one from section 3.7, with one addition: a gap that affects a single file, such as a throttled query, names that file in a `file` field.
 
 Four details in that code carry most of the weight.
 
-**Every input must be read after the change.** The comparison uses each needed file's `queriedAtUtc`, the time its query started, not when it finished or when the snapshot did (Chapter 3, section 3.5). A collection that began at 09:10 and finished at 09:17 may have read the storage account at 09:11. A change applied at 09:12 might or might not be in it. Starting after the change is the only safe rule, and it has to hold for every file the check reads, not just for the snapshot as a whole. Files the check doesn't read don't matter. `parse_utc` and `read_windows` are Chapter 4's (section 4.5).
+**Every input must be read after the change.** The comparison uses each needed file's `queriedAtUtc`, the time its query started, not when it finished or when the snapshot did (section 3.5). A collection that began at 09:10 and finished at 09:17 may have read the storage account at 09:11. A change applied at 09:12 might or might not be in it. Starting after the change is the only safe rule, and it has to hold for every file the check reads, not just for the snapshot as a whole. Files the check doesn't read don't matter. `parse_utc` and `read_windows` come from section 4.5.
 
 **Missing evidence is checked before the check runs.** If `storage-accounts.json` is partial, a check that reads it isn't run at all. Running it would answer a question about the part of the estate that happened to be collected.
 
@@ -199,7 +201,7 @@ shared_key_off = Postcondition(
 )
 ```
 
-The shared key check also tests `sharedKey == "disabled"` rather than "not enabled". Chapter 3 records an absent property as "not set (platform default)", and Chapter 4's derivation treats that as enabled, because Azure permits shared key authorization when `AllowSharedKeyAccess` is null or true [S3]. The postcondition has to use the same rule, or the derivation and the verification will disagree about the same row.
+The shared key check also tests `sharedKey == "disabled"` rather than "not enabled". The collector records an absent property as "not set (platform default)" (section 3.3), and the derivation treats that as enabled (section 4.5), because Azure permits shared key authorization when `AllowSharedKeyAccess` is null or true [S3]. The postcondition has to use the same rule, or the derivation and the verification will disagree about the same row.
 
 ### Path postconditions
 
@@ -237,17 +239,17 @@ def no_path(post_id: str, entry: str, target: str, scopes: frozenset[str]) -> Po
                          needs=PATH_FILES, scopes=scopes, check=check)
 ```
 
-`data["edges"]` is the output of the Chapter 4 loader run on the same snapshot, and `find_paths` is Chapter 4's search. Any path with no unmodeled control means the check fails. If the only paths left run through labeled edges (Chapter 4, section 4.5), the check raises `Unmodeled`, and `verify` returns "not verified" with the assumption to check. Suppose the fix removed the unconditioned role but left a conditioned one. The path might still be open, so "failed" would overstate it and "verified" would be worse. As in Chapter 9's verification, the hop limit is higher than the discovery search's. Verification asks a yes-or-no question about one pair, so it can afford to look further.
+`data["edges"]` is the output of the section 4.5 loader run on the same snapshot, and `find_paths` is its search. Any path with no unmodeled control means the check fails. If the only paths left run through labeled edges (section 4.5), the check raises `Unmodeled`, and `verify` returns "not verified" with the assumption to check. Suppose the fix removed the unconditioned role but left a conditioned one. The path might still be open, so "failed" would overstate it and "verified" would be worse. As in the verification step of section 9.3, the hop limit is higher than the discovery search's. Verification asks a yes-or-no question about one pair, so it can afford to look further.
 
 ### Verification mode: a short run after the change
 
 A scheduled snapshot is a poor witness for a fix. Its reads are spread across the run, and the change usually lands somewhere in the middle. Verification gets its own, tighter mode:
 
 1. **Re-collect only what the postcondition needs.** `post.needs` names the files. For `shared_key_off`, that's one Resource Graph query. For a path postcondition, it's `PATH_FILES`.
-2. **Do it in one short run, after the change time.** The run's start must be later than `change_applied_at`, and its files should be read close together, so the input span (Chapter 4, section 4.5) stays short.
+2. **Do it in one short run, after the change time.** The run's start must be later than `change_applied_at`, and its files should be read close together, so the input span (section 4.5) stays short.
 3. **Merge nothing older.** If the run's files are combined with an earlier snapshot to fill in the rest, `verify` checks every needed file's read time anyway. A postcondition whose inputs straddle the change time, some read before it and some after, is **not verified**. Its inputs describe no single state of the estate: the role assignments after the fix, joined to the app owners from before it.
 
-That's what Chapter 3's advice to collect on demand for verification means in practice. It's also cheaper than a full run: a handful of queries instead of the whole collector.
+That's what collecting on demand for verification (section 3.8) means in practice. It's also cheaper than a full run: a handful of queries instead of the whole collector.
 
 ### Writing good postconditions
 
@@ -264,9 +266,9 @@ The postconditions decide what "fixed" means, so they deserve the same review as
 
 Postconditions check what a recommendation promised. A **snapshot diff** checks everything else: which paths closed, which persisted, and which appeared, between two snapshots. It catches the effects nobody wrote a postcondition for, including new paths that a fix created.
 
-To compare paths across snapshots, each path needs an identity that doesn't depend on the run. The sequence of edge keys works: source, kind, and target for each hop. That's Chapter 9's `edge_key`, so a path's signature is stable as long as the same identities hold the same kinds of capability.
+To compare paths across snapshots, each path needs an identity that doesn't depend on the run. The sequence of edge keys works: source, kind, and target for each hop. That's `edge_key` from section 9.3, so a path's signature is stable as long as the same identities hold the same kinds of capability.
 
-A path that disappears isn't necessarily closed. If the evidence that produced one of its edges is incomplete in the later snapshot, the honest status is "unresolved." To decide that, the diff needs to know which files each edge kind comes from. Chapter 4's `KIND_SOURCES` (section 4.5) already maps each edge kind to its files, and the diff reuses it:
+A path that disappears isn't necessarily closed. If the evidence that produced one of its edges is incomplete in the later snapshot, the honest status is "unresolved." To decide that, the diff needs to know which files each edge kind comes from. `KIND_SOURCES` (section 4.5) already maps each edge kind to its files, and the diff reuses it:
 
 <!-- listing: lab/listings/python/ch10_verification.py#diff_paths -->
 
@@ -329,7 +331,7 @@ def files_in_doubt(manifest: dict, expected_files: set[str]) -> set[str]:
 
 Call `diff_paths` with `files_in_doubt` for the later snapshot. One unreadable subscription puts every Azure file in doubt, which is deliberately coarse. A finer version records which subscription each edge's resources live in and doubts only the edges in unreadable ones. Start coarse. A wrong "closed" costs more than a delayed one.
 
-`KIND_SOURCES` covers the kinds the payments graph uses. Add the others (`ownerOf`, `canActivate`, `canAssignRoles`) as your loader emits them. An unknown kind raises `KeyError`, the same way Chapter 9's ranking refuses an unknown level. Guessing which files an edge came from would quietly turn gaps into fixes.
+`KIND_SOURCES` covers the kinds the payments graph uses. Add the others (`ownerOf`, `canActivate`, `canAssignRoles`) as your loader emits them. An unknown kind raises `KeyError`, the same way the ranking in section 9.2 refuses an unknown level. Guessing which files an edge came from would quietly turn gaps into fixes.
 
 The opening story's two Mondays run through this function very differently.
 
@@ -347,7 +349,7 @@ P6 persisted
 
 That changed citation is the most useful line in the report. It says the fix happened and the exposure didn't change, and it says why.
 
-P3 is the opposite case. Chapter 9's plan assigned it to the help desk change, which failed. It closed anyway, because the shared key change removed its last hop. The diff reports it as closed, which is true. A tracker that credits closures to the tickets that planned them would report P3 as still open, because its ticket failed. Credit closures to the evidence, not the plan. When it matters which change closed a path, for example to decide whether a change can be rolled back, re-run the search with only that change reverted.
+P3 is the opposite case. The plan (section 9.3) assigned it to the help desk change, which failed. It closed anyway, because the shared key change removed its last hop. The diff reports it as closed, which is true. A tracker that credits closures to the tickets that planned them would report P3 as still open, because its ticket failed. Credit closures to the evidence, not the plan. When it matters which change closed a path, for example to decide whether a change can be rolled back, re-run the search with only that change reverted.
 
 The helpdesk path keeps the same signature because `canAddCredential` doesn't record which role produced it. That's deliberate: the path graph describes capability, and the capability is the same. The reason lives in the edge's citation, which is where the diff looks for it.
 
@@ -355,11 +357,11 @@ The helpdesk path keeps the same signature because `canAddCredential` doesn't re
 
 The `new` list matters as much as the `closed` list. Fixes create paths. An identity team replacing one role with another, a platform team moving a deployment to a new identity, or a developer adding a managed identity to get around a removed key can each open a path that wasn't there last week. If the report only tracks the paths it was asked to close, these stay invisible until the next full review.
 
-Treat every new path to a high-consequence target as a finding in its own right, ranked with Chapter 9's rules. If a new path appears in the same snapshot as a planned change, check whether the change caused it. A path that runs through the identity or resource the change touched is the usual sign.
+Treat every new path to a high-consequence target as a finding in its own right, ranked with the rules in section 9.2. If a new path appears in the same snapshot as a planned change, check whether the change caused it. A path that runs through the identity or resource the change touched is the usual sign.
 
 ### Resource Graph change history
 
-Azure Resource Graph keeps recent property changes for Azure resources in its `resourcechanges` table (Chapter 3) [S4]. It can tell you *when* `custdata`'s shared key setting changed between two snapshots, and its `changedBy` and `clientType` attributes often say who changed it and with what tool [S4]. That's useful corroboration, and it helps explain diffs. It isn't a substitute for the snapshot: changes are queryable for only 14 days [S5], it covers Azure Resource Manager resources but not Microsoft Entra directory objects such as app owners and directory roles [S6], and it records property changes, not the full resource state you need to re-run a path search [S4]. Chapter 4 uses it the other way round. Together with the Activity Log and Entra audit logs, it shows whether anything on a path changed while that path's inputs were being read [S2, S7].
+Azure Resource Graph keeps recent property changes for Azure resources in its `resourcechanges` table [S4]. It can tell you *when* `custdata`'s shared key setting changed between two snapshots, and its `changedBy` and `clientType` attributes often say who changed it and with what tool [S4]. That's useful corroboration, and it helps explain diffs. It isn't a substitute for the snapshot: changes are queryable for only 14 days [S5], it covers Azure Resource Manager resources but not Microsoft Entra directory objects such as app owners and directory roles [S6], and it records property changes, not the full resource state you need to re-run a path search [S4]. Section 4.5 uses it the other way round. Together with the Activity Log and Entra audit logs, it shows whether anything on a path changed while that path's inputs were being read [S2, S7].
 
 ---
 
@@ -367,7 +369,7 @@ Azure Resource Graph keeps recent property changes for Azure resources in its `r
 
 The opening story's first report is the most common verification failure, and the most dangerous one, because it points in the direction everyone hopes for. Missing data almost always looks like improvement. Fewer resources means fewer edges, fewer edges means fewer paths, and fewer paths reads as progress.
 
-Chapter 2 called the equivalent scoring error the zero trap: an unknown value treated as zero. In verification, the unknown is the state of a resource you couldn't read, and treating it as "no path" is the same mistake. The defenses are the ones already in the code:
+The zero trap (section 2.6) is the equivalent scoring error: an unknown value treated as zero. In verification, the unknown is the state of a resource you couldn't read, and treating it as "no path" is the same mistake. The defenses are the ones already in the code:
 
 - **Postconditions list their files and scopes**, so a gap in either makes them "not verified."
 - **The diff classifies disappeared paths as unresolved** when their evidence is incomplete.
@@ -381,7 +383,7 @@ Two practices make gaps rarer in the first place.
 
 ### Accepted risk needs verification too
 
-Chapter 9 left P4 open under a risk acceptance with checkable compensating controls and an expiry date. Each of those is a postcondition, checked on every snapshot:
+Section 9.5 left P4 open under a risk acceptance with checkable compensating controls and an expiry date. Each of those is a postcondition, checked on every snapshot:
 
 - "The GitHub `production` environment has a `required_reviewers` protection rule, with self-review prevented [S8, S9]." This is a state postcondition against data collected from GitHub, not Azure. The collector reads the environment's `protection_rules` from the GitHub REST API [S8]. Note that GitHub needs only one of the listed reviewers to approve [S8], so listing two names isn't a two-person rule.
 - "`mi-pay-reconcile` holds Storage Blob Data Reader on one container only, not the whole account."
@@ -395,9 +397,9 @@ If any of them fails, or becomes "not verified," the acceptance lapses and P4 co
 
 Verification isn't a single event. A postcondition that was verified last week can fail this week, because someone reverted a change, a pipeline reapplied an old configuration, or a new role assignment re-created an edge. That's a **regression**, and it's the third question from section 10.1: does it stay closed?
 
-The mechanics are simple once postconditions exist. Re-check every verified postcondition on every snapshot. When one fails, reopen the recommendation's ticket under its stable ID (Chapter 9), attach the failing check and the diff, and record the regression. Don't open a new ticket. The history of the recommendation, including the earlier verification, is part of the evidence.
+The mechanics are simple once postconditions exist. Re-check every verified postcondition on every snapshot. When one fails, reopen the recommendation's ticket under its stable ID (section 9.9), attach the failing check and the diff, and record the regression. Don't open a new ticket. The history of the recommendation, including the earlier verification, is part of the evidence.
 
-Regressions are where Chapter 9's durability analysis pays off. A durable cut, one that no identity still on a path can reverse, shouldn't regress through an attacker. It can still regress through drift, for example when a team's Terraform still has `shared_access_key_enabled = true` and the next apply runs. The Azure Policy deny assignment would reject that apply with the error code `RequestDisallowedByPolicy`, naming the policy assignment and definition [S10]. That surfaces the drift as a failed deployment instead of a silent reversal, and the Activity Log records the denied write [S11].
+Regressions are where the durability analysis of section 9.4 pays off. A durable cut, one that no identity still on a path can reverse, shouldn't regress through an attacker. It can still regress through drift, for example when a team's Terraform still has `shared_access_key_enabled = true` and the next apply runs. The Azure Policy deny assignment would reject that apply with the error code `RequestDisallowedByPolicy`, naming the policy assignment and definition [S10]. That surfaces the drift as a failed deployment instead of a silent reversal, and the Activity Log records the denied write [S11].
 
 A denied write isn't a regression. The postcondition still holds. But it's worth a ticket to the owning team, because their code disagrees with the environment, and the next person to "fix" the failed pipeline may try to remove the policy.
 
@@ -410,7 +412,7 @@ A denied write isn't a regression. The postcondition still holds. But it's worth
 Most security programs report activity: findings opened, findings closed, percentage remediated within the target time. Those numbers are easy to collect and easy to improve. That's the problem.
 
 - **Closure is a human assertion.** A closed finding means someone marked it closed. The opening story's help desk ticket was closed, and the paths were still open.
-- **Findings aren't exposure.** Chapter 1's checklist problem applies to metrics too. Forty findings on the payments estate didn't correspond to forty units of risk. Closing the thirty-seven easiest could leave every path intact.
+- **Findings aren't exposure.** The checklist problem (section 1.2) applies to metrics too. Forty findings on the payments estate didn't correspond to forty units of risk. Closing the thirty-seven easiest could leave every path intact.
 - **The denominator moves.** Turn on a new scanner rule and "percentage remediated" drops. Suppress a noisy rule and it rises. Neither changed the estate.
 - **The metric invites the wrong work.** When the measure is "findings closed," the rational move is to close easy findings first. That's Goodhart's law: a measure that becomes a target stops measuring what it used to.
 
@@ -434,7 +436,7 @@ An outcome metric goes down only when exposure goes down. The paths from earlier
 
 Raw path counts have a known weakness: they multiply. If a group with 400 members holds a role that opens a path, the search returns 400 paths, one per member. Remove one member and the count drops by one. Remove the group's role and it drops by 400. Neither number tells a reader how much exposure changed.
 
-Report path counts with two companions. **Entry–target pairs** count each (entry point, target) combination once, however many routes connect them. **Cut points** count the distinct changes that would close the remaining paths, using Chapter 9's plan. For the payments estate after the corrected Monday, those were:
+Report path counts with two companions. **Entry–target pairs** count each (entry point, target) combination once, however many routes connect them. **Cut points** count the distinct changes that would close the remaining paths, using the plan from section 9.3. For the payments estate after the corrected Monday, those were:
 
 - Open paths: 1 (P6), plus 1 accepted (P4).
 - Entry–target pairs: 1 open (`helpdesk-07` to the archive), plus 1 accepted.
@@ -510,11 +512,11 @@ The lower bound is what you observed. The upper bound needs a snapshot showing t
 
 A gap snapshot is "unknown," not "closed." In the opening story, the Monday snapshot with `sub-payments-prod` unreadable doesn't end P6's interval. The on-demand snapshot that showed it still open extends it.
 
-Report windows as "open at least 23 days" or "open between 23 and 30 days," never as a single number with false precision. Chapter 8's warning about fake precision applies to dates as much as probabilities.
+Report windows as "open at least 23 days" or "open between 23 and 30 days," never as a single number with false precision. Fake precision (section 8.3) misleads in dates as much as in probabilities.
 
 ### Every number carries its snapshot
 
-Each metric should be stated with the snapshot ID it came from, the ruleset version that ranked it (Chapter 9), and the coverage line. "1 open path to customer data" is a claim. "1 open path to customer data, snapshot 2026-10-20T14-02-00Z-prod, 11 of 11 subscriptions read" is evidence.
+Each metric should be stated with the snapshot ID it came from, the ruleset version that ranked it (section 9.2), and the coverage line. "1 open path to customer data" is a claim. "1 open path to customer data, snapshot 2026-10-20T14-02-00Z-prod, 11 of 11 subscriptions read" is evidence.
 
 ---
 
@@ -563,8 +565,8 @@ Avoid the two patterns that make reports untrustworthy: a single composite "risk
 Verification is the part of the loop where models matter least, and that's the point. The verdicts must be repeatable, and anyone must be able to check them. The jobs a model can do sit around the edges:
 
 - **Drafting postconditions.** Given a recommendation record, a model can propose state and path postconditions, including the ones a busy engineer forgets, such as the policy assignment that keeps a change durable. A person reviews them, and each one must compile into a `Postcondition` with named files and scopes. A drafted postcondition that can't be expressed as a check isn't a postcondition.
-- **Explaining a failed verification.** Given the diff for P6, with its before and after citations, a model can write the ticket comment: what changed, why the path persisted, and what the identity team might do instead. Chapter 7's grounding pattern applies, with the diff as the evidence pack.
-- **Writing the report prose.** The one-pager's sentences can be drafted from the computed metrics, with Chapter 7's validator enforcing that every number appears in the pack. The model writes "one path remains open." The code decided it was one.
+- **Explaining a failed verification.** Given the diff for P6, with its before and after citations, a model can write the ticket comment: what changed, why the path persisted, and what the identity team might do instead. The grounding pattern (section 7.2) applies, with the diff as the evidence pack.
+- **Writing the report prose.** The one-pager's sentences can be drafted from the computed metrics, with the validator (section 7.5) enforcing that every number appears in the pack. The model writes "one path remains open." The code decided it was one.
 - **Summarizing patterns across regressions.** "Most regressions this quarter came from Terraform reapplying old settings" is a useful observation over a structured log of regression records.
 
 And the jobs models shouldn't do:
@@ -572,21 +574,21 @@ And the jobs models shouldn't do:
 - **Deciding whether something is fixed.** That's the verdict function, run on a snapshot.
 - **Computing or estimating metrics.** Counts, windows, and coverage are arithmetic on evidence. A model asked "roughly how long was this path open?" will give a confident number, and it will be a guess.
 - **Filling in missing snapshots.** A gap is "unknown." A model asked to interpolate it will produce something plausible, which is worse than nothing.
-- **Choosing what counts as a high-consequence target.** That's a human assertion, as in Chapter 9's ranking rules.
+- **Choosing what counts as a high-consequence target.** That's a human assertion, as in the ranking rules (section 9.2).
 
 ---
 
 ## 10.9 Lab: verify the payments plan
 
-This lab applies Chapter 9's changes in the lab tenant, re-collects, and verifies them, including one fix that doesn't work. It uses the companion lab tenant (Appendix A), the Chapter 3 collector with Chapter 4's Step 0, and the recommendation records from Chapter 9's lab.
+This lab applies Chapter 9's changes in the lab tenant, re-collects, and verifies them, including one fix that doesn't work. It uses the companion lab tenant (Appendix A), the section 3.10 collector with Chapter 4's Step 0, and the recommendation records from the section 9.11 lab.
 
 **Step 1 — Write the postconditions.** For each of the three recommendation records, write at least one state postcondition and one path postcondition as `Postcondition` objects, with their files and scopes. For the shared key change, add a state postcondition for the policy assignment. For P4's risk acceptance, write a postcondition for each compensating control and one for the expiry date.
 
-**Step 2 — Verify against the old snapshot.** Run `verify` on every postcondition using the snapshot from Chapter 9's lab and the current time as the change time. Every verdict must be "not verified," because every file was read before the change. If any comes back verified or failed, your time comparison is wrong.
+**Step 2 — Verify against the old snapshot.** Run `verify` on every postcondition using the snapshot from the section 9.11 lab and the current time as the change time. Every verdict must be "not verified," because every file was read before the change. If any comes back verified or failed, your time comparison is wrong.
 
-**Step 3 — Apply the changes.** Apply the Chapter 9 Terraform and the runbook steps. For the help desk change, reproduce the opening story: remove Cloud Application Administrator from `helpdesk-07`, then add a group `helpdesk-tier2` with `helpdesk-07` as a member, and assign the group Application Administrator at tenant scope. Record when each change was applied.
+**Step 3 — Apply the changes.** Apply the Terraform and runbook steps from section 9.11. For the help desk change, reproduce the opening story: remove Cloud Application Administrator from `helpdesk-07`, then add a group `helpdesk-tier2` with `helpdesk-07` as a member, and assign the group Application Administrator at tenant scope. Record when each change was applied.
 
-**Step 4 — Re-collect and verify.** Re-collect in verification mode (section 10.2): one short run, started after the last change, of the files the postconditions need. Then run the derivation from Chapter 4 and `verify`. To see the straddle rule, first merge the new files with the Chapter 9 snapshot's `application-owners.json`. Every path postcondition must come back "not verified" until that file is re-collected too. Then confirm:
+**Step 4 — Re-collect and verify.** Re-collect in verification mode (section 10.2): one short run, started after the last change, of the files the postconditions need. Then run the derivation from section 4.5 and `verify`. To see the straddle rule, first merge the new files with the Chapter 9 snapshot's `application-owners.json`. Every path postcondition must come back "not verified" until that file is re-collected too. Then confirm:
 
 - The owner removal and shared key postconditions are verified, including the policy assignment.
 - The help desk state postcondition ("Cloud Application Administrator assignment absent") is verified.
@@ -600,7 +602,7 @@ This lab applies Chapter 9's changes in the lab tenant, re-collects, and verifie
 
 **Step 8 — Fix the help desk properly.** Replace the group's Application Administrator assignment with a role that can't add credentials to applications, or with an administrative unit scope that excludes `payments-deploy`. Agree the choice with whoever runs your help desk. Re-collect, and confirm the path postconditions are now verified.
 
-**Step 9 — Report.** Record each path's states across the lab's snapshots, run `open_intervals` and `open_duration_bounds`, and produce the one-pager from section 10.7 for your lab. Draft its prose with a model through Chapter 7's pipeline, and run the validator. Every number in the prose must come from the computed metrics.
+**Step 9 — Report.** Record each path's states across the lab's snapshots, run `open_intervals` and `open_duration_bounds`, and produce the one-pager from section 10.7 for your lab. Draft its prose with a model through the section 7.12 pipeline, and run the validator. Every number in the prose must come from the computed metrics.
 
 **What you should see.** The fix that removed the role you named passes its state check and fails its path check. A missing subscription turns every verdict about it into "not verified" rather than "passed." The policy turns an attacker's reversal into a denied write, and only someone who can remove policy assignments can produce a regression. The one-pager's numbers all trace to snapshots, with coverage stated.
 
@@ -652,6 +654,7 @@ This lab applies Chapter 9's changes in the lab tenant, re-collects, and verifie
 
 ## Author notes (remove before submission)
 
+- 2026-10-12 (BR-10, repetition edit): recap and signpost references to other chapters were cut or turned into section pointers, and the **Builds on** line now carries the dependencies. No technical content, code, labs, or evidence categories changed. `tools/check_cross_refs.py` checks every reference.
 - The opening story, dates, durations, recommendation IDs, and report layout are illustrative and fictional. Keep the scope header's statement that they aren't any product's rules.
 - Verified 2026-10-10 (revision pass 1): `RequestDisallowedByPolicy`; `resourcechanges` 14-day retention and `changedBy` / `clientType`; GitHub `protection_rules` and `required_reviewers` (one approval suffices); Application Administrator can add credentials to any application; Owner, Resource Policy Contributor, and User Access Administrator can delete policy assignments, Contributor can't.
 - Consider a figure showing the exposure-window bounds on a timeline of snapshots.

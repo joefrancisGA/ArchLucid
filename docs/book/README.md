@@ -42,6 +42,7 @@ Before any chapter leaves this repo (publisher, blog, reviewer), re-read it agai
 - Version-specific Azure features go in dated sidebars: `> **As of 2026-10:** ...`.
 - No invented statistics. Cite sources or say "in my experience".
 - Every testable platform claim and every `As of` sidebar cites `[Sn]` from the file's `## Sources` section (before the Summary in chapters, before the author notes in appendices). Each entry has a URL, `Checked YYYY-MM-DD`, a version where one matters, and `Kind: documented`, `inference`, or `lab-tested` (only after a live run). [`tools/check_sources.py`](tools/check_sources.py) enforces it in CI. Word counts include the Sources sections.
+- Cross-references name what the reader needs: `section 4.5`, `Appendix B, section B.3`, or `Chapter 4, Step 0`, not "as Chapter 4 said". Each chapter from 3 onward opens with a **Builds on** line listing the sections it depends on, so the body doesn't recap them. [`tools/check_cross_refs.py`](tools/check_cross_refs.py) fails CI on a reference to a chapter, section, lab step, or appendix that doesn't exist.
 - Label AI output in examples as AI output, the same way the book asks readers to.
 
 ## Chapter status

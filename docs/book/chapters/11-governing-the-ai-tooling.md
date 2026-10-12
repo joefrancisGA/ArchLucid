@@ -7,6 +7,8 @@
 
 > *Draft status: revised (revision pass 1, 2026-10-10). Target 6,000 words. Terraform resource and argument names, Azure OpenAI deployment types and data-handling terms, role names, and private DNS zone names were checked against current documentation in October 2026; dated "As of" notes mark the ones to re-check before submission.*
 
+**Builds on:** Chapters 3 to 10, especially Chapter 3 (the collector identity, section 3.2), Chapter 7 (the grounded pipeline, sections 7.2-7.5), Chapter 8 (injection and testing, sections 8.5 and 8.10), and Chapter 10 (postconditions, section 10.2).
+
 ---
 
 ## The map in the log
@@ -15,11 +17,11 @@ In this fictional scenario, six months after the payments review, Contoso's secu
 
 The search returned 412 identities.
 
-None of them went through the evidence store. They went through the logs. While building the explanation pipeline from Chapter 7, a developer had set the application to log every model request and response at information level, to debug a prompt. The logs went to the team's Application Insights resource, which sent them to a Log Analytics workspace shared by the whole platform engineering department. Everyone in the department's engineering group held Log Analytics Reader on the workspace, so they could look at their own services. The debug setting had never been turned off.
+None of them went through the evidence store. They went through the logs. While building the explanation pipeline, a developer had set the application to log every model request and response at information level, to debug a prompt. The logs went to the team's Application Insights resource, which sent them to a Log Analytics workspace shared by the whole platform engineering department. Everyone in the department's engineering group held Log Analytics Reader on the workspace, so they could look at their own services. The debug setting had never been turned off.
 
 Every week, the workspace received the evidence pack for each audience: the six payments paths with their hops, the gaps showing which subscriptions the collector couldn't read, the accepted risk on P4 with its compensating controls, and the ranked list of what was still open. Four hundred and twelve people could query a ranked list of the easiest ways into Contoso's customer data, along with a note on where the security team had no visibility.
 
-Nobody had done anything malicious. Nobody had done anything unusual. A debug setting, a shared workspace, and a broad reader group: three ordinary decisions, each defensible on its own. It was a toxic combination, in Chapter 1's sense, in the security team's own tooling.
+Nobody had done anything malicious. Nobody had done anything unusual. A debug setting, a shared workspace, and a broad reader group: three ordinary decisions, each defensible on its own. It was a toxic combination (section 1.3) in the security team's own tooling.
 
 The fix took an afternoon: remove prompt content from the application logs, move the tooling's telemetry to its own workspace, and replace the content with an audit record that holds hashes, versions, and decisions. What took longer was the realization behind it. The team had spent ten chapters building a system that knows more about Contoso's weaknesses than anything else in the company, and they had governed it like an internal dashboard.
 
@@ -31,20 +33,20 @@ This chapter is about governing it like what it is.
 
 Look at what the system built in this book holds and does:
 
-- **A complete privilege graph.** Every identity, every role, every path from an entry point to a target. Chapter 4's graph is exactly the reconnaissance an attacker would otherwise spend weeks building.
-- **A ranked list of open paths.** Chapter 9's ranking sorts them by how much damage they allow and how easy they are to start. To an attacker, that's a to-do list.
-- **The blind spots.** Chapter 3's gap list says which subscriptions and APIs the defenders can't see.
-- **The accepted risks.** Chapter 9's register lists paths the organization has decided to leave open, with the controls it relies on instead.
+- **A complete privilege graph.** Every identity, every role, every path from an entry point to a target. The section 4.5 graph is exactly the reconnaissance an attacker would otherwise spend weeks building.
+- **A ranked list of open paths.** The ranking (section 9.2) sorts them by how much damage they allow and how easy they are to start. To an attacker, that's a to-do list.
+- **The blind spots.** The gap list (section 3.7) says which subscriptions and APIs the defenders can't see.
+- **The accepted risks.** The exception register (section 9.5) lists paths the organization has decided to leave open, with the controls it relies on instead.
 - **Influence over decisions.** Its reports shape what gets fixed, and its tickets reach change processes.
 
 That gives four kinds of threat, and each maps to something earlier chapters already discussed:
 
-| Threat | Example | Earlier chapter |
+| Threat | Example | Earlier section |
 |--------|---------|-----------------|
-| **Disclosure** | Evidence packs readable in a shared log workspace | Chapter 3 (no secret values), this chapter's opening |
-| **Manipulation** | Text in a resource tag steers the model; an edited snapshot hides a path; a relaxed validator rule lets a misstatement through | Chapter 8 |
-| **Loss of visibility** | The collector loses access, and the reports show improvement | Chapter 10 |
-| **Abuse of its identities** | The collector's Reader at the tenant root used for reconnaissance; the model deployment used for unrelated work at the security team's expense | Chapter 3, this chapter |
+| **Disclosure** | Evidence packs readable in a shared log workspace | Section 3.6 (no secret values), this chapter's opening |
+| **Manipulation** | Text in a resource tag steers the model; an edited snapshot hides a path; a relaxed validator rule lets a misstatement through | Sections 8.5 and 8.7 |
+| **Loss of visibility** | The collector loses access, and the reports show improvement | Section 10.4 |
+| **Abuse of its identities** | The collector's Reader at the tenant root used for reconnaissance; the model deployment used for unrelated work at the security team's expense | Section 3.2, this chapter |
 
 The rest of the chapter takes each in turn. The approach is the same one the book uses for everything else: identify what the system must protect, find the paths to it, and cut them.
 
@@ -52,7 +54,7 @@ The rest of the chapter takes each in turn. The approach is the same one the boo
 
 ## 11.2 Apply the book to itself
 
-The most useful thing to do with the tooling is to put it in its own analysis. Add a small set of **tooling targets** to the target list from Chapter 1, and let the weekly search find paths to them like any other:
+The most useful thing to do with the tooling is to put it in its own analysis. Add a small set of **tooling targets** to the target list (section 1.7), and let the weekly search find paths to them like any other:
 
 | Target capability | Why it matters | Typical routes |
 |-------------------|----------------|----------------|
@@ -63,14 +65,14 @@ The most useful thing to do with the tooling is to put it in its own analysis. A
 | Act as the collector identity | Reconnaissance with tenant-wide Reader | Federated credentials, owners of its app registration |
 | Call the model deployment | Cost, and access to whatever the deployment can see | Cognitive Services roles, API keys if local auth is enabled [S1] |
 
-These are ordinary Azure and Entra capabilities, so Chapter 4's derivation already produces most of the edges. Data roles on a storage account produce `grants`. Owners of the collector's app registration produce `canAddCredential`. Contributor on the tooling's resource group produces the ability to change its configuration. The search doesn't need to know the target is special.
+These are ordinary Azure and Entra capabilities, so the section 4.5 derivation already produces most of the edges. Data roles on a storage account produce `grants`. Owners of the collector's app registration produce `canAddCredential`. Contributor on the tooling's resource group produces the ability to change its configuration. The search doesn't need to know the target is special.
 
 Two kinds of route need extra collection:
 
 - **Log workspaces.** Add the tooling's Log Analytics workspaces and Application Insights resources to the collector, with their role assignments, and treat "read logs from workspace W" as a capability. If the application writes evidence content to a workspace, add a `grants` edge from that capability to "read evidence packs." The opening story's 412 identities came from exactly that edge.
-- **The repository and pipeline.** Prompt templates, validator rules, and ranking rules live in source control. Who can merge to the main branch, and which pipeline identity deploys the result, are paths to "change what reports say." Collect them from your source control system the same way Chapter 9 collected GitHub environment protection rules.
+- **The repository and pipeline.** Prompt templates, validator rules, and ranking rules live in source control. Who can merge to the main branch, and which pipeline identity deploys the result, are paths to "change what reports say." Collect them from your source control system the same way section 9.5 collected GitHub environment protection rules.
 
-Then hold the results to the same standard as any other target. A path to "write snapshots" is at least as serious as a path to customer data, because it lets an attacker hide every other path. Rank it with Chapter 9's rules, give it to an owner, and verify the fix with Chapter 10's postconditions.
+Then hold the results to the same standard as any other target. A path to "write snapshots" is at least as serious as a path to customer data, because it lets an attacker hide every other path. Rank it, give it to an owner, and verify the fix with a postcondition (sections 9.2 and 10.2).
 
 ---
 
@@ -80,24 +82,24 @@ The tooling has several components, and each needs a different identity. Giving 
 
 | Component | Identity | Needs | Must not have |
 |-----------|----------|-------|---------------|
-| **Collector** | Managed identity or workload identity federation (Chapter 3) | Reader on Azure scopes; read-only Graph application permissions; append access to the snapshot container | Any write role on Azure; `listKeys`; Graph write permissions; delete on snapshots |
+| **Collector** | Managed identity or workload identity federation (section 3.2) | Reader on Azure scopes; read-only Graph application permissions; append access to the snapshot container | Any write role on Azure; `listKeys`; Graph write permissions; delete on snapshots |
 | **Derivation and ranking** | Managed identity | Read snapshots; write derived results to a separate container | Write to snapshots; any Azure or Graph access |
 | **Explanation pipeline** | Managed identity | Read derived results; call the model deployment | Read raw snapshots it doesn't need; any Azure write |
 | **Review interface** | Entra ID sign-in for people, with app roles | Show results to authorized reviewers; record approvals | Direct access to storage for users |
-| **ITSM integration** | Managed identity or a narrowly scoped service account | Create and update tickets (Chapter 9) | Any Azure write; ticket-triggered automation without approval |
+| **ITSM integration** | Managed identity or a narrowly scoped service account | Create and update tickets (section 9.9) | Any Azure write; ticket-triggered automation without approval |
 | **Administrators** | People, through Privileged Identity Management | Eligible roles for maintenance, activated with approval and time limits | Standing Owner or Contributor on the tooling |
 
 A few points deserve emphasis.
 
-**No keys anywhere.** Disable shared key access on the evidence storage account [S2], and disable local (API key) authentication on the Azure OpenAI resource [S1]. Every caller then authenticates with Entra ID, so every call is tied to an identity, every permission is an RBAC role assignment that the collector can read, and there's no key to leak. Chapter 4 showed what shared keys do to a path graph: anyone who can list them holds the data plane. The tooling shouldn't recreate that pattern for its own data.
+**No keys anywhere.** Disable shared key access on the evidence storage account [S2], and disable local (API key) authentication on the Azure OpenAI resource [S1]. Every caller then authenticates with Entra ID, so every call is tied to an identity, every permission is an RBAC role assignment that the collector can read, and there's no key to leak. Section 4.6 showed what shared keys do to a path graph: anyone who can list them holds the data plane. The tooling shouldn't recreate that pattern for its own data.
 
 **The model caller needs a data-plane role only.** On Azure OpenAI, the built-in **Cognitive Services OpenAI User** role allows calling deployments without managing the resource [S3]. The explanation pipeline needs that and nothing more. Contributor on the resource would let it change deployments and network settings. The setting that turns off API keys is the resource's `disableLocalAuth` property (`local_auth_enabled = false` in Terraform) [S1, S4].
 
 **Separate the collector from everything else.** The collector's identity is the most powerful one in the system: Reader across the estate plus directory read permissions. It should do nothing except collect. If the derivation code ran under the collector's identity, any bug or injected input in derivation would run with tenant-wide read access.
 
-**Append-only for snapshots.** The collector needs to add snapshots, never modify them. A container with a time-based immutability policy enforces that at the storage layer: once written, a blob can't be overwritten or deleted until the retention period ends. That holds even for an account owner only once the policy is **locked** [S5]. An unlocked policy can be shortened or removed by anyone with permission to manage it, which is exactly the "lifting the immutability policy" step in the table above. Test the policy unlocked, then lock it. Locking is irreversible: afterward the period can be extended but never shortened [S5]. That's what makes Chapter 3's hashes trustworthy. The manifest proves the files haven't changed, and the policy makes changing them impossible within the retention period.
+**Append-only for snapshots.** The collector needs to add snapshots, never modify them. A container with a time-based immutability policy enforces that at the storage layer: once written, a blob can't be overwritten or deleted until the retention period ends. That holds even for an account owner only once the policy is **locked** [S5]. An unlocked policy can be shortened or removed by anyone with permission to manage it, which is exactly the "lifting the immutability policy" step in the table above. Test the policy unlocked, then lock it. Locking is irreversible: afterward the period can be extended but never shortened [S5]. That's what makes the manifest's hashes (section 3.5) trustworthy. The manifest proves the files haven't changed, and the policy makes changing them impossible within the retention period.
 
-**People get eligibility, not standing access.** Administrators of the tooling should hold eligible roles through Privileged Identity Management, activated for a stated reason, with approval for the most powerful ones. Chapter 4's Rule 5 said eligible isn't active, and the search shouldn't treat it as active. It should still report eligible paths separately, because activation is one step away.
+**People get eligibility, not standing access.** Administrators of the tooling should hold eligible roles through Privileged Identity Management, activated for a stated reason, with approval for the most powerful ones. Eligible isn't active (section 4.2, Rule 5), and the search shouldn't treat it as active. It should still report eligible paths separately, because activation is one step away.
 
 ---
 
@@ -107,10 +109,10 @@ Chapter 5's opening story was a storage account with a private endpoint and publ
 
 - **Private endpoints** for the evidence storage account (the `blob` sub-resource) [S6], the Azure OpenAI resource (the `account` sub-resource) [S7], and any Key Vault the tooling uses [S7].
 - **Public network access disabled** on each of them [S8]. A private endpoint adds a private route. It doesn't remove the public one [S6].
-- **Private DNS zones** linked to the tooling's virtual network, so that names resolve to the private addresses: `privatelink.blob.core.windows.net` for blob storage and `privatelink.openai.azure.com` for Azure OpenAI [S9]. Chapter 5's section on DNS applies: if a component resolves the public name, it will try the public route and fail, or worse, succeed from somewhere it shouldn't.
+- **Private DNS zones** linked to the tooling's virtual network, so that names resolve to the private addresses: `privatelink.blob.core.windows.net` for blob storage and `privatelink.openai.azure.com` for Azure OpenAI [S9]. Section 5.5 applies: if a component resolves the public name, it will try the public route and fail, or worse, succeed from somewhere it shouldn't.
 - **Compute integrated with the virtual network**, so the collector, derivation, and explanation components reach those endpoints privately. Outbound traffic from them should go only where it needs to: Azure Resource Manager, Microsoft Graph, the private endpoints, and your ITSM system.
 
-Then check it with Chapter 5's own query. Run the "private endpoint exists but public access isn't disabled" query against the tooling's resource group, and require it to return nothing. Add that as a Chapter 10 postcondition, re-checked on every snapshot, so a debugging session that turns public access back on shows up as a regression within a day.
+Then check it with the query from section 5.3. Run the "private endpoint exists but public access isn't disabled" query against the tooling's resource group, and require it to return nothing. Add that as a postcondition (section 10.2), re-checked on every snapshot, so a debugging session that turns public access back on shows up as a regression within a day.
 Private endpoints have a cost: each endpoint is billed hourly, plus data processed [S10], and private DNS zones add a monthly charge per hosted zone [S11]. For a system that holds a ranked list of an organization's weaknesses, that's an easy trade. It's also the main reason to keep the tooling's footprint small: three or four endpoints, not one per microservice.
 
 ---
@@ -119,15 +121,15 @@ Private endpoints have a cost: each endpoint is billed hourly, plus data process
 
 ### Minimize the pack
 
-Chapter 7's evidence pack was designed to be small, and Chapter 8 made it smaller: placeholders instead of names where names aren't needed, structured fields instead of free text, no tags or descriptions copied verbatim. Those choices were made for accuracy and injection resistance. They also limit disclosure. Every field left out of the pack is a field that can't leak through the model service, its logs, or a cache.
+The evidence pack was designed to be small (section 7.3), and section 8.5 made it smaller: placeholders instead of names where names aren't needed, structured fields instead of free text, no tags or descriptions copied verbatim. Those choices were made for accuracy and injection resistance. They also limit disclosure. Every field left out of the pack is a field that can't leak through the model service, its logs, or a cache.
 
 Ask, for each field, whether the explanation needs it:
 
 - **Resource and identity names.** Often needed for an engineer's ticket, rarely for a board summary. Use placeholders such as "APP-1" and "User A" for audiences that don't act on the specific resource, and substitute the names back in after validation, outside the model.
 - **Object IDs and subscription IDs.** Almost never needed for prose. Keep them in the record, not the pack.
 - **Personal data.** User names and email addresses appear in privilege graphs because people hold roles. Use a role-based description ("the payments team's developer lead") or a placeholder unless the audience needs the person.
-- **App setting names.** Chapter 3 left keeping setting names as a governance choice, but App Service returns names and values together from an operation that Reader can't call. If you approve a separately privileged collection step, discard values before anything is persisted. Keep only the names your engineers need in snapshots, and leave them out of packs for audiences that don't.
-- **Secret values.** Never. Chapter 3 kept them out of snapshots, so they can't reach a pack. Keep it that way when someone proposes "just adding the connection string so the model can explain it."
+- **App setting names.** Section 3.6 left keeping setting names as a governance choice, but App Service returns names and values together from an operation that Reader can't call. If you approve a separately privileged collection step, discard values before anything is persisted. Keep only the names your engineers need in snapshots, and leave them out of packs for audiences that don't.
+- **Secret values.** Never. Section 3.6 kept them out of snapshots, so they can't reach a pack. Keep it that way when someone proposes "just adding the connection string so the model can explain it."
 
 ### Residency and processing location
 
@@ -139,13 +141,13 @@ The same question applies to the evidence store, logs, and backups. A snapshot i
 
 ### Data handling terms
 
-Chapter 7 listed the questions to settle: what the service retains, whether prompts are used for training, and what abuse monitoring applies. For security evidence, abuse monitoring deserves particular attention. Some monitoring involves storing prompts for a period and, in limited cases, human review [S14]. If that's unacceptable for your evidence, apply for modified abuse monitoring, which is a Limited Access program with eligibility criteria [S15], and record which terms apply.
+Section 7.10 listed the questions to settle: what the service retains, whether prompts are used for training, and what abuse monitoring applies. For security evidence, abuse monitoring deserves particular attention. Some monitoring involves storing prompts for a period and, in limited cases, human review [S14]. If that's unacceptable for your evidence, apply for modified abuse monitoring, which is a Limited Access program with eligibility criteria [S15], and record which terms apply.
 
 > **As of 2026-10:** Abuse monitoring retention and the modified abuse monitoring eligibility criteria are contractual terms that Microsoft revises. Re-read them when you renew [S14, S15].
 
 ### Retention, immutability, and erasure
 
-Immutability and data protection pull in opposite directions. Chapter 3 wanted snapshots that can't be changed. Privacy law may require deleting personal data when it's no longer needed. Resolve the conflict by design rather than by exception:
+Immutability and data protection pull in opposite directions. Snapshots must not change (section 3.5). Privacy law may require deleting personal data when it's no longer needed. Resolve the conflict by design rather than by exception:
 
 - **Set the immutability period to the evidence need**, such as the audit period you must be able to reproduce, not "forever."
 - **Keep personal data out of snapshots where you can.** Object IDs plus a separately stored, separately governed directory lookup let you show names when needed and delete the lookup when the person leaves, without touching immutable files.
@@ -274,7 +276,7 @@ Allowing a field name isn't enough on its own. Without a check on the value, a c
 
 ### When you need content
 
-Sometimes you do need the content: to debug a prompt, to investigate a misstatement that reached a reader, or to build the Chapter 8 test set. Make that an exception with its own controls:
+Sometimes you do need the content: to debug a prompt, to investigate a misstatement that reached a reader, or to build the test set (section 8.10). Make that an exception with its own controls:
 
 - **A separate, restricted store**, not the shared log workspace. Access through an eligible role, activated for a stated reason.
 - **Short retention**, measured in days, enforced by a lifecycle policy.
@@ -305,7 +307,7 @@ If one deployment of the tooling serves several business units, subsidiaries, or
 
 Layered defenses matter here because each layer fails differently. Application filters fail through bugs, storage permissions through misconfiguration, and caches through key design. Any one layer may fail. All three failing together is much less likely.
 
-Chapter 8's injection threat crosses tenant lines too. If any field in one tenant's evidence could reach another tenant's pack, an instruction planted by someone in the first could steer reports for the second. One tenant per call prevents it.
+Prompt injection (section 8.5) crosses tenant lines too. If any field in one tenant's evidence could reach another tenant's pack, an instruction planted by someone in the first could steer reports for the second. One tenant per call prevents it.
 
 ---
 
@@ -384,9 +386,9 @@ class TokenBudget:
             raise RuntimeError("usage exceeded the reservation; the output cap was not enforced")
 ```
 
-The reservation is the worst case, not a guess. Count the input with the model's tokenizer, and pass `max_output_tokens` to the service as the request's output-token limit, so the service enforces it. Call only if `reserve` returns a reservation, then `settle` it with the usage the response reports, which releases the unused part. An estimate can be low; a reservation the service enforces can't be exceeded. If `settle` ever raises, the output cap wasn't sent, and that's a bug to fix, not a rounding error. Chapter 7's retry limit, at most two corrections, is part of the budget too. A draft that fails validation three times is a signal about the pack or the prompt, not a reason to spend more.
+The reservation is the worst case, not a guess. Count the input with the model's tokenizer, and pass `max_output_tokens` to the service as the request's output-token limit, so the service enforces it. Call only if `reserve` returns a reservation, then `settle` it with the usage the response reports, which releases the unused part. An estimate can be low; a reservation the service enforces can't be exceeded. If `settle` ever raises, the output cap wasn't sent, and that's a bug to fix, not a rounding error. The retry limit from section 7.12, at most two corrections, is part of the budget too. A draft that fails validation three times is a signal about the pack or the prompt, not a reason to spend more.
 
-**Use the smallest model that passes the test set.** Not every job needs the largest model. Classifying a change note's type or extracting fields from a ticket can use a smaller, cheaper model. Writing a board summary may need a larger one. Decide with Chapter 8's test set: run each candidate model against it, and pick the cheapest one that passes. That turns a cost decision into an evidence-based one, and it gives you a ready answer when a model version is retired.
+**Use the smallest model that passes the test set.** Not every job needs the largest model. Classifying a change note's type or extracting fields from a ticket can use a smaller, cheaper model. Writing a board summary may need a larger one. Decide with the test set (section 8.10): run each candidate model against it, and pick the cheapest one that passes. That turns a cost decision into an evidence-based one, and it gives you a ready answer when a model version is retired.
 
 Set an Azure Cost Management budget on the tooling's resource group with alerts at thresholds you choose, and treat an unexplained jump as an incident. It usually means a loop, and occasionally it means someone else is using your deployment.
 
@@ -495,9 +497,9 @@ Two provider details matter. In version 5 of the `azurerm` provider, which the m
 
 Three practices make the module more than a template.
 
-**Back it with policy.** Terraform defines the intended state. Azure Policy assignments with deny effects keep it. Deny storage accounts with shared key access or public network access enabled [S20], and deny Cognitive Services accounts with local authentication or public network access enabled [S21], at the tooling's resource group or above. This is Chapter 9's durable cut applied to the tooling: a debugging session can't turn public access back on, even with Contributor.
+**Back it with policy.** Terraform defines the intended state. Azure Policy assignments with deny effects keep it. Deny storage accounts with shared key access or public network access enabled [S20], and deny Cognitive Services accounts with local authentication or public network access enabled [S21], at the tooling's resource group or above. This is a durable cut (section 9.4) applied to the tooling: a debugging session can't turn public access back on, even with Contributor.
 
-**Verify it like any other fix.** Write Chapter 10 postconditions for the module's security settings: shared key disabled, local auth disabled, public access disabled, the immutability policy present and locked, the role assignments exactly as defined. Re-check them on every snapshot. The tooling's own configuration is part of what it verifies.
+**Verify it like any other fix.** Write postconditions (section 10.2) for the module's security settings: shared key disabled, local auth disabled, public access disabled, the immutability policy present and locked, the role assignments exactly as defined. Re-check them on every snapshot. The tooling's own configuration is part of what it verifies.
 
 **Review changes to the module as security changes.** A pull request that adds a diagnostic setting, a role assignment, or a network rule to the tooling changes who can see the map. Require review from the security team, not just the platform team.
 
@@ -507,10 +509,10 @@ Three practices make the module more than a template.
 
 The prompts, validator rules, ranking rules, postconditions, and model version together decide what the tooling tells people. Changing any of them changes what reports say, so each change gets the same discipline as a change to a production system:
 
-- **Version everything, and record the versions.** The audit record from section 11.6 carries the prompt template, validator, pack builder, and model versions. Chapter 9's ranking output carries the ruleset version. A report you can't tie to versions can't be reproduced or defended.
+- **Version everything, and record the versions.** The audit record from section 11.6 carries the prompt template, validator, pack builder, and model versions. The ranking output (section 9.2) carries the ruleset version. A report you can't tie to versions can't be reproduced or defended.
 - **Change through pull requests.** Prompt templates and validator rules live in source control, not in a configuration screen. The repository's branch protection is a security control, and section 11.2 puts it in the path analysis.
-- **Gate on the test set.** Chapter 8's test set runs on every change to a prompt, the validator, or the model version, and a regression blocks the merge.
-- **Two people for relaxations.** A change that loosens a validator rule, removes a ranking factor, or drops a postcondition makes the tooling more permissive. Require a second reviewer from outside the author's team. Relaxing Chapter 8's instruction-pattern check to cut false positives, for example, would quietly reopen the attack from that chapter's opening story.
+- **Gate on the test set.** The test set (section 8.10) runs on every change to a prompt, the validator, or the model version, and a regression blocks the merge.
+- **Two people for relaxations.** A change that loosens a validator rule, removes a ranking factor, or drops a postcondition makes the tooling more permissive. Require a second reviewer from outside the author's team. Relaxing the instruction-pattern check (section 8.5) to cut false positives, for example, would quietly reopen the attack from Chapter 8's opening story.
 - **Model upgrades are changes.** A new model version can change wording, citation habits, and failure modes. Deploy it beside the current one, run the test set and a sample of real packs through both, compare, and switch only after review. Record the decision.
 
 ---
@@ -522,7 +524,7 @@ The governance work itself is a reasonable place for models, under the same rule
 - **Drafting the Terraform and policy definitions** for the tooling, checked by `terraform validate`, `plan`, and review.
 - **Reviewing pull requests to prompts and validator rules** for changes that make the pipeline more permissive, as a prompt to the human reviewer, not a replacement for one.
 - **Summarizing audit records**: "which prompt versions had the highest validator failure rate this month?" over the structured audit store is ordinary grounded summarization.
-- **Generating leakage and injection test cases** for section 11.7 and Chapter 8.
+- **Generating leakage and injection test cases** for sections 11.7 and 8.10.
 
 And the jobs models shouldn't do:
 
@@ -540,9 +542,9 @@ This lab deploys the tooling's core resources with the controls from this chapte
 
 **Step 2 — Prove key authentication is disabled.** If your lab operator can list the storage account's keys, try to use one for a data-plane request, and try to call the Azure OpenAI deployment with an API key. Both key-authenticated calls should fail. Then call the deployment with the explanation pipeline's managed identity from inside the virtual network, and confirm it succeeds. Call it from outside, and confirm it fails.
 
-**Step 3 — Run Chapter 5's check.** Run the "private endpoint exists but public access isn't disabled" query against the tooling's resource group, and confirm it returns no rows. Temporarily enable public network access on the storage account in the portal, and confirm that the policy denies it.
+**Step 3 — Run the section 5.3 check.** Run the "private endpoint exists but public access isn't disabled" query against the tooling's resource group, and confirm it returns no rows. Temporarily enable public network access on the storage account in the portal, and confirm that the policy denies it.
 
-**Step 4 — Add the tooling targets.** Add the targets from section 11.2 to your Chapter 4 target list, extend the collector to read the tooling's log workspace and its role assignments, and run the search. List every identity with a path to "read evidence packs" or "write snapshots." Compare the list with who you expected.
+**Step 4 — Add the tooling targets.** Add the targets from section 11.2 to the target list from the section 4.10 lab, extend the collector to read the tooling's log workspace and its role assignments, and run the search. List every identity with a path to "read evidence packs" or "write snapshots." Compare the list with who you expected.
 
 **Step 5 — Reproduce the opening story.** Configure the explanation pipeline to log request bodies to a workspace that a broad group can read, and add the corresponding `grants` edge. Re-run the search, count the identities that can now read evidence packs, and record the number. Then remove the content logging, replace it with `audit_record`, and confirm the count drops back.
 
@@ -621,6 +623,7 @@ That division is the argument of the book. Models make security work faster to c
 
 ## Author notes (remove before submission)
 
+- 2026-10-12 (BR-10, repetition edit): recap and signpost references to other chapters were cut or turned into section pointers, and the **Builds on** line now carries the dependencies. No technical content, code, labs, or evidence categories changed. `tools/check_cross_refs.py` checks every reference.
 - The opening story, identity counts, versions, and budgets are illustrative and fictional. Keep the scope header's statement that they aren't any product's design.
 - Verified 2026-10-10 (revision pass 1): Cognitive Services OpenAI User role; `disableLocalAuth`; private endpoint sub-resources and private DNS zones; deployment types and processing locations; abuse monitoring and modified abuse monitoring; `RequestResponse` payload logging; API Management LLM logging off by default; locked vs unlocked immutability (text corrected).
 - Verified 2026-10-10 (revision pass 1): section 11.9 Terraform arguments, including storage `public_network_access` (corrected from `public_network_access_enabled`), the immutability policy resource, the cognitive deployment `sku` block, the private endpoint `account` sub-resource, and `storage_use_azuread`.

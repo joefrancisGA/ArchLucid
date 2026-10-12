@@ -347,6 +347,7 @@ jobs:
         # until the author runs --publish before the appendix leaves the repository.
         # check_listings fails when any marked listing in the manuscript differs from its source file.
         # check_sources fails when an inline [Sn] citation and the file's Sources section disagree.
+        # check_cross_refs fails on a reference to a chapter, section, lab step, or appendix that doesn't exist.
         # The PowerShell, KQL, and JSON checks parse or structure-check those sources offline; the
         # Terraform check needs the terraform CLI and providers, so it runs locally (docs/book/README.md).
         # Both test suites are standard-library only and offline.
@@ -357,6 +358,7 @@ jobs:
           python docs/book/tools/check_kql_listings.py
           python docs/book/tools/check_json_listings.py
           python docs/book/tools/check_sources.py
+          python docs/book/tools/check_cross_refs.py
           python -m unittest discover -s docs/book/tools -p "test_*.py"
           python -m unittest discover -s docs/book/lab/listings/python/tests
 

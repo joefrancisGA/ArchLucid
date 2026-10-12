@@ -7,11 +7,13 @@
 
 > *Draft status: revised (revision pass 1, 2026-10-10). Target 8,000 words. Facts about Azure AI services and model features were checked against Microsoft documentation in October 2026; dated "As of" notes mark the ones to re-check before submission.*
 
+**Builds on:** Chapter 2 (evidence categories, section 2.2; confidence, section 2.5), Chapter 3 (snapshots without secrets, sections 3.5 and 3.6), Chapter 4 (the six payments paths, section 4.10).
+
 ---
 
 ## Two summaries of the same six paths
 
-In this fictional scenario, Contoso's CISO asked for one paragraph about the payments paths from Chapter 4, for the board's risk committee. It was due by the end of the day.
+In this fictional scenario, Contoso's CISO asked for one paragraph about the payments paths, for the board's risk committee. It was due by the end of the day.
 
 An analyst pasted the role assignments, the federated credential, and a description of the Function App into a general-purpose chat assistant and asked for a board-level summary. Thirty seconds later they had this:
 
@@ -21,7 +23,7 @@ It read well. Almost every sentence in it was wrong in a way that mattered:
 
 - "Our investigation found that attackers *could*" drifted, by the second sentence, to "customer data *has been exposed*". Nothing showed exposure. Chapter 2's hop 8 said there were no read logs to show anything either way.
 - "85% likelihood" came from nowhere. Nothing calibrated produced it.
-- "Revoking all Contributor access across the payments estate" would have broken every deployment pipeline the payments team owned, and it isn't what the graph pointed to. Chapter 4's lab showed that all six paths converge on one deployment identity, so a few targeted changes close most of them.
+- "Revoking all Contributor access across the payments estate" would have broken every deployment pipeline the payments team owned, and it isn't what the graph pointed to. All six paths converge on one deployment identity (section 4.10), so a few targeted changes close most of them.
 - "Privileged help-desk accounts" turned one user with one directory role into a category.
 
 The analyst's second attempt used the approach in this chapter. They gave the model a small, structured evidence pack generated from the snapshot, with the six paths as cited hop tables. They required a citation on every sentence and ran the result through a short validator. It took a few minutes longer to set up the first time. The output:
@@ -36,7 +38,7 @@ The model was the same both times. What changed was what it was given, what it w
 
 ## 7.1 Jobs language models do well, and jobs they shouldn't do
 
-Chapter 1 stated the book's principle: compute paths from evidence with deterministic methods, and use AI to explain, triage, and draft on top of cited evidence, never instead of it. This chapter makes that concrete.
+The book's principle is simple: compute paths from evidence with deterministic methods, and use AI to explain, triage, and draft on top of cited evidence, never instead of it. This chapter makes that concrete.
 
 Language models are good at a specific set of jobs in security work:
 
@@ -52,11 +54,11 @@ And there are jobs they shouldn't do, which earlier chapters have already argued
 
 | Job | Do it with | Why not a model |
 |-----|-----------|-----------------|
-| Establish facts about the environment | APIs and snapshots (Chapter 3) | A model's answer is an AI inference; the API's is an observed fact |
-| Decide what a role permits | Collected role definitions (Chapter 4) | Models don't know your custom roles, and their built-in role knowledge is frozen and sometimes wrong |
-| Search the graph | Deterministic search (Chapter 4) | Exhaustive, repeatable search is what code does well and models don't |
-| Rank paths | Explicit, versioned ranking rules (Chapter 9) | Ranking must be explainable and stable between runs |
-| Decide a fix is complete | Snapshot comparison (Chapter 10) | "Fixed" is a claim to verify, not to generate |
+| Establish facts about the environment | APIs and snapshots (section 3.5) | A model's answer is an AI inference; the API's is an observed fact |
+| Decide what a role permits | Collected role definitions (section 4.2) | Models don't know your custom roles, and their built-in role knowledge is frozen and sometimes wrong |
+| Search the graph | Deterministic search (section 4.5) | Exhaustive, repeatable search is what code does well and models don't |
+| Rank paths | Explicit, versioned ranking rules (section 9.2) | Ranking must be explainable and stable between runs |
+| Decide a fix is complete | Snapshot comparison (section 10.3) | "Fixed" is a claim to verify, not to generate |
 
 Everything in this chapter sits in the first table and leans on the second. The model's input comes from deterministic work, and its output goes to a validator and a human.
 
@@ -73,7 +75,7 @@ snapshot ──▶ deterministic derivation ──▶ evidence pack ──▶ mo
 
 Each stage has one job:
 
-1. **Derivation** decides what's true, using the methods from Chapters 3 and 4. Nothing downstream may add facts.
+1. **Derivation** decides what's true, in code, from the snapshot (sections 3.5 and 4.5). Nothing downstream may add facts.
 2. **The evidence pack** contains exactly what the model may use, in a compact structure with short IDs for citation.
 3. **The model** writes: explanations, summaries, drafts. Every claim it makes cites the pack.
 4. **The validator** checks the draft mechanically against the pack and rejects drafts that break the rules.
@@ -241,7 +243,7 @@ The pack goes to a model, so treat it as data leaving your evidence store. Befor
 
 - Use a model deployment your organization has approved for this data, under its data-handling terms (section 7.10).
 - Replace identifiers you don't need with stable placeholders. "User A owns the app" is usually as useful as a real name and leaks less. Keep a mapping on your side if humans need the real names back.
-- Never include secret values. Chapter 3 ensured the snapshot doesn't contain any, and the pack is built from the snapshot.
+- Never include secret values. The snapshot doesn't contain any (section 3.6), and the pack is built from it.
 
 ---
 
@@ -270,7 +272,7 @@ Rules:
    "insufficient_evidence", return no sentences, and stop.
 ```
 
-Rule 6 matters more than it looks. Without an explicit way out, a model asked an unanswerable question will produce an answer anyway. With one, you can test whether it uses the exit when it should (Chapter 8).
+Rule 6 matters more than it looks. Without an explicit way out, a model asked an unanswerable question will produce an answer anyway. With one, you can test whether it uses the exit when it should (section 8.10).
 
 The exit is a field in the output rather than a sentence for the model to write. Matching a fixed sentence is fragile: a model that paraphrases it ("The pack doesn't include that") has used the exit, but a string match says it hasn't. A field is either set or not. Your code can then produce a consistent message for the reader, and a test can assert whether the exit was taken.
 
@@ -301,7 +303,7 @@ Many model services, including Azure OpenAI, can constrain output to a JSON sche
 
 ### Settings
 
-Use a low temperature for explanation and summary work. Variety is a feature in brainstorming and a defect in a security report. Low temperature doesn't make output deterministic. Chapter 2's lab showed the same prompt producing different answers. It does reduce the spread.
+Use a low temperature for explanation and summary work. Variety is a feature in brainstorming and a defect in a security report. Low temperature doesn't make output deterministic. The same prompt can produce different answers (section 2.9). It does reduce the spread.
 
 ---
 
@@ -411,7 +413,7 @@ The last check is about paths that rest on an unmodeled control. A draft may cit
 
 ### What validation doesn't catch
 
-A sentence can cite the right hop and still misstate it. "The deployment identity owns the storage account [H5]" cites a real hop, passes every check above, and is wrong: H5 is a role assignment, not ownership. Catching that requires judging whether the sentence is **supported** by what it cites, which is a harder problem. Chapter 8 covers it: using a second model as a checker, sampling for human review, and building test sets.
+A sentence can cite the right hop and still misstate it. "The deployment identity owns the storage account [H5]" cites a real hop, passes every check above, and is wrong: H5 is a role assignment, not ownership. Catching that requires judging whether the sentence is **supported** by what it cites, which is a harder problem. Sections 8.7, 8.9, and 8.10 cover it: a second model as a checker, sampling for human review, and test sets.
 
 For now, the division of labor is:
 
@@ -459,7 +461,7 @@ Give the model the cut-point record and the relevant hops, and ask for:
 - how to **verify** it worked,
 - how to **roll it back**.
 
-For example, asking for a Terraform change to disable shared key access on `custdata` (one of the alternative cut points from Chapter 4) might produce:
+For example, asking for a Terraform change to disable shared key access on `custdata` (one of the alternative cut points) might produce:
 
 <!-- listing: lab/listings/terraform/ch07-custdata-shared-key.tf -->
 
@@ -476,7 +478,7 @@ with preconditions like "confirm in storage logs or with the owning teams that n
 
 A few rules keep this safe:
 
-- **The model never holds write permissions.** It produces text. A human reviews it, and the change goes through your normal pipeline: pull request, plan, approval, apply. Chapter 9 argues this at length.
+- **The model never holds write permissions.** It produces text. A human reviews it, and the change goes through your normal pipeline: pull request, plan, approval, apply (section 9.6).
 - **Check the draft against the provider's documentation.** Models produce plausible attribute names that don't exist or were renamed. `terraform validate` and `plan` catch many of these; review catches the rest.
 - **Preconditions are the valuable part.** The change is often one line. Knowing what it might break is what saves the outage, and models are good at listing the categories of things to check, even though they can't check them.
 
@@ -490,7 +492,7 @@ Two more summarizing jobs come up constantly, and both fit the pattern.
 
 ### Gap summaries
 
-A manifest with a dozen gaps (Chapter 3) is accurate but hard to act on. A model given the gap list, and only the gap list, can turn it into a short, prioritized note:
+A manifest with a dozen gaps (section 3.7) is accurate but hard to act on. A model given the gap list, and only the gap list, can turn it into a short, prioritized note:
 
 > Two production subscriptions were not readable by the collector, so any paths through them are unknown [G3, G4]. The payments production subscription is one of them [G3]. Granting the collector Reader there is the most valuable fix to the collection itself.
 
@@ -543,9 +545,9 @@ There are two broad options for teams working in Azure, and many organizations u
 **Azure OpenAI, through Microsoft Foundry (formerly Azure AI Foundry) [S6].** You deploy specific models in your own subscription and call them from your own code [S7]. This is the natural fit for the grounding pattern in this chapter, because you control the evidence pack, the prompt, structured output, tool definitions, and the validator. Questions to settle with your security and privacy teams:
 
 - **Data handling.** What the service retains, whether prompts are used for training (generally no, for Azure OpenAI), and what abuse monitoring applies and whether you need an exemption for sensitive data [S8, S9, S10].
-- **Network.** Whether you can reach the deployment over a private endpoint and disable public access (Chapter 11) [S11].
+- **Network.** Whether you can reach the deployment over a private endpoint and disable public access (section 11.4) [S11].
 - **Region and residency.** Where the model runs and whether that satisfies your data residency requirements [S8].
-- **Model lifecycle.** Pin model versions explicitly. Models are retired on a schedule, and a version change can change output behavior [S12]. Re-run your test set (Chapter 8) when you change versions.
+- **Model lifecycle.** Pin model versions explicitly. Models are retired on a schedule, and a version change can change output behavior [S12]. Re-run your test set (section 8.10) when you change versions.
 - **Cost.** Packs are small, so explanation work is usually cheap. Cache explanations per snapshot and audience rather than regenerating them on every page view.
 
 **Microsoft Security Copilot.** A Microsoft security product built on large language models and integrated with Microsoft's security tools, such as Defender, Sentinel, Entra, and Intune [S13]. It suits analysts working inside those products. It's less suited to the custom pipeline in this chapter, because you have less control over the evidence passed to the model and how its output is checked. It can still be valuable alongside your own pipeline, for example in incident investigation inside Sentinel.
@@ -554,7 +556,7 @@ Microsoft renamed Copilot for Security to Security Copilot in 2024, so older mat
 
 > **As of 2026-10:** Model availability by region, and which models support structured outputs and tool calling, change often [S15]. Check the current Azure OpenAI documentation for the region you deploy in [S15].
 
-Whichever you choose, the deployment that receives evidence packs is now a sensitive system. It sees summaries of your most serious exposures. Chapter 11 covers governing it.
+Whichever you choose, the deployment that receives evidence packs is now a sensitive system. It sees summaries of your most serious exposures.
 
 ---
 
@@ -565,19 +567,19 @@ It's easy to adopt a model because the output looks impressive. Measure instead:
 - **Validator pass rate.** What share of drafts pass on the first attempt? A falling rate after a model version change is an early warning.
 - **Human edit rate.** How much do reviewers change before sending? Track it per audience. If executive summaries are rewritten every time, the prompt or the pack is wrong.
 - **Time to a sendable artifact.** Compare against the manual baseline. This is the number that justifies the work.
-- **Errors found after sending.** Any misstatement that reached a reader is a test case for Chapter 8.
+- **Errors found after sending.** Any misstatement that reached a reader is a test case (section 8.10).
 
-Keep a small set of evidence packs with known correct explanations, and re-run them whenever you change the prompt, the model, or the validator. That set is the beginning of the evaluation discipline Chapter 8 builds out.
+Keep a small set of evidence packs with known correct explanations, and re-run them whenever you change the prompt, the model, or the validator.
 
 ---
 
 ## 7.12 Lab: a grounded explanation pipeline
 
-This lab builds the full pattern for the payments paths. It extends Chapter 2's grading exercise into something you could run every week.
+This lab builds the full pattern for the payments paths.
 
-**Prerequisites.** The identity graph and paths from Chapter 4's lab, and access to a model deployment your organization has approved for this data. Use the companion lab tenant's synthetic data unless your policy explicitly allows sending real evidence to the deployment.
+**Prerequisites.** The identity graph and paths from section 4.10, and access to a model deployment your organization has approved for this data. Use the companion lab tenant's synthetic data unless your policy explicitly allows sending real evidence to the deployment.
 
-**Step 1 — Generate the pack.** Write a function that takes the paths from Chapter 4's search, plus the gap list and any cut points, and emits a pack in the shape of section 7.3. Claims must be generated from the snapshot data, not written by hand. Assign short IDs.
+**Step 1 — Generate the pack.** Write a function that takes the paths from the section 4.10 lab, plus the gap list and any cut points, and emits a pack in the shape of section 7.3. Claims must be generated from the snapshot data, not written by hand. Assign short IDs.
 
 **Step 2 — Request structured output.** Send the pack with the system message from section 7.4 and an audience instruction ("for a board risk committee, in at most four sentences"). Request the sentence-and-citation JSON shape, using schema-constrained output if your deployment supports it.
 
@@ -645,6 +647,7 @@ This lab builds the full pattern for the payments paths. It extends Chapter 2's 
 
 ## Author notes (remove before submission)
 
+- 2026-10-12 (BR-10, repetition edit): recap and signpost references to other chapters were cut or turned into section pointers, and the **Builds on** line now carries the dependencies. No technical content, code, labs, or evidence categories changed. `tools/check_cross_refs.py` checks every reference.
 - Verified 2026-10-10 (revision pass 1): structured output API version and model list; training use, abuse monitoring and the modified abuse monitoring application; private endpoint support; Security Copilot naming; `shared_access_key_enabled` and `default_to_oauth_authentication`.
 - The validator is intentionally simple. `lab/listings/python/tests/test_ch07_validator.py` checks it against this chapter's pack and every printed summary (2026-10-11). That run changed the listing in two ways. `expand_range` now accepts an en dash, because the printed summaries cite `[P1–P6]` and the old pattern rejected them. Names and numbers may now come from path targets and provenance (snapshot ID, `assertedBy`, `assertedAt`, `expiresAt`) as well as claims, because the auditor version quotes the snapshot ID and the DPO's dates. Untrusted text still never counts. The run also confirmed that the name regex flags hyphenated English words ("highest-leverage" in the engineer version, now reworded); section 7.5 now says so.
 - 2026-10-11 (review comment on unmodeled controls): paths may now list `gaps`, and the validator checks that a draft citing such a path cites its gaps. The check is scoped to listed gaps so the architect and engineer versions, which omit G1 and G2, still pass. Tests in `test_ch07_validator.py` cover a missing gap, a gap cited in another sentence, and an uncited path. Added Step 5 case 5.
