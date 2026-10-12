@@ -94,8 +94,8 @@ class TestCheckLiveApiPrivateBetaAccessCiWiring(unittest.TestCase):
         if "private-beta-access-on-push-${{ github.ref }}" not in push_text:
             errors.append("missing ref-level concurrency group")
 
-        if "cancel-in-progress: true" not in push_text:
-            errors.append("missing cancel-in-progress: true")
+        if "cancel-in-progress: false" not in push_text:
+            errors.append("missing cancel-in-progress: false")
 
         self.assertEqual(errors, [])
 
