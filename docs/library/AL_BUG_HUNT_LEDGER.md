@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-12 seed hunt (seed-only): `authority-pipeline-payload` — repeated the selected payload and null-element review. Materialization continues to reject null/empty documents, malformed JSON, invalid work kinds, invisible/combining-mark identifiers, and null string collections; no fresh reachable mechanism-backed wrong outcome met the hunt-ready bar. The scoped payload filter again stopped before discovery on unrelated Application compile errors (`unmappedRoles` and `warnings`). No candidate was promoted and no production or regression code changed.
+
 2026-10-12 seed hunt (seed-only): `run-execute-ownership` — repeated the selected acquire, renew, release, drain, renewal-scope, and orchestrator review. Existing cancellation-during-drain rollback and eligibility-race candidates remain unchanged; no fresh reachable mechanism-backed wrong outcome met the hunt-ready bar. The scoped ownership/orchestration filter again stopped before discovery on unrelated Application compile errors (`unmappedRoles` and `warnings`). No candidate was promoted and no production or regression code changed.
 
 2026-10-12 seed hunt (seed-only): `cli-tenant-isolation` — re-read the selected command/runner facade, JSON/Markdown artifact handling, offline/live report delegation, and focused tenant-isolation tests. Existing filename-only artifact-path candidates remain contract-dependent and were not promoted or duplicated; no fresh reachable mechanism-backed wrong outcome met the hunt-ready bar. The scoped CLI filter stopped before discovery on unrelated Application compile errors (`unmappedRoles` and `warnings`). No production or regression code changed.
@@ -6600,7 +6602,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** authority payload; pipeline work payload
 - **paths:** ArchLucid.Application/Runs/Orchestration/AuthorityPipelineWorkPayload.cs
 - **test-filter:** FullyQualifiedName~AuthorityPipelineWorkPayloadJsonTests|FullyQualifiedName~AuthorityPipelineWorkPayloadDocumentsNullElementTests
-- **hunts:** 46
+- **hunts:** 47
 - **bugs-found:** 23
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-12
