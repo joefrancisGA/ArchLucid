@@ -23,6 +23,34 @@ describe("resolveInfraEvidenceCompletenessWarningPresentation", () => {
     expect(presentation.code).toBe("rbac-scope-too-broad:/subscriptions/sub");
     expect(presentation.detail).toContain("/subscriptions/sub");
   });
+
+  it("explains a counted unmapped role warning", () => {
+    const presentation = resolveInfraEvidenceCompletenessWarningPresentation(
+      "rbac-role-unmapped:2:/providers/Microsoft.Authorization/roleDefinitions/role-1::Contoso Reader",
+    );
+
+    expect(presentation.title).toBe("Role not translated into a data-plane line");
+    expect(presentation.detail).toContain("Contoso Reader is assigned 2 times.");
+    expect(presentation.detail).toContain("Has role is recorded.");
+    expect(presentation.detail).toContain("No can-read or can-write line was drawn.");
+  });
+
+  it("preserves legacy unmapped role warnings", () => {
+    const presentation = resolveInfraEvidenceCompletenessWarningPresentation(
+      "rbac-role-unmapped:/providers/Microsoft.Authorization/roleDefinitions/role-1",
+    );
+
+    expect(presentation.detail).toContain("assigned at least once");
+    expect(presentation.detail).toContain("Role definition /providers/Microsoft.Authorization/roleDefinitions/role-1.");
+  });
+
+  it("falls back when an unmapped role count is malformed", () => {
+    const presentation = resolveInfraEvidenceCompletenessWarningPresentation(
+      "rbac-role-unmapped:not-a-count:/providers/Microsoft.Authorization/roleDefinitions/role-1",
+    );
+
+    expect(presentation.detail).toContain("assigned at least once");
+  });
 });
 
 describe("snapshotIncludesTier1AppSettingHosts", () => {
