@@ -175,7 +175,7 @@ Most PaaS services follow the same shape, with service-specific twists worth kno
 
 A **private endpoint** is a network interface in your virtual network with a private IP address, connected to one sub-resource of a PaaS service (for storage: `blob`, `file`, `queue`, `table`, `dfs`, or `web`) [S1]. Traffic from inside your network can reach the service on that private address [S1].
 
-It doesn't remove or disable the service's public endpoint by itself [S1]. The opening story's mistake is common enough to deserve its own query, and it's Step 1 of the section 7.6 lab:
+It doesn't remove or disable the service's public endpoint by itself [S1]. The opening story's mistake is common enough to deserve its own query. Step 2 of this chapter's lab runs it, and Chapter 7 Step 1 runs it again before computing reachability:
 
 <!-- listing: lab/listings/kql/appb-resources-with-a-private-endpoint-and.kql -->
 
@@ -359,6 +359,31 @@ So a "private connectivity test" proves something only if it records what the na
 
 ---
 
+## 6.6 Lab: which kind of reachability is this?
+
+Chapter 7 computes reachability and confirms it. This lab stops earlier. You name which kind of reachability a statement is, and you run the two classifiers this chapter already gave you.
+
+**Setup.** The companion lab with `deploy_network = true` (Appendix A). Steps 1 and 4 need only this chapter. Steps 2 and 3 need the lab tenant, or a snapshot that includes the network properties from section 6.3.
+
+**Step 1 — Sort the opening story.** Take each thing the team reported or missed that afternoon and name its reachability kind from section 6.2: intended, configured, observed, or confirmed. Where two kinds were treated as the same kind, say which two.
+
+**Step 2 — Find the unfinished private endpoint.** Run the query in section 6.3 against the lab tenant. Record every row, and for `custdata` record `publicNetworkAccess` exactly as the query prints it, including `(unset)` if that's the value.
+
+**Step 3 — Classify two accounts.** Run `storage_public_exposure` (section 6.3) on `custdata` and on one `sbx` account. Write each result in the safe wording from section 6.2. Keep the reasons with the classification.
+
+**Step 4 — One NSG, two sources.** `nsg-dev` allows TCP 3389 from `corporate_ip_range`, which defaults to `203.0.113.0/24`, at priority 100 (Appendix A). Call `evaluate_inbound` (section 6.4) twice, for port 3389 and protocol `Tcp`, with `tags` set to `{"VirtualNetwork": ["10.0.0.0/16", "10.1.0.0/16", "10.2.0.0/16"], "AzureLoadBalancer": []}`. Those prefixes are the lab's networks; the empty list means you are not treating any address as the load balancer. The two sources are `203.0.113.10` and `198.51.100.10`. The second is a documentation address, not a host in the lab. Say which rule decided each result. If you omit `VirtualNetwork` or `AzureLoadBalancer`, the function returns `Unknown` instead of denying, because an undecidable default rule sits above `DenyAllInBound`.
+
+**What you should see.**
+
+- The closed ticket stated an intention ("customer data storage is now private") as if it were the configuration. The laptop test confirmed a connection, and the connection was the public one, because the name resolved to the public address (section 6.5). The hub rule allowing `10.0.0.0/8` to `10.0.0.0/8` is configured reachability. Nobody had observed reachability at all, because the resource logs were off.
+- `custdata` is a row, and its public access is not `Disabled`. Other rows, if any, are part of the answer; write down whether you think each is deliberate. That note is an intended-reachability assertion, and it should say that you made it.
+- `custdata` classifies as internet: public network access is enabled, or unset, which the function treats as enabled, and the storage firewall's default action is Allow. The safe sentence is "may be reachable under the modeled configuration," not "is reachable." A sandbox account that allows anonymous blob access is a different finding; don't fold it into this classification.
+- `203.0.113.10` matches `allow-rdp-corporate` and is allowed. `198.51.100.10` matches neither that rule nor the `VirtualNetwork` service tag, so `DenyAllInBound` denies it (section 6.4). "The subnet has an NSG" is not one of these results.
+
+Chapter 7 Step 1 repeats Step 2, then asks where the endpoint is reachable from. If Step 2 and Step 3 disagree with the list above, fix the snapshot before you start that lab.
+
+---
+
 ## Sources
 
 - **[S1]** What is a private endpoint? Microsoft Learn. <https://learn.microsoft.com/azure/private-link/private-endpoint-overview> Checked 2026-10-12. Kind: documented.
@@ -415,10 +440,11 @@ So a "private connectivity test" proves something only if it records what the na
 
 ## Author notes (remove before submission)
 
-- 2026-10-12 (chapter split): this chapter keeps the opening story and sections 1 to 5 of the old Chapter 5 ("Network reachability"), renamed "Network exposure". Computing, observing, and confirming reachability, where AI fits, and the lab moved to Chapter 7, so this chapter has no lab of its own; the section 7.6 lab exercises it. The listings it shows come from `ch06_reachability.py`. Cross-references across the book were renumbered, and the notes below use the new numbers. No technical content changed.
+- 2026-10-12 (chapter split): this chapter keeps the opening story and sections 1 to 5 of the old Chapter 5 ("Network reachability"), renamed "Network exposure". Computing, observing, and confirming reachability, where AI fits, and the full lab moved to Chapter 7. The section 7.6 lab still does the computation. The listings this chapter shows come from `ch06_reachability.py`.
+- 2026-10-12 (labs): added section 6.6. Steps 1 and 4 are desk checks against this chapter and Appendix A. Steps 2 and 3 need a tenant and are on the live-validation runbook as N1 and N2. Fixed the offline-fixture note to `test_ch06_reachability.py`.
 - 2026-10-12 (BR-10, repetition edit): recap and signpost references to other chapters were cut or turned into section pointers, and the **Builds on** line now carries the dependencies. No technical content, code, labs, or evidence categories changed. `tools/check_cross_refs.py` checks every reference.
 - Verified 2026-10-10 (revision pass 1): storage `publicNetworkAccess` values and bypass precedence; SQL `AllowAllWindowsAzureIps`; `scmIpSecurityRestrictionsUseMain`; NSG priorities, default rules, `VirtualNetwork` scope and evaluation order; private endpoint network policies default; Azure Firewall processing order; flow log retirement dates; Network Watcher feature names.
-- `storage_public_exposure` and `evaluate_inbound` pass offline fixtures (`lab/listings/python/tests/test_ch05_reachability.py`). Testing showed the bullet on "private only" contradicted the code, which returns "restricted" whenever a bypass is set; the bullet now matches the code (2026-10-11). Still to do: run the Resource Graph query against a live tenant with mixed resource types.
+- `storage_public_exposure` and `evaluate_inbound` pass offline fixtures (`lab/listings/python/tests/test_ch06_reachability.py`). Testing showed the bullet on "private only" contradicted the code, which returns "restricted" whenever a bypass is set; the bullet now matches the code (2026-10-11). Still to do: run the Resource Graph query against a live tenant with mixed resource types.
 - 2026-10-12 (sources): added 31 sources. Changed: ARM control-plane wording; storage disabled/bypass phrasing; diagnostic RBAC sentence names actions. Softened: (none). Unverified: (none).
 - "Most, in my experience, are unfinished projects" is an author-experience claim; keep it attributed.
 - Consider a figure showing the payments hub-and-spoke with the four positions.

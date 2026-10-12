@@ -9,6 +9,18 @@
 
 **Builds on:** Chapter 2 (evidence categories, section 2.2), Chapter 3 (the snapshot, its read times, and its gaps, sections 3.5 and 3.7), Chapter 4 (the five rules and the become and grant hops, sections 4.2 to 4.5).
 
+---
+
+## The export that showed nothing
+
+In this fictional scenario, a week after the GitHub fix in Chapter 4, Contoso's payments lead asked a reasonable question: who can still become `payments-deploy`? An analyst exported every Azure role assignment in the subscription and filtered it to the payments resource groups.
+
+The export was short. `payments-deploy` held Contributor on `rg-payments-prod`. A handful of other identities held roles on sandbox groups. Nothing in the file mentioned the storage accounts by name, and nothing mentioned the developer or the help-desk user. The lead read that as "the fix held" and closed the follow-up.
+
+It hadn't. The file was role assignments. Application owners are not role assignments, and neither are directory roles. The developer was an owner of the app registration. The help-desk user held Cloud Application Administrator. Both can add a credential and sign in as `payments-deploy` (section 4.3), and neither row exists in the export the lead read. When the same snapshot was turned into the graph this chapter builds, the search drew six paths, and all six passed through that one identity.
+
+The export wasn't wrong. It was the wrong object. This chapter is about building the object the question actually needs.
+
 Chapter 4 defined the hop types. This chapter builds them into a graph from a Chapter 3 snapshot plus the files this chapter's lab adds: application owners, directory role assignments, transitive memberships, role definition actions, deny assignments, scope parents, and compute identity attachments. The Chapter 3 lab does not write those files.
 
 The graph is the book's main analytical tool. Chapter 7 adds network edges to it, Chapter 9 explains its paths, Chapter 11 ranks and cuts them, and Chapter 12 re-runs its search to verify a fix.
@@ -956,7 +968,7 @@ None of the six paths carries an unmodeled control, because the lab has no condi
 
 ## Author notes (remove before submission)
 
-- 2026-10-12 (chapter split): split from the old Chapter 4. The old section 4.5's subsections became sections 5.1 to 5.5; the access-decision contract (old section 4.6), "Keeping the graph useful" (old 4.8), and the lab (old 4.10) became sections 5.6 to 5.8. The listings moved with it, renamed `ch05_paths.py` and `ch05-step0-graph-owners-roles-memberships.ps1`. The chapter has no opening story; consider whether it needs one. Cross-references across the book were renumbered, and the notes below use the new numbers. No technical content, code, or lab steps changed.
+- 2026-10-12 (chapter split): split from the old Chapter 4. The old section 4.5's subsections became sections 5.1 to 5.5; the access-decision contract (old section 4.6), "Keeping the graph useful" (old 4.8), and the lab (old 4.10) became sections 5.6 to 5.8. The listings moved with it, renamed `ch05_paths.py` and `ch05-step0-graph-owners-roles-memberships.ps1`. Added the opening story ("The export that showed nothing") on 2026-10-12; it uses only the payments baseline from Chapter 4 and Appendix A. Cross-references across the book were renumbered, and the notes below use the new numbers.
 - 2026-10-12 (BR-10, repetition edit): recap and signpost references to other chapters were cut or turned into section pointers, and the **Builds on** line now carries the dependencies. No technical content, code, labs, or evidence categories changed. `tools/check_cross_refs.py` checks every reference.
 - 2026-10-12 (sources): added 34 sources. Changed: Step 0's deny listing was a Resource Graph query on a type the table reference doesn't list [S7]; it's now `appb-deny-assignments.ps1`, a REST call with the same columns [S8]. The deny fields question in the 2026-10-11 note is answered by the REST reference, not Resource Graph. Softened: none. Unverified: managed-identity attach permissions and Function App publish action (existing Verify note); Conditional Access blocking managed identities (contract row only).
 - Verify Step 0 cmdlets and payload shapes: `Get-MgApplicationOwner`, `Get-MgRoleManagementDirectoryRoleAssignment`, `Get-MgRoleManagementDirectoryRoleDefinition`, `Get-MgGroupTransitiveMember`; directory role template ids; `identity.userAssignedIdentities` principalId; deny assignment `principals` and `doNotApplyToChildScopes`; management group `properties.details.parent.id`.

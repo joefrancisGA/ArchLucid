@@ -1,9 +1,11 @@
-> **Scope:** Author runbook for the book draft *Managing Azure Security with AI*: one sitting that deploys the companion lab (Appendix A) into a live tenant and checks the claims in Appendices A, B, and C and Chapters 5, 9, and 10 that have only been validated offline. Not reader-facing text; not product documentation.
+> **Scope:** Author runbook for the book draft *Managing Azure Security with AI*: one sitting that deploys the companion lab (Appendix A) into a live tenant and checks the claims in Appendices A, B, and C and Chapters 4, 5, 6, 7, 9, and 10 that have only been validated offline. Not reader-facing text; not product documentation.
 > **Status:** draft
 
 # Live validation runbook
 
 **Lab:** [Appendix A](../appendices/a-companion-lab.md) · **Queries:** [Appendix B](../appendices/b-query-cookbook.md) · **Prompts:** [Appendix C](../appendices/c-prompt-patterns.md)
+
+> **Not run (2026-10-12).** This sitting needs a dedicated tenant and a pay-as-you-go subscription used for nothing else (P0.1). No phase below has been executed against Azure. The desk answer key was checked against the manuscript only.
 
 Every appendix carries an author note that says "not yet run against a live tenant." This runbook turns those notes into checks. Each check has an ID, a command, and an expected result taken from the book's text. Fill in the [results sheet](#results-sheet) as you go. A **mismatch is a finding, not a failure**: it means the book says something the lab doesn't do, and the text gets fixed.
 
@@ -91,6 +93,27 @@ Run it **twice**: once as yourself from your machine, which checks the queries, 
 | B8 | Break it (Chapter 3 Step 6) | Comment out `collector_reader` in `collector.tf`, apply, re-run in Automation. The manifest records `scopeNotReadable` for the subscription, and the hop search reports insufficient evidence for hops 3–5, not "not found". Restore and apply | |
 
 Keep the Automation snapshot. Phase 4 uses it.
+
+---
+
+## Desk answer key (no tenant)
+
+Checked against the manuscript on 2026-10-12. These do not show that Azure behaves as the book says.
+
+| ID | Check | Expected |
+|----|-------|----------|
+| D1 | Chapter 4, Steps 1–4 | The labels in section 4.8's "What you should see" |
+| D2 | Chapter 6, Steps 1 and 4 | The labels in section 6.6's "What you should see". Step 4 passes `VirtualNetwork` prefixes `10.0.0.0/16`, `10.1.0.0/16`, `10.2.0.0/16` and `AzureLoadBalancer` as an empty list |
+
+---
+
+## Phase 2c — Chapter 6 exposure (needs the network)
+
+| ID | Check | Expected | If not |
+|----|-------|----------|--------|
+| N1 | Section 6.3 query (Chapter 6 Step 2) | `custdata` is a row and `publicNetworkAccess` is not `Disabled` | Record the printed value, including `(unset)` |
+| N2 | `storage_public_exposure` on `custdata` (Chapter 6 Step 3) | Classification `internet`, with reasons naming public network access and `defaultAction` Allow | Record the classification and the reasons |
+| N3 | Chapter 7 Step 1 | Same row as N1. The rest of the section 7.6 lab is still the full reachability exercise | |
 
 ---
 
@@ -228,6 +251,11 @@ Az PowerShell:   Microsoft.Graph:   Model + version:  API version:
 | B6   |                                     |       |
 | B7   |                                     | gaps: |
 | B8   |                                     |       |
+| D1   | match (manuscript only)             |       |
+| D2   | match (manuscript only)             |       |
+| N1   |                                     |       |
+| N2   |                                     |       |
+| N3   |                                     |       |
 | Q1–Q24 | one row each                      |       |
 | M1–M9  | one row each                      | M4 compliance: _/5 |
 | T1   |                                     |       |
