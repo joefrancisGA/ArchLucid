@@ -10,7 +10,7 @@ function finding(partial: Partial<QuickDecisionFinding> & Pick<QuickDecisionFind
     title: partial.title,
     severityValue: partial.severityValue ?? 2,
     classification: partial.classification ?? "DecisionGradeFinding",
-    evidenceRefCount: partial.evidenceRefCount ?? 1,
+    evidenceRefCount: partial.evidenceRefCount === undefined ? 1 : partial.evidenceRefCount,
     humanReviewStatus: partial.humanReviewStatus ?? null,
     recommendation: partial.recommendation ?? "Fix it",
     insightDensityScore: partial.insightDensityScore ?? 90,
@@ -24,7 +24,7 @@ describe("first-review-spine-band", () => {
   it("counts uncited findings from evidenceRefCount", () => {
     const findings = [
       finding({ findingId: "a", title: "A", evidenceRefCount: 0 }),
-      finding({ findingId: "b", title: "B", evidenceRefCount: 2 }),
+      finding({ findingId: "b", title: "B", evidenceRefCount: null }),
     ];
 
     expect(countUncitedFindings(findings)).toBe(1);

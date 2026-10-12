@@ -460,7 +460,7 @@ export function formatManifestDocumentShape(m: Record<string, unknown>): string 
                 : c.status === null || c.status === undefined
                   ? " — Control status was not stored."
                   : ""
-            }${impact ? ` (${impact})` : ""}`,
+            }${impact ? ` (${impact})` : c.impact === null || c.impact === undefined ? " (Impact was not stored.)" : ""}`,
           );
         } else if (c.controlName === null || c.controlName === undefined) {
           lines.push("- Control name was not stored.");
@@ -486,10 +486,7 @@ export function formatManifestDocumentShape(m: Record<string, unknown>): string 
   }
 
   const feasibilityVerdict = isRecord(m.feasibilityVerdict) ? m.feasibilityVerdict : null;
-  const feasibilityVerdictMarkdown =
-    feasibilityVerdict !== null
-      ? formatFeasibilityVerdictMarkdownSection(feasibilityVerdict as never)
-      : "";
+  const feasibilityVerdictMarkdown = formatFeasibilityVerdictMarkdownSection(feasibilityVerdict);
 
   if (feasibilityVerdictMarkdown.trim().length > 0) {
     lines.push(feasibilityVerdictMarkdown.trim());
@@ -505,7 +502,10 @@ export function formatManifestDocumentShape(m: Record<string, unknown>): string 
         })
       : null;
 
-  if (
+  if (feasibilityVerdict !== null && (feasibilityVerdict.transparencyTrail === null || feasibilityVerdict.transparencyTrail === undefined)) {
+    lines.push("Transparency trail was not stored.");
+    lines.push("");
+  } else if (
     transparencyTrail !== null &&
     Array.isArray(transparencyTrail.asserted) &&
     Array.isArray(transparencyTrail.inferred) &&

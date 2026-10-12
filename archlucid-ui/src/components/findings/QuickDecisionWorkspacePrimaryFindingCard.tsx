@@ -250,7 +250,7 @@ export function QuickDecisionWorkspacePrimaryFindingCard(
         {viewEvidenceHref !== null ? (
           <FindingEvidenceLinkChip
             href={viewEvidenceHref}
-            evidenceRefCount={evidenceRefCount ?? 0}
+            evidenceRefCount={evidenceRefCount}
             className="shrink-0"
           />
         ) : null}

@@ -131,7 +131,9 @@ export function RunDetailManifestSummarySection(
               <>
                 <dt className={definitionLabelClass}>Policy at commit</dt>
                 <dd className={cn("m-0 space-y-1", definitionValueClass)} data-testid="run-detail-policy-at-commit">
-                  {manifestSummary.effectiveGovernanceAtCommit.hasEffectivePolicy ? (
+                  {manifestSummary.effectiveGovernanceAtCommit.hasEffectivePolicy === null ? (
+                    <p className="m-0">Effective policy flag was not stored.</p>
+                  ) : manifestSummary.effectiveGovernanceAtCommit.hasEffectivePolicy ? (
                     <>
                       <p className="m-0">
                         {finiteIntegerCountDisplay(

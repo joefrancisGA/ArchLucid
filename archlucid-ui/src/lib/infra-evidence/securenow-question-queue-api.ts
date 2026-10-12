@@ -6,8 +6,8 @@ export type SecureNowQuestion = {
   readonly subscriptionId: string;
   readonly resourceId: string | null;
   readonly questionKey: string;
-  readonly source: string;
-  readonly scopeKind: string;
+  readonly source: string | null;
+  readonly scopeKind: string | null;
   readonly status: string | null;
   readonly questionText: string;
   readonly resourceType: string;
@@ -56,8 +56,8 @@ function mapQuestion(raw: Record<string, unknown>): SecureNowQuestion {
     subscriptionId: stringOrDefault(raw.subscriptionId),
     resourceId: raw.resourceId === null || raw.resourceId === undefined ? null : stringOrDefault(raw.resourceId),
     questionKey: stringOrDefault(raw.questionKey),
-    source: stringOrDefault(raw.source),
-    scopeKind: stringOrDefault(raw.scopeKind),
+    source: typeof raw.source === "string" ? raw.source : null,
+    scopeKind: typeof raw.scopeKind === "string" ? raw.scopeKind : null,
     status: typeof raw.status === "string" ? raw.status : null,
     questionText: questionText.length > 0 ? questionText : "Question text was not stored",
     resourceType: stringOrDefault(raw.resourceType),

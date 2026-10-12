@@ -64,7 +64,7 @@ export function readExtractUploadAcceptedPackageRecord(): ExtractUploadAcceptedP
           ? parsed.resourceCount
           : null,
       fileLabel: parsed.fileLabel?.trim(),
-      associateRunId: parsed.associateRunId?.trim() || null,
+      associateRunId: typeof parsed.associateRunId === "string" ? parsed.associateRunId : null,
     };
   } catch {
     return null;

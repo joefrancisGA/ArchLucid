@@ -43,7 +43,7 @@ export function countUncitedFindings(findings: readonly QuickDecisionFinding[]):
   let uncited = 0;
 
   for (const finding of findings) {
-    if ((finding.evidenceRefCount ?? 0) === 0) {
+    if (finding.evidenceRefCount === 0) {
       uncited += 1;
     }
   }

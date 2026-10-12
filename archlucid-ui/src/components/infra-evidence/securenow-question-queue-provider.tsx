@@ -231,7 +231,12 @@ export function SecureNowQuestionQueueProvider(
     if (action === "reopen" && reason.trim().length === 0) return;
     if (action === "answer" && selectedAnswer == null) return;
     if (currentQuestion.resourceId === null || currentQuestion.resourceId === undefined) {
-      setError(operatorInferredConnectionPanelErrorFromUnknown(new Error("Resource id was not stored.")));
+      setError(
+        operatorInferredConnectionPanelErrorFromUnknown(
+          new Error("Resource id was not stored."),
+          "Could not save the question update.",
+        ),
+      );
       return;
     }
 
@@ -243,8 +248,8 @@ export function SecureNowQuestionQueueProvider(
           subscriptionId: currentQuestion.subscriptionId,
           resourceId: currentQuestion.resourceId,
           questionKey: currentQuestion.questionKey,
-          source: currentQuestion.source,
-          scopeKind: currentQuestion.scopeKind,
+          source: currentQuestion.source ?? "",
+          scopeKind: currentQuestion.scopeKind ?? "",
           reason: reason.trim(),
           evidenceFingerprint: currentQuestion.evidenceFingerprint,
         });
@@ -270,8 +275,8 @@ export function SecureNowQuestionQueueProvider(
           subscriptionId: currentQuestion.subscriptionId,
           resourceId: currentQuestion.resourceId,
           questionKey: currentQuestion.questionKey,
-          source: currentQuestion.source,
-          scopeKind: currentQuestion.scopeKind,
+          source: currentQuestion.source ?? "",
+          scopeKind: currentQuestion.scopeKind ?? "",
           answerCode: selectedAnswer,
           answerText: selectedAnswer,
           reason: "Answered in the SecureNow subscription question queue.",

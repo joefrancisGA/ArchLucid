@@ -139,6 +139,14 @@ export function ExtractUploadAcceptedPackagePanel(
                 {record.fileLabel == null ? "File name was not stored" : record.fileLabel}
               </dd>
             </div>
+            <div>
+              <dt className={cn("font-semibold uppercase tracking-wide text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>
+                Linked review
+              </dt>
+              <dd className={cn("m-0 mt-0.5", OPERATOR_TYPOGRAPHY.body)} data-testid="extract-upload-accepted-associate-run-id">
+                {record.associateRunId == null ? "Linked review was not stored." : record.associateRunId}
+              </dd>
+            </div>
           </dl>
         </div>
       </div>

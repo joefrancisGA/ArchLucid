@@ -265,10 +265,14 @@ import { DiagramsBreadcrumb } from "./DiagramsBreadcrumb";
 import { DiagramsClaimOrientationStrip } from "./DiagramsClaimOrientationStrip";
 import { useDiagramsWorkbenchShortcuts } from "./use-diagrams-workbench-shortcuts";
 
-function resolveInfraDiagramsRenderStatusAnnouncement(status: string): string {
+function resolveInfraDiagramsRenderStatusAnnouncement(status: string | null): string {
+  if (status === null) {
+    return "Render status was not stored.";
+  }
+
   const normalized = status.trim().toLowerCase();
 
-  if (normalized.length === 0 || normalized === "loading") {
+  if (normalized === "loading") {
     return "Loading diagram";
   }
 
@@ -802,13 +806,20 @@ export function DiagramsWorkbenchClient() {
       return null;
     }
 
-    const status = renderResult?.status ?? activeModePreview?.status ?? "loading";
+    const hasReturnedStatus = renderResult != null || activeModePreview != null;
+    const status = renderResult != null
+      ? renderResult.status
+      : activeModePreview?.status ?? null;
     const metrics = renderResult?.metrics;
     const metricLine =
-      metrics != null
+      renderResult != null && metrics != null
         ? `${metrics.nodeCount} nodes and ${metrics.edgeCount} edges across ${metrics.subgraphCount} subgraphs.`
-        : "";
-    const statusLine = resolveInfraDiagramsRenderStatusAnnouncement(status);
+        : renderResult != null
+          ? "Diagram metrics were not stored."
+          : "";
+    const statusLine = hasReturnedStatus
+      ? resolveInfraDiagramsRenderStatusAnnouncement(status)
+      : "Loading diagram";
 
     return `${selectedModeLabel} diagram for snapshot ${selectedSnapshotDisplayLabel}. ${statusLine}.${metricLine.length > 0 ? ` ${metricLine}` : ""}`;
   }, [
