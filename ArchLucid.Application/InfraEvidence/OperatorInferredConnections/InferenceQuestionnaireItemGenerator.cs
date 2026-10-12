@@ -132,7 +132,7 @@ public sealed class InferenceQuestionnaireItemGenerator(
         Dictionary<string, string> resourceNames = input.Snapshot.Resources
             .ToDictionary(
                 resource => ArmResourceIdNormalizer.Normalize(resource.AzureResourceId),
-                ReadResourceName,
+                resource => ReadResourceName(resource.AzureResourceId),
                 StringComparer.OrdinalIgnoreCase);
         HashSet<string> derivedDataPlaneEdges = input.Snapshot.Relationships
             .Where(relationship =>
