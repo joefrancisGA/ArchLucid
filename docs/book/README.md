@@ -4,7 +4,7 @@
 # Managing Azure Security with AI — book draft
 
 **Working title:** *Managing Azure Security with AI*
-**Working subtitle:** *Evidence-Backed Attack-Path Analysis Without Trusting the Model Blindly*
+**Working subtitle:** *Evidence-Backed Attack-Path Analysis for Azure Identity, RBAC, and PaaS Data Access*
 **Outline:** [`OUTLINE.md`](OUTLINE.md) · **Chapters:** [`chapters/`](chapters/)
 
 ## Thesis
