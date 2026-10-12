@@ -28296,6 +28296,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ## Zone: context-ingestion
 
+2026-10-12 seed hunt (seed-only): re-read the selected context-ingestion source tree and focused test surface after the duplicate diagram-node-ID candidate was seeded; no distinct source-backed candidate was found and the existing candidate was not duplicated. The focused ContextIngestion/Canonicalization run was blocked before discovery by unrelated missing `unmappedRoles` and `warnings` members in `AzureInventorySecurityEdgeMaterializer.cs`; no production or regression code changed.
+
 2026-10-12 seed hunt (seed-only): re-read the selected context-ingestion source tree and focused test surface. Seeded one bounded candidate for `ArchitectureDiagramCanonicalObjectMapper.Map`: a reachable structured-diagram payload containing duplicate trimmed node IDs can emit duplicate canonical `ObjectId` values while the edge lookup dictionary silently keeps the last node, potentially attaching connectivity to the wrong duplicate. The focused ContextIngestion/Canonicalization run was blocked before discovery by unrelated missing `unmappedRoles` and `warnings` members in `AzureInventorySecurityEdgeMaterializer.cs`; no production or regression code changed.
 
 2026-10-11 seed hunt (seed-only): repeated the selected context-ingestion parser and canonicalization reread; no distinct reachable wrong outcome met the hunt-ready bar. The scoped ContextIngestion/Canonicalization filter passed 829/829; no production or regression code changed.
@@ -30312,7 +30314,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 1055
+- **hunts:** 1056
 - **bugs-found:** 429
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-12
