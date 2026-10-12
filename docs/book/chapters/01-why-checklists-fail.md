@@ -17,7 +17,7 @@ In this fictional scenario, the team's posture score for the production subscrip
 
 Nothing on the slide was false. The team had worked hard. They had turned on encryption settings, removed stale guest accounts, enabled diagnostic settings on key vaults, and tagged two hundred resources with owners. Each of those changes made the environment a little better.
 
-Three weeks later, a contractor doing an unrelated review of the payments team's deployment pipeline noticed something. Any change merged to the `main` branch of the `contoso/payments` GitHub repository could run a workflow that signed in to Azure as the payments deployment identity. That identity held **Contributor** on the production payments resource group. The resource group contained a storage account called `custdata`, which still allowed access with shared account keys. Contributor is allowed to list those keys. The keys open every blob in the account.
+Three weeks later, a contractor doing an unrelated review of the payments team's deployment pipeline noticed something. Any change merged to the `main` branch of the `contoso/payments` GitHub repository could run a workflow that signed in to Azure as the payments deployment identity [S1]. That identity held **Contributor** on the production payments resource group. The resource group contained a storage account called `custdata`, which still allowed access with shared account keys [S2]. Contributor is allowed to list those keys [S3]. The keys grant full access to data in the account [S4].
 
 So a single merged pull request, from anyone who could get code onto `main`, was enough to read the account holding Contoso's customer records.
 
@@ -25,10 +25,10 @@ Every piece of that chain had been visible to the posture tool all along. None o
 
 | Piece of the chain | How it appeared on the posture list |
 |--------------------|-------------------------------------|
-| GitHub Actions trusted to sign in as `payments-deploy` | Not a finding. Federated credentials are the *recommended* replacement for stored secrets. |
-| `payments-deploy` holds Contributor on `rg-payments-prod` | One of 41 "consider least-privilege role assignments" items. Medium. |
-| `custdata` allows shared key access | One of 63 "storage accounts should prevent shared key access" items. Medium. |
-| No blob read logging on `custdata` | One of 88 "enable diagnostic logs" items. Low. |
+| GitHub Actions trusted to sign in as `payments-deploy` | Not a finding. Federated credentials are the *recommended* replacement for stored secrets [S1, S5]. |
+| `payments-deploy` holds Contributor on `rg-payments-prod` | One of 41 "Service Principals should not be assigned with administrative roles at the subscription and resource group level" items [S6]. Medium. |
+| `custdata` allows shared key access | One of 63 "storage accounts should prevent shared key access" items [S2]. Medium. |
+| No blob read logging on `custdata` | One of 88 "enable diagnostic logs" items. Low [S7]. |
 
 Two mediums, a low, and something the list counted as good practice. On their own, none was urgent. Together, they formed the most serious exposure in the environment. The posture score went up all quarter while this path stayed open, because the score was measuring something else.
 
@@ -63,7 +63,7 @@ That independence is what makes checklists cheap and consistent. It's also why t
 
 John Lambert, then at Microsoft, put this memorably in 2015:
 
-> "Defenders think in lists. Attackers think in graphs. As long as this is true, attackers win."
+> "Defenders think in lists. Attackers think in graphs. As long as this is true, attackers win." [S8]
 
 The Contoso path is a graph: a repository connects to an identity, the identity connects to a resource group, the resource group contains a storage account, and the storage account's keys connect to the data. Each edge, viewed alone, is a list item of modest severity, or no item at all. The danger lives in the connections, and a list has no place to put connections.
 
@@ -100,9 +100,9 @@ Here's the Contoso chain again, this time viewed as a combination:
 | # | Condition | Alone | In combination |
 |---|-----------|-------|----------------|
 | A | GitHub Actions on `main` can sign in as `payments-deploy` | Good practice (no stored secret) | Entry point: anyone who can merge to `main` |
-| B | `payments-deploy` holds Contributor on `rg-payments-prod` | Broad, but common for deployment identities | Turns the entry point into control of every resource in the group |
-| C | `custdata` allows shared key access | Legacy setting, widely tolerated | Lets Contributor become *data* access by listing keys |
-| D | No blob read logging on `custdata` | Missing telemetry | Blob reads through the path would not be captured by storage diagnostic logs |
+| B | `payments-deploy` holds Contributor on `rg-payments-prod` | Broad, but common for deployment identities | Turns the entry point into control of every resource in the group [S9] |
+| C | `custdata` allows shared key access | Legacy setting, widely tolerated | Lets Contributor become *data* access by listing keys [S3, S4] |
+| D | No blob read logging on `custdata` | Missing telemetry | Blob reads through the path would not be captured by storage diagnostic logs [S7] |
 
 Remove any one of A, B, or C and the path breaks. D doesn't create the path, but without blob-read diagnostics the storage logs can't tell you whether it had been used. Chapter 2 returns to why that matters for what you're allowed to claim.
 
@@ -110,7 +110,7 @@ Notice two things about this table.
 
 First, **the fix is cheap once you see the combination.** Disabling shared key access on `custdata`, or narrowing `payments-deploy` to the specific roles its deployments actually need, breaks the path. That's an afternoon's work. The expensive part was *seeing* it.
 
-Second, **condition A isn't a finding at all.** Federated credentials for CI/CD are what Microsoft and GitHub both recommend in place of stored client secrets, and they're right. A good practice can still be a step in a dangerous path. What makes it safe or unsafe is what the identity can reach. A checklist that only flags bad practices will never show you that step, because there's nothing wrong with it alone.
+Second, **condition A isn't a finding at all.** Federated credentials for CI/CD are what Microsoft and GitHub both recommend in place of stored client secrets [S1, S5], and they're right. A good practice can still be a step in a dangerous path. What makes it safe or unsafe is what the identity can reach. A checklist that only flags bad practices will never show you that step, because there's nothing wrong with it alone.
 
 Toxic combinations aren't rare edge cases. In most real Azure estates, they're the main way serious exposure happens. Identity is involved in nearly all of them, because in Azure the identity layer connects everything else. Chapter 4 covers identity paths in depth.
 
@@ -124,7 +124,7 @@ A path has three parts:
 
 - An **entry point**: somewhere an attacker could plausibly start. The internet, a compromised developer laptop, a CI/CD pipeline, a guest account, a public-facing app.
 - A **target**: something whose compromise matters. Customer data, signing keys, the ability to change production, the identity platform itself.
-- **Hops**: the steps in between. Each hop is a relationship that lets someone at one point get to the next: a group membership, a role assignment, a network rule, a managed identity attached to a VM, a key stored in an app setting.
+- **Hops**: the steps in between. Each hop is a relationship that lets someone at one point get to the next: a group membership, a role assignment, a network rule, a managed identity attached to a VM, a key stored in an app setting. Role permissions assigned at a resource group scope apply to resources in that group [S9].
 
 The Contoso path in this form:
 
@@ -154,9 +154,9 @@ Thinking this way changes three things.
 
 ### Paths are not new
 
-Path thinking isn't new, and this book doesn't claim to have invented it. Attack graphs have decades of academic history. Tools that compute attack paths through Active Directory changed on-premises security assessments in the 2010s. Several cloud security products, including Microsoft's own Defender for Cloud through its cloud security posture management (CSPM) plan, now offer attack path analysis for Azure.
+Path thinking isn't new, and this book doesn't claim to have invented it. Attack graphs have decades of academic history. Tools that compute attack paths through Active Directory changed on-premises security assessments in the 2010s. Several cloud security products, including Microsoft's own Defender for Cloud through its cloud security posture management (CSPM) plan, now offer attack path analysis for Azure [S10].
 
-> **As of 2026-10:** Attack path analysis requires the paid Defender CSPM plan; the free foundational CSPM tier doesn't include it. Which scenarios and resource types it covers changes often, so check the current Defender for Cloud documentation.
+> **As of 2026-10:** Attack path analysis requires the paid Defender CSPM plan; the free foundational CSPM tier doesn't include it [S10]. Which scenarios and resource types it covers changes often, so check the current Defender for Cloud documentation [S11].
 
 So why a book? For three reasons.
 
@@ -260,10 +260,10 @@ This lab makes the chapter's argument concrete. It uses the companion lab tenant
 
 | Weakness or setting | Role in the lab |
 |---------------------|-----------------|
-| Federated credential: GitHub Actions on `main` → `payments-deploy` | Good practice; path entry |
-| `payments-deploy` holds Contributor on `rg-payments-prod` | Path hop |
-| `custdata` allows shared key access | Path hop |
-| `custdata` has no blob read diagnostic logging | Hides use of the path |
+| Federated credential: GitHub Actions on `main` → `payments-deploy` | Good practice; path entry [S1] |
+| `payments-deploy` holds Contributor on `rg-payments-prod` | Path hop [S9] |
+| `custdata` allows shared key access | Path hop [S2] |
+| `custdata` has no blob read diagnostic logging | Hides use of the path [S7] |
 | Shared key access enabled on three sandbox storage accounts | Decoy: same item, no path to anything important |
 | Contributor held by two other identities on non-production resource groups | Decoy |
 | Key vaults without purge protection (two) | Hygiene |
@@ -287,6 +287,22 @@ This lab makes the chapter's argument concrete. It uses the companion lab tenant
 4. What would you put on a leadership slide after the fix, if not the posture score?
 
 **What you should see.** The list view puts the path hops somewhere in the middle, indistinguishable from their decoy twins. The model's summary groups them with their twins too, because the list gives it no reason not to. The path view makes the problem and the fix obvious. That gap is the subject of this book.
+
+---
+
+## Sources
+
+- **[S1]** Authenticate to Azure from GitHub Actions by OpenID Connect. Microsoft Learn. <https://learn.microsoft.com/azure/developer/github/connect-from-azure-openid-connect> Checked 2026-10-12. Kind: documented.
+- **[S2]** Built-in policy definitions for Azure Storage. Microsoft Learn. <https://learn.microsoft.com/azure/storage/common/policy-reference> Checked 2026-10-12. Kind: documented.
+- **[S3]** Use the Azure Storage resource provider to access management resources. Microsoft Learn. <https://learn.microsoft.com/azure/storage/common/authorization-resource-provider> Checked 2026-10-12. Kind: documented.
+- **[S4]** Manage account access keys. Microsoft Learn. <https://learn.microsoft.com/azure/storage/common/storage-account-keys-manage> Checked 2026-10-12. Kind: documented.
+- **[S5]** OpenID Connect. GitHub Docs. <https://docs.github.com/en/actions/concepts/security/openid-connect> Checked 2026-10-12. Kind: documented.
+- **[S6]** Reference table for all identity and access security recommendations in Microsoft Defender for cloud. Microsoft Learn. <https://learn.microsoft.com/azure/defender-for-cloud/recommendations-reference-identity-access> Checked 2026-10-12. Kind: documented.
+- **[S7]** Monitor Azure Blob Storage. Microsoft Learn. <https://learn.microsoft.com/azure/storage/blobs/monitor-blob-storage> Checked 2026-10-12. Kind: documented.
+- **[S8]** Defenders think in lists. Attackers think in graphs. As long as this is true, attackers win. Microsoft Learn. <https://learn.microsoft.com/archive/blogs/johnla/defenders-think-in-lists-attackers-think-in-graphs-as-long-as-this-is-true-attackers-win> Checked 2026-10-12. Kind: documented.
+- **[S9]** Steps to assign an Azure role. Microsoft Learn. <https://learn.microsoft.com/azure/role-based-access-control/role-assignments-steps> Checked 2026-10-12. Kind: documented.
+- **[S10]** What is Cloud Security Posture Management (CSPM). Microsoft Learn. <https://learn.microsoft.com/azure/defender-for-cloud/concept-cloud-security-posture-management> Checked 2026-10-12. Kind: documented.
+- **[S11]** Identify and remediate attack paths in Microsoft Defender for Cloud. Microsoft Learn. <https://learn.microsoft.com/azure/defender-for-cloud/how-to-manage-attack-path> Checked 2026-10-12. Kind: documented.
 
 ---
 
@@ -315,7 +331,8 @@ This lab makes the chapter's argument concrete. It uses the companion lab tenant
 
 ## Author notes (remove before submission)
 
-- Verify the John Lambert quote wording and source (2015 GitHub post "Defender's mindset"); confirm attribution permission is not needed for a short quotation.
+- 2026-10-12 (sources): added 11 sources. Changed: posture-list row for Contributor now uses Defender recommendation display name "Service Principals should not be assigned with administrative roles at the subscription and resource group level"; keys sentence now says "grant full access to data" per Microsoft docs. Softened: none. Unverified: generic posture label "enable diagnostic logs" (row kept fictional; blob-read gap cited via S7 inference).
+- Verify the John Lambert quote wording and source (2015 GitHub post "Defender's mindset"); confirm attribution permission is not needed for a short quotation. S8 cites the archived Microsoft blog post (April 2015).
 - Verified 2026-10-10 (revision pass 1): the policy display name "Storage accounts should prevent shared key access"; attack path analysis requires the Defender CSPM plan.
 - The posture figures (61% → 78%, 512 → 371 recommendations, 41 / 63 / 88 item buckets) are invented for the narrative; keep them clearly fictional.
 - Lab table is in sync with Appendix A and `docs/book/lab/terraform` (2026-10-10). The "minimum TLS not set" row was replaced, because the provider always sends a TLS version; keep the two in step on future edits.

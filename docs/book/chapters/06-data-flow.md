@@ -66,7 +66,7 @@ Flows come with evidence of varying strength. Chapter 5 separated intended, conf
 
 Declared flows are the cheapest to collect. Most are in configuration a Reader-only collector already sees. One important source isn't:
 
-- **App settings and connection string names.** An app setting named `ARCHIVE_ACCOUNT` with the value `custarchive`, or a connection string entry named `CustomerDb`, declares that the app talks to that store. A Key Vault reference (`@Microsoft.KeyVault(...)`) declares a flow to the vault and, by name, hints at the target. Reader can't list app settings, though. Listing them is a separate action that returns every value, secrets included, so you can't fetch the names without the secrets, and Chapter 3's rule says never collect secret values. Read them instead from the infrastructure as code that created the app, where they're reviewed, and where secrets should already be Key Vault references rather than literals. Appendix B, section B.6, covers the options.
+- **App settings and connection string names.** An app setting named `ARCHIVE_ACCOUNT` with the value `custarchive`, or a connection string entry named `CustomerDb`, declares that the app talks to that store. A Key Vault reference (`@Microsoft.KeyVault(...)`) declares a flow to the vault and, by name, hints at the target. The built-in Reader role grants only `*/read` on control-plane resources [S1], so it cannot call `Microsoft.Web/sites/config/list/action`, which returns every app setting value, secrets included [S2]. Chapter 3's rule says never collect secret values. Read them instead from the infrastructure as code that created the app, where they're reviewed, and where secrets should already be Key Vault references rather than literals. Appendix B, section B.6, covers the options.
 - **Data-plane role assignments to workload identities.** When `mi-pay-reconcile` holds Storage Blob Data Reader on `custarchive`, someone granted that access for a reason. It's a capability, but for a workload identity it's also a strong declaration of design intent.
 - **Integration configuration.** Data Factory and Synapse linked services, Event Grid subscriptions, Service Bus and Event Hubs consumers, Logic App connections, and diagnostic settings that send logs to a workspace or storage account all declare flows.
 - **Private endpoints and firewall rules.** A private endpoint for `custdata` in the payments application subnet declares that something in that subnet is meant to reach it (Chapter 5).
@@ -141,27 +141,27 @@ Missing any of these changes what you can say.
 
 ### Coverage and retention
 
-Data-plane logs on Azure PaaS services are generally **off by default**. For storage, you enable them with a diagnostic setting per service (blob, file, queue, table) and send them to a Log Analytics workspace, a storage account, or an event hub. Key Vault audit events, SQL auditing, and Cosmos DB data-plane logs each have their own settings. For Key Vault, the diagnostic category is `AuditEvent`, which lands in the `AZKVAuditLogs` table when the setting uses resource-specific tables.
+Data-plane logs on Azure PaaS services are generally **off by default** [S3]. For storage, you enable them with a diagnostic setting per service (blob, file, queue, table) [S4] and send them to a Log Analytics workspace, a storage account, or an event hub. Key Vault audit events, SQL auditing, and Cosmos DB data-plane logs each have their own settings. For Key Vault, the diagnostic category is `AuditEvent`, which can be routed to the `AZKVAuditLogs` table [S5].
 
-Retention is set per destination, and it's often shorter than the questions people ask. A Log Analytics workspace keeps most tables for 30 days unless someone changes it. An auditor asking about "the past year" needs a year of retained logs. A breach investigation may need longer. Record, for each sensitive store, when logging started and how long it's retained. Those two dates bound every "did access" statement you can make.
+Retention is set per destination, and it's often shorter than the questions people ask. A Log Analytics workspace keeps Analytics tables for 30 days by default unless someone changes it [S6]. An auditor asking about "the past year" needs a year of retained logs. A breach investigation may need longer. Record, for each sensitive store, when logging started and how long it's retained. Those two dates bound every "did access" statement you can make.
 ### Attribution
 
 Storage blob logs record how each request was authenticated. That one field decides whether you can say *who* read the data:
 
-- **Entra ID (OAuth)**: the log records the caller's object ID, and for users, a user principal name. You can attribute reads to a specific identity.
-- **Account key**: the log records that the account key was used. It doesn't record who held the key. Anyone with a copy looks the same.
-- **Shared access signature (SAS)**: the log records that a SAS was used. For a user delegation SAS, `AuthenticationType` is `DelegationSas` and the log carries the identity whose delegation key signed the token. That's who issued it, not necessarily who used it. For account and service SAS tokens signed with the account key, you know a token was used, not who used it.
+- **Entra ID (OAuth)**: the log records the caller's object ID in `RequesterObjectId`, and for users, a user principal name in `RequesterUpn` [S7, S8]. You can attribute reads to a specific identity.
+- **Account key**: the log records `AuthenticationType` `AccountKey` [S7]. It doesn't record who held the key. Anyone with a copy looks the same.
+- **Shared access signature (SAS)**: the log records that a SAS was used (`SAS` or `DelegationSas` in `AuthenticationType` [S7]). For a user delegation SAS, `AuthenticationType` is `DelegationSas` and the log carries the identity whose delegation key signed the token. That's who issued it, not necessarily who used it. For account and service SAS tokens signed with the account key, you know a token was used, not who used it.
 
-This is the strongest argument for disabling shared key access that the book makes. Chapter 4 showed that keys turn Contributor into data access. This chapter adds that keys also **destroy attribution**. If `custdata` allows shared key access, and the logs show reads authenticated with the account key from an address you don't recognize, the honest statement is: "An unidentified holder of the account key read data from this address." You can't rule out any identity that could list the keys, which, from Chapter 4, includes everyone who can become `payments-deploy`.
+This is the strongest argument for disabling shared key access that the book makes. Chapter 4 showed that keys turn Contributor into data access. This chapter adds that keys also **destroy attribution** [S7]. If `custdata` allows shared key access, and the logs show reads authenticated with the account key from an address you don't recognize, the honest statement is: "An unidentified holder of the account key read data from this address." You can't rule out any identity that could list the keys, which, from Chapter 4, includes everyone who can become `payments-deploy`.
 
-Control-plane logs help partially. Listing a storage account's keys is an ARM operation, recorded in the Azure Activity Log with the caller's identity. If you find a suspicious key-authenticated read, the Activity Log can tell you who listed the keys recently. It can't tell you who they gave them to, or whether the key was copied years ago.
+Control-plane logs help partially. Listing a storage account's keys is an ARM operation (`MICROSOFT.STORAGE/STORAGEACCOUNTS/LISTKEYS/ACTION` in `AzureActivity` [S9]), recorded in the Azure Activity Log with the caller's identity. If you find a suspicious key-authenticated read, the Activity Log can tell you who listed the keys recently. It can't tell you who they gave them to, or whether the key was copied years ago.
 ### Operation semantics
 
 Not every logged operation is a data read. For blob storage:
 
-- **GetBlob** reads blob content. This is "read data".
-- **GetBlobProperties** and **GetBlobMetadata** read metadata. They reveal that a blob exists and its properties, which can itself be sensitive, but not its content.
-- **ListBlobs** enumerates blob names. Names often carry meaning, such as customer IDs or dates.
+- **GetBlob** reads blob content [S10]. This is "read data".
+- **GetBlobProperties** and **GetBlobMetadata** read metadata [S10]. They reveal that a blob exists and its properties, which can itself be sensitive, but not its content.
+- **ListBlobs** enumerates blob names [S10]. Names often carry meaning, such as customer IDs or dates.
 - **Failed requests** (authorization failures, network rejections) are attempts, not access. They're interesting for other reasons.
 
 When you write "read", mean `GetBlob` with a success status, or the equivalent for the service. When you mean listing, say listing.
@@ -247,7 +247,7 @@ No line in that diagram is solid, because no access has been observed: logging i
 
 Generate diagrams like this from the path graph and flow records, never by hand and never by a model. A diagram is a claim. If a person or a model draws it, it's a claim nobody can trace back to evidence.
 
-> **As of 2026-10:** `linkStyle` indices count links from zero in the order they're declared, so adding a line shifts every style after it. Rendering depends on the Mermaid version your documentation tool bundles. Check the output after upgrading either.
+> **As of 2026-10:** `linkStyle` indices use the order links are declared in the diagram (the first link is index 0 in Mermaid's examples) [S11], so adding a line shifts every style after it. Rendering depends on the Mermaid version your documentation tool bundles. Check the output after upgrading either.
 
 ---
 
@@ -335,7 +335,7 @@ An observed-activity item in the pack looks like this:
 
 This lab builds the capability-versus-flow table for the payments estate, observes what it can, and grades how a model describes the result. It uses the companion lab tenant (Appendix A).
 
-**Step 1 — Collect declared flows.** Take the app settings from the lab's Terraform, not from the live apps: `payments.tf` declares `ARCHIVE_ACCOUNT` on `pay-reconcile` and `CUSTOMER_ACCOUNT` on the payments API. In the manifest, record that this evidence came from code, and which commit you read. From the snapshot, take the data-plane role assignments to managed identities and the compute identity attachments. Collect diagnostic settings through Azure Resource Manager, because Resource Graph doesn't hold them (Appendix B, section B.8), and record which stores have read logging enabled, and since when.
+**Step 1 — Collect declared flows.** Take the app settings from the lab's Terraform, not from the live apps: `payments.tf` declares `ARCHIVE_ACCOUNT` on `pay-reconcile` and `CUSTOMER_ACCOUNT` on the payments API. In the manifest, record that this evidence came from code, and which commit you read. From the snapshot, take the data-plane role assignments to managed identities and the compute identity attachments. Collect diagnostic settings through Azure Resource Manager (list APIs on each target resource [S12]), because `Microsoft.Insights/diagnosticSettings` is not listed among Azure Resource Graph supported resource types [S13] (Appendix B, section B.8), and record which stores have read logging enabled, and since when.
 
 **Step 2 — Build the table.** For every path from Chapter 4's lab, find the final `grants` edge and look for a matching declared flow. Produce the table from section 6.3, and classify each row with the four patterns.
 
@@ -375,6 +375,24 @@ AzureActivity
 
 ---
 
+## Sources
+
+- **[S1]** Azure built-in roles for General. Microsoft Learn. <https://learn.microsoft.com/azure/role-based-access-control/built-in-roles/general> Checked 2026-10-12. Kind: documented.
+- **[S2]** Azure permissions for Web and Mobile. Microsoft Learn. <https://learn.microsoft.com/azure/role-based-access-control/permissions/web-and-mobile> Checked 2026-10-12. Kind: documented.
+- **[S3]** Monitor Azure Blob Storage. Microsoft Learn. <https://learn.microsoft.com/azure/storage/blobs/monitor-blob-storage> Checked 2026-10-12. Kind: documented.
+- **[S4]** Resource Manager template samples for diagnostic settings. Microsoft Learn. <https://learn.microsoft.com/azure/azure-monitor/data-collection/resource-manager-diagnostic-settings> Checked 2026-10-12. Kind: documented.
+- **[S5]** Monitoring data reference for Azure Key Vault. Microsoft Learn. <https://learn.microsoft.com/azure/key-vault/general/monitor-key-vault-reference> Checked 2026-10-12. Kind: documented.
+- **[S6]** Manage data retention in a Log Analytics workspace. Microsoft Learn. <https://learn.microsoft.com/azure/azure-monitor/logs/data-retention-configure> Checked 2026-10-12. Kind: documented.
+- **[S7]** Azure Blob Storage monitoring data reference. Microsoft Learn. <https://learn.microsoft.com/azure/storage/blobs/monitor-blob-storage-reference> Checked 2026-10-12. Kind: documented.
+- **[S8]** Azure Monitor Logs reference - StorageBlobLogs. Microsoft Learn. <https://learn.microsoft.com/azure/azure-monitor/reference/tables/storagebloblogs> Checked 2026-10-12. Kind: documented.
+- **[S9]** Example log table queries for AzureActivity. Microsoft Learn. <https://learn.microsoft.com/azure/azure-monitor/reference/queries/azureactivity> Checked 2026-10-12. Kind: documented.
+- **[S10]** Storage Analytics logged operations and status messages. Microsoft Learn. <https://learn.microsoft.com/rest/api/storageservices/storage-analytics-logged-operations-and-status-messages> Checked 2026-10-12. Kind: documented.
+- **[S11]** Flowcharts syntax. Mermaid. <https://mermaid.js.org/syntax/flowchart.html> Checked 2026-10-12. Kind: documented.
+- **[S12]** Diagnostic Settings - List. Microsoft Learn. <https://learn.microsoft.com/rest/api/monitor/diagnostic-settings/list> Checked 2026-10-12. Kind: documented.
+- **[S13]** Azure Resource Graph supported tables and resource types. Microsoft Learn. <https://learn.microsoft.com/azure/governance/resource-graph/reference/supported-tables-resources> Checked 2026-10-12. Kind: documented.
+
+---
+
 ## Summary
 
 - Keep three things separate: **capability** (what can happen, from paths), **flow** (what the system is designed to do), and **access events** (what happened, from logs).
@@ -401,6 +419,7 @@ AzureActivity
 
 ## Author notes (remove before submission)
 
+- 2026-10-12 (sources): added 13 sources. Changed: softened Key Vault logging to "can be routed to AZKVAuditLogs"; clarified Reader versus `config/list`; tied LISTKEYS to Activity Log samples. Softened: Mermaid linkStyle zero-based indexing (docs show order by declaration; fourth link uses index 3). Unverified: none.
 - The opening incident, the auditor exchange, and the payments API component are fictional; the payments API is new in this chapter and is built by the Appendix A lab module (`payments-api-<suffix>`, `mi-payments-api`).
 - Verified 2026-10-10 (revision pass 1): storage diagnostic categories and `StorageBlobLogs` fields, including `DelegationSas`; the `LISTKEYS/ACTION` operation and `AzureActivity` columns; Key Vault `AuditEvent` / `AZKVAuditLogs`; 30-day default workspace retention; code samples execute cleanly.
 - Still to do: exercise `activity_problems` with Chapter 7's validator on the A1 example, and check the `linkStyle` indices (links 2, 3, 4 are the capability-only lines) in a renderer.

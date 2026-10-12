@@ -23,7 +23,7 @@ She restored the collector's access and ran an on-demand collection. The real nu
 
 - **Remove `dev-lead` as app owner:** verified. No path from `dev-lead` to either store.
 - **Disable shared key access on `custdata`, with a policy deny:** verified. The setting was off, the policy assignment was in place, and the key route was gone.
-- **Replace `helpdesk-07`'s directory role:** the old role was gone, exactly as the ticket said. But the identity team had given the help desk group Application Administrator instead, because "it covers the same tasks in the portal." Application Administrator can add credentials to any application, just like Cloud Application Administrator. The path from `helpdesk-07` to the archive was still open: same entry point, same target, different reason. Its path to `custdata` had closed, but not because of the help desk change. Disabling shared key access had removed the key route underneath it.
+- **Replace `helpdesk-07`'s directory role:** the old role was gone, exactly as the ticket said. But the identity team had given the help desk group Application Administrator instead, because "it covers the same tasks in the portal." Application Administrator can add credentials to any application, just like Cloud Application Administrator [S1]. The path from `helpdesk-07` to the archive was still open: same entry point, same target, different reason. Its path to `custdata` had closed, but not because of the help desk change. Disabling shared key access had removed the key route underneath it.
 
 One path was open, one was accepted, and four were closed. The ticket for the help desk change had been closed in good faith by someone who had done what it asked. It just hadn't asked for the right thing. It asked for a role to be removed, when the goal was a path that no longer existed.
 
@@ -41,7 +41,7 @@ Chapter 2 asked, for every statement about a path, what kind of evidence support
 |----------|----------|---------------|
 | The ticket was closed | Human assertion | Someone believes they did what the ticket asked |
 | The pipeline applied the Terraform successfully | Observed (the apply ran) | The planned change was made at that moment |
-| The Activity Log shows the role assignment deletion | Observed | A specific write happened, by a specific caller, at a specific time |
+| The Activity Log shows the role assignment deletion | Observed | A specific write happened, by a specific caller, at a specific time [S2] |
 | The next snapshot shows the setting changed | Observed | The state is now what the change intended |
 | A path search on the next snapshot finds no path | Derived | The exposure the change was meant to remove is gone |
 
@@ -199,7 +199,7 @@ shared_key_off = Postcondition(
 )
 ```
 
-The shared key check also tests `sharedKey == "disabled"` rather than "not enabled". Chapter 3 records an absent property as "not set (platform default)", and Chapter 4's derivation treats that as enabled, because Azure has historically allowed shared key access when the property isn't set. The postcondition has to use the same rule, or the derivation and the verification will disagree about the same row.
+The shared key check also tests `sharedKey == "disabled"` rather than "not enabled". Chapter 3 records an absent property as "not set (platform default)", and Chapter 4's derivation treats that as enabled, because Azure permits shared key authorization when `AllowSharedKeyAccess` is null or true [S3]. The postcondition has to use the same rule, or the derivation and the verification will disagree about the same row.
 
 ### Path postconditions
 
@@ -359,7 +359,7 @@ Treat every new path to a high-consequence target as a finding in its own right,
 
 ### Resource Graph change history
 
-Azure Resource Graph keeps recent property changes for Azure resources in its `resourcechanges` table (Chapter 3). It can tell you *when* `custdata`'s shared key setting changed between two snapshots, and its `changedBy` and `clientType` attributes often say who changed it and with what tool. That's useful corroboration, and it helps explain diffs. It isn't a substitute for the snapshot: changes are queryable for only 14 days, it covers Azure resources but not directory objects such as app owners and directory roles, and it records changes, not the full state you need to re-run a path search. Chapter 4 uses it the other way round. Together with the Activity Log and Entra audit logs, it shows whether anything on a path changed while that path's inputs were being read.
+Azure Resource Graph keeps recent property changes for Azure resources in its `resourcechanges` table (Chapter 3) [S4]. It can tell you *when* `custdata`'s shared key setting changed between two snapshots, and its `changedBy` and `clientType` attributes often say who changed it and with what tool [S4]. That's useful corroboration, and it helps explain diffs. It isn't a substitute for the snapshot: changes are queryable for only 14 days [S5], it covers Azure Resource Manager resources but not Microsoft Entra directory objects such as app owners and directory roles [S6], and it records property changes, not the full resource state you need to re-run a path search [S4]. Chapter 4 uses it the other way round. Together with the Activity Log and Entra audit logs, it shows whether anything on a path changed while that path's inputs were being read [S2, S7].
 
 ---
 
@@ -383,7 +383,7 @@ Two practices make gaps rarer in the first place.
 
 Chapter 9 left P4 open under a risk acceptance with checkable compensating controls and an expiry date. Each of those is a postcondition, checked on every snapshot:
 
-- "The GitHub `production` environment has a `required_reviewers` protection rule, with self-review prevented." This is a state postcondition against data collected from GitHub, not Azure. The collector reads the environment's `protection_rules` from the GitHub REST API. Note that GitHub needs only one of the listed reviewers to approve, so listing two names isn't a two-person rule.
+- "The GitHub `production` environment has a `required_reviewers` protection rule, with self-review prevented [S8, S9]." This is a state postcondition against data collected from GitHub, not Azure. The collector reads the environment's `protection_rules` from the GitHub REST API [S8]. Note that GitHub needs only one of the listed reviewers to approve [S8], so listing two names isn't a two-person rule.
 - "`mi-pay-reconcile` holds Storage Blob Data Reader on one container only, not the whole account."
 - "Today is before the acceptance's expiry date."
 
@@ -397,7 +397,7 @@ Verification isn't a single event. A postcondition that was verified last week c
 
 The mechanics are simple once postconditions exist. Re-check every verified postcondition on every snapshot. When one fails, reopen the recommendation's ticket under its stable ID (Chapter 9), attach the failing check and the diff, and record the regression. Don't open a new ticket. The history of the recommendation, including the earlier verification, is part of the evidence.
 
-Regressions are where Chapter 9's durability analysis pays off. A durable cut, one that no identity still on a path can reverse, shouldn't regress through an attacker. It can still regress through drift, for example when a team's Terraform still has `shared_access_key_enabled = true` and the next apply runs. The Azure Policy deny assignment would reject that apply with the error code `RequestDisallowedByPolicy`, naming the policy assignment and definition. That surfaces the drift as a failed deployment instead of a silent reversal, and the Activity Log records the denied write.
+Regressions are where Chapter 9's durability analysis pays off. A durable cut, one that no identity still on a path can reverse, shouldn't regress through an attacker. It can still regress through drift, for example when a team's Terraform still has `shared_access_key_enabled = true` and the next apply runs. The Azure Policy deny assignment would reject that apply with the error code `RequestDisallowedByPolicy`, naming the policy assignment and definition [S10]. That surfaces the drift as a failed deployment instead of a silent reversal, and the Activity Log records the denied write [S11].
 
 A denied write isn't a regression. The postcondition still holds. But it's worth a ticket to the owning team, because their code disagrees with the environment, and the next person to "fix" the failed pipeline may try to remove the policy.
 
@@ -596,13 +596,30 @@ This lab applies Chapter 9's changes in the lab tenant, re-collects, and verifie
 
 **Step 6 — Simulate the gap.** Copy the new snapshot, remove the collector's Reader access to the lab's payments subscription, and re-collect into the copy. Confirm the manifest records a `scopeNotReadable` gap. Run the diff again, and confirm that all six paths come out "unresolved" and none "closed." Run `verify`, and confirm that every postcondition scoped to that subscription is "not verified." Restore the access.
 
-**Step 7 — Test durability.** As a user with Contributor on the resource group, try to re-enable shared key access on `custdata`. Confirm that the policy denies the write, and find the denied operation in the Activity Log. Then, as a user who can delete policy assignments (Owner, or Resource Policy Contributor), remove the policy assignment, re-enable shared key access, and re-collect. Confirm that the shared key postcondition is now a regression and that the diff lists P1 as new again. Restore the setting and the policy.
+**Step 7 — Test durability.** As a user with Contributor on the resource group, try to re-enable shared key access on `custdata`. Confirm that the policy denies the write [S10], and find the denied operation in the Activity Log [S11]. Then, as a user who can delete policy assignments (Owner, or Resource Policy Contributor) [S12], remove the policy assignment, re-enable shared key access, and re-collect. Confirm that the shared key postcondition is now a regression and that the diff lists P1 as new again. Restore the setting and the policy.
 
 **Step 8 — Fix the help desk properly.** Replace the group's Application Administrator assignment with a role that can't add credentials to applications, or with an administrative unit scope that excludes `payments-deploy`. Agree the choice with whoever runs your help desk. Re-collect, and confirm the path postconditions are now verified.
 
 **Step 9 — Report.** Record each path's states across the lab's snapshots, run `open_intervals` and `open_duration_bounds`, and produce the one-pager from section 10.7 for your lab. Draft its prose with a model through Chapter 7's pipeline, and run the validator. Every number in the prose must come from the computed metrics.
 
 **What you should see.** The fix that removed the role you named passes its state check and fails its path check. A missing subscription turns every verdict about it into "not verified" rather than "passed." The policy turns an attacker's reversal into a denied write, and only someone who can remove policy assignments can produce a regression. The one-pager's numbers all trace to snapshots, with coverage stated.
+
+---
+
+## Sources
+
+- **[S1]** Microsoft Entra built-in roles. Microsoft Learn. <https://learn.microsoft.com/entra/identity/role-based-access-control/permissions-reference> Checked 2026-10-12. Kind: documented.
+- **[S2]** View activity logs for Azure RBAC changes. Microsoft Learn. <https://learn.microsoft.com/azure/role-based-access-control/change-history-report> Checked 2026-10-12. Kind: documented.
+- **[S3]** Prevent authorization with Shared Key. Microsoft Learn. <https://learn.microsoft.com/azure/storage/common/shared-key-authorization-prevent> Checked 2026-10-12. Kind: documented.
+- **[S4]** Get resource changes. Microsoft Learn. <https://learn.microsoft.com/azure/governance/resource-graph/changes/get-resource-changes> Checked 2026-10-12. Kind: documented.
+- **[S5]** Analyze changes to your Azure resources with Change Analysis. Microsoft Learn. <https://learn.microsoft.com/azure/governance/resource-graph/changes/resource-graph-changes> Checked 2026-10-12. Kind: documented.
+- **[S6]** Resource Graph change history scope (directory objects). Microsoft Learn. <https://learn.microsoft.com/azure/governance/resource-graph/changes/resource-graph-changes> Checked 2026-10-12. Kind: inference, from S5 and S7.
+- **[S7]** Learn about the audit logs in Microsoft Entra ID. Microsoft Learn. <https://learn.microsoft.com/entra/identity/monitoring-health/concept-audit-logs> Checked 2026-10-12. Kind: documented.
+- **[S8]** REST API endpoints for deployment environments. GitHub Docs. <https://docs.github.com/en/rest/deployments/environments> Checked 2026-10-12. Kind: documented.
+- **[S9]** Deployments and environments. GitHub Docs. <https://docs.github.com/en/actions/reference/workflows-and-actions/deployments-and-environments> Checked 2026-10-12. Kind: documented.
+- **[S10]** Request disallowed by policy error. Microsoft Learn. <https://learn.microsoft.com/azure/azure-resource-manager/troubleshooting/error-policy-requestdisallowedbypolicy> Checked 2026-10-12. Kind: documented.
+- **[S11]** Azure Activity Log event schema. Microsoft Learn. <https://learn.microsoft.com/azure/azure-monitor/fundamentals/activity-log-schema> Checked 2026-10-12. Kind: documented.
+- **[S12]** Azure built-in roles. Microsoft Learn. <https://learn.microsoft.com/azure/role-based-access-control/built-in-roles> Checked 2026-10-12. Kind: documented.
 
 ---
 
@@ -641,3 +658,4 @@ This lab applies Chapter 9's changes in the lab tenant, re-collects, and verifie
 - Add the Chapter 10 fact checks to GTM **M-306** when it is picked up.
 - 2026-10-12 (review comment on temporal consistency): `verify` now checks each needed file's `queriedAtUtc` against the change time instead of the snapshot's `collectedAtUtc`, so inputs straddling the change are "not verified". Added "Verification mode: a short run after the change" and the Step 4 straddle check. `KIND_SOURCES` and `parse_utc` moved to Chapter 4. Tests in `test_ch10_verification.py` cover a straddling path postcondition, a read at the change instant, and a stale file the check doesn't read.
 - 2026-10-11 (review comment on unmodeled controls): `no_path` now gives "not verified" when only paths through unmodeled controls remain, and "failed" when any plain path remains. Tests in `test_ch10_verification.py` cover both.
+- 2026-10-12 (sources): added 12 sources. Changed: shared-key default wording aligned with `AllowSharedKeyAccess`; Resource Graph scope described as ARM resources. Softened: none. Unverified: none.

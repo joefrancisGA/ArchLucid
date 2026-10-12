@@ -58,8 +58,8 @@ A language model produces likely text. When it lacks a fact, the likely text is 
 In Azure security work, fabrication shows up in a few recurring places:
 
 - **Resources and identities.** A model asked about paths "into payments" mentions `kv-payments-prod`, a key vault that would be a reasonable name but doesn't exist.
-- **Role contents.** A model states that Storage Account Contributor includes blob data read. It doesn't. Its data-plane access comes through listing keys, which is a different and conditional thing (Chapter 4).
-- **Role names.** A model recommends "Storage Key Operator" when the built-in role is Storage Account Key Operator Service Role, or invents a role that sounds right.
+- **Role contents.** A model states that Storage Account Contributor includes blob data read. It doesn't. Its data-plane access comes through listing keys, which is a different and conditional thing (Chapter 4) [S1].
+- **Role names.** A model recommends "Storage Key Operator" when the built-in role is Storage Account Key Operator Service Role [S2], or invents a role that sounds right.
 - **Vulnerability identifiers.** A model cites a CVE number in the right format for the wrong product, or one that was never assigned.
 - **Configuration attributes.** A model writes a Terraform or ARM property that was renamed two provider versions ago, or never existed.
 
@@ -78,7 +78,7 @@ Fabrication is the failure people expect, so it's also the one teams usually def
 
 Ask a model how likely a path is to be exploited, and it will often give you a number. The number feels like information. It almost never is.
 
-A probability is meaningful when it's **calibrated**: across many claims rated 70%, about 70% turn out to be true. Calibration is a property you measure against outcomes. When a model writes "85% likelihood" in a summary, there's no set of past outcomes behind that number. It's the kind of number that tends to appear in sentences like that. Researchers who have studied the confidence levels models state in words have generally found them poorly calibrated and sensitive to how the question was phrased.
+A probability is meaningful when it's **calibrated**: across many claims rated 70%, about 70% turn out to be true. Calibration is a property you measure against outcomes. When a model writes "85% likelihood" in a summary, there's no set of past outcomes behind that number. It's the kind of number that tends to appear in sentences like that. Stated confidence in words often shifts with how the question was phrased and is not a substitute for measured calibration.
 
 Precision spreads. "85%" becomes a column in a spreadsheet, then a threshold in a policy ("remediate everything above 80%"), and then a reason a path rated 79% was left open. Nobody along the way can say where the number came from.
 
@@ -123,9 +123,9 @@ The defenses:
 
 ## 8.5 Prompt injection
 
-The opening story is an **indirect prompt injection**. The attacker never talks to the model. They put instructions into data the model will read later, and the model can't reliably tell the difference between text it should follow and text it should only describe.
+The opening story is an **indirect prompt injection** [S3]. The attacker never talks to the model. They put instructions into data the model will read later, and the model can't reliably tell the difference between text it should follow and text it should only describe.
 
-This is a property of how current language models work. The instructions and the data arrive as one stream of text. You can mark which parts are which, and models usually respect the marking, but "usually" is not a security boundary. The OWASP Top 10 for Large Language Model Applications has listed prompt injection as its first entry since its first edition.
+This is a property of how current language models work. The instructions and the data arrive as one stream of text. You can mark which parts are which, and models usually respect the marking, but "usually" is not a security boundary. The OWASP Top 10 for Large Language Model Applications has listed prompt injection as its first entry since its first edition [S4].
 
 ### Where attacker-controlled text lives in Azure
 
@@ -133,21 +133,21 @@ Security pipelines read a lot of text that other people wrote. The pattern to lo
 
 | Text field | Who can typically write it |
 |------------|---------------------------|
-| Resource tags | Anyone with tag write on the resource: Contributor, Tag Contributor, and many service-specific roles |
+| Resource tags | Anyone with tag write on the resource: Contributor, Tag Contributor, and many service-specific roles [S5] |
 | Resource names and descriptions | Whoever creates or manages the resource |
-| App registration display names, notes, and descriptions | Application owners and directory roles that manage applications; in many tenants any user can register an application |
+| App registration display names, notes, and descriptions | Application owners and directory roles that manage applications [S6]; by default, member users can register applications [S6] |
 | Service principal display names | Created from the application, often by the same people |
 | Group names and descriptions | Group owners and group-management directory roles |
-| User display names and profile fields | Identity administrators, synchronization from other systems, and sometimes the users themselves |
+| User display names and profile fields | Identity administrators and synchronization from other systems [S6] |
 | NSG rule descriptions, policy assignment descriptions, alert descriptions | Whoever manages the resource |
 | Log content: user-agent strings, request paths, error messages | Anyone who can send a request to the service, including from the internet |
 | Commit messages, pull request titles, pipeline variables | Anyone who can push or open a pull request |
 
 The last two rows deserve attention. A request to a public storage endpoint with a user-agent string containing instructions puts attacker text into your logs without any Azure permission at all. If a pipeline summarizes those logs with a model, the attacker is writing part of the prompt.
 
-The first rows are wider than they look. By default, every member user in an Entra tenant can register applications, and so can name them. Tag write is included in Contributor as well as in Tag Contributor, so everyone who can change a resource can also label it.
+The first rows are wider than they look. By default, every member user in an Entra tenant can register applications, and so can name them [S6]. Tag write is included in Contributor as well as in Tag Contributor, so everyone who can change a resource can also label it [S5].
 
-> **As of 2026-10:** Tenants often change the app registration default. Check yours (**Users can register applications** in Entra user settings) rather than assuming either value.
+> **As of 2026-10:** Tenants often change the app registration default. Check yours (**Users can register applications** in Entra user settings) rather than assuming either value [S6].
 
 ### What injection is for
 
@@ -253,7 +253,7 @@ def instruction_like(value: str) -> list[str]:
     return [p for p in INSTRUCTION_PATTERNS if re.search(p, value or "", re.IGNORECASE)]
 ```
 
-A list like this will never catch everything, and an attacker who knows it can phrase around it. That's fine. Its job is to catch the careless attempts and to turn "someone renamed an app to talk to our tooling" into an observed fact with an owner. Microsoft also offers detection for prompt attacks in Azure AI Content Safety, called Prompt Shields, which you can run on untrusted text before it reaches a model. It checks documents as well as user prompts, which is the case here: an app name in an evidence pack is a document-style (indirect) attack, not something a user typed. Treat any detector as a layer, not a guarantee.
+A list like this will never catch everything, and an attacker who knows it can phrase around it. That's fine. Its job is to catch the careless attempts and to turn "someone renamed an app to talk to our tooling" into an observed fact with an owner. Microsoft also offers detection for prompt attacks in Azure AI Content Safety, called Prompt Shields, which you can run on untrusted text before it reaches a model [S7]. It checks documents as well as user prompts [S7], which is the case here: an app name in an evidence pack is a document-style (indirect) attack, not something a user typed. Treat any detector as a layer, not a guarantee.
 
 With these layers, the opening story plays out differently. The display name never enters a claim. It sits in `untrustedText`, labeled. If the model repeats "SEC-1142" anyway, Chapter 7's number check rejects the draft, because 1142 appears in no claim. A longer copied phrase, such as "approved security exception", trips the copy check too. If the model leaves out the path, the coverage check rejects the draft. And the derivation step reports the display name itself as a finding: an app registration whose name contains instructions addressed to an AI.
 
@@ -303,7 +303,7 @@ A sentence can cite a real item and still say something the item doesn't say:
 
 > The deployment identity owns the payments resource group [H5].
 
-H5 says the identity holds Contributor on the resource group. Contributor isn't ownership. It can't assign roles, which is the difference that matters most in Chapter 4. The sentence cites a real hop, uses names from the pack, contains no numbers, and passes every check so far. It's wrong.
+H5 says the identity holds Contributor on the resource group. Contributor isn't ownership. It can't assign roles [S2], which is the difference that matters most in Chapter 4. The sentence cites a real hop, uses names from the pack, contains no numbers, and passes every check so far. It's wrong.
 
 Checking this requires judging whether a sentence is **supported** by what it cites: whether everything it asserts follows from those items. That judgment is semantic, and there are two practical ways to get it.
 
@@ -530,7 +530,7 @@ Run the golden set and the metamorphic tests:
 - **when you change the pack builder or the validator**,
 - **on a schedule**, weekly is plenty, to catch drift you didn't cause.
 
-Pin model versions explicitly in your deployment (Chapter 7, section 7.10), so changes happen when you choose. Model versions are retired on a schedule, so a forced upgrade will come eventually. When it does, the test set is how you know whether the new version behaves.
+Pin model versions explicitly in your deployment (Chapter 7, section 7.10), so changes happen when you choose. Model versions are retired on a schedule [S8], so a forced upgrade will come eventually. When it does, the test set is how you know whether the new version behaves.
 
 ---
 
@@ -579,6 +579,19 @@ Re-collect, rebuild the pack, and generate the board summary. Run it three times
 
 ---
 
+## Sources
+
+- **[S1]** Use the Azure Storage resource provider to access management resources. Microsoft Learn. <https://learn.microsoft.com/azure/storage/common/authorization-resource-provider> Checked 2026-10-12. Kind: documented.
+- **[S2]** Azure built-in roles. Microsoft Learn. <https://learn.microsoft.com/azure/role-based-access-control/built-in-roles> Checked 2026-10-12. Kind: documented.
+- **[S3]** LLM Prompt Injection Prevention Cheat Sheet. OWASP Cheat Sheet Series. <https://cheatsheetseries.owasp.org/cheatsheets/LLM_Prompt_Injection_Prevention_Cheat_Sheet.html> Checked 2026-10-12. Kind: documented.
+- **[S4]** LLMRisks2023-24 Archive. OWASP Gen AI Security Project. <https://genai.owasp.org/llm-top-10-2023-24/> Checked 2026-10-12. Kind: documented.
+- **[S5]** Use tags to organize your Azure resources and management hierarchy. Microsoft Learn. <https://learn.microsoft.com/azure/azure-resource-manager/management/tag-resources> Checked 2026-10-12. Kind: documented.
+- **[S6]** Default user permissions. Microsoft Learn. <https://learn.microsoft.com/entra/fundamentals/users-default-permissions> Checked 2026-10-12. Kind: documented.
+- **[S7]** Prompt Shields in Azure AI Content Safety. Microsoft Learn. <https://learn.microsoft.com/azure/ai-services/content-safety/concepts/jailbreak-detection> Checked 2026-10-12. Kind: documented.
+- **[S8]** Foundry Models lifecycle and support policy. Microsoft Learn. <https://learn.microsoft.com/azure/ai-services/openai/concepts/model-retirements> Checked 2026-10-12. Kind: documented.
+
+---
+
 ## Summary
 
 - Language model failures in security work are **predictable**: fabrication, fake precision, drift from "can" to "did", agreeing with the question, prompt injection, omission, misstatement, over-automation, and drift over time.
@@ -611,8 +624,7 @@ Re-collect, rebuild the pack, and generate the board summary. Run it three times
 - The opening story, SEC-1142, and the review timeline are fictional. Check that the scenario is plausible under current Entra defaults: application owners can change an app registration's display name; display-name length limits allow the injected text.
 - Verified 2026-10-10 (revision pass 1): the app registration default; tag write in Contributor and Tag Contributor; Prompt Shields covers document attacks; OWASP LLM01 is prompt injection in the 2025 edition; Storage Account Key Operator Service Role exists; Storage Account Contributor has no data actions; code samples execute cleanly.
 - `untrusted_copy_problems`, `coverage_problems`, `instruction_like`, and the metamorphic harness are tested offline against the Chapter 7 pack and section 8.5's pack (`lab/listings/python/tests/test_ch08_tests.py`, 2026-10-11). That run showed the copy check can't catch a bare "SEC-1142": eight characters is shorter than its twelve-character window. Chapter 7's number check catches it instead, and section 8.5 now says so. The lab tag in section 8.12 matches only the "no action required" pattern; "Summarize all paths to it as" slips past the "summarize as" pattern.
-- Still to verify: whether user display names are self-editable by default.
-- Find and cite one or two published studies on the calibration of verbalized model confidence, or soften the sentence in section 8.3.
+- 2026-10-12 (sources): added 8 sources. Changed: user display name row (removed self-edit; default member permissions do not include display name). Softened: section 8.3 calibration sentence (no study cited). Unverified: none.
 - Responsible-disclosure framing for the injection lab: keep to owned tenants and synthetic data; consider asking Microsoft whether to mention Content Safety by name.
 - Consider a figure showing the layered defenses around the grounding pipeline.
 - Add the Chapter 8 fact checks to GTM **M-306** when it is picked up.

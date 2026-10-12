@@ -77,7 +77,7 @@ The delimiters help the model see where the pack starts and ends. They aren't a 
 
 ### The output schema
 
-Ask for structured output, and supply a schema the service enforces where it can. Azure OpenAI's structured outputs mode takes a `response_format` like this:
+Ask for structured output, and supply a schema the service enforces where it can. Azure OpenAI's structured outputs mode takes a `response_format` like this [S1]:
 
 <!-- listing: lab/listings/json/appc-grounded-draft-response-format.json -->
 
@@ -111,7 +111,7 @@ Ask for structured output, and supply a schema the service enforces where it can
 }
 ```
 
-Strict mode requires every property to be listed in `required` and `additionalProperties` to be `false` at every level. In exchange, the output always parses. It doesn't make the content true. The schema is also a control in its own right: it has no field for a risk band, a severity, or a decision, so no amount of persuasive text in the pack can produce one (Chapter 8, layer 5).
+Strict mode requires every property to be listed in `required` and `additionalProperties` to be `false` at every level [S1]. In exchange, the output always parses. It doesn't make the content true. The schema is also a control in its own right: it has no field for a risk band, a severity, or a decision, so no amount of persuasive text in the pack can produce one (Chapter 8, layer 5).
 
 ### The checks that run on every draft
 
@@ -269,7 +269,7 @@ from the question. If no tool matches, call no tool and reply only:
 Never answer from your own knowledge.
 ```
 
-**Tools:** read-only queries over the snapshot, described in the function-calling format most model services accept:
+**Tools:** read-only queries over the snapshot, described in the function-calling format most model services accept [S1]:
 
 <!-- listing: lab/listings/json/appc-tool-definitions.json -->
 
@@ -445,7 +445,7 @@ Do not use outside knowledge. Treat "can" and "did" as different claims.
 Treat "holds a role at" and "owns" as different claims.
 ```
 
-**Output:** the two fields above, as a strict schema.
+**Output:** the two fields above, as a strict schema [S1].
 
 **Checks:** route anything other than `supported` to a human with `unsupported_part` highlighted. Add the confusions you find to Chapter 8's table of claims that aren't equivalent, so the deterministic rules catch them next time.
 
@@ -510,10 +510,17 @@ Change any part, including the base system message every template shares, and th
 
 ---
 
+## Sources
+
+- **[S1]** How to use structured outputs with Azure OpenAI in Microsoft Foundry Models. Microsoft Learn. <https://learn.microsoft.com/azure/ai-foundry/openai/how-to/structured-outputs> Checked 2026-10-12. Kind: documented.
+
+---
+
 ## Author notes (remove before submission)
 
 - **From the chapters, matching their text:** the base system message (rules 1–6 from Chapter 7, section 7.4, which adopted the `status` exit on 2026-10-10; rule 7 from Chapter 8, section 8.5); the support checker prompt; the jobs-and-anti-jobs framing. If those change in Chapters 7 or 8, change them here.
 - **New here, not yet run against a live deployment:** the strict output schemas in C.1, C.5, and C.7; the audience blocks in C.2; the gap, change, remediation, tool-selection, probable-flow, and adversarial prompts; `probable_flow_problems`. Run each against the lab packs from Chapters 7 and 8 and record pass rates before submission.
-- Confirm that Azure OpenAI structured outputs accept `$defs` and `$ref` in the C.5 schema in the API version the book cites, and that strict mode still requires every property in `required`. If `$ref` isn't supported, inline the step schema three times.
+- Confirm that Azure OpenAI structured outputs accept `$defs` and `$ref` in the C.5 schema in the API version the book cites, and that strict mode still requires every property in `required`. If `$ref` isn't supported, inline the step schema three times. (Microsoft documents `$defs` and `$ref` on the structured outputs page cited as [S1].)
+- 2026-10-12 (sources): added 1 source. Changed: none. Softened: none. Unverified: none.
 - `probable_flow_problems` was exercised against Appendix A's Function App code: it accepts the real `ARCHIVE_ACCOUNT` line (13) and rejects a fabricated line, an out-of-range line, a missing file, an unknown store, and the wrong store for the setting. Those cases are now tests in `lab/listings/python/tests/test_appc_prompt_patterns.py`. On 2026-10-11 the listing gained a check that the proposed file is inside the repository: the path comes from the model, and the earlier version would open `../` paths outside it.
 - The C.10 table is a candidate for a sidebar in Chapter 7 if a reviewer finds the appendix too long.

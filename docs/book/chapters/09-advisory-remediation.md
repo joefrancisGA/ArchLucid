@@ -19,7 +19,7 @@ The CISO tried a different approach. She asked for one page: which changes would
 
 1. Remove `dev-lead` as an owner of the `payments-deploy` app registration.
 2. Remove the Cloud Application Administrator role from `helpdesk-07`, and give the help desk a narrower role for the tasks they actually perform.
-3. Disable shared key access on `custdata`, with an Azure Policy assignment that stops anyone from turning it back on.
+3. Disable shared key access on `custdata`, with an Azure Policy assignment that stops anyone from turning it back on[S1].
 
 Those three changes closed five of the six paths. The sixth, from the production deployment pipeline through `pay-reconcile` to the archive, couldn't be closed without stopping the pipeline from deploying the app it exists to deploy. The page said so, recommended a compensating control, and asked the payments lead to accept the remaining risk in writing, with an expiry date.
 
@@ -235,7 +235,7 @@ Use a higher hop limit for verification than for discovery. Verification asks a 
 
 The plan above has a flaw that the path graph can't show unless you ask.
 
-Disabling shared key access on `custdata` is a configuration change. Who can change it back? Anyone with write access to the storage account, and that includes `payments-deploy`, which still holds Contributor on the resource group. And P4 is still open: the production pipeline can still become `payments-deploy`. So an attacker who takes over the pipeline can turn shared key access back on, list the keys, and read `custdata`. The plan closed P1 on paper and left it one configuration change away.
+Disabling shared key access on `custdata` is a configuration change[S1]. Who can change it back? Anyone with permission to update the storage account[S2], and that includes `payments-deploy`, which still holds Contributor on the resource group[S3]. And P4 is still open: the production pipeline can still become `payments-deploy`. So an attacker who takes over the pipeline can turn shared key access back on[S1], list the keys[S4], and read `custdata`. The plan closed P1 on paper and left it one configuration change away.
 
 The check is mechanical. For each change, record who could reverse it (`reversible_by`). After applying the plan, find every node still reachable from any entry point. If any of them can reverse a change, the change isn't durable:
 
@@ -276,11 +276,11 @@ def undoable_changes(edges: list[Edge], plan: list[Change], entries: list[str]) 
 For the payments plan, this flags the shared key change: `payments-deploy` can reverse it and is still reachable through P4. There are two ways to make the change durable:
 
 - **Narrow `payments-deploy`'s role** so it can't change storage account settings. This was the high-cost change the greedy plan skipped. Now it has a reason.
-- **Assign an Azure Policy with a deny effect** that rejects storage accounts with shared key access enabled. Contributor can't modify policy assignments, because the role's `NotActions` exclude `Microsoft.Authorization/*/Write` and `Microsoft.Authorization/*/Delete`, so `payments-deploy` can't remove it. Microsoft provides a built-in policy definition for this, "Storage accounts should prevent shared key access", whose `effect` parameter accepts Audit, Deny, or Disabled. This is usually cheaper than redesigning the deployment role, and it protects every storage account in scope, not just one.
+- **Assign an Azure Policy with a deny effect** that rejects storage accounts with shared key access enabled[S1]. Contributor can't modify policy assignments, because the role's `NotActions` exclude `Microsoft.Authorization/*/Write` and `Microsoft.Authorization/*/Delete`[S5], so `payments-deploy` can't remove it. Microsoft provides a built-in policy definition for this, "Storage accounts should prevent shared key access", whose `effect` parameter accepts Audit, Deny, or Disabled[S6]. This is usually cheaper than redesigning the deployment role, and it protects every storage account in scope, not just one.
 
 The CISO's plan in the opening story used the second option. Durability is the reason "disable shared key access" appeared together with "with an Azure Policy assignment" in that plan.
 
-> **As of 2026-10:** The built-in definition's ID is `8c6a50c6-9ffd-4ae7-986f-5fa6111f9a54`, and its default effect is Audit, so the assignment must set Deny explicitly. Built-in definitions are occasionally versioned; check the ID in your tenant.
+> **As of 2026-10:** The built-in definition's ID is `8c6a50c6-9ffd-4ae7-986f-5fa6111f9a54`, and its default effect is Audit, so the assignment must set Deny explicitly[S7]. Built-in definitions are occasionally versioned; check the ID in your tenant[S8].
 
 The general rule: for every change in a plan, ask who can undo it, and whether any of them is still on a path. Configuration-based cuts are especially prone to this. Identity removals usually aren't, unless someone on a remaining path holds a role that can re-grant them.
 
@@ -295,12 +295,12 @@ An open path the business accepts is still a path. It shouldn't vanish from the 
 - the path IDs it covers,
 - who accepted it, in what role, and when,
 - the reason ("deploying `pay-reconcile` is the pipeline's function"),
-- the **compensating controls** relied on, each checkable (for P4: the `production` environment requires approval from a designated reviewer, with self-review prevented; deployments are logged; `mi-pay-reconcile`'s role is scoped to the one container it reads rather than the whole account),
+- the **compensating controls** relied on, each checkable (for P4: the `production` environment requires approval from a designated reviewer, with self-review prevented[S9]; deployments are logged; `mi-pay-reconcile`'s role is scoped to the one container it reads rather than the whole account),
 - an **expiry date**, after which the acceptance must be renewed or the path treated as open.
 
 Two rules keep acceptances honest:
 
-- **Check compensating controls as evidence.** "Two approvals required" is a property of the GitHub environment that a collector can read. The federated credential hop (H1 in Chapter 7's evidence pack) carried an unchecked assumption about branch protection. A risk acceptance that relies on approvals should turn that assumption into a checked fact, and lapse if it stops being true.
+- **Check compensating controls as evidence.** Required reviewers and self-review rules are properties of a GitHub environment that a collector can read through the REST API[S9]. The federated credential hop (H1 in Chapter 7's evidence pack) carried an unchecked assumption about branch protection. A risk acceptance that relies on approvals should turn that assumption into a checked fact, and lapse if it stops being true.
 - **Acceptances come from the register, never from the evidence.** Chapter 8's opening story was an app registration named "approved security exception SEC-1142". An exception is real only if it exists in the register, with an owner who can be asked. Text in tags, names, or descriptions is never an acceptance.
 
 Accepted paths stay in the ranking, marked "accepted until 2027-04-01". They drop below open paths for work planning, and they come back automatically on the expiry date or whenever the path changes.
@@ -321,7 +321,7 @@ It's tempting to let the analysis tool make the fix itself: it already knows wha
 
 **Change processes exist for reasons.** Review, approval, scheduling, and rollback plans are how organizations make changes safely and accountably. Many control frameworks expect separation of duties between whoever identifies a change and whoever approves and applies it. A tool that bypasses the change process bypasses those controls.
 
-So the analysis side holds **read-only access**: Reader on Azure, the read-only Graph permissions from Chapter 3, read access to the evidence store. Its output is a recommendation record, a draft change, and a ticket. People review it, and the normal pipeline applies it.
+So the analysis side holds **read-only access**: Reader on Azure[S3], the read-only Graph permissions from Chapter 3, read access to the evidence store. Its output is a recommendation record, a draft change, and a ticket. People review it, and the normal pipeline applies it.
 
 ---
 
@@ -397,12 +397,12 @@ resource "azurerm_resource_group_policy_assignment" "deny_storage_shared_key" {
 }
 ```
 
-> **As of 2026-10:** Resource and argument names checked against the `azuread` and `azurerm` provider documentation in October 2026. `azuread_application_owner` works only with applications managed through `azuread_application_registration`, not the older `azuread_application` resource. Re-check against the provider versions you pin.
+> **As of 2026-10:** Resource and argument names checked against the `azuread` and `azurerm` provider documentation in October 2026. `azuread_application_owner` works only with applications managed through `azuread_application_registration`, not the older `azuread_application` resource[S10]. The `shared_access_key_enabled` argument on `azurerm_storage_account` and `parameters` on `azurerm_resource_group_policy_assignment` match the provider docs[S11, S12]. Re-check against the provider versions you pin.
 
 Three practical points:
 
 - **Find the owning repository first.** If `custdata` is defined in a team's Terraform, changing it in the portal creates drift that the next `apply` reverses. Tags, state file locations, and resource naming conventions usually point to the right repository. When nothing does, that's a finding about ownership.
-- **Not everything is in code.** Directory role assignments and app ownership often aren't managed by Terraform. For those, the change is a runbook step with the same record: preconditions, the change, verification, rollback. Terraform's `import` blocks can bring existing resources under management when the team is ready.
+- **Not everything is in code.** Directory role assignments and app ownership often aren't managed by Terraform. For those, the change is a runbook step with the same record: preconditions, the change, verification, rollback. Terraform's `import` blocks can bring existing resources under management when the team is ready[S13].
 - **The plan output is evidence.** `terraform plan` shows exactly what will change. Attach it to the pull request and to the recommendation record. It's deterministic output from the provider, which makes it a far better description of the change than any summary.
 
 Chapter 7 covered drafting these changes with a model. Section 9.10 returns to it briefly.
@@ -483,6 +483,24 @@ This lab turns the Chapter 4 graph into a plan, checks it, and produces the arti
 
 ---
 
+## Sources
+
+- **[S1]** Prevent authorization with Shared Key. Microsoft Learn. <https://learn.microsoft.com/azure/storage/common/shared-key-authorization-prevent> Checked 2026-10-12. Kind: documented.
+- **[S2]** Azure permissions for Storage. Microsoft Learn. <https://learn.microsoft.com/azure/role-based-access-control/permissions/storage> Checked 2026-10-12. Kind: documented.
+- **[S3]** Azure built-in roles. Microsoft Learn. <https://learn.microsoft.com/azure/role-based-access-control/built-in-roles> Checked 2026-10-12. Kind: documented.
+- **[S4]** Manage storage account access keys. Microsoft Learn. <https://learn.microsoft.com/azure/storage/common/storage-account-keys-manage> Checked 2026-10-12. Kind: documented.
+- **[S5]** List Azure role definitions. Microsoft Learn. <https://learn.microsoft.com/azure/role-based-access-control/role-definitions-list> Checked 2026-10-12. Kind: documented.
+- **[S6]** Built-in policy definitions for Azure Storage. Microsoft Learn. <https://learn.microsoft.com/azure/storage/common/policy-reference> Checked 2026-10-12. Version: 2.0.0. Kind: documented.
+- **[S7]** StorageAccountAllowSharedKeyAccess_Audit.json. GitHub. <https://github.com/Azure/azure-policy/blob/master/built-in-policies/policyDefinitions/Storage/StorageAccountAllowSharedKeyAccess_Audit.json> Checked 2026-10-12. Version: 2.0.0. Kind: documented.
+- **[S8]** Azure Policy definition structure basics. Microsoft Learn. <https://learn.microsoft.com/azure/governance/policy/concepts/definition-structure> Checked 2026-10-12. Kind: documented.
+- **[S9]** REST API endpoints for deployment environments. GitHub Docs. <https://docs.github.com/en/rest/deployments/environments> Checked 2026-10-12. Kind: documented.
+- **[S10]** azuread_application_owner. HashiCorp Terraform Registry. <https://registry.terraform.io/providers/hashicorp/azuread/latest/docs/resources/application_owner> Checked 2026-10-12. Kind: documented.
+- **[S11]** azurerm_storage_account. HashiCorp Terraform Registry. <https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/storage_account> Checked 2026-10-12. Kind: documented.
+- **[S12]** azurerm_resource_group_policy_assignment. HashiCorp Terraform Registry. <https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/resource_group_policy_assignment> Checked 2026-10-12. Kind: documented.
+- **[S13]** Import resources overview. HashiCorp Developer. <https://developer.hashicorp.com/terraform/language/import> Checked 2026-10-12. Kind: documented.
+
+---
+
 ## Summary
 
 - Fix by **cut point**, not by finding: find the few **changes** that close the most important paths at the least cost, and say what remains.
@@ -513,4 +531,5 @@ This lab turns the Chapter 4 graph into a plan, checks it, and produces the arti
 
 - The opening story, cost tiers, and ranking rules are illustrative and fictional. Keep the scope header's statement that they aren't any product's rules.
 - Verified 2026-10-10 (revision pass 1): built-in shared key policy ID, `effect` values, and default; Contributor `NotActions`; `azuread_application_owner` (requires `azuread_application_registration`), `azuread_directory_role_assignment`, `azurerm_resource_group_policy_assignment`, `shared_access_key_enabled`; Application Administrator and Cloud Application Administrator hold `applications/owners/update` tenant-wide, so either can reverse an owner removal; GitHub required reviewers need one approval.
+- 2026-10-12 (sources): added 13 sources. Changed: GitHub compensating-control example (required reviewers/self-review via API, not "two approvals"). Softened: storage write phrasing to RBAC update permission. Unverified: none.
 - Add the Chapter 9 fact checks to GTM **M-306** when it is picked up.
