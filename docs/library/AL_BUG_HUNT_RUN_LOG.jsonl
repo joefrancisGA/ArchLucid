@@ -9582,3 +9582,4 @@
 {"at": "2026-10-12T01:19:51.0348261Z", "zoneId": "cloud-extractors", "outcome": "seed-only", "productLine": "archlucid-shared", "paths": ["ArchLucid.Integrations.AwsExtractor/", "ArchLucid.Integrations.GcpExtractor/", "ArchLucid.Integrations.AzureExtractor/"]}
 {"at": "2026-10-12T01:28:02.9194447Z", "zoneId": "ui-governance-findings-queue", "outcome": "seed-only", "productLine": "securenow", "paths": ["archlucid-ui/src/app/(operator)/governance/findings/"]}
 {"at": "2026-10-12T01:35:51.1273267Z", "zoneId": "finding-inspect-sql", "outcome": "seed-only", "productLine": "archlucid-shared", "paths": ["ArchLucid.Persistence/Findings/DapperFindingInspectReadRepository.cs", "ArchLucid.Persistence/Findings/FindingInspectReadModelMapper.cs", "ArchLucid.Persistence/Sql/FindingInspectReadSql.cs"]}
+{"at":"2026-10-12T01:41:59.730Z","zoneId":"architecture-recommendation","outcome":"seed-only"}
