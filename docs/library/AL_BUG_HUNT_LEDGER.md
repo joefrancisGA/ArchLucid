@@ -35141,6 +35141,8 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: run-execute-ownership
 
+2026-10-12 seed hunt (seed-only): re-read the ownership acquire, renewal, release, drain, cancellation, and orchestrator regression surfaces. Existing race and lifecycle behaviors remain covered; no distinct reachable wrong-outcome mechanism met the promotion bar and no candidate was duplicated. The focused ownership/orchestration test run was blocked before discovery by unrelated missing `unmappedRoles` and `warnings` members in `AzureInventorySecurityEdgeMaterializer.cs`; no production or regression code changed.
+
 2026-10-12 seed hunt (seed-only): re-read the selected execute orchestrator and ownership lease/renewal implementations with their focused tests. Repeated eligibility checks and immediate renewal are defensive sequencing already covered by prior race and heartbeat regressions; no fresh reachable wrong-outcome mechanism met the promotion bar, and no candidate was duplicated. The focused ownership/orchestration test run was blocked before discovery by unrelated missing `unmappedRoles` and `warnings` members in `AzureInventorySecurityEdgeMaterializer.cs`; no production or regression code changed.
 
 2026-09-27 seed hunt #24 (seed→hit): reseeded run-execute-ownership after hunt #23; proved selective execute could `AcquireAsync` when the live schedule cleared after the final pre-acquire `EnsureSelectiveExecuteStillEligibleAsync` but before `AcquireAsync`, and full `ExecuteRunAsync` could acquire when the run vanished between the sole pre-acquire eligibility check and `AcquireAsync`; fixed with a sixth `EnsureSelectiveForcedTasksStillResolvableAsync` immediately before acquire and a second `EnsureExecuteRunEligibleBeforeOwnershipAcquireAsync` on the full path; regressions `ExecuteSelectiveRunAsync_does_not_acquire_ownership_when_live_schedule_clears_after_final_eligibility_check` and `ExecuteRunAsync_does_not_acquire_ownership_when_run_deleted_immediately_before_acquire`; 54 scoped ownership/orchestrator tests passed.
@@ -35169,7 +35171,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** run execute lease; execute ownership; orchestration ownership
 - **paths:** ArchLucid.Application/Runs/Orchestration/ArchitectureRunExecuteOrchestrator.cs; ArchLucid.Application/Runs/ExecuteOwnership/RunExecuteOwnershipLeaseService.cs; ArchLucid.Application/Runs/ExecuteOwnership/RunExecuteOwnershipLeaseRenewalScope.cs
 - **test-filter:** FullyQualifiedName~RunExecuteOwnership|FullyQualifiedName~ArchitectureRunExecuteOrchestrator
-- **hunts:** 50
+- **hunts:** 51
 - **bugs-found:** 26
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-12
