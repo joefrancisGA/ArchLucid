@@ -98,6 +98,7 @@ describe("compare-effective-governance-diff", () => {
     });
 
     expect(omitted.atCommit?.packAssignments[0]?.policyPackVersion).toBe("Policy pack version was not stored.");
+    expect(omitted.atCommit?.packAssignments[0]?.scopeLevel).toBe("Scope level was not stored.");
     expect(omitted.atCommit?.coverageAssignments[0]).toMatchObject({
       policyPackVersion: "Policy pack version was not stored.",
       coverageType: "Coverage type was not stored.",

@@ -14,8 +14,8 @@ export type InfraEvidenceMermaidFallbackArtifactSummary = {
   key: string;
   label: string;
   status: string | null;
-  nodeCount: number;
-  edgeCount: number;
+  nodeCount: number | null;
+  edgeCount: number | null;
 };
 
 export type InfraEvidenceMermaidModePreview = {
@@ -37,7 +37,7 @@ export type InfraEvidenceMermaidCollapseEntry = {
   kind: string;
   cloudResourceId: string | null;
   nodeId: string | null;
-  reason: string;
+  reason: string | null;
 };
 
 export type InfraEvidenceMermaidCollapseReport = {
@@ -72,11 +72,11 @@ export type InfraEvidenceMermaidRenderResponse = {
 
 export type InfraEvidenceMermaidCompletenessSummary = {
   mode: string;
-  visibleNodeCount: number;
-  visibleEdgeCount: number;
-  connectedComponentCount: number;
-  hiddenHopsUsedCount: number;
-  likelyInCollocationEdgeCount: number;
+  visibleNodeCount: number | null;
+  visibleEdgeCount: number | null;
+  connectedComponentCount: number | null;
+  hiddenHopsUsedCount: number | null;
+  likelyInCollocationEdgeCount: number | null;
   missingClasses: string[];
   collectedClasses: string[];
 };

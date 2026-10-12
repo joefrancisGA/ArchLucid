@@ -49,7 +49,13 @@ export function resolveDependencyNeighborhoodSeedBlockedReason(input: {
   }
 
   const mermaidEmpty = (renderResult.mermaid ?? "").trim().length === 0;
-  const nodeCount = renderResult.metrics?.nodeCount ?? 0;
+  const metrics = renderResult.metrics;
+
+  if (metrics == null) {
+    return null;
+  }
+
+  const nodeCount = metrics.nodeCount ?? 0;
 
   if (renderResult.status === "Succeeded" && (mermaidEmpty || nodeCount === 0)) {
     return {

@@ -7,6 +7,7 @@ import {
   resolveInfraEvidenceCompletenessWarningPresentation,
   snapshotIncludesTier1AppSettingHosts,
 } from "@/lib/infra-evidence/resolve-infra-evidence-completeness-warning-copy";
+import { formatInfraEvidenceCompletenessSummaryBannerLine } from "@/lib/infra-evidence/format-infra-evidence-completeness-summary-banner-line";
 import type { InfraEvidenceMermaidCompletenessSummary } from "@/lib/infra-evidence/infra-evidence-mermaid-types";
 
 export type InfraEvidenceCompletenessWarningsBannerProps = {
@@ -41,12 +42,7 @@ export function InfraEvidenceCompletenessWarningsBanner(
       </p>
       {summary ? (
         <p className={cn("m-0 text-amber-900/90 dark:text-amber-100/90", OPERATOR_TYPOGRAPHY.helper)}>
-          {summary.visibleNodeCount} resources in {summary.connectedComponentCount} connected components.{" "}
-          {summary.visibleEdgeCount} visible relationships
-          {summary.hiddenHopsUsedCount > 0 ? ` (${summary.hiddenHopsUsedCount} from hidden attachment hops)` : ""}.
-          {summary.likelyInCollocationEdgeCount > 0
-            ? ` ${summary.likelyInCollocationEdgeCount} likely-in collocation edges.`
-            : ""}
+          {formatInfraEvidenceCompletenessSummaryBannerLine(summary)}
         </p>
       ) : null}
       {tier1HostsIncluded ? (

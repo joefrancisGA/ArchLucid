@@ -385,10 +385,20 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
                 Scope: {currentQuestion.scopeKind === null ? "Question scope was not stored." : currentQuestion.scopeKind}
               </p>
               <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                Subscription:{" "}
+                {currentQuestion.subscriptionId === null
+                  ? "Subscription id was not stored."
+                  : currentQuestion.subscriptionId}
+              </p>
+              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                 {currentQuestion.expirationUtc === null || currentQuestion.expirationUtc === undefined
                   ? "Expiration was not stored."
                   : currentQuestion.expirationUtc}
-                {currentQuestion.isExpired ? " · Expired" : ""}
+                {currentQuestion.isExpired === null
+                  ? " · Expiration status was not stored."
+                  : currentQuestion.isExpired
+                    ? " · Expired"
+                    : ""}
               </p>
             </div>
           </CollapsibleSection>

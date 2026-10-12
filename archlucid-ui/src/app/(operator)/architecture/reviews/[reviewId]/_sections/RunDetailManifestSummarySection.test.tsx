@@ -56,6 +56,25 @@ describe("RunDetailManifestSummarySection operator summary", () => {
     expect(screen.queryByText("Operator summary was not stored.")).not.toBeInTheDocument();
   });
 
+  it("labels a missing focused review scope flag without guessing false", () => {
+    render(
+      <RunDetailManifestSummarySection
+        manifestSummary={{
+          ...summary,
+          reviewStandardsAtCommit: {
+            cloudProvider: "Azure",
+            focusedPilotModeEnabled: null,
+            policyReferences: [],
+            reviewedQualityDimensions: [],
+          },
+        }}
+        buyerPolishedShell={false}
+      />,
+    );
+
+    expect(screen.getByText(/Focused review scope was not stored/)).toBeInTheDocument();
+  });
+
   it("labels a missing feasibility verdict without replacing a stored verdict section", () => {
     render(
       <RunDetailManifestSummarySection

@@ -5,6 +5,7 @@ export const COMPARE_GOVERNANCE_CURRENT_EFFECTIVE_DISCLAIMER =
   "Current policy pack assignments and compliance rules show what's in effect today — not the rules frozen when each review was finalized. When a review saved its rules at commit time, those rows appear separately below.";
 
 export const POLICY_PACK_VERSION_NOT_STORED = "Policy pack version was not stored.";
+export const SCOPE_LEVEL_NOT_STORED = "Scope level was not stored.";
 
 export function formatPolicyPackVersion(version: string): string {
   return version.length === 0 ? "" : `v${version}`;
@@ -175,7 +176,7 @@ function parseAtCommitPackAssignments(value: unknown): CompareEffectivePackAssig
       policyPackId,
       policyPackVersion:
         typeof item.policyPackVersion === "string" ? item.policyPackVersion : POLICY_PACK_VERSION_NOT_STORED,
-      scopeLevel: readTrimmedString(item.scopeLevel) ?? "Project",
+      scopeLevel: readTrimmedString(item.scopeLevel) ?? SCOPE_LEVEL_NOT_STORED,
     });
   }
 

@@ -78,4 +78,14 @@ describe("formatManifestDocumentShape component breakdown", () => {
     expect(missingTrail).toContain("Transparency trail was not stored.");
     expect(missingImpact).toContain("Impact was not stored.");
   });
+
+  it("labels omitted mandatory constraints and security controls", () => {
+    const markdown = formatManifestDocumentShape({
+      constraints: { mandatoryConstraints: null, preferences: [] },
+      security: { controls: null, gaps: [] },
+    });
+
+    expect(markdown).toContain("Mandatory constraints were not stored.");
+    expect(markdown).toContain("Security controls were not stored.");
+  });
 });

@@ -255,6 +255,11 @@ import {
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EXECUTIVE_ALWAYS_SHOW_BODY,
   formatGovernanceInfrastructureInlineActionError,
 } from "@/lib/governance/governance-infrastructure-copy";
+import {
+  formatInfraEvidenceMermaidFallbackArtifactMetricsLine,
+  formatInfraEvidenceMermaidRenderFailureDescription,
+  INFRA_EVIDENCE_MERMAID_ALWAYS_EXCLUDED_REASON_NOT_STORED,
+} from "@/lib/infra-evidence/format-infra-evidence-mermaid-fallback-artifact-copy";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { downloadBrowserTextFile } from "@/lib/graph-view-model-export";
 import { useDocumentDarkMode } from "@/lib/use-document-dark-mode";
@@ -405,7 +410,7 @@ function FallbackCard(props: {
     >
       <div className="font-medium">{artifact.label}</div>
       <div className={cn("mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-        {artifact.nodeCount} nodes · {artifact.edgeCount} edges · {artifact.status}
+        {formatInfraEvidenceMermaidFallbackArtifactMetricsLine(artifact)}
       </div>
     </button>
   );
@@ -2811,7 +2816,11 @@ export function DiagramsWorkbenchClient() {
                   </h3>
                   <ul className={cn("m-0 list-disc pl-5", OPERATOR_TYPOGRAPHY.helper)}>
                     {alwaysExcludedCollapseEntries.map((entry, index) => (
-                      <li key={`${entry.kind}-${entry.reason}-${index}`}>{entry.reason}</li>
+                      <li key={`${entry.kind}-${entry.reason ?? "missing"}-${index}`}>
+                        {entry.reason === null || entry.reason === undefined
+                          ? INFRA_EVIDENCE_MERMAID_ALWAYS_EXCLUDED_REASON_NOT_STORED
+                          : entry.reason}
+                      </li>
                     ))}
                   </ul>
                 </div>
@@ -2889,7 +2898,7 @@ export function DiagramsWorkbenchClient() {
       ) : renderResult?.status === "Failed" ? (
         <EnterpriseCompactEmptyState
           title={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_RENDER_FAILED_TITLE}
-          description={renderResult.failureReason?.trim() || GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_RENDER_FAILED_BODY}
+          description={formatInfraEvidenceMermaidRenderFailureDescription(renderResult.failureReason)}
           testId="infra-diagrams-render-failed"
           footer={
             <Button type="button" size="sm" variant="primary" onClick={handleRenderRetry}>
