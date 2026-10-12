@@ -13136,6 +13136,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: tenant-data-export
 
+2026-10-12 thorough hunt (dry): `tenant-data-export` — all five picker candidates were inspected; the `RunsExportController` career-block mapping candidate was plausible, but its focused repro could not execute because the API test build stopped on unrelated `AzureInventorySecurityEdgeMaterializer.cs` compile errors (`unmappedRoles` and `warnings`). No production change was made and all candidates remain unpromoted.
+
 2026-10-06 thorough hunt (hit): career HTTP mapping on replay + run summary; cheap-disproof on compare/history metadata and string sample-run variants; 13 scoped tests passed.
 
 2026-10-06 thorough hunt (hit): promoted RunArtifacts + manifest artifact career-posture parity and CLI `is_sample_run` string `"1.0"` candidates; fixed; cheap-disproof closed compare-summary career and obfuscated blob userinfo candidates; 58 scoped tests passed.
@@ -14953,10 +14955,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant export; run export; export SSRF
 - **paths:** ArchLucid.Application/Exports/; ArchLucid.Api/Controllers/Authority/ExportsController.cs; ArchLucid.Api/Controllers/Authority/ArchitectureExportController.cs; ArchLucid.Api/Controllers/Authority/RunsExportController.cs; ArchLucid.Core/Security/AllowedRunExportBlobDestinationUrlPolicy.cs
 - **test-filter:** FullyQualifiedName~ArchitectureReviewExport|FullyQualifiedName~ExportsController|FullyQualifiedName~AllowedRunExportBlobDestinationUrlPolicy
-- **hunts:** 942
+- **hunts:** 943
 - **bugs-found:** 55
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-06
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-10-12
 - **last-bug:** 2026-10-06 — export replay and run-summary routes omitted CareerArtifactExportBlocked 409 mapping
 - **related-pd-tb:** none
 - **code-changed-since:** yes
