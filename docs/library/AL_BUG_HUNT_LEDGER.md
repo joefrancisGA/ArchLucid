@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-12 thorough hunt (dry): `tenant-erasure` — reran the unchanged closed hypothesis set after the configuration default fix; no candidate became hunt-ready and no failing repro was warranted. Application tenant-erasure tests passed 19/19 and API tenant-erasure tests passed 28/28. No production or regression code changed.
+
 2026-10-12 thorough hunt (dry): `tenant-erasure` — reran the unchanged closed hypothesis set after the configuration hit; no candidate became hunt-ready and no failing repro was warranted. Application tenant-erasure tests passed 19/19 and API tenant-erasure tests passed 28/28. No production or regression code changed.
 
 2026-10-12 thorough hunt (hit): `AzureOpenAiOptions.UseJsonSchemaResponseFormat` defaulted to `true` when `AzureOpenAI:UseJsonSchemaResponseFormat` was unset, contradicting the configuration catalog/reference default `false` and enabling schema-file-dependent structured output unexpectedly. Changed the DTO initializer to `false`; regression `UseJsonSchemaResponseFormat_defaults_to_false_when_configuration_is_unset` failed before the fix and passed after it. Focused regression passed 1/1, scoped Configuration tests passed 1083/1083, and the Core compile check passed with 0 warnings and 0 errors.
