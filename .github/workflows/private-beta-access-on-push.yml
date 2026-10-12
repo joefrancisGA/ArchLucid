@@ -12,9 +12,10 @@ on:
   workflow_dispatch:
 
 concurrency:
-  # Keep an invite-wave witness running to completion; a later push queues behind it.
+  # Cancel superseded trunk pushes so a later SHA does not bury the first-green private-beta signal.
+  # The frozen invite-wave lane (private-beta-access-smoke-branch.yml) keeps cancel-in-progress: false.
   group: private-beta-access-on-push-${{ github.ref }}
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
