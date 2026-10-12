@@ -17434,13 +17434,20 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** agent evaluation; evaluation runner
 - **paths:** ArchLucid.AgentRuntime/Evaluation/
 - **test-filter:** FullyQualifiedName~Evaluation
-- **hunts:** 50
+- **hunts:** 51
 - **bugs-found:** 31
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-11
+- **last-hunt:** 2026-10-12
 - **last-bug:** 2026-10-10 — reference-case catalog stayed empty after configuration enablement
 - **related-pd-tb:** none
 - **code-changed-since:** no
+
+2026-10-12 seed hunt (seed-only): reread case-insensitive evaluation parsing, citation gates, heuristic quality scoring, faithfulness judging, and embedding evidence handling. The faithfulness judge-score casing candidate was promoted for a focused repro, but the AgentRuntime test build was blocked before execution by unrelated `AzureInventorySecurityEdgeMaterializer.cs` compile errors; no candidate was proven and no production change was made.
+
+- [ ] (candidate) `AgentOutputFaithfulnessEvaluator.ReadScore` — a reachable LLM judge response using `FAITHFULNESS_SCORE` or other casing may be treated as missing, so configured faithfulness enforcement is skipped; locus: exact `JsonElement.TryGetProperty` score reads; input: external keyed judge JSON.
+- [ ] (candidate) `AgentOutputTraceCitationGate.TryHasNonEmptyCitations` — a reachable real-agent result using `Citations` casing may be treated as citation-free and rejected under PilotStrict despite containing a usable citation; locus: exact top-level citation property read; input: untrusted agent-result JSON.
+- [ ] (candidate) `AgentOutputTraceCitationGate.TryCountTopLevelEvidenceRefs` — a reachable real-agent result using `EvidenceRefs` casing may fail the configured PilotStrict evidence-reference floor despite usable references; locus: exact top-level evidence-reference property read; input: untrusted agent-result JSON.
+- [ ] (candidate) `HeuristicAgentOutputTraceQualityStage.EvaluateFindings` — finding fields with casing variants such as `Severity` or `Recommendation` may score as incomplete even though the serialized agent result is structurally valid; locus: exact finding-property reads; input: untrusted agent-result JSON.
 
 2026-10-11 seed hunt (seed-only): re-read the selected evaluation quality-gate, JSON grounding, semantic-judge, and trace-quality paths; 213 scoped Evaluation tests passed. No distinct reachable wrong outcome met the promotion bar after the recent case-insensitive JSON fixes and existing candidate review.
 
