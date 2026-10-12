@@ -51,17 +51,12 @@ internal static class AzureInventorySnapshotParentAttachmentGraphHydrator
                     evidenceCurrency.Value.ToString();
             }
 
-            if (!propertiesByRowId.TryGetValue(resource.ResourceRowId, out List<AzureInventoryResourcePropertyReadModel>? properties))
+            if (!propertiesByRowId.ContainsKey(resource.ResourceRowId))
             {
                 continue;
             }
 
-            Dictionary<string, string> propertyDictionary = properties
-                .Where(property => !property.IsRedacted && !string.IsNullOrWhiteSpace(property.PropertyValue))
-                .ToDictionary(
-                    property => property.PropertyKey,
-                    property => property.PropertyValue!,
-                    StringComparer.OrdinalIgnoreCase);
+            IReadOnlyDictionary<string, string> propertyDictionary = indexes.GetUsableProperties(resource.ResourceRowId);
 
             HydrateRestorePointCollection(node, propertyDictionary);
             HydrateAccessConnector(node, resource, propertyDictionary);
