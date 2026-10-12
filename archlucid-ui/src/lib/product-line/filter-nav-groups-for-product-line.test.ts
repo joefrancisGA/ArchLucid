@@ -213,6 +213,30 @@ describe("filterNavGroupsForProductLine (Security shell)", () => {
     expect(adminHrefs).not.toContain("/internal/trial-funnel");
   });
 
+  it("keeps in-tenant SecureNow administration customer-owned", () => {
+    vi.stubEnv("NEXT_PUBLIC_SECURENOW_HOSTING", "in-tenant");
+
+    const rows = listNavGroupsVisibleInOperatorShell(
+      NAV_GROUPS,
+      AUTHORITY_RANK.PlatformInternalOperationsAuthority,
+      "all",
+      true,
+      false,
+      { productLine: "security", showVendorInternalNav: true },
+    );
+    const adminRow = rows.find((row) => row.group.id === "operator-admin");
+    const adminHrefs = adminRow?.visibleLinks.map((link) => link.href) ?? [];
+
+    expect(rows.map((row) => row.group.id)).not.toContain("operator-system-admin");
+    expect(adminHrefs).not.toContain("/administration/billing");
+    expect(adminHrefs).not.toContain("/internal/health");
+    expect(adminHrefs.slice(0, 2)).toEqual([
+      "/administration/system-health",
+      "/administration/identity-providers",
+    ]);
+    expect(adminRow?.group.caption).toBe("Users, identity, notifications, AI models, and system health.");
+  });
+
   it("keeps SecureNow sidebar nav icons distinct for tenant admins", () => {
     const links = listSecureNowSidebarLinks(AUTHORITY_RANK.AdminAuthority, {
       showVendorInternalNav: true,
