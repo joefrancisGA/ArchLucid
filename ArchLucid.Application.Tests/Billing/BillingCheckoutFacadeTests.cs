@@ -434,6 +434,7 @@ public sealed class BillingCheckoutFacadeTests
 
         result.HasSubscription.Should().BeFalse();
         result.Status.Should().Be("Pending");
+        result.Provider.Should().BeNull();
         result.TierCode.Should().BeNull();
         result.IsPaymentPastDue.Should().BeFalse();
     }
@@ -479,6 +480,7 @@ public sealed class BillingCheckoutFacadeTests
 
         result.HasSubscription.Should().BeFalse();
         result.Status.Should().Be("Canceled");
+        result.Provider.Should().BeNull();
         result.TierCode.Should().BeNull();
         result.IsPaymentPastDue.Should().BeFalse();
     }

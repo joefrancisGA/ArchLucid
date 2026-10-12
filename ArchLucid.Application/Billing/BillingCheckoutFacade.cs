@@ -116,7 +116,7 @@ public sealed class BillingCheckoutFacade(
         return new BillingSubscriptionStatusQueryResult
         {
             HasSubscription = hasSubscription,
-            Provider = snapshot.Provider,
+            Provider = hasSubscription ? snapshot.Provider : null,
             TierCode = hasSubscription ? snapshot.TierCode : null,
             Status = snapshot.Status,
             IsPaymentPastDue = string.Equals(snapshot.Status, "Suspended", StringComparison.OrdinalIgnoreCase),
