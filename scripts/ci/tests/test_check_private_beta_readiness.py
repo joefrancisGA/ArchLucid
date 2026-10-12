@@ -64,6 +64,22 @@ class TestPrivateBetaReadiness(unittest.TestCase):
                 issues,
             )
 
+    def test_workflow_requires_witness_queue_concurrency(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            root = Path(temporary_directory)
+            workflow_path = root / ".github/workflows/private-beta-access-on-push.yml"
+            corset_path = root / ".github/workflows/ui-typecheck-on-push.yml"
+            workflow_path.parent.mkdir(parents=True)
+            workflow_path.write_text("cancel-in-progress: false\n", encoding="utf-8")
+            corset_path.write_text("cancel-in-progress: true\n", encoding="utf-8")
+
+            issues = sut._check_workflow(root)
+
+            self.assertIn(
+                "UI typecheck workflow must queue active witnesses instead of cancelling them",
+                issues,
+            )
+
     def test_ruleset_requires_rc34_and_all_contexts(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_directory:
             root = Path(temporary_directory)
