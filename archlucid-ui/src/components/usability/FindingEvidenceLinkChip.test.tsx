@@ -22,7 +22,26 @@ describe("FindingEvidenceLinkChip", () => {
   it("falls back to evidence graph label without count", () => {
     render(<FindingEvidenceLinkChip href="/architecture/reviews/run-1/graph" />);
 
-    expect(screen.getByTestId("finding-evidence-link-chip")).toHaveTextContent("Evidence graph");
+    expect(screen.getByTestId("finding-evidence-link-chip")).toHaveTextContent(
+      "Evidence reference count was not stored",
+    );
+  });
+
+  it("distinguishes stored zero from an omitted count", () => {
+    const { rerender } = render(
+      <FindingEvidenceLinkChip href="/architecture/reviews/run-1/graph" evidenceRefCount={0} />,
+    );
+
+    expect(screen.getByTestId("finding-evidence-link-chip")).toHaveTextContent("Evidence: 0 linked");
+
+    rerender(<FindingEvidenceLinkChip href="/architecture/reviews/run-1/graph" evidenceRefCount={null} />);
+    expect(screen.getByTestId("finding-evidence-link-chip")).toHaveTextContent(
+      "Evidence reference count was not stored",
+    );
+    expect(screen.getByTestId("finding-evidence-link-chip")).toHaveAttribute(
+      "aria-label",
+      "Evidence reference count was not stored",
+    );
   });
 
   it("uses column-scoped labels without repeating the Evidence category prefix", () => {

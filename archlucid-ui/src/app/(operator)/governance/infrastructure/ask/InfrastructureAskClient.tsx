@@ -853,7 +853,9 @@ export function InfrastructureAskClient({ presentation = "page" }: Infrastructur
                 <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="infra-ask-insufficient-evidence-scope">
                   This snapshot does not have enough evidence to answer. Ask did not query live Azure.
                 </p>
-                <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{turn.response.answer}</p>
+                <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
+                  {turn.response.answer === null ? "Answer was not stored." : turn.response.answer}
+                </p>
               </div>
             ) : (
               <div className="grid gap-2">
@@ -886,6 +888,11 @@ export function InfrastructureAskClient({ presentation = "page" }: Infrastructur
                     Apply this view
                   </Button>
                   <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                    {turn.response.viewPlan.honestyLabel === null
+                      ? "View plan honesty label was not stored."
+                      : turn.response.viewPlan.honestyLabel}
+                  </p>
+                  <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                     Applying this view changes the page filters only. It does not change Azure.
                   </p>
                   {!isDiagramViewPlanValid(turn.response.viewPlan) ? (
@@ -898,7 +905,11 @@ export function InfrastructureAskClient({ presentation = "page" }: Infrastructur
               </div>
             )}
 
-            {turn.response.citations.length > 0 ? (
+            {turn.response.citations === null ? (
+              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                Citations were not stored.
+              </p>
+            ) : turn.response.citations.length > 0 ? (
               <div className="grid gap-2">
                 <h3 className={OPERATOR_TYPOGRAPHY.sectionTitle}>Citations</h3>
                 <ul className="m-0 grid gap-2 pl-5">

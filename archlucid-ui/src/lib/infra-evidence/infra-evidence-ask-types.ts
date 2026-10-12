@@ -22,9 +22,9 @@ export type InfraEvidenceAskRequest = {
 
 export type InfraEvidenceAskResponse = {
   topicKind: string;
-  answer: string;
+  answer: string | null;
   insufficientEvidence: boolean;
-  citations: InfraEvidenceAskCitation[];
+  citations: InfraEvidenceAskCitation[] | null;
   simulatorLabel: string | null;
   viewPlan: DiagramViewPlan | null;
 };

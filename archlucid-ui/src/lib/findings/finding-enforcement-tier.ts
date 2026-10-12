@@ -1,4 +1,4 @@
-export type FindingEnforcementTierKind = "PolicyViolation" | "Advisory" | null;
+export type FindingEnforcementTierKind = "PolicyViolation" | "Advisory" | string | null;
 
 export function normalizeFindingEnforcementTier(raw: unknown): FindingEnforcementTierKind {
   if (typeof raw !== "string") {
@@ -15,7 +15,7 @@ export function normalizeFindingEnforcementTier(raw: unknown): FindingEnforcemen
     return "PolicyViolation";
   }
 
-  return null;
+  return normalized;
 }
 
 export function findingEnforcementTierLabel(tier: FindingEnforcementTierKind): string {
@@ -23,5 +23,13 @@ export function findingEnforcementTierLabel(tier: FindingEnforcementTierKind): s
     return "Enforcement tier was not stored";
   }
 
-  return tier === "Advisory" ? "Advisory note" : "Policy violation";
+  if (tier === "Advisory") {
+    return "Advisory note";
+  }
+
+  if (tier === "PolicyViolation") {
+    return "Policy violation";
+  }
+
+  return tier;
 }

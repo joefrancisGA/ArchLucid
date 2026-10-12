@@ -179,11 +179,9 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
           ) : null}
           {currentQuestion != null && currentQuestion.status !== "Open" ? (
             <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-diagrams-question-answer">
-              Answer: {currentQuestion.answerText !== null && currentQuestion.answerText !== undefined
-                ? currentQuestion.answerText
-                : currentQuestion.answerCode != null
-                  ? secureNowQuestionAnswerLabel(currentQuestion.answerCode)
-                  : "Stored answer was not on this question"}
+              {currentQuestion.reason === null || currentQuestion.reason === undefined
+                ? "Disposition reason was not stored."
+                : currentQuestion.reason}
             </p>
           ) : null}
         </div>
@@ -379,6 +377,12 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
                 {currentQuestion.sourceLine.trim().length > 0
                   ? currentQuestion.sourceLine
                   : "Source line was not stored"}
+              </p>
+              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                Source: {currentQuestion.source === null ? "Question source was not stored." : currentQuestion.source}
+              </p>
+              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                Scope: {currentQuestion.scopeKind === null ? "Question scope was not stored." : currentQuestion.scopeKind}
               </p>
               <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                 {currentQuestion.expirationUtc === null || currentQuestion.expirationUtc === undefined

@@ -13,7 +13,7 @@ export type InfraEvidenceMermaidComplexityMetrics = {
 export type InfraEvidenceMermaidFallbackArtifactSummary = {
   key: string;
   label: string;
-  status: string;
+  status: string | null;
   nodeCount: number;
   edgeCount: number;
 };

@@ -21,6 +21,20 @@ describe("FindingClassificationChip (SD-12)", () => {
     expect(screen.getByTestId("finding-classification-chip-f-2")).toHaveTextContent("Checklist coverage");
   });
 
+  it("explains omitted treatment while preserving stored treatment values", () => {
+    const { rerender } = render(
+      <FindingClassificationChip classification="ChecklistCoverage" treatment={null} findingId="f-missing" showReason />,
+    );
+
+    expect(screen.getByTestId("finding-classification-chip-f-missing")).toHaveTextContent("Checklist coverage");
+    expect(screen.getByText(/Treatment was not stored/)).toBeInTheDocument();
+
+    rerender(
+      <FindingClassificationChip classification="ChecklistCoverage" treatment={7} findingId="f-other" />,
+    );
+    expect(screen.getByTestId("finding-classification-chip-f-other")).toHaveTextContent("7");
+  });
+
   it("renders checklist-demoted when treatment demotes a finding", () => {
     render(
       <FindingClassificationChip

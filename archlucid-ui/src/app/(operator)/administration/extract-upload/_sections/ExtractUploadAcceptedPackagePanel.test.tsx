@@ -65,6 +65,28 @@ describe("ExtractUploadAcceptedPackagePanel", () => {
     expect(screen.getByTestId("extract-upload-accepted-resource-count")).toHaveTextContent("0");
   });
 
+  it("shows the linked review value without replacing stored empty text", () => {
+    const { rerender } = render(
+      <ExtractUploadAcceptedPackagePanel record={{ ...sampleRecord, associateRunId: "run-1" }} />,
+    );
+
+    expect(screen.getByTestId("extract-upload-accepted-associate-run-id")).toHaveTextContent("run-1");
+
+    rerender(<ExtractUploadAcceptedPackagePanel record={{ ...sampleRecord, associateRunId: "" }} />);
+    expect(screen.getByTestId("extract-upload-accepted-associate-run-id")).toHaveTextContent("");
+    expect(screen.getByTestId("extract-upload-accepted-associate-run-id")).not.toHaveTextContent(
+      "Linked review was not stored.",
+    );
+  });
+
+  it("labels an omitted linked review", () => {
+    render(<ExtractUploadAcceptedPackagePanel record={sampleRecord} />);
+
+    expect(screen.getByTestId("extract-upload-accepted-associate-run-id")).toHaveTextContent(
+      "Linked review was not stored.",
+    );
+  });
+
   it("offers one SecureNow next action instead of a follow-up link list", () => {
     render(<ExtractUploadAcceptedPackagePanel record={sampleRecord} productLineId="security" />);
 

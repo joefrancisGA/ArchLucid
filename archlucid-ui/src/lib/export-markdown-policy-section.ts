@@ -27,10 +27,14 @@ export function formatPolicySection(policy: Record<string, unknown> | null, line
 
       const id = normalizeInlineText(c.controlId);
       const name = normalizeInlineText(c.controlName);
-      const label = [id, name].filter(Boolean).join(" — ");
+      const missingId = c.controlId === null || c.controlId === undefined;
+      const missingName = c.controlName === null || c.controlName === undefined;
+      const label = [id, name].filter((value): value is string => value !== null && value.length > 0).join(" — ");
 
-      if (label) {
-        lines.push(`- ${label}`);
+      if (missingId && missingName) {
+        lines.push("- Control name was not stored.");
+      } else {
+        lines.push(`- ${label}${missingId ? " Control id was not stored." : ""}${missingName ? " Control name was not stored." : ""}`);
       }
     }
 
@@ -48,10 +52,14 @@ export function formatPolicySection(policy: Record<string, unknown> | null, line
 
       const id = normalizeInlineText(c.controlId);
       const name = normalizeInlineText(c.controlName);
-      const label = [id, name].filter(Boolean).join(" — ");
+      const missingId = c.controlId === null || c.controlId === undefined;
+      const missingName = c.controlName === null || c.controlName === undefined;
+      const label = [id, name].filter((value): value is string => value !== null && value.length > 0).join(" — ");
 
-      if (label) {
-        lines.push(`- ${label}`);
+      if (missingId && missingName) {
+        lines.push("- Control name was not stored.");
+      } else {
+        lines.push(`- ${label}${missingId ? " Control id was not stored." : ""}${missingName ? " Control name was not stored." : ""}`);
       }
     }
 
@@ -63,11 +71,18 @@ export function pushPolicyAtCommitMarkdownLines(manifest: Record<string, unknown
   const snapshot = parseCompareManifestGovernanceSnapshot(manifest).atCommit;
 
   if (snapshot === null) {
+    lines.push("Policy at commit was not stored.");
     return;
   }
 
   lines.push("## Policy scope at commit");
   lines.push("");
+
+  if (snapshot.hasEffectivePolicy === null) {
+    lines.push("Effective policy flag was not stored.");
+    lines.push("");
+    return;
+  }
 
   if (!snapshot.hasEffectivePolicy) {
     lines.push("_No effective policy pack assignments or compliance rule keys were recorded at commit._");

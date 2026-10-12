@@ -7,7 +7,7 @@ export type DiagramViewPlan = {
   readonly snapshotId: string | null;
   readonly cloudResourceId: string | null;
   readonly fitTargetNodeId: string | null;
-  readonly honestyLabel: string;
+  readonly honestyLabel: string | null;
 };
 
 export type ApplyDiagramViewPlanResult = {

@@ -33,7 +33,7 @@ export type CompareEffectiveGovernanceAtCommitSnapshot = {
   readonly conflictCount: number | null;
   readonly packAssignments: readonly CompareEffectivePackAssignmentAtCommitRow[];
   readonly coverageAssignments: readonly CompareEffectiveCoverageAssignmentAtCommitRow[];
-  readonly hasEffectivePolicy: boolean;
+  readonly hasEffectivePolicy: boolean | null;
 };
 
 export type CompareManifestGovernanceSnapshot = {
@@ -108,8 +108,8 @@ function readStringArray(value: unknown): string[] {
   return out;
 }
 
-function readBoolean(value: unknown): boolean {
-  return value === true;
+function readBoolean(value: unknown): boolean | null {
+  return value === null || value === undefined ? null : value === true;
 }
 
 function readFiniteNumber(value: unknown): number | null {

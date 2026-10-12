@@ -99,14 +99,18 @@ export function ExtractUploadSettingsPageHeader(
         buyerPolishedShell ? null : (
           <div className={cn("flex flex-col gap-2", OPERATOR_TYPOGRAPHY.helper)}>
             <ExtractUploadSettingsBreadcrumb />
-            {props.extractorScriptVersion !== null ? (
+            {props.extractorScriptVersion == null ? (
+              <span className="text-al-text-secondary" data-testid="extract-upload-header-extractor-version">
+                Extractor version was not stored.
+              </span>
+            ) : (
               <span className="text-al-text-secondary" data-testid="extract-upload-header-extractor-version">
                 <strong>
                   {EXTRACT_UPLOAD_EXTRACTOR_VERSION_METADATA_PREFIX}:
                 </strong>{" "}
                 v{props.extractorScriptVersion}
               </span>
-            ) : null}
+            )}
           </div>
         )
       }
