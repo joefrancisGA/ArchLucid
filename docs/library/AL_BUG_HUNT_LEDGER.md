@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-12 seed hunt (seed-only): `cli-tenant-isolation` — re-read `TenantIsolationNegativeTestCommand` and `TenantIsolationNegativeTestRunner`; no fresh reachable mechanism-backed wrong outcome met the hunt-ready bar. The focused `TenantIsolationNegativeTestRunnerTests` filter passed 54/54. Seeded two bounded candidates; no production or regression change.
+
 2026-10-12 thorough hunt (dry): `ui-webhooks-settings` — cheap-disproved the four bounded candidates against the selected client/hook and existing scope, overlap, deep-link, and Continue-last regressions; none had a reachable hunt-ready wrong outcome for a failing repro. The focused Webhooks settings page suite passed 60/60. No production or regression change.
 
 2026-10-12 seed hunt (seed-only): `ui-webhooks-settings` — re-read `WebhooksSettingsClient.tsx` and `use-webhooks-settings.ts` with the focused page regressions; no fresh reachable mechanism-backed wrong outcome met the hunt-ready bar. The focused Webhooks settings page suite passed 60/60. Seeded four bounded candidates; no production or regression change.
@@ -10103,6 +10105,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: cli-tenant-isolation
 
+2026-10-12 seed hunt (seed-only): re-read the selected command and runner facade; no candidate was promoted after the focused 54/54 test run.
+
+- (candidate) `TenantIsolationNegativeTestCommand.WriteArtifactsAsync` — reachable `--json-out report.json` filename-only output path may resolve its directory as null and produce an unexpected artifact-write result; verify the documented relative-file input and expected artifact success contract before promotion.
+- (candidate) `TenantIsolationNegativeTestCommand.WriteArtifactsAsync` — reachable `--markdown-out report.md` filename-only output path may diverge from JSON artifact handling when no directory component exists; verify the documented relative-file input and expected artifact success contract before promotion.
+
 2026-10-09 seed hunt (seed-only): reread live probes, offline replay, and scope headers; no hunt-ready row shipped; five candidates persisted.
 
 2026-10-05 seed hunt (seed→hit): reseeded cli-tenant-isolation; proved offline exclude-run-id replay false-passed when `observedStatusCode` was 503 but outcome claimed verified `HTTP 200; foreign runId absent`; fixed verified-absent trust gating; regression `RunOffline_SkipsExcludeRunIdProbeWhenManifestStatusCodeIsServerErrorButOutcomeClaimsVerifiedAbsent`; 53 scoped TenantIsolationNegativeTestRunner tests passed.
@@ -10167,10 +10174,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant isolation cli; negative isolation test
 - **paths:** ArchLucid.Cli/Commands/TenantIsolationNegativeTestCommand.cs; ArchLucid.Cli/Commands/TenantIsolationNegativeTestRunner.cs
 - **test-filter:** FullyQualifiedName~TenantIsolationNegativeTestRunnerTests
-- **hunts:** 45
+- **hunts:** 46
 - **bugs-found:** 24
 - **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-10-11
+- **last-hunt:** 2026-10-12
 - **last-bug:** 2026-10-05 — offline exclude replay false-passed on server-error status with verified-absent outcome copy
 - **related-pd-tb:** none
 - **code-changed-since:** 0
