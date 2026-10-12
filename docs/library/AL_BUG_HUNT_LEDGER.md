@@ -2,6 +2,8 @@
 
 2026-10-12 seed hunt (seed-only): `ui-governance-findings-queue` — re-read the selected queue path after the buyer-polished contextual-help fix; no fresh mechanism-backed candidate met the reachability and wrong-outcome bar. The full findings route scope passed 49 tests and retained 11 known external-store/update-depth and workspace-label baseline failures. No production or regression change.
 
+2026-10-12 seed hunt (seed→hit): `GovernanceFindingsQueueDesktopTable` omitted `showInsightDensityScore` when rendering grouped resource rows, so working-mode density scores disappeared after the reachable Group by resource toggle. Regression `preserves insight density scores in grouped working-mode rows` failed first and passed after forwarding the prop; the focused desktop-table suite passed 8/8.
+
 2026-10-12 seed hunt (seed-only): `architecture-recommendation` — re-read the recommendation engine and trade-off builder; retained five bounded candidates, but provisional-model behavior is upstream-gated, dimension-pair completeness lacks a contract, null collection elements lack a reachable caller contract, duplicate finding semantics are unspecified, and priority-list order has no established precedence contract. The exact Alternatives/ProposedChange filter passed 45/45. No production or regression change.
 
 2026-10-12 seed hunt (seed-only): `core-costing` — re-read `ArchLucid.Core/Costing/` and focused costing tests; no new reachable pricing, parser, normalization, or cancellation boundary met the hunt-ready bar. The scoped Costing filter passed 286 tests and retained 6 explicitly invalid extra-`k` week-UOM baseline failures. No production or regression change.
@@ -35712,6 +35714,8 @@ ABQ-09 churn hotspot; intake wizard route tree.
 
 2026-10-12 seed hunt (seed-only): re-read the selected queue client, assigned-to-me chrome, toolbar/scope/results sections, and focused tests after the contextual-help fix; no fresh mechanism-backed candidate met the promotion bar. The full findings route scope passed 49 tests and retained 11 known external-store/update-depth and workspace-label baseline failures. No production or regression change.
 
+2026-10-12 seed hunt (seed→hit): `GovernanceFindingsQueueDesktopTable` omitted `showInsightDensityScore` when rendering grouped resource rows, so working-mode density scores disappeared after the reachable Group by resource toggle. Regression `preserves insight density scores in grouped working-mode rows` failed first and passed after forwarding the prop; the focused desktop-table suite passed 8/8.
+
 2026-10-12 seed hunt (seed→hit): `GovernanceFindingsAssignedToMeChrome` always rendered `PageContextualHelpButton` in the assigned-to-me header actions, including the reachable buyer-polished shell where contextual help is intentionally omitted; conditional rendering preserves help in the non-buyer shell. Regression `renders skip link, primary landmark, orientation strip, and buyer subtitle` failed first and passed after the fix; focused buyer-polished test passed 1/1; full route scope retained 49 passed and 11 known baseline failures.
 
 2026-10-11 thorough hunt (dry): cheap-disproved the four open candidates. The client trims `runId` before exposing scope state, the more-filters disclosure has URL/effect synchronization and focused coverage, assigned-mode active chips are derived from the complete filter state, and derivation disclosure ids are trimmed before comparison. No failing repro was established. Candidate-specific URL, scope, filter-chip, and disclosure tests passed 13/13; the picker-scoped client file remained at 22 tests with 11 known external-store/update-depth and workspace-label baseline failures.
@@ -35743,10 +35747,10 @@ ABQ-09 churn hotspot; intake wizard route tree.
 - **paths:** archlucid-ui/src/app/(operator)/governance/findings/
 - **test-filter:** FullyQualifiedName~GovernanceFindingsQueueClient
 - **hunts:** 51
-- **bugs-found:** 33
+- **bugs-found:** 34
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-12
-- **last-bug:** 2026-10-12 — buyer-polished assigned-to-me header rendered contextual help
+- **last-bug:** 2026-10-12 — grouped working-mode rows omitted insight density scores
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -35763,6 +35767,8 @@ ABQ-09 churn hotspot.
 2026-10-09 thorough hunt (dry): cheap-disproved all five candidates; no failing repro was established and no fix was shipped. Candidate-specific tests ran 19 tests: 16 passed and 3 failed on the existing workspace-label expectation baseline. The focused queue files ran 29 tests: 17 passed and 12 failed on known external-store/update-depth, workspace-label, and buyer-polished contextual-help baselines.
 
 ### Hypotheses
+
+- [x] (proven) `GovernanceFindingsQueueDesktopTable` / grouped `GovernanceFindingsQueueTableBody` — a reachable working-mode queue with Group by resource enabled passed `showInsightDensityScore` to flat and virtualized bodies but not grouped bodies, so grouped findings omitted their insight-density score — **hit 2026-10-12 seed hunt:** forward the display prop into grouped table bodies; regression `preserves insight density scores in grouped working-mode rows`.
 
 - [x] (proven) `GovernanceFindingsAssignedToMeChrome` — the reachable buyer-polished assigned-to-me route rendered `PageContextualHelpButton` despite buyer-polished headers suppressing contextual help, exposing non-buyer chrome on the buyer surface — **hit 2026-10-12 seed hunt:** omit contextual help in the buyer-polished shell while retaining it for the non-buyer shell; regression `renders skip link, primary landmark, orientation strip, and buyer subtitle`.
 
