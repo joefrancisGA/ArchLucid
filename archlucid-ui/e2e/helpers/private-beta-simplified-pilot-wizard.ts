@@ -4,7 +4,7 @@ import { liveE2eArchitectureDescription } from "./live-api-client";
 import { formatSimplifiedPilotWizardMountFailure } from "./simplified-pilot-wizard-mount-failure";
 import { clickThroughBlockingOverlays } from "./dismiss-blocking-modal-overlays";
 import { ensureFirstSessionPurposeChooserClosed } from "./live-seat-scope-assertions";
-import { parseWizardCreateResponse } from "./wizard-create-response";
+import { parseWizardCreateResponse, parseWizardOperationResponse } from "./wizard-create-response";
 
 /**
  * Submits the baseline simplified pilot wizard (`?baseline=1`) and returns the created run id.
@@ -102,6 +102,10 @@ export async function submitPrivateBetaSimplifiedPilotWizard(page: Page): Promis
 
   expect(createResp.ok(), createBody).toBeTruthy();
 
+  if (createResp.status() === 202) {
+    return await waitForAsyncWizardRun(page, createResp.headers()["location"]);
+  }
+
   const createJson = parseWizardCreateResponse(
     createBody,
     createResp.status(),
@@ -116,4 +120,81 @@ export async function submitPrivateBetaSimplifiedPilotWizard(page: Page): Promis
 
 function liveE2ePrivateBetaWizardCreateTimeoutMs(): number {
   return process.env.CI ? 540_000 : 180_000;
+}
+
+async function waitForAsyncWizardRun(page: Page, location: string | undefined): Promise<string> {
+  if (!location) {
+    throw new Error(
+      "[wizard-create-response] Async create response did not include a Location header.",
+    );
+  }
+
+  const operationUrl = toProxyOperationUrl(page.url(), location);
+  const deadline = Date.now() + liveE2ePrivateBetaWizardCreateTimeoutMs();
+
+  while (Date.now() < deadline) {
+    const operationResponse = await page.evaluate(async (url) => {
+      const response = await fetch(url, {
+        headers: { Accept: "application/json" },
+      });
+
+      return {
+        body: await response.text(),
+        contentType: response.headers.get("content-type") ?? undefined,
+        status: response.status,
+      };
+    }, operationUrl);
+
+    if (!operationResponse.status || operationResponse.status < 200 || operationResponse.status >= 300) {
+      throw new Error(
+        `[wizard-create-response] Async operation poll failed. ` +
+          `Status: ${operationResponse.status}. URL: ${operationUrl}. ` +
+          `Body: ${operationResponse.body.slice(0, 400) || "<empty>"}.`,
+      );
+    }
+
+    const operation = parseWizardOperationResponse(
+      operationResponse.body,
+      operationResponse.status,
+      operationUrl,
+      operationResponse.contentType,
+    );
+    const state = operation.state?.toLowerCase();
+
+    if (state === "succeeded") {
+      const runId = operation.resultRef?.runId ?? "";
+
+      if (runId.length === 0) {
+        throw new Error(
+          `[wizard-create-response] Async operation succeeded without a run id. URL: ${operationUrl}.`,
+        );
+      }
+
+      return runId;
+    }
+
+    if (state === "failed" || state === "canceled") {
+      throw new Error(
+        `[wizard-create-response] Async operation ended in ${operation.state} state. ` +
+          `URL: ${operationUrl}. Step: ${operation.stepLabel ?? "unknown"}.`,
+      );
+    }
+
+    await page.waitForTimeout(1_000);
+  }
+
+  throw new Error(
+    `[wizard-create-response] Async operation did not complete before the timeout. ` +
+      `URL: ${operationUrl}.`,
+  );
+}
+
+function toProxyOperationUrl(pageUrl: string, location: string): string {
+  const operationUrl = new URL(location, pageUrl);
+
+  if (operationUrl.pathname.startsWith("/v1/")) {
+    operationUrl.pathname = `/api/proxy${operationUrl.pathname}`;
+  }
+
+  return operationUrl.toString();
 }
