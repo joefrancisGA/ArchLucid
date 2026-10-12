@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-12 thorough hunt (hit): `BackgroundJobQueueProcessorHostedService.HandleFailureAsync` treated a watchdog-reclaimed `Pending` row as still owned by the stale failing worker, so it scheduled a retry and notification after reclaim. The processor now requires a `Running` row before failure transitions and `MarkPendingRetryAsync` updates only `Running` rows; regression `ProcessOneMessageAsync_does_not_schedule_retry_when_watchdog_reclaims_job_before_failure` failed before the fix and passed after it. Focused processor tests passed 28/28 and Host.Core background-job/hosted tests passed 69/69; the scoped compile check timed out without compiler errors.
+
 2026-10-12 seed hunt (seed-only): `finding-inspect-sql` — re-read the selected inspect repository, mapper, SQL batch, recent trace-rule parity change, and focused tests. No fresh reachable mechanism-backed candidate met the hunt-ready bar. The focused inspect-read filter passed 425/425. No production or regression change.
 
 2026-10-12 seed hunt (seed-only): `cloud-extractors` — re-read AWS Resource Explorer, GCP Asset Inventory/workload identity, and Azure management post-read paths after the cancellation change. No fresh reachable mechanism-backed candidate met the full hunt-ready bar. The focused Azure management-client suite passed 6/6; no production or regression change.
@@ -14953,17 +14955,19 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-07 thorough hunt (hit): proved stale processor success assignment after watchdog reclaim to `Pending`; fixed Running re-read + SQL guard; regression above; cheap-disproof closed four reseeded candidates; reseeded four new candidates.
 
+2026-10-12 thorough hunt (hit): stale executor failure after watchdog reclaim to `Pending` still passed the reclaimed row into retry scheduling; the processor now requires `Running` before failure transitions and the durable retry update has a `State = N'Running'` guard; regression `ProcessOneMessageAsync_does_not_schedule_retry_when_watchdog_reclaims_job_before_failure` failed first and passed after the fix. Focused processor tests passed 28/28 and Host.Core background-job/hosted tests passed 69/69.
+
 - **id:** host-core-jobs
 - **status:** open
 - **impact:** medium
 - **aliases:** background jobs; hosted services; durable job queue
 - **paths:** ArchLucid.Host.Core/Jobs/; ArchLucid.Host.Core/Hosted/
 - **test-filter:** FullyQualifiedName~ArchLucidJob|FullyQualifiedName~BackgroundJob|FullyQualifiedName~Hosted
-- **hunts:** 46
-- **bugs-found:** 31
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-10-11
-- **last-bug:** 2026-10-07 — stale MarkSucceeded after watchdog reclaim to Pending
+- **hunts:** 47
+- **bugs-found:** 32
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-12
+- **last-bug:** 2026-10-12 — stale failure scheduled retry after watchdog reclaim to Pending
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -15052,7 +15056,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `BackgroundJobQueueProcessorHostedService` / `BackgroundJobRepository.MarkSucceededAsync` — stale worker success assignment after watchdog reclaim moved `Running` → `Pending` — **hit 2026-10-07 thorough hunt:** success path now requires `Running` on pre-write re-reads and SQL `MarkSucceededAsync` updates only `Running` rows; regression `ProcessOneMessageAsync_does_not_mark_succeeded_when_job_reclaimed_to_pending_before_success_assignment`.
 
 - [ ] (candidate) `BackgroundJobRepository.MarkFailedTerminalAsync` — UPDATE without `State` guard — reachable when a stale worker failure path runs after watchdog reclaim (sibling to proven `MarkSucceeded` gap).
-- [ ] (candidate) `BackgroundJobQueueProcessorHostedService.HandleFailureAsync` — retry scheduling re-reads only `Canceled`, not `Pending` reclaim while executor still running.
+- [x] (proven) `BackgroundJobQueueProcessorHostedService.HandleFailureAsync` — retry scheduling re-reads only `Canceled`, not `Pending` reclaim while executor still running — **hit 2026-10-12 thorough hunt:** a watchdog-reclaimed `Pending` row was still passed to `MarkPendingRetryAsync` and re-notified; failure transitions now require `Running`, and the retry SQL update also guards `State = N'Running'`; regression `ProcessOneMessageAsync_does_not_schedule_retry_when_watchdog_reclaims_job_before_failure`.
 - [ ] (candidate) `BackgroundJobQueueProcessorHostedService` success path — blob uploaded then Running check fails leaves orphan result blob without `ResultBlobName` on row (storage hygiene vs state correctness).
 - [ ] (candidate) `InMemoryBackgroundJobQueue.ExecuteAsync` — success assigns `_files` before cancel re-read; canceled row may retain bytes until eviction (parity with durable orphan-blob hygiene).
 
