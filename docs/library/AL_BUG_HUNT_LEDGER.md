@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-12 thorough hunt (dry): `tenant-erasure` — rechecked the five closed hypotheses: Kestrel backslash and encoded-dot path claims remain unreachable from the selected files, while approval timing, the platform legal-hold exception, and idempotent offboard retries remain covered contracts. Application tenant-erasure tests passed 19/19 and API tenant-erasure tests passed 28/28. No production or regression code changed.
+
 2026-10-12 thorough hunt (dry): `tenant-erasure` — reran the unchanged closed hypothesis set; no candidate became hunt-ready and no failing repro was warranted. Application tenant-erasure tests passed 19/19 and API tenant-erasure tests passed 28/28. No production or regression code changed.
 
 2026-10-12 thorough hunt (dry): `tenant-erasure` — reran the unchanged closed hypothesis set after the configuration default fix; no candidate became hunt-ready and no failing repro was warranted. Application tenant-erasure tests passed 19/19 and API tenant-erasure tests passed 28/28. No production or regression code changed.
