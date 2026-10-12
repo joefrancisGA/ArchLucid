@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-12 seed hunt (seed-only): `architecture-recommendation` — re-read the recommendation engine and trade-off builder; retained five bounded candidates, but provisional-model behavior is upstream-gated, dimension-pair completeness lacks a contract, null collection elements lack a reachable caller contract, duplicate finding semantics are unspecified, and priority-list order has no established precedence contract. The exact Alternatives/ProposedChange filter passed 45/45. No production or regression change.
+
 2026-10-12 seed hunt (seed-only): `core-costing` — re-read `ArchLucid.Core/Costing/` and focused costing tests; no new reachable pricing, parser, normalization, or cancellation boundary met the hunt-ready bar. The scoped Costing filter passed 286 tests and retained 6 explicitly invalid extra-`k` week-UOM baseline failures. No production or regression change.
 
 2026-10-12 seed hunt (seed-only): `authority-pipeline-payload` — re-read `AuthorityPipelineWorkPayload.cs` and its JSON/null-element regressions; all reachable payload-shape classes in the selected source are already closed, and no fresh mechanism-backed hypothesis met the hunt-ready bar. The scoped payload filter passed 39/39. No production or regression change.
@@ -9739,6 +9741,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: architecture-recommendation
 
+2026-10-12 seed hunt (seed-only): re-read the selected recommendation engine and trade-off builder; retained the five bounded candidates because none met the full reachability and wrong-outcome bar. The exact Alternatives/ProposedChange filter passed 45/45. No production or regression change.
+
 2026-10-11 seed hunt (seed-only): re-read the selected recommendation engine and trade-off builder after the explicit-priority negation fixes; upstream provisional gating prevents the strongest model-state concern from being reachable as a wrong outcome, and the selected contract does not require every dimension pair to receive a trade-off. The exact Alternatives/ProposedChange filter passed 45/45; retained two bounded candidates and made no production or regression code change.
 
 - [ ] (candidate) `ArchitectureRecommendationEngine.BuildRecommendations` — the supplied `ArchitectureKnowledgeModel.IsProvisionalSynthesis` is not consulted at this locus, so a direct caller passing a provisional model with a Fail finding could emit a remediation recommendation instead of evidence-first output — input: the `context.Model` passed by `ClosedLoopRecommendationStage` while framing is incomplete; upstream `ClosedLoopReviewStage` currently gates those findings, so caller/contract evidence is still needed.
@@ -9907,8 +9911,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** recommendation engine; alternatives
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationEngine.cs; ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationTradeOffBuilder.cs
 - **test-filter:** FullyQualifiedName~ArchitectureRecommendationAlternativesTests|FullyQualifiedName~ArchitectureRecommendationProposedChangeTests
-- **hunts:** 62
-- **last-hunt:** 2026-10-11
+- **hunts:** 63
+- **last-hunt:** 2026-10-12
 - **bugs-found:** 24
 - **consecutive-dry-hunts:** 0
 - **last-bug:** 2026-10-10 — Unicode priority text falsely matched a standalone Security dimension
