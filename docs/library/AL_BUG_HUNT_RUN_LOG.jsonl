@@ -9716,3 +9716,4 @@
 {"at":"2026-10-12T20:02:53.9757296Z","zoneId":"archlucid-contracts","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Contracts/"]}
 {"at":"2026-10-12T20:06:14.0293622Z","zoneId":"archlucid-contracts","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Contracts/"]}
 {"at":"2026-10-12T20:10:11.7873855Z","zoneId":"host-core-coordination","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Host.Core/Coordination/"]}
+{"at":"2026-10-12T20:13:27.1936813Z","zoneId":"cli-tenant-isolation","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Cli/Commands/TenantIsolationNegativeTestCommand.cs","ArchLucid.Cli/Commands/TenantIsolationNegativeTestRunner.cs"]}

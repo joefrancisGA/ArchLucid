@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-12 seed hunt (seed-only): `cli-tenant-isolation` — re-read the tenant-isolation command, runner, live/offline report aggregation, and focused tests. Existing deny-status, pagination, alternate-scope, and fail-closed skip contracts remain covered; no fresh reachable mechanism-backed wrong outcome met the hunt-ready bar. The scoped runner test stopped before discovery on unrelated Application compile errors (`unmappedRoles` and `warnings`). No production or regression code changed.
+
 2026-10-12 seed hunt (seed-only): `host-core-coordination` — re-read the shared recoverable outbox processor, failure handler, retry calculator, option verifier, and focused coordination tests. Existing retry, dead-letter, cancellation, and option-clamping paths remain covered; no fresh reachable mechanism-backed wrong outcome met the hunt-ready bar. The scoped test run stopped before discovery on unrelated Application compile errors (`unmappedRoles` and `warnings`). No production or regression code changed.
 
 2026-10-12 seed hunt (seed-only): `archlucid-contracts` — repeated the selected converter/test review with no production-path churn. No fresh reachable mechanism-backed wrong outcome met the hunt-ready bar; no candidate was promoted. The scoped `Contracts` filter again stopped before discovery on the unrelated Application errors (`unmappedRoles` and `warnings`). No production or regression code changed.
@@ -10359,7 +10361,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant isolation cli; negative isolation test
 - **paths:** ArchLucid.Cli/Commands/TenantIsolationNegativeTestCommand.cs; ArchLucid.Cli/Commands/TenantIsolationNegativeTestRunner.cs
 - **test-filter:** FullyQualifiedName~TenantIsolationNegativeTestRunnerTests
-- **hunts:** 48
+- **hunts:** 49
 - **bugs-found:** 24
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-12
