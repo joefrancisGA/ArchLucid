@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-12 seed hunt (seed-only): `core-explanation-json` — re-read the structured explanation parser, JSON readers, confidence/citation callouts, and focused `RunExplanation` tests. Numeric/string confidence, nested scalar/list coercion, malformed JSON fallback, and object-shaped evidence remain covered; no fresh reachable mechanism-backed wrong outcome met the hunt-ready bar. The scoped tests stopped before discovery on unrelated Application compile errors (`unmappedRoles` and `warnings`). No production or regression code changed.
+
 2026-10-12 seed hunt (seed-only): `authority-pipeline-payload` — re-read `AuthorityPipelineWorkPayload`, its JSON adapter, and both focused null/JSON test suites. Null collections/elements, malformed JSON, identifier normalization, and undefined work kinds remain explicitly handled; no fresh reachable mechanism-backed wrong outcome met the hunt-ready bar. The scoped payload tests stopped before discovery on unrelated Application compile errors (`unmappedRoles` and `warnings`). No production or regression code changed.
 
 2026-10-12 seed hunt (seed-only): `cli-tenant-isolation` — re-read the tenant-isolation command, runner, live/offline report aggregation, and focused tests. Existing deny-status, pagination, alternate-scope, and fail-closed skip contracts remain covered; no fresh reachable mechanism-backed wrong outcome met the hunt-ready bar. The scoped runner test stopped before discovery on unrelated Application compile errors (`unmappedRoles` and `warnings`). No production or regression code changed.
@@ -28055,10 +28057,10 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 - **aliases:** run explanation; explanation json; split from archlucid-core
 - **paths:** ArchLucid.Core/Explanation/
 - **test-filter:** FullyQualifiedName~RunExplanation
-- **hunts:** 55
+- **hunts:** 56
 - **bugs-found:** 33
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-11
+- **last-hunt:** 2026-10-12
 - **last-bug:** 2026-10-11 — string boolean structured confidence was accepted as full confidence
 - **related-pd-tb:** none
 - **code-changed-since:** no

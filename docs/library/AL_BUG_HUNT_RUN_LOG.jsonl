@@ -9718,3 +9718,4 @@
 {"at":"2026-10-12T20:10:11.7873855Z","zoneId":"host-core-coordination","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Host.Core/Coordination/"]}
 {"at":"2026-10-12T20:13:27.1936813Z","zoneId":"cli-tenant-isolation","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Cli/Commands/TenantIsolationNegativeTestCommand.cs","ArchLucid.Cli/Commands/TenantIsolationNegativeTestRunner.cs"]}
 {"at":"2026-10-12T20:16:47.3842192Z","zoneId":"authority-pipeline-payload","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Application/Runs/Orchestration/AuthorityPipelineWorkPayload.cs"]}
+{"at":"2026-10-12T20:20:20.1441662Z","zoneId":"core-explanation-json","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Core/Explanation/"]}
