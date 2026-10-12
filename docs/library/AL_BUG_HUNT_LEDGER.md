@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-12 seed hunt (seed-only): `archlucid-contracts` — repeated the selected converter/test review with no production-path churn. No fresh reachable mechanism-backed wrong outcome met the hunt-ready bar; no candidate was promoted. The scoped `Contracts` filter again stopped before discovery on the unrelated Application errors (`unmappedRoles` and `warnings`). No production or regression code changed.
+
 2026-10-12 seed hunt (seed-only): `archlucid-contracts` — repeated the selected contract converter and test review with no production-path churn. Enum, null, malformed-JSON, structured-claim, and proposal-shape handling remain covered; no fresh reachable mechanism-backed wrong outcome met the hunt-ready bar. The scoped `Contracts` filter again failed before discovery on the unrelated Application compile errors (`unmappedRoles` and `warnings`). No production or regression code changed.
 
 2026-10-12 seed hunt (seed-only): `archlucid-contracts` — repeated the selected contract converter and focused-test review with no production-path churn. No fresh reachable mechanism-backed wrong outcome met the hunt-ready bar; no candidate was promoted. The scoped `Contracts` filter again stopped before discovery on the unrelated `AzureInventorySecurityEdgeMaterializer.cs` errors (`unmappedRoles` and `warnings`). No production or regression code changed.
@@ -28171,7 +28173,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 49
+- **hunts:** 50
 - **bugs-found:** 32
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-12
