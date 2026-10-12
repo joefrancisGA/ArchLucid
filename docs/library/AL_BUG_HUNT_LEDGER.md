@@ -36246,6 +36246,8 @@ ABQ-09 churn hotspot.
 
 ## Zone: ui-infra-resource-hub
 
+2026-10-12 seed hunt (seed-only): reread the selected `ResourceHubClient.tsx` request lifecycle, URL context, tabs/shortcuts, audit scope, remediation, disclosures, captured collections, and workbench links with all three focused suites. No fresh reachable mechanism-backed wrong outcome met the hunt-ready bar; no candidate was promoted and no production or regression code changed. The focused ResourceHubClient suites passed 52/52.
+
 2026-10-12 seed hunt (seed-only): reread the selected `ResourceHubClient.tsx` request, navigation, audit, remediation, disclosure, captured-collection, and workbench-link paths with all three focused suites. No fresh reachable mechanism-backed wrong outcome met the hunt-ready bar; no candidate was promoted and no production or regression code changed. The focused ResourceHubClient suites passed 52/52.
 
 2026-10-12 seed hunt (seed-only): repeated the selected `ResourceHubClient.tsx` source and all three focused suites, including loading, URL/tab synchronization, audit lineage, remediation refresh, disclosure state, captured collections, and cross-workbench links. No fresh reachable mechanism-backed wrong outcome met the hunt-ready bar; no candidate was promoted and no production or regression code changed. The focused ResourceHubClient suites passed 52/52.
@@ -36281,7 +36283,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 37
+- **hunts:** 38
 - **bugs-found:** 19
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-12
