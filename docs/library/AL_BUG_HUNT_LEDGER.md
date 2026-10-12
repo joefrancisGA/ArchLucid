@@ -10140,6 +10140,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: extraction-router
 
+2026-10-12 thorough hunt (dry): attempted the retained reachable email-domain `owner` boundary repro for `FindBoundedMarkerIndex` / `IsValidMarkerStartBoundary` using `ops@owner.example.com` plus a separate `unowned` mention. The focused test was blocked before discovery by unrelated missing `unmappedRoles` and `warnings` members in `AzureInventorySecurityEdgeMaterializer.cs`; no failing repro, production change, or regression was shipped.
+
 2026-10-04 seed hunt #36 (seed→hit): reseeded extraction-router; proved `owner` matched as a bounded token before a path slash (`owner/prod`) while `unowned` appeared elsewhere, falsely emitting Unowned component; fixed with `IsValidMarkerEndBoundary` rejecting `/` path-segment joins; regression `Extract_does_not_emit_ownership_gap_for_path_owner_segment_with_unowned`; 32 scoped DifficultyBasedExtractionRouter tests passed.
 
 2026-10-04 seed hunt #35 (seed→hit): reseeded extraction-router; proved `owner` matched as a bounded token before an email `@` (`owner@example.com`) while `unowned` appeared elsewhere, falsely emitting Unowned component; fixed with `IsValidMarkerEndBoundary` rejecting `@` local-part joins; regression `Extract_does_not_emit_ownership_gap_for_email_local_owner_with_unowned`; 31 scoped DifficultyBasedExtractionRouter tests passed.
@@ -10168,9 +10170,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** extraction router; difficulty router
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/DifficultyBasedExtractionRouter.cs; ArchLucid.Application/ArchitectureIntelligence/DifficultyBasedExtractionRouter.Classify.cs; ArchLucid.Application/ArchitectureIntelligence/DifficultyBasedExtractionRouter.Extract.cs; ArchLucid.Application/ArchitectureIntelligence/DifficultyBasedExtractionRouter.LifecycleHelpers.cs
 - **test-filter:** FullyQualifiedName~DifficultyBasedExtractionRouterTests
-- **hunts:** 36
+- **hunts:** 37
 - **bugs-found:** 19
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-12
 - **last-bug:** 2026-09-27 — DNS/path dot false positive for `owner` token
 - **related-pd-tb:** none
