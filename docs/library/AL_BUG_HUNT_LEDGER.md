@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-12 seed hunt (seed-only): `host-core-coordination` — re-read the shared recoverable outbox processor, failure handler, retry calculator, option verifier, and focused coordination tests. Existing retry, dead-letter, cancellation, and option-clamping paths remain covered; no fresh reachable mechanism-backed wrong outcome met the hunt-ready bar. The scoped test run stopped before discovery on unrelated Application compile errors (`unmappedRoles` and `warnings`). No production or regression code changed.
+
 2026-10-12 seed hunt (seed-only): `archlucid-contracts` — repeated the selected converter/test review with no production-path churn. No fresh reachable mechanism-backed wrong outcome met the hunt-ready bar; no candidate was promoted. The scoped `Contracts` filter again stopped before discovery on the unrelated Application errors (`unmappedRoles` and `warnings`). No production or regression code changed.
 
 2026-10-12 seed hunt (seed-only): `archlucid-contracts` — repeated the selected converter/test review with no production-path churn. No fresh reachable mechanism-backed wrong outcome met the hunt-ready bar; no candidate was promoted. The scoped `Contracts` filter again stopped before discovery on the unrelated Application errors (`unmappedRoles` and `warnings`). No production or regression code changed.
@@ -34316,7 +34318,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** host coordination; export outbox; backfill
 - **paths:** ArchLucid.Host.Core/Coordination/
 - **test-filter:** FullyQualifiedName~Coordination|FullyQualifiedName~OutboxProcessor
-- **hunts:** 39
+- **hunts:** 40
 - **bugs-found:** 23
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-12
