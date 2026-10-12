@@ -83,17 +83,7 @@ internal static class AzureInventorySnapshotIndirectRelationshipGraphHydrator
             InventoryDiagramEvidenceCurrency evidenceCurrency =
                 InventoryDiagramIndirectRelationshipResolver.ResolveEvidenceCurrency(edge, fromNode);
 
-            bool hasExplicitEdgeCurrency =
-                edge.Properties.TryGetValue(
-                    InventoryDiagramIndirectRelationshipPropertyKeys.EvidenceCurrency,
-                    out string? edgeCurrency)
-                && Enum.TryParse(
-                    edgeCurrency,
-                    ignoreCase: true,
-                    out InventoryDiagramEvidenceCurrency _);
-
-            if (!hasExplicitEdgeCurrency
-                && evidenceCurrency == InventoryDiagramEvidenceCurrency.Current
+            if (evidenceCurrency == InventoryDiagramEvidenceCurrency.Current
                 && resourceIndex.ByArmId.TryGetValue(fromArmId, out AzureInventoryResourceRecord? sourceResource)
                 && InventoryDiagramEvidenceCurrencyLabels.ResolveFromSourceEvidenceReference(
                     sourceResource.SourceEvidenceReference) is InventoryDiagramEvidenceCurrency configuredCurrency)

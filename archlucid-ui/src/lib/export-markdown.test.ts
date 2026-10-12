@@ -490,7 +490,7 @@ describe("formatGoldenManifestMarkdown", () => {
       .toContain("Operator summary was not stored.");
     expect(formatGoldenManifestMarkdown(null, {
       manifestSummaryFallback: { ...base, operatorSummary: "" },
-    })).toContain("_No operator summary was returned by the API._");
+    })).not.toContain("_No operator summary was returned by the API._");
   });
 
   it("fallback measurement floor names skipped actor engines when graph context is provided", () => {

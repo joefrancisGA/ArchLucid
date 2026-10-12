@@ -162,6 +162,9 @@ public sealed class AzureInventorySnapshotMaterializer(
                     Scope = scopeValue,
                     PrincipalId = principalId,
                     RoleDefinitionId = roleDefinitionId,
+                    RoleDefinitionName = AzureInventoryBuiltInRoleDefinitionNames.TryResolveFromAssignment(
+                        assignment,
+                        roleDefinitionId),
                     PimEligibilityKind = TryReadJsonString(assignment, "pimEligibilityKind"),
                     SourceEvidenceReference = AzureExtractorPackageZipEntryNames.RoleAssignments,
                 });

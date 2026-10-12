@@ -186,11 +186,12 @@ describe("SecureNowQuestionQueue", () => {
     expect(screen.getByText("inferred connections unavailable")).toBeInTheDocument();
   });
 
-  it("renders no promo or legacy empty questionnaire copy when there are no open questions", async () => {
+  it("renders the loaded empty queue without enabling review", async () => {
     render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
 
     await waitFor(() => expect(mocks.listQuestions).toHaveBeenCalledWith("snapshot-1"));
-    expect(screen.queryByTestId("infra-diagrams-question-snapshot-promo")).not.toBeInTheDocument();
+    expect(screen.getByTestId("infra-diagrams-question-snapshot-promo")).toHaveTextContent("0 open questions");
+    expect(screen.queryByRole("button", { name: "Review" })).not.toBeInTheDocument();
     expect(screen.queryByText("No proposed questionnaire items remain for this snapshot.")).not.toBeInTheDocument();
   });
 

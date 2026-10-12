@@ -55,6 +55,9 @@ export function SecureNowQuestionQueueSnapshotPromo(): React.JSX.Element | null 
   const {
     drawerOpen,
     openQuestions,
+    loading,
+    questionsLoaded,
+    loadError,
     setFilter,
     setCurrentIndex,
     setDrawerOpen,
@@ -70,7 +73,10 @@ export function SecureNowQuestionQueueSnapshotPromo(): React.JSX.Element | null 
       ?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [drawerOpen]);
 
-  if (openQuestions.length === 0) {
+  if (
+    openQuestions.length === 0
+    && (loading || loadError || !questionsLoaded)
+  ) {
     return null;
   }
 
@@ -80,19 +86,21 @@ export function SecureNowQuestionQueueSnapshotPromo(): React.JSX.Element | null 
       data-testid="infra-diagrams-question-snapshot-promo"
     >
       <span className="text-al-text-secondary">{openQuestionsCountLabel(openQuestions.length)}</span>
-      <Button
-        type="button"
-        size="sm"
-        variant="outline"
-        data-testid="infra-diagrams-question-review"
-        onClick={() => {
-          setFilter("Open");
-          setCurrentIndex(0);
-          setDrawerOpen(true);
-        }}
-      >
-        Review
-      </Button>
+      {openQuestions.length > 0 ? (
+        <Button
+          type="button"
+          size="sm"
+          variant="outline"
+          data-testid="infra-diagrams-question-review"
+          onClick={() => {
+            setFilter("Open");
+            setCurrentIndex(0);
+            setDrawerOpen(true);
+          }}
+        >
+          Review
+        </Button>
+      ) : null}
     </p>
   );
 }

@@ -218,6 +218,12 @@ public sealed class AzureInventoryRoleAssignmentReadModel
         init;
     } = string.Empty;
 
+    public string? RoleDefinitionName
+    {
+        get;
+        init;
+    }
+
     public string? PimEligibilityKind
     {
         get;

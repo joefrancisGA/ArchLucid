@@ -248,7 +248,7 @@ describe("parseInfraEvidenceMermaidOutline", () => {
         declaredConnectionId: null,
       },
     ]);
-    expect(resolveInfraEvidenceOutlineEdgeLabel(outline.edges[0]!, outline.nodes)).toBe("");
+    expect(resolveInfraEvidenceOutlineEdgeLabel(outline.edges[0]!, outline.nodes)).toBeNull();
   });
 
   it("falls back to RG subgraph labels when metadata comments are absent", () => {

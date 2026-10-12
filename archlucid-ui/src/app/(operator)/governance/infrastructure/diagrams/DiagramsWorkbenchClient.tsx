@@ -123,6 +123,7 @@ import {
 import { formatInfraEvidenceMermaidPngExportError } from "@/lib/infra-evidence/infra-evidence-mermaid-png-export-error";
 import type { InfraEvidenceSnapshotSummary } from "@/lib/infra-evidence/infra-evidence-drift-types";
 import { formatInfraEvidenceDiagramsSnapshotPickerLabel } from "@/lib/infra-evidence/format-infra-evidence-diagrams-snapshot-label";
+import { infraEvidenceSnapshotCaptureStatusTagProps } from "@/lib/infra-evidence/infra-evidence-snapshot-capture-status";
 import {
   buildInfraDiagramsSubscriptionFilterOptions,
   filterInfraDiagramsSnapshotsBySubscription,
@@ -2121,6 +2122,7 @@ export function DiagramsWorkbenchClient() {
                   </span>
                   <CopyIdButton value={selectedSnapshot.snapshotId} aria-label="Copy snapshot id" />
                 </div>
+                <StatusTag {...infraEvidenceSnapshotCaptureStatusTagProps(selectedSnapshot.captureStatus)} />
                 <SecureNowQuestionQueueSnapshotPromo />
               </div>
             ) : null}
@@ -2239,6 +2241,7 @@ export function DiagramsWorkbenchClient() {
                   </span>
                   <CopyIdButton value={selectedSnapshot.snapshotId} aria-label="Copy snapshot id" />
                 </div>
+                <StatusTag {...infraEvidenceSnapshotCaptureStatusTagProps(selectedSnapshot.captureStatus)} />
                 <SecureNowQuestionQueueSnapshotPromo />
               </div>
             ) : null}

@@ -284,6 +284,7 @@ Describe 'ArchLucid.SecurityInventory.helpers.ps1' {
                     ObjectId = '11111111-1111-1111-1111-111111111111'
                     ObjectType = 'User'
                     RoleDefinitionId = '/subscriptions/sub/providers/Microsoft.Authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c'
+                    RoleDefinitionName = 'Contributor'
                 }
             )
         }
@@ -295,6 +296,7 @@ Describe 'ArchLucid.SecurityInventory.helpers.ps1' {
         $rows[0].principalId | Should -Be '11111111-1111-1111-1111-111111111111'
         $rows[0].principalType | Should -Be 'User'
         $rows[0].roleDefinitionId | Should -Not -BeNullOrEmpty
+        $rows[0].roleName | Should -Be 'Contributor'
         $rows[0].pimEligibilityKind | Should -Be 'standing'
     }
 
