@@ -494,12 +494,20 @@ function Add-ArchLucidAzureRoleAssignmentRowsFromGetAzRoleAssignment
 
         $Seen[$key] = $true
 
+        [string]$roleName = $null
+
+        if ($null -ne $assignment.PSObject.Properties['RoleDefinitionName']
+            -and -not [string]::IsNullOrWhiteSpace($assignment.RoleDefinitionName))
+        {
+            $roleName = $assignment.RoleDefinitionName.Trim()
+        }
+
         [void]$Rows.Add([ordered]@{
             scope = $assignment.Scope
             principalId = $assignment.ObjectId
             principalType = $assignment.ObjectType
             roleDefinitionId = $assignment.RoleDefinitionId
-            roleName = if ([string]::IsNullOrWhiteSpace($assignment.RoleDefinitionName)) { $null } else { $assignment.RoleDefinitionName.Trim() }
+            roleName = $roleName
             pimEligibilityKind = "standing"
         })
     }
