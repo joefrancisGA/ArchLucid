@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-12 seed hunt (seed-only): `finding-inspect-sql` — re-read the selected inspect repository, mapper, SQL batch, recent trace-rule parity change, and focused tests. No fresh reachable mechanism-backed candidate met the hunt-ready bar. The focused inspect-read filter passed 425/425. No production or regression change.
+
 2026-10-12 seed hunt (seed-only): `cloud-extractors` — re-read AWS Resource Explorer, GCP Asset Inventory/workload identity, and Azure management post-read paths after the cancellation change. No fresh reachable mechanism-backed candidate met the full hunt-ready bar. The focused Azure management-client suite passed 6/6; no production or regression change.
 
 2026-10-12 seed hunt (seed-only): `ui-governance-findings-queue` — re-read the selected queue path after the buyer-polished contextual-help fix; no fresh mechanism-backed candidate met the reachability and wrong-outcome bar. The full findings route scope passed 49 tests and retained 11 known external-store/update-depth and workspace-label baseline failures. No production or regression change.
@@ -8386,16 +8388,18 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: finding-inspect-sql
 
+2026-10-12 seed hunt (seed-only): re-read the selected inspect repository, mapper, SQL batch, recent trace-rule parity change, and focused tests. No fresh reachable mechanism-backed candidate met the hunt-ready bar. The focused inspect-read filter passed 425/425. No production or regression change.
+
 - **id:** finding-inspect-sql
 - **status:** open
 - **impact:** high
 - **aliases:** finding inspect; dapper inspect read
 - **paths:** ArchLucid.Persistence/Findings/DapperFindingInspectReadRepository.cs; ArchLucid.Persistence/Findings/FindingInspectReadModelMapper.cs; ArchLucid.Persistence/Sql/FindingInspectReadSql.cs
 - **test-filter:** FullyQualifiedName~FindingInspectReadModelMapperTests|FullyQualifiedName~FindingInspectReadSqlTests|FullyQualifiedName~FindingInspectReadRepositoryCoreTests|FullyQualifiedName~FindingInspectEndpointTests
-- **hunts:** 85
+- **hunts:** 86
 - **bugs-found:** 25
 - **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-10-11
+- **last-hunt:** 2026-10-12
 - **last-bug:** 2026-10-11 — Dapper inspect trace-rule retrieval ignored substantive rules after invisible prefix entries
 - **related-pd-tb:** none
 - **code-changed-since:** yes
