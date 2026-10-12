@@ -35,18 +35,11 @@ function renderTile(
   neighborhood: DiagramNeighborhood,
   onOpenNeighborhood: (id: string) => void,
 ): React.JSX.Element {
-  const isVnet = neighborhood.kind === "vnet";
-
   return (
     <button
       key={neighborhood.id}
       type="button"
-      className={[
-        "flex min-h-[116px] min-w-0 flex-col items-start gap-2 rounded-md border bg-white p-4 text-left shadow-sm transition hover:border-slate-400 hover:shadow dark:bg-slate-950",
-        isVnet
-          ? "border-slate-400 dark:border-slate-500"
-          : "border-slate-200 dark:border-slate-700",
-      ].join(" ")}
+      className="flex min-h-[116px] min-w-0 flex-col items-start gap-2 rounded-md border border-slate-200 bg-white p-4 text-left shadow-sm transition hover:border-slate-400 hover:shadow dark:border-slate-700 dark:bg-slate-950"
       data-testid={`architecture-diagram-neighborhood-tile-${neighborhood.id}`}
       onClick={() => onOpenNeighborhood(neighborhood.id)}
     >
