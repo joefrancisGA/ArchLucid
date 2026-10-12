@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-12 seed hunt (seed-only): `core-costing` — re-read `ArchLucid.Core/Costing/` and focused costing tests; no new reachable pricing, parser, normalization, or cancellation boundary met the hunt-ready bar. The scoped Costing filter passed 286 tests and retained 6 explicitly invalid extra-`k` week-UOM baseline failures. No production or regression change.
+
 2026-10-12 seed hunt (seed-only): `authority-pipeline-payload` — re-read `AuthorityPipelineWorkPayload.cs` and its JSON/null-element regressions; all reachable payload-shape classes in the selected source are already closed, and no fresh mechanism-backed hypothesis met the hunt-ready bar. The scoped payload filter passed 39/39. No production or regression change.
 
 2026-10-12 seed hunt (seed→hit): `GovernanceFindingsAssignedToMeChrome` always rendered contextual help in the buyer-polished assigned-to-me header even though that shell suppresses contextual help on buyer-facing surfaces; the existing `renders skip link, primary landmark, orientation strip, and buyer subtitle` regression failed before the fix and passed after conditional rendering. The focused buyer-polished test passed 1/1; the full findings route scope retained 49 passed and 11 known external-store/update-depth and workspace-label baseline failures.
@@ -25752,6 +25754,8 @@ Split from retired `archlucid-core` (ABQ-08).
 ---
 ## Zone: core-costing
 
+2026-10-12 seed hunt (seed-only): re-read `ArchLucid.Core/Costing/` and focused costing tests; no new reachable pricing, parser, normalization, or cancellation boundary met the hunt-ready bar. The scoped Costing filter passed 286 tests and retained 6 explicitly invalid extra-`k` week-UOM baseline failures. No production or regression change.
+
 2026-10-10 seed hunt (seed-only): re-read `ArchLucid.Core/Costing/` and the focused costing tests; existing cancellation, null-entry, tiered-rate, and UOM boundaries were already covered, with no new reachable wrong outcome identified.
 
 2026-10-10 seed hunt (seed-only): re-read `ArchLucid.Core/Costing/` and focused `Costing` tests; cancellation propagation, null inventory entries, tiered rates, and supported UOM boundaries remained covered, with no new reachable wrong outcome.
@@ -27601,10 +27605,10 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** costing; retail prices; split from archlucid-core
 - **paths:** ArchLucid.Core/Costing/
 - **test-filter:** FullyQualifiedName~Costing
-- **hunts:** 948
+- **hunts:** 949
 - **bugs-found:** 226
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-10
+- **last-hunt:** 2026-10-12
 - **last-bug:** 2026-10-10 — live pricing cancellation was swallowed as illustrative fallback
 - **related-pd-tb:** none
 - **code-changed-since:** yes

@@ -9570,3 +9570,4 @@
 {"at":"2026-10-12T00:17:47.6786703Z","zoneId":"api-governance-tenancy-controllers","outcome":"seed-only","productLine":"archlucid-shared","paths":["docs/library/AL_BUG_HUNT_LEDGER.md"]}
 {"at":"2026-10-12T00:24:45.2724833Z","zoneId":"ui-governance-findings-queue","outcome":"hit","productLine":"securenow","paths":["archlucid-ui/src/app/(operator)/governance/findings/"]}
 {"at":"2026-10-12T00:28:48.3848814Z","zoneId":"authority-pipeline-payload","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Application/Runs/Orchestration/AuthorityPipelineWorkPayload.cs"]}
+{"at":"2026-10-12T00:33:10.5820088Z","zoneId":"core-costing","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Core/Costing/"]}
