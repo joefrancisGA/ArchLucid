@@ -435,7 +435,7 @@ if (-not ([string]::IsNullOrWhiteSpace($SubscriptionId)))
     }
 }
 
-$scriptVersion = "0.4.7"
+$scriptVersion = "0.4.8"
 $schemaVersion = 2
 $collectionTimestamp = (Get-Date).ToUniversalTime().ToString("o")
 $azProfile = Get-Module Az.Resources
@@ -470,6 +470,21 @@ try
 
     # SECURITY BOUNDARY: Explicitly filter out Key Vault secrets to ensure we strictly grab structural ARM metadata and NEVER request data plane or secret contents.
     $resources = @($resources) | Where-Object { $_.resourceType -ne "Microsoft.KeyVault/vaults/secrets" }
+
+    Expand-ArchLucidAzureContainerImageAndRegistryProperties `
+        -InventoryResources @($resources)
+
+    [object]$aksImageResult = Add-ArchLucidAzureAksWorkloadImageProperties `
+        -InventoryResources @($resources)
+
+    foreach ($warningCode in @($aksImageResult.warnings))
+    {
+        Add-ArchLucidExtractorWarning `
+            -Telemetry $telemetry `
+            -Step Inventory `
+            -Message $warningCode `
+            -Context @{ collector = 'CustomerScript' }
+    }
 
     $inventoryForAssociationDerivation = @($resources)
     # Preserve collected evidence; visibility filtering belongs to diagram projections.
@@ -1081,6 +1096,7 @@ Upload this ZIP to SecureNow via POST /v1/azure-extractor/upload (ExecuteAuthori
             -Detail "IncludeAdvisor switch is reserved for a future exporter release."
     }
 
+    $manifest["warnings"] = @($telemetry.warnings | ForEach-Object { $_.message })
     $manifest["extractionTelemetry"] = Get-ArchLucidExtractorTelemetryForManifest -Telemetry $telemetry
     Write-Utf8NoBom $manifestPath ($manifest | ConvertTo-Json -Depth 12)
 

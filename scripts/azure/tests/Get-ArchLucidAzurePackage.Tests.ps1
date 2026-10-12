@@ -10,6 +10,7 @@ Describe 'Get-ArchLucidAzurePackage.ps1' {
         function Get-AzContext { }
         function Set-AzContext { }
         function Get-AzResource { }
+        function Invoke-AzRestMethod { }
         function Get-AzPolicyDefinition { }
         function Get-AzPolicyAssignment { }
 
@@ -28,8 +29,10 @@ Describe 'Get-ArchLucidAzurePackage.ps1' {
         [string]$script:scriptRoot = Split-Path -Parent $PSScriptRoot
         [string]$script:extractorScript = Join-Path $script:scriptRoot 'Get-ArchLucidAzurePackage.ps1'
         [string]$script:helpersScript = Join-Path $script:scriptRoot 'ArchLucid.ExtractorQuickStart.helpers.ps1'
+        [string]$script:securityHelpersScript = Join-Path $script:scriptRoot 'ArchLucid.SecurityInventory.helpers.ps1'
         [string]$script:armFixturePath = Join-Path $PSScriptRoot 'fixtures/arm-resources.sample.json'
         . $script:helpersScript
+        . $script:securityHelpersScript
         [object]$previousModuleAutoLoadingPreference =
             Get-Variable -Name PSModuleAutoLoadingPreference -ValueOnly -ErrorAction SilentlyContinue
 
@@ -59,6 +62,50 @@ Describe 'Get-ArchLucidAzurePackage.ps1' {
     AfterAll {
         Set-Variable -Name PSModuleAutoLoadingPreference -Value $script:previousModuleAutoLoadingPreference -Scope Global
         Remove-Item Env:ARCHLUCID_EXTRACTOR_SKIP_AZ_CLI_SYNC -ErrorAction SilentlyContinue
+    }
+
+    It 'stores registry login servers and CustomerScript AKS image evidence without secrets' {
+        [object]$registry = [pscustomobject]@{
+            resourceType = 'Microsoft.ContainerRegistry/registries'
+            resourceId = '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.ContainerRegistry/registries/acr'
+            properties = @{}
+        }
+        [object]$cluster = [pscustomobject]@{
+            resourceType = 'Microsoft.ContainerService/managedClusters'
+            resourceId = '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.ContainerService/managedClusters/aks'
+            properties = @{}
+        }
+
+        Mock Invoke-AzRestMethod {
+            [CmdletBinding()]
+            param(
+                [string]$Method,
+                [string]$Path,
+                [string]$Payload
+            )
+
+            if ($Path -like '*Microsoft.ContainerRegistry/registries/*')
+            {
+                return [pscustomobject]@{
+                    StatusCode = 200
+                    Content = '{"type":"Microsoft.ContainerRegistry/registries","properties":{"loginServer":"acr.azurecr.io"}}'
+                }
+            }
+
+            return [pscustomobject]@{
+                StatusCode = 200
+                Content = '{"properties":{"provisioningState":"Succeeded","logResult":"acr.azurecr.io/app:1\nacr.azurecr.io/app:1\nmcr.microsoft.com/pause:3"}}'
+            }
+        }
+
+        Expand-ArchLucidAzureContainerImageAndRegistryProperties -InventoryResources @($registry)
+        [object]$aksResult = Add-ArchLucidAzureAksWorkloadImageProperties -InventoryResources @($cluster)
+
+        $registry.properties.loginServer | Should -Be 'acr.azurecr.io'
+        $cluster.properties.'container.image[0]' | Should -Be 'acr.azurecr.io/app:1'
+        $cluster.properties.'container.image[1]' | Should -Be 'mcr.microsoft.com/pause:3'
+        $aksResult.warnings | Should -BeNullOrEmpty
+        ($cluster.properties | ConvertTo-Json -Depth 12) | Should -Not -Match 'secret|environment|password'
     }
 
     It 'writes a schema-version-2 ZIP with manifest.json and resources.json from mocked ARM inventory' {
