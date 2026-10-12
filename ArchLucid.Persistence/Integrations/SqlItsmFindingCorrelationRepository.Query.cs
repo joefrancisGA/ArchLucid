@@ -1,3 +1,5 @@
+using ArchLucid.Persistence.Sql;
+
 using Dapper;
 
 using Microsoft.Data.SqlClient;
@@ -193,18 +195,23 @@ public sealed partial class SqlItsmFindingCorrelationRepository
         if (normalizedFindingIds.Count == 0)
             return Array.Empty<ItsmFindingCorrelationRecord>();
 
-        const string sql = $"""
-                           SELECT {CorrelationSelectColumns}
-                           FROM dbo.ItsmFindingCorrelations
-                           WHERE TenantId = @TenantId AND FindingId IN @FindingIds
-                           ORDER BY FindingId ASC, CreatedUtc ASC;
-                           """;
+        DynamicParameters parameters = new();
+        parameters.Add("TenantId", tenantId);
+        // Numbered @FindingId0..N — Dapper does not expand IN @FindingIds through CommandDefinition.
+        string findingIdInList = SqlDapperInClause.AppendStringList(parameters, "FindingId", normalizedFindingIds);
+
+        string sql = $"""
+                     SELECT {CorrelationSelectColumns}
+                     FROM dbo.ItsmFindingCorrelations
+                     WHERE TenantId = @TenantId AND FindingId IN {findingIdInList}
+                     ORDER BY FindingId ASC, CreatedUtc ASC;
+                     """;
 
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
 
         CommandDefinition cmd = new(
             sql,
-            new { TenantId = tenantId, FindingIds = normalizedFindingIds },
+            parameters,
             cancellationToken: ct);
 
         IEnumerable<ItsmFindingCorrelationRecord> rows =
