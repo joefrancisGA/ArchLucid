@@ -101,7 +101,7 @@ export function SecureNowHomeEnvironmentContext(): React.JSX.Element {
       </Link>
       {hasGap ? (
         <Link className={cn(OPERATOR_LINK.inline, OPERATOR_TYPOGRAPHY.body)} href="/integrations/cloud-connections">
-          <StatusTag kind={status.kind} label={status.label} /> {status.description}
+          <StatusTag kind={status.kind} label={status.label} /> {status.title}
         </Link>
       ) : null}
     </section>
