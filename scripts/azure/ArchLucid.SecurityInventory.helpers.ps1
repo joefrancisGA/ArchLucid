@@ -499,6 +499,7 @@ function Add-ArchLucidAzureRoleAssignmentRowsFromGetAzRoleAssignment
             principalId = $assignment.ObjectId
             principalType = $assignment.ObjectType
             roleDefinitionId = $assignment.RoleDefinitionId
+            roleName = if ([string]::IsNullOrWhiteSpace($assignment.RoleDefinitionName)) { $null } else { $assignment.RoleDefinitionName.Trim() }
             pimEligibilityKind = "standing"
         })
     }
