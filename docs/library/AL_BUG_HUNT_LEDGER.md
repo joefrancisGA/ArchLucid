@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-12 seed hunt (seed-only): `authority-pipeline-payload` — re-read `AuthorityPipelineWorkPayload.cs` and its JSON/null-element regressions; all reachable payload-shape classes in the selected source are already closed, and no fresh mechanism-backed hypothesis met the hunt-ready bar. The scoped payload filter passed 39/39. No production or regression change.
+
 2026-10-12 seed hunt (seed→hit): `GovernanceFindingsAssignedToMeChrome` always rendered contextual help in the buyer-polished assigned-to-me header even though that shell suppresses contextual help on buyer-facing surfaces; the existing `renders skip link, primary landmark, orientation strip, and buyer subtitle` regression failed before the fix and passed after conditional rendering. The focused buyer-polished test passed 1/1; the full findings route scope retained 49 passed and 11 known external-store/update-depth and workspace-label baseline failures.
 
 2026-10-12 seed hunt (seed-only): `api-governance-tenancy-controllers` — the picker exposed only the ledger path for the retired controller mega-zone; no source-backed locus, reachable input, or mechanism met the hunt-ready bar, so no candidate was promoted or invented. The scoped governance controller test command was aborted before discovery and produced no repro or result. No production or regression change.
@@ -6418,16 +6420,18 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: authority-pipeline-payload
 
+2026-10-12 seed hunt (seed-only): re-read `AuthorityPipelineWorkPayload.cs` plus the JSON and null-document-element regressions; existing identifier, null collection/element, enum, and malformed JSON paths are closed, with no fresh reachable mechanism-backed candidate to promote. The scoped payload filter passed 39/39. No production or regression change.
+
 - **id:** authority-pipeline-payload
 - **status:** open
 - **impact:** medium
 - **aliases:** authority payload; pipeline work payload
 - **paths:** ArchLucid.Application/Runs/Orchestration/AuthorityPipelineWorkPayload.cs
 - **test-filter:** FullyQualifiedName~AuthorityPipelineWorkPayloadJsonTests|FullyQualifiedName~AuthorityPipelineWorkPayloadDocumentsNullElementTests
-- **hunts:** 42
+- **hunts:** 43
 - **bugs-found:** 23
 - **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-10-04
+- **last-hunt:** 2026-10-12
 - **last-bug:** 2026-10-04 — embedded whitespace in compact identifier fields survived materialization
 - **related-pd-tb:** none
 - **code-changed-since:** yes
