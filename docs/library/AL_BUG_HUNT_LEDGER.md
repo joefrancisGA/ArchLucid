@@ -9912,6 +9912,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: architecture-recommendation
 
+2026-10-12 seed hunt (seed-only): repeated the selected engine/trade-off source reread and focused test attempt; no new source-backed mechanism or reachable wrong outcome was distinct from the retained bounded candidates. The selected test run again stopped before discovery on unrelated missing `unmappedRoles` and `warnings` members in `AzureInventorySecurityEdgeMaterializer.cs`; no production or regression code changed.
+
 2026-10-12 seed hunt (seed-only): repeated the selected engine/trade-off and focused-test reread; no fresh mechanism-backed candidate was distinct from the retained bounded rows or met the reachability and wrong-outcome bar. The focused test run again stopped before discovery on unrelated missing `unmappedRoles` and `warnings` members in `AzureInventorySecurityEdgeMaterializer.cs`; no production or regression code changed.
 
 2026-10-12 seed hunt (seed-only): repeated the selected engine/trade-off source reread and focused test inventory; no new mechanism-backed candidate was distinct from the retained bounded rows or met the reachability and wrong-outcome bar. The focused test run again stopped before discovery on unrelated missing `unmappedRoles` and `warnings` members in `AzureInventorySecurityEdgeMaterializer.cs`; no production or regression code changed.
@@ -10090,7 +10092,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** recommendation engine; alternatives
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationEngine.cs; ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationTradeOffBuilder.cs
 - **test-filter:** FullyQualifiedName~ArchitectureRecommendationAlternativesTests|FullyQualifiedName~ArchitectureRecommendationProposedChangeTests
-- **hunts:** 68
+- **hunts:** 69
 - **last-hunt:** 2026-10-12
 - **bugs-found:** 24
 - **consecutive-dry-hunts:** 0
