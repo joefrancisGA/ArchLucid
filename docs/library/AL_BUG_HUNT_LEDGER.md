@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-12 seed hunt (seed-only): `cloud-extractors` — re-read the selected AWS, GCP, and Azure extractor paths after the culture-parsing fix; no fresh reachable mechanism-backed wrong outcome met the hunt-ready bar. AWS/GCP extractor tests passed 52/52; Azure extractor tests passed 130/131 with the known network-association baseline failure. Seeded two bounded candidates; no additional production or regression change.
+
 2026-10-12 seed hunt (seed→hit): `HostedAzureManagementPostReadClient.ReadArrayCellDouble` parsed Azure Cost Management numeric JSON cells with the current culture, so reachable `10.5` cost data became `105` under `de-DE`; fixed with invariant numeric parsing. Regression `TryQueryActualCostSummaryAsync_parses_numeric_cost_cells_invariantly` failed first and passed after the fix. The focused regression passed 1/1, AWS/GCP extractor tests passed 52/52, and Azure extractor tests passed 130/131 with one pre-existing network-association baseline failure.
 
 2026-10-12 seed hunt (seed-only): `cli-tenant-isolation` — re-read `TenantIsolationNegativeTestCommand` and `TenantIsolationNegativeTestRunner`; no fresh reachable mechanism-backed wrong outcome met the hunt-ready bar. The focused `TenantIsolationNegativeTestRunnerTests` filter passed 54/54. Seeded two bounded candidates; no production or regression change.
@@ -31351,6 +31353,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ## Zone: cloud-extractors
 
+2026-10-12 seed hunt (seed-only): re-read the selected AWS, GCP, and Azure extractor paths after the culture-parsing fix; no candidate was promoted. AWS/GCP tests passed 52/52; Azure extractor scope passed 130/131 with the known network-association baseline failure.
+
+- (candidate) `GcpServiceAccountEmail.TryGetProjectId` — a reachable hosted GCP request `ServiceAccountEmail` containing an extra `@` before an otherwise valid `.iam.gserviceaccount.com` domain is accepted and passed into the impersonation URL; the downstream authentication outcome for this malformed email is not established in the selected files.
+- (candidate) `HostedAzureManagementPostReadClient.MergeActualCostPages` — a reachable multi-page Cost Management response whose later page reorders `columns` could be aggregated using the first page’s indexes; Azure’s pagination schema stability and any wrong cost outcome remain unverified in the selected files.
+
 2026-10-12 seed hunt (seed→hit): `HostedAzureManagementPostReadClient.ReadArrayCellDouble` parsed numeric Actual Cost cells with the current culture; a reachable `10.5` API value became `105` under `de-DE`. Fixed with `NumberStyles.Float` and `CultureInfo.InvariantCulture`; regression `TryQueryActualCostSummaryAsync_parses_numeric_cost_cells_invariantly` failed first and passed after the fix. AWS/GCP tests passed 52/52; Azure extractor scope passed 130/131 with the known network-association baseline failure.
 
 2026-10-12 seed hunt (seed-only): re-read AWS Resource Explorer, GCP Asset Inventory/workload identity, and Azure management post-read paths after the cancellation change. No fresh reachable mechanism-backed candidate met the full hunt-ready bar. The focused Azure management-client suite passed 6/6; no production or regression change.
@@ -31383,13 +31390,13 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** aws extractor; gcp extractor; azure extractor
 - **paths:** ArchLucid.Integrations.AwsExtractor/; ArchLucid.Integrations.GcpExtractor/; ArchLucid.Integrations.AzureExtractor/
 - **test-filter:** FullyQualifiedName~AwsExtractor|FullyQualifiedName~GcpExtractor|FullyQualifiedName~AzureExtractor
-- **hunts:** 91
+- **hunts:** 92
 - **bugs-found:** 45
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-12
 - **last-bug:** 2026-10-12 — Azure Actual Cost numeric cells were parsed with the current culture
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** 0
 
 2026-10-08 seed hunt (hit): promoted Defender secure-score pagination; `ListSubscriptionDefenderSummariesAsync` validated only the subscription on `nextLink`, so a same-subscription cursor into `roleAssignments` was followed; fixed by also requiring `subscriptions/{id}/providers/Microsoft.Security/secureScores`; regression `ListSubscriptionDefenderSummariesAsync_rejects_next_link_for_different_security_collection`. Azure extractor tests passed 114/114.
 
@@ -31414,6 +31421,9 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 2026-10-03 seed hunt (hit): promoted the subscription policy-assignment pagination candidate; `ListPolicyAssignmentsAtRestPathAsync` validated only the subscription, so an ARM `nextLink` into `policyDefinitions` was followed and could merge another collection's rows. Fixed with exact listing-path validation for subscription and management-group policy assignments; regression `ListSubscriptionPolicyAssignmentsAsync_rejects_next_link_for_different_policy_collection`; 1 focused Azure extractor test passed.
 
 ### Hypotheses
+
+- (candidate) `GcpServiceAccountEmail.TryGetProjectId` — a reachable `HostedGcpExtractorCollectionRequest.ServiceAccountEmail` with an extra `@` before a valid service-account domain passes project matching and reaches credential construction; the selected files do not establish a downstream authorization or collection wrong outcome.
+- (candidate) `HostedAzureManagementPostReadClient.MergeActualCostPages` — a reachable Actual Cost `nextLink` page with a different column order is merged using the first page’s indexes; the provider contract and resulting wrong cost summary are not established in the selected files.
 
 - [x] (proven) `HostedAzureManagementPostReadClient.ReadArrayCellDouble` — Azure Cost Management emits numeric JSON cells using invariant JSON formatting, but `double.TryParse` used the process culture; a reachable `10.5` value was collected as `105` under `de-DE` — **hit 2026-10-12 seed hunt:** parse cost cells with `NumberStyles.Float` and `CultureInfo.InvariantCulture`; regression `TryQueryActualCostSummaryAsync_parses_numeric_cost_cells_invariantly`.
 
