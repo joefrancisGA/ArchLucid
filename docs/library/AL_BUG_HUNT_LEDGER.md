@@ -9091,13 +9091,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** llm wallet; tenant wallet; billing wallet
 - **paths:** ArchLucid.Api/Controllers/Billing/WalletController.cs; ArchLucid.Application/Budgeting/LlmTenantWalletService.cs; ArchLucid.Persistence/Data/Repositories/SqlLlmTenantWalletRepository.cs
 - **test-filter:** FullyQualifiedName~LlmTenantWalletServiceTests
-- **hunts:** 35
+- **hunts:** 36
 - **bugs-found:** 19
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-09
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-10-12
 - **last-bug:** 2026-10-09 — wallet GET still required admin because Authorize attributes stack
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
 
 2026-09-30 seed hunt (seed-only): re-read the marketing route surfaces; the marketing test filter reported 442 passing and 26 failing tests, but the representative breadcrumb failures are stale because `OperatorPageBreadcrumb` intentionally returns null system-wide; no new reachable product candidate emerged.
 
@@ -9138,9 +9138,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `SqlLlmTenantWalletRepository.TryCreditRefillAsync` — webhook payment-intent credits skipped `LastRefillUtc` when monthly auto-refill counter was not incremented — **hit 2026-10-06 seed hunt:** billing GET exposed a stale null last-refill after Stripe top-up; stamp `LastRefillUtc` on every positive refill credit; regression `ApplyWebhookPaymentIntentSucceededAsync_updates_last_refill_utc_on_stripe_topup`
 - [x] (proven) `LlmTenantWalletDefaults.ApplyOverageMarkup` — a positive Terra estimate that rounds to $0.00 debited nothing — **hit 2026-10-09 seed hunt:** 200 prompt + 20 completion tokens at $2.50/$15.00 per million is $0.0008; settlement credited the entire default pre-call hold back, and a 1+1 token authorize reported balance-after 0 and enqueued auto-refill. Positive estimates that round to zero now bill $0.01. Regressions `ApplyOverageMarkup_bills_one_cent_when_positive_estimate_rounds_to_zero`, `ReconcileOverageInternalAsync_keeps_minimum_cent_when_actual_usage_rounds_below_one_cent`, and `TryAuthorizeOverageSpendAsync_debits_minimum_cent_instead_of_enqueueing_refill_for_sub_cent_estimate`. [class:other]
 - [x] (proven) `WalletController.GetAsync` — class `AdminAuthority` stacked with action `ReadAuthority`, so a Reader JWT received 403 on `GET /v1/billing/wallet` — **hit 2026-10-09 seed hunt:** Billing & plans is ReadAuthority (TB-625); class policy is now `AuthenticatedUserOnly` and PUT carries `AdminAuthority`. Regressions `GetAsync_returns_wallet_for_reader_role` and `PutAsync_returns_403_for_reader_role`. [class:authz-scope]
-- [ ] (candidate) `LlmTenantWalletWebhookStage.QueueOverageSettlementAsync` — `actualUsd <= 0` returns without enqueue. `LlmMonthlyTenantDollarBudgetTracker.ReleasePendingReservationIfAnyAsync` returns immediately when `overageActive` is true, and `RecordUsageAndMaybeWarnAsync` skips settlement when `EstimateUsd` is not positive. Input: `TryAuthorizeOverageSpendAsync` has debited the wallet, then `LlmCompletionAccountingClient` peeks no token usage, or the peeked prompt and completion counts are both 0 (`LlmCostEstimator` returns null). Outcome: the marked pre-call debit stays. Not shipped this run: same missing compensating transition family as the saturated `state-machine-gap` refill fixes.
-- [ ] (candidate) `InMemoryLlmTenantWalletRepository.UpdateSettingsAsync` — a missing tenant row returns null. `SqlLlmTenantWalletRepository.UpdateSettingsAsync` calls `GetOrCreateAsync` first. Input: `PUT /v1/billing/wallet` with `monthlyCapUsd` 100 and no row version on the in-memory storage host (`InMemoryStorageProviderRegistrar`) before any GET. `WalletController.PutAsync` does not read the wallet first. Outcome: HTTP 409 on the demo host, settings saved on SQL.
-- [ ] (candidate) `SqlLlmTenantWalletRepository.LedgerContainsPaymentIntentAsync` — the lookup is only `StripePaymentIntentId`, with no `TenantId` predicate. Input: `payment_intent.succeeded` whose id is already in `dbo.LlmTenantWalletLedger` for a different metadata `tenant_id`. Outcome: `ApplyWebhookPaymentIntentSucceededAsync` returns the duplicate success and the second tenant is not credited.
+- [x] (invalid) `LlmTenantWalletWebhookStage.QueueOverageSettlementAsync` — `actualUsd <= 0` returns without enqueue. **Cheap-disproof 2026-10-12 thorough hunt:** the required no-token/zero-estimate caller is in `ArchLucid.AgentRuntime`, outside this zone’s selected paths; the selected `WalletController`, `LlmTenantWalletService`, and SQL repository do not establish that caller or the proposed debit outcome.
+- [x] (invalid) `InMemoryLlmTenantWalletRepository.UpdateSettingsAsync` — a missing tenant row returns null. **Cheap-disproof 2026-10-12 thorough hunt:** the proposed behavior is in `ArchLucid.Persistence/Data/Repositories/InMemoryLlmTenantWalletRepository.cs` and `InMemoryStorageProviderRegistrar`, outside the selected zone paths; the selected SQL/controller/service files cannot prove a storage-provider divergence.
+- [x] (valid-no-repro) `SqlLlmTenantWalletRepository.LedgerContainsPaymentIntentAsync` — the lookup is only `StripePaymentIntentId`, with no `TenantId` predicate. **Cheap-disproof 2026-10-12 thorough hunt:** `LlmTenantWalletLedger` has a filtered unique index on `StripePaymentIntentId`, so the proposed cross-tenant duplicate row cannot be reached; the global idempotency check is consistent with that schema contract.
+
+2026-10-12 thorough hunt (dry): cheap-disproved all three picker candidates; the first two require caller/storage files outside the selected zone, and the payment-intent candidate is blocked by the ledger’s global filtered unique index. The scoped `LlmTenantWalletServiceTests` filter was blocked before test discovery on both attempts by the unrelated `AzureInventorySecurityEdgeMaterializer.cs` compile errors (`unmappedRoles` and `warnings`). No production or regression code changed.
 
 2026-10-09 seed hunt (seed-only): reread wallet authorization, settlement release, and SQL versus in-memory settings updates; no hunt-ready row shipped; three candidates persisted.
 
