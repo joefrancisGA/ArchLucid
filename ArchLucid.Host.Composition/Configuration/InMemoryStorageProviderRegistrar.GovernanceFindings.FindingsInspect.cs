@@ -118,6 +118,7 @@ internal sealed partial class InMemoryStorageProviderRegistrar
         services.AddSingleton<IArchitectureDiagramReconciliationRepository, NoOpArchitectureDiagramReconciliationRepository>();
         services.AddSingleton<IInfrastructureDiagramComparisonRepository, NoOpInfrastructureDiagramComparisonRepository>();
         services.AddSingleton<IInfrastructureDiagramNodeMappingRepository, NoOpInfrastructureDiagramNodeMappingRepository>();
+        services.AddSingleton<IInfrastructureDiagramDocumentationDecisionRepository, InMemoryInfrastructureDiagramDocumentationDecisionRepository>();
         services.AddSingleton<InMemoryTenantBrandingProfileRepository>();
         services.AddSingleton<ITenantBrandingProfileRepository>(static sp =>
             new TenantBrandingProfileRepositoryWithCacheInvalidation(

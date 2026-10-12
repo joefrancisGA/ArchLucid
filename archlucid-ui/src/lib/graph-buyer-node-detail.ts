@@ -10,45 +10,35 @@ export type BuyerTrailMetadataLine = {
   readonly value: string;
 };
 
-function titleCaseSlug(slug: string): string {
-  const parts = slug.split(/[-_/]/g).filter((p) => p.length > 0);
-
-  if (parts.length === 0) {
-    return slug;
-  }
-
-  return parts.map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(" ");
-}
-
-const KNOWN_REFERENCE_SLUGS: Record<string, string> = Object.fromEntries(
-  listRegisteredSampleScenarios().flatMap((scenario) => [
-    [scenario.primaryFindingId, scenario.primaryFindingTitle],
-  ]),
-);
-
 function resolveHeroFindingReferenceScenario(
   referenceId: string,
   referencedSlug: string,
 ): ReturnType<typeof resolveSampleScenarioByHeroFindingId> {
-  return resolveSampleScenarioByHeroFindingId(referenceId) ?? resolveSampleScenarioByHeroFindingId(referencedSlug);
-}
+  const directScenario =
+    resolveSampleScenarioByHeroFindingId(referenceId.trim())
+    ?? resolveSampleScenarioByHeroFindingId(referencedSlug.trim());
+  const normalizedReferenceId = referenceId.trim().toLowerCase();
+  const normalizedReferencedSlug = referencedSlug.trim().toLowerCase();
 
-function sampleHeroRiskAreaSummary(scenario: NonNullable<ReturnType<typeof resolveSampleScenarioByHeroFindingId>>): string {
-  if (scenario.slug === "claims-intake") {
-    return "PHI minimization at intake — classification, lineage, and retention posture.";
+  if (directScenario !== null) {
+    return directScenario;
   }
 
-  return "Sensitive data minimization at intake — classification, lineage, and retention posture.";
+  return listRegisteredSampleScenarios().find(
+    (scenario) => {
+      const normalizedPrimaryFindingId = scenario.primaryFindingId.trim().toLowerCase();
+
+      return normalizedPrimaryFindingId === normalizedReferenceId
+        || normalizedPrimaryFindingId === normalizedReferencedSlug;
+    },
+  ) ?? null;
 }
 
-function sampleHeroWhyItMattersSummary(
-  scenario: NonNullable<ReturnType<typeof resolveSampleScenarioByHeroFindingId>>,
-): string {
-  if (scenario.slug === "claims-intake") {
-    return "Mis-handled PHI creates compliance exposure and sponsor distrust; this finding ties evidence to the finalized review record.";
-  }
+function metadataValue(metadata: Record<string, string>, name: string): string {
+  const normalizedName = name.toLowerCase();
+  const entry = Object.entries(metadata).find(([key]) => key.trim().toLowerCase() === normalizedName);
 
-  return "Mis-handled sensitive data creates compliance exposure and sponsor distrust; this finding ties evidence to the finalized review record.";
+  return entry === undefined ? "" : String(entry[1]).trim();
 }
 
 /**
@@ -78,8 +68,8 @@ export function graphBuyerTrailDispositionLine(
     }
   }
 
-  const referenceId = (metadata.referenceId ?? metadata.ReferenceId ?? "").trim();
-  const referencedSlug = (metadata.referenced ?? "").trim();
+  const referenceId = metadataValue(metadata, "referenceId");
+  const referencedSlug = metadataValue(metadata, "referenced");
   const scenario = resolveHeroFindingReferenceScenario(referenceId, referencedSlug);
 
   if (scenario !== null) {
@@ -126,16 +116,14 @@ export function graphBuyerTrailRecordTypeLine(node: GraphNodeVm): {
       listRegisteredSampleScenarios().find((entry) => entry.slug === "customer-intake") ??
       listRegisteredSampleScenarios()[0]!;
 
-    if (scenario.slug === "claims-intake") {
-      return {
-        primary: "Finding: PHI minimization",
-        secondary: { label: "Risk area", value: "PHI handling" },
-      };
-    }
-
     return {
-      primary: "Finding: Sensitive data minimization",
-      secondary: { label: "Risk area", value: "Privacy and data handling" },
+      primary: scenario.slug === "claims-intake"
+        ? "Finding: PHI minimization"
+        : "Finding: Sensitive data minimization",
+      secondary: {
+        label: "Risk area",
+        value: resolveSampleHeroRiskAreaValue(node.metadata),
+      },
     };
   }
 
@@ -171,26 +159,13 @@ export function graphBuyerTrailMetadataLines(
     const lower = key.toLowerCase();
 
     if (lower === "referenceid") {
-      const scenario = resolveSampleScenarioByHeroFindingId(value);
-
-      if (scenario !== null) {
-        summaryLines.push({
-          label: "Risk area",
-          value: sampleHeroRiskAreaSummary(scenario),
-        });
-        summaryLines.push({
-          label: "Why it matters",
-          value: sampleHeroWhyItMattersSummary(scenario),
-        });
-      }
-
-      technicalLines.push({ label: "Reference ID", value: value.length > 0 ? value : "Reference ID not returned" });
+      technicalLines.push({ label: "Reference ID", value });
 
       continue;
     }
 
     if (lower === "riskarea" || lower === "risk_domain" || lower === "riskdomain") {
-      summaryLines.push({ label: "Risk area", value: value.length > 0 ? value : "Risk area not returned" });
+      summaryLines.push({ label: "Risk area", value });
 
       continue;
     }
@@ -225,10 +200,7 @@ export function graphBuyerTrailMetadataLines(
     }
 
     if (lower === "referenced" || lower === "findingref" || lower === "primaryrisk") {
-      const friendly = KNOWN_REFERENCE_SLUGS[value] ?? titleCaseSlug(value);
-
-      summaryLines.push({ label: "Risk area", value: friendly });
-      technicalLines.push({ label: `Raw reference (${key})`, value: value.length > 0 ? value : "Reference not returned" });
+      technicalLines.push({ label: `Raw reference (${key})`, value });
 
       continue;
     }
@@ -269,16 +241,16 @@ export function graphBuyerTrailMetadataLines(
     }
 
     if (lower === "monitoringcadence" || lower === "monitoring_cadence") {
-      summaryLines.push({ label: "Monitoring cadence", value: value.length > 0 ? value : " — " });
+      summaryLines.push({ label: "Monitoring cadence", value });
 
       continue;
     }
 
-    technicalLines.push({ label: key, value: value.length > 0 ? value : " — " });
+    technicalLines.push({ label: key, value });
   }
 
-  const referenceId = (metadata.referenceId ?? metadata.ReferenceId ?? "").trim();
-  const referencedSlug = (metadata.referenced ?? "").trim();
+  const referenceId = metadataValue(metadata, "referenceId");
+  const referencedSlug = metadataValue(metadata, "referenced");
   const inferredSampleHeroFinding = resolveHeroFindingReferenceScenario(referenceId, referencedSlug);
 
   if (inferredSampleHeroFinding !== null) {
@@ -294,13 +266,25 @@ export function graphBuyerTrailMetadataLines(
     attachStructuredField("Severity", "High");
     attachStructuredField("Decision", "Accepted with monitoring");
     attachStructuredField("Blocking status", "Non-blocking");
-    attachStructuredField(
-      "Monitoring cadence",
-      "Ongoing intake monitoring aligned to approval checkpoints",
-    );
+    attachStructuredField("Monitoring cadence", "Monitoring cadence was not stored.");
+    attachStructuredField("Risk area", "Risk area was not stored.");
   }
 
   return { summaryLines, technicalLines };
+}
+
+function resolveSampleHeroRiskAreaValue(metadata: Record<string, string> | undefined): string {
+  if (metadata !== undefined) {
+    for (const [rawKey, rawValue] of Object.entries(metadata)) {
+      const key = rawKey.trim().toLowerCase();
+
+      if (key === "riskarea" || key === "risk_domain" || key === "riskdomain") {
+        return String(rawValue).trim();
+      }
+    }
+  }
+
+  return "Risk area was not stored.";
 }
 
 function isInternalGraphReferenceTechnicalLine(line: BuyerTrailMetadataLine): boolean {

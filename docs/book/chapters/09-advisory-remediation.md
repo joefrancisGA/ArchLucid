@@ -1,11 +1,11 @@
-> **Scope:** Chapter 9 first draft for the book draft *Managing Azure Security with AI*. Author working text; not product documentation and not a description of any vendor's internals. The ranking rules and cost tiers here are illustrative examples for the reader, not any product's actual rules.
-> **Status:** draft
+> **Scope:** Chapter 9 revised draft for the book draft *Managing Azure Security with AI*. Author working text; not product documentation and not a description of any vendor's internals. The ranking rules and cost tiers here are illustrative examples for the reader, not any product's actual rules.
+> **Status:** draft — revised (revision pass 1, 2026-10-10)
 
 # Chapter 9 — Advisory remediation
 
 **Spine:** [`../README.md`](../README.md) · **Outline:** [`../OUTLINE.md`](../OUTLINE.md)
 
-> *Draft status: first draft. Target 6,000 words. Terraform provider resource names, Azure Policy built-in definitions, and role names must be re-verified against current documentation before submission.*
+> *Draft status: revised (revision pass 1, 2026-10-10). Target 6,000 words. Terraform provider resource names, Azure Policy built-in definitions, and role names were checked against current documentation in October 2026; dated "As of" notes mark the ones to re-check before submission.*
 
 ---
 
@@ -69,6 +69,8 @@ The levels are ordinal. Nobody can say a customer-data target is "3.7 times" wor
 The common approach is to give each factor a number and add them up: consequence × 0.4 + exposure × 0.3, and so on. The total looks objective. It isn't. The weights are judgments, and their interaction is opaque: a low-consequence path with every other factor bad can outrank a customer-data path, and nobody can explain why without opening a spreadsheet.
 
 A simpler rule is easier to defend: sort by the most important factor first, and use the next factor only to break ties. Consequence first, then entry exposure, then data-plane reach, then confidence, then length.
+
+<!-- listing: lab/listings/python/ch09_remediation.py#rank_key -->
 
 ```python
 RULESET_VERSION = "contoso-path-ranking-2026-10-01"
@@ -137,6 +139,8 @@ Three things in that table deserve attention.
 
 With changes listed, a greedy method is easy to follow: repeatedly pick the allowed change that closes the most remaining paths per unit of cost, until no allowed change closes anything.
 
+<!-- listing: lab/listings/python/ch09_remediation.py#greedy_plan -->
+
 ```python
 from dataclasses import dataclass
 
@@ -148,14 +152,23 @@ def edge_key(edge: Edge) -> tuple[str, str, str]:
 @dataclass(frozen=True)
 class Change:
     name: str
-    removes: frozenset[tuple[str, str, str]]   # edge keys this change eliminates
-    cost: int                                  # ordinal tier used only for comparison: 1 low, 2 medium, 3 high
-    removes_required: bool = False             # True if it breaks a confirmed flow or required function
-    reversible_by: frozenset[str] = frozenset()  # nodes that could undo the change
+    # Edge keys this change eliminates.
+    removes: frozenset[tuple[str, str, str]]
+    # Ordinal tier used only for comparison: 1 low, 2 medium, 3 high.
+    cost: int
+    # True if it breaks a confirmed flow or required function.
+    removes_required: bool = False
+    # Nodes that could undo the change.
+    reversible_by: frozenset[str] = frozenset()
 
 
-def greedy_plan(paths: list[list[Edge]], changes: list[Change]) -> tuple[list[Change], list[list[Edge]]]:
-    """Choose changes that close the most paths per unit of cost. Returns (plan, paths left open)."""
+def greedy_plan(
+    paths: list[list[Edge]], changes: list[Change]
+) -> tuple[list[Change], list[list[Edge]]]:
+    """Choose changes that close the most paths per unit of cost.
+
+    Returns (plan, paths left open).
+    """
     remaining = list(paths)
     allowed = [change for change in changes if not change.removes_required]
     plan: list[Change] = []
@@ -172,7 +185,9 @@ def greedy_plan(paths: list[list[Edge]], changes: list[Change]) -> tuple[list[Ch
         # Most paths closed per cost tier; then cheaper; then name, so ties are deterministic.
         best = max(useful, key=lambda c: (closes(c) / c.cost, -c.cost, c.name))
         plan.append(best)
-        remaining = [path for path in remaining if not any(edge_key(e) in best.removes for e in path)]
+        remaining = [
+            path for path in remaining if not any(edge_key(e) in best.removes for e in path)
+        ]
 
     return plan, remaining
 ```
@@ -191,8 +206,12 @@ The cost numbers (1, 2, 3) are a convenience for comparison, not a measurement. 
 
 The greedy method works on the paths you enumerated. Chapter 4's search caps path length, so a cut set computed from enumerated paths can miss a longer route that avoids every chosen change. Always verify by removing the plan's edges from the graph and searching again:
 
+<!-- listing: lab/listings/python/ch09_remediation.py#open_paths_after -->
+
 ```python
-def open_paths_after(edges: list[Edge], plan: list[Change], entries: list[str], targets: list[str]) -> dict:
+def open_paths_after(
+    edges: list[Edge], plan: list[Change], entries: list[str], targets: list[str]
+) -> dict:
     """Re-run the Chapter 4 search with the plan's edges removed."""
     removed = set().union(*(change.removes for change in plan)) if plan else set()
     kept = [edge for edge in edges if edge_key(edge) not in removed]
@@ -219,6 +238,8 @@ The plan above has a flaw that the path graph can't show unless you ask.
 Disabling shared key access on `custdata` is a configuration change. Who can change it back? Anyone with write access to the storage account, and that includes `payments-deploy`, which still holds Contributor on the resource group. And P4 is still open: the production pipeline can still become `payments-deploy`. So an attacker who takes over the pipeline can turn shared key access back on, list the keys, and read `custdata`. The plan closed P1 on paper and left it one configuration change away.
 
 The check is mechanical. For each change, record who could reverse it (`reversible_by`). After applying the plan, find every node still reachable from any entry point. If any of them can reverse a change, the change isn't durable:
+
+<!-- listing: lab/listings/python/ch09_remediation.py#undoable_changes -->
 
 ```python
 def reachable_nodes(edges: list[Edge], entries: list[str]) -> set[str]:
@@ -255,11 +276,11 @@ def undoable_changes(edges: list[Edge], plan: list[Change], entries: list[str]) 
 For the payments plan, this flags the shared key change: `payments-deploy` can reverse it and is still reachable through P4. There are two ways to make the change durable:
 
 - **Narrow `payments-deploy`'s role** so it can't change storage account settings. This was the high-cost change the greedy plan skipped. Now it has a reason.
-- **Assign an Azure Policy with a deny effect** that rejects storage accounts with shared key access enabled. Contributor can't modify policy assignments, because the role excludes authorization writes, so `payments-deploy` can't remove it. Microsoft provides a built-in policy definition for this. This is usually cheaper than redesigning the deployment role, and it protects every storage account in scope, not just one.
+- **Assign an Azure Policy with a deny effect** that rejects storage accounts with shared key access enabled. Contributor can't modify policy assignments, because the role's `NotActions` exclude `Microsoft.Authorization/*/Write` and `Microsoft.Authorization/*/Delete`, so `payments-deploy` can't remove it. Microsoft provides a built-in policy definition for this, "Storage accounts should prevent shared key access", whose `effect` parameter accepts Audit, Deny, or Disabled. This is usually cheaper than redesigning the deployment role, and it protects every storage account in scope, not just one.
 
 The CISO's plan in the opening story used the second option. Durability is the reason "disable shared key access" appeared together with "with an Azure Policy assignment" in that plan.
 
-> **As of 2026-10:** Verify the built-in Azure Policy definition for preventing storage account shared key access and its supported effects, and that Contributor lacks `Microsoft.Authorization/policyAssignments/write`.
+> **As of 2026-10:** The built-in definition's ID is `8c6a50c6-9ffd-4ae7-986f-5fa6111f9a54`, and its default effect is Audit, so the assignment must set Deny explicitly. Built-in definitions are occasionally versioned; check the ID in your tenant.
 
 The general rule: for every change in a plan, ask who can undo it, and whether any of them is still on a path. Configuration-based cuts are especially prone to this. Identity removals usually aren't, unless someone on a remaining path holds a role that can re-grant them.
 
@@ -274,12 +295,12 @@ An open path the business accepts is still a path. It shouldn't vanish from the 
 - the path IDs it covers,
 - who accepted it, in what role, and when,
 - the reason ("deploying `pay-reconcile` is the pipeline's function"),
-- the **compensating controls** relied on, each checkable (for P4: the `production` environment requires two approvals; deployments are logged; `mi-pay-reconcile`'s role is scoped to the one container it reads rather than the whole account),
+- the **compensating controls** relied on, each checkable (for P4: the `production` environment requires approval from a designated reviewer, with self-review prevented; deployments are logged; `mi-pay-reconcile`'s role is scoped to the one container it reads rather than the whole account),
 - an **expiry date**, after which the acceptance must be renewed or the path treated as open.
 
 Two rules keep acceptances honest:
 
-- **Check compensating controls as evidence.** "Two approvals required" is a property of the GitHub environment that a collector can read. Chapter 4's hop H1 carried an unchecked assumption about branch protection. A risk acceptance that relies on approvals should turn that assumption into a checked fact, and lapse if it stops being true.
+- **Check compensating controls as evidence.** "Two approvals required" is a property of the GitHub environment that a collector can read. The federated credential hop (H1 in Chapter 7's evidence pack) carried an unchecked assumption about branch protection. A risk acceptance that relies on approvals should turn that assumption into a checked fact, and lapse if it stops being true.
 - **Acceptances come from the register, never from the evidence.** Chapter 8's opening story was an app registration named "approved security exception SEC-1142". An exception is real only if it exists in the register, with an owner who can be asked. Text in tags, names, or descriptions is never an acceptance.
 
 Accepted paths stay in the ranking, marked "accepted until 2027-04-01". They drop below open paths for work planning, and they come back automatically on the expiry date or whenever the path changes.
@@ -307,6 +328,8 @@ So the analysis side holds **read-only access**: Reader on Azure, the read-only 
 ## 9.7 The recommendation record
 
 Every recommendation should be a structured record that can be reviewed, tracked, and later verified (Chapter 10):
+
+<!-- listing: lab/listings/json/ch09-the-recommendation-record.json -->
 
 ```json
 {
@@ -346,11 +369,13 @@ When the estate is managed as code, the fix should be a code change, reviewed an
 
 The three changes in the payments plan, as Terraform:
 
+<!-- listing: lab/listings/terraform/ch09-payments-plan.tf -->
+
 ```hcl
 # 1. Remove dev-lead as an owner of the payments-deploy app registration.
 #    Delete the owner resource; ownership remains with the platform automation identity.
 # resource "azuread_application_owner" "payments_deploy_dev_lead" {
-#   application_id  = azuread_application.payments_deploy.id
+#   application_id  = azuread_application_registration.payments_deploy.id
 #   owner_object_id = data.azuread_user.dev_lead.object_id
 # }
 
@@ -372,7 +397,7 @@ resource "azurerm_resource_group_policy_assignment" "deny_storage_shared_key" {
 }
 ```
 
-> **As of 2026-10:** Verify `azuread_application_owner` and `azuread_directory_role_assignment` in the current `azuread` provider, `shared_access_key_enabled` and `azurerm_resource_group_policy_assignment` in the current `azurerm` provider, and the built-in policy's ID and effect parameter name.
+> **As of 2026-10:** Resource and argument names checked against the `azuread` and `azurerm` provider documentation in October 2026. `azuread_application_owner` works only with applications managed through `azuread_application_registration`, not the older `azuread_application` resource. Re-check against the provider versions you pin.
 
 Three practical points:
 
@@ -396,13 +421,16 @@ Most organizations track changes in an IT service management (ITSM) system such 
 
 **Stable IDs prevent duplicates.** The analysis runs every week. Without a stable ID, every run opens new tickets for the same recommendations. Derive the ID from what the recommendation *is*: the changes and the paths' entry and target nodes, not the snapshot or the run:
 
+<!-- listing: lab/listings/python/ch09_remediation.py#recommendation_id -->
+
 ```python
 import hashlib
 
 
 def recommendation_id(change_names: list[str], path_endpoints: list[tuple[str, str]]) -> str:
     """Same changes for the same entry/target pairs give the same ID, run after run."""
-    material = "|".join(sorted(change_names)) + "#" + "|".join(sorted(f"{a}->{b}" for a, b in path_endpoints))
+    endpoints = sorted(f"{a}->{b}" for a, b in path_endpoints)
+    material = "|".join(sorted(change_names)) + "#" + "|".join(endpoints)
 
     return "rec-" + hashlib.sha256(material.encode("utf-8")).hexdigest()[:8]
 ```
@@ -470,7 +498,7 @@ This lab turns the Chapter 4 graph into a plan, checks it, and produces the arti
 
 ## Key terms
 
-- **Cut point** — a hop where one change breaks a path.
+- **Cut point** — a hop where one change breaks one or more paths.
 - **Change** — an action a person can take that removes one or more edges.
 - **Cut set** — a set of changes that together close every path between chosen entry points and targets.
 - **Plan** — an ordered cut set with costs, owners, and the paths left open.
@@ -484,7 +512,5 @@ This lab turns the Chapter 4 graph into a plan, checks it, and produces the arti
 ## Author notes (remove before submission)
 
 - The opening story, cost tiers, and ranking rules are illustrative and fictional. Keep the scope header's statement that they aren't any product's rules.
-- Verify: built-in Azure Policy for preventing storage shared key access, its effects, and the definition ID; that Contributor excludes policy assignment writes.
-- Verify: `azuread_application_owner`, `azuread_directory_role_assignment`, `azurerm_resource_group_policy_assignment`, and `shared_access_key_enabled` in current provider versions; Terraform `import` block availability.
-- Verify: which directory roles can manage application owners, so the `reversible_by` example for owner removal is accurate.
+- Verified 2026-10-10 (revision pass 1): built-in shared key policy ID, `effect` values, and default; Contributor `NotActions`; `azuread_application_owner` (requires `azuread_application_registration`), `azuread_directory_role_assignment`, `azurerm_resource_group_policy_assignment`, `shared_access_key_enabled`; Application Administrator and Cloud Application Administrator hold `applications/owners/update` tenant-wide, so either can reverse an owner removal; GitHub required reviewers need one approval.
 - Add the Chapter 9 fact checks to GTM **M-306** when it is picked up.

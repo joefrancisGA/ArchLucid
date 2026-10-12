@@ -383,9 +383,9 @@ function RecommendedActionSection(props: {
     {
       label: "Problem",
       value:
-        props.path.explanationTemplate?.architectSentence?.trim() ||
-        props.rank?.explanationSummary?.trim() ||
-        "Not cited.",
+        props.path.explanationTemplate?.architectSentence ??
+        props.rank?.explanationSummary ??
+        "Problem statement was not stored.",
     },
     {
       label: "Evidence",
@@ -396,14 +396,14 @@ function RecommendedActionSection(props: {
     },
     {
       label: "Consequence",
-      value: props.rank?.dimensionProse.blastRadius?.trim() || "Not cited.",
+      value: props.rank?.dimensionProse.blastRadius ?? "Blast radius was not stored.",
     },
     {
       label: "Recommended change",
       value:
-        firstCutPoint?.explanationSummary?.trim() ||
-        props.path.explanationTemplate?.proposedChange?.trim() ||
-        "Not cited.",
+        firstCutPoint?.explanationSummary ??
+        props.path.explanationTemplate?.proposedChange ??
+        "Proposed change was not stored.",
     },
     {
       label: "Owner",
@@ -411,7 +411,7 @@ function RecommendedActionSection(props: {
     },
     {
       label: "How to check",
-      value: props.path.explanationTemplate?.verify?.trim() || "Not cited.",
+      value: props.path.explanationTemplate?.verify ?? "How to check was not stored.",
     },
   ];
   const verificationValue = lines[lines.length - 1]?.value ?? "Not cited.";
@@ -419,6 +419,10 @@ function RecommendedActionSection(props: {
 
   const displayForLine = (line: { readonly label: string; readonly value: string }): string => {
     if (line.label === "How to check") {
+      if (line.value.length === 0) {
+        return "";
+      }
+
       if (line.value === "Not cited.") {
         return "Not cited.";
       }

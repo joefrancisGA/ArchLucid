@@ -16,7 +16,8 @@ internal static class AzureInventorySnapshotRoleAssignmentEdgeHydrator
         IReadOnlyList<GraphNode> nodes,
         IReadOnlyDictionary<string, string> nodeIdByArmId,
         List<GraphEdge> edges,
-        HashSet<string> edgeKeys)
+        HashSet<string> edgeKeys,
+        AzureInventorySnapshotPropertyIndex? propertyIndex = null)
     {
         ArgumentNullException.ThrowIfNull(snapshot);
         ArgumentNullException.ThrowIfNull(nodes);
@@ -24,7 +25,7 @@ internal static class AzureInventorySnapshotRoleAssignmentEdgeHydrator
         ArgumentNullException.ThrowIfNull(edges);
         ArgumentNullException.ThrowIfNull(edgeKeys);
 
-        Dictionary<Guid, List<string>> principalIdsByResourceRowId = BuildPrincipalIdsByResourceRowId(snapshot);
+        Dictionary<Guid, List<string>> principalIdsByResourceRowId = BuildPrincipalIdsByResourceRowId(snapshot, propertyIndex ?? AzureInventorySnapshotPropertyIndex.Create(snapshot));
         Dictionary<string, string> nodeIdByPrincipalId = BuildNodeIdByPrincipalId(
             snapshot,
             nodes,
@@ -49,26 +50,30 @@ internal static class AzureInventorySnapshotRoleAssignmentEdgeHydrator
                     out string resourceNodeId)
                 ? resourceNodeId
                 : "role-scope-" + MermaidIdSanitizer.Sanitize(scope);
-            string edgeKey = $"{fromNodeId}|{toNodeId}|{GraphEdgeTypes.HasRole}";
+            GraphEdge? edge = AzureInventorySnapshotGraphEdgeAppender.TryAdd(
+                edges, edgeKeys, fromNodeId, toNodeId, GraphEdgeTypes.HasRole,
+                GraphEdgeInferenceSources.InventoryRbacAssignment,
+                provenanceKind: ProvenanceKind.ObservedFact.ToString(),
+                promoteStrongerProvenance: false, allowSelfEdges: true,
+                identityKey: AzureInventoryRoleAssignmentIdentity.Create(principalId, scope, assignment.RoleDefinitionId));
 
-            if (!edgeKeys.Add(edgeKey))
+            if (edge is null)
             {
                 continue;
             }
 
-            string? roleName = AzureInventoryBuiltInRoleDefinitionNames.TryResolveFromRoleDefinitionId(
-                assignment.RoleDefinitionId);
-            GraphEdge edge = new()
+            string? roleName;
+            try
             {
-                EdgeId = "edge-" + edgeKey,
-                FromNodeId = fromNodeId,
-                ToNodeId = toNodeId,
-                EdgeType = GraphEdgeTypes.HasRole,
-                Label = GraphEdgeTypes.HasRole,
-                Weight = 1.0d,
-                InferenceSource = GraphEdgeInferenceSources.InventoryRbacAssignment,
-                ProvenanceKind = ProvenanceKind.ObservedFact.ToString(),
-            };
+                roleName = AzureInventoryBuiltInRoleDefinitionNames.TryResolveFromRoleDefinitionId(assignment.RoleDefinitionId);
+            }
+            catch (ArgumentException)
+            {
+                // Failed role lookup historically reserves the key without inserting an edge.
+                edges.Remove(edge);
+                throw;
+            }
+            edge.Properties["principalId"] = principalId;
             edge.Properties["scope"] = scope;
             edge.Properties["roleDefinitionId"] = assignment.RoleDefinitionId;
 
@@ -76,20 +81,15 @@ internal static class AzureInventorySnapshotRoleAssignmentEdgeHydrator
             {
                 edge.Properties["roleName"] = roleName;
             }
-
-            edges.Add(edge);
         }
     }
 
     private static Dictionary<Guid, List<string>> BuildPrincipalIdsByResourceRowId(
-        AzureInventorySnapshotDetailReadModel snapshot)
+        AzureInventorySnapshotDetailReadModel snapshot,
+        AzureInventorySnapshotPropertyIndex propertyIndex)
     {
         Dictionary<Guid, List<string>> principalIdsByResourceRowId = new();
-        Dictionary<Guid, List<AzureInventoryResourcePropertyReadModel>> propertiesByResourceRowId =
-            snapshot.Properties
-                .Where(property => property.PropertyKey.Equals("identity", StringComparison.OrdinalIgnoreCase))
-                .GroupBy(property => property.ResourceRowId)
-                .ToDictionary(group => group.Key, group => group.ToList());
+        IReadOnlyDictionary<Guid, List<AzureInventoryResourcePropertyReadModel>> propertiesByResourceRowId = propertyIndex.ByResourceRowId;
 
         foreach (AzureInventoryResourceRecord resource in snapshot.Resources)
         {
@@ -101,7 +101,7 @@ internal static class AzureInventorySnapshotRoleAssignmentEdgeHydrator
             }
 
             List<string> principalIds = properties
-                .Where(property => !property.IsRedacted)
+                .Where(property => property.PropertyKey.Equals("identity", StringComparison.OrdinalIgnoreCase) && !property.IsRedacted)
                 .SelectMany(property => AzureInventoryComputeIdentityPrincipalIndex.ReadPrincipalIds(property.PropertyValue))
                 .Distinct(StringComparer.OrdinalIgnoreCase)
                 .ToList();

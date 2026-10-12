@@ -7,6 +7,15 @@ namespace ArchLucid.Core.AzureExtractor;
 /// </summary>
 public static class AzureInventoryAdfLinkedServiceTargetResolver
 {
+    private static readonly string[] StorageDataPlaneSuffixes =
+    [
+        "blob.core.windows.net",
+        "dfs.core.windows.net",
+        "queue.core.windows.net",
+        "table.core.windows.net",
+        "file.core.windows.net",
+    ];
+
     public static bool TryResolveTargetArmId(
         AzureInventoryAdfLinkedServiceRow row,
         IReadOnlyDictionary<string, string> visibleArmIdByNormalizedId,
@@ -118,82 +127,134 @@ public static class AzureInventoryAdfLinkedServiceTargetResolver
         if (resourceType.Equals("Microsoft.Storage/storageAccounts", StringComparison.OrdinalIgnoreCase)
             && !string.IsNullOrWhiteSpace(name))
         {
-            yield return $"{name.ToLowerInvariant()}.blob.core.windows.net";
-            yield return $"{name.ToLowerInvariant()}.dfs.core.windows.net";
+            foreach (string suffix in StorageDataPlaneSuffixes)
+            {
+                foreach (string host in WithPrivateLinkAlias($"{name}.{suffix}"))
+                {
+                    yield return host;
+                }
+            }
         }
 
         if (resourceType.Equals("Microsoft.Sql/servers", StringComparison.OrdinalIgnoreCase)
             && !string.IsNullOrWhiteSpace(name))
         {
-            yield return $"{name.ToLowerInvariant()}.database.windows.net";
+            foreach (string host in WithPrivateLinkAlias($"{name}.database.windows.net"))
+            {
+                yield return host;
+            }
         }
 
         if (resourceType.Equals("Microsoft.KeyVault/vaults", StringComparison.OrdinalIgnoreCase)
             && !string.IsNullOrWhiteSpace(name))
         {
-            yield return $"{name.ToLowerInvariant()}.vault.azure.net";
+            string loweredName = name.ToLowerInvariant();
+            yield return $"{loweredName}.vault.azure.net";
+
+            if (!loweredName.Contains('.', StringComparison.Ordinal))
+            {
+                yield return $"{loweredName}.privatelink.vaultcore.azure.net";
+            }
         }
 
         if (resourceType.Equals("Microsoft.Synapse/workspaces", StringComparison.OrdinalIgnoreCase)
             && !string.IsNullOrWhiteSpace(name))
         {
-            yield return $"{name.ToLowerInvariant()}.dev.azuresynapse.net";
-            yield return $"{name.ToLowerInvariant()}.sql.azuresynapse.net";
+            foreach (string host in WithPrivateLinkAlias($"{name}.dev.azuresynapse.net"))
+            {
+                yield return host;
+            }
+
+            foreach (string host in WithPrivateLinkAlias($"{name}.sql.azuresynapse.net"))
+            {
+                yield return host;
+            }
         }
 
         if (resourceType.Equals("Microsoft.DocumentDB/databaseAccounts", StringComparison.OrdinalIgnoreCase)
             && !string.IsNullOrWhiteSpace(name))
         {
-            yield return $"{name.ToLowerInvariant()}.documents.azure.com";
-            yield return $"{name.ToLowerInvariant()}.mongo.cosmos.azure.com";
+            foreach (string host in WithPrivateLinkAlias($"{name}.documents.azure.com"))
+            {
+                yield return host;
+            }
+
+            foreach (string host in WithPrivateLinkAlias($"{name}.mongo.cosmos.azure.com"))
+            {
+                yield return host;
+            }
         }
 
         if (resourceType.Equals("Microsoft.DBforPostgreSQL/servers", StringComparison.OrdinalIgnoreCase)
             && !string.IsNullOrWhiteSpace(name))
         {
-            yield return $"{name.ToLowerInvariant()}.postgres.database.azure.com";
+            foreach (string host in WithPrivateLinkAlias($"{name}.postgres.database.azure.com"))
+            {
+                yield return host;
+            }
         }
 
         if (resourceType.Equals("Microsoft.DBforPostgreSQL/flexibleServers", StringComparison.OrdinalIgnoreCase)
             && !string.IsNullOrWhiteSpace(name))
         {
-            yield return $"{name.ToLowerInvariant()}.postgres.database.azure.com";
+            foreach (string host in WithPrivateLinkAlias($"{name}.postgres.database.azure.com"))
+            {
+                yield return host;
+            }
         }
 
         if (resourceType.Equals("Microsoft.DBforMySQL/servers", StringComparison.OrdinalIgnoreCase)
             && !string.IsNullOrWhiteSpace(name))
         {
-            yield return $"{name.ToLowerInvariant()}.mysql.database.azure.com";
+            foreach (string host in WithPrivateLinkAlias($"{name}.mysql.database.azure.com"))
+            {
+                yield return host;
+            }
         }
 
         if (resourceType.Equals("Microsoft.DBforMySQL/flexibleServers", StringComparison.OrdinalIgnoreCase)
             && !string.IsNullOrWhiteSpace(name))
         {
-            yield return $"{name.ToLowerInvariant()}.mysql.database.azure.com";
+            foreach (string host in WithPrivateLinkAlias($"{name}.mysql.database.azure.com"))
+            {
+                yield return host;
+            }
         }
 
         if (resourceType.Equals("Microsoft.Cache/redis", StringComparison.OrdinalIgnoreCase)
             && !string.IsNullOrWhiteSpace(name))
         {
-            yield return $"{name.ToLowerInvariant()}.redis.cache.windows.net";
+            foreach (string host in WithPrivateLinkAlias($"{name}.redis.cache.windows.net"))
+            {
+                yield return host;
+            }
         }
 
         if (resourceType.Equals("Microsoft.EventHub/namespaces", StringComparison.OrdinalIgnoreCase)
             && !string.IsNullOrWhiteSpace(name))
         {
-            yield return $"{name.ToLowerInvariant()}.servicebus.windows.net";
+            foreach (string host in WithPrivateLinkAlias($"{name}.servicebus.windows.net"))
+            {
+                yield return host;
+            }
         }
 
         if (resourceType.Equals("Microsoft.ServiceBus/namespaces", StringComparison.OrdinalIgnoreCase)
             && !string.IsNullOrWhiteSpace(name))
         {
-            yield return $"{name.ToLowerInvariant()}.servicebus.windows.net";
+            foreach (string host in WithPrivateLinkAlias($"{name}.servicebus.windows.net"))
+            {
+                yield return host;
+            }
         }
 
         if (resourceType.Equals("Microsoft.Web/sites", StringComparison.OrdinalIgnoreCase)
             && !string.IsNullOrWhiteSpace(name))
         {
-            yield return $"{name.ToLowerInvariant()}.azurewebsites.net";
+            foreach (string host in WithPrivateLinkAlias($"{name}.azurewebsites.net"))
+            {
+                yield return host;
+            }
         }
 
         if (resourceType.Equals("Microsoft.App/containerApps", StringComparison.OrdinalIgnoreCase)
@@ -208,7 +269,12 @@ public static class AzureInventoryAdfLinkedServiceTargetResolver
             && TryReadSqlServerName(resource.AzureResourceId, out string? sqlServerName)
             && !AzureInventoryNeverShowSqlDatabaseNames.ShouldOmit(resourceType, resource.AzureResourceId, name))
         {
-            yield return $"{sqlServerName.ToLowerInvariant()}.database.windows.net|{name.ToLowerInvariant()}";
+            string publicHost = $"{sqlServerName.ToLowerInvariant()}.database.windows.net";
+
+            foreach (string host in WithPrivateLinkAlias(publicHost))
+            {
+                yield return $"{host}|{name.ToLowerInvariant()}";
+            }
         }
 
         if (resourceType.Equals("Microsoft.Databricks/workspaces", StringComparison.OrdinalIgnoreCase)
@@ -228,15 +294,42 @@ public static class AzureInventoryAdfLinkedServiceTargetResolver
             string loweredName = name.ToLowerInvariant();
 
             // SN-RT-04: OpenAI and Content Safety accounts share Cognitive Services ARM type; index both host suffixes.
-            yield return $"{loweredName}.openai.azure.com";
-            yield return $"{loweredName}.cognitiveservices.azure.com";
+            foreach (string host in WithPrivateLinkAlias($"{loweredName}.openai.azure.com"))
+            {
+                yield return host;
+            }
+
+            foreach (string host in WithPrivateLinkAlias($"{loweredName}.cognitiveservices.azure.com"))
+            {
+                yield return host;
+            }
         }
 
         if (resourceType.Equals("Microsoft.Search/searchServices", StringComparison.OrdinalIgnoreCase)
             && !string.IsNullOrWhiteSpace(name))
         {
-            yield return $"{name.ToLowerInvariant()}.search.windows.net";
+            foreach (string host in WithPrivateLinkAlias($"{name}.search.windows.net"))
+            {
+                yield return host;
+            }
         }
+    }
+
+    private static IEnumerable<string> WithPrivateLinkAlias(string publicHost)
+    {
+        string normalizedHost = publicHost.Trim().ToLowerInvariant();
+        yield return normalizedHost;
+
+        int firstDot = normalizedHost.IndexOf('.');
+
+        if (firstDot <= 0
+            || firstDot >= normalizedHost.Length - 1
+            || normalizedHost.Contains(".privatelink.", StringComparison.Ordinal))
+        {
+            yield break;
+        }
+
+        yield return $"{normalizedHost[..(firstDot + 1)]}privatelink.{normalizedHost[(firstDot + 1)..]}";
     }
 
     private static string Normalize(string armId)

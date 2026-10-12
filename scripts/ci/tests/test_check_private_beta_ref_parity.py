@@ -41,7 +41,7 @@ class TestPrivateBetaRefParity(unittest.TestCase):
 
         self.assertEqual(len(issues), 2)
 
-    def test_requires_failure_class_diagnostics_in_readiness_helper(self) -> None:
+    def test_requires_failure_class_diagnostics_in_private_beta_helper(self) -> None:
         workflow = "\n".join(sut.REQUIRED_MARKERS)
         spec = " ".join(sut.REQUIRED_SPEC_MARKERS)
         helper = " ".join(sut.REQUIRED_HELPER_MARKERS)

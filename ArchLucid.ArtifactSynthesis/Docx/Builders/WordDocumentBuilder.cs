@@ -78,10 +78,11 @@ public static class WordDocumentBuilder
 
         foreach (string rawLine in text.Replace("\r\n", "\n", StringComparison.Ordinal).Split('\n'))
         {
+            string sanitizedLine = LlmArtifactFreeTextSanitizer.Sanitize(rawLine);
             Run run = new(
                 new RunProperties(
                     new RunFonts { Ascii = "Consolas", HighAnsi = "Consolas", ComplexScript = "Consolas" }),
-                new Text(rawLine) { Space = SpaceProcessingModeValues.Preserve });
+                new Text(sanitizedLine) { Space = SpaceProcessingModeValues.Preserve });
             body.AppendChild(
                 new Paragraph(
                     new ParagraphProperties(new ParagraphStyleId { Val = DocxStyleIds.BodyText }),

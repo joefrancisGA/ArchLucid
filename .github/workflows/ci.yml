@@ -322,6 +322,9 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Install book PDF test dependencies
+        run: python -m pip install markdown reportlab pypdf
+
       - name: Check relative markdown links
         run: python scripts/ci/check_md_links.py
 
@@ -338,6 +341,22 @@ jobs:
         run: |
           cd scripts/ci
           python -m unittest test_check_doc_scope_header test_backfill_doc_scope_headers
+
+      - name: Book case-study sanitization (draft mode), listing sync, and book tests
+        # Draft mode fails on identifiers that must never be published; unfilled placeholders are allowed
+        # until the author runs --publish before the appendix leaves the repository.
+        # check_listings fails when any marked listing in the manuscript differs from its source file.
+        # The PowerShell, KQL, and JSON checks parse or structure-check those sources offline; the
+        # Terraform check needs the terraform CLI and providers, so it runs locally (docs/book/README.md).
+        # Both test suites are standard-library only and offline.
+        run: |
+          python docs/book/tools/check_case_study.py docs/book/appendices/d-case-study.md
+          python docs/book/tools/check_listings.py
+          pwsh -NoProfile -File docs/book/tools/check_powershell_listings.ps1
+          python docs/book/tools/check_kql_listings.py
+          python docs/book/tools/check_json_listings.py
+          python -m unittest discover -s docs/book/tools -p "test_*.py"
+          python -m unittest discover -s docs/book/lab/listings/python/tests
 
   doc-markdown-links:
     name: "Docs: markdown link integrity"
@@ -4666,6 +4685,7 @@ jobs:
           Observability__Prometheus__Enabled: "true"
           Observability__Prometheus__RequireScrapeAuthentication: "false"
           RateLimiting__Registration__PermitLimit: "500"
+          RateLimiting__AuthRouting__PermitLimit: "500"
           ArchLucid__E2eHarness__SharedSecret: "ci-live-e2e-harness-secret-min16!"
           Cors__AllowedOrigins__0: "http://127.0.0.1:3000"
           Cors__AllowedOrigins__1: "http://localhost:3000"
@@ -4856,6 +4876,7 @@ jobs:
           Observability__Prometheus__Enabled: "true"
           Observability__Prometheus__RequireScrapeAuthentication: "false"
           RateLimiting__Registration__PermitLimit: "500"
+          RateLimiting__AuthRouting__PermitLimit: "500"
           ArchLucid__E2eHarness__SharedSecret: "ci-live-e2e-harness-secret-min16!"
           Cors__AllowedOrigins__0: "http://127.0.0.1:3000"
           Cors__AllowedOrigins__1: "http://localhost:3000"
@@ -5051,6 +5072,7 @@ jobs:
           AzureOpenAI__DeploymentName: ""
           AzureOpenAI__EmbeddingDeploymentName: ""
           RateLimiting__Registration__PermitLimit: "500"
+          RateLimiting__AuthRouting__PermitLimit: "500"
           ArchLucid__E2eHarness__SharedSecret: "ci-live-e2e-harness-secret-min16!"
           Cors__AllowedOrigins__0: "http://127.0.0.1:3000"
           Cors__AllowedOrigins__1: "http://localhost:3000"
@@ -5220,6 +5242,7 @@ jobs:
           AzureOpenAI__DeploymentName: ""
           AzureOpenAI__EmbeddingDeploymentName: ""
           RateLimiting__Registration__PermitLimit: "500"
+          RateLimiting__AuthRouting__PermitLimit: "500"
           ArchLucid__E2eHarness__SharedSecret: "ci-live-e2e-harness-secret-min16!"
           Cors__AllowedOrigins__0: "http://127.0.0.1:3000"
           Cors__AllowedOrigins__1: "http://localhost:3000"
@@ -5417,6 +5440,7 @@ jobs:
           AzureOpenAI__DeploymentName: ""
           AzureOpenAI__EmbeddingDeploymentName: ""
           RateLimiting__Registration__PermitLimit: "500"
+          RateLimiting__AuthRouting__PermitLimit: "500"
           ArchLucid__E2eHarness__SharedSecret: "ci-live-e2e-harness-secret-min16!"
           ArchLucid__CiLiveE2e__GrantDefaultTenantEnterprise: "true"
           Cors__AllowedOrigins__0: "http://127.0.0.1:3000"
@@ -5470,6 +5494,7 @@ jobs:
           AzureOpenAI__DeploymentName: ""
           AzureOpenAI__EmbeddingDeploymentName: ""
           RateLimiting__Registration__PermitLimit: "500"
+          RateLimiting__AuthRouting__PermitLimit: "500"
           ArchLucid__E2eHarness__SharedSecret: "ci-live-e2e-harness-secret-min16!"
           ArchLucid__CiLiveE2e__GrantDefaultTenantEnterprise: "true"
           Cors__AllowedOrigins__0: "http://127.0.0.1:3000"

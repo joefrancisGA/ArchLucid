@@ -76,7 +76,7 @@ function shouldShowArchitectureTitle(title: string, summaryText: string): boolea
 
 /** Entity labels are extracted document text too, so they carry the same markdown risk as narrative. */
 function entityLabelList(section: ArchitectureStructuredSection): string {
-  return section.entities.map((entity) => stripInlineMarkdownFromReviewText(entity.label)).join(", ");
+  return (section.entities ?? []).map((entity) => stripInlineMarkdownFromReviewText(entity.label)).join(", ");
 }
 
 function sectionSummary(section: ArchitectureStructuredSection): string {

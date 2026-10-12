@@ -30,6 +30,10 @@ public sealed class AgentOutputReferenceCaseCatalog(
 
     private readonly IOptionsMonitor<AgentExecutionReferenceEvaluationOptions> _options = options ?? throw new ArgumentNullException(nameof(options));
 
+    private bool _loadedEnabled;
+
+    private string? _loadedReferenceCasesPath;
+
     private volatile bool _loadAttempted;
 
     /// <inheritdoc />
@@ -37,15 +41,33 @@ public sealed class AgentOutputReferenceCaseCatalog(
     {
         get
         {
-            if (_loadAttempted && field is not null)
+            AgentExecutionReferenceEvaluationOptions currentOptions = _options.CurrentValue;
+
+            if (_loadAttempted
+                && field is not null
+                && _loadedEnabled == currentOptions.Enabled
+                && string.Equals(
+                    _loadedReferenceCasesPath,
+                    currentOptions.ReferenceCasesPath,
+                    StringComparison.Ordinal))
                 return field;
 
             lock (_loadGate)
             {
-                if (field is not null)
+                currentOptions = _options.CurrentValue;
+
+                if (_loadAttempted
+                    && field is not null
+                    && _loadedEnabled == currentOptions.Enabled
+                    && string.Equals(
+                        _loadedReferenceCasesPath,
+                        currentOptions.ReferenceCasesPath,
+                        StringComparison.Ordinal))
                     return field;
 
-                field = LoadCasesLocked();
+                field = LoadCasesLocked(currentOptions);
+                _loadedEnabled = currentOptions.Enabled;
+                _loadedReferenceCasesPath = currentOptions.ReferenceCasesPath;
                 _loadAttempted = true;
 
                 return field;
@@ -53,10 +75,9 @@ public sealed class AgentOutputReferenceCaseCatalog(
         }
     }
 
-    private IReadOnlyList<AgentOutputReferenceCaseDefinition> LoadCasesLocked()
+    private IReadOnlyList<AgentOutputReferenceCaseDefinition> LoadCasesLocked(
+        AgentExecutionReferenceEvaluationOptions opts)
     {
-        AgentExecutionReferenceEvaluationOptions opts = _options.CurrentValue;
-
         if (!opts.Enabled)
             return [];
 

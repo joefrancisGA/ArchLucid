@@ -49,7 +49,7 @@ class TestRoiBatch18DriftGuards(unittest.TestCase):
         )
 
         self.assertIn("SponsorSendPathHonestyPanel", guide)
-        self.assertIn("help-career-rehearsal", guide)
+        self.assertIn("help-career-vs-rehearsal", guide)
 
     def test_help_improvement_planning_send_path_honesty(self) -> None:
         guide = (

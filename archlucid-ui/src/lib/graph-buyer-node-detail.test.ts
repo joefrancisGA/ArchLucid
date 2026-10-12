@@ -5,21 +5,23 @@ import {
   graphBuyerTrailRecordTypeLine,
   visibleBuyerTrailTechnicalAppendixLines,
 } from "./graph-buyer-node-detail";
-import { SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID } from "./showcase-static-demo";
+import { CUSTOMER_INTAKE_SAMPLE_DEFINITION } from "@/lib/samples/customer-intake-modernization/definition";
 import type { GraphNodeVm } from "@/types/graph";
+
+const REGISTERED_HERO_FINDING_ID = CUSTOMER_INTAKE_SAMPLE_DEFINITION.primaryFindingId;
 
 describe("graphBuyerTrailRecordTypeLine", () => {
   it("labels active sample hero finding with scenario-specific risk framing", () => {
     const node: GraphNodeVm = {
-      id: SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,
+      id: REGISTERED_HERO_FINDING_ID,
       type: "Finding",
       label: "Sensitive data minimization risk",
-      metadata: { referenced: SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID },
+      metadata: { referenced: REGISTERED_HERO_FINDING_ID },
     };
 
     expect(graphBuyerTrailRecordTypeLine(node)).toEqual({
       primary: "Finding: Sensitive data minimization",
-      secondary: { label: "Risk area", value: "Privacy and data handling" },
+      secondary: { label: "Risk area", value: "Risk area was not stored." },
     });
   });
 
@@ -40,12 +42,14 @@ describe("graphBuyerTrailRecordTypeLine", () => {
 describe("graphBuyerTrailMetadataLines", () => {
   it("hides technical appendix for showcase finding linkage ids already summarized above", () => {
     const { summaryLines, technicalLines } = graphBuyerTrailMetadataLines({
-      referenceId: SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,
+      referenceId: REGISTERED_HERO_FINDING_ID,
+      referenced: REGISTERED_HERO_FINDING_ID,
     });
 
     expect(summaryLines.length).toBeGreaterThan(0);
     expect(technicalLines).toEqual([
-      { label: "Reference ID", value: SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID },
+      { label: "Reference ID", value: REGISTERED_HERO_FINDING_ID },
+      { label: "Raw reference (referenced)", value: REGISTERED_HERO_FINDING_ID },
     ]);
     expect(visibleBuyerTrailTechnicalAppendixLines(technicalLines)).toEqual([]);
   });
@@ -59,5 +63,31 @@ describe("graphBuyerTrailMetadataLines", () => {
     expect(visibleBuyerTrailTechnicalAppendixLines(technicalLines)).toEqual([
       { label: "sourceSystem", value: "ServiceNow" },
     ]);
+  });
+
+  it("preserves missing, empty, and stored sample hero metadata", () => {
+    const missing = graphBuyerTrailMetadataLines({
+      referenceId: REGISTERED_HERO_FINDING_ID,
+      referenced: REGISTERED_HERO_FINDING_ID,
+    });
+    const empty = graphBuyerTrailMetadataLines({
+      referenceId: REGISTERED_HERO_FINDING_ID,
+      referenced: REGISTERED_HERO_FINDING_ID,
+      riskArea: "",
+      monitoringCadence: "",
+    });
+    const stored = graphBuyerTrailMetadataLines({
+      referenceId: REGISTERED_HERO_FINDING_ID,
+      referenced: REGISTERED_HERO_FINDING_ID,
+      riskArea: "Stored risk",
+      monitoringCadence: "Stored cadence",
+    });
+
+    expect(missing.summaryLines).toContain({ label: "Risk area", value: "Risk area was not stored." });
+    expect(missing.summaryLines).toContain({ label: "Monitoring cadence", value: "Monitoring cadence was not stored." });
+    expect(empty.summaryLines).toContain({ label: "Risk area", value: "" });
+    expect(empty.summaryLines).toContain({ label: "Monitoring cadence", value: "" });
+    expect(stored.summaryLines).toContain({ label: "Risk area", value: "Stored risk" });
+    expect(stored.summaryLines).toContain({ label: "Monitoring cadence", value: "Stored cadence" });
   });
 });

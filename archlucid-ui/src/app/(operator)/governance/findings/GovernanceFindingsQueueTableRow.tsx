@@ -212,6 +212,7 @@ export function GovernanceFindingsQueueTableRow(props: GovernanceFindingsQueueTa
           row={row}
           showInsightDensityScore={showInsightDensityScore}
           severityMeaning={severityMeaning}
+          onOpenRow={onOpenRow}
         />
       )}
       <EnterpriseTableCell>

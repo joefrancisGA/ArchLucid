@@ -196,6 +196,7 @@ public sealed partial class BackgroundJobRepository
                                RetryCount = @RetryCount,
                                StartedUtc = NULL
                            WHERE JobId = @JobId
+                             AND State = N'Running'
                            """;
 
         using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);

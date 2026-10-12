@@ -154,7 +154,7 @@ describe("NewRunWizardClient baseline-first (?baseline=1)", { timeout: 60_000 },
     });
 
     expect(screen.getByTestId("simplified-pilot-progress")).toHaveTextContent(/step 1 of 4/i);
-    expect(screen.getByLabelText("System name")).toBeInTheDocument();
+    expect(screen.getByLabelText("System Name")).toBeInTheDocument();
     expect(screen.queryByTestId("new-run-wizard-mode-toggle")).not.toBeInTheDocument();
 
     const description = screen.getByLabelText("Description") as HTMLTextAreaElement;

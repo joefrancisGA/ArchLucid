@@ -365,9 +365,31 @@ public static class CanonicalInfrastructurePropertyBag
         if (trimmedBody.Length > MaxPropertyValueLength)
             trimmedBody = trimmedBody[..MaxPropertyValueLength];
 
-        properties[$"tf.{sanitizedBlockName}"] = trimmedBody.ToLowerInvariant();
+        string valueText = ShouldRedactKey(blockName) || ContainsSensitiveKeyAssignment(blockBody)
+            ? "[REDACTED]"
+            : trimmedBody.ToLowerInvariant();
+
+        properties[$"tf.{sanitizedBlockName}"] = valueText;
 
         return true;
+    }
+
+    private static bool ContainsSensitiveKeyAssignment(string blockBody)
+    {
+        foreach (string line in blockBody.Split(['\r', '\n'], StringSplitOptions.RemoveEmptyEntries))
+        {
+            int equalsIndex = line.IndexOf('=');
+
+            if (equalsIndex <= 0)
+                continue;
+
+            string rawKey = line[..equalsIndex].Trim().Trim('"', '\'');
+
+            if (ShouldRedactKey(rawKey))
+                return true;
+        }
+
+        return false;
     }
 
     public static bool TryAddTfJsonProperty(

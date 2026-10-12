@@ -1,7 +1,8 @@
 using ArchLucid.Api.Attributes;
-using ArchLucid.Api.Controllers.OperationalSecurity;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Common;
+using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.InfraEvidence;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.InfraEvidence;
@@ -76,6 +77,67 @@ public sealed class OperationalSecurityFindingsController(
             cancellationToken);
 
         return Ok(findings);
+    }
+
+    // idempotency-posture: dry-run-no-persist
+    [HttpPost("lookup")]
+    [MutatingAuditExcluded("Read-only natural-key lookup; does not persist domain mutations.")]
+    [ProducesResponseType(typeof(IReadOnlyList<OperationalSecurityFindingLookupItem>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> Lookup(
+        [FromBody] OperationalSecurityFindingLookupRequest? request,
+        CancellationToken cancellationToken = default)
+    {
+        if (request is null || string.IsNullOrWhiteSpace(request.SourceSystem))
+        {
+            return this.BadRequestProblem("SourceSystem is required.", ProblemTypes.ValidationFailed);
+        }
+
+        List<string> sourceFindingIds = (request.SourceFindingIds ?? [])
+            .Where(sourceFindingId => !string.IsNullOrWhiteSpace(sourceFindingId))
+            .Select(sourceFindingId => sourceFindingId.Trim())
+            .Distinct(StringComparer.Ordinal)
+            .ToList();
+
+        if (sourceFindingIds.Count == 0)
+        {
+            return this.BadRequestProblem("At least one source finding id is required.", ProblemTypes.ValidationFailed);
+        }
+
+        if (sourceFindingIds.Count > 200)
+        {
+            return this.BadRequestProblem("At most 200 source finding ids may be looked up.", ProblemTypes.ValidationFailed);
+        }
+
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+        List<OperationalSecurityFindingLookupItem> matches = [];
+
+        // Diagram-reconciliation ingest stores CloudProvider.Azure (enum 1); lookup uses the same natural key.
+
+        foreach (string sourceFindingId in sourceFindingIds)
+        {
+            OperationalSecurityFindingRecord? finding =
+                await repository.TryGetByNaturalKeyInScopeAsync(
+                    scope.ToProjectScopeKey(),
+                    CloudProvider.Azure,
+                    request.SourceSystem.Trim(),
+                    sourceFindingId,
+                    cancellationToken);
+
+            if (finding is null)
+            {
+                continue;
+            }
+
+            matches.Add(new OperationalSecurityFindingLookupItem
+            {
+                FindingId = finding.FindingId,
+                SourceFindingId = finding.SourceFindingId,
+                Status = finding.Status.ToString(),
+            });
+        }
+
+        return Ok(matches);
     }
 
     [HttpGet("{findingId:guid}")]

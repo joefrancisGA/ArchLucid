@@ -14,7 +14,7 @@ export type SecureNowQuestion = {
   readonly resourceName: string;
   readonly reasonText: string;
   readonly sourceLine: string;
-  readonly answerCodes: readonly string[];
+  readonly answerCodes: readonly string[] | null;
   readonly evidenceFingerprint: string;
   readonly expirationUtc: string | null;
   readonly isExpired: boolean;
@@ -66,7 +66,7 @@ function mapQuestion(raw: Record<string, unknown>): SecureNowQuestion {
     sourceLine: stringOrDefault(raw.sourceLine),
     answerCodes: Array.isArray(raw.answerCodes)
       ? raw.answerCodes.filter((value): value is string => typeof value === "string")
-      : [],
+      : null,
     evidenceFingerprint: stringOrDefault(raw.evidenceFingerprint),
     expirationUtc: typeof raw.expirationUtc === "string" ? raw.expirationUtc : null,
     isExpired: raw.isExpired === true,

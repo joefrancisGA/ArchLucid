@@ -1,5 +1,5 @@
 import { render, screen } from "@testing-library/react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const demoEnv = vi.hoisted(() => ({
   buyerPolished: true,
@@ -25,6 +25,10 @@ vi.mock("@/components/shell/app-shell-workspace-footer-deferred-chunks", () => (
 import { AppShellWorkspaceFooter } from "@/components/shell/AppShellWorkspaceFooter";
 
 describe("AppShellWorkspaceFooter", () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
   beforeEach(() => {
     demoEnv.buyerPolished = true;
     demoEnv.demoMode = false;
@@ -51,6 +55,21 @@ describe("AppShellWorkspaceFooter", () => {
 
     expect(screen.getByRole("contentinfo", { name: "Trust and compliance" })).toBeInTheDocument();
     expect(screen.queryByTestId("trust-center-shell-link")).toBeNull();
+  });
+
+  it("shows generic SecureNow attribution but not in the UHG edition", () => {
+    demoEnv.productLine = "security";
+
+    render(<AppShellWorkspaceFooter hideWorkspaceHealthFooter={false} />);
+    expect(screen.getByText("Powered by ArchLucid")).toBeInTheDocument();
+  });
+
+  it("does not render ArchLucid attribution in the UHG edition", () => {
+    demoEnv.productLine = "security";
+    vi.stubEnv("NEXT_PUBLIC_SECURENOW_EDITION", "uhg");
+
+    render(<AppShellWorkspaceFooter hideWorkspaceHealthFooter={false} />);
+    expect(screen.queryByText("Powered by ArchLucid")).toBeNull();
   });
 
   it("renders the operator workspace footer when buyer polish is off", () => {

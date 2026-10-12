@@ -263,9 +263,9 @@ public sealed partial class SqlAzureInventorySnapshotRepository
             {
                 const string insertRoleAssignment = """
                                                     INSERT INTO dbo.AzureInventoryRoleAssignments
-                                                    (RoleAssignmentRowId, SnapshotId, TenantId, Scope, PrincipalId, RoleDefinitionId, SourceEvidenceReference)
+                                                    (RoleAssignmentRowId, SnapshotId, TenantId, Scope, PrincipalId, RoleDefinitionId, PimEligibilityKind, SourceEvidenceReference)
                                                     VALUES
-                                                    (@RoleAssignmentRowId, @SnapshotId, @TenantId, @Scope, @PrincipalId, @RoleDefinitionId, @SourceEvidenceReference);
+                                                    (@RoleAssignmentRowId, @SnapshotId, @TenantId, @Scope, @PrincipalId, @RoleDefinitionId, @PimEligibilityKind, @SourceEvidenceReference);
                                                     """;
 
                 foreach (AzureInventoryRoleAssignmentWrite roleAssignment in writeRequest.RoleAssignments)
@@ -281,6 +281,7 @@ public sealed partial class SqlAzureInventorySnapshotRepository
                                 roleAssignment.Scope,
                                 roleAssignment.PrincipalId,
                                 roleAssignment.RoleDefinitionId,
+                                roleAssignment.PimEligibilityKind,
                                 roleAssignment.SourceEvidenceReference,
                             },
                             transaction: tx,

@@ -1,17 +1,17 @@
-> **Scope:** Chapter 4 first draft for the book draft *Managing Azure Security with AI*. Author working text; not product documentation and not a description of any vendor's internals.
-> **Status:** draft
+> **Scope:** Chapter 4 revised draft for the book draft *Managing Azure Security with AI*. Author working text; not product documentation and not a description of any vendor's internals.
+> **Status:** draft — revised (revision pass 1, 2026-10-10)
 
 # Chapter 4 — Identity and privilege paths
 
 **Spine:** [`../README.md`](../README.md) · **Outline:** [`../OUTLINE.md`](../OUTLINE.md)
 
-> *Draft status: first draft. Target 9,000 words. Facts about Azure and Entra ID behavior must be re-verified against Microsoft documentation before submission.*
+> *Draft status: revised (revision pass 1, 2026-10-10). Target 9,000 words. Facts about Azure and Entra ID behavior were checked against Microsoft documentation in October 2026; dated "As of" notes mark the ones to re-check before submission.*
 
 ---
 
 ## The fix that didn't close the path
 
-In this fictional scenario, Contoso's payments team acted on the path from Chapter 1. They changed the federated credential on `payments-deploy` so that it trusted only the `production` GitHub environment, which requires two approvals before a workflow can run. Merging to `main` was no longer enough to sign in as the deployment identity. They closed the ticket.
+In this fictional scenario, Contoso's payments team acted on the path from Chapter 1. They changed the federated credential on `payments-deploy` so that it trusted only the `production` GitHub environment, which requires approval from a designated reviewer before a deployment job can run. Merging to `main` was no longer enough to sign in as the deployment identity. They closed the ticket.
 
 Two weeks later, a review of the identity graph found three more ways to reach the same storage account. None of them involved GitHub at all:
 
@@ -84,13 +84,15 @@ Two mechanisms can reduce effective access:
 
 Most estates have few of either. But a derivation that ignores them will report paths that don't exist, and a reviewer who finds one such false path will stop trusting the rest. Check them, and record that you checked (Chapter 2, hop 6).
 
+The opposite mistake is quieter. A condition is an expression over attributes, such as container names, blob tags, or request properties, and a snapshot of role assignments usually can't evaluate it. A derivation that drops every conditioned assignment it can't evaluate doesn't report a false path. It hides one that might be real, and nobody notices the gap. Section 4.5 keeps those hops and labels them instead.
+
 ### Rule 5: Eligible is not active
 
 With Privileged Identity Management (PIM), an assignment can be **eligible** rather than active: the principal can activate it, usually for a few hours, often after MFA, a justification, or an approval. An eligible assignment is a real hop, but a conditional one.
 
 Represent eligible assignments as a distinct edge type, "can activate", carrying the activation requirements. A path through an eligible Owner assignment that requires approval from a separate team is meaningfully harder to use than one through an active assignment. It's still a path, and it belongs in the graph.
 
-> **As of 2026-10:** Verify how PIM eligibility for Azure resource roles and Entra roles is exposed via ARM and Microsoft Graph, and which permissions are needed to read it.
+The two kinds of eligibility live in different places. Eligibility for Azure resource roles is an ARM resource, `Microsoft.Authorization/roleEligibilitySchedules`, readable at the scope it applies to. Eligibility for Entra directory roles is in Microsoft Graph, under `roleManagement/directory/roleEligibilitySchedules`, and reading it needs a Graph permission such as `RoleEligibilitySchedule.Read.Directory`. A collector that reads only one of them will miss half the "can activate" edges.
 
 ### Effective access is a derived fact
 
@@ -119,7 +121,9 @@ The subject decides how wide the door is. For GitHub Actions, typical subjects l
 
 Reading a subject is only half the job. The other half is outside Azure: who can merge to `main`, what the environment's protection rules require, whether pull requests from forks can request tokens. That evidence lives in GitHub, not Entra. You can collect it from GitHub's API, or record it as a human assertion with an owner and date. Either way, label it. Don't assume.
 
-> **As of 2026-10:** Verify GitHub's current OIDC subject formats, subject customization options, fork pull request token behavior, and Entra ID support for wildcard or expression-based ("flexible") federated credential matching.
+By default, workflows triggered by pull requests from forks don't receive an OIDC token, so the `pull_request` row is usually limited to branches in the repository itself. Check whether anyone has changed that default. Entra's flexible federated credentials, still in preview, match subjects with a `claimsMatchingExpression` instead of an exact string. Read the expression the way you'd read a firewall rule: work out the widest set of subjects it accepts.
+
+> **As of 2026-10:** GitHub subject formats change. Repositories created after July 15, 2026, repositories renamed or transferred after that date, and existing repositories that opt in use immutable subjects containing owner and repository IDs (`repo:owner@id/repo@id:…`), so a federated credential written for the old format won't match them. Re-check the formats and the flexible credential syntax before you rely on them.
 
 ### Owners and credential management
 
@@ -130,9 +134,10 @@ That makes app ownership one of the most overlooked privilege hops. Owners are o
 Several Entra directory roles grant the same capability across many apps:
 
 - **Application Administrator** and **Cloud Application Administrator** can manage credentials on application registrations and enterprise applications across the tenant.
-- **Global Administrator** and **Privileged Role Administrator** can do this and much more.
+- **Global Administrator** can do this and much more.
+- **Privileged Role Administrator** doesn't manage credentials directly, but it can assign itself any directory role, including the ones above. That's a granting hop (section 4.4), not a "become" hop.
 
-> **As of 2026-10:** Verify the exact credential-management scope of Application Administrator and Cloud Application Administrator, including any restrictions on apps holding privileged roles.
+Microsoft's own role documentation warns about the consequence: a holder of Application Administrator can add a credential to an app and then do anything that app's identity can do. The role doesn't exclude apps that hold privileged permissions, so treat these roles as able to become every application in their scope.
 
 ### Managed identities and control of compute
 
@@ -157,7 +162,7 @@ The opening story's third path was exactly this: Contributor on `rg-payments-pro
 |-----|----------|-----------------|
 | Federated credential | Producing a token with the trusted issuer and subject | Graph (credential) + external system (who can produce it) |
 | Add credential as owner | Ownership of the app or service principal | Graph (owners) |
-| Add credential via directory role | Application Administrator, Cloud Application Administrator, or higher | Graph (directory role assignments) |
+| Add credential via directory role | Application Administrator, Cloud Application Administrator, or Global Administrator | Graph (directory role assignments) |
 | Act as a managed identity | Control of code running on the attached resource | ARG (identity attachments) + effective access to the resource |
 | Attach a user-assigned identity | Assign permission on the identity + write on the compute resource | ARG + effective access |
 
@@ -181,13 +186,11 @@ A **Global Administrator** in Entra ID can turn on a setting that grants them Us
 
 Service principals can hold Microsoft Graph **application permissions**, granted via admin consent. Some of these are effectively directory administration:
 
-- permission to assign directory roles,
-- permission to grant app role assignments (including Graph permissions) to any service principal, itself included,
-- permission to manage all applications' credentials.
+- permission to assign directory roles (`RoleManagement.ReadWrite.Directory`),
+- permission to grant app role assignments, including Graph permissions, to any service principal, itself included (`AppRoleAssignment.ReadWrite.All`),
+- permission to manage all applications' credentials (`Application.ReadWrite.All`).
 
 A service principal holding one of these is a privileged identity, even if it has no Azure roles at all. It belongs in the graph with "can grant" edges, and so does everyone who can become it (section 4.3).
-
-> **As of 2026-10:** Verify which Microsoft Graph application permissions allow self-escalation (for example, role management and app role assignment write permissions) and their current names.
 
 ---
 
@@ -235,16 +238,42 @@ Derive `canControlCode` and `grants` first, using the five rules in section 4.2:
 - inherit the assignment down the scope tree,
 - copy group assignments onto transitive members,
 - evaluate the role definition's Actions, NotActions, DataActions, and NotDataActions,
-- subtract deny assignments,
-- skip assignments whose condition is non-empty until that condition has been checked against the snapshot.
+- subtract deny assignments, except for principals the deny excludes,
+- keep what the derivation can't evaluate, and label it.
+
+The last rule needs a reason. A role-assignment condition only narrows what the role allows. So the most the assignment could grant is the role without its condition, and the derivation draws edges at that upper bound. Each such edge carries an **unmodeled control**: the condition text, the assignment it came from, and its citation. Two other cases get the same treatment. A role whose definition wasn't collected is treated as allowing everything, and the edge says the definition is missing. A deny assignment with a condition might or might not block, so it labels the hop instead of removing it.
+
+The label lives on the edge rather than in a separate list of caveats, so search carries it into every path that uses the hop. A path that uses even one labeled edge is reported with the assumption it rests on, and it never reads as confirmed. Where the same hop also exists without any control, the plain edge replaces the labeled one, because the hop holds either way.
 
 Only the resulting privilege edges go into search. A Reader assignment produces neither `canControlCode` nor a list-keys `grants` edge, so it cannot reach the targets. Contributor can, because its Actions are `*` and its NotActions do not remove `Microsoft.Web/sites/write` or `Microsoft.Storage/storageAccounts/listKeys/action`.
 
 The sketch below uses only the Python standard library. It is the loader's derivation, not a second authorization system inside the search.
 
+<!-- listing: lab/listings/python/ch04_paths.py#identity_graph -->
+
 ```python
 from collections import deque
 from dataclasses import dataclass
+
+
+@dataclass(frozen=True)
+class UnmodeledControl:
+    """A control the derivation found but can't evaluate, so it can't tell whether the hop holds."""
+    kind: str        # "roleCondition", "missingRoleDefinition", "denyWithCondition"
+    principal: str
+    scope: str
+    role: str        # role name, or the deny assignment's name
+    condition: str   # raw condition text; empty for a missing role definition
+    citation: str
+
+    def assumption(self) -> str:
+        """The control as a checkable assumption for a hop table."""
+        where = f"'{self.role}' at {self.scope} ({self.citation})"
+
+        if self.kind == "missingRoleDefinition":
+            return f"role {where} allows this hop; its definition wasn't collected"
+
+        return f"{self.kind} on {where} allows this hop: {self.condition}"
 
 
 @dataclass(frozen=True)
@@ -254,6 +283,7 @@ class Edge:
     kind: str
     evidence: str   # "observed", "derived", "inference", "ai", "human"
     detail: str     # citation: snapshot file and row, or rule name
+    control: UnmodeledControl | None = None   # set when the hop rests on an unevaluated control
 
 
 # Kinds find_paths may walk. hasRoleAt and contains are deliberately absent.
@@ -278,6 +308,8 @@ STRUCTURAL_KINDS = frozenset({"hasRoleAt", "contains"})
 CODE_CONTROL_ACTION = "Microsoft.Web/sites/write"
 LIST_KEYS_ACTION = "Microsoft.Storage/storageAccounts/listKeys/action"
 BLOB_READ_ACTION = "Microsoft.Storage/storageAccounts/blobServices/containers/blobs/read"
+# Stand-in for a role whose definition wasn't collected: assume the most it could grant.
+UNKNOWN_ROLE_PERMISSIONS = [{"actions": ["*"], "data_actions": ["*"]}]
 
 
 def pattern_covers(patterns: list[str], action: str) -> bool:
@@ -318,7 +350,9 @@ def pattern_covers(patterns: list[str], action: str) -> bool:
 
         tail = pieces[-1]
 
-        if tail == "" or (action_folded.endswith(tail) and cursor <= len(action_folded) - len(tail)):
+        tail_fits = action_folded.endswith(tail) and cursor <= len(action_folded) - len(tail)
+
+        if tail == "" or tail_fits:
             return True
 
     return False
@@ -387,12 +421,35 @@ def expand_group_assignments(
     return expanded
 
 
-def _granting_citation(blocks: list[tuple[list[dict], str]], action: str, plane: str) -> str | None:
-    for permissions, citation in blocks:
-        if action_permitted(permissions, action, plane):
-            return citation
+Grant = tuple[list[dict], str, UnmodeledControl | None]   # permissions, citation, control
 
-    return None
+
+def _granting(
+    blocks: list[Grant], action: str, plane: str
+) -> tuple[str, UnmodeledControl | None] | None:
+    """(citation, control) of a grant for action, preferring one with no unmodeled control."""
+    hits = [(citation, control) for permissions, citation, control in blocks
+            if action_permitted(permissions, action, plane)]
+    plain = [hit for hit in hits if hit[1] is None]
+
+    return (plain or hits or [None])[0]
+
+
+def _assignment_control(
+    assignment: dict, role_definitions: dict[str, dict]
+) -> UnmodeledControl | None:
+    """The control that keeps this assignment from being evaluated, if any."""
+    condition = (assignment.get("condition") or "").strip()
+
+    if assignment["role_name"] not in role_definitions:
+        kind = "missingRoleDefinition"
+    elif condition:
+        kind = "roleCondition"
+    else:
+        return None
+
+    return UnmodeledControl(kind, assignment["principal"], assignment["scope"],
+                            assignment["role_name"], condition, assignment["citation"])
 
 
 def _folded_children(children_of: dict[str, list[str]]) -> dict[str, list[str]]:
@@ -410,21 +467,27 @@ def _folded_children(children_of: dict[str, list[str]]) -> dict[str, list[str]]:
     return folded
 
 
-def _deny_hits(
+def _deny_result(
     denies: list[dict],
     children_of: dict[str, list[str]],
     principal: str,
     scope: str,
     action: str,
     plane: str,
-) -> bool:
+) -> tuple[bool, UnmodeledControl | None]:
+    """(blocked, control). A deny with a condition might block, so it labels the hop instead."""
     principal_key = principal.lower()
+    unevaluated: UnmodeledControl | None = None
 
     for deny in denies:
         principals = deny.get("principals") or []
         principal_keys = {item.lower() for item in principals}
+        excluded = {item.lower() for item in deny.get("exclude_principals") or []}
 
         if principal_key not in principal_keys and "*" not in principals:
+            continue
+
+        if principal_key in excluded:
             continue
 
         deny_scope = scope_key(deny["scope"])
@@ -436,10 +499,47 @@ def _deny_hits(
         if scope not in deny_scopes:
             continue
 
-        if action_permitted(deny["permissions"], action, plane):
-            return True
+        for block in deny["permissions"]:
+            if not action_permitted([block], action, plane):
+                continue
 
-    return False
+            # A condition can sit on the deny assignment or on one of its permission blocks.
+            condition = (deny.get("condition") or block.get("condition") or "").strip()
+
+            if not condition:
+                return True, None
+
+            unevaluated = unevaluated or UnmodeledControl(
+                "denyWithCondition", principal, deny["scope"], deny.get("name", "deny assignment"),
+                condition, deny.get("citation", "deny-assignments.json"),
+            )
+
+    return False, unevaluated
+
+
+def _route(
+    blocks: list[Grant],
+    denies: list[dict],
+    children_of: dict[str, list[str]],
+    principal: str,
+    scope: str,
+    action: str,
+    plane: str,
+) -> tuple[str, UnmodeledControl | None] | None:
+    """(citation, control) when action is granted and not definitely denied, else None."""
+    grant = _granting(blocks, action, plane)
+
+    if grant is None:
+        return None
+
+    blocked, deny_control = _deny_result(denies, children_of, principal, scope, action, plane)
+
+    if blocked:
+        return None
+
+    citation, control = grant
+
+    return citation, control or deny_control
 
 
 def derive_capability_edges(
@@ -452,39 +552,41 @@ def derive_capability_edges(
     """Emit canControlCode and grants from effective actions.
 
     assignments: principal, role_name, scope, condition, citation.
-    role_definitions[role_name]['permissions']: actions, not_actions, data_actions, not_data_actions.
+    role_definitions[role_name]['permissions']: actions, not_actions, data_actions,
+    not_data_actions.
     children_of: parent scope id to child scope ids, including resource ids.
-    denies: principals ('*' means all), scope, apply_to_children, permissions, in the same shape as a role.
+    denies: principals ('*' means all), exclude_principals, scope, apply_to_children,
+    condition, and permissions in the same shape as a role (a block may carry a condition).
     resources: id, scope, type ('compute' or 'storage'), and for storage a shared_key of
     'enabled', 'not set', or 'disabled', plus capability (the grants target).
 
-    A non-empty condition is not evaluated here. Emitting an edge for it would invent a path.
+    Conditions and missing role definitions are not evaluated here. Skipping them would hide
+    a path that may exist; a plain edge would invent one. So each yields an edge carrying an
+    UnmodeledControl, granting the most the assignment could: a condition only narrows a role.
     """
-    grants_at: dict[tuple[str, str], list[tuple[list[dict], str]]] = {}
+    grants_at: dict[tuple[str, str], list[Grant]] = {}
     children_of = _folded_children(children_of)
 
     for assignment in assignments:
-        condition = (assignment.get("condition") or "").strip()
-
-        if condition:
-            continue
-
+        control = _assignment_control(assignment, role_definitions)
         role = role_definitions.get(assignment["role_name"])
-
-        if role is None:
-            continue
-
+        permissions = role["permissions"] if role is not None else UNKNOWN_ROLE_PERMISSIONS
         assignment_scope = scope_key(assignment["scope"])
         scopes = [assignment_scope, *descendants_of(children_of, assignment_scope)]
 
         for scope in scopes:
             key = (assignment["principal"], scope)
-            grants_at.setdefault(key, []).append((role["permissions"], assignment["citation"]))
+            grants_at.setdefault(key, []).append((permissions, assignment["citation"], control))
 
-    pending: dict[tuple[str, str, str], str] = {}
+    pending: dict[tuple[str, str, str], tuple[str, UnmodeledControl | None]] = {}
 
-    def remember(source: str, target: str, kind: str, detail: str) -> None:
-        pending.setdefault((source, target, kind), detail)
+    def remember(source: str, target: str, kind: str, detail: str,
+                 control: UnmodeledControl | None) -> None:
+        # A hop that holds without any unmodeled control replaces one that needs it.
+        earlier = pending.get((source, target, kind))
+
+        if earlier is None or (earlier[1] is not None and control is None):
+            pending[(source, target, kind)] = (detail, control)
 
     for resource in resources:
         scope = scope_key(resource["scope"])
@@ -493,58 +595,50 @@ def derive_capability_edges(
             if granted_scope != scope:
                 continue
 
-            if resource["type"] == "compute":
-                citation = _granting_citation(blocks, CODE_CONTROL_ACTION, "control")
-                denied = _deny_hits(denies, children_of, principal, scope, CODE_CONTROL_ACTION, "control")
+            def route(action: str, plane: str) -> tuple[str, UnmodeledControl | None] | None:
+                return _route(blocks, denies, children_of, principal, scope, action, plane)
 
-                if citation and not denied:
-                    remember(
-                        principal,
-                        resource["id"],
-                        "canControlCode",
-                        f"{citation}; {CODE_CONTROL_ACTION}",
-                    )
+            if resource["type"] == "compute":
+                code = route(CODE_CONTROL_ACTION, "control")
+
+                if code is not None:
+                    remember(principal, resource["id"], "canControlCode",
+                             f"{code[0]}; {CODE_CONTROL_ACTION}", code[1])
 
             if resource["type"] != "storage":
                 continue
 
-            hit_notes: list[str] = []
-            hit_citation: str | None = None
+            # (note, citation, control) for each way this principal can read the data.
+            routes: list[tuple[str, str, UnmodeledControl | None]] = []
             shared_key = resource.get("shared_key")
 
             if shared_key in ("enabled", "not set", "not set (platform default)"):
-                keys_citation = _granting_citation(blocks, LIST_KEYS_ACTION, "control")
-                keys_denied = _deny_hits(denies, children_of, principal, scope, LIST_KEYS_ACTION, "control")
+                keys = route(LIST_KEYS_ACTION, "control")
 
-                if keys_citation and not keys_denied:
+                if keys is not None:
                     qualifier = (
                         "platform default assumed enabled"
                         if shared_key in ("not set", "not set (platform default)")
                         else "enabled"
                     )
-                    hit_notes.append(f"{LIST_KEYS_ACTION} ({qualifier})")
-                    hit_citation = keys_citation
+                    routes.append((f"{LIST_KEYS_ACTION} ({qualifier})", *keys))
 
-            blob_citation = _granting_citation(blocks, BLOB_READ_ACTION, "data")
-            blob_denied = _deny_hits(denies, children_of, principal, scope, BLOB_READ_ACTION, "data")
+            blob = route(BLOB_READ_ACTION, "data")
 
-            if blob_citation and not blob_denied:
-                hit_notes.append(BLOB_READ_ACTION)
+            if blob is not None:
+                routes.append((BLOB_READ_ACTION, *blob))
 
-                if hit_citation is None:
-                    hit_citation = blob_citation
-
-            if hit_notes and hit_citation is not None:
-                remember(
-                    principal,
-                    resource["capability"],
-                    "grants",
-                    f"{hit_citation}; {'; '.join(hit_notes)}",
-                )
+            if routes:
+                plain = [item for item in routes if item[2] is None]
+                _, citation, control = (plain or routes)[0]
+                notes = "; ".join(note for note, _, _ in routes)
+                remember(principal, resource["capability"], "grants",
+                         f"{citation}; {notes}", control)
 
     return [
-        Edge(source=source, target=target, kind=kind, evidence="derived", detail=detail)
-        for (source, target, kind), detail in pending.items()
+        Edge(source=source, target=target, kind=kind, evidence="derived", detail=detail,
+             control=control)
+        for (source, target, kind), (detail, control) in pending.items()
     ]
 
 
@@ -582,7 +676,8 @@ def find_paths(
         if len(path) >= max_hops:
             continue
 
-        # Avoid revisiting nodes already on this path, so cycles in group nesting can't loop forever.
+        # Avoid revisiting nodes already on this path,
+        # so cycles in group nesting can't loop forever.
         visited = {entry} | {edge.target for edge in path}
 
         for edge in outgoing.get(node, []):
@@ -592,9 +687,40 @@ def find_paths(
     return paths
 ```
 
-Search itself stays a breadth-first walk, which finds shortest paths first. It is naive about scale: real estates still need a hop cap, collapsed Owner-equivalent sets, and a scope-ancestor map computed once rather than walked per assignment. It is not naive about meaning. A path exists only where a privilege edge exists, and those edges exist only where the role's actions survive inheritance, denies, and conditions.
+Search itself stays a breadth-first walk, which finds shortest paths first. It is naive about scale: real estates still need a hop cap, collapsed Owner-equivalent sets, and a scope-ancestor map computed once rather than walked per assignment. It is not naive about meaning. A path exists only where a privilege edge exists, and those edges exist only where the role's actions survive inheritance and denies. Where a condition or a conditioned deny can't be evaluated, the edge exists and says so.
 
-Every edge still carries its evidence category and a citation. A returned path is already Chapter 2's hop table.
+Every edge still carries its evidence category, a citation, and any unmodeled control. A returned path is already Chapter 2's hop table. The last step is to say how far to trust it:
+
+<!-- listing: lab/listings/python/ch04_paths.py#path_verdict -->
+
+```python
+INSUFFICIENT = "Insufficient evidence"
+
+
+def unmodeled_on(path: list[Edge]) -> list[UnmodeledControl]:
+    """Every unmodeled control the path depends on, in hop order."""
+    return [edge.control for edge in path if edge.control is not None]
+
+
+def path_confidence(path: list[Edge], otherwise: str) -> str:
+    """Insufficient evidence if any hop rests on an unmodeled control; otherwise the band
+    the hop assumptions earn (Chapter 2)."""
+    return INSUFFICIENT if unmodeled_on(path) else otherwise
+
+
+def hop_table(path: list[Edge], otherwise: str) -> list[str]:
+    """Chapter 2's hop table as text, each unmodeled control listed as an assumption to check."""
+    lines = [f"Confidence: {path_confidence(path, otherwise)}"]
+    lines += [
+        f"{number}. {edge.source} --{edge.kind}--> {edge.target} [{edge.evidence}] {edge.detail}"
+        for number, edge in enumerate(path, start=1)
+    ]
+    lines += [f"Assumption to check: {control.assumption()}" for control in unmodeled_on(path)]
+
+    return lines
+```
+
+A path with no labeled hop keeps the confidence its evidence earns. A path with one is "Insufficient evidence", the band Chapter 2 uses when a path may or may not exist. The hop table names the assumption, so a reviewer can resolve it: read the condition, check the container or tag it refers to, or collect the missing role definition. Chapter 7 makes sure a summary that cites the path also cites the gap, and Chapter 10 refuses to call a fix verified while a path survives only through a control nobody evaluated.
 
 ### The payments graph
 
@@ -647,7 +773,23 @@ Each row becomes a `grants` edge in the graph with its condition attached. Most 
 
 The first and third rows of that table explain why Microsoft has spent years pushing customers toward Azure RBAC for Key Vault and toward disabling shared key access on storage. Both changes remove control-to-data conversions, so a control-plane role stays a control-plane role.
 
-> **As of 2026-10:** Verify each conversion against current service documentation and built-in role definitions.
+### The access-decision contract
+
+"Can read customer data" is a strong sentence. It should never sound stronger than the evidence behind it. An **access-decision contract** states, for one target, which of the controls that decide access the analysis models and what happens when it meets one it doesn't. Here is the contract for the book's main target, reading blob data in a storage account:
+
+| Control | Modeled in the book's code? | Result for an instance the code can't evaluate |
+|---------|-----------------------------|------------------------------------------------|
+| Azure RBAC data roles (DataActions) | Yes | A role whose definition wasn't collected is treated as allowing everything. The edge is labeled `missingRoleDefinition`. |
+| Key listing plus shared key (H7) | Yes | Shared key `not set` is treated as enabled, so the edge is drawn. |
+| Deny assignments | Yes, including excluded principals | A deny with a condition labels the hop `denyWithCondition` instead of blocking it. |
+| Role-assignment conditions | Recorded, not evaluated | The edge is drawn at the role's upper bound and labeled `roleCondition`. |
+| PIM eligibility (`canActivate`) | Not in the section 4.5 sketch | No edge: eligible assignments aren't in `role-assignments.json`, so the path is missed. Rule 5 says how to add them. |
+| Storage firewall, private endpoint, DNS | Not modeled here (Chapter 5) | The identity path stands. Network reachability is a separate claim. |
+| SAS issuance | Not modeled | A SAS already handed out is a credential outside the snapshot. A "no path" result says nothing about it. |
+| Local authentication (keys or SAS held outside Azure, anonymous blob access) | Not modeled | Not drawn. A "no path" result says nothing about it. |
+| Conditional Access for workload identities | Not modeled | The path is reported even if a policy would block the sign-in. |
+
+Read the third column for the direction of each error. The labeled rows and the Conditional Access row can report a path that doesn't hold, and the label or the contract says so. The PIM, SAS, and local-authentication rows can miss a path. Those are the rows to name whenever you say "no path". Chapter 5 covers the network rows. Publish the contract with the analysis, and change it when the code changes.
 
 ---
 
@@ -710,6 +852,8 @@ Confirm `role-assignments.json` still has the `condition` column from section 3.
 
 **Step 0 — Collect the missing inputs.** Reuse `Invoke-ArgQuery`, `Connect-MgGraph -Identity`, `$snapshotDir`, and the `$applications` list from the Chapter 3 lab. The same Graph application permissions are enough: `Application.Read.All` covers owners, `GroupMember.Read.All` covers transitive membership, and `RoleManagement.Read.Directory` covers directory roles.
 
+<!-- listing: lab/listings/powershell/ch04-step0-graph-owners-roles-memberships.ps1 -->
+
 ```powershell
 $owners = foreach ($app in $applications) {
     Get-MgApplicationOwner -ApplicationId $app.Id -All |
@@ -736,7 +880,8 @@ $directoryRoles = Get-MgRoleManagementDirectoryRoleAssignment -All |
         }
     }
 
-$roleAssignments = Get-Content (Join-Path $snapshotDir 'role-assignments.json') -Raw | ConvertFrom-Json
+$roleAssignments = Get-Content (Join-Path $snapshotDir 'role-assignments.json') -Raw |
+    ConvertFrom-Json
 $azureRoleGroupIds = $roleAssignments |
     Where-Object { $_.principalType -eq 'Group' } |
     Select-Object -ExpandProperty principalId -Unique
@@ -761,6 +906,8 @@ Write those three results to `application-owners.json`, `directory-role-assignme
 
 Then collect the Azure rows the derivation reads. `identity.userAssignedIdentities` is a map from identity resource id to `{clientId, principalId}`. Keep the map. The principal id is what joins to `role-assignments.json`.
 
+<!-- listing: lab/listings/kql/appb-role-definitions-with-their-actions.kql -->
+
 ```kusto
 authorizationresources
 | where type =~ 'microsoft.authorization/roledefinitions'
@@ -774,6 +921,8 @@ authorizationresources
     notDataActions = permission.notDataActions
 ```
 
+<!-- listing: lab/listings/kql/appb-deny-assignments.kql -->
+
 ```kusto
 authorizationresources
 | where type =~ 'microsoft.authorization/denyassignments'
@@ -783,11 +932,16 @@ authorizationresources
     scope = tostring(properties.scope),
     doNotApplyToChildScopes = tobool(properties.doNotApplyToChildScopes),
     principals = properties.principals,
+    excludePrincipals = properties.excludePrincipals,
+    condition = tostring(properties.condition),
     actions = permission.actions,
     notActions = permission.notActions,
     dataActions = permission.dataActions,
-    notDataActions = permission.notDataActions
+    notDataActions = permission.notDataActions,
+    permissionCondition = tostring(permission.condition)
 ```
+
+<!-- listing: lab/listings/kql/appb-compute-identities.kql -->
 
 ```kusto
 resources
@@ -803,16 +957,20 @@ resources
     userAssignedIdentities = identity.userAssignedIdentities
 ```
 
+<!-- listing: lab/listings/kql/appb-management-group-hierarchy.kql -->
+
 ```kusto
 resourcecontainers
 | extend parentId = case(
-    type =~ 'microsoft.resources/subscriptions/resourcegroups', strcat('/subscriptions/', subscriptionId),
-    type =~ 'microsoft.management/managementgroups', tostring(properties.details.parent.id),
+    type =~ 'microsoft.resources/subscriptions/resourcegroups',
+        strcat('/subscriptions/', subscriptionId),
+    type =~ 'microsoft.management/managementgroups',
+        tostring(properties.details.parent.id),
     '')
 | project id, name, type, parentId
 ```
 
-Write those to `role-definitions.json`, `deny-assignments.json`, `compute-identities.json`, and `scope-parents.json`. Add each compute resource id as a child of its `parentScope`. For each storage account, construct its parent scope as `/subscriptions/{subscriptionId}/resourceGroups/{resourceGroup}`, then add its resource id as a child of that scope so inheritance reaches the resource and not only the resource group.
+Write those to `role-definitions.json`, `deny-assignments.json`, `compute-identities.json`, and `scope-parents.json`. In `deny-assignments.json`, the loader maps `excludePrincipals` to the deny's `exclude_principals`, the deny-level `condition` to the deny, and `permissionCondition` to the permission block it came from. Add each compute resource id as a child of its `parentScope`. For each storage account, construct its parent scope as `/subscriptions/{subscriptionId}/resourceGroups/{resourceGroup}`, then add its resource id as a child of that scope so inheritance reaches the resource and not only the resource group.
 
 **Deployment actions (payments lab).** Map each compute resource to the control-plane action your loader treats as `canControlCode`. The sketch in section 4.5 uses `CODE_CONTROL_ACTION` (`Microsoft.Web/sites/write`). Use this table in Step 1; confirm against built-in role definitions and the resource `type` in `compute-identities.json`.
 
@@ -828,18 +986,22 @@ Write those to `role-definitions.json`, `deny-assignments.json`, `compute-identi
 1. `memberOf` from `transitive-memberships.json`.
 2. `canSignInAs` from federated credentials, from an entry-point node named after the subject.
 3. `canAddCredential` from `application-owners.json` (owner to application).
-4. `canAddCredential` from a directory role holder to each application, only when the role is Application Administrator, Cloud Application Administrator, Global Administrator, or Privileged Role Administrator, and `directoryScopeId` is tenant-wide (`/`). Any other directory role, and any assignment scoped to an administrative unit, must not fan out to every app.
+4. `canAddCredential` from a directory role holder to each application, only when the role is Application Administrator, Cloud Application Administrator, or Global Administrator, and `directoryScopeId` is tenant-wide (`/`). Any other directory role, and any assignment scoped to an administrative unit, must not fan out to every app.
 5. `appFor` links joined through `appId`.
 6. `runsAs` from `compute-identities.json` (observed): the compute resource to each attached managed identity's principal id.
-7. `canControlCode` and `grants` only from `derive_capability_edges`, after role definitions, inheritance, transitive membership, denies, and conditions. Pick the code-control action from the deployment-actions table for the resource `type`. For storage, emit `grants` for list keys only when shared key is `enabled` or `not set`, and emit `grants` for blob read only from DataActions.
+7. `canControlCode` and `grants` only from `derive_capability_edges`, after role definitions, inheritance, transitive membership, and denies. Conditions and missing role definitions come through as labeled edges, not as missing ones. Pick the code-control action from the deployment-actions table for the resource `type`. For storage, emit `grants` for list keys only when shared key is `enabled` or `not set`, and emit `grants` for blob read only from DataActions.
 
 Every edge cites the snapshot file and row. Derived edges also cite the action and the rule.
 
-**Step 2 — Search.** Run `find_paths` from each entry point to each target capability. List the paths shortest first, and print each one as a hop table with evidence categories. A path that contains `hasRoleAt` or `contains` is a bug in the loader, not a finding.
+**Step 2 — Search.** Run `find_paths` from each entry point to each target capability. List the paths shortest first, and print each one with `hop_table`, so every path shows its confidence, its hops with evidence categories, and any assumption it rests on. A path that contains `hasRoleAt` or `contains` is a bug in the loader, not a finding.
 
 **Step 3 — Check against the opening story.** The lab starts with the original `main` branch subject in place. Confirm that you find all three entry points into `payments-deploy` (the `main` workflow, the app owner, and the help-desk user) and both routes out of it, for six paths in total. Then add a Reader assignment on `rg-payments-prod` for a fourth user and search again. That user must have no path to either target. If they do, the loader is still treating role containment as a capability.
 
 If you find fewer than six paths, the usual misses are the `appId` join, transitive membership, a directory role that was not turned into `canAddCredential`, or a managed identity attachment that never became `runsAs`.
+
+None of the six paths carries an unmodeled control, because the lab has no conditioned assignments. Each prints with the confidence its evidence earns.
+
+**Step 3a (optional) — A control the search can't evaluate.** Give `analyst-04` Storage Blob Data Reader on `custdata`, with a condition that limits reads to a container named `reports` (Appendix A.7 has the Terraform). Re-run Step 0, derive, and search. You should now find a seventh path, one hop from `analyst-04` to reading customer data. Its hop table must say "Confidence: Insufficient evidence" and list the condition as the assumption to check. If the path is missing, the loader is still dropping conditioned assignments. If it prints with any other confidence, the label was lost between derivation and printing. Remove the assignment before Step 4.
 
 **Step 4 — Apply the original fix.** Change the federated credential to the `production` environment subject in the lab. Re-run the Chapter 3 collector and Step 0, then search again. Confirm that the `main` entry point is replaced by the narrower production-environment entry, and that the four paths through the app owner and the help-desk user are unchanged.
 
@@ -853,6 +1015,7 @@ If you find fewer than six paths, the usual misses are the `appId` join, transit
 
 - In Azure, **identity is the perimeter**. Most serious paths are chains of identity hops: membership, role, become, grant, control.
 - Effective access is a **derived fact** built from five rules: scopes inherit downward, groups expand transitively, roles have **control-plane and data-plane** actions, deny assignments and conditions subtract, and **eligible is not active**.
+- What the derivation can't evaluate, such as a role condition, is kept as a hop labeled with an **unmodeled control**. A path through it is "Insufficient evidence", and an **access-decision contract** says which controls the analysis models at all.
 - The most dangerous question is **who can become an identity**: federated credential subjects, app **owners**, directory roles that manage credentials, and **control of code** running with a managed identity.
 - Identities that can **write role assignments**, Global Administrators who can **elevate**, and service principals with privileged **Graph application permissions** can grant themselves more.
 - **Control-to-data conversions** (list keys, access policies, code deployment, credential reads) are why "Contributor can't read data" is often false.
@@ -872,17 +1035,17 @@ If you find fewer than six paths, the usual misses are the `appId` join, transit
 - **Eligible assignment** — a PIM role that must be activated before use.
 - **Owner-equivalent** — any identity that can obtain Owner at a scope, directly or by granting itself roles.
 - **Capability node** — a graph node representing an action that matters, such as reading specific data.
+- **Unmodeled control** — a control the derivation found but can't evaluate, such as a role condition; the hop is kept and labeled with it.
+- **Access-decision contract** — for one target, the controls that decide access, whether the analysis models each, and what an unmodeled instance produces.
 
 ---
 
 ## Author notes (remove before submission)
 
-- Verify: Contributor's NotActions and absence of DataActions; built-in roles with `roleAssignments/write`; deny assignment creation sources (managed apps, deployment stacks); role assignment conditions for storage and for constrained delegation; PIM eligibility APIs and read permissions.
-- Verify: credential-management scope of Application Administrator and Cloud Application Administrator; Global Administrator elevation to root User Access Administrator; Graph application permissions that allow self-escalation (current names).
-- Verify: GitHub OIDC subject formats and customization; fork pull request token behavior; Entra flexible federated identity credential support and syntax.
-- Verify each control-to-data conversion in section 4.6, especially Key Vault access-policy modification, VM password reset, and database Entra administrator change.
+- Verified 2026-10-10 (revision pass 1): Contributor NotActions; roles with `roleAssignments/write`; PIM eligibility APIs and read permission; Application Administrator and Cloud Application Administrator credential scope; Privileged Role Administrator removed from `canAddCredential` because it escalates by assignment; Global Administrator elevation; Graph self-escalation permission names; GitHub fork token default and immutable subjects; flexible credential syntax; section 4.6 conversions.
 - Verify: managed identity attach permissions (assign action on user-assigned identity) and which built-in roles include code deployment for Functions, App Service, Automation, and Logic Apps. The lab uses `Microsoft.Web/sites/write` as the representative Function App action; confirm whether publish uses that action, `Microsoft.Web/sites/publish/action`, or both.
 - Verify Step 0 cmdlets and payload shapes: `Get-MgApplicationOwner`, `Get-MgRoleManagementDirectoryRoleAssignment`, `Get-MgRoleManagementDirectoryRoleDefinition`, `Get-MgGroupTransitiveMember`; directory role template ids; `identity.userAssignedIdentities` principalId; deny assignment `principals` and `doNotApplyToChildScopes`; management group `properties.details.parent.id`.
-- Built-in directory role template ids used as a sanity check on `directory-role-assignments.json` (verify before publication): Cloud Application Administrator `158c047a-c907-4556-b7ef-446551a6b5f7`, Application Administrator `9b895d92-2cd3-44c7-9d02-a6ac2d5ea5c3`, Privileged Role Administrator `e8611ab8-c189-46e8-94e1-60213ab1f814`, Global Administrator `62e90394-69f5-4237-9190-012177145e10`.
+- Built-in directory role template ids used as a sanity check on `directory-role-assignments.json` (verified 2026-10-10): Cloud Application Administrator `158c047a-c907-4556-b7ef-446551a6b5f7`, Application Administrator `9b895d92-2cd3-44c7-9d02-a6ac2d5ea5c3`, Global Administrator `62e90394-69f5-4237-9190-012177145e10`.
 - Consider a figure for section 4.5's payments graph instead of ASCII.
 - Add the Chapter 4 fact checks to GTM **M-306** when it is picked up.
+- 2026-10-11 (review comment on unmodeled controls): the derivation no longer skips conditioned assignments. Conditions, missing role definitions, and conditioned denies now produce labeled edges, a path through one is "Insufficient evidence", and deny `excludePrincipals` is honored. Added `path_verdict`, the access-decision contract in section 4.6, and optional Step 3a. Tests in `test_ch04_paths.py` cover each case and confirm the plain lab still yields exactly P1 to P6. Verify before submission: the deny assignment `condition`, `conditionVersion`, `excludePrincipals`, and permission-level `condition` fields in Resource Graph rows (REST api-version 2022-04-01 documents them); and the scope of Conditional Access for workload identities (single-tenant service principals; managed identities not covered) before adding detail to the contract row.

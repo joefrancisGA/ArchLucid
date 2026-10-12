@@ -33,39 +33,15 @@ internal static class AzureInventorySnapshotParentChildEdgeHydrator
                 continue;
             }
 
-            if (string.Equals(parentNodeId, pair.Value, StringComparison.Ordinal))
-            {
-                continue;
-            }
-
-            TryAddContainsEdge(edges, edgeKeys, parentNodeId, pair.Value);
+            AzureInventorySnapshotGraphEdgeAppender.TryAdd(
+                edges,
+                edgeKeys,
+                parentNodeId,
+                pair.Value,
+                GraphEdgeTypes.Contains,
+                GraphEdgeInferenceSources.InventoryExplicitParentChild,
+                provenanceKind: ProvenanceKind.ObservedFact.ToString(),
+                promoteStrongerProvenance: false);
         }
-    }
-
-    private static void TryAddContainsEdge(
-        List<GraphEdge> edges,
-        HashSet<string> edgeKeys,
-        string fromNodeId,
-        string toNodeId)
-    {
-        string edgeType = GraphEdgeTypes.Contains;
-        string edgeKey = $"{fromNodeId}|{toNodeId}|{edgeType}";
-
-        if (!edgeKeys.Add(edgeKey))
-        {
-            return;
-        }
-
-        edges.Add(new GraphEdge
-        {
-            EdgeId = $"edge-{edgeKey}",
-            FromNodeId = fromNodeId,
-            ToNodeId = toNodeId,
-            EdgeType = edgeType,
-            Label = edgeType,
-            Weight = 1.0d,
-            InferenceSource = GraphEdgeInferenceSources.InventoryExplicitParentChild,
-            ProvenanceKind = ProvenanceKind.ObservedFact.ToString(),
-        });
     }
 }

@@ -928,6 +928,59 @@ public sealed class QuickScanDistributedConcurrencyLeaseLifecycleTests
     }
 
     [Fact]
+    public async Task WaitForAdmissionAsync_releases_direct_lease_when_post_admit_snapshot_is_cancelled()
+    {
+        QuickScanSafetyOptions options = new()
+        {
+            Enabled = true,
+            AnonymousExecutionEnabled = true,
+            Concurrency = new QuickScanSafetyConcurrencyLimits
+            {
+                MaxConcurrentAnonymousScans = 1,
+                MaxQueuedAnonymousScans = 1,
+                QueueWaitTimeoutSeconds = 30,
+                LeaseDurationSeconds = 60,
+                LeaseRenewalIntervalSeconds = 3600,
+            },
+        };
+
+        using CancellationTokenSource cancellation = new();
+        Mock<IOptionsMonitor<QuickScanSafetyOptions>> safetyOptions = new();
+        safetyOptions.Setup(o => o.CurrentValue).Returns(options);
+
+        Mock<IQuickScanSafetyOperationalStateProvider> operational = new();
+        operational
+            .SetupSequence(p => p.GetSnapshotAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(QuickScanSafetyOperationalSnapshot.NormalExecution(options))
+            .ThrowsAsync(new OperationCanceledException(cancellation.Token));
+
+        InMemoryQuickScanDistributedConcurrencyStore store = new();
+        QuickScanDistributedConcurrencyService service = new(
+            safetyOptions.Object,
+            store,
+            Mock.Of<IQuickScanTelemetry>(),
+            operational.Object,
+            TimeProvider.System,
+            NullLogger<QuickScanDistributedConcurrencyService>.Instance);
+
+        Func<Task> act = () => service.WaitForAdmissionAsync("post-admit-cancel", cancellation.Token);
+
+        await act.Should().ThrowAsync<OperationCanceledException>();
+
+        QuickScanConcurrencyAdmitResult capacityProbe = await store.TryAdmitAsync(
+            BuildAdmitRequest(
+                Guid.NewGuid(),
+                Guid.NewGuid(),
+                "capacity-probe",
+                maxConcurrent: 1,
+                maxQueued: 0));
+
+        capacityProbe.Outcome.Should().Be(
+            QuickScanConcurrencyAdmitOutcome.DirectLease,
+            "post-admit cancellation must release the direct lease before propagating cancellation");
+    }
+
+    [Fact]
     public async Task WaitForAdmissionAsync_uses_current_lease_duration_on_each_promote_attempt()
     {
         InMemoryQuickScanDistributedConcurrencyStore inner = new();

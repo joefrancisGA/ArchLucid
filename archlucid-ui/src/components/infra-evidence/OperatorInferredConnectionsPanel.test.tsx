@@ -73,6 +73,17 @@ describe("OperatorInferredConnectionsPanel", () => {
     expect(screen.getByText("Setting name was not stored")).toBeInTheDocument();
   });
 
+  it("labels missing file format without using the source kind", async () => {
+    vi.mocked(operatorInferredConnectionApi.listOperatorInferredConnections).mockResolvedValue([
+      { ...uploadRow, sourceFileFormat: null, source: "upload" },
+    ]);
+
+    render(<OperatorInferredConnectionsPanel snapshotId="snapshot-1" />);
+
+    expect(await screen.findByText("Source file format was not stored.")).toBeInTheDocument();
+    expect(screen.queryByText("upload")).not.toBeInTheDocument();
+  });
+
   it("shows the API message and api-problem recovery when list throws ApiLoadFailureState", async () => {
     vi.mocked(operatorInferredConnectionApi.listOperatorInferredConnections).mockRejectedValue(
       apiLoadFailure("Database Query Failed: table missing."),

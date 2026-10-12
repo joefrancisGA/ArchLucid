@@ -17,6 +17,10 @@ import { expect, test } from "@playwright/test";
 import { strToU8, zipSync } from "fflate";
 
 import {
+  isArchitectureRequestCreateResponse,
+  readCreatedRunIdFromArchitectureRequestCreate,
+} from "./helpers/architecture-request-create-response";
+import {
   DEMO_WORKSPACE_A_LIVE_IDS,
   DEMO_WORKSPACE_A_PRODUCT_TOUR_RUN_ID,
   injectDemoWorkspaceOperatorScope,
@@ -203,18 +207,26 @@ test.describe("live-api-smoke", { tag: ["@founder", "@critical", "@release-smoke
     await expect(page.getByRole("button", { name: "Start an architecture review" })).toBeVisible({ timeout: 60_000 });
 
     const createRespPromise = page.waitForResponse(
-      (r) => r.url().includes("/api/proxy/v1/architecture/request") && r.request().method() === "POST",
+      (response) =>
+        isArchitectureRequestCreateResponse({
+          url: response.url(),
+          method: response.request().method(),
+        }),
       { timeout: 120_000 },
     );
 
     await page.getByRole("button", { name: "Start an architecture review" }).click();
 
     const createResp = await createRespPromise;
+    const bodyText = await createResp.text();
 
-    expect(createResp.ok(), await createResp.text()).toBeTruthy();
+    expect(createResp.ok(), bodyText).toBeTruthy();
 
-    const createJson = (await createResp.json()) as { run?: { runId?: string } };
-    const runId = createJson.run?.runId ?? "";
+    const runId = readCreatedRunIdFromArchitectureRequestCreate({
+      status: createResp.status(),
+      bodyText,
+      location: createResp.headers()["location"],
+    });
 
     expect(runId.length).toBeGreaterThan(0);
 

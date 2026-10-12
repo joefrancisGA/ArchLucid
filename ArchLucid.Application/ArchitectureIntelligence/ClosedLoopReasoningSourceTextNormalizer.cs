@@ -23,9 +23,19 @@ internal static class ClosedLoopReasoningSourceTextNormalizer
         {
             FileName = fileName,
             ContentType = contentType,
+            // Normalize platform line endings so equivalent uploaded documents share a cache key.
             Content = string.IsNullOrWhiteSpace(source.Content)
                 ? string.Empty
-                : source.Content.Trim(),
+                : NormalizeLineEndings(source.Content.Trim()),
         };
+    }
+
+    private static string NormalizeLineEndings(string content)
+    {
+        return content
+            .Replace("\r\n", "\n")
+            .Replace('\r', '\n')
+            .Replace('\u2028', '\n')
+            .Replace('\u2029', '\n');
     }
 }

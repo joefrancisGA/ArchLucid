@@ -189,6 +189,7 @@ describe("InfraEvidenceDiagramOutline", () => {
 
     expect(within(probableGroup).getByText("Probable edges (1)")).toBeInTheDocument();
     expect(within(observedGroup).getByText("Observed edges (1)")).toBeInTheDocument();
+    expect(within(observedGroup).getByRole("button", { name: /View connection evidence/u })).toBeInTheDocument();
     expect(probableGroup.compareDocumentPosition(observedGroup) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 

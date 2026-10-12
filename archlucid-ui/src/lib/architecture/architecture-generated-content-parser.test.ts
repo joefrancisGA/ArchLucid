@@ -52,7 +52,7 @@ Support **Entra ID** sign-in and exportable evidence bundles.
 Claims analyst|Human|Reviews intake queue`;
 
     const result = parseArchitectureGeneratedContent(source, null);
-    const combinedEntities = result.sections.flatMap((section) => section.entities);
+    const combinedEntities = result.sections.flatMap((section) => section.entities ?? []);
 
     expect(combinedEntities.length).toBeGreaterThan(0);
     expect(combinedEntities.some((entity) => entity.label.includes("Claims analyst"))).toBe(true);
@@ -78,6 +78,14 @@ alpha|beta|gamma|delta|epsilon|zeta`;
 
     expect(result.sections.some((section) => section.key === "business-outcome")).toBe(true);
     expect(result.sections.find((section) => section.key === "business-outcome")?.provenance).toBe("asserted");
+  });
+
+  it("preserves omitted entity collections for narrative-only sections", () => {
+    const result = parseArchitectureGeneratedContent("## Open questions\nConfirm the retention owner.", null);
+    const openQuestions = result.sections.find((section) => section.key === "open-questions");
+
+    expect(openQuestions).toBeDefined();
+    expect(openQuestions?.entities).toBeUndefined();
   });
 
   it("summarizes very long narrative sections without losing source text", () => {

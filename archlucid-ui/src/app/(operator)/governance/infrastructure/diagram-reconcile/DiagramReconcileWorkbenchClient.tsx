@@ -29,11 +29,17 @@ import {
   compareInfrastructureDiagramAdvisory,
   fetchArchitectureDiagramModel,
   fetchArchitectureDiagramReconciliation,
+  fetchAbsentInfrastructureDiagramDocumentationDecisions,
+  fetchInfrastructureDiagramDocumentationDecision,
+  fetchSealedInfrastructureDiagramDocumentationDecisions,
   formatInfraEvidenceDiagramReconcileApiError,
   ingestArchitectureDiagram,
   ingestOperationalSecurityFindings,
+  lookupOperationalSecurityFindings,
   reconcileArchitectureDiagram,
+  saveInfrastructureDiagramDocumentationDecision,
   saveInfrastructureDiagramNodeMapping,
+  saveSealedInfrastructureDiagramDocumentationDecision,
 } from "@/lib/infra-evidence/infra-evidence-diagram-reconcile-api";
 import { diagramIngestMutationBlockedReason } from "@/lib/infra-evidence/diagram-ingest-mutation-blocked-reason";
 import { diagramReconcileMutationBlockedReason } from "@/lib/infra-evidence/diagram-reconcile-mutation-blocked-reason";
@@ -69,6 +75,7 @@ import { resolveDiagramReconcileSnapshotSelectionSummary } from "@/lib/infra-evi
 import { DIAGRAM_RECONCILE_WORKBENCH_PAGE_SHORTCUTS } from "@/lib/infra-evidence/infra-evidence-diagram-reconcile-page-shortcuts";
 import {
   buildDiagramReconcileOperationalFindingRequestItem,
+  buildDiagramReconcileOperationalFindingFingerprint,
   formatDiagramReconcileExplanation,
   formatDiagramReconcileResourceLabelForDisplay,
 } from "@/lib/infra-evidence/infra-evidence-diagram-reconcile-explanation";
@@ -92,6 +99,7 @@ import type {
   DiagramInfrastructureCorrespondenceRow,
   DiagramInfrastructureReconciliationResult,
   DiagramReconcileMatchKindFilter,
+  InfrastructureDiagramDocumentationDecision,
 } from "@/lib/infra-evidence/infra-evidence-diagram-reconcile-types";
 import {
   fetchInfraEvidenceSnapshots,
@@ -189,6 +197,45 @@ const MATCH_KIND_FILTERS: readonly { value: DiagramReconcileMatchKindFilter; lab
   { value: "Exact", label: "Exact" },
   { value: "Probable", label: "Probable" },
 ];
+
+function documentationDecisionKey(
+  subjectKind: InfrastructureDiagramDocumentationDecision["subjectKind"],
+  subjectKey: string,
+): string {
+  return `${subjectKind}:${subjectKey}`;
+}
+
+export function formatDocumentationDecisionState(state: string | null | undefined): string {
+  if (state == null) {
+    return "Carry-forward state was not stored.";
+  }
+
+  if (state === "EvidenceChanged") {
+    return "Evidence changed";
+  }
+
+  if (state === "NoLongerInCapture") {
+    return "No longer in this capture";
+  }
+
+  return "Still open";
+}
+
+function formatDocumentationDecision(decision: string): string {
+  if (decision === "UpdateDrawing") {
+    return "Update the drawing";
+  }
+
+  if (decision === "AcceptAsUndocumented") {
+    return "Accept as undocumented";
+  }
+
+  if (decision === "CheckInventory") {
+    return "Check the inventory";
+  }
+
+  return decision;
+}
 
 function normalizeDiagramLabelForMapping(label: string): string {
   const trimmed = label.trim();
@@ -330,6 +377,12 @@ export function DiagramReconcileWorkbenchClient() {
   const initialSnapshotUrlSyncedRef = useRef(false);
   const [findingBusyId, setFindingBusyId] = useState<string | null>(null);
   const [ingestedFindingIds, setIngestedFindingIds] = useState<Record<string, string>>({});
+  const [documentationDecisions, setDocumentationDecisions] = useState<Record<string, InfrastructureDiagramDocumentationDecision>>({});
+  const [absentDocumentationDecisions, setAbsentDocumentationDecisions] = useState<
+    InfrastructureDiagramDocumentationDecision[]
+  >([]);
+  const [documentationDecisionPick, setDocumentationDecisionPick] = useState<Record<string, string>>({});
+  const [documentationDecisionBusyKey, setDocumentationDecisionBusyKey] = useState<string | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [diagramSourceActionError, setDiagramSourceActionError] = useState<string | null>(null);
   const [reconcileActionError, setReconcileActionError] = useState<string | null>(null);
@@ -369,6 +422,8 @@ export function DiagramReconcileWorkbenchClient() {
   const workbenchModeStatusLabel = advisoryComparisonPath ? "Advisory compare" : "Sealed reconcile";
   const validRunId = isDiagramReconcileRunIdInputValid(runId);
   const validMermaidInput = diagramMermaid.trim().length > 0;
+  const documentationDecisionAvailable =
+    reconciliation != null && (comparisonId != null || (!advisoryComparisonPath && validRunId));
 
   const scopeStatusBadge = useMemo(() => {
     if (urlCloudResourceId.length > 0) {
@@ -864,6 +919,189 @@ export function DiagramReconcileWorkbenchClient() {
       cancelled = true;
     };
   }, [advisoryComparisonPath, matchKindFilter, runId, selectedSnapshotId, syncUrl, urlCorrespondenceId, workbenchRetryNonce]);
+
+  useEffect(() => {
+    if (
+      advisoryComparisonPath
+      || runId.trim().length === 0
+      || selectedSnapshotId.trim().length === 0
+      || reconciliation == null
+    ) {
+      setIngestedFindingIds({});
+      return;
+    }
+
+    const sourceFindingIds = reconciliation.rows
+      .map((row) => buildDiagramReconcileOperationalFindingFingerprint(
+        runId.trim(),
+        selectedSnapshotId.trim(),
+        row.correspondenceId,
+      ));
+
+    if (sourceFindingIds.length === 0) {
+      setIngestedFindingIds({});
+      return;
+    }
+
+    let cancelled = false;
+
+    async function loadExistingFindings() {
+      try {
+        const findings = await lookupOperationalSecurityFindings({
+          sourceSystem: "DiagramReconciliation",
+          sourceFindingIds,
+        });
+
+        if (cancelled) {
+          return;
+        }
+
+        const findingIdsByCorrespondenceId: Record<string, string> = {};
+
+        for (const finding of findings) {
+          const prefix = `diagram-reconcile:${runId.trim()}:${selectedSnapshotId.trim()}:`;
+          if (!finding.sourceFindingId.startsWith(prefix)) {
+            continue;
+          }
+
+          const correspondenceId = finding.sourceFindingId.slice(prefix.length);
+          if (correspondenceId.length > 0 && finding.findingId.length > 0) {
+            findingIdsByCorrespondenceId[correspondenceId] = finding.findingId;
+          }
+        }
+
+        setIngestedFindingIds(findingIdsByCorrespondenceId);
+      } catch {
+        if (!cancelled) {
+          setIngestedFindingIds({});
+        }
+      }
+    }
+
+    void loadExistingFindings();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [advisoryComparisonPath, reconciliation, runId, selectedSnapshotId]);
+
+  useEffect(() => {
+    if (!documentationDecisionAvailable || reconciliation == null) {
+      setDocumentationDecisions({});
+      setAbsentDocumentationDecisions([]);
+      return;
+    }
+
+    const comparisonIdValue = comparisonId;
+    const subjects: Array<{
+      subjectKind: InfrastructureDiagramDocumentationDecision["subjectKind"];
+      subjectKey: string;
+    }> = [
+      ...reconciliation.rows
+        .filter((row) => row.matchKind === "DiagramOnly" && row.diagramNodeId != null)
+        .map((row) => ({ subjectKind: "DiagramNode" as const, subjectKey: row.diagramNodeId as string })),
+      ...reconciliation.rows
+        .filter((row) => row.matchKind === "InfrastructureOnly" && row.cloudResourceId != null)
+        .map((row) => ({ subjectKind: "InventoryResource" as const, subjectKey: row.cloudResourceId as string })),
+      ...(reconciliation.edgeGaps ?? []).map((gap) => ({
+        subjectKind: "EdgeGap" as const,
+        subjectKey: gap.edgeGapId,
+      })),
+    ];
+
+    let cancelled = false;
+
+    async function loadDocumentationDecisions() {
+      let loaded: Array<InfrastructureDiagramDocumentationDecision | null> = [];
+      let absent: InfrastructureDiagramDocumentationDecision[] = [];
+
+      if (advisoryComparisonPath && comparisonIdValue != null) {
+        loaded = await Promise.all(
+          subjects.map(async (subject) => {
+            try {
+              return await fetchInfrastructureDiagramDocumentationDecision(
+                comparisonIdValue,
+                subject.subjectKind,
+                subject.subjectKey,
+              );
+            } catch {
+              return null;
+            }
+          }),
+        );
+        absent = await fetchAbsentInfrastructureDiagramDocumentationDecisions(comparisonIdValue).catch(() => []);
+      } else if (validRunId) {
+        const sealedDecisions = await fetchSealedInfrastructureDiagramDocumentationDecisions(
+          runId,
+          selectedSnapshotId,
+        ).catch(() => []);
+        loaded = sealedDecisions;
+        absent = sealedDecisions.filter((decision) => decision.carryForwardState === "NoLongerInCapture");
+      }
+
+      if (cancelled) {
+        return;
+      }
+
+      const next: Record<string, InfrastructureDiagramDocumentationDecision> = {};
+      loaded.forEach((decision) => {
+        if (decision != null) {
+          next[documentationDecisionKey(decision.subjectKind, decision.subjectKey)] = decision;
+        }
+      });
+      setDocumentationDecisions(next);
+      setAbsentDocumentationDecisions(absent);
+    }
+
+    void loadDocumentationDecisions();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [
+    advisoryComparisonPath,
+    comparisonId,
+    documentationDecisionAvailable,
+    reconciliation,
+    runId,
+    selectedSnapshotId,
+    validRunId,
+  ]);
+
+  const saveDocumentationDecision = useCallback(
+    async (
+      subjectKind: InfrastructureDiagramDocumentationDecision["subjectKind"],
+      subjectKey: string,
+    ) => {
+      if (!documentationDecisionAvailable) {
+        return;
+      }
+
+      const key = documentationDecisionKey(subjectKind, subjectKey);
+      const decision = documentationDecisionPick[key];
+      if (decision == null || decision.length === 0) {
+        return;
+      }
+
+      setDocumentationDecisionBusyKey(key);
+
+      try {
+        const request = {
+          snapshotId: selectedSnapshotId,
+          subjectKind,
+          subjectKey,
+          decision: decision as InfrastructureDiagramDocumentationDecision["decision"],
+        };
+        const saved = comparisonId != null
+          ? await saveInfrastructureDiagramDocumentationDecision(comparisonId, request)
+          : await saveSealedInfrastructureDiagramDocumentationDecision(runId, request);
+        setDocumentationDecisions((current) => ({ ...current, [key]: saved }));
+      } finally {
+        setDocumentationDecisionBusyKey(null);
+      }
+    },
+    [comparisonId, documentationDecisionAvailable, documentationDecisionPick, runId, selectedSnapshotId],
+  );
 
   const handleWorkbenchModeChange = useCallback(
     (nextMode: string) => {
@@ -1851,7 +2089,59 @@ export function DiagramReconcileWorkbenchClient() {
                         {group.count} resource(s)
                       </summary>
                       <ul className="m-0 mt-2 list-disc pl-5">
-                        {group.resourceNames.map((name) => <li key={name}>{name}</li>)}
+                        {group.resourceRows.map((resourceRow) => {
+                          const resourceSubjectKey = resourceRow.cloudResourceId?.trim() ?? "";
+                          const resourceDecisionKey = documentationDecisionKey("InventoryResource", resourceSubjectKey);
+
+                          return (
+                            <li key={resourceRow.correspondenceId} className="flex flex-wrap items-center gap-2">
+                              <span>{formatDiagramReconcileResourceLabelForDisplay(resourceRow)}</span>
+                              {documentationDecisionAvailable && resourceSubjectKey.length > 0 ? (
+                                <>
+                                  <select
+                                    className={cnField}
+                                    data-testid={`infra-diagram-reconcile-decision-${resourceRow.correspondenceId}`}
+                                    value={
+                                      documentationDecisionPick[resourceDecisionKey]
+                                      ?? documentationDecisions[resourceDecisionKey]?.decision
+                                      ?? ""
+                                    }
+                                    onChange={(event) => {
+                                      setDocumentationDecisionPick((current) => ({
+                                        ...current,
+                                        [resourceDecisionKey]: event.target.value,
+                                      }));
+                                    }}
+                                  >
+                                    <option value="">Select decision</option>
+                                    <option value="UpdateDrawing">Update the drawing</option>
+                                    <option value="AcceptAsUndocumented">Accept as undocumented</option>
+                                    <option value="CheckInventory">Check the inventory</option>
+                                  </select>
+                                  <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    disabled={documentationDecisionBusyKey === resourceDecisionKey}
+                                    onClick={() => {
+                                      void saveDocumentationDecision("InventoryResource", resourceSubjectKey);
+                                    }}
+                                  >
+                                    Save decision
+                                  </Button>
+                            {documentationDecisions[resourceDecisionKey] != null ? (
+                              <StatusTag
+                                kind="ready"
+                                label={formatDocumentationDecisionState(
+                                  documentationDecisions[resourceDecisionKey].carryForwardState,
+                                )}
+                              />
+                                  ) : null}
+                                </>
+                              ) : null}
+                            </li>
+                          );
+                        })}
                       </ul>
                     </details>
                   </EnterpriseTableCell>
@@ -1964,7 +2254,9 @@ export function DiagramReconcileWorkbenchClient() {
                               Open finding
                             </Link>
                           </div>
-                        ) : (
+                        ) : !advisoryComparisonPath
+                          && runId.trim().length > 0
+                          && (row.securityDiscrepancy || row.matchKind === "Conflict") ? (
                           <Button
                             type="button"
                             variant="outline"
@@ -1980,7 +2272,62 @@ export function DiagramReconcileWorkbenchClient() {
                             ) : null}
                             Create operational finding
                           </Button>
-                        )}
+                        ) : null}
+                        {documentationDecisionAvailable
+                          && row.matchKind === "DiagramOnly"
+                          && row.diagramNodeId != null ? (
+                          <div className="flex flex-col gap-1" onClick={(event) => event.stopPropagation()}>
+                            <Label
+                              className={OPERATOR_TYPOGRAPHY.helper}
+                              htmlFor={`infra-diagram-reconcile-decision-${row.correspondenceId}`}
+                            >
+                              Documentation decision
+                            </Label>
+                            <select
+                              id={`infra-diagram-reconcile-decision-${row.correspondenceId}`}
+                              className={cnField}
+                              data-testid={`infra-diagram-reconcile-decision-${row.correspondenceId}`}
+                              value={
+                                documentationDecisionPick[documentationDecisionKey("DiagramNode", row.diagramNodeId)]
+                                ?? documentationDecisions[documentationDecisionKey("DiagramNode", row.diagramNodeId)]?.decision
+                                ?? ""
+                              }
+                              onChange={(event) => {
+                                setDocumentationDecisionPick((current) => ({
+                                  ...current,
+                                  [documentationDecisionKey("DiagramNode", row.diagramNodeId as string)]: event.target.value,
+                                }));
+                              }}
+                            >
+                              <option value="">Select decision</option>
+                              <option value="UpdateDrawing">Update the drawing</option>
+                              <option value="AcceptAsUndocumented">Accept as undocumented</option>
+                              <option value="CheckInventory">Check the inventory</option>
+                            </select>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              disabled={
+                                documentationDecisionBusyKey
+                                === documentationDecisionKey("DiagramNode", row.diagramNodeId)
+                              }
+                              onClick={() => {
+                                void saveDocumentationDecision("DiagramNode", row.diagramNodeId as string);
+                              }}
+                            >
+                              Save decision
+                            </Button>
+                            {documentationDecisions[documentationDecisionKey("DiagramNode", row.diagramNodeId)] != null ? (
+                              <StatusTag
+                                kind="ready"
+                                label={formatDocumentationDecisionState(
+                                  documentationDecisions[documentationDecisionKey("DiagramNode", row.diagramNodeId)].carryForwardState,
+                                )}
+                              />
+                            ) : null}
+                          </div>
+                        ) : null}
                         {rowActionError != null && rowActionError.correspondenceId === row.correspondenceId ? (
                           <OperatorMutationInlineError
                             message={rowActionError.message}
@@ -1997,8 +2344,7 @@ export function DiagramReconcileWorkbenchClient() {
                             </Link>
                           </Button>
                         ) : null}
-                        {advisoryComparisonPath
-                          && comparisonId != null
+                        {documentationDecisionAvailable
                           && row.matchKind === "DiagramOnly"
                           && infrastructureOnlyRows.length > 0 ? (
                           <div
@@ -2070,6 +2416,7 @@ export function DiagramReconcileWorkbenchClient() {
                     <EnterpriseTableHeaderCell>Inventory association</EnterpriseTableHeaderCell>
                     <EnterpriseTableHeaderCell>Gap kind</EnterpriseTableHeaderCell>
                     <EnterpriseTableHeaderCell>Explanation</EnterpriseTableHeaderCell>
+                    <EnterpriseTableHeaderCell>Actions</EnterpriseTableHeaderCell>
                   </EnterpriseTableRow>
                 </EnterpriseTableHead>
                 <EnterpriseTableBody>
@@ -2088,11 +2435,82 @@ export function DiagramReconcileWorkbenchClient() {
                           label={formatDiagramReconcileEdgeGapKindLabel(gap.gapKind)}
                         />
                       </EnterpriseTableCell>
-                      <EnterpriseTableCell>{gap.explainText}</EnterpriseTableCell>
+                      <EnterpriseTableCell>
+                        {gap.explainText ?? "Connector gap explanation was not stored."}
+                      </EnterpriseTableCell>
+                      <EnterpriseTableCell>
+                        {documentationDecisionAvailable ? (
+                          <div className="flex flex-col gap-1">
+                            <select
+                              className={cnField}
+                              data-testid={`infra-diagram-reconcile-edge-gap-decision-${gap.edgeGapId}`}
+                              value={
+                                documentationDecisionPick[documentationDecisionKey("EdgeGap", gap.edgeGapId)]
+                                ?? documentationDecisions[documentationDecisionKey("EdgeGap", gap.edgeGapId)]?.decision
+                                ?? ""
+                              }
+                              onChange={(event) => {
+                                setDocumentationDecisionPick((current) => ({
+                                  ...current,
+                                  [documentationDecisionKey("EdgeGap", gap.edgeGapId)]: event.target.value,
+                                }));
+                              }}
+                            >
+                              <option value="">Select decision</option>
+                              <option value="UpdateDrawing">Update the drawing</option>
+                              <option value="AcceptAsUndocumented">Accept as undocumented</option>
+                              <option value="CheckInventory">Check the inventory</option>
+                            </select>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              disabled={
+                                documentationDecisionBusyKey
+                                === documentationDecisionKey("EdgeGap", gap.edgeGapId)
+                              }
+                              onClick={() => {
+                                void saveDocumentationDecision("EdgeGap", gap.edgeGapId);
+                              }}
+                            >
+                              Save decision
+                            </Button>
+                            {documentationDecisions[documentationDecisionKey("EdgeGap", gap.edgeGapId)] != null ? (
+                              <StatusTag
+                                kind="ready"
+                                label={formatDocumentationDecisionState(
+                                  documentationDecisions[documentationDecisionKey("EdgeGap", gap.edgeGapId)].carryForwardState,
+                                )}
+                              />
+                            ) : null}
+                          </div>
+                        ) : null}
+                      </EnterpriseTableCell>
                     </EnterpriseTableRow>
                   ))}
                 </EnterpriseTableBody>
               </EnterpriseTable>
+          {absentDocumentationDecisions.length > 0 ? (
+            <section
+              className="mt-4 rounded-md border border-slate-200 bg-slate-50 p-3"
+              aria-label="Decisions no longer in this capture"
+              data-testid="infra-diagram-reconcile-absent-decisions"
+            >
+              <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.label)}>
+                Decisions no longer in this capture
+              </h3>
+              <ul className="m-0 mt-2 grid gap-1 pl-5">
+                {absentDocumentationDecisions.map((decision) => (
+                  <li
+                    key={documentationDecisionKey(decision.subjectKind, decision.subjectKey)}
+                    data-testid={`infra-diagram-reconcile-absent-decision-${decision.subjectKey}`}
+                  >
+                    {decision.subjectKey}: {formatDocumentationDecision(decision.decision)}
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ) : null}
             </div>
           ) : null}
         </section>

@@ -46,6 +46,20 @@ public sealed class AgentOutputEvaluatorTests
     }
 
     [SkippableFact]
+    public void Evaluate_When_expected_keys_use_different_case_counts_them_as_present()
+    {
+        const string json =
+            """
+            {"RESULTID":"a","TASKID":"b","RUNID":"c","AGENTTYPE":1,"CLAIMS":[],"EVIDENCEREFS":[],"CONFIDENCE":0.5,"FINDINGS":[],"PROPOSEDCHANGES":null,"CREATEDUTC":"2026-01-01T00:00:00Z"}
+            """;
+
+        AgentOutputEvaluationScore score = _sut.Evaluate("t1", json, AgentType.Topology);
+
+        score.StructuralCompletenessRatio.Should().Be(1.0);
+        score.MissingKeys.Should().BeEmpty();
+    }
+
+    [SkippableFact]
     public void Evaluate_When_empty_object_counts_all_keys_missing_without_parse_failure()
     {
         AgentOutputEvaluationScore score = _sut.Evaluate("t1", "{}", AgentType.Compliance);

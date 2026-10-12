@@ -45,7 +45,10 @@ function groupDiffsBySection(diffs: readonly DiffItem[]): Map<string, DiffItem[]
   const grouped = new Map<string, DiffItem[]>();
 
   for (const diff of diffs) {
-    const section = diff.section?.trim() || "Other";
+    const section =
+      diff.section === null || diff.section === undefined
+        ? "Section was not stored."
+        : diff.section.trim();
     const existing = grouped.get(section) ?? [];
     existing.push(diff);
     grouped.set(section, existing);

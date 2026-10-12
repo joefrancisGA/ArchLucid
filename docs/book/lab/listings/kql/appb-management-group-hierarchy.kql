@@ -1,0 +1,8 @@
+resourcecontainers
+| extend parentId = case(
+    type =~ 'microsoft.resources/subscriptions/resourcegroups',
+        strcat('/subscriptions/', subscriptionId),
+    type =~ 'microsoft.management/managementgroups',
+        tostring(properties.details.parent.id),
+    '')
+| project id, name, type, parentId

@@ -22,17 +22,16 @@ internal static class AzureInventorySnapshotPrivateEndpointEdgeHydrator
         IReadOnlySet<string> collectedArmIds,
         IReadOnlySet<string> hiddenArmIds,
         bool includeNeverShowArmTypes,
-        bool retainIdentityDiagramArmTypes)
+        bool retainIdentityDiagramArmTypes,
+        AzureInventorySnapshotPropertyIndex? propertyIndex = null)
     {
         ArgumentNullException.ThrowIfNull(snapshot);
         ArgumentNullException.ThrowIfNull(nodeIdByArmId);
         ArgumentNullException.ThrowIfNull(edges);
         ArgumentNullException.ThrowIfNull(edgeKeys);
 
-        Dictionary<Guid, List<AzureInventoryResourcePropertyReadModel>> propertiesByRowId =
-            snapshot.Properties
-                .GroupBy(property => property.ResourceRowId)
-                .ToDictionary(group => group.Key, group => group.ToList());
+        IReadOnlyDictionary<Guid, List<AzureInventoryResourcePropertyReadModel>> propertiesByRowId =
+            (propertyIndex ?? AzureInventorySnapshotPropertyIndex.Create(snapshot)).ByResourceRowId;
 
         foreach (AzureInventoryResourceRecord resource in snapshot.Resources)
         {
@@ -124,25 +123,12 @@ internal static class AzureInventorySnapshotPrivateEndpointEdgeHydrator
         string propertyKey,
         string targetArmId)
     {
-        string edgeKey = $"{fromNodeId}|{toNodeId}|{edgeType}";
-
         GraphEdge? edge = edges.FirstOrDefault(candidate => candidate.FromNodeId == fromNodeId
             && candidate.ToNodeId == toNodeId && candidate.EdgeType == edgeType);
-        if (edge is null && edgeKeys.Add(edgeKey))
-        {
-            edge = new GraphEdge
-            {
-                EdgeId = $"edge-{edgeKey}",
-                FromNodeId = fromNodeId,
-                ToNodeId = toNodeId,
-                EdgeType = edgeType,
-                Label = edgeType,
-                Weight = 1.0d,
-                InferenceSource = inferenceSource,
-                ProvenanceKind = ProvenanceKind.DeterministicInference.ToString(),
-            };
-            edges.Add(edge);
-        }
+        edge ??= AzureInventorySnapshotGraphEdgeAppender.TryAdd(
+            edges, edgeKeys, fromNodeId, toNodeId, edgeType, inferenceSource,
+            provenanceKind: ProvenanceKind.DeterministicInference.ToString(),
+            promoteStrongerProvenance: false);
 
         if (edge is not null)
         {

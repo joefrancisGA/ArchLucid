@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  verdictKindLabel,
   verdictTierFromFeasibilityKind,
   verdictTierFromRiskPosture,
   verdictTierLabel,
@@ -12,6 +13,11 @@ describe("verdict-taxonomy", () => {
     expect(verdictTierFromFeasibilityKind("Feasible")).toBe("Proceed");
     expect(verdictTierFromFeasibilityKind("SoftInfeasible")).toBe("Remediate");
     expect(verdictTierFromFeasibilityKind("HardInfeasible")).toBe("Hold");
+  });
+
+  it("preserves missing and unexpected stored kind labels", () => {
+    expect(verdictKindLabel(undefined)).toBe("Verdict kind was not stored.");
+    expect(verdictKindLabel("FutureKind" as never)).toBe("FutureKind");
   });
 
   it("returns tier labels and tones", () => {

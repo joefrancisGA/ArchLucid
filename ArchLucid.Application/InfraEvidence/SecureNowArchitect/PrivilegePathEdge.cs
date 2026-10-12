@@ -34,6 +34,8 @@ public sealed class PrivilegePathEdge
         init;
     }
 
+    public string? RoleDefinitionId { get; init; }
+
     public string? InferenceSource
     {
         get;

@@ -20,6 +20,8 @@ public sealed record ArchitectureReviewBoardCoverPageContent(
 {
     internal const string DemoTenantNotice = "Demo tenant — replace before publishing to executives.";
 
+    internal const string PreparedForTenantNameNotStoredNotice = "Prepared for tenant name was not stored.";
+
     internal const string LogoPlaceholderLabel = "[Logo placeholder — upload tenant cover logo in settings]";
 
     internal const string DirectionalEstimatesFooter = "Directional estimates — see methodology";
@@ -65,9 +67,13 @@ public sealed record ArchitectureReviewBoardCoverPageContent(
 
         string generatedOnLabel = FormatGeneratedOnLabel(exportTimestampUtc);
 
-        string? preparedFor = string.IsNullOrWhiteSpace(model.TenantDisplayName)
+        string? preparedFor = model.TenantDisplayName is null
             ? null
-            : model.TenantDisplayName.Trim();
+            : model.TenantDisplayName.Length == 0
+                ? string.Empty
+                : string.IsNullOrWhiteSpace(model.TenantDisplayName)
+                    ? null
+                    : model.TenantDisplayName.Trim();
 
         string? trialNotice = string.IsNullOrWhiteSpace(activeTrialExportNotice)
             ? null

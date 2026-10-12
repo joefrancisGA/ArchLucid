@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { getOperatorQueryClient } from "@/lib/query/operator-query-client";
@@ -2271,6 +2271,10 @@ describe("ArchitectureIntelligencePageClient", () => {
     expect(screen.queryByTestId("architecture-intelligence-reasoning-results")).not.toBeInTheDocument();
     expect(screen.queryByText("Reasoning finding")).not.toBeInTheDocument();
     expect(screen.queryByTestId("architecture-intelligence-next-review-footer-stub")).not.toBeInTheDocument();
+    expect(screen.getByTestId("architecture-intelligence-publish-button")).toBeDisabled();
+    expect(
+      within(screen.getByTestId("architecture-intelligence-analysis-setup-step-analyze")).getByText("In progress"),
+    ).toBeInTheDocument();
   });
 
   it("hydrates intake after successful product context retry", async () => {

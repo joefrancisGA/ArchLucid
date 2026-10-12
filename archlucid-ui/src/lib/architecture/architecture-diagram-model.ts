@@ -221,7 +221,7 @@ function addFlowEdges(
 
   let edgeIndex = edges.length;
 
-  for (const entity of flowSection.entities) {
+  for (const entity of flowSection.entities ?? []) {
     const { flowText, trailingEdgeLabel } = resolveEntityFlowParseText(entity);
 
     for (const endpoints of parseFlowEndpoints(flowText, nodes)) {
@@ -282,7 +282,7 @@ export function buildArchitectureDiagramModel(
   addFlowEdges(parseResult, nodes, edges);
 
   const trustBoundaryLabels =
-    byKey.get("trust-boundaries")?.entities.map((entity) => entity.label).filter((label) => label.trim().length > 0) ?? [];
+    byKey.get("trust-boundaries")?.entities?.map((entity) => entity.label).filter((label) => label.trim().length > 0) ?? [];
 
   return {
     nodes,

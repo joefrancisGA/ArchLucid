@@ -83,7 +83,9 @@ public sealed class PolicyPackCorpusIndexer(IOptionsMonitor<PolicyPackCorpusInde
         if (file?.Rules is null || file.Rules.Count == 0)
             yield break;
 
-        string rulePackId = file.RulePackId ?? Path.GetFileName(Path.GetDirectoryName(filePath)) ?? "unknown";
+        string rulePackId = string.IsNullOrWhiteSpace(file.RulePackId)
+            ? Path.GetFileName(Path.GetDirectoryName(filePath)) ?? "unknown"
+            : file.RulePackId.Trim();
         string version = file.Version ?? "0.0.0";
         DateTime createdUtc = File.GetLastWriteTimeUtc(filePath);
 

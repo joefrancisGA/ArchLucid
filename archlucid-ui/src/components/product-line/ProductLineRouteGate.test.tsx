@@ -95,4 +95,19 @@ describe("ProductLineRouteGate", () => {
 
     expect(setProductLine).toHaveBeenCalledWith("architecture");
   });
+
+  it("hides the product switch on the UHG edition", () => {
+    pathnameMock.value = "/architecture/reviews";
+    vi.stubEnv("NEXT_PUBLIC_SECURENOW_EDITION", "uhg");
+
+    render(
+      <ProductLineRouteGate>
+        <p>secret reviews</p>
+      </ProductLineRouteGate>,
+    );
+
+    expect(screen.queryByTestId("product-line-route-gate-switch-product-line")).not.toBeInTheDocument();
+
+    vi.unstubAllEnvs();
+  });
 });

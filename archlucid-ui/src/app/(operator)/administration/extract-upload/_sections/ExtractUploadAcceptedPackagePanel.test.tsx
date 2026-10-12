@@ -65,17 +65,26 @@ describe("ExtractUploadAcceptedPackagePanel", () => {
     expect(screen.getByTestId("extract-upload-accepted-resource-count")).toHaveTextContent("0");
   });
 
-  it("uses SecureNow follow-up destinations instead of architecture review links", () => {
+  it("offers one SecureNow next action instead of a follow-up link list", () => {
     render(<ExtractUploadAcceptedPackagePanel record={sampleRecord} productLineId="security" />);
 
-    expect(screen.getByRole("link", { name: "Findings" })).toHaveAttribute("href", "/compliance/findings");
-    expect(screen.getByRole("link", { name: "Audit evidence" })).toHaveAttribute(
-      "href",
-      "/compliance/audit-evidence",
-    );
-    expect(screen.queryByRole("link", { name: "Start a review" })).not.toBeInTheDocument();
-    expect(screen.queryByRole("link", { name: "Architecture reviews" })).not.toBeInTheDocument();
+    expect(screen.getByTestId("extract-upload-accepted-next-action")).toHaveTextContent("Review findings");
+    expect(screen.getByTestId("extract-upload-accepted-next-action")).toHaveAttribute("href", "/compliance/findings");
+    expect(screen.getAllByRole("link")).toHaveLength(1);
+    expect(screen.queryByText("Continue")).not.toBeInTheDocument();
     expect(screen.queryByTestId("extract-upload-accepted-evidence-trail-link")).not.toBeInTheDocument();
+  });
+
+  it("offers start a review and the evidence graph for architecture packages", () => {
+    render(<ExtractUploadAcceptedPackagePanel record={sampleRecord} />);
+
+    expect(screen.getByTestId("extract-upload-accepted-next-action")).toHaveTextContent("Start a review");
+    expect(screen.getByTestId("extract-upload-accepted-next-action")).toHaveAttribute(
+      "href",
+      "/architecture/reviews/new",
+    );
+    expect(screen.getByTestId("extract-upload-accepted-evidence-trail-link")).toHaveTextContent("Evidence graph");
+    expect(screen.getAllByRole("link")).toHaveLength(2);
   });
 
   it("shows an inline error instead of a toast when package id copy fails", async () => {

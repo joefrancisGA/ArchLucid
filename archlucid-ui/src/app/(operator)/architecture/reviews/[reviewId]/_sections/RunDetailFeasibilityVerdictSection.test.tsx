@@ -59,4 +59,123 @@ describe("RunDetailFeasibilityVerdictSection", () => {
     expect(screen.getByText("Infeasibility verdict needs citation")).toBeInTheDocument();
     expect(screen.queryByText("Hold")).not.toBeInTheDocument();
   });
+
+  it("distinguishes omitted soft verdict fields from stored empty values", () => {
+    const { rerender } = render(
+      <RunDetailFeasibilityVerdictSection
+        verdict={{
+          kind: "SoftInfeasible",
+          summary: "Not feasible as specified.",
+          softEnvelope: {
+            confidenceLow: 0,
+            confidenceHigh: 0,
+            softAssumption: null,
+          },
+          unsatCoreInvariantKeys: null,
+        }}
+        runId="run-1"
+      />,
+    );
+
+    expect(screen.getByText("Soft assumption was not stored.")).toBeInTheDocument();
+    expect(screen.getByText("Unsat core was not stored.")).toBeInTheDocument();
+
+    rerender(
+      <RunDetailFeasibilityVerdictSection
+        verdict={{
+          kind: "SoftInfeasible",
+          summary: "Not feasible as specified.",
+          softEnvelope: {
+            confidenceLow: 0,
+            confidenceHigh: 0,
+            softAssumption: "",
+          },
+          unsatCoreInvariantKeys: [],
+        }}
+        runId="run-1"
+      />,
+    );
+
+    expect(screen.queryByText("Soft assumption was not stored.")).not.toBeInTheDocument();
+    expect(screen.queryByText("Unsat core was not stored.")).not.toBeInTheDocument();
+  });
+
+  it("renders omitted and stored feasibility detail without collapsing empty values", () => {
+    const { rerender } = render(
+      <RunDetailFeasibilityVerdictSection
+        verdict={{
+          kind: "SoftInfeasible",
+          summary: "Not feasible as specified.",
+          softEnvelope: {
+            confidenceLow: 0,
+            confidenceHigh: 0,
+            softAssumption: "",
+          },
+          proposedRelaxations: undefined,
+        }}
+        runId="run-1"
+      />,
+    );
+
+    expect(screen.getByText("Cost of being wrong was not stored.")).toBeInTheDocument();
+    expect(screen.getByText("Proposed relaxations were not stored.")).toBeInTheDocument();
+
+    rerender(
+      <RunDetailFeasibilityVerdictSection
+        verdict={{
+          kind: "SoftInfeasible",
+          summary: "Not feasible as specified.",
+          softEnvelope: {
+            confidenceLow: 0,
+            confidenceHigh: 0,
+            softAssumption: "",
+            costOfBeingWrong: "",
+          },
+          proposedRelaxations: [],
+        }}
+        runId="run-1"
+      />,
+    );
+
+    expect(screen.queryByText("Cost of being wrong was not stored.")).not.toBeInTheDocument();
+    expect(screen.queryByText("Proposed relaxations were not stored.")).not.toBeInTheDocument();
+  });
+
+  it("renders proposed relaxation omissions and stored values", () => {
+    render(
+      <RunDetailFeasibilityVerdictSection
+        verdict={{
+          kind: "HardInfeasible",
+          summary: "Required controls cannot be satisfied.",
+          proposedRelaxations: [{ invariantKey: undefined, tradeOffDescription: undefined }],
+        }}
+        runId="run-1"
+      />,
+    );
+
+    expect(screen.getByText("Relaxation invariant key was not stored.")).toBeInTheDocument();
+    expect(screen.getByTestId("run-detail-feasibility-verdict")).toHaveTextContent(
+      "Trade-off description was not stored.",
+    );
+  });
+
+  it("reports an omitted verdict kind and preserves unexpected stored kinds", () => {
+    const { rerender } = render(
+      <RunDetailFeasibilityVerdictSection
+        verdict={{ kind: undefined as never, summary: "No kind." }}
+        runId="run-1"
+      />,
+    );
+
+    expect(screen.getByText("Verdict kind was not stored.")).toBeInTheDocument();
+
+    rerender(
+      <RunDetailFeasibilityVerdictSection
+        verdict={{ kind: "FutureKind" as never, summary: "Unknown kind." }}
+        runId="run-1"
+      />,
+    );
+
+    expect(screen.getByText("FutureKind")).toBeInTheDocument();
+  });
 });

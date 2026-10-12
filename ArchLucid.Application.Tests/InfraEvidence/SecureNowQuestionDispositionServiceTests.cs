@@ -263,9 +263,81 @@ public async Task Foreign_snapshot_cannot_read_or_write()
         repository.Rows.Should().BeEmpty();
     }
 
+    [Fact]
+    public async Task Answer_code_must_be_one_of_the_compiled_question_choices()
+    {
+        InMemoryDispositionRepository repository = new();
+        SecureNowQuestionDispositionService sut = CreateSut(repository, includeQuestion: true);
+
+        SecureNowQuestionDispositionMutationResult result = await sut.AnswerAsync(
+            Scope,
+            SnapshotId,
+            CreateWriteRequest("sub-1", "/subscriptions/sub-1/resource") with
+            {
+                QuestionKey = "unknown-evidence@v1",
+                AnswerCode = "InventedAnswer",
+                EvidenceFingerprint = "C70C7C824299E81D30618883C7BF8C4833B97799C8BBD8B92017CC6CE1E7C9AD",
+            },
+            "actor");
+
+        result.Succeeded.Should().BeFalse();
+        result.ErrorMessage.Should().Be("AnswerCode is invalid.");
+        repository.Rows.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task Stale_evidence_fingerprint_is_rejected_before_persisting_an_answer()
+    {
+        InMemoryDispositionRepository repository = new();
+        SecureNowQuestionDispositionService sut = CreateSut(repository, includeQuestion: true);
+
+        SecureNowQuestionDispositionMutationResult result = await sut.AnswerAsync(
+            Scope,
+            SnapshotId,
+            CreateWriteRequest("sub-1", "/subscriptions/sub-1/resource") with
+            {
+                QuestionKey = "unknown-evidence@v1",
+                AnswerCode = "NamePeer",
+                EvidenceFingerprint = "stale-fingerprint",
+            },
+            "actor");
+
+        result.Succeeded.Should().BeFalse();
+        result.ErrorMessage.Should().Be("Question evidence has changed.");
+        repository.Rows.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task Inventory_answer_does_not_depend_on_inferred_connection_availability()
+    {
+        InMemoryDispositionRepository repository = new();
+        SecureNowQuestionDispositionService sut = CreateSut(
+            repository,
+            includeQuestion: true,
+            inferredConnectionsUnavailable: true);
+
+        SecureNowQuestionDispositionMutationResult result = await sut.AnswerAsync(
+            Scope,
+            SnapshotId,
+            CreateWriteRequest("sub-1", "/subscriptions/sub-1/resource") with
+            {
+                QuestionKey = "unknown-evidence@v1",
+                AnswerCode = "NamePeer",
+                EvidenceFingerprint = "C70C7C824299E81D30618883C7BF8C4833B97799C8BBD8B92017CC6CE1E7C9AD",
+            },
+            "actor");
+
+        result.Succeeded.Should().BeTrue();
+        repository.Rows.Should().ContainSingle(row =>
+            row.Status == SecureNowQuestionDispositionStatus.Answered
+            && row.AnswerCode == "NamePeer");
+    }
+
     private static SecureNowQuestionDispositionService CreateSut(
         InMemoryDispositionRepository repository,
-        bool snapshotOwned = true)
+        bool snapshotOwned = true,
+        bool includeQuestion = false,
+        bool inferredConnectionsUnavailable = false)
     {
         Mock<IAzureInventorySnapshotRepository> snapshots = new();
         snapshots
@@ -284,6 +356,15 @@ public async Task Foreign_snapshot_cannot_read_or_write()
                             WorkspaceId = Scope.WorkspaceId,
                             ProjectId = Scope.ProjectId,
                         },
+                        Resources = includeQuestion
+                            ? [
+                                new AzureInventoryResourceRecord
+                                {
+                                    AzureResourceId = "/subscriptions/sub-1/resource",
+                                    ResourceType = "Microsoft.DataFactory/factories",
+                                },
+                            ]
+                            : [],
                     }
                     : null);
 
@@ -292,7 +373,23 @@ public async Task Foreign_snapshot_cannot_read_or_write()
             .Setup(item => item.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
-        return new SecureNowQuestionDispositionService(repository, snapshots.Object, audit.Object);
+        Mock<IOperatorInferredConnectionRepository>? inferredConnections = null;
+        if (inferredConnectionsUnavailable)
+        {
+            inferredConnections = new Mock<IOperatorInferredConnectionRepository>();
+            inferredConnections
+                .Setup(item => item.ListBySnapshotAsync(
+                    Scope.TenantId,
+                    It.IsAny<Guid>(),
+                    It.IsAny<CancellationToken>()))
+                .ThrowsAsync(new InvalidOperationException("inferred connections unavailable"));
+        }
+
+        return new SecureNowQuestionDispositionService(
+            repository,
+            snapshots.Object,
+            audit.Object,
+            inferredConnections?.Object);
     }
 
     private static SecureNowQuestionDispositionWriteRequest CreateWriteRequest(

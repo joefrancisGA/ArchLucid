@@ -44,6 +44,121 @@ class TestPrivateBetaReadiness(unittest.TestCase):
                 "private-beta workflow must run the npm lockfile preflight",
                 issues,
             )
+            self.assertIn(
+                "private-beta workflow must raise the auth-routing invitation-validate rate limit for CI",
+                issues,
+            )
+
+    def test_workflow_requires_auth_routing_permit_in_both_api_start_blocks(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            root = Path(temporary_directory)
+            workflow_path = root / ".github/workflows/private-beta-access-on-push.yml"
+            workflow_path.parent.mkdir(parents=True)
+            workflow_path.write_text(
+                "\n".join(
+                    [
+                        "      - name: Start ArchLucid.Api (background, JwtBearer + local PEM)",
+                        "        env:",
+                        '          RateLimiting__AuthRouting__PermitLimit: "500"',
+                        "        run: echo start",
+                        "      - name: Restart API after Enterprise grant (refresh tenant-tier cache)",
+                        "        env:",
+                        '          RateLimiting__AuthRouting__PermitLimit: "10"',
+                        "        run: echo restart",
+                    ]
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+
+            issues = sut._check_workflow(root)
+
+            self.assertIn(
+                'private-beta workflow must set RateLimiting__AuthRouting__PermitLimit: "500" '
+                "in both API-start environment blocks",
+                issues,
+            )
+
+    def test_workflow_ignores_auth_routing_permit_on_unrelated_steps(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            root = Path(temporary_directory)
+            workflow_path = root / ".github/workflows/private-beta-access-on-push.yml"
+            workflow_path.parent.mkdir(parents=True)
+            workflow_path.write_text(
+                "\n".join(
+                    [
+                        "      - name: Start ArchLucid.Api (background, JwtBearer + local PEM)",
+                        "        env:",
+                        "          ASPNETCORE_URLS: http://127.0.0.1:5128",
+                        "        run: echo start",
+                        "      - name: Unrelated diagnostic",
+                        "        env:",
+                        '          RateLimiting__AuthRouting__PermitLimit: "500"',
+                        "        run: echo diag",
+                        "      - name: Restart API after Enterprise grant (refresh tenant-tier cache)",
+                        "        env:",
+                        "          ASPNETCORE_URLS: http://127.0.0.1:5128",
+                        "        run: echo restart",
+                    ]
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+
+            issues = sut._check_workflow(root)
+
+            self.assertIn(
+                'private-beta workflow must set RateLimiting__AuthRouting__PermitLimit: "500" '
+                "in both API-start environment blocks",
+                issues,
+            )
+
+    def test_workflow_parses_comments_inside_api_start_env_blocks(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            root = Path(temporary_directory)
+            workflow_path = root / ".github/workflows/private-beta-access-on-push.yml"
+            workflow_path.parent.mkdir(parents=True)
+            workflow_path.write_text(
+                "\n".join(
+                    [
+                        "      - name: Start ArchLucid.Api (background, JwtBearer + local PEM)",
+                        "        env:",
+                        "          # comment before permit",
+                        '          RateLimiting__AuthRouting__PermitLimit: "500"',
+                        "        run: echo start",
+                        "      - name: Restart API after Enterprise grant (refresh tenant-tier cache)",
+                        "        env:",
+                        "          # comment before permit",
+                        '          RateLimiting__AuthRouting__PermitLimit: "500"',
+                        "        run: echo restart",
+                    ]
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+
+            issues = sut._check_auth_routing_ci_permit(workflow_path.read_text(encoding="utf-8"))
+
+            self.assertEqual(issues, [])
+
+    def test_workflow_requires_auth_routing_rate_limit(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            root = Path(temporary_directory)
+            workflow_path = root / ".github/workflows/private-beta-access-on-push.yml"
+            release_gate_path = root / ".github/workflows/rc-release-gate.yml"
+            workflow_path.parent.mkdir(parents=True)
+            workflow_path.write_text(
+                'branches: [main, master, RC35]\nRateLimiting__AuthRouting__PermitLimit: "500"\n',
+                encoding="utf-8",
+            )
+            release_gate_path.write_text("workflow: rc\n", encoding="utf-8")
+
+            issues = sut._check_workflow(root)
+
+            self.assertIn(
+                "RC release gate must raise auth-routing rate limits for invite-wave CI",
+                issues,
+            )
 
     def test_ruleset_requires_rc34_and_all_contexts(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_directory:

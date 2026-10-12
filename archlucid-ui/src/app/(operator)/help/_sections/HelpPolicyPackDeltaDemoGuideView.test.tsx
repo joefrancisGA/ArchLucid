@@ -50,7 +50,8 @@ describe("HelpPolicyPackDeltaDemoGuideView (HPO Phase 2)", () => {
     );
     expect(screen.queryByTestId("help-policy-pack-delta-demo-claim-discipline-strip")).not.toBeInTheDocument();
     expect(screen.queryByTestId("help-policy-pack-delta-demo-wk21-honesty")).not.toBeInTheDocument();
-    expect(screen.queryByText(/Before sponsor send/i)).not.toBeInTheDocument();
+    expect(screen.getByTestId("help-policy-pack-delta-demo-honesty-panel")).toBeInTheDocument();
+    expect(screen.getByText(/Before sponsor send/i)).toBeInTheDocument();
     expect(screen.getByTestId("help-policy-pack-delta-demo-overview").className).toContain(HELP_PAGE_LAYOUT.readingBody);
 
     for (const heading of POLICY_PACK_DELTA_DEMO_HELP_GUIDE_HEADINGS) {

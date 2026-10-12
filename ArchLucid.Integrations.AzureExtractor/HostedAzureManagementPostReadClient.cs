@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
@@ -118,6 +119,9 @@ public sealed class HostedAzureManagementPostReadClient(
                     if (!string.IsNullOrWhiteSpace(next))
                     {
                         HostedAzureArmNextLinkValidator.EnsureTargetsSubscription(next, subscriptionId);
+                        HostedAzureArmNextLinkValidator.EnsureTargetsArmRelativeListingPath(
+                            next,
+                            $"subscriptions/{subscriptionId.Trim()}/providers/Microsoft.CostManagement/query");
                         cursor = next;
                     }
                 }
@@ -125,7 +129,7 @@ public sealed class HostedAzureManagementPostReadClient(
 
             return MergeActualCostPages(pages, "MonthToDate");
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogWarning(
                 ex,
@@ -208,11 +212,14 @@ public sealed class HostedAzureManagementPostReadClient(
                 if (!string.IsNullOrWhiteSpace(nextAbsolute))
                 {
                     HostedAzureArmNextLinkValidator.EnsureTargetsSubscription(nextAbsolute, subscriptionId);
+                    HostedAzureArmNextLinkValidator.EnsureTargetsArmRelativeListingPath(
+                        nextAbsolute,
+                        $"subscriptions/{subscriptionId.Trim()}/providers/Microsoft.PolicyInsights/policyStates/latest/queryResults");
                     cursor = TryToRelativePath(nextAbsolute) ?? nextAbsolute;
                 }
             }
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogWarning(
                 ex,
@@ -404,7 +411,9 @@ public sealed class HostedAzureManagementPostReadClient(
     {
         string text = ReadArrayCell(row, index);
 
-        return double.TryParse(text, out double parsed) ? parsed : 0d;
+        return double.TryParse(text, NumberStyles.Float, CultureInfo.InvariantCulture, out double parsed)
+            ? parsed
+            : 0d;
     }
 
     private static string? TryReadNextLink(JsonElement root)

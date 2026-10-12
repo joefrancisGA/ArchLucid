@@ -117,10 +117,11 @@ export type GovernanceFindingsQueueOperationalRowCellsProps = {
   readonly row: GovernanceFindingQueueRow;
   readonly showInsightDensityScore?: boolean;
   readonly severityMeaning?: string;
+  readonly onOpenRow?: () => void;
 };
 
 export function GovernanceFindingsQueueOperationalRowCells(props: GovernanceFindingsQueueOperationalRowCellsProps): ReactElement {
-  const { row, showInsightDensityScore = false, severityMeaning } = props;
+  const { row, showInsightDensityScore = false, severityMeaning, onOpenRow } = props;
   const { mode: structuralExecutionMode } = useAgentExecutionMode();
   const graphHref = governanceQueueGraphEvidenceHref(row);
   const evidenceChipHref =
@@ -138,6 +139,7 @@ export function GovernanceFindingsQueueOperationalRowCells(props: GovernanceFind
           className={OPERATOR_LINK.inline}
           href={governanceFindingInspectHref(row.runId, row.findingId)}
           prefetch={false}
+          onClick={onOpenRow}
         >
           {row.title}
         </Link>
@@ -236,9 +238,9 @@ export function GovernanceFindingsQueueOperationalRowCells(props: GovernanceFind
       </EnterpriseTableCell>
       <EnterpriseTableCell className={DESIGN_TOKENS.table.cellSecondary}>
         {row.recordKind === "finding"
-          ? row.agingDays !== undefined
+          ? row.agingDays !== null && row.agingDays !== undefined
             ? `${row.agingDays}d`
-            : "Not returned"
+            : "Aging days were not stored."
           : "Does not apply to decision rows"}
       </EnterpriseTableCell>
       <EnterpriseTableCell className={DESIGN_TOKENS.table.cellSecondary}>

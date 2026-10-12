@@ -22,6 +22,8 @@ describe("security-evidence-path-presentation", () => {
     expect(formatSecurityEvidencePathKindLabel("Privilege")).toBe("Privilege");
     expect(formatSecurityEvidencePathKindLabel("CapabilityToFlow")).toBe("May access");
     expect(formatSecurityEvidencePathKindLabel("FutureKind")).toBe("FutureKind");
+    expect(formatSecurityEvidencePathKindLabel(null)).toBe("Path kind was not stored.");
+    expect(formatSecurityEvidencePathKindLabel("")).toBe("");
   });
 
   it("maps confidence bands to enterprise status kinds without percentages", () => {

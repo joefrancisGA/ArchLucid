@@ -5,7 +5,6 @@ import type { ReactElement } from "react";
 
 import { CopyIdButton } from "@/components/CopyIdButton";
 import {
-  BUYER_SHOWCASE_RESIDUAL_RISK_MONITORING_CADENCE,
   BUYER_SHOWCASE_RESIDUAL_RISK_OWNER,
 } from "@/lib/buyer/buyer-polish-copy";
 import { resolveProductionEvalChromeFromStorage } from "@/lib/resolve-production-eval-chrome-from-storage";
@@ -57,7 +56,7 @@ export function FindingInspectAuditSection({
             <span className="text-al-text-secondary">Accepted with monitoring — residual risk owner {BUYER_SHOWCASE_RESIDUAL_RISK_OWNER}</span>
           </p>
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-            {BUYER_SHOWCASE_RESIDUAL_RISK_MONITORING_CADENCE} applies while this monitored risk remains open.
+            Monitoring cadence was not stored.
           </p>
         </div>
       ) : buyerPolishedShell ? (

@@ -63,6 +63,10 @@ import {
 } from '@/lib/architecture/architecture-diagram-click-focus';
 import type { InfraEvidenceMermaidOutline } from '@/lib/infra-evidence/parse-infra-evidence-mermaid-outline';
 import {
+  INFRA_EVIDENCE_INVENTORY_EDGE_PANEL_AUTHORIZATION_HINT,
+  INFRA_EVIDENCE_INVENTORY_EDGE_PANEL_HOSTNAME_HINT,
+} from '@/lib/infra-evidence/infra-evidence-diagram-copy';
+import {
   applyMermaidSvgViewportZoom,
   fitMermaidSvgElementToHost,
   fitMermaidSvgElementToViewport,
@@ -89,6 +93,12 @@ const EMPTY_FOCUS_NODE_IDS: readonly string[] = [];
 
 export type ArchitectureDiagramSourceKind = 'html' | 'image';
 
+export type ArchitectureDiagramConnectorSelection = {
+  readonly from: string;
+  readonly to: string;
+  readonly label: string | null;
+};
+
 export type ArchitectureDiagramMermaidViewerProps = {
   readonly mermaidSource: string;
   /** Server-side Graphviz layout SVG; when present, client Mermaid layout is skipped. */
@@ -112,6 +122,12 @@ export type ArchitectureDiagramMermaidViewerProps = {
   readonly questionSubjectNodeId?: string | null;
   /** Logical inventory outline used for click-focus neighborhood membership. */
   readonly outline?: InfraEvidenceMermaidOutline | null;
+  /** Reports a painted connector click without changing node focus. */
+  readonly onSelectConnector?: (selection: ArchitectureDiagramConnectorSelection | null) => void;
+  /** Connector selected by the owning workbench; other connectors are dimmed. */
+  readonly selectedConnector?: ArchitectureDiagramConnectorSelection | null;
+  /** Connector identities that remain visible when an evidence-family filter is active. */
+  readonly visibleConnectors?: readonly ArchitectureDiagramConnectorSelection[] | null;
   /** Optional max-height override for the scrolling camera (inventory workbench uses a taller frame). */
   readonly cameraMaxHeightClassName?: string;
   /** Docked inside the diagram viewport frame (inline and fullscreen). */
@@ -262,6 +278,96 @@ function readClickFocusFacts(svg: SVGSVGElement): DiagramClickFocusFacts {
 function clearClickFocusClasses(svg: SVGSVGElement): void {
   svg.querySelectorAll('.diagram-click-dim').forEach((element) => {
     element.classList.remove('diagram-click-dim');
+  });
+}
+
+function resolveFocusedNodeConnectionHint(
+  nodeId: string,
+  outline: InfraEvidenceMermaidOutline | null,
+): string | null {
+  if (outline === null) {
+    return null;
+  }
+
+  const normalizedNodeId = normalizeDiagramFocusToken(nodeId);
+  const incidentEdges = outline.edges.filter((edge) => (
+    normalizeDiagramFocusToken(edge.from) === normalizedNodeId
+    || normalizeDiagramFocusToken(edge.to) === normalizedNodeId
+  ));
+  const hasAuthorizationEdge = incidentEdges.some((edge) => (
+    edge.inferenceSource === 'inventory-app-authorized-access'
+    || edge.label?.toLowerCase().includes('may access') === true
+  ));
+
+  if (hasAuthorizationEdge) {
+    return INFRA_EVIDENCE_INVENTORY_EDGE_PANEL_AUTHORIZATION_HINT;
+  }
+
+  const hasHostnameEdge = incidentEdges.some((edge) => (
+    edge.inferenceSource === 'inventory-hostname-inferred-target'
+    || edge.label?.toLowerCase().includes('likely connected') === true
+  ));
+
+  return hasHostnameEdge ? INFRA_EVIDENCE_INVENTORY_EDGE_PANEL_HOSTNAME_HINT : null;
+}
+
+function applyConnectorSelectionClasses(
+  svg: SVGSVGElement,
+  selection: ArchitectureDiagramConnectorSelection | null | undefined,
+): void {
+  if (selection == null) {
+    return;
+  }
+
+  const selectedFrom = normalizeDiagramFocusToken(selection.from);
+  const selectedTo = normalizeDiagramFocusToken(selection.to);
+  const selectedLabel = selection.label?.trim() ?? '';
+
+  [...svg.querySelectorAll<SVGGElement>('g.edge')].forEach((edge) => {
+    const fromTokens = (edge.getAttribute('data-bundle-from') ?? edge.getAttribute('data-from') ?? '')
+      .split(/\s+/u)
+      .filter(Boolean)
+      .map(normalizeDiagramFocusToken);
+    const toTokens = (edge.getAttribute('data-bundle-to') ?? edge.getAttribute('data-to') ?? '')
+      .split(/\s+/u)
+      .filter(Boolean)
+      .map(normalizeDiagramFocusToken);
+    const label = edge.querySelector('title')?.textContent?.trim() ?? '';
+    const sameEndpoints = fromTokens.includes(selectedFrom) && toTokens.includes(selectedTo);
+    const sameLabel = selectedLabel.length === 0 || label === selectedLabel;
+
+    edge.classList.toggle('diagram-click-dim', !(sameEndpoints && sameLabel));
+  });
+}
+
+function applyConnectorVisibility(
+  svg: SVGSVGElement,
+  visibleConnectors: readonly ArchitectureDiagramConnectorSelection[] | null | undefined,
+): void {
+  [...svg.querySelectorAll<SVGGElement>('g.edge')].forEach((edge) => {
+    edge.classList.remove('diagram-family-hidden');
+    edge.style.removeProperty('display');
+  });
+
+  if (visibleConnectors == null) {
+    return;
+  }
+
+  [...svg.querySelectorAll<SVGGElement>('g.edge')].forEach((edge) => {
+    const from = edge.getAttribute('data-from') ?? '';
+    const to = edge.getAttribute('data-to') ?? '';
+    const label = edge.querySelector('title')?.textContent?.trim() ?? null;
+    const isVisible = visibleConnectors.some(
+      (connector) =>
+        normalizeDiagramFocusToken(connector.from) === normalizeDiagramFocusToken(from)
+        && normalizeDiagramFocusToken(connector.to) === normalizeDiagramFocusToken(to)
+        && (connector.label?.trim() ?? null) === label,
+    );
+
+    if (!isVisible) {
+      edge.classList.add('diagram-family-hidden');
+      edge.style.display = 'none';
+    }
   });
 }
 
@@ -502,6 +608,9 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
     focusNonce = 0,
     questionSubjectNodeId = null,
     outline = null,
+    onSelectConnector,
+    selectedConnector = null,
+    visibleConnectors = null,
     cameraMaxHeightClassName = 'max-h-[36rem]',
     viewportHeader = null,
   } = props;
@@ -957,6 +1066,7 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
 
         if (svg instanceof SVGSVGElement) {
           clearClickFocusClasses(svg);
+          applyConnectorVisibility(svg, null);
         }
       });
       return;
@@ -970,6 +1080,8 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
       }
 
       clearClickFocusClasses(svg);
+      applyConnectorVisibility(svg, visibleConnectors);
+      applyConnectorSelectionClasses(svg, selectedConnector);
 
       if (clickFocus === null) {
         return;
@@ -1024,6 +1136,20 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
         return;
       }
 
+      const edge = target.closest('g.edge');
+
+      if (edge !== null) {
+        const from = edge.getAttribute('data-from') ?? edge.getAttribute('data-bundle-from') ?? '';
+        const to = edge.getAttribute('data-to') ?? edge.getAttribute('data-bundle-to') ?? '';
+        const label = edge.querySelector('title')?.textContent?.trim() ?? null;
+
+        if (from.length > 0 && to.length > 0) {
+          onSelectConnector?.({ from, to, label });
+        }
+
+        return;
+      }
+
       const node = target.closest('g.node');
 
       if (node === null) {
@@ -1055,7 +1181,16 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
     return (): void => {
       hosts.forEach((host) => host.removeEventListener('click', handleClick));
     };
-  }, [clickFocus, fullscreenOpen, layoutSvg, outline, sanitizedSvg]);
+  }, [
+    clickFocus,
+    fullscreenOpen,
+    layoutSvg,
+    onSelectConnector,
+    outline,
+    sanitizedSvg,
+    selectedConnector,
+    visibleConnectors,
+  ]);
 
   useEffect(() => {
     setClickFocus(null);
@@ -1080,6 +1215,7 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
       if (event.key === 'Escape') {
         event.preventDefault();
         setClickFocus(null);
+        onSelectConnector?.(null);
         return;
       }
 
@@ -1105,7 +1241,7 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
     return (): void => {
       frame.removeEventListener('keydown', onKeyDown);
     };
-  }, [zoom]);
+  }, [onSelectConnector, zoom]);
 
   const onWheel = useCallback(
     (event: React.WheelEvent<HTMLDivElement>) => {
@@ -1175,6 +1311,9 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
       node.id === clickFocus.id
       || node.seedNodeId === clickFocus.id
     )) ?? null;
+  const focusedNodeConnectionHint = clickFocus === null || clickFocus.memberNames !== undefined
+    ? null
+    : resolveFocusedNodeConnectionHint(clickFocus.id, outline);
 
   const renderMermaidInk = (
     hostRef: React.RefObject<HTMLDivElement | null>,
@@ -1242,6 +1381,9 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
               ? clickFocus.name
               : `Showing connections for ${clickFocus.name}.`}
           </p>
+          {focusedNodeConnectionHint !== null ? (
+            <p className="m-0 mt-1">{focusedNodeConnectionHint}</p>
+          ) : null}
           {clickFocus.memberNames !== undefined ? (
             <ul className="m-0 mt-1 list-disc pl-5">
               {clickFocus.memberNames.map((memberName) => (
@@ -1270,12 +1412,12 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
             </Button>
           </div>
           <p className="m-0">{questionableNode.questionableReason}</p>
-          {questionableNode.questionableAction != null ? (
-            <p className="m-0">
-              <span className="font-semibold">Recommended action: </span>
-              {questionableNode.questionableAction}
-            </p>
-          ) : null}
+          <p className="m-0">
+            <span className="font-semibold">Recommended action: </span>
+            {questionableNode.questionableAction === null || questionableNode.questionableAction === undefined
+              ? "Recommended action was not stored."
+              : questionableNode.questionableAction}
+          </p>
         </aside>
       ) : null}
 

@@ -2612,6 +2612,31 @@ export interface components {
             resourceType?: null | string;
             workCounts?: null | components["schemas"]["CloudResourceExplorerWorkCounts"];
         };
+        CollectionRun: {
+            agentVersion?: string;
+            errorSummary?: null | string;
+            /** Format: date-time */
+            finishedUtc?: null | string;
+            /** Format: uuid */
+            importedSnapshotId?: null | string;
+            /** Format: uuid */
+            projectId?: string;
+            /** Format: uuid */
+            runId?: string;
+            /** Format: date-time */
+            startedUtc?: string;
+            status?: components["schemas"]["CollectionRunStatus"];
+            subscriptionsCoveredJson?: string;
+            /** Format: uuid */
+            tenantId?: string;
+            /** Format: uuid */
+            workspaceId?: string;
+            zipPath?: null | string;
+            /** Format: byte */
+            zipSha256?: null | string;
+        };
+        /** @enum {string} */
+        CollectionRunStatus: "Running" | "Succeeded" | "PartiallySucceeded" | "Failed" | "Imported" | "Rejected";
         CommitRunCommittedArtifactInventoryEntry: {
             artifactName?: string;
             /** Format: date-time */
@@ -5641,6 +5666,25 @@ export interface components {
             snapshotId?: string;
             sources?: components["schemas"]["DiagramSourceReference"][];
         };
+        InfrastructureDiagramDocumentationDecision: {
+            carryForwardState?: string;
+            decision?: string;
+            /** Format: uuid */
+            scopeId?: string;
+            /** Format: uuid */
+            snapshotId?: string;
+            subjectKey?: string;
+            subjectKind?: string;
+            /** Format: date-time */
+            updatedUtc?: string;
+        };
+        InfrastructureDiagramDocumentationDecisionSaveRequest: {
+            decision?: string;
+            /** Format: uuid */
+            snapshotId?: string;
+            subjectKey?: string;
+            subjectKind?: string;
+        };
         InfrastructureDiagramNodeMappingSaveRequest: {
             /** Format: uuid */
             cloudResourceId?: string;
@@ -6538,6 +6582,16 @@ export interface components {
             status?: components["schemas"]["OperationalSecurityFindingStatus"];
             subscriptionOrAccountId?: null | string;
             title?: string;
+        };
+        OperationalSecurityFindingLookupItem: {
+            /** Format: uuid */
+            findingId?: string;
+            sourceFindingId?: string;
+            status?: string;
+        };
+        OperationalSecurityFindingLookupRequest: {
+            sourceFindingIds?: string[];
+            sourceSystem?: string;
         };
         OperationalSecurityFindingMetadataRecord: {
             /** Format: uuid */

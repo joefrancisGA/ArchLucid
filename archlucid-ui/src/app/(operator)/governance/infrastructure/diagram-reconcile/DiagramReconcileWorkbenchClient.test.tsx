@@ -5,16 +5,21 @@ import {
   DiagramReconcileWorkbenchClient,
   formatDiagramReconcileAssociationType,
   formatDiagramReconcileAzureResourceId,
+  formatDocumentationDecisionState,
 } from "@/app/(operator)/governance/infrastructure/diagram-reconcile/DiagramReconcileWorkbenchClient";
 
 const {
   ingestArchitectureDiagramMock,
   reconcileArchitectureDiagramMock,
   fetchArchitectureDiagramReconciliationMock,
+  fetchAbsentInfrastructureDiagramDocumentationDecisionsMock,
+  lookupOperationalSecurityFindingsMock,
 } = vi.hoisted(() => ({
   ingestArchitectureDiagramMock: vi.fn(async () => ({ warnings: [], sourceFingerprints: ["fp1"], model: { nodes: [], edges: [] } })),
   reconcileArchitectureDiagramMock: vi.fn(),
   fetchArchitectureDiagramReconciliationMock: vi.fn(),
+  fetchAbsentInfrastructureDiagramDocumentationDecisionsMock: vi.fn(async () => []),
+  lookupOperationalSecurityFindingsMock: vi.fn(),
 }));
 
 let searchParams = new URLSearchParams(
@@ -86,9 +91,13 @@ vi.mock("@/hooks/use-run-summary-query", () => ({
 vi.mock("@/lib/infra-evidence/infra-evidence-diagram-reconcile-api", () => ({
   fetchArchitectureDiagramModel: vi.fn(async () => ({ nodes: [{ id: "n1", label: "api" }], edges: [] })),
   fetchArchitectureDiagramReconciliation: fetchArchitectureDiagramReconciliationMock,
+  fetchAbsentInfrastructureDiagramDocumentationDecisions: fetchAbsentInfrastructureDiagramDocumentationDecisionsMock,
+  fetchSealedInfrastructureDiagramDocumentationDecisions: vi.fn(async () => []),
   ingestArchitectureDiagram: ingestArchitectureDiagramMock,
   reconcileArchitectureDiagram: reconcileArchitectureDiagramMock,
   ingestOperationalSecurityFindings: vi.fn(async () => ({ items: [] })),
+  lookupOperationalSecurityFindings: lookupOperationalSecurityFindingsMock,
+  saveSealedInfrastructureDiagramDocumentationDecision: vi.fn(),
   formatInfraEvidenceDiagramReconcileApiError: (error: unknown) => String(error),
 }));
 
@@ -110,6 +119,11 @@ describe("DiagramReconcileWorkbenchClient", () => {
     expect(formatDiagramReconcileAssociationType("PrivateEndpoint")).toBe("PrivateEndpoint");
     expect(formatDiagramReconcileAzureResourceId(null)).toBe("Azure resource id was not stored.");
     expect(formatDiagramReconcileAzureResourceId("/subscriptions/sub/resource")).toBe("/subscriptions/sub/resource");
+    expect(formatDocumentationDecisionState(null)).toBe("Carry-forward state was not stored.");
+    expect(formatDocumentationDecisionState("StillOpen")).toBe("Still open");
+    expect(formatDocumentationDecisionState("EvidenceChanged")).toBe("Evidence changed");
+    expect(formatDocumentationDecisionState("NoLongerInCapture")).toBe("No longer in this capture");
+    expect(formatDocumentationDecisionState("")).toBe("Still open");
   });
 
   beforeEach(() => {
@@ -163,6 +177,8 @@ describe("DiagramReconcileWorkbenchClient", () => {
         },
       ],
     });
+    lookupOperationalSecurityFindingsMock.mockReset();
+    lookupOperationalSecurityFindingsMock.mockResolvedValue([]);
   });
 
   it("renders wizard controls, filter, and conflict row with both sides", async () => {
@@ -196,6 +212,34 @@ describe("DiagramReconcileWorkbenchClient", () => {
 
     expect(screen.getByTestId("infra-diagram-reconcile-row-diagram-node-1")).toBeInTheDocument();
     expect(screen.queryByTestId("infra-diagram-reconcile-row-infra-only-1")).not.toBeInTheDocument();
+  });
+
+  it("reloads a recorded finding and keeps the finding and factory links", async () => {
+    lookupOperationalSecurityFindingsMock.mockResolvedValueOnce([
+      {
+        findingId: "99999999-aaaa-bbbb-cccc-dddddddddddd",
+        sourceFindingId: "diagram-reconcile:aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee:11111111-1111-1111-1111-111111111111:diagram-node-1",
+        status: "Open",
+      },
+    ]);
+
+    render(<DiagramReconcileWorkbenchClient />);
+
+    const conflictRow = await screen.findByTestId("infra-diagram-reconcile-row-diagram-node-1");
+
+    await waitFor(() => {
+      expect(within(conflictRow).getByText("Finding recorded")).toBeInTheDocument();
+    });
+
+    expect(within(conflictRow).getByTestId("infra-diagram-reconcile-finding-link-diagram-node-1")).toHaveAttribute(
+      "href",
+      "/architecture/reviews/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/findings/99999999-aaaa-bbbb-cccc-dddddddddddd/evidence-trace",
+    );
+    expect(within(conflictRow).getByTestId("infra-diagram-reconcile-remediation-diagram-node-1")).toHaveAttribute(
+      "href",
+      expect.stringContaining("findingId=99999999-aaaa-bbbb-cccc-dddddddddddd"),
+    );
+    expect(within(conflictRow).queryByText("Create operational finding")).not.toBeInTheDocument();
   });
 
   it("clears selected correspondence when match-kind filter hides the selected row", async () => {

@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 
 import { HelpBackgroundWaitInFlightStripAction } from "@/app/(operator)/help/_sections/HelpBackgroundWaitInFlightStripAction";
 import { HelpBackgroundWaitShortcutKeyChip } from "@/app/(operator)/help/_sections/HelpBackgroundWaitShortcutKeyChip";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { HelpTopicBreadcrumb } from "@/components/help/HelpTopicBreadcrumb";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
@@ -379,6 +380,8 @@ export function HelpBackgroundWaitGuideView(props: HelpBackgroundWaitGuideViewPr
               </Link>
             </p>
           </section>
+
+          <SponsorSendPathHonestyPanel testIdPrefix="help-background-wait" showSsoOptional={false} />
         </div>
 
         <HelpTopicTableOfContents headings={DAYTIME_WAIT_HELP_BACKGROUND_WAIT_GUIDE_HEADINGS} enableScrollSpy />

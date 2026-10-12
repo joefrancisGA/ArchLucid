@@ -323,7 +323,10 @@ internal static class PrivilegePathEnumerator
     private static string BuildPathSignature(IReadOnlyList<PrivilegePathEdge> hops) =>
         string.Join(
             ">",
-            hops.Select(static hop => $"{hop.FromNodeId}|{hop.EdgeType}|{hop.ToNodeId}"));
+            hops.Select(static hop => $"{hop.FromNodeId}|{hop.EdgeType}|{hop.ToNodeId}"
+                + (hop.EdgeType == GraphEdgeTypes.HasRole && hop.RoleDefinitionId is not null
+                    ? "|role:" + Uri.EscapeDataString(hop.RoleDefinitionId)
+                    : string.Empty)));
 
     private static bool IsFederatedDeploymentPath(IReadOnlyList<PrivilegePathEdge> hops) =>
         hops.Any(static hop => hop.EdgeType == GraphEdgeTypes.FederatesAs);

@@ -41,9 +41,17 @@ public sealed class InfrastructureDiagramComparisonServiceTests
             .ReturnsAsync(snapshot);
 
         Mock<IInfrastructureDiagramComparisonRepository> comparisonRepository = new();
+        List<InfrastructureDiagramComparisonPersistRecord> persistedComparisons = [];
         comparisonRepository
             .Setup(repository => repository.TryGetAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((InfrastructureDiagramComparisonPersistRecord?)null);
+        comparisonRepository
+            .Setup(repository => repository.UpsertAsync(
+                It.IsAny<InfrastructureDiagramComparisonPersistRecord>(),
+                It.IsAny<CancellationToken>()))
+            .Callback<InfrastructureDiagramComparisonPersistRecord, CancellationToken>(
+                (record, _) => persistedComparisons.Add(record))
+            .Returns(Task.CompletedTask);
 
         Mock<IInfrastructureDiagramNodeMappingRepository> mappingRepository = new();
         mappingRepository
@@ -54,7 +62,8 @@ public sealed class InfrastructureDiagramComparisonServiceTests
             new StructuredDiagramParseRouter([new MermaidDiagramSourceParser()]),
             snapshotRepository.Object,
             comparisonRepository.Object,
-            mappingRepository.Object);
+            mappingRepository.Object,
+            new Mock<IInfrastructureDiagramDocumentationDecisionRepository>().Object);
 
         ScopeContext scope = new() { TenantId = TenantId };
 
@@ -86,7 +95,83 @@ public sealed class InfrastructureDiagramComparisonServiceTests
         result.RunId.Should().Be(Guid.Empty);
         result.Rows.Should().Contain(row => row.MatchKind == DiagramInfrastructureMatchKinds.Exact);
         result.Rows.Should().Contain(row => row.MatchKind == DiagramInfrastructureMatchKinds.DiagramOnly);
+        persistedComparisons.Should().ContainSingle()
+            .Which.DiagramFingerprint.Should().MatchRegex("^[0-9a-f]{64}$");
     }
+
+    [Fact]
+    public async Task CompareAsync_fingerprint_is_stable_for_same_model_and_changes_when_label_changes()
+    {
+        AzureInventorySnapshotDetailReadModel snapshot = BuildSnapshot([]);
+        Mock<IAzureInventorySnapshotRepository> snapshotRepository = new();
+        snapshotRepository
+            .Setup(repository => repository.TryGetSnapshotDetailAsync(It.IsAny<ScopeContext>(), SnapshotId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(snapshot);
+
+        Mock<IInfrastructureDiagramComparisonRepository> comparisonRepository = new();
+        List<InfrastructureDiagramComparisonPersistRecord> persistedComparisons = [];
+        comparisonRepository
+            .Setup(repository => repository.TryGetAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((InfrastructureDiagramComparisonPersistRecord?)null);
+        comparisonRepository
+            .Setup(repository => repository.UpsertAsync(
+                It.IsAny<InfrastructureDiagramComparisonPersistRecord>(),
+                It.IsAny<CancellationToken>()))
+            .Callback<InfrastructureDiagramComparisonPersistRecord, CancellationToken>(
+                (record, _) => persistedComparisons.Add(record))
+            .Returns(Task.CompletedTask);
+
+        Mock<IInfrastructureDiagramNodeMappingRepository> mappingRepository = new();
+        mappingRepository
+            .Setup(repository => repository.ListBySnapshotAsync(It.IsAny<Guid>(), SnapshotId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        InfrastructureDiagramComparisonService service = new(
+            new StructuredDiagramParseRouter([new MermaidDiagramSourceParser()]),
+            snapshotRepository.Object,
+            comparisonRepository.Object,
+            mappingRepository.Object,
+            new Mock<IInfrastructureDiagramDocumentationDecisionRepository>().Object);
+
+        ScopeContext scope = new() { TenantId = TenantId };
+        await service.CompareAsync(scope, CreateRequest("""
+            flowchart LR
+              app["Application"]
+              db["Database"]
+              app -->|reads| db
+            """), savedByUserOid: null);
+        await service.CompareAsync(scope, CreateRequest("""
+            flowchart LR
+              db["Database"]
+              app["Application"]
+              app -->|reads| db
+            """), savedByUserOid: null);
+        await service.CompareAsync(scope, CreateRequest("""
+            flowchart LR
+              app["Application v2"]
+              db["Database"]
+              app -->|reads| db
+            """), savedByUserOid: null);
+
+        persistedComparisons.Should().HaveCount(3);
+        persistedComparisons[0].DiagramFingerprint.Should().Be(persistedComparisons[1].DiagramFingerprint);
+        persistedComparisons[2].DiagramFingerprint.Should().NotBe(persistedComparisons[0].DiagramFingerprint);
+    }
+
+    private static InfrastructureDiagramComparisonCreateRequest CreateRequest(string mermaid) =>
+        new()
+        {
+            SnapshotId = SnapshotId,
+            Sources =
+            [
+                new DiagramSourceReference
+                {
+                    Name = "fingerprint-test",
+                    Format = "text/vnd.mermaid",
+                    Content = mermaid,
+                },
+            ],
+        };
 
     private static AzureInventorySnapshotDetailReadModel BuildSnapshot(
         IReadOnlyList<AzureInventoryResourceRecord> resources) =>

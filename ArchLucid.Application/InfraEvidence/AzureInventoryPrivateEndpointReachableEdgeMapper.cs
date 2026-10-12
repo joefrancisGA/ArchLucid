@@ -12,6 +12,23 @@ internal static class AzureInventoryPrivateEndpointReachableEdgeMapper
 {
     private const decimal DerivedFactConfidence = 0.9m;
 
+    private static readonly HashSet<string> UsageIntentInferenceSources = new(StringComparer.OrdinalIgnoreCase)
+    {
+        GraphEdgeInferenceSources.InventoryHostnameInferredTarget,
+        GraphEdgeInferenceSources.InventoryAppKeyVaultRef,
+        GraphEdgeInferenceSources.InventoryStorageHostRef,
+        GraphEdgeInferenceSources.InventoryServiceConnectorLink,
+        GraphEdgeInferenceSources.InventoryObservedDependency,
+        GraphEdgeInferenceSources.InventoryAdfLinkedService,
+        GraphEdgeInferenceSources.InventoryAdfLinkedServiceInferred,
+        GraphEdgeInferenceSources.InventoryAdfReadsFrom,
+        GraphEdgeInferenceSources.InventoryAdfWritesTo,
+        GraphEdgeInferenceSources.InventorySynapseLinkedService,
+        GraphEdgeInferenceSources.InventorySynapseLinkedServiceInferred,
+        GraphEdgeInferenceSources.InventorySynapseReadsFrom,
+        GraphEdgeInferenceSources.InventorySynapseWritesTo,
+    };
+
     public static void MapPeReachableTargets(
         List<AzureInventoryResourceRelationshipWrite> relationships,
         HashSet<string> relationshipKeys,
@@ -44,6 +61,7 @@ internal static class AzureInventoryPrivateEndpointReachableEdgeMapper
         HashSet<string> emittedPairs = new(StringComparer.OrdinalIgnoreCase);
         HashSet<string> warnedPairs = new(StringComparer.OrdinalIgnoreCase);
         HashSet<string> targetArmIds = peToTarget.Values.ToHashSet(StringComparer.OrdinalIgnoreCase);
+        Dictionary<string, List<string>> usageIntentTargetsBySource = BuildUsageIntentTargetsBySource(relationships);
 
         foreach ((string computeArmId, string computeVnetArmId) in computeToVnet)
         {
@@ -84,7 +102,7 @@ internal static class AzureInventoryPrivateEndpointReachableEdgeMapper
                     emitted = true;
                 }
 
-                if (!emitted)
+                if (!emitted && HasUsageIntent(computeArmId, targetArmId, usageIntentTargetsBySource))
                 {
                     TryAddDnsMissingWarning(computeArmId, targetArmId, warnedPairs, warnings);
                 }
@@ -184,6 +202,48 @@ internal static class AzureInventoryPrivateEndpointReachableEdgeMapper
         }
 
         return map;
+    }
+
+    private static Dictionary<string, List<string>> BuildUsageIntentTargetsBySource(
+        IReadOnlyList<AzureInventoryResourceRelationshipWrite> relationships)
+    {
+        Dictionary<string, List<string>> targetsBySource = new(StringComparer.OrdinalIgnoreCase);
+
+        foreach (AzureInventoryResourceRelationshipWrite relationship in relationships)
+        {
+            if (!UsageIntentInferenceSources.Contains(relationship.InferenceSource ?? string.Empty))
+            {
+                continue;
+            }
+
+            string sourceArmId = ArmResourceIdNormalizer.Normalize(relationship.FromAzureResourceId);
+
+            if (!targetsBySource.TryGetValue(sourceArmId, out List<string>? targets))
+            {
+                targets = [];
+                targetsBySource[sourceArmId] = targets;
+            }
+
+            targets.Add(ArmResourceIdNormalizer.Normalize(relationship.ToAzureResourceId));
+        }
+
+        return targetsBySource;
+    }
+
+    private static bool HasUsageIntent(
+        string computeArmId,
+        string targetArmId,
+        IReadOnlyDictionary<string, List<string>> usageIntentTargetsBySource)
+    {
+        if (!usageIntentTargetsBySource.TryGetValue(computeArmId, out List<string>? intentTargets))
+        {
+            return false;
+        }
+
+        return intentTargets.Any(intentTargetArmId =>
+            string.Equals(intentTargetArmId, targetArmId, StringComparison.OrdinalIgnoreCase)
+            || ArmResourceIdNormalizer.IsDescendantOf(intentTargetArmId, targetArmId)
+            || ArmResourceIdNormalizer.IsDescendantOf(targetArmId, intentTargetArmId));
     }
 
     private static Dictionary<string, HashSet<string>> BuildZoneToVnetMap(

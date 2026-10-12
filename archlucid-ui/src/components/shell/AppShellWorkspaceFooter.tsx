@@ -7,6 +7,8 @@ import {
   OPERATOR_SHELL_MAX_WIDTH_CLASS,
 } from "@/lib/design-tokens";
 import { isSecureNowWorkspaceFooterTrustLinkExcluded } from "@/lib/product-line/securenow-cloud-platform-policy";
+import { resolveSecureNowAttribution } from "@/lib/editions/securenow-attribution";
+import { resolveSecureNowEditionIdFromEnv } from "@/lib/product-line/resolve-securenow-edition-id";
 import { cn } from "@/lib/utils";
 
 import {
@@ -22,6 +24,10 @@ type AppShellWorkspaceFooterProps = {
 export function AppShellWorkspaceFooter({ hideWorkspaceHealthFooter }: AppShellWorkspaceFooterProps) {
   const { productLine } = useProductLine();
   const showWorkspaceFooterTrustLink = !isSecureNowWorkspaceFooterTrustLinkExcluded(productLine);
+  const secureNowAttribution =
+    productLine === "security"
+      ? resolveSecureNowAttribution(resolveSecureNowEditionIdFromEnv())
+      : null;
 
   if (isBuyerPolishedOperatorShellEnv()) {
     // Governance and other dense operator surfaces already carry trust links in help/header chrome.
@@ -41,6 +47,9 @@ export function AppShellWorkspaceFooter({ hideWorkspaceHealthFooter }: AppShellW
             "flex items-center gap-3",
           )}
         >
+          {secureNowAttribution ? (
+            <span className="text-xs text-al-text-secondary">{secureNowAttribution}</span>
+          ) : null}
           {showWorkspaceFooterTrustLink ? (
             <TrustCenterShellLinkDeferred variant="footer" className="ml-auto" />
           ) : null}

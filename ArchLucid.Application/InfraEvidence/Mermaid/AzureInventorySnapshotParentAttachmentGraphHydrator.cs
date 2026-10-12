@@ -13,7 +13,8 @@ internal static class AzureInventorySnapshotParentAttachmentGraphHydrator
 {
     public static void Hydrate(
         AzureInventorySnapshotDetailReadModel snapshot,
-        IReadOnlyList<GraphNode> nodes)
+        IReadOnlyList<GraphNode> nodes,
+        AzureInventorySnapshotGraphIndexes? indexes = null)
     {
         ArgumentNullException.ThrowIfNull(snapshot);
         ArgumentNullException.ThrowIfNull(nodes);
@@ -23,17 +24,9 @@ internal static class AzureInventorySnapshotParentAttachmentGraphHydrator
             return;
         }
 
-        Dictionary<Guid, List<AzureInventoryResourcePropertyReadModel>> propertiesByRowId =
-            snapshot.Properties
-                .GroupBy(property => property.ResourceRowId)
-                .ToDictionary(group => group.Key, group => group.ToList());
-
-        Dictionary<string, GraphNode> nodesByArmId = nodes
-            .Where(node => node.Properties.TryGetValue("arm.id", out string? armId) && !string.IsNullOrWhiteSpace(armId))
-            .GroupBy(
-                node => ArmResourceIdNormalizer.Normalize(node.Properties["arm.id"]),
-                StringComparer.OrdinalIgnoreCase)
-            .ToDictionary(group => group.Key, group => group.First(), StringComparer.OrdinalIgnoreCase);
+        indexes ??= AzureInventorySnapshotGraphIndexes.Create(snapshot, nodes);
+        IReadOnlyDictionary<Guid, List<AzureInventoryResourcePropertyReadModel>> propertiesByRowId = indexes.PropertiesByResourceRowId;
+        IReadOnlyDictionary<string, GraphNode> nodesByArmId = indexes.NodesByArmId;
 
         foreach (AzureInventoryResourceRecord resource in snapshot.Resources)
         {
