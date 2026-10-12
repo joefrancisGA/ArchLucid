@@ -83,6 +83,33 @@ public sealed class AzureInventorySecurityEdgeMaterializerTests
     }
 
     [Fact]
+    public void Materialize_unknown_role_counts_assignments_by_role_definition()
+    {
+        const string roleDefinitionId =
+            "/providers/Microsoft.Authorization/roleDefinitions/00000000-0000-0000-0000-000000000099";
+
+        AzureInventorySecurityEdgeMaterializeResult result =
+            AzureInventorySecurityEdgeMaterializer.Materialize(
+                [],
+                [
+                    ParseJson($$"""{"scope":"/subscriptions/sub","principalId":"22222222-2222-2222-2222-222222222222","roleDefinitionId":"{{roleDefinitionId}}"}"""),
+                    ParseJson($$"""{"scope":"/subscriptions/sub","principalId":"33333333-3333-3333-3333-333333333333","roleDefinitionId":"{{roleDefinitionId.ToUpperInvariant()}}","roleName":"Contoso Reader"}"""),
+                ],
+                [],
+                [],
+                [],
+                [],
+                federatedCredentialsFilePresent: false,
+                [],
+                entraGroupMembershipsFilePresent: false,
+                [],
+                effectiveNetworkControlsFilePresent: false);
+
+        result.CompletenessWarnings.Should().ContainSingle(
+            "rbac-role-unmapped:2:/providers/Microsoft.Authorization/roleDefinitions/00000000-0000-0000-0000-000000000099::Contoso Reader");
+    }
+
+    [Fact]
     public void Materialize_missing_nsg_association_does_not_emit_allow_all_observed_fact()
     {
         AzureInventorySecurityEdgeMaterializeResult result =

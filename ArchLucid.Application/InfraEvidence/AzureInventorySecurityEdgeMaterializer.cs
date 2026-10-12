@@ -644,6 +644,9 @@ public static class AzureInventorySecurityEdgeMaterializer
         HashSet<string> relationshipKeys,
         List<string> warnings)
     {
+        Dictionary<string, (int Count, string RoleDefinitionId, string? RoleName)> unmappedRoles =
+            new(StringComparer.OrdinalIgnoreCase);
+
         foreach (JsonElement assignment in roleAssignments)
         {
             string? scopeValue = TryReadJsonString(assignment, "scope");
@@ -688,7 +691,21 @@ public static class AzureInventorySecurityEdgeMaterializer
 
             if (permission is AzureInventoryDerivedDataPlanePermission.None)
             {
-                warnings.Add($"rbac-role-unmapped:{roleDefinitionId}");
+                string trimmedRoleDefinitionId = roleDefinitionId.Trim();
+
+                if (unmappedRoles.TryGetValue(
+                        trimmedRoleDefinitionId,
+                        out (int Count, string RoleDefinitionId, string? RoleName) existing))
+                {
+                    unmappedRoles[trimmedRoleDefinitionId] = (
+                        existing.Count + 1,
+                        existing.RoleDefinitionId,
+                        existing.RoleName ?? roleName);
+                }
+                else
+                {
+                    unmappedRoles[trimmedRoleDefinitionId] = (1, trimmedRoleDefinitionId, roleName);
+                }
 
                 continue;
             }
@@ -924,6 +941,12 @@ public static class AzureInventorySecurityEdgeMaterializer
                     }
                 }
             }
+
+        foreach ((int count, string roleDefinitionId, string? roleName) in unmappedRoles.Values)
+        {
+            string roleNameSuffix = string.IsNullOrWhiteSpace(roleName) ? string.Empty : $"::{roleName.Trim()}";
+            warnings.Add($"rbac-role-unmapped:{count}:{roleDefinitionId}{roleNameSuffix}");
+        }
         }
         catch (JsonException)
         {
