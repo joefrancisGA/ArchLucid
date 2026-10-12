@@ -33,4 +33,6 @@ Copy-paste docs index: [`docs/architecture/SECURENOW_MENU_AND_EDITIONS_LUNA_PROM
 | 20 | **SN-HAND-01** | Design note: engineer-to-analyst handoff. |
 | — | **SN-MENU-HOLD** | Stop list. Paste only when a session drifts. |
 
+Gap 5 implementation is a later set: [securenow-handoff-00-index.md](securenow-handoff-00-index.md) (**SN-HAND-05–SN-HAND-08**). Do not paste it from this menu index.
+
 **SN-MENU-HOLD** is not a build step. The owner accepted SN-COL-01 (ADR 0103) on 2026-10-11, and SN-COL-02 is on `master`. The owner accepted SN-DEP-01 (ADR 0104) on 2026-10-12. SN-DEP-02 and SN-DEP-03 may proceed when those prompts are run.

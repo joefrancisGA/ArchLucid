@@ -7,7 +7,8 @@
 
 | Document | Purpose |
 |----------|---------|
-| [`TECHNICAL_BACKLOG.md`](TECHNICAL_BACKLOG.md) | Consolidated SecureNow engineering backlog (waves **SN** / **SH** / **SA** / **SN-DF** / **SN-PE** / **SN-RT** / **SN-QQ** / **DCU**), shipped baseline, prioritized remainders, and prompt indexes |
+| [`TECHNICAL_BACKLOG.md`](TECHNICAL_BACKLOG.md) | Consolidated SecureNow engineering backlog (waves **SN** / **SH** / **SA** / **SN-DF** / **SN-PE** / **SN-RT** / **SN-QQ** / **DCU** / **SN-HAND**), shipped baseline, prioritized remainders, and prompt indexes |
+| [`ENGINEER_ANALYST_HANDOFF.md`](ENGINEER_ANALYST_HANDOFF.md) | Design note for the finding-to-verified-fix-to-control workflow. Gap 5 prompts: [`../architecture/SECURENOW_ENGINEER_ANALYST_HANDOFF_LUNA_PROMPTS.md`](../architecture/SECURENOW_ENGINEER_ANALYST_HANDOFF_LUNA_PROMPTS.md) |
 | [`DATA_ARCHITECTURE_AND_DATA_FLOW_DIAGRAMS.md`](DATA_ARCHITECTURE_AND_DATA_FLOW_DIAGRAMS.md) | Separate **infrastructure**, **data architecture**, and **data flow** diagrams; what Azure inventory can discover automatically; first slice vs gold-standard examples |
 | [`EVIDENCE_BASED_PROBABLE_DATA_FLOWS.md`](EVIDENCE_BASED_PROBABLE_DATA_FLOWS.md) | Diagram 3 **evidence families** (declared / authorized / DNS-joined PE path / inferred); ordinal bands; **not** numeric confidence |
 | [`ARCHLUCID_DEV_DATA_FLOW_CONNECTION_REFERENCE.md`](ARCHLUCID_DEV_DATA_FLOW_CONNECTION_REFERENCE.md) | Expected **Data flow** edges for the ArchLucid DEV subscription (2026-09-18 snapshot), from Terraform/CD/threat-model artifacts — not observed traffic |
