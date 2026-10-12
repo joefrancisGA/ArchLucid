@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-12 seed hunt (seed-only): `ui-webhooks-settings` — re-read `WebhooksSettingsClient.tsx` and `use-webhooks-settings.ts` with the focused page regressions; no fresh reachable mechanism-backed wrong outcome met the hunt-ready bar. The focused Webhooks settings page suite passed 60/60. Seeded four bounded candidates; no production or regression change.
+
 2026-10-12 thorough hunt (hit): `BackgroundJobQueueProcessorHostedService.HandleFailureAsync` treated a watchdog-reclaimed `Pending` row as still owned by the stale failing worker, so it scheduled a retry and notification after reclaim. The processor now requires a `Running` row before failure transitions and `MarkPendingRetryAsync` updates only `Running` rows; regression `ProcessOneMessageAsync_does_not_schedule_retry_when_watchdog_reclaims_job_before_failure` failed before the fix and passed after it. Focused processor tests passed 28/28 and Host.Core background-job/hosted tests passed 69/69; the scoped compile check timed out without compiler errors.
 
 2026-10-12 seed hunt (seed-only): `finding-inspect-sql` — re-read the selected inspect repository, mapper, SQL batch, recent trace-rule parity change, and focused tests. No fresh reachable mechanism-backed candidate met the hunt-ready bar. The focused inspect-read filter passed 425/425. No production or regression change.
@@ -11184,6 +11186,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-webhooks-settings
 
+2026-10-12 seed hunt (seed-only): re-read the selected client and hook plus the focused 60-test page suite; existing scope-generation, load-sequencing, failure-gating, deep-link, and toggle-refresh regressions cover the established boundary classes. No new hunt-ready row met the reachability and wrong-outcome bar; seeded four bounded candidates and made no production or regression change.
+
 2026-10-04 seed hunt (seed→hit): promoted case-variant `channelType` filtering; exact-case `OnCallWebhook` gate hid API rows the server already classifies as outbound webhooks; regression `lists webhook subscriptions when API returns case-variant OnCallWebhook channelType`; 60 scoped webhooks folder tests passed.
 
 - [x] (proven) `useWebhooksSettingsLoad.isGenericOutboundWebhookChannel` — exact-case filter hid case-variant `OnCallWebhook` API rows from `webhookRows` — **hit 2026-10-04 seed hunt:** trim + lowercase compare; regression above.
@@ -11224,10 +11228,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** webhooks settings; outbound webhook ui
 - **paths:** archlucid-ui/src/app/(operator)/integrations/webhooks/WebhooksSettingsClient.tsx; archlucid-ui/src/app/(operator)/integrations/webhooks/use-webhooks-settings.ts
 - **test-filter:** WebhooksSettings
-- **hunts:** 43
+- **hunts:** 44
 - **bugs-found:** 27
 - **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-10-10
+- **last-hunt:** 2026-10-12
 - **last-bug:** 2026-10-09 — failed subscription list dropped webhookEnableId before refresh could open confirmation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -11253,6 +11257,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-12 seed hunt #2173 (seed-only): reseeded ui-webhooks-settings with `-Hint webhooks -Refresh`; no new hunt-ready rows.
 
 ### Hypotheses
+
+- [ ] (candidate) `useWebhooksSettingsLoad` — colon-delimited `scopeKey` can collide when operator-scope identifiers contain `:` and suppress a real scope-change reset — input: a reachable workspace/tenant/project scope value containing a colon from the operator-scope selector; wrong outcome: prior-workspace webhook rows and mutation state remain visible after switching to the colliding scope; the selected hook does not establish an identifier alphabet contract.
+- [ ] (candidate) `useWebhooksSettingsLoad.load` — a newer same-scope refresh failure supersedes an older successful response because `loadRequestRef` intentionally accepts only the latest request — input: operator Refresh or mutation-triggered reload overlapping a prior list request, with the latest request failing after the earlier request succeeds; wrong outcome: valid earlier inventory is suppressed behind an error despite a usable response; the product contract for failure-vs-older-success precedence is not established in the selected files.
+- [ ] (candidate) `useWebhooksSettingsMutations.setPendingEnable` / `setPendingDisable` — URL replacement is computed from a render-time `searchParams` snapshot inside functional state updates, so rapid row actions or a concurrent query update may leave the URL confirmation id different from the open dialog — input: operator clicks a second webhook toggle while the first confirmation URL update is still being applied; wrong outcome: reload/deep-link opens the wrong confirmation or no matching confirmation; the selected hook has no serialized transition guard.
+- [ ] (candidate) `WebhooksSettingsClient.openSubscription` — global `[data-testid]` lookup for the target test button is not scoped to the selected subscription row, so overlapping route shells with duplicate subscription ids can focus the first matching button — input: a route transition or retained shell temporarily mounts two webhook tables containing the same API subscription id; wrong outcome: Continue-last scrolls/focuses a different table instance; the selected client does not establish a single-mounted-shell invariant.
 
 - [x] (valid-no-repro) `useWebhooksSettingsMutations` URL confirmation effect — a manually opened URL containing both `webhookDisableId` and `webhookEnableId` processes the disable id first and ignores the enable id, so the requested enable confirmation can be absent — **cheap-disproof 2026-10-10 thorough hunt:** `webhooksToggleConfirmHrefFromSearch` intentionally canonicalizes confirmation state to one id, the app never generates both ids, and the dual-parameter URL has no promised simultaneous-confirmation behavior.
 - [x] (proven) `useWebhooksSettingsMutations` URL-sync effect — failed `listAlertRoutingSubscriptions` cleared `webhookEnableId` before refresh could open enable confirmation — **hit 2026-10-09 seed hunt:** unverified inventory was treated as a missing subscription, and a null pending write rewrote the confirm URL; regression `keeps webhookEnableId when the subscription list fails so refresh can open enable confirmation`.
