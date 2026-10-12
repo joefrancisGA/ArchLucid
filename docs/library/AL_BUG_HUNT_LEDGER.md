@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-12 seed hunt (seed-only): `artifact-synthesis` — re-read the selected ArtifactSynthesis and DOCX/export paths after the provenance sanitization change. No fresh reachable mechanism-backed hypothesis met the hunt-ready bar; no candidate was promoted or duplicated. The scoped application ArtifactSynthesis/Docx filter passed 101/102 with one intentional skip. The dedicated ArtifactSynthesis filter passed 704/718 with 12 pre-existing diagram expectation failures and 2 skipped Terraform tests. No production or regression code changed.
+
 2026-10-12 seed hunt (seed-only): `securenow-question-queue` — repeated the selected compiler, disposition service, controller, persistence, contract, queue, and API reread with no production-path churn. No fresh reachable mechanism-backed hypothesis met the hunt-ready bar, and the existing bounded identity, suppression, API-shape, and in-flight-action candidates were not duplicated. The focused SecureNowQuestion suite passed 23/23. No production or regression code changed.
 
 2026-10-12 seed hunt (seed-only): `securenow-question-queue` — re-read the selected compiler, disposition service, controller, persistence, contract, queue, and API paths after the endpoint-less inference fix. No fresh reachable mechanism-backed hypothesis met the hunt-ready bar; the existing bounded identity, suppression, API-shape, and in-flight-action candidates remain unchanged. The focused SecureNowQuestion suite passed 23/23. No production or regression code changed.
@@ -31005,6 +31007,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ## Zone: artifact-synthesis
 
+2026-10-12 seed hunt (seed-only): re-read the selected ArtifactSynthesis and DOCX/export paths after the provenance sanitization change. No fresh reachable mechanism-backed hypothesis met the hunt-ready bar; no candidate was promoted or duplicated. The scoped application ArtifactSynthesis/Docx filter passed 101/102 with one intentional skip. The dedicated ArtifactSynthesis filter passed 704/718 with 12 pre-existing diagram expectation failures and 2 skipped Terraform tests. No production or regression code changed.
+
 2026-10-11 seed hunt (seed-only): repeated the selected artifact-synthesis and DOCX review with no production-path change; no fresh hunt-ready row met the reachability and wrong-outcome bar. The scoped application ArtifactSynthesis/Docx filter passed 101/102 with one intentional skip; no production or regression code changed.
 
 2026-10-11 seed hunt (seed-only): repeated the selected artifact-synthesis and DOCX review with no production-path change; no fresh hunt-ready row met the reachability and wrong-outcome bar. The scoped application ArtifactSynthesis/Docx filter passed 101/102 with one intentional skip; no production or regression code changed.
@@ -31029,8 +31033,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** artifact synthesis; docx generator; packaging sanitization
 - **paths:** ArchLucid.ArtifactSynthesis/
 - **test-filter:** FullyQualifiedName~ArtifactSynthesis|FullyQualifiedName~Docx
-- **hunts:** 53
-- **last-hunt:** 2026-10-11
+- **hunts:** 54
+- **last-hunt:** 2026-10-12
 - **bugs-found:** 46
 - **consecutive-dry-hunts:** 0
 - **last-bug:** 2026-10-08 — Graphviz cluster IDs collided after sanitization
