@@ -6691,6 +6691,7 @@ export interface components {
         OperatorInferredConnectionConfirmApiRequest: {
             /** Format: uuid */
             connectionId?: string;
+            dataPlaneAnswer?: null | string;
             /** Format: uuid */
             fromCloudResourceId?: null | string;
             toArmId?: null | string;

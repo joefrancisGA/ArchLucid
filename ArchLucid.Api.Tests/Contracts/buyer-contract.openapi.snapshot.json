@@ -8995,6 +8995,12 @@
             "format": "uuid",
             "type": "string"
           },
+          "schedule": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "startedUtc": {
             "format": "date-time",
             "type": "string"
@@ -9039,6 +9045,20 @@
           "Rejected"
         ],
         "type": "string"
+      },
+      "CollectionRunTriggerRequest": {
+        "properties": {
+          "subscriptionIds": {
+            "items": {
+              "type": "string"
+            },
+            "type": [
+              "null",
+              "array"
+            ]
+          }
+        },
+        "type": "object"
       },
       "CommitRunCommittedArtifactInventoryEntry": {
         "properties": {
@@ -23082,6 +23102,12 @@
           "connectionId": {
             "format": "uuid",
             "type": "string"
+          },
+          "dataPlaneAnswer": {
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "fromCloudResourceId": {
             "format": "uuid",
