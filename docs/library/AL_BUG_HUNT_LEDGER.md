@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-12 seed hunt (seed-only): `run-execute-ownership` — re-read the selected orchestrator, lease service, renewal scope, and focused ownership tests. Seeded one bounded `(candidate)` for cancellation during post-acquire drain rollback: `RunExecuteOwnershipLeaseService.AcquireAsync` passes the caller token to `TryReleaseAsync`, so a cancellation that coincides with the drain re-check may leave the acquired SQL lease unreleased. The focused repro was written but blocked before test discovery by unrelated `AzureInventorySecurityEdgeMaterializer.cs` compile errors (`unmappedRoles` and `warnings`); no row was promoted and no production or regression code changed.
+
 2026-10-12 thorough hunt (dry): `tenant-erasure` — cheap-disproved the two path-normalization hypotheses and rechecked the three command/side-effect hypotheses; no reachable bypass or lifecycle defect was found. Scoped Application/API tests were blocked before execution by unrelated `AzureInventorySecurityEdgeMaterializer.cs` compile errors (`unmappedRoles` and `warnings`). No production or regression code changed.
 
 2026-10-12 thorough hunt (dry): `tenant-erasure` — reran the unchanged five closed hypotheses and scoped suites; no reachable path-normalization bypass or command-contract defect was found. Application tenant-erasure tests passed 19/19 and API tenant-erasure tests passed 28/28. No production or regression code changed.
@@ -35183,7 +35185,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** run execute lease; execute ownership; orchestration ownership
 - **paths:** ArchLucid.Application/Runs/Orchestration/ArchitectureRunExecuteOrchestrator.cs; ArchLucid.Application/Runs/ExecuteOwnership/RunExecuteOwnershipLeaseService.cs; ArchLucid.Application/Runs/ExecuteOwnership/RunExecuteOwnershipLeaseRenewalScope.cs
 - **test-filter:** FullyQualifiedName~RunExecuteOwnership|FullyQualifiedName~ArchitectureRunExecuteOrchestrator
-- **hunts:** 53
+- **hunts:** 54
 - **bugs-found:** 26
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-12
