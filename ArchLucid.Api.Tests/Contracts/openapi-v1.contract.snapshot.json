@@ -29182,6 +29182,12 @@
           },
           "instance": {
             "$ref": "#/components/schemas/RemediationInstanceSummary"
+          },
+          "verifiedRemediationAssociations": {
+            "items": {
+              "$ref": "#/components/schemas/VerifiedRemediationAssociationIdentifier"
+            },
+            "type": "array"
           }
         },
         "type": "object"
@@ -41276,6 +41282,42 @@
           },
           "workspaceModeIsExplicit": {
             "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
+      "VerifiedRemediationAssociationIdentifier": {
+        "properties": {
+          "assessmentId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "associationId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "controlId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "createdUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "instanceId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "updatedUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "verificationSnapshotId": {
+            "format": "uuid",
+            "type": "string"
           }
         },
         "type": "object"

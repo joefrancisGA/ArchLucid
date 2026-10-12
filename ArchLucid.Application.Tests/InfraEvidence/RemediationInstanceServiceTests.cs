@@ -519,6 +519,388 @@ public sealed class RemediationInstanceServiceTests
         instanceRepository.Instances.Single().Status.Should().Be(RemediationInstanceStatus.PreflightPassed);
     }
 
+    [Fact]
+    public async Task Passing_verify_with_control_and_snapshot_writes_one_association_and_detail_lists_it()
+    {
+        Guid controlId = Guid.Parse("abababab-abab-abab-abab-abababababab");
+        Guid assessmentId = Guid.Parse("cdcdcdcd-cdcd-cdcd-cdcd-cdcdcdcdcdcd");
+        PassingVerifyHarness harness = ArrangePassingVerify(controlId, assessmentId);
+
+        RemediationInstanceOperationResult result = await harness.Service.VerifyAsync(
+            CreateScope(),
+            harness.InstanceId,
+            SnapshotB,
+            "verifier");
+
+        result.Succeeded.Should().BeTrue();
+        result.Status.Should().Be(RemediationInstanceStatus.Verified);
+
+        IReadOnlyList<VerifiedRemediationControlAssociationRecord> rows =
+            await harness.Associations.ListByInstanceAsync(CreateScope().ToProjectScopeKey(), harness.InstanceId);
+
+        rows.Should().ContainSingle();
+        rows[0].InstanceId.Should().Be(harness.InstanceId);
+        rows[0].VerificationSnapshotId.Should().Be(SnapshotB);
+        rows[0].ControlId.Should().Be(controlId);
+        rows[0].AssessmentId.Should().Be(assessmentId);
+
+        RemediationInstanceDetail? detail = await CreateQuery(harness).TryGetInstanceAsync(CreateScope(), harness.InstanceId);
+
+        detail.Should().NotBeNull();
+        detail!.VerifiedRemediationAssociations.Should().ContainSingle();
+        VerifiedRemediationAssociationIdentifier listed = detail.VerifiedRemediationAssociations[0];
+        listed.AssociationId.Should().Be(rows[0].AssociationId);
+        listed.InstanceId.Should().Be(harness.InstanceId);
+        listed.VerificationSnapshotId.Should().Be(SnapshotB);
+        listed.ControlId.Should().Be(controlId);
+        listed.AssessmentId.Should().Be(assessmentId);
+        listed.CreatedUtc.Should().Be(rows[0].CreatedUtc);
+        listed.UpdatedUtc.Should().Be(rows[0].UpdatedUtc);
+    }
+
+    [Fact]
+    public async Task Passing_verify_again_for_the_same_snapshot_and_control_updates_the_existing_row()
+    {
+        Guid controlId = Guid.Parse("abababab-abab-abab-abab-abababababab");
+        PassingVerifyHarness harness = ArrangePassingVerify(controlId, assessmentId: null);
+
+        await harness.Service.VerifyAsync(CreateScope(), harness.InstanceId, SnapshotB, "verifier");
+        VerifiedRemediationControlAssociationRecord first = (await harness.Associations.ListByInstanceAsync(
+            CreateScope().ToProjectScopeKey(),
+            harness.InstanceId)).Single();
+
+        await ReopenForVerificationAsync(harness.Instances, harness.InstanceId);
+
+        RemediationInstanceOperationResult second = await harness.Service.VerifyAsync(
+            CreateScope(),
+            harness.InstanceId,
+            SnapshotB,
+            "verifier");
+
+        second.Succeeded.Should().BeTrue();
+
+        IReadOnlyList<VerifiedRemediationControlAssociationRecord> rows =
+            await harness.Associations.ListByInstanceAsync(CreateScope().ToProjectScopeKey(), harness.InstanceId);
+
+        rows.Should().ContainSingle();
+        rows[0].AssociationId.Should().Be(first.AssociationId);
+        rows[0].CreatedUtc.Should().Be(first.CreatedUtc);
+        rows[0].UpdatedUtc.Should().BeOnOrAfter(first.UpdatedUtc);
+    }
+
+    [Fact]
+    public async Task Passing_verify_with_a_new_snapshot_inserts_a_second_association()
+    {
+        Guid controlId = Guid.Parse("abababab-abab-abab-abab-abababababab");
+        Guid laterSnapshotId = Guid.Parse("12121212-1212-1212-1212-121212121212");
+        PassingVerifyHarness harness = ArrangePassingVerify(controlId, assessmentId: null);
+        AddPassingSnapshot(
+            harness.Snapshots,
+            laterSnapshotId,
+            harness.ResourceRowId,
+            new DateTime(2026, 9, 27, 12, 2, 0, DateTimeKind.Utc));
+
+        await harness.Service.VerifyAsync(CreateScope(), harness.InstanceId, SnapshotB, "verifier");
+        await ReopenForVerificationAsync(harness.Instances, harness.InstanceId);
+
+        RemediationInstanceOperationResult second = await harness.Service.VerifyAsync(
+            CreateScope(),
+            harness.InstanceId,
+            laterSnapshotId,
+            "verifier");
+
+        second.Succeeded.Should().BeTrue();
+
+        IReadOnlyList<VerifiedRemediationControlAssociationRecord> rows =
+            await harness.Associations.ListByInstanceAsync(CreateScope().ToProjectScopeKey(), harness.InstanceId);
+
+        rows.Should().HaveCount(2);
+        rows.Select(row => row.VerificationSnapshotId).Should().BeEquivalentTo([SnapshotB, laterSnapshotId]);
+    }
+
+    [Fact]
+    public async Task Passing_verify_with_null_control_id_succeeds_and_writes_no_row() =>
+        await AssertMissingControlWritesNoRowAsync(null);
+
+    [Fact]
+    public async Task Passing_verify_with_empty_control_id_succeeds_and_writes_no_row() =>
+        await AssertMissingControlWritesNoRowAsync(Guid.Empty);
+
+    [Fact]
+    public async Task Failed_verify_writes_no_row_and_leaves_an_older_association()
+    {
+        Guid controlId = Guid.Parse("abababab-abab-abab-abab-abababababab");
+        Guid failingSnapshotId = Guid.Parse("13131313-1313-1313-1313-131313131313");
+        PassingVerifyHarness harness = ArrangePassingVerify(controlId, assessmentId: null);
+        AddSnapshot(
+            harness.Snapshots,
+            failingSnapshotId,
+            harness.ResourceRowId,
+            present: true,
+            includeDisabledPublicAccess: false,
+            capturedUtc: new DateTime(2026, 9, 27, 12, 3, 0, DateTimeKind.Utc));
+
+        await harness.Service.VerifyAsync(CreateScope(), harness.InstanceId, SnapshotB, "verifier");
+        VerifiedRemediationControlAssociationRecord original = (await harness.Associations.ListByInstanceAsync(
+            CreateScope().ToProjectScopeKey(),
+            harness.InstanceId)).Single();
+
+        await ReopenForVerificationAsync(harness.Instances, harness.InstanceId);
+
+        RemediationInstanceOperationResult failed = await harness.Service.VerifyAsync(
+            CreateScope(),
+            harness.InstanceId,
+            failingSnapshotId,
+            "verifier");
+
+        failed.Succeeded.Should().BeFalse();
+        harness.Instances.Instances.Single().Status.Should().Be(RemediationInstanceStatus.VerificationFailed);
+
+        IReadOnlyList<VerifiedRemediationControlAssociationRecord> rows =
+            await harness.Associations.ListByInstanceAsync(CreateScope().ToProjectScopeKey(), harness.InstanceId);
+
+        rows.Should().ContainSingle();
+        rows[0].AssociationId.Should().Be(original.AssociationId);
+        rows[0].VerificationSnapshotId.Should().Be(SnapshotB);
+    }
+
+    [Fact]
+    public async Task Another_tenants_detail_does_not_include_the_association()
+    {
+        Guid controlId = Guid.Parse("abababab-abab-abab-abab-abababababab");
+        PassingVerifyHarness harness = ArrangePassingVerify(controlId, assessmentId: null);
+        await harness.Service.VerifyAsync(CreateScope(), harness.InstanceId, SnapshotB, "verifier");
+        VerifiedRemediationControlAssociationRecord ownerRow = (await harness.Associations.ListByInstanceAsync(
+            CreateScope().ToProjectScopeKey(),
+            harness.InstanceId)).Single();
+
+        Guid otherTenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaab");
+        await harness.Associations.UpsertAsync(
+            ProjectScopeKey.Create(otherTenantId, WorkspaceId, ProjectId),
+            new VerifiedRemediationControlAssociationRecord
+            {
+                AssociationId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbc"),
+                TenantId = otherTenantId,
+                WorkspaceId = WorkspaceId,
+                ProjectId = ProjectId,
+                InstanceId = harness.InstanceId,
+                VerificationSnapshotId = SnapshotB,
+                ControlId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccd"),
+                CreatedUtc = DateTime.UtcNow,
+                UpdatedUtc = DateTime.UtcNow,
+            });
+
+        RemediationInstanceQueryService query = CreateQuery(harness);
+        RemediationInstanceDetail? otherDetail = await query.TryGetInstanceAsync(
+            new ScopeContext
+            {
+                TenantId = otherTenantId,
+                WorkspaceId = WorkspaceId,
+                ProjectId = ProjectId,
+            },
+            harness.InstanceId);
+
+        otherDetail.Should().BeNull();
+
+        RemediationInstanceDetail? ownerDetail = await query.TryGetInstanceAsync(CreateScope(), harness.InstanceId);
+        ownerDetail.Should().NotBeNull();
+        ownerDetail!.VerifiedRemediationAssociations.Should().ContainSingle();
+        ownerDetail.VerifiedRemediationAssociations[0].AssociationId.Should().Be(ownerRow.AssociationId);
+    }
+
+    [Fact]
+    public async Task Passing_verify_restores_the_instance_when_the_association_upsert_fails()
+    {
+        Guid controlId = Guid.Parse("abababab-abab-abab-abab-abababababab");
+        PassingVerifyHarness harness = ArrangePassingVerify(
+            controlId,
+            assessmentId: null,
+            associations: new ThrowingAssociationRepository());
+
+        RemediationInstanceOperationResult result = await harness.Service.VerifyAsync(
+            CreateScope(),
+            harness.InstanceId,
+            SnapshotB,
+            "verifier");
+
+        result.Succeeded.Should().BeFalse();
+        result.ErrorMessage.Should().Be("Verified remediation association could not be saved.");
+        harness.Instances.Instances.Single().Status.Should().Be(RemediationInstanceStatus.ChangeImplemented);
+        harness.Instances.Instances.Single().VerificationSnapshotId.Should().BeNull();
+    }
+
+    private static async Task AssertMissingControlWritesNoRowAsync(Guid? controlId)
+    {
+        PassingVerifyHarness harness = ArrangePassingVerify(controlId, assessmentId: null);
+
+        RemediationInstanceOperationResult result = await harness.Service.VerifyAsync(
+            CreateScope(),
+            harness.InstanceId,
+            SnapshotB,
+            "verifier");
+
+        result.Succeeded.Should().BeTrue();
+        result.Status.Should().Be(RemediationInstanceStatus.Verified);
+
+        IReadOnlyList<VerifiedRemediationControlAssociationRecord> rows =
+            await harness.Associations.ListByInstanceAsync(CreateScope().ToProjectScopeKey(), harness.InstanceId);
+
+        rows.Should().BeEmpty();
+
+        RemediationInstanceDetail? detail = await CreateQuery(harness).TryGetInstanceAsync(CreateScope(), harness.InstanceId);
+        detail.Should().NotBeNull();
+        detail!.VerifiedRemediationAssociations.Should().BeEmpty();
+    }
+
+    private static PassingVerifyHarness ArrangePassingVerify(
+        Guid? controlId,
+        Guid? assessmentId,
+        IVerifiedRemediationControlAssociationRepository? associations = null)
+    {
+        Guid instanceId = Guid.NewGuid();
+        Guid resourceRowId = Guid.NewGuid();
+        InMemoryRemediationInstanceRepository instanceRepository = new();
+        instanceRepository.Instances.Add(CreateInstance(
+            instanceId,
+            RemediationInstanceStatus.ChangeImplemented,
+            executionSnapshotId: SnapshotA,
+            changeImplementedUtc: new DateTime(2026, 9, 27, 12, 0, 30, DateTimeKind.Utc),
+            cloudResourceId: CloudResourceId,
+            controlId: controlId,
+            assessmentId: assessmentId));
+
+        InMemoryRemediationPatternRepository patternRepository = new();
+        patternRepository.Versions.Add(CreateVersion(
+            RemediationPatternStatus.Approved,
+            RemediationAutomationLevel.Guided,
+            content: new RemediationPatternVersionContent
+            {
+                ControlObjective = "Restrict inbound",
+                Execution = new RemediationPatternExecutionDefinition
+                {
+                    VerificationQueries =
+                    [
+                        "snapshot.resource.present",
+                        "property:enablePublicNetworkAccess=false",
+                    ],
+                },
+                Rollback = new RemediationPatternRollbackDefinition { RunbookRef = "rb-1" },
+            }));
+
+        InMemorySnapshotRepository snapshotRepository = new();
+        AddSnapshot(
+            snapshotRepository,
+            SnapshotA,
+            resourceRowId,
+            present: true,
+            includeDisabledPublicAccess: false,
+            capturedUtc: new DateTime(2026, 9, 27, 12, 0, 0, DateTimeKind.Utc));
+        AddPassingSnapshot(
+            snapshotRepository,
+            SnapshotB,
+            resourceRowId,
+            new DateTime(2026, 9, 27, 12, 1, 0, DateTimeKind.Utc));
+
+        InMemoryVerifiedRemediationControlAssociationRepository storedAssociations = new();
+        IVerifiedRemediationControlAssociationRepository associationRepository = associations ?? storedAssociations;
+
+        RemediationInstanceService service = CreateSut(
+            instanceRepository,
+            new InMemoryRemediationPatternMatchRepository(),
+            patternRepository,
+            snapshotRepository: snapshotRepository,
+            associationRepository: associationRepository);
+
+        return new PassingVerifyHarness
+        {
+            Instances = instanceRepository,
+            Snapshots = snapshotRepository,
+            Associations = storedAssociations,
+            Service = service,
+            InstanceId = instanceId,
+            ResourceRowId = resourceRowId,
+        };
+    }
+
+    private static void AddPassingSnapshot(
+        InMemorySnapshotRepository snapshots,
+        Guid snapshotId,
+        Guid resourceRowId,
+        DateTime capturedUtc) =>
+        AddSnapshot(
+            snapshots,
+            snapshotId,
+            resourceRowId,
+            present: true,
+            includeDisabledPublicAccess: true,
+            capturedUtc: capturedUtc);
+
+    private static void AddSnapshot(
+        InMemorySnapshotRepository snapshots,
+        Guid snapshotId,
+        Guid resourceRowId,
+        bool present,
+        bool includeDisabledPublicAccess,
+        DateTime capturedUtc)
+    {
+        ArgumentNullException.ThrowIfNull(snapshots);
+        snapshots.Snapshots[snapshotId] = CreateSnapshot(
+            snapshotId,
+            resourceRowId,
+            present,
+            includeDisabledPublicAccess,
+            capturedUtc);
+    }
+
+    private static async Task ReopenForVerificationAsync(
+        InMemoryRemediationInstanceRepository repository,
+        Guid instanceId)
+    {
+        ArgumentNullException.ThrowIfNull(repository);
+
+        // VerifyAsync accepts only ChangeImplemented. A later pass puts that status back; it does not add a transition.
+        RemediationInstanceRecord current = repository.Instances.Single(row => row.InstanceId == instanceId);
+        await ((IRemediationInstanceRepository)repository).UpdateInstanceInScopeAsync(
+            CreateScope().ToProjectScopeKey(),
+            new RemediationInstanceMutation
+            {
+                InstanceId = current.InstanceId,
+                Status = RemediationInstanceStatus.ChangeImplemented,
+                CloudResourceId = current.CloudResourceId,
+                PathId = current.PathId,
+                PathNarrativeJson = current.PathNarrativeJson,
+                AssessmentId = current.AssessmentId,
+                ControlId = current.ControlId,
+                PreflightSnapshotId = current.PreflightSnapshotId,
+                ExecutionSnapshotId = current.ExecutionSnapshotId,
+                VerificationSnapshotId = current.VerificationSnapshotId,
+                WaveId = current.WaveId,
+                PreflightResultJson = current.PreflightResultJson,
+                VerificationResultJson = current.VerificationResultJson,
+                ApprovedByActorKey = current.ApprovedByActorKey,
+                UpdatedUtc = current.UpdatedUtc,
+                ApprovedUtc = current.ApprovedUtc,
+                ExecutedUtc = current.ExecutedUtc,
+                ChangeImplementedUtc = current.ChangeImplementedUtc,
+                VerifiedUtc = current.VerifiedUtc,
+                ClosedUtc = current.ClosedUtc,
+            });
+    }
+
+    private static RemediationInstanceQueryService CreateQuery(PassingVerifyHarness harness)
+    {
+        ArgumentNullException.ThrowIfNull(harness);
+
+        return new RemediationInstanceQueryService(
+            new ProjectScopedRemediationInstanceRepositoryAdapter(harness.Instances),
+            new ProjectScopedOperationalSecurityFindingRepositoryAdapter(Mock.Of<IOperationalSecurityFindingRepository>()),
+            Mock.Of<IRemediationPatternMatchRepository>(),
+            Mock.Of<IAuditManualEvidenceRepository>(),
+            Mock.Of<IAuthorityQueryService>(),
+            Mock.Of<IManifestHashService>(),
+            harness.Associations);
+    }
+
     private static RemediationInstanceService CreateSut(
         InMemoryRemediationInstanceRepository instanceRepository,
         InMemoryRemediationPatternMatchRepository matchRepository,
@@ -527,7 +909,8 @@ public sealed class RemediationInstanceServiceTests
         InMemorySnapshotRepository? snapshotRepository = null,
         IOperationalSecurityFindingRepository? findingRepository = null,
         IRemediationPathNarrativeBuilder? pathNarrativeBuilder = null,
-        ISecurityEvidencePathRepository? pathRepository = null) =>
+        ISecurityEvidencePathRepository? pathRepository = null,
+        IVerifiedRemediationControlAssociationRepository? associationRepository = null) =>
         new(
             new ProjectScopedRemediationInstanceRepositoryAdapter(instanceRepository),
             matchRepository,
@@ -542,7 +925,8 @@ public sealed class RemediationInstanceServiceTests
             pathRepository ?? Mock.Of<ISecurityEvidencePathRepository>(),
             Mock.Of<IAuditManualEvidenceRepository>(),
             Mock.Of<IAuthorityQueryService>(),
-            Mock.Of<IManifestHashService>());
+            Mock.Of<IManifestHashService>(),
+            associationRepository ?? new InMemoryVerifiedRemediationControlAssociationRepository());
 
     private static ScopeContext CreateScope() =>
         new() { TenantId = TenantId, WorkspaceId = WorkspaceId, ProjectId = ProjectId };
@@ -621,7 +1005,9 @@ public sealed class RemediationInstanceServiceTests
         Guid? executionSnapshotId = null,
         DateTime? changeImplementedUtc = null,
         Guid? cloudResourceId = null,
-        Guid? projectId = null) =>
+        Guid? projectId = null,
+        Guid? controlId = null,
+        Guid? assessmentId = null) =>
         new()
         {
             InstanceId = instanceId,
@@ -636,6 +1022,8 @@ public sealed class RemediationInstanceServiceTests
             AutomationLevel = RemediationAutomationLevel.Guided,
             Status = status,
             CloudResourceId = cloudResourceId,
+            AssessmentId = assessmentId,
+            ControlId = controlId,
             ExecutionSnapshotId = executionSnapshotId,
             ChangeImplementedUtc = changeImplementedUtc,
             CreatedByActorKey = "creator",
@@ -973,5 +1361,65 @@ public sealed class RemediationInstanceServiceTests
             {
                 Outcome = AzureInventorySnapshotDeleteOutcome.NotFound,
             });
+    }
+
+    private sealed class PassingVerifyHarness
+    {
+        public required InMemoryRemediationInstanceRepository Instances
+        {
+            get;
+            init;
+        }
+
+        public required InMemorySnapshotRepository Snapshots
+        {
+            get;
+            init;
+        }
+
+        public required InMemoryVerifiedRemediationControlAssociationRepository Associations
+        {
+            get;
+            init;
+        }
+
+        public required RemediationInstanceService Service
+        {
+            get;
+            init;
+        }
+
+        public required Guid InstanceId
+        {
+            get;
+            init;
+        }
+
+        public required Guid ResourceRowId
+        {
+            get;
+            init;
+        }
+    }
+
+    private sealed class ThrowingAssociationRepository : IVerifiedRemediationControlAssociationRepository
+    {
+        public Task<VerifiedRemediationControlAssociationRecord> UpsertAsync(
+            ProjectScopeKey scope,
+            VerifiedRemediationControlAssociationRecord record,
+            CancellationToken cancellationToken = default) =>
+            throw new InvalidOperationException("association store unavailable");
+
+        public Task<VerifiedRemediationControlAssociationRecord?> TryGetAsync(
+            ProjectScopeKey scope,
+            Guid associationId,
+            CancellationToken cancellationToken = default) =>
+            Task.FromResult<VerifiedRemediationControlAssociationRecord?>(null);
+
+        public Task<IReadOnlyList<VerifiedRemediationControlAssociationRecord>> ListByInstanceAsync(
+            ProjectScopeKey scope,
+            Guid instanceId,
+            CancellationToken cancellationToken = default) =>
+            Task.FromResult<IReadOnlyList<VerifiedRemediationControlAssociationRecord>>([]);
     }
 }

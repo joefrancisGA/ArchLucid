@@ -203,7 +203,8 @@ public sealed class RemediationPrioritizationAndWaveServiceTests
             Mock.Of<ISecurityEvidencePathRepository>(),
             Mock.Of<IAuditManualEvidenceRepository>(),
             Mock.Of<IAuthorityQueryService>(),
-            Mock.Of<IManifestHashService>());
+            Mock.Of<IManifestHashService>(),
+            new InMemoryVerifiedRemediationControlAssociationRepository());
 
         return new RemediationWaveService(
             waveRepository,

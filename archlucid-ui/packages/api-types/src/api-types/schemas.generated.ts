@@ -8567,6 +8567,7 @@ export interface components {
             evidence?: components["schemas"]["RemediationInstanceEvidenceSummary"][];
             finding?: null | components["schemas"]["OperationalSecurityFindingRecord"];
             instance?: components["schemas"]["RemediationInstanceSummary"];
+            verifiedRemediationAssociations?: components["schemas"]["VerifiedRemediationAssociationIdentifier"][];
         };
         RemediationInstanceEvidenceSummary: {
             /** Format: date-time */
@@ -12049,6 +12050,22 @@ export interface components {
             workspaceModeGraduationOffer?: string;
             workspaceModeGraduationOfferIsExplicit?: boolean;
             workspaceModeIsExplicit?: boolean;
+        };
+        VerifiedRemediationAssociationIdentifier: {
+            /** Format: uuid */
+            assessmentId?: null | string;
+            /** Format: uuid */
+            associationId?: string;
+            /** Format: uuid */
+            controlId?: string;
+            /** Format: date-time */
+            createdUtc?: string;
+            /** Format: uuid */
+            instanceId?: string;
+            /** Format: date-time */
+            updatedUtc?: string;
+            /** Format: uuid */
+            verificationSnapshotId?: string;
         };
         VisionDiagramIngestRequest: {
             contentBase64?: string;
