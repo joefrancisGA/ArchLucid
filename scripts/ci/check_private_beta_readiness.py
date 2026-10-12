@@ -102,6 +102,14 @@ def _check_workflow(root: Path) -> list[str]:
     if "RateLimiting__AuthRouting__PermitLimit: \"500\"" not in release_gate:
         issues.append("RC release gate must raise auth-routing rate limits for invite-wave CI")
 
+    if "cancel-in-progress: false" not in content:
+        issues.append("private-beta workflow must queue active witnesses instead of cancelling them")
+
+    corset = _read(root, ".github/workflows/ui-typecheck-on-push.yml")
+
+    if "cancel-in-progress: false" not in corset:
+        issues.append("UI typecheck workflow must queue active witnesses instead of cancelling them")
+
     return issues
 
 
