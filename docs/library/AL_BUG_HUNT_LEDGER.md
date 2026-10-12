@@ -6556,7 +6556,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: authority-pipeline-payload
 
-2026-10-12 seed hunt (seed-only): re-read `AuthorityPipelineWorkPayload.cs` plus the JSON and null-document-element regressions; existing identifier, null collection/element, enum, and malformed JSON paths are closed, with no fresh reachable mechanism-backed candidate to promote. The scoped payload filter passed 39/39. No production or regression change.
+2026-10-12 seed hunt (seed-only): reread `AuthorityPipelineWorkPayload.cs` and both focused JSON/null-element test suites, checking identifier normalization, enum validation, nullable collections/elements, malformed JSON, and Unicode boundary handling. No fresh reachable mechanism-backed wrong outcome met the hunt-ready bar. The scoped payload test run was blocked before discovery by existing `AzureInventorySecurityEdgeMaterializer.cs` compile errors (`unmappedRoles` and `warnings`); no production or regression change.
 
 - **id:** authority-pipeline-payload
 - **status:** open
@@ -6564,7 +6564,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** authority payload; pipeline work payload
 - **paths:** ArchLucid.Application/Runs/Orchestration/AuthorityPipelineWorkPayload.cs
 - **test-filter:** FullyQualifiedName~AuthorityPipelineWorkPayloadJsonTests|FullyQualifiedName~AuthorityPipelineWorkPayloadDocumentsNullElementTests
-- **hunts:** 43
+- **hunts:** 44
 - **bugs-found:** 23
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-12
