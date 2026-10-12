@@ -17152,11 +17152,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** marketplace billing; checkout mutation; billing application layer
 - **paths:** ArchLucid.Application/Billing/
 - **test-filter:** FullyQualifiedName~Marketplace|FullyQualifiedName~BillingCheckout|FullyQualifiedName~TenantLlmCostReporting
-- **hunts:** 34
-- **bugs-found:** 19
+- **hunts:** 35
+- **bugs-found:** 20
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-12
-- **last-bug:** 2026-10-12 — pending checkout reported active subscription on status query
+- **last-bug:** 2026-10-12 — pending checkout still exposed tier code on status query
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -17173,6 +17173,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-10-11 seed hunt (seed-only): re-read the top-run ranker, its focused tests, billing unit-rate/estimate contracts, and checkout facade contract; 26 scoped tests passed. No new reachable candidate met the failing-repro bar.
 
 2026-10-11 seed hunt (seed-only): re-read the webhook publisher, connectivity interface, admin COGS service, and its focused tests; 26 scoped tests passed. No new reachable candidate met the failing-repro bar.
+
+2026-10-12 seed hunt (seed→hit): `application-billing-logic` — after `HasSubscription` stopped treating `Pending` rows as subscribed, `GetSubscriptionStatusAsync` still returned the checkout target `TierCode`, and operator billing resolution treats a non-empty tier label as a commercial plan even when `hasSubscription` is false. Non-subscribed rows now omit `TierCode` while keeping `Status`. Regressions extend `GetSubscriptionStatusAsync_pending_checkout_reports_no_subscription` and `GetSubscriptionStatusAsync_canceled_subscription_reports_no_subscription` with null tier expectations. 41 scoped billing tests passed.
 
 2026-10-12 seed hunt (seed→hit): `application-billing-logic` — promoted `BillingCheckoutFacade.GetSubscriptionStatusAsync` lifecycle mapping. A `Pending` checkout row (and canceled subscriptions) still returned `HasSubscription=true`, so operator billing treated an abandoned checkout as an active paid plan while checkout retry correctly allowed a new session. `HasSubscription` is now true only for `Active` or `Suspended` rows; status and tier fields still surface for pending/canceled rows. Regressions `GetSubscriptionStatusAsync_pending_checkout_reports_no_subscription` and `GetSubscriptionStatusAsync_canceled_subscription_reports_no_subscription`. 41 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed.
 
