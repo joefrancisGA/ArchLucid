@@ -41,6 +41,7 @@ Before any chapter leaves this repo (publisher, blog, reviewer), re-read it agai
 - Every technique ships with a runnable example in the companion lab (Terraform and queries in [`lab/`](lab/); planned to move to a separate public repo).
 - Version-specific Azure features go in dated sidebars: `> **As of 2026-10:** ...`.
 - No invented statistics. Cite sources or say "in my experience".
+- Every testable platform claim and every `As of` sidebar cites `[Sn]` from the file's `## Sources` section (before the Summary in chapters, before the author notes in appendices). Each entry has a URL, `Checked YYYY-MM-DD`, a version where one matters, and `Kind: documented`, `inference`, or `lab-tested` (only after a live run). [`tools/check_sources.py`](tools/check_sources.py) enforces it in CI. Word counts include the Sources sections.
 - Label AI output in examples as AI output, the same way the book asks readers to.
 
 ## Chapter status
@@ -48,19 +49,19 @@ Before any chapter leaves this repo (publisher, blog, reviewer), re-read it agai
 | # | Chapter | Status | Words (target) |
 |---|---------|--------|----------------|
 | — | [Preface](front-matter/preface.md) | first draft (~1,400) | 1,500 |
-| 1 | [Why checklists fail](chapters/01-why-checklists-fail.md) | revised (~4,500) | 6,000 |
-| 2 | [Evidence and epistemics](chapters/02-evidence-and-epistemics.md) | revised (~5,000) | 7,000 |
-| 3 | [Collecting Azure evidence read-only](chapters/03-collecting-azure-evidence.md) | revised (~5,500) | 8,000 |
-| 4 | [Identity and privilege paths](chapters/04-identity-and-privilege-paths.md) | revised (~9,700) | 9,000 |
-| 5 | [Network reachability](chapters/05-network-reachability.md) | revised (~9,000) | 7,000 |
-| 6 | [Data flow: may access vs did access](chapters/06-data-flow.md) | revised (~4,800) | 6,000 |
-| 7 | [Where LLMs help](chapters/07-where-llms-help.md) | revised (~6,000) | 8,000 |
+| 1 | [Why checklists fail](chapters/01-why-checklists-fail.md) | revised (~4,800) | 6,000 |
+| 2 | [Evidence and epistemics](chapters/02-evidence-and-epistemics.md) | revised (~5,200) | 7,000 |
+| 3 | [Collecting Azure evidence read-only](chapters/03-collecting-azure-evidence.md) | revised (~5,900) | 8,000 |
+| 4 | [Identity and privilege paths](chapters/04-identity-and-privilege-paths.md) | revised (~10,600) | 9,000 |
+| 5 | [Network reachability](chapters/05-network-reachability.md) | revised (~9,600) | 7,000 |
+| 6 | [Data flow: may access vs did access](chapters/06-data-flow.md) | revised (~5,100) | 6,000 |
+| 7 | [Where LLMs help](chapters/07-where-llms-help.md) | revised (~6,300) | 8,000 |
 | 8 | [Where LLMs hurt](chapters/08-where-llms-hurt.md) | revised (~6,700) | 7,000 |
-| 9 | [Advisory remediation](chapters/09-advisory-remediation.md) | revised (~5,600) | 6,000 |
-| 10 | [Verification and outcome metrics](chapters/10-verification-and-metrics.md) | revised (~7,000) | 6,000 |
-| 11 | [Governing the AI tooling itself](chapters/11-governing-the-ai-tooling.md) | revised (~6,000) | 6,000 |
-| A | [Companion lab tenant](appendices/a-companion-lab.md) | first draft (~3,300 incl. code) | 4,000 |
-| B | [Query cookbook](appendices/b-query-cookbook.md) | first draft (~4,500 incl. code) | 5,000 |
+| 9 | [Advisory remediation](chapters/09-advisory-remediation.md) | revised (~5,800) | 6,000 |
+| 10 | [Verification and outcome metrics](chapters/10-verification-and-metrics.md) | revised (~7,200) | 6,000 |
+| 11 | [Governing the AI tooling itself](chapters/11-governing-the-ai-tooling.md) | revised (~6,400) | 6,000 |
+| A | [Companion lab tenant](appendices/a-companion-lab.md) | first draft (~3,900 incl. code) | 4,000 |
+| B | [Query cookbook](appendices/b-query-cookbook.md) | first draft (~5,300 incl. code) | 5,000 |
 | C | [Prompt patterns](appendices/c-prompt-patterns.md) | first draft (~4,000 incl. code) | 4,000 |
 | D | [Case study (optional)](appendices/d-case-study.md) | outline (needs owner facts and approval) | 4,000 |
 | — | [Glossary](back-matter/glossary.md) | first draft (~2,400) | 2,500 |
