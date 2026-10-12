@@ -117,10 +117,11 @@ export type GovernanceFindingsQueueOperationalRowCellsProps = {
   readonly row: GovernanceFindingQueueRow;
   readonly showInsightDensityScore?: boolean;
   readonly severityMeaning?: string;
+  readonly onOpenRow?: () => void;
 };
 
 export function GovernanceFindingsQueueOperationalRowCells(props: GovernanceFindingsQueueOperationalRowCellsProps): ReactElement {
-  const { row, showInsightDensityScore = false, severityMeaning } = props;
+  const { row, showInsightDensityScore = false, severityMeaning, onOpenRow } = props;
   const { mode: structuralExecutionMode } = useAgentExecutionMode();
   const graphHref = governanceQueueGraphEvidenceHref(row);
   const evidenceChipHref =
@@ -138,6 +139,7 @@ export function GovernanceFindingsQueueOperationalRowCells(props: GovernanceFind
           className={OPERATOR_LINK.inline}
           href={governanceFindingInspectHref(row.runId, row.findingId)}
           prefetch={false}
+          onClick={onOpenRow}
         >
           {row.title}
         </Link>

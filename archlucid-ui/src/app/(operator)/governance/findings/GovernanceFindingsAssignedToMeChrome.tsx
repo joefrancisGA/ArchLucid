@@ -17,7 +17,6 @@ import { resolveGovernanceAssignedToMeQueueStatusPresentation } from "@/lib/gove
 import { operatorFreshnessMetadataWithClockLabel } from "@/lib/operator/operator-last-refreshed-label";
 import { shouldShowGovernanceAssignedToMeWorkspaceLabel } from "@/lib/product-line/securenow-governance-assigned-to-me-copy";
 import { cn } from "@/lib/utils";
-import { PAGE_HELP_SHORT_TRIGGER_TEXT } from "@/components/usability/PageContextualHelpButton";
 
 export type GovernanceFindingsAssignedToMeChromeProps = {
   readonly assignedToMeCount: number;
@@ -72,9 +71,7 @@ export function GovernanceFindingsAssignedToMeHeaderActions({
 
   return (
     <div className="flex flex-wrap items-center gap-2" data-testid="governance-assigned-to-me-header-actions">
-      <PageContextualHelpButton
-        triggerText={buyerPolishedShell ? PAGE_HELP_SHORT_TRIGGER_TEXT : undefined}
-      />
+      {!buyerPolishedShell ? <PageContextualHelpButton /> : null}
       <RefreshButton
         variant="outline"
         busy={assignedToMeRefreshing}

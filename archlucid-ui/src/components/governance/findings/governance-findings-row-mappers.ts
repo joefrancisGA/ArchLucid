@@ -22,9 +22,14 @@ import { governanceFindingsDemoPhiRow } from "@/components/governance/findings/g
 export function riskRegisterRows(entries: ArchitectureRiskRegisterEntry[]): GovernanceFindingQueueRow[] {
   // OpenAPI marks findingId optional; malformed register rows must not become selectable queue items.
   return entries.filter((entry) => entry.findingId?.trim().length > 0).map((entry) => {
+    const findingId = entry.findingId.trim();
     const runId = (entry.runId ?? "").trim();
     const systemName = (entry.systemName ?? "").trim();
     const resourceId = (entry.resourceId ?? "").trim();
+    const title = (entry.title ?? "").trim();
+    const severity = (entry.severity ?? "").trim();
+    const category = (entry.category ?? "").trim();
+    const statusLabel = (entry.statusLabel ?? "").trim();
     const recommended =
       entry.latestDisposition !== null && entry.latestDisposition !== undefined
         ? `Latest disposition: ${entry.latestDisposition}. Owner: ${entry.ownerUserId ?? "unassigned"}.`
@@ -36,11 +41,11 @@ export function riskRegisterRows(entries: ArchitectureRiskRegisterEntry[]): Gove
       runId,
       runLabel,
       manifestId: (entry.manifestId ?? "").trim(),
-      findingId: entry.findingId,
-      title: entry.title,
-      severity: entry.severity,
-      category: entry.category,
-      status: entry.isStale ? `${entry.statusLabel} · stale` : entry.statusLabel,
+      findingId,
+      title,
+      severity,
+      category,
+      status: entry.isStale ? `${statusLabel} · stale` : statusLabel,
       recommended,
       recordKind: "finding",
       traceConfidenceLevel: null,
@@ -60,16 +65,17 @@ export function riskRegisterRows(entries: ArchitectureRiskRegisterEntry[]): Gove
           : null,
       systemName: systemName.length > 0 ? systemName : null,
       resourceId: resourceId.length > 0 ? resourceId : null,
-      policyRuleId: coerceComplianceRuleKey(entry.category),
+      policyRuleId: coerceComplianceRuleKey(category),
     };
   });
 }
 
 export function decisionRegisterRows(entries: ArchitectureDecisionRegisterEntry[]): GovernanceFindingQueueRow[] {
-  return entries.map((entry) => {
+  return entries.filter((entry) => entry.decisionId?.trim().length > 0).map((entry) => {
+    const decisionId = entry.decisionId.trim();
     const runId = (entry.runId ?? "").trim();
     const manifestId = (entry.manifestId ?? "").trim();
-    const titleRaw = (entry.title ?? entry.selectedOption ?? entry.decisionId).trim();
+    const titleRaw = (entry.title ?? entry.selectedOption ?? decisionId).trim();
     const rationale = (entry.rationale ?? "").trim();
     const selectedOption = (entry.selectedOption ?? "").trim();
     const recommended =
@@ -83,8 +89,8 @@ export function decisionRegisterRows(entries: ArchitectureDecisionRegisterEntry[
       runId,
       runLabel: runId.length > 0 ? runId : "Not returned",
       manifestId,
-      findingId: entry.decisionId,
-      title: titleRaw.length > 0 ? titleRaw : entry.decisionId,
+      findingId: decisionId,
+      title: titleRaw.length > 0 ? titleRaw : decisionId,
       severity: "Info",
       category: (entry.category ?? "").trim().length > 0 ? entry.category : "Architecture decision",
       status: "Recorded",
@@ -118,7 +124,7 @@ export function traceRowsForRun(run: RunSummary, traces: FindingTraceConfidenceD
         findingId,
         title: titleRaw.length > 0 ? titleRaw : findingId,
         severity: severityFromTrace(t.traceConfidenceLabel),
-        category: (t.ruleId ?? "Not returned").replace(/;/g, ", "),
+        category: ruleHint.length > 0 ? ruleHint.replace(/;/g, ", ") : "Not returned",
         status: "Open",
         recommended:
           ruleHint.length > 0
