@@ -36770,13 +36770,15 @@ ABQ-09 churn hotspot.
 - **aliases:** securenow question queue; question disposition
 - **paths:** ArchLucid.Application/InfraEvidence/SecureNowQuestionDispositions/; ArchLucid.Api/Controllers/InfraEvidence/InfraEvidenceSecureNowQuestionsController.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/ISecureNowQuestionDispositionRepository.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/ISecureNowQuestionDispositionService.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/SecureNowQuestionDispositionRecord.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/SecureNowQuestionRecord.cs; ArchLucid.Persistence/InfraEvidence/NoOpSecureNowQuestionDispositionRepository.cs; ArchLucid.Persistence/InfraEvidence/SqlSecureNowQuestionDispositionRepository.cs; ArchLucid.Contracts/InfraEvidence/SecureNowQuestionDispositionContracts.cs; archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
-- **hunts:** 30
+- **hunts:** 31
 - **bugs-found:** 13
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-12
 - **last-bug:** 2026-10-12 — endpoint-less inferred questions were emitted without an answerable resource identity
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-12 seed hunt (seed-only): re-read the selected compiler, disposition service, controller, persistence, contract, queue, and API paths without production churn. No distinct reachable mechanism beyond the existing bounded identity, suppression, API-shape, and in-flight candidates met the hunt-ready bar; the UI queue suite passed 16/16, while the scoped application suite was blocked before discovery by unrelated `AzureInventorySecurityEdgeMaterializer.cs` compile errors. No new candidate or code change.
 
 2026-10-12 seed hunt (seed-only): re-read the selected compiler, disposition service, controller, persistence, contract, queue, and API paths. No fresh hunt-ready row was found; the selected API's mutation return-type mismatch is currently harmless because the live provider ignores mutation responses and reloads the queue. The SecureNow queue suite passed 16/16. Seeded one bounded response-shape candidate; no production or regression code changed.
 
