@@ -9621,3 +9621,4 @@
 {"at":"2026-10-12T05:33:37.4288756Z","zoneId":"tenant-erasure","outcome":"dry","productLine":"archlucid-shared","paths":["ArchLucid.Application/Tenancy/TenantErasureCommandService.cs,ArchLucid.Api/Middleware/TenantErasureQuarantineMiddleware.cs"]}
 {"at":"2026-10-12T05:41:16.5507490Z","zoneId":"tenant-erasure","outcome":"dry","productLine":"archlucid-shared","paths":["ArchLucid.Application/Tenancy/TenantErasureCommandService.cs,ArchLucid.Api/Middleware/TenantErasureQuarantineMiddleware.cs"]}
 {"at":"2026-10-12T05:50:06.6040408Z","zoneId":"core-configuration-summary","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Core/Configuration/"]}
+{"at":"2026-10-12T05:58:14.6627243Z","zoneId":"tenant-erasure","outcome":"dry","productLine":"archlucid-shared","paths":["ArchLucid.Application/Tenancy/TenantErasureCommandService.cs,ArchLucid.Api/Middleware/TenantErasureQuarantineMiddleware.cs"]}
