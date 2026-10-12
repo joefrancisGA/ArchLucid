@@ -6,6 +6,8 @@
 
 2026-10-12 seed hunt (seed→hit): grouped and flat tenant queue rows did not invoke the supplied last-visited callback from their operational finding link, so opening a finding could leave its “new since last visit” marker visible. Regression `marks grouped rows opened through the supplied callback` failed first and passed after forwarding the callback; focused desktop-table suite passed 9/9.
 
+2026-10-12 seed hunt (seed-only): re-read the queue table prop-threading, grouped resource path, operational row cells, and focused desktop-table tests; the callback and grouped density paths are already closed in the current branch, and no fresh mechanism-backed candidate met the reachability and wrong-outcome bar. The focused desktop-table suite passed 9/9. No production or regression change.
+
 2026-10-12 seed hunt (seed-only): `architecture-recommendation` — re-read the recommendation engine and trade-off builder; retained five bounded candidates, but provisional-model behavior is upstream-gated, dimension-pair completeness lacks a contract, null collection elements lack a reachable caller contract, duplicate finding semantics are unspecified, and priority-list order has no established precedence contract. The exact Alternatives/ProposedChange filter passed 45/45. No production or regression change.
 
 2026-10-12 seed hunt (seed-only): `core-costing` — re-read `ArchLucid.Core/Costing/` and focused costing tests; no new reachable pricing, parser, normalization, or cancellation boundary met the hunt-ready bar. The scoped Costing filter passed 286 tests and retained 6 explicitly invalid extra-`k` week-UOM baseline failures. No production or regression change.
@@ -35720,6 +35722,8 @@ ABQ-09 churn hotspot; intake wizard route tree.
 
 2026-10-12 seed hunt (seed→hit): grouped and flat tenant queue rows did not invoke the supplied last-visited callback from their operational finding link, so opening a finding could leave its “new since last visit” marker visible. Regression `marks grouped rows opened through the supplied callback` failed first and passed after forwarding the callback; focused desktop-table suite passed 9/9.
 
+2026-10-12 seed hunt (seed-only): re-read the queue table prop-threading, grouped resource path, operational row cells, and focused desktop-table tests; the callback and grouped density paths are already closed in the current branch, and no fresh mechanism-backed candidate met the reachability and wrong-outcome bar. The focused desktop-table suite passed 9/9. No production or regression change.
+
 2026-10-12 seed hunt (seed→hit): `GovernanceFindingsAssignedToMeChrome` always rendered `PageContextualHelpButton` in the assigned-to-me header actions, including the reachable buyer-polished shell where contextual help is intentionally omitted; conditional rendering preserves help in the non-buyer shell. Regression `renders skip link, primary landmark, orientation strip, and buyer subtitle` failed first and passed after the fix; focused buyer-polished test passed 1/1; full route scope retained 49 passed and 11 known baseline failures.
 
 2026-10-11 thorough hunt (dry): cheap-disproved the four open candidates. The client trims `runId` before exposing scope state, the more-filters disclosure has URL/effect synchronization and focused coverage, assigned-mode active chips are derived from the complete filter state, and derivation disclosure ids are trimmed before comparison. No failing repro was established. Candidate-specific URL, scope, filter-chip, and disclosure tests passed 13/13; the picker-scoped client file remained at 22 tests with 11 known external-store/update-depth and workspace-label baseline failures.
@@ -35750,7 +35754,7 @@ ABQ-09 churn hotspot; intake wizard route tree.
 - **aliases:** governance findings queue
 - **paths:** archlucid-ui/src/app/(operator)/governance/findings/
 - **test-filter:** FullyQualifiedName~GovernanceFindingsQueueClient
-- **hunts:** 52
+- **hunts:** 53
 - **bugs-found:** 35
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-12
