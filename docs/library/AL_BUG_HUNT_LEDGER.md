@@ -2,6 +2,8 @@
 
 2026-10-12 seed hunt (seed-only): `archlucid-core` — the picker still exposes only the ledger path for the retired mega-zone, so no source-backed candidate or hunt-ready row could be seeded without inventing a product hypothesis. The scoped Core filter ran 7,311 passed and 6 failed on the explicitly invalid extra-`k` week-UOM baseline. No production or regression change.
 
+2026-10-12 seed hunt (seed-only): `archlucid-core` — the picker still exposes only the ledger path for the retired mega-zone, so no source-backed candidate or hunt-ready row could be seeded without inventing a product hypothesis. The scoped Core filter ran 7,311 passed and 6 failed on the explicitly invalid extra-`k` week-UOM baseline. No production or regression change.
+
 2026-10-11 thorough hunt (hit): `ui-governance-findings-queue` — a whitespace-only optional trace `ruleId` passed through as a blank category even though the mapper had a “Not returned” fallback, hiding traceability context in the queue. The mapper now trims before applying the fallback; regression `uses the missing-rule label for whitespace-only trace rule ids` failed first and passed after the fix. Mapper tests passed 5/5.
 
 2026-10-11 seed hunt (seed-only): `ui-governance-findings-queue` — reread the normalized register mappers, fallback trace-row mapping, synopsis/filter derivation, and queue header paths. No fresh row met the full hunt-ready bar; retained bounded candidates for whitespace-only trace rule labels, owner-label normalization, and decision-category normalization. The focused mapper tests passed 4/4; the picker-scoped client file ran 11 passed and 11 known external-store/update-depth and workspace-label baseline failures. No production or regression change.
@@ -19824,6 +19826,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: archlucid-core
 
+2026-10-12 seed hunt (seed-only): the picker exposed only this ledger path for the retired mega-zone; no source-backed locus, reachable input, or mechanism met the hunt-ready bar, so no candidate was promoted or invented. The scoped Core filter ran 7,311 passed and 6 failed on the explicitly invalid extra-`k` week-UOM baseline. No production or regression change.
+
 2026-10-11 seed hunt (seed-only): the picker exposed only this ledger path for the retired mega-zone; no source-backed candidate or hunt-ready row could be seeded without inventing a product hypothesis. The scoped Core filter reached the existing retired extra-`k` week-UOM baseline (7,307 passed, 6 failed), which is explicitly invalid for hunting. No production or regression change.
 
 2026-10-10 seed hunt (seed-only): re-read the picker-selected ledger section for retired `archlucid-core`; the raw `bugs-found`/`hunts` invariant violation is accounting metadata, not a reachable source-level defect, so no candidate or production change was warranted.
@@ -19860,8 +19864,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models; retired mega-zone
 - **paths:** docs/library/AL_BUG_HUNT_LEDGER.md
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 474
-- **last-hunt:** 2026-10-11
+- **hunts:** 475
+- **last-hunt:** 2026-10-12
 - **bugs-found:** 3511
 - **consecutive-dry-hunts:** 0
 - **last-bug:** 2026-10-09 — Event Grid destination fields nested under properties were ignored
