@@ -10,7 +10,12 @@ describe("SponsorExportSendHonestyStrip", () => {
   it("renders combined export literacy as a checklist without the policy chip", () => {
     render(<SponsorExportSendHonestyStrip testIdPrefix="infra-diagrams-export" />);
 
-    expect(screen.getByTestId("infra-diagrams-export-honesty-strip")).toBeInTheDocument();
+    const strip = screen.getByTestId("infra-diagrams-export-honesty-strip");
+
+    expect(strip).toBeInTheDocument();
+    expect(strip).toHaveAttribute("role", "note");
+    expect(strip.querySelector("ul")).not.toBeNull();
+    expect(strip.querySelector("ul")).not.toHaveAttribute("role");
     expect(screen.getByTestId("infra-diagrams-export-non-summing")).toHaveTextContent(
       SENDABLE_EXPORT_COVER_ROI_NON_SUMMING_LINE,
     );

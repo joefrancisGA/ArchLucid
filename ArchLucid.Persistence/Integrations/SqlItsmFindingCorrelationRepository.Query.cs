@@ -1,3 +1,5 @@
+using ArchLucid.Persistence.Sql;
+
 using Dapper;
 
 using Microsoft.Data.SqlClient;
@@ -34,6 +36,7 @@ public sealed partial class SqlItsmFindingCorrelationRepository
             (await connection.QueryAsync<ItsmFindingCorrelationRecord>(cmd)).ToList();
 
         // Anonymous inbound webhooks have no tenant context; resolve only when unambiguous.
+
         if (matches.Count != 1)
             return null;
 
@@ -82,8 +85,11 @@ public sealed partial class SqlItsmFindingCorrelationRepository
         Guid? findingRecordId,
         CancellationToken ct)
     {
-        if (tenantId == Guid.Empty) throw new ArgumentException("tenantId is required.", nameof(tenantId));
-        if (string.IsNullOrWhiteSpace(findingId)) throw new ArgumentException("findingId is required.", nameof(findingId));
+        if (tenantId == Guid.Empty)
+            throw new ArgumentException("tenantId is required.", nameof(tenantId));
+
+        if (string.IsNullOrWhiteSpace(findingId))
+            throw new ArgumentException("findingId is required.", nameof(findingId));
 
         string sql = findingRecordId is Guid scopedRecordId
             ? """
@@ -124,9 +130,14 @@ public sealed partial class SqlItsmFindingCorrelationRepository
         string provider,
         CancellationToken ct)
     {
-        if (tenantId == Guid.Empty) throw new ArgumentException("tenantId is required.", nameof(tenantId));
-        if (string.IsNullOrWhiteSpace(findingId)) throw new ArgumentException("findingId is required.", nameof(findingId));
-        if (string.IsNullOrWhiteSpace(provider)) throw new ArgumentException("provider is required.", nameof(provider));
+        if (tenantId == Guid.Empty)
+            throw new ArgumentException("tenantId is required.", nameof(tenantId));
+
+        if (string.IsNullOrWhiteSpace(findingId))
+            throw new ArgumentException("findingId is required.", nameof(findingId));
+
+        if (string.IsNullOrWhiteSpace(provider))
+            throw new ArgumentException("provider is required.", nameof(provider));
 
         const string sql = $"""
                            SELECT TOP (1) {CorrelationSelectColumns}
@@ -150,8 +161,11 @@ public sealed partial class SqlItsmFindingCorrelationRepository
         string findingId,
         CancellationToken ct)
     {
-        if (tenantId == Guid.Empty) throw new ArgumentException("tenantId is required.", nameof(tenantId));
-        if (string.IsNullOrWhiteSpace(findingId)) throw new ArgumentException("findingId is required.", nameof(findingId));
+        if (tenantId == Guid.Empty)
+            throw new ArgumentException("tenantId is required.", nameof(tenantId));
+
+        if (string.IsNullOrWhiteSpace(findingId))
+            throw new ArgumentException("findingId is required.", nameof(findingId));
 
         const string sql = $"""
                            SELECT {CorrelationSelectColumns}
@@ -193,18 +207,23 @@ public sealed partial class SqlItsmFindingCorrelationRepository
         if (normalizedFindingIds.Count == 0)
             return Array.Empty<ItsmFindingCorrelationRecord>();
 
-        const string sql = $"""
-                           SELECT {CorrelationSelectColumns}
-                           FROM dbo.ItsmFindingCorrelations
-                           WHERE TenantId = @TenantId AND FindingId IN @FindingIds
-                           ORDER BY FindingId ASC, CreatedUtc ASC;
-                           """;
+        DynamicParameters parameters = new();
+        parameters.Add("TenantId", tenantId);
+        // Numbered @FindingId0..N — Dapper does not expand IN @FindingIds through CommandDefinition.
+        string findingIdInList = SqlDapperInClause.AppendStringList(parameters, "FindingId", normalizedFindingIds);
+
+        string sql = $"""
+                     SELECT {CorrelationSelectColumns}
+                     FROM dbo.ItsmFindingCorrelations
+                     WHERE TenantId = @TenantId AND FindingId IN {findingIdInList}
+                     ORDER BY FindingId ASC, CreatedUtc ASC;
+                     """;
 
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
 
         CommandDefinition cmd = new(
             sql,
-            new { TenantId = tenantId, FindingIds = normalizedFindingIds },
+            parameters,
             cancellationToken: ct);
 
         IEnumerable<ItsmFindingCorrelationRecord> rows =
