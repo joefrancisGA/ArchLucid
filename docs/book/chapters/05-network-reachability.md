@@ -7,6 +7,8 @@
 
 > *Draft status: revised (revision pass 1, 2026-10-10). Target 7,000 words. Facts about Azure networking behavior, property names, and defaults were checked against Microsoft documentation in October 2026; re-check them before submission.*
 
+**Builds on:** Chapter 2 (evidence categories and can versus did, sections 2.2 and 2.7), Chapter 3 (the collector and snapshots, sections 3.3 and 3.5), Chapter 4 (the identity graph, its search, and unmodeled controls, section 4.5).
+
 ---
 
 ## The private endpoint that didn't make anything private
@@ -23,7 +25,7 @@ The review found three more things in the same afternoon:
 
 - A test run of a laptop "through the private endpoint" had actually gone over the public internet, because the laptop's DNS resolver had no link to the private DNS zone and resolved the public address. The test succeeded, and proved nothing about the private path.
 - The hub firewall had a network rule allowing `10.0.0.0/8` to `10.0.0.0/8` on any port, added during a migration "temporarily". Every spoke could reach every other spoke, including the development spoke and the payments spoke.
-- Nobody had ever looked at whether traffic to `custdata` arrived from public addresses. The storage account's resource logs were off (the same gap, G1, that Chapters 2 and 7 kept running into).
+- Nobody had ever looked at whether traffic to `custdata` arrived from public addresses. The storage account's resource logs were off (gap G1).
 
 The team had **intended** reachability ("only the payments app reaches customer data"), **configured** reachability (open to the internet, plus a private path), and no **observed** reachability at all. They had reported the first as if it were the second.
 
@@ -33,7 +35,7 @@ This chapter is about network hops: how to compute what can reach what from conf
 
 ## 5.1 What network hops add to a path
 
-Chapter 4 argued that identity is the perimeter in Azure: most control-plane operations go through Azure Resource Manager (ARM), whose endpoint is public [S2], so the token decides. Network controls don't change that for the control plane. You can't put ARM behind your own virtual network firewall, and listing a storage account's keys works from any network that can reach that endpoint [S2].
+Identity is the perimeter in Azure (section 4.1): most control-plane operations go through Azure Resource Manager (ARM), whose endpoint is public [S2], so the token decides. Network controls don't change that for the control plane. You can't put ARM behind your own virtual network firewall, and listing a storage account's keys works from any network that can reach that endpoint [S2].
 
 Network controls matter for **data planes**: the endpoints where you read blobs, query databases, fetch secrets, and call application APIs. There, network configuration decides whether a request reaches the service at all, before the service looks at who you are.
 
@@ -54,13 +56,13 @@ So the question this chapter answers is: **from where** can each data-plane hop 
 | On-premises | Office and data center networks connected by VPN or ExpressRoute |
 | Nowhere | The data plane accepts no network traffic, or only from a closed set of private endpoints |
 
-A path that requires "inside the payments subnet" is a very different risk from the same path that works "from the internet". Chapter 9's ranking uses exactly that difference. Getting the position right is this chapter's job.
+A path that requires "inside the payments subnet" is a very different risk from the same path that works "from the internet". The ranking in section 9.2 uses exactly that difference. Getting the position right is this chapter's job.
 
 ---
 
 ## 5.2 Four kinds of reachability
 
-Chapter 2 introduced five evidence categories. Reachability needs four of them, and the failures in the opening story come from mixing them up:
+Reachability needs four of the five evidence categories (section 2.2), and the failures in the opening story come from mixing them up:
 
 | Kind | Question | Evidence category | Source |
 |------|----------|-------------------|--------|
@@ -72,11 +74,11 @@ Chapter 2 introduced five evidence categories. Reachability needs four of them, 
 Each pair of kinds disagreeing is a different kind of finding:
 
 - **Intended but not configured to match.** The design says "private only"; configuration says "internet". This is the opening story, and the most common serious network finding in Azure.
-- **Configured but never observed.** A firewall rule allows traffic nobody uses. That's exposure with no business value, and a strong candidate for removal. Be careful with the inference, though: "not observed" requires logging that would have seen it. Absence of logs isn't absence of traffic (Chapter 2).
+- **Configured but never observed.** A firewall rule allows traffic nobody uses. That's exposure with no business value, and a strong candidate for removal. Be careful with the inference, though: "not observed" requires logging that would have seen it. Absence of logs isn't absence of traffic (section 2.6).
 - **Observed but not configured.** Traffic your model says can't happen did happen. Your model is wrong, or your collection missed something: a route, a peering, a rule. Treat this as a defect in your reachability computation, not as a curiosity.
 - **Confirmed, but against the wrong path.** The laptop test in the opening story. A recorded test result is only as good as the record of how it was run.
 
-Most tools report configured reachability and call it reachability. Being explicit about which kind you're stating is the network version of Chapter 2's rule about "can" versus "did".
+Most tools report configured reachability and call it reachability. Being explicit about which kind you're stating is the network version of "can" versus "did" (section 2.7).
 
 Configured reachability is the easiest result in this book to overstate, so each kind gets fixed wording. Section 5.6 adds a fifth result, for when the model can't tell:
 
@@ -534,7 +536,7 @@ The function returns indeterminate in two situations. The first is a control it 
 
 The next hop comes from the source's **effective routes**, Azure's own resolution of system, BGP, and user-defined routes [S21]. The model doesn't recompute which route wins from route tables [S20, S21]. That's why missing effective routes make the answer indeterminate rather than sending the model to reconstruct them.
 
-`reach_edge` turns the result into a `canReach` edge for Chapter 4's search. A reachable result is a plain edge. A not-reachable result is no edge. An indeterminate result is an edge carrying an unmodeled control (Chapter 4, section 4.5), so any path through it is reported as "Insufficient evidence", with the reason as the assumption to check.
+`reach_edge` turns the result into a `canReach` edge for the section 4.5 search. A reachable result is a plain edge. A not-reachable result is no edge. An indeterminate result is an edge carrying an unmodeled control (section 4.5), so any path through it is reported as "Insufficient evidence", with the reason as the assumption to check.
 
 ### What the model doesn't evaluate
 
@@ -559,11 +561,11 @@ Rows marked "not evaluated" don't produce indeterminate automatically. Whoever r
 
 ### Network edges in the path graph
 
-Chapter 4 built an identity graph with typed, cited edges, and searched only edges that mean "can". Network reachability fits the same model in two ways.
+The identity graph has typed, cited edges, and its search walks only edges that mean "can" (section 4.5). Network reachability fits the same model in two ways.
 
-**As a derived edge.** `canReach` from a position node (Internet, a subnet, on-premises) to an endpoint node (a resource's public or private endpoint), with the port and the evidence that decided it. Like Chapter 4's `canControlCode`, it's derived from evidence-only facts: properties, rules, routes. The search never walks raw NSG rules.
+**As a derived edge.** `canReach` from a position node (Internet, a subnet, on-premises) to an endpoint node (a resource's public or private endpoint), with the port and the evidence that decided it. Like `canControlCode` (section 4.3), it's derived from evidence-only facts: properties, rules, routes. The search never walks raw NSG rules.
 
-**As a condition on data-plane edges.** The list-keys hop on Chapter 4's paths (H7 in Chapter 7's evidence pack) says "Contributor can list `custdata`'s keys, and shared key access is enabled, so the holder can read its blob data." With network evidence, that becomes a set of `grants` edges, one per position from which the blob endpoint is reachable:
+**As a condition on data-plane edges.** The list-keys hop on the payments paths (H7) says "Contributor can list `custdata`'s keys, and shared key access is enabled, so the holder can read its blob data." With network evidence, that becomes a set of `grants` edges, one per position from which the blob endpoint is reachable:
 
 | Position | Reachable? | Evidence |
 |----------|-----------|----------|
@@ -572,11 +574,11 @@ Chapter 4 built an identity graph with typed, cited edges, and searched only edg
 | Development spoke | Yes | Peered to hub; firewall rule `10.0.0.0/8` → `10.0.0.0/8` allows any port (deterministic inference) |
 | On-premises | Unknown | On-premises DNS forwarding not collected (gap) |
 
-The identity path didn't change. Its **reach** did: the holder of the key can use it from anywhere. Disabling public network access on `custdata` would remove the first row, so a key leaked outside Contoso's networks would stop working, without touching a single role assignment. That's a network cut point, and Chapter 9 compares it with the identity cut points from Chapter 4.
+The identity path didn't change. Its **reach** did: the holder of the key can use it from anywhere. Disabling public network access on `custdata` would remove the first row, so a key leaked outside Contoso's networks would stop working, without touching a single role assignment. That's a network cut point, which section 9.3 weighs against the identity ones.
 
 ### Collecting the inputs
 
-Chapter 3's collector already reads storage accounts. Reachability needs more, all available to Reader through Azure Resource Graph or ARM:
+The collector already reads storage accounts (section 3.3). Reachability needs more, all available to Reader through Azure Resource Graph or ARM:
 
 - PaaS resources with their `publicNetworkAccess`, firewall rules, and private endpoint connections,
 - virtual networks, subnets (with route table, NSG, service endpoints, and private endpoint network policies), and peerings,
@@ -601,7 +603,7 @@ Configuration says what can happen. To say what did, you need logs that record c
 
 Observed reachability answers questions configuration can't:
 
-- **Is the public path in use?** If `custdata`'s blob logs show requests from public addresses, someone relies on the public endpoint. Disabling it will break them, and you need to find out who first. If the logs show only private addresses over a representative period, disabling public access is low-risk. This is the precondition check Chapter 7 asked remediation drafts to list.
+- **Is the public path in use?** If `custdata`'s blob logs show requests from public addresses, someone relies on the public endpoint. Disabling it will break them, and you need to find out who first. If the logs show only private addresses over a representative period, disabling public access is low-risk. This is the precondition check that remediation drafts list (section 7.7).
 - **Is a firewall rule used?** If the broad `10.0.0.0/8` rule has matched only a handful of specific flows in ninety days, you can replace it with rules for those flows.
 - **Does the model match reality?** Any observed flow your configured model says is impossible is a defect to investigate.
 
@@ -620,9 +622,9 @@ Intended reachability is a human assertion: "`custdata` should be reached only b
 
 Some practical ways to collect it:
 
-- **Ask owners for a short statement per sensitive resource**, in the same form Chapter 2 used for data classification: who asserted it, when, and when it expires. "Reached only from `snet-payments-app`, private endpoint only, asserted by the payments platform lead, 2026-10-01, expires 2027-04-01."
+- **Ask owners for a short statement per sensitive resource**, in the same form as a data classification (section 2.2): who asserted it, when, and when it expires. "Reached only from `snet-payments-app`, private endpoint only, asserted by the payments platform lead, 2026-10-01, expires 2027-04-01."
 - **Encode common intents as policy.** Azure Policy can audit or deny public network access on storage, Key Vault, SQL, and many other services. A policy assignment is a machine-readable statement of intent, and its compliance results are a ready-made comparison between intended and configured reachability.
-- **Use tags carefully.** A tag such as `network-intent=private` is convenient and easy to query. It's also a human assertion anyone with tag write can change, and, as Chapter 8 showed, text a pipeline reads. Record who set it, and never let a tag override configuration evidence.
+- **Use tags carefully.** A tag such as `network-intent=private` is convenient and easy to query. It's also a human assertion anyone with tag write can change, and text a pipeline reads (section 8.5). Record who set it, and never let a tag override configuration evidence.
 
 Without intended reachability, the best you can report is configured reachability ranked by consequence. That's still useful. But the most valuable finding in this chapter, "this was meant to be private and isn't", needs the intent.
 
@@ -655,13 +657,13 @@ Network configuration is dense, repetitive, and full of numbers. That makes it a
 
 > `custdata` can be reached from the internet, because public network access is enabled and its firewall allows all networks [N1]. The private endpoint added in the hardening project gives the payments app a private path [N2], but doesn't close the public one. Disabling public network access would remove internet reachability [C2]. Blob logs aren't enabled, so we can't tell whether anyone currently uses the public endpoint [G1].
 
-That's Chapter 7's grounding pattern, and it works for the same reasons. The model is narrating results computed elsewhere.
+That's the grounding pattern (section 7.2), and it works for the same reasons. The model is narrating results computed elsewhere.
 
 **Translating rules into intent works, with review.** A model can read a long NSG or firewall rule set and suggest what each rule is for ("rules 200 to 240 appear to allow the monitoring agents"). Treat those suggestions as AI inferences, label them, and confirm them with owners before they become intended reachability.
 
 **Evaluation fails.** Don't ask a model whether `10.20.4.7` falls inside `10.20.0.0/20`, which rule wins between priorities 300 and 310, or which route applies to a given prefix. These are exact computations on numbers. Models get them wrong often enough to matter, and confidently. The code in section 5.4 is short and always right on the cases it handles, and it reports the ones it can't.
 
-**Reachability search fails** for the same reasons graph search failed in Chapter 4: it must be exhaustive and repeatable. A model asked "what can reach `custdata`?" from a pile of NSG exports will find some routes and invent others.
+**Reachability search fails** for the same reasons graph search does (section 4.9): it must be exhaustive and repeatable. A model asked "what can reach `custdata`?" from a pile of NSG exports will find some routes and invent others.
 
 The rule from earlier chapters holds: compute reachability deterministically, label every result with its evidence category, and use the model to explain.
 
@@ -675,7 +677,7 @@ This lab reproduces the opening story and separates its four kinds of reachabili
 
 **Step 2 — Classify public exposure.** Extend the Chapter 3 collector to save PaaS network properties, then run `storage_public_exposure` over every storage account in the snapshot. List each account's classification with its reasons. Confirm `custdata` comes back as "internet".
 
-**Step 3 — Collect the network.** Add virtual networks, subnets, peerings, NSGs, route tables, private endpoints, private DNS zones and links, the firewall policy, and the current service tag file to the collector. Record any you can't read as gaps. Rewrite the manifest (Chapter 3).
+**Step 3 — Collect the network.** Add virtual networks, subnets, peerings, NSGs, route tables, private endpoints, private DNS zones and links, the firewall policy, and the current service tag file to the collector. Record any you can't read as gaps. Rewrite the manifest (section 3.5).
 
 **Step 4 — Compute configured reachability.** For `custdata`'s blob endpoint, answer section 5.6's questions from four positions: internet, payments spoke, development spoke, and on-premises. Use `storage_public_exposure` for the internet row and `private_reachability` for the private positions. Produce the table from section 5.6, with an evidence category and a citation for every row. Write each row in section 5.2's safe wording, and list the indeterminate rows with their reasons. Evaluate the development spoke twice. By name, it resolves the public address (the private DNS zone isn't linked to it), so the private evaluation stops and the internet row applies. By address, it should come back "may be reachable under the modeled configuration", through the firewall's broad rule. That second answer is what anyone who uses the private address, or adds a zone link later, gets. The on-premises row should come back indeterminate if you have no gateway, or no collected far side.
 
@@ -764,6 +766,7 @@ This lab reproduces the opening story and separates its four kinds of reachabili
 
 ## Author notes (remove before submission)
 
+- 2026-10-12 (BR-10, repetition edit): recap and signpost references to other chapters were cut or turned into section pointers, and the **Builds on** line now carries the dependencies. No technical content, code, labs, or evidence categories changed. `tools/check_cross_refs.py` checks every reference.
 - Verified 2026-10-10 (revision pass 1): storage `publicNetworkAccess` values and bypass precedence; SQL `AllowAllWindowsAzureIps`; `scmIpSecurityRestrictionsUseMain`; NSG priorities, default rules, `VirtualNetwork` scope and evaluation order; private endpoint network policies default; Azure Firewall processing order; flow log retirement dates; Network Watcher feature names.
 - `storage_public_exposure` and `evaluate_inbound` pass offline fixtures (`lab/listings/python/tests/test_ch05_reachability.py`). Testing showed the bullet on "private only" contradicted the code, which returns "restricted" whenever a bypass is set; the bullet now matches the code (2026-10-11). Still to do: run the Resource Graph query against a live tenant with mixed resource types.
 - 2026-10-12 (network ladder): added `private_reachability` with a third result, indeterminate, which becomes an unmodeled control on a `canReach` edge (`reach_edge`), so Chapter 4 reports the path as "Insufficient evidence". Added the safe-wording table (5.2), the "doesn't evaluate" table (5.6), the confirmation ladder (new 5.9; old 5.9 and 5.10 renumbered), and lab Step 4a. Network Watcher tool names, inputs, and next hop types checked against Microsoft Learn in October 2026. Still to verify: run Step 4a against the live lab. Chapter 7's activity-wording check doesn't yet flag unqualified "is reachable"; adding that pattern is a candidate if review drafts use it.
