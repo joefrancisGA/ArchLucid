@@ -34,7 +34,7 @@ export type ExtractUploadSettingsPageHeaderProps = {
   readonly uploadBusy?: boolean;
 };
 
-function inventoryStatusPresentation(
+export function inventoryStatusPresentation(
   uploadBusy: boolean,
   baselineLoading: boolean,
   hasInventoryOnFile: boolean | null,
@@ -55,7 +55,7 @@ function inventoryStatusPresentation(
     return { kind: "needs-attention", label: EXTRACT_UPLOAD_NO_INVENTORY_STATUS_LABEL };
   }
 
-  return null;
+  return { kind: "neutral", label: "Inventory status was not stored" };
 }
 
 export function ExtractUploadSettingsPageHeader(

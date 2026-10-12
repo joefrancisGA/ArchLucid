@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { cleanup, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { architectureNestedFindingsPath } from "@/lib/architecture/architecture-routes";
@@ -125,6 +125,39 @@ describe("QuickDecisionWorkspace finding cards (PC-10)", () => {
     );
 
     expect(screen.getByTestId("finding-classification-chip-finding-1")).toHaveTextContent("Checklist-demoted");
+  });
+
+  it("distinguishes a missing category from a stored empty category", () => {
+    const finding = buildFinding(JSON.stringify({}));
+
+    render(
+      <QuickDecisionWorkspacePrimaryFindingCard
+        context={cardContext}
+        finding={{ ...finding, category: null }}
+        canMutate={false}
+        askPanelOpen={false}
+        onToggleAskPanel={vi.fn()}
+        onViewReasoning={vi.fn()}
+        onMute={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByText("Finding category was not stored")).toBeInTheDocument();
+    cleanup();
+
+    render(
+      <QuickDecisionWorkspacePrimaryFindingCard
+        context={cardContext}
+        finding={{ ...finding, category: "" }}
+        canMutate={false}
+        askPanelOpen={false}
+        onToggleAskPanel={vi.fn()}
+        onViewReasoning={vi.fn()}
+        onMute={vi.fn()}
+      />,
+    );
+
+    expect(screen.queryByText("Finding category was not stored")).not.toBeInTheDocument();
   });
 
   it("labels missing finding metadata while preserving a stored zero evidence count", () => {
