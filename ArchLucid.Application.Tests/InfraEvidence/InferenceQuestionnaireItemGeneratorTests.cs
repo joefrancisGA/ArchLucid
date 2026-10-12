@@ -1,5 +1,4 @@
 using ArchLucid.Application.InfraEvidence.OperatorInferredConnections;
-using ArchLucid.Core.AzureExtractor;
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Scoping;
 using ArchLucid.KnowledgeGraph;
