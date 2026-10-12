@@ -10168,13 +10168,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** extraction router; difficulty router
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/DifficultyBasedExtractionRouter.cs; ArchLucid.Application/ArchitectureIntelligence/DifficultyBasedExtractionRouter.Classify.cs; ArchLucid.Application/ArchitectureIntelligence/DifficultyBasedExtractionRouter.Extract.cs; ArchLucid.Application/ArchitectureIntelligence/DifficultyBasedExtractionRouter.LifecycleHelpers.cs
 - **test-filter:** FullyQualifiedName~DifficultyBasedExtractionRouterTests
-- **hunts:** 35
+- **hunts:** 36
 - **bugs-found:** 19
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-03
+- **last-hunt:** 2026-10-12
 - **last-bug:** 2026-09-27 — DNS/path dot false positive for `owner` token
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-12 seed hunt (seed-only): re-read the four selected router partials after three commits since the previous hunt and reviewed the focused tests. Promoted/reviewed a bounded email-domain `owner` candidate: `ops@owner.example.com` can be accepted at `@` as a marker start boundary while a separate `unowned` mention causes a false ownership-gap extraction. The focused repro was attempted but blocked before test discovery by unrelated missing `unmappedRoles` and `warnings` members in `AzureInventorySecurityEdgeMaterializer.cs`; no production or regression code changed.
 
 2026-10-03 seed hunt (seed-only): re-read the selected extraction-router partial and focused boundary/regulatory regression coverage; no new reachable mechanism-backed candidate emerged; 29 focused DifficultyBasedExtractionRouter tests passed.
 
@@ -10243,6 +10245,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `as-is`/`to-be` lifecycle token matching — substring inside `as-isolated` triggered ambiguous classification and false dual-lifecycle transition — **hit 2026-09-26 seed hunt (seed→hit):** `Contains` on token markers matched interior substrings; fixed with alphanumeric boundary guards in `ContainsTokenMarker` and `FindTokenMarkerIndex`; regressions `Classify_does_not_treat_as_isolated_substring_as_lifecycle_marker` and `Extract_does_not_emit_transition_for_as_isolated_substring_with_target_state`.
 - [x] (proven) `ContainsPhraseMarker` / lifecycle boundaries — multi-word lifecycle phrases and bare `contradict` matched interior substrings (`recurrent state`, `contradictory`) — **hit 2026-09-26 seed hunt (seed→hit):** after token-boundary fix for `as-is`/`to-be`, phrase markers still used raw `Contains`; fixed with shared `FindBoundedMarkerIndex` and `ContainsContradictMarker`; regressions `Classify_does_not_treat_recurrent_state_substring_as_current_state_marker`, `Classify_does_not_treat_contradictory_substring_as_contradict_marker`, `Extract_does_not_emit_transition_for_recurrent_state_substring_with_target_state`, and `Extract_does_not_emit_contradiction_for_contradictory_substring`.
 - [x] (proven) `RequiresHumanReview` / `Extract` signal heuristics — regulatory markers and extract triggers used raw `Contains` (`phi` in `Delphi`, `public api` in `republic api`, `RTO` in `CARTOON`) — **hit 2026-09-26 seed hunt (seed→hit):** bounded `ContainsHumanReviewMarker` with plural fallback for single-token markers; `Extract` aligned to phrase/token boundary helpers; regressions `Classify_does_not_treat_delphi_substring_as_phi_marker`, `Classify_returns_human_review_for_regulations_plural`, `Extract_does_not_stamp_public_api_substring_in_republic_as_interface`, and `Extract_does_not_emit_recovery_objective_for_rto_substring_in_cartoon`.
+- [ ] (candidate) `FindBoundedMarkerIndex` / `IsValidMarkerStartBoundary` — a reachable email-domain label such as `ops@owner.example.com`, paired with a separate `unowned` mention, can match `owner` because `@` is accepted as a start boundary and emit a false operational-ownership gap; input originates from architecture source prose containing email addresses.
 
 ---
 
