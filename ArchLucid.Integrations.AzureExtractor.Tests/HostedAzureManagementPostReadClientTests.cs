@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Net;
 using System.Text;
 
@@ -315,6 +316,59 @@ public sealed class HostedAzureManagementPostReadClientTests
                 "token-abc",
                 "11111111-1111-1111-1111-111111111111",
                 cancellationTokenSource.Token));
+    }
+
+    [Fact]
+    public async Task TryQueryActualCostSummaryAsync_parses_numeric_cost_cells_invariantly()
+    {
+        CultureInfo originalCulture = CultureInfo.CurrentCulture;
+        CultureInfo originalUiCulture = CultureInfo.CurrentUICulture;
+
+        try
+        {
+            CultureInfo culture = CultureInfo.GetCultureInfo("de-DE");
+            CultureInfo.CurrentCulture = culture;
+            CultureInfo.CurrentUICulture = culture;
+
+            const string responseBody = """
+                                        {
+                                          "properties": {
+                                            "columns": [
+                                              { "name": "PreTaxCost", "type": "Number" },
+                                              { "name": "ServiceName", "type": "String" },
+                                              { "name": "Currency", "type": "String" }
+                                            ],
+                                            "rows": [
+                                              [ 10.5, "Storage", "USD" ]
+                                            ]
+                                          }
+                                        }
+                                        """;
+
+            HttpMessageHandler handler = new RecordingHandler(
+                (_, _) => Task.FromResult(
+                    new HttpResponseMessage(HttpStatusCode.OK)
+                    {
+                        Content = new StringContent(responseBody, Encoding.UTF8, "application/json")
+                    }));
+            HostedAzureManagementPostReadClient client = new(
+                new HttpClient(handler),
+                NullLogger<HostedAzureManagementPostReadClient>.Instance);
+
+            HostedAzureActualCostSummary? summary = await client.TryQueryActualCostSummaryAsync(
+                "token-abc",
+                "11111111-1111-1111-1111-111111111111",
+                CancellationToken.None);
+
+            Assert.NotNull(summary);
+            Assert.Equal(10.5, summary.TotalActualCostUsd);
+            Assert.Equal(10.5, Assert.Single(summary.BreakdownByServiceName).PreTaxCost);
+        }
+        finally
+        {
+            CultureInfo.CurrentCulture = originalCulture;
+            CultureInfo.CurrentUICulture = originalUiCulture;
+        }
     }
 
     private sealed class RecordingHandler(Func<HttpRequestMessage, CancellationToken, Task<HttpResponseMessage>> responder)

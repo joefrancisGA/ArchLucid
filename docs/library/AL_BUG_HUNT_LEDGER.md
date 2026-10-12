@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-12 seed hunt (seed→hit): `HostedAzureManagementPostReadClient.ReadArrayCellDouble` parsed Azure Cost Management numeric JSON cells with the current culture, so reachable `10.5` cost data became `105` under `de-DE`; fixed with invariant numeric parsing. Regression `TryQueryActualCostSummaryAsync_parses_numeric_cost_cells_invariantly` failed first and passed after the fix. The focused regression passed 1/1, AWS/GCP extractor tests passed 52/52, and Azure extractor tests passed 130/131 with one pre-existing network-association baseline failure.
+
 2026-10-12 seed hunt (seed-only): `cli-tenant-isolation` — re-read `TenantIsolationNegativeTestCommand` and `TenantIsolationNegativeTestRunner`; no fresh reachable mechanism-backed wrong outcome met the hunt-ready bar. The focused `TenantIsolationNegativeTestRunnerTests` filter passed 54/54. Seeded two bounded candidates; no production or regression change.
 
 2026-10-12 thorough hunt (dry): `ui-webhooks-settings` — cheap-disproved the four bounded candidates against the selected client/hook and existing scope, overlap, deep-link, and Continue-last regressions; none had a reachable hunt-ready wrong outcome for a failing repro. The focused Webhooks settings page suite passed 60/60. No production or regression change.
@@ -31349,6 +31351,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ## Zone: cloud-extractors
 
+2026-10-12 seed hunt (seed→hit): `HostedAzureManagementPostReadClient.ReadArrayCellDouble` parsed numeric Actual Cost cells with the current culture; a reachable `10.5` API value became `105` under `de-DE`. Fixed with `NumberStyles.Float` and `CultureInfo.InvariantCulture`; regression `TryQueryActualCostSummaryAsync_parses_numeric_cost_cells_invariantly` failed first and passed after the fix. AWS/GCP tests passed 52/52; Azure extractor scope passed 130/131 with the known network-association baseline failure.
+
 2026-10-12 seed hunt (seed-only): re-read AWS Resource Explorer, GCP Asset Inventory/workload identity, and Azure management post-read paths after the cancellation change. No fresh reachable mechanism-backed candidate met the full hunt-ready bar. The focused Azure management-client suite passed 6/6; no production or regression change.
 
 2026-10-11 seed hunt (seed→hit): proved `HostedAzureManagementPostReadClient` swallowed `OperationCanceledException` in both Policy Insights and Actual Cost reads, returning partial/empty success after the caller canceled extraction; cancellation now propagates while non-cancellation failures retain best-effort behavior; regressions `QueryPolicyComplianceAsync_propagates_cancellation_instead_of_returning_partial_success` and `TryQueryActualCostSummaryAsync_propagates_cancellation_instead_of_returning_null`; focused management-client suite passed 6/6, picker-wide filter passed 129/130 with one pre-existing network-association baseline failure.
@@ -31379,11 +31383,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** aws extractor; gcp extractor; azure extractor
 - **paths:** ArchLucid.Integrations.AwsExtractor/; ArchLucid.Integrations.GcpExtractor/; ArchLucid.Integrations.AzureExtractor/
 - **test-filter:** FullyQualifiedName~AwsExtractor|FullyQualifiedName~GcpExtractor|FullyQualifiedName~AzureExtractor
-- **hunts:** 90
-- **bugs-found:** 44
+- **hunts:** 91
+- **bugs-found:** 45
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-12
-- **last-bug:** 2026-10-11 — Azure post-read swallowed cancellation
+- **last-bug:** 2026-10-12 — Azure Actual Cost numeric cells were parsed with the current culture
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -31410,6 +31414,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 2026-10-03 seed hunt (hit): promoted the subscription policy-assignment pagination candidate; `ListPolicyAssignmentsAtRestPathAsync` validated only the subscription, so an ARM `nextLink` into `policyDefinitions` was followed and could merge another collection's rows. Fixed with exact listing-path validation for subscription and management-group policy assignments; regression `ListSubscriptionPolicyAssignmentsAsync_rejects_next_link_for_different_policy_collection`; 1 focused Azure extractor test passed.
 
 ### Hypotheses
+
+- [x] (proven) `HostedAzureManagementPostReadClient.ReadArrayCellDouble` — Azure Cost Management emits numeric JSON cells using invariant JSON formatting, but `double.TryParse` used the process culture; a reachable `10.5` value was collected as `105` under `de-DE` — **hit 2026-10-12 seed hunt:** parse cost cells with `NumberStyles.Float` and `CultureInfo.InvariantCulture`; regression `TryQueryActualCostSummaryAsync_parses_numeric_cost_cells_invariantly`.
 
 - [x] (proven) `HostedAzureManagementPostReadClient.TryQueryActualCostSummaryAsync` / `QueryPolicyComplianceAsync` — cancellation during an ARM post-read was caught as a normal failure, returning null or a partial document instead of honoring the caller's cancellation — **hit 2026-10-11 seed hunt:** both broad `catch (Exception)` blocks swallowed `OperationCanceledException`; filter cancellation explicitly so only non-cancellation failures use best-effort fallback; regressions `QueryPolicyComplianceAsync_propagates_cancellation_instead_of_returning_partial_success` and `TryQueryActualCostSummaryAsync_propagates_cancellation_instead_of_returning_null` in `HostedAzureManagementPostReadClientTests`.
 - [x] (invalid) `HostedAzureInventoryResourcePropertyExpander.AddSiteWorkflowConnectionParameters` — an ARM Logic Apps resource with `properties.parameters.$connections` containing credential-bearing connection metadata is copied with `GetRawText()` into inventory properties without structured redaction; input originates from the reachable `Microsoft.Logic/workflows` ARM payload, but a concrete secret-bearing field and downstream exposed output remain unverified — cheap-disproved 2026-10-11: the selected collector/ZIP paths expose connection resource IDs, names, hosts, status, and warning fields; no credential field or secret-bearing export was present.

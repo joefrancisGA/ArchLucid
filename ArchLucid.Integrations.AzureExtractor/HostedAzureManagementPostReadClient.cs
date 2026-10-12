@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
@@ -410,7 +411,9 @@ public sealed class HostedAzureManagementPostReadClient(
     {
         string text = ReadArrayCell(row, index);
 
-        return double.TryParse(text, out double parsed) ? parsed : 0d;
+        return double.TryParse(text, NumberStyles.Float, CultureInfo.InvariantCulture, out double parsed)
+            ? parsed
+            : 0d;
     }
 
     private static string? TryReadNextLink(JsonElement root)
