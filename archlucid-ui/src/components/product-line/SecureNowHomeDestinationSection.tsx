@@ -55,7 +55,7 @@ export function SecureNowHomeDestinationSection({
       <div className={buyerPolishedShell ? "mt-4" : "mt-5"}>
         <EnterpriseTable ariaLabel={tableAriaLabel}>
           <EnterpriseTableHead>
-            <EnterpriseTableRow>
+            <EnterpriseTableRow className="sr-only">
               <EnterpriseTableHeaderCell className="sr-only">Destination</EnterpriseTableHeaderCell>
               <EnterpriseTableHeaderCell className="sr-only">Summary</EnterpriseTableHeaderCell>
             </EnterpriseTableRow>

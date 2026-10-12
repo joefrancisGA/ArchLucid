@@ -6,6 +6,7 @@ import { ROUTE_TITLES } from "@/lib/route-static-titles";
 import { productLineMicrosoftTeamsLabel } from "@/lib/product-line/product-line-display-name";
 import type { ProductLineId } from "@/lib/product-line/product-line-id";
 import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
+import { SECURENOW_NAV_LABELS } from "@/lib/product-line/securenow-nav-labels";
 import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 
 /** Human-readable title for route announcements and accessibility copy. */
@@ -19,6 +20,15 @@ export function getRouteTitle(pathname: string, productLineId: ProductLineId = r
 
   if (lookupPath === INTEGRATIONS_TEAMS_PATH) {
     return productLineMicrosoftTeamsLabel(productLineId);
+  }
+
+  // SecureNow page titles follow the sidebar. Architecture keeps ROUTE_TITLES.
+  if (productLineId === "security") {
+    const secureNowTitle = SECURENOW_NAV_LABELS[lookupPath] ?? SECURENOW_NAV_LABELS[normalized];
+
+    if (secureNowTitle !== undefined) {
+      return secureNowTitle;
+    }
   }
 
   // Hash-preserving keys (e.g. #workspace-health) must win before stripping the fragment.
