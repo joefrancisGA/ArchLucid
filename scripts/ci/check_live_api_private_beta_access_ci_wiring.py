@@ -576,7 +576,8 @@ def main(argv: list[str] | None = None) -> int:
         if "cancel-in-progress: false" not in text:
             errors.append(
                 f"{_PUSH_REL}: must set cancel-in-progress: false so the current invite-wave witness "
-                "runs to completion instead of being cancelled by a later trunk push",
+                "runs to completion instead of being cancelled by a later trunk push; "
+                "the active JwtBearer witness must not be cancelled",
             )
 
         if _FULL_REGRESSION_NEED in text:
