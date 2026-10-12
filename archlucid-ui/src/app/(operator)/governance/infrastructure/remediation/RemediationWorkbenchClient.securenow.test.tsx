@@ -147,4 +147,12 @@ describe("RemediationWorkbenchClient SecureNow /security/remediation-instances",
     expect(await screen.findByTestId("infra-remediation-preflight-blocked-reason")).toHaveTextContent(/preflight/i);
     expect(screen.getByTestId("infra-remediation-create-blocked-reason")).toHaveTextContent(/finding id/i);
   });
+
+  it("applies the verification-failed status deep link", async () => {
+    searchParams = new URLSearchParams("status=VerificationFailed");
+    render(<RemediationWorkbenchClient />);
+
+    expect(await screen.findByTestId("infra-remediation-status-filter")).toHaveTextContent("Verification failed");
+    expect(screen.queryByTestId("infra-remediation-card-aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee")).not.toBeInTheDocument();
+  });
 });
