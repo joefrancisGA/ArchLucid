@@ -61,7 +61,13 @@ public static class OperatorInferredConnectionSnapshotMerger
                 continue;
             }
 
-            string relationshipType = GraphEdgeTypes.ConnectsTo;
+            string relationshipType = connection.DataPlaneAnswer switch
+            {
+                OperatorInferredDataPlaneAnswer.Read => GraphEdgeTypes.CanRead,
+                OperatorInferredDataPlaneAnswer.Write => GraphEdgeTypes.CanWrite,
+                null => GraphEdgeTypes.ConnectsTo,
+                _ => throw new InvalidOperationException("Unsupported operator data-plane answer."),
+            };
             string key = BuildRelationshipKey(fromArmId, toArmId, relationshipType);
 
             if (!existingKeys.Add(key))
@@ -75,7 +81,9 @@ public static class OperatorInferredConnectionSnapshotMerger
                 ToAzureResourceId = toArmId,
                 RelationshipType = relationshipType,
                 ProvenanceKind = ProvenanceKind.HumanAssertion,
-                InferenceSource = GraphEdgeInferenceSources.OperatorConfirmedConnection,
+                InferenceSource = connection.DataPlaneAnswer is null
+                    ? GraphEdgeInferenceSources.OperatorConfirmedConnection
+                    : GraphEdgeInferenceSources.InventoryOperatorAttestedDataPlane,
                 DeclaredConnectionId = connection.ConnectionId,
             });
         }

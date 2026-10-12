@@ -106,6 +106,7 @@ public sealed class InfraEvidenceOperatorInferredConnectionsController(
                 ToCloudResourceId = request.ToCloudResourceId,
                 ToArmId = request.ToArmId,
                 ToCatalog = request.ToCatalog,
+                DataPlaneAnswer = request.DataPlaneAnswer,
             },
             actorId,
             cancellationToken);
