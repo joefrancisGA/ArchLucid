@@ -22,6 +22,10 @@ public sealed class TenantCostEstimateService(ITenantRepository tenantRepository
             return null;
 
         BillingUnitRatesOptions rates = _ratesMonitor.CurrentValue;
+
+        if (string.IsNullOrWhiteSpace(rates.Currency))
+            return null;
+
         List<string> factors = [$"Tenant tier: {tenant.Tier}.", "Band widened to cover optional Azure OpenAI attach for authority runs."];
         (decimal low, decimal high) = tenant.Tier switch
         {

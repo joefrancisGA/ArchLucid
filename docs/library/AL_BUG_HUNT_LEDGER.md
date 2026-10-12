@@ -17152,11 +17152,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** marketplace billing; checkout mutation; billing application layer
 - **paths:** ArchLucid.Application/Billing/
 - **test-filter:** FullyQualifiedName~Marketplace|FullyQualifiedName~BillingCheckout|FullyQualifiedName~TenantLlmCostReporting
-- **hunts:** 32
-- **bugs-found:** 17
+- **hunts:** 33
+- **bugs-found:** 18
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-12
-- **last-bug:** 2026-10-12 — admin fleet COGS risk label ignored included warn USD threshold
+- **last-bug:** 2026-10-12 — blank Billing unit-rate currency returned unlabeled spend guidance
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -17173,6 +17173,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-10-11 seed hunt (seed-only): re-read the top-run ranker, its focused tests, billing unit-rate/estimate contracts, and checkout facade contract; 26 scoped tests passed. No new reachable candidate met the failing-repro bar.
 
 2026-10-11 seed hunt (seed-only): re-read the webhook publisher, connectivity interface, admin COGS service, and its focused tests; 26 scoped tests passed. No new reachable candidate met the failing-repro bar.
+
+2026-10-12 seed hunt (seed→hit): `application-billing-logic` — promoted blank `Billing:UnitRates:Currency`. `TenantCostEstimateService.TryGetEstimateAsync` returned a Why ArchLucid band when configuration bound whitespace currency, so the API surfaced amounts without a currency code. Blank or whitespace currency now returns no estimate, matching the negative-rate guard. Regression `TryGetEstimateAsync_rejects_blank_configured_currency`. 39 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed.
 
 2026-10-12 seed hunt (seed→hit): `application-billing-logic` — promoted `AdminFleetLlmCogsService` gross-margin risk labeling. Rows already expose `BudgetWarningUsdUtcMonth` from `IncludedUsdPerUtcMonth * WarnFraction` (same basis as monthly warn audits), but `GrossMarginRiskLabel` and `BudgetCompletionLabel` only flipped to warn/near-threshold at 85% of the hard cap, so $40 pressure with a $37.50 warn line stayed healthy. Risk and completion signals now warn when pressure crosses the included warn USD threshold or hard-cap utilization. Regression `BuildDashboardAsync_marks_warn_when_pressure_exceeds_included_warn_threshold_before_hard_cap_utilization`. 38 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed.
 
@@ -17220,11 +17222,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - (candidate) `BillingCheckoutFacade.CreateCheckoutSessionAsync` — negative `Seats` or `Workspaces` values are accepted into the application request and forwarded to the provider; reachable through the admin checkout body, but current providers clamp values to one before creating a session.
 - [x] (proven) `AdminFleetLlmCogsService.BuildDashboardAsync` — `GrossMarginRiskLabel` waited for 85% hard-cap utilization while `BudgetWarningUsdUtcMonth` already reflected the included allowance warn line — **hit 2026-10-12 seed hunt:** warn/near-threshold when pressure crosses included warn USD or hard-cap utilization; regression `BuildDashboardAsync_marks_warn_when_pressure_exceeds_included_warn_threshold_before_hard_cap_utilization`.
 - [x] (proven) `AdminFleetLlmCogsService.BuildDashboardAsync` — `WarnFraction` below the tenant status clamp (0.01) produced a lower `BudgetWarningUsdUtcMonth` than the tenant LLM budget status surface — **hit 2026-10-12 seed hunt:** fleet rows now clamp warn fraction to 0.01–0.99 before computing the warning threshold; regression `BuildDashboardAsync_clamps_warn_fraction_to_match_tenant_budget_status`.
-- (candidate) `TenantCostEstimateService.TryGetEstimateAsync` — blank `Billing:UnitRates:Currency` is returned as an unlabeled estimate currency; reachable through bound billing configuration, but this is a presentation-quality concern without a demonstrated wrong consumer outcome.
+- [x] (proven) `TenantCostEstimateService.TryGetEstimateAsync` — blank or whitespace `Billing:UnitRates:Currency` returned a monthly band with no currency code on Why ArchLucid — **hit 2026-10-12 seed hunt:** `TryGetEstimateAsync` now returns null when currency is missing; regression `TryGetEstimateAsync_rejects_blank_configured_currency`.
 - (candidate) `TenantLlmCostReportingService.BuildDashboardAsync` — requested `days` values outside 1–90 are silently clamped, so a caller asking for a longer historical window receives a shorter dashboard without a disposition or response indicator; reachable through the billing dashboard query input, but the bounded-window contract is not explicit in this zone.
 - (candidate) `AdminFleetLlmCogsService.BuildDashboardAsync` — suspended or offboarded tenants are omitted from fleet rows and aggregate counts; reachable through tenant lifecycle state, but the admin dashboard may intentionally report only active cost-bearing tenants.
 - (candidate) `TenantLlmCostReportingService.BuildDashboardAsync` — a negative `LlmTenantBudgetStateReadModel.TotalUsdPressure` would be copied into daily and tenant-wide cost rows; reachable through the monthly budget state populated by the configured LLM cost-estimation path, but this seed pass did not prove that a negative state can be persisted.
-- (candidate) `TenantCostEstimateService.TryGetEstimateAsync` — a blank or whitespace `Billing:UnitRates:Currency` configuration value would produce an estimate with no currency label; reachable through the bound billing configuration, but this is a presentation-quality candidate and no failing repro was attempted in this seed-only pass.
 - (candidate) `BillingCheckoutFacade.CreateCheckoutSessionAsync` — a provider exception message is returned as `ErrorMessage` and the API exposes it in a validation problem response; reachable through the configured checkout provider’s transport/error path, but the seed pass did not establish that provider messages contain sensitive data.
 
 2026-09-11 thorough hunt #1700 (dry): cheap-disproof closed ChangeQuantity Stripe policy parity and subscription-status past-due mapping candidates; 8 scoped Marketplace/BillingCheckout tests passed.
