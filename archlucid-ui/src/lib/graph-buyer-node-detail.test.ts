@@ -25,6 +25,20 @@ describe("graphBuyerTrailRecordTypeLine", () => {
     });
   });
 
+  it("labels sample hero finding when OpenAPI metadata is null", () => {
+    const node: GraphNodeVm = {
+      id: REGISTERED_HERO_FINDING_ID,
+      type: "Finding",
+      label: "Sensitive data minimization risk",
+      metadata: null,
+    };
+
+    expect(graphBuyerTrailRecordTypeLine(node)).toEqual({
+      primary: "Finding: Sensitive data minimization",
+      secondary: { label: "Risk area", value: "Risk area was not stored." },
+    });
+  });
+
   it("labels generic finding nodes as Finding", () => {
     const node: GraphNodeVm = {
       id: "finding-other",

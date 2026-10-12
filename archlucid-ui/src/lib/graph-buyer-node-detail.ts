@@ -273,14 +273,17 @@ export function graphBuyerTrailMetadataLines(
   return { summaryLines, technicalLines };
 }
 
-function resolveSampleHeroRiskAreaValue(metadata: Record<string, string> | undefined): string {
-  if (metadata !== undefined) {
-    for (const [rawKey, rawValue] of Object.entries(metadata)) {
-      const key = rawKey.trim().toLowerCase();
+/** OpenAPI marks GraphNodeVm.metadata nullable; treat null like a missing map. */
+function resolveSampleHeroRiskAreaValue(metadata: GraphNodeVm["metadata"]): string {
+  if (metadata == null) {
+    return "Risk area was not stored.";
+  }
 
-      if (key === "riskarea" || key === "risk_domain" || key === "riskdomain") {
-        return String(rawValue).trim();
-      }
+  for (const [rawKey, rawValue] of Object.entries(metadata)) {
+    const key = rawKey.trim().toLowerCase();
+
+    if (key === "riskarea" || key === "risk_domain" || key === "riskdomain") {
+      return String(rawValue).trim();
     }
   }
 
