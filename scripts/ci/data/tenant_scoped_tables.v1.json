@@ -68,6 +68,7 @@
     "dbo.RunExportBlobPushOutbox",
     "dbo.RunStoredEvidenceFiles",
     "dbo.Runs",
+    "dbo.SecureNowCollectionRuns",
     "dbo.SecurityEvidencePaths",
     "dbo.SignedReviewRecords",
     "dbo.SupportProblemReports",
