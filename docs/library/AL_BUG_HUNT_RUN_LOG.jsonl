@@ -9572,3 +9572,4 @@
 {"at":"2026-10-12T00:28:48.3848814Z","zoneId":"authority-pipeline-payload","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Application/Runs/Orchestration/AuthorityPipelineWorkPayload.cs"]}
 {"at":"2026-10-12T00:33:10.5820088Z","zoneId":"core-costing","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Core/Costing/"]}
 {"at":"2026-10-12T00:37:35.8404291Z","zoneId":"architecture-recommendation","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Application/ArchitectureIntelligence/"]}
+{"at":"2026-10-12T00:40:26.9689500Z","zoneId":"ui-governance-findings-queue","outcome":"seed-only","productLine":"securenow","paths":["archlucid-ui/src/app/(operator)/governance/findings/"]}
