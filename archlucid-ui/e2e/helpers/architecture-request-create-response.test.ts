@@ -1,112 +1,79 @@
 import { describe, expect, it } from "vitest";
 
 import {
-  isArchitectureRequestCreateAcceptedResponse,
-  isArchitectureRequestCreateJsonResponse,
-  isArchitectureRequestCreateObservedResponse,
+  isArchitectureRequestCreateResponse,
   readCreatedRunIdFromArchitectureRequestBody,
-  readCreatedRunIdFromArchitectureRequestLocation,
-  readCreatedRunIdFromArchitectureRequestResponse,
+  readCreatedRunIdFromArchitectureRequestCreate,
 } from "./architecture-request-create-response";
 
-const createProxyUrl = "http://localhost:3000/api/proxy/v1/architecture/request";
-const createAsyncProxyUrl = `${createProxyUrl}/async`;
-
-describe("isArchitectureRequestCreateJsonResponse", () => {
-  it("accepts a JSON POST to the architecture request proxy", () => {
+describe("isArchitectureRequestCreateResponse", () => {
+  it("accepts sync and async create POSTs, including empty 202 bodies", () => {
     expect(
-      isArchitectureRequestCreateJsonResponse({
-        url: createProxyUrl,
+      isArchitectureRequestCreateResponse({
+        url: "http://localhost:3000/api/proxy/v1/architecture/request",
         method: "POST",
-        contentType: "application/json; charset=utf-8",
+      }),
+    ).toBe(true);
+
+    expect(
+      isArchitectureRequestCreateResponse({
+        url: "http://localhost:3000/api/proxy/v1/architecture/request/async",
+        method: "POST",
       }),
     ).toBe(true);
   });
 
-  it("rejects GET, non-request paths, and empty non-JSON bodies", () => {
+  it("rejects GET, draft, and idempotency siblings", () => {
     expect(
-      isArchitectureRequestCreateJsonResponse({
-        url: createProxyUrl,
+      isArchitectureRequestCreateResponse({
+        url: "http://localhost:3000/api/proxy/v1/architecture/request",
         method: "GET",
-        contentType: "application/json",
       }),
     ).toBe(false);
 
     expect(
-      isArchitectureRequestCreateJsonResponse({
-        url: "http://localhost:3000/api/proxy/v1/architecture/draft",
+      isArchitectureRequestCreateResponse({
+        url: "http://localhost:3000/api/proxy/v1/architecture/request/draft",
         method: "POST",
-        contentType: "application/json",
       }),
     ).toBe(false);
 
     expect(
-      isArchitectureRequestCreateJsonResponse({
-        url: createAsyncProxyUrl,
+      isArchitectureRequestCreateResponse({
+        url: "http://localhost:3000/api/proxy/v1/architecture/request/idempotency",
         method: "POST",
-        contentType: undefined,
       }),
     ).toBe(false);
   });
 });
 
-describe("isArchitectureRequestCreateAcceptedResponse", () => {
-  it("accepts a 202 POST to the async architecture request proxy", () => {
+describe("readCreatedRunIdFromArchitectureRequestCreate", () => {
+  it("reads run.runId from JSON and from a 202 Location header", () => {
     expect(
-      isArchitectureRequestCreateAcceptedResponse({
-        url: createAsyncProxyUrl,
-        method: "POST",
-        status: 202,
+      readCreatedRunIdFromArchitectureRequestCreate({
+        status: 201,
+        bodyText: '{"run":{"runId":"abc"}}',
+        location: null,
       }),
-    ).toBe(true);
+    ).toBe("abc");
+
+    expect(
+      readCreatedRunIdFromArchitectureRequestCreate({
+        status: 202,
+        bodyText: "",
+        location: "/v1/operations/run:aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+      }),
+    ).toBe("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
   });
 
-  it("rejects non-create paths, non-POST, and non-202 statuses", () => {
-    expect(
-      isArchitectureRequestCreateAcceptedResponse({
-        url: "http://localhost:3000/api/proxy/v1/architecture/draft",
-        method: "POST",
+  it("fails fast when both body and Location omit the run id", () => {
+    expect(() =>
+      readCreatedRunIdFromArchitectureRequestCreate({
         status: 202,
+        bodyText: "",
+        location: undefined,
       }),
-    ).toBe(false);
-
-    expect(
-      isArchitectureRequestCreateAcceptedResponse({
-        url: createAsyncProxyUrl,
-        method: "GET",
-        status: 202,
-      }),
-    ).toBe(false);
-
-    expect(
-      isArchitectureRequestCreateAcceptedResponse({
-        url: createAsyncProxyUrl,
-        method: "POST",
-        status: 200,
-      }),
-    ).toBe(false);
-  });
-});
-
-describe("isArchitectureRequestCreateObservedResponse", () => {
-  it("accepts either sync JSON or async 202 on the create proxy", () => {
-    expect(
-      isArchitectureRequestCreateObservedResponse({
-        url: createProxyUrl,
-        method: "POST",
-        contentType: "application/json",
-        status: 200,
-      }),
-    ).toBe(true);
-
-    expect(
-      isArchitectureRequestCreateObservedResponse({
-        url: createAsyncProxyUrl,
-        method: "POST",
-        contentType: undefined,
-        status: 202,
-      }),
-    ).toBe(true);
+    ).toThrow(/omitted run id/i);
   });
 });
 
@@ -118,53 +85,5 @@ describe("readCreatedRunIdFromArchitectureRequestBody", () => {
   it("rejects empty bodies and missing run ids", () => {
     expect(() => readCreatedRunIdFromArchitectureRequestBody("  ")).toThrow(/empty body/i);
     expect(() => readCreatedRunIdFromArchitectureRequestBody("{}")).toThrow(/omitted run.runId/i);
-  });
-});
-
-describe("readCreatedRunIdFromArchitectureRequestLocation", () => {
-  it("reads the run handle from a 202 Location", () => {
-    expect(
-      readCreatedRunIdFromArchitectureRequestLocation(
-        "/v1/operations/run:f200217e-83a9-40db-a5ef-54ef3a437c3e",
-      ),
-    ).toBe("f200217e-83a9-40db-a5ef-54ef3a437c3e");
-
-    expect(
-      readCreatedRunIdFromArchitectureRequestLocation(
-        "http://localhost:3000/api/proxy/v1/operations/run:abc-1?x=1#y",
-      ),
-    ).toBe("abc-1");
-  });
-
-  it("rejects missing or non-run Locations", () => {
-    expect(() => readCreatedRunIdFromArchitectureRequestLocation(undefined)).toThrow(/omitted Location/i);
-    expect(() => readCreatedRunIdFromArchitectureRequestLocation("  ")).toThrow(/omitted Location/i);
-    expect(() => readCreatedRunIdFromArchitectureRequestLocation("/v1/health")).toThrow(/omitted \/operations/i);
-    expect(() => readCreatedRunIdFromArchitectureRequestLocation("/v1/operations/create:abc")).toThrow(
-      /omitted run: handle/i,
-    );
-    expect(() => readCreatedRunIdFromArchitectureRequestLocation("/v1/operations/%E0%A4%A")).toThrow(
-      /not decodable/i,
-    );
-  });
-});
-
-describe("readCreatedRunIdFromArchitectureRequestResponse", () => {
-  it("prefers Location on 202 and JSON otherwise", () => {
-    expect(
-      readCreatedRunIdFromArchitectureRequestResponse({
-        status: 202,
-        bodyText: "",
-        location: "/v1/operations/run:from-location",
-      }),
-    ).toBe("from-location");
-
-    expect(
-      readCreatedRunIdFromArchitectureRequestResponse({
-        status: 200,
-        bodyText: '{"run":{"runId":"from-json"}}',
-        location: undefined,
-      }),
-    ).toBe("from-json");
   });
 });

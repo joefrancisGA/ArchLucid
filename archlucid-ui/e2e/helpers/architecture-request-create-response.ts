@@ -1,10 +1,13 @@
 /**
- * Private-beta wizard create can observe empty non-JSON POSTs to the same proxy path
- * (preflight leftovers, aborted retries). Sync JSON create payloads carry the run id.
- * Wizard-managed creates now admit via POST /architecture/request/async (202 + Location).
+ * Wizard create posts POST /v1/architecture/request/async (Tier C: 202 + Location, empty body).
+ * Sync Simulator create still posts JSON to POST /v1/architecture/request.
+ * Draft / idempotency / batch siblings share the prefix and must not match.
  */
 
-export function isArchitectureRequestCreateProxyPost(args: {
+const SYNC_PROXY_SUFFIX = "/api/proxy/v1/architecture/request";
+const ASYNC_PROXY_SUFFIX = "/api/proxy/v1/architecture/request/async";
+
+export function isArchitectureRequestCreateResponse(args: {
   url: string;
   method: string;
 }): boolean {
@@ -12,107 +15,109 @@ export function isArchitectureRequestCreateProxyPost(args: {
     return false;
   }
 
-  return args.url.includes("/api/proxy/v1/architecture/request");
+  const pathname = proxyPathname(args.url);
+
+  return pathname.endsWith(ASYNC_PROXY_SUFFIX) || pathname.endsWith(SYNC_PROXY_SUFFIX);
 }
 
-export function isArchitectureRequestCreateJsonResponse(args: {
-  url: string;
-  method: string;
-  contentType: string | undefined;
-}): boolean {
-  if (!isArchitectureRequestCreateProxyPost(args)) {
-    return false;
+export function readCreatedRunIdFromArchitectureRequestCreate(args: {
+  status: number;
+  bodyText: string;
+  location: string | null | undefined;
+}): string {
+  const fromBody = tryReadRunIdFromJsonBody(args.bodyText);
+
+  if (fromBody.length > 0) {
+    return fromBody;
   }
 
-  return (args.contentType ?? "").toLowerCase().includes("json");
-}
+  const fromLocation = tryReadRunIdFromLocation(args.location);
 
-export function isArchitectureRequestCreateAcceptedResponse(args: {
-  url: string;
-  method: string;
-  status: number;
-}): boolean {
-  if (!isArchitectureRequestCreateProxyPost(args)) {
-    return false;
+  if (fromLocation.length > 0) {
+    return fromLocation;
   }
 
-  return args.status === 202;
-}
+  const bodyPreview = args.bodyText.trim().slice(0, 500);
+  const location = (args.location ?? "").trim();
 
-export function isArchitectureRequestCreateObservedResponse(args: {
-  url: string;
-  method: string;
-  contentType: string | undefined;
-  status: number;
-}): boolean {
-  return (
-    isArchitectureRequestCreateJsonResponse(args) || isArchitectureRequestCreateAcceptedResponse(args)
+  throw new Error(
+    `POST /architecture/request create omitted run id (status ${String(args.status)}, location ${location.length > 0 ? location : "<none>"}, body ${bodyPreview.length > 0 ? bodyPreview : "<empty>"}).`,
   );
 }
 
 export function readCreatedRunIdFromArchitectureRequestBody(bodyText: string): string {
+  const fromBody = tryReadRunIdFromJsonBody(bodyText);
+
+  if (fromBody.length > 0) {
+    return fromBody;
+  }
+
   const trimmed = bodyText.trim();
 
   if (trimmed.length === 0) {
     throw new Error("POST /architecture/request returned an empty body.");
   }
 
-  const createJson = JSON.parse(trimmed) as { run?: { runId?: string } };
-  const runId = createJson.run?.runId ?? "";
-
-  if (runId.length === 0) {
-    throw new Error(`POST /architecture/request JSON omitted run.runId: ${trimmed}`);
-  }
-
-  return runId;
+  throw new Error(`POST /architecture/request JSON omitted run.runId: ${trimmed}`);
 }
 
-export function readCreatedRunIdFromArchitectureRequestLocation(
-  location: string | null | undefined,
-): string {
+function proxyPathname(url: string): string {
+  try {
+    return new URL(url).pathname.replace(/\/+$/, "");
+  } catch {
+    const withoutQuery = (url.split("?")[0] ?? "").split("#")[0] ?? "";
+
+    return withoutQuery.replace(/\/+$/, "");
+  }
+}
+
+function tryReadRunIdFromJsonBody(bodyText: string): string {
+  const trimmed = bodyText.trim();
+
+  if (trimmed.length === 0) {
+    return "";
+  }
+
+  try {
+    const createJson = JSON.parse(trimmed) as { run?: { runId?: string } };
+
+    return createJson.run?.runId ?? "";
+  } catch {
+    return "";
+  }
+}
+
+function tryReadRunIdFromLocation(location: string | null | undefined): string {
   if (location === null || location === undefined) {
-    throw new Error("POST /architecture/request/async 202 omitted Location.");
+    return "";
   }
 
   const trimmed = location.trim();
 
   if (trimmed.length === 0) {
-    throw new Error("POST /architecture/request/async 202 omitted Location.");
+    return "";
   }
 
   const marker = "/operations/";
   const markerIndex = trimmed.toLowerCase().indexOf(marker);
 
   if (markerIndex < 0) {
-    throw new Error(`POST /architecture/request/async Location omitted /operations/: ${trimmed}`);
+    return "";
   }
 
   const rest = trimmed.slice(markerIndex + marker.length);
   const withoutQuery = rest.split("?")[0] ?? "";
   const withoutHash = withoutQuery.split("#")[0] ?? "";
-  let operationId = withoutHash.trim();
 
   try {
-    operationId = decodeURIComponent(operationId);
-  } catch {
-    throw new Error(`POST /architecture/request/async Location was not decodable: ${trimmed}`);
-  }
+    const operationId = decodeURIComponent(withoutHash.trim());
 
-  if (operationId.startsWith("run:") && operationId.length > 4) {
+    if (!operationId.toLowerCase().startsWith("run:") || operationId.length <= 4) {
+      return "";
+    }
+
     return operationId.slice(4);
+  } catch {
+    return "";
   }
-
-  throw new Error(`POST /architecture/request/async Location omitted run: handle: ${trimmed}`);
-}
-
-export function readCreatedRunIdFromArchitectureRequestResponse(args: {
-  status: number;
-  bodyText: string;
-  location: string | undefined;
-}): string {
-  if (args.status === 202) {
-    return readCreatedRunIdFromArchitectureRequestLocation(args.location);
-  }
-
-  return readCreatedRunIdFromArchitectureRequestBody(args.bodyText);
 }

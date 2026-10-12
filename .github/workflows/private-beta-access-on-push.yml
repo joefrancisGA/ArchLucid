@@ -12,8 +12,7 @@ on:
   workflow_dispatch:
 
 concurrency:
-  # Cancel superseded trunk pushes so a later SHA does not bury the first-green private-beta signal.
-  # The frozen invite-wave lane (private-beta-access-smoke-branch.yml) keeps cancel-in-progress: false.
+  # Cancel superseded in-progress runs so a newer trunk SHA is the invite-wave witness.
   group: private-beta-access-on-push-${{ github.ref }}
   cancel-in-progress: true
 

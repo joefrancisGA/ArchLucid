@@ -8,9 +8,13 @@
 
 **Depends on:** SN-MENU-02. SN-MENU-03 may already be on the branch.
 
+## Superseded strip
+
+The posture strip below (Last collection, Open findings, Frameworks) is replaced by **SN-HOME-02** and **SN-HOME-03** in [`docs/architecture/SECURENOW_HOME_WORK_SUMMARY_LUNA_PROMPTS.md`](../../docs/architecture/SECURENOW_HOME_WORK_SUMMARY_LUNA_PROMPTS.md). Do not add those three tiles. If the five sidebar sections are already on Home, this prompt has nothing left to build.
+
 ## Goal
 
-SecureNow Home opens with a short posture strip, then one section per sidebar group, in sidebar order, using the sidebar labels.
+SecureNow Home has one section per sidebar group, in sidebar order, using the sidebar labels. The posture strip specified later in this file is superseded. Do not build it.
 
 ## Why
 
@@ -29,7 +33,9 @@ Home sections today are Security, ARC-AMPE compliance, and Infrastructure. After
 
 ## What to build
 
-### Posture strip
+Skip the posture strip. **SN-HOME-02** and **SN-HOME-03** replace it. Build a missing sidebar section only.
+
+### Posture strip (do not build)
 
 Three compact tiles, in this order, using `OPERATOR_TYPOGRAPHY.kpiValue` and `StatusTag`:
 

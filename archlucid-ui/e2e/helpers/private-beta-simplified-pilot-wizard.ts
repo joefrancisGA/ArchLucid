@@ -1,13 +1,10 @@
 import { expect, type Page, type Response } from "@playwright/test";
 
 import {
-  isArchitectureRequestCreateObservedResponse,
-  readCreatedRunIdFromArchitectureRequestResponse,
+  isArchitectureRequestCreateResponse,
+  readCreatedRunIdFromArchitectureRequestCreate,
 } from "./architecture-request-create-response";
-import {
-  architectureDescriptionPassesLiveE2eAdmission,
-  liveE2eArchitectureDescription,
-} from "./live-api-payloads";
+import { liveE2eArchitectureDescription } from "./live-api-client";
 import { formatSimplifiedPilotWizardMountFailure } from "./simplified-pilot-wizard-mount-failure";
 import { waitAndDismissFirstSessionPurposeChooser } from "./live-seat-scope-assertions";
 
@@ -76,7 +73,7 @@ export async function submitPrivateBetaSimplifiedPilotWizard(page: Page): Promis
   const description = page.getByRole("textbox", { name: "Description" });
   const descriptionText = (await description.inputValue()).trim();
 
-  if (descriptionText.length < 10 || !architectureDescriptionPassesLiveE2eAdmission(descriptionText)) {
+  if (descriptionText.length < 10) {
     await description.fill(
       liveE2eArchitectureDescription("Private beta invitee UI wizard first meaningful action."),
     );
@@ -100,7 +97,7 @@ export async function submitPrivateBetaSimplifiedPilotWizard(page: Page): Promis
   });
 
   const createRespPromise = page.waitForResponse(
-    (response) => isArchitectureRequestCreateObservedResponse(toCreateObservedResponseArgs(response)),
+    (response) => isArchitectureRequestCreateResponse(toCreateResponseArgs(response)),
     { timeout: liveE2ePrivateBetaWizardCreateTimeoutMs() },
   );
 
@@ -111,40 +108,28 @@ export async function submitPrivateBetaSimplifiedPilotWizard(page: Page): Promis
 
   expect(
     createResp.ok(),
-    `POST /architecture/request failed ${createResp.status()}: ${bodyText}`,
+    `POST /architecture/request failed ${String(createResp.status())}: ${bodyText}`,
   ).toBeTruthy();
 
-  try {
-    return readCreatedRunIdFromArchitectureRequestResponse({
-      status: createResp.status(),
-      bodyText,
-      location: createResp.headers().location,
-    });
-  } catch (error: unknown) {
-    const trackedRunId = (await page.getByTestId("wizard-track-review-id").textContent())?.trim() ?? "";
-
-    if (trackedRunId.length > 0) {
-      return trackedRunId;
-    }
-
-    throw error;
-  }
+  return readCreatedRunIdFromArchitectureRequestCreate({
+    status: createResp.status(),
+    bodyText,
+    location: createResp.headers()["location"],
+  });
 }
 
-function toCreateObservedResponseArgs(response: Response): {
+function toCreateResponseArgs(response: Response): {
   url: string;
   method: string;
-  contentType: string | undefined;
-  status: number;
 } {
   return {
     url: response.url(),
     method: response.request().method(),
-    contentType: response.headers()["content-type"],
-    status: response.status(),
   };
 }
 
 function liveE2ePrivateBetaWizardCreateTimeoutMs(): number {
-  return process.env.CI ? 540_000 : 180_000;
+  // Async create is stub + enqueue (202). The previous 540s CI budget waited for a JSON
+  // sync body that Real-mode wizard create never sends.
+  return process.env.CI ? 120_000 : 180_000;
 }
