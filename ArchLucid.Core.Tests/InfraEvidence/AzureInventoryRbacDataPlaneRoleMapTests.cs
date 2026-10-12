@@ -20,6 +20,7 @@ public sealed class AzureInventoryRbacDataPlaneRoleMapTests
     [InlineData("Azure Service Bus Data Owner", AzureInventoryDerivedDataPlanePermission.ReadAndWrite)]
     [InlineData("Azure Event Hubs Data Receiver", AzureInventoryDerivedDataPlanePermission.Read)]
     [InlineData("Azure Event Hubs Data Sender", AzureInventoryDerivedDataPlanePermission.Write)]
+    [InlineData("Azure Event Hubs Data Owner", AzureInventoryDerivedDataPlanePermission.ReadAndWrite)]
     public void Resolve_allowlisted_roles_map_to_derived_permissions(
         string roleName,
         AzureInventoryDerivedDataPlanePermission expected)

@@ -45,6 +45,7 @@ import {
 } from "@/lib/system-not-job-findings-are-verbs-on-the-system";
 import { assignedToMeFindingsPathForProductLine } from "@/lib/product-line/securenow-assigned-to-me-route";
 import { findingsPathForProductLine } from "@/lib/product-line/securenow-compliance-routes";
+import { SECURENOW_NAV_LABELS } from "@/lib/product-line/securenow-nav-labels";
 import {
   type GovernanceFindingInspectHrefOptions,
   resolveGovernanceQueueAuxiliaryFindingHref,
@@ -299,7 +300,9 @@ export function resolveGovernanceFindingsPageTitle(
   options: ResolveGovernanceFindingsPresentationOptions = {},
 ): string {
   if (isAssignedToMe) {
-    return "Assigned to me";
+    return isSecureNowProductLine(options.productLineId ?? "architecture")
+      ? SECURENOW_NAV_LABELS["/security/assigned-to-me"] ?? "Assigned to me"
+      : "Assigned to me";
   }
 
   if (isSecureNowProductLine(options.productLineId ?? "architecture")) {

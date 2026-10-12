@@ -323,6 +323,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | HWO | `/help/workspace-settings` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
 | IN | `/infrastructure` | 0.02% | 0 | 0 | 2 | Marketing | No | None |
 | INS | `/infrastructure/ask` | 0.02% | 0 | 0 | 2 | Marketing | No | None |
+| ICO | `/infrastructure/collection-agent` | 0.02% | 0 | 0 | 2 | Marketing | No | None |
 | IND | `/infrastructure/declared-connections` | 0.02% | 0 | 0 | 2 | Marketing | No | None |
 | IDI | `/infrastructure/diagram-reconcile` | 0.02% | 0 | 0 | 2 | Marketing | No | None |
 | NDI | `/infrastructure/diagrams` | 0.02% | 0 | 0 | 2 | Marketing | No | None |

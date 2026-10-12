@@ -328,6 +328,12 @@ public sealed class AzureInventoryRoleAssignmentWrite
         init;
     } = string.Empty;
 
+    public string? RoleDefinitionName
+    {
+        get;
+        init;
+    }
+
     public string? PimEligibilityKind
     {
         get;

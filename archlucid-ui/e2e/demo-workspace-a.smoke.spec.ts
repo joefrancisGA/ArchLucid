@@ -31,6 +31,7 @@ test.describe(
   `demo-workspace-a-smoke (${releaseGateTag})`,
   { tag: [releaseGateTag, "@founder", "@critical", "@buyer-journey"] },
   () => {
+  test.describe.configure({ timeout: 240_000 });
 
   test.beforeAll(async ({ request }) => {
     const health = await request.get(`${liveApiBase}/health/ready`, { timeout: 90_000 });

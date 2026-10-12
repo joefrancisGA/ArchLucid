@@ -67,6 +67,7 @@ public sealed class AzureInventorySnapshotGraphResolver(
             ? snapshot
             : AzureInventoryVisibleSnapshotProjection.Apply(snapshot, retainIdentityDiagramArmTypes);
 
+        AzureInventorySnapshotResourceIndex resourceIndex = AzureInventorySnapshotResourceIndex.Create(snapshot);
         AzureInventorySnapshotPropertyIndex propertyIndex = AzureInventorySnapshotPropertyIndex.Create(snapshot);
         AzureInventorySnapshotPropertyIndex visiblePropertyIndex = ReferenceEquals(snapshot, graphSnapshot)
             ? propertyIndex
@@ -248,7 +249,8 @@ public sealed class AzureInventorySnapshotGraphResolver(
             snapshot,
             nodeIdByArmId,
             edges,
-            edgeKeys);
+            edgeKeys,
+            resourceIndex);
         AzureInventorySnapshotPublicIpParentEdgeHydrator.AddMissingParentEdges(
             snapshot,
             nodeIdByArmId,
@@ -285,7 +287,8 @@ public sealed class AzureInventorySnapshotGraphResolver(
             snapshot,
             nodeIdByArmId,
             edges,
-            edgeKeys);
+            edgeKeys,
+            resourceIndex);
         AzureInventorySnapshotParentChildEdgeHydrator.AddMissingContainsEdges(
             nodeIdByArmId,
             edges,
@@ -293,7 +296,7 @@ public sealed class AzureInventorySnapshotGraphResolver(
         AzureInventorySnapshotGraphIndexes metadataIndexes = AzureInventorySnapshotGraphIndexes.Create(snapshot, nodes, propertyIndex);
         AzureInventorySnapshotNodeRelationshipGraphHydrator.Hydrate(snapshot, nodes, metadataIndexes);
         AzureInventorySnapshotParentAttachmentGraphHydrator.Hydrate(snapshot, nodes, metadataIndexes);
-        AzureInventorySnapshotIndirectRelationshipGraphHydrator.Hydrate(snapshot, nodes, edges, metadataIndexes);
+        AzureInventorySnapshotIndirectRelationshipGraphHydrator.Hydrate(snapshot, nodes, edges, metadataIndexes, resourceIndex);
         AzureInventorySnapshotExternalSourceHostConsolidator.Consolidate(
             graphSnapshot,
             nodes,

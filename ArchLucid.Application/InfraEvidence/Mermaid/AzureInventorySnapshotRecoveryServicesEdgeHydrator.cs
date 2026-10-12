@@ -15,16 +15,16 @@ internal static class AzureInventorySnapshotRecoveryServicesEdgeHydrator
         AzureInventorySnapshotDetailReadModel snapshot,
         Dictionary<string, string> nodeIdByArmId,
         List<GraphEdge> edges,
-        HashSet<string> edgeKeys)
+        HashSet<string> edgeKeys,
+        AzureInventorySnapshotResourceIndex? resourceIndex = null)
     {
         ArgumentNullException.ThrowIfNull(snapshot);
         ArgumentNullException.ThrowIfNull(nodeIdByArmId);
         ArgumentNullException.ThrowIfNull(edges);
         ArgumentNullException.ThrowIfNull(edgeKeys);
 
-        Dictionary<Guid, AzureInventoryResourceRecord> resourcesByRowId = snapshot.Resources
-            .GroupBy(resource => resource.ResourceRowId)
-            .ToDictionary(group => group.Key, group => group.First());
+        resourceIndex ??= AzureInventorySnapshotResourceIndex.Create(snapshot);
+        IReadOnlyDictionary<Guid, AzureInventoryResourceRecord> resourcesByRowId = resourceIndex.ByResourceRowId;
 
         foreach (AzureInventoryResourcePropertyReadModel property in snapshot.Properties)
         {

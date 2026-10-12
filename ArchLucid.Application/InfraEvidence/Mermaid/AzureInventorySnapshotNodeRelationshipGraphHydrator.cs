@@ -42,7 +42,7 @@ internal static class AzureInventorySnapshotNodeRelationshipGraphHydrator
                 continue;
             }
 
-            if (!propertiesByRowId.TryGetValue(resource.ResourceRowId, out List<AzureInventoryResourcePropertyReadModel>? properties))
+            if (!propertiesByRowId.ContainsKey(resource.ResourceRowId))
             {
                 continue;
             }
@@ -56,12 +56,7 @@ internal static class AzureInventorySnapshotNodeRelationshipGraphHydrator
                     evidenceCurrency.Value.ToString();
             }
 
-            Dictionary<string, string> propertyDictionary = properties
-                .Where(property => !property.IsRedacted && !string.IsNullOrWhiteSpace(property.PropertyValue))
-                .ToDictionary(
-                    property => property.PropertyKey,
-                    property => property.PropertyValue!,
-                    StringComparer.OrdinalIgnoreCase);
+            IReadOnlyDictionary<string, string> propertyDictionary = indexes.GetUsableProperties(resource.ResourceRowId);
 
             switch (category)
             {

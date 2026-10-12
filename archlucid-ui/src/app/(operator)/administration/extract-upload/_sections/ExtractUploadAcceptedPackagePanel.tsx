@@ -131,6 +131,14 @@ export function ExtractUploadAcceptedPackagePanel(
                 {record.resourceCount === null ? "Resource count was not stored" : record.resourceCount}
               </dd>
             </div>
+            <div>
+              <dt className={cn("font-semibold uppercase tracking-wide text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>
+                File
+              </dt>
+              <dd className={cn("m-0 mt-0.5", OPERATOR_TYPOGRAPHY.body)} data-testid="extract-upload-accepted-file-label">
+                {record.fileLabel == null ? "File name was not stored" : record.fileLabel}
+              </dd>
+            </div>
           </dl>
         </div>
       </div>

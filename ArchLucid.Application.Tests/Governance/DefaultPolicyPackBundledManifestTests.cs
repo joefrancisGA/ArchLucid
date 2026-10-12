@@ -8,7 +8,7 @@ namespace ArchLucid.Application.Tests.Governance;
 public sealed class DefaultPolicyPackBundledManifestTests
 {
     [Fact]
-    public void LoadBundles_returns_twenty_three_ga_bundles_with_metadata()
+    public void LoadBundles_returns_forty_nine_ga_bundles_with_metadata()
     {
         IReadOnlyList<DefaultPolicyPackBundleDefinition> bundles = DefaultPolicyPackBundledManifest.LoadBundles();
 

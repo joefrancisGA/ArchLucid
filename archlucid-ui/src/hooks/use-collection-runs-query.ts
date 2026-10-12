@@ -1,8 +1,8 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-import { fetchCollectionRuns } from "@/lib/collection-runs-api";
+import { fetchCollectionRuns, triggerCollectionRun } from "@/lib/collection-runs-api";
 import {
   OPERATOR_QUERY_GC_MS,
   OPERATOR_QUERY_STALE_MS,
@@ -23,5 +23,19 @@ export function useCollectionRunsQuery() {
     staleTime: OPERATOR_QUERY_STALE_MS,
     gcTime: OPERATOR_QUERY_GC_MS,
     retry: false,
+    refetchInterval: (currentQuery) =>
+      currentQuery.state.data?.some((run) => run.status === "Running") === true ? 5000 : false,
+  });
+}
+
+export function useTriggerCollectionRunMutation() {
+  const queryClient = useQueryClient();
+  const scopeKey = useOperatorScopeQueryKey();
+
+  return useMutation({
+    mutationFn: (idempotencyKey: string) => triggerCollectionRun(idempotencyKey),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: collectionRunsQueryKeys.list(scopeKey) });
+    },
   });
 }

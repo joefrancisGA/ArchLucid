@@ -15,7 +15,8 @@ internal static class AzureInventorySnapshotIndirectRelationshipGraphHydrator
         AzureInventorySnapshotDetailReadModel snapshot,
         IReadOnlyList<GraphNode> nodes,
         IReadOnlyList<GraphEdge> edges,
-        AzureInventorySnapshotGraphIndexes? indexes = null)
+        AzureInventorySnapshotGraphIndexes? indexes = null,
+        AzureInventorySnapshotResourceIndex? resourceIndex = null)
     {
         ArgumentNullException.ThrowIfNull(snapshot);
         ArgumentNullException.ThrowIfNull(nodes);
@@ -29,16 +30,7 @@ internal static class AzureInventorySnapshotIndirectRelationshipGraphHydrator
         indexes ??= AzureInventorySnapshotGraphIndexes.Create(snapshot, nodes);
         IReadOnlyDictionary<string, GraphNode> nodesByArmId = indexes.NodesByArmId;
 
-        Dictionary<string, InventoryDiagramEvidenceCurrency?> evidenceCurrencyByArmId = snapshot.Resources
-            .Where(resource => !string.IsNullOrWhiteSpace(resource.AzureResourceId))
-            .GroupBy(
-                resource => ArmResourceIdNormalizer.Normalize(resource.AzureResourceId),
-                StringComparer.OrdinalIgnoreCase)
-            .ToDictionary(
-                group => group.Key,
-                group => InventoryDiagramEvidenceCurrencyLabels.ResolveFromSourceEvidenceReference(
-                    group.First().SourceEvidenceReference),
-                StringComparer.OrdinalIgnoreCase);
+        resourceIndex ??= AzureInventorySnapshotResourceIndex.Create(snapshot);
 
         foreach (AzureInventoryResourceRecord resource in snapshot.Resources)
         {
@@ -91,23 +83,12 @@ internal static class AzureInventorySnapshotIndirectRelationshipGraphHydrator
             InventoryDiagramEvidenceCurrency evidenceCurrency =
                 InventoryDiagramIndirectRelationshipResolver.ResolveEvidenceCurrency(edge, fromNode);
 
-            bool hasExplicitEdgeCurrency =
-                edge.Properties.TryGetValue(
-                    InventoryDiagramIndirectRelationshipPropertyKeys.EvidenceCurrency,
-                    out string? edgeCurrency)
-                && Enum.TryParse(
-                    edgeCurrency,
-                    ignoreCase: true,
-                    out InventoryDiagramEvidenceCurrency _);
-
-            if (!hasExplicitEdgeCurrency
-                && evidenceCurrency == InventoryDiagramEvidenceCurrency.Current
-                && evidenceCurrencyByArmId.TryGetValue(
-                    fromArmId,
-                    out InventoryDiagramEvidenceCurrency? configuredCurrency)
-                && configuredCurrency.HasValue)
+            if (evidenceCurrency == InventoryDiagramEvidenceCurrency.Current
+                && resourceIndex.ByArmId.TryGetValue(fromArmId, out AzureInventoryResourceRecord? sourceResource)
+                && InventoryDiagramEvidenceCurrencyLabels.ResolveFromSourceEvidenceReference(
+                    sourceResource.SourceEvidenceReference) is InventoryDiagramEvidenceCurrency configuredCurrency)
             {
-                evidenceCurrency = configuredCurrency.Value;
+                evidenceCurrency = configuredCurrency;
             }
 
             edge.Properties[InventoryDiagramIndirectRelationshipPropertyKeys.EvidenceCurrency] =

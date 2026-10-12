@@ -69,7 +69,7 @@ import {
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
 import type { PolicyPacksPageTab } from "./policy-packs-page-view-model";
-import { sortFeaturedSecureNowFrameworks } from "@/lib/editions/securenow-featured-frameworks";
+import { featuredSecureNowFrameworksIncludingOrganizationPacks } from "@/lib/editions/securenow-featured-frameworks";
 import { resolveSecureNowEditionIdFromEnv } from "@/lib/product-line/resolve-securenow-edition-id";
 
 type Props = {
@@ -115,7 +115,7 @@ export function PolicyPacksPageView(props: Props) {
   const workspaceAssignmentCount = m.workspaceSelectionItems.length;
   const featuredFrameworks =
     productLine === "security"
-      ? sortFeaturedSecureNowFrameworks(
+      ? featuredSecureNowFrameworksIncludingOrganizationPacks(
           m.workspaceSelectionItems,
           resolveSecureNowEditionIdFromEnv(),
         )

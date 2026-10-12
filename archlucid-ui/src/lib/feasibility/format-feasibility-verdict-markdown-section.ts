@@ -141,7 +141,7 @@ export function formatFeasibilityVerdictMarkdownSection(
   verdict: ManifestFeasibilityVerdict | null | undefined,
 ): string {
   if (verdict === null || verdict === undefined) {
-    return "";
+    return "Feasibility verdict was not stored.";
   }
 
   const lines: string[] = [];

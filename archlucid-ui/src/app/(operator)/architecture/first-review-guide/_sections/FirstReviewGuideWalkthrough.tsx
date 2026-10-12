@@ -61,6 +61,7 @@ function FirstReviewGuideWalkthroughLoadingSkeleton() {
     <div
       className="space-y-3"
       data-testid="first-review-guide-walkthrough-loading"
+      role="status"
       aria-busy="true"
       aria-label="Loading first review walkthrough"
     >

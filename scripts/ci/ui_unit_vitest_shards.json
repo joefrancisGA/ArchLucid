@@ -22,6 +22,7 @@
         "src/app/(operator)/internal",
         "src/app/(operator)/admin",
         "src/app/(operator)/integrations",
+        "src/app/(operator)/infrastructure",
         "src/app/(operator)/help",
         "src/app/(operator)/settings",
         "src/app/(operator)/administration"

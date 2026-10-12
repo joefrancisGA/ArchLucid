@@ -9,6 +9,11 @@ import {
 } from "./format-feasibility-verdict-markdown-section";
 
 describe("formatFeasibilityVerdictMarkdownSection (FC-30 / FC-31)", () => {
+  it("reports a missing feasibility verdict", () => {
+    expect(formatFeasibilityVerdictMarkdownSection(null)).toBe("Feasibility verdict was not stored.");
+    expect(formatFeasibilityVerdictMarkdownSection(undefined)).toBe("Feasibility verdict was not stored.");
+  });
+
   it("blocks hard infeasible exports without citation", () => {
     const verdict: ManifestFeasibilityVerdict = {
       kind: "HardInfeasible",

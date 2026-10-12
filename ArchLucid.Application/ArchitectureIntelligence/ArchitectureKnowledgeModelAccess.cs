@@ -122,7 +122,14 @@ public sealed class ArchitectureKnowledgeModelAccess(
         run.KnowledgeModelId = nextModelId;
         RunHeaderKnowledgeModelContentPin.ApplyToHeader(run, modelToSave, nextModelId);
 
-        if (run.GraphSnapshotId.HasValue)
+        // Closed-loop publish runs during decisioning, after graph+findings. Nulling the
+        // in-flight graph pointer then sealing GoldenManifestId 409s first finalize
+        // (golden-cohort nightly: pipeline snapshot ids incomplete).
+        Guid? graphSnapshotToPreserve = ShouldPreserveInFlightPipelineGraph(run)
+            ? run.GraphSnapshotId
+            : null;
+
+        if (run.GraphSnapshotId.HasValue && graphSnapshotToPreserve is null)
             run.GraphSnapshotId = null;
 
         await _runRepository.UpdateAsync(run, cancellationToken).ConfigureAwait(false);
@@ -141,6 +148,12 @@ public sealed class ArchitectureKnowledgeModelAccess(
                 .ClearGraphSnapshotForArchitectureAsync(scope, architectureId, cancellationToken)
                 .ConfigureAwait(false);
 
+            await RestorePreservedPipelineGraphPointerAsync(
+                    run,
+                    graphSnapshotToPreserve,
+                    cancellationToken)
+                .ConfigureAwait(false);
+
             await _architectureIdentityRepository
                 .UpdateCurrentModelAsync(scope, architectureId, nextModelId, cancellationToken)
                 .ConfigureAwait(false);
@@ -152,6 +165,23 @@ public sealed class ArchitectureKnowledgeModelAccess(
                 .TryReprojectForRunAsync(scope, runId, model, cancellationToken)
                 .ConfigureAwait(false);
         }
+    }
+
+    private static bool ShouldPreserveInFlightPipelineGraph(ArchLucid.Persistence.Models.RunRecord run)
+    {
+        return run.GoldenManifestId.HasValue || run.FindingsSnapshotId.HasValue;
+    }
+
+    private async Task RestorePreservedPipelineGraphPointerAsync(
+        ArchLucid.Persistence.Models.RunRecord run,
+        Guid? graphSnapshotToPreserve,
+        CancellationToken cancellationToken)
+    {
+        if (!graphSnapshotToPreserve.HasValue || _runRepository is null)
+            return;
+
+        run.GraphSnapshotId = graphSnapshotToPreserve;
+        await _runRepository.UpdateAsync(run, cancellationToken).ConfigureAwait(false);
     }
 
     private async Task<ArchitectureKnowledgeModel?> TryLoadViaArchitectureIdentityAsync(

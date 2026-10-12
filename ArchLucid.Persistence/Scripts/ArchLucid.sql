@@ -286,6 +286,7 @@ BEGIN
         ProjectId                 UNIQUEIDENTIFIER NOT NULL,
         RunId                     UNIQUEIDENTIFIER NOT NULL,
         AgentVersion              NVARCHAR(128)    NOT NULL,
+        Schedule                  NVARCHAR(512)    NULL,
         StartedUtc                DATETIME2        NOT NULL,
         FinishedUtc               DATETIME2        NULL,
         Status                    INT              NOT NULL,

@@ -99,6 +99,33 @@ class Checks(unittest.TestCase):
         self.assertEqual(validate(draft, with_untrusted),
                          ["Sentence 1: name 'kv-secret' does not appear in the pack."])
 
+    def with_unmodeled_path(self) -> dict:
+        """Chapter 4's optional lab step, as pack items: a path that rests on a role condition."""
+        base = pack()
+        path = {"id": "P7", "hops": ["H10"], "target": "Read customer data in custdata",
+                "confidence": "Insufficient evidence", "gaps": ["G3"]}
+        gap = {"id": "G3", "kind": "unmodeledControl",
+               "claim": "A role-assignment condition on analyst-04's blob reader role was not evaluated."}
+
+        return dict(base, paths=base["paths"] + [path], gaps=base["gaps"] + [gap])
+
+    def test_citing_an_unmodeled_path_requires_its_gap(self) -> None:
+        draft = {"sentences": [{"text": "Another path reaches customer data.", "cites": ["P7"]}]}
+
+        self.assertEqual(validate(draft, self.with_unmodeled_path()), ["Draft cites P7 but not its gap G3."])
+
+    def test_gap_cited_anywhere_in_the_draft_satisfies_the_check(self) -> None:
+        draft = {"sentences": [
+            {"text": "Another path reaches customer data.", "cites": ["P7"]},
+            {"text": "Whether it holds depends on a condition that was not evaluated.", "cites": ["G3"]},
+        ]}
+
+        self.assertEqual(validate(draft, self.with_unmodeled_path()), [])
+
+    def test_uncited_unmodeled_path_needs_no_gap(self) -> None:
+        self.assertEqual(validate({"sentences": [{"text": "Six paths exist.", "cites": ["P1-P6"]}]},
+                                  self.with_unmodeled_path()), [])
+
     def test_clean_exit(self) -> None:
         self.assertEqual(validate({"status": "insufficient_evidence", "sentences": []}, pack()), [])
 

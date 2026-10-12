@@ -21,7 +21,10 @@ describe("AlertsInboxListStates TB-1598", () => {
       />,
     );
 
-    expect(screen.getByTestId("alerts-inbox-list-loading-skeleton")).toBeInTheDocument();
+    const skeleton = screen.getByTestId("alerts-inbox-list-loading-skeleton");
+
+    expect(skeleton).toBeInTheDocument();
+    expect(skeleton).toHaveAttribute("role", "status");
     expect(screen.queryByText("Loading alerts…")).not.toBeInTheDocument();
     expect(screen.queryByTestId("alerts-inbox-empty-state")).not.toBeInTheDocument();
   });

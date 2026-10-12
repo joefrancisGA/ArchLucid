@@ -9,7 +9,7 @@ on:
     branches: [main, master, RC35]
 
 concurrency:
-  # Keep a release-cut corset witness running to completion; later pushes queue behind it.
+  # Keep the current push corset witness running to completion; later pushes queue behind it.
   group: ui-typecheck-push-${{ github.ref }}
   cancel-in-progress: false
 
