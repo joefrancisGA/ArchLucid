@@ -228,6 +228,7 @@ Every edge has a **type**, the **evidence** behind it, and its **evidence catego
 | `runsAs` | Compute resource → Managed identity | Observed fact |
 | `grants` | Principal → Capability | Derived fact or deterministic inference |
 | `canAssignRoles` | Principal → Scope | Derived fact |
+| `canReach` | Network position → Endpoint | Deterministic inference from network configuration (Chapter 5); an indeterminate hop carries an unmodeled control |
 
 ### From assignments to edges
 
@@ -259,7 +260,8 @@ from dataclasses import dataclass
 @dataclass(frozen=True)
 class UnmodeledControl:
     """A control the derivation found but can't evaluate, so it can't tell whether the hop holds."""
-    kind: str        # "roleCondition", "missingRoleDefinition", "denyWithCondition"
+    # "roleCondition", "missingRoleDefinition", "denyWithCondition", "networkIndeterminate"
+    kind: str
     principal: str
     scope: str
     role: str        # role name, or the deny assignment's name
@@ -272,6 +274,9 @@ class UnmodeledControl:
 
         if self.kind == "missingRoleDefinition":
             return f"role {where} allows this hop; its definition wasn't collected"
+
+        if self.kind == "networkIndeterminate":
+            return f"{self.principal} may reach {self.scope} ({self.citation}): {self.condition}"
 
         return f"{self.kind} on {where} allows this hop: {self.condition}"
 
@@ -298,6 +303,7 @@ PRIVILEGE_KINDS = frozenset({
     "runsAs",
     "grants",
     "canAssignRoles",
+    "canReach",
 })
 
 # Observed structure. Kept for citation and as derivation input. Not a capability.
@@ -896,7 +902,7 @@ The first and third rows of that table explain why Microsoft has spent years pus
 | Deny assignments | Yes, including excluded principals | A deny with a condition labels the hop `denyWithCondition` instead of blocking it. |
 | Role-assignment conditions | Recorded, not evaluated | The edge is drawn at the role's upper bound and labeled `roleCondition`. |
 | PIM eligibility (`canActivate`) | Not in the section 4.5 sketch | No edge: eligible assignments aren't in `role-assignments.json`, so the path is missed. Rule 5 says how to add them. |
-| Storage firewall, private endpoint, DNS | Not modeled here (Chapter 5) | The identity path stands. Network reachability is a separate claim. |
+| Storage firewall, private endpoint, DNS | Not modeled here (Chapter 5) | The identity path stands. Network reachability is a separate claim. When Chapter 5's `canReach` edges are added, an indeterminate hop is labeled `networkIndeterminate`. |
 | SAS issuance | Not modeled | A SAS already handed out is a credential outside the snapshot. A "no path" result says nothing about it. |
 | Local authentication (keys or SAS held outside Azure, anonymous blob access) | Not modeled | Not drawn. A "no path" result says nothing about it. |
 | Conditional Access for workload identities | Not modeled | The path is reported even if a policy would block the sign-in. |
@@ -1167,3 +1173,4 @@ None of the six paths carries an unmodeled control, because the lab has no condi
 - Add the Chapter 4 fact checks to GTM **M-306** when it is picked up.
 - 2026-10-11 (review comment on unmodeled controls): the derivation no longer skips conditioned assignments. Conditions, missing role definitions, and conditioned denies now produce labeled edges, a path through one is "Insufficient evidence", and deny `excludePrincipals` is honored. Added `path_verdict`, the access-decision contract in section 4.6, and optional Step 3a. Tests in `test_ch04_paths.py` cover each case and confirm the plain lab still yields exactly P1 to P6. Verify before submission: the deny assignment `condition`, `conditionVersion`, `excludePrincipals`, and permission-level `condition` fields in Resource Graph rows (REST api-version 2022-04-01 documents them); and the scope of Conditional Access for workload identities (single-tenant service principals; managed identities not covered) before adding detail to the contract row.
 - 2026-10-12 (review comment on temporal consistency): added "Paths across time" with the `input_span` listing. `KIND_SOURCES` and `parse_utc` moved here from Chapter 10, which now imports them. `hop_table` takes the temporal reason. The threshold has no default number: it is the reader's own normal run length, for the reason given in the text. Added the Setup note, Step 0 saving through `Save-SnapshotFile`, the Step 2 call, and optional Step 3b. Tests in `test_ch04_paths.py` (`InputSpans`) cover a one-run path, a later-run input, a change inside and outside the span, and untimed inputs.
+- 2026-10-12 (network ladder): `find_paths` now walks `canReach` edges (it didn't, so Chapter 5 Step 7 couldn't work), and `UnmodeledControl` has a fourth kind, `networkIndeterminate`, produced by Chapter 5's `reach_edge`. Added `canReach` to the section 4.5 edge table.
