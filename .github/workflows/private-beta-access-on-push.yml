@@ -12,9 +12,9 @@ on:
   workflow_dispatch:
 
 concurrency:
-  # Cancel superseded in-progress runs so a newer trunk SHA is the invite-wave witness.
+  # Keep the current invite-wave witness running to completion; later pushes queue behind it.
   group: private-beta-access-on-push-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true

@@ -123,6 +123,8 @@ Terms in *italics* inside a definition have their own entry.
 
 **Indirect prompt injection** — instructions placed in data that a model later reads, such as a resource tag or a display name, rather than given to the model directly. *Chapter 8.*
 
+**Input span** — the time from the earliest snapshot read behind a derived result, such as a path, to the latest. A snapshot is a set of reads with known times, not a moment. *Chapters 3 and 4.*
+
 **Insufficient evidence** — the honest answer when the evidence can't support a conclusion. It's the lowest *ordinal confidence band*, and the `status` a model returns when an *evidence pack* can't answer the question. *Chapters 2 and 7.*
 
 **Intended, configured, observed, and confirmed reachability** — what should connect, what configuration allows, what logs show did connect, and what a recorded test showed. *Chapter 5.*
@@ -218,6 +220,8 @@ Terms in *italics* inside a definition have their own entry.
 ## T
 
 **Target** — an asset whose compromise matters to the organization, sometimes called a crown jewel. *Chapter 1.*
+
+**Temporally inconsistent** — a path whose *input span* is longer than one collector run, or that saw a change on the path inside its span. It is reported as *insufficient evidence* until its inputs are re-collected together. *Chapter 4.*
 
 **Token budget** — a limit on model usage per run or tenant that stops model calls, not checks, when reached. *Chapter 11.*
 

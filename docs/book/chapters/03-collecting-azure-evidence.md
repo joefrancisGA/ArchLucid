@@ -302,19 +302,34 @@ A collection is only useful as evidence if you can say exactly what it contains,
       "name": "storage-accounts.json",
       "sha256": "…",
       "rows": 214,
-      "query": "queries/storage-accounts.kql"
+      "query": "queries/storage-accounts.kql",
+      "api": "Azure Resource Graph",
+      "client": "Az.ResourceGraph …",
+      "scope": "tenant",
+      "queriedAtUtc": "2026-10-06T09:10:04Z",
+      "completedAtUtc": "2026-10-06T09:10:19Z"
     },
     {
       "name": "role-assignments.json",
       "sha256": "…",
       "rows": 3920,
-      "query": "queries/role-assignments.kql"
+      "query": "queries/role-assignments.kql",
+      "api": "Azure Resource Graph",
+      "client": "Az.ResourceGraph …",
+      "scope": "tenant",
+      "queriedAtUtc": "2026-10-06T09:10:19Z",
+      "completedAtUtc": "2026-10-06T09:11:57Z"
     },
     {
       "name": "federated-credentials.json",
       "sha256": "…",
       "rows": 37,
-      "query": "graph:applications/federatedIdentityCredentials"
+      "query": "graph:applications/federatedIdentityCredentials",
+      "api": "Microsoft Graph v1.0",
+      "client": "Microsoft.Graph.Applications …",
+      "scope": "tenant",
+      "queriedAtUtc": "2026-10-06T09:12:03Z",
+      "completedAtUtc": "2026-10-06T09:16:38Z"
     }
   ],
   "gaps": [
@@ -334,12 +349,26 @@ A collection is only useful as evidence if you can say exactly what it contains,
 
 Each field earns its place:
 
-- **Start and end times.** Azure changes during a collection. A snapshot that took seven minutes isn't an instant, and hops collected minutes apart can disagree. Recording both times makes that visible.
+- **Start and end times, for the snapshot and for every file.** Azure changes during a collection. A snapshot that took seven minutes isn't an instant, and hops collected minutes apart can disagree. The snapshot's times bound the whole run. Each file's `queriedAtUtc` and `completedAtUtc` say when that file's reads actually happened.
+- **The API, client, and scope behind each file.** Resource Graph and Microsoft Graph are separate services with their own latency, and a module upgrade can change what a cmdlet returns. Recording `api`, `client` (module and version), and `scope` lets a later reader explain a difference between two snapshots that isn't a change in Azure.
 - **Collector identity and permissions.** Results depend on what the collector could see. Record it so a later reader knows.
 - **Expected versus read scope**, with the source of the expected number. This is the opening story's missing line.
 - **A hash for every file.** If anyone or anything changes the data later, the hash won't match. That includes a well-meaning script that "fixes up" a value.
 - **The query or API call behind each file.** You can't evaluate data without knowing how it was obtained.
 - **Gaps** (section 3.7).
+
+### What a snapshot does and doesn't guarantee
+
+A snapshot is a set of reads with known times. It is not a moment. The manifest above read storage accounts at 09:10, role assignments by 09:12, and federated credentials until 09:16. Anything that changed in between is in some files and not others, and nothing in the files says so.
+
+That matters most where a path joins facts from different files. The joins that build the payments paths are these: a federated credential's `appId` to a service principal, the service principal's object ID to a role assignment, and the role assignment's scope to a storage account's settings. Each pair comes from a different read, and two of them come from different services. Suppose `payments-deploy` loses its Contributor role at 09:11, just after the role-assignment query returned that row. Then a federated credential is added to it at 09:13, before the Graph loop reaches that application. The snapshot holds both, and the derivation joins them into a path that never existed: at no instant did the credential and the role exist together. Swap the order of the two changes and the snapshot hides a path that did exist.
+
+So the guarantee is narrower than it looks:
+
+- **It does guarantee** what each file contained, when it was read, how, and by whom, and that none of it has changed since.
+- **It doesn't guarantee** that the files agree with each other at any one instant.
+
+Two habits close most of the gap. Keep a run short, and read the files a path joins close together. And carry the read times forward: Chapter 4 gives every path an **input span**, from its earliest read to its latest, and labels a path whose span is too wide, or that saw a change inside it. Chapter 10 does the same for verification.
 
 ### Store snapshots so they can't be quietly edited
 
@@ -444,10 +473,39 @@ $snapshotDir = Join-Path $PWD ("snapshot-{0:yyyy-MM-ddTHH-mm-ssZ}" -f (Get-Date)
 New-Item -ItemType Directory -Path $snapshotDir | Out-Null
 
 $gaps = [System.Collections.Generic.List[object]]::new()
+$files = [System.Collections.Generic.List[object]]::new()
+
+function Get-UtcStamp {
+    (Get-Date).ToUniversalTime().ToString('yyyy-MM-ddTHH:mm:ssZ')
+}
+
+function Save-SnapshotFile {
+    # Writes one snapshot file and records when, how, and where it was read.
+    param(
+        [string] $Name, [object[]] $Rows, [string] $QueriedAtUtc,
+        [string] $Api, [string] $Module, [string] $Scope, [string] $Source
+    )
+
+    ConvertTo-Json -InputObject $Rows -Depth 20 |
+        Set-Content (Join-Path $snapshotDir "$Name.json")
+
+    $version = (Get-Module $Module | Select-Object -First 1).Version
+    $files.Add([pscustomobject]@{
+        name           = "$Name.json"
+        rows           = $Rows.Count
+        query          = $Source
+        api            = $Api
+        client         = "$Module $version"
+        scope          = $Scope
+        queriedAtUtc   = $QueriedAtUtc
+        completedAtUtc = Get-UtcStamp
+    })
+}
 
 function Invoke-ArgQuery {
     param([string] $Name, [string] $Query)
 
+    $queriedAt = Get-UtcStamp
     $rows = [System.Collections.Generic.List[object]]::new()
     $skipToken = $null
 
@@ -474,8 +532,9 @@ function Invoke-ArgQuery {
         })
     }
 
-    ConvertTo-Json -InputObject ([object[]] $rows) -Depth 20 |
-        Set-Content (Join-Path $snapshotDir "$Name.json")
+    Save-SnapshotFile -Name $Name -Rows ([object[]] $rows) -QueriedAtUtc $queriedAt `
+        -Api 'Azure Resource Graph' -Module 'Az.ResourceGraph' -Scope 'tenant' `
+        -Source "queries/$Name.kql"
 }
 
 Invoke-ArgQuery -Name 'storage-accounts' -Query (Get-Content queries/storage-accounts.kql -Raw)
@@ -483,11 +542,36 @@ Invoke-ArgQuery -Name 'role-assignments' -Query (Get-Content queries/role-assign
 Invoke-ArgQuery -Name 'subscriptions'    -Query (Get-Content queries/subscriptions.kql -Raw)
 ```
 
-**Step 2 — Collect federated credentials and service principals** using the Graph snippet from section 3.4, plus `Get-MgServicePrincipal -All -Property 'id,appId,displayName'`. Write them to `federated-credentials.json` and `service-principals.json` in the snapshot directory.
+`Invoke-ArgQuery` hands each result to `Save-SnapshotFile`, which writes the file and records its read times, API, client version, and scope in `$files`. Every collection step uses it, so the manifest knows when each file was read.
+
+**Step 2 — Collect federated credentials and service principals** using the Graph snippet from section 3.4, then save both through the same helper:
+
+<!-- listing: lab/listings/powershell/ch03-lab-save-graph-files.ps1 -->
+
+```powershell
+$graph = @{
+    Api    = 'Microsoft Graph v1.0'
+    Module = 'Microsoft.Graph.Applications'
+    Scope  = 'tenant'
+}
+
+$queriedAt = Get-UtcStamp
+# Section 3.4's snippet runs here and fills $applications and $federated.
+Save-SnapshotFile -Name 'federated-credentials' -Rows $federated -QueriedAtUtc $queriedAt `
+    -Source 'graph:applications/federatedIdentityCredentials' @graph
+
+$queriedAt = Get-UtcStamp
+$servicePrincipals = Get-MgServicePrincipal -All -Property 'id,appId,displayName' |
+    Select-Object Id, AppId, DisplayName
+Save-SnapshotFile -Name 'service-principals' -Rows $servicePrincipals -QueriedAtUtc $queriedAt `
+    -Source 'graph:servicePrincipals' @graph
+```
+
+The federated-credential loop calls Graph once per application, so its read window is the longest in the run. That's the file most likely to disagree with the others.
 
 **Step 3 — Compare expected and read scope.** Put the lab's expected subscription list in `expected-subscriptions.json` (this is a human assertion; record who wrote it and when). Add a `scopeNotReadable` gap for every expected subscription missing from `subscriptions.json`.
 
-**Step 4 — Write the manifest.** Hash every file with `Get-FileHash -Algorithm SHA256` and write a `manifest.json` in the shape from section 3.5, including the gap list.
+**Step 4 — Write the manifest.** Hash every file with `Get-FileHash -Algorithm SHA256`, add each hash to its entry in `$files`, and write a `manifest.json` in the shape from section 3.5. Include the gap list, and the run's start and completion times as `collectedAtUtc` and `completedAtUtc`.
 
 **Step 5 — Find the hops.** Using only the snapshot files (no live Azure calls), locate:
 
@@ -510,6 +594,7 @@ Invoke-ArgQuery -Name 'subscriptions'    -Query (Get-Content queries/subscriptio
 - Azure Resource Graph **silently omits scopes you can't read**. Compare expected to read scope every time.
 - Watch the common traps: **absent properties** that mean "platform default", **role-definition joins** on full IDs, **missing pagination**, and **application versus service principal** IDs.
 - Package each collection as a **snapshot**: files, hashes, queries, collector identity, scope, timing, and gaps, stored where it can't be quietly edited.
+- A snapshot is **a set of reads with known times, not a moment**. Record each file's read times, so a path joined from reads far apart, or across a change, can be labeled.
 - **Never collect secret values.** Record that they exist and what kind they are.
 - **Gaps are results.** Put them in the manifest and in every report. They are what make "insufficient evidence" possible.
 - Use AI to **draft queries and explain gaps**, never to fill in missing data.
@@ -518,7 +603,8 @@ Invoke-ArgQuery -Name 'subscriptions'    -Query (Get-Content queries/subscriptio
 
 - **Collector** — the identity and code that reads evidence from Azure and Entra ID.
 - **Snapshot** — a hashed, timestamped package of collected evidence plus a manifest describing it.
-- **Manifest** — the snapshot's description: collector, scope, timing, file hashes, queries, and gaps.
+- **Manifest** — the snapshot's description: collector, scope, timing, file hashes, queries, and gaps. Each file entry carries its own read times, API, client, and scope.
+- **Input span** — for a derived result such as a path, the time from the earliest read behind it to the latest.
 - **Expected scope** — the subscriptions and directories that *should* be collected, from a source other than the collector itself.
 - **Silent-scope problem** — a query returning results only from readable scopes, with no indication that others were skipped.
 - **Application object / service principal** — an app's definition versus its identity in a tenant; joined by `appId`.
@@ -536,3 +622,4 @@ Invoke-ArgQuery -Name 'subscriptions'    -Query (Get-Content queries/subscriptio
 - 2026-10-11 (listing sync): `tools/check_listings.py` now enforces that sync. The section 3.3 storage block had drifted from `lab/queries/storage-accounts.kql` (it lacked the `sharedKey` column), and the `| extend` fragment after it couldn't be synced as a standalone query, so it became a sentence describing the query's `extend`.
 - Consider a figure: the application → service principal → role assignment join, with the wrong join (application object ID) shown crossed out.
 - Add the Chapter 3 fact checks to GTM **M-306** when it is picked up.
+- 2026-10-12 (review comment on temporal consistency): manifest file entries now carry `queriedAtUtc`, `completedAtUtc`, `api`, `client`, and `scope`; the lab collector records them through `Save-SnapshotFile`, and Step 2 has its own listing. Added "What a snapshot does and doesn't guarantee". The example manifest's per-file times are illustrative and fit inside its 09:10:00–09:16:42 run; module versions are elided (`…`) rather than invented. Verify before submission: that `Get-MgServicePrincipal` and `Get-MgApplicationFederatedIdentityCredential` are both in `Microsoft.Graph.Applications`.

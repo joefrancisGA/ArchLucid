@@ -136,6 +136,7 @@ export async function fetchRemediationFactorySummary(): Promise<RemediationFacto
   return {
     factoryMetrics: {
       openFindings: finiteNumberOrDefault(metricsRaw.openFindings, 0),
+      criticalExposureCount: finiteNumberOrDefault(metricsRaw.criticalExposureCount, 0),
       remediatedThisWeek: finiteNumberOrDefault(metricsRaw.remediatedThisWeek, 0),
       verificationFailureCount: finiteNumberOrDefault(metricsRaw.verificationFailureCount, 0),
       businessBlockedCount: finiteNumberOrDefault(metricsRaw.businessBlockedCount, 0),
