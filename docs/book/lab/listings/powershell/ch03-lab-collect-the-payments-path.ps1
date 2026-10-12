@@ -5,10 +5,39 @@ $snapshotDir = Join-Path $PWD ("snapshot-{0:yyyy-MM-ddTHH-mm-ssZ}" -f (Get-Date)
 New-Item -ItemType Directory -Path $snapshotDir | Out-Null
 
 $gaps = [System.Collections.Generic.List[object]]::new()
+$files = [System.Collections.Generic.List[object]]::new()
+
+function Get-UtcStamp {
+    (Get-Date).ToUniversalTime().ToString('yyyy-MM-ddTHH:mm:ssZ')
+}
+
+function Save-SnapshotFile {
+    # Writes one snapshot file and records when, how, and where it was read.
+    param(
+        [string] $Name, [object[]] $Rows, [string] $QueriedAtUtc,
+        [string] $Api, [string] $Module, [string] $Scope, [string] $Source
+    )
+
+    ConvertTo-Json -InputObject $Rows -Depth 20 |
+        Set-Content (Join-Path $snapshotDir "$Name.json")
+
+    $version = (Get-Module $Module | Select-Object -First 1).Version
+    $files.Add([pscustomobject]@{
+        name           = "$Name.json"
+        rows           = $Rows.Count
+        query          = $Source
+        api            = $Api
+        client         = "$Module $version"
+        scope          = $Scope
+        queriedAtUtc   = $QueriedAtUtc
+        completedAtUtc = Get-UtcStamp
+    })
+}
 
 function Invoke-ArgQuery {
     param([string] $Name, [string] $Query)
 
+    $queriedAt = Get-UtcStamp
     $rows = [System.Collections.Generic.List[object]]::new()
     $skipToken = $null
 
@@ -35,8 +64,9 @@ function Invoke-ArgQuery {
         })
     }
 
-    ConvertTo-Json -InputObject ([object[]] $rows) -Depth 20 |
-        Set-Content (Join-Path $snapshotDir "$Name.json")
+    Save-SnapshotFile -Name $Name -Rows ([object[]] $rows) -QueriedAtUtc $queriedAt `
+        -Api 'Azure Resource Graph' -Module 'Az.ResourceGraph' -Scope 'tenant' `
+        -Source "queries/$Name.kql"
 }
 
 Invoke-ArgQuery -Name 'storage-accounts' -Query (Get-Content queries/storage-accounts.kql -Raw)

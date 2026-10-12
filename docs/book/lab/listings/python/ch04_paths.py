@@ -454,20 +454,110 @@ def unmodeled_on(path: list[Edge]) -> list[UnmodeledControl]:
     return [edge.control for edge in path if edge.control is not None]
 
 
-def path_confidence(path: list[Edge], otherwise: str) -> str:
-    """Insufficient evidence if any hop rests on an unmodeled control; otherwise the band
-    the hop assumptions earn (Chapter 2)."""
-    return INSUFFICIENT if unmodeled_on(path) else otherwise
+def path_confidence(path: list[Edge], otherwise: str, temporal: str | None = None) -> str:
+    """Insufficient evidence if any hop rests on an unmodeled control or the path is
+    temporally inconsistent; otherwise the band the hop assumptions earn (Chapter 2)."""
+    return INSUFFICIENT if unmodeled_on(path) or temporal else otherwise
 
 
-def hop_table(path: list[Edge], otherwise: str) -> list[str]:
-    """Chapter 2's hop table as text, each unmodeled control listed as an assumption to check."""
-    lines = [f"Confidence: {path_confidence(path, otherwise)}"]
+def hop_table(path: list[Edge], otherwise: str, temporal: str | None = None) -> list[str]:
+    """Chapter 2's hop table as text, each unmodeled control listed as an assumption to check.
+
+    temporal is the reason the path's inputs can't be read as one moment, if there is one.
+    """
+    lines = [f"Confidence: {path_confidence(path, otherwise, temporal)}"]
     lines += [
         f"{number}. {edge.source} --{edge.kind}--> {edge.target} [{edge.evidence}] {edge.detail}"
         for number, edge in enumerate(path, start=1)
     ]
     lines += [f"Assumption to check: {control.assumption()}" for control in unmodeled_on(path)]
 
+    if temporal:
+        lines.append(f"Temporally inconsistent: {temporal}")
+
     return lines
 # endregion path_verdict
+
+
+# region input_span
+from datetime import datetime, timedelta
+
+# The snapshot files each edge kind is derived from (Chapter 3 names them).
+KIND_SOURCES = {
+    "memberOf": {"transitive-memberships.json"},
+    "canSignInAs": {"federated-credentials.json"},
+    "canAddCredential": {"application-owners.json", "directory-role-assignments.json"},
+    "appFor": {"service-principals.json"},
+    "runsAs": {"compute-identities.json"},
+    "canControlCode": {
+        "role-assignments.json", "role-definitions.json", "deny-assignments.json",
+        "scope-parents.json", "transitive-memberships.json", "compute-identities.json",
+    },
+    "grants": {
+        "role-assignments.json", "role-definitions.json", "deny-assignments.json",
+        "scope-parents.json", "transitive-memberships.json", "storage-accounts.json",
+    },
+}
+
+Window = tuple[datetime, datetime]
+
+
+def parse_utc(value: str) -> datetime:
+    """Parse the manifest's UTC timestamps, which end in 'Z'."""
+    return datetime.fromisoformat(value.replace("Z", "+00:00"))
+
+
+def read_windows(manifest: dict) -> dict[str, Window]:
+    """When each snapshot file's query started and finished."""
+    return {
+        entry["name"]: (parse_utc(entry["queriedAtUtc"]), parse_utc(entry["completedAtUtc"]))
+        for entry in manifest["files"]
+    }
+
+
+def path_inputs(path: list[Edge]) -> list[str]:
+    """Every snapshot file the path's edges were derived from."""
+    return sorted(set().union(*(KIND_SOURCES[edge.kind] for edge in path)))
+
+
+def input_span(path: list[Edge], windows: dict[str, Window]) -> Window | None:
+    """From the first read behind the path to the last, or None if none was timed."""
+    reads = [windows[name] for name in path_inputs(path) if name in windows]
+
+    if not reads:
+        return None
+
+    return min(start for start, _ in reads), max(end for _, end in reads)
+
+
+def temporal_problem(
+    path: list[Edge],
+    windows: dict[str, Window],
+    max_span: timedelta,
+    changes: list[tuple[str, datetime]],
+) -> str | None:
+    """Why the path's inputs can't be treated as one moment, or None if they can.
+
+    changes are (node, time) pairs from change evidence: resourcechanges, the Activity Log,
+    or Entra audit logs. A change to any node on the path inside its input span counts.
+    """
+    span = input_span(path, windows)
+    recollect = "re-collect " + ", ".join(path_inputs(path))
+
+    if span is None:
+        return f"no read times for its inputs; {recollect}"
+
+    start, end = span
+
+    if end - start > max_span:
+        return f"inputs read over {end - start}, more than {max_span}; {recollect}"
+
+    nodes = {path[0].source} | {edge.target for edge in path}
+    inside = sorted((at, node) for node, at in changes if node in nodes and start <= at <= end)
+
+    if inside:
+        at, node = inside[0]
+        return f"{node} changed at {at:%Y-%m-%dT%H:%M:%SZ} while inputs were read; {recollect}"
+
+    return None
+# endregion input_span

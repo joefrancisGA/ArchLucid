@@ -3,12 +3,14 @@
 from __future__ import annotations
 
 import unittest
+from datetime import timedelta
 
 import lab_graph as lab
 from ch04_paths import (
     BLOB_READ_ACTION,
     CODE_CONTROL_ACTION,
     INSUFFICIENT,
+    KIND_SOURCES,
     LIST_KEYS_ACTION,
     Edge,
     action_permitted,
@@ -17,8 +19,13 @@ from ch04_paths import (
     expand_group_assignments,
     find_paths,
     hop_table,
+    input_span,
+    parse_utc,
     path_confidence,
+    path_inputs,
     pattern_covers,
+    read_windows,
+    temporal_problem,
     unmodeled_on,
 )
 
@@ -386,6 +393,66 @@ class UnmodeledPaths(unittest.TestCase):
 
         self.assertEqual(hop_table(path, "High")[0], "Confidence: High")
         self.assertEqual(len(hop_table(path, "High")), 1 + len(path))
+
+
+RUN_START = "2026-10-06T09:10:00Z"
+RUN_END = "2026-10-06T09:16:42Z"
+ONE_RUN = timedelta(minutes=7)
+
+
+def one_run_manifest(**late: str) -> dict:
+    """Every Chapter 10 path file read inside one run; `late` moves a file's read elsewhere."""
+    names = sorted(set().union(*KIND_SOURCES.values()))
+    entries = [{"name": name, "queriedAtUtc": late.get(name, RUN_START),
+                "completedAtUtc": late.get(name, RUN_END)} for name in names]
+
+    return {"files": entries}
+
+
+class InputSpans(unittest.TestCase):
+    def p2(self) -> list[Edge]:
+        return lab.labeled_paths(lab.lab_edges())["P2"][0]
+
+    def test_path_inputs_follow_its_edge_kinds(self) -> None:
+        self.assertEqual(path_inputs(self.p2()), sorted(
+            KIND_SOURCES["canAddCredential"] | KIND_SOURCES["appFor"] | KIND_SOURCES["grants"]))
+
+    def test_one_run_is_consistent(self) -> None:
+        windows = read_windows(one_run_manifest())
+
+        self.assertEqual(input_span(self.p2(), windows), (parse_utc(RUN_START), parse_utc(RUN_END)))
+        self.assertIsNone(temporal_problem(self.p2(), windows, ONE_RUN, []))
+
+    def test_input_from_a_later_run_makes_the_path_inconsistent(self) -> None:
+        # Chapter 4 Step 0 run the next morning, joined to the Chapter 3 snapshot.
+        windows = read_windows(one_run_manifest(**{"application-owners.json": "2026-10-07T08:00:00Z"}))
+        problem = temporal_problem(self.p2(), windows, ONE_RUN, [])
+
+        self.assertTrue(problem.startswith("inputs read over 22:50:00, more than 0:07:00; re-collect "))
+        self.assertIn("application-owners.json", problem)
+        self.assertEqual(hop_table(self.p2(), "High", problem)[0], "Confidence: Insufficient evidence")
+        self.assertEqual(hop_table(self.p2(), "High", problem)[-1], f"Temporally inconsistent: {problem}")
+
+    def test_change_on_the_path_inside_the_span(self) -> None:
+        windows = read_windows(one_run_manifest())
+        changes = [(lab.CUSTDATA, parse_utc("2026-10-06T09:05:00Z")),           # before the reads
+                   ("unrelated-account", parse_utc("2026-10-06T09:12:00Z")),    # not on the path
+                   (lab.READ_CUSTDATA, parse_utc("2026-10-06T09:13:30Z"))]
+        problem = temporal_problem(self.p2(), windows, ONE_RUN, changes)
+
+        self.assertTrue(problem.startswith(f"{lab.READ_CUSTDATA} changed at 2026-10-06T09:13:30Z"))
+
+    def test_changes_outside_the_span_or_off_the_path_are_ignored(self) -> None:
+        changes = [(lab.READ_CUSTDATA, parse_utc("2026-10-06T09:20:00Z")),
+                   ("unrelated-account", parse_utc("2026-10-06T09:12:00Z"))]
+
+        self.assertIsNone(temporal_problem(self.p2(), read_windows(one_run_manifest()), ONE_RUN, changes))
+
+    def test_untimed_inputs_are_inconsistent(self) -> None:
+        problem = temporal_problem(self.p2(), {}, ONE_RUN, [])
+
+        self.assertIsNone(input_span(self.p2(), {}))
+        self.assertTrue(problem.startswith("no read times for its inputs; re-collect "))
 
 
 if __name__ == "__main__":

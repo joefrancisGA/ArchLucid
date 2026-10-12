@@ -7,23 +7,17 @@ region into the book; docs/book/tools/check_listings.py fails when the two diffe
 
 from __future__ import annotations
 
-from ch04_paths import Edge, find_paths, unmodeled_on
+from ch04_paths import KIND_SOURCES, Edge, find_paths, parse_utc, read_windows, unmodeled_on
 from ch09_remediation import edge_key
 
 
 # region verify
 from dataclasses import dataclass
-from datetime import datetime
 from typing import Callable
 
 VERIFIED = "verified"
 FAILED = "failed"
 NOT_VERIFIED = "not verified"
-
-
-def parse_utc(value: str) -> datetime:
-    """Parse the manifest's UTC timestamps, which end in 'Z'."""
-    return datetime.fromisoformat(value.replace("Z", "+00:00"))
 
 
 def incomplete_files(manifest: dict, expected_files: set[str]) -> set[str]:
@@ -64,13 +58,19 @@ def verify(
 
     Anything the snapshot can't answer is NOT_VERIFIED, never VERIFIED.
     """
-    if parse_utc(manifest["collectedAtUtc"]) <= parse_utc(change_applied_at):
-        return NOT_VERIFIED, "snapshot collection started before the change was applied"
-
     missing = sorted(post.needs & incomplete_files(manifest, expected_files))
 
     if missing:
         return NOT_VERIFIED, "incomplete evidence: " + ", ".join(missing)
+
+    # Every input must have been read after the change. Inputs that straddle it describe
+    # no single state of the estate.
+    windows = read_windows(manifest)
+    changed_at = parse_utc(change_applied_at)
+    stale = sorted(name for name in post.needs if windows[name][0] <= changed_at)
+
+    if stale:
+        return NOT_VERIFIED, "read before the change was applied: " + ", ".join(stale)
 
     blind = sorted(post.scopes & unreadable_scopes(manifest))
 
@@ -143,23 +143,6 @@ def no_path(post_id: str, entry: str, target: str, scopes: frozenset[str]) -> Po
 
 
 # region diff_paths
-KIND_SOURCES = {
-    "memberOf": {"transitive-memberships.json"},
-    "canSignInAs": {"federated-credentials.json"},
-    "canAddCredential": {"application-owners.json", "directory-role-assignments.json"},
-    "appFor": {"service-principals.json"},
-    "runsAs": {"compute-identities.json"},
-    "canControlCode": {
-        "role-assignments.json", "role-definitions.json", "deny-assignments.json",
-        "scope-parents.json", "transitive-memberships.json", "compute-identities.json",
-    },
-    "grants": {
-        "role-assignments.json", "role-definitions.json", "deny-assignments.json",
-        "scope-parents.json", "transitive-memberships.json", "storage-accounts.json",
-    },
-}
-
-
 def path_signature(path: list[Edge]) -> tuple[tuple[str, str, str], ...]:
     return tuple(edge_key(edge) for edge in path)
 

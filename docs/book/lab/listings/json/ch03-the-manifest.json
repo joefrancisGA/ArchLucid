@@ -24,19 +24,34 @@
       "name": "storage-accounts.json",
       "sha256": "…",
       "rows": 214,
-      "query": "queries/storage-accounts.kql"
+      "query": "queries/storage-accounts.kql",
+      "api": "Azure Resource Graph",
+      "client": "Az.ResourceGraph …",
+      "scope": "tenant",
+      "queriedAtUtc": "2026-10-06T09:10:04Z",
+      "completedAtUtc": "2026-10-06T09:10:19Z"
     },
     {
       "name": "role-assignments.json",
       "sha256": "…",
       "rows": 3920,
-      "query": "queries/role-assignments.kql"
+      "query": "queries/role-assignments.kql",
+      "api": "Azure Resource Graph",
+      "client": "Az.ResourceGraph …",
+      "scope": "tenant",
+      "queriedAtUtc": "2026-10-06T09:10:19Z",
+      "completedAtUtc": "2026-10-06T09:11:57Z"
     },
     {
       "name": "federated-credentials.json",
       "sha256": "…",
       "rows": 37,
-      "query": "graph:applications/federatedIdentityCredentials"
+      "query": "graph:applications/federatedIdentityCredentials",
+      "api": "Microsoft Graph v1.0",
+      "client": "Microsoft.Graph.Applications …",
+      "scope": "tenant",
+      "queriedAtUtc": "2026-10-06T09:12:03Z",
+      "completedAtUtc": "2026-10-06T09:16:38Z"
     }
   ],
   "gaps": [
