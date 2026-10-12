@@ -84,7 +84,7 @@ Chapter 1 explains how the four parts fit together. Four reading paths work well
 - **If you're planning a pilot.** Read Chapter 1, then Appendix E, which orders the decisions and controls from Chapters 3 to 13 into an approval package and a 30/60/90-day plan. Follow its links into the chapters as each decision comes up.
 - **If you already do attack-path work.** Start with Chapter 2, then read Part III (Chapters 9 and 10) and Part IV (Chapters 11 to 13). Dip into Chapters 4 to 8 where the Azure details are new to you.
 
-Every chapter ends with a summary and key terms, and every chapter except 4 and 6 ends with a lab. Chapter 4's ideas are exercised in Chapter 5's lab, and Chapter 6's in Chapter 7's. The [glossary](../back-matter/glossary.md) collects the key terms in one place.
+Every chapter ends with a summary, key terms, and a lab. The [glossary](../back-matter/glossary.md) collects the key terms in one place.
 
 ## The companion lab
 
@@ -109,7 +109,13 @@ It isn't a catalog of Azure security controls or a walkthrough of a benchmark. T
 
 It isn't an offensive security guide. Paths here are computed from configuration, by defenders, with read-only access. Nothing in the book exploits anything.
 
-It isn't about a product. Every technique uses public Azure and Microsoft Graph APIs [S5, S6] and code you can read. I build commercial tooling in this area, and that experience shaped the problems the book chooses. None of the chapters, Appendices A to C, or Appendix E depend on that tooling, describe its internals, or recommend it. If the optional case study in Appendix D is published, the tooling it used appears only in a clearly marked sidebar.
+It isn't about a product. Every technique uses public Azure and Microsoft Graph APIs [S5, S6] and code you can read. None of the chapters, Appendices A to C, or Appendix E depend on commercial tooling, describe its internals, or recommend it. If the optional case study in Appendix D is published, the tooling it used appears only in a clearly marked sidebar.
+
+## Disclosure
+
+I build commercial software that analyzes Azure identity and access paths. That work is why these problems are the ones I know, and it is a conflict of interest: a reader could assume the book is an argument for buying that software.
+
+It isn't. The software is not named in the chapters or in Appendices A, B, C, or E. Nothing in those parts depends on it, describes how it works, or recommends it. Appendix D, if it is published, names the tooling only in a marked sidebar. A publisher's house style can retitle this section. Naming the product in the preface would be a separate decision, and this draft doesn't make it.
 
 And it doesn't promise that models will get this right. The book's position is that they'll keep getting some of it wrong, and that the useful question is how to make those failures visible before a person relies on them.
 
@@ -130,7 +136,7 @@ And it doesn't promise that models will get this right. The book's position is t
 
 - 2026-10-12 (sources): added 4 sources. Changed: none. Softened: none. Unverified: none.
 - 2026-10-12 (scope): added the Scope section with the coverage matrix and three path templates (PIM, Graph application permissions, Key Vault). Each status was checked against the chapters and appendices. Nothing is marked "planned": only an owner decision should add that status. The working subtitle in the README now names the scope (*… for Azure Identity, RBAC, and PaaS Data Access*), in its own commit so it can be reverted alone. Re-check the matrix whenever a chapter adds or drops a domain.
-- Confirm the disclosure paragraph in "What this book isn't": whether to name the tooling, and whether the publisher has a standard disclosure format.
+- 2026-10-12 (disclosure): the product stays unnamed. The IP boundary forbids a product pitch, and Appendix D is the only place tooling may be named, in a marked sidebar, and only if that appendix is published. The Disclosure section is the paragraph a publisher can restyle. Naming the product is still an owner decision; this draft does not make it.
 - Add acknowledgments (technical reviewers, anyone who walked the lab) once the review round has happened.
 - The reading paths name chapters by number. Re-check them if chapters are reordered.
 - 2026-10-12 (BR-09): added Appendix E to the evaluator's path, added a fourth reading path for teams planning a pilot, and extended the no-dependency statement to Appendix E.

@@ -9,6 +9,18 @@
 
 **Builds on:** Chapter 3 (the collector and the manifest, sections 3.3 and 3.5), Chapter 5 (the path graph, its search, and unmodeled controls, sections 5.3 and 5.6), Chapter 6 (kinds of reachability, PaaS exposure, and NSG evaluation, sections 6.2 to 6.5).
 
+---
+
+## The next hop that wasn't an answer
+
+In this fictional scenario, the week after Chapter 6's review, Contoso's platform team was asked to confirm one sentence: the development spoke cannot reach `custdata`. They had a VM in that spoke, `dev-vm`, and they ran Network Watcher's next hop from it toward the private endpoint.
+
+The result came back quickly. The next hop was the hub firewall, and the route table was `rt-spokes`. The ticket was updated to "firewall blocks the development spoke" and closed.
+
+Next hop had not said that. It had named the route. Naming the device a packet is sent to is not the same as evaluating that device's rules, which section 7.4 sets out. The hub still had the rule allowing `10.0.0.0/8` to `10.0.0.0/8` on any port. Under the configuration the team had actually deployed, the broad rule meant the development spoke may be reachable, which is a configured answer, not a deny. The ticket had promoted a route lookup into a deny, and nobody had a record of which question was asked.
+
+This chapter is about not making that promotion. Configured reachability has three answers, not two. Observation and intention are separate claims. Confirmation climbs a ladder, and it stops at the first rung that answers the question that was actually asked.
+
 Chapter 6 asked, one layer at a time, whether a data-plane endpoint accepts traffic from a given place. This chapter puts the layers together. It computes configured reachability with three possible answers, turns the result into edges in the section 5.3 graph, collects evidence of what actually connected and what owners intended, and confirms the few paths that matter without breaking anything.
 
 ---
@@ -382,7 +394,8 @@ This lab reproduces Chapter 6's opening story and separates its four kinds of re
 
 ## Author notes (remove before submission)
 
-- 2026-10-12 (chapter split): split from the old Chapter 5. Its sections 6 to 11 became sections 7.1 to 7.6, with a new short introduction in place of an opening story; the lab reproduces Chapter 6's story. The listing it shows (`private_reachability`) stays in `ch06_reachability.py`, next to the exposure code it builds on. Cross-references across the book were renumbered, and the notes below use the new numbers. No technical content, code, or lab steps changed.
+- 2026-10-12 (chapter split): split from the old Chapter 5. Its sections 6 to 11 became sections 7.1 to 7.6. The listing it shows (`private_reachability`) stays in `ch06_reachability.py`, next to the exposure code it builds on.
+- 2026-10-12 (opening story): "The next hop that wasn't an answer" uses the lab's route (`dev-vm`, `rt-spokes`, the hub firewall) and the limit of next hop already stated in section 7.4. It is fiction, in the same sense as the other opening stories. Still to verify: run section 7.6 Step 4a against the live lab and compare it with this story.
 - 2026-10-12 (BR-10, repetition edit): recap and signpost references to other chapters were cut or turned into section pointers, and the **Builds on** line now carries the dependencies. No technical content, code, labs, or evidence categories changed. `tools/check_cross_refs.py` checks every reference.
 - 2026-10-12 (network ladder): added `private_reachability` with a third result, indeterminate, which becomes an unmodeled control on a `canReach` edge (`reach_edge`), so Chapter 5 reports the path as "Insufficient evidence". Added the safe-wording table (section 6.2), the "doesn't evaluate" table (section 7.1), the confirmation ladder (section 7.4), and lab Step 4a. Network Watcher tool names, inputs, and next hop types checked against Microsoft Learn in October 2026. Still to verify: run Step 4a against the live lab. Chapter 9's activity-wording check doesn't yet flag unqualified "is reachable"; adding that pattern is a candidate if review drafts use it.
 - Add the Chapter 7 fact checks to GTM **M-306** when it is picked up.

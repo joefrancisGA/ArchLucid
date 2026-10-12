@@ -49,14 +49,14 @@ Before any chapter leaves this repo (publisher, blog, reviewer), re-read it agai
 
 | # | Chapter | Status | Words (target) |
 |---|---------|--------|----------------|
-| — | [Preface](front-matter/preface.md) | first draft (~2,400) | 1,500 |
+| — | [Preface](front-matter/preface.md) | first draft (~2,600) | 1,500 |
 | 1 | [Why checklists fail](chapters/01-why-checklists-fail.md) | revised (~4,800) | 6,000 |
 | 2 | [Evidence and epistemics](chapters/02-evidence-and-epistemics.md) | revised (~5,200) | 7,000 |
 | 3 | [Collecting Azure evidence read-only](chapters/03-collecting-azure-evidence.md) | revised (~5,900) | 8,000 |
-| 4 | [Identity and privilege paths](chapters/04-identity-and-privilege-paths.md) | revised (~4,300) | 4,500 |
-| 5 | [Building the identity graph](chapters/05-building-the-identity-graph.md) | revised (~6,600) | 6,000 |
-| 6 | [Network exposure](chapters/06-network-exposure.md) | revised (~4,900) | 4,000 |
-| 7 | [Computing and confirming reachability](chapters/07-computing-reachability.md) | revised (~4,500) | 4,500 |
+| 4 | [Identity and privilege paths](chapters/04-identity-and-privilege-paths.md) | revised (~4,900) | 4,500 |
+| 5 | [Building the identity graph](chapters/05-building-the-identity-graph.md) | revised (~6,900) | 6,000 |
+| 6 | [Network exposure](chapters/06-network-exposure.md) | revised (~5,400) | 4,000 |
+| 7 | [Computing and confirming reachability](chapters/07-computing-reachability.md) | revised (~4,700) | 4,500 |
 | 8 | [Data flow: may access vs did access](chapters/08-data-flow.md) | revised (~5,100) | 6,000 |
 | 9 | [Where LLMs help](chapters/09-where-llms-help.md) | revised (~6,500) | 8,000 |
 | 10 | [Where LLMs hurt](chapters/10-where-llms-hurt.md) | revised (~6,800) | 7,000 |

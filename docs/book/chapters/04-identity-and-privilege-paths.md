@@ -253,6 +253,33 @@ So: **never let a model decide what a role permits.** Look it up in the role def
 
 ---
 
+## 4.8 Lab: name the hops before you search
+
+This lab doesn't build the graph. Section 5.8 does that. Here you classify the payments estate by hand, with the rules in this chapter, so you can tell later whether Chapter 5's code found what you already see.
+
+**Setup.** Use this chapter's opening story and the companion lab's baseline (Appendix A): `dev-lead` owns `payments-deploy`, `helpdesk-07` holds Cloud Application Administrator, `payments-deploy` holds Contributor on `rg-payments-prod`, shared key access is enabled on `custdata`, and `pay-reconcile` runs as a managed identity that holds Storage Blob Data Reader on `custarchive`. Steps 1 to 4 need no deployment. Step 5 needs a Chapter 3 snapshot, if you have one.
+
+**Step 1 — Label the three ways.** For each of the three ways the review found after the GitHub fix, name the hop type from section 4.1: member, role, become, grant, or control. Say which entry point the original fix actually closed.
+
+**Step 2 — Apply the five rules to one assignment.** Take Contributor on `rg-payments-prod` and write one sentence for each rule in section 4.2. Include what the role does not grant.
+
+**Step 3 — Mark the conversions.** Copy the table in section 4.5. Mark each row as applies on this estate, does not apply, or applies only if a condition you have not checked is true. Name the condition.
+
+**Step 4 — Separate the two role systems.** For `helpdesk-07` and for `payments-deploy`, say which authorization system the principal sits in. Name the bridge from section 4.6 that connects them, and the bridge that doesn't.
+
+**Step 5 — Optional, from a snapshot.** From `role-assignments.json`, pick one assignment that is not on a payments path. Say which of the five rules that file is enough to evaluate, and which ones need the files Step 0 of the section 5.8 lab collects.
+
+**What you should see.**
+
+- The three ways are all become or control hops, not grant hops. `dev-lead` can add a credential because of ownership (section 4.3). `helpdesk-07` can add a credential because of a directory role (section 4.3). Contributor can deploy code to `pay-reconcile`, and that code runs as the managed identity (section 4.3). The GitHub change closed one `canSignInAs` entry point. It did not close these three.
+- Rule 1: the assignment covers every resource in `rg-payments-prod`. Rule 2: nothing in the story puts this assignment on a group. Rule 3: the role's control-plane actions include listing storage keys and writing the Function App, and its NotActions exclude `roleAssignments/write`, so Contributor is not Owner (section 4.4). The data-plane read of blobs is not one of those actions. Rule 4: the baseline has no deny and no condition on this assignment. Rule 5: the assignment is active, not eligible.
+- Two conversions apply. Listing keys applies because shared key access is enabled. Deploying code applies because the managed identity is attached. The key vault row, the SQL Entra-admin row, and the VM password row do not apply: those resources are not on this path. Generating a SAS applies only after someone has already listed the keys.
+- `helpdesk-07` holds a directory role and no Azure role. `payments-deploy` holds an Azure role and no directory role. The bridge in use is credential management (section 4.6). Elevation is not: nobody in the story is a Global Administrator.
+
+None of this is a path search. If your labels disagree with the list above, stop and re-read the section they came from before you trust the graph in Chapter 5.
+
+---
+
 ## Sources
 
 - **[S1]** List owners of an application. Microsoft Learn. <https://learn.microsoft.com/graph/api/application-list-owners> Checked 2026-10-12. Kind: documented.
@@ -312,7 +339,8 @@ So: **never let a model decide what a role permits.** Look it up in the role def
 
 ## Author notes (remove before submission)
 
-- 2026-10-12 (chapter split): this chapter keeps the concepts of the old Chapter 4: effective access, become and grant hops, control-to-data conversions, directory versus Azure roles, and where AI fits. The graph, its code, the access-decision contract, and the lab moved to Chapter 5, so this chapter has no lab of its own; the section 5.8 lab exercises it. Decide before submission whether it needs a short exercise. Cross-references across the book were renumbered, and the notes below use the new numbers. No technical content changed.
+- 2026-10-12 (chapter split): this chapter keeps the concepts of the old Chapter 4. The graph, its code, the access-decision contract, and the search lab moved to Chapter 5.
+- 2026-10-12 (labs): added section 4.8, a classification exercise on the payments baseline. It changes no tenant state. The expected labels are taken from sections 4.2 to 4.6, not from a live run.
 - 2026-10-12 (BR-10, repetition edit): recap and signpost references to other chapters were cut or turned into section pointers, and the **Builds on** line now carries the dependencies. No technical content, code, labs, or evidence categories changed. `tools/check_cross_refs.py` checks every reference.
 - Verified 2026-10-10 (revision pass 1): Contributor NotActions [S6]; roles with `roleAssignments/write` [S4, S6]; PIM eligibility APIs and read permission [S12-S14]; Application Administrator and Cloud Application Administrator credential scope [S3]; Privileged Role Administrator removed from `canAddCredential` because it escalates by assignment [S3]; Global Administrator elevation [S25]; Graph self-escalation permission names [S26]; GitHub fork token default and immutable subjects [S20, S22, S23]; flexible credential syntax [S21]; section 4.5 conversions [S12, S27].
 - Verify: managed identity attach permissions (assign action on user-assigned identity) and which built-in roles include code deployment for Functions, App Service, Automation, and Logic Apps. The lab uses `Microsoft.Web/sites/write` as the representative Function App action; confirm whether publish uses that action, `Microsoft.Web/sites/publish/action`, or both.
