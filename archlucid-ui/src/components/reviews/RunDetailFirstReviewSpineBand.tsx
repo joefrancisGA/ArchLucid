@@ -73,6 +73,7 @@ export function RunDetailFirstReviewSpineBand(props: RunDetailFirstReviewSpineBa
       >
         Decision-grade: {summary.decisionGradeCount} · Checklist: {summary.checklistCount}
         {summary.uncitedCount > 0 ? ` · Uncited: ${summary.uncitedCount}` : ""}
+        {summary.evidenceReferenceCountNotStored ? " · Evidence reference count was not stored." : ""}
       </p>
 
       {summary.treatmentSummaryLine !== null ? (
@@ -124,7 +125,9 @@ export function RunDetailFirstReviewSpineBand(props: RunDetailFirstReviewSpineBa
 
       {summary.topFindingTitle !== null ? (
         <p className={cn("m-0 mt-2 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)} data-testid="run-detail-first-review-spine-top-finding">
-          <span className="font-semibold">Top policy-mapped finding:</span>{" "}
+          <span className="font-semibold">
+            {summary.topFindingPolicyMapped ? "Top policy-mapped finding:" : "Top finding:"}
+          </span>{" "}
           {summary.topFindingSeverityLabel !== null ? `[${summary.topFindingSeverityLabel}] ` : ""}
           {summary.topFindingTitle}
         </p>

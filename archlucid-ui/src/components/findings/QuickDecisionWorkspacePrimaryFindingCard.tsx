@@ -128,6 +128,11 @@ export function QuickDecisionWorkspacePrimaryFindingCard(
               />
             </>
           ) : null}
+          {finding.classification === null || finding.classification === undefined ? (
+            <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              Classification was not stored
+            </span>
+          ) : null}
           {finding.classification !== null && finding.classification !== undefined ? (
             <FindingClassificationChip
               classification={finding.classification}

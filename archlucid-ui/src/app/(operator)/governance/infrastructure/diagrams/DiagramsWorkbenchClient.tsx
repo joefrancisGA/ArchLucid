@@ -872,6 +872,8 @@ export function DiagramsWorkbenchClient() {
   const dataFlowEdgeCountUnknown = selectedMode === "dataFlow" && metrics == null;
   const dataFlowHasNoConnections =
     selectedMode === "dataFlow" && metrics != null && metrics.edgeCount === 0;
+  const dataFlowHasNoResourcesOrConnections =
+    dataFlowHasNoConnections && metrics?.nodeCount === 0;
   const renderInFlight = loadingRender;
   const exportsDisabled =
     exportBusy
@@ -2733,14 +2735,18 @@ export function DiagramsWorkbenchClient() {
           title={
             dataFlowEdgeCountUnknown
               ? "Edge count not returned"
-              : dataFlowHasNoConnections
+              : dataFlowHasNoResourcesOrConnections
+                ? "This data-flow canvas has no resources and no connections."
+                : dataFlowHasNoConnections
                 ? "This data-flow canvas is empty."
                 : GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_CONTENT_TITLE
           }
           description={
             dataFlowEdgeCountUnknown
               ? "Diagram metrics were not returned for this snapshot — an empty canvas does not mean zero edges."
-              : dataFlowHasNoConnections
+              : dataFlowHasNoResourcesOrConnections
+                ? "This data-flow canvas has no resources and no connections."
+                : dataFlowHasNoConnections
                 ? "The snapshot has inventory and no declared connection to draw."
                 : GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_CONTENT_BODY
           }

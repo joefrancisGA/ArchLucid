@@ -85,7 +85,9 @@ export function SecureNowQuestionQueueSnapshotPromo(): React.JSX.Element | null 
       className={cn("m-0 flex flex-wrap items-center gap-x-2 gap-y-1", OPERATOR_TYPOGRAPHY.helper)}
       data-testid="infra-diagrams-question-snapshot-promo"
     >
-      <span className="text-al-text-secondary">{openQuestionsCountLabel(openQuestions.length)}</span>
+      <span className="text-al-text-secondary">
+        {loadError ? "Questions could not be loaded." : openQuestionsCountLabel(openQuestions.length)}
+      </span>
       {openQuestions.length > 0 ? (
         <Button
           type="button"
@@ -143,7 +145,8 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
   const displayName = currentQuestion?.resourceName != null && currentQuestion.resourceName.trim().length > 0
     ? normalizeSecureNowResourceNameForDisplay(currentQuestion.resourceName)
     : "Resource name was not stored";
-  const resourceOnDiagram = currentQuestion == null
+  const resourceIdMissing = currentQuestion?.resourceId === null || currentQuestion?.resourceId === undefined;
+  const resourceOnDiagram = currentQuestion == null || resourceIdMissing || outline == null
     ? true
     : diagramOutlineIncludesFocusResource(outline, currentQuestion.resourceId);
 
@@ -189,7 +192,16 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
         </Button>
       </div>
 
-      {currentQuestion != null && !resourceOnDiagram ? (
+      {currentQuestion != null && resourceIdMissing ? (
+        <p
+          className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          role="status"
+        >
+          Resource id was not stored.
+        </p>
+      ) : null}
+
+      {currentQuestion != null && !resourceIdMissing && outline != null && !resourceOnDiagram ? (
         <p
           className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
           data-testid="infra-diagrams-question-off-diagram"
@@ -206,6 +218,11 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
               {currentQuestion.answerCodes === null ? (
                 <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                   No answer choices were stored on this question.
+                </p>
+              ) : null}
+              {currentQuestion.answerCodes !== null && currentQuestion.answerCodes.length === 0 ? (
+                <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                  0 answer choices
                 </p>
               ) : null}
               <div className="flex flex-wrap gap-2">
@@ -362,6 +379,12 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
                 {currentQuestion.sourceLine.trim().length > 0
                   ? currentQuestion.sourceLine
                   : "Source line was not stored"}
+              </p>
+              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                {currentQuestion.expirationUtc === null || currentQuestion.expirationUtc === undefined
+                  ? "Expiration was not stored."
+                  : currentQuestion.expirationUtc}
+                {currentQuestion.isExpired ? " · Expired" : ""}
               </p>
             </div>
           </CollapsibleSection>
