@@ -10,6 +10,7 @@ import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmpty
 import { InfraEvidenceWorkbenchHeaderActions } from "@/components/infra-evidence/InfraEvidenceWorkbenchHeaderActions";
 import { ShortcutHint } from "@/components/ShortcutHint";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
+import { SECURENOW_NAV_LABELS } from "@/lib/product-line/securenow-nav-labels";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { OperatorSectionLoadFailure } from "@/components/operator/OperatorSectionLoadFailure";
@@ -211,6 +212,10 @@ export function RemediationWorkbenchClient() {
   const router = useRouter();
   const pathname = usePathname() ?? "";
   const navHref = useMemo(() => remediationInstancesPathForProductLine(productLine), [productLine]);
+  const pageTitle =
+    productLine === "security"
+      ? SECURENOW_NAV_LABELS["/security/remediation-instances"] ?? GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PAGE_TITLE
+      : GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PAGE_TITLE;
   const searchParams = useSearchParams();
   const boardNavRef = useRef<HTMLDivElement>(null);
   const [focusedBoardIndex, setFocusedBoardIndex] = useState(0);
@@ -810,7 +815,7 @@ export function RemediationWorkbenchClient() {
 
       <OperatorPageHeader
         navHref={navHref}
-        title={GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PAGE_TITLE}
+        title={pageTitle}
         subtitle={GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PAGE_LEAD}
         claimDiscipline={GOVERNANCE_INFRASTRUCTURE_REMEDIATION_CLAIM_DISCIPLINE}
         claimDisciplineTestId="infra-remediation-claim-discipline"
