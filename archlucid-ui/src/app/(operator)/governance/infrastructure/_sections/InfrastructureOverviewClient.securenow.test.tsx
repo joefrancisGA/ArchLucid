@@ -58,6 +58,8 @@ describe("InfrastructureOverviewClient SecureNow grouped home sections", () => {
     );
 
     expect(sectionTestIds).toEqual([
+      "securenow-home-environment-context",
+      "securenow-home-work-summary",
       "securenow-findings-home-section",
       "securenow-infrastructure-home-section",
       "securenow-remediation-home-section",
@@ -98,8 +100,8 @@ describe("InfrastructureOverviewClient SecureNow grouped home sections", () => {
     const primaryContent = screen.getByTestId("governance-infrastructure-overview-primary-content");
 
     expect(primaryContent).toHaveTextContent(/Findings, environment, remediation, compliance, and data sources are grouped below/i);
-    expect(primaryContent).toHaveTextContent(/Review security findings, explore your Azure environment, and verify remediation/i);
-    expect(primaryContent).toHaveTextContent(/Advice and inventory evidence on this page are not an official compliance report/i);
+    expect(screen.getByText(/Review security findings, explore your Azure environment, and verify remediation/i)).toBeInTheDocument();
+    expect(screen.getByText(/Advice and inventory evidence on this page are not an official compliance report/i)).toBeInTheDocument();
     expect(primaryContent).not.toHaveTextContent(/Azure inventory evidence workbenches for snapshots/i);
     expect(INFRASTRUCTURE_WORKBENCH_ROWS).toHaveLength(7);
     expect(INFRASTRUCTURE_WORKBENCH_ROWS[0]?.href).toBe("/governance/infrastructure/resources");
