@@ -36214,13 +36214,18 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 33
+- **hunts:** 34
 - **bugs-found:** 19
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-10
+- **last-hunt:** 2026-10-12
 - **last-bug:** 2026-10-03 — audit “Other linked controls” assumed the active match was first
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
+
+2026-10-12 seed hunt (seed-only): re-read `ResourceHubClient.tsx`, the resource-hub cache/request path, URL/tab synchronization, audit lineage rendering, remediation refresh, and all three focused suites. No fresh reachable mechanism-backed wrong outcome met the hunt-ready bar; no candidate was promoted and no production or regression code changed. The focused ResourceHubClient suites passed 52/52.
+
+- [ ] (candidate) `ResourceHubClient.loadHub` / hub rendering — changing the reachable `snapshotId` or audit scope starts a new request but retains the previous `hub` while that request fails, so the page may show prior-scope evidence under the new URL alongside a load error; input is reachable from explorer/workbench navigation followed by a failed captured-evidence request.
+- [ ] (candidate) `ResourceHubClient.resolvedAuditLineage` — a complete reachable audit scope whose `(assessmentId, auditEvidenceSnapshotId, controlId)` is absent from `auditLineageLink.matches` falls back to the payload’s default control label instead of degrading the selected scope, so the audit banner/tab can label a different control than the URL-selected scope; input is reachable from a stale or cross-resource workbench URL.
 
 2026-10-10 seed hunt (seed-only): reread `ResourceHubClient.tsx` and its focused component tests; no candidate met the same-run failing-repro promotion bar. The focused UI test run was blocked before execution by the existing duplicate `CreateEmptyAgentResultRepository` member `CS0111` in the shared .NET test project. Seeded bounded candidates for resource-title trailing segments, duplicate RBAC/network row keys, and tab navigation carrying stale technical-disclosure state; no production or regression code was changed.
 
