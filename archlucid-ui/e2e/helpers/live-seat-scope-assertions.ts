@@ -13,36 +13,43 @@ import {
 const SAMPLE_RETURN_BANNER_TEST_ID = "sample-workspace-return-banner";
 const DEMO_VS_LIVE_BANNER_TEST_ID = "demo-vs-live-chrome-banner";
 const SCOPE_SWITCHER_TRIGGER_TEST_ID = "operator-scope-switcher-trigger";
+const BLOCKING_MODAL_OVERLAY = 'div.fixed.inset-0.z-50.bg-neutral-900\\/50[data-state="open"]';
 
 /**
  * First-session purpose chooser is optional (grandfathered users, invite flows). When shown, pick live workspace.
  * Closing it without choosing live does not persist the preference, so it reopens and blocks clicks.
  */
-export async function dismissFirstSessionPurposeChooserIfVisible(page: Page): Promise<void> {
+export async function ensureFirstSessionPurposeChooserClosed(page: Page, timeoutMs = 2_000): Promise<void> {
   const chooser = page.getByTestId(FIRST_SESSION_PURPOSE_CHOOSER_TEST_ID);
-  const visible = await chooser.isVisible().catch(() => false);
+  await chooser.waitFor({ state: "visible", timeout: timeoutMs }).catch(() => undefined);
 
-  if (!visible) {
-    return;
-  }
+  await expect(async () => {
+    if (await chooser.isVisible().catch(() => false)) {
+      const liveButton = page.getByTestId(FIRST_SESSION_PURPOSE_LIVE_BUTTON_TEST_ID);
+      await expect(liveButton).toBeEnabled({ timeout: 5_000 });
+      await liveButton.click({ timeout: 15_000 });
+    }
 
-  await page.getByTestId(FIRST_SESSION_PURPOSE_LIVE_BUTTON_TEST_ID).click();
-  await expect(chooser).toBeHidden({ timeout: 60_000 });
+    await expect(chooser).toBeHidden({ timeout: 5_000 });
+    await expect(page.locator(BLOCKING_MODAL_OVERLAY)).toHaveCount(0, { timeout: 5_000 });
+  }).toPass({ timeout: timeoutMs, intervals: [500, 1_000, 2_000] });
+}
+
+export async function dismissFirstSessionPurposeChooserIfVisible(page: Page): Promise<void> {
+  await ensureFirstSessionPurposeChooserClosed(page);
 }
 
 /** Preferences load after the first operator navigation; wait briefly then pick live if the chooser appears. */
 export async function waitAndDismissFirstSessionPurposeChooser(
   page: Page,
-  timeoutMs = 8_000,
+  timeoutMs = 60_000,
 ): Promise<void> {
-  const chooser = page.getByTestId(FIRST_SESSION_PURPOSE_CHOOSER_TEST_ID);
-  await chooser.waitFor({ state: "visible", timeout: timeoutMs }).catch(() => undefined);
-  await dismissFirstSessionPurposeChooserIfVisible(page);
+  await ensureFirstSessionPurposeChooserClosed(page, timeoutMs);
 }
 
 /** Live-seat acceptance: scope trigger and banners must not imply sample / NOT LIVE DATA. */
 export async function assertLiveSeatOperatorScopeChrome(page: Page): Promise<void> {
-  await dismissFirstSessionPurposeChooserIfVisible(page);
+  await ensureFirstSessionPurposeChooserClosed(page, 60_000);
 
   const scopeTrigger = page.getByTestId(SCOPE_SWITCHER_TRIGGER_TEST_ID);
 
