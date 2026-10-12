@@ -7,7 +7,7 @@ region into the book; docs/book/tools/check_listings.py fails when the two diffe
 
 from __future__ import annotations
 
-from ch04_paths import Edge, find_paths
+from ch04_paths import Edge, find_paths, unmodeled_on
 from ch09_remediation import edge_key
 
 
@@ -38,13 +38,18 @@ def unreadable_scopes(manifest: dict) -> set[str]:
     return {gap["target"] for gap in manifest["gaps"] if gap["kind"] == "scopeNotReadable"}
 
 
+class Unmodeled(Exception):
+    """Raised by a check whose answer depends on a control the analysis doesn't evaluate."""
+
+
 @dataclass(frozen=True)
 class Postcondition:
     id: str
     text: str                       # what must be true, in words a reviewer can check
     needs: frozenset[str]           # snapshot files the check reads
     scopes: frozenset[str]          # scopes the check depends on, named as in the gap list
-    # True when the postcondition holds; raise LookupError if the subject is absent.
+    # True when the postcondition holds. Raise LookupError if the subject is absent, or
+    # Unmodeled if the answer depends on an unevaluated control (Chapter 4).
     check: Callable[[dict], bool]
 
 
@@ -76,6 +81,8 @@ def verify(
         holds = post.check(data)
     except LookupError as missing_subject:
         return NOT_VERIFIED, f"subject not in snapshot: {missing_subject}"
+    except Unmodeled as control:
+        return NOT_VERIFIED, f"depends on an unmodeled control: {control}"
 
     return (VERIFIED, post.text) if holds else (FAILED, post.text)
 # endregion verify
@@ -114,14 +121,24 @@ PATH_FILES = frozenset({
 
 
 def no_path(post_id: str, entry: str, target: str, scopes: frozenset[str]) -> Postcondition:
-    """Postcondition: the Chapter 4 search, on edges derived from this snapshot, finds nothing."""
-    return Postcondition(
-        id=post_id,
-        text=f"no path from {entry} to {target}",
-        needs=PATH_FILES,
-        scopes=scopes,
-        check=lambda data: not find_paths(data["edges"], entry, target, max_hops=12),
-    )
+    """Postcondition: the Chapter 4 search, on edges derived from this snapshot, finds nothing.
+
+    A remaining path that rests only on unmodeled controls can't be confirmed or ruled out.
+    """
+    def check(data: dict) -> bool:
+        paths = find_paths(data["edges"], entry, target, max_hops=12)
+
+        if any(not unmodeled_on(path) for path in paths):
+            return False
+
+        if paths:
+            controls = {control.assumption() for path in paths for control in unmodeled_on(path)}
+            raise Unmodeled("; ".join(sorted(controls)))
+
+        return True
+
+    return Postcondition(id=post_id, text=f"no path from {entry} to {target}",
+                         needs=PATH_FILES, scopes=scopes, check=check)
 # endregion no_path
 
 

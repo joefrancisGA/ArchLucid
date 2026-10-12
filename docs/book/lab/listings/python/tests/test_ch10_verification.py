@@ -119,6 +119,28 @@ class PathPostconditions(unittest.TestCase):
 
         self.assertEqual(verdict[0], FAILED)
 
+    def conditioned_reader(self) -> dict:
+        return {"principal": lab.ANALYST, "role_name": "Storage Blob Data Reader", "scope": lab.CUSTDATA,
+                "condition": "@Resource[containers:name] StringEquals 'reports'",
+                "citation": "role-assignments.json row 31"}
+
+    def analyst_check(self, edges: list[Edge]) -> tuple[str, str]:
+        post = no_path("rec-4/v1", lab.ANALYST, lab.READ_CUSTDATA, frozenset({SCOPE}))
+
+        return verify(post, manifest(), {"edges": edges}, CHANGE_AT, set(PATH_FILES))
+
+    def test_path_through_an_unmodeled_control_is_not_verified(self) -> None:
+        verdict = self.analyst_check(lab.lab_edges(extra_assignments=[self.conditioned_reader()]))
+
+        self.assertEqual(verdict[0], NOT_VERIFIED)
+        self.assertTrue(verdict[1].startswith("depends on an unmodeled control: roleCondition"))
+
+    def test_plain_path_beside_an_unmodeled_one_still_fails(self) -> None:
+        plain = dict(self.conditioned_reader(), condition="", scope=lab.RG_PROD, citation="row 32")
+        edges = lab.lab_edges(extra_assignments=[self.conditioned_reader(), plain])
+
+        self.assertEqual(self.analyst_check(edges)[0], FAILED)
+
 
 class OpeningStoryDiffs(unittest.TestCase):
     def test_first_monday_everything_unresolved(self) -> None:

@@ -130,7 +130,7 @@ Chapter 11's tooling module is separate. Its lab deploys it into its own resourc
 
 ### Tested listings
 
-The book's Python listings are copies of modules in `lab/listings/python/`, one per chapter (`ch04_paths.py`, `ch07_validator.py`, and so on). Each listing in the text names the region it was copied from, and `tools/check_listings.py` fails if the two differ. The tests in `lab/listings/python/tests/` build the payments estate above as a graph and check the book's claims about it: Chapter 4's search finds exactly the six paths and nothing for `analyst-04`, Chapter 7's validator rejects the opening summary and passes the grounded one, Chapter 9's greedy plan picks the three changes the chapter names, and Chapter 10's diff classifies the two Mondays the way the chapter says.
+The book's Python listings are copies of modules in `lab/listings/python/`, one per chapter (`ch04_paths.py`, `ch07_validator.py`, and so on). Each listing in the text names the region it was copied from, and `tools/check_listings.py` fails if the two differ. The tests in `lab/listings/python/tests/` build the payments estate above as a graph and check the book's claims about it: Chapter 4's search finds exactly the six paths and nothing for `analyst-04`, and labels a path through a conditioned assignment "Insufficient evidence", Chapter 7's validator rejects the opening summary and passes the grounded one, Chapter 9's greedy plan picks the three changes the chapter names, and Chapter 10's diff classifies the two Mondays the way the chapter says.
 
 The tests are offline. They use only the standard library, make no Azure calls, and replace the Azure SDK modules with stand-ins when they run the Function App code. Passing them shows that the listings do what the book says on the book's examples. It doesn't show that Azure behaves the way the fixtures assume. The labs do that.
 
@@ -235,7 +235,7 @@ Import Az.ResourceGraph and Microsoft.Graph into `aa-security-collector`, copy t
 
 Before starting Chapter 1, confirm the lab looks the way the chapters assume:
 
-1. **Six paths.** Run Chapter 3's collector and Chapter 4's Step 0, derivation, and search. You should find exactly P1 to P6 and nothing else to `custdata` or `custarchive`. Fewer usually means a collection gap; more usually means the loader is treating role containment as a capability (Chapter 4 Step 3).
+1. **Six paths.** Run Chapter 3's collector and Chapter 4's Step 0, derivation, and search. You should find exactly P1 to P6 and nothing else to `custdata` or `custarchive`. Fewer usually means a collection gap; more usually means the loader is treating role containment as a capability (Chapter 4 Step 3). The baseline has no conditioned role assignments and no deny assignments with conditions, so none of the six paths carries an unmodeled control (Chapter 4, section 4.5).
 2. **Shared key.** `storage-accounts.json` shows `sharedKey = enabled` for `custdata`, `custarchive`, and the three sandbox accounts.
 3. **Federated subject.** `federated-credentials.json` shows `repo:contoso/payments:ref:refs/heads/main` (or your repository).
 4. **Directory role.** `directory-role-assignments.json` shows Cloud Application Administrator for `helpdesk-07` with `directoryScopeId` of `/`.
@@ -254,7 +254,7 @@ Most chapters only read the lab. The ones that change it are listed with the edi
 | 1 | Baseline | None |
 | 2 | Baseline | None |
 | 3 | Baseline | Step 6 removes the collector's Reader assignment, then restores it |
-| 4 | Chapter 3 snapshot | Step 3 adds Reader for `analyst-04`; Step 4 narrows the federated subject |
+| 4 | Chapter 3 snapshot | Step 3 adds Reader for `analyst-04`; optional Step 3a adds a conditioned blob reader for `analyst-04`; Step 4 narrows the federated subject |
 | 5 | Baseline network | Step 6 adds blob logging on `custdata`; Step 8 disables its public access and narrows the firewall rule |
 | 6 | Chapter 4 paths | Step 4 adds blob logging on both stores and makes one key-authenticated read |
 | 7 | Chapter 4 outputs | None |
@@ -279,6 +279,32 @@ resource "azurerm_role_assignment" "analyst_04_reader" {
   role_definition_name = "Reader"
   principal_id         = azuread_user.analyst_04.object_id
   principal_type       = "User"
+}
+```
+
+### Chapter 4 Step 3a — A conditioned reader (optional)
+
+Add to `identity.tf`, apply, and remove it after the step. The condition limits blob reads to a container named `reports`. The search can't evaluate it, so the new path must come back labeled:
+
+<!-- listing: lab/listings/terraform/appa-analyst-04-conditioned-reader.tf -->
+
+```hcl
+resource "azurerm_role_assignment" "analyst_04_conditioned_reader" {
+  scope                = azurerm_storage_account.custdata.id
+  role_definition_name = "Storage Blob Data Reader"
+  principal_id         = azuread_user.analyst_04.object_id
+  principal_type       = "User"
+  condition_version    = "2.0"
+  condition            = <<-EOT
+    (
+      (!(ActionMatches{'Microsoft.Storage/storageAccounts/blobServices/containers/blobs/read'}))
+      OR
+      (
+        @Resource[Microsoft.Storage/storageAccounts/blobServices/containers:name]
+          StringEquals 'reports'
+      )
+    )
+  EOT
 }
 ```
 
