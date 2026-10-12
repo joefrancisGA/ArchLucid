@@ -6,6 +6,8 @@
 
 2026-10-12 seed hunt (seed-only): `cloud-extractors` — repeated the selected AWS, GCP, and Azure extractor reread; the five bounded candidates remain below the hunt-ready bar and no new mechanism-backed wrong outcome emerged. AWS/GCP extractor tests passed 52/52; Azure extractor tests passed 130/131 with the known network-association baseline failure. No production or regression change.
 
+2026-10-12 seed hunt (seed-only): `cloud-extractors` — repeated the selected AWS, GCP, and Azure extractor reread; the five bounded candidates remain below the hunt-ready bar and no new mechanism-backed wrong outcome emerged. AWS/GCP extractor tests passed 52/52; Azure extractor tests passed 130/131 with the known network-association baseline failure. No production or regression change.
+
 2026-10-12 seed hunt (seed-only): `cloud-extractors` — re-read the selected AWS, GCP, and Azure extractor paths after the culture-parsing fix; no fresh reachable mechanism-backed wrong outcome met the hunt-ready bar. AWS/GCP extractor tests passed 52/52; Azure extractor tests passed 130/131 with the known network-association baseline failure. Seeded two bounded candidates; no additional production or regression change.
 
 2026-10-12 seed hunt (seed→hit): `HostedAzureManagementPostReadClient.ReadArrayCellDouble` parsed Azure Cost Management numeric JSON cells with the current culture, so reachable `10.5` cost data became `105` under `de-DE`; fixed with invariant numeric parsing. Regression `TryQueryActualCostSummaryAsync_parses_numeric_cost_cells_invariantly` failed first and passed after the fix. The focused regression passed 1/1, AWS/GCP extractor tests passed 52/52, and Azure extractor tests passed 130/131 with one pre-existing network-association baseline failure.
@@ -31365,6 +31367,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 2026-10-12 seed hunt (seed-only): repeated the selected extractor review; no candidate was promoted and the existing five bounded candidates were retained. AWS/GCP tests passed 52/52; Azure extractor scope passed 130/131 with the known network-association baseline failure.
 
+2026-10-12 seed hunt (seed-only): repeated the selected extractor review; no candidate was promoted and the existing five bounded candidates were retained. AWS/GCP tests passed 52/52; Azure extractor scope passed 130/131 with the known network-association baseline failure.
+
 2026-10-12 seed hunt (seed-only): re-read the selected AWS, GCP, and Azure extractor paths after the culture-parsing fix; no candidate was promoted. AWS/GCP tests passed 52/52; Azure extractor scope passed 130/131 with the known network-association baseline failure.
 
 - (candidate) `GcpServiceAccountEmail.TryGetProjectId` — a reachable hosted GCP request `ServiceAccountEmail` containing an extra `@` before an otherwise valid `.iam.gserviceaccount.com` domain is accepted and passed into the impersonation URL; the downstream authentication outcome for this malformed email is not established in the selected files.
@@ -31402,7 +31406,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** aws extractor; gcp extractor; azure extractor
 - **paths:** ArchLucid.Integrations.AwsExtractor/; ArchLucid.Integrations.GcpExtractor/; ArchLucid.Integrations.AzureExtractor/
 - **test-filter:** FullyQualifiedName~AwsExtractor|FullyQualifiedName~GcpExtractor|FullyQualifiedName~AzureExtractor
-- **hunts:** 95
+- **hunts:** 96
 - **bugs-found:** 45
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-12
