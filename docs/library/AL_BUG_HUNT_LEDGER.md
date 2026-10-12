@@ -36768,13 +36768,15 @@ ABQ-09 churn hotspot.
 - **aliases:** securenow question queue; question disposition
 - **paths:** ArchLucid.Application/InfraEvidence/SecureNowQuestionDispositions/; ArchLucid.Api/Controllers/InfraEvidence/InfraEvidenceSecureNowQuestionsController.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/ISecureNowQuestionDispositionRepository.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/ISecureNowQuestionDispositionService.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/SecureNowQuestionDispositionRecord.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/SecureNowQuestionRecord.cs; ArchLucid.Persistence/InfraEvidence/NoOpSecureNowQuestionDispositionRepository.cs; ArchLucid.Persistence/InfraEvidence/SqlSecureNowQuestionDispositionRepository.cs; ArchLucid.Contracts/InfraEvidence/SecureNowQuestionDispositionContracts.cs; archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
-- **hunts:** 28
+- **hunts:** 29
 - **bugs-found:** 13
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-12
 - **last-bug:** 2026-10-12 — endpoint-less inferred questions were emitted without an answerable resource identity
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-12 seed hunt (seed-only): re-read the selected compiler, disposition service, controller, persistence, contract, queue, and API paths. The existing case-variant disposition collision candidate is reachable through repeated ignore mutations, but its focused failing repro was blocked before discovery by unrelated `AzureInventorySecurityEdgeMaterializer.cs` compile errors; no candidate was promoted and no production or regression code changed.
 
 2026-10-11 seed hunt (seed-only): re-read the selected disposition, compiler, controller, persistence, contract, and queue paths with no production churn since the stale-load fix. The retained case-variant disposition and in-flight snapshot-action lenses remain unproven and overlap saturated validation/state-machine classes; no fresh hunt-ready mechanism was promoted. The focused Application SecureNowQuestion suite passed 22/22 and the queue UI suite passed 14/14; no production or regression code changed.
 
