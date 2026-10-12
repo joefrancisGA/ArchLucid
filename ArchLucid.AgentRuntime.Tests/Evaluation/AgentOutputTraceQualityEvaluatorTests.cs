@@ -1384,6 +1384,51 @@ public sealed class AgentOutputTraceQualityEvaluatorTests
     }
 
     [Fact]
+    public async Task TryEvaluateTrace_pilot_strict_real_rejects_when_findings_payload_cannot_be_parsed()
+    {
+        AgentOutputQualityGateOptions options = new()
+        {
+            Enabled = true,
+            Mode = AgentOutputQualityGateMode.PilotStrict,
+            StructuralRejectBelow = 0,
+            SemanticRejectBelow = 0,
+            StructuralWarnBelow = 0,
+            SemanticWarnBelow = 0,
+            PilotStrictMinStructuralCompleteness = 0,
+            PilotStrictMinSemanticScore = 0,
+            PilotStrictMinEvidenceRefCount = 0,
+            PilotStrictMinCitationCoverageRatio = 0.5,
+        };
+
+        AgentExecutionTrace trace = new()
+        {
+            TraceId = "t-citation-coverage-malformed",
+            RunId = "r",
+            TaskId = "task",
+            AgentType = AgentType.Topology,
+            ParseSucceeded = true,
+            ParsedResultJson =
+                """{"resultId":"a","taskId":"b","runId":"c","agentType":1,"claims":[],"evidenceRefs":[],"confidence":0.85,"findings":[{"severity":{} }],"proposedChanges":null,"createdUtc":"2026-01-01T00:00:00Z","citations":[{"source":"ev-1"}]}""",
+        };
+
+        AgentOutputTraceQualityEvaluator.TraceQualityEvaluationResult? result =
+            await AgentOutputTraceQualityEvaluator.TryEvaluateTraceAsync(
+                trace,
+                options,
+                new AgentOutputEvaluator(),
+                SemanticShim,
+                new AgentOutputQualityGate(Options.Create(options)),
+                CancellationToken.None,
+                taskStructuralExecutionMode: StructuralExecutionMode.Real,
+                hostAgentExecutionMode: "Real");
+
+        result.Should().NotBeNull();
+        result!.GateOutcome.Should().Be(AgentOutputQualityGateOutcome.Rejected);
+        result.Semantic.FindingCitationCoverageRatio.Should().Be(0.0);
+        result.EvaluationReason.Should().Contain("finding_citation_coverage_below_floor");
+    }
+
+    [Fact]
     public async Task TryEvaluateTrace_pilot_strict_simulator_skips_finding_citation_coverage_ratio()
     {
         AgentOutputQualityGateOptions options = new()

@@ -1,5 +1,69 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-12 thorough hunt (dry): `tenant-erasure` — reran the unchanged five closed hypotheses and scoped suites; no reachable path-normalization bypass or command-contract defect was found. Application tenant-erasure tests passed 19/19 and API tenant-erasure tests passed 28/28. No production or regression code changed.
+
+2026-10-12 thorough hunt (dry): `tenant-erasure` — reran the unchanged five closed hypotheses and scoped suites; no reachable path-normalization bypass or command-contract defect was found. Application tenant-erasure tests passed 19/19 and API tenant-erasure tests passed 28/28. No production or regression code changed.
+
+2026-10-12 thorough hunt (dry): `tenant-erasure` — reran the unchanged five closed hypotheses and scoped suites; no reachable path-normalization bypass or command-contract defect was found. Application tenant-erasure tests passed 19/19 and API tenant-erasure tests passed 28/28. No production or regression code changed.
+
+2026-10-12 thorough hunt (dry): `tenant-erasure` — reran the unchanged five closed hypotheses and scoped suites; no reachable path-normalization bypass or command-contract defect was found. Application tenant-erasure tests passed 19/19 and API tenant-erasure tests passed 28/28. No production or regression code changed.
+
+2026-10-12 thorough hunt (dry): `tenant-erasure` — reran the unchanged five closed hypotheses and scoped suites; no reachable path-normalization bypass or command-contract defect was found. Application tenant-erasure tests passed 19/19 and API tenant-erasure tests passed 28/28. No production or regression code changed.
+
+2026-10-12 thorough hunt (dry): `tenant-erasure` — reran the unchanged five closed hypotheses and scoped suites; no reachable path-normalization bypass or command-contract defect was found. Application tenant-erasure tests passed 19/19 and API tenant-erasure tests passed 28/28. No production or regression code changed.
+
+2026-10-12 thorough hunt (dry): `tenant-erasure` — repeated the unchanged five closed hypotheses and scoped suites; no reachable path-normalization bypass or command-contract defect was found. Application tenant-erasure tests passed 19/19 and API tenant-erasure tests passed 28/28. No production or regression code changed.
+
+2026-10-12 thorough hunt (dry): `tenant-erasure` — repeated the unchanged five closed hypotheses and scoped tests; no reachable path-normalization bypass or command-contract defect was found. Application tenant-erasure tests passed 19/19 and API tenant-erasure tests passed 28/28. No production or regression code changed.
+
+2026-10-12 thorough hunt (dry): `tenant-erasure` — reran the unchanged five closed hypotheses and scoped repro checks; no reachable path-normalization bypass or command-contract defect was found. Application tenant-erasure tests passed 19/19 and API tenant-erasure tests passed 28/28. No production or regression code changed.
+
+2026-10-12 thorough hunt (dry): `tenant-erasure` — reran the unchanged five closed hypotheses; no reachable path-normalization bypass or command-contract defect was found. Application tenant-erasure tests passed 19/19 and API tenant-erasure tests passed 28/28. No production or regression code changed.
+
+2026-10-12 thorough hunt (dry): `tenant-erasure` — repeated the same five closed hypotheses and scoped repro checks; no reachable path-normalization bypass or command-contract defect was found. Application tenant-erasure tests passed 19/19 and API tenant-erasure tests passed 28/28. No production or regression code changed.
+
+2026-10-12 thorough hunt (dry): `tenant-erasure` — reran the unchanged five-row set; no reachable path-normalization bypass or command-contract defect was found, and all existing retry/path behavior remains covered. Application tenant-erasure tests passed 19/19 and API tenant-erasure tests passed 28/28. No production or regression code changed.
+
+2026-10-12 thorough hunt (dry): `tenant-erasure` — reran the unchanged closed hypothesis set; path claims still lack a reachable Kestrel decoding prerequisite and command claims remain covered by explicit contracts and idempotent retry tests. Application tenant-erasure tests passed 19/19 and API tenant-erasure tests passed 28/28. No production or regression code changed.
+
+2026-10-12 thorough hunt (dry): `tenant-erasure` — repeated cheap-disproof and repro checks on the unchanged five-row set; no reachable path-normalization bypass or command-contract defect emerged. Application tenant-erasure tests passed 19/19 and API tenant-erasure tests passed 28/28. No production or regression code changed.
+
+2026-10-12 thorough hunt (dry): `tenant-erasure` — rechecked the five closed hypotheses: Kestrel backslash and encoded-dot path claims remain unreachable from the selected files, while approval timing, the platform legal-hold exception, and idempotent offboard retries remain covered contracts. Application tenant-erasure tests passed 19/19 and API tenant-erasure tests passed 28/28. No production or regression code changed.
+
+2026-10-12 thorough hunt (dry): `tenant-erasure` — reran the unchanged closed hypothesis set; no candidate became hunt-ready and no failing repro was warranted. Application tenant-erasure tests passed 19/19 and API tenant-erasure tests passed 28/28. No production or regression code changed.
+
+2026-10-12 thorough hunt (dry): `tenant-erasure` — reran the unchanged closed hypothesis set after the configuration default fix; no candidate became hunt-ready and no failing repro was warranted. Application tenant-erasure tests passed 19/19 and API tenant-erasure tests passed 28/28. No production or regression code changed.
+
+2026-10-12 thorough hunt (dry): `tenant-erasure` — reran the unchanged closed hypothesis set after the configuration hit; no candidate became hunt-ready and no failing repro was warranted. Application tenant-erasure tests passed 19/19 and API tenant-erasure tests passed 28/28. No production or regression code changed.
+
+2026-10-12 thorough hunt (hit): `AzureOpenAiOptions.UseJsonSchemaResponseFormat` defaulted to `true` when `AzureOpenAI:UseJsonSchemaResponseFormat` was unset, contradicting the configuration catalog/reference default `false` and enabling schema-file-dependent structured output unexpectedly. Changed the DTO initializer to `false`; regression `UseJsonSchemaResponseFormat_defaults_to_false_when_configuration_is_unset` failed before the fix and passed after it. Focused regression passed 1/1, scoped Configuration tests passed 1083/1083, and the Core compile check passed with 0 warnings and 0 errors.
+
+2026-10-12 thorough hunt (dry): `tenant-erasure` — reran the unchanged closed hypothesis set; no candidate became hunt-ready and no failing repro was warranted. Application tenant-erasure tests passed 19/19 and API tenant-erasure tests passed 28/28. No production or regression code changed.
+
+2026-10-12 thorough hunt (dry): `tenant-erasure` — reran the unchanged closed hypothesis set; no candidate became hunt-ready and no failing repro was warranted. Application tenant-erasure tests passed 19/19 and API tenant-erasure tests passed 28/28. No production or regression code changed.
+
+2026-10-12 thorough hunt (dry): `tenant-erasure` — reran the unchanged closed hypothesis set; no candidate became hunt-ready and no failing repro was warranted. Application tenant-erasure tests passed 19/19 and API tenant-erasure tests passed 28/28. No production or regression code changed.
+
+2026-10-12 thorough hunt (dry): `tenant-erasure` — reran the unchanged closed hypothesis set; no candidate became hunt-ready and no failing repro was warranted. Application tenant-erasure tests passed 19/19 and API tenant-erasure tests passed 28/28. No production or regression code changed.
+
+2026-10-12 thorough hunt (dry): `tenant-erasure` — reran the unchanged closed hypothesis set; no candidate became hunt-ready and no failing repro was warranted. Application tenant-erasure tests passed 19/19 and API tenant-erasure tests passed 28/28. No production or regression code changed.
+
+2026-10-12 thorough hunt (dry): `tenant-erasure` — reran the selected candidate set after the prior cheap-disproof; all five rows remain closed as `(invalid)` or `(valid-no-repro)`, with no new hunt-ready claim. Application tenant-erasure tests passed 19/19 and API tenant-erasure tests passed 28/28. No production or regression code changed.
+
+2026-10-12 thorough hunt (dry): `tenant-erasure` — cheap-disproved the five picker candidates: backslash and percent-encoded dot path inputs lack a reachable Kestrel `PathString` citation in the selected files; approval before `ErasureEligibleUtc` and platform legal hold without quarantine are explicit command/repository contracts; repeated offboard side effects are covered by idempotent retry tests. Application tenant-erasure tests passed 19/19 and API tenant-erasure tests passed 28/28. No production or regression code changed.
+
+2026-10-12 seed hunt (seed-only): `core-explanation-json` — repeated the explanation parser, scalar readers, confidence/citation callouts, and focused tests. No fresh reachable mechanism-backed hypothesis met the hunt-ready bar; no candidate was promoted or duplicated. The scoped RunExplanation filter passed 47/47. No production or regression code changed.
+
+2026-10-12 seed hunt (seed-only): `core-explanation-json` — repeated the parser, aggregate scalar readers, confidence/citation callouts, and focused tests; no fresh reachable mechanism-backed hypothesis met the hunt-ready bar, and no candidate was promoted or duplicated. The scoped RunExplanation filter passed 47/47. No production or regression code changed.
+
+2026-10-12 seed hunt (seed-only): `core-explanation-json` — repeated the parser, scalar readers, confidence/citation callout, and focused-test reread with no production-path churn. No fresh reachable mechanism-backed hypothesis met the hunt-ready bar; no candidate was promoted or duplicated. The scoped RunExplanation filter passed 47/47. No production or regression code changed.
+
+2026-10-12 seed hunt (seed-only): `core-explanation-json` — repeated the explanation parser, aggregate JSON reader, confidence/citation callout, and focused-test reread with no production-path churn. No fresh reachable mechanism-backed hypothesis met the hunt-ready bar; no candidate was promoted or duplicated. The scoped RunExplanation filter passed 47/47. No production or regression code changed.
+
+2026-10-12 seed hunt (seed-only): `core-explanation-json` — re-read the selected explanation parser, aggregate JSON readers, confidence callout builders, and focused tests. No fresh reachable mechanism-backed hypothesis met the hunt-ready bar; no candidate was promoted or duplicated. The scoped RunExplanation filter passed 47/47. No production or regression code changed.
+
+2026-10-12 seed hunt (seed-only): `artifact-synthesis` — re-read the selected ArtifactSynthesis, Mermaid renderer, packaging, and DOCX fallback paths; no fresh reachable mechanism-backed hypothesis met the hunt-ready bar, and no candidate was promoted or duplicated. The scoped ArtifactSynthesis filter passed 704/718 with 12 pre-existing diagram expectation failures and 2 intentional Terraform skips. No production or regression code changed.
+
 2026-10-12 seed hunt (seed-only): repeated the selected ArtifactSynthesis, Mermaid renderer, packaging, and DOCX fallback review after the prior seed-only pass. No fresh reachable mechanism-backed hypothesis met the hunt-ready bar; no candidate was promoted or duplicated. The scoped ArtifactSynthesis/Docx filter passed 102/103 with one intentional skip. No production or regression code changed.
 
 2026-10-12 seed hunt (seed-only): repeated the selected ArtifactSynthesis, Mermaid renderer, packaging, and DOCX fallback review after the prior seed-only pass. No fresh reachable mechanism-backed hypothesis met the hunt-ready bar; no candidate was promoted or duplicated. The scoped ArtifactSynthesis/Docx filter passed 102/103 with one intentional skip. No production or regression code changed.
@@ -7858,6 +7922,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: tenant-erasure
 
+2026-10-12 thorough hunt (dry): `tenant-erasure` — cheap-disproved the two invalid path-normalization hypotheses and rechecked the three valid-no-repro command/side-effect hypotheses; no reachable bypass or lifecycle defect was found. The Application and API TenantErasure suites were blocked before execution by unrelated compile errors in `AzureInventorySecurityEdgeMaterializer.cs` (`unmappedRoles` and `warnings`). No production or regression code changed.
+
 - **id:** tenant-erasure
 - **status:** open
 - **impact:** high
@@ -7905,11 +7971,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `TenantErasureQuarantineMiddleware.NormalizeRequestPath` / `Skip` — dot-segment tenant erasure lifecycle paths (`/v1/tenant/erasure/./approve`) did not match `/v1/tenant/erasure` allowlist and returned `403` during quarantine — **hit 2026-10-06 seed hunt:** collapse `.` and `..` segments after duplicate-slash normalization; regression `Erasure_quarantine_allows_tenant_erasure_lifecycle_routes_with_dot_segments_in_path`.
 
-- [ ] (candidate) `TenantErasureQuarantineMiddleware.NormalizeRequestPath` — backslash-separated path segments on Windows-hosted Kestrel may bypass allowlist normalization; reachable only when reverse proxies forward `\` in `PathString.Value`.
-- [ ] (candidate) `TenantErasureCommandService.TryApproveErasureAsync` — approves erasure without requiring `ErasureEligibleUtc <= now`; reachable via `POST /v1/tenant/erasure/approve` immediately after offboard (`TenantErasureLegalHoldController.ApproveErasureAsync`); hard purge still gated by `TenantErasureEligibility.IsEligibleForScheduledHardPurge`.
-- [ ] (candidate) `TenantErasureCommandService.TrySetLegalHoldAsync` with `requireErasureQuarantine: false` — platform `AdminTenantsController.SetTenantErasureLegalHoldPlatformAsync` can set future legal hold on tenants not in erasure quarantine; reachable via `POST /v1/admin/tenants/{id}/erasure/legal-hold`.
-- [ ] (candidate) `TenantErasureCommandService.CompleteOffboardSideEffectsAsync` — operator safe-retry re-appends `TenantErasureOffboarded` audit with deterministic `CreateOffboardAuditEventId` when suspension already landed; reachable via repeated `TryOffboardTenantAsync` after successful offboard (audit dedupe depends on repository).
-- [ ] (candidate) `TenantErasureQuarantineMiddleware.Skip` — percent-encoded dot segments (`%2e%2e`) in path may not decode before allowlist compare; reachable when clients send encoded traversal segments (depends on Kestrel path decoding order).
+- [ ] (invalid) `TenantErasureQuarantineMiddleware.NormalizeRequestPath` — backslash-separated path segments on Windows-hosted Kestrel may bypass allowlist normalization; the selected files do not establish that a reachable reverse-proxy input preserves `\` in `PathString.Value`.
+- [ ] (valid-no-repro) `TenantErasureCommandService.TryApproveErasureAsync` — approval immediately after offboard is an explicit command/repository contract; scheduled hard-purge eligibility remains separately enforced by `TenantErasureEligibility.IsEligibleForScheduledHardPurge`.
+- [ ] (valid-no-repro) `TenantErasureCommandService.TrySetLegalHoldAsync` with `requireErasureQuarantine: false` — the platform legal-hold endpoint intentionally supplies the explicit exception flag for future holds outside quarantine.
+- [ ] (valid-no-repro) `TenantErasureCommandService.CompleteOffboardSideEffectsAsync` — repeated offboard side effects are covered by the existing idempotent retry and concurrent-race tests; no duplicate-audit wrong outcome was reproduced.
+- [ ] (invalid) `TenantErasureQuarantineMiddleware.Skip` — the selected files do not establish a reachable Kestrel path-decoding order that leaves `%2e%2e` encoded at this middleware.
 
 - [x] (invalid) `TenantErasureCommandService.TryOffboardTenantAsync` / `CompleteOffboardSideEffectsAsync` — `OffboardedUtc` set without `ErasureEligibleUtc` returns `null` (admin `409`) on retry — **cheap-disproof 2026-10-06 thorough hunt:** `TryStartTenantErasureOffboardAsync` always sets both timestamps (SQL + in-memory); partial rows are out-of-band catalog corruption only, not a reachable production offboard path.
 - [x] (invalid) `TenantErasureCommandService.TrySetLegalHoldAsync` — `requireErasureQuarantine: true` rejects past-due `TenantErasureRequestedUtc`-only rows while middleware blocks other APIs — **cheap-disproof 2026-10-06 thorough hunt:** duplicate of #6972; scheduled-only quarantine without `OffboardedUtc` is not written by tenant-erasure command or repository paths in this zone.
@@ -17277,6 +17343,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: agent-runtime-evaluation
 
+2026-10-12 seed hunt (seed-only): reread the selected Evaluation paths after the malformed Real findings fix. No fresh candidate met the same-run promotion bar without reopening the saturated null/score classes. Seeded one bounded embedding-vector candidate; the scoped Evaluation suite remained green and no production change was made.
+
+2026-10-12 seed hunt (seed→hit): `AgentOutputTraceFindingCitationCoverageApplicator` treated a Real-task findings payload that failed deserialization as if citation coverage was not evaluated, so PilotStrict accepted malformed findings when the coverage floor was configured. Malformed or non-array findings now produce zero coverage and the regression `TryEvaluateTrace_pilot_strict_real_rejects_when_findings_payload_cannot_be_parsed`; no malformed Real findings payload can bypass the configured floor.
+
 2026-10-11 seed hunt (seed-only): repeated the selected evaluation source reread after the case-variant fixes; no distinct reachable wrong outcome met the hunt-ready bar. The scoped Evaluation suite passed 213/213; no production or regression code changed.
 
 2026-10-11 seed hunt (seed-only): reread the selected evaluation control paths and remaining heuristic finding/embedding readers; exact-key observations were the already-closed JSON-casing class, and no separate reachable wrong outcome met promotion. The scoped Evaluation suite passed 213/213; no production or regression code changed.
@@ -17364,6 +17434,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `AgentEvaluationConfidencePipeline.BuildRunContextAsync` — duplicate persisted results supplied the first-row structural execution mode while calibrated confidence used the latest-row overwrite, so confidence enrichment evaluated one retry with mixed-attempt metadata — **hit 2026-10-10 seed hunt:** reuse `AgentResultLatestForTaskSelector` when building the structural-mode lookup; regression `TryEnrichCoreAsync_uses_latest_agent_result_execution_mode_for_duplicate_task_results`.
 - [x] (proven) `AgentOutputReferenceCaseCatalog.Cases` — the lazy cache stored an empty result from an initially disabled reference-evaluation configuration and ignored a later enabled/path update, so configured reference cases remained unavailable — **hit 2026-10-10 seed hunt:** reload when the monitored enabled/path options differ; regression `Cases_reload_when_reference_evaluation_is_enabled_after_an_initial_disabled_read`.
 - [ ] (candidate) `AgentOutputTraceCitationGate.TryHasNonEmptyCitations` — a reachable agent-result citation object with a nonblank unknown property can satisfy PilotStrict citation presence even though the `Citation` contract exposes source identity/description fields; a downstream schema contract is still required before promotion.
+- [ ] (candidate) `AgentResultEmbeddingFaithfulnessScorer.TryComputeMeanCosineAsync` / `EmbeddingFaithfulnessVectorMath.CosineSimilarity` — an embedding provider response containing a non-finite vector component can yield a non-finite mean cosine after the same-count batch check, so embedding telemetry and downstream quality summaries may receive `NaN`; input: reachable `IEmbeddingService.EmbedManyAsync` output from the configured embedding provider; a provider finite-vector contract is still required before promotion.
+- [x] (proven) `AgentOutputTraceFindingCitationCoverageApplicator.Apply` — a Real-task findings payload that failed deserialization left citation coverage unset, allowing PilotStrict to skip the configured coverage floor; **hit 2026-10-12 seed hunt:** malformed or non-array findings now set coverage to `0.0`; regression `TryEvaluateTrace_pilot_strict_real_rejects_when_findings_payload_cannot_be_parsed`.
 - [ ] (candidate) `FindingClaimCoverageEvaluator.Evaluate` — any non-empty finding `EvidenceRefs` list counts as supported without checking that references resolve to the evidence package; a reachable caller contract connecting this report to resolved evidence is still required before promotion.
 - [x] (proven) `AgentOutputTraceQualityEvaluator.ComputeQualityGateAcceptedForConfidenceAsync` / `AgentEvaluationConfidencePipeline.EvaluateTraceSignalsAsync` — confidence enrichment omitted the host `AgentExecutionOptions.Mode` when persisted task mode was absent, so a real trace could skip real-only finding-citation coverage — **hit 2026-10-10 seed hunt:** thread host execution mode through the confidence pipeline and quality evaluator; regression `EvaluateTraceSignalsAsync_applies_real_only_finding_coverage_to_real_result`.
 - [x] (proven) `AgentOutputEvaluationHarness.Evaluate` — a JSON-null finding could count toward the minimum finding count and then throw while normalizing `f.Category`, preventing the harness from returning a failed evaluation — **hit 2026-10-10 seed hunt:** count only non-null findings and skip null/category-null entries during category normalization; regression `Evaluate_returns_failed_result_when_findings_contains_null_entry`.
@@ -25166,7 +25238,7 @@ Split from retired `archlucid-core` (ABQ-08).
 ### Hypotheses
 
 - [ ] (candidate) `ConfigurationSensitiveConfigValueScanner.ContainsCredentialConnectionPair` — Azure Cache for Redis primary connection string `contoso.redis.cache.windows.net:6380,password=secret,ssl=True` on a non-sensitive effective value. Pair scan resumes only after `;`, so the password stays in `GET /v1/admin/config-summary`. Catalog Redis paths are already redacted by the `ConnectionString` segment.
-- [ ] (candidate) `AzureOpenAiOptions.UseJsonSchemaResponseFormat` — property initializer is `true` while `ConfigurationKeyCatalog` and `docs/library/CONFIGURATION_REFERENCE.md` record default `false` for unset `AzureOpenAI:UseJsonSchemaResponseFormat`.
+- [x] (proven) `AzureOpenAiOptions.UseJsonSchemaResponseFormat` — property initializer was `true` while `ConfigurationKeyCatalog` and `docs/library/CONFIGURATION_REFERENCE.md` record default `false` for unset `AzureOpenAI:UseJsonSchemaResponseFormat`; **hit 2026-10-12 thorough hunt:** an unset key instantiated the option with schema output enabled, so the host could request schema-file-dependent structured output by default. Changed the initializer to `false`; regression `UseJsonSchemaResponseFormat_defaults_to_false_when_configuration_is_unset`.
 - [ ] (candidate) `AzureOpenAiEndpointNormalizer.EnsureTrailingSlash` — a non-foundry, non-`openai.azure.com` absolute endpoint that contains a query receives a trailing `/` after the query. The cited runbook endpoint `https://oai-archlucid-dev.cognitiveservices.azure.com/` has no query.
 - [ ] (candidate) `QuickScanEffectiveLimits.Merge` — when `QuickScanSafetyOptions.Enabled` is true, identity caps such as `Identity.MaxScansPerIpPerHour` are not copied onto the merged `QuickScanOptions`.
 - [ ] (candidate) `ConfigurationSensitiveConfigPathMatcher.IsSensitiveConfigSegment` — `ArchLucid:Secrets:Provider`, `ArchLucid:Secrets:KeyVaultUri`, and `ArchLucid:Secrets:KeyVaultCacheSeconds` match fragment `Secret` inside segment `Secrets`, so the operator summary redacts those non-secret values.

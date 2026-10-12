@@ -37,10 +37,19 @@ internal static class AgentOutputTraceFindingCitationCoverageApplicator
         if (!ShouldEvaluateFindingCitationCoverage(taskStructuralExecutionMode, hostAgentExecutionMode))
             return;
 
-        IReadOnlyList<ArchitectureFinding> findings = TryParseFindings(parsedResultJson);
+        bool findingsPayloadPresent = TryParseFindings(
+            parsedResultJson,
+            out List<ArchitectureFinding> findings);
+
+        if (!findingsPayloadPresent)
+            return;
 
         if (findings.Count == 0)
+        {
+            semanticScore.FindingCitationCoverageRatio = 0.0;
+
             return;
+        }
 
         FindingClaimCoverageReport report = CoverageEvaluator.Evaluate(findings);
         semanticScore.FindingCitationCoverageRatio = report.CoverageRatio;
@@ -65,30 +74,35 @@ internal static class AgentOutputTraceFindingCitationCoverageApplicator
         return string.Equals(hostAgentExecutionMode, "Real", StringComparison.OrdinalIgnoreCase);
     }
 
-    private static List<ArchitectureFinding> TryParseFindings(string? parsedResultJson)
+    private static bool TryParseFindings(
+        string? parsedResultJson,
+        out List<ArchitectureFinding> findings)
     {
+        findings = [];
+
         if (string.IsNullOrWhiteSpace(parsedResultJson))
-            return [];
+            return false;
 
         try
         {
             using JsonDocument document = JsonDocument.Parse(parsedResultJson);
 
             if (document.RootElement.ValueKind != JsonValueKind.Object
-                || !TryGetPropertyIgnoreCase(document.RootElement, "findings", out JsonElement findingsElement)
-                || findingsElement.ValueKind != JsonValueKind.Array)
-            {
-                return [];
-            }
+                || !TryGetPropertyIgnoreCase(document.RootElement, "findings", out JsonElement findingsElement))
+                return false;
 
-            List<ArchitectureFinding>? findings =
-                JsonSerializer.Deserialize<List<ArchitectureFinding>>(findingsElement.GetRawText(), FindingJsonOptions);
+            if (findingsElement.ValueKind != JsonValueKind.Array)
+                return true;
 
-            return findings ?? [];
+            findings = JsonSerializer.Deserialize<List<ArchitectureFinding>>(
+                findingsElement.GetRawText(),
+                FindingJsonOptions) ?? [];
+
+            return true;
         }
         catch (JsonException)
         {
-            return [];
+            return true;
         }
     }
 
