@@ -11,6 +11,8 @@ using Moq;
 
 namespace ArchLucid.Application.Tests.SecureNow;
 
+[Trait("Category", "Unit")]
+[Trait("Suite", "Application")]
 public sealed class CollectionRunIngestServiceTests
 {
     [Fact]
@@ -101,7 +103,7 @@ public sealed class CollectionRunIngestServiceTests
                 RunId = runId,
                 AgentVersion = "test",
                 StartedUtc = DateTime.UtcNow,
-                SchemaVersion = 1,
+                SchemaVersion = AzureExtractorPackageZipValidator.SupportedSchemaVersion,
             },
             ZipBytes = [1, 2, 3],
         };
