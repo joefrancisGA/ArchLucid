@@ -36264,7 +36264,7 @@ ABQ-09 churn hotspot.
 
 2026-10-03 seed hunt (seed-only): re-read tab navigation, resource-title derivation, audit-control selection, and captured collection rendering; no hunt-ready row was promoted; seeded concrete candidates for duplicate audit-control identity, trailing resource-title segments, and technical disclosure state carried through audit-control changes; 49 scoped ResourceHubClient tests passed.
 
-- [x] (valid-no-repro) `ResourceHubClient.loadHub` — a slower response for a previous `cloudResourceId` may overwrite a newer route's hub — **cheap-disproof 2026-10-03 seed hunt:** deferred-response repro passed with the newer hub title retained after the older request resolved; no production fix warranted.
+- [x] (proven) `ResourceHubClient.loadHub` — a slower response for a previous URL selection (`runId`/snapshot scope) overwrote the newer route hub — **hit 2026-10-12 seed hunt:** generation-gate hub, error, and loading updates by request so stale captured-evidence responses cannot replace the latest URL selection; regression `does not let a stale resource request overwrite a newer URL selection`.
 - [ ] (candidate) `ResourceHubClient` RBAC assignments table — two captured assignments with the same `principalId` and `roleDefinitionId` but different `scope` values — the React key `${principalId}-${roleDefinitionId}` collides, so one scoped assignment may be reused or omitted in the rendered table; input is reachable from `hub.rbacAssignments`.
 - [ ] (candidate) `ResourceHubClient` network relationships table — two captured relationships with the same `fromAzureResourceId` and `toAzureResourceId` but different `relationshipType` values — the React key omits relationship type, so one relationship row may be reused or omitted; input is reachable from `hub.networkRelationships`.
 - [ ] (candidate) `ResourceHub` audit-control list — two lineage matches with the same `controlId` and `auditEvidenceSnapshotId` but different `assessmentId` values — the “Other linked controls” key `${controlId}-${auditEvidenceSnapshotId}` collides and the inline picker value is only `controlId`, so one reachable cross-assessment match may be reused or become ambiguous; input is reachable from `hub.auditLineageLink.matches`.
@@ -36287,15 +36287,17 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 39
-- **bugs-found:** 19
+- **hunts:** 40
+- **bugs-found:** 20
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-12
-- **last-bug:** 2026-10-03 — audit “Other linked controls” assumed the active match was first
+- **last-bug:** 2026-10-12 — stale resource-hub request overwrote newer URL selection
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 2026-10-12 seed hunt (seed-only): re-read `ResourceHubClient.tsx`, the resource-hub cache/request path, URL/tab synchronization, audit lineage rendering, remediation refresh, and all three focused suites. No fresh reachable mechanism-backed wrong outcome met the hunt-ready bar; no candidate was promoted and no production or regression code changed. The focused ResourceHubClient suites passed 52/52.
+
+- **2026-10-12 seed hunt (seed→hit):** `ResourceHubClient.loadHub` accepted a slower response for the prior URL selection after a reachable `runId` change, overwriting the newer hub title and evidence state. Added a request-generation gate around hub, error, and loading updates; regression `does not let a stale resource request overwrite a newer URL selection` failed before the fix and the three focused ResourceHubClient suites passed 53/53.
 
 - [ ] (candidate) `ResourceHubClient.loadHub` / hub rendering — changing the reachable `snapshotId` or audit scope starts a new request but retains the previous `hub` while that request fails, so the page may show prior-scope evidence under the new URL alongside a load error; input is reachable from explorer/workbench navigation followed by a failed captured-evidence request.
 - [ ] (candidate) `ResourceHubClient.resolvedAuditLineage` — a complete reachable audit scope whose `(assessmentId, auditEvidenceSnapshotId, controlId)` is absent from `auditLineageLink.matches` falls back to the payload’s default control label instead of degrading the selected scope, so the audit banner/tab can label a different control than the URL-selected scope; input is reachable from a stale or cross-resource workbench URL.

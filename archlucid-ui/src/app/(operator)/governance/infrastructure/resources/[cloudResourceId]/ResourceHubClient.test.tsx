@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, it, vi, beforeEach } from "vitest";
 
 import { buildInfraResourceHubTechnicalDisclosureScopedHref } from "@/lib/infra-evidence/infra-resource-hub-technical-disclosure-url";
@@ -123,6 +123,71 @@ describe("ResourceHubClient", () => {
     render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
 
     expect(await screen.findByTestId("infra-resource-hub-page-title")).toHaveTextContent("gateway");
+  });
+
+  it("does not let a stale resource request overwrite a newer URL selection", async () => {
+    let resolveFirstRequest: ((hub: ReturnType<typeof buildResourceHubTestMockHub>) => void) | undefined;
+    let resolveSecondRequest: ((hub: ReturnType<typeof buildResourceHubTestMockHub>) => void) | undefined;
+    const firstRequest = new Promise<ReturnType<typeof buildResourceHubTestMockHub>>((resolve) => {
+      resolveFirstRequest = resolve;
+    });
+    const secondRequest = new Promise<ReturnType<typeof buildResourceHubTestMockHub>>((resolve) => {
+      resolveSecondRequest = resolve;
+    });
+
+    fetchCachedInfraEvidenceResourceHub.mockImplementation(
+      async (_resourceId: string, options: { readonly runId?: string }) =>
+        options.runId === "newer-run" ? secondRequest : firstRequest,
+    );
+
+    const { rerender } = render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    searchParams = new URLSearchParams(
+      `tab=overview&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}&runId=newer-run`,
+    );
+    rerender(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    await waitFor(() => {
+      expect(resolveFirstRequest).toBeDefined();
+      expect(resolveSecondRequest).toBeDefined();
+    });
+
+    if (resolveFirstRequest == null || resolveSecondRequest == null) {
+      throw new Error("Expected both resource requests to be started.");
+    }
+
+    await act(async () => {
+      resolveSecondRequest(
+        buildResourceHubTestMockHub({
+          externalResourceId:
+            "/subscriptions/sub/resourceGroups/rg-net/providers/Microsoft.Network/publicIPAddresses/newer-gateway",
+          currentConfiguration: {
+            ...buildResourceHubTestMockHub().currentConfiguration,
+            azureResourceId:
+              "/subscriptions/sub/resourceGroups/rg-net/providers/Microsoft.Network/publicIPAddresses/newer-gateway",
+          },
+        }),
+      );
+      await Promise.resolve();
+    });
+    expect(await screen.findByTestId("infra-resource-hub-page-title")).toHaveTextContent("newer-gateway");
+
+    await act(async () => {
+      resolveFirstRequest(
+        buildResourceHubTestMockHub({
+          externalResourceId:
+            "/subscriptions/sub/resourceGroups/rg-net/providers/Microsoft.Network/publicIPAddresses/stale-gateway",
+          currentConfiguration: {
+            ...buildResourceHubTestMockHub().currentConfiguration,
+            azureResourceId:
+              "/subscriptions/sub/resourceGroups/rg-net/providers/Microsoft.Network/publicIPAddresses/stale-gateway",
+          },
+        }),
+      );
+      await Promise.resolve();
+    });
+
+    expect(screen.getByTestId("infra-resource-hub-page-title")).toHaveTextContent("newer-gateway");
   });
 
   it("renders cross-workbench overview links without hub tab switchers", async () => {

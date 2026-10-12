@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
@@ -362,6 +362,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
   const [findingActionMessages, setFindingActionMessages] = useState<
     Record<string, { readonly message: string; readonly instanceId: string | null }>
   >({});
+  const loadRequestGeneration = useRef(0);
   const [pendingRemediationFinding, setPendingRemediationFinding] = useState<{
     readonly id: string;
     readonly title: string;
@@ -410,6 +411,8 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
   );
 
   const loadHub = useCallback(async () => {
+    const requestGeneration = loadRequestGeneration.current + 1;
+    loadRequestGeneration.current = requestGeneration;
     setLoading(true);
     setLoadError(null);
 
@@ -421,10 +424,26 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
         auditEvidenceSnapshotId,
         controlId,
       });
+
+      // A URL change can leave an older request in flight; only its latest generation may update the hub.
+      if (requestGeneration !== loadRequestGeneration.current) {
+        return;
+      }
+
       setHub(response);
     } catch (error: unknown) {
+
+      if (requestGeneration !== loadRequestGeneration.current) {
+        return;
+      }
+
       setLoadError(formatInfraEvidenceHubApiError(error));
     } finally {
+
+      if (requestGeneration !== loadRequestGeneration.current) {
+        return;
+      }
+
       setLoading(false);
     }
   }, [assessmentId, auditEvidenceSnapshotId, cloudResourceId, controlId, runId, snapshotId]);
