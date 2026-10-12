@@ -67,6 +67,7 @@ public sealed class AzureInventorySnapshotGraphResolver(
             ? snapshot
             : AzureInventoryVisibleSnapshotProjection.Apply(snapshot, retainIdentityDiagramArmTypes);
 
+        AzureInventorySnapshotResourceIndex resourceIndex = AzureInventorySnapshotResourceIndex.Create(snapshot);
         AzureInventorySnapshotPropertyIndex propertyIndex = AzureInventorySnapshotPropertyIndex.Create(snapshot);
         AzureInventorySnapshotPropertyIndex visiblePropertyIndex = ReferenceEquals(snapshot, graphSnapshot)
             ? propertyIndex
@@ -248,7 +249,8 @@ public sealed class AzureInventorySnapshotGraphResolver(
             snapshot,
             nodeIdByArmId,
             edges,
-            edgeKeys);
+            edgeKeys,
+            resourceIndex);
         AzureInventorySnapshotPublicIpParentEdgeHydrator.AddMissingParentEdges(
             snapshot,
             nodeIdByArmId,
@@ -285,7 +287,8 @@ public sealed class AzureInventorySnapshotGraphResolver(
             snapshot,
             nodeIdByArmId,
             edges,
-            edgeKeys);
+            edgeKeys,
+            resourceIndex);
         AzureInventorySnapshotParentChildEdgeHydrator.AddMissingContainsEdges(
             nodeIdByArmId,
             edges,

@@ -244,7 +244,10 @@ describe("AlertRulesContent", () => {
 
     renderWithOperatorQuery(<AlertRulesContent />);
 
-    expect(screen.getByTestId("alert-rules-list-loading-skeleton")).toBeInTheDocument();
+    const skeleton = screen.getByTestId("alert-rules-list-loading-skeleton");
+
+    expect(skeleton).toBeInTheDocument();
+    expect(skeleton).toHaveAttribute("role", "status");
     expect(screen.queryByTestId("alert-rules-empty")).not.toBeInTheDocument();
 
     resolveList?.([]);

@@ -273,9 +273,9 @@ export function graphBuyerTrailMetadataLines(
   return { summaryLines, technicalLines };
 }
 
+/** OpenAPI marks GraphNodeVm.metadata nullable; treat null like a missing map. */
 function resolveSampleHeroRiskAreaValue(metadata: GraphNodeVm["metadata"]): string {
-  // GraphNodeVm.metadata is OpenAPI-nullable (omitted, null, or a string map).
-  if (metadata === undefined || metadata === null) {
+  if (metadata == null) {
     return "Risk area was not stored.";
   }
 

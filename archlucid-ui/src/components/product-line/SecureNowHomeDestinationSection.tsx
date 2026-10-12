@@ -56,8 +56,8 @@ export function SecureNowHomeDestinationSection({
         <EnterpriseTable ariaLabel={tableAriaLabel}>
           <EnterpriseTableHead>
             <EnterpriseTableRow>
-              <EnterpriseTableHeaderCell>Destination</EnterpriseTableHeaderCell>
-              <EnterpriseTableHeaderCell>Summary</EnterpriseTableHeaderCell>
+              <EnterpriseTableHeaderCell className="sr-only">Destination</EnterpriseTableHeaderCell>
+              <EnterpriseTableHeaderCell className="sr-only">Summary</EnterpriseTableHeaderCell>
             </EnterpriseTableRow>
           </EnterpriseTableHead>
           <EnterpriseTableBody>
@@ -77,7 +77,7 @@ export function SecureNowHomeDestinationSection({
                     ) : null}
                   </div>
                 </EnterpriseTableCell>
-                <EnterpriseTableCell>{row.summary}</EnterpriseTableCell>
+                <EnterpriseTableCell className={OPERATOR_TYPOGRAPHY.body}>{row.summary}</EnterpriseTableCell>
               </EnterpriseTableRow>
             ))}
           </EnterpriseTableBody>

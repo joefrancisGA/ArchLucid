@@ -6,7 +6,11 @@ import {
 } from "./architecture-request-create-response";
 import { liveE2eArchitectureDescription } from "./live-api-client";
 import { formatSimplifiedPilotWizardMountFailure } from "./simplified-pilot-wizard-mount-failure";
-import { waitAndDismissFirstSessionPurposeChooser } from "./live-seat-scope-assertions";
+import { clickThroughBlockingOverlays } from "./dismiss-blocking-modal-overlays";
+import {
+  ensureFirstSessionPurposeChooserClosed,
+  waitAndDismissFirstSessionPurposeChooser,
+} from "./live-seat-scope-assertions";
 
 /**
  * Working desks redirect `/architecture/reviews/new` when `path` is absent (DA-09).
@@ -79,18 +83,21 @@ export async function submitPrivateBetaSimplifiedPilotWizard(page: Page): Promis
     );
   }
 
-  await forward.click();
+  await ensureFirstSessionPurposeChooserClosed(page, 60_000);
+  await clickThroughBlockingOverlays(page, forward);
 
   await expect(page.getByTestId("simplified-pilot-progress")).toContainText(/step 2 of 4/i, {
     timeout: 30_000,
   });
 
-  await forward.click();
+  await ensureFirstSessionPurposeChooserClosed(page, 60_000);
+  await clickThroughBlockingOverlays(page, forward);
 
   await expect(page.getByTestId("wizard-baseline-metrics-step")).toBeVisible({ timeout: 30_000 });
   await page.getByTestId("wizard-baseline-review-cycle-hours").fill("40");
 
-  await forward.click();
+  await ensureFirstSessionPurposeChooserClosed(page, 60_000);
+  await clickThroughBlockingOverlays(page, forward);
 
   await expect(page.getByRole("button", { name: "Start an architecture review" })).toBeVisible({
     timeout: 60_000,

@@ -27,5 +27,6 @@ describe("SecureNowHomeDestinationSection", () => {
     expect(screen.queryByRole("columnheader", { name: "Open" })).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "Open" })).not.toBeInTheDocument();
     expect(screen.getByTestId(`securenow-security-home-link-${SECURENOW_SECURITY_HOME_ROWS[0]?.href}`)).toBeInTheDocument();
+    expect(screen.getByText(SECURENOW_SECURITY_HOME_ROWS[0]?.summary ?? "").closest("td")).toHaveClass("text-[13px]");
   });
 });

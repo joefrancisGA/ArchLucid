@@ -25,7 +25,7 @@ describe("graphBuyerTrailRecordTypeLine", () => {
     });
   });
 
-  it("labels sample hero finding when graph metadata is null", () => {
+  it("labels sample hero finding when OpenAPI metadata is null", () => {
     const node: GraphNodeVm = {
       id: REGISTERED_HERO_FINDING_ID,
       type: "Finding",

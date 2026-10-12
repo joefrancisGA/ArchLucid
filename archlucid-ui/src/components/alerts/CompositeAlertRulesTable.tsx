@@ -39,6 +39,7 @@ function CompositeAlertRulesListLoadingSkeleton(): React.JSX.Element {
     <div
       className="grid gap-3"
       data-testid="composite-alert-rules-list-loading-skeleton"
+      role="status"
       aria-busy="true"
       aria-label="Loading composite alert rules"
     >
