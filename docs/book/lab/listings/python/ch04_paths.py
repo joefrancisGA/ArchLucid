@@ -16,7 +16,8 @@ from dataclasses import dataclass
 @dataclass(frozen=True)
 class UnmodeledControl:
     """A control the derivation found but can't evaluate, so it can't tell whether the hop holds."""
-    kind: str        # "roleCondition", "missingRoleDefinition", "denyWithCondition"
+    # "roleCondition", "missingRoleDefinition", "denyWithCondition", "networkIndeterminate"
+    kind: str
     principal: str
     scope: str
     role: str        # role name, or the deny assignment's name
@@ -29,6 +30,9 @@ class UnmodeledControl:
 
         if self.kind == "missingRoleDefinition":
             return f"role {where} allows this hop; its definition wasn't collected"
+
+        if self.kind == "networkIndeterminate":
+            return f"{self.principal} may reach {self.scope} ({self.citation}): {self.condition}"
 
         return f"{self.kind} on {where} allows this hop: {self.condition}"
 
@@ -55,6 +59,7 @@ PRIVILEGE_KINDS = frozenset({
     "runsAs",
     "grants",
     "canAssignRoles",
+    "canReach",
 })
 
 # Observed structure. Kept for citation and as derivation input. Not a capability.

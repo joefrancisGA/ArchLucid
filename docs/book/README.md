@@ -52,7 +52,7 @@ Before any chapter leaves this repo (publisher, blog, reviewer), re-read it agai
 | 2 | [Evidence and epistemics](chapters/02-evidence-and-epistemics.md) | revised (~5,000) | 7,000 |
 | 3 | [Collecting Azure evidence read-only](chapters/03-collecting-azure-evidence.md) | revised (~4,700) | 8,000 |
 | 4 | [Identity and privilege paths](chapters/04-identity-and-privilege-paths.md) | revised (~8,700) | 9,000 |
-| 5 | [Network reachability](chapters/05-network-reachability.md) | revised (~6,800) | 7,000 |
+| 5 | [Network reachability](chapters/05-network-reachability.md) | revised (~9,000) | 7,000 |
 | 6 | [Data flow: may access vs did access](chapters/06-data-flow.md) | revised (~4,800) | 6,000 |
 | 7 | [Where LLMs help](chapters/07-where-llms-help.md) | revised (~6,000) | 8,000 |
 | 8 | [Where LLMs hurt](chapters/08-where-llms-hurt.md) | revised (~6,700) | 7,000 |
