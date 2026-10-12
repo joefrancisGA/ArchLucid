@@ -144,7 +144,7 @@ authorizationresources
 
 From Chapter 4, Step 0. A deny assignment can remove an edge that a role assignment created [S14].
 
-Deny assignments aren't a documented type in Resource Graph's `authorizationresources` table [S11], so this recipe reads them from the Authorization REST API, one subscription at a time, following `nextLink` [S14]. The caller needs `Microsoft.Authorization/denyAssignments/read` [S14]. The recipe writes one row per permission block, the shape Chapter 4's loader expects. Save the rows with `Save-SnapshotFile` as `deny-assignments`.
+Deny assignments aren't a documented type in Resource Graph's `authorizationresources` table [S11], so this recipe reads them from the Authorization REST API, one subscription at a time, following `nextLink` [S14]. With no filter, the list returns deny assignments at, above, and below the subscription, so assignments on resource groups and resources come back too [S15]. The caller needs `Microsoft.Authorization/denyAssignments/read` [S14]. The recipe writes one row per permission block, the shape Chapter 4's loader expects. Save the rows with `Save-SnapshotFile` as `deny-assignments`.
 
 <!-- listing: lab/listings/powershell/appb-deny-assignments.ps1 -->
 
@@ -197,7 +197,7 @@ Get-AzRoleEligibilityScheduleInstance -Scope "/subscriptions/$subscriptionId" |
     Select-Object PrincipalId, PrincipalType, RoleDefinitionId, Scope, EndDateTime
 ```
 
-**Trap.** PIM has *schedules*, which describe a grant as requested, and *instances* (`roleEligibilityScheduleInstances`), which describe what's in effect [S15]. Collect instances, and keep `EndDateTime` so an analyst can see when an eligibility lapses.
+**Trap.** PIM has *schedules*, which describe a grant as requested, and *instances* (`roleEligibilityScheduleInstances`), which describe what's in effect [S16]. Collect instances, and keep `EndDateTime` so an analyst can see when an eligibility lapses.
 
 ---
 
@@ -209,7 +209,7 @@ Get-AzRoleEligibilityScheduleInstance -Scope "/subscriptions/$subscriptionId" |
 
 Chapter 3, section 3.4, prints the loop. It reads every application with `Get-MgApplication -All -Property 'id,appId,displayName'`, then `Get-MgApplicationFederatedIdentityCredential` for each, and keeps `appId`, `issuer`, `subject`, and `audiences`. It's hop H1.
 
-**Trap.** Record the subject exactly as stored. GitHub now issues two subject formats [S16], and the broad patterns Chapter 4 warns about are a property of the string.
+**Trap.** Record the subject exactly as stored. GitHub now issues two subject formats [S17], and the broad patterns Chapter 4 warns about are a property of the string.
 
 ### Federated credentials on user-assigned managed identities
 
@@ -240,7 +240,7 @@ $miFederated = foreach ($mi in $identities.Data) {
 
 Page the identity query with `Invoke-ArgQuery` in a real collector. The short form above is for the lab, where there are three identities.
 
-**Trap.** Who can *add* one of these matters as much as who has one. Writing a federated credential is an ARM action on the identity (`…/federatedIdentityCredentials/write`) [S17], so Contributor at the identity's resource group can do it [S17]. That's why Appendix A keeps `mi-payments-api` out of `rg-payments-prod`.
+**Trap.** Who can *add* one of these matters as much as who has one. Writing a federated credential is an ARM action on the identity (`…/federatedIdentityCredentials/write`) [S18], so Contributor at the identity's resource group can do it [S18]. That's why Appendix A keeps `mi-payments-api` out of `rg-payments-prod`.
 
 ### Owners: applications and service principals
 
@@ -281,7 +281,7 @@ Get-MgRoleManagementDirectoryRoleEligibilitySchedule -All |
 
 ### Transitive group membership
 
-Chapter 4, Step 0: `Get-MgGroupTransitiveMember -GroupId $groupId -All` for every group that holds an Azure role or a directory role [S18]. Use the transitive call. Direct members hide nested groups.
+Chapter 4, Step 0: `Get-MgGroupTransitiveMember -GroupId $groupId -All` for every group that holds an Azure role or a directory role [S19]. Use the transitive call. Direct members hide nested groups.
 
 ### Microsoft Graph application permissions
 
@@ -318,7 +318,7 @@ Get-MgUser -All -Filter "userType eq 'Guest'" `
     -Property 'id,displayName,mail,externalUserState,createdDateTime'
 ```
 
-`externalUserState` of `PendingAcceptance` is Appendix A's never-redeemed guest. Last sign-in time is in `signInActivity`, which needs `AuditLog.Read.All` [S19, S1]. The Chapter 3 collector doesn't hold it, so "no recent sign-in" is a gap unless you grant that permission deliberately.
+`externalUserState` of `PendingAcceptance` is Appendix A's never-redeemed guest. Last sign-in time is in `signInActivity`, which needs `AuditLog.Read.All` [S20, S1]. The Chapter 3 collector doesn't hold it, so "no recent sign-in" is a gap unless you grant that permission deliberately.
 
 ---
 
@@ -351,11 +351,11 @@ resources
     privateEndpoints = array_length(properties.privateEndpointConnections)
 ```
 
-**Trap.** Keep `publicNetworkAccess` empty when it's empty. Chapter 5 explains why an unset value is not "Disabled". When `allowSharedKeyAccess` is absent, the platform default allows shared key access [S20].
+**Trap.** Keep `publicNetworkAccess` empty when it's empty. Chapter 5 explains why an unset value is not "Disabled". When `allowSharedKeyAccess` is absent, the platform default allows shared key access [S21].
 
 ### Local authentication on other services
 
-Shared key is storage's name for a pattern that recurs: a key or connection string that works without an identity, and destroys attribution (Chapter 6). Other services expose it as `disableLocalAuth`, where absent usually means local authentication is **allowed** [S21]:
+Shared key is storage's name for a pattern that recurs: a key or connection string that works without an identity, and destroys attribution (Chapter 6). Other services expose it as `disableLocalAuth`, where absent usually means local authentication is **allowed** [S22]:
 
 <!-- listing: lab/listings/kql/appb-local-authentication-on-other-services.kql -->
 
@@ -391,7 +391,7 @@ resources
     purgeProtection = properties.enablePurgeProtection
 ```
 
-**Trap.** A vault that uses access policies instead of Azure RBAC grants data access *outside* role assignments [S22]. Its `accessPolicies` entries are edges your role-assignment query never sees. Treat each object ID in them as holding the listed secret, key, and certificate permissions on that vault.
+**Trap.** A vault that uses access policies instead of Azure RBAC grants data access *outside* role assignments [S23]. Its `accessPolicies` entries are edges your role-assignment query never sees. Treat each object ID in them as holding the listed secret, key, and certificate permissions on that vault.
 
 ### Compute identities
 
@@ -460,7 +460,7 @@ $web = ($response.Content | ConvertFrom-Json).properties
 }
 ```
 
-**App settings aren't.** Reading them is a separate `list` action (`Microsoft.Web/sites/config/list/action`) that Reader doesn't include [S23], and it returns every value, secrets included. You can't get the names without the values. You have three options, in order of preference:
+**App settings aren't.** Reading them is a separate `list` action (`Microsoft.Web/sites/config/list/action`) that Reader doesn't include [S24], and it returns every value, secrets included. You can't get the names without the values. You have three options, in order of preference:
 
 1. **Read declared flows from infrastructure as code.** The Terraform that created the app names the setting and the store, and reading a repository needs no Azure permission at all. Appendix A's `ARCHIVE_ACCOUNT` and `CUSTOMER_ACCOUNT` settings are in `payments.tf`.
 2. **Rely on the declared flows Reader can see.** Chapter 6 counts a data-plane role held by a workload identity as a declared flow, and B.3 and B.5 already collect both halves: the role assignment, and which workload runs as that identity. Private endpoints and integration configuration add more. What you lose is any app that reaches a store with a key or connection string instead of an identity. Those leave no role assignment behind, and they're the flows Chapter 6 most wants you to find, which is why option 1 comes first.
@@ -503,7 +503,7 @@ resources
 
 **Trap.** Each rule has a singular field and a plural one for addresses and ports, and only one is filled. Appendix A's checklist query reads only `destinationPortRange`, which is fine for its single-port lab rule and not enough in general: a rule allowing `3389` inside `destinationPortRanges`, or a range like `3000-4000`, slips past it. Keep both fields and evaluate ranges in code, as Chapter 5's `evaluate_inbound` does.
 
-Keep the default rules too. `AllowVnetInBound` is why "no custom rule" doesn't mean "no traffic" [S24].
+Keep the default rules too. `AllowVnetInBound` is why "no custom rule" doesn't mean "no traffic" [S25].
 
 ### Virtual networks, subnets, and peerings
 
@@ -521,7 +521,7 @@ resources
 
 Each subnet entry carries `networkSecurityGroup.id`, `routeTable.id`, `serviceEndpoints`, `delegations`, and `privateEndpointNetworkPolicies`. Each peering carries `remoteVirtualNetwork.id`, `peeringState`, `allowForwardedTraffic`, `allowGatewayTransit`, and `useRemoteGateways`.
 
-**Trap.** Peering isn't transitive [S25]. Spoke A peered to the hub and spoke B peered to the hub can't talk unless a route sends their traffic through something in the hub that forwards it. That's why the route tables matter.
+**Trap.** Peering isn't transitive [S26]. Spoke A peered to the hub and spoke B peered to the hub can't talk unless a route sends their traffic through something in the hub that forwards it. That's why the route tables matter.
 
 ### Route tables
 
@@ -632,7 +632,7 @@ Get-AzSqlServerFirewallRule @serverArgs |
     Select-Object FirewallRuleName, StartIpAddress, EndIpAddress
 ```
 
-A rule from `0.0.0.0` to `0.0.0.0` (named `AllowAllWindowsAzureIps`) admits any Azure public address, including other customers' resources (Chapter 5) [S26].
+A rule from `0.0.0.0` to `0.0.0.0` (named `AllowAllWindowsAzureIps`) admits any Azure public address, including other customers' resources (Chapter 5) [S27].
 
 ### Service tags
 
@@ -644,7 +644,7 @@ $tags.ChangeNumber
 $tags.Values | Select-Object Name, @{ n = 'prefixes'; e = { $_.Properties.AddressPrefixes } }
 ```
 
-Record `ChangeNumber` in the manifest [S27]. Service tag prefixes change, and a reachability answer that depends on `AzureCloud` is only as current as the list it used.
+Record `ChangeNumber` in the manifest [S28]. Service tag prefixes change, and a reachability answer that depends on `AzureCloud` is only as current as the list it used.
 
 ---
 
@@ -676,13 +676,13 @@ $settings = foreach ($target in $targets) {
 }
 ```
 
-**Trap.** For storage, blob read logs are configured on the **blob service** (`…/blobServices/default`), not the account [S28]. A setting on the account that collects only metrics looks like logging and records no reads. Record "no setting" explicitly for every target you checked, so the derivation can tell "not logged" from "not checked".
+**Trap.** For storage, blob read logs are configured on the **blob service** (`…/blobServices/default`), not the account [S29]. A setting on the account that collects only metrics looks like logging and records no reads. Record "no setting" explicitly for every target you checked, so the derivation can tell "not logged" from "not checked".
 
 ---
 
 ## B.9 Observed activity: Log Analytics
 
-**Chapters:** 6, 10. These run in a Log Analytics workspace, not in Resource Graph, and only return data from the date the relevant diagnostic setting was created [S28]. Put that date next to every result.
+**Chapters:** 6, 10. These run in a Log Analytics workspace, not in Resource Graph, and only return data from the date the relevant diagnostic setting was created [S29]. Put that date next to every result.
 
 ### Blob reads by caller and authentication type
 
@@ -701,7 +701,7 @@ StorageBlobLogs
 
 Use your suffixed account names from Appendix A's `book_names` output.
 
-**Trap.** Rows with `AuthenticationType` of `AccountKey` or `SAS` have no `RequesterObjectId` [S29]. They show that a key was used, not who used it.
+**Trap.** Rows with `AuthenticationType` of `AccountKey` or `SAS` have no `RequesterObjectId` [S30]. They show that a key was used, not who used it.
 
 ### Storage key listing
 
@@ -734,7 +734,7 @@ AzureActivity
 
 ### Entra credential, owner, and role changes
 
-These need the Entra audit logs exported to the workspace through Entra's own diagnostic settings, which is a tenant-level setting the lab doesn't create [S30]. Without it, the `AuditLogs` table doesn't exist, and the absence is a gap, not a clean result.
+These need the Entra audit logs exported to the workspace through Entra's own diagnostic settings, which is a tenant-level setting the lab doesn't create [S31]. Without it, the `AuditLogs` table doesn't exist, and the absence is a gap, not a clean result.
 
 <!-- listing: lab/listings/kql/appb-entra-credential-owner-and-role-changes.kql -->
 
@@ -756,7 +756,7 @@ AuditLogs
 
 ### Resource property changes
 
-From Chapter 10, section 10.3. Resource Graph, not Log Analytics, and only the last 14 days [S31]:
+From Chapter 10, section 10.3. Resource Graph, not Log Analytics, and only the last 14 days [S32]:
 
 <!-- listing: lab/listings/kql/appb-resource-property-changes.kql -->
 
@@ -775,7 +775,7 @@ resourcechanges
 | order by changedAt desc
 ```
 
-**Trap.** It covers Azure resources only [S31, S32]. App owners, directory roles, and federated credentials on applications never appear here, which is why Chapter 10 compares snapshots instead.
+**Trap.** It covers Azure resources only [S32, S33]. App owners, directory roles, and federated credentials on applications never appear here, which is why Chapter 10 compares snapshots instead.
 
 ---
 
@@ -819,24 +819,25 @@ resourcechanges
 - **[S12]** Understand the query language. Microsoft Learn. <https://learn.microsoft.com/azure/governance/resource-graph/concepts/query-language> Checked 2026-10-12. Kind: documented.
 - **[S13]** Understand Azure role assignments. Microsoft Learn. <https://learn.microsoft.com/azure/role-based-access-control/role-assignments> Checked 2026-10-12. Kind: documented.
 - **[S14]** Deny Assignments - List For Scope. Microsoft Learn. <https://learn.microsoft.com/rest/api/authorization/deny-assignments/list-for-scope> Checked 2026-10-12. Version: 2022-04-01. Kind: documented.
-- **[S15]** Get-AzRoleEligibilityScheduleInstance. Microsoft Learn. <https://learn.microsoft.com/powershell/module/az.resources/get-azroleeligibilityscheduleinstance> Checked 2026-10-12. Kind: documented.
-- **[S16]** Migrate GitHub Actions federated credentials to immutable subjects. Microsoft Learn. <https://learn.microsoft.com/entra/workload-id/workload-identities-github-immutable-subjects> Checked 2026-10-12. Kind: documented.
-- **[S17]** Azure permissions for Identity. Microsoft Learn. <https://learn.microsoft.com/azure/role-based-access-control/permissions/identity> Checked 2026-10-12. Kind: documented.
-- **[S18]** List group transitive members. Microsoft Learn. <https://learn.microsoft.com/graph/api/group-list-transitivemembers> Checked 2026-10-12. Kind: documented.
-- **[S19]** user resource type. Microsoft Learn. <https://learn.microsoft.com/graph/api/resources/user> Checked 2026-10-12. Kind: documented.
-- **[S20]** Prevent authorization with Shared Key. Microsoft Learn. <https://learn.microsoft.com/azure/storage/common/shared-key-authorization-prevent> Checked 2026-10-12. Kind: documented.
-- **[S21]** Disable local authentication with Azure Service Bus. Microsoft Learn. <https://learn.microsoft.com/azure/service-bus-messaging/disable-local-authentication> Checked 2026-10-12. Kind: documented.
-- **[S22]** Provide access to Key Vault keys, certificates, and secrets with Azure role-based access control. Microsoft Learn. <https://learn.microsoft.com/azure/key-vault/general/rbac-guide> Checked 2026-10-12. Kind: documented.
-- **[S23]** Azure permissions for Web and Mobile. Microsoft Learn. <https://learn.microsoft.com/azure/role-based-access-control/permissions/web-and-mobile> Checked 2026-10-12. Kind: documented.
-- **[S24]** Azure network security groups overview. Microsoft Learn. <https://learn.microsoft.com/azure/virtual-network/network-security-groups-overview> Checked 2026-10-12. Kind: documented.
-- **[S25]** Create, change, or delete Azure virtual network peering. Microsoft Learn. <https://learn.microsoft.com/azure/virtual-network/virtual-network-manage-peering> Checked 2026-10-12. Kind: documented.
-- **[S26]** IP Firewall Rules - Azure SQL Database. Microsoft Learn. <https://learn.microsoft.com/azure/azure-sql/database/firewall-configure> Checked 2026-10-12. Kind: documented.
-- **[S27]** Get-AzNetworkServiceTag. Microsoft Learn. <https://learn.microsoft.com/powershell/module/az.network/get-aznetworkservicetag> Checked 2026-10-12. Kind: documented.
-- **[S28]** Monitor Azure Blob Storage. Microsoft Learn. <https://learn.microsoft.com/azure/storage/blobs/monitor-blob-storage> Checked 2026-10-12. Kind: documented.
-- **[S29]** Azure Monitor Logs reference - StorageBlobLogs. Microsoft Learn. <https://learn.microsoft.com/azure/azure-monitor/reference/tables/storagebloblogs> Checked 2026-10-12. Kind: documented.
-- **[S30]** Integrate Microsoft Entra logs with Azure Monitor logs. Microsoft Learn. <https://learn.microsoft.com/entra/identity/monitoring-health/howto-integrate-activity-logs-with-azure-monitor-logs> Checked 2026-10-12. Kind: documented.
-- **[S31]** Analyze changes to your Azure resources with Change Analysis. Microsoft Learn. <https://learn.microsoft.com/azure/governance/resource-graph/changes/resource-graph-changes> Checked 2026-10-12. Kind: documented.
-- **[S32]** Get resource changes. Microsoft Learn. <https://learn.microsoft.com/azure/governance/resource-graph/changes/get-resource-changes> Checked 2026-10-12. Kind: documented.
+- **[S15]** List Azure deny assignments. Microsoft Learn. <https://learn.microsoft.com/azure/role-based-access-control/deny-assignments-rest> Checked 2026-10-12. Version: 2022-04-01. Kind: documented.
+- **[S16]** Get-AzRoleEligibilityScheduleInstance. Microsoft Learn. <https://learn.microsoft.com/powershell/module/az.resources/get-azroleeligibilityscheduleinstance> Checked 2026-10-12. Kind: documented.
+- **[S17]** Migrate GitHub Actions federated credentials to immutable subjects. Microsoft Learn. <https://learn.microsoft.com/entra/workload-id/workload-identities-github-immutable-subjects> Checked 2026-10-12. Kind: documented.
+- **[S18]** Azure permissions for Identity. Microsoft Learn. <https://learn.microsoft.com/azure/role-based-access-control/permissions/identity> Checked 2026-10-12. Kind: documented.
+- **[S19]** List group transitive members. Microsoft Learn. <https://learn.microsoft.com/graph/api/group-list-transitivemembers> Checked 2026-10-12. Kind: documented.
+- **[S20]** user resource type. Microsoft Learn. <https://learn.microsoft.com/graph/api/resources/user> Checked 2026-10-12. Kind: documented.
+- **[S21]** Prevent authorization with Shared Key. Microsoft Learn. <https://learn.microsoft.com/azure/storage/common/shared-key-authorization-prevent> Checked 2026-10-12. Kind: documented.
+- **[S22]** Disable local authentication with Azure Service Bus. Microsoft Learn. <https://learn.microsoft.com/azure/service-bus-messaging/disable-local-authentication> Checked 2026-10-12. Kind: documented.
+- **[S23]** Provide access to Key Vault keys, certificates, and secrets with Azure role-based access control. Microsoft Learn. <https://learn.microsoft.com/azure/key-vault/general/rbac-guide> Checked 2026-10-12. Kind: documented.
+- **[S24]** Azure permissions for Web and Mobile. Microsoft Learn. <https://learn.microsoft.com/azure/role-based-access-control/permissions/web-and-mobile> Checked 2026-10-12. Kind: documented.
+- **[S25]** Azure network security groups overview. Microsoft Learn. <https://learn.microsoft.com/azure/virtual-network/network-security-groups-overview> Checked 2026-10-12. Kind: documented.
+- **[S26]** Create, change, or delete Azure virtual network peering. Microsoft Learn. <https://learn.microsoft.com/azure/virtual-network/virtual-network-manage-peering> Checked 2026-10-12. Kind: documented.
+- **[S27]** IP Firewall Rules - Azure SQL Database. Microsoft Learn. <https://learn.microsoft.com/azure/azure-sql/database/firewall-configure> Checked 2026-10-12. Kind: documented.
+- **[S28]** Get-AzNetworkServiceTag. Microsoft Learn. <https://learn.microsoft.com/powershell/module/az.network/get-aznetworkservicetag> Checked 2026-10-12. Kind: documented.
+- **[S29]** Monitor Azure Blob Storage. Microsoft Learn. <https://learn.microsoft.com/azure/storage/blobs/monitor-blob-storage> Checked 2026-10-12. Kind: documented.
+- **[S30]** Azure Monitor Logs reference - StorageBlobLogs. Microsoft Learn. <https://learn.microsoft.com/azure/azure-monitor/reference/tables/storagebloblogs> Checked 2026-10-12. Kind: documented.
+- **[S31]** Integrate Microsoft Entra logs with Azure Monitor logs. Microsoft Learn. <https://learn.microsoft.com/entra/identity/monitoring-health/howto-integrate-activity-logs-with-azure-monitor-logs> Checked 2026-10-12. Kind: documented.
+- **[S32]** Analyze changes to your Azure resources with Change Analysis. Microsoft Learn. <https://learn.microsoft.com/azure/governance/resource-graph/changes/resource-graph-changes> Checked 2026-10-12. Kind: documented.
+- **[S33]** Get resource changes. Microsoft Learn. <https://learn.microsoft.com/azure/governance/resource-graph/changes/get-resource-changes> Checked 2026-10-12. Kind: documented.
 
 ---
 
@@ -848,4 +849,5 @@ resourcechanges
 - 2026-10-11 (listing sync): every KQL block here is synced from `lab/listings/kql/` or `lab/queries/`. `tools/check_kql_listings.py` only checks structure (balanced brackets and quotes, a known table first, no leading pipe). It doesn't prove a query runs; the live runbook ([`../lab/live-validation-runbook.md`](../lab/live-validation-runbook.md)) does.
 - Appendix A's `checklist.kql` matches only `destinationPortRange`, which is correct for the lab. Its header comment now points readers at B.7's fuller pattern.
 - Consider moving the recipes the labs run (B.4 managed identity credentials, B.7 network) into `lab/queries` once Chapter 5's lab is walked against a live tenant.
-- 2026-10-12 (sources): added 32 sources. Changed: B.3 deny assignments — clarified that deny assignments are collected through the Authorization REST API, not `authorizationresources` per the Resource Graph table reference. The KQL listing `appb-deny-assignments.kql` is replaced by `lab/listings/powershell/appb-deny-assignments.ps1` (REST, api-version 2022-04-01, one row per permission block, same columns), shared with Chapter 4 Step 0. Run it against the live lab before submission, and confirm the subscription-level list includes deny assignments at resource group and resource scopes. Softened: none. Unverified: none.
+- 2026-10-12 (sources): added 32 sources. Changed: B.3 deny assignments — clarified that deny assignments are collected through the Authorization REST API, not `authorizationresources` per the Resource Graph table reference. The KQL listing `appb-deny-assignments.kql` is replaced by `lab/listings/powershell/appb-deny-assignments.ps1` (REST, api-version 2022-04-01, one row per permission block, same columns), shared with Chapter 4 Step 0. Run it against the live lab before submission. Softened: none. Unverified: none.
+- 2026-10-12 (sources): resolved the open question about child scopes. Per "List Azure deny assignments" (REST, filter table), an unfiltered subscription-level list returns deny assignments at, above, and below the scope, so no per-resource-group calls are needed. B.3 cites it as a new source.
