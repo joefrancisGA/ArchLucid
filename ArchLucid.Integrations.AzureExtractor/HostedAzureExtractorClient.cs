@@ -94,6 +94,17 @@ public sealed class HostedAzureExtractorClient(
 
         IReadOnlyList<HostedAzureArmResourceRecord> resources = paasEnrichResult.Resources;
 
+        HostedAzureAksWorkloadImageCollectResult aksWorkloadImageResult =
+            await HostedAzureAksWorkloadImageCollector.CollectAsync(
+                _postReadClient,
+                accessToken.Token,
+                resources,
+                _logger,
+                cancellationToken).ConfigureAwait(false);
+        resources = HostedAzureArmResourceRecordMerger.MergeByResourceId(
+            resources,
+            aksWorkloadImageResult.EnrichedResources);
+
         IReadOnlyList<HostedAzureArmRoleAssignmentRecord> standingRoleAssignments = await _armReadClient
             .ListSubscriptionRoleAssignmentsAsync(accessToken.Token, subscriptionId, cancellationToken)
             .ConfigureAwait(false);
@@ -175,6 +186,7 @@ public sealed class HostedAzureExtractorClient(
         }
 
         collectionWarnings.AddRange(diagramEnrichment.CollectionWarnings);
+        collectionWarnings.AddRange(aksWorkloadImageResult.CollectionWarnings);
 
         DateTimeOffset collectionTimestampUtc = TimeProvider.System.GetUtcNow();
         string collectionTimestampUtcText = collectionTimestampUtc.ToString("o");
