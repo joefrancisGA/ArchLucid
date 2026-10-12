@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-12 seed hunt (seed-only): `authority-pipeline-payload` — re-read `AuthorityPipelineWorkPayload`, its JSON adapter, and both focused null/JSON test suites. Null collections/elements, malformed JSON, identifier normalization, and undefined work kinds remain explicitly handled; no fresh reachable mechanism-backed wrong outcome met the hunt-ready bar. The scoped payload tests stopped before discovery on unrelated Application compile errors (`unmappedRoles` and `warnings`). No production or regression code changed.
+
 2026-10-12 seed hunt (seed-only): `cli-tenant-isolation` — re-read the tenant-isolation command, runner, live/offline report aggregation, and focused tests. Existing deny-status, pagination, alternate-scope, and fail-closed skip contracts remain covered; no fresh reachable mechanism-backed wrong outcome met the hunt-ready bar. The scoped runner test stopped before discovery on unrelated Application compile errors (`unmappedRoles` and `warnings`). No production or regression code changed.
 
 2026-10-12 seed hunt (seed-only): `host-core-coordination` — re-read the shared recoverable outbox processor, failure handler, retry calculator, option verifier, and focused coordination tests. Existing retry, dead-letter, cancellation, and option-clamping paths remain covered; no fresh reachable mechanism-backed wrong outcome met the hunt-ready bar. The scoped test run stopped before discovery on unrelated Application compile errors (`unmappedRoles` and `warnings`). No production or regression code changed.
@@ -6584,7 +6586,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** authority payload; pipeline work payload
 - **paths:** ArchLucid.Application/Runs/Orchestration/AuthorityPipelineWorkPayload.cs
 - **test-filter:** FullyQualifiedName~AuthorityPipelineWorkPayloadJsonTests|FullyQualifiedName~AuthorityPipelineWorkPayloadDocumentsNullElementTests
-- **hunts:** 44
+- **hunts:** 45
 - **bugs-found:** 23
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-12
