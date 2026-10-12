@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-12 thorough hunt (dry): `tenant-erasure` — cheap-disproved the two path-normalization hypotheses and rechecked the three command/side-effect hypotheses; no reachable bypass or lifecycle defect was found. Scoped Application/API tests were blocked before execution by unrelated `AzureInventorySecurityEdgeMaterializer.cs` compile errors (`unmappedRoles` and `warnings`). No production or regression code changed.
+
 2026-10-12 thorough hunt (dry): `tenant-erasure` — reran the unchanged five closed hypotheses and scoped suites; no reachable path-normalization bypass or command-contract defect was found. Application tenant-erasure tests passed 19/19 and API tenant-erasure tests passed 28/28. No production or regression code changed.
 
 2026-10-12 thorough hunt (dry): `tenant-erasure` — reran the unchanged five closed hypotheses and scoped suites; no reachable path-normalization bypass or command-contract defect was found. Application tenant-erasure tests passed 19/19 and API tenant-erasure tests passed 28/28. No production or regression code changed.
@@ -7962,10 +7964,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant delete; erasure; quarantine middleware
 - **paths:** ArchLucid.Application/Tenancy/TenantErasureCommandService.cs; ArchLucid.Api/Middleware/TenantErasureQuarantineMiddleware.cs
 - **test-filter:** FullyQualifiedName~TenantErasure
-- **hunts:** 269
+- **hunts:** 270
 - **bugs-found:** 491
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-06
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-10-12
 - **last-bug:** 2026-10-06 — dot-segment erasure lifecycle paths blocked by quarantine allowlist mismatch
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -8004,10 +8006,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `TenantErasureQuarantineMiddleware.NormalizeRequestPath` / `Skip` — dot-segment tenant erasure lifecycle paths (`/v1/tenant/erasure/./approve`) did not match `/v1/tenant/erasure` allowlist and returned `403` during quarantine — **hit 2026-10-06 seed hunt:** collapse `.` and `..` segments after duplicate-slash normalization; regression `Erasure_quarantine_allows_tenant_erasure_lifecycle_routes_with_dot_segments_in_path`.
 
 - [ ] (invalid) `TenantErasureQuarantineMiddleware.NormalizeRequestPath` — backslash-separated path segments on Windows-hosted Kestrel may bypass allowlist normalization; the selected files do not establish that a reachable reverse-proxy input preserves `\` in `PathString.Value`.
-- [ ] (valid-no-repro) `TenantErasureCommandService.TryApproveErasureAsync` — approval immediately after offboard is an explicit command/repository contract; scheduled hard-purge eligibility remains separately enforced by `TenantErasureEligibility.IsEligibleForScheduledHardPurge`.
-- [ ] (valid-no-repro) `TenantErasureCommandService.TrySetLegalHoldAsync` with `requireErasureQuarantine: false` — the platform legal-hold endpoint intentionally supplies the explicit exception flag for future holds outside quarantine.
-- [ ] (valid-no-repro) `TenantErasureCommandService.CompleteOffboardSideEffectsAsync` — repeated offboard side effects are covered by the existing idempotent retry and concurrent-race tests; no duplicate-audit wrong outcome was reproduced.
-- [ ] (invalid) `TenantErasureQuarantineMiddleware.Skip` — the selected files do not establish a reachable Kestrel path-decoding order that leaves `%2e%2e` encoded at this middleware.
+- [x] (invalid) `TenantErasureQuarantineMiddleware.NormalizeRequestPath` — backslash-separated path segments on Windows-hosted Kestrel may bypass allowlist normalization; **cheap-disproof 2026-10-12 thorough hunt:** the selected middleware receives `HttpContext.Request.Path`, and these files establish no reachable reverse-proxy input that preserves `\` as a path separator; no repro was authorized by the zone evidence.
+- [x] (valid-no-repro) `TenantErasureCommandService.TryApproveErasureAsync` — approval immediately after offboard is an explicit command/repository contract; **cheap-disproof 2026-10-12 thorough hunt:** `TenantErasureCommandService` requires `OffboardedUtc`, and `TenantErasureEligibility.IsEligibleForScheduledHardPurge` remains a separate scheduled-purge gate; existing approval retry/concurrency tests cover the command transition.
+- [x] (valid-no-repro) `TenantErasureCommandService.TrySetLegalHoldAsync` with `requireErasureQuarantine: false` — the platform legal-hold endpoint intentionally supplies the explicit exception flag for future holds outside quarantine; **cheap-disproof 2026-10-12 thorough hunt:** the flag is an explicit command contract and the platform caller supplies `false`; no missing quarantine guard exists in the selected files.
+- [x] (valid-no-repro) `TenantErasureCommandService.CompleteOffboardSideEffectsAsync` — repeated offboard side effects are covered by the existing idempotent retry and concurrent-race tests; **cheap-disproof 2026-10-12 thorough hunt:** retries use a deterministic audit event id and existing tests cover failed-audit retry and marker-without-suspension recovery; no duplicate-audit wrong outcome was reproduced.
+- [x] (invalid) `TenantErasureQuarantineMiddleware.Skip` — the selected files do not establish a reachable Kestrel path-decoding order that leaves `%2e%2e` encoded at this middleware; **cheap-disproof 2026-10-12 thorough hunt:** `Skip` consumes the framework `PathString` and normalizes actual dot segments; no encoded-path prerequisite is present in the selected files.
 
 - [x] (invalid) `TenantErasureCommandService.TryOffboardTenantAsync` / `CompleteOffboardSideEffectsAsync` — `OffboardedUtc` set without `ErasureEligibleUtc` returns `null` (admin `409`) on retry — **cheap-disproof 2026-10-06 thorough hunt:** `TryStartTenantErasureOffboardAsync` always sets both timestamps (SQL + in-memory); partial rows are out-of-band catalog corruption only, not a reachable production offboard path.
 - [x] (invalid) `TenantErasureCommandService.TrySetLegalHoldAsync` — `requireErasureQuarantine: true` rejects past-due `TenantErasureRequestedUtc`-only rows while middleware blocks other APIs — **cheap-disproof 2026-10-06 thorough hunt:** duplicate of #6972; scheduled-only quarantine without `OffboardedUtc` is not written by tenant-erasure command or repository paths in this zone.
