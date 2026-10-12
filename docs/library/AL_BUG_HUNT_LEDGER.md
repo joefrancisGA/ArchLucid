@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-12 seed hunt (seed-only): `api-governance-tenancy-controllers` — the picker exposed only the ledger path for the retired controller mega-zone; no source-backed locus, reachable input, or mechanism met the hunt-ready bar, so no candidate was promoted or invented. The scoped governance controller test command was aborted before discovery and produced no repro or result. No production or regression change.
+
 2026-10-12 seed hunt (seed-only): `archlucid-core` — the picker still exposes only the ledger path for the retired mega-zone, so no source-backed candidate or hunt-ready row could be seeded without inventing a product hypothesis. The scoped Core filter ran 7,311 passed and 6 failed on the explicitly invalid extra-`k` week-UOM baseline. No production or regression change.
 
 2026-10-12 seed hunt (seed-only): `archlucid-core` — the picker still exposes only the ledger path for the retired mega-zone, so no source-backed candidate or hunt-ready row could be seeded without inventing a product hypothesis. The scoped Core filter ran 7,311 passed and 6 failed on the explicitly invalid extra-`k` week-UOM baseline. No production or regression change.
@@ -31734,6 +31736,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ## Zone: api-governance-tenancy-controllers
 
+2026-10-12 seed hunt (seed-only): the picker exposed only this ledger path for the retired controller mega-zone; no source-backed locus, reachable input, or mechanism met the hunt-ready bar, so no candidate was promoted or invented. The scoped governance controller test command was aborted before discovery and produced no repro or result. No production or regression change.
+
 2026-10-11 seed hunt (seed-only): the picker exposed only this ledger path for the retired controller mega-zone; existing actor-id parity rows are closed and no new source-backed candidate or hunt-ready row could be seeded without inventing a hypothesis. The solution-level scoped filter was blocked by unrelated compile errors, and the direct API test project was blocked by existing `TenantTrialControllerTests` `IActorContext` compile errors. No production or regression change.
 
 2026-10-10 seed hunt (seed→hit): promoted `TenantTrialController.LinkEntraAsync` / `ConvertTrialAsync` actor propagation; both routes passed `User.Identity?.Name` into the trial facade, so platform audits stored a display name as `ActorUserId`; inject `IActorContext` and pass `GetActorId()`; regression `LinkEntraAsync_passes_stable_actor_id_to_trial_facade`. The focused API xUnit command remains blocked by the pre-existing duplicate `CreateEmptyAgentResultRepository` member in `AuthorityPipelineStagesExecutorTestFactory.cs`; isolated controller repro failed before the fix and passed afterward.
@@ -31754,8 +31758,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** governance controllers; tenancy controllers; retired mega-zone
 - **paths:** docs/library/AL_BUG_HUNT_LEDGER.md
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 323
-- **last-hunt:** 2026-10-11
+- **hunts:** 324
+- **last-hunt:** 2026-10-12
 - **bugs-found:** 519
 - **consecutive-dry-hunts:** 0
 - **last-bug:** 2026-10-10 — trial lifecycle passed display name instead of actor-context id
