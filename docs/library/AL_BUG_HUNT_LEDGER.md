@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-12 seed hunt (seed-only): `archlucid-contracts` — repeated the selected converter and test reread with no contract-path churn since the prior seed. Enum validation, malformed discriminator handling, null checks, and structured claim/proposal parsing remain covered; no fresh reachable mechanism-backed wrong outcome met the hunt-ready bar. The scoped `Contracts` filter was blocked before discovery by the same unrelated `AzureInventorySecurityEdgeMaterializer.cs` compile errors (`unmappedRoles` and `warnings`). No production or regression code changed.
+
 2026-10-12 seed hunt (seed-only): `archlucid-contracts` — re-read the selected contract converters, recent semantic-support-band validation change, and focused contract tests. The recent enum-string boundary is already covered by `Deserialize_string_numeric_semantic_support_band_out_of_range_throws`; no fresh reachable mechanism-backed wrong outcome met the hunt-ready bar, so no candidate was promoted. The picker-defined `Contracts` filter was blocked before discovery by unrelated `AzureInventorySecurityEdgeMaterializer.cs` compile errors (`unmappedRoles` and `warnings`). No production or regression code changed.
 
 2026-10-12 seed hunt (seed-only): `run-execute-ownership` — re-read the selected orchestrator, lease service, renewal scope, and focused ownership tests. Seeded one bounded `(candidate)` for cancellation during post-acquire drain rollback: `RunExecuteOwnershipLeaseService.AcquireAsync` passes the caller token to `TryReleaseAsync`, so a cancellation that coincides with the drain re-check may leave the acquired SQL lease unreleased. The focused repro was written but blocked before test discovery by unrelated `AzureInventorySecurityEdgeMaterializer.cs` compile errors (`unmappedRoles` and `warnings`); no row was promoted and no production or regression code changed.
@@ -28163,7 +28165,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 45
+- **hunts:** 46
 - **bugs-found:** 32
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-12
