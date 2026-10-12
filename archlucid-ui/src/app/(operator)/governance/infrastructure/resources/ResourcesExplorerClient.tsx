@@ -79,6 +79,7 @@ import {
 } from "@/lib/governance/governance-infrastructure-copy";
 import { infrastructureResourcesPathForProductLine } from "@/lib/product-line/securenow-infrastructure-resources-route";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
+import { SECURENOW_NAV_LABELS } from "@/lib/product-line/securenow-nav-labels";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 import {
@@ -129,6 +130,10 @@ export function ResourcesExplorerClient() {
   useProductionEvalChrome();
   const { productLine } = useProductLine();
   const resourcesPath = infrastructureResourcesPathForProductLine(productLine);
+  const pageTitle =
+    productLine === "security"
+      ? SECURENOW_NAV_LABELS["/infrastructure/resources"] ?? GOVERNANCE_INFRASTRUCTURE_RESOURCES_PAGE_TITLE
+      : GOVERNANCE_INFRASTRUCTURE_RESOURCES_PAGE_TITLE;
   const router = useRouter();
   const pathname = usePathname() ?? "";
   const searchParams = useSearchParams();
@@ -375,7 +380,7 @@ export function ResourcesExplorerClient() {
       >
         <OperatorPageHeader
           navHref={resourcesPath}
-          title={GOVERNANCE_INFRASTRUCTURE_RESOURCES_PAGE_TITLE}
+          title={pageTitle}
           subtitle={GOVERNANCE_INFRASTRUCTURE_RESOURCES_PAGE_LEAD}
           titleTestId="infra-resource-explorer-page-title"
         />
@@ -426,7 +431,7 @@ export function ResourcesExplorerClient() {
 
       <OperatorPageHeader
         navHref={resourcesPath}
-        title={GOVERNANCE_INFRASTRUCTURE_RESOURCES_PAGE_TITLE}
+          title={pageTitle}
         subtitle={GOVERNANCE_INFRASTRUCTURE_RESOURCES_PAGE_LEAD}
         titleTestId="infra-resource-explorer-page-title"
         claimDiscipline={GOVERNANCE_INFRASTRUCTURE_RESOURCES_CLAIM_DISCIPLINE}

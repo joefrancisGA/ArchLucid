@@ -23,6 +23,14 @@ vi.mock("@/components/usability/PageContextualHelpButton", async (importOriginal
   };
 });
 
+vi.mock("@/components/product-line/SecureNowHomeEnvironmentContext", () => ({
+  SecureNowHomeEnvironmentContext: () => <div data-testid="securenow-home-environment-context" />,
+}));
+
+vi.mock("@/components/product-line/SecureNowHomeWorkSummary", () => ({
+  SecureNowHomeWorkSummary: () => <div data-testid="securenow-home-work-summary" />,
+}));
+
 import {
   SECURENOW_ASSIGNED_TO_ME_FINDINGS_PATH,
   SECURENOW_POLICY_PACKS_PATH,
@@ -50,6 +58,8 @@ describe("InfrastructureOverviewClient SecureNow grouped home sections", () => {
     );
 
     expect(sectionTestIds).toEqual([
+      "securenow-home-environment-context",
+      "securenow-home-work-summary",
       "securenow-findings-home-section",
       "securenow-infrastructure-home-section",
       "securenow-remediation-home-section",
@@ -89,8 +99,9 @@ describe("InfrastructureOverviewClient SecureNow grouped home sections", () => {
 
     const primaryContent = screen.getByTestId("governance-infrastructure-overview-primary-content");
 
-    expect(primaryContent).toHaveTextContent(/All seven destinations are available from this hub/i);
     expect(primaryContent).toHaveTextContent(/Findings, environment, remediation, compliance, and data sources are grouped below/i);
+    expect(screen.getByText(/Review security findings, explore your Azure environment, and verify remediation/i)).toBeInTheDocument();
+    expect(screen.getByText(/Advice and inventory evidence on this page are not an official compliance report/i)).toBeInTheDocument();
     expect(primaryContent).not.toHaveTextContent(/Azure inventory evidence workbenches for snapshots/i);
     expect(INFRASTRUCTURE_WORKBENCH_ROWS).toHaveLength(7);
     expect(INFRASTRUCTURE_WORKBENCH_ROWS[0]?.href).toBe("/governance/infrastructure/resources");

@@ -1,6 +1,6 @@
 import type { NavLinkItem } from "@/lib/nav-config.types";
 
-const SECURENOW_NAV_LABELS: Readonly<Record<string, string>> = {
+export const SECURENOW_NAV_LABELS: Readonly<Record<string, string>> = {
   "/": "Home",
   "/security/assigned-to-me": "My findings",
   "/compliance/findings": "All findings",
