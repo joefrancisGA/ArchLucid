@@ -573,10 +573,11 @@ def main(argv: list[str] | None = None) -> int:
                 "(one smoke per ref; cancel stale queued runs when a newer trunk push lands)",
             )
 
-        if "cancel-in-progress: true" not in text:
+        if "cancel-in-progress: false" not in text:
             errors.append(
-                f"{_PUSH_REL}: must set cancel-in-progress: true so superseded trunk pushes "
-                "do not bury the first-green private-beta signal",
+                f"{_PUSH_REL}: must set cancel-in-progress: false so the current invite-wave witness "
+                "runs to completion instead of being cancelled by a later trunk push; "
+                "the active JwtBearer witness must not be cancelled",
             )
 
         if _FULL_REGRESSION_NEED in text:
