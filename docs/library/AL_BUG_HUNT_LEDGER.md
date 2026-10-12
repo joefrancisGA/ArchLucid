@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-12 seed hunt (seed-only): `artifact-synthesis` — re-read the selected ArtifactSynthesis, Mermaid renderer, packaging, and DOCX fallback paths; no fresh reachable mechanism-backed hypothesis met the hunt-ready bar, and no candidate was promoted or duplicated. The scoped ArtifactSynthesis filter passed 704/718 with 12 pre-existing diagram expectation failures and 2 intentional Terraform skips. No production or regression code changed.
+
 2026-10-12 seed hunt (seed-only): repeated the selected ArtifactSynthesis, Mermaid renderer, packaging, and DOCX fallback review after the prior seed-only pass. No fresh reachable mechanism-backed hypothesis met the hunt-ready bar; no candidate was promoted or duplicated. The scoped ArtifactSynthesis/Docx filter passed 102/103 with one intentional skip. No production or regression code changed.
 
 2026-10-12 seed hunt (seed-only): repeated the selected ArtifactSynthesis, Mermaid renderer, packaging, and DOCX fallback review after the prior seed-only pass. No fresh reachable mechanism-backed hypothesis met the hunt-ready bar; no candidate was promoted or duplicated. The scoped ArtifactSynthesis/Docx filter passed 102/103 with one intentional skip. No production or regression code changed.
