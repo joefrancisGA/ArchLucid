@@ -1,13 +1,13 @@
-"""Chapter 7: the validator against the chapter's own pack and printed summaries."""
+"""Chapter 9: the validator against the chapter's own pack and printed summaries."""
 
 from __future__ import annotations
 
 import unittest
 
 import support
-from ch07_validator import expand_range, validate
+from ch09_validator import expand_range, validate
 
-CHAPTER = "chapters/07-where-llms-help.md"
+CHAPTER = "chapters/09-where-llms-help.md"
 OPENING_SUMMARY = "Our investigation found that attackers could compromise"
 GROUNDED_SUMMARY = "Six access paths lead from people and pipelines"
 
@@ -57,7 +57,7 @@ class BookClaims(unittest.TestCase):
         self.assertEqual(validate(draft, pack()), ["Sentence 3: no citation."])
 
     def test_misstatement_passes_every_check(self) -> None:
-        # Section 7.5: cited, named, and wrong. Only a support check or a human catches it.
+        # Section 9.5: cited, named, and wrong. Only a support check or a human catches it.
         draft = {"sentences": [{"text": "The deployment identity owns the storage account.",
                                 "cites": ["H5"]}]}
 
@@ -100,7 +100,7 @@ class Checks(unittest.TestCase):
                          ["Sentence 1: name 'kv-secret' does not appear in the pack."])
 
     def with_unmodeled_path(self) -> dict:
-        """Chapter 4's optional lab step, as pack items: a path that rests on a role condition."""
+        """Chapter 5's optional lab step, as pack items: a path that rests on a role condition."""
         base = pack()
         path = {"id": "P7", "hops": ["H10"], "target": "Read customer data in custdata",
                 "confidence": "Insufficient evidence", "gaps": ["G3"]}

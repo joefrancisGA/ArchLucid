@@ -112,7 +112,7 @@ First, **the fix is cheap once you see the combination.** Disabling shared key a
 
 Second, **condition A isn't a finding at all.** Federated credentials for CI/CD are what Microsoft and GitHub both recommend in place of stored client secrets [S1, S5], and they're right. A good practice can still be a step in a dangerous path. What makes it safe or unsafe is what the identity can reach. A checklist that only flags bad practices will never show you that step, because there's nothing wrong with it alone.
 
-Toxic combinations aren't rare edge cases. In most real Azure estates, they're the main way serious exposure happens. Identity is involved in nearly all of them, because in Azure the identity layer connects everything else. Chapter 4 covers identity paths in depth.
+Toxic combinations aren't rare edge cases. In most real Azure estates, they're the main way serious exposure happens. Identity is involved in nearly all of them, because in Azure the identity layer connects everything else. Chapters 4 and 5 cover identity paths in depth.
 
 ---
 
@@ -148,9 +148,9 @@ Thinking this way changes three things.
 
 **It changes what you prioritize.** You rank paths, not items. The question becomes: which entry points can reach which targets, through how many hops, with what level of privilege at the end? A path from the internet to customer data in three hops outranks a hundred isolated mediums. A medium that sits on no path to anything important can wait.
 
-**It changes what you fix.** Each path has one or more **cut points**: hops where a single change breaks the path. Some cut points break many paths at once. Removing one overly broad role assignment might close dozens. Fixing by cut point is usually far less work than fixing by list, because you fix the few things that matter most. Chapter 9 is about finding them.
+**It changes what you fix.** Each path has one or more **cut points**: hops where a single change breaks the path. Some cut points break many paths at once. Removing one overly broad role assignment might close dozens. Fixing by cut point is usually far less work than fixing by list, because you fix the few things that matter most. Chapter 11 is about finding them.
 
-**It changes how you measure progress.** Instead of "items closed," you report "paths from internet-facing entry points to crown-jewel data: 14 last quarter, 3 this quarter." That number goes down only when real exposure goes down. Chapter 10 covers outcome metrics and how to verify them honestly.
+**It changes how you measure progress.** Instead of "items closed," you report "paths from internet-facing entry points to crown-jewel data: 14 last quarter, 3 this quarter." That number goes down only when real exposure goes down. Chapter 12 covers outcome metrics and how to verify them honestly.
 
 ### Paths are not new
 
@@ -217,7 +217,7 @@ The design principle that follows, and that runs through the rest of the book, i
 
 > **Compute paths from evidence with deterministic methods. Use AI to explain, triage, and draft, always on top of cited evidence, never instead of it.**
 
-Chapters 7 and 8 work through where that line falls in practice and how to enforce it.
+Chapters 9 and 10 work through where that line falls in practice and how to enforce it.
 
 ---
 
@@ -244,13 +244,13 @@ None of that requires abandoning existing tools. It requires changing what you c
 The book follows the path from evidence to verified outcome:
 
 - **Part I — Foundations.** This chapter makes the case for paths. Chapter 2 introduces the vocabulary for being honest about evidence: what you observed, what you computed, what you assumed, what a model guessed, and what a person told you. Chapter 3 covers collecting Azure evidence with read-only access, including how to handle the gaps you'll inevitably have.
-- **Part II — Reasoning about paths.** Chapters 4, 5, and 6 cover the three kinds of hops that make up most Azure paths: identity and privilege, network reachability, and data flow.
-- **Part III — AI in the loop.** Chapter 7 covers where language models help. Chapter 8 covers how they fail and how to contain the failures, including prompt injection through your own resource metadata.
-- **Part IV — Closing the loop.** Chapter 9 covers advisory remediation and cut points. Chapter 10 covers verifying fixes and measuring outcomes. Chapter 11 covers governing the AI tooling itself, which is now one of your more sensitive systems.
+- **Part II — Reasoning about paths.** Chapters 4 to 8 cover the three kinds of hops that make up most Azure paths. Chapter 4 covers identity and privilege, and Chapter 5 builds them into a graph you can search. Chapter 6 covers network exposure, and Chapter 7 computes and confirms reachability. Chapter 8 covers data flow.
+- **Part III — AI in the loop.** Chapter 9 covers where language models help. Chapter 10 covers how they fail and how to contain the failures, including prompt injection through your own resource metadata.
+- **Part IV — Closing the loop.** Chapter 11 covers advisory remediation and cut points. Chapter 12 covers verifying fixes and measuring outcomes. Chapter 13 covers governing the AI tooling itself, which is now one of your more sensitive systems.
 
 The method applies to any Azure path, but the book models identity, RBAC, CI/CD federation, and data access to platform services. The preface's Scope section lists which Azure domains are fully modeled, partially modeled, or out of scope.
 
-The Contoso payments path runs through all of it. You'll see it labeled in Chapter 2, collected in Chapter 3, extended through identity, network, and data flow in Chapters 4 to 6, explained by a model in Chapter 7, attacked through an app registration's display name in Chapter 8, cut in Chapter 9, and verified in Chapter 10. Chapter 11 turns the same methods on the tooling itself.
+The Contoso payments path runs through all of it. You'll see it labeled in Chapter 2, collected in Chapter 3, extended through identity, network, and data flow in Chapters 4 to 8, explained by a model in Chapter 9, attacked through an app registration's display name in Chapter 10, cut in Chapter 11, and verified in Chapter 12. Chapter 13 turns the same methods on the tooling itself.
 
 ---
 

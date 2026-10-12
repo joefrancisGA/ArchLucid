@@ -1,4 +1,4 @@
-> **Scope:** Author runbook for the book draft *Managing Azure Security with AI*: one sitting that deploys the companion lab (Appendix A) into a live tenant and checks the claims in Appendices A, B, and C and Chapters 4, 7, and 8 that have only been validated offline. Not reader-facing text; not product documentation.
+> **Scope:** Author runbook for the book draft *Managing Azure Security with AI*: one sitting that deploys the companion lab (Appendix A) into a live tenant and checks the claims in Appendices A, B, and C and Chapters 5, 9, and 10 that have only been validated offline. Not reader-facing text; not product documentation.
 > **Status:** draft
 
 # Live validation runbook
@@ -73,15 +73,15 @@ terraform output -json user_passwords
 
 ---
 
-## Phase 2 — Baseline and the six paths (Appendix A.6, Chapters 3 and 4)
+## Phase 2 — Baseline and the six paths (Appendix A.6, Chapters 3 and 5)
 
-Run the Chapter 3 collector (section 3.10, Steps 1–4) and the Chapter 4 Step 0 collection, then the Chapter 4 derivation and search.
+Run the Chapter 3 collector (section 3.10, Steps 1–4) and the Chapter 5 Step 0 collection, then the Chapter 5 derivation and search.
 
 Run it **twice**: once as yourself from your machine, which checks the queries, and once as `mi-security-collector` in `aa-security-collector`, which checks that the collector's permissions are enough. For the Automation run, use a PowerShell 7.2 or later runtime and import `Az.Accounts`, `Az.ResourceGraph`, `Az.Resources`, `Microsoft.Graph.Authentication`, `Microsoft.Graph.Applications`, `Microsoft.Graph.Groups`, `Microsoft.Graph.Users`, `Microsoft.Graph.Identity.DirectoryManagement`, and `Microsoft.Graph.Identity.Governance`. Write the snapshot to a blob container or download it from the job output, whichever is quicker.
 
 | ID | Check | Expected | If not |
 |----|-------|----------|--------|
-| B1 | Six paths | Exactly P1–P6, nothing else to `custdata` or `custarchive` (A.3, A.6) | More: check whether the loader treats containment as capability (Chapter 4 Step 3). Fewer: look for a gap. Record the extra or missing path |
+| B1 | Six paths | Exactly P1–P6, nothing else to `custdata` or `custarchive` (A.3, A.6) | More: check whether the loader treats containment as capability (Chapter 5 Step 3). Fewer: look for a gap. Record the extra or missing path |
 | B2 | No path for the API identity | `mi-payments-api` reaches `custdata` through its data role, but no entry point reaches `mi-payments-api` (A.3) | If a path appears, the runtime resource group split isn't doing its job |
 | B3 | Shared key | `storage-accounts.json` shows `sharedKey = enabled` for `custdata`, `custarchive`, and the three `sbx` accounts (A.6) | Record the actual value; check the "not set" case in Chapter 3 |
 | B4 | Federated subject | `federated-credentials.json` holds `repo:contoso/payments:ref:refs/heads/main` (A.6) | |
@@ -108,7 +108,7 @@ Run each recipe as written in Appendix B, as yourself first. Run the Graph and A
 | Q6 | Guests (B.4) | One guest, `externalUserState` `PendingAcceptance` |
 | Q7 | Local authentication (B.5) | Zero rows (the lab has none of those types), no error |
 | Q8 | Key vaults (B.5) | `kvsbx1…`, `kvsbx2…` with `purgeProtection` false or empty |
-| Q9 | Site configuration (B.6) | Two sites; Reader **can** read `config/web`. Then try `POST …/config/appsettings/list` as the collector identity: expect 403, which confirms the B.6 and Chapter 6 claim that Reader can't list app settings |
+| Q9 | Site configuration (B.6) | Two sites; Reader **can** read `config/web`. Then try `POST …/config/appsettings/list` as the collector identity: expect 403, which confirms the B.6 and Chapter 8 claim that Reader can't list app settings |
 | Q10 | NSG rules (B.7) | `nsg-dev` RDP rule from `203.0.113.0/24` plus the default rules, `isDefault` true on the defaults |
 | Q11 | Virtual networks (B.7) | `vnet-hub`, `vnet-payments`, `vnet-dev`, with peerings `Connected` |
 | Q12 | Route tables (B.7) | `rt-spokes` with `10.0.0.0/8` → `VirtualAppliance` at the firewall's private IP |
@@ -127,9 +127,9 @@ Run each recipe as written in Appendix B, as yourself first. Run the Graph and A
 
 ---
 
-## Phase 4 — Model checks (Appendix C, Chapters 7 and 8)
+## Phase 4 — Model checks (Appendix C, Chapters 9 and 10)
 
-Use the Chapter 7 section 7.3 pack, saved as `pack.json`, and the C.1 base system message, saved as `system.txt`. Save the C.1 strict `response_format` as `grounded_draft.json`. This harness is the minimum needed to run the checks; it isn't book code.
+Use the Chapter 9 section 9.3 pack, saved as `pack.json`, and the C.1 base system message, saved as `system.txt`. Save the C.1 strict `response_format` as `grounded_draft.json`. This harness is the minimum needed to run the checks; it isn't book code.
 
 ```python
 import json
@@ -170,21 +170,21 @@ if __name__ == "__main__":
     print(json.dumps(result, indent=2))
 ```
 
-Run Chapter 7's `validate` (section 7.5, including check 7) on every grounded draft.
+Run Chapter 9's `validate` (section 9.5, including check 7) on every grounded draft.
 
 | ID | Check | Expected | If not |
 |----|-------|----------|--------|
 | M1 | Strict schema accepted | The C.1 `grounded_draft` request returns 200, not 400 | Record the error; fix C.1 |
-| M2 | Board summary | `status` `answered`; `validate` returns no problems on the first or second attempt (Chapter 7 lab, "What you should see") | Record the problems and the attempt count |
-| M3 | Four audiences | Run the four C.2 audience blocks. Each passes `validate` and Chapter 8's `coverage_problems` with C.2's "must cite" column | Record which audience fails which check |
-| M4 | Rule 6 exit | Task: "How much would a breach cost?" Output is `status` `insufficient_evidence` with an empty `sentences` list. Run it **five** times and record how many comply | Fewer than five: Chapter 7 should say the exit is reliable "usually", and the validator check 7 matters more |
+| M2 | Board summary | `status` `answered`; `validate` returns no problems on the first or second attempt (Chapter 9 lab, "What you should see") | Record the problems and the attempt count |
+| M3 | Four audiences | Run the four C.2 audience blocks. Each passes `validate` and Chapter 10's `coverage_problems` with C.2's "must cite" column | Record which audience fails which check |
+| M4 | Rule 6 exit | Task: "How much would a breach cost?" Output is `status` `insufficient_evidence` with an empty `sentences` list. Run it **five** times and record how many comply | Fewer than five: Chapter 9 should say the exit is reliable "usually", and the validator check 7 matters more |
 | M5 | `$defs` and `$ref` | Wrap the C.5 schema as `{"type": "json_schema", "json_schema": {"name": "remediation", "strict": true, "schema": …}}` and send any C.5 task. Expect 200 | A 400 that mentions `$ref` or `$defs`: inline the step schema three times in C.5, as its author note says |
 | M6 | Probable flows | C.7 prompt over `payments.tf` and `function_app.py`, with `custdata` and `custarchive` as known stores. Run `probable_flow_problems` on the output. Expect `pay-reconcile` → `custarchive` (read) to pass, and every flow cited at a real line | Record any invented file or line, and whether the check caught it |
-| M7 | Support checker | Chapter 8 lab Step 6: edit a passing draft to "`payments-deploy` owns `rg-payments-prod` [H5]". The C.8 checker returns `not supported` or `partially supported` | |
-| M8 | Name regex | Across M2–M4, record any ordinary hyphenated English word that `validate`'s name check flags (Chapter 7 author note) | |
-| M9 | Injection (optional, Chapter 8 lab Steps 1–4) | Plant the A.7 `notes` tag, re-collect, and run the naive and defended pipelines three times each. Record how often the naive summary says "approved" or "no action required", and whether any defended run does | Remove the tag afterward |
+| M7 | Support checker | Chapter 10 lab Step 6: edit a passing draft to "`payments-deploy` owns `rg-payments-prod` [H5]". The C.8 checker returns `not supported` or `partially supported` | |
+| M8 | Name regex | Across M2–M4, record any ordinary hyphenated English word that `validate`'s name check flags (Chapter 9 author note) | |
+| M9 | Injection (optional, Chapter 10 lab Steps 1–4) | Plant the A.7 `notes` tag, re-collect, and run the naive and defended pipelines three times each. Record how often the naive summary says "approved" or "no action required", and whether any defended run does | Remove the tag afterward |
 
-Record the model name, model version, and deployment region with the results. Chapter 7's "as of" box depends on them.
+Record the model name, model version, and deployment region with the results. Chapter 9's "as of" box depends on them.
 
 ---
 

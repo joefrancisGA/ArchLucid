@@ -1,4 +1,4 @@
-"""The companion lab's payments estate (Appendix A) as Chapter 4 graph input.
+"""The companion lab's payments estate (Appendix A) as Chapter 5 graph input.
 
 Observed edges are written by hand, the way a loader would emit them from the snapshot files.
 Capability edges come from derive_capability_edges, so the tests exercise the derivation too.
@@ -7,7 +7,7 @@ Capability edges come from derive_capability_edges, so the tests exercise the de
 from __future__ import annotations
 
 import support  # noqa: F401  (puts the listings folder on sys.path)
-from ch04_paths import Edge, derive_capability_edges, find_paths
+from ch05_paths import Edge, derive_capability_edges, find_paths
 
 SUBSCRIPTION = "/subscriptions/sub-payments-prod"
 RG_PROD = f"{SUBSCRIPTION}/resourceGroups/rg-payments-prod"
@@ -29,7 +29,7 @@ READ_CUSTARCHIVE = "read:custarchive"
 
 ENTRIES = [WORKFLOW, DEV_LEAD, HELPDESK, ANALYST]
 TARGETS = [READ_CUSTDATA, READ_CUSTARCHIVE]
-# The book's path labels (Appendix A.3, Chapter 7's pack).
+# The book's path labels (Appendix A.3, Chapter 9's pack).
 BOOK_PATHS = {
     "P1": (WORKFLOW, READ_CUSTDATA),
     "P2": (DEV_LEAD, READ_CUSTDATA),
@@ -124,7 +124,7 @@ def lab_edges(
     archive_in_prod: bool = False,
     extra_assignments: list[dict] | None = None,
 ) -> list[Edge]:
-    """The whole graph. The arguments model the Chapter 9 and 10 changes."""
+    """The whole graph. The arguments model the Chapter 11 and 12 changes."""
     observed = (
         observed_edges(dev_lead_owner, helpdesk_citation)
         if helpdesk_citation is not None

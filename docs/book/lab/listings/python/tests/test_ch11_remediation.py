@@ -1,12 +1,12 @@
-"""Chapter 9: ranking, the greedy plan from section 9.3, verification, and durability."""
+"""Chapter 11: ranking, the greedy plan from section 11.3, verification, and durability."""
 
 from __future__ import annotations
 
 import unittest
 
 import lab_graph as lab
-from ch04_paths import Edge
-from ch09_remediation import (
+from ch05_paths import Edge
+from ch11_remediation import (
     Change,
     edge_key,
     greedy_plan,
@@ -24,7 +24,7 @@ NARROW = "Narrow `payments-deploy` to deployment roles"
 
 
 def payments_changes() -> list[Change]:
-    """Section 9.3's change table. Costs: low 1, medium 2, high 3."""
+    """Section 11.3's change table. Costs: low 1, medium 2, high 3."""
     key_route = (lab.SP, "grants", lab.READ_CUSTDATA)
 
     return [

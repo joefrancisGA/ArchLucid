@@ -1,4 +1,4 @@
-"""Chapter 10: verdicts, the opening story's two snapshot diffs, and exposure windows."""
+"""Chapter 12: verdicts, the opening story's two snapshot diffs, and exposure windows."""
 
 from __future__ import annotations
 
@@ -6,8 +6,8 @@ import unittest
 from datetime import timedelta
 
 import lab_graph as lab
-from ch04_paths import Edge, find_paths
-from ch10_verification import (
+from ch05_paths import Edge, find_paths
+from ch12_verification import (
     FAILED,
     NOT_VERIFIED,
     PATH_FILES,

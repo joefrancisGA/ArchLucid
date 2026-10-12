@@ -1,4 +1,4 @@
-# Scaffolding so Chapter 11's tooling module (main.tf, printed in section 11.9) validates on its own.
+# Scaffolding so Chapter 13's tooling module (main.tf, printed in section 13.9) validates on its own.
 # It pins azurerm 5.x, like the companion lab.
 
 terraform {

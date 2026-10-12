@@ -17,20 +17,22 @@
 
 ## Part II — Reasoning about paths
 
-4. **Identity and privilege paths.** Entra users, groups, service principals, managed identities, federated credentials, Azure RBAC inheritance, PIM.
-5. **Network reachability.** Public exposure, private endpoints, NSGs, firewalls, peering. Intended versus actual reachability.
-6. **Data flow: may access vs did access.** Capability is not exfiltration. Declared, probable, observed, and human-confirmed flows.
+4. **Identity and privilege paths.** Entra users, groups, service principals, managed identities, federated credentials, Azure RBAC inheritance, PIM. Becoming another identity, granting more access, control-to-data conversions.
+5. **Building the identity graph.** Typed, cited edges derived from assignments; unmodeled controls; paths across time; the access-decision contract; the payments graph and its lab.
+6. **Network exposure.** Four kinds of reachability, PaaS public exposure, private endpoints, NSGs, routes, peering, firewalls, DNS.
+7. **Computing and confirming reachability.** Configured reachability with three answers, network edges in the path graph, observed and intended reachability, the confirmation ladder, and the lab.
+8. **Data flow: may access vs did access.** Capability is not exfiltration. Declared, probable, observed, and human-confirmed flows.
 
 ## Part III — AI in the loop
 
-7. **Where LLMs help.** Explaining a cited path, triage summaries, drafting runbooks and Terraform, executive narratives. Grounding and citation patterns.
-8. **Where LLMs hurt.** Hallucinated findings, false confidence numbers, prompt injection through resource tags and descriptions, over-automation.
+9. **Where LLMs help.** Explaining a cited path, triage summaries, drafting runbooks and Terraform, executive narratives. Grounding and citation patterns.
+10. **Where LLMs hurt.** Hallucinated findings, false confidence numbers, prompt injection through resource tags and descriptions, over-automation.
 
 ## Part IV — Closing the loop
 
-9. **Advisory remediation.** Cut points (fixes that break the most paths), Terraform representation, ITSM handoff, humans apply changes.
-10. **Verification and outcome metrics.** Compare the next snapshot to claimed postconditions. Measure paths removed and crown-jewel exposure reduced, not findings closed.
-11. **Governing the AI tooling itself.** Tenant isolation, least privilege for the AI service, data residency, privacy-preserving audit metadata and controlled prompt/output retention, cost control.
+11. **Advisory remediation.** Cut points (fixes that break the most paths), Terraform representation, ITSM handoff, humans apply changes.
+12. **Verification and outcome metrics.** Compare the next snapshot to claimed postconditions. Measure paths removed and crown-jewel exposure reduced, not findings closed.
+13. **Governing the AI tooling itself.** Tenant isolation, least privilege for the AI service, data residency, privacy-preserving audit metadata and controlled prompt/output retention, cost control.
 
 ## Appendices (planned)
 

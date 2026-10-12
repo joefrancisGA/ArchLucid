@@ -50,11 +50,11 @@ resource "azurerm_cognitive_deployment" "explain" {
   model {
     format  = "OpenAI"
     name    = var.model_name
-    version = var.model_version # pinned; upgrades go through the test set (Chapter 8)
+    version = var.model_version # pinned; upgrades go through the test set (Chapter 10)
   }
 
   sku {
-    name = var.deployment_type # recorded residency decision (section 11.5)
+    name = var.deployment_type # recorded residency decision (section 13.5)
   }
 }
 

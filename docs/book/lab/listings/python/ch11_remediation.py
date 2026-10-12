@@ -1,13 +1,13 @@
-"""Chapter 9 listings: ranking, cut sets, verification, and recommendation IDs.
+"""Chapter 11 listings: ranking, cut sets, verification, and recommendation IDs.
 
 Each region between `# region <name>` and `# endregion <name>` appears verbatim in the book under a
-`<!-- listing: lab/listings/python/ch09_remediation.py#<name> -->` marker. Edit the code here, then copy the
+`<!-- listing: lab/listings/python/ch11_remediation.py#<name> -->` marker. Edit the code here, then copy the
 region into the book; docs/book/tools/check_listings.py fails when the two differ.
 """
 
 from __future__ import annotations
 
-from ch04_paths import STRUCTURAL_KINDS, Edge, find_paths
+from ch05_paths import STRUCTURAL_KINDS, Edge, find_paths
 
 
 # region rank_key
@@ -87,7 +87,7 @@ def greedy_plan(
 def open_paths_after(
     edges: list[Edge], plan: list[Change], entries: list[str], targets: list[str]
 ) -> dict:
-    """Re-run the Chapter 4 search with the plan's edges removed."""
+    """Re-run the Chapter 5 search with the plan's edges removed."""
     removed = set().union(*(change.removes for change in plan)) if plan else set()
     kept = [edge for edge in edges if edge_key(edge) not in removed]
     results = {}

@@ -1,13 +1,13 @@
-"""Chapter 8 listings: untrusted-copy, coverage, and metamorphic checks.
+"""Chapter 10 listings: untrusted-copy, coverage, and metamorphic checks.
 
 Each region between `# region <name>` and `# endregion <name>` appears verbatim in the book under a
-`<!-- listing: lab/listings/python/ch08_tests.py#<name> -->` marker. Edit the code here, then copy the
+`<!-- listing: lab/listings/python/ch10_tests.py#<name> -->` marker. Edit the code here, then copy the
 region into the book; docs/book/tools/check_listings.py fails when the two differ.
 """
 
 from __future__ import annotations
 
-from ch07_validator import expand_range
+from ch09_validator import expand_range
 
 
 # region untrusted_copy_problems

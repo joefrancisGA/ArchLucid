@@ -1,13 +1,13 @@
-"""Chapter 6 listings: the activity-wording rule.
+"""Chapter 8 listings: the activity-wording rule.
 
 Each region between `# region <name>` and `# endregion <name>` appears verbatim in the book under a
-`<!-- listing: lab/listings/python/ch06_data_flow.py#<name> -->` marker. Edit the code here, then copy the
+`<!-- listing: lab/listings/python/ch08_data_flow.py#<name> -->` marker. Edit the code here, then copy the
 region into the book; docs/book/tools/check_listings.py fails when the two differ.
 """
 
 from __future__ import annotations
 
-from ch07_validator import expand_range
+from ch09_validator import expand_range
 
 
 # region activity_problems

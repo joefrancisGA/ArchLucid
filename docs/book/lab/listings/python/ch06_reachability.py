@@ -1,13 +1,13 @@
-"""Chapter 5 listings: storage exposure and NSG evaluation.
+"""Chapters 6 and 7 listings: storage exposure, NSG evaluation, and private reachability.
 
 Each region between `# region <name>` and `# endregion <name>` appears verbatim in the book under a
-`<!-- listing: lab/listings/python/ch05_reachability.py#<name> -->` marker. Edit the code here, then copy the
+`<!-- listing: lab/listings/python/ch06_reachability.py#<name> -->` marker. Edit the code here, then copy the
 region into the book; docs/book/tools/check_listings.py fails when the two differ.
 """
 
 from __future__ import annotations
 
-from ch04_paths import Edge, UnmodeledControl
+from ch05_paths import Edge, UnmodeledControl
 
 
 # region storage_public_exposure
@@ -266,7 +266,7 @@ def private_reachability(
 
 
 def reach_edge(position: str, endpoint: str, reach: Reach, citation: str) -> Edge | None:
-    """A canReach edge for search. Indeterminate carries an unmodeled control (Chapter 4)."""
+    """A canReach edge for search. Indeterminate carries an unmodeled control (Chapter 5)."""
     if reach.result == NOT_REACHABLE:
         return None
 

@@ -3,7 +3,7 @@
 
 A listing in the book is synced by an HTML comment directly above its fenced block:
 
-    <!-- listing: lab/listings/python/ch04_paths.py#identity_graph -->
+    <!-- listing: lab/listings/python/ch05_paths.py#identity_graph -->
 
 The path is relative to ``docs/book``. ``#name`` selects the lines between ``# region name`` and
 ``# endregion name`` in that file (``// region name`` in languages that comment with ``//``, such as

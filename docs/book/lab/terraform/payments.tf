@@ -7,15 +7,15 @@ resource "azurerm_storage_account" "custdata" {
   account_tier             = "Standard"
   account_replication_type = "LRS"
 
-  # Hop H7: Contributor can list keys, and keys work. Chapter 9 sets this to false.
+  # Hop H7: Contributor can list keys, and keys work. Chapter 11 sets this to false.
   shared_access_key_enabled = true
 
-  # Chapter 5's opening story: a private endpoint exists, and the public endpoint is still open to all networks.
+  # Chapter 6's opening story: a private endpoint exists, and the public endpoint is still open to all networks.
   public_network_access = "Enabled"
 
   allow_nested_items_to_be_public = false
 
-  # No diagnostic setting on purpose: gap G1. Chapters 5 and 6 add one.
+  # No diagnostic setting on purpose: gap G1. Chapters 7 and 8 add one.
   tags = {
     owner = "payments"
   }
@@ -62,7 +62,7 @@ resource "azurerm_user_assigned_identity" "mi_payments_api" {
   location            = azurerm_resource_group.payments_runtime.location
 }
 
-# Basic tier is the cheapest plan that supports virtual network integration, which Chapter 5 needs.
+# Basic tier is the cheapest plan that supports virtual network integration, which Chapter 7 needs.
 resource "azurerm_service_plan" "payments" {
   name                = "asp-payments"
   resource_group_name = azurerm_resource_group.payments_prod.name
@@ -101,14 +101,14 @@ resource "azurerm_linux_function_app" "pay_reconcile" {
     }
   }
 
-  # Declared flow for Chapter 6. AZURE_CLIENT_ID tells the SDK which attached identity to use.
+  # Declared flow for Chapter 8. AZURE_CLIENT_ID tells the SDK which attached identity to use.
   app_settings = {
     ARCHIVE_ACCOUNT = azurerm_storage_account.custarchive.name
     AZURE_CLIENT_ID = azurerm_user_assigned_identity.mi_pay_reconcile.client_id
   }
 }
 
-# The payments API from Chapter 6: the one confirmed writer to custdata. It lives outside payments-deploy's
+# The payments API from Chapter 8: the one confirmed writer to custdata. It lives outside payments-deploy's
 # Contributor scope for the same reason as its identity; the plan can stay in rg-payments-prod because
 # changing a plan doesn't deploy code to the apps on it.
 resource "azurerm_linux_web_app" "payments_api" {
@@ -143,7 +143,7 @@ resource "azurerm_role_assignment" "payments_deploy_contributor" {
   principal_type       = "ServicePrincipal"
 }
 
-# Hop H9. Scoped to the account; Chapter 9's P4 acceptance narrows it to the settlements container.
+# Hop H9. Scoped to the account; Chapter 11's P4 acceptance narrows it to the settlements container.
 resource "azurerm_role_assignment" "mi_pay_reconcile_archive_reader" {
   scope                = azurerm_storage_account.custarchive.id
   role_definition_name = "Storage Blob Data Reader"

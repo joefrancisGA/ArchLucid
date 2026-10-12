@@ -10,7 +10,7 @@ variable "resource_group_name" {
 }
 
 variable "location" {
-  description = "Region for every tooling resource; part of the residency decision in section 11.5."
+  description = "Region for every tooling resource; part of the residency decision in section 13.5."
   type        = string
 }
 

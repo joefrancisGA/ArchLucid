@@ -1,4 +1,4 @@
-# Resources main.tf refers to. Section 11.9 says they follow the same pattern; this is the minimum.
+# Resources main.tf refers to. Section 13.9 says they follow the same pattern; this is the minimum.
 
 resource "azurerm_resource_group" "tooling" {
   name     = var.resource_group_name

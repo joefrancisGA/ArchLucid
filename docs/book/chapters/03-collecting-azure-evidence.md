@@ -52,7 +52,7 @@ The fifth row is easy to forget. It doesn't create paths. It tells you whether y
 
 Two kinds of evidence are deliberately *not* in this chapter:
 
-- **Activity**: sign-in logs, Activity Log entries, storage access logs. These are evidence of what *happened*, not what's *possible*. They matter for confirming flows (section 6.4) and verifying fixes (section 10.2), and they have different retention, cost, and privacy considerations.
+- **Activity**: sign-in logs, Activity Log entries, storage access logs. These are evidence of what *happened*, not what's *possible*. They matter for confirming flows (section 8.4) and verifying fixes (section 12.2), and they have different retention, cost, and privacy considerations.
 - **Secret values**: keys, connection strings, passwords, tokens. Section 3.6 explains why the collector should never hold them.
 
 ### Map the payments path to evidence
@@ -370,7 +370,7 @@ So the guarantee is narrower than it looks:
 - **It does guarantee** what each file contained, when it was read, how, and by whom, and that none of it has changed since.
 - **It doesn't guarantee** that the files agree with each other at any one instant.
 
-Two habits close most of the gap. Keep a run short, and read the files a path joins close together. And carry the read times forward: Section 4.5 gives every path an **input span**, from its earliest read to its latest, and labels a path whose span is too wide, or that saw a change inside it. Section 10.2 does the same for verification.
+Two habits close most of the gap. Keep a run short, and read the files a path joins close together. And carry the read times forward: Section 5.4 gives every path an **input span**, from its earliest read to its latest, and labels a path whose span is too wide, or that saw a change inside it. Section 12.2 does the same for verification.
 
 ### Store snapshots so they can't be quietly edited
 
@@ -382,7 +382,7 @@ Treat snapshots as the raw observations and keep derivation (effective permissio
 
 - When you fix a bug in path logic, you re-run it on last month's snapshot and see what changes.
 - When someone challenges a path, you show exactly which snapshot files it came from.
-- When you compare two points in time (section 10.3), you compare snapshots, not your memory of what the environment looked like.
+- When you compare two points in time (section 12.3), you compare snapshots, not your memory of what the environment looked like.
 
 ---
 
@@ -396,7 +396,7 @@ The reasons are practical:
 2. **It doesn't help the analysis.** To show that a path exists, you need to know that a key-based route is *possible*: shared key access enabled, and an identity that can list keys. You never need the key itself.
 3. **It breaks the read-only guarantee.** Listing keys or reading secret values requires permissions beyond Reader [S8]. Granting them makes the collector a path to every secret in scope.
 
-Record that a secret-bearing setting **exists**, and what kind it is. Don't record the value. For example, "App Service `pay-api` has an application setting whose name suggests a storage connection string" is useful evidence. Its value isn't. Even setting names can be sensitive in some organizations, so decide deliberately whether to keep them, and treat that as a governance choice (Chapter 11), not a default.
+Record that a secret-bearing setting **exists**, and what kind it is. Don't record the value. For example, "App Service `pay-api` has an application setting whose name suggests a storage connection string" is useful evidence. Its value isn't. Even setting names can be sensitive in some organizations, so decide deliberately whether to keep them, and treat that as a governance choice (Chapter 13), not a default.
 
 ---
 
@@ -433,7 +433,7 @@ That paragraph would have turned the opening story's clean report into an obviou
 Snapshots age. How often to collect depends on how fast your estate changes and what you're using the evidence for:
 
 - **Path discovery and prioritization:** daily is usually enough. Most risky configurations persist for weeks.
-- **Verifying a fix** (section 10.2): collect on demand after the change, so the verification uses evidence newer than the fix.
+- **Verifying a fix** (section 12.2): collect on demand after the change, so the verification uses evidence newer than the fix.
 - **Investigations:** use activity sources and change history, not just the latest snapshot.
 
 Azure Resource Graph also exposes recent resource **change history**, which can tell you when a property changed between snapshots. It keeps 14 days and covers Azure resources only, not Entra objects [S1, S3], so treat it as a short-term supplement to snapshots, not a replacement.
@@ -643,7 +643,7 @@ The federated-credential loop calls Graph once per application, so its read wind
 
 - 2026-10-12 (BR-10, repetition edit): recap and signpost references to other chapters were cut or turned into section pointers, and the **Builds on** line now carries the dependencies. No technical content, code, labs, or evidence categories changed. `tools/check_cross_refs.py` checks every reference.
 - Verified 2026-10-10 (revision pass 1): Reader excludes list-secrets actions; Graph permission names, including `RoleManagement.Read.Directory` and PIM eligibility; `allowSharedKeyAccess` null behavior; GitHub issuer, subject formats and immutable subjects; `resourcechanges` 14-day retention.
-- Resolved 2026-10-12: the Resource Graph table reference doesn't list deny assignments under `authorizationresources`, so hop 6 uses the ARM deny-assignment API [S4], and Chapter 4 and Appendix B's deny listing is now a REST call (`appb-deny-assignments.ps1`) instead of a Resource Graph query.
+- Resolved 2026-10-12: the Resource Graph table reference doesn't list deny assignments under `authorizationresources`, so hop 6 uses the ARM deny-assignment API [S4], and Chapter 5 and Appendix B's deny listing is now a REST call (`appb-deny-assignments.ps1`) instead of a Resource Graph query.
 - Unverified (2026-10-12): whether role assignment `condition` values are always present in `authorizationresources` query results (property is documented on role assignments [S5]).
 - Verify cmdlet details: `Search-AzGraph` `-First` maximum, `-SkipToken` and `-UseTenantScope` parameters, and the shape of its return object (`.Data`, `.SkipToken`) in the current Az.ResourceGraph version; `Get-MgApplicationFederatedIdentityCredential` parameter names.
 - Decide whether PIM eligibility for Azure resources belongs here or in Chapter 4.

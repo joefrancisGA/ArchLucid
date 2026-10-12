@@ -1,7 +1,7 @@
-"""Chapter 7 listings: the draft validator.
+"""Chapter 9 listings: the draft validator.
 
 Each region between `# region <name>` and `# endregion <name>` appears verbatim in the book under a
-`<!-- listing: lab/listings/python/ch07_validator.py#<name> -->` marker. Edit the code here, then copy the
+`<!-- listing: lab/listings/python/ch09_validator.py#<name> -->` marker. Edit the code here, then copy the
 region into the book; docs/book/tools/check_listings.py fails when the two differ.
 """
 

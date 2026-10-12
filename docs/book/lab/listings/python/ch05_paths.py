@@ -1,7 +1,7 @@
-"""Chapter 4 listings: capability-edge derivation and path search.
+"""Chapter 5 listings: capability-edge derivation and path search.
 
 Each region between `# region <name>` and `# endregion <name>` appears verbatim in the book under a
-`<!-- listing: lab/listings/python/ch04_paths.py#<name> -->` marker. Edit the code here, then copy the
+`<!-- listing: lab/listings/python/ch05_paths.py#<name> -->` marker. Edit the code here, then copy the
 region into the book; docs/book/tools/check_listings.py fails when the two differ.
 """
 

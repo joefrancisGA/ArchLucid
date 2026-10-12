@@ -42,7 +42,7 @@ Before any chapter leaves this repo (publisher, blog, reviewer), re-read it agai
 - Version-specific Azure features go in dated sidebars: `> **As of 2026-10:** ...`.
 - No invented statistics. Cite sources or say "in my experience".
 - Every testable platform claim and every `As of` sidebar cites `[Sn]` from the file's `## Sources` section (before the Summary in chapters, before the author notes in appendices). Each entry has a URL, `Checked YYYY-MM-DD`, a version where one matters, and `Kind: documented`, `inference`, or `lab-tested` (only after a live run). [`tools/check_sources.py`](tools/check_sources.py) enforces it in CI. Word counts include the Sources sections.
-- Cross-references name what the reader needs: `section 4.5`, `Appendix B, section B.3`, or `Chapter 4, Step 0`, not "as Chapter 4 said". Each chapter from 3 onward opens with a **Builds on** line listing the sections it depends on, so the body doesn't recap them. [`tools/check_cross_refs.py`](tools/check_cross_refs.py) fails CI on a reference to a chapter, section, lab step, or appendix that doesn't exist.
+- Cross-references name what the reader needs: `section 5.3`, `Appendix B, section B.3`, or `Chapter 5, Step 0`, not "as Chapter 5 said". Each chapter from 3 onward opens with a **Builds on** line listing the sections it depends on, so the body doesn't recap them. [`tools/check_cross_refs.py`](tools/check_cross_refs.py) fails CI on a reference to a chapter, section, lab step, or appendix that doesn't exist.
 - Label AI output in examples as AI output, the same way the book asks readers to.
 
 ## Chapter status
@@ -53,14 +53,16 @@ Before any chapter leaves this repo (publisher, blog, reviewer), re-read it agai
 | 1 | [Why checklists fail](chapters/01-why-checklists-fail.md) | revised (~4,800) | 6,000 |
 | 2 | [Evidence and epistemics](chapters/02-evidence-and-epistemics.md) | revised (~5,200) | 7,000 |
 | 3 | [Collecting Azure evidence read-only](chapters/03-collecting-azure-evidence.md) | revised (~5,900) | 8,000 |
-| 4 | [Identity and privilege paths](chapters/04-identity-and-privilege-paths.md) | revised (~10,600) | 9,000 |
-| 5 | [Network reachability](chapters/05-network-reachability.md) | revised (~9,600) | 7,000 |
-| 6 | [Data flow: may access vs did access](chapters/06-data-flow.md) | revised (~5,100) | 6,000 |
-| 7 | [Where LLMs help](chapters/07-where-llms-help.md) | revised (~6,300) | 8,000 |
-| 8 | [Where LLMs hurt](chapters/08-where-llms-hurt.md) | revised (~6,700) | 7,000 |
-| 9 | [Advisory remediation](chapters/09-advisory-remediation.md) | revised (~5,800) | 6,000 |
-| 10 | [Verification and outcome metrics](chapters/10-verification-and-metrics.md) | revised (~7,200) | 6,000 |
-| 11 | [Governing the AI tooling itself](chapters/11-governing-the-ai-tooling.md) | revised (~6,400) | 6,000 |
+| 4 | [Identity and privilege paths](chapters/04-identity-and-privilege-paths.md) | revised (~4,300) | 4,500 |
+| 5 | [Building the identity graph](chapters/05-building-the-identity-graph.md) | revised (~6,600) | 6,000 |
+| 6 | [Network exposure](chapters/06-network-exposure.md) | revised (~4,900) | 4,000 |
+| 7 | [Computing and confirming reachability](chapters/07-computing-reachability.md) | revised (~4,500) | 4,500 |
+| 8 | [Data flow: may access vs did access](chapters/08-data-flow.md) | revised (~5,100) | 6,000 |
+| 9 | [Where LLMs help](chapters/09-where-llms-help.md) | revised (~6,500) | 8,000 |
+| 10 | [Where LLMs hurt](chapters/10-where-llms-hurt.md) | revised (~6,800) | 7,000 |
+| 11 | [Advisory remediation](chapters/11-advisory-remediation.md) | revised (~5,800) | 6,000 |
+| 12 | [Verification and outcome metrics](chapters/12-verification-and-metrics.md) | revised (~7,400) | 6,000 |
+| 13 | [Governing the AI tooling itself](chapters/13-governing-the-ai-tooling.md) | revised (~7,600) | 6,000 |
 | A | [Companion lab tenant](appendices/a-companion-lab.md) | first draft (~3,900 incl. code) | 4,000 |
 | B | [Query cookbook](appendices/b-query-cookbook.md) | first draft (~5,300 incl. code) | 5,000 |
 | C | [Prompt patterns](appendices/c-prompt-patterns.md) | first draft (~4,000 incl. code) | 4,000 |
