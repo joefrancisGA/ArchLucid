@@ -36,6 +36,7 @@ public sealed partial class SqlItsmFindingCorrelationRepository
             (await connection.QueryAsync<ItsmFindingCorrelationRecord>(cmd)).ToList();
 
         // Anonymous inbound webhooks have no tenant context; resolve only when unambiguous.
+
         if (matches.Count != 1)
             return null;
 
@@ -84,8 +85,11 @@ public sealed partial class SqlItsmFindingCorrelationRepository
         Guid? findingRecordId,
         CancellationToken ct)
     {
-        if (tenantId == Guid.Empty) throw new ArgumentException("tenantId is required.", nameof(tenantId));
-        if (string.IsNullOrWhiteSpace(findingId)) throw new ArgumentException("findingId is required.", nameof(findingId));
+        if (tenantId == Guid.Empty)
+            throw new ArgumentException("tenantId is required.", nameof(tenantId));
+
+        if (string.IsNullOrWhiteSpace(findingId))
+            throw new ArgumentException("findingId is required.", nameof(findingId));
 
         string sql = findingRecordId is Guid scopedRecordId
             ? """
@@ -126,9 +130,14 @@ public sealed partial class SqlItsmFindingCorrelationRepository
         string provider,
         CancellationToken ct)
     {
-        if (tenantId == Guid.Empty) throw new ArgumentException("tenantId is required.", nameof(tenantId));
-        if (string.IsNullOrWhiteSpace(findingId)) throw new ArgumentException("findingId is required.", nameof(findingId));
-        if (string.IsNullOrWhiteSpace(provider)) throw new ArgumentException("provider is required.", nameof(provider));
+        if (tenantId == Guid.Empty)
+            throw new ArgumentException("tenantId is required.", nameof(tenantId));
+
+        if (string.IsNullOrWhiteSpace(findingId))
+            throw new ArgumentException("findingId is required.", nameof(findingId));
+
+        if (string.IsNullOrWhiteSpace(provider))
+            throw new ArgumentException("provider is required.", nameof(provider));
 
         const string sql = $"""
                            SELECT TOP (1) {CorrelationSelectColumns}
@@ -152,8 +161,11 @@ public sealed partial class SqlItsmFindingCorrelationRepository
         string findingId,
         CancellationToken ct)
     {
-        if (tenantId == Guid.Empty) throw new ArgumentException("tenantId is required.", nameof(tenantId));
-        if (string.IsNullOrWhiteSpace(findingId)) throw new ArgumentException("findingId is required.", nameof(findingId));
+        if (tenantId == Guid.Empty)
+            throw new ArgumentException("tenantId is required.", nameof(tenantId));
+
+        if (string.IsNullOrWhiteSpace(findingId))
+            throw new ArgumentException("findingId is required.", nameof(findingId));
 
         const string sql = $"""
                            SELECT {CorrelationSelectColumns}
