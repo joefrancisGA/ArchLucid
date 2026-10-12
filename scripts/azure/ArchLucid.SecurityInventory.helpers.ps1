@@ -496,8 +496,8 @@ function Add-ArchLucidAzureRoleAssignmentRowsFromGetAzRoleAssignment
 
         [string]$roleName = $null
 
-        if ($null -ne $assignment.PSObject.Properties['RoleDefinitionName']
-            -and -not [string]::IsNullOrWhiteSpace($assignment.RoleDefinitionName))
+        if ($null -ne $assignment.PSObject.Properties['RoleDefinitionName'] -and
+            -not [string]::IsNullOrWhiteSpace($assignment.RoleDefinitionName))
         {
             $roleName = $assignment.RoleDefinitionName.Trim()
         }
