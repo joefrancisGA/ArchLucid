@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-12 seed hunt (seed→hit): `GovernanceFindingsAssignedToMeChrome` always rendered contextual help in the buyer-polished assigned-to-me header even though that shell suppresses contextual help on buyer-facing surfaces; the existing `renders skip link, primary landmark, orientation strip, and buyer subtitle` regression failed before the fix and passed after conditional rendering. The focused buyer-polished test passed 1/1; the full findings route scope retained 49 passed and 11 known external-store/update-depth and workspace-label baseline failures.
+
 2026-10-12 seed hunt (seed-only): `api-governance-tenancy-controllers` — the picker exposed only the ledger path for the retired controller mega-zone; no source-backed locus, reachable input, or mechanism met the hunt-ready bar, so no candidate was promoted or invented. The scoped governance controller test command was aborted before discovery and produced no repro or result. No production or regression change.
 
 2026-10-12 seed hunt (seed-only): `archlucid-core` — the picker still exposes only the ledger path for the retired mega-zone, so no source-backed candidate or hunt-ready row could be seeded without inventing a product hypothesis. The scoped Core filter ran 7,311 passed and 6 failed on the explicitly invalid extra-`k` week-UOM baseline. No production or regression change.
@@ -35694,6 +35696,8 @@ ABQ-09 churn hotspot; intake wizard route tree.
 
 ## Zone: ui-governance-findings-queue
 
+2026-10-12 seed hunt (seed→hit): `GovernanceFindingsAssignedToMeChrome` always rendered `PageContextualHelpButton` in the assigned-to-me header actions, including the reachable buyer-polished shell where contextual help is intentionally omitted; conditional rendering preserves help in the non-buyer shell. Regression `renders skip link, primary landmark, orientation strip, and buyer subtitle` failed first and passed after the fix; focused buyer-polished test passed 1/1; full route scope retained 49 passed and 11 known baseline failures.
+
 2026-10-11 thorough hunt (dry): cheap-disproved the four open candidates. The client trims `runId` before exposing scope state, the more-filters disclosure has URL/effect synchronization and focused coverage, assigned-mode active chips are derived from the complete filter state, and derivation disclosure ids are trimmed before comparison. No failing repro was established. Candidate-specific URL, scope, filter-chip, and disclosure tests passed 13/13; the picker-scoped client file remained at 22 tests with 11 known external-store/update-depth and workspace-label baseline failures.
 
 2026-10-11 seed hunt (seed-only): reread the queue shell, toolbar, scope, results, outcome, triage, and assigned-row paths after the whitespace-scope fix; no new row met the full hunt-ready bar. Seeded four bounded candidates for raw whitespace scope in the results footer, URL-backed disclosure state transitions, assigned-scope filter visibility, and derivation disclosure identity. No production or regression change.
@@ -35722,11 +35726,11 @@ ABQ-09 churn hotspot; intake wizard route tree.
 - **aliases:** governance findings queue
 - **paths:** archlucid-ui/src/app/(operator)/governance/findings/
 - **test-filter:** FullyQualifiedName~GovernanceFindingsQueueClient
-- **hunts:** 48
-- **bugs-found:** 32
+- **hunts:** 49
+- **bugs-found:** 33
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-11
-- **last-bug:** 2026-10-11 — whitespace trace rule id hid missing-category context
+- **last-hunt:** 2026-10-12
+- **last-bug:** 2026-10-12 — buyer-polished assigned-to-me header rendered contextual help
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -35743,6 +35747,8 @@ ABQ-09 churn hotspot.
 2026-10-09 thorough hunt (dry): cheap-disproved all five candidates; no failing repro was established and no fix was shipped. Candidate-specific tests ran 19 tests: 16 passed and 3 failed on the existing workspace-label expectation baseline. The focused queue files ran 29 tests: 17 passed and 12 failed on known external-store/update-depth, workspace-label, and buyer-polished contextual-help baselines.
 
 ### Hypotheses
+
+- [x] (proven) `GovernanceFindingsAssignedToMeChrome` — the reachable buyer-polished assigned-to-me route rendered `PageContextualHelpButton` despite buyer-polished headers suppressing contextual help, exposing non-buyer chrome on the buyer surface — **hit 2026-10-12 seed hunt:** omit contextual help in the buyer-polished shell while retaining it for the non-buyer shell; regression `renders skip link, primary landmark, orientation strip, and buyer subtitle`.
 
 - [x] (proven) `traceRowsForRun` — a reachable trace with a whitespace-only optional `ruleId` mapped to a blank category because the fallback checked nullishness before trimming; **hit 2026-10-11 thorough hunt:** trim the rule hint before choosing `"Not returned"`; regression `uses the missing-rule label for whitespace-only trace rule ids`.
 - [x] (valid-no-repro) `riskRegisterRows` — a reachable owner identifier containing only whitespace is preserved in the recommended-action sentence as `Owner:   ` even though the row cell treats it as unassigned — **cheap-disproof 2026-10-11 thorough hunt:** no downstream action consumes the recommendation as an owner assertion, and the owner cell already renders the safe unassigned label.
