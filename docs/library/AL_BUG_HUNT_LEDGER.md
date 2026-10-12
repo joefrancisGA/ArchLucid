@@ -2,6 +2,8 @@
 
 2026-10-12 thorough hunt (dry): `tenant-erasure` — reran the unchanged closed hypothesis set; no candidate became hunt-ready and no failing repro was warranted. Application tenant-erasure tests passed 19/19 and API tenant-erasure tests passed 28/28. No production or regression code changed.
 
+2026-10-12 thorough hunt (dry): `tenant-erasure` — reran the unchanged closed hypothesis set; no candidate became hunt-ready and no failing repro was warranted. Application tenant-erasure tests passed 19/19 and API tenant-erasure tests passed 28/28. No production or regression code changed.
+
 2026-10-12 thorough hunt (dry): `tenant-erasure` — reran the selected candidate set after the prior cheap-disproof; all five rows remain closed as `(invalid)` or `(valid-no-repro)`, with no new hunt-ready claim. Application tenant-erasure tests passed 19/19 and API tenant-erasure tests passed 28/28. No production or regression code changed.
 
 2026-10-12 thorough hunt (dry): `tenant-erasure` — cheap-disproved the five picker candidates: backslash and percent-encoded dot path inputs lack a reachable Kestrel `PathString` citation in the selected files; approval before `ErasureEligibleUtc` and platform legal hold without quarantine are explicit command/repository contracts; repeated offboard side effects are covered by idempotent retry tests. Application tenant-erasure tests passed 19/19 and API tenant-erasure tests passed 28/28. No production or regression code changed.
