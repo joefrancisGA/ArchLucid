@@ -378,6 +378,8 @@ export function GovernanceFindingsQueueDesktopTable(
                     hasBulkSelect={groupHasBulkSelect}
                     selectedFindingIds={selectedFindingIds}
                     onToggleRow={toggleRow}
+                    showInsightDensityScore={showInsightDensityScore}
+                    onRowOpened={onRowOpened}
                   />
                 </EnterpriseTable>
               </CollapsibleSection>

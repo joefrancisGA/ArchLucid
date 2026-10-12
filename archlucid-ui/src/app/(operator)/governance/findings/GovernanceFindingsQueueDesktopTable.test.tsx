@@ -109,6 +109,42 @@ describe("GovernanceFindingsQueueDesktopTable", () => {
     expect(screen.getByTestId("governance-row-insight-density-finding-0")).toHaveTextContent("Density 87");
   });
 
+  it("preserves insight density scores in grouped working-mode rows", () => {
+    const row = {
+      ...rowForResource(0, resourceGroupA),
+      insightDensityScore: 87,
+    };
+
+    render(
+      <GovernanceFindingsQueueDesktopTable
+        rows={[row]}
+        buyerPolishedShell={false}
+        groupByResource
+        showInsightDensityScore
+      />,
+    );
+
+    expect(screen.getByTestId("governance-row-insight-density-finding-0")).toHaveTextContent("Density 87");
+  });
+
+  it("marks grouped rows opened through the supplied callback", async () => {
+    const row = rowForResource(0, resourceGroupA);
+    const onRowOpened = vi.fn();
+
+    render(
+      <GovernanceFindingsQueueDesktopTable
+        rows={[row]}
+        buyerPolishedShell={false}
+        groupByResource
+        onRowOpened={onRowOpened}
+      />,
+    );
+
+    await screen.getByRole("link", { name: "Risk 0" }).click();
+
+    expect(onRowOpened).toHaveBeenCalledWith(row);
+  });
+
   it("renders all rows in the DOM for small flat lists", () => {
     const rows = Array.from({ length: GOVERNANCE_FINDINGS_QUEUE_VIRTUALIZE_MIN_ROWS - 1 }, (_, index) =>
       sampleRow(index),

@@ -197,6 +197,33 @@ public sealed class SecureNowQuestionCompilerTests
     }
 
     [Fact]
+    public void Proposed_inference_without_an_arm_endpoint_is_not_emitted_as_an_unanswerable_question()
+    {
+        IReadOnlyList<SecureNowQuestionRecord> questions = new SecureNowQuestionCompiler().Compile(
+            Scope,
+            CreateSnapshot(),
+            [],
+            [
+                new OperatorInferredConnectionRecord
+                {
+                    ConnectionId = Guid.NewGuid(),
+                    SnapshotId = SnapshotId,
+                    Status = OperatorInferredConnectionStatus.Proposed,
+                    Source = OperatorInferredConnectionSource.Questionnaire,
+                    RuleName = "Unresolved host",
+                    QuestionText = "Should this host connect to the app?",
+                    FromArmId = " ",
+                    ToArmId = null,
+                    ToHost = "db.example.test",
+                    ToCatalog = "orders",
+                },
+            ],
+            []);
+
+        questions.Should().BeEmpty();
+    }
+
+    [Fact]
     public void A_matching_disposition_is_joined_without_creating_a_second_row()
     {
         SecureNowQuestionCompiler compiler = new();
