@@ -96,7 +96,8 @@ internal static partial class RunRepositorySql
                                                               AND ScopeProjectId = @ScopeProjectId
                                                               AND ArchitectureId = @ArchitectureId
                                                               AND ArchivedUtc IS NULL
-                                                              AND GraphSnapshotId IS NOT NULL;
+                                                              AND GraphSnapshotId IS NOT NULL
+                                                              AND GoldenManifestId IS NULL;
                                                             """;
 
     public const string SelectLatestRunIdForArchitecture = """
