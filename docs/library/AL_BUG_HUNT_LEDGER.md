@@ -9912,6 +9912,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: architecture-recommendation
 
+2026-10-12 seed hunt (seed-only): repeated the selected recommendation engine/trade-off review and focused test inventory. No new mechanism-backed candidate was distinct from the retained five bounded rows or met the full reachability and wrong-outcome bar. The focused test run was blocked before discovery by unrelated missing `unmappedRoles` and `warnings` members in `AzureInventorySecurityEdgeMaterializer.cs`; no production or regression code changed.
+
 2026-10-12 seed hunt (seed-only): re-read the selected recommendation engine and trade-off builder plus the focused Alternatives/ProposedChange tests. No new mechanism-backed candidate met the full reachability and wrong-outcome bar beyond the retained bounded candidates. The focused test run was blocked before discovery by unrelated missing `unmappedRoles` and `warnings` members in `AzureInventorySecurityEdgeMaterializer.cs`; no production or regression code changed.
 
 2026-10-12 seed hunt (seed-only): re-read the selected recommendation engine and trade-off builder; retained the five bounded candidates because none met the full reachability and wrong-outcome bar. The exact Alternatives/ProposedChange filter passed 45/45. No production or regression change.
@@ -10084,7 +10086,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** recommendation engine; alternatives
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationEngine.cs; ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationTradeOffBuilder.cs
 - **test-filter:** FullyQualifiedName~ArchitectureRecommendationAlternativesTests|FullyQualifiedName~ArchitectureRecommendationProposedChangeTests
-- **hunts:** 65
+- **hunts:** 66
 - **last-hunt:** 2026-10-12
 - **bugs-found:** 24
 - **consecutive-dry-hunts:** 0
