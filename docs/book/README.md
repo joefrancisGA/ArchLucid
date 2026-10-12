@@ -64,6 +64,7 @@ Before any chapter leaves this repo (publisher, blog, reviewer), re-read it agai
 | B | [Query cookbook](appendices/b-query-cookbook.md) | first draft (~5,300 incl. code) | 5,000 |
 | C | [Prompt patterns](appendices/c-prompt-patterns.md) | first draft (~4,000 incl. code) | 4,000 |
 | D | [Case study (optional)](appendices/d-case-study.md) | outline (needs owner facts and approval) | 4,000 |
+| E | [Adoption roadmap](appendices/e-adoption-roadmap.md) | first draft (~3,500) | 3,000 |
 | — | [Glossary](back-matter/glossary.md) | first draft (~2,400) | 2,500 |
 | | **Total** | | **~97,000** |
 

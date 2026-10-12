@@ -38,6 +38,7 @@
 - B. Query cookbook (Resource Graph KQL, Microsoft Graph). First draft: [appendices/b-query-cookbook.md](appendices/b-query-cookbook.md).
 - C. Prompt patterns for grounded security explanations. First draft: [appendices/c-prompt-patterns.md](appendices/c-prompt-patterns.md).
 - D. Optional case study (owner-approved, sanitized). Scaffold: [appendices/d-case-study.md](appendices/d-case-study.md), with sanitization check `tools/check_case_study.py`.
+- E. Adoption roadmap (pilot scope, collector approval package, 30/60/90-day plan, expansion and stopping criteria). First draft: [appendices/e-adoption-roadmap.md](appendices/e-adoption-roadmap.md).
 
 ## Back matter
 
