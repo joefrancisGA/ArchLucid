@@ -36609,13 +36609,15 @@ ABQ-09 churn hotspot.
 - **aliases:** claim discipline policy; evidence orientation strip
 - **paths:** archlucid-ui/src/lib/claim-discipline-policy.ts
 - **test-filter:** claim-discipline-policy
-- **hunts:** 37
+- **hunts:** 38
 - **bugs-found:** 18
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-10
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-10-12
 - **last-bug:** 2026-10-09 — residual help catchall TOC kept a claim heading with no anchor
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-12 thorough hunt (dry): cheap-disproved the four retained policy candidates: all legacy aliases and visible omit slugs are static and covered, live omitted-guide heading ids align with their callers, and undefined claims intentionally suppress the optional band. No hunt-ready row remained for a failing repro; the focused policy suite passed 28/28 and no production or regression code changed.
 
 2026-10-09 seed hunt (seed→hit): promoted `help-topic-catchall` omit gap; `HelpTopicMarkdownView` buyer residual chrome calls `resolveGuideHeadingsForStrip("help-topic-catchall", …)` while the header claim is an unanchored paragraph and `HelpTopicCatchallSourcesOrientationStrip` is sources-only; regression `drops the residual help catchall claim heading when the header owns the band`.
 
