@@ -51,6 +51,39 @@ public sealed class OperatorInferredConnectionSnapshotMergerTests
     }
 
     [Fact]
+    public void Merge_adds_can_read_edge_for_confirmed_data_plane_read_answer()
+    {
+        AzureInventorySnapshotDetailReadModel snapshot = BuildSnapshot();
+        OperatorInferredConnectionRecord connection = new()
+        {
+            ConnectionId = Guid.NewGuid(),
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+            SnapshotId = snapshot.Header.SnapshotId,
+            Status = OperatorInferredConnectionStatus.Confirmed,
+            Source = OperatorInferredConnectionSource.Questionnaire,
+            FromArmId = FromArm,
+            ToArmId = ToArm,
+            DataPlaneAnswer = OperatorInferredDataPlaneAnswer.Read,
+            ProposalPayloadHashSha256 = [],
+            CreatedUtc = DateTime.UtcNow,
+            UpdatedUtc = DateTime.UtcNow,
+        };
+
+        AzureInventorySnapshotDetailReadModel merged =
+            OperatorInferredConnectionSnapshotMerger.Merge(snapshot, [connection]);
+
+        merged.Relationships.Should().ContainSingle(relationship =>
+            relationship.FromAzureResourceId == FromArm
+            && relationship.ToAzureResourceId == ToArm
+            && relationship.RelationshipType == GraphEdgeTypes.CanRead
+            && relationship.ProvenanceKind == ProvenanceKind.HumanAssertion
+            && relationship.InferenceSource == GraphEdgeInferenceSources.InventoryOperatorAttestedDataPlane
+            && relationship.DeclaredConnectionId == connection.ConnectionId);
+    }
+
+    [Fact]
     public void Merge_omits_dismissed_connections()
     {
         AzureInventorySnapshotDetailReadModel snapshot = BuildSnapshot();

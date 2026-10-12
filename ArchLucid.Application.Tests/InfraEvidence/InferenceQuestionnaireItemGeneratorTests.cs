@@ -129,6 +129,149 @@ public sealed class InferenceQuestionnaireItemGeneratorTests
     }
 
     [Fact]
+    public void Generate_unmapped_data_plane_role_emits_question_for_compute_managed_identity()
+    {
+        const string principalId = "33333333-3333-3333-3333-333333333333";
+        const string storageArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/mystorage";
+        Guid uiRowId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+
+        InferenceQuestionnaireItemGenerator generator = new(Mock.Of<IOperatorInferredConnectionRepository>());
+        AzureInventorySnapshotDetailReadModel snapshot = new()
+        {
+            Header = new AzureInventorySnapshotRecord
+            {
+                SnapshotId = Guid.NewGuid(),
+                TenantId = Scope.TenantId,
+                WorkspaceId = Scope.WorkspaceId,
+                ProjectId = Scope.ProjectId,
+                SubscriptionId = "sub",
+            },
+            Resources =
+            [
+                new AzureInventoryResourceRecord
+                {
+                    ResourceRowId = uiRowId,
+                    SnapshotId = Guid.NewGuid(),
+                    TenantId = Scope.TenantId,
+                    AzureResourceId = UiAppId,
+                    ResourceType = "Microsoft.App/containerApps",
+                },
+                new AzureInventoryResourceRecord
+                {
+                    ResourceRowId = Guid.NewGuid(),
+                    SnapshotId = Guid.NewGuid(),
+                    TenantId = Scope.TenantId,
+                    AzureResourceId = storageArmId,
+                    ResourceType = "Microsoft.Storage/storageAccounts",
+                },
+            ],
+            Properties =
+            [
+                new AzureInventoryResourcePropertyReadModel
+                {
+                    ResourceRowId = uiRowId,
+                    PropertyKey = "identity",
+                    PropertyValue =
+                        $$"""{"principalId":"{{principalId}}","type":"SystemAssigned"}""",
+                },
+            ],
+            RoleAssignments =
+            [
+                new AzureInventoryRoleAssignmentReadModel
+                {
+                    Scope = storageArmId,
+                    PrincipalId = principalId,
+                    RoleDefinitionId =
+                        "/providers/Microsoft.Authorization/roleDefinitions/00000000-0000-0000-0000-000000000099",
+                    RoleDefinitionName = "Contoso Custom Data Access",
+                    PimEligibilityKind = "standing",
+                },
+            ],
+        };
+
+        InferenceQuestionnaireInput input = new() { Snapshot = snapshot };
+
+        IReadOnlyList<OperatorInferredConnectionRecord> items = generator.Generate(Scope, input, []);
+
+        items.Should().ContainSingle(item =>
+            item.RuleName == InferenceQuestionnaireItemGenerator.UnmappedDataPlaneRoleRuleName
+            && item.FromArmId == ArmResourceIdNormalizer.Normalize(UiAppId)
+            && item.ToArmId == ArmResourceIdNormalizer.Normalize(storageArmId)
+            && item.QuestionText!.Contains("Contoso Custom Data Access", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void Generate_skips_unmapped_data_plane_role_when_role_is_already_mapped()
+    {
+        const string principalId = "33333333-3333-3333-3333-333333333333";
+        const string storageArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/mystorage";
+        Guid uiRowId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+
+        InferenceQuestionnaireItemGenerator generator = new(Mock.Of<IOperatorInferredConnectionRepository>());
+        AzureInventorySnapshotDetailReadModel snapshot = new()
+        {
+            Header = new AzureInventorySnapshotRecord
+            {
+                SnapshotId = Guid.NewGuid(),
+                TenantId = Scope.TenantId,
+                WorkspaceId = Scope.WorkspaceId,
+                ProjectId = Scope.ProjectId,
+                SubscriptionId = "sub",
+            },
+            Resources =
+            [
+                new AzureInventoryResourceRecord
+                {
+                    ResourceRowId = uiRowId,
+                    SnapshotId = Guid.NewGuid(),
+                    TenantId = Scope.TenantId,
+                    AzureResourceId = UiAppId,
+                    ResourceType = "Microsoft.App/containerApps",
+                },
+                new AzureInventoryResourceRecord
+                {
+                    ResourceRowId = Guid.NewGuid(),
+                    SnapshotId = Guid.NewGuid(),
+                    TenantId = Scope.TenantId,
+                    AzureResourceId = storageArmId,
+                    ResourceType = "Microsoft.Storage/storageAccounts",
+                },
+            ],
+            Properties =
+            [
+                new AzureInventoryResourcePropertyReadModel
+                {
+                    ResourceRowId = uiRowId,
+                    PropertyKey = "identity",
+                    PropertyValue =
+                        $$"""{"principalId":"{{principalId}}","type":"SystemAssigned"}""",
+                },
+            ],
+            RoleAssignments =
+            [
+                new AzureInventoryRoleAssignmentReadModel
+                {
+                    Scope = storageArmId,
+                    PrincipalId = principalId,
+                    RoleDefinitionId =
+                        "/providers/Microsoft.Authorization/roleDefinitions/00000000-0000-0000-0000-000000000099",
+                    RoleDefinitionName = "Storage Blob Data Reader",
+                    PimEligibilityKind = "standing",
+                },
+            ],
+        };
+
+        InferenceQuestionnaireInput input = new() { Snapshot = snapshot };
+
+        IReadOnlyList<OperatorInferredConnectionRecord> items = generator.Generate(Scope, input, []);
+
+        items.Should().NotContain(item =>
+            item.RuleName == InferenceQuestionnaireItemGenerator.UnmappedDataPlaneRoleRuleName);
+    }
+
+    [Fact]
     public void Generate_empty_snapshot_returns_no_items()
     {
         InferenceQuestionnaireItemGenerator generator = new(Mock.Of<IOperatorInferredConnectionRepository>());
