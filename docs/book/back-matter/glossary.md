@@ -43,6 +43,8 @@ Terms in *italics* inside a definition have their own entry.
 
 **Collector** — the identity and code that read evidence from Azure and Entra ID. *Chapter 3.*
 
+**Confirmation ladder** — confirming a network path from least intrusive to most: read-only diagnostics, then connection troubleshoot, then a deliberate test. Each rung is authorized in writing and recorded. *Chapter 5.*
+
 **Content-free audit record** — an audit entry holding identifiers, versions, hashes, results, and decisions, but no prompts, packs, or drafts. *Chapter 11.*
 
 **Control plane** — the Azure Resource Manager operations that manage a resource: create, configure, assign roles, list keys. Contrast with *data plane*. *Chapter 4.*
@@ -116,6 +118,8 @@ Terms in *italics* inside a definition have their own entry.
 **Human assertion** — a claim attributed to a named person, with a date, expiry, and scope. One of the five *evidence categories*. *Chapter 2.*
 
 ## I
+
+**Indeterminate (reachability)** — the result when an *unmodeled control* or a missing input sits on a network route, such as an appliance whose rules weren't collected. Always reported with its reason; a path through it is *insufficient evidence*. *Chapter 5.*
 
 **Indirect prompt injection** — instructions placed in data that a model later reads, such as a resource tag or a display name, rather than given to the model directly. *Chapter 8.*
 

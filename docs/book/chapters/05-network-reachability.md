@@ -78,6 +78,18 @@ Each pair of kinds disagreeing is a different kind of finding:
 
 Most tools report configured reachability and call it reachability. Being explicit about which kind you're stating is the network version of Chapter 2's rule about "can" versus "did".
 
+Configured reachability is the easiest result in this book to overstate, so each kind gets fixed wording. Section 5.6 adds a fifth result, for when the model can't tell:
+
+| Result | Meaning | Safe wording |
+|--------|---------|--------------|
+| Intended | An owner says this should connect | "Is intended to connect, according to …" |
+| Configured reachable | The modeled configuration permits the route | "May be reachable under the modeled configuration" |
+| Observed | Logs show a connection in a window | "Was observed connecting between … and …" |
+| Confirmed | An authorized test succeeded | "Was confirmed reachable as tested on …" |
+| Indeterminate | An unmodeled control or missing input sits on the route | "Reachability could not be determined because …" |
+
+"Is reachable", with no qualifier, isn't on the list. It claims all four kinds at once.
+
 ---
 
 ## 5.3 PaaS public exposure
@@ -365,6 +377,186 @@ Putting the layers together, the configured reachability of a data-plane endpoin
 
 Each answer is an observed fact (a property), a derived fact (an NSG evaluation), or a deterministic inference (a route through a firewall whose rules you evaluated, assuming nothing outside your collection interferes). Each `Unknown` is a gap.
 
+### Three answers, not two
+
+The private-endpoint questions, as code. Each step can stop with `reachable`, `notReachable`, or `indeterminate`, and indeterminate always carries a reason:
+
+<!-- listing: lab/listings/python/ch05_reachability.py#private_reachability -->
+
+```python
+REACHABLE = "reachable"
+NOT_REACHABLE = "notReachable"
+INDETERMINATE = "indeterminate"
+
+# Next hops that deliver straight to the destination network. Effective routes and
+# Network Watcher's next hop tool name the same types differently, so accept both.
+DIRECT_NEXT_HOPS = frozenset({
+    "VnetLocal", "VNetPeering", "VNetGlobalPeering",
+    "VirtualNetwork", "VirtualNetworkPeering",
+})
+
+
+@dataclass(frozen=True)
+class Reach:
+    result: str   # REACHABLE, NOT_REACHABLE, or INDETERMINATE
+    reason: str
+
+
+@dataclass(frozen=True)
+class FirewallRule:
+    name: str
+    priority: int
+    action: str
+    protocol: str
+    source: str
+    destination: str
+    ports: str
+
+
+@dataclass(frozen=True)
+class Firewall:
+    address: str                       # the private IP that routes send traffic to
+    network_rules: list[FirewallRule]
+    has_application_rules: bool        # application rules aren't evaluated here
+
+
+@dataclass(frozen=True)
+class Position:
+    address: str
+    next_hop: dict | None              # effective route for the target; None if not collected
+    resolves_private: bool | None      # the source's DNS answer; None if not collected
+
+
+@dataclass(frozen=True)
+class PrivateTarget:
+    address: str                       # the private endpoint's IP address
+    nsg_applies: bool | None           # subnet's private endpoint network policies
+    nsg_rules: list[NsgRule] | None    # None if not collected
+
+
+def firewall_decision(
+    firewall: Firewall, source: str, target: str, port: int, protocol: str,
+    tags: dict[str, list[str]],
+) -> Reach:
+    """Network rules only. A flow no network rule decides may still match an application rule."""
+    for rule in sorted(firewall.network_rules, key=lambda r: r.priority):
+        if rule.protocol not in ("*", protocol) or not port_matches(rule.ports, port):
+            continue
+
+        matches = (source_matches(rule.source, source, tags),
+                   source_matches(rule.destination, target, tags))
+
+        if None in matches:
+            return Reach(INDETERMINATE, f"firewall rule {rule.name} uses an uncollected tag")
+
+        if all(matches):
+            result = REACHABLE if rule.action == "Allow" else NOT_REACHABLE
+            return Reach(result, f"firewall network rule {rule.name}")
+
+    if firewall.has_application_rules:
+        return Reach(INDETERMINATE, "no network rule matched; application rules not evaluated")
+
+    return Reach(NOT_REACHABLE, "the firewall denies what no rule allows")
+
+
+def private_reachability(
+    source: Position, target: PrivateTarget, port: int, protocol: str,
+    firewalls: dict[str, Firewall], tags: dict[str, list[str]],
+) -> Reach:
+    """Configured reachability of a private endpoint from one position, or why it can't be told."""
+    if source.resolves_private is None:
+        return Reach(INDETERMINATE, "the source's DNS answer for the service name wasn't collected")
+
+    if not source.resolves_private:
+        return Reach(NOT_REACHABLE, "the source resolves the public address; evaluate that instead")
+
+    if source.next_hop is None:
+        return Reach(INDETERMINATE, "the source's effective routes weren't collected")
+
+    hop = source.next_hop["nextHopType"]
+    reasons = [f"next hop {hop}"]
+
+    if hop == "None":
+        return Reach(NOT_REACHABLE, "the effective route drops the traffic")
+
+    if hop == "VirtualAppliance":
+        firewall = firewalls.get(source.next_hop["nextHopIpAddress"])
+
+        # A third-party appliance, or a firewall whose policy wasn't collected.
+        if firewall is None:
+            return Reach(INDETERMINATE, f"next hop {source.next_hop['nextHopIpAddress']} "
+                                        "is an appliance whose rules weren't collected")
+
+        decision = firewall_decision(firewall, source.address, target.address, port, protocol, tags)
+
+        if decision.result != REACHABLE:
+            return decision
+
+        reasons.append(decision.reason)
+    elif hop not in DIRECT_NEXT_HOPS:
+        # VirtualNetworkGateway (on-premises or forced tunnel), Internet, and anything newer.
+        return Reach(INDETERMINATE, f"next hop {hop} leads somewhere the model doesn't follow")
+
+    if target.nsg_applies is None or (target.nsg_applies and target.nsg_rules is None):
+        return Reach(INDETERMINATE, "the endpoint subnet's NSG settings weren't collected")
+
+    if target.nsg_applies:
+        access, rule = evaluate_inbound(target.nsg_rules, source.address, port, protocol, tags)
+
+        if access == "Unknown":
+            return Reach(INDETERMINATE, f"NSG rule {rule} uses an uncollected tag")
+
+        if access == "Deny":
+            return Reach(NOT_REACHABLE, f"NSG rule {rule}")
+
+        reasons.append(f"NSG rule {rule}")
+    else:
+        reasons.append("NSG not applied to the private endpoint")
+
+    return Reach(REACHABLE, "; ".join(reasons))
+
+
+def reach_edge(position: str, endpoint: str, reach: Reach, citation: str) -> Edge | None:
+    """A canReach edge for search. Indeterminate carries an unmodeled control (Chapter 4)."""
+    if reach.result == NOT_REACHABLE:
+        return None
+
+    if reach.result == REACHABLE:
+        return Edge(position, endpoint, "canReach", "derived", f"{citation}; {reach.reason}")
+
+    control = UnmodeledControl("networkIndeterminate", position, endpoint, "network path",
+                               reach.reason, citation)
+
+    return Edge(position, endpoint, "canReach", "derived", citation, control)
+```
+
+The function returns indeterminate in two situations. The first is a control it doesn't evaluate: a next hop to an appliance whose rules weren't collected, an Azure Firewall flow that only an application rule could decide, or a next hop to a gateway. The second is a missing input: the source's DNS answer, its effective routes, or the endpoint subnet's NSG settings. A yes-or-no evaluator has to guess in both situations, and its guesses look exactly like answers.
+
+The next hop comes from the source's **effective routes**, Azure's own resolution of system, BGP, and user-defined routes. The model doesn't recompute which route wins from route tables. That's why missing effective routes make the answer indeterminate rather than sending the model to reconstruct them.
+
+`reach_edge` turns the result into a `canReach` edge for Chapter 4's search. A reachable result is a plain edge. A not-reachable result is no edge. An indeterminate result is an edge carrying an unmodeled control (Chapter 4, section 4.5), so any path through it is reported as "Insufficient evidence", with the reason as the assumption to check.
+
+### What the model doesn't evaluate
+
+Network engineers will ask what the model ignores. Here is the answer, in one place:
+
+| Control | What the model does with it | Why |
+|---------|-----------------------------|-----|
+| Third-party network virtual appliance | Indeterminate | Its rules aren't in Azure's APIs, so the collector can't read them |
+| Azure Firewall application rules | Indeterminate when no network rule decides the flow | FQDN targets resolve differently over time; the model evaluates network rules only |
+| Azure Firewall DNAT rules | Not evaluated | The model evaluates flows to private endpoint addresses, not to the firewall's own addresses |
+| Load balancer or Application Gateway in the path | Not evaluated; report such a target as indeterminate | `private_reachability` evaluates private endpoints only; frontends, backend pools, and listener rules aren't read |
+| Forced tunnel or on-premises route (gateway next hop) | Indeterminate | The far side of the gateway isn't collected |
+| Missing effective routes or NSG settings | Indeterminate | An absent input isn't an allow or a deny |
+| Custom DNS servers | Indeterminate unless the source's answer was collected | Their answers depend on servers and forwarders outside Azure's configuration |
+| Asymmetric routing | Not evaluated | The model checks the forward path only, not whether return traffic takes a path that allows it |
+| Route precedence (user-defined, BGP-propagated, system) | Not recomputed | The model reads effective routes, which already reflect that choice |
+| Service endpoint policies | Not evaluated | The model doesn't read them |
+| Private Link beyond private endpoints (Private Link service, network security perimeter) | Not evaluated | `private_reachability` handles private endpoints; `storage_public_exposure` returns `unknown` for `SecuredByPerimeter` |
+| Connections already open when a rule changed | Not evaluated | The model evaluates a new connection against current rules |
+
+Rows marked "not evaluated" don't produce indeterminate automatically. Whoever runs the model has to know they apply. That's why the table belongs in every network report that uses the model, next to the gap list.
+
 ### Network edges in the path graph
 
 Chapter 4 built an identity graph with typed, cited edges, and searched only edges that mean "can". Network reachability fits the same model in two ways.
@@ -436,7 +628,26 @@ Without intended reachability, the best you can report is configured reachabilit
 
 ---
 
-## 5.9 Where AI fits
+## 5.9 Confirming a path without breaking anything
+
+Configured reachability says a path may exist. For the few paths that matter most, such as the one that reaches `custdata`, someone will want it confirmed. Confirmation is the only kind of reachability that involves touching the network, so climb a ladder, from least intrusive to most, and stop at the first rung that answers the question:
+
+1. **Read-only diagnostics.** Network Watcher's effective security rules, effective routes, next hop, and IP flow verify. They send no traffic and change nothing.
+   - *What they prove:* Azure's own evaluation of the NSG rules and routes for one network interface agrees, or disagrees, with the model. Next hop names the route and the route table that decided it.
+   - *What they don't prove:* anything about a firewall's or appliance's rules (next hop only says traffic goes to the appliance), DNS, the destination service's own firewall, or whether anything listens on the port. IP flow verify tests TCP and UDP only, against the rules on a VM's network interface.
+2. **Connection troubleshoot from an existing resource at the source position**, such as a VM in the development spoke. It sends TCP or ICMP probes and reports reachable or unreachable, with the hops and any issues it found.
+   - *What it proves:* a connection could be opened from that resource to that destination and port, at that moment.
+   - *What it doesn't prove:* that other sources in the same position get the same DNS answer, that the destination accepts the caller's identity, or anything about another time. It does send traffic, so treat it as a test, not a lookup.
+3. **A deliberate test connection.** Only after the first two, and only when the question still matters: for example, a request from the source to the service name, recording what the name resolved to (section 5.5).
+   - *What it proves:* exactly what was tested, and nothing broader.
+
+Every rung, including the first, needs written authorization from the network owner. The diagnostics change nothing, but they use Network Watcher actions beyond Reader, and they reveal network configuration to whoever runs them. Record each result as **confirmed**, with the date, source, destination, port, resolved address, the rung used, and who approved it. A confirmation with no record is an anecdote, which is what the laptop test in the opening story turned out to be.
+
+> **As of 2026-10:** Network Watcher lists IP flow verify, NSG diagnostics, next hop, effective security rules, connection troubleshoot, packet capture, and VPN troubleshoot as its diagnostic tools. IP flow verify checks NSG rules and Azure Virtual Network Manager admin rules for a VM's network interface. Next hop returns the next hop type, IP address, and route table ID. Its type names (`VirtualNetwork`, `VirtualNetworkPeering`) differ from the effective-routes API's (`VnetLocal`, `VNetPeering`). Connection troubleshoot sources are VMs, scale sets, Bastion hosts, and Application Gateway v2. Its agentless mode is in preview; without it, the source VM needs the Network Watcher agent extension, and installing that is itself a change to the VM. Re-check these before relying on them.
+
+---
+
+## 5.10 Where AI fits
 
 Network configuration is dense, repetitive, and full of numbers. That makes it a natural place to try a language model, and a dangerous one.
 
@@ -456,7 +667,7 @@ The rule from earlier chapters holds: compute reachability deterministically, la
 
 ---
 
-## 5.10 Lab: what can reach `custdata`?
+## 5.11 Lab: what can reach `custdata`?
 
 This lab reproduces the opening story and separates its four kinds of reachability. It uses the companion lab tenant (Appendix A), which includes `custdata` with a private endpoint in the payments spoke, public network access enabled, a hub firewall with a broad spoke-to-spoke rule, and a development spoke.
 
@@ -466,7 +677,9 @@ This lab reproduces the opening story and separates its four kinds of reachabili
 
 **Step 3 — Collect the network.** Add virtual networks, subnets, peerings, NSGs, route tables, private endpoints, private DNS zones and links, the firewall policy, and the current service tag file to the collector. Record any you can't read as gaps. Rewrite the manifest (Chapter 3).
 
-**Step 4 — Compute configured reachability.** For `custdata`'s blob endpoint, answer section 5.6's questions from four positions: internet, payments spoke, development spoke, and on-premises. Use `evaluate_inbound` for NSG rules and the same pattern for the firewall's network rules. Produce the table from section 5.6, with an evidence category and a citation for every row. Check one answer against Network Watcher's IP flow verify or effective routes.
+**Step 4 — Compute configured reachability.** For `custdata`'s blob endpoint, answer section 5.6's questions from four positions: internet, payments spoke, development spoke, and on-premises. Use `storage_public_exposure` for the internet row and `private_reachability` for the private positions. Produce the table from section 5.6, with an evidence category and a citation for every row. Write each row in section 5.2's safe wording, and list the indeterminate rows with their reasons. Evaluate the development spoke twice. By name, it resolves the public address (the private DNS zone isn't linked to it), so the private evaluation stops and the internet row applies. By address, it should come back "may be reachable under the modeled configuration", through the firewall's broad rule. That second answer is what anyone who uses the private address, or adds a zone link later, gets. The on-premises row should come back indeterminate if you have no gateway, or no collected far side.
+
+**Step 4a (optional) — Ask Azure.** With the network owner's written approval (in the lab tenant, that's you, but write it down anyway), run Network Watcher's next hop and IP flow verify from `dev-vm` (`10.2.1.4`) toward the private endpoint (`10.1.2.4`), TCP port 443, outbound. Next hop should return `VirtualAppliance` with the firewall's private address, from route table `rt-spokes`. IP flow verify evaluates only `dev-vm`'s own NSG rules. Record the access result and the rule it names. Compare both with the model's answer. Neither tool evaluates the firewall's rules, so the firewall half of the model's answer is still configured, not confirmed. Record the result with section 5.9's fields.
 
 **Step 5 — Check DNS.** From a VM in the development spoke and from your own machine, resolve `custdata.blob.core.windows.net` and record the address. Explain each result using the private DNS zone links you collected.
 
@@ -489,7 +702,9 @@ This lab reproduces the opening story and separates its four kinds of reachabili
 - **Service endpoints** and **virtual network integration** are different controls from private endpoints, and the latter is outbound only.
 - Inside networks, reachability depends on **routes, NSGs, and firewalls**. The default `AllowVnetInBound` rule admits **peered and connected networks**, and NSGs apply to private endpoints only when the subnet enables it.
 - **DNS decides which path a client uses.** Record resolved addresses in every connectivity test.
-- Model reachability as **derived `canReach` edges** and as **conditions on data-plane hops**. A network change can shrink an identity path's reach without touching roles.
+- Reachability has **three answers**: reachable, not reachable, and **indeterminate**. Indeterminate, with a reason, is the honest result for appliances, application rules, gateways, and missing inputs. Publish the list of controls the model doesn't evaluate with every report.
+- Model reachability as **derived `canReach` edges** and as **conditions on data-plane hops**. An indeterminate edge makes the whole identity path "Insufficient evidence". A network change can shrink an identity path's reach without touching roles.
+- Confirm important paths with the **confirmation ladder**: read-only diagnostics, then connection troubleshoot, then a deliberate test, each with written authorization and a record. Next hop and IP flow verify don't evaluate firewall rules.
 - Use **flow logs, firewall logs, and resource logs** for observation, starting at the ends of important paths. No log is not no traffic.
 - Use AI to **explain** reachability results. Never to evaluate CIDR ranges, rule priority, or routes, or to search for reachability.
 
@@ -505,6 +720,8 @@ This lab reproduces the opening story and separates its four kinds of reachabili
 - **User-defined route (UDR)** — a custom route in a route table, often sending traffic to a firewall.
 - **Intended, configured, observed, and confirmed reachability** — what should connect, what configuration allows, what logs show did connect, and what a recorded test showed.
 - **Position** — where a request originates (internet, a subnet, on-premises), which decides which data-plane hops it can use.
+- **Indeterminate (reachability)** — the result when an unmodeled control or a missing input sits on the route; always reported with its reason.
+- **Confirmation ladder** — read-only diagnostics, then connection troubleshoot, then a deliberate test; each rung authorized in writing and recorded.
 
 ---
 
@@ -512,6 +729,7 @@ This lab reproduces the opening story and separates its four kinds of reachabili
 
 - Verified 2026-10-10 (revision pass 1): storage `publicNetworkAccess` values and bypass precedence; SQL `AllowAllWindowsAzureIps`; `scmIpSecurityRestrictionsUseMain`; NSG priorities, default rules, `VirtualNetwork` scope and evaluation order; private endpoint network policies default; Azure Firewall processing order; flow log retirement dates; Network Watcher feature names.
 - `storage_public_exposure` and `evaluate_inbound` pass offline fixtures (`lab/listings/python/tests/test_ch05_reachability.py`). Testing showed the bullet on "private only" contradicted the code, which returns "restricted" whenever a bypass is set; the bullet now matches the code (2026-10-11). Still to do: run the Resource Graph query against a live tenant with mixed resource types.
+- 2026-10-12 (network ladder): added `private_reachability` with a third result, indeterminate, which becomes an unmodeled control on a `canReach` edge (`reach_edge`), so Chapter 4 reports the path as "Insufficient evidence". Added the safe-wording table (5.2), the "doesn't evaluate" table (5.6), the confirmation ladder (new 5.9; old 5.9 and 5.10 renumbered), and lab Step 4a. Network Watcher tool names, inputs, and next hop types checked against Microsoft Learn in October 2026. Still to verify: that the diagnostic actions need permissions beyond Reader (check the Network Watcher RBAC page and name the actions), and run Step 4a against the live lab. Chapter 7's activity-wording check doesn't yet flag unqualified "is reachable"; adding that pattern is a candidate if review drafts use it.
 - "Most, in my experience, are unfinished projects" is an author-experience claim; keep it attributed.
 - Consider a figure showing the payments hub-and-spoke with the four positions.
 - Add the Chapter 5 fact checks to GTM **M-306** when it is picked up.

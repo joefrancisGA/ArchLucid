@@ -15,7 +15,7 @@ import {
 import { StatusTag } from "@/components/ui/status-tag";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
-import { useCollectionRunsQuery } from "@/hooks/use-collection-runs-query";
+import { useCollectionRunsQuery, useTriggerCollectionRunMutation } from "@/hooks/use-collection-runs-query";
 import {
   formatCollectionRunDuration,
   parseCollectionRunSubscriptions,
@@ -38,7 +38,12 @@ function collectionRunSortTime(run: CollectionRun): number {
 }
 
 function sortCollectionRuns(runs: readonly CollectionRun[]): CollectionRun[] {
-  return [...runs].sort((left, right) => collectionRunSortTime(right) - collectionRunSortTime(left));
+  return [...runs].sort((left, right) => {
+    const leftRunning = left.status === "Running" ? 1 : 0;
+    const rightRunning = right.status === "Running" ? 1 : 0;
+
+    return rightRunning - leftRunning || collectionRunSortTime(right) - collectionRunSortTime(left);
+  });
 }
 
 function collectionRunStatusKind(status: CollectionRun["status"]): "ready" | "needs-attention" | "blocked" | "in-progress" | "neutral" {
@@ -115,8 +120,14 @@ function CollectionRunRow({ run }: { readonly run: CollectionRun }): React.JSX.E
 
 export function CollectionAgentPageClient(): React.JSX.Element {
   const query = useCollectionRunsQuery();
+  const triggerMutation = useTriggerCollectionRunMutation();
   const runs = useMemo(() => sortCollectionRuns(query.data ?? []), [query.data]);
   const health = resolveCollectionAgentHealth(runs);
+  const activeRun = runs.find((run) => run.status === "Running") ?? null;
+  const reportedSchedule = runs.find((run) => run.schedule !== null && run.schedule !== undefined && run.schedule.trim().length > 0)?.schedule;
+  const triggerFailure = triggerMutation.error === null || triggerMutation.error === undefined
+    ? null
+    : toApiLoadFailure(triggerMutation.error);
   const successfulRunLabel = health.successfulRun === null || health.successfulRun.finishedUtc === null
     || health.successfulRun.finishedUtc === undefined
     ? "No successful run recorded"
@@ -145,13 +156,35 @@ export function CollectionAgentPageClient(): React.JSX.Element {
         navHref={SECURENOW_COLLECTION_AGENT_PATH}
         title="Collection agent"
         subtitle="Whether scheduled collection is running and what it found."
+        actions={
+          <button
+            type="button"
+            onClick={() => void triggerMutation.mutateAsync(crypto.randomUUID())}
+            disabled={triggerMutation.isPending || activeRun !== null}
+            className="rounded border border-teal-700 bg-transparent px-3 py-2 text-sm font-medium text-teal-800 hover:bg-teal-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-teal-300 dark:text-teal-200 dark:hover:bg-teal-950"
+          >
+            {triggerMutation.isPending ? "Starting…" : "Run now"}
+          </button>
+        }
       />
+      {triggerFailure !== null ? (
+        <div role="alert" className="rounded-md border border-rose-300 bg-rose-50 p-4 text-rose-950 dark:border-rose-700 dark:bg-rose-950/30 dark:text-rose-100">
+          {triggerFailure.message}
+        </div>
+      ) : null}
       <section className="space-y-2" aria-labelledby="collection-agent-health-heading">
         <h2 id="collection-agent-health-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>Collection health</h2>
         <div className="flex flex-wrap items-center gap-3">
           <StatusTag kind={health.kind} label={health.label} />
           <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{successfulRunLabel}</span>
         </div>
+      </section>
+
+      <section className="space-y-2" aria-labelledby="collection-agent-schedule-heading">
+        <h2 id="collection-agent-schedule-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>Schedule</h2>
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+          {reportedSchedule ?? "Not reported by the collection agent"}
+        </p>
       </section>
 
       {runs.length === 0 ? (
