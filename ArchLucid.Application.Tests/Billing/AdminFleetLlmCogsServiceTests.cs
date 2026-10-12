@@ -81,6 +81,27 @@ public sealed class AdminFleetLlmCogsServiceTests
     }
 
     [SkippableFact]
+    public async Task BuildDashboardAsync_clamps_warn_fraction_to_match_tenant_budget_status()
+    {
+        Guid tenantId = Guid.Parse("55555555-5555-5555-5555-555555555555");
+        AdminFleetLlmCogsService sut = CreateService(
+            [Tenant(tenantId, "Epsilon")],
+            new InMemoryLlmTenantBudgetRepository(),
+            new LlmMonthlyTenantDollarBudgetOptions
+            {
+                Enabled = true,
+                IncludedUsdPerUtcMonth = 50m,
+                HardCutoffUsdPerUtcMonth = 100m,
+                WarnFraction = 0.001m,
+            });
+
+        AdminFleetLlmCogsDashboardResponse result = await sut.BuildDashboardAsync();
+
+        AdminFleetLlmCogsRowResponse row = result.Rows.Should().ContainSingle().Subject;
+        row.BudgetWarningUsdUtcMonth.Should().Be(0.5m);
+    }
+
+    [SkippableFact]
     public async Task BuildDashboardAsync_WhenCostRatesMissing_ReturnsAdvisorySignal()
     {
         Guid tenantId = Guid.Parse("44444444-4444-4444-4444-444444444444");

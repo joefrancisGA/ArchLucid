@@ -64,7 +64,8 @@ public sealed class AdminFleetLlmCogsService(
                           && hardCap > 0m
                           && state.TotalUsdPressure >= hardCap;
             decimal? included = opts.Enabled ? opts.IncludedUsdPerUtcMonth : null;
-            decimal? warningAt = opts.Enabled ? opts.IncludedUsdPerUtcMonth * opts.WarnFraction : null;
+            decimal warnFraction = decimal.Clamp(opts.WarnFraction, 0.01m, 0.99m);
+            decimal? warningAt = opts.Enabled ? opts.IncludedUsdPerUtcMonth * warnFraction : null;
 
             rows.Add(new AdminFleetLlmCogsRowResponse
             {
