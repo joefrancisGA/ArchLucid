@@ -10268,6 +10268,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: cli-tenant-isolation
 
+2026-10-12 seed hunt (seed-only): re-read the selected tenant-isolation command/runner facade, artifact output handling, offline/live verdict delegation, and focused tests. Existing filename-only artifact candidates and replay verdict contracts were not duplicated; no fresh reachable wrong-outcome mechanism met the promotion bar. The focused `TenantIsolationNegativeTestRunnerTests` run was blocked before discovery by unrelated missing `unmappedRoles` and `warnings` members in `AzureInventorySecurityEdgeMaterializer.cs`; no production or regression code changed.
+
 2026-10-12 seed hunt (seed-only): re-read the selected command and runner facade; no candidate was promoted after the focused 54/54 test run.
 
 - (candidate) `TenantIsolationNegativeTestCommand.WriteArtifactsAsync` — reachable `--json-out report.json` filename-only output path may resolve its directory as null and produce an unexpected artifact-write result; verify the documented relative-file input and expected artifact success contract before promotion.
@@ -10337,7 +10339,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant isolation cli; negative isolation test
 - **paths:** ArchLucid.Cli/Commands/TenantIsolationNegativeTestCommand.cs; ArchLucid.Cli/Commands/TenantIsolationNegativeTestRunner.cs
 - **test-filter:** FullyQualifiedName~TenantIsolationNegativeTestRunnerTests
-- **hunts:** 46
+- **hunts:** 47
 - **bugs-found:** 24
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-12
