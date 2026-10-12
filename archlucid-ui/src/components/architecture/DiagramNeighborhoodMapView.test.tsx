@@ -53,6 +53,16 @@ describe("DiagramNeighborhoodMapView", () => {
     expect(onOpenNeighborhood).toHaveBeenCalledWith("vnet:app");
   });
 
+  it("uses the same border styling on virtual network and resource group tiles", () => {
+    render(<DiagramNeighborhoodMapView map={map} onOpenNeighborhood={vi.fn()} />);
+
+    const vnetTile = screen.getByTestId("architecture-diagram-neighborhood-tile-vnet:app");
+    const resourceGroupTile = screen.getByTestId("architecture-diagram-neighborhood-tile-shared:security");
+
+    expect(vnetTile.className).toBe(resourceGroupTile.className);
+    expect(vnetTile.className).toContain("border-slate-200");
+  });
+
   it("keeps shared services out of the resource group section", () => {
     render(
       <DiagramNeighborhoodMapView
