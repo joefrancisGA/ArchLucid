@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-12 seed hunt (seed→hit): `SecureNowQuestionCompiler` emitted a proposed inferred-connection question when both `FromArmId` and `ToArmId` were blank, producing an `Open` row with no resource identity even though disposition writes require a non-empty `ResourceId`. The compiler now suppresses endpoint-less proposals. Regression `Proposed_inference_without_an_arm_endpoint_is_not_emitted_as_an_unanswerable_question` failed before the fix and passed after it; the focused SecureNowQuestion suite passed 23/23.
+
 2026-10-12 seed hunt (seed→hit): `scope-binding-middleware` — `ScopeIdentityBindingMiddleware` only attempted SCIM authentication for an unauthenticated principal, so an authenticated non-SCIM principal such as an API-key principal on `/scim/v2/Users` bypassed SCIM rebinding and let scope validation use the wrong identity. The middleware now reauthenticates unless the current authentication type is `ScimBearer`. Regression `InvokeAsync_authenticated_non_scim_principal_on_scim_path_rebinds_before_scope_validation` failed before the fix and passed after it; the isolated scope-binding filter passed 63/63. The picker-wide API filter retained 6 pre-existing SQL Server-unavailable integration failures.
 
 2026-10-12 seed hunt (seed-only): `cloud-extractors` — repeated the selected AWS, GCP, and Azure extractor reread; the five bounded candidates remain below the hunt-ready bar and no new mechanism-backed wrong outcome emerged. AWS/GCP extractor tests passed 52/52; Azure extractor tests passed 130/131 with the known network-association baseline failure. No production or regression change.
@@ -36544,6 +36546,8 @@ ABQ-09 churn hotspot.
 
 ## Zone: securenow-question-queue
 
+2026-10-12 seed hunt (seed→hit): `SecureNowQuestionCompiler` emitted a proposed inferred-connection question when both `FromArmId` and `ToArmId` were blank, producing an `Open` row with no resource identity even though disposition writes require a non-empty `ResourceId`. The compiler now suppresses endpoint-less proposals. Regression `Proposed_inference_without_an_arm_endpoint_is_not_emitted_as_an_unanswerable_question` failed before the fix and passed after it; the focused SecureNowQuestion suite passed 23/23.
+
 2026-10-11 seed hunt (seed-only): re-read the selected disposition, compiler, controller, persistence, contract, and queue paths after the stale-load fix. No fresh row was promoted because the reachable in-flight snapshot-action candidate overlaps the saturated state-machine class, while the case-variant disposition collision needs a focused persistence repro; seeded both bounded candidates. The focused Application SecureNowQuestion suite passed 22/22 and the queue UI suite passed 14/14; no production or regression code changed.
 
 2026-10-11 seed hunt (seed→hit): a reachable snapshot navigation change let an older `loadQuestions` request overwrite the newer snapshot's questions, so the queue displayed stale questions after rapid snapshot changes. The provider now gives only the newest request ownership of question, error, and loading state; regression `keeps the newest snapshot question when an older load finishes later`; the queue UI suite passed 14/14 and the focused Application SecureNowQuestion suite passed 22/22.
@@ -36574,11 +36578,11 @@ ABQ-09 churn hotspot.
 - **aliases:** securenow question queue; question disposition
 - **paths:** ArchLucid.Application/InfraEvidence/SecureNowQuestionDispositions/; ArchLucid.Api/Controllers/InfraEvidence/InfraEvidenceSecureNowQuestionsController.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/ISecureNowQuestionDispositionRepository.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/ISecureNowQuestionDispositionService.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/SecureNowQuestionDispositionRecord.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/SecureNowQuestionRecord.cs; ArchLucid.Persistence/InfraEvidence/NoOpSecureNowQuestionDispositionRepository.cs; ArchLucid.Persistence/InfraEvidence/SqlSecureNowQuestionDispositionRepository.cs; ArchLucid.Contracts/InfraEvidence/SecureNowQuestionDispositionContracts.cs; archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
-- **hunts:** 25
-- **bugs-found:** 12
+- **hunts:** 26
+- **bugs-found:** 13
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-11
-- **last-bug:** 2026-10-11 — stale snapshot load overwrote newer question state
+- **last-hunt:** 2026-10-12
+- **last-bug:** 2026-10-12 — endpoint-less inferred questions were emitted without an answerable resource identity
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -36627,6 +36631,7 @@ ABQ-09 churn hotspot.
 - [x] (proven) `SecureNowQuestionQueueProvider.findInferredConnection` — a reachable persisted inferred-connection rule such as `Unresolved host` was compared as a space-preserving string while the compiler emitted `unresolved-host@v1`, so Yes/No actions reported that the connection was unavailable; fixed by sharing punctuation-to-hyphen normalization; regression `confirms an inferred connection when its rule name contains spaces`.
 - [x] (proven) `SecureNowQuestionDispositionService.ValidateAnswerCodeAsync` — a reachable inventory answer loaded optional inferred connections before validation, so an inferred-repository failure threw before persistence even though the inventory question was valid; fixed by compiling inventory questions without that optional dependency; regression `Inventory_answer_does_not_depend_on_inferred_connection_availability`.
 - [x] (proven) `SecureNowQuestionQueueProvider.loadQuestions` — reachable snapshot navigation could leave an older question request in flight, allowing its later response to overwrite the newest snapshot's question state; guarded question, error, and loading state with a monotonically increasing request sequence; regression `keeps the newest snapshot question when an older load finishes later`.
+- [x] (proven) `SecureNowQuestionCompiler.Compile` — a reachable proposed inferred connection with both `FromArmId` and `ToArmId` blank emitted an `Open` question with an empty `ResourceId`, but `SecureNowQuestionDispositionService.ValidateIdentity` rejects empty resource ids on answer/ignore; endpoint-less proposals are now suppressed; regression `Proposed_inference_without_an_arm_endpoint_is_not_emitted_as_an_unanswerable_question`.
 - (candidate) `SecureNowQuestionCompiler.AddQuestion` — two proposed `OperatorInferredConnectionRecord` inputs with the same normalized resource/question identity but different endpoints are collapsed by `emitted`, so one actionable inferred connection may disappear; input originates from the inferred-connection list passed into compilation.
 - (candidate) `SecureNowQuestionDispositionService.BuildDiagramCandidates` — an inventory resource is suppressed whenever its ID appears in any relationship, even when the relationship's peer endpoint is missing or unresolved; input originates from persisted inventory relationship records and could hide an unknown-evidence question.
 - (candidate) `securenow-question-queue-api.mapQuestion` — an API response containing blank string entries in `answerCodes` passes the type-only filter and can render a blank answer button; input is the reachable question API response.
