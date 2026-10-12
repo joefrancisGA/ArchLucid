@@ -308,6 +308,60 @@ public sealed class BillingCheckoutFacadeTests
     }
 
     [SkippableFact]
+    public async Task CreateCheckoutSessionAsync_blocks_when_subscription_is_suspended_past_due()
+    {
+        Guid tenantId = Guid.Parse("12121212-1212-1212-1212-121212121212");
+        Guid workspaceId = Guid.Parse("23232323-2323-2323-2323-232323232323");
+        Guid projectId = Guid.Parse("34343434-3434-3434-3434-343434343434");
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(new ScopeContext
+        {
+            TenantId = tenantId,
+            WorkspaceId = workspaceId,
+            ProjectId = projectId,
+        });
+
+        InMemoryBillingLedger ledger = new();
+        await ledger.ActivateSubscriptionAsync(
+            tenantId,
+            workspaceId,
+            projectId,
+            BillingProviderNames.Stripe,
+            "sub_suspended",
+            nameof(ArchLucid.Core.Tenancy.TenantTier.Standard),
+            seats: 2,
+            workspaces: 1,
+            rawWebhookJson: null,
+            CancellationToken.None);
+        await ledger.SuspendSubscriptionAsync(tenantId, CancellationToken.None);
+
+        Mock<IBillingProviderRegistry> registry = new();
+        registry.Setup(registry => registry.ResolveActiveProvider()).Returns(Mock.Of<IBillingProvider>());
+
+        BillingCheckoutFacade sut = new(
+            registry.Object,
+            ledger,
+            scopeProvider.Object,
+            Mock.Of<IAuditService>(),
+            Mock.Of<IMarketplaceWebhookConnectivityService>());
+
+        BillingCheckoutSessionResult result = await sut.CreateCheckoutSessionAsync(
+            new BillingCheckoutPostBody
+            {
+                ReturnUrl = "https://app.example.com/ok",
+                CancelUrl = "https://app.example.com/cancel",
+                TargetTier = "Team",
+                Seats = 2,
+                Workspaces = 1,
+            },
+            "admin@example.com",
+            CancellationToken.None);
+
+        result.Outcome.Should().Be(BillingCheckoutValidationOutcome.ActiveSubscriptionConflict);
+    }
+
+    [SkippableFact]
     public async Task CreateCheckoutSessionAsync_accepts_case_insensitive_target_tier()
     {
         Mock<IScopeContextProvider> scopeProvider = new();

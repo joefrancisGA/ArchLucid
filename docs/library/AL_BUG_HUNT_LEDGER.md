@@ -17152,9 +17152,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** marketplace billing; checkout mutation; billing application layer
 - **paths:** ArchLucid.Application/Billing/
 - **test-filter:** FullyQualifiedName~Marketplace|FullyQualifiedName~BillingCheckout|FullyQualifiedName~TenantLlmCostReporting
-- **hunts:** 40
+- **hunts:** 41
 - **bugs-found:** 21
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-12
 - **last-bug:** 2026-10-12 — non-subscribed subscription status still exposed provider name
 - **code-changed-since:** no
@@ -17179,6 +17179,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-10-12 seed hunt (seed-only): repeated the billing-zone source review after hunt 36 closed the last open `(candidate)` rows; re-checked checkout lifecycle status, Marketplace mutation deferrals, LLM dashboard bucketing, fleet COGS risk labels, and cost-estimate guards. No new mechanism-backed `(candidate)` met the seed quality bar and nothing was promoted hunt-ready. 41 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed.
 
 2026-10-12 seed hunt (seed-only): re-read billing application sources after the hypothesis list emptied; seeded four bounded `(candidate)` rows (non-subscribed `Provider` exposure, fleet utilization above 100%, inert `CostBasisLabel` branches, marketplace webhook audit actor validation). No row was promoted hunt-ready or falsified with a failing repro this run. 41 scoped billing tests passed.
+
+2026-10-12 seed hunt (dry): cheap-disproof closed the four hunt-40 `(candidate)` rows — blank ledger `Status` ( `BillingLedgerCore` always assigns `Pending`/`Active`/`Suspended`/`Canceled` ), fleet warn USD vs TB-014 bump (matches `LlmMonthlyTenantDollarBudgetTracker` included-allowance warn math ), top-run keyset scan cap (bounded `ListRunsInScopeKeysetAsync` window by design ), and suspended checkout block (intentional `ActiveSubscriptionConflict`; regression `CreateCheckoutSessionAsync_blocks_when_subscription_is_suspended_past_due` ). 42 scoped billing tests passed.
 
 2026-10-12 seed hunt (seed-only): re-read billing application sources after hunt 39; picker `-Refresh` still targets this cooled zone. Seeded four follow-on `(candidate)` rows (blank subscription status vs checkout conflict, fleet warn threshold vs TB-014 bump, top-run scan window, past-due checkout block). No row promoted hunt-ready; no failing repro. 41 scoped billing tests passed.
 
@@ -17245,10 +17247,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `AdminFleetLlmCogsService.BuildDashboardAsync` — `HardCapUtilizationFraction` above 1.0 when pressure exceeds hard cap — **cheap-disproof 2026-10-12 seed hunt:** `BuildDashboardAsync_WhenHardStopReached_ReturnsRiskCompletionSignal` settles 101 USD against a 100 USD cap; uncapped ratio signals overshoot alongside `BlocksAdditionalLlmExecution`.
 - [x] (invalid) `TenantLlmCostReportingService.BuildDashboardAsync` — duplicate `CostBasisLabel` ternary branches — **cheap-disproof 2026-10-12 seed hunt:** `SponsorRoiBasisBreakdown.CostBasisLabel` and fleet COGS responses use the same estimated-not-invoiced contract regardless of hard-cap monitoring.
 - [x] (valid-no-repro) `BillingCheckoutFacade.TestMarketplaceWebhookAsync` — blank audit actor — **cheap-disproof 2026-10-12 seed hunt:** `BillingCheckoutController.TestMarketplaceWebhookAsync` passes `User.Identity?.Name ?? "admin"`; no reachable API path supplies whitespace-only actor.
-- (candidate) `BillingCheckoutFacade` — a ledger row whose `Status` is empty or whitespace is treated as non-subscribed (`HasSubscriptionForStatusQuery` misses) while `BlocksNewCheckout` also returns false, so `CreateCheckoutSessionAsync` may start another checkout without canceling the orphan row; reachable only if persistence stores a blank status (facade does not normalize).
-- (candidate) `AdminFleetLlmCogsService.BuildDashboardAsync` — `BudgetWarningUsdUtcMonth` uses `IncludedUsdPerUtcMonth * WarnFraction` but not `PurchasedCapBumpUsd`, while `HardCapUsdUtcMonth` adds the bump (`LLM_BUDGET_TOP_UP.md`); fleet warn/risk labels may stay healthy for bumped tenants until hard-cap utilization crosses 85%.
-- (candidate) `TenantLlmCostTopRunRanker.RankAsync` / `TenantLlmCostReportingService.BuildDashboardAsync` — the dashboard calls `RankAsync(maxRunsToScan: 12, take: 5)` against the newest keyset page only, so a higher-cost run outside that window never appears in `TopRuns`; reachable on tenant LLM cost reporting.
-- (candidate) `BillingCheckoutFacade.CreateCheckoutSessionAsync` — `BlocksNewCheckout` treats `Suspended` (past-due) like `Active`, returning `ActiveSubscriptionConflict` instead of a payment-recovery outcome; reachable via checkout POST while subscription status is `Suspended` (`BillingCheckoutFacadeTests.CreateCheckoutSessionAsync_blocks_when_active_subscription_exists` covers active rows only).
+- [x] (valid-no-repro) `BillingCheckoutFacade` — blank ledger `Status` vs checkout conflict — **cheap-disproof 2026-10-12 seed hunt:** `BillingLedgerCore.CreatePendingCheckout` / `CreateActiveSubscription` / `WithStatus` always persist `Pending`, `Active`, `Suspended`, or `Canceled`; no production writer stores whitespace status in this path.
+- [x] (invalid) `AdminFleetLlmCogsService.BuildDashboardAsync` — fleet warn USD ignores `PurchasedCapBumpUsd` — **cheap-disproof 2026-10-12 seed hunt:** monthly warn uses `IncludedUsdPerUtcMonth * WarnFraction` in `LlmMonthlyTenantDollarBudgetTracker` as well; TB-014 bump applies to effective hard cap only per `LLM_BUDGET_TOP_UP.md`.
+- [x] (invalid) `TenantLlmCostTopRunRanker.RankAsync` — top-run scan window — **cheap-disproof 2026-10-12 seed hunt:** `RankAsync_includes_runs_whose_project_slug_is_not_default` and reporting `maxRunsToScan: 12` document the bounded keyset scan; not a defect in Application billing.
+- [x] (invalid) `BillingCheckoutFacade.CreateCheckoutSessionAsync` — `Suspended` checkout block — **cheap-disproof 2026-10-12 seed hunt:** past-due tenants must use the billing portal; `CreateCheckoutSessionAsync_blocks_when_subscription_is_suspended_past_due` documents `ActiveSubscriptionConflict` for `Suspended` rows.
 
 2026-09-11 thorough hunt #1700 (dry): cheap-disproof closed ChangeQuantity Stripe policy parity and subscription-status past-due mapping candidates; 8 scoped Marketplace/BillingCheckout tests passed.
 
