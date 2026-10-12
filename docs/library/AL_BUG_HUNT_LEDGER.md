@@ -4,6 +4,8 @@
 
 2026-10-12 seed hunt (seed-only): repeated the selected ArtifactSynthesis, Mermaid renderer, packaging, and DOCX fallback review after the prior seed-only pass. No fresh reachable mechanism-backed hypothesis met the hunt-ready bar; no candidate was promoted or duplicated. The scoped ArtifactSynthesis/Docx filter passed 102/103 with one intentional skip. No production or regression code changed.
 
+2026-10-12 seed hunt (seed-only): repeated the selected ArtifactSynthesis, Mermaid renderer, packaging, and DOCX fallback review after the prior seed-only pass. No fresh reachable mechanism-backed hypothesis met the hunt-ready bar; no candidate was promoted or duplicated. The scoped ArtifactSynthesis/Docx filter passed 102/103 with one intentional skip. No production or regression code changed.
+
 2026-10-12 seed hunt (seed-only): repeated the selected ArtifactSynthesis and DOCX review after the prior seed-only pass. No fresh reachable mechanism-backed hypothesis met the hunt-ready bar; no candidate was promoted or duplicated. The scoped ArtifactSynthesis/Docx filter passed 102/103 with one intentional skip. No production or regression code changed.
 
 2026-10-12 seed hunt (seed-only): repeated the selected ArtifactSynthesis, Mermaid renderer, packaging, and DOCX fallback review after the prior seed-only pass. No fresh reachable mechanism-backed hypothesis met the hunt-ready bar; no candidate was promoted or duplicated. The scoped ArtifactSynthesis/Docx filter passed 102/103 with one intentional skip. No production or regression code changed.
@@ -31023,6 +31025,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 2026-10-12 seed hunt (seed-only): repeated the selected ArtifactSynthesis, Mermaid renderer, packaging, and DOCX fallback review after the prior seed-only pass. No fresh reachable mechanism-backed hypothesis met the hunt-ready bar; no candidate was promoted or duplicated. The scoped ArtifactSynthesis/Docx filter passed 102/103 with one intentional skip. No production or regression code changed.
 
+2026-10-12 seed hunt (seed-only): repeated the selected ArtifactSynthesis, Mermaid renderer, packaging, and DOCX fallback review after the prior seed-only pass. No fresh reachable mechanism-backed hypothesis met the hunt-ready bar; no candidate was promoted or duplicated. The scoped ArtifactSynthesis/Docx filter passed 102/103 with one intentional skip. No production or regression code changed.
+
 2026-10-12 seed hunt (seed-only): re-read the selected ArtifactSynthesis, Mermaid packaging, renderer, and DOCX fallback paths after the Mermaid source sanitization fix. No fresh reachable mechanism-backed hypothesis met the hunt-ready bar; remaining suspicious branches were constants, caller-less helpers, or lacked a reachable input contract. The scoped ArtifactSynthesis/Docx filter passed 102/103 with one intentional skip. No production or regression code changed.
 
 2026-10-12 seed hunt (seed→hit): `WordDocumentBuilder.AddMonospaceSourceLines` wrote persisted Mermaid artifact content directly into OpenXML text, so a reachable control character in fallback Mermaid source caused DOCX export to throw while saving. Sanitized each embedded source line with the shared artifact-text sanitizer. Regression `ExportAsync_sanitizes_control_characters_in_embedded_mermaid_source` failed before the fix and passed after it; the focused Mermaid regressions passed 2/2, the scoped ArtifactSynthesis/Docx filter passed 102/103 with one intentional skip, and the scoped ArtifactSynthesis compile check passed with 0 warnings and 0 errors.
@@ -31055,7 +31059,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** artifact synthesis; docx generator; packaging sanitization
 - **paths:** ArchLucid.ArtifactSynthesis/
 - **test-filter:** FullyQualifiedName~ArtifactSynthesis|FullyQualifiedName~Docx
-- **hunts:** 59
+- **hunts:** 60
 - **last-hunt:** 2026-10-12
 - **bugs-found:** 47
 - **consecutive-dry-hunts:** 0
