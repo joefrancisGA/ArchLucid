@@ -10,7 +10,7 @@
   PURPOSE
     Consolidated declarative DDL (CREATE TABLE, CREATE INDEX, ALTER TABLE batches only) reflecting
     the final schema shape after sequential application of forward DbUp migrations
-    ArchLucid.Persistence/Migrations/001_*.sql … 409_*.sql (excluding Rollback/).
+    ArchLucid.Persistence/Migrations/001_*.sql … 411_*.sql (excluding Rollback/).
 
   HOW THIS ARTIFACT RELATES TO MIGRATIONS
     Forward migrations remain the authoritative upgrade path on existing databases.
@@ -284,6 +284,36 @@ BEGIN
         INDEX IX_TechnologyLedgerEntries_RunId NONCLUSTERED (RunId),
         INDEX IX_TechnologyLedgerEntries_RunId_Role NONCLUSTERED (RunId, Role)
     );
+END;
+
+GO
+
+IF OBJECT_ID(N'dbo.SecureNowCollectionRuns', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.SecureNowCollectionRuns
+    (
+        TenantId                  UNIQUEIDENTIFIER NOT NULL,
+        WorkspaceId               UNIQUEIDENTIFIER NOT NULL,
+        ProjectId                 UNIQUEIDENTIFIER NOT NULL,
+        RunId                     UNIQUEIDENTIFIER NOT NULL,
+        AgentVersion              NVARCHAR(128)    NOT NULL,
+        StartedUtc                DATETIME2        NOT NULL,
+        FinishedUtc               DATETIME2        NULL,
+        Status                    INT              NOT NULL,
+        SubscriptionsCoveredJson  NVARCHAR(MAX)    NOT NULL CONSTRAINT DF_SecureNowCollectionRuns_Subscriptions DEFAULT (N'[]'),
+        ErrorSummary              NVARCHAR(4000)   NULL,
+        ZipPath                   NVARCHAR(2048)   NULL,
+        ZipSha256                 VARBINARY(32)    NULL,
+        ImportedSnapshotId        UNIQUEIDENTIFIER NULL,
+        CONSTRAINT PK_SecureNowCollectionRuns PRIMARY KEY CLUSTERED (TenantId, WorkspaceId, ProjectId, RunId)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_SecureNowCollectionRuns_Scope_Started
+        ON dbo.SecureNowCollectionRuns (TenantId, WorkspaceId, ProjectId, StartedUtc DESC, RunId DESC);
+
+    CREATE NONCLUSTERED INDEX IX_SecureNowCollectionRuns_Scope_Hash
+        ON dbo.SecureNowCollectionRuns (TenantId, WorkspaceId, ProjectId, ZipSha256)
+        WHERE ZipSha256 IS NOT NULL;
 END;
 
 GO
