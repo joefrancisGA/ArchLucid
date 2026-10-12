@@ -31,6 +31,7 @@ import {
   INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_PROBABLE,
 } from "@/lib/infra-evidence/infra-evidence-diagram-copy";
 import { InfraEvidenceDiagramOutlineNodeLabel } from "@/lib/infra-evidence/infra-evidence-diagram-outline-node-label";
+import { resolveInfraEvidenceDiagramOutlineResourceName } from "@/lib/infra-evidence/resolve-infra-evidence-diagram-outline-resource-name";
 import { downloadBrowserTextFile, safeGraphExportFilenameSegment } from "@/lib/graph-view-model-export";
 import {
   DEFAULT_INFRA_EVIDENCE_DIAGRAM_OUTLINE_EDGE_SORT_DIR,
@@ -131,7 +132,7 @@ function formatLedgerDropLabel(
     return `${GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNATTACHED_NSG_LABEL} · ${fromLabel}`;
   }
 
-  const toLabel = drop.to == null ? "Destination was not stored" : resolveInfraEvidenceOutlineNodeLabel(nodes, drop.to);
+  const toLabel = drop.to == null || drop.to === "_" ? "Destination was not stored" : resolveInfraEvidenceOutlineNodeLabel(nodes, drop.to);
 
   return `${drop.reason} · ${fromLabel} → ${toLabel}`;
 }
@@ -145,16 +146,28 @@ type InfraEvidenceDiagramOutlineProps = {
   readonly defaultEdgesOpen?: boolean;
 };
 
-function formatOutlineCell(value: string | null): string {
-  if (value == null || value.trim().length === 0) {
-    return "Not recorded";
+function formatOutlineCell(value: string | null, missingLabel = "Not recorded", emptyLabel = "Not recorded"): string {
+  if (value == null) {
+    return missingLabel;
+  }
+
+  if (value.trim().length === 0) {
+    return emptyLabel;
   }
 
   return value;
 }
 
 function formatOutlineResourceType(resourceType: string | null): string {
-  return formatOutlineCell(formatDiagramArmTypeFriendlyName(resourceType));
+  if (resourceType == null) {
+    return "Resource type was not stored";
+  }
+
+  if (resourceType.length === 0) {
+    return "";
+  }
+
+  return formatOutlineCell(formatDiagramArmTypeFriendlyName(resourceType), "Resource type was not stored", "");
 }
 
 function formatOutlineEdgeSource(source: InfraEvidenceDiagramOutlineEdgeSource): string {
@@ -342,7 +355,7 @@ function InfraEvidenceDiagramOutlineNodeTable(props: {
                 </td>
                 <td className="px-3 py-2">{formatOutlineResourceType(node.resourceType)}</td>
                 <td className={cn("px-3 py-2 font-mono", OPERATOR_TYPOGRAPHY.body)}>
-                  {formatOutlineCell(node.resourceGroup)}
+                  {formatOutlineCell(node.resourceGroup, "Resource group was not stored.", "")}
                 </td>
                 {showProblem ? (
                   <td className={cn("px-3 py-2", OPERATOR_TYPOGRAPHY.body)}>
@@ -356,7 +369,7 @@ function InfraEvidenceDiagramOutlineNodeTable(props: {
                       size="sm"
                       variant="outline"
                       data-testid={`infra-diagrams-focus-neighborhood-${node.id}`}
-                      aria-label={`${GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DEPENDENCY_SEED_FOCUS_ACTION} from ${node.label}`}
+                      aria-label={`${GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DEPENDENCY_SEED_FOCUS_ACTION} from ${resolveInfraEvidenceDiagramOutlineResourceName(node)}`}
                       onClick={() => {
                         onFocusNeighborhood?.(node);
                       }}
@@ -868,7 +881,13 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
                               resolveInfraEvidenceOutlineNodeLabel(outline.nodes, edge.from)
                             )}
                           </td>
-                          <td className="px-3 py-2">{formatOutlineCell(resolveInfraEvidenceOutlineEdgeLabel(edge, outline.nodes))}</td>
+                          <td className="px-3 py-2">
+                            {formatOutlineCell(
+                              resolveInfraEvidenceOutlineEdgeLabel(edge, outline.nodes),
+                              "Edge label was not stored",
+                              "",
+                            )}
+                          </td>
                           <td className="px-3 py-2">{toDisplay}</td>
                         </tr>
                       );
@@ -897,7 +916,7 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
               {outline.dropGateRows.map((row, index) => (
                 <li key={`${row.from}-${row.to}-${row.reason}-${index}`}>
                   {row.reason}: {resolveInfraEvidenceOutlineNodeLabel(outline.nodes, row.from)} →{" "}
-                  {resolveInfraEvidenceOutlineNodeLabel(outline.nodes, row.to)}
+                  {row.to === "_" ? "Destination was not stored" : resolveInfraEvidenceOutlineNodeLabel(outline.nodes, row.to)}
                 </li>
               ))}
             </ul>

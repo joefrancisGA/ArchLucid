@@ -43,6 +43,8 @@ export type SecureNowQuestionQueueProviderProps = {
 
 type SecureNowQuestionQueueContextValue = {
   readonly loading: boolean;
+  readonly questionsLoaded: boolean;
+  readonly loadError: boolean;
   readonly openQuestions: readonly SecureNowQuestion[];
   readonly filteredQuestions: readonly SecureNowQuestion[];
   readonly currentQuestion: SecureNowQuestion | null;
@@ -120,6 +122,7 @@ export function SecureNowQuestionQueueProvider(
   const [drawerAction, setDrawerAction] = useState<DrawerAction>("answer");
   const [visitedQuestionKeys, setVisitedQuestionKeys] = useState<ReadonlySet<string>>(() => new Set());
   const [loading, setLoading] = useState(false);
+  const [questionsLoaded, setQuestionsLoaded] = useState(false);
   const [busy, setBusy] = useState(false);
   const loadSequence = useRef(0);
   const [error, setError] = useState<OperatorInferredConnectionPanelError | null>(null);
@@ -130,12 +133,14 @@ export function SecureNowQuestionQueueProvider(
   useEffect(() => {
     setVisitedQuestionKeys(new Set());
     setSessionSkippedQuestionKeys(new Set());
+    setQuestionsLoaded(false);
   }, [snapshotId]);
 
   const loadQuestions = useCallback(async () => {
     if (snapshotId.trim().length === 0) return;
     const requestSequence = ++loadSequence.current;
     setLoading(true);
+    setQuestionsLoaded(false);
     setError(null);
     try {
       const [questionsResult, connectionsResult] = await Promise.allSettled([
@@ -150,6 +155,7 @@ export function SecureNowQuestionQueueProvider(
       if (requestSequence !== loadSequence.current) return;
 
       setQuestions(questionsResult.value);
+      setQuestionsLoaded(true);
       if (connectionsResult.status === "fulfilled") {
         setInferredConnections(connectionsResult.value);
       } else {
@@ -297,6 +303,8 @@ export function SecureNowQuestionQueueProvider(
   const contextValue = useMemo<SecureNowQuestionQueueContextValue>(
     () => ({
       loading,
+      questionsLoaded,
+      loadError: error !== null,
       openQuestions,
       filteredQuestions,
       currentQuestion,
@@ -327,6 +335,8 @@ export function SecureNowQuestionQueueProvider(
       filter,
       filteredQuestions,
       loading,
+      questionsLoaded,
+      error,
       openQuestions,
       reason,
       selectedAnswer,

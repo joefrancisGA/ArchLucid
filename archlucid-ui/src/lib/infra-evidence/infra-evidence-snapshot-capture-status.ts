@@ -92,7 +92,7 @@ export function resolveInfraEvidenceSnapshotCaptureStatusPresentation(
 ): InfraEvidenceSnapshotCaptureStatusPresentation {
   if (
     captureStatus == null
-    || (typeof captureStatus === "string" && captureStatus.trim().length === 0)
+    || (typeof captureStatus === "string" && captureStatus.length > 0 && captureStatus.trim().length === 0)
   ) {
     return MISSING;
   }
