@@ -46,3 +46,15 @@ check "private_key_vault_id_arm_format" {
     error_message = "key_vault_id must be a Microsoft.KeyVault/vaults/* ARM resource ID when set."
   }
 }
+
+check "private_openai_account_id_arm_format" {
+  assert {
+    condition = length(trimspace(var.openai_account_id)) == 0 || can(
+      regex(
+        "(?i)^/subscriptions/[0-9a-f-]+/resourceGroups/[^/]+/providers/Microsoft\\.CognitiveServices/accounts/[^/]+$",
+        var.openai_account_id
+      )
+    )
+    error_message = "openai_account_id must be a Microsoft.CognitiveServices/accounts/* ARM resource ID when set."
+  }
+}

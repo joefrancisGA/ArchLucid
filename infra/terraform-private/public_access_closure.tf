@@ -45,3 +45,18 @@ resource "azapi_update_resource" "key_vault_public_network_access" {
 
   depends_on = [azurerm_private_endpoint.key_vault]
 }
+
+resource "azapi_update_resource" "openai_public_network_access" {
+  count = local.pe_enabled && length(trimspace(var.openai_account_id)) > 0 ? 1 : 0
+
+  type        = "Microsoft.CognitiveServices/accounts@2023-05-01"
+  resource_id = var.openai_account_id
+
+  body = {
+    properties = {
+      publicNetworkAccess = "Disabled"
+    }
+  }
+
+  depends_on = [azurerm_private_endpoint.openai]
+}
