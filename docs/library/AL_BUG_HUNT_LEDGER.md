@@ -28296,6 +28296,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ## Zone: context-ingestion
 
+2026-10-12 seed hunt (seed-only): re-read uploaded-config edge emission, document normalization, plain-text canonicalization, infrastructure connector wiring, and focused tests. No fresh reachable wrong-outcome mechanism met the promotion bar; existing candidate lenses were not duplicated. The focused ContextIngestion/Canonicalization run was blocked before discovery by unrelated missing `unmappedRoles` and `warnings` members in `AzureInventorySecurityEdgeMaterializer.cs`; no production or regression code changed.
+
 2026-10-12 seed hunt (seed-only): re-read Kubernetes manifest mapping, infrastructure batch normalization, document connector orchestration, set-diff semantics, and focused tests. No fresh reachable wrong-outcome mechanism met the promotion bar; existing candidate lenses were not duplicated. The focused ContextIngestion/Canonicalization run was blocked before discovery by unrelated missing `unmappedRoles` and `warnings` members in `AzureInventorySecurityEdgeMaterializer.cs`; no production or regression code changed.
 
 2026-10-12 seed hunt (seed-only): re-read CloudFormation YAML conversion, appsettings and Compose environment extraction, linked-template path indexing, structured diagram parser precedence, and their focused tests. No fresh reachable wrong-outcome mechanism met the promotion bar; existing candidate lenses were not duplicated. The focused ContextIngestion/Canonicalization run was blocked before discovery by unrelated missing `unmappedRoles` and `warnings` members in `AzureInventorySecurityEdgeMaterializer.cs`; no production or regression code changed.
@@ -30320,7 +30322,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 1059
+- **hunts:** 1060
 - **bugs-found:** 429
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-12
