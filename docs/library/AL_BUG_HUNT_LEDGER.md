@@ -31009,7 +31009,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ## Zone: artifact-synthesis
 
+2026-10-12 seed hunt (seed-only): re-read the selected ArtifactSynthesis, Mermaid packaging, renderer, and DOCX fallback paths after the Mermaid source sanitization fix. No fresh reachable mechanism-backed hypothesis met the hunt-ready bar; remaining suspicious branches were constants, caller-less helpers, or lacked a reachable input contract. The scoped ArtifactSynthesis/Docx filter passed 102/103 with one intentional skip. No production or regression code changed.
+
 2026-10-12 seed hunt (seed→hit): `WordDocumentBuilder.AddMonospaceSourceLines` wrote persisted Mermaid artifact content directly into OpenXML text, so a reachable control character in fallback Mermaid source caused DOCX export to throw while saving. Sanitized each embedded source line with the shared artifact-text sanitizer. Regression `ExportAsync_sanitizes_control_characters_in_embedded_mermaid_source` failed before the fix and passed after it; the focused Mermaid regressions passed 2/2, the scoped ArtifactSynthesis/Docx filter passed 102/103 with one intentional skip, and the scoped ArtifactSynthesis compile check passed with 0 warnings and 0 errors.
+
+2026-10-12 seed hunt (seed-only): re-read the selected ArtifactSynthesis, Mermaid packaging, renderer, and DOCX fallback paths after the Mermaid source sanitization fix. No fresh reachable mechanism-backed hypothesis met the hunt-ready bar; remaining suspicious branches were constants, caller-less helpers, or lacked a reachable input contract. The scoped ArtifactSynthesis/Docx filter passed 102/103 with one intentional skip. No production or regression code changed.
 
 2026-10-12 seed hunt (seed-only): re-read the selected ArtifactSynthesis and DOCX/export paths after the provenance sanitization change. No fresh reachable mechanism-backed hypothesis met the hunt-ready bar; no candidate was promoted or duplicated. The scoped application ArtifactSynthesis/Docx filter passed 101/102 with one intentional skip. The dedicated ArtifactSynthesis filter passed 704/718 with 12 pre-existing diagram expectation failures and 2 skipped Terraform tests. No production or regression code changed.
 
@@ -31037,7 +31041,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** artifact synthesis; docx generator; packaging sanitization
 - **paths:** ArchLucid.ArtifactSynthesis/
 - **test-filter:** FullyQualifiedName~ArtifactSynthesis|FullyQualifiedName~Docx
-- **hunts:** 55
+- **hunts:** 56
 - **last-hunt:** 2026-10-12
 - **bugs-found:** 47
 - **consecutive-dry-hunts:** 0
