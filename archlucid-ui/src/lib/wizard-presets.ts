@@ -24,6 +24,7 @@ export const wizardPresets: WizardPreset[] = [
     description: "Public web workload on Azure with common platform services.",
     values: {
       systemName: "CustomerWebApp",
+      // "APIs" must keep matching ArchitectureDomainAdmissionPattern (`apis?`); `\bapi\b` alone rejects this preset.
       description:
         "Greenfield customer-facing web application with authenticated APIs, need scalable hosting, SOC-friendly defaults, and cost visibility under $2k/month.",
       constraints: ["Prefer cloud-native hosting", "Budget < $2000/month"],

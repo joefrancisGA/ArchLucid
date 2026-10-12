@@ -82,6 +82,7 @@ describe("WizardStepTrack", () => {
     renderWithTooltips(<WizardStepTrack runId="r1" pollSummary={{ ...baseSummary, runId: "r1" }} />);
 
     expect(screen.getByTestId("wizard-track-progress-count")).toHaveTextContent("Review progress: 0 / 4 stages");
+    expect(screen.getByTestId("wizard-track-review-id")).toHaveTextContent("r1");
     expect(screen.getAllByText("Pending").length).toBeGreaterThanOrEqual(4);
   });
 
