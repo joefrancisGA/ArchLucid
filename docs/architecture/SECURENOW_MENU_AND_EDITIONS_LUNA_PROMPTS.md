@@ -42,7 +42,7 @@ Routes do not change. Only group membership, order, labels, tooltips, and captio
 | **SN-MENU-01** | [securenow-menu-01-regroup.md](../../.cursor/prompts/securenow-menu-01-regroup.md) | — | Regroup and reorder the generic sidebar. Home stands alone. Findings are one group |
 | **SN-MENU-02** | [securenow-menu-02-labels-sentence-case.md](../../.cursor/prompts/securenow-menu-02-labels-sentence-case.md) | SN-MENU-01 | New labels. Drop the Title Case transform. Page titles and breadcrumbs match |
 | **SN-MENU-03** | [securenow-menu-03-tooltips-captions.md](../../.cursor/prompts/securenow-menu-03-tooltips-captions.md) | SN-MENU-02 | Security wording in tooltips and group captions. No review vocabulary |
-| **SN-MENU-04** | [securenow-menu-04-home-follows-menu.md](../../.cursor/prompts/securenow-menu-04-home-follows-menu.md) | SN-MENU-02 | Home sections follow the menu. A posture strip from existing data only |
+| **SN-MENU-04** | [securenow-menu-04-home-follows-menu.md](../../.cursor/prompts/securenow-menu-04-home-follows-menu.md) | SN-MENU-02 | Home sections follow the menu. The posture strip is superseded by SN-HOME-02 and SN-HOME-03 |
 | **SN-ED-01** | [securenow-menu-05-edition-model.md](../../.cursor/prompts/securenow-menu-05-edition-model.md) | SN-MENU-01 | `generic` or `uhg` resolved from deployment config. Not user-switchable. No visible change |
 | **SN-ED-02** | [securenow-menu-06-edition-branding.md](../../.cursor/prompts/securenow-menu-06-edition-branding.md) | SN-ED-01 | Generic may say ArchLucid. UHG leak guard stays strict |
 | **SN-ED-03** | [securenow-menu-07-edition-compliance.md](../../.cursor/prompts/securenow-menu-07-edition-compliance.md) | SN-ED-01, SN-MENU-02 | Featured frameworks per edition. UHG pins ARC-AMPE first |
