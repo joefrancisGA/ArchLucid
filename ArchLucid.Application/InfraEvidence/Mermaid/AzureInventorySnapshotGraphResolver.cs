@@ -296,7 +296,7 @@ public sealed class AzureInventorySnapshotGraphResolver(
         AzureInventorySnapshotGraphIndexes metadataIndexes = AzureInventorySnapshotGraphIndexes.Create(snapshot, nodes, propertyIndex);
         AzureInventorySnapshotNodeRelationshipGraphHydrator.Hydrate(snapshot, nodes, metadataIndexes);
         AzureInventorySnapshotParentAttachmentGraphHydrator.Hydrate(snapshot, nodes, metadataIndexes);
-        AzureInventorySnapshotIndirectRelationshipGraphHydrator.Hydrate(snapshot, nodes, edges, metadataIndexes);
+        AzureInventorySnapshotIndirectRelationshipGraphHydrator.Hydrate(snapshot, nodes, edges, metadataIndexes, resourceIndex);
         AzureInventorySnapshotExternalSourceHostConsolidator.Consolidate(
             graphSnapshot,
             nodes,
