@@ -87,6 +87,8 @@ export type RemediationWaveProgressSummary = {
 export type RemediationFactoryWorkbenchSummary = {
   factoryMetrics: {
     openFindings: number;
+    /** Null when the factory summary omitted the field. Zero is a real count. */
+    criticalExposureCount: number | null;
     remediatedThisWeek: number;
     verificationFailureCount: number;
     businessBlockedCount: number;

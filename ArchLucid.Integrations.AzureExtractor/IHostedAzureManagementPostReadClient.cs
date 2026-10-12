@@ -17,4 +17,9 @@ public interface IHostedAzureManagementPostReadClient
         string scopeDescriptor,
         string collectionTimestampUtc,
         CancellationToken cancellationToken);
+
+    Task<string?> TryRunAksWorkloadImageCommandAsync(
+        string accessToken,
+        string clusterResourceId,
+        CancellationToken cancellationToken);
 }

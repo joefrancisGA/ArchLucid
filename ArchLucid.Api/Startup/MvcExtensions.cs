@@ -90,6 +90,7 @@ internal static class MvcExtensions
             options.AddDocumentTransformer<MicrosoftOpenApiAuthDocumentTransformer>();
             options.AddDocumentTransformer<MicrosoftOpenApiCodeGenFriendlySchemaTransformer>();
             options.AddDocumentTransformer<RunSummaryResponseOpenApiContractTransformer>();
+            options.AddDocumentTransformer<CollectionRunsOpenApiOperationIdTransformer>();
             options.AddDocumentTransformer<PublicHttpContractSchemasOpenApiDocumentTransformer>();
             options.AddOperationTransformer<MicrosoftOpenApiAnonymousSecurityOperationTransformer>();
             options.AddOperationTransformer<MicrosoftOpenApiAudienceOperationTransformer>();

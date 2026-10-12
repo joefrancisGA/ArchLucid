@@ -17,6 +17,14 @@ export function formatInfraEvidenceDiagramsSnapshotPickerLabel(
 
   if (subscription != null) {
     parts.push(subscription);
+  } else if (snapshot.subscriptionName == null && snapshot.subscriptionId == null) {
+    parts.push("Subscription was not stored.");
+  }
+
+  if (snapshot.architectureName == null) {
+    parts.push("Architecture name was not stored.");
+  } else if (snapshot.architectureName.length > 0) {
+    parts.push(snapshot.architectureName);
   }
 
   parts.push(captured);

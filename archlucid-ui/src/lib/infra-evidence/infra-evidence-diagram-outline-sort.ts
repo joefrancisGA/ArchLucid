@@ -175,7 +175,7 @@ function edgeSortValue(
       return resolveInfraEvidenceOutlineNodeLabel(nodes, edge.from);
 
     case "relationship":
-      return resolveInfraEvidenceOutlineEdgeLabel(edge, nodes);
+      return resolveInfraEvidenceOutlineEdgeLabel(edge, nodes) ?? "";
 
     case "to":
       return resolveInfraEvidenceOutlineNodeLabel(nodes, edge.to);
