@@ -702,25 +702,137 @@ def unmodeled_on(path: list[Edge]) -> list[UnmodeledControl]:
     return [edge.control for edge in path if edge.control is not None]
 
 
-def path_confidence(path: list[Edge], otherwise: str) -> str:
-    """Insufficient evidence if any hop rests on an unmodeled control; otherwise the band
-    the hop assumptions earn (Chapter 2)."""
-    return INSUFFICIENT if unmodeled_on(path) else otherwise
+def path_confidence(path: list[Edge], otherwise: str, temporal: str | None = None) -> str:
+    """Insufficient evidence if any hop rests on an unmodeled control or the path is
+    temporally inconsistent; otherwise the band the hop assumptions earn (Chapter 2)."""
+    return INSUFFICIENT if unmodeled_on(path) or temporal else otherwise
 
 
-def hop_table(path: list[Edge], otherwise: str) -> list[str]:
-    """Chapter 2's hop table as text, each unmodeled control listed as an assumption to check."""
-    lines = [f"Confidence: {path_confidence(path, otherwise)}"]
+def hop_table(path: list[Edge], otherwise: str, temporal: str | None = None) -> list[str]:
+    """Chapter 2's hop table as text, each unmodeled control listed as an assumption to check.
+
+    temporal is the reason the path's inputs can't be read as one moment, if there is one.
+    """
+    lines = [f"Confidence: {path_confidence(path, otherwise, temporal)}"]
     lines += [
         f"{number}. {edge.source} --{edge.kind}--> {edge.target} [{edge.evidence}] {edge.detail}"
         for number, edge in enumerate(path, start=1)
     ]
     lines += [f"Assumption to check: {control.assumption()}" for control in unmodeled_on(path)]
 
+    if temporal:
+        lines.append(f"Temporally inconsistent: {temporal}")
+
     return lines
 ```
 
 A path with no labeled hop keeps the confidence its evidence earns. A path with one is "Insufficient evidence", the band Chapter 2 uses when a path may or may not exist. The hop table names the assumption, so a reviewer can resolve it: read the condition, check the container or tag it refers to, or collect the missing role definition. Chapter 7 makes sure a summary that cites the path also cites the gap, and Chapter 10 refuses to call a fix verified while a path survives only through a control nobody evaluated.
+
+### Paths across time
+
+A path is a join of facts read at different times (Chapter 3, section 3.5). Each edge kind comes from known snapshot files, so each edge carries the read times of those files. A path carries its **input span**: from the earliest read behind any of its edges to the latest.
+
+<!-- listing: lab/listings/python/ch04_paths.py#input_span -->
+
+```python
+from datetime import datetime, timedelta
+
+# The snapshot files each edge kind is derived from (Chapter 3 names them).
+KIND_SOURCES = {
+    "memberOf": {"transitive-memberships.json"},
+    "canSignInAs": {"federated-credentials.json"},
+    "canAddCredential": {"application-owners.json", "directory-role-assignments.json"},
+    "appFor": {"service-principals.json"},
+    "runsAs": {"compute-identities.json"},
+    "canControlCode": {
+        "role-assignments.json", "role-definitions.json", "deny-assignments.json",
+        "scope-parents.json", "transitive-memberships.json", "compute-identities.json",
+    },
+    "grants": {
+        "role-assignments.json", "role-definitions.json", "deny-assignments.json",
+        "scope-parents.json", "transitive-memberships.json", "storage-accounts.json",
+    },
+}
+
+Window = tuple[datetime, datetime]
+
+
+def parse_utc(value: str) -> datetime:
+    """Parse the manifest's UTC timestamps, which end in 'Z'."""
+    return datetime.fromisoformat(value.replace("Z", "+00:00"))
+
+
+def read_windows(manifest: dict) -> dict[str, Window]:
+    """When each snapshot file's query started and finished."""
+    return {
+        entry["name"]: (parse_utc(entry["queriedAtUtc"]), parse_utc(entry["completedAtUtc"]))
+        for entry in manifest["files"]
+    }
+
+
+def path_inputs(path: list[Edge]) -> list[str]:
+    """Every snapshot file the path's edges were derived from."""
+    return sorted(set().union(*(KIND_SOURCES[edge.kind] for edge in path)))
+
+
+def input_span(path: list[Edge], windows: dict[str, Window]) -> Window | None:
+    """From the first read behind the path to the last, or None if none was timed."""
+    reads = [windows[name] for name in path_inputs(path) if name in windows]
+
+    if not reads:
+        return None
+
+    return min(start for start, _ in reads), max(end for _, end in reads)
+
+
+def temporal_problem(
+    path: list[Edge],
+    windows: dict[str, Window],
+    max_span: timedelta,
+    changes: list[tuple[str, datetime]],
+) -> str | None:
+    """Why the path's inputs can't be treated as one moment, or None if they can.
+
+    changes are (node, time) pairs from change evidence: resourcechanges, the Activity Log,
+    or Entra audit logs. A change to any node on the path inside its input span counts.
+    """
+    span = input_span(path, windows)
+    recollect = "re-collect " + ", ".join(path_inputs(path))
+
+    if span is None:
+        return f"no read times for its inputs; {recollect}"
+
+    start, end = span
+
+    if end - start > max_span:
+        return f"inputs read over {end - start}, more than {max_span}; {recollect}"
+
+    nodes = {path[0].source} | {edge.target for edge in path}
+    inside = sorted((at, node) for node, at in changes if node in nodes and start <= at <= end)
+
+    if inside:
+        at, node = inside[0]
+        return f"{node} changed at {at:%Y-%m-%dT%H:%M:%SZ} while inputs were read; {recollect}"
+
+    return None
+```
+
+`KIND_SOURCES` maps edge kinds to files, not each edge to the rows it came from. So the span it computes is never narrower than the truth. A coarse map can make a path look less consistent than it is, but never more.
+
+A path is **temporally inconsistent** in either of two cases:
+
+- **Its input span is longer than `max_span`.** Set `max_span` to the length of a normal collector run in your estate, measured from your own manifests. The Chapter 3 example took under seven minutes. The rationale is that reads inside one run are as close together as your collector can make them. A wider span means the path joined files from different runs, such as this morning's role assignments and last night's Graph files. Don't copy someone else's number. A tenant whose normal run takes an hour needs an hour.
+- **Change evidence shows a change to a node on the path inside the span.** The run was short enough, but something on the path moved while it ran.
+
+Either way, `hop_table` reports the path as "Insufficient evidence" and lists the files to re-collect. Once those files are read again together, the label goes away.
+
+The change evidence comes from three places, each with limits. Appendix B.9 has the recipes:
+
+- **Resource Graph `resourcechanges`** covers property changes on Azure resources for 14 days. It never shows Entra objects: app owners, directory roles, and federated credentials on applications don't appear there.
+- **The Activity Log** covers control-plane writes such as role assignment changes, for as long as you retain it.
+- **Entra audit logs** cover credentials, owners, and directory role changes, but only if you export them to a workspace. Without that export, a change to an Entra object inside the span can't be seen at all.
+
+Map each change to the node it touched (a resource ID, an application, a principal), and pass the list to `temporal_problem`. If an Entra source isn't available, say so in the gap list. Don't treat an empty change list as proof that nothing changed.
 
 ### The payments graph
 
@@ -846,7 +958,7 @@ So: **never let a model decide what a role permits.** Look it up in the role def
 
 This lab builds the identity graph for the payments estate and finds every path from three entry points to two customer data targets.
 
-**Setup.** The companion lab tenant (Appendix A) includes the opening story's configuration: an owner on `payments-deploy`, a user with Cloud Application Administrator, and a Function App with a user-assigned managed identity that holds Storage Blob Data Reader on `custarchive`. Start from the Chapter 3 snapshot (`storage-accounts.json`, `role-assignments.json`, `subscriptions.json`, `federated-credentials.json`, service principals). That snapshot does not include application owners, directory role assignments, transitive memberships, role definition actions, deny assignments, or compute identity attachments. Re-running the Chapter 3 collector leaves Steps 1–3 without those files. Collect them in Step 0, into the same snapshot directory, and re-hash `manifest.json`.
+**Setup.** The companion lab tenant (Appendix A) includes the opening story's configuration: an owner on `payments-deploy`, a user with Cloud Application Administrator, and a Function App with a user-assigned managed identity that holds Storage Blob Data Reader on `custarchive`. Start from the Chapter 3 snapshot (`storage-accounts.json`, `role-assignments.json`, `subscriptions.json`, `federated-credentials.json`, service principals). That snapshot does not include application owners, directory role assignments, transitive memberships, role definition actions, deny assignments, or compute identity attachments. Re-running the Chapter 3 collector leaves Steps 1–3 without those files. Collect them in Step 0, into the same snapshot directory, and re-hash `manifest.json`. Run Step 0 straight after the Chapter 3 collector, in the same session. Every path joins Chapter 3 files with Step 0 files, so a Step 0 run hours later makes every path temporally inconsistent (section 4.5).
 
 Confirm `role-assignments.json` still has the `condition` column from section 3.3. Role names alone are not enough to derive edges.
 
@@ -902,7 +1014,7 @@ $memberships = foreach ($groupId in $assignedGroupIds) {
 }
 ```
 
-Write those three results to `application-owners.json`, `directory-role-assignments.json`, and `transitive-memberships.json`.
+Save those three results with `Save-SnapshotFile` from the Chapter 3 lab, as `application-owners`, `directory-role-assignments`, and `transitive-memberships`, so each file records its own read times. Take each `-QueriedAtUtc` from `Get-UtcStamp` just before its loop starts.
 
 Then collect the Azure rows the derivation reads. `identity.userAssignedIdentities` is a map from identity resource id to `{clientId, principalId}`. Keep the map. The principal id is what joins to `role-assignments.json`.
 
@@ -993,15 +1105,17 @@ Write those to `role-definitions.json`, `deny-assignments.json`, `compute-identi
 
 Every edge cites the snapshot file and row. Derived edges also cite the action and the rule.
 
-**Step 2 — Search.** Run `find_paths` from each entry point to each target capability. List the paths shortest first, and print each one with `hop_table`, so every path shows its confidence, its hops with evidence categories, and any assumption it rests on. A path that contains `hasRoleAt` or `contains` is a bug in the loader, not a finding.
+**Step 2 — Search.** Run `find_paths` from each entry point to each target capability. List the paths shortest first, and print each one with `hop_table`, so every path shows its confidence, its hops with evidence categories, and any assumption it rests on. Pass it the result of `temporal_problem`. Use `read_windows` on the manifest, a `max_span` equal to your collector's normal run length, and the changes from Appendix B.9 for the run's window. A path that contains `hasRoleAt` or `contains` is a bug in the loader, not a finding.
 
 **Step 3 — Check against the opening story.** The lab starts with the original `main` branch subject in place. Confirm that you find all three entry points into `payments-deploy` (the `main` workflow, the app owner, and the help-desk user) and both routes out of it, for six paths in total. Then add a Reader assignment on `rg-payments-prod` for a fourth user and search again. That user must have no path to either target. If they do, the loader is still treating role containment as a capability.
 
 If you find fewer than six paths, the usual misses are the `appId` join, transitive membership, a directory role that was not turned into `canAddCredential`, or a managed identity attachment that never became `runsAs`.
 
-None of the six paths carries an unmodeled control, because the lab has no conditioned assignments. Each prints with the confidence its evidence earns.
+None of the six paths carries an unmodeled control, because the lab has no conditioned assignments. With Step 0 run straight after the Chapter 3 collector, none is temporally inconsistent either. Each prints with the confidence its evidence earns.
 
 **Step 3a (optional) — A control the search can't evaluate.** Give `analyst-04` Storage Blob Data Reader on `custdata`, with a condition that limits reads to a container named `reports` (Appendix A.7 has the Terraform). Re-run Step 0, derive, and search. You should now find a seventh path, one hop from `analyst-04` to reading customer data. Its hop table must say "Confidence: Insufficient evidence" and list the condition as the assumption to check. If the path is missing, the loader is still dropping conditioned assignments. If it prints with any other confidence, the label was lost between derivation and printing. Remove the assignment before Step 4.
+
+**Step 3b (optional) — A path from two runs.** Re-run only Step 0 the next day, into the same snapshot directory, and search again. The six paths are the same, but each one now prints "Confidence: Insufficient evidence" and "Temporally inconsistent", with an input span close to a day and the files to re-collect. Then re-run the Chapter 3 collector and Step 0 together, and confirm the label is gone.
 
 **Step 4 — Apply the original fix.** Change the federated credential to the `production` environment subject in the lab. Re-run the Chapter 3 collector and Step 0, then search again. Confirm that the `main` entry point is replaced by the narrower production-environment entry, and that the four paths through the app owner and the help-desk user are unchanged.
 
@@ -1016,6 +1130,7 @@ None of the six paths carries an unmodeled control, because the lab has no condi
 - In Azure, **identity is the perimeter**. Most serious paths are chains of identity hops: membership, role, become, grant, control.
 - Effective access is a **derived fact** built from five rules: scopes inherit downward, groups expand transitively, roles have **control-plane and data-plane** actions, deny assignments and conditions subtract, and **eligible is not active**.
 - What the derivation can't evaluate, such as a role condition, is kept as a hop labeled with an **unmodeled control**. A path through it is "Insufficient evidence", and an **access-decision contract** says which controls the analysis models at all.
+- Every path carries an **input span**, from its earliest read to its latest. A span longer than one collector run, or a change on the path inside it, makes the path **temporally inconsistent**, and it is "Insufficient evidence" until its files are re-collected together.
 - The most dangerous question is **who can become an identity**: federated credential subjects, app **owners**, directory roles that manage credentials, and **control of code** running with a managed identity.
 - Identities that can **write role assignments**, Global Administrators who can **elevate**, and service principals with privileged **Graph application permissions** can grant themselves more.
 - **Control-to-data conversions** (list keys, access policies, code deployment, credential reads) are why "Contributor can't read data" is often false.
@@ -1037,6 +1152,8 @@ None of the six paths carries an unmodeled control, because the lab has no condi
 - **Capability node** — a graph node representing an action that matters, such as reading specific data.
 - **Unmodeled control** — a control the derivation found but can't evaluate, such as a role condition; the hop is kept and labeled with it.
 - **Access-decision contract** — for one target, the controls that decide access, whether the analysis models each, and what an unmodeled instance produces.
+- **Input span** — the time from the earliest snapshot read behind a path to the latest.
+- **Temporally inconsistent** — a path whose input span is longer than one collector run, or that saw a change on the path inside its span.
 
 ---
 
@@ -1049,3 +1166,4 @@ None of the six paths carries an unmodeled control, because the lab has no condi
 - Consider a figure for section 4.5's payments graph instead of ASCII.
 - Add the Chapter 4 fact checks to GTM **M-306** when it is picked up.
 - 2026-10-11 (review comment on unmodeled controls): the derivation no longer skips conditioned assignments. Conditions, missing role definitions, and conditioned denies now produce labeled edges, a path through one is "Insufficient evidence", and deny `excludePrincipals` is honored. Added `path_verdict`, the access-decision contract in section 4.6, and optional Step 3a. Tests in `test_ch04_paths.py` cover each case and confirm the plain lab still yields exactly P1 to P6. Verify before submission: the deny assignment `condition`, `conditionVersion`, `excludePrincipals`, and permission-level `condition` fields in Resource Graph rows (REST api-version 2022-04-01 documents them); and the scope of Conditional Access for workload identities (single-tenant service principals; managed identities not covered) before adding detail to the contract row.
+- 2026-10-12 (review comment on temporal consistency): added "Paths across time" with the `input_span` listing. `KIND_SOURCES` and `parse_utc` moved here from Chapter 10, which now imports them. `hop_table` takes the temporal reason. The threshold has no default number: it is the reader's own normal run length, for the reason given in the text. Added the Setup note, Step 0 saving through `Save-SnapshotFile`, the Step 2 call, and optional Step 3b. Tests in `test_ch04_paths.py` (`InputSpans`) cover a one-run path, a later-run input, a change inside and outside the span, and untimed inputs.
