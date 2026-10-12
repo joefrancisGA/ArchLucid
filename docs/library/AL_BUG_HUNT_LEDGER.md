@@ -30269,13 +30269,21 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 1053
+- **hunts:** 1054
 - **bugs-found:** 429
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-10
+- **last-hunt:** 2026-10-12
 - **last-bug:** 2026-10-10 — malformed JSON resource entry discarded valid sibling resources
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-12 seed hunt (seed-only): reread recent scope isolation, HCL redaction, Terraform comment masking, ARM/Bicep path resolution, CloudFormation YAML, and canonical property handling. The heredoc resource-header candidate met the mechanism bar, but its focused repro was blocked before execution by unrelated `AzureInventorySecurityEdgeMaterializer.cs` compile errors; no candidate was promoted and no production change was made.
+
+- [ ] (candidate) `SimpleTerraformResourceBlockParser.ExtractBlocks` — a reachable Terraform heredoc containing text such as `resource "azurerm_storage_account" "example"` may be matched as a real block because comment masking does not mask heredoc contents; wrong outcome: a phantom resource truncates the preceding block body.
+- [ ] (candidate) `InfrastructureDeclarationBatchPathIndex.TryResolve` — a reachable ARM `templateLink.uri` using `../` with duplicate basenames may fall through from an unnormalized parent-relative path to the wrong basename alias; wrong outcome: the wrong linked template is ingested.
+- [ ] (candidate) `CanonicalInfrastructurePropertyBag.ContainsSensitiveKeyAssignment` — a reachable non-secret HCL block containing a comment line such as `# password = ...` may be redacted because assignment detection does not remove line comments; wrong outcome: canonical non-secret block data is lost.
+- [ ] (candidate) `CloudFormationTemplateParser.ParseRootElement` — a reachable multi-document CloudFormation YAML upload may deserialize only the first document or skip the batch instead of preserving later `Resources`; wrong outcome: valid resources disappear from ingestion.
+- [ ] (candidate) `BicepArrayLiteralConverter.TryParseToJsonElement` — a reachable mixed Bicep/HCL array containing object and primitive elements may serialize only object members; wrong outcome: primitive property values are silently omitted from canonical `tf.*` data.
 
 2026-10-10 seed hunt (seed-only): reread JSON, appsettings, CloudFormation, Kubernetes YAML document splitting, connector parser ordering, structured diagram routing, actor metadata canonicalization, and error boundaries; no fresh reachability-backed wrong-outcome hypothesis survived the hunt-ready bar. The scoped ContextIngestion/Canonicalization suite passed 826/826. Retained the three bounded candidates above; no production change.
 
