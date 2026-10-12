@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { usePolicyPackRuleTemplatesQuery } from "@/hooks/use-policy-pack-rule-templates-query";
 import { simulatePolicyPackAgainstRun } from "@/lib/api";
@@ -71,6 +71,7 @@ export function usePolicyPackVisualBuilder(props: PolicyPackVisualBuilderProps) 
   const [jsonPreview, setJsonPreview] = useState<string>(policyContentJson);
   const [roundTripWarning, setRoundTripWarning] = useState<string | null>(null);
   const [selectedTemplateId, setSelectedTemplateIdState] = useState<string>(urlTemplateId);
+  const appliedTemplateIdRef = useRef<string>("");
   const effectiveSimulateRunId = scopedReviewFilterActive ? scopedReviewId : "";
   const templatesQuery = usePolicyPackRuleTemplatesQuery();
   const templates = templatesQuery.data ?? [];
@@ -137,15 +138,40 @@ export function usePolicyPackVisualBuilder(props: PolicyPackVisualBuilderProps) 
     return map;
   }, [templates]);
 
+  const applyTemplate = useCallback(
+    (template: PolicyPackRuleTemplate, announce: boolean): void => {
+      appliedTemplateIdRef.current = template.templateId;
+      setSelectedTemplateId(template.templateId);
+      const parsed = tryParseVisualBuilderFromContentJson(template.contentJson);
+      const nextState: VisualBuilderState = {
+        ...parsed.state,
+        templateId: template.templateId,
+      };
+      syncFromBuilder(nextState);
+
+      if (announce) {
+        showSuccess(`Loaded template “${template.displayName}”.`);
+      }
+    },
+    [setSelectedTemplateId, syncFromBuilder],
+  );
+
+  useEffect(() => {
+    if (urlTemplateId.length === 0 || appliedTemplateIdRef.current === urlTemplateId) {
+      return;
+    }
+
+    const template = templates.find((item) => item.templateId === urlTemplateId);
+
+    if (template === undefined) {
+      return;
+    }
+
+    applyTemplate(template, false);
+  }, [applyTemplate, templates, urlTemplateId]);
+
   function loadTemplate(template: PolicyPackRuleTemplate): void {
-    setSelectedTemplateId(template.templateId);
-    const parsed = tryParseVisualBuilderFromContentJson(template.contentJson);
-    const nextState: VisualBuilderState = {
-      ...parsed.state,
-      templateId: template.templateId,
-    };
-    syncFromBuilder(nextState);
-    showSuccess(`Loaded template “${template.displayName}”.`);
+    applyTemplate(template, true);
   }
 
   function addLeafCondition(): void {
