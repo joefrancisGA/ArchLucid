@@ -9578,3 +9578,4 @@
 {"at": "2026-10-12T00:58:02.4774999Z", "zoneId": "ui-governance-findings-queue", "outcome": "hit", "productLine": "securenow", "paths": ["archlucid-ui/src/app/(operator)/governance/findings/"]}
 {"at": "2026-10-12T01:01:47.7302994Z", "zoneId": "ui-governance-findings-queue", "outcome": "seed-only", "productLine": "securenow", "paths": ["archlucid-ui/src/app/(operator)/governance/findings/"]}
 {"at": "2026-10-12T01:08:34.7741189Z", "zoneId": "ui-governance-findings-queue", "outcome": "seed-only", "productLine": "securenow", "paths": ["archlucid-ui/src/app/(operator)/governance/findings/"]}
+{"at": "2026-10-12T01:12:56.8658750Z", "zoneId": "ui-governance-findings-queue", "outcome": "seed-only", "productLine": "securenow", "paths": ["archlucid-ui/src/app/(operator)/governance/findings/"]}
