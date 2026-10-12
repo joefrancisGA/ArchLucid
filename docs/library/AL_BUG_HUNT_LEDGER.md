@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-12 seed hunt (seed→hit): `scope-binding-middleware` — `ScopeIdentityBindingMiddleware` only attempted SCIM authentication for an unauthenticated principal, so an authenticated non-SCIM principal such as an API-key principal on `/scim/v2/Users` bypassed SCIM rebinding and let scope validation use the wrong identity. The middleware now reauthenticates unless the current authentication type is `ScimBearer`. Regression `InvokeAsync_authenticated_non_scim_principal_on_scim_path_rebinds_before_scope_validation` failed before the fix and passed after it; the isolated scope-binding filter passed 63/63. The picker-wide API filter retained 6 pre-existing SQL Server-unavailable integration failures.
+
 2026-10-12 seed hunt (seed-only): `cloud-extractors` — repeated the selected AWS, GCP, and Azure extractor reread; the five bounded candidates remain below the hunt-ready bar and no new mechanism-backed wrong outcome emerged. AWS/GCP extractor tests passed 52/52; Azure extractor tests passed 130/131 with the known network-association baseline failure. No production or regression change.
 
 2026-10-12 seed hunt (seed-only): `cloud-extractors` — repeated the selected AWS, GCP, and Azure extractor reread; the five bounded candidates remain below the hunt-ready bar and no new mechanism-backed wrong outcome emerged. AWS/GCP extractor tests passed 52/52; Azure extractor tests passed 130/131 with the known network-association baseline failure. No production or regression change.
@@ -12695,6 +12697,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: scope-binding-middleware
 
+2026-10-12 seed hunt (seed→hit): `ScopeIdentityBindingMiddleware` skipped SCIM rebinding when an authenticated non-SCIM principal reached `/scim/v2/Users`, so scope validation trusted the wrong identity. The middleware now reauthenticates unless the current authentication type is `ScimBearer`. Regression `InvokeAsync_authenticated_non_scim_principal_on_scim_path_rebinds_before_scope_validation` failed before the fix and passed after it; the isolated scope-binding filter passed 63/63. The picker-wide API filter retained 6 pre-existing SQL Server-unavailable integration failures.
+
 2026-10-10 seed hunt (seed-only): repeated the scoped review with unchanged production behavior. The focused run again had 96 passing unit tests, 2 stale API-key workspace/project expectations, and 8 SQL-backed integration tests blocked by the missing SQL Server connection. No new hunt-ready row was promoted.
 
 2026-10-10 seed hunt (seed-only): repeated the selected source/test review with unchanged production behavior. The two API-key workspace/project unit expectation failures remain the documented ADR 0037 exception, not a production repro; 96 focused unit tests passed and 8 SQL-backed integration tests were blocked by the missing SQL Server connection. No new candidate was promoted or added.
@@ -12733,11 +12737,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** scope binding; tenant scope middleware; route tenant filter
 - **paths:** ArchLucid.Api/Middleware/ScopeIdentityBindingMiddleware.cs; ArchLucid.Api/Middleware/ScopeResolutionGuardMiddleware.cs; ArchLucid.Api/Security/RouteTenantScopeBindingFilter.cs
 - **test-filter:** FullyQualifiedName~ScopeIdentityBinding|FullyQualifiedName~ScopeResolutionGuard|FullyQualifiedName~RouteTenantScopeBinding
-- **hunts:** 63
-- **bugs-found:** 15
+- **hunts:** 64
+- **bugs-found:** 16
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-11
-- **last-bug:** 2026-10-09 — empty and dot segments on health probe paths hit TB-304 on staging-like hosts
+- **last-hunt:** 2026-10-12
+- **last-bug:** 2026-10-12 — authenticated non-SCIM principals bypassed SCIM rebinding on `/scim/v2/Users`
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 

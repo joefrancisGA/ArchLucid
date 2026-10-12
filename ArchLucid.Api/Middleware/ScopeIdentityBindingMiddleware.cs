@@ -19,7 +19,10 @@ internal sealed class ScopeIdentityBindingMiddleware(RequestDelegate next)
         // SCIM endpoints authenticate ScimBearer at UseAuthorization, which is later in the
         // pipeline — without this, a forged x-tenant-id on /scim/v2 returns 200.
 
-        if (context.User.Identity?.IsAuthenticated != true)
+        if (!string.Equals(
+                context.User.Identity?.AuthenticationType,
+                ScimBearerDefaults.AuthenticationScheme,
+                StringComparison.OrdinalIgnoreCase))
         {
             await TryAuthenticateScimBearerForScopeBindingAsync(context);
         }
