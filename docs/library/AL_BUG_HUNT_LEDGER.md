@@ -28298,6 +28298,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ## Zone: context-ingestion
 
+2026-10-12 seed hunt (seed-only): promoted one bounded candidate for `PixelDiagramIntakeStubDetector.TryDetect`: a reachable structured-diagram JSON upload whose root is an array or scalar can make `JsonElement.TryGetProperty` throw `InvalidOperationException` instead of returning no stub, but the focused repro could not execute because unrelated `AzureInventorySecurityEdgeMaterializer.cs` compile errors blocked test discovery. The temporary repro was removed; no production or regression code changed.
+
 2026-10-12 seed hunt (seed-only): re-read uploaded-config edge emission, document normalization, plain-text canonicalization, infrastructure connector wiring, and focused tests. No fresh reachable wrong-outcome mechanism met the promotion bar; existing candidate lenses were not duplicated. The focused ContextIngestion/Canonicalization run was blocked before discovery by unrelated missing `unmappedRoles` and `warnings` members in `AzureInventorySecurityEdgeMaterializer.cs`; no production or regression code changed.
 
 2026-10-12 seed hunt (seed-only): re-read Kubernetes manifest mapping, infrastructure batch normalization, document connector orchestration, set-diff semantics, and focused tests. No fresh reachable wrong-outcome mechanism met the promotion bar; existing candidate lenses were not duplicated. The focused ContextIngestion/Canonicalization run was blocked before discovery by unrelated missing `unmappedRoles` and `warnings` members in `AzureInventorySecurityEdgeMaterializer.cs`; no production or regression code changed.
@@ -30324,7 +30326,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 1060
+- **hunts:** 1061
 - **bugs-found:** 429
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-12
@@ -30337,6 +30339,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [ ] (candidate) `SimpleTerraformResourceBlockParser.ExtractBlocks` — a reachable Terraform heredoc containing text such as `resource "azurerm_storage_account" "example"` may be matched as a real block because comment masking does not mask heredoc contents; wrong outcome: a phantom resource truncates the preceding block body.
 - [ ] (candidate) `InfrastructureDeclarationBatchPathIndex.TryResolve` — a reachable ARM `templateLink.uri` using `../` with duplicate basenames may fall through from an unnormalized parent-relative path to the wrong basename alias; wrong outcome: the wrong linked template is ingested.
 - [ ] (candidate) `CanonicalInfrastructurePropertyBag.ContainsSensitiveKeyAssignment` — a reachable non-secret HCL block containing a comment line such as `# password = ...` may be redacted because assignment detection does not remove line comments; wrong outcome: canonical non-secret block data is lost.
+- [ ] (candidate) `PixelDiagramIntakeStubDetector.TryDetect` — a reachable structured-diagram JSON upload with an array or scalar root may throw while probing `intakeStub` instead of returning no stub; wrong outcome: document normalization fails rather than skipping malformed input safely. Repro promotion is pending execution after the unrelated application compile blocker is cleared.
 - [ ] (candidate) `CloudFormationTemplateParser.ParseRootElement` — a reachable multi-document CloudFormation YAML upload may deserialize only the first document or skip the batch instead of preserving later `Resources`; wrong outcome: valid resources disappear from ingestion.
 - [ ] (candidate) `BicepArrayLiteralConverter.TryParseToJsonElement` — a reachable mixed Bicep/HCL array containing object and primitive elements may serialize only object members; wrong outcome: primitive property values are silently omitted from canonical `tf.*` data.
 
