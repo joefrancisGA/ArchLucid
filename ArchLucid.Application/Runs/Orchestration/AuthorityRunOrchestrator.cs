@@ -1,3 +1,6 @@
+using System.Diagnostics;
+
+using ArchLucid.Application.Agents;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Orchestration.Pipeline;
 using ArchLucid.Contracts.Common;
@@ -164,6 +167,27 @@ public sealed partial class AuthorityRunOrchestrator(
                 ContextIngestionCreateTimePinRequestFactory.FromIngest(request, run.RunId),
                 cancellationToken)
             .ConfigureAwait(false);
+
+        await UpdateRunWithTransientRetryAsync(run, uow, cancellationToken);
+    }
+
+    /// <summary>
+    ///     Persists OTEL trace id and engine provenance before pipeline stages write
+    ///     <see cref="RunRecord.GoldenManifestId" /> (TB-310 committed-header seal).
+    /// </summary>
+    private async Task PersistRunHeaderEvidenceAnchorsBeforePipelineStagesAsync(
+        RunRecord run,
+        ContextIngestionRequest request,
+        IArchLucidUnitOfWork uow,
+        CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(run.OtelTraceId))
+            run.OtelTraceId = Activity.Current?.TraceId.ToString();
+
+        RunEngineProvenanceApplicator.TryApplyFromEffectiveAliasId(
+            run,
+            request.EffectiveModelAliasId,
+            _agentModelAliasRegistry);
 
         await UpdateRunWithTransientRetryAsync(run, uow, cancellationToken);
     }

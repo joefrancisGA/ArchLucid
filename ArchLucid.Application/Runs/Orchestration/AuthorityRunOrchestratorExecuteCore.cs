@@ -170,6 +170,9 @@ public sealed partial class AuthorityRunOrchestrator
                     + "Enable FeatureManagement:FeatureFlags:AsyncAuthorityPipeline for SQL storage.");
             }
 
+            // Persist trace + provenance before stages set GoldenManifestId (committed-header seal).
+            await PersistRunHeaderEvidenceAnchorsBeforePipelineStagesAsync(run, request, uow, pipelineCt);
+
             // Commit the run persist so the lock is released; otherwise, audit events in stages will deadlock.
             await CommitUnitOfWorkWithTransientRetryAsync(uow, pipelineCt);
 

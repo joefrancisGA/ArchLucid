@@ -21,6 +21,10 @@ Phases: `Prerequisites` (no spend), `CollectRun1` / `CollectRun2` / `CollectRun2
 
 **Related:** [`OWNER_REAL_MODE_EVIDENCE_CHECKLIST.md`](OWNER_REAL_MODE_EVIDENCE_CHECKLIST.md) · [`REAL_LLM_RUN_EVIDENCE_TEMPLATE.md`](../quality/REAL_LLM_RUN_EVIDENCE_TEMPLATE.md) · [`FIRST_PILOT_OPERATOR_PATH.md`](FIRST_PILOT_OPERATOR_PATH.md) · [`POLICY_PACK_DELTA_DEMO_SCRIPT.md`](../go-to-market/POLICY_PACK_DELTA_DEMO_SCRIPT.md) · [`AGENT_OUTPUT_EVALUATION.md`](../library/AGENT_OUTPUT_EVALUATION.md)
 
+### Async create and `run:{id}` operations (proof runs)
+
+When create returns **202**, poll **`GET /v1/operations/run:{runId}`** until `succeeded`. Use the same `runId` for execute, commit, and proof-packet collection. If readiness returns **409** with “committed golden manifest is missing”, the run has not finished authority pipeline (or failed during create) — resolve via [`FIRST_PILOT_SUPPORT_TRIAGE.md`](FIRST_PILOT_SUPPORT_TRIAGE.md) before re-running governance checks.
+
 ---
 
 ## Prerequisites
