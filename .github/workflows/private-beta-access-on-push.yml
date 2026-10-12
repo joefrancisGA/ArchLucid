@@ -12,9 +12,10 @@ on:
   workflow_dispatch:
 
 concurrency:
-  # Keep an invite-wave witness running to completion; a later push queues behind it.
+  # Cancel superseded trunk pushes so the latest invite-wave run is the first-green signal.
+  # Frozen-lane Playwright stays on private-beta-access-smoke-branch.yml (cancel-in-progress: false).
   group: private-beta-access-on-push-${{ github.ref }}
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
