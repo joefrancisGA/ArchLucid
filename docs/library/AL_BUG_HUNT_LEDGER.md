@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-12 seed hunt (seed-only): `core-explanation-json` — re-read the structured explanation parser, aggregate scalar readers, confidence/citation callouts, prompt schema, and focused tests. The retained boolean-coercion candidates lack a confirmed producer contract or attacker-controlled aggregate input, so no fresh reachable mechanism-backed wrong outcome met the hunt-ready bar. The scoped `RunExplanation` filter stopped before discovery on unrelated Application compile errors (`unmappedRoles` and `warnings`). No candidate was promoted and no production or regression code changed.
+
 2026-10-12 seed hunt (seed-only): `core-explanation-json` — re-read the structured explanation parser, JSON readers, confidence/citation callouts, and focused `RunExplanation` tests. Numeric/string confidence, nested scalar/list coercion, malformed JSON fallback, and object-shaped evidence remain covered; no fresh reachable mechanism-backed wrong outcome met the hunt-ready bar. The scoped tests stopped before discovery on unrelated Application compile errors (`unmappedRoles` and `warnings`). No production or regression code changed.
 
 2026-10-12 seed hunt (seed-only): `authority-pipeline-payload` — re-read `AuthorityPipelineWorkPayload`, its JSON adapter, and both focused null/JSON test suites. Null collections/elements, malformed JSON, identifier normalization, and undefined work kinds remain explicitly handled; no fresh reachable mechanism-backed wrong outcome met the hunt-ready bar. The scoped payload tests stopped before discovery on unrelated Application compile errors (`unmappedRoles` and `warnings`). No production or regression code changed.
@@ -28057,7 +28059,7 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 - **aliases:** run explanation; explanation json; split from archlucid-core
 - **paths:** ArchLucid.Core/Explanation/
 - **test-filter:** FullyQualifiedName~RunExplanation
-- **hunts:** 56
+- **hunts:** 57
 - **bugs-found:** 33
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-12
