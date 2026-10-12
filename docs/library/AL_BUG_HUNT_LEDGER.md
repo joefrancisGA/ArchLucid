@@ -7922,6 +7922,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: tenant-erasure
 
+2026-10-12 thorough hunt (dry): `tenant-erasure` — cheap-disproved the two invalid path-normalization hypotheses and rechecked the three valid-no-repro command/side-effect hypotheses; no reachable bypass or lifecycle defect was found. The Application and API TenantErasure suites were blocked before execution by unrelated compile errors in `AzureInventorySecurityEdgeMaterializer.cs` (`unmappedRoles` and `warnings`). No production or regression code changed.
+
 - **id:** tenant-erasure
 - **status:** open
 - **impact:** high
