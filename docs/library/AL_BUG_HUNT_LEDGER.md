@@ -36770,13 +36770,15 @@ ABQ-09 churn hotspot.
 - **aliases:** securenow question queue; question disposition
 - **paths:** ArchLucid.Application/InfraEvidence/SecureNowQuestionDispositions/; ArchLucid.Api/Controllers/InfraEvidence/InfraEvidenceSecureNowQuestionsController.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/ISecureNowQuestionDispositionRepository.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/ISecureNowQuestionDispositionService.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/SecureNowQuestionDispositionRecord.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/SecureNowQuestionRecord.cs; ArchLucid.Persistence/InfraEvidence/NoOpSecureNowQuestionDispositionRepository.cs; ArchLucid.Persistence/InfraEvidence/SqlSecureNowQuestionDispositionRepository.cs; ArchLucid.Contracts/InfraEvidence/SecureNowQuestionDispositionContracts.cs; archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
-- **hunts:** 32
+- **hunts:** 33
 - **bugs-found:** 13
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-12
 - **last-bug:** 2026-10-12 — endpoint-less inferred questions were emitted without an answerable resource identity
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-12 seed hunt (seed-only): reread the selected compiler, disposition service, controller, persistence, contract, queue, and API paths. No new reachable mechanism beyond the existing bounded candidates met the hunt-ready bar; the focused queue suite passed 16/16. No candidate was promoted and no production or regression code changed.
 
 2026-10-12 seed hunt (seed-only): reread the selected compiler, disposition service, controller, persistence, contract, queue, and API paths. No new reachable mechanism beyond the existing bounded identity, suppression, API-shape, and provider in-flight candidates met the hunt-ready bar; the focused queue suite passed 16/16. No candidate was promoted and no production or regression code changed.
 
