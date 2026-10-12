@@ -27,10 +27,10 @@ Copy-paste docs index: [`docs/architecture/SECURENOW_MENU_AND_EDITIONS_LUNA_PROM
 | 14 | **SN-COL-02** | Collection run records and blob ingest. |
 | 15 | **SN-COL-03** | Collection agent page. |
 | 16 | **SN-COL-04** | Run now and schedule. |
-| 17 | **SN-DEP-01** | ADR: in-tenant SecureNow deployment. |
+| 17 | **SN-DEP-01** | ADR 0104: in-tenant SecureNow deployment. Accepted 2026-10-12. |
 | 18 | **SN-DEP-02** | In-tenant Terraform root. |
 | 19 | **SN-DEP-03** | In-tenant Administration variant. |
 | 20 | **SN-HAND-01** | Design note: engineer-to-analyst handoff. |
 | — | **SN-MENU-HOLD** | Stop list. Paste only when a session drifts. |
 
-**SN-MENU-HOLD** is not a build step. The owner accepted SN-COL-01 (ADR 0103) on 2026-10-11, and SN-COL-02 is on `master`. SN-DEP-02 and SN-DEP-03 wait for an accepted SN-DEP-01.
+**SN-MENU-HOLD** is not a build step. The owner accepted SN-COL-01 (ADR 0103) on 2026-10-11, and SN-COL-02 is on `master`. The owner accepted SN-DEP-01 (ADR 0104) on 2026-10-12. SN-DEP-02 and SN-DEP-03 may proceed when those prompts are run.
