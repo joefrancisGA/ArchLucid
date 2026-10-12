@@ -9720,3 +9720,4 @@
 {"at":"2026-10-12T20:16:47.3842192Z","zoneId":"authority-pipeline-payload","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Application/Runs/Orchestration/AuthorityPipelineWorkPayload.cs"]}
 {"at":"2026-10-12T20:20:20.1441662Z","zoneId":"core-explanation-json","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Core/Explanation/"]}
 {"at":"2026-10-12T20:24:14.4048208Z","zoneId":"core-explanation-json","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Core/Explanation/"]}
+{"at":"2026-10-12T20:28:10.1413976Z","zoneId":"run-execute-ownership","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Application/Runs/Orchestration/ArchitectureRunExecuteOrchestrator.cs","ArchLucid.Application/Runs/ExecuteOwnership/RunExecuteOwnershipLeaseService.cs","ArchLucid.Application/Runs/ExecuteOwnership/RunExecuteOwnershipLeaseRenewalScope.cs"]}
