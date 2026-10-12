@@ -20,6 +20,7 @@
     "pack.isDefault": "false",
     "pack.packType": "ProjectCustom",
     "pack.description": "Parameterized organization policy starter. Replace every {{organization.*}} placeholder before creating the pack.",
+    "frameworkMappingDisclaimer": "Organization policy mappings are architecture-review prompts only; not certification.",
     "requiredPlaceholders": "[\"organization.allowedRegions\",\"organization.approvedServices\",\"organization.networkBoundary\",\"organization.identityRequirements\",\"organization.dataClassificationPolicy\",\"organization.requiredTags\"]",
     "curatedRulesArtifact": "docs/samples/policy-packs/organization-security-architecture-starter-rules-v1.json"
   }
