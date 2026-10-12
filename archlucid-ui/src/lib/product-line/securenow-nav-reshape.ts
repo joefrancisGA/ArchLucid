@@ -1,4 +1,4 @@
-import { Home } from "lucide-react";
+import { Activity, Home } from "lucide-react";
 
 import {
   AUDIT_EVIDENCE_LINEAGE_LOOKUP_PATH,
@@ -45,6 +45,7 @@ import {
   INTEGRATIONS_SERVICENOW_PATH,
   INTEGRATIONS_TEAMS_PATH,
 } from "@/lib/integrations-nav-paths";
+import { SECURENOW_COLLECTION_AGENT_PATH } from "@/lib/product-line/securenow-collection-agent-route";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import type { NavGroupConfig, NavLinkItem } from "@/lib/nav-config.types";
 
@@ -114,6 +115,15 @@ export const SECURENOW_DATA_SOURCES_NAV_HREFS: readonly string[] = [
   ADMINISTRATION_CONNECTION_STATUS_PATH,
   GOVERNANCE_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH,
 ];
+
+export const SECURENOW_COLLECTION_AGENT_NAV_LINK: NavLinkItem = {
+  href: SECURENOW_COLLECTION_AGENT_PATH,
+  label: "Collection agent",
+  title: "Whether scheduled collection is running and what it found.",
+  icon: Activity,
+  tier: "extended",
+  requiredAuthority: "ReadAuthority",
+};
 
 export const SECURENOW_INTEGRATION_NAV_HREFS: readonly string[] = [
   INTEGRATIONS_JIRA_PATH,
@@ -361,6 +371,7 @@ export function reshapeNavGroupsForSecureNow(
   }
 
   const dataSourceLinks = [
+    SECURENOW_COLLECTION_AGENT_NAV_LINK,
     ...applySecureNowIntegrationNavLinkLabels(
       pickNavLinks(linksByHref, [CLOUD_CONNECTIONS_PATH]),
     ),

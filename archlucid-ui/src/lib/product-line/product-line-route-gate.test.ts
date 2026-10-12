@@ -14,6 +14,22 @@ describe("product-line-route-gate", () => {
         productLine: "security",
       }),
     ).toEqual({ kind: "allow" });
+
+    expect(
+      decideProductLineRouteRedirect({
+        pathname: "/infrastructure/collection-agent",
+        productLine: "security",
+      }),
+    ).toEqual({ kind: "allow" });
+  });
+
+  it("blocks the Collection agent page in the Architecture shell", () => {
+    expect(
+      decideProductLineRouteRedirect({
+        pathname: "/infrastructure/collection-agent",
+        productLine: "architecture",
+      }),
+    ).toEqual({ kind: "blocked", pathname: "/infrastructure/collection-agent" });
   });
 
   it("blocks Architecture-only operator paths in the Security product without home redirect", () => {
