@@ -143,6 +143,31 @@ public sealed partial class AuthorityRunOrchestrator(
             $"Pre-allocated run '{runId:D}' was not found for authority pipeline start.");
     }
 
+    /// <summary>
+    ///     Tier C async admit persists a stub without create-time pins; findings analysis requires pins on the header
+    ///     before pipeline stages (same ordering as the greenfield ingest path in <see cref="ExecuteCoreAsync" />).
+    /// </summary>
+    private async Task EnsureAdmittedRunCreateTimePinsIfMissingAsync(
+        RunRecord run,
+        ContextIngestionRequest request,
+        ScopeContext scope,
+        IArchLucidUnitOfWork uow,
+        CancellationToken cancellationToken)
+    {
+        if (run.PinnedPolicyPackIdsHashSha256 is { Length: > 0 })
+            return;
+
+        await _runCreatePinOrchestrator
+            .ApplyCreateTimePinsAsync(
+                run,
+                scope,
+                ContextIngestionCreateTimePinRequestFactory.FromIngest(request, run.RunId),
+                cancellationToken)
+            .ConfigureAwait(false);
+
+        await UpdateRunWithTransientRetryAsync(run, uow, cancellationToken);
+    }
+
     private async Task CommitUnitOfWorkWithTransientRetryAsync(IArchLucidUnitOfWork uow, CancellationToken ct) =>
         await OrchestratorTransientDbRetry.ExecuteAsync(uow.CommitAsync, ct);
 
