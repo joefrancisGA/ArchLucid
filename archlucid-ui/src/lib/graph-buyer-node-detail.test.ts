@@ -25,6 +25,34 @@ describe("graphBuyerTrailRecordTypeLine", () => {
     });
   });
 
+  it("labels sample hero finding when graph metadata is null", () => {
+    const node: GraphNodeVm = {
+      id: REGISTERED_HERO_FINDING_ID,
+      type: "Finding",
+      label: "Sensitive data minimization risk",
+      metadata: null,
+    };
+
+    expect(graphBuyerTrailRecordTypeLine(node)).toEqual({
+      primary: "Finding: Sensitive data minimization",
+      secondary: { label: "Risk area", value: "Risk area was not stored." },
+    });
+  });
+
+  it("uses stored risk area metadata on sample hero findings", () => {
+    const node: GraphNodeVm = {
+      id: REGISTERED_HERO_FINDING_ID,
+      type: "Finding",
+      label: "Sensitive data minimization risk",
+      metadata: { riskArea: "Stored risk" },
+    };
+
+    expect(graphBuyerTrailRecordTypeLine(node)).toEqual({
+      primary: "Finding: Sensitive data minimization",
+      secondary: { label: "Risk area", value: "Stored risk" },
+    });
+  });
+
   it("labels generic finding nodes as Finding", () => {
     const node: GraphNodeVm = {
       id: "finding-other",
