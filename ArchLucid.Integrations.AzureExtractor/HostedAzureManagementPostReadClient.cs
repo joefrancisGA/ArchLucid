@@ -15,6 +15,9 @@ public sealed class HostedAzureManagementPostReadClient(
     private const int MaxCostPages = 64;
     private const int MaxPolicyPages = 64;
     private const int PolicyPageSize = 450;
+    private const string ContainerServiceApiVersion = "2024-02-01";
+    private const int MaxAksCommandPolls = 15;
+    private static readonly TimeSpan AksCommandPollDelay = TimeSpan.FromSeconds(2);
 
     private static readonly JsonSerializerOptions SerializerOptions = new()
     {
@@ -235,6 +238,176 @@ public sealed class HostedAzureManagementPostReadClient(
             RecordCount = records.Count,
             Records = records,
         };
+    }
+
+    public async Task<string?> TryRunAksWorkloadImageCommandAsync(
+        string accessToken,
+        string clusterResourceId,
+        CancellationToken cancellationToken)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(accessToken);
+        ArgumentException.ThrowIfNullOrWhiteSpace(clusterResourceId);
+
+        string normalizedResourceId = clusterResourceId.Trim().TrimEnd('/');
+        string runCommandUrl =
+            $"https://management.azure.com{normalizedResourceId}/runCommand?api-version={ContainerServiceApiVersion}";
+        string requestBody = JsonSerializer.Serialize(new
+        {
+            command =
+                "kubectl get deployments,statefulsets,daemonsets,jobs,cronjobs -A -o jsonpath='{range .items[*]}{range .spec.template.spec.containers[*]}{.image}{\"\\n\"}{end}{range .spec.template.spec.initContainers[*]}{.image}{\"\\n\"}{end}{end}'",
+        }, SerializerOptions);
+
+        try
+        {
+            using HttpRequestMessage request = new(HttpMethod.Post, runCommandUrl);
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+            request.Content = new StringContent(requestBody, Encoding.UTF8, "application/json");
+
+            using HttpResponseMessage response =
+                await _httpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                LogAksCommandFailure(clusterResourceId, (int)response.StatusCode, exception: null);
+                return null;
+            }
+
+            await using Stream stream =
+                await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
+            using JsonDocument commandDocument =
+                await JsonDocument.ParseAsync(stream, cancellationToken: cancellationToken).ConfigureAwait(false);
+
+            string? output = TryReadAksCommandOutput(commandDocument.RootElement);
+
+            if (output is not null)
+            {
+                return output;
+            }
+
+            string? commandResultUrl = TryNormalizeAksCommandResultUrl(
+                TryReadString(commandDocument.RootElement, "id"));
+
+            if (string.IsNullOrWhiteSpace(commandResultUrl))
+            {
+                return null;
+            }
+
+            for (int poll = 0; poll < MaxAksCommandPolls; poll++)
+            {
+                await Task.Delay(AksCommandPollDelay, cancellationToken).ConfigureAwait(false);
+
+                using HttpRequestMessage pollRequest = new(HttpMethod.Get, commandResultUrl);
+                pollRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
+                using HttpResponseMessage pollResponse =
+                    await _httpClient.SendAsync(pollRequest, cancellationToken).ConfigureAwait(false);
+
+                if (!pollResponse.IsSuccessStatusCode)
+                {
+                    LogAksCommandFailure(clusterResourceId, (int)pollResponse.StatusCode, exception: null);
+                    return null;
+                }
+
+                await using Stream pollStream =
+                    await pollResponse.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
+                using JsonDocument pollDocument =
+                    await JsonDocument.ParseAsync(pollStream, cancellationToken: cancellationToken)
+                        .ConfigureAwait(false);
+
+                output = TryReadAksCommandOutput(pollDocument.RootElement);
+
+                if (output is not null)
+                {
+                    return output;
+                }
+
+                if (IsAksCommandTerminal(pollDocument.RootElement))
+                {
+                    return null;
+                }
+            }
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            LogAksCommandFailure(clusterResourceId, statusCode: null, ex);
+        }
+
+        return null;
+    }
+
+    private void LogAksCommandFailure(string clusterResourceId, int? statusCode, Exception? exception)
+    {
+        _logger.LogWarning(
+            exception,
+            "Hosted Azure extractor could not collect AKS workload images for {ClusterResourceId}. StatusCode={StatusCode}.",
+            clusterResourceId,
+            statusCode);
+    }
+
+    private static string? TryReadAksCommandOutput(JsonElement root)
+    {
+        if (!root.TryGetProperty("properties", out JsonElement properties)
+            || properties.ValueKind is not JsonValueKind.Object)
+        {
+            return null;
+        }
+
+        string? provisioningState = TryReadString(properties, "provisioningState");
+        string? logResult = TryReadString(properties, "logResult");
+
+        if (string.Equals(provisioningState, "Succeeded", StringComparison.OrdinalIgnoreCase))
+        {
+            return logResult ?? string.Empty;
+        }
+
+        return null;
+    }
+
+    private static bool IsAksCommandTerminal(JsonElement root)
+    {
+        if (!root.TryGetProperty("properties", out JsonElement properties)
+            || properties.ValueKind is not JsonValueKind.Object)
+        {
+            return true;
+        }
+
+        string? provisioningState = TryReadString(properties, "provisioningState");
+
+        return string.Equals(provisioningState, "Failed", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(provisioningState, "Canceled", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(provisioningState, "Canceling", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static string? TryReadString(JsonElement element, string propertyName)
+    {
+        return element.TryGetProperty(propertyName, out JsonElement value)
+            && value.ValueKind is JsonValueKind.String
+            ? value.GetString()
+            : null;
+    }
+
+    private static string? TryNormalizeAksCommandResultUrl(string? commandResultUrl)
+    {
+        if (string.IsNullOrWhiteSpace(commandResultUrl))
+        {
+            return null;
+        }
+
+        string candidate = commandResultUrl.Trim();
+
+        if (candidate.StartsWith("/", StringComparison.Ordinal))
+        {
+            candidate = $"https://management.azure.com{candidate}";
+        }
+
+        if (!Uri.TryCreate(candidate, UriKind.Absolute, out Uri? uri)
+            || !string.Equals(uri.Host, "management.azure.com", StringComparison.OrdinalIgnoreCase)
+            || !uri.AbsolutePath.Contains("/commandResults/", StringComparison.OrdinalIgnoreCase))
+        {
+            return null;
+        }
+
+        return uri.AbsoluteUri;
     }
 
     private static HostedAzurePolicyComplianceDocument CreateEmptyPolicyCompliance(
