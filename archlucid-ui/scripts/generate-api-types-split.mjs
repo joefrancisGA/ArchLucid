@@ -20,21 +20,24 @@ const barrelFile = path.resolve(uiRoot, "src", "lib", "api-types.generated.ts");
 
 function splitMonolith(source) {
   const componentsMarker = "export interface components";
+  const operationsMarker = "export interface operations";
   const pathsMarker = "export interface paths";
 
   const pathsStart = source.indexOf(pathsMarker);
   const componentsStart = source.indexOf(componentsMarker);
+  const operationsStart = source.indexOf(operationsMarker);
 
-  if (pathsStart < 0 || componentsStart < 0) {
-    throw new Error("Expected openapi-typescript output with paths and components interfaces.");
+  if (pathsStart < 0 || componentsStart < 0 || operationsStart < 0) {
+    throw new Error("Expected openapi-typescript output with paths, components, and operations interfaces.");
   }
 
   const header = source.slice(0, pathsStart).trimEnd();
   const pathsBody = source.slice(pathsStart, componentsStart).trimEnd();
-  const schemasBody = applySchemaOverrides(source.slice(componentsStart).trimEnd());
+  const schemasBody = applySchemaOverrides(source.slice(componentsStart, operationsStart).trimEnd());
+  const operationsBody = source.slice(operationsStart).trimEnd();
 
   const schemas = `${header}\n\n${schemasBody}\n`;
-  const paths = `${header}\n\nimport type { components } from "./schemas.generated";\n\n${pathsBody}\n`;
+  const paths = `${header}\n\nimport type { components } from "./schemas.generated";\n\n${pathsBody}\n\n${operationsBody}\n`;
 
   return { schemas, paths };
 }
