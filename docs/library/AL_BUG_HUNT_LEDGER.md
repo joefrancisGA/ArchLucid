@@ -35141,6 +35141,8 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: run-execute-ownership
 
+2026-10-12 seed hunt (seed-only): re-read renewal failure/cancellation handling, drain admission, release ordering, and the ownership/orchestrator test inventory. All reviewed lifecycle mechanisms have explicit regression coverage; no distinct reachable wrong-outcome mechanism met the promotion bar and no candidate was duplicated. The focused ownership/orchestration test run was blocked before discovery by unrelated missing `unmappedRoles` and `warnings` members in `AzureInventorySecurityEdgeMaterializer.cs`; no production or regression code changed.
+
 2026-10-12 seed hunt (seed-only): re-read the ownership acquire, renewal, release, drain, cancellation, and orchestrator regression surfaces. Existing race and lifecycle behaviors remain covered; no distinct reachable wrong-outcome mechanism met the promotion bar and no candidate was duplicated. The focused ownership/orchestration test run was blocked before discovery by unrelated missing `unmappedRoles` and `warnings` members in `AzureInventorySecurityEdgeMaterializer.cs`; no production or regression code changed.
 
 2026-10-12 seed hunt (seed-only): re-read the selected execute orchestrator and ownership lease/renewal implementations with their focused tests. Repeated eligibility checks and immediate renewal are defensive sequencing already covered by prior race and heartbeat regressions; no fresh reachable wrong-outcome mechanism met the promotion bar, and no candidate was duplicated. The focused ownership/orchestration test run was blocked before discovery by unrelated missing `unmappedRoles` and `warnings` members in `AzureInventorySecurityEdgeMaterializer.cs`; no production or regression code changed.
@@ -35171,7 +35173,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** run execute lease; execute ownership; orchestration ownership
 - **paths:** ArchLucid.Application/Runs/Orchestration/ArchitectureRunExecuteOrchestrator.cs; ArchLucid.Application/Runs/ExecuteOwnership/RunExecuteOwnershipLeaseService.cs; ArchLucid.Application/Runs/ExecuteOwnership/RunExecuteOwnershipLeaseRenewalScope.cs
 - **test-filter:** FullyQualifiedName~RunExecuteOwnership|FullyQualifiedName~ArchitectureRunExecuteOrchestrator
-- **hunts:** 51
+- **hunts:** 52
 - **bugs-found:** 26
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-12
