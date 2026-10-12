@@ -396,6 +396,92 @@ public sealed class BillingCheckoutFacadeTests
     }
 
     [SkippableFact]
+    public async Task GetSubscriptionStatusAsync_pending_checkout_reports_no_subscription()
+    {
+        Guid tenantId = Guid.Parse("77777777-7777-7777-7777-777777777777");
+        Guid workspaceId = Guid.Parse("88888888-8888-8888-8888-888888888888");
+        Guid projectId = Guid.Parse("99999999-9999-9999-9999-999999999999");
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(new ScopeContext
+        {
+            TenantId = tenantId,
+            WorkspaceId = workspaceId,
+            ProjectId = projectId,
+        });
+
+        InMemoryBillingLedger ledger = new();
+        await ledger.UpsertPendingCheckoutAsync(
+            tenantId,
+            workspaceId,
+            projectId,
+            BillingProviderNames.Stripe,
+            "cs_pending_status",
+            nameof(ArchLucid.Core.Tenancy.TenantTier.Standard),
+            seats: 2,
+            workspaces: 1,
+            CancellationToken.None);
+
+        BillingCheckoutFacade sut = new(
+            Mock.Of<IBillingProviderRegistry>(),
+            ledger,
+            scopeProvider.Object,
+            Mock.Of<IAuditService>(),
+            Mock.Of<IMarketplaceWebhookConnectivityService>());
+
+        BillingSubscriptionStatusQueryResult result =
+            await sut.GetSubscriptionStatusAsync(CancellationToken.None);
+
+        result.HasSubscription.Should().BeFalse();
+        result.Status.Should().Be("Pending");
+        result.IsPaymentPastDue.Should().BeFalse();
+    }
+
+    [SkippableFact]
+    public async Task GetSubscriptionStatusAsync_canceled_subscription_reports_no_subscription()
+    {
+        Guid tenantId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
+        Guid workspaceId = Guid.Parse("bbbbbbbb-cccc-dddd-eeee-ffffffffffff");
+        Guid projectId = Guid.Parse("cccccccc-dddd-eeee-ffff-000000000000");
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(new ScopeContext
+        {
+            TenantId = tenantId,
+            WorkspaceId = workspaceId,
+            ProjectId = projectId,
+        });
+
+        InMemoryBillingLedger ledger = new();
+        await ledger.ActivateSubscriptionAsync(
+            tenantId,
+            workspaceId,
+            projectId,
+            BillingProviderNames.Stripe,
+            "sub_canceled",
+            nameof(ArchLucid.Core.Tenancy.TenantTier.Standard),
+            seats: 2,
+            workspaces: 1,
+            rawWebhookJson: null,
+            CancellationToken.None);
+        await ledger.CancelSubscriptionAsync(tenantId, CancellationToken.None);
+
+        BillingCheckoutFacade sut = new(
+            Mock.Of<IBillingProviderRegistry>(),
+            ledger,
+            scopeProvider.Object,
+            Mock.Of<IAuditService>(),
+            Mock.Of<IMarketplaceWebhookConnectivityService>());
+
+        BillingSubscriptionStatusQueryResult result =
+            await sut.GetSubscriptionStatusAsync(CancellationToken.None);
+
+        result.HasSubscription.Should().BeFalse();
+        result.Status.Should().Be("Canceled");
+        result.IsPaymentPastDue.Should().BeFalse();
+    }
+
+    [SkippableFact]
     public async Task GetSubscriptionStatusAsync_maps_suspended_status_to_payment_past_due()
     {
         Guid tenantId = Guid.Parse("11111111-1111-1111-1111-111111111111");

@@ -17152,11 +17152,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** marketplace billing; checkout mutation; billing application layer
 - **paths:** ArchLucid.Application/Billing/
 - **test-filter:** FullyQualifiedName~Marketplace|FullyQualifiedName~BillingCheckout|FullyQualifiedName~TenantLlmCostReporting
-- **hunts:** 33
-- **bugs-found:** 18
+- **hunts:** 34
+- **bugs-found:** 19
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-12
-- **last-bug:** 2026-10-12 — blank Billing unit-rate currency returned unlabeled spend guidance
+- **last-bug:** 2026-10-12 — pending checkout reported active subscription on status query
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -17173,6 +17173,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-10-11 seed hunt (seed-only): re-read the top-run ranker, its focused tests, billing unit-rate/estimate contracts, and checkout facade contract; 26 scoped tests passed. No new reachable candidate met the failing-repro bar.
 
 2026-10-11 seed hunt (seed-only): re-read the webhook publisher, connectivity interface, admin COGS service, and its focused tests; 26 scoped tests passed. No new reachable candidate met the failing-repro bar.
+
+2026-10-12 seed hunt (seed→hit): `application-billing-logic` — promoted `BillingCheckoutFacade.GetSubscriptionStatusAsync` lifecycle mapping. A `Pending` checkout row (and canceled subscriptions) still returned `HasSubscription=true`, so operator billing treated an abandoned checkout as an active paid plan while checkout retry correctly allowed a new session. `HasSubscription` is now true only for `Active` or `Suspended` rows; status and tier fields still surface for pending/canceled rows. Regressions `GetSubscriptionStatusAsync_pending_checkout_reports_no_subscription` and `GetSubscriptionStatusAsync_canceled_subscription_reports_no_subscription`. 41 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed.
 
 2026-10-12 seed hunt (seed→hit): `application-billing-logic` — promoted blank `Billing:UnitRates:Currency`. `TenantCostEstimateService.TryGetEstimateAsync` returned a Why ArchLucid band when configuration bound whitespace currency, so the API surfaced amounts without a currency code. Blank or whitespace currency now returns no estimate, matching the negative-rate guard. Regression `TryGetEstimateAsync_rejects_blank_configured_currency`. 39 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed.
 
@@ -17206,6 +17208,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `BillingCheckoutFacade.CreateCheckoutSessionAsync` treats any non-`Canceled` subscription as an active conflict — **hit 2026-09-03 (#564):** first checkout upserts `Pending` then abandoned retries returned `ActiveSubscriptionConflict`; fixed by blocking only `Active`/`Suspended` (`BillingCheckoutFacadeTests.CreateCheckoutSessionAsync_allows_retry_when_prior_checkout_left_pending_subscription`).
 - [x] (proven) `BillingCheckoutFacade.CreateCheckoutSessionAsync` defaults a missing `TargetTier` to `Team` and reaches provider checkout even though the API contract requires that field — **hit 2026-10-03:** missing-tier requests now return `RequestBodyRequired` before provider invocation (`BillingCheckoutFacadeTests.CreateCheckoutSessionAsync_requires_target_tier`).
 - [x] (invalid) `MarketplaceChangeQuantityWebhookMutationHandler` gates on `AzureMarketplace.GaEnabled` only while sibling `ChangePlan` uses `BillingPlanMutationPolicy.WebhookPlanMutationsEnabled` (Stripe provider parity) — **cheap-disproof 2026-09-11 thorough hunt #1700:** `WebhookPlanMutationsEnabled` exists for Stripe checkout reusing `ChangePlan` only; no Stripe `ChangeQuantity` dispatch path; handler correctly defers when GA off even with `Provider=Stripe`; regression `Stripe_provider_with_ga_disabled_still_defers_change_quantity_without_ledger_mutation`.
+- [x] (proven) `BillingCheckoutFacade.GetSubscriptionStatusAsync` — `Pending` and `Canceled` ledger rows returned `HasSubscription=true` and misled operator billing into treating abandoned checkouts as active paid plans — **hit 2026-10-12 seed hunt:** `HasSubscription` is true only for `Active` or `Suspended`; regressions `GetSubscriptionStatusAsync_pending_checkout_reports_no_subscription` and `GetSubscriptionStatusAsync_canceled_subscription_reports_no_subscription`.
 - [x] (valid-no-repro) `BillingCheckoutFacade.GetSubscriptionStatusAsync` maps `IsPaymentPastDue` only from `Suspended` status — **cheap-disproof 2026-09-11 thorough hunt #1700:** Stripe `past_due` and `invoice.payment_failed` webhooks call `SuspendSubscriptionAsync` before status reads (`StripeBillingSubscriptionWebhookProcessorTests.HandleSubscriptionUpdatedAsync_past_due_suspends_subscription`); facade maps `Suspended` to past-due; regressions `GetSubscriptionStatusAsync_maps_suspended_status_to_payment_past_due` and `GetSubscriptionStatusAsync_does_not_flag_active_subscription_as_payment_past_due`.
 - [x] (proven) `BillingCheckoutFacade.CreateCheckoutSessionAsync` silently maps missing or unknown `TargetTier` values to Team instead of rejecting the invalid request — **hit 2026-10-03:** API input permits null/blank/unknown tier labels, the facade's default parser created a Team checkout, and the controller documents `TargetTier` as required; fixed with explicit tier parsing and `BillingCheckoutFacadeTests.CreateCheckoutSessionAsync_rejects_missing_or_unknown_target_tier`.
 - [x] (proven) `BillingCheckoutFacade` only converted `InvalidOperationException` from checkout/portal providers, allowing transport/provider failures such as `HttpRequestException` to escape as unhandled API errors — **hit 2026-10-03:** a reachable provider transport failure escaped `CreateCheckoutSessionAsync`; fixed by mapping non-cancellation provider exceptions to `ProviderError` in both billing mutations; regression `BillingCheckoutFacadeTests.CreateCheckoutSessionAsync_maps_transport_failures_to_provider_error`.
