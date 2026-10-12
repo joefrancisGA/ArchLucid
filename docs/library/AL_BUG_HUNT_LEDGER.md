@@ -17152,11 +17152,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** marketplace billing; checkout mutation; billing application layer
 - **paths:** ArchLucid.Application/Billing/
 - **test-filter:** FullyQualifiedName~Marketplace|FullyQualifiedName~BillingCheckout|FullyQualifiedName~TenantLlmCostReporting
-- **hunts:** 31
-- **bugs-found:** 16
+- **hunts:** 32
+- **bugs-found:** 17
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-12
-- **last-bug:** 2026-10-12 — admin fleet COGS warn threshold ignored tenant budget warn-fraction clamp
+- **last-bug:** 2026-10-12 — admin fleet COGS risk label ignored included warn USD threshold
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -17173,6 +17173,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-10-11 seed hunt (seed-only): re-read the top-run ranker, its focused tests, billing unit-rate/estimate contracts, and checkout facade contract; 26 scoped tests passed. No new reachable candidate met the failing-repro bar.
 
 2026-10-11 seed hunt (seed-only): re-read the webhook publisher, connectivity interface, admin COGS service, and its focused tests; 26 scoped tests passed. No new reachable candidate met the failing-repro bar.
+
+2026-10-12 seed hunt (seed→hit): `application-billing-logic` — promoted `AdminFleetLlmCogsService` gross-margin risk labeling. Rows already expose `BudgetWarningUsdUtcMonth` from `IncludedUsdPerUtcMonth * WarnFraction` (same basis as monthly warn audits), but `GrossMarginRiskLabel` and `BudgetCompletionLabel` only flipped to warn/near-threshold at 85% of the hard cap, so $40 pressure with a $37.50 warn line stayed healthy. Risk and completion signals now warn when pressure crosses the included warn USD threshold or hard-cap utilization. Regression `BuildDashboardAsync_marks_warn_when_pressure_exceeds_included_warn_threshold_before_hard_cap_utilization`. 38 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed.
 
 2026-10-12 seed hunt (seed→hit): `application-billing-logic` — promoted `AdminFleetLlmCogsService.BuildDashboardAsync` warn-fraction handling. `LlmMonthlyTenantDollarBudgetStatusService` clamps `WarnFraction` to 0.01–0.99, but the admin fleet COGS row multiplied `IncludedUsdPerUtcMonth` by the raw option (for example `0.001` → $0.05 instead of $0.50). Fleet rows now use the same clamp before computing `BudgetWarningUsdUtcMonth`. Regression `BuildDashboardAsync_clamps_warn_fraction_to_match_tenant_budget_status`. 36 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed.
 
@@ -17216,6 +17218,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - (candidate) `MarketplaceChangePlanWebhookMutationHandler.HandleAsync` — a non-empty but unknown `planId` maps to `TenantTier.Standard` and mutates the subscription instead of deferring the malformed ChangePlan input; reachable through a GA-enabled Marketplace webhook, but no partner contract in this zone establishes whether unknown plan identifiers are valid Standard plans.
 - (candidate) `BillingCheckoutFacade.CreateCheckoutSessionAsync` / `CreatePortalSessionAsync` — provider exception text is copied into `ErrorMessage` and exposed by the billing controller's validation response; reachable through provider transport or API failures, but the seed pass did not establish that configured providers return sensitive details.
 - (candidate) `BillingCheckoutFacade.CreateCheckoutSessionAsync` — negative `Seats` or `Workspaces` values are accepted into the application request and forwarded to the provider; reachable through the admin checkout body, but current providers clamp values to one before creating a session.
+- [x] (proven) `AdminFleetLlmCogsService.BuildDashboardAsync` — `GrossMarginRiskLabel` waited for 85% hard-cap utilization while `BudgetWarningUsdUtcMonth` already reflected the included allowance warn line — **hit 2026-10-12 seed hunt:** warn/near-threshold when pressure crosses included warn USD or hard-cap utilization; regression `BuildDashboardAsync_marks_warn_when_pressure_exceeds_included_warn_threshold_before_hard_cap_utilization`.
 - [x] (proven) `AdminFleetLlmCogsService.BuildDashboardAsync` — `WarnFraction` below the tenant status clamp (0.01) produced a lower `BudgetWarningUsdUtcMonth` than the tenant LLM budget status surface — **hit 2026-10-12 seed hunt:** fleet rows now clamp warn fraction to 0.01–0.99 before computing the warning threshold; regression `BuildDashboardAsync_clamps_warn_fraction_to_match_tenant_budget_status`.
 - (candidate) `TenantCostEstimateService.TryGetEstimateAsync` — blank `Billing:UnitRates:Currency` is returned as an unlabeled estimate currency; reachable through bound billing configuration, but this is a presentation-quality concern without a demonstrated wrong consumer outcome.
 - (candidate) `TenantLlmCostReportingService.BuildDashboardAsync` — requested `days` values outside 1–90 are silently clamped, so a caller asking for a longer historical window receives a shorter dashboard without a disposition or response indicator; reachable through the billing dashboard query input, but the bounded-window contract is not explicit in this zone.
