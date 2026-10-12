@@ -7922,6 +7922,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: tenant-erasure
 
+2026-10-12 thorough hunt (dry): `tenant-erasure` — repeated the unchanged five classified hypotheses with no new reachability or wrong outcome. Sequential Application and API runs both stopped before tests at the unrelated `AzureInventorySecurityEdgeMaterializer.cs` compile errors (`unmappedRoles` and `warnings`). No production or regression code changed.
+
 2026-10-12 thorough hunt (dry): `tenant-erasure` — repeated the unchanged five classified hypotheses; no reachable path bypass or command/side-effect defect emerged. Application and API scoped runs again could not reach tests because the unrelated Application compile failure references `unmappedRoles` and `warnings` in `AzureInventorySecurityEdgeMaterializer.cs` (the parallel API run also hit a transient shared-output file lock). No production or regression code changed.
 
 2026-10-12 thorough hunt (dry): `tenant-erasure` — repeated cheap-disproof of the same five invalid/valid-no-repro hypotheses found no changed reachability or wrong outcome. Both scoped TenantErasure suites again stopped at the unrelated `AzureInventorySecurityEdgeMaterializer.cs` compile errors (`unmappedRoles` and `warnings`). No production or regression code changed.
