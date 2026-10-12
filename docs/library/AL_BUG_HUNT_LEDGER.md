@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-12 seed hunt (seed-only): `cli-tenant-isolation` — re-read the selected command/runner facade, JSON/Markdown artifact handling, offline/live report delegation, and focused tenant-isolation tests. Existing filename-only artifact-path candidates remain contract-dependent and were not promoted or duplicated; no fresh reachable mechanism-backed wrong outcome met the hunt-ready bar. The scoped CLI filter stopped before discovery on unrelated Application compile errors (`unmappedRoles` and `warnings`). No production or regression code changed.
+
 2026-10-12 seed hunt (seed-only): `authority-pipeline-payload` — re-read `AuthorityPipelineWorkPayload`, its JSON adapter, and the picker-defined payload/null-element tests. Null collections/elements, malformed JSON, identifier normalization, Unicode boundaries, and undefined work kinds remain explicitly handled; no fresh reachable mechanism-backed wrong outcome met the hunt-ready bar. The scoped payload filter stopped before discovery on unrelated Application compile errors (`unmappedRoles` and `warnings`). No candidate was promoted and no production or regression code changed.
 
 2026-10-12 seed hunt (seed-only): `archlucid-contracts` — re-read the recent infrastructure-diagram and SecureNow contract DTOs, converters, enum guards, and focused round-trip coverage. The retained null/empty/unknown-value rows remain downstream-validation questions rather than contract-local wrong outcomes; no fresh reachable mechanism-backed hypothesis met the hunt-ready bar. The scoped `Contracts` filter stopped before discovery on unrelated Application compile errors (`unmappedRoles` and `warnings`). No candidate was promoted and no production or regression code changed.
@@ -10373,7 +10375,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant isolation cli; negative isolation test
 - **paths:** ArchLucid.Cli/Commands/TenantIsolationNegativeTestCommand.cs; ArchLucid.Cli/Commands/TenantIsolationNegativeTestRunner.cs
 - **test-filter:** FullyQualifiedName~TenantIsolationNegativeTestRunnerTests
-- **hunts:** 49
+- **hunts:** 50
 - **bugs-found:** 24
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-12
