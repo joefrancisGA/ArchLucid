@@ -112,6 +112,7 @@ internal sealed partial class InMemoryStorageProviderRegistrar
         services.AddSingleton<IRemediationInstanceRepository, NoOpRemediationInstanceRepository>();
         services.AddSingleton<IProjectScopedRemediationInstanceRepository>(static sp =>
             new ProjectScopedRemediationInstanceRepositoryAdapter(sp.GetRequiredService<IRemediationInstanceRepository>()));
+        services.AddSingleton<IVerifiedRemediationControlAssociationRepository, InMemoryVerifiedRemediationControlAssociationRepository>();
         services.AddSingleton<IRemediationPrioritizationRepository, NoOpRemediationPrioritizationRepository>();
         services.AddSingleton<IRemediationWaveRepository, NoOpRemediationWaveRepository>();
         services.AddSingleton<IArchitectureDiagramModelRepository, NoOpArchitectureDiagramModelRepository>();
