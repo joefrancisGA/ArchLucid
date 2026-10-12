@@ -97,6 +97,7 @@ internal sealed partial class SqlStorageProviderRegistrar
         services.AddScoped<IRemediationInstanceRepository, SqlRemediationInstanceRepository>();
         services.AddScoped<IProjectScopedRemediationInstanceRepository>(static sp =>
             new ProjectScopedRemediationInstanceRepositoryAdapter(sp.GetRequiredService<IRemediationInstanceRepository>()));
+        services.AddScoped<IVerifiedRemediationControlAssociationRepository, SqlVerifiedRemediationControlAssociationRepository>();
         services.AddScoped<IRemediationPrioritizationRepository, SqlRemediationPrioritizationRepository>();
         services.AddScoped<IRemediationWaveRepository, SqlRemediationWaveRepository>();
         services.AddScoped<IRunStoredEvidenceFileRepository, SqlRunStoredEvidenceFileRepository>();

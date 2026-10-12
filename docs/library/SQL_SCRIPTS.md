@@ -215,6 +215,7 @@ sequenceDiagram
 | **324_ArchitectureRecurrenceAndImproveLoop.sql** | Adds **`ArchitectureId`** on **`dbo.ArchitectureReviewRecurrenceSchedules`** and **`ImproveLoopEvidenceJson`** on the physical run table (same Reviews/Runs resolution as 323). Rollback: **`Rollback/R324_*.sql`**. |
 | **325_Runs_KnowledgeModelId.sql** | Adds **`KnowledgeModelId`** on the physical run table (same Reviews/Runs resolution as 323). Rollback: **`Rollback/R325_*.sql`**. |
 | **335_DropUnusedFineTunedModelRegistryEntries.sql** | **`DROP TABLE dbo.FineTunedModelRegistryEntries`** (267 reserved shell; never written). **`FineTuningTrainingExportAudits`** stays. Rollback: **`Rollback/R335_*.sql`**. |
+| **414_VerifiedRemediationControlAssociations.sql** | Identifier row for a verified remediation instance, its verification inventory snapshot, and a control. No payload. Rollback: **`Rollback/R414_VerifiedRemediationControlAssociations.sql`**. |
 
 **Note:** Authority-chain tables also appear in **`ArchLucid.sql`** for Persistence bootstrap parity.
 
