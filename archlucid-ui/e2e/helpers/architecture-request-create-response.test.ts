@@ -1,45 +1,79 @@
 import { describe, expect, it } from "vitest";
 
 import {
-  isArchitectureRequestCreateJsonResponse,
+  isArchitectureRequestCreateResponse,
   readCreatedRunIdFromArchitectureRequestBody,
+  readCreatedRunIdFromArchitectureRequestCreate,
 } from "./architecture-request-create-response";
 
-describe("isArchitectureRequestCreateJsonResponse", () => {
-  it("accepts a JSON POST to the architecture request proxy", () => {
+describe("isArchitectureRequestCreateResponse", () => {
+  it("accepts sync and async create POSTs, including empty 202 bodies", () => {
     expect(
-      isArchitectureRequestCreateJsonResponse({
+      isArchitectureRequestCreateResponse({
         url: "http://localhost:3000/api/proxy/v1/architecture/request",
         method: "POST",
-        contentType: "application/json; charset=utf-8",
+      }),
+    ).toBe(true);
+
+    expect(
+      isArchitectureRequestCreateResponse({
+        url: "http://localhost:3000/api/proxy/v1/architecture/request/async",
+        method: "POST",
       }),
     ).toBe(true);
   });
 
-  it("rejects GET, non-request paths, and empty non-JSON bodies", () => {
+  it("rejects GET, draft, and idempotency siblings", () => {
     expect(
-      isArchitectureRequestCreateJsonResponse({
+      isArchitectureRequestCreateResponse({
         url: "http://localhost:3000/api/proxy/v1/architecture/request",
         method: "GET",
-        contentType: "application/json",
       }),
     ).toBe(false);
 
     expect(
-      isArchitectureRequestCreateJsonResponse({
-        url: "http://localhost:3000/api/proxy/v1/architecture/draft",
+      isArchitectureRequestCreateResponse({
+        url: "http://localhost:3000/api/proxy/v1/architecture/request/draft",
         method: "POST",
-        contentType: "application/json",
       }),
     ).toBe(false);
 
     expect(
-      isArchitectureRequestCreateJsonResponse({
-        url: "http://localhost:3000/api/proxy/v1/architecture/request",
+      isArchitectureRequestCreateResponse({
+        url: "http://localhost:3000/api/proxy/v1/architecture/request/idempotency",
         method: "POST",
-        contentType: undefined,
       }),
     ).toBe(false);
+  });
+});
+
+describe("readCreatedRunIdFromArchitectureRequestCreate", () => {
+  it("reads run.runId from JSON and from a 202 Location header", () => {
+    expect(
+      readCreatedRunIdFromArchitectureRequestCreate({
+        status: 201,
+        bodyText: '{"run":{"runId":"abc"}}',
+        location: null,
+      }),
+    ).toBe("abc");
+
+    expect(
+      readCreatedRunIdFromArchitectureRequestCreate({
+        status: 202,
+        bodyText: "",
+        location: "/v1/operations/run:aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+      }),
+    ).toBe("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+  });
+
+  it("fails fast when both body and Location omit the run id", () => {
+    expect(() =>
+      readCreatedRunIdFromArchitectureRequestCreate({
+        status: 202,
+        bodyText: "",
+        location: undefined,
+      }),
+    ).toThrow(/omitted run id/i);
   });
 });
 
