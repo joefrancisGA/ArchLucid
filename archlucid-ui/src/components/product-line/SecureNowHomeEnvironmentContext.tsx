@@ -3,23 +3,56 @@
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 
-import { StatusTag } from "@/components/ui/status-tag";
 import { useOperatorScopeQueryKey } from "@/hooks/use-operator-scope-query-key";
 import { useTenantWorkspacesListQuery } from "@/hooks/use-tenant-workspaces-list-query";
 import { formatRelativeTime } from "@/lib/relative-time";
 import { fetchInfraEvidenceSnapshots } from "@/lib/infra-evidence/infra-evidence-drift-api";
-import { infraEvidenceSnapshotCaptureStatusTagProps } from "@/lib/infra-evidence/infra-evidence-snapshot-capture-status";
+import { resolveInfraEvidenceSnapshotCaptureStatusPresentation } from "@/lib/infra-evidence/infra-evidence-snapshot-capture-status";
 import type { InfraEvidenceSnapshotSummary } from "@/lib/infra-evidence/infra-evidence-drift-types";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  formatScopeSwitcherTriggerLabel,
+  isSampleWorkspacePresentationScope,
+} from "@/lib/scope-switcher-display";
 import { cn } from "@/lib/utils";
 
 const SNAPSHOT_PAGE_SIZE = 20;
+const CLOUD_CONNECTIONS_HREF = "/integrations/cloud-connections";
+const DRIFT_HREF = "/infrastructure/snapshots-drift";
 
 function newestSnapshot(snapshots: readonly InfraEvidenceSnapshotSummary[]): InfraEvidenceSnapshotSummary | null {
   return [...snapshots]
-    .filter((snapshot) => snapshot.capturedUtc !== null)
+    .filter((snapshot) => snapshot.capturedUtc !== null && snapshot.capturedUtc.trim().length > 0)
     .sort((left, right) => Date.parse(right.capturedUtc ?? "") - Date.parse(left.capturedUtc ?? ""))[0] ?? null;
+}
+
+function subscriptionPhrase(snapshots: readonly InfraEvidenceSnapshotSummary[]): string | null {
+  const subscriptions = [...new Set(
+    snapshots
+      .map((row) => row.subscriptionName?.trim() || row.subscriptionId?.trim() || "")
+      .filter((value) => value.length > 0),
+  )];
+
+  if (subscriptions.length === 0) {
+    return null;
+  }
+
+  if (subscriptions.length === 1) {
+    return subscriptions[0] ?? null;
+  }
+
+  return `${subscriptions.length} subscriptions`;
+}
+
+function collectionGapDescription(snapshot: InfraEvidenceSnapshotSummary): string | null {
+  const presentation = resolveInfraEvidenceSnapshotCaptureStatusPresentation(snapshot.captureStatus);
+
+  if (presentation.kind === "needs-attention" || presentation.kind === "blocked" || presentation.kind === "in-progress") {
+    return presentation.description;
+  }
+
+  return null;
 }
 
 function errorMessage(error: unknown): string {
@@ -28,6 +61,15 @@ function errorMessage(error: unknown): string {
     : "Could not load collection context.";
 }
 
+function ContextLink(props: { readonly href: string; readonly children: string }): React.JSX.Element {
+  return (
+    <Link className={cn(OPERATOR_LINK.inline, OPERATOR_TYPOGRAPHY.body)} href={props.href}>
+      {props.children}
+    </Link>
+  );
+}
+
+/** One line: workspace, subscription scope, latest collection, and a gap when capture status says there is one. */
 export function SecureNowHomeEnvironmentContext(): React.JSX.Element {
   const scope = useOperatorScopeQueryKey();
   const snapshotsQuery = useQuery({
@@ -36,29 +78,26 @@ export function SecureNowHomeEnvironmentContext(): React.JSX.Element {
     retry: false,
   });
   const workspacesQuery = useTenantWorkspacesListQuery();
-  const snapshotPage = snapshotsQuery.data;
-  const snapshotRows = snapshotPage?.items ?? [];
-  const snapshot = newestSnapshot(snapshotRows);
   const workspace = workspacesQuery.data?.workspaces.find((row) => row.workspaceId === scope.workspaceId);
   const project = workspace?.projects.find((row) => row.projectId === scope.projectId);
-  const workspaceLabel = workspace?.name ?? "Workspace";
-  const workspaceDetail = project?.name ? `${workspaceLabel} — ${project.name}` : workspaceLabel;
-  const subscriptions = [...new Set(
-    snapshotRows
-      .map((row) => row.subscriptionName?.trim() || row.subscriptionId?.trim() || "")
-      .filter((value) => value.length > 0),
-  )];
+  const workspaceName = workspace?.name?.trim() ?? "";
+  const projectName = project?.name?.trim() ?? "";
+  const isSampleWorkspaceSession = isSampleWorkspacePresentationScope(scope.workspaceId, scope.projectId);
+  const workspaceLabel = workspaceName.length === 0
+    ? null
+    : formatScopeSwitcherTriggerLabel({
+        workspaceLabel: workspaceName,
+        projectLabel: projectName.length > 0 ? projectName : workspaceName,
+        isSampleWorkspaceSession,
+        includeProject: !isSampleWorkspaceSession && projectName.length > 0,
+      });
 
   if (snapshotsQuery.isError) {
     return (
-      <section className="space-y-1" data-testid="securenow-home-environment-context">
-        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
-          <span className="font-semibold">Workspace:</span> {workspaceDetail}
-        </p>
-        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} role="alert">
-          {errorMessage(snapshotsQuery.error)}
-        </p>
-      </section>
+      <p className={cn("m-0 flex flex-wrap gap-x-3 gap-y-1", OPERATOR_TYPOGRAPHY.body)} data-testid="securenow-home-environment-context" role="alert">
+        {workspaceLabel !== null ? <span>{workspaceLabel}</span> : null}
+        <span>{errorMessage(snapshotsQuery.error)}</span>
+      </p>
     );
   }
 
@@ -70,40 +109,28 @@ export function SecureNowHomeEnvironmentContext(): React.JSX.Element {
     );
   }
 
+  const snapshotRows = snapshotsQuery.data?.items ?? [];
+  const snapshot = newestSnapshot(snapshotRows);
+
   if (snapshot === null) {
     return (
-      <section className="space-y-1" data-testid="securenow-home-environment-context">
-        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
-          <span className="font-semibold">Workspace:</span> {workspaceDetail}
-        </p>
-        <Link className={cn(OPERATOR_LINK.inline, OPERATOR_TYPOGRAPHY.body)} href="/integrations/cloud-connections">
-          No collection yet
-        </Link>
-      </section>
+      <p className={cn("m-0 flex flex-wrap items-baseline gap-x-3 gap-y-1", OPERATOR_TYPOGRAPHY.body)} data-testid="securenow-home-environment-context">
+        {workspaceLabel !== null ? <span>{workspaceLabel}</span> : null}
+        <ContextLink href={CLOUD_CONNECTIONS_HREF}>No collection yet</ContextLink>
+      </p>
     );
   }
 
-  const status = infraEvidenceSnapshotCaptureStatusTagProps(snapshot.captureStatus);
-  const hasGap = status.kind !== "ready";
-  const subscriptionLabel =
-    subscriptions.length > 1 ? `${subscriptions.length} subscriptions` : subscriptions[0] ?? "Subscription unavailable";
+  const subscriptions = subscriptionPhrase(snapshotRows);
+  const collectedAt = snapshot.capturedUtc === null ? null : formatRelativeTime(snapshot.capturedUtc);
+  const gap = collectionGapDescription(snapshot);
 
   return (
-    <section className="flex flex-wrap gap-x-4 gap-y-1" data-testid="securenow-home-environment-context">
-      <span className={OPERATOR_TYPOGRAPHY.body}>
-        <span className="font-semibold">Workspace:</span> {workspaceDetail}
-      </span>
-      <Link className={cn(OPERATOR_LINK.inline, OPERATOR_TYPOGRAPHY.body)} href="/integrations/cloud-connections">
-        <span className="font-semibold">Subscription:</span> {subscriptionLabel}
-      </Link>
-      <Link className={cn(OPERATOR_LINK.inline, OPERATOR_TYPOGRAPHY.body)} href="/infrastructure/snapshots-drift">
-        <span className="font-semibold">Latest collection:</span> {formatRelativeTime(snapshot.capturedUtc ?? "")}
-      </Link>
-      {hasGap ? (
-        <Link className={cn(OPERATOR_LINK.inline, OPERATOR_TYPOGRAPHY.body)} href="/integrations/cloud-connections">
-          <StatusTag kind={status.kind} label={status.label} /> {status.title}
-        </Link>
-      ) : null}
-    </section>
+    <p className={cn("m-0 flex flex-wrap items-baseline gap-x-3 gap-y-1", OPERATOR_TYPOGRAPHY.body)} data-testid="securenow-home-environment-context">
+      {workspaceLabel !== null ? <span>{workspaceLabel}</span> : null}
+      {subscriptions !== null ? <ContextLink href={CLOUD_CONNECTIONS_HREF}>{subscriptions}</ContextLink> : null}
+      {collectedAt !== null ? <ContextLink href={DRIFT_HREF}>{collectedAt}</ContextLink> : null}
+      {gap !== null ? <ContextLink href={CLOUD_CONNECTIONS_HREF}>{gap}</ContextLink> : null}
+    </p>
   );
 }

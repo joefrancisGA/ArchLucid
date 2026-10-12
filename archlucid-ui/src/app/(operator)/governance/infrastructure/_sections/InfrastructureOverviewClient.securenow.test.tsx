@@ -94,12 +94,13 @@ describe("InfrastructureOverviewClient SecureNow grouped home sections", () => {
     expect(screen.queryByText(/Google Cloud/i)).not.toBeInTheDocument();
   });
 
-  it("uses the SecureNow grouped-sections intro without the infrastructure workbench lead sentence", () => {
+  it("uses the short SecureNow lead and does not claim seven destinations", () => {
     render(<InfrastructureOverviewClient secureNowHome />);
 
     const primaryContent = screen.getByTestId("governance-infrastructure-overview-primary-content");
 
-    expect(primaryContent).toHaveTextContent(/Findings, environment, remediation, compliance, and data sources are grouped below/i);
+    expect(primaryContent).not.toHaveTextContent(/Findings, environment, remediation, compliance, and data sources are grouped below/i);
+    expect(primaryContent).not.toHaveTextContent(/All seven destinations/i);
     expect(screen.getByText(/Review security findings, explore your Azure environment, and verify remediation/i)).toBeInTheDocument();
     expect(screen.getByText(/Advice and inventory evidence on this page are not an official compliance report/i)).toBeInTheDocument();
     expect(primaryContent).not.toHaveTextContent(/Azure inventory evidence workbenches for snapshots/i);

@@ -3,6 +3,7 @@
 import Link from "next/link";
 
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { isOrganizationCreatedPolicyPack } from "@/lib/editions/securenow-featured-frameworks";
 import { policyPacksOrganizationStarterHref } from "@/lib/policy/policy-packs-deep-link";
 import { StatusTag } from "@/components/ui/status-tag";
 import type { PolicyPackWorkspaceSelectionItem } from "@/types/policy-packs";
@@ -39,7 +40,12 @@ export function PolicyPacksFeaturedSection(props: Props): React.JSX.Element | nu
                   <p className={OPERATOR_TYPOGRAPHY.helper}>{item.description}</p>
                 ) : null}
               </div>
-              <StatusTag kind={item.isEnabled ? "ready" : "neutral"} label={item.isEnabled ? "Enabled" : "Available"} />
+              <span className="flex shrink-0 items-center gap-2">
+                {isOrganizationCreatedPolicyPack(item.packType) ? (
+                  <StatusTag kind="neutral" label="Organization" />
+                ) : null}
+                <StatusTag kind={item.isEnabled ? "ready" : "neutral"} label={item.isEnabled ? "Enabled" : "Available"} />
+              </span>
             </li>
           ))}
         </ul>

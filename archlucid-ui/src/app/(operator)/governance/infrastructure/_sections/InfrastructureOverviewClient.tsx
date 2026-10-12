@@ -130,7 +130,7 @@ export function InfrastructureOverviewClient(props: InfrastructureOverviewClient
               </Button>
             </div>
           </section>
-        ) : (
+        ) : secureNowHome ? null : (
           <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
             {showSecureNowGroupedHomeSections
               ? SECURENOW_HOME_GROUPED_SECTIONS_INTRO

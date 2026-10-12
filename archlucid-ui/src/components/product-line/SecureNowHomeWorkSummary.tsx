@@ -5,9 +5,11 @@ import { useQuery } from "@tanstack/react-query";
 
 import { useAssignedToMeFindingsCountQuery } from "@/hooks/use-assigned-to-me-findings-count-query";
 import { fetchInfraEvidenceDiffsForSnapshot, fetchInfraEvidenceSnapshots } from "@/lib/infra-evidence/infra-evidence-drift-api";
+import type { InfraEvidenceDiffSummary } from "@/lib/infra-evidence/infra-evidence-drift-types";
 import { fetchRemediationFactorySummary } from "@/lib/infra-evidence/infra-evidence-remediation-api";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { SECURENOW_NAV_LABELS } from "@/lib/product-line/securenow-nav-labels";
 import { cn } from "@/lib/utils";
 
 const SNAPSHOT_PAGE_SIZE = 20;
@@ -31,15 +33,35 @@ function newestSnapshotId(rows: readonly { capturedUtc: string | null; snapshotI
     .sort((left, right) => Date.parse(right.capturedUtc ?? "") - Date.parse(left.capturedUtc ?? ""))[0]?.snapshotId ?? null;
 }
 
+function newestDiff(diffs: readonly InfraEvidenceDiffSummary[]): InfraEvidenceDiffSummary | null {
+  return [...diffs].sort((left, right) => Date.parse(right.createdUtc) - Date.parse(left.createdUtc))[0] ?? null;
+}
+
+function knownCountDetail(count: number | null | undefined, zeroCopy: string, knownCopy: (count: number) => string): string {
+  if (count === null || count === undefined) {
+    return "";
+  }
+
+  if (count === 0) {
+    return zeroCopy;
+  }
+
+  return knownCopy(count);
+}
+
 function WorkSummaryRow({ label, href, detail, error }: WorkSummaryRowProps): React.JSX.Element {
+  const visibleDetail = error ?? detail;
+
   return (
     <li className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 border-b border-neutral-200 py-2 last:border-b-0 dark:border-neutral-800">
       <Link className={cn(OPERATOR_LINK.inline, "font-medium", OPERATOR_TYPOGRAPHY.body)} href={href}>
         {label}
       </Link>
-      <span className={cn("text-right text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} role={error ? "alert" : undefined}>
-        {error ?? detail}
-      </span>
+      {visibleDetail.length > 0 ? (
+        <span className={cn("text-right", OPERATOR_TYPOGRAPHY.dataValue)} role={error ? "alert" : undefined}>
+          {visibleDetail}
+        </span>
+      ) : null}
     </li>
   );
 }
@@ -63,49 +85,63 @@ export function SecureNowHomeWorkSummary(): React.JSX.Element {
     enabled: newestSnapshotIdValue !== null,
     retry: false,
   });
-
-  const criticalExposureCount = factoryQuery.data?.factoryMetrics.criticalExposureCount;
-  const awaitingVerification = factoryQuery.data?.openInstancesByStatus.ChangeImplemented;
-  const verificationFailures = factoryQuery.data?.openInstancesByStatus.VerificationFailed ?? 0;
-  const newestDiff = diffsQuery.data?.[0];
-  const assignedDetail =
-    assignedQuery.data === undefined ? "Loading…" : assignedQuery.data === 0 ? "None assigned to you" : `${assignedQuery.data} assigned to you`;
-  const priorityDetail =
-    criticalExposureCount === undefined
-      ? "Loading…"
-      : criticalExposureCount === 0
-        ? "No critical exposure"
-        : `${criticalExposureCount} with critical exposure`;
-  const changesDetail =
-    snapshotsQuery.isError || diffsQuery.isError
+  const factorySummary = factoryQuery.data;
+  const criticalExposureCount = factorySummary === undefined
+    ? undefined
+    : factorySummary.factoryMetrics.criticalExposureCount;
+  const awaitingVerification = factorySummary === undefined
+    ? undefined
+    : factorySummary.openInstancesByStatus.ChangeImplemented;
+  const verificationFailures = factorySummary?.openInstancesByStatus.VerificationFailed;
+  const myFindingsLabel = SECURENOW_NAV_LABELS["/security/assigned-to-me"] ?? "My findings";
+  const assignedDetail = assignedQuery.isPending
+    ? "Loading…"
+    : knownCountDetail(assignedQuery.data, "None assigned to you", (count) => `${count} assigned to you`);
+  const priorityDetail = factoryQuery.isPending
+    ? "Loading…"
+    : knownCountDetail(
+        criticalExposureCount,
+        "No critical exposure",
+        (count) => `${count} with critical exposure`,
+      );
+  const comparisonDiff = diffsQuery.data === undefined ? null : newestDiff(diffsQuery.data);
+  const changesDetail = snapshotsQuery.isPending || (newestSnapshotIdValue !== null && diffsQuery.isPending)
+    ? "Loading…"
+    : comparisonDiff === null
       ? "No comparison yet"
-      : newestSnapshotIdValue === null
-        ? "No comparison yet"
-        : newestDiff === undefined
-          ? "No changes since the previous collection"
-          : `${newestDiff.totalChanges} changes since the previous collection`;
-  const verificationDetail =
-    awaitingVerification === undefined
-      ? "Loading…"
-      : awaitingVerification === 0
-        ? "None waiting for a check"
-        : `${awaitingVerification} waiting for a check`;
+      : knownCountDetail(
+          comparisonDiff.totalChanges,
+          "No comparison yet",
+          (count) => `${count} changes since the previous collection`,
+        );
+  const verificationDetail = factoryQuery.isPending
+    ? "Loading…"
+    : knownCountDetail(
+        awaitingVerification,
+        "None waiting for a check",
+        (count) => `${count} waiting for a check`,
+      );
+  const verificationSuffix = verificationFailures !== undefined && verificationFailures > 0
+    ? ` · ${verificationFailures} checks failed`
+    : "";
   const factoryError = factoryQuery.isError ? errorMessage(factoryQuery.error) : undefined;
   const assignedError = assignedQuery.isError ? errorMessage(assignedQuery.error) : undefined;
-  const changesError =
-    snapshotsQuery.isError || diffsQuery.isError
-      ? errorMessage(snapshotsQuery.error ?? diffsQuery.error)
-      : undefined;
-  const verificationSuffix = verificationFailures > 0 ? ` · ${verificationFailures} checks failed` : "";
+  const changesError = snapshotsQuery.isError || diffsQuery.isError
+    ? errorMessage(snapshotsQuery.error ?? diffsQuery.error)
+    : undefined;
 
   return (
-    <section aria-labelledby="securenow-home-work-summary-heading" data-testid="securenow-home-work-summary">
+    <section
+      aria-labelledby="securenow-home-work-summary-heading"
+      className="space-y-4 p-4"
+      data-testid="securenow-home-work-summary"
+    >
       <h2 id="securenow-home-work-summary-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
         Your work
       </h2>
-      <ul className="m-0 mt-2 list-none p-0">
+      <ul className="m-0 list-none p-0">
         <WorkSummaryRow
-          label="My findings"
+          label={myFindingsLabel}
           href="/security/assigned-to-me"
           detail={assignedDetail}
           error={assignedError}
@@ -125,7 +161,7 @@ export function SecureNowHomeWorkSummary(): React.JSX.Element {
         <WorkSummaryRow
           label="Awaiting verification"
           href="/security/remediation-instances"
-          detail={`${verificationDetail}${verificationSuffix}`}
+          detail={factoryError === undefined ? `${verificationDetail}${verificationSuffix}` : verificationDetail}
           error={factoryError}
         />
       </ul>

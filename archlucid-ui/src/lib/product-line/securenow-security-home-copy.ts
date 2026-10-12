@@ -5,8 +5,6 @@ import {
   SECURENOW_REMEDIATION_PATTERNS_PATH,
 } from "@/lib/governance/governance-route-paths";
 import { SECURENOW_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
-import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
-
 import type { SecureNowHomeDestinationRow } from "@/lib/product-line/securenow-home-destination-rows";
 import { SECURENOW_NAV_LABELS } from "@/lib/product-line/securenow-nav-labels";
 
@@ -25,17 +23,17 @@ export const SECURENOW_SECURITY_HOME_ROWS: readonly SecureNowHomeDestinationRow[
   },
   {
     href: SECURENOW_REMEDIATION_FACTORY_PATH,
-    label: OPERATOR_NAV_LINK_LABELS.remediationFactory,
+    label: SECURENOW_NAV_LABELS[SECURENOW_REMEDIATION_FACTORY_PATH],
     summary: "See which fixes to do first, and group them into waves.",
   },
   {
     href: SECURENOW_REMEDIATION_PATTERNS_PATH,
-    label: OPERATOR_NAV_LINK_LABELS.remediationPatterns,
+    label: SECURENOW_NAV_LABELS[SECURENOW_REMEDIATION_PATTERNS_PATH],
     summary: "Review reusable fixes for similar findings.",
   },
   {
     href: SECURENOW_REMEDIATION_INSTANCES_PATH,
-    label: OPERATOR_NAV_LINK_LABELS.infrastructureRemediation,
+    label: SECURENOW_NAV_LABELS[SECURENOW_REMEDIATION_INSTANCES_PATH],
     summary: "See each fix from planned to verified. SecureNow records the plan and the later collection. It does not change Azure.",
   },
 ];
