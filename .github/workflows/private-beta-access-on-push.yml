@@ -12,9 +12,9 @@ on:
   workflow_dispatch:
 
 concurrency:
-  # One invite-wave smoke per ref: cancel superseded trunk pushes so the queue drains to the latest SHA.
+  # Keep the current invite-wave witness running to completion; later pushes queue behind it.
   group: private-beta-access-on-push-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true

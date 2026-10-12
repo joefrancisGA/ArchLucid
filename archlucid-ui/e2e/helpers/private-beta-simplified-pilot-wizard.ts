@@ -4,6 +4,7 @@ import { liveE2eArchitectureDescription } from "./live-api-client";
 import { formatSimplifiedPilotWizardMountFailure } from "./simplified-pilot-wizard-mount-failure";
 import { clickThroughBlockingOverlays } from "./dismiss-blocking-modal-overlays";
 import { ensureFirstSessionPurposeChooserClosed } from "./live-seat-scope-assertions";
+import { parseWizardCreateResponse } from "./wizard-create-response";
 
 /**
  * Submits the baseline simplified pilot wizard (`?baseline=1`) and returns the created run id.
@@ -97,10 +98,15 @@ export async function submitPrivateBetaSimplifiedPilotWizard(page: Page): Promis
   await page.getByRole("button", { name: "Start an architecture review" }).click();
 
   const createResp = await createRespPromise;
+  const createBody = await createResp.text();
 
-  expect(createResp.ok(), await createResp.text()).toBeTruthy();
+  expect(createResp.ok(), createBody).toBeTruthy();
 
-  const createJson = (await createResp.json()) as { run?: { runId?: string } };
+  const createJson = parseWizardCreateResponse(
+    createBody,
+    createResp.status(),
+    createResp.headers()["content-type"],
+  );
   const runId = createJson.run?.runId ?? "";
 
   expect(runId.length).toBeGreaterThan(0);
