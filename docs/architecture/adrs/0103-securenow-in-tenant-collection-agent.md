@@ -6,7 +6,7 @@
 
 - **Status:** Accepted
 - **Date:** 2026-10-11
-- **Owner decision:** Accepted 2026-10-11 without amendment. SN-COL-02 run records and blob ingest are already on `master`. SN-COL-03 and SN-DEP-01 may proceed. SN-DEP-02 and SN-DEP-03 still wait for an accepted SN-DEP-01.
+- **Owner decision:** Accepted 2026-10-11 without amendment. SN-COL-02 run records and blob ingest are already on `master`. SN-COL-03 and SN-DEP-01 may proceed. SN-DEP-01 was accepted as ADR 0104 on 2026-10-12, so SN-DEP-02 and SN-DEP-03 may proceed when those prompts are run.
 
 ## Context
 
@@ -235,7 +235,7 @@ Azure Automation is cheaper and faster to adopt than a new container host, but g
 
 - **Positive:** Customer-owned collection, least-privilege handoff, replay-safe ingestion, and a clear path for both deployment modes.
 - **Negative:** Customers must operate more Azure resources; polling and cross-tenant federation add operational seams; Automation limits remain a deployment verification item.
-- **Follow-ups:** Accepted 2026-10-11 without amendment. SN-COL-02 is already on `master`. SN-COL-03 may add the collection-agent page, and SN-DEP-01 should use this ADR as an input. SN-DEP-02 should encode the module boundaries listed above only after SN-DEP-01 is accepted.
+- **Follow-ups:** Accepted 2026-10-11 without amendment. SN-COL-02 is already on `master`. SN-COL-03 may add the collection-agent page. SN-DEP-01 was accepted as ADR 0104 on 2026-10-12 and uses this ADR as an input. SN-DEP-02 may encode the module boundaries listed above when that prompt is run.
 
 ## Links
 
@@ -245,3 +245,4 @@ Azure Automation is cheaper and faster to adopt than a new container host, but g
 - [`ArchLucid.Integrations.AzureExtractor/HostedAzureExtractorClient.cs`](../../../ArchLucid.Integrations.AzureExtractor/HostedAzureExtractorClient.cs)
 - [`infra/terraform-customer-onboarding/main.tf`](../../../infra/terraform-customer-onboarding/main.tf)
 - [ADR 0037 — Tenant isolation without SQL RLS](0037-tenant-isolation-without-rls-defense-in-depth.md)
+- [ADR 0104 — SecureNow in-tenant deployment](0104-securenow-in-tenant-deployment.md)
