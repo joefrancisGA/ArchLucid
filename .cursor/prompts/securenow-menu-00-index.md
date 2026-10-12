@@ -14,7 +14,7 @@ Copy-paste docs index: [`docs/architecture/SECURENOW_MENU_AND_EDITIONS_LUNA_PROM
 | 1 | **SN-MENU-01** | Home stands alone. Findings, Environment, Remediation, Compliance, Data sources, Integrations groups. |
 | 2 | **SN-MENU-02** | New labels in sentence case. Titles and breadcrumbs match. |
 | 3 | **SN-MENU-03** | Tooltips and captions use security wording. |
-| 4 | **SN-MENU-04** | Home follows the menu. Posture strip from existing data. |
+| 4 | **SN-MENU-04** | Home follows the menu. Posture strip superseded by SN-HOME-02 and SN-HOME-03. |
 | 5 | **SN-ED-01** | `generic` or `uhg` edition from deployment config. |
 | 6 | **SN-ED-02** | Branding per edition. Leak guard per edition. |
 | 7 | **SN-ED-03** | Featured frameworks per edition. |
