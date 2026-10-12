@@ -182,6 +182,118 @@ public sealed class OperatorInferredConnectionServiceTests
     }
 
     [Fact]
+    public async Task ConfirmAsync_unmapped_data_plane_role_requires_read_or_write_answer()
+    {
+        OperatorInferredConnectionRecord record = CreateRecord(
+            OperatorInferredConnectionSource.Questionnaire,
+            ruleName: InferenceQuestionnaireItemGenerator.UnmappedDataPlaneRoleRuleName);
+
+        Mock<IOperatorInferredConnectionRepository> connectionRepository = new();
+        connectionRepository
+            .Setup(repository => repository.TryGetByIdInScopeAsync(
+                Scope.ToProjectScopeKey(),
+                record.ConnectionId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(record);
+
+        OperatorInferredConnectionService sut = CreateSut(
+            connectionRepository.Object,
+            CreateSnapshotRepository(detailLoaded: true).Object,
+            Mock.Of<IInferenceQuestionnaireItemGenerator>());
+
+        OperatorInferredConnectionMutationResult result = await sut.ConfirmAsync(
+            Scope,
+            SnapshotId,
+            new OperatorInferredConnectionConfirmRequest { ConnectionId = record.ConnectionId },
+            "actor");
+
+        result.Succeeded.Should().BeFalse();
+        result.ErrorMessage.Should().Be("Read or Write is required for an unmapped data-plane role.");
+    }
+
+    [Fact]
+    public async Task ConfirmAsync_rejects_data_plane_answer_on_non_data_plane_question()
+    {
+        OperatorInferredConnectionRecord record = CreateRecord(
+            OperatorInferredConnectionSource.Questionnaire,
+            ruleName: InferenceQuestionnaireItemGenerator.CatalogTemplateRuleName);
+
+        Mock<IOperatorInferredConnectionRepository> connectionRepository = new();
+        connectionRepository
+            .Setup(repository => repository.TryGetByIdInScopeAsync(
+                Scope.ToProjectScopeKey(),
+                record.ConnectionId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(record);
+
+        OperatorInferredConnectionService sut = CreateSut(
+            connectionRepository.Object,
+            CreateSnapshotRepository(detailLoaded: true).Object,
+            Mock.Of<IInferenceQuestionnaireItemGenerator>());
+
+        OperatorInferredConnectionMutationResult result = await sut.ConfirmAsync(
+            Scope,
+            SnapshotId,
+            new OperatorInferredConnectionConfirmRequest
+            {
+                ConnectionId = record.ConnectionId,
+                DataPlaneAnswer = nameof(OperatorInferredDataPlaneAnswer.Read),
+            },
+            "actor");
+
+        result.Succeeded.Should().BeFalse();
+        result.ErrorMessage.Should()
+            .Be("Data-plane answers are only valid for unmapped data-plane role questions.");
+    }
+
+    [Fact]
+    public async Task ConfirmAsync_persists_read_answer_for_unmapped_data_plane_role()
+    {
+        OperatorInferredConnectionRecord record = CreateRecord(
+            OperatorInferredConnectionSource.Questionnaire,
+            ruleName: InferenceQuestionnaireItemGenerator.UnmappedDataPlaneRoleRuleName);
+
+        Mock<IOperatorInferredConnectionRepository> connectionRepository = new();
+        connectionRepository
+            .Setup(repository => repository.TryGetByIdInScopeAsync(
+                Scope.ToProjectScopeKey(),
+                record.ConnectionId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(record);
+        connectionRepository
+            .Setup(repository => repository.UpdateStatusInScopeAsync(
+                Scope.ToProjectScopeKey(),
+                It.IsAny<OperatorInferredConnectionMutation>(),
+                It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        OperatorInferredConnectionService sut = CreateSut(
+            connectionRepository.Object,
+            CreateSnapshotRepository(detailLoaded: true).Object,
+            Mock.Of<IInferenceQuestionnaireItemGenerator>());
+
+        OperatorInferredConnectionMutationResult result = await sut.ConfirmAsync(
+            Scope,
+            SnapshotId,
+            new OperatorInferredConnectionConfirmRequest
+            {
+                ConnectionId = record.ConnectionId,
+                DataPlaneAnswer = nameof(OperatorInferredDataPlaneAnswer.Read),
+            },
+            "actor");
+
+        result.Succeeded.Should().BeTrue();
+        connectionRepository.Verify(
+            repository => repository.UpdateStatusInScopeAsync(
+                Scope.ToProjectScopeKey(),
+                It.Is<OperatorInferredConnectionMutation>(mutation =>
+                    mutation.DataPlaneAnswer == OperatorInferredDataPlaneAnswer.Read
+                    && mutation.Status == OperatorInferredConnectionStatus.Confirmed),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
     public async Task ConfirmAsync_foreign_project_connection_returns_not_found()
     {
         OperatorInferredConnectionRecord foreign = CreateRecord(
@@ -287,7 +399,8 @@ public sealed class OperatorInferredConnectionServiceTests
 
     private static OperatorInferredConnectionRecord CreateRecord(
         OperatorInferredConnectionSource source,
-        Guid? projectId = null) =>
+        Guid? projectId = null,
+        string? ruleName = null) =>
         new()
         {
             ConnectionId = Guid.NewGuid(),
@@ -297,6 +410,7 @@ public sealed class OperatorInferredConnectionServiceTests
             SnapshotId = SnapshotId,
             Status = OperatorInferredConnectionStatus.Proposed,
             Source = source,
+            RuleName = ruleName,
             ToHost = "api.example.com",
             ProposalPayloadHashSha256 = [],
             CreatedUtc = DateTime.UtcNow,
