@@ -77,10 +77,11 @@ Three of the partial rows are short additions to Chapter 4's graph, if your esta
 
 ## How to read it
 
-Chapter 1 explains how the four parts fit together. Three reading paths work well:
+Chapter 1 explains how the four parts fit together. Four reading paths work well:
 
 - **Front to back.** The chapters build on each other, and one fictional estate, Contoso's payments platform, runs through all of them. Its evidence is collected in Chapter 3, its six paths are derived in Chapter 4, and they're explained by a model in Chapter 7, attacked through its own metadata in Chapter 8, cut in Chapter 9, and verified in Chapter 10. This is the path for engineers who will build something.
-- **The evaluator's path.** Chapters 1, 2, 7, 8, 10, and 11, plus the table of patterns that look useful and aren't in Appendix C. This is the path for leaders assessing a product or an internal proposal.
+- **The evaluator's path.** Chapters 1, 2, 7, 8, 10, and 11, plus the table of patterns that look useful and aren't in Appendix C, and Appendix E's adoption roadmap. This is the path for leaders assessing a product or an internal proposal.
+- **If you're planning a pilot.** Read Chapter 1, then Appendix E, which orders the decisions and controls from Chapters 3 to 11 into an approval package and a 30/60/90-day plan. Follow its links into the chapters as each decision comes up.
 - **If you already do attack-path work.** Start with Chapter 2, then read Part III (Chapters 7 and 8) and Part IV (Chapters 9 to 11). Dip into Chapters 4 to 6 where the Azure details are new to you.
 
 Every chapter ends with a summary, key terms, and a lab. The [glossary](../back-matter/glossary.md) collects the key terms in one place.
@@ -108,7 +109,7 @@ It isn't a catalog of Azure security controls or a walkthrough of a benchmark. T
 
 It isn't an offensive security guide. Paths here are computed from configuration, by defenders, with read-only access. Nothing in the book exploits anything.
 
-It isn't about a product. Every technique uses public Azure and Microsoft Graph APIs [S5, S6] and code you can read. I build commercial tooling in this area, and that experience shaped the problems the book chooses. None of the chapters or Appendices A to C depend on that tooling, describe its internals, or recommend it. If the optional case study in Appendix D is published, the tooling it used appears only in a clearly marked sidebar.
+It isn't about a product. Every technique uses public Azure and Microsoft Graph APIs [S5, S6] and code you can read. I build commercial tooling in this area, and that experience shaped the problems the book chooses. None of the chapters, Appendices A to C, or Appendix E depend on that tooling, describe its internals, or recommend it. If the optional case study in Appendix D is published, the tooling it used appears only in a clearly marked sidebar.
 
 And it doesn't promise that models will get this right. The book's position is that they'll keep getting some of it wrong, and that the useful question is how to make those failures visible before a person relies on them.
 
@@ -132,5 +133,6 @@ And it doesn't promise that models will get this right. The book's position is t
 - Confirm the disclosure paragraph in "What this book isn't": whether to name the tooling, and whether the publisher has a standard disclosure format.
 - Add acknowledgments (technical reviewers, anyone who walked the lab) once the review round has happened.
 - The reading paths name chapters by number. Re-check them if chapters are reordered.
+- 2026-10-12 (BR-09): added Appendix E to the evaluator's path, added a fourth reading path for teams planning a pilot, and extended the no-dependency statement to Appendix E.
 - Keep "What you'll be able to do" in step with the README thesis and the chapter summaries.
 - When the lab moves to its own public repository, replace the in-repo paths with that repository's URL.
