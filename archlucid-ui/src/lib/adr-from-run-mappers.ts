@@ -1,7 +1,6 @@
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import { sortQuickDecisionFindings } from "@/lib/quick-decision-summary-derive";
 import type { RunExplanationSummary } from "@/types/explanation";
-import { isDeterministicExplanationFallback } from "@/types/explanation";
 import { resolveFindingSemanticSupportBandExportFields } from "@/lib/findings/finding-semantic-support-band-export";
 import { deriveFindingTrustLabelName } from "@/lib/findings/finding-provenance-display";
 
@@ -48,6 +47,9 @@ export function buildAdrExplanationSlice(summary: RunExplanationSummary | null):
   const exp = summary.explanation;
   const structured = exp?.structured ?? null;
   const provenance = exp?.provenance ?? null;
+  const legacyDeterministicFallback = (
+    summary as RunExplanationSummary & { usedDeterministicFallback?: boolean }
+  ).usedDeterministicFallback;
   let provenanceLine: string | null = null;
 
   if (provenance !== null) {
@@ -78,7 +80,12 @@ export function buildAdrExplanationSlice(summary: RunExplanationSummary | null):
       structured !== null && Array.isArray(structured.caveats) ? asTrimmedStrings(structured.caveats) : null,
     provenanceLine,
     faithfulnessWarning: typeof summary.faithfulnessWarning === "string" ? summary.faithfulnessWarning.trim() : null,
-    deterministicFallbackUsed: isDeterministicExplanationFallback(summary),
+    deterministicFallbackUsed:
+      typeof summary.deterministicFallbackUsed === "boolean"
+        ? summary.deterministicFallbackUsed
+        : typeof legacyDeterministicFallback === "boolean"
+          ? legacyDeterministicFallback
+          : null,
   };
 }
 

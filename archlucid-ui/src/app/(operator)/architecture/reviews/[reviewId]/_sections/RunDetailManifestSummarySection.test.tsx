@@ -55,4 +55,15 @@ describe("RunDetailManifestSummarySection operator summary", () => {
 
     expect(screen.queryByText("Operator summary was not stored.")).not.toBeInTheDocument();
   });
+
+  it("labels a missing feasibility verdict without replacing a stored verdict section", () => {
+    render(
+      <RunDetailManifestSummarySection
+        manifestSummary={summary}
+        buyerPolishedShell={false}
+      />,
+    );
+
+    expect(screen.getByText("Feasibility verdict was not stored.")).toBeInTheDocument();
+  });
 });

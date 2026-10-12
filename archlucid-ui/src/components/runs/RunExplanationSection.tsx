@@ -325,6 +325,12 @@ export function RunExplanationSection({
   const riskPostureLabel = summary.riskPosture?.trim() || "Risk posture was not stored.";
   const postureClass = riskPostureBadgeClass(riskPostureLabel);
   const deterministicFallback = isDeterministicExplanationFallback(summary);
+  const legacyDeterministicFallback = (
+    summary as RunExplanationSummary & { usedDeterministicFallback?: boolean }
+  ).usedDeterministicFallback;
+  const deterministicFallbackFlagMissing =
+    (summary.deterministicFallbackUsed === null || summary.deterministicFallbackUsed === undefined)
+    && legacyDeterministicFallback === undefined;
   const conf = expl.confidence;
   const modelConfidencePresentation =
     conf !== null && conf !== undefined && (typeof conf === "number" || typeof conf === "string")
@@ -361,7 +367,15 @@ export function RunExplanationSection({
             ? `${decisionCountForStats} approval decisions · ${findingCountForStats} risk findings · ${unresolvedCountForStats} open items`
             : `${decisionCountForStats} decisions · ${findingCountForStats} findings · ${unresolvedCountForStats} unresolved · ${complianceGapCountForStats} compliance gaps`}
         </span>
-        {deterministicFallback ? (
+        {deterministicFallbackFlagMissing && !deterministicFallback ? (
+          <span
+            role="status"
+            aria-label="Deterministic fallback status"
+            className={`ml-3 align-middle ${deterministicFallbackBadgeClass()}`}
+          >
+            Deterministic fallback was not stored.
+          </span>
+        ) : deterministicFallback ? (
           <span
             role="status"
             aria-label="Deterministic narrative fallback"

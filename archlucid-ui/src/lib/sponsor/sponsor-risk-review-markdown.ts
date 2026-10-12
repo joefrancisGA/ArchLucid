@@ -63,7 +63,12 @@ export function buildSponsorRiskReviewMarkdown(
   prioritizedFindings: readonly SponsorRiskReviewFindingMarkdownRow[],
 ): string {
   const structuredConfidence = summary.explanation?.structured?.confidence;
-  const faithfulnessWarningTrimmed = trimLine(summary.faithfulnessWarning);
+  const faithfulnessWarning =
+    summary.faithfulnessWarning === null || summary.faithfulnessWarning === undefined
+      ? "Faithfulness warning was not stored."
+      : summary.faithfulnessWarning;
+  const deterministicFallbackMissing =
+    summary.deterministicFallbackUsed === null || summary.deterministicFallbackUsed === undefined;
 
   const evidenceParts = [
     typeof structuredConfidence === "number" && Number.isFinite(structuredConfidence)
@@ -72,7 +77,8 @@ export function buildSponsorRiskReviewMarkdown(
     summary.faithfulnessSupportRatio === null || summary.faithfulnessSupportRatio === undefined
       ? "Faithfulness support ratio was not stored."
       : faithfulnessSupportRatioLine(summary.faithfulnessSupportRatio),
-    faithfulnessWarningTrimmed.length > 0 ? faithfulnessWarningTrimmed : null,
+    faithfulnessWarning.length > 0 ? faithfulnessWarning : null,
+    deterministicFallbackMissing ? "Deterministic fallback was not stored." : null,
     isDeterministicExplanationFallback(summary)
       ? "Some narrative was deterministically aligned to the review when live synthesis was unavailable."
       : null,
