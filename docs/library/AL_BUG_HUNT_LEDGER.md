@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-12 seed hunt (seed-only): `cloud-extractors` — re-read AWS Resource Explorer, GCP Asset Inventory/workload identity, and Azure management post-read paths after the cancellation change. No fresh reachable mechanism-backed candidate met the full hunt-ready bar. The focused Azure management-client suite passed 6/6; no production or regression change.
+
 2026-10-12 seed hunt (seed-only): `ui-governance-findings-queue` — re-read the selected queue path after the buyer-polished contextual-help fix; no fresh mechanism-backed candidate met the reachability and wrong-outcome bar. The full findings route scope passed 49 tests and retained 11 known external-store/update-depth and workspace-label baseline failures. No production or regression change.
 
 2026-10-12 seed hunt (seed→hit): `GovernanceFindingsQueueDesktopTable` omitted `showInsightDensityScore` when rendering grouped resource rows, so working-mode density scores disappeared after the reachable Group by resource toggle. Regression `preserves insight density scores in grouped working-mode rows` failed first and passed after forwarding the prop; the focused desktop-table suite passed 8/8.
@@ -31317,6 +31319,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ## Zone: cloud-extractors
 
+2026-10-12 seed hunt (seed-only): re-read AWS Resource Explorer, GCP Asset Inventory/workload identity, and Azure management post-read paths after the cancellation change. No fresh reachable mechanism-backed candidate met the full hunt-ready bar. The focused Azure management-client suite passed 6/6; no production or regression change.
+
 2026-10-11 seed hunt (seed→hit): proved `HostedAzureManagementPostReadClient` swallowed `OperationCanceledException` in both Policy Insights and Actual Cost reads, returning partial/empty success after the caller canceled extraction; cancellation now propagates while non-cancellation failures retain best-effort behavior; regressions `QueryPolicyComplianceAsync_propagates_cancellation_instead_of_returning_partial_success` and `TryQueryActualCostSummaryAsync_propagates_cancellation_instead_of_returning_null`; focused management-client suite passed 6/6, picker-wide filter passed 129/130 with one pre-existing network-association baseline failure.
 
 2026-10-11 thorough hunt (dry): cheap-disproved both Azure property candidates: Logic Apps `$connections` capture contains connection references and the selected ZIP/collector output exposes only normalized resource IDs/hosts/status fields, not credential material; AKS `networkProfile` capture contains network topology settings and no credential-bearing field or exported secret outcome. The focused `HostedAzureInventoryResourcePropertyExpanderTests` passed 10/10; no production change.
@@ -31345,10 +31349,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** aws extractor; gcp extractor; azure extractor
 - **paths:** ArchLucid.Integrations.AwsExtractor/; ArchLucid.Integrations.GcpExtractor/; ArchLucid.Integrations.AzureExtractor/
 - **test-filter:** FullyQualifiedName~AwsExtractor|FullyQualifiedName~GcpExtractor|FullyQualifiedName~AzureExtractor
-- **hunts:** 89
+- **hunts:** 90
 - **bugs-found:** 44
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-11
+- **last-hunt:** 2026-10-12
 - **last-bug:** 2026-10-11 — Azure post-read swallowed cancellation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
