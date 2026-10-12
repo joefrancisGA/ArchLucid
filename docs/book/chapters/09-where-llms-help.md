@@ -1,13 +1,13 @@
-> **Scope:** Chapter 7 revised draft for the book draft *Managing Azure Security with AI*. Author working text; not product documentation and not a description of any vendor's internals.
+> **Scope:** Chapter 9 revised draft for the book draft *Managing Azure Security with AI*. Author working text; not product documentation and not a description of any vendor's internals.
 > **Status:** draft — revised (revision pass 1, 2026-10-10)
 
-# Chapter 7 — Where LLMs help
+# Chapter 9 — Where LLMs help
 
 **Spine:** [`../README.md`](../README.md) · **Outline:** [`../OUTLINE.md`](../OUTLINE.md)
 
 > *Draft status: revised (revision pass 1, 2026-10-10). Target 8,000 words. Facts about Azure AI services and model features were checked against Microsoft documentation in October 2026; dated "As of" notes mark the ones to re-check before submission.*
 
-**Builds on:** Chapter 2 (evidence categories, section 2.2; confidence, section 2.5), Chapter 3 (snapshots without secrets, sections 3.5 and 3.6), Chapter 4 (the six payments paths, section 4.10).
+**Builds on:** Chapter 2 (evidence categories, section 2.2; confidence, section 2.5), Chapter 3 (snapshots without secrets, sections 3.5 and 3.6), Chapter 5 (the six payments paths, section 5.8).
 
 ---
 
@@ -23,7 +23,7 @@ It read well. Almost every sentence in it was wrong in a way that mattered:
 
 - "Our investigation found that attackers *could*" drifted, by the second sentence, to "customer data *has been exposed*". Nothing showed exposure. Chapter 2's hop 8 said there were no read logs to show anything either way.
 - "85% likelihood" came from nowhere. Nothing calibrated produced it.
-- "Revoking all Contributor access across the payments estate" would have broken every deployment pipeline the payments team owned, and it isn't what the graph pointed to. All six paths converge on one deployment identity (section 4.10), so a few targeted changes close most of them.
+- "Revoking all Contributor access across the payments estate" would have broken every deployment pipeline the payments team owned, and it isn't what the graph pointed to. All six paths converge on one deployment identity (section 5.8), so a few targeted changes close most of them.
 - "Privileged help-desk accounts" turned one user with one directory role into a category.
 
 The analyst's second attempt used the approach in this chapter. They gave the model a small, structured evidence pack generated from the snapshot, with the six paths as cited hop tables. They required a citation on every sentence and ran the result through a short validator. It took a few minutes longer to set up the first time. The output:
@@ -36,7 +36,7 @@ The model was the same both times. What changed was what it was given, what it w
 
 ---
 
-## 7.1 Jobs language models do well, and jobs they shouldn't do
+## 9.1 Jobs language models do well, and jobs they shouldn't do
 
 The book's principle is simple: compute paths from evidence with deterministic methods, and use AI to explain, triage, and draft on top of cited evidence, never instead of it. This chapter makes that concrete.
 
@@ -56,15 +56,15 @@ And there are jobs they shouldn't do, which earlier chapters have already argued
 |-----|-----------|-----------------|
 | Establish facts about the environment | APIs and snapshots (section 3.5) | A model's answer is an AI inference; the API's is an observed fact |
 | Decide what a role permits | Collected role definitions (section 4.2) | Models don't know your custom roles, and their built-in role knowledge is frozen and sometimes wrong |
-| Search the graph | Deterministic search (section 4.5) | Exhaustive, repeatable search is what code does well and models don't |
-| Rank paths | Explicit, versioned ranking rules (section 9.2) | Ranking must be explainable and stable between runs |
-| Decide a fix is complete | Snapshot comparison (section 10.3) | "Fixed" is a claim to verify, not to generate |
+| Search the graph | Deterministic search (section 5.3) | Exhaustive, repeatable search is what code does well and models don't |
+| Rank paths | Explicit, versioned ranking rules (section 11.2) | Ranking must be explainable and stable between runs |
+| Decide a fix is complete | Snapshot comparison (section 12.3) | "Fixed" is a claim to verify, not to generate |
 
 Everything in this chapter sits in the first table and leans on the second. The model's input comes from deterministic work, and its output goes to a validator and a human.
 
 ---
 
-## 7.2 The grounding pattern
+## 9.2 The grounding pattern
 
 The pattern that turns the first summary into the second has four stages:
 
@@ -75,7 +75,7 @@ snapshot ──▶ deterministic derivation ──▶ evidence pack ──▶ mo
 
 Each stage has one job:
 
-1. **Derivation** decides what's true, in code, from the snapshot (sections 3.5 and 4.5). Nothing downstream may add facts.
+1. **Derivation** decides what's true, in code, from the snapshot (sections 3.5 and 5.3). Nothing downstream may add facts.
 2. **The evidence pack** contains exactly what the model may use, in a compact structure with short IDs for citation.
 3. **The model** writes: explanations, summaries, drafts. Every claim it makes cites the pack.
 4. **The validator** checks the draft mechanically against the pack and rejects drafts that break the rules.
@@ -91,11 +91,11 @@ The rest of this chapter takes the stages in order.
 
 ---
 
-## 7.3 Building the evidence pack
+## 9.3 Building the evidence pack
 
 The evidence pack is a small JSON document generated from your derivation step. It is *not* the snapshot. It's a deliberate selection: the paths relevant to the question, their hops, the gaps that affect them, and any recommended cut points.
 
-<!-- listing: lab/listings/json/ch07-building-the-evidence-pack.json -->
+<!-- listing: lab/listings/json/ch09-building-the-evidence-pack.json -->
 
 ```json
 {
@@ -234,20 +234,20 @@ Some deliberate choices in that structure:
 - **Claims in plain language, written by the derivation step.** The model doesn't interpret raw JSON from Azure. It works from sentences that deterministic code has already produced and that a human can read.
 - **Evidence category on every claim**, so the model, and the validator, know which verbs are allowed (Chapter 2, section 2.7).
 - **Gaps and confidence included.** A pack without its gaps invites the model to sound more certain than the evidence is.
-- **A path names the gaps it rests on.** When a path passes through an unmodeled control (Chapter 4, section 4.5), its confidence is "Insufficient evidence", the control becomes a gap with kind `unmodeledControl`, and the path lists that gap's ID in a `gaps` field. None of the six payments paths has one, so the pack above doesn't show the field. Listing the gap on the path lets the validator check that a summary citing the path also cites what it depends on. A temporally inconsistent path (Chapter 4, section 4.5) is handled the same way. Its reason becomes a gap with kind `temporallyInconsistent`, for example "P2's inputs were read 22 hours apart; re-collect application-owners.json". The path lists that gap, so a summary can't quote P2 without saying its inputs disagree in time.
+- **A path names the gaps it rests on.** When a path passes through an unmodeled control (Chapter 5, section 5.3), its confidence is "Insufficient evidence", the control becomes a gap with kind `unmodeledControl`, and the path lists that gap's ID in a `gaps` field. None of the six payments paths has one, so the pack above doesn't show the field. Listing the gap on the path lets the validator check that a summary citing the path also cites what it depends on. A temporally inconsistent path (Chapter 5, section 5.4) is handled the same way. Its reason becomes a gap with kind `temporallyInconsistent`, for example "P2's inputs were read 22 hours apart; re-collect application-owners.json". The path lists that gap, so a summary can't quote P2 without saying its inputs disagree in time.
 - **Only what's relevant.** A pack for "summarize the payments paths" doesn't include the other 17 paths in the estate. Smaller packs produce better output, cost less, and are easier to review.
 
 ### Sensitive data in the pack
 
 The pack goes to a model, so treat it as data leaving your evidence store. Before a pack is sent:
 
-- Use a model deployment your organization has approved for this data, under its data-handling terms (section 7.10).
+- Use a model deployment your organization has approved for this data, under its data-handling terms (section 9.10).
 - Replace identifiers you don't need with stable placeholders. "User A owns the app" is usually as useful as a real name and leaks less. Keep a mapping on your side if humans need the real names back.
 - Never include secret values. The snapshot doesn't contain any (section 3.6), and the pack is built from it.
 
 ---
 
-## 7.4 Asking for the draft
+## 9.4 Asking for the draft
 
 ### Instructions
 
@@ -272,7 +272,7 @@ Rules:
    "insufficient_evidence", return no sentences, and stop.
 ```
 
-Rule 6 matters more than it looks. Without an explicit way out, a model asked an unanswerable question will produce an answer anyway. With one, you can test whether it uses the exit when it should (section 8.10).
+Rule 6 matters more than it looks. Without an explicit way out, a model asked an unanswerable question will produce an answer anyway. With one, you can test whether it uses the exit when it should (section 10.10).
 
 The exit is a field in the output rather than a sentence for the model to write. Matching a fixed sentence is fragile: a model that paraphrases it ("The pack doesn't include that") has used the exit, but a string match says it hasn't. A field is either set or not. Your code can then produce a consistent message for the reader, and a test can assert whether the exit was taken.
 
@@ -280,7 +280,7 @@ The exit is a field in the output rather than a sentence for the model to write.
 
 Prose is pleasant to read and hard to check. Ask for structured output instead and assemble the prose afterwards:
 
-<!-- listing: lab/listings/json/ch07-structured-output.json -->
+<!-- listing: lab/listings/json/ch09-structured-output.json -->
 
 ```json
 {
@@ -307,7 +307,7 @@ Use a low temperature for explanation and summary work. Variety is a feature in 
 
 ---
 
-## 7.5 Validating the draft
+## 9.5 Validating the draft
 
 The validator is a short piece of deterministic code that checks the draft against the pack before any human sees it. It can't tell whether a sentence is *true*. It can tell whether the sentence broke the rules, and that catches most of the dangerous failures cheaply.
 
@@ -323,7 +323,7 @@ Checks worth running on every draft:
 
 A minimal validator in Python:
 
-<!-- listing: lab/listings/python/ch07_validator.py#validate -->
+<!-- listing: lab/listings/python/ch09_validator.py#validate -->
 
 ```python
 import re
@@ -413,7 +413,7 @@ The last check is about paths that rest on an unmodeled control. A draft may cit
 
 ### What validation doesn't catch
 
-A sentence can cite the right hop and still misstate it. "The deployment identity owns the storage account [H5]" cites a real hop, passes every check above, and is wrong: H5 is a role assignment, not ownership. Catching that requires judging whether the sentence is **supported** by what it cites, which is a harder problem. Sections 8.7, 8.9, and 8.10 cover it: a second model as a checker, sampling for human review, and test sets.
+A sentence can cite the right hop and still misstate it. "The deployment identity owns the storage account [H5]" cites a real hop, passes every check above, and is wrong: H5 is a role assignment, not ownership. Catching that requires judging whether the sentence is **supported** by what it cites, which is a harder problem. Sections 10.7, 10.9, and 10.10 cover it: a second model as a checker, sampling for human review, and test sets.
 
 For now, the division of labor is:
 
@@ -424,7 +424,7 @@ That human check is far faster than writing the paragraph from scratch, because 
 
 ---
 
-## 7.6 One evidence pack, many audiences
+## 9.6 One evidence pack, many audiences
 
 The same evidence pack can produce explanations for very different readers. Only the audience instruction changes, and the citations keep every version tied to the same facts.
 
@@ -450,7 +450,7 @@ Notice one sentence in the engineer version: "list which resource types the pipe
 
 ---
 
-## 7.7 Drafting remediation
+## 9.7 Drafting remediation
 
 Models are good at drafting the artifacts that carry a fix: runbook steps, infrastructure-as-code changes, change tickets. The grounding pattern still applies, with one addition: **the model drafts, and a human and a pipeline apply.**
 
@@ -463,7 +463,7 @@ Give the model the cut-point record and the relevant hops, and ask for:
 
 For example, asking for a Terraform change to disable shared key access on `custdata` (one of the alternative cut points) might produce:
 
-<!-- listing: lab/listings/terraform/ch07-custdata-shared-key.tf -->
+<!-- listing: lab/listings/terraform/ch09-custdata-shared-key.tf -->
 
 ```hcl
 resource "azurerm_storage_account" "custdata" {
@@ -478,7 +478,7 @@ with preconditions like "confirm in storage logs or with the owning teams that n
 
 A few rules keep this safe:
 
-- **The model never holds write permissions.** It produces text. A human reviews it, and the change goes through your normal pipeline: pull request, plan, approval, apply (section 9.6).
+- **The model never holds write permissions.** It produces text. A human reviews it, and the change goes through your normal pipeline: pull request, plan, approval, apply (section 11.6).
 - **Check the draft against the provider's documentation.** Models produce plausible attribute names that don't exist or were renamed. `terraform validate` and `plan` catch many of these; review catches the rest.
 - **Preconditions are the valuable part.** The change is often one line. Knowing what it might break is what saves the outage, and models are good at listing the categories of things to check, even though they can't check them.
 
@@ -486,7 +486,7 @@ In the current `azurerm` provider the property is `shared_access_key_enabled` [S
 
 ---
 
-## 7.8 Triage and change summaries
+## 9.8 Triage and change summaries
 
 Two more summarizing jobs come up constantly, and both fit the pattern.
 
@@ -508,11 +508,11 @@ The rule is the same as always. The diff is computed deterministically and becom
 
 ---
 
-## 7.9 Questions over evidence: the model as interface
+## 9.9 Questions over evidence: the model as interface
 
 Sometimes people want to ask a question rather than read a report: "Who can read `custdata`?" "Which paths go through the help desk?" "What changed in payments this week?"
 
-The tempting design is to put the snapshot into a model's context, or into a retrieval index, and let it answer. For the reasons in sections 7.1 and 4.9, that produces fluent answers that are hard to trust: the model searches poorly, can't see what it didn't retrieve, and fills gaps with plausible guesses.
+The tempting design is to put the snapshot into a model's context, or into a retrieval index, and let it answer. For the reasons in sections 9.1 and 4.7, that produces fluent answers that are hard to trust: the model searches poorly, can't see what it didn't retrieve, and fills gaps with plausible guesses.
 
 A better design treats the model as an **interface** rather than an **oracle**:
 
@@ -538,16 +538,16 @@ Most current model services, including Azure OpenAI, support this "tool calling"
 
 ---
 
-## 7.10 Choosing a model service on Azure
+## 9.10 Choosing a model service on Azure
 
 There are two broad options for teams working in Azure, and many organizations use both.
 
 **Azure OpenAI, through Microsoft Foundry (formerly Azure AI Foundry) [S6].** You deploy specific models in your own subscription and call them from your own code [S7]. This is the natural fit for the grounding pattern in this chapter, because you control the evidence pack, the prompt, structured output, tool definitions, and the validator. Questions to settle with your security and privacy teams:
 
 - **Data handling.** What the service retains, whether prompts are used for training (generally no, for Azure OpenAI), and what abuse monitoring applies and whether you need an exemption for sensitive data [S8, S9, S10].
-- **Network.** Whether you can reach the deployment over a private endpoint and disable public access (section 11.4) [S11].
+- **Network.** Whether you can reach the deployment over a private endpoint and disable public access (section 13.4) [S11].
 - **Region and residency.** Where the model runs and whether that satisfies your data residency requirements [S8].
-- **Model lifecycle.** Pin model versions explicitly. Models are retired on a schedule, and a version change can change output behavior [S12]. Re-run your test set (section 8.10) when you change versions.
+- **Model lifecycle.** Pin model versions explicitly. Models are retired on a schedule, and a version change can change output behavior [S12]. Re-run your test set (section 10.10) when you change versions.
 - **Cost.** Packs are small, so explanation work is usually cheap. Cache explanations per snapshot and audience rather than regenerating them on every page view.
 
 **Microsoft Security Copilot.** A Microsoft security product built on large language models and integrated with Microsoft's security tools, such as Defender, Sentinel, Entra, and Intune [S13]. It suits analysts working inside those products. It's less suited to the custom pipeline in this chapter, because you have less control over the evidence passed to the model and how its output is checked. It can still be valuable alongside your own pipeline, for example in incident investigation inside Sentinel.
@@ -560,30 +560,30 @@ Whichever you choose, the deployment that receives evidence packs is now a sensi
 
 ---
 
-## 7.11 Measuring whether it's helping
+## 9.11 Measuring whether it's helping
 
 It's easy to adopt a model because the output looks impressive. Measure instead:
 
 - **Validator pass rate.** What share of drafts pass on the first attempt? A falling rate after a model version change is an early warning.
 - **Human edit rate.** How much do reviewers change before sending? Track it per audience. If executive summaries are rewritten every time, the prompt or the pack is wrong.
 - **Time to a sendable artifact.** Compare against the manual baseline. This is the number that justifies the work.
-- **Errors found after sending.** Any misstatement that reached a reader is a test case (section 8.10).
+- **Errors found after sending.** Any misstatement that reached a reader is a test case (section 10.10).
 
 Keep a small set of evidence packs with known correct explanations, and re-run them whenever you change the prompt, the model, or the validator.
 
 ---
 
-## 7.12 Lab: a grounded explanation pipeline
+## 9.12 Lab: a grounded explanation pipeline
 
 This lab builds the full pattern for the payments paths.
 
-**Prerequisites.** The identity graph and paths from section 4.10, and access to a model deployment your organization has approved for this data. Use the companion lab tenant's synthetic data unless your policy explicitly allows sending real evidence to the deployment.
+**Prerequisites.** The identity graph and paths from section 5.8, and access to a model deployment your organization has approved for this data. Use the companion lab tenant's synthetic data unless your policy explicitly allows sending real evidence to the deployment.
 
-**Step 1 — Generate the pack.** Write a function that takes the paths from the section 4.10 lab, plus the gap list and any cut points, and emits a pack in the shape of section 7.3. Claims must be generated from the snapshot data, not written by hand. Assign short IDs.
+**Step 1 — Generate the pack.** Write a function that takes the paths from the section 5.8 lab, plus the gap list and any cut points, and emits a pack in the shape of section 9.3. Claims must be generated from the snapshot data, not written by hand. Assign short IDs.
 
-**Step 2 — Request structured output.** Send the pack with the system message from section 7.4 and an audience instruction ("for a board risk committee, in at most four sentences"). Request the sentence-and-citation JSON shape, using schema-constrained output if your deployment supports it.
+**Step 2 — Request structured output.** Send the pack with the system message from section 9.4 and an audience instruction ("for a board risk committee, in at most four sentences"). Request the sentence-and-citation JSON shape, using schema-constrained output if your deployment supports it.
 
-**Step 3 — Validate.** Run the validator from section 7.5. If it fails, send the problems back to the model as feedback and ask for a corrected draft, at most twice. Record whether it eventually passed.
+**Step 3 — Validate.** Run the validator from section 9.5. If it fails, send the problems back to the model as feedback and ask for a corrected draft, at most twice. Record whether it eventually passed.
 
 **Step 4 — Four audiences.** Repeat steps 2 and 3 for the architect, engineer, and auditor audiences. Compare the four outputs and confirm that every factual sentence in each traces to the same pack items.
 
@@ -593,7 +593,7 @@ This lab builds the full pattern for the payments paths.
 2. Add an AI-inferred hop ("`custarchive` likely contains payment card data (AI-inferred)") and check whether the output preserves "likely" and the AI label.
 3. Ask a question the pack can't answer ("How much would a breach cost?") and confirm the model sets `status` to `insufficient_evidence` (the rule 6 exit) rather than inventing a figure.
 4. Paste the opening story's board summary into the validator and confirm every problem is reported.
-5. If you ran Chapter 4's optional Step 3a, add its path to the pack as P7 with confidence "Insufficient evidence" and `"gaps": ["G3"]`, and add G3 describing the unevaluated condition. Ask for the board summary again. If the draft cites P7 without G3, the validator reports it.
+5. If you ran Chapter 5's optional Step 3a, add its path to the pack as P7 with confidence "Insufficient evidence" and `"gaps": ["G3"]`, and add G3 describing the unevaluated condition. Ask for the board summary again. If the draft cites P7 without G3, the validator reports it.
 
 **Step 6 — Measure.** Time how long it takes you to review and approve the four outputs, and compare it with how long writing one of them by hand would take.
 
@@ -627,7 +627,7 @@ This lab builds the full pattern for the payments paths.
 - The **grounding pattern** is: deterministic derivation → small **evidence pack** → model draft with **citations** → mechanical **validator** → human review.
 - Build packs with **short IDs, plain-language claims, evidence categories, gaps, and only what's relevant**. Treat them as data leaving your evidence store.
 - Give the model **explicit rules** about sources, citations, verbs by evidence category, numbers, and an **exit for unanswerable questions**. Ask for **structured output**.
-- Validators catch **rule-breaking** (no citation, unknown IDs, activity wording, invented numbers and names), not **misstatement**. Humans and Chapter 8's techniques cover the rest.
+- Validators catch **rule-breaking** (no citation, unknown IDs, activity wording, invented numbers and names), not **misstatement**. Humans and Chapter 10's techniques cover the rest.
 - One pack can serve **many audiences**, each traceable to the same facts.
 - Models **draft** remediation with preconditions, verification, and rollback. Humans and pipelines **apply** it.
 - For questions, use the model as an **interface to deterministic tools**, not as an oracle.
@@ -649,10 +649,10 @@ This lab builds the full pattern for the payments paths.
 
 - 2026-10-12 (BR-10, repetition edit): recap and signpost references to other chapters were cut or turned into section pointers, and the **Builds on** line now carries the dependencies. No technical content, code, labs, or evidence categories changed. `tools/check_cross_refs.py` checks every reference.
 - Verified 2026-10-10 (revision pass 1): structured output API version and model list; training use, abuse monitoring and the modified abuse monitoring application; private endpoint support; Security Copilot naming; `shared_access_key_enabled` and `default_to_oauth_authentication`.
-- The validator is intentionally simple. `lab/listings/python/tests/test_ch07_validator.py` checks it against this chapter's pack and every printed summary (2026-10-11). That run changed the listing in two ways. `expand_range` now accepts an en dash, because the printed summaries cite `[P1–P6]` and the old pattern rejected them. Names and numbers may now come from path targets and provenance (snapshot ID, `assertedBy`, `assertedAt`, `expiresAt`) as well as claims, because the auditor version quotes the snapshot ID and the DPO's dates. Untrusted text still never counts. The run also confirmed that the name regex flags hyphenated English words ("highest-leverage" in the engineer version, now reworded); section 7.5 now says so.
+- The validator is intentionally simple. `lab/listings/python/tests/test_ch07_validator.py` checks it against this chapter's pack and every printed summary (2026-10-11). That run changed the listing in two ways. `expand_range` now accepts an en dash, because the printed summaries cite `[P1–P6]` and the old pattern rejected them. Names and numbers may now come from path targets and provenance (snapshot ID, `assertedBy`, `assertedAt`, `expiresAt`) as well as claims, because the auditor version quotes the snapshot ID and the DPO's dates. Untrusted text still never counts. The run also confirmed that the name regex flags hyphenated English words ("highest-leverage" in the engineer version, now reworded); section 9.5 now says so.
 - 2026-10-11 (review comment on unmodeled controls): paths may now list `gaps`, and the validator checks that a draft citing such a path cites its gaps. The check is scoped to listed gaps so the architect and engineer versions, which omit G1 and G2, still pass. Tests in `test_ch07_validator.py` cover a missing gap, a gap cited in another sentence, and an uncited path. Added Step 5 case 5.
 - 2026-10-12 (review comment on temporal consistency): a temporally inconsistent path becomes a `temporallyInconsistent` gap listed on the path, so the same validator check applies; no code change.
 - 2026-10-12 (sources): added 15 sources. Changed: none. Softened: none. Unverified: none.
 - The "85% likelihood" and other figures in the opening are fictional.
-- Consider a figure for the grounding pipeline in section 7.2.
-- Add the Chapter 7 fact checks to GTM **M-306** when it is picked up.
+- Consider a figure for the grounding pipeline in section 9.2.
+- Add the Chapter 9 fact checks to GTM **M-306** when it is picked up.

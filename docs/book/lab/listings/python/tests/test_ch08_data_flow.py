@@ -1,11 +1,11 @@
-"""Chapter 6: activity wording needs a cited observed-activity item and its window."""
+"""Chapter 8: activity wording needs a cited observed-activity item and its window."""
 
 from __future__ import annotations
 
 import unittest
 
 import support
-from ch06_data_flow import activity_problems
+from ch08_data_flow import activity_problems
 
 ITEMS = {
     "A1": {"id": "A1", "category": "observed activity",
@@ -25,7 +25,7 @@ class ActivityProblems(unittest.TestCase):
                          ["Sentence 1: activity wording without a cited observed-activity item."])
 
     def test_book_observed_activity_item(self) -> None:
-        item = support.json_block_starting("chapters/06-data-flow.md", "id")
+        item = support.json_block_starting("chapters/08-data-flow.md", "id")
         text = "mi-pay-reconcile read 412 blobs from custarchive between 2026-09-01 and 2026-09-30."
 
         self.assertEqual(activity_problems(1, {"text": text, "cites": ["A1"]}, {"A1": item}), [])

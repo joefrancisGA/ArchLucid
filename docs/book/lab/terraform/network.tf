@@ -1,4 +1,4 @@
-# Chapter 5: hub and spokes, a broad firewall rule, and an unfinished private endpoint.
+# Chapters 6 and 7: hub and spokes, a broad firewall rule, and an unfinished private endpoint.
 # Everything here is skipped when deploy_network is false.
 
 locals {
@@ -144,7 +144,7 @@ resource "azurerm_firewall_policy_rule_collection_group" "hub" {
     priority = 100
     action   = "Allow"
 
-    # The opening story's rule: it turns hub-and-spoke into a flat network. Chapter 5 Step 8 narrows it.
+    # The opening story's rule: it turns hub-and-spoke into a flat network. Chapter 7 Step 8 narrows it.
     rule {
       name                  = "any-internal-to-any-internal"
       protocols             = ["Any"]
@@ -244,7 +244,7 @@ resource "azurerm_private_dns_zone" "blob" {
   resource_group_name = azurerm_resource_group.network.name
 }
 
-# Linked to the payments spoke only. The dev spoke resolving custdata to its public address is Chapter 5 Step 5's surprise.
+# Linked to the payments spoke only. The dev spoke resolving custdata to its public address is Chapter 7 Step 5's surprise.
 resource "azurerm_private_dns_zone_virtual_network_link" "blob_payments" {
   count = local.network_count
 
@@ -274,7 +274,7 @@ resource "azurerm_private_endpoint" "custdata_blob" {
   }
 }
 
-# Key-only sign-in. Nothing outputs the private key; Chapter 5 reaches the VM through Run Command.
+# Key-only sign-in. Nothing outputs the private key; Chapter 7 reaches the VM through Run Command.
 resource "tls_private_key" "dev_vm" {
   count = local.network_count
 
@@ -296,7 +296,7 @@ resource "azurerm_network_interface" "dev_vm" {
   }
 }
 
-# No public IP. Chapter 5 Step 5 runs DNS checks with Run Command.
+# No public IP. Chapter 7 Step 5 runs DNS checks with Run Command.
 resource "azurerm_linux_virtual_machine" "dev_vm" {
   count = local.network_count
 

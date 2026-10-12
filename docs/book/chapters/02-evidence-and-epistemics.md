@@ -130,7 +130,7 @@ They fail in ways that are hard to see:
 
 - **Plausible invention.** The model states a fact that sounds right and isn't, such as a role name that doesn't exist or a permission that a role doesn't include.
 - **Silent upgrade.** The model reads "can read blob data" and writes "has accessed customer data." The verb changed; the evidence didn't.
-- **Instruction leakage.** The model treats text inside the evidence, such as a resource description, as an instruction. Chapter 8 covers this attack.
+- **Instruction leakage.** The model treats text inside the evidence, such as a resource description, as an instruction. Chapter 10 covers this attack.
 - **Unwarranted precision.** The model says "high likelihood (85%)". Nothing calibrated produced that number.
 
 The rule for AI inference is short: **an AI inference keeps its label for its whole life.** It doesn't become a derived fact because a deterministic component consumed it. It doesn't become an observed fact because it was written into a database. If a downstream rule depends on an AI inference ("if the account holds personal data, severity is critical"), the downstream conclusion inherits the AI label too. Section 2.4 makes this precise.
@@ -280,7 +280,7 @@ The exact definitions matter less than three properties: the bands are **few**, 
 
 When you do eventually have outcome data, such as a red-team program that confirms or refutes paths, you can calibrate. Until then, ordinal bands are the honest choice.
 
-> **A note for AI-generated text.** Models produce numeric confidence readily when asked, and sometimes when not asked. If a model's output will be shown to users, strip or reject numeric probabilities unless they came from a calibrated component. Chapter 8 shows how.
+> **A note for AI-generated text.** Models produce numeric confidence readily when asked, and sometimes when not asked. If a model's output will be shown to users, strip or reject numeric probabilities unless they came from a calibrated component. Chapter 10 shows how.
 
 ---
 
@@ -319,7 +319,7 @@ Readers rarely look at labels. They read the sentence. So the sentence itself ha
 
 The most important row is deterministic inference. Most attack-path conclusions are capabilities: someone **can** do something. Capability is serious. It's the whole reason to fix the path. But it is not activity. "Can read" is not "read." "May reach" is not "reached." "Could exfiltrate" is not "exfiltrated." Executives and auditors make very different decisions based on that difference. Treat a slip from capability to activity as a factual error, not a style issue.
 
-This is also where AI-generated explanations most often go wrong. Models write fluent prose, and fluent prose prefers active, concrete verbs. Left alone, a model will turn "the service principal can list keys" into "the service principal uses its keys to access the data." The fix is partly prompting (Chapter 7) and partly checking output mechanically for activity verbs that the evidence doesn't support (Chapter 8).
+This is also where AI-generated explanations most often go wrong. Models write fluent prose, and fluent prose prefers active, concrete verbs. Left alone, a model will turn "the service principal can list keys" into "the service principal uses its keys to access the data." The fix is partly prompting (Chapter 9) and partly checking output mechanically for activity verbs that the evidence doesn't support (Chapter 10).
 
 ---
 
@@ -373,7 +373,7 @@ occurred unless a hop explicitly records observed access.
 
 Run the same prompt three times. Note how the answers differ. That variation is the practical meaning of "AI inference": same inputs, different outputs.
 
-**What you should see.** In most runs, the model explains the path well and cites most sentences. In some runs, it will upgrade a verb or add a plausible detail that isn't in the evidence. That gap between "usually right" and "always traceable" is the subject of Chapters 7 and 8.
+**What you should see.** In most runs, the model explains the path well and cites most sentences. In some runs, it will upgrade a verb or add a plausible detail that isn't in the evidence. That gap between "usually right" and "always traceable" is the subject of Chapters 9 and 10.
 
 ---
 
@@ -421,7 +421,7 @@ Run the same prompt three times. Note how the answers differ. That variation is 
 
 - 2026-10-12 (sources): added 10 sources. Changed: cited federated-credential subjects, RBAC inheritance, deny assignments, conditions, dynamic groups, listKeys, and authorizationresources. Softened: none. Unverified: none.
 - Verified 2026-10-10 (revision pass 1): Contributor's `*` actions include `listKeys`; a null `allowSharedKeyAccess` behaves as `true`; GitHub federated credential subject formats.
-- Still to verify: whether `authorizationresources` rows carry role assignment `condition` values (shared with Chapter 3). Deny assignments are resolved: the table reference doesn't list them, so Chapter 4 and Appendix B now read them from the Authorization REST API (2026-10-12).
-- Consider a sidebar on Microsoft Entra ID sign-in and audit logs as an "observed activity" source, cross-referenced to Chapter 6.
+- Still to verify: whether `authorizationresources` rows carry role assignment `condition` values (shared with Chapter 3). Deny assignments are resolved: the table reference doesn't list them, so Chapter 5 and Appendix B now read them from the Authorization REST API (2026-10-12).
+- Consider a sidebar on Microsoft Entra ID sign-in and audit logs as an "observed activity" source, cross-referenced to Chapter 8.
 - Possible figure: the hop table from 2.3 rendered as a diagram, with a different line style per evidence category.
-- Running example (payments → `custdata`) should be reused in Chapters 4, 9, and 10.
+- Running example (payments → `custdata`) should be reused in Chapters 5, 11, and 12.

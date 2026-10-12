@@ -83,7 +83,7 @@ Chapter 1 argued that checklists answer "is this setting wrong?" and that the qu
 
 ## D.4 Evidence register
 
-Every number and every factual claim about the estate in this appendix appears here first. The prose cites rows by ID, the same way Chapter 7's summaries cite pack items.
+Every number and every factual claim about the estate in this appendix appears here first. The prose cites rows by ID, the same way Chapter 9's summaries cite pack items.
 
 | ID | Claim | Category | Source | Precision |
 |----|-------|----------|--------|-----------|
@@ -121,11 +121,11 @@ What to bring out in this section, from the engagement's notes:
 
 ## D.6 Paths
 
-**Chapters 4 and 5 in practice.**
+**Chapters 4 to 7 in practice.**
 
 [[OWNER: the headline result in one or two sentences, cited to the register: how many paths to how many high-consequence targets, through how many convergence points]]
 
-Describe the three to five paths that best show something. Use the case study's renamed identities and resources, and the same table shape as Chapter 7's evidence pack:
+Describe the three to five paths that best show something. Use the case study's renamed identities and resources, and the same table shape as Chapter 9's evidence pack:
 
 | Path | Entry point | Converges on | Target class | Weakest hop | Confidence |
 |------|-------------|--------------|--------------|-------------|------------|
@@ -137,14 +137,14 @@ Questions this section should answer:
 
 - Where did the paths converge, and was the convergence point one the organization already knew was sensitive? [[OWNER]]
 - Which entry point surprised people most? In Contoso it was the help desk role; in real estates it's often an old automation identity, a group with an inherited role, or a federated credential with a broad subject. [[OWNER]]
-- What did network evidence change (Chapter 5)? Did any path turn out to be reachable only from places that don't exist, or from far more places than expected? [[OWNER]]
+- What did network evidence change (Chapters 6 and 7)? Did any path turn out to be reachable only from places that don't exist, or from far more places than expected? [[OWNER]]
 - What did the search get wrong at first, and how was it found? Real derivations have bugs, and the snapshot-first design is what made them cheap to fix (Chapter 3, section 3.5). [[OWNER]]
 
 ---
 
 ## D.7 Flows and observation
 
-**Chapter 6 in practice.**
+**Chapter 8 in practice.**
 
 [[OWNER: which targets had read logging when the engagement started, and from when (E-rows)]]
 
@@ -160,9 +160,9 @@ If shared keys or SAS tokens were in use on a target, this is the section where 
 
 ## D.8 Where AI helped, and where it didn't
 
-**Chapters 7 and 8 in practice.**
+**Chapters 9 and 10 in practice.**
 
-Report only what was measured. Chapter 7, section 7.11, lists the measures. If one wasn't tracked, say that, rather than estimating it.
+Report only what was measured. Chapter 9, section 9.11, lists the measures. If one wasn't tracked, say that, rather than estimating it.
 
 | Measure | Result | Source |
 |---------|--------|--------|
@@ -173,16 +173,16 @@ Report only what was measured. Chapter 7, section 7.11, lists the measures. If o
 
 Then the qualitative account:
 
-- **The most useful output.** [[OWNER: in the chapters' experience it's usually the audience translations (Chapter 7, section 7.6). Say whether that held]]
+- **The most useful output.** [[OWNER: in the chapters' experience it's usually the audience translations (Chapter 9, section 9.6). Say whether that held]]
 - **The most instructive failure.** [[OWNER: a specific draft that a check caught, or one that got through and was found later: what it said, which check caught it or should have, and what changed afterwards]]
-- **Untrusted text.** [[OWNER: did the derivation's instruction-pattern scan (Chapter 8, section 8.5) find anything in the real estate? Tags, display names, and descriptions written for an AI are themselves a finding]]
-- **Review fatigue.** [[OWNER: how review volume was managed, and whether planted errors were used (Chapter 8, section 8.8)]]
+- **Untrusted text.** [[OWNER: did the derivation's instruction-pattern scan (Chapter 10, section 10.5) find anything in the real estate? Tags, display names, and descriptions written for an AI are themselves a finding]]
+- **Review fatigue.** [[OWNER: how review volume was managed, and whether planted errors were used (Chapter 10, section 10.8)]]
 
 ---
 
 ## D.9 Remediation and verification
 
-**Chapters 9 and 10 in practice.**
+**Chapters 11 and 12 in practice.**
 
 [[OWNER: which cut points were chosen, and why those over the alternatives. Ranking is described by its factors in general terms, never by any tool's rules or weights]]
 
@@ -190,13 +190,13 @@ Then the qualitative account:
 |--------|-----------------------------|-----------|----------------------|
 | [[OWNER]] | [[OWNER]] | [[OWNER: verified / not verified / partially]] | [[OWNER: from the next snapshot, cited]] |
 
-Three things to report plainly, because they're what Chapter 10 is about:
+Three things to report plainly, because they're what Chapter 12 is about:
 
 - **Changes that didn't verify.** [[OWNER: a fix that was reported done and wasn't, and how the snapshot showed it]]
 - **New paths.** [[OWNER: any path the remediation itself created, and how it was found]]
 - **Risk acceptances.** [[OWNER: paths deliberately left open, with the compensating controls and the expiry recorded]]
 
-[[OWNER: the before-and-after, as Chapter 10's outcome measures: paths to high-consequence targets, convergence points, gaps, all cited]]
+[[OWNER: the before-and-after, as Chapter 12's outcome measures: paths to high-consequence targets, convergence points, gaps, all cited]]
 
 ---
 

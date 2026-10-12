@@ -1,4 +1,4 @@
-"""Chapter 4: the identity graph finds exactly the lab's six paths (Appendix A.3)."""
+"""Chapter 5: the identity graph finds exactly the lab's six paths (Appendix A.3)."""
 
 from __future__ import annotations
 
@@ -6,7 +6,7 @@ import unittest
 from datetime import timedelta
 
 import lab_graph as lab
-from ch04_paths import (
+from ch05_paths import (
     BLOB_READ_ACTION,
     CODE_CONTROL_ACTION,
     INSUFFICIENT,
@@ -37,7 +37,7 @@ class LabKnownAnswers(unittest.TestCase):
         self.assertEqual({label: len(paths) for label, paths in found.items()},
                          {label: 1 for label in lab.BOOK_PATHS})
 
-    def test_hop_counts_match_chapter_9_ranking(self) -> None:
+    def test_hop_counts_match_chapter_11_ranking(self) -> None:
         found = lab.labeled_paths(lab.lab_edges())
         hops = {label: len(paths[0]) for label, paths in found.items()}
 
@@ -401,7 +401,7 @@ ONE_RUN = timedelta(minutes=7)
 
 
 def one_run_manifest(**late: str) -> dict:
-    """Every Chapter 10 path file read inside one run; `late` moves a file's read elsewhere."""
+    """Every Chapter 12 path file read inside one run; `late` moves a file's read elsewhere."""
     names = sorted(set().union(*KIND_SOURCES.values()))
     entries = [{"name": name, "queriedAtUtc": late.get(name, RUN_START),
                 "completedAtUtc": late.get(name, RUN_END)} for name in names]
@@ -424,7 +424,7 @@ class InputSpans(unittest.TestCase):
         self.assertIsNone(temporal_problem(self.p2(), windows, ONE_RUN, []))
 
     def test_input_from_a_later_run_makes_the_path_inconsistent(self) -> None:
-        # Chapter 4 Step 0 run the next morning, joined to the Chapter 3 snapshot.
+        # Chapter 5 Step 0 run the next morning, joined to the Chapter 3 snapshot.
         windows = read_windows(one_run_manifest(**{"application-owners.json": "2026-10-07T08:00:00Z"}))
         problem = temporal_problem(self.p2(), windows, ONE_RUN, [])
 

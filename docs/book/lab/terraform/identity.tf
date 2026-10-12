@@ -1,4 +1,4 @@
-# Entra side of the payments paths (Chapters 1, 4, 9, 10).
+# Entra side of the payments paths (Chapters 1, 4, 5, 11, and 12).
 
 resource "random_password" "user" {
   for_each = toset(["dev-lead", "helpdesk-07", "analyst-04"])
@@ -22,7 +22,7 @@ resource "azuread_user" "helpdesk_07" {
   force_password_change = true
 }
 
-# The "fourth user" from Chapter 4 Step 3. The reader adds its Reader assignment during the lab.
+# The "fourth user" from Chapter 5 Step 3. The reader adds its Reader assignment during the lab.
 resource "azuread_user" "analyst_04" {
   user_principal_name   = "analyst-04@${local.domain}"
   display_name          = "analyst-04"
@@ -30,7 +30,7 @@ resource "azuread_user" "analyst_04" {
   force_password_change = true
 }
 
-# Chapter 9's change refers to the user through a data source, as it would in an estate where users aren't managed here.
+# Chapter 11's change refers to the user through a data source, as it would in an estate where users aren't managed here.
 data "azuread_user" "dev_lead" {
   object_id = azuread_user.dev_lead.object_id
 }
@@ -53,13 +53,13 @@ resource "azuread_application_federated_identity_credential" "payments_deploy_gi
   subject        = local.github_subject
 }
 
-# The identity running Terraform plays "the platform automation identity" that stays an owner after Chapter 9.
+# The identity running Terraform plays "the platform automation identity" that stays an owner after Chapter 11.
 resource "azuread_application_owner" "payments_deploy_platform" {
   application_id  = azuread_application_registration.payments_deploy.id
   owner_object_id = data.azuread_client_config.current.object_id
 }
 
-# Path entry for P2 and P5 (hop H2). Chapter 9 deletes this resource.
+# Path entry for P2 and P5 (hop H2). Chapter 11 deletes this resource.
 resource "azuread_application_owner" "payments_deploy_dev_lead" {
   application_id  = azuread_application_registration.payments_deploy.id
   owner_object_id = data.azuread_user.dev_lead.object_id

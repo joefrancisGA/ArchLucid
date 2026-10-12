@@ -26,7 +26,7 @@ variable "github_repository" {
 }
 
 variable "github_trust" {
-  description = "Subject suffix after repo:<owner/repo>:. Chapter 4 Step 4 changes it to environment:production."
+  description = "Subject suffix after repo:<owner/repo>:. Chapter 5 Step 4 changes it to environment:production."
   type        = string
   default     = "ref:refs/heads/main"
 }
@@ -44,13 +44,13 @@ variable "guest_email" {
 }
 
 variable "deploy_network" {
-  description = "Deploy the hub firewall, spokes, private endpoint, and dev VM (Chapter 5). Most of the lab's cost."
+  description = "Deploy the hub firewall, spokes, private endpoint, and dev VM (Chapters 6 and 7). Most of the lab's cost."
   type        = bool
   default     = true
 }
 
 variable "builtin_policy_storage_prevent_shared_key_id" {
-  description = "Built-in policy 'Storage accounts should prevent shared key access', used by Chapter 9's change."
+  description = "Built-in policy 'Storage accounts should prevent shared key access', used by Chapter 11's change."
   type        = string
   default     = "/providers/Microsoft.Authorization/policyDefinitions/8c6a50c6-9ffd-4ae7-986f-5fa6111f9a54"
 }

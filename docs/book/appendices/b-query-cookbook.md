@@ -5,13 +5,13 @@
 
 **Spine:** [`../README.md`](../README.md) · **Outline:** [`../OUTLINE.md`](../OUTLINE.md) · **Lab:** [Appendix A](a-companion-lab.md) · **Query files:** [`../lab/queries`](../lab/queries)
 
-> *Draft status: first draft. Queries taken from Chapters 3–6 and 10 match the chapter text. The recipes new in this appendix were written against current documentation in October 2026 and have not yet been run against a live tenant; the author notes list which are which.*
+> *Draft status: first draft. Queries taken from Chapters 3–8 and 12 match the chapter text. The recipes new in this appendix were written against current documentation in October 2026 and have not yet been run against a live tenant; the author notes list which are which.*
 
 This appendix collects the queries the book uses, plus the ones the chapters describe without printing, in one place. Each recipe says which chapter needs it, which snapshot file it feeds, and the trap that most often makes it wrong.
 
 Every recipe here is **read-only**. With one exception called out in B.6, the collector identity from Chapter 3 can run them all: Reader at the scope you collect, plus the four Microsoft Graph application permissions (`Application.Read.All`, `GroupMember.Read.All`, `User.Read.All`, `RoleManagement.Read.Directory`) [S1]. Where a recipe needs more, it says so, and the missing permission is a gap to record, not a reason to widen the collector quietly.
 
-Hop labels (H1–H9) and path labels (P1–P6) are the IDs from Chapter 7's evidence pack (section 7.3).
+Hop labels (H1–H9) and path labels (P1–P6) are the IDs from Chapter 9's evidence pack (section 9.3).
 
 ---
 
@@ -66,7 +66,7 @@ resourcecontainers
 | project subscriptionId, name, properties.state
 ```
 
-The scope hierarchy, so role assignments at a management group or resource group can be inherited down to the resources beneath them (Chapter 4, Step 0):
+The scope hierarchy, so role assignments at a management group or resource group can be inherited down to the resources beneath them (Chapter 5, Step 0):
 
 <!-- listing: lab/listings/kql/appb-management-group-hierarchy.kql -->
 
@@ -121,7 +121,7 @@ authorizationresources
 
 ### Role definitions with their actions
 
-From Chapter 4, Step 0. Paths come from actions, not role names, so this is what turns "Contributor" into "can list storage keys".
+From Chapter 5, Step 0. Paths come from actions, not role names, so this is what turns "Contributor" into "can list storage keys".
 
 <!-- listing: lab/listings/kql/appb-role-definitions-with-their-actions.kql -->
 
@@ -142,9 +142,9 @@ authorizationresources
 
 ### Deny assignments
 
-From Chapter 4, Step 0. A deny assignment can remove an edge that a role assignment created [S14].
+From Chapter 5, Step 0. A deny assignment can remove an edge that a role assignment created [S14].
 
-Deny assignments aren't a documented type in Resource Graph's `authorizationresources` table [S11], so this recipe reads them from the Authorization REST API, one subscription at a time, following `nextLink` [S14]. With no filter, the list returns deny assignments at, above, and below the subscription, so assignments on resource groups and resources come back too [S15]. The caller needs `Microsoft.Authorization/denyAssignments/read` [S14]. The recipe writes one row per permission block, the shape Chapter 4's loader expects. Save the rows with `Save-SnapshotFile` as `deny-assignments`.
+Deny assignments aren't a documented type in Resource Graph's `authorizationresources` table [S11], so this recipe reads them from the Authorization REST API, one subscription at a time, following `nextLink` [S14]. With no filter, the list returns deny assignments at, above, and below the subscription, so assignments on resource groups and resources come back too [S15]. The caller needs `Microsoft.Authorization/denyAssignments/read` [S14]. The recipe writes one row per permission block, the shape Chapter 5's loader expects. Save the rows with `Save-SnapshotFile` as `deny-assignments`.
 
 <!-- listing: lab/listings/powershell/appb-deny-assignments.ps1 -->
 
@@ -184,11 +184,11 @@ $denyAssignments = foreach ($subscription in $subscriptions) {
 }
 ```
 
-**Trap.** Keep `excludePrincipals`, `condition`, and `permissionCondition` [S14]. An excluded principal escapes the deny. A deny with a condition might not apply, so Chapter 4's derivation labels the hop as an unmodeled control instead of treating it as blocked.
+**Trap.** Keep `excludePrincipals`, `condition`, and `permissionCondition` [S14]. An excluded principal escapes the deny. A deny with a condition might not apply, so Chapter 5's derivation labels the hop as an unmodeled control instead of treating it as blocked.
 
 ### Eligible Azure roles (Privileged Identity Management)
 
-Chapter 4's Rule 5 says eligible isn't active, and Chapter 11 asks the search to report eligible paths separately. Eligibility isn't in the role assignment rows. Read it through ARM at each scope you collect:
+Chapter 4's Rule 5 says eligible isn't active, and Chapter 13 asks the search to report eligible paths separately. Eligibility isn't in the role assignment rows. Read it through ARM at each scope you collect:
 
 <!-- listing: lab/listings/powershell/appb-eligible-azure-roles-privileged-identity-management.ps1 -->
 
@@ -244,7 +244,7 @@ Page the identity query with `Invoke-ArgQuery` in a real collector. The short fo
 
 ### Owners: applications and service principals
 
-Application owners can add credentials to the application (hop H2). Chapter 4, Step 0, prints the loop, using `Get-MgApplicationOwner -ApplicationId $app.Id -All`.
+Application owners can add credentials to the application (hop H2). Chapter 5, Step 0, prints the loop, using `Get-MgApplicationOwner -ApplicationId $app.Id -All`.
 
 Service principals have owners of their own, separate from the application's, and an owner of a service principal can manage it too. Collect them the same way:
 
@@ -266,7 +266,7 @@ $spOwners = foreach ($sp in $servicePrincipals) {
 
 ### Directory role assignments and eligibility
 
-Chapter 4, Step 0, prints the assignment loop: `Get-MgRoleManagementDirectoryRoleAssignment -All`, joined to `Get-MgRoleManagementDirectoryRoleDefinition -All` for names, keeping `directoryScopeId`. It's hop H3.
+Chapter 5, Step 0, prints the assignment loop: `Get-MgRoleManagementDirectoryRoleAssignment -All`, joined to `Get-MgRoleManagementDirectoryRoleDefinition -All` for names, keeping `directoryScopeId`. It's hop H3.
 
 Eligible directory roles come from a different call, under the same permission:
 
@@ -281,7 +281,7 @@ Get-MgRoleManagementDirectoryRoleEligibilitySchedule -All |
 
 ### Transitive group membership
 
-Chapter 4, Step 0: `Get-MgGroupTransitiveMember -GroupId $groupId -All` for every group that holds an Azure role or a directory role [S19]. Use the transitive call. Direct members hide nested groups.
+Chapter 5, Step 0: `Get-MgGroupTransitiveMember -GroupId $groupId -All` for every group that holds an Azure role or a directory role [S19]. Use the transitive call. Direct members hide nested groups.
 
 ### Microsoft Graph application permissions
 
@@ -307,7 +307,7 @@ $graphGrants = foreach ($sp in $servicePrincipals) {
 }
 ```
 
-The collector's own four permissions should appear in the output. That's a cheap self-check, and Chapter 11's governance review can use it.
+The collector's own four permissions should appear in the output. That's a cheap self-check, and Chapter 13's governance review can use it.
 
 ### Guests
 
@@ -328,7 +328,7 @@ Get-MgUser -All -Filter "userType eq 'Guest'" `
 
 ### Storage accounts: shared key and exposure
 
-Chapter 3's query, with its shared key handling, and the network fields Chapter 5's `storage_public_exposure` reads. It's hops H6 and H7, and the input to the Chapter 1 checklist.
+Chapter 3's query, with its shared key handling, and the network fields Chapter 6's `storage_public_exposure` reads. It's hops H6 and H7, and the input to the Chapter 1 checklist.
 
 <!-- listing: lab/listings/kql/appb-storage-accounts-shared-key-and-exposure.kql -->
 
@@ -351,11 +351,11 @@ resources
     privateEndpoints = array_length(properties.privateEndpointConnections)
 ```
 
-**Trap.** Keep `publicNetworkAccess` empty when it's empty. Chapter 5 explains why an unset value is not "Disabled". When `allowSharedKeyAccess` is absent, the platform default allows shared key access [S21].
+**Trap.** Keep `publicNetworkAccess` empty when it's empty. Chapter 6 explains why an unset value is not "Disabled". When `allowSharedKeyAccess` is absent, the platform default allows shared key access [S21].
 
 ### Local authentication on other services
 
-Shared key is storage's name for a pattern that recurs: a key or connection string that works without an identity, and destroys attribution (Chapter 6). Other services expose it as `disableLocalAuth`, where absent usually means local authentication is **allowed** [S22]:
+Shared key is storage's name for a pattern that recurs: a key or connection string that works without an identity, and destroys attribution (Chapter 8). Other services expose it as `disableLocalAuth`, where absent usually means local authentication is **allowed** [S22]:
 
 <!-- listing: lab/listings/kql/appb-local-authentication-on-other-services.kql -->
 
@@ -395,7 +395,7 @@ resources
 
 ### Compute identities
 
-From Chapter 4, Step 0. It links each workload to the identities it runs as (hop H8):
+From Chapter 5, Step 0. It links each workload to the identities it runs as (hop H8):
 
 <!-- listing: lab/listings/kql/appb-compute-identities.kql -->
 
@@ -417,7 +417,7 @@ resources
 
 ### Resources with a private endpoint and an open public endpoint
 
-From Chapter 5, section 5.3. It's the first step of that chapter's lab:
+From Chapter 6, section 6.3. It's the first step of that chapter's lab:
 
 <!-- listing: lab/listings/kql/appb-resources-with-a-private-endpoint-and.kql -->
 
@@ -441,9 +441,9 @@ Use it to find candidates, then classify each type with its own logic.
 
 **Chapters:** 6, 9. **Snapshot file:** `app-config.json`.
 
-Chapter 6's declared flows come from configuration: which store an app is configured to talk to, and as which identity. This is the one place where Reader isn't enough, and where the read-only rule and the never-collect-secrets rule (Chapter 3, section 3.6) collide.
+Chapter 8's declared flows come from configuration: which store an app is configured to talk to, and as which identity. This is the one place where Reader isn't enough, and where the read-only rule and the never-collect-secrets rule (Chapter 3, section 3.6) collide.
 
-**Site configuration** is readable with Reader. It holds the inbound access restrictions Chapter 5 needs, including whether the advanced tools (SCM) site follows the main site's rules:
+**Site configuration** is readable with Reader. It holds the inbound access restrictions Chapter 6 needs, including whether the advanced tools (SCM) site follows the main site's rules:
 
 <!-- listing: lab/listings/powershell/appb-declared-flows-app-configuration.ps1 -->
 
@@ -463,8 +463,8 @@ $web = ($response.Content | ConvertFrom-Json).properties
 **App settings aren't.** Reading them is a separate `list` action (`Microsoft.Web/sites/config/list/action`) that Reader doesn't include [S24], and it returns every value, secrets included. You can't get the names without the values. You have three options, in order of preference:
 
 1. **Read declared flows from infrastructure as code.** The Terraform that created the app names the setting and the store, and reading a repository needs no Azure permission at all. Appendix A's `ARCHIVE_ACCOUNT` and `CUSTOMER_ACCOUNT` settings are in `payments.tf`.
-2. **Rely on the declared flows Reader can see.** Chapter 6 counts a data-plane role held by a workload identity as a declared flow, and B.3 and B.5 already collect both halves: the role assignment, and which workload runs as that identity. Private endpoints and integration configuration add more. What you lose is any app that reaches a store with a key or connection string instead of an identity. Those leave no role assignment behind, and they're the flows Chapter 6 most wants you to find, which is why option 1 comes first.
-3. **Grant the list action to a separate, narrowly scoped identity** that strips values before anything is written, keeping only setting names and values that name a resource. That identity can read secrets, so it belongs in Chapter 11's governance review, not in the everyday collector.
+2. **Rely on the declared flows Reader can see.** Chapter 8 counts a data-plane role held by a workload identity as a declared flow, and B.3 and B.5 already collect both halves: the role assignment, and which workload runs as that identity. Private endpoints and integration configuration add more. What you lose is any app that reaches a store with a key or connection string instead of an identity. Those leave no role assignment behind, and they're the flows Chapter 8 most wants you to find, which is why option 1 comes first.
+3. **Grant the list action to a separate, narrowly scoped identity** that strips values before anything is written, keeping only setting names and values that name a resource. That identity can read secrets, so it belongs in Chapter 13's governance review, not in the everyday collector.
 
 Whichever you use, record which in the manifest, so a reader knows whether the app setting evidence came from code, from live settings, or wasn't collected.
 
@@ -474,7 +474,7 @@ Whichever you use, record which in the manifest, so a reader knows whether the a
 
 **Chapter:** 5. **Snapshot files:** `nsg-rules.json`, `vnets.json`, `route-tables.json`, `private-endpoints.json`, `private-dns-links.json`, `public-ips.json`, `firewall-rules.json`, `service-tags.json`, `sql-firewall-rules.json`.
 
-Chapter 5, section 5.6, lists what reachability needs. These are the queries behind that list.
+Chapter 7, section 7.1, lists what reachability needs. These are the queries behind that list.
 
 ### NSG rules
 
@@ -501,7 +501,7 @@ resources
     destinationPortRanges = rule.properties.destinationPortRanges
 ```
 
-**Trap.** Each rule has a singular field and a plural one for addresses and ports, and only one is filled. Appendix A's checklist query reads only `destinationPortRange`, which is fine for its single-port lab rule and not enough in general: a rule allowing `3389` inside `destinationPortRanges`, or a range like `3000-4000`, slips past it. Keep both fields and evaluate ranges in code, as Chapter 5's `evaluate_inbound` does.
+**Trap.** Each rule has a singular field and a plural one for addresses and ports, and only one is filled. Appendix A's checklist query reads only `destinationPortRange`, which is fine for its single-port lab rule and not enough in general: a rule allowing `3389` inside `destinationPortRanges`, or a range like `3000-4000`, slips past it. Keep both fields and evaluate ranges in code, as Chapter 6's `evaluate_inbound` does.
 
 Keep the default rules too. `AllowVnetInBound` is why "no custom rule" doesn't mean "no traffic" [S25].
 
@@ -570,7 +570,7 @@ resources
     registrationEnabled = tobool(properties.registrationEnabled)
 ```
 
-**Trap.** A private endpoint only helps a client whose DNS resolves the service name to the private address. That depends on which virtual networks the zone is linked to, which is Chapter 5 Step 5's surprise: the lab's zone is linked to the payments spoke only, so the dev spoke resolves `custdata` to its public address.
+**Trap.** A private endpoint only helps a client whose DNS resolves the service name to the private address. That depends on which virtual networks the zone is linked to, which is Chapter 7 Step 5's surprise: the lab's zone is linked to the payments spoke only, so the dev spoke resolves `custdata` to its public address.
 
 ### Public IP addresses
 
@@ -632,7 +632,7 @@ Get-AzSqlServerFirewallRule @serverArgs |
     Select-Object FirewallRuleName, StartIpAddress, EndIpAddress
 ```
 
-A rule from `0.0.0.0` to `0.0.0.0` (named `AllowAllWindowsAzureIps`) admits any Azure public address, including other customers' resources (Chapter 5) [S27].
+A rule from `0.0.0.0` to `0.0.0.0` (named `AllowAllWindowsAzureIps`) admits any Azure public address, including other customers' resources (Chapter 6) [S27].
 
 ### Service tags
 
@@ -652,7 +652,7 @@ Record `ChangeNumber` in the manifest [S28]. Service tag prefixes change, and a 
 
 **Chapters:** 5, 6, 10. **Snapshot file:** `diagnostic-settings.json`.
 
-Whether logging is on decides whether "did access" can be answered at all (Chapter 6). Diagnostic settings are extension resources and aren't in Resource Graph [S11]. Read them through ARM, per resource:
+Whether logging is on decides whether "did access" can be answered at all (Chapter 8). Diagnostic settings are extension resources and aren't in Resource Graph [S11]. Read them through ARM, per resource:
 
 <!-- listing: lab/listings/powershell/appb-telemetry-configuration.ps1 -->
 
@@ -686,7 +686,7 @@ $settings = foreach ($target in $targets) {
 
 ### Blob reads by caller and authentication type
 
-From Chapter 6, Step 4:
+From Chapter 8, Step 4:
 
 <!-- listing: lab/listings/kql/appb-blob-reads-by-caller-and-authentication.kql -->
 
@@ -705,7 +705,7 @@ Use your suffixed account names from Appendix A's `book_names` output.
 
 ### Storage key listing
 
-From Chapter 6, Step 5:
+From Chapter 8, Step 5:
 
 <!-- listing: lab/listings/kql/appb-storage-key-listing.kql -->
 
@@ -718,7 +718,7 @@ AzureActivity
 
 ### Role assignment changes
 
-For Chapter 10's question "did anything else change in the window?":
+For Chapter 12's question "did anything else change in the window?":
 
 <!-- listing: lab/listings/kql/appb-role-assignment-changes.kql -->
 
@@ -752,11 +752,11 @@ AuditLogs
     target = tostring(TargetResources[0].displayName)
 ```
 
-**Trap.** Entra's operation names are display strings, and some contain unusual punctuation and trailing spaces. Match them with `has` or `startswith` and test against an event you created yourself in the lab, as Chapter 10 does for the help desk change.
+**Trap.** Entra's operation names are display strings, and some contain unusual punctuation and trailing spaces. Match them with `has` or `startswith` and test against an event you created yourself in the lab, as Chapter 12 does for the help desk change.
 
 ### Resource property changes
 
-From Chapter 10, section 10.3. Resource Graph, not Log Analytics, and only the last 14 days [S32]:
+From Chapter 12, section 12.3. Resource Graph, not Log Analytics, and only the last 14 days [S32]:
 
 <!-- listing: lab/listings/kql/appb-resource-property-changes.kql -->
 
@@ -775,7 +775,7 @@ resourcechanges
 | order by changedAt desc
 ```
 
-**Trap.** It covers Azure resources only [S32, S33]. App owners, directory roles, and federated credentials on applications never appear here, which is why Chapter 10 compares snapshots instead.
+**Trap.** It covers Azure resources only [S32, S33]. App owners, directory roles, and federated credentials on applications never appear here, which is why Chapter 12 compares snapshots instead.
 
 ---
 
@@ -783,23 +783,23 @@ resourcechanges
 
 | Recipe | Section | Snapshot file | Hops or chapter use |
 |--------|---------|---------------|---------------------|
-| Readable subscriptions, scope hierarchy | B.2 | `subscriptions.json`, `scope-parents.json` | Gaps (Ch. 3, 10); inheritance (Ch. 4) |
+| Readable subscriptions, scope hierarchy | B.2 | `subscriptions.json`, `scope-parents.json` | Gaps (Ch. 3, 12); inheritance (Ch. 4) |
 | Role assignments, definitions, deny assignments | B.3 | `role-assignments.json`, `role-definitions.json`, `deny-assignments.json` | H5, H7, H9 |
-| Eligible Azure roles | B.3 | `role-eligibility.json` | Eligible paths (Ch. 4, 11) |
+| Eligible Azure roles | B.3 | `role-eligibility.json` | Eligible paths (Ch. 4, 13) |
 | Federated credentials (applications) | B.4 | `federated-credentials.json`, `service-principals.json` | H1; H4 through the `appId` join |
 | Federated credentials (managed identities) | B.4 | `managed-identity-federated-credentials.json` | Entry points Chapter 3 misses |
 | Application and service principal owners | B.4 | `application-owners.json`, `service-principal-owners.json` | H2 |
 | Directory roles and eligibility | B.4 | `directory-role-assignments.json`, `directory-role-eligibility.json` | H3 |
 | Transitive membership | B.4 | `transitive-memberships.json` | Group expansion (Ch. 4) |
-| Graph application permissions | B.4 | `graph-app-role-assignments.json` | Tenant-wide paths; collector self-check (Ch. 11) |
+| Graph application permissions | B.4 | `graph-app-role-assignments.json` | Tenant-wide paths; collector self-check (Ch. 13) |
 | Guests | B.4 | `guests.json` | Hygiene (Ch. 1) |
 | Storage, local auth, key vaults | B.5 | `storage-accounts.json`, `local-auth.json`, `key-vaults.json` | H6, H7; checklist (Ch. 1) |
 | Compute identities | B.5 | `compute-identities.json` | H8 |
-| Private endpoint with open public endpoint | B.5 | (Chapter 5 lab) | Ch. 5 |
-| Site configuration; declared flows | B.6 | `app-config.json` | Ch. 5, 6 |
-| NSGs, VNets, routes, private endpoints, DNS links, public IPs, firewall, SQL, service tags | B.7 | per recipe | Ch. 5 |
-| Diagnostic settings | B.8 | `diagnostic-settings.json` | Logging coverage (Ch. 6, 10) |
-| Blob reads, key listing, role and Entra changes, resource changes | B.9 | (workspace queries) | Observed activity (Ch. 6, 10) |
+| Private endpoint with open public endpoint | B.5 | (Chapter 7 lab) | Ch. 6, 7 |
+| Site configuration; declared flows | B.6 | `app-config.json` | Ch. 6, 8 |
+| NSGs, VNets, routes, private endpoints, DNS links, public IPs, firewall, SQL, service tags | B.7 | per recipe | Ch. 6, 7 |
+| Diagnostic settings | B.8 | `diagnostic-settings.json` | Logging coverage (Ch. 8, 12) |
+| Blob reads, key listing, role and Entra changes, resource changes | B.9 | (workspace queries) | Observed activity (Ch. 8, 12) |
 
 ---
 
@@ -843,11 +843,11 @@ resourcechanges
 
 ## Author notes (remove before submission)
 
-- **Taken from the chapters, matching their text:** the scope, role assignment, role definition, deny assignment, compute identity, scope hierarchy, private-endpoint, `StorageBlobLogs`, and list-keys queries; the Graph calls referenced from Chapters 3 and 4. If a chapter's query changes, change it here.
-- **New in this appendix, not yet run against a live tenant:** the combined storage query in B.5 (Chapter 3's columns plus Chapter 5's network fields); managed identity federated credentials; service principal owners; directory role eligibility; Graph application permissions; guests; local authentication; key vaults; site configuration; NSG, virtual network, route table, private endpoint, private DNS link, public IP, firewall policy, SQL firewall, and service tag recipes; diagnostic settings; role assignment and Entra audit queries; `resourcechanges`. Run each against Appendix A's lab and record the result before submission.
+- **Taken from the chapters, matching their text:** the scope, role assignment, role definition, deny assignment, compute identity, scope hierarchy, private-endpoint, `StorageBlobLogs`, and list-keys queries; the Graph calls referenced from Chapters 3 and 5. If a chapter's query changes, change it here.
+- **New in this appendix, not yet run against a live tenant:** the combined storage query in B.5 (Chapter 3's columns plus Chapter 6's network fields); managed identity federated credentials; service principal owners; directory role eligibility; Graph application permissions; guests; local authentication; key vaults; site configuration; NSG, virtual network, route table, private endpoint, private DNS link, public IP, firewall policy, SQL firewall, and service tag recipes; diagnostic settings; role assignment and Entra audit queries; `resourcechanges`. Run each against Appendix A's lab and record the result before submission.
 - Specific things to confirm: that Resource Graph indexes `microsoft.network/privatednszones/virtualnetworklinks` in every cloud the book targets; the `Get-AzFederatedIdentityCredential` parameter names in the current Az.ManagedServiceIdentity module; the exact Entra audit operation names for federated credential changes on applications (they may appear as a generic "Update application" with a modified property). (The `??` operator in B.8 is fine: the book requires PowerShell 7, and `tools/check_powershell_listings.ps1` parses every listing with it.)
 - 2026-10-11 (listing sync): every KQL block here is synced from `lab/listings/kql/` or `lab/queries/`. `tools/check_kql_listings.py` only checks structure (balanced brackets and quotes, a known table first, no leading pipe). It doesn't prove a query runs; the live runbook ([`../lab/live-validation-runbook.md`](../lab/live-validation-runbook.md)) does.
 - Appendix A's `checklist.kql` matches only `destinationPortRange`, which is correct for the lab. Its header comment now points readers at B.7's fuller pattern.
-- Consider moving the recipes the labs run (B.4 managed identity credentials, B.7 network) into `lab/queries` once Chapter 5's lab is walked against a live tenant.
-- 2026-10-12 (sources): added 32 sources. Changed: B.3 deny assignments — clarified that deny assignments are collected through the Authorization REST API, not `authorizationresources` per the Resource Graph table reference. The KQL listing `appb-deny-assignments.kql` is replaced by `lab/listings/powershell/appb-deny-assignments.ps1` (REST, api-version 2022-04-01, one row per permission block, same columns), shared with Chapter 4 Step 0. Run it against the live lab before submission. Softened: none. Unverified: none.
+- Consider moving the recipes the labs run (B.4 managed identity credentials, B.7 network) into `lab/queries` once Chapter 7's lab is walked against a live tenant.
+- 2026-10-12 (sources): added 32 sources. Changed: B.3 deny assignments — clarified that deny assignments are collected through the Authorization REST API, not `authorizationresources` per the Resource Graph table reference. The KQL listing `appb-deny-assignments.kql` is replaced by `lab/listings/powershell/appb-deny-assignments.ps1` (REST, api-version 2022-04-01, one row per permission block, same columns), shared with Chapter 5 Step 0. Run it against the live lab before submission. Softened: none. Unverified: none.
 - 2026-10-12 (sources): resolved the open question about child scopes. Per "List Azure deny assignments" (REST, filter table), an unfiltered subscription-level list returns deny assignments at, above, and below the scope, so no per-resource-group calls are needed. B.3 cites it as a new source.

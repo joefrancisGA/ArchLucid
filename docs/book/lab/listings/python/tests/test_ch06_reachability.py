@@ -1,4 +1,4 @@
-"""Chapter 5: storage public exposure and inbound NSG evaluation."""
+"""Chapter 6: storage public exposure and inbound NSG evaluation."""
 
 from __future__ import annotations
 
@@ -6,9 +6,9 @@ import unittest
 from unittest import mock
 
 import support  # noqa: F401
-import ch05_reachability
-from ch04_paths import INSUFFICIENT, find_paths, hop_table, path_confidence
-from ch05_reachability import (
+import ch06_reachability
+from ch05_paths import INSUFFICIENT, find_paths, hop_table, path_confidence
+from ch06_reachability import (
     INDETERMINATE,
     NOT_REACHABLE,
     REACHABLE,
@@ -115,7 +115,7 @@ class NsgEvaluation(unittest.TestCase):
 
     def test_no_rule_matched_without_azure_defaults(self) -> None:
         # Azure always appends DenyAllInBound; this fallback only shows if the defaults are removed.
-        with mock.patch.object(ch05_reachability, "DEFAULT_INBOUND", []):
+        with mock.patch.object(ch06_reachability, "DEFAULT_INBOUND", []):
             self.assertEqual(evaluate_inbound([], "10.0.0.4", 22, "Tcp", TAGS), ("Deny", "(no rule matched)"))
 
     def test_internet_without_vnet_prefixes_is_unknown(self) -> None:
@@ -149,7 +149,7 @@ ENDPOINT = PrivateTarget(ENDPOINT_IP, nsg_applies=False, nsg_rules=None)
 
 
 def dev_vm(next_hop: dict | None = TO_FIREWALL, resolves_private: bool | None = True) -> Position:
-    """The dev spoke at the IP level: Chapter 5 Step 5 shows its DNS answer separately."""
+    """The dev spoke at the IP level: Chapter 7 Step 5 shows its DNS answer separately."""
     return Position(DEV_VM_IP, next_hop, resolves_private)
 
 

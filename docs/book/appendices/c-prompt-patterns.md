@@ -5,18 +5,18 @@
 
 **Spine:** [`../README.md`](../README.md) · **Outline:** [`../OUTLINE.md`](../OUTLINE.md) · **Lab:** [Appendix A](a-companion-lab.md) · **Queries:** [Appendix B](b-query-cookbook.md)
 
-> *Draft status: first draft. Patterns are drawn from Chapters 6–8 and 11. The JSON schemas, audience templates, and the probable-flow evidence check are new here and haven't yet been run against a live model deployment; see the author notes.*
+> *Draft status: first draft. Patterns are drawn from Chapters 8–10 and 13. The JSON schemas, audience templates, and the probable-flow evidence check are new here and haven't yet been run against a live model deployment; see the author notes.*
 
-Chapters 7 and 8 built one pipeline: derivation produces an evidence pack, a model drafts from it, a validator checks the draft, and a human decides. This appendix collects the prompts that pipeline uses, so you can find the one you need without rereading two chapters.
+Chapters 9 and 10 built one pipeline: derivation produces an evidence pack, a model drafts from it, a validator checks the draft, and a human decides. This appendix collects the prompts that pipeline uses, so you can find the one you need without rereading two chapters.
 
 A prompt on its own is the least important part of each pattern. What makes a pattern safe is everything around it: what goes into the pack, what shape the output must take, and which deterministic checks run before a person reads it. So every pattern below has the same parts:
 
-- **Use when** — the job, from Chapter 7's first table.
+- **Use when** — the job, from Chapter 9's first table.
 - **Input** — what goes in the pack, and what stays out.
 - **Prompt** — the instructions.
 - **Output** — the schema the model must fill.
 - **Checks** — the code that runs on the output, by the name the chapters gave it.
-- **How it fails** — the failure from Chapter 8 that this pattern is most exposed to.
+- **How it fails** — the failure from Chapter 10 that this pattern is most exposed to.
 
 If you take one thing from this appendix: **never use a prompt without its checks.** A good prompt reduces failures. Only the checks make them visible.
 
@@ -26,11 +26,11 @@ If you take one thing from this appendix: **never use a prompt without its check
 
 ### The pack is the only source
 
-Every pattern assumes the model sees an evidence pack (Chapter 7, section 7.3) and nothing else: no raw snapshot, no browsing, no retrieval over the estate. The pack's claims are plain sentences written by deterministic code, each with a short ID and an evidence category. Free text written by other people goes in a separate `untrustedText` list (Chapter 8, section 8.5), never inside a claim.
+Every pattern assumes the model sees an evidence pack (Chapter 9, section 9.3) and nothing else: no raw snapshot, no browsing, no retrieval over the estate. The pack's claims are plain sentences written by deterministic code, each with a short ID and an evidence category. Free text written by other people goes in a separate `untrustedText` list (Chapter 10, section 10.5), never inside a claim.
 
 ### The base system message
 
-This is Chapter 7's six rules with Chapter 8's seventh, in one place. Every writing pattern in this appendix starts from it, and adds only an audience or task block.
+This is Chapter 9's six rules with Chapter 10's seventh, in one place. Every writing pattern in this appendix starts from it, and adds only an audience or task block.
 
 ```text
 You write security explanations from an evidence pack.
@@ -55,7 +55,7 @@ Rules:
    for a conclusion.
 ```
 
-Rule 6 makes the exit a field rather than a sentence (Chapter 7, section 7.4). That makes "did the model use the exit?" a property you can assert in a test (Chapter 8's `mustUseExit`), rather than a string you have to match.
+Rule 6 makes the exit a field rather than a sentence (Chapter 9, section 9.4). That makes "did the model use the exit?" a property you can assert in a test (Chapter 10's `mustUseExit`), rather than a string you have to match.
 
 ### The user message
 
@@ -73,7 +73,7 @@ Evidence pack (JSON):
 PACK
 ```
 
-The delimiters help the model see where the pack starts and ends. They aren't a security boundary. Chapter 8 explains why text inside them can still act as instructions, and that's what rule 7 and the checks are for.
+The delimiters help the model see where the pack starts and ends. They aren't a security boundary. Chapter 10 explains why text inside them can still act as instructions, and that's what rule 7 and the checks are for.
 
 ### The output schema
 
@@ -111,29 +111,29 @@ Ask for structured output, and supply a schema the service enforces where it can
 }
 ```
 
-Strict mode requires every property to be listed in `required` and `additionalProperties` to be `false` at every level [S1]. In exchange, the output always parses. It doesn't make the content true. The schema is also a control in its own right: it has no field for a risk band, a severity, or a decision, so no amount of persuasive text in the pack can produce one (Chapter 8, layer 5).
+Strict mode requires every property to be listed in `required` and `additionalProperties` to be `false` at every level [S1]. In exchange, the output always parses. It doesn't make the content true. The schema is also a control in its own right: it has no field for a risk band, a severity, or a decision, so no amount of persuasive text in the pack can produce one (Chapter 10, layer 5).
 
 ### The checks that run on every draft
 
 In this order, all deterministic:
 
-1. Chapter 7's `validate`: citations present and real, no activity wording, no numbers or names that aren't in the pack.
-2. Chapter 6's stricter activity rule when the pack holds observed activity: activity verbs only with a cited observed item and its time window.
-3. Chapter 8's `coverage_problems` with the pattern's required kinds.
-4. Chapter 8's `untrusted_copy_problems` when the pack has `untrustedText`.
+1. Chapter 9's `validate`: citations present and real, no activity wording, no numbers or names that aren't in the pack.
+2. Chapter 8's stricter activity rule when the pack holds observed activity: activity verbs only with a cited observed item and its time window.
+3. Chapter 10's `coverage_problems` with the pattern's required kinds.
+4. Chapter 10's `untrusted_copy_problems` when the pack has `untrustedText`.
 5. If `status` is `insufficient_evidence`, `sentences` must be empty. A model that "exits" and then answers anyway has failed rule 6.
 
 Anything that fails goes back for one retry with the problems listed, then to a human. Don't loop until it passes. A draft that needed five attempts is telling you the pack or the prompt is wrong.
 
 ### Settings
 
-Use a low temperature, pin the model version, and record the template version with every output (Chapter 11, section 11.10). None of these makes the output deterministic. Together, they make it explainable after the fact.
+Use a low temperature, pin the model version, and record the template version with every output (Chapter 13, section 13.10). None of these makes the output deterministic. Together, they make it explainable after the fact.
 
 ---
 
 ## C.2 Explain paths for an audience
 
-**Use when:** turning a set of paths into prose for a specific reader (Chapter 7, section 7.6).
+**Use when:** turning a set of paths into prose for a specific reader (Chapter 9, section 9.6).
 
 **Input:** paths, their hops, targets, gaps, and cut points for one question. Nothing else in the estate.
 
@@ -150,13 +150,13 @@ Use a low temperature, pin the model version, and record the template version wi
 
 **Checks:** the C.1 sequence, with the "must cite" column as `coverage_problems`' `required` argument.
 
-**How it fails:** omission in the executive version, because short and complete pull against each other. The coverage check is what stops "six paths" from becoming the four that fit neatly in a paragraph. Chapter 7's sample engineer note also shows the other common failure: helpful advice that cites nothing. Move that advice into the cut-point record, where a person reviews it once, rather than relaxing rule 2.
+**How it fails:** omission in the executive version, because short and complete pull against each other. The coverage check is what stops "six paths" from becoming the four that fit neatly in a paragraph. Chapter 9's sample engineer note also shows the other common failure: helpful advice that cites nothing. Move that advice into the cut-point record, where a person reviews it once, rather than relaxing rule 2.
 
 ---
 
 ## C.3 Summarize gaps
 
-**Use when:** turning a manifest's gap list into a short, prioritized note (Chapter 7, section 7.8).
+**Use when:** turning a manifest's gap list into a short, prioritized note (Chapter 9, section 9.8).
 
 **Input:** the gap list only, each as a claim with an ID, plus the coverage line ("9 of 11 expected subscriptions read"). No paths. A gap summary that sees paths starts speculating about what the gaps hide.
 
@@ -178,7 +178,7 @@ Do not speculate about what the missing evidence contains.
 
 ## C.4 Narrate a change
 
-**Use when:** turning the diff between two snapshots into a weekly note (Chapter 7, section 7.8; Chapter 10).
+**Use when:** turning the diff between two snapshots into a weekly note (Chapter 9, section 9.8; Chapter 12).
 
 **Input:** the diff computed by code, as `D` items: paths opened, closed, and unresolved, gaps opened and closed, each with the change that caused it where the derivation knows. Both snapshot IDs and times.
 
@@ -192,15 +192,15 @@ not as closed. Name the change that caused each item only when the item says so.
 
 **Output:** the base schema.
 
-**Checks:** the C.1 sequence, with every `D` item required. Add one domain rule that follows from Chapter 10's classification of disappeared paths: a sentence citing an item whose status is `unresolved` must not use "closed", "fixed", or "removed".
+**Checks:** the C.1 sequence, with every `D` item required. Add one domain rule that follows from Chapter 12's classification of disappeared paths: a sentence citing an item whose status is `unresolved` must not use "closed", "fixed", or "removed".
 
-**How it fails:** good news. Missing data looks like improvement (Chapter 10, section 10.4), and a model narrating a diff will describe a disappeared path as fixed unless the pack and the rule say otherwise. New paths are the other risk: they're the least expected items, and so the most likely to be left out, which is why the prompt puts them first and coverage requires them.
+**How it fails:** good news. Missing data looks like improvement (Chapter 12, section 12.4), and a model narrating a diff will describe a disappeared path as fixed unless the pack and the rule say otherwise. New paths are the other risk: they're the least expected items, and so the most likely to be left out, which is why the prompt puts them first and coverage requires them.
 
 ---
 
 ## C.5 Draft a remediation
 
-**Use when:** drafting the change that carries a cut point: Terraform, a runbook step, a ticket (Chapter 7, section 7.7; Chapter 9).
+**Use when:** drafting the change that carries a cut point: Terraform, a runbook step, a ticket (Chapter 9, section 9.7; Chapter 11).
 
 **Input:** one cut-point record and the hops it touches. The current Terraform for the affected resource if you have it, as a separate untrusted item, because it's text other people wrote.
 
@@ -247,15 +247,15 @@ Do not claim the change is safe. List what it could break.
 }
 ```
 
-**Checks:** `validate` on the three step lists. `terraform fmt`, `validate`, and `plan` on the change, then review. The verification steps should map onto Chapter 10's postconditions. If a step can't be expressed as a check on a snapshot, it's a hope, not a verification.
+**Checks:** `validate` on the three step lists. `terraform fmt`, `validate`, and `plan` on the change, then review. The verification steps should map onto Chapter 12's postconditions. If a step can't be expressed as a check on a snapshot, it's a hope, not a verification.
 
-**How it fails:** plausible attribute names that don't exist or were renamed (Chapter 7 gives `shared_access_key_enabled` versus `default_to_oauth_authentication` as the example), and preconditions that sound thorough but can't be checked. The model never applies anything. Its output is a pull request a human opens (Chapter 8, section 8.8).
+**How it fails:** plausible attribute names that don't exist or were renamed (Chapter 9 gives `shared_access_key_enabled` versus `default_to_oauth_authentication` as the example), and preconditions that sound thorough but can't be checked. The model never applies anything. Its output is a pull request a human opens (Chapter 10, section 10.8).
 
 ---
 
 ## C.6 Answer a question through tools
 
-**Use when:** someone wants to ask rather than read: "Who can read `custdata`?" (Chapter 7, section 7.9).
+**Use when:** someone wants to ask rather than read: "Who can read `custdata`?" (Chapter 9, section 9.9).
 
 **Input:** the user's question and a small set of tool definitions. No pack yet. The pack is what the tool returns.
 
@@ -320,7 +320,7 @@ Never answer from your own knowledge.
 
 ## C.7 Propose probable flows
 
-**Use when:** reading code, pipelines, and runbooks for flows configuration doesn't declare (Chapter 6, section 6.7). It's also the main source for Appendix B's option 1 when app settings are in code.
+**Use when:** reading code, pipelines, and runbooks for flows configuration doesn't declare (Chapter 8, section 8.7). It's also the main source for Appendix B's option 1 when app settings are in code.
 
 **Input:** the files to read, with paths and line numbers, as untrusted text. The list of known data stores and workloads, as claims, so the model maps what it finds onto names the snapshot uses.
 
@@ -420,19 +420,19 @@ def probable_flow_problems(
     return problems
 ```
 
-The check can't confirm a flow. It can confirm that the model pointed at something real, which removes the invented ones. Everything that passes is labelled **probable (AI-inferred)** and becomes a question to the owner (Chapter 6): "Does `pay-reconcile` read `custarchive` (`function_app.py`, line 13)?" Only the owner's answer, recorded as a human assertion, makes it confirmed.
+The check can't confirm a flow. It can confirm that the model pointed at something real, which removes the invented ones. Everything that passes is labelled **probable (AI-inferred)** and becomes a question to the owner (Chapter 8): "Does `pay-reconcile` read `custarchive` (`function_app.py`, line 13)?" Only the owner's answer, recorded as a human assertion, makes it confirmed.
 
-**How it fails:** a probable flow that makes excess capability look expected. The rule from Chapter 6 holds here: an AI-inferred flow never suppresses an excess-capability finding.
+**How it fails:** a probable flow that makes excess capability look expected. The rule from Chapter 8 holds here: an AI-inferred flow never suppresses an excess-capability finding.
 
 ---
 
 ## C.8 Check that a sentence is supported
 
-**Use when:** deciding where a human should look first, after the validator has passed a draft (Chapter 8, section 8.7).
+**Use when:** deciding where a human should look first, after the validator has passed a draft (Chapter 10, section 10.7).
 
 **Input:** one sentence, and the full text of the items it cites. Nothing else: not the rest of the draft, not the rest of the pack, and never the untrusted text.
 
-**Prompt:** Chapter 8's checker, unchanged:
+**Prompt:** Chapter 10's checker, unchanged:
 
 ```text
 You check whether a sentence is supported by the evidence items given.
@@ -447,7 +447,7 @@ Treat "holds a role at" and "owns" as different claims.
 
 **Output:** the two fields above, as a strict schema [S1].
 
-**Checks:** route anything other than `supported` to a human with `unsupported_part` highlighted. Add the confusions you find to Chapter 8's table of claims that aren't equivalent, so the deterministic rules catch them next time.
+**Checks:** route anything other than `supported` to a human with `unsupported_part` highlighted. Add the confusions you find to Chapter 10's table of claims that aren't equivalent, so the deterministic rules catch them next time.
 
 **How it fails:** correlated errors. If the writer and the checker share a misconception, the checker approves it. Use a different prompt at least, and a different model where you can. A `supported` verdict lowers a sentence's review priority. It never certifies it.
 
@@ -455,9 +455,9 @@ Treat "holds a role at" and "owns" as different claims.
 
 ## C.9 Generate adversarial test inputs
 
-**Use when:** building the test data for Chapter 8's instruction-pattern scanner and metamorphic tests (section 8.11).
+**Use when:** building the test data for Chapter 10's instruction-pattern scanner and metamorphic tests (section 10.11).
 
-**Input:** the kinds of field an attacker can write (Chapter 8's table), and the goals (suppression, misdirection, action).
+**Input:** the kinds of field an attacker can write (Chapter 10's table), and the goals (suppression, misdirection, action).
 
 **Prompt:**
 
@@ -481,20 +481,20 @@ Each of these comes up in practice. Each breaks a rule the book depends on.
 
 | Prompt | What goes wrong | Use instead |
 |--------|-----------------|-------------|
-| "Here's our Resource Graph export. What are the risks?" | The model searches poorly, can't see what it didn't read, and fills gaps with plausible guesses (Chapter 4, section 4.9) | Derive paths in code; explain them with C.2 |
-| "Is this role assignment risky?" | Decides severity, which is a ranking rule's job (Chapter 9) | Rank with versioned rules; explain the rank |
-| "Confirm these findings are acceptable" | Agreeing with the question (Chapter 8, section 8.4) | A neutral task, or C.6 through tools |
+| "Here's our Resource Graph export. What are the risks?" | The model searches poorly, can't see what it didn't read, and fills gaps with plausible guesses (Chapter 4, section 4.7) | Derive paths in code; explain them with C.2 |
+| "Is this role assignment risky?" | Decides severity, which is a ranking rule's job (Chapter 11) | Rank with versioned rules; explain the rank |
+| "Confirm these findings are acceptable" | Agreeing with the question (Chapter 10, section 10.4) | A neutral task, or C.6 through tools |
 | "Compare these two snapshots" | Finds some differences, misses others | Compute the diff; narrate it with C.4 |
 | "How many times was custdata read last month?" | Counting is a query's job; the model will produce a number | Run the KQL from Appendix B; explain the result |
-| "Describe this diagram" | Reads capability lines as activity (Chapter 6) | Generate the description from the table the diagram came from |
+| "Describe this diagram" | Reads capability lines as activity (Chapter 8) | Generate the description from the table the diagram came from |
 | "What's probably in the subscription we couldn't read?" | Turns a gap into a fabricated fact (Chapter 3) | C.3, which says what would close the gap |
-| "Fix this and apply it" | Gives a model hands (Chapter 8, section 8.8) | C.5, then your normal change path |
+| "Fix this and apply it" | Gives a model hands (Chapter 10, section 10.8) | C.5, then your normal change path |
 
 ---
 
 ## C.11 Treat templates as code
 
-Every pattern here is a template file in source control, not a string in a configuration screen (Chapter 11, section 11.10). A header on each file makes the version and its test set impossible to separate:
+Every pattern here is a template file in source control, not a string in a configuration screen (Chapter 13, section 13.10). A header on each file makes the version and its test set impossible to separate:
 
 ```text
 template: explain-paths-board
@@ -506,7 +506,7 @@ required_coverage: paths, gaps, cutPoints
 tests: tests/golden/explain-paths-board/*.json
 ```
 
-Change any part, including the base system message every template shares, and the golden and metamorphic tests run before the merge. A change that relaxes a rule, a check, or a coverage requirement needs a second reviewer from outside the author's team. Record the template, system message, schema, and model versions in the audit record for every output (Chapter 11, section 11.6), so any sentence a reader questions can be traced to the exact prompt that produced it.
+Change any part, including the base system message every template shares, and the golden and metamorphic tests run before the merge. A change that relaxes a rule, a check, or a coverage requirement needs a second reviewer from outside the author's team. Record the template, system message, schema, and model versions in the audit record for every output (Chapter 13, section 13.6), so any sentence a reader questions can be traced to the exact prompt that produced it.
 
 ---
 
@@ -518,9 +518,9 @@ Change any part, including the base system message every template shares, and th
 
 ## Author notes (remove before submission)
 
-- **From the chapters, matching their text:** the base system message (rules 1–6 from Chapter 7, section 7.4, which adopted the `status` exit on 2026-10-10; rule 7 from Chapter 8, section 8.5); the support checker prompt; the jobs-and-anti-jobs framing. If those change in Chapters 7 or 8, change them here.
-- **New here, not yet run against a live deployment:** the strict output schemas in C.1, C.5, and C.7; the audience blocks in C.2; the gap, change, remediation, tool-selection, probable-flow, and adversarial prompts; `probable_flow_problems`. Run each against the lab packs from Chapters 7 and 8 and record pass rates before submission.
+- **From the chapters, matching their text:** the base system message (rules 1–6 from Chapter 9, section 9.4, which adopted the `status` exit on 2026-10-10; rule 7 from Chapter 10, section 10.5); the support checker prompt; the jobs-and-anti-jobs framing. If those change in Chapters 9 or 10, change them here.
+- **New here, not yet run against a live deployment:** the strict output schemas in C.1, C.5, and C.7; the audience blocks in C.2; the gap, change, remediation, tool-selection, probable-flow, and adversarial prompts; `probable_flow_problems`. Run each against the lab packs from Chapters 9 and 10 and record pass rates before submission.
 - Confirm that Azure OpenAI structured outputs accept `$defs` and `$ref` in the C.5 schema in the API version the book cites, and that strict mode still requires every property in `required`. If `$ref` isn't supported, inline the step schema three times. (Microsoft documents `$defs` and `$ref` on the structured outputs page cited as [S1].)
 - 2026-10-12 (sources): added 1 source. Changed: none. Softened: none. Unverified: none.
 - `probable_flow_problems` was exercised against Appendix A's Function App code: it accepts the real `ARCHIVE_ACCOUNT` line (13) and rejects a fabricated line, an out-of-range line, a missing file, an unknown store, and the wrong store for the setting. Those cases are now tests in `lab/listings/python/tests/test_appc_prompt_patterns.py`. On 2026-10-11 the listing gained a check that the proposed file is inside the repository: the path comes from the model, and the earlier version would open `../` paths outside it.
-- The C.10 table is a candidate for a sidebar in Chapter 7 if a reviewer finds the appendix too long.
+- The C.10 table is a candidate for a sidebar in Chapter 9 if a reviewer finds the appendix too long.

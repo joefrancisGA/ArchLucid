@@ -1,14 +1,14 @@
-"""Chapter 10 listings: postconditions, snapshot diffs, and exposure windows.
+"""Chapter 12 listings: postconditions, snapshot diffs, and exposure windows.
 
 Each region between `# region <name>` and `# endregion <name>` appears verbatim in the book under a
-`<!-- listing: lab/listings/python/ch10_verification.py#<name> -->` marker. Edit the code here, then copy the
+`<!-- listing: lab/listings/python/ch12_verification.py#<name> -->` marker. Edit the code here, then copy the
 region into the book; docs/book/tools/check_listings.py fails when the two differ.
 """
 
 from __future__ import annotations
 
-from ch04_paths import KIND_SOURCES, Edge, find_paths, parse_utc, read_windows, unmodeled_on
-from ch09_remediation import edge_key
+from ch05_paths import KIND_SOURCES, Edge, find_paths, parse_utc, read_windows, unmodeled_on
+from ch11_remediation import edge_key
 
 
 # region verify
@@ -43,7 +43,7 @@ class Postcondition:
     needs: frozenset[str]           # snapshot files the check reads
     scopes: frozenset[str]          # scopes the check depends on, named as in the gap list
     # True when the postcondition holds. Raise LookupError if the subject is absent, or
-    # Unmodeled if the answer depends on an unevaluated control (Chapter 4).
+    # Unmodeled if the answer depends on an unevaluated control (Chapter 5).
     check: Callable[[dict], bool]
 
 
@@ -121,7 +121,7 @@ PATH_FILES = frozenset({
 
 
 def no_path(post_id: str, entry: str, target: str, scopes: frozenset[str]) -> Postcondition:
-    """Postcondition: the Chapter 4 search, on edges derived from this snapshot, finds nothing.
+    """Postcondition: the Chapter 5 search, on edges derived from this snapshot, finds nothing.
 
     A remaining path that rests only on unmodeled controls can't be confirmed or ruled out.
     """

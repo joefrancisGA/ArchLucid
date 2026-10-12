@@ -1,19 +1,19 @@
-> **Scope:** Chapter 6 revised draft for the book draft *Managing Azure Security with AI*. Author working text; not product documentation, not legal advice, and not a description of any vendor's internals.
+> **Scope:** Chapter 8 revised draft for the book draft *Managing Azure Security with AI*. Author working text; not product documentation, not legal advice, and not a description of any vendor's internals.
 > **Status:** draft — revised (revision pass 1, 2026-10-10)
 
-# Chapter 6 — Data flow: may access vs did access
+# Chapter 8 — Data flow: may access vs did access
 
 **Spine:** [`../README.md`](../README.md) · **Outline:** [`../OUTLINE.md`](../OUTLINE.md)
 
 > *Draft status: revised (revision pass 1, 2026-10-10). Target 6,000 words. Facts about Azure log schemas, retention, and defaults were checked against Microsoft documentation in October 2026; re-check them before submission. Nothing here is legal advice; breach and notification definitions vary by jurisdiction and contract.*
 
-**Builds on:** Chapter 2 (the zero trap and can versus did, sections 2.6 and 2.7), Chapter 4 (capabilities and data-plane access, sections 4.5 and 4.6), Chapter 5 (kinds of reachability, section 5.2).
+**Builds on:** Chapter 2 (the zero trap and can versus did, sections 2.6 and 2.7), Chapter 4 (control-to-data conversions, section 4.5), Chapter 5 (capabilities in the path graph, section 5.3), Chapter 6 (kinds of reachability, section 6.2).
 
 ---
 
 ## Two days of incident response for a sentence
 
-In this fictional scenario, Contoso's quarterly risk report included a line from the identity review in Chapter 4:
+In this fictional scenario, Contoso's quarterly risk report included a line from the identity review in Chapter 5:
 
 > A help-desk user may access the customer archive.
 
@@ -33,11 +33,11 @@ This chapter separates them, shows how to collect evidence for each, and gives y
 
 ---
 
-## 6.1 Capability, flow, and access
+## 8.1 Capability, flow, and access
 
 Three terms carry the chapter:
 
-- A **capability** is something a path makes possible. "`helpdesk-07` can read `custarchive`" is a capability, computed from roles, credentials, and reachability (sections 4.5 and 5.6). It says nothing about intent or history.
+- A **capability** is something a path makes possible. "`helpdesk-07` can read `custarchive`" is a capability, computed from roles, credentials, and reachability (sections 5.3 and 7.1). It says nothing about intent or history.
 - A **flow** is a movement of data that a system is built to perform. "`pay-reconcile` reads `custarchive` every night to reconcile settlements" is a flow. It says what the system does in normal operation.
 - An **access event** is a specific operation that happened at a specific time. "On 2026-09-14 at 02:10 UTC, `mi-pay-reconcile` read 412 blobs from `custarchive`" is an access event, taken from a log.
 
@@ -45,7 +45,7 @@ They answer different questions:
 
 | Term | Question | Typical source | Typical reader |
 |------|----------|----------------|----------------|
-| Capability | What could happen? | Identity and network evidence (sections 4.5 and 5.6) | Security architects, risk owners |
+| Capability | What could happen? | Identity and network evidence (sections 5.3 and 7.1) | Security architects, risk owners |
 | Flow | What is supposed to happen? | Configuration, design, owners | Architects, data protection, auditors |
 | Access event | What did happen? | Logs | Incident responders, auditors, counsel |
 
@@ -53,9 +53,9 @@ A complete picture of any sensitive data store has all three, and the useful fin
 
 ---
 
-## 6.2 Four kinds of flow
+## 8.2 Four kinds of flow
 
-Flows come with evidence of varying strength. Section 5.2 separated intended, configured, observed, and confirmed reachability. Flows need the same treatment:
+Flows come with evidence of varying strength. Section 6.2 separated intended, configured, observed, and confirmed reachability. Flows need the same treatment:
 
 | Kind | Meaning | Evidence category (section 2.2) | Examples |
 |------|---------|-------------------------------|----------|
@@ -71,7 +71,7 @@ Declared flows are the cheapest to collect. Most are in configuration a Reader-o
 - **App settings and connection string names.** An app setting named `ARCHIVE_ACCOUNT` with the value `custarchive`, or a connection string entry named `CustomerDb`, declares that the app talks to that store. A Key Vault reference (`@Microsoft.KeyVault(...)`) declares a flow to the vault and, by name, hints at the target. The built-in Reader role grants only `*/read` on control-plane resources [S1], so it cannot call `Microsoft.Web/sites/config/list/action`, which returns every app setting value, secrets included [S2]. Chapter 3's rule says never collect secret values. Read them instead from the infrastructure as code that created the app, where they're reviewed, and where secrets should already be Key Vault references rather than literals. Appendix B, section B.6, covers the options.
 - **Data-plane role assignments to workload identities.** When `mi-pay-reconcile` holds Storage Blob Data Reader on `custarchive`, someone granted that access for a reason. It's a capability, but for a workload identity it's also a strong declaration of design intent.
 - **Integration configuration.** Data Factory and Synapse linked services, Event Grid subscriptions, Service Bus and Event Hubs consumers, Logic App connections, and diagnostic settings that send logs to a workspace or storage account all declare flows.
-- **Private endpoints and firewall rules.** A private endpoint for `custdata` in the payments application subnet declares that something in that subnet is meant to reach it (section 5.6).
+- **Private endpoints and firewall rules.** A private endpoint for `custdata` in the payments application subnet declares that something in that subnet is meant to reach it (section 7.1).
 
 A declared flow is an observed fact *about configuration*. It isn't an observation that data moved. An app setting can point at a store the code never uses. Treat declared flows as strong evidence of intent and weak evidence of activity.
 
@@ -79,21 +79,21 @@ A declared flow is an observed fact *about configuration*. It isn't an observati
 
 Probable flows fill in what configuration doesn't state. Some are deterministic inferences: "the only workload with network reach and a data role on this store is `pay-reconcile`, so if anything reads it in normal operation, that's probably what does." Others are AI inferences: a model reads a repository and reports that a function appears to write reconciliation output to the archive.
 
-Both are useful as **questions for owners**. Neither should appear in a report as a flow without its label. Section 6.7 covers how to use models here safely.
+Both are useful as **questions for owners**. Neither should appear in a report as a flow without its label. Section 8.7 covers how to use models here safely.
 
 ### Observed flows
 
-Observed flows come from logs that record data-plane operations. Section 6.4 covers what those logs can and can't tell you.
+Observed flows come from logs that record data-plane operations. Section 8.4 covers what those logs can and can't tell you.
 
 ### Confirmed flows
 
-A confirmed flow is an owner saying, on the record, "yes, this is supposed to happen". It's the flow equivalent of intended reachability (section 5.8) and data classification (section 2.2). Record who confirmed it, when, and when the confirmation expires.
+A confirmed flow is an owner saying, on the record, "yes, this is supposed to happen". It's the flow equivalent of intended reachability (section 7.3) and data classification (section 2.2). Record who confirmed it, when, and when the confirmation expires.
 
-Confirmed flows are what turn "capability without flow" into a finding you can act on. If the owner of `custdata` confirms that only the payments API writes to it and only the reporting job reads it, every other capability to read it is excess, and cut-point analysis (section 9.3) can remove it with confidence.
+Confirmed flows are what turn "capability without flow" into a finding you can act on. If the owner of `custdata` confirms that only the payments API writes to it and only the reporting job reads it, every other capability to read it is excess, and cut-point analysis (section 11.3) can remove it with confidence.
 
 ---
 
-## 6.3 Comparing capability with flow
+## 8.3 Comparing capability with flow
 
 The Contoso payments estate from earlier chapters has two customer data stores and several identities. In this chapter we add one component the earlier chapters didn't need: the **payments API**, an App Service app whose managed identity `mi-payments-api` holds Storage Blob Data Contributor on `custdata` and writes customer records there.
 
@@ -102,7 +102,7 @@ Put capability and flow side by side for each store:
 | Identity | Store | Capability | Declared flow | Observed | Confirmed |
 |----------|-------|-----------|---------------|----------|-----------|
 | `mi-payments-api` | `custdata` | Read and write (data role) | Yes: app setting `CUSTOMER_ACCOUNT=custdata`, data role, private endpoint | Not available (logging off) | Yes, payments platform lead |
-| `payments-deploy` | `custdata` | Read, via key listing (section 4.6) | None | Not available | Not required for deployment, payments platform lead |
+| `payments-deploy` | `custdata` | Read, via key listing (section 4.5) | None | Not available | Not required for deployment, payments platform lead |
 | `mi-pay-reconcile` | `custarchive` | Read (data role) | Yes: app setting `ARCHIVE_ACCOUNT=custarchive`, data role | Not available | Yes, payments platform lead |
 | `payments-deploy` | `custarchive` | Read, via code deployment to `pay-reconcile` (section 4.3) | None | Not available | — |
 | `helpdesk-07` | both | Read, via `payments-deploy` (section 4.3) | None | Not available | — |
@@ -116,9 +116,9 @@ Four patterns appear in tables like this, and each is a different kind of findin
 | No | Declared | Broken or stale configuration, or a collection gap | Investigate before concluding |
 | No | Observed | **Your model is wrong**, or something is using access you didn't collect | Investigate urgently |
 
-Most of the rows in the Contoso table fall into the second pattern. Every one of the six paths ends in excess capability: none of `payments-deploy`, `dev-lead`, or `helpdesk-07` has a business reason to read customer data. That's what the flow evidence adds to the path analysis. Chapter 4 showed six ways to reach the data. This chapter shows that none of them corresponds to anything the business does, which makes them much easier to remove.
+Most of the rows in the Contoso table fall into the second pattern. Every one of the six paths ends in excess capability: none of `payments-deploy`, `dev-lead`, or `helpdesk-07` has a business reason to read customer data. That's what the flow evidence adds to the path analysis. Chapter 5 showed six ways to reach the data. This chapter shows that none of them corresponds to anything the business does, which makes them much easier to remove.
 
-The fourth pattern deserves emphasis. An observed read by an identity your capability model says can't read the store means your model is missing an edge: a role at a scope you didn't collect, a SAS token issued long ago, a key copied somewhere. Treat it like observed-but-not-configured traffic (section 5.7): as a defect in your analysis until proven otherwise.
+The fourth pattern deserves emphasis. An observed read by an identity your capability model says can't read the store means your model is missing an edge: a role at a scope you didn't collect, a SAS token issued long ago, a key copied somewhere. Treat it like observed-but-not-configured traffic (section 7.2): as a defect in your analysis until proven otherwise.
 
 ### Flow edges in the graph
 
@@ -130,7 +130,7 @@ In the path graph, flows become a new edge type, `flowsTo`, from a workload or i
 
 ---
 
-## 6.4 What it takes to say "did access"
+## 8.4 What it takes to say "did access"
 
 "Did access" is an observed fact about activity. Stating it requires evidence with four properties:
 
@@ -154,7 +154,7 @@ Storage blob logs record how each request was authenticated. That one field deci
 - **Account key**: the log records `AuthenticationType` `AccountKey` [S7]. It doesn't record who held the key. Anyone with a copy looks the same.
 - **Shared access signature (SAS)**: the log records that a SAS was used (`SAS` or `DelegationSas` in `AuthenticationType` [S7]). For a user delegation SAS, `AuthenticationType` is `DelegationSas` and the log carries the identity whose delegation key signed the token. That's who issued it, not necessarily who used it. For account and service SAS tokens signed with the account key, you know a token was used, not who used it.
 
-This is the strongest argument for disabling shared key access that the book makes. Keys turn Contributor into data access (section 4.6). This chapter adds that keys also **destroy attribution** [S7]. If `custdata` allows shared key access, and the logs show reads authenticated with the account key from an address you don't recognize, the honest statement is: "An unidentified holder of the account key read data from this address." You can't rule out any identity that could list the keys, which, from Chapter 4, includes everyone who can become `payments-deploy`.
+This is the strongest argument for disabling shared key access that the book makes. Keys turn Contributor into data access (section 4.5). This chapter adds that keys also **destroy attribution** [S7]. If `custdata` allows shared key access, and the logs show reads authenticated with the account key from an address you don't recognize, the honest statement is: "An unidentified holder of the account key read data from this address." You can't rule out any identity that could list the keys, which, from Chapter 5, includes everyone who can become `payments-deploy`.
 
 Control-plane logs help partially. Listing a storage account's keys is an ARM operation (`MICROSOFT.STORAGE/STORAGEACCOUNTS/LISTKEYS/ACTION` in `AzureActivity` [S9]), recorded in the Azure Activity Log with the caller's identity. If you find a suspicious key-authenticated read, the Activity Log can tell you who listed the keys recently. It can't tell you who they gave them to, or whether the key was copied years ago.
 ### Operation semantics
@@ -184,7 +184,7 @@ Notice what's missing from that table: "[identity] never accessed [store]." Even
 
 ---
 
-## 6.5 Words that executives, auditors, and lawyers can't misread
+## 8.5 Words that executives, auditors, and lawyers can't misread
 
 The opening story's problem was a single word. Security writing is full of words like it:
 
@@ -195,7 +195,7 @@ The opening story's problem was a single word. Security writing is full of words
 
 Breach notification laws, contracts, and regulations often turn on words like "access", "acquisition", and "disclosure", with definitions that vary. That's a reason to keep your security reports unambiguous, and to involve counsel before any document uses those words about a real event. This book can't tell you what triggers a notification obligation where you operate.
 
-A controlled vocabulary solves most of the problem. Agree on it once, put it in your reporting template, and enforce it with the validator (section 7.5):
+A controlled vocabulary solves most of the problem. Agree on it once, put it in your reporting template, and enforce it with the validator (section 9.5):
 
 | Use | When | Instead of |
 |-----|------|------------|
@@ -210,7 +210,7 @@ The title of this chapter uses "may access" deliberately, because that's the phr
 
 ---
 
-## 6.6 Diagrams with an evidence legend
+## 8.6 Diagrams with an evidence legend
 
 Data flow diagrams are where "may" and "did" blur most easily, because a line between two boxes looks the same whatever evidence is behind it. An arrow from `helpdesk-07` to `custarchive` reads as "the help desk uses the archive" to almost everyone.
 
@@ -253,7 +253,7 @@ Generate diagrams like this from the path graph and flow records, never by hand 
 
 ---
 
-## 6.7 Where AI fits
+## 8.7 Where AI fits
 
 ### Finding probable flows
 
@@ -269,13 +269,13 @@ Never let an AI-inferred flow make a capability look expected. If a model's gues
 
 ### Summarizing logs
 
-Counting, filtering, and grouping log records is a query's job, not a model's. "How many reads did `mi-pay-reconcile` make last month?" is a Kusto Query Language (KQL) query. Ask a model to count rows in a pasted log extract and you'll get a plausible number. Run the query, put its results in an evidence pack with their time window, and let the model explain them (Chapter 7).
+Counting, filtering, and grouping log records is a query's job, not a model's. "How many reads did `mi-pay-reconcile` make last month?" is a Kusto Query Language (KQL) query. Ask a model to count rows in a pasted log extract and you'll get a plausible number. Run the query, put its results in an evidence pack with their time window, and let the model explain them (Chapter 9).
 
 ### Keeping "may" from becoming "did"
 
-The validator in section 7.5 rejects activity words such as "accessed" and "has been exposed" unless a cited item records observed activity. With flows and access events in the pack, make that rule exact: activity verbs are allowed only when a sentence cites an item whose category is **observed activity**, and the sentence must carry that item's time window.
+The validator in section 9.5 rejects activity words such as "accessed" and "has been exposed" unless a cited item records observed activity. With flows and access events in the pack, make that rule exact: activity verbs are allowed only when a sentence cites an item whose category is **observed activity**, and the sentence must carry that item's time window.
 
-<!-- listing: lab/listings/python/ch06_data_flow.py#activity_problems -->
+<!-- listing: lab/listings/python/ch08_data_flow.py#activity_problems -->
 
 ```python
 import re
@@ -315,11 +315,11 @@ def activity_problems(index: int, sentence: dict, items: dict) -> list[str]:
     return problems
 ```
 
-This reuses `expand_range` from section 7.5 and replaces its simpler activity check. "Read" is ambiguous in English: it's also the present tense, as in "`pay-reconcile` is designed to read". The check flags it anyway. That's deliberate. A false alarm costs a reviewer a few seconds. A missed "did" can cost a weekend, as the opening story showed. Tune it with your controlled vocabulary: allow "can read" and "designed to read" explicitly if the false alarms become noise.
+This reuses `expand_range` from section 9.5 and replaces its simpler activity check. "Read" is ambiguous in English: it's also the present tense, as in "`pay-reconcile` is designed to read". The check flags it anyway. That's deliberate. A false alarm costs a reviewer a few seconds. A missed "did" can cost a weekend, as the opening story showed. Tune it with your controlled vocabulary: allow "can read" and "designed to read" explicitly if the false alarms become noise.
 
 An observed-activity item in the pack looks like this:
 
-<!-- listing: lab/listings/json/ch06-observed-activity-item.json -->
+<!-- listing: lab/listings/json/ch08-observed-activity-item.json -->
 
 ```json
 {
@@ -333,13 +333,13 @@ An observed-activity item in the pack looks like this:
 
 ---
 
-## 6.8 Lab: from capability to evidence
+## 8.8 Lab: from capability to evidence
 
 This lab builds the capability-versus-flow table for the payments estate, observes what it can, and grades how a model describes the result. It uses the companion lab tenant (Appendix A).
 
 **Step 1 — Collect declared flows.** Take the app settings from the lab's Terraform, not from the live apps: `payments.tf` declares `ARCHIVE_ACCOUNT` on `pay-reconcile` and `CUSTOMER_ACCOUNT` on the payments API. In the manifest, record that this evidence came from code, and which commit you read. From the snapshot, take the data-plane role assignments to managed identities and the compute identity attachments. Collect diagnostic settings through Azure Resource Manager (list APIs on each target resource [S12]), because `Microsoft.Insights/diagnosticSettings` is not listed among Azure Resource Graph supported resource types [S13] (Appendix B, section B.8), and record which stores have read logging enabled, and since when.
 
-**Step 2 — Build the table.** For every path from section 4.10, find the final `grants` edge and look for a matching declared flow. Produce the table from section 6.3, and classify each row with the four patterns.
+**Step 2 — Build the table.** For every path from section 5.8, find the final `grants` edge and look for a matching declared flow. Produce the table from section 8.3, and classify each row with the four patterns.
 
 **Step 3 — Confirm.** Write down, as the lab's "owner", which flows are intended. Record each as a human assertion with your name, the date, and an expiry. Mark every path without a confirmed flow as excess capability.
 
@@ -369,9 +369,9 @@ AzureActivity
 | project TimeGenerated, Caller, ResourceGroup, _ResourceId, ActivityStatusValue
 ```
 
-**Step 6 — Draw the diagram.** Generate the Mermaid diagram from section 6.6 from your table, not by hand. Now that logging is on, the managed identity lines can become observed. Your key-authenticated read appears as an observed access by an unidentified key holder.
+**Step 6 — Draw the diagram.** Generate the Mermaid diagram from section 8.6 from your table, not by hand. Now that logging is on, the managed identity lines can become observed. Your key-authenticated read appears as an observed access by an unidentified key holder.
 
-**Step 7 — Grade the wording.** Build an evidence pack containing the capabilities, flows, and access events, with their categories and windows. Ask a model for a short summary for an auditor. Run the section 7.5 validator with `activity_problems` in place of its activity check. Then ask the same model, without the pack, to "describe this diagram" from a screenshot, and compare the wording against section 6.5's vocabulary.
+**Step 7 — Grade the wording.** Build an evidence pack containing the capabilities, flows, and access events, with their categories and windows. Ask a model for a short summary for an auditor. Run the section 9.5 validator with `activity_problems` in place of its activity check. Then ask the same model, without the pack, to "describe this diagram" from a screenshot, and compare the wording against section 8.5's vocabulary.
 
 **What you should see.** The capability-versus-flow table turns six paths into six excess capabilities nobody needs, which is a far easier conversation with the payments team than "six attack paths". The logs attribute managed identity reads cleanly and your key read not at all. That's the argument for disabling shared key access, made with your own data. The ungrounded diagram description almost always uses "accesses" or "uses" for the capability-only lines. The grounded summary, checked by the validator, doesn't.
 
@@ -425,7 +425,7 @@ AzureActivity
 - 2026-10-12 (sources): added 13 sources. Changed: softened Key Vault logging to "can be routed to AZKVAuditLogs"; clarified Reader versus `config/list`; tied LISTKEYS to Activity Log samples. Softened: Mermaid linkStyle zero-based indexing (docs show order by declaration; fourth link uses index 3). Unverified: none.
 - The opening incident, the auditor exchange, and the payments API component are fictional; the payments API is new in this chapter and is built by the Appendix A lab module (`payments-api-<suffix>`, `mi-payments-api`).
 - Verified 2026-10-10 (revision pass 1): storage diagnostic categories and `StorageBlobLogs` fields, including `DelegationSas`; the `LISTKEYS/ACTION` operation and `AzureActivity` columns; Key Vault `AuditEvent` / `AZKVAuditLogs`; 30-day default workspace retention; code samples execute cleanly.
-- Still to do: exercise `activity_problems` with Chapter 7's validator on the A1 example, and check the `linkStyle` indices (links 2, 3, 4 are the capability-only lines) in a renderer.
-- Have counsel review section 6.5's framing so it stays clear of legal advice.
-- Add the Chapter 6 fact checks to GTM **M-306** when it is picked up.
-- Confirm before submission that Reader still can't list App Service app settings (`Microsoft.Web/sites/config/list/action`). Section 6.2 and Step 1 depend on it.
+- Still to do: exercise `activity_problems` with Chapter 9's validator on the A1 example, and check the `linkStyle` indices (links 2, 3, 4 are the capability-only lines) in a renderer.
+- Have counsel review section 8.5's framing so it stays clear of legal advice.
+- Add the Chapter 8 fact checks to GTM **M-306** when it is picked up.
+- Confirm before submission that Reader still can't list App Service app settings (`Microsoft.Web/sites/config/list/action`). Section 8.2 and Step 1 depend on it.

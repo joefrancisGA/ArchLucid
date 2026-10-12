@@ -1,7 +1,7 @@
-"""Chapter 11 listings: audit records, cache keys, and token budgets.
+"""Chapter 13 listings: audit records, cache keys, and token budgets.
 
 Each region between `# region <name>` and `# endregion <name>` appears verbatim in the book under a
-`<!-- listing: lab/listings/python/ch11_governance.py#<name> -->` marker. Edit the code here, then copy the
+`<!-- listing: lab/listings/python/ch13_governance.py#<name> -->` marker. Edit the code here, then copy the
 region into the book; docs/book/tools/check_listings.py fails when the two differ.
 """
 

@@ -7,9 +7,9 @@
 
 > *Draft status: first draft. The module passes `terraform validate` and `terraform fmt -check` against azurerm 5.9, azuread 3.10, random 3.9, and tls 4.4 [S1, S2, S3, S4]. It has not yet been applied in a live tenant; see the author notes.*
 
-Every chapter's lab runs against the same small estate: Contoso's payments platform, with the six paths from Chapter 4 built in on purpose, a network with the mistakes from Chapter 5, and enough ordinary hygiene noise to make Chapter 1's point. This appendix describes what the lab builds, how to deploy it, and how each chapter changes it.
+Every chapter's lab runs against the same small estate: Contoso's payments platform, with the six paths from Chapters 4 and 5 built in on purpose, a network with the mistakes from Chapters 6 and 7, and enough ordinary hygiene noise to make Chapter 1's point. This appendix describes what the lab builds, how to deploy it, and how each chapter changes it.
 
-The lab is defined in Terraform, in `docs/book/lab/terraform`, for the same reason Chapter 9 expresses fixes as code. Every lab state is a reviewable change, and you can always get back to the start.
+The lab is defined in Terraform, in `docs/book/lab/terraform`, for the same reason Chapter 11 expresses fixes as code. Every lab state is a reviewable change, and you can always get back to the start.
 
 ---
 
@@ -19,7 +19,7 @@ The lab is **deliberately vulnerable**. It creates users who can take over an ap
 
 - **Use a tenant and subscription you own and use for nothing else.** A free Entra tenant with a pay-as-you-go subscription is enough [S5, S6]. Don't deploy it into a tenant where real people sign in, because the directory role and app ownership paths are real.
 - **Put no real data in it.** The storage accounts are for synthetic files you create.
-- **Plant instructions only here.** Chapter 8's injection lab writes instructions into resource tags. Do that in this tenant, not in resources other people's tooling reads.
+- **Plant instructions only here.** Chapter 10's injection lab writes instructions into resource tags. Do that in this tenant, not in resources other people's tooling reads.
 
 ---
 
@@ -29,11 +29,11 @@ Most identities, role assignments, and lightly used storage cost little or nothi
 
 | Item | Why it's there | Rough cost driver |
 |------|----------------|-------------------|
-| Azure Firewall (Basic) and two public IPs | Chapter 5's broad spoke-to-spoke rule | Hourly firewall charge, the largest single item [S8] |
-| Linux VM (`Standard_B1s`) in the dev spoke | Chapter 5's DNS check | Hourly compute and a disk [S9, S10] |
-| Private endpoint for `custdata` | Chapter 5's unfinished private endpoint | Hourly endpoint charge plus data processed [S11] |
+| Azure Firewall (Basic) and two public IPs | Chapter 7's broad spoke-to-spoke rule | Hourly firewall charge, the largest single item [S8] |
+| Linux VM (`Standard_B1s`) in the dev spoke | Chapter 7's DNS check | Hourly compute and a disk [S9, S10] |
+| Private endpoint for `custdata` | Chapter 7's unfinished private endpoint | Hourly endpoint charge plus data processed [S11] |
 
-Set `deploy_network = false` when you're working on chapters that don't need the network (Chapters 1–4 and 6–10 work without it, apart from the network rows they mention), and set it back for Chapter 5. Check current prices in the Azure pricing calculator for your region, and destroy the lab when you finish a session of work (section A.9).
+Set `deploy_network = false` when you're working on chapters that don't need the network (Chapters 1–5 and 8–12 work without it, apart from the network rows they mention), and set it back for Chapters 6 and 7. Check current prices in the Azure pricing calculator for your region, and destroy the lab when you finish a session of work (section A.9).
 
 ---
 
@@ -61,7 +61,7 @@ The book calls the lab subscription `sub-payments-prod`. The lab module does not
 
 ### Entra objects
 
-The Hop column uses the hop IDs from Chapter 7's evidence pack (section 7.3).
+The Hop column uses the hop IDs from Chapter 9's evidence pack (section 9.3).
 
 | Book name | Object | Configuration | Hop |
 |-----------|--------|---------------|-----|
@@ -69,14 +69,14 @@ The Hop column uses the hop IDs from Chapter 7's evidence pack (section 7.3).
 | GitHub entry | Federated identity credential on `payments-deploy` | Issuer `https://token.actions.githubusercontent.com` [S19]; subject `repo:contoso/payments:ref:refs/heads/main` | H1 |
 | `dev-lead` | User | Owner of `payments-deploy` | H2 |
 | `helpdesk-07` | User | Cloud Application Administrator at tenant scope (`/`) [S20, S21] | H3 |
-| `analyst-04` | User | No access; the "fourth user" in Chapter 4 Step 3 | — |
-| Platform automation identity | Whoever runs Terraform | Also an owner of `payments-deploy`, so the app keeps an owner after Chapter 9 | — |
+| `analyst-04` | User | No access; the "fourth user" in Chapter 5 Step 3 | — |
+| Platform automation identity | Whoever runs Terraform | Also an owner of `payments-deploy`, so the app keeps an owner after Chapter 11 | — |
 
 The federated credential trusts `contoso/payments` by default. That repository isn't yours, so the credential can't actually be used, which doesn't matter for path analysis: the path exists in configuration either way. If you want to run a real workflow through it, set `github_repository` to a repository you own.
 
 ### The six paths
 
-With the baseline deployed, Chapter 4's search finds exactly six paths. They're the ones Chapter 7's evidence pack lists:
+With the baseline deployed, Chapter 5's search finds exactly six paths. They're the ones Chapter 9's evidence pack lists:
 
 | Path | Entry point | Route | Target |
 |------|-------------|-------|--------|
@@ -87,11 +87,11 @@ With the baseline deployed, Chapter 4's search finds exactly six paths. They're 
 | P5 | `dev-lead` | add credential → … → `mi-pay-reconcile` | Read `custarchive` |
 | P6 | `helpdesk-07` | add credential → … → `mi-pay-reconcile` | Read `custarchive` |
 
-The payments API's identity can also read `custdata`, through its data role. That's the confirmed flow from Chapter 6, not one of the six paths, because no entry point leads to it. That holds only because the API and its identity sit outside `rg-payments-prod`. Move them into it, and Contributor there can manage those resources and credentials [S18]. The search would then correctly find three more paths to `custdata`, one from each entry point.
+The payments API's identity can also read `custdata`, through its data role. That's the confirmed flow from Chapter 8, not one of the six paths, because no entry point leads to it. That holds only because the API and its identity sit outside `rg-payments-prod`. Move them into it, and Contributor there can manage those resources and credentials [S18]. The search would then correctly find three more paths to `custdata`, one from each entry point.
 
 ### The network (when `deploy_network` is true)
 
-| Item | Configuration | Chapter 5 role |
+| Item | Configuration | Role in Chapters 6 and 7 |
 |------|---------------|----------------|
 | `vnet-hub` (`10.0.0.0/16`) | Azure Firewall Basic with policy `afwp-hub` [S22] | The hub firewall |
 | Firewall rule `any-internal-to-any-internal` | `10.0.0.0/8` to `10.0.0.0/8`, any port, any protocol | The opening story's broad rule |
@@ -99,9 +99,9 @@ The payments API's identity can also read `custdata`, through its data role. Tha
 | `vnet-dev` (`10.2.0.0/16`) | `snet-dev` with `nsg-dev`; `dev-vm`, no public IP | The development spoke |
 | Peerings and route table `rt-spokes` | Spokes peer with the hub; `10.0.0.0/8` routes through the firewall | Makes spoke-to-spoke traffic pass the broad rule |
 | `pe-custdata-blob` | Private endpoint for `custdata` blob in `snet-payments-pe` | The unfinished private endpoint |
-| `privatelink.blob.core.windows.net` | Linked to the payments spoke **only** | Chapter 5 Step 5's DNS surprise |
+| `privatelink.blob.core.windows.net` | Linked to the payments spoke **only** | Chapter 7 Step 5's DNS surprise |
 
-There's no VPN gateway, because a gateway deployment can take 45 minutes or more to complete [S23]. Chapter 5's "on-premises" position is an analysis exercise in the lab: evaluate it from configuration, and record that no on-premises network exists to test from.
+There's no VPN gateway, because a gateway deployment can take 45 minutes or more to complete [S23]. Chapter 7's "on-premises" position is an analysis exercise in the lab: evaluate it from configuration, and record that no on-premises network exists to test from.
 
 ### Decoys and hygiene
 
@@ -123,14 +123,14 @@ These are Chapter 1's list-view noise. None of them leads to customer data.
 | Item | Purpose | Chapter |
 |------|---------|---------|
 | `mi-security-collector` | Reader on the subscription [S26] and four read-only Graph application permissions, admin-consented | 3 |
-| `aa-security-collector` | Automation account that runs the collector with that identity | 3, 4, 10 |
-| `law-lab-…` | Log Analytics workspace for the diagnostic settings Chapters 5 and 6 add | 5, 6 |
+| `aa-security-collector` | Automation account that runs the collector with that identity | 3, 5, 12 |
+| `law-lab-…` | Log Analytics workspace for the diagnostic settings Chapters 7 and 8 add | 7, 8 |
 
-Chapter 11's tooling module is separate. Its lab deploys it into its own resource group.
+Chapter 13's tooling module is separate. Its lab deploys it into its own resource group.
 
 ### Tested listings
 
-The book's Python listings are copies of modules in `lab/listings/python/`, one per chapter (`ch04_paths.py`, `ch07_validator.py`, and so on). Each listing in the text names the region it was copied from, and `tools/check_listings.py` fails if the two differ. The tests in `lab/listings/python/tests/` build the payments estate above as a graph and check the book's claims about it: Chapter 4's search finds exactly the six paths and nothing for `analyst-04`, and labels a path through a conditioned assignment "Insufficient evidence", Chapter 7's validator rejects the opening summary and passes the grounded one, Chapter 9's greedy plan picks the three changes the chapter names, and Chapter 10's diff classifies the two Mondays the way the chapter says.
+The book's Python listings are copies of modules in `lab/listings/python/`, one per chapter (`ch05_paths.py`, `ch09_validator.py`, and so on). Each listing in the text names the region it was copied from, and `tools/check_listings.py` fails if the two differ. The tests in `lab/listings/python/tests/` build the payments estate above as a graph and check the book's claims about it: Chapter 5's search finds exactly the six paths and nothing for `analyst-04`, and labels a path through a conditioned assignment "Insufficient evidence", Chapter 9's validator rejects the opening summary and passes the grounded one, Chapter 11's greedy plan picks the three changes the chapter names, and Chapter 12's diff classifies the two Mondays the way the chapter says.
 
 The tests are offline. They use only the standard library, make no Azure calls, and replace the Azure SDK modules with stand-ins when they run the Function App code. Passing them shows that the listings do what the book says on the book's examples. It doesn't show that Azure behaves the way the fixtures assume. The labs do that.
 
@@ -139,7 +139,7 @@ The other listings are synced the same way, from `lab/listings/powershell/`, `la
 - **PowerShell** is parsed by the PowerShell 7 parser. That catches syntax errors, not wrong cmdlet parameters.
 - **KQL** has no offline compiler, so it's only structure-checked: brackets and quotes balance, and each query starts with a table rather than a pipe. Whether a query runs is something only Resource Graph or Log Analytics can tell you.
 - **JSON** must parse, and every schema used with strict structured outputs must follow Appendix C's strict-mode rules.
-- **Terraform** is validated with `terraform validate` against the real providers. Each lab change is checked inside a copy of this module, and Chapter 11's module is checked on its own. Nothing is planned or applied.
+- **Terraform** is validated with `terraform validate` against the real providers. Each lab change is checked inside a copy of this module, and Chapter 13's module is checked on its own. Nothing is planned or applied.
 
 Last run on 2026-10-11 with Python 3.14, PowerShell 7.6, and Terraform with `azurerm` 5.9.0 [S1], from `docs/book`:
 
@@ -163,7 +163,7 @@ You need:
 - **Entra roles** that can create users and groups, register applications, assign directory roles, and grant Graph application permissions. Global Administrator covers all of it [S20]. In a dedicated lab tenant that's simplest; if you prefer narrower roles, you need User Administrator, Application Administrator, and Privileged Role Administrator together [S20].
 - **PowerShell 7** with the Az.ResourceGraph and Microsoft.Graph modules, for the collector in Chapter 3.
 
-The identity that runs Terraform becomes an owner of `payments-deploy`, playing "the platform automation identity" from Chapter 9. Run Terraform as yourself or as a service principal in the lab tenant, never as an identity shared with anything else.
+The identity that runs Terraform becomes an owner of `payments-deploy`, playing "the platform automation identity" from Chapter 11. Run Terraform as yourself or as a service principal in the lab tenant, never as an identity shared with anything else.
 
 ---
 
@@ -198,7 +198,7 @@ terraform output -json user_passwords
 
 ### Deploy the app code
 
-Terraform creates the Function App and the web app empty. Chapters 5 and 6 need them to touch the data stores. A minimal HTTP-triggered function for `pay-reconcile`, in the Python v2 programming model [S31], is enough:
+Terraform creates the Function App and the web app empty. Chapters 7 and 8 need them to touch the data stores. A minimal HTTP-triggered function for `pay-reconcile`, in the Python v2 programming model [S31], is enough:
 
 <!-- listing: lab/listings/python/appa_function_app.py#function_app -->
 
@@ -235,13 +235,13 @@ Import Az.ResourceGraph and Microsoft.Graph into `aa-security-collector`, copy t
 
 Before starting Chapter 1, confirm the lab looks the way the chapters assume:
 
-1. **Six paths.** Run Chapter 3's collector and Chapter 4's Step 0, derivation, and search. You should find exactly P1 to P6 and nothing else to `custdata` or `custarchive`. Fewer usually means a collection gap; more usually means the loader is treating role containment as a capability (Chapter 4 Step 3). The baseline has no conditioned role assignments and no deny assignments with conditions, so none of the six paths carries an unmodeled control (Chapter 4, section 4.5).
+1. **Six paths.** Run Chapter 3's collector and Chapter 5's Step 0, derivation, and search. You should find exactly P1 to P6 and nothing else to `custdata` or `custarchive`. Fewer usually means a collection gap; more usually means the loader is treating role containment as a capability (Chapter 5 Step 3). The baseline has no conditioned role assignments and no deny assignments with conditions, so none of the six paths carries an unmodeled control (Chapter 5, section 5.3).
 2. **Shared key.** `storage-accounts.json` shows `sharedKey = enabled` for `custdata`, `custarchive`, and the three sandbox accounts.
 3. **Federated subject.** `federated-credentials.json` shows `repo:contoso/payments:ref:refs/heads/main` (or your repository).
 4. **Directory role.** `directory-role-assignments.json` shows Cloud Application Administrator for `helpdesk-07` with `directoryScopeId` of `/` [S21].
 5. **Checklist.** Run `queries/checklist.kql` in Resource Graph Explorer. `custdata`'s shared key finding should sit among its three sandbox twins, as Chapter 1 promises.
 
-Keep this first snapshot. Chapters 9 and 10 compare against it.
+Keep this first snapshot. Chapters 11 and 12 compare against it.
 
 ---
 
@@ -254,20 +254,22 @@ Most chapters only read the lab. The ones that change it are listed with the edi
 | 1 | Baseline | None |
 | 2 | Baseline | None |
 | 3 | Baseline | Step 6 removes the collector's Reader assignment, then restores it |
-| 4 | Chapter 3 snapshot | Step 3 adds Reader for `analyst-04`; optional Step 3a adds a conditioned blob reader for `analyst-04`; Step 4 narrows the federated subject |
-| 5 | Baseline network | Step 6 adds blob logging on `custdata`; Step 8 disables its public access and narrows the firewall rule |
-| 6 | Chapter 4 paths | Step 4 adds blob logging on both stores and makes one key-authenticated read |
-| 7 | Chapter 4 outputs | None |
-| 8 | Baseline | Step 2 adds the `notes` tag to `custdata` |
-| 9 | Chapters 4–6 outputs | None; Step 7 runs `terraform plan` only |
-| 10 | Chapter 9 records | Applies Chapter 9's changes and the help desk mistake, then fixes it |
-| 11 | Chapters 3–10 outputs | Deploys the tooling module in its own resource group |
+| 4 | Baseline | None |
+| 5 | Chapter 3 snapshot | Step 3 adds Reader for `analyst-04`; optional Step 3a adds a conditioned blob reader for `analyst-04`; Step 4 narrows the federated subject |
+| 6 | Baseline network | None |
+| 7 | Baseline network | Step 6 adds blob logging on `custdata`; Step 8 disables its public access and narrows the firewall rule |
+| 8 | Chapter 5 paths | Step 4 adds blob logging on both stores and makes one key-authenticated read |
+| 9 | Chapter 5 outputs | None |
+| 10 | Baseline | Step 2 adds the `notes` tag to `custdata` |
+| 11 | Chapters 5–8 outputs | None; Step 7 runs `terraform plan` only |
+| 12 | Chapter 11 records | Applies Chapter 11's changes and the help desk mistake, then fixes it |
+| 13 | Chapters 3–12 outputs | Deploys the tooling module in its own resource group |
 
 ### Chapter 3 Step 6 — Break the collector
 
-Comment out `azurerm_role_assignment.collector_reader` in `collector.tf` and apply. Restore it after the step. Chapter 10 Step 6 repeats this.
+Comment out `azurerm_role_assignment.collector_reader` in `collector.tf` and apply. Restore it after the step. Chapter 12 Step 6 repeats this.
 
-### Chapter 4 Step 3 — The fourth user
+### Chapter 5 Step 3 — The fourth user
 
 Add to `identity.tf`, apply, and remove it after the step:
 
@@ -282,7 +284,7 @@ resource "azurerm_role_assignment" "analyst_04_reader" {
 }
 ```
 
-### Chapter 4 Step 3a — A conditioned reader (optional)
+### Chapter 5 Step 3a — A conditioned reader (optional)
 
 Add to `identity.tf`, apply, and remove it after the step. The condition limits blob reads to a container named `reports`. The search can't evaluate it, so the new path must come back labeled:
 
@@ -308,15 +310,15 @@ resource "azurerm_role_assignment" "analyst_04_conditioned_reader" {
 }
 ```
 
-### Chapter 4 Step 4 — The original fix
+### Chapter 5 Step 4 — The original fix
 
 ```text
 terraform apply -var "subscription_id=<id>" -var "github_trust=environment:production"
 ```
 
-Keep that value for the rest of the book. Chapters 9 and 10 assume the narrowed subject.
+Keep that value for the rest of the book. Chapters 11 and 12 assume the narrowed subject.
 
-### Chapters 5 and 6 — Blob read logging
+### Chapters 7 and 8 — Blob read logging
 
 Add one diagnostic setting per store. For `custdata`:
 
@@ -334,15 +336,15 @@ resource "azurerm_monitor_diagnostic_setting" "custdata_blob" {
 }
 ```
 
-Chapter 6 adds the same for `custarchive`. Record when you applied each one. That's the "logging started" date that bounds every "did access" statement.
+Chapter 8 adds the same for `custarchive`. Record when you applied each one. That's the "logging started" date that bounds every "did access" statement.
 
-### Chapter 5 Step 8 — The network fix
+### Chapter 7 Step 8 — The network fix
 
 In `payments.tf`, set `public_network_access = "Disabled"` on `custdata`. In `network.tf`, narrow the firewall rule so the dev spoke is no longer a source, for example `source_addresses = ["10.1.0.0/16"]` and `destination_addresses = ["10.0.0.0/16"]`. Then re-collect and re-compute.
 
-Chapter 6 Step 4 asks for a key-authenticated read from your own machine. If you've disabled public access, re-enable it for that step, or make the read from inside the payments spoke.
+Chapter 8 Step 4 asks for a key-authenticated read from your own machine. If you've disabled public access, re-enable it for that step, or make the read from inside the payments spoke.
 
-### Chapter 8 Step 2 — Plant the instruction
+### Chapter 10 Step 2 — Plant the instruction
 
 Add the tag in Terraform, so it survives the next apply:
 
@@ -360,9 +362,9 @@ tags = {
 
 Remove it when you finish the chapter.
 
-### Chapter 10 — Apply, botch, and fix
+### Chapter 12 — Apply, botch, and fix
 
-**Step 3.** Apply Chapter 9's changes. Delete `azuread_application_owner.payments_deploy_dev_lead`. Set `shared_access_key_enabled = false` on `custdata`. Add Chapter 9's `azurerm_resource_group_policy_assignment.deny_storage_shared_key`; the lab already declares the variable it uses. Then reproduce the help desk mistake: delete `azuread_directory_role_assignment.helpdesk_07_cloud_app_admin` and add:
+**Step 3.** Apply Chapter 11's changes. Delete `azuread_application_owner.payments_deploy_dev_lead`. Set `shared_access_key_enabled = false` on `custdata`. Add Chapter 11's `azurerm_resource_group_policy_assignment.deny_storage_shared_key`; the lab already declares the variable it uses. Then reproduce the help desk mistake: delete `azuread_directory_role_assignment.helpdesk_07_cloud_app_admin` and add:
 
 <!-- listing: lab/listings/terraform/appa-helpdesk-tier2.tf -->
 
@@ -399,7 +401,7 @@ For P4's risk acceptance, add the compensating controls the record names: narrow
 
 Some lab state lives outside Azure, or shouldn't be automated:
 
-- **GitHub.** The repository, the `production` environment, and its required reviewer with self-review prevented live in GitHub. Create them in a repository you own if you want Chapter 10's GitHub postcondition to read real data. If you manage GitHub with Terraform, the `integrations/github` provider can hold them; this module doesn't, so that it needs no GitHub token.
+- **GitHub.** The repository, the `production` environment, and its required reviewer with self-review prevented live in GitHub. Create them in a repository you own if you want Chapter 12's GitHub postcondition to read real data. If you manage GitHub with Terraform, the `integrations/github` provider can hold them; this module doesn't, so that it needs no GitHub token.
 - **App code and data.** Section A.5 covers both.
 - **The collector runbook.** Section A.5 covers it.
 - **A "minimum TLS not set" account.** The provider always sends a minimum TLS version [S14], so Terraform can't create an account where the property is absent. Chapter 1's table uses anonymous blob access instead.
@@ -417,7 +419,7 @@ terraform destroy -var "subscription_id=<your subscription id>"
 
 Three things can get in the way:
 
-- **Chapter 11's immutability policy.** If you locked it, the storage account can't be deleted until the retention period ends. Chapter 11's lab tells you to leave it unlocked or use a short period for exactly this reason. Destroy Chapter 11's module first.
+- **Chapter 13's immutability policy.** If you locked it, the storage account can't be deleted until the retention period ends. Chapter 13's lab tells you to leave it unlocked or use a short period for exactly this reason. Destroy Chapter 13's module first.
 - **Key vault soft delete.** The provider purges the sandbox vaults on destroy [S33]. If a purge fails, purge them from the portal before redeploying, or the names stay reserved for the retention period [S34].
 - **Changes made outside Terraform.** Because this module sets `prevent_deletion_if_contains_resources = false` [S33], deleting its resource groups can also delete resources added through the portal. Move anything you need to keep out of the lab groups before `destroy`.
 
@@ -468,12 +470,12 @@ Deleting the Entra objects removes them to the deleted items list for 30 days [S
 
 ## Author notes (remove before submission)
 
-- The module passes `terraform validate` and `terraform fmt -check` (Terraform 1.16.5; azurerm 5.9.0, azuread 3.10.0, random 3.9.1, tls 4.4.1). It has **not** been applied in a live tenant. Before publication, apply it end to end, confirm six paths with Chapter 4's code, and walk every chapter's lab against it.
+- The module passes `terraform validate` and `terraform fmt -check` (Terraform 1.16.5; azurerm 5.9.0, azuread 3.10.0, random 3.9.1, tls 4.4.1). It has **not** been applied in a live tenant. Before publication, apply it end to end, confirm six paths with Chapter 5's code, and walk every chapter's lab against it.
 - The live run is scripted in [`../lab/live-validation-runbook.md`](../lab/live-validation-runbook.md), which also covers Appendices B and C.
 - Untested against a live tenant: `queries/checklist.kql`; the Function App code in section A.5; whether `azuread_application_owner.payments_deploy_platform` conflicts with an owner the API adds automatically for the caller; the resource count quoted in A.5.
 - Confirm the container-scope ID for narrowing `mi_pay_reconcile_archive_reader` in azurerm 5.x, and add the exact HCL to A.7.
 - 2026-10-11 (azurerm 5.x): the module moved from azurerm 4.x to 5.x, following the 5.0 upgrade guide. Changes: the private DNS link takes `private_dns_zone_id`; `custdata` uses `public_network_access = "Enabled"` (the boolean is deprecated); the provider block lists `resource_providers_to_register`, because 5.x registers none by default. Unchanged but checked: sandbox accounts set `allow_nested_items_to_be_public = true` explicitly (5.x defaults it to `false`), key vaults already set `rbac_authorization_enabled` (now required), and `min_tls_version` still always defaults to `TLS1_2`, so A.8's TLS point stands. Whether registration succeeds in a brand-new subscription is part of the live run.
-- 2026-10-11 (listing sync): the HCL blocks in A.7 and in Chapters 7, 9, and 11 are synced from `lab/listings/terraform/` and validated by `tools/check_terraform_listings.py` (not in CI, which has no Terraform). The `terraform.tfvars` line in A.5 is deliberately unsynced.
+- 2026-10-11 (listing sync): the HCL blocks in A.7 and in Chapters 9, 11, and 13 are synced from `lab/listings/terraform/` and validated by `tools/check_terraform_listings.py` (not in CI, which has no Terraform). The `terraform.tfvars` line in A.5 is deliberately unsynced.
 - Add a rough monthly cost table once a live deployment has run for a week.
 - Consider an optional `lab/terraform-github` module for the repository environment, if readers ask for it.
 - 2026-10-12 (sources): added 36 sources. Changed: subscription display-name wording; guest row (invitation message, not email); VPN gateway timing; Contributor path wording; App Service plan sentence. Softened: removed "expensive" for VPN gateway. Unverified: none.

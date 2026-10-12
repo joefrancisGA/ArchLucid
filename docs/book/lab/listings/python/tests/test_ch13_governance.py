@@ -1,11 +1,11 @@
-"""Chapter 11: content-free audit records, cache keys, and token budgets."""
+"""Chapter 13: content-free audit records, cache keys, and token budgets."""
 
 from __future__ import annotations
 
 import unittest
 
 import support  # noqa: F401
-from ch11_governance import TokenBudget, audit_record, explanation_cache_key, record, sha256_of
+from ch13_governance import TokenBudget, audit_record, explanation_cache_key, record, sha256_of
 
 
 class AuditRecord(unittest.TestCase):

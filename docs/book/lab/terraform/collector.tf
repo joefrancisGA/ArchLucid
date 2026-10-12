@@ -46,7 +46,7 @@ resource "azurerm_automation_account" "collector" {
   }
 }
 
-# Destination for the diagnostic settings that Chapters 5 and 6 add.
+# Destination for the diagnostic settings that Chapters 7 and 8 add.
 resource "azurerm_log_analytics_workspace" "lab" {
   name                = "law-lab-${local.suffix}"
   resource_group_name = azurerm_resource_group.security_tooling.name
