@@ -111,6 +111,26 @@ public sealed class OperatorInferredConnectionService(
             return Failed("Dismissed inferred connections cannot be confirmed.");
         }
 
+        OperatorInferredDataPlaneAnswer? dataPlaneAnswer = ParseDataPlaneAnswer(request.DataPlaneAnswer);
+        bool isUnmappedDataPlaneRole =
+            string.Equals(
+                record.RuleName,
+                InferenceQuestionnaireItemGenerator.UnmappedDataPlaneRoleRuleName,
+                StringComparison.Ordinal);
+
+        if (request.DataPlaneAnswer is not null && dataPlaneAnswer is null)
+        {
+            return Failed("Data-plane answer must be Read or Write.");
+        }
+
+        if (isUnmappedDataPlaneRole != (dataPlaneAnswer is not null))
+        {
+            return Failed(
+                isUnmappedDataPlaneRole
+                    ? "Read or Write is required for an unmapped data-plane role."
+                    : "Data-plane answers are only valid for unmapped data-plane role questions.");
+        }
+
         DateTime utcNow = TimeProvider.System.UtcNowDateTime();
         OperatorInferredConnectionRecord updated = new()
         {
@@ -131,6 +151,7 @@ public sealed class OperatorInferredConnectionService(
             ToArmId = request.ToArmId ?? record.ToArmId,
             ToCloudResourceId = request.ToCloudResourceId ?? record.ToCloudResourceId,
             SettingName = record.SettingName,
+            DataPlaneAnswer = dataPlaneAnswer,
             SourceFileFormat = record.SourceFileFormat,
             ActorKey = actorKey,
             ProposalPayloadHashSha256 = record.ProposalPayloadHashSha256,
@@ -190,6 +211,7 @@ public sealed class OperatorInferredConnectionService(
             ToArmId = record.ToArmId,
             ToCloudResourceId = record.ToCloudResourceId,
             SettingName = record.SettingName,
+            DataPlaneAnswer = record.DataPlaneAnswer,
             SourceFileFormat = record.SourceFileFormat,
             ActorKey = actorKey,
             ProposalPayloadHashSha256 = record.ProposalPayloadHashSha256,
@@ -212,9 +234,22 @@ public sealed class OperatorInferredConnectionService(
             ToArmId = source.ToArmId,
             ToCloudResourceId = source.ToCloudResourceId,
             ToCatalog = source.ToCatalog,
+            DataPlaneAnswer = source.DataPlaneAnswer,
             ActorKey = source.ActorKey,
             UpdatedUtc = source.UpdatedUtc,
         };
+
+    private static OperatorInferredDataPlaneAnswer? ParseDataPlaneAnswer(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return null;
+        }
+
+        return Enum.TryParse(value, ignoreCase: true, out OperatorInferredDataPlaneAnswer answer)
+            ? answer
+            : null;
+    }
 
     private async Task LogAuditAsync(
         ScopeContext scope,

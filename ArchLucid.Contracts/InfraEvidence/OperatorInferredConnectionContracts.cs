@@ -142,6 +142,12 @@ public sealed class OperatorInferredConnectionConfirmApiRequest
         get;
         init;
     }
+
+    public string? DataPlaneAnswer
+    {
+        get;
+        init;
+    }
 }
 
 public sealed class OperatorInferredConnectionDismissApiRequest
