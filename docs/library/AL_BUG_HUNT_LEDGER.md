@@ -17152,7 +17152,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** marketplace billing; checkout mutation; billing application layer
 - **paths:** ArchLucid.Application/Billing/
 - **test-filter:** FullyQualifiedName~Marketplace|FullyQualifiedName~BillingCheckout|FullyQualifiedName~TenantLlmCostReporting
-- **hunts:** 36
+- **hunts:** 37
 - **bugs-found:** 20
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-12
@@ -17175,6 +17175,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-10-11 seed hunt (seed-only): re-read the webhook publisher, connectivity interface, admin COGS service, and its focused tests; 26 scoped tests passed. No new reachable candidate met the failing-repro bar.
 
 2026-10-12 seed hunt (seed-only): re-read `BillingCheckoutFacade`, Marketplace mutation handlers, cost reporting, fleet COGS, and estimate services; cheap-disproof closed negative checkout seat/workspace forwarding (`StripeBillingProvider.Checkout` clamps with `Math.Max(1, …)` before session metadata and ledger upsert), provider `ErrorMessage` surfacing (`CreateCheckoutSessionAsync_maps_transport_failures_to_provider_error` documents intentional operator diagnostics), silent `days` clamp (`Math.Clamp(days, 1, 90)`), suspended/offboarded fleet omission (explicit lifecycle filter), negative budget pressure on dashboards (LLM tracker settles only positive `addUsd`), and unknown Marketplace `planId` defaulting to Standard (documented mapper plus `Stripe_provider_applies_change_plan_when_azure_marketplace_ga_disabled`). No new hunt-ready row met the failing-repro bar. 41 scoped billing tests passed.
+
+2026-10-12 seed hunt (seed-only): repeated the billing-zone source review after hunt 36 closed the last open `(candidate)` rows; re-checked checkout lifecycle status, Marketplace mutation deferrals, LLM dashboard bucketing, fleet COGS risk labels, and cost-estimate guards. No new mechanism-backed `(candidate)` met the seed quality bar and nothing was promoted hunt-ready. 41 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed.
 
 2026-10-12 seed hunt (seed→hit): `application-billing-logic` — after `HasSubscription` stopped treating `Pending` rows as subscribed, `GetSubscriptionStatusAsync` still returned the checkout target `TierCode`, and operator billing resolution treats a non-empty tier label as a commercial plan even when `hasSubscription` is false. Non-subscribed rows now omit `TierCode` while keeping `Status`. Regressions extend `GetSubscriptionStatusAsync_pending_checkout_reports_no_subscription` and `GetSubscriptionStatusAsync_canceled_subscription_reports_no_subscription` with null tier expectations. 41 scoped billing tests passed.
 
