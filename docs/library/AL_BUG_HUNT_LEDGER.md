@@ -9095,7 +9095,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** llm wallet; tenant wallet; billing wallet
 - **paths:** ArchLucid.Api/Controllers/Billing/WalletController.cs; ArchLucid.Application/Budgeting/LlmTenantWalletService.cs; ArchLucid.Persistence/Data/Repositories/SqlLlmTenantWalletRepository.cs
 - **test-filter:** FullyQualifiedName~LlmTenantWalletServiceTests
-- **hunts:** 38
+- **hunts:** 39
 - **bugs-found:** 19
 - **consecutive-dry-hunts:** 2
 - **last-hunt:** 2026-10-12
@@ -11561,7 +11561,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **hunts:** 39
 - **bugs-found:** 26
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-11
+- **last-hunt:** 2026-10-12
 - **last-bug:** 2026-10-11 — source-context failure left the analysis checklist marked complete
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -34323,6 +34323,8 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 2026-10-10 seed hunt (seed-only): reread Cosmos missing-snapshot and RunId mismatch skips, processor-batch cancellation/isolation, retry/dead-letter persistence, and post-mark logging guards; no fresh reachable wrong outcome survived the hunt-ready bar. The scoped coordination/outbox suite passed 21/21. Retained the existing bounded candidates; no production change.
 
 2026-10-10 seed hunt (seed-only): reread the selected coordination processors and focused outbox tests; cancellation, retry threshold, option normalization, missing-detail skips, and export exception boundaries remained contract-dependent or lacked a reachable wrong outcome. The scoped coordination/outbox suite was run; no production or regression code changed.
+
+2026-10-12 seed hunt (seed-only): reread the selected coordination processors, shared failure/lease handling, option normalization, and focused outbox paths; no fresh reachable mechanism-backed wrong outcome met the hunt-ready bar, so no candidate was promoted. The scoped coordination/outbox test attempt was blocked before discovery by pre-existing `AzureInventorySecurityEdgeMaterializer.cs` compile errors (`unmappedRoles` and `warnings`). No production or regression code changed.
 
 - [ ] (candidate) `RecoverableOutboxProcessorBase.ProcessPendingBatchAsync` — cancellation during bounded parallel processing can leave already-dequeued sibling entries leased without an explicit cancellation reconciliation — locus: `RecoverableOutboxProcessorBase.cs` ~55–76; input: cancel a batch after one parallel entry completes and another is still leased.
 - [ ] (candidate) `RecoverableOutboxFailureHandler.HandleAsync` — cancellation after failure persistence but during the dead-letter/retry hook can obscure the persisted terminal state from the processor caller — locus: `RecoverableOutboxFailureHandler.cs` ~34–78; input: cancellation races a hook after `RecordBackoffAfterProcessingFailureAsync` succeeds.
