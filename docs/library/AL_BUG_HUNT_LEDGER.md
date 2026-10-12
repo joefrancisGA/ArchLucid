@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-12 seed hunt (seed-only): `securenow-question-queue` — repeated the selected compiler, disposition service, controller, persistence, contract, queue, and API reread with no production-path churn. No fresh reachable mechanism-backed hypothesis met the hunt-ready bar, and the existing bounded identity, suppression, API-shape, and in-flight-action candidates were not duplicated. The focused SecureNowQuestion suite passed 23/23. No production or regression code changed.
+
 2026-10-12 seed hunt (seed-only): `securenow-question-queue` — re-read the selected compiler, disposition service, controller, persistence, contract, queue, and API paths after the endpoint-less inference fix. No fresh reachable mechanism-backed hypothesis met the hunt-ready bar; the existing bounded identity, suppression, API-shape, and in-flight-action candidates remain unchanged. The focused SecureNowQuestion suite passed 23/23. No production or regression code changed.
 
 2026-10-12 seed hunt (seed→hit): `SecureNowQuestionCompiler` emitted a proposed inferred-connection question when both `FromArmId` and `ToArmId` were blank, producing an `Open` row with no resource identity even though disposition writes require a non-empty `ResourceId`. The compiler now suppresses endpoint-less proposals. Regression `Proposed_inference_without_an_arm_endpoint_is_not_emitted_as_an_unanswerable_question` failed before the fix and passed after it; the focused SecureNowQuestion suite passed 23/23.
@@ -36548,6 +36550,8 @@ ABQ-09 churn hotspot.
 
 ## Zone: securenow-question-queue
 
+2026-10-12 seed hunt (seed-only): repeated the selected compiler, disposition service, controller, persistence, contract, queue, and API reread with no production-path churn. No fresh reachable mechanism-backed hypothesis met the hunt-ready bar, and the existing bounded identity, suppression, API-shape, and in-flight-action candidates were not duplicated. The focused SecureNowQuestion suite passed 23/23. No production or regression code changed.
+
 2026-10-12 seed hunt (seed-only): re-read the selected compiler, disposition service, controller, persistence, contract, queue, and API paths after the endpoint-less inference fix. No fresh reachable mechanism-backed hypothesis met the hunt-ready bar; the existing bounded identity, suppression, API-shape, and in-flight-action candidates remain unchanged. The focused SecureNowQuestion suite passed 23/23. No production or regression code changed.
 
 2026-10-12 seed hunt (seed→hit): `SecureNowQuestionCompiler` emitted a proposed inferred-connection question when both `FromArmId` and `ToArmId` were blank, producing an `Open` row with no resource identity even though disposition writes require a non-empty `ResourceId`. The compiler now suppresses endpoint-less proposals. Regression `Proposed_inference_without_an_arm_endpoint_is_not_emitted_as_an_unanswerable_question` failed before the fix and passed after it; the focused SecureNowQuestion suite passed 23/23.
@@ -36582,7 +36586,7 @@ ABQ-09 churn hotspot.
 - **aliases:** securenow question queue; question disposition
 - **paths:** ArchLucid.Application/InfraEvidence/SecureNowQuestionDispositions/; ArchLucid.Api/Controllers/InfraEvidence/InfraEvidenceSecureNowQuestionsController.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/ISecureNowQuestionDispositionRepository.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/ISecureNowQuestionDispositionService.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/SecureNowQuestionDispositionRecord.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/SecureNowQuestionRecord.cs; ArchLucid.Persistence/InfraEvidence/NoOpSecureNowQuestionDispositionRepository.cs; ArchLucid.Persistence/InfraEvidence/SqlSecureNowQuestionDispositionRepository.cs; ArchLucid.Contracts/InfraEvidence/SecureNowQuestionDispositionContracts.cs; archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
-- **hunts:** 27
+- **hunts:** 28
 - **bugs-found:** 13
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-12
