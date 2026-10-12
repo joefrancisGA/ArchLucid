@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-12 seed hunt (seed-only): `core-explanation-json` — repeated the parser, scalar readers, confidence/citation callout, and focused-test reread with no production-path churn. No fresh reachable mechanism-backed hypothesis met the hunt-ready bar; no candidate was promoted or duplicated. The scoped RunExplanation filter passed 47/47. No production or regression code changed.
+
 2026-10-12 seed hunt (seed-only): `core-explanation-json` — repeated the explanation parser, aggregate JSON reader, confidence/citation callout, and focused-test reread with no production-path churn. No fresh reachable mechanism-backed hypothesis met the hunt-ready bar; no candidate was promoted or duplicated. The scoped RunExplanation filter passed 47/47. No production or regression code changed.
 
 2026-10-12 seed hunt (seed-only): `core-explanation-json` — re-read the selected explanation parser, aggregate JSON readers, confidence callout builders, and focused tests. No fresh reachable mechanism-backed hypothesis met the hunt-ready bar; no candidate was promoted or duplicated. The scoped RunExplanation filter passed 47/47. No production or regression code changed.
