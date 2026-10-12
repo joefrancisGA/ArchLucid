@@ -8,6 +8,7 @@ function snapshot(overrides: Partial<InfraEvidenceSnapshotSummary> = {}): InfraE
     snapshotId: "11111111-1111-1111-1111-111111111111",
     subscriptionId: "8aa56f3b-18bc-43ca-ad45-bad9e811d33b",
     subscriptionName: "Contoso Production",
+    architectureName: "Payments",
     capturedUtc: "2026-09-10T13:45:35Z",
     captureStatus: 1,
     resourceCount: 889,
@@ -19,27 +20,36 @@ function snapshot(overrides: Partial<InfraEvidenceSnapshotSummary> = {}): InfraE
 describe("formatInfraEvidenceDiagramsSnapshotPickerLabel", () => {
   it("leads with the Azure subscription display name in Eastern Time using military time", () => {
     expect(formatInfraEvidenceDiagramsSnapshotPickerLabel(snapshot())).toBe(
-      "Contoso Production · 9/10/2026, 09:45 EDT",
+      "Contoso Production · Payments · 9/10/2026, 09:45 EDT",
     );
   });
 
-  it("omits UUID subscription identity when no name is stored", () => {
-    const unlabeled = snapshot({ subscriptionName: null });
+  it("states when neither subscription field was stored", () => {
+    const unlabeled = snapshot({ subscriptionName: null, subscriptionId: null });
 
     expect(formatInfraEvidenceDiagramsSnapshotPickerLabel(unlabeled)).toBe(
-      "9/10/2026, 09:45 EDT",
+      "Subscription was not stored. · Payments · 9/10/2026, 09:45 EDT",
     );
   });
 
   it("follows the operator IANA preference", () => {
     expect(formatInfraEvidenceDiagramsSnapshotPickerLabel(snapshot(), "America/Chicago")).toBe(
-      "Contoso Production · 9/10/2026, 08:45 CDT",
+      "Contoso Production · Payments · 9/10/2026, 08:45 CDT",
     );
   });
 
   it("states when capture time was not stored", () => {
     expect(formatInfraEvidenceDiagramsSnapshotPickerLabel(snapshot({ capturedUtc: null }))).toContain(
       "Captured time was not stored",
+    );
+  });
+
+  it("distinguishes missing architecture names from stored empty names", () => {
+    expect(formatInfraEvidenceDiagramsSnapshotPickerLabel(snapshot({ architectureName: null }))).toContain(
+      "Architecture name was not stored.",
+    );
+    expect(formatInfraEvidenceDiagramsSnapshotPickerLabel(snapshot({ architectureName: "" }))).not.toContain(
+      "Architecture name was not stored.",
     );
   });
 });

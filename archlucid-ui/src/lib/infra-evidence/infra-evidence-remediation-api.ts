@@ -18,7 +18,19 @@ const FINDING_MATCH_PATH = "/api/proxy/v1/infra-evidence/operational-findings";
 
 function finiteNumberOrDefault(value: unknown, fallback: number): number {
   const parsed = typeof value === "number" ? value : Number(value);
+
   return Number.isFinite(parsed) ? parsed : fallback;
+}
+
+/** Absent or non-numeric metrics stay null so Home can omit the number instead of showing zero. */
+function finiteNumberOrNull(value: unknown): number | null {
+  if (value === null || value === undefined || value === "") {
+    return null;
+  }
+
+  const parsed = typeof value === "number" ? value : Number(value);
+
+  return Number.isFinite(parsed) ? parsed : null;
 }
 
 function mapInstanceSummary(raw: Record<string, unknown>): RemediationInstanceSummary {
@@ -136,6 +148,7 @@ export async function fetchRemediationFactorySummary(): Promise<RemediationFacto
   return {
     factoryMetrics: {
       openFindings: finiteNumberOrDefault(metricsRaw.openFindings, 0),
+      criticalExposureCount: finiteNumberOrNull(metricsRaw.criticalExposureCount),
       remediatedThisWeek: finiteNumberOrDefault(metricsRaw.remediatedThisWeek, 0),
       verificationFailureCount: finiteNumberOrDefault(metricsRaw.verificationFailureCount, 0),
       businessBlockedCount: finiteNumberOrDefault(metricsRaw.businessBlockedCount, 0),

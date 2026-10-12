@@ -232,6 +232,7 @@ Some deliberate choices in that structure:
 - **Claims in plain language, written by the derivation step.** The model doesn't interpret raw JSON from Azure. It works from sentences that deterministic code has already produced and that a human can read.
 - **Evidence category on every claim**, so the model, and the validator, know which verbs are allowed (Chapter 2, section 2.7).
 - **Gaps and confidence included.** A pack without its gaps invites the model to sound more certain than the evidence is.
+- **A path names the gaps it rests on.** When a path passes through an unmodeled control (Chapter 4, section 4.5), its confidence is "Insufficient evidence", the control becomes a gap with kind `unmodeledControl`, and the path lists that gap's ID in a `gaps` field. None of the six payments paths has one, so the pack above doesn't show the field. Listing the gap on the path lets the validator check that a summary citing the path also cites what it depends on. A temporally inconsistent path (Chapter 4, section 4.5) is handled the same way. Its reason becomes a gap with kind `temporallyInconsistent`, for example "P2's inputs were read 22 hours apart; re-collect application-owners.json". The path lists that gap, so a summary can't quote P2 without saying its inputs disagree in time.
 - **Only what's relevant.** A pack for "summarize the payments paths" doesn't include the other 17 paths in the estate. Smaller packs produce better output, cost less, and are easier to review.
 
 ### Sensitive data in the pack
@@ -392,10 +393,21 @@ def validate(draft: dict, pack: dict) -> list[str]:
             if name and name not in pack_text:
                 problems.append(f"Sentence {index}: name '{name}' does not appear in the pack.")
 
+    # A path resting on an unmodeled control lists that gap; citing the path means citing the gap.
+    cited = {c for sentence in draft.get("sentences", [])
+             for raw in sentence.get("cites", []) for c in expand_range(raw)}
+
+    for path in pack.get("paths", []):
+        for gap in path.get("gaps", []):
+            if path["id"] in cited and gap not in cited:
+                problems.append(f"Draft cites {path['id']} but not its gap {gap}.")
+
     return problems
 ```
 
 Run against the board summary from the opening of this chapter, this validator rejects it immediately: no citations, "has been exposed", and "85%". Run against the second summary, it passes. One wrinkle: the validator allows the number of paths ("six") because the pack implies it, and a word like "six" isn't caught by a digit pattern at all. The name check errs the other way: it treats any lowercase hyphenated word, such as "high-risk", as a resource name. Validators need tuning to your conventions, and they're never perfect.
+
+The last check is about paths that rest on an unmodeled control. A draft may cite such a path, but then it must also cite the gap the path lists, somewhere in the draft. "Another path reaches customer data [P7]" fails on its own. It passes when another sentence says whether it holds depends on a condition nobody evaluated [G3]. The check doesn't require every gap in the pack to be mentioned. An architect's version can leave out the logging gaps. What the check stops is a path quoted without the assumption that makes it uncertain.
 
 ### What validation doesn't catch
 
@@ -403,7 +415,7 @@ A sentence can cite the right hop and still misstate it. "The deployment identit
 
 For now, the division of labor is:
 
-- **The validator** catches rule-breaking: no citation, invented numbers, invented names, activity wording.
+- **The validator** catches rule-breaking: no citation, invented numbers, invented names, activity wording, and a cited path whose unmodeled-control gap is missing.
 - **The human** catches misstatement: the sentence cites H5, but is that what H5 says?
 
 That human check is far faster than writing the paragraph from scratch, because every sentence points to exactly what to compare it against.
@@ -575,10 +587,11 @@ This lab builds the full pattern for the payments paths. It extends Chapter 2's 
 
 **Step 5 — Break it on purpose.** Run each of these and record what happens:
 
-1. Remove gaps G1 and G2 from the pack. Does the board summary still say that use can't be determined? (It shouldn't be able to, and the validator can't catch the omission. This is a pack-construction failure, which is why gaps must always be included.)
+1. Remove gaps G1 and G2 from the pack. Does the board summary still say that use can't be determined? (It shouldn't be able to, and the validator can't catch the omission. This is a pack-construction failure, which is why gaps must always be included. The validator only notices a missing gap when a path lists it, as a path through an unmodeled control does. G1 and G2 apply to every path, so no path lists them.)
 2. Add an AI-inferred hop ("`custarchive` likely contains payment card data (AI-inferred)") and check whether the output preserves "likely" and the AI label.
 3. Ask a question the pack can't answer ("How much would a breach cost?") and confirm the model sets `status` to `insufficient_evidence` (the rule 6 exit) rather than inventing a figure.
 4. Paste the opening story's board summary into the validator and confirm every problem is reported.
+5. If you ran Chapter 4's optional Step 3a, add its path to the pack as P7 with confidence "Insufficient evidence" and `"gaps": ["G3"]`, and add G3 describing the unevaluated condition. Ask for the board summary again. If the draft cites P7 without G3, the validator reports it.
 
 **Step 6 — Measure.** Time how long it takes you to review and approve the four outputs, and compare it with how long writing one of them by hand would take.
 
@@ -614,6 +627,8 @@ This lab builds the full pattern for the payments paths. It extends Chapter 2's 
 
 - Verified 2026-10-10 (revision pass 1): structured output API version and model list; training use, abuse monitoring and the modified abuse monitoring application; private endpoint support; Security Copilot naming; `shared_access_key_enabled` and `default_to_oauth_authentication`.
 - The validator is intentionally simple. `lab/listings/python/tests/test_ch07_validator.py` checks it against this chapter's pack and every printed summary (2026-10-11). That run changed the listing in two ways. `expand_range` now accepts an en dash, because the printed summaries cite `[P1–P6]` and the old pattern rejected them. Names and numbers may now come from path targets and provenance (snapshot ID, `assertedBy`, `assertedAt`, `expiresAt`) as well as claims, because the auditor version quotes the snapshot ID and the DPO's dates. Untrusted text still never counts. The run also confirmed that the name regex flags hyphenated English words ("highest-leverage" in the engineer version, now reworded); section 7.5 now says so.
+- 2026-10-11 (review comment on unmodeled controls): paths may now list `gaps`, and the validator checks that a draft citing such a path cites its gaps. The check is scoped to listed gaps so the architect and engineer versions, which omit G1 and G2, still pass. Tests in `test_ch07_validator.py` cover a missing gap, a gap cited in another sentence, and an uncited path. Added Step 5 case 5.
+- 2026-10-12 (review comment on temporal consistency): a temporally inconsistent path becomes a `temporallyInconsistent` gap listed on the path, so the same validator check applies; no code change.
 - The "85% likelihood" and other figures in the opening are fictional.
 - Consider a figure for the grounding pipeline in section 7.2.
 - Add the Chapter 7 fact checks to GTM **M-306** when it is picked up.

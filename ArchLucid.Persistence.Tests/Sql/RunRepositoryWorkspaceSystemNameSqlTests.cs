@@ -781,6 +781,7 @@ public sealed class RunRepositoryWorkspaceSystemNameSqlTests
     {
         RunRepositorySql.ClearGraphSnapshotForArchitecture.Should().Contain("ArchivedUtc IS NULL");
         RunRepositorySql.ClearGraphSnapshotForArchitecture.Should().Contain("GraphSnapshotId IS NOT NULL");
+        RunRepositorySql.ClearGraphSnapshotForArchitecture.Should().Contain("GoldenManifestId IS NULL");
     }
 
     [Fact]
@@ -2073,6 +2074,7 @@ public sealed class RunRepositoryWorkspaceSystemNameSqlTests
         DateTime sharedCreatedUtc = new(2026, 9, 2, 0, 0, 0, DateTimeKind.Utc);
 
         InMemoryRunRepository runs = new();
+
         foreach (Guid runId in new[] { lowerRunId, higherRunId })
         {
             await runs.SaveAsync(

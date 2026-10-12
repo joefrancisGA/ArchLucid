@@ -28,6 +28,7 @@ Two more come from the later chapters:
 
 5. **A failed query is a gap, never an empty result.** Throttling, a 403, or an unreadable subscription must land in the manifest's gap list (Chapter 3, section 3.7). An empty file means "we looked and found nothing", and you must only write one when that's true.
 6. **Test against a known answer.** Before a new query goes into the collector, run it against the lab, where Appendix A says what it should return. A query that finds the six paths' inputs in the lab has earned a place; one that has only been reviewed hasn't.
+7. **Time every file.** Record when each query started and finished, and with which API, client version, and scope (Chapter 3, section 3.5). `Invoke-ArgQuery` does it through `Save-SnapshotFile`. Without per-file times, nothing downstream can tell a path joined from reads an hour apart from one read in a minute.
 
 ### Running Resource Graph queries
 
@@ -152,11 +153,16 @@ authorizationresources
     scope = tostring(properties.scope),
     doNotApplyToChildScopes = tobool(properties.doNotApplyToChildScopes),
     principals = properties.principals,
+    excludePrincipals = properties.excludePrincipals,
+    condition = tostring(properties.condition),
     actions = permission.actions,
     notActions = permission.notActions,
     dataActions = permission.dataActions,
-    notDataActions = permission.notDataActions
+    notDataActions = permission.notDataActions,
+    permissionCondition = tostring(permission.condition)
 ```
+
+**Trap.** Keep `excludePrincipals`, `condition`, and `permissionCondition`. An excluded principal escapes the deny. A deny with a condition might not apply, so Chapter 4's derivation labels the hop as an unmodeled control instead of treating it as blocked.
 
 ### Eligible Azure roles (Privileged Identity Management)
 

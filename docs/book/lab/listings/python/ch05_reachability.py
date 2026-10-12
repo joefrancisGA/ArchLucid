@@ -7,6 +7,8 @@ region into the book; docs/book/tools/check_listings.py fails when the two diffe
 
 from __future__ import annotations
 
+from ch04_paths import Edge, UnmodeledControl
+
 
 # region storage_public_exposure
 def storage_public_exposure(account: dict) -> tuple[str, list[str]]:
@@ -128,3 +130,151 @@ def evaluate_inbound(
 
     return "Deny", "(no rule matched)"
 # endregion nsg_inbound
+
+
+# region private_reachability
+REACHABLE = "reachable"
+NOT_REACHABLE = "notReachable"
+INDETERMINATE = "indeterminate"
+
+# Next hops that deliver straight to the destination network. Effective routes and
+# Network Watcher's next hop tool name the same types differently, so accept both.
+DIRECT_NEXT_HOPS = frozenset({
+    "VnetLocal", "VNetPeering", "VNetGlobalPeering",
+    "VirtualNetwork", "VirtualNetworkPeering",
+})
+
+
+@dataclass(frozen=True)
+class Reach:
+    result: str   # REACHABLE, NOT_REACHABLE, or INDETERMINATE
+    reason: str
+
+
+@dataclass(frozen=True)
+class FirewallRule:
+    name: str
+    priority: int
+    action: str
+    protocol: str
+    source: str
+    destination: str
+    ports: str
+
+
+@dataclass(frozen=True)
+class Firewall:
+    address: str                       # the private IP that routes send traffic to
+    network_rules: list[FirewallRule]
+    has_application_rules: bool        # application rules aren't evaluated here
+
+
+@dataclass(frozen=True)
+class Position:
+    address: str
+    next_hop: dict | None              # effective route for the target; None if not collected
+    resolves_private: bool | None      # the source's DNS answer; None if not collected
+
+
+@dataclass(frozen=True)
+class PrivateTarget:
+    address: str                       # the private endpoint's IP address
+    nsg_applies: bool | None           # subnet's private endpoint network policies
+    nsg_rules: list[NsgRule] | None    # None if not collected
+
+
+def firewall_decision(
+    firewall: Firewall, source: str, target: str, port: int, protocol: str,
+    tags: dict[str, list[str]],
+) -> Reach:
+    """Network rules only. A flow no network rule decides may still match an application rule."""
+    for rule in sorted(firewall.network_rules, key=lambda r: r.priority):
+        if rule.protocol not in ("*", protocol) or not port_matches(rule.ports, port):
+            continue
+
+        matches = (source_matches(rule.source, source, tags),
+                   source_matches(rule.destination, target, tags))
+
+        if None in matches:
+            return Reach(INDETERMINATE, f"firewall rule {rule.name} uses an uncollected tag")
+
+        if all(matches):
+            result = REACHABLE if rule.action == "Allow" else NOT_REACHABLE
+            return Reach(result, f"firewall network rule {rule.name}")
+
+    if firewall.has_application_rules:
+        return Reach(INDETERMINATE, "no network rule matched; application rules not evaluated")
+
+    return Reach(NOT_REACHABLE, "the firewall denies what no rule allows")
+
+
+def private_reachability(
+    source: Position, target: PrivateTarget, port: int, protocol: str,
+    firewalls: dict[str, Firewall], tags: dict[str, list[str]],
+) -> Reach:
+    """Configured reachability of a private endpoint from one position, or why it can't be told."""
+    if source.resolves_private is None:
+        return Reach(INDETERMINATE, "the source's DNS answer for the service name wasn't collected")
+
+    if not source.resolves_private:
+        return Reach(NOT_REACHABLE, "the source resolves the public address; evaluate that instead")
+
+    if source.next_hop is None:
+        return Reach(INDETERMINATE, "the source's effective routes weren't collected")
+
+    hop = source.next_hop["nextHopType"]
+    reasons = [f"next hop {hop}"]
+
+    if hop == "None":
+        return Reach(NOT_REACHABLE, "the effective route drops the traffic")
+
+    if hop == "VirtualAppliance":
+        firewall = firewalls.get(source.next_hop["nextHopIpAddress"])
+
+        # A third-party appliance, or a firewall whose policy wasn't collected.
+        if firewall is None:
+            return Reach(INDETERMINATE, f"next hop {source.next_hop['nextHopIpAddress']} "
+                                        "is an appliance whose rules weren't collected")
+
+        decision = firewall_decision(firewall, source.address, target.address, port, protocol, tags)
+
+        if decision.result != REACHABLE:
+            return decision
+
+        reasons.append(decision.reason)
+    elif hop not in DIRECT_NEXT_HOPS:
+        # VirtualNetworkGateway (on-premises or forced tunnel), Internet, and anything newer.
+        return Reach(INDETERMINATE, f"next hop {hop} leads somewhere the model doesn't follow")
+
+    if target.nsg_applies is None or (target.nsg_applies and target.nsg_rules is None):
+        return Reach(INDETERMINATE, "the endpoint subnet's NSG settings weren't collected")
+
+    if target.nsg_applies:
+        access, rule = evaluate_inbound(target.nsg_rules, source.address, port, protocol, tags)
+
+        if access == "Unknown":
+            return Reach(INDETERMINATE, f"NSG rule {rule} uses an uncollected tag")
+
+        if access == "Deny":
+            return Reach(NOT_REACHABLE, f"NSG rule {rule}")
+
+        reasons.append(f"NSG rule {rule}")
+    else:
+        reasons.append("NSG not applied to the private endpoint")
+
+    return Reach(REACHABLE, "; ".join(reasons))
+
+
+def reach_edge(position: str, endpoint: str, reach: Reach, citation: str) -> Edge | None:
+    """A canReach edge for search. Indeterminate carries an unmodeled control (Chapter 4)."""
+    if reach.result == NOT_REACHABLE:
+        return None
+
+    if reach.result == REACHABLE:
+        return Edge(position, endpoint, "canReach", "derived", f"{citation}; {reach.reason}")
+
+    control = UnmodeledControl("networkIndeterminate", position, endpoint, "network path",
+                               reach.reason, citation)
+
+    return Edge(position, endpoint, "canReach", "derived", citation, control)
+# endregion private_reachability

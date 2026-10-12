@@ -10,6 +10,7 @@ import {
   OPERATOR_KPI_CARD_DESCRIPTION,
   OPERATOR_KPI_CARD_TITLE,
   OPERATOR_LAYOUT,
+  OPERATOR_LINK,
   OPERATOR_PRIMARY_FILL_USAGE_CONTRACT,
   OPERATOR_RESUME,
   OPERATOR_SELECTION,
@@ -130,6 +131,12 @@ describe("design-tokens TB-119 typography", () => {
     expect(DESIGN_TOKENS.interactive.chip).toContain("px-3");
   });
 
+  it("inline links meet WCAG 2.2 AA 24px target size", () => {
+    expect(OPERATOR_LINK.inline).toContain("inline-flex");
+    expect(OPERATOR_LINK.inline).toContain("min-h-6");
+    expect(OPERATOR_LINK.inline).toContain("items-center");
+  });
+
   it("Button and native control labels share compact 11px bold scale", () => {
     expect(OPERATOR_TYPOGRAPHY.nativeControlLabel).toContain("text-[11px]");
     expect(OPERATOR_TYPOGRAPHY.nativeControlLabel).toContain("font-bold");
@@ -219,6 +226,13 @@ describe("design-tokens TB-2276–TB-2280 color hierarchy", () => {
     expect(OPERATOR_SELECTION.tile).toContain("border-neutral-500");
     expect(OPERATOR_SELECTION.tile).not.toMatch(/teal/);
     expect(OPERATOR_SELECTION.row).toContain("bg-al-surface-raised");
+  });
+
+  it("marketing public nav links use the primary text token on a and button", () => {
+    expect(globalsCss).toMatch(
+      /a\.marketing-public-nav-link,\s*button\.marketing-public-nav-link\s*\{\s*color:\s*var\(--al-text-primary\);/,
+    );
+    expect(globalsCss).not.toMatch(/a\.marketing-public-nav-link\s*\{\s*color:\s*#262626;/);
   });
 
   it("BR-07 registers tenant brand CSS variables without changing status tokens", () => {

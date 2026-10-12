@@ -55,9 +55,9 @@ export function SecureNowHomeDestinationSection({
       <div className={buyerPolishedShell ? "mt-4" : "mt-5"}>
         <EnterpriseTable ariaLabel={tableAriaLabel}>
           <EnterpriseTableHead>
-            <EnterpriseTableRow>
-              <EnterpriseTableHeaderCell>Destination</EnterpriseTableHeaderCell>
-              <EnterpriseTableHeaderCell>Summary</EnterpriseTableHeaderCell>
+            <EnterpriseTableRow className="sr-only">
+              <EnterpriseTableHeaderCell className="sr-only">Destination</EnterpriseTableHeaderCell>
+              <EnterpriseTableHeaderCell className="sr-only">Summary</EnterpriseTableHeaderCell>
             </EnterpriseTableRow>
           </EnterpriseTableHead>
           <EnterpriseTableBody>
@@ -77,7 +77,7 @@ export function SecureNowHomeDestinationSection({
                     ) : null}
                   </div>
                 </EnterpriseTableCell>
-                <EnterpriseTableCell>{row.summary}</EnterpriseTableCell>
+                <EnterpriseTableCell className={OPERATOR_TYPOGRAPHY.body}>{row.summary}</EnterpriseTableCell>
               </EnterpriseTableRow>
             ))}
           </EnterpriseTableBody>

@@ -26,6 +26,7 @@ function AlertRulesListLoadingSkeleton(): React.JSX.Element {
     <div
       className="grid gap-3"
       data-testid="alert-rules-list-loading-skeleton"
+      role="status"
       aria-busy="true"
       aria-label="Loading alert rules"
     >

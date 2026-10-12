@@ -16,6 +16,7 @@ public sealed class SqlCollectionRunRepository(ISqlConnectionFactory connectionF
         const string sql = """
                            UPDATE dbo.SecureNowCollectionRuns
                            SET AgentVersion = @AgentVersion,
+                               Schedule = @Schedule,
                                StartedUtc = @StartedUtc,
                                FinishedUtc = @FinishedUtc,
                                Status = @Status,
@@ -30,10 +31,10 @@ public sealed class SqlCollectionRunRepository(ISqlConnectionFactory connectionF
                            IF @@ROWCOUNT = 0
                            BEGIN
                                INSERT INTO dbo.SecureNowCollectionRuns
-                               (TenantId, WorkspaceId, ProjectId, RunId, AgentVersion, StartedUtc, FinishedUtc,
+                               (TenantId, WorkspaceId, ProjectId, RunId, AgentVersion, Schedule, StartedUtc, FinishedUtc,
                                 Status, SubscriptionsCoveredJson, ErrorSummary, ZipPath, ZipSha256, ImportedSnapshotId)
                                VALUES
-                               (@TenantId, @WorkspaceId, @ProjectId, @RunId, @AgentVersion, @StartedUtc, @FinishedUtc,
+                               (@TenantId, @WorkspaceId, @ProjectId, @RunId, @AgentVersion, @Schedule, @StartedUtc, @FinishedUtc,
                                 @Status, @SubscriptionsCoveredJson, @ErrorSummary, @ZipPath, @ZipSha256, @ImportedSnapshotId);
                            END;
                            """;
@@ -49,6 +50,7 @@ public sealed class SqlCollectionRunRepository(ISqlConnectionFactory connectionF
                 collectionRun.ProjectId,
                 collectionRun.RunId,
                 collectionRun.AgentVersion,
+                collectionRun.Schedule,
                 collectionRun.StartedUtc,
                 collectionRun.FinishedUtc,
                 Status = (int)collectionRun.Status,
@@ -68,7 +70,7 @@ public sealed class SqlCollectionRunRepository(ISqlConnectionFactory connectionF
     {
         ArgumentNullException.ThrowIfNull(scope);
         const string sql = """
-                           SELECT TenantId, WorkspaceId, ProjectId, RunId, AgentVersion, StartedUtc, FinishedUtc,
+                           SELECT TenantId, WorkspaceId, ProjectId, RunId, AgentVersion, Schedule, StartedUtc, FinishedUtc,
                                   Status, SubscriptionsCoveredJson, ErrorSummary, ZipPath, ZipSha256, ImportedSnapshotId
                            FROM dbo.SecureNowCollectionRuns
                            WHERE TenantId = @TenantId AND WorkspaceId = @WorkspaceId
@@ -91,7 +93,7 @@ public sealed class SqlCollectionRunRepository(ISqlConnectionFactory connectionF
     {
         ArgumentNullException.ThrowIfNull(scope);
         const string sql = """
-                           SELECT TenantId, WorkspaceId, ProjectId, RunId, AgentVersion, StartedUtc, FinishedUtc,
+                           SELECT TenantId, WorkspaceId, ProjectId, RunId, AgentVersion, Schedule, StartedUtc, FinishedUtc,
                                   Status, SubscriptionsCoveredJson, ErrorSummary, ZipPath, ZipSha256, ImportedSnapshotId
                            FROM dbo.SecureNowCollectionRuns
                            WHERE TenantId = @TenantId AND WorkspaceId = @WorkspaceId AND ProjectId = @ProjectId
@@ -141,6 +143,7 @@ public sealed class SqlCollectionRunRepository(ISqlConnectionFactory connectionF
         public Guid ProjectId { get; init; }
         public Guid RunId { get; init; }
         public string AgentVersion { get; init; } = string.Empty;
+        public string? Schedule { get; init; }
         public DateTime StartedUtc { get; init; }
         public DateTime? FinishedUtc { get; init; }
         public int Status { get; init; }
@@ -157,6 +160,7 @@ public sealed class SqlCollectionRunRepository(ISqlConnectionFactory connectionF
             ProjectId = ProjectId,
             RunId = RunId,
             AgentVersion = AgentVersion,
+            Schedule = Schedule,
             StartedUtc = StartedUtc,
             FinishedUtc = FinishedUtc,
             Status = Enum.IsDefined(typeof(CollectionRunStatus), Status)

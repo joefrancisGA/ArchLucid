@@ -197,7 +197,7 @@ async function lockLightAppearanceForRouteAxe(page: Page): Promise<void> {
 
 async function expectNoCriticalOrSeriousAxeViolations(page: Page, path: string) {
   await lockLightAppearanceForRouteAxe(page);
-  await page.goto(path, { waitUntil: "domcontentloaded" });
+  await page.goto(path, { waitUntil: "domcontentloaded", timeout: 90_000 });
   await page.locator("main").first().waitFor({ state: "visible", timeout: 90_000 });
 
   // Demo tenants can re-apply dark after hydration; re-pin light before the axe snapshot.
@@ -221,6 +221,8 @@ test.describe(
   "accessibility baseline — WCAG 2.2 AA (PR route subset)",
   { tag: [liveA11yPrTag] },
   () => {
+    test.describe.configure({ timeout: 120_000 });
+
     for (const { name, path } of PAGES_LIVE_A11Y_PR) {
       test(`${name} (${path}) has no critical or serious axe violations`, async ({ page }) => {
         await expectNoCriticalOrSeriousAxeViolations(page, path);
@@ -233,6 +235,8 @@ test.describe(
   "accessibility baseline — WCAG 2.2 AA (extended route matrix)",
   { tag: [liveA11yFullMatrixTag] },
   () => {
+    test.describe.configure({ timeout: 120_000 });
+
     for (const { name, path } of PAGES_LIVE_A11Y_EXTENDED) {
       test(`${name} (${path}) has no critical or serious axe violations`, async ({ page }) => {
         await expectNoCriticalOrSeriousAxeViolations(page, path);

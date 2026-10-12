@@ -30,9 +30,13 @@ HELPDESK_AFTER = ("directory-role-assignments.json row 57 "
 
 
 def manifest(collected: str = "2026-10-12T14:00:00Z", files: frozenset[str] = PATH_FILES,
-             gaps: list[dict] | None = None) -> dict:
-    return {"collectedAtUtc": collected, "files": [{"name": name} for name in sorted(files)],
-            "gaps": gaps or []}
+             gaps: list[dict] | None = None, read_at: dict[str, str] | None = None) -> dict:
+    """Every file is read at `collected` unless read_at gives it another time."""
+    when = read_at or {}
+    entries = [{"name": name, "queriedAtUtc": when.get(name, collected),
+                "completedAtUtc": when.get(name, collected)} for name in sorted(files)]
+
+    return {"collectedAtUtc": collected, "files": entries, "gaps": gaps or []}
 
 
 def storage(*rows: dict) -> dict:
@@ -71,7 +75,18 @@ class Verdicts(unittest.TestCase):
     def test_snapshot_older_than_change(self) -> None:
         verdict = self.check(manifest(collected="2026-10-12T08:59:59Z"), storage())
 
-        self.assertEqual(verdict, (NOT_VERIFIED, "snapshot collection started before the change was applied"))
+        self.assertEqual(verdict, (NOT_VERIFIED, "read before the change was applied: storage-accounts.json"))
+
+    def test_input_read_at_the_change_time_is_too_early(self) -> None:
+        verdict = self.check(manifest(read_at={"storage-accounts.json": CHANGE_AT}), storage())
+
+        self.assertEqual(verdict[0], NOT_VERIFIED)
+
+    def test_stale_file_the_check_does_not_read_is_ignored(self) -> None:
+        early = manifest(read_at={"role-assignments.json": "2026-10-12T08:00:00Z"})
+
+        self.assertEqual(self.check(early, storage({"name": "custdata", "sharedKey": "disabled"}))[0],
+                         VERIFIED)
 
     def test_missing_file(self) -> None:
         verdict = self.check(manifest(files=PATH_FILES - {"storage-accounts.json"}), storage())
@@ -118,6 +133,36 @@ class PathPostconditions(unittest.TestCase):
         verdict = verify(post, manifest(), {"edges": on_demand_edges()}, CHANGE_AT, set(PATH_FILES))
 
         self.assertEqual(verdict[0], FAILED)
+
+    def test_inputs_straddling_the_change_are_not_verified(self) -> None:
+        # A targeted re-collection after the change, merged with one file read before it.
+        post = no_path("rec-1/v1", lab.DEV_LEAD, lab.READ_CUSTDATA, frozenset({SCOPE}))
+        straddling = manifest(read_at={"application-owners.json": "2026-10-12T08:55:00Z"})
+        verdict = verify(post, straddling, {"edges": on_demand_edges()}, CHANGE_AT, set(PATH_FILES))
+
+        self.assertEqual(verdict, (NOT_VERIFIED, "read before the change was applied: application-owners.json"))
+
+    def conditioned_reader(self) -> dict:
+        return {"principal": lab.ANALYST, "role_name": "Storage Blob Data Reader", "scope": lab.CUSTDATA,
+                "condition": "@Resource[containers:name] StringEquals 'reports'",
+                "citation": "role-assignments.json row 31"}
+
+    def analyst_check(self, edges: list[Edge]) -> tuple[str, str]:
+        post = no_path("rec-4/v1", lab.ANALYST, lab.READ_CUSTDATA, frozenset({SCOPE}))
+
+        return verify(post, manifest(), {"edges": edges}, CHANGE_AT, set(PATH_FILES))
+
+    def test_path_through_an_unmodeled_control_is_not_verified(self) -> None:
+        verdict = self.analyst_check(lab.lab_edges(extra_assignments=[self.conditioned_reader()]))
+
+        self.assertEqual(verdict[0], NOT_VERIFIED)
+        self.assertTrue(verdict[1].startswith("depends on an unmodeled control: roleCondition"))
+
+    def test_plain_path_beside_an_unmodeled_one_still_fails(self) -> None:
+        plain = dict(self.conditioned_reader(), condition="", scope=lab.RG_PROD, citation="row 32")
+        edges = lab.lab_edges(extra_assignments=[self.conditioned_reader(), plain])
+
+        self.assertEqual(self.analyst_check(edges)[0], FAILED)
 
 
 class OpeningStoryDiffs(unittest.TestCase):

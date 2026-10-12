@@ -15,6 +15,8 @@ Terms in *italics* inside a definition have their own entry.
 
 **Access event** — a specific logged operation at a specific time. Contrast with *capability* and *flow*. *Chapter 6.*
 
+**Access-decision contract** — for one target, the controls that decide access, whether the analysis models each one, and what result an unmodeled instance produces. It keeps "can read" from sounding stronger than the evidence. *Chapter 4.*
+
 **Activity metric** — a measure of work done, such as items closed. Contrast with *outcome metric*. *Chapter 1.*
 
 **AI inference** — an interpretation produced by a model. It isn't guaranteed to be repeatable or traceable, and it is never promoted to an *observed fact*. One of the five *evidence categories*. *Chapter 2.*
@@ -40,6 +42,8 @@ Terms in *italics* inside a definition have their own entry.
 **Citation** — a reference from a generated sentence to the *evidence pack* item that supports it. *Chapter 7.*
 
 **Collector** — the identity and code that read evidence from Azure and Entra ID. *Chapter 3.*
+
+**Confirmation ladder** — confirming a network path from least intrusive to most: read-only diagnostics, then connection troubleshoot, then a deliberate test. Each rung is authorized in writing and recorded. *Chapter 5.*
 
 **Content-free audit record** — an audit entry holding identifiers, versions, hashes, results, and decisions, but no prompts, packs, or drafts. *Chapter 11.*
 
@@ -115,7 +119,11 @@ Terms in *italics* inside a definition have their own entry.
 
 ## I
 
+**Indeterminate (reachability)** — the result when an *unmodeled control* or a missing input sits on a network route, such as an appliance whose rules weren't collected. Always reported with its reason; a path through it is *insufficient evidence*. *Chapter 5.*
+
 **Indirect prompt injection** — instructions placed in data that a model later reads, such as a resource tag or a display name, rather than given to the model directly. *Chapter 8.*
+
+**Input span** — the time from the earliest snapshot read behind a derived result, such as a path, to the latest. A snapshot is a set of reads with known times, not a moment. *Chapters 3 and 4.*
 
 **Insufficient evidence** — the honest answer when the evidence can't support a conclusion. It's the lowest *ordinal confidence band*, and the `status` a model returns when an *evidence pack* can't answer the question. *Chapters 2 and 7.*
 
@@ -213,6 +221,8 @@ Terms in *italics* inside a definition have their own entry.
 
 **Target** — an asset whose compromise matters to the organization, sometimes called a crown jewel. *Chapter 1.*
 
+**Temporally inconsistent** — a path whose *input span* is longer than one collector run, or that saw a change on the path inside its span. It is reported as *insufficient evidence* until its inputs are re-collected together. *Chapter 4.*
+
 **Token budget** — a limit on model usage per run or tenant that stops model calls, not checks, when reached. *Chapter 11.*
 
 **Tool calling** — a model selecting a predefined function and arguments, which your code executes. *Chapter 7.*
@@ -226,6 +236,8 @@ Terms in *italics* inside a definition have their own entry.
 **Transitive membership** — group membership including members of nested groups. *Chapter 3.*
 
 ## U
+
+**Unmodeled control** — a control the derivation found but can't evaluate, such as a role-assignment condition, a missing role definition, or a deny assignment with a condition. The hop is kept and labeled, and a path through it is reported as insufficient evidence. *Chapter 4.*
 
 **Untrusted text** — text in the evidence written by people outside the review, such as tags and display names. It's carried separately from claims and never followed. *Chapter 8.*
 

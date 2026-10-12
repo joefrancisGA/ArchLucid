@@ -37,7 +37,7 @@ def main() -> int:
         "--exp-seconds",
         type=int,
         default=3600,
-        help="JWT exp offset from iat (default 3600). Private-beta Playwright uses 7200 after warm.",
+        help="JWT exp offset from iat (default 3600). Private-beta Playwright uses 7200 after warm; nightly live-e2e uses 10800.",
     )
     parser.add_argument("--out-token", default="", help="Write JWT string to this file.")
     parser.add_argument(

@@ -235,6 +235,12 @@ export function RunDetailManifestSummarySection(
             <dd className={cn("m-0 tabular-nums", definitionValueClass)}>
               {finiteIntegerCountDisplay(manifestSummary.unresolvedIssueCount)}
             </dd>
+            {feasibilityVerdict === null ? (
+              <>
+                <dt className={definitionLabelClass}>Feasibility verdict</dt>
+                <dd className={cn("m-0", definitionValueClass)}>Feasibility verdict was not stored.</dd>
+              </>
+            ) : null}
           </dl>
           <ManifestJsonActions
             runId={manifestSummary.runId}

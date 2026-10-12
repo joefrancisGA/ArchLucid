@@ -5,6 +5,7 @@ using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
+using ArchLucid.Persistence.Repositories;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
@@ -292,6 +293,115 @@ public sealed class ArchitectureKnowledgeModelAccessTests
 
     run.GraphSnapshotId.Should().BeNull();
     runs.Verify(r => r.UpdateAsync(run, It.IsAny<CancellationToken>()), Times.Once);
+  }
+
+  [Fact]
+  public async Task SaveForRunAsync_preserves_GraphSnapshotId_when_findings_snapshot_already_exists()
+  {
+    Guid runId = Guid.Parse("12121212-1212-1212-1212-121212121212");
+    Guid graphSnapshotId = Guid.Parse("34343434-3434-3434-3434-343434343434");
+    Guid findingsSnapshotId = Guid.Parse("56565656-5656-5656-5656-565656565656");
+
+    Mock<IArchitectureIntelligencePersistence> persistence = new();
+    Mock<IRunRepository> runs = new();
+    RunRecord run = new()
+    {
+      RunId = runId,
+      GraphSnapshotId = graphSnapshotId,
+      FindingsSnapshotId = findingsSnapshotId,
+    };
+
+    runs
+      .Setup(r => r.GetByIdAsync(TestScope, runId, It.IsAny<CancellationToken>()))
+      .ReturnsAsync(run);
+
+    ArchitectureKnowledgeModelAccess access = new(
+      persistence.Object,
+      runs.Object,
+      Mock.Of<IArchitectureIdentityRepository>());
+
+    await access.SaveForRunAsync(
+      TestScope,
+      runId,
+      new ArchitectureKnowledgeModel { TenantId = TestScope.TenantId.ToString("D") });
+
+    run.GraphSnapshotId.Should().Be(graphSnapshotId);
+  }
+
+  [Fact]
+  public async Task SaveForRunAsync_preserves_GraphSnapshotId_when_golden_manifest_already_sealed()
+  {
+    Guid runId = Guid.Parse("14141414-1414-1414-1414-141414141414");
+    Guid graphSnapshotId = Guid.Parse("15151515-1515-1515-1515-151515151515");
+    Guid goldenManifestId = Guid.Parse("16161616-1616-1616-1616-161616161616");
+
+    Mock<IArchitectureIntelligencePersistence> persistence = new();
+    Mock<IRunRepository> runs = new();
+    RunRecord run = new()
+    {
+      RunId = runId,
+      GraphSnapshotId = graphSnapshotId,
+      GoldenManifestId = goldenManifestId,
+    };
+
+    runs
+      .Setup(r => r.GetByIdAsync(TestScope, runId, It.IsAny<CancellationToken>()))
+      .ReturnsAsync(run);
+
+    ArchitectureKnowledgeModelAccess access = new(
+      persistence.Object,
+      runs.Object,
+      Mock.Of<IArchitectureIdentityRepository>());
+
+    await access.SaveForRunAsync(
+      TestScope,
+      runId,
+      new ArchitectureKnowledgeModel { TenantId = TestScope.TenantId.ToString("D") });
+
+    run.GraphSnapshotId.Should().Be(graphSnapshotId);
+  }
+
+  [Fact]
+  public async Task SaveForRunAsync_restores_in_flight_graph_after_architecture_wide_clear()
+  {
+    Guid runId = Guid.Parse("78787878-7878-7878-7878-787878787878");
+    Guid architectureId = Guid.Parse("90909090-9090-9090-9090-909090909090");
+    Guid graphSnapshotId = Guid.Parse("a1a1a1a1-a1a1-a1a1-a1a1-a1a1a1a1a1a1");
+    Guid findingsSnapshotId = Guid.Parse("b2b2b2b2-b2b2-b2b2-b2b2-b2b2b2b2b2b2");
+
+    Mock<IArchitectureIntelligencePersistence> persistence = new();
+    InMemoryRunRepository runs = new();
+    RunRecord run = new()
+    {
+      RunId = runId,
+      TenantId = TestScope.TenantId,
+      WorkspaceId = TestScope.WorkspaceId,
+      ScopeProjectId = TestScope.ProjectId,
+      ProjectId = "GoldenCohortPreserveGraph",
+      ArchitectureId = architectureId,
+      GraphSnapshotId = graphSnapshotId,
+      FindingsSnapshotId = findingsSnapshotId,
+      CreatedUtc = DateTime.UtcNow,
+    };
+
+    await runs.SaveAsync(run, CancellationToken.None);
+
+    Mock<IArchitectureIdentityRepository> identities = new();
+
+    ArchitectureKnowledgeModelAccess access = new(
+      persistence.Object,
+      runs,
+      identities.Object);
+
+    await access.SaveForRunAsync(
+      TestScope,
+      runId,
+      new ArchitectureKnowledgeModel { TenantId = TestScope.TenantId.ToString("D") });
+
+    run.GraphSnapshotId.Should().Be(graphSnapshotId);
+    RunRecord? loaded = await runs.GetByIdAsync(TestScope, runId, CancellationToken.None);
+    loaded.Should().NotBeNull();
+    loaded!.GraphSnapshotId.Should().Be(graphSnapshotId);
   }
 
   [Fact]

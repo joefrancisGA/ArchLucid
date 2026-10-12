@@ -2623,6 +2623,7 @@ export interface components {
             projectId?: string;
             /** Format: uuid */
             runId?: string;
+            schedule?: null | string;
             /** Format: date-time */
             startedUtc?: string;
             status?: components["schemas"]["CollectionRunStatus"];
@@ -2637,6 +2638,9 @@ export interface components {
         };
         /** @enum {string} */
         CollectionRunStatus: "Running" | "Succeeded" | "PartiallySucceeded" | "Failed" | "Imported" | "Rejected";
+        CollectionRunTriggerRequest: {
+            subscriptionIds?: null | string[];
+        };
         CommitRunCommittedArtifactInventoryEntry: {
             artifactName?: string;
             /** Format: date-time */
@@ -12192,4 +12196,3 @@ export interface components {
     pathItems: never;
 }
 export type $defs = Record<string, never>;
-export type operations = Record<string, never>;

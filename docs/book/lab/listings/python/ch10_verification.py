@@ -7,23 +7,17 @@ region into the book; docs/book/tools/check_listings.py fails when the two diffe
 
 from __future__ import annotations
 
-from ch04_paths import Edge, find_paths
+from ch04_paths import KIND_SOURCES, Edge, find_paths, parse_utc, read_windows, unmodeled_on
 from ch09_remediation import edge_key
 
 
 # region verify
 from dataclasses import dataclass
-from datetime import datetime
 from typing import Callable
 
 VERIFIED = "verified"
 FAILED = "failed"
 NOT_VERIFIED = "not verified"
-
-
-def parse_utc(value: str) -> datetime:
-    """Parse the manifest's UTC timestamps, which end in 'Z'."""
-    return datetime.fromisoformat(value.replace("Z", "+00:00"))
 
 
 def incomplete_files(manifest: dict, expected_files: set[str]) -> set[str]:
@@ -38,13 +32,18 @@ def unreadable_scopes(manifest: dict) -> set[str]:
     return {gap["target"] for gap in manifest["gaps"] if gap["kind"] == "scopeNotReadable"}
 
 
+class Unmodeled(Exception):
+    """Raised by a check whose answer depends on a control the analysis doesn't evaluate."""
+
+
 @dataclass(frozen=True)
 class Postcondition:
     id: str
     text: str                       # what must be true, in words a reviewer can check
     needs: frozenset[str]           # snapshot files the check reads
     scopes: frozenset[str]          # scopes the check depends on, named as in the gap list
-    # True when the postcondition holds; raise LookupError if the subject is absent.
+    # True when the postcondition holds. Raise LookupError if the subject is absent, or
+    # Unmodeled if the answer depends on an unevaluated control (Chapter 4).
     check: Callable[[dict], bool]
 
 
@@ -59,13 +58,19 @@ def verify(
 
     Anything the snapshot can't answer is NOT_VERIFIED, never VERIFIED.
     """
-    if parse_utc(manifest["collectedAtUtc"]) <= parse_utc(change_applied_at):
-        return NOT_VERIFIED, "snapshot collection started before the change was applied"
-
     missing = sorted(post.needs & incomplete_files(manifest, expected_files))
 
     if missing:
         return NOT_VERIFIED, "incomplete evidence: " + ", ".join(missing)
+
+    # Every input must have been read after the change. Inputs that straddle it describe
+    # no single state of the estate.
+    windows = read_windows(manifest)
+    changed_at = parse_utc(change_applied_at)
+    stale = sorted(name for name in post.needs if windows[name][0] <= changed_at)
+
+    if stale:
+        return NOT_VERIFIED, "read before the change was applied: " + ", ".join(stale)
 
     blind = sorted(post.scopes & unreadable_scopes(manifest))
 
@@ -76,6 +81,8 @@ def verify(
         holds = post.check(data)
     except LookupError as missing_subject:
         return NOT_VERIFIED, f"subject not in snapshot: {missing_subject}"
+    except Unmodeled as control:
+        return NOT_VERIFIED, f"depends on an unmodeled control: {control}"
 
     return (VERIFIED, post.text) if holds else (FAILED, post.text)
 # endregion verify
@@ -114,35 +121,28 @@ PATH_FILES = frozenset({
 
 
 def no_path(post_id: str, entry: str, target: str, scopes: frozenset[str]) -> Postcondition:
-    """Postcondition: the Chapter 4 search, on edges derived from this snapshot, finds nothing."""
-    return Postcondition(
-        id=post_id,
-        text=f"no path from {entry} to {target}",
-        needs=PATH_FILES,
-        scopes=scopes,
-        check=lambda data: not find_paths(data["edges"], entry, target, max_hops=12),
-    )
+    """Postcondition: the Chapter 4 search, on edges derived from this snapshot, finds nothing.
+
+    A remaining path that rests only on unmodeled controls can't be confirmed or ruled out.
+    """
+    def check(data: dict) -> bool:
+        paths = find_paths(data["edges"], entry, target, max_hops=12)
+
+        if any(not unmodeled_on(path) for path in paths):
+            return False
+
+        if paths:
+            controls = {control.assumption() for path in paths for control in unmodeled_on(path)}
+            raise Unmodeled("; ".join(sorted(controls)))
+
+        return True
+
+    return Postcondition(id=post_id, text=f"no path from {entry} to {target}",
+                         needs=PATH_FILES, scopes=scopes, check=check)
 # endregion no_path
 
 
 # region diff_paths
-KIND_SOURCES = {
-    "memberOf": {"transitive-memberships.json"},
-    "canSignInAs": {"federated-credentials.json"},
-    "canAddCredential": {"application-owners.json", "directory-role-assignments.json"},
-    "appFor": {"service-principals.json"},
-    "runsAs": {"compute-identities.json"},
-    "canControlCode": {
-        "role-assignments.json", "role-definitions.json", "deny-assignments.json",
-        "scope-parents.json", "transitive-memberships.json", "compute-identities.json",
-    },
-    "grants": {
-        "role-assignments.json", "role-definitions.json", "deny-assignments.json",
-        "scope-parents.json", "transitive-memberships.json", "storage-accounts.json",
-    },
-}
-
-
 def path_signature(path: list[Edge]) -> tuple[tuple[str, str, str], ...]:
     return tuple(edge_key(edge) for edge in path)
 

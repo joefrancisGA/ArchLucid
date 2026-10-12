@@ -79,7 +79,7 @@ A postcondition check can end three ways:
 
 - **Verified:** the snapshot is newer than the change, it contains everything the check needs, and the check holds.
 - **Failed:** the snapshot is newer than the change, it contains everything the check needs, and the check doesn't hold.
-- **Not verified:** the snapshot can't answer the question. It started before the change, a file the check needs is missing or incomplete, or the resource the check is about isn't in the snapshot at all.
+- **Not verified:** the snapshot can't answer the question. It started before the change, a file the check needs is missing or incomplete, the resource the check is about isn't in the snapshot at all, or the answer depends on a control the derivation can't evaluate.
 
 "Not verified" is Chapter 2's "insufficient evidence" applied to fixes. It's the verdict the opening story's first report should have given, and it's the one most tools leave out. A tool that only knows "passed" and "failed" has to put a missing subscription into one of them, and "nothing found" usually lands in "passed."
 
@@ -89,17 +89,11 @@ A postcondition check can end three ways:
 
 ```python
 from dataclasses import dataclass
-from datetime import datetime
 from typing import Callable
 
 VERIFIED = "verified"
 FAILED = "failed"
 NOT_VERIFIED = "not verified"
-
-
-def parse_utc(value: str) -> datetime:
-    """Parse the manifest's UTC timestamps, which end in 'Z'."""
-    return datetime.fromisoformat(value.replace("Z", "+00:00"))
 
 
 def incomplete_files(manifest: dict, expected_files: set[str]) -> set[str]:
@@ -114,13 +108,18 @@ def unreadable_scopes(manifest: dict) -> set[str]:
     return {gap["target"] for gap in manifest["gaps"] if gap["kind"] == "scopeNotReadable"}
 
 
+class Unmodeled(Exception):
+    """Raised by a check whose answer depends on a control the analysis doesn't evaluate."""
+
+
 @dataclass(frozen=True)
 class Postcondition:
     id: str
     text: str                       # what must be true, in words a reviewer can check
     needs: frozenset[str]           # snapshot files the check reads
     scopes: frozenset[str]          # scopes the check depends on, named as in the gap list
-    # True when the postcondition holds; raise LookupError if the subject is absent.
+    # True when the postcondition holds. Raise LookupError if the subject is absent, or
+    # Unmodeled if the answer depends on an unevaluated control (Chapter 4).
     check: Callable[[dict], bool]
 
 
@@ -135,13 +134,19 @@ def verify(
 
     Anything the snapshot can't answer is NOT_VERIFIED, never VERIFIED.
     """
-    if parse_utc(manifest["collectedAtUtc"]) <= parse_utc(change_applied_at):
-        return NOT_VERIFIED, "snapshot collection started before the change was applied"
-
     missing = sorted(post.needs & incomplete_files(manifest, expected_files))
 
     if missing:
         return NOT_VERIFIED, "incomplete evidence: " + ", ".join(missing)
+
+    # Every input must have been read after the change. Inputs that straddle it describe
+    # no single state of the estate.
+    windows = read_windows(manifest)
+    changed_at = parse_utc(change_applied_at)
+    stale = sorted(name for name in post.needs if windows[name][0] <= changed_at)
+
+    if stale:
+        return NOT_VERIFIED, "read before the change was applied: " + ", ".join(stale)
 
     blind = sorted(post.scopes & unreadable_scopes(manifest))
 
@@ -152,6 +157,8 @@ def verify(
         holds = post.check(data)
     except LookupError as missing_subject:
         return NOT_VERIFIED, f"subject not in snapshot: {missing_subject}"
+    except Unmodeled as control:
+        return NOT_VERIFIED, f"depends on an unmodeled control: {control}"
 
     return (VERIFIED, post.text) if holds else (FAILED, post.text)
 ```
@@ -160,7 +167,7 @@ def verify(
 
 Four details in that code carry most of the weight.
 
-**The snapshot must start after the change.** The comparison uses `collectedAtUtc`, the time collection started, not when it finished. A collection that began at 09:10 and finished at 09:17 may have read the storage account at 09:11. A change applied at 09:12 might or might not be in it. Starting after the change is the only safe rule. Chapter 3 recommended on-demand collection for verification for exactly this reason.
+**Every input must be read after the change.** The comparison uses each needed file's `queriedAtUtc`, the time its query started, not when it finished or when the snapshot did (Chapter 3, section 3.5). A collection that began at 09:10 and finished at 09:17 may have read the storage account at 09:11. A change applied at 09:12 might or might not be in it. Starting after the change is the only safe rule, and it has to hold for every file the check reads, not just for the snapshot as a whole. Files the check doesn't read don't matter. `parse_utc` and `read_windows` are Chapter 4's (section 4.5).
 
 **Missing evidence is checked before the check runs.** If `storage-accounts.json` is partial, a check that reads it isn't run at all. Running it would answer a question about the part of the estate that happened to be collected.
 
@@ -210,17 +217,37 @@ PATH_FILES = frozenset({
 
 
 def no_path(post_id: str, entry: str, target: str, scopes: frozenset[str]) -> Postcondition:
-    """Postcondition: the Chapter 4 search, on edges derived from this snapshot, finds nothing."""
-    return Postcondition(
-        id=post_id,
-        text=f"no path from {entry} to {target}",
-        needs=PATH_FILES,
-        scopes=scopes,
-        check=lambda data: not find_paths(data["edges"], entry, target, max_hops=12),
-    )
+    """Postcondition: the Chapter 4 search, on edges derived from this snapshot, finds nothing.
+
+    A remaining path that rests only on unmodeled controls can't be confirmed or ruled out.
+    """
+    def check(data: dict) -> bool:
+        paths = find_paths(data["edges"], entry, target, max_hops=12)
+
+        if any(not unmodeled_on(path) for path in paths):
+            return False
+
+        if paths:
+            controls = {control.assumption() for path in paths for control in unmodeled_on(path)}
+            raise Unmodeled("; ".join(sorted(controls)))
+
+        return True
+
+    return Postcondition(id=post_id, text=f"no path from {entry} to {target}",
+                         needs=PATH_FILES, scopes=scopes, check=check)
 ```
 
-`data["edges"]` is the output of the Chapter 4 loader run on the same snapshot, and `find_paths` is Chapter 4's search. As in Chapter 9's verification, the hop limit is higher than the discovery search's. Verification asks a yes-or-no question about one pair, so it can afford to look further.
+`data["edges"]` is the output of the Chapter 4 loader run on the same snapshot, and `find_paths` is Chapter 4's search. Any path with no unmodeled control means the check fails. If the only paths left run through labeled edges (Chapter 4, section 4.5), the check raises `Unmodeled`, and `verify` returns "not verified" with the assumption to check. Suppose the fix removed the unconditioned role but left a conditioned one. The path might still be open, so "failed" would overstate it and "verified" would be worse. As in Chapter 9's verification, the hop limit is higher than the discovery search's. Verification asks a yes-or-no question about one pair, so it can afford to look further.
+
+### Verification mode: a short run after the change
+
+A scheduled snapshot is a poor witness for a fix. Its reads are spread across the run, and the change usually lands somewhere in the middle. Verification gets its own, tighter mode:
+
+1. **Re-collect only what the postcondition needs.** `post.needs` names the files. For `shared_key_off`, that's one Resource Graph query. For a path postcondition, it's `PATH_FILES`.
+2. **Do it in one short run, after the change time.** The run's start must be later than `change_applied_at`, and its files should be read close together, so the input span (Chapter 4, section 4.5) stays short.
+3. **Merge nothing older.** If the run's files are combined with an earlier snapshot to fill in the rest, `verify` checks every needed file's read time anyway. A postcondition whose inputs straddle the change time, some read before it and some after, is **not verified**. Its inputs describe no single state of the estate: the role assignments after the fix, joined to the app owners from before it.
+
+That's what Chapter 3's advice to collect on demand for verification means in practice. It's also cheaper than a full run: a handful of queries instead of the whole collector.
 
 ### Writing good postconditions
 
@@ -239,28 +266,11 @@ Postconditions check what a recommendation promised. A **snapshot diff** checks 
 
 To compare paths across snapshots, each path needs an identity that doesn't depend on the run. The sequence of edge keys works: source, kind, and target for each hop. That's Chapter 9's `edge_key`, so a path's signature is stable as long as the same identities hold the same kinds of capability.
 
-A path that disappears isn't necessarily closed. If the evidence that produced one of its edges is incomplete in the later snapshot, the honest status is "unresolved." To decide that, the diff needs to know which files each edge kind comes from. Chapter 4's lab listed them:
+A path that disappears isn't necessarily closed. If the evidence that produced one of its edges is incomplete in the later snapshot, the honest status is "unresolved." To decide that, the diff needs to know which files each edge kind comes from. Chapter 4's `KIND_SOURCES` (section 4.5) already maps each edge kind to its files, and the diff reuses it:
 
 <!-- listing: lab/listings/python/ch10_verification.py#diff_paths -->
 
 ```python
-KIND_SOURCES = {
-    "memberOf": {"transitive-memberships.json"},
-    "canSignInAs": {"federated-credentials.json"},
-    "canAddCredential": {"application-owners.json", "directory-role-assignments.json"},
-    "appFor": {"service-principals.json"},
-    "runsAs": {"compute-identities.json"},
-    "canControlCode": {
-        "role-assignments.json", "role-definitions.json", "deny-assignments.json",
-        "scope-parents.json", "transitive-memberships.json", "compute-identities.json",
-    },
-    "grants": {
-        "role-assignments.json", "role-definitions.json", "deny-assignments.json",
-        "scope-parents.json", "transitive-memberships.json", "storage-accounts.json",
-    },
-}
-
-
 def path_signature(path: list[Edge]) -> tuple[tuple[str, str, str], ...]:
     return tuple(edge_key(edge) for edge in path)
 
@@ -349,7 +359,7 @@ Treat every new path to a high-consequence target as a finding in its own right,
 
 ### Resource Graph change history
 
-Azure Resource Graph keeps recent property changes for Azure resources in its `resourcechanges` table (Chapter 3). It can tell you *when* `custdata`'s shared key setting changed between two snapshots, and its `changedBy` and `clientType` attributes often say who changed it and with what tool. That's useful corroboration, and it helps explain diffs. It isn't a substitute for the snapshot: changes are queryable for only 14 days, it covers Azure resources but not directory objects such as app owners and directory roles, and it records changes, not the full state you need to re-run a path search.
+Azure Resource Graph keeps recent property changes for Azure resources in its `resourcechanges` table (Chapter 3). It can tell you *when* `custdata`'s shared key setting changed between two snapshots, and its `changedBy` and `clientType` attributes often say who changed it and with what tool. That's useful corroboration, and it helps explain diffs. It isn't a substitute for the snapshot: changes are queryable for only 14 days, it covers Azure resources but not directory objects such as app owners and directory roles, and it records changes, not the full state you need to re-run a path search. Chapter 4 uses it the other way round. Together with the Activity Log and Entra audit logs, it shows whether anything on a path changed while that path's inputs were being read.
 
 ---
 
@@ -572,11 +582,11 @@ This lab applies Chapter 9's changes in the lab tenant, re-collects, and verifie
 
 **Step 1 — Write the postconditions.** For each of the three recommendation records, write at least one state postcondition and one path postcondition as `Postcondition` objects, with their files and scopes. For the shared key change, add a state postcondition for the policy assignment. For P4's risk acceptance, write a postcondition for each compensating control and one for the expiry date.
 
-**Step 2 — Verify against the old snapshot.** Run `verify` on every postcondition using the snapshot from Chapter 9's lab and the current time as the change time. Every verdict must be "not verified," because the snapshot started before the change. If any comes back verified or failed, your time comparison is wrong.
+**Step 2 — Verify against the old snapshot.** Run `verify` on every postcondition using the snapshot from Chapter 9's lab and the current time as the change time. Every verdict must be "not verified," because every file was read before the change. If any comes back verified or failed, your time comparison is wrong.
 
 **Step 3 — Apply the changes.** Apply the Chapter 9 Terraform and the runbook steps. For the help desk change, reproduce the opening story: remove Cloud Application Administrator from `helpdesk-07`, then add a group `helpdesk-tier2` with `helpdesk-07` as a member, and assign the group Application Administrator at tenant scope. Record when each change was applied.
 
-**Step 4 — Re-collect and verify.** Run an on-demand collection, the derivation from Chapter 4, and `verify`. Confirm:
+**Step 4 — Re-collect and verify.** Re-collect in verification mode (section 10.2): one short run, started after the last change, of the files the postconditions need. Then run the derivation from Chapter 4 and `verify`. To see the straddle rule, first merge the new files with the Chapter 9 snapshot's `application-owners.json`. Every path postcondition must come back "not verified" until that file is re-collected too. Then confirm:
 
 - The owner removal and shared key postconditions are verified, including the policy assignment.
 - The help desk state postcondition ("Cloud Application Administrator assignment absent") is verified.
@@ -629,3 +639,5 @@ This lab applies Chapter 9's changes in the lab tenant, re-collects, and verifie
 - Verified 2026-10-10 (revision pass 1): `RequestDisallowedByPolicy`; `resourcechanges` 14-day retention and `changedBy` / `clientType`; GitHub `protection_rules` and `required_reviewers` (one approval suffices); Application Administrator can add credentials to any application; Owner, Resource Policy Contributor, and User Access Administrator can delete policy assignments, Contributor can't.
 - Consider a figure showing the exposure-window bounds on a timeline of snapshots.
 - Add the Chapter 10 fact checks to GTM **M-306** when it is picked up.
+- 2026-10-12 (review comment on temporal consistency): `verify` now checks each needed file's `queriedAtUtc` against the change time instead of the snapshot's `collectedAtUtc`, so inputs straddling the change are "not verified". Added "Verification mode: a short run after the change" and the Step 4 straddle check. `KIND_SOURCES` and `parse_utc` moved to Chapter 4. Tests in `test_ch10_verification.py` cover a straddling path postcondition, a read at the change instant, and a stale file the check doesn't read.
+- 2026-10-11 (review comment on unmodeled controls): `no_path` now gives "not verified" when only paths through unmodeled controls remain, and "failed" when any plain path remains. Tests in `test_ch10_verification.py` cover both.

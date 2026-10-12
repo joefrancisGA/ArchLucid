@@ -64,7 +64,7 @@ export function SidebarNavLink(props: SidebarNavLinkProps): ReactElement {
   const labelContent = (
     <>
       {Icon ? <Icon className="h-4 w-4 shrink-0 opacity-90" aria-hidden /> : null}
-      <span className="min-w-0 truncate">{presented.label}</span>
+      <span className="min-w-0 whitespace-normal break-words">{presented.label}</span>
       {presented.navBadge ? (
         <Badge variant="outline" className={cn("ml-auto shrink-0", OPERATOR_TYPOGRAPHY.badge)}>
           {presented.navBadge}

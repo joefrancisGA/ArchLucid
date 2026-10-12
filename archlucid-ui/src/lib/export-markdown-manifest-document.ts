@@ -22,6 +22,8 @@ function formatRequirementItems(items: unknown, heading: string, lines: string[]
 
     if (name) {
       lines.push(`- **${name}**`);
+    } else if (raw.requirementName === null || raw.requirementName === undefined) {
+      lines.push("- Requirement name was not stored.");
     }
 
     if (status) {
@@ -67,6 +69,8 @@ export function formatManifestDocumentShape(m: Record<string, unknown>): string 
 
   if (manifestId) {
     lines.push(`- **Review record id:** \`${manifestId}\``);
+  } else if (m.manifestId === null || m.manifestId === undefined) {
+    lines.push("Review record id was not stored.");
   }
 
   if (runId) {
@@ -76,7 +80,15 @@ export function formatManifestDocumentShape(m: Record<string, unknown>): string 
   if (ruleSetId && ruleSetVersion) {
     lines.push(`- **Policy pack:** ${ruleSetId} @ ${ruleSetVersion}`);
   } else if (ruleSetId) {
-    lines.push(`- **Policy pack:** ${ruleSetId}`);
+    lines.push(
+      `- **Policy pack:** ${ruleSetId}${m.ruleSetVersion === null || m.ruleSetVersion === undefined
+        ? " · Policy pack version was not stored."
+        : ""}`,
+    );
+  } else if (m.ruleSetId === null || m.ruleSetId === undefined) {
+    if (m.ruleSetVersion === null || m.ruleSetVersion === undefined) {
+      lines.push("Policy pack was not stored.");
+    }
   }
 
   if (manifestHash) {
@@ -173,8 +185,13 @@ export function formatManifestDocumentShape(m: Record<string, unknown>): string 
 
     if (typeof cost.maxMonthlyCost === "number") {
       lines.push(`- **Max monthly cost (estimate):** ${cost.maxMonthlyCost}`);
+    } else if (cost.maxMonthlyCost === null || cost.maxMonthlyCost === undefined) {
+      lines.push("Max monthly cost was not stored.");
     }
 
+    lines.push("");
+  } else {
+    lines.push("Cost was not stored.");
     lines.push("");
   }
 
@@ -195,12 +212,19 @@ export function formatManifestDocumentShape(m: Record<string, unknown>): string 
         if (name && status) {
           lines.push(`- **${name}:** ${status}`);
         } else if (name) {
-          lines.push(`- ${name}`);
+          lines.push(
+            `- ${name}${c.status === null || c.status === undefined ? ": Control status was not stored." : ""}`,
+          );
+        } else if (c.controlName === null || c.controlName === undefined) {
+          lines.push("- Control name was not stored.");
         }
       }
     }
 
     pushBulletLines(lines, compliance.gaps, undefined);
+    lines.push("");
+  } else {
+    lines.push("Compliance was not stored.");
     lines.push("");
   }
 
@@ -296,9 +320,18 @@ export function formatManifestDocumentShape(m: Record<string, unknown>): string 
       const relId = normalizeInlineText(r.relationshipId);
       const src = normalizeInlineText(r.sourceId);
       const tgt = normalizeInlineText(r.targetId);
-      const parts = [src, tgt].filter(Boolean).join(" → ");
+      const parts = [
+        src ?? (r.sourceId === null || r.sourceId === undefined ? "Source was not stored" : null),
+        tgt ?? (r.targetId === null || r.targetId === undefined ? "Target was not stored" : null),
+      ].filter((part): part is string => part !== null).join(" → ");
 
-      if (desc) {
+      if (
+        (r.description === null || r.description === undefined)
+        && (r.sourceId === null || r.sourceId === undefined)
+        && (r.targetId === null || r.targetId === undefined)
+      ) {
+        lines.push(`- Relationship description was not stored.${relId ? ` (\`${relId}\`)` : ""}`);
+      } else if (desc) {
         lines.push(`- ${desc}${relId ? ` (\`${relId}\`)` : ""}`);
       } else if (parts) {
         lines.push(`- ${parts}${relId ? ` (\`${relId}\`)` : ""}`);
@@ -325,6 +358,12 @@ export function formatManifestDocumentShape(m: Record<string, unknown>): string 
 
       if (dTitle) {
         lines.push(`#### ${dTitle}`);
+        lines.push("");
+      } else if (d.title === null || d.title === undefined) {
+        lines.push("#### Decision title was not stored.");
+        lines.push("");
+      } else {
+        lines.push("####");
         lines.push("");
       }
 
