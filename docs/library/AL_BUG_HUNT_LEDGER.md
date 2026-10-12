@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-12 thorough hunt (dry): `ui-webhooks-settings` — cheap-disproved the four bounded candidates against the selected client/hook and existing scope, overlap, deep-link, and Continue-last regressions; none had a reachable hunt-ready wrong outcome for a failing repro. The focused Webhooks settings page suite passed 60/60. No production or regression change.
+
 2026-10-12 seed hunt (seed-only): `ui-webhooks-settings` — re-read `WebhooksSettingsClient.tsx` and `use-webhooks-settings.ts` with the focused page regressions; no fresh reachable mechanism-backed wrong outcome met the hunt-ready bar. The focused Webhooks settings page suite passed 60/60. Seeded four bounded candidates; no production or regression change.
 
 2026-10-12 thorough hunt (hit): `BackgroundJobQueueProcessorHostedService.HandleFailureAsync` treated a watchdog-reclaimed `Pending` row as still owned by the stale failing worker, so it scheduled a retry and notification after reclaim. The processor now requires a `Running` row before failure transitions and `MarkPendingRetryAsync` updates only `Running` rows; regression `ProcessOneMessageAsync_does_not_schedule_retry_when_watchdog_reclaims_job_before_failure` failed before the fix and passed after it. Focused processor tests passed 28/28 and Host.Core background-job/hosted tests passed 69/69; the scoped compile check timed out without compiler errors.
@@ -11186,6 +11188,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-webhooks-settings
 
+2026-10-12 thorough hunt (dry): cheap-disproved the four current candidates: colon-delimited scope-key collision lacks an identifier-origin contract; latest-request failure precedence is an intentional newest-response policy without a contrary contract; URL replacement uses canonical one-id transitions and existing deep-link/toggle regressions; and duplicate mounted shells are not a reachable route invariant. The focused Webhooks settings page suite passed 60/60; no production or regression change.
+
 2026-10-12 seed hunt (seed-only): re-read the selected client and hook plus the focused 60-test page suite; existing scope-generation, load-sequencing, failure-gating, deep-link, and toggle-refresh regressions cover the established boundary classes. No new hunt-ready row met the reachability and wrong-outcome bar; seeded four bounded candidates and made no production or regression change.
 
 2026-10-04 seed hunt (seed→hit): promoted case-variant `channelType` filtering; exact-case `OnCallWebhook` gate hid API rows the server already classifies as outbound webhooks; regression `lists webhook subscriptions when API returns case-variant OnCallWebhook channelType`; 60 scoped webhooks folder tests passed.
@@ -11228,9 +11232,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** webhooks settings; outbound webhook ui
 - **paths:** archlucid-ui/src/app/(operator)/integrations/webhooks/WebhooksSettingsClient.tsx; archlucid-ui/src/app/(operator)/integrations/webhooks/use-webhooks-settings.ts
 - **test-filter:** WebhooksSettings
-- **hunts:** 44
+- **hunts:** 45
 - **bugs-found:** 27
-- **consecutive-dry-hunts:** 1
+- **consecutive-dry-hunts:** 2
 - **last-hunt:** 2026-10-12
 - **last-bug:** 2026-10-09 — failed subscription list dropped webhookEnableId before refresh could open confirmation
 - **related-pd-tb:** none

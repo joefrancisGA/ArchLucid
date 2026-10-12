@@ -9585,3 +9585,4 @@
 {"at":"2026-10-12T01:41:59.730Z","zoneId":"architecture-recommendation","outcome":"seed-only"}
 {"at":"2026-10-12T01:59:50.329Z","zoneId":"host-core-jobs","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Host.Core/Jobs/","ArchLucid.Host.Core/Hosted/"]}
 {"at":"2026-10-12T02:04:08.590Z","zoneId":"ui-webhooks-settings","outcome":"seed-only","productLine":"securenow","paths":["archlucid-ui/src/app/(operator)/integrations/webhooks/WebhooksSettingsClient.tsx","archlucid-ui/src/app/(operator)/integrations/webhooks/use-webhooks-settings.ts"]}
+{"at":"2026-10-12T02:07:00.498Z","zoneId":"ui-webhooks-settings","outcome":"dry","productLine":"securenow","paths":["archlucid-ui/src/app/(operator)/integrations/webhooks/WebhooksSettingsClient.tsx","archlucid-ui/src/app/(operator)/integrations/webhooks/use-webhooks-settings.ts"]}
