@@ -248,6 +248,8 @@ The book follows the path from evidence to verified outcome:
 - **Part III — AI in the loop.** Chapter 7 covers where language models help. Chapter 8 covers how they fail and how to contain the failures, including prompt injection through your own resource metadata.
 - **Part IV — Closing the loop.** Chapter 9 covers advisory remediation and cut points. Chapter 10 covers verifying fixes and measuring outcomes. Chapter 11 covers governing the AI tooling itself, which is now one of your more sensitive systems.
 
+The method applies to any Azure path, but the book models identity, RBAC, CI/CD federation, and data access to platform services. The preface's Scope section lists which Azure domains are fully modeled, partially modeled, or out of scope.
+
 The Contoso payments path runs through all of it. You'll see it labeled in Chapter 2, collected in Chapter 3, extended through identity, network, and data flow in Chapters 4 to 6, explained by a model in Chapter 7, attacked through an app registration's display name in Chapter 8, cut in Chapter 9, and verified in Chapter 10. Chapter 11 turns the same methods on the tooling itself.
 
 ---
@@ -330,6 +332,8 @@ This lab makes the chapter's argument concrete. It uses the companion lab tenant
 ---
 
 ## Author notes (remove before submission)
+
+- 2026-10-12 (scope): section 1.8 now points to the preface's coverage matrix.
 
 - 2026-10-12 (sources): added 11 sources. Changed: posture-list row for Contributor now uses Defender recommendation display name "Service Principals should not be assigned with administrative roles at the subscription and resource group level"; keys sentence now says "grant full access to data" per Microsoft docs. Softened: none. Unverified: generic posture label "enable diagnostic logs" (row kept fictional; blob-read gap cited via S7 inference).
 - Verify the John Lambert quote wording and source (2015 GitHub post "Defender's mindset"); confirm attribution permission is not needed for a short quotation. S8 cites the archived Microsoft blog post (April 2015).
