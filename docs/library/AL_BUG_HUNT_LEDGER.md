@@ -17436,13 +17436,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** agent evaluation; evaluation runner
 - **paths:** ArchLucid.AgentRuntime/Evaluation/
 - **test-filter:** FullyQualifiedName~Evaluation
-- **hunts:** 51
+- **hunts:** 52
 - **bugs-found:** 31
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-12
 - **last-bug:** 2026-10-10 — reference-case catalog stayed empty after configuration enablement
 - **related-pd-tb:** none
 - **code-changed-since:** no
+
+2026-10-12 seed hunt (seed-only): re-read the selected Evaluation paths and focused heuristic, structural, citation, faithfulness, and harness tests. A proposed-changes casing candidate is bounded and reachable at the untrusted agent JSON boundary; a focused finding-casing repro was attempted but the AgentRuntime test build was blocked before discovery by unrelated `AzureInventorySecurityEdgeMaterializer.cs` compile errors. No candidate was promoted and no production or regression code changed.
+
+- [ ] (candidate) `HeuristicAgentOutputTraceQualityStage.EvaluateProposedChangesSurfaceRatio` — a reachable topology result using case-variant `PROPOSEDCHANGES` / `ADDEDSERVICES` / `ADDEDRELATIONSHIPS` keys can be recognized as topology-only by the case-insensitive overall-presence check but receive a zero proposed-surface ratio from exact nested lookups; input is untrusted agent-result JSON at the evaluation boundary.
 
 2026-10-12 seed hunt (seed-only): reread case-insensitive evaluation parsing, citation gates, heuristic quality scoring, faithfulness judging, and embedding evidence handling. The faithfulness judge-score casing candidate was promoted for a focused repro, but the AgentRuntime test build was blocked before execution by unrelated `AzureInventorySecurityEdgeMaterializer.cs` compile errors; no candidate was proven and no production change was made.
 
