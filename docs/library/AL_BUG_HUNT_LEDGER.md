@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-12 thorough hunt (dry): `tenant-erasure` — reran the unchanged five closed hypotheses and scoped repro checks; no reachable path-normalization bypass or command-contract defect was found. Application tenant-erasure tests passed 19/19 and API tenant-erasure tests passed 28/28. No production or regression code changed.
+
 2026-10-12 thorough hunt (dry): `tenant-erasure` — reran the unchanged five closed hypotheses; no reachable path-normalization bypass or command-contract defect was found. Application tenant-erasure tests passed 19/19 and API tenant-erasure tests passed 28/28. No production or regression code changed.
 
 2026-10-12 thorough hunt (dry): `tenant-erasure` — repeated the same five closed hypotheses and scoped repro checks; no reachable path-normalization bypass or command-contract defect was found. Application tenant-erasure tests passed 19/19 and API tenant-erasure tests passed 28/28. No production or regression code changed.
