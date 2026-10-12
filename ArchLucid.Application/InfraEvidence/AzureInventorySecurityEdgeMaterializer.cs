@@ -637,11 +637,6 @@ public static class AzureInventorySecurityEdgeMaterializer
             }
         }
 
-        foreach ((int count, string roleDefinitionId, string? roleName) in unmappedRoles.Values)
-        {
-            string roleNameSuffix = string.IsNullOrWhiteSpace(roleName) ? string.Empty : $"::{roleName.Trim()}";
-            warnings.Add($"rbac-role-unmapped:{count}:{roleDefinitionId}{roleNameSuffix}");
-        }
     }
 
     private static void AddRoleAssignmentEdges(
@@ -748,6 +743,12 @@ public static class AzureInventorySecurityEdgeMaterializer
                     DerivedFactConfidence,
                     GraphEdgeInferenceSources.InventoryRbacDataPlaneMap);
             }
+        }
+
+        foreach ((int count, string roleDefinitionId, string? roleName) in unmappedRoles.Values)
+        {
+            string roleNameSuffix = string.IsNullOrWhiteSpace(roleName) ? string.Empty : $"::{roleName.Trim()}";
+            warnings.Add($"rbac-role-unmapped:{count}:{roleDefinitionId}{roleNameSuffix}");
         }
     }
 
