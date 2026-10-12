@@ -11414,6 +11414,7 @@ BEGIN
         Scope                   NVARCHAR(1024)    NOT NULL,
         PrincipalId             NVARCHAR(256)     NOT NULL,
         RoleDefinitionId        NVARCHAR(1024)    NOT NULL,
+        RoleDefinitionName      NVARCHAR(256)     NULL,
         PimEligibilityKind      NVARCHAR(64)      NULL,
         SourceEvidenceReference NVARCHAR(512)     NULL,
         CONSTRAINT FK_AzureInventoryRoleAssignments_Snapshots FOREIGN KEY (SnapshotId) REFERENCES dbo.AzureInventorySnapshots (SnapshotId)
@@ -13055,6 +13056,7 @@ BEGIN
         ToArmId                     NVARCHAR(1024)    NULL,
         ToCloudResourceId           UNIQUEIDENTIFIER  NULL,
         SettingName                 NVARCHAR(512)     NULL,
+        DataPlaneAnswer             INT               NULL,
         SourceFileFormat            NVARCHAR(64)      NULL,
         ActorKey                    NVARCHAR(256)     NULL,
         ProposalPayloadHashSha256   VARBINARY(32)     NOT NULL,
