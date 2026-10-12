@@ -666,7 +666,11 @@ export function isInfraEvidenceVirtualNetworkResourceType(resourceType: string |
 export function resolveInfraEvidenceOutlineEdgeLabel(
   edge: InfraEvidenceMermaidOutlineEdge,
   nodes: readonly InfraEvidenceMermaidOutlineNode[],
-): string {
+): string | null {
+  if (edge.label == null) {
+    return null;
+  }
+
   const explicit = edge.label?.trim() ?? "";
 
   if (explicit.length > 0) {
