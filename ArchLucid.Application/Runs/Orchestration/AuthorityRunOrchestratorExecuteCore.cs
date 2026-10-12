@@ -53,6 +53,7 @@ public sealed partial class AuthorityRunOrchestrator
             if (request.RunId != Guid.Empty)
             {
                 run = await ResolvePreAllocatedRunHeaderAsync(scope, runId, pipelineCt);
+                await EnsureAdmittedRunCreateTimePinsIfMissingAsync(run, request, scope, uow, pipelineCt);
                 LogAgentExecutionStateTransition(run.RunId, "async_create_admitted", "run_persisted", "(none)");
             }
             else

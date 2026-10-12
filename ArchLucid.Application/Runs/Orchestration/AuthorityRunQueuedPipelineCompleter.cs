@@ -67,6 +67,8 @@ public sealed partial class AuthorityRunOrchestrator
 
             RunRecord run = existing;
 
+            await EnsureAdmittedRunCreateTimePinsIfMissingAsync(run, request, scope, uow, pipelineCt);
+
             LogAgentExecutionStateTransition(run.RunId, "queued_resume", "inline_authority_pipeline_stages", "(none)");
 
             await using IAsyncDisposable executionConcurrencyLease =
