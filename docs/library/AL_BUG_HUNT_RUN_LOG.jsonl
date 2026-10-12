@@ -9722,3 +9722,4 @@
 {"at":"2026-10-12T20:24:14.4048208Z","zoneId":"core-explanation-json","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Core/Explanation/"]}
 {"at":"2026-10-12T20:28:10.1413976Z","zoneId":"run-execute-ownership","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Application/Runs/Orchestration/ArchitectureRunExecuteOrchestrator.cs","ArchLucid.Application/Runs/ExecuteOwnership/RunExecuteOwnershipLeaseService.cs","ArchLucid.Application/Runs/ExecuteOwnership/RunExecuteOwnershipLeaseRenewalScope.cs"]}
 {"at":"2026-10-12T20:31:17.4022515Z","zoneId":"archlucid-contracts","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Contracts/"]}
+{"at":"2026-10-12T20:34:20.7994486Z","zoneId":"authority-pipeline-payload","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Application/Runs/Orchestration/AuthorityPipelineWorkPayload.cs"]}

@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-12 seed hunt (seed-only): `authority-pipeline-payload` — re-read `AuthorityPipelineWorkPayload`, its JSON adapter, and the picker-defined payload/null-element tests. Null collections/elements, malformed JSON, identifier normalization, Unicode boundaries, and undefined work kinds remain explicitly handled; no fresh reachable mechanism-backed wrong outcome met the hunt-ready bar. The scoped payload filter stopped before discovery on unrelated Application compile errors (`unmappedRoles` and `warnings`). No candidate was promoted and no production or regression code changed.
+
 2026-10-12 seed hunt (seed-only): `archlucid-contracts` — re-read the recent infrastructure-diagram and SecureNow contract DTOs, converters, enum guards, and focused round-trip coverage. The retained null/empty/unknown-value rows remain downstream-validation questions rather than contract-local wrong outcomes; no fresh reachable mechanism-backed hypothesis met the hunt-ready bar. The scoped `Contracts` filter stopped before discovery on unrelated Application compile errors (`unmappedRoles` and `warnings`). No candidate was promoted and no production or regression code changed.
 
 2026-10-12 seed hunt (seed-only): `run-execute-ownership` — re-read the three picker paths and focused ownership/orchestration tests, including acquire rollback, drain admission, local-holder pinning, release ordering, renewal cancellation, and repeated eligibility checks. The existing cancellation-during-drain rollback candidate was not duplicated or promoted without a new failing repro; no distinct reachable mechanism-backed wrong outcome met the hunt-ready bar. The scoped ownership/orchestration filter stopped before discovery on unrelated Application compile errors (`unmappedRoles` and `warnings`). No production or regression code changed.
@@ -6594,7 +6596,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** authority payload; pipeline work payload
 - **paths:** ArchLucid.Application/Runs/Orchestration/AuthorityPipelineWorkPayload.cs
 - **test-filter:** FullyQualifiedName~AuthorityPipelineWorkPayloadJsonTests|FullyQualifiedName~AuthorityPipelineWorkPayloadDocumentsNullElementTests
-- **hunts:** 45
+- **hunts:** 46
 - **bugs-found:** 23
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-12
