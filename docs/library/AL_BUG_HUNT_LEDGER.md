@@ -10275,6 +10275,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - (candidate) `TenantIsolationNegativeTestCommand.WriteArtifactsAsync` — reachable `--json-out report.json` filename-only output path may resolve its directory as null and produce an unexpected artifact-write result; verify the documented relative-file input and expected artifact success contract before promotion.
 - (candidate) `TenantIsolationNegativeTestCommand.WriteArtifactsAsync` — reachable `--markdown-out report.md` filename-only output path may diverge from JSON artifact handling when no directory component exists; verify the documented relative-file input and expected artifact success contract before promotion.
 
+2026-10-12 seed hunt (seed-only): reread the selected command/runner and focused test inventory, then examined the existing filename-only `--json-out` / `--markdown-out` candidates. The input is documented and the write branch is source-backed, but the same-run repro could not reach test discovery because of the existing `AzureInventorySecurityEdgeMaterializer.cs` compile errors (`unmappedRoles` and `warnings`); no candidate was promoted and no temporary regression was retained. No production code changed.
+
 2026-10-09 seed hunt (seed-only): reread live probes, offline replay, and scope headers; no hunt-ready row shipped; five candidates persisted.
 
 2026-10-05 seed hunt (seed→hit): reseeded cli-tenant-isolation; proved offline exclude-run-id replay false-passed when `observedStatusCode` was 503 but outcome claimed verified `HTTP 200; foreign runId absent`; fixed verified-absent trust gating; regression `RunOffline_SkipsExcludeRunIdProbeWhenManifestStatusCodeIsServerErrorButOutcomeClaimsVerifiedAbsent`; 53 scoped TenantIsolationNegativeTestRunner tests passed.
@@ -10339,7 +10341,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant isolation cli; negative isolation test
 - **paths:** ArchLucid.Cli/Commands/TenantIsolationNegativeTestCommand.cs; ArchLucid.Cli/Commands/TenantIsolationNegativeTestRunner.cs
 - **test-filter:** FullyQualifiedName~TenantIsolationNegativeTestRunnerTests
-- **hunts:** 47
+- **hunts:** 48
 - **bugs-found:** 24
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-12
