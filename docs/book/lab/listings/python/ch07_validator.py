@@ -78,5 +78,14 @@ def validate(draft: dict, pack: dict) -> list[str]:
             if name and name not in pack_text:
                 problems.append(f"Sentence {index}: name '{name}' does not appear in the pack.")
 
+    # A path resting on an unmodeled control lists that gap; citing the path means citing the gap.
+    cited = {c for sentence in draft.get("sentences", [])
+             for raw in sentence.get("cites", []) for c in expand_range(raw)}
+
+    for path in pack.get("paths", []):
+        for gap in path.get("gaps", []):
+            if path["id"] in cited and gap not in cited:
+                problems.append(f"Draft cites {path['id']} but not its gap {gap}.")
+
     return problems
 # endregion validate

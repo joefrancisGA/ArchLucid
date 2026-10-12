@@ -5,7 +5,7 @@
 
 **Audience:** Francis Architecture LLC owner and coding agents scoping SecureNow work.
 
-**Last reconciled:** 2026-10-06 (added **SN-QQ-09** and **SN-QQ-10** — resource identity on the question card, then a readable open-question count; prompts only). Prior 2026-10-04 (added **DIC-01–DIC-05** + hold — import a customer drawing and compare it to an inventory capture without a sealed review; prompts only). Prior 2026-10-03 (added **SN-QQ-08** — map the questions controller so Diagrams stops 500ing `Unmapped API controller`; prompts only. Prior same day added **SN-QQ-07** — a failed question-queue load shows the API reason; prompts only. Prior same day added **DCU-01–DCU-05** + hold and **SN-QQ-01–SN-QQ-06** + hold; prompts only). Prior 2026-09-20 (trunk scan + prompt indexes under `.cursor/prompts/securenow-*`).
+**Last reconciled:** 2026-10-12 (added **SN-HOME-01–SN-HOME-06** + hold — SecureNow Home work summary, environment freshness, outcome copy, and visible labels; prompts only). Prior 2026-10-06 (added **SN-QQ-09** and **SN-QQ-10** — resource identity on the question card, then a readable open-question count; prompts only). Prior 2026-10-04 (added **DIC-01–DIC-05** + hold — import a customer drawing and compare it to an inventory capture without a sealed review; prompts only). Prior 2026-10-03 (added **SN-QQ-08** — map the questions controller so Diagrams stops 500ing `Unmapped API controller`; prompts only. Prior same day added **SN-QQ-07** — a failed question-queue load shows the API reason; prompts only. Prior same day added **DCU-01–DCU-05** + hold and **SN-QQ-01–SN-QQ-06** + hold; prompts only). Prior 2026-09-20 (trunk scan + prompt indexes under `.cursor/prompts/securenow-*`).
 
 ## How to use this file
 
@@ -60,6 +60,7 @@ Ordered for SecureNow operator value after the shipped baseline. Size is enginee
 
 | Pri | ID | Title | Status | Size | Notes |
 |-----|-----|-------|--------|------|-------|
+| P1 | **SN-HOME-01–06** + hold | SecureNow Home work summary | **Backlog** (prompts only) | M | Context line, four counted work links, short lead, outcome summaries, wrapping sidebar labels, compact directory. Index: [`SECURENOW_HOME_WORK_SUMMARY_LUNA_PROMPTS.md`](../architecture/SECURENOW_HOME_WORK_SUMMARY_LUNA_PROMPTS.md). |
 | P1 | **DIC-01–05** + hold | Diagram import comparison | **Backlog** (prompts only) | L | Advisory compare of a structured drawing to an inventory capture, saved architect mapping, structural connector gaps, count strip and CSV, match outlines on the imported drawing. Index: [`DIAGRAM_IMPORT_COMPARISON_LUNA_PROMPTS.md`](../architecture/DIAGRAM_IMPORT_COMPARISON_LUNA_PROMPTS.md). |
 | P1 | **DMW-01–02** | Diagram matcher warnings | **Backlog** (prompts only) | S | Stop the private-endpoint DNS warning from listing every VNet-integrated app against every endpoint, and match private-link hostnames already in the snapshot. Index: [`DIAGRAM_MATCHER_WARNING_LUNA_PROMPTS.md`](../architecture/DIAGRAM_MATCHER_WARNING_LUNA_PROMPTS.md). |
 | P1 | **SN-QQ-01–10** + hold | Subscription question queue | **Backlog** (prompts only) | L | One queue for diagram evidence, inference items, and pack questions. Hero only when the open count is greater than zero. Ignore expires and reopens when the evidence fingerprint changes. **SN-QQ-07** shows the API reason when that load fails. **SN-QQ-08** maps the questions controller. **SN-QQ-09** names the resource and its neighborhood. **SN-QQ-10** shows `Action needed` and outline `Review questions` on the open-count row. Index: [`SECURENOW_QUESTION_QUEUE_LUNA_PROMPTS.md`](../architecture/SECURENOW_QUESTION_QUEUE_LUNA_PROMPTS.md). |
@@ -103,6 +104,7 @@ Paste **one** file per session from the repo root (Cloud Agent: `pwsh` + working
 | Diagram consumption UX | [diagram-consumption-ux-00-index.md](../../.cursor/prompts/diagram-consumption-ux-00-index.md) | **DCU-01–DCU-05** + hold | [`DIAGRAM_CONSUMPTION_UX_COMPOSER_PROMPTS.md`](../architecture/DIAGRAM_CONSUMPTION_UX_COMPOSER_PROMPTS.md) |
 | Diagram import comparison | [diagram-import-comparison-00-index.md](../../.cursor/prompts/diagram-import-comparison-00-index.md) | **DIC-01–DIC-05** + hold | [`DIAGRAM_IMPORT_COMPARISON_LUNA_PROMPTS.md`](../architecture/DIAGRAM_IMPORT_COMPARISON_LUNA_PROMPTS.md) |
 | Diagram matcher warnings | [diagram-matcher-warning-00-index.md](../../.cursor/prompts/diagram-matcher-warning-00-index.md) | **DMW-01–DMW-02** | [`DIAGRAM_MATCHER_WARNING_LUNA_PROMPTS.md`](../architecture/DIAGRAM_MATCHER_WARNING_LUNA_PROMPTS.md) |
+| Home work summary | [securenow-home-00-index.md](../../.cursor/prompts/securenow-home-00-index.md) | **SN-HOME-01–SN-HOME-06** + hold | [`SECURENOW_HOME_WORK_SUMMARY_LUNA_PROMPTS.md`](../architecture/SECURENOW_HOME_WORK_SUMMARY_LUNA_PROMPTS.md) |
 
 ---
 
