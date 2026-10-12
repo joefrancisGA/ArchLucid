@@ -141,6 +141,9 @@ public sealed partial class InMemoryRunRepository
             if (candidate.ArchitectureId != architectureId)
                 continue;
 
+            if (candidate.GoldenManifestId.HasValue)
+                continue;
+
             candidate.GraphSnapshotId = null;
         }
 

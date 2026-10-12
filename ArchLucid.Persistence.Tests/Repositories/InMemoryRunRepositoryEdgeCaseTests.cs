@@ -104,6 +104,38 @@ public sealed class InMemoryRunRepositoryEdgeCaseTests
     }
 
     [SkippableFact]
+    public async Task ClearGraphSnapshotForArchitecture_skips_runs_with_golden_manifest_id()
+    {
+        IRunRepository repo = new InMemoryRunRepository(new InMemoryTenantRepository());
+        ScopeContext scope = NewScope();
+        Guid architectureId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        Guid sealedGraphId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+        Guid openGraphId = Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff");
+
+        RunRecord sealedRun = NewRun(scope, TimeProvider.System.UtcNowDateTime());
+        sealedRun.ArchitectureId = architectureId;
+        sealedRun.GraphSnapshotId = sealedGraphId;
+        sealedRun.GoldenManifestId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+
+        RunRecord openRun = NewRun(scope, TimeProvider.System.UtcNowDateTime().AddSeconds(1));
+        openRun.ArchitectureId = architectureId;
+        openRun.GraphSnapshotId = openGraphId;
+
+        await repo.SaveAsync(sealedRun, CancellationToken.None);
+        await repo.SaveAsync(openRun, CancellationToken.None);
+
+        await repo.ClearGraphSnapshotForArchitectureAsync(scope, architectureId, CancellationToken.None);
+
+        RunRecord? loadedSealed = await repo.GetByIdAsync(scope, sealedRun.RunId, CancellationToken.None);
+        RunRecord? loadedOpen = await repo.GetByIdAsync(scope, openRun.RunId, CancellationToken.None);
+
+        loadedSealed.Should().NotBeNull();
+        loadedSealed!.GraphSnapshotId.Should().Be(sealedGraphId);
+        loadedOpen.Should().NotBeNull();
+        loadedOpen!.GraphSnapshotId.Should().BeNull();
+    }
+
+    [SkippableFact]
     public async Task ArchiveRunsByIdsAsync_unknown_id_records_failure()
     {
         IRunRepository repo = new InMemoryRunRepository(new InMemoryTenantRepository());
