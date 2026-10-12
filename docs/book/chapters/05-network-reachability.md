@@ -15,7 +15,7 @@ In this fictional scenario, Contoso's platform team ran a quarter-long network h
 
 A month later, the security team's reachability review flagged `custdata` as reachable from the internet. The platform team disputed it: there was a private endpoint, and the Function App's traffic was going through it. Both statements were true. Neither made the account private.
 
-The storage account's networking setting still read **Enabled from all networks**. Creating a private endpoint adds a private path to a resource. It doesn't remove the public one. Every client that could reach `custdata.blob.core.windows.net` over the internet before the project could still reach it afterward, and anyone holding a valid credential could use it from anywhere.
+The storage account's networking setting still read **Enabled from all networks**. Creating a private endpoint adds a private path to a resource [S1]. It doesn't remove the public one [S1]. Every client that could reach `custdata.blob.core.windows.net` over the internet before the project could still reach it afterward, and anyone holding a valid credential could use it from anywhere.
 
 That mattered because of Chapter 4. Contributor on the payments resource group can list the storage account keys, and shared key access was enabled. The identity path ended at "holds a key". The network was the only thing that could have made a key useless outside Contoso's networks, and the network wasn't doing that.
 
@@ -33,7 +33,7 @@ This chapter is about network hops: how to compute what can reach what from conf
 
 ## 5.1 What network hops add to a path
 
-Chapter 4 argued that identity is the perimeter in Azure: most control-plane operations go through Azure Resource Manager (ARM), which is reachable from anywhere, so the token decides. Network controls don't change that for the control plane. You can't put ARM behind your firewall, and listing a storage account's keys works from any network.
+Chapter 4 argued that identity is the perimeter in Azure: most control-plane operations go through Azure Resource Manager (ARM), whose endpoint is public [S2], so the token decides. Network controls don't change that for the control plane. You can't put ARM behind your own virtual network firewall, and listing a storage account's keys works from any network that can reach that endpoint [S2].
 
 Network controls matter for **data planes**: the endpoints where you read blobs, query databases, fetch secrets, and call application APIs. There, network configuration decides whether a request reaches the service at all, before the service looks at who you are.
 
@@ -100,16 +100,16 @@ For platform services (storage, Key Vault, SQL Database, Cosmos DB, App Service,
 
 A storage account's public exposure comes from two settings that work together:
 
-- **`publicNetworkAccess`**: `Enabled`, `Disabled`, or `SecuredByPerimeter`. When disabled, ordinary public traffic is refused, but configured trusted-service exceptions remain effective; otherwise only private endpoints work. `SecuredByPerimeter` hands the decision to a network security perimeter, which is a separate resource with its own rules.
-- **`networkAcls`**: the storage firewall. Its **`defaultAction`** is `Allow` or `Deny`. With `Deny`, traffic is accepted only from listed **IP rules** (public address ranges), **virtual network rules** (subnets with a storage service endpoint), **resource instance rules** (specific Azure resources), and the **bypass** list, which can let trusted Azure services through.
+- **`publicNetworkAccess`**: `Enabled`, `Disabled`, or `SecuredByPerimeter` [S3]. When disabled, public endpoint traffic is blocked and access is intended through private endpoints, while configured trusted-service bypass exceptions can still admit selected Azure services [S4, S5]. `SecuredByPerimeter` hands the decision to a network security perimeter, which is a separate resource with its own rules [S3].
+- **`networkAcls`**: the storage firewall [S6]. Its **`defaultAction`** is `Allow` or `Deny` [S3]. With `Deny`, traffic is accepted only from listed **IP rules** (public address ranges), **virtual network rules** (subnets with a storage service endpoint), **resource instance rules** (specific Azure resources), and the **bypass** list, which can let trusted Azure services through [S6, S4].
 
 The portal presents these as three choices, which map roughly as follows:
 
 | Portal choice | `publicNetworkAccess` | `defaultAction` |
 |---------------|----------------------|-----------------|
-| Enabled from all networks | Enabled | Allow |
-| Enabled from selected virtual networks and IP addresses | Enabled | Deny, with rules |
-| Disabled | Disabled | (not used for public traffic) |
+| Enabled from all networks | Enabled | Allow [S7] |
+| Enabled from selected virtual networks and IP addresses | Enabled | Deny, with rules [S7] |
+| Disabled | Disabled | (not used for public traffic) [S7] |
 
 A deterministic classifier over the collected properties is short:
 
@@ -156,24 +156,24 @@ def storage_public_exposure(account: dict) -> tuple[str, list[str]]:
 
 Three details in that code matter more than they look:
 
-- **An unset value isn't "secure".** Older accounts may not carry `publicNetworkAccess` at all, and their behavior is governed by the firewall alone. Treating a missing value as disabled would mark the oldest, least-reviewed accounts as the safest.
+- **An unset value isn't "secure".** Older accounts may not carry `publicNetworkAccess` at all; new storage accounts default to accepting public connections unless you restrict them [S7, S3]. Treating a missing value as disabled would mark the oldest, least-reviewed accounts as the safest.
 - **Unknown values return "unknown".** Azure adds options over time. `SecuredByPerimeter` is a recent example: the answer depends on the perimeter's rules, which this function doesn't read. A value your code doesn't recognize is a reason to stop and evaluate, not to guess.
-- **Every result carries reasons.** "Restricted" is useless without the list of what it's restricted to. An IP rule for a partner's whole address range, or a subnet rule for a development subnet, is often the actual finding. Disabling public access doesn't earn "private only" by itself: a bypass that still admits trusted Azure services makes the result "restricted", because Microsoft documents that trusted-service exceptions take precedence and stay in effect after public access is disabled.
+- **Every result carries reasons.** "Restricted" is useless without the list of what it's restricted to. An IP rule for a partner's whole address range, or a subnet rule for a development subnet, is often the actual finding. Disabling public access doesn't earn "private only" by itself: a bypass that still admits trusted Azure services makes the result "restricted", because trusted-service exceptions can remain in effect when public network access is disabled [S4, S5].
 
 ### The same pattern elsewhere
 
 Most PaaS services follow the same shape, with service-specific twists worth knowing:
 
-- **Key Vault** has `publicNetworkAccess` and a `networkAcls` firewall with a trusted-services bypass, much like storage.
-- **Azure SQL Database** has `publicNetworkAccess` on the logical server and server-level firewall rules. One rule deserves special attention: **Allow Azure services and resources to access this server**, which appears as a firewall rule named `AllowAllWindowsAzureIps` from `0.0.0.0` to `0.0.0.0`. It admits traffic from any Azure public address, including resources in other customers' subscriptions. It's not "our Azure resources". It's "anyone's".
-- **App Service and Function Apps** have `publicNetworkAccess`, inbound **access restrictions**, and a separate set of restrictions for the advanced tools (Kudu, or "SCM") site, which can be configured to follow the main site's rules or not ("Use main site rules" in the portal, `scmIpSecurityRestrictionsUseMain` in ARM). A locked-down app whose SCM site is open is not locked down.
+- **Key Vault** has `publicNetworkAccess` and firewall rules with a trusted-services bypass, much like storage [S5].
+- **Azure SQL Database** has `publicNetworkAccess` on the logical server and server-level firewall rules [S8]. One rule deserves special attention: **Allow Azure services and resources to access this server**, which appears as a firewall rule named `AllowAllWindowsAzureIps` from `0.0.0.0` to `0.0.0.0` [S9]. It admits traffic from any Azure public address, including resources in other customers' subscriptions [S8, S9]. It's not "our Azure resources". It's "anyone's".
+- **App Service and Function Apps** have `publicNetworkAccess`, inbound **access restrictions**, and a separate set of restrictions for the advanced tools (Kudu, or "SCM") site, which can be configured to follow the main site's rules or not ("Use main site rules" in the portal, `scmIpSecurityRestrictionsUseMain` in ARM) [S10, S11]. A locked-down app whose SCM site is open is not locked down [S10].
 - **Cosmos DB, Event Hubs, Service Bus, Azure AI services** and many others carry their own variants of public access flags, IP rules, and virtual network rules.
 
 ### Private endpoints don't close public endpoints
 
-A **private endpoint** is a network interface in your virtual network with a private IP address, connected to one sub-resource of a PaaS service (for storage: `blob`, `file`, `queue`, `table`, `dfs`, or `web`). Traffic from inside your network can reach the service on that private address.
+A **private endpoint** is a network interface in your virtual network with a private IP address, connected to one sub-resource of a PaaS service (for storage: `blob`, `file`, `queue`, `table`, `dfs`, or `web`) [S1]. Traffic from inside your network can reach the service on that private address [S1].
 
-It doesn't change the public endpoint. The opening story's mistake is common enough to deserve its own query, and it's the first step of this chapter's lab:
+It doesn't remove or disable the service's public endpoint by itself [S1]. The opening story's mistake is common enough to deserve its own query, and it's the first step of this chapter's lab:
 
 <!-- listing: lab/listings/kql/appb-resources-with-a-private-endpoint-and.kql -->
 
@@ -197,13 +197,13 @@ Also note what a private endpoint *does* open. Every network that can reach the 
 
 ### Service endpoints are different
 
-A **service endpoint** is a setting on a subnet that sends traffic to a service (such as storage) over the Azure backbone and tags it with the subnet's identity. The service's firewall can then allow that subnet with a virtual network rule.
+A **service endpoint** is a setting on a subnet that sends traffic to a service (such as storage) over the Azure backbone and tags it with the subnet's identity [S12]. The service's firewall can then allow that subnet with a virtual network rule [S12].
 
-Service endpoints don't give the service a private address. The client still talks to the public endpoint, and the service still has public network access enabled. What changes is that the storage firewall can recognize the subnet. They're a reasonable control, and they behave differently from private endpoints. Your reachability model should treat "allowed by subnet rule via service endpoint" as its own edge, not as "private".
+Service endpoints don't give the service a private address. The client still uses the service's public endpoint name and address, and DNS for the service still resolves to public addresses [S12]. What changes is that the service firewall can recognize traffic from the subnet [S12]. They're a reasonable control, and they behave differently from private endpoints. Your reachability model should treat "allowed by subnet rule via service endpoint" as its own edge, not as "private".
 
 ### Outbound integration is not inbound protection
 
-App Service and Function Apps have **virtual network integration**, which lets the app make **outbound** calls into your virtual network. It does nothing for **inbound** traffic. An app with virtual network integration and no private endpoint or access restrictions is still reachable from the internet. The names are close enough that teams confuse them regularly, so check for both when you classify an app.
+App Service and Function Apps have **virtual network integration**, which lets the app make **outbound** calls into your virtual network [S13]. It does not grant inbound private access to the app by itself [S13]. An app with virtual network integration and no private endpoint or access restrictions is still reachable from the internet [S13]. The names are close enough that teams confuse them regularly, so check for both when you classify an app.
 
 ---
 
@@ -213,19 +213,19 @@ For workloads in virtual networks, such as VMs, container hosts, and private end
 
 ### Network security groups
 
-A **network security group** (NSG) is a list of rules applied to a subnet, a network interface, or both. Each rule has a priority (100 to 4096, lower numbers evaluated first), a direction, an action (allow or deny), a protocol, source and destination address prefixes, and ports. Evaluation stops at the first matching rule.
+A **network security group** (NSG) is a list of rules applied to a subnet, a network interface, or both [S14]. Each rule has a priority (100 to 4096, lower numbers evaluated first) [S14], a direction, an action (allow or deny), a protocol, source and destination address prefixes, and ports. Evaluation stops at the first matching rule [S14].
 
-Every NSG also has **default rules** at the bottom (priorities 65000 and above) that you can't delete. Inbound:
+Every NSG also has **default rules** at the bottom (priorities 65000 and above) that you can't delete [S14]. Inbound:
 
 | Priority | Name | Effect |
 |----------|------|--------|
-| 65000 | AllowVnetInBound | Allow from the `VirtualNetwork` service tag |
-| 65001 | AllowAzureLoadBalancerInBound | Allow from the Azure load balancer |
-| 65500 | DenyAllInBound | Deny everything else |
+| 65000 | AllowVnetInBound | Allow from the `VirtualNetwork` service tag [S14] |
+| 65001 | AllowAzureLoadBalancerInBound | Allow from the Azure load balancer [S14] |
+| 65500 | DenyAllInBound | Deny everything else [S14] |
 
-The first default rule is where many surprises live. The `VirtualNetwork` service tag covers the virtual network's own address space, **peered virtual networks**, and on-premises address space connected through a virtual network gateway. An NSG with no custom rules therefore allows inbound traffic from every peered network and every connected office. "We have an NSG on the subnet" says much less than it sounds.
+The first default rule is where many surprises live. The `VirtualNetwork` service tag covers the virtual network's own address space, **peered virtual networks**, and on-premises address space connected through a virtual network gateway [S15]. An NSG with no custom rules therefore allows inbound traffic from every peered network and every connected office [S14, S15]. "We have an NSG on the subnet" says much less than it sounds.
 
-When NSGs are attached at both the subnet and the network interface, traffic must be allowed by both. Inbound traffic is evaluated against the subnet's NSG first, then the interface's; outbound, the reverse.
+When NSGs are attached at both the subnet and the network interface, traffic must be allowed by both [S16]. Inbound traffic is evaluated against the subnet's NSG first, then the interface's; outbound, the reverse [S16].
 
 A minimal evaluator for inbound traffic, with service tags resolved from data you supply:
 
@@ -312,30 +312,30 @@ def evaluate_inbound(
     return "Deny", "(no rule matched)"
 ```
 
-This leaves out destination prefixes and application security groups to stay short, and it handles one NSG. For a subnet and interface pair, run it on both and require both to allow. The important behavior is the `Unknown` result. If a rule references a service tag whose address prefixes you didn't collect, the evaluator can't decide, and it says so rather than skipping the rule. Skipping it would silently change the answer. Microsoft publishes service tag prefixes as a downloadable file and through an API. Collect them with the snapshot and record their version.
+This leaves out destination prefixes and application security groups to stay short, and it handles one NSG. For a subnet and interface pair, run it on both and require both to allow. The important behavior is the `Unknown` result. If a rule references a service tag whose address prefixes you didn't collect, the evaluator can't decide, and it says so rather than skipping the rule. Skipping it would silently change the answer. Microsoft publishes service tag prefixes as a downloadable JSON file and through an API [S15]. Collect them with the snapshot and record their version.
 
-Network Watcher can also evaluate this for you. **IP flow verify** tells you whether a specific flow to or from a VM would be allowed and which rule decided it. **Effective security rules** shows the combined rules applied to an interface. Both are Azure's own evaluation of configuration, which makes them good derived facts and a good way to test your evaluator. They're per-flow and per-interface, so they don't replace computing reachability across an estate.
+Network Watcher can also evaluate this for you. **IP flow verify** tells you whether a specific flow to or from a VM would be allowed and which rule decided it [S17]. **Effective security rules** shows the combined rules applied to an interface [S18]. Both are Azure's own evaluation of configuration, which makes them good derived facts and a good way to test your evaluator. They're per-flow and per-interface, so they don't replace computing reachability across an estate [S17, S18].
 ### NSGs and private endpoints
 
-NSG rules don't apply to private endpoints unless the subnet's **private endpoint network policies** setting enables them. The default is disabled, so many private endpoint subnets ignore their NSGs entirely. In ARM the setting is the subnet's `privateEndpointNetworkPolicies` property. If your model applies NSG rules to private endpoint traffic without checking that setting, it will report restrictions that don't exist.
+NSG rules don't apply to private endpoints unless the subnet's **private endpoint network policies** setting enables them [S19]. The default is disabled [S19], so many private endpoint subnets ignore their NSGs entirely. In ARM the setting is the subnet's `privateEndpointNetworkPolicies` property [S19]. If your model applies NSG rules to private endpoint traffic without checking that setting, it will report restrictions that don't exist.
 
 ### Routes
 
-Traffic follows the **effective routes** of the source network interface: system routes (within the virtual network, to peered networks, to the internet), routes learned from gateways through BGP, and **user-defined routes** (UDRs) in route tables attached to subnets. The most specific matching prefix wins.
+Traffic follows the **effective routes** of the source network interface: system routes (within the virtual network, to peered networks, to the internet), routes learned from gateways through BGP, and **user-defined routes** (UDRs) in route tables attached to subnets [S20, S21]. The most specific matching prefix wins [S20, S21].
 
 In a hub-and-spoke design, a UDR typically sends `0.0.0.0/0`, and often the other spokes' ranges, to a firewall in the hub as the next hop. That route is what makes the firewall's rules matter. If a subnet lacks the route table, its traffic skips the firewall, and the firewall's rules say nothing about it.
 
-Network Watcher can show the effective routes for a network interface, which again is Azure's own evaluation and a useful check on your model.
+Network Watcher can show the effective routes for a network interface [S21], which again is Azure's own evaluation and a useful check on your model.
 
 ### Peering
 
-**Virtual network peering** connects two virtual networks. Peering is **not transitive**: if spoke A and spoke B both peer with the hub, A and B can't reach each other through the hub unless something in the hub forwards traffic between them, usually a firewall, with routes sending traffic to it. Peering settings such as **allow forwarded traffic** and **use remote gateways** decide whether forwarded and on-premises traffic can cross.
+**Virtual network peering** connects two virtual networks. Peering is **not transitive**: if spoke A and spoke B both peer with the hub, A and B can't reach each other through the hub unless something in the hub forwards traffic between them, usually a firewall, with routes sending traffic to it [S22]. Peering settings such as **allow forwarded traffic** and **use remote gateways** decide whether forwarded and on-premises traffic can cross [S22].
 
-Peering also expands the `VirtualNetwork` service tag. When a new spoke is peered to a network, every NSG relying on the default `AllowVnetInBound` rule starts allowing it. Nothing in the NSG changed. Its meaning did.
+Peering also expands the `VirtualNetwork` service tag [S15, S22]. When a new spoke is peered to a network, every NSG relying on the default `AllowVnetInBound` rule starts allowing it [S14, S15]. Nothing in the NSG changed. Its meaning did.
 
 ### Firewalls
 
-Azure Firewall, or a third-party network virtual appliance, filters traffic routed through it. Azure Firewall processes rule collections in a defined order (destination NAT rules, then network rules, then application rules) and denies traffic that no rule allows.
+Azure Firewall, or a third-party network virtual appliance, filters traffic routed through it. Azure Firewall processes rule collections in a defined order (destination NAT rules, then network rules, then application rules) and denies traffic that no rule allows [S23].
 
 For reachability, the firewall is a filter applied to edges that routing sends through it. Model the rules the same way as NSG rules: priority, match, action, with `Unknown` for anything your evaluator can't decide, such as fully qualified domain name (FQDN) rules whose targets resolve differently over time. And treat broad rules as findings. The opening story's `10.0.0.0/8` to `10.0.0.0/8` rule turns a hub-and-spoke design into a flat network, regardless of how carefully the spokes were separated.
 ### Public IP addresses
@@ -346,7 +346,7 @@ Finally, the direct exposures: VMs with public IP addresses, load balancers and 
 
 ## 5.5 DNS decides which path is used
 
-Private endpoints rely on DNS. The service's public name, such as `custdata.blob.core.windows.net`, resolves through a `privatelink` alias. Clients whose resolver can see the linked **private DNS zone** (`privatelink.blob.core.windows.net`) get the private IP address. Everyone else gets the public address.
+Private endpoints rely on DNS. The service's public name, such as `custdata.blob.core.windows.net`, resolves through a `privatelink` alias [S24]. Clients whose resolver can see the linked **private DNS zone** (`privatelink.blob.core.windows.net`) get the private IP address [S24]. Everyone else gets the public address [S24].
 
 That has two consequences for reachability:
 
@@ -532,7 +532,7 @@ def reach_edge(position: str, endpoint: str, reach: Reach, citation: str) -> Edg
 
 The function returns indeterminate in two situations. The first is a control it doesn't evaluate: a next hop to an appliance whose rules weren't collected, an Azure Firewall flow that only an application rule could decide, or a next hop to a gateway. The second is a missing input: the source's DNS answer, its effective routes, or the endpoint subnet's NSG settings. A yes-or-no evaluator has to guess in both situations, and its guesses look exactly like answers.
 
-The next hop comes from the source's **effective routes**, Azure's own resolution of system, BGP, and user-defined routes. The model doesn't recompute which route wins from route tables. That's why missing effective routes make the answer indeterminate rather than sending the model to reconstruct them.
+The next hop comes from the source's **effective routes**, Azure's own resolution of system, BGP, and user-defined routes [S21]. The model doesn't recompute which route wins from route tables [S20, S21]. That's why missing effective routes make the answer indeterminate rather than sending the model to reconstruct them.
 
 `reach_edge` turns the result into a `canReach` edge for Chapter 4's search. A reachable result is a plain edge. A not-reachable result is no edge. An indeterminate result is an edge carrying an unmodeled control (Chapter 4, section 4.5), so any path through it is reported as "Insufficient evidence", with the reason as the assumption to check.
 
@@ -594,7 +594,7 @@ Treat anything you can't read, such as a firewall policy in a subscription the c
 
 Configuration says what can happen. To say what did, you need logs that record connections. Azure has several, at different layers:
 
-- **Virtual network flow logs** record flows through a virtual network, with source and destination addresses, ports, and whether the flow was allowed. They replace the older **NSG flow logs**, which Microsoft is retiring: new NSG flow logs can't be created after June 30, 2025, and existing ones stop working after September 30, 2027.
+- **Virtual network flow logs** record flows through a virtual network, with source and destination addresses, ports, and whether the flow was allowed [S25]. They replace the older **NSG flow logs**, which Microsoft is retiring: new NSG flow logs can't be created after June 30, 2025, and existing ones stop working after September 30, 2027 [S26, S27].
 - **Azure Firewall logs** record flows the firewall allowed or denied, and which rule decided.
 - **Resource logs on PaaS services** record requests to the service itself. For storage, the blob logs include the caller's IP address, the operation, and the authentication type. That's the most direct evidence of who reached `custdata` and from where.
 - **Traffic Analytics** summarizes flow logs into a queryable workspace.
@@ -632,18 +632,18 @@ Without intended reachability, the best you can report is configured reachabilit
 
 Configured reachability says a path may exist. For the few paths that matter most, such as the one that reaches `custdata`, someone will want it confirmed. Confirmation is the only kind of reachability that involves touching the network, so climb a ladder, from least intrusive to most, and stop at the first rung that answers the question:
 
-1. **Read-only diagnostics.** Network Watcher's effective security rules, effective routes, next hop, and IP flow verify. They send no traffic and change nothing.
+1. **Read-only diagnostics.** Network Watcher's effective security rules, effective routes, next hop, and IP flow verify [S27]. They send no traffic and change nothing.
    - *What they prove:* Azure's own evaluation of the NSG rules and routes for one network interface agrees, or disagrees, with the model. Next hop names the route and the route table that decided it.
-   - *What they don't prove:* anything about a firewall's or appliance's rules (next hop only says traffic goes to the appliance), DNS, the destination service's own firewall, or whether anything listens on the port. IP flow verify tests TCP and UDP only, against the rules on a VM's network interface.
-2. **Connection troubleshoot from an existing resource at the source position**, such as a VM in the development spoke. It sends TCP or ICMP probes and reports reachable or unreachable, with the hops and any issues it found.
+   - *What they don't prove:* anything about a firewall's or appliance's rules (next hop only says traffic goes to the appliance) [S28], DNS, the destination service's own firewall, or whether anything listens on the port. IP flow verify tests TCP and UDP only, against the rules on a VM's network interface [S17].
+2. **Connection troubleshoot from an existing resource at the source position**, such as a VM in the development spoke [S29]. It sends TCP or ICMP probes and reports reachable or unreachable, with the hops and any issues it found [S29].
    - *What it proves:* a connection could be opened from that resource to that destination and port, at that moment.
    - *What it doesn't prove:* that other sources in the same position get the same DNS answer, that the destination accepts the caller's identity, or anything about another time. It does send traffic, so treat it as a test, not a lookup.
 3. **A deliberate test connection.** Only after the first two, and only when the question still matters: for example, a request from the source to the service name, recording what the name resolved to (section 5.5).
    - *What it proves:* exactly what was tested, and nothing broader.
 
-Every rung, including the first, needs written authorization from the network owner. The diagnostics change nothing, but they use Network Watcher actions beyond Reader, and they reveal network configuration to whoever runs them. Record each result as **confirmed**, with the date, source, destination, port, resolved address, the rung used, and who approved it. A confirmation with no record is an anecdote, which is what the laptop test in the opening story turned out to be.
+Every rung, including the first, needs written authorization from the network owner. The diagnostics change nothing, but they require Network Watcher actions beyond the Reader role (for example `Microsoft.Network/networkWatchers/ipFlowVerify/action`, `Microsoft.Network/networkWatchers/securityGroupView/action`, and `Microsoft.Network/networkWatchers/nextHop/action`) [S30], and they reveal network configuration to whoever runs them. Record each result as **confirmed**, with the date, source, destination, port, resolved address, the rung used, and who approved it. A confirmation with no record is an anecdote, which is what the laptop test in the opening story turned out to be.
 
-> **As of 2026-10:** Network Watcher lists IP flow verify, NSG diagnostics, next hop, effective security rules, connection troubleshoot, packet capture, and VPN troubleshoot as its diagnostic tools. IP flow verify checks NSG rules and Azure Virtual Network Manager admin rules for a VM's network interface. Next hop returns the next hop type, IP address, and route table ID. Its type names (`VirtualNetwork`, `VirtualNetworkPeering`) differ from the effective-routes API's (`VnetLocal`, `VNetPeering`). Connection troubleshoot sources are VMs, scale sets, Bastion hosts, and Application Gateway v2. Its agentless mode is in preview; without it, the source VM needs the Network Watcher agent extension, and installing that is itself a change to the VM. Re-check these before relying on them.
+> **As of 2026-10:** Network Watcher lists IP flow verify, NSG diagnostics, next hop, effective security rules, connection troubleshoot, packet capture, and VPN troubleshoot as its diagnostic tools [S27, S31]. IP flow verify checks NSG rules and Azure Virtual Network Manager admin rules for a VM's network interface [S17]. Next hop returns the next hop type, IP address, and route table ID [S28]. Its type names (`VirtualNetwork`, `VirtualNetworkPeering`) differ from the effective-routes API's (`VnetLocal`, `VNetPeering`) [S20, S28]. Connection troubleshoot sources are VMs, scale sets, Bastion hosts, and Application Gateway v2 [S29]. Its agentless mode is in preview; without it, the source VM needs the Network Watcher agent extension, and installing that is itself a change to the VM [S29]. Re-check these before relying on them.
 
 ---
 
@@ -693,19 +693,56 @@ This lab reproduces the opening story and separates its four kinds of reachabili
 
 ---
 
+## Sources
+
+- **[S1]** What is a private endpoint? Microsoft Learn. <https://learn.microsoft.com/azure/private-link/private-endpoint-overview> Checked 2026-10-12. Kind: documented.
+- **[S2]** Control plane and data plane operations - Azure Resource Manager. Microsoft Learn. <https://learn.microsoft.com/azure/azure-resource-manager/management/control-plane-and-data-plane> Checked 2026-10-12. Kind: documented.
+- **[S3]** Microsoft.Storage/storageAccounts. Microsoft Learn. <https://learn.microsoft.com/azure/templates/microsoft.storage/storageaccounts> Checked 2026-10-12. Kind: documented.
+- **[S4]** Manage network security exceptions for Azure Storage. Microsoft Learn. <https://learn.microsoft.com/azure/storage/common/storage-network-security-manage-exceptions> Checked 2026-10-12. Kind: documented.
+- **[S5]** Configure network security for Azure Key Vault. Microsoft Learn. <https://learn.microsoft.com/azure/key-vault/general/network-security> Checked 2026-10-12. Kind: documented.
+- **[S6]** Azure Storage firewall rules and network access. Microsoft Learn. <https://learn.microsoft.com/azure/storage/common/storage-network-security> Checked 2026-10-12. Kind: documented.
+- **[S7]** Set the default public network access rule: Azure Storage. Microsoft Learn. <https://learn.microsoft.com/azure/storage/common/storage-network-security-set-default-access> Checked 2026-10-12. Kind: documented.
+- **[S8]** Network Access Controls - Azure SQL Database. Microsoft Learn. <https://learn.microsoft.com/azure/azure-sql/database/network-access-controls-overview> Checked 2026-10-12. Kind: documented.
+- **[S9]** IP Firewall Rules - Azure SQL Database. Microsoft Learn. <https://learn.microsoft.com/azure/azure-sql/database/firewall-configure> Checked 2026-10-12. Kind: documented.
+- **[S10]** App Service Access restrictions. Microsoft Learn. <https://learn.microsoft.com/azure/app-service/overview-access-restrictions> Checked 2026-10-12. Kind: documented.
+- **[S11]** Microsoft.Web/sites/config-web. Microsoft Learn. <https://learn.microsoft.com/azure/templates/microsoft.web/sites/config-web> Checked 2026-10-12. Kind: documented.
+- **[S12]** Azure virtual network service endpoints. Microsoft Learn. <https://learn.microsoft.com/azure/virtual-network/virtual-network-service-endpoints-overview> Checked 2026-10-12. Kind: documented.
+- **[S13]** Virtual network integration with an Azure virtual network. Microsoft Learn. <https://learn.microsoft.com/azure/app-service/overview-vnet-integration> Checked 2026-10-12. Kind: documented.
+- **[S14]** Azure network security groups overview. Microsoft Learn. <https://learn.microsoft.com/azure/virtual-network/network-security-groups-overview> Checked 2026-10-12. Kind: documented.
+- **[S15]** Azure service tags overview. Microsoft Learn. <https://learn.microsoft.com/azure/virtual-network/service-tags-overview> Checked 2026-10-12. Kind: documented.
+- **[S16]** How Network Security Groups Filter Network Traffic in Azure. Microsoft Learn. <https://learn.microsoft.com/azure/virtual-network/network-security-group-how-it-works> Checked 2026-10-12. Kind: documented.
+- **[S17]** IP Flow Verify Overview. Microsoft Learn. <https://learn.microsoft.com/azure/network-watcher/ip-flow-verify-overview> Checked 2026-10-12. Kind: documented.
+- **[S18]** Effective Security Rules Overview. Microsoft Learn. <https://learn.microsoft.com/azure/network-watcher/effective-security-rules-overview> Checked 2026-10-12. Kind: documented.
+- **[S19]** Manage network policies for private endpoints. Microsoft Learn. <https://learn.microsoft.com/azure/private-link/disable-private-endpoint-network-policy> Checked 2026-10-12. Kind: documented.
+- **[S20]** Azure virtual network traffic routing. Microsoft Learn. <https://learn.microsoft.com/azure/virtual-network/virtual-networks-udr-overview> Checked 2026-10-12. Kind: documented.
+- **[S21]** Diagnose an Azure virtual machine routing problem. Microsoft Learn. <https://learn.microsoft.com/azure/virtual-network/diagnose-network-routing-problem> Checked 2026-10-12. Kind: documented.
+- **[S22]** Create, change, or delete an Azure virtual network peering. Microsoft Learn. <https://learn.microsoft.com/azure/virtual-network/virtual-network-manage-peering> Checked 2026-10-12. Kind: documented.
+- **[S23]** Azure Firewall rule processing logic. Microsoft Learn. <https://learn.microsoft.com/azure/firewall/rule-processing> Checked 2026-10-12. Kind: documented.
+- **[S24]** Azure Private Endpoint private DNS zone values. Microsoft Learn. <https://learn.microsoft.com/azure/private-link/private-endpoint-dns> Checked 2026-10-12. Kind: documented.
+- **[S25]** Virtual Network Flow Logs. Microsoft Learn. <https://learn.microsoft.com/azure/network-watcher/vnet-flow-logs-overview> Checked 2026-10-12. Kind: documented.
+- **[S26]** Quickstart: Configure NSG Flow Logs Using an ARM Template. Microsoft Learn. <https://learn.microsoft.com/azure/network-watcher/nsg-flow-logs-template> Checked 2026-10-12. Kind: documented.
+- **[S27]** Azure Network Watcher Overview. Microsoft Learn. <https://learn.microsoft.com/azure/network-watcher/network-watcher-monitoring-overview> Checked 2026-10-12. Kind: documented.
+- **[S28]** Next Hop Overview. Microsoft Learn. <https://learn.microsoft.com/azure/network-watcher/next-hop-overview> Checked 2026-10-12. Kind: documented.
+- **[S29]** Connection Troubleshoot Overview. Microsoft Learn. <https://learn.microsoft.com/azure/network-watcher/connection-troubleshoot-overview> Checked 2026-10-12. Kind: documented.
+- **[S30]** Azure RBAC Permissions - Azure Network Watcher. Microsoft Learn. <https://learn.microsoft.com/azure/network-watcher/rbac-permissions> Checked 2026-10-12. Kind: documented.
+- **[S31]** NSG Diagnostics Overview. Microsoft Learn. <https://learn.microsoft.com/azure/network-watcher/nsg-diagnostics-overview> Checked 2026-10-12. Kind: documented.
+
+
+---
+
 ## Summary
 
 - Network controls mostly don't affect the **control plane**, which goes through ARM. They decide **data-plane** reachability: **from where** each data-plane hop can be used.
 - Keep four kinds of reachability separate: **intended** (human assertion), **configured** (derived from configuration), **observed** (logs), and **confirmed** (recorded tests). Disagreements between them are findings.
 - For PaaS services, check **public network access** and the **service firewall** together. Treat unset and unrecognized values explicitly, and keep the reasons with every classification.
-- **Private endpoints add a private path. They don't close the public one.** Query for resources with both.
-- **Service endpoints** and **virtual network integration** are different controls from private endpoints, and the latter is outbound only.
-- Inside networks, reachability depends on **routes, NSGs, and firewalls**. The default `AllowVnetInBound` rule admits **peered and connected networks**, and NSGs apply to private endpoints only when the subnet enables it.
+- **Private endpoints add a private path. They don't close the public one [S1].** Query for resources with both.
+- **Service endpoints** and **virtual network integration** are different controls from private endpoints [S12, S13], and the latter is outbound only [S13].
+- Inside networks, reachability depends on **routes, NSGs, and firewalls**. The default `AllowVnetInBound` rule admits **peered and connected networks** [S14, S15], and NSGs apply to private endpoints only when the subnet enables it [S19].
 - **DNS decides which path a client uses.** Record resolved addresses in every connectivity test.
 - Reachability has **three answers**: reachable, not reachable, and **indeterminate**. Indeterminate, with a reason, is the honest result for appliances, application rules, gateways, and missing inputs. Publish the list of controls the model doesn't evaluate with every report.
 - Model reachability as **derived `canReach` edges** and as **conditions on data-plane hops**. An indeterminate edge makes the whole identity path "Insufficient evidence". A network change can shrink an identity path's reach without touching roles.
 - Confirm important paths with the **confirmation ladder**: read-only diagnostics, then connection troubleshoot, then a deliberate test, each with written authorization and a record. Next hop and IP flow verify don't evaluate firewall rules.
-- Use **flow logs, firewall logs, and resource logs** for observation, starting at the ends of important paths. No log is not no traffic.
+- Use **flow logs, firewall logs, and resource logs** for observation, starting at the ends of important paths [S25]. No log is not no traffic.
 - Use AI to **explain** reachability results. Never to evaluate CIDR ranges, rule priority, or routes, or to search for reachability.
 
 ## Key terms
@@ -729,7 +766,8 @@ This lab reproduces the opening story and separates its four kinds of reachabili
 
 - Verified 2026-10-10 (revision pass 1): storage `publicNetworkAccess` values and bypass precedence; SQL `AllowAllWindowsAzureIps`; `scmIpSecurityRestrictionsUseMain`; NSG priorities, default rules, `VirtualNetwork` scope and evaluation order; private endpoint network policies default; Azure Firewall processing order; flow log retirement dates; Network Watcher feature names.
 - `storage_public_exposure` and `evaluate_inbound` pass offline fixtures (`lab/listings/python/tests/test_ch05_reachability.py`). Testing showed the bullet on "private only" contradicted the code, which returns "restricted" whenever a bypass is set; the bullet now matches the code (2026-10-11). Still to do: run the Resource Graph query against a live tenant with mixed resource types.
-- 2026-10-12 (network ladder): added `private_reachability` with a third result, indeterminate, which becomes an unmodeled control on a `canReach` edge (`reach_edge`), so Chapter 4 reports the path as "Insufficient evidence". Added the safe-wording table (5.2), the "doesn't evaluate" table (5.6), the confirmation ladder (new 5.9; old 5.9 and 5.10 renumbered), and lab Step 4a. Network Watcher tool names, inputs, and next hop types checked against Microsoft Learn in October 2026. Still to verify: that the diagnostic actions need permissions beyond Reader (check the Network Watcher RBAC page and name the actions), and run Step 4a against the live lab. Chapter 7's activity-wording check doesn't yet flag unqualified "is reachable"; adding that pattern is a candidate if review drafts use it.
+- 2026-10-12 (network ladder): added `private_reachability` with a third result, indeterminate, which becomes an unmodeled control on a `canReach` edge (`reach_edge`), so Chapter 4 reports the path as "Insufficient evidence". Added the safe-wording table (5.2), the "doesn't evaluate" table (5.6), the confirmation ladder (new 5.9; old 5.9 and 5.10 renumbered), and lab Step 4a. Network Watcher tool names, inputs, and next hop types checked against Microsoft Learn in October 2026. Still to verify: run Step 4a against the live lab. Chapter 7's activity-wording check doesn't yet flag unqualified "is reachable"; adding that pattern is a candidate if review drafts use it.
+- 2026-10-12 (sources): added 31 sources. Changed: ARM control-plane wording; storage disabled/bypass phrasing; diagnostic RBAC sentence names actions. Softened: (none). Unverified: (none).
 - "Most, in my experience, are unfinished projects" is an author-experience claim; keep it attributed.
 - Consider a figure showing the payments hub-and-spoke with the four positions.
 - Add the Chapter 5 fact checks to GTM **M-306** when it is picked up.
