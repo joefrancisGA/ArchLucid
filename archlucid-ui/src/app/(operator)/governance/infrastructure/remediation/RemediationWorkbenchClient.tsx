@@ -121,6 +121,7 @@ import {
   REMEDIATION_WORKBENCH_FINDING_ID_PARAM,
   REMEDIATION_WORKBENCH_RUN_ID_PARAM,
   REMEDIATION_WORKBENCH_SNAPSHOT_ID_PARAM,
+  REMEDIATION_WORKBENCH_STATUS_PARAM,
 } from "@/lib/infra-evidence/infra-evidence-workbench-url";
 import { remediationInstanceMutationBlockedReason } from "@/lib/infra-evidence/remediation-instance-mutation-blocked-reason";
 import {
@@ -128,6 +129,7 @@ import {
   type RemediationLifecycleAction,
 } from "@/lib/infra-evidence/remediation-lifecycle-action-blocked-reason";
 import { remediationInstancesPathForProductLine } from "@/lib/product-line/securenow-remediation-instances-route";
+import { auditEvidencePathForProductLine } from "@/lib/product-line/securenow-compliance-routes";
 import { errorRecoveryContractForScenario } from "@/lib/error-recovery-contract-copy";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -310,6 +312,7 @@ export function RemediationWorkbenchClient() {
   const urlCloudResourceId = parseInfraEvidenceWorkbenchQueryValue(
     searchParams.get(REMEDIATION_WORKBENCH_CLOUD_RESOURCE_ID_PARAM),
   );
+  const urlStatus = parseInfraEvidenceWorkbenchQueryValue(searchParams.get(REMEDIATION_WORKBENCH_STATUS_PARAM));
 
   const [instances, setInstances] = useState<RemediationInstanceSummary[]>([]);
   const [selectedInstanceId, setSelectedInstanceId] = useState(urlInstanceId);
@@ -332,7 +335,10 @@ export function RemediationWorkbenchClient() {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [actionMessage, setActionMessage] = useState<string | null>(null);
 
-  const visibleInstances = instances;
+  const visibleInstances = useMemo(
+    () => (urlStatus.length === 0 ? instances : instances.filter((instance) => instance.status === urlStatus)),
+    [instances, urlStatus],
+  );
 
   const findingScopedInstance = useMemo(
     () => (urlFindingId.length > 0 ? visibleInstances[0] ?? null : null),
@@ -1115,56 +1121,63 @@ export function RemediationWorkbenchClient() {
           Loading remediation factory…
         </p>
       ) : (
-        <section
-          className="grid gap-3 xl:grid-cols-8"
-          aria-label="Remediation instance lifecycle board"
-          data-testid="infra-remediation-board"
-          ref={boardNavRef}
-          tabIndex={flatBoardInstances.length > 0 ? 0 : undefined}
-          onKeyDown={onBoardKeyDown}
-        >
-          {REMEDIATION_WORKBENCH_COLUMNS.map((column) => (
-            <div key={column.id} className={cn("p-3", cnCard)} data-testid={`infra-remediation-column-${column.id}`}>
-              <h3 className={OPERATOR_TYPOGRAPHY.sectionTitle}>{column.label}</h3>
-              <ul className="m-0 grid gap-2 p-0">
-                {(groupedInstances.get(column.id) ?? []).map((instance) => {
-                  const flatIndex = flatBoardInstances.findIndex((row) => row.instanceId === instance.instanceId);
-                  const isFocused = flatIndex === focusedBoardIndex;
+        <>
+          {urlStatus.length > 0 ? (
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-remediation-status-filter">
+              Showing remediation instances with status: {remediationInstanceStatusLabel(urlStatus as RemediationInstanceSummary["status"])}.
+            </p>
+          ) : null}
+          <section
+            className="grid gap-3 xl:grid-cols-8"
+            aria-label="Remediation instance lifecycle board"
+            data-testid="infra-remediation-board"
+            ref={boardNavRef}
+            tabIndex={flatBoardInstances.length > 0 ? 0 : undefined}
+            onKeyDown={onBoardKeyDown}
+          >
+            {REMEDIATION_WORKBENCH_COLUMNS.map((column) => (
+              <div key={column.id} className={cn("p-3", cnCard)} data-testid={`infra-remediation-column-${column.id}`}>
+                <h3 className={OPERATOR_TYPOGRAPHY.sectionTitle}>{column.label}</h3>
+                <ul className="m-0 grid gap-2 p-0">
+                  {(groupedInstances.get(column.id) ?? []).map((instance) => {
+                    const flatIndex = flatBoardInstances.findIndex((row) => row.instanceId === instance.instanceId);
+                    const isFocused = flatIndex === focusedBoardIndex;
 
-                  return (
-                  <li key={instance.instanceId}>
-                    <button
-                      type="button"
-                      className={cn(
-                        "w-full rounded-md border border-neutral-200 px-2 py-2 text-left text-sm hover:bg-neutral-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--al-accent-border-focus)] dark:border-neutral-800 dark:hover:bg-neutral-900",
-                        selectedInstanceId === instance.instanceId ? "bg-neutral-100 dark:bg-neutral-900/40" : undefined,
-                        isFocused ? "ring-1 ring-inset ring-neutral-400" : undefined,
-                      )}
-                      data-testid={`infra-remediation-card-${instance.instanceId}`}
-                      aria-selected={selectedInstanceId === instance.instanceId}
-                      onClick={() => {
-                        setSelectedInstanceId(instance.instanceId);
-                        syncRemediationUrl({ instanceId: instance.instanceId });
-                      }}
-                      onKeyDown={(event) =>
-                        activateSelectableCard(event, () => {
+                    return (
+                    <li key={instance.instanceId}>
+                      <button
+                        type="button"
+                        className={cn(
+                          "w-full rounded-md border border-neutral-200 px-2 py-2 text-left text-sm hover:bg-neutral-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--al-accent-border-focus)] dark:border-neutral-800 dark:hover:bg-neutral-900",
+                          selectedInstanceId === instance.instanceId ? "bg-neutral-100 dark:bg-neutral-900/40" : undefined,
+                          isFocused ? "ring-1 ring-inset ring-neutral-400" : undefined,
+                        )}
+                        data-testid={`infra-remediation-card-${instance.instanceId}`}
+                        aria-selected={selectedInstanceId === instance.instanceId}
+                        onClick={() => {
                           setSelectedInstanceId(instance.instanceId);
                           syncRemediationUrl({ instanceId: instance.instanceId });
-                        })
-                      }
-                    >
-                      <div className="font-medium">{instance.patternKey}</div>
-                      <div className="text-xs text-al-text-secondary">
-                        {remediationInstanceStatusLabel(instance.status)}
-                      </div>
-                    </button>
-                  </li>
-                  );
-                })}
-              </ul>
-            </div>
-          ))}
-        </section>
+                        }}
+                        onKeyDown={(event) =>
+                          activateSelectableCard(event, () => {
+                            setSelectedInstanceId(instance.instanceId);
+                            syncRemediationUrl({ instanceId: instance.instanceId });
+                          })
+                        }
+                      >
+                        <div className="font-medium">{instance.patternKey}</div>
+                        <div className="text-xs text-al-text-secondary">
+                          {remediationInstanceStatusLabel(instance.status)}
+                        </div>
+                      </button>
+                    </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            ))}
+          </section>
+        </>
       )}
 
       {selectedInstanceId.length > 0 ? (
@@ -1206,6 +1219,20 @@ export function RemediationWorkbenchClient() {
                           })}
                         >
                           {formatResourceHubTabViewLabel("remediation")}
+                        </Link>
+                      </dd>
+                    </div>
+                  ) : null}
+                  {detail.finding.controlId != null && detail.finding.controlId.trim().length > 0 ? (
+                    <div>
+                      <dt className="font-medium">Framework control</dt>
+                      <dd>
+                        <Link
+                          className="text-al-link hover:underline"
+                          href={`${auditEvidencePathForProductLine(productLine)}?controlId=${encodeURIComponent(detail.finding.controlId)}`}
+                          data-testid="infra-remediation-open-audit-evidence"
+                        >
+                          Open Audit evidence for {detail.finding.controlId}
                         </Link>
                       </dd>
                     </div>

@@ -148,6 +148,11 @@ describe("SecureNowHomeWorkSummary", () => {
     renderSummary();
 
     expect(await screen.findByText("2 waiting for a check · 3 checks failed")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Checks failed" })).toHaveAttribute(
+      "href",
+      "/security/remediation-instances?status=VerificationFailed",
+    );
+    expect(screen.getByText("3 verification failures")).toBeInTheDocument();
     expect(screen.queryByText(/11 waiting/)).not.toBeInTheDocument();
   });
 

@@ -164,6 +164,13 @@ export function SecureNowHomeWorkSummary(): React.JSX.Element {
           detail={factoryError === undefined ? `${verificationDetail}${verificationSuffix}` : verificationDetail}
           error={factoryError}
         />
+        {verificationFailures !== undefined && verificationFailures > 0 ? (
+          <WorkSummaryRow
+            label="Checks failed"
+            href="/security/remediation-instances?status=VerificationFailed"
+            detail={`${verificationFailures} verification failures`}
+          />
+        ) : null}
       </ul>
     </section>
   );
