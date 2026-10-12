@@ -132,7 +132,9 @@ public sealed class RemediationInstanceQueryServiceTests
         instances.Should().BeEmpty();
     }
 
-    private static RemediationInstanceQueryService CreateService(IRemediationInstanceRepository repository) =>
+    private static RemediationInstanceQueryService CreateService(
+        IRemediationInstanceRepository repository,
+        IVerifiedRemediationControlAssociationRepository? associationRepository = null) =>
         new(
             new ProjectScopedRemediationInstanceRepositoryAdapter(repository),
             new ProjectScopedOperationalSecurityFindingRepositoryAdapter(
@@ -140,7 +142,8 @@ public sealed class RemediationInstanceQueryServiceTests
             new Mock<IRemediationPatternMatchRepository>().Object,
             new Mock<IAuditManualEvidenceRepository>().Object,
             new Mock<IAuthorityQueryService>().Object,
-            new Mock<IManifestHashService>().Object);
+            new Mock<IManifestHashService>().Object,
+            associationRepository ?? new InMemoryVerifiedRemediationControlAssociationRepository());
 
     private static RemediationInstanceRecord CreateInstance(Guid instanceId, Guid? cloudResourceId, Guid? findingId = null) =>
         new()

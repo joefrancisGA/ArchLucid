@@ -146,6 +146,12 @@ public sealed class RemediationInstanceDetail
         get;
         init;
     } = [];
+
+    public IReadOnlyList<VerifiedRemediationAssociationIdentifier> VerifiedRemediationAssociations
+    {
+        get;
+        init;
+    } = [];
 }
 
 public interface IRemediationInstanceQueryService
@@ -168,7 +174,8 @@ public sealed class RemediationInstanceQueryService(
     IRemediationPatternMatchRepository matchRepository,
     IAuditManualEvidenceRepository auditManualEvidenceRepository,
     IAuthorityQueryService authorityQueryService,
-    IManifestHashService manifestHashService) : IRemediationInstanceQueryService
+    IManifestHashService manifestHashService,
+    IVerifiedRemediationControlAssociationRepository associationRepository) : IRemediationInstanceQueryService
 {
     private readonly IAuditManualEvidenceRepository _auditManualEvidenceRepository =
         auditManualEvidenceRepository ?? throw new ArgumentNullException(nameof(auditManualEvidenceRepository));
@@ -178,6 +185,10 @@ public sealed class RemediationInstanceQueryService(
 
     private readonly IManifestHashService _manifestHashService =
         manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
+
+    private readonly IVerifiedRemediationControlAssociationRepository _associationRepository =
+        associationRepository ?? throw new ArgumentNullException(nameof(associationRepository));
+
     public async Task<IReadOnlyList<RemediationInstanceSummary>> ListInstancesAsync(
         ScopeContext scope,
         Guid? cloudResourceId = null,
@@ -277,6 +288,12 @@ public sealed class RemediationInstanceQueryService(
                 instanceId,
                 cancellationToken);
 
+        IReadOnlyList<VerifiedRemediationControlAssociationRecord> associations =
+            await _associationRepository.ListByInstanceAsync(
+                scope.ToProjectScopeKey(),
+                instanceId,
+                cancellationToken);
+
         return new RemediationInstanceDetail
         {
             Instance = MapSummary(instance),
@@ -292,8 +309,26 @@ public sealed class RemediationInstanceQueryService(
                     CreatedUtc = item.CreatedUtc,
                 })
                 .ToList(),
+            VerifiedRemediationAssociations = associations
+                .OrderByDescending(item => item.UpdatedUtc)
+                .ThenBy(item => item.AssociationId)
+                .Select(MapAssociation)
+                .ToList(),
         };
     }
+
+    private static VerifiedRemediationAssociationIdentifier MapAssociation(
+        VerifiedRemediationControlAssociationRecord record) =>
+        new()
+        {
+            AssociationId = record.AssociationId,
+            InstanceId = record.InstanceId,
+            VerificationSnapshotId = record.VerificationSnapshotId,
+            ControlId = record.ControlId,
+            AssessmentId = record.AssessmentId,
+            CreatedUtc = record.CreatedUtc,
+            UpdatedUtc = record.UpdatedUtc,
+        };
 
     private static RemediationInstanceSummary MapSummary(RemediationInstanceRecord instance) =>
         new()
