@@ -42,6 +42,39 @@ By the end, you should be able to:
 5. Recommend the fewest changes that close the most paths, hand them off as advisory changes, and verify them against the next snapshot instead of trusting "fixed".
 6. Govern the AI tooling itself, which ends up holding a map of your weaknesses.
 
+## Scope
+
+The method applies to any Azure path, but the book models a specific part of Azure: Entra identities, Azure RBAC, CI/CD federation, and data access to platform services, with the network controls in front of them. The table says what that covers. **Fully modeled** means collected, derived into the path graph, and present in the lab. **Partially modeled** means discussed, collected, or derived only in part. **Out of scope** means the book doesn't model it; the method still applies, but you'd add the hops yourself.
+
+| Domain | Status | Where, or why not |
+|--------|--------|-------------------|
+| Entra users, groups, and service principals | Fully modeled | Chapter 3 collects them; Chapter 4, section 4.5 turns them into `memberOf` and `appFor` edges; Appendix B, section B.4 |
+| App registrations and federated identity credentials | Fully modeled | Chapter 4, section 4.3 (`ownerOf`, `canAddCredential`, `canSignInAs`); Chapter 3 for GitHub subjects; Appendix B, section B.4 |
+| Managed identities | Fully modeled | Chapter 4, section 4.3 (`runsAs`); Appendix B, sections B.4 and B.5 |
+| Azure RBAC role assignments, definitions, and conditions | Fully modeled | Chapter 4, sections 4.2 and 4.5; conditions are labeled, not evaluated (section 4.6, access-decision contract); Appendix B, section B.3 |
+| Deny assignments | Partially modeled | Collected and derived (Chapter 4, Appendix B, section B.3), but not in the lab: in generally available scenarios Azure creates and manages them, and you can't create your own directly [S1] |
+| Privileged Identity Management (PIM) eligibility | Partially modeled | Chapter 4, Rule 5 and the access-decision contract; collection recipes in Appendix B, sections B.3 and B.4; not in the section 4.5 derivation or the lab |
+| Storage data access | Fully modeled | Chapter 4, section 4.6 (data roles, key listing); Chapter 5, section 5.3; Chapter 6 (`StorageBlobLogs`); the lab's `custdata` |
+| App Service and Function Apps | Fully modeled | Chapter 4 (`canControlCode`, `runsAs`); Chapter 5 (access restrictions, SCM site, virtual network integration); Chapter 6 (app settings as declared flows) |
+| Virtual networks, NSGs, Azure Firewall network rules, private endpoints, and private DNS | Fully modeled | Chapter 5, sections 5.4–5.6, including what the model doesn't evaluate (application and DNAT rules, appliances); Appendix B, section B.7 |
+| Key Vault | Partially modeled | Network settings in Chapter 5; the access-policy conversion in Chapter 4, section 4.6; Appendix B, section B.5; the lab's vault is hygiene noise, not on a path |
+| Azure SQL Database | Partially modeled | Network exposure in Chapter 5, section 5.3 and Appendix B, section B.7; the Entra admin conversion in section 4.6 is illustrative; data access isn't derived |
+| Cosmos DB | Out of scope | Mentioned only as having its own network settings (Chapter 5) |
+| AKS and Kubernetes RBAC | Out of scope | Kubernetes appears only as an external issuer for federated credentials |
+| VMs and VM extensions | Partially modeled | Run command and extensions are listed as code control (Chapter 4, section 4.3), and the VM access extension as a conversion (section 4.6); the lab's VMs are network positions in Chapter 5, not identity hops |
+| Azure DevOps | Out of scope | The federated credential hop is generic (section 4.3), but project, pipeline, and service connection permissions aren't collected (section 4.8) |
+| Azure Container Registry | Out of scope | Not discussed |
+| Cross-tenant access | Partially modeled | Guests are collected (Appendix B, section B.4) and can be entry points; cross-tenant access settings and multitenant applications aren't collected |
+| Conditional Access and workload identity policies | Out of scope | Not modeled; the access-decision contract (section 4.6) says a path is reported even if a policy would block the sign-in |
+| Automation accounts and runbooks | Partially modeled | Listed as code control (Chapter 4, section 4.3, and the lab's deployment-actions table); the lab uses one only to host the collector |
+| Microsoft Graph application permissions | Partially modeled | Collected (Chapter 3; Appendix B, section B.4) and described as privilege (Chapter 4, section 4.4), but the section 4.5 derivation doesn't turn them into edges |
+
+Three of the partial rows are short additions to Chapter 4's graph, if your estate needs them:
+
+- **PIM eligibility.** Add a `canActivate` edge from each eligible principal to the scope, for Azure roles and directory roles. The edge kind is already in section 4.5's table. The evidence comes from the eligibility recipes in Appendix B, sections B.3 and B.4. Treat activation requirements, such as approval or multifactor authentication, as an unmodeled control on the edge, so a path through it reads "Insufficient evidence" until someone checks them.
+- **Graph application permissions.** For each service principal's app role assignments on Microsoft Graph (Appendix B, section B.4), add the edges that section 4.4 describes: `Application.ReadWrite.All` gives `canAddCredential` to every application, `RoleManagement.ReadWrite.Directory` gives the ability to assign any directory role, and `AppRoleAssignment.ReadWrite.All` lets the principal grant itself either [S2]. Each is a derived fact from the assignment.
+- **Key Vault.** Add `grants` edges for reading secrets: from access policies on vaults that use the access-policy model, or from Key Vault data roles on vaults that use Azure RBAC. Add the section 4.6 conversion for anyone who can write a vault's access policies. Appendix B, section B.5 says which model each vault uses.
+
 ## How to read it
 
 Chapter 1 explains how the four parts fit together. Three reading paths work well:
@@ -58,7 +91,7 @@ Every technique in the book runs against a small companion lab: an Azure estate 
 
 **The lab is deliberately vulnerable.** It creates users who can take over an application, an identity that can read customer data stores, and storage open to the internet. Deploy it only into a tenant and subscription you use for nothing else, put no real data in it, and destroy it when you finish a session. Chapter 8's lab plants instructions in resource tags. Do that only in the lab, never in resources that other people's tooling reads.
 
-The labs in Chapters 7, 8, and 11 need a language model deployment. Any deployment that supports structured output will do [S1]. Use the lab's synthetic data unless your organization has explicitly approved sending real evidence to that deployment.
+The labs in Chapters 7, 8, and 11 need a language model deployment. Any deployment that supports structured output will do [S3]. Use the lab's synthetic data unless your organization has explicitly approved sending real evidence to that deployment.
 
 ## Conventions
 
@@ -67,15 +100,15 @@ The labs in Chapters 7, 8, and 11 need a language model deployment. Any deployme
 - **Path and hop labels.** Chapter 2 numbers the hops of the single opening path 1 to 8. From Chapter 7 onward, the whole payments graph uses the IDs in Chapter 7's evidence pack: hops H1–H9, paths P1–P6, gaps G1–G2, and cut point C1. The appendices use those IDs too.
 - **Dated notes.** Azure, Entra ID, and model services change constantly. Behavior that might have changed by the time you read this sits in a note that starts **As of 2026-10**. Check those against current Microsoft documentation before you rely on them.
 - **Code.** Examples are complete enough to run against the lab, and short enough to read. They're teaching code. They handle the traps the text discusses, such as paging, gaps, and absent properties, but they aren't hardened products. Collection code is read-only. The only code that changes anything is the lab's Terraform, which you apply yourself.
-- **Names in the lab.** Storage account and app names must be unique across Azure [S2], so the lab adds a short suffix. Appendix A's `book_names` output maps each book name to yours.
+- **Names in the lab.** Storage account and app names must be unique across Azure [S4], so the lab adds a short suffix. Appendix A's `book_names` output maps each book name to yours.
 
 ## What this book isn't
 
-It isn't a catalog of Azure security controls or a walkthrough of a benchmark. Those exist, and Chapter 1 explains why they're necessary and not sufficient.
+It isn't a catalog of Azure security controls or a walkthrough of a benchmark. Those exist, and Chapter 1 explains why they're necessary and not sufficient. Nor does it model every Azure service: the Scope section above says which parts of Azure it covers, and which it leaves to you.
 
 It isn't an offensive security guide. Paths here are computed from configuration, by defenders, with read-only access. Nothing in the book exploits anything.
 
-It isn't about a product. Every technique uses public Azure and Microsoft Graph APIs [S3, S4] and code you can read. I build commercial tooling in this area, and that experience shaped the problems the book chooses. None of the chapters or Appendices A to C depend on that tooling, describe its internals, or recommend it. If the optional case study in Appendix D is published, the tooling it used appears only in a clearly marked sidebar.
+It isn't about a product. Every technique uses public Azure and Microsoft Graph APIs [S5, S6] and code you can read. I build commercial tooling in this area, and that experience shaped the problems the book chooses. None of the chapters or Appendices A to C depend on that tooling, describe its internals, or recommend it. If the optional case study in Appendix D is published, the tooling it used appears only in a clearly marked sidebar.
 
 And it doesn't promise that models will get this right. The book's position is that they'll keep getting some of it wrong, and that the useful question is how to make those failures visible before a person relies on them.
 
@@ -83,16 +116,19 @@ And it doesn't promise that models will get this right. The book's position is t
 
 ## Sources
 
-- **[S1]** How to use structured outputs with Azure OpenAI in Microsoft Foundry Models. Microsoft Learn. <https://learn.microsoft.com/azure/ai-foundry/openai/how-to/structured-outputs> Checked 2026-10-12. Kind: documented.
-- **[S2]** Naming rules and restrictions for Azure resources. Microsoft Learn. <https://learn.microsoft.com/azure/azure-resource-manager/management/resource-name-rules> Checked 2026-10-12. Kind: documented.
-- **[S3]** Microsoft Graph overview. Microsoft Learn. <https://learn.microsoft.com/graph/overview> Checked 2026-10-12. Kind: documented.
-- **[S4]** What is Azure Resource Manager?. Microsoft Learn. <https://learn.microsoft.com/azure/azure-resource-manager/management/overview> Checked 2026-10-12. Kind: documented.
+- **[S1]** List Azure deny assignments. Microsoft Learn. <https://learn.microsoft.com/azure/role-based-access-control/deny-assignments> Checked 2026-10-12. Kind: documented.
+- **[S2]** Microsoft Graph permissions reference. Microsoft Learn. <https://learn.microsoft.com/graph/permissions-reference> Checked 2026-10-12. Kind: documented.
+- **[S3]** How to use structured outputs with Azure OpenAI in Microsoft Foundry Models. Microsoft Learn. <https://learn.microsoft.com/azure/ai-foundry/openai/how-to/structured-outputs> Checked 2026-10-12. Kind: documented.
+- **[S4]** Naming rules and restrictions for Azure resources. Microsoft Learn. <https://learn.microsoft.com/azure/azure-resource-manager/management/resource-name-rules> Checked 2026-10-12. Kind: documented.
+- **[S5]** Microsoft Graph overview. Microsoft Learn. <https://learn.microsoft.com/graph/overview> Checked 2026-10-12. Kind: documented.
+- **[S6]** What is Azure Resource Manager?. Microsoft Learn. <https://learn.microsoft.com/azure/azure-resource-manager/management/overview> Checked 2026-10-12. Kind: documented.
 
 ---
 
 ## Author notes (remove before submission)
 
 - 2026-10-12 (sources): added 4 sources. Changed: none. Softened: none. Unverified: none.
+- 2026-10-12 (scope): added the Scope section with the coverage matrix and three path templates (PIM, Graph application permissions, Key Vault). Each status was checked against the chapters and appendices. Nothing is marked "planned": only an owner decision should add that status. The working subtitle in the README now names the scope (*… for Azure Identity, RBAC, and PaaS Data Access*), in its own commit so it can be reverted alone. Re-check the matrix whenever a chapter adds or drops a domain.
 - Confirm the disclosure paragraph in "What this book isn't": whether to name the tooling, and whether the publisher has a standard disclosure format.
 - Add acknowledgments (technical reviewers, anyone who walked the lab) once the review round has happened.
 - The reading paths name chapters by number. Re-check them if chapters are reordered.

@@ -4,7 +4,7 @@
 # Managing Azure Security with AI — book draft
 
 **Working title:** *Managing Azure Security with AI*
-**Working subtitle:** *Evidence-Backed Attack-Path Analysis Without Trusting the Model Blindly*
+**Working subtitle:** *Evidence-Backed Attack-Path Analysis for Azure Identity, RBAC, and PaaS Data Access*
 **Outline:** [`OUTLINE.md`](OUTLINE.md) · **Chapters:** [`chapters/`](chapters/)
 
 ## Thesis
@@ -48,7 +48,7 @@ Before any chapter leaves this repo (publisher, blog, reviewer), re-read it agai
 
 | # | Chapter | Status | Words (target) |
 |---|---------|--------|----------------|
-| — | [Preface](front-matter/preface.md) | first draft (~1,400) | 1,500 |
+| — | [Preface](front-matter/preface.md) | first draft (~2,400) | 1,500 |
 | 1 | [Why checklists fail](chapters/01-why-checklists-fail.md) | revised (~4,800) | 6,000 |
 | 2 | [Evidence and epistemics](chapters/02-evidence-and-epistemics.md) | revised (~5,200) | 7,000 |
 | 3 | [Collecting Azure evidence read-only](chapters/03-collecting-azure-evidence.md) | revised (~5,900) | 8,000 |
