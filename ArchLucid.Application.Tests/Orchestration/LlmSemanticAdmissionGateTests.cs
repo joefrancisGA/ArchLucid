@@ -47,4 +47,23 @@ public sealed class LlmSemanticAdmissionGateTests
         result.IsAllowed.Should().BeTrue();
         result.Reasons.Should().BeEmpty();
     }
+
+    [Fact]
+    public async Task EvaluateAsync_greenfield_wizard_preset_description_is_allowed()
+    {
+        ArchitectureRequest request = new()
+        {
+            RequestId = "greenfield-wizard-preset",
+            Description =
+                "Greenfield customer-facing web application with authenticated APIs, need scalable hosting, SOC-friendly defaults, and cost visibility under $2k/month.",
+            SystemName = "CustomerWebApp",
+            Environment = "prod",
+            CloudProvider = CloudProvider.Azure,
+        };
+
+        RequestContentSafetyResult result = await _sut.EvaluateAsync(request, CancellationToken.None);
+
+        result.IsAllowed.Should().BeTrue();
+        result.Reasons.Should().BeEmpty();
+    }
 }

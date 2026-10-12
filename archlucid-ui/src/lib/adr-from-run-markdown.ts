@@ -211,11 +211,21 @@ export function buildMadrMarkdownFromRun(
     "This document was **drafted client-side** from ArchLucid run exports. It is **not** a substitute for human architecture review, security sign-off, or contractually binding decision logs.",
   ];
 
-  if (exp !== null && exp.deterministicFallbackUsed) {
+  if (
+    exp !== null
+    && (exp.deterministicFallbackUsed === null || exp.deterministicFallbackUsed === undefined)
+  ) {
+    caveatLines.push("Deterministic fallback was not stored.");
+  } else if (exp !== null && exp.deterministicFallbackUsed === true) {
     caveatLines.push("Aggregate text may include **deterministic substitution** where LLM output was unavailable or low-faithfulness.");
   }
 
-  if (exp !== null && exp.faithfulnessWarning !== null && exp.faithfulnessWarning.length > 0) {
+  if (
+    exp !== null
+    && (exp.faithfulnessWarning === null || exp.faithfulnessWarning === undefined)
+  ) {
+    caveatLines.push("Faithfulness warning was not stored.");
+  } else if (exp !== null && exp.faithfulnessWarning !== null && exp.faithfulnessWarning.length > 0) {
     caveatLines.push(`Faithfulness / quality note: ${exp.faithfulnessWarning}`);
   }
 

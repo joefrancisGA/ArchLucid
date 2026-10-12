@@ -8,6 +8,7 @@ import lab_graph as lab
 from ch04_paths import (
     BLOB_READ_ACTION,
     CODE_CONTROL_ACTION,
+    INSUFFICIENT,
     LIST_KEYS_ACTION,
     Edge,
     action_permitted,
@@ -15,7 +16,10 @@ from ch04_paths import (
     descendants_of,
     expand_group_assignments,
     find_paths,
+    hop_table,
+    path_confidence,
     pattern_covers,
+    unmodeled_on,
 )
 
 
@@ -162,13 +166,89 @@ class Derivation(unittest.TestCase):
 
         self.assertEqual(len(edges), 2)
 
-    def test_conditional_assignment_emits_nothing(self) -> None:
-        self.assertEqual(self.derive([self.contributor(condition="@Resource[name] == 'x'")]), [])
+    def test_conditional_assignment_is_labeled_not_dropped(self) -> None:
+        edges = self.derive([self.contributor(condition="@Resource[name] == 'x'")])
 
-    def test_unknown_role_emits_nothing(self) -> None:
-        assignment = dict(self.contributor(), role_name="Mystery")
+        self.assertEqual({edge.target for edge in edges}, {lab.PAY_RECONCILE, lab.READ_CUSTDATA})
+        self.assertEqual({edge.control.kind for edge in edges}, {"roleCondition"})
+        self.assertEqual(edges[0].control.condition, "@Resource[name] == 'x'")
+        self.assertIn("allows this hop: @Resource[name] == 'x'", edges[0].control.assumption())
 
-        self.assertEqual(self.derive([assignment]), [])
+    def test_unknown_role_is_labeled_and_assumed_to_grant_everything(self) -> None:
+        edges = self.derive([dict(self.contributor(), role_name="Mystery")])
+
+        self.assertEqual({edge.target for edge in edges}, {lab.PAY_RECONCILE, lab.READ_CUSTDATA})
+        self.assertEqual({edge.control.kind for edge in edges}, {"missingRoleDefinition"})
+        self.assertIn("definition wasn't collected", edges[0].control.assumption())
+
+    def test_unknown_role_with_condition_reports_the_missing_definition(self) -> None:
+        edges = self.derive([dict(self.contributor(condition="x"), role_name="Mystery")])
+
+        self.assertEqual({edge.control.kind for edge in edges}, {"missingRoleDefinition"})
+
+    def test_plain_grant_replaces_a_conditioned_one_for_the_same_hop(self) -> None:
+        conditioned = dict(self.contributor(condition="c"), citation="row 2")
+
+        for order in ([conditioned, self.contributor()], [self.contributor(), conditioned]):
+            with self.subTest(first=order[0]["citation"]):
+                edges = self.derive(order)
+
+                self.assertEqual([edge.control for edge in edges], [None, None])
+                self.assertTrue(all(edge.detail.startswith("row 1") for edge in edges))
+
+    def test_plain_blob_route_beats_a_conditioned_key_route(self) -> None:
+        reader = {"principal": "sp:x", "role_name": "Storage Blob Data Reader", "scope": lab.CUSTDATA,
+                  "citation": "row 9"}
+        edges = self.derive([self.contributor(condition="c"), reader])
+        grants = [edge for edge in edges if edge.kind == "grants"][0]
+
+        self.assertIsNone(grants.control)
+        self.assertTrue(grants.detail.startswith("row 9;"))
+        self.assertIn(LIST_KEYS_ACTION, grants.detail)
+
+    def test_two_stores_behind_one_capability_keep_the_plain_route(self) -> None:
+        # custdata and custarchive both feed one "read customer data" node; only custarchive is plain.
+        stores = [dict(resource, capability="read:customers") for resource in lab.resources()[1:]]
+        assignments = [self.contributor(condition="c"),
+                       dict(self.contributor(scope=lab.RG_ARCHIVE), citation="row 3")]
+
+        for ordered in (stores, stores[::-1]):
+            with self.subTest(first=ordered[0]["id"]):
+                edges = derive_capability_edges(assignments, lab.ROLE_DEFINITIONS, lab.CHILDREN_OF, [],
+                                                ordered)
+
+                self.assertEqual([(edge.control, edge.detail[:5]) for edge in edges], [(None, "row 3")])
+
+    def test_deny_with_condition_labels_instead_of_blocking(self) -> None:
+        deny = {"principals": ["*"], "scope": lab.RG_PROD, "condition": "@Resource[tag] == 'x'",
+                "name": "stack deny", "citation": "deny-assignments.json row 2",
+                "permissions": [{"actions": ["*"]}]}
+        edges = self.derive([self.contributor()], [deny])
+
+        self.assertEqual({edge.control.kind for edge in edges}, {"denyWithCondition"})
+        self.assertEqual(edges[0].control.role, "stack deny")
+
+    def test_condition_on_a_deny_permission_block(self) -> None:
+        deny = {"principals": ["sp:x"], "scope": lab.RG_PROD,
+                "permissions": [{"actions": [LIST_KEYS_ACTION], "condition": "c"}]}
+        edges = {edge.kind: edge for edge in self.derive([self.contributor()], [deny])}
+
+        self.assertIsNone(edges["canControlCode"].control)
+        self.assertEqual(edges["grants"].control.kind, "denyWithCondition")
+        self.assertEqual(edges["grants"].control.citation, "deny-assignments.json")
+
+    def test_unconditioned_deny_still_blocks_when_a_conditioned_one_also_matches(self) -> None:
+        conditioned = {"principals": ["*"], "scope": lab.RG_PROD, "condition": "c",
+                       "permissions": [{"actions": ["*"]}]}
+        plain = {"principals": ["*"], "scope": lab.RG_PROD, "permissions": [{"actions": ["*"]}]}
+
+        self.assertEqual(self.derive([self.contributor()], [conditioned, plain]), [])
+
+    def test_excluded_principal_escapes_an_everyone_deny(self) -> None:
+        deny = {"principals": ["*"], "exclude_principals": ["SP:X"], "scope": lab.RG_PROD,
+                "permissions": [{"actions": ["*"]}]}
+
+        self.assertEqual(len(self.derive([self.contributor()], [deny])), 2)
 
     def test_disabled_shared_key_blocks_key_route(self) -> None:
         edges = self.derive([self.contributor()], shared_key="disabled")
@@ -260,6 +340,52 @@ class FindPaths(unittest.TestCase):
         ]
 
         self.assertEqual([len(path) for path in find_paths(edges, "a", "t")], [1, 2])
+
+
+CONTAINER_CONDITION = (
+    "((!(ActionMatches{'Microsoft.Storage/storageAccounts/blobServices/containers/blobs/read'}))"
+    " OR (@Resource[Microsoft.Storage/storageAccounts/blobServices/containers:name]"
+    " StringEquals 'reports'))"
+)
+
+
+class UnmodeledPaths(unittest.TestCase):
+    def conditioned_reader(self) -> dict:
+        return {"principal": lab.ANALYST, "role_name": "Storage Blob Data Reader", "scope": lab.CUSTDATA,
+                "condition": CONTAINER_CONDITION, "citation": "role-assignments.json row 31"}
+
+    def test_lab_baseline_has_no_unmodeled_controls(self) -> None:
+        found = lab.labeled_paths(lab.lab_edges())
+
+        for label, paths in found.items():
+            with self.subTest(label):
+                self.assertEqual(unmodeled_on(paths[0]), [])
+                self.assertEqual(path_confidence(paths[0], "High"), "High")
+
+    def test_conditioned_reader_adds_a_labeled_path_and_leaves_p1_to_p6(self) -> None:
+        edges = lab.lab_edges(extra_assignments=[self.conditioned_reader()])
+        paths = find_paths(edges, lab.ANALYST, lab.READ_CUSTDATA)
+
+        self.assertEqual(len(paths), 1)
+        self.assertEqual(path_confidence(paths[0], "High"), INSUFFICIENT)
+        self.assertEqual([control.kind for control in unmodeled_on(paths[0])], ["roleCondition"])
+        self.assertEqual({label: len(found) for label, found in lab.labeled_paths(edges).items()},
+                         {label: 1 for label in lab.BOOK_PATHS})
+
+    def test_hop_table_lists_the_control_as_an_assumption(self) -> None:
+        edges = lab.lab_edges(extra_assignments=[self.conditioned_reader()])
+        table = hop_table(find_paths(edges, lab.ANALYST, lab.READ_CUSTDATA)[0], "High")
+
+        self.assertEqual(table[0], "Confidence: Insufficient evidence")
+        self.assertTrue(table[1].startswith(f"1. {lab.ANALYST} --grants--> {lab.READ_CUSTDATA} [derived]"))
+        self.assertTrue(table[2].startswith("Assumption to check: roleCondition on 'Storage Blob Data Reader'"))
+        self.assertIn("'reports'", table[2])
+
+    def test_hop_table_for_a_plain_path(self) -> None:
+        path = lab.labeled_paths(lab.lab_edges())["P2"][0]
+
+        self.assertEqual(hop_table(path, "High")[0], "Confidence: High")
+        self.assertEqual(len(hop_table(path, "High")), 1 + len(path))
 
 
 if __name__ == "__main__":

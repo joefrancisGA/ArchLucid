@@ -6,7 +6,10 @@ authorizationresources
     scope = tostring(properties.scope),
     doNotApplyToChildScopes = tobool(properties.doNotApplyToChildScopes),
     principals = properties.principals,
+    excludePrincipals = properties.excludePrincipals,
+    condition = tostring(properties.condition),
     actions = permission.actions,
     notActions = permission.notActions,
     dataActions = permission.dataActions,
-    notDataActions = permission.notDataActions
+    notDataActions = permission.notDataActions,
+    permissionCondition = tostring(permission.condition)

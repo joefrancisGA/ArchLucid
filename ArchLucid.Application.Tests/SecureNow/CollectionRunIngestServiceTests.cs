@@ -11,8 +11,8 @@ using Moq;
 
 namespace ArchLucid.Application.Tests.SecureNow;
 
-[Trait("Suite", "Core")]
 [Trait("Category", "Unit")]
+[Trait("Suite", "Application")]
 public sealed class CollectionRunIngestServiceTests
 {
     [Fact]

@@ -40,6 +40,7 @@ import {
 } from "@/lib/governance/governance-infrastructure-route-paths";
 import { CREATE_ARCHITECTURE_LABEL, START_REVIEW_LABEL } from "@/lib/architecture/architecture-workflow-labels";
 import { ARCHITECTURES_LIST_PATH, ARCHITECTURES_NEW_PATH } from "@/lib/architecture/architecture-routes";
+import { SECURENOW_COLLECTION_AGENT_PATH } from "@/lib/product-line/securenow-collection-agent-route";
 import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor/sponsor-dashboard-route";
 import {
   INTERNAL_DEMO_READINESS_PAGE_TITLE,
@@ -118,6 +119,7 @@ export const ROUTE_TITLES: Record<string, string> = {
   [SECURENOW_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH]: OPERATOR_NAV_LINK_LABELS.infrastructureDiagramReconcile,
   [GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH]: OPERATOR_NAV_LINK_LABELS.infrastructureResources,
   [SECURENOW_INFRASTRUCTURE_RESOURCES_PATH]: OPERATOR_NAV_LINK_LABELS.infrastructureResources,
+  [SECURENOW_COLLECTION_AGENT_PATH]: "Collection agent",
   [GOVERNANCE_INFRASTRUCTURE_DECLARED_CONNECTIONS_PATH]: OPERATOR_NAV_LINK_LABELS.infrastructureDeclaredConnections,
   [SECURENOW_INFRASTRUCTURE_DECLARED_CONNECTIONS_PATH]: OPERATOR_NAV_LINK_LABELS.infrastructureDeclaredConnections,
   [GOVERNANCE_INFRASTRUCTURE_ASK_PATH]: OPERATOR_NAV_LINK_LABELS.infrastructureAsk,

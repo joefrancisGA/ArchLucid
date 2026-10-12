@@ -40,6 +40,27 @@ describe("live-api-private-beta-access loader smoke", () => {
     );
 
     expect(source).toContain("waitAndDismissFirstSessionPurposeChooser");
+    expect(source).toContain("isArchitectureRequestCreateResponse");
+    expect(source).toContain("readCreatedRunIdFromArchitectureRequestCreate");
+  });
+
+  it("matches async 202 create POSTs without requiring a JSON body", async () => {
+    const createResponse = await import("./helpers/architecture-request-create-response");
+
+    expect(
+      createResponse.isArchitectureRequestCreateResponse({
+        url: "http://localhost:3000/api/proxy/v1/architecture/request/async",
+        method: "POST",
+      }),
+    ).toBe(true);
+
+    expect(
+      createResponse.readCreatedRunIdFromArchitectureRequestCreate({
+        status: 202,
+        bodyText: "",
+        location: "/v1/operations/run:bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+      }),
+    ).toBe("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
   });
 
   it("loads the sandbox mock chain used by live-e2e Next bundles", async () => {

@@ -15,6 +15,8 @@ Terms in *italics* inside a definition have their own entry.
 
 **Access event** — a specific logged operation at a specific time. Contrast with *capability* and *flow*. *Chapter 6.*
 
+**Access-decision contract** — for one target, the controls that decide access, whether the analysis models each one, and what result an unmodeled instance produces. It keeps "can read" from sounding stronger than the evidence. *Chapter 4.*
+
 **Activity metric** — a measure of work done, such as items closed. Contrast with *outcome metric*. *Chapter 1.*
 
 **AI inference** — an interpretation produced by a model. It isn't guaranteed to be repeatable or traceable, and it is never promoted to an *observed fact*. One of the five *evidence categories*. *Chapter 2.*
@@ -226,6 +228,8 @@ Terms in *italics* inside a definition have their own entry.
 **Transitive membership** — group membership including members of nested groups. *Chapter 3.*
 
 ## U
+
+**Unmodeled control** — a control the derivation found but can't evaluate, such as a role-assignment condition, a missing role definition, or a deny assignment with a condition. The hop is kept and labeled, and a path through it is reported as insufficient evidence. *Chapter 4.*
 
 **Untrusted text** — text in the evidence written by people outside the review, such as tags and display names. It's carried separately from claims and never followed. *Chapter 8.*
 

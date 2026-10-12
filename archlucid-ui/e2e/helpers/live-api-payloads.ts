@@ -27,9 +27,14 @@ export function unwrapCursorPagedResponseItems<T>(body: unknown): T[] {
   return [];
 }
 
-/** Matches LlmSemanticAdmissionGate architecture-domain heuristic (see ArchLucid.Application). */
+/** Matches ArchitectureDomainAdmissionPattern (see ArchLucid.Application). Plural APIs must match. */
 const liveE2eArchitectureAdmissionRegex =
-  /\b(architecture|system|database|api|service|cloud|azure|aws|gcp|security|compliance|tenant|scale|latency|throughput|auth|identity)\b/i;
+  /\b(architecture|system|database|apis?|service|cloud|azure|aws|gcp|security|compliance|tenant|scale|latency|throughput|auth|identity)\b/i;
+
+/** True when create-run description text would pass the create-run safety precheck. */
+export function architectureDescriptionPassesLiveE2eAdmission(description: string): boolean {
+  return liveE2eArchitectureAdmissionRegex.test(description);
+}
 
 /**
  * Builds a POST `/v1/architecture/request` description that passes semantic admission.
@@ -38,7 +43,7 @@ const liveE2eArchitectureAdmissionRegex =
 export function liveE2eArchitectureDescription(testIntent: string): string {
   const intent = testIntent.trim();
 
-  if (liveE2eArchitectureAdmissionRegex.test(intent)) {
+  if (architectureDescriptionPassesLiveE2eAdmission(intent)) {
     return intent;
   }
 
@@ -70,7 +75,7 @@ export function enrichArchitectureRequestBody(body: Record<string, unknown>): Re
 
   const description = resolveArchitectureDescriptionField(body.description, intent);
 
-  if (liveE2eArchitectureAdmissionRegex.test(description)) {
+  if (architectureDescriptionPassesLiveE2eAdmission(description)) {
     return { ...body, description };
   }
 

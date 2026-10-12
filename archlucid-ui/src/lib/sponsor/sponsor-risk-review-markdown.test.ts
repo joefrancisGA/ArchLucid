@@ -127,6 +127,29 @@ describe("buildSponsorRiskReviewMarkdown", () => {
     expect(stored).toContain("0 architecture findings");
     expect(stored).toContain("Faithfulness support ratio: stored.");
   });
+
+  it("distinguishes missing faithfulness and fallback flags from stored empty and false values", () => {
+    const missing = buildSponsorRiskReviewMarkdown("r", "H", stubSummary(), []);
+    const stored = buildSponsorRiskReviewMarkdown(
+      "r",
+      "H",
+      stubSummary({ faithfulnessWarning: "", deterministicFallbackUsed: false }),
+      [],
+    );
+    const active = buildSponsorRiskReviewMarkdown(
+      "r",
+      "H",
+      stubSummary({ faithfulnessWarning: "Stored warning", deterministicFallbackUsed: true }),
+      [],
+    );
+
+    expect(missing).toContain("Faithfulness warning was not stored.");
+    expect(missing).toContain("Deterministic fallback was not stored.");
+    expect(stored).not.toContain("Faithfulness warning was not stored.");
+    expect(stored).not.toContain("Deterministic fallback was not stored.");
+    expect(active).toContain("Stored warning");
+    expect(active).toContain("deterministically aligned");
+  });
 });
 
 describe("executiveRiskReviewMarkdownFilename", () => {

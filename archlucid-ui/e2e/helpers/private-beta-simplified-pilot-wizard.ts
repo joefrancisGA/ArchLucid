@@ -1,8 +1,8 @@
 import { expect, type Page, type Response } from "@playwright/test";
 
 import {
-  isArchitectureRequestCreateJsonResponse,
-  readCreatedRunIdFromArchitectureRequestBody,
+  isArchitectureRequestCreateResponse,
+  readCreatedRunIdFromArchitectureRequestCreate,
 } from "./architecture-request-create-response";
 import { liveE2eArchitectureDescription } from "./live-api-client";
 import { formatSimplifiedPilotWizardMountFailure } from "./simplified-pilot-wizard-mount-failure";
@@ -97,7 +97,7 @@ export async function submitPrivateBetaSimplifiedPilotWizard(page: Page): Promis
   });
 
   const createRespPromise = page.waitForResponse(
-    (response) => isArchitectureRequestCreateJsonResponse(toCreateJsonResponseArgs(response)),
+    (response) => isArchitectureRequestCreateResponse(toCreateResponseArgs(response)),
     { timeout: liveE2ePrivateBetaWizardCreateTimeoutMs() },
   );
 
@@ -108,24 +108,28 @@ export async function submitPrivateBetaSimplifiedPilotWizard(page: Page): Promis
 
   expect(
     createResp.ok(),
-    `POST /architecture/request failed ${createResp.status()}: ${bodyText}`,
+    `POST /architecture/request failed ${String(createResp.status())}: ${bodyText}`,
   ).toBeTruthy();
 
-  return readCreatedRunIdFromArchitectureRequestBody(bodyText);
+  return readCreatedRunIdFromArchitectureRequestCreate({
+    status: createResp.status(),
+    bodyText,
+    location: createResp.headers()["location"],
+  });
 }
 
-function toCreateJsonResponseArgs(response: Response): {
+function toCreateResponseArgs(response: Response): {
   url: string;
   method: string;
-  contentType: string | undefined;
 } {
   return {
     url: response.url(),
     method: response.request().method(),
-    contentType: response.headers()["content-type"],
   };
 }
 
 function liveE2ePrivateBetaWizardCreateTimeoutMs(): number {
-  return process.env.CI ? 540_000 : 180_000;
+  // Async create is stub + enqueue (202). The previous 540s CI budget waited for a JSON
+  // sync body that Real-mode wizard create never sends.
+  return process.env.CI ? 120_000 : 180_000;
 }

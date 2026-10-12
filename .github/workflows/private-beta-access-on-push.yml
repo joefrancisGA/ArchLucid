@@ -12,8 +12,7 @@ on:
   workflow_dispatch:
 
 concurrency:
-  # Cancel superseded trunk pushes so the latest invite-wave run is the first-green signal.
-  # Frozen-lane Playwright stays on private-beta-access-smoke-branch.yml (cancel-in-progress: false).
+  # Cancel superseded in-progress runs so a newer trunk SHA is the invite-wave witness.
   group: private-beta-access-on-push-${{ github.ref }}
   cancel-in-progress: true
 

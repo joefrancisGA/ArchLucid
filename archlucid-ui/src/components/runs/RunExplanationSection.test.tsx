@@ -139,6 +139,25 @@ describe("RunExplanationSection", () => {
     expect(screen.getByRole("status", { name: /deterministic narrative fallback/i })).toBeInTheDocument();
   });
 
+  it("reports a missing deterministic fallback flag without treating false as missing", () => {
+    const { rerender } = render(
+      <RunExplanationSection summary={mockSummary()} loading={false} error={null} runId="r1" />,
+    );
+
+    expect(screen.getByText("Deterministic fallback was not stored.")).toBeInTheDocument();
+
+    rerender(
+      <RunExplanationSection
+        summary={mockSummary({ deterministicFallbackUsed: false })}
+        loading={false}
+        error={null}
+        runId="r1"
+      />,
+    );
+
+    expect(screen.queryByText("Deterministic fallback was not stored.")).not.toBeInTheDocument();
+  });
+
   it("shows loading state", () => {
     render(<RunExplanationSection summary={null} loading={true} error={null} runId="r1" />);
 

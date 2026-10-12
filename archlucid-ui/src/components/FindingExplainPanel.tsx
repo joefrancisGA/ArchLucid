@@ -326,6 +326,8 @@ export function FindingExplainPanel({
                 <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                   Model: {audit.modelDeploymentName ?? "Model deployment name was not stored."} · Agent:{" "}
                   {buyerLabelForAgentType(audit.agentType)}
+                  {" · Model version: "}
+                  {audit.modelVersion ?? "Model version was not stored."}
                 </p>
               </div>
             </DocumentLayout>
