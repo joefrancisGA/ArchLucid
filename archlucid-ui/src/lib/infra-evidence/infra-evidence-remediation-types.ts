@@ -87,6 +87,7 @@ export type RemediationWaveProgressSummary = {
 export type RemediationFactoryWorkbenchSummary = {
   factoryMetrics: {
     openFindings: number;
+    criticalExposureCount: number;
     remediatedThisWeek: number;
     verificationFailureCount: number;
     businessBlockedCount: number;

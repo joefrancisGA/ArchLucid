@@ -6,7 +6,7 @@ import {
   SECURENOW_INFRASTRUCTURE_RESOURCES_PATH,
   SECURENOW_INFRASTRUCTURE_TERRAFORM_PATH,
 } from "@/lib/governance/governance-infrastructure-route-paths";
-import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
+import { SECURENOW_NAV_LABELS } from "@/lib/product-line/securenow-nav-labels";
 
 import type { SecureNowHomeDestinationRow } from "@/lib/product-line/securenow-home-destination-rows";
 
@@ -24,33 +24,33 @@ export const SECURENOW_INFRASTRUCTURE_HOME_SECTION_LEAD =
 export const SECURENOW_INFRASTRUCTURE_HOME_ROWS: readonly SecureNowHomeDestinationRow[] = [
   {
     href: SECURENOW_INFRASTRUCTURE_RESOURCES_PATH,
-    label: OPERATOR_NAV_LINK_LABELS.infrastructureResources,
-    summary: "Explore cloud resources and open the evidence hub for a single resource.",
+    label: SECURENOW_NAV_LABELS[SECURENOW_INFRASTRUCTURE_RESOURCES_PATH],
+    summary: "Search collected resources and open the evidence for one resource.",
     recommendedFirst: true,
   },
   {
     href: SECURENOW_INFRASTRUCTURE_DIAGRAMS_PATH,
-    label: OPERATOR_NAV_LINK_LABELS.infrastructureDiagrams,
-    summary: "Visualize and export diagrams",
+    label: SECURENOW_NAV_LABELS[SECURENOW_INFRASTRUCTURE_DIAGRAMS_PATH],
+    summary: "See how collected resources connect.",
   },
   {
     href: SECURENOW_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH,
-    label: OPERATOR_NAV_LINK_LABELS.infrastructureDiagramReconcile,
-    summary: "Reconcile uploaded diagrams against inventory snapshots with explainable correspondence rows.",
+    label: SECURENOW_NAV_LABELS[SECURENOW_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH],
+    summary: "Compare an uploaded diagram with what was collected, and see what matches.",
   },
   {
     href: SECURENOW_INFRASTRUCTURE_DRIFT_PATH,
-    label: SECURENOW_INFRASTRUCTURE_DRIFT_LABEL,
-    summary: "Compare inventory snapshots, classify changes, and export advisory Terraform.",
+    label: SECURENOW_NAV_LABELS[SECURENOW_INFRASTRUCTURE_DRIFT_PATH],
+    summary: "Compare two collections and see what changed.",
   },
   {
     href: SECURENOW_INFRASTRUCTURE_ASK_PATH,
-    label: OPERATOR_NAV_LINK_LABELS.infrastructureAsk,
-    summary: "Ask grounded questions about inventory evidence with citation-backed answers.",
+    label: SECURENOW_NAV_LABELS[SECURENOW_INFRASTRUCTURE_ASK_PATH],
+    summary: "Ask a question about this environment. The answer cites collected evidence.",
   },
   {
     href: SECURENOW_INFRASTRUCTURE_TERRAFORM_PATH,
-    label: OPERATOR_NAV_LINK_LABELS.infrastructureTerraform,
-    summary: "Review advisory Terraform mapping reconstructed from inventory evidence.",
+    label: SECURENOW_NAV_LABELS[SECURENOW_INFRASTRUCTURE_TERRAFORM_PATH],
+    summary: "Review suggested Terraform reconstructed from the collection. SecureNow does not apply it.",
   },
 ];
