@@ -9085,6 +9085,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: llm-wallet
 
+2026-10-12 thorough hunt (dry): cheap-disproved the Stripe ownership candidate as not hunt-ready in the selected files: `WalletController.PutAsync` and `LlmTenantWalletService.UpdateWalletAsync` only forward the identifiers, while the ownership/validation contract is outside this zone. The focused `LlmTenantWalletServiceTests` run was blocked before discovery by unrelated missing `unmappedRoles` and `warnings` members in `AzureInventorySecurityEdgeMaterializer.cs`; no failing repro, production change, or regression code was added.
+
 2026-10-12 seed hunt (seed-only): re-read the selected wallet controller, service, SQL repository, and focused tests. No candidate met the full hunt-ready bar, but seeded one bounded follow-up for the authenticated admin PUT path forwarding client-supplied Stripe customer/payment-method identifiers to the wallet update stage; the selected files do not establish whether those identifiers are intentionally operator-managed or validated against the tenant’s Stripe record. The focused `LlmTenantWalletServiceTests` run was blocked before discovery by unrelated missing `unmappedRoles` and `warnings` members in `AzureInventorySecurityEdgeMaterializer.cs`; no production or regression code changed.
 
 - **id:** llm-wallet
@@ -9093,9 +9095,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** llm wallet; tenant wallet; billing wallet
 - **paths:** ArchLucid.Api/Controllers/Billing/WalletController.cs; ArchLucid.Application/Budgeting/LlmTenantWalletService.cs; ArchLucid.Persistence/Data/Repositories/SqlLlmTenantWalletRepository.cs
 - **test-filter:** FullyQualifiedName~LlmTenantWalletServiceTests
-- **hunts:** 37
+- **hunts:** 38
 - **bugs-found:** 19
-- **consecutive-dry-hunts:** 1
+- **consecutive-dry-hunts:** 2
 - **last-hunt:** 2026-10-12
 - **last-bug:** 2026-10-09 — wallet GET still required admin because Authorize attributes stack
 - **related-pd-tb:** none
