@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-13 seed hunt (seed→hit): `notifications-pipeline` — promoted `ChatOpsIncomingWebhookBodies.ForSlack`; evaluation-sourced `Title`/`SeverityLabel` asterisks broke mrkdwn headline wrapping (`*{Title}*`) and could spoof emphasis in Slack alert/digest webhooks; shared `ChatOpsSlackMrkdwnEscaper.EscapeFormattingMetacharacters`; regression `ForSlack_escapes_asterisks_in_title_when_wrapping_headline_emphasis`; 176 scoped notification/digest Application tests passed; 8 incoming webhook body tests passed; 32 Decisioning webhook delivery tests passed.
+
 2026-10-13 seed hunt (seed→hit): `notifications-pipeline` — promoted `ChatOpsWebhookDeliveryService.DeliverAsync`; `webhookAbsoluteUri` with embedded CRLF passed `ThrowIfNullOrWhiteSpace` and reached `IWebhookPoster.PostJsonAsync` (defense-in-depth gap after channel-level validator wiring); `ChatOpsWebhookAbsoluteUriValidator.ResolveHttpsDeliveryUriOrThrow` at service boundary; regression `DeliverAsync_throws_when_webhook_uri_has_embedded_line_breaks`; 176 scoped notification/digest Application tests passed; 9 ChatOps delivery service tests passed.
 
 2026-10-13 seed hunt (seed→hit): `notifications-pipeline` — promoted `AlertOnCallWebhookDeliveryChannel.SendAsync`; generic on-call/pager `payload.Subscription.Destination` reached `IWebhookPoster.PostJsonAsync` without `ChatOpsWebhookAbsoluteUriValidator` (parity gap after Slack/Teams digest/alert hardening); `ResolveHttpsDeliveryUriOrThrow` before POST; regression `SendAsync_throws_when_subscription_destination_has_embedded_line_breaks` (on-call channel); 176 scoped notification/digest Application tests passed; 5 Decisioning on-call channel tests passed.
@@ -31473,6 +31475,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ## Zone: notifications-pipeline
 
+2026-10-13 seed hunt (seed→hit): proved `ChatOpsIncomingWebhookBodies.ForSlack` wrapped alert/digest titles containing `*` without escaping, breaking mrkdwn emphasis boundaries; `ChatOpsSlackMrkdwnEscaper`; 176 scoped Application notification tests passed; 8 Notifications body tests passed.
+
 2026-10-13 seed hunt (seed→hit): proved `ChatOpsWebhookDeliveryService.DeliverAsync` forwarded CRLF-bearing `webhookAbsoluteUri` to `PostJsonAsync`; shared validator at service entry; 176 scoped Application notification tests passed; 9 delivery service tests passed.
 
 2026-10-13 seed hunt (seed→hit): proved `AlertOnCallWebhookDeliveryChannel` forwarded CRLF-bearing subscription destinations to `PostJsonAsync` without validator; `ChatOpsWebhookAbsoluteUriValidator.ResolveHttpsDeliveryUriOrThrow`; 176 scoped Application notification tests passed; 5 on-call channel tests passed.
@@ -31517,11 +31521,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** notifications; email dispatchers beyond weekly summary
 - **paths:** ArchLucid.Notifications/; ArchLucid.Application/Notifications/; ArchLucid.Api/Controllers/Advisory/DigestSubscriptionsController.cs
 - **test-filter:** FullyQualifiedName~Notifications|FullyQualifiedName~EmailDispatcher|FullyQualifiedName~DigestSubscriptionsController
-- **hunts:** 81
-- **bugs-found:** 63
+- **hunts:** 82
+- **bugs-found:** 64
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-13
-- **last-bug:** 2026-10-13 — ChatOps webhook delivery URI CRLF
+- **last-bug:** 2026-10-13 — Slack mrkdwn title metacharacter escape
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -31584,9 +31588,13 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [ ] (candidate) `Application/Notifications/Email` dispatchers — mailbox validation duplicated per notifier instead of shared `TryResolveDeliveryMailbox` helper — locus: parallel `IdentityEmailNormalizer.TryNormalize` guards; input: future notifier forgetting guard (consolidation candidate; do not add another one-off CRLF test without helper).
 - [ ] (candidate) `AlertTeamsWebhookDeliveryChannelTests` — regression coverage gap for embedded CRLF in subscription destination (product path validated in channel code; Teams-specific test mirrors alert Slack row).
 - [ ] (candidate) `DigestTeamsWebhookDeliveryChannelTests` — same CRLF destination regression gap vs digest Slack test.
-- [ ] (candidate) `ChatOpsIncomingWebhookBodies.ForSlack` — `message.Title` containing unescaped `*` or `` ` `` breaks mrkdwn emphasis boundaries — locus: headline `*{Title}*`; input: evaluation finding title with markdown metacharacters.
+- [x] (proven) `ChatOpsIncomingWebhookBodies.ForSlack` / `ForSlackWithGovernanceActions` — `message.Title` or `SeverityLabel` containing `*` broke mrkdwn headline emphasis — **hit 2026-10-13 seed hunt (seed→hit):** `ChatOpsSlackMrkdwnEscaper.EscapeFormattingMetacharacters` before wrapping; regression `ForSlack_escapes_asterisks_in_title_when_wrapping_headline_emphasis`.
+- [x] (valid-no-repro) `SlackInteractivityVerifier.Verify` — signature length timing side channel — **cheap-disproof 2026-10-13 seed hunt:** `CryptographicOperations.FixedTimeEquals` rejects length mismatches without comparing secret material; length is not secret.
+- [ ] (candidate) `ChatOpsIncomingWebhookBodies.CombineBlocks` — `SupportingParagraph` from alert category/trigger lines may still inject mrkdwn metacharacters between headline and body — locus: `CombineBlocks`; input: `TriggerValue` containing `*` from evaluation pipelines.
 - [ ] (candidate) `AuthorityRunCommittedChatOpsHook.BuildMessage` — `notice.Description` with excessive length posts full body to Slack/Teams without truncation — locus: `BuildMessage`; input: very long authority-run description from agent output.
-- [ ] (candidate) `SlackInteractivityVerifier` — timing side channel on signature compare — locus: verifier; input: attacker-controlled signature length (likely already fixed-time; verify before promoting).
+- [ ] (candidate) `DigestSlackWebhookDeliveryChannel.SendAsync` — `ContentMarkdown` body is posted with mrkdwn enabled while digest markdown may include vendor metacharacters by design — locus: digest delivery; input: intentional markdown vs spoofing boundary (document before changing).
+- [ ] (candidate) `AlertTeamsWebhookDeliveryChannelTests` / `DigestTeamsWebhookDeliveryChannelTests` — Teams CRLF destination regression test parity with Slack rows (coverage only).
+- [ ] (candidate) `Application/Notifications/Email` dispatchers — shared `TryResolveDeliveryMailbox` consolidation (see existing row).
 
 - [x] (proven) `ExecDigestEmailDispatcher` — `DashboardUrl` / `SponsorValueReportUrl` with embedded userinfo reached digest template CTAs without sanitization — **hit 2026-10-13 seed hunt (seed→hit):** `SanitizeOperatorAbsoluteUrl` at dispatch (parity with unsubscribe and weekly sponsor `runDetailUrl`); regression `ExecDigestEmailDispatcher_omits_user_info_from_dashboard_and_sponsor_urls_in_template_model`.
 
