@@ -674,6 +674,58 @@ public sealed class GetOnlyHostedAzureArmReadClientTests
     }
 
     [Fact]
+    public async Task ListFactoryLinkedServicesAsync_retains_linked_services_when_later_page_returns_forbidden()
+    {
+        const string factoryResourceId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.DataFactory/factories/adf-a";
+        const string nextLink =
+            $"https://management.azure.com{factoryResourceId}/linkedservices?api-version=2018-06-01&$skiptoken=page2";
+
+        string firstPageBody = """
+                               {
+                                 "value": [
+                                   {
+                                     "name": "BlobLS-a",
+                                     "id": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.DataFactory/factories/adf-a/linkedservices/BlobLS-a"
+                                   }
+                                 ],
+                                 "nextLink": "ADF_LINKED_SERVICES_NEXT_LINK"
+                               }
+                               """.Replace("ADF_LINKED_SERVICES_NEXT_LINK", nextLink, StringComparison.Ordinal);
+
+        int requestCount = 0;
+
+        HttpMessageHandler handler = new RecordingHandler(
+            (_, _) =>
+            {
+                int current = Interlocked.Increment(ref requestCount);
+
+                if (current == 1)
+                {
+                    return Task.FromResult(
+                        new HttpResponseMessage(HttpStatusCode.OK)
+                        {
+                            Content = new StringContent(firstPageBody)
+                        });
+                }
+
+                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.Forbidden));
+            });
+
+        GetOnlyHostedAzureArmReadClient client = new(
+            new HttpClient(handler),
+            NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+
+        var linkedServices = await client.ListFactoryLinkedServicesAsync(
+            "token-abc",
+            factoryResourceId,
+            CancellationToken.None);
+
+        Assert.Equal(2, requestCount);
+        Assert.Single(linkedServices);
+    }
+
+    [Fact]
     public async Task ListFactoryLinkedServicesAsync_rejects_next_link_for_different_factory_child_collection()
     {
         const string factoryResourceId =

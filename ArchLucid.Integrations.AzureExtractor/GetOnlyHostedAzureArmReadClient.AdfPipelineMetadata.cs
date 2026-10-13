@@ -135,6 +135,11 @@ public sealed partial class GetOnlyHostedAzureArmReadClient
             using HttpResponseMessage response =
                 await _httpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
 
+            if (ShouldBreakForFactoryPaginationTerminalHttpFailure(response, childResources.Count))
+            {
+                break;
+            }
+
             if (response.StatusCode == System.Net.HttpStatusCode.Forbidden)
             {
                 throw new HttpRequestException($"{logLabel} list returned Forbidden.", null, response.StatusCode);

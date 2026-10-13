@@ -45,6 +45,25 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
         return false;
     }
 
+    private static bool ShouldBreakForFactoryPaginationTerminalHttpFailure(
+        HttpResponseMessage response,
+        int collectedCount)
+    {
+        if (collectedCount == 0)
+        {
+            return false;
+        }
+
+        if (response.StatusCode == System.Net.HttpStatusCode.Forbidden
+            || response.StatusCode == System.Net.HttpStatusCode.NotFound
+            || (int)response.StatusCode == 429)
+        {
+            return true;
+        }
+
+        return false;
+    }
+
     private static async Task<JsonDocument?> TryParseArmPaginationPageAsync(
         Stream stream,
         int collectedCount,
