@@ -115,7 +115,7 @@ public static class ChatOpsIncomingWebhookBodies
             return supporting;
         }
 
-        return ChatOpsSlackMrkdwnEscaper.EscapeFormattingMetacharacters(supporting.Trim());
+        return ChatOpsSlackMrkdwnEscaper.EscapeSupportingParagraphMetacharacters(supporting.Trim());
     }
 
     private static string CombineBlocks(string paragraphHeadline, string? supporting, string body)

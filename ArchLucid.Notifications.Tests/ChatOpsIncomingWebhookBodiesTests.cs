@@ -111,6 +111,24 @@ public sealed class ChatOpsIncomingWebhookBodiesTests
     }
 
     [Fact]
+    public void ForSlack_preserves_backtick_code_span_in_supporting_paragraph()
+    {
+        ChatOpsWebhookMessage message = new()
+        {
+            Title = "Authority run completed (1 finding)",
+            SupportingParagraph = "Run `11111111-2222-3333-4444-555555555555`",
+            Body = "Done",
+        };
+
+        object payload = ChatOpsIncomingWebhookBodies.ForSlack(message);
+
+        string text = NotificationsTestPayloadAssert.GetStringProperty(payload, "text");
+
+        text.Should().Contain("Run `11111111-2222-3333-4444-555555555555`");
+        text.Should().NotContain("Run \\`");
+    }
+
+    [Fact]
     public void ForSlack_escapes_asterisks_in_supporting_paragraph_between_headline_and_body()
     {
         ChatOpsWebhookMessage message = new()
