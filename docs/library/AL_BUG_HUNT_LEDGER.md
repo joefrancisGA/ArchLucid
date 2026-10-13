@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-13 seed hunt (seed→hit): `application-tenancy-lifecycle` — promoted `TenantSuspendCommandService.TrySuspendAsync`; erasure offboard between initial read and atomic suspend made `TrySuspendTenantAsync` no-op while API returned `AlreadyInDesiredState` instead of `InErasureQuarantine`; re-read tenant after lifecycle transition miss; regression `TrySuspendAsync_returns_quarantine_when_offboard_completes_before_atomic_suspend`; mirrored path for `TryUnsuspendAsync`; 146 scoped tenancy tests passed.
+
 2026-10-13 seed hunt (seed→hit): `application-tenancy-lifecycle` — promoted `TrialLifecycleTransitionEngine.TryAdvanceTenantAsync` `Deleted` retry path; idempotent hard-purge passes with `RowsDeleted = 0` returned `false` and looked like a failed scheduler tick; return success after purge completes; regression `TryAdvanceTenantAsync_when_already_deleted_and_purge_deletes_no_rows_returns_success`; 145 scoped tenancy tests passed.
 
 2026-10-13 seed hunt (seed→hit): `core-requests-constraints` — promoted duplicate ASCII spaces between phrase words (`managed  identity`, `private  endpoint`) breaking `ContainsAffirmativePhrase` after normalization; collapse consecutive ASCII spaces in `NormalizeConstraintMatchingText`; regressions in `RequestConstraintPhraseDuplicateSpaceTests`; 907 scoped RequestConstraint tests passed.
@@ -34527,11 +34529,15 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 45
-- **bugs-found:** 30
+- **hunts:** 46
+- **bugs-found:** 31
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-13
-- **last-bug:** 2026-10-13 — Deleted-trial purge retry reported failure when purge deleted zero rows
+- **last-bug:** 2026-10-13 — Suspend after offboard race reported idempotent success instead of erasure quarantine
+
+2026-10-13 seed hunt (seed→hit): reseeded suspend command service after Deleted-purge retry fix; proved admin suspend returned `AlreadyInDesiredState` when erasure offboard completed between read and `TrySuspendTenantAsync`; fixed with shared re-read after failed lifecycle transition; regression `TenantSuspendCommandServiceOffboardRaceTests`; 146 scoped tenancy tests passed.
+
+- [x] (proven) `TenantSuspendCommandService.TrySuspendAsync` / `TryUnsuspendAsync` — atomic suspend/unsuspend miss returned `AlreadyInDesiredState` while tenant was in erasure quarantine — **hit 2026-10-13 seed hunt (seed→hit):** re-read after `TrySuspendTenantAsync`/`TryUnsuspendTenantAsync` miss maps `OffboardedUtc` to `InErasureQuarantine`; regression `TrySuspendAsync_returns_quarantine_when_offboard_completes_before_atomic_suspend`.
 
 2026-10-13 seed hunt (seed→hit): reseeded `TrialLifecycleTransitionEngine` after lifecycle idempotency fixes; proved `Deleted` status retry returned `false` when `PurgeTenantAsync` deleted zero rows on an idempotent pass; fixed by treating a completed purge call as scheduler success; regression in `TrialLifecycleTransitionEngineDeletedRetryTests`; 145 scoped tenancy tests passed.
 
