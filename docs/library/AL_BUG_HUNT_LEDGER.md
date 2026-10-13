@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-13 seed hunt (seed→hit): `cloud-extractors` — promoted `EntraGroupMembershipGraphReader` nested-group detection; reachable Graph `/members` rows whose `@odata.type` merely contained the substring `group` (e.g. `#microsoft.graph.groupLifecyclePolicy`) were enqueued for nested membership expansion; require exact `#microsoft.graph.group`; regression `TryReadDirectMembershipsAsync_does_not_expand_members_with_group_substring_odata_types`; AWS/GCP extractor tests passed 81/81; Azure extractor scope passed 146/146.
+
 2026-10-13 seed hunt (seed→hit): `cloud-extractors` — promoted `HostedAzureInventoryNetworkAssociationBuilder.ReadDelimitedIds`; when indexed `networkProfile.networkInterfaces[n]` keys existed but carried only whitespace, the exact-prefix fallback still ingested the pipe-delimited companion and emitted a spurious `vmToNic` edge; disable scalar fallback whenever indexed slots are present; regression `Build_does_not_fall_back_to_pipe_delimited_companion_when_indexed_slots_are_empty`; AWS/GCP extractor tests passed 81/81; Azure extractor scope passed 145/145.
 
 2026-10-13 seed hunt (seed→hit): `cloud-extractors` — promoted `EntraGroupMembershipGraphReader.EnsureNextLinkTargetsGroup`; reachable Microsoft Graph `@odata.nextLink` values for the same group but `/owners` passed group-id validation and were followed while listing `/members`, merging owner objects into membership rows; require the `members` collection segment after the group id; regression `TryReadDirectMembershipsAsync_rejects_odata_next_link_for_different_group_collection`; AWS/GCP extractor tests passed 81/81; Azure extractor scope passed 144/144.
@@ -31789,11 +31791,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** aws extractor; gcp extractor; azure extractor
 - **paths:** ArchLucid.Integrations.AwsExtractor/; ArchLucid.Integrations.GcpExtractor/; ArchLucid.Integrations.AzureExtractor/
 - **test-filter:** FullyQualifiedName~AwsExtractor|FullyQualifiedName~GcpExtractor|FullyQualifiedName~AzureExtractor
-- **hunts:** 110
-- **bugs-found:** 57
+- **hunts:** 113
+- **bugs-found:** 60
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-13
-- **last-bug:** 2026-10-13 — pipe-delimited NIC companion ingested as vmToNic target
+- **last-bug:** 2026-10-13 — Entra nested-group @odata.type substring false positive
 - **related-pd-tb:** none
 - **code-changed-since:** 1
 
@@ -31830,6 +31832,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (invalid) `HostedAzureInventoryResourcePropertyExpander.AddSiteWorkflowConnectionParameters` — an ARM Logic Apps resource with `properties.parameters.$connections` containing credential-bearing connection metadata is copied with `GetRawText()` into inventory properties without structured redaction; input originates from the reachable `Microsoft.Logic/workflows` ARM payload, but a concrete secret-bearing field and downstream exposed output remain unverified — cheap-disproved 2026-10-11: the selected collector/ZIP paths expose connection resource IDs, names, hosts, status, and warning fields; no credential field or secret-bearing export was present.
 - [x] (invalid) `HostedAzureInventoryResourcePropertyExpander.AddManagedClusterProperties` — an ARM AKS resource with a `properties.networkProfile` field containing sensitive connection metadata is copied with `GetRawText()` into inventory properties; input originates from the reachable `Microsoft.ContainerService/managedClusters` ARM payload, but a concrete sensitive field and wrong exported outcome remain unverified — cheap-disproved 2026-10-11: the selected expander captures network profile topology JSON, with no credential-bearing field or downstream secret exposure established.
 
+- [x] (proven) `EntraGroupMembershipGraphReader` nested-group detection — reachable Graph `/members` rows whose `@odata.type` contained the substring `group` but were not `#microsoft.graph.group` were treated as nested groups and fetched again during depth expansion — **hit 2026-10-13 seed hunt:** match exact `#microsoft.graph.group` only; regression `TryReadDirectMembershipsAsync_does_not_expand_members_with_group_substring_odata_types`.
 - [x] (proven) `HostedAzureInventoryNetworkAssociationBuilder.ReadDelimitedIds` — when indexed `networkProfile.networkInterfaces[n]` keys existed but only carried whitespace, the scalar fallback still ingested the pipe-delimited companion and emitted a spurious `vmToNic` edge — **hit 2026-10-13 seed hunt:** disable exact-prefix fallback whenever indexed slots exist; regression `Build_does_not_fall_back_to_pipe_delimited_companion_when_indexed_slots_are_empty`.
 - [x] (proven) `HostedAzureInventoryNetworkAssociationBuilder.ReadDelimitedIds` — when indexed `networkProfile.networkInterfaces[n]` slots exist, the pipe-delimited companion property with the exact same key was ingested as another ARM id, emitting a spurious `vmToNic` association for the joined `id|id` text — **hit 2026-10-13 seed hunt:** skip exact-prefix companion values when indexed slots exist; regression `Build_ignores_pipe_delimited_network_interface_companion_when_indexed_ids_exist`.
 - [x] (proven) `HostedAzureInventoryResourcePropertyExpander.WriteIndexedTopLevelArmIds` — reachable VM and private-endpoint `networkInterfaces` pipe-delimited companion properties were joined using lexicographic property-key order, so `[10]` sorted before `[2]` and misordered multi-NIC inventory facts — **hit 2026-10-13 seed hunt:** `GetIndexedPropertyKeyOrder` sorts by numeric bracket index; regression `Expand_orders_vm_network_interface_pipe_delimited_ids_by_numeric_index`.

@@ -326,6 +326,43 @@ public sealed class EntraGroupMembershipGraphReaderTests
     }
 
     [Fact]
+    public async Task TryReadDirectMembershipsAsync_does_not_expand_members_with_group_substring_odata_types()
+    {
+        const string lifecyclePolicyMember = "dddddddd-dddd-dddd-dddd-dddddddddddd";
+        int requestCount = 0;
+
+        HttpClient httpClient = CreateHttpClient(request =>
+        {
+            Interlocked.Increment(ref requestCount);
+
+            return JsonResponse(
+                $$"""
+                {
+                  "value": [
+                    {
+                      "id": "{{lifecyclePolicyMember}}",
+                      "@odata.type": "#microsoft.graph.groupLifecyclePolicy"
+                    }
+                  ]
+                }
+                """);
+        });
+
+        EntraGroupMembershipGraphReader sut = new(httpClient, NullLogger<EntraGroupMembershipGraphReader>.Instance);
+
+        EntraGroupMembershipGraphReadResult result = await sut.TryReadDirectMembershipsAsync(
+            new StubTokenCredential(),
+            [GroupA],
+            maxNestedDepth: 1,
+            CancellationToken.None);
+
+        Assert.Equal(1, requestCount);
+        Assert.Single(result.Memberships);
+        Assert.Equal(lifecyclePolicyMember, result.Memberships[0].MemberId);
+        Assert.Equal(GroupA, result.Memberships[0].GroupId);
+    }
+
+    [Fact]
     public async Task CollectZipAsync_graph_disabled_does_not_call_graph_reader()
     {
         Mock<IHostedAzureExtractorCredentialFactory> credentialFactory = new();

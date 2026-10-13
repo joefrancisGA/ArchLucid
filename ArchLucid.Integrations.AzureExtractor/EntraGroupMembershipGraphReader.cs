@@ -287,6 +287,6 @@ public sealed class EntraGroupMembershipGraphReader(
         }
 
         public bool IsGroup =>
-            ODataType?.Contains("group", StringComparison.OrdinalIgnoreCase) == true;
+            string.Equals(ODataType, "#microsoft.graph.group", StringComparison.OrdinalIgnoreCase);
     }
 }
