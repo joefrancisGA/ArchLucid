@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-13 seed hunt (seed→hit): `core-requests-constraints` — promoted square-bracket-wrapped capability slugs (`field[encryption]module`) false-positive phrase constraints while preserving natural-language brackets (`encryption [customer-managed keys]`); extended `IsCompoundIdentifierDelimiter` to `[` and `]`; regressions in `RequestConstraintCompoundIdentifierBracketTests`; 903 scoped RequestConstraint tests passed.
+
 2026-10-13 seed hunt (seed→hit): `core-requests-constraints` — promoted parenthesis-wrapped capability slugs (`field(encryption)module`) false-positive phrase constraints while preserving natural-language parentheticals (`encryption (customer-managed keys)`); extended `IsCompoundIdentifierDelimiter` to `(` and `)`; regressions in `RequestConstraintCompoundIdentifierParenthesisTests`; 901 scoped RequestConstraint tests passed.
 
 2026-10-13 seed hunt (seed→hit): `core-requests-constraints` — promoted ASCII apostrophe-delimited capability slugs (`field'encryption'module`) false-positive phrase constraints while preserving possessive phrasing (`Tenant's encryption`); extended `IsCompoundIdentifierDelimiter` to `'`; regressions in `RequestConstraintCompoundIdentifierApostropheTests`; 899 scoped RequestConstraint tests passed.
@@ -25667,11 +25669,15 @@ Split from retired `archlucid-core` (ABQ-08). Generic-advice negation parity his
 - **aliases:** request constraints; split from archlucid-core
 - **paths:** ArchLucid.Core/Requests/
 - **test-filter:** FullyQualifiedName~RequestConstraint
-- **hunts:** 30
-- **bugs-found:** 29
+- **hunts:** 31
+- **bugs-found:** 30
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-13
-- **last-bug:** 2026-10-13 — parenthesis-wrapped product slugs false-positive encryption constraints
+- **last-bug:** 2026-10-13 — square-bracket-wrapped product slugs false-positive encryption constraints
+
+2026-10-13 seed hunt (seed→hit): reseeded compound-identifier boundaries after parenthesis fix; proved square-bracket-wrapped slugs like `field[encryption]module` still false-positive `HasEncryptionConstraint`; fixed by extending `IsCompoundIdentifierDelimiter` to `[` and `]`; regressions in `RequestConstraintCompoundIdentifierBracketTests`; 903 scoped RequestConstraint tests passed.
+
+- [x] (proven) `RequestConstraintTokenMatcher.IsEmbeddedInCompoundIdentifier` — square-bracket-wrapped product slugs (e.g. `field[encryption]module`) may false-positive phrase constraints — **hit 2026-10-13 seed hunt (seed→hit):** spaced natural language with brackets remains affirmative; regressions in `RequestConstraintCompoundIdentifierBracketTests`.
 
 2026-10-13 seed hunt (seed→hit): reseeded compound-identifier boundaries after apostrophe fix; proved parenthesis-wrapped slugs like `field(encryption)module` still false-positive `HasEncryptionConstraint`; fixed by extending `IsCompoundIdentifierDelimiter` to `(` and `)`; regressions in `RequestConstraintCompoundIdentifierParenthesisTests`; 901 scoped RequestConstraint tests passed.
 
