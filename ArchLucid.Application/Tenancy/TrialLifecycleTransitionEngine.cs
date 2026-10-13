@@ -202,8 +202,12 @@ public sealed class TrialLifecycleTransitionEngine(
             return;
 
         TenantWorkspaceLink? workspace = await _tenantRepository.GetFirstWorkspaceAsync(tenant.Id, cancellationToken).ConfigureAwait(false);
-        Guid workspaceId = workspace?.WorkspaceId ?? Guid.Empty;
-        Guid projectId = workspace?.DefaultProjectId ?? Guid.Empty;
+
+        if (workspace is null)
+            return;
+
+        Guid workspaceId = workspace.WorkspaceId;
+        Guid projectId = workspace.DefaultProjectId;
         await _auditService.LogAsync(
             new AuditEvent
             {

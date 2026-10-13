@@ -197,6 +197,62 @@ public sealed class TrialLifecycleTransitionEngineTests
             Times.Never);
     }
 
+    [Fact]
+    public async Task TryAdvanceTenantAsync_skips_transition_audit_when_workspace_link_missing_before_audit()
+    {
+        Guid tenantId = Guid.NewGuid();
+        DateTimeOffset anchor = new(2026, 5, 1, 0, 0, 0, TimeSpan.Zero);
+        TenantRecord active = new()
+        {
+            Id = tenantId,
+            Name = "n",
+            Slug = "s",
+            Tier = TenantTier.Standard,
+            CreatedUtc = TimeProvider.System.GetUtcNow(),
+            TrialStatus = TrialLifecycleStatus.Active,
+            TrialExpiresUtc = anchor,
+        };
+
+        Mock<ITenantRepository> repo = new(MockBehavior.Strict);
+        repo
+            .SetupSequence(r => r.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(active)
+            .ReturnsAsync(active)
+            .ReturnsAsync(active);
+        repo
+            .Setup(r => r.TryRecordTrialLifecycleTransitionAsync(
+                tenantId,
+                TrialLifecycleStatus.Active,
+                TrialLifecycleStatus.Expired,
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+        repo
+            .Setup(r => r.GetFirstWorkspaceAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((TenantWorkspaceLink?)null);
+
+        Mock<ITenantHardPurgeService> purge = new(MockBehavior.Strict);
+        Mock<IAuditService> audit = new(MockBehavior.Strict);
+
+        Mock<IOptionsMonitor<TrialLifecycleSchedulerOptions>> opts = new();
+        opts.Setup(m => m.CurrentValue).Returns(new TrialLifecycleSchedulerOptions());
+
+        TrialLifecycleTransitionEngine engine = new(
+            repo.Object,
+            purge.Object,
+            audit.Object,
+            opts.Object,
+            new FixedUtcTimeProvider(anchor),
+            NullLogger<TrialLifecycleTransitionEngine>.Instance);
+
+        bool ok = await engine.TryAdvanceTenantAsync(tenantId, CancellationToken.None);
+
+        ok.Should().BeTrue();
+        audit.Verify(
+            a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
     [SkippableFact]
     public async Task TryAdvanceTenantAsync_when_transition_succeeds_audits_once()
     {
@@ -660,14 +716,15 @@ public sealed class TrialLifecycleTransitionEngineTests
             .Setup(r => r.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
             .Returns(async () =>
             {
-                if (Interlocked.Increment(ref reads) == 2)
+                int readCount = Interlocked.Increment(ref reads);
+
+                if (readCount == 2)
                     bothReadsCompleted.TrySetResult(true);
 
-                if (reads <= 2)
-                {
-                    await bothReadsCompleted.Task;
+                await bothReadsCompleted.Task;
+
+                if (readCount <= 4)
                     return active;
-                }
 
                 return expired;
             });
