@@ -325,6 +325,108 @@ public sealed class TenantProvisioningServiceTests
     }
 
     [SkippableFact]
+    public async Task ProvisionAsync_skips_policy_pack_seed_and_nav_settings_when_offboard_completes_after_workspace_insert_before_audit()
+    {
+        Guid capturedTenantId = Guid.Empty;
+        DateTimeOffset anchor = new(2026, 10, 13, 0, 0, 0, TimeSpan.Zero);
+
+        Mock<ITenantRepository> repo = new();
+
+        SetupSlugNotFound(repo);
+
+        repo.Setup(r => r.InsertTenantAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<TenantTier>(),
+                It.IsAny<Guid?>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>(),
+                It.IsAny<int?>()))
+            .Callback<Guid, string, string, TenantTier, Guid?, string, CancellationToken, int?>(
+                (tid, _, _, _, _, _, _, _) => capturedTenantId = tid)
+            .Returns(Task.CompletedTask);
+
+        repo.Setup(r => r.InsertWorkspaceAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<string>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((Guid id, CancellationToken _) =>
+                id == capturedTenantId
+                    ? new TenantRecord
+                    {
+                        Id = id,
+                        Tier = TenantTier.Free,
+                        OffboardedUtc = anchor,
+                        ErasureEligibleUtc = anchor.AddDays(30),
+                    }
+                    : null);
+
+        Mock<IArchitectureProjectRepository> projects = new();
+
+        projects
+            .Setup(p => p.InsertAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IActorContext> actor = new();
+        actor.Setup(a => a.GetActor()).Returns("admin@test");
+        Mock<IAuditService> audit = new(MockBehavior.Strict);
+        Mock<ITenantSqlCatalogProvisioner> sqlCatalog = new();
+
+        sqlCatalog
+            .Setup(p => p.ProvisionTenantCatalogAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IDefaultPolicyPackSeeder> packSeeder = new(MockBehavior.Strict);
+
+        Mock<ITenantSettingsRepository> settings = new(MockBehavior.Strict);
+
+        Mock<IOptionsMonitor<TenantProvisioningOptions>> options = DefaultProvisioningMonitor();
+
+        TenantProvisioningService sut = new(
+            repo.Object,
+            projects.Object,
+            actor.Object,
+            audit.Object,
+            NullLogger<TenantProvisioningService>.Instance,
+            options.Object,
+            sqlCatalog.Object,
+            packSeeder.Object,
+            new Mock<IMarketingAttributionService>().Object,
+            settings.Object);
+
+        TenantProvisioningRequest req = new()
+        {
+            Name = "Policy Pack Race Co",
+            AdminEmail = "owner@race.example",
+            Tier = TenantTier.Free,
+        };
+
+        await sut.ProvisionAsync(req, CancellationToken.None);
+
+        packSeeder.Verify(
+            s => s.EnsureDefaultPolicyPacksAsync(
+                It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+        settings.Verify(
+            s => s.UpsertAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+        audit.Verify(
+            a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [SkippableFact]
     public async Task ProvisionAsync_skips_first_touch_persist_when_offboard_completes_after_workspace_insert_before_audit()
     {
         Guid capturedTenantId = Guid.Empty;

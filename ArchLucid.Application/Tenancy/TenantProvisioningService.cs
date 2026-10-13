@@ -109,12 +109,6 @@ public sealed class TenantProvisioningService(
                     projectId,
                     ct);
                 await _architectureProjectRepository.InsertAsync(projectId, tenantId, workspaceId, "default", ct);
-
-                await _defaultPolicyPackSeeder.EnsureDefaultPolicyPacksAsync(tenantId, workspaceId, projectId, ct);
-
-                // Default Advanced mode to OFF for new tenants to reduce cognitive load on first-run (Imp-2)
-                await _tenantSettingsRepository.UpsertAsync(tenantId, "archlucid_nav_show_advanced", "0", ct);
-                await _tenantSettingsRepository.UpsertAsync(tenantId, "archlucid_nav_show_extended", "0", ct);
             }
             catch (Exception ex)
             {
@@ -137,6 +131,13 @@ public sealed class TenantProvisioningService(
                 WasAlreadyProvisioned = false,
             };
         }
+
+        await _defaultPolicyPackSeeder.EnsureDefaultPolicyPacksAsync(tenantId, workspaceId, projectId, ct)
+            .ConfigureAwait(false);
+
+        // Default Advanced mode to OFF for new tenants to reduce cognitive load on first-run (Imp-2)
+        await _tenantSettingsRepository.UpsertAsync(tenantId, "archlucid_nav_show_advanced", "0", ct).ConfigureAwait(false);
+        await _tenantSettingsRepository.UpsertAsync(tenantId, "archlucid_nav_show_extended", "0", ct).ConfigureAwait(false);
 
         if (request.FirstTouch is not null)
         {
