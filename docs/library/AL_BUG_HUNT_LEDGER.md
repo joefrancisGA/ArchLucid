@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-13 seed hunt (seed-only): `notifications-pipeline` — cheap-disproved five open candidates (recurrence text URLs, weekly sponsor text strip-tags, authority-run Teams supporting display-only, governance Block Kit title escape parity, digest subscription facade-only validation); regression locks `TrialWelcome_html_encodes_organization_hint_metacharacters`, `WeeklySponsorReport_text_part_strips_html_tags_from_rendered_body`, and `RecurrenceCompletion_html_encodes_href_urls_with_quotes_in_attribute`; seeded five follow-on `(candidate)` rows; 182 scoped notification/digest Application tests passed.
+
 2026-10-13 seed hunt (seed→hit): `notifications-pipeline` — promoted `ChatOpsIncomingWebhookBodies.BuildTeamsTitle`; evaluation-sourced alert `Severity` reached Teams connector `title` prefix without HTML encoding while title body was encoded; `WebUtility.HtmlEncode` on sanitized severity before `[severity]` prefix; regressions `ForTeams_html_encodes_severity_label_before_title_prefix` and `SendAsync_TeamsPayload_HtmlEncodes_severity_in_title_prefix`; cheap-disproved five open template/channel candidates; 179 scoped Application tests passed; 15 Notifications body tests; 7 alert Teams channel tests passed.
 
 2026-10-13 seed hunt (seed-only): `notifications-pipeline` — cheap-disproved five open candidates (trial lifecycle `CombineUrl` after authority normalize; support ack `settingsUrl`; digest Slack markdown-by-design; governance Block Kit approval-id delimiter; OTP code `HtmlEncode`); regression lock `RecurrenceCompletion_html_encodes_schedule_name_metacharacters`; seeded five follow-on `(candidate)` rows; 179 scoped notification/digest Application tests passed.
@@ -31507,6 +31509,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ## Zone: notifications-pipeline
 
+2026-10-13 seed hunt (seed-only): cheap-disproved five template/text candidates; added trial welcome, weekly sponsor text, and recurrence href regression locks; reseeded five follow-on candidates; 182 scoped Application tests passed.
+
 2026-10-13 seed hunt (seed→hit): proved Teams alert webhook title prefix forwarded raw HTML in `SeverityLabel` while title copy was encoded; `BuildTeamsTitle` HTML-encodes sanitized severity; 179 scoped Application tests passed; 15 body tests; 7 Teams alert channel tests passed.
 
 2026-10-13 seed hunt (seed-only): cheap-disproved five open email/webhook candidates (trial welcome links, support settings URL, digest Slack markdown, governance button values, OTP HTML); regression lock on recurrence schedule name encoding; seeded five follow-on candidates; 179 scoped Application tests passed.
@@ -31585,7 +31589,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** notifications; email dispatchers beyond weekly summary
 - **paths:** ArchLucid.Notifications/; ArchLucid.Application/Notifications/; ArchLucid.Api/Controllers/Advisory/DigestSubscriptionsController.cs
 - **test-filter:** FullyQualifiedName~Notifications|FullyQualifiedName~EmailDispatcher|FullyQualifiedName~DigestSubscriptionsController
-- **hunts:** 98
+- **hunts:** 99
 - **bugs-found:** 75
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-13
@@ -31688,11 +31692,16 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (valid-no-repro) `DigestTeamsWebhookDeliveryChannel.SendAsync` — unencoded `ContentMarkdown` in Teams `text` — **cheap-disproof 2026-10-13 seed hunt:** intentional digest markdown policy (parity with Slack digest channel); title/summary encoding class fixed separately.
 - [x] (valid-no-repro) `ChatOpsIncomingWebhookBodies.ForSlackWithGovernanceActions` — raw `message.Body` in Block Kit mrkdwn — **cheap-disproof 2026-10-13 seed hunt:** governance ChatOps delivery not wired to production callers yet; mirror alert-body escape belongs with caller wiring.
 - [x] (valid-no-repro) `CommitSponsorEmailNotifier.NotifyAfterCommitAsync` — inline HTML sponsor mail — **cheap-disproof 2026-10-13 seed hunt:** `WebUtility.HtmlEncode` on run id, product name, link text, and `href`; `EmailProductDisplayNameResolver` sanitizes subject product name.
-- [ ] (candidate) `RecurrenceCompletionEmailDispatcher` — `CompareUrl` / `RunDetailUrl` in plain-text part — locus: `RenderTextAsync` output; input: URL with line breaks if sanitizer regressed (text part not HTML-encoded).
-- [ ] (candidate) `WeeklySponsorReportEmailDispatcher` — `SummaryMarkdown` in text template — locus: text renderer; input: control characters in sponsor summary markdown (HTML part uses encoded `<pre>`).
-- [ ] (candidate) `AuthorityRunCommittedChatOpsHook.AdaptMessageForTarget` (Teams) — `SupportingParagraph` with backticks HTML-encoded for Teams may show literal entities in connector `text` — locus: hook Teams branch; input: run id code span in supporting line (display correctness).
-- [ ] (candidate) `ChatOpsIncomingWebhookBodies.ForSlackWithGovernanceActions` — `message.Title` headline mrkdwn when governance delivery ships — locus: Block Kit section; input: evaluation title metacharacters (title already escaped in `ForSlack` path; governance path mirrors title escape today).
-- [ ] (candidate) `DigestSubscriptionsController` — digest webhook destination validation — locus: facade-only from zone path; input: non-HTTPS or CRLF destination on create (requires application-layer repro outside partial controller).
+- [x] (valid-no-repro) `RecurrenceCompletionEmailDispatcher` — `CompareUrl` / `RunDetailUrl` in plain-text part — **cheap-disproof 2026-10-13 seed hunt:** `SanitizeOperatorNavigableUrl` / normalized operator base on dispatch; `RenderTextAsync` strips tags only; regression `RecurrenceCompletion_html_encodes_href_urls_with_quotes_in_attribute` on HTML href attributes.
+- [x] (valid-no-repro) `WeeklySponsorReportEmailDispatcher` — `SummaryMarkdown` in text template — **cheap-disproof 2026-10-13 seed hunt:** HTML part encodes markdown in `<pre>`; text part uses tag-stripping only (no HTML injection path); regression `WeeklySponsorReport_text_part_strips_html_tags_from_rendered_body`.
+- [x] (valid-no-repro) `AuthorityRunCommittedChatOpsHook.AdaptMessageForTarget` (Teams) — supporting `Run \`{id}\`` line — **cheap-disproof 2026-10-13 seed hunt:** `WebUtility.HtmlEncode` on supporting paragraph is intentional for Teams connector `text`; backticks are not HTML metacharacters; display differs from Slack code span but is not a security defect.
+- [x] (valid-no-repro) `ChatOpsIncomingWebhookBodies.ForSlackWithGovernanceActions` — `message.Title` mrkdwn — **cheap-disproof 2026-10-13 seed hunt:** `BuildSlackHeadline` uses `EscapeFormattingMetacharacters` on title (parity with `ForSlack`); governance outbound delivery not wired yet.
+- [x] (valid-no-repro) `DigestSubscriptionsController` — webhook destination validation — **cheap-disproof 2026-10-13 seed hunt:** controller delegates to `IDigestSubscriptionFacade`; HTTPS/CRLF validation lives outside zone paths (same row as prior digest subscription cheap-disproofs).
+- [ ] (candidate) `TrialWelcome.cshtml` — `OrganizationHint` from tenant record in welcome mail — locus: `TrialLifecycleEmailDispatcher` + template; input: HTML metacharacters in organization name (Razor encodes today; regression lock added).
+- [ ] (candidate) `RazorLightEmailTemplateRenderer.RenderTextAsync` — tag-stripping text fallback drops link `href` values from plain-text parts — locus: `StripTags` regex; input: text-only clients lose compare/run URLs after `RenderTextAsync`.
+- [ ] (candidate) `AlertOnCallWebhookDeliveryChannel.SendAsync` — evaluation `Severity`/`Title` in generic paging JSON without HTML or mrkdwn hardening — locus: on-call channel; input: integrator renders JSON fields as HTML (transport-safe JSON only).
+- [ ] (candidate) `ChatOpsIncomingWebhookBodies.ForSlackWithGovernanceActions` — `message.Body` mrkdwn metacharacters when governance outbound ships — locus: Block Kit section; input: evaluation description spoofing emphasis (mirror alert Slack body escape at caller).
+- [ ] (candidate) `ExecDigestEmailDispatcher` — plain-text digest uses HTML-stripped renderer — locus: `RenderTextAsync`; input: rehearsal subject or week label metacharacters in text part if HTML encoding regressed in template.
 
 - [x] (proven) `ExecDigestEmailDispatcher` — `DashboardUrl` / `SponsorValueReportUrl` with embedded userinfo reached digest template CTAs without sanitization — **hit 2026-10-13 seed hunt (seed→hit):** `SanitizeOperatorAbsoluteUrl` at dispatch (parity with unsubscribe and weekly sponsor `runDetailUrl`); regression `ExecDigestEmailDispatcher_omits_user_info_from_dashboard_and_sponsor_urls_in_template_model`.
 

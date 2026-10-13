@@ -33,4 +33,26 @@ public sealed class RecurrenceCompletionEmailTemplateRenderingTests
         html.Should().Contain("&lt;img");
         html.Should().NotContain("<img src=x");
     }
+
+    [SkippableFact]
+    public async Task RecurrenceCompletion_html_encodes_href_urls_with_quotes_in_attribute()
+    {
+        const string quotedUrl = "https://app.example/reviews/abc?x=%22injected%22";
+
+        string html = await _renderer.RenderHtmlAsync(
+            RecurrenceCompletionEmailDispatcher.TemplateId,
+            new RecurrenceCompletionEmailModel
+            {
+                ProductName = "ArchLucid",
+                ScheduleName = "Weekly scan",
+                NewFindingCount = 0,
+                ResolvedFindingCount = 0,
+                RunDetailUrl = quotedUrl,
+                CompareUrl = "https://app.example/compare",
+            },
+            CancellationToken.None);
+
+        html.Should().Contain(quotedUrl);
+        html.Should().NotContain("href=\"https://app.example/reviews/abc?x=\"");
+    }
 }
