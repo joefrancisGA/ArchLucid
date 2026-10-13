@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-13 seed hunt (seed→hit): `cloud-extractors` — promoted `EntraGroupMembershipGraphReader.ReadGroupMembersPageAsync`; when Microsoft Graph returned a successful first `/members` page and a later `@odata.nextLink` page failed with a non-success status, the reader returned an empty membership list and dropped members already collected from the first page; return accumulated memberships and nested-group ids on pagination failure; regression `TryReadDirectMembershipsAsync_retains_first_page_members_when_later_page_fails`; AWS/GCP extractor tests passed 83/83; Azure extractor scope passed 151/151.
+
 2026-10-13 seed hunt (seed→hit): `cloud-extractors` — promoted `GcpAssetInventoryCollector.CollectFromRawPagesAsync`; reachable Asset Search rows with null or whitespace `name` were packaged as inventory entries with an empty resource name, inflating counts and polluting `resources.json`; skip rows without a usable asset name; regression `CollectFromRawPagesAsync_omits_resources_without_name`; AWS/GCP extractor tests passed 83/83; Azure extractor scope passed 150/150.
 
 2026-10-13 seed hunt (seed→hit): `cloud-extractors` — promoted `AwsResourceExplorerInventoryCollector.CollectAsync`; reachable Resource Explorer rows with null or whitespace `Arn` were packaged as inventory entries with an empty `name`, inflating counts and polluting `resources.json`; skip rows without a usable ARN; regression `CollectAsync_omits_resources_without_arn`; AWS/GCP extractor tests passed 82/82; Azure extractor scope passed 150/150.
@@ -31728,6 +31730,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ## Zone: cloud-extractors
 
+2026-10-13 seed hunt (seed→hit): promoted `EntraGroupMembershipGraphReader.ReadGroupMembersPageAsync` pagination failure handling; non-success Graph responses on a follow-up `@odata.nextLink` page returned `Empty()` and discarded members from earlier pages in the same group read; return partial `memberships`/`nestedGroupIds`; regression `TryReadDirectMembershipsAsync_retains_first_page_members_when_later_page_fails`; Azure scope 151/151; AWS/GCP 83/83.
+
 2026-10-13 seed hunt (seed→hit): promoted `ReadDelimitedIds` empty-index fallback; whitespace indexed NIC slots left `values` empty so pipe companion was ingested via fallback; skip fallback when any `[n]` key exists; regression `Build_does_not_fall_back_to_pipe_delimited_companion_when_indexed_slots_are_empty`; Azure scope 145/145; AWS/GCP 81/81.
 
 2026-10-13 seed hunt (seed→hit): promoted `EnsureNextLinkTargetsGroup`; same-group Graph `owners` nextLink accepted during member pagination; require `members` path segment; regression `TryReadDirectMembershipsAsync_rejects_odata_next_link_for_different_group_collection`; Azure scope 144/144; AWS/GCP 81/81.
@@ -31803,11 +31807,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** aws extractor; gcp extractor; azure extractor
 - **paths:** ArchLucid.Integrations.AwsExtractor/; ArchLucid.Integrations.GcpExtractor/; ArchLucid.Integrations.AzureExtractor/
 - **test-filter:** FullyQualifiedName~AwsExtractor|FullyQualifiedName~GcpExtractor|FullyQualifiedName~AzureExtractor
-- **hunts:** 119
-- **bugs-found:** 66
+- **hunts:** 120
+- **bugs-found:** 67
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-13
-- **last-bug:** 2026-10-13 — GCP Asset Search empty name rows packaged
+- **last-bug:** 2026-10-13 — Entra group membership pagination failure dropped first page
 - **related-pd-tb:** none
 - **code-changed-since:** 1
 
@@ -31835,6 +31839,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ### Hypotheses
 
+- [x] (proven) `EntraGroupMembershipGraphReader.ReadGroupMembersPageAsync` — reachable Microsoft Graph `@odata.nextLink` pagination where an earlier page succeeded and a later page returned a non-success HTTP status caused the reader to return `Empty()` and drop memberships already collected for that group — **hit 2026-10-13 seed hunt:** return accumulated `memberships` and `nestedGroupIds` on non-success instead of `Empty()`; regression `TryReadDirectMembershipsAsync_retains_first_page_members_when_later_page_fails`.
 - [x] (valid-no-repro) `GcpServiceAccountEmail.TryGetProjectId` — service-account emails with an extra `@` before `.iam.gserviceaccount.com` can yield a non-canonical parsed project id, but `EnsureProjectMatches` still rejects mismatched `ProjectId` values and no hosted inventory wrong outcome was established — **cheap-disproof 2026-10-13 seed hunt:** no failing repro; no product change.
 - [x] (proven) `HostedAzureManagementPostReadClient.MergeActualCostPages` — reachable multi-page Actual Cost responses merged every row with the first page’s `columns` indexes, so a later page with reordered columns mis-aggregated service names and costs — **hit 2026-10-13 seed hunt:** resolve `PreTaxCost` / `ServiceName` / `Currency` indexes per page; regression `TryQueryActualCostSummaryAsync_merges_paginated_rows_using_each_page_column_order`.
 

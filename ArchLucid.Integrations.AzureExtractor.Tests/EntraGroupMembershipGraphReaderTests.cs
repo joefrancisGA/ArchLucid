@@ -131,6 +131,56 @@ public sealed class EntraGroupMembershipGraphReaderTests
     }
 
     [Fact]
+    public async Task TryReadDirectMembershipsAsync_retains_first_page_members_when_later_page_fails()
+    {
+        const string memberPage1 = "dddddddd-dddd-dddd-dddd-dddddddddddd";
+        int requestCount = 0;
+
+        HttpClient httpClient = CreateHttpClient(request =>
+        {
+            int current = Interlocked.Increment(ref requestCount);
+
+            if (current == 1)
+            {
+                return JsonResponse(
+                    $$"""
+                    {
+                      "value": [
+                        {
+                          "id": "{{memberPage1}}",
+                          "@odata.type": "#microsoft.graph.user"
+                        }
+                      ],
+                      "@odata.nextLink": "https://graph.microsoft.com/v1.0/groups/{{GroupA}}/members?$select=id&$skiptoken=page2"
+                    }
+                    """);
+            }
+
+            if (current == 2)
+            {
+                return new HttpResponseMessage(HttpStatusCode.InternalServerError)
+                {
+                    Content = new StringContent("""{"error":{"code":"generalException"}}""", Encoding.UTF8, "application/json"),
+                };
+            }
+
+            throw new InvalidOperationException("unexpected page");
+        });
+
+        EntraGroupMembershipGraphReader sut = new(httpClient, NullLogger<EntraGroupMembershipGraphReader>.Instance);
+
+        EntraGroupMembershipGraphReadResult result = await sut.TryReadDirectMembershipsAsync(
+            new StubTokenCredential(),
+            [GroupA],
+            maxNestedDepth: 0,
+            CancellationToken.None);
+
+        Assert.Equal(2, requestCount);
+        Assert.Single(result.Memberships);
+        Assert.Contains(result.Memberships, row => row.MemberId == memberPage1 && row.GroupId == GroupA);
+    }
+
+    [Fact]
     public async Task TryReadDirectMembershipsAsync_rejects_odata_next_link_for_different_group()
     {
         const string leakedMember = "ffffffff-ffff-ffff-ffff-ffffffffffff";

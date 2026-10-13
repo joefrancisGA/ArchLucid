@@ -151,7 +151,11 @@ public sealed class EntraGroupMembershipGraphReader(
                     (int)response.StatusCode,
                     body);
 
-                return EntraGroupMembershipGraphReadResult.Empty();
+                return new EntraGroupMembershipGraphReadResult
+                {
+                    Memberships = memberships,
+                    NestedGroupIds = nestedGroupIds,
+                };
             }
 
             await using Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
