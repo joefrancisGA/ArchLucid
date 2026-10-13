@@ -1431,7 +1431,82 @@ describe("HelpDocsClient", () => {
     renderWithOperatorQuery(<HelpDocsClient />, { queryClient });
 
     expect(await screen.findByRole("link", { name: "Recovered doc-index row" })).toBeInTheDocument();
+    expect(screen.queryByText(/documentation index response was empty/i)).toBeNull();
     expect(fetchAttempt).toBeGreaterThanOrEqual(2);
+
+    vi.unstubAllGlobals();
+  });
+
+  it("does not duplicate fetched external doc links when http and https target the same host and path", async () => {
+    const data = [
+      {
+        title: "External alpha",
+        summary: "Https row in doc-index.",
+        category: "API",
+        url: "https://example.com/docs/alpha",
+      },
+      {
+        title: "External alpha (http variant)",
+        summary: "Same destination over http.",
+        category: "API",
+        url: "http://example.com/docs/alpha",
+      },
+    ];
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Promise.resolve({
+          ok: true,
+          json: async () => data,
+        } as Response),
+      ),
+    );
+
+    renderWithOperatorQuery(<HelpDocsClient />);
+
+    expect(await screen.findByRole("link", { name: "External alpha" })).toBeInTheDocument();
+
+    await waitFor(() => {
+      expect(screen.queryByRole("link", { name: "External alpha (http variant)" })).toBeNull();
+    });
+
+    vi.unstubAllGlobals();
+  });
+
+  it("does not duplicate fetched doc links when percent-encoded hex digits differ only by case", async () => {
+    const data = [
+      {
+        title: "Encoded slash doc",
+        summary: "Uppercase percent-encoding in doc-index.",
+        category: "Compliance",
+        url: "/help/segment%2Ftail",
+      },
+      {
+        title: "Encoded slash doc (lowercase hex)",
+        summary: "Same path with lowercase percent-encoding.",
+        category: "Compliance",
+        url: "/help/segment%2ftail",
+      },
+    ];
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Promise.resolve({
+          ok: true,
+          json: async () => data,
+        } as Response),
+      ),
+    );
+
+    renderWithOperatorQuery(<HelpDocsClient />);
+
+    expect(await screen.findByRole("link", { name: "Encoded slash doc" })).toBeInTheDocument();
+
+    await waitFor(() => {
+      expect(screen.queryByRole("link", { name: "Encoded slash doc (lowercase hex)" })).toBeNull();
+    });
 
     vi.unstubAllGlobals();
   });

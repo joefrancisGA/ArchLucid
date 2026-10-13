@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-13 thorough hunt (hit): `ui-help-docs` — promoted `normalizeDocIndexUrlForDedupe` / `decodeDocIndexPathForDedupe`; reachable doc-index rows whose paths differed only by percent-encoding hex case (`%2F` vs `%2f`) bypassed `claimedUrls` dedupe and rendered duplicate cards; lowercase percent escapes before `decodeURI`; cheap-disproof closed four other seeded `(candidate)` rows (http vs https merge key, post-remount empty warning persistence, whitespace-only `q` URL vs filter); regressions `does not duplicate fetched doc links when percent-encoded hex digits differ only by case`, `does not duplicate fetched external doc links when http and https target the same host and path`, and tightened `refetches the doc-index after remount when the prior response was an empty array`; 49 scoped `HelpDocsClient` vitest tests passed.
+
 2026-10-13 seed hunt (seed→hit): `cloud-extractors` — promoted `GetOnlyHostedAzureArmReadClient.ListSubscriptionDefenderSummariesAsync`; reachable follow-up secureScores `nextLink` pages that were HTTP 200 but invalid JSON caused `JsonDocument.ParseAsync` to throw and failed the hosted extract instead of returning the best score already observed; extended `TryParseArmPaginationPageAsync` across remaining ARM paginated GET list readers; regression `ListSubscriptionDefenderSummariesAsync_retains_best_score_when_later_page_body_is_invalid_json`; AWS/GCP extractor tests passed 58/58; Azure extractor scope passed 164/164.
 
 2026-10-13 seed hunt (seed→hit): `cloud-extractors` — promoted `GetOnlyHostedAzureArmReadClient.ListSubscriptionResourcesAsync`; reachable follow-up subscription ARM `nextLink` pages that were HTTP 200 but invalid JSON caused `JsonDocument.ParseAsync` to throw and failed the hosted extract instead of returning resource rows already collected; shared `TryParseArmPaginationPageAsync` with role-assignment listing and child-resource pagination; regression `ListSubscriptionResourcesAsync_retains_resources_when_later_page_body_is_invalid_json`; AWS/GCP extractor tests passed 58/58; Azure extractor scope passed 163/163.
@@ -11359,6 +11361,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-help-docs
 
+2026-10-13 thorough hunt (hit): promoted percent-encoding hex case dedupe gap; cheap-disproof closed http/https scheme, remount empty-warning persistence, and whitespace-only `q` sync candidates; 49 scoped `HelpDocsClient` vitest tests passed.
+
 2026-10-07 thorough hunt (hit): cheap-disproof closed five seeded `(candidate)` rows; proved scheme-relative vs https dedupe and empty doc-index cache remount gaps; seeded five follow-on `(candidate)` rows; 47 scoped `HelpDocsClient` vitest tests passed.
 
 - **id:** ui-help-docs
@@ -11367,13 +11371,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** help docs; help client
 - **paths:** archlucid-ui/src/app/(operator)/help/HelpDocsClient.tsx
 - **test-filter:** HelpDocsClient
-- **hunts:** 31
-- **bugs-found:** 16
+- **hunts:** 32
+- **bugs-found:** 17
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-07
-- **last-bug:** 2026-10-07 — https vs scheme-relative dedupe and empty doc-index cache on remount
+- **last-hunt:** 2026-10-13
+- **last-bug:** 2026-10-13 — percent-encoding hex case bypassed doc-index merge dedupe
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
 
 ### Hypotheses
 2026-09-12 seed hunt #1938 (seed-only): reseeded ui-help-docs; scoped tests passed; no new hunt-ready defect proven this pass.
@@ -11476,11 +11480,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `helpHubClearSearchHrefFromSearch` — clearing search via Escape may leave a bare `?` when `q` was the only param — **cheap-disproof 2026-10-07 thorough hunt:** empty `URLSearchParams` yields `/help`; regression `clears search via Escape without leaving a bare question mark in the help hub url`.
 - [x] (proven) `useHelpDocsIndexQuery` — stale cached empty array from a prior successful empty response suppressed refreshed doc-index rows on remount within `staleTime` — **hit 2026-10-07 thorough hunt:** `refetchOnMount: 'always'` when cached data is `[]`; regression `refetches the doc-index after remount when the prior response was an empty array`.
 
-- [ ] (candidate) `docIndexMergeDedupeKey` — `http://` and `https://` rows for the same host/path may still dedupe as distinct outbound cards when doc-index mixes schemes on the same marketing link.
-- [ ] (candidate) `mergeDocIndex` — rows that share a merge dedupe key but use different `http://` vs `https://` href strings may render the second row when titles differ only by tracking suffix; reachable when doc-index alternates schemes across duplicate titles.
-- [ ] (candidate) `HelpDocsClient` — successful empty doc-index responses still show the amber empty warning even after a remount refetch populates rows until the first fetch settles; reachable on slow networks when operators read the warning as current state.
-- [ ] (candidate) `normalizeDocIndexUrlForDedupe` — uppercase percent-encoding (`%2F`) in relative paths may bypass `decodeURI` dedupe against lowercase `%2f` variants; reachable when doc-index paths mix encoding case.
-- [ ] (candidate) `helpHubSearchHrefFromSearch` — setting `q` to whitespace-only may delete the param via `trim()` while the controlled input still shows spaces until the next URL sync effect; reachable when operators paste padded queries.
+- [x] (valid-no-repro) `docIndexMergeDedupeKey` — `http://` and `https://` rows for the same host/path may still dedupe as distinct outbound cards when doc-index mixes schemes on the same marketing link — **cheap-disproof 2026-10-13 thorough hunt:** `docIndexMergeDedupeKey` canonicalizes absolute hosts to `https://host/path` for `claimedUrls`; regression `does not duplicate fetched external doc links when http and https target the same host and path`.
+- [x] (valid-no-repro) `mergeDocIndex` — rows that share a merge dedupe key but use different `http://` vs `https://` href strings may render the second row when titles differ only by tracking suffix — **cheap-disproof 2026-10-13 thorough hunt:** same `docIndexMergeDedupeKey` collapse as http/https scheme candidate; regression `does not duplicate fetched external doc links when http and https target the same host and path`.
+- [x] (valid-no-repro) `HelpDocsClient` — successful empty doc-index responses still show the amber empty warning even after a remount refetch populates rows — **cheap-disproof 2026-10-13 thorough hunt:** warning clears once refetch returns rows; regression `refetches the doc-index after remount when the prior response was an empty array` now asserts the empty warning is absent after recovery.
+- [x] (proven) `normalizeDocIndexUrlForDedupe` / `decodeDocIndexPathForDedupe` — uppercase percent-encoding (`%2F`) in relative paths bypassed `decodeURI` dedupe against lowercase `%2f` variants — **hit 2026-10-13 thorough hunt:** lowercase percent escapes before `decodeURI`; regression `does not duplicate fetched doc links when percent-encoded hex digits differ only by case`.
+- [x] (valid-no-repro) `helpHubSearchHrefFromSearch` — setting `q` to whitespace-only may delete the param via `trim()` while the controlled input still shows spaces until the next URL sync effect — **cheap-disproof 2026-10-13 thorough hunt:** filter treats whitespace as no active filter and debounced URL sync is intentional; regression `treats whitespace-only search input as no active filter`.
 
 2026-10-03 seed hunt (seed→hit): `ui-webhooks-settings` — proved the create checklist marked “Save and enable subscription” Done while the subscription request was still pending because the checklist treated `subscriptionsLoaded=false` as complete; corrected the completion predicate and added page/checklist regressions. 59 focused webhook tests passed.
 
