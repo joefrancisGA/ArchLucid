@@ -7,7 +7,7 @@
 
 Paste **one** prompt per session. Do not implement from this index.
 
-Source: [`docs/securenow/ENGINEER_ANALYST_HANDOFF.md`](../securenow/ENGINEER_ANALYST_HANDOFF.md) gap 5. SN-HAND-01 is the design note. This set adds the association row only.
+Source: [`docs/securenow/ENGINEER_ANALYST_HANDOFF.md`](../securenow/ENGINEER_ANALYST_HANDOFF.md). SN-HAND-01 is the design note. SN-HAND-05–08 add the verified association row. SN-HAND-09–10 add the latest attempt when that row is absent.
 
 | ID | Prompt | Intent |
 |----|--------|--------|
