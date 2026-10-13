@@ -1,11 +1,3 @@
-{"at":"2026-09-13T05:19:34.4549536Z","zoneId":"application-pilots","outcome":"seed-only"}
-{"at":"2026-09-13T05:19:34.4549536Z","zoneId":"identity-provider-config","outcome":"seed-only"}
-{"at":"2026-09-13T05:19:34.4549536Z","zoneId":"arm-terraform-source-ids","outcome":"seed-only"}
-{"at":"2026-09-13T05:19:34.4549536Z","zoneId":"notifications-pipeline","outcome":"seed-only"}
-{"at":"2026-09-13T05:19:34.4549536Z","zoneId":"application-governance-policy","outcome":"seed-only"}
-{"at":"2026-09-13T05:19:34.4549536Z","zoneId":"authority-pipeline-payload","outcome":"seed-only"}
-{"at":"2026-09-13T05:19:34.4549536Z","zoneId":"technology-ledger-merge","outcome":"seed-only"}
-{"at":"2026-09-13T05:19:34.4549536Z","zoneId":"decisioning","outcome":"seed-only"}
 {"at":"2026-09-13T05:26:00.3748798Z","zoneId":"topology-proposal-merge","outcome":"hit"}
 {"at":"2026-09-13T05:36:21.9510724Z","zoneId":"context-ingestion","outcome":"hit"}
 {"at":"2026-09-13T05:41:15.4949918Z","zoneId":"core-costing","outcome":"hit"}
@@ -8518,3 +8510,4 @@
 {"at":"2026-10-13T05:02:16.0593113Z","zoneId":"cloud-extractors","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Integrations.AwsExtractor/,ArchLucid.Integrations.GcpExtractor/,ArchLucid.Integrations.AzureExtractor/"]}
 {"at":"2026-10-13T05:07:38.1388006Z","zoneId":"cloud-extractors","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Integrations.AwsExtractor/,ArchLucid.Integrations.GcpExtractor/,ArchLucid.Integrations.AzureExtractor/"]}
 {"at":"2026-10-13T05:12:29.5801759Z","zoneId":"cloud-extractors","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Integrations.AwsExtractor/,ArchLucid.Integrations.GcpExtractor/,ArchLucid.Integrations.AzureExtractor/"]}
+{"at":"2026-10-13T05:20:05.7253741Z","zoneId":"cloud-extractors","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Integrations.AwsExtractor/,ArchLucid.Integrations.GcpExtractor/,ArchLucid.Integrations.AzureExtractor/"]}
