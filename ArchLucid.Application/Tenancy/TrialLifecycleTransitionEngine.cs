@@ -99,6 +99,14 @@ public sealed class TrialLifecycleTransitionEngine(
 
             await EmitAuditAsync(tenant, advancement, cancellationToken);
             ArchLucidInstrumentation.RecordTrialExpiration($"{advancement.FromStatus}->{advancement.ToStatus}");
+
+            if (ShouldStopForAutomationGate(
+                    await EvaluateAutomationGateAsync(tenantId, utcNow, cancellationToken),
+                    out bool purgeGateReturn))
+            {
+                return purgeGateReturn;
+            }
+
             TenantHardPurgeResult purgeResult = await _tenantHardPurgeService.PurgeTenantAsync(tenantId,
                 new TenantHardPurgeOptions { DryRun = false, MaxRowsPerStatement = options.HardPurgeMaxRowsPerStatement }, cancellationToken);
             _logger.LogInformation("Trial hard purge completed for tenant {TenantId}: rowsDeleted={Rows}.", tenantId, purgeResult.RowsDeleted);
