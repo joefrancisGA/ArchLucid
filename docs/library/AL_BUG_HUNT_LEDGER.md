@@ -20169,6 +20169,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: archlucid-core
 
+2026-10-13 seed hunt (seed-only): the picker still exposes only this ledger path for the retired mega-zone; re-read `ArchLucid.Core` infra-evidence and explanation parsers plus recent `bugsmash` churn without promoting an invented hypothesis. No hunt-ready row met the same-run failing-repro bar. The scoped Core filter ran 7,329 passed and 6 failed on the explicitly invalid extra-`k` week-UOM baseline (`AzureRetailPricesSkuMatchersWeekMeterTests`). No production or regression change.
+
 2026-10-12 seed hunt (seed-only): the picker exposed only this ledger path for the retired mega-zone; no source-backed locus, reachable input, or mechanism met the hunt-ready bar, so no candidate was promoted or invented. The scoped Core filter ran 7,311 passed and 6 failed on the explicitly invalid extra-`k` week-UOM baseline. No production or regression change.
 
 2026-10-11 seed hunt (seed-only): the picker exposed only this ledger path for the retired mega-zone; no source-backed candidate or hunt-ready row could be seeded without inventing a product hypothesis. The scoped Core filter reached the existing retired extra-`k` week-UOM baseline (7,307 passed, 6 failed), which is explicitly invalid for hunting. No production or regression change.
@@ -20207,8 +20209,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models; retired mega-zone
 - **paths:** docs/library/AL_BUG_HUNT_LEDGER.md
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 475
-- **last-hunt:** 2026-10-12
+- **hunts:** 476
+- **last-hunt:** 2026-10-13
 - **bugs-found:** 3511
 - **consecutive-dry-hunts:** 0
 - **last-bug:** 2026-10-09 — Event Grid destination fields nested under properties were ignored
