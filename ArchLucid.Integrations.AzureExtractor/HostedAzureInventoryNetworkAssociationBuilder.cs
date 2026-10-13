@@ -1046,7 +1046,9 @@ internal static class HostedAzureInventoryNetworkAssociationBuilder
             }
         }
 
-        if (values.Count == 0 && properties.TryGetValue(propertyKeyPrefix, out object? singleValue))
+        if (values.Count == 0
+            && !hasIndexedKeys
+            && properties.TryGetValue(propertyKeyPrefix, out object? singleValue))
         {
             string? text = singleValue?.ToString();
 

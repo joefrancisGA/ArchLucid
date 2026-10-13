@@ -409,6 +409,33 @@ public sealed class HostedAzureInventoryNetworkAssociationBuilderTests
     }
 
     [Fact]
+    public void Build_does_not_fall_back_to_pipe_delimited_companion_when_indexed_slots_are_empty()
+    {
+        const string nicAt2 =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/networkInterfaces/nic-2";
+        const string nicAt10 =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/networkInterfaces/nic-10";
+        HostedAzureArmResourceRecord vm = new(
+            ResourceType: "Microsoft.Compute/virtualMachines",
+            ResourceId: "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm1",
+            Name: "vm1",
+            Location: "eastus",
+            Sku: null,
+            Tags: null,
+            Properties: new Dictionary<string, object?>
+            {
+                ["networkProfile.networkInterfaces[2]"] = string.Empty,
+                ["networkProfile.networkInterfaces[10]"] = "   ",
+                ["networkProfile.networkInterfaces"] = $"{nicAt2}|{nicAt10}",
+            });
+
+        IReadOnlyList<HostedAzureArmNetworkAssociationRecord> associations =
+            HostedAzureInventoryNetworkAssociationBuilder.Build([vm]);
+
+        Assert.DoesNotContain(associations, row => row.AssociationType == AzureInventoryRelationshipAssociationTypes.VmToNic);
+    }
+
+    [Fact]
     public void Build_ignores_pipe_delimited_network_interface_companion_when_indexed_ids_exist()
     {
         const string nicAt2 =
