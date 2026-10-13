@@ -90,6 +90,19 @@ describe("diagram-reconcile-scorecard", () => {
     expect(csv).toContain('"connector-gap","MissingInDiagram"');
   });
 
+  it("labels missing resource group and type without inventing placeholders", () => {
+    const groups = groupDiagramReconcileInventoryOnlyRows([
+      row({ resourceGroup: null, resourceType: null }),
+      row({ correspondenceId: "empty-type", resourceGroup: "rg", resourceType: "" }),
+    ]);
+
+    expect(groups[0]?.resourceGroup).toBe("Resource group was not stored.");
+    expect(groups[0]?.resourceType).toBe("Resource type was not stored.");
+    expect(groups.some((group) => group.resourceType === "Unknown resource type")).toBe(false);
+    expect(groups.some((group) => group.resourceGroup === "Unassigned resource group")).toBe(false);
+    expect(groups.find((group) => group.resourceGroup === "rg")?.resourceType).toBe("");
+  });
+
   it("labels missing connector endpoints without inventing an empty value", () => {
     const result = {
       ...reconciliation(),

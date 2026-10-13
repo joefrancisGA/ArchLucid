@@ -175,11 +175,16 @@ export function FindingInspectFindingBody({
     />
   );
 
-  const reasoningSummaryText = payload.reasoningSummary?.trim() ?? "";
   const reasoningSummaryBlock =
-    variant === "inspect" && reasoningSummaryText.length > 0 ? (
-      <FindingInspectReasoningSummarySection text={reasoningSummaryText} />
-    ) : null;
+    variant === "inspect" && (payload.reasoningSummary === null || payload.reasoningSummary === undefined)
+      ? (
+        <FindingInspectReasoningSummarySection text="Reasoning summary was not stored." />
+      )
+      : variant === "inspect" && (payload.reasoningSummary?.trim().length ?? 0) > 0
+        ? (
+          <FindingInspectReasoningSummarySection text={payload.reasoningSummary!.trim()} />
+        )
+        : null;
 
   const evidenceBlock = (
         <FindingInspectEvidenceSection

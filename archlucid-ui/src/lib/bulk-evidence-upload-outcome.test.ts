@@ -15,6 +15,13 @@ describe("bulk-evidence-upload-outcome", () => {
     expect(parsePartialUploadCountFromDetail("Validation failed.")).toBeNull();
   });
 
+  it("keeps an empty browser file name instead of substituting upload", () => {
+    const file = new File(["x"], "", { type: "text/plain" });
+    const outcomes = mapBulkEvidenceFileOutcomes([file], 1, "failed");
+
+    expect(outcomes[0]?.fileName).toBe("");
+  });
+
   it("maps sequential non-empty uploads and empty skips", () => {
     const files = [
       new File(["a"], "ok.txt"),

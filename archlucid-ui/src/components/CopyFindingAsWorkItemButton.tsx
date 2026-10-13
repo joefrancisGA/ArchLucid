@@ -25,8 +25,8 @@ import {
   writeWorkItemBodyToClipboard,
   type FindingWorkItemBuildInput,
 } from "@/lib/copy-finding-as-work-item";
-import { findingSemanticSupportBandFromTypedPayload } from "@/lib/findings/semantic-support-band-presentation";
 import { resolveFindingWorkItemCoverageHonesty, resolveTraceRowWorkItemCoverageHonesty } from "@/lib/copy-finding-as-work-item-coverage-honesty";
+import type { FindingSemanticSupportBandValue } from "@/lib/findings/semantic-support-band-presentation";
 import { resolveFindingInspectExportClassification, resolveFindingInspectExportTreatment } from "@/lib/findings/finding-inspect-export-classification";
 import { resolveFindingInspectCitationExportBlockedReason } from "@/lib/findings/finding-inspect-citation-export-gate";
 import { findingWorkItemSealedManifestCopyBlockedReason } from "@/lib/findings/finding-work-item-sealed-manifest-guard";
@@ -107,7 +107,10 @@ function buildFindingWorkItemInput(
     trustLabelReason: payload.trustLabelReason ?? null,
     classification,
     treatment,
-    semanticSupportBand: findingSemanticSupportBandFromTypedPayload(typedPayload, classification),
+    semanticSupportBand:
+      typedPayload === null || typedPayload === undefined
+        ? null
+        : (typedPayload.semanticSupportBand as FindingSemanticSupportBandValue | "" | null | undefined) ?? null,
     manifestVersion: payload.manifestVersion ?? null,
     includeCoverageHonesty,
     productLineId,

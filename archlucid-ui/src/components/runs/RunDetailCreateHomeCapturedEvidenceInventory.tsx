@@ -25,7 +25,10 @@ import {
   RUN_DETAIL_CREATE_HOME_CAPTURED_EVIDENCE_HEADING,
   RUN_DETAIL_CREATE_HOME_CAPTURED_EVIDENCE_HELPER,
 } from "@/lib/runs/run-detail-create-home-evidence-copy";
-import type { RunDetailCreateHomeCapturedEvidenceItem } from "@/lib/runs/run-detail-create-home-captured-evidence";
+import {
+  RUN_DETAIL_CAPTURED_EVIDENCE_UPLOADED_TIME_NOT_STORED_COPY,
+  type RunDetailCreateHomeCapturedEvidenceItem,
+} from "@/lib/runs/run-detail-create-home-captured-evidence";
 
 export type RunDetailCreateHomeCapturedEvidenceInventoryProps = {
   readonly runId: string;
@@ -33,7 +36,15 @@ export type RunDetailCreateHomeCapturedEvidenceInventoryProps = {
   readonly catalogAvailable?: boolean;
 };
 
-function formatIngestedLabel(iso: string): string {
+function formatIngestedLabel(iso: string | null): string {
+  if (iso === null || iso === undefined) {
+    return RUN_DETAIL_CAPTURED_EVIDENCE_UPLOADED_TIME_NOT_STORED_COPY;
+  }
+
+  if (iso.length === 0) {
+    return "";
+  }
+
   const formatted = formatInstantForLocale(iso);
 
   return formatted.length > 0 ? formatted : iso;

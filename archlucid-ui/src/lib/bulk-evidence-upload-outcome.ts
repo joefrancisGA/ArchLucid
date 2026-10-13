@@ -58,7 +58,7 @@ export function mapBulkEvidenceFileOutcomes(
   let nonEmptyIndex = 0;
 
   return files.map((file) => {
-    const fileName = file.name.trim().length > 0 ? file.name : "upload";
+    const fileName = file.name;
 
     if (file.size === 0) {
       return {

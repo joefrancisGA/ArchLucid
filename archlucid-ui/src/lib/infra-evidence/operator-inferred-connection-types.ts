@@ -2,11 +2,17 @@ export type OperatorInferredConnectionStatus = "Proposed" | "Confirmed" | "Dismi
 
 export type OperatorInferredConnectionSource = "upload" | "questionnaire";
 
+export const OPERATOR_INFERRED_CONNECTION_STATUS_NOT_STORED_COPY =
+  "Connection status was not stored." as const;
+
+export const OPERATOR_INFERRED_CONNECTION_SOURCE_NOT_STORED_COPY =
+  "Connection source was not stored." as const;
+
 export type OperatorInferredConnectionRow = {
   connectionId: string;
   snapshotId: string;
-  status: OperatorInferredConnectionStatus;
-  source: OperatorInferredConnectionSource;
+  status: OperatorInferredConnectionStatus | "" | null;
+  source: OperatorInferredConnectionSource | "" | null;
   ruleName: string | null;
   questionText: string | null;
   fromArmId: string | null;

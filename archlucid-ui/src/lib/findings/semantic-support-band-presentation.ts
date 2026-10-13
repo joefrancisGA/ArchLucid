@@ -103,3 +103,25 @@ export function semanticSupportBandInspectDetail(band: FindingSemanticSupportBan
 
   return semanticSupportBandShortReason(band);
 }
+
+export const FINDING_SEMANTIC_SUPPORT_BAND_NOT_STORED_COPY =
+  "Semantic support band was not stored." as const;
+
+/** Inspect detail uses raw wire band so null is not explained as NotScored. */
+export function semanticSupportBandInspectDetailFromWireBand(rawBand: unknown): string {
+  if (rawBand === null || rawBand === undefined) {
+    return FINDING_SEMANTIC_SUPPORT_BAND_NOT_STORED_COPY;
+  }
+
+  if (rawBand === "") {
+    return "";
+  }
+
+  const band = normalizeFindingSemanticSupportBand(rawBand);
+
+  if (band === null) {
+    return "";
+  }
+
+  return semanticSupportBandInspectDetail(band);
+}
