@@ -27,6 +27,12 @@ public sealed partial class TenantCatalogMigrationOrchestrator
         if (!isFirstVerificationAttempt && !isVerificationRetry)
             return (TenantCatalogMigrationCommandOutcome.WrongStage, null);
 
+        TenantRecord? tenantBeforeProbe =
+            await _tenantRepository.GetByIdAsync(tenantId, cancellationToken).ConfigureAwait(false);
+
+        if (tenantBeforeProbe?.OffboardedUtc is not null)
+            return (TenantCatalogMigrationCommandOutcome.InErasureQuarantine, null);
+
         if (isFirstVerificationAttempt)
         {
             await _migrationRepository
