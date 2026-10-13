@@ -24,6 +24,7 @@ public sealed class DiagramEdgeLabelHumanizerTests
     [InlineData(GraphEdgeTypes.CanRead, "reads")]
     [InlineData(GraphEdgeTypes.CanWrite, "writes")]
     [InlineData(GraphEdgeTypes.CanAssume, "can assume")]
+    [InlineData(GraphEdgeTypes.CanControlCode, "deploys code")]
     [InlineData(GraphEdgeTypes.RoutesTo, "routes to")]
     [InlineData(GraphEdgeTypes.FederatesAs, "federates")]
     [InlineData(GraphEdgeTypes.MemberOf, "member of")]
