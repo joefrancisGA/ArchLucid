@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-13 seed hunt (seed→hit): `core-requests-constraints` — promoted backtick- and caret-delimited capability slugs (`field`encryption`module`, `my^sql^server`) false-positive phrase and standalone token constraints; extended `IsCompoundIdentifierDelimiter` to `` ` `` and `^`; regressions in `RequestConstraintCompoundIdentifierBacktickCaretTests`; 892 scoped RequestConstraint tests passed.
+
 2026-10-13 seed hunt (seed→hit): `core-requests-constraints` — promoted dollar-delimited capability slugs (`field$encryption$module`, `my$sql$server`) false-positive phrase and standalone token constraints; extended `IsCompoundIdentifierDelimiter` to `$`; regressions in `RequestConstraintCompoundIdentifierDollarTests`; 889 scoped RequestConstraint tests passed.
 
 2026-10-13 seed hunt (seed→hit): `cloud-extractors` — promoted `GetOnlyHostedAzureArmReadClient.ListDiagnosticSettingsForResourceAsync`; reachable cross-resource diagnostic-settings `nextLink` values failed `EnsureTargetsDiagnosticSettingsResource` after a successful first page and threw out of `ListDiagnosticSettingsAsync`, skipping every other path-relevant resource; stop pagination with `partialCollection` when `settings.Count > 0` and rethrow only when no rows were collected; regression `ListDiagnosticSettingsAsync_continues_after_cross_resource_next_link_for_one_resource`; AWS/GCP extractor tests passed 58/58; Azure extractor scope passed 174/174.
@@ -25657,11 +25659,15 @@ Split from retired `archlucid-core` (ABQ-08). Generic-advice negation parity his
 - **aliases:** request constraints; split from archlucid-core
 - **paths:** ArchLucid.Core/Requests/
 - **test-filter:** FullyQualifiedName~RequestConstraint
-- **hunts:** 25
-- **bugs-found:** 24
+- **hunts:** 26
+- **bugs-found:** 25
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-13
-- **last-bug:** 2026-10-13 — dollar-delimited product slugs false-positive encryption/sql constraints
+- **last-bug:** 2026-10-13 — backtick/caret-delimited product slugs false-positive encryption/sql constraints
+
+2026-10-13 seed hunt (seed→hit): reseeded compound-identifier boundaries after `$` fix; proved backtick- and caret-delimited slugs like `field`encryption`module` and `my^sql^server` still false-positive phrase and standalone token constraints; fixed by extending `IsCompoundIdentifierDelimiter` to `` ` `` and `^`; regressions in `RequestConstraintCompoundIdentifierBacktickCaretTests`; 892 scoped RequestConstraint tests passed.
+
+- [x] (proven) `RequestConstraintTokenMatcher.IsEmbeddedInCompoundIdentifier` — backtick- and caret-delimited product slugs (e.g. `field`encryption`module`, `my^sql^server`) may false-positive phrase and standalone token constraints — **hit 2026-10-13 seed hunt (seed→hit):** `$` fix left `` ` `` and `^` unguarded; regressions in `RequestConstraintCompoundIdentifierBacktickCaretTests`.
 
 2026-10-13 seed hunt (seed→hit): reseeded `RequestConstraintTokenMatcher` compound-identifier boundaries after delimiter-saturation note; proved `$`-delimited slugs like `field$encryption$module` and `my$sql$server` still false-positive `HasEncryptionConstraint` / `RequiresSqlCapability`; fixed by extending `IsCompoundIdentifierDelimiter` to `$`; regressions in `RequestConstraintCompoundIdentifierDollarTests`; 889 scoped RequestConstraint tests passed.
 
