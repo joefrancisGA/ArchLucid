@@ -51,6 +51,7 @@ public sealed class CollectionRunTriggerService(
         }
     }
 
+    [InformationalAudit]
     private async Task<CollectionRun> TriggerUnderGateAsync(
         ScopeContext scope,
         string idempotencyKey,

@@ -9,6 +9,8 @@ using Moq;
 
 namespace ArchLucid.Application.Tests.SecureNow;
 
+[Trait("Category", "Unit")]
+[Trait("Suite", "Core")]
 public sealed class CollectionRunTriggerServiceTests
 {
     [Fact]
