@@ -37,6 +37,7 @@ import { GOVERNANCE_INFRASTRUCTURE_OVERVIEW_CLAIM_DISCIPLINE } from "@/lib/gover
 import { GOVERNANCE_INFRASTRUCTURE_PATH, GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { SECURITY_PRODUCT_HOME_TITLE } from "@/lib/product-line/product-line-copy";
+import { isSecureNowUhgEdition } from "@/lib/product-line/resolve-securenow-edition-id";
 import { cn } from "@/lib/utils";
 
 import { SecureNowComplianceHomeSection } from "@/components/product-line/SecureNowComplianceHomeSection";
@@ -82,7 +83,11 @@ export function InfrastructureOverviewClient(props: InfrastructureOverviewClient
         title={pageTitle}
         subtitle={secureNowHome ? SECURENOW_HOME_PAGE_LEAD : GOVERNANCE_INFRASTRUCTURE_OVERVIEW_PAGE_LEAD}
         claimDiscipline={
-          secureNowHome ? SECURENOW_HOME_CLAIM_DISCIPLINE : GOVERNANCE_INFRASTRUCTURE_OVERVIEW_CLAIM_DISCIPLINE
+          secureNowHome
+            ? isSecureNowUhgEdition()
+              ? undefined
+              : SECURENOW_HOME_CLAIM_DISCIPLINE
+            : GOVERNANCE_INFRASTRUCTURE_OVERVIEW_CLAIM_DISCIPLINE
         }
         claimDisciplineTestId="governance-infrastructure-overview-claim-discipline"
         titleTestId="governance-infrastructure-overview-page-title"

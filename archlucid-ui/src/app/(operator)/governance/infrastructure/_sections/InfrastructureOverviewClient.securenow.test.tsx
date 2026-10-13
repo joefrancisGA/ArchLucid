@@ -1,5 +1,5 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("next/navigation", () => ({
   usePathname: () => "/",
@@ -35,6 +35,7 @@ import {
   SECURENOW_ASSIGNED_TO_ME_FINDINGS_PATH,
   SECURENOW_POLICY_PACKS_PATH,
 } from "@/lib/governance/governance-route-paths";
+import { SECURENOW_EDITION_ENV_NAME } from "@/lib/product-line/resolve-securenow-edition-id";
 import { INFRASTRUCTURE_WORKBENCH_ROWS } from "@/lib/governance/governance-infrastructure-copy";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { SECURENOW_COMPLIANCE_HOME_SECTION_HEADING } from "@/lib/product-line/securenow-compliance-home-copy";
@@ -45,6 +46,10 @@ import {
 import { InfrastructureOverviewClient } from "./InfrastructureOverviewClient";
 
 describe("InfrastructureOverviewClient SecureNow grouped home sections", () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
   it("renders Home sections in SecureNow sidebar order", () => {
     render(<InfrastructureOverviewClient secureNowHome />);
 
@@ -95,6 +100,8 @@ describe("InfrastructureOverviewClient SecureNow grouped home sections", () => {
   });
 
   it("uses the short SecureNow lead and does not claim seven destinations", () => {
+    vi.stubEnv(SECURENOW_EDITION_ENV_NAME, "generic");
+
     render(<InfrastructureOverviewClient secureNowHome />);
 
     const primaryContent = screen.getByTestId("governance-infrastructure-overview-primary-content");
@@ -122,5 +129,16 @@ describe("InfrastructureOverviewClient SecureNow grouped home sections", () => {
 
     expect(renderedHrefs).toEqual(SECURENOW_INFRASTRUCTURE_HOME_ROWS.map((row) => row.href));
     expect(renderedHrefs.at(-1)).toBe("/infrastructure/terraform");
+  });
+
+  it("omits SecureNow home claim discipline on the uhg edition", () => {
+    vi.stubEnv(SECURENOW_EDITION_ENV_NAME, "uhg");
+
+    render(<InfrastructureOverviewClient secureNowHome />);
+
+    expect(
+      screen.queryByText(/Advice and inventory evidence on this page are not an official compliance report/i),
+    ).not.toBeInTheDocument();
+    expect(screen.queryByTestId("governance-infrastructure-overview-claim-discipline")).not.toBeInTheDocument();
   });
 });
