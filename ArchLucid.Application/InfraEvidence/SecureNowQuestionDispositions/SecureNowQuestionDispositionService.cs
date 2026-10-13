@@ -144,7 +144,7 @@ public sealed class SecureNowQuestionDispositionService(
                 scope.TenantId,
                 Normalize(request.SubscriptionId),
                 NormalizeResourceId(request.ResourceId),
-                request.QuestionKey.Trim(),
+                NormalizeQuestionKey(request.QuestionKey),
                 cancellationToken);
         if (existing is null)
             return Failed("Question disposition was not found.");
@@ -225,7 +225,7 @@ public sealed class SecureNowQuestionDispositionService(
                 scope.TenantId,
                 Normalize(request.SubscriptionId),
                 NormalizeResourceId(request.ResourceId),
-                request.QuestionKey.Trim(),
+                NormalizeQuestionKey(request.QuestionKey),
                 cancellationToken);
 
         SecureNowQuestionDispositionRecord record = new()
@@ -237,7 +237,7 @@ public sealed class SecureNowQuestionDispositionService(
             SnapshotId = snapshotId,
             SubscriptionId = Normalize(request.SubscriptionId),
             ResourceId = NormalizeResourceId(request.ResourceId),
-            QuestionKey = request.QuestionKey.Trim(),
+            QuestionKey = NormalizeQuestionKey(request.QuestionKey),
             Source = request.Source,
             ScopeKind = request.ScopeKind,
             Status = status,
@@ -302,7 +302,10 @@ public sealed class SecureNowQuestionDispositionService(
         SecureNowQuestionRecord? question = questions.FirstOrDefault(item =>
             string.Equals(item.SubscriptionId, Normalize(request.SubscriptionId), StringComparison.OrdinalIgnoreCase)
             && string.Equals(item.ResourceId, NormalizeResourceId(request.ResourceId), StringComparison.OrdinalIgnoreCase)
-            && string.Equals(item.QuestionKey, request.QuestionKey.Trim(), StringComparison.Ordinal));
+            && string.Equals(
+                item.QuestionKey,
+                NormalizeQuestionKey(request.QuestionKey),
+                StringComparison.OrdinalIgnoreCase));
 
         if (question is null)
             return "Question was not found.";
@@ -423,6 +426,9 @@ public sealed class SecureNowQuestionDispositionService(
     private static string Normalize(string? value) => value?.Trim().ToLowerInvariant() ?? string.Empty;
 
     private static string NormalizeResourceId(string? value) => Normalize(value);
+
+    private static string NormalizeQuestionKey(string? questionKey) =>
+        questionKey?.Trim().ToLowerInvariant() ?? string.Empty;
 
     private static IReadOnlyList<SecureNowDiagramQuestionCandidate> BuildDiagramCandidates(
         AzureInventorySnapshotDetailReadModel snapshot)

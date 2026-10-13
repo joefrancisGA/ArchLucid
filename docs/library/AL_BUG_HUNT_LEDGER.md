@@ -37144,6 +37144,8 @@ ABQ-09 churn hotspot.
 
 ## Zone: securenow-question-queue
 
+2026-10-13 seed hunt (seed→hit): promoted case-variant `QuestionKey` disposition collision; reachable ignore mutations differing only by question-key casing could persist distinct rows while `SecureNowQuestionCompiler` built a case-insensitive disposition dictionary and threw listing questions; normalize question keys on write and identity hash, group duplicate dispositions by case-insensitive identity keeping the newest row; regressions `Question_key_is_case_insensitive_on_ignore` and `Dispositions_with_question_keys_differing_only_by_case_compile_without_failure`; Application SecureNowQuestion filter 25/25.
+
 2026-10-12 seed hunt (seed-only): re-read the selected compiler, disposition service, controller, persistence, contract, queue, and API paths. Reviewed the existing case-variant disposition candidate: two reachable API mutations differing only by `QuestionKey` casing can persist distinct SQL identity hashes, after which compiler `ToDictionary` with an ordinal-ignore-case key comparer can throw while listing questions. A focused repro was attempted but blocked before discovery by unrelated missing `unmappedRoles` and `warnings` members in `AzureInventorySecurityEdgeMaterializer.cs`; no production or regression code changed.
 
 2026-10-12 seed hunt (seed-only): re-read the selected compiler, disposition service, controller, persistence, contract, queue, and API paths after the endpoint-less inference fix. No fresh reachable mechanism-backed hypothesis met the hunt-ready bar; the existing bounded identity, suppression, API-shape, and in-flight-action candidates remain unchanged. The focused SecureNowQuestion suite passed 23/23. No production or regression code changed.
@@ -37180,11 +37182,11 @@ ABQ-09 churn hotspot.
 - **aliases:** securenow question queue; question disposition
 - **paths:** ArchLucid.Application/InfraEvidence/SecureNowQuestionDispositions/; ArchLucid.Api/Controllers/InfraEvidence/InfraEvidenceSecureNowQuestionsController.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/ISecureNowQuestionDispositionRepository.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/ISecureNowQuestionDispositionService.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/SecureNowQuestionDispositionRecord.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/SecureNowQuestionRecord.cs; ArchLucid.Persistence/InfraEvidence/NoOpSecureNowQuestionDispositionRepository.cs; ArchLucid.Persistence/InfraEvidence/SqlSecureNowQuestionDispositionRepository.cs; ArchLucid.Contracts/InfraEvidence/SecureNowQuestionDispositionContracts.cs; archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
-- **hunts:** 34
-- **bugs-found:** 13
+- **hunts:** 35
+- **bugs-found:** 14
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-12
-- **last-bug:** 2026-10-12 — endpoint-less inferred questions were emitted without an answerable resource identity
+- **last-hunt:** 2026-10-13
+- **last-bug:** 2026-10-13 — case-variant question keys broke question compilation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -37247,7 +37249,7 @@ ABQ-09 churn hotspot.
 - (candidate) `SecureNowQuestionCompiler.AddQuestion` — two proposed `OperatorInferredConnectionRecord` inputs with the same normalized resource/question identity but different endpoints are collapsed by `emitted`, so one actionable inferred connection may disappear; input originates from the inferred-connection list passed into compilation.
 - (candidate) `SecureNowQuestionDispositionService.BuildDiagramCandidates` — an inventory resource is suppressed whenever its ID appears in any relationship, even when the relationship's peer endpoint is missing or unresolved; input originates from persisted inventory relationship records and could hide an unknown-evidence question.
 - (candidate) `securenow-question-queue-api.mapQuestion` — an API response containing blank string entries in `answerCodes` passes the type-only filter and can render a blank answer button; input is the reachable question API response.
-- (candidate) `SecureNowQuestionCompiler.Compile` — `dispositions.ToDictionary` uses case-insensitive identity keys while the SQL identity hash preserves `QuestionKey` casing, so two reachable API ignore mutations differing only by question-key case can persist and make question compilation throw; input originates from the controller's `POST /ignore` body.
+- [x] (proven) `SecureNowQuestionCompiler.Compile` / `SecureNowQuestionDispositionService.WriteAsync` / `SqlSecureNowQuestionDispositionRepository.ComputeIdentityHash` — reachable API ignore mutations differing only by `QuestionKey` casing could persist distinct disposition rows while compilation used a case-insensitive disposition dictionary and threw listing questions — **hit 2026-10-13 seed hunt:** normalize question keys on write and in identity hashes, and group duplicate dispositions by case-insensitive identity keeping the newest row; regressions `Question_key_is_case_insensitive_on_ignore` and `Dispositions_with_question_keys_differing_only_by_case_compile_without_failure`.
 - (candidate) `SecureNowQuestionQueueProvider` — while a new `snapshotId` request is in flight, the old question remains actionable, so a queue answer can submit the old question identity under the new snapshot; input originates from snapshot navigation followed by a queue action before the new load completes.
 - (candidate) `securenow-question-queue-api.answerSecureNowQuestion` / `ignoreSecureNowQuestion` / `reopenSecureNowQuestion` — mutation helpers declare a full `SecureNowQuestion` response although the controller returns `SecureNowQuestionDispositionResponse` without display fields; a future reachable caller consuming the mutation response could replace queue state with an incomplete question object. Current provider reloads and ignores the response, so this remains a bounded contract-drift candidate.
 
