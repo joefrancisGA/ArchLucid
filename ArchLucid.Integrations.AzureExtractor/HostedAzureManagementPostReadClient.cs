@@ -71,7 +71,7 @@ public sealed class HostedAzureManagementPostReadClient(
                         "Hosted Azure extractor stopped ActualCost paging due to repeating nextLink for subscription {SubscriptionId}.",
                         subscriptionId);
 
-                    return null;
+                    break;
                 }
 
                 using HttpRequestMessage request = new(
