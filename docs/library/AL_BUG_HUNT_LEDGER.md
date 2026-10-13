@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-13 seed hunt (seed-only): `notifications-pipeline` — re-read zone after mailbox CRLF hardening; cheap-disproved four open candidates (weekly pre-render cost, exec digest invalid mailbox trim, digest webhook null graph properties, alert Slack destination HTTPS); no hunt-ready repro (fail-open-validation class saturated for trim-only `To`); seeded five follow-on `(candidate)` rows; 176 scoped notification/digest Application tests passed.
+
 2026-10-13 seed hunt (seed→hit): `notifications-pipeline` — promoted `EmailOtpEmailNotifier.TrySendSignInCodeAsync`; `displayEmail.Trim()` on `EmailMessage.To` bypassed `IdentityEmailNormalizer` at the notification boundary (defense-in-depth beyond `EmailOtpRequestFlow`); reject CRLF mailboxes before send; regression `TrySendSignInCodeAsync_rejects_recipient_mailbox_with_embedded_line_breaks`; 176 scoped notification/digest Application tests passed.
 
 2026-10-13 seed hunt (seed→hit): `notifications-pipeline` — promoted `TrialLocalIdentityAccountExistsEmailNotifier.NotifyAccountAlreadyExistsAsync`; duplicate trial registration passes raw `email.Trim()` with embedded CRLF into `EmailMessage.To`; `IdentityEmailNormalizer` gate before send; regression `NotifyAccountAlreadyExistsAsync_skips_send_when_recipient_has_embedded_line_breaks`; 175 scoped notification/digest Application tests passed.
@@ -31463,6 +31465,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ## Zone: notifications-pipeline
 
+2026-10-13 seed hunt (seed-only): cheap-disproved weekly sponsor pre-render, exec digest invalid-mailbox render ordering, digest Teams/Slack null `Digest`/`Subscription`, and alert webhook destination HTTPS locus; seeded ChatOps hook URI, alert null graph, Slack mrkdwn newline, digest subscription null, and shared mailbox resolver consolidation candidates; 176 scoped notification/digest Application tests passed.
+
 2026-10-13 seed hunt (seed→hit): proved `EmailOtpEmailNotifier` assigned CRLF-bearing `displayEmail` to `EmailMessage.To` via trim-only; `IdentityEmailNormalizer` gate; 176 scoped notification/digest Application tests passed.
 
 2026-10-13 seed hunt (seed→hit): proved trial duplicate-registration notice forwarded CRLF-bearing registration email into `EmailMessage.To`; `IdentityEmailNormalizer` before send; 175 scoped notification/digest Application tests passed.
@@ -31497,7 +31501,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** notifications; email dispatchers beyond weekly summary
 - **paths:** ArchLucid.Notifications/; ArchLucid.Application/Notifications/; ArchLucid.Api/Controllers/Advisory/DigestSubscriptionsController.cs
 - **test-filter:** FullyQualifiedName~Notifications|FullyQualifiedName~EmailDispatcher|FullyQualifiedName~DigestSubscriptionsController
-- **hunts:** 76
+- **hunts:** 77
 - **bugs-found:** 59
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-13
@@ -31545,10 +31549,16 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (valid-no-repro) `SlackInteractivityVerifier.Verify` — signature length mismatch — **cheap-disproof 2026-10-13 seed hunt:** `Verify_rejects_signature_mismatch` and empty-input guards; `CryptographicOperations.FixedTimeEquals` returns false on length mismatch without throwing.
 - [x] (valid-no-repro) `MultiRecipientEmailDispatch.TrySendToMailboxesAsync` — all-invalid mailbox lists return `false` — **cheap-disproof 2026-10-13 seed hunt:** documented contract; `WeeklySponsorReportEmailDispatcher_skips_send_when_all_mailboxes_fail_identity_normalization` asserts no send and no ledger write.
 - [x] (valid-no-repro) `DigestSubscriptionsController.Create` — webhook destination validation — **cheap-disproof 2026-10-13 seed hunt:** controller delegates to `IDigestSubscriptionFacade`; shape/persistence checks are outside zone paths and were not falsifiable from scoped files alone.
-- [ ] (candidate) `WeeklySponsorSummaryEmailDispatcher` / `WeeklySponsorReportEmailDispatcher` — `IdentityEmailNormalizer` runs only inside `MultiRecipientEmailDispatch` after `IEmailTemplateRenderer` builds HTML/text; invalid-only recipient lists still render templates containing `RunDetailUrl` (see `WeeklySponsorReportEmailDispatcher_skips_send_when_all_mailboxes_fail_identity_normalization`).
-- [ ] (candidate) `ExecDigestEmailDispatcher.TryDispatchAsync` — non-whitespace but invalid mailbox strings (for example `finance@`) are trimmed into the recipient list before render; delivery relies on `MultiRecipientEmailDispatch` to skip send without an early normalizer gate (`ExecDigestEmailDispatcher_skips_invalid_recipient_mailboxes_without_sending`).
-- [ ] (candidate) `DigestSlackWebhookDeliveryChannel.SendAsync` / `DigestTeamsWebhookDeliveryChannel.SendAsync` — `payload.Digest` and `payload.Subscription` are not explicitly null-guarded; null graph properties throw `NullReferenceException` instead of `ArgumentNullException` on the offending parameter.
-- [ ] (candidate) `AlertSlackWebhookDeliveryChannel.SendAsync` — `payload.Subscription.Destination` is passed to `ChatOpsWebhookDeliveryService` without zone-local HTTPS validation (relies on subscription persistence validation upstream).
+- [x] (valid-no-repro) `WeeklySponsorSummaryEmailDispatcher` / `WeeklySponsorReportEmailDispatcher` — invalid-only recipient lists still render templates before `MultiRecipientEmailDispatch` filters mailboxes — **cheap-disproof 2026-10-13 seed hunt:** `WeeklySponsorReportEmailDispatcher_skips_send_when_all_mailboxes_fail_identity_normalization` asserts no provider send and no ledger write; wasted render cost only.
+- [x] (valid-no-repro) `ExecDigestEmailDispatcher.TryDispatchAsync` — invalid mailbox strings trimmed into recipient list before render — **cheap-disproof 2026-10-13 seed hunt:** `ExecDigestEmailDispatcher_skips_invalid_recipient_mailboxes_without_sending` asserts no send when every mailbox fails `IdentityEmailNormalizer`.
+- [x] (valid-no-repro) `DigestSlackWebhookDeliveryChannel.SendAsync` / `DigestTeamsWebhookDeliveryChannel.SendAsync` — null `payload.Digest` / `payload.Subscription` throw `NullReferenceException` — **cheap-disproof 2026-10-13 seed hunt:** advisory digest delivery channels are invoked only from internal schedulers that materialize full `DigestDeliveryPayload` graphs; null properties are programmer-contract violations, not operator input.
+- [x] (valid-no-repro) `AlertSlackWebhookDeliveryChannel.SendAsync` — destination HTTPS not validated in channel — **cheap-disproof 2026-10-13 seed hunt:** alert routing subscriptions are persisted through application validation; `ChatOpsWebhookDeliveryService` posts only to stored webhook URLs (parity with digest webhook channels).
+
+- [ ] (candidate) `AuthorityRunCommittedChatOpsHook.DeliverIfEnabledAsync` — configured `SlackIncomingWebhookAbsoluteUri` / `TeamsIncomingWebhookAbsoluteUri` uses `rawUri?.Trim()` before `Uri.TryCreate`; embedded CRLF in operator ChatOps webhook options could reach `IChatOpsWebhookDeliveryService.DeliverAsync` — locus: `ArchLucid.Notifications/AuthorityRunCommittedChatOpsHook.cs`; input: misconfigured incoming webhook URI in `ChatOpsIncomingWebhooksOptions`.
+- [ ] (candidate) `AlertSlackWebhookDeliveryChannel.SendAsync` / `AlertTeamsWebhookDeliveryChannel.SendAsync` — `payload.Alert` or `payload.Subscription` null after `ThrowIfNull(payload)` yields `NullReferenceException` on property access — locus: alert webhook channels; input: internal caller passes partially constructed `AlertDeliveryPayload`.
+- [ ] (candidate) `ChatOpsIncomingWebhookBodies.ForSlack` / `ForTeams` — `message.Title`, `SeverityLabel`, or `Body` containing embedded newlines are concatenated into vendor `text`/`title` without normalization — locus: `ArchLucid.Notifications/ChatOpsIncomingWebhookBodies.cs`; input: alert or digest copy with CRLF in title/body from evaluation pipelines.
+- [ ] (candidate) `DigestSlackWebhookDeliveryChannel.SendAsync` — null `payload.Subscription` with non-null `payload.Digest` fails on `payload.Subscription.Destination` with `NullReferenceException` — locus: `ArchLucid.Notifications/Advisory/DigestSlackWebhookDeliveryChannel.cs`; input: internal scheduler bug omitting subscription on payload.
+- [ ] (candidate) `Application/Notifications/Email` dispatchers — mailbox validation duplicated per notifier instead of shared `TryResolveDeliveryMailbox` helper — locus: parallel `IdentityEmailNormalizer.TryNormalize` guards; input: future notifier forgetting guard (consolidation candidate; do not add another one-off CRLF test without helper).
 
 - [x] (proven) `ExecDigestEmailDispatcher` — `DashboardUrl` / `SponsorValueReportUrl` with embedded userinfo reached digest template CTAs without sanitization — **hit 2026-10-13 seed hunt (seed→hit):** `SanitizeOperatorAbsoluteUrl` at dispatch (parity with unsubscribe and weekly sponsor `runDetailUrl`); regression `ExecDigestEmailDispatcher_omits_user_info_from_dashboard_and_sponsor_urls_in_template_model`.
 
