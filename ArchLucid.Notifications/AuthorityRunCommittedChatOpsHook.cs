@@ -83,12 +83,7 @@ public sealed class AuthorityRunCommittedChatOpsHook(
         if (!enabled)
             return;
 
-        string? url = rawUri?.Trim();
-
-        if (string.IsNullOrWhiteSpace(url))
-            return;
-
-        if (!Uri.TryCreate(url, UriKind.Absolute, out Uri? uri) || uri.Scheme != Uri.UriSchemeHttps)
+        if (!ChatOpsWebhookAbsoluteUriValidator.TryValidateHttpsAbsoluteUri(rawUri, out string deliveryUri))
             return;
 
         markAttempted(true);
@@ -96,7 +91,7 @@ public sealed class AuthorityRunCommittedChatOpsHook(
         try
         {
             await _chatOpsWebhookDeliveryService
-                .DeliverAsync(target, url, message, cancellationToken, telemetry)
+                .DeliverAsync(target, deliveryUri, message, cancellationToken, telemetry)
                 .ConfigureAwait(false);
 
             markSucceeded(true);

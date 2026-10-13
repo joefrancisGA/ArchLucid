@@ -143,6 +143,47 @@ public sealed class AuthorityRunCommittedChatOpsHookTests
     }
 
     [Fact]
+    public async Task NotifyAsync_skips_slack_delivery_when_webhook_uri_has_embedded_line_breaks()
+    {
+        Mock<IChatOpsWebhookDeliveryService> delivery = new();
+
+        ChatOpsIncomingWebhooksOptions opts = new()
+        {
+            SlackNotifyOnAuthorityRunCompleted = true,
+            SlackIncomingWebhookAbsoluteUri = "https://hooks.slack.com/services/X/Y/Z\r\nHost: injected.evil.test",
+        };
+
+        Mock<IOptionsMonitor<ChatOpsIncomingWebhooksOptions>> optionsMonitor = new();
+        optionsMonitor.Setup(o => o.CurrentValue).Returns(opts);
+
+        AuthorityRunCommittedChatOpsHook sut = new(
+            delivery.Object,
+            optionsMonitor.Object,
+            Mock.Of<ILogger<AuthorityRunCommittedChatOpsHook>>());
+
+        AuthorityRunCommittedChatOpsNotice notice = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+            RunId = Guid.NewGuid(),
+            FindingCount = 0,
+            Description = "Done",
+        };
+
+        await sut.NotifyAsync(notice, CancellationToken.None);
+
+        delivery.Verify(
+            d => d.DeliverAsync(
+                It.IsAny<ChatOpsWebhookTarget>(),
+                It.IsAny<string>(),
+                It.IsAny<ChatOpsWebhookMessage>(),
+                It.IsAny<CancellationToken>(),
+                It.IsAny<WebhookPostOptions?>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task NotifyAsync_skips_when_webhook_url_is_whitespace_only()
     {
         Mock<IChatOpsWebhookDeliveryService> delivery = new();
