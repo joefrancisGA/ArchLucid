@@ -93,7 +93,9 @@ public sealed class ExecDigestSponsorDeepLinkReadService(
         string operatorBase = string.IsNullOrWhiteSpace(emailOptions.OperatorBaseUrl)
             ? "http://localhost:3000"
             : emailOptions.OperatorBaseUrl.Trim();
-        string signInUrl = $"{operatorBase.TrimEnd('/')}/auth/sign-in";
+        string? signInAuthority = EmailBrandingUrls.TryNormalizeOperatorBaseAuthority(operatorBase)
+            ?? "http://localhost:3000";
+        string signInUrl = $"{signInAuthority}/auth/sign-in";
 
         using (AmbientScopeContext.Push(scope))
         {
