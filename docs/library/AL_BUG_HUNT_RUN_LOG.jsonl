@@ -8433,3 +8433,4 @@
 {"at":"2026-10-13T17:24:05.1924431Z","zoneId":"core-requests-constraints","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Core/Requests/"]}
 {"at":"2026-10-13T17:33:18.8490351Z","zoneId":"core-findings-advice","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Core/Findings/"]}
 {"at":"2026-10-13T17:41:15.5834177Z","zoneId":"core-findings-advice","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-13T17:50:34.6814232Z","zoneId":"application-agents","outcome":"hit","productLine":"archlucid-shared"}
