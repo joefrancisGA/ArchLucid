@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-13 seed hunt (seed→hit): `application-tenancy-lifecycle` — promoted `TenantErasureCommandService.TryApproveErasureAsync`; concurrent quarantine restore before `TryApproveTenantErasureAsync` made atomic miss return `false` and surfaced 409 on approve retry despite erasure no longer applying; re-read maps cleared `OffboardedUtc` to idempotent success (parity with restore/clear legal-hold losers); regression `TryApproveErasureAsync_returns_success_when_quarantine_restored_before_atomic_approve`; 149 scoped tenancy tests passed.
+
 2026-10-13 seed hunt (seed→hit): `application-tenancy-lifecycle` — promoted `TenantDeletionService.DeleteTenantAsync`; missing tenant row surfaced the same `InvalidOperationException` as unapproved erasure because `tenant?.TenantErasureApprovedUtc == null` conflated null with not approved; distinct not-found guard before approval check; regressions `DeleteTenantAsync_throws_not_found_when_tenant_row_is_missing` and `DeleteTenantAsync_throws_when_erasure_not_approved`; 148 scoped tenancy tests passed.
 
 2026-10-13 seed hunt (seed→hit): `notifications-pipeline` — promoted `ExecDigestEmailDispatcher.TryDispatchAsync`; reachable digest `DashboardUrl` / `SponsorValueReportUrl` values with embedded `OperatorBaseUrl` userinfo were trimmed into templates while unsubscribe already used `SanitizeOperatorAbsoluteUrl`; sanitize CTA hrefs at dispatch; regression `ExecDigestEmailDispatcher_omits_user_info_from_dashboard_and_sponsor_urls_in_template_model`; 162 scoped Application notification tests passed; 11 DigestSubscriptions controller unit tests passed (2 SQL integration auth tests skipped without `ARCHLUCID_API_TEST_SQL`).
@@ -34537,11 +34539,15 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 47
-- **bugs-found:** 32
+- **hunts:** 48
+- **bugs-found:** 33
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-13
-- **last-bug:** 2026-10-13 — Hard purge reported unapproved erasure when tenant row was already gone
+- **last-bug:** 2026-10-13 — Erasure approve returned conflict when quarantine was restored before atomic approve
+
+2026-10-13 seed hunt (seed→hit): reseeded erasure approval after tenant deletion fix; proved `TryApproveErasureAsync` returned `false` when quarantine restore cleared `OffboardedUtc` before atomic approve; fixed idempotent re-read after repository miss; regression `TryApproveErasureAsync_returns_success_when_quarantine_restored_before_atomic_approve`; 149 scoped tenancy tests passed.
+
+- [x] (proven) `TenantErasureCommandService.TryApproveErasureAsync` — atomic approve miss returned `false` while erasure quarantine was already cleared by concurrent restore — **hit 2026-10-13 seed hunt (seed→hit):** re-read tenant after `TryApproveTenantErasureAsync` miss and return success when `OffboardedUtc` is null; regression `TryApproveErasureAsync_returns_success_when_quarantine_restored_before_atomic_approve`.
 
 2026-10-13 seed hunt (seed→hit): reseeded tenant deletion after suspend/offboard race fix; proved `DeleteTenantAsync` used approval guard on null tenant rows; fixed with explicit not-found failure before approval check; regressions in `TenantDeletionServiceTests`; 148 scoped tenancy tests passed.
 
