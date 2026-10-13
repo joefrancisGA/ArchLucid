@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-13 seed hunt (seed→hit): `application-tenancy-lifecycle` — promoted `TrialLifecycleTransitionEngine.TryAdvanceTenantAsync` `Deleted` retry path; idempotent hard-purge passes with `RowsDeleted = 0` returned `false` and looked like a failed scheduler tick; return success after purge completes; regression `TryAdvanceTenantAsync_when_already_deleted_and_purge_deletes_no_rows_returns_success`; 145 scoped tenancy tests passed.
+
 2026-10-13 seed hunt (seed→hit): `core-requests-constraints` — promoted duplicate ASCII spaces between phrase words (`managed  identity`, `private  endpoint`) breaking `ContainsAffirmativePhrase` after normalization; collapse consecutive ASCII spaces in `NormalizeConstraintMatchingText`; regressions in `RequestConstraintPhraseDuplicateSpaceTests`; 907 scoped RequestConstraint tests passed.
 
 2026-10-13 seed hunt (seed→hit): `core-requests-constraints` — promoted brace-wrapped capability slugs (`field{encryption}module`) false-positive phrase constraints; replaced per-character `IsCompoundIdentifierDelimiter` allowlist with “non-alphanumeric, non-space connector between slug segments”; regression in `RequestConstraintCompoundIdentifierBraceTests`; 905 scoped RequestConstraint tests passed.
@@ -34525,11 +34527,15 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 44
-- **bugs-found:** 29
+- **hunts:** 45
+- **bugs-found:** 30
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-06
-- **last-bug:** 2026-10-06 — concurrent ExportOnly→Deleted transition losers returned false after atomic miss
+- **last-hunt:** 2026-10-13
+- **last-bug:** 2026-10-13 — Deleted-trial purge retry reported failure when purge deleted zero rows
+
+2026-10-13 seed hunt (seed→hit): reseeded `TrialLifecycleTransitionEngine` after lifecycle idempotency fixes; proved `Deleted` status retry returned `false` when `PurgeTenantAsync` deleted zero rows on an idempotent pass; fixed by treating a completed purge call as scheduler success; regression in `TrialLifecycleTransitionEngineDeletedRetryTests`; 145 scoped tenancy tests passed.
+
+- [x] (proven) `TrialLifecycleTransitionEngine.TryAdvanceTenantAsync` — `Deleted` status hard-purge retry returned `false` when `TenantHardPurgeResult.RowsDeleted` was zero — **hit 2026-10-13 seed hunt (seed→hit):** idempotent purge passes should not surface as failed ticks; regression `TryAdvanceTenantAsync_when_already_deleted_and_purge_deletes_no_rows_returns_success`.
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 

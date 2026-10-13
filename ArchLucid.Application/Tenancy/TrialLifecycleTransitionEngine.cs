@@ -52,9 +52,11 @@ public sealed class TrialLifecycleTransitionEngine(
 
         if (TrialLifecycleStatus.EqualsStatus(tenant.TrialStatus, TrialLifecycleStatus.Deleted))
         {
-            TenantHardPurgeResult retry = await _tenantHardPurgeService.PurgeTenantAsync(tenantId,
+            await _tenantHardPurgeService.PurgeTenantAsync(tenantId,
                 new TenantHardPurgeOptions { DryRun = false, MaxRowsPerStatement = options.HardPurgeMaxRowsPerStatement }, cancellationToken);
-            return retry.RowsDeleted > 0;
+
+            // Idempotent scheduler retries: a no-row purge pass still means the tick completed successfully.
+            return true;
         }
 
         TrialLifecycleAdvancement? advancement = TrialLifecyclePolicy.TryGetNextAdvancement(tenant, _timeProvider.GetUtcNow(), options);
