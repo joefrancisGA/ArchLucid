@@ -289,6 +289,9 @@ The refresh workflow is path-filtered to contract-layer paths; the RC35 repair s
 | RC release gate | **FAIL** — run `38392711498` (`demo-workspace-a` CG-046 stamp band) |
 | Gate 1 | **UNKNOWN** |
 | G-REAL-06 | **Not started** |
+
+**Cursor follow-up (**#4655**):** pipeline finalize manifest hash (TB-927), JwtBearer session-expiry dedupe, and CG-046 live demo assert spine **or** stamp semantic support after findings hydrate.
+
 ## Golden-cohort apply (owner, after first green)
 
 When `Operator UI: private-beta access-path (JwtBearer)` completes green at least once on `master`:

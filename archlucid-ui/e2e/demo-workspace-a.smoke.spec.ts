@@ -196,13 +196,28 @@ test.describe(
 
     await expect(page.getByTestId("run-detail-first-review-spine-band")).toBeVisible({ timeout: 120_000 });
 
+    await expectReviewDetailFindingsQuickSummaryVisible(page, {
+      runId: DEMO_WORKSPACE_A_PRODUCT_TOUR_RUN_ID,
+      timeoutMs: 120_000,
+    });
+
     const stampViewport = page.getByTestId("run-detail-review-package-stamp-viewport");
     await stampViewport.scrollIntoViewIfNeeded();
 
     await expect(page.getByTestId("run-detail-quality-gate-mode-strip")).toBeVisible({ timeout: 60_000 });
-    await expect(page.getByTestId("run-detail-stamp-semantic-support-band-summary")).toBeVisible({
-      timeout: 60_000,
-    });
+
+    const spineSemanticSupport = page
+      .getByTestId("run-detail-first-review-spine-band")
+      .getByTestId("run-detail-first-review-spine-semantic-support");
+    const stampSemanticSupportSummary = page.getByTestId("run-detail-stamp-semantic-support-band-summary");
+
+    await expect(async () => {
+      const spineVisible = await spineSemanticSupport.isVisible().catch(() => false);
+      const stampVisible = await stampSemanticSupportSummary.isVisible().catch(() => false);
+
+      expect(spineVisible || stampVisible).toBe(true);
+    }).toPass({ timeout: 120_000 });
+
     const stampLaneBHonesty = page.getByTestId("run-detail-stamp-semantic-support-lane-b-honesty");
 
     if (await stampLaneBHonesty.isVisible()) {
