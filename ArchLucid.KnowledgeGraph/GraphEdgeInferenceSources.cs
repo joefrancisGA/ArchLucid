@@ -30,6 +30,8 @@ public static class GraphEdgeInferenceSources
     public const string InventoryExplicitParentChild = "inventory-explicit-parent-child";
     public const string InventoryRbacAssignment = "inventory-rbac-assignment";
     public const string InventoryRbacDataPlaneMap = "inventory-rbac-data-plane-map";
+
+    public const string InventoryControlToDataConversion = "inventory-control-to-data-conversion";
     public const string InventoryPublicIp = "inventory-public-ip";
     public const string InventoryPrivateEndpoint = "inventory-private-endpoint";
     public const string InventoryNicSubnet = "inventory-nic-subnet";

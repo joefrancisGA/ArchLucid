@@ -144,6 +144,11 @@ public static class AzureInventorySecurityEdgeMaterializer
         }
 
         AddRoleAssignmentEdges(roleAssignments, relationships, relationshipKeys, warnings);
+        AzureInventoryControlToDataConversionEdgeMapper.MapConversions(
+            resources,
+            roleAssignments,
+            relationships,
+            relationshipKeys);
         AzureInventoryAppAuthorizedAccessEdgeMapper.MapAuthorizedAccess(
             resources,
             roleAssignments,
