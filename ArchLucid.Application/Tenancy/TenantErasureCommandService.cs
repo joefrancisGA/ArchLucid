@@ -246,6 +246,9 @@ public sealed class TenantErasureCommandService(
         if (beforeSetAudit.OffboardedUtc is null && tenant.OffboardedUtc is not null)
             return true;
 
+        if (beforeSetAudit.LegalHoldUntilUtc is null && afterSet.LegalHoldUntilUtc is not null)
+            return true;
+
         await AppendPlatformAuditAsync(
             AuditEventTypes.TenantErasureLegalHoldSet,
             tenantId,
