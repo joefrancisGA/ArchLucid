@@ -409,6 +409,34 @@ public sealed class HostedAzureInventoryNetworkAssociationBuilderTests
     }
 
     [Fact]
+    public void Build_ignores_pipe_delimited_network_interface_companion_when_indexed_ids_exist()
+    {
+        const string nicAt2 =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/networkInterfaces/nic-2";
+        const string nicAt10 =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/networkInterfaces/nic-10";
+        HostedAzureArmResourceRecord vm = new(
+            ResourceType: "Microsoft.Compute/virtualMachines",
+            ResourceId: "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm1",
+            Name: "vm1",
+            Location: "eastus",
+            Sku: null,
+            Tags: null,
+            Properties: new Dictionary<string, object?>
+            {
+                ["networkProfile.networkInterfaces[2]"] = nicAt2,
+                ["networkProfile.networkInterfaces[10]"] = nicAt10,
+                ["networkProfile.networkInterfaces"] = $"{nicAt2}|{nicAt10}",
+            });
+
+        IReadOnlyList<HostedAzureArmNetworkAssociationRecord> associations =
+            HostedAzureInventoryNetworkAssociationBuilder.Build([vm]);
+
+        Assert.Equal(2, associations.Count(row => row.AssociationType == AzureInventoryRelationshipAssociationTypes.VmToNic));
+        Assert.DoesNotContain(associations, row => row.ToResourceId.Contains('|', StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void Build_ignores_private_link_service_id_property_key_prefix_collisions()
     {
         const string targetId =

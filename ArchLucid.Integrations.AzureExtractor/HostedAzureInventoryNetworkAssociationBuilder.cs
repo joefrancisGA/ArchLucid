@@ -1022,10 +1022,18 @@ internal static class HostedAzureInventoryNetworkAssociationBuilder
         }
 
         List<string> values = [];
+        bool hasIndexedKeys = properties.Keys.Any(
+            key => key.StartsWith($"{propertyKeyPrefix}[", StringComparison.OrdinalIgnoreCase));
 
         foreach (KeyValuePair<string, object?> property in properties)
         {
             if (!IsDelimitedPropertyKey(property.Key, propertyKeyPrefix))
+            {
+                continue;
+            }
+
+            if (hasIndexedKeys
+                && property.Key.Equals(propertyKeyPrefix, StringComparison.OrdinalIgnoreCase))
             {
                 continue;
             }
