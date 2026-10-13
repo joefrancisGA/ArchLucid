@@ -196,6 +196,11 @@ public sealed class TrialLifecycleTransitionEngine(
 
     private async Task EmitAuditAsync(TenantRecord tenant, TrialLifecycleAdvancement advancement, CancellationToken cancellationToken)
     {
+        TenantRecord? current = await _tenantRepository.GetByIdAsync(tenant.Id, cancellationToken).ConfigureAwait(false);
+
+        if (current is null || current.OffboardedUtc is not null)
+            return;
+
         TenantWorkspaceLink? workspace = await _tenantRepository.GetFirstWorkspaceAsync(tenant.Id, cancellationToken).ConfigureAwait(false);
         Guid workspaceId = workspace?.WorkspaceId ?? Guid.Empty;
         Guid projectId = workspace?.DefaultProjectId ?? Guid.Empty;
@@ -205,7 +210,7 @@ public sealed class TrialLifecycleTransitionEngine(
                 EventType = AuditEventTypes.TrialLifecycleTransition,
                 ActorUserId = "system:trial-lifecycle-scheduler",
                 ActorUserName = "system:trial-lifecycle-scheduler",
-                TenantId = tenant.Id,
+                TenantId = current.Id,
                 WorkspaceId = workspaceId,
                 ProjectId = projectId,
                 DataJson = JsonSerializer.Serialize(new
