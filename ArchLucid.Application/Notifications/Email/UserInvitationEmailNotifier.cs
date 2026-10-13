@@ -131,7 +131,13 @@ public sealed class UserInvitationEmailNotifier(
     {
         return PersonalMessageMarkdownLinkRegex.Replace(
             personalMessage,
-            static match => $"{match.Groups["label"].Value} ({match.Groups["url"].Value})");
+            static match =>
+            {
+                string label = match.Groups["label"].Value;
+                string url = SanitizePersonalMessageLinkUrl(match.Groups["url"].Value);
+
+                return $"{label} ({url})";
+            });
     }
 
     private static string FormatPersonalMessageHtml(string personalMessage)
@@ -154,7 +160,8 @@ public sealed class UserInvitationEmailNotifier(
             if (Uri.TryCreate(rawUrl.Trim(), UriKind.Absolute, out Uri? uri)
                 && (uri.Scheme == Uri.UriSchemeHttps || uri.Scheme == Uri.UriSchemeHttp))
             {
-                string url = System.Net.WebUtility.HtmlEncode(uri.ToString());
+                string sanitizedUrl = SanitizePersonalMessageLinkUrl(rawUrl);
+                string url = System.Net.WebUtility.HtmlEncode(sanitizedUrl);
                 builder.Append($"<a href=\"{url}\" rel=\"noopener noreferrer\">{label}</a>");
             }
             else
@@ -171,6 +178,19 @@ public sealed class UserInvitationEmailNotifier(
         }
 
         return builder.ToString();
+    }
+
+    private static string SanitizePersonalMessageLinkUrl(string rawUrl)
+    {
+        string trimmed = rawUrl.Trim();
+
+        if (!Uri.TryCreate(trimmed, UriKind.Absolute, out Uri? uri)
+            || (uri.Scheme != Uri.UriSchemeHttps && uri.Scheme != Uri.UriSchemeHttp))
+        {
+            return trimmed;
+        }
+
+        return EmailBrandingUrls.SanitizeOperatorAbsoluteUrl(trimmed);
     }
 
     private static string BuildIdempotencyKey(string displayEmail, string acceptUrl)

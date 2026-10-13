@@ -128,6 +128,41 @@ public sealed class UserInvitationEmailNotifierTests
         sentMessage.TextBody.Should().NotContain("user:secret@");
     }
 
+    [SkippableFact]
+    public async Task TrySendInvitationAsync_omits_user_info_from_personal_message_markdown_link_urls()
+    {
+        EmailMessage? sentMessage = null;
+        Mock<IEmailProvider> email = new();
+        email
+            .Setup(x => x.SendAsync(It.IsAny<EmailMessage>(), It.IsAny<CancellationToken>()))
+            .Callback<EmailMessage, CancellationToken>((message, _) => sentMessage = message)
+            .Returns(Task.CompletedTask);
+
+        UserInvitationEmailNotifier sut = new(
+            email.Object,
+            BuildOptions(new EmailNotificationOptions { ProductDisplayName = "Prod" }),
+            NullLogger<UserInvitationEmailNotifier>.Instance);
+
+        const string personalMessage =
+            "See [run details](https://user:secret@ops.example.test/architecture/reviews/run-abc).";
+
+        await sut.TrySendInvitationAsync(
+            "invitee@example.com",
+            AcceptUrl,
+            "Reader",
+            14,
+            personalMessage,
+            CancellationToken.None);
+
+        sentMessage.Should().NotBeNull();
+        sentMessage!.HtmlBody.Should().Contain(
+            "<a href=\"https://ops.example.test/architecture/reviews/run-abc\" rel=\"noopener noreferrer\">run details</a>");
+        sentMessage.TextBody.Should().Contain(
+            "run details (https://ops.example.test/architecture/reviews/run-abc)");
+        sentMessage.HtmlBody.Should().NotContain("user:secret@");
+        sentMessage.TextBody.Should().NotContain("user:secret@");
+    }
+
     [SkippableTheory]
     [InlineData("javascript:alert(1)")]
     [InlineData("data:text/html;base64,PGI+")]

@@ -31453,6 +31453,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ## Zone: notifications-pipeline
 
+2026-10-13 seed hunt (seed→hit): proved workspace invitation personal-message markdown links echoed userinfo in href/text bodies; 164 scoped notification/digest Application tests passed.
+
 2026-10-13 seed hunt (seed→hit): proved workspace invitation mail echoed userinfo-bearing `acceptUrl`; 164 scoped notification/digest Application tests passed.
 
 2026-10-13 seed hunt (seed→hit): proved `ExecDigestComposer` composed dashboard links with operator-base userinfo for board-pack markdown; 164 scoped notification/digest Application tests passed.
@@ -31465,11 +31467,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** notifications; email dispatchers beyond weekly summary
 - **paths:** ArchLucid.Notifications/; ArchLucid.Application/Notifications/; ArchLucid.Api/Controllers/Advisory/DigestSubscriptionsController.cs
 - **test-filter:** FullyQualifiedName~Notifications|FullyQualifiedName~EmailDispatcher|FullyQualifiedName~DigestSubscriptionsController
-- **hunts:** 65
-- **bugs-found:** 49
+- **hunts:** 66
+- **bugs-found:** 50
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-13
-- **last-bug:** 2026-10-13 — Workspace invitation accept URL userinfo leak
+- **last-bug:** 2026-10-13 — Workspace invitation personal-message markdown link userinfo leak
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -31482,12 +31484,14 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - [x] (proven) `UserInvitationEmailNotifier.TrySendInvitationAsync` — `acceptUrl` echoed operator-base userinfo in invitation CTA bodies — **hit 2026-10-13 seed hunt (seed→hit):** `EmailBrandingUrls.SanitizeOperatorAbsoluteUrl`; regression `TrySendInvitationAsync_omits_user_info_from_accept_url_in_message_bodies`.
 
+- [x] (proven) `UserInvitationEmailNotifier.FormatPersonalMessageHtml` / `FormatPersonalMessageText` — administrator markdown links echoed embedded userinfo in invitation bodies while CTA `acceptUrl` was sanitized — **hit 2026-10-13 seed hunt (seed→hit):** `SanitizePersonalMessageLinkUrl` via `EmailBrandingUrls.SanitizeOperatorAbsoluteUrl`; regression `TrySendInvitationAsync_omits_user_info_from_personal_message_markdown_link_urls`.
+
 - [ ] (candidate) `UserInvitationAdminService.BuildAcceptUrl` — concatenates trimmed `OperatorBaseUrl` without authority normalization; admin invite/list responses still expose raw `AcceptUrl` even when mail notifier sanitizes at send time.
-- [ ] (candidate) `BoardPackPdfBuilder.BuildPdfAsync` — passes raw `emailOptions.OperatorBaseUrl` into `ExecDigestComposer` when configured, bypassing caller-supplied `operatorBaseUrl` normalization parity.
+- [x] (valid-no-repro) `BoardPackPdfBuilder.BuildPdfAsync` — raw `emailOptions.OperatorBaseUrl` passed into `ExecDigestComposer` — **cheap-disproof 2026-10-13 seed hunt:** `ExecDigestComposer.NormalizeBaseUrl` strips userinfo before dashboard/sponsor URLs are composed.
 - [ ] (candidate) `DigestSlackWebhookDeliveryChannel.SendAsync` — posts digest `ContentMarkdown` verbatim; advisory digest payloads built from exec composition may still surface non-CTA absolute links if future formatters skip composer normalization.
-- [ ] (candidate) `EmailOtpEmailNotifier.TrySendSignInCodeAsync` — sign-in OTP mail has no absolute operator CTA today; if a future template adds `OperatorBaseUrl` deep links, confirm authority normalization parity with trial lifecycle dispatchers.
-- [ ] (candidate) `MarketingEarlyAccessSalesNotifier` / `MarketingPricingQuoteSalesNotifier` — internal sales inbox notifications embed requester fields only; verify no operator-base URL concatenation is introduced without `TryNormalizeOperatorBaseAuthority`.
-- [ ] (candidate) `TrialLocalIdentityAccountExistsEmailNotifier` — trial account-exists path may build operator links from configured base; confirm parity with `TrialLifecycleEmailDispatcher` authority normalization.
+- [x] (valid-no-repro) `EmailOtpEmailNotifier.TrySendSignInCodeAsync` — **cheap-disproof 2026-10-13 seed hunt:** OTP template has no operator-base absolute links today.
+- [x] (valid-no-repro) `MarketingEarlyAccessSalesNotifier` / `MarketingPricingQuoteSalesNotifier` — **cheap-disproof 2026-10-13 seed hunt:** sales inbox notifications embed requester fields only; no `OperatorBaseUrl` concatenation in zone files.
+- [x] (valid-no-repro) `TrialLocalIdentityAccountExistsEmailNotifier` — **cheap-disproof 2026-10-13 seed hunt:** account-exists mail is static copy with no operator deep links.
 - [ ] (candidate) `DigestTeamsWebhookDeliveryChannel.SendAsync` — Teams digest delivery mirrors Slack verbatim markdown posting; non-email digest channels need the same URL hygiene guarantees as `ExecDigestCompositionMarkdownFormatter` consumers.
 
 - [x] (proven) `ExecDigestEmailDispatcher` — `DashboardUrl` / `SponsorValueReportUrl` with embedded userinfo reached digest template CTAs without sanitization — **hit 2026-10-13 seed hunt (seed→hit):** `SanitizeOperatorAbsoluteUrl` at dispatch (parity with unsubscribe and weekly sponsor `runDetailUrl`); regression `ExecDigestEmailDispatcher_omits_user_info_from_dashboard_and_sponsor_urls_in_template_model`.
