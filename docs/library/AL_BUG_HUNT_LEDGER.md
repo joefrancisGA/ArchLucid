@@ -28508,6 +28508,8 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 ---
 ## Zone: core-explanation-json
 
+2026-10-13 seed hunt (seed→hit): promoted `alternativesConsidered` object entries preferring `id` over `text` prose and negative numeric `evidenceRefs` stringified via `TryGetInt64`; list field-specific object property order (`text`/`id` vs `id`/`text`) and reject negative JSON integers in `TryReadNonEmptyTextToken`; regressions `TryNormalizeStructuredJson_prefers_text_over_id_on_object_shaped_alternatives_considered` and `TryNormalizeStructuredJson_ignores_negative_numeric_evidence_ref_entries`; cheap-disproved schemaVersion zero asymmetry and whitespace-only reasoning array rows; scoped explanation tests 91/91.
+
 2026-10-13 seed hunt (seed→hit): promoted object-shaped `reasoning` preferring `id` over co-present `text`; reasoning object/array paths now read `text` before `id` while evidence list entries keep `id` first; regressions `TryNormalizeStructuredJson_prefers_text_over_id_on_object_shaped_reasoning` and `TryNormalizeStructuredJson_prefers_id_over_text_on_object_shaped_evidence_ref`; closed stale duplicate malformed-object candidate rows; scoped explanation tests 89/89.
 
 2026-10-13 seed hunt (seed→hit): promoted out-of-range numeric `evidenceRefs` tokens (`1e300`) accepted via `GetRawText` scientific notation; `TryReadNonEmptyTextToken` now rejects non-whole-number JSON numbers after bounded int coercion fails; regression `TryNormalizeStructuredJson_ignores_out_of_range_numeric_evidence_ref_entries`; cheap-disproved malformed-object silent-drop rows as lenient partial-parse by design; scoped `RunExplanation` + `StructuredExplanationParser` tests 87/87.
@@ -28552,11 +28554,11 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 
 2026-10-10 seed hunt (seed→hit): promoted and proved out-of-range numeric whole-number counts were cast to `int.MaxValue` instead of rejected; bounded `TryReadWholeNumber` before conversion. Regression `FromAggregateJson_ignores_out_of_range_numeric_whole_number_counts`; scoped RunExplanation suite passed 47/47.
 
-- [ ] (candidate) `TryReadStringList` — `alternativesConsidered` object entries with both `id` and `text` may still prefer citation `id` over discarded-alternative prose in `text`; locus: `TryReadStringListEntry`; input: `{"alternativesConsidered":[{"id":"alt-a","text":"Rejected monolith path."}]}`.
-- [ ] (candidate) `TryReadNonEmptyTextToken` — negative JSON integers in list slots (`evidenceRefs`: [-1]) may still stringify via `TryGetInt64`; locus: numeric branch; input: `{"reasoning":"Main","evidenceRefs":[-1]}`.
-- [ ] (candidate) `StructuredExplanationParser.TryNormalizeStructuredJson` — `schemaVersion: 0` may be ignored while string `"0"` is rejected, producing asymmetric version handling; locus: `parsedSchemaVersion > 0` gate; input: numeric zero vs string zero.
+- [x] (proven) `TryReadStringList` — `alternativesConsidered` object entries with both `id` and `text` preferred citation `id` over prose — **hit 2026-10-13 seed hunt:** prose list fields use `text` then `id`; regression `TryNormalizeStructuredJson_prefers_text_over_id_on_object_shaped_alternatives_considered`.
+- [x] (proven) `TryReadNonEmptyTextToken` — negative JSON integers in list slots stringified as evidence ids — **hit 2026-10-13 seed hunt:** reject `numeric < 0` in int64 branch; regression `TryNormalizeStructuredJson_ignores_negative_numeric_evidence_ref_entries`.
+- [x] (valid-no-repro) `StructuredExplanationParser.TryNormalizeStructuredJson` — `schemaVersion: 0` vs `"0"` — **cheap-disproof 2026-10-13 seed hunt:** both fail `parsedSchemaVersion > 0` and default to schema version 1.
 - [ ] (candidate) `RunExplanationAggregateJsonReader.TryReadFiniteDouble` — structured `confidence` as JSON boolean `false` is nulled at structured boundary but aggregate faithfulness readers still coerce booleans; cross-surface inconsistency only if structured JSON is re-fed as aggregate (reachability TBD).
-- [ ] (candidate) `CollectReasoningParts` — empty-string paragraphs in a reasoning array are skipped but whitespace-only strings may survive `Trim` inconsistently vs dropped empty objects; locus: `string.IsNullOrWhiteSpace` guard; input: `{"reasoning":["","  "]}`.
+- [x] (valid-no-repro) `CollectReasoningParts` — whitespace-only reasoning array entries — **cheap-disproof 2026-10-13 seed hunt:** `IsNullOrWhiteSpace` drops `""` and trimmed `"  "`; all-blank arrays fail `TryNormalizeStructuredJson` as expected.
 
 - **id:** core-explanation-json
 - **split-from:** archlucid-core
@@ -28565,11 +28567,11 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 - **aliases:** run explanation; explanation json; split from archlucid-core
 - **paths:** ArchLucid.Core/Explanation/
 - **test-filter:** FullyQualifiedName~RunExplanation
-- **hunts:** 60
-- **bugs-found:** 36
+- **hunts:** 61
+- **bugs-found:** 38
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-13
-- **last-bug:** 2026-10-13 — object-shaped reasoning preferred `id` over `text`
+- **last-bug:** 2026-10-13 — alternatives prose/id precedence and negative evidence ref tokens
 - **related-pd-tb:** none
 - **code-changed-since:** no
 

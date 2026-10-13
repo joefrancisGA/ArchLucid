@@ -4,12 +4,18 @@ namespace ArchLucid.Core.Explanation;
 
 public static partial class StructuredExplanationParser
 {
+    private static readonly string[] EvidenceRefObjectPropertyOrder = ["id", "text"];
+
+    private static readonly string[] ProseListObjectPropertyOrder = ["text", "id"];
+
     private static List<string>? TryReadStringList(JsonElement root, string propertyName)
     {
         if (!RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitive(root, propertyName, out JsonElement arrayElement))
         {
             return null;
         }
+
+        ReadOnlySpan<string> objectPropertyOrder = ResolveStringListObjectPropertyOrder(propertyName);
 
         if (arrayElement.ValueKind == JsonValueKind.String)
         {
@@ -25,7 +31,7 @@ public static partial class StructuredExplanationParser
         {
             if (arrayElement.ValueKind == JsonValueKind.Object)
             {
-                string? objectEntry = TryReadStringListEntry(arrayElement);
+                string? objectEntry = TryReadStringListEntry(arrayElement, objectPropertyOrder);
 
                 return string.IsNullOrWhiteSpace(objectEntry) ? null : [objectEntry.Trim()];
             }
@@ -42,22 +48,33 @@ public static partial class StructuredExplanationParser
         List<string> values = [];
 
         foreach (JsonElement item in arrayElement.EnumerateArray())
-            CollectStringListEntries(item, values);
+            CollectStringListEntries(item, values, objectPropertyOrder);
 
         return values;
     }
 
-    private static void CollectStringListEntries(JsonElement item, List<string> values)
+    private static ReadOnlySpan<string> ResolveStringListObjectPropertyOrder(string propertyName)
+    {
+        if (propertyName.Equals("evidenceRefs", StringComparison.OrdinalIgnoreCase))
+            return EvidenceRefObjectPropertyOrder;
+
+        return ProseListObjectPropertyOrder;
+    }
+
+    private static void CollectStringListEntries(
+        JsonElement item,
+        List<string> values,
+        ReadOnlySpan<string> objectPropertyOrder)
     {
         if (item.ValueKind == JsonValueKind.Array)
         {
             foreach (JsonElement inner in item.EnumerateArray())
-                CollectStringListEntries(inner, values);
+                CollectStringListEntries(inner, values, objectPropertyOrder);
 
             return;
         }
 
-        string? raw = TryReadStringListEntry(item);
+        string? raw = TryReadStringListEntry(item, objectPropertyOrder);
 
         if (string.IsNullOrWhiteSpace(raw))
             return;
@@ -65,13 +82,13 @@ public static partial class StructuredExplanationParser
         values.Add(raw.Trim());
     }
 
-    private static string? TryReadStringListEntry(JsonElement item)
+    private static string? TryReadStringListEntry(JsonElement item, ReadOnlySpan<string> objectPropertyOrder)
     {
         if (item.ValueKind == JsonValueKind.String)
             return item.GetString();
 
         if (item.ValueKind == JsonValueKind.Object)
-            return TryReadObjectStringProperty(item, "id", "text");
+            return TryReadObjectStringProperty(item, objectPropertyOrder);
 
         return RunExplanationAggregateJsonReader.TryReadNonEmptyTextToken(item, out string? scalar)
             ? scalar

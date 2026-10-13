@@ -69,6 +69,14 @@ internal static partial class RunExplanationAggregateJsonReader
         {
             if (element.TryGetInt64(out long numeric))
             {
+
+                if (numeric < 0)
+                {
+                    value = null;
+
+                    return false;
+                }
+
                 value = numeric.ToString(CultureInfo.InvariantCulture);
 
                 return !string.IsNullOrWhiteSpace(value);

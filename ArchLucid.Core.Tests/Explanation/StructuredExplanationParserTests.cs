@@ -285,6 +285,29 @@ public sealed class StructuredExplanationParserTests
     }
 
     [Fact]
+    public void TryNormalizeStructuredJson_prefers_text_over_id_on_object_shaped_alternatives_considered()
+    {
+        const string json =
+            """{"reasoning":"Main","alternativesConsidered":[{"id":"alt-a","text":"Rejected monolith path."}]}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.AlternativesConsidered.Should().Equal("Rejected monolith path.");
+    }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_ignores_negative_numeric_evidence_ref_entries()
+    {
+        const string json = """{"reasoning":"Main","evidenceRefs":[-1,"dec-1"]}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.EvidenceRefs.Should().Equal("dec-1");
+    }
+
+    [Fact]
     public void TryNormalizeStructuredJson_prefers_id_over_text_on_object_shaped_evidence_ref()
     {
         const string json = """{"reasoning":"Main","evidenceRefs":[{"id":"dec-1","text":"prose-citation"}]}""";
