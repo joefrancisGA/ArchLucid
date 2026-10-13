@@ -28,8 +28,7 @@ internal static class AwsResourceExplorerInventoryCollector
             {
                 if (!visitedTokens.Add(nextToken))
                 {
-                    throw new InvalidOperationException(
-                        "Hosted AWS extractor stopped Resource Explorer listing due to repeating NextToken.");
+                    break;
                 }
             }
 

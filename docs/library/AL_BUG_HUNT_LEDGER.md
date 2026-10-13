@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-13 seed hunt (seed→hit): `cloud-extractors` — promoted `AwsResourceExplorerInventoryCollector.CollectAsync`; reachable Resource Explorer responses that repeated the same `NextToken` caused the collector to throw and discard resources already gathered from earlier pages; stop pagination on a repeated token while returning accumulated rows; regression `CollectAsync_retains_resources_when_next_token_repeats`; AWS/GCP extractor tests passed 84/84; Azure extractor scope passed 155/155.
+
 2026-10-13 seed hunt (seed→hit): `cloud-extractors` — promoted `EntraGroupMembershipGraphReader.ReadGroupMembersPageAsync`; reachable Graph 403 on a follow-up `@odata.nextLink` page returned `Forbidden` and discarded members collected from earlier pages in the same group read; return accumulated rows when 403 arrives after pagination already succeeded; regression `TryReadDirectMembershipsAsync_retains_first_page_members_when_later_page_returns_forbidden`; AWS/GCP extractor tests passed 83/83; Azure extractor scope passed 155/155.
 
 2026-10-13 seed hunt (seed→hit): `cloud-extractors` — promoted `EntraGroupMembershipGraphReader.EnsureNextLinkTargetsGroup`; reachable `@odata.nextLink` values that failed group/collection/host validation after one or more successful member pages caused `InvalidOperationException` and dropped every membership row already collected for that group; stop pagination and return accumulated rows when validation fails but members or nested-group ids were already read; regression `TryReadDirectMembershipsAsync_retains_collected_members_when_next_link_validation_fails_after_a_successful_page`; AWS/GCP extractor tests passed 83/83; Azure extractor scope passed 154/154.
@@ -31741,6 +31743,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ## Zone: cloud-extractors
 
+2026-10-13 seed hunt (seed→hit): promoted `AwsResourceExplorerInventoryCollector.CollectAsync`; repeating `NextToken` threw and discarded prior pages; break pagination loop instead; regression `CollectAsync_retains_resources_when_next_token_repeats`; Azure scope 155/155; AWS/GCP 84/84.
+
 2026-10-13 seed hunt (seed→hit): promoted `EntraGroupMembershipGraphReader.ReadGroupMembersPageAsync` follow-up 403 handling; Graph 403 on page 2+ returned `Forbidden` and dropped page-1 members; return partial memberships/nested ids when pagination already collected rows; regression `TryReadDirectMembershipsAsync_retains_first_page_members_when_later_page_returns_forbidden`; Azure scope 155/155; AWS/GCP 83/83.
 
 2026-10-13 seed hunt (seed→hit): promoted `EntraGroupMembershipGraphReader.EnsureNextLinkTargetsGroup` pagination guard; invalid `@odata.nextLink` after successful pages threw and discarded collected memberships; `TryAcceptNextLink` stops pagination while preserving rows; regression `TryReadDirectMembershipsAsync_retains_collected_members_when_next_link_validation_fails_after_a_successful_page`; Azure scope 154/154; AWS/GCP 83/83.
@@ -31824,11 +31828,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** aws extractor; gcp extractor; azure extractor
 - **paths:** ArchLucid.Integrations.AwsExtractor/; ArchLucid.Integrations.GcpExtractor/; ArchLucid.Integrations.AzureExtractor/
 - **test-filter:** FullyQualifiedName~AwsExtractor|FullyQualifiedName~GcpExtractor|FullyQualifiedName~AzureExtractor
-- **hunts:** 123
-- **bugs-found:** 70
+- **hunts:** 124
+- **bugs-found:** 71
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-13
-- **last-bug:** 2026-10-13 — Entra 403 on follow-up page dropped first-page members
+- **last-bug:** 2026-10-13 — AWS Resource Explorer repeating NextToken dropped prior pages
 - **related-pd-tb:** none
 - **code-changed-since:** 1
 
@@ -31856,6 +31860,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ### Hypotheses
 
+- [x] (proven) `AwsResourceExplorerInventoryCollector.CollectAsync` — reachable Resource Explorer pagination that repeated the same `NextToken` caused the collector to throw and discard resources already gathered from earlier pages — **hit 2026-10-13 seed hunt:** stop pagination on a repeated token while returning accumulated resources; regression `CollectAsync_retains_resources_when_next_token_repeats`.
 - [x] (proven) `EntraGroupMembershipGraphReader.ReadGroupMembersPageAsync` — reachable Graph 403 on a follow-up `@odata.nextLink` page returned `Forbidden` and discarded membership rows already collected from earlier pages in the same group read — **hit 2026-10-13 seed hunt:** return accumulated `memberships`/`nestedGroupIds` when 403 arrives after pagination already succeeded; regression `TryReadDirectMembershipsAsync_retains_first_page_members_when_later_page_returns_forbidden`.
 - [x] (proven) `EntraGroupMembershipGraphReader.EnsureNextLinkTargetsGroup` — reachable `@odata.nextLink` values that failed validation after one or more successful `/members` pages caused `InvalidOperationException` and discarded membership rows already collected for that group — **hit 2026-10-13 seed hunt:** `TryAcceptNextLink` stops pagination and returns accumulated rows when validation fails after data was read; regression `TryReadDirectMembershipsAsync_retains_collected_members_when_next_link_validation_fails_after_a_successful_page`.
 - [x] (proven) `EntraGroupMembershipGraphReader.TryReadDirectMembershipsAsync` — reachable multi-seed group membership reads where Graph returned 403 for one seed group after other seeds succeeded caused the reader to return `Forbidden` and discard every membership row already collected — **hit 2026-10-13 seed hunt:** skip forbidden groups when accumulated rows or queued groups remain; regression `TryReadDirectMembershipsAsync_retains_members_from_other_groups_when_one_seed_returns_forbidden`.
