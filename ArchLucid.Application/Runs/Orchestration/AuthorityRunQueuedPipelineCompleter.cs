@@ -8,7 +8,6 @@ using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Transactions;
 using ArchLucid.Persistence.Models;
-using ArchLucid.Application.Agents;
 using ArchLucid.Application.Runs.Orchestration.Pipeline;
 using ArchLucid.Persistence.Serialization;
 
@@ -67,6 +66,8 @@ public sealed partial class AuthorityRunOrchestrator
 
             RunRecord run = existing;
 
+            await EnsureAdmittedRunCreateTimePinsIfMissingAsync(run, request, scope, uow, pipelineCt);
+
             LogAgentExecutionStateTransition(run.RunId, "queued_resume", "inline_authority_pipeline_stages", "(none)");
 
             await using IAsyncDisposable executionConcurrencyLease =
@@ -122,11 +123,7 @@ public sealed partial class AuthorityRunOrchestrator
             if (_authorityPipelineStagesExecutionDriver.RequiresCommittedRunHeaderBeforeStages)
                 await CommitUnitOfWorkWithTransientRetryAsync(uow, pipelineCt);
 
-            // Same seal rule as the inline path: provenance must be stored before GoldenManifestId is.
-            RunEngineProvenanceApplicator.TryApplyFromEffectiveAliasId(
-                run,
-                request.EffectiveModelAliasId,
-                _agentModelAliasRegistry);
+            await PersistRunHeaderEvidenceAnchorsBeforePipelineStagesAsync(run, request, uow, pipelineCt);
 
             AuthorityPipelineStagesExecutionResult stageResult =
                 await _authorityPipelineStagesExecutionDriver.ExecuteStagesAsync(ctx, pipelineCt);

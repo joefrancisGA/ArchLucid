@@ -1,3 +1,6 @@
+using System.Diagnostics;
+
+using ArchLucid.Application.Agents;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Orchestration.Pipeline;
 using ArchLucid.Contracts.Common;
@@ -141,6 +144,52 @@ public sealed partial class AuthorityRunOrchestrator(
 
         throw new InvalidOperationException(
             $"Pre-allocated run '{runId:D}' was not found for authority pipeline start.");
+    }
+
+    /// <summary>
+    ///     Tier C async admit persists a stub without create-time pins; findings analysis requires pins on the header
+    ///     before pipeline stages (same ordering as the greenfield ingest path in <see cref="ExecuteCoreAsync" />).
+    /// </summary>
+    private async Task EnsureAdmittedRunCreateTimePinsIfMissingAsync(
+        RunRecord run,
+        ContextIngestionRequest request,
+        ScopeContext scope,
+        IArchLucidUnitOfWork uow,
+        CancellationToken cancellationToken)
+    {
+        if (run.PinnedPolicyPackIdsHashSha256 is { Length: > 0 })
+            return;
+
+        await _runCreatePinOrchestrator
+            .ApplyCreateTimePinsAsync(
+                run,
+                scope,
+                ContextIngestionCreateTimePinRequestFactory.FromIngest(request, run.RunId),
+                cancellationToken)
+            .ConfigureAwait(false);
+
+        await UpdateRunWithTransientRetryAsync(run, uow, cancellationToken);
+    }
+
+    /// <summary>
+    ///     Persists OTEL trace id and engine provenance before pipeline stages write
+    ///     <see cref="RunRecord.GoldenManifestId" /> (TB-310 committed-header seal).
+    /// </summary>
+    private async Task PersistRunHeaderEvidenceAnchorsBeforePipelineStagesAsync(
+        RunRecord run,
+        ContextIngestionRequest request,
+        IArchLucidUnitOfWork uow,
+        CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(run.OtelTraceId))
+            run.OtelTraceId = Activity.Current?.TraceId.ToString();
+
+        RunEngineProvenanceApplicator.TryApplyFromEffectiveAliasId(
+            run,
+            request.EffectiveModelAliasId,
+            _agentModelAliasRegistry);
+
+        await UpdateRunWithTransientRetryAsync(run, uow, cancellationToken);
     }
 
     private async Task CommitUnitOfWorkWithTransientRetryAsync(IArchLucidUnitOfWork uow, CancellationToken ct) =>
