@@ -1,3 +1,5 @@
+using System.Net;
+
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -90,8 +92,10 @@ public sealed class AuthorityRunCommittedChatOpsHook(
 
         try
         {
+            ChatOpsWebhookMessage deliveryMessage = AdaptMessageForTarget(target, message);
+
             await _chatOpsWebhookDeliveryService
-                .DeliverAsync(target, deliveryUri, message, cancellationToken, telemetry)
+                .DeliverAsync(target, deliveryUri, deliveryMessage, cancellationToken, telemetry)
                 .ConfigureAwait(false);
 
             markSucceeded(true);
@@ -123,7 +127,36 @@ public sealed class AuthorityRunCommittedChatOpsHook(
         {
             Title = headline,
             SupportingParagraph = supporting,
-            Body = ChatOpsSlackMrkdwnEscaper.EscapeFormattingMetacharacters(detail!),
+            Body = detail!,
         };
+    }
+
+    private static ChatOpsWebhookMessage AdaptMessageForTarget(ChatOpsWebhookTarget target, ChatOpsWebhookMessage message)
+    {
+        if (target is ChatOpsWebhookTarget.Slack)
+        {
+            return new ChatOpsWebhookMessage
+            {
+                Title = message.Title,
+                SupportingParagraph = message.SupportingParagraph,
+                Body = ChatOpsSlackMrkdwnEscaper.EscapeFormattingMetacharacters(message.Body),
+                SeverityLabel = message.SeverityLabel,
+            };
+        }
+
+        if (target is ChatOpsWebhookTarget.Teams)
+        {
+            return new ChatOpsWebhookMessage
+            {
+                Title = WebUtility.HtmlEncode(message.Title),
+                SupportingParagraph = string.IsNullOrWhiteSpace(message.SupportingParagraph)
+                    ? message.SupportingParagraph
+                    : WebUtility.HtmlEncode(message.SupportingParagraph),
+                Body = WebUtility.HtmlEncode(message.Body),
+                SeverityLabel = message.SeverityLabel,
+            };
+        }
+
+        throw new ArgumentOutOfRangeException(nameof(target));
     }
 }

@@ -137,6 +137,60 @@ public sealed class AuthorityRunCommittedChatOpsHookTests
     }
 
     [Fact]
+    public async Task NotifyAsync_TeamsPayload_HtmlEncodes_run_description_without_slack_mrkdwn_escape()
+    {
+        Mock<IChatOpsWebhookDeliveryService> delivery = new();
+        ChatOpsWebhookMessage? captured = null;
+
+        delivery.Setup(d =>
+                d.DeliverAsync(
+                    ChatOpsWebhookTarget.Teams,
+                    It.IsAny<string>(),
+                    It.IsAny<ChatOpsWebhookMessage>(),
+                    It.IsAny<CancellationToken>(),
+                    It.IsAny<WebhookPostOptions?>()))
+            .Callback<ChatOpsWebhookTarget, string, ChatOpsWebhookMessage, CancellationToken, WebhookPostOptions?>(
+                (_, _, message, _, _) => captured = message)
+            .Returns(Task.CompletedTask);
+
+        ChatOpsIncomingWebhooksOptions opts = new()
+        {
+            SlackNotifyOnAuthorityRunCompleted = false,
+            TeamsNotifyOnAuthorityRunCompleted = true,
+            TeamsIncomingWebhookAbsoluteUri = "https://outlook.office.com/webhook/abc",
+        };
+
+        Mock<IOptionsMonitor<ChatOpsIncomingWebhooksOptions>> optionsMonitor = new();
+        optionsMonitor.Setup(o => o.CurrentValue).Returns(opts);
+
+        AuthorityRunCommittedChatOpsHook sut = new(
+            delivery.Object,
+            optionsMonitor.Object,
+            Mock.Of<ILogger<AuthorityRunCommittedChatOpsHook>>());
+
+        AuthorityRunCommittedChatOpsNotice notice = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+            RunId = Guid.NewGuid(),
+            FindingCount = 2,
+            Description = "See *spoofed* <i>emphasis</i> in run summary.",
+        };
+
+        await sut.NotifyAsync(notice, CancellationToken.None);
+
+        captured.Should().NotBeNull();
+        captured!.Body.Should().Be("See *spoofed* &lt;i&gt;emphasis&lt;/i&gt; in run summary.");
+
+        object teamsBody = ChatOpsIncomingWebhookBodies.ForTeams(captured);
+        string text = NotificationsTestPayloadAssert.GetStringProperty(teamsBody, "text");
+
+        text.Should().Contain("See *spoofed* &lt;i&gt;emphasis&lt;/i&gt; in run summary.");
+        text.Should().NotContain("\\*spoofed\\*");
+    }
+
+    [Fact]
     public async Task NotifyAsync_uses_singular_finding_word_when_count_is_one()
     {
         Mock<IChatOpsWebhookDeliveryService> delivery = new();
