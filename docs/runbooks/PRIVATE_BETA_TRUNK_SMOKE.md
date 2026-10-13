@@ -236,6 +236,19 @@ After the repair set is present on the release cut:
 | G-REAL-06 | **Not started** |
 
 This row records CI observations only. It is not a staging witness, Real-mode pilot proof, ruleset application, or customer evidence.
+
+### Observed RC35 evidence row — 2026-10-13
+
+| Field | Observed value |
+| --- | --- |
+| RC35 head | `a6dfda5f0dcf17a1a74be23fc7b184e0738eaafe` (merge **#4647**) |
+| UI typecheck / OpenAPI refresh | **PASS** — runs `38390911873`, `38390911840` |
+| RC release gate | **PASS** — run `38390911842` |
+| Private-beta JwtBearer access path | **FAIL** — run `38390911841` (TB-927: `ConflictException` during authority pipeline finalize — integration event manifest hash resolver queried committed golden manifest before finalize commit) |
+| Staging deployment | **No run observed** |
+| Gate 1 | **UNKNOWN** |
+| G-REAL-06 | **Not started** |
+
 ## Golden-cohort apply (owner, after first green)
 
 When `Operator UI: private-beta access-path (JwtBearer)` completes green at least once on `master`:
