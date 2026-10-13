@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-13 seed hunt (seed→hit): `application-tenancy-lifecycle` — promoted `TenantCatalogMigrationOrchestrator.StartAsync`; erasure offboard after `InsertAsync` but before `TenantCatalogMigrationStarted` audit still returned `Applied` and appended started audit on quarantined tenant; re-read after insert and return `InErasureQuarantine` with `migrationId` without started audit; regression `StartAsync_returns_in_erasure_quarantine_without_started_audit_when_offboard_completes_after_insert`; 171 scoped tenancy tests passed.
+
 2026-10-13 seed hunt (seed→hit): `application-tenancy-lifecycle` — promoted `TenantCatalogMigrationOrchestrator.CompleteAsync`; erasure offboard after verification passed but before migration completion still closed the active migration record; re-read tenant before `CompleteAsync` and return `InErasureQuarantine` without completing; regression `CompleteAsync_returns_in_erasure_quarantine_when_offboarded_before_complete`; 170 scoped tenancy tests passed.
 
 2026-10-13 thorough hunt (hit): `core-findings-advice` — promoted `InsightDensityTextSimilarity.Tokenize` percent/dollar/question-mark delimiter parity and `GenericArchitectureAdvicePatterns.ConflictFindingPattern` hyphenated `non-compliant`; cheap-disproof closed five stale `(candidate)` rows (caret/tilde already split; `in conflict`/`noncompliant`/`forbidden from` already covered); regressions `Jaccard_similarity_treats_percent_separated_resource_tokens_as_space_separated_peers`, `Jaccard_similarity_treats_dollar_separated_resource_tokens_as_space_separated_peers`, `Jaccard_similarity_treats_question_mark_separated_resource_tokens_as_space_separated_peers`, and `HasFalsifiabilitySignal_recognizes_conflict_wording_variants` (`non-compliant`); seeded five follow-on `(candidate)` rows; 1727 scoped GenericArchitectureAdvicePatterns + DeterministicInsightDensityGate tests passed.
@@ -34592,17 +34594,20 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 67
-- **bugs-found:** 52
+- **hunts:** 68
+- **bugs-found:** 53
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-13
-- **last-bug:** 2026-10-13 — Catalog migration complete blocked when erasure offboard wins
+- **last-bug:** 2026-10-13 — Migration started audit after post-insert erasure offboard
+
+2026-10-13 seed hunt (seed→hit): reseeded catalog migration after complete guard; proved `StartAsync` appended started audit when offboard completed after insert; re-read after insert; regression `StartAsync_returns_in_erasure_quarantine_without_started_audit_when_offboard_completes_after_insert`; 171 scoped tenancy tests passed.
+
+- [x] (proven) `TenantCatalogMigrationOrchestrator.StartAsync` — appended `TenantCatalogMigrationStarted` after erasure offboard post-insert — **hit 2026-10-13 seed hunt (seed→hit):** return `InErasureQuarantine` with `migrationId` without started audit; regression `StartAsync_returns_in_erasure_quarantine_without_started_audit_when_offboard_completes_after_insert`.
 
 2026-10-13 seed hunt (seed→hit): reseeded catalog migration after offboard-before-insert fix; proved `CompleteAsync` closed migration when tenant entered erasure quarantine after verification; re-read before `CompleteAsync`; regression `CompleteAsync_returns_in_erasure_quarantine_when_offboarded_before_complete`; 170 scoped tenancy tests passed.
 
 - [x] (proven) `TenantCatalogMigrationOrchestrator.CompleteAsync` — completed active migration after erasure offboard — **hit 2026-10-13 seed hunt (seed→hit):** return `InErasureQuarantine` without calling migration `CompleteAsync`; regression `CompleteAsync_returns_in_erasure_quarantine_when_offboarded_before_complete`.
 
-- [ ] (candidate) `TenantCatalogMigrationOrchestrator.StartAsync` — may append `TenantCatalogMigrationStarted` audit after `InsertAsync` when erasure offboard completes before audit (active migration on quarantined tenant).
 - [ ] (candidate) `TenantCatalogMigrationOrchestrator.CompleteAsync` — may append `TenantCatalogMigrationCompleted` audit when erasure offboard completes after repository `CompleteAsync` but before audit append.
 - [ ] (candidate) `TenantCatalogMigrationOrchestrator.RunVerificationAsync` — may append verification-passed audit when erasure offboard completes during probe while migration stays verification-stage.
 - [ ] (candidate) `TenantCatalogMigrationOrchestrator.AcknowledgeCatalogAttachDetachAsync` — may advance stage and audit catalog attach when tenant enters erasure quarantine mid fan-out.
@@ -34748,6 +34753,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) `TenantCatalogMigrationOrchestrator.StartAsync` left tenant suspended without active migration when `InsertAsync` failed after scope-freeze suspend — **hit 2026-09-07 (#1164):** suspend ran before insert with no compensating unsuspend; fixed by rolling back scope-freeze suspend when insert throws while preserving admin-pre-suspended tenants (`StartAsync_unsuspends_when_migration_insert_fails_after_scope_freeze_suspend`, `StartAsync_preserves_admin_suspend_when_migration_insert_fails`).
 - [x] (proven) `TenantCatalogMigrationOrchestrator.StartAsync` — inserted active migration when erasure offboard completed after scope-freeze suspend — **hit 2026-10-13 seed hunt (seed→hit):** re-read before `InsertAsync`; regression `StartAsync_returns_in_erasure_quarantine_when_offboard_completes_after_scope_freeze_suspend_before_insert`.
 - [x] (proven) `TenantCatalogMigrationOrchestrator.CompleteAsync` — completed active migration when erasure offboard completed after verification — **hit 2026-10-13 seed hunt (seed→hit):** re-read before migration `CompleteAsync`; regression `CompleteAsync_returns_in_erasure_quarantine_when_offboarded_before_complete`.
+- [x] (proven) `TenantCatalogMigrationOrchestrator.StartAsync` — appended `TenantCatalogMigrationStarted` when erasure offboard completed after insert — **hit 2026-10-13 seed hunt (seed→hit):** re-read after insert; regression `StartAsync_returns_in_erasure_quarantine_without_started_audit_when_offboard_completes_after_insert`.
 - [x] (proven) `TrialLifecycleTransitionEngine.TryAdvanceTenantAsync` ignored active `LegalHoldUntilUtc` when tenant is not offboarded — **hit 2026-09-07 (#1247):** platform admin `AdminTenantsController` sets legal hold with `requireErasureQuarantine: false`; scheduler still advanced `ExportOnly` → `Deleted` and invoked hard purge; fixed by skipping automation when `LegalHoldUntilUtc > utcNow`; regression `TryAdvanceTenantAsync_when_active_legal_hold_skips_export_only_to_deleted_purge`.
 - [x] (valid-no-repro) `TenantWorkOwnershipDeletePolicyService.GetAllowCreatorDeleteOwnedWorkAsync` fail-opens to allow delete when stored boolean is malformed — **cheap-disproof 2026-09-07 (#1247):** only `SetAllowCreatorDeleteOwnedWorkAsync` writes the key via `TenantSettingBooleanParser.Format`; malformed stored values require out-of-band DB tampering, not tenant-controlled input; default-allow on missing setting is documented product behavior.
 
