@@ -31,6 +31,31 @@ public sealed class GcpAssetInventoryCollectorTests
     }
 
     [Fact]
+    public async Task CollectFromRawPagesAsync_omits_resources_without_name()
+    {
+        SearchAllResourcesResponse page = new();
+        page.Results.Add(new ResourceSearchResult
+        {
+            Name = string.Empty,
+            AssetType = "compute.googleapis.com/Instance",
+            Location = "us-central1-a"
+        });
+        page.Results.Add(new ResourceSearchResult
+        {
+            Name = "//compute.googleapis.com/projects/demo/zones/us-central1-a/instances/i-1",
+            AssetType = "compute.googleapis.com/Instance",
+            Location = "us-central1-a"
+        });
+
+        List<GcpInventoryResourceEntry> resources = await GcpAssetInventoryCollector.CollectFromRawPagesAsync(
+            SinglePageAsync(page),
+            CancellationToken.None);
+
+        resources.Should().ContainSingle();
+        resources[0].Name.Should().Contain("instances/i-1");
+    }
+
+    [Fact]
     public async Task CollectFromRawPagesAsync_throws_after_max_pages()
     {
         Func<Task> act = () => GcpAssetInventoryCollector.CollectFromRawPagesAsync(

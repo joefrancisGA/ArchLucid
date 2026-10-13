@@ -52,8 +52,13 @@ internal static class GcpAssetInventoryCollector
 
             foreach (ResourceSearchResult item in page.Results)
             {
+                if (string.IsNullOrWhiteSpace(item.Name))
+                {
+                    continue;
+                }
+
                 resources.Add(new GcpInventoryResourceEntry(
-                    item.Name ?? string.Empty,
+                    item.Name.Trim(),
                     item.AssetType ?? string.Empty,
                     item.Location ?? string.Empty,
                     null));

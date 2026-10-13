@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-13 seed hunt (seed→hit): `cloud-extractors` — promoted `GcpAssetInventoryCollector.CollectFromRawPagesAsync`; reachable Asset Search rows with null or whitespace `name` were packaged as inventory entries with an empty resource name, inflating counts and polluting `resources.json`; skip rows without a usable asset name; regression `CollectFromRawPagesAsync_omits_resources_without_name`; AWS/GCP extractor tests passed 83/83; Azure extractor scope passed 150/150.
+
 2026-10-13 seed hunt (seed→hit): `cloud-extractors` — promoted `AwsResourceExplorerInventoryCollector.CollectAsync`; reachable Resource Explorer rows with null or whitespace `Arn` were packaged as inventory entries with an empty `name`, inflating counts and polluting `resources.json`; skip rows without a usable ARN; regression `CollectAsync_omits_resources_without_arn`; AWS/GCP extractor tests passed 82/82; Azure extractor scope passed 150/150.
 
 2026-10-13 seed hunt (seed→hit): `cloud-extractors` — promoted `HostedAzureArmNextLinkValidator` ARM pagination guards; reachable `nextLink` values on an untrusted host with an otherwise valid subscription listing path were followed with the ARM bearer token attached; require HTTPS and sovereign management endpoints via `HostedAzureArmTrustedManagementHosts`; regression `ListSubscriptionResourcesAsync_rejects_next_link_on_untrusted_host`; AWS/GCP extractor tests passed 81/81; Azure extractor scope passed 150/150.
@@ -31801,11 +31803,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** aws extractor; gcp extractor; azure extractor
 - **paths:** ArchLucid.Integrations.AwsExtractor/; ArchLucid.Integrations.GcpExtractor/; ArchLucid.Integrations.AzureExtractor/
 - **test-filter:** FullyQualifiedName~AwsExtractor|FullyQualifiedName~GcpExtractor|FullyQualifiedName~AzureExtractor
-- **hunts:** 118
-- **bugs-found:** 65
+- **hunts:** 119
+- **bugs-found:** 66
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-13
-- **last-bug:** 2026-10-13 — AWS Resource Explorer empty ARN rows packaged
+- **last-bug:** 2026-10-13 — GCP Asset Search empty name rows packaged
 - **related-pd-tb:** none
 - **code-changed-since:** 1
 
@@ -31842,6 +31844,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (invalid) `HostedAzureInventoryResourcePropertyExpander.AddSiteWorkflowConnectionParameters` — an ARM Logic Apps resource with `properties.parameters.$connections` containing credential-bearing connection metadata is copied with `GetRawText()` into inventory properties without structured redaction; input originates from the reachable `Microsoft.Logic/workflows` ARM payload, but a concrete secret-bearing field and downstream exposed output remain unverified — cheap-disproved 2026-10-11: the selected collector/ZIP paths expose connection resource IDs, names, hosts, status, and warning fields; no credential field or secret-bearing export was present.
 - [x] (invalid) `HostedAzureInventoryResourcePropertyExpander.AddManagedClusterProperties` — an ARM AKS resource with a `properties.networkProfile` field containing sensitive connection metadata is copied with `GetRawText()` into inventory properties; input originates from the reachable `Microsoft.ContainerService/managedClusters` ARM payload, but a concrete sensitive field and wrong exported outcome remain unverified — cheap-disproved 2026-10-11: the selected expander captures network profile topology JSON, with no credential-bearing field or downstream secret exposure established.
 
+- [x] (proven) `GcpAssetInventoryCollector.CollectFromRawPagesAsync` — reachable Asset Search rows with null or whitespace `name` were emitted as inventory entries with an empty resource name — **hit 2026-10-13 seed hunt:** skip rows without a usable asset name; regression `CollectFromRawPagesAsync_omits_resources_without_name`.
 - [x] (proven) `AwsResourceExplorerInventoryCollector.CollectAsync` — reachable Resource Explorer rows with null or whitespace `Arn` were emitted as inventory entries with an empty `name` — **hit 2026-10-13 seed hunt:** skip resources without a usable ARN; regression `CollectAsync_omits_resources_without_arn`.
 - [x] (proven) `HostedAzureArmNextLinkValidator` — reachable ARM `nextLink` values on an untrusted host with a valid subscription listing path were followed with the management bearer token attached — **hit 2026-10-13 seed hunt:** require HTTPS and allowlisted management hosts on all pagination validators; regression `ListSubscriptionResourcesAsync_rejects_next_link_on_untrusted_host`.
 - [x] (proven) `EntraGroupMembershipGraphReader.EnsureNextLinkTargetsGroup` — reachable `@odata.nextLink` values using HTTP on a trusted Graph host were accepted and could send the bearer token over plaintext — **hit 2026-10-13 seed hunt:** require `https` scheme on pagination URLs; regression `TryReadDirectMembershipsAsync_rejects_odata_next_link_without_https`.
