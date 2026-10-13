@@ -272,6 +272,48 @@ public sealed class HostedAzureInventoryResourcePropertyExpanderTests
     }
 
     [Fact]
+    public void Expand_preserves_vmss_ip_configuration_subnet_index_when_earlier_slot_has_no_subnet()
+    {
+        const string subnetId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet1/subnets/workers";
+        const string json = """
+            {
+              "virtualMachineProfile": {
+                "networkProfile": {
+                  "networkInterfaceConfigurations": [
+                    {
+                      "properties": {
+                        "ipConfigurations": [
+                          {
+                            "properties": {}
+                          },
+                          {
+                            "properties": {
+                              "subnet": {
+                                "id": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet1/subnets/workers"
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+            """;
+
+        using JsonDocument document = JsonDocument.Parse(json);
+        Dictionary<string, object?> properties = HostedAzureInventoryResourcePropertyExpander.Expand(
+            "Microsoft.Compute/virtualMachineScaleSets",
+            document.RootElement,
+            []);
+
+        Assert.Equal(subnetId, properties["ipConfiguration.subnet.id[1]"]);
+        Assert.False(properties.ContainsKey("ipConfiguration.subnet.id[0]"));
+    }
+
+    [Fact]
     public void Expand_persists_every_private_link_service_id_across_connection_arrays()
     {
         const string automaticTarget =

@@ -695,9 +695,11 @@ properties["definition"] = AzureExtractorSensitivePropertyRedactor.RedactStructu
 
                 if (!string.IsNullOrWhiteSpace(subnetId))
                 {
+                    // Index tracks ipConfigurations array position (parity with firewall and NIC expanders).
                     properties[$"ipConfiguration.subnet.id[{index}]"] = subnetId.Trim();
-                    index++;
                 }
+
+                index++;
             }
         }
     }

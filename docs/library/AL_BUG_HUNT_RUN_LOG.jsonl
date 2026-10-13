@@ -1,20 +1,3 @@
-{"at":"2026-09-13T01:32:25.2034877Z","zoneId":"arm-terraform-source-ids","outcome":"seed-only"}
-{"at":"2026-09-13T01:35:05.0395567Z","zoneId":"notifications-pipeline","outcome":"seed-only"}
-{"at":"2026-09-13T01:35:59.6708719Z","zoneId":"identity-provider-config","outcome":"seed-only"}
-{"at":"2026-09-13T01:36:18.8852739Z","zoneId":"persistence-identity","outcome":"seed-only"}
-{"at":"2026-09-13T01:36:31.5485549Z","zoneId":"application-governance-policy","outcome":"seed-only"}
-{"at":"2026-09-13T01:36:44.670143Z","zoneId":"arm-terraform-source-ids","outcome":"seed-only"}
-{"at":"2026-09-13T01:36:56.735906Z","zoneId":"notifications-pipeline","outcome":"seed-only"}
-{"at":"2026-09-13T01:37:09.1976828Z","zoneId":"arm-terraform-source-ids","outcome":"seed-only"}
-{"at":"2026-09-13T01:37:22.3800089Z","zoneId":"persistence-identity","outcome":"seed-only"}
-{"at":"2026-09-13T01:37:35.4903807Z","zoneId":"application-pilots","outcome":"seed-only"}
-{"at":"2026-09-13T01:37:48.657289Z","zoneId":"arm-terraform-source-ids","outcome":"seed-only"}
-{"at":"2026-09-13T01:38:00.6299937Z","zoneId":"identity-provider-config","outcome":"seed-only"}
-{"at":"2026-09-13T01:38:12.7770869Z","zoneId":"authority-pipeline-payload","outcome":"seed-only"}
-{"at":"2026-09-13T01:38:25.7739996Z","zoneId":"notifications-pipeline","outcome":"seed-only"}
-{"at":"2026-09-13T01:38:38.2156058Z","zoneId":"application-governance-policy","outcome":"seed-only"}
-{"at":"2026-09-13T01:38:50.54923Z","zoneId":"arm-terraform-source-ids","outcome":"seed-only"}
-{"at":"2026-09-13T01:39:02.5616909Z","zoneId":"core-findings-advice","outcome":"seed-only"}
 {"at":"2026-09-13T01:50:06.3090965Z","zoneId":"topology-proposal-merge","outcome":"hit"}
 {"at":"2026-09-13T01:51:19.6173073Z","zoneId":"context-ingestion","outcome":"hit"}
 {"at":"2026-09-13T01:52:49.4660608Z","zoneId":"core-costing","outcome":"hit"}
@@ -8575,3 +8558,4 @@
 {"at":"2026-10-13T01:23:31.2198195Z","zoneId":"architecture-intelligence-orchestrator","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-13T01:25:32.4986805Z","zoneId":"architecture-intelligence-orchestrator","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-13T01:32:04.7499635Z","zoneId":"cloud-extractors","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Integrations.AwsExtractor/,ArchLucid.Integrations.GcpExtractor/,ArchLucid.Integrations.AzureExtractor/"]}
+{"at":"2026-10-13T01:43:40.8928334Z","zoneId":"cloud-extractors","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Integrations.AwsExtractor/,ArchLucid.Integrations.GcpExtractor/,ArchLucid.Integrations.AzureExtractor/"]}
