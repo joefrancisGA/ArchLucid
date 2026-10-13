@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-13 seed hunt (seed-only): `notifications-pipeline` — falsified five seeded candidates (on-call paging JSON transport-safe; finding-assignment and weekly sponsor Razor templates HTML-encode user copy; logo URLs authority-normalized; ChatOps target enum programmer-contract); added regression locks `FindingRemediationAssignment_html_encodes_finding_title_metacharacters` and `WeeklySponsorReport_html_encodes_summary_markdown_in_preformatted_block`; no product defect; 178 scoped notification/digest Application tests passed.
+
 2026-10-13 seed hunt (seed-only): `notifications-pipeline` — re-read zone after ChatOps severity-prefix consolidation; cheap-disproved open candidates (integration-event description length, digest subscription controller validation from partial API path, mailbox-resolver consolidation-only row); no new hunt-ready repro (severity/HTML/mrkdwn/CRLF classes saturated); seeded five follow-on `(candidate)` rows; 176 scoped notification/digest Application tests passed.
 
 2026-10-13 seed hunt (seed→hit): `notifications-pipeline` — promoted `ChatOpsIncomingWebhookBodies.TrySanitizeSeverityLabel`; bracket-only evaluation `SeverityLabel` values sanitized to empty still rendered `[]` / `*[]*` prefixes on Teams titles and Slack headlines; omit severity wrapper when sanitized label is blank; regressions `ForTeams_omits_severity_prefix_when_label_is_bracket_only` and `ForSlack_omits_severity_emphasis_when_label_is_bracket_only`; 176 scoped notification/digest Application tests passed; 14 incoming webhook body tests passed.
@@ -31501,6 +31503,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ## Zone: notifications-pipeline
 
+2026-10-13 seed hunt (seed-only): cheap-disproved five seeded email/webhook candidates with Razor rendering repros; regression locks only; 178 scoped Application tests passed.
+
 2026-10-13 seed hunt (seed-only): cheap-disproved integration-event length, digest controller facade-only validation, and mailbox-helper consolidation; seeded on-call JSON, finding-assignment template, weekly sponsor markdown, logo URL, and ChatOps target enum candidates; 176 scoped Application notification tests passed.
 
 2026-10-13 seed hunt (seed→hit): proved bracket-only `SeverityLabel` produced empty `[]` Teams title prefix; `TrySanitizeSeverityLabel` omits wrapper when blank; 176 scoped Application tests passed; 14 body tests passed.
@@ -31573,7 +31577,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** notifications; email dispatchers beyond weekly summary
 - **paths:** ArchLucid.Notifications/; ArchLucid.Application/Notifications/; ArchLucid.Api/Controllers/Advisory/DigestSubscriptionsController.cs
 - **test-filter:** FullyQualifiedName~Notifications|FullyQualifiedName~EmailDispatcher|FullyQualifiedName~DigestSubscriptionsController
-- **hunts:** 95
+- **hunts:** 96
 - **bugs-found:** 74
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-13
@@ -31660,11 +31664,16 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `ChatOpsIncomingWebhookBodies.ForTeams` / `ForSlack` — bracket-only `SeverityLabel` sanitized to empty still emitted `[]` / `*[]*` prefixes — **hit 2026-10-13 seed hunt (seed→hit):** `TrySanitizeSeverityLabel` omits severity wrapper when blank; regressions `ForTeams_omits_severity_prefix_when_label_is_bracket_only` and `ForSlack_omits_severity_emphasis_when_label_is_bracket_only`.
 - [x] (valid-no-repro) `DigestSubscriptionsController` — webhook destination validation only in application facade — **cheap-disproof 2026-10-13 seed hunt:** controller delegates to `IDigestSubscriptionFacade`; invalid destinations are not falsifiable from the partial zone path without SQL integration host (`ARCHLUCID_API_TEST_SQL`).
 - [x] (valid-no-repro) `Application/Notifications/Email` — `TryResolveDeliveryMailbox` helper consolidation — **cheap-disproof 2026-10-13 seed hunt:** refactor to reduce guard omission risk; reachable mailboxes already pass `IdentityEmailNormalizer` / `MultiRecipientEmailDispatch`.
-- [ ] (candidate) `AlertOnCallWebhookDeliveryChannel.SendAsync` — evaluation-sourced alert title/category/trigger/description forwarded verbatim into generic paging JSON — locus: `AlertOnCallWebhookDeliveryChannel.cs`; input: HTML/metacharacters in title (JSON-safe transport; integrator rendering policy).
-- [ ] (candidate) `FindingRemediationAssignmentEmailDispatcher` + `FindingRemediationAssignment.cshtml` — `FindingTitle` from remediation assignment API reaches HTML email body — locus: Razor template `@Model.FindingTitle`; input: angle brackets in finding title (requires Razor encode contract proof).
-- [ ] (candidate) `WeeklySponsorReportEmailDispatcher` — `SummaryMarkdown` from weekly sponsor scan reaches templated email HTML — locus: `WeeklySponsorReportEmailDispatcher.TryDispatchAsync`; input: markdown/HTML metacharacters in summary (product markdown policy).
-- [ ] (candidate) `EmailBrandingUrls.TryBuildLogoImageUrl` — `LogoImageUrl` emitted in notification Razor `<img src>` attributes — locus: shared branding helper + email templates; input: malformed `OperatorBaseUrl` authority or query smuggling in logo URL.
-- [ ] (candidate) `ChatOpsWebhookDeliveryService.BuildBody` — non-Slack/non-Teams `ChatOpsWebhookTarget` values throw `ArgumentOutOfRangeException` — locus: `ChatOpsWebhookDeliveryService.cs`; input: future enum member without `BuildBody` arm (programmer-contract / exhaustiveness).
+- [x] (valid-no-repro) `AlertOnCallWebhookDeliveryChannel.SendAsync` — evaluation alert copy in generic paging JSON — **cheap-disproof 2026-10-13 seed hunt:** `PostJsonAsync` serializes structured fields; destination validated; integrator HTML rendering is out of zone scope.
+- [x] (valid-no-repro) `FindingRemediationAssignmentEmailDispatcher` + `FindingRemediationAssignment.cshtml` — `FindingTitle` HTML injection — **cheap-disproof 2026-10-13 seed hunt:** RazorLight HTML-encodes `@Model.FindingTitle`; regression `FindingRemediationAssignment_html_encodes_finding_title_metacharacters`.
+- [x] (valid-no-repro) `WeeklySponsorReportEmailDispatcher` — `SummaryMarkdown` in email HTML — **cheap-disproof 2026-10-13 seed hunt:** template wraps markdown in `<pre>` with Razor encoding; regression `WeeklySponsorReport_html_encodes_summary_markdown_in_preformatted_block`.
+- [x] (valid-no-repro) `EmailBrandingUrls.TryBuildLogoImageUrl` — logo `src` smuggling — **cheap-disproof 2026-10-13 seed hunt:** `TryNormalizeOperatorBaseAuthority` before combine; userinfo stripped on operator-base paths (parity with prior notification hits).
+- [x] (valid-no-repro) `ChatOpsWebhookDeliveryService.BuildBody` — unknown `ChatOpsWebhookTarget` — **cheap-disproof 2026-10-13 seed hunt:** only Slack/Teams are constructed in zone; `ArgumentOutOfRangeException` is programmer-contract for future enum values.
+- [ ] (candidate) `TrialLifecycleEmailDispatcher` — trial welcome/getting-started links built from `CombineUrl` after operator-base normalization — locus: `TrialLifecycleEmailDispatcher.cs`; input: path-only relative segment with encoded metacharacters in query (requires reachable mis-encoded segment).
+- [ ] (candidate) `SupportProblemReportNotifier` — submitter ack `settingsUrl` in HTML anchor — locus: `NotifySubmitterAsync`; input: operator-base path with userinfo if normalization bypassed on settings link only.
+- [ ] (candidate) `DigestSlackWebhookDeliveryChannel` — digest `ContentMarkdown` body segment in Slack `text` without additional escape beyond `ForSlack` title/supporting — locus: channel + `ForSlack`; input: mrkdwn metacharacters in markdown body (intentional markdown policy).
+- [ ] (candidate) `SlackInteractivityVerifier` — governance action `approvalRequestId` embedded in Block Kit button values — locus: `ForSlackWithGovernanceActions`; input: delimiter characters in approval id (internal id format).
+- [ ] (candidate) `EmailOtpEmailNotifier` — sign-in `code` in HTML emphasis — locus: `BuildHtmlBody`; input: metacharacters if code generation ever emitted non-digit (generator contract).
 
 - [x] (proven) `ExecDigestEmailDispatcher` — `DashboardUrl` / `SponsorValueReportUrl` with embedded userinfo reached digest template CTAs without sanitization — **hit 2026-10-13 seed hunt (seed→hit):** `SanitizeOperatorAbsoluteUrl` at dispatch (parity with unsubscribe and weekly sponsor `runDetailUrl`); regression `ExecDigestEmailDispatcher_omits_user_info_from_dashboard_and_sponsor_urls_in_template_model`.
 
