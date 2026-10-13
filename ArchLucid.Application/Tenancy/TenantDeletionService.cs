@@ -60,6 +60,8 @@ public sealed class TenantDeletionService(
         TenantBlobPrefixDeletionResult blobs =
             await _tenantBlobPrefixDeletionService.DeleteAllTenantPrefixesAsync(tenantId, cancellationToken);
 
+        await RevalidateTenantForHardPurgeAsync(tenantId, cancellationToken);
+
         TenantHardPurgeResult purge = await _tenantHardPurgeService.PurgeTenantAsync(
                 tenantId,
                 new TenantHardPurgeOptions

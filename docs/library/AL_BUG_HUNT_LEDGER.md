@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-13 seed hunt (seed→hit): `application-tenancy-lifecycle` — promoted `TenantDeletionService.DeleteTenantAsync`; quarantine restore cleared `TenantErasureApprovedUtc` after `DeleteAllTenantPrefixesAsync` but before `PurgeTenantAsync`, so SQL hard purge still ran without valid approval; third `RevalidateTenantForHardPurgeAsync` immediately before SQL purge; regression `DeleteTenantAsync_throws_when_erasure_approval_cleared_after_blob_deletion_before_sql_purge`; 161 scoped tenancy tests passed.
+
 2026-10-13 seed hunt (seed→hit): `application-tenancy-lifecycle` — promoted `TrialLifecycleTransitionEngine.TryAdvanceTenantAsync` `ExportOnly`→`Deleted` path; platform legal hold applied after `TryRecordTrialLifecycleTransitionAsync` but before trial hard purge still invoked `PurgeTenantAsync` because automation gate ran only before the transition; re-read gate immediately before purge (parity with `Deleted` retry path); regression `TryAdvanceTenantAsync_skips_hard_purge_when_legal_hold_activated_after_deleted_transition_record`; 160 scoped tenancy tests passed.
 
 2026-10-13 seed hunt (seed→hit): `application-tenancy-lifecycle` — promoted `TenantDeletionService.DeleteTenantAsync`; quarantine restore or legal hold after the first `RevalidateTenantForHardPurgeAsync` but before blob/SQL deletion still ran destructive purge because only one re-read preceded lifecycle option lookup; second `RevalidateTenantForHardPurgeAsync` immediately before `DeleteAllTenantPrefixesAsync`; regressions `DeleteTenantAsync_throws_when_erasure_approval_cleared_after_revalidate_before_destructive_purge` and updated approval/legal-hold sequences; 159 scoped tenancy tests passed.
@@ -34557,11 +34559,15 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 57
-- **bugs-found:** 42
+- **hunts:** 58
+- **bugs-found:** 43
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-13
-- **last-bug:** 2026-10-13 — Trial scheduler hard purge ignored legal hold after Deleted transition record
+- **last-bug:** 2026-10-13 — Erasure hard purge SQL ran after restore cleared approval post-blob delete
+
+2026-10-13 seed hunt (seed→hit): reseeded tenant deletion after trial lifecycle post-transition gate fix; proved `DeleteTenantAsync` did not re-check approval after blob prefix deletion; revalidate before `PurgeTenantAsync`; regression `DeleteTenantAsync_throws_when_erasure_approval_cleared_after_blob_deletion_before_sql_purge`; 161 scoped tenancy tests passed.
+
+- [x] (proven) `TenantDeletionService.DeleteTenantAsync` — SQL hard purge ran after `TenantErasureApprovedUtc` cleared by restore between blob deletion and `PurgeTenantAsync` — **hit 2026-10-13 seed hunt (seed→hit):** third `RevalidateTenantForHardPurgeAsync` before SQL purge; regression `DeleteTenantAsync_throws_when_erasure_approval_cleared_after_blob_deletion_before_sql_purge`.
 
 2026-10-13 seed hunt (seed→hit): reseeded trial lifecycle after tenant deletion double re-read fix; proved `ExportOnly`→`Deleted` transition recorded `Deleted` then purged despite legal hold activated before purge; second `EvaluateAutomationGateAsync` before `PurgeTenantAsync`; regression `TryAdvanceTenantAsync_skips_hard_purge_when_legal_hold_activated_after_deleted_transition_record`; 160 scoped tenancy tests passed.
 

@@ -232,6 +232,67 @@ public sealed class TenantDeletionServiceTests
     }
 
     [Fact]
+    public async Task DeleteTenantAsync_throws_when_erasure_approval_cleared_after_blob_deletion_before_sql_purge()
+    {
+        Guid tenantId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+        DateTimeOffset approvedUtc = DateTimeOffset.UtcNow.AddHours(-1);
+        TenantRecord approved = new()
+        {
+            Id = tenantId,
+            OffboardedUtc = approvedUtc.AddDays(-1),
+            TenantErasureApprovedUtc = approvedUtc,
+        };
+        TenantRecord restored = new()
+        {
+            Id = tenantId,
+            OffboardedUtc = null,
+            TenantErasureApprovedUtc = null,
+        };
+
+        Mock<ITenantRepository> tenantRepo = new(MockBehavior.Strict);
+        tenantRepo
+            .SetupSequence(r => r.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(approved)
+            .ReturnsAsync(approved)
+            .ReturnsAsync(approved)
+            .ReturnsAsync(restored);
+
+        Mock<ITenantBlobPrefixDeletionService> blobs = new(MockBehavior.Strict);
+        blobs
+            .Setup(b => b.DeleteAllTenantPrefixesAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new TenantBlobPrefixDeletionResult());
+
+        Mock<ITenantHardPurgeService> purge = new(MockBehavior.Strict);
+
+        TenantDeletionService sut = new(
+            purge.Object,
+            blobs.Object,
+            Mock.Of<IPlatformAuditRepository>(),
+            DefaultLifecycleOptions(),
+            tenantRepo.Object);
+
+        Func<Task> act = () => sut.DeleteTenantAsync(
+            tenantId,
+            new TenantDeletionInvocation
+            {
+                ActorUserId = "actor-1",
+                ActorUserName = "actor@example.com",
+                CorrelationId = "corr-delete",
+            },
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage("*explicitly approved*");
+
+        blobs.Verify(
+            b => b.DeleteAllTenantPrefixesAsync(tenantId, It.IsAny<CancellationToken>()),
+            Times.Once);
+        purge.Verify(
+            p => p.PurgeTenantAsync(It.IsAny<Guid>(), It.IsAny<TenantHardPurgeOptions>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task DeleteTenantAsync_throws_when_erasure_approval_cleared_before_purge()
     {
         Guid tenantId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
