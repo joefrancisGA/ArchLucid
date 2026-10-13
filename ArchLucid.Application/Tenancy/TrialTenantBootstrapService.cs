@@ -260,6 +260,9 @@ public sealed class TrialTenantBootstrapService(
             {
                 await _demoSeedService.SeedTrialWelcomeRunAsync(cancellationToken).ConfigureAwait(false);
 
+                if (await IsTenantInErasureQuarantineAsync(result.TenantId, cancellationToken).ConfigureAwait(false))
+                    return;
+
                 try
                 {
                     await _demoSeedService.SeedAsync(cancellationToken).ConfigureAwait(false);

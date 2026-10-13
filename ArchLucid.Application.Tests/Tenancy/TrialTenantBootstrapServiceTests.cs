@@ -730,6 +730,60 @@ public sealed class TrialTenantBootstrapServiceTests
     }
 
     [SkippableFact]
+    public async Task TryBootstrapAfterPostAuthWorkspaceAsync_skips_full_demo_seed_when_offboard_completes_after_welcome_before_full_seed()
+    {
+        Guid tenantId = Guid.Parse("33333333-3333-3333-3333-333333333335");
+        DateTimeOffset anchor = new(2026, 10, 13, 0, 0, 0, TimeSpan.Zero);
+        TenantRecord active = new()
+        {
+            Id = tenantId,
+            Tier = TenantTier.Free,
+        };
+        TenantRecord offboarded = new()
+        {
+            Id = tenantId,
+            Tier = TenantTier.Free,
+            OffboardedUtc = anchor,
+            ErasureEligibleUtc = anchor.AddDays(30),
+        };
+
+        Mock<IDemoSeedService> demo = new();
+        demo.Setup(s => s.SeedTrialWelcomeRunAsync(It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+
+        Mock<ITenantRepository> repo = new();
+        repo.SetupSequence(r => r.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(active)
+            .ReturnsAsync(offboarded);
+
+        TrialTenantBootstrapService sut = new(
+            demo.Object,
+            repo.Object,
+            new Mock<IAuditService>().Object,
+            new Mock<ITrialBootstrapEmailVerificationPolicy>().Object,
+            CreateTrialAiBudgetProvisionerMock().Object,
+            TimeProvider.System,
+            NullLogger<TrialTenantBootstrapService>.Instance);
+
+        TenantProvisioningResult result = new()
+        {
+            TenantId = tenantId,
+            DefaultWorkspaceId = Guid.NewGuid(),
+            DefaultProjectId = Guid.NewGuid(),
+            WasAlreadyProvisioned = false,
+        };
+
+        await sut.TryBootstrapAfterPostAuthWorkspaceAsync(
+            result,
+            "owner@example.com",
+            null,
+            includeDemoSeed: true,
+            CancellationToken.None);
+
+        demo.Verify(s => s.SeedTrialWelcomeRunAsync(It.IsAny<CancellationToken>()), Times.Once);
+        demo.Verify(s => s.SeedAsync(It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [SkippableFact]
     public async Task TryBootstrapAfterSelfRegistrationAsync_persists_signup_baseline_when_capture_present_even_when_email_blocked()
     {
         Mock<IDemoSeedService> demo = new();
