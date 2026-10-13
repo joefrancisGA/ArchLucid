@@ -131,6 +131,9 @@ public sealed class TrialTenantBootstrapService(
             if (fullDemoSeedSucceeded)
                 sampleRunId = demoIds.AuthorityRunBaselineId;
 
+            if (await IsTenantInErasureQuarantineAsync(result.TenantId, cancellationToken))
+                return;
+
             try
             {
                 DateTimeOffset start = _timeProvider.GetUtcNow();
