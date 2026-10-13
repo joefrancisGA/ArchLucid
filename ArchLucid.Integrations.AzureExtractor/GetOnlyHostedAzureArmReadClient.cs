@@ -1244,7 +1244,7 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
 
             if (!response.IsSuccessStatusCode)
             {
-                if (response.StatusCode == System.Net.HttpStatusCode.Forbidden)
+                if (settings.Count > 0)
                 {
                     partialCollection = true;
                 }

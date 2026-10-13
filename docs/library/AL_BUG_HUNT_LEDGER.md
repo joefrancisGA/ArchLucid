@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-13 seed hunt (seed→hit): `cloud-extractors` — promoted `GetOnlyHostedAzureArmReadClient.ListDiagnosticSettingsForResourceAsync`; reachable HTTP Forbidden on the first diagnostic-settings page for a path-relevant resource set `PartialCollection` on the whole ZIP even when zero settings were collected; set `partialCollection` only when `settings.Count > 0` before stopping on non-success HTTP (including follow-up Forbidden after a successful page); regressions `ListDiagnosticSettingsAsync_does_not_mark_partial_when_resource_returns_forbidden_with_no_settings` and `ListDiagnosticSettingsAsync_marks_partial_when_follow_up_page_returns_forbidden_after_settings_collected`; AWS/GCP extractor tests passed 58/58; Azure extractor scope passed 171/171.
+
 2026-10-13 seed hunt (seed→hit): `cloud-extractors` — promoted `GetOnlyHostedAzureArmReadClient.ListVaultProtectedItemsAsync`; reachable non-success HTTP on a follow-up Recovery Services vault `nextLink` page returned `Succeeded = false`, so `HostedAzureInventoryRecoveryServicesCollector` emitted only a failure row and dropped backup/replication items already collected; stop pagination and return `Succeeded = true` when `items.Count > 0` (page-cap path now breaks like other ARM list readers); regression `ListVaultBackupProtectedItemsAsync_retains_items_when_later_page_fails`; AWS/GCP extractor tests passed 58/58; Azure extractor scope passed 169/169.
 
 2026-10-13 seed hunt (seed→hit): `cloud-extractors` — promoted `GetOnlyHostedAzureArmReadClient.ListFactoryLinkedServicesAsync` / `ListFactoryChildResourcesAsync`; reachable Forbidden (and parity NotFound/429) on a follow-up ADF factory `nextLink` page threw and failed the hosted extract instead of returning linked services or other child resources already collected; shared `ShouldBreakForFactoryPaginationTerminalHttpFailure`; regression `ListFactoryLinkedServicesAsync_retains_linked_services_when_later_page_returns_forbidden`; AWS/GCP extractor tests passed 58/58; Azure extractor scope passed 168/168.
@@ -31779,6 +31781,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ## Zone: cloud-extractors
 
+2026-10-13 seed hunt (seed→hit): promoted diagnostic settings PartialCollection on first-page Forbidden with zero rows; flag only when `settings.Count > 0` before HTTP stop; regressions for no-settings Forbidden and follow-up Forbidden partial; Azure scope 171/171; AWS/GCP 58/58.
+
 2026-10-13 seed hunt (seed→hit): promoted vault protected-item follow-up HTTP failure; `Succeeded = false` dropped partial items in RSV collector; break when `items.Count > 0`; page cap uses `ShouldBreakForPageCap`; regression `ListVaultBackupProtectedItemsAsync_retains_items_when_later_page_fails`; Azure scope 169/169; AWS/GCP 58/58.
 
 2026-10-13 seed hunt (seed→hit): promoted ADF factory pagination terminal HTTP on follow-up page; Forbidden threw and dropped prior child rows; `ShouldBreakForFactoryPaginationTerminalHttpFailure`; regression `ListFactoryLinkedServicesAsync_retains_linked_services_when_later_page_returns_forbidden`; Azure scope 168/168; AWS/GCP 58/58.
@@ -31896,11 +31900,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** aws extractor; gcp extractor; azure extractor
 - **paths:** ArchLucid.Integrations.AwsExtractor/; ArchLucid.Integrations.GcpExtractor/; ArchLucid.Integrations.AzureExtractor/
 - **test-filter:** FullyQualifiedName~AwsExtractor|FullyQualifiedName~GcpExtractor|FullyQualifiedName~AzureExtractor
-- **hunts:** 140
-- **bugs-found:** 87
+- **hunts:** 141
+- **bugs-found:** 88
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-13
-- **last-bug:** 2026-10-13 — Vault protected-item pagination failure dropped partial backup rows
+- **last-bug:** 2026-10-13 — Diagnostic PartialCollection flagged total denial with zero settings
 - **related-pd-tb:** none
 - **code-changed-since:** 1
 
@@ -31928,6 +31932,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ### Hypotheses
 
+- [x] (proven) `GetOnlyHostedAzureArmReadClient.ListDiagnosticSettingsForResourceAsync` — reachable HTTP Forbidden on the first diagnostic-settings page for a resource set `PartialCollection` on the hosted ZIP even when zero settings were collected, mislabeling a total denial as a partial enumeration — **hit 2026-10-13 seed hunt:** set `partialCollection` only when `settings.Count > 0` before stopping on non-success HTTP; regressions `ListDiagnosticSettingsAsync_does_not_mark_partial_when_resource_returns_forbidden_with_no_settings` and `ListDiagnosticSettingsAsync_marks_partial_when_follow_up_page_returns_forbidden_after_settings_collected`.
 - [x] (proven) `GetOnlyHostedAzureArmReadClient.ListVaultProtectedItemsAsync` — reachable non-success HTTP on a follow-up Recovery Services vault protected-item `nextLink` page returned `Succeeded = false`, so the RSV collector discarded items already collected and emitted only a completeness failure row — **hit 2026-10-13 seed hunt:** stop pagination and return `Succeeded = true` when `items.Count > 0`; regression `ListVaultBackupProtectedItemsAsync_retains_items_when_later_page_fails`.
 - [x] (proven) `GetOnlyHostedAzureArmReadClient.ListFactoryLinkedServicesAsync` / `ListFactoryChildResourcesAsync` — reachable Forbidden, NotFound, or 429 on a follow-up ADF factory `nextLink` page threw and failed the hosted extract instead of returning child resources already collected from earlier pages — **hit 2026-10-13 seed hunt:** `ShouldBreakForFactoryPaginationTerminalHttpFailure` stops pagination when prior rows exist; regression `ListFactoryLinkedServicesAsync_retains_linked_services_when_later_page_returns_forbidden`.
 - [x] (proven) `HostedAzureManagementPostReadClient.QueryPolicyComplianceAsync` — reachable first-page Policy Insights bodies that were HTTP 200 but invalid JSON were caught and returned the success `ReaderNote` with zero rows instead of the empty-collection export note used for HTTP failures — **hit 2026-10-13 seed hunt:** return `CreateEmptyPolicyCompliance` when `records.Count == 0` after non-cancellation failures; regressions `QueryPolicyComplianceAsync_uses_empty_collection_reader_note_when_first_page_body_is_invalid_json` and `QueryPolicyComplianceAsync_retains_records_when_later_page_body_is_invalid_json`.
