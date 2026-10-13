@@ -191,6 +191,38 @@ public sealed class ChatOpsIncomingWebhookBodiesTests
     }
 
     [Fact]
+    public void ForTeams_omits_severity_prefix_when_label_is_bracket_only()
+    {
+        ChatOpsWebhookMessage message = new()
+        {
+            SeverityLabel = " ]][ ",
+            Title = "Actual headline",
+            Body = "details",
+        };
+
+        object payload = ChatOpsIncomingWebhookBodies.ForTeams(message);
+
+        NotificationsTestPayloadAssert.GetStringProperty(payload, "title").Should().Be("Actual headline");
+    }
+
+    [Fact]
+    public void ForSlack_omits_severity_emphasis_when_label_is_bracket_only()
+    {
+        ChatOpsWebhookMessage message = new()
+        {
+            SeverityLabel = "[[ ]]",
+            Title = "Actual headline",
+            Body = "details",
+        };
+
+        object payload = ChatOpsIncomingWebhookBodies.ForSlack(message);
+
+        string text = NotificationsTestPayloadAssert.GetStringProperty(payload, "text");
+
+        text.Should().StartWith("*Actual headline*");
+    }
+
+    [Fact]
     public void ForSlack_strips_brackets_from_severity_label_before_headline_emphasis()
     {
         ChatOpsWebhookMessage message = new()

@@ -10,10 +10,7 @@ public static class ChatOpsIncomingWebhookBodies
 
         string safeTitle = ChatOpsSlackMrkdwnEscaper.EscapeFormattingMetacharacters(message.Title);
 
-        string headline = string.IsNullOrWhiteSpace(message.SeverityLabel)
-            ? $"*{safeTitle}*"
-            : FormattableString.Invariant(
-                $"*[{ChatOpsSlackMrkdwnEscaper.EscapeFormattingMetacharacters(SanitizeBracketedSeverityLabel(message.SeverityLabel!))}]* {safeTitle}");
+        string headline = BuildSlackHeadline(message, safeTitle);
 
         string text = CombineBlocks(
             headline,
@@ -38,10 +35,7 @@ public static class ChatOpsIncomingWebhookBodies
 
         string safeTitle = ChatOpsSlackMrkdwnEscaper.EscapeFormattingMetacharacters(message.Title);
 
-        string headline = string.IsNullOrWhiteSpace(message.SeverityLabel)
-            ? $"*{safeTitle}*"
-            : FormattableString.Invariant(
-                $"*[{ChatOpsSlackMrkdwnEscaper.EscapeFormattingMetacharacters(SanitizeBracketedSeverityLabel(message.SeverityLabel!))}]* {safeTitle}");
+        string headline = BuildSlackHeadline(message, safeTitle);
 
         string body = CombineBlocks(
             headline,
@@ -89,9 +83,7 @@ public static class ChatOpsIncomingWebhookBodies
     {
         ArgumentNullException.ThrowIfNull(message);
 
-        string title = string.IsNullOrWhiteSpace(message.SeverityLabel)
-            ? message.Title
-            : FormattableString.Invariant($"[{SanitizeBracketedSeverityLabel(message.SeverityLabel)}] {message.Title}");
+        string title = BuildTeamsTitle(message);
 
         string text =
             TeamsTextBlock(
@@ -133,6 +125,40 @@ public static class ChatOpsIncomingWebhookBodies
         body = body.Trim();
 
         return string.IsNullOrWhiteSpace(supporting) ? body : $"{supporting.Trim()}\n\n{body}";
+    }
+
+    private static string BuildSlackHeadline(ChatOpsWebhookMessage message, string safeTitle)
+    {
+        string? sanitizedSeverity = TrySanitizeSeverityLabel(message.SeverityLabel);
+
+        if (sanitizedSeverity is null)
+            return FormattableString.Invariant($"*{safeTitle}*");
+
+        return FormattableString.Invariant(
+            $"*[{ChatOpsSlackMrkdwnEscaper.EscapeFormattingMetacharacters(sanitizedSeverity)}]* {safeTitle}");
+    }
+
+    private static string BuildTeamsTitle(ChatOpsWebhookMessage message)
+    {
+        string? sanitizedSeverity = TrySanitizeSeverityLabel(message.SeverityLabel);
+
+        if (sanitizedSeverity is null)
+            return message.Title;
+
+        return FormattableString.Invariant($"[{sanitizedSeverity}] {message.Title}");
+    }
+
+    private static string? TrySanitizeSeverityLabel(string? severityLabel)
+    {
+        if (string.IsNullOrWhiteSpace(severityLabel))
+            return null;
+
+        string sanitized = SanitizeBracketedSeverityLabel(severityLabel);
+
+        if (string.IsNullOrWhiteSpace(sanitized))
+            return null;
+
+        return sanitized;
     }
 
     private static string SanitizeBracketedSeverityLabel(string severityLabel)
