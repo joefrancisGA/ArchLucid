@@ -30,9 +30,13 @@ public sealed class AlertTeamsWebhookDeliveryChannel(IChatOpsWebhookDeliveryServ
             Body = payload.Alert.Description,
         };
 
+        string destination = ChatOpsWebhookAbsoluteUriValidator.ResolveHttpsDeliveryUriOrThrow(
+            payload.Subscription.Destination,
+            nameof(payload.Subscription.Destination));
+
         return _chatOpsWebhookDelivery.DeliverAsync(
             ChatOpsWebhookTarget.Teams,
-            payload.Subscription.Destination,
+            destination,
             body,
             ct);
     }

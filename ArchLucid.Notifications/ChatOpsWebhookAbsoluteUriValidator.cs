@@ -29,6 +29,18 @@ public static class ChatOpsWebhookAbsoluteUriValidator
         return true;
     }
 
+    public static string ResolveHttpsDeliveryUriOrThrow(string? rawUri, string paramName)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(rawUri, paramName);
+
+        if (!TryValidateHttpsAbsoluteUri(rawUri, out string deliveryUri))
+        {
+            throw new ArgumentException("Webhook destination is not a valid HTTPS absolute URI.", paramName);
+        }
+
+        return deliveryUri;
+    }
+
     private static bool ContainsEmbeddedLineBreaks(string value)
     {
 

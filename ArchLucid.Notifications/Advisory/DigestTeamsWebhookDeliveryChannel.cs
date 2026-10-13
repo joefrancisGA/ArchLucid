@@ -25,9 +25,13 @@ public sealed class DigestTeamsWebhookDeliveryChannel(IChatOpsWebhookDeliverySer
             Body = payload.Digest.ContentMarkdown,
         };
 
+        string destination = ChatOpsWebhookAbsoluteUriValidator.ResolveHttpsDeliveryUriOrThrow(
+            payload.Subscription.Destination,
+            nameof(payload.Subscription.Destination));
+
         return _chatOpsWebhookDelivery.DeliverAsync(
             ChatOpsWebhookTarget.Teams,
-            payload.Subscription.Destination,
+            destination,
             body,
             ct);
     }

@@ -121,6 +121,28 @@ public sealed class AlertSlackWebhookDeliveryChannelTests
             Times.Once);
     }
 
+    [Fact]
+    public async Task SendAsync_throws_when_subscription_destination_has_embedded_line_breaks()
+    {
+        Mock<IChatOpsWebhookDeliveryService> delivery = new();
+        AlertSlackWebhookDeliveryChannel sut = new(delivery.Object);
+        AlertDeliveryPayload payload = CreatePayload("https://hooks.slack.com/services/test");
+        payload.Subscription.Destination =
+            "https://hooks.slack.com/services/test\r\nHost: injected.evil.test";
+
+        Func<Task> act = async () => await sut.SendAsync(payload, CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentException>();
+        delivery.Verify(
+            x => x.DeliverAsync(
+                It.IsAny<ChatOpsWebhookTarget>(),
+                It.IsAny<string>(),
+                It.IsAny<ChatOpsWebhookMessage>(),
+                It.IsAny<CancellationToken>(),
+                It.IsAny<WebhookPostOptions?>()),
+            Times.Never);
+    }
+
     private static AlertDeliveryPayload CreatePayload(string destination)
     {
         return new AlertDeliveryPayload
