@@ -84,6 +84,12 @@ public sealed partial class TenantCatalogMigrationOrchestrator
         if (active.VerificationPassedUtc is null)
             return TenantCatalogMigrationCommandOutcome.VerificationRequired;
 
+        TenantRecord? tenantBeforeComplete =
+            await _tenantRepository.GetByIdAsync(tenantId, cancellationToken).ConfigureAwait(false);
+
+        if (tenantBeforeComplete?.OffboardedUtc is not null)
+            return TenantCatalogMigrationCommandOutcome.InErasureQuarantine;
+
         DateTimeOffset completedUtc = _timeProvider.GetUtcNow();
 
         await _migrationRepository.CompleteAsync(active.MigrationId, completedUtc, cancellationToken).ConfigureAwait(false);
