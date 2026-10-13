@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-13 seed hunt (seed→hit): `application-tenancy-lifecycle` — promoted ledger candidate `TenantProvisioningService.ProvisionAsync` post-workspace project insert path; `IArchitectureProjectRepository.InsertAsync` still ran when erasure offboard completed after `InsertWorkspaceAsync` but before default project insert; pre-project `GetByIdAsync` re-read with `BuildErasureQuarantineProvisionResult(tenantId, workspaceId, Guid.Empty)`; regression `ProvisionAsync_skips_project_insert_when_offboard_completes_after_workspace_before_project`; tightened post-workspace pre-audit race tests to three active tenant reads; 207 scoped tenancy tests passed.
+
 2026-10-13 seed hunt (seed→hit): `application-tenancy-lifecycle` — promoted `TenantProvisioningService.ProvisionAsync` post-catalog workspace insert path; `InsertWorkspaceAsync` still ran when erasure offboard completed after `ProvisionTenantCatalogAsync` but before workspace insert; added pre-workspace `GetByIdAsync` re-read and `IsErasureQuarantine` helper; regression `ProvisionAsync_skips_workspace_insert_when_offboard_completes_after_catalog_before_workspace`; cheap-disproof closed `BuildAlreadyProvisionedResultAsync` offboard idempotent retry (registration maps `WasAlreadyProvisioned` to conflict without bootstrap); 206 scoped tenancy tests passed.
 
 2026-10-13 seed hunt (seed→hit): `application-tenancy-lifecycle` — promoted `TenantProvisioningService.ProvisionAsync` catalog/workspace insert path; `ProvisionTenantCatalogAsync` / workspace / project inserts still ran when erasure offboard completed after `InsertTenantAsync` but before catalog provisioning; pre-catalog `GetByIdAsync` re-read with `BuildErasureQuarantineProvisionResult` (`Guid.Empty` workspace/project when inserts skipped); regression `ProvisionAsync_skips_catalog_and_workspace_when_offboard_completes_after_tenant_insert_before_catalog`; 205 scoped tenancy tests passed.
@@ -34662,20 +34664,20 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 99
-- **bugs-found:** 84
+- **hunts:** 100
+- **bugs-found:** 85
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-13
-- **last-bug:** 2026-10-13 — Provision workspace insert after catalog on quarantined tenant
+- **last-bug:** 2026-10-13 — Provision project insert after workspace on quarantined tenant
+
+2026-10-13 seed hunt (seed→hit): promoted ledger candidate for post-workspace project insert erasure race; proved `InsertAsync` after workspace when offboard followed workspace insert; pre-project re-read; regression `ProvisionAsync_skips_project_insert_when_offboard_completes_after_workspace_before_project`; 207 scoped tenancy tests passed.
+
+- [x] (proven) `TenantProvisioningService.ProvisionAsync` — `InsertAsync` (default project) when erasure offboard after `InsertWorkspaceAsync` before project insert — **hit 2026-10-13 seed hunt (seed→hit):** regression `ProvisionAsync_skips_project_insert_when_offboard_completes_after_workspace_before_project`.
 
 2026-10-13 seed hunt (seed→hit): reseeded provision mid-insert erasure race; proved workspace insert after catalog when offboard followed catalog provision; pre-workspace re-read; regression `ProvisionAsync_skips_workspace_insert_when_offboard_completes_after_catalog_before_workspace`; 206 scoped tenancy tests passed.
 
 - [x] (proven) `TenantProvisioningService.ProvisionAsync` — `InsertWorkspaceAsync` when erasure offboard after catalog provision — **hit 2026-10-13 seed hunt (seed→hit):** regression `ProvisionAsync_skips_workspace_insert_when_offboard_completes_after_catalog_before_workspace`.
 - [x] (valid-no-repro) `TenantProvisioningService.BuildAlreadyProvisionedResultAsync` — idempotent retry returns workspace ids for offboarded slug — **cheap-disproof 2026-10-13 seed hunt:** `RegistrationApplicationService` routes `WasAlreadyProvisioned` to `RegisterOrganizationConflictAsync`; workspace ids are not used for bootstrap on conflict; slug remains reserved while offboarded.
-
-2026-10-13 seed hunt (seed-only): reseeded provision project insert path; added candidate for architecture project insert racing erasure offboard after workspace insert.
-
-- (candidate) `TenantProvisioningService.ProvisionAsync` — `InsertAsync` (default project) still runs when erasure offboard completes after `InsertWorkspaceAsync` but before project insert; reachable from self-service registration racing operator offboard mid-provision insert block.
 
 2026-10-13 seed hunt (seed→hit): reseeded provision core insert block from ledger candidate; proved catalog/workspace/project inserts when offboard followed tenant row insert; pre-catalog erasure re-read; regression `ProvisionAsync_skips_catalog_and_workspace_when_offboard_completes_after_tenant_insert_before_catalog`; tightened post-workspace race tests with ordered tenant reads; 205 scoped tenancy tests passed.
 

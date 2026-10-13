@@ -126,6 +126,15 @@ public sealed class TenantProvisioningService(
                     ResolveWorkspaceDisplayName(request.WorkspaceDisplayName),
                     projectId,
                     ct);
+
+                TenantRecord? tenantBeforeProjectInsert =
+                    await _tenantRepository.GetByIdAsync(tenantId, ct).ConfigureAwait(false);
+
+                if (IsErasureQuarantine(tenantBeforeProjectInsert))
+                {
+                    return BuildErasureQuarantineProvisionResult(tenantId, workspaceId, Guid.Empty);
+                }
+
                 await _architectureProjectRepository.InsertAsync(projectId, tenantId, workspaceId, "default", ct);
             }
             catch (Exception ex)
