@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-13 seed hunt (seed→hit): `cloud-extractors` — promoted `GetOnlyHostedAzureArmReadClient.ListDiagnosticSettingsForResourceAsync`; reachable cross-resource diagnostic-settings `nextLink` values failed `EnsureTargetsDiagnosticSettingsResource` after a successful first page and threw out of `ListDiagnosticSettingsAsync`, skipping every other path-relevant resource; stop pagination with `partialCollection` when `settings.Count > 0` and rethrow only when no rows were collected; regression `ListDiagnosticSettingsAsync_continues_after_cross_resource_next_link_for_one_resource`; AWS/GCP extractor tests passed 58/58; Azure extractor scope passed 174/174.
+
 2026-10-13 seed hunt (seed→hit): `cloud-extractors` — promoted `GetOnlyHostedAzureArmReadClient.ListDiagnosticSettingsForResourceAsync`; reachable HTTP 200 diagnostic-settings bodies that were invalid JSON on the first page for one resource caused `TryParseArmPaginationPageAsync` to throw and aborted diagnostic collection for every other path-relevant resource in the subscription; catch `JsonException` per resource and treat malformed follow-up pages as partial when `settings.Count > 0`; regressions `ListDiagnosticSettingsAsync_continues_after_invalid_json_for_one_resource`, `ListDiagnosticSettingsAsync_marks_partial_when_follow_up_page_body_is_invalid_json`; AWS/GCP extractor tests passed 58/58; Azure extractor scope passed 173/173.
 
 2026-10-13 seed hunt (seed→hit): `cloud-extractors` — promoted `GetOnlyHostedAzureArmReadClient.ListDiagnosticSettingsForResourceAsync`; reachable HTTP Forbidden on the first diagnostic-settings page for a path-relevant resource set `PartialCollection` on the whole ZIP even when zero settings were collected; set `partialCollection` only when `settings.Count > 0` before stopping on non-success HTTP (including follow-up Forbidden after a successful page); regressions `ListDiagnosticSettingsAsync_does_not_mark_partial_when_resource_returns_forbidden_with_no_settings` and `ListDiagnosticSettingsAsync_marks_partial_when_follow_up_page_returns_forbidden_after_settings_collected`; AWS/GCP extractor tests passed 58/58; Azure extractor scope passed 171/171.
@@ -31783,6 +31785,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ## Zone: cloud-extractors
 
+2026-10-13 seed hunt (seed→hit): promoted diagnostic settings cross-resource nextLink validation throwing out of multi-resource collect; partial retain when `settings.Count > 0`; regression `ListDiagnosticSettingsAsync_continues_after_cross_resource_next_link_for_one_resource`; Azure scope 174/174; AWS/GCP 58/58.
+
 2026-10-13 seed hunt (seed→hit): promoted diagnostic settings invalid JSON on first page throwing out of multi-resource collect; per-resource `JsonException` handling + partial flag on malformed follow-up; regressions `ListDiagnosticSettingsAsync_continues_after_invalid_json_for_one_resource` and invalid-json follow-up partial; Azure scope 173/173; AWS/GCP 58/58.
 
 2026-10-13 seed hunt (seed→hit): promoted diagnostic settings PartialCollection on first-page Forbidden with zero rows; flag only when `settings.Count > 0` before HTTP stop; regressions for no-settings Forbidden and follow-up Forbidden partial; Azure scope 171/171; AWS/GCP 58/58.
@@ -31904,11 +31908,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** aws extractor; gcp extractor; azure extractor
 - **paths:** ArchLucid.Integrations.AwsExtractor/; ArchLucid.Integrations.GcpExtractor/; ArchLucid.Integrations.AzureExtractor/
 - **test-filter:** FullyQualifiedName~AwsExtractor|FullyQualifiedName~GcpExtractor|FullyQualifiedName~AzureExtractor
-- **hunts:** 142
-- **bugs-found:** 89
+- **hunts:** 143
+- **bugs-found:** 90
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-13
-- **last-bug:** 2026-10-13 — Diagnostic invalid JSON on one resource aborted whole collect pass
+- **last-bug:** 2026-10-13 — Diagnostic nextLink validation aborted multi-resource collect
 - **related-pd-tb:** none
 - **code-changed-since:** 1
 
@@ -31936,6 +31940,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ### Hypotheses
 
+- [x] (proven) `GetOnlyHostedAzureArmReadClient.ListDiagnosticSettingsForResourceAsync` — reachable cross-resource diagnostic-settings `nextLink` values caused `EnsureTargetsDiagnosticSettingsResource` to throw after a successful first page and failed diagnostic collection for every other path-relevant resource — **hit 2026-10-13 seed hunt:** stop pagination with `partialCollection` when `settings.Count > 0`; rethrow when no rows were collected; regression `ListDiagnosticSettingsAsync_continues_after_cross_resource_next_link_for_one_resource`.
 - [x] (proven) `GetOnlyHostedAzureArmReadClient.ListDiagnosticSettingsForResourceAsync` — reachable invalid JSON on the first diagnostic-settings page for one resource caused `TryParseArmPaginationPageAsync` to throw and failed diagnostic collection for every other path-relevant resource — **hit 2026-10-13 seed hunt:** catch `JsonException` per resource page read; set `partialCollection` when a malformed follow-up page stops pagination with `settings.Count > 0`; regressions `ListDiagnosticSettingsAsync_continues_after_invalid_json_for_one_resource` and `ListDiagnosticSettingsAsync_marks_partial_when_follow_up_page_body_is_invalid_json`.
 - [x] (proven) `GetOnlyHostedAzureArmReadClient.ListDiagnosticSettingsForResourceAsync` — reachable HTTP Forbidden on the first diagnostic-settings page for a resource set `PartialCollection` on the hosted ZIP even when zero settings were collected, mislabeling a total denial as a partial enumeration — **hit 2026-10-13 seed hunt:** set `partialCollection` only when `settings.Count > 0` before stopping on non-success HTTP; regressions `ListDiagnosticSettingsAsync_does_not_mark_partial_when_resource_returns_forbidden_with_no_settings` and `ListDiagnosticSettingsAsync_marks_partial_when_follow_up_page_returns_forbidden_after_settings_collected`.
 - [x] (proven) `GetOnlyHostedAzureArmReadClient.ListVaultProtectedItemsAsync` — reachable non-success HTTP on a follow-up Recovery Services vault protected-item `nextLink` page returned `Succeeded = false`, so the RSV collector discarded items already collected and emitted only a completeness failure row — **hit 2026-10-13 seed hunt:** stop pagination and return `Succeeded = true` when `items.Count > 0`; regression `ListVaultBackupProtectedItemsAsync_retains_items_when_later_page_fails`.
