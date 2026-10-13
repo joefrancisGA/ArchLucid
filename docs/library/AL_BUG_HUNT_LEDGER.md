@@ -17159,9 +17159,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** marketplace billing; checkout mutation; billing application layer
 - **paths:** ArchLucid.Application/Billing/
 - **test-filter:** FullyQualifiedName~Marketplace|FullyQualifiedName~BillingCheckout|FullyQualifiedName~TenantLlmCostReporting
-- **hunts:** 41
+- **hunts:** 42
 - **bugs-found:** 21
-- **consecutive-dry-hunts:** 1
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-12
 - **last-bug:** 2026-10-12 — non-subscribed subscription status still exposed provider name
 - **code-changed-since:** no
@@ -17186,6 +17186,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-10-12 seed hunt (seed-only): repeated the billing-zone source review after hunt 36 closed the last open `(candidate)` rows; re-checked checkout lifecycle status, Marketplace mutation deferrals, LLM dashboard bucketing, fleet COGS risk labels, and cost-estimate guards. No new mechanism-backed `(candidate)` met the seed quality bar and nothing was promoted hunt-ready. 41 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed.
 
 2026-10-12 seed hunt (seed-only): re-read billing application sources after the hypothesis list emptied; seeded four bounded `(candidate)` rows (non-subscribed `Provider` exposure, fleet utilization above 100%, inert `CostBasisLabel` branches, marketplace webhook audit actor validation). No row was promoted hunt-ready or falsified with a failing repro this run. 41 scoped billing tests passed.
+
+2026-10-12 seed hunt (seed-only): re-read `BillingCheckoutFacade`, Marketplace mutation handlers, webhook publisher, tenant LLM reporting, fleet COGS, cost estimate, and top-run ranker after the hypothesis list emptied; no row met the hunt-ready bar for same-run proof. Seeded five bounded `(candidate)` rows (portal without subscription guard, non-enum subscription status echo, ChangeQuantity whole-number JSON doubles, top-run tie ordering, portal audit before provider eligibility). 42 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed.
 
 2026-10-12 seed hunt (dry): cheap-disproof closed the four hunt-40 `(candidate)` rows — blank ledger `Status` ( `BillingLedgerCore` always assigns `Pending`/`Active`/`Suspended`/`Canceled` ), fleet warn USD vs TB-014 bump (matches `LlmMonthlyTenantDollarBudgetTracker` included-allowance warn math ), top-run keyset scan cap (bounded `ListRunsInScopeKeysetAsync` window by design ), and suspended checkout block (intentional `ActiveSubscriptionConflict`; regression `CreateCheckoutSessionAsync_blocks_when_subscription_is_suspended_past_due` ). 42 scoped billing tests passed.
 
@@ -17258,6 +17260,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `AdminFleetLlmCogsService.BuildDashboardAsync` — fleet warn USD ignores `PurchasedCapBumpUsd` — **cheap-disproof 2026-10-12 seed hunt:** monthly warn uses `IncludedUsdPerUtcMonth * WarnFraction` in `LlmMonthlyTenantDollarBudgetTracker` as well; TB-014 bump applies to effective hard cap only per `LLM_BUDGET_TOP_UP.md`.
 - [x] (invalid) `TenantLlmCostTopRunRanker.RankAsync` — top-run scan window — **cheap-disproof 2026-10-12 seed hunt:** `RankAsync_includes_runs_whose_project_slug_is_not_default` and reporting `maxRunsToScan: 12` document the bounded keyset scan; not a defect in Application billing.
 - [x] (invalid) `BillingCheckoutFacade.CreateCheckoutSessionAsync` — `Suspended` checkout block — **cheap-disproof 2026-10-12 seed hunt:** past-due tenants must use the billing portal; `CreateCheckoutSessionAsync_blocks_when_subscription_is_suspended_past_due` documents `ActiveSubscriptionConflict` for `Suspended` rows.
+
+- [ ] (candidate) `BillingCheckoutFacade.CreatePortalSessionAsync` — no `HasSubscription` or provider-ref pre-check before `CreateBillingPortalSessionAsync`; reachable `POST /v1/tenant/billing/portal` with only `ReturnUrl` while ledger is `Pending`/`Canceled`/missing but a Stripe customer id still exists from an abandoned checkout.
+- [ ] (candidate) `BillingCheckoutFacade.GetSubscriptionStatusAsync` — ledger `Status` outside `Pending`/`Active`/`Suspended`/`Canceled` yields `HasSubscription=false` while the raw status string is still returned on the API surface.
+- [ ] (candidate) `MarketplaceChangeQuantityWebhookMutationHandler` — GA-enabled `quantity` JSON numbers that are mathematically whole but expressed as doubles (for example `2.0`) pass `MarketplaceQuantityReader.TryReadQuantity` and mutate seats without an explicit integer-only contract test at the Application handler.
+- [ ] (candidate) `TenantLlmCostTopRunRanker.RankAsync` — equal `EstimatedCostUsd` and `MeasurableTokens` ties preserve authority keyset order rather than a stable secondary key, so dashboard top-run ordering can shift between polls when costs are unpriced.
+- [ ] (candidate) `BillingCheckoutFacade.CreatePortalSessionAsync` — `BillingPortalInitiated` audit is written before provider eligibility is established, so provider failures after a missing customer link still leave an initiated audit row without a completed portal handoff.
 
 2026-09-11 thorough hunt #1700 (dry): cheap-disproof closed ChangeQuantity Stripe policy parity and subscription-status past-due mapping candidates; 8 scoped Marketplace/BillingCheckout tests passed.
 
