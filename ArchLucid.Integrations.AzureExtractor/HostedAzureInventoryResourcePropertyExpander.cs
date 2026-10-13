@@ -349,28 +349,23 @@ properties["definition"] = AzureExtractorSensitivePropertyRedactor.RedactStructu
 
         foreach (JsonElement ipConfiguration in ipConfigurations.EnumerateArray())
         {
-            if (!ipConfiguration.TryGetProperty("properties", out JsonElement ipConfigurationProperties)
-                || ipConfigurationProperties.ValueKind is not JsonValueKind.Object)
+            if (ipConfiguration.TryGetProperty("properties", out JsonElement ipConfigurationProperties)
+                && ipConfigurationProperties.ValueKind is JsonValueKind.Object)
             {
-                continue;
-            }
+                string? subnetId = TryReadNestedString(ipConfigurationProperties, "subnet", "id");
+                string? publicIpId = TryReadNestedString(ipConfigurationProperties, "publicIPAddress", "id");
 
-            string? subnetId = TryReadNestedString(ipConfigurationProperties, "subnet", "id");
-            string? publicIpId = TryReadNestedString(ipConfigurationProperties, "publicIPAddress", "id");
-
-            if (!string.IsNullOrWhiteSpace(subnetId))
-            {
-                properties[$"ipConfiguration.subnet.id[{index}]"] = subnetId;
-            }
-
-            if (!string.IsNullOrWhiteSpace(publicIpId))
-            {
-                properties[$"ipConfiguration.publicIPAddress.id[{index}]"] = publicIpId;
-            }
-
-            if (index == 0)
-            {
                 if (!string.IsNullOrWhiteSpace(subnetId))
+                {
+                    properties[$"ipConfiguration.subnet.id[{index}]"] = subnetId;
+                }
+
+                if (!string.IsNullOrWhiteSpace(publicIpId))
+                {
+                    properties[$"ipConfiguration.publicIPAddress.id[{index}]"] = publicIpId;
+                }
+
+                if (index == 0 && !string.IsNullOrWhiteSpace(subnetId))
                 {
                     properties["ipConfiguration.subnet.id"] = subnetId;
                 }
@@ -394,28 +389,26 @@ properties["definition"] = AzureExtractorSensitivePropertyRedactor.RedactStructu
 
         foreach (JsonElement ipConfiguration in ipConfigurations.EnumerateArray())
         {
-            if (!ipConfiguration.TryGetProperty("properties", out JsonElement ipConfigurationProperties)
-                || ipConfigurationProperties.ValueKind is not JsonValueKind.Object)
+            if (ipConfiguration.TryGetProperty("properties", out JsonElement ipConfigurationProperties)
+                && ipConfigurationProperties.ValueKind is JsonValueKind.Object)
             {
-                continue;
-            }
+                string? subnetId = TryReadNestedString(ipConfigurationProperties, "subnet", "id");
+                string? publicIpId = TryReadNestedString(ipConfigurationProperties, "publicIPAddress", "id");
 
-            string? subnetId = TryReadNestedString(ipConfigurationProperties, "subnet", "id");
-            string? publicIpId = TryReadNestedString(ipConfigurationProperties, "publicIPAddress", "id");
-
-            if (!string.IsNullOrWhiteSpace(subnetId))
-            {
-                properties[$"ipConfiguration.subnet.id[{index}]"] = subnetId;
-
-                if (index == 0)
+                if (!string.IsNullOrWhiteSpace(subnetId))
                 {
-                    properties["ipConfiguration.subnet.id"] = subnetId;
-                }
-            }
+                    properties[$"ipConfiguration.subnet.id[{index}]"] = subnetId;
 
-            if (!string.IsNullOrWhiteSpace(publicIpId))
-            {
-                properties[$"ipConfiguration.publicIPAddress.id[{index}]"] = publicIpId;
+                    if (index == 0)
+                    {
+                        properties["ipConfiguration.subnet.id"] = subnetId;
+                    }
+                }
+
+                if (!string.IsNullOrWhiteSpace(publicIpId))
+                {
+                    properties[$"ipConfiguration.publicIPAddress.id[{index}]"] = publicIpId;
+                }
             }
 
             index++;
