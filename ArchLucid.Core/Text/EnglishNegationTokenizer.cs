@@ -31,6 +31,8 @@ public static class EnglishNegationTokenizer
         "forbidden from",
         "restricted from",
         "declined from",
+        "barred from",
+        "excluded from",
         "shall not",
         "should not",
         "was not",
