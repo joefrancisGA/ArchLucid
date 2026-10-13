@@ -1,5 +1,6 @@
 using ArchLucid.Application.Notifications.Email;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Identity;
 using ArchLucid.Core.Notifications.Email;
 
 using Microsoft.Extensions.Logging;
@@ -40,6 +41,16 @@ public sealed class EmailOtpEmailNotifier(
         ArgumentException.ThrowIfNullOrWhiteSpace(displayEmail);
         ArgumentException.ThrowIfNullOrWhiteSpace(code);
 
+        if (!IdentityEmailNormalizer.TryNormalize(displayEmail, out string normalizedMailbox, out string mailboxForDelivery))
+        {
+            if (_logger.IsEnabled(Microsoft.Extensions.Logging.LogLevel.Warning))
+            {
+                _logger.LogWarning("Email OTP sign-in code send skipped: invalid recipient mailbox.");
+            }
+
+            return false;
+        }
+
         EmailNotificationOptions emailOptions = _emailOptionsMonitor.CurrentValue;
         string productName = EmailProductDisplayNameResolver.Resolve(emailOptions);
 
@@ -52,11 +63,11 @@ public sealed class EmailOtpEmailNotifier(
 
         EmailMessage message = new()
         {
-            To = displayEmail.Trim(),
+            To = mailboxForDelivery,
             Subject = subject,
             HtmlBody = html,
             TextBody = text,
-            IdempotencyKey = $"{TemplateId}:{EmailOtpCorrelationFingerprint.ComputeHexPrefix(displayEmail)}:{codeFingerprint}",
+            IdempotencyKey = $"{TemplateId}:{EmailOtpCorrelationFingerprint.ComputeHexPrefix(normalizedMailbox)}:{codeFingerprint}",
             Tags = new EmailMessageTags { TenantId = Guid.Empty, EventType = TemplateId }
         };
 
@@ -68,7 +79,7 @@ public sealed class EmailOtpEmailNotifier(
         }
         catch (Exception ex) when (!cancellationToken.IsCancellationRequested)
         {
-            string recipientCorrelation = EmailOtpCorrelationFingerprint.ComputeHexPrefix(displayEmail);
+            string recipientCorrelation = EmailOtpCorrelationFingerprint.ComputeHexPrefix(normalizedMailbox);
 
             if (_logger.IsEnabled(Microsoft.Extensions.Logging.LogLevel.Warning))
             {
