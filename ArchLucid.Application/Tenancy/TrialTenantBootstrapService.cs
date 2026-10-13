@@ -61,12 +61,17 @@ public sealed class TrialTenantBootstrapService(
                 return;
 
             if (baselineReviewCycle is not null)
+            {
+                if (await IsTenantInErasureQuarantineAsync(result.TenantId, cancellationToken))
+                    return;
+
                 await _tenantRepository.PersistTrialSignupBaselineReviewCycleAsync(
                     result.TenantId,
                     baselineReviewCycle.Hours,
                     baselineReviewCycle.SourceNote,
                     baselineReviewCycle.CapturedUtc,
                     cancellationToken);
+            }
 
             if (!await _emailVerificationPolicy.CanProvisionTrialForRegisteredEmailAsync(auditActorEmail, cancellationToken))
             {
