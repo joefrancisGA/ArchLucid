@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-13 seed hunt (seed→hit): `application-tenancy-lifecycle` — promoted `TenantSuspendCommandService.ResolveOutcomeAfterFailedLifecycleTransitionAsync`; atomic suspend/unsuspend miss always returned `AlreadyInDesiredState` when tenant was not in erasure quarantine, so admin unsuspend could return 204 while `SuspendedUtc` remained set; re-read maps still-wrong suspend state to new `TenantSuspendOutcome.Conflict` (409 from `TenantsAdminController`); regressions `TryUnsuspendAsync_returns_conflict_when_atomic_miss_and_tenant_still_suspended` and `TrySuspendAsync_returns_conflict_when_atomic_miss_and_tenant_still_active`; 156 scoped tenancy tests passed.
+
 2026-10-13 seed hunt (seed→hit): `application-tenancy-lifecycle` — promoted `TrialLifecycleTransitionEngine.TryAdvanceTenantAsync`; platform legal hold applied after initial scheduler read but before `TryRecordTrialLifecycleTransitionAsync` / `Deleted` hard purge still recorded `ExportOnly`→`Deleted` and invoked purge; re-read automation gate before destructive steps; regressions `TryAdvanceTenantAsync_skips_export_only_to_deleted_when_legal_hold_activated_before_atomic_transition` and `TryAdvanceTenantAsync_skips_deleted_hard_purge_when_legal_hold_activated_before_purge`; 154 scoped tenancy tests passed.
 
 2026-10-13 seed hunt (seed→hit): `application-tenancy-lifecycle` — promoted `TenantErasureCommandService.TrySetLegalHoldAsync` for platform operator (`AdminTenantsController`, `requireErasureQuarantine: false`); quarantine restore before atomic set still returned `false` because idempotent re-read only ran when `requireErasureQuarantine` was true; key off restore race on initial `OffboardedUtc` at read vs cleared quarantine on re-read; regression `TrySetLegalHoldAsync_returns_success_when_quarantine_restored_before_atomic_set_for_platform_operator`; 152 scoped tenancy tests passed.
@@ -34547,11 +34549,15 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 52
-- **bugs-found:** 37
+- **hunts:** 53
+- **bugs-found:** 38
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-13
-- **last-bug:** 2026-10-13 — Trial scheduler ignored legal hold activated between read and purge/transition
+- **last-bug:** 2026-10-13 — Admin unsuspend reported success while tenant stayed suspended after atomic miss
+
+2026-10-13 seed hunt (seed→hit): reseeded suspend command service after trial legal-hold gate fix; proved failed unsuspend re-read returned `AlreadyInDesiredState` while `SuspendedUtc` still set; added `TenantSuspendOutcome.Conflict` and direction-aware re-read; regressions in `TenantSuspendCommandServiceTests`; 156 scoped tenancy tests passed.
+
+- [x] (proven) `TenantSuspendCommandService.TryUnsuspendAsync` / `TrySuspendAsync` — atomic transition miss returned `AlreadyInDesiredState` while suspend flag was unchanged — **hit 2026-10-13 seed hunt (seed→hit):** `Conflict` when re-read shows unsuspend still suspended or suspend still active; API maps to 409.
 
 2026-10-13 seed hunt (seed→hit): reseeded trial lifecycle after platform legal-hold restore fix; proved scheduler only checked legal hold on first read; added pre-transition automation gate re-read; two regressions in `TrialLifecycleTransitionEngineTests` / `TrialLifecycleTransitionEngineDeletedRetryTests`; 154 scoped tenancy tests passed.
 
