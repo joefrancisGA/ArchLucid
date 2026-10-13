@@ -8395,3 +8395,4 @@
 {"at":"2026-10-13T18:53:03.5291041Z","zoneId":"notifications-pipeline","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-13T18:58:41.1309654Z","zoneId":"notifications-pipeline","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-13T19:07:37.0543615Z","zoneId":"notifications-pipeline","outcome":"hit","productLine":"archlucid-shared","paths":["@(ArchLucid.Notifications/,ArchLucid.Application/Notifications/,ArchLucid.Api/Controllers/Advisory/DigestSubscriptionsController.cs)"]}
+{"at":"2026-10-13T19:13:37.6149887Z","zoneId":"notifications-pipeline","outcome":"hit","productLine":"archlucid-shared","paths":["@(ArchLucid.Notifications/,ArchLucid.Application/Notifications/,ArchLucid.Api/Controllers/Advisory/DigestSubscriptionsController.cs)"]}

@@ -82,6 +82,45 @@ public sealed class SupportProblemReportNotifierTests
             Times.Once);
     }
 
+    [SkippableFact]
+    public async Task NotifySubmitterAsync_skips_send_when_submitter_mailbox_has_embedded_line_breaks()
+    {
+        Mock<IEmailProvider> email = new();
+        email.Setup(x => x.ProviderName).Returns("test");
+
+        SupportProblemReportNotifier sut = new(
+            email.Object,
+            BuildOptions(new EmailNotificationOptions { ProductDisplayName = "ArchLucid" }),
+            NullLogger<SupportProblemReportNotifier>.Instance);
+
+        await sut.NotifySubmitterAsync(
+            BuildReport(),
+            "operator@example.com\r\nBcc: injected@evil.test",
+            CancellationToken.None);
+
+        email.Verify(
+            x => x.SendAsync(It.IsAny<EmailMessage>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [SkippableFact]
+    public async Task NotifySupportInboxAsync_skips_send_when_support_inbox_has_embedded_line_breaks()
+    {
+        Mock<IEmailProvider> email = new();
+        email.Setup(x => x.ProviderName).Returns("test");
+
+        SupportProblemReportNotifier sut = new(
+            email.Object,
+            BuildOptions(new EmailNotificationOptions { SupportInbox = "support@example.com\r\nBcc: injected@evil.test" }),
+            NullLogger<SupportProblemReportNotifier>.Instance);
+
+        await sut.NotifySupportInboxAsync(BuildReport(), "jwt:t1:oid", false, CancellationToken.None);
+
+        email.Verify(
+            x => x.SendAsync(It.IsAny<EmailMessage>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
     private static SupportProblemReportRecord BuildReport()
     {
         return new SupportProblemReportRecord
