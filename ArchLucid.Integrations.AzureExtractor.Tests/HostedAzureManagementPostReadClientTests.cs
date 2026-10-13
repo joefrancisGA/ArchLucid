@@ -319,6 +319,91 @@ public sealed class HostedAzureManagementPostReadClientTests
     }
 
     [Fact]
+    public async Task TryQueryActualCostSummaryAsync_merges_paginated_rows_using_each_page_column_order()
+    {
+        const string subscriptionId = "11111111-1111-1111-1111-111111111111";
+        const string nextLink =
+            $"https://management.azure.com/subscriptions/{subscriptionId}/providers/Microsoft.CostManagement/query";
+
+        const string firstPageBody = """
+                                     {
+                                       "properties": {
+                                         "columns": [
+                                           { "name": "PreTaxCost", "type": "Number" },
+                                           { "name": "ServiceName", "type": "String" },
+                                           { "name": "Currency", "type": "String" }
+                                         ],
+                                         "rows": [
+                                           [ 10.0, "Storage", "USD" ]
+                                         ],
+                                         "nextLink": "COST_QUERY_NEXT_LINK"
+                                       }
+                                     }
+                                     """;
+
+        const string secondPageBody = """
+                                    {
+                                      "properties": {
+                                        "columns": [
+                                          { "name": "ServiceName", "type": "String" },
+                                          { "name": "PreTaxCost", "type": "Number" },
+                                          { "name": "Currency", "type": "String" }
+                                        ],
+                                        "rows": [
+                                          [ "Compute", 5.0, "USD" ]
+                                        ]
+                                      }
+                                    }
+                                    """;
+
+        int requestCount = 0;
+        HttpMessageHandler handler = new RecordingHandler(
+            (_, _) =>
+            {
+                int current = Interlocked.Increment(ref requestCount);
+
+                if (current == 1)
+                {
+                    return Task.FromResult(
+                        new HttpResponseMessage(HttpStatusCode.OK)
+                        {
+                            Content = new StringContent(
+                                firstPageBody.Replace("COST_QUERY_NEXT_LINK", nextLink, StringComparison.Ordinal),
+                                Encoding.UTF8,
+                                "application/json")
+                        });
+                }
+
+                if (current == 2)
+                {
+                    return Task.FromResult(
+                        new HttpResponseMessage(HttpStatusCode.OK)
+                        {
+                            Content = new StringContent(secondPageBody, Encoding.UTF8, "application/json")
+                        });
+                }
+
+                throw new InvalidOperationException("Unexpected Actual Cost request.");
+            });
+
+        HostedAzureManagementPostReadClient client = new(
+            new HttpClient(handler),
+            NullLogger<HostedAzureManagementPostReadClient>.Instance);
+
+        HostedAzureActualCostSummary? summary = await client.TryQueryActualCostSummaryAsync(
+            "token-abc",
+            subscriptionId,
+            CancellationToken.None);
+
+        Assert.Equal(2, requestCount);
+        Assert.NotNull(summary);
+        Assert.Equal(15.0, summary.TotalActualCostUsd);
+        Assert.Equal(2, summary.BreakdownByServiceName.Count);
+        Assert.Contains(summary.BreakdownByServiceName, row => row.ServiceName == "Storage" && row.PreTaxCost == 10.0);
+        Assert.Contains(summary.BreakdownByServiceName, row => row.ServiceName == "Compute" && row.PreTaxCost == 5.0);
+    }
+
+    [Fact]
     public async Task TryQueryActualCostSummaryAsync_parses_numeric_cost_cells_invariantly()
     {
         CultureInfo originalCulture = CultureInfo.CurrentCulture;

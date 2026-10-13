@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-13 seed hunt (seed→hit): `cloud-extractors` — promoted `HostedAzureManagementPostReadClient.MergeActualCostPages`; reachable multi-page Actual Cost responses merged every row with the first page’s `columns` indexes, so a later page with reordered columns mis-aggregated service names and costs; aggregate each page with that page’s column indexes; regression `TryQueryActualCostSummaryAsync_merges_paginated_rows_using_each_page_column_order`; AWS/GCP extractor tests passed 52/52; Azure extractor scope passed 138/138.
+
 2026-10-13 seed hunt (seed→hit): `cloud-extractors` — `HostedAzureInventoryResourcePropertyExpander.AddVirtualMachineNetworkProfileProperties` compacted `networkProfile.networkInterfaces[n]` when earlier VM NIC slots lacked `id`; consolidated per-slot indexing with `WriteIndexedTopLevelArmIds` (shared with private-endpoint `networkInterfaces`); regression `Expand_preserves_vm_network_profile_network_interface_index_when_earlier_slot_has_no_id`; AWS/GCP extractor tests passed 52/52; Azure extractor scope passed 137/137.
 
 2026-10-13 seed hunt (seed→hit): `cloud-extractors` — `HostedAzureInventoryResourcePropertyExpander.AddPrivateEndpointProperties` compacted `networkInterfaces[n]` when earlier private-endpoint NIC slots lacked `id`; per-slot index advancement; regression `Expand_preserves_private_endpoint_network_interface_index_when_earlier_slot_has_no_id`; AWS/GCP extractor tests passed 52/52; Azure extractor scope passed 136/136.
@@ -31696,6 +31698,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ## Zone: cloud-extractors
 
+2026-10-13 seed hunt (seed→hit): `MergeActualCostPages` used first-page column indexes for all paginated Actual Cost rows; fixed with per-page column resolution; regression `TryQueryActualCostSummaryAsync_merges_paginated_rows_using_each_page_column_order`; Azure extractor scope passed 138/138; AWS/GCP passed 52/52.
+
 2026-10-13 seed hunt (seed→hit): VM `networkProfile.networkInterfaces` indexing compacted when earlier slots lacked `id`; shared `WriteIndexedTopLevelArmIds` with private-endpoint NIC expansion; regression `Expand_preserves_vm_network_profile_network_interface_index_when_earlier_slot_has_no_id`; Azure extractor scope passed 137/137; AWS/GCP passed 52/52.
 
 2026-10-13 seed hunt (seed→hit): private endpoint `networkInterfaces` indexing compacted when earlier slots lacked `id`; per-slot index advancement; regression `Expand_preserves_private_endpoint_network_interface_index_when_earlier_slot_has_no_id`; Azure extractor scope passed 136/136; AWS/GCP passed 52/52.
@@ -31721,7 +31725,6 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 2026-10-12 seed hunt (seed-only): re-read the selected AWS, GCP, and Azure extractor paths after the culture-parsing fix; no candidate was promoted. AWS/GCP tests passed 52/52; Azure extractor scope passed 130/131 with the known network-association baseline failure.
 
 - (candidate) `GcpServiceAccountEmail.TryGetProjectId` — a reachable hosted GCP request `ServiceAccountEmail` containing an extra `@` before an otherwise valid `.iam.gserviceaccount.com` domain is accepted and passed into the impersonation URL; the downstream authentication outcome for this malformed email is not established in the selected files.
-- (candidate) `HostedAzureManagementPostReadClient.MergeActualCostPages` — a reachable multi-page Cost Management response whose later page reorders `columns` could be aggregated using the first page’s indexes; Azure’s pagination schema stability and any wrong cost outcome remain unverified in the selected files.
 
 2026-10-12 seed hunt (seed→hit): `HostedAzureManagementPostReadClient.ReadArrayCellDouble` parsed numeric Actual Cost cells with the current culture; a reachable `10.5` API value became `105` under `de-DE`. Fixed with `NumberStyles.Float` and `CultureInfo.InvariantCulture`; regression `TryQueryActualCostSummaryAsync_parses_numeric_cost_cells_invariantly` failed first and passed after the fix. AWS/GCP tests passed 52/52; Azure extractor scope passed 130/131 with the known network-association baseline failure.
 
@@ -31755,11 +31758,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** aws extractor; gcp extractor; azure extractor
 - **paths:** ArchLucid.Integrations.AwsExtractor/; ArchLucid.Integrations.GcpExtractor/; ArchLucid.Integrations.AzureExtractor/
 - **test-filter:** FullyQualifiedName~AwsExtractor|FullyQualifiedName~GcpExtractor|FullyQualifiedName~AzureExtractor
-- **hunts:** 103
-- **bugs-found:** 50
+- **hunts:** 104
+- **bugs-found:** 51
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-13
-- **last-bug:** 2026-10-13 — VM networkProfile.networkInterfaces index compaction (shared indexer)
+- **last-bug:** 2026-10-13 — Actual Cost pagination merged rows with first-page column indexes only
 - **related-pd-tb:** none
 - **code-changed-since:** 1
 
@@ -31788,7 +31791,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 ### Hypotheses
 
 - (candidate) `GcpServiceAccountEmail.TryGetProjectId` — a reachable `HostedGcpExtractorCollectionRequest.ServiceAccountEmail` with an extra `@` before a valid service-account domain passes project matching and reaches credential construction; the selected files do not establish a downstream authorization or collection wrong outcome.
-- (candidate) `HostedAzureManagementPostReadClient.MergeActualCostPages` — a reachable Actual Cost `nextLink` page with a different column order is merged using the first page’s indexes; the provider contract and resulting wrong cost summary are not established in the selected files.
+- [x] (proven) `HostedAzureManagementPostReadClient.MergeActualCostPages` — reachable multi-page Actual Cost responses merged every row with the first page’s `columns` indexes, so a later page with reordered columns mis-aggregated service names and costs — **hit 2026-10-13 seed hunt:** resolve `PreTaxCost` / `ServiceName` / `Currency` indexes per page; regression `TryQueryActualCostSummaryAsync_merges_paginated_rows_using_each_page_column_order`.
 
 - [x] (proven) `HostedAzureManagementPostReadClient.ReadArrayCellDouble` — Azure Cost Management emits numeric JSON cells using invariant JSON formatting, but `double.TryParse` used the process culture; a reachable `10.5` value was collected as `105` under `de-DE` — **hit 2026-10-12 seed hunt:** parse cost cells with `NumberStyles.Float` and `CultureInfo.InvariantCulture`; regression `TryQueryActualCostSummaryAsync_parses_numeric_cost_cells_invariantly`.
 
