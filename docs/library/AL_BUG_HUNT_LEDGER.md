@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-13 seed hunt (seed→hit): `application-tenancy-lifecycle` — promoted `TenantCatalogMigrationOrchestrator.RunVerificationAsync` post-probe mark path; `MarkVerificationResultAsync` still ran when erasure offboard completed after verification probe but before persisting probe outcome (post-probe audit re-read only); pre-mark `GetByIdAsync` quarantine guard; regression `RunVerificationAsync_returns_in_erasure_quarantine_without_marking_result_when_offboarded_after_probe_before_mark`; tightened post-probe audit race sequences; 223 scoped tenancy tests passed.
+
 2026-10-13 seed hunt (seed→hit): `application-tenancy-lifecycle` — promoted `TenantCatalogMigrationOrchestrator.RunVerificationAsync` post-stage-update probe path; `ITenantMigrationVerificationProbe.RunAsync` still ran when erasure offboard completed after `UpdateStageAsync` to `Verification` but before probe (entry quarantine re-read only); pre-probe-run `GetByIdAsync` guard; regression `RunVerificationAsync_returns_in_erasure_quarantine_without_probe_when_offboarded_after_stage_update_before_probe`; tightened post-probe race sequences; 222 scoped tenancy tests passed.
 
 2026-10-13 seed hunt (seed→hit): `application-tenancy-lifecycle` — promoted `TenantTrialIdentityHandoffStage.LinkEntraAsync` post-email-lookup identity link path; `TryLinkLocalIdentityToEntraAsync` still ran when erasure offboard completed after `GetByNormalizedEmailAsync` because pre-link quarantine re-read was dropped when pre-lookup guard landed; restored pre-link `GetByIdAsync` before `TryLinkLocalIdentityToEntraAsync`; regression `LinkEntraAsync_returns_success_without_identity_link_when_offboard_completes_after_email_lookup_before_link`; 221 scoped tenancy tests passed.
@@ -34694,11 +34696,15 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 115
-- **bugs-found:** 100
+- **hunts:** 116
+- **bugs-found:** 101
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-13
-- **last-bug:** 2026-10-13 — Catalog migration verification probe on quarantined tenant after stage advance
+- **last-bug:** 2026-10-13 — Catalog migration verification result mark on quarantined tenant after probe
+
+2026-10-13 seed hunt (seed→hit): reseeded catalog migration verification post-probe mark window; proved `MarkVerificationResultAsync` when offboard followed probe; pre-mark tenant re-read; regression `RunVerificationAsync_returns_in_erasure_quarantine_without_marking_result_when_offboarded_after_probe_before_mark`; 223 scoped tenancy tests passed.
+
+- [x] (proven) `TenantCatalogMigrationOrchestrator.RunVerificationAsync` — `MarkVerificationResultAsync` when erasure offboard after probe before mark — **hit 2026-10-13 seed hunt (seed→hit):** pre-mark `GetByIdAsync` quarantine guard; regression `RunVerificationAsync_returns_in_erasure_quarantine_without_marking_result_when_offboarded_after_probe_before_mark`.
 
 2026-10-13 seed hunt (seed→hit): reseeded catalog migration verification post-stage window; proved verification probe when offboard followed `UpdateStageAsync` to `Verification`; pre-probe-run tenant re-read; regression `RunVerificationAsync_returns_in_erasure_quarantine_without_probe_when_offboarded_after_stage_update_before_probe`; 222 scoped tenancy tests passed.
 

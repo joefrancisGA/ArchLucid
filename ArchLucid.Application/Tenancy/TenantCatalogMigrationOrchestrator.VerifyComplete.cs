@@ -50,6 +50,12 @@ public sealed partial class TenantCatalogMigrationOrchestrator
             .RunAsync(tenantId, cancellationToken)
             .ConfigureAwait(false);
 
+        TenantRecord? tenantBeforeMark =
+            await _tenantRepository.GetByIdAsync(tenantId, cancellationToken).ConfigureAwait(false);
+
+        if (tenantBeforeMark?.OffboardedUtc is not null)
+            return (TenantCatalogMigrationCommandOutcome.InErasureQuarantine, probe);
+
         DateTimeOffset utcNow = _timeProvider.GetUtcNow();
 
         await _migrationRepository
