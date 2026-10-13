@@ -115,11 +115,6 @@ public sealed class TenantProvisioningService(
                 // Default Advanced mode to OFF for new tenants to reduce cognitive load on first-run (Imp-2)
                 await _tenantSettingsRepository.UpsertAsync(tenantId, "archlucid_nav_show_advanced", "0", ct);
                 await _tenantSettingsRepository.UpsertAsync(tenantId, "archlucid_nav_show_extended", "0", ct);
-
-                if (request.FirstTouch is not null)
-                {
-                    await _marketingAttributionService.PersistFirstTouchIfPresentAsync(tenantId, request.FirstTouch, ct);
-                }
             }
             catch (Exception ex)
             {
@@ -141,6 +136,12 @@ public sealed class TenantProvisioningService(
                 DefaultProjectId = projectId,
                 WasAlreadyProvisioned = false,
             };
+        }
+
+        if (request.FirstTouch is not null)
+        {
+            await _marketingAttributionService.PersistFirstTouchIfPresentAsync(tenantId, request.FirstTouch, ct)
+                .ConfigureAwait(false);
         }
 
         string actor = string.IsNullOrWhiteSpace(request.AuditActorOverride) ? _actorContext.GetActor() : request.AuditActorOverride.Trim();
