@@ -71,7 +71,7 @@ public sealed class HostedAzureManagementPostReadClient(
                         "Hosted Azure extractor stopped ActualCost paging due to repeating nextLink for subscription {SubscriptionId}.",
                         subscriptionId);
 
-                    return null;
+                    break;
                 }
 
                 using HttpRequestMessage request = new(
@@ -97,6 +97,11 @@ public sealed class HostedAzureManagementPostReadClient(
                         subscriptionId,
                         (int)response.StatusCode,
                         Truncate(errorBody, 500));
+
+                    if (pages.Count > 0)
+                    {
+                        break;
+                    }
 
                     return null;
                 }
@@ -138,6 +143,12 @@ public sealed class HostedAzureManagementPostReadClient(
                 ex,
                 "Hosted Azure extractor skipped ActualCost for subscription {SubscriptionId}.",
                 subscriptionId);
+
+            // Retain merged pages when a follow-up response body is malformed; do not mask nextLink validation failures.
+            if (pages.Count > 0 && ex is JsonException)
+            {
+                return MergeActualCostPages(pages, "MonthToDate");
+            }
 
             return null;
         }
@@ -190,6 +201,11 @@ public sealed class HostedAzureManagementPostReadClient(
                         (int)response.StatusCode,
                         Truncate(errorBody, 500));
 
+                    if (records.Count > 0)
+                    {
+                        break;
+                    }
+
                     return CreateEmptyPolicyCompliance(scopeDescriptor, collectionTimestampUtc, records);
                 }
 
@@ -228,6 +244,11 @@ public sealed class HostedAzureManagementPostReadClient(
                 ex,
                 "Hosted Azure extractor policy compliance query failed for subscription {SubscriptionId}.",
                 subscriptionId);
+
+            if (records.Count == 0)
+            {
+                return CreateEmptyPolicyCompliance(scopeDescriptor, collectionTimestampUtc, records);
+            }
         }
 
         return new HostedAzurePolicyComplianceDocument
@@ -436,82 +457,81 @@ public sealed class HostedAzureManagementPostReadClient(
             return null;
         }
 
-        JsonElement? columns = null;
-        List<JsonElement> rows = [];
+        JsonElement? referenceColumns = null;
+        Dictionary<string, double> bucket = new(StringComparer.OrdinalIgnoreCase);
+        HashSet<string> currencies = new(StringComparer.OrdinalIgnoreCase);
+        bool aggregatedAnyRow = false;
 
         foreach (JsonElement page in pages)
         {
-            if (!page.TryGetProperty("properties", out JsonElement properties))
+            if (!page.TryGetProperty("properties", out JsonElement properties)
+                || !properties.TryGetProperty("columns", out JsonElement pageColumns))
             {
                 continue;
             }
 
-            if (columns is null && properties.TryGetProperty("columns", out JsonElement pageColumns))
+            if (referenceColumns is null)
             {
-                columns = pageColumns.Clone();
+                referenceColumns = pageColumns.Clone();
             }
 
-            if (properties.TryGetProperty("rows", out JsonElement pageRows)
-                && pageRows.ValueKind == JsonValueKind.Array)
-            {
-                foreach (JsonElement row in pageRows.EnumerateArray())
-                {
-                    rows.Add(row.Clone());
-                }
-            }
-        }
+            int preTaxIndex = FindColumnIndex(pageColumns, "PreTaxCost");
+            int serviceIndex = FindColumnIndex(pageColumns, "ServiceName");
+            int currencyIndex = FindColumnIndex(pageColumns, "Currency");
 
-        if (columns is null)
-        {
-            return null;
-        }
-
-        int preTaxIndex = FindColumnIndex(columns.Value, "PreTaxCost");
-        int serviceIndex = FindColumnIndex(columns.Value, "ServiceName");
-        int currencyIndex = FindColumnIndex(columns.Value, "Currency");
-
-        if (preTaxIndex < 0 || serviceIndex < 0)
-        {
-            return null;
-        }
-
-        Dictionary<string, double> bucket = new(StringComparer.OrdinalIgnoreCase);
-        HashSet<string> currencies = new(StringComparer.OrdinalIgnoreCase);
-
-        foreach (JsonElement row in rows)
-        {
-            if (row.ValueKind != JsonValueKind.Array)
+            if (preTaxIndex < 0 || serviceIndex < 0)
             {
                 continue;
             }
 
-            string serviceName = ReadArrayCell(row, serviceIndex);
-
-            if (string.IsNullOrWhiteSpace(serviceName))
+            if (!properties.TryGetProperty("rows", out JsonElement pageRows)
+                || pageRows.ValueKind is not JsonValueKind.Array)
             {
-                serviceName = "(unset-service-name)";
+                continue;
             }
 
-            double increment = ReadArrayCellDouble(row, preTaxIndex);
-
-            if (bucket.TryGetValue(serviceName, out double existing))
+            foreach (JsonElement row in pageRows.EnumerateArray())
             {
-                bucket[serviceName] = existing + increment;
-            }
-            else
-            {
-                bucket[serviceName] = increment;
-            }
-
-            if (currencyIndex >= 0)
-            {
-                string currency = ReadArrayCell(row, currencyIndex);
-
-                if (!string.IsNullOrWhiteSpace(currency))
+                if (row.ValueKind != JsonValueKind.Array)
                 {
-                    currencies.Add(currency.Trim());
+                    continue;
+                }
+
+                string serviceName = ReadArrayCell(row, serviceIndex);
+
+                if (string.IsNullOrWhiteSpace(serviceName))
+                {
+                    serviceName = "(unset-service-name)";
+                }
+
+                double increment = ReadArrayCellDouble(row, preTaxIndex);
+
+                if (bucket.TryGetValue(serviceName, out double existing))
+                {
+                    bucket[serviceName] = existing + increment;
+                }
+                else
+                {
+                    bucket[serviceName] = increment;
+                }
+
+                aggregatedAnyRow = true;
+
+                if (currencyIndex >= 0)
+                {
+                    string currency = ReadArrayCell(row, currencyIndex);
+
+                    if (!string.IsNullOrWhiteSpace(currency))
+                    {
+                        currencies.Add(currency.Trim());
+                    }
                 }
             }
+        }
+
+        if (referenceColumns is null || !aggregatedAnyRow)
+        {
+            return null;
         }
 
         double total = bucket.Values.Sum();

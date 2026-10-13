@@ -108,8 +108,19 @@ public sealed class BillingCheckoutFacade(
     public async Task<BillingSubscriptionStatusQueryResult> GetSubscriptionStatusAsync(CancellationToken cancellationToken = default)
     {
         BillingSubscriptionSnapshot? snapshot = await _billingLedger.TryGetSubscriptionAsync(_scopeProvider.GetCurrentScope().TenantId, cancellationToken);
-        if (snapshot is null) return new BillingSubscriptionStatusQueryResult { HasSubscription = false, IsPaymentPastDue = false };
-        return new BillingSubscriptionStatusQueryResult { HasSubscription = true, Provider = snapshot.Provider, TierCode = snapshot.TierCode, Status = snapshot.Status, IsPaymentPastDue = string.Equals(snapshot.Status, "Suspended", StringComparison.OrdinalIgnoreCase) };
+        if (snapshot is null)
+            return new BillingSubscriptionStatusQueryResult { HasSubscription = false, IsPaymentPastDue = false };
+
+        bool hasSubscription = HasSubscriptionForStatusQuery(snapshot.Status);
+
+        return new BillingSubscriptionStatusQueryResult
+        {
+            HasSubscription = hasSubscription,
+            Provider = hasSubscription ? snapshot.Provider : null,
+            TierCode = hasSubscription ? snapshot.TierCode : null,
+            Status = snapshot.Status,
+            IsPaymentPastDue = string.Equals(snapshot.Status, "Suspended", StringComparison.OrdinalIgnoreCase),
+        };
     }
 
     public async Task<MarketplaceWebhookTestResult> TestMarketplaceWebhookAsync(string actorUserName, CancellationToken cancellationToken = default)
@@ -165,6 +176,14 @@ public sealed class BillingCheckoutFacade(
     }
 
     private static bool BlocksNewCheckout(string status) =>
+        string.Equals(status, "Active", StringComparison.OrdinalIgnoreCase)
+        || string.Equals(status, "Suspended", StringComparison.OrdinalIgnoreCase);
+
+    /// <summary>
+    ///     Operator subscription status treats only live or past-due rows as subscribed; abandoned checkouts stay
+    ///     <c>Pending</c> and must not read as an active paid plan.
+    /// </summary>
+    private static bool HasSubscriptionForStatusQuery(string? status) =>
         string.Equals(status, "Active", StringComparison.OrdinalIgnoreCase)
         || string.Equals(status, "Suspended", StringComparison.OrdinalIgnoreCase);
 }

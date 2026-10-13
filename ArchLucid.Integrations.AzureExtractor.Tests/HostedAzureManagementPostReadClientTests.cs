@@ -319,6 +319,421 @@ public sealed class HostedAzureManagementPostReadClientTests
     }
 
     [Fact]
+    public async Task TryQueryActualCostSummaryAsync_merges_paginated_rows_using_each_page_column_order()
+    {
+        const string subscriptionId = "11111111-1111-1111-1111-111111111111";
+        const string nextLink =
+            $"https://management.azure.com/subscriptions/{subscriptionId}/providers/Microsoft.CostManagement/query";
+
+        const string firstPageBody = """
+                                     {
+                                       "properties": {
+                                         "columns": [
+                                           { "name": "PreTaxCost", "type": "Number" },
+                                           { "name": "ServiceName", "type": "String" },
+                                           { "name": "Currency", "type": "String" }
+                                         ],
+                                         "rows": [
+                                           [ 10.0, "Storage", "USD" ]
+                                         ],
+                                         "nextLink": "COST_QUERY_NEXT_LINK"
+                                       }
+                                     }
+                                     """;
+
+        const string secondPageBody = """
+                                    {
+                                      "properties": {
+                                        "columns": [
+                                          { "name": "ServiceName", "type": "String" },
+                                          { "name": "PreTaxCost", "type": "Number" },
+                                          { "name": "Currency", "type": "String" }
+                                        ],
+                                        "rows": [
+                                          [ "Compute", 5.0, "USD" ]
+                                        ]
+                                      }
+                                    }
+                                    """;
+
+        int requestCount = 0;
+        HttpMessageHandler handler = new RecordingHandler(
+            (_, _) =>
+            {
+                int current = Interlocked.Increment(ref requestCount);
+
+                if (current == 1)
+                {
+                    return Task.FromResult(
+                        new HttpResponseMessage(HttpStatusCode.OK)
+                        {
+                            Content = new StringContent(
+                                firstPageBody.Replace("COST_QUERY_NEXT_LINK", nextLink, StringComparison.Ordinal),
+                                Encoding.UTF8,
+                                "application/json")
+                        });
+                }
+
+                if (current == 2)
+                {
+                    return Task.FromResult(
+                        new HttpResponseMessage(HttpStatusCode.OK)
+                        {
+                            Content = new StringContent(secondPageBody, Encoding.UTF8, "application/json")
+                        });
+                }
+
+                throw new InvalidOperationException("Unexpected Actual Cost request.");
+            });
+
+        HostedAzureManagementPostReadClient client = new(
+            new HttpClient(handler),
+            NullLogger<HostedAzureManagementPostReadClient>.Instance);
+
+        HostedAzureActualCostSummary? summary = await client.TryQueryActualCostSummaryAsync(
+            "token-abc",
+            subscriptionId,
+            CancellationToken.None);
+
+        Assert.Equal(2, requestCount);
+        Assert.NotNull(summary);
+        Assert.Equal(15.0, summary.TotalActualCostUsd);
+        Assert.Equal(2, summary.BreakdownByServiceName.Count);
+        Assert.Contains(summary.BreakdownByServiceName, row => row.ServiceName == "Storage" && row.PreTaxCost == 10.0);
+        Assert.Contains(summary.BreakdownByServiceName, row => row.ServiceName == "Compute" && row.PreTaxCost == 5.0);
+    }
+
+    [Fact]
+    public async Task TryQueryActualCostSummaryAsync_retains_merged_cost_when_later_page_body_is_invalid_json()
+    {
+        const string subscriptionId = "11111111-1111-1111-1111-111111111111";
+        const string nextLink =
+            $"https://management.azure.com/subscriptions/{subscriptionId}/providers/Microsoft.CostManagement/query";
+
+        const string firstPageBody = """
+                                     {
+                                       "properties": {
+                                         "columns": [
+                                           { "name": "PreTaxCost", "type": "Number" },
+                                           { "name": "ServiceName", "type": "String" },
+                                           { "name": "Currency", "type": "String" }
+                                         ],
+                                         "rows": [
+                                           [ 10.0, "Storage", "USD" ]
+                                         ],
+                                         "nextLink": "COST_QUERY_NEXT_LINK"
+                                       }
+                                     }
+                                     """;
+
+        int requestCount = 0;
+
+        HttpMessageHandler handler = new RecordingHandler(
+            (_, _) =>
+            {
+                int current = Interlocked.Increment(ref requestCount);
+
+                if (current == 1)
+                {
+                    return Task.FromResult(
+                        new HttpResponseMessage(HttpStatusCode.OK)
+                        {
+                            Content = new StringContent(
+                                firstPageBody.Replace("COST_QUERY_NEXT_LINK", nextLink, StringComparison.Ordinal),
+                                Encoding.UTF8,
+                                "application/json")
+                        });
+                }
+
+                return Task.FromResult(
+                    new HttpResponseMessage(HttpStatusCode.OK)
+                    {
+                        Content = new StringContent("{ not-json", Encoding.UTF8, "application/json")
+                    });
+            });
+
+        HostedAzureManagementPostReadClient client = new(
+            new HttpClient(handler),
+            NullLogger<HostedAzureManagementPostReadClient>.Instance);
+
+        HostedAzureActualCostSummary? summary = await client.TryQueryActualCostSummaryAsync(
+            "token-abc",
+            subscriptionId,
+            CancellationToken.None);
+
+        Assert.Equal(2, requestCount);
+        Assert.NotNull(summary);
+        Assert.Equal(10.0, summary.TotalActualCostUsd);
+        Assert.Single(summary.BreakdownByServiceName);
+    }
+
+    [Fact]
+    public async Task QueryPolicyComplianceAsync_uses_empty_collection_reader_note_when_first_page_body_is_invalid_json()
+    {
+        const string subscriptionId = "11111111-1111-1111-1111-111111111111";
+
+        HttpMessageHandler handler = new RecordingHandler(
+            (_, _) => Task.FromResult(
+                new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent("{ not-json", Encoding.UTF8, "application/json")
+                }));
+
+        HostedAzureManagementPostReadClient client = new(
+            new HttpClient(handler),
+            NullLogger<HostedAzureManagementPostReadClient>.Instance);
+
+        HostedAzurePolicyComplianceDocument document = await client.QueryPolicyComplianceAsync(
+            "token-abc",
+            subscriptionId,
+            "subscription",
+            "2026-09-26T00:00:00Z",
+            CancellationToken.None);
+
+        Assert.Equal(0, document.RecordCount);
+        Assert.Contains("empty records", document.ReaderNote, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public async Task QueryPolicyComplianceAsync_retains_records_when_later_page_body_is_invalid_json()
+    {
+        const string subscriptionId = "11111111-1111-1111-1111-111111111111";
+        const string nextLink =
+            $"https://management.azure.com/subscriptions/{subscriptionId}/providers/Microsoft.PolicyInsights/policyStates/latest/queryResults?api-version=2019-10-01&$skiptoken=page2";
+
+        const string firstPageBody = """
+                                     {
+                                       "value": [
+                                         {
+                                           "policyAssignmentId": "policy-1",
+                                           "complianceState": "Compliant"
+                                         }
+                                       ],
+                                       "@odata.nextLink": "POLICY_QUERY_NEXT_LINK"
+                                     }
+                                     """;
+
+        int requestCount = 0;
+
+        HttpMessageHandler handler = new RecordingHandler(
+            (_, _) =>
+            {
+                int current = Interlocked.Increment(ref requestCount);
+
+                if (current == 1)
+                {
+                    return Task.FromResult(
+                        new HttpResponseMessage(HttpStatusCode.OK)
+                        {
+                            Content = new StringContent(
+                                firstPageBody.Replace("POLICY_QUERY_NEXT_LINK", nextLink, StringComparison.Ordinal),
+                                Encoding.UTF8,
+                                "application/json")
+                        });
+                }
+
+                return Task.FromResult(
+                    new HttpResponseMessage(HttpStatusCode.OK)
+                    {
+                        Content = new StringContent("{ not-json", Encoding.UTF8, "application/json")
+                    });
+            });
+
+        HostedAzureManagementPostReadClient client = new(
+            new HttpClient(handler),
+            NullLogger<HostedAzureManagementPostReadClient>.Instance);
+
+        HostedAzurePolicyComplianceDocument document = await client.QueryPolicyComplianceAsync(
+            "token-abc",
+            subscriptionId,
+            "subscription",
+            "2026-09-26T00:00:00Z",
+            CancellationToken.None);
+
+        Assert.Equal(2, requestCount);
+        Assert.Equal(1, document.RecordCount);
+        Assert.Single(document.Records);
+        Assert.DoesNotContain("empty records", document.ReaderNote, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public async Task QueryPolicyComplianceAsync_retains_records_with_accurate_reader_note_when_later_page_fails()
+    {
+        const string subscriptionId = "11111111-1111-1111-1111-111111111111";
+        const string nextLink =
+            $"https://management.azure.com/subscriptions/{subscriptionId}/providers/Microsoft.PolicyInsights/policyStates/latest/queryResults?api-version=2019-10-01&$skiptoken=page2";
+
+        const string firstPageBody = """
+                                     {
+                                       "value": [
+                                         {
+                                           "policyAssignmentId": "policy-1",
+                                           "complianceState": "Compliant"
+                                         }
+                                       ],
+                                       "@odata.nextLink": "POLICY_QUERY_NEXT_LINK"
+                                     }
+                                     """;
+
+        int requestCount = 0;
+
+        HttpMessageHandler handler = new RecordingHandler(
+            (_, _) =>
+            {
+                int current = Interlocked.Increment(ref requestCount);
+
+                if (current == 1)
+                {
+                    return Task.FromResult(
+                        new HttpResponseMessage(HttpStatusCode.OK)
+                        {
+                            Content = new StringContent(
+                                firstPageBody.Replace("POLICY_QUERY_NEXT_LINK", nextLink, StringComparison.Ordinal),
+                                Encoding.UTF8,
+                                "application/json")
+                        });
+                }
+
+                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.InternalServerError));
+            });
+
+        HostedAzureManagementPostReadClient client = new(
+            new HttpClient(handler),
+            NullLogger<HostedAzureManagementPostReadClient>.Instance);
+
+        HostedAzurePolicyComplianceDocument document = await client.QueryPolicyComplianceAsync(
+            "token-abc",
+            subscriptionId,
+            "subscription",
+            "2026-09-26T00:00:00Z",
+            CancellationToken.None);
+
+        Assert.Equal(2, requestCount);
+        Assert.Equal(1, document.RecordCount);
+        Assert.Single(document.Records);
+        Assert.DoesNotContain("empty records", document.ReaderNote, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public async Task TryQueryActualCostSummaryAsync_retains_merged_cost_when_later_page_fails()
+    {
+        const string subscriptionId = "11111111-1111-1111-1111-111111111111";
+        const string nextLink =
+            $"https://management.azure.com/subscriptions/{subscriptionId}/providers/Microsoft.CostManagement/query";
+
+        const string firstPageBody = """
+                                     {
+                                       "properties": {
+                                         "columns": [
+                                           { "name": "PreTaxCost", "type": "Number" },
+                                           { "name": "ServiceName", "type": "String" },
+                                           { "name": "Currency", "type": "String" }
+                                         ],
+                                         "rows": [
+                                           [ 10.0, "Storage", "USD" ]
+                                         ],
+                                         "nextLink": "COST_QUERY_NEXT_LINK"
+                                       }
+                                     }
+                                     """;
+
+        int requestCount = 0;
+
+        HttpMessageHandler handler = new RecordingHandler(
+            (_, _) =>
+            {
+                int current = Interlocked.Increment(ref requestCount);
+
+                if (current == 1)
+                {
+                    return Task.FromResult(
+                        new HttpResponseMessage(HttpStatusCode.OK)
+                        {
+                            Content = new StringContent(
+                                firstPageBody.Replace("COST_QUERY_NEXT_LINK", nextLink, StringComparison.Ordinal),
+                                Encoding.UTF8,
+                                "application/json")
+                        });
+                }
+
+                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.InternalServerError));
+            });
+
+        HostedAzureManagementPostReadClient client = new(
+            new HttpClient(handler),
+            NullLogger<HostedAzureManagementPostReadClient>.Instance);
+
+        HostedAzureActualCostSummary? summary = await client.TryQueryActualCostSummaryAsync(
+            "token-abc",
+            subscriptionId,
+            CancellationToken.None);
+
+        Assert.Equal(2, requestCount);
+        Assert.NotNull(summary);
+        Assert.Equal(10.0, summary.TotalActualCostUsd);
+        Assert.Single(summary.BreakdownByServiceName);
+    }
+
+    [Fact]
+    public async Task TryQueryActualCostSummaryAsync_retains_merged_cost_when_next_link_repeats()
+    {
+        const string subscriptionId = "11111111-1111-1111-1111-111111111111";
+        const string repeatingNextLink =
+            $"https://management.azure.com/subscriptions/{subscriptionId}/providers/Microsoft.CostManagement/query?api-version=2023-03-01&$skiptoken=repeat";
+
+        string pageBody = """
+                          {
+                            "properties": {
+                              "columns": [
+                                { "name": "PreTaxCost", "type": "Number" },
+                                { "name": "ServiceName", "type": "String" },
+                                { "name": "Currency", "type": "String" }
+                              ],
+                              "rows": [
+                                [ 10.0, "Storage", "USD" ]
+                              ],
+                              "nextLink": "REPEATING_LINK"
+                            }
+                          }
+                          """.Replace("REPEATING_LINK", repeatingNextLink, StringComparison.Ordinal);
+
+        int requestCount = 0;
+
+        HttpMessageHandler handler = new RecordingHandler(
+            (_, _) =>
+            {
+                int current = Interlocked.Increment(ref requestCount);
+
+                if (current > 3)
+                {
+                    throw new InvalidOperationException(
+                        "Test hang guard: ActualCost query did not stop on repeating nextLink.");
+                }
+
+                return Task.FromResult(
+                    new HttpResponseMessage(HttpStatusCode.OK)
+                    {
+                        Content = new StringContent(pageBody, Encoding.UTF8, "application/json")
+                    });
+            });
+
+        HostedAzureManagementPostReadClient client = new(
+            new HttpClient(handler),
+            NullLogger<HostedAzureManagementPostReadClient>.Instance);
+
+        HostedAzureActualCostSummary? summary = await client.TryQueryActualCostSummaryAsync(
+            "token-abc",
+            subscriptionId,
+            CancellationToken.None);
+
+        Assert.Equal(2, requestCount);
+        Assert.NotNull(summary);
+        Assert.Equal(20.0, summary.TotalActualCostUsd);
+        Assert.Single(summary.BreakdownByServiceName);
+        Assert.Equal("Storage", summary.BreakdownByServiceName[0].ServiceName);
+    }
+
+    [Fact]
     public async Task TryQueryActualCostSummaryAsync_parses_numeric_cost_cells_invariantly()
     {
         CultureInfo originalCulture = CultureInfo.CurrentCulture;

@@ -46,14 +46,18 @@ internal static class GcpAssetInventoryCollector
 
             if (requestCount > MaxPaginationRequests)
             {
-                throw new InvalidOperationException(
-                    $"Hosted GCP extractor stopped Asset search listing after {MaxPaginationRequests} pages.");
+                break;
             }
 
             foreach (ResourceSearchResult item in page.Results)
             {
+                if (string.IsNullOrWhiteSpace(item.Name))
+                {
+                    continue;
+                }
+
                 resources.Add(new GcpInventoryResourceEntry(
-                    item.Name ?? string.Empty,
+                    item.Name.Trim(),
                     item.AssetType ?? string.Empty,
                     item.Location ?? string.Empty,
                     null));

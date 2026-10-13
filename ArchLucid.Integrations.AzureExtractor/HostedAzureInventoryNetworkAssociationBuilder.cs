@@ -1022,10 +1022,18 @@ internal static class HostedAzureInventoryNetworkAssociationBuilder
         }
 
         List<string> values = [];
+        bool hasIndexedKeys = properties.Keys.Any(
+            key => key.StartsWith($"{propertyKeyPrefix}[", StringComparison.OrdinalIgnoreCase));
 
         foreach (KeyValuePair<string, object?> property in properties)
         {
-            if (!property.Key.StartsWith(propertyKeyPrefix, StringComparison.OrdinalIgnoreCase))
+            if (!IsDelimitedPropertyKey(property.Key, propertyKeyPrefix))
+            {
+                continue;
+            }
+
+            if (hasIndexedKeys
+                && property.Key.Equals(propertyKeyPrefix, StringComparison.OrdinalIgnoreCase))
             {
                 continue;
             }
@@ -1038,7 +1046,9 @@ internal static class HostedAzureInventoryNetworkAssociationBuilder
             }
         }
 
-        if (values.Count == 0 && properties.TryGetValue(propertyKeyPrefix, out object? singleValue))
+        if (values.Count == 0
+            && !hasIndexedKeys
+            && properties.TryGetValue(propertyKeyPrefix, out object? singleValue))
         {
             string? text = singleValue?.ToString();
 
@@ -1052,6 +1062,16 @@ internal static class HostedAzureInventoryNetworkAssociationBuilder
         {
             yield return value;
         }
+    }
+
+    private static bool IsDelimitedPropertyKey(string propertyKey, string propertyKeyPrefix)
+    {
+        if (propertyKey.Equals(propertyKeyPrefix, StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
+        return propertyKey.StartsWith($"{propertyKeyPrefix}[", StringComparison.OrdinalIgnoreCase);
     }
 
     private static string? TryReadSubnetId(JsonElement subnet)

@@ -224,6 +224,54 @@ public sealed class SecureNowQuestionCompilerTests
     }
 
     [Fact]
+    public void Dispositions_with_question_keys_differing_only_by_case_compile_without_failure()
+    {
+        SecureNowQuestionCompiler compiler = new();
+        AzureInventorySnapshotDetailReadModel snapshot = CreateSnapshot();
+        const string resourceId = "/subscriptions/sub/resource";
+        const string problem = "peer";
+        string fingerprint = Fingerprint("unknown-evidence@v1", resourceId, problem);
+        SecureNowQuestionDispositionRecord older = new()
+        {
+            DispositionId = Guid.NewGuid(),
+            TenantId = Scope.TenantId,
+            SnapshotId = SnapshotId,
+            SubscriptionId = "sub",
+            ResourceId = resourceId,
+            QuestionKey = "unknown-evidence@v1",
+            Status = SecureNowQuestionDispositionStatus.Ignored,
+            EvidenceFingerprint = fingerprint,
+            Reason = "Older.",
+            ExpirationUtc = DateTime.UtcNow.AddDays(10),
+            UpdatedUtc = DateTime.UtcNow.AddDays(-1),
+        };
+        SecureNowQuestionDispositionRecord newer = older with
+        {
+            DispositionId = Guid.NewGuid(),
+            QuestionKey = "Unknown-Evidence@v1",
+            UpdatedUtc = DateTime.UtcNow,
+        };
+
+        IReadOnlyList<SecureNowQuestionRecord> questions = compiler.Compile(
+            Scope,
+            snapshot,
+            [
+                new SecureNowDiagramQuestionCandidate
+                {
+                    ResourceId = resourceId,
+                    IsUnknownEvidence = true,
+                    ProblemText = problem,
+                },
+            ],
+            [],
+            [older, newer]);
+
+        questions.Should().ContainSingle();
+        questions[0].Status.Should().Be(SecureNowQuestionDispositionStatus.Ignored);
+        questions[0].DispositionId.Should().Be(newer.DispositionId);
+    }
+
+    [Fact]
     public void A_matching_disposition_is_joined_without_creating_a_second_row()
     {
         SecureNowQuestionCompiler compiler = new();

@@ -172,9 +172,13 @@ export function GovernanceFindingsQueueTableRow(props: GovernanceFindingsQueueTa
             ) : null}
           </EnterpriseTableCell>
           <EnterpriseTableCell>
-            <Link className={OPERATOR_LINK.inline} href={`/architecture/reviews/${encodeURIComponent(row.runId)}`}>
-              {row.runLabel}
-            </Link>
+            {row.runId.trim().length > 0 ? (
+              <Link className={OPERATOR_LINK.inline} href={`/architecture/reviews/${encodeURIComponent(row.runId)}`}>
+                {row.runLabel}
+              </Link>
+            ) : (
+              row.runLabel
+            )}
           </EnterpriseTableCell>
           <EnterpriseTableCell>
             <StatusTag kind={governanceQueueStatusTagKind(row.status)} label={row.status} />

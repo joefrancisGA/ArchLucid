@@ -43,15 +43,18 @@ public sealed partial class GovernanceController
         CancellationToken cancellationToken)
     {
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-        string actor = actorContext.GetActor();
+        // AuditService replaces ActorUserId with NameIdentifier unless ExplicitActor is set.
+        string actorUserId = actorContext.GetActorId();
+        string actorUserName = actorContext.GetActor();
         byte[] keyHash = ArchitectureRunIdempotencyHashing.HashIdempotencyKey(idempotencyKey);
 
         await _auditService.LogAsync(
             new AuditEvent
             {
                 EventType = AuditEventTypes.GovernanceApprovalRequested,
-                ActorUserId = actor,
-                ActorUserName = actor,
+                ExplicitActor = true,
+                ActorUserId = actorUserId,
+                ActorUserName = actorUserName,
                 TenantId = scope.TenantId,
                 WorkspaceId = scope.WorkspaceId,
                 ProjectId = scope.ProjectId,

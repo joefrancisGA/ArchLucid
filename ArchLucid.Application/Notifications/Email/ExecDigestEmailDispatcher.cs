@@ -72,8 +72,8 @@ public sealed class ExecDigestEmailDispatcher(
         if (string.IsNullOrWhiteSpace(composition.SponsorValueReportUrl))
             throw new ArgumentException("Sponsor value report URL is required.", nameof(composition));
 
-        string normalizedDashboardUrl = composition.DashboardUrl.Trim();
-        string normalizedSponsorValueReportUrl = composition.SponsorValueReportUrl.Trim();
+        string normalizedDashboardUrl = EmailBrandingUrls.SanitizeOperatorAbsoluteUrl(composition.DashboardUrl);
+        string normalizedSponsorValueReportUrl = EmailBrandingUrls.SanitizeOperatorAbsoluteUrl(composition.SponsorValueReportUrl);
         string normalizedUnsubscribeUrl = EmailBrandingUrls.SanitizeOperatorAbsoluteUrl(unsubscribeAbsoluteUrl);
 
         EmailNotificationOptions emailOptions = _emailOptionsMonitor.CurrentValue;

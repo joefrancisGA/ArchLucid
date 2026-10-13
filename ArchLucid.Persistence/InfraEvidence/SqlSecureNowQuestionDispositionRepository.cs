@@ -179,7 +179,7 @@ public sealed class SqlSecureNowQuestionDispositionRepository(ISqlConnectionFact
         string resourceId,
         string questionKey) =>
         SHA256.HashData(Encoding.UTF8.GetBytes(
-            $"{subscriptionId.Trim().ToLowerInvariant()}\n{resourceId.Trim().ToLowerInvariant()}\n{questionKey.Trim()}"));
+            $"{subscriptionId.Trim().ToLowerInvariant()}\n{resourceId.Trim().ToLowerInvariant()}\n{questionKey.Trim().ToLowerInvariant()}"));
 
     private sealed class DispositionRow
     {

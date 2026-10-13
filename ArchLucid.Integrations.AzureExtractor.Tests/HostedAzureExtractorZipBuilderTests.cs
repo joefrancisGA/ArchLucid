@@ -14,7 +14,7 @@ public sealed class HostedAzureExtractorZipBuilderTests
     [Theory]
     [InlineData(false)]
     [InlineData(true)]
-    public void BuildZip_preserves_hidden_resources_properties_and_exact_association_endpoints(bool managementGroupScope)
+    public void BuildZip_omits_never_show_arm_types_from_resources_json_but_preserves_associations(bool managementGroupScope)
     {
         const string prefix = "/subscriptions/sub/resourceGroups/rg/providers/";
         const string nicId = prefix + "Microsoft.Network/networkInterfaces/pe-nic";
@@ -43,11 +43,11 @@ public sealed class HostedAzureExtractorZipBuilderTests
         using MemoryStream stream = new(zipBytes);
         AzureExtractorPackageInventoryReadResult inventory = AzureExtractorPackageInventoryReader.TryReadFromZip(stream);
         Assert.True(inventory.Succeeded);
-        Assert.Equal(resources.Count, inventory.Resources.Count);
-        foreach (HostedAzureArmResourceRecord resource in resources)
-        {
-            Assert.Contains(inventory.Resources, row => row.AzureResourceId == resource.ResourceId);
-        }
+        Assert.Equal(2, inventory.Resources.Count);
+        Assert.Contains(inventory.Resources, row => row.AzureResourceId == peId);
+        Assert.Contains(inventory.Resources, row => row.AzureResourceId == nicId);
+        Assert.DoesNotContain(inventory.Resources, row => row.ResourceType.Contains("virtualNetworkLinks", StringComparison.Ordinal));
+        Assert.DoesNotContain(inventory.Resources, row => row.ResourceType.Contains("userAssignedIdentities", StringComparison.Ordinal));
 
         Assert.Equal("Succeeded", Assert.Single(inventory.Resources, row => row.AzureResourceId == nicId).Properties["provisioningState"]);
         JsonElement association = Assert.Single(inventory.NetworkAssociations);
@@ -57,7 +57,7 @@ public sealed class HostedAzureExtractorZipBuilderTests
         using ZipArchive archive = new(stream, ZipArchiveMode.Read);
         using Stream manifestStream = archive.GetEntry("manifest.json")!.Open();
         using JsonDocument manifest = JsonDocument.Parse(manifestStream);
-        Assert.Equal(resources.Count, manifest.RootElement.GetProperty("resourceCount").GetInt32());
+        Assert.Equal(2, manifest.RootElement.GetProperty("resourceCount").GetInt32());
     }
 
     [Fact]

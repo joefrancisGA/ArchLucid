@@ -47,6 +47,32 @@ public sealed class AdminFleetLlmCogsServiceTests
     }
 
     [SkippableFact]
+    public async Task BuildDashboardAsync_marks_warn_when_pressure_exceeds_included_warn_threshold_before_hard_cap_utilization()
+    {
+        Guid tenantId = Guid.Parse("66666666-6666-6666-6666-666666666666");
+        InMemoryLlmTenantBudgetRepository repository = new();
+        await SettleMonthlySpendAsync(repository, tenantId, 40m);
+        AdminFleetLlmCogsService sut = CreateService(
+            [Tenant(tenantId, "Zeta")],
+            repository,
+            new LlmMonthlyTenantDollarBudgetOptions
+            {
+                Enabled = true,
+                IncludedUsdPerUtcMonth = 50m,
+                HardCutoffUsdPerUtcMonth = 100m,
+                WarnFraction = 0.75m,
+            });
+
+        AdminFleetLlmCogsDashboardResponse result = await sut.BuildDashboardAsync();
+
+        AdminFleetLlmCogsRowResponse row = result.Rows.Should().ContainSingle().Subject;
+        row.BudgetWarningUsdUtcMonth.Should().Be(37.5m);
+        row.GrossMarginRiskLabel.Should().Be("warn");
+        row.BudgetCompletionLabel.Should().Be("near-threshold");
+        result.BudgetWarningTenantCount.Should().Be(1);
+    }
+
+    [SkippableFact]
     public async Task BuildDashboardAsync_WhenNearThreshold_ReturnsWarnCompletionSignal()
     {
         Guid tenantId = Guid.Parse("22222222-2222-2222-2222-222222222222");
@@ -78,6 +104,53 @@ public sealed class AdminFleetLlmCogsServiceTests
         row.BudgetCompletionLabel.Should().Be("hard-stop");
         row.BlocksAdditionalLlmExecution.Should().BeTrue();
         result.HardStopTenantCount.Should().Be(1);
+    }
+
+    [SkippableFact]
+    public async Task BuildDashboardAsync_marks_warn_when_pressure_exceeds_included_allowance_threshold()
+    {
+        Guid tenantId = Guid.Parse("66666666-6666-6666-6666-666666666666");
+        InMemoryLlmTenantBudgetRepository repository = new();
+        await SettleMonthlySpendAsync(repository, tenantId, 40m);
+        AdminFleetLlmCogsService sut = CreateService(
+            [Tenant(tenantId, "Zeta")],
+            repository,
+            new LlmMonthlyTenantDollarBudgetOptions
+            {
+                Enabled = true,
+                IncludedUsdPerUtcMonth = 50m,
+                HardCutoffUsdPerUtcMonth = 100m,
+                WarnFraction = 0.75m,
+            });
+
+        AdminFleetLlmCogsDashboardResponse result = await sut.BuildDashboardAsync();
+
+        AdminFleetLlmCogsRowResponse row = result.Rows.Should().ContainSingle().Subject;
+        row.BudgetWarningUsdUtcMonth.Should().Be(37.5m);
+        row.GrossMarginRiskLabel.Should().Be("warn");
+        row.BudgetCompletionLabel.Should().Be("near-threshold");
+        result.BudgetWarningTenantCount.Should().Be(1);
+    }
+
+    [SkippableFact]
+    public async Task BuildDashboardAsync_clamps_warn_fraction_to_match_tenant_budget_status()
+    {
+        Guid tenantId = Guid.Parse("55555555-5555-5555-5555-555555555555");
+        AdminFleetLlmCogsService sut = CreateService(
+            [Tenant(tenantId, "Epsilon")],
+            new InMemoryLlmTenantBudgetRepository(),
+            new LlmMonthlyTenantDollarBudgetOptions
+            {
+                Enabled = true,
+                IncludedUsdPerUtcMonth = 50m,
+                HardCutoffUsdPerUtcMonth = 100m,
+                WarnFraction = 0.001m,
+            });
+
+        AdminFleetLlmCogsDashboardResponse result = await sut.BuildDashboardAsync();
+
+        AdminFleetLlmCogsRowResponse row = result.Rows.Should().ContainSingle().Subject;
+        row.BudgetWarningUsdUtcMonth.Should().Be(0.5m);
     }
 
     [SkippableFact]

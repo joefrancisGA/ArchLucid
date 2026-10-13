@@ -47,6 +47,31 @@ public sealed class SecureNowQuestionDispositionServiceTests
     }
 
     [Fact]
+    public async Task Question_key_is_case_insensitive_on_ignore()
+    {
+        InMemoryDispositionRepository repository = new();
+        SecureNowQuestionDispositionService sut = CreateSut(repository);
+
+        await sut.IgnoreAsync(
+            Scope,
+            SnapshotId,
+            CreateWriteRequest("sub-1", "/subscriptions/sub-1/resourceGroups/rg/resource")
+                with { QuestionKey = "orphan-still-needed@v1" },
+            "actor");
+
+        SecureNowQuestionDispositionMutationResult second = await sut.IgnoreAsync(
+            Scope,
+            SnapshotId,
+            CreateWriteRequest("sub-1", "/subscriptions/sub-1/resourceGroups/rg/resource")
+                with { QuestionKey = "Orphan-Still-Needed@v1", Reason = "Second write." },
+            "actor");
+
+        second.Succeeded.Should().BeTrue();
+        repository.Rows.Should().ContainSingle();
+        repository.Rows[0].QuestionKey.Should().Be("orphan-still-needed@v1");
+    }
+
+    [Fact]
     public async Task Resource_identity_is_case_insensitive()
     {
         InMemoryDispositionRepository repository = new();
@@ -433,7 +458,7 @@ public async Task Foreign_snapshot_cannot_read_or_write()
                     row.TenantId == tenantId
                     && string.Equals(row.SubscriptionId, subscriptionId, StringComparison.OrdinalIgnoreCase)
                     && string.Equals(row.ResourceId, resourceId, StringComparison.OrdinalIgnoreCase)
-                    && string.Equals(row.QuestionKey, questionKey, StringComparison.Ordinal)));
+                    && string.Equals(row.QuestionKey, questionKey, StringComparison.OrdinalIgnoreCase)));
 
         public Task UpsertAsync(
             SecureNowQuestionDispositionRecord record,
@@ -443,7 +468,7 @@ public async Task Foreign_snapshot_cannot_read_or_write()
                 row.TenantId == record.TenantId
                 && row.SubscriptionId == record.SubscriptionId
                 && row.ResourceId == record.ResourceId
-                && row.QuestionKey == record.QuestionKey);
+                && string.Equals(row.QuestionKey, record.QuestionKey, StringComparison.OrdinalIgnoreCase));
             Rows.Add(record);
             return Task.CompletedTask;
         }

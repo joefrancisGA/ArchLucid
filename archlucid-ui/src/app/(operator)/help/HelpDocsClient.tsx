@@ -91,10 +91,12 @@ function normalizeHelpHubFilterQuery(query: string): string {
 }
 
 function decodeDocIndexPathForDedupe(path: string): string {
+  const normalizedHexEscapes = path.replace(/%[0-9A-Fa-f]{2}/g, (escape) => escape.toLowerCase());
+
   try {
-    return decodeURI(path);
+    return decodeURI(normalizedHexEscapes);
   } catch {
-    return path;
+    return normalizedHexEscapes;
   }
 }
 

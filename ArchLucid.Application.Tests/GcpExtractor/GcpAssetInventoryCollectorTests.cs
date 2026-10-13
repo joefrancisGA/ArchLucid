@@ -31,15 +31,50 @@ public sealed class GcpAssetInventoryCollectorTests
     }
 
     [Fact]
-    public async Task CollectFromRawPagesAsync_throws_after_max_pages()
+    public async Task CollectFromRawPagesAsync_omits_resources_without_name()
     {
-        Func<Task> act = () => GcpAssetInventoryCollector.CollectFromRawPagesAsync(
+        SearchAllResourcesResponse page = new();
+        page.Results.Add(new ResourceSearchResult
+        {
+            Name = string.Empty,
+            AssetType = "compute.googleapis.com/Instance",
+            Location = "us-central1-a"
+        });
+        page.Results.Add(new ResourceSearchResult
+        {
+            Name = "//compute.googleapis.com/projects/demo/zones/us-central1-a/instances/i-1",
+            AssetType = "compute.googleapis.com/Instance",
+            Location = "us-central1-a"
+        });
+
+        List<GcpInventoryResourceEntry> resources = await GcpAssetInventoryCollector.CollectFromRawPagesAsync(
+            SinglePageAsync(page),
+            CancellationToken.None);
+
+        resources.Should().ContainSingle();
+        resources[0].Name.Should().Contain("instances/i-1");
+    }
+
+    [Fact]
+    public async Task CollectFromRawPagesAsync_retains_resources_when_max_pagination_limit_reached()
+    {
+        List<GcpInventoryResourceEntry> resources = await GcpAssetInventoryCollector.CollectFromRawPagesAsync(
+            GeneratePagesWithOneResourceAsync(65),
+            CancellationToken.None);
+
+        resources.Should().HaveCount(64);
+        resources[0].Name.Should().Contain("instances/i-1");
+        resources[^1].Name.Should().Contain("instances/i-64");
+    }
+
+    [Fact]
+    public async Task CollectFromRawPagesAsync_stops_at_max_pages_without_throwing()
+    {
+        List<GcpInventoryResourceEntry> resources = await GcpAssetInventoryCollector.CollectFromRawPagesAsync(
             GenerateEmptyPagesAsync(65),
             CancellationToken.None);
 
-        InvalidOperationException exception = (await act.Should().ThrowAsync<InvalidOperationException>()).Which;
-
-        exception.Message.Should().Contain("stopped Asset search listing after 64 pages");
+        resources.Should().BeEmpty();
     }
 
     private static async IAsyncEnumerable<SearchAllResourcesResponse> SinglePageAsync(
@@ -54,6 +89,23 @@ public sealed class GcpAssetInventoryCollectorTests
         for (int index = 0; index < pageCount; index++)
         {
             yield return new SearchAllResourcesResponse();
+            await Task.Yield();
+        }
+    }
+
+    private static async IAsyncEnumerable<SearchAllResourcesResponse> GeneratePagesWithOneResourceAsync(int pageCount)
+    {
+        for (int index = 0; index < pageCount; index++)
+        {
+            SearchAllResourcesResponse page = new();
+            page.Results.Add(new ResourceSearchResult
+            {
+                Name = $"//compute.googleapis.com/projects/demo/zones/us-central1-a/instances/i-{index + 1}",
+                AssetType = "compute.googleapis.com/Instance",
+                Location = "us-central1-a"
+            });
+
+            yield return page;
             await Task.Yield();
         }
     }

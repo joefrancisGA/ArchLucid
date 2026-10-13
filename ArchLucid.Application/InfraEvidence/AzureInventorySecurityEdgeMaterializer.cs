@@ -948,7 +948,6 @@ public static class AzureInventorySecurityEdgeMaterializer
                     }
                 }
             }
-
         }
         catch (JsonException)
         {

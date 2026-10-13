@@ -127,6 +127,19 @@ describe("GovernanceFindingsQueueDesktopTable", () => {
     expect(screen.getByTestId("governance-row-insight-density-finding-0")).toHaveTextContent("Density 87");
   });
 
+  it("renders assigned-to-me review label without link when run id is blank", () => {
+    render(
+      <GovernanceFindingsQueueDesktopTable
+        rows={[{ ...sampleRow(0), runId: "   ", runLabel: "Review pending" }]}
+        buyerPolishedShell={false}
+        queueMode="assigned-to-me"
+      />,
+    );
+
+    expect(screen.queryByRole("link", { name: "Review pending" })).toBeNull();
+    expect(screen.getByText("Review pending")).toBeInTheDocument();
+  });
+
   it("marks grouped rows opened through the supplied callback", async () => {
     const row = rowForResource(0, resourceGroupA);
     const onRowOpened = vi.fn();

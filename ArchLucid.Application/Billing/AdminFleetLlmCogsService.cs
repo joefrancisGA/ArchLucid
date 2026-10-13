@@ -64,7 +64,8 @@ public sealed class AdminFleetLlmCogsService(
                           && hardCap > 0m
                           && state.TotalUsdPressure >= hardCap;
             decimal? included = opts.Enabled ? opts.IncludedUsdPerUtcMonth : null;
-            decimal? warningAt = opts.Enabled ? opts.IncludedUsdPerUtcMonth * opts.WarnFraction : null;
+            decimal warnFraction = decimal.Clamp(opts.WarnFraction, 0.01m, 0.99m);
+            decimal? warningAt = opts.Enabled ? opts.IncludedUsdPerUtcMonth * warnFraction : null;
 
             rows.Add(new AdminFleetLlmCogsRowResponse
             {
@@ -74,14 +75,20 @@ public sealed class AdminFleetLlmCogsService(
                 HardCapUsdUtcMonth = hardCap > 0m ? hardCap : null,
                 BlocksAdditionalLlmExecution = blocks,
                 HardCapUtilizationFraction = utilization,
-                GrossMarginRiskLabel = ClassifyRisk(utilization, blocks),
+                GrossMarginRiskLabel = ClassifyRisk(utilization, blocks, state.TotalUsdPressure, warningAt),
                 TrialFirstManifestCommittedUtc = tenant.TrialFirstManifestCommittedUtc,
                 CostBasisLabel = "estimated",
                 MonthlyBudgetMonitoringActive = opts.Enabled,
                 CostRatesConfigured = costRatesConfigured,
                 IncludedUsdUtcMonth = included,
                 BudgetWarningUsdUtcMonth = warningAt,
-                BudgetCompletionLabel = ClassifyBudgetCompletion(opts.Enabled, costRatesConfigured, utilization, blocks),
+                BudgetCompletionLabel = ClassifyBudgetCompletion(
+                    opts.Enabled,
+                    costRatesConfigured,
+                    utilization,
+                    blocks,
+                    state.TotalUsdPressure,
+                    warningAt),
             });
         }
 
@@ -98,10 +105,13 @@ public sealed class AdminFleetLlmCogsService(
         };
     }
 
-    private static string ClassifyRisk(double? utilization, bool blocks)
+    private static string ClassifyRisk(double? utilization, bool blocks, decimal pressureUsd, decimal? warningAtUsd)
     {
         if (blocks)
             return "risk";
+
+        if (warningAtUsd is > 0m && pressureUsd >= warningAtUsd.Value)
+            return "warn";
 
         if (utilization is >= 0.85)
             return "warn";
@@ -122,7 +132,9 @@ public sealed class AdminFleetLlmCogsService(
         bool monthlyBudgetActive,
         bool costRatesConfigured,
         double? utilization,
-        bool blocks)
+        bool blocks,
+        decimal pressureUsd,
+        decimal? warningAtUsd)
     {
         if (!costRatesConfigured)
             return "missing-cost-rates";
@@ -132,6 +144,9 @@ public sealed class AdminFleetLlmCogsService(
 
         if (blocks)
             return "hard-stop";
+
+        if (warningAtUsd is > 0m && pressureUsd >= warningAtUsd.Value)
+            return "near-threshold";
 
         if (utilization is >= 0.85)
             return "near-threshold";

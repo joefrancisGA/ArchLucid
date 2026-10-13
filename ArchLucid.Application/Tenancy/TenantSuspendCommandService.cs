@@ -40,7 +40,15 @@ public sealed class TenantSuspendCommandService(
         bool suspended = await _tenantRepository.TrySuspendTenantAsync(tenantId, cancellationToken);
 
         if (!suspended)
-            return TenantSuspendOutcome.AlreadyInDesiredState;
+            return await ResolveOutcomeAfterFailedLifecycleTransitionAsync(tenantId, unsuspendAttempt: false, cancellationToken);
+
+        TenantRecord? afterSuspend = await _tenantRepository.GetByIdAsync(tenantId, cancellationToken);
+
+        if (afterSuspend is null)
+            return TenantSuspendOutcome.NotFound;
+
+        if (afterSuspend.OffboardedUtc is not null)
+            return TenantSuspendOutcome.InErasureQuarantine;
 
         await AppendPlatformAuditAsync(
             AuditEventTypes.TenantSuspended,
@@ -76,7 +84,15 @@ public sealed class TenantSuspendCommandService(
         bool cleared = await _tenantRepository.TryUnsuspendTenantAsync(tenantId, cancellationToken);
 
         if (!cleared)
-            return TenantSuspendOutcome.AlreadyInDesiredState;
+            return await ResolveOutcomeAfterFailedLifecycleTransitionAsync(tenantId, unsuspendAttempt: true, cancellationToken);
+
+        TenantRecord? afterUnsuspend = await _tenantRepository.GetByIdAsync(tenantId, cancellationToken);
+
+        if (afterUnsuspend is null)
+            return TenantSuspendOutcome.NotFound;
+
+        if (afterUnsuspend.OffboardedUtc is not null)
+            return TenantSuspendOutcome.InErasureQuarantine;
 
         await AppendPlatformAuditAsync(
             AuditEventTypes.TenantUnsuspended,
@@ -88,6 +104,33 @@ public sealed class TenantSuspendCommandService(
             cancellationToken);
 
         return TenantSuspendOutcome.Applied;
+    }
+
+    private async Task<TenantSuspendOutcome> ResolveOutcomeAfterFailedLifecycleTransitionAsync(
+        Guid tenantId,
+        bool unsuspendAttempt,
+        CancellationToken cancellationToken)
+    {
+        TenantRecord? tenant = await _tenantRepository.GetByIdAsync(tenantId, cancellationToken);
+
+        if (tenant is null)
+            return TenantSuspendOutcome.NotFound;
+
+        if (tenant.OffboardedUtc is not null)
+            return TenantSuspendOutcome.InErasureQuarantine;
+
+        if (unsuspendAttempt)
+        {
+            if (tenant.SuspendedUtc is null)
+                return TenantSuspendOutcome.AlreadyInDesiredState;
+
+            return TenantSuspendOutcome.Conflict;
+        }
+
+        if (tenant.SuspendedUtc is not null)
+            return TenantSuspendOutcome.AlreadyInDesiredState;
+
+        return TenantSuspendOutcome.Conflict;
     }
 
     private async Task AppendPlatformAuditAsync(
