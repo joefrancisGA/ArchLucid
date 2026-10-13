@@ -72,7 +72,8 @@
     "dbo.SecurityEvidencePaths",
     "dbo.SignedReviewRecords",
     "dbo.SupportProblemReports",
-    "dbo.TenantHealthScores"
+    "dbo.TenantHealthScores",
+    "dbo.VerifiedRemediationControlAssociations"
   ],
   "tenantIdOnRow": [
     "dbo.AdvisoryTerraformResourceMappings",

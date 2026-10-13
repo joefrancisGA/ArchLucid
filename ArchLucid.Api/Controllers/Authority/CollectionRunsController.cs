@@ -1,3 +1,4 @@
+using ArchLucid.Application;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Persistence.ApplicationPorts.Data.Repositories;
 using ArchLucid.Application.SecureNow;
@@ -87,6 +88,10 @@ public sealed class CollectionRunsController(
         catch (ArgumentException ex)
         {
             return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
         }
         catch (InvalidOperationException ex)
         {
