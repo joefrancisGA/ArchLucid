@@ -6276,6 +6276,26 @@
         },
         "type": "object"
       },
+      "AuditEvidenceLineageLatestRemediationAttempt": {
+        "properties": {
+          "controlId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "instanceId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/RemediationInstanceStatus"
+          },
+          "updatedUtc": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "AuditEvidenceLineageRecord": {
         "properties": {
           "assessmentId": {
@@ -6312,6 +6332,16 @@
               },
               {
                 "$ref": "#/components/schemas/AuditEvidenceLineageEvaluationNode"
+              }
+            ]
+          },
+          "latestRemediationAttempt": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/AuditEvidenceLineageLatestRemediationAttempt"
               }
             ]
           },

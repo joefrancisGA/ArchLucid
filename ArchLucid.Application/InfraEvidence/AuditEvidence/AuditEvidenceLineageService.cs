@@ -20,10 +20,14 @@ public sealed class AuditEvidenceLineageService(
     IAuthorityQueryService authorityQueryService,
     IManifestHashService manifestHashService,
     IVerifiedRemediationControlAssociationRepository associationRepository,
+    IRemediationInstanceRepository remediationInstanceRepository,
     ILogger<AuditEvidenceLineageService> logger) : IAuditEvidenceLineageService
 {
     private readonly IVerifiedRemediationControlAssociationRepository _associationRepository =
         associationRepository ?? throw new ArgumentNullException(nameof(associationRepository));
+
+    private readonly IRemediationInstanceRepository _remediationInstanceRepository =
+        remediationInstanceRepository ?? throw new ArgumentNullException(nameof(remediationInstanceRepository));
 
     public async Task<AuditEvidenceLineageQueryResult> TryGetControlLineageAsync(
         ScopeContext scope,
@@ -201,6 +205,14 @@ public sealed class AuditEvidenceLineageService(
                     snapshotHeader.InventorySnapshotIds,
                     cancellationToken);
 
+            AuditEvidenceLineageLatestRemediationAttempt? latestRemediationAttempt =
+                await ResolveLatestRemediationAttemptAsync(
+                    scope,
+                    assessmentId,
+                    controlId,
+                    verifiedRemediationAssociations,
+                    cancellationToken);
+
             return new AuditEvidenceLineageQueryResult
             {
                 Succeeded = true,
@@ -218,6 +230,7 @@ public sealed class AuditEvidenceLineageService(
                     Evaluation = evaluationNode,
                     RequirementChains = requirementChains,
                     VerifiedRemediationAssociations = verifiedRemediationAssociations,
+                    LatestRemediationAttempt = latestRemediationAttempt,
                 },
             };
         }
@@ -261,6 +274,33 @@ public sealed class AuditEvidenceLineageService(
         return rows
             .Select(MapVerifiedRemediationAssociation)
             .ToList();
+    }
+
+    private async Task<AuditEvidenceLineageLatestRemediationAttempt?> ResolveLatestRemediationAttemptAsync(
+        ScopeContext scope,
+        Guid assessmentId,
+        Guid controlId,
+        IReadOnlyList<AuditEvidenceLineageVerifiedRemediationAssociation> verifiedRemediationAssociations,
+        CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        ArgumentNullException.ThrowIfNull(verifiedRemediationAssociations);
+
+        IReadOnlyList<RemediationInstanceRecord> instances =
+            await _remediationInstanceRepository.ListByControlIdInScopeAsync(
+                scope.ToProjectScopeKey(),
+                controlId,
+                cancellationToken);
+
+        IReadOnlyList<Guid> associatedInstanceIds = verifiedRemediationAssociations
+            .Select(association => association.InstanceId)
+            .ToList();
+
+        return AuditEvidenceLatestRemediationAttemptSelector.Select(
+            assessmentId,
+            controlId,
+            instances,
+            associatedInstanceIds);
     }
 
     private static AuditEvidenceLineageVerifiedRemediationAssociation MapVerifiedRemediationAssociation(
