@@ -1,5 +1,3 @@
-{"at":"2026-09-13T01:50:06.3090965Z","zoneId":"topology-proposal-merge","outcome":"hit"}
-{"at":"2026-09-13T01:51:19.6173073Z","zoneId":"context-ingestion","outcome":"hit"}
 {"at":"2026-09-13T01:52:49.4660608Z","zoneId":"core-costing","outcome":"hit"}
 {"at":"2026-09-13T01:54:34.7455615Z","zoneId":"tenant-data-export","outcome":"hit"}
 {"at":"2026-09-13T01:56:18.968783Z","zoneId":"topology-proposal-merge","outcome":"hit"}
@@ -8559,3 +8557,4 @@
 {"at":"2026-10-13T01:25:32.4986805Z","zoneId":"architecture-intelligence-orchestrator","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-13T01:32:04.7499635Z","zoneId":"cloud-extractors","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Integrations.AwsExtractor/,ArchLucid.Integrations.GcpExtractor/,ArchLucid.Integrations.AzureExtractor/"]}
 {"at":"2026-10-13T01:43:40.8928334Z","zoneId":"cloud-extractors","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Integrations.AwsExtractor/,ArchLucid.Integrations.GcpExtractor/,ArchLucid.Integrations.AzureExtractor/"]}
+{"at":"2026-10-13T01:52:09.1288353Z","zoneId":"cloud-extractors","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Integrations.AwsExtractor/,ArchLucid.Integrations.GcpExtractor/,ArchLucid.Integrations.AzureExtractor/"]}

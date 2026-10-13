@@ -20,9 +20,6 @@ public sealed class HostedAzureExtractorClientTests
 {
     [Theory]
     [InlineData("Microsoft.Storage/storageAccounts", "Microsoft.Storage/storageAccounts/sa1")]
-    [InlineData("Microsoft.ManagedIdentity/userAssignedIdentities", "Microsoft.ManagedIdentity/userAssignedIdentities/mi1")]
-    [InlineData("Microsoft.Network/virtualNetworks/virtualNetworkPeerings", "Microsoft.Network/virtualNetworks/vnet1/virtualNetworkPeerings/peer1")]
-    [InlineData("Microsoft.Network/privateDnsZones/virtualNetworkLinks", "Microsoft.Network/privateDnsZones/zone1/virtualNetworkLinks/link1")]
     public async Task CollectZipAsync_builds_zip_from_all_collected_arm_resources(string resourceType, string resourcePath)
     {
         Mock<IHostedAzureExtractorCredentialFactory> credentialFactory = new();
@@ -171,6 +168,136 @@ public sealed class HostedAzureExtractorClientTests
         Assert.Equal(resourceType, row.ResourceType);
         Assert.Equal(resources[0].ResourceId, row.AzureResourceId);
         Assert.Equal("Succeeded", row.Properties["provisioningState"]);
+    }
+
+    [Theory]
+    [InlineData("Microsoft.ManagedIdentity/userAssignedIdentities", "Microsoft.ManagedIdentity/userAssignedIdentities/mi1")]
+    [InlineData("Microsoft.Network/virtualNetworks/virtualNetworkPeerings", "Microsoft.Network/virtualNetworks/vnet1/virtualNetworkPeerings/peer1")]
+    [InlineData("Microsoft.Network/privateDnsZones/virtualNetworkLinks", "Microsoft.Network/privateDnsZones/zone1/virtualNetworkLinks/link1")]
+    public async Task CollectZipAsync_omits_never_show_arm_types_from_packaged_resources(string resourceType, string resourcePath)
+    {
+        Mock<IHostedAzureExtractorCredentialFactory> credentialFactory = new();
+        credentialFactory
+            .Setup(f => f.CreateCredential(It.IsAny<string>(), It.IsAny<string>()))
+            .Returns(new StubTokenCredential());
+
+        IReadOnlyList<HostedAzureArmResourceRecord> resources =
+        [
+            new HostedAzureArmResourceRecord(
+                ResourceType: resourceType,
+                ResourceId: $"/subscriptions/sub/resourceGroups/rg/providers/{resourcePath}",
+                Name: "hidden1",
+                Location: "eastus",
+                Sku: null,
+                Tags: null,
+                Properties: new Dictionary<string, object?> { ["provisioningState"] = "Succeeded" }),
+        ];
+
+        Mock<IHostedAzureArmReadClient> armClient = new();
+        armClient
+            .Setup(c => c.ListSubscriptionResourcesAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(resources);
+        armClient
+            .Setup(c => c.TryGetSubscriptionDisplayNameAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync("Contoso Production");
+        armClient
+            .Setup(c => c.ListSubscriptionRoleAssignmentsAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+        armClient
+            .Setup(c => c.ListSubscriptionRoleEligibilitySchedulesAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+        armClient
+            .Setup(c => c.ListFederatedCredentialsAsync(
+                It.IsAny<string>(),
+                It.IsAny<IReadOnlyList<HostedAzureArmResourceRecord>>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+        armClient
+            .Setup(c => c.ListSubscriptionPolicyAssignmentsAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+        armClient
+            .Setup(c => c.ListDiagnosticSettingsAsync(
+                It.IsAny<string>(),
+                It.IsAny<IReadOnlyList<HostedAzureArmResourceRecord>>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new HostedAzureDiagnosticSettingsCollectResult());
+        armClient
+            .Setup(c => c.ListSubscriptionDefenderSummariesAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+        armClient
+            .Setup(c => c.ListSubscriptionResourcesByTypeAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+        armClient
+            .Setup(c => c.ListPrivateDnsZoneVirtualNetworkLinksAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+        armClient
+            .Setup(c => c.ListVirtualNetworkPeeringsAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+        armClient
+            .Setup(c => c.ListFactoryLinkedServicesAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+        ConfigurePolicyDocumentMocks(armClient);
+
+        Mock<IEntraGroupMembershipGraphReader> graphReader = new();
+        Mock<IOptionsMonitor<EntraGroupMembershipGraphOptions>> options = new();
+        options.Setup(o => o.CurrentValue).Returns(new EntraGroupMembershipGraphOptions());
+
+        HostedAzureExtractorClient sut = new(
+            credentialFactory.Object,
+            armClient.Object,
+            CreatePostReadClientMock().Object,
+            graphReader.Object,
+            options.Object,
+            NullLogger<HostedAzureExtractorClient>.Instance);
+
+        HostedAzureExtractorCollectionRequest request = new()
+        {
+            CustomerTenantId = "22222222-2222-2222-2222-222222222222",
+            CustomerAppId = "33333333-3333-3333-3333-333333333333",
+            SubscriptionId = "11111111-1111-1111-1111-111111111111",
+            IncludeCost = false,
+        };
+
+        HostedAzureExtractorCollectionResult result = await sut.CollectZipAsync(request, CancellationToken.None);
+
+        Assert.Equal(0, result.ResourceCount);
+        using MemoryStream stream = new(result.ZipBytes);
+        AzureExtractorPackageInventoryReadResult inventory = AzureExtractorPackageInventoryReader.TryReadFromZip(stream);
+        Assert.True(inventory.Succeeded);
+        Assert.Empty(inventory.Resources);
     }
 
     [Fact]

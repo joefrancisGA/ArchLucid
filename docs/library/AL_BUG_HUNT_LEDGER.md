@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-13 seed hunt (seed→hit): `cloud-extractors` — `HostedAzureExtractorZipBuilder.BuildZip` serialized every collected ARM row into `resources.json` and manifest `resourceCount`, including `AzureInventoryNeverShowArmTypes` companions such as private DNS virtual network links; filtered packaged resources with `ShouldOmitResource` and aligned `HostedAzureExtractorClient` `ResourceCount`; baseline `BuildZip_omits_virtual_network_links_from_resources_json_but_keeps_associations` failed first; AWS/GCP extractor tests passed 52/52; Azure extractor scope passed 135/135.
+
 2026-10-13 seed hunt (seed→hit): `cloud-extractors` — promoted `HostedAzureInventoryResourcePropertyExpander.AddVirtualMachineScaleSetNetworkProfileProperties`; reachable VMSS `networkInterfaceConfigurations` with an earlier `ipConfigurations` slot lacking a subnet compacted `ipConfiguration.subnet.id[n]` instead of preserving array position (unlike firewall/NIC expanders); increment index per ipConfiguration slot; regression `Expand_preserves_vmss_ip_configuration_subnet_index_when_earlier_slot_has_no_subnet`; AWS/GCP extractor tests passed 52/52; Azure extractor scope passed 134/135 with the known network-association baseline failure.
 
 2026-10-13 seed hunt (seed→hit): `cloud-extractors` — promoted `HostedAzureInventoryResourcePropertyExpander.AddPrivateLinkConnections`; reachable private endpoints with both `privateLinkServiceConnections` and `manualPrivateLinkServiceConnections` reset the indexed `privateLinkServiceId[n]` counter per array, so manual targets overwrote automatic `[0]` and dropped a private-link association target; continue a shared index across both arrays; regression `Expand_persists_every_private_link_service_id_across_connection_arrays`; AWS/GCP extractor tests passed 52/52; Azure extractor scope passed 133/134 with the known network-association baseline failure.
@@ -31690,6 +31692,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ## Zone: cloud-extractors
 
+2026-10-13 seed hunt (seed→hit): `HostedAzureExtractorZipBuilder` emitted never-show ARM types (for example private DNS `virtualNetworkLinks`) in `resources.json` while associations still referenced them; packaged inventory now uses `AzureInventoryNeverShowArmTypes.ShouldOmitResource`; `CollectZipAsync_omits_never_show_arm_types_from_packaged_resources`; Azure extractor scope passed 135/135; AWS/GCP passed 52/52.
+
 2026-10-13 seed hunt (seed→hit): promoted `HostedAzureInventoryResourcePropertyExpander.AddVirtualMachineScaleSetNetworkProfileProperties`; VMSS subnet ids were indexed only for populated slots, collapsing later subnets to `[0]` when earlier ipConfiguration entries had no subnet; fixed by advancing index for every ipConfiguration position; regression `Expand_preserves_vmss_ip_configuration_subnet_index_when_earlier_slot_has_no_subnet`; AWS/GCP tests passed 52/52; Azure extractor scope passed 134/135 with the known network-association baseline failure.
 
 2026-10-13 seed hunt (seed→hit): promoted `HostedAzureInventoryResourcePropertyExpander.AddPrivateLinkConnections`; reachable `Microsoft.Network/privateEndpoints` payloads with both connection arrays wrote `privateLinkServiceId[0]` twice instead of appending manual targets; fixed with a shared index across `privateLinkServiceConnections` and `manualPrivateLinkServiceConnections`; regression `Expand_persists_every_private_link_service_id_across_connection_arrays`; AWS/GCP tests passed 52/52; Azure extractor scope passed 133/134 with the known network-association baseline failure.
@@ -31743,11 +31747,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** aws extractor; gcp extractor; azure extractor
 - **paths:** ArchLucid.Integrations.AwsExtractor/; ArchLucid.Integrations.GcpExtractor/; ArchLucid.Integrations.AzureExtractor/
 - **test-filter:** FullyQualifiedName~AwsExtractor|FullyQualifiedName~GcpExtractor|FullyQualifiedName~AzureExtractor
-- **hunts:** 100
-- **bugs-found:** 47
+- **hunts:** 101
+- **bugs-found:** 48
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-13
-- **last-bug:** 2026-10-13 — VMSS subnet ids compacted ipConfiguration indexes
+- **last-bug:** 2026-10-13 — extractor ZIP packaged never-show ARM types in resources.json
 - **related-pd-tb:** none
 - **code-changed-since:** 1
 

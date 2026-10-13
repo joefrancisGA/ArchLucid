@@ -85,7 +85,7 @@ public static class HostedAzureExtractorZipBuilder
             ["completenessScore"] = 1.0,
             ["warnings"] = (collectionWarnings ?? []).ToArray(),
             ["errors"] = Array.Empty<string>(),
-            ["resourceCount"] = resources.Count,
+            ["resourceCount"] = resources.Count(r => !AzureInventoryNeverShowArmTypes.ShouldOmitResource(r.ResourceType, r.ResourceId)),
             ["captureMethod"] = "HostedReader",
             ["collectorVersion"] = HostedScriptVersion,
         };
@@ -109,8 +109,9 @@ public static class HostedAzureExtractorZipBuilder
                 };
         }
 
-        // Serialize complete collected inventory; diagrams choose their own visible projection.
+        // Omit never-show ARM types from packaged resources while associations may still reference them.
         object[] resourceRows = resources
+            .Where(static r => !AzureInventoryNeverShowArmTypes.ShouldOmitResource(r.ResourceType, r.ResourceId))
             .Select(static r => new
             {
                 resourceType = r.ResourceType,
