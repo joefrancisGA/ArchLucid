@@ -31395,6 +31395,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ## Zone: artifact-synthesis
 
+2026-10-13 seed hunt (seed→hit): promoted `DocxExportService.BuildDocumentAsync` Appendix B provenance `Manifest hash` row; persisted `manifest.ManifestHash` with XML-invalid control characters reached `AddSimpleTable` via newline-only `Sanitize` and caused DOCX save failure (rule set row already used `SanitizeArtifactText`); sanitize manifest hash display; regression `ExportAsync_sanitizes_control_characters_in_provenance_manifest_hash_field`; Application scoped filter 104/105 (1 skip); ArtifactSynthesis scoped filter 705/719 (12 pre-existing diagram failures, 2 skipped Terraform).
+
 2026-10-13 seed hunt (seed→hit): promoted `DocxExportService.BuildDocumentAsync` Appendix A artifacts table; persisted synthesized artifact `Name` / `ArtifactType` / `Format` with XML-invalid control characters reached `WordDocumentBuilder.AddThreeColumnTable` via newline-only `Sanitize` and caused DOCX save failure; sanitize appendix rows with `SanitizeArtifactText`; regression `ExportAsync_strips_control_chars_from_artifacts_appendix_table_cells`; Application scoped filter 103/104 (1 skip); ArtifactSynthesis scoped filter 705/719 (12 pre-existing diagram failures, 2 skipped Terraform).
 
 2026-10-13 seed hunt (seed→hit): promoted `MermaidDiagramDeterministicRepairer.Repair`; `QuestionableAttention` from policy-pack resolution was dropped during deterministic repair before forest SVG layout, hiding questionable-resource styling on painted cards; copy `QuestionableAttention` on repair; regressions `Repair_keeps_questionable_attention_for_forest_layout` and extended metadata test; scoped filter 705/719 (12 pre-existing diagram failures, 2 skipped Terraform).
@@ -31441,16 +31443,19 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** artifact synthesis; docx generator; packaging sanitization
 - **paths:** ArchLucid.ArtifactSynthesis/
 - **test-filter:** FullyQualifiedName~ArtifactSynthesis|FullyQualifiedName~Docx
-- **hunts:** 63
+- **hunts:** 64
 - **last-hunt:** 2026-10-13
-- **bugs-found:** 49
+- **bugs-found:** 50
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-13 — Artifacts appendix table omitted artifact-text sanitization
+- **last-bug:** 2026-10-13 — Provenance manifest hash omitted artifact-text sanitization
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
 ### Hypotheses
 
+- [ ] (candidate) `DocxExportService.BuildDocumentAsync` — `DocxExportRequest.DocumentTitle` is written with `AddStyledParagraph` using newline-only `Sanitize`, while `Subtitle` uses `SanitizeArtifactText`; a reachable export title containing OpenXML-invalid control characters may fail DOCX save — locus: title paragraph before sponsor summary; input: `DocumentTitle` with embedded `\u0001` from export request.
+- [ ] (candidate) `DocxExportService.BuildDocumentAsync` — `CommittedEffectiveGovernanceSnapshotExportFormatter.FormatProvenanceAppendixRows` values appended to Appendix B without `SanitizeArtifactText` may carry control characters from committed governance snapshot fields — locus: provenance `foreach` after manifest hash row; input: effective-governance-at-commit payload with control characters in formatted values.
+- [x] (proven) `DocxExportService.BuildDocumentAsync` — persisted `manifest.ManifestHash` with OpenXML-invalid control characters reached Appendix B `AddSimpleTable` without `LlmArtifactFreeTextSanitizer` while the adjacent rule-set row was sanitized, causing DOCX export save failure — **hit 2026-10-13 seed hunt:** `SanitizeArtifactText(manifest.ManifestHash)`; regression `ExportAsync_sanitizes_control_characters_in_provenance_manifest_hash_field`.
 - [x] (proven) `DocxExportService.BuildDocumentAsync` — persisted synthesized artifact `Name`, `ArtifactType`, and `Format` containing OpenXML-invalid control characters reached Appendix A `AddThreeColumnTable` without `LlmArtifactFreeTextSanitizer`, causing DOCX export save failure — **hit 2026-10-13 seed hunt:** `SanitizeArtifactText` on artifact appendix rows; regression `ExportAsync_strips_control_chars_from_artifacts_appendix_table_cells`.
 - [x] (proven) `MermaidDiagramDeterministicRepairer.Repair` — reachable `DiagramNode.QuestionableAttention` from `InventoryDiagramQuestionableAttentionResolver` was omitted when rebuilding nodes during deterministic repair before `DiagramForestLayoutSvgRenderer`, so forest SVG cards lost questionable highlighting — **hit 2026-10-13 seed hunt:** copy `QuestionableAttention` on repair; regressions `Repair_keeps_questionable_attention_for_forest_layout` and extended `Repair_keeps_node_and_edge_painter_metadata_and_copies_lists`.
 - [x] (invalid) `BrandedDiagramExportContainer.TryExtractInnerPng` — hostile length overflow claim — **cheap-disproof 2026-10-11 thorough hunt:** `TryExtractInnerPng` has no production caller in the selected repository; only its own unit test reaches it, so no caller-controlled import path is reachable.

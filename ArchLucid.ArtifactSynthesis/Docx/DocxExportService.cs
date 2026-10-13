@@ -368,7 +368,7 @@ public sealed partial class DocxExportService(
         [
             ("Metric", "Value"),
             ("Rule set", SanitizeArtifactText($"{manifest.RuleSetId} {manifest.RuleSetVersion}")),
-            ("Manifest hash", manifest.ManifestHash),
+            ("Manifest hash", SanitizeArtifactText(manifest.ManifestHash)),
             ("Source findings", manifest.Provenance.SourceFindingIds.Count.ToString()),
             ("Source graph nodes", manifest.Provenance.SourceGraphNodeIds.Count.ToString()),
             ("Applied rules", manifest.Provenance.AppliedRuleIds.Count.ToString())
