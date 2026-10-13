@@ -1307,10 +1307,23 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
 
                 if (!string.IsNullOrWhiteSpace(candidateNextLink))
                 {
-                    HostedAzureArmNextLinkValidator.EnsureTargetsDiagnosticSettingsResource(
-                        candidateNextLink,
-                        resourceId);
-                    nextLink = candidateNextLink;
+                    try
+                    {
+                        HostedAzureArmNextLinkValidator.EnsureTargetsDiagnosticSettingsResource(
+                            candidateNextLink,
+                            resourceId);
+                        nextLink = candidateNextLink;
+                    }
+                    catch (InvalidOperationException)
+                    {
+                        if (settings.Count > 0)
+                        {
+                            partialCollection = true;
+                            break;
+                        }
+
+                        throw;
+                    }
                 }
             }
         }

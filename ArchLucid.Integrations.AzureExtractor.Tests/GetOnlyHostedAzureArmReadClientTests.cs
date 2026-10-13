@@ -2124,26 +2124,28 @@ public sealed class GetOnlyHostedAzureArmReadClientTests
                     "Test hang guard: diagnostic setting listing did not stop on cross-resource nextLink.");
             });
 
-        HttpClient httpClient = new(handler);
-        GetOnlyHostedAzureArmReadClient client = new(httpClient, NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+        GetOnlyHostedAzureArmReadClient client = new(
+            new HttpClient(handler),
+            NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
 
-        InvalidOperationException exception = await Assert.ThrowsAsync<InvalidOperationException>(() =>
-            client.ListDiagnosticSettingsAsync(
-                "token-abc",
-                [
-                    new HostedAzureArmResourceRecord(
-                        "Microsoft.Storage/storageAccounts",
-                        storageResourceId,
-                        "sa1",
-                        "eastus",
-                        null,
-                        null,
-                        new Dictionary<string, object?>()),
-                ],
-                CancellationToken.None));
+        HostedAzureDiagnosticSettingsCollectResult result = await client.ListDiagnosticSettingsAsync(
+            "token-abc",
+            [
+                new HostedAzureArmResourceRecord(
+                    "Microsoft.Storage/storageAccounts",
+                    storageResourceId,
+                    "sa1",
+                    "eastus",
+                    null,
+                    null,
+                    new Dictionary<string, object?>()),
+            ],
+            CancellationToken.None);
 
-        Assert.Contains("resource", exception.Message, StringComparison.OrdinalIgnoreCase);
         Assert.Equal(1, requestCount);
+        Assert.True(result.PartialCollection);
+        Assert.Single(result.Settings);
+        Assert.Equal("diag-page-one", result.Settings[0].Name);
     }
 
     [Fact]
@@ -2193,6 +2195,99 @@ public sealed class GetOnlyHostedAzureArmReadClientTests
 
         Assert.Contains("resource", exception.Message, StringComparison.OrdinalIgnoreCase);
         Assert.Equal(1, requestCount);
+    }
+
+    [Fact]
+    public async Task ListDiagnosticSettingsAsync_continues_after_cross_resource_next_link_for_one_resource()
+    {
+        const string badStorageResourceId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa-bad";
+        const string goodStorageResourceId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa-good";
+        const string crossResourceNextLink =
+            $"https://management.azure.com{goodStorageResourceId}/providers/Microsoft.Insights/diagnosticSettings?api-version=2021-05-01-preview&$skiptoken=leak";
+
+        string badFirstPageBody = """
+                                  {
+                                    "value": [
+                                      {
+                                        "name": "diag-page-one",
+                                        "properties": {
+                                          "workspaceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.OperationalInsights/workspaces/ws1"
+                                        }
+                                      }
+                                    ],
+                                    "nextLink": "CROSS_RESOURCE_LINK"
+                                  }
+                                  """.Replace("CROSS_RESOURCE_LINK", crossResourceNextLink, StringComparison.Ordinal);
+
+        HttpMessageHandler handler = new RecordingHandler(
+            (request, _) =>
+            {
+                string uri = request.RequestUri!.AbsoluteUri;
+
+                if (uri.Contains("sa-bad", StringComparison.OrdinalIgnoreCase))
+                {
+                    return Task.FromResult(
+                        new HttpResponseMessage(HttpStatusCode.OK)
+                        {
+                            Content = new StringContent(badFirstPageBody)
+                        });
+                }
+
+                if (uri.Contains("sa-good", StringComparison.OrdinalIgnoreCase))
+                {
+                    return Task.FromResult(
+                        new HttpResponseMessage(HttpStatusCode.OK)
+                        {
+                            Content = new StringContent("""
+                                                        {
+                                                          "value": [
+                                                            {
+                                                              "name": "diag-good",
+                                                              "properties": {
+                                                                "workspaceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.OperationalInsights/workspaces/ws2"
+                                                              }
+                                                            }
+                                                          ]
+                                                        }
+                                                        """)
+                        });
+                }
+
+                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.NotFound));
+            });
+
+        GetOnlyHostedAzureArmReadClient client = new(
+            new HttpClient(handler),
+            NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+
+        HostedAzureDiagnosticSettingsCollectResult result = await client.ListDiagnosticSettingsAsync(
+            "token-abc",
+            [
+                new HostedAzureArmResourceRecord(
+                    "Microsoft.Storage/storageAccounts",
+                    badStorageResourceId,
+                    "sa-bad",
+                    "eastus",
+                    null,
+                    null,
+                    new Dictionary<string, object?>()),
+                new HostedAzureArmResourceRecord(
+                    "Microsoft.Storage/storageAccounts",
+                    goodStorageResourceId,
+                    "sa-good",
+                    "eastus",
+                    null,
+                    null,
+                    new Dictionary<string, object?>()),
+            ],
+            CancellationToken.None);
+
+        Assert.True(result.PartialCollection);
+        Assert.Equal(2, result.Settings.Count);
+        Assert.Contains(result.Settings, setting => setting.TargetResourceId == badStorageResourceId);
+        Assert.Contains(result.Settings, setting => setting.TargetResourceId == goodStorageResourceId);
     }
 
     [Fact]
