@@ -1,6 +1,6 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
-2026-10-13 seed hunt (seed→hit): `cloud-extractors` — promoted `AwsResourceExplorerInventoryCollector.CollectAsync`; reachable Resource Explorer responses that repeated the same `NextToken` caused the collector to throw and discard resources already gathered from earlier pages; stop pagination on a repeated token while returning accumulated rows; regression `CollectAsync_retains_resources_when_next_token_repeats`; AWS/GCP extractor tests passed 84/84; Azure extractor scope passed 155/155.
+2026-10-13 seed hunt (seed→hit): `cloud-extractors` — promoted `AwsResourceExplorerInventoryCollector.CollectAsync`; reachable Resource Explorer responses that repeated the same `NextToken` caused the collector to throw and discard resources already gathered from earlier pages; stop pagination on a repeated token while returning accumulated rows; regression `CollectAsync_retains_resources_when_next_token_repeats`; AWS/GCP extractor tests passed 83/83; Azure extractor scope passed 155/155.
 
 2026-10-13 seed hunt (seed→hit): `cloud-extractors` — promoted `EntraGroupMembershipGraphReader.ReadGroupMembersPageAsync`; reachable Graph 403 on a follow-up `@odata.nextLink` page returned `Forbidden` and discarded members collected from earlier pages in the same group read; return accumulated rows when 403 arrives after pagination already succeeded; regression `TryReadDirectMembershipsAsync_retains_first_page_members_when_later_page_returns_forbidden`; AWS/GCP extractor tests passed 83/83; Azure extractor scope passed 155/155.
 
@@ -31743,7 +31743,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ## Zone: cloud-extractors
 
-2026-10-13 seed hunt (seed→hit): promoted `AwsResourceExplorerInventoryCollector.CollectAsync`; repeating `NextToken` threw and discarded prior pages; break pagination loop instead; regression `CollectAsync_retains_resources_when_next_token_repeats`; Azure scope 155/155; AWS/GCP 84/84.
+2026-10-13 seed hunt (seed→hit): promoted `AwsResourceExplorerInventoryCollector.CollectAsync`; repeating `NextToken` threw and discarded prior pages; break pagination loop instead; regression `CollectAsync_retains_resources_when_next_token_repeats`; Azure scope 155/155; AWS/GCP 83/83.
 
 2026-10-13 seed hunt (seed→hit): promoted `EntraGroupMembershipGraphReader.ReadGroupMembersPageAsync` follow-up 403 handling; Graph 403 on page 2+ returned `Forbidden` and dropped page-1 members; return partial memberships/nested ids when pagination already collected rows; regression `TryReadDirectMembershipsAsync_retains_first_page_members_when_later_page_returns_forbidden`; Azure scope 155/155; AWS/GCP 83/83.
 
