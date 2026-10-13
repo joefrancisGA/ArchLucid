@@ -40,6 +40,12 @@ public sealed partial class TenantCatalogMigrationOrchestrator
                 .ConfigureAwait(false);
         }
 
+        TenantRecord? tenantBeforeProbeRun =
+            await _tenantRepository.GetByIdAsync(tenantId, cancellationToken).ConfigureAwait(false);
+
+        if (tenantBeforeProbeRun?.OffboardedUtc is not null)
+            return (TenantCatalogMigrationCommandOutcome.InErasureQuarantine, null);
+
         TenantMigrationVerificationProbeResult probe = await _verificationProbe
             .RunAsync(tenantId, cancellationToken)
             .ConfigureAwait(false);
