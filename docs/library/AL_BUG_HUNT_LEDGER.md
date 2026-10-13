@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-13 seed hunt (seed→hit): `application-tenancy-lifecycle` — promoted `TenantTrialIdentityHandoffStage.LinkEntraAsync` post-email-lookup identity link path; `TryLinkLocalIdentityToEntraAsync` still ran when erasure offboard completed after `GetByNormalizedEmailAsync` because pre-link quarantine re-read was dropped when pre-lookup guard landed; restored pre-link `GetByIdAsync` before `TryLinkLocalIdentityToEntraAsync`; regression `LinkEntraAsync_returns_success_without_identity_link_when_offboard_completes_after_email_lookup_before_link`; 221 scoped tenancy tests passed.
+
 2026-10-13 seed hunt (seed→hit): `application-tenancy-lifecycle` — promoted `TenantTrialIdentityHandoffStage.LinkEntraAsync` pre-identity lookup path; `GetByNormalizedEmailAsync` still ran when erasure offboard completed after directory update but before identity email lookup (pre-link re-read was after lookup); pre-identity-work `GetByIdAsync` quarantine guard before trial identity repository reads; regression `LinkEntraAsync_returns_success_without_identity_lookup_when_offboard_completes_on_already_bound_retry_before_email_lookup`; 220 scoped tenancy tests passed.
 
 2026-10-13 seed hunt (seed→hit): `application-tenancy-lifecycle` — promoted `TenantTrialConversionStage.ConvertTrialAsync` pre-billing gate path; `EnsureManualConversionAllowedAsync` still ran when erasure offboard completed after entry tenant read but before billing gate (pre-convert re-read only); pre-billing `GetByIdAsync` quarantine guard; regression `ConvertTrialAsync_returns_success_without_billing_when_offboard_completes_after_entry_before_billing_gate`; tightened post-billing race test sequences; 219 scoped tenancy tests passed.
@@ -34690,11 +34692,15 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 113
-- **bugs-found:** 98
+- **hunts:** 114
+- **bugs-found:** 99
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-13
-- **last-bug:** 2026-10-13 — Trial Entra identity email lookup on quarantined tenant
+- **last-bug:** 2026-10-13 — Trial Entra identity link after email lookup on quarantined tenant
+
+2026-10-13 seed hunt (seed→hit): reseeded trial Entra post-email link window; proved `TryLinkLocalIdentityToEntraAsync` when offboard followed email lookup; restored pre-link tenant re-read; regression `LinkEntraAsync_returns_success_without_identity_link_when_offboard_completes_after_email_lookup_before_link`; 221 scoped tenancy tests passed.
+
+- [x] (proven) `TenantTrialIdentityHandoffStage.LinkEntraAsync` — `TryLinkLocalIdentityToEntraAsync` when erasure offboard after email lookup before link — **hit 2026-10-13 seed hunt (seed→hit):** pre-link `GetByIdAsync` before `TryLinkLocalIdentityToEntraAsync`; regression `LinkEntraAsync_returns_success_without_identity_link_when_offboard_completes_after_email_lookup_before_link`.
 
 2026-10-13 seed hunt (seed→hit): reseeded trial Entra identity lookup window; proved `GetByNormalizedEmailAsync` when offboard followed directory update on already-bound retry; pre-identity-work tenant re-read; regression `LinkEntraAsync_returns_success_without_identity_lookup_when_offboard_completes_on_already_bound_retry_before_email_lookup`; 220 scoped tenancy tests passed.
 
