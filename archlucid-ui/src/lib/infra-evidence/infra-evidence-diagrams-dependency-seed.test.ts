@@ -35,6 +35,24 @@ describe("infra-evidence-diagrams-dependency-seed", () => {
     });
   });
 
+  it("does not treat missing diagram metrics as an empty neighborhood", () => {
+    expect(
+      resolveDependencyNeighborhoodSeedBlockedReason({
+        appliedSeedNodeId: "22222222-2222-2222-2222-222222222222",
+        loadError: null,
+        renderResult: {
+          snapshotId: "11111111-1111-1111-1111-111111111111",
+          mode: "dependencyNeighborhood",
+          fallbackKey: null,
+          status: "Succeeded",
+          mermaid: "",
+          metrics: null,
+          fallbackArtifacts: [],
+        },
+      }),
+    ).toBeNull();
+  });
+
   it("flags succeeded renders with no diagram content", () => {
     expect(
       resolveDependencyNeighborhoodSeedBlockedReason({

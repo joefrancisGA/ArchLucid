@@ -82,7 +82,7 @@ function inferFixedDecisions(context: FramingSuggestContext): string | null {
 
   if (constraintsSection !== undefined) {
     const narrative = constraintsSection.narrativeMarkdown?.trim() ?? "";
-    const entityLabels = constraintsSection.entities.map((entity) => entity.label).join("; ");
+    const entityLabels = (constraintsSection.entities ?? []).map((entity) => entity.label).join("; ");
 
     if (narrative.length > 0 && entityLabels.length > 0) {
       return `${narrative} · ${entityLabels}`;
@@ -178,7 +178,7 @@ function inferUnacceptableFailures(context: FramingSuggestContext): string | nul
 
   if (risksSection !== undefined) {
     const narrative = risksSection.narrativeMarkdown?.trim() ?? "";
-    const entityLabels = risksSection.entities.map((entity) => entity.label).join("; ");
+    const entityLabels = (risksSection.entities ?? []).map((entity) => entity.label).join("; ");
 
     if (narrative.length > 0 && entityLabels.length > 0) {
       return `${narrative} · ${entityLabels}`;

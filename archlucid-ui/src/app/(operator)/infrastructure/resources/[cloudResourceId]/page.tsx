@@ -2,11 +2,11 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 
 import { ResourceHubClient } from "@/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient";
-import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { isInvalidDynamicRouteToken } from "@/lib/route-dynamic-param";
+import { getRouteTitle } from "@/lib/route-titles";
 
 export const metadata: Metadata = {
-  title: OPERATOR_NAV_LINK_LABELS.infrastructureResources,
+  title: getRouteTitle("/infrastructure/resources"),
 };
 
 type SecureNowInfrastructureResourceHubPageProps = {

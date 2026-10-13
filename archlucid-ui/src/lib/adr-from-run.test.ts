@@ -104,6 +104,70 @@ describe("adr-from-run", () => {
     expect(md).toContain("Driver A");
   });
 
+  it("distinguishes missing ADR explanation values from stored empty values", () => {
+    const missing = buildMadrMarkdownFromRun({
+      runId: "missing",
+      projectId: "p1",
+      reviewTitle: "Review",
+      createdUtc: "2026-05-01T12:00:00.000Z",
+      manifestStatusLabel: null,
+      policyPackLabel: null,
+      manifestCounts: null,
+      explanation: {
+        overallAssessment: "",
+        riskPosture: "",
+        themeSummaries: [],
+        summary: "",
+        keyDrivers: [],
+        riskImplications: [],
+        costImplications: [],
+        complianceImplications: [],
+        detailedNarrative: "",
+        structuredReasoning: null,
+        alternativesConsidered: null,
+        caveats: null,
+        provenanceLine: null,
+        faithfulnessWarning: null,
+        deterministicFallbackUsed: false,
+      },
+      findings: [],
+    });
+    const storedEmpty = buildMadrMarkdownFromRun({
+      runId: "empty",
+      projectId: "p1",
+      reviewTitle: "Review",
+      createdUtc: "2026-05-01T12:00:00.000Z",
+      manifestStatusLabel: null,
+      policyPackLabel: null,
+      manifestCounts: null,
+      explanation: {
+        overallAssessment: "",
+        riskPosture: "",
+        themeSummaries: [],
+        summary: "",
+        keyDrivers: [],
+        riskImplications: [],
+        costImplications: [],
+        complianceImplications: [],
+        detailedNarrative: "",
+        structuredReasoning: "",
+        alternativesConsidered: [],
+        caveats: [],
+        provenanceLine: null,
+        faithfulnessWarning: null,
+        deterministicFallbackUsed: false,
+      },
+      findings: [],
+    });
+
+    expect(missing).toContain("Structured reasoning was not stored.");
+    expect(missing).toContain("Alternatives considered were not stored.");
+    expect(missing).toContain("Caveats were not stored.");
+    expect(storedEmpty).not.toContain("Structured reasoning was not stored.");
+    expect(storedEmpty).not.toContain("Alternatives considered were not stored.");
+    expect(storedEmpty).not.toContain("Caveats were not stored.");
+  });
+
   it("buildMadrMarkdownFromRun includes semantic support band per finding (AS-071)", () => {
     const input: AdrGeneratorRunInput = {
       runId: "6e8c4a10-2b1f-4c9a-9d3e-10b2a4f0c501",
@@ -360,5 +424,41 @@ describe("adr-from-run", () => {
     expect(slice?.provenanceLine).toBe("X · Y");
     expect(slice?.deterministicFallbackUsed).toBe(true);
     expect(slice?.faithfulnessWarning).toBe("warn");
+  });
+
+  it("preserves missing ADR honesty flags and stored empty warning", () => {
+    const summary = {
+      explanation: null,
+      themeSummaries: [],
+      overallAssessment: "",
+      riskPosture: "",
+      findingCount: 0,
+      decisionCount: 0,
+      unresolvedIssueCount: 0,
+      complianceGapCount: 0,
+    } as RunExplanationSummary;
+
+    const slice = buildAdrExplanationSlice(summary);
+
+    expect(slice?.deterministicFallbackUsed).toBeNull();
+    expect(slice?.faithfulnessWarning).toBeNull();
+
+    const markdown = buildMadrMarkdownFromRun({
+      runId: "r",
+      projectId: "p",
+      reviewTitle: "Review",
+      createdUtc: "2026-01-01T00:00:00Z",
+      manifestStatusLabel: null,
+      policyPackLabel: null,
+      manifestCounts: null,
+      explanation: {
+        ...slice!,
+        faithfulnessWarning: "",
+      },
+      findings: [],
+    });
+
+    expect(markdown).toContain("Deterministic fallback was not stored.");
+    expect(markdown).not.toContain("Faithfulness warning was not stored.");
   });
 });

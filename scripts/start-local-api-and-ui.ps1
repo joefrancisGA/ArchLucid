@@ -12,6 +12,7 @@
 #   archlucid-ui/.env.local ARCHLUCID_API_BASE_URL=http://localhost:5128
 #   UI spawn sets NEXT_PUBLIC_ARCHLUCID_PRODUCT, NEXT_PUBLIC_FEATURES_SHOW_SYSTEM_ADMINISTRATION_NAV=true
 #   and NEXT_PUBLIC_OPERATOR_EXPERIENCE=operator so Internal nav is visible for local engineer shells.
+#   -IncludeUhgSecurityUi adds a second SecureNow window (UHG edition) on -UhgSecurityUiPort (default 3002).
 #   Docker demo stack:    API 5000, UI 3000 — use docker-compose.demo.yml / demo-start-local.ps1
 #
 # Prerequisites:
@@ -24,7 +25,7 @@
 #   .\scripts\start-local-api-and-ui.ps1 -SkipPreflight -NoBrowser
 #   .\scripts\start-local-api-and-ui.ps1 -ApiPort 5128 -UiPort 3000 -SecurityUiPort 3001
 #   .\scripts\start-local-api-and-ui.ps1 -SkipSecurityUi
-#   .\scripts\start-local-securenow.ps1   # API + SecureNow (Security) UI only
+#   .\scripts\start-local-securenow.ps1   # API + generic SecureNow :3001 + UHG SecureNow :3002
 #   .\scripts\start-local-api-and-ui.ps1 -LaunchProfile http -MsBuildMaxCpuCount 1
 #   .\scripts\start-local-api-and-ui.ps1 -RunAnalyzers -UseTerminalLogger
 #   .\scripts\start-local-api-and-ui.ps1 -SkipExplicitBuild -SkipBuildServerShutdown
@@ -35,6 +36,7 @@ param(
     [int] $ApiPort = 5128,
     [int] $UiPort = 3000,
     [int] $SecurityUiPort = 3001,
+    [int] $UhgSecurityUiPort = 3002,
     [int] $ApiReadyTimeoutSec = 900,
     [int] $UiReadyTimeoutSec = 360,
     [switch] $SkipPreflight,
@@ -42,6 +44,7 @@ param(
     [switch] $NoBrowser,
     [switch] $SkipSecurityUi,
     [switch] $SkipArchitectureUi,
+    [switch] $IncludeUhgSecurityUi,
     [ValidateNotNullOrEmpty()]
     [string] $LaunchProfile = "http",
     [ValidateRange(1, 64)]
@@ -57,7 +60,7 @@ $ErrorActionPreference = "Stop"
 . (Join-Path $PSScriptRoot "start-local-api-and-ui.helpers.ps1")
 
 $script:SkipApiSpawn = $false
-$script:SkipUiSpawnByProductLine = @{}
+$script:SkipUiSpawnBySiteKey = @{}
 
 $RepoRoot = Split-Path -Parent $PSScriptRoot
 $ApiProject = Join-Path $RepoRoot "ArchLucid.Api\ArchLucid.Api.csproj"
@@ -69,11 +72,13 @@ $EnvExamplePath = Join-Path $UiRoot ".env.example"
 $script:LocalUiSites = Get-LocalUiSiteSpecs `
     -ArchitecturePort $UiPort `
     -SecurityPort $SecurityUiPort `
+    -UhgSecurityPort $UhgSecurityUiPort `
     -IncludeArchitecture (-not $SkipArchitectureUi.IsPresent) `
-    -IncludeSecurity (-not $SkipSecurityUi.IsPresent)
+    -IncludeSecurity (-not $SkipSecurityUi.IsPresent) `
+    -IncludeUhgSecurity $IncludeUhgSecurityUi.IsPresent
 
 foreach ($site in $script:LocalUiSites) {
-    $script:SkipUiSpawnByProductLine[$site.ProductLine] = $false
+    $script:SkipUiSpawnBySiteKey[$site.SiteKey] = $false
 }
 
 function Write-StageError {
@@ -85,7 +90,7 @@ function Write-StageError {
     Write-Error "[$Stage] $Message"
 }
 
-if ($SkipSecurityUi.IsPresent -and $SkipArchitectureUi.IsPresent) {
+if ($SkipSecurityUi.IsPresent -and $SkipArchitectureUi.IsPresent -and -not $IncludeUhgSecurityUi.IsPresent) {
     Write-StageError -Stage "config" -Message "Cannot skip both Architecture and Security UI. Omit both -SkipSecurityUi and -SkipArchitectureUi, or use start-local-securenow.ps1 / -SkipArchitectureUi only."
 }
 
@@ -272,7 +277,7 @@ if (-not $SkipPreflight) {
 
         if ($uiAlreadyUp) {
             Write-Host ("{0} UI already listening on port {1} - skipping spawn." -f $site.Name, $site.Port) -ForegroundColor Yellow
-            $script:SkipUiSpawnByProductLine[$site.ProductLine] = $true
+            $script:SkipUiSpawnBySiteKey[$site.SiteKey] = $true
             continue
         }
 
@@ -330,12 +335,12 @@ if (-not (Wait-HttpStatus -Uri $apiReadyUrl -TimeoutSec 120)) {
 Write-Host "API is ready." -ForegroundColor Green
 
 foreach ($site in $script:LocalUiSites) {
-    if ($script:SkipUiSpawnByProductLine[$site.ProductLine]) {
+    if ($script:SkipUiSpawnBySiteKey[$site.SiteKey]) {
         continue
     }
 
-    Write-Host ("Starting {0} UI in a new window (port {1}, Internal nav enabled)..." -f $site.Name, $site.Port) -ForegroundColor Cyan
-    $uiCmd = Get-LocalUiWindowCommand -UiRoot $UiRoot -ProductLine $site.ProductLine -Port $site.Port
+    Write-Host ("Starting {0} UI in a new window (port {1}, Internal nav enabled)..." -f $site.ReadyLabel, $site.Port) -ForegroundColor Cyan
+    $uiCmd = Get-LocalUiWindowCommandForSite -UiRoot $UiRoot -Site $site
     Start-Process -FilePath "powershell.exe" -ArgumentList @("-NoExit", "-Command", $uiCmd) | Out-Null
 }
 
@@ -361,8 +366,14 @@ foreach ($site in $script:LocalUiSites) {
     Write-Host ("{0} proxy chain OK." -f $site.Name) -ForegroundColor Green
 }
 
-$architectureSite = $script:LocalUiSites | Where-Object { $_.ProductLine -eq 'architecture' } | Select-Object -First 1
-$securitySite = $script:LocalUiSites | Where-Object { $_.ProductLine -eq 'security' } | Select-Object -First 1
+$architectureIncluded = $false
+
+foreach ($site in $script:LocalUiSites) {
+
+    if ($site.ProductLine -eq 'architecture') {
+        $architectureIncluded = $true
+    }
+}
 
 $open = $OpenPath.Trim()
 
@@ -370,54 +381,43 @@ if (-not $open.StartsWith("/")) {
     $open = "/$open"
 }
 
-$architectureUrl = $null
+[System.Collections.Generic.List[object]] $browserTargets = [System.Collections.Generic.List[object]]::new()
 
-if ($null -ne $architectureSite) {
-    $architectureUrl = "http://localhost:$($architectureSite.Port)$open"
-}
+foreach ($site in $script:LocalUiSites) {
+    [string] $browserPath = Get-LocalUiBrowserOpenPath `
+        -ProductLine $site.ProductLine `
+        -RequestedOpenPath $open `
+        -ArchitectureIncluded $architectureIncluded
+    [string] $siteUrl = "http://localhost:$($site.Port)$browserPath"
 
-$securityUrl = $null
-
-if ($null -ne $securitySite) {
-    $securityOpen = $open
-
-    if ($null -eq $architectureSite) {
-        $securityOpen = "/"
-    }
-
-    $securityUrl = "http://localhost:$($securitySite.Port)$securityOpen"
+    $browserTargets.Add([pscustomobject]@{
+            Label = [string]$site.ReadyLabel
+            Url   = $siteUrl
+        })
 }
 
 Write-Host ""
 Write-Host "Ready:"
 Write-Host "  API           $apiLiveUrl"
 
-if ($null -ne $architectureUrl) {
-    Write-Host ("  Architecture  {0}" -f $architectureUrl)
-}
-
-if ($null -ne $securityUrl) {
-    Write-Host ("  SecureNow     {0}" -f $securityUrl)
+foreach ($target in $browserTargets) {
+    Write-Host ("  {0,-16} {1}" -f $target.Label, $target.Url)
 }
 
 if ($NoBrowser) {
-    foreach ($site in $script:LocalUiSites) {
-        $siteUrl = if ($site.ProductLine -eq 'security') { $securityUrl } else { $architectureUrl }
-
-        Write-Host ("Skipping browser. Open {0}: {1}" -f $site.Name, $siteUrl) -ForegroundColor Yellow
+    foreach ($target in $browserTargets) {
+        Write-Host ("Skipping browser. Open {0}: {1}" -f $target.Label, $target.Url) -ForegroundColor Yellow
     }
 
     exit 0
 }
 
-foreach ($site in $script:LocalUiSites) {
-    $siteUrl = if ($site.ProductLine -eq 'security') { $securityUrl } else { $architectureUrl }
-
-    Write-Host ("Opening browser ({0}): {1}" -f $site.Name, $siteUrl) -ForegroundColor Green
+foreach ($target in $browserTargets) {
+    Write-Host ("Opening browser ({0}): {1}" -f $target.Label, $target.Url) -ForegroundColor Green
 
     try {
-        Start-Process $siteUrl
+        Start-Process $target.Url
     } catch {
-        Write-Warning "Could not start default browser. Open manually: $siteUrl"
+        Write-Warning "Could not start default browser. Open manually: $($target.Url)"
     }
 }

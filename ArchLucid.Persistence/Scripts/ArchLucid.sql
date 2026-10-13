@@ -277,6 +277,36 @@ BEGIN
 END;
 GO
 
+IF OBJECT_ID(N'dbo.SecureNowCollectionRuns', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.SecureNowCollectionRuns
+    (
+        TenantId                  UNIQUEIDENTIFIER NOT NULL,
+        WorkspaceId               UNIQUEIDENTIFIER NOT NULL,
+        ProjectId                 UNIQUEIDENTIFIER NOT NULL,
+        RunId                     UNIQUEIDENTIFIER NOT NULL,
+        AgentVersion              NVARCHAR(128)    NOT NULL,
+        Schedule                  NVARCHAR(512)    NULL,
+        StartedUtc                DATETIME2        NOT NULL,
+        FinishedUtc               DATETIME2        NULL,
+        Status                    INT              NOT NULL,
+        SubscriptionsCoveredJson  NVARCHAR(MAX)    NOT NULL CONSTRAINT DF_SecureNowCollectionRuns_Subscriptions DEFAULT (N'[]'),
+        ErrorSummary              NVARCHAR(4000)   NULL,
+        ZipPath                   NVARCHAR(2048)   NULL,
+        ZipSha256                 VARBINARY(32)    NULL,
+        ImportedSnapshotId        UNIQUEIDENTIFIER NULL,
+        CONSTRAINT PK_SecureNowCollectionRuns PRIMARY KEY CLUSTERED (TenantId, WorkspaceId, ProjectId, RunId)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_SecureNowCollectionRuns_Scope_Started
+        ON dbo.SecureNowCollectionRuns (TenantId, WorkspaceId, ProjectId, StartedUtc DESC, RunId DESC);
+
+    CREATE NONCLUSTERED INDEX IX_SecureNowCollectionRuns_Scope_Hash
+        ON dbo.SecureNowCollectionRuns (TenantId, WorkspaceId, ProjectId, ZipSha256)
+        WHERE ZipSha256 IS NOT NULL;
+END;
+GO
+
 /* ---- AgentOutputEvaluationResults (reference-case scores) ---- */
 
 IF OBJECT_ID(N'dbo.AgentOutputEvaluationResults', N'U') IS NULL
@@ -11384,6 +11414,8 @@ BEGIN
         Scope                   NVARCHAR(1024)    NOT NULL,
         PrincipalId             NVARCHAR(256)     NOT NULL,
         RoleDefinitionId        NVARCHAR(1024)    NOT NULL,
+        RoleDefinitionName      NVARCHAR(256)     NULL,
+        PimEligibilityKind      NVARCHAR(64)      NULL,
         SourceEvidenceReference NVARCHAR(512)     NULL,
         CONSTRAINT FK_AzureInventoryRoleAssignments_Snapshots FOREIGN KEY (SnapshotId) REFERENCES dbo.AzureInventorySnapshots (SnapshotId)
     );
@@ -13024,6 +13056,7 @@ BEGIN
         ToArmId                     NVARCHAR(1024)    NULL,
         ToCloudResourceId           UNIQUEIDENTIFIER  NULL,
         SettingName                 NVARCHAR(512)     NULL,
+        DataPlaneAnswer             INT               NULL,
         SourceFileFormat            NVARCHAR(64)      NULL,
         ActorKey                    NVARCHAR(256)     NULL,
         ProposalPayloadHashSha256   VARBINARY(32)     NOT NULL,
@@ -13036,5 +13069,42 @@ BEGIN
 
     CREATE NONCLUSTERED INDEX IX_OperatorInferredConnections_Tenant_Snapshot_Hash
         ON dbo.OperatorInferredConnections (TenantId, SnapshotId, ProposalPayloadHashSha256);
+END;
+GO
+
+/*
+  414: Verified remediation association. RemediationInstances is created by DbUp, not this script,
+  so a standalone greenfield run skips the table until that parent exists. DbUp still creates it.
+*/
+
+IF OBJECT_ID(N'dbo.VerifiedRemediationControlAssociations', N'U') IS NULL
+   AND OBJECT_ID(N'dbo.RemediationInstances', N'U') IS NOT NULL
+   AND OBJECT_ID(N'dbo.AzureInventorySnapshots', N'U') IS NOT NULL
+BEGIN
+    CREATE TABLE dbo.VerifiedRemediationControlAssociations
+    (
+        AssociationId           UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_VerifiedRemediationControlAssociations PRIMARY KEY CLUSTERED,
+        TenantId                UNIQUEIDENTIFIER NOT NULL,
+        WorkspaceId             UNIQUEIDENTIFIER NOT NULL,
+        ProjectId               UNIQUEIDENTIFIER NOT NULL,
+        InstanceId              UNIQUEIDENTIFIER NOT NULL,
+        VerificationSnapshotId  UNIQUEIDENTIFIER NOT NULL,
+        ControlId               UNIQUEIDENTIFIER NOT NULL,
+        AssessmentId            UNIQUEIDENTIFIER NULL,
+        CreatedUtc              DATETIME2        NOT NULL,
+        UpdatedUtc              DATETIME2        NOT NULL,
+        CONSTRAINT FK_VerifiedRemediationControlAssociations_Instance
+            FOREIGN KEY (InstanceId) REFERENCES dbo.RemediationInstances (InstanceId),
+        CONSTRAINT FK_VerifiedRemediationControlAssociations_InventorySnapshot
+            FOREIGN KEY (VerificationSnapshotId) REFERENCES dbo.AzureInventorySnapshots (SnapshotId),
+        CONSTRAINT UQ_VerifiedRemediationControlAssociations_Tenant_Instance_Snapshot_Control
+            UNIQUE (TenantId, InstanceId, VerificationSnapshotId, ControlId)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_VerifiedRemediationControlAssociations_Tenant_Control_Snapshot
+        ON dbo.VerifiedRemediationControlAssociations (TenantId, ControlId, VerificationSnapshotId);
+
+    CREATE NONCLUSTERED INDEX IX_VerifiedRemediationControlAssociations_Tenant_Instance
+        ON dbo.VerifiedRemediationControlAssociations (TenantId, InstanceId);
 END;
 GO

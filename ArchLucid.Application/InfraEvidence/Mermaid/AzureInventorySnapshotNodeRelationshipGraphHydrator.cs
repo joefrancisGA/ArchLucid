@@ -13,7 +13,8 @@ internal static class AzureInventorySnapshotNodeRelationshipGraphHydrator
 {
     public static void Hydrate(
         AzureInventorySnapshotDetailReadModel snapshot,
-        IReadOnlyList<GraphNode> nodes)
+        IReadOnlyList<GraphNode> nodes,
+        AzureInventorySnapshotGraphIndexes? indexes = null)
     {
         ArgumentNullException.ThrowIfNull(snapshot);
         ArgumentNullException.ThrowIfNull(nodes);
@@ -23,17 +24,9 @@ internal static class AzureInventorySnapshotNodeRelationshipGraphHydrator
             return;
         }
 
-        Dictionary<Guid, List<AzureInventoryResourcePropertyReadModel>> propertiesByRowId =
-            snapshot.Properties
-                .GroupBy(property => property.ResourceRowId)
-                .ToDictionary(group => group.Key, group => group.ToList());
-
-        Dictionary<string, GraphNode> nodesByArmId = nodes
-            .Where(node => node.Properties.TryGetValue("arm.id", out string? armId) && !string.IsNullOrWhiteSpace(armId))
-            .GroupBy(
-                node => ArmResourceIdNormalizer.Normalize(node.Properties["arm.id"]),
-                StringComparer.OrdinalIgnoreCase)
-            .ToDictionary(group => group.Key, group => group.First(), StringComparer.OrdinalIgnoreCase);
+        indexes ??= AzureInventorySnapshotGraphIndexes.Create(snapshot, nodes);
+        IReadOnlyDictionary<Guid, List<AzureInventoryResourcePropertyReadModel>> propertiesByRowId = indexes.PropertiesByResourceRowId;
+        IReadOnlyDictionary<string, GraphNode> nodesByArmId = indexes.NodesByArmId;
 
         foreach (AzureInventoryResourceRecord resource in snapshot.Resources)
         {
@@ -49,7 +42,7 @@ internal static class AzureInventorySnapshotNodeRelationshipGraphHydrator
                 continue;
             }
 
-            if (!propertiesByRowId.TryGetValue(resource.ResourceRowId, out List<AzureInventoryResourcePropertyReadModel>? properties))
+            if (!propertiesByRowId.ContainsKey(resource.ResourceRowId))
             {
                 continue;
             }
@@ -63,12 +56,7 @@ internal static class AzureInventorySnapshotNodeRelationshipGraphHydrator
                     evidenceCurrency.Value.ToString();
             }
 
-            Dictionary<string, string> propertyDictionary = properties
-                .Where(property => !property.IsRedacted && !string.IsNullOrWhiteSpace(property.PropertyValue))
-                .ToDictionary(
-                    property => property.PropertyKey,
-                    property => property.PropertyValue!,
-                    StringComparer.OrdinalIgnoreCase);
+            IReadOnlyDictionary<string, string> propertyDictionary = indexes.GetUsableProperties(resource.ResourceRowId);
 
             switch (category)
             {

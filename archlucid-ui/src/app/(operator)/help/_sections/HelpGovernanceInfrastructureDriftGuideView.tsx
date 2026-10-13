@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
 
 import { HelpAzureInventoryNeverShowReferenceSection } from "@/app/(operator)/help/_sections/HelpAzureInventoryNeverShowReferenceSection";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { GovernanceInfrastructureDriftHelpEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-help-infrastructure-strips";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
@@ -392,6 +393,8 @@ export function HelpGovernanceInfrastructureDriftGuideView(
               </Link>
             </p>
           </section>
+
+          <SponsorSendPathHonestyPanel testIdPrefix="help-governance-infrastructure-drift" showSsoOptional={false} />
         </div>
 
         <HelpTopicTableOfContents headings={guideHeadings} enableScrollSpy />

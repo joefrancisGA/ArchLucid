@@ -26,7 +26,8 @@ class TestAiReadinessBatch5BM(unittest.TestCase):
         )
         text = path.read_text(encoding="utf-8")
         self.assertIn("ExplainGovernanceBlocksOptions", text)
-        self.assertIn("_explainGovernanceBlocksOptions.Value.Enabled", text)
+        self.assertIn("TryAttachToGateResultAsync", text)
+        self.assertIn("_explainGovernanceBlocksOptions", text)
 
     def test_tb_184_problem_details_extension(self) -> None:
         path = REPO_ROOT / "ArchLucid.Api" / "ProblemDetails" / "ProblemDetailsExtensions.GovernanceProblems.cs"

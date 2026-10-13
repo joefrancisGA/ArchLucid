@@ -8,6 +8,7 @@ import type {
   RemediationInstanceOperationResult,
   RemediationInstanceSummary,
   RemediationPrioritizedFinding,
+  VerifiedRemediationAssociationIdentifier,
 } from "@/lib/infra-evidence/infra-evidence-remediation-types";
 
 const INSTANCES_PATH = "/api/proxy/v1/infra-evidence/remediation-instances";
@@ -18,7 +19,19 @@ const FINDING_MATCH_PATH = "/api/proxy/v1/infra-evidence/operational-findings";
 
 function finiteNumberOrDefault(value: unknown, fallback: number): number {
   const parsed = typeof value === "number" ? value : Number(value);
+
   return Number.isFinite(parsed) ? parsed : fallback;
+}
+
+/** Absent or non-numeric metrics stay null so Home can omit the number instead of showing zero. */
+function finiteNumberOrNull(value: unknown): number | null {
+  if (value === null || value === undefined || value === "") {
+    return null;
+  }
+
+  const parsed = typeof value === "number" ? value : Number(value);
+
+  return Number.isFinite(parsed) ? parsed : null;
 }
 
 function mapInstanceSummary(raw: Record<string, unknown>): RemediationInstanceSummary {
@@ -33,6 +46,34 @@ function mapInstanceSummary(raw: Record<string, unknown>): RemediationInstanceSu
     preflightSnapshotId: typeof raw.preflightSnapshotId === "string" ? raw.preflightSnapshotId : null,
     executionSnapshotId: typeof raw.executionSnapshotId === "string" ? raw.executionSnapshotId : null,
     verificationSnapshotId: typeof raw.verificationSnapshotId === "string" ? raw.verificationSnapshotId : null,
+    createdUtc: typeof raw.createdUtc === "string" ? raw.createdUtc : "",
+    updatedUtc: typeof raw.updatedUtc === "string" ? raw.updatedUtc : "",
+  };
+}
+
+function mapVerifiedRemediationAssociation(
+  raw: Record<string, unknown>,
+): VerifiedRemediationAssociationIdentifier | null {
+  const instanceId = typeof raw.instanceId === "string" ? raw.instanceId.trim() : "";
+  const controlId = typeof raw.controlId === "string" ? raw.controlId.trim() : "";
+  const verificationSnapshotId =
+    typeof raw.verificationSnapshotId === "string" ? raw.verificationSnapshotId.trim() : "";
+
+  if (instanceId.length === 0 || controlId.length === 0 || verificationSnapshotId.length === 0) {
+    return null;
+  }
+
+  const assessmentIdRaw = raw.assessmentId;
+
+  return {
+    associationId: typeof raw.associationId === "string" ? raw.associationId : "",
+    instanceId,
+    verificationSnapshotId,
+    controlId,
+    assessmentId:
+      typeof assessmentIdRaw === "string" && assessmentIdRaw.trim().length > 0
+        ? assessmentIdRaw.trim()
+        : null,
     createdUtc: typeof raw.createdUtc === "string" ? raw.createdUtc : "",
     updatedUtc: typeof raw.updatedUtc === "string" ? raw.updatedUtc : "",
   };
@@ -126,6 +167,17 @@ export async function fetchRemediationInstanceDetail(instanceId: string): Promis
           }];
         })
       : [],
+    verifiedRemediationAssociations: Array.isArray(raw.verifiedRemediationAssociations)
+      ? raw.verifiedRemediationAssociations.flatMap((item) => {
+          if (item === null || typeof item !== "object" || Array.isArray(item)) {
+            return [];
+          }
+
+          const mapped = mapVerifiedRemediationAssociation(item as Record<string, unknown>);
+
+          return mapped == null ? [] : [mapped];
+        })
+      : [],
   };
 }
 
@@ -136,6 +188,7 @@ export async function fetchRemediationFactorySummary(): Promise<RemediationFacto
   return {
     factoryMetrics: {
       openFindings: finiteNumberOrDefault(metricsRaw.openFindings, 0),
+      criticalExposureCount: finiteNumberOrNull(metricsRaw.criticalExposureCount),
       remediatedThisWeek: finiteNumberOrDefault(metricsRaw.remediatedThisWeek, 0),
       verificationFailureCount: finiteNumberOrDefault(metricsRaw.verificationFailureCount, 0),
       businessBlockedCount: finiteNumberOrDefault(metricsRaw.businessBlockedCount, 0),

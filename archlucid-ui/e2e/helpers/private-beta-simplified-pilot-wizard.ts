@@ -1,17 +1,32 @@
-import { expect, type Page } from "@playwright/test";
+import { expect, type Page, type Response } from "@playwright/test";
 
+import {
+  isArchitectureRequestCreateResponse,
+  readCreatedRunIdFromArchitectureRequestCreate,
+} from "./architecture-request-create-response";
 import { liveE2eArchitectureDescription } from "./live-api-client";
 import { formatSimplifiedPilotWizardMountFailure } from "./simplified-pilot-wizard-mount-failure";
 import { clickThroughBlockingOverlays } from "./dismiss-blocking-modal-overlays";
-import { ensureFirstSessionPurposeChooserClosed } from "./live-seat-scope-assertions";
-import { parseWizardCreateResponse, parseWizardOperationResponse } from "./wizard-create-response";
+import {
+  ensureFirstSessionPurposeChooserClosed,
+  waitAndDismissFirstSessionPurposeChooser,
+} from "./live-seat-scope-assertions";
+import { parseWizardOperationResponse } from "./wizard-create-response";
+
+/**
+ * Working desks redirect `/architecture/reviews/new` when `path` is absent (DA-09).
+ * Keep `path=detailed` so `baseline=1` can mount SimplifiedPilotWizard instead of Create architecture.
+ */
+export const PRIVATE_BETA_SIMPLIFIED_PILOT_WIZARD_HREF =
+  "/architecture/reviews/new?path=detailed&baseline=1";
 
 /**
  * Submits the baseline simplified pilot wizard (`?baseline=1`) and returns the created run id.
  * Skips optional ZIP evidence on step 2 to keep private-beta invitee journeys within CI budget.
  */
 export async function submitPrivateBetaSimplifiedPilotWizard(page: Page): Promise<string> {
-  await page.goto("/architecture/reviews/new?baseline=1", { waitUntil: "domcontentloaded" });
+  await page.goto(PRIVATE_BETA_SIMPLIFIED_PILOT_WIZARD_HREF, { waitUntil: "domcontentloaded" });
+  await waitAndDismissFirstSessionPurposeChooser(page);
 
   try {
     await expect(page.getByTestId("simplified-pilot-wizard")).toBeVisible({ timeout: 60_000 });
@@ -90,36 +105,45 @@ export async function submitPrivateBetaSimplifiedPilotWizard(page: Page): Promis
   });
 
   const createRespPromise = page.waitForResponse(
-    (response) =>
-      response.url().includes("/api/proxy/v1/architecture/request") && response.request().method() === "POST",
+    (response) => isArchitectureRequestCreateResponse(toCreateResponseArgs(response)),
     { timeout: liveE2ePrivateBetaWizardCreateTimeoutMs() },
   );
 
   await page.getByRole("button", { name: "Start an architecture review" }).click();
 
   const createResp = await createRespPromise;
-  const createBody = await createResp.text();
+  const bodyText = await createResp.text();
 
-  expect(createResp.ok(), createBody).toBeTruthy();
+  expect(
+    createResp.ok(),
+    `POST /architecture/request failed ${String(createResp.status())}: ${bodyText}`,
+  ).toBeTruthy();
 
   if (createResp.status() === 202) {
     return await waitForAsyncWizardRun(page, createResp.headers()["location"]);
   }
 
-  const createJson = parseWizardCreateResponse(
-    createBody,
-    createResp.status(),
-    createResp.headers()["content-type"],
-  );
-  const runId = createJson.run?.runId ?? "";
+  return readCreatedRunIdFromArchitectureRequestCreate({
+    status: createResp.status(),
+    bodyText,
+    location: createResp.headers()["location"],
+  });
+}
 
-  expect(runId.length).toBeGreaterThan(0);
-
-  return runId;
+function toCreateResponseArgs(response: Response): {
+  url: string;
+  method: string;
+} {
+  return {
+    url: response.url(),
+    method: response.request().method(),
+  };
 }
 
 function liveE2ePrivateBetaWizardCreateTimeoutMs(): number {
-  return process.env.CI ? 540_000 : 180_000;
+  // Async create is stub + enqueue (202). The previous 540s CI budget waited for a JSON
+  // sync body that Real-mode wizard create never sends.
+  return process.env.CI ? 120_000 : 180_000;
 }
 
 async function waitForAsyncWizardRun(page: Page, location: string | undefined): Promise<string> {

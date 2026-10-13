@@ -57,7 +57,7 @@ public sealed class AzureOpenAiOptions
     {
         get;
         set;
-    } = true;
+    } = false;
 
     /// <summary>
     ///     Polly retry attempts for Azure OpenAI completion calls. When zero, falls back to

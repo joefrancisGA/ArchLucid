@@ -1,6 +1,14 @@
 import { render, screen, within } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { expectFollowUpLink } from "@/lib/claim-discipline-test-helpers";
+
+vi.mock("next/navigation", async (importOriginal) => {
+  const { extendNextNavigationVitestMock } = await import("@/testing/next-navigation-vitest-mock");
+
+  return extendNextNavigationVitestMock(importOriginal, {
+    usePathname: () => "/administration/extract-upload",
+  });
+});
 
 import { ExtractUploadSettingsEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import {
@@ -11,6 +19,7 @@ import {
   EXTRACT_UPLOAD_SETTINGS_SOURCES_INTRO,
 } from "@/lib/extract-upload-settings-evidence-copy";
 import { filterWhereToGoNextFollowUpLinks } from "@/lib/evidence-orientation/where-to-go-next-follow-up-links";
+import { filterOrientationSourcesForJobContext } from "@/lib/evidence-orientation/job-context-orientation-sources-filter";
 
 describe("extract-upload-settings-evidence-copy", () => {
   it("publishes its canonical operator path", () => {
@@ -25,7 +34,14 @@ describe("extract-upload-settings-evidence-copy", () => {
 
     const sources = screen.getByTestId("extract-upload-settings-sources");
 
-    for (const link of filterWhereToGoNextFollowUpLinks(EXTRACT_UPLOAD_SETTINGS_SOURCES)) {
+    const expectedLinks = filterOrientationSourcesForJobContext(
+      filterWhereToGoNextFollowUpLinks(EXTRACT_UPLOAD_SETTINGS_SOURCES),
+      EXTRACT_UPLOAD_SETTINGS_CANONICAL_PATH,
+    );
+
+    expect(within(sources).getAllByRole("link")).toHaveLength(expectedLinks.length);
+
+    for (const link of expectedLinks) {
       expectFollowUpLink(within(sources), link);
     }
 

@@ -34,7 +34,8 @@ describe("HelpStructuredBriefGuideView (HST Phase 2)", () => {
       "#help-structured-brief-primary-content",
     );
     expect(screen.getByTestId("help-structured-brief-overview").className).toContain(HELP_PAGE_LAYOUT.readingBody);
-    expect(screen.queryByText(/Before sponsor send/i)).not.toBeInTheDocument();
+    expect(screen.getByTestId("help-structured-brief-honesty-panel")).toBeInTheDocument();
+    expect(screen.getByText(/Before sponsor send/i)).toBeInTheDocument();
 
     for (const heading of STRUCTURED_BRIEF_HELP_GUIDE_HEADINGS) {
       const element = document.getElementById(heading.id);

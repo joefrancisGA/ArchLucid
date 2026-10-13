@@ -22,14 +22,20 @@ function formatRequirementItems(items: unknown, heading: string, lines: string[]
 
     if (name) {
       lines.push(`- **${name}**`);
+    } else if (raw.requirementName === null || raw.requirementName === undefined) {
+      lines.push("- Requirement name was not stored.");
     }
 
     if (status) {
       lines.push(`  - Coverage: ${status}`);
+    } else if (raw.coverageStatus === null || raw.coverageStatus === undefined) {
+      lines.push("  - Coverage status was not stored.");
     }
 
     if (text) {
       lines.push(`  - ${text}`);
+    } else if (raw.requirementText === null || raw.requirementText === undefined) {
+      lines.push("  - Requirement text was not stored.");
     }
   }
 
@@ -52,10 +58,10 @@ export function formatManifestDocumentShape(m: Record<string, unknown>): string 
   const ruleSetId = normalizeInlineText(m.ruleSetId);
   const ruleSetVersion = normalizeInlineText(m.ruleSetVersion);
   const manifestHash = normalizeInlineText(m.manifestHash);
-  const changeDescription = meta ? normalizeInlineText(meta.changeDescription) : null;
+  const changeDescription = meta && typeof meta.changeDescription === "string" ? meta.changeDescription : null;
   const manifestVersion = meta ? normalizeInlineText(meta.manifestVersion) : null;
 
-  const titleBase = changeDescription ?? manifestVersion ?? "Architecture review record";
+  const titleBase = changeDescription ?? "Change description was not stored.";
 
   lines.push(`# ${titleBase}`);
   lines.push("");
@@ -65,24 +71,40 @@ export function formatManifestDocumentShape(m: Record<string, unknown>): string 
 
   if (manifestId) {
     lines.push(`- **Review record id:** \`${manifestId}\``);
+  } else if (m.manifestId === null || m.manifestId === undefined) {
+    lines.push("Review record id was not stored.");
   }
 
   if (runId) {
     lines.push(`- **Review id:** \`${runId}\``);
+  } else if (m.runId === null || m.runId === undefined) {
+    lines.push("Review id was not stored.");
   }
 
   if (ruleSetId && ruleSetVersion) {
     lines.push(`- **Policy pack:** ${ruleSetId} @ ${ruleSetVersion}`);
   } else if (ruleSetId) {
-    lines.push(`- **Policy pack:** ${ruleSetId}`);
+    lines.push(
+      `- **Policy pack:** ${ruleSetId}${m.ruleSetVersion === null || m.ruleSetVersion === undefined
+        ? " · Policy pack version was not stored."
+        : ""}`,
+    );
+  } else if (m.ruleSetId === null || m.ruleSetId === undefined) {
+    if (m.ruleSetVersion === null || m.ruleSetVersion === undefined) {
+      lines.push("Policy pack was not stored.");
+    }
   }
 
   if (manifestHash) {
     lines.push(`- **Review record hash:** \`${manifestHash}\``);
+  } else if (m.manifestHash === null || m.manifestHash === undefined) {
+    lines.push("Review record hash was not stored.");
   }
 
   if (manifestVersion) {
     lines.push(`- **Review record version:** ${manifestVersion}`);
+  } else if (meta === null || meta.manifestVersion === null || meta.manifestVersion === undefined) {
+    lines.push("Review record version was not stored.");
   }
 
   pushPolicyAtCommitMarkdownLines(m, lines);
@@ -114,24 +136,52 @@ export function formatManifestDocumentShape(m: Record<string, unknown>): string 
   lines.push("## Architecture overview");
   lines.push("");
 
-  pushBulletLines(lines, m.assumptions, "_No assumptions listed._");
+  if (m.assumptions === null || m.assumptions === undefined) {
+    lines.push("Assumptions were not stored.");
+  } else {
+    pushBulletLines(lines, m.assumptions, "_No assumptions listed._");
+  }
 
   lines.push("");
 
   if (constraints !== null) {
     lines.push("### Constraints");
     lines.push("");
-    pushBulletLines(lines, constraints.mandatoryConstraints, "_No mandatory constraints._");
-    pushBulletLines(lines, constraints.preferences, undefined);
+    if (constraints.mandatoryConstraints === null || constraints.mandatoryConstraints === undefined) {
+      lines.push("Mandatory constraints were not stored.");
+    } else {
+      pushBulletLines(lines, constraints.mandatoryConstraints, "_No mandatory constraints._");
+    }
+
+    if (constraints.preferences === null || constraints.preferences === undefined) {
+      lines.push("Preferences were not stored.");
+    } else {
+      pushBulletLines(lines, constraints.preferences, undefined);
+    }
+
+    lines.push("");
+  } else {
+    lines.push("Constraints were not stored.");
     lines.push("");
   }
 
   if (topology !== null) {
     lines.push("### Architecture structure");
     lines.push("");
-    pushBulletLines(lines, topology.selectedPatterns, undefined);
+    if (topology.selectedPatterns === null || topology.selectedPatterns === undefined) {
+      lines.push("Selected patterns were not stored.");
+    } else {
+      pushBulletLines(lines, topology.selectedPatterns, undefined);
+    }
     pushBulletLines(lines, topology.resources, undefined);
-    pushBulletLines(lines, topology.gaps, undefined);
+    if (topology.gaps === null || topology.gaps === undefined) {
+      lines.push("Topology gaps were not stored.");
+    } else {
+      pushBulletLines(lines, topology.gaps, undefined);
+    }
+    lines.push("");
+  } else {
+    lines.push("Architecture structure was not stored.");
     lines.push("");
   }
 
@@ -143,8 +193,13 @@ export function formatManifestDocumentShape(m: Record<string, unknown>): string 
 
     if (typeof cost.maxMonthlyCost === "number") {
       lines.push(`- **Max monthly cost (estimate):** ${cost.maxMonthlyCost}`);
+    } else if (cost.maxMonthlyCost === null || cost.maxMonthlyCost === undefined) {
+      lines.push("Max monthly cost was not stored.");
     }
 
+    lines.push("");
+  } else {
+    lines.push("Cost was not stored.");
     lines.push("");
   }
 
@@ -165,12 +220,19 @@ export function formatManifestDocumentShape(m: Record<string, unknown>): string 
         if (name && status) {
           lines.push(`- **${name}:** ${status}`);
         } else if (name) {
-          lines.push(`- ${name}`);
+          lines.push(
+            `- ${name}${c.status === null || c.status === undefined ? ": Control status was not stored." : ""}`,
+          );
+        } else if (c.controlName === null || c.controlName === undefined) {
+          lines.push("- Control name was not stored.");
         }
       }
     }
 
     pushBulletLines(lines, compliance.gaps, undefined);
+    lines.push("");
+  } else {
+    lines.push("Compliance was not stored.");
     lines.push("");
   }
 
@@ -178,11 +240,13 @@ export function formatManifestDocumentShape(m: Record<string, unknown>): string 
   lines.push("");
 
   const decisions = Array.isArray(m.decisions) ? m.decisions : [];
-  const services = topology !== null && Array.isArray(topology.services) ? topology.services : [];
-  const datastores =
-    topology !== null && Array.isArray(topology.datastores) ? topology.datastores : [];
-  const relationships =
-    topology !== null && Array.isArray(topology.relationships) ? topology.relationships : [];
+  const servicesValue = topology?.services;
+  const datastoresValue = topology?.datastores;
+  const relationshipsValue = topology?.relationships;
+  const decisionsValue = m.decisions;
+  const services = Array.isArray(servicesValue) ? servicesValue : [];
+  const datastores = Array.isArray(datastoresValue) ? datastoresValue : [];
+  const relationships = Array.isArray(relationshipsValue) ? relationshipsValue : [];
 
   if (services.length > 0) {
     lines.push("### Services");
@@ -197,12 +261,24 @@ export function formatManifestDocumentShape(m: Record<string, unknown>): string 
       const sid = normalizeInlineText(s.serviceId);
       const purpose = normalizeInlineText(s.purpose);
 
-      if (name) {
+      if (s.serviceName === null || s.serviceName === undefined) {
+        lines.push("- Service name was not stored.");
+
+        if (sid) {
+          lines.push(`  - **Service id:** \`${sid}\``);
+        }
+      } else {
         lines.push(`- **${name}**${sid ? ` (\`${sid}\`)` : ""}`);
+      }
+
+      if (s.serviceId === null || s.serviceId === undefined) {
+        lines.push("  - Service id was not stored.");
       }
 
       if (purpose) {
         lines.push(`  - ${purpose}`);
+      } else if (s.purpose === null || s.purpose === undefined) {
+        lines.push("  - Purpose was not stored.");
       }
     }
 
@@ -221,8 +297,18 @@ export function formatManifestDocumentShape(m: Record<string, unknown>): string 
       const name = normalizeInlineText(ds.name);
       const did = normalizeInlineText(ds.datastoreId);
 
-      if (name) {
+      if (ds.name === null || ds.name === undefined) {
+        lines.push("- Datastore name was not stored.");
+
+        if (did) {
+          lines.push(`  - **Datastore id:** \`${did}\``);
+        }
+      } else {
         lines.push(`- **${name}**${did ? ` (\`${did}\`)` : ""}`);
+      }
+
+      if (ds.datastoreId === null || ds.datastoreId === undefined) {
+        lines.push("  - Datastore id was not stored.");
       }
     }
 
@@ -240,14 +326,24 @@ export function formatManifestDocumentShape(m: Record<string, unknown>): string 
 
       const desc = normalizeInlineText(r.description);
       const relId = normalizeInlineText(r.relationshipId);
+      const missingRelId = r.relationshipId === null || r.relationshipId === undefined;
       const src = normalizeInlineText(r.sourceId);
       const tgt = normalizeInlineText(r.targetId);
-      const parts = [src, tgt].filter(Boolean).join(" → ");
+      const parts = [
+        src ?? (r.sourceId === null || r.sourceId === undefined ? "Source was not stored" : null),
+        tgt ?? (r.targetId === null || r.targetId === undefined ? "Target was not stored" : null),
+      ].filter((part): part is string => part !== null).join(" → ");
 
-      if (desc) {
-        lines.push(`- ${desc}${relId ? ` (\`${relId}\`)` : ""}`);
+      if (
+        (r.description === null || r.description === undefined)
+        && (r.sourceId === null || r.sourceId === undefined)
+        && (r.targetId === null || r.targetId === undefined)
+      ) {
+        lines.push(`- Relationship description was not stored.${relId ? ` (\`${relId}\`)` : ""}${missingRelId ? " Relationship id was not stored." : ""}`);
+      } else if (desc) {
+        lines.push(`- ${desc}${relId ? ` (\`${relId}\`)` : ""}${missingRelId ? " Relationship id was not stored." : ""}`);
       } else if (parts) {
-        lines.push(`- ${parts}${relId ? ` (\`${relId}\`)` : ""}`);
+        lines.push(`- ${parts}${relId ? ` (\`${relId}\`)` : ""}${missingRelId ? " Relationship id was not stored." : ""}`);
       }
     }
 
@@ -272,23 +368,37 @@ export function formatManifestDocumentShape(m: Record<string, unknown>): string 
       if (dTitle) {
         lines.push(`#### ${dTitle}`);
         lines.push("");
+      } else if (d.title === null || d.title === undefined) {
+        lines.push("#### Decision title was not stored.");
+        lines.push("");
+      } else {
+        lines.push("####");
+        lines.push("");
       }
 
-      if (did) {
+      if (d.decisionId === null || d.decisionId === undefined) {
+        lines.push("- Decision id was not stored.");
+      } else if (did) {
         lines.push(`- **Decision id:** \`${did}\``);
       }
 
       if (category) {
         lines.push(`- **Category:** ${category}`);
+      } else if (d.category === null || d.category === undefined) {
+        lines.push("- Decision category was not stored.");
       }
 
-      if (option) {
+      if (d.selectedOption === null || d.selectedOption === undefined) {
+        lines.push("- Selected option was not stored.");
+      } else if (option) {
         lines.push(`- **Selected option:** ${option}`);
       }
 
       if (rationale) {
         lines.push("");
         lines.push(rationale);
+      } else if (d.rationale === null || d.rationale === undefined) {
+        lines.push("- Decision rationale was not stored.");
       }
 
       lines.push("");
@@ -296,6 +406,10 @@ export function formatManifestDocumentShape(m: Record<string, unknown>): string 
   }
 
   if (
+    Array.isArray(servicesValue) &&
+    Array.isArray(datastoresValue) &&
+    Array.isArray(relationshipsValue) &&
+    Array.isArray(decisionsValue) &&
     services.length === 0 &&
     datastores.length === 0 &&
     relationships.length === 0 &&
@@ -303,12 +417,35 @@ export function formatManifestDocumentShape(m: Record<string, unknown>): string 
   ) {
     lines.push("_No services, datastores, relationships, or decisions were present._");
     lines.push("");
+  } else {
+    if (!Array.isArray(servicesValue)) {
+      lines.push("Services were not stored.");
+    }
+
+    if (!Array.isArray(datastoresValue)) {
+      lines.push("Datastores were not stored.");
+    }
+
+    if (!Array.isArray(relationshipsValue)) {
+      lines.push("Relationships were not stored.");
+    }
+
+    if (!Array.isArray(decisionsValue)) {
+      lines.push("Decisions were not stored.");
+    }
+
+    lines.push("");
   }
 
   lines.push("## Security model");
   lines.push("");
 
   if (security !== null) {
+    if (security.controls === null || security.controls === undefined) {
+      lines.push("Security controls were not stored.");
+      lines.push("");
+    }
+
     const controls = Array.isArray(security.controls) ? security.controls : [];
 
     if (controls.length > 0) {
@@ -325,23 +462,42 @@ export function formatManifestDocumentShape(m: Record<string, unknown>): string 
         const impact = normalizeInlineText(c.impact);
 
         if (cname) {
-          lines.push(`- **${cname}**${status ? ` — ${status}` : ""}${impact ? ` (${impact})` : ""}`);
+          lines.push(
+            `- **${cname}**${
+              status
+                ? ` — ${status}`
+                : c.status === null || c.status === undefined
+                  ? " — Control status was not stored."
+                  : ""
+            }${impact ? ` (${impact})` : c.impact === null || c.impact === undefined ? " (Impact was not stored.)" : ""}`,
+          );
+        } else if (c.controlName === null || c.controlName === undefined) {
+          lines.push("- Control name was not stored.");
         }
       }
 
       lines.push("");
     }
 
-    pushBulletLines(lines, security.gaps, undefined);
+    if (security.gaps === null || security.gaps === undefined) {
+      lines.push("Security gaps were not stored.");
+    } else {
+      pushBulletLines(lines, security.gaps, undefined);
+    }
+  } else {
+    lines.push("Security model was not stored.");
   }
 
-  pushBulletLines(lines, m.warnings, undefined);
+  if (m.warnings === null || m.warnings === undefined) {
+    lines.push("Warnings were not stored.");
+  } else {
+    pushBulletLines(lines, m.warnings, undefined);
+  }
 
   const feasibilityVerdict = isRecord(m.feasibilityVerdict) ? m.feasibilityVerdict : null;
-  const feasibilityVerdictMarkdown =
-    feasibilityVerdict !== null
-      ? formatFeasibilityVerdictMarkdownSection(feasibilityVerdict as never)
-      : "";
+  const feasibilityVerdictMarkdown = formatFeasibilityVerdictMarkdownSection(
+    feasibilityVerdict as Parameters<typeof formatFeasibilityVerdictMarkdownSection>[0],
+  );
 
   if (feasibilityVerdictMarkdown.trim().length > 0) {
     lines.push(feasibilityVerdictMarkdown.trim());
@@ -357,7 +513,10 @@ export function formatManifestDocumentShape(m: Record<string, unknown>): string 
         })
       : null;
 
-  if (
+  if (feasibilityVerdict !== null && (feasibilityVerdict.transparencyTrail === null || feasibilityVerdict.transparencyTrail === undefined)) {
+    lines.push("Transparency trail was not stored.");
+    lines.push("");
+  } else if (
     transparencyTrail !== null &&
     Array.isArray(transparencyTrail.asserted) &&
     Array.isArray(transparencyTrail.inferred) &&

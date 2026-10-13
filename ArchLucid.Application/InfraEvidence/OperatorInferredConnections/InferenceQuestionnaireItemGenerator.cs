@@ -33,6 +33,8 @@ public sealed class InferenceQuestionnaireItemGenerator(
 
     public const string SameCaeUiApiRuleName = "Same CAE UI to API";
 
+    public const string UnmappedDataPlaneRoleRuleName = "Unmapped data-plane role";
+
     public async Task<IReadOnlyList<OperatorInferredConnectionRecord>> GenerateAndPersistAsync(
         ScopeContext scope,
         AzureInventorySnapshotDetailReadModel snapshot,
@@ -98,6 +100,7 @@ public sealed class InferenceQuestionnaireItemGenerator(
         EmitSqlCatalogMissingItems(scope, input, items, dedupeKeys, payloadHashes, hostToArmId, utcNow);
         EmitUnresolvedHostItems(scope, input, items, dedupeKeys, payloadHashes, utcNow);
         EmitSameCaeUiApiItems(scope, input, items, dedupeKeys, payloadHashes, hostToArmId, propertiesByResourceRowId, utcNow);
+        EmitUnmappedDataPlaneRoleItems(scope, input, items, dedupeKeys, payloadHashes, extendedResources, utcNow);
 
         if (items.Count > MaxItems)
         {
@@ -105,6 +108,97 @@ public sealed class InferenceQuestionnaireItemGenerator(
         }
 
         return items;
+    }
+
+    private static void EmitUnmappedDataPlaneRoleItems(
+        ScopeContext scope,
+        InferenceQuestionnaireInput input,
+        List<OperatorInferredConnectionRecord> items,
+        HashSet<string> dedupeKeys,
+        HashSet<string> payloadHashes,
+        IReadOnlyList<AzureExtractorExtendedResourceRow> extendedResources,
+        DateTime utcNow)
+    {
+        if (items.Count >= MaxItems)
+        {
+            return;
+        }
+
+        Dictionary<string, List<string>> principalToComputeArmIds =
+            AzureInventoryComputeIdentityPrincipalIndex.BuildPrincipalToComputeArmIds(extendedResources);
+        HashSet<string> inventoriedResourceIds = input.Snapshot.Resources
+            .Select(resource => ArmResourceIdNormalizer.Normalize(resource.AzureResourceId))
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+        Dictionary<string, string> resourceNames = input.Snapshot.Resources
+            .ToDictionary(
+                resource => ArmResourceIdNormalizer.Normalize(resource.AzureResourceId),
+                resource => ReadResourceName(resource.AzureResourceId),
+                StringComparer.OrdinalIgnoreCase);
+        HashSet<string> derivedDataPlaneEdges = input.Snapshot.Relationships
+            .Where(relationship =>
+                relationship.RelationshipType is GraphEdgeTypes.CanRead or GraphEdgeTypes.CanWrite
+                && relationship.ProvenanceKind != ProvenanceKind.ObservedFact)
+            .Select(relationship =>
+                $"{ArmResourceIdNormalizer.Normalize(relationship.FromAzureResourceId)}|{ArmResourceIdNormalizer.Normalize(relationship.ToAzureResourceId)}")
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+        int emitted = 0;
+
+        foreach (AzureInventoryRoleAssignmentReadModel assignment in input.Snapshot.RoleAssignments)
+        {
+            if (emitted >= 10
+                || items.Count >= MaxItems
+                || !string.IsNullOrWhiteSpace(assignment.PimEligibilityKind)
+                    && !assignment.PimEligibilityKind.Equals("standing", StringComparison.OrdinalIgnoreCase)
+                || !principalToComputeArmIds.TryGetValue(assignment.PrincipalId.Trim(), out List<string>? computeArmIds)
+                || !inventoriedResourceIds.Contains(ArmResourceIdNormalizer.Normalize(assignment.Scope)))
+            {
+                continue;
+            }
+
+            string roleName = assignment.RoleDefinitionName
+                              ?? AzureInventoryBuiltInRoleDefinitionNames.TryResolveFromRoleDefinitionId(
+                                  assignment.RoleDefinitionId)
+                              ?? string.Empty;
+
+            if (AzureInventoryRbacDataPlaneRoleMap.Resolve(roleName) is not AzureInventoryDerivedDataPlanePermission.None)
+            {
+                continue;
+            }
+
+            string normalizedScope = ArmResourceIdNormalizer.Normalize(assignment.Scope);
+
+            foreach (string computeArmId in computeArmIds.Distinct(StringComparer.OrdinalIgnoreCase))
+            {
+                string normalizedComputeArmId = ArmResourceIdNormalizer.Normalize(computeArmId);
+
+                if (derivedDataPlaneEdges.Contains($"{normalizedComputeArmId}|{normalizedScope}"))
+                {
+                    continue;
+                }
+
+                string computeName = ReadResourceName(normalizedComputeArmId);
+                string resourceName = resourceNames.GetValueOrDefault(normalizedScope) ?? ReadResourceName(normalizedScope);
+                string questionText =
+                    $"What does {computeName} do with {resourceName}: read, write, or nothing?"
+                    + (string.IsNullOrWhiteSpace(roleName) ? string.Empty : $" The role is {roleName}.");
+
+                if (TryAddItem(
+                        scope,
+                        input.Snapshot.Header.SnapshotId,
+                        items,
+                        dedupeKeys,
+                        payloadHashes,
+                        utcNow,
+                        ruleName: UnmappedDataPlaneRoleRuleName,
+                        questionText: questionText,
+                        fromArmId: normalizedComputeArmId,
+                        fromLabel: computeName,
+                        toArmId: normalizedScope))
+                {
+                    emitted++;
+                }
+            }
+        }
     }
 
     private static void EmitCatalogTemplateItems(

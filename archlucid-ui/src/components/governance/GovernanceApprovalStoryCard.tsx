@@ -10,7 +10,6 @@ import {
   BUYER_SHOWCASE_APPROVER_ROLE,
   BUYER_SHOWCASE_POLICY_PACK_LABEL,
   BUYER_SHOWCASE_REQUEST_OWNER_ROLE,
-  BUYER_SHOWCASE_RESIDUAL_RISK_MONITORING_CADENCE,
   resolveBuyerShowcaseResidualRiskNextReviewIso,
   BUYER_SHOWCASE_RESIDUAL_RISK_OWNER,
 } from "@/lib/buyer/buyer-polish-copy";
@@ -96,7 +95,7 @@ export function GovernanceApprovalStoryCard(props: {
               {promoteReady ? (
                 <>
                   <dt className="text-neutral-500 dark:text-neutral-500">Monitoring</dt>
-                  <dd className="m-0 font-medium text-neutral-800 dark:text-neutral-200">{BUYER_SHOWCASE_RESIDUAL_RISK_MONITORING_CADENCE}</dd>
+                  <dd className="m-0 font-medium text-neutral-800 dark:text-neutral-200">Monitoring cadence was not stored.</dd>
                   <dt className="text-neutral-500 dark:text-neutral-500">Next review</dt>
                   <dd className="m-0 font-medium text-neutral-800 dark:text-neutral-200">{resolveBuyerShowcaseResidualRiskNextReviewIso()}</dd>
                 </>

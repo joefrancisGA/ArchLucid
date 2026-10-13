@@ -205,12 +205,13 @@ export function QuickDecisionSummaryFindingRow({
       ) : null}
       {finding.evaluationConfidenceScore !== null &&
       finding.evaluationConfidenceScore !== undefined &&
-      Number.isFinite(finding.evaluationConfidenceScore) &&
-      finding.confidenceLevel !== "High" &&
-      finding.confidenceLevel !== "Medium" &&
-      finding.confidenceLevel !== "Low" ? (
+      Number.isFinite(finding.evaluationConfidenceScore) ? (
         <p className={cn("m-0 mt-0.5 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
           Evaluation score {Math.round(finding.evaluationConfidenceScore)}
+        </p>
+      ) : finding.evaluationConfidenceScore === null || finding.evaluationConfidenceScore === undefined ? (
+        <p className={cn("m-0 mt-0.5 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+          Evaluation score was not stored
         </p>
       ) : null}
       {snippet.length > 0 && !workspaceCardMode ? (
@@ -269,7 +270,11 @@ export function QuickDecisionSummaryFindingRow({
                   findingTitle={finding.title}
                   severityLabel={quickDecisionWorkItemSeverityLabel(finding.severityValue)}
                   recommendedAction={finding.recommendation}
-                  statusLabel="Open"
+                  statusLabel={
+                    finding.humanReviewStatus === null || finding.humanReviewStatus === undefined
+                      ? null
+                      : humanReviewStatusDisplay(finding.humanReviewStatus).label
+                  }
                   compact
                 />
                 <ItsmOutboundQuickActions findingId={finding.findingId} compact />

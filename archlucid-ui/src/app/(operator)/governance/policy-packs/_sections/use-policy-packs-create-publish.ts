@@ -20,6 +20,10 @@ import { usePolicyPackVersionDetailQuery } from "@/hooks/use-policy-pack-version
 import { usePolicyPackVersionsQuery } from "@/hooks/use-policy-pack-versions-query";
 import { policyPackPublishSuccessMessage } from "@/lib/governance/governance-mutation-outcome-copy";
 import { showSuccess } from "@/lib/toast";
+import {
+  findPolicyPackPlaceholders,
+  policyPackPlaceholderValidationMessage,
+} from "@/lib/policy/policy-pack-placeholders";
 import type { PolicyPack, PolicyPackContentDocument, PolicyPackVersion } from "@/types/policy-packs";
 import { isBundledPlatformDefaultPackType } from "@/lib/policy/policy-pack-type-label";
 import { DEFAULT_CONTENT } from "./policy-packs-page-constants";
@@ -71,6 +75,11 @@ export function usePolicyPacksCreatePublish(deps: PolicyPacksAuthoringDeps) {
   const [createInlineSaveError, setCreateInlineSaveError] = useState<string | null>(null);
   const [publishLastSavedUtc, setPublishLastSavedUtc] = useState<string | null>(null);
   const [publishInlineSaveError, setPublishInlineSaveError] = useState<string | null>(null);
+  const unresolvedCreatePlaceholders = findPolicyPackPlaceholders(createJson);
+  const createPlaceholderValidationMessage =
+    unresolvedCreatePlaceholders.length > 0
+      ? policyPackPlaceholderValidationMessage(unresolvedCreatePlaceholders)
+      : null;
   const packVersionsQuery = usePolicyPackVersionsQuery(selectedPackId, {
     enabled: selectedPackId.length > 0,
   });
@@ -312,6 +321,12 @@ export function usePolicyPacksCreatePublish(deps: PolicyPacksAuthoringDeps) {
     deps.setFailure(null);
     setCreateInlineSaveError(null);
 
+    if (createPlaceholderValidationMessage !== null) {
+      deps.setFailure(uiFailureFromMessage(createPlaceholderValidationMessage));
+      setCreateInlineSaveError(createPlaceholderValidationMessage);
+      return;
+    }
+
     try {
       JSON.parse(createJson);
     } catch {
@@ -348,7 +363,16 @@ export function usePolicyPacksCreatePublish(deps: PolicyPacksAuthoringDeps) {
     } finally {
       deps.setLoading(false);
     }
-  }, [createJson, deps.canMutatePacks, deps.load, description, livelihoodReturnPath, name, packType]);
+  }, [
+    createJson,
+    createPlaceholderValidationMessage,
+    deps.canMutatePacks,
+    deps.load,
+    description,
+    livelihoodReturnPath,
+    name,
+    packType,
+  ]);
 
   const onPublish = useCallback(async () => {
     if (!deps.canMutatePacks) {
@@ -470,6 +494,8 @@ export function usePolicyPacksCreatePublish(deps: PolicyPacksAuthoringDeps) {
     setPackType,
     createJson,
     setCreateJson,
+    createPlaceholderValidationMessage,
+    unresolvedCreatePlaceholders,
     selectedPackId,
     setSelectedPackId,
     publishVersion,

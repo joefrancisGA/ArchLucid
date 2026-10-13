@@ -13,7 +13,7 @@ class TestAdoptionBatch5AX(unittest.TestCase):
         path = REPO_ROOT / "archlucid-ui" / "src" / "app" / "(operator)" / "architecture" / "sponsor-dashboard" / "_sections" / "SponsorRoiDashboardLiveKpiCards.tsx"
         text = path.read_text(encoding="utf-8")
         self.assertIn("KpiTileDrillThroughLink", text)
-        self.assertIn("kpi-tile-stale-risks-link", text)
+        self.assertIn("kpi-tile-resolved-30d-link", text)
         hrefs = (
             REPO_ROOT
             / "archlucid-ui"

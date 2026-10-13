@@ -178,7 +178,7 @@ export function buildRunFindingsItsmJsonExportDocument(
       siteOrigin,
       trustLabel: finding.trustLabel ?? null,
       trustLabelReason: finding.trustLabelReason ?? null,
-      classification: finding.classification ?? "DecisionGradeFinding",
+      classification: finding.classification ?? null,
       semanticSupportBand: finding.semanticSupportBand ?? null,
       semanticSupportBandScorerVersion: finding.semanticSupportBandScorerVersion ?? null,
     });

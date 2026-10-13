@@ -63,7 +63,7 @@ export type CloudResourceEvidenceFindingHubItem = {
 
 export type CloudResourceEvidenceFindingStreamPage = {
   streamKind: string;
-  streamLabel: string;
+  streamLabel?: string | null;
   items: CloudResourceEvidenceFindingHubItem[];
   totalCount: number;
   page: number;
@@ -123,9 +123,9 @@ export type DiagramInfrastructureCorrespondenceRow = {
   resourceType: string | null;
   resourceGroup: string | null;
   terraformAddress: string | null;
-  matchKind: string;
+  matchKind?: string | null;
   confidenceBand: string;
-  explainText: string;
+  explainText?: string | null;
   aiRationale: string | null;
   securityDiscrepancy: boolean;
 };

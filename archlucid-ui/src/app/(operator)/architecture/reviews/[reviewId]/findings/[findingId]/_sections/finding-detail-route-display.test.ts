@@ -82,8 +82,16 @@ describe("finding-detail-route-display buyer summary copy", () => {
   it("fails closed on owner and next review when payload has neither", () => {
     expect(resolveFindingRiskOwnerLabel(emptyPayload(), "generic-finding")).toBe("Risk owner was not stored");
     expect(resolveFindingNextReviewLabel(emptyPayload(), "generic-finding")).toBe(
-      "No remediation due date recorded",
+      "Remediation due date was not stored.",
     );
+  });
+
+  it("distinguishes missing and stored empty remediation due dates", () => {
+    expect(resolveFindingNextReviewLabel(emptyPayload({ remediationDueUtc: null }), "generic-finding")).toBe(
+      "Remediation due date was not stored.",
+    );
+    expect(resolveFindingNextReviewLabel(emptyPayload({ remediationDueUtc: "" }), "generic-finding")).toBe("");
+    expect(formatFindingRemediationDueLabel("")).toBe("");
   });
 
   it("does not invent an impacted area for an ordinary finding", () => {

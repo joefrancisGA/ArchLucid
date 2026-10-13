@@ -17,6 +17,13 @@ public sealed class AzureExtractorIngestResult
         init;
     }
 
+    public Guid? SnapshotId
+    {
+        get;
+
+        init;
+    }
+
     public string? FailureDetail
     {
         get;

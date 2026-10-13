@@ -59,6 +59,7 @@ describe("buildRunFindingsItsmJsonExportDocument", () => {
         enforcementTier: "PolicyViolation",
         classification: FINDING_CLASSIFICATION_DECISION_GRADE,
         semanticSupportBand: "Unsupported",
+        semanticSupportBandScorerVersion: FINDING_SEMANTIC_SUPPORT_BAND_SCORER_VERSION,
       },
     ];
 

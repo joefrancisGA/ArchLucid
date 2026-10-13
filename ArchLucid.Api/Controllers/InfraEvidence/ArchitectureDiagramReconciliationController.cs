@@ -1,3 +1,5 @@
+using System.Security.Claims;
+
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
@@ -129,4 +131,95 @@ public sealed partial class ArchitectureDiagramReconciliationController(
             return MapDiagramReconcileSealedManifestConflict(ex);
         }
     }
+
+    [HttpPut("documentation-decisions")]
+    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
+    [MutatingAuditExcluded("Documentation decision records operator disposition for a sealed diagram gap without changing Azure or the match result.")]
+    [ProducesResponseType(typeof(InfrastructureDiagramDocumentationDecision), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> SaveDocumentationDecision(
+        Guid runId,
+        [FromBody] InfrastructureDiagramDocumentationDecisionSaveRequest? request,
+        CancellationToken cancellationToken = default)
+    {
+        if (runId == Guid.Empty || request is null || request.SnapshotId == Guid.Empty)
+        {
+            return this.BadRequestProblem("RunId and SnapshotId are required.", ProblemTypes.ValidationFailed);
+        }
+
+        IActionResult? sealedGuardResult = await EnsureRunSealedManifestAllowedAsync(runId, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
+        ScopeContext scope = _scopeProvider.GetCurrentScope();
+
+        try
+        {
+            InfrastructureDiagramDocumentationDecision result =
+                await _reconciliationService.SaveDocumentationDecisionAsync(
+                    scope,
+                    runId,
+                    request,
+                    ResolveActorOid(),
+                    cancellationToken);
+
+            return Ok(result);
+        }
+        catch (ArgumentException ex)
+        {
+            return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
+        }
+        catch (ConflictException ex)
+        {
+            return MapDiagramReconcileSealedManifestConflict(ex);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return this.NotFoundProblem(ex.Message, ProblemTypes.ResourceNotFound);
+        }
+    }
+
+    [HttpGet("documentation-decisions")]
+    [ProducesResponseType(typeof(IReadOnlyList<InfrastructureDiagramDocumentationDecision>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> GetDocumentationDecisions(
+        Guid runId,
+        [FromQuery] Guid snapshotId,
+        CancellationToken cancellationToken = default)
+    {
+        if (runId == Guid.Empty || snapshotId == Guid.Empty)
+        {
+            return this.BadRequestProblem("RunId and snapshotId are required.", ProblemTypes.ValidationFailed);
+        }
+
+        IActionResult? sealedGuardResult = await EnsureRunSealedManifestAllowedAsync(runId, cancellationToken);
+
+        if (sealedGuardResult is not null)
+            return sealedGuardResult;
+
+        ScopeContext scope = _scopeProvider.GetCurrentScope();
+        try
+        {
+            IReadOnlyList<InfrastructureDiagramDocumentationDecision>? result =
+                await _reconciliationService.TryListDocumentationDecisionsAsync(
+                    scope,
+                    runId,
+                    snapshotId,
+                    cancellationToken);
+
+            return result is null ? NotFound() : Ok(result);
+        }
+        catch (ConflictException ex)
+        {
+            return MapDiagramReconcileSealedManifestConflict(ex);
+        }
+    }
+
+    private string? ResolveActorOid() =>
+        User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("sub");
 }

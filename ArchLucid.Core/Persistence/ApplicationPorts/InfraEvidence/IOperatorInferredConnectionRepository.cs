@@ -63,6 +63,7 @@ public sealed record OperatorInferredConnectionMutation
     public string? ToArmId { get; init; }
     public Guid? ToCloudResourceId { get; init; }
     public string? ToCatalog { get; init; }
+    public OperatorInferredDataPlaneAnswer? DataPlaneAnswer { get; init; }
     public string? ActorKey { get; init; }
     public required DateTime UpdatedUtc { get; init; }
 
@@ -89,6 +90,7 @@ public sealed record OperatorInferredConnectionMutation
             FromCloudResourceId = FromCloudResourceId,
             ToHost = source.ToHost,
             ToCatalog = ToCatalog,
+            DataPlaneAnswer = DataPlaneAnswer,
             ToArmId = ToArmId,
             ToCloudResourceId = ToCloudResourceId,
             SettingName = source.SettingName,

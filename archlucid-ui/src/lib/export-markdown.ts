@@ -180,10 +180,10 @@ function formatManifestSummaryFallback(
   lines.push("## Objectives");
   lines.push("");
 
-  if (summary.operatorSummary) {
+  if (summary.operatorSummary === null || summary.operatorSummary === undefined) {
+    lines.push("Operator summary was not stored.");
+  } else if (summary.operatorSummary) {
     lines.push(summary.operatorSummary);
-  } else {
-    lines.push("_No operator summary was returned by the API._");
   }
 
   lines.push("");
@@ -250,7 +250,6 @@ function formatManifestSummaryFallback(
 
 function looksLikeSandboxGoldenManifest(m: Record<string, unknown>): boolean {
   return (
-    Array.isArray(m.highlights) &&
     isRecord(m.summary) &&
     typeof m.schemaVersion === "string"
   );

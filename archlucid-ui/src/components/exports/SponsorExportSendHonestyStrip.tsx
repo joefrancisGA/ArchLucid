@@ -27,24 +27,22 @@ export function SponsorExportSendHonestyStrip({
   testIdPrefix = "sponsor-export-send",
 }: SponsorExportSendHonestyStripProps): React.JSX.Element {
   return (
-    <ul
-      className={cn(
-        "m-0 list-disc space-y-1 pl-5 text-al-text-secondary",
-        OPERATOR_TYPOGRAPHY.helper,
-        className,
-      )}
+    <div
+      className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper, className)}
       data-testid={`${testIdPrefix}-honesty-strip`}
       role="note"
       aria-label="Before you export"
     >
-      {SPONSOR_EXPORT_SEND_HONESTY_LINES.map((line, index) => (
-        <li
-          key={SPONSOR_EXPORT_SEND_HONESTY_LINE_TEST_IDS[index]}
-          data-testid={`${testIdPrefix}-${SPONSOR_EXPORT_SEND_HONESTY_LINE_TEST_IDS[index]}`}
-        >
-          {line}
-        </li>
-      ))}
-    </ul>
+      <ul className="m-0 list-disc space-y-1 pl-5">
+        {SPONSOR_EXPORT_SEND_HONESTY_LINES.map((line, index) => (
+          <li
+            key={SPONSOR_EXPORT_SEND_HONESTY_LINE_TEST_IDS[index]}
+            data-testid={`${testIdPrefix}-${SPONSOR_EXPORT_SEND_HONESTY_LINE_TEST_IDS[index]}`}
+          >
+            {line}
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }

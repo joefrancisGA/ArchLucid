@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
@@ -105,6 +105,7 @@ const IDENTIFIER_FIELD_ELEMENT_IDS: Readonly<Record<AuditEvidenceLookupIdentifie
 
 export function AuditEvidenceLookupClient() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { productLine } = useProductLine();
   const buyerPolishedShell = useProductionEvalChrome();
   const lookupPath = useMemo(() => auditEvidencePathForProductLine(productLine), [productLine]);
@@ -116,7 +117,7 @@ export function AuditEvidenceLookupClient() {
 
   const [assessmentId, setAssessmentId] = useState("");
   const [snapshotId, setSnapshotId] = useState("");
-  const [controlId, setControlId] = useState("");
+  const [controlId, setControlId] = useState(() => searchParams.get("controlId")?.trim() ?? "");
   const [lineageUrl, setLineageUrl] = useState("");
   const [fieldErrors, setFieldErrors] = useState<AuditEvidenceLookupFieldErrors>({});
   const [touchedFields, setTouchedFields] = useState<IdentifierTouchedFields>(EMPTY_TOUCHED_FIELDS);

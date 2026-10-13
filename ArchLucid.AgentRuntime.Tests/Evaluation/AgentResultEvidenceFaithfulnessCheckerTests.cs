@@ -58,6 +58,32 @@ public sealed class AgentResultEvidenceFaithfulnessCheckerTests
     }
 
     [Fact]
+    public void Evaluate_matches_case_variant_top_level_claims_property()
+    {
+        AgentEvidencePackage evidence = new()
+        {
+            Patterns =
+            [
+                new PatternEvidence
+                {
+                    PatternId = "pattern-front-door",
+                    Name = "Front Door edge",
+                    Summary = "Edge TLS termination",
+                }
+            ],
+        };
+
+        const string json = """
+                            {"CLAIMS":[{"detail":"Front Door terminates TLS per pattern-front-door guidance.","evidenceRefs":["pattern-front-door"]}],"findings":[]}
+                            """;
+
+        AgentResultEvidenceFaithfulnessReport report = _sut.Evaluate(json, evidence);
+
+        report.ClaimsChecked.Should().Be(1);
+        report.SupportRatio.Should().Be(1.0);
+    }
+
+    [Fact]
     public void Evaluate_unresolved_evidence_ref_lowers_ratio()
     {
         AgentEvidencePackage evidence = new();
@@ -289,6 +315,32 @@ public sealed class AgentResultEvidenceFaithfulnessCheckerTests
 
         const string json = """
                             {"claims":[],"findings":[{"severity":"Low","category":"app","description":"kubernetes cluster nodes scheduling","recommendation":"maintain application architecture standards annually"}]}
+                            """;
+
+        AgentResultEvidenceFaithfulnessReport report = _sut.Evaluate(json, evidence);
+
+        report.SupportRatio.Should().Be(0.0);
+        report.UnsupportedIds.Should().Contain("finding:grounding");
+    }
+
+    [Fact]
+    public void Evaluate_undefined_numeric_finding_category_does_not_count_as_grounded()
+    {
+        AgentEvidencePackage evidence = new()
+        {
+            Patterns =
+            [
+                new PatternEvidence
+                {
+                    PatternId = "pattern-a",
+                    Name = "Pattern A",
+                    Summary = "kubernetes cluster nodes scheduling policy",
+                }
+            ],
+        };
+
+        const string json = """
+                            {"claims":[],"findings":[{"severity":"Low","category":"99","description":"kubernetes cluster nodes scheduling policy","recommendation":"maintain application architecture standards annually"}]}
                             """;
 
         AgentResultEvidenceFaithfulnessReport report = _sut.Evaluate(json, evidence);

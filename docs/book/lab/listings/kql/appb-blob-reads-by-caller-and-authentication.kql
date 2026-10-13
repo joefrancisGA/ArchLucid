@@ -1,0 +1,6 @@
+StorageBlobLogs
+| where TimeGenerated > ago(1d)
+| where AccountName in ("custdata", "custarchive")
+| where OperationName == "GetBlob" and StatusText == "Success"
+| summarize reads = count(), first = min(TimeGenerated), last = max(TimeGenerated)
+    by AccountName, AuthenticationType, RequesterObjectId, CallerIpAddress

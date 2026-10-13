@@ -3,6 +3,7 @@ using ArchLucid.Api.Http.Tenancy;
 using ArchLucid.Api.Models.Tenancy;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Tenancy;
+using ArchLucid.Application.Common;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Tenancy;
@@ -19,10 +20,14 @@ namespace ArchLucid.Api.Controllers.Tenancy;
 [Authorize]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/tenant")]
-public sealed class TenantTrialController(ITenantTrialFacade trialFacade) : ControllerBase
+public sealed class TenantTrialController(
+    ITenantTrialFacade trialFacade,
+    IActorContext actorContext) : ControllerBase
 {
     private readonly ITenantTrialFacade _trialFacade =
         trialFacade ?? throw new ArgumentNullException(nameof(trialFacade));
+    private readonly IActorContext _actorContext =
+        actorContext ?? throw new ArgumentNullException(nameof(actorContext));
 
     /// <summary>Returns trial window metadata when the tenant row was provisioned via self-service bootstrap.</summary>
     [HttpGet("trial-status")]
@@ -61,7 +66,7 @@ public sealed class TenantTrialController(ITenantTrialFacade trialFacade) : Cont
 
         TenantTrialLinkEntraResult result = await _trialFacade.LinkEntraAsync(
                 TenantTrialHttpMapper.MapLinkEntraBody(body),
-                User.Identity?.Name ?? "admin",
+                _actorContext.GetActorId(),
                 cancellationToken)
             .ConfigureAwait(false);
 
@@ -93,7 +98,7 @@ public sealed class TenantTrialController(ITenantTrialFacade trialFacade) : Cont
     {
         TenantTrialConvertResult result = await _trialFacade.ConvertTrialAsync(
                 TenantTrialHttpMapper.MapConvertBody(body),
-                User.Identity?.Name ?? "admin",
+                _actorContext.GetActorId(),
                 cancellationToken)
             .ConfigureAwait(false);
 

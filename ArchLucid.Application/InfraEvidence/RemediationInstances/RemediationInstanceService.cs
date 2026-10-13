@@ -24,8 +24,12 @@ public sealed class RemediationInstanceService(
     ISecurityEvidencePathRepository pathRepository,
     IAuditManualEvidenceRepository auditManualEvidenceRepository,
     IAuthorityQueryService authorityQueryService,
-    IManifestHashService manifestHashService) : IRemediationInstanceService
+    IManifestHashService manifestHashService,
+    IVerifiedRemediationControlAssociationRepository associationRepository) : IRemediationInstanceService
 {
+    private readonly IVerifiedRemediationControlAssociationRepository _associationRepository =
+        associationRepository ?? throw new ArgumentNullException(nameof(associationRepository));
+
     public async Task<RemediationInstanceOperationResult> CreateFromMatchAsync(
         ScopeContext scope,
         Guid findingId,
@@ -561,10 +565,105 @@ public sealed class RemediationInstanceService(
 
         await instanceRepository.UpdateInScopeAsync(scope.ToProjectScopeKey(), ToMutation(updated), cancellationToken);
 
+        // A failed check leaves the control unevidenced: do not insert a row and do not delete an older one.
         if (!verification.Passed)
             return Blocked(verification.Failures.ToArray());
 
+        RemediationInstanceOperationResult? associationFailure =
+            await TryWriteVerifiedAssociationAsync(scope, instance, updated, cancellationToken);
+
+        if (associationFailure is not null)
+            return associationFailure;
+
         return Succeeded(instanceId, nextStatus);
+    }
+
+    private async Task<RemediationInstanceOperationResult?> TryWriteVerifiedAssociationAsync(
+        ScopeContext scope,
+        RemediationInstanceRecord beforeVerify,
+        RemediationInstanceRecord verified,
+        CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        ArgumentNullException.ThrowIfNull(beforeVerify);
+        ArgumentNullException.ThrowIfNull(verified);
+
+        if (verified.ControlId is not Guid controlId || controlId == Guid.Empty)
+            return null;
+
+        if (verified.VerificationSnapshotId is not Guid verificationSnapshotId || verificationSnapshotId == Guid.Empty)
+            return null;
+
+        VerifiedRemediationControlAssociationRecord association = CreateAssociation(
+            scope,
+            verified,
+            controlId,
+            verificationSnapshotId);
+
+        try
+        {
+            await _associationRepository.UpsertAsync(scope.ToProjectScopeKey(), association, cancellationToken);
+            return null;
+        }
+        catch (Exception writeFailure) when (writeFailure is not OperationCanceledException)
+        {
+            // The instance row is already Verified. Put it back so a passed check cannot
+            // remain verified when the association statement did not save.
+            await RestoreInstanceAfterAssociationFailureAsync(scope, beforeVerify, writeFailure);
+            return Failed("Verified remediation association could not be saved.");
+        }
+    }
+
+    private async Task RestoreInstanceAfterAssociationFailureAsync(
+        ScopeContext scope,
+        RemediationInstanceRecord beforeVerify,
+        Exception writeFailure)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        ArgumentNullException.ThrowIfNull(beforeVerify);
+        ArgumentNullException.ThrowIfNull(writeFailure);
+
+        try
+        {
+            // CancellationToken.None so a cancelled request token cannot skip the restore.
+            await instanceRepository.UpdateInScopeAsync(
+                scope.ToProjectScopeKey(),
+                ToMutation(beforeVerify),
+                CancellationToken.None);
+        }
+        catch (Exception restoreFailure)
+        {
+            throw new AggregateException(
+                "Verified remediation association could not be saved, and the instance could not be restored.",
+                writeFailure,
+                restoreFailure);
+        }
+    }
+
+    private static VerifiedRemediationControlAssociationRecord CreateAssociation(
+        ScopeContext scope,
+        RemediationInstanceRecord verified,
+        Guid controlId,
+        Guid verificationSnapshotId)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        ArgumentNullException.ThrowIfNull(verified);
+
+        return new VerifiedRemediationControlAssociationRecord
+        {
+            AssociationId = Guid.NewGuid(),
+            TenantId = scope.TenantId,
+            WorkspaceId = scope.WorkspaceId,
+            ProjectId = scope.ProjectId,
+            InstanceId = verified.InstanceId,
+            VerificationSnapshotId = verificationSnapshotId,
+            ControlId = controlId,
+            AssessmentId = verified.AssessmentId is Guid assessmentId && assessmentId != Guid.Empty
+                ? assessmentId
+                : null,
+            CreatedUtc = verified.UpdatedUtc,
+            UpdatedUtc = verified.UpdatedUtc,
+        };
     }
 
     public async Task<RemediationInstanceOperationResult> CloseAsync(

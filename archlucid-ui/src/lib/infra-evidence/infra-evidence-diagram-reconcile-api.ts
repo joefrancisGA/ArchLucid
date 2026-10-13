@@ -9,8 +9,12 @@ import type {
   DiagramInfrastructureReconciliationResult,
   InfrastructureDiagramComparisonCreateRequest,
   InfrastructureDiagramNodeMappingSaveRequest,
+  InfrastructureDiagramDocumentationDecision,
+  InfrastructureDiagramDocumentationDecisionSaveRequest,
   OperationalSecurityFindingBatchIngestResult,
   OperationalSecurityFindingIngestRequest,
+  OperationalSecurityFindingLookupItem,
+  OperationalSecurityFindingLookupRequest,
   StructuredDiagramIngestRequest,
   StructuredDiagramIngestResult,
 } from "@/lib/infra-evidence/infra-evidence-diagram-reconcile-types";
@@ -49,6 +53,26 @@ export async function fetchArchitectureDiagramReconciliation(
   );
 }
 
+export async function saveSealedInfrastructureDiagramDocumentationDecision(
+  runId: string,
+  request: InfrastructureDiagramDocumentationDecisionSaveRequest,
+): Promise<InfrastructureDiagramDocumentationDecision> {
+  return proxyJsonPut<InfrastructureDiagramDocumentationDecision>(
+    `${diagramsBasePath(runId)}/documentation-decisions`,
+    request,
+  );
+}
+
+export async function fetchSealedInfrastructureDiagramDocumentationDecisions(
+  runId: string,
+  snapshotId: string,
+): Promise<InfrastructureDiagramDocumentationDecision[]> {
+  const params = new URLSearchParams({ snapshotId });
+  return proxyJsonGet<InfrastructureDiagramDocumentationDecision[]>(
+    `${diagramsBasePath(runId)}/documentation-decisions?${params.toString()}`,
+  );
+}
+
 const ADVISORY_DIAGRAM_COMPARISONS_BASE = "/api/proxy/v1/infrastructure/diagram-comparisons";
 
 export async function compareInfrastructureDiagramAdvisory(
@@ -75,11 +99,49 @@ export async function saveInfrastructureDiagramNodeMapping(
   );
 }
 
+export async function saveInfrastructureDiagramDocumentationDecision(
+  comparisonId: string,
+  request: InfrastructureDiagramDocumentationDecisionSaveRequest,
+): Promise<InfrastructureDiagramDocumentationDecision> {
+  return proxyJsonPut<InfrastructureDiagramDocumentationDecision>(
+    `${ADVISORY_DIAGRAM_COMPARISONS_BASE}/${comparisonId}/documentation-decisions`,
+    request,
+  );
+}
+
+export async function fetchInfrastructureDiagramDocumentationDecision(
+  comparisonId: string,
+  subjectKind: InfrastructureDiagramDocumentationDecision["subjectKind"],
+  subjectKey: string,
+): Promise<InfrastructureDiagramDocumentationDecision> {
+  const params = new URLSearchParams({ subjectKind, subjectKey });
+  return proxyJsonGet<InfrastructureDiagramDocumentationDecision>(
+    `${ADVISORY_DIAGRAM_COMPARISONS_BASE}/${comparisonId}/documentation-decisions?${params.toString()}`,
+  );
+}
+
+export async function fetchAbsentInfrastructureDiagramDocumentationDecisions(
+  comparisonId: string,
+): Promise<InfrastructureDiagramDocumentationDecision[]> {
+  return proxyJsonGet<InfrastructureDiagramDocumentationDecision[]>(
+    `${ADVISORY_DIAGRAM_COMPARISONS_BASE}/${comparisonId}/documentation-decisions/absent`,
+  );
+}
+
 export async function ingestOperationalSecurityFindings(
   request: OperationalSecurityFindingIngestRequest,
 ): Promise<OperationalSecurityFindingBatchIngestResult> {
   return proxyJsonPost<OperationalSecurityFindingBatchIngestResult>(
     "/api/proxy/v1/operational-security/findings/ingest",
+    request,
+  );
+}
+
+export async function lookupOperationalSecurityFindings(
+  request: OperationalSecurityFindingLookupRequest,
+): Promise<OperationalSecurityFindingLookupItem[]> {
+  return proxyJsonPost<OperationalSecurityFindingLookupItem[]>(
+    "/api/proxy/v1/operational-security/findings/lookup",
     request,
   );
 }

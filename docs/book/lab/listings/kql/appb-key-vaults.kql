@@ -1,0 +1,9 @@
+resources
+| where type =~ 'microsoft.keyvault/vaults'
+| project
+    id, name, resourceGroup, subscriptionId,
+    rbacAuthorization = tobool(properties.enableRbacAuthorization),
+    accessPolicies = properties.accessPolicies,
+    publicNetworkAccess = tostring(properties.publicNetworkAccess),
+    defaultAction = tostring(properties.networkAcls.defaultAction),
+    purgeProtection = properties.enablePurgeProtection

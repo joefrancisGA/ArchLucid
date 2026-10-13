@@ -1,4 +1,8 @@
-import { parseCompareManifestGovernanceSnapshot } from "@/lib/compare-effective-governance-diff";
+import {
+  formatPolicyPackVersion,
+  parseCompareManifestGovernanceSnapshot,
+  POLICY_PACK_VERSION_NOT_STORED,
+} from "@/lib/compare-effective-governance-diff";
 
 import { isRecord, normalizeInlineText, pushBulletLines } from "./export-markdown-text";
 
@@ -23,10 +27,14 @@ export function formatPolicySection(policy: Record<string, unknown> | null, line
 
       const id = normalizeInlineText(c.controlId);
       const name = normalizeInlineText(c.controlName);
-      const label = [id, name].filter(Boolean).join(" — ");
+      const missingId = c.controlId === null || c.controlId === undefined;
+      const missingName = c.controlName === null || c.controlName === undefined;
+      const label = [id, name].filter((value): value is string => value !== null && value.length > 0).join(" — ");
 
-      if (label) {
-        lines.push(`- ${label}`);
+      if (missingId && missingName) {
+        lines.push("- Control name was not stored.");
+      } else {
+        lines.push(`- ${label}${missingId ? " Control id was not stored." : ""}${missingName ? " Control name was not stored." : ""}`);
       }
     }
 
@@ -44,10 +52,14 @@ export function formatPolicySection(policy: Record<string, unknown> | null, line
 
       const id = normalizeInlineText(c.controlId);
       const name = normalizeInlineText(c.controlName);
-      const label = [id, name].filter(Boolean).join(" — ");
+      const missingId = c.controlId === null || c.controlId === undefined;
+      const missingName = c.controlName === null || c.controlName === undefined;
+      const label = [id, name].filter((value): value is string => value !== null && value.length > 0).join(" — ");
 
-      if (label) {
-        lines.push(`- ${label}`);
+      if (missingId && missingName) {
+        lines.push("- Control name was not stored.");
+      } else {
+        lines.push(`- ${label}${missingId ? " Control id was not stored." : ""}${missingName ? " Control name was not stored." : ""}`);
       }
     }
 
@@ -59,11 +71,18 @@ export function pushPolicyAtCommitMarkdownLines(manifest: Record<string, unknown
   const snapshot = parseCompareManifestGovernanceSnapshot(manifest).atCommit;
 
   if (snapshot === null) {
+    lines.push("Policy at commit was not stored.");
     return;
   }
 
   lines.push("## Policy scope at commit");
   lines.push("");
+
+  if (snapshot.hasEffectivePolicy === null) {
+    lines.push("Effective policy flag was not stored.");
+    lines.push("");
+    return;
+  }
 
   if (!snapshot.hasEffectivePolicy) {
     lines.push("_No effective policy pack assignments or compliance rule keys were recorded at commit._");
@@ -72,23 +91,38 @@ export function pushPolicyAtCommitMarkdownLines(manifest: Record<string, unknown
   }
 
   lines.push(
-    `- **Pack assignments:** ${snapshot.packAssignments.length} · **Compliance rule keys:** ${snapshot.complianceRuleKeyCount}${
-      snapshot.conflictCount > 0 ? ` · **Merge conflicts:** ${snapshot.conflictCount}` : ""
+    `- **Pack assignments:** ${snapshot.packAssignments.length} · **Compliance rule keys:** ${
+      snapshot.complianceRuleKeyCount === null
+        ? "Compliance rule key count was not stored."
+        : snapshot.complianceRuleKeyCount
+    }${
+      snapshot.conflictCount === null
+        ? " · Merge conflict count was not stored."
+        : snapshot.conflictCount > 0
+          ? ` · **Merge conflicts:** ${snapshot.conflictCount}`
+          : ""
     }`,
   );
 
   for (const row of snapshot.packAssignments) {
-    lines.push(`- Pack \`${row.policyPackId}\` v${row.policyPackVersion} (${row.scopeLevel})`);
+    const version =
+      row.policyPackVersion === POLICY_PACK_VERSION_NOT_STORED
+        ? POLICY_PACK_VERSION_NOT_STORED
+        : formatPolicyPackVersion(row.policyPackVersion);
+    lines.push(`- Pack \`${row.policyPackId}\`${version.length > 0 ? ` ${version}` : ""} (${row.scopeLevel})`);
   }
 
   for (const row of snapshot.coverageAssignments) {
-    const dimension = row.qualityDimension ?? "unspecified dimension";
+    const version =
+      row.policyPackVersion === POLICY_PACK_VERSION_NOT_STORED
+        ? POLICY_PACK_VERSION_NOT_STORED
+        : formatPolicyPackVersion(row.policyPackVersion);
     const exclusion =
       row.exclusionReason !== null && row.exclusionReason.length > 0
         ? ` · excluded: ${row.exclusionReason}`
         : "";
     lines.push(
-      `- Coverage \`${row.policyPackId}\` v${row.policyPackVersion} · ${dimension} · ${row.coverageType} · ${row.selectionState}${exclusion}`,
+      `- Coverage \`${row.policyPackId}\`${version.length > 0 ? ` ${version}` : ""} · ${row.qualityDimension} · ${row.coverageType} · ${row.selectionState}${exclusion}`,
     );
   }
 

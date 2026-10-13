@@ -122,7 +122,7 @@ describe("InfraEvidenceDiagramOutline", () => {
     expect(within(edgesTable).getByRole("columnheader", { name: "Relationship" })).toBeTruthy();
     expect(within(edgesTable).getByRole("columnheader", { name: "To" })).toBeTruthy();
     expect(within(edgesTable).getByRole("button", { name: "Sort by From, ascending" })).toBeTruthy();
-    expect(within(edgesTable).getByText("Not recorded")).toBeTruthy();
+    expect(within(edgesTable).getByText("Edge label was not stored")).toBeTruthy();
 
     expect(within(nodesTable).getByRole("button", { name: "Sort by Node Name, ascending" })).toBeTruthy();
     expect(within(nodesTable).getByRole("button", { name: "Sort by Resource type" })).toBeTruthy();
@@ -189,6 +189,7 @@ describe("InfraEvidenceDiagramOutline", () => {
 
     expect(within(probableGroup).getByText("Probable edges (1)")).toBeInTheDocument();
     expect(within(observedGroup).getByText("Observed edges (1)")).toBeInTheDocument();
+    expect(within(observedGroup).getByRole("button", { name: /View connection evidence/u })).toBeInTheDocument();
     expect(probableGroup.compareDocumentPosition(observedGroup) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
@@ -281,7 +282,7 @@ describe("InfraEvidenceDiagramOutline", () => {
     const edgesTable = getEdgesTable();
 
     expect(edgesTable).not.toBeNull();
-    expect(within(edgesTable).getByText("Not recorded")).toBeTruthy();
+    expect(within(edgesTable).getByText("Edge label was not stored")).toBeTruthy();
     expect(within(edgesTable).queryByText("—")).toBeNull();
   });
 

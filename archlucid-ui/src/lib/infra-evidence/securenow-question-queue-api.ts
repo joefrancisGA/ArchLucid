@@ -3,28 +3,28 @@ import { proxyJsonGet, proxyJsonPost } from "@/lib/proxy-json-client";
 export type SecureNowQuestion = {
   readonly dispositionId: string | null;
   readonly snapshotId: string;
-  readonly subscriptionId: string;
-  readonly resourceId: string;
+  readonly subscriptionId: string | null;
+  readonly resourceId: string | null;
   readonly questionKey: string;
-  readonly source: string;
-  readonly scopeKind: string;
+  readonly source: string | null;
+  readonly scopeKind: string | null;
   readonly status: string | null;
   readonly questionText: string;
   readonly resourceType: string;
   readonly resourceName: string;
   readonly reasonText: string;
   readonly sourceLine: string;
-  readonly answerCodes: readonly string[];
+  readonly answerCodes: readonly string[] | null;
   readonly evidenceFingerprint: string;
   readonly expirationUtc: string | null;
-  readonly isExpired: boolean;
+  readonly isExpired: boolean | null;
   readonly answerCode: string | null;
   readonly answerText: string | null;
   readonly reason: string | null;
 };
 
 export type SecureNowQuestionWrite = {
-  readonly subscriptionId: string;
+  readonly subscriptionId: string | null;
   readonly resourceId: string;
   readonly questionKey: string;
   readonly source: string;
@@ -37,7 +37,7 @@ export type SecureNowQuestionWrite = {
 };
 
 export type SecureNowQuestionReopen = {
-  readonly subscriptionId: string;
+  readonly subscriptionId: string | null;
   readonly resourceId: string;
   readonly questionKey: string;
   readonly reason: string;
@@ -53,11 +53,15 @@ function mapQuestion(raw: Record<string, unknown>): SecureNowQuestion {
   return {
     dispositionId: typeof raw.dispositionId === "string" ? raw.dispositionId : null,
     snapshotId: stringOrDefault(raw.snapshotId),
-    subscriptionId: stringOrDefault(raw.subscriptionId),
-    resourceId: stringOrDefault(raw.resourceId),
+    subscriptionId: typeof raw.subscriptionId === "string"
+      ? raw.subscriptionId
+      : raw.subscriptionId === null || raw.subscriptionId === undefined
+        ? null
+        : "",
+    resourceId: raw.resourceId === null || raw.resourceId === undefined ? null : stringOrDefault(raw.resourceId),
     questionKey: stringOrDefault(raw.questionKey),
-    source: stringOrDefault(raw.source),
-    scopeKind: stringOrDefault(raw.scopeKind),
+    source: typeof raw.source === "string" ? raw.source : null,
+    scopeKind: typeof raw.scopeKind === "string" ? raw.scopeKind : null,
     status: typeof raw.status === "string" ? raw.status : null,
     questionText: questionText.length > 0 ? questionText : "Question text was not stored",
     resourceType: stringOrDefault(raw.resourceType),
@@ -66,10 +70,10 @@ function mapQuestion(raw: Record<string, unknown>): SecureNowQuestion {
     sourceLine: stringOrDefault(raw.sourceLine),
     answerCodes: Array.isArray(raw.answerCodes)
       ? raw.answerCodes.filter((value): value is string => typeof value === "string")
-      : [],
+      : null,
     evidenceFingerprint: stringOrDefault(raw.evidenceFingerprint),
     expirationUtc: typeof raw.expirationUtc === "string" ? raw.expirationUtc : null,
-    isExpired: raw.isExpired === true,
+    isExpired: raw.isExpired === true ? true : raw.isExpired === false ? false : null,
     answerCode: typeof raw.answerCode === "string" ? raw.answerCode : null,
     answerText: typeof raw.answerText === "string" ? raw.answerText : null,
     reason: typeof raw.reason === "string" ? raw.reason : null,

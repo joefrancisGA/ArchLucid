@@ -285,6 +285,42 @@ public sealed class AgentOutputReferenceCaseRunEvaluatorTests
         passing.Should().BeFalse();
     }
 
+    [Fact]
+    public async Task ComputeAnyPassingReferenceCase_matches_required_json_keys_case_insensitively()
+    {
+        Mock<IOptionsMonitor<AgentExecutionReferenceEvaluationOptions>> options = new();
+        options.Setup(o => o.CurrentValue).Returns(
+            new AgentExecutionReferenceEvaluationOptions { Enabled = true });
+
+        AgentOutputReferenceCaseRunEvaluator sut = new(
+            options.Object,
+            new FixedCatalog(
+            [
+                new AgentOutputReferenceCaseDefinition
+                {
+                    CaseId = "case-insensitive-keys",
+                    AgentType = AgentType.Topology,
+                    RequiredJsonKeys = ["findings"],
+                },
+            ]),
+            new AgentOutputEvaluator(),
+            new HeuristicOnlyAgentOutputSemanticEvaluator(new HeuristicAgentOutputSemanticEvaluator()),
+            Mock.Of<IAgentOutputEvaluationResultRepository>(),
+            NullLogger<AgentOutputReferenceCaseRunEvaluator>.Instance);
+
+        AgentExecutionTrace trace = new()
+        {
+            TraceId = "tr1",
+            AgentType = AgentType.Topology,
+            ParseSucceeded = true,
+            ParsedResultJson = """{"FINDINGS":[]}""",
+        };
+
+        bool passing = await sut.ComputeAnyPassingReferenceCaseAsync(trace, CancellationToken.None);
+
+        passing.Should().BeTrue();
+    }
+
     private sealed class FixedCatalog(IReadOnlyList<AgentOutputReferenceCaseDefinition> cases)
         : IAgentOutputReferenceCaseCatalog
     {

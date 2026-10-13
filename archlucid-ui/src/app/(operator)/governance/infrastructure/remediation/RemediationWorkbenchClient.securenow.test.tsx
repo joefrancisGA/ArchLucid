@@ -83,6 +83,7 @@ vi.mock("@/lib/infra-evidence/infra-evidence-remediation-api", () => ({
     finding: null,
     activeMatch: null,
     evidence: [],
+    verifiedRemediationAssociations: [],
   })),
   matchOperationalFinding: vi.fn(),
   createRemediationInstance: vi.fn(),
@@ -125,6 +126,7 @@ vi.mock("@/components/usability/PageContextualHelpButton", async (importOriginal
   };
 });
 
+import { fetchRemediationInstanceDetail } from "@/lib/infra-evidence/infra-evidence-remediation-api";
 import { RemediationWorkbenchClient } from "./RemediationWorkbenchClient";
 
 describe("RemediationWorkbenchClient SecureNow /security/remediation-instances", () => {
@@ -146,5 +148,78 @@ describe("RemediationWorkbenchClient SecureNow /security/remediation-instances",
 
     expect(await screen.findByTestId("infra-remediation-preflight-blocked-reason")).toHaveTextContent(/preflight/i);
     expect(screen.getByTestId("infra-remediation-create-blocked-reason")).toHaveTextContent(/finding id/i);
+  });
+
+  it("applies the verification-failed status deep link", async () => {
+    searchParams = new URLSearchParams("status=VerificationFailed");
+    render(<RemediationWorkbenchClient />);
+
+    expect(await screen.findByTestId("infra-remediation-status-filter")).toHaveTextContent("Verification failed");
+    expect(screen.queryByTestId("infra-remediation-card-aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee")).not.toBeInTheDocument();
+  });
+
+  it("shows framework control and verification snapshot when verified associations are present", async () => {
+    const verificationSnapshotId = "44444444-4444-4444-4444-444444444444";
+    const controlId = "SC-28";
+
+    vi.mocked(fetchRemediationInstanceDetail).mockResolvedValueOnce({
+      instance: {
+        instanceId: "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+        findingId: "22222222-2222-2222-2222-222222222222",
+        patternKey: "storage.encrypt-at-rest",
+        status: "PreflightBlocked",
+        automationLevel: "Guided",
+        cloudResourceId: "33333333-3333-3333-3333-333333333333",
+        waveId: null,
+        createdUtc: "2026-09-01T12:00:00Z",
+        updatedUtc: "2026-09-01T12:00:00Z",
+      },
+      finding: null,
+      activeMatch: null,
+      evidence: [],
+      verifiedRemediationAssociations: [
+        {
+          associationId: "assoc-1",
+          instanceId: "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+          verificationSnapshotId,
+          controlId,
+          assessmentId: "55555555-5555-5555-5555-555555555555",
+          createdUtc: "2026-09-01T12:00:00Z",
+          updatedUtc: "2026-09-01T12:00:00Z",
+        },
+      ],
+    });
+
+    searchParams = new URLSearchParams("");
+    render(<RemediationWorkbenchClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("infra-remediation-board")).toBeInTheDocument();
+    });
+
+    fireEvent.click(await screen.findByTestId("infra-remediation-card-aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"));
+
+    expect(await screen.findByTestId("infra-remediation-verified-associations")).toBeInTheDocument();
+    expect(screen.getByTestId("infra-remediation-association-audit-evidence")).toHaveTextContent(controlId);
+    expect(screen.getByTestId("infra-remediation-association-verification-snapshot")).toHaveTextContent(
+      verificationSnapshotId,
+    );
+  });
+
+  it("does not show verified associations when the detail list is empty", async () => {
+    searchParams = new URLSearchParams("");
+    render(<RemediationWorkbenchClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("infra-remediation-board")).toBeInTheDocument();
+    });
+
+    fireEvent.click(await screen.findByTestId("infra-remediation-card-aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("infra-remediation-preflight-blocked-reason")).toBeInTheDocument();
+    });
+
+    expect(screen.queryByTestId("infra-remediation-verified-associations")).not.toBeInTheDocument();
   });
 });

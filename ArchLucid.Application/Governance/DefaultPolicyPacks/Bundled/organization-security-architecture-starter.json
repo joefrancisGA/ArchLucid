@@ -1,0 +1,27 @@
+{
+  "complianceRuleIds": [],
+  "complianceRuleKeys": [
+    "org-001", "org-002", "org-003", "org-004", "org-005", "org-006",
+    "org-007", "org-008", "org-009", "org-010", "org-011", "org-012"
+  ],
+  "alertRuleIds": [],
+  "compositeAlertRuleIds": [],
+  "advisoryDefaults": {
+    "severityFloor": "warning",
+    "priorityFloor": "P0",
+    "scanDepth": "standard"
+  },
+  "metadata": {
+    "templateId": "organization-security-architecture-starter",
+    "pack.displayName": "Organization security architecture starter",
+    "pack.category": "Organization",
+    "pack.tags": "Organization",
+    "pack.version": "1.0.0",
+    "pack.isDefault": "false",
+    "pack.packType": "ProjectCustom",
+    "pack.description": "Parameterized organization policy starter. Replace every {{organization.*}} placeholder before creating the pack. Thematic mapping only; not certification.",
+    "frameworkMappingDisclaimer": "Organization placeholders and framework mappings are architecture-review prompts only — not certification, attestation, or legal compliance.",
+    "requiredPlaceholders": "[\"organization.allowedRegions\",\"organization.approvedServices\",\"organization.networkBoundary\",\"organization.identityRequirements\",\"organization.dataClassificationPolicy\",\"organization.requiredTags\"]",
+    "curatedRulesArtifact": "docs/samples/policy-packs/organization-security-architecture-starter-rules-v1.json"
+  }
+}

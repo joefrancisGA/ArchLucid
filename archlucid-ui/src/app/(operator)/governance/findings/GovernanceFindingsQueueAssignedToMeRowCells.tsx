@@ -97,6 +97,11 @@ export function GovernanceFindingsQueueAssignedToMeRowCells(props: GovernanceFin
         >
           {row.title}
         </Link>
+        {row.policyRuleId != null && row.policyRuleId.trim().length > 0 ? (
+          <div className="mt-1 text-xs text-al-text-secondary" data-testid={`governance-table-control-${row.findingId}`}>
+            Framework control: {row.policyRuleId}
+          </div>
+        ) : null}
         {findingDerivation !== null ? (
           <CollapsibleSection
             title="Derivation"

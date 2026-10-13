@@ -1,3 +1,13 @@
+output "account_id" {
+  description = "Cognitive Services account resource ID."
+  value       = azurerm_cognitive_account.openai.id
+}
+
+output "public_network_access_enabled" {
+  description = "Whether the Cognitive Services account allows public network access."
+  value       = azurerm_cognitive_account.openai.public_network_access_enabled
+}
+
 output "endpoint" {
   description = "Azure OpenAI endpoint URL for AzureOpenAI:Endpoint."
   value       = azurerm_cognitive_account.openai.endpoint

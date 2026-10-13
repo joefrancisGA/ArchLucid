@@ -31,7 +31,11 @@ export function formatTrustEvidenceCardMarkdown(card: RunTrustEvidenceCard): str
 
   lines.push("## Evidence basis (operational)");
   lines.push("");
-  lines.push(card.selfAttestationNotice ?? "");
+  if (card.selfAttestationNotice === null || card.selfAttestationNotice === undefined) {
+    lines.push("Self-attestation notice was not stored.");
+  } else {
+    lines.push(card.selfAttestationNotice);
+  }
   lines.push("");
   pushField(
     PROOF_CONFIDENCE_FIELD_LABEL,
@@ -45,12 +49,21 @@ export function formatTrustEvidenceCardMarkdown(card: RunTrustEvidenceCard): str
   pushField(traceabilityExport.title, traceabilityExport.status, traceabilityExport.detail);
   pushField(aiExplainability.title, aiExplainability.status, aiExplainability.detail);
 
-  if (card.topFinding) {
+  if (card.topFinding === null || card.topFinding === undefined) {
+    lines.push("");
+    lines.push("Top finding was not stored.");
+  } else {
     lines.push("");
     lines.push("### Top finding (severity-first)");
-    lines.push(`- **Finding id:** \`${card.topFinding.findingId}\``);
+    if (card.topFinding.findingId === null || card.topFinding.findingId === undefined) {
+      lines.push("- Finding id was not stored.");
+    } else {
+      lines.push(`- **Finding id:** \`${card.topFinding.findingId}\``);
+    }
 
-    if (card.topFinding.title) {
+    if (card.topFinding.title === null || card.topFinding.title === undefined) {
+      lines.push("- Finding title was not stored.");
+    } else if (card.topFinding.title) {
       lines.push(`- **Title:** ${card.topFinding.title}`);
     }
 

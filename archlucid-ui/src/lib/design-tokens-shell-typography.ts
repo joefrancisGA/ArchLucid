@@ -96,7 +96,7 @@ export const OPERATOR_LINK = {
     OPERATOR_LINK_FOCUS,
   ),
   inline: cn(
-    "font-medium text-al-text-primary underline decoration-al-text-secondary/35 underline-offset-2 hover:text-[var(--al-accent-link)] hover:decoration-[var(--al-accent-link)]",
+    "inline-flex min-h-6 items-center font-medium text-al-text-primary underline decoration-al-text-secondary/35 underline-offset-2 hover:text-[var(--al-accent-link)] hover:decoration-[var(--al-accent-link)]",
     OPERATOR_LINK_FOCUS,
   ),
   step: cn(

@@ -106,9 +106,26 @@ export function RunDetailEngineProvenanceRow(props: RunDetailEngineProvenanceRow
         {provenance.policyPackVersion ? (
           <ProvenanceField label="Policy pack" value={provenance.policyPackVersion} />
         ) : null}
-        {provenance.outputSchemaVersion ? (
-          <ProvenanceField label="Output schema" value={provenance.outputSchemaVersion} />
-        ) : null}
+        <ProvenanceField
+          label="Output schema"
+          value={provenance.outputSchemaVersion ?? "Output schema version was not stored."}
+        />
+        <ProvenanceField
+          label="Engine profile"
+          value={provenance.engineProfileId ?? "Engine profile was not stored."}
+        />
+        {provenance.taskEvaluationSnapshotsAtSelection === null
+        || provenance.taskEvaluationSnapshotsAtSelection === undefined ? (
+          <ProvenanceField label="Task evaluations" value="Task evaluations were not stored." />
+        ) : (
+          provenance.taskEvaluationSnapshotsAtSelection.map((evaluation) => (
+            <ProvenanceField
+              key={`${evaluation.taskType}-${evaluation.evaluationState}`}
+              label={`Task evaluation: ${evaluation.taskType}`}
+              value={evaluation.evaluationState}
+            />
+          ))
+        )}
         <ProvenanceField
           label="Run"
           value={formatReviewEngineRunTimestamp(provenance.runTimestampUtc)}

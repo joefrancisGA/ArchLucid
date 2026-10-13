@@ -26,7 +26,14 @@ function resolveFindingEvidenceLinkLabel(
 ): { readonly visible: string; readonly accessible: string } {
   const useColumnScope = labelScope === "column";
 
-  if (count !== null && count > 0) {
+  if (count === null) {
+    return {
+      visible: "Evidence reference count was not stored",
+      accessible: "Evidence reference count was not stored",
+    };
+  }
+
+  if (count !== null) {
     return useColumnScope
       ? { visible: `${count} linked`, accessible: `Evidence: ${count} linked` }
       : { visible: `Evidence: ${count} linked`, accessible: `Evidence: ${count} linked` };

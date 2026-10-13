@@ -35,8 +35,8 @@ public class InMemoryContextSnapshotRepository : IContextSnapshotRepository
             ContextSnapshot? result = _store.Values
                 .Where(s => string.Equals(s.ProjectId, projectId, StringComparison.Ordinal))
                 .Where(s => requestedScope is null
-                    || !_scopeBySnapshotId.TryGetValue(s.SnapshotId, out ReadScopeTriple savedScope)
-                    || ScopeMatches(savedScope, requestedScope.Value))
+                    || (_scopeBySnapshotId.TryGetValue(s.SnapshotId, out ReadScopeTriple savedScope)
+                        && ScopeMatches(savedScope, requestedScope.Value)))
                 .OrderByDescending(s => s.CreatedUtc)
                 .FirstOrDefault();
             return Task.FromResult(result);
@@ -51,8 +51,10 @@ public class InMemoryContextSnapshotRepository : IContextSnapshotRepository
             if (!_store.TryGetValue(snapshotId, out ContextSnapshot? snapshot))
                 return Task.FromResult<ContextSnapshot?>(null);
 
-            if (_scopeBySnapshotId.TryGetValue(snapshotId, out ReadScopeTriple savedScope)
-                && !ScopeMatches(savedScope, scope))
+            // A scoped read must not fall back to legacy snapshots without scope metadata.
+            if (scope.TenantId != Guid.Empty
+                && (!_scopeBySnapshotId.TryGetValue(snapshotId, out ReadScopeTriple savedScope)
+                    || !ScopeMatches(savedScope, scope)))
             {
                 return Task.FromResult<ContextSnapshot?>(null);
             }

@@ -97,6 +97,7 @@ jobs:
           Observability__Prometheus__Enabled: "true"
           Observability__Prometheus__RequireScrapeAuthentication: "false"
           RateLimiting__Registration__PermitLimit: "500"
+          RateLimiting__AuthRouting__PermitLimit: "500"
           # Full live matrix + axe scans exceed the default fixed window (100/min) and empty the operator shell (429).
           RateLimiting__FixedWindow__PermitLimit: "10000"
           RateLimiting__FixedWindow__WindowMinutes: "1"
@@ -288,6 +289,7 @@ jobs:
           Observability__Prometheus__Enabled: "true"
           Observability__Prometheus__RequireScrapeAuthentication: "false"
           RateLimiting__Registration__PermitLimit: "500"
+          RateLimiting__AuthRouting__PermitLimit: "500"
           RateLimiting__FixedWindow__PermitLimit: "10000"
           RateLimiting__FixedWindow__WindowMinutes: "1"
           ArchLucid__E2eHarness__SharedSecret: "ci-live-e2e-harness-secret-min16!"
@@ -487,6 +489,7 @@ jobs:
           Observability__Prometheus__Enabled: "true"
           Observability__Prometheus__RequireScrapeAuthentication: "false"
           RateLimiting__Registration__PermitLimit: "500"
+          RateLimiting__AuthRouting__PermitLimit: "500"
           RateLimiting__FixedWindow__PermitLimit: "10000"
           RateLimiting__FixedWindow__WindowMinutes: "1"
           ArchLucid__E2eHarness__SharedSecret: "ci-live-e2e-harness-secret-min16!"
@@ -515,33 +518,15 @@ jobs:
         run: bash scripts/ci/grant_ci_live_e2e_enterprise_tenant.sh
 
       - name: Mint JWT tokens (needed for demo seed wait probes)
-        run: |
-          set -e
-          # Tenant claim required for TB-925 forged-header 403. Omit workspace/project so demo
-          # workspace A/B probes can send their fixture scope headers without ScopeIdentityBinding 403.
-          TENANT_ID="11111111-1111-1111-1111-111111111111"
-          python3 "${GITHUB_WORKSPACE}/scripts/ci/mint_ci_jwt.py" \
-            --private-key "${RUNNER_TEMP}/nightly-jwt-priv.pem" \
-            --issuer "https://nightly.archlucid.local" \
-            --audience "api://archlucid-live-e2e-nightly-jwt" \
-            --tenant-id "${TENANT_ID}" \
-            --out-token "${RUNNER_TEMP}/nightly-jwt-token.txt"
-          python3 "${GITHUB_WORKSPACE}/scripts/ci/mint_ci_jwt.py" \
-            --private-key "${RUNNER_TEMP}/nightly-jwt-priv.pem" \
-            --issuer "https://nightly.archlucid.local" \
-            --audience "api://archlucid-live-e2e-nightly-jwt" \
-            --tenant-id "${TENANT_ID}" \
-            --name "e2e-peer-reviewer" \
-            --sub "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb" \
-            --out-token "${RUNNER_TEMP}/nightly-jwt-peer-token.txt"
-          python3 "${GITHUB_WORKSPACE}/scripts/ci/mint_ci_jwt.py" \
-            --private-key "${RUNNER_TEMP}/nightly-jwt-priv.pem" \
-            --issuer "https://nightly.archlucid.local" \
-            --audience "api://archlucid-live-e2e-nightly-jwt" \
-            --tenant-id "${TENANT_ID}" \
-            --name "e2e-rejector" \
-            --sub "eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee" \
-            --out-token "${RUNNER_TEMP}/nightly-jwt-rejector-token.txt"
+        env:
+          NIGHTLY_JWT_PRIV_PEM: ${{ runner.temp }}/nightly-jwt-priv.pem
+          NIGHTLY_JWT_ISSUER: https://nightly.archlucid.local
+          NIGHTLY_JWT_AUDIENCE: api://archlucid-live-e2e-nightly-jwt
+          NIGHTLY_JWT_TENANT_ID: "11111111-1111-1111-1111-111111111111"
+          NIGHTLY_JWT_OUT_ADMIN: ${{ runner.temp }}/nightly-jwt-token.txt
+          NIGHTLY_JWT_OUT_PEER: ${{ runner.temp }}/nightly-jwt-peer-token.txt
+          NIGHTLY_JWT_OUT_REJECTOR: ${{ runner.temp }}/nightly-jwt-rejector-token.txt
+        run: bash scripts/ci/mint_nightly_live_e2e_jwts.sh
 
       - name: Wait for demo preview (demo workspace smokes)
         env:
@@ -579,8 +564,17 @@ jobs:
           E2E_INFRA_DB_MAX_ATTEMPTS: "25"
           E2E_INFRA_BASE_DELAY_MS: "1000"
           E2E_INFRA_PROBE_ATTEMPTS: "45"
+          NIGHTLY_JWT_PRIV_PEM: ${{ runner.temp }}/nightly-jwt-priv.pem
+          NIGHTLY_JWT_ISSUER: https://nightly.archlucid.local
+          NIGHTLY_JWT_AUDIENCE: api://archlucid-live-e2e-nightly-jwt
+          NIGHTLY_JWT_TENANT_ID: "11111111-1111-1111-1111-111111111111"
+          NIGHTLY_JWT_OUT_ADMIN: ${{ runner.temp }}/nightly-jwt-token.txt
+          NIGHTLY_JWT_OUT_PEER: ${{ runner.temp }}/nightly-jwt-peer-token.txt
+          NIGHTLY_JWT_OUT_REJECTOR: ${{ runner.temp }}/nightly-jwt-rejector-token.txt
         run: |
           set -e
+          # Remint immediately before Playwright. Demo-seed waits routinely consume most of a 3600s token.
+          bash "${GITHUB_WORKSPACE}/scripts/ci/mint_nightly_live_e2e_jwts.sh"
           TOKEN="$(tr -d '\n\r' < "${RUNNER_TEMP}/nightly-jwt-token.txt")"
           PEER_TOKEN="$(tr -d '\n\r' < "${RUNNER_TEMP}/nightly-jwt-peer-token.txt")"
           REJECTOR_TOKEN="$(tr -d '\n\r' < "${RUNNER_TEMP}/nightly-jwt-rejector-token.txt")"

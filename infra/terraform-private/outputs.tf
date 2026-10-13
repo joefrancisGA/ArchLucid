@@ -37,3 +37,8 @@ output "key_vault_private_endpoint_id" {
   value       = length(azurerm_private_endpoint.key_vault) > 0 ? azurerm_private_endpoint.key_vault[0].id : null
   description = "Private endpoint resource ID for Key Vault when key_vault_id is set and private data plane is enabled."
 }
+
+output "openai_private_endpoint_id" {
+  value       = length(azurerm_private_endpoint.openai) > 0 ? azurerm_private_endpoint.openai[0].id : null
+  description = "Private endpoint resource ID for Azure OpenAI when openai_account_id is set and private data plane is enabled."
+}

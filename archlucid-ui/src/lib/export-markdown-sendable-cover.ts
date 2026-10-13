@@ -78,7 +78,7 @@ export function formatSendableExportCoverMarkdown(input: SendableExportCoverInpu
     input.structuralExecutionMode !== null && input.structuralExecutionMode !== undefined
       ? formatStructuralExecutionModeLabel(input.structuralExecutionMode)
       : input.hostAgentExecutionMode?.trim() ?? null;
-  const findings = input.findings ?? [];
+  const findings = input.findings;
 
   lines.push("## Sendable export cover");
   lines.push("");
@@ -100,10 +100,10 @@ export function formatSendableExportCoverMarkdown(input: SendableExportCoverInpu
   if (feasibilityVerdict !== null) {
     lines.push(`- **Gate outcome:** ${feasibilityVerdictKindLabel(feasibilityVerdict.kind)}`);
 
-    const gateSummary = feasibilityVerdict.summary?.trim();
-
-    if (gateSummary !== null && gateSummary !== undefined && gateSummary.length > 0) {
-      lines.push(`- **Gate summary:** ${gateSummary}`);
+    if (feasibilityVerdict.summary === null || feasibilityVerdict.summary === undefined) {
+      lines.push("- **Gate summary:** Verdict summary was not stored.");
+    } else if (feasibilityVerdict.summary.trim().length > 0) {
+      lines.push(`- **Gate summary:** ${feasibilityVerdict.summary.trim()}`);
     }
   } else {
     lines.push("- **Gate outcome:** Gate outcome was not stored");
@@ -117,7 +117,9 @@ export function formatSendableExportCoverMarkdown(input: SendableExportCoverInpu
 
   lines.push(`- **Policy influence:** ${POLICY_PACK_INFLUENCE_HONESTY_LINE}`);
 
-  if (hasUncheckedDecisionGradeSemanticSupportBand(findings)) {
+  if (findings === null || findings === undefined) {
+    lines.push("- Findings were not stored on this export cover.");
+  } else if (hasUncheckedDecisionGradeSemanticSupportBand(findings)) {
     lines.push(`- **Semantic support:** ${SEMANTIC_SUPPORT_BAND_ASYNC_MAY_LAG_COPY}`);
   }
 
@@ -135,9 +137,15 @@ export function formatSendableExportCoverMarkdown(input: SendableExportCoverInpu
 export function resolveSendableExportCoverFindings(input: {
   readonly exportFindings?: readonly FindingSemanticSupportBandExportInput[] | null;
   readonly findingsSnapshot?: unknown;
-}): readonly FindingSemanticSupportBandExportInput[] {
+}): readonly FindingSemanticSupportBandExportInput[] | null {
   if (input.exportFindings !== null && input.exportFindings !== undefined && input.exportFindings.length > 0) {
     return input.exportFindings;
+  }
+
+  if (input.exportFindings === null || input.exportFindings === undefined) {
+    if (input.findingsSnapshot === null || input.findingsSnapshot === undefined) {
+      return null;
+    }
   }
 
   return coerceSendableExportCoverFindingsFromSnapshot(input.findingsSnapshot);

@@ -65,6 +65,7 @@ public sealed class ArchitectureRunAsyncCreateAdmitter(
         ArgumentNullException.ThrowIfNull(scope);
 
         QuickStartIntakeRequestEnricher.EnrichIfQuickStart(request);
+        ArchitectureRequestIntakeTrailHydrator.EnsureTrail(request);
 
         if (idempotency is not null)
         {

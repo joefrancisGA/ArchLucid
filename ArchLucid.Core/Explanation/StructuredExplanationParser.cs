@@ -55,13 +55,15 @@ public static partial class StructuredExplanationParser
 
             if (RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitive(root, "confidence", out JsonElement confidenceElement))
             {
-                // Structured confidence is numeric; boolean coercion is reserved for aggregate compatibility fields.
-                double? finiteConfidence = confidenceElement.ValueKind is JsonValueKind.True or JsonValueKind.False
-                    ? null
-                    : RunExplanationAggregateJsonReader.TryReadFiniteDouble(confidenceElement);
+                double? finiteConfidence = TryReadStructuredConfidence(confidenceElement);
 
-                if (finiteConfidence is { } numericConfidence)
+                if (finiteConfidence is { } numericConfidence
+                    && numericConfidence >= -100
+                    && numericConfidence <= 100)
+                {
+                    // Values outside this range are rejected by ClampConfidence and must not be cast to decimal first.
                     confidence = ClampConfidence((decimal)numericConfidence);
+                }
             }
 
             structured = new StructuredExplanation
@@ -80,6 +82,25 @@ public static partial class StructuredExplanationParser
         {
             return false;
         }
+    }
+
+    private static double? TryReadStructuredConfidence(JsonElement element)
+    {
+        // Structured confidence is numeric; boolean coercion is reserved for aggregate compatibility fields.
+        if (element.ValueKind is JsonValueKind.True or JsonValueKind.False)
+            return null;
+
+        string? raw = element.ValueKind == JsonValueKind.String ? element.GetString()?.Trim() : null;
+
+        if (raw is not null
+            && raw is not "0" and not "1"
+            && JsonBooleanStringReader.TryParseBooleanString(raw, out _))
+        {
+            // Numeric "0" and "1" remain valid confidence values even though aggregate flags accept them as booleans.
+            return null;
+        }
+
+        return RunExplanationAggregateJsonReader.TryReadFiniteDouble(element);
     }
 
     /// <summary>

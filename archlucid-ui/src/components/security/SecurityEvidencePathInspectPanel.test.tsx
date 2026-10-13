@@ -287,7 +287,7 @@ describe("SecurityEvidencePathInspectPanel", () => {
     );
   });
 
-  it("collapses multiple Not cited recommended-action lines into one summary", () => {
+  it("shows omission copy for missing recommended-action values and preserves stored empty values", () => {
     vi.mocked(useOperationalSecurityFindingDetailQuery).mockReturnValue({
       data: { findingId: "finding-1", pathId: "path-1", title: "Path finding" },
       isLoading: false,
@@ -309,8 +309,8 @@ describe("SecurityEvidencePathInspectPanel", () => {
           network: null,
           asset: null,
           weakControl: null,
-          proposedChange: null,
-          verify: null,
+          proposedChange: "",
+          verify: "",
           architectSentence: null,
         },
         relatedCutPoints: [],
@@ -327,9 +327,13 @@ describe("SecurityEvidencePathInspectPanel", () => {
 
     renderPanel("finding-1");
 
-    expect(screen.getByTestId("security-evidence-path-recommended-action-not-cited-summary")).toHaveTextContent(
-      "Not cited: Problem, Evidence, Consequence, Recommended change, Owner, How to check.",
+    expect(screen.getByTestId("security-evidence-path-recommended-action")).toHaveTextContent(
+      "Problem statement was not stored.",
     );
+    expect(screen.getByTestId("security-evidence-path-recommended-action")).toHaveTextContent(
+      "Blast radius was not stored.",
+    );
+    expect(screen.getByTestId("security-evidence-path-recommended-action")).not.toHaveTextContent("Not cited.");
     expect(screen.queryAllByText("Not cited.")).toHaveLength(0);
   });
 

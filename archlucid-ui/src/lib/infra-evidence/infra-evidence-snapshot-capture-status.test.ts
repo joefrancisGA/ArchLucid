@@ -69,6 +69,9 @@ describe("resolveInfraEvidenceSnapshotCaptureStatusPresentation", () => {
       label: "Capture status was not stored",
       description: "Inventory capture status was not stored.",
     });
+    expect(resolveInfraEvidenceSnapshotCaptureStatusPresentation("")).not.toEqual(
+      expect.objectContaining({ label: "Capture status was not stored" }),
+    );
   });
 
   it("labels a missing capture status separately from an unrecognized status", () => {

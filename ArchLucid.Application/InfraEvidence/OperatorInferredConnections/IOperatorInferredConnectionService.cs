@@ -61,6 +61,12 @@ public sealed class OperatorInferredConnectionConfirmRequest
         get;
         init;
     }
+
+    public string? DataPlaneAnswer
+    {
+        get;
+        init;
+    }
 }
 
 public sealed class OperatorInferredConnectionDismissRequest

@@ -358,6 +358,263 @@ function Add-ArchLucidSecurityInventoryResourceProperties
     }
 }
 
+function Add-ArchLucidAzureContainerImageProperty(
+    [hashtable] $Properties,
+    [string] $Image)
+{
+    if ([string]::IsNullOrWhiteSpace($Image))
+    {
+        return
+    }
+
+    [int]$index = @($Properties.Keys | Where-Object { "$_" -match '^container\.image\[\d+\]$' }).Count
+    $Properties["container.image[$index]"] = $Image.Trim()
+}
+
+function Add-ArchLucidAzureContainerImagePropertiesFromPayload(
+    [hashtable] $Properties,
+    [object] $Payload)
+{
+    if ($null -eq $Payload)
+    {
+        return
+    }
+
+    [string]$resourceType = "$( $Payload.type )".Trim()
+    [object]$payloadProperties = $Payload.properties
+
+    if ($resourceType -eq 'Microsoft.ContainerRegistry/registries')
+    {
+        [string]$loginServer = "$( $payloadProperties.loginServer )".Trim().ToLowerInvariant()
+
+        if (-not [string]::IsNullOrWhiteSpace($loginServer))
+        {
+            $Properties['loginServer'] = $loginServer
+        }
+
+        return
+    }
+
+    if ($resourceType -eq 'Microsoft.App/containerApps')
+    {
+        foreach ($container in @($payloadProperties.template.containers))
+        {
+            Add-ArchLucidAzureContainerImageProperty `
+                -Properties $Properties `
+                -Image "$( $container.image )"
+        }
+
+        return
+    }
+
+    if ($resourceType -ne 'Microsoft.Web/sites')
+    {
+        return
+    }
+
+    foreach ($propertyName in @('linuxFxVersion', 'windowsFxVersion'))
+    {
+        [string]$value = "$( $payloadProperties.siteConfig.$propertyName )".Trim()
+
+        if ($value.StartsWith('DOCKER|', [System.StringComparison]::OrdinalIgnoreCase))
+        {
+            Add-ArchLucidAzureContainerImageProperty `
+                -Properties $Properties `
+                -Image $value.Substring('DOCKER|'.Length)
+        }
+    }
+}
+
+function Expand-ArchLucidAzureContainerImageAndRegistryProperties(
+    [object[]] $InventoryResources)
+{
+    foreach ($resource in @($InventoryResources))
+    {
+        if ($null -eq $resource)
+        {
+            continue
+        }
+
+        [string]$resourceType = "$( $resource.resourceType )".Trim()
+
+        if ($resourceType -notin @(
+                'Microsoft.ContainerRegistry/registries',
+                'Microsoft.App/containerApps',
+                'Microsoft.Web/sites'))
+        {
+            continue
+        }
+
+        [string]$resourceId = "$( $resource.resourceId )".Trim()
+
+        if ([string]::IsNullOrWhiteSpace($resourceId))
+        {
+            continue
+        }
+
+        try
+        {
+            [string]$apiVersion = switch ($resourceType)
+            {
+                'Microsoft.ContainerRegistry/registries' { '2023-07-01' }
+                'Microsoft.App/containerApps' { '2024-03-01' }
+                default { '2022-03-01' }
+            }
+
+            [string]$path = "${resourceId}?api-version=$apiVersion"
+            [object]$response = Invoke-AzRestMethod -Method GET -Path $path -ErrorAction Stop
+
+            if ($response.StatusCode -lt 200 -or $response.StatusCode -ge 300)
+            {
+                continue
+            }
+
+            [object]$payload = $response.Content | ConvertFrom-Json -ErrorAction Stop
+
+            if ($null -eq $resource.properties)
+            {
+                $resource.properties = @{}
+            }
+
+            Add-ArchLucidAzureContainerImagePropertiesFromPayload `
+                -Properties $resource.properties `
+                -Payload $payload
+        }
+        catch
+        {
+            # Optional enrichment must never prevent the base inventory from being emitted.
+        }
+    }
+}
+
+function Get-ArchLucidAzureAksWorkloadImageCommandOutput([string] $ResourceId)
+{
+    [string]$command = "kubectl get deployments,statefulsets,daemonsets,jobs,cronjobs -A -o jsonpath='{range .items[*]}{range .spec.template.spec.containers[*]}{.image}{`"`n`"}{end}{range .spec.template.spec.initContainers[*]}{.image}{`"`n`"}{end}{end}'"
+    [string]$payload = @{ command = $command } | ConvertTo-Json -Compress
+    [object]$response = Invoke-AzRestMethod `
+        -Method POST `
+        -Path "$ResourceId/runCommand?api-version=2024-02-01" `
+        -Payload $payload `
+        -ErrorAction Stop
+
+    if ($response.StatusCode -lt 200 -or $response.StatusCode -ge 300)
+    {
+        return $null
+    }
+
+    [object]$document = $response.Content | ConvertFrom-Json -ErrorAction Stop
+    [string]$output = "$( $document.properties.logResult )"
+
+    if ("$( $document.properties.provisioningState )" -eq 'Succeeded')
+    {
+        return $output
+    }
+
+    [string]$commandResultId = "$( $document.id )".Trim()
+
+    if ([string]::IsNullOrWhiteSpace($commandResultId))
+    {
+        return $null
+    }
+
+    for ($poll = 0; $poll -lt 15; $poll++)
+    {
+        Start-Sleep -Seconds 2
+
+        [object]$pollResponse = Invoke-AzRestMethod `
+            -Method GET `
+            -Path "$commandResultId" `
+            -ErrorAction Stop
+
+        if ($pollResponse.StatusCode -lt 200 -or $pollResponse.StatusCode -ge 300)
+        {
+            return $null
+        }
+
+        [object]$pollDocument = $pollResponse.Content | ConvertFrom-Json -ErrorAction Stop
+        [string]$pollState = "$( $pollDocument.properties.provisioningState )"
+
+        if ($pollState -eq 'Succeeded')
+        {
+            return "$( $pollDocument.properties.logResult )"
+        }
+
+        if ($pollState -in @('Failed', 'Canceled', 'Cancelled'))
+        {
+            return $null
+        }
+    }
+
+    return $null
+}
+
+function Add-ArchLucidAzureAksWorkloadImageProperties(
+    [object[]] $InventoryResources)
+{
+    [System.Collections.Generic.List[string]]$warnings = [System.Collections.Generic.List[string]]::new()
+
+    foreach ($resource in @($InventoryResources))
+    {
+        if ($null -eq $resource)
+        {
+            continue
+        }
+
+        if ("$( $resource.resourceType )".Trim() -ne 'Microsoft.ContainerService/managedClusters')
+        {
+            continue
+        }
+
+        [string]$resourceId = "$( $resource.resourceId )".Trim()
+
+        if ([string]::IsNullOrWhiteSpace($resourceId))
+        {
+            continue
+        }
+
+        try
+        {
+            [string]$output = Get-ArchLucidAzureAksWorkloadImageCommandOutput -ResourceId $resourceId
+
+            if ($null -eq $output)
+            {
+                [void]$warnings.Add('aks-workload-images-not-collected-customer-script')
+                continue
+            }
+
+            [string[]]$images = @(
+                $output -split '\r?\n' |
+                    ForEach-Object { "$_".Trim() } |
+                    Where-Object { -not [string]::IsNullOrWhiteSpace($_) } |
+                    Select-Object -Unique
+            )
+
+            if ($null -eq $resource.properties)
+            {
+                $resource.properties = @{}
+            }
+
+            foreach ($image in $images)
+            {
+                Add-ArchLucidAzureContainerImageProperty `
+                    -Properties $resource.properties `
+                    -Image $image
+            }
+        }
+        catch
+        {
+            [void]$warnings.Add('aks-workload-images-not-collected-customer-script')
+        }
+    }
+
+    return [pscustomobject]@{
+        warnings = @($warnings | Select-Object -Unique)
+        collectedCount = @($InventoryResources | Where-Object {
+            $_.properties.Keys | Where-Object { $_ -like 'container.image[*]' }
+        }).Count
+    }
+}
+
 function Get-ArchLucidAzureRoleAssignmentCompanionRows
 {
     param(
@@ -494,11 +751,20 @@ function Add-ArchLucidAzureRoleAssignmentRowsFromGetAzRoleAssignment
 
         $Seen[$key] = $true
 
+        [string]$roleName = $null
+
+        if ($null -ne $assignment.PSObject.Properties['RoleDefinitionName'] -and
+            -not [string]::IsNullOrWhiteSpace($assignment.RoleDefinitionName))
+        {
+            $roleName = $assignment.RoleDefinitionName.Trim()
+        }
+
         [void]$Rows.Add([ordered]@{
             scope = $assignment.Scope
             principalId = $assignment.ObjectId
             principalType = $assignment.ObjectType
             roleDefinitionId = $assignment.RoleDefinitionId
+            roleName = $roleName
             pimEligibilityKind = "standing"
         })
     }
@@ -1608,11 +1874,6 @@ function Get-ArchLucidAzureFederatedCredentialCompanionRows
         [object[]] $InventoryResources
     )
 
-    if (-not (Get-Command Invoke-AzRestMethod -ErrorAction SilentlyContinue))
-    {
-        return @()
-    }
-
     $rows = [System.Collections.ArrayList]::new()
 
     foreach ($resource in @($InventoryResources))
@@ -1622,16 +1883,41 @@ function Get-ArchLucidAzureFederatedCredentialCompanionRows
         [string]$resourceType = "$( $resource.resourceType )".Trim()
         [string]$resourceId = "$( $resource.resourceId )".Trim()
 
-        if (-not ($resourceType -like "*userAssignedIdentities*")) { continue }
+        if (-not $resourceType.Equals(
+                "Microsoft.ManagedIdentity/userAssignedIdentities",
+                [System.StringComparison]::OrdinalIgnoreCase)) { continue }
         if ([string]::IsNullOrWhiteSpace($resourceId)) { continue }
-
-        [string]$principalId = "$( $resource.properties.principalId )".Trim()
-        [string]$clientId = "$( $resource.properties.clientId )".Trim()
-
-        if ([string]::IsNullOrWhiteSpace($principalId)) { continue }
 
         try
         {
+            [string]$principalId = Get-ArchLucidInventoryPropertyStringValue `
+                -Properties $resource.properties `
+                -PropertyName "principalId"
+            [string]$clientId = Get-ArchLucidInventoryPropertyStringValue `
+                -Properties $resource.properties `
+                -PropertyName "clientId"
+
+            if ([string]::IsNullOrWhiteSpace($principalId))
+            {
+                [string]$identityPath = "${resourceId}?api-version=2023-01-31"
+                $identityResponse = Invoke-AzRestMethod -Method GET -Path $identityPath -ErrorAction Stop
+                $identityPayload = $identityResponse.Content | ConvertFrom-Json -ErrorAction Stop
+                [object]$identityProperties = $identityPayload.properties
+
+                $principalId = Get-ArchLucidInventoryPropertyStringValue `
+                    -Properties $identityProperties `
+                    -PropertyName "principalId"
+
+                if ([string]::IsNullOrWhiteSpace($clientId))
+                {
+                    $clientId = Get-ArchLucidInventoryPropertyStringValue `
+                        -Properties $identityProperties `
+                        -PropertyName "clientId"
+                }
+            }
+
+            if ([string]::IsNullOrWhiteSpace($principalId)) { continue }
+
             [string]$path = "$resourceId/federatedIdentityCredentials?api-version=2023-01-31"
             $response = Invoke-AzRestMethod -Method GET -Path $path -ErrorAction Stop
             $payload = $response.Content | ConvertFrom-Json -ErrorAction Stop

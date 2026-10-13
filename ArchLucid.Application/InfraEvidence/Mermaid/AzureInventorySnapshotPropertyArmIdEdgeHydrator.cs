@@ -21,22 +21,17 @@ internal static class AzureInventorySnapshotPropertyArmIdEdgeHydrator
         AzureInventorySnapshotDetailReadModel snapshot,
         Dictionary<string, string> nodeIdByArmId,
         List<GraphEdge> edges,
-        HashSet<string> edgeKeys)
+        HashSet<string> edgeKeys,
+        AzureInventorySnapshotResourceIndex? resourceIndex = null)
     {
         ArgumentNullException.ThrowIfNull(snapshot);
         ArgumentNullException.ThrowIfNull(nodeIdByArmId);
         ArgumentNullException.ThrowIfNull(edges);
         ArgumentNullException.ThrowIfNull(edgeKeys);
 
-        Dictionary<Guid, AzureInventoryResourceRecord> resourcesByRowId = snapshot.Resources
-            .GroupBy(resource => resource.ResourceRowId)
-            .ToDictionary(group => group.Key, group => group.First());
-        Dictionary<string, AzureInventoryResourceRecord> resourcesByArmId = snapshot.Resources
-            .Where(resource => !string.IsNullOrWhiteSpace(resource.AzureResourceId))
-            .GroupBy(
-                resource => ArmResourceIdNormalizer.Normalize(resource.AzureResourceId),
-                StringComparer.OrdinalIgnoreCase)
-            .ToDictionary(group => group.Key, group => group.First(), StringComparer.OrdinalIgnoreCase);
+        resourceIndex ??= AzureInventorySnapshotResourceIndex.Create(snapshot);
+        IReadOnlyDictionary<Guid, AzureInventoryResourceRecord> resourcesByRowId = resourceIndex.ByResourceRowId;
+        IReadOnlyDictionary<string, AzureInventoryResourceRecord> resourcesByArmId = resourceIndex.ByArmId;
 
         foreach (AzureInventoryResourcePropertyReadModel property in snapshot.Properties)
         {

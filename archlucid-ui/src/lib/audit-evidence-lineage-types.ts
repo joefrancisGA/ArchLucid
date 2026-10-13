@@ -31,6 +31,14 @@ export type AuditEvidenceLineageRequirementChain = {
   evidence?: AuditEvidenceLineageEvidenceNode[];
 };
 
+export type AuditEvidenceLineageVerifiedRemediationAssociation = {
+  associationId?: string;
+  instanceId: string;
+  status?: string;
+  verificationSnapshotId?: string;
+  controlId?: string;
+};
+
 export type AuditEvidenceLineageRecord = {
   assessmentId?: string;
   auditEvidenceSnapshotId?: string;
@@ -43,4 +51,5 @@ export type AuditEvidenceLineageRecord = {
   brokenLinkReasons?: string[];
   evaluation?: AuditEvidenceLineageEvaluationNode | null;
   requirementChains?: AuditEvidenceLineageRequirementChain[];
+  verifiedRemediationAssociations?: AuditEvidenceLineageVerifiedRemediationAssociation[];
 };

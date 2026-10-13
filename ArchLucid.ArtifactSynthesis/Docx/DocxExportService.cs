@@ -364,7 +364,7 @@ public sealed partial class DocxExportService(
         List<(string, string)> provenanceRows =
         [
             ("Metric", "Value"),
-            ("Rule set", $"{manifest.RuleSetId} {manifest.RuleSetVersion}"),
+            ("Rule set", SanitizeArtifactText($"{manifest.RuleSetId} {manifest.RuleSetVersion}")),
             ("Manifest hash", manifest.ManifestHash),
             ("Source findings", manifest.Provenance.SourceFindingIds.Count.ToString()),
             ("Source graph nodes", manifest.Provenance.SourceGraphNodeIds.Count.ToString()),

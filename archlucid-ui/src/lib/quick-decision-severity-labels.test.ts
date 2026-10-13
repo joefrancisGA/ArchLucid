@@ -18,4 +18,8 @@ describe("quick-decision-severity-labels", () => {
     expect(compareFindingSeverity(null, 0)).toBe(1);
     expect(compareFindingSeverity(0, null, "ascending")).toBe(-1);
   });
+
+  it("shows stored finite severities outside the named bands", () => {
+    expect(severityBadgeLabel(4)).toBe("4");
+  });
 });

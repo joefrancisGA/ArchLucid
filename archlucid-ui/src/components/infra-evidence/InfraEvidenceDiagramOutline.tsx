@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import { InfraEvidenceDeclaredConnectionDetailPanel } from "@/components/infra-evidence/InfraEvidenceDeclaredConnectionDetailPanel";
 import { InfraEvidenceInventoryEdgeDetailPanel } from "@/components/infra-evidence/InfraEvidenceInventoryEdgeDetailPanel";
@@ -31,6 +31,7 @@ import {
   INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_PROBABLE,
 } from "@/lib/infra-evidence/infra-evidence-diagram-copy";
 import { InfraEvidenceDiagramOutlineNodeLabel } from "@/lib/infra-evidence/infra-evidence-diagram-outline-node-label";
+import { resolveInfraEvidenceDiagramOutlineResourceName } from "@/lib/infra-evidence/resolve-infra-evidence-diagram-outline-resource-name";
 import { downloadBrowserTextFile, safeGraphExportFilenameSegment } from "@/lib/graph-view-model-export";
 import {
   DEFAULT_INFRA_EVIDENCE_DIAGRAM_OUTLINE_EDGE_SORT_DIR,
@@ -131,7 +132,7 @@ function formatLedgerDropLabel(
     return `${GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNATTACHED_NSG_LABEL} · ${fromLabel}`;
   }
 
-  const toLabel = drop.to == null ? "Destination was not stored" : resolveInfraEvidenceOutlineNodeLabel(nodes, drop.to);
+  const toLabel = drop.to == null || drop.to === "_" ? "Destination was not stored" : resolveInfraEvidenceOutlineNodeLabel(nodes, drop.to);
 
   return `${drop.reason} · ${fromLabel} → ${toLabel}`;
 }
@@ -139,20 +140,34 @@ function formatLedgerDropLabel(
 type InfraEvidenceDiagramOutlineProps = {
   readonly outline: InfraEvidenceMermaidOutline;
   readonly onFocusNeighborhood?: (node: InfraEvidenceMermaidOutlineNode) => void;
+  readonly selectedInventoryEdge?: InfraEvidenceMermaidOutlineEdge | null;
+  readonly onSelectInventoryEdge?: (edge: InfraEvidenceMermaidOutlineEdge | null) => void;
   readonly defaultNodesOpen?: boolean;
   readonly defaultEdgesOpen?: boolean;
 };
 
-function formatOutlineCell(value: string | null): string {
-  if (value == null || value.trim().length === 0) {
-    return "Not recorded";
+function formatOutlineCell(value: string | null, missingLabel = "Not recorded", emptyLabel = "Not recorded"): string {
+  if (value == null) {
+    return missingLabel;
+  }
+
+  if (value.trim().length === 0) {
+    return emptyLabel;
   }
 
   return value;
 }
 
 function formatOutlineResourceType(resourceType: string | null): string {
-  return formatOutlineCell(formatDiagramArmTypeFriendlyName(resourceType));
+  if (resourceType == null) {
+    return "Resource type was not stored";
+  }
+
+  if (resourceType.length === 0) {
+    return "";
+  }
+
+  return formatOutlineCell(formatDiagramArmTypeFriendlyName(resourceType), "Resource type was not stored", "");
 }
 
 function formatOutlineEdgeSource(source: InfraEvidenceDiagramOutlineEdgeSource): string {
@@ -340,7 +355,7 @@ function InfraEvidenceDiagramOutlineNodeTable(props: {
                 </td>
                 <td className="px-3 py-2">{formatOutlineResourceType(node.resourceType)}</td>
                 <td className={cn("px-3 py-2 font-mono", OPERATOR_TYPOGRAPHY.body)}>
-                  {formatOutlineCell(node.resourceGroup)}
+                  {formatOutlineCell(node.resourceGroup, "Resource group was not stored.", "")}
                 </td>
                 {showProblem ? (
                   <td className={cn("px-3 py-2", OPERATOR_TYPOGRAPHY.body)}>
@@ -354,7 +369,7 @@ function InfraEvidenceDiagramOutlineNodeTable(props: {
                       size="sm"
                       variant="outline"
                       data-testid={`infra-diagrams-focus-neighborhood-${node.id}`}
-                      aria-label={`${GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DEPENDENCY_SEED_FOCUS_ACTION} from ${node.label}`}
+                      aria-label={`${GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_DEPENDENCY_SEED_FOCUS_ACTION} from ${resolveInfraEvidenceDiagramOutlineResourceName(node)}`}
                       onClick={() => {
                         onFocusNeighborhood?.(node);
                       }}
@@ -381,6 +396,8 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
   const {
     outline,
     onFocusNeighborhood,
+    selectedInventoryEdge: selectedInventoryEdgeProp,
+    onSelectInventoryEdge,
     defaultNodesOpen = false,
     defaultEdgesOpen = false,
   } = props;
@@ -391,17 +408,45 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
   const [nodesOpen, setNodesOpen] = useState(defaultNodesOpen);
   const [edgesOpen, setEdgesOpen] = useState(defaultEdgesOpen);
   const [selectedDeclaredEdge, setSelectedDeclaredEdge] = useState<InfraEvidenceMermaidOutlineEdge | null>(null);
-  const [selectedInventoryEdge, setSelectedInventoryEdge] = useState<InfraEvidenceMermaidOutlineEdge | null>(null);
+  const [localSelectedInventoryEdge, setLocalSelectedInventoryEdge] = useState<InfraEvidenceMermaidOutlineEdge | null>(null);
+  const inventoryEdgePanelRef = useRef<HTMLDivElement>(null);
   const [declaredConnections, setDeclaredConnections] = useState<SecurityDeclaredConnectionRow[]>([]);
   const [declaredConnectionsLoading, setDeclaredConnectionsLoading] = useState(false);
   const [declaredConnectionsError, setDeclaredConnectionsError] = useState<string | null>(null);
+  const selectedInventoryEdge = selectedInventoryEdgeProp === undefined
+    ? localSelectedInventoryEdge
+    : selectedInventoryEdgeProp;
+
+  const selectInventoryEdge = (edge: InfraEvidenceMermaidOutlineEdge | null): void => {
+    setLocalSelectedInventoryEdge(edge);
+    onSelectInventoryEdge?.(edge);
+  };
 
   useEffect(() => {
     setSelectedDeclaredEdge(null);
-    setSelectedInventoryEdge(null);
+    setLocalSelectedInventoryEdge(null);
     setDeclaredConnections([]);
     setDeclaredConnectionsError(null);
   }, [outline]);
+
+  useEffect(() => {
+    if (selectedInventoryEdgeProp == null) {
+      return;
+    }
+
+    setSelectedDeclaredEdge(null);
+    setEdgesOpen(true);
+    window.requestAnimationFrame(() => {
+      const panel = inventoryEdgePanelRef.current;
+
+      if (panel === null) {
+        return;
+      }
+
+      panel.scrollIntoView?.({ block: "nearest" });
+      panel.focus();
+    });
+  }, [selectedInventoryEdgeProp]);
 
   useEffect(() => {
     const storedNodesOpen = readOutlineSectionOpenFromSessionStorage(OUTLINE_NODES_OPEN_STORAGE_KEY);
@@ -721,11 +766,16 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
                   </div>
                 ) : null}
                 {selectedInventoryEdge != null ? (
-                  <div className="mb-4">
+                  <div
+                    ref={inventoryEdgePanelRef}
+                    className="mb-4"
+                    data-testid="infra-evidence-inventory-edge-detail-panel-container"
+                    tabIndex={-1}
+                  >
                     <InfraEvidenceInventoryEdgeDetailPanel
                       edge={selectedInventoryEdge}
                       onClose={() => {
-                        setSelectedInventoryEdge(null);
+                        selectInventoryEdge(null);
                       }}
                     />
                   </div>
@@ -798,13 +848,15 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
                                 data-testid={`infra-diagrams-declared-edge-${edge.from}-${edge.to}`}
                                 aria-label={`View declared connection from ${fromNode?.label ?? edge.from} to ${toNode?.label ?? edge.to}`}
                                 onClick={() => {
-                                  setSelectedInventoryEdge(null);
+                                  selectInventoryEdge(null);
                                   setSelectedDeclaredEdge(edge);
                                 }}
                               >
                                 {formatOutlineEdgeSource(edge.source)}
                               </Button>
-                            ) : edge.source === "probable" || edge.source === "inferred" ? (
+                            ) : edge.source === "observed"
+                              || edge.source === "probable"
+                              || edge.source === "inferred" ? (
                               <Button
                                 type="button"
                                 size="sm"
@@ -813,7 +865,7 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
                                 aria-label={`View connection evidence from ${fromNode?.label ?? edge.from} to ${toNode?.label ?? edge.to}`}
                                 onClick={() => {
                                   setSelectedDeclaredEdge(null);
-                                  setSelectedInventoryEdge(edge);
+                                  selectInventoryEdge(edge);
                                 }}
                               >
                                 {formatOutlineEdgeSource(edge.source)}
@@ -829,7 +881,13 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
                               resolveInfraEvidenceOutlineNodeLabel(outline.nodes, edge.from)
                             )}
                           </td>
-                          <td className="px-3 py-2">{formatOutlineCell(resolveInfraEvidenceOutlineEdgeLabel(edge, outline.nodes))}</td>
+                          <td className="px-3 py-2">
+                            {formatOutlineCell(
+                              resolveInfraEvidenceOutlineEdgeLabel(edge, outline.nodes),
+                              "Edge label was not stored",
+                              "",
+                            )}
+                          </td>
                           <td className="px-3 py-2">{toDisplay}</td>
                         </tr>
                       );
@@ -858,7 +916,7 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
               {outline.dropGateRows.map((row, index) => (
                 <li key={`${row.from}-${row.to}-${row.reason}-${index}`}>
                   {row.reason}: {resolveInfraEvidenceOutlineNodeLabel(outline.nodes, row.from)} →{" "}
-                  {resolveInfraEvidenceOutlineNodeLabel(outline.nodes, row.to)}
+                  {row.to === "_" ? "Destination was not stored" : resolveInfraEvidenceOutlineNodeLabel(outline.nodes, row.to)}
                 </li>
               ))}
             </ul>

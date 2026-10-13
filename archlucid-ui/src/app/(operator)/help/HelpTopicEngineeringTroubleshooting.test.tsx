@@ -93,7 +93,8 @@ describe("HelpEngineeringTroubleshootingGuideView", () => {
     expect(screen.getByTestId("help-engineering-troubleshooting-related-help")).toBeInTheDocument();
     expect(screen.getByTestId("help-engineering-troubleshooting-markdown-sections")).toBeInTheDocument();
     expect(screen.getByTestId("help-topic-toc-mobile")).toBeInTheDocument();
-    expect(screen.queryByText("Before sponsor send")).not.toBeInTheDocument();
+    expect(screen.getByTestId("help-engineering-troubleshooting-honesty-panel")).toBeInTheDocument();
+    expect(screen.getByText("Before sponsor send")).toBeInTheDocument();
 
     for (const heading of headings) {
       expect(heading.title).not.toMatch(/[*_`]/);

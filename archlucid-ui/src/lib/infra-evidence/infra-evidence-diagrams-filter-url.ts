@@ -23,9 +23,20 @@ export const INFRA_DIAGRAMS_INCLUDE_NETWORK_DETAILS_PARAM = "includeNetworkDetai
 export const INFRA_DIAGRAMS_INCLUDE_RECOVERY_SERVICES_PARAM = "includeRecoveryServices";
 export const INFRA_DIAGRAMS_INCLUDE_CROSS_GROUP_FAN_OUT_PARAM = "includeCrossGroupFanOut";
 export const INFRA_DIAGRAMS_INCLUDE_AVD_ASSETS_PARAM = "includeAvdAssets";
+export const INFRA_DIAGRAMS_EVIDENCE_FAMILY_PARAM = "evidenceFamily";
 
 /** @deprecated Legacy URL param; parsed as alias for {@link INFRA_DIAGRAMS_INCLUDE_NEVER_SHOW_PARAM}. */
 export const INFRA_DIAGRAMS_SHOW_TRIVIAL_COMPONENTS_PARAM = "showTrivialComponents";
+
+const EVIDENCE_FAMILY_VALUES = new Set([
+  "all",
+  "DeclaredMovement",
+  "AuthorizedAccess",
+  "StructuralNetworkPath",
+  "InferredHostname",
+  "HumanConfirmed",
+  "ObservedRuntime",
+]);
 
 export const INFRA_DIAGRAMS_DEFAULT_MODE = "executive";
 
@@ -196,6 +207,12 @@ export function parseInfraDiagramsIncludeAvdAssetsFromSearch(raw: string | null 
   return parseTruthyDiagramSearchParam(raw);
 }
 
+export function parseInfraDiagramsEvidenceFamilyFromSearch(raw: string | null | undefined): string {
+  const trimmed = raw?.trim() ?? "";
+
+  return EVIDENCE_FAMILY_VALUES.has(trimmed) ? trimmed : "all";
+}
+
 /** @deprecated Use {@link parseInfraDiagramsIncludeNeverShowFromSearch}. */
 export function parseInfraDiagramsShowTrivialComponentsFromSearch(raw: string | null | undefined): boolean {
   return parseInfraDiagramsIncludeNeverShowFromSearch(raw);
@@ -215,6 +232,7 @@ export type InfraDiagramsWorkbenchContext = {
   readonly includeRecoveryServices?: boolean | null;
   readonly includeCrossGroupFanOut?: boolean | null;
   readonly includeAvdAssets?: boolean | null;
+  readonly evidenceFamily?: string | null;
   readonly runId?: string | null;
   readonly assessmentId?: string | null;
   readonly auditEvidenceSnapshotId?: string | null;
@@ -236,6 +254,7 @@ export function buildDiagramsWorkbenchHref(context: InfraDiagramsWorkbenchContex
     includeRecoveryServices: context.includeRecoveryServices ?? undefined,
     includeCrossGroupFanOut: context.includeCrossGroupFanOut ?? undefined,
     includeAvdAssets: context.includeAvdAssets ?? undefined,
+    evidenceFamily: context.evidenceFamily ?? undefined,
     runId: context.runId ?? undefined,
     assessmentId: context.assessmentId ?? undefined,
     auditEvidenceSnapshotId: context.auditEvidenceSnapshotId ?? undefined,
@@ -259,6 +278,7 @@ export function infraDiagramsFilterHrefFromSearch(
     readonly includeRecoveryServices?: boolean;
     readonly includeCrossGroupFanOut?: boolean;
     readonly includeAvdAssets?: boolean;
+    readonly evidenceFamily?: string;
     readonly runId?: string;
     readonly assessmentId?: string;
     readonly auditEvidenceSnapshotId?: string;
@@ -391,6 +411,16 @@ export function infraDiagramsFilterHrefFromSearch(
       params.set(INFRA_DIAGRAMS_INCLUDE_AVD_ASSETS_PARAM, "1");
     } else {
       params.delete(INFRA_DIAGRAMS_INCLUDE_AVD_ASSETS_PARAM);
+    }
+  }
+
+  if (patch.evidenceFamily !== undefined) {
+    const trimmed = patch.evidenceFamily.trim();
+
+    if (trimmed.length === 0 || trimmed === "all" || !EVIDENCE_FAMILY_VALUES.has(trimmed)) {
+      params.delete(INFRA_DIAGRAMS_EVIDENCE_FAMILY_PARAM);
+    } else {
+      params.set(INFRA_DIAGRAMS_EVIDENCE_FAMILY_PARAM, trimmed);
     }
   }
 

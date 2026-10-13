@@ -5,6 +5,7 @@ import {
   buildDiagramsWorkbenchHref,
   infraDiagramsFilterHrefFromSearch,
   parseInfraDiagramsCloudResourceIdFromSearch,
+  parseInfraDiagramsEvidenceFamilyFromSearch,
   parseInfraDiagramsIncludePrivateEndpointsFromSearch,
   parseInfraDiagramsIncludeRecoveryServicesFromSearch,
   parseInfraDiagramsIncludeCrossGroupFanOutFromSearch,
@@ -26,6 +27,8 @@ describe("infra-evidence-diagrams-filter-url", () => {
     expect(parseInfraDiagramsCloudResourceIdFromSearch("11111111-1111-1111-1111-111111111111")).toBe(
       "11111111-1111-1111-1111-111111111111",
     );
+    expect(parseInfraDiagramsEvidenceFamilyFromSearch("AuthorizedAccess")).toBe("AuthorizedAccess");
+    expect(parseInfraDiagramsEvidenceFamilyFromSearch("bogus")).toBe("all");
     expect(parseInfraDiagramsMermaidModeFromSearch(null)).toBe("");
     expect(parseInfraDiagramsMermaidModeFromSearch("network")).toBe("network");
     expect(parseInfraDiagramsMermaidModeFromSearch("data")).toBe("data");
@@ -47,8 +50,9 @@ describe("infra-evidence-diagrams-filter-url", () => {
         mermaidMode: "network",
         mermaidView: "executive",
         seedNodeId: "node-1",
+        evidenceFamily: "AuthorizedAccess",
       }),
-    ).toBe("/governance/infrastructure/diagrams?snapshotId=snap-1&mermaidMode=network&mermaidView=executive&seedNodeId=node-1");
+    ).toBe("/governance/infrastructure/diagrams?snapshotId=snap-1&mermaidMode=network&mermaidView=executive&seedNodeId=node-1&evidenceFamily=AuthorizedAccess");
 
     expect(
       infraDiagramsFilterHrefFromSearch(

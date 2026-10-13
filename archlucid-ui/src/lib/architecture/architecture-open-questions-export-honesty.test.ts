@@ -55,7 +55,7 @@ describe("architecture-open-questions-export-honesty (LP-16)", () => {
     });
 
     expect(demoted.provenance).toBe("inferred");
-    expect(demoted.entities[0]?.provenance).toBe("inferred");
+    expect(demoted.entities?.[0]?.provenance).toBe("inferred");
   });
 
   it("finalizeSections never promotes open-questions text into asserted arrays", () => {
@@ -78,6 +78,6 @@ describe("architecture-open-questions-export-honesty (LP-16)", () => {
     const openQuestions = sections.find((section) => section.key === "open-questions");
 
     expect(openQuestions?.provenance).toBe("inferred");
-    expect(openQuestions?.entities.every((entity) => entity.provenance === "inferred")).toBe(true);
+    expect(openQuestions?.entities?.every((entity) => entity.provenance === "inferred") ?? false).toBe(true);
   });
 });

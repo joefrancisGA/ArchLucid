@@ -14,6 +14,22 @@ describe("product-line-route-gate", () => {
         productLine: "security",
       }),
     ).toEqual({ kind: "allow" });
+
+    expect(
+      decideProductLineRouteRedirect({
+        pathname: "/infrastructure/collection-agent",
+        productLine: "security",
+      }),
+    ).toEqual({ kind: "allow" });
+  });
+
+  it("blocks the Collection agent page in the Architecture shell", () => {
+    expect(
+      decideProductLineRouteRedirect({
+        pathname: "/infrastructure/collection-agent",
+        productLine: "architecture",
+      }),
+    ).toEqual({ kind: "blocked", pathname: "/infrastructure/collection-agent" });
   });
 
   it("blocks Architecture-only operator paths in the Security product without home redirect", () => {
@@ -68,6 +84,22 @@ describe("product-line-route-gate", () => {
       cookies: {
         get: (name: string) =>
           name === "archlucid_product_line_v1" ? { value: "security" } : undefined,
+      },
+    } as Parameters<typeof resolveProductLineIdFromRequest>[0];
+
+    expect(resolveProductLineIdFromRequest(request)).toBe("security");
+
+    vi.unstubAllEnvs();
+  });
+
+  it("ignores an architecture cookie when the edition is uhg", () => {
+    vi.stubEnv("NEXT_PUBLIC_SECURENOW_EDITION", "uhg");
+    vi.stubEnv("NEXT_PUBLIC_ARCHLUCID_PRODUCT", "architecture");
+
+    const request = {
+      cookies: {
+        get: (name: string) =>
+          name === "archlucid_product_line_v1" ? { value: "architecture" } : undefined,
       },
     } as Parameters<typeof resolveProductLineIdFromRequest>[0];
 

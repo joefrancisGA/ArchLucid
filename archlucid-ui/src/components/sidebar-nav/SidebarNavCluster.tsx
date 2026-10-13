@@ -97,6 +97,7 @@ export function SidebarNavCluster(props: SidebarNavClusterProps): ReactElement {
     buyerPolishedShell: props.buyerPolishedShell,
     hasCommittedArchitectureReview: props.hasCommittedArchitectureReview,
   });
+  const hideGroupHeading = group.hideHeading === true;
   const groupHeadingLabel = group.label;
   const demoOrBuyer = props.demoUi || props.buyerPolishedShell;
   const contentId = `sidebar-group-${group.id}-content`;
@@ -231,7 +232,7 @@ export function SidebarNavCluster(props: SidebarNavClusterProps): ReactElement {
 
   return (
     <div key={group.id} data-testid={`sidebar-group-${group.id}`} className={cn("mt-1 first:mt-0", group.id === "operator-system-admin" && "mt-4 border-t border-neutral-200 pt-3 dark:border-neutral-800")}>
-      {props.isCollapsible ? (
+      {!hideGroupHeading && props.isCollapsible ? (
         <div className={headingClassName}>
           <button
             type="button"
@@ -247,7 +248,7 @@ export function SidebarNavCluster(props: SidebarNavClusterProps): ReactElement {
             {headingInner}
           </button>
         </div>
-      ) : (
+      ) : !hideGroupHeading ? (
         <div
           className={headingClassName}
           id={headingId}
@@ -255,14 +256,19 @@ export function SidebarNavCluster(props: SidebarNavClusterProps): ReactElement {
         >
           {headingInner}
         </div>
-      )}
+      ) : null}
 
       {props.isExpanded ? (
         <div
           id={contentId}
           role="group"
-          className="flex flex-col gap-0.5 border-l border-neutral-200 py-1 pl-1.5 dark:border-neutral-700"
-          aria-labelledby={headingId}
+          className={cn(
+            "flex flex-col gap-0.5",
+            hideGroupHeading
+              ? "py-0"
+              : "border-l border-neutral-200 py-1 pl-1.5 dark:border-neutral-700",
+          )}
+          {...(hideGroupHeading ? { "aria-label": groupHeadingLabel } : { "aria-labelledby": headingId })}
         >
           {daily.map((link) => renderLink(link))}
 

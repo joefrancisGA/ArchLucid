@@ -962,6 +962,16 @@
       "nav_operator_href": null
     },
     {
+      "controller_file": "Authority/CollectionRunsController.cs",
+      "class_name": "CollectionRunsController",
+      "route_template": "v{version:apiVersion}/collection-runs",
+      "normalized_prefix": "/v1/collection-runs",
+      "commercial_tier": "none",
+      "class_policy": "ReadAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
       "controller_file": "Authority/DocxExportController.cs",
       "class_name": "DocxExportController",
       "route_template": "v{version:apiVersion}/docx",

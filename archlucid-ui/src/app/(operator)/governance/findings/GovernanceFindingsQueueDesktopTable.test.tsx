@@ -92,6 +92,59 @@ describe("GovernanceFindingsQueueDesktopTable", () => {
     expect(mountedRiskTitles.length).toBeLessThan(rows.length);
   });
 
+  it("preserves insight density scores in the virtualized body", () => {
+    const rows = Array.from({ length: GOVERNANCE_FINDINGS_QUEUE_VIRTUALIZE_MIN_ROWS }, (_, index) =>
+      sampleRow(index),
+    );
+    rows[0] = { ...rows[0]!, insightDensityScore: 87 };
+
+    render(
+      <GovernanceFindingsQueueDesktopTable
+        rows={rows}
+        buyerPolishedShell={false}
+        showInsightDensityScore
+      />,
+    );
+
+    expect(screen.getByTestId("governance-row-insight-density-finding-0")).toHaveTextContent("Density 87");
+  });
+
+  it("preserves insight density scores in grouped working-mode rows", () => {
+    const row = {
+      ...rowForResource(0, resourceGroupA),
+      insightDensityScore: 87,
+    };
+
+    render(
+      <GovernanceFindingsQueueDesktopTable
+        rows={[row]}
+        buyerPolishedShell={false}
+        groupByResource
+        showInsightDensityScore
+      />,
+    );
+
+    expect(screen.getByTestId("governance-row-insight-density-finding-0")).toHaveTextContent("Density 87");
+  });
+
+  it("marks grouped rows opened through the supplied callback", async () => {
+    const row = rowForResource(0, resourceGroupA);
+    const onRowOpened = vi.fn();
+
+    render(
+      <GovernanceFindingsQueueDesktopTable
+        rows={[row]}
+        buyerPolishedShell={false}
+        groupByResource
+        onRowOpened={onRowOpened}
+      />,
+    );
+
+    await screen.getByRole("link", { name: "Risk 0" }).click();
+
+    expect(onRowOpened).toHaveBeenCalledWith(row);
+  });
+
   it("renders all rows in the DOM for small flat lists", () => {
     const rows = Array.from({ length: GOVERNANCE_FINDINGS_QUEUE_VIRTUALIZE_MIN_ROWS - 1 }, (_, index) =>
       sampleRow(index),
@@ -116,6 +169,23 @@ describe("GovernanceFindingsQueueDesktopTable", () => {
     );
 
     expect(screen.getByText("Not used on decision rows")).toBeInTheDocument();
+  });
+
+  it("preserves zero age and explains when age was not stored", () => {
+    render(
+      <GovernanceFindingsQueueDesktopTable
+        rows={[{ ...sampleRow(0), agingDays: 0 }, { ...sampleRow(1), agingDays: null }]}
+        buyerPolishedShell={false}
+      />,
+    );
+
+    const table = screen.getByRole("table", { name: "Findings" });
+    const rows = within(table).getAllByRole("row");
+    const zeroAgeCells = within(rows[1]).getAllByRole("cell");
+    const missingAgeCells = within(rows[2]).getAllByRole("cell");
+
+    expect(zeroAgeCells[5]?.textContent).toBe("0d");
+    expect(missingAgeCells[5]?.textContent).toBe("Aging days were not stored.");
   });
 
   it("does not expose decision rows to findings bulk selection", () => {

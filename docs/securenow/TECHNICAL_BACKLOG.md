@@ -5,7 +5,7 @@
 
 **Audience:** Francis Architecture LLC owner and coding agents scoping SecureNow work.
 
-**Last reconciled:** 2026-10-06 (added **SN-QQ-09** and **SN-QQ-10** — resource identity on the question card, then a readable open-question count; prompts only). Prior 2026-10-04 (added **DIC-01–DIC-05** + hold — import a customer drawing and compare it to an inventory capture without a sealed review; prompts only). Prior 2026-10-03 (added **SN-QQ-08** — map the questions controller so Diagrams stops 500ing `Unmapped API controller`; prompts only. Prior same day added **SN-QQ-07** — a failed question-queue load shows the API reason; prompts only. Prior same day added **DCU-01–DCU-05** + hold and **SN-QQ-01–SN-QQ-06** + hold; prompts only). Prior 2026-09-20 (trunk scan + prompt indexes under `.cursor/prompts/securenow-*`).
+**Last reconciled:** 2026-10-12 (added **RUR-01–RUR-03** + hold — role display name, counted plain-language `rbac-role-unmapped` warning, and a read / write / nothing question for one app and one resource; prompts only). Prior same day (added **SN-HOME-01–SN-HOME-06** + hold — SecureNow Home work summary, environment freshness, outcome copy, and visible labels; prompts only). Prior 2026-10-06 (added **SN-QQ-09** and **SN-QQ-10** — resource identity on the question card, then a readable open-question count; prompts only). Prior 2026-10-04 (added **DIC-01–DIC-05** + hold — import a customer drawing and compare it to an inventory capture without a sealed review; prompts only). Prior 2026-10-03 (added **SN-QQ-08** — map the questions controller so Diagrams stops 500ing `Unmapped API controller`; prompts only. Prior same day added **SN-QQ-07** — a failed question-queue load shows the API reason; prompts only. Prior same day added **DCU-01–DCU-05** + hold and **SN-QQ-01–SN-QQ-06** + hold; prompts only). Prior 2026-09-20 (trunk scan + prompt indexes under `.cursor/prompts/securenow-*`).
 
 ## How to use this file
 
@@ -60,7 +60,11 @@ Ordered for SecureNow operator value after the shipped baseline. Size is enginee
 
 | Pri | ID | Title | Status | Size | Notes |
 |-----|-----|-------|--------|------|-------|
+| P1 | **SN-HAND-05–08** + hold | Verified remediation association | **Backlog** (prompts only) | M | One identifier row: verified instance, verification inventory snapshot, and control. Written only when verification passes and both ids exist. Lineage returns matches. Pages show the ids and do not mark the control evidenced. Index: [`SECURENOW_ENGINEER_ANALYST_HANDOFF_LUNA_PROMPTS.md`](../architecture/SECURENOW_ENGINEER_ANALYST_HANDOFF_LUNA_PROMPTS.md). |
+| P1 | **SN-HOME-01–06** + hold | SecureNow Home work summary | **Backlog** (prompts only) | M | Context line, four counted work links, short lead, outcome summaries, wrapping sidebar labels, compact directory. Index: [`SECURENOW_HOME_WORK_SUMMARY_LUNA_PROMPTS.md`](../architecture/SECURENOW_HOME_WORK_SUMMARY_LUNA_PROMPTS.md). |
 | P1 | **DIC-01–05** + hold | Diagram import comparison | **Backlog** (prompts only) | L | Advisory compare of a structured drawing to an inventory capture, saved architect mapping, structural connector gaps, count strip and CSV, match outlines on the imported drawing. Index: [`DIAGRAM_IMPORT_COMPARISON_LUNA_PROMPTS.md`](../architecture/DIAGRAM_IMPORT_COMPARISON_LUNA_PROMPTS.md). |
+| P1 | **DMW-01–02** | Diagram matcher warnings | **Backlog** (prompts only) | S | Stop the private-endpoint DNS warning from listing every VNet-integrated app against every endpoint, and match private-link hostnames already in the snapshot. Index: [`DIAGRAM_MATCHER_WARNING_LUNA_PROMPTS.md`](../architecture/DIAGRAM_MATCHER_WARNING_LUNA_PROMPTS.md). |
+| P1 | **RUR-01–03** + hold | RBAC unmapped role | **Backlog** (prompts only) | M | Store the role display name, translate built-in roles the data-plane map already understands, show one counted plain-language warning, and ask read / write / nothing only for a managed identity on a resource in the snapshot. Do not ask whether a role can be deleted. Index: [`RBAC_UNMAPPED_ROLE_LUNA_PROMPTS.md`](../architecture/RBAC_UNMAPPED_ROLE_LUNA_PROMPTS.md). |
 | P1 | **SN-QQ-01–10** + hold | Subscription question queue | **Backlog** (prompts only) | L | One queue for diagram evidence, inference items, and pack questions. Hero only when the open count is greater than zero. Ignore expires and reopens when the evidence fingerprint changes. **SN-QQ-07** shows the API reason when that load fails. **SN-QQ-08** maps the questions controller. **SN-QQ-09** names the resource and its neighborhood. **SN-QQ-10** shows `Action needed` and outline `Review questions` on the open-count row. Index: [`SECURENOW_QUESTION_QUEUE_LUNA_PROMPTS.md`](../architecture/SECURENOW_QUESTION_QUEUE_LUNA_PROMPTS.md). |
 | P1 | **AX-DC-01–08** | Executive / Identity / Data diagram **consumption** | **Backlog** (prompts only) | L | Authorization endpoints, Probable/Inferred strokes, completeness warnings, edge inspector, hosted vs Tier-1 honesty. Hold: [`AZURE_EXTRACTOR_DIAGRAM_CONSUMPTION_HOLD.md`](../library/AZURE_EXTRACTOR_DIAGRAM_CONSUMPTION_HOLD.md). |
 | P1 | **DCU-01–05** | Diagram consumption UX (read, filter, share) | **Backlog** (prompts only) | M | Connector click opens the existing evidence panel, one stroke legend, evidence-family chips, PNG reading strip, node connection hint. Hold: [`.cursor/prompts/diagram-consumption-ux-06-hold.md`](../../.cursor/prompts/diagram-consumption-ux-06-hold.md). |
@@ -101,6 +105,10 @@ Paste **one** file per session from the repo root (Cloud Agent: `pwsh` + working
 | Question queue | [securenow-question-queue-00-index.md](../../.cursor/prompts/securenow-question-queue-00-index.md) | **SN-QQ-01–SN-QQ-10** + hold | [`SECURENOW_QUESTION_QUEUE_LUNA_PROMPTS.md`](../architecture/SECURENOW_QUESTION_QUEUE_LUNA_PROMPTS.md) |
 | Diagram consumption UX | [diagram-consumption-ux-00-index.md](../../.cursor/prompts/diagram-consumption-ux-00-index.md) | **DCU-01–DCU-05** + hold | [`DIAGRAM_CONSUMPTION_UX_COMPOSER_PROMPTS.md`](../architecture/DIAGRAM_CONSUMPTION_UX_COMPOSER_PROMPTS.md) |
 | Diagram import comparison | [diagram-import-comparison-00-index.md](../../.cursor/prompts/diagram-import-comparison-00-index.md) | **DIC-01–DIC-05** + hold | [`DIAGRAM_IMPORT_COMPARISON_LUNA_PROMPTS.md`](../architecture/DIAGRAM_IMPORT_COMPARISON_LUNA_PROMPTS.md) |
+| Diagram matcher warnings | [diagram-matcher-warning-00-index.md](../../.cursor/prompts/diagram-matcher-warning-00-index.md) | **DMW-01–DMW-02** | [`DIAGRAM_MATCHER_WARNING_LUNA_PROMPTS.md`](../architecture/DIAGRAM_MATCHER_WARNING_LUNA_PROMPTS.md) |
+| Home work summary | [securenow-home-00-index.md](../../.cursor/prompts/securenow-home-00-index.md) | **SN-HOME-01–SN-HOME-06** + hold | [`SECURENOW_HOME_WORK_SUMMARY_LUNA_PROMPTS.md`](../architecture/SECURENOW_HOME_WORK_SUMMARY_LUNA_PROMPTS.md) |
+| Engineer-to-analyst handoff, gap 5 | [securenow-handoff-00-index.md](../../.cursor/prompts/securenow-handoff-00-index.md) | **SN-HAND-05–SN-HAND-08** + hold | [`SECURENOW_ENGINEER_ANALYST_HANDOFF_LUNA_PROMPTS.md`](../architecture/SECURENOW_ENGINEER_ANALYST_HANDOFF_LUNA_PROMPTS.md) |
+| RBAC unmapped role | [rbac-unmapped-role-00-index.md](../../.cursor/prompts/rbac-unmapped-role-00-index.md) | **RUR-01–RUR-03** + hold | [`RBAC_UNMAPPED_ROLE_LUNA_PROMPTS.md`](../architecture/RBAC_UNMAPPED_ROLE_LUNA_PROMPTS.md) |
 
 ---
 
@@ -244,12 +252,25 @@ Prompts only. Run in order. Settled scope: [`../architecture/SECURENOW_QUESTION_
 | SN-QQ-10 | Open-question count: `Action needed`, medium helper type, outline `Review questions` | **Prompts** |
 | SN-QQ-HOLD | Stop list | **Hold** |
 
+### SN-HAND — Verified remediation association (**SN-HAND-05–SN-HAND-08**)
+
+Design note: [`ENGINEER_ANALYST_HANDOFF.md`](ENGINEER_ANALYST_HANDOFF.md) gap 5. Prompts only. Do not implement from the index.
+
+| ID | Title | Status |
+|----|-------|--------|
+| SN-HAND-05 | Association table and repository | **Prompts** |
+| SN-HAND-06 | Write the row when verification passes | **Prompts** |
+| SN-HAND-07 | Lineage read returns matching rows | **Prompts** |
+| SN-HAND-08 | Audit evidence and Remediation tracker show the ids | **Prompts** |
+| SN-HAND-HOLD | Stop list | **Hold** |
+
 ---
 
 ## Design references (this folder)
 
 | Document | Use when |
 |----------|----------|
+| [`ENGINEER_ANALYST_HANDOFF.md`](ENGINEER_ANALYST_HANDOFF.md) | Finding to verified fix to control. Gap 5 prompts are SN-HAND-05–08 |
 | [`DATA_ARCHITECTURE_AND_DATA_FLOW_DIAGRAMS.md`](DATA_ARCHITECTURE_AND_DATA_FLOW_DIAGRAMS.md) | Three diagram types; first slice vs gold standard |
 | [`EVIDENCE_BASED_PROBABLE_DATA_FLOWS.md`](EVIDENCE_BASED_PROBABLE_DATA_FLOWS.md) | Diagram 3 evidence families; ordinal bands |
 | [`RUNTIME_DECLARED_AND_OBSERVED_DATA_FLOWS.md`](RUNTIME_DECLARED_AND_OBSERVED_DATA_FLOWS.md) | Options A–E for empty Container Apps canvas |

@@ -109,6 +109,12 @@ public sealed class OperatorInferredConnectionRecord
         init;
     }
 
+    public OperatorInferredDataPlaneAnswer? DataPlaneAnswer
+    {
+        get;
+        init;
+    }
+
     public string? SourceFileFormat
     {
         get;

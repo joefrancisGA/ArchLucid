@@ -1,5 +1,6 @@
 import type { NextRequest } from "next/server";
 
+import { lockProductLineForSecureNowEdition } from "@/lib/editions/lock-product-line-for-securenow-edition";
 import { isPathAllowedForProductLine } from "@/lib/product-line/product-line-path-access";
 import { isProductLineId, type ProductLineId } from "@/lib/product-line/product-line-id";
 import { PRODUCT_LINE_COOKIE } from "@/lib/product-line/product-line-storage";
@@ -26,7 +27,7 @@ export function resolveProductLineIdFromRequest(request: NextRequest): ProductLi
   const raw = request.cookies.get(PRODUCT_LINE_COOKIE)?.value?.trim().toLowerCase() ?? "";
 
   if (isProductLineId(raw)) {
-    return raw;
+    return lockProductLineForSecureNowEdition(raw);
   }
 
   return resolveProductLineIdFromEnv();

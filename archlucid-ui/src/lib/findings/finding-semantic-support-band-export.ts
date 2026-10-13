@@ -76,13 +76,11 @@ export function resolveFindingSemanticSupportBandExportFields(
 export function resolveFindingSemanticSupportBandScorerVersion(
   finding: FindingSemanticSupportBandExportInput,
 ): string {
-  const overlay = finding.semanticSupportBandScorerVersion?.trim();
-
-  if (overlay !== undefined && overlay.length > 0) {
-    return overlay;
+  if (finding.semanticSupportBandScorerVersion === null || finding.semanticSupportBandScorerVersion === undefined) {
+    return "Semantic support band scorer version was not stored";
   }
 
-  return FINDING_SEMANTIC_SUPPORT_BAND_SCORER_VERSION;
+  return finding.semanticSupportBandScorerVersion.trim();
 }
 
 export function resolveSemanticSupportBandStampScorerVersion(
@@ -95,11 +93,11 @@ export function resolveSemanticSupportBandStampScorerVersion(
       continue;
     }
 
-    const version = finding.semanticSupportBandScorerVersion?.trim();
-
-    if (version === undefined || version.length === 0) {
-      continue;
+    if (finding.semanticSupportBandScorerVersion === null || finding.semanticSupportBandScorerVersion === undefined) {
+      return "Semantic support band scorer version was not stored";
     }
+
+    const version = finding.semanticSupportBandScorerVersion.trim();
 
     if (version === FINDING_SEMANTIC_SUPPORT_BAND_LLM_FINALIZE_SCORER_VERSION) {
       return FINDING_SEMANTIC_SUPPORT_BAND_LLM_FINALIZE_SCORER_VERSION;
@@ -108,7 +106,7 @@ export function resolveSemanticSupportBandStampScorerVersion(
     overlay ??= version;
   }
 
-  return overlay ?? FINDING_SEMANTIC_SUPPORT_BAND_SCORER_VERSION;
+  return overlay ?? "Semantic support band scorer version was not stored";
 }
 
 export function hasUncheckedDecisionGradeSemanticSupportBand(

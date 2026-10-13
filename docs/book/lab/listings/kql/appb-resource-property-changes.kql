@@ -1,0 +1,12 @@
+resourcechanges
+| extend
+    targetId = tostring(properties.targetResourceId),
+    changeType = tostring(properties.changeType),
+    changedAt = todatetime(properties.changeAttributes.timestamp),
+    changedBy = tostring(properties.changeAttributes.changedBy),
+    clientType = tostring(properties.changeAttributes.clientType),
+    changes = properties.changes
+| where targetId contains '/storageAccounts/custdata'
+| where tostring(changes) contains 'allowSharedKeyAccess'
+| project changedAt, changeType, changedBy, clientType, targetId, changes
+| order by changedAt desc

@@ -27,7 +27,7 @@ import { getProductDocumentationEntry } from "@/lib/product-documentation-regist
 describe("HelpSealedVsDecisionRegisterGuideView (DI-023 / SEX Phase 2)", () => {
   const entry = getProductDocumentationEntry("sealed-record-vs-decision-register");
 
-  it("renders breadcrumb, provenance, skip link, primary actions, seal proofs, headings, and related links without honesty panel", () => {
+  it("renders breadcrumb, provenance, skip link, primary actions, seal proofs, headings, related links, and honesty panel", () => {
     if (entry === undefined) {
       throw new Error("Expected sealed-record-vs-decision-register documentation entry.");
     }
@@ -83,6 +83,6 @@ describe("HelpSealedVsDecisionRegisterGuideView (DI-023 / SEX Phase 2)", () => {
       DESK_IA_HELP_SEALED_VS_REGISTER_HELP_RETURN.href,
     );
 
-    expect(screen.queryByTestId("help-sealed-vs-decision-register-honesty-panel")).not.toBeInTheDocument();
+    expect(screen.getByTestId("help-sealed-vs-decision-register-honesty-panel")).toBeInTheDocument();
   });
 });

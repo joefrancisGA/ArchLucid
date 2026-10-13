@@ -115,7 +115,12 @@ export function WizardStepTrack({ runId, pollSummary, onRetryPolling }: WizardSt
     >
       <p className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
         <strong>Review ID:</strong>{" "}
-        <code className={cn("rounded bg-neutral-100 px-1 py-0.5 dark:bg-neutral-800", OPERATOR_TYPOGRAPHY.helper)}>{runId}</code>
+        <code
+          data-testid="wizard-track-review-id"
+          className={cn("rounded bg-neutral-100 px-1 py-0.5 dark:bg-neutral-800", OPERATOR_TYPOGRAPHY.helper)}
+        >
+          {runId}
+        </code>
       </p>
 
       <div className="mt-4 space-y-2">

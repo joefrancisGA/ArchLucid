@@ -322,6 +322,9 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Install book PDF test dependencies
+        run: python -m pip install markdown reportlab pypdf
+
       - name: Check relative markdown links
         run: python scripts/ci/check_md_links.py
 
@@ -338,6 +341,26 @@ jobs:
         run: |
           cd scripts/ci
           python -m unittest test_check_doc_scope_header test_backfill_doc_scope_headers
+
+      - name: Book case-study sanitization (draft mode), listing sync, and book tests
+        # Draft mode fails on identifiers that must never be published; unfilled placeholders are allowed
+        # until the author runs --publish before the appendix leaves the repository.
+        # check_listings fails when any marked listing in the manuscript differs from its source file.
+        # check_sources fails when an inline [Sn] citation and the file's Sources section disagree.
+        # check_cross_refs fails on a reference to a chapter, section, lab step, or appendix that doesn't exist.
+        # The PowerShell, KQL, and JSON checks parse or structure-check those sources offline; the
+        # Terraform check needs the terraform CLI and providers, so it runs locally (docs/book/README.md).
+        # Both test suites are standard-library only and offline.
+        run: |
+          python docs/book/tools/check_case_study.py docs/book/appendices/d-case-study.md
+          python docs/book/tools/check_listings.py
+          pwsh -NoProfile -File docs/book/tools/check_powershell_listings.ps1
+          python docs/book/tools/check_kql_listings.py
+          python docs/book/tools/check_json_listings.py
+          python docs/book/tools/check_sources.py
+          python docs/book/tools/check_cross_refs.py
+          python -m unittest discover -s docs/book/tools -p "test_*.py"
+          python -m unittest discover -s docs/book/lab/listings/python/tests
 
   doc-markdown-links:
     name: "Docs: markdown link integrity"
@@ -393,6 +416,11 @@ jobs:
         run: |
           python scripts/ci/assert_terraform_posture_tier_examples.py
           python -m unittest discover -s scripts/ci/tests -p "test_assert_terraform_posture_tier_examples.py"
+
+      - name: In-tenant SecureNow UHG names
+        run: |
+          python3 scripts/ci/assert_securenow_in_tenant_names.py
+          python -m unittest discover -s scripts/ci/tests -p "test_assert_securenow_in_tenant_names.py"
 
       - name: Terraform SQL backup redundancy guard (unit tests)
         continue-on-error: true
@@ -1780,7 +1808,7 @@ jobs:
       # Throttle parallel registry.terraform.io downloads (grafana/azurerm) to avoid HTTP 429.
       max-parallel: 4
       matrix:
-        directory: [infra/terraform, infra/terraform-edge, infra/terraform-entra, infra/terraform-acr, infra/terraform-container-apps, infra/terraform-storage, infra/terraform-redis, infra/terraform-cosmos, infra/terraform-monitoring, infra/terraform-sql-failover, infra/terraform-openai, infra/terraform-keyvault, infra/terraform-orchestrator, infra/terraform-logicapps, infra/terraform-servicebus, infra/terraform-pilot, infra/terraform/prod]
+        directory: [infra/terraform, infra/terraform-edge, infra/terraform-entra, infra/terraform-acr, infra/terraform-container-apps, infra/terraform-storage, infra/terraform-redis, infra/terraform-cosmos, infra/terraform-monitoring, infra/terraform-sql-failover, infra/terraform-openai, infra/terraform-keyvault, infra/terraform-orchestrator, infra/terraform-logicapps, infra/terraform-servicebus, infra/terraform-pilot, infra/terraform/prod, infra/terraform-securenow-in-tenant]
     steps:
       - uses: actions/checkout@v7
 
@@ -1802,6 +1830,10 @@ jobs:
         if: needs.ci-path-lanes.outputs.run_terraform == 'true'
         working-directory: ${{ matrix.directory }}
         run: terraform validate
+
+      - name: In-tenant UHG resource names
+        if: needs.ci-path-lanes.outputs.run_terraform == 'true' && matrix.directory == 'infra/terraform-securenow-in-tenant'
+        run: python3 scripts/ci/assert_securenow_in_tenant_names.py
 
       - name: terraform fmt (check only)
         if: needs.ci-path-lanes.outputs.run_terraform == 'true'
@@ -4666,6 +4698,7 @@ jobs:
           Observability__Prometheus__Enabled: "true"
           Observability__Prometheus__RequireScrapeAuthentication: "false"
           RateLimiting__Registration__PermitLimit: "500"
+          RateLimiting__AuthRouting__PermitLimit: "500"
           ArchLucid__E2eHarness__SharedSecret: "ci-live-e2e-harness-secret-min16!"
           Cors__AllowedOrigins__0: "http://127.0.0.1:3000"
           Cors__AllowedOrigins__1: "http://localhost:3000"
@@ -4856,6 +4889,7 @@ jobs:
           Observability__Prometheus__Enabled: "true"
           Observability__Prometheus__RequireScrapeAuthentication: "false"
           RateLimiting__Registration__PermitLimit: "500"
+          RateLimiting__AuthRouting__PermitLimit: "500"
           ArchLucid__E2eHarness__SharedSecret: "ci-live-e2e-harness-secret-min16!"
           Cors__AllowedOrigins__0: "http://127.0.0.1:3000"
           Cors__AllowedOrigins__1: "http://localhost:3000"
@@ -5051,6 +5085,7 @@ jobs:
           AzureOpenAI__DeploymentName: ""
           AzureOpenAI__EmbeddingDeploymentName: ""
           RateLimiting__Registration__PermitLimit: "500"
+          RateLimiting__AuthRouting__PermitLimit: "500"
           ArchLucid__E2eHarness__SharedSecret: "ci-live-e2e-harness-secret-min16!"
           Cors__AllowedOrigins__0: "http://127.0.0.1:3000"
           Cors__AllowedOrigins__1: "http://localhost:3000"
@@ -5220,6 +5255,7 @@ jobs:
           AzureOpenAI__DeploymentName: ""
           AzureOpenAI__EmbeddingDeploymentName: ""
           RateLimiting__Registration__PermitLimit: "500"
+          RateLimiting__AuthRouting__PermitLimit: "500"
           ArchLucid__E2eHarness__SharedSecret: "ci-live-e2e-harness-secret-min16!"
           Cors__AllowedOrigins__0: "http://127.0.0.1:3000"
           Cors__AllowedOrigins__1: "http://localhost:3000"
@@ -5417,6 +5453,7 @@ jobs:
           AzureOpenAI__DeploymentName: ""
           AzureOpenAI__EmbeddingDeploymentName: ""
           RateLimiting__Registration__PermitLimit: "500"
+          RateLimiting__AuthRouting__PermitLimit: "500"
           ArchLucid__E2eHarness__SharedSecret: "ci-live-e2e-harness-secret-min16!"
           ArchLucid__CiLiveE2e__GrantDefaultTenantEnterprise: "true"
           Cors__AllowedOrigins__0: "http://127.0.0.1:3000"
@@ -5470,6 +5507,7 @@ jobs:
           AzureOpenAI__DeploymentName: ""
           AzureOpenAI__EmbeddingDeploymentName: ""
           RateLimiting__Registration__PermitLimit: "500"
+          RateLimiting__AuthRouting__PermitLimit: "500"
           ArchLucid__E2eHarness__SharedSecret: "ci-live-e2e-harness-secret-min16!"
           ArchLucid__CiLiveE2e__GrantDefaultTenantEnterprise: "true"
           Cors__AllowedOrigins__0: "http://127.0.0.1:3000"

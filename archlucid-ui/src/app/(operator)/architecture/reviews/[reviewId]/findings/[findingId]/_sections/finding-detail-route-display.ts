@@ -29,7 +29,7 @@ export type FindingDecisionSummary = {
 };
 
 const NO_RECOMMENDED_ACTION_RECORDED = "No recommended action recorded for this finding.";
-const NO_REMEDIATION_DUE_RECORDED = "No remediation due date recorded";
+const REMEDIATION_DUE_NOT_STORED = "Remediation due date was not stored.";
 const RISK_OWNER_NOT_ASSIGNED = "Risk owner was not stored";
 const STATUS_NOT_STORED = "Status was not stored";
 const SEVERITY_NOT_STORED = "Severity was not stored";
@@ -127,7 +127,7 @@ export function resolveFindingNextReviewLabel(
     return resolveBuyerShowcaseResidualRiskNextReviewIso();
   }
 
-  return NO_REMEDIATION_DUE_RECORDED;
+  return REMEDIATION_DUE_NOT_STORED;
 }
 
 export function formatFindingRemediationDueLabel(remediationDueUtc: string | null | undefined): string | null {
@@ -138,7 +138,7 @@ export function formatFindingRemediationDueLabel(remediationDueUtc: string | nul
   const trimmed = remediationDueUtc.trim();
 
   if (trimmed.length === 0) {
-    return null;
+    return "";
   }
 
   const parsed = new Date(trimmed);

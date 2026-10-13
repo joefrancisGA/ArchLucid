@@ -508,6 +508,13 @@ export async function validateInvitationToken(
   if (!res.ok()) {
     const body = await res.text();
 
+    if (res.status() === 429) {
+      throw new Error(
+        `[auth-routing-rate-limit] GET /v1/auth/invitations/validate remained rate-limited after retries. ` +
+          `Retry-After: ${res.headers()["retry-after"] ?? "missing"}.`,
+      );
+    }
+
     throw new Error(`GET /v1/auth/invitations/validate failed ${res.status()}: ${body.slice(0, 400)}`);
   }
 

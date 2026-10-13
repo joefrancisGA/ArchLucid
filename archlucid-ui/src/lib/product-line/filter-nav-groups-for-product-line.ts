@@ -4,6 +4,9 @@ import { productLineAssignmentIncludes, type ProductLineAssignment } from "@/lib
 import { resolveProductLineAssignmentForPath } from "@/lib/product-line/product-line-path-access";
 import { reshapeNavGroupsForSecureNow } from "@/lib/product-line/securenow-nav-reshape";
 import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { resolveSecureNowEditionNavOverlay, applySecureNowEditionNavOverlay, type SecureNowEditionNavOverlay } from "@/lib/editions/securenow-edition-nav-overlay";
+import { resolveSecureNowEditionIdFromEnv } from "@/lib/product-line/resolve-securenow-edition-id";
+import { isSecureNowInTenantHosting } from "@/lib/product-line/securenow-hosting-mode";
 
 export type ProductLineNavGroupRow = {
   readonly group: NavGroupConfig;
@@ -12,6 +15,7 @@ export type ProductLineNavGroupRow = {
 
 export type FilterNavGroupsForProductLineOptions = {
   readonly assignmentOverrides?: Readonly<Record<string, ProductLineAssignment>>;
+  readonly editionNavOverlay?: SecureNowEditionNavOverlay;
 };
 
 function shapeNavLinksForProductLine(
@@ -26,8 +30,41 @@ function shapeNavLinksForProductLine(
   return links.filter((link) => link.href !== GOVERNANCE_INFRASTRUCTURE_PATH);
 }
 
+function shapeSecureNowAdministrationLinks(
+  rows: readonly ProductLineNavGroupRow[],
+): ProductLineNavGroupRow[] {
+  const adminRow = rows.find((row) => row.group.id === "operator-admin");
+
+  if (adminRow === undefined) {
+    return [...rows];
+  }
+
+  const systemHealth = adminRow.visibleLinks.filter((link) => link.href === "/administration/system-health");
+  const identityProviders = adminRow.visibleLinks.filter((link) => link.href === "/administration/identity-providers");
+  const remaining = adminRow.visibleLinks.filter(
+    (link) =>
+      link.href !== "/administration/system-health" &&
+      link.href !== "/administration/identity-providers" &&
+      link.href !== "/administration/billing",
+  );
+  const links = [...systemHealth, ...identityProviders, ...remaining];
+
+  return rows.map((row) =>
+    row.group.id === "operator-admin"
+      ? {
+          group: {
+            ...row.group,
+            caption: "Users, identity, notifications, AI models, and system health.",
+          },
+          visibleLinks: links,
+        }
+      : row,
+  );
+}
+
 /**
- * SecureNow keeps one Administration cluster — vendor Internal destinations append after tenant admin links.
+ * SecureNow hosted mode keeps vendor Internal destinations in Administration.
+ * In-tenant mode has no vendor operator, so it removes those links and reshapes the tenant cluster.
  */
 export function mergeInternalNavUnderAdministration(
   rows: readonly ProductLineNavGroupRow[],
@@ -86,7 +123,20 @@ export function filterNavGroupsForProductLine(
     }));
 
   if (productLine === "security") {
-    return mergeInternalNavUnderAdministration(reshapeNavGroupsForSecureNow(shaped));
+    const reshaped = reshapeNavGroupsForSecureNow(shaped);
+    const overlay = options.editionNavOverlay
+      ?? resolveSecureNowEditionNavOverlay(resolveSecureNowEditionIdFromEnv());
+    const editionShaped = applySecureNowEditionNavOverlay(reshaped, overlay, options.assignmentOverrides);
+
+    if (isSecureNowInTenantHosting()) {
+      const rowsWithoutVendorInternal = editionShaped.filter((row) => row.group.id !== "operator-system-admin");
+
+      return shapeSecureNowAdministrationLinks(rowsWithoutVendorInternal);
+    }
+
+    return mergeInternalNavUnderAdministration(
+      editionShaped,
+    );
   }
 
   return shaped;

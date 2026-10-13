@@ -61,13 +61,14 @@ export function resolveInfraEvidenceAskCitationLink(
   citation: InfraEvidenceAskCitation,
   context: InfraEvidenceAskCitationContext = {},
 ): InfraEvidenceAskCitationLink | null {
-  const id = citation.id.trim();
+  const id = citation.id?.trim() ?? "";
 
   if (id.length === 0) {
     return null;
   }
 
-  const label = citation.label?.trim().length ? citation.label.trim() : `${citation.kind}: ${id}`;
+  const kind = citation.kind?.trim() ?? "";
+  const label = citation.label?.trim().length ? citation.label.trim() : kind.length > 0 ? `${kind}: ${id}` : id;
   const cloudResourceId = context.cloudResourceId?.trim() ?? "";
   const snapshotId = context.snapshotId?.trim() ?? "";
   const diffId = context.diffId?.trim() ?? "";

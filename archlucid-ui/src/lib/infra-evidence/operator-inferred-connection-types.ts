@@ -36,6 +36,7 @@ export type OperatorInferredConnectionConfirmRequest = {
   toCloudResourceId?: string | null;
   toArmId?: string | null;
   toCatalog?: string | null;
+  dataPlaneAnswer?: "Read" | "Write" | null;
 };
 
 export type OperatorInferredConnectionDismissRequest = {

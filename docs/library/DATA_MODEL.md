@@ -168,6 +168,16 @@ Comparison replay is built on `PayloadJson` as the durable artifact. This enable
 
 ---
 
+### Verified remediation association (SN-HAND-05)
+
+#### `VerifiedRemediationControlAssociations`
+
+- **Purpose:** one row that says verified remediation instance X, inventory snapshot Y, and control Z belong together.
+- **Stored:** association id, tenant/workspace/project, instance id, verification snapshot id, control id, optional assessment id, created and updated timestamps.
+- **Not stored:** snapshot bytes, audit evidence rows, or verification JSON. Those stay on `AzureInventorySnapshots`, `AuditEvidenceSnapshotItems`, and `RemediationInstances`.
+- **Uniqueness:** tenant + instance + verification snapshot + control. A repeat write updates `UpdatedUtc` only.
+- **Access:** `IVerifiedRemediationControlAssociationRepository` (Dapper and in-memory), scoped by tenant, workspace, and project. No row-level security.
+
 ### Common IDs and relationships (mental model)
 
 - `RequestId` → `RunId` → `ManifestVersion`

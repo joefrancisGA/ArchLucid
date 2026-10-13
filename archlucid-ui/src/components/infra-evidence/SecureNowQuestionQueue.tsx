@@ -55,6 +55,9 @@ export function SecureNowQuestionQueueSnapshotPromo(): React.JSX.Element | null 
   const {
     drawerOpen,
     openQuestions,
+    loading,
+    questionsLoaded,
+    loadError,
     setFilter,
     setCurrentIndex,
     setDrawerOpen,
@@ -70,7 +73,10 @@ export function SecureNowQuestionQueueSnapshotPromo(): React.JSX.Element | null 
       ?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [drawerOpen]);
 
-  if (openQuestions.length === 0) {
+  if (
+    openQuestions.length === 0
+    && (loading || loadError || !questionsLoaded)
+  ) {
     return null;
   }
 
@@ -79,20 +85,24 @@ export function SecureNowQuestionQueueSnapshotPromo(): React.JSX.Element | null 
       className={cn("m-0 flex flex-wrap items-center gap-x-2 gap-y-1", OPERATOR_TYPOGRAPHY.helper)}
       data-testid="infra-diagrams-question-snapshot-promo"
     >
-      <span className="text-al-text-secondary">{openQuestionsCountLabel(openQuestions.length)}</span>
-      <Button
-        type="button"
-        size="sm"
-        variant="outline"
-        data-testid="infra-diagrams-question-review"
-        onClick={() => {
-          setFilter("Open");
-          setCurrentIndex(0);
-          setDrawerOpen(true);
-        }}
-      >
-        Review
-      </Button>
+      <span className="text-al-text-secondary">
+        {loadError ? "Questions could not be loaded." : openQuestionsCountLabel(openQuestions.length)}
+      </span>
+      {openQuestions.length > 0 ? (
+        <Button
+          type="button"
+          size="sm"
+          variant="outline"
+          data-testid="infra-diagrams-question-review"
+          onClick={() => {
+            setFilter("Open");
+            setCurrentIndex(0);
+            setDrawerOpen(true);
+          }}
+        >
+          Review
+        </Button>
+      ) : null}
     </p>
   );
 }
@@ -135,7 +145,8 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
   const displayName = currentQuestion?.resourceName != null && currentQuestion.resourceName.trim().length > 0
     ? normalizeSecureNowResourceNameForDisplay(currentQuestion.resourceName)
     : "Resource name was not stored";
-  const resourceOnDiagram = currentQuestion == null
+  const resourceIdMissing = currentQuestion?.resourceId === null || currentQuestion?.resourceId === undefined;
+  const resourceOnDiagram = currentQuestion == null || resourceIdMissing || outline == null
     ? true
     : diagramOutlineIncludesFocusResource(outline, currentQuestion.resourceId);
 
@@ -168,11 +179,9 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
           ) : null}
           {currentQuestion != null && currentQuestion.status !== "Open" ? (
             <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-diagrams-question-answer">
-              Answer: {currentQuestion.answerText?.trim() || (
-                currentQuestion.answerCode != null
-                  ? secureNowQuestionAnswerLabel(currentQuestion.answerCode)
-                  : "Stored answer was not on this question"
-              )}
+              {currentQuestion.reason === null || currentQuestion.reason === undefined
+                ? "Disposition reason was not stored."
+                : currentQuestion.reason}
             </p>
           ) : null}
         </div>
@@ -181,7 +190,16 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
         </Button>
       </div>
 
-      {currentQuestion != null && !resourceOnDiagram ? (
+      {currentQuestion != null && resourceIdMissing ? (
+        <p
+          className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          role="status"
+        >
+          Resource id was not stored.
+        </p>
+      ) : null}
+
+      {currentQuestion != null && !resourceIdMissing && outline != null && !resourceOnDiagram ? (
         <p
           className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
           data-testid="infra-diagrams-question-off-diagram"
@@ -195,13 +213,18 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
         <div className="mt-2 space-y-2">
           {currentQuestion.status === "Open" ? (
             <>
-              {currentQuestion.answerCodes.length === 0 ? (
+              {currentQuestion.answerCodes === null ? (
                 <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                   No answer choices were stored on this question.
                 </p>
               ) : null}
+              {currentQuestion.answerCodes !== null && currentQuestion.answerCodes.length === 0 ? (
+                <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                  0 answer choices
+                </p>
+              ) : null}
               <div className="flex flex-wrap gap-2">
-                {currentQuestion.answerCodes.map((answerCode) => (
+                {currentQuestion.answerCodes?.map((answerCode) => (
                   <Button
                     key={answerCode}
                     type="button"
@@ -354,6 +377,28 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
                 {currentQuestion.sourceLine.trim().length > 0
                   ? currentQuestion.sourceLine
                   : "Source line was not stored"}
+              </p>
+              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                Source: {currentQuestion.source === null ? "Question source was not stored." : currentQuestion.source}
+              </p>
+              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                Scope: {currentQuestion.scopeKind === null ? "Question scope was not stored." : currentQuestion.scopeKind}
+              </p>
+              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                Subscription:{" "}
+                {currentQuestion.subscriptionId === null
+                  ? "Subscription id was not stored."
+                  : currentQuestion.subscriptionId}
+              </p>
+              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                {currentQuestion.expirationUtc === null || currentQuestion.expirationUtc === undefined
+                  ? "Expiration was not stored."
+                  : currentQuestion.expirationUtc}
+                {currentQuestion.isExpired === null
+                  ? " · Expiration status was not stored."
+                  : currentQuestion.isExpired
+                    ? " · Expired"
+                    : ""}
               </p>
             </div>
           </CollapsibleSection>

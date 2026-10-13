@@ -46,6 +46,7 @@ describe("review-detail-findings-classification-band (IS-07)", () => {
     expect(countFindingsByClassificationBand(fixtures)).toEqual({
       decisionGrade: 1,
       checklist: 1,
+      uncited: 0,
     });
   });
 });

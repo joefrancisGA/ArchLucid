@@ -272,7 +272,10 @@ describe("CompositeAlertRulesContent", () => {
 
     renderWithOperatorQuery(<CompositeAlertRulesContent />);
 
-    expect(screen.getByTestId("composite-alert-rules-list-loading-skeleton")).toBeInTheDocument();
+    const skeleton = screen.getByTestId("composite-alert-rules-list-loading-skeleton");
+
+    expect(skeleton).toBeInTheDocument();
+    expect(skeleton).toHaveAttribute("role", "status");
     expect(screen.queryByText(/reserved for future use/i)).not.toBeInTheDocument();
     expect(screen.queryByText("None yet.")).not.toBeInTheDocument();
 

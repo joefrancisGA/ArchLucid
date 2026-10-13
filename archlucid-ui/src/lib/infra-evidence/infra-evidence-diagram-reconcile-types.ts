@@ -33,9 +33,9 @@ export type DiagramInfrastructureCorrespondenceRow = {
   resourceType: string | null;
   resourceGroup: string | null;
   terraformAddress: string | null;
-  matchKind: string;
+  matchKind?: string | null;
   confidenceBand: string;
-  explainText: string;
+  explainText?: string | null;
   aiRationale: string | null;
   securityDiscrepancy: boolean;
 };
@@ -47,7 +47,7 @@ export type DiagramInfrastructureEdgeGapRow = {
   diagramEdgeId: string | null;
   associationType: string | null;
   gapKind: string;
-  explainText: string;
+  explainText?: string | null;
 };
 
 export type DiagramInfrastructureReconciliationResult = {
@@ -69,6 +69,23 @@ export type InfrastructureDiagramNodeMappingSaveRequest = {
   normalizedDiagramLabel: string;
   diagramNodeId?: string | null;
   cloudResourceId: string;
+};
+
+export type InfrastructureDiagramDocumentationDecision = {
+  scopeId: string;
+  snapshotId: string;
+  subjectKind: "DiagramNode" | "InventoryResource" | "EdgeGap";
+  subjectKey: string;
+  decision: "UpdateDrawing" | "AcceptAsUndocumented" | "CheckInventory";
+  carryForwardState?: "StillOpen" | "NoLongerInCapture" | "EvidenceChanged" | null;
+  updatedUtc: string;
+};
+
+export type InfrastructureDiagramDocumentationDecisionSaveRequest = {
+  snapshotId: string;
+  subjectKind: InfrastructureDiagramDocumentationDecision["subjectKind"];
+  subjectKey: string;
+  decision: InfrastructureDiagramDocumentationDecision["decision"];
 };
 
 export type StructuredDiagramIngestRequest = {
@@ -126,6 +143,17 @@ export type OperationalSecurityFindingIngestRequestItem = {
 
 export type OperationalSecurityFindingBatchIngestResult = {
   items: OperationalSecurityFindingIngestItemResult[];
+};
+
+export type OperationalSecurityFindingLookupRequest = {
+  sourceSystem: string;
+  sourceFindingIds: string[];
+};
+
+export type OperationalSecurityFindingLookupItem = {
+  findingId: string;
+  sourceFindingId: string;
+  status: string;
 };
 
 export type OperationalSecurityFindingIngestItemResult = {

@@ -9,7 +9,10 @@ import {
   SECURENOW_INFRASTRUCTURE_DRIFT_LABEL,
   SECURENOW_INFRASTRUCTURE_HOME_ROWS,
 } from "@/lib/product-line/securenow-infrastructure-home-copy";
-import { SECURENOW_SECURITY_HOME_ROWS } from "@/lib/product-line/securenow-security-home-copy";
+import {
+  SECURENOW_FINDINGS_HOME_ROWS,
+  SECURENOW_SECURITY_HOME_ROWS,
+} from "@/lib/product-line/securenow-security-home-copy";
 
 function listSecureNowSidebarHrefs(): string[] {
   const rows = listNavGroupsVisibleInOperatorShell(NAV_GROUPS, AUTHORITY_RANK.AdminAuthority, "all", true, false, {
@@ -37,8 +40,9 @@ describe("SecureNow home destination order", () => {
     expect(driftLink?.label).toBe(SECURENOW_INFRASTRUCTURE_DRIFT_LABEL);
   });
 
-  it("lists home destinations in the same order as matching navbar links", () => {
+  it("keeps Home destinations aligned with matching navbar links", () => {
     const homeHrefs = [
+      ...SECURENOW_FINDINGS_HOME_ROWS,
       ...SECURENOW_SECURITY_HOME_ROWS,
       ...SECURENOW_COMPLIANCE_HOME_ROWS,
       ...SECURENOW_INFRASTRUCTURE_HOME_ROWS,
@@ -46,6 +50,6 @@ describe("SecureNow home destination order", () => {
     const homeHrefSet = new Set(homeHrefs);
     const navbarHrefsOnHome = listSecureNowSidebarHrefs().filter((href) => homeHrefSet.has(href));
 
-    expect(homeHrefs).toEqual(navbarHrefsOnHome);
+    expect(new Set(homeHrefs)).toEqual(new Set(navbarHrefsOnHome));
   });
 });

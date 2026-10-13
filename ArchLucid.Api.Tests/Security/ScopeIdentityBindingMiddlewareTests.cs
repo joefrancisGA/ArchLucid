@@ -466,6 +466,46 @@ public sealed class ScopeIdentityBindingMiddlewareTests
     }
 
     [Fact]
+    public async Task InvokeAsync_authenticated_non_scim_principal_on_scim_path_rebinds_before_scope_validation()
+    {
+        Guid apiKeyTenant = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+        Guid scimTenant = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+        DefaultHttpContext context = CreateContext();
+        context.Request.Path = "/scim/v2/Users";
+        context.User = new ClaimsPrincipal(new ClaimsIdentity(
+            [new Claim("tenant_id", apiKeyTenant.ToString("D"))],
+            AuthServiceCollectionExtensions.ApiKeySchemeName));
+        context.Request.Headers["x-tenant-id"] = apiKeyTenant.ToString("D");
+
+        ClaimsPrincipal scimPrincipal = new(new ClaimsIdentity(
+            [new Claim("tenant_id", scimTenant.ToString("D"))],
+            ScimBearerDefaults.AuthenticationScheme));
+        Mock<IAuthenticationService> authentication = new();
+        authentication
+            .Setup(service => service.AuthenticateAsync(context, ScimBearerDefaults.AuthenticationScheme))
+            .ReturnsAsync(AuthenticateResult.Success(
+                new AuthenticationTicket(scimPrincipal, ScimBearerDefaults.AuthenticationScheme)));
+
+        ServiceCollection services = new();
+        services.AddSingleton(authentication.Object);
+        context.RequestServices = services.BuildServiceProvider();
+        bool nextCalled = false;
+
+        await RunMiddlewareAsync(context, _ =>
+        {
+            nextCalled = true;
+
+            return Task.CompletedTask;
+        });
+
+        nextCalled.Should().BeFalse();
+        context.Response.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
+        authentication.Verify(
+            service => service.AuthenticateAsync(context, ScimBearerDefaults.AuthenticationScheme),
+            Times.Once);
+    }
+
+    [Fact]
     public async Task InvokeAsync_unauthenticated_scim_path_without_authentication_service_calls_next()
     {
         DefaultHttpContext context = CreateContext();

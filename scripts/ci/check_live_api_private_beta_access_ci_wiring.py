@@ -570,7 +570,7 @@ def main(argv: list[str] | None = None) -> int:
         if "private-beta-access-on-push-${{ github.ref }}" not in text:
             errors.append(
                 f"{_PUSH_REL}: concurrency group must be private-beta-access-on-push-${{ github.ref }} "
-                "(one smoke per ref; cancel stale queued runs when a newer trunk push lands)",
+                "(one smoke per ref; later trunk pushes queue behind the current invite-wave witness)",
             )
 
         if "cancel-in-progress: false" not in text:

@@ -8,6 +8,7 @@ import { HelpEngineeringTroubleshootingProvenanceFooter } from "@/app/(operator)
 import { HelpEngineeringTroubleshootingRunbookOverview } from "@/app/(operator)/help/_sections/HelpEngineeringTroubleshootingRunbookOverview";
 import { HelpEngineeringTroubleshootingSourceLinks } from "@/app/(operator)/help/_sections/HelpEngineeringTroubleshootingSourceLinks";
 import { HelpEngineeringTroubleshootingSymptomIndex } from "@/app/(operator)/help/_sections/HelpEngineeringTroubleshootingSymptomIndex";
+import { SponsorSendPathHonestyPanel } from "@/components/help/SponsorSendPathHonestyPanel";
 import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
 import { EngineeringTroubleshootingHelpClaimDisciplineStrip } from "@/components/help/EngineeringTroubleshootingHelpClaimDisciplineStrip";
 import { HelpTopicGuidePageHeader } from "@/components/help/HelpTopicGuidePageHeader";
@@ -277,6 +278,8 @@ export function HelpEngineeringTroubleshootingGuideView(
           </section>
 
           <HelpEngineeringTroubleshootingProvenanceFooter entry={entry} />
+
+          <SponsorSendPathHonestyPanel testIdPrefix="help-engineering-troubleshooting" showSsoOptional={false} />
         </div>
 
         {showSectionNav ? (

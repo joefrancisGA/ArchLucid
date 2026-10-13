@@ -1,5 +1,6 @@
 using System.Data;
 using System.Security.Claims;
+using System.Text.Json;
 
 using ArchLucid.Api.Controllers.Admin;
 using ArchLucid.Api.Services.Admin;
@@ -45,8 +46,23 @@ public sealed class AdminApiKeySettingsControllerAuditTests
         captured.ActorUserName.Should().Be("ApiKeyAdmin");
     }
 
+    [Fact]
+    public async Task RotateKeyIdAsync_persisted_audit_uses_canonical_slot_for_padded_route_value()
+    {
+        AuditEvent? captured = await RotateAndCaptureAuditAsync(
+            (controller, cancellationToken) => controller.RotateKeyIdAsync(" readonly ", cancellationToken),
+            responseSlot: "ReadOnly");
+
+        captured.Should().NotBeNull();
+        using JsonDocument data = JsonDocument.Parse(captured!.DataJson);
+
+        data.RootElement.GetProperty("keyId").GetString().Should().Be("ReadOnly");
+        data.RootElement.GetProperty("slot").GetString().Should().Be("ReadOnly");
+    }
+
     private static async Task<AuditEvent?> RotateAndCaptureAuditAsync(
-        Func<AdminApiKeySettingsController, CancellationToken, Task<Microsoft.AspNetCore.Mvc.IActionResult>> rotate)
+        Func<AdminApiKeySettingsController, CancellationToken, Task<Microsoft.AspNetCore.Mvc.IActionResult>> rotate,
+        string responseSlot = "Admin")
     {
         AuditEvent? captured = null;
         Mock<IAuditRepository> repository = new();
@@ -87,7 +103,7 @@ public sealed class AdminApiKeySettingsControllerAuditTests
             .Returns(
                 new AdminApiKeyRotateResponse
                 {
-                    Slot = "Admin",
+                    Slot = responseSlot,
                     DeploymentAction = "Replace",
                     ConfigPath = "Authentication:ApiKey:AdminKey",
                     PlaintextKey = "generated-key",

@@ -55,7 +55,7 @@ export function DiagramReconcileOverlay(props: DiagramReconcileOverlayProps): Re
   const matches = useMemo(
     () => props.rows
       .filter((row) => row.diagramNodeId != null && row.diagramNodeId.trim().length > 0)
-      .map((row) => ({ nodeId: row.diagramNodeId!, matchKind: row.matchKind })),
+      .map((row) => ({ nodeId: row.diagramNodeId!, matchKind: row.matchKind ?? "" })),
     [props.rows],
   );
 
@@ -124,7 +124,7 @@ export function DiagramReconcileOverlay(props: DiagramReconcileOverlayProps): Re
         {props.rows
           .filter((row) => row.diagramNodeId != null && row.diagramNodeId.trim().length > 0)
           .map((row) => {
-            const style = resolveDiagramReconcileOverlayStyle(row.matchKind);
+            const style = resolveDiagramReconcileOverlayStyle(row.matchKind ?? "");
             const explanation = formatDiagramReconcileExplanation(row);
 
             return (

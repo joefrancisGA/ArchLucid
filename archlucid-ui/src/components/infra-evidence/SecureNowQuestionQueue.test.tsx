@@ -96,15 +96,33 @@ describe("SecureNowQuestionQueue", () => {
   it("shows a stored answer for answered questions", async () => {
     mocks.listQuestions.mockResolvedValue([
       question,
-      { ...question, status: "Answered", answerCode: "NamePeer", answerText: "Name the peer" },
+      { ...question, status: "Answered", answerCode: "NamePeer", answerText: "Name the peer", reason: "Operator selected the peer." },
     ]);
 
     render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
     fireEvent.click(await screen.findByRole("button", { name: "Review" }));
     fireEvent.click(screen.getByRole("button", { name: "Answered", exact: true }));
 
-    expect(screen.getByTestId("infra-diagrams-question-answer")).toHaveTextContent("Answer: Name the peer");
+    expect(screen.getByTestId("infra-diagrams-question-answer")).toHaveTextContent("Operator selected the peer.");
     expect(screen.getByRole("button", { name: "Answered", exact: true })).toBeInTheDocument();
+  });
+
+  it("preserves an explicitly stored empty answer", async () => {
+    mocks.listQuestions.mockResolvedValue([
+      question,
+      { ...question, status: "Answered", answerCode: null, answerText: "" },
+    ]);
+
+    render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
+    fireEvent.click(await screen.findByRole("button", { name: "Review" }));
+    fireEvent.click(screen.getByRole("button", { name: "Answered", exact: true }));
+
+    expect(screen.getByTestId("infra-diagrams-question-answer")).toHaveTextContent(
+      "Disposition reason was not stored.",
+    );
+    expect(screen.getByTestId("infra-diagrams-question-answer")).not.toHaveTextContent(
+      "Stored answer was not on this question",
+    );
   });
 
   it("explains when a non-open question has no stored answer", async () => {
@@ -114,9 +132,47 @@ describe("SecureNowQuestionQueue", () => {
     fireEvent.click(await screen.findByRole("button", { name: "Review" }));
     fireEvent.click(screen.getByRole("button", { name: "Answered", exact: true }));
 
-    expect(screen.getByTestId("infra-diagrams-question-answer")).toHaveTextContent(
-      "Stored answer was not on this question",
+    expect(screen.getByTestId("infra-diagrams-question-answer")).toHaveTextContent("Disposition reason was not stored.");
+  });
+
+  it("shows a stored empty or missing disposition reason without changing open questions", async () => {
+    mocks.listQuestions.mockResolvedValue([
+      question,
+      { ...question, status: "Dismissed", reason: "" },
+    ]);
+
+    render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
+    fireEvent.click(await screen.findByRole("button", { name: "Review" }));
+    fireEvent.click(screen.getByRole("button", { name: "Dismissed", exact: true }));
+
+    expect(screen.getByTestId("infra-diagrams-question-answer")).toHaveTextContent("");
+    expect(screen.getByTestId("infra-diagrams-question-answer")).not.toHaveTextContent(
+      "Disposition reason was not stored.",
     );
+  });
+
+  it("labels missing subscription id and expiration status in details", async () => {
+    mocks.listQuestions.mockResolvedValue([
+      { ...question, subscriptionId: null, isExpired: null },
+    ]);
+
+    render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
+    fireEvent.click(await screen.findByRole("button", { name: "Review" }));
+
+    expect(screen.getByText("Subscription: Subscription id was not stored.")).toBeInTheDocument();
+    expect(screen.getByText(/Expiration status was not stored/)).toBeInTheDocument();
+  });
+
+  it("shows omitted question source and scope in details", async () => {
+    mocks.listQuestions.mockResolvedValue([
+      { ...question, source: null, scopeKind: null },
+    ]);
+
+    render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
+    fireEvent.click(await screen.findByRole("button", { name: "Review" }));
+
+    expect(screen.getByText("Source: Question source was not stored.")).toBeInTheDocument();
+    expect(screen.getByText("Scope: Question scope was not stored.")).toBeInTheDocument();
   });
 
   it("preserves missing and unexpected stored question status", async () => {
@@ -138,7 +194,7 @@ describe("SecureNowQuestionQueue", () => {
       questionText: "",
       resourceType: "",
       reasonText: "",
-      answerCodes: [],
+      answerCodes: null,
     }]);
 
     render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
@@ -150,21 +206,32 @@ describe("SecureNowQuestionQueue", () => {
     expect(screen.getByText("No answer choices were stored on this question.")).toBeInTheDocument();
   });
 
+  it("does not show missing-choice copy for a stored empty choice list", async () => {
+    mocks.listQuestions.mockResolvedValue([{ ...question, answerCodes: [] }]);
+
+    render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
+    fireEvent.click(await screen.findByRole("button", { name: "Review" }));
+
+    expect(screen.queryByText("No answer choices were stored on this question.")).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Name the peer" })).not.toBeInTheDocument();
+  });
+
   it("keeps inventory questions visible when inferred connections fail to load", async () => {
     mocks.listQuestions.mockResolvedValue([question]);
     mocks.listConnections.mockRejectedValue(new Error("inferred connections unavailable"));
 
     render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
 
-    expect(await screen.findByTestId("infra-diagrams-question-snapshot-promo")).toHaveTextContent("1 open question");
+    expect(await screen.findByTestId("infra-diagrams-question-snapshot-promo")).toHaveTextContent("Questions could not be loaded.");
     expect(screen.getByText("inferred connections unavailable")).toBeInTheDocument();
   });
 
-  it("renders no promo or legacy empty questionnaire copy when there are no open questions", async () => {
+  it("renders the loaded empty queue without enabling review", async () => {
     render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
 
     await waitFor(() => expect(mocks.listQuestions).toHaveBeenCalledWith("snapshot-1"));
-    expect(screen.queryByTestId("infra-diagrams-question-snapshot-promo")).not.toBeInTheDocument();
+    expect(screen.getByTestId("infra-diagrams-question-snapshot-promo")).toHaveTextContent("0 open questions");
+    expect(screen.queryByRole("button", { name: "Review" })).not.toBeInTheDocument();
     expect(screen.queryByText("No proposed questionnaire items remain for this snapshot.")).not.toBeInTheDocument();
   });
 
@@ -201,6 +268,35 @@ describe("SecureNowQuestionQueue", () => {
     expect(mocks.ignoreQuestion).not.toHaveBeenCalled();
   });
 
+  it("confirms an inferred connection when its rule name contains spaces", async () => {
+    const inferredQuestion = {
+      ...question,
+      source: "InferredConnection",
+      questionKey: "unresolved-host@v1",
+      answerCodes: ["Yes", "No", "NotSure"],
+    };
+    mocks.listQuestions.mockResolvedValue([inferredQuestion]);
+    mocks.listConnections.mockResolvedValue([
+      {
+        connectionId: "connection-1",
+        fromArmId: question.resourceId,
+        ruleName: "Unresolved host",
+      },
+    ]);
+    mocks.confirmConnection.mockResolvedValue(undefined);
+
+    render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
+    fireEvent.click(await screen.findByRole("button", { name: "Review" }));
+    fireEvent.click(screen.getByRole("button", { name: "Yes" }));
+    fireEvent.click(screen.getByRole("button", { name: "Continue" }));
+
+    await waitFor(() => {
+      expect(mocks.confirmConnection).toHaveBeenCalledWith("snapshot-1", {
+        connectionId: "connection-1",
+      });
+    });
+  });
+
   it("keeps another resource with the same question key after skipping one", async () => {
     mocks.listQuestions.mockResolvedValue([
       question,
@@ -233,6 +329,40 @@ describe("SecureNowQuestionQueue", () => {
     view.rerender(<SecureNowQuestionQueue snapshotId="snapshot-2" />);
 
     expect(await screen.findByText(question.questionText)).toBeInTheDocument();
+  });
+
+  it("keeps the newest snapshot question when an older load finishes later", async () => {
+    let resolveFirstLoad: ((value: typeof question[]) => void) | undefined;
+    let resolveSecondLoad: ((value: typeof question[]) => void) | undefined;
+    const firstLoad = new Promise<typeof question[]>((resolve) => {
+      resolveFirstLoad = resolve;
+    });
+    const secondLoad = new Promise<typeof question[]>((resolve) => {
+      resolveSecondLoad = resolve;
+    });
+    mocks.listQuestions
+      .mockImplementationOnce(() => firstLoad)
+      .mockImplementationOnce(() => secondLoad);
+
+    const view = render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
+    await waitFor(() => expect(mocks.listQuestions).toHaveBeenCalledTimes(1));
+
+    view.rerender(<SecureNowQuestionQueue snapshotId="snapshot-2" />);
+    await waitFor(() => expect(mocks.listQuestions).toHaveBeenCalledTimes(2));
+
+    const newestQuestion = {
+      ...question,
+      snapshotId: "snapshot-2",
+      questionText: "Newest snapshot question",
+    };
+    resolveSecondLoad?.([newestQuestion]);
+
+    fireEvent.click(await screen.findByRole("button", { name: "Review" }));
+    expect(await screen.findByText("Newest snapshot question")).toBeInTheDocument();
+
+    resolveFirstLoad?.([question]);
+    await waitFor(() => expect(screen.getByTestId("infra-diagrams-question-snapshot-promo")).toHaveTextContent("1 open question"));
+    expect(screen.queryByText("Newest snapshot question")).toBeInTheDocument();
   });
 
   it("requires a reason before ignoring a question", async () => {
