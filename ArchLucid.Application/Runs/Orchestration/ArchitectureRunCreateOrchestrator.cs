@@ -126,6 +126,7 @@ public sealed partial class ArchitectureRunCreateOrchestrator(
         ArgumentNullException.ThrowIfNull(request);
 
         QuickStartIntakeRequestEnricher.EnrichIfQuickStart(request);
+        ArchitectureRequestIntakeTrailHydrator.EnsureTrail(request);
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
 
@@ -218,6 +219,7 @@ public sealed partial class ArchitectureRunCreateOrchestrator(
 
         string actor = ResolveCreateActor(actorOverride);
         QuickStartIntakeRequestEnricher.EnrichIfQuickStart(request);
+        ArchitectureRequestIntakeTrailHydrator.EnsureTrail(request);
 
         string? documentUrlRejection = await AllowedDocumentUrlPolicy
             .TryGetFirstDocumentRejectionReasonAfterDnsResolveAsync(request.Documents, cancellationToken)

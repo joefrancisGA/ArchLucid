@@ -1,3 +1,4 @@
+using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Requests;
 
@@ -30,6 +31,8 @@ public static class GoldenCohortArchitectureRequestFactory
             CloudProvider = CloudProvider.Azure,
             Constraints = ["Golden cohort regression"],
             RequiredCapabilities = ["App Service or Container Apps", "Azure SQL"],
+            // ADR 0073: empty sections are legal; a null trail blocks finalize.
+            IntakeTransparencyTrail = new TransparencyTrail(),
         };
     }
 }

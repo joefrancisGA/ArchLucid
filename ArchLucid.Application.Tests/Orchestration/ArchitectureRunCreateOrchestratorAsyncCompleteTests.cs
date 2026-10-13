@@ -91,6 +91,11 @@ public sealed class ArchitectureRunCreateOrchestratorAsyncCompleteTests
             idempotency: null,
             CancellationToken.None);
 
+        request.IntakeTransparencyTrail.Should().NotBeNull();
+        request.IntakeTransparencyTrail!.Asserted.Should().BeEmpty();
+        request.IntakeTransparencyTrail.Inferred.Should().BeEmpty();
+        request.IntakeTransparencyTrail.Skipped.Should().BeEmpty();
+
         coordination.Verify(
             c => c.CreateRunAsync(
                 request,

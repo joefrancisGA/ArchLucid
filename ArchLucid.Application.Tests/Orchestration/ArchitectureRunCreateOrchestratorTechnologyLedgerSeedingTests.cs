@@ -146,6 +146,8 @@ public sealed class ArchitectureRunCreateOrchestratorTechnologyLedgerSeedingTest
 
         result.Run.RunId.Should().Be(runId);
         result.IdempotentReplay.Should().BeFalse();
+        request.IntakeTransparencyTrail.Should().NotBeNull();
+        request.IntakeTransparencyTrail!.Asserted.Should().BeEmpty();
 
         IReadOnlyList<TechnologyLedgerEntry> entries = await ledgerRepository.GetByRunIdAsync(
             TestScope,
