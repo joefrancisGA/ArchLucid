@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-13 seed hunt (seed-only): `notifications-pipeline` — re-read zone after Slack mrkdwn hardening; cheap-disproved four open candidates (authority-run description length truncation, digest `ContentMarkdown` mrkdwn-by-design, Teams webhook CRLF product path already validated on channels, duplicate mailbox-consolidation rows); no hunt-ready repro (mrkdwn/CRLF classes saturated); seeded five follow-on `(candidate)` rows; 176 scoped notification/digest Application tests passed.
+
 2026-10-13 seed hunt (seed→hit): `notifications-pipeline` — promoted `ChatOpsIncomingWebhookBodies.EscapeSupportingParagraphForSlack`; supporting-line escape reused full `EscapeFormattingMetacharacters` and escaped intentional `` `Run {id}` `` code spans from `AuthorityRunCommittedChatOpsHook`; `EscapeSupportingParagraphMetacharacters` preserves backticks while still escaping `*` in alert category/trigger lines; regression `ForSlack_preserves_backtick_code_span_in_supporting_paragraph`; 176 scoped notification/digest Application tests passed; 26 Notifications ChatOps body/hook tests passed.
 
 2026-10-13 seed hunt (seed→hit): `notifications-pipeline` — promoted `AuthorityRunCommittedChatOpsHook.BuildMessage`; agent/run `notice.Description` reached Slack mrkdwn `text` body unescaped after prior alert-channel fix; `ChatOpsSlackMrkdwnEscaper` on hook body; regression `NotifyAsync_SlackPayload_Escapes_mrkdwn_metacharacters_in_run_description`; 176 scoped notification/digest Application tests passed; 16 authority-run ChatOps hook tests passed.
@@ -31483,6 +31485,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ## Zone: notifications-pipeline
 
+2026-10-13 seed hunt (seed-only): cheap-disproved truncation, digest markdown boundary, Teams CRLF validator parity, and consolidation-only rows; seeded Teams test parity, `AlertTeamsWebhookDeliveryChannel` plain-text copy, integration-event description bounds, marketing intake body fields, and shared mailbox helper consolidation; 176 scoped Application notification tests passed.
+
 2026-10-13 seed hunt (seed→hit): proved supporting-paragraph mrkdwn escape stripped backtick code spans from authority-run Run lines; split `EscapeSupportingParagraphMetacharacters`; 176 scoped Application tests passed; 26 Notifications tests passed.
 
 2026-10-13 seed hunt (seed→hit): proved authority-run ChatOps hook forwarded unescaped mrkdwn in run `Description` body; `ChatOpsSlackMrkdwnEscaper` in `BuildMessage`; 176 scoped Application tests passed; 16 hook tests passed.
@@ -31537,7 +31541,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** notifications; email dispatchers beyond weekly summary
 - **paths:** ArchLucid.Notifications/; ArchLucid.Application/Notifications/; ArchLucid.Api/Controllers/Advisory/DigestSubscriptionsController.cs
 - **test-filter:** FullyQualifiedName~Notifications|FullyQualifiedName~EmailDispatcher|FullyQualifiedName~DigestSubscriptionsController
-- **hunts:** 86
+- **hunts:** 87
 - **bugs-found:** 68
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-13
@@ -31609,10 +31613,16 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `ChatOpsIncomingWebhookBodies.EscapeSupportingParagraphForSlack` — full metacharacter escape stripped intentional backtick code spans in authority-run `Run \`{id}\`` supporting lines — **hit 2026-10-13 seed hunt (seed→hit):** `EscapeSupportingParagraphMetacharacters`; regression `ForSlack_preserves_backtick_code_span_in_supporting_paragraph`.
 - [x] (proven) `AlertSlackWebhookDeliveryChannel.SendAsync` — plain-text alert `Description` injected unescaped mrkdwn into Slack `text` body segment — **hit 2026-10-13 seed hunt (seed→hit):** `ChatOpsSlackMrkdwnEscaper` at alert channel boundary (digest markdown unchanged); regression `SendAsync_SlackPayload_Escapes_mrkdwn_metacharacters_in_alert_description`.
 - [x] (proven) `AuthorityRunCommittedChatOpsHook.BuildMessage` — `notice.Description` with mrkdwn metacharacters reached Slack webhook body unescaped — **hit 2026-10-13 seed hunt (seed→hit):** `ChatOpsSlackMrkdwnEscaper` on hook body; regression `NotifyAsync_SlackPayload_Escapes_mrkdwn_metacharacters_in_run_description`.
-- [ ] (candidate) `AuthorityRunCommittedChatOpsHook.BuildMessage` — `notice.Description` with excessive length posts full body to Slack/Teams without truncation — locus: `BuildMessage`; input: very long authority-run description from agent output (length class; not mrkdwn).
-- [ ] (candidate) `DigestSlackWebhookDeliveryChannel.SendAsync` — `ContentMarkdown` body is posted with mrkdwn enabled while digest markdown may include vendor metacharacters by design — locus: digest delivery; input: intentional markdown vs spoofing boundary (document before changing).
-- [ ] (candidate) `AlertTeamsWebhookDeliveryChannelTests` / `DigestTeamsWebhookDeliveryChannelTests` — Teams CRLF destination regression test parity with Slack rows (coverage only).
-- [ ] (candidate) `Application/Notifications/Email` dispatchers — shared `TryResolveDeliveryMailbox` consolidation (see existing row).
+- [x] (valid-no-repro) `AuthorityRunCommittedChatOpsHook.BuildMessage` — excessive `notice.Description` length — **cheap-disproof 2026-10-13 seed hunt:** length is an operational/vendor-limit concern; zone has no failing contract or header-smuggling mechanism for unbounded copy (distinct from mrkdwn metacharacter class fixed 2026-10-13).
+- [x] (valid-no-repro) `DigestSlackWebhookDeliveryChannel.SendAsync` — `ContentMarkdown` posted with mrkdwn enabled — **cheap-disproof 2026-10-13 seed hunt:** advisory digest delivery intentionally forwards operator-authored markdown; spoofing boundary is product policy not a channel bug without a cited required sanitizer in zone files.
+- [x] (valid-no-repro) `AlertTeamsWebhookDeliveryChannel` / `DigestTeamsWebhookDeliveryChannel` — CRLF in subscription destination — **cheap-disproof 2026-10-13 seed hunt:** both channels call `ChatOpsWebhookAbsoluteUriValidator.ResolveHttpsDeliveryUriOrThrow` (parity with Slack rows); missing Teams-specific regression tests are coverage debt only.
+- [x] (valid-no-repro) `Application/Notifications/Email` dispatchers — shared `TryResolveDeliveryMailbox` consolidation — **cheap-disproof 2026-10-13 seed hunt:** refactor to reduce future guard omission; not a falsifiable defect in current notifier set (`IdentityEmailNormalizer` + `MultiRecipientEmailDispatch` already centralize reachable paths).
+- [ ] (candidate) `AlertTeamsWebhookDeliveryChannelTests` / `DigestTeamsWebhookDeliveryChannelTests` — add `SendAsync_throws_when_subscription_destination_has_embedded_line_breaks` parity tests (coverage only; product path already validated).
+- [ ] (candidate) `AlertTeamsWebhookDeliveryChannel.SendAsync` — alert `Title`/`Description` forwarded verbatim to Teams connector `title`/`text` without HTML/mrkdwn escaping — locus: `ArchLucid.Notifications/Alerts/AlertTeamsWebhookDeliveryChannel.cs`; input: evaluation finding title with angle brackets or emphasis-like characters (display integrity; lower severity than Slack mrkdwn).
+- [ ] (candidate) `AuthorityRunCompletedChatOpsIntegrationEventHandler.HandleAsync` — Service Bus JSON `Description` forwarded to `AuthorityRunCommittedChatOpsHook` without length or schema guard beyond JSON parse — locus: `AuthorityRunCompletedChatOpsIntegrationEventHandler.cs`; input: oversized description payload from publisher misconfiguration.
+- [ ] (candidate) `MarketingEarlyAccessSalesNotifier` / `MarketingPricingQuoteSalesNotifier` — requester-supplied name/company/message fields rendered into sales inbox HTML bodies — locus: notifier template assembly; input: operator marketing form strings with HTML metacharacters (reachability via intake API outside zone; verify encoding in template path before promoting).
+- [ ] (candidate) `RecurrenceCompletionEmailDispatcher` — `ScheduleName` with embedded line breaks reaches `RecurrenceCompletionEmailModel` rendered in Razor — locus: `RecurrenceCompletion.cshtml` `@Model.ScheduleName`; input: schedule rename with CRLF from scheduling API (Razor HTML-encodes by default; confirm before promoting).
+- [ ] (candidate) `Application/Notifications/Email` — introduce `TryResolveDeliveryMailbox` helper consolidating `IdentityEmailNormalizer.TryNormalize` guards (consolidation; do not add another one-off CRLF test without helper).
 
 - [x] (proven) `ExecDigestEmailDispatcher` — `DashboardUrl` / `SponsorValueReportUrl` with embedded userinfo reached digest template CTAs without sanitization — **hit 2026-10-13 seed hunt (seed→hit):** `SanitizeOperatorAbsoluteUrl` at dispatch (parity with unsubscribe and weekly sponsor `runDetailUrl`); regression `ExecDigestEmailDispatcher_omits_user_info_from_dashboard_and_sponsor_urls_in_template_model`.
 
