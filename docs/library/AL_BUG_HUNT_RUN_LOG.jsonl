@@ -1,20 +1,3 @@
-{"at":"2026-09-13T01:01:04.379683Z","zoneId":"persistence-identity","outcome":"seed-only"}
-{"at":"2026-09-13T01:01:16.9034653Z","zoneId":"topology-proposal-merge","outcome":"seed-only"}
-{"at":"2026-09-13T01:01:29.6610158Z","zoneId":"identity-provider-config","outcome":"seed-only"}
-{"at":"2026-09-13T01:01:42.7042411Z","zoneId":"persistence-identity","outcome":"seed-only"}
-{"at":"2026-09-13T01:01:55.107574Z","zoneId":"ui-operator-routes","outcome":"seed-only"}
-{"at":"2026-09-13T01:02:08.2034648Z","zoneId":"context-ingestion","outcome":"seed-only"}
-{"at":"2026-09-13T01:02:21.5406043Z","zoneId":"authority-pipeline-payload","outcome":"seed-only"}
-{"at":"2026-09-13T01:02:34.8727355Z","zoneId":"identity-provider-config","outcome":"seed-only"}
-{"at":"2026-09-13T01:02:48.3482394Z","zoneId":"persistence-identity","outcome":"seed-only"}
-{"at":"2026-09-13T01:03:01.4016824Z","zoneId":"core-costing","outcome":"seed-only"}
-{"at":"2026-09-13T01:03:15.086503Z","zoneId":"identity-provider-config","outcome":"seed-only"}
-{"at":"2026-09-13T01:03:28.0939762Z","zoneId":"persistence-identity","outcome":"seed-only"}
-{"at":"2026-09-13T01:03:41.2330071Z","zoneId":"authority-pipeline-payload","outcome":"seed-only"}
-{"at":"2026-09-13T01:03:53.7358633Z","zoneId":"tenant-data-export","outcome":"seed-only"}
-{"at":"2026-09-13T01:04:06.9553492Z","zoneId":"application-pilots","outcome":"seed-only"}
-{"at":"2026-09-13T01:08:12.7060148Z","zoneId":"topology-proposal-merge","outcome":"seed-only"}
-{"at":"2026-09-13T01:10:23.8731867Z","zoneId":"core-costing","outcome":"hit"}
 {"at":"2026-09-13T01:12:58.6610133Z","zoneId":"core-costing","outcome":"hit"}
 {"at":"2026-09-13T01:13:19.2363552Z","zoneId":"context-ingestion","outcome":"hit"}
 {"at":"2026-09-13T01:15:14.6465446Z","zoneId":"context-ingestion","outcome":"hit"}
@@ -8600,3 +8583,4 @@
 {"at":"2026-10-13T00:54:48.9515942Z","zoneId":"host-core-jobs","outcome":"hit","productLine":"archlucid-shared","paths":["@(ArchLucid.Host.Core/Jobs/,ArchLucid.Host.Core/Hosted/,ArchLucid.Persistence/Data/Repositories/)"]}
 {"at":"2026-10-13T00:56:53.5889156Z","zoneId":"host-core-jobs","outcome":"hit","productLine":"archlucid-shared","paths":["@(ArchLucid.Host.Core/Jobs/,ArchLucid.Host.Core/Hosted/,ArchLucid.Persistence/Data/Repositories/)"]}
 {"at":"2026-10-13T01:00:59.1516291Z","zoneId":"host-core-jobs","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-13T01:11:51.4125487Z","zoneId":"architecture-intelligence-orchestrator","outcome":"hit","productLine":"archlucid-shared"}

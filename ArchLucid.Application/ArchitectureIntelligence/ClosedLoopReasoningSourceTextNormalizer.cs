@@ -14,10 +14,7 @@ internal static class ClosedLoopReasoningSourceTextNormalizer
         if (contentType.Length > 0)
             contentType = contentType.ToLowerInvariant();
 
-        string fileName = source.FileName?.Trim() ?? string.Empty;
-
-        if (fileName.Length > 0)
-            fileName = fileName.Replace('\\', '/');
+        string fileName = NormalizeFileNameForHash(source.FileName);
 
         return new ClosedLoopReasoningSourceText
         {
@@ -28,6 +25,24 @@ internal static class ClosedLoopReasoningSourceTextNormalizer
                 ? string.Empty
                 : NormalizeLineEndings(source.Content.Trim()),
         };
+    }
+
+    private static string NormalizeFileNameForHash(string? rawFileName)
+    {
+        string fileName = rawFileName?.Trim() ?? string.Empty;
+
+        if (fileName.Length == 0)
+            return fileName;
+
+        fileName = fileName.Replace('\\', '/');
+
+        while (fileName.StartsWith("./", StringComparison.Ordinal))
+            fileName = fileName[2..];
+
+        while (fileName.Contains("//", StringComparison.Ordinal))
+            fileName = fileName.Replace("//", "/", StringComparison.Ordinal);
+
+        return fileName;
     }
 
     private static string NormalizeLineEndings(string content)
