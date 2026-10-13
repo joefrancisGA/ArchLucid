@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-13 seed hunt (seed→hit): `application-tenancy-lifecycle` — promoted `TenantDeletionService.DeleteTenantAsync`; missing tenant row surfaced the same `InvalidOperationException` as unapproved erasure because `tenant?.TenantErasureApprovedUtc == null` conflated null with not approved; distinct not-found guard before approval check; regressions `DeleteTenantAsync_throws_not_found_when_tenant_row_is_missing` and `DeleteTenantAsync_throws_when_erasure_not_approved`; 148 scoped tenancy tests passed.
+
 2026-10-13 seed hunt (seed→hit): `notifications-pipeline` — promoted `ExecDigestEmailDispatcher.TryDispatchAsync`; reachable digest `DashboardUrl` / `SponsorValueReportUrl` values with embedded `OperatorBaseUrl` userinfo were trimmed into templates while unsubscribe already used `SanitizeOperatorAbsoluteUrl`; sanitize CTA hrefs at dispatch; regression `ExecDigestEmailDispatcher_omits_user_info_from_dashboard_and_sponsor_urls_in_template_model`; 162 scoped Application notification tests passed; 11 DigestSubscriptions controller unit tests passed (2 SQL integration auth tests skipped without `ARCHLUCID_API_TEST_SQL`).
 
 2026-10-13 seed hunt (seed→hit): `application-tenancy-lifecycle` — promoted `TenantSuspendCommandService.TrySuspendAsync`; erasure offboard between initial read and atomic suspend made `TrySuspendTenantAsync` no-op while API returned `AlreadyInDesiredState` instead of `InErasureQuarantine`; re-read tenant after lifecycle transition miss; regression `TrySuspendAsync_returns_quarantine_when_offboard_completes_before_atomic_suspend`; mirrored path for `TryUnsuspendAsync`; 146 scoped tenancy tests passed.
@@ -34535,11 +34537,15 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 46
-- **bugs-found:** 31
+- **hunts:** 47
+- **bugs-found:** 32
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-13
-- **last-bug:** 2026-10-13 — Suspend after offboard race reported idempotent success instead of erasure quarantine
+- **last-bug:** 2026-10-13 — Hard purge reported unapproved erasure when tenant row was already gone
+
+2026-10-13 seed hunt (seed→hit): reseeded tenant deletion after suspend/offboard race fix; proved `DeleteTenantAsync` used approval guard on null tenant rows; fixed with explicit not-found failure before approval check; regressions in `TenantDeletionServiceTests`; 148 scoped tenancy tests passed.
+
+- [x] (proven) `TenantDeletionService.DeleteTenantAsync` — missing tenant row threw unapproved-erasure `InvalidOperationException` — **hit 2026-10-13 seed hunt (seed→hit):** separate null-tenant guard (reachable from background deletion jobs when catalog row disappears between enqueue and purge); regressions `DeleteTenantAsync_throws_not_found_when_tenant_row_is_missing` and `DeleteTenantAsync_throws_when_erasure_not_approved`.
 
 2026-10-13 seed hunt (seed→hit): reseeded suspend command service after Deleted-purge retry fix; proved admin suspend returned `AlreadyInDesiredState` when erasure offboard completed between read and `TrySuspendTenantAsync`; fixed with shared re-read after failed lifecycle transition; regression `TenantSuspendCommandServiceOffboardRaceTests`; 146 scoped tenancy tests passed.
 
