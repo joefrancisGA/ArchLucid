@@ -161,7 +161,11 @@ internal static class RequestConstraintTokenMatcher
 
     private static bool IsCompoundIdentifierDelimiter(char connector)
     {
-        return connector is '-' or '_' or '.' or '/' or ':' or '\\' or '|' or '+' or '@' or '#' or ',' or ';' or '=' or '&' or '%' or '~' or '$' or '`' or '^' or '*' or '!' or '?' or '\'' or '(' or ')' or '[' or ']';
+        // Compact capability slugs glue tokens with punctuation; natural-language constraints use ASCII spaces (after normalization).
+        if (connector == ' ')
+            return false;
+
+        return !char.IsLetterOrDigit(connector);
     }
 
     private static bool IsNegatedPhrasePrefix(string haystack, int tokenIndex)
