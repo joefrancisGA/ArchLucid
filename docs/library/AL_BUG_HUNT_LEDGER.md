@@ -28508,6 +28508,8 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 ---
 ## Zone: core-explanation-json
 
+2026-10-13 seed hunt (seed→hit): promoted object-shaped `reasoning` preferring `id` over co-present `text`; reasoning object/array paths now read `text` before `id` while evidence list entries keep `id` first; regressions `TryNormalizeStructuredJson_prefers_text_over_id_on_object_shaped_reasoning` and `TryNormalizeStructuredJson_prefers_id_over_text_on_object_shaped_evidence_ref`; closed stale duplicate malformed-object candidate rows; scoped explanation tests 89/89.
+
 2026-10-13 seed hunt (seed→hit): promoted out-of-range numeric `evidenceRefs` tokens (`1e300`) accepted via `GetRawText` scientific notation; `TryReadNonEmptyTextToken` now rejects non-whole-number JSON numbers after bounded int coercion fails; regression `TryNormalizeStructuredJson_ignores_out_of_range_numeric_evidence_ref_entries`; cheap-disproved malformed-object silent-drop rows as lenient partial-parse by design; scoped `RunExplanation` + `StructuredExplanationParser` tests 87/87.
 
 2026-10-13 seed hunt (seed→hit): promoted oversized finite `schemaVersion` (`1e300`) coerced to `int.MaxValue` instead of defaulting to version 1; bounded `StrictSchemaVersionReader` double-to-int conversion with `<= int.MaxValue`; regression `TryNormalizeStructuredJson_defaults_schema_version_when_numeric_schema_version_exceeds_int_range`; scoped `RunExplanation` filter 47/47 and `StructuredExplanationParser` regressions 39/39.
@@ -28525,8 +28527,9 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 2026-10-11 seed hunt (seed-only): re-read the structured parser, shared JSON token readers, prompt schema, and the focused `RunExplanation` suite; no fresh hypothesis met the full mechanism-and-contract bar for same-run promotion. The focused suite passed 47/47; no production or regression code changed. Seeded four bounded follow-on `(candidate)` rows.
 
 - [x] (proven) `StructuredExplanationParser` / `StrictSchemaVersionReader` — finite JSON `schemaVersion` above `int.MaxValue` (e.g. `1e300`) coerced to `2147483647` instead of falling back to default schema version 1 — **hit 2026-10-13 seed hunt:** bound whole-number double conversion in `StrictSchemaVersionReader`; regression `TryNormalizeStructuredJson_defaults_schema_version_when_numeric_schema_version_exceeds_int_range`.
-- [ ] (candidate) `TryReadStringList` — malformed object entries inside a reachable `evidenceRefs` array are silently dropped while valid entries remain, potentially hiding an omitted citation without marking the structured payload invalid; locus: `CollectStringListEntries` ~49–64; input: LLM JSON `evidenceRefs` containing one valid `{ "id": ... }` and one object with no `id`/`text`.
-- [ ] (candidate) `TryReadReasoningText` — malformed entries inside a reachable reasoning array are silently dropped and the remaining text is accepted, potentially producing an incomplete explanation while reporting structured success; locus: `CollectReasoningParts` ~123–141; input: LLM JSON `reasoning` array mixing a valid paragraph with an object lacking `id`/`text`.
+- [x] (invalid) `TryReadStringList` — malformed object entries in `evidenceRefs` — **cheap-disproof 2026-10-13 seed hunt:** duplicate of valid-no-repro partial-parse row; ledger tag corrected.
+- [x] (invalid) `TryReadReasoningText` — malformed reasoning array entries — **cheap-disproof 2026-10-13 seed hunt:** duplicate of valid-no-repro partial-parse row; ledger tag corrected.
+- [x] (proven) `StructuredExplanationParser.TryReadObjectStringProperty` — object-shaped `reasoning` with both `id` and `text` surfaced the identifier instead of the explanation body — **hit 2026-10-13 seed hunt:** reasoning paths prefer `text` then `id`; evidence refs keep `id` then `text`; regressions `TryNormalizeStructuredJson_prefers_text_over_id_on_object_shaped_reasoning` and `TryNormalizeStructuredJson_prefers_id_over_text_on_object_shaped_evidence_ref`.
 - [x] (proven) `TryReadNonEmptyTextToken` — out-of-range finite JSON numbers in list fields (e.g. `1e300`) surfaced as scientific-notation evidence ids via `GetRawText` — **hit 2026-10-13 seed hunt:** reject when whole-number coercion fails; regression `TryNormalizeStructuredJson_ignores_out_of_range_numeric_evidence_ref_entries`.
 - [x] (valid-no-repro) `TryReadStringList` — malformed object entries in `evidenceRefs` silently dropped while valid entries remain — **cheap-disproof 2026-10-13 seed hunt:** lenient structured parser accepts partial lists; invalid objects skipped without failing the envelope (parity with nested-array flattening hits).
 - [x] (valid-no-repro) `TryReadReasoningText` — malformed reasoning array entries silently dropped — **cheap-disproof 2026-10-13 seed hunt:** same partial-accept contract when at least one paragraph normalizes.
@@ -28549,7 +28552,11 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 
 2026-10-10 seed hunt (seed→hit): promoted and proved out-of-range numeric whole-number counts were cast to `int.MaxValue` instead of rejected; bounded `TryReadWholeNumber` before conversion. Regression `FromAggregateJson_ignores_out_of_range_numeric_whole_number_counts`; scoped RunExplanation suite passed 47/47.
 
-- **(candidate)** `StructuredExplanationParser.TryReadObjectStringProperty` checks `id` before `text` for object-shaped reasoning/list tokens; a compatibility payload such as `{"reasoning":{"id":"provider-response-id","text":"actual explanation"}}` would expose the identifier as reasoning. The parser accepts this object shape, but the canonical schema and prompt require a string and the repository has no producer fixture establishing the mixed object contract, so retain as seed-only pending provider-contract evidence.
+- [ ] (candidate) `TryReadStringList` — `alternativesConsidered` object entries with both `id` and `text` may still prefer citation `id` over discarded-alternative prose in `text`; locus: `TryReadStringListEntry`; input: `{"alternativesConsidered":[{"id":"alt-a","text":"Rejected monolith path."}]}`.
+- [ ] (candidate) `TryReadNonEmptyTextToken` — negative JSON integers in list slots (`evidenceRefs`: [-1]) may still stringify via `TryGetInt64`; locus: numeric branch; input: `{"reasoning":"Main","evidenceRefs":[-1]}`.
+- [ ] (candidate) `StructuredExplanationParser.TryNormalizeStructuredJson` — `schemaVersion: 0` may be ignored while string `"0"` is rejected, producing asymmetric version handling; locus: `parsedSchemaVersion > 0` gate; input: numeric zero vs string zero.
+- [ ] (candidate) `RunExplanationAggregateJsonReader.TryReadFiniteDouble` — structured `confidence` as JSON boolean `false` is nulled at structured boundary but aggregate faithfulness readers still coerce booleans; cross-surface inconsistency only if structured JSON is re-fed as aggregate (reachability TBD).
+- [ ] (candidate) `CollectReasoningParts` — empty-string paragraphs in a reasoning array are skipped but whitespace-only strings may survive `Trim` inconsistently vs dropped empty objects; locus: `string.IsNullOrWhiteSpace` guard; input: `{"reasoning":["","  "]}`.
 
 - **id:** core-explanation-json
 - **split-from:** archlucid-core
@@ -28558,11 +28565,11 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 - **aliases:** run explanation; explanation json; split from archlucid-core
 - **paths:** ArchLucid.Core/Explanation/
 - **test-filter:** FullyQualifiedName~RunExplanation
-- **hunts:** 59
-- **bugs-found:** 35
+- **hunts:** 60
+- **bugs-found:** 36
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-13
-- **last-bug:** 2026-10-13 — out-of-range numeric evidence refs surfaced as scientific notation
+- **last-bug:** 2026-10-13 — object-shaped reasoning preferred `id` over `text`
 - **related-pd-tb:** none
 - **code-changed-since:** no
 

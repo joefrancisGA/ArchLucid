@@ -99,7 +99,7 @@ public static partial class StructuredExplanationParser
             return reasoningElement.GetString();
 
         if (reasoningElement.ValueKind == JsonValueKind.Object)
-            return TryReadObjectStringProperty(reasoningElement, "id", "text");
+            return TryReadObjectStringProperty(reasoningElement, "text", "id");
 
         if (reasoningElement.ValueKind != JsonValueKind.Array)
         {
@@ -132,7 +132,7 @@ public static partial class StructuredExplanationParser
         string? part = item.ValueKind switch
         {
             JsonValueKind.String => item.GetString(),
-            JsonValueKind.Object => TryReadObjectStringProperty(item, "id", "text"),
+            JsonValueKind.Object => TryReadObjectStringProperty(item, "text", "id"),
             _ => RunExplanationAggregateJsonReader.TryReadNonEmptyTextToken(item, out string? scalar)
                 ? scalar
                 : null,
