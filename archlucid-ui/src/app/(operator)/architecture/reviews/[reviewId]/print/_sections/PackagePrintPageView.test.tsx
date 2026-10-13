@@ -147,6 +147,7 @@ describe("PackagePrintPageView (TB-2205)", () => {
               questionLabel: "latency",
               answer: "Yes",
               responderLabel: "Room",
+              recordedUtc: "2026-08-01T12:00:00Z",
               recordedAtLabel: "Aug 1, 2026",
             },
           ],

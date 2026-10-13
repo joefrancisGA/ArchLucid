@@ -645,7 +645,10 @@ export function ReviewPackageDoThisNextStrip(
         <div className="space-y-1" data-testid="review-package-sponsor-read-first">
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
             <span className="font-semibold">Reviewed:</span>{" "}
-            {reviewTitle?.trim() || "This review"}. Finalized architecture package.
+            {reviewTitle === null || reviewTitle === undefined
+              ? "Review title was not stored."
+              : reviewTitle}
+            . Finalized architecture package.
           </p>
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
             <span className="font-semibold">Sharing:</span>{" "}

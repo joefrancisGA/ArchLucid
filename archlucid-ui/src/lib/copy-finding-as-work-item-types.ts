@@ -103,6 +103,15 @@ export function na(value: string | null | undefined, missingLabel = "Not availab
   return t;
 }
 
+/** Null/undefined → omission copy; stored empty string stays blank (polish P-01–P-05). */
+export function workItemStoredText(value: string | null | undefined, notStoredLabel: string): string {
+  if (value === null || value === undefined) {
+    return notStoredLabel;
+  }
+
+  return value;
+}
+
 export async function writeWorkItemBodyToClipboard(text: string): Promise<boolean> {
   if (typeof navigator !== "undefined" && navigator.clipboard?.writeText) {
     try {

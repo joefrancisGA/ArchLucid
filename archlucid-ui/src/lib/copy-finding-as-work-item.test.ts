@@ -64,7 +64,7 @@ describe("buildInspectFindingWorkItemBody", () => {
     expect(text).toContain("Trust label: DeterministicRule — Policy rule matched.");
   });
 
-  it("shows Not available sections when sparse", () => {
+  it("labels null inspect fields without inventing Not available or citation placeholders (P-01–P-05)", () => {
     const sparse = {
       runId: "r",
       findingId: "f",
@@ -80,9 +80,52 @@ describe("buildInspectFindingWorkItemBody", () => {
       evidenceExcerpts: [],
     };
 
-    const text = buildInspectFindingWorkItemBody("markdown", sparse);
-    expect(text.includes("What was flagged")).toBe(true);
-    expect(text.includes("Not available")).toBe(true);
+    const markdown = buildInspectFindingWorkItemBody("markdown", sparse);
+    expect(markdown).toContain("**Severity:** Severity was not stored.");
+    expect(markdown).toContain("Description was not stored.");
+    expect(markdown).toContain("Recommended action was not stored.");
+    expect(markdown).toContain("Decision rule was not stored.");
+    expect(markdown).toContain("Evidence excerpt was not stored.");
+    expect(markdown).not.toContain("(citation)");
+
+    const serviceNow = buildInspectFindingWorkItemBody("serviceNowText", sparse);
+    expect(serviceNow).toContain("Severity: Severity was not stored.");
+    expect(serviceNow).not.toContain("No recommended action recorded for this finding.");
+
+    const json = JSON.parse(buildInspectFindingWorkItemBody("json", sparse)) as {
+      severity: string;
+      recommendedAction: string;
+      ruleId: string;
+    };
+    expect(json.severity).toBe("Severity was not stored.");
+    expect(json.recommendedAction).toBe("Recommended action was not stored.");
+    expect(json.ruleId).toBe("Decision rule was not stored.");
+  });
+
+  it("preserves stored empty strings on work-item clipboard fields (P-01–P-04)", () => {
+    const emptyStored = {
+      runId: "r",
+      findingId: "f",
+      siteOrigin: "https://h.example.org",
+      severityLabel: "",
+      categoryLabel: null,
+      impactedAreaLabel: null,
+      title: null,
+      description: "",
+      recommendedAction: "",
+      decisionRuleId: "",
+      decisionRuleName: "",
+      evidenceExcerpts: [" (lines 1-2)"],
+    };
+
+    const markdown = buildInspectFindingWorkItemBody("markdown", emptyStored);
+    expect(markdown).toContain("**Severity:** ");
+    expect(markdown).not.toContain("Severity was not stored.");
+    expect(markdown).toContain("### What was flagged\n\n\n");
+    expect(markdown).toContain("### Recommended actions\n\n\n");
+    expect(markdown).toContain("**Decision rule:** ");
+    expect(markdown).toContain("-  (lines 1-2)");
+    expect(markdown).not.toContain("(citation)");
   });
 
   it("includes trust fields in JSON export", () => {
@@ -98,6 +141,7 @@ describe("buildInspectFindingWorkItemBody", () => {
       ...inspectInput,
       classification: "DecisionGradeFinding",
       semanticSupportBand: "Unsupported",
+      semanticSupportBandScorerVersion: "as057-v1",
     });
     const parsed = JSON.parse(text) as {
       semanticSupportBand: string;

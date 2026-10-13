@@ -73,4 +73,41 @@ describe("CopyFindingAsWorkItemButton", () => {
     expect(body).toContain("{{fid-1}}");
     expect(body).toContain("/architecture/reviews/run-42");
   });
+
+  it("does not invent citation placeholders for missing evidence excerpts (P-05)", async () => {
+    const writeText = vi.fn().mockResolvedValue(undefined);
+
+    Object.defineProperty(navigator, "clipboard", {
+      configurable: true,
+      value: { writeText },
+    });
+
+    const payload: FindingInspectPayload = {
+      findingId: "fid-1",
+      typedPayload: {
+        severity: "High",
+        category: "Cost",
+        title: "Over-provisioned",
+        description: "Too many SKU.",
+      },
+      decisionRuleId: "r1",
+      decisionRuleName: "SKU check",
+      evidence: [{ artifactId: null, lineRange: "12-14", excerpt: null }],
+      recommendedActions: [],
+      auditRowId: null,
+      runId: "run-42",
+      manifestVersion: "v9",
+    };
+
+    render(<CopyFindingAsWorkItemButton findingId="fid-1" payload={payload} runId="run-42" />);
+    fireEvent.click(screen.getByTestId("copy-for-jira-button"));
+
+    await waitFor(() => {
+      expect(writeText).toHaveBeenCalled();
+    });
+
+    const body = writeText.mock.calls[0]?.[0] ?? "";
+    expect(body).toContain("Evidence excerpt was not stored.");
+    expect(body).not.toContain("(citation)");
+  });
 });

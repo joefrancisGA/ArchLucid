@@ -80,9 +80,15 @@ export function WizardStepReview(props: { readonly focusedPilotModeEnabled?: boo
   const { watch, formState } = useFormContext<WizardFormValues>();
   const v = watch();
   const focusedPilotModeEnabled = props.focusedPilotModeEnabled ?? true;
-  const policyPackCloudMismatch = deriveWizardPolicyPackCloudMismatch(v, {
-    focusedPilotModeEnabled,
-  });
+  const policyPackCloudMismatch = deriveWizardPolicyPackCloudMismatch(
+    {
+      ...v,
+      policyReferences: v.policyReferences ?? [],
+    },
+    {
+      focusedPilotModeEnabled,
+    },
+  );
 
   return (
     <WizardStepPanel
@@ -107,7 +113,11 @@ export function WizardStepReview(props: { readonly focusedPilotModeEnabled?: boo
             <dt className="text-neutral-500">Cloud</dt>
             <dd className="m-0">{v.cloudProvider}</dd>
             <dt className="text-neutral-500">Prior manifest</dt>
-            <dd className="m-0">{v.priorManifestVersion?.trim() || "No prior manifest recorded"}</dd>
+            <dd className="m-0">
+              {v.priorManifestVersion === null || v.priorManifestVersion === undefined
+                ? "Prior manifest was not stored."
+                : v.priorManifestVersion.trim() || "No prior manifest recorded"}
+            </dd>
           </dl>
         </ReadOnlyBlock>
 
@@ -151,18 +161,26 @@ export function WizardStepReview(props: { readonly focusedPilotModeEnabled?: boo
             <p className="m-0">Required capabilities were not stored.</p>
           ) : null}
           <p className={cn("mt-2 m-0 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>Assumptions</p>
-          <ul className="mt-1 list-disc pl-5">
-            {(v.assumptions ?? []).map((c) => (
-              <li key={c}>{c}</li>
-            ))}
-          </ul>
+          {v.assumptions === null || v.assumptions === undefined ? (
+            <p className="m-0">Assumptions were not stored.</p>
+          ) : (
+            <ul className="mt-1 list-disc pl-5">
+              {v.assumptions.map((c) => (
+                <li key={c}>{c}</li>
+              ))}
+            </ul>
+          )}
         </ReadOnlyBlock>
 
         <Separator />
 
         <ReadOnlyBlock title="Advanced">
           <p className={cn("m-0 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>Policy references</p>
-          <p className="m-0">{(v.policyReferences ?? []).join(", ") || "None recorded on this draft"}</p>
+          <p className="m-0">
+            {v.policyReferences === null || v.policyReferences === undefined
+              ? "Policy references were not stored."
+              : v.policyReferences.join(", ") || "None recorded on this draft"}
+          </p>
           <p className={cn("mt-2 m-0 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>{ARCHITECTURE_HINTS_BUYER_LABEL}</p>
           <p className="m-0">
             {v.topologyHints === null || v.topologyHints === undefined

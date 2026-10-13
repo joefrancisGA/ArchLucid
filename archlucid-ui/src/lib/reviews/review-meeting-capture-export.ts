@@ -14,9 +14,32 @@ export const PACKAGE_PRINT_MEETING_CAPTURE_SECTION_ID = "package-print-meeting-c
 export type ReviewMeetingCaptureEntry = {
   readonly questionLabel: string;
   readonly answer: string;
+  /** null when the trail entry omitted responder; "" when stored blank. */
   readonly responderLabel: string | null;
+  /** null when recorded time was omitted; "" when stored blank. */
+  readonly recordedUtc: string | null;
   readonly recordedAtLabel: string | null;
 };
+
+export function buildReviewMeetingCaptureMetaParts(
+  entry: ReviewMeetingCaptureEntry,
+): readonly string[] {
+  const parts: string[] = [];
+
+  if (entry.responderLabel === null) {
+    parts.push("Responder was not stored.");
+  } else if (entry.responderLabel.length > 0) {
+    parts.push(entry.responderLabel);
+  }
+
+  if (entry.recordedUtc === null) {
+    parts.push("Answer recorded time was not stored.");
+  } else if (entry.recordedUtc.trim().length > 0 && entry.recordedAtLabel !== null) {
+    parts.push(entry.recordedAtLabel);
+  }
+
+  return parts;
+}
 
 /** Strips the presenter answer key prefix (`answer.`) for human-readable export labels. */
 export function presenterAssertedQuestionLabel(key: string): string {
@@ -32,13 +55,26 @@ export function presenterAssertedQuestionLabel(key: string): string {
 export function buildReviewMeetingCaptureEntries(
   assertedEntries: readonly AssertedTrailEntry[],
 ): readonly ReviewMeetingCaptureEntry[] {
-  return assertedEntries.map((entry) => ({
-    questionLabel: presenterAssertedQuestionLabel(entry.key),
-    answer: entry.value,
-    responderLabel: entry.responderLabel?.trim().length ? entry.responderLabel.trim() : null,
-    recordedAtLabel:
-      entry.recordedUtc?.trim().length ? formatInstantForLocale(entry.recordedUtc) : null,
-  }));
+  return assertedEntries.map((entry) => {
+    const responderLabel =
+      entry.responderLabel === undefined || entry.responderLabel === null ? null : entry.responderLabel;
+    const recordedUtc =
+      entry.recordedUtc === undefined || entry.recordedUtc === null ? null : entry.recordedUtc;
+    const recordedAtLabel =
+      recordedUtc === null
+        ? null
+        : recordedUtc.trim().length > 0
+          ? formatInstantForLocale(recordedUtc)
+          : null;
+
+    return {
+      questionLabel: presenterAssertedQuestionLabel(entry.key),
+      answer: entry.value,
+      responderLabel,
+      recordedUtc,
+      recordedAtLabel,
+    };
+  });
 }
 
 export function resolveReviewMeetingCaptureEntries(
@@ -64,15 +100,7 @@ export function formatReviewMeetingCapturePlainText(
     lines.push(`Q: ${entry.questionLabel}`);
     lines.push(`A: ${entry.answer}`);
 
-    const metaParts: string[] = [];
-
-    if (entry.responderLabel !== null) {
-      metaParts.push(entry.responderLabel);
-    }
-
-    if (entry.recordedAtLabel !== null) {
-      metaParts.push(entry.recordedAtLabel);
-    }
+    const metaParts = buildReviewMeetingCaptureMetaParts(entry);
 
     if (metaParts.length > 0) {
       lines.push(metaParts.join(" · "));

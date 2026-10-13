@@ -55,15 +55,25 @@ const QUICK_COPY_JIRA_ARIA = "Copy finding as Jira wiki markup to clipboard";
 
 function evidenceLinesFromInspectPayload(payload: FindingInspectPayload): string[] {
   return payload.evidence.map((e) => {
-    const base = e.excerpt?.trim() ?? e.artifactId?.trim() ?? "";
-    const lr = e.lineRange?.trim();
+    const excerptMissing = e.excerpt === null || e.excerpt === undefined;
+    const artifactMissing = e.artifactId === null || e.artifactId === undefined;
 
-    if (base.length === 0 && (lr === undefined || lr.length === 0)) {
-      return "Not available";
+    if (excerptMissing && artifactMissing) {
+      return "Evidence excerpt was not stored.";
     }
 
+    let base = "";
+
+    if (!excerptMissing) {
+      base = e.excerpt ?? "";
+    } else if (!artifactMissing) {
+      base = e.artifactId ?? "";
+    }
+
+    const lr = e.lineRange?.trim();
+
     if (lr !== undefined && lr.length > 0) {
-      return `${base.length > 0 ? base : "(citation)"} (${lr})`;
+      return `${base} (${lr})`;
     }
 
     return base;

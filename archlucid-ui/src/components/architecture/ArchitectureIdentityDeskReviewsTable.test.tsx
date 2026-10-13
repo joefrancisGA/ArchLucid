@@ -60,6 +60,32 @@ describe("ArchitectureIdentityDeskReviewsTable (AO-23)", () => {
     useShellInFlightOperationsMock.mockReturnValue([]);
   });
 
+  it("labels a missing review description without defaulting to Architecture review (P-11)", () => {
+    render(
+      <ArchitectureIdentityDeskReviewsTable
+        architectureId={architectureId}
+        reviews={[
+          {
+            runId: "review-missing-description",
+            description: null,
+            createdUtc: "2026-01-01T10:00:00Z",
+          },
+          {
+            runId: "review-empty-description",
+            description: "",
+            createdUtc: "2026-01-02T11:00:00Z",
+          },
+        ]}
+        reviewCount={2}
+        startReviewHref={null}
+      />,
+    );
+
+    expect(screen.getByRole("link", { name: "Review description was not stored." })).toBeInTheDocument();
+    expect(screen.getByTestId("architecture-identity-review-link-review-empty-description")).toHaveTextContent("");
+    expect(screen.queryByRole("link", { name: "Architecture review" })).toBeNull();
+  });
+
   it("links review rows to nested job paths", () => {
     render(
       <ArchitectureIdentityDeskReviewsTable
