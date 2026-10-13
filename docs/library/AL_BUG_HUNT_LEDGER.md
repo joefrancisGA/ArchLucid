@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-13 seed hunt (seed→hit): `cloud-extractors` — promoted `EntraGroupMembershipGraphReader.EnsureNextLinkTargetsGroup`; reachable Microsoft Graph `@odata.nextLink` values for the same group but `/owners` passed group-id validation and were followed while listing `/members`, merging owner objects into membership rows; require the `members` collection segment after the group id; regression `TryReadDirectMembershipsAsync_rejects_odata_next_link_for_different_group_collection`; AWS/GCP extractor tests passed 81/81; Azure extractor scope passed 144/144.
+
 2026-10-13 seed hunt (seed→hit): `cloud-extractors` — promoted `HostedAzureInventoryNetworkAssociationBuilder.ReadDelimitedIds`; reachable VM `networkProfile.networkInterfaces[n]` indexed ids plus the pipe-delimited companion property with the same key were all ingested, emitting a spurious `vmToNic` edge for the joined `id|id` string; skip the exact-prefix companion when indexed slots exist; regression `Build_ignores_pipe_delimited_network_interface_companion_when_indexed_ids_exist`; AWS/GCP extractor tests passed 81/81; Azure extractor scope passed 143/143.
 
 2026-10-13 seed hunt (seed→hit): `cloud-extractors` — promoted `HostedAzureInventoryResourcePropertyExpander.WriteIndexedTopLevelArmIds`; reachable VM `networkProfile.networkInterfaces` pipe-delimited values were joined using lexicographic key order, so `networkProfile.networkInterfaces[10]` sorted before `[2]`; order by numeric bracket index via `GetIndexedPropertyKeyOrder`; regression `Expand_orders_vm_network_interface_pipe_delimited_ids_by_numeric_index`; AWS/GCP extractor tests passed 81/81; Azure extractor scope passed 142/142.
@@ -31709,6 +31711,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 ---
 
 ## Zone: cloud-extractors
+
+2026-10-13 seed hunt (seed→hit): promoted `EnsureNextLinkTargetsGroup`; same-group Graph `owners` nextLink accepted during member pagination; require `members` path segment; regression `TryReadDirectMembershipsAsync_rejects_odata_next_link_for_different_group_collection`; Azure scope 144/144; AWS/GCP 81/81.
 
 2026-10-13 seed hunt (seed→hit): promoted `ReadDelimitedIds`; pipe-delimited `networkProfile.networkInterfaces` companion treated as an ARM id when indexed NIC slots exist; skip exact-prefix companion when `[n]` keys present; regression `Build_ignores_pipe_delimited_network_interface_companion_when_indexed_ids_exist`; Azure scope 143/143; AWS/GCP 81/81.
 
