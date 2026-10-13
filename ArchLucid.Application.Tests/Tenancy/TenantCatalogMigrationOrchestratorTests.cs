@@ -42,17 +42,17 @@ public sealed class TenantCatalogMigrationOrchestratorTests
     }
 
     [Fact]
-    public async Task AcknowledgeCatalogAttachDetachAsync_returns_in_erasure_quarantine_without_attach_audit_when_offboarded_after_stage_update()
+    public async Task AcknowledgeCatalogAttachDetachAsync_returns_in_erasure_quarantine_without_stage_update_when_offboarded_before_acknowledge()
     {
         InMemoryTenantCatalogMigrationRepository migrations = new();
-        FakeTimeProvider clock = new(new DateTimeOffset(2026, 10, 13, 18, 0, 0, TimeSpan.Zero));
+        FakeTimeProvider clock = new(new DateTimeOffset(2026, 10, 13, 20, 0, 0, TimeSpan.Zero));
         Guid migrationId = Guid.NewGuid();
         await migrations.InsertAsync(
             new TenantCatalogMigrationRecord
             {
                 MigrationId = migrationId,
                 TenantId = TenantId,
-                CorrelationId = "corr-offboard-attach",
+                CorrelationId = "corr-offboard-pre-attach",
                 Stage = TenantCatalogMigrationStage.ScopeFreeze,
                 StartedUtc = clock.GetUtcNow().AddHours(-1),
             },
@@ -90,6 +90,81 @@ public sealed class TenantCatalogMigrationOrchestratorTests
             await sut.AcknowledgeCatalogAttachDetachAsync(TenantId, "admin", "Admin", CancellationToken.None);
 
         Assert.Equal(TenantCatalogMigrationCommandOutcome.InErasureQuarantine, outcome);
+
+        TenantCatalogMigrationRecord? record =
+            await migrations.GetActiveByTenantIdAsync(TenantId, CancellationToken.None);
+        Assert.Equal(TenantCatalogMigrationStage.ScopeFreeze, record?.Stage);
+        audit.Verify(
+            a => a.AppendAsync(
+                It.Is<PlatformAuditEvent>(e => e.EventType == AuditEventTypes.TenantCatalogMigrationCatalogAttachAcknowledged),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task AcknowledgeCatalogAttachDetachAsync_returns_in_erasure_quarantine_without_attach_audit_when_offboarded_after_stage_update()
+    {
+        InMemoryTenantCatalogMigrationRepository migrations = new();
+        FakeTimeProvider clock = new(new DateTimeOffset(2026, 10, 13, 18, 0, 0, TimeSpan.Zero));
+        Guid migrationId = Guid.NewGuid();
+        await migrations.InsertAsync(
+            new TenantCatalogMigrationRecord
+            {
+                MigrationId = migrationId,
+                TenantId = TenantId,
+                CorrelationId = "corr-offboard-attach",
+                Stage = TenantCatalogMigrationStage.ScopeFreeze,
+                StartedUtc = clock.GetUtcNow().AddHours(-1),
+            },
+            CancellationToken.None);
+
+        TenantRecord activeTenant = new()
+        {
+            Id = TenantId,
+            Name = "Acme",
+            Slug = "acme",
+            Tier = TenantTier.Standard,
+            DataRegion = TenantDataRegions.Default,
+            CreatedUtc = clock.GetUtcNow().AddDays(-1),
+        };
+
+        TenantRecord offboarded = new()
+        {
+            Id = TenantId,
+            Name = "Acme",
+            Slug = "acme",
+            Tier = TenantTier.Standard,
+            DataRegion = TenantDataRegions.Default,
+            CreatedUtc = clock.GetUtcNow().AddDays(-1),
+            OffboardedUtc = clock.GetUtcNow(),
+            ErasureEligibleUtc = clock.GetUtcNow().AddDays(30),
+        };
+
+        Mock<ITenantRepository> tenants = new(MockBehavior.Strict);
+        tenants
+            .SetupSequence(t => t.GetByIdAsync(TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(activeTenant)
+            .ReturnsAsync(offboarded);
+
+        Mock<IPlatformAuditRepository> audit = new(MockBehavior.Strict);
+        TenantSuspendCommandService suspend = new(tenants.Object, audit.Object, clock);
+        TenantCatalogMigrationOrchestrator sut = new(
+            migrations,
+            tenants.Object,
+            suspend,
+            CreateDefaultProjectionRefresh(),
+            CreateDefaultVerificationProbe(),
+            audit.Object,
+            clock);
+
+        TenantCatalogMigrationCommandOutcome outcome =
+            await sut.AcknowledgeCatalogAttachDetachAsync(TenantId, "admin", "Admin", CancellationToken.None);
+
+        Assert.Equal(TenantCatalogMigrationCommandOutcome.InErasureQuarantine, outcome);
+
+        TenantCatalogMigrationRecord? record =
+            await migrations.GetActiveByTenantIdAsync(TenantId, CancellationToken.None);
+        Assert.Equal(TenantCatalogMigrationStage.CatalogAttachDetach, record?.Stage);
         audit.Verify(
             a => a.AppendAsync(
                 It.Is<PlatformAuditEvent>(e => e.EventType == AuditEventTypes.TenantCatalogMigrationCatalogAttachAcknowledged),

@@ -23,6 +23,12 @@ public sealed partial class TenantCatalogMigrationOrchestrator
         if (active.Stage != TenantCatalogMigrationStage.ScopeFreeze)
             return TenantCatalogMigrationCommandOutcome.WrongStage;
 
+        TenantRecord? tenantBeforeStageUpdate =
+            await _tenantRepository.GetByIdAsync(tenantId, cancellationToken).ConfigureAwait(false);
+
+        if (tenantBeforeStageUpdate?.OffboardedUtc is not null)
+            return TenantCatalogMigrationCommandOutcome.InErasureQuarantine;
+
         await _migrationRepository
             .UpdateStageAsync(active.MigrationId, TenantCatalogMigrationStage.CatalogAttachDetach, cancellationToken)
             .ConfigureAwait(false);
