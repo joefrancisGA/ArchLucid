@@ -244,6 +244,11 @@ public sealed class HostedAzureManagementPostReadClient(
                 ex,
                 "Hosted Azure extractor policy compliance query failed for subscription {SubscriptionId}.",
                 subscriptionId);
+
+            if (records.Count == 0)
+            {
+                return CreateEmptyPolicyCompliance(scopeDescriptor, collectionTimestampUtc, records);
+            }
         }
 
         return new HostedAzurePolicyComplianceDocument

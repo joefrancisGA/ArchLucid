@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-13 seed hunt (seed→hit): `cloud-extractors` — promoted `HostedAzureManagementPostReadClient.QueryPolicyComplianceAsync`; reachable first-page Policy Insights bodies that were HTTP 200 but invalid JSON were caught and returned the success `ReaderNote` (“aligns with RBAC Reader”) with zero rows instead of the empty-collection export note used for HTTP/authorization failures; return `CreateEmptyPolicyCompliance` when `records.Count == 0` after non-cancellation failures; regressions `QueryPolicyComplianceAsync_uses_empty_collection_reader_note_when_first_page_body_is_invalid_json` and `QueryPolicyComplianceAsync_retains_records_when_later_page_body_is_invalid_json`; AWS/GCP extractor tests passed 58/58; Azure extractor scope passed 167/167.
+
 2026-10-13 seed hunt (seed→hit): `cloud-extractors` — promoted `HostedAzureManagementPostReadClient.QueryPolicyComplianceAsync`; reachable non-success HTTP on a follow-up Policy Insights `@odata.nextLink` page returned `CreateEmptyPolicyCompliance` with a reader note claiming empty records even when policy rows were already collected; stop pagination and return the normal success document when `records.Count > 0`; regression `QueryPolicyComplianceAsync_retains_records_with_accurate_reader_note_when_later_page_fails`; AWS/GCP extractor tests passed 58/58; Azure extractor scope passed 165/165.
 
 2026-10-13 thorough hunt (hit): `ui-help-docs` — promoted `normalizeDocIndexUrlForDedupe` / `decodeDocIndexPathForDedupe`; reachable doc-index rows whose paths differed only by percent-encoding hex case (`%2F` vs `%2f`) bypassed `claimedUrls` dedupe and rendered duplicate cards; lowercase percent escapes before `decodeURI`; cheap-disproof closed four other seeded `(candidate)` rows (http vs https merge key, post-remount empty warning persistence, whitespace-only `q` URL vs filter); regressions `does not duplicate fetched doc links when percent-encoded hex digits differ only by case`, `does not duplicate fetched external doc links when http and https target the same host and path`, and tightened `refetches the doc-index after remount when the prior response was an empty array`; 49 scoped `HelpDocsClient` vitest tests passed.
@@ -31773,6 +31775,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ## Zone: cloud-extractors
 
+2026-10-13 seed hunt (seed→hit): promoted Policy Insights first-page invalid JSON reader note; success note on zero rows after parse failure; `CreateEmptyPolicyCompliance` when `records.Count == 0` in catch; regressions for first-page invalid JSON note and follow-up invalid JSON partial retain; Azure scope 167/167; AWS/GCP 58/58.
+
 2026-10-13 seed hunt (seed→hit): promoted Policy Insights follow-up HTTP failure; `CreateEmptyPolicyCompliance` mislabeled partial rows as empty; break when `records.Count > 0`; regression `QueryPolicyComplianceAsync_retains_records_with_accurate_reader_note_when_later_page_fails`; Azure scope 165/165; AWS/GCP 58/58.
 
 2026-10-13 seed hunt (seed→hit): promoted Defender secureScores follow-up invalid JSON; parse throw dropped prior best score; `TryParseArmPaginationPageAsync` rolled out to remaining ARM list loops; regression `ListSubscriptionDefenderSummariesAsync_retains_best_score_when_later_page_body_is_invalid_json`; Azure scope 164/164; AWS/GCP 58/58.
@@ -31884,11 +31888,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** aws extractor; gcp extractor; azure extractor
 - **paths:** ArchLucid.Integrations.AwsExtractor/; ArchLucid.Integrations.GcpExtractor/; ArchLucid.Integrations.AzureExtractor/
 - **test-filter:** FullyQualifiedName~AwsExtractor|FullyQualifiedName~GcpExtractor|FullyQualifiedName~AzureExtractor
-- **hunts:** 137
-- **bugs-found:** 84
+- **hunts:** 138
+- **bugs-found:** 85
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-13
-- **last-bug:** 2026-10-13 — Policy compliance follow-up HTTP failure mislabeled partial rows as empty
+- **last-bug:** 2026-10-13 — Policy compliance invalid JSON used success reader note on zero rows
 - **related-pd-tb:** none
 - **code-changed-since:** 1
 
@@ -31916,6 +31920,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ### Hypotheses
 
+- [x] (proven) `HostedAzureManagementPostReadClient.QueryPolicyComplianceAsync` — reachable first-page Policy Insights bodies that were HTTP 200 but invalid JSON were caught and returned the success `ReaderNote` with zero rows instead of the empty-collection export note used for HTTP failures — **hit 2026-10-13 seed hunt:** return `CreateEmptyPolicyCompliance` when `records.Count == 0` after non-cancellation failures; regressions `QueryPolicyComplianceAsync_uses_empty_collection_reader_note_when_first_page_body_is_invalid_json` and `QueryPolicyComplianceAsync_retains_records_when_later_page_body_is_invalid_json`.
 - [x] (proven) `HostedAzureManagementPostReadClient.QueryPolicyComplianceAsync` — reachable non-success HTTP on a follow-up Policy Insights `@odata.nextLink` page returned `CreateEmptyPolicyCompliance` with a reader note claiming empty records even when policy rows were already collected from earlier pages — **hit 2026-10-13 seed hunt:** stop pagination and return the normal success document when `records.Count > 0`; regression `QueryPolicyComplianceAsync_retains_records_with_accurate_reader_note_when_later_page_fails`.
 - [x] (proven) `GetOnlyHostedAzureArmReadClient.ListSubscriptionDefenderSummariesAsync` — reachable follow-up secureScores `nextLink` pages that were HTTP 200 but invalid JSON caused `JsonDocument.ParseAsync` to throw and failed the hosted extract instead of returning the best score already observed across prior pages — **hit 2026-10-13 seed hunt:** `TryParseArmPaginationPageAsync` stops pagination when a partial aggregate exists; regression `ListSubscriptionDefenderSummariesAsync_retains_best_score_when_later_page_body_is_invalid_json`.
 - [x] (proven) `GetOnlyHostedAzureArmReadClient.ListSubscriptionResourcesAsync` — reachable follow-up subscription ARM `nextLink` pages that were HTTP 200 but invalid JSON caused `JsonDocument.ParseAsync` to throw and failed the hosted extract instead of returning resource rows already collected — **hit 2026-10-13 seed hunt:** `TryParseArmPaginationPageAsync` stops pagination when prior rows exist; regression `ListSubscriptionResourcesAsync_retains_resources_when_later_page_body_is_invalid_json`.
