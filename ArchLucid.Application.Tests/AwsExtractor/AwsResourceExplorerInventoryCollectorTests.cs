@@ -149,6 +149,43 @@ public sealed class AwsResourceExplorerInventoryCollectorTests
     }
 
     [Fact]
+    public async Task CollectAsync_retains_resources_when_max_pagination_limit_reached()
+    {
+        Mock<IAmazonResourceExplorer2> explorerClient = new();
+        int requestCount = 0;
+
+        explorerClient
+            .Setup(c => c.SearchAsync(It.IsAny<SearchRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(() =>
+            {
+                int page = Interlocked.Increment(ref requestCount);
+
+                return new SearchResponse
+                {
+                    Resources =
+                    [
+                        new Resource
+                        {
+                            Arn = $"arn:aws:ec2:us-east-1:123456789012:vpc/vpc-{page}",
+                            ResourceType = "AWS::EC2::VPC"
+                        }
+                    ],
+                    NextToken = $"page-{page}"
+                };
+            });
+
+        List<AwsInventoryResourceEntry> resources = await AwsResourceExplorerInventoryCollector.CollectAsync(
+            explorerClient.Object,
+            "us-east-1",
+            CancellationToken.None);
+
+        requestCount.Should().Be(64);
+        resources.Should().HaveCount(64);
+        resources[0].Name.Should().Contain("vpc-1");
+        resources[^1].Name.Should().Contain("vpc-64");
+    }
+
+    [Fact]
     public async Task CollectAsync_retains_resources_when_next_token_repeats()
     {
         const string repeatingToken = "repeat-token";

@@ -36,8 +36,7 @@ internal static class AwsResourceExplorerInventoryCollector
 
             if (requestCount > MaxPaginationRequests)
             {
-                throw new InvalidOperationException(
-                    $"Hosted AWS extractor stopped Resource Explorer listing after {MaxPaginationRequests} pages.");
+                break;
             }
 
             SearchResponse response = await explorerClient
