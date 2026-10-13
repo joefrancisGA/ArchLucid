@@ -129,6 +129,40 @@ public sealed class UserInvitationEmailNotifierTests
     }
 
     [SkippableFact]
+    public async Task TrySendInvitationAsync_omits_user_info_from_plain_http_url_in_personal_message()
+    {
+        EmailMessage? sentMessage = null;
+        Mock<IEmailProvider> email = new();
+        email
+            .Setup(x => x.SendAsync(It.IsAny<EmailMessage>(), It.IsAny<CancellationToken>()))
+            .Callback<EmailMessage, CancellationToken>((message, _) => sentMessage = message)
+            .Returns(Task.CompletedTask);
+
+        UserInvitationEmailNotifier sut = new(
+            email.Object,
+            BuildOptions(new EmailNotificationOptions { ProductDisplayName = "Prod" }),
+            NullLogger<UserInvitationEmailNotifier>.Instance);
+
+        const string personalMessage =
+            "Use this link: https://user:secret@ops.example.test/architecture/reviews/run-abc";
+
+        await sut.TrySendInvitationAsync(
+            "invitee@example.com",
+            AcceptUrl,
+            "Reader",
+            14,
+            personalMessage,
+            CancellationToken.None);
+
+        sentMessage.Should().NotBeNull();
+        const string expectedUrl = "https://ops.example.test/architecture/reviews/run-abc";
+        sentMessage!.HtmlBody.Should().Contain(expectedUrl);
+        sentMessage.TextBody.Should().Contain(expectedUrl);
+        sentMessage.HtmlBody.Should().NotContain("user:secret@");
+        sentMessage.TextBody.Should().NotContain("user:secret@");
+    }
+
+    [SkippableFact]
     public async Task TrySendInvitationAsync_omits_user_info_from_personal_message_markdown_link_urls()
     {
         EmailMessage? sentMessage = null;

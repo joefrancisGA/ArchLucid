@@ -26,6 +26,9 @@ public sealed class UserInvitationEmailNotifier(
     private static readonly System.Text.RegularExpressions.Regex PersonalMessageMarkdownLinkRegex =
         new(@"\[(?<label>[^\]]+)\]\((?<url>[^)]+)\)", System.Text.RegularExpressions.RegexOptions.Compiled);
 
+    private static readonly System.Text.RegularExpressions.Regex PersonalMessageEmbeddedHttpUrlRegex =
+        new(@"https?://[^\s<>""'\)\]]+", System.Text.RegularExpressions.RegexOptions.Compiled | System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+
     private readonly IEmailProvider _emailProvider =
         emailProvider ?? throw new ArgumentNullException(nameof(emailProvider));
 
@@ -47,13 +50,14 @@ public sealed class UserInvitationEmailNotifier(
         ArgumentException.ThrowIfNullOrWhiteSpace(acceptUrl);
 
         string normalizedAcceptUrl = EmailBrandingUrls.SanitizeOperatorAbsoluteUrl(acceptUrl.Trim());
+        string? normalizedPersonalMessage = NormalizePersonalMessage(personalMessage);
 
         EmailNotificationOptions emailOptions = _emailOptionsMonitor.CurrentValue;
         string productName = EmailProductDisplayNameResolver.Resolve(emailOptions);
 
         string subject = $"You're invited to {productName}";
-        string text = BuildTextBody(productName, normalizedAcceptUrl, appRole, expiryDays, personalMessage);
-        string html = BuildHtmlBody(productName, normalizedAcceptUrl, appRole, expiryDays, personalMessage);
+        string text = BuildTextBody(productName, normalizedAcceptUrl, appRole, expiryDays, normalizedPersonalMessage);
+        string html = BuildHtmlBody(productName, normalizedAcceptUrl, appRole, expiryDays, normalizedPersonalMessage);
 
         EmailMessage message = new()
         {
@@ -191,6 +195,21 @@ public sealed class UserInvitationEmailNotifier(
         }
 
         return EmailBrandingUrls.SanitizeOperatorAbsoluteUrl(trimmed);
+    }
+
+    private static string? NormalizePersonalMessage(string? personalMessage)
+    {
+        if (string.IsNullOrWhiteSpace(personalMessage))
+            return null;
+
+        return SanitizeEmbeddedHttpUrls(personalMessage.Trim());
+    }
+
+    private static string SanitizeEmbeddedHttpUrls(string message)
+    {
+        return PersonalMessageEmbeddedHttpUrlRegex.Replace(
+            message,
+            static match => SanitizePersonalMessageLinkUrl(match.Value));
     }
 
     private static string BuildIdempotencyKey(string displayEmail, string acceptUrl)

@@ -1,16 +1,3 @@
-{"at":"2026-09-13T18:31:43.3710085Z","zoneId":"tenant-data-export","outcome":"seed-only"}
-{"at":"2026-09-13T18:31:48.2924021Z","zoneId":"persistence-identity","outcome":"seed-only"}
-{"at":"2026-09-13T18:31:53.4189082Z","zoneId":"topology-proposal-merge","outcome":"hit"}
-{"at":"2026-09-13T18:31:58.1334119Z","zoneId":"context-ingestion","outcome":"hit"}
-{"at":"2026-09-13T18:32:03.173425Z","zoneId":"core-costing","outcome":"hit"}
-{"at":"2026-09-13T18:32:08.2416929Z","zoneId":"tenant-data-export","outcome":"seed-only"}
-{"at":"2026-09-13T18:32:13.7397049Z","zoneId":"persistence-identity","outcome":"seed-only"}
-{"at":"2026-09-13T18:32:18.6558009Z","zoneId":"topology-proposal-merge","outcome":"hit"}
-{"at":"2026-09-13T18:32:23.7016114Z","zoneId":"context-ingestion","outcome":"hit"}
-{"at":"2026-09-13T18:32:28.7751486Z","zoneId":"core-costing","outcome":"dry"}
-{"at":"2026-09-13T18:32:34.3052454Z","zoneId":"tenant-data-export","outcome":"seed-only"}
-{"at":"2026-09-13T18:32:39.1831265Z","zoneId":"persistence-identity","outcome":"seed-only"}
-{"at":"2026-09-13T18:32:44.3477776Z","zoneId":"topology-proposal-merge","outcome":"dry"}
 {"at":"2026-09-13T18:32:49.5521451Z","zoneId":"context-ingestion","outcome":"dry"}
 {"at":"2026-09-13T18:32:54.3882368Z","zoneId":"core-costing","outcome":"dry"}
 {"at":"2026-09-13T18:41:32.4902198Z","zoneId":"topology-proposal-merge","outcome":"hit"}
@@ -8419,3 +8406,4 @@
 {"at":"2026-10-13T18:08:48.4403229Z","zoneId":"notifications-pipeline","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-13T18:14:40.1537712Z","zoneId":"notifications-pipeline","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-13T18:25:35.3367756Z","zoneId":"notifications-pipeline","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-13T18:32:44.6917058Z","zoneId":"notifications-pipeline","outcome":"hit","productLine":"archlucid-shared"}
