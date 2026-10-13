@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-finding-from-detail";
 import {
   ASK_CITED_FINDINGS_SEMANTIC_SUPPORT_NOT_SEALED_COPY,
+  askCitedFindingBandIndexEntryFromOptionalBand,
   buildAskCitedFindingBandIndex,
   formatAskCitedFindingsSemanticSupportBandFootnote,
   resolveWeakestAskCitedSemanticSupportBand,
@@ -38,6 +39,27 @@ describe("ask-cited-findings-semantic-support-band", () => {
     ]);
 
     expect(index).toEqual([{ findingId: "dg-1", band: "Supported", bandStored: true }]);
+  });
+
+  it("askCitedFindingBandIndexEntryFromOptionalBand marks omitted band as not stored", () => {
+    expect(askCitedFindingBandIndexEntryFromOptionalBand("f-1", null)).toEqual({
+      findingId: "f-1",
+      band: null,
+      bandStored: false,
+    });
+    expect(askCitedFindingBandIndexEntryFromOptionalBand("f-1", undefined)).toEqual({
+      findingId: "f-1",
+      band: null,
+      bandStored: false,
+    });
+  });
+
+  it("askCitedFindingBandIndexEntryFromOptionalBand keeps a stored band", () => {
+    expect(askCitedFindingBandIndexEntryFromOptionalBand("f-1", "Unsupported")).toEqual({
+      findingId: "f-1",
+      band: "Unsupported",
+      bandStored: true,
+    });
   });
 
   it("uses omission copy when cited band was not stored", () => {
