@@ -115,12 +115,9 @@ public sealed class AuthorityCommittedPipelineFinalizer(
         string publicBaseUrl = NormalizePublicSiteBaseUrl(_publicSiteOptions.CurrentValue.BaseUrl);
         Guid? previousRunId = await TryResolvePreviousCommittedGoldenRunIdAsync(scope, run, ct);
         object[] findingLinks = BuildAuthorityRunCompletedFindingLinks(run.RunId, findingsSnapshot.Findings, publicBaseUrl);
-        string? manifestHash = await RunIntegrationEventManifestHashResolver.TryResolveVerifiedManifestHashAsync(
-            run.RunId,
-            scope,
-            _authorityQueryService,
-            _manifestHashService,
-            ct);
+        string manifestHash = RunIntegrationEventManifestHashResolver.ResolvePipelineManifestHashForIntegrationEvent(
+            manifest,
+            _manifestHashService);
         IntegrationEventCareerPostureFields careerPosture = IntegrationEventCareerHonestyPresenter.Resolve(run);
         object integrationPayload = new
         {

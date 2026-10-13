@@ -223,7 +223,7 @@ async function readRunLastFailureReasonViaProxy(
   runId: string,
 ): Promise<string | undefined> {
   const pageOrigin = new URL(operationUrl).origin;
-  const reviewUrl = `${pageOrigin}/api/proxy/v1/authority/runs/${encodeURIComponent(runId)}`;
+  const reviewUrl = `${pageOrigin}/api/proxy/v1/authority/reviews/${encodeURIComponent(runId)}`;
   const response = await page.evaluate(async (url) => {
     const res = await fetch(url, { headers: { Accept: "application/json" } });
     return { status: res.status, body: await res.text() };
