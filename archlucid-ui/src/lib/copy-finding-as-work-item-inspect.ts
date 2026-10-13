@@ -24,6 +24,7 @@ import {
   na,
   type FindingWorkItemBuildInput,
   type WorkItemClipboardFormat,
+  workItemStoredText,
 } from "./copy-finding-as-work-item-types";
 
 function coverageHonestyLineForExport(input: FindingWorkItemBuildInput): string | null {
@@ -65,26 +66,33 @@ function findingHeading(input: FindingWorkItemBuildInput): string {
   return parts.join(" — ") || findingWorkItemDefaultTitle(input.productLineId);
 }
 
-function ruleSummary(decisionRuleName: string | null, decisionRuleId: string | null): string {
-  const name = decisionRuleName?.trim();
-  const id = decisionRuleId?.trim();
+function ruleSummary(
+  decisionRuleName: string | null | undefined,
+  decisionRuleId: string | null | undefined,
+): string {
+  const nameMissing = decisionRuleName === null || decisionRuleName === undefined;
+  const idMissing = decisionRuleId === null || decisionRuleId === undefined;
 
-  const nameOk = name !== undefined && name.length > 0;
-  const idOk = id !== undefined && id.length > 0;
+  if (nameMissing && idMissing) {
+    return "Decision rule was not stored.";
+  }
 
-  if (nameOk && idOk) {
+  const name = nameMissing ? "" : decisionRuleName.trim();
+  const id = idMissing ? "" : decisionRuleId.trim();
+
+  if (name.length === 0 && id.length === 0) {
+    return "";
+  }
+
+  if (name.length > 0 && id.length > 0) {
     return `${name} (${id})`;
   }
 
-  if (nameOk) {
+  if (name.length > 0) {
     return name;
   }
 
-  if (idOk) {
-    return id;
-  }
-
-  return "Not available";
+  return id;
 }
 
 /**
@@ -98,11 +106,11 @@ export function buildInspectFindingWorkItemBody(format: WorkItemClipboardFormat,
   const inspectUrl = `${origin}${getFindingEvidenceTraceHref(input.runId, input.findingId)}`;
   const heading = findingHeading(input);
 
-  const whatFlagged = na(input.description);
+  const whatFlagged = workItemStoredText(input.description, "Description was not stored.");
 
   const whyItMatters = na(input.impactedAreaLabel);
-  const reco = na(input.recommendedAction);
-  const severity = na(input.severityLabel);
+  const reco = workItemStoredText(input.recommendedAction, "Recommended action was not stored.");
+  const severity = workItemStoredText(input.severityLabel, "Severity was not stored.");
   const ruleLine = ruleSummary(input.decisionRuleName, input.decisionRuleId);
   const trustLine = formatFindingTrustExportLine(input);
   const trustJson = findingTrustExportJsonFields(input);
@@ -117,7 +125,9 @@ export function buildInspectFindingWorkItemBody(format: WorkItemClipboardFormat,
   const coverageHonestyJson = coverageHonestyJsonFields(input);
 
   const evidenceBlock =
-    input.evidenceExcerpts.length > 0 ? input.evidenceExcerpts.map((e) => `- ${na(e)}`).join("\n") : "- Not available";
+    input.evidenceExcerpts.length > 0
+      ? input.evidenceExcerpts.map((e) => `- ${e}`).join("\n")
+      : "- Evidence excerpt was not stored.";
 
   if (format === "json") {
     return JSON.stringify(
@@ -142,7 +152,8 @@ export function buildInspectFindingWorkItemBody(format: WorkItemClipboardFormat,
         ...coverageHonestyJson,
         whatWasFlagged: whatFlagged,
         whyItMatters,
-        evidence: input.evidenceExcerpts.length > 0 ? input.evidenceExcerpts : ["Not available"],
+        evidence:
+          input.evidenceExcerpts.length > 0 ? input.evidenceExcerpts : ["Evidence excerpt was not stored."],
         links: {
           review: base,
           finding: explainUrl,
@@ -192,8 +203,8 @@ export function buildInspectFindingWorkItemBody(format: WorkItemClipboardFormat,
       "",
       "*Evidence*",
       ...(input.evidenceExcerpts.length > 0
-        ? input.evidenceExcerpts.map((e) => `* ${na(e)}`)
-        : ["* Not available"]),
+        ? input.evidenceExcerpts.map((e) => `* ${e}`)
+        : ["* Evidence excerpt was not stored."]),
       "",
       "*Links*",
       `* (${explainUrl}|${findingWorkItemExplainPageLinkLabel(input.productLineId)})`,
@@ -206,11 +217,10 @@ export function buildInspectFindingWorkItemBody(format: WorkItemClipboardFormat,
   if (format === "serviceNowText") {
     const evidenceLines =
       input.evidenceExcerpts.length > 0
-        ? input.evidenceExcerpts.map((e, index) => `${index + 1}. ${na(e)}`)
-        : ["1. Not available"];
+        ? input.evidenceExcerpts.map((e, index) => `${index + 1}. ${e}`)
+        : ["1. Evidence excerpt was not stored."];
 
-    const remediationStep =
-      reco !== "Not available" ? reco : "No recommended action recorded for this finding.";
+    const remediationStep = reco;
     const descriptionLines = [`Severity: ${severity}`];
 
     if (trustLine !== null) {

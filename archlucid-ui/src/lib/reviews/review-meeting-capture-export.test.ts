@@ -4,6 +4,7 @@ import {
   PACKAGE_PRINT_MEETING_CAPTURE_HEADING,
   REVIEW_MEETING_CAPTURE_DISCLAIMER,
   buildReviewMeetingCaptureEntries,
+  buildReviewMeetingCaptureMetaParts,
   formatReviewMeetingCapturePlainText,
   presenterAssertedQuestionLabel,
   resolveReviewMeetingCaptureEntries,
@@ -34,7 +35,31 @@ describe("review-meeting-capture-export (PC-09 optional)", () => {
     expect(entries[0]?.questionLabel).toBe("encryption-at-rest");
     expect(entries[0]?.answer).toBe("Yes");
     expect(entries[0]?.responderLabel).toBe("Room");
+    expect(entries[0]?.recordedUtc).toBe("2026-08-01T12:00:00Z");
     expect(entries[0]?.recordedAtLabel).toBeTruthy();
+  });
+
+  it("labels omitted responder and recorded time without treating empty strings as missing (P-06–P-07)", () => {
+    const entries = buildReviewMeetingCaptureEntries([
+      {
+        key: "answer.latency",
+        value: "Yes",
+        responderLabel: null,
+        recordedUtc: null,
+      },
+      {
+        key: "answer.owner",
+        value: "Team",
+        responderLabel: "",
+        recordedUtc: "",
+      },
+    ]);
+
+    expect(buildReviewMeetingCaptureMetaParts(entries[0]!)).toEqual([
+      "Responder was not stored.",
+      "Answer recorded time was not stored.",
+    ]);
+    expect(buildReviewMeetingCaptureMetaParts(entries[1]!)).toEqual([]);
   });
 
   it("filters presenter answers from transparency trail", () => {
@@ -57,6 +82,7 @@ describe("review-meeting-capture-export (PC-09 optional)", () => {
         questionLabel: "latency",
         answer: "Yes",
         responderLabel: "Room",
+        recordedUtc: "2026-08-01T12:00:00Z",
         recordedAtLabel: "Aug 1, 2026",
       },
     ]);

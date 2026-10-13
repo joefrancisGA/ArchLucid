@@ -118,8 +118,8 @@ describe("buildRunDetailFirstScreenProofSummary", () => {
     expect(summary.governedCoverageLabel).toBe("8 of 10 evidence-backed (80.0%)");
   });
 
-  it("handles null governedPercentage gracefully", () => {
-    const summary = buildRunDetailFirstScreenProofSummary({
+  it("labels null governed counts and percentage without printing 0 or n/a (P-10)", () => {
+    const nullPercentage = buildRunDetailFirstScreenProofSummary({
       governedFindingCoverage: {
         isAvailable: true,
         governedCount: 0,
@@ -129,7 +129,21 @@ describe("buildRunDetailFirstScreenProofSummary", () => {
       },
     });
 
-    expect(summary.governedCoverageLabel).toBe("0 of 5 evidence-backed (n/a)");
+    expect(nullPercentage.governedCoverageLabel).toBe(
+      "0 of 5 evidence-backed (Governed percentage was not stored.)",
+    );
+
+    const nullGovernedCount = buildRunDetailFirstScreenProofSummary({
+      governedFindingCoverage: {
+        isAvailable: true,
+        governedCount: null,
+        totalDecisionGradeCount: 5,
+        governedPercentage: 80,
+        advisoryCount: 5,
+      },
+    });
+
+    expect(nullGovernedCount.governedCoverageLabel).toBe("Governed count was not stored.");
   });
 
   it("uses governed vocabulary when asserted transparency trail is empty (FC-13)", () => {

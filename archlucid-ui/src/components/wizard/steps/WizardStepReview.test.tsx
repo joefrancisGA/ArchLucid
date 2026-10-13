@@ -80,6 +80,43 @@ describe("WizardStepReview", () => {
     expect(advancedSection?.textContent).toContain("0 attached");
   });
 
+  it("distinguishes missing assumptions, prior manifest, and policy references from stored empty values (P-17–P-19)", () => {
+    const { unmount } = render(
+      <DirectWizardFormProvider
+        values={{
+          assumptions: null,
+          priorManifestVersion: null,
+          policyReferences: null,
+        }}
+      >
+        <WizardStepReview />
+      </DirectWizardFormProvider>,
+    );
+
+    expect(screen.getByText("Assumptions were not stored.")).toBeInTheDocument();
+    expect(screen.getByText("Prior manifest was not stored.")).toBeInTheDocument();
+    expect(screen.getByText("Policy references were not stored.")).toBeInTheDocument();
+    unmount();
+
+    render(
+      <DirectWizardFormProvider
+        values={{
+          assumptions: [],
+          priorManifestVersion: "",
+          policyReferences: [],
+        }}
+      >
+        <WizardStepReview />
+      </DirectWizardFormProvider>,
+    );
+
+    expect(screen.queryByText("Assumptions were not stored.")).not.toBeInTheDocument();
+    expect(screen.getByText("No prior manifest recorded")).toBeInTheDocument();
+
+    const advancedSection = screen.getByRole("heading", { name: "Advanced" }).closest("section");
+    expect(advancedSection?.textContent).toContain("None recorded on this draft");
+  });
+
   it("distinguishes missing declarations and capabilities from stored empty lists", () => {
     const { unmount } = render(
       <DirectWizardFormProvider values={{ infrastructureDeclarations: null, requiredCapabilities: null }}>

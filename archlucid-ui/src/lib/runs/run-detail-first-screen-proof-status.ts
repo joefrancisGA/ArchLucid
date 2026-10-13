@@ -113,13 +113,23 @@ function governedCoverageLabel(
     return "Not available";
   }
 
-  const governed = coverage.governedCount ?? 0;
-  const total = coverage.totalDecisionGradeCount ?? 0;
+  const governedCount = coverage.governedCount;
+  const totalCount = coverage.totalDecisionGradeCount;
   const pct = coverage.governedPercentage;
-  const pctLabel = typeof pct === "number" ? `${pct.toFixed(1)}%` : "n/a";
   const noun = assertedTrailEmpty ? "governed" : "evidence-backed";
 
-  return `${governed} of ${total} ${noun} (${pctLabel})`;
+  if (governedCount === null || governedCount === undefined) {
+    return "Governed count was not stored.";
+  }
+
+  if (totalCount === null || totalCount === undefined) {
+    return "Decision-grade count was not stored.";
+  }
+
+  const pctLabel =
+    pct === null || pct === undefined ? "Governed percentage was not stored." : `${pct.toFixed(1)}%`;
+
+  return `${governedCount} of ${totalCount} ${noun} (${pctLabel})`;
 }
 
 function buildWhySafeToSendBullets(

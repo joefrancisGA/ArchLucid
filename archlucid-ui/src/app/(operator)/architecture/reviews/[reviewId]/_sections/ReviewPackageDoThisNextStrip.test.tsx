@@ -173,6 +173,48 @@ vi.mock("@/components/reviews/WorkspaceAiAvailabilityPanel", () => ({
 }));
 
 describe("ReviewPackageDoThisNextStrip", () => {
+  it("labels a missing review title on finalized packages without saying This review (P-12)", () => {
+    const { rerender } = render(
+      <ReviewPackageDoThisNextStrip
+        runId="run-1"
+        hasGoldenManifest={true}
+        commitBlockedReason={null}
+        sessionAiReadiness={readySessionAiReadiness}
+        reviewTitle={null}
+        next={{
+          kind: "send-to-sponsor",
+          sentence: "Share the package.",
+          actionLabel: "Share package",
+          href: "/architecture/reviews/run-1/print",
+        }}
+      />,
+    );
+
+    expect(screen.getByTestId("review-package-sponsor-read-first")).toHaveTextContent(
+      "Review title was not stored.",
+    );
+    expect(screen.getByTestId("review-package-sponsor-read-first")).not.toHaveTextContent("This review");
+
+    rerender(
+      <ReviewPackageDoThisNextStrip
+        runId="run-1"
+        hasGoldenManifest={true}
+        commitBlockedReason={null}
+        sessionAiReadiness={readySessionAiReadiness}
+        reviewTitle=""
+        next={{
+          kind: "send-to-sponsor",
+          sentence: "Share the package.",
+          actionLabel: "Share package",
+          href: "/architecture/reviews/run-1/print",
+        }}
+      />,
+    );
+
+    expect(screen.getByTestId("review-package-sponsor-read-first")).toHaveTextContent("Reviewed:");
+    expect(screen.getByTestId("review-package-sponsor-read-first")).not.toHaveTextContent("This review");
+  });
+
   it("renders sentence and link CTA", () => {
     render(
       <ReviewPackageDoThisNextStrip

@@ -218,13 +218,13 @@ export function graphBuyerTrailMetadataLines(
     }
 
     if (lower === "impact" || lower === "decisionimpact") {
-      summaryLines.push({ label: "Decision impact", value: value.length > 0 ? value : " — " });
+      summaryLines.push({ label: "Decision impact", value });
 
       continue;
     }
 
     if (lower === "nextaction" || lower === "nextsteps") {
-      summaryLines.push({ label: "Next action", value: value.length > 0 ? value : " — " });
+      summaryLines.push({ label: "Next action", value });
 
       continue;
     }
@@ -235,7 +235,7 @@ export function graphBuyerTrailMetadataLines(
       lower === "isblocking" ||
       lower === "blocking"
     ) {
-      summaryLines.push({ label: "Blocking status", value: value.length > 0 ? value : " — " });
+      summaryLines.push({ label: "Blocking status", value });
 
       continue;
     }

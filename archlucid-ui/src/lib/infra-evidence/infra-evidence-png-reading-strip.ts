@@ -26,28 +26,33 @@ export function buildInfraEvidencePngReadingStripLines(
   input: InfraEvidencePngReadingStripInput,
 ): readonly string[] {
   const lines: string[] = [];
-  const mode = input.mode?.trim() ?? "";
 
-  if (mode === "dataFlow") {
+  if (input.mode === null || input.mode === undefined) {
+    lines.push("Diagram mode was not stored.");
+  } else if (input.mode === "dataFlow") {
     lines.push("This diagram shows what may connect. It is not observed traffic.");
-  } else if (mode === "dataArchitecture") {
+  } else if (input.mode === "dataArchitecture") {
     lines.push("This diagram shows what stores data.");
   }
 
-  if (hasObservedEdges(input.outline)) {
+  if (input.outline === null || input.outline === undefined) {
+    lines.push("Diagram outline was not stored.");
+  } else if (hasObservedEdges(input.outline)) {
     lines.push(INFRA_EVIDENCE_DIAGRAM_LEGEND_OBSERVED);
   }
 
-  if (hasInfraEvidenceDeclaredDiagramEdges(input.outline ?? null)) {
-    lines.push(INFRA_EVIDENCE_DIAGRAM_LEGEND_DECLARED);
-  }
+  if (input.outline !== null && input.outline !== undefined) {
+    if (hasInfraEvidenceDeclaredDiagramEdges(input.outline)) {
+      lines.push(INFRA_EVIDENCE_DIAGRAM_LEGEND_DECLARED);
+    }
 
-  if (hasInfraEvidenceProbableDiagramEdges(input.outline ?? null)) {
-    lines.push(INFRA_EVIDENCE_DIAGRAM_LEGEND_PROBABLE);
-  }
+    if (hasInfraEvidenceProbableDiagramEdges(input.outline)) {
+      lines.push(INFRA_EVIDENCE_DIAGRAM_LEGEND_PROBABLE);
+    }
 
-  if (hasInfraEvidenceInferredDiagramEdges(input.outline ?? null)) {
-    lines.push(INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED);
+    if (hasInfraEvidenceInferredDiagramEdges(input.outline)) {
+      lines.push(INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED);
+    }
   }
 
   if (input.completenessWarnings.length > 0) {

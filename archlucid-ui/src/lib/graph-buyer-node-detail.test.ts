@@ -111,11 +111,26 @@ describe("graphBuyerTrailMetadataLines", () => {
       monitoringCadence: "Stored cadence",
     });
 
-    expect(missing.summaryLines).toContain({ label: "Risk area", value: "Risk area was not stored." });
-    expect(missing.summaryLines).toContain({ label: "Monitoring cadence", value: "Monitoring cadence was not stored." });
-    expect(empty.summaryLines).toContain({ label: "Risk area", value: "" });
-    expect(empty.summaryLines).toContain({ label: "Monitoring cadence", value: "" });
-    expect(stored.summaryLines).toContain({ label: "Risk area", value: "Stored risk" });
-    expect(stored.summaryLines).toContain({ label: "Monitoring cadence", value: "Stored cadence" });
+    expect(missing.summaryLines).toContainEqual({ label: "Risk area", value: "Risk area was not stored." });
+    expect(missing.summaryLines).toContainEqual({
+      label: "Monitoring cadence",
+      value: "Monitoring cadence was not stored.",
+    });
+    expect(empty.summaryLines).toContainEqual({ label: "Risk area", value: "" });
+    expect(empty.summaryLines).toContainEqual({ label: "Monitoring cadence", value: "" });
+    expect(stored.summaryLines).toContainEqual({ label: "Risk area", value: "Stored risk" });
+    expect(stored.summaryLines).toContainEqual({ label: "Monitoring cadence", value: "Stored cadence" });
+  });
+
+  it("preserves stored empty decision impact, next action, and blocking status (P-14–P-16)", () => {
+    const { summaryLines } = graphBuyerTrailMetadataLines({
+      decisionImpact: "",
+      nextAction: "",
+      blockingStatus: "",
+    });
+
+    expect(summaryLines).toContainEqual({ label: "Decision impact", value: "" });
+    expect(summaryLines).toContainEqual({ label: "Next action", value: "" });
+    expect(summaryLines).toContainEqual({ label: "Blocking status", value: "" });
   });
 });

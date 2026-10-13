@@ -31,11 +31,37 @@ describe("infra-evidence-png-reading-strip", () => {
   it("omits the data-flow job from network exports", () => {
     const lines = buildInfraEvidencePngReadingStripLines({
       mode: "network",
-      outline: null,
+      outline: { nodes: [], edges: [] },
       completenessWarnings: [],
     });
 
     expect(lines).not.toContain("This diagram shows what may connect. It is not observed traffic.");
+    expect(lines).not.toContain("Diagram outline was not stored.");
+  });
+
+  it("labels null outline and mode without treating empty edges as missing (P-08–P-09)", () => {
+    const nullOutline = buildInfraEvidencePngReadingStripLines({
+      mode: "dataFlow",
+      outline: null,
+      completenessWarnings: [],
+    });
+    expect(nullOutline).toContain("Diagram outline was not stored.");
+    expect(nullOutline).toContain("This diagram shows what may connect. It is not observed traffic.");
+
+    const emptyEdges = buildInfraEvidencePngReadingStripLines({
+      mode: "",
+      outline: { nodes: [], edges: [] },
+      completenessWarnings: [],
+    });
+    expect(emptyEdges).not.toContain("Diagram outline was not stored.");
+    expect(emptyEdges).not.toContain("Diagram mode was not stored.");
+
+    const nullMode = buildInfraEvidencePngReadingStripLines({
+      mode: null,
+      outline: { nodes: [], edges: [] },
+      completenessWarnings: [],
+    });
+    expect(nullMode).toContain("Diagram mode was not stored.");
   });
 
   it("includes a warning count and bounded human-readable warning titles", () => {
@@ -56,7 +82,7 @@ describe("infra-evidence-png-reading-strip", () => {
   it("does not claim that a data-flow line was observed traffic", () => {
     const lines = buildInfraEvidencePngReadingStripLines({
       mode: "dataFlow",
-      outline: null,
+      outline: { nodes: [], edges: [] },
       completenessWarnings: [],
     });
 
