@@ -92,6 +92,8 @@ public sealed class CorePackageCoverageBatchRc28fTests
     [InlineData("")]
     [InlineData("   ")]
     [InlineData("not-an-email")]
+    [InlineData("invitee@example.com\r\nBcc: injected@evil.test")]
+    [InlineData("user@contoso.com\nBcc: attacker@evil.test")]
     public void IdentityEmailNormalizer_TryNormalize_rejects_invalid_input(string? input)
     {
         bool ok = IdentityEmailNormalizer.TryNormalize(input, out string normalized, out string display);

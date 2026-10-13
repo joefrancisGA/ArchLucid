@@ -1,4 +1,5 @@
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Identity;
 using ArchLucid.Core.Notifications.Email;
 
 using Microsoft.Extensions.Logging;
@@ -49,6 +50,16 @@ public sealed class UserInvitationEmailNotifier(
         ArgumentException.ThrowIfNullOrWhiteSpace(displayEmail);
         ArgumentException.ThrowIfNullOrWhiteSpace(acceptUrl);
 
+        if (!IdentityEmailNormalizer.TryNormalize(displayEmail, out string normalizedMailbox, out string mailboxForDelivery))
+        {
+            if (_logger.IsEnabled(LogLevel.Warning))
+            {
+                _logger.LogWarning("Workspace invitation email skipped: invalid recipient mailbox.");
+            }
+
+            return false;
+        }
+
         string normalizedAcceptUrl = EmailBrandingUrls.SanitizeOperatorAbsoluteUrl(acceptUrl.Trim());
         string? normalizedPersonalMessage = NormalizePersonalMessage(personalMessage);
 
@@ -61,11 +72,11 @@ public sealed class UserInvitationEmailNotifier(
 
         EmailMessage message = new()
         {
-            To = displayEmail.Trim(),
+            To = mailboxForDelivery,
             Subject = subject,
             HtmlBody = html,
             TextBody = text,
-            IdempotencyKey = BuildIdempotencyKey(displayEmail, normalizedAcceptUrl),
+            IdempotencyKey = BuildIdempotencyKey(normalizedMailbox, normalizedAcceptUrl),
             Tags = new EmailMessageTags { TenantId = Guid.Empty, EventType = TemplateId }
         };
 

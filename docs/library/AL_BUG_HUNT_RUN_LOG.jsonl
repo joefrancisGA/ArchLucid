@@ -8393,3 +8393,5 @@
 {"at":"2026-10-13T18:39:45.6114706Z","zoneId":"notifications-pipeline","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-13T18:46:36.8673236Z","zoneId":"notifications-pipeline","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-13T18:53:03.5291041Z","zoneId":"notifications-pipeline","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-13T18:58:41.1309654Z","zoneId":"notifications-pipeline","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-13T19:07:37.0543615Z","zoneId":"notifications-pipeline","outcome":"hit","productLine":"archlucid-shared","paths":["@(ArchLucid.Notifications/,ArchLucid.Application/Notifications/,ArchLucid.Api/Controllers/Advisory/DigestSubscriptionsController.cs)"]}

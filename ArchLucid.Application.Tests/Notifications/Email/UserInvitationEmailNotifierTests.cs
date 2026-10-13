@@ -1,5 +1,6 @@
 using ArchLucid.Application.Notifications.Email;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Identity;
 using ArchLucid.Core.Notifications.Email;
 
 using FluentAssertions;
@@ -126,6 +127,36 @@ public sealed class UserInvitationEmailNotifierTests
         sentMessage.TextBody.Should().Contain(expectedAcceptUrl);
         sentMessage.HtmlBody.Should().NotContain("user:secret@");
         sentMessage.TextBody.Should().NotContain("user:secret@");
+    }
+
+    [SkippableFact]
+    public async Task TrySendInvitationAsync_rejects_recipient_mailbox_with_embedded_line_breaks()
+    {
+        EmailMessage? sentMessage = null;
+        Mock<IEmailProvider> email = new();
+        email
+            .Setup(x => x.SendAsync(It.IsAny<EmailMessage>(), It.IsAny<CancellationToken>()))
+            .Callback<EmailMessage, CancellationToken>((message, _) => sentMessage = message)
+            .Returns(Task.CompletedTask);
+
+        UserInvitationEmailNotifier sut = new(
+            email.Object,
+            BuildOptions(new EmailNotificationOptions { ProductDisplayName = "Prod" }),
+            NullLogger<UserInvitationEmailNotifier>.Instance);
+
+        bool sent = await sut.TrySendInvitationAsync(
+            "invitee@example.com\r\nBcc: injected@evil.test",
+            AcceptUrl,
+            "Reader",
+            14,
+            null,
+            CancellationToken.None);
+
+        sent.Should().BeFalse();
+        sentMessage.Should().BeNull();
+        email.Verify(
+            p => p.SendAsync(It.IsAny<EmailMessage>(), It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     [SkippableFact]

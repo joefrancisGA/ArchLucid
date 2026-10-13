@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-13 seed hunt (seed→hit): `notifications-pipeline` — promoted `UserInvitationEmailNotifier.TrySendInvitationAsync` recipient mailbox; embedded CRLF made `MailAddress` parse a smuggled `Bcc:` recipient so invitation mail could send off-inventory; `IdentityEmailNormalizer` rejects `\r`/`\n` before parse; notifier uses normalizer for `To` and idempotency key; regressions `TrySendInvitationAsync_rejects_recipient_mailbox_with_embedded_line_breaks` and Core `IdentityEmailNormalizer_TryNormalize_rejects_invalid_input`; 170 scoped notification/digest Application tests passed.
+
 2026-10-13 seed hunt (seed→hit): `notifications-pipeline` — promoted `UserInvitationEmailNotifier.TrySendInvitationAsync`; `acceptUrl` built from misconfigured `OperatorBaseUrl` userinfo reached invitation HTML/text CTAs; `SanitizeOperatorAbsoluteUrl` at dispatch; regression `TrySendInvitationAsync_omits_user_info_from_accept_url_in_message_bodies`; seeded five follow-on `(candidate)` rows; 164 scoped notification/digest Application tests passed.
 
 2026-10-13 seed hunt (seed→hit): `notifications-pipeline` — promoted `ExecDigestComposer.NormalizeBaseUrl`; userinfo in configured `OperatorBaseUrl` reached composed `DashboardUrl`/`SponsorValueReportUrl` consumed by board-pack markdown outside email sanitization; `TryNormalizeOperatorBaseAuthority`; regression `ComposeAsync_omits_user_info_from_operator_base_url_in_dashboard_link`; cheap-disproof closed scanner-unsubscribe and chatops DNS candidates; 164 scoped notification/digest Application tests passed.
@@ -31453,6 +31455,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ## Zone: notifications-pipeline
 
+2026-10-13 seed hunt (seed→hit): proved workspace invitation `displayEmail` with embedded CRLF smuggled alternate recipient via `MailAddress` parsing; `IdentityEmailNormalizer` rejects line breaks before parse; `UserInvitationEmailNotifier` routes `To`/idempotency through normalizer; regressions `TrySendInvitationAsync_rejects_recipient_mailbox_with_embedded_line_breaks` and Core normalizer theory rows; 170 scoped notification/digest Application tests passed.
+
 2026-10-13 seed hunt (seed→hit): proved trial conversion `TargetTier` CRLF reached `Welcome to {tier}` subjects; `EmailHeaderFragmentSanitizer` on converted tier label; regression `DispatchAsync_omits_line_breaks_from_converted_tier_in_subject`; 169 scoped notification/digest Application tests passed.
 
 2026-10-13 seed hunt (seed→hit): proved weekly sponsor `weekLabel` CRLF reached digest subject lines; shared `EmailHeaderFragmentSanitizer` for week labels and exec digest rehearsal prefix; regression `WeeklySponsorSummaryEmailDispatcher_omits_line_breaks_from_week_label_in_subject`; 168 scoped notification/digest Application tests passed.
@@ -31477,11 +31481,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** notifications; email dispatchers beyond weekly summary
 - **paths:** ArchLucid.Notifications/; ArchLucid.Application/Notifications/; ArchLucid.Api/Controllers/Advisory/DigestSubscriptionsController.cs
 - **test-filter:** FullyQualifiedName~Notifications|FullyQualifiedName~EmailDispatcher|FullyQualifiedName~DigestSubscriptionsController
-- **hunts:** 71
-- **bugs-found:** 54
+- **hunts:** 72
+- **bugs-found:** 55
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-13
-- **last-bug:** 2026-10-13 — Trial converted tier CRLF in subjects
+- **last-bug:** 2026-10-13 — Invitation recipient CRLF smuggling via MailAddress
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -31503,6 +31507,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `WeeklySponsorSummaryEmailDispatcher` / `WeeklySponsorReportEmailDispatcher` / `ExecDigestEmailDispatcher` — CRLF in `weekLabel` or `RehearsalSubjectPrefix` reached weekly email subjects while product display names were already sanitized — **hit 2026-10-13 seed hunt (seed→hit):** `EmailHeaderFragmentSanitizer` on subject fragments; regression `WeeklySponsorSummaryEmailDispatcher_omits_line_breaks_from_week_label_in_subject`.
 
 - [x] (proven) `TrialLifecycleEmailDispatcher.TryBuildPlan` (Converted) — CRLF in integration `TargetTier` reached `Welcome to {tier}` email subjects — **hit 2026-10-13 seed hunt (seed→hit):** `EmailHeaderFragmentSanitizer` on tier label; regression `DispatchAsync_omits_line_breaks_from_converted_tier_in_subject`.
+
+- [x] (proven) `UserInvitationEmailNotifier.TrySendInvitationAsync` / `IdentityEmailNormalizer` — CRLF in `displayEmail` let `MailAddress` parse a smuggled `Bcc:` recipient so invitation mail could send to an attacker-controlled mailbox — **hit 2026-10-13 seed hunt (seed→hit):** reject `\r`/`\n` in `IdentityEmailNormalizer` before parse; notifier uses normalizer for `To` and idempotency key; regressions `TrySendInvitationAsync_rejects_recipient_mailbox_with_embedded_line_breaks` and Core normalizer theory rows.
 
 - [ ] (candidate) `UserInvitationAdminService.BuildAcceptUrl` — concatenates trimmed `OperatorBaseUrl` without authority normalization; admin invite/list responses still expose raw `AcceptUrl` even when mail notifier sanitizes at send time (admin API zone; out of `notifications-pipeline` paths).
 - [x] (valid-no-repro) `BoardPackPdfBuilder.BuildPdfAsync` — raw `emailOptions.OperatorBaseUrl` passed into `ExecDigestComposer` — **cheap-disproof 2026-10-13 seed hunt:** `ExecDigestComposer.NormalizeBaseUrl` strips userinfo before dashboard/sponsor URLs are composed.

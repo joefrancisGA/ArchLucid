@@ -14,9 +14,16 @@ public static class IdentityEmailNormalizer
             return false;
         }
 
+        string trimmed = email.Trim();
+
+        if (ContainsSmtpHeaderInjectionCharacters(trimmed))
+        {
+            return false;
+        }
+
         try
         {
-            MailAddress parsed = new(email.Trim());
+            MailAddress parsed = new(trimmed);
 
             if (string.IsNullOrWhiteSpace(parsed.Address))
             {
@@ -32,5 +39,19 @@ public static class IdentityEmailNormalizer
         {
             return false;
         }
+    }
+
+    private static bool ContainsSmtpHeaderInjectionCharacters(string value)
+    {
+        foreach (char character in value)
+        {
+
+            if (character is '\r' or '\n')
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
