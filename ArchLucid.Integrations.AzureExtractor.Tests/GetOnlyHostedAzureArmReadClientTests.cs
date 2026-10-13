@@ -116,6 +116,57 @@ public sealed class GetOnlyHostedAzureArmReadClientTests
     }
 
     [Fact]
+    public async Task ListSubscriptionResourcesAsync_retains_resources_when_max_pagination_limit_reached()
+    {
+        const string subscriptionId = "11111111-1111-1111-1111-111111111111";
+        int requestCount = 0;
+
+        HttpMessageHandler handler = new RecordingHandler(
+            (_, _) =>
+            {
+                int page = Interlocked.Increment(ref requestCount);
+                string? nextLink = page < 64
+                    ? $"https://management.azure.com/subscriptions/{subscriptionId}/resources?api-version=2021-04-01&$skiptoken=page-{page}"
+                    : null;
+
+                string nextLinkJson = nextLink is null ? "null" : $"\"{nextLink}\"";
+
+                string body = $$"""
+                                  {
+                                    "value": [
+                                      {
+                                        "id": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa{{page}}",
+                                        "name": "sa{{page}}",
+                                        "type": "Microsoft.Storage/storageAccounts",
+                                        "location": "eastus"
+                                      }
+                                    ],
+                                    "nextLink": {{nextLinkJson}}
+                                  }
+                                  """;
+
+                return Task.FromResult(
+                    new HttpResponseMessage(HttpStatusCode.OK)
+                    {
+                        Content = new StringContent(body)
+                    });
+            });
+
+        HttpClient httpClient = new(handler);
+        GetOnlyHostedAzureArmReadClient client = new(httpClient, NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+
+        IReadOnlyList<HostedAzureArmResourceRecord> resources = await client.ListSubscriptionResourcesAsync(
+            "token-abc",
+            subscriptionId,
+            CancellationToken.None);
+
+        Assert.Equal(64, requestCount);
+        Assert.Equal(64, resources.Count);
+        Assert.Equal("sa1", resources[0].Name);
+        Assert.Equal("sa64", resources[63].Name);
+    }
+
+    [Fact]
     public async Task ListSubscriptionResourcesAsync_preserves_null_arm_tag_values_as_empty_strings()
     {
         HttpMessageHandler handler = new RecordingHandler(

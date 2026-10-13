@@ -60,8 +60,7 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
 
             if (requestCount > MaxPaginationRequests)
             {
-                throw new InvalidOperationException(
-                    $"Hosted Azure extractor stopped ARM resource listing after {MaxPaginationRequests} pages.");
+                break;
             }
 
             using HttpRequestMessage request = new(HttpMethod.Get, nextLink);
