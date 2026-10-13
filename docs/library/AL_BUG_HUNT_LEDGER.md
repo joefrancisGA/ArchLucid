@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-13 seed hunt (seed→hit): `application-tenancy-lifecycle` — promoted `TrialLifecycleTransitionEngine.EmitAuditAsync`; workspace link removed after transition record but before `TrialLifecycleTransition` audit still logged transition with `WorkspaceId`/`ProjectId` `Guid.Empty`; skip audit when `GetFirstWorkspaceAsync` returns null (parity with `TrialScheduledLifecycleEmailScanner`); regression `TryAdvanceTenantAsync_skips_transition_audit_when_workspace_link_missing_before_audit`; 192 scoped tenancy tests passed.
+
 2026-10-13 seed hunt (seed→hit): `application-tenancy-lifecycle` — promoted `TrialLifecycleTransitionEngine.EmitAuditAsync`; erasure offboard after `TryRecordTrialLifecycleTransitionAsync` but before `TrialLifecycleTransition` audit still logged transition on quarantined tenant; re-read tenant in `EmitAuditAsync` and skip when `OffboardedUtc` is set; regression `TryAdvanceTenantAsync_skips_transition_audit_when_offboard_completes_after_record_before_audit`; 191 scoped tenancy tests passed.
 
 2026-10-13 seed hunt (seed→hit): `application-tenancy-lifecycle` — promoted `TenantCatalogMigrationOrchestrator.StartAsync`; erasure quarantine on `tenantBeforeInsert` still invoked compensating `TryUnsuspendAsync`, clearing scope-freeze suspend (or emitting unsuspend audit) while migration never starts; skip compensating unsuspend when already offboarded and re-read before insert-failure unsuspend; regression `StartAsync_skips_compensating_unsuspend_when_offboarded_before_insert`; 190 scoped tenancy tests passed.
@@ -34636,11 +34638,19 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 85
-- **bugs-found:** 70
+- **hunts:** 87
+- **bugs-found:** 72
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-13
-- **last-bug:** 2026-10-13 — Migration start compensating unsuspend during erasure quarantine
+- **last-bug:** 2026-10-13 — Trial lifecycle audit with missing workspace link
+
+2026-10-13 seed hunt (seed→hit): reseeded trial lifecycle scheduler from ledger candidate; proved `EmitAuditAsync` logged `TrialLifecycleTransition` with empty workspace/project ids when `GetFirstWorkspaceAsync` returned null after transition record; skip audit when no workspace link; regression `TryAdvanceTenantAsync_skips_transition_audit_when_workspace_link_missing_before_audit`; 192 scoped tenancy tests passed.
+
+- [x] (proven) `TrialLifecycleTransitionEngine.EmitAuditAsync` — logged trial lifecycle transition with `Guid.Empty` workspace/project when workspace link missing post-record — **hit 2026-10-13 seed hunt (seed→hit):** skip audit when `GetFirstWorkspaceAsync` returns null; regression `TryAdvanceTenantAsync_skips_transition_audit_when_workspace_link_missing_before_audit`.
+
+2026-10-13 seed hunt (seed→hit): reseeded trial lifecycle scheduler from ledger candidate; proved `EmitAuditAsync` logged transition after record when offboard followed post-record read; re-read in `EmitAuditAsync`; regression `TryAdvanceTenantAsync_skips_transition_audit_when_offboard_completes_after_record_before_audit`; 191 scoped tenancy tests passed.
+
+- [x] (proven) `TrialLifecycleTransitionEngine.EmitAuditAsync` — logged trial lifecycle transition after erasure offboard post-record — **hit 2026-10-13 seed hunt (seed→hit):** skip audit when `OffboardedUtc` is set on pre-audit re-read; regression `TryAdvanceTenantAsync_skips_transition_audit_when_offboard_completes_after_record_before_audit`.
 
 2026-10-13 seed hunt (seed→hit): reseeded catalog migration start from ledger candidate; proved `StartAsync` compensating-unsuspend ran when `tenantBeforeInsert` was already in erasure quarantine; skip unsuspend on quarantine short-circuit and re-read before insert-failure compensation; regression `StartAsync_skips_compensating_unsuspend_when_offboarded_before_insert`; 190 scoped tenancy tests passed.
 
@@ -34955,10 +34965,12 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 2026-10-02 thorough hunt (dry): cheap-disproved the deleted-tenant retry boolean because the production scheduler ignores the return value and only treats exceptions as tenant failures; invalidated the null maintenance-message candidate because the database column is `NOT NULL` and the migration start path supplies the default. The scoped test filter was blocked during build by unrelated pre-existing ARCH006/ARCH006a analyzer errors in `ArchLucid.Persistence`; no failing repro was run because no hunt-ready candidate remained.
 
-- (candidate) `TrialLifecycleTransitionEngine.EmitAuditAsync` — `GetFirstWorkspaceAsync` after successful transition can return null when workspace deleted concurrently, logging `TrialLifecycleTransition` with empty workspace/project ids; reachable from scheduler tick after workspace teardown begins.
-- (candidate) `TenantTrialFacade` — stale tenant read before trial conversion stage audit when erasure offboard completes after eligibility check; reachable from operator trial conversion API racing erasure offboard.
-- (candidate) `TenantCatalogMigrationOrchestrator.StartAsync` — insert-failure compensating unsuspend when erasure offboard completes after insert throws but before re-read can still clear scope-freeze suspend; reachable via catalog migration start insert failure racing erasure offboard.
-- (candidate) `TrialLifecycleTransitionEngine.EmitAuditAsync` — trial lifecycle transition audit uses the pre-transition `tenant` snapshot for workspace/project ids when `GetFirstWorkspaceAsync` lags a concurrent workspace delete; reachable from scheduler tick after workspace teardown begins.
+- [x] (proven) `TrialLifecycleTransitionEngine.EmitAuditAsync` — `GetFirstWorkspaceAsync` returned null after transition record and audit still logged with empty workspace/project ids — **hit 2026-10-13 seed hunt (seed→hit):** skip audit when workspace link is missing; regression `TryAdvanceTenantAsync_skips_transition_audit_when_workspace_link_missing_before_audit`.
+- (candidate) `TenantTrialConversionStage.ConvertTrialAsync` — `TenantTrialConverted` audit still appended when erasure offboard completes after `MarkTrialConvertedAsync` but before audit; reachable from `POST /v1/tenant/convert` racing erasure offboard.
+- (candidate) `TenantCatalogMigrationOrchestrator.StartAsync` — insert-failure compensating `TryUnsuspendAsync` when erasure offboard completes after `tenantBeforeCompensatingUnsuspend` read but before unsuspend; reachable via catalog migration start insert failure racing erasure offboard.
+- (candidate) `TenantDeletionService.DeleteTenantAsync` — `TenantDataDeleted` platform audit appended after hard purge when erasure approval is revoked between purge completion and audit append; reachable from operator hard-delete racing erasure quarantine restore.
+- (candidate) `TrialTenantBootstrapService` — trial bootstrap seat accounting double-counts when registering admin email matches JWT `sub` on retry paths not covered by seat-skip cache; reachable from self-service trial signup with duplicate bootstrap invocation.
+- (candidate) `TenantMigrationStatusService.GetForTenantAsync` — returns active migration banner when migration row is `Failed`/`Cancelled` but tenant row still shows scope-freeze suspend without active migration stage advance; reachable from operator migration status probe after failed migration cleanup.
 
 ---
 

@@ -8488,3 +8488,4 @@
 {"at":"2026-10-13T13:37:12.5897746Z","zoneId":"application-tenancy-lifecycle","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Tenancy/"]}
 {"at":"2026-10-13T13:42:23.8703936Z","zoneId":"application-tenancy-lifecycle","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Tenancy/"]}
 {"at":"2026-10-13T13:48:31.6466989Z","zoneId":"application-tenancy-lifecycle","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Tenancy/"]}
+{"at":"2026-10-13T14:05:05.5225495Z","zoneId":"application-tenancy-lifecycle","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Tenancy/TrialLifecycleTransitionEngine.cs"]}
