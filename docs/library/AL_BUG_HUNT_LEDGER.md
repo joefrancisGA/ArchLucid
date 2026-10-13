@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-13 seed hunt (seed→hit): `application-tenancy-lifecycle` — promoted `TenantTrialIdentityHandoffStage.LinkEntraAsync` already-bound retry path; `UpdateEntraTenantIdAsync` still ran when erasure offboard completed on idempotent directory-bound retry because pre-update quarantine read ran only when `directoryAlreadyBound` was false; unified pre-update `GetByIdAsync` guard; regression `LinkEntraAsync_returns_success_without_entra_update_when_offboard_completes_on_already_bound_retry`; tightened duplicate-bound retry mock with active pre-update read; 218 scoped tenancy tests passed.
+
 2026-10-13 seed hunt (seed→hit): `application-tenancy-lifecycle` — promoted `TenantTrialConversionStage.ConvertTrialAsync` post-billing convert path; `MarkTrialConvertedAsync` still ran when erasure offboard completed after billing gate passed but before trial mark (post-mark audit re-read only); pre-convert `GetByIdAsync` quarantine guard; regression `ConvertTrialAsync_returns_success_without_mark_when_offboard_completes_after_billing_before_convert`; tightened post-mark audit race sequence; 217 scoped tenancy tests passed.
 
 2026-10-13 seed hunt (seed→hit): `application-tenancy-lifecycle` — promoted `TenantTrialIdentityHandoffStage.LinkEntraAsync` pre-bind path; `UpdateEntraTenantIdAsync` still ran when erasure offboard completed before directory bind (post-bind audit re-read only); pre-bind `GetByIdAsync` quarantine guard when directory not already bound; regression `LinkEntraAsync_returns_success_without_entra_bind_when_offboard_completes_before_directory_bind`; tightened `LinkEntraAsync_returns_success_without_directory_audit_when_offboard_completes_after_bind_before_audit` and identity-link race sequences; 216 scoped tenancy tests passed.
@@ -34684,11 +34686,15 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 110
-- **bugs-found:** 95
+- **hunts:** 111
+- **bugs-found:** 96
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-13
-- **last-bug:** 2026-10-13 — Trial conversion mark on erasure-quarantined tenant after billing gate
+- **last-bug:** 2026-10-13 — Trial Entra idempotent retry still updates directory on quarantined tenant
+
+2026-10-13 seed hunt (seed→hit): reseeded trial Entra already-bound retry; proved `UpdateEntraTenantIdAsync` on quarantined tenant when stale caller tenant matched directory; unified pre-update tenant re-read; regression `LinkEntraAsync_returns_success_without_entra_update_when_offboard_completes_on_already_bound_retry`; 218 scoped tenancy tests passed.
+
+- [x] (proven) `TenantTrialIdentityHandoffStage.LinkEntraAsync` — `UpdateEntraTenantIdAsync` when erasure offboard on idempotent directory-bound retry — **hit 2026-10-13 seed hunt (seed→hit):** pre-update `GetByIdAsync` for all bind attempts; regression `LinkEntraAsync_returns_success_without_entra_update_when_offboard_completes_on_already_bound_retry`.
 
 2026-10-13 seed hunt (seed→hit): reseeded trial conversion post-billing window; proved `MarkTrialConvertedAsync` when offboard followed billing gate; pre-convert tenant re-read; regression `ConvertTrialAsync_returns_success_without_mark_when_offboard_completes_after_billing_before_convert`; 217 scoped tenancy tests passed.
 

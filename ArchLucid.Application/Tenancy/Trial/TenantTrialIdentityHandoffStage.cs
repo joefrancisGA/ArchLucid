@@ -33,14 +33,11 @@ public sealed class TenantTrialIdentityHandoffStage(
     {
         bool directoryAlreadyBound = tenant.EntraTenantId == body.EntraTenantId;
 
-        if (!directoryAlreadyBound)
-        {
-            TenantRecord? tenantBeforeBind =
-                await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
+        TenantRecord? tenantBeforeUpdate =
+            await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
 
-            if (tenantBeforeBind?.OffboardedUtc is not null)
-                return new TenantTrialLinkEntraResult { Outcome = TenantTrialHttpOutcome.Success };
-        }
+        if (tenantBeforeUpdate?.OffboardedUtc is not null)
+            return new TenantTrialLinkEntraResult { Outcome = TenantTrialHttpOutcome.Success };
 
         bool bound = await _tenantRepository
             .UpdateEntraTenantIdAsync(scope.TenantId, body.EntraTenantId, cancellationToken)
