@@ -1819,7 +1819,7 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
 
             requestCount++;
 
-            if (requestCount > MaxPaginationRequests)
+            if (ShouldBreakForPageCap(requestCount))
             {
                 if (_logger.IsEnabled(LogLevel.Debug))
                 {
@@ -1830,12 +1830,7 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
                         MaxPaginationRequests);
                 }
 
-                return new HostedAzureVaultProtectedItemListResult
-                {
-                    Items = items,
-                    Succeeded = false,
-                    HttpStatusCode = 429,
-                };
+                break;
             }
 
             using HttpRequestMessage request = new(HttpMethod.Get, nextLink);
@@ -1853,6 +1848,11 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
                         childCollectionName,
                         trimmedVaultId,
                         (int)response.StatusCode);
+                }
+
+                if (items.Count > 0)
+                {
+                    break;
                 }
 
                 return new HostedAzureVaultProtectedItemListResult

@@ -856,6 +856,59 @@ public sealed class GetOnlyHostedAzureArmReadClientTests
     }
 
     [Fact]
+    public async Task ListVaultBackupProtectedItemsAsync_retains_items_when_later_page_fails()
+    {
+        const string vaultResourceId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.RecoveryServices/vaults/vault-a";
+        const string nextLink =
+            $"https://management.azure.com{vaultResourceId}/backupProtectedItems?api-version=2023-04-01&$skiptoken=page2";
+
+        string firstPageBody = """
+                               {
+                                 "value": [
+                                   {
+                                     "name": "item-a",
+                                     "id": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.RecoveryServices/vaults/vault-a/backupProtectedItems/item-a"
+                                   }
+                                 ],
+                                 "nextLink": "VAULT_BACKUP_NEXT_LINK"
+                               }
+                               """.Replace("VAULT_BACKUP_NEXT_LINK", nextLink, StringComparison.Ordinal);
+
+        int requestCount = 0;
+
+        HttpMessageHandler handler = new RecordingHandler(
+            (_, _) =>
+            {
+                int current = Interlocked.Increment(ref requestCount);
+
+                if (current == 1)
+                {
+                    return Task.FromResult(
+                        new HttpResponseMessage(HttpStatusCode.OK)
+                        {
+                            Content = new StringContent(firstPageBody)
+                        });
+                }
+
+                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.InternalServerError));
+            });
+
+        GetOnlyHostedAzureArmReadClient client = new(
+            new HttpClient(handler),
+            NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+
+        HostedAzureVaultProtectedItemListResult result = await client.ListVaultBackupProtectedItemsAsync(
+            "token-abc",
+            vaultResourceId,
+            CancellationToken.None);
+
+        Assert.Equal(2, requestCount);
+        Assert.True(result.Succeeded);
+        Assert.Single(result.Items);
+    }
+
+    [Fact]
     public async Task ListVaultBackupProtectedItemsAsync_rejects_next_link_for_different_vault_resource_id()
     {
         const string vaultResourceId =

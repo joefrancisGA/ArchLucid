@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-13 seed hunt (seed→hit): `cloud-extractors` — promoted `GetOnlyHostedAzureArmReadClient.ListVaultProtectedItemsAsync`; reachable non-success HTTP on a follow-up Recovery Services vault `nextLink` page returned `Succeeded = false`, so `HostedAzureInventoryRecoveryServicesCollector` emitted only a failure row and dropped backup/replication items already collected; stop pagination and return `Succeeded = true` when `items.Count > 0` (page-cap path now breaks like other ARM list readers); regression `ListVaultBackupProtectedItemsAsync_retains_items_when_later_page_fails`; AWS/GCP extractor tests passed 58/58; Azure extractor scope passed 169/169.
+
 2026-10-13 seed hunt (seed→hit): `cloud-extractors` — promoted `GetOnlyHostedAzureArmReadClient.ListFactoryLinkedServicesAsync` / `ListFactoryChildResourcesAsync`; reachable Forbidden (and parity NotFound/429) on a follow-up ADF factory `nextLink` page threw and failed the hosted extract instead of returning linked services or other child resources already collected; shared `ShouldBreakForFactoryPaginationTerminalHttpFailure`; regression `ListFactoryLinkedServicesAsync_retains_linked_services_when_later_page_returns_forbidden`; AWS/GCP extractor tests passed 58/58; Azure extractor scope passed 168/168.
 
 2026-10-13 seed hunt (seed→hit): `cloud-extractors` — promoted `HostedAzureManagementPostReadClient.QueryPolicyComplianceAsync`; reachable first-page Policy Insights bodies that were HTTP 200 but invalid JSON were caught and returned the success `ReaderNote` (“aligns with RBAC Reader”) with zero rows instead of the empty-collection export note used for HTTP/authorization failures; return `CreateEmptyPolicyCompliance` when `records.Count == 0` after non-cancellation failures; regressions `QueryPolicyComplianceAsync_uses_empty_collection_reader_note_when_first_page_body_is_invalid_json` and `QueryPolicyComplianceAsync_retains_records_when_later_page_body_is_invalid_json`; AWS/GCP extractor tests passed 58/58; Azure extractor scope passed 167/167.
@@ -31777,6 +31779,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ## Zone: cloud-extractors
 
+2026-10-13 seed hunt (seed→hit): promoted vault protected-item follow-up HTTP failure; `Succeeded = false` dropped partial items in RSV collector; break when `items.Count > 0`; page cap uses `ShouldBreakForPageCap`; regression `ListVaultBackupProtectedItemsAsync_retains_items_when_later_page_fails`; Azure scope 169/169; AWS/GCP 58/58.
+
 2026-10-13 seed hunt (seed→hit): promoted ADF factory pagination terminal HTTP on follow-up page; Forbidden threw and dropped prior child rows; `ShouldBreakForFactoryPaginationTerminalHttpFailure`; regression `ListFactoryLinkedServicesAsync_retains_linked_services_when_later_page_returns_forbidden`; Azure scope 168/168; AWS/GCP 58/58.
 
 2026-10-13 seed hunt (seed→hit): promoted Policy Insights first-page invalid JSON reader note; success note on zero rows after parse failure; `CreateEmptyPolicyCompliance` when `records.Count == 0` in catch; regressions for first-page invalid JSON note and follow-up invalid JSON partial retain; Azure scope 167/167; AWS/GCP 58/58.
@@ -31892,11 +31896,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** aws extractor; gcp extractor; azure extractor
 - **paths:** ArchLucid.Integrations.AwsExtractor/; ArchLucid.Integrations.GcpExtractor/; ArchLucid.Integrations.AzureExtractor/
 - **test-filter:** FullyQualifiedName~AwsExtractor|FullyQualifiedName~GcpExtractor|FullyQualifiedName~AzureExtractor
-- **hunts:** 139
-- **bugs-found:** 86
+- **hunts:** 140
+- **bugs-found:** 87
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-13
-- **last-bug:** 2026-10-13 — ADF factory pagination Forbidden dropped partial child listings
+- **last-bug:** 2026-10-13 — Vault protected-item pagination failure dropped partial backup rows
 - **related-pd-tb:** none
 - **code-changed-since:** 1
 
@@ -31924,6 +31928,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ### Hypotheses
 
+- [x] (proven) `GetOnlyHostedAzureArmReadClient.ListVaultProtectedItemsAsync` — reachable non-success HTTP on a follow-up Recovery Services vault protected-item `nextLink` page returned `Succeeded = false`, so the RSV collector discarded items already collected and emitted only a completeness failure row — **hit 2026-10-13 seed hunt:** stop pagination and return `Succeeded = true` when `items.Count > 0`; regression `ListVaultBackupProtectedItemsAsync_retains_items_when_later_page_fails`.
 - [x] (proven) `GetOnlyHostedAzureArmReadClient.ListFactoryLinkedServicesAsync` / `ListFactoryChildResourcesAsync` — reachable Forbidden, NotFound, or 429 on a follow-up ADF factory `nextLink` page threw and failed the hosted extract instead of returning child resources already collected from earlier pages — **hit 2026-10-13 seed hunt:** `ShouldBreakForFactoryPaginationTerminalHttpFailure` stops pagination when prior rows exist; regression `ListFactoryLinkedServicesAsync_retains_linked_services_when_later_page_returns_forbidden`.
 - [x] (proven) `HostedAzureManagementPostReadClient.QueryPolicyComplianceAsync` — reachable first-page Policy Insights bodies that were HTTP 200 but invalid JSON were caught and returned the success `ReaderNote` with zero rows instead of the empty-collection export note used for HTTP failures — **hit 2026-10-13 seed hunt:** return `CreateEmptyPolicyCompliance` when `records.Count == 0` after non-cancellation failures; regressions `QueryPolicyComplianceAsync_uses_empty_collection_reader_note_when_first_page_body_is_invalid_json` and `QueryPolicyComplianceAsync_retains_records_when_later_page_body_is_invalid_json`.
 - [x] (proven) `HostedAzureManagementPostReadClient.QueryPolicyComplianceAsync` — reachable non-success HTTP on a follow-up Policy Insights `@odata.nextLink` page returned `CreateEmptyPolicyCompliance` with a reader note claiming empty records even when policy rows were already collected from earlier pages — **hit 2026-10-13 seed hunt:** stop pagination and return the normal success document when `records.Count > 0`; regression `QueryPolicyComplianceAsync_retains_records_with_accurate_reader_note_when_later_page_fails`.
