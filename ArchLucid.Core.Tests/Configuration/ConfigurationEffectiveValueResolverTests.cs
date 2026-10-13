@@ -444,6 +444,23 @@ public sealed class ConfigurationEffectiveValueResolverTests
     }
 
     [Fact]
+    public void Resolve_redacts_plain_scalar_redis_comma_delimited_connection_string()
+    {
+        const string configPath = "ArchLucid:SomeFeature:Settings";
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] =
+                "contoso.redis.cache.windows.net:6380,password=secret,ssl=True",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(configuration, configPath, isSet: true);
+
+        value.Should().Be("***");
+    }
+
+    [Fact]
     public void Resolve_redacts_plain_scalar_cosmos_account_key_connection_string()
     {
         const string configPath = "ArchLucid:SomeFeature:Settings";

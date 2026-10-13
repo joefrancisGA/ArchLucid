@@ -25424,13 +25424,15 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** configuration summary; config paths; split from archlucid-core
 - **paths:** ArchLucid.Core/Configuration/
 - **test-filter:** FullyQualifiedName~Configuration
-- **hunts:** 46
-- **bugs-found:** 28
+- **hunts:** 47
+- **bugs-found:** 29
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-09
-- **last-bug:** 2026-10-09 — null Owner and SpaceKey threw on Trim
+- **last-hunt:** 2026-10-13
+- **last-bug:** 2026-10-13 — Redis comma-delimited password= leaked on non-sensitive paths
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
+
+2026-10-13 thorough hunt (hit): proved `ConfigurationSensitiveConfigValueScanner.ContainsCredentialConnectionPair` only advanced pair boundaries on `;`, so Azure Cache for Redis comma-delimited `password=` on non-sensitive effective values (e.g. `ArchLucid:SomeFeature:Settings`) stayed visible in operator config summary; pair scan now resumes after `,` as well; regression `Resolve_redacts_plain_scalar_redis_comma_delimited_connection_string`; 1084 scoped Configuration tests passed (no-build filter).
 
 2026-10-09 seed hunt (seed-only): reread binding, redaction, endpoint normalization, and Quick Scan merge; no hunt-ready row. Candidates below.
 
@@ -25514,7 +25516,7 @@ Split from retired `archlucid-core` (ABQ-08).
 
 ### Hypotheses
 
-- [ ] (candidate) `ConfigurationSensitiveConfigValueScanner.ContainsCredentialConnectionPair` — Azure Cache for Redis primary connection string `contoso.redis.cache.windows.net:6380,password=secret,ssl=True` on a non-sensitive effective value. Pair scan resumes only after `;`, so the password stays in `GET /v1/admin/config-summary`. Catalog Redis paths are already redacted by the `ConnectionString` segment.
+- [x] (proven) `ConfigurationSensitiveConfigValueScanner.ContainsCredentialConnectionPair` — Azure Cache for Redis comma-delimited `password=` on non-sensitive effective values leaked because pair scan resumed only after `;` — **hit 2026-10-13 thorough hunt:** advance pair boundaries on `,` as well as `;`; regression `Resolve_redacts_plain_scalar_redis_comma_delimited_connection_string`.
 - [x] (proven) `AzureOpenAiOptions.UseJsonSchemaResponseFormat` — property initializer was `true` while `ConfigurationKeyCatalog` and `docs/library/CONFIGURATION_REFERENCE.md` record default `false` for unset `AzureOpenAI:UseJsonSchemaResponseFormat`; **hit 2026-10-12 thorough hunt:** an unset key instantiated the option with schema output enabled, so the host could request schema-file-dependent structured output by default. Changed the initializer to `false`; regression `UseJsonSchemaResponseFormat_defaults_to_false_when_configuration_is_unset`.
 - [ ] (candidate) `AzureOpenAiEndpointNormalizer.EnsureTrailingSlash` — a non-foundry, non-`openai.azure.com` absolute endpoint that contains a query receives a trailing `/` after the query. The cited runbook endpoint `https://oai-archlucid-dev.cognitiveservices.azure.com/` has no query.
 - [ ] (candidate) `QuickScanEffectiveLimits.Merge` — when `QuickScanSafetyOptions.Enabled` is true, identity caps such as `Identity.MaxScansPerIpPerHour` are not copied onto the merged `QuickScanOptions`.
