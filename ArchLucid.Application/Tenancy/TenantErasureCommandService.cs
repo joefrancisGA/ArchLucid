@@ -250,6 +250,9 @@ public sealed class TenantErasureCommandService(
             if (afterMiss?.TenantErasureApprovedUtc is not null)
                 return true;
 
+            if (afterMiss is not null && afterMiss.OffboardedUtc is null)
+                return true;
+
             return false;
         }
 
