@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-13 seed hunt (seed→hit): `architecture-intelligence-orchestrator` — promoted `ClosedLoopReasoningSourceTextNormalizer.CollapseParentPathSegments`; `docs/sub/../arch.md` and `docs/foo/bar/../../arch.md` split review-cache `ContentHash` from `docs/arch.md`; cheap-disproved stale CRLF duplicate, run-id whitespace, and publish coalesce-key candidates; regression `Build_matches_content_hash_when_file_name_differs_only_by_parent_path_segments`; 90 scoped orchestrator/cache manifest tests passed.
+
 2026-10-13 seed hunt (seed-only): `notifications-pipeline` — cheap-disproved five open candidates (recurrence text URLs, weekly sponsor text strip-tags, authority-run Teams supporting display-only, governance Block Kit title escape parity, digest subscription facade-only validation); regression locks `TrialWelcome_html_encodes_organization_hint_metacharacters`, `WeeklySponsorReport_text_part_strips_html_tags_from_rendered_body`, and `RecurrenceCompletion_html_encodes_href_urls_with_quotes_in_attribute`; seeded five follow-on `(candidate)` rows; 182 scoped notification/digest Application tests passed.
 
 2026-10-13 seed hunt (seed→hit): `notifications-pipeline` — promoted `ChatOpsIncomingWebhookBodies.BuildTeamsTitle`; evaluation-sourced alert `Severity` reached Teams connector `title` prefix without HTML encoding while title body was encoded; `WebUtility.HtmlEncode` on sanitized severity before `[severity]` prefix; regressions `ForTeams_html_encodes_severity_label_before_title_prefix` and `SendAsync_TeamsPayload_HtmlEncodes_severity_in_title_prefix`; cheap-disproved five open template/channel candidates; 179 scoped Application tests passed; 15 Notifications body tests; 7 alert Teams channel tests passed.
@@ -36574,6 +36576,8 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: architecture-intelligence-orchestrator
 
+2026-10-13 seed hunt (seed→hit): promoted parent `..` path segments in `FileName` (`docs/sub/../arch.md`, `docs/foo/bar/../../arch.md`); `CollapseParentPathSegments` in `NormalizeFileNameForHash`; regression `Build_matches_content_hash_when_file_name_differs_only_by_parent_path_segments`; cheap-disproved stale CRLF, run-id whitespace, and publish coalesce-key rows; 90 scoped tests passed.
+
 2026-10-13 seed hunt (seed→hit): promoted dot-segment and slash padding on `FileName` (`docs/./arch.md`, `/docs/arch.md`, trailing `/`); extended `NormalizeFileNameForHash`; regression `Build_matches_content_hash_when_file_name_differs_only_by_dot_segments_or_slashes`; scoped filter 89/89.
 
 2026-10-13 seed hunt (seed→hit): promoted `./` and duplicate-slash `FileName` candidate; `NormalizeFileNameForHash` strips leading `./` and collapses `//`; regression `Build_matches_content_hash_when_file_name_differs_only_by_leading_dot_slash_or_duplicate_slashes`; scoped filter 88/88.
@@ -36596,11 +36600,17 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) `ClosedLoopReasoningSourceTextNormalizer` — `FileName` path segments with backslash vs forward slash split cache keys — **hit 2026-10-07 seed hunt #33:** `FileName` hashed literally; fixed by `Replace('\\', '/')` after trim; regression `Build_matches_content_hash_when_file_name_differs_only_by_path_separator`.
 - [x] (proven) `ClosedLoopReasoningSourceTextNormalizer` — leading `./` or duplicate slashes in `FileName` split `ContentHash` — **hit 2026-10-13 seed hunt:** `NormalizeFileNameForHash`; regression `Build_matches_content_hash_when_file_name_differs_only_by_leading_dot_slash_or_duplicate_slashes`.
 - [x] (proven) `ClosedLoopReasoningSourceTextNormalizer` — `/./` segments, leading `/`, and trailing `/` on `FileName` split `ContentHash` — **hit 2026-10-13 seed hunt:** extended `NormalizeFileNameForHash`; regression `Build_matches_content_hash_when_file_name_differs_only_by_dot_segments_or_slashes`.
+- [x] (proven) `ClosedLoopReasoningSourceTextNormalizer` — parent `..` path segments on `FileName` split `ContentHash` — **hit 2026-10-13 seed hunt:** `CollapseParentPathSegments`; regression `Build_matches_content_hash_when_file_name_differs_only_by_parent_path_segments`.
 - [x] (invalid) `ReviewCacheManifestBuilder.HashContent` — `Content` line endings `\\r\\n` vs `\\n` — **cheap-disproof 2026-10-13 seed hunt:** closed by 2026-10-10 hit `Build_matches_content_hash_when_source_content_line_endings_differ`.
-- [ ] (candidate) `ReviewCacheManifestBuilder.HashContent` — `Content` line endings `\\r\\n` vs `\\n` after trim may split hash for otherwise identical uploads — locus: source append loop (`ReviewCacheManifestBuilder.cs` ~109–111); input: same markdown with CRLF vs LF only; wrong outcome: duplicate review work on Windows uploads.
-- [ ] (candidate) `ReviewResultCache.TryGet` — manifest key built from request snapshot before `RunId` normalization vs after may miss pin scope hits — locus: `RunAsync` pin scope branch (`ClosedLoopArchitectureReasoningOrchestrator.cs` ~81–89); input: client `RunId` with surrounding spaces on first request; wrong outcome: cache miss despite identical normalized run.
-- [ ] (candidate) `ClosedLoopContinueRunSingleFlight` — coalesce key omits `PublishToProduct` while storage manifest includes publish policy partition — locus: `BuildCoalesceKey` vs `ReviewCacheKeyBuilder` (`ClosedLoopContinueRunSingleFlight.cs`); input: identical continue payloads differing only on publish flag; wrong outcome: cross-talk cache hit.
-- [ ] (candidate) `ReviewCacheLedgerFingerprint` — ledger entries with equivalent technology ids differing only by Unicode normalization form may change `ledgerfp` — locus: `ReviewCacheLedgerFingerprint.Compute`; input: NFC vs NFD technology name on ledger reload; wrong outcome: stale continue coalesce after ledger re-import.
+- [x] (invalid) `ReviewCacheManifestBuilder.HashContent` — duplicate CRLF `(candidate)` row — **cheap-disproof 2026-10-13 seed hunt:** same proven line-ending normalization as 2026-10-10; remove duplicate candidate.
+- [x] (valid-no-repro) `ReviewResultCache.TryGet` — client `RunId` surrounding whitespace — **cheap-disproof 2026-10-13 seed hunt:** `ClosedLoopRunIdNormalizer.NormalizeOptional` + regression `Build_matches_content_hash_when_client_run_id_is_whitespace_only_vs_omitted`.
+- [x] (valid-no-repro) `ClosedLoopContinueRunSingleFlight.BuildCoalesceKey` — `PublishToProduct` partition — **cheap-disproof 2026-10-13 seed hunt:** coalesce key appends `publish=1|0`; `ReviewCacheKeyBuilder.BuildInFlight` matches storage partition.
+- [x] (proven) `ClosedLoopReasoningSourceTextNormalizer.NormalizeFileNameForHash` — parent `..` segments (`docs/sub/../arch.md`, nested `docs/foo/bar/../../arch.md`) split `ContentHash` from canonical `docs/arch.md` — **hit 2026-10-13 seed hunt:** `CollapseParentPathSegments`; regression `Build_matches_content_hash_when_file_name_differs_only_by_parent_path_segments`.
+- [ ] (candidate) `ReviewCacheLedgerFingerprint` — ledger technology names differing only by Unicode NFC vs NFD may change `ledgerfp` — locus: `ReviewCacheLedgerFingerprint.Compute`; input: equivalent technology label imported in different normalization forms; wrong outcome: continue coalesce miss after ledger reload.
+- [ ] (candidate) `ClosedLoopReasoningSourceTextNormalizer` — percent-encoded slash (`%2F`) in `FileName` vs literal `/` — locus: `NormalizeFileNameForHash`; input: `docs%2Farch.md` vs `docs/arch.md`; wrong outcome: duplicate cache entries for same upload path.
+- [ ] (candidate) `ClosedLoopReasoningSourceTextNormalizer` — UTF-8 BOM (`\uFEFF`) prefix in `Content` — locus: `Normalize` content trim/hash; input: identical markdown with/without BOM; wrong outcome: spurious cache miss on Windows editor saves.
+- [ ] (candidate) `ReviewCacheManifestBuilder.HashContent` — duplicate `SourceTexts` rows that normalize to identical file/type/content — locus: ordered foreach without dedupe; input: repeated attachment in request list; wrong outcome: hash inflation / false split vs deduped canonical list.
+- [ ] (candidate) `ClosedLoopFramingAnswersNormalizer` — framing answer keys differing only by Unicode compatibility case folding — locus: `HashContent` framing loop; input: Turkish dotted `I` key variants; wrong outcome: cache miss for equivalent answers.
 
 2026-10-06 seed hunt (seed→hit): source `ContentType` letter casing split cache manifest hash; lowercase in `ClosedLoopReasoningSourceTextNormalizer`; regression `Build_matches_content_hash_when_source_content_type_differs_only_by_casing`; seeded five follow-on candidates; 82 scoped tests passed.
 
@@ -36639,11 +36649,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** closed-loop orchestrator; review result cache; architecture intelligence
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.cs; ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.Cache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewResultCache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewCacheManifestBuilder.cs
 - **test-filter:** FullyQualifiedName~ClosedLoopArchitectureReasoningOrchestrator|FullyQualifiedName~ReviewResultCache|FullyQualifiedName~ReviewCacheManifestBuilder
-- **hunts:** 39
-- **bugs-found:** 17
+- **hunts:** 40
+- **bugs-found:** 18
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-13
-- **last-bug:** 2026-10-13 — dot segments and leading/trailing slashes on source file names split cache hash
+- **last-bug:** 2026-10-13 — parent `..` path segments on source file names split cache hash
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 

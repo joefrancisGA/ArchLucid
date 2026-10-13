@@ -51,7 +51,39 @@ internal static class ClosedLoopReasoningSourceTextNormalizer
         while (fileName.EndsWith('/') && fileName.Length > 1)
             fileName = fileName[..^1];
 
-        return fileName;
+        return CollapseParentPathSegments(fileName);
+    }
+
+    private static string CollapseParentPathSegments(string fileName)
+    {
+        if (fileName.Length == 0)
+            return fileName;
+
+        string[] rawSegments = fileName.Split('/');
+        List<string> segments = [];
+
+        foreach (string segment in rawSegments)
+        {
+
+            if (segment.Length == 0 || string.Equals(segment, ".", StringComparison.Ordinal))
+                continue;
+
+            if (string.Equals(segment, "..", StringComparison.Ordinal))
+            {
+
+                if (segments.Count > 0)
+                    segments.RemoveAt(segments.Count - 1);
+
+                continue;
+            }
+
+            segments.Add(segment);
+        }
+
+        if (segments.Count == 0)
+            return string.Empty;
+
+        return string.Join('/', segments);
     }
 
     private static string NormalizeLineEndings(string content)

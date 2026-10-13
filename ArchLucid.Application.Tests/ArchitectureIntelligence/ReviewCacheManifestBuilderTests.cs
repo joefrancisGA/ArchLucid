@@ -567,6 +567,48 @@ public sealed class ReviewCacheManifestBuilderTests
     }
 
     [Fact]
+    public void Build_matches_content_hash_when_file_name_differs_only_by_parent_path_segments()
+    {
+        ClosedLoopReasoningRequest canonical = CreateRequest("Same body.");
+        canonical.SourceTexts =
+        [
+            new ClosedLoopReasoningSourceText
+            {
+                FileName = "docs/arch.md",
+                ContentType = "text/markdown",
+                Content = "Same body.",
+            },
+        ];
+
+        ClosedLoopReasoningRequest childSegment = CreateRequest("ignored");
+        childSegment.SourceTexts =
+        [
+            new ClosedLoopReasoningSourceText
+            {
+                FileName = "docs/sub/../arch.md",
+                ContentType = "text/markdown",
+                Content = "Same body.",
+            },
+        ];
+
+        ClosedLoopReasoningRequest nestedParent = CreateRequest("ignored");
+        nestedParent.SourceTexts =
+        [
+            new ClosedLoopReasoningSourceText
+            {
+                FileName = "docs/foo/bar/../../arch.md",
+                ContentType = "text/markdown",
+                Content = "Same body.",
+            },
+        ];
+
+        string canonicalHash = ReviewCacheManifestBuilder.Build(canonical).ContentHash;
+
+        ReviewCacheManifestBuilder.Build(childSegment).ContentHash.Should().Be(canonicalHash);
+        ReviewCacheManifestBuilder.Build(nestedParent).ContentHash.Should().Be(canonicalHash);
+    }
+
+    [Fact]
     public void Build_matches_content_hash_when_source_content_type_differs_only_by_charset_parameter()
     {
         ClosedLoopReasoningRequest bare = CreateRequest("Same body.");
