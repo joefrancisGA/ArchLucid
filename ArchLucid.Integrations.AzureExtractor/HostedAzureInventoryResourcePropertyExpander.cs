@@ -302,36 +302,11 @@ properties["definition"] = AzureExtractorSensitivePropertyRedactor.RedactStructu
             return;
         }
 
-        int index = 0;
-
-        foreach (JsonElement networkInterface in networkInterfaces.EnumerateArray())
-        {
-            if (!networkInterface.TryGetProperty("id", out JsonElement idElement)
-                || idElement.ValueKind is not JsonValueKind.String)
-            {
-                continue;
-            }
-
-            string? nicId = idElement.GetString();
-
-            if (string.IsNullOrWhiteSpace(nicId))
-            {
-                continue;
-            }
-
-            properties[$"networkProfile.networkInterfaces[{index}]"] = nicId.Trim();
-            index++;
-        }
-
-        if (index > 0)
-        {
-            properties["networkProfile.networkInterfaces"] = string.Join(
-                '|',
-                properties.Where(pair => pair.Key.StartsWith("networkProfile.networkInterfaces[", StringComparison.Ordinal))
-                    .OrderBy(pair => pair.Key, StringComparer.Ordinal)
-                    .Select(pair => pair.Value?.ToString())
-                    .Where(value => !string.IsNullOrWhiteSpace(value))!);
-        }
+        WriteIndexedTopLevelArmIds(
+            networkInterfaces,
+            properties,
+            "networkProfile.networkInterfaces",
+            "networkProfile.networkInterfaces");
     }
 
     private static void AddNicProperties(
@@ -468,36 +443,13 @@ properties["definition"] = AzureExtractorSensitivePropertyRedactor.RedactStructu
             }
         }
 
-        if (propertiesElement.TryGetProperty("networkInterfaces", out JsonElement networkInterfaces)
-            && networkInterfaces.ValueKind is JsonValueKind.Array)
+        if (propertiesElement.TryGetProperty("networkInterfaces", out JsonElement networkInterfaces))
         {
-            int index = 0;
-
-            foreach (JsonElement networkInterface in networkInterfaces.EnumerateArray())
-            {
-                if (networkInterface.TryGetProperty("id", out JsonElement idElement)
-                    && idElement.ValueKind is JsonValueKind.String)
-                {
-                    string? nicId = idElement.GetString();
-
-                    if (!string.IsNullOrWhiteSpace(nicId))
-                    {
-                        properties[$"networkInterfaces[{index}]"] = nicId.Trim();
-                    }
-                }
-
-                index++;
-            }
-
-            if (properties.Keys.Any(key => key.StartsWith("networkInterfaces[", StringComparison.Ordinal)))
-            {
-                properties["networkInterfaces"] = string.Join(
-                    '|',
-                    properties.Where(pair => pair.Key.StartsWith("networkInterfaces[", StringComparison.Ordinal))
-                        .OrderBy(pair => pair.Key, StringComparer.Ordinal)
-                        .Select(pair => pair.Value?.ToString())
-                        .Where(value => !string.IsNullOrWhiteSpace(value))!);
-            }
+            WriteIndexedTopLevelArmIds(
+                networkInterfaces,
+                properties,
+                "networkInterfaces",
+                "networkInterfaces");
         }
 
         AddJsonArrayProperty(propertiesElement, properties, "privateDnsZoneGroups");
@@ -1100,5 +1052,52 @@ properties["definition"] = AzureExtractorSensitivePropertyRedactor.RedactStructu
         }
 
         return null;
+    }
+
+    private static void WriteIndexedTopLevelArmIds(
+        JsonElement elements,
+        Dictionary<string, object?> properties,
+        string indexedKeyPrefix,
+        string? pipeDelimitedPropertyKey)
+    {
+        if (elements.ValueKind is not JsonValueKind.Array)
+        {
+            return;
+        }
+
+        int index = 0;
+
+        foreach (JsonElement element in elements.EnumerateArray())
+        {
+            if (element.TryGetProperty("id", out JsonElement idElement)
+                && idElement.ValueKind is JsonValueKind.String)
+            {
+                string? armId = idElement.GetString();
+
+                if (!string.IsNullOrWhiteSpace(armId))
+                {
+                    properties[$"{indexedKeyPrefix}[{index}]"] = armId.Trim();
+                }
+            }
+
+            index++;
+        }
+
+        if (pipeDelimitedPropertyKey is null)
+        {
+            return;
+        }
+
+        if (!properties.Keys.Any(key => key.StartsWith($"{indexedKeyPrefix}[", StringComparison.Ordinal)))
+        {
+            return;
+        }
+
+        properties[pipeDelimitedPropertyKey] = string.Join(
+            '|',
+            properties.Where(pair => pair.Key.StartsWith($"{indexedKeyPrefix}[", StringComparison.Ordinal))
+                .OrderBy(pair => pair.Key, StringComparer.Ordinal)
+                .Select(pair => pair.Value?.ToString())
+                .Where(value => !string.IsNullOrWhiteSpace(value))!);
     }
 }

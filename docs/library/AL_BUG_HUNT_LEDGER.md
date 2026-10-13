@@ -1,5 +1,9 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-13 seed hunt (seed→hit): `cloud-extractors` — `HostedAzureInventoryResourcePropertyExpander.AddVirtualMachineNetworkProfileProperties` compacted `networkProfile.networkInterfaces[n]` when earlier VM NIC slots lacked `id`; consolidated per-slot indexing with `WriteIndexedTopLevelArmIds` (shared with private-endpoint `networkInterfaces`); regression `Expand_preserves_vm_network_profile_network_interface_index_when_earlier_slot_has_no_id`; AWS/GCP extractor tests passed 52/52; Azure extractor scope passed 137/137.
+
+2026-10-13 seed hunt (seed→hit): `cloud-extractors` — `HostedAzureInventoryResourcePropertyExpander.AddPrivateEndpointProperties` compacted `networkInterfaces[n]` when earlier private-endpoint NIC slots lacked `id`; per-slot index advancement; regression `Expand_preserves_private_endpoint_network_interface_index_when_earlier_slot_has_no_id`; AWS/GCP extractor tests passed 52/52; Azure extractor scope passed 136/136.
+
 2026-10-13 seed hunt (seed→hit): `cloud-extractors` — `HostedAzureExtractorZipBuilder.BuildZip` serialized every collected ARM row into `resources.json` and manifest `resourceCount`, including `AzureInventoryNeverShowArmTypes` companions such as private DNS virtual network links; filtered packaged resources with `ShouldOmitResource` and aligned `HostedAzureExtractorClient` `ResourceCount`; baseline `BuildZip_omits_virtual_network_links_from_resources_json_but_keeps_associations` failed first; AWS/GCP extractor tests passed 52/52; Azure extractor scope passed 135/135.
 
 2026-10-13 seed hunt (seed→hit): `cloud-extractors` — promoted `HostedAzureInventoryResourcePropertyExpander.AddVirtualMachineScaleSetNetworkProfileProperties`; reachable VMSS `networkInterfaceConfigurations` with an earlier `ipConfigurations` slot lacking a subnet compacted `ipConfiguration.subnet.id[n]` instead of preserving array position (unlike firewall/NIC expanders); increment index per ipConfiguration slot; regression `Expand_preserves_vmss_ip_configuration_subnet_index_when_earlier_slot_has_no_subnet`; AWS/GCP extractor tests passed 52/52; Azure extractor scope passed 134/135 with the known network-association baseline failure.
@@ -31692,6 +31696,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ## Zone: cloud-extractors
 
+2026-10-13 seed hunt (seed→hit): VM `networkProfile.networkInterfaces` indexing compacted when earlier slots lacked `id`; shared `WriteIndexedTopLevelArmIds` with private-endpoint NIC expansion; regression `Expand_preserves_vm_network_profile_network_interface_index_when_earlier_slot_has_no_id`; Azure extractor scope passed 137/137; AWS/GCP passed 52/52.
+
+2026-10-13 seed hunt (seed→hit): private endpoint `networkInterfaces` indexing compacted when earlier slots lacked `id`; per-slot index advancement; regression `Expand_preserves_private_endpoint_network_interface_index_when_earlier_slot_has_no_id`; Azure extractor scope passed 136/136; AWS/GCP passed 52/52.
+
 2026-10-13 seed hunt (seed→hit): `HostedAzureExtractorZipBuilder` emitted never-show ARM types (for example private DNS `virtualNetworkLinks`) in `resources.json` while associations still referenced them; packaged inventory now uses `AzureInventoryNeverShowArmTypes.ShouldOmitResource`; `CollectZipAsync_omits_never_show_arm_types_from_packaged_resources`; Azure extractor scope passed 135/135; AWS/GCP passed 52/52.
 
 2026-10-13 seed hunt (seed→hit): promoted `HostedAzureInventoryResourcePropertyExpander.AddVirtualMachineScaleSetNetworkProfileProperties`; VMSS subnet ids were indexed only for populated slots, collapsing later subnets to `[0]` when earlier ipConfiguration entries had no subnet; fixed by advancing index for every ipConfiguration position; regression `Expand_preserves_vmss_ip_configuration_subnet_index_when_earlier_slot_has_no_subnet`; AWS/GCP tests passed 52/52; Azure extractor scope passed 134/135 with the known network-association baseline failure.
@@ -31747,11 +31755,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** aws extractor; gcp extractor; azure extractor
 - **paths:** ArchLucid.Integrations.AwsExtractor/; ArchLucid.Integrations.GcpExtractor/; ArchLucid.Integrations.AzureExtractor/
 - **test-filter:** FullyQualifiedName~AwsExtractor|FullyQualifiedName~GcpExtractor|FullyQualifiedName~AzureExtractor
-- **hunts:** 101
-- **bugs-found:** 48
+- **hunts:** 103
+- **bugs-found:** 50
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-13
-- **last-bug:** 2026-10-13 — extractor ZIP packaged never-show ARM types in resources.json
+- **last-bug:** 2026-10-13 — VM networkProfile.networkInterfaces index compaction (shared indexer)
 - **related-pd-tb:** none
 - **code-changed-since:** 1
 
@@ -31790,6 +31798,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - [x] (proven) `HostedAzureInventoryResourcePropertyExpander.AddPrivateLinkConnections` — reachable `Microsoft.Network/privateEndpoints` payloads with both `privateLinkServiceConnections` and `manualPrivateLinkServiceConnections` reset the indexed `privateLinkServiceId[n]` counter per array, so manual targets overwrote automatic `[0]` and dropped a private-link target from normalized inventory properties — **hit 2026-10-13 seed hunt:** continue a shared index across both arrays; regression `Expand_persists_every_private_link_service_id_across_connection_arrays`.
 - [x] (proven) `HostedAzureInventoryResourcePropertyExpander.AddVirtualMachineScaleSetNetworkProfileProperties` — reachable VMSS `networkInterfaceConfigurations` with an earlier `ipConfigurations` slot lacking a subnet compacted `ipConfiguration.subnet.id[n]` instead of preserving array position, misaligning `vmssToSubnet` association reads — **hit 2026-10-13 seed hunt:** advance index for every ipConfiguration slot (parity with firewall/NIC expanders); regression `Expand_preserves_vmss_ip_configuration_subnet_index_when_earlier_slot_has_no_subnet`.
+- [x] (proven) `HostedAzureInventoryResourcePropertyExpander.AddPrivateEndpointProperties` / `AddVirtualMachineNetworkProfileProperties` — reachable private-endpoint and VM `networkInterfaces` arrays compacted indexed NIC ids when earlier slots lacked `id`, misaligning `peToNic` and `vmToNic` association reads — **hit 2026-10-13 seed hunt:** `WriteIndexedTopLevelArmIds` advances index per array slot; regressions `Expand_preserves_private_endpoint_network_interface_index_when_earlier_slot_has_no_id` and `Expand_preserves_vm_network_profile_network_interface_index_when_earlier_slot_has_no_id`.
 - (candidate) `GcpWorkloadIdentityPoolProvider.TryGetProjectId` — a reachable hosted GCP request may supply `projects/{project}/anything` and pass project matching even though a workload-identity provider resource requires the full locations/pool/providers shape; the method only checks the project prefix and first slash, but a concrete downstream authorization or collection failure from the accepted malformed resource name remains unverified.
 
 - [x] (proven) `ListSubscriptionDefenderSummariesAsync` — a same-subscription ARM `nextLink` into `roleAssignments` passed subscription-only validation and was followed while reading Defender secure scores — **hit 2026-10-08 seed hunt:** required the secureScores listing path after the subscription check; regression `ListSubscriptionDefenderSummariesAsync_rejects_next_link_for_different_security_collection`.
