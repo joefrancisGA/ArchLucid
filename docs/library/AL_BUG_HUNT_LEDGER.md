@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-13 seed hunt (seed→hit): `core-requests-constraints` — promoted question-mark-delimited capability slugs (`field?encryption?module`) false-positive phrase constraints; extended `IsCompoundIdentifierDelimiter` to `?`; regression in `RequestConstraintCompoundIdentifierQuestionMarkTests`; 897 scoped RequestConstraint tests passed.
+
 2026-10-13 seed hunt (seed→hit): `core-requests-constraints` — promoted asterisk- and bang-delimited capability slugs (`field*encryption*module`, `my!sql!server`) false-positive phrase and standalone token constraints; extended `IsCompoundIdentifierDelimiter` to `*` and `!`; regressions in `RequestConstraintCompoundIdentifierAsteriskBangTests`; 895 scoped RequestConstraint tests passed.
 
 2026-10-13 seed hunt (seed→hit): `core-requests-constraints` — promoted backtick- and caret-delimited capability slugs (`field`encryption`module`, `my^sql^server`) false-positive phrase and standalone token constraints; extended `IsCompoundIdentifierDelimiter` to `` ` `` and `^`; regressions in `RequestConstraintCompoundIdentifierBacktickCaretTests`; 892 scoped RequestConstraint tests passed.
@@ -25661,11 +25663,15 @@ Split from retired `archlucid-core` (ABQ-08). Generic-advice negation parity his
 - **aliases:** request constraints; split from archlucid-core
 - **paths:** ArchLucid.Core/Requests/
 - **test-filter:** FullyQualifiedName~RequestConstraint
-- **hunts:** 27
-- **bugs-found:** 26
+- **hunts:** 28
+- **bugs-found:** 27
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-13
-- **last-bug:** 2026-10-13 — asterisk/bang-delimited product slugs false-positive encryption/sql constraints
+- **last-bug:** 2026-10-13 — question-mark-delimited product slugs false-positive encryption constraints
+
+2026-10-13 seed hunt (seed→hit): reseeded compound-identifier boundaries after asterisk/bang fix; proved `?`-delimited slugs like `field?encryption?module` still false-positive `HasEncryptionConstraint`; fixed by extending `IsCompoundIdentifierDelimiter` to `?`; regression in `RequestConstraintCompoundIdentifierQuestionMarkTests`; 897 scoped RequestConstraint tests passed.
+
+- [x] (proven) `RequestConstraintTokenMatcher.IsEmbeddedInCompoundIdentifier` — question-mark-delimited product slugs (e.g. `field?encryption?module`) may false-positive phrase constraints — **hit 2026-10-13 seed hunt (seed→hit):** regression in `RequestConstraintCompoundIdentifierQuestionMarkTests`.
 
 2026-10-13 seed hunt (seed→hit): reseeded compound-identifier boundaries after backtick/caret fix; proved asterisk- and bang-delimited slugs like `field*encryption*module` and `my!sql!server` still false-positive phrase and standalone token constraints; fixed by extending `IsCompoundIdentifierDelimiter` to `*` and `!`; regressions in `RequestConstraintCompoundIdentifierAsteriskBangTests`; 895 scoped RequestConstraint tests passed.
 
