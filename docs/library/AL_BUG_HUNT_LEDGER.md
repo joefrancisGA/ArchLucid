@@ -36119,6 +36119,8 @@ ABQ-09 churn hotspot; intake wizard route tree.
 
 ## Zone: ui-governance-findings-queue
 
+2026-10-13 seed hunt (seed→hit): `GovernanceFindingsQueueAssignedToMeRowCells` and buyer-polished `GovernanceFindingsQueueTableRow` always linked the review column when `runId` was whitespace-only, producing `/architecture/reviews/%20%20%20` while tenant operational rows already render plain text for blank run ids. Assigned-to-me and buyer-polished paths now match the operational guard. Regression `renders assigned-to-me review label without link when run id is blank` failed first and passed after the fix. Desktop-table suite passed 10/10; `GovernanceFindingsQueueClient.test.tsx` retained 11 passed and 11 known baseline failures.
+
 2026-10-12 seed hunt (seed-only): re-read the selected queue client, assigned-to-me chrome, toolbar/scope/results sections, and focused tests after the contextual-help fix; no fresh mechanism-backed candidate met the promotion bar. The full findings route scope passed 49 tests and retained 11 known external-store/update-depth and workspace-label baseline failures. No production or regression change.
 
 2026-10-12 seed hunt (seed→hit): `GovernanceFindingsQueueDesktopTable` omitted `showInsightDensityScore` when rendering grouped resource rows, so working-mode density scores disappeared after the reachable Group by resource toggle. Regression `preserves insight density scores in grouped working-mode rows` failed first and passed after forwarding the prop; the focused desktop-table suite passed 8/8.
@@ -36163,11 +36165,11 @@ ABQ-09 churn hotspot; intake wizard route tree.
 - **aliases:** governance findings queue
 - **paths:** archlucid-ui/src/app/(operator)/governance/findings/
 - **test-filter:** FullyQualifiedName~GovernanceFindingsQueueClient
-- **hunts:** 56
-- **bugs-found:** 35
+- **hunts:** 57
+- **bugs-found:** 36
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-12
-- **last-bug:** 2026-10-12 — tenant finding links did not mark rows as visited
+- **last-hunt:** 2026-10-13
+- **last-bug:** 2026-10-13 — assigned-to-me review link with blank run id
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -36184,6 +36186,14 @@ ABQ-09 churn hotspot.
 2026-10-09 thorough hunt (dry): cheap-disproved all five candidates; no failing repro was established and no fix was shipped. Candidate-specific tests ran 19 tests: 16 passed and 3 failed on the existing workspace-label expectation baseline. The focused queue files ran 29 tests: 17 passed and 12 failed on known external-store/update-depth, workspace-label, and buyer-polished contextual-help baselines.
 
 ### Hypotheses
+
+- [x] (proven) `GovernanceFindingsQueueAssignedToMeRowCells` / buyer-polished `GovernanceFindingsQueueTableRow` — assigned-to-me and buyer-polished review columns linked `runLabel` even when `runId` was whitespace-only, yielding a broken `/architecture/reviews/` href while operational rows already render plain text — **hit 2026-10-13 seed hunt:** `runId.trim().length > 0` guard before review links; regression `renders assigned-to-me review label without link when run id is blank`.
+
+- [ ] (candidate) `GovernanceFindingsQueueDesktopTable` keyboard activation — `onActivateRow` path calls `onRowOpened` before navigation but does not guard blank `runId` when `onActivateRow` is undefined.
+- [ ] (candidate) `GovernanceFindingsQueueAssignedToMeRowCells` derivation disclosure — URL sync uses raw `row.findingId` while scope filters may hide rows whose ids contain encoded characters.
+- [ ] (candidate) `useGovernanceFindingsQueueBulkActions` — URL bulk selections restored before queue rows load may briefly intersect an empty loaded-id set on first paint.
+- [ ] (candidate) `GovernanceFindingsQueueScopeSection` — architecture-scoped run sets vs single `runId` scope banner may both render when URL carries conflicting scope params.
+- [ ] (candidate) `GovernanceFindingsAssignedToMeChrome` — refresh hint remains visible while `assignedToMeRefreshing` is true during failed reload, with no distinct error-state copy in the chrome strip.
 
 - [x] (proven) `GovernanceFindingsQueueTableRow` / `GovernanceFindingsQueueOperationalRowCells` — a reachable tenant finding opened from the grouped or flat desktop queue did not invoke `GovernanceFindingsList.markGovernanceRowSeen`, so its last-visited watermark was not updated and the new-since-last-visit marker could remain — **hit 2026-10-12 seed hunt:** forward `onOpenRow` into operational cells and invoke it from the finding link; regression `marks grouped rows opened through the supplied callback`.
 

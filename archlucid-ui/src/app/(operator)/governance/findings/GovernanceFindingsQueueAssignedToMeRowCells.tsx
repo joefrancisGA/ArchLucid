@@ -114,9 +114,13 @@ export function GovernanceFindingsQueueAssignedToMeRowCells(props: GovernanceFin
         ) : null}
       </EnterpriseTableCell>
       <EnterpriseTableCell>
-        <Link className={OPERATOR_LINK.inline} href={`/architecture/reviews/${encodeURIComponent(row.runId)}`}>
-          {row.runLabel}
-        </Link>
+        {row.runId.trim().length > 0 ? (
+          <Link className={OPERATOR_LINK.inline} href={`/architecture/reviews/${encodeURIComponent(row.runId)}`}>
+            {row.runLabel}
+          </Link>
+        ) : (
+          row.runLabel
+        )}
       </EnterpriseTableCell>
       <EnterpriseTableCell className={GOVERNANCE_FINDINGS_QUEUE_SEVERITY_STICKY_CLASS}>
         {governanceQueueSeverityCell(row, false)}
