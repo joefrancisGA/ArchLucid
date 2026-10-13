@@ -1,12 +1,12 @@
 import type { FeasibilityVerdictKind } from "@/types/feasibility-verdict";
 import {
+  verdictKindLabel,
   verdictTierFromFeasibilityKind,
-  verdictTierLabel,
   verdictTierTone,
 } from "@/lib/verdict-taxonomy";
 
-export function feasibilityVerdictKindLabel(kind: FeasibilityVerdictKind): string {
-  return verdictTierLabel(verdictTierFromFeasibilityKind(kind));
+export function feasibilityVerdictKindLabel(kind: FeasibilityVerdictKind | null | undefined): string {
+  return verdictKindLabel(kind);
 }
 
 export function feasibilityVerdictTone(

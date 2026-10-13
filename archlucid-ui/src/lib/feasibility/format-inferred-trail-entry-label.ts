@@ -32,6 +32,10 @@ export function formatInferredTrailEntryLabel(
   entry: InferredTrailEntry,
   findingTrustById?: ReadonlyMap<string, FindingTrustPresentationInput>,
 ): string {
+  if (entry.key === null || entry.key === undefined) {
+    return `Inferred trail key was not stored. Value: ${entry.value} (confidence ${entry.confidence})`;
+  }
+
   const key = entry.key.trim();
 
   if (key.startsWith(FEASIBILITY_BLOCKING_FINDING_TRAIL_KEY_PREFIX) && findingTrustById !== undefined) {

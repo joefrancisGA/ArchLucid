@@ -1,11 +1,13 @@
-> **Scope:** Chapter 3 first draft for the book draft *Managing Azure Security with AI*. Author working text; not product documentation and not a description of any vendor's internals.
-> **Status:** draft
+> **Scope:** Chapter 3 revised draft for the book draft *Managing Azure Security with AI*. Author working text; not product documentation and not a description of any vendor's internals.
+> **Status:** draft — revised (revision pass 1, 2026-10-10)
 
 # Chapter 3 — Collecting Azure evidence read-only
 
 **Spine:** [`../README.md`](../README.md) · **Outline:** [`../OUTLINE.md`](../OUTLINE.md)
 
-> *Draft status: first draft. Target 8,000 words. Facts about Azure behavior, API names, and cmdlet parameters must be re-verified against Microsoft documentation before submission.*
+> *Draft status: revised (revision pass 1, 2026-10-10). Target 8,000 words. Facts about Azure behavior and API names were checked against Microsoft documentation in October 2026; dated "As of" notes mark the ones to re-check. Cmdlet parameters still need a live check before submission.*
+
+**Builds on:** Chapter 1 (paths and targets, sections 1.4 and 1.7), Chapter 2 (evidence categories and the payments hop table, sections 2.2 and 2.3).
 
 ---
 
@@ -15,7 +17,7 @@ In this fictional scenario, a platform engineer at Contoso wrote a script to loo
 
 They ran it from their own laptop, signed in as themselves. It finished in under a minute and found nothing alarming. The engineer was pleased and said so in the team channel.
 
-The payments path was there the whole time. The script didn't find it because the engineer's account had no access to the payments production subscription. Azure Resource Graph doesn't return an error for subscriptions you can't read. It just returns results from the ones you can. From the script's point of view, the payments subscription didn't exist.
+The payments path was there the whole time. The script didn't find it because the engineer's account had no access to the payments production subscription. Azure Resource Graph doesn't return an error for subscriptions you can't read [S1]. It just returns results from the ones you can [S1]. From the script's point of view, the payments subscription didn't exist.
 
 Nothing in the output said "I couldn't see two of your eleven production subscriptions." The report was clean because the collector was blind, and nobody could tell the difference.
 
@@ -50,7 +52,7 @@ The fifth row is easy to forget. It doesn't create paths. It tells you whether y
 
 Two kinds of evidence are deliberately *not* in this chapter:
 
-- **Activity**: sign-in logs, Activity Log entries, storage access logs. These are evidence of what *happened*, not what's *possible*. They matter for confirming flows (Chapter 6) and verifying fixes (Chapter 10), and they have different retention, cost, and privacy considerations.
+- **Activity**: sign-in logs, Activity Log entries, storage access logs. These are evidence of what *happened*, not what's *possible*. They matter for confirming flows (section 8.4) and verifying fixes (section 12.2), and they have different retention, cost, and privacy considerations.
 - **Secret values**: keys, connection strings, passwords, tokens. Section 3.6 explains why the collector should never hold them.
 
 ### Map the payments path to evidence
@@ -59,11 +61,11 @@ Here are the observed facts from Chapter 2's hop table, with where each one come
 
 | Hop | Observed fact | Kind | Source |
 |-----|---------------|------|--------|
-| 1 | `payments-deploy` trusts GitHub Actions tokens from `main` | Identity | Microsoft Graph: application's federated identity credentials |
-| 3 | `payments-deploy`'s service principal holds Contributor on `rg-payments-prod` | Authorization | Azure Resource Graph: `authorizationresources` |
-| 4 (input) | `custdata` is in `rg-payments-prod` | Resources | Azure Resource Graph: `resources` |
-| 5 | `custdata` allows shared key access | Resources | Azure Resource Graph: storage account properties |
-| 6 (assumptions) | No deny assignment, no role condition, public network access setting | Authorization, Network | Azure Resource Graph or ARM APIs |
+| 1 | `payments-deploy` trusts GitHub Actions tokens from `main` | Identity | Microsoft Graph: application's federated identity credentials [S2] |
+| 3 | `payments-deploy`'s service principal holds Contributor on `rg-payments-prod` | Authorization | Azure Resource Graph: `authorizationresources` [S3] |
+| 4 (input) | `custdata` is in `rg-payments-prod` | Resources | Azure Resource Graph: `resources` [S3] |
+| 5 | `custdata` allows shared key access | Resources | Azure Resource Graph: storage account properties [S3] |
+| 6 (assumptions) | No deny assignment, no role condition, public network access setting | Authorization, Network | ARM APIs (deny assignments) [S4]; Azure Resource Graph (`authorizationresources` for role assignment conditions; `resources` for network-related settings) [S3, S5] |
 | 8 (input) | No blob read diagnostic logging on `custdata` | Telemetry configuration | ARM: diagnostic settings on the storage account's blob service |
 
 Notice that hop 1 comes from Microsoft Graph and hop 3 from Azure Resource Graph. A collector that only uses one of them can't connect the repository to the resource group. That's the most common reason homegrown path scripts miss identity-based paths: the identity half and the authorization half live in different APIs.
@@ -78,15 +80,15 @@ The collector's identity is a design decision with security consequences in both
 
 The collector needs to **read** configuration. It never needs to **change** anything. That sounds obvious, but many organizations run security scanners with Contributor or Owner "to avoid permission errors". That turns the scanner into exactly the kind of identity Chapter 1 warned about: broad, rarely reviewed, and reachable from wherever the scanner runs.
 
-For Azure Resource Manager, the built-in **Reader** role is the right starting point. Assign it at the highest scope you want covered, ideally the tenant root management group, so new subscriptions are covered automatically when they're created.
+For Azure Resource Manager, the built-in **Reader** role is the right starting point. Assign it at the highest scope you want covered, ideally the tenant root management group, so new subscriptions are covered automatically when they're created [S6, S7].
 
-Reader has a useful property: it grants read actions but not the list-secrets actions that many services expose separately. A Reader can see that a storage account exists and how it's configured, but can't call `listKeys`. It can see an App Service's configuration, but not the values of its application settings. Reader keeps the collector from accidentally collecting secrets.
+Reader has a useful property: it grants read actions but not the list-secrets actions that many services expose separately [S7, S8]. A Reader can see that a storage account exists and how it's configured, but can't call `listKeys` [S8]. It can see an App Service's configuration, but not the values of its application settings [S9]. Reader keeps the collector from accidentally collecting secrets.
 
-> **As of 2026-10:** Verify the current definition of Reader and any service-specific exceptions before relying on this in a design review. Role definitions change, and a few services expose sensitive data through read actions.
+> **As of 2026-10:** Reader's definition was checked and grants `*/read` with no list-secrets actions [S7, S8, S9]. A few services expose sensitive data through plain read actions, and role definitions change, so re-check before relying on this in a design review.
 
 ### Microsoft Graph: narrow application permissions
 
-Identity evidence comes from Microsoft Graph, which uses its own permission model. The collector needs **application permissions**, because it runs unattended, and only read permissions. A typical minimal set:
+Identity evidence comes from Microsoft Graph, which uses its own permission model. The collector needs **application permissions**, because it runs unattended [S10], and only read permissions. A typical minimal set [S11]:
 
 | Permission | Why |
 |------------|-----|
@@ -95,15 +97,17 @@ Identity evidence comes from Microsoft Graph, which uses its own permission mode
 | `User.Read.All` | Users referenced by memberships and role assignments |
 | `RoleManagement.Read.Directory` | Entra directory role assignments and eligibility |
 
-Avoid `Directory.Read.All` unless you need its breadth. Every application permission requires admin consent, and the narrower set is easier to justify to your identity team.
+Avoid `Directory.Read.All` unless you need its breadth. Every application permission requires admin consent [S10], and the narrower set is easier to justify to your identity team.
 
-> **As of 2026-10:** Check each permission's exact scope in the Microsoft Graph permissions reference. Names and coverage have shifted over time, especially around role management.
+`RoleManagement.Read.Directory` covers both directory role assignments and PIM eligibility [S11, S12]. If your identity team prefers narrower grants, `RoleEligibilitySchedule.Read.Directory` reads eligibility alone [S11, S12].
+
+> **As of 2026-10:** Graph permission names and coverage have shifted over time, especially around role management. Check each one in the Microsoft Graph permissions reference before requesting consent [S11].
 
 ### No secrets for the collector either
 
 Run the collector with a **managed identity** if it runs in Azure, or with **workload identity federation** if it runs in a CI system. That's the same mechanism as `payments-deploy`, and for the same reason: there's no stored secret to leak.
 
-That's a nice irony. The collector looking for over-privileged federated identities should itself be a narrowly privileged federated identity. Chapter 11 returns to governing the collector as a sensitive system in its own right.
+That's a nice irony. The collector looking for over-privileged federated identities should itself be a narrowly privileged federated identity.
 
 ### Don't run it as yourself
 
@@ -113,9 +117,9 @@ The opening story's mistake was running the collector as a person. A person's ac
 
 ## 3.3 Azure Resource Graph
 
-Azure Resource Graph (ARG) is the workhorse for resource and authorization evidence. It lets you query resource properties across many subscriptions at once using the Kusto Query Language (KQL), and it's fast enough to run against large estates in seconds.
+Azure Resource Graph (ARG) is the workhorse for resource and authorization evidence. It lets you query resource properties across many subscriptions at once using the Kusto Query Language (KQL) [S1], and it's fast enough to run against large estates in seconds.
 
-ARG exposes several tables. The three you'll use most:
+ARG exposes several tables. The three you'll use most [S3]:
 
 - `resources` — almost every Azure resource, with its properties as JSON.
 - `resourcecontainers` — subscriptions, resource groups, and management groups.
@@ -123,35 +127,35 @@ ARG exposes several tables. The three you'll use most:
 
 ### Storage accounts and shared key access
 
+<!-- listing: lab/queries/storage-accounts.kql -->
+
 ```kusto
 resources
 | where type =~ 'microsoft.storage/storageaccounts'
+| extend sharedKey = case(
+    isnull(properties.allowSharedKeyAccess), 'not set (platform default)',
+    tobool(properties.allowSharedKeyAccess), 'enabled',
+    'disabled')
 | project
     id,
     name,
     subscriptionId,
     resourceGroup,
     allowSharedKeyAccess = properties.allowSharedKeyAccess,
+    sharedKey,
     publicNetworkAccess = properties.publicNetworkAccess,
     minimumTlsVersion = properties.minimumTlsVersion
 ```
 
-One trap: `allowSharedKeyAccess` is often **absent** from the properties rather than set to `true`. Absent means the platform default applies, and the default has historically been to *allow* shared key access. A query that filters on `allowSharedKeyAccess == true` will miss every account where the property was never set, which in older estates is most of them.
+One trap: `allowSharedKeyAccess` is often **absent** from the properties rather than set to `true`. Absent means the platform default applies, and the default has historically been to *allow* shared key access [S13]. A query that filters on `allowSharedKeyAccess == true` will miss every account where the property was never set, which in older estates is most of them.
 
-Handle absence explicitly and keep it visible:
+That's why the query handles absence explicitly and keeps it visible. Its `extend` turns a missing property into `not set (platform default)` instead of letting it fall silently into either bucket, and the raw `allowSharedKeyAccess` column stays alongside it.
 
-```kusto
-| extend sharedKey = case(
-    isnull(properties.allowSharedKeyAccess), 'not set (platform default)',
-    tobool(properties.allowSharedKeyAccess), 'enabled',
-    'disabled')
-```
-
-Recording "not set (platform default)" rather than collapsing it to "enabled" keeps the observation honest. Your *derivation* can then apply the default rule and say so. Chapter 2 called this the difference between an observed fact and a derived fact.
-
-> **As of 2026-10:** Verify the current default for `allowSharedKeyAccess` on new and existing storage accounts.
+Recording "not set (platform default)" rather than collapsing it to "enabled" keeps the observation honest. Your *derivation* can then apply the default rule and say so. That's the difference between an observed fact and a derived fact (section 2.2). The rule to apply is Microsoft's documented one: a null `allowSharedKeyAccess` behaves as `true`, so shared key requests are accepted [S13].
 
 ### Role assignments with role names
+
+<!-- listing: lab/queries/role-assignments.kql -->
 
 ```kusto
 authorizationresources
@@ -175,19 +179,21 @@ authorizationresources
 
 Two details in that query deserve comment.
 
-First, **join on the role definition's GUID, not its full ID.** The same built-in role appears with different full resource IDs depending on the scope it's referenced from. Matching on the full ID silently drops rows. The trailing GUID is stable.
+First, **join on the role definition's GUID, not its full ID.** The same built-in role appears with different full resource IDs depending on the scope it's referenced from [S5]. Matching on the full ID silently drops rows [S14]. The trailing GUID is stable [S14].
 
-Second, **keep the `condition` column**, even though it's usually empty. Role assignment conditions can restrict what a role actually allows. Chapter 2's hop 6 listed "no role condition" as a checked assumption, and this is where that check comes from.
+Second, **keep the `condition` column**, even though it's usually empty. Role assignment conditions can restrict what a role actually allows [S5]. Chapter 2's hop 6 listed "no role condition" as a checked assumption, and this is where that check comes from.
 
 ### Paging and throttling
 
-ARG returns results in pages, so a collector that reads only the first page will miss data without any error. In PowerShell, `Search-AzGraph` takes `-First` (up to 1,000 rows per call) and returns a skip token when more results exist. Loop until there's no token. ARG also throttles heavy callers, so build in a back-off and record any query that didn't complete as a gap (section 3.7), not as an empty result.
+ARG returns results in pages, so a collector that reads only the first page will miss data without any error [S15, S16]. In PowerShell, `Search-AzGraph` takes `-First` (up to 1,000 rows per call) and returns a skip token when more results exist [S15]. Loop until there's no token [S15, S16]. ARG also throttles heavy callers [S1, S16], so build in a back-off and record any query that didn't complete as a gap (section 3.7), not as an empty result.
 
 ### The silent-scope problem
 
-Back to the opening story. ARG evaluates each query against the subscriptions the caller can read, and returns results only from those. A subscription you can't read doesn't raise an error. It simply contributes zero rows.
+Back to the opening story. ARG evaluates each query against the subscriptions the caller can read, and returns results only from those [S1]. A subscription you can't read doesn't raise an error [S1]. It simply contributes zero rows.
 
 That behavior is convenient for interactive use and dangerous for security collection. The fix is to collect the **expected** scope separately and compare:
+
+<!-- listing: lab/queries/subscriptions.kql -->
 
 ```kusto
 resourcecontainers
@@ -207,10 +213,10 @@ Microsoft Graph provides the identity half of the evidence: who exists, how they
 
 One distinction causes more confusion than any other when joining identity data to authorization data:
 
-- An **application object** (app registration) is the definition of an app. Federated identity credentials live here.
-- A **service principal** is that app's identity within a tenant. Role assignments point here: the `principalId` on an Azure role assignment is the service principal's object ID.
+- An **application object** (app registration) is the definition of an app. Federated identity credentials live here [S2].
+- A **service principal** is that app's identity within a tenant. Role assignments point here: the `principalId` on an Azure role assignment is the service principal's object ID [S5, S17].
 
-The two are linked by the application's **appId** (also called client ID), which both objects carry. To connect hop 1 (federated credential on the application) to hop 3 (role assignment to the service principal), you join through `appId`:
+The two are linked by the application's **appId** (also called client ID), which both objects carry [S2, S17]. To connect hop 1 (federated credential on the application) to hop 3 (role assignment to the service principal), you join through `appId`:
 
 ```text
 application (federated credentials)
@@ -227,6 +233,8 @@ Get this join wrong, for example by matching the application's object ID to a ro
 ### Collecting federated identity credentials
 
 With the Microsoft Graph PowerShell SDK:
+
+<!-- listing: lab/listings/powershell/ch03-collecting-federated-identity-credentials.ps1 -->
 
 ```powershell
 Connect-MgGraph -Identity
@@ -247,15 +255,15 @@ $federated = foreach ($app in $applications) {
 }
 ```
 
-For GitHub Actions, the `issuer` is GitHub's token service and the `subject` encodes what's trusted, such as a repository and branch (`repo:contoso/payments:ref:refs/heads/main`) or an environment. Record the subject exactly as stored. Chapter 4 covers how to interpret subjects, including the broader patterns that trust far more than one branch.
+For GitHub Actions, the `issuer` is GitHub's token service and the `subject` encodes what's trusted, such as a repository and branch (`repo:contoso/payments:ref:refs/heads/main`) or an environment. Record the subject exactly as stored. Section 4.3 covers how to interpret subjects, including the broader patterns that trust far more than one branch.
 
-> **As of 2026-10:** Verify the current GitHub OIDC issuer URL and subject formats, including environment- and pull-request-based subjects.
+> **As of 2026-10:** GitHub's issuer is `https://token.actions.githubusercontent.com` [S18]. Repositories created after July 15, 2026, repositories renamed or transferred after that date, and existing repositories that opt in use immutable subjects containing owner and repository IDs (`repo:owner@id/repo@id:…`) [S18, S19], so expect both formats in one tenant. Re-check the formats before you write rules that parse them [S18].
 
 Calling Graph once per application is slow in large tenants. Batching requests, or filtering to applications that have service principals with Azure role assignments, cuts the time considerably. Get it correct first, then make it fast.
 
 ### Nested group membership
 
-Azure role assignments are often made to groups, and groups contain groups. To know who effectively holds a role, you need **transitive** membership, not just direct members. Graph exposes this directly (the `transitiveMembers` relationship on a group), which is far safer than writing your own recursive walk.
+Azure role assignments are often made to groups, and groups contain groups. To know who effectively holds a role, you need **transitive** membership, not just direct members. Graph exposes this directly (the `transitiveMembers` relationship on a group) [S20], which is far safer than writing your own recursive walk.
 
 Collect it as observed data with its source, then let your derivation step compute effective access. If you later find a bug in how you handle nesting, you can re-derive from the same snapshot without collecting again.
 
@@ -266,6 +274,8 @@ Collect it as observed data with its source, then let your derivation step compu
 A collection is only useful as evidence if you can say exactly what it contains, when it was taken, and that it hasn't changed since. Package each collection as a **snapshot**: a set of data files plus a manifest that describes them.
 
 ### The manifest
+
+<!-- listing: lab/listings/json/ch03-the-manifest.json -->
 
 ```json
 {
@@ -290,25 +300,77 @@ A collection is only useful as evidence if you can say exactly what it contains,
     "expectedSource": "Human assertion: cloud platform team list, 2026-10-01"
   },
   "files": [
-    { "name": "storage-accounts.json", "sha256": "…", "rows": 214, "query": "queries/storage-accounts.kql" },
-    { "name": "role-assignments.json", "sha256": "…", "rows": 3920, "query": "queries/role-assignments.kql" },
-    { "name": "federated-credentials.json", "sha256": "…", "rows": 37, "query": "graph:applications/federatedIdentityCredentials" }
+    {
+      "name": "storage-accounts.json",
+      "sha256": "…",
+      "rows": 214,
+      "query": "queries/storage-accounts.kql",
+      "api": "Azure Resource Graph",
+      "client": "Az.ResourceGraph …",
+      "scope": "tenant",
+      "queriedAtUtc": "2026-10-06T09:10:04Z",
+      "completedAtUtc": "2026-10-06T09:10:19Z"
+    },
+    {
+      "name": "role-assignments.json",
+      "sha256": "…",
+      "rows": 3920,
+      "query": "queries/role-assignments.kql",
+      "api": "Azure Resource Graph",
+      "client": "Az.ResourceGraph …",
+      "scope": "tenant",
+      "queriedAtUtc": "2026-10-06T09:10:19Z",
+      "completedAtUtc": "2026-10-06T09:11:57Z"
+    },
+    {
+      "name": "federated-credentials.json",
+      "sha256": "…",
+      "rows": 37,
+      "query": "graph:applications/federatedIdentityCredentials",
+      "api": "Microsoft Graph v1.0",
+      "client": "Microsoft.Graph.Applications …",
+      "scope": "tenant",
+      "queriedAtUtc": "2026-10-06T09:12:03Z",
+      "completedAtUtc": "2026-10-06T09:16:38Z"
+    }
   ],
   "gaps": [
-    { "kind": "scopeNotReadable", "target": "subscription sub-payments-prod", "detail": "Not visible to collector; present in expected list" },
-    { "kind": "scopeNotReadable", "target": "subscription sub-legacy-03", "detail": "Not visible to collector; present in expected list" }
+    {
+      "kind": "scopeNotReadable",
+      "target": "subscription sub-payments-prod",
+      "detail": "Not visible to collector; present in expected list"
+    },
+    {
+      "kind": "scopeNotReadable",
+      "target": "subscription sub-legacy-03",
+      "detail": "Not visible to collector; present in expected list"
+    }
   ]
 }
 ```
 
 Each field earns its place:
 
-- **Start and end times.** Azure changes during a collection. A snapshot that took seven minutes isn't an instant, and hops collected minutes apart can disagree. Recording both times makes that visible.
+- **Start and end times, for the snapshot and for every file.** Azure changes during a collection. A snapshot that took seven minutes isn't an instant, and hops collected minutes apart can disagree. The snapshot's times bound the whole run. Each file's `queriedAtUtc` and `completedAtUtc` say when that file's reads actually happened.
+- **The API, client, and scope behind each file.** Resource Graph and Microsoft Graph are separate services with their own latency, and a module upgrade can change what a cmdlet returns. Recording `api`, `client` (module and version), and `scope` lets a later reader explain a difference between two snapshots that isn't a change in Azure.
 - **Collector identity and permissions.** Results depend on what the collector could see. Record it so a later reader knows.
 - **Expected versus read scope**, with the source of the expected number. This is the opening story's missing line.
 - **A hash for every file.** If anyone or anything changes the data later, the hash won't match. That includes a well-meaning script that "fixes up" a value.
 - **The query or API call behind each file.** You can't evaluate data without knowing how it was obtained.
 - **Gaps** (section 3.7).
+
+### What a snapshot does and doesn't guarantee
+
+A snapshot is a set of reads with known times. It is not a moment. The manifest above read storage accounts at 09:10, role assignments by 09:12, and federated credentials until 09:16. Anything that changed in between is in some files and not others, and nothing in the files says so.
+
+That matters most where a path joins facts from different files. The joins that build the payments paths are these: a federated credential's `appId` to a service principal, the service principal's object ID to a role assignment, and the role assignment's scope to a storage account's settings. Each pair comes from a different read, and two of them come from different services. Suppose `payments-deploy` loses its Contributor role at 09:11, just after the role-assignment query returned that row. Then a federated credential is added to it at 09:13, before the Graph loop reaches that application. The snapshot holds both, and the derivation joins them into a path that never existed: at no instant did the credential and the role exist together. Swap the order of the two changes and the snapshot hides a path that did exist.
+
+So the guarantee is narrower than it looks:
+
+- **It does guarantee** what each file contained, when it was read, how, and by whom, and that none of it has changed since.
+- **It doesn't guarantee** that the files agree with each other at any one instant.
+
+Two habits close most of the gap. Keep a run short, and read the files a path joins close together. And carry the read times forward: Section 5.4 gives every path an **input span**, from its earliest read to its latest, and labels a path whose span is too wide, or that saw a change inside it. Section 12.2 does the same for verification.
 
 ### Store snapshots so they can't be quietly edited
 
@@ -320,7 +382,7 @@ Treat snapshots as the raw observations and keep derivation (effective permissio
 
 - When you fix a bug in path logic, you re-run it on last month's snapshot and see what changes.
 - When someone challenges a path, you show exactly which snapshot files it came from.
-- When you compare two points in time (Chapter 10), you compare snapshots, not your memory of what the environment looked like.
+- When you compare two points in time (section 12.3), you compare snapshots, not your memory of what the environment looked like.
 
 ---
 
@@ -332,9 +394,9 @@ The reasons are practical:
 
 1. **It turns the evidence store into a higher-value target.** A snapshot that contains keys is immediately exploitable. One that contains only configuration has lower impact, but its inventory, network topology, identities, and privilege relationships are still valuable reconnaissance and must remain protected.
 2. **It doesn't help the analysis.** To show that a path exists, you need to know that a key-based route is *possible*: shared key access enabled, and an identity that can list keys. You never need the key itself.
-3. **It breaks the read-only guarantee.** Listing keys or reading secret values requires permissions beyond Reader. Granting them makes the collector a path to every secret in scope.
+3. **It breaks the read-only guarantee.** Listing keys or reading secret values requires permissions beyond Reader [S8]. Granting them makes the collector a path to every secret in scope.
 
-Record that a secret-bearing setting **exists**, and what kind it is. Don't record the value. For example, "App Service `pay-api` has an application setting whose name suggests a storage connection string" is useful evidence. Its value isn't. Even setting names can be sensitive in some organizations, so decide deliberately whether to keep them, and treat that as a governance choice (Chapter 11), not a default.
+Record that a secret-bearing setting **exists**, and what kind it is. Don't record the value. For example, "App Service `pay-api` has an application setting whose name suggests a storage connection string" is useful evidence. Its value isn't. Even setting names can be sensitive in some organizations, so decide deliberately whether to keep them, and treat that as a governance choice (Chapter 13), not a default.
 
 ---
 
@@ -362,7 +424,7 @@ That paragraph would have turned the opening story's clean report into an obviou
 
 ### Gaps change conclusions
 
-Chapter 2 introduced "insufficient evidence" as a state separate from "path exists" and "no path". Gaps are what produce it. A derivation step that reads a snapshot should check the gap list before saying "no path": if a required kind of evidence for that region of the estate is missing, the honest answer is "insufficient evidence", not "clean".
+"Insufficient evidence" is a state separate from "path exists" and "no path" (section 2.6), and gaps are what produce it. A derivation step that reads a snapshot should check the gap list before saying "no path": if a required kind of evidence for that region of the estate is missing, the honest answer is "insufficient evidence", not "clean".
 
 ---
 
@@ -371,12 +433,10 @@ Chapter 2 introduced "insufficient evidence" as a state separate from "path exis
 Snapshots age. How often to collect depends on how fast your estate changes and what you're using the evidence for:
 
 - **Path discovery and prioritization:** daily is usually enough. Most risky configurations persist for weeks.
-- **Verifying a fix** (Chapter 10): collect on demand after the change, so the verification uses evidence newer than the fix.
+- **Verifying a fix** (section 12.2): collect on demand after the change, so the verification uses evidence newer than the fix.
 - **Investigations:** use activity sources and change history, not just the latest snapshot.
 
-Azure Resource Graph also exposes recent resource **change history**, which can tell you when a property changed between snapshots. It has limited retention, so treat it as a short-term supplement to snapshots, not a replacement.
-
-> **As of 2026-10:** Verify the current retention and coverage of Resource Graph change history (`resourcechanges`).
+Azure Resource Graph also exposes recent resource **change history**, which can tell you when a property changed between snapshots. It keeps 14 days and covers Azure resources only, not Entra objects [S1, S3], so treat it as a short-term supplement to snapshots, not a replacement.
 
 Whatever cadence you choose, every derived result should carry the snapshot ID and time it was computed from. "The payments path exists" means little without "as of 2026-10-06 09:16 UTC".
 
@@ -386,7 +446,7 @@ Whatever cadence you choose, every derived result should carry the snapshot ID a
 
 Mostly, it doesn't, and that's deliberate.
 
-Collection is where facts enter the system. Everything downstream (derivation, paths, rankings, explanations) inherits its trustworthiness from what was collected. If a model is involved in deciding what a role assignment says, every later conclusion depends on an AI inference, by Chapter 2's first rule.
+Collection is where facts enter the system. Everything downstream (derivation, paths, rankings, explanations) inherits its trustworthiness from what was collected. If a model is involved in deciding what a role assignment says, every later conclusion depends on an AI inference, by Rule 1 (section 2.4).
 
 There are two places where AI genuinely helps:
 
@@ -405,6 +465,8 @@ This lab builds a minimal collector and uses it to gather every observed fact in
 
 **Step 1 — Collect with paging and gap capture.**
 
+<!-- listing: lab/listings/powershell/ch03-lab-collect-the-payments-path.ps1 -->
+
 ```powershell
 Connect-AzAccount -Identity | Out-Null
 Connect-MgGraph -Identity | Out-Null
@@ -413,16 +475,46 @@ $snapshotDir = Join-Path $PWD ("snapshot-{0:yyyy-MM-ddTHH-mm-ssZ}" -f (Get-Date)
 New-Item -ItemType Directory -Path $snapshotDir | Out-Null
 
 $gaps = [System.Collections.Generic.List[object]]::new()
+$files = [System.Collections.Generic.List[object]]::new()
+
+function Get-UtcStamp {
+    (Get-Date).ToUniversalTime().ToString('yyyy-MM-ddTHH:mm:ssZ')
+}
+
+function Save-SnapshotFile {
+    # Writes one snapshot file and records when, how, and where it was read.
+    param(
+        [string] $Name, [object[]] $Rows, [string] $QueriedAtUtc,
+        [string] $Api, [string] $Module, [string] $Scope, [string] $Source
+    )
+
+    ConvertTo-Json -InputObject $Rows -Depth 20 |
+        Set-Content (Join-Path $snapshotDir "$Name.json")
+
+    $version = (Get-Module $Module | Select-Object -First 1).Version
+    $files.Add([pscustomobject]@{
+        name           = "$Name.json"
+        rows           = $Rows.Count
+        query          = $Source
+        api            = $Api
+        client         = "$Module $version"
+        scope          = $Scope
+        queriedAtUtc   = $QueriedAtUtc
+        completedAtUtc = Get-UtcStamp
+    })
+}
 
 function Invoke-ArgQuery {
     param([string] $Name, [string] $Query)
 
+    $queriedAt = Get-UtcStamp
     $rows = [System.Collections.Generic.List[object]]::new()
     $skipToken = $null
 
     try {
         do {
-            # Search-AzGraph returns at most 1,000 rows per call; the skip token fetches the next page.
+            # Search-AzGraph returns at most 1,000 rows per call;
+            # the skip token fetches the next page.
             $page = if ($skipToken) {
                 Search-AzGraph -Query $Query -First 1000 -SkipToken $skipToken -UseTenantScope
             } else {
@@ -435,10 +527,16 @@ function Invoke-ArgQuery {
     }
     catch {
         # A failed query is a gap, never an empty result.
-        $gaps.Add([pscustomobject]@{ kind = 'partialResult'; target = $Name; detail = $_.Exception.Message })
+        $gaps.Add([pscustomobject]@{
+            kind   = 'partialResult'
+            target = $Name
+            detail = $_.Exception.Message
+        })
     }
 
-    ConvertTo-Json -InputObject ([object[]] $rows) -Depth 20 | Set-Content (Join-Path $snapshotDir "$Name.json")
+    Save-SnapshotFile -Name $Name -Rows ([object[]] $rows) -QueriedAtUtc $queriedAt `
+        -Api 'Azure Resource Graph' -Module 'Az.ResourceGraph' -Scope 'tenant' `
+        -Source "queries/$Name.kql"
 }
 
 Invoke-ArgQuery -Name 'storage-accounts' -Query (Get-Content queries/storage-accounts.kql -Raw)
@@ -446,11 +544,36 @@ Invoke-ArgQuery -Name 'role-assignments' -Query (Get-Content queries/role-assign
 Invoke-ArgQuery -Name 'subscriptions'    -Query (Get-Content queries/subscriptions.kql -Raw)
 ```
 
-**Step 2 — Collect federated credentials and service principals** using the Graph snippet from section 3.4, plus `Get-MgServicePrincipal -All -Property 'id,appId,displayName'`. Write both to the snapshot directory.
+`Invoke-ArgQuery` hands each result to `Save-SnapshotFile`, which writes the file and records its read times, API, client version, and scope in `$files`. Every collection step uses it, so the manifest knows when each file was read.
+
+**Step 2 — Collect federated credentials and service principals** using the Graph snippet from section 3.4, then save both through the same helper:
+
+<!-- listing: lab/listings/powershell/ch03-lab-save-graph-files.ps1 -->
+
+```powershell
+$graph = @{
+    Api    = 'Microsoft Graph v1.0'
+    Module = 'Microsoft.Graph.Applications'
+    Scope  = 'tenant'
+}
+
+$queriedAt = Get-UtcStamp
+# Section 3.4's snippet runs here and fills $applications and $federated.
+Save-SnapshotFile -Name 'federated-credentials' -Rows $federated -QueriedAtUtc $queriedAt `
+    -Source 'graph:applications/federatedIdentityCredentials' @graph
+
+$queriedAt = Get-UtcStamp
+$servicePrincipals = Get-MgServicePrincipal -All -Property 'id,appId,displayName' |
+    Select-Object Id, AppId, DisplayName
+Save-SnapshotFile -Name 'service-principals' -Rows $servicePrincipals -QueriedAtUtc $queriedAt `
+    -Source 'graph:servicePrincipals' @graph
+```
+
+The federated-credential loop calls Graph once per application, so its read window is the longest in the run. That's the file most likely to disagree with the others.
 
 **Step 3 — Compare expected and read scope.** Put the lab's expected subscription list in `expected-subscriptions.json` (this is a human assertion; record who wrote it and when). Add a `scopeNotReadable` gap for every expected subscription missing from `subscriptions.json`.
 
-**Step 4 — Write the manifest.** Hash every file with `Get-FileHash -Algorithm SHA256` and write a `manifest.json` in the shape from section 3.5, including the gap list.
+**Step 4 — Write the manifest.** Hash every file with `Get-FileHash -Algorithm SHA256`, add each hash to its entry in `$files`, and write a `manifest.json` in the shape from section 3.5. Include the gap list, and the run's start and completion times as `collectedAtUtc` and `completedAtUtc`.
 
 **Step 5 — Find the hops.** Using only the snapshot files (no live Azure calls), locate:
 
@@ -465,6 +588,31 @@ Invoke-ArgQuery -Name 'subscriptions'    -Query (Get-Content queries/subscriptio
 
 ---
 
+## Sources
+
+- **[S1]** Overview of Azure Resource Graph. Microsoft Learn. <https://learn.microsoft.com/azure/governance/resource-graph/overview> Checked 2026-10-12. Kind: documented.
+- **[S2]** application resource type. Microsoft Learn. <https://learn.microsoft.com/graph/api/resources/application> Checked 2026-10-12. Kind: documented.
+- **[S3]** Understand the query language. Microsoft Learn. <https://learn.microsoft.com/azure/governance/resource-graph/concepts/query-language> Checked 2026-10-12. Kind: documented.
+- **[S4]** List Azure deny assignments. Microsoft Learn. <https://learn.microsoft.com/azure/role-based-access-control/deny-assignments> Checked 2026-10-12. Kind: documented.
+- **[S5]** Understand Azure role assignments. Microsoft Learn. <https://learn.microsoft.com/azure/role-based-access-control/role-assignments> Checked 2026-10-12. Kind: documented.
+- **[S6]** Understand scope for Azure RBAC. Microsoft Learn. <https://learn.microsoft.com/azure/role-based-access-control/scope-overview> Checked 2026-10-12. Kind: documented.
+- **[S7]** Azure built-in roles for General (Reader). Microsoft Learn. <https://learn.microsoft.com/azure/role-based-access-control/built-in-roles/general#reader> Checked 2026-10-12. Kind: documented.
+- **[S8]** Authorize access to blob data in the Azure portal. Microsoft Learn. <https://learn.microsoft.com/azure/storage/blobs/authorize-data-operations-portal> Checked 2026-10-12. Kind: documented.
+- **[S9]** Azure permissions for Web and Mobile. Microsoft Learn. <https://learn.microsoft.com/azure/role-based-access-control/permissions/web-and-mobile> Checked 2026-10-12. Kind: inference, from S7.
+- **[S10]** Overview of Microsoft Graph permissions. Microsoft Learn. <https://learn.microsoft.com/graph/permissions-overview> Checked 2026-10-12. Kind: documented.
+- **[S11]** Microsoft Graph permissions reference. Microsoft Learn. <https://learn.microsoft.com/graph/permissions-reference> Checked 2026-10-12. Kind: documented.
+- **[S12]** List roleEligibilitySchedules. Microsoft Learn. <https://learn.microsoft.com/graph/api/rbacapplication-list-roleeligibilityschedules> Checked 2026-10-12. Kind: documented.
+- **[S13]** Prevent authorization with Shared Key. Microsoft Learn. <https://learn.microsoft.com/azure/storage/common/shared-key-authorization-prevent> Checked 2026-10-12. Kind: documented.
+- **[S14]** Understand Azure role definitions. Microsoft Learn. <https://learn.microsoft.com/azure/role-based-access-control/role-definitions> Checked 2026-10-12. Kind: documented.
+- **[S15]** Search-AzGraph. Microsoft Learn. <https://learn.microsoft.com/powershell/module/az.resourcegraph/search-azgraph> Checked 2026-10-12. Kind: documented.
+- **[S16]** Guidance for throttled requests in Azure Resource Graph. Microsoft Learn. <https://learn.microsoft.com/azure/governance/resource-graph/concepts/guidance-for-throttled-requests> Checked 2026-10-12. Kind: documented.
+- **[S17]** servicePrincipal resource type. Microsoft Learn. <https://learn.microsoft.com/graph/api/resources/serviceprincipal> Checked 2026-10-12. Kind: documented.
+- **[S18]** OpenID Connect reference. GitHub Docs. <https://docs.github.com/en/actions/reference/openid-connect-reference> Checked 2026-10-12. Kind: documented.
+- **[S19]** Migrate GitHub Actions federated credentials to immutable subjects. Microsoft Learn. <https://learn.microsoft.com/entra/workload-id/workload-identities-github-immutable-subjects> Checked 2026-10-12. Kind: documented.
+- **[S20]** List group transitive members. Microsoft Learn. <https://learn.microsoft.com/graph/api/group-list-transitivemembers> Checked 2026-10-12. Kind: documented.
+
+---
+
 ## Summary
 
 - List the evidence a path needs before writing queries: **identity, authorization, resources, network, and telemetry configuration**. Activity and secret values are different problems.
@@ -473,6 +621,7 @@ Invoke-ArgQuery -Name 'subscriptions'    -Query (Get-Content queries/subscriptio
 - Azure Resource Graph **silently omits scopes you can't read**. Compare expected to read scope every time.
 - Watch the common traps: **absent properties** that mean "platform default", **role-definition joins** on full IDs, **missing pagination**, and **application versus service principal** IDs.
 - Package each collection as a **snapshot**: files, hashes, queries, collector identity, scope, timing, and gaps, stored where it can't be quietly edited.
+- A snapshot is **a set of reads with known times, not a moment**. Record each file's read times, so a path joined from reads far apart, or across a change, can be labeled.
 - **Never collect secret values.** Record that they exist and what kind they are.
 - **Gaps are results.** Put them in the manifest and in every report. They are what make "insufficient evidence" possible.
 - Use AI to **draft queries and explain gaps**, never to fill in missing data.
@@ -481,7 +630,8 @@ Invoke-ArgQuery -Name 'subscriptions'    -Query (Get-Content queries/subscriptio
 
 - **Collector** — the identity and code that reads evidence from Azure and Entra ID.
 - **Snapshot** — a hashed, timestamped package of collected evidence plus a manifest describing it.
-- **Manifest** — the snapshot's description: collector, scope, timing, file hashes, queries, and gaps.
+- **Manifest** — the snapshot's description: collector, scope, timing, file hashes, queries, and gaps. Each file entry carries its own read times, API, client, and scope.
+- **Input span** — for a derived result such as a path, the time from the earliest read behind it to the latest.
 - **Expected scope** — the subscriptions and directories that *should* be collected, from a source other than the collector itself.
 - **Silent-scope problem** — a query returning results only from readable scopes, with no indication that others were skipped.
 - **Application object / service principal** — an app's definition versus its identity in a tenant; joined by `appId`.
@@ -491,9 +641,15 @@ Invoke-ArgQuery -Name 'subscriptions'    -Query (Get-Content queries/subscriptio
 
 ## Author notes (remove before submission)
 
-- Verify: Reader excludes `listKeys` and App Service application-setting values; minimal Graph permission set names and coverage (especially `RoleManagement.Read.Directory` and PIM eligibility); `allowSharedKeyAccess` default; whether `authorizationresources` includes deny assignments and role assignment conditions; current GitHub OIDC issuer and subject formats; `resourcechanges` retention.
+- 2026-10-12 (BR-10, repetition edit): recap and signpost references to other chapters were cut or turned into section pointers, and the **Builds on** line now carries the dependencies. No technical content, code, labs, or evidence categories changed. `tools/check_cross_refs.py` checks every reference.
+- Verified 2026-10-10 (revision pass 1): Reader excludes list-secrets actions; Graph permission names, including `RoleManagement.Read.Directory` and PIM eligibility; `allowSharedKeyAccess` null behavior; GitHub issuer, subject formats and immutable subjects; `resourcechanges` 14-day retention.
+- Resolved 2026-10-12: the Resource Graph table reference doesn't list deny assignments under `authorizationresources`, so hop 6 uses the ARM deny-assignment API [S4], and Chapter 5 and Appendix B's deny listing is now a REST call (`appb-deny-assignments.ps1`) instead of a Resource Graph query.
+- Unverified (2026-10-12): whether role assignment `condition` values are always present in `authorizationresources` query results (property is documented on role assignments [S5]).
 - Verify cmdlet details: `Search-AzGraph` `-First` maximum, `-SkipToken` and `-UseTenantScope` parameters, and the shape of its return object (`.Data`, `.SkipToken`) in the current Az.ResourceGraph version; `Get-MgApplicationFederatedIdentityCredential` parameter names.
 - Decide whether PIM eligibility for Azure resources belongs here or in Chapter 4.
-- The lab's query files (`queries/*.kql`) belong in the companion lab repo; keep them in sync with sections 3.3 and 3.10.
+- The lab's query files live in `docs/book/lab/queries/` (Appendix A); keep them in sync with sections 3.3 and 3.10.
+- 2026-10-11 (listing sync): `tools/check_listings.py` now enforces that sync. The section 3.3 storage block had drifted from `lab/queries/storage-accounts.kql` (it lacked the `sharedKey` column), and the `| extend` fragment after it couldn't be synced as a standalone query, so it became a sentence describing the query's `extend`.
 - Consider a figure: the application → service principal → role assignment join, with the wrong join (application object ID) shown crossed out.
 - Add the Chapter 3 fact checks to GTM **M-306** when it is picked up.
+- 2026-10-12 (review comment on temporal consistency): manifest file entries now carry `queriedAtUtc`, `completedAtUtc`, `api`, `client`, and `scope`; the lab collector records them through `Save-SnapshotFile`, and Step 2 has its own listing. Added "What a snapshot does and doesn't guarantee". The example manifest's per-file times are illustrative and fit inside its 09:10:00–09:16:42 run; module versions are elided (`…`) rather than invented. Verify before submission: that `Get-MgServicePrincipal` and `Get-MgApplicationFederatedIdentityCredential` are both in `Microsoft.Graph.Applications`.
+- 2026-10-12 (sources): added 20 sources. Changed: hop 6 source cell splits deny assignments (ARM) from ARG role conditions and network properties. Softened: (none). Unverified: ARG `condition` field population on role assignments (see above).

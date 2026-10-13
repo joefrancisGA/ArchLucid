@@ -7,7 +7,7 @@ export type ExtractUploadAcceptedPackageRecord = {
   readonly acceptedAtUtc: string;
   readonly actorLabel: string;
   readonly resourceCount: number | null;
-  readonly fileLabel?: string;
+  readonly fileLabel?: string | null;
   readonly associateRunId?: string | null;
 };
 
@@ -63,8 +63,8 @@ export function readExtractUploadAcceptedPackageRecord(): ExtractUploadAcceptedP
         typeof parsed.resourceCount === "number" && Number.isFinite(parsed.resourceCount)
           ? parsed.resourceCount
           : null,
-      fileLabel: parsed.fileLabel?.trim() || undefined,
-      associateRunId: parsed.associateRunId?.trim() || null,
+      fileLabel: parsed.fileLabel?.trim(),
+      associateRunId: typeof parsed.associateRunId === "string" ? parsed.associateRunId : null,
     };
   } catch {
     return null;

@@ -25,6 +25,18 @@ function ratioPercentLabel(value: number | null | undefined, emptyLabel: string)
   return `${Math.round(value * 100)}%`;
 }
 
+function faithfulnessSupportRatioLine(value: unknown): string | null {
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return `Faithfulness support ratio: ${ratioPercentLabel(value, "Ratio not returned")}.`;
+  }
+
+  if (typeof value === "string") {
+    return `Faithfulness support ratio: ${value}.`;
+  }
+
+  return null;
+}
+
 function formatAggregateModelConfidence(value: number): string {
   if (value > 1 && value <= 100) {
     return `${Math.round(value)}%`;
@@ -51,16 +63,22 @@ export function buildSponsorRiskReviewMarkdown(
   prioritizedFindings: readonly SponsorRiskReviewFindingMarkdownRow[],
 ): string {
   const structuredConfidence = summary.explanation?.structured?.confidence;
-  const faithfulnessWarningTrimmed = trimLine(summary.faithfulnessWarning);
+  const faithfulnessWarning =
+    summary.faithfulnessWarning === null || summary.faithfulnessWarning === undefined
+      ? "Faithfulness warning was not stored."
+      : summary.faithfulnessWarning;
+  const deterministicFallbackMissing =
+    summary.deterministicFallbackUsed === null || summary.deterministicFallbackUsed === undefined;
 
   const evidenceParts = [
     typeof structuredConfidence === "number" && Number.isFinite(structuredConfidence)
       ? `Aggregate model confidence: ${formatAggregateModelConfidence(structuredConfidence)}.`
       : null,
-    typeof summary.faithfulnessSupportRatio === "number" && Number.isFinite(summary.faithfulnessSupportRatio)
-      ? `Faithfulness support ratio: ${ratioPercentLabel(summary.faithfulnessSupportRatio, "Ratio not returned")}.`
-      : null,
-    faithfulnessWarningTrimmed.length > 0 ? faithfulnessWarningTrimmed : null,
+    summary.faithfulnessSupportRatio === null || summary.faithfulnessSupportRatio === undefined
+      ? "Faithfulness support ratio was not stored."
+      : faithfulnessSupportRatioLine(summary.faithfulnessSupportRatio),
+    faithfulnessWarning.length > 0 ? faithfulnessWarning : null,
+    deterministicFallbackMissing ? "Deterministic fallback was not stored." : null,
     isDeterministicExplanationFallback(summary)
       ? "Some narrative was deterministically aligned to the review when live synthesis was unavailable."
       : null,
@@ -72,11 +90,15 @@ export function buildSponsorRiskReviewMarkdown(
       ? `${Math.trunc(summary.findingCount)} architecture finding${
           Math.trunc(summary.findingCount) === 1 ? "" : "s"
         } surfaced in this review.`
+      : summary.findingCount === null || summary.findingCount === undefined
+        ? "Finding count was not stored."
       : null,
     typeof summary.unresolvedIssueCount === "number" && Number.isFinite(summary.unresolvedIssueCount)
       ? `${summary.unresolvedIssueCount} unresolved review issue${
           Math.trunc(summary.unresolvedIssueCount) === 1 ? "" : "s"
         }.`
+      : summary.unresolvedIssueCount === null || summary.unresolvedIssueCount === undefined
+        ? "Unresolved issue count was not stored."
       : null,
     typeof summary.complianceGapCount === "number" &&
     Number.isFinite(summary.complianceGapCount) &&
@@ -84,6 +106,8 @@ export function buildSponsorRiskReviewMarkdown(
       ? `${Math.trunc(summary.complianceGapCount)} compliance gap${
           Math.trunc(summary.complianceGapCount) === 1 ? "" : "s"
         } in the aggregate assessment.`
+      : summary.complianceGapCount === null || summary.complianceGapCount === undefined
+        ? "Compliance gap count was not stored."
       : null,
   ].filter((s): s is string => typeof s === "string" && s.length > 0);
 

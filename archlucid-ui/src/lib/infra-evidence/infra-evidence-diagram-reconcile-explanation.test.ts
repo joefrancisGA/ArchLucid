@@ -34,6 +34,27 @@ describe("infra-evidence-diagram-reconcile-explanation", () => {
     })).not.toContain("AI rationale:");
   });
 
+  it("distinguishes an unrecorded explanation from a stored empty explanation", () => {
+    const row: DiagramInfrastructureCorrespondenceRow = {
+      correspondenceId: "diagram-node-1",
+      diagramNodeId: "node-1",
+      diagramNodeLabel: "gateway",
+      cloudResourceId: null,
+      azureResourceId: null,
+      resourceType: null,
+      resourceGroup: null,
+      terraformAddress: null,
+      matchKind: "Exact",
+      confidenceBand: "Confirmed",
+      explainText: null,
+      aiRationale: null,
+      securityDiscrepancy: false,
+    };
+
+    expect(formatDiagramReconcileExplanation(row)).toBe("Correspondence explanation was not stored.");
+    expect(formatDiagramReconcileExplanation({ ...row, explainText: "" })).toBe("");
+  });
+
   it("lowercases diagram node labels for display", () => {
     expect(
       formatDiagramReconcileResourceLabelForDisplay({

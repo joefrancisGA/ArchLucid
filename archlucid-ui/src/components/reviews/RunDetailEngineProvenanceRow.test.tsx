@@ -31,4 +31,59 @@ describe("RunDetailEngineProvenanceRow", () => {
     expect(screen.getByText("FindingsSnapshot v2")).toBeInTheDocument();
     expect(screen.getByText("$0.0042")).toBeInTheDocument();
   });
+
+  it.each([
+    [null, "Output schema version was not stored."],
+    [undefined, "Output schema version was not stored."],
+    ["", ""],
+    ["FindingsSnapshot v3", "FindingsSnapshot v3"],
+  ])("always renders the output schema value %s", (outputSchemaVersion, expectedValue) => {
+    render(
+      <RunDetailEngineProvenanceRow
+        provenance={{ ...sampleProvenance, outputSchemaVersion }}
+      />,
+    );
+
+    expect(screen.getByText("Output schema")).toBeInTheDocument();
+
+    if (expectedValue === "") {
+      const outputSchemaLabel = screen.getByText("Output schema");
+      expect(outputSchemaLabel.nextElementSibling).toBeEmptyDOMElement();
+    } else {
+      expect(screen.getByText(expectedValue)).toBeInTheDocument();
+    }
+  });
+
+  it("renders engine profile and task evaluation provenance honestly", () => {
+    render(
+      <RunDetailEngineProvenanceRow
+        provenance={{
+          ...sampleProvenance,
+          engineProfileId: null,
+          taskEvaluationSnapshotsAtSelection: null,
+        }}
+      />,
+    );
+
+    expect(screen.getByText("Engine profile was not stored.")).toBeInTheDocument();
+    expect(screen.getByText("Task evaluations were not stored.")).toBeInTheDocument();
+  });
+
+  it("preserves stored empty and task evaluation values", () => {
+    render(
+      <RunDetailEngineProvenanceRow
+        provenance={{
+          ...sampleProvenance,
+          engineProfileId: "",
+          taskEvaluationSnapshotsAtSelection: [
+            { taskType: "Finding", evaluationState: "Passed" },
+          ],
+        }}
+      />,
+    );
+
+    expect(screen.getByText("Engine profile").nextElementSibling).toBeEmptyDOMElement();
+    expect(screen.getByText("Task evaluation: Finding")).toBeInTheDocument();
+    expect(screen.getByText("Passed")).toBeInTheDocument();
+  });
 });

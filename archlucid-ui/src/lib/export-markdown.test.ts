@@ -7,6 +7,7 @@ import {
   isUsableGoldenManifestExportJson,
 } from "./export-markdown";
 import type { ManifestSummary, RunTrustEvidenceCard } from "@/types/authority";
+import { pushPolicyAtCommitMarkdownLines } from "./export-markdown-policy-section";
 
 describe("isUsableGoldenManifestExportJson", () => {
   it("rejects placeholders and empty objects", () => {
@@ -101,6 +102,193 @@ describe("formatGoldenManifestMarkdown", () => {
     expect(md).toContain("**TLS**");
     expect(md).toContain("### Architecture decisions");
     expect(md).toContain("Private endpoints");
+  });
+
+  it("uses explicit stored-value omission copy in manifest and policy exports", () => {
+    const manifestMarkdown = formatGoldenManifestMarkdown({
+      metadata: { manifestVersion: "7" },
+      effectiveGovernanceAtCommit: {
+        hasEffectivePolicy: true,
+        packAssignments: [],
+        coverageAssignments: [
+          {
+            policyPackId: "pack-a",
+            coverageType: null,
+            selectionState: null,
+            qualityDimension: null,
+          },
+        ],
+      },
+    });
+
+    expect(manifestMarkdown).toContain("# Change description was not stored.");
+    expect(manifestMarkdown).toContain("**Review record version:** 7");
+    expect(manifestMarkdown).toContain("Policy pack version was not stored.");
+    expect(manifestMarkdown).toContain("Coverage type was not stored.");
+    expect(manifestMarkdown).toContain("Selection state was not stored.");
+    expect(manifestMarkdown).toContain("Quality dimension was not stored.");
+
+    const lines: string[] = [];
+    pushPolicyAtCommitMarkdownLines(
+      {
+        effectiveGovernanceAtCommit: {
+          hasEffectivePolicy: true,
+          packAssignments: [],
+          coverageAssignments: [
+            {
+              policyPackId: "pack-a",
+              policyPackVersion: "",
+              coverageType: "Unknown",
+              selectionState: "",
+              qualityDimension: "",
+            },
+          ],
+        },
+      },
+      lines,
+    );
+
+    expect(lines.join("\n")).toContain("Coverage `pack-a` ·  · Unknown");
+    expect(lines.join("\n")).not.toContain("v —");
+  });
+
+  it("distinguishes missing manifest fields from stored empty collections and strings", () => {
+    const missing = formatGoldenManifestMarkdown({
+      requirements: {
+        covered: [{ requirementName: "Retention", requirementText: null, coverageStatus: "Covered" }],
+      },
+      constraints: null,
+      security: null,
+    });
+    const storedEmpty = formatGoldenManifestMarkdown({
+      requirements: {
+        covered: [{ requirementName: "Retention", requirementText: "", coverageStatus: "Covered" }],
+      },
+      constraints: { mandatoryConstraints: [], preferences: [] },
+      security: { controls: [], gaps: [] },
+    });
+
+    expect(missing).toContain("Retention");
+    expect(missing).toContain("Requirement text was not stored.");
+    expect(missing).toContain("Constraints were not stored.");
+    expect(missing).toContain("Security model was not stored.");
+    expect(storedEmpty).not.toContain("Requirement text was not stored.");
+    expect(storedEmpty).toContain("_No mandatory constraints._");
+    expect(storedEmpty).not.toContain("Security model was not stored.");
+  });
+
+  it("reports omitted manifest values while preserving stored empty values", () => {
+    const omitted = formatGoldenManifestMarkdown({
+      manifestHash: null,
+      assumptions: null,
+      topology: null,
+      security: { gaps: null },
+      warnings: null,
+    });
+    const storedEmpty = formatGoldenManifestMarkdown({
+      manifestHash: "",
+      assumptions: [],
+      topology: { selectedPatterns: [], resources: [], gaps: [], services: [] },
+      security: { gaps: [] },
+      warnings: [],
+    });
+
+    expect(omitted).toContain("Review record hash was not stored.");
+    expect(omitted).toContain("Assumptions were not stored.");
+    expect(omitted).toContain("Architecture structure was not stored.");
+    expect(omitted).toContain("Security gaps were not stored.");
+    expect(omitted).toContain("Warnings were not stored.");
+    expect(storedEmpty).toContain("_No assumptions listed._");
+    expect(storedEmpty).not.toContain("Architecture structure was not stored.");
+    expect(storedEmpty).not.toContain("Security gaps were not stored.");
+    expect(storedEmpty).not.toContain("Warnings were not stored.");
+    expect(storedEmpty).not.toContain("Review record hash was not stored.");
+  });
+
+  it("reports missing topology collections while preserving stored empty collections", () => {
+    const missing = formatGoldenManifestMarkdown({
+      topology: { selectedPatterns: null, gaps: undefined },
+    });
+    const storedEmpty = formatGoldenManifestMarkdown({
+      topology: { selectedPatterns: [], gaps: [] },
+    });
+
+    expect(missing).toContain("Selected patterns were not stored.");
+    expect(missing).toContain("Topology gaps were not stored.");
+    expect(storedEmpty).not.toContain("Selected patterns were not stored.");
+    expect(storedEmpty).not.toContain("Topology gaps were not stored.");
+  });
+
+  it("reports omitted service purpose and preserves an empty purpose", () => {
+    const omitted = formatGoldenManifestMarkdown({
+      topology: { services: [{ serviceName: "API", purpose: null }] },
+    });
+    const storedEmpty = formatGoldenManifestMarkdown({
+      topology: { services: [{ serviceName: "API", purpose: "" }] },
+    });
+
+    expect(omitted).toContain("Purpose was not stored.");
+    expect(storedEmpty).not.toContain("Purpose was not stored.");
+  });
+
+  it("reports omitted component values while preserving stored empty values", () => {
+    const omitted = formatGoldenManifestMarkdown({
+      constraints: {},
+      topology: {
+        services: [{ serviceName: null, serviceId: null }],
+        datastores: [{ name: null, datastoreId: null }],
+      },
+      decisions: [{ decisionId: null, selectedOption: null }],
+    });
+    const storedEmpty = formatGoldenManifestMarkdown({
+      constraints: { preferences: [] },
+      topology: {
+        services: [{ serviceName: "", serviceId: "" }],
+        datastores: [{ name: "", datastoreId: "" }],
+      },
+      decisions: [{ decisionId: "", selectedOption: "" }],
+    });
+
+    expect(omitted).toContain("Preferences were not stored.");
+    expect(omitted).toContain("Service name was not stored.");
+    expect(omitted).toContain("Service id was not stored.");
+    expect(omitted).toContain("Datastore name was not stored.");
+    expect(omitted).toContain("Datastore id was not stored.");
+    expect(omitted).toContain("Decision id was not stored.");
+    expect(omitted).toContain("Selected option was not stored.");
+    expect(storedEmpty).not.toContain("Preferences were not stored.");
+    expect(storedEmpty).not.toContain("Service name was not stored.");
+    expect(storedEmpty).not.toContain("Service id was not stored.");
+    expect(storedEmpty).not.toContain("Datastore name was not stored.");
+    expect(storedEmpty).not.toContain("Datastore id was not stored.");
+    expect(storedEmpty).not.toContain("Decision id was not stored.");
+    expect(storedEmpty).not.toContain("Selected option was not stored.");
+  });
+
+  it("reports omitted policy-at-commit counts while preserving zero", () => {
+    const omitted: string[] = [];
+    const zero: string[] = [];
+
+    pushPolicyAtCommitMarkdownLines(
+      { effectiveGovernanceAtCommit: { hasEffectivePolicy: true } },
+      omitted,
+    );
+    pushPolicyAtCommitMarkdownLines(
+      {
+        effectiveGovernanceAtCommit: {
+          hasEffectivePolicy: true,
+          complianceRuleKeyCount: 0,
+          complianceRuleKeys: [],
+          conflictCount: 0,
+        },
+      },
+      zero,
+    );
+
+    expect(omitted.join("\n")).toContain("Compliance rule key count was not stored.");
+    expect(omitted.join("\n")).toContain("Merge conflict count was not stored.");
+    expect(zero.join("\n")).toContain("Compliance rule keys:** 0");
+    expect(zero.join("\n")).not.toContain("was not stored.");
   });
 
   it("includes feasibility verdict section with soft envelope on manifest exports", () => {
@@ -198,6 +386,61 @@ describe("formatGoldenManifestMarkdown", () => {
     expect(md).toContain("**W1:** Add probes.");
   });
 
+  it("distinguishes missing highlights from stored empty highlights", () => {
+    const base = {
+      schemaVersion: "archlucid.golden-manifest.v1",
+      summary: {},
+    };
+
+    expect(formatGoldenManifestMarkdown({ ...base, highlights: null })).toContain(
+      "Highlights were not stored.",
+    );
+    expect(formatGoldenManifestMarkdown(base)).toContain("Highlights were not stored.");
+    expect(formatGoldenManifestMarkdown({ ...base, highlights: [] })).toContain(
+      "_No highlights were present._",
+    );
+    expect(formatGoldenManifestMarkdown({ ...base, highlights: [] })).not.toContain(
+      "Highlights were not stored.",
+    );
+  });
+
+  it("distinguishes missing manifest versions from stored blank versions", () => {
+    expect(formatGoldenManifestMarkdown({ metadata: null })).toContain("Review record version was not stored.");
+    expect(formatGoldenManifestMarkdown({ metadata: { manifestVersion: null } })).toContain(
+      "Review record version was not stored.",
+    );
+    expect(formatGoldenManifestMarkdown({ metadata: { manifestVersion: "" } })).not.toContain(
+      "Review record version was not stored.",
+    );
+    expect(formatGoldenManifestMarkdown({ metadata: { manifestVersion: "  " } })).not.toContain(
+      "Review record version was not stored.",
+    );
+  });
+
+  it("distinguishes missing trust notices from stored blank notices", () => {
+    const base: RunTrustEvidenceCard = {
+      selfAttestationNotice: "",
+      executionMode: { title: "Execution mode", status: "Available", detail: null },
+      goldenManifest: { title: "Golden manifest", status: "Available", detail: null },
+      auditTrail: { title: "Audit trail", status: "Available", detail: null },
+      agentTraces: { title: "Agent traces", status: "Available", detail: null },
+      artifactBundlePointer: { title: "Artifact bundle", status: "Available", detail: null },
+      traceabilityExport: { title: "Traceability export", status: "Available", detail: null },
+      aiExplainability: { title: "AI explainability", status: "Available", detail: null },
+      topFinding: null,
+      links: [],
+    };
+    expect(formatTrustEvidenceCardMarkdown({ ...base, selfAttestationNotice: null })).toContain(
+      "Self-attestation notice was not stored.",
+    );
+    expect(formatTrustEvidenceCardMarkdown({ ...base, selfAttestationNotice: undefined })).toContain(
+      "Self-attestation notice was not stored.",
+    );
+    expect(formatTrustEvidenceCardMarkdown({ ...base, selfAttestationNotice: "" })).not.toContain(
+      "Self-attestation notice was not stored.",
+    );
+  });
+
   it("falls back to manifest summary when JSON is missing", () => {
     const summary: ManifestSummary = {
       manifestId: "m9",
@@ -227,6 +470,27 @@ describe("formatGoldenManifestMarkdown", () => {
     expect(md).toContain("**Decisions:** 4");
     expect(md).toContain("One-line operator summary.");
     expect(md).toContain("Measurement floor");
+  });
+
+  it("distinguishes a missing operator summary from a stored empty summary", () => {
+    const base: ManifestSummary = {
+      manifestId: "m9",
+      runId: "r9",
+      createdUtc: "2026-01-01T00:00:00Z",
+      manifestHash: "hash",
+      ruleSetId: "p1",
+      ruleSetVersion: "2.0",
+      status: "Committed",
+      decisionCount: 0,
+      warningCount: 0,
+      unresolvedIssueCount: 0,
+    };
+
+    expect(formatGoldenManifestMarkdown(null, { manifestSummaryFallback: base }))
+      .toContain("Operator summary was not stored.");
+    expect(formatGoldenManifestMarkdown(null, {
+      manifestSummaryFallback: { ...base, operatorSummary: "" },
+    })).not.toContain("_No operator summary was returned by the API._");
   });
 
   it("fallback measurement floor names skipped actor engines when graph context is provided", () => {

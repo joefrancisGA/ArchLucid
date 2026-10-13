@@ -71,7 +71,8 @@ public sealed partial class DapperFindingInspectReadRepository
             new CommandDefinition(FindingInspectReadSql.FollowUpBatch, queryParams, cancellationToken: ct));
 
         List<string> relatedNodes = (await multi.ReadAsync<string>()).ToList();
-        string? firstRuleText = await multi.ReadSingleOrDefaultAsync<string>();
+        List<string> traceRuleTexts = (await multi.ReadAsync<string>()).ToList();
+        string? firstRuleText = FindingInspectReadRepositoryCore.ResolveFirstTraceRuleText(traceRuleTexts);
 
         List<string> recommendedActions = FindingInspectReadRepositoryCore
             .FilterRecommendedActions(await multi.ReadAsync<string>())

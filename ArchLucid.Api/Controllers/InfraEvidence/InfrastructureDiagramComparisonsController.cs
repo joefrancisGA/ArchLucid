@@ -144,6 +144,102 @@ public sealed class InfrastructureDiagramComparisonsController(
         }
     }
 
+    [HttpPut("{comparisonId:guid}/documentation-decisions")]
+    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
+    [MutatingAuditExcluded("Documentation decision records operator disposition for a diagram gap without changing Azure or the match result.")]
+    [ProducesResponseType(typeof(InfrastructureDiagramDocumentationDecision), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> SaveDocumentationDecision(
+        Guid comparisonId,
+        [FromBody] InfrastructureDiagramDocumentationDecisionSaveRequest? request,
+        CancellationToken cancellationToken = default)
+    {
+        if (comparisonId == Guid.Empty || request is null || request.SnapshotId == Guid.Empty)
+        {
+            return this.BadRequestProblem(
+                "ComparisonId and SnapshotId are required.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        ScopeContext scope = _scopeProvider.GetCurrentScope();
+
+        try
+        {
+            InfrastructureDiagramDocumentationDecision result =
+                await _comparisonService.SaveDocumentationDecisionAsync(
+                    scope,
+                    comparisonId,
+                    request,
+                    ResolveActorOid(),
+                    cancellationToken);
+
+            return Ok(result);
+        }
+        catch (ArgumentException ex)
+        {
+            return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return this.NotFoundProblem(ex.Message, ProblemTypes.ResourceNotFound);
+        }
+    }
+
+    [HttpGet("{comparisonId:guid}/documentation-decisions")]
+    [ProducesResponseType(typeof(InfrastructureDiagramDocumentationDecision), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetDocumentationDecision(
+        Guid comparisonId,
+        [FromQuery] string subjectKind,
+        [FromQuery] string subjectKey,
+        CancellationToken cancellationToken = default)
+    {
+        if (comparisonId == Guid.Empty
+            || string.IsNullOrWhiteSpace(subjectKind)
+            || string.IsNullOrWhiteSpace(subjectKey))
+        {
+            return this.BadRequestProblem(
+                "ComparisonId, subjectKind, and subjectKey are required.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        ScopeContext scope = _scopeProvider.GetCurrentScope();
+        InfrastructureDiagramDocumentationDecision? result =
+            await _comparisonService.TryGetDocumentationDecisionAsync(
+                scope,
+                comparisonId,
+                subjectKind,
+                subjectKey,
+                cancellationToken);
+
+        return result is null ? NotFound() : Ok(result);
+    }
+
+    [HttpGet("{comparisonId:guid}/documentation-decisions/absent")]
+    [ProducesResponseType(typeof(IReadOnlyList<InfrastructureDiagramDocumentationDecision>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetAbsentDocumentationDecisions(
+        Guid comparisonId,
+        CancellationToken cancellationToken = default)
+    {
+        if (comparisonId == Guid.Empty)
+        {
+            return this.BadRequestProblem(
+                "ComparisonId is required.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        ScopeContext scope = _scopeProvider.GetCurrentScope();
+        IReadOnlyList<InfrastructureDiagramDocumentationDecision>? result =
+            await _comparisonService.TryListAbsentDocumentationDecisionsAsync(
+                scope,
+                comparisonId,
+                cancellationToken);
+
+        return result is null ? NotFound() : Ok(result);
+    }
+
     private string? ResolveActorOid() =>
         User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("sub");
 }

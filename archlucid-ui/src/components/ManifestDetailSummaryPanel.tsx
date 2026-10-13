@@ -81,7 +81,13 @@ export function ManifestDetailSummaryPanel(props: ManifestDetailSummaryPanelProp
     ) : null;
 
   const operatorSummary =
-    summary.operatorSummary ? (
+    summary.operatorSummary === null || summary.operatorSummary === undefined ? (
+      <div className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 px-4 py-3">
+        <p className={cn("m-0 font-medium leading-relaxed text-al-text-primary dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
+          Operator summary was not stored.
+        </p>
+      </div>
+    ) : summary.operatorSummary ? (
       <div className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 px-4 py-3">
         <p className={cn("m-0 font-medium leading-relaxed text-al-text-primary dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
           {summary.operatorSummary}

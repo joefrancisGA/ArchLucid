@@ -6,6 +6,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
@@ -42,6 +43,8 @@ export type SecureNowQuestionQueueProviderProps = {
 
 type SecureNowQuestionQueueContextValue = {
   readonly loading: boolean;
+  readonly questionsLoaded: boolean;
+  readonly loadError: boolean;
   readonly openQuestions: readonly SecureNowQuestion[];
   readonly filteredQuestions: readonly SecureNowQuestion[];
   readonly currentQuestion: SecureNowQuestion | null;
@@ -69,8 +72,13 @@ function normalize(value: string): string {
   return value.trim().toLowerCase();
 }
 
+// The API question key is generated with the same punctuation-to-hyphen rule.
+function normalizeRuleKey(value: string): string {
+  return value.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+}
+
 function questionIdentity(question: SecureNowQuestion): string {
-  return `${normalize(question.subscriptionId)}|${normalize(question.resourceId)}|${normalize(question.questionKey)}`;
+  return `${normalize(question.subscriptionId ?? "")}|${normalize(question.resourceId ?? "")}|${normalize(question.questionKey)}`;
 }
 
 function isDismissed(question: SecureNowQuestion): boolean {
@@ -80,7 +88,7 @@ function isDismissed(question: SecureNowQuestion): boolean {
 function filterQuestions(questions: readonly SecureNowQuestion[], filter: QueueFilter): SecureNowQuestion[] {
   return questions.filter((question) => {
     if (filter === "Open") {
-      return question.status !== "Answered" && !isDismissed(question) && !question.isExpired;
+      return question.status !== "Answered" && !isDismissed(question) && question.isExpired !== true;
     }
     if (filter === "Answered") return question.status === "Answered";
     return isDismissed(question);
@@ -94,9 +102,9 @@ function findInferredConnection(
   const ruleKey = normalize(question.questionKey.split("@", 1)[0]);
   return connections.find((connection) => {
     const resourceMatches =
-      normalize(connection.fromArmId ?? "") === normalize(question.resourceId)
-      || normalize(connection.toArmId ?? "") === normalize(question.resourceId);
-    return resourceMatches && normalize(connection.ruleName ?? "") === ruleKey;
+      normalize(connection.fromArmId ?? "") === normalize(question.resourceId ?? "")
+      || normalize(connection.toArmId ?? "") === normalize(question.resourceId ?? "");
+    return resourceMatches && normalizeRuleKey(connection.ruleName ?? "") === ruleKey;
   }) ?? null;
 }
 
@@ -114,7 +122,9 @@ export function SecureNowQuestionQueueProvider(
   const [drawerAction, setDrawerAction] = useState<DrawerAction>("answer");
   const [visitedQuestionKeys, setVisitedQuestionKeys] = useState<ReadonlySet<string>>(() => new Set());
   const [loading, setLoading] = useState(false);
+  const [questionsLoaded, setQuestionsLoaded] = useState(false);
   const [busy, setBusy] = useState(false);
+  const loadSequence = useRef(0);
   const [error, setError] = useState<OperatorInferredConnectionPanelError | null>(null);
   const [sessionSkippedQuestionKeys, setSessionSkippedQuestionKeys] = useState<ReadonlySet<string>>(
     () => new Set(),
@@ -123,11 +133,14 @@ export function SecureNowQuestionQueueProvider(
   useEffect(() => {
     setVisitedQuestionKeys(new Set());
     setSessionSkippedQuestionKeys(new Set());
+    setQuestionsLoaded(false);
   }, [snapshotId]);
 
   const loadQuestions = useCallback(async () => {
     if (snapshotId.trim().length === 0) return;
+    const requestSequence = ++loadSequence.current;
     setLoading(true);
+    setQuestionsLoaded(false);
     setError(null);
     try {
       const [questionsResult, connectionsResult] = await Promise.allSettled([
@@ -138,7 +151,11 @@ export function SecureNowQuestionQueueProvider(
         throw questionsResult.reason;
       }
 
+      // Snapshot navigation can leave older requests in flight; only the newest request owns queue state.
+      if (requestSequence !== loadSequence.current) return;
+
       setQuestions(questionsResult.value);
+      setQuestionsLoaded(true);
       if (connectionsResult.status === "fulfilled") {
         setInferredConnections(connectionsResult.value);
       } else {
@@ -155,6 +172,8 @@ export function SecureNowQuestionQueueProvider(
       setSelectedAnswer(null);
       setReason("");
     } catch (loadError) {
+      if (requestSequence !== loadSequence.current) return;
+
       setError(
         operatorInferredConnectionPanelErrorFromUnknown(
           loadError,
@@ -163,7 +182,9 @@ export function SecureNowQuestionQueueProvider(
         ),
       );
     } finally {
-      setLoading(false);
+      if (requestSequence === loadSequence.current) {
+        setLoading(false);
+      }
     }
   }, [snapshotId]);
 
@@ -173,7 +194,7 @@ export function SecureNowQuestionQueueProvider(
 
   const openQuestions = useMemo(
     () => questions.filter(
-      (question) => question.status !== "Answered" && !isDismissed(question) && !question.isExpired,
+      (question) => question.status !== "Answered" && !isDismissed(question) && question.isExpired !== true,
     ),
     [questions],
   );
@@ -209,23 +230,33 @@ export function SecureNowQuestionQueueProvider(
     if (action === "ignore" && reason.trim().length === 0) return;
     if (action === "reopen" && reason.trim().length === 0) return;
     if (action === "answer" && selectedAnswer == null) return;
+    if (currentQuestion.resourceId === null || currentQuestion.resourceId === undefined) {
+      setError(
+        operatorInferredConnectionPanelErrorFromUnknown(
+          new Error("Resource id was not stored."),
+          "Could not save the question update.",
+          "mutation",
+        ),
+      );
+      return;
+    }
 
     setBusy(true);
     setError(null);
     try {
       if (action === "ignore") {
         await ignoreSecureNowQuestion(snapshotId, {
-          subscriptionId: currentQuestion.subscriptionId,
+          subscriptionId: currentQuestion.subscriptionId ?? "",
           resourceId: currentQuestion.resourceId,
           questionKey: currentQuestion.questionKey,
-          source: currentQuestion.source,
-          scopeKind: currentQuestion.scopeKind,
+          source: currentQuestion.source ?? "",
+          scopeKind: currentQuestion.scopeKind ?? "",
           reason: reason.trim(),
           evidenceFingerprint: currentQuestion.evidenceFingerprint,
         });
       } else if (action === "reopen") {
         await reopenSecureNowQuestion(snapshotId, {
-          subscriptionId: currentQuestion.subscriptionId,
+          subscriptionId: currentQuestion.subscriptionId ?? "",
           resourceId: currentQuestion.resourceId,
           questionKey: currentQuestion.questionKey,
           reason: reason.trim(),
@@ -242,11 +273,11 @@ export function SecureNowQuestionQueueProvider(
         }
       } else {
         await answerSecureNowQuestion(snapshotId, {
-          subscriptionId: currentQuestion.subscriptionId,
+          subscriptionId: currentQuestion.subscriptionId ?? "",
           resourceId: currentQuestion.resourceId,
           questionKey: currentQuestion.questionKey,
-          source: currentQuestion.source,
-          scopeKind: currentQuestion.scopeKind,
+          source: currentQuestion.source ?? "",
+          scopeKind: currentQuestion.scopeKind ?? "",
           answerCode: selectedAnswer,
           answerText: selectedAnswer,
           reason: "Answered in the SecureNow subscription question queue.",
@@ -282,6 +313,8 @@ export function SecureNowQuestionQueueProvider(
   const contextValue = useMemo<SecureNowQuestionQueueContextValue>(
     () => ({
       loading,
+      questionsLoaded,
+      loadError: error !== null,
       openQuestions,
       filteredQuestions,
       currentQuestion,
@@ -312,6 +345,8 @@ export function SecureNowQuestionQueueProvider(
       filter,
       filteredQuestions,
       loading,
+      questionsLoaded,
+      error,
       openQuestions,
       reason,
       selectedAnswer,
@@ -351,7 +386,7 @@ export function useSecureNowQuestionQueue(): SecureNowQuestionQueueContextValue 
 
 export function useSecureNowQuestionSubjectNodeId(): string | null {
   const { drawerOpen, currentQuestion } = useSecureNowQuestionQueue();
-  const resourceId = currentQuestion?.resourceId.trim() ?? "";
+  const resourceId = currentQuestion?.resourceId?.trim() ?? "";
 
   if (!drawerOpen || resourceId.length === 0) {
     return null;

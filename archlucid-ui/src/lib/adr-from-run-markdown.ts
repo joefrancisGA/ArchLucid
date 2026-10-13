@@ -114,7 +114,9 @@ export function buildMadrMarkdownFromRun(
       narrativePieces.push(truncatePlain(exp.detailedNarrative, NARRATIVE_CAP));
     }
 
-    if (exp.structuredReasoning !== null && exp.structuredReasoning.trim().length > 0) {
+    if (exp.structuredReasoning === null) {
+      narrativePieces.push("Structured reasoning was not stored.");
+    } else if (exp.structuredReasoning.trim().length > 0) {
       narrativePieces.push(`_Structured model reasoning:_ ${truncatePlain(exp.structuredReasoning, EXCERPT_CAP)}`);
     }
   }
@@ -192,7 +194,9 @@ export function buildMadrMarkdownFromRun(
       consequencesSections.push(`### Compliance / governance\n\n${bulletBlock(exp.complianceImplications)}`);
     }
 
-    if (exp.alternativesConsidered !== null && exp.alternativesConsidered.length > 0) {
+    if (exp.alternativesConsidered === null) {
+      consequencesSections.push("Alternatives considered were not stored.");
+    } else if (exp.alternativesConsidered.length > 0) {
       consequencesSections.push(`### Alternatives considered (model-reported)\n\n${bulletBlock(exp.alternativesConsidered)}`);
     }
   }
@@ -207,16 +211,30 @@ export function buildMadrMarkdownFromRun(
     "This document was **drafted client-side** from ArchLucid run exports. It is **not** a substitute for human architecture review, security sign-off, or contractually binding decision logs.",
   ];
 
-  if (exp !== null && exp.deterministicFallbackUsed) {
+  if (
+    exp !== null
+    && (exp.deterministicFallbackUsed === null || exp.deterministicFallbackUsed === undefined)
+  ) {
+    caveatLines.push("Deterministic fallback was not stored.");
+  } else if (exp !== null && exp.deterministicFallbackUsed === true) {
     caveatLines.push("Aggregate text may include **deterministic substitution** where LLM output was unavailable or low-faithfulness.");
   }
 
-  if (exp !== null && exp.faithfulnessWarning !== null && exp.faithfulnessWarning.length > 0) {
+  if (
+    exp !== null
+    && (exp.faithfulnessWarning === null || exp.faithfulnessWarning === undefined)
+  ) {
+    caveatLines.push("Faithfulness warning was not stored.");
+  } else if (exp !== null && exp.faithfulnessWarning !== null && exp.faithfulnessWarning.length > 0) {
     caveatLines.push(`Faithfulness / quality note: ${exp.faithfulnessWarning}`);
   }
 
-  if (exp !== null && exp.caveats !== null && exp.caveats.length > 0) {
-    caveatLines.push(...exp.caveats);
+  if (exp !== null) {
+    if (exp.caveats === null) {
+      caveatLines.push("Caveats were not stored.");
+    } else if (exp.caveats.length > 0) {
+      caveatLines.push(...exp.caveats);
+    }
   }
 
   const provenance =

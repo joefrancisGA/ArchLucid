@@ -35,12 +35,17 @@ internal static class InventoryPrivilegePathGraph
                 .GroupBy(static property => property.ResourceRowId)
                 .ToDictionary(static group => group.Key, static group => group.ToList());
 
-        Dictionary<(string PrincipalId, string Scope), string?> roleNameByAssignment =
-            snapshot.RoleAssignments.ToDictionary(
-                static assignment => (assignment.PrincipalId, ArmResourceIdNormalizer.Normalize(assignment.Scope)),
-                static assignment => AzureInventoryBuiltInRoleDefinitionNames.TryResolveFromRoleDefinitionId(
-                    assignment.RoleDefinitionId),
-                new PrincipalScopeComparer());
+        Dictionary<(string PrincipalId, string Scope), List<AzureInventoryRoleAssignmentReadModel>> assignmentsByPrincipalScope =
+            snapshot.RoleAssignments
+                .Where(assignment => !string.IsNullOrWhiteSpace(assignment.PrincipalId) && !string.IsNullOrWhiteSpace(assignment.Scope))
+                .GroupBy(assignment => (assignment.PrincipalId.Trim(), ArmResourceIdNormalizer.Normalize(assignment.Scope)),
+                    new PrincipalScopeComparer())
+                .ToDictionary(group => group.Key, group => group
+                    .DistinctBy(assignment => AzureInventoryRoleAssignmentIdentity.NormalizeRole(assignment.RoleDefinitionId))
+                    .OrderBy(assignment => AzureInventoryRoleAssignmentIdentity.NormalizeRole(assignment.RoleDefinitionId), StringComparer.Ordinal)
+                    .ToList(), new PrincipalScopeComparer());
+        HashSet<(string PrincipalId, string Scope)> representedAssignments = new(new PrincipalScopeComparer());
+        HashSet<string> roleEdgeKeys = new(StringComparer.Ordinal);
 
         foreach (AzureInventoryResourceRelationshipReadModel relationship in snapshot.Relationships)
         {
@@ -49,28 +54,48 @@ internal static class InventoryPrivilegePathGraph
                 continue;
             }
 
-            string? roleName = null;
-
             if (relationship.RelationshipType == GraphEdgeTypes.HasRole
                 && relationship.FromAzureResourceId.StartsWith(AzureInventoryPrincipalNodeId.Prefix, StringComparison.Ordinal))
             {
-                string principalId = relationship.FromAzureResourceId[AzureInventoryPrincipalNodeId.Prefix.Length..];
-                roleNameByAssignment.TryGetValue(
-                    (principalId, relationship.ToAzureResourceId),
-                    out roleName);
+                var key = (relationship.FromAzureResourceId[AzureInventoryPrincipalNodeId.Prefix.Length..].Trim(),
+                    ArmResourceIdNormalizer.Normalize(relationship.ToAzureResourceId));
+                if (assignmentsByPrincipalScope.TryGetValue(key, out List<AzureInventoryRoleAssignmentReadModel>? assignments))
+                {
+                    representedAssignments.Add(key);
+                    foreach (AzureInventoryRoleAssignmentReadModel assignment in assignments)
+                    {
+                        (ProvenanceKind provenanceKind, string? inferenceSource) =
+                            ResolveAssignmentProvenance(assignment, relationship);
+                        AddRoleEdge(outgoing, roleEdgeKeys, relationship.FromAzureResourceId, relationship.ToAzureResourceId,
+                            assignment, provenanceKind, inferenceSource);
+                    }
+                    continue;
+                }
             }
 
-            AddEdge(
-                outgoing,
-                new PrivilegePathEdge
-                {
-                    FromNodeId = relationship.FromAzureResourceId,
-                    ToNodeId = relationship.ToAzureResourceId,
-                    EdgeType = relationship.RelationshipType,
-                    ProvenanceKind = relationship.ProvenanceKind,
-                    RoleName = roleName,
-                    InferenceSource = relationship.InferenceSource,
-                });
+            AddEdge(outgoing, new PrivilegePathEdge
+            {
+                FromNodeId = relationship.FromAzureResourceId,
+                ToNodeId = relationship.ToAzureResourceId,
+                EdgeType = relationship.RelationshipType,
+                ProvenanceKind = relationship.ProvenanceKind,
+                InferenceSource = relationship.InferenceSource,
+            });
+        }
+
+        // Assignment rows are direct evidence even when a materialized relationship row is absent.
+        foreach (var (key, assignments) in assignmentsByPrincipalScope)
+        {
+            if (representedAssignments.Contains(key))
+            {
+                continue;
+            }
+            foreach (AzureInventoryRoleAssignmentReadModel assignment in assignments)
+            {
+                (ProvenanceKind provenanceKind, string? inferenceSource) = ResolveAssignmentProvenance(assignment, null);
+                AddRoleEdge(outgoing, roleEdgeKeys, AzureInventoryPrincipalNodeId.Format(key.PrincipalId.ToLowerInvariant()),
+                    key.Scope, assignment, provenanceKind, inferenceSource);
+            }
         }
 
         Dictionary<string, string> managedIdentityPrincipalByArmId = BuildManagedIdentityPrincipalMap(
@@ -96,7 +121,6 @@ internal static class InventoryPrivilegePathGraph
             OutgoingEdges = outgoing,
             ResourcesByArmId = resourcesByArmId,
             TagsByResourceRowId = tagsByResourceRowId,
-            RoleNameByAssignment = roleNameByAssignment,
             ManagedIdentityPrincipalByArmId = managedIdentityPrincipalByArmId,
         };
     }
@@ -167,6 +191,53 @@ internal static class InventoryPrivilegePathGraph
         return map;
     }
 
+    private static void AddRoleEdge(
+        Dictionary<string, List<PrivilegePathEdge>> outgoing,
+        HashSet<string> roleEdgeKeys,
+        string fromNodeId,
+        string toNodeId,
+        AzureInventoryRoleAssignmentReadModel assignment,
+        ProvenanceKind provenanceKind,
+        string? inferenceSource)
+    {
+        string roleDefinitionId = AzureInventoryRoleAssignmentIdentity.NormalizeRole(assignment.RoleDefinitionId);
+        string identity = AzureInventoryRoleAssignmentIdentity.Create(assignment.PrincipalId, assignment.Scope, roleDefinitionId);
+        if (!roleEdgeKeys.Add($"{identity}|{provenanceKind}|{inferenceSource}"))
+        {
+            return;
+        }
+        AddEdge(outgoing, new PrivilegePathEdge
+        {
+            FromNodeId = fromNodeId,
+            ToNodeId = toNodeId,
+            EdgeType = GraphEdgeTypes.HasRole,
+            ProvenanceKind = provenanceKind,
+            InferenceSource = inferenceSource,
+            RoleDefinitionId = roleDefinitionId,
+            RoleName = AzureInventoryBuiltInRoleDefinitionNames.TryResolveFromRoleDefinitionId(assignment.RoleDefinitionId),
+        });
+    }
+
+    private static (ProvenanceKind Kind, string? InferenceSource) ResolveAssignmentProvenance(
+        AzureInventoryRoleAssignmentReadModel assignment,
+        AzureInventoryResourceRelationshipReadModel? relationship)
+    {
+        if (assignment.PimEligibilityKind?.Equals("unknown", StringComparison.OrdinalIgnoreCase) == true
+            || assignment.PimEligibilityKind?.Equals("eligible", StringComparison.OrdinalIgnoreCase) == true)
+        {
+            return (ProvenanceKind.DeterministicInference, GraphEdgeInferenceSources.PimEligibilityUnknown);
+        }
+
+        if (!string.IsNullOrWhiteSpace(assignment.PimEligibilityKind))
+        {
+            return (ProvenanceKind.ObservedFact, GraphEdgeInferenceSources.InventoryRbacAssignment);
+        }
+
+        return relationship is null
+            ? (ProvenanceKind.ObservedFact, GraphEdgeInferenceSources.InventoryRbacAssignment)
+            : (relationship.ProvenanceKind, relationship.InferenceSource);
+    }
+
     private static void AddEdge(
         Dictionary<string, List<PrivilegePathEdge>> outgoing,
         PrivilegePathEdge edge)
@@ -212,12 +283,6 @@ internal sealed class InventoryPrivilegePathGraphSnapshot
         get;
         init;
     } = new Dictionary<Guid, List<AzureInventoryTagReadModel>>();
-
-    public IReadOnlyDictionary<(string PrincipalId, string Scope), string?> RoleNameByAssignment
-    {
-        get;
-        init;
-    } = new Dictionary<(string PrincipalId, string Scope), string?>();
 
     public IReadOnlyDictionary<string, string> ManagedIdentityPrincipalByArmId
     {

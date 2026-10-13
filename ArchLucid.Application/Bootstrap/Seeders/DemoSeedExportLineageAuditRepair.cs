@@ -43,16 +43,23 @@ internal static class DemoSeedExportLineageAuditRepair
 
         string ruleSetId = string.IsNullOrWhiteSpace(golden.RuleSetId) ? DemoRuleSetId : golden.RuleSetId;
 
-        await deps.AuditService.LogAsync(
-            new AuditEvent
-            {
-                EventType = AuditEventTypes.ManifestGenerated,
-                RunId = runId,
-                ManifestId = golden.ManifestId,
-                DataJson = JsonSerializer.Serialize(
-                    new { ManifestHash = recomputedHash, RuleSetId = ruleSetId },
-                    AuditJsonSerializationOptions.Instance),
-            },
-            cancellationToken);
+        // Fail closed after bounded retries: this repair exists so demo seed cannot succeed
+        // without the ManifestGenerated export-lineage anchor (TB-307 / ADR 0040).
+        await DurableAuditLogRetry.LogOrThrowAsync(
+            ct => deps.AuditService.LogAsync(
+                new AuditEvent
+                {
+                    EventType = AuditEventTypes.ManifestGenerated,
+                    RunId = runId,
+                    ManifestId = golden.ManifestId,
+                    DataJson = JsonSerializer.Serialize(
+                        new { ManifestHash = recomputedHash, RuleSetId = ruleSetId },
+                        AuditJsonSerializationOptions.Instance),
+                },
+                ct),
+            deps.Logger,
+            $"{AuditEventTypes.ManifestGenerated}:{runId:N}",
+            cancellationToken,
+            auditEventTypeForMetrics: AuditEventTypes.ManifestGenerated);
     }
 }

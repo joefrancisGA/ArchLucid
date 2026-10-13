@@ -1,4 +1,5 @@
 import type { AuditEvidenceLineageRecord } from "@/lib/audit-evidence-lineage-types";
+import { normalizeAuditEvidenceLineageRecord } from "@/lib/audit-evidence-lineage-parse";
 import { formatExportSealedManifestAwareApiError } from "@/lib/api/export-sealed-manifest-conflict";
 import { tryWorkbookAuditEvidenceLineageDemoFallback } from "@/lib/governance/audit-evidence-lineage-demo-fallback";
 import { auditEvidenceLineageBlockedReason } from "@/lib/governance/audit-evidence-lineage-blocked-reason";
@@ -11,9 +12,11 @@ export async function fetchAuditEvidenceControlLineage(
   controlId: string,
 ): Promise<AuditEvidenceLineageRecord> {
   try {
-    return await proxyJsonGet<AuditEvidenceLineageRecord>(
+    const raw = await proxyJsonGet<AuditEvidenceLineageRecord>(
       `/api/proxy/v1/infra-evidence/audit-assessments/${encodeURIComponent(assessmentId)}/snapshots/${encodeURIComponent(snapshotId)}/controls/${encodeURIComponent(controlId)}/lineage`,
     );
+
+    return normalizeAuditEvidenceLineageRecord(raw);
   } catch (error: unknown) {
     const demoFallback = tryWorkbookAuditEvidenceLineageDemoFallback(assessmentId, snapshotId, controlId);
 

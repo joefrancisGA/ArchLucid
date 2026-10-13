@@ -14,7 +14,7 @@ export function isDiagramViewPlanValid(plan: DiagramViewPlan | null | undefined)
     return false;
   }
 
-  if (!ALLOWED_MODES.has(plan.mermaidMode)) {
+  if (plan.mermaidMode == null || !ALLOWED_MODES.has(plan.mermaidMode)) {
     return false;
   }
 
@@ -56,6 +56,15 @@ export function applyDiagramViewPlanToSearch(
     seedNodeId = plan.seedNodeId!.trim();
   }
 
+  const mermaidMode = plan.mermaidMode;
+
+  if (mermaidMode == null) {
+    return {
+      href: infraDiagramsFilterHrefFromSearch(currentSearch, {}),
+      error: "This view plan is not valid for the diagrams workbench.",
+    };
+  }
+
   const patch: {
     readonly mermaidMode?: string;
     readonly mermaidView?: string;
@@ -63,7 +72,7 @@ export function applyDiagramViewPlanToSearch(
     readonly snapshotId?: string;
     readonly cloudResourceId?: string;
   } = {
-    mermaidMode: plan.mermaidMode,
+    mermaidMode,
     mermaidView,
     seedNodeId,
     ...((plan.snapshotId?.trim().length ?? 0) > 0 ? { snapshotId: plan.snapshotId!.trim() } : {}),

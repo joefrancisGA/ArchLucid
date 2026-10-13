@@ -15,4 +15,17 @@ public sealed class HostedAzureExtractorOptions
 
     /// <summary>Token exchange scope for cross-tenant federated credential assertion (default Azure AD exchange).</summary>
     public string FederatedTokenExchangeScope { get; set; } = "api://AzureADTokenExchange/.default";
+
+    /// <summary>Customer subscription containing the Automation account used for SecureNow on-demand runs.</summary>
+    public string? AutomationSubscriptionId { get; set; }
+
+    /// <summary>Resource group containing the customer-owned Automation account.</summary>
+    public string? AutomationResourceGroupName { get; set; }
+
+    /// <summary>Customer-owned Automation account used for SecureNow on-demand runs.</summary>
+    public string? AutomationAccountName { get; set; }
+
+    /// <summary>PowerShell 7 runbook that starts the customer-owned collection agent.</summary>
+    public string? AutomationRunbookName { get; set; }
+
 }

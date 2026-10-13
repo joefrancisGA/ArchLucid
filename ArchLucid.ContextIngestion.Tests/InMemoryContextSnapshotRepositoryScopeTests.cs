@@ -49,4 +49,73 @@ public sealed class InMemoryContextSnapshotRepositoryScopeTests
 
         latest.Should().BeNull();
     }
+
+    [Fact]
+    public async Task GetLatestAsync_does_not_return_unscoped_snapshot_to_scoped_reader()
+    {
+        ScopeContext currentScope = new();
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider
+            .Setup(provider => provider.GetCurrentScope())
+            .Returns(() => currentScope);
+
+        InMemoryContextSnapshotRepository repository = new(scopeProvider.Object);
+        ContextSnapshot snapshot = new()
+        {
+            SnapshotId = Guid.NewGuid(),
+            RunId = Guid.NewGuid(),
+            ProjectId = "shared-project",
+            CreatedUtc = DateTime.UtcNow,
+        };
+
+        await repository.SaveAsync(snapshot, CancellationToken.None);
+
+        currentScope = new ScopeContext
+        {
+            TenantId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
+            WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+        };
+
+        ContextSnapshot? latest = await repository.GetLatestAsync("shared-project", CancellationToken.None);
+
+        latest.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task GetByIdAsync_does_not_return_unscoped_snapshot_to_scoped_reader()
+    {
+        ScopeContext currentScope = new();
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider
+            .Setup(provider => provider.GetCurrentScope())
+            .Returns(() => currentScope);
+
+        InMemoryContextSnapshotRepository repository = new(scopeProvider.Object);
+        ContextSnapshot snapshot = new()
+        {
+            SnapshotId = Guid.NewGuid(),
+            RunId = Guid.NewGuid(),
+            ProjectId = "shared-project",
+            CreatedUtc = DateTime.UtcNow,
+        };
+
+        await repository.SaveAsync(snapshot, CancellationToken.None);
+
+        currentScope = new ScopeContext
+        {
+            TenantId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
+            WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+        };
+
+        ContextSnapshot? byId = await repository.GetByIdAsync(
+            currentScope.ToReadScope(),
+            snapshot.SnapshotId,
+            CancellationToken.None);
+
+        byId.Should().BeNull();
+    }
 }

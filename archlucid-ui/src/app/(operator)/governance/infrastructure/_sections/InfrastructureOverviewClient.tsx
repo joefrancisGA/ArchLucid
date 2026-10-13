@@ -24,6 +24,8 @@ import {
   GOVERNANCE_INFRASTRUCTURE_OVERVIEW_PAGE_TITLE,
   GOVERNANCE_INFRASTRUCTURE_OVERVIEW_PRIMARY_CONTENT_ID,
   GOVERNANCE_INFRASTRUCTURE_OVERVIEW_SKIP_LINK_LABEL,
+  SECURENOW_HOME_CLAIM_DISCIPLINE,
+  SECURENOW_HOME_PAGE_LEAD,
   GOVERNANCE_INFRASTRUCTURE_OVERVIEW_START_HERE_ACTION,
   GOVERNANCE_INFRASTRUCTURE_OVERVIEW_START_HERE_BADGE,
   GOVERNANCE_INFRASTRUCTURE_OVERVIEW_START_HERE_BODY,
@@ -38,8 +40,12 @@ import { SECURITY_PRODUCT_HOME_TITLE } from "@/lib/product-line/product-line-cop
 import { cn } from "@/lib/utils";
 
 import { SecureNowComplianceHomeSection } from "@/components/product-line/SecureNowComplianceHomeSection";
+import { SecureNowDataSourcesHomeSection } from "@/components/product-line/SecureNowDataSourcesHomeSection";
+import { SecureNowFindingsHomeSection } from "@/components/product-line/SecureNowFindingsHomeSection";
 import { SecureNowInfrastructureHomeSection } from "@/components/product-line/SecureNowInfrastructureHomeSection";
-import { SecureNowSecurityHomeSection } from "@/components/product-line/SecureNowSecurityHomeSection";
+import { SecureNowRemediationHomeSection } from "@/components/product-line/SecureNowRemediationHomeSection";
+import { SecureNowHomeEnvironmentContext } from "@/components/product-line/SecureNowHomeEnvironmentContext";
+import { SecureNowHomeWorkSummary } from "@/components/product-line/SecureNowHomeWorkSummary";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
 
 import { InfrastructureOverviewClaimOrientationStrip } from "./InfrastructureOverviewClaimOrientationStrip";
@@ -74,8 +80,10 @@ export function InfrastructureOverviewClient(props: InfrastructureOverviewClient
       <OperatorPageHeader
         navHref={pageNavHref}
         title={pageTitle}
-        subtitle={GOVERNANCE_INFRASTRUCTURE_OVERVIEW_PAGE_LEAD}
-        claimDiscipline={GOVERNANCE_INFRASTRUCTURE_OVERVIEW_CLAIM_DISCIPLINE}
+        subtitle={secureNowHome ? SECURENOW_HOME_PAGE_LEAD : GOVERNANCE_INFRASTRUCTURE_OVERVIEW_PAGE_LEAD}
+        claimDiscipline={
+          secureNowHome ? SECURENOW_HOME_CLAIM_DISCIPLINE : GOVERNANCE_INFRASTRUCTURE_OVERVIEW_CLAIM_DISCIPLINE
+        }
         claimDisciplineTestId="governance-infrastructure-overview-claim-discipline"
         titleTestId="governance-infrastructure-overview-page-title"
         actions={
@@ -122,7 +130,7 @@ export function InfrastructureOverviewClient(props: InfrastructureOverviewClient
               </Button>
             </div>
           </section>
-        ) : (
+        ) : secureNowHome ? null : (
           <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
             {showSecureNowGroupedHomeSections
               ? SECURENOW_HOME_GROUPED_SECTIONS_INTRO
@@ -132,9 +140,13 @@ export function InfrastructureOverviewClient(props: InfrastructureOverviewClient
 
         {showSecureNowGroupedHomeSections ? (
           <div className="mt-6 space-y-4" data-testid="securenow-grouped-home-sections">
-            <SecureNowSecurityHomeSection />
-            <SecureNowComplianceHomeSection />
+            {secureNowHome ? <SecureNowHomeEnvironmentContext /> : null}
+            {secureNowHome ? <SecureNowHomeWorkSummary /> : null}
+            <SecureNowFindingsHomeSection />
             <SecureNowInfrastructureHomeSection />
+            <SecureNowRemediationHomeSection />
+            <SecureNowComplianceHomeSection />
+            <SecureNowDataSourcesHomeSection />
           </div>
         ) : (
           <section aria-labelledby="governance-infrastructure-workbenches-heading">

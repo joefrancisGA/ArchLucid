@@ -80,6 +80,24 @@ public sealed class AgentOutputLlmSemanticJudgeTests
             Times.Once);
     }
 
+    [Fact]
+    public async Task TryJudgeAsync_parses_completion_json_keys_without_case_sensitivity()
+    {
+        Mock<IAgentCompletionClient> client = new();
+        client
+            .Setup(c => c.CompleteJsonAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int?>(), It.IsAny<float?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync("""{"OVERALL_QUALITY":0.82,"RATIONALE":"solid evidence links"}""");
+
+        AgentOutputLlmSemanticJudge judge = CreateJudge(client.Object, enabled: true, mode: "Real");
+
+        AgentOutputLlmJudgeParsedResult? result =
+            await judge.TryJudgeAsync("trace-1", """{"claims":[]}""", AgentType.Topology, CancellationToken.None);
+
+        result.Should().NotBeNull();
+        result.OverallQuality.Should().BeApproximately(0.82, 1e-9);
+        result.Rationale.Should().Contain("evidence");
+    }
+
     private static AgentOutputLlmSemanticJudge CreateJudge(
         IAgentCompletionClient completionClient,
         bool enabled,

@@ -61,7 +61,7 @@ public sealed class AgentOutputEvaluationHarness(
 
                 else
                 {
-                    HashSet<string> names = new(StringComparer.Ordinal);
+                    HashSet<string> names = new(StringComparer.OrdinalIgnoreCase);
 
                     foreach (JsonProperty p in doc.RootElement.EnumerateObject())
 

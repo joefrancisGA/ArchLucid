@@ -53,6 +53,16 @@ describe("DiagramNeighborhoodMapView", () => {
     expect(onOpenNeighborhood).toHaveBeenCalledWith("vnet:app");
   });
 
+  it("uses the same border styling on virtual network and resource group tiles", () => {
+    render(<DiagramNeighborhoodMapView map={map} onOpenNeighborhood={vi.fn()} />);
+
+    const vnetTile = screen.getByTestId("architecture-diagram-neighborhood-tile-vnet:app");
+    const resourceGroupTile = screen.getByTestId("architecture-diagram-neighborhood-tile-shared:security");
+
+    expect(vnetTile.className).toBe(resourceGroupTile.className);
+    expect(vnetTile.className).toContain("border-slate-200");
+  });
+
   it("keeps shared services out of the resource group section", () => {
     render(
       <DiagramNeighborhoodMapView
@@ -151,5 +161,44 @@ describe("DiagramNeighborhoodMapView", () => {
     expect(screen.getByText("virtualMachines count was not stored")).toBeInTheDocument();
     expect(screen.getByText("0 resources")).toBeInTheDocument();
     expect(screen.getByText("virtualMachines 0")).toBeInTheDocument();
+  });
+
+  it("distinguishes omitted link counts and titles from stored empty values", () => {
+    render(
+      <DiagramNeighborhoodMapView
+        map={{
+          neighborhoods: [{ ...map.neighborhoods[0], title: null }],
+          links: [
+            { from: "vnet:app", to: "vnet:app", count: null },
+            { from: "vnet:app", to: "vnet:app", count: 0 },
+          ],
+        }}
+        onOpenNeighborhood={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByText("Neighborhood title was not stored.")).toBeInTheDocument();
+    expect(screen.getByText("vnet:app — Link count was not stored — vnet:app")).toBeInTheDocument();
+    expect(screen.getByText("vnet:app — 0 — vnet:app")).toBeInTheDocument();
+  });
+
+  it("labels missing kinds and type names without changing stored counts", () => {
+    render(
+      <DiagramNeighborhoodMapView
+        map={{
+          neighborhoods: [{
+            ...map.neighborhoods[0],
+            kind: null,
+            types: [{ name: null, count: 0 }, { name: "", count: 2 }],
+          }],
+          links: [],
+        }}
+        onOpenNeighborhood={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByRole("heading", { name: "Neighborhood kind was not stored." })).toBeInTheDocument();
+    expect(screen.getByText("Type name was not stored 0")).toBeInTheDocument();
+    expect(screen.getByTestId("architecture-diagram-neighborhood-tile-vnet:app")).toHaveTextContent("2");
   });
 });

@@ -171,6 +171,8 @@ public static class GraphEdgeInferenceSources
 
     public const string OperatorConfirmedConnection = "inventory-operator-confirmed-connection";
 
+    public const string InventoryOperatorAttestedDataPlane = "inventory-operator-attested-data-plane";
+
     public const string PimEligibilityUnknown = "pim-eligibility-unknown";
 
     public static bool IsInventoryAdfMovementInferenceSource(string? inferenceSource)

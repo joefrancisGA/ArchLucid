@@ -56,6 +56,29 @@ internal static class ArchitectureSourceProbe
     }
 
     /// <summary>
+    ///     Reads <paramref name="path"/> (absolute or repo-relative). C# files include the type's primary file
+    ///     and <c>TypeName.*.cs</c> partials so ratchets survive file extraction; other files stay exact.
+    /// </summary>
+    internal static string ReadPathWithPartials(string path)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(path);
+
+        string fullPath = Path.IsPathRooted(path)
+            ? Path.GetFullPath(path)
+            : Path.GetFullPath(Path.Combine(RepoRoot, path.Replace('/', Path.DirectorySeparatorChar)));
+
+        File.Exists(fullPath).Should().BeTrue($"expected source at {fullPath}");
+
+        string extension = Path.GetExtension(fullPath);
+
+        if (!string.Equals(extension, ".cs", StringComparison.OrdinalIgnoreCase))
+            return File.ReadAllText(fullPath);
+
+        string relative = Path.GetRelativePath(RepoRoot, fullPath).Replace('\\', '/');
+        return ReadCsTypeFamily(relative);
+    }
+
+    /// <summary>
     ///     Reads the named file first, then the type's primary file and <c>TypeName.*.cs</c> partials.
     ///     Non-<c>.cs</c> paths stay exact so markdown/TS ratchets are not globbed as C#.
     /// </summary>

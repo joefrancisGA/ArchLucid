@@ -6,7 +6,11 @@ import {
 } from "@/lib/infra-evidence/infra-evidence-resource-hub-display";
 
 /** Operator-facing label for diagram ↔ inventory match kind values. */
-export function formatDiagramReconcileMatchKindLabel(matchKind: string): string {
+export function formatDiagramReconcileMatchKindLabel(matchKind: string | null | undefined): string {
+  if (matchKind == null) {
+    return "Match kind was not stored.";
+  }
+
   const normalized = matchKind.trim();
 
   switch (normalized) {
@@ -25,12 +29,12 @@ export function formatDiagramReconcileMatchKindLabel(matchKind: string): string 
     case DIAGRAM_INFRASTRUCTURE_MATCH_KINDS.unknown:
       return "Unknown";
     default:
-      return normalized.length > 0 ? normalized : "Not recorded";
+      return normalized;
   }
 }
 
-export function resolveDiagramReconcileMatchKindStatusKind(matchKind: string): EnterpriseStatusKind {
-  return resolveDiagramCorrespondenceStatusKind(matchKind, "Confirmed");
+export function resolveDiagramReconcileMatchKindStatusKind(matchKind: string | null | undefined): EnterpriseStatusKind {
+  return resolveDiagramCorrespondenceStatusKind(matchKind ?? "", "Confirmed");
 }
 
 export function resolveDiagramReconcileConfidenceStatusKind(confidenceBand: string): EnterpriseStatusKind {

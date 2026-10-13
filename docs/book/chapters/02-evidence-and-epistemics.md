@@ -1,11 +1,11 @@
-> **Scope:** Chapter 2 first draft for the book draft *Managing Azure Security with AI*. Author working text; not product documentation and not a description of any vendor's internals.
-> **Status:** draft
+> **Scope:** Chapter 2 revised draft for the book draft *Managing Azure Security with AI*. Author working text; not product documentation and not a description of any vendor's internals.
+> **Status:** draft — revised (revision pass 1, 2026-10-10)
 
 # Chapter 2 — Evidence and epistemics
 
 **Spine:** [`../README.md`](../README.md) · **Outline:** [`../OUTLINE.md`](../OUTLINE.md)
 
-> *Draft status: first draft. Target 6,000–7,000 words. Facts about Azure behavior must be re-verified against Microsoft documentation before submission.*
+> *Draft status: revised (revision pass 1, 2026-10-10). Target 6,000–7,000 words. Facts about Azure behavior were checked against Microsoft documentation in October 2026; dated "As of" notes mark the ones to re-check before submission.*
 
 ---
 
@@ -67,9 +67,9 @@ An **observed fact** is something you read directly from an authoritative source
 
 Examples:
 
-- Role assignment `ra-7f3…` grants the role **Contributor** to service principal `sp-payments-deploy` at the scope of resource group `rg-payments-prod`.
+- Role assignment `ra-7f3…` grants the role **Contributor** to the `payments-deploy` service principal at the scope of resource group `rg-payments-prod`.
 - Storage account `custdata` has the property `allowSharedKeyAccess` set to `true`.
-- App registration `payments-deploy` has a federated identity credential whose subject is `repo:contoso/payments:ref:refs/heads/main`.
+- App registration `payments-deploy` has a federated identity credential whose subject is `repo:contoso/payments:ref:refs/heads/main` [S1].
 
 Three properties make something an observed fact:
 
@@ -77,7 +77,7 @@ Three properties make something an observed fact:
 2. **A time.** It was true when read. Azure changes constantly, and an observed fact from last Tuesday is a historical observation today.
 3. **No interpretation.** The claim restates what the source said. "Contributor at `rg-payments-prod`" is observed. "Has write access to everything in payments" is not, because that requires knowing what Contributor permits and what lives in the resource group.
 
-Observed facts fail in a few predictable ways. Collection can be **incomplete**: your identity may not be allowed to read some subscriptions, and missing data looks exactly like absent data unless you record the gap. Collection can be **stale**: the snapshot is a day old and someone changed the assignment this morning. And the source itself can be **ambiguous**: some Azure properties have defaults that apply when the property is absent, so "not set" and "set to the default" read differently in the raw JSON. Chapter 3 covers collection in detail. For now, the rule is that **an observed fact always carries its source and its time, and a gap is recorded as a gap.**
+Observed facts fail in a few predictable ways. Collection can be **incomplete**: your identity may not be allowed to read some subscriptions, and missing data looks exactly like absent data unless you record the gap. Collection can be **stale**: the snapshot is a day old and someone changed the assignment this morning. And the source itself can be **ambiguous**: some Azure properties have defaults that apply when the property is absent, so "not set" and "set to the default" read differently in the raw JSON (for example, a null `allowSharedKeyAccess` is treated as permitting shared key access [S2]). Chapter 3 covers collection in detail. For now, the rule is that **an observed fact always carries its source and its time, and a gap is recorded as a gap.**
 
 ### Derived fact
 
@@ -85,11 +85,11 @@ A **derived fact** is computed from observed facts using rules that have no mean
 
 Examples:
 
-- Because `sp-payments-deploy` holds Contributor at `rg-payments-prod`, and `custdata` lives in `rg-payments-prod`, the service principal holds Contributor on `custdata`. (RBAC inheritance from a parent scope to a child resource is defined behavior.)
-- Because user `alice` is a member of group `payments-admins`, which is a member of group `platform-ops`, and `platform-ops` holds Reader on the subscription, `alice` effectively holds Reader on the subscription.
+- Because the `payments-deploy` service principal holds Contributor at `rg-payments-prod`, and `custdata` lives in `rg-payments-prod`, the service principal holds Contributor on `custdata` [S3]. (RBAC inheritance from a parent scope to a child resource is defined behavior.)
+- Because user `alice` is a member of group `payments-admins`, which is a member of group `platform-ops`, and `platform-ops` holds Reader on the subscription, `alice` effectively holds Reader on the subscription [S4].
 - The snapshot taken today differs from the snapshot taken yesterday by one added role assignment.
 
-Derived facts are as strong as their inputs and the rule. They fail when the rule is wrong, which is more common than it sounds. Azure RBAC has deny assignments, conditions on role assignments, and data-plane versus control-plane distinctions. Entra group membership can be dynamic. A derivation that ignores any of these produces confident wrong answers. The discipline is to **write the rule down, test it, and keep the list of inputs it consumed** so anyone can retrace it.
+Derived facts are as strong as their inputs and the rule. They fail when the rule is wrong, which is more common than it sounds. Azure RBAC has deny assignments [S5], conditions on role assignments [S6], and data-plane versus control-plane distinctions [S4]. Entra group membership can be dynamic [S7]. A derivation that ignores any of these produces confident wrong answers. The discipline is to **write the rule down, test it, and keep the list of inputs it consumed** so anyone can retrace it.
 
 A useful test: if a derived fact surprises someone, can you show them every observed fact it came from in under a minute? If not, it isn't functioning as a derived fact. It's functioning as an assertion by your tooling.
 
@@ -99,14 +99,14 @@ A **deterministic inference** is a repeatable, rule-based conclusion that depend
 
 Examples:
 
-- Contributor includes the action `Microsoft.Storage/storageAccounts/listKeys/action`. `custdata` allows shared key access. Therefore `sp-payments-deploy` **can obtain the account keys and read blob data**, *assuming* no deny assignment, network rule, or policy blocks the key-based data-plane request from wherever the attacker is operating.
+- Contributor includes the action `Microsoft.Storage/storageAccounts/listKeys/action` [S8]. `custdata` allows shared key access. Therefore the `payments-deploy` service principal **can obtain the account keys and read blob data**, *assuming* no deny assignment, network rule, or policy blocks the key-based data-plane request from wherever the attacker is operating.
 - The storage account's network rules allow access from a subnet where a virtual machine runs. Therefore the VM **can reach** the storage endpoint, *assuming* no NSG, firewall, or route table blocks the flow.
 
 The difference from a derived fact is the word *assuming*. The first example is a strong inference. The role definition really does include that action, and shared key access really is enabled. But the conclusion "can read blob data" depends on conditions the collected evidence may not cover: network restrictions evaluated at request time, a deny assignment you couldn't read, or a condition on the role assignment.
 
 Deterministic inference is the workhorse of path analysis. Almost every interesting hop on an attack path is one. That's fine, as long as the assumptions are **stated, not implied**. A good inference record looks like this:
 
-- **Conclusion:** `sp-payments-deploy` can read blob data in `custdata`.
+- **Conclusion:** the `payments-deploy` service principal can read blob data in `custdata`.
 - **Rule:** Contributor permits `listKeys`, and shared key access is enabled, so key-based data access is possible.
 - **Inputs:** role assignment `ra-7f3…`, storage property `allowSharedKeyAccess = true`, role definition for Contributor.
 - **Assumptions:** no deny assignment applies; storage network rules permit the caller's network location; no role assignment condition restricts the action.
@@ -130,7 +130,7 @@ They fail in ways that are hard to see:
 
 - **Plausible invention.** The model states a fact that sounds right and isn't, such as a role name that doesn't exist or a permission that a role doesn't include.
 - **Silent upgrade.** The model reads "can read blob data" and writes "has accessed customer data." The verb changed; the evidence didn't.
-- **Instruction leakage.** The model treats text inside the evidence, such as a resource description, as an instruction. Chapter 8 covers this attack.
+- **Instruction leakage.** The model treats text inside the evidence, such as a resource description, as an instruction. Chapter 10 covers this attack.
 - **Unwarranted precision.** The model says "high likelihood (85%)". Nothing calibrated produced that number.
 
 The rule for AI inference is short: **an AI inference keeps its label for its whole life.** It doesn't become a derived fact because a deterministic component consumed it. It doesn't become an observed fact because it was written into a database. If a downstream rule depends on an AI inference ("if the account holds personal data, severity is critical"), the downstream conclusion inherits the AI label too. Section 2.4 makes this precise.
@@ -144,7 +144,7 @@ A **human assertion** is something a named person states to be true. Humans know
 Examples:
 
 - "`custdata` holds production customer records." — asserted by Priya Shah, Data Protection Officer, 2026-09-14, expires 2027-03-14.
-- "The Contributor assignment for `sp-payments-deploy` is required for current deployments." — asserted by the payments platform lead, 2026-10-01, expires 2026-12-31.
+- "The Contributor assignment for `payments-deploy` is required for current deployments." — asserted by the payments platform lead, 2026-10-01, expires 2026-12-31.
 
 Human assertions are often the most important context in a report, and the most neglected. Three properties make them trustworthy:
 
@@ -169,11 +169,11 @@ Broken into hops, with each claim labeled:
 | # | Claim | Category | Basis |
 |---|-------|----------|-------|
 | 1 | App registration `payments-deploy` trusts GitHub Actions tokens whose subject is `repo:contoso/payments:ref:refs/heads/main`. | Observed fact | Microsoft Graph, federated identity credentials, read 2026-10-06 09:12 UTC |
-| 2 | Code merged to `main` in `contoso/payments` can run a workflow that obtains a token for `payments-deploy`. | Deterministic inference | Rule: a federated credential with this subject accepts tokens from workflows on that branch. Assumes: the workflow has `id-token: write` permission and branch protection can be bypassed or the attacker can merge. |
-| 3 | `payments-deploy`'s service principal holds Contributor on resource group `rg-payments-prod`. | Observed fact | Azure Resource Graph, `authorizationresources`, read 2026-10-06 09:14 UTC |
+| 2 | Code merged to `main` in `contoso/payments` can run a workflow that obtains a token for `payments-deploy`. | Deterministic inference | Rule: a federated credential with this subject accepts tokens from workflows on that branch [S1]. Assumes: the workflow has `id-token: write` permission [S9] and branch protection can be bypassed or the attacker can merge. |
+| 3 | `payments-deploy`'s service principal holds Contributor on resource group `rg-payments-prod`. | Observed fact | Azure Resource Graph, `authorizationresources` [S10], read 2026-10-06 09:14 UTC |
 | 4 | That service principal therefore holds Contributor on `custdata`. | Derived fact | RBAC scope inheritance; `custdata` is a child of `rg-payments-prod` (observed) |
 | 5 | `custdata` allows shared key access. | Observed fact | Resource Graph, storage account properties, read 2026-10-06 09:14 UTC |
-| 6 | The service principal can list the account keys and read blob data. | Deterministic inference | Rule: Contributor includes `listKeys`; shared keys enabled. Assumptions checked: no deny assignment (read), no role condition (read), public network access from all networks (read). |
+| 6 | The service principal can list the account keys and read blob data. | Deterministic inference | Rule: Contributor includes `listKeys` [S8]; shared keys enabled. Assumptions checked: no deny assignment (read), no role condition (read), public network access from all networks (read). |
 | 7 | `custdata` holds customer records. | AI inference **and** human assertion | AI: inferred from account name, container names, and tags. Human: asserted by DPO, 2026-09-14, expires 2027-03-14. |
 | 8 | An attacker **has exfiltrated** customer records. | **Not supported** | No storage read logs were collected. Diagnostic logging for blob reads is not enabled on `custdata` (observed). |
 
@@ -208,6 +208,8 @@ Human assertions sit outside that line, because their strength depends on who ma
 
 The code example below applies Rule 1 only to the four ordered machine-grounding categories. Human assertions are excluded; assess their source, scope, and freshness separately before using one as a required input.
 
+<!-- listing: lab/listings/python/ch02_evidence.py#machine_grounding -->
+
 ```python
 from enum import IntEnum
 
@@ -235,6 +237,8 @@ Rule 1 is deliberately pessimistic. It means a single guess anywhere in the chai
 When an AI inference is stored in a database, passed through a rules engine, or summarized by another model, it is still an AI inference. The same goes for every category. A deterministic component that reads an AI-inferred "sensitive data" flag and outputs "severity: critical" has produced a conclusion that depends on an AI inference.
 
 This sounds obvious. In practice it's the most common way honest tooling becomes dishonest. A classifier writes `isSensitive = true` into a column. Six months later, a different team writes a rule that reads the column. Nobody remembers it was a guess. Store the category **next to** the value, not in documentation:
+
+<!-- listing: lab/listings/json/ch02-hop-record.json -->
 
 ```json
 {
@@ -276,7 +280,7 @@ The exact definitions matter less than three properties: the bands are **few**, 
 
 When you do eventually have outcome data, such as a red-team program that confirms or refutes paths, you can calibrate. Until then, ordinal bands are the honest choice.
 
-> **A note for AI-generated text.** Models produce numeric confidence readily when asked, and sometimes when not asked. If a model's output will be shown to users, strip or reject numeric probabilities unless they came from a calibrated component. Chapter 8 shows how.
+> **A note for AI-generated text.** Models produce numeric confidence readily when asked, and sometimes when not asked. If a model's output will be shown to users, strip or reject numeric probabilities unless they came from a calibrated component. Chapter 10 shows how.
 
 ---
 
@@ -315,7 +319,7 @@ Readers rarely look at labels. They read the sentence. So the sentence itself ha
 
 The most important row is deterministic inference. Most attack-path conclusions are capabilities: someone **can** do something. Capability is serious. It's the whole reason to fix the path. But it is not activity. "Can read" is not "read." "May reach" is not "reached." "Could exfiltrate" is not "exfiltrated." Executives and auditors make very different decisions based on that difference. Treat a slip from capability to activity as a factual error, not a style issue.
 
-This is also where AI-generated explanations most often go wrong. Models write fluent prose, and fluent prose prefers active, concrete verbs. Left alone, a model will turn "the service principal can list keys" into "the service principal uses its keys to access the data." The fix is partly prompting (Chapter 7) and partly checking output mechanically for activity verbs that the evidence doesn't support (Chapter 8).
+This is also where AI-generated explanations most often go wrong. Models write fluent prose, and fluent prose prefers active, concrete verbs. Left alone, a model will turn "the service principal can list keys" into "the service principal uses its keys to access the data." The fix is partly prompting (Chapter 9) and partly checking output mechanically for activity verbs that the evidence doesn't support (Chapter 10).
 
 ---
 
@@ -369,7 +373,22 @@ occurred unless a hop explicitly records observed access.
 
 Run the same prompt three times. Note how the answers differ. That variation is the practical meaning of "AI inference": same inputs, different outputs.
 
-**What you should see.** In most runs, the model explains the path well and cites most sentences. In some runs, it will upgrade a verb or add a plausible detail that isn't in the evidence. That gap between "usually right" and "always traceable" is the subject of Chapters 7 and 8.
+**What you should see.** In most runs, the model explains the path well and cites most sentences. In some runs, it will upgrade a verb or add a plausible detail that isn't in the evidence. That gap between "usually right" and "always traceable" is the subject of Chapters 9 and 10.
+
+---
+
+## Sources
+
+- **[S1]** Create a trust relationship between an app and an external identity provider. Microsoft Learn. <https://learn.microsoft.com/entra/workload-id/workload-identity-federation-create-trust> Checked 2026-10-12. Kind: documented.
+- **[S2]** Prevent authorization with Shared Key. Microsoft Learn. <https://learn.microsoft.com/azure/storage/common/shared-key-authorization-prevent> Checked 2026-10-12. Kind: documented.
+- **[S3]** Understand scope for Azure RBAC. Microsoft Learn. <https://learn.microsoft.com/azure/role-based-access-control/scope-overview> Checked 2026-10-12. Kind: documented.
+- **[S4]** What is Azure role-based access control (Azure RBAC)? Microsoft Learn. <https://learn.microsoft.com/azure/role-based-access-control/overview> Checked 2026-10-12. Kind: documented.
+- **[S5]** List Azure deny assignments. Microsoft Learn. <https://learn.microsoft.com/azure/role-based-access-control/deny-assignments> Checked 2026-10-12. Kind: documented.
+- **[S6]** What is Azure attribute-based access control (Azure ABAC)? Microsoft Learn. <https://learn.microsoft.com/azure/role-based-access-control/conditions-overview> Checked 2026-10-12. Kind: documented.
+- **[S7]** Manage rules for dynamic membership groups in Microsoft Entra ID. Microsoft Learn. <https://learn.microsoft.com/entra/identity/users/groups-dynamic-membership> Checked 2026-10-12. Kind: documented.
+- **[S8]** Authorize access to blob data in the Azure portal. Microsoft Learn. <https://learn.microsoft.com/azure/storage/blobs/authorize-data-operations-portal> Checked 2026-10-12. Kind: documented.
+- **[S9]** Authenticate to Azure from GitHub Actions by OpenID Connect. Microsoft Learn. <https://learn.microsoft.com/azure/developer/github/connect-from-azure-openid-connect> Checked 2026-10-12. Kind: documented.
+- **[S10]** Azure Resource Graph supported tables and resource types. Microsoft Learn. <https://learn.microsoft.com/azure/governance/resource-graph/reference/supported-tables-resources> Checked 2026-10-12. Kind: documented.
 
 ---
 
@@ -400,7 +419,9 @@ Run the same prompt three times. Note how the answers differ. That variation is 
 
 ## Author notes (remove before submission)
 
-- Verify against current Microsoft docs: Contributor's inclusion of `Microsoft.Storage/storageAccounts/listKeys/action`; `allowSharedKeyAccess` default behavior; federated credential subject format for GitHub Actions; `authorizationresources` table coverage of role assignments, deny assignments, and conditions.
-- Consider a sidebar on Microsoft Entra ID sign-in and audit logs as an "observed activity" source, cross-referenced to Chapter 6.
+- 2026-10-12 (sources): added 10 sources. Changed: cited federated-credential subjects, RBAC inheritance, deny assignments, conditions, dynamic groups, listKeys, and authorizationresources. Softened: none. Unverified: none.
+- Verified 2026-10-10 (revision pass 1): Contributor's `*` actions include `listKeys`; a null `allowSharedKeyAccess` behaves as `true`; GitHub federated credential subject formats.
+- Still to verify: whether `authorizationresources` rows carry role assignment `condition` values (shared with Chapter 3). Deny assignments are resolved: the table reference doesn't list them, so Chapter 5 and Appendix B now read them from the Authorization REST API (2026-10-12).
+- Consider a sidebar on Microsoft Entra ID sign-in and audit logs as an "observed activity" source, cross-referenced to Chapter 8.
 - Possible figure: the hop table from 2.3 rendered as a diagram, with a different line style per evidence category.
-- Running example (payments → `custdata`) should be reused in Chapters 4, 9, and 10.
+- Running example (payments → `custdata`) should be reused in Chapters 5, 11, and 12.

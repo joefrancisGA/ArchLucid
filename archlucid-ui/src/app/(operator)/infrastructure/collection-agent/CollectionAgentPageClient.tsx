@@ -1,0 +1,226 @@
+"use client";
+
+import Link from "next/link";
+import { useMemo, useState } from "react";
+
+import {
+  EnterpriseTable,
+  EnterpriseTableBody,
+  EnterpriseTableCell,
+  EnterpriseTableHead,
+  EnterpriseTableHeaderCell,
+  EnterpriseTableHeadRow,
+  EnterpriseTableRow,
+} from "@/components/ui/enterprise-table";
+import { StatusTag } from "@/components/ui/status-tag";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
+import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import { useCollectionRunsQuery, useTriggerCollectionRunMutation } from "@/hooks/use-collection-runs-query";
+import {
+  formatCollectionRunDuration,
+  parseCollectionRunSubscriptions,
+  resolveCollectionAgentHealth,
+} from "@/lib/collection-agent-presentation";
+import type { CollectionRun } from "@/lib/collection-runs-api";
+import { formatIsoUtcForDisplay } from "@/lib/format-iso-utc";
+import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import { formatRelativeTime } from "@/lib/relative-time";
+import {
+  SECURENOW_COLLECTION_AGENT_PATH,
+} from "@/lib/product-line/securenow-collection-agent-route";
+import { SECURENOW_INFRASTRUCTURE_DRIFT_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
+import { OPERATOR_LINK, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { cn } from "@/lib/utils";
+
+function collectionRunSortTime(run: CollectionRun): number {
+  return Date.parse(run.finishedUtc ?? run.startedUtc ?? "");
+}
+
+function sortCollectionRuns(runs: readonly CollectionRun[]): CollectionRun[] {
+  return [...runs].sort((left, right) => {
+    const leftRunning = left.status === "Running" ? 1 : 0;
+    const rightRunning = right.status === "Running" ? 1 : 0;
+
+    return rightRunning - leftRunning || collectionRunSortTime(right) - collectionRunSortTime(left);
+  });
+}
+
+function collectionRunStatusKind(status: CollectionRun["status"]): "ready" | "needs-attention" | "blocked" | "in-progress" | "neutral" {
+  switch (status) {
+    case "Succeeded":
+    case "Imported":
+      return "ready";
+
+    case "Running":
+      return "in-progress";
+
+    case "Failed":
+    case "Rejected":
+    case "PartiallySucceeded":
+      return "needs-attention";
+
+    default:
+      return "neutral";
+  }
+}
+
+function collectionRunStatusLabel(status: CollectionRun["status"]): string {
+  return status ?? "Unknown";
+}
+
+function CollectionRunRow({ run }: { readonly run: CollectionRun }): React.JSX.Element {
+  const [expanded, setExpanded] = useState(false);
+  const subscriptions = parseCollectionRunSubscriptions(run);
+  const hasError = run.errorSummary !== null && run.errorSummary !== undefined && run.errorSummary.trim().length > 0;
+
+  return (
+    <>
+      <EnterpriseTableRow
+        interactive={hasError}
+        aria-expanded={hasError ? expanded : undefined}
+        onClick={hasError ? () => setExpanded((current) => !current) : undefined}
+        onKeyDown={(event) => {
+          if (hasError && (event.key === "Enter" || event.key === " ")) {
+            event.preventDefault();
+            setExpanded((current) => !current);
+          }
+        }}
+      >
+        <EnterpriseTableCell>{run.startedUtc === undefined ? "Unknown" : formatIsoUtcForDisplay(run.startedUtc)}</EnterpriseTableCell>
+        <EnterpriseTableCell>{formatCollectionRunDuration(run)}</EnterpriseTableCell>
+        <EnterpriseTableCell>
+          <StatusTag kind={collectionRunStatusKind(run.status)} label={collectionRunStatusLabel(run.status)} />
+        </EnterpriseTableCell>
+        <EnterpriseTableCell>{subscriptions.length === 0 ? "Not recorded" : subscriptions.length}</EnterpriseTableCell>
+        <EnterpriseTableCell>
+          {run.importedSnapshotId === null || run.importedSnapshotId === undefined ? (
+            "Not imported"
+          ) : (
+            <Link
+              href={`${SECURENOW_INFRASTRUCTURE_DRIFT_PATH}?snapshotId=${encodeURIComponent(run.importedSnapshotId)}`}
+              className={cn(OPERATOR_LINK.inline, "font-medium")}
+              onClick={(event) => event.stopPropagation()}
+            >
+              View changes
+            </Link>
+          )}
+        </EnterpriseTableCell>
+      </EnterpriseTableRow>
+      {expanded ? (
+        <EnterpriseTableRow>
+          <EnterpriseTableCell colSpan={5}>
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{run.errorSummary}</p>
+          </EnterpriseTableCell>
+        </EnterpriseTableRow>
+      ) : null}
+    </>
+  );
+}
+
+export function CollectionAgentPageClient(): React.JSX.Element {
+  const query = useCollectionRunsQuery();
+  const triggerMutation = useTriggerCollectionRunMutation();
+  const runs = useMemo(() => sortCollectionRuns(query.data ?? []), [query.data]);
+  const health = resolveCollectionAgentHealth(runs);
+  const activeRun = runs.find((run) => run.status === "Running") ?? null;
+  const reportedSchedule = runs.find((run) => run.schedule !== null && run.schedule !== undefined && run.schedule.trim().length > 0)?.schedule;
+  const triggerFailure = triggerMutation.error === null || triggerMutation.error === undefined
+    ? null
+    : toApiLoadFailure(triggerMutation.error);
+  const successfulRunLabel = health.successfulRun === null || health.successfulRun.finishedUtc === null
+    || health.successfulRun.finishedUtc === undefined
+    ? "No successful run recorded"
+    : `Last successful run ${formatRelativeTime(health.successfulRun.finishedUtc)}`;
+
+  if (query.isPending) {
+    return <p className={cn("p-6", OPERATOR_TYPOGRAPHY.body)}>Loading collection runs…</p>;
+  }
+
+  if (query.isError) {
+    const failure = toApiLoadFailure(query.error);
+
+    return (
+      <OperatorPageContainer variant="workflow" className={cn("px-1 py-4 sm:px-0", OPERATOR_LAYOUT.sectionStack)}>
+        <OperatorPageHeader title="Collection agent" subtitle="Whether scheduled collection is running and what it found." />
+        <div role="alert" className="rounded-md border border-rose-300 bg-rose-50 p-4 text-rose-950 dark:border-rose-700 dark:bg-rose-950/30 dark:text-rose-100">
+          {failure.message}
+        </div>
+      </OperatorPageContainer>
+    );
+  }
+
+  return (
+    <OperatorPageContainer variant="workflow" className={cn("px-1 py-4 sm:px-0", OPERATOR_LAYOUT.sectionStack)}>
+      <OperatorPageHeader
+        navHref={SECURENOW_COLLECTION_AGENT_PATH}
+        title="Collection agent"
+        subtitle="Whether scheduled collection is running and what it found."
+        actions={
+          <button
+            type="button"
+            onClick={() => void triggerMutation.mutateAsync(crypto.randomUUID())}
+            disabled={triggerMutation.isPending || activeRun !== null}
+            className="rounded border border-teal-700 bg-transparent px-3 py-2 text-sm font-medium text-teal-800 hover:bg-teal-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-teal-300 dark:text-teal-200 dark:hover:bg-teal-950"
+          >
+            {triggerMutation.isPending ? "Starting…" : "Run now"}
+          </button>
+        }
+      />
+      {triggerFailure !== null ? (
+        <div role="alert" className="rounded-md border border-rose-300 bg-rose-50 p-4 text-rose-950 dark:border-rose-700 dark:bg-rose-950/30 dark:text-rose-100">
+          {triggerFailure.message}
+        </div>
+      ) : null}
+      <section className="space-y-2" aria-labelledby="collection-agent-health-heading">
+        <h2 id="collection-agent-health-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>Collection health</h2>
+        <div className="flex flex-wrap items-center gap-3">
+          <StatusTag kind={health.kind} label={health.label} />
+          <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{successfulRunLabel}</span>
+        </div>
+      </section>
+
+      <section className="space-y-2" aria-labelledby="collection-agent-schedule-heading">
+        <h2 id="collection-agent-schedule-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>Schedule</h2>
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+          {reportedSchedule ?? "Not reported by the collection agent"}
+        </p>
+      </section>
+
+      {runs.length === 0 ? (
+        <section className="space-y-3 rounded-md border border-neutral-200 p-4 dark:border-neutral-800" aria-labelledby="collection-agent-empty-heading">
+          <h2 id="collection-agent-empty-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>No collection runs yet.</h2>
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+            Set up scheduled collection or use a package while the agent is not available.
+          </p>
+          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
+            <Link href={inAppHelpHref("cloud-connections-azure")} className={cn(OPERATOR_LINK.inline, "font-medium")}>Collection agent setup help</Link>
+            {" · "}
+            <Link href="/infrastructure/extract-upload" className={cn(OPERATOR_LINK.inline, "font-medium")}>Manual upload</Link>
+          </p>
+        </section>
+      ) : (
+        <section className="space-y-3" aria-labelledby="collection-agent-runs-heading">
+          <h2 id="collection-agent-runs-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>Recent runs</h2>
+          <EnterpriseTable ariaLabel="Recent collection runs">
+            <EnterpriseTableHead>
+              <EnterpriseTableHeadRow>
+                <EnterpriseTableHeaderCell>Started</EnterpriseTableHeaderCell>
+                <EnterpriseTableHeaderCell>Duration</EnterpriseTableHeaderCell>
+                <EnterpriseTableHeaderCell>Status</EnterpriseTableHeaderCell>
+                <EnterpriseTableHeaderCell>Subscriptions</EnterpriseTableHeaderCell>
+                <EnterpriseTableHeaderCell>Snapshot</EnterpriseTableHeaderCell>
+              </EnterpriseTableHeadRow>
+            </EnterpriseTableHead>
+            <EnterpriseTableBody>
+              {runs.map((run) => <CollectionRunRow key={run.runId} run={run} />)}
+            </EnterpriseTableBody>
+          </EnterpriseTable>
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            Select a failed or rejected run to see its error summary.
+          </p>
+        </section>
+      )}
+    </OperatorPageContainer>
+  );
+}

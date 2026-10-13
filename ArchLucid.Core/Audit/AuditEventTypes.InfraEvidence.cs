@@ -12,6 +12,9 @@ public static partial class AuditEventTypes
     /// <summary>Operator deleted an Azure inventory snapshot and its derived IE-plane rows.</summary>
     public const string AzureInventorySnapshotDeleted = "AzureInventorySnapshot.Deleted";
 
+    /// <summary>Operator requested an on-demand SecureNow collection run.</summary>
+    public const string SecureNowCollectionRunTriggered = "SecureNowCollectionRun.Triggered";
+
     /// <summary>Versioned audit framework catalog imported for a tenant.</summary>
     public const string AuditFrameworkImported = "AuditFramework.Imported";
 

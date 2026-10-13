@@ -17,7 +17,8 @@ type RunDetailRunMetadataSectionProps = {
 /** Full-operator run metadata + trace links before manifest is summarized on this page. */
 export function RunDetailRunMetadataSection(props: RunDetailRunMetadataSectionProps): ReactElement {
   const { run, runDetailTraceId } = props;
-  const retryCount = typeof run.retryCount === "number" && Number.isFinite(run.retryCount) ? run.retryCount : 0;
+  const retryCount =
+    typeof run.retryCount === "number" && Number.isFinite(run.retryCount) ? run.retryCount : null;
 
   return (
     <section id="run-metadata" className="scroll-mt-24">
@@ -39,9 +40,15 @@ export function RunDetailRunMetadataSection(props: RunDetailRunMetadataSectionPr
           ) : null}
           <p className="m-0">
             <span className="font-medium text-neutral-800 dark:text-neutral-200">Description:</span>{" "}
-            {run.description ?? ""}
+            {run.description === null || run.description === undefined
+              ? "Description was not stored."
+              : run.description}
           </p>
-          {retryCount > 0 ? (
+          {retryCount === null ? (
+            <p className="m-0" data-testid="run-detail-retry-count-not-stored">
+              Retry count was not stored.
+            </p>
+          ) : retryCount > 0 ? (
             <p className="m-0" data-testid="run-detail-retry-count">
               <span className="font-medium text-neutral-800 dark:text-neutral-200">Retry count:</span>{" "}
               {retryCount} — this review was re-attempted after earlier failures; check review alerts for the last failure reason.

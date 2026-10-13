@@ -91,7 +91,14 @@ export function RunDetailCreateHomeCapturedEvidenceInventory(
               {props.items.map((item) => (
                 <EnterpriseTableRow key={item.key}>
                   <EnterpriseTableCell>
-                    {(item.evidenceItemId ?? "").length > 0 ? (
+                    {item.evidenceItemId === null || item.evidenceItemId === undefined ? (
+                      <>
+                        {item.fileName}
+                        <span className={cn("ml-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                          Evidence item id was not stored.
+                        </span>
+                      </>
+                    ) : item.evidenceItemId.length > 0 ? (
                       <StoredEvidenceFileCells
                         runId={props.runId}
                         evidenceItemId={item.evidenceItemId!}

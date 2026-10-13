@@ -4,9 +4,11 @@ using ArchLucid.Application.AzureExtractor;
 using ArchLucid.Application.AzureExtractor.Stages;
 using ArchLucid.Application.AwsExtractor;
 using ArchLucid.Application.GcpExtractor;
+using ArchLucid.Application.SecureNow;
 using ArchLucid.Contracts.Abstractions.Integrations;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Http;
+using ArchLucid.Core.Persistence.ApplicationPorts.SecureNow;
 using ArchLucid.Host.Core.Http;
 using ArchLucid.Integrations.AzureExtractor;
 using ArchLucid.Integrations.AwsExtractor;
@@ -86,6 +88,18 @@ public static class HostedCloudExtractorCompositionModule
         services.AddScoped<IAzureExtractorPreparedZipValidateStage, AzureExtractorPreparedZipValidateStage>();
         services.AddScoped<IAzureExtractorPreparedZipPersistStage, AzureExtractorPreparedZipPersistStage>();
         services.AddScoped<IAzureExtractorIngestService, AzureExtractorIngestService>();
+        services.AddScoped<CollectionRunIngestService>();
+        services.AddSingleton<ICollectionRunTriggerIdempotencyStore, InMemoryCollectionRunTriggerIdempotencyStore>();
+        services.AddScoped<CollectionRunTriggerService>();
+        services
+            .AddHttpClient<ICollectionRunTrigger, AzureAutomationCollectionRunTrigger>(static client =>
+            {
+                client.Timeout = TimeSpan.FromMinutes(2);
+            })
+            .ConfigureArchLucidOutboundSocketsHandler(OutboundHttpSocketsHandlerProfile.CloudControlPlane);
+        services.AddScoped<ICollectionRunDiscovery, PollingCollectionRunDiscovery>();
+        services.Configure<CollectionRunStorageOptions>(
+            configuration.GetSection(CollectionRunStorageOptions.SectionName));
         services.AddScoped<IAzureExtractorResultEnricher, AzureExtractorResultEnricher>();
         services.Configure<AzureExtractorEnrichmentOptions>(
             configuration.GetSection(AzureExtractorEnrichmentOptions.SectionPath));

@@ -41,7 +41,7 @@ public sealed class AcceptedManifestTrainingDataExporter(
             .GetConsentAsync(scope.TenantId, cancellationToken)
             .ConfigureAwait(false);
 
-        int maxManifests = Math.Max(1, _options.CurrentValue.MaxManifestsPerExport);
+        int maxManifests = Math.Max(0, _options.CurrentValue.MaxManifestsPerExport);
         List<ManifestDocument> scopedManifests = manifests
             .Where(m => m.TenantId == scope.TenantId
                         && m.WorkspaceId == scope.WorkspaceId

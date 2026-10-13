@@ -6326,6 +6326,12 @@
           },
           "snapshotHashVerified": {
             "type": "boolean"
+          },
+          "verifiedRemediationAssociations": {
+            "items": {
+              "$ref": "#/components/schemas/AuditEvidenceLineageVerifiedRemediationAssociation"
+            },
+            "type": "array"
           }
         },
         "type": "object"
@@ -6346,6 +6352,30 @@
             "type": "string"
           },
           "requirementName": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "AuditEvidenceLineageVerifiedRemediationAssociation": {
+        "properties": {
+          "associationId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "controlId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "instanceId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/RemediationInstanceStatus"
+          },
+          "verificationSnapshotId": {
+            "format": "uuid",
             "type": "string"
           }
         },
@@ -8957,6 +8987,104 @@
               {
                 "$ref": "#/components/schemas/CloudResourceExplorerWorkCounts"
               }
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "CollectionRun": {
+        "properties": {
+          "agentVersion": {
+            "type": "string"
+          },
+          "errorSummary": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "finishedUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "importedSnapshotId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "projectId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "runId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "schedule": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "startedUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/CollectionRunStatus"
+          },
+          "subscriptionsCoveredJson": {
+            "type": "string"
+          },
+          "tenantId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "workspaceId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "zipPath": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "zipSha256": {
+            "format": "byte",
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "CollectionRunStatus": {
+        "enum": [
+          "Running",
+          "Succeeded",
+          "PartiallySucceeded",
+          "Failed",
+          "Imported",
+          "Rejected"
+        ],
+        "type": "string"
+      },
+      "CollectionRunTriggerRequest": {
+        "properties": {
+          "subscriptionIds": {
+            "items": {
+              "type": "string"
+            },
+            "type": [
+              "null",
+              "array"
             ]
           }
         },
@@ -19520,6 +19648,53 @@
         },
         "type": "object"
       },
+      "InfrastructureDiagramDocumentationDecision": {
+        "properties": {
+          "carryForwardState": {
+            "type": "string"
+          },
+          "decision": {
+            "type": "string"
+          },
+          "scopeId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "snapshotId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "subjectKey": {
+            "type": "string"
+          },
+          "subjectKind": {
+            "type": "string"
+          },
+          "updatedUtc": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "InfrastructureDiagramDocumentationDecisionSaveRequest": {
+        "properties": {
+          "decision": {
+            "type": "string"
+          },
+          "snapshotId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "subjectKey": {
+            "type": "string"
+          },
+          "subjectKind": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "InfrastructureDiagramNodeMappingSaveRequest": {
         "properties": {
           "cloudResourceId": {
@@ -22623,6 +22798,35 @@
         },
         "type": "object"
       },
+      "OperationalSecurityFindingLookupItem": {
+        "properties": {
+          "findingId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "sourceFindingId": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "OperationalSecurityFindingLookupRequest": {
+        "properties": {
+          "sourceFindingIds": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "sourceSystem": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "OperationalSecurityFindingMetadataRecord": {
         "properties": {
           "findingId": {
@@ -22928,6 +23132,12 @@
           "connectionId": {
             "format": "uuid",
             "type": "string"
+          },
+          "dataPlaneAnswer": {
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "fromCloudResourceId": {
             "format": "uuid",
@@ -29002,6 +29212,12 @@
           },
           "instance": {
             "$ref": "#/components/schemas/RemediationInstanceSummary"
+          },
+          "verifiedRemediationAssociations": {
+            "items": {
+              "$ref": "#/components/schemas/VerifiedRemediationAssociationIdentifier"
+            },
+            "type": "array"
           }
         },
         "type": "object"
@@ -41100,6 +41316,42 @@
         },
         "type": "object"
       },
+      "VerifiedRemediationAssociationIdentifier": {
+        "properties": {
+          "assessmentId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "associationId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "controlId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "createdUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "instanceId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "updatedUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "verificationSnapshotId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "VisionDiagramIngestRequest": {
         "properties": {
           "contentBase64": {
@@ -48456,6 +48708,9 @@
     },
     {
       "name": "CloudResourceEvidenceHub"
+    },
+    {
+      "name": "CollectionRuns"
     },
     {
       "name": "Comparison"

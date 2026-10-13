@@ -61,11 +61,22 @@ export type OperationalSecurityFindingSummary = {
   controlId: string | null;
 };
 
+export type VerifiedRemediationAssociationIdentifier = {
+  associationId: string;
+  instanceId: string;
+  verificationSnapshotId: string;
+  controlId: string;
+  assessmentId: string | null;
+  createdUtc: string;
+  updatedUtc: string;
+};
+
 export type RemediationInstanceDetail = {
   instance: RemediationInstanceSummary;
   finding: OperationalSecurityFindingSummary | null;
   activeMatch: RemediationPatternMatchSummary | null;
   evidence: RemediationInstanceEvidenceSummary[];
+  verifiedRemediationAssociations: VerifiedRemediationAssociationIdentifier[];
 };
 
 export type RemediationInstanceOperationResult = {
@@ -87,6 +98,8 @@ export type RemediationWaveProgressSummary = {
 export type RemediationFactoryWorkbenchSummary = {
   factoryMetrics: {
     openFindings: number;
+    /** Null when the factory summary omitted the field. Zero is a real count. */
+    criticalExposureCount: number | null;
     remediatedThisWeek: number;
     verificationFailureCount: number;
     businessBlockedCount: number;

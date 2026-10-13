@@ -3,6 +3,8 @@ using ArchLucid.Contracts.Persistence.Graph;
 
 namespace ArchLucid.Application.Tests.InfraEvidence;
 
+[Trait("Category", "Unit")]
+[Trait("Suite", "Application")]
 public sealed class AzureInventorySnapshotGraphEdgeAppenderTests
 {
     [Theory]
@@ -62,6 +64,7 @@ public sealed class AzureInventorySnapshotGraphEdgeAppenderTests
         Assert.Equal(2, edges.Count);
         Assert.Same(first, edges[0]);
         Assert.Single(keys);
+
         if (replace)
         {
             Assert.NotSame(existing, edges[1]);

@@ -9,6 +9,9 @@ describe("diagram-reconcile-match-kind-display", () => {
   it("maps known match kinds to operator labels", () => {
     expect(formatDiagramReconcileMatchKindLabel("Conflict")).toBe("Conflict");
     expect(formatDiagramReconcileMatchKindLabel("DiagramOnly")).toBe("Diagram only");
+    expect(formatDiagramReconcileMatchKindLabel(null)).toBe("Match kind was not stored.");
+    expect(formatDiagramReconcileMatchKindLabel("")).toBe("");
+    expect(formatDiagramReconcileMatchKindLabel("NewKind")).toBe("NewKind");
   });
 
   it("maps connector gap kinds to operator labels", () => {

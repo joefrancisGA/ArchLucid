@@ -38,6 +38,10 @@ export function resolveFindingClassificationLabel(
       return FINDING_CLASSIFICATION_CHECKLIST_DEMOTED_LABEL;
     }
 
+    if (treatment !== null && treatment !== undefined && treatment !== 0) {
+      return String(treatment);
+    }
+
     return FINDING_CLASSIFICATION_CHECKLIST_LABEL;
   }
 
@@ -67,7 +71,9 @@ export function resolveFindingClassificationChipReason(
       return INSIGHT_DENSITY_TYPED_ENGINE_HONESTY_LINE;
     }
 
-    return FINDING_CLASSIFICATION_CHECKLIST_REASON;
+    return treatment === null || treatment === undefined
+      ? `${FINDING_CLASSIFICATION_CHECKLIST_REASON} Treatment was not stored.`
+      : FINDING_CLASSIFICATION_CHECKLIST_REASON;
   }
 
   return null;

@@ -20,7 +20,9 @@ internal static class AgentResultJsonEvidenceGrounding
             case JsonValueKind.Object:
                 foreach (string prop in new[] { "detail", "text", "evidence", "statement", "claim" })
                 {
-                    if (!claim.TryGetProperty(prop, out JsonElement p) || p.ValueKind != JsonValueKind.String) continue;
+                    if (!TryGetPropertyIgnoreCase(claim, prop, out JsonElement p)
+                        || p.ValueKind != JsonValueKind.String)
+                        continue;
 
                     string? s = p.GetString();
 
@@ -61,7 +63,7 @@ internal static class AgentResultJsonEvidenceGrounding
             return false;
 
         category =
-            finding.TryGetProperty("category", out JsonElement cat) && cat.ValueKind == JsonValueKind.String
+            TryGetPropertyIgnoreCase(finding, "category", out JsonElement cat) && cat.ValueKind == JsonValueKind.String
                 ? cat.GetString() ?? string.Empty
                 : string.Empty;
 
@@ -69,7 +71,7 @@ internal static class AgentResultJsonEvidenceGrounding
         description = FirstNonEmptyString(finding, MessagePropertyNames);
 
         recommendation =
-            finding.TryGetProperty("recommendation", out JsonElement r) && r.ValueKind == JsonValueKind.String
+            TryGetPropertyIgnoreCase(finding, "recommendation", out JsonElement r) && r.ValueKind == JsonValueKind.String
                 ? r.GetString() ?? string.Empty
                 : string.Empty;
 
@@ -83,7 +85,7 @@ internal static class AgentResultJsonEvidenceGrounding
     {
         foreach (string propertyName in propertyNames)
         {
-            if (!owner.TryGetProperty(propertyName, out JsonElement property) ||
+            if (!TryGetPropertyIgnoreCase(owner, propertyName, out JsonElement property) ||
                 property.ValueKind != JsonValueKind.String)
             {
                 continue;
@@ -102,7 +104,7 @@ internal static class AgentResultJsonEvidenceGrounding
     {
         refs = [];
 
-        if (!owner.TryGetProperty("evidenceRefs", out JsonElement evidenceRefs))
+        if (!TryGetPropertyIgnoreCase(owner, "evidenceRefs", out JsonElement evidenceRefs))
             return true;
 
         if (evidenceRefs.ValueKind != JsonValueKind.Array)
@@ -123,5 +125,26 @@ internal static class AgentResultJsonEvidenceGrounding
         }
 
         return true;
+    }
+
+    private static bool TryGetPropertyIgnoreCase(
+        JsonElement element,
+        string propertyName,
+        out JsonElement value)
+    {
+        if (element.TryGetProperty(propertyName, out value))
+            return true;
+
+        foreach (JsonProperty property in element.EnumerateObject())
+        {
+            if (string.Equals(property.Name, propertyName, StringComparison.OrdinalIgnoreCase))
+            {
+                value = property.Value;
+                return true;
+            }
+        }
+
+        value = default;
+        return false;
     }
 }

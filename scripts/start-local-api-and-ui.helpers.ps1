@@ -142,6 +142,60 @@ function Get-LocalApiWindowCommand {
     return ($lines -join '; ')
 }
 
+function New-LocalUiSiteSpec {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string] $Name,
+
+        [Parameter(Mandatory = $true)]
+        [string] $ReadyLabel,
+
+        [Parameter(Mandatory = $true)]
+        [ValidateSet('architecture', 'security')]
+        [string] $ProductLine,
+
+        [Parameter(Mandatory = $true)]
+        [string] $SiteKey,
+
+        [string] $Edition = '',
+
+        [string] $DistDir = '',
+
+        [Parameter(Mandatory = $true)]
+        [ValidateRange(1, 65535)]
+        [int] $Port
+    )
+
+    # One API, one Next.js process per shell. Root and proxy URLs are what the starter waits on.
+    return [pscustomobject]@{
+        Name           = $Name
+        ReadyLabel     = $ReadyLabel
+        ProductLine    = $ProductLine
+        SiteKey        = $SiteKey
+        Edition        = $Edition
+        DistDir        = $DistDir
+        Port           = $Port
+        RootUrl        = ('http://127.0.0.1:{0}/' -f $Port)
+        ProxyHealthUrl = ('http://127.0.0.1:{0}/api/proxy/health/live' -f $Port)
+    }
+}
+
+function Assert-LocalUiSitePortsDiffer {
+    param(
+        [Parameter(Mandatory = $true)]
+        [System.Collections.Generic.List[object]] $Sites
+    )
+
+    [System.Collections.Generic.HashSet[int]] $seen = [System.Collections.Generic.HashSet[int]]::new()
+
+    foreach ($site in $Sites) {
+
+        if (-not $seen.Add([int]$site.Port)) {
+            throw 'Local UI ports must differ.'
+        }
+    }
+}
+
 function Get-LocalUiSiteSpecs {
     param(
         [ValidateRange(1, 65535)]
@@ -150,42 +204,83 @@ function Get-LocalUiSiteSpecs {
         [ValidateRange(1, 65535)]
         [int] $SecurityPort = 3001,
 
+        [ValidateRange(1, 65535)]
+        [int] $UhgSecurityPort = 3002,
+
         [bool] $IncludeArchitecture = $true,
 
-        [bool] $IncludeSecurity = $true
+        [bool] $IncludeSecurity = $true,
+
+        [bool] $IncludeUhgSecurity = $false
     )
 
-    if (-not $IncludeArchitecture -and -not $IncludeSecurity) {
+    if (-not $IncludeArchitecture -and -not $IncludeSecurity -and -not $IncludeUhgSecurity) {
         throw 'At least one UI product line must be included.'
-    }
-
-    if ($IncludeArchitecture -and $IncludeSecurity -and $ArchitecturePort -eq $SecurityPort) {
-        throw 'Architecture and Security UI ports must differ.'
     }
 
     [System.Collections.Generic.List[object]] $sites = [System.Collections.Generic.List[object]]::new()
 
     if ($IncludeArchitecture) {
-        $sites.Add([pscustomobject]@{
-                Name           = 'Architecture'
-                ProductLine    = 'architecture'
-                Port           = $ArchitecturePort
-                RootUrl        = ('http://127.0.0.1:{0}/' -f $ArchitecturePort)
-                ProxyHealthUrl = ('http://127.0.0.1:{0}/api/proxy/health/live' -f $ArchitecturePort)
-            })
+        $sites.Add((New-LocalUiSiteSpec `
+                -Name 'Architecture' `
+                -ReadyLabel 'Architecture' `
+                -ProductLine 'architecture' `
+                -SiteKey 'architecture' `
+                -Edition 'generic' `
+                -Port $ArchitecturePort))
     }
 
     if ($IncludeSecurity) {
-        $sites.Add([pscustomobject]@{
-                Name           = 'Security'
-                ProductLine    = 'security'
-                Port           = $SecurityPort
-                RootUrl        = ('http://127.0.0.1:{0}/' -f $SecurityPort)
-                ProxyHealthUrl = ('http://127.0.0.1:{0}/api/proxy/health/live' -f $SecurityPort)
-            })
+        # Generic SecureNow. Edition is set in the window so .env.local cannot flip this process to UHG.
+        $sites.Add((New-LocalUiSiteSpec `
+                -Name 'Security' `
+                -ReadyLabel 'SecureNow' `
+                -ProductLine 'security' `
+                -SiteKey 'security-generic' `
+                -Edition 'generic' `
+                -DistDir '.next-security' `
+                -Port $SecurityPort))
     }
 
+    if ($IncludeUhgSecurity) {
+        # UHG is a second SecureNow process, not a second API. Its own dist dir avoids the Next.js dev lock.
+        $sites.Add((New-LocalUiSiteSpec `
+                -Name 'SecureNow UHG' `
+                -ReadyLabel 'SecureNow UHG' `
+                -ProductLine 'security' `
+                -SiteKey 'security-uhg' `
+                -Edition 'uhg' `
+                -DistDir '.next-security-uhg' `
+                -Port $UhgSecurityPort))
+    }
+
+    Assert-LocalUiSitePortsDiffer -Sites $sites
+
     return $sites
+}
+
+function Get-LocalUiBrowserOpenPath {
+    param(
+        [Parameter(Mandatory = $true)]
+        [ValidateSet('architecture', 'security')]
+        [string] $ProductLine,
+
+        [Parameter(Mandatory = $true)]
+        [string] $RequestedOpenPath,
+
+        [bool] $ArchitectureIncluded
+    )
+
+    if ($ProductLine -eq 'architecture') {
+        return $RequestedOpenPath
+    }
+
+    # SecureNow-only starts always open home. An architecture-only path bounces in that shell.
+    if (-not $ArchitectureIncluded) {
+        return '/'
+    }
+
+    return $RequestedOpenPath
 }
 
 function Ensure-EnvLocalFromExample {
@@ -237,6 +332,13 @@ function Get-LocalUiWindowCommand {
         [ValidateSet('architecture', 'security')]
         [string] $ProductLine = 'architecture',
 
+        [ValidateSet('generic', 'uhg')]
+        [string] $Edition,
+
+        [string] $DistDir = '',
+
+        [string] $WindowLabel = '',
+
         [ValidateRange(1, 65535)]
         [int] $Port = 3000
     )
@@ -249,14 +351,60 @@ function Get-LocalUiWindowCommand {
     $lines.Add($productEnvLine)
     $lines.Add('$env:NEXT_PUBLIC_FEATURES_SHOW_SYSTEM_ADMINISTRATION_NAV = ''true''')
     $lines.Add('$env:NEXT_PUBLIC_OPERATOR_EXPERIENCE = ''operator''')
-    if ($ProductLine -eq 'security') {
-        # Next.js 16+ dev lock is per distDir; Security must not share Architecture's `.next`.
-        $lines.Add('$env:NEXT_DIST_DIR = ''.next-security''')
+
+    if (-not [string]::IsNullOrWhiteSpace($Edition)) {
+        # Process env wins over .env.local, so generic and UHG windows stay on the edition they were started as.
+        $lines.Add(('$env:NEXT_PUBLIC_SECURENOW_EDITION = ''{0}''' -f $Edition))
     }
-    $lines.Add(('Write-Host ''Starting {0} UI on port {1}...''' -f $ProductLine, $Port))
+
+    [string] $resolvedDistDir = $DistDir
+
+    if ([string]::IsNullOrWhiteSpace($resolvedDistDir) -and $ProductLine -eq 'security') {
+        # Next.js 16+ dev lock is per distDir; Security must not share Architecture's `.next`.
+        $resolvedDistDir = '.next-security'
+    }
+
+    if (-not [string]::IsNullOrWhiteSpace($resolvedDistDir)) {
+        $lines.Add(('$env:NEXT_DIST_DIR = ''{0}''' -f $resolvedDistDir))
+    }
+
+    [string] $label = $WindowLabel
+
+    if ([string]::IsNullOrWhiteSpace($label)) {
+        $label = ('{0} UI' -f $ProductLine)
+    }
+
+    $lines.Add(('Write-Host ''Starting {0} on port {1}...''' -f $label, $Port))
     # Set product + port in this window. Do not use `npm run dev:security` here — that script
     # prefixes a Unix env assignment which Windows powershell.exe does not apply.
     $lines.Add(('npx --no-install next dev --webpack -p {0}' -f $Port))
 
     return ($lines -join '; ')
+}
+
+function Get-LocalUiWindowCommandForSite {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string] $UiRoot,
+
+        [Parameter(Mandatory = $true)]
+        $Site
+    )
+
+    $params = @{
+        UiRoot      = $UiRoot
+        ProductLine = [string]$Site.ProductLine
+        Port        = [int]$Site.Port
+        WindowLabel = [string]$Site.ReadyLabel
+    }
+
+    if (-not [string]::IsNullOrWhiteSpace([string]$Site.Edition)) {
+        $params['Edition'] = [string]$Site.Edition
+    }
+
+    if (-not [string]::IsNullOrWhiteSpace([string]$Site.DistDir)) {
+        $params['DistDir'] = [string]$Site.DistDir
+    }
+
+    return Get-LocalUiWindowCommand @params
 }

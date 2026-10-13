@@ -65,7 +65,7 @@ function resolveEvidenceValue(input: FindingCausalMiniChainInput): string | null
       ? Math.max(0, Math.trunc(input.evidenceRefCount))
       : null;
 
-  if (count !== null && count > 0) {
+  if (count !== null && count >= 0) {
     return `${count} cited evidence reference${count === 1 ? "" : "s"}`;
   }
 

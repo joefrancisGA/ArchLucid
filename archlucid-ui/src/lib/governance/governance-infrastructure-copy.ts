@@ -19,6 +19,12 @@ export const GOVERNANCE_INFRASTRUCTURE_OVERVIEW_SKIP_LINK_LABEL = "Skip to infra
 export const GOVERNANCE_INFRASTRUCTURE_OVERVIEW_PAGE_LEAD =
   "Open Azure inventory evidence workbenches for snapshots, diagrams, diagram reconciliation, resource hubs, grounded Ask, and remediation instances." as const;
 
+export const SECURENOW_HOME_PAGE_LEAD =
+  "Review security findings, explore your Azure environment, and verify remediation." as const;
+
+export const SECURENOW_HOME_CLAIM_DISCIPLINE =
+  "Advice and inventory evidence on this page are not an official compliance report." as const;
+
 export const GOVERNANCE_INFRASTRUCTURE_OVERVIEW_HUB_INTRO_WORKBENCHES =
   "Azure inventory evidence workbenches for snapshots, diagrams, diagram reconciliation, resource hubs, grounded Ask, and remediation instances." as const;
 
@@ -29,7 +35,7 @@ export const GOVERNANCE_INFRASTRUCTURE_OVERVIEW_HUB_INTRO =
   `${GOVERNANCE_INFRASTRUCTURE_OVERVIEW_HUB_INTRO_WORKBENCHES} ${GOVERNANCE_INFRASTRUCTURE_OVERVIEW_HUB_INTRO_DESTINATIONS}` as const;
 
 export const SECURENOW_HOME_GROUPED_SECTIONS_INTRO =
-  `${GOVERNANCE_INFRASTRUCTURE_OVERVIEW_HUB_INTRO_DESTINATIONS} Security, compliance, and infrastructure destinations are grouped below.` as const;
+  "Findings, environment, remediation, compliance, and data sources are grouped below." as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_OVERVIEW_START_HERE_TITLE = "Start here" as const;
 

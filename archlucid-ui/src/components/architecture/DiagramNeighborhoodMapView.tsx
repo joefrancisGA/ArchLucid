@@ -11,16 +11,22 @@ export type DiagramNeighborhoodMapViewProps = {
 };
 
 function titleFor(map: DiagramNeighborhoodMap, id: string): string {
-  return map.neighborhoods.find((neighborhood) => neighborhood.id === id)?.title ?? id;
+  const title = map.neighborhoods.find((neighborhood) => neighborhood.id === id)?.title;
+
+  return title === null || title === undefined ? id : title;
 }
 
-function renderTypeChip(type: { readonly name: string; readonly count: number | null }): React.JSX.Element {
+function renderTypeChip(type: { readonly name: string | null; readonly count: number | null }): React.JSX.Element {
   return (
     <span
       key={`${type.name}-${type.count}`}
       className="rounded border border-slate-200 bg-slate-50 px-1.5 py-0.5 text-[12px] text-slate-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300"
     >
-      {type.count == null ? `${type.name} count was not stored` : `${type.name} ${type.count}`}
+      {type.name === null
+        ? `Type name was not stored${type.count == null ? "" : ` ${type.count}`}`
+        : type.count == null
+          ? `${type.name} count was not stored`
+          : `${type.name} ${type.count}`}
     </span>
   );
 }
@@ -29,23 +35,16 @@ function renderTile(
   neighborhood: DiagramNeighborhood,
   onOpenNeighborhood: (id: string) => void,
 ): React.JSX.Element {
-  const isVnet = neighborhood.kind === "vnet";
-
   return (
     <button
       key={neighborhood.id}
       type="button"
-      className={[
-        "flex min-h-[116px] min-w-0 flex-col items-start gap-2 rounded-md border bg-white p-4 text-left shadow-sm transition hover:border-slate-400 hover:shadow dark:bg-slate-950",
-        isVnet
-          ? "border-slate-400 dark:border-slate-500"
-          : "border-slate-200 dark:border-slate-700",
-      ].join(" ")}
+      className="flex min-h-[116px] min-w-0 flex-col items-start gap-2 rounded-md border border-slate-200 bg-white p-4 text-left shadow-sm transition hover:border-slate-400 hover:shadow dark:border-slate-700 dark:bg-slate-950"
       data-testid={`architecture-diagram-neighborhood-tile-${neighborhood.id}`}
       onClick={() => onOpenNeighborhood(neighborhood.id)}
     >
       <span className="w-full break-words text-[14px] font-semibold text-[#0f172a] dark:text-slate-100">
-        {neighborhood.title}
+        {neighborhood.title === null ? "Neighborhood title was not stored." : neighborhood.title}
       </span>
       <span className="text-[12px] text-[#64748b]">
         {neighborhood.resourceCount == null
@@ -90,7 +89,9 @@ export function DiagramNeighborhoodMapView(
         <ul className="m-0 space-y-1 p-0 text-[12px] text-slate-600 dark:text-slate-300">
           {visibleLinks.map((link) => (
             <li key={`${link.from}-${link.to}`}>
-              {`${titleFor(props.map, link.from)} — ${link.count} — ${titleFor(props.map, link.to)}`}
+              {`${titleFor(props.map, link.from)} — ${
+                link.count === null ? "Link count was not stored" : link.count
+              } — ${titleFor(props.map, link.to)}`}
             </li>
           ))}
           {remainingLinkCount > 0 ? <li>{`+ ${remainingLinkCount} more links`}</li> : null}

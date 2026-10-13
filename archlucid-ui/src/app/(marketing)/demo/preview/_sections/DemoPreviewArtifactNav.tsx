@@ -1,7 +1,7 @@
 "use client";
 
 import { FileText, GitBranch, History, ShieldCheck, Stamp } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import {
   DEMO_PREVIEW_ARTIFACT_AUDIT_DESC,
@@ -62,6 +62,7 @@ const ARTIFACT_ITEMS = [
 
 export function DemoPreviewArtifactNav(props: { readonly showcaseTelemetry?: ShowcaseDemoPreviewTelemetry }) {
   const [activeId, setActiveId] = useState<string>(ARTIFACT_ITEMS[0].id);
+  const intersectionRatiosRef = useRef(new Map<string, number>());
 
   useEffect(() => {
     if (typeof IntersectionObserver === "undefined") {
@@ -78,12 +79,23 @@ export function DemoPreviewArtifactNav(props: { readonly showcaseTelemetry?: Sho
 
     const observer = new IntersectionObserver(
       (entries) => {
-        const visible = entries
-          .filter((entry) => entry.isIntersecting)
-          .sort((left, right) => right.intersectionRatio - left.intersectionRatio)[0];
+        entries.forEach((entry) => {
+          intersectionRatiosRef.current.set(
+            entry.target.id,
+            entry.isIntersecting ? entry.intersectionRatio : 0,
+          );
+        });
 
-        if (visible?.target.id) {
-          setActiveId(visible.target.id);
+        const visible = sections
+          .map((section) => ({
+            section,
+            ratio: intersectionRatiosRef.current.get(section.id) ?? 0,
+          }))
+          .filter(({ ratio }) => ratio > 0)
+          .sort((left, right) => right.ratio - left.ratio)[0];
+
+        if (visible?.section.id) {
+          setActiveId(visible.section.id);
         }
       },
       { rootMargin: "-20% 0px -55% 0px", threshold: [0.1, 0.35, 0.6] },

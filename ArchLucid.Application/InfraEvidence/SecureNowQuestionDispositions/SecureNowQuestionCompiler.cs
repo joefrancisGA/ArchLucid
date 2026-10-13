@@ -59,6 +59,10 @@ public sealed class SecureNowQuestionCompiler
                 string.IsNullOrWhiteSpace(inferred.FromArmId)
                     ? inferred.ToArmId
                     : inferred.FromArmId);
+
+            if (resourceId.Length == 0)
+                continue;
+
             string questionKey = $"{NormalizeKey(inferred.RuleName ?? "inferred-connection")}@v1";
             string fingerprint = Fingerprint(
                 questionKey,

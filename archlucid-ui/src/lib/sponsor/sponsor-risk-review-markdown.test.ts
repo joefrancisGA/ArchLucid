@@ -83,6 +83,73 @@ describe("buildSponsorRiskReviewMarkdown", () => {
       "| Severity was not stored | Finding title was not stored | No recommended action recorded for this finding. |",
     );
   });
+
+  it("reports a missing unresolved issue count while preserving zero", () => {
+    const missing = buildSponsorRiskReviewMarkdown(
+      "r",
+      "H",
+      stubSummary({ unresolvedIssueCount: null }),
+      [],
+    );
+    const zero = buildSponsorRiskReviewMarkdown("r", "H", stubSummary({ unresolvedIssueCount: 0 }), []);
+
+    expect(missing).toContain("Unresolved issue count was not stored.");
+    expect(zero).toContain("0 unresolved review issues.");
+    expect(zero).not.toContain("Unresolved issue count was not stored.");
+  });
+
+  it("reports a missing compliance gap count while preserving zero and positives", () => {
+    const missing = buildSponsorRiskReviewMarkdown("r", "H", stubSummary({ complianceGapCount: null }), []);
+    const zero = buildSponsorRiskReviewMarkdown("r", "H", stubSummary({ complianceGapCount: 0 }), []);
+    const positive = buildSponsorRiskReviewMarkdown("r", "H", stubSummary({ complianceGapCount: 2 }), []);
+
+    expect(missing).toContain("Compliance gap count was not stored.");
+    expect(zero).not.toContain("Compliance gap count was not stored.");
+    expect(positive).toContain("2 compliance gaps");
+  });
+
+  it("reports missing finding and faithfulness counts while preserving zero and strings", () => {
+    const missing = buildSponsorRiskReviewMarkdown(
+      "r",
+      "H",
+      stubSummary({ findingCount: null, faithfulnessSupportRatio: null }),
+      [],
+    );
+    const stored = buildSponsorRiskReviewMarkdown(
+      "r",
+      "H",
+      stubSummary({ findingCount: 0, faithfulnessSupportRatio: "stored" as never }),
+      [],
+    );
+
+    expect(missing).toContain("Finding count was not stored.");
+    expect(missing).toContain("Faithfulness support ratio was not stored.");
+    expect(stored).toContain("0 architecture findings");
+    expect(stored).toContain("Faithfulness support ratio: stored.");
+  });
+
+  it("distinguishes missing faithfulness and fallback flags from stored empty and false values", () => {
+    const missing = buildSponsorRiskReviewMarkdown("r", "H", stubSummary(), []);
+    const stored = buildSponsorRiskReviewMarkdown(
+      "r",
+      "H",
+      stubSummary({ faithfulnessWarning: "", deterministicFallbackUsed: false }),
+      [],
+    );
+    const active = buildSponsorRiskReviewMarkdown(
+      "r",
+      "H",
+      stubSummary({ faithfulnessWarning: "Stored warning", deterministicFallbackUsed: true }),
+      [],
+    );
+
+    expect(missing).toContain("Faithfulness warning was not stored.");
+    expect(missing).toContain("Deterministic fallback was not stored.");
+    expect(stored).not.toContain("Faithfulness warning was not stored.");
+    expect(stored).not.toContain("Deterministic fallback was not stored.");
+    expect(active).toContain("Stored warning");
+    expect(active).toContain("deterministically aligned");
+  });
 });
 
 describe("executiveRiskReviewMarkdownFilename", () => {

@@ -10,6 +10,45 @@ const HOSTED_APP_SETTINGS_WARNING =
   "app-settings-not-collected-hosted-get-only";
 
 const RBAC_SCOPE_TOO_BROAD_PREFIX = "rbac-scope-too-broad:";
+const RBAC_ROLE_UNMAPPED_PREFIX = "rbac-role-unmapped:";
+
+function formatAssignmentCount(count: number): string {
+  return `${count} ${count === 1 ? "time" : "times"}`;
+}
+
+function resolveUnmappedRolePresentation(
+  warning: string,
+): InfraEvidenceCompletenessWarningPresentation | null {
+  if (!warning.startsWith(RBAC_ROLE_UNMAPPED_PREFIX)) {
+    return null;
+  }
+
+  const payload = warning.slice(RBAC_ROLE_UNMAPPED_PREFIX.length);
+  const countedMatch = payload.match(/^(\d+):([^:]+)(?:::(.*))?$/);
+  const roleDefinitionId = payload.startsWith("/")
+    ? payload
+    : countedMatch?.[2] ?? payload;
+  const count = countedMatch ? Number.parseInt(countedMatch[1], 10) : null;
+  const roleName = countedMatch?.[3]?.trim();
+  const title = "Role not translated into a data-plane line";
+
+  if (count !== null && Number.isInteger(count) && count > 0) {
+    const assignmentText = `assigned ${formatAssignmentCount(count)}`;
+    const roleText = roleName ? `${roleName} is ${assignmentText}.` : `This role is ${assignmentText}.`;
+
+    return {
+      code: warning,
+      title,
+      detail: `${roleText} Has role is recorded. No can-read or can-write line was drawn.`,
+    };
+  }
+
+  return {
+    code: warning,
+    title,
+    detail: `This role is assigned at least once. Has role is recorded. No can-read or can-write line was drawn. Role definition ${roleDefinitionId}.`,
+  };
+}
 
 export function resolveInfraEvidenceCompletenessWarningPresentation(
   warning: string,
@@ -23,6 +62,12 @@ export function resolveInfraEvidenceCompletenessWarningPresentation(
       detail:
         "Hosted inventory uses GET-only ARM calls and does not read app settings. Re-run the Tier 1 PowerShell package with -IncludeAppSettingsHosts to add redacted hostname hints (never values).",
     };
+  }
+
+  const unmappedRolePresentation = resolveUnmappedRolePresentation(trimmed);
+
+  if (unmappedRolePresentation) {
+    return unmappedRolePresentation;
   }
 
   if (trimmed.startsWith(RBAC_SCOPE_TOO_BROAD_PREFIX)) {

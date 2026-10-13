@@ -2,6 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { RunDetailFindingsDenseTableRow } from "@/components/findings/RunDetailFindingsDenseTableRow";
+import * as quickDecisionFindingLinks from "@/lib/quick-decision-finding-links";
 import { INSIGHT_DENSITY_TYPED_ENGINE_HONESTY_LINE } from "@/lib/findings/insight-density-band";
 import { FINDING_CLASSIFICATION_CHECKLIST_COVERAGE, FINDING_CLASSIFICATION_DECISION_GRADE } from "@/lib/findings/review-detail-findings-classification-band";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
@@ -46,7 +47,9 @@ describe("RunDetailFindingsDenseTableRow", () => {
     expect(screen.getByTestId("run-detail-findings-density-honesty-finding-1")).toHaveTextContent(
       INSIGHT_DENSITY_TYPED_ENGINE_HONESTY_LINE,
     );
-    expect(screen.getByTestId("finding-semantic-support-band-tag-finding-1")).toHaveTextContent("Not scored");
+    expect(screen.getByTestId("finding-semantic-support-band-tag-finding-1")).toHaveTextContent(
+      "Semantic support band was not stored",
+    );
     expect(screen.getByTestId(/^finding-trust-chip-/)).toBeInTheDocument();
   });
 
@@ -65,6 +68,46 @@ describe("RunDetailFindingsDenseTableRow", () => {
 
     expect(screen.queryByTestId("run-detail-findings-density-honesty-finding-1")).toBeNull();
     expect(screen.queryByTestId("working-finding-semantic-support-band")).toBeNull();
+  });
+
+  it("labels missing classification", () => {
+    render(
+      <table>
+        <tbody>
+          <RunDetailFindingsDenseTableRow
+            runId="run-1"
+            finding={sampleFinding({ classification: null })}
+            showDensityScore
+          />
+        </tbody>
+      </table>,
+    );
+
+    expect(screen.getByText("Classification was not stored")).toBeInTheDocument();
+  });
+
+  it("preserves a stored zero evidence reference count when a link exists", () => {
+    vi.spyOn(quickDecisionFindingLinks, "buildQuickDecisionFindingEvidenceLinks").mockReturnValue({
+      evidenceRefCount: 0,
+      manifestHref: null,
+      graphHref: "/architecture/reviews/run-1/graph",
+      viewEvidenceHref: "/architecture/reviews/run-1/graph",
+    });
+
+    render(
+      <table>
+        <tbody>
+          <RunDetailFindingsDenseTableRow
+            runId="run-1"
+            finding={sampleFinding({ evidenceRefCount: 0 })}
+            showDensityScore
+          />
+        </tbody>
+      </table>,
+    );
+
+    expect(screen.getByTestId("finding-evidence-link-chip")).toHaveTextContent("0 linked");
+    vi.restoreAllMocks();
   });
 
   it("labels missing confidence, review status, and evidence link", () => {

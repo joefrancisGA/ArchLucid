@@ -15,16 +15,16 @@ internal static class AzureInventorySnapshotRecoveryServicesEdgeHydrator
         AzureInventorySnapshotDetailReadModel snapshot,
         Dictionary<string, string> nodeIdByArmId,
         List<GraphEdge> edges,
-        HashSet<string> edgeKeys)
+        HashSet<string> edgeKeys,
+        AzureInventorySnapshotResourceIndex? resourceIndex = null)
     {
         ArgumentNullException.ThrowIfNull(snapshot);
         ArgumentNullException.ThrowIfNull(nodeIdByArmId);
         ArgumentNullException.ThrowIfNull(edges);
         ArgumentNullException.ThrowIfNull(edgeKeys);
 
-        Dictionary<Guid, AzureInventoryResourceRecord> resourcesByRowId = snapshot.Resources
-            .GroupBy(resource => resource.ResourceRowId)
-            .ToDictionary(group => group.Key, group => group.First());
+        resourceIndex ??= AzureInventorySnapshotResourceIndex.Create(snapshot);
+        IReadOnlyDictionary<Guid, AzureInventoryResourceRecord> resourcesByRowId = resourceIndex.ByResourceRowId;
 
         foreach (AzureInventoryResourcePropertyReadModel property in snapshot.Properties)
         {
@@ -87,24 +87,15 @@ internal static class AzureInventorySnapshotRecoveryServicesEdgeHydrator
                     ? AzureInventoryRecoveryServices.ReplicateEdgeLabel
                     : AzureInventoryRecoveryServices.BackupEdgeLabel;
 
-                string edgeKey = $"{fromNodeId}|{toNodeId}|{GraphEdgeTypes.Protects}";
+                GraphEdge? edge = AzureInventorySnapshotGraphEdgeAppender.TryAdd(
+                    edges, edgeKeys, fromNodeId, toNodeId, GraphEdgeTypes.Protects, inferenceSource,
+                    label: label, provenanceKind: ProvenanceKind.ObservedFact.ToString(),
+                    promoteStrongerProvenance: false, allowSelfEdges: true);
 
-                if (!edgeKeys.Add(edgeKey))
+                if (edge is null)
                 {
                     continue;
                 }
-
-                GraphEdge edge = new()
-                {
-                    EdgeId = $"edge-{edgeKey}",
-                    FromNodeId = fromNodeId,
-                    ToNodeId = toNodeId,
-                    EdgeType = GraphEdgeTypes.Protects,
-                    Label = label,
-                    Weight = 1.0d,
-                    InferenceSource = inferenceSource,
-                    ProvenanceKind = ProvenanceKind.ObservedFact.ToString(),
-                };
 
                 if (!string.IsNullOrWhiteSpace(item.TargetRegion))
                 {
@@ -116,8 +107,6 @@ internal static class AzureInventorySnapshotRecoveryServicesEdgeHydrator
                     edge.Properties[AzureInventoryRecoveryServices.EdgeTargetResourceIdPropertyKey] =
                         ArmResourceIdNormalizer.Normalize(item.TargetResourceId);
                 }
-
-                edges.Add(edge);
             }
         }
     }

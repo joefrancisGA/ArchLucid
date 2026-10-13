@@ -64,7 +64,7 @@ export function RunsListBuyerFeaturedCard({ run }: RunsListBuyerFeaturedCardProp
                 Decision date
               </dt>
               <dd className="m-0 font-medium text-neutral-900 dark:text-neutral-100">
-                {meta?.decisionDate ?? new Date(run.createdUtc).toLocaleDateString()}
+                {meta?.decisionDate ?? "Decision date was not stored."}
               </dd>
             </div>
             <div>
@@ -72,7 +72,7 @@ export function RunsListBuyerFeaturedCard({ run }: RunsListBuyerFeaturedCardProp
                 Review owner
               </dt>
               <dd className="m-0 font-medium text-neutral-900 dark:text-neutral-100">
-                {meta?.packageOwner ?? "Not recorded"}
+                {meta?.packageOwner ?? "Review owner was not stored."}
               </dd>
             </div>
             <div>
@@ -88,7 +88,7 @@ export function RunsListBuyerFeaturedCard({ run }: RunsListBuyerFeaturedCardProp
                 Approval authority
               </dt>
               <dd className="m-0 font-medium text-neutral-900 dark:text-neutral-100">
-                {meta?.approvalAuthority ?? "Not recorded"}
+                {meta?.approvalAuthority ?? "Approval authority was not stored."}
               </dd>
             </div>
             <div>
@@ -96,7 +96,7 @@ export function RunsListBuyerFeaturedCard({ run }: RunsListBuyerFeaturedCardProp
                 Last audit event
               </dt>
               <dd className="m-0 font-medium text-neutral-900 dark:text-neutral-100">
-                {meta?.lastAuditEvent ?? "Not recorded"}
+                {meta?.lastAuditEvent ?? "Last audit event was not stored."}
               </dd>
             </div>
             <div>

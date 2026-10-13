@@ -50,7 +50,7 @@ type FindingAskInlinePanelProps = {
 
 type AskTurn = {
   question: string;
-  answer: string;
+  answer: string | null;
 };
 
 /**
@@ -156,7 +156,12 @@ export function FindingAskInlinePanel(props: FindingAskInlinePanelProps) {
         threadId: threadId ?? undefined,
       });
       setThreadId(response.threadId);
-      setTurns((prev) => [...prev, { question: trimmed, answer: response.answer }]);
+      const answer =
+        response.answer === null || response.answer === undefined
+          ? null
+          : response.answer;
+
+      setTurns((prev) => [...prev, { question: trimmed, answer }]);
       setQuestion("");
     } catch (e: unknown) {
       const failure = toApiLoadFailure(e);
@@ -220,7 +225,13 @@ export function FindingAskInlinePanel(props: FindingAskInlinePanelProps) {
                   <p className={cn("m-0 font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                     Answer
                   </p>
-                  <AskAssistantMessageBody content={turn.answer} />
+                  {turn.answer === null ? (
+                    <p className={cn("m-0 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
+                      Answer was not stored.
+                    </p>
+                  ) : (
+                    <AskAssistantMessageBody content={turn.answer} />
+                  )}
                   <AskCitedFindingsSemanticSupportBandFootnote
                     referencedFindingIds={[props.findingId]}
                     findingBandIndex={

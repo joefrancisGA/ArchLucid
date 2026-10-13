@@ -47,8 +47,10 @@ const EMPTY_FORM: FormState = {
 };
 
 const unsupportedAccessRequestTextCharacters = /[\p{Cc}\p{Cf}]/u;
+const permittedAccessRequestControlCharacters = /[\t\n\r]/g;
 
 function containsUnsupportedAccessRequestText(form: FormState): boolean {
+  // Multiline notes legitimately contain line breaks, so only reject other control characters and bidi formatting.
   return [
     form.name,
     form.workEmail,
@@ -56,7 +58,9 @@ function containsUnsupportedAccessRequestText(form: FormState): boolean {
     form.roleTitle,
     form.cloudPlatformFocus,
     form.note,
-  ].some((value) => unsupportedAccessRequestTextCharacters.test(value));
+  ].some((value) =>
+    unsupportedAccessRequestTextCharacters.test(value.replace(permittedAccessRequestControlCharacters, "")),
+  );
 }
 
 /** Private-beta access request experience for `/auth/callback` sign-in failures. */

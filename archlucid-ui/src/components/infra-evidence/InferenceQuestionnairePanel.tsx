@@ -23,7 +23,7 @@ type InferenceQuestionnairePanelProps = {
   readonly snapshotId: string;
 };
 
-type QuestionnaireChoice = "yes" | "no" | "skip" | null;
+type QuestionnaireChoice = "yes" | "no" | "read" | "write" | "nothing" | "skip" | null;
 
 export function InferenceQuestionnairePanel(
   props: InferenceQuestionnairePanelProps,
@@ -86,12 +86,15 @@ export function InferenceQuestionnairePanel(
 
   const requiresCatalogChoice =
     currentItem?.ruleName === "SQL catalog missing" || currentItem?.ruleName === "Tenant catalog template";
+  const isDataPlaneQuestion = currentItem?.ruleName === "Unmapped data-plane role";
 
   const canSubmit =
     choice != null
     && !submitting
     && (choice === "skip"
       || choice === "no"
+      || choice === "nothing"
+      || (isDataPlaneQuestion && (choice === "read" || choice === "write"))
       || (choice === "yes" && (!requiresCatalogChoice || selectedCatalog.trim().length > 0)));
 
   const onSubmit = useCallback(async () => {
@@ -115,7 +118,12 @@ export function InferenceQuestionnairePanel(
     setPanelError(null);
 
     try {
-      if (choice === "yes") {
+      if (isDataPlaneQuestion && (choice === "read" || choice === "write")) {
+        await confirmOperatorInferredConnection(snapshotId, {
+          connectionId: currentItem.connectionId,
+          dataPlaneAnswer: choice === "read" ? "Read" : "Write",
+        });
+      } else if (choice === "yes") {
         await confirmOperatorInferredConnection(snapshotId, {
           connectionId: currentItem.connectionId,
           toCatalog: selectedCatalog.trim().length > 0 ? selectedCatalog : currentItem.toCatalog,
@@ -136,7 +144,7 @@ export function InferenceQuestionnairePanel(
     } finally {
       setSubmitting(false);
     }
-  }, [choice, currentItem, loadItems, selectedCatalog, snapshotId]);
+  }, [choice, currentItem, isDataPlaneQuestion, loadItems, selectedCatalog, snapshotId]);
 
   const showEmptyRemainCaption = currentItem == null && panelError?.kind !== "load";
 
@@ -196,6 +204,42 @@ export function InferenceQuestionnairePanel(
               {currentItem.questionText ?? "Question text was not stored"}
             </p>
 
+            {isDataPlaneQuestion ? (
+              <>
+                <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                  This records your statement on the diagram. It does not change the role assignment in Azure.
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant={choice === "read" ? "primary" : "outline"}
+                    onClick={() => setChoice("read")}
+                    data-testid="inference-questionnaire-read"
+                  >
+                    Read
+                  </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant={choice === "write" ? "primary" : "outline"}
+                    onClick={() => setChoice("write")}
+                    data-testid="inference-questionnaire-write"
+                  >
+                    Write
+                  </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant={choice === "nothing" ? "primary" : "outline"}
+                    onClick={() => setChoice("nothing")}
+                    data-testid="inference-questionnaire-nothing"
+                  >
+                    Nothing
+                  </Button>
+                </div>
+              </>
+            ) : (
             <div className="flex flex-wrap gap-2">
               <Button
                 type="button"
@@ -225,6 +269,7 @@ export function InferenceQuestionnairePanel(
                 Skip
               </Button>
             </div>
+            )}
 
             {choice === "yes" && requiresCatalogChoice ? (
               <div className="flex flex-col gap-2">

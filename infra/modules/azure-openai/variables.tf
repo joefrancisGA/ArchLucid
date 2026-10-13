@@ -109,3 +109,9 @@ variable "tags" {
   description = "Resource tags."
   default     = {}
 }
+
+variable "public_network_access_enabled" {
+  type        = bool
+  description = "When false, the Cognitive Services account rejects public network access. Default true preserves existing callers."
+  default     = true
+}

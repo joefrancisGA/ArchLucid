@@ -22,6 +22,8 @@ import { HELP_PAGE_SHORTCUT_GROUPS } from "@/lib/page-shortcut-groups";
 import { useLocalizedProductCopy } from "@/hooks/use-localized-product-copy";
 import { howProductWorksTitle } from "@/lib/product-line/product-line-display-name";
 import { cn } from "@/lib/utils";
+import { resolveSecureNowAttribution } from "@/lib/editions/securenow-attribution";
+import { resolveSecureNowEditionIdFromEnv } from "@/lib/product-line/resolve-securenow-edition-id";
 
 import { HelpTourTrigger } from "./HelpTourTrigger";
 import { HelpProductGuide } from "./HelpProductGuide";
@@ -31,6 +33,10 @@ export function HelpPageView(): React.JSX.Element {
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const { productLine } = useLocalizedProductCopy();
   const howProductWorksLabel = howProductWorksTitle(productLine);
+  const secureNowAttribution =
+    productLine === "security"
+      ? resolveSecureNowAttribution(resolveSecureNowEditionIdFromEnv())
+      : null;
 
   const richDescription = (
     <>
@@ -122,6 +128,11 @@ export function HelpPageView(): React.JSX.Element {
         </div>
       </section>
       <HelpProductGuide />
+      {secureNowAttribution ? (
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+          {secureNowAttribution}
+        </p>
+      ) : null}
       {buyerPolishedShell ? (
         <div className="mb-4 text-left" data-testid={HELP_HUB_ORIENTATION_BOTTOM_TEST_ID}>
           <HelpHubClaimOrientationStrip />

@@ -702,6 +702,39 @@ public sealed class PrivilegePathEngineTests
         };
     }
 
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task RunAsync_multiple_write_roles_persist_distinct_findings_and_are_idempotent(bool reverse)
+    {
+        var original = BuildManagedIdentityBlobReaderSnapshot(Guid.NewGuid(), Guid.NewGuid());
+        const string owner = "8e3af657-a8ff-443c-a75c-2fe8c4bcb635";
+        var roles = reverse ? new[] { ContributorRoleDefinitionId, owner } : new[] { owner, ContributorRoleDefinitionId };
+        AzureInventorySnapshotDetailReadModel snapshot = new()
+        {
+            Header = original.Header, Resources = original.Resources, Properties = original.Properties,
+            Relationships = original.Relationships,
+            RoleAssignments = roles.Select(role => new AzureInventoryRoleAssignmentReadModel
+            { PrincipalId = ManagedIdentityPrincipalId, Scope = StorageAccountArm, RoleDefinitionId = role }).ToList(),
+        };
+        InMemorySecurityEvidencePathRepository paths = new();
+        InMemoryOperationalSecurityFindingRepository findings = new();
+        var scope = CreateScope();
+        var engine = CreateEngine(snapshot, scope, paths, CreateIngestService(findings));
+        var first = await engine.RunAsync(scope, SnapshotId, SecureNowArchitectConstants.SystemActorId);
+        Assert.True(first.Succeeded);
+        Assert.Equal(6, first.PathsDiscovered);
+        Assert.Equal(6, first.PathsPersisted);
+        Assert.Equal(6, findings.StoredFindings.Count);
+        Assert.Contains(findings.StoredFindings, finding => finding.Title.Contains("(Owner)", StringComparison.Ordinal));
+        Assert.Contains(findings.StoredFindings, finding => finding.Title.Contains("(Contributor)", StringComparison.Ordinal));
+        var second = await engine.RunAsync(scope, SnapshotId, SecureNowArchitectConstants.SystemActorId);
+        Assert.True(second.Succeeded);
+        Assert.Equal(0, second.PathsPersisted);
+        Assert.Equal(6, paths.StoredPaths.Count);
+        Assert.Equal(6, findings.StoredFindings.Count);
+    }
+
     private static AzureInventorySnapshotRecord CreateHeader() =>
         new()
         {

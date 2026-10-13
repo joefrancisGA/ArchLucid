@@ -175,6 +175,87 @@ public sealed class AgentOutputEvaluationRecorderTests
         evaluationRepository.Rows[0].ResultId.Should().Be("result-task-id-case");
     }
 
+    [Fact]
+    public async Task EvaluateAndRecordMetricsAsync_attaches_latest_trace_metrics_to_latest_agent_result()
+    {
+        InMemoryAgentExecutionTraceRepository traceRepository = new();
+        Mock<IAgentResultRepository> resultRepository = new();
+        CapturingAgentOutputEvaluationRepository evaluationRepository = new();
+
+        const string runId = "run-duplicate-agent-results";
+        const string taskId = "task-retried";
+        const string json =
+            """
+            {"resultId":"result-latest","taskId":"task-retried","runId":"run-duplicate-agent-results","agentType":1,"claims":[{"text":"x","evidence":"y"}],"evidenceRefs":[],"confidence":0.5,"findings":[{"severity":"High","description":"Long enough description text","recommendation":"Fix it"}],"proposedChanges":null,"createdUtc":"2026-01-01T00:00:00Z"}
+            """;
+
+        await traceRepository.CreateAsync(
+            new AgentExecutionTrace
+            {
+                TraceId = "trace-superseded",
+                RunId = runId,
+                TaskId = taskId,
+                AgentType = AgentType.Topology,
+                ParseSucceeded = true,
+                ParsedResultJson = json,
+                AttemptIndex = 1,
+                CreatedUtc = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+            },
+            CancellationToken.None);
+
+        await traceRepository.CreateAsync(
+            new AgentExecutionTrace
+            {
+                TraceId = "trace-latest",
+                RunId = runId,
+                TaskId = taskId,
+                AgentType = AgentType.Topology,
+                ParseSucceeded = true,
+                ParsedResultJson = json,
+                AttemptIndex = 2,
+                CreatedUtc = new DateTime(2026, 1, 1, 0, 1, 0, DateTimeKind.Utc),
+            },
+            CancellationToken.None);
+
+        resultRepository
+            .Setup(repository => repository.GetByRunIdAsync(
+                It.IsAny<ScopeContext>(),
+                runId,
+                It.IsAny<CancellationToken>(),
+                null,
+                null))
+            .ReturnsAsync(
+            [
+                new AgentResult
+                {
+                    ResultId = "result-superseded",
+                    RunId = runId,
+                    TaskId = taskId,
+                    AgentType = AgentType.Topology,
+                    PromptVariantKey = "variant-old",
+                },
+                new AgentResult
+                {
+                    ResultId = "result-latest",
+                    RunId = runId,
+                    TaskId = taskId,
+                    AgentType = AgentType.Topology,
+                    PromptVariantKey = "variant-latest",
+                },
+            ]);
+
+        AgentOutputEvaluationRecorder sut = CreateRecorder(
+            traceRepository,
+            NullLogger<AgentOutputEvaluationRecorder>.Instance,
+            agentResultRepository: resultRepository.Object,
+            outputEvaluationRepository: evaluationRepository);
+
+        await sut.EvaluateAndRecordMetricsAsync(runId, CancellationToken.None);
+
+        evaluationRepository.Rows.Should().ContainSingle();
+        evaluationRepository.Rows[0].ResultId.Should().Be("result-latest");
+    }
+
     private sealed class FixedScopeProvider : IScopeContextProvider
     {
         public ScopeContext GetCurrentScope() => new()

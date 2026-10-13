@@ -26,4 +26,26 @@ describe("InfraEvidenceCompletenessWarningsBanner", () => {
     expect(screen.getByText(/App setting hostnames not collected on hosted pull/)).toBeInTheDocument();
     expect(screen.getByText(/Role assignment scope is too broad/)).toBeInTheDocument();
   });
+
+  it("labels missing completeness summary counts without treating them as zero", () => {
+    render(
+      <InfraEvidenceCompletenessWarningsBanner
+        warnings={["rbac-scope-too-broad:/subscriptions/sub"]}
+        summary={{
+          mode: "executive",
+          visibleNodeCount: null,
+          visibleEdgeCount: 0,
+          connectedComponentCount: null,
+          hiddenHopsUsedCount: 0,
+          likelyInCollocationEdgeCount: 0,
+          missingClasses: [],
+          collectedClasses: [],
+        }}
+      />,
+    );
+
+    expect(screen.getByText(/Visible resource count was not stored/)).toBeInTheDocument();
+    expect(screen.getByText(/Connected component count was not stored/)).toBeInTheDocument();
+    expect(screen.queryByText(/0 resources in/)).not.toBeInTheDocument();
+  });
 });

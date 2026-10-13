@@ -8,6 +8,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from datetime import datetime, timezone
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
@@ -130,7 +131,7 @@ class BuildRcEvidenceSignoffBundleTests(unittest.TestCase):
             json.dumps(
                 {
                     "schema": "archlucid.real-llm-evidence-gate.v2",
-                    "generatedUtc": "2026-09-10T00:00:00+00:00",
+                    "generatedUtc": datetime.now(timezone.utc).isoformat(),
                     "overallOutcome": "PASS",
                     "executionMode": "real",
                     "agentPaths": [

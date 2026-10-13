@@ -71,4 +71,29 @@ describe("ArchitectureSealDeltaPanel (PC-06)", () => {
 
     expect(screen.getByTestId("architecture-seal-delta-empty")).toHaveTextContent("No prior sealed record");
   });
+
+  it("preserves omitted, empty, and stored section labels", () => {
+    useArchitectureSealDeltaQuery.mockReturnValue({
+      isLoading: false,
+      isError: false,
+      data: {
+        architectureId: "arch-1",
+        hasPriorSeal: true,
+        honestyCopy: "Orientation only.",
+        diffs: [
+          { section: null, key: "missing", diffKind: "Changed" },
+          { section: "", key: "empty", diffKind: "Changed" },
+          { section: "Assumptions", key: "stored", diffKind: "Changed" },
+        ],
+      },
+      refetch: vi.fn(),
+    });
+
+    render(<ArchitectureSealDeltaPanel architectureId="arch-1" />);
+
+    expect(screen.getByRole("heading", { name: "Section was not stored." })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Assumptions" })).toBeInTheDocument();
+    expect(screen.getByTestId("architecture-seal-delta-diff-list")).toHaveTextContent("empty");
+    expect(screen.getByTestId("architecture-seal-delta-diff-list")).not.toHaveTextContent("Other");
+  });
 });

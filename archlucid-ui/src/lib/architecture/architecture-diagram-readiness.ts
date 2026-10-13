@@ -17,7 +17,7 @@ function sectionHasContent(section: ArchitectureStructuredSection | undefined): 
     return false;
   }
 
-  return (section.narrativeMarkdown?.trim().length ?? 0) > 0 || section.entities.length > 0;
+  return (section.narrativeMarkdown?.trim().length ?? 0) > 0 || (section.entities?.length ?? 0) > 0;
 }
 
 export function assessArchitectureDiagramReadiness(

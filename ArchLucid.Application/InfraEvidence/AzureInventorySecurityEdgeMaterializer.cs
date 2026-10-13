@@ -161,11 +161,6 @@ public static class AzureInventorySecurityEdgeMaterializer
                 warnings);
         }
 
-        AzureInventoryPrivateEndpointReachableEdgeMapper.MapPeReachableTargets(
-            relationships,
-            relationshipKeys,
-            warnings);
-
         AddObservedVnetPeeringsFromResourceProperties(resources, relationships, relationshipKeys);
 
         AzureInventoryNetworkAssociationEdgeMapper.AddRelationshipCompletenessWarnings(
@@ -271,6 +266,11 @@ public static class AzureInventorySecurityEdgeMaterializer
                 relationshipKeys,
                 warnings);
         }
+
+        AzureInventoryPrivateEndpointReachableEdgeMapper.MapPeReachableTargets(
+            relationships,
+            relationshipKeys,
+            warnings);
 
         if (sqlDatabasePrincipalsFilePresent)
         {
@@ -636,6 +636,7 @@ public static class AzureInventorySecurityEdgeMaterializer
                     GraphEdgeInferenceSources.InventoryVnetPeering);
             }
         }
+
     }
 
     private static void AddRoleAssignmentEdges(
@@ -644,6 +645,9 @@ public static class AzureInventorySecurityEdgeMaterializer
         HashSet<string> relationshipKeys,
         List<string> warnings)
     {
+        Dictionary<string, (int Count, string RoleDefinitionId, string? RoleName)> unmappedRoles =
+            new(StringComparer.OrdinalIgnoreCase);
+
         foreach (JsonElement assignment in roleAssignments)
         {
             string? scopeValue = TryReadJsonString(assignment, "scope");
@@ -688,7 +692,21 @@ public static class AzureInventorySecurityEdgeMaterializer
 
             if (permission is AzureInventoryDerivedDataPlanePermission.None)
             {
-                warnings.Add($"rbac-role-unmapped:{roleDefinitionId}");
+                string trimmedRoleDefinitionId = roleDefinitionId.Trim();
+
+                if (unmappedRoles.TryGetValue(
+                        trimmedRoleDefinitionId,
+                        out (int Count, string RoleDefinitionId, string? RoleName) existing))
+                {
+                    unmappedRoles[trimmedRoleDefinitionId] = (
+                        existing.Count + 1,
+                        existing.RoleDefinitionId,
+                        existing.RoleName ?? roleName);
+                }
+                else
+                {
+                    unmappedRoles[trimmedRoleDefinitionId] = (1, trimmedRoleDefinitionId, roleName);
+                }
 
                 continue;
             }
@@ -725,6 +743,12 @@ public static class AzureInventorySecurityEdgeMaterializer
                     DerivedFactConfidence,
                     GraphEdgeInferenceSources.InventoryRbacDataPlaneMap);
             }
+        }
+
+        foreach ((int count, string roleDefinitionId, string? roleName) in unmappedRoles.Values)
+        {
+            string roleNameSuffix = string.IsNullOrWhiteSpace(roleName) ? string.Empty : $"::{roleName.Trim()}";
+            warnings.Add($"rbac-role-unmapped:{count}:{roleDefinitionId}{roleNameSuffix}");
         }
     }
 
@@ -924,6 +948,7 @@ public static class AzureInventorySecurityEdgeMaterializer
                     }
                 }
             }
+
         }
         catch (JsonException)
         {

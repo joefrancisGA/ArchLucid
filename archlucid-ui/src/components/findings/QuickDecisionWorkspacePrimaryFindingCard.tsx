@@ -128,6 +128,11 @@ export function QuickDecisionWorkspacePrimaryFindingCard(
               />
             </>
           ) : null}
+          {finding.classification === null || finding.classification === undefined ? (
+            <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              Classification was not stored
+            </span>
+          ) : null}
           {finding.classification !== null && finding.classification !== undefined ? (
             <FindingClassificationChip
               classification={finding.classification}
@@ -148,7 +153,11 @@ export function QuickDecisionWorkspacePrimaryFindingCard(
         <h3 className={cn("m-0 text-xl font-bold tracking-tight text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
           {finding.title}
         </h3>
-        {finding.category != null && finding.category.trim().length > 0 ? (
+        {finding.category == null ? (
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            Finding category was not stored
+          </p>
+        ) : finding.category.trim().length > 0 ? (
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
             <span className="font-medium">Category:</span> {finding.category}
           </p>
@@ -241,7 +250,7 @@ export function QuickDecisionWorkspacePrimaryFindingCard(
         {viewEvidenceHref !== null ? (
           <FindingEvidenceLinkChip
             href={viewEvidenceHref}
-            evidenceRefCount={evidenceRefCount ?? 0}
+            evidenceRefCount={evidenceRefCount}
             className="shrink-0"
           />
         ) : null}

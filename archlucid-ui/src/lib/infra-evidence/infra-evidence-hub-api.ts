@@ -176,7 +176,7 @@ function mapHubResponse(raw: Record<string, unknown>): CloudResourceEvidenceHubR
   };
   const mapFindingStream = (stream: Record<string, unknown> | undefined) => ({
     streamKind: String(stream?.streamKind ?? ""),
-    streamLabel: String(stream?.streamLabel ?? ""),
+    streamLabel: typeof stream?.streamLabel === "string" ? stream.streamLabel : null,
     items: Array.isArray(stream?.items)
       ? stream.items.flatMap((item) => {
           if (item === null || typeof item !== "object" || Array.isArray(item)) {
@@ -273,9 +273,9 @@ function mapHubResponse(raw: Record<string, unknown>): CloudResourceEvidenceHubR
             resourceType: typeof diagramRaw.resourceType === "string" ? diagramRaw.resourceType : null,
             resourceGroup: typeof diagramRaw.resourceGroup === "string" ? diagramRaw.resourceGroup : null,
             terraformAddress: typeof diagramRaw.terraformAddress === "string" ? diagramRaw.terraformAddress : null,
-            matchKind: typeof diagramRaw.matchKind === "string" ? diagramRaw.matchKind : "",
+            matchKind: typeof diagramRaw.matchKind === "string" ? diagramRaw.matchKind : null,
             confidenceBand: typeof diagramRaw.confidenceBand === "string" ? diagramRaw.confidenceBand : "",
-            explainText: typeof diagramRaw.explainText === "string" ? diagramRaw.explainText : "",
+            explainText: typeof diagramRaw.explainText === "string" ? diagramRaw.explainText : null,
             aiRationale: typeof diagramRaw.aiRationale === "string" ? diagramRaw.aiRationale : null,
             securityDiscrepancy: diagramRaw.securityDiscrepancy === true,
           },

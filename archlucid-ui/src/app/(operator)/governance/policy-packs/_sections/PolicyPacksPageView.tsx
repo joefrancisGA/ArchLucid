@@ -47,6 +47,7 @@ import { useOperatorRelativeFreshnessNowMs } from "@/hooks/use-operator-relative
 import { StatusTag } from "@/components/ui/status-tag";
 import { PolicyPacksWorkspaceSelectionWithPreview } from "./PolicyPacksWorkspaceSelectionWithPreview";
 import { PolicyPacksAdvancedAuthoringPanel } from "./PolicyPacksAdvancedAuthoringPanel";
+import { PolicyPacksFeaturedSection } from "./PolicyPacksFeaturedSection";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorRelatedSurfacesDisclosure } from "@/components/operator/OperatorRelatedSurfacesDisclosure";
 import { LayerHeader } from "@/components/LayerHeader";
@@ -68,6 +69,8 @@ import {
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
 import type { PolicyPacksPageTab } from "./policy-packs-page-view-model";
+import { featuredSecureNowFrameworksIncludingOrganizationPacks } from "@/lib/editions/securenow-featured-frameworks";
+import { resolveSecureNowEditionIdFromEnv } from "@/lib/product-line/resolve-securenow-edition-id";
 
 type Props = {
   readonly model: PolicyPacksPageViewModel;
@@ -110,6 +113,13 @@ export function PolicyPacksPageView(props: Props) {
   const staleCue = policyPacksDataStaleCue(m.lastRefreshedAt, nowMs);
   const registeredPackCount = m.packs.length;
   const workspaceAssignmentCount = m.workspaceSelectionItems.length;
+  const featuredFrameworks =
+    productLine === "security"
+      ? featuredSecureNowFrameworksIncludingOrganizationPacks(
+          m.workspaceSelectionItems,
+          resolveSecureNowEditionIdFromEnv(),
+        )
+      : [];
 
   const impactPreviewPanel =
     !m.buyerPolishedShell ? (
@@ -178,6 +188,7 @@ export function PolicyPacksPageView(props: Props) {
         ) : null}
 
         <div className={cn("flex flex-col gap-8", !m.canMutatePacks && "flex-col-reverse")}>
+          <PolicyPacksFeaturedSection items={featuredFrameworks} />
           <PolicyPacksWorkspaceSelectionWithPreview
             canMutatePacks={m.canMutatePacks}
             registeredPackCount={registeredPackCount}
@@ -257,6 +268,7 @@ export function PolicyPacksPageView(props: Props) {
                     packType={m.packType}
                     onPackTypeChange={m.setPackType}
                     createJson={m.createJson}
+                    createPlaceholderValidationMessage={m.createPlaceholderValidationMessage}
                     onCreateJsonChange={m.setCreateJson}
                     onCreate={m.onCreate}
                     createLastSavedUtc={m.createLastSavedUtc}

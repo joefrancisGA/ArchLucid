@@ -20,6 +20,12 @@ public sealed class InfrastructureDiagramComparisonPersistRecord
         init;
     }
 
+    public string? DiagramFingerprint
+    {
+        get;
+        init;
+    }
+
     public string SourcesJson
     {
         get;

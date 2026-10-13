@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 
 import { InfrastructureAskClient } from "@/app/(operator)/governance/infrastructure/ask/InfrastructureAskClient";
-import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
+import { getRouteTitle } from "@/lib/route-titles";
 
 export const metadata: Metadata = {
-  title: OPERATOR_NAV_LINK_LABELS.infrastructureAsk,
+  title: getRouteTitle("/infrastructure/ask"),
 };
 
 /** SecureNow Infrastructure Ask — grounded questions with citation-backed answers. */

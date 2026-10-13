@@ -536,6 +536,27 @@ public sealed class ArchitectureFindingJsonConverterTests
     }
 
     [Fact]
+    public void Deserialize_string_numeric_semantic_support_band_out_of_range_throws()
+    {
+        const string json = """
+                            {
+                              "severity": "Warning",
+                              "category": "Security",
+                              "enforcementTier": "PolicyViolation",
+                              "message": "Invalid string semantic support band ordinal must not be ignored.",
+                              "semanticSupportBand": "99"
+                            }
+                            """;
+
+        JsonSerializerOptions options = CreateOptions();
+
+        Action act = () => JsonSerializer.Deserialize<ArchitectureFinding>(json, options);
+
+        act.Should().Throw<JsonException>()
+            .WithMessage("*Unknown finding semantic support band value*");
+    }
+
+    [Fact]
     public void Deserialize_numeric_semantic_support_band_maps_supported_ordinal()
     {
         const string json = """

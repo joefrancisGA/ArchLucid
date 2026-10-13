@@ -51,6 +51,22 @@ describe("getRouteTitle — static routes", () => {
 
     expect(getRouteTitle(INTEGRATIONS_TEAMS_PATH)).toBe("Teams");
   });
+
+  it("uses SecureNow sidebar labels for security page titles", () => {
+    productLineState.current = "security";
+
+    expect(getRouteTitle("/infrastructure/resources", "security")).toBe("Resources");
+    expect(getRouteTitle("/infrastructure/ask", "security")).toBe("Ask about your environment");
+    expect(getRouteTitle("/security/assigned-to-me", "security")).toBe("My findings");
+    expect(getRouteTitle("/security/remediation-instances", "security")).toBe("Remediation tracker");
+  });
+
+  it("keeps Architecture resource explorer on the operator label", () => {
+    expect(getRouteTitle("/infrastructure/resources", "architecture")).toBe(
+      OPERATOR_NAV_LINK_LABELS.infrastructureResources,
+    );
+    expect(getRouteTitle("/governance/infrastructure/resources", "architecture")).toBe("Resource explorer");
+  });
 });
 
 describe("getRouteTitle — dynamic review detail", () => {

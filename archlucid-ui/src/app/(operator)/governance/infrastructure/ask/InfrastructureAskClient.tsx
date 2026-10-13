@@ -16,6 +16,7 @@ import { StatusTag } from "@/components/ui/status-tag";
 import { Textarea } from "@/components/ui/textarea";
 import { PageContextualHelpButton, PAGE_HELP_SHORT_TRIGGER_TEXT } from "@/components/usability/PageContextualHelpButton";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
+import { SECURENOW_NAV_LABELS } from "@/lib/product-line/securenow-nav-labels";
 import { useProductionDeskChrome, useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { CTA_WIDTH, DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { fetchInfraEvidenceSnapshots } from "@/lib/infra-evidence/infra-evidence-drift-api";
@@ -146,6 +147,10 @@ export function InfrastructureAskClient({ presentation = "page" }: Infrastructur
   const buyerPolishedShell = useProductionEvalChrome();
   const workingDeskChrome = useProductionDeskChrome();
   const { productLine } = useProductLine();
+  const pageTitle =
+    productLine === "security"
+      ? SECURENOW_NAV_LABELS["/infrastructure/ask"] ?? GOVERNANCE_INFRASTRUCTURE_ASK_PAGE_TITLE
+      : GOVERNANCE_INFRASTRUCTURE_ASK_PAGE_TITLE;
   const resourcesPath = useMemo(
     () => infrastructureResourcesPathForProductLine(productLine),
     [productLine],
@@ -848,7 +853,9 @@ export function InfrastructureAskClient({ presentation = "page" }: Infrastructur
                 <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="infra-ask-insufficient-evidence-scope">
                   This snapshot does not have enough evidence to answer. Ask did not query live Azure.
                 </p>
-                <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{turn.response.answer}</p>
+                <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
+                  {turn.response.answer === null ? "Answer was not stored." : turn.response.answer}
+                </p>
               </div>
             ) : (
               <div className="grid gap-2">
@@ -858,7 +865,9 @@ export function InfrastructureAskClient({ presentation = "page" }: Infrastructur
                 <p className={cn("m-0 text-sm text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                   Topic identifies the kind of inventory question answered.
                 </p>
-                <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{turn.response.answer}</p>
+                <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
+                  {turn.response.answer === null ? "Answer was not stored." : turn.response.answer}
+                </p>
 
               {turn.response.viewPlan != null ? (
                 <div className="grid gap-2" data-testid="infra-ask-apply-view">
@@ -881,6 +890,11 @@ export function InfrastructureAskClient({ presentation = "page" }: Infrastructur
                     Apply this view
                   </Button>
                   <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                    {turn.response.viewPlan.honestyLabel === null
+                      ? "View plan honesty label was not stored."
+                      : turn.response.viewPlan.honestyLabel}
+                  </p>
+                  <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                     Applying this view changes the page filters only. It does not change Azure.
                   </p>
                   {!isDiagramViewPlanValid(turn.response.viewPlan) ? (
@@ -893,25 +907,37 @@ export function InfrastructureAskClient({ presentation = "page" }: Infrastructur
               </div>
             )}
 
-            {turn.response.citations.length > 0 ? (
+            {turn.response.citations === null ? (
+              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                Citations were not stored.
+              </p>
+            ) : turn.response.citations.length > 0 ? (
               <div className="grid gap-2">
                 <h3 className={OPERATOR_TYPOGRAPHY.sectionTitle}>Citations</h3>
                 <ul className="m-0 grid gap-2 pl-5">
-                  {turn.response.citations.map((citation) => {
+                  {turn.response.citations.map((citation, citationIndex) => {
                     const link = resolveInfraEvidenceAskCitationLink(citation, citationContext);
-                    const key = `${citation.kind}:${citation.id}`;
+                    const citationKind = citation.kind ?? "missing-kind";
+                    const citationId = citation.id ?? "missing-id";
+                    const key = `${citationKind}:${citationId}:${citationIndex}`;
 
                     return (
-                      <li key={key} data-testid={`infra-ask-citation-${citation.kind}-${citation.id}`}>
+                      <li key={key} data-testid={`infra-ask-citation-${citationKind}-${citationId}`}>
+                        {citation.kind === null ? (
+                          <span className="text-al-text-secondary">Citation kind was not stored. </span>
+                        ) : null}
+                        {citation.id === null ? (
+                          <span className="text-al-text-secondary">Citation id was not stored. </span>
+                        ) : null}
                         {link != null ? (
                           <Link className="text-al-link hover:underline" href={link.href}>
                             Open cited inventory evidence
                           </Link>
                         ) : (
                           <span>
-                            {citation.label == null || citation.label.trim().length === 0
+                            {citation.label === null
                               ? "Citation label was not stored."
-                              : citation.label.trim()}
+                              : citation.label}
                             {" This citation has no page to open."}
                           </span>
                         )}
@@ -1149,7 +1175,7 @@ export function InfrastructureAskClient({ presentation = "page" }: Infrastructur
       <OperatorPageHeader
         navHref={GOVERNANCE_INFRASTRUCTURE_ASK_PATH}
         eyebrow={buyerPolishedShell ? undefined : GOVERNANCE_INFRASTRUCTURE_ASK_OPERATOR_EYEBROW}
-        title={GOVERNANCE_INFRASTRUCTURE_ASK_PAGE_TITLE}
+        title={pageTitle}
         subtitle={GOVERNANCE_INFRASTRUCTURE_ASK_PAGE_LEAD}
         claimDiscipline={
           buyerPolishedShell || workingDeskChrome ? GOVERNANCE_INFRASTRUCTURE_ASK_CLAIM_DISCIPLINE : undefined

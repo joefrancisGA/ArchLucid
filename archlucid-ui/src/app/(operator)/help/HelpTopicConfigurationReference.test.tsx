@@ -97,15 +97,16 @@ describe("HelpTopicMarkdownView configuration reference (TB-1327)", () => {
     expect(visible.toLowerCase()).not.toContain("contributor-reference —");
   });
 
-  it("does not render sponsor-send findings panel content", () => {
+  it("renders the sponsor-send honesty panel", () => {
     if (loaded === null) {
       throw new Error("Expected configuration-reference documentation to load.");
     }
 
     render(<HelpConfigurationReferenceGuideView entry={loaded.entry} markdown={loaded.markdown} />);
 
-    expect(screen.queryByText("Before sponsor send")).not.toBeInTheDocument();
-    expect(screen.queryByRole("link", { name: "Open findings queue" })).not.toBeInTheDocument();
-    expect(screen.queryByRole("link", { name: "Review policy pack assignments" })).not.toBeInTheDocument();
+    expect(screen.getByTestId("help-configuration-reference-honesty-panel")).toBeInTheDocument();
+    expect(screen.getByText("Before sponsor send")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Open findings queue" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Review policy pack assignments" })).toBeInTheDocument();
   });
 });

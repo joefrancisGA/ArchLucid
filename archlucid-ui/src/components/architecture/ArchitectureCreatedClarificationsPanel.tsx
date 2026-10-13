@@ -53,7 +53,7 @@ export type ArchitectureCreatedClarificationsPanelProps = {
 function hasOpenQuestionEntities(
   section: ReturnType<typeof parseArchitectureGeneratedContent>["sections"][number] | undefined,
 ): boolean {
-  if (section === undefined || section.entities === undefined) {
+  if (section === undefined || section.entities == null) {
     return false;
   }
 
@@ -63,8 +63,12 @@ function hasOpenQuestionEntities(
 export function presentOpenQuestionEntityCount(
   section: ReturnType<typeof parseArchitectureGeneratedContent>["sections"][number] | undefined,
 ): string {
-  if (section === undefined || section.entities === undefined) {
+  if (section === undefined) {
     return "Not returned";
+  }
+
+  if (section.entities == null) {
+    return "Open question count was not stored.";
   }
 
   return String(section.entities.length);
@@ -322,7 +326,7 @@ export function ArchitectureCreatedClarificationsPanel(
         </p>
       )}
 
-      {openQuestions !== undefined && openQuestions.entities === undefined ? (
+      {openQuestions !== undefined && (openQuestions.entities === undefined || openQuestions.entities === null) ? (
         <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
           Open question entities not returned ({presentOpenQuestionEntityCount(openQuestions)}).
         </p>

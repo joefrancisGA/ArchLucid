@@ -285,6 +285,73 @@ describe("ExtractUploadSettingsPageClient", () => {
     expect(screen.getByText("Invalid ZIP archive")).toBeInTheDocument();
   });
 
+  it("explains product-line upload refusal without clearing inventory status", async () => {
+    const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input);
+
+      if (url.includes("workspace-baseline-artifacts")) {
+        return baselineArtifactsResponse({ hasBaselineArtifacts: true, extractorScriptVersion: "1.0.0" });
+      }
+
+      if (url.includes("Get-ArchLucidAzurePackage.ps1")) {
+        return scriptVersionResponse("1.0.0");
+      }
+
+      if (url.includes("/v1/azure-extractor/upload") && init?.method === "POST") {
+        return new Response(
+          JSON.stringify({
+            type: "https://archlucid.net/problems/forbidden",
+            title: "Product line cannot use this route",
+            status: 403,
+            detail: "The active product line cannot access this API route.",
+            errorCode: "FORBIDDEN",
+          }),
+          {
+            status: 403,
+            headers: {
+              "Content-Type": "application/problem+json",
+              "X-Correlation-ID": "corr-product-line",
+            },
+          },
+        );
+      }
+
+      return new Response("not found", { status: 404 });
+    });
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<ExtractUploadSettingsPageClient />);
+    await waitForExtractUploadBaselineSettled();
+
+    const bytes = zipSync({
+      "manifest.json": strToU8(
+        JSON.stringify({
+          schemaVersion: 1,
+          scriptVersion: "1.0.0",
+          collectionTimestamp: "2026-01-01T00:00:00Z",
+          subscriptionId: "11111111-1111-1111-1111-111111111111",
+          scope: "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/rg",
+        }),
+      ),
+      "resources.json": strToU8("[]"),
+    });
+
+    fireEvent.change(screen.getByTestId("extract-upload-drop-zone-input"), {
+      target: { files: [new File([bytes], "securenow-azure-package.zip", { type: "application/zip" })] },
+    });
+
+    await waitFor(() => {
+      expect(screen.getByTestId("extract-upload-error-code")).toHaveTextContent(
+        "AZURE_EXTRACTOR_UPLOAD_PRODUCT_LINE_FORBIDDEN",
+      );
+    });
+
+    expect(screen.getByText("This product cannot use this upload route")).toBeInTheDocument();
+    expect(screen.getByText("Inventory on file")).toBeInTheDocument();
+    expect(screen.getAllByText("Done")).toHaveLength(2);
+  });
+
   it("blocks unsupported schemaVersion client-side without calling upload API or validation toast (TB-2009)", async () => {
     const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
       const url = String(input);

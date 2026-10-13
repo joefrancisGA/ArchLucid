@@ -38,6 +38,13 @@ describe("buildFindingCausalMiniChain (TB-2217)", () => {
     expect(FINDING_CAUSAL_RECOMMENDATION_MISSING).toBe("Recommendation was not stored");
   });
 
+  it("preserves a stored zero evidence reference count", () => {
+    const chain = buildFindingCausalMiniChain({ evidenceRefCount: 0 });
+
+    expect(chain.steps[1]?.value).toBe("0 cited evidence references");
+    expect(chain.steps[1]?.value).not.toBe(FINDING_CAUSAL_EVIDENCE_MISSING);
+  });
+
   it("maps quick-decision, governance queue, and inspect payloads", () => {
     const finding = {
       findingId: "f1",

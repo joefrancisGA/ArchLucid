@@ -12,6 +12,13 @@ export type SidebarCollapsibleNavGroupId =
   | "operate-integrations"
   | "operate-security"
   | "operate-infrastructure"
+  | "securenow-home"
+  | "securenow-findings"
+  | "securenow-environment"
+  | "securenow-remediation"
+  | "securenow-compliance"
+  | "securenow-data-sources"
+  | "securenow-integrations"
   | "operator-admin"
   | "operator-system-admin";
 
@@ -33,6 +40,13 @@ export const SIDEBAR_NAV_GROUP_DEFAULT_EXPANSION: SidebarNavGroupExpansionState 
   "operate-integrations": false,
   "operate-security": false,
   "operate-infrastructure": false,
+  "securenow-home": true,
+  "securenow-findings": false,
+  "securenow-environment": false,
+  "securenow-remediation": false,
+  "securenow-compliance": false,
+  "securenow-data-sources": false,
+  "securenow-integrations": false,
   "operator-admin": false,
   "operator-system-admin": false,
 };
@@ -146,6 +160,13 @@ function parseStoredExpansion(raw: string): SidebarNavGroupExpansionState | null
         || record["operate-integrations"] === true
         || legacyOperationsExpanded,
       "operate-infrastructure": record["operate-infrastructure"] === true,
+      "securenow-home": record["securenow-home"] !== false,
+      "securenow-findings": record["securenow-findings"] === true,
+      "securenow-environment": record["securenow-environment"] === true,
+      "securenow-remediation": record["securenow-remediation"] === true,
+      "securenow-compliance": record["securenow-compliance"] === true,
+      "securenow-data-sources": record["securenow-data-sources"] === true,
+      "securenow-integrations": record["securenow-integrations"] === true,
       "operator-admin":
         record["operator-admin"] === true || legacyPlatformOpsExpanded || legacyOperationsExpanded,
       "operator-system-admin": record["operator-system-admin"] === true,
@@ -208,6 +229,13 @@ export function isSidebarCollapsibleNavGroupId(groupId: string): groupId is Side
     groupId === "operate-integrations" ||
     groupId === "operate-security" ||
     groupId === "operate-infrastructure" ||
+    groupId === "securenow-home" ||
+    groupId === "securenow-findings" ||
+    groupId === "securenow-environment" ||
+    groupId === "securenow-remediation" ||
+    groupId === "securenow-compliance" ||
+    groupId === "securenow-data-sources" ||
+    groupId === "securenow-integrations" ||
     groupId === "operator-admin" ||
     groupId === "operator-system-admin"
   );

@@ -103,4 +103,26 @@ public sealed class ProductCapabilityMapCoverageTests
         document.AlwaysAllowedRoutePrefixes.Should().Contain("/health");
         document.AlwaysAllowedRoutePrefixes.Should().Contain("/openapi");
     }
+
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void Inventory_upload_controllers_are_shared_infra_evidence_routes()
+    {
+        ProductCapabilityMapDocument document = ProductCapabilityMapLoader.Load();
+        string[] controllerTypeNames =
+        [
+            "ArchLucid.Api.Controllers.Authority.AzureExtractorUploadController",
+            "ArchLucid.Api.Controllers.Authority.CloudInventoryExtractorUploadController",
+        ];
+
+        foreach (string controllerTypeName in controllerTypeNames)
+        {
+            ProductCapabilityMapControllerEntry entry = document.Controllers
+                .Single(candidate => candidate.TypeName == controllerTypeName);
+
+            entry.Capability.Should().Be("infra-evidence");
+            entry.ProductLine.Should().Be("both");
+            entry.Status.Should().Be("assigned");
+        }
+    }
 }

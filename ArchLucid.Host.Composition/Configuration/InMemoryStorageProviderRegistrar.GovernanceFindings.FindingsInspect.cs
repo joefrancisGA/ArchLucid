@@ -112,12 +112,14 @@ internal sealed partial class InMemoryStorageProviderRegistrar
         services.AddSingleton<IRemediationInstanceRepository, NoOpRemediationInstanceRepository>();
         services.AddSingleton<IProjectScopedRemediationInstanceRepository>(static sp =>
             new ProjectScopedRemediationInstanceRepositoryAdapter(sp.GetRequiredService<IRemediationInstanceRepository>()));
+        services.AddSingleton<IVerifiedRemediationControlAssociationRepository, InMemoryVerifiedRemediationControlAssociationRepository>();
         services.AddSingleton<IRemediationPrioritizationRepository, NoOpRemediationPrioritizationRepository>();
         services.AddSingleton<IRemediationWaveRepository, NoOpRemediationWaveRepository>();
         services.AddSingleton<IArchitectureDiagramModelRepository, NoOpArchitectureDiagramModelRepository>();
         services.AddSingleton<IArchitectureDiagramReconciliationRepository, NoOpArchitectureDiagramReconciliationRepository>();
         services.AddSingleton<IInfrastructureDiagramComparisonRepository, NoOpInfrastructureDiagramComparisonRepository>();
         services.AddSingleton<IInfrastructureDiagramNodeMappingRepository, NoOpInfrastructureDiagramNodeMappingRepository>();
+        services.AddSingleton<IInfrastructureDiagramDocumentationDecisionRepository, InMemoryInfrastructureDiagramDocumentationDecisionRepository>();
         services.AddSingleton<InMemoryTenantBrandingProfileRepository>();
         services.AddSingleton<ITenantBrandingProfileRepository>(static sp =>
             new TenantBrandingProfileRepositoryWithCacheInvalidation(

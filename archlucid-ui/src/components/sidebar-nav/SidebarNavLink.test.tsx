@@ -121,4 +121,20 @@ describe("SidebarNavLink", () => {
       "Start a review",
     );
   });
+
+  it("keeps long SecureNow labels fully visible and wrappable", () => {
+    render(
+      <SidebarNavLink
+        presented={{ ...newReviewLink, label: "Ask about your environment", title: "Ask about your environment" }}
+        active={false}
+        advancedDemo={false}
+        buyerPolishedShell
+      />,
+    );
+
+    const label = screen.getByText("Ask about your environment");
+
+    expect(label).toHaveClass("whitespace-normal", "break-words");
+    expect(label).not.toHaveClass("truncate");
+  });
 });

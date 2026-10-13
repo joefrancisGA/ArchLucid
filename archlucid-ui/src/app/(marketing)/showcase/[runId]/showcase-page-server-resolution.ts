@@ -48,19 +48,19 @@ export function resolveShowcaseApiBase(): string {
   const explicit = process.env.NEXT_PUBLIC_DEMO_PREVIEW_API_BASE?.trim();
 
   if (explicit) {
-    return explicit.replace(/\/$/, "");
+    return explicit.replace(/\/+$/, "");
   }
 
   const server = process.env.ARCHLUCID_API_BASE_URL?.trim();
 
   if (server) {
-    return server.replace(/\/$/, "");
+    return server.replace(/\/+$/, "");
   }
 
   const pub = process.env.NEXT_PUBLIC_ARCHLUCID_API_BASE_URL?.trim();
 
   if (pub) {
-    return pub.replace(/\/$/, "");
+    return pub.replace(/\/+$/, "");
   }
 
   return "";

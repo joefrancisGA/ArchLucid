@@ -37,14 +37,14 @@ public sealed class SqlOperatorInferredConnectionRepository(ISqlConnectionFactor
                                        Status, Source, RuleName, QuestionText,
                                        FromArmId, FromLabel, FromCloudResourceId,
                                        ToHost, ToCatalog, ToArmId, ToCloudResourceId,
-                                       SettingName, SourceFileFormat, ActorKey,
+                                       SettingName, SourceFileFormat, DataPlaneAnswer, ActorKey,
                                        ProposalPayloadHashSha256, CreatedUtc, UpdatedUtc)
                                    VALUES (
                                        @ConnectionId, @TenantId, @WorkspaceId, @ProjectId, @SnapshotId,
                                        @Status, @Source, @RuleName, @QuestionText,
                                        @FromArmId, @FromLabel, @FromCloudResourceId,
                                        @ToHost, @ToCatalog, @ToArmId, @ToCloudResourceId,
-                                       @SettingName, @SourceFileFormat, @ActorKey,
+                                       @SettingName, @SourceFileFormat, @DataPlaneAnswer, @ActorKey,
                                        @ProposalPayloadHashSha256, @CreatedUtc, @UpdatedUtc);
                                """;
 
@@ -146,6 +146,7 @@ public sealed class SqlOperatorInferredConnectionRepository(ISqlConnectionFactor
                                ToArmId = @ToArmId,
                                ToCloudResourceId = @ToCloudResourceId,
                                ToCatalog = @ToCatalog,
+                               DataPlaneAnswer = @DataPlaneAnswer,
                                ActorKey = @ActorKey,
                                UpdatedUtc = @UpdatedUtc
                            WHERE TenantId = @TenantId
@@ -173,6 +174,7 @@ public sealed class SqlOperatorInferredConnectionRepository(ISqlConnectionFactor
                                ToArmId = @ToArmId,
                                ToCloudResourceId = @ToCloudResourceId,
                                ToCatalog = @ToCatalog,
+                               DataPlaneAnswer = @DataPlaneAnswer,
                                ActorKey = @ActorKey,
                                UpdatedUtc = @UpdatedUtc
                            WHERE TenantId = @TenantId
@@ -195,6 +197,7 @@ public sealed class SqlOperatorInferredConnectionRepository(ISqlConnectionFactor
                     mutation.ToArmId,
                     mutation.ToCloudResourceId,
                     mutation.ToCatalog,
+                    mutation.DataPlaneAnswer,
                     mutation.ActorKey,
                     mutation.UpdatedUtc,
                 },
@@ -225,6 +228,7 @@ public sealed class SqlOperatorInferredConnectionRepository(ISqlConnectionFactor
             record.ToCloudResourceId,
             record.SettingName,
             record.SourceFileFormat,
+            record.DataPlaneAnswer,
             record.ActorKey,
             record.ProposalPayloadHashSha256,
             record.CreatedUtc,
@@ -252,6 +256,7 @@ public sealed class SqlOperatorInferredConnectionRepository(ISqlConnectionFactor
             ToCloudResourceId = row.ToCloudResourceId,
             SettingName = row.SettingName,
             SourceFileFormat = row.SourceFileFormat,
+            DataPlaneAnswer = row.DataPlaneAnswer,
             ActorKey = row.ActorKey,
             ProposalPayloadHashSha256 = row.ProposalPayloadHashSha256,
             CreatedUtc = row.CreatedUtc,
@@ -363,6 +368,12 @@ public sealed class SqlOperatorInferredConnectionRepository(ISqlConnectionFactor
         }
 
         public string? SourceFileFormat
+        {
+            get;
+            init;
+        }
+
+        public OperatorInferredDataPlaneAnswer? DataPlaneAnswer
         {
             get;
             init;

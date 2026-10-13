@@ -1,40 +1,34 @@
 import { SECURENOW_AUDIT_EVIDENCE_PATH } from "@/lib/audit-evidence-lineage-route";
 import {
-  SECURENOW_FINDINGS_PATH,
   SECURENOW_POLICY_PACKS_PATH,
   SECURENOW_STANDARDS_AND_RULES_PATH,
 } from "@/lib/governance/governance-route-paths";
-import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import type { SecureNowHomeDestinationRow } from "@/lib/product-line/securenow-home-destination-rows";
+import { SECURENOW_NAV_LABELS } from "@/lib/product-line/securenow-nav-labels";
 
-export const SECURENOW_COMPLIANCE_HOME_SECTION_HEADING = "ARC-AMPE Compliance" as const;
+export const SECURENOW_COMPLIANCE_HOME_SECTION_HEADING = "Compliance" as const;
 
 export const SECURENOW_COMPLIANCE_NAV_GROUP_LABEL = "ARC-AMPE compliance" as const;
 
 export const SECURENOW_COMPLIANCE_HOME_SECTION_LEAD =
-  "Assign ARC-AMPE architecture themes, review cloud-evidence findings, and export audit control lineage for CMS partner diligence." as const;
+  "Choose frameworks, inspect effective rules, and trace controls to evidence." as const;
 
 /** SecureNow home — surfaces ARC-AMPE and related compliance destinations. */
 export const SECURENOW_COMPLIANCE_HOME_ROWS: readonly SecureNowHomeDestinationRow[] = [
   {
     href: SECURENOW_POLICY_PACKS_PATH,
-    label: OPERATOR_NAV_LINK_LABELS.policyPacks,
-    summary: "Assign the bundled ARC-AMPE Architecture Themes pack and tune priority floors for cloud evidence scans.",
+    label: SECURENOW_NAV_LABELS[SECURENOW_POLICY_PACKS_PATH],
+    summary: "Choose the frameworks this workspace is measured against.",
     recommendedFirst: true,
   },
   {
     href: SECURENOW_STANDARDS_AND_RULES_PATH,
-    label: OPERATOR_NAV_LINK_LABELS.governanceResolution,
-    summary: "Inspect effective ARC-AMPE rules, conflicts, and precedence for the active workspace scope.",
-  },
-  {
-    href: SECURENOW_FINDINGS_PATH,
-    label: OPERATOR_NAV_LINK_LABELS.findings,
-    summary: "Triage open findings raised by ARC-AMPE rules against connected cloud inventory evidence.",
+    label: SECURENOW_NAV_LABELS[SECURENOW_STANDARDS_AND_RULES_PATH],
+    summary: "See which rules apply here, and which ones conflict.",
   },
   {
     href: SECURENOW_AUDIT_EVIDENCE_PATH,
-    label: OPERATOR_NAV_LINK_LABELS.auditEvidenceLineage,
-    summary: "Open deterministic audit control evidence chains, including ARC-AMPE export packages.",
+    label: SECURENOW_NAV_LABELS[SECURENOW_AUDIT_EVIDENCE_PATH],
+    summary: "Trace a control to the evidence behind it.",
   },
 ];

@@ -27,11 +27,13 @@ export async function submitInfraEvidenceAsk(
 
   return {
     topicKind: typeof raw.topicKind === "string" ? raw.topicKind : "",
-    answer: typeof raw.answer === "string" ? raw.answer : "",
+    answer: typeof raw.answer === "string" ? raw.answer : raw.answer == null ? null : "",
     insufficientEvidence: raw.insufficientEvidence === true,
     simulatorLabel: typeof raw.simulatorLabel === "string" ? raw.simulatorLabel : null,
     viewPlan: parseDiagramViewPlan(raw.viewPlan),
-    citations: Array.isArray(raw.citations)
+    citations: raw.citations == null
+      ? null
+      : Array.isArray(raw.citations)
       ? raw.citations.flatMap((item) => {
           if (item === null || typeof item !== "object" || Array.isArray(item)) {
             return [];
@@ -39,13 +41,9 @@ export async function submitInfraEvidenceAsk(
 
           const row = item as Record<string, unknown>;
 
-          if (typeof row.kind !== "string" || typeof row.id !== "string") {
-            return [];
-          }
-
           return [{
-            kind: row.kind,
-            id: row.id,
+            kind: typeof row.kind === "string" ? row.kind : null,
+            id: typeof row.id === "string" ? row.id : null,
             label: typeof row.label === "string" ? row.label : null,
           }];
         })
@@ -61,13 +59,17 @@ function parseDiagramViewPlan(raw: unknown): DiagramViewPlan | null {
   const row = raw as Record<string, unknown>;
 
   return {
-    mermaidMode: typeof row.mermaidMode === "string" ? row.mermaidMode : "",
+    mermaidMode: typeof row.mermaidMode === "string"
+      ? row.mermaidMode
+      : row.mermaidMode === null || row.mermaidMode === undefined
+        ? null
+        : "",
     resourceGroupName: typeof row.resourceGroupName === "string" ? row.resourceGroupName : null,
     seedNodeId: typeof row.seedNodeId === "string" ? row.seedNodeId : null,
     snapshotId: typeof row.snapshotId === "string" ? row.snapshotId : null,
     cloudResourceId: typeof row.cloudResourceId === "string" ? row.cloudResourceId : null,
     fitTargetNodeId: typeof row.fitTargetNodeId === "string" ? row.fitTargetNodeId : null,
-    honestyLabel: typeof row.honestyLabel === "string" ? row.honestyLabel : "Proposed view — existing diagram modes only",
+    honestyLabel: typeof row.honestyLabel === "string" ? row.honestyLabel : row.honestyLabel == null ? null : "",
   };
 }
 

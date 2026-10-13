@@ -258,7 +258,9 @@ export function RunTrustEvidenceCardSection(props: {
               Scope and limitations
             </h4>
             <p className={cn("m-0 mt-2 max-w-prose text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
-              {card.selfAttestationNotice}
+              {card.selfAttestationNotice === null || card.selfAttestationNotice === undefined
+                ? "Self-attestation notice was not stored."
+                : card.selfAttestationNotice}
             </p>
           </section>
 

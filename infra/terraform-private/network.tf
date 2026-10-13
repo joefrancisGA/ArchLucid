@@ -58,7 +58,7 @@ resource "azurerm_private_dns_zone_virtual_network_link" "blob" {
 resource "azurerm_private_endpoint" "sql" {
   count = local.pe_enabled ? 1 : 0
 
-  name                = "pe-archlucid-sql"
+  name                = var.sql_private_endpoint_name
   location            = local.pe_location
   resource_group_name = local.pe_resource_group_name
   subnet_id           = azurerm_subnet.private_endpoints[0].id
@@ -80,7 +80,7 @@ resource "azurerm_private_endpoint" "sql" {
 resource "azurerm_private_endpoint" "blob" {
   count = local.pe_enabled ? 1 : 0
 
-  name                = "pe-archlucid-blob"
+  name                = var.blob_private_endpoint_name
   location            = local.pe_location
   resource_group_name = local.pe_resource_group_name
   subnet_id           = azurerm_subnet.private_endpoints[0].id
@@ -120,7 +120,7 @@ resource "azurerm_private_dns_zone_virtual_network_link" "search" {
 resource "azurerm_private_endpoint" "search" {
   count = local.pe_enabled && length(trimspace(var.search_service_id)) > 0 ? 1 : 0
 
-  name                = "pe-archlucid-search"
+  name                = var.search_private_endpoint_name
   location            = local.pe_location
   resource_group_name = local.pe_resource_group_name
   subnet_id           = azurerm_subnet.private_endpoints[0].id
@@ -161,7 +161,7 @@ resource "azurerm_private_dns_zone_virtual_network_link" "key_vault" {
 resource "azurerm_private_endpoint" "key_vault" {
   count = local.pe_enabled && length(trimspace(var.key_vault_id)) > 0 ? 1 : 0
 
-  name                = "pe-archlucid-keyvault"
+  name                = var.key_vault_private_endpoint_name
   location            = local.pe_location
   resource_group_name = local.pe_resource_group_name
   subnet_id           = azurerm_subnet.private_endpoints[0].id
@@ -177,5 +177,46 @@ resource "azurerm_private_endpoint" "key_vault" {
   private_dns_zone_group {
     name                 = "kv-zones"
     private_dns_zone_ids = [azurerm_private_dns_zone.key_vault[0].id]
+  }
+}
+
+# Azure OpenAI private endpoint. Empty openai_account_id keeps current hosted plans unchanged.
+resource "azurerm_private_dns_zone" "openai" {
+  count = local.pe_enabled && length(trimspace(var.openai_account_id)) > 0 ? 1 : 0
+
+  name                = "privatelink.openai.azure.com"
+  resource_group_name = local.pe_resource_group_name
+  tags                = var.tags
+}
+
+resource "azurerm_private_dns_zone_virtual_network_link" "openai" {
+  count = local.pe_enabled && length(trimspace(var.openai_account_id)) > 0 ? 1 : 0
+
+  name                  = "openai-dns-link"
+  resource_group_name   = local.pe_resource_group_name
+  private_dns_zone_name = azurerm_private_dns_zone.openai[0].name
+  virtual_network_id    = azurerm_virtual_network.main[0].id
+  tags                  = var.tags
+}
+
+resource "azurerm_private_endpoint" "openai" {
+  count = local.pe_enabled && length(trimspace(var.openai_account_id)) > 0 ? 1 : 0
+
+  name                = var.openai_private_endpoint_name
+  location            = local.pe_location
+  resource_group_name = local.pe_resource_group_name
+  subnet_id           = azurerm_subnet.private_endpoints[0].id
+  tags                = var.tags
+
+  private_service_connection {
+    name                           = "psc-openai"
+    private_connection_resource_id = var.openai_account_id
+    is_manual_connection           = false
+    subresource_names              = ["account"]
+  }
+
+  private_dns_zone_group {
+    name                 = "openai-zones"
+    private_dns_zone_ids = [azurerm_private_dns_zone.openai[0].id]
   }
 }
