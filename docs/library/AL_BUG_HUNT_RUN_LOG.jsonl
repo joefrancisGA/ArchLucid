@@ -1,4 +1,3 @@
-{"at":"2026-09-13T05:36:21.9510724Z","zoneId":"context-ingestion","outcome":"hit"}
 {"at":"2026-09-13T05:41:15.4949918Z","zoneId":"core-costing","outcome":"hit"}
 {"at":"2026-09-13T05:42:27.8362553Z","zoneId":"tenant-data-export","outcome":"seed-only"}
 {"at":"2026-09-13T05:43:19.4035853Z","zoneId":"persistence-identity","outcome":"seed-only"}
@@ -8512,3 +8511,4 @@
 {"at":"2026-10-13T05:20:05.7253741Z","zoneId":"cloud-extractors","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Integrations.AwsExtractor/,ArchLucid.Integrations.GcpExtractor/,ArchLucid.Integrations.AzureExtractor/"]}
 {"at":"2026-10-13T05:23:49.381361Z","zoneId":"cloud-extractors","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Integrations.AwsExtractor/,ArchLucid.Integrations.GcpExtractor/,ArchLucid.Integrations.AzureExtractor/"]}
 {"at":"2026-10-13T05:28:31.7100362Z","zoneId":"core-configuration-summary","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Core/Configuration/Summary/ConfigurationSensitiveConfigValueScanner.cs"]}
+{"at":"2026-10-13T05:36:28.1191083Z","zoneId":"cloud-extractors","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Integrations.AzureExtractor/GetOnlyHostedAzureArmReadClient.cs"]}

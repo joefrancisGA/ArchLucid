@@ -2466,6 +2466,66 @@ public sealed class GetOnlyHostedAzureArmReadClientTests
     }
 
     [Fact]
+    public async Task ListDiagnosticSettingsAsync_marks_partial_when_max_page_cap_reached_after_settings_collected()
+    {
+        const string storageResourceId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1";
+        int requestCount = 0;
+
+        HttpMessageHandler handler = new RecordingHandler(
+            (_, _) =>
+            {
+                int page = Interlocked.Increment(ref requestCount);
+                string? nextLink = page <= 64
+                    ? $"https://management.azure.com{storageResourceId}/providers/Microsoft.Insights/diagnosticSettings?api-version=2021-05-01-preview&$skiptoken=page-{page + 1}"
+                    : null;
+                string nextLinkJson = nextLink is null ? "null" : $"\"{nextLink}\"";
+
+                string body = $$"""
+                                  {
+                                    "value": [
+                                      {
+                                        "name": "diag-{{page}}",
+                                        "properties": {
+                                          "workspaceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.OperationalInsights/workspaces/ws{{page}}"
+                                        }
+                                      }
+                                    ],
+                                    "nextLink": {{nextLinkJson}}
+                                  }
+                                  """;
+
+                return Task.FromResult(
+                    new HttpResponseMessage(HttpStatusCode.OK)
+                    {
+                        Content = new StringContent(body)
+                    });
+            });
+
+        GetOnlyHostedAzureArmReadClient client = new(
+            new HttpClient(handler),
+            NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+
+        HostedAzureDiagnosticSettingsCollectResult result = await client.ListDiagnosticSettingsAsync(
+            "token-abc",
+            [
+                new HostedAzureArmResourceRecord(
+                    "Microsoft.Storage/storageAccounts",
+                    storageResourceId,
+                    "sa1",
+                    "eastus",
+                    null,
+                    null,
+                    new Dictionary<string, object?>()),
+            ],
+            CancellationToken.None);
+
+        Assert.Equal(64, requestCount);
+        Assert.True(result.PartialCollection);
+        Assert.Equal(64, result.Settings.Count);
+    }
+
+    [Fact]
     public async Task ListDiagnosticSettingsAsync_marks_partial_when_follow_up_page_returns_forbidden_after_settings_collected()
     {
         const string storageResourceId =

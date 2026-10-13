@@ -1225,6 +1225,11 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
 
             if (requestCount > MaxPaginationRequests)
             {
+                if (settings.Count > 0)
+                {
+                    partialCollection = true;
+                }
+
                 if (_logger.IsEnabled(LogLevel.Debug))
                 {
                     _logger.LogDebug(
