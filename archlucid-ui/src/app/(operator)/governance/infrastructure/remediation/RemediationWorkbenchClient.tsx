@@ -1240,6 +1240,46 @@ export function RemediationWorkbenchClient() {
                 </dl>
               ) : null}
 
+              {(detail.verifiedRemediationAssociations?.length ?? 0) > 0 ? (
+                <dl
+                  className="grid gap-3 text-sm"
+                  data-testid="infra-remediation-verified-associations"
+                >
+                  {detail.verifiedRemediationAssociations.map((association) => (
+                    <div
+                      key={association.associationId.length > 0 ? association.associationId : association.instanceId}
+                      className="grid gap-2 rounded-md border border-neutral-200 p-3 dark:border-neutral-800"
+                    >
+                      <div>
+                        <dt className="font-medium">Framework control</dt>
+                        <dd className="font-mono text-xs break-all">
+                          {association.assessmentId != null ? (
+                            <Link
+                              className="text-al-link hover:underline"
+                              href={`${auditEvidencePathForProductLine(productLine)}?controlId=${encodeURIComponent(association.controlId)}`}
+                              data-testid="infra-remediation-association-audit-evidence"
+                            >
+                              {association.controlId}
+                            </Link>
+                          ) : (
+                            association.controlId
+                          )}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt className="font-medium">Verification snapshot</dt>
+                        <dd
+                          className="font-mono text-xs break-all"
+                          data-testid="infra-remediation-association-verification-snapshot"
+                        >
+                          {association.verificationSnapshotId}
+                        </dd>
+                      </div>
+                    </div>
+                  ))}
+                </dl>
+              ) : null}
+
               {detail.activeMatch != null ? (
                 <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
                   Match: {detail.activeMatch.matchKind} — {detail.activeMatch.explainText}

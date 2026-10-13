@@ -8,6 +8,7 @@ import type {
   RemediationInstanceOperationResult,
   RemediationInstanceSummary,
   RemediationPrioritizedFinding,
+  VerifiedRemediationAssociationIdentifier,
 } from "@/lib/infra-evidence/infra-evidence-remediation-types";
 
 const INSTANCES_PATH = "/api/proxy/v1/infra-evidence/remediation-instances";
@@ -45,6 +46,34 @@ function mapInstanceSummary(raw: Record<string, unknown>): RemediationInstanceSu
     preflightSnapshotId: typeof raw.preflightSnapshotId === "string" ? raw.preflightSnapshotId : null,
     executionSnapshotId: typeof raw.executionSnapshotId === "string" ? raw.executionSnapshotId : null,
     verificationSnapshotId: typeof raw.verificationSnapshotId === "string" ? raw.verificationSnapshotId : null,
+    createdUtc: typeof raw.createdUtc === "string" ? raw.createdUtc : "",
+    updatedUtc: typeof raw.updatedUtc === "string" ? raw.updatedUtc : "",
+  };
+}
+
+function mapVerifiedRemediationAssociation(
+  raw: Record<string, unknown>,
+): VerifiedRemediationAssociationIdentifier | null {
+  const instanceId = typeof raw.instanceId === "string" ? raw.instanceId.trim() : "";
+  const controlId = typeof raw.controlId === "string" ? raw.controlId.trim() : "";
+  const verificationSnapshotId =
+    typeof raw.verificationSnapshotId === "string" ? raw.verificationSnapshotId.trim() : "";
+
+  if (instanceId.length === 0 || controlId.length === 0 || verificationSnapshotId.length === 0) {
+    return null;
+  }
+
+  const assessmentIdRaw = raw.assessmentId;
+
+  return {
+    associationId: typeof raw.associationId === "string" ? raw.associationId : "",
+    instanceId,
+    verificationSnapshotId,
+    controlId,
+    assessmentId:
+      typeof assessmentIdRaw === "string" && assessmentIdRaw.trim().length > 0
+        ? assessmentIdRaw.trim()
+        : null,
     createdUtc: typeof raw.createdUtc === "string" ? raw.createdUtc : "",
     updatedUtc: typeof raw.updatedUtc === "string" ? raw.updatedUtc : "",
   };
@@ -136,6 +165,17 @@ export async function fetchRemediationInstanceDetail(instanceId: string): Promis
             payloadJson: row.payloadJson,
             createdUtc: row.createdUtc,
           }];
+        })
+      : [],
+    verifiedRemediationAssociations: Array.isArray(raw.verifiedRemediationAssociations)
+      ? raw.verifiedRemediationAssociations.flatMap((item) => {
+          if (item === null || typeof item !== "object" || Array.isArray(item)) {
+            return [];
+          }
+
+          const mapped = mapVerifiedRemediationAssociation(item as Record<string, unknown>);
+
+          return mapped == null ? [] : [mapped];
         })
       : [],
   };

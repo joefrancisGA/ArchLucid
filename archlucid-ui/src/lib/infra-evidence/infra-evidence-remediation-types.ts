@@ -61,11 +61,22 @@ export type OperationalSecurityFindingSummary = {
   controlId: string | null;
 };
 
+export type VerifiedRemediationAssociationIdentifier = {
+  associationId: string;
+  instanceId: string;
+  verificationSnapshotId: string;
+  controlId: string;
+  assessmentId: string | null;
+  createdUtc: string;
+  updatedUtc: string;
+};
+
 export type RemediationInstanceDetail = {
   instance: RemediationInstanceSummary;
   finding: OperationalSecurityFindingSummary | null;
   activeMatch: RemediationPatternMatchSummary | null;
   evidence: RemediationInstanceEvidenceSummary[];
+  verifiedRemediationAssociations: VerifiedRemediationAssociationIdentifier[];
 };
 
 export type RemediationInstanceOperationResult = {

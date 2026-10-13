@@ -19,6 +19,7 @@ import {
 } from "@/lib/audit-evidence-lineage-presentation";
 import { formatIsoUtcForDisplay } from "@/lib/format-iso-utc";
 import type { AuditEvidenceLineageRecord } from "@/lib/audit-evidence-lineage-types";
+import { buildRemediationWorkbenchHref } from "@/lib/infra-evidence/infra-evidence-workbench-url";
 import { buildResourceHubAuditLineageHref } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
 import { formatResourceHubTabViewLabel } from "@/lib/infra-evidence/infra-evidence-hub-tab-labels";
 import {
@@ -119,6 +120,7 @@ export function AuditEvidenceLineageSpine(props: AuditEvidenceLineageSpineProps)
   }, [spineEvidenceTechnicalRowIdParam]);
 
   const summaryCounts = countAuditEvidenceLineageSummary(props.lineage);
+  const verifiedRemediationAssociations = props.lineage.verifiedRemediationAssociations ?? [];
 
   if (!props.expanded) {
     const latestUtc = resolveLatestCollectedUtc(props.lineage);
@@ -238,6 +240,27 @@ export function AuditEvidenceLineageSpine(props: AuditEvidenceLineageSpineProps)
             <StatusTag kind="needs-attention" label="Evaluation missing" />
           </li>
         )}
+
+        {verifiedRemediationAssociations.map((association) => (
+          <li
+            key={association.associationId ?? association.instanceId}
+            data-testid={`audit-evidence-spine-verified-remediation-${association.instanceId}`}
+          >
+            <p className={cn("m-0 font-medium", OPERATOR_TYPOGRAPHY.body)}>Verified remediation</p>
+            <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              Verified
+            </p>
+            <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.body)}>
+              <Link
+                className={OPERATOR_LINK.inline}
+                href={buildRemediationWorkbenchHref({ instanceId: association.instanceId })}
+                data-testid={`audit-evidence-spine-verified-remediation-link-${association.instanceId}`}
+              >
+                {association.instanceId}
+              </Link>
+            </p>
+          </li>
+        ))}
 
         {(props.lineage.requirementChains ?? []).map((chain) => (
           <li key={chain.requirementId ?? chain.requirementName} data-testid={`audit-evidence-spine-requirement-${chain.requirementId}`}>
