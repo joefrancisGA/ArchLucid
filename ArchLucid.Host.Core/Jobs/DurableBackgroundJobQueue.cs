@@ -77,7 +77,7 @@ public sealed class DurableBackgroundJobQueue(
                 throw;
             }
 
-            await repository.MarkFailedTerminalAsync(
+            await repository.MarkFailedTerminalFromQueuedStateAsync(
                 jobId,
                 $"Queue notification failed: {ex.Message}",
                 retryCount: 0,

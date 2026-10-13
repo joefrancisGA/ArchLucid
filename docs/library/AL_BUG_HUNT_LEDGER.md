@@ -15188,6 +15188,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: host-core-jobs
 
+2026-10-13 thorough hunt (hit): `DurableBackgroundJobQueue.EnqueueAsync` and `BackgroundJobStuckRunningWatchdogBackgroundWork` still called `MarkFailedTerminalAsync` after queue notify failure, but the 2026-10-12 `Running`-only SQL guard made those updates a no-op for `Pending` rows (orphan pending without queue notification); added `MarkFailedTerminalFromQueuedStateAsync` (`Pending` or `Running`) for notify-failure paths; regression `EnqueueAsync_notify_failure_marks_pending_row_failed_when_running_only_terminal_is_no_op`; cheap-disproof closed the four open candidates (watchdog cancel re-read parity, enqueue cancel vs notify race, exhausted-retry reclaim window covered by `IsRunningJobRow`, in-memory shutdown re-queue bounded by `WaitAsync(0)` + single writer). Host.Core scoped filter 77/77; Api scoped filter 97 passed (9 SQL integration unavailable on Linux VM).
+
 2026-10-07 thorough hunt (hit): proved stale processor success assignment after watchdog reclaim to `Pending`; fixed Running re-read + SQL guard; regression above; cheap-disproof closed four reseeded candidates; reseeded four new candidates.
 
 2026-10-12 thorough hunt (hit): stale executor failure after watchdog reclaim to `Pending` still passed the reclaimed row into retry scheduling; the processor now requires `Running` before failure transitions and the durable retry update has a `State = N'Running'` guard; regression `ProcessOneMessageAsync_does_not_schedule_retry_when_watchdog_reclaims_job_before_failure` failed first and passed after the fix. Focused processor tests passed 28/28 and Host.Core background-job/hosted tests passed 69/69.
@@ -15200,11 +15202,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** background jobs; hosted services; durable job queue
 - **paths:** ArchLucid.Host.Core/Jobs/; ArchLucid.Host.Core/Hosted/
 - **test-filter:** FullyQualifiedName~ArchLucidJob|FullyQualifiedName~BackgroundJob|FullyQualifiedName~Hosted
-- **hunts:** 48
-- **bugs-found:** 33
+- **hunts:** 49
+- **bugs-found:** 34
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-12
-- **last-bug:** 2026-10-12 — stale terminal failure after watchdog reclaim to Pending (invalid payload + capacity paths + SQL guard)
+- **last-hunt:** 2026-10-13
+- **last-bug:** 2026-10-13 — queue notify failure could not terminal-fail Pending rows after Running-only SQL guard
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 

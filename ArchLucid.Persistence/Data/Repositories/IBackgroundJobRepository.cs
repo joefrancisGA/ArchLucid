@@ -38,6 +38,16 @@ public interface IBackgroundJobRepository
         int retryCount,
         CancellationToken cancellationToken = default);
 
+    /// <summary>
+    ///     Marks a job <c>Failed</c> when queue notification fails after insert or stale reclaim moved the row to
+    ///     <c>Pending</c>. Processor terminal paths use <see cref="MarkFailedTerminalAsync" /> (running workers only).
+    /// </summary>
+    Task MarkFailedTerminalFromQueuedStateAsync(
+        string jobId,
+        string error,
+        int retryCount,
+        CancellationToken cancellationToken = default);
+
     Task MarkPendingRetryAsync(
         string jobId,
         int retryCount,

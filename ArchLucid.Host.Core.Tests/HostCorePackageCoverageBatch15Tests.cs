@@ -281,7 +281,7 @@ public sealed class HostCorePackageCoverageBatch15Tests
 
         await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("*queue unavailable*");
         repository.Verify(
-            r => r.MarkFailedTerminalAsync(
+            r => r.MarkFailedTerminalFromQueuedStateAsync(
                 It.IsAny<string>(),
                 It.Is<string>(message => message.Contains("Queue notification failed", StringComparison.Ordinal)),
                 0,

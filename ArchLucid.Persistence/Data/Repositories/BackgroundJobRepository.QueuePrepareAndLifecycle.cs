@@ -184,6 +184,31 @@ public sealed partial class BackgroundJobRepository
                 cancellationToken: cancellationToken));
     }
 
+    public async Task MarkFailedTerminalFromQueuedStateAsync(
+        string jobId,
+        string error,
+        int retryCount,
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+                           UPDATE dbo.BackgroundJobs
+                           SET State = N'Failed',
+                               CompletedUtc = SYSUTCDATETIME(),
+                               Error = @Error,
+                               RetryCount = @RetryCount
+                           WHERE JobId = @JobId
+                             AND State IN (N'Pending', N'Running')
+                           """;
+
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        await connection.ExecuteAsync(
+            new CommandDefinition(
+                sql,
+                new { JobId = jobId, Error = error, RetryCount = retryCount },
+                cancellationToken: cancellationToken));
+    }
+
     public async Task MarkPendingRetryAsync(
         string jobId,
         int retryCount,

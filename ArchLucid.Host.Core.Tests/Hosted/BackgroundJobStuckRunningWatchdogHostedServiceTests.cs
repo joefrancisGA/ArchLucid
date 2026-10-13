@@ -131,7 +131,7 @@ public sealed class BackgroundJobStuckRunningWatchdogHostedServiceTests
             CancellationToken.None);
 
         repository.Verify(
-            r => r.MarkFailedTerminalAsync(
+            r => r.MarkFailedTerminalFromQueuedStateAsync(
                 "job-b",
                 It.Is<string>(message => message.Contains("Queue notification failed", StringComparison.Ordinal)),
                 0,
@@ -175,7 +175,7 @@ public sealed class BackgroundJobStuckRunningWatchdogHostedServiceTests
             CancellationToken.None);
 
         repository.Verify(
-            r => r.MarkFailedTerminalAsync(
+            r => r.MarkFailedTerminalFromQueuedStateAsync(
                 "job-reclaimed",
                 It.Is<string>(message => message.Contains("Queue notification failed", StringComparison.Ordinal)),
                 2,
