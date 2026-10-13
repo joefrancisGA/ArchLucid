@@ -61,6 +61,8 @@ public sealed class GenericArchitectureAdvicePatternsMultiCloudTests
     [InlineData("use https isn't needed for legacy clients")]
     [InlineData("workload is prohibited from enable mfa for service accounts")]
     [InlineData("workload is forbidden from enable mfa for service accounts")]
+    [InlineData("workload is restricted from enable mfa for service accounts")]
+    [InlineData("workload is declined from enable mfa for service accounts")]
     public void IsObviousGenericAdvice_does_not_flag_negated_checklist_phrasing(string message)
     {
         GenericArchitectureAdvicePatterns.IsObviousGenericAdvice(message).Should().BeFalse();
@@ -14544,6 +14546,8 @@ public sealed class GenericArchitectureAdvicePatternsMultiCloudTests
     [InlineData("Storage account is in conflict with the constraint on public blob access.")]
     [InlineData("Storage account is noncompliant with the constraint on public blob access.")]
     [InlineData("Storage account is non-compliant with the constraint on public blob access.")]
+    [InlineData("Storage account is incompatible with the constraint on public blob access.")]
+    [InlineData("Storage account is not in compliance with the constraint on public blob access.")]
     public void HasFalsifiabilitySignal_recognizes_conflict_wording_variants(string message)
     {
         GenericArchitectureAdvicePatterns.HasFalsifiabilitySignal(message).Should().BeTrue();

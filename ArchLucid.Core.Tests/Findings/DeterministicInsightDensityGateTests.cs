@@ -438,6 +438,16 @@ public sealed class DeterministicInsightDensityGateTests
     }
 
     [Fact]
+    public void Jaccard_similarity_treats_middle_dot_separated_resource_tokens_as_space_separated_peers()
+    {
+        InsightDensityTextSimilarity.JaccardSimilarity(
+                "Enable encryption for prod\u00b7sql\u00b7db storage account",
+                "Enable encryption for prod sql db storage account")
+            .Should()
+            .BeGreaterThanOrEqualTo(0.85);
+    }
+
+    [Fact]
     public void Jaccard_similarity_treats_pipe_separated_resource_tokens_as_space_separated_peers()
     {
         InsightDensityTextSimilarity.JaccardSimilarity(
