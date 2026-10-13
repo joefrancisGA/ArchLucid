@@ -513,6 +513,60 @@ public sealed class ReviewCacheManifestBuilderTests
     }
 
     [Fact]
+    public void Build_matches_content_hash_when_file_name_differs_only_by_dot_segments_or_slashes()
+    {
+        ClosedLoopReasoningRequest canonical = CreateRequest("Same body.");
+        canonical.SourceTexts =
+        [
+            new ClosedLoopReasoningSourceText
+            {
+                FileName = "docs/arch.md",
+                ContentType = "text/markdown",
+                Content = "Same body.",
+            },
+        ];
+
+        ClosedLoopReasoningRequest dotSegment = CreateRequest("ignored");
+        dotSegment.SourceTexts =
+        [
+            new ClosedLoopReasoningSourceText
+            {
+                FileName = "docs/./arch.md",
+                ContentType = "text/markdown",
+                Content = "Same body.",
+            },
+        ];
+
+        ClosedLoopReasoningRequest trailingSlash = CreateRequest("ignored");
+        trailingSlash.SourceTexts =
+        [
+            new ClosedLoopReasoningSourceText
+            {
+                FileName = "docs/arch.md/",
+                ContentType = "text/markdown",
+                Content = "Same body.",
+            },
+        ];
+
+        ClosedLoopReasoningRequest leadingSlash = CreateRequest("ignored");
+        leadingSlash.SourceTexts =
+        [
+            new ClosedLoopReasoningSourceText
+            {
+                FileName = "/docs/arch.md",
+                ContentType = "text/markdown",
+                Content = "Same body.",
+            },
+        ];
+
+        string canonicalHash = ReviewCacheManifestBuilder.Build(canonical).ContentHash;
+
+        ReviewCacheManifestBuilder.Build(dotSegment).ContentHash.Should().Be(canonicalHash);
+        ReviewCacheManifestBuilder.Build(trailingSlash).ContentHash.Should().Be(canonicalHash);
+        ReviewCacheManifestBuilder.Build(leadingSlash).ContentHash.Should().Be(canonicalHash);
+    }
+
+    [Fact]
     public void Build_matches_content_hash_when_source_content_type_differs_only_by_charset_parameter()
     {
         ClosedLoopReasoningRequest bare = CreateRequest("Same body.");

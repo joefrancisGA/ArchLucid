@@ -42,6 +42,15 @@ internal static class ClosedLoopReasoningSourceTextNormalizer
         while (fileName.Contains("//", StringComparison.Ordinal))
             fileName = fileName.Replace("//", "/", StringComparison.Ordinal);
 
+        while (fileName.Contains("/./", StringComparison.Ordinal))
+            fileName = fileName.Replace("/./", "/", StringComparison.Ordinal);
+
+        while (fileName.StartsWith('/'))
+            fileName = fileName[1..];
+
+        while (fileName.EndsWith('/') && fileName.Length > 1)
+            fileName = fileName[..^1];
+
         return fileName;
     }
 

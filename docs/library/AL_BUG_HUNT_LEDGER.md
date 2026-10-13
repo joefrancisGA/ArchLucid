@@ -172,6 +172,8 @@
 
 2026-10-12 seed hunt (seed-only): re-read the selected queue outcome/error, toolbar disclosure, scope banner, header actions, and focused client/table tests with no code churn since the prior pass. No fresh reachable mechanism-backed candidate met the hunt-ready bar. The focused desktop-table suite passed 9/9. No production or regression change.
 
+2026-10-13 seed hunt (seed→hit): `architecture-intelligence-orchestrator` — `/./` segments, leading `/`, and trailing `/` on uploaded `FileName` split review-cache `ContentHash`; extended `NormalizeFileNameForHash`; regression `Build_matches_content_hash_when_file_name_differs_only_by_dot_segments_or_slashes`; scoped orchestrator/cache filter 89/89.
+
 2026-10-13 seed hunt (seed→hit): `architecture-intelligence-orchestrator` — leading `./` and duplicate `/` in uploaded `FileName` split review-cache `ContentHash`; `NormalizeFileNameForHash` in `ClosedLoopReasoningSourceTextNormalizer`; regression `Build_matches_content_hash_when_file_name_differs_only_by_leading_dot_slash_or_duplicate_slashes`; scoped orchestrator/cache filter 88/88.
 
 2026-10-13 seed hunt (seed→hit): `api-governance-tenancy-controllers` — `LogGovernanceApprovalRequestedAuditAsync` logged `IActorContext.GetActor()` as both `ActorUserId` and `ActorUserName` without `ExplicitActor`, so approval-request audits stored the display name (or `AuditService` overwrote with `NameIdentifier`) instead of the stable `jwt:{tid}:{oid}` key; use `GetActorId()` plus `ExplicitActor`; regression `SubmitApprovalRequest_logs_actor_context_id_in_audit_when_display_name_differs`; 141 scoped Governance/Tenancy controller unit tests passed (18 SQL integration unavailable on Linux VM).
@@ -35466,6 +35468,8 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: architecture-intelligence-orchestrator
 
+2026-10-13 seed hunt (seed→hit): promoted dot-segment and slash padding on `FileName` (`docs/./arch.md`, `/docs/arch.md`, trailing `/`); extended `NormalizeFileNameForHash`; regression `Build_matches_content_hash_when_file_name_differs_only_by_dot_segments_or_slashes`; scoped filter 89/89.
+
 2026-10-13 seed hunt (seed→hit): promoted `./` and duplicate-slash `FileName` candidate; `NormalizeFileNameForHash` strips leading `./` and collapses `//`; regression `Build_matches_content_hash_when_file_name_differs_only_by_leading_dot_slash_or_duplicate_slashes`; scoped filter 88/88.
 
 2026-10-10 seed hunt (seed→hit): promoted Unicode line separators in uploaded source content; U+2028/U+2029 produced different review-cache `ContentHash` values from LF in an isolated failing repro; extended line-ending normalization to map both separators to LF; regression `Build_matches_content_hash_when_source_content_uses_unicode_line_separators`. The focused xUnit command remains blocked by the pre-existing duplicate `CreateEmptyAgentResultRepository` member in `AuthorityPipelineStagesExecutorTestFactory.cs`; isolated repro passed after the fix.
@@ -35485,6 +35489,8 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) `ClosedLoopReasoningSourceTextNormalizer` — MIME parameters on `SourceTexts.ContentType` (`text/markdown; charset=utf-8` vs bare) split `ContentHash` — **hit 2026-10-06 seed hunt:** `SupportedContextDocumentContentTypes.NormalizeContentTypeForLookup` before lowercase; regression `Build_matches_content_hash_when_source_content_type_differs_only_by_charset_parameter`.
 - [x] (proven) `ClosedLoopReasoningSourceTextNormalizer` — `FileName` path segments with backslash vs forward slash split cache keys — **hit 2026-10-07 seed hunt #33:** `FileName` hashed literally; fixed by `Replace('\\', '/')` after trim; regression `Build_matches_content_hash_when_file_name_differs_only_by_path_separator`.
 - [x] (proven) `ClosedLoopReasoningSourceTextNormalizer` — leading `./` or duplicate slashes in `FileName` split `ContentHash` — **hit 2026-10-13 seed hunt:** `NormalizeFileNameForHash`; regression `Build_matches_content_hash_when_file_name_differs_only_by_leading_dot_slash_or_duplicate_slashes`.
+- [x] (proven) `ClosedLoopReasoningSourceTextNormalizer` — `/./` segments, leading `/`, and trailing `/` on `FileName` split `ContentHash` — **hit 2026-10-13 seed hunt:** extended `NormalizeFileNameForHash`; regression `Build_matches_content_hash_when_file_name_differs_only_by_dot_segments_or_slashes`.
+- [x] (invalid) `ReviewCacheManifestBuilder.HashContent` — `Content` line endings `\\r\\n` vs `\\n` — **cheap-disproof 2026-10-13 seed hunt:** closed by 2026-10-10 hit `Build_matches_content_hash_when_source_content_line_endings_differ`.
 - [ ] (candidate) `ReviewCacheManifestBuilder.HashContent` — `Content` line endings `\\r\\n` vs `\\n` after trim may split hash for otherwise identical uploads — locus: source append loop (`ReviewCacheManifestBuilder.cs` ~109–111); input: same markdown with CRLF vs LF only; wrong outcome: duplicate review work on Windows uploads.
 - [ ] (candidate) `ReviewResultCache.TryGet` — manifest key built from request snapshot before `RunId` normalization vs after may miss pin scope hits — locus: `RunAsync` pin scope branch (`ClosedLoopArchitectureReasoningOrchestrator.cs` ~81–89); input: client `RunId` with surrounding spaces on first request; wrong outcome: cache miss despite identical normalized run.
 - [ ] (candidate) `ClosedLoopContinueRunSingleFlight` — coalesce key omits `PublishToProduct` while storage manifest includes publish policy partition — locus: `BuildCoalesceKey` vs `ReviewCacheKeyBuilder` (`ClosedLoopContinueRunSingleFlight.cs`); input: identical continue payloads differing only on publish flag; wrong outcome: cross-talk cache hit.
@@ -35527,11 +35533,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** closed-loop orchestrator; review result cache; architecture intelligence
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.cs; ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.Cache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewResultCache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewCacheManifestBuilder.cs
 - **test-filter:** FullyQualifiedName~ClosedLoopArchitectureReasoningOrchestrator|FullyQualifiedName~ReviewResultCache|FullyQualifiedName~ReviewCacheManifestBuilder
-- **hunts:** 38
-- **bugs-found:** 16
+- **hunts:** 39
+- **bugs-found:** 17
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-13
-- **last-bug:** 2026-10-13 — relative `./` and duplicate slashes in source file names split cache hash
+- **last-bug:** 2026-10-13 — dot segments and leading/trailing slashes on source file names split cache hash
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
