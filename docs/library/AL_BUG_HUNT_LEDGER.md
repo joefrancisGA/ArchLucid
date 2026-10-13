@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-13 seed hunt (seed→hit): `notifications-pipeline` — promoted `ExecDigestEmailDispatcher.TryDispatchAsync`; reachable digest `DashboardUrl` / `SponsorValueReportUrl` values with embedded `OperatorBaseUrl` userinfo were trimmed into templates while unsubscribe already used `SanitizeOperatorAbsoluteUrl`; sanitize CTA hrefs at dispatch; regression `ExecDigestEmailDispatcher_omits_user_info_from_dashboard_and_sponsor_urls_in_template_model`; 162 scoped Application notification tests passed; 11 DigestSubscriptions controller unit tests passed (2 SQL integration auth tests skipped without `ARCHLUCID_API_TEST_SQL`).
+
 2026-10-13 seed hunt (seed→hit): `application-tenancy-lifecycle` — promoted `TenantSuspendCommandService.TrySuspendAsync`; erasure offboard between initial read and atomic suspend made `TrySuspendTenantAsync` no-op while API returned `AlreadyInDesiredState` instead of `InErasureQuarantine`; re-read tenant after lifecycle transition miss; regression `TrySuspendAsync_returns_quarantine_when_offboard_completes_before_atomic_suspend`; mirrored path for `TryUnsuspendAsync`; 146 scoped tenancy tests passed.
 
 2026-10-13 seed hunt (seed→hit): `application-tenancy-lifecycle` — promoted `TrialLifecycleTransitionEngine.TryAdvanceTenantAsync` `Deleted` retry path; idempotent hard-purge passes with `RowsDeleted = 0` returned `false` and looked like a failed scheduler tick; return success after purge completes; regression `TryAdvanceTenantAsync_when_already_deleted_and_purge_deletes_no_rows_returns_success`; 145 scoped tenancy tests passed.
@@ -31251,13 +31253,17 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** notifications; email dispatchers beyond weekly summary
 - **paths:** ArchLucid.Notifications/; ArchLucid.Application/Notifications/; ArchLucid.Api/Controllers/Advisory/DigestSubscriptionsController.cs
 - **test-filter:** FullyQualifiedName~Notifications|FullyQualifiedName~EmailDispatcher|FullyQualifiedName~DigestSubscriptionsController
-- **hunts:** 61
-- **bugs-found:** 45
+- **hunts:** 62
+- **bugs-found:** 46
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-06
-- **last-bug:** 2026-10-06 — operator base userinfo leaked into exec digest unsubscribe links
+- **last-hunt:** 2026-10-13
+- **last-bug:** 2026-10-13 — exec digest dashboard/sponsor CTAs leaked operator-base userinfo
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-13 seed hunt (seed→hit): reseeded exec digest dispatch after unsubscribe userinfo fix; proved `DashboardUrl` and `SponsorValueReportUrl` still forwarded embedded userinfo into weekly digest templates; extended `SanitizeOperatorAbsoluteUrl` parity to CTA hrefs; regression `ExecDigestEmailDispatcher_omits_user_info_from_dashboard_and_sponsor_urls_in_template_model`; 162 scoped Application notification tests passed.
+
+- [x] (proven) `ExecDigestEmailDispatcher` — `DashboardUrl` / `SponsorValueReportUrl` with embedded userinfo reached digest template CTAs without sanitization — **hit 2026-10-13 seed hunt (seed→hit):** `SanitizeOperatorAbsoluteUrl` at dispatch (parity with unsubscribe and weekly sponsor `runDetailUrl`); regression `ExecDigestEmailDispatcher_omits_user_info_from_dashboard_and_sponsor_urls_in_template_model`.
 
 2026-10-06 seed hunt (seed→hit): promoted ledger candidate for scanner-built unsubscribe URLs; proved `ExecDigestEmailDispatcher` forwarded userinfo-bearing unsubscribe hrefs into weekly digest templates; fixed with `SanitizeOperatorAbsoluteUrl` at dispatch; 156 scoped notifications/digest tests passed.
 
