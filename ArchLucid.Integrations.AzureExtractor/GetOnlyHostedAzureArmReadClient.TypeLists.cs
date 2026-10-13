@@ -37,8 +37,7 @@ public sealed partial class GetOnlyHostedAzureArmReadClient
         {
             if (!visitedLinks.Add(nextLink))
             {
-                throw new InvalidOperationException(
-                    $"Hosted Azure extractor stopped ARM type list for {resourceType} due to repeating nextLink.");
+                break;
             }
 
             requestCount++;

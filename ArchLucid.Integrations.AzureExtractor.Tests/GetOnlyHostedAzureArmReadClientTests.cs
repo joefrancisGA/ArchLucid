@@ -63,7 +63,7 @@ public sealed class GetOnlyHostedAzureArmReadClientTests
     }
 
     [Fact]
-    public async Task ListSubscriptionResourcesAsync_throws_when_next_link_repeats()
+    public async Task ListSubscriptionResourcesAsync_retains_resources_when_next_link_repeats()
     {
         const string repeatingNextLink =
             "https://management.azure.com/subscriptions/11111111-1111-1111-1111-111111111111/resources?api-version=2021-04-01&$skiptoken=repeat";
@@ -105,14 +105,14 @@ public sealed class GetOnlyHostedAzureArmReadClientTests
         HttpClient httpClient = new(handler);
         GetOnlyHostedAzureArmReadClient client = new(httpClient, NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
 
-        InvalidOperationException exception = await Assert.ThrowsAsync<InvalidOperationException>(() =>
-            client.ListSubscriptionResourcesAsync(
-                "token-abc",
-                "11111111-1111-1111-1111-111111111111",
-                CancellationToken.None));
+        IReadOnlyList<HostedAzureArmResourceRecord> resources = await client.ListSubscriptionResourcesAsync(
+            "token-abc",
+            "11111111-1111-1111-1111-111111111111",
+            CancellationToken.None);
 
-        Assert.Contains("repeating nextLink", exception.Message, StringComparison.OrdinalIgnoreCase);
         Assert.Equal(2, requestCount);
+        Assert.NotEmpty(resources);
+        Assert.Equal("sa1", resources[0].Name);
     }
 
     [Fact]
@@ -2259,7 +2259,7 @@ public sealed class GetOnlyHostedAzureArmReadClientTests
     }
 
     [Fact]
-    public async Task ListSubscriptionDefenderSummariesAsync_throws_when_next_link_repeats()
+    public async Task ListSubscriptionDefenderSummariesAsync_retains_best_score_when_next_link_repeats()
     {
         const string subscriptionId = "11111111-1111-1111-1111-111111111111";
         const string repeatingNextLink =
@@ -2291,13 +2291,14 @@ public sealed class GetOnlyHostedAzureArmReadClientTests
         HttpClient httpClient = new(handler);
         GetOnlyHostedAzureArmReadClient client = new(httpClient, NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
 
-        InvalidOperationException exception = await Assert.ThrowsAsync<InvalidOperationException>(() =>
-            client.ListSubscriptionDefenderSummariesAsync(
+        IReadOnlyList<HostedAzureArmDefenderSummaryRecord> summaries =
+            await client.ListSubscriptionDefenderSummariesAsync(
                 "token-abc",
                 subscriptionId,
-                CancellationToken.None));
+                CancellationToken.None);
 
-        Assert.Contains("repeating nextLink", exception.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Single(summaries);
+        Assert.Equal(72, summaries[0].SecureScore);
     }
 
     [Fact]

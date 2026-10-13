@@ -54,8 +54,7 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
         {
             if (!visitedLinks.Add(nextLink))
             {
-                throw new InvalidOperationException(
-                    "Hosted Azure extractor stopped ARM resource listing due to repeating nextLink.");
+                break;
             }
 
             requestCount++;
@@ -163,8 +162,7 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
         {
             if (!visitedLinks.Add(nextLink))
             {
-                throw new InvalidOperationException(
-                    $"Hosted Azure extractor stopped ARM {listingKind} listing due to repeating nextLink.");
+                break;
             }
 
             requestCount++;
@@ -251,8 +249,7 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
         {
             if (!visitedLinks.Add(nextLink))
             {
-                throw new InvalidOperationException(
-                    "Hosted Azure extractor stopped ARM role eligibility listing due to repeating nextLink.");
+                break;
             }
 
             requestCount++;
@@ -412,8 +409,7 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
         {
             if (!visitedLinks.Add(nextLink))
             {
-                throw new InvalidOperationException(
-                    "Hosted Azure extractor stopped ARM management group subscription listing due to repeating nextLink.");
+                break;
             }
 
             requestCount++;
@@ -552,8 +548,7 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
         {
             if (!visitedLinks.Add(nextLink))
             {
-                throw new InvalidOperationException(
-                    $"Hosted Azure extractor stopped ARM {listingKind} listing due to repeating nextLink.");
+                break;
             }
 
             requestCount++;
@@ -638,8 +633,7 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
         {
             if (!visitedLinks.Add(nextLink))
             {
-                throw new InvalidOperationException(
-                    "Hosted Azure extractor stopped ARM management group role eligibility listing due to repeating nextLink.");
+                break;
             }
 
             requestCount++;
@@ -853,8 +847,7 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
         {
             if (!visitedLinks.Add(nextLink))
             {
-                throw new InvalidOperationException(
-                    "Hosted Azure extractor stopped Defender secure score listing due to repeating nextLink.");
+                break;
             }
 
             requestCount++;
@@ -1026,8 +1019,7 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
         {
             if (!visitedLinks.Add(nextLink))
             {
-                throw new InvalidOperationException(
-                    "Hosted Azure extractor stopped ARM policy assignment listing due to repeating nextLink.");
+                break;
             }
 
             requestCount++;
