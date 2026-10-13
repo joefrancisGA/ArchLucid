@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-13 seed hunt (seed→hit): `cloud-extractors` — promoted `EntraGroupMembershipGraphReader.EnsureNextLinkTargetsGroup`; reachable `@odata.nextLink` values that failed group/collection/host validation after one or more successful member pages caused `InvalidOperationException` and dropped every membership row already collected for that group; stop pagination and return accumulated rows when validation fails but members or nested-group ids were already read; regression `TryReadDirectMembershipsAsync_retains_collected_members_when_next_link_validation_fails_after_a_successful_page`; AWS/GCP extractor tests passed 83/83; Azure extractor scope passed 154/154.
+
 2026-10-13 seed hunt (seed→hit): `artifact-synthesis` — promoted `MermaidDiagramDeterministicRepairer.Repair`; reachable policy-pack `QuestionableAttention` metadata on inventory diagram nodes was cleared during deterministic repair before `DiagramForestLayoutSvgRenderer`, so forest SVG cards lost the questionable highlight and badge; copy `QuestionableAttention` on repair; regressions `Repair_keeps_questionable_attention_for_forest_layout` and extended `Repair_keeps_node_and_edge_painter_metadata_and_copies_lists`; scoped ArtifactSynthesis/Docx filter passed 705/719 with 12 pre-existing diagram expectation failures and 2 skipped Terraform tests.
 
 2026-10-13 seed hunt (seed→hit): `cloud-extractors` — promoted `EntraGroupMembershipGraphReader.TryReadDirectMembershipsAsync`; when multiple seed group ids were supplied from role-assignment principals and Graph returned 403 for one group after another group’s members were already read, the reader returned `Forbidden` and dropped every collected membership row; skip forbidden groups when other seeds or accumulated rows remain; regression `TryReadDirectMembershipsAsync_retains_members_from_other_groups_when_one_seed_returns_forbidden`; AWS/GCP extractor tests passed 83/83; Azure extractor scope passed 152/152.
@@ -31737,6 +31739,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ## Zone: cloud-extractors
 
+2026-10-13 seed hunt (seed→hit): promoted `EntraGroupMembershipGraphReader.EnsureNextLinkTargetsGroup` pagination guard; invalid `@odata.nextLink` after successful pages threw and discarded collected memberships; `TryAcceptNextLink` stops pagination while preserving rows; regression `TryReadDirectMembershipsAsync_retains_collected_members_when_next_link_validation_fails_after_a_successful_page`; Azure scope 154/154; AWS/GCP 83/83.
+
 2026-10-13 seed hunt (seed→hit): promoted `EntraGroupMembershipGraphReader.TryReadDirectMembershipsAsync` multi-seed 403 handling; a 403 on one seed group returned `Forbidden` and discarded memberships from other seeds already read; skip and continue when rows or queued groups remain; regression `TryReadDirectMembershipsAsync_retains_members_from_other_groups_when_one_seed_returns_forbidden`; Azure scope 152/152; AWS/GCP 83/83.
 
 2026-10-13 seed hunt (seed→hit): promoted `EntraGroupMembershipGraphReader.ReadGroupMembersPageAsync` pagination failure handling; non-success Graph responses on a follow-up `@odata.nextLink` page returned `Empty()` and discarded members from earlier pages in the same group read; return partial `memberships`/`nestedGroupIds`; regression `TryReadDirectMembershipsAsync_retains_first_page_members_when_later_page_fails`; Azure scope 151/151; AWS/GCP 83/83.
@@ -31816,11 +31820,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** aws extractor; gcp extractor; azure extractor
 - **paths:** ArchLucid.Integrations.AwsExtractor/; ArchLucid.Integrations.GcpExtractor/; ArchLucid.Integrations.AzureExtractor/
 - **test-filter:** FullyQualifiedName~AwsExtractor|FullyQualifiedName~GcpExtractor|FullyQualifiedName~AzureExtractor
-- **hunts:** 121
-- **bugs-found:** 68
+- **hunts:** 122
+- **bugs-found:** 69
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-13
-- **last-bug:** 2026-10-13 — Entra multi-seed 403 dropped other groups’ members
+- **last-bug:** 2026-10-13 — Entra invalid nextLink after pagination dropped members
 - **related-pd-tb:** none
 - **code-changed-since:** 1
 
@@ -31848,6 +31852,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ### Hypotheses
 
+- [x] (proven) `EntraGroupMembershipGraphReader.EnsureNextLinkTargetsGroup` — reachable `@odata.nextLink` values that failed validation after one or more successful `/members` pages caused `InvalidOperationException` and discarded membership rows already collected for that group — **hit 2026-10-13 seed hunt:** `TryAcceptNextLink` stops pagination and returns accumulated rows when validation fails after data was read; regression `TryReadDirectMembershipsAsync_retains_collected_members_when_next_link_validation_fails_after_a_successful_page`.
 - [x] (proven) `EntraGroupMembershipGraphReader.TryReadDirectMembershipsAsync` — reachable multi-seed group membership reads where Graph returned 403 for one seed group after other seeds succeeded caused the reader to return `Forbidden` and discard every membership row already collected — **hit 2026-10-13 seed hunt:** skip forbidden groups when accumulated rows or queued groups remain; regression `TryReadDirectMembershipsAsync_retains_members_from_other_groups_when_one_seed_returns_forbidden`.
 - [x] (proven) `EntraGroupMembershipGraphReader.ReadGroupMembersPageAsync` — reachable Microsoft Graph `@odata.nextLink` pagination where an earlier page succeeded and a later page returned a non-success HTTP status caused the reader to return `Empty()` and drop memberships already collected for that group — **hit 2026-10-13 seed hunt:** return accumulated `memberships` and `nestedGroupIds` on non-success instead of `Empty()`; regression `TryReadDirectMembershipsAsync_retains_first_page_members_when_later_page_fails`.
 - [x] (valid-no-repro) `GcpServiceAccountEmail.TryGetProjectId` — service-account emails with an extra `@` before `.iam.gserviceaccount.com` can yield a non-canonical parsed project id, but `EnsureProjectMatches` still rejects mismatched `ProjectId` values and no hosted inventory wrong outcome was established — **cheap-disproof 2026-10-13 seed hunt:** no failing repro; no product change.
