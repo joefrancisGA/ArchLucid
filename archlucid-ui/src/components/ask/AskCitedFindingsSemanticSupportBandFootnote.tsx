@@ -5,7 +5,7 @@ import type { ReactElement } from "react";
 import { StatusTag } from "@/components/ui/status-tag";
 import {
   formatAskCitedFindingsSemanticSupportBandFootnote,
-  resolveWeakestAskCitedSemanticSupportBandForFindingIds,
+  resolveAskCitedSemanticSupportBandForFindingIds,
   type AskCitedFindingBandIndexEntry,
 } from "@/lib/ask/ask-cited-findings-semantic-support-band";
 import { semanticSupportBandStatusTagKind } from "@/lib/findings/semantic-support-band-presentation";
@@ -21,11 +21,12 @@ export type AskCitedFindingsSemanticSupportBandFootnoteProps = {
 export function AskCitedFindingsSemanticSupportBandFootnote(
   props: AskCitedFindingsSemanticSupportBandFootnoteProps,
 ): ReactElement | null {
-  const weakestBand = resolveWeakestAskCitedSemanticSupportBandForFindingIds({
+  const bandResolution = resolveAskCitedSemanticSupportBandForFindingIds({
     index: props.findingBandIndex,
     referencedFindingIds: props.referencedFindingIds,
   });
-  const footnote = formatAskCitedFindingsSemanticSupportBandFootnote(weakestBand);
+  const footnote = formatAskCitedFindingsSemanticSupportBandFootnote(bandResolution);
+  const weakestBand = bandResolution.weakestBand;
 
   if (footnote === null) {
     return null;
@@ -41,7 +42,7 @@ export function AskCitedFindingsSemanticSupportBandFootnote(
         <p className={cn("m-0 font-semibold text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
           Semantic support inherited from cited findings
         </p>
-        {weakestBand !== null ? (
+        {weakestBand !== null && !bandResolution.hasMissingStoredBand ? (
           <StatusTag kind={semanticSupportBandStatusTagKind(weakestBand)} label={weakestBand} />
         ) : null}
       </div>

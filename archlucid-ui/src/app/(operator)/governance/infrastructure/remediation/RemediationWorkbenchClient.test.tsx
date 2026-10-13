@@ -87,6 +87,7 @@ vi.mock("@/lib/infra-evidence/infra-evidence-remediation-api", () => ({
       explainText: "Control metadata matched approved pattern.",
     },
     evidence: [],
+    verifiedRemediationAssociations: [],
   })),
   matchOperationalFinding: vi.fn(),
   createRemediationInstance: vi.fn(),
@@ -128,6 +129,10 @@ describe("RemediationWorkbenchClient", () => {
     expect(screen.getByTestId("infra-remediation-execute-disclaimer")).toBeInTheDocument();
     expect(screen.getByTestId("infra-remediation-approve")).toBeDisabled();
     expect(screen.getByTestId("infra-remediation-preflight")).toBeDisabled();
+    expect(screen.getByTestId("infra-remediation-open-audit-evidence")).toHaveAttribute(
+      "href",
+      "/governance/audit-evidence?controlId=SC-28",
+    );
   });
 
   it("shows resource scope banner when cloudResourceId is in the URL", async () => {
@@ -230,7 +235,7 @@ describe("RemediationWorkbenchClient", () => {
     await waitFor(() => {
       expect(screen.getByTestId("infra-remediation-open-ask")).toHaveAttribute(
         "href",
-        "/governance/infrastructure/ask?cloudResourceId=33333333-3333-3333-3333-333333333333&snapshotId=11111111-1111-1111-1111-111111111111&findingId=22222222-2222-2222-2222-222222222222&instanceId=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee&correspondenceId=corr-1&runId=run-1&tab=remediation",
+        "/governance/infrastructure/remediation?cloudResourceId=33333333-3333-3333-3333-333333333333&findingId=22222222-2222-2222-2222-222222222222&correspondenceId=corr-1&runId=run-1&snapshotId=11111111-1111-1111-1111-111111111111&instanceId=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee&tab=remediation&infrastructureAskOpen=1",
       );
     });
   });
@@ -242,7 +247,7 @@ describe("RemediationWorkbenchClient", () => {
     await waitFor(() => {
       expect(screen.getByTestId("infra-remediation-open-ask")).toHaveAttribute(
         "href",
-        "/governance/infrastructure/ask?cloudResourceId=33333333-3333-3333-3333-333333333333&findingId=22222222-2222-2222-2222-222222222222&instanceId=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee&tab=remediation",
+        "/governance/infrastructure/remediation?cloudResourceId=33333333-3333-3333-3333-333333333333&findingId=22222222-2222-2222-2222-222222222222&instanceId=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee&tab=remediation&infrastructureAskOpen=1",
       );
     });
   });

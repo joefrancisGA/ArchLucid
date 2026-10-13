@@ -40,6 +40,18 @@ describe("run-detail-create-home-captured-evidence", () => {
     expect(merged.map((item) => item.fileName)).toEqual(["brief.md", "diagram.png"]);
   });
 
+  it("does not invent uploaded time when catalog createdUtc is missing", () => {
+    const items = deriveCapturedEvidenceFromCatalog([
+      {
+        evidenceItemId: "ev-1",
+        originalFileName: "diagram.png",
+        createdUtc: undefined,
+      },
+    ]);
+
+    expect(items[0]?.ingestedUtc).toBeNull();
+  });
+
   it("derives catalog rows with createdUtc and evidence ids", () => {
     const items = deriveCapturedEvidenceFromCatalog([
       {

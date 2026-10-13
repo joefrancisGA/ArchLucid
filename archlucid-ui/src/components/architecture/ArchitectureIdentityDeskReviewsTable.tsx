@@ -134,7 +134,10 @@ export function ArchitectureIdentityDeskReviewsTable(
       </EnterpriseTableHead>
       <EnterpriseTableBody>
         {sortedReviews.map((review) => {
-          const label = review.description?.trim() || "Architecture review";
+          const label =
+            review.description === null || review.description === undefined
+              ? "Review description was not stored."
+              : review.description;
           const isHighlighted = highlightedReviewId === review.runId;
           const inFlightOperation = findSystemNotJobDeskInFlightOperationForReview(
             inFlightOperations,

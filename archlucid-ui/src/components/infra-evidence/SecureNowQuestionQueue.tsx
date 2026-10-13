@@ -27,6 +27,45 @@ export {
 
 type SecureNowQuestionQueueProps = SecureNowQuestionQueueProviderProps;
 
+type ClosedQuestionAnswerFields = {
+  readonly status: string | null;
+  readonly answerCode: string | null;
+  readonly answerText: string | null;
+  readonly reason: string | null | undefined;
+};
+
+function isClosedSecureNowQuestionStatus(status: string | null): boolean {
+  return status === "Answered" || status === "Ignored" || status === "Dismissed";
+}
+
+function closedSecureNowQuestionAnswerLines(question: ClosedQuestionAnswerFields): readonly string[] {
+  if (!isClosedSecureNowQuestionStatus(question.status)) {
+    return [];
+  }
+
+  const lines: string[] = [];
+
+  if (question.answerCode === null || question.answerCode === undefined) {
+    lines.push("Answer code was not stored.");
+  } else if (question.answerCode.length > 0) {
+    lines.push(secureNowQuestionAnswerLabel(question.answerCode));
+  }
+
+  if (question.answerText === null || question.answerText === undefined) {
+    lines.push("Answer text was not stored.");
+  } else if (question.answerText.length > 0) {
+    lines.push(question.answerText);
+  }
+
+  if (question.reason === null || question.reason === undefined) {
+    lines.push("Disposition reason was not stored.");
+  } else if (question.reason.length > 0) {
+    lines.push(question.reason);
+  }
+
+  return lines;
+}
+
 function questionStatusLabel(status: string | null): string {
   if (status == null || status.trim().length === 0) {
     return "Question status was not stored";
@@ -177,12 +216,17 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
                 : "Question text was not stored"}
             </p>
           ) : null}
-          {currentQuestion != null && currentQuestion.status !== "Open" ? (
-            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="infra-diagrams-question-answer">
-              {currentQuestion.reason === null || currentQuestion.reason === undefined
-                ? "Disposition reason was not stored."
-                : currentQuestion.reason}
-            </p>
+          {currentQuestion != null && isClosedSecureNowQuestionStatus(currentQuestion.status) ? (
+            <div
+              className={cn("m-0 space-y-0.5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="infra-diagrams-question-answer"
+            >
+              {closedSecureNowQuestionAnswerLines(currentQuestion).map((line, lineIndex) => (
+                <p key={`${lineIndex}:${line}`} className="m-0">
+                  {line}
+                </p>
+              ))}
+            </div>
           ) : null}
         </div>
         <Button type="button" size="sm" variant="outline" onClick={() => setDrawerOpen(false)}>

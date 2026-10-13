@@ -1,8 +1,9 @@
 import type { QuickDecisionFinding } from "@/lib/quick-decision-finding-from-detail";
 import { isDecisionGradeFinding } from "@/lib/findings/review-detail-findings-classification-band";
 import {
+  FINDING_SEMANTIC_SUPPORT_BAND_NOT_STORED_COPY,
   type FindingSemanticSupportBandValue,
-  resolveDecisionGradeSemanticSupportBand,
+  normalizeFindingSemanticSupportBand,
 } from "@/lib/findings/semantic-support-band-presentation";
 
 export const ASK_CITED_FINDINGS_SEMANTIC_SUPPORT_NOT_SEALED_COPY =
@@ -17,8 +18,45 @@ const BAND_WEAKNESS_RANK: Readonly<Record<FindingSemanticSupportBandValue, numbe
 
 export type AskCitedFindingBandIndexEntry = {
   readonly findingId: string;
-  readonly band: FindingSemanticSupportBandValue;
+  readonly band: FindingSemanticSupportBandValue | null;
+  readonly bandStored: boolean;
 };
+
+/**
+ * Single-finding Ask surfaces pass a normalized optional band, not a findings list.
+ * Omitted/null must stay bandStored=false so the footnote uses not-stored copy instead of guessing NotScored.
+ */
+export function askCitedFindingBandIndexEntryFromOptionalBand(
+  findingId: string,
+  semanticSupportBand: FindingSemanticSupportBandValue | null | undefined,
+): AskCitedFindingBandIndexEntry {
+  if (semanticSupportBand === undefined || semanticSupportBand === null) {
+    return {
+      findingId,
+      band: null,
+      bandStored: false,
+    };
+  }
+
+  return {
+    findingId,
+    band: semanticSupportBand,
+    bandStored: true,
+  };
+}
+
+export function askCitedFindingBandIndexForFinding(
+  findingId: string,
+  rawBand: FindingSemanticSupportBandValue | null | undefined,
+): readonly AskCitedFindingBandIndexEntry[] {
+  const trimmedId = findingId.trim();
+
+  if (trimmedId.length === 0) {
+    return [];
+  }
+
+  return [askCitedFindingBandIndexEntryFromOptionalBand(trimmedId, rawBand)];
+}
 
 export function buildAskCitedFindingBandIndex(
   findings: readonly QuickDecisionFinding[],
@@ -36,9 +74,30 @@ export function buildAskCitedFindingBandIndex(
       continue;
     }
 
+    const rawBand: unknown = finding.semanticSupportBand;
+
+    if (rawBand === null || rawBand === undefined) {
+      entries.push({
+        findingId,
+        band: null,
+        bandStored: false,
+      });
+      continue;
+    }
+
+    if (rawBand === "") {
+      entries.push({
+        findingId,
+        band: null,
+        bandStored: true,
+      });
+      continue;
+    }
+
     entries.push({
       findingId,
-      band: resolveDecisionGradeSemanticSupportBand(finding.semanticSupportBand),
+      band: normalizeFindingSemanticSupportBand(rawBand),
+      bandStored: true,
     });
   }
 
@@ -65,10 +124,15 @@ export function resolveWeakestAskCitedSemanticSupportBand(
   return weakest;
 }
 
-export function resolveWeakestAskCitedSemanticSupportBandForFindingIds(input: {
+export type AskCitedSemanticSupportBandResolution = {
+  readonly weakestBand: FindingSemanticSupportBandValue | null;
+  readonly hasMissingStoredBand: boolean;
+};
+
+export function resolveAskCitedSemanticSupportBandForFindingIds(input: {
   readonly index: readonly AskCitedFindingBandIndexEntry[];
   readonly referencedFindingIds: readonly string[];
-}): FindingSemanticSupportBandValue | null {
+}): AskCitedSemanticSupportBandResolution {
   const normalizedIds = new Set<string>();
 
   for (const rawId of input.referencedFindingIds) {
@@ -80,32 +144,68 @@ export function resolveWeakestAskCitedSemanticSupportBandForFindingIds(input: {
   }
 
   if (normalizedIds.size === 0) {
-    return null;
+    return { weakestBand: null, hasMissingStoredBand: false };
   }
 
   const matchedBands: FindingSemanticSupportBandValue[] = [];
+  let hasMissingStoredBand = false;
 
   for (const entry of input.index) {
     if (!normalizedIds.has(entry.findingId.trim().toLowerCase())) {
       continue;
     }
 
+    if (!entry.bandStored) {
+      hasMissingStoredBand = true;
+      continue;
+    }
+
+    if (entry.band === null) {
+      continue;
+    }
+
     matchedBands.push(entry.band);
   }
 
-  return resolveWeakestAskCitedSemanticSupportBand(matchedBands);
+  return {
+    weakestBand: resolveWeakestAskCitedSemanticSupportBand(matchedBands),
+    hasMissingStoredBand,
+  };
+}
+
+export function resolveWeakestAskCitedSemanticSupportBandForFindingIds(input: {
+  readonly index: readonly AskCitedFindingBandIndexEntry[];
+  readonly referencedFindingIds: readonly string[];
+}): FindingSemanticSupportBandValue | null {
+  return resolveAskCitedSemanticSupportBandForFindingIds(input).weakestBand;
 }
 
 export function formatAskCitedFindingsSemanticSupportBandFootnote(
-  weakestBand: FindingSemanticSupportBandValue | null,
+  resolution: AskCitedSemanticSupportBandResolution | FindingSemanticSupportBandValue | null,
 ): string | null {
-  if (weakestBand === null) {
+  if (resolution === null) {
     return null;
   }
 
-  return (
-    `Cited findings inherit the weakest semantic support band: ${weakestBand}. ` +
-    "Ask cannot sound more certain than that band. " +
-    ASK_CITED_FINDINGS_SEMANTIC_SUPPORT_NOT_SEALED_COPY
-  );
+  if (typeof resolution === "string") {
+    return (
+      `Cited findings inherit the weakest semantic support band: ${resolution}. ` +
+      "Ask cannot sound more certain than that band. " +
+      ASK_CITED_FINDINGS_SEMANTIC_SUPPORT_NOT_SEALED_COPY
+    );
+  }
+
+  if (resolution.hasMissingStoredBand) {
+    return (
+      `${FINDING_SEMANTIC_SUPPORT_BAND_NOT_STORED_COPY} ` +
+      "Ask cannot sound more certain than cited findings. " +
+      ASK_CITED_FINDINGS_SEMANTIC_SUPPORT_NOT_SEALED_COPY
+    );
+  }
+
+  if (resolution.weakestBand === null) {
+    return null;
+  }
+
+  return formatAskCitedFindingsSemanticSupportBandFootnote(resolution.weakestBand);
 }

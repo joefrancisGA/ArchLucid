@@ -2,7 +2,11 @@ import type { QuickDecisionFinding } from "@/lib/quick-decision-finding-from-det
 import {
   isDecisionGradeFinding,
 } from "@/lib/findings/review-detail-findings-classification-band";
-import { resolveDecisionGradeSemanticSupportBand } from "@/lib/findings/semantic-support-band-presentation";
+import {
+  FINDING_SEMANTIC_SUPPORT_BAND_NOT_STORED_COPY,
+  normalizeFindingSemanticSupportBand,
+  resolveDecisionGradeSemanticSupportBand,
+} from "@/lib/findings/semantic-support-band-presentation";
 import {
   shouldPresentSemanticSupportBandAsRehearsal,
   SIMULATOR_SEMANTIC_SUPPORT_BAND_REHEARSAL_LABEL,
@@ -14,6 +18,7 @@ export type SemanticSupportBandStampCounts = {
   readonly unchecked: number;
   readonly unsupported: number;
   readonly notScored: number;
+  readonly missingStoredBand: number;
   readonly decisionGradeTotal: number;
 };
 
@@ -24,6 +29,7 @@ export function countDecisionGradeSemanticSupportBands(
   let unchecked = 0;
   let unsupported = 0;
   let notScored = 0;
+  let missingStoredBand = 0;
   let decisionGradeTotal = 0;
 
   for (const finding of findings) {
@@ -32,7 +38,22 @@ export function countDecisionGradeSemanticSupportBands(
     }
 
     decisionGradeTotal += 1;
-    const band = resolveDecisionGradeSemanticSupportBand(finding.semanticSupportBand);
+    const rawBand: unknown = finding.semanticSupportBand;
+
+    if (rawBand === null || rawBand === undefined) {
+      missingStoredBand += 1;
+      continue;
+    }
+
+    if (rawBand === "") {
+      continue;
+    }
+
+    const band = normalizeFindingSemanticSupportBand(rawBand);
+
+    if (band === null) {
+      continue;
+    }
 
     if (band === "Supported") {
       supported += 1;
@@ -57,6 +78,7 @@ export function countDecisionGradeSemanticSupportBands(
     unchecked,
     unsupported,
     notScored,
+    missingStoredBand,
     decisionGradeTotal,
   };
 }
@@ -92,6 +114,7 @@ export function countDecisionGradeSemanticSupportBandsForPresentation(
     unchecked: 0,
     unsupported: 0,
     notScored: decisionGradeTotal,
+    missingStoredBand: 0,
     decisionGradeTotal,
   };
 }
@@ -153,6 +176,10 @@ export function formatStampSemanticSupportBandLine(
 
   if (options?.compact !== true && counts.notScored > 0) {
     segments.push(formatBandCountSegment("Not scored", counts.notScored));
+  }
+
+  if (counts.missingStoredBand > 0) {
+    segments.push(FINDING_SEMANTIC_SUPPORT_BAND_NOT_STORED_COPY);
   }
 
   const prefix = options?.compact === true ? "Semantic support:" : "Semantic support (decision-grade):";

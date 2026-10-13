@@ -121,6 +121,7 @@ internal static class InventoryPrivilegePathGraph
             OutgoingEdges = outgoing,
             ResourcesByArmId = resourcesByArmId,
             TagsByResourceRowId = tagsByResourceRowId,
+            PropertiesByResourceRowId = propertiesByResourceRowId,
             ManagedIdentityPrincipalByArmId = managedIdentityPrincipalByArmId,
         };
     }
@@ -283,6 +284,12 @@ internal sealed class InventoryPrivilegePathGraphSnapshot
         get;
         init;
     } = new Dictionary<Guid, List<AzureInventoryTagReadModel>>();
+
+    public IReadOnlyDictionary<Guid, List<AzureInventoryResourcePropertyReadModel>> PropertiesByResourceRowId
+    {
+        get;
+        init;
+    } = new Dictionary<Guid, List<AzureInventoryResourcePropertyReadModel>>();
 
     public IReadOnlyDictionary<string, string> ManagedIdentityPrincipalByArmId
     {

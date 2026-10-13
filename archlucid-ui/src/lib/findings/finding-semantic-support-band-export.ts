@@ -36,11 +36,11 @@ export type SemanticSupportBandExportStamp = {
   readonly stampLine: string | null;
 };
 
-export type FindingSemanticSupportBandExportInput = Pick<
-  QuickDecisionFinding,
-  "classification" | "semanticSupportBand"
-> &
-  Partial<Pick<QuickDecisionFinding, "insightDensityScore" | "semanticSupportBandScorerVersion">>;
+export type FindingSemanticSupportBandExportInput = Partial<
+  Pick<QuickDecisionFinding, "classification" | "insightDensityScore" | "semanticSupportBandScorerVersion">
+> & {
+  readonly semanticSupportBand?: FindingSemanticSupportBandValue | "" | null;
+};
 
 function isDecisionGradeForSemanticSupportExport(
   finding: FindingSemanticSupportBandExportInput,
@@ -63,13 +63,29 @@ export function resolveFindingSemanticSupportBandExportFields(
     return null;
   }
 
-  const semanticSupportBand = normalizeFindingSemanticSupportBand(finding.semanticSupportBand);
+  const rawBand: unknown = finding.semanticSupportBand;
+
+  if (rawBand === null || rawBand === undefined) {
+    return {
+      semanticSupportBand: "Semantic support band was not stored",
+      semanticSupportBandScorerVersion: "Semantic support band scorer version was not stored",
+    };
+  }
+
+  if (rawBand === "") {
+    return {
+      semanticSupportBand: "",
+      semanticSupportBandScorerVersion: resolveFindingSemanticSupportBandScorerVersion(finding),
+    };
+  }
+
+  const semanticSupportBand = normalizeFindingSemanticSupportBand(rawBand);
+
+  const fallbackBand = typeof rawBand === "string" ? rawBand : String(rawBand);
 
   return {
-    semanticSupportBand: semanticSupportBand ?? "Semantic support band was not stored",
-    semanticSupportBandScorerVersion: semanticSupportBand === null
-      ? "Semantic support band scorer version was not stored"
-      : resolveFindingSemanticSupportBandScorerVersion(finding),
+    semanticSupportBand: semanticSupportBand ?? fallbackBand,
+    semanticSupportBandScorerVersion: resolveFindingSemanticSupportBandScorerVersion(finding),
   };
 }
 

@@ -1,7 +1,10 @@
 import { expect, test } from "@playwright/test";
 
 import { clickThroughBlockingOverlays } from "./dismiss-blocking-modal-overlays";
-import { ensureFirstSessionPurposeChooserClosed } from "./live-seat-scope-assertions";
+import {
+  FIRST_SESSION_PURPOSE_CHOOSER_APPEARANCE_TIMEOUT_MS,
+  ensureFirstSessionPurposeChooserClosed,
+} from "./live-seat-scope-assertions";
 
 test("delayed first-session chooser does not block the wizard advance", async ({ page }) => {
   await page.setContent(`
@@ -52,4 +55,22 @@ test("delayed first-session chooser does not block the wizard advance", async ({
 
   expect(nextClicks).toBe(1);
   await expect(page.locator('div.fixed.inset-0.z-50[data-state="open"]')).toHaveCount(0);
+});
+
+test("absent first-session chooser does not consume the full dismiss budget", async ({ page }) => {
+  test.setTimeout(90_000);
+
+  await page.setContent(`
+    <main>
+      <button data-testid="operator-scope-switcher-trigger" type="button">Workspace</button>
+    </main>
+  `);
+
+  const startedMs = Date.now();
+
+  await ensureFirstSessionPurposeChooserClosed(page, 60_000);
+
+  const elapsedMs = Date.now() - startedMs;
+
+  expect(elapsedMs).toBeLessThan(FIRST_SESSION_PURPOSE_CHOOSER_APPEARANCE_TIMEOUT_MS + 5_000);
 });

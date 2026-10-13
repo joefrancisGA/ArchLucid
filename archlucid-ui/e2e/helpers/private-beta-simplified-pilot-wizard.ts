@@ -4,7 +4,7 @@ import {
   isArchitectureRequestCreateResponse,
   readCreatedRunIdFromArchitectureRequestCreate,
 } from "./architecture-request-create-response";
-import { liveE2eArchitectureDescription } from "./live-api-client";
+import { liveE2eArchitectureDescription, uniquePrivateBetaSystemName } from "./live-api-client";
 import { formatSimplifiedPilotWizardMountFailure } from "./simplified-pilot-wizard-mount-failure";
 import { clickThroughBlockingOverlays } from "./dismiss-blocking-modal-overlays";
 import {
@@ -68,11 +68,11 @@ export async function submitPrivateBetaSimplifiedPilotWizard(page: Page): Promis
   await expect(page.getByRole("textbox", { name: "System Name" })).toBeVisible({ timeout: 30_000 });
 
   const systemName = page.getByRole("textbox", { name: "System Name" });
-  const systemNameValue = (await systemName.inputValue()).trim();
 
-  if (systemNameValue.length === 0) {
-    await systemName.fill(`PrivateBetaInvitee-${Date.now()}`);
-  }
+  // Baseline wizard prefills CustomerWebApp. Earlier private-beta cases in the same SQL catalog
+  // already commit that name, and a timed-out first attempt still occupies it, so Playwright
+  // retry 409s with "A review named 'CustomerWebApp' already exists" unless this create is unique.
+  await systemName.fill(uniquePrivateBetaSystemName("PrivateBetaInvitee"));
 
   const description = page.getByRole("textbox", { name: "Description" });
   const descriptionText = (await description.inputValue()).trim();
@@ -118,6 +118,9 @@ export async function submitPrivateBetaSimplifiedPilotWizard(page: Page): Promis
     `POST /architecture/request failed ${String(createResp.status())}: ${bodyText}`,
   ).toBeTruthy();
 
+  // Async create admits with 202 + Location while LegacyRunStatus stays Created, so
+  // GET /v1/operations/run:{id} stays Pending. Polling for Succeeded times out after a
+  // successful pipeline (run 38402768097). Callers wait on the reviews list instead.
   return readCreatedRunIdFromArchitectureRequestCreate({
     status: createResp.status(),
     bodyText,

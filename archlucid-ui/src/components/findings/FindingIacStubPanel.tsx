@@ -37,14 +37,14 @@ export function FindingIacStubPanel(props: FindingIacStubPanelProps) {
   );
   const openRef = useRef(open);
   openRef.current = open;
-  const [iacStub, setIacStub] = useState<string | null>(
-    typeof props.initialIacStub === "string" && props.initialIacStub.trim().length > 0
-      ? props.initialIacStub.trim()
-      : null,
-  );
-  const [loaded, setLoaded] = useState(
-    typeof props.initialIacStub === "string" && props.initialIacStub.trim().length > 0,
-  );
+  const [iacStub, setIacStub] = useState<string | null>(() => {
+    if (props.initialIacStub === undefined) {
+      return null;
+    }
+
+    return props.initialIacStub;
+  });
+  const [loaded, setLoaded] = useState(props.initialIacStub !== undefined);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<{ message: string; correlationId: string | null } | null>(null);
 
@@ -150,13 +150,9 @@ export function FindingIacStubPanel(props: FindingIacStubPanelProps) {
         <OperatorApiProblem fallbackMessage={error.message} problem={null} correlationId={error.correlationId} />
       ) : null}
 
-      {loaded && !busy && (iacStub === null || iacStub.length === 0) ? (
+      {loaded && !busy && iacStub === null ? (
         <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
-          No IaC stub was generated for this finding. Enable{" "}
-          <code className={cn("rounded bg-neutral-100 px-1 py-0.5 font-mono dark:bg-neutral-800", OPERATOR_TYPOGRAPHY.helper)}>
-            AgentRuntime:GenerateIacStubs
-          </code>{" "}
-          and finalize the review to produce stubs on future runs.
+          IaC stub was not stored.
         </p>
       ) : null}
 

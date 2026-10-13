@@ -84,8 +84,12 @@ export function formatStructuralExecutionModeLabel(
 ): string {
   const raw = (payload as { structuralExecutionMode?: string | number } | null)?.structuralExecutionMode;
 
-  if (raw === undefined || raw === null || raw === "") {
-    return "Unknown";
+  if (raw === undefined || raw === null) {
+    return "Execution mode was not stored.";
+  }
+
+  if (raw === "") {
+    return "";
   }
 
   if (raw === 0 || raw === "0" || raw === "Simulator") {
@@ -121,9 +125,15 @@ export function isExternalSponsorPdfBlockedForExecutionMode(
     return true;
   }
 
+  const raw = (payload as { structuralExecutionMode?: string | number } | null)?.structuralExecutionMode;
+
+  if (raw === undefined || raw === null) {
+    return false;
+  }
+
   const label = formatStructuralExecutionModeLabel(payload);
 
-  if (label === "Unknown") {
+  if (label.length === 0) {
     return false;
   }
 

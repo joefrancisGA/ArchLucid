@@ -115,6 +115,121 @@ describe("AuditEvidenceLineageSpine", () => {
     expect(screen.queryByTestId("audit-evidence-positive-checkbox")).not.toBeInTheDocument();
   });
 
+  it("renders Verification failed and a remediation link for a failed latest attempt", () => {
+    const instanceId = "bbbbbbbb-cccc-dddd-eeee-ffffffffffff";
+    const lineage: AuditEvidenceLineageRecord = {
+      controlTitle: "Control title",
+      latestRemediationAttempt: {
+        instanceId,
+        status: "VerificationFailed",
+        controlId: "control-1",
+      },
+      requirementChains: [],
+    };
+
+    render(
+      <AuditEvidenceLineageSpine
+        lineage={lineage}
+        expanded
+        lineageContext={{
+          assessmentId: "assessment-1",
+          auditEvidenceSnapshotId: "snapshot-1",
+          controlId: "control-1",
+        }}
+      />,
+    );
+
+    expect(screen.getByText("Latest remediation attempt")).toBeInTheDocument();
+    expect(screen.getByText("Verification failed")).toBeInTheDocument();
+    const link = screen.getByTestId(`audit-evidence-spine-latest-remediation-attempt-link-${instanceId}`);
+    expect(link).toHaveAttribute("href", buildRemediationWorkbenchHref({ instanceId }));
+    expect(screen.queryByTestId("audit-evidence-positive-checkbox")).not.toBeInTheDocument();
+  });
+
+  it("renders Awaiting verification for a ChangeImplemented latest attempt", () => {
+    const instanceId = "cccccccc-dddd-eeee-ffff-000000000000";
+    const lineage: AuditEvidenceLineageRecord = {
+      controlTitle: "Control title",
+      latestRemediationAttempt: {
+        instanceId,
+        status: "ChangeImplemented",
+      },
+      requirementChains: [],
+    };
+
+    render(
+      <AuditEvidenceLineageSpine
+        lineage={lineage}
+        expanded
+        lineageContext={{
+          assessmentId: "assessment-1",
+          auditEvidenceSnapshotId: "snapshot-1",
+          controlId: "control-1",
+        }}
+      />,
+    );
+
+    expect(screen.getByText("Awaiting verification")).toBeInTheDocument();
+  });
+
+  it("does not render the latest attempt block when latestRemediationAttempt is null", () => {
+    const lineage: AuditEvidenceLineageRecord = {
+      controlTitle: "Control title",
+      latestRemediationAttempt: null,
+      requirementChains: [],
+    };
+
+    render(
+      <AuditEvidenceLineageSpine
+        lineage={lineage}
+        expanded
+        lineageContext={{
+          assessmentId: "assessment-1",
+          auditEvidenceSnapshotId: "snapshot-1",
+          controlId: "control-1",
+        }}
+      />,
+    );
+
+    expect(screen.queryByText("Latest remediation attempt")).not.toBeInTheDocument();
+    expect(screen.queryByTestId(/audit-evidence-spine-latest-remediation-attempt-/)).not.toBeInTheDocument();
+  });
+
+  it("does not duplicate an instance id already listed under verified remediation associations", () => {
+    const instanceId = "dddddddd-eeee-ffff-0000-111111111111";
+    const lineage: AuditEvidenceLineageRecord = {
+      controlTitle: "Control title",
+      verifiedRemediationAssociations: [
+        {
+          associationId: "assoc-1",
+          instanceId,
+          status: "Verified",
+        },
+      ],
+      latestRemediationAttempt: {
+        instanceId,
+        status: "Verified",
+      },
+      requirementChains: [],
+    };
+
+    render(
+      <AuditEvidenceLineageSpine
+        lineage={lineage}
+        expanded
+        lineageContext={{
+          assessmentId: "assessment-1",
+          auditEvidenceSnapshotId: "snapshot-1",
+          controlId: "control-1",
+        }}
+      />,
+    );
+
+    expect(screen.getByTestId(`audit-evidence-spine-verified-remediation-${instanceId}`)).toBeInTheDocument();
+    expect(screen.queryByTestId(`audit-evidence-spine-latest-remediation-attempt-${instanceId}`)).not.toBeInTheDocument();
+    expect(screen.getAllByText(instanceId)).toHaveLength(1);
+  });
+
   it("does not render verified remediation rows when the association list is empty", () => {
     const lineage: AuditEvidenceLineageRecord = {
       controlTitle: "Control title",

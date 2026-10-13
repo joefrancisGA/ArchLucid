@@ -55,7 +55,7 @@ export type FindingWorkItemBuildInput = {
   classification?: "DecisionGradeFinding" | "ChecklistCoverage" | null;
   /** Insight-density treatment when present (`FindingTreatment`: 0=Promote, 1=DemoteToChecklist). */
   treatment?: number | null;
-  semanticSupportBand?: FindingSemanticSupportBandValue | null;
+  semanticSupportBand?: FindingSemanticSupportBandValue | "" | null;
   semanticSupportBandScorerVersion?: string | null;
   /** Committed manifest version from inspect payload when available. */
   manifestVersion?: string | null;
@@ -83,7 +83,7 @@ export type TraceRowWorkItemInput = {
   classification?: "DecisionGradeFinding" | "ChecklistCoverage" | null;
   /** Insight-density treatment when present (`FindingTreatment`: 0=Promote, 1=DemoteToChecklist). */
   treatment?: number | null;
-  semanticSupportBand?: FindingSemanticSupportBandValue | null;
+  semanticSupportBand?: FindingSemanticSupportBandValue | "" | null;
   semanticSupportBandScorerVersion?: string | null;
   /** Pre-rendered honesty line for Working clipboard exports (FC-41). */
   coverageHonestyLine?: string | null;
@@ -101,6 +101,15 @@ export function na(value: string | null | undefined, missingLabel = "Not availab
   }
 
   return t;
+}
+
+/** Null/undefined → omission copy; stored empty string stays blank (polish P-01–P-05). */
+export function workItemStoredText(value: string | null | undefined, notStoredLabel: string): string {
+  if (value === null || value === undefined) {
+    return notStoredLabel;
+  }
+
+  return value;
 }
 
 export async function writeWorkItemBodyToClipboard(text: string): Promise<boolean> {

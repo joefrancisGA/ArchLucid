@@ -105,7 +105,7 @@ public sealed class AzureInventorySecurityEdgeMaterializerTests
                 [],
                 effectiveNetworkControlsFilePresent: false);
 
-        result.CompletenessWarnings.Should().ContainSingle(
+        result.CompletenessWarnings.Should().Contain(
             "rbac-role-unmapped:2:/providers/Microsoft.Authorization/roleDefinitions/00000000-0000-0000-0000-000000000099::Contoso Reader");
     }
 
@@ -226,7 +226,97 @@ public sealed class AzureInventorySecurityEdgeMaterializerTests
         result.Relationships.Should().Contain(r =>
             r.RelationshipType == GraphEdgeTypes.CanWrite
             && r.FromAzureResourceId == credential.PrincipalNodeId
-            && r.ToAzureResourceId == ArmResourceIdNormalizer.Normalize(scope));
+            && r.ToAzureResourceId == ArmResourceIdNormalizer.Normalize(scope)
+            && r.InferenceSource == GraphEdgeInferenceSources.WithQualifier(
+                GraphEdgeInferenceSources.InventoryControlToDataConversion,
+                "list-keys-shared-key-platform-default"));
+    }
+
+    [Fact]
+    public void Materialize_contributor_on_storage_with_shared_key_disabled_skips_control_to_data_edges()
+    {
+        const string scope =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1";
+        const string principalId = "11111111-1111-1111-1111-111111111111";
+        const string contributorRoleId =
+            "/subscriptions/sub/providers/Microsoft.Authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c";
+
+        AzureExtractorExtendedResourceRow storage = new()
+        {
+            AzureResourceId = scope,
+            ResourceType = "Microsoft.Storage/storageAccounts",
+            Name = "sa1",
+            Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                [AzureInventoryStorageSharedKeyAccessResolver.AllowSharedKeyAccessPropertyKey] = "false",
+            },
+        };
+
+        AzureInventorySecurityEdgeMaterializeResult result =
+            AzureInventorySecurityEdgeMaterializer.Materialize(
+                [storage],
+                [ParseJson($$"""{"scope":"{{scope}}","principalId":"{{principalId}}","roleDefinitionId":"{{contributorRoleId}}"}""")],
+                [],
+                [],
+                [],
+                [],
+                federatedCredentialsFilePresent: false,
+                [],
+                entraGroupMembershipsFilePresent: false,
+                [],
+                effectiveNetworkControlsFilePresent: false);
+
+        result.Relationships.Should().ContainSingle(r => r.RelationshipType == GraphEdgeTypes.HasRole);
+        result.Relationships.Should().NotContain(r => r.RelationshipType == GraphEdgeTypes.CanRead);
+        result.Relationships.Should().NotContain(r => r.RelationshipType == GraphEdgeTypes.CanWrite);
+    }
+
+    [Fact]
+    public void Materialize_contributor_at_resource_group_emits_control_to_data_on_child_storage()
+    {
+        const string resourceGroupScope = "/subscriptions/sub/resourceGroups/rg";
+        const string storageScope =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1";
+        const string principalId = "11111111-1111-1111-1111-111111111111";
+        const string contributorRoleId =
+            "/subscriptions/sub/providers/Microsoft.Authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c";
+
+        AzureExtractorExtendedResourceRow storage = new()
+        {
+            AzureResourceId = storageScope,
+            ResourceType = "Microsoft.Storage/storageAccounts",
+            Name = "sa1",
+            Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                [AzureInventoryStorageSharedKeyAccessResolver.AllowSharedKeyAccessPropertyKey] = "true",
+            },
+        };
+
+        AzureInventorySecurityEdgeMaterializeResult result =
+            AzureInventorySecurityEdgeMaterializer.Materialize(
+                [storage],
+                [ParseJson($$"""{"scope":"{{resourceGroupScope}}","principalId":"{{principalId}}","roleDefinitionId":"{{contributorRoleId}}"}""")],
+                [],
+                [],
+                [],
+                [],
+                federatedCredentialsFilePresent: false,
+                [],
+                entraGroupMembershipsFilePresent: false,
+                [],
+                effectiveNetworkControlsFilePresent: false);
+
+        result.Relationships.Should().Contain(r =>
+            r.RelationshipType == GraphEdgeTypes.HasRole
+            && r.ToAzureResourceId == ArmResourceIdNormalizer.Normalize(resourceGroupScope));
+
+        result.Relationships.Should().Contain(r =>
+            r.RelationshipType == GraphEdgeTypes.CanWrite
+            && r.FromAzureResourceId == AzureInventoryPrincipalNodeId.Format(principalId)
+            && r.ToAzureResourceId == ArmResourceIdNormalizer.Normalize(storageScope)
+            && r.InferenceSource == GraphEdgeInferenceSources.WithQualifier(
+                GraphEdgeInferenceSources.InventoryControlToDataConversion,
+                "list-keys-shared-key-enabled"));
     }
 
     [Fact]

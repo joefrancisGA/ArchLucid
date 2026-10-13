@@ -127,6 +127,24 @@ public interface IRemediationInstanceRepository
             await ListByFindingIdAsync(scope.TenantId, findingId, cancellationToken);
         return rows.Where(row => scope.Matches(row.TenantId, row.WorkspaceId, row.ProjectId)).ToList();
     }
+
+    /// <summary>
+    /// Instances in scope whose <see cref="RemediationInstanceRecord.ControlId"/> equals <paramref name="controlId"/>.
+    /// SQL overrides this so the filter is not a tenant-wide scan.
+    /// </summary>
+    async Task<IReadOnlyList<RemediationInstanceRecord>> ListByControlIdInScopeAsync(
+        ProjectScopeKey scope,
+        Guid controlId,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        IReadOnlyList<RemediationInstanceRecord> rows = await ListByScopeAsync(scope, cancellationToken);
+
+        return rows
+            .Where(row => row.ControlId == controlId)
+            .ToList();
+    }
 }
 
 public sealed record RemediationInstanceMutation

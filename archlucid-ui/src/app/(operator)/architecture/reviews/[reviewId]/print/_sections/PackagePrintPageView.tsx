@@ -29,6 +29,7 @@ import {
   PACKAGE_PRINT_MEETING_CAPTURE_SECTION_ID,
   REVIEW_MEETING_CAPTURE_DISCLAIMER,
   hasReviewMeetingCapture,
+  buildReviewMeetingCaptureMetaParts,
 } from "@/lib/reviews/review-meeting-capture-export";
 import {
   PACKAGE_PRINT_BACK_LABEL,
@@ -202,19 +203,23 @@ export function PackagePrintPageView(props: PackagePrintPageViewProps): React.JS
             {REVIEW_MEETING_CAPTURE_DISCLAIMER}
           </p>
           <ol className="m-0 list-decimal space-y-3 pl-5">
-            {meetingCaptureEntries.map((entry) => (
+            {meetingCaptureEntries.map((entry) => {
+              const meetingCaptureMeta = buildReviewMeetingCaptureMetaParts(entry);
+
+              return (
               <li key={`${entry.questionLabel}:${entry.answer}`} className="space-y-1">
                 <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
                   {entry.questionLabel}
                 </p>
                 <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{entry.answer}</p>
-                {entry.responderLabel !== null || entry.recordedAtLabel !== null ? (
+                {meetingCaptureMeta.length > 0 ? (
                   <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                    {[entry.responderLabel, entry.recordedAtLabel].filter(Boolean).join(" · ")}
+                    {meetingCaptureMeta.join(" · ")}
                   </p>
                 ) : null}
               </li>
-            ))}
+              );
+            })}
           </ol>
         </section>
       ) : null}

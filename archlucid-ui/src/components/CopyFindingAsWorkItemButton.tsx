@@ -25,8 +25,8 @@ import {
   writeWorkItemBodyToClipboard,
   type FindingWorkItemBuildInput,
 } from "@/lib/copy-finding-as-work-item";
-import { findingSemanticSupportBandFromTypedPayload } from "@/lib/findings/semantic-support-band-presentation";
 import { resolveFindingWorkItemCoverageHonesty, resolveTraceRowWorkItemCoverageHonesty } from "@/lib/copy-finding-as-work-item-coverage-honesty";
+import type { FindingSemanticSupportBandValue } from "@/lib/findings/semantic-support-band-presentation";
 import { resolveFindingInspectExportClassification, resolveFindingInspectExportTreatment } from "@/lib/findings/finding-inspect-export-classification";
 import { resolveFindingInspectCitationExportBlockedReason } from "@/lib/findings/finding-inspect-citation-export-gate";
 import { findingWorkItemSealedManifestCopyBlockedReason } from "@/lib/findings/finding-work-item-sealed-manifest-guard";
@@ -55,15 +55,25 @@ const QUICK_COPY_JIRA_ARIA = "Copy finding as Jira wiki markup to clipboard";
 
 function evidenceLinesFromInspectPayload(payload: FindingInspectPayload): string[] {
   return payload.evidence.map((e) => {
-    const base = e.excerpt?.trim() ?? e.artifactId?.trim() ?? "";
-    const lr = e.lineRange?.trim();
+    const excerptMissing = e.excerpt === null || e.excerpt === undefined;
+    const artifactMissing = e.artifactId === null || e.artifactId === undefined;
 
-    if (base.length === 0 && (lr === undefined || lr.length === 0)) {
-      return "Not available";
+    if (excerptMissing && artifactMissing) {
+      return "Evidence excerpt was not stored.";
     }
 
+    let base = "";
+
+    if (!excerptMissing) {
+      base = e.excerpt ?? "";
+    } else if (!artifactMissing) {
+      base = e.artifactId ?? "";
+    }
+
+    const lr = e.lineRange?.trim();
+
     if (lr !== undefined && lr.length > 0) {
-      return `${base.length > 0 ? base : "(citation)"} (${lr})`;
+      return `${base} (${lr})`;
     }
 
     return base;
@@ -107,7 +117,10 @@ function buildFindingWorkItemInput(
     trustLabelReason: payload.trustLabelReason ?? null,
     classification,
     treatment,
-    semanticSupportBand: findingSemanticSupportBandFromTypedPayload(typedPayload, classification),
+    semanticSupportBand:
+      typedPayload === null || typedPayload === undefined
+        ? null
+        : (typedPayload.semanticSupportBand as FindingSemanticSupportBandValue | "" | null | undefined) ?? null,
     manifestVersion: payload.manifestVersion ?? null,
     includeCoverageHonesty,
     productLineId,

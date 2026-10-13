@@ -53,6 +53,7 @@ public sealed partial class AuthorityRunOrchestrator
             if (request.RunId != Guid.Empty)
             {
                 run = await ResolvePreAllocatedRunHeaderAsync(scope, runId, pipelineCt);
+                await EnsureAdmittedRunCreateTimePinsIfMissingAsync(run, request, scope, uow, pipelineCt);
                 LogAgentExecutionStateTransition(run.RunId, "async_create_admitted", "run_persisted", "(none)");
             }
             else
@@ -168,6 +169,9 @@ public sealed partial class AuthorityRunOrchestrator
                     "Enlisted unit of work is only supported when async authority pipeline queue mode is active. "
                     + "Enable FeatureManagement:FeatureFlags:AsyncAuthorityPipeline for SQL storage.");
             }
+
+            // Persist trace + provenance before stages set GoldenManifestId (committed-header seal).
+            await PersistRunHeaderEvidenceAnchorsBeforePipelineStagesAsync(run, request, uow, pipelineCt);
 
             // Commit the run persist so the lock is released; otherwise, audit events in stages will deadlock.
             await CommitUnitOfWorkWithTransientRetryAsync(uow, pipelineCt);

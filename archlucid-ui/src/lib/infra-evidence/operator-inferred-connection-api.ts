@@ -10,8 +10,8 @@ function mapRow(raw: Record<string, unknown>): OperatorInferredConnectionRow {
   return {
     connectionId: typeof raw.connectionId === "string" ? raw.connectionId : "",
     snapshotId: typeof raw.snapshotId === "string" ? raw.snapshotId : "",
-    status: (typeof raw.status === "string" ? raw.status : "Proposed") as OperatorInferredConnectionRow["status"],
-    source: (typeof raw.source === "string" ? raw.source : "upload") as OperatorInferredConnectionRow["source"],
+    status: typeof raw.status === "string" ? raw.status as OperatorInferredConnectionRow["status"] : null,
+    source: typeof raw.source === "string" ? raw.source as OperatorInferredConnectionRow["source"] : null,
     ruleName: typeof raw.ruleName === "string" ? raw.ruleName : null,
     questionText: typeof raw.questionText === "string" ? raw.questionText : null,
     fromArmId: typeof raw.fromArmId === "string" ? raw.fromArmId : null,

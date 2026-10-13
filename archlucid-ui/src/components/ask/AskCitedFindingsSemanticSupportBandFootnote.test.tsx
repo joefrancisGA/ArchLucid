@@ -9,8 +9,8 @@ describe("AskCitedFindingsSemanticSupportBandFootnote", () => {
       <AskCitedFindingsSemanticSupportBandFootnote
         referencedFindingIds={["f-1", "f-2"]}
         findingBandIndex={[
-          { findingId: "f-1", band: "Supported" },
-          { findingId: "f-2", band: "Unsupported" },
+          { findingId: "f-1", band: "Supported", bandStored: true },
+          { findingId: "f-2", band: "Unsupported", bandStored: true },
         ]}
       />,
     );
@@ -24,7 +24,7 @@ describe("AskCitedFindingsSemanticSupportBandFootnote", () => {
     const { container } = render(
       <AskCitedFindingsSemanticSupportBandFootnote
         referencedFindingIds={["missing-id"]}
-        findingBandIndex={[{ findingId: "f-1", band: "Unsupported" }]}
+        findingBandIndex={[{ findingId: "f-1", band: "Unsupported", bandStored: true }]}
       />,
     );
 

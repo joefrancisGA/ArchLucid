@@ -21,8 +21,28 @@ export type RunDetailFirstScreenProofSummary = {
 function structuralExecutionModeLabel(payload: PilotRunDeltasProofSummaryJson | null): string {
   const raw = (payload as { structuralExecutionMode?: string | number } | null)?.structuralExecutionMode;
 
-  if (raw === undefined || raw === null || raw === "") {
-    return "Unknown";
+  if (raw === undefined || raw === null) {
+    return "Execution mode was not stored.";
+  }
+
+  if (raw === "") {
+    return "";
+  }
+
+  if (raw === 0 || raw === "0" || raw === "Simulator") {
+    return "Simulator";
+  }
+
+  if (raw === 1 || raw === "1" || raw === "Real") {
+    return "Real";
+  }
+
+  if (raw === 2 || raw === "2" || raw === "Fallback") {
+    return "Fallback";
+  }
+
+  if (raw === 3 || raw === "3" || raw === "Mixed") {
+    return "Mixed";
   }
 
   return String(raw);
@@ -93,13 +113,23 @@ function governedCoverageLabel(
     return "Not available";
   }
 
-  const governed = coverage.governedCount ?? 0;
-  const total = coverage.totalDecisionGradeCount ?? 0;
+  const governedCount = coverage.governedCount;
+  const totalCount = coverage.totalDecisionGradeCount;
   const pct = coverage.governedPercentage;
-  const pctLabel = typeof pct === "number" ? `${pct.toFixed(1)}%` : "n/a";
   const noun = assertedTrailEmpty ? "governed" : "evidence-backed";
 
-  return `${governed} of ${total} ${noun} (${pctLabel})`;
+  if (governedCount === null || governedCount === undefined) {
+    return "Governed count was not stored.";
+  }
+
+  if (totalCount === null || totalCount === undefined) {
+    return "Decision-grade count was not stored.";
+  }
+
+  const pctLabel =
+    pct === null || pct === undefined ? "Governed percentage was not stored." : `${pct.toFixed(1)}%`;
+
+  return `${governedCount} of ${totalCount} ${noun} (${pctLabel})`;
 }
 
 function buildWhySafeToSendBullets(

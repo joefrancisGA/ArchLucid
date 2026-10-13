@@ -1,11 +1,17 @@
 import type { BulkEvidenceFileOutcome } from "@/lib/bulk-evidence-upload-outcome";
 
+export const RUN_DETAIL_CAPTURED_EVIDENCE_UPLOADED_TIME_NOT_STORED_COPY =
+  "Uploaded time was not stored." as const;
+
+export const RUN_DETAIL_CAPTURED_EVIDENCE_FILE_NAME_NOT_STORED_COPY =
+  "File name was not stored." as const;
+
 export type RunDetailCreateHomeCapturedEvidenceItem = {
   readonly key: string;
   readonly fileName: string;
-  readonly ingestedUtc: string;
+  readonly ingestedUtc: string | null;
   readonly evidenceItemId?: string | null;
-  readonly contentType?: string;
+  readonly contentType?: string | null;
 };
 
 const CAPTURED_EVIDENCE_STORAGE_PREFIX = "archlucid_create_home_captured_evidence_v1_";
@@ -40,16 +46,29 @@ export function readPersistedCapturedEvidenceInventory(
       return [];
     }
 
-    return parsed.filter(
-      (item) =>
-        typeof item?.key === "string"
-        && item.key.trim().length > 0
-        && typeof item?.fileName === "string"
-        && item.fileName.trim().length > 0
-        && typeof item?.ingestedUtc === "string"
-        && item.ingestedUtc.trim().length > 0
-        && !Number.isNaN(Date.parse(item.ingestedUtc)),
-    );
+    return parsed.filter((item) => {
+      if (typeof item?.key !== "string" || item.key.trim().length === 0) {
+        return false;
+      }
+
+      if (typeof item?.fileName !== "string") {
+        return false;
+      }
+
+      if (item.ingestedUtc === null || item.ingestedUtc === undefined) {
+        return true;
+      }
+
+      if (typeof item.ingestedUtc !== "string") {
+        return false;
+      }
+
+      if (item.ingestedUtc.length === 0) {
+        return true;
+      }
+
+      return !Number.isNaN(Date.parse(item.ingestedUtc));
+    });
   } catch {
     return [];
   }
@@ -100,9 +119,9 @@ export function deriveCapturedEvidenceFromCatalog(
     .map((entry) => ({
       key: entry.evidenceItemId,
       fileName: entry.originalFileName,
-      ingestedUtc: entry.createdUtc ?? new Date().toISOString(),
+      ingestedUtc: entry.createdUtc ?? null,
       evidenceItemId: entry.evidenceItemId,
-      contentType: entry.contentType,
+      contentType: entry.contentType ?? null,
     }))
     .sort((left, right) => left.fileName.localeCompare(right.fileName, undefined, { sensitivity: "base" }));
 }
@@ -121,13 +140,18 @@ export function mergeCapturedEvidenceUploadOutcomes(
       continue;
     }
 
-    const fileName = outcome.fileName.trim().length > 0 ? outcome.fileName.trim() : "upload";
+    const fileName =
+      outcome.fileName === null || outcome.fileName === undefined
+        ? RUN_DETAIL_CAPTURED_EVIDENCE_FILE_NAME_NOT_STORED_COPY
+        : outcome.fileName;
     const evidenceItemId = evidenceItemIds[evidenceIdIndex] ?? null;
 
     evidenceIdIndex += 1;
 
-    map.set(fileName.toLowerCase(), {
-      key: evidenceItemId ?? `upload:${fileName.toLowerCase()}`,
+    const mapKey = fileName.trim().length > 0 ? fileName.toLowerCase() : `upload:${evidenceIdIndex}`;
+
+    map.set(mapKey, {
+      key: evidenceItemId ?? `upload:${mapKey}`,
       fileName,
       ingestedUtc,
       evidenceItemId,

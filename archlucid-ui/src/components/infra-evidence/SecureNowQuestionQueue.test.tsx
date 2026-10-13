@@ -103,6 +103,7 @@ describe("SecureNowQuestionQueue", () => {
     fireEvent.click(await screen.findByRole("button", { name: "Review" }));
     fireEvent.click(screen.getByRole("button", { name: "Answered", exact: true }));
 
+    expect(screen.getByTestId("infra-diagrams-question-answer")).toHaveTextContent("Name the peer");
     expect(screen.getByTestId("infra-diagrams-question-answer")).toHaveTextContent("Operator selected the peer.");
     expect(screen.getByRole("button", { name: "Answered", exact: true })).toBeInTheDocument();
   });
@@ -117,38 +118,46 @@ describe("SecureNowQuestionQueue", () => {
     fireEvent.click(await screen.findByRole("button", { name: "Review" }));
     fireEvent.click(screen.getByRole("button", { name: "Answered", exact: true }));
 
+    expect(screen.getByTestId("infra-diagrams-question-answer")).toHaveTextContent("Answer code was not stored.");
+    expect(screen.getByTestId("infra-diagrams-question-answer")).not.toHaveTextContent("Answer text was not stored.");
     expect(screen.getByTestId("infra-diagrams-question-answer")).toHaveTextContent(
       "Disposition reason was not stored.",
     );
-    expect(screen.getByTestId("infra-diagrams-question-answer")).not.toHaveTextContent(
-      "Stored answer was not on this question",
-    );
   });
 
-  it("explains when a non-open question has no stored answer", async () => {
+  it("explains when a non-open question has no stored answer (P-20)", async () => {
     mocks.listQuestions.mockResolvedValue([question, { ...question, status: "Answered" }]);
 
     render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
     fireEvent.click(await screen.findByRole("button", { name: "Review" }));
     fireEvent.click(screen.getByRole("button", { name: "Answered", exact: true }));
 
-    expect(screen.getByTestId("infra-diagrams-question-answer")).toHaveTextContent("Disposition reason was not stored.");
+    const answerPanel = screen.getByTestId("infra-diagrams-question-answer");
+    expect(answerPanel).toHaveTextContent("Answer code was not stored.");
+    expect(answerPanel).toHaveTextContent("Answer text was not stored.");
+    expect(answerPanel).toHaveTextContent("Disposition reason was not stored.");
   });
 
   it("shows a stored empty or missing disposition reason without changing open questions", async () => {
     mocks.listQuestions.mockResolvedValue([
       question,
-      { ...question, status: "Dismissed", reason: "" },
+      {
+        ...question,
+        status: "Dismissed",
+        reason: "",
+        answerCode: "NamePeer",
+        answerText: "Name the peer",
+      },
     ]);
 
     render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
     fireEvent.click(await screen.findByRole("button", { name: "Review" }));
     fireEvent.click(screen.getByRole("button", { name: "Dismissed", exact: true }));
 
-    expect(screen.getByTestId("infra-diagrams-question-answer")).toHaveTextContent("");
-    expect(screen.getByTestId("infra-diagrams-question-answer")).not.toHaveTextContent(
-      "Disposition reason was not stored.",
-    );
+    const answerPanel = screen.getByTestId("infra-diagrams-question-answer");
+    expect(answerPanel).not.toHaveTextContent("Answer code was not stored.");
+    expect(answerPanel).not.toHaveTextContent("Answer text was not stored.");
+    expect(answerPanel).not.toHaveTextContent("Disposition reason was not stored.");
   });
 
   it("labels missing subscription id and expiration status in details", async () => {

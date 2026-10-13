@@ -39,6 +39,18 @@ export type AuditEvidenceLineageVerifiedRemediationAssociation = {
   controlId?: string;
 };
 
+export type AuditEvidenceLineageLatestRemediationAttemptStatus =
+  | "VerificationFailed"
+  | "ChangeImplemented"
+  | "Verified";
+
+export type AuditEvidenceLineageLatestRemediationAttempt = {
+  instanceId: string;
+  status: AuditEvidenceLineageLatestRemediationAttemptStatus;
+  controlId?: string;
+  updatedUtc?: string;
+};
+
 export type AuditEvidenceLineageRecord = {
   assessmentId?: string;
   auditEvidenceSnapshotId?: string;
@@ -52,4 +64,5 @@ export type AuditEvidenceLineageRecord = {
   evaluation?: AuditEvidenceLineageEvaluationNode | null;
   requirementChains?: AuditEvidenceLineageRequirementChain[];
   verifiedRemediationAssociations?: AuditEvidenceLineageVerifiedRemediationAssociation[];
+  latestRemediationAttempt?: AuditEvidenceLineageLatestRemediationAttempt | null;
 };

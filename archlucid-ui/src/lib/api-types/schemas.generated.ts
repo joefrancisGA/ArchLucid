@@ -1851,6 +1851,15 @@ export interface components {
             rawPointer?: null | string;
             selectorVersion?: string;
         };
+        AuditEvidenceLineageLatestRemediationAttempt: {
+            /** Format: uuid */
+            controlId?: string;
+            /** Format: uuid */
+            instanceId?: string;
+            status?: components["schemas"]["RemediationInstanceStatus"];
+            /** Format: date-time */
+            updatedUtc?: string;
+        };
         AuditEvidenceLineageRecord: {
             /** Format: uuid */
             assessmentId?: string;
@@ -1863,6 +1872,7 @@ export interface components {
             controlNumber?: string;
             controlTitle?: string;
             evaluation?: null | components["schemas"]["AuditEvidenceLineageEvaluationNode"];
+            latestRemediationAttempt?: null | components["schemas"]["AuditEvidenceLineageLatestRemediationAttempt"];
             readyForPositiveCheckbox?: boolean;
             requirementChains?: components["schemas"]["AuditEvidenceLineageRequirementChain"][];
             snapshotHashVerified?: boolean;
