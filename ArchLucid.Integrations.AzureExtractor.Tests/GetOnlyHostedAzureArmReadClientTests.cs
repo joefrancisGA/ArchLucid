@@ -2106,6 +2106,60 @@ public sealed class GetOnlyHostedAzureArmReadClientTests
     }
 
     [Fact]
+    public async Task ListSubscriptionDefenderSummariesAsync_retains_best_score_when_max_pagination_limit_reached()
+    {
+        const string subscriptionId = "11111111-1111-1111-1111-111111111111";
+        int requestCount = 0;
+
+        HttpMessageHandler handler = new RecordingHandler(
+            (_, _) =>
+            {
+                int page = Interlocked.Increment(ref requestCount);
+                string? nextLink = page < 64
+                    ? $"https://management.azure.com/subscriptions/{subscriptionId}/providers/Microsoft.Security/secureScores?api-version=2020-01-01&$skiptoken=page-{page}"
+                    : null;
+
+                string nextLinkJson = nextLink is null ? "null" : $"\"{nextLink}\"";
+                double percentage = page / 100.0;
+
+                string body = $$"""
+                                  {
+                                    "value": [
+                                      {
+                                        "name": "subscriptionScore",
+                                        "properties": {
+                                          "score": {
+                                            "percentage": {{percentage}}
+                                          }
+                                        }
+                                      }
+                                    ],
+                                    "nextLink": {{nextLinkJson}}
+                                  }
+                                  """;
+
+                return Task.FromResult(
+                    new HttpResponseMessage(HttpStatusCode.OK)
+                    {
+                        Content = new StringContent(body)
+                    });
+            });
+
+        HttpClient httpClient = new(handler);
+        GetOnlyHostedAzureArmReadClient client = new(httpClient, NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+
+        IReadOnlyList<HostedAzureArmDefenderSummaryRecord> summaries =
+            await client.ListSubscriptionDefenderSummariesAsync(
+                "token-abc",
+                subscriptionId,
+                CancellationToken.None);
+
+        Assert.Equal(64, requestCount);
+        Assert.Single(summaries);
+        Assert.Equal(64, summaries[0].SecureScore);
+    }
+
+    [Fact]
     public async Task ListSubscriptionDefenderSummariesAsync_throws_when_next_link_targets_different_subscription()
     {
         const string requestedSubscriptionId = "11111111-1111-1111-1111-111111111111";

@@ -26,6 +26,8 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
     private const string ReplicationProtectedItemsApiVersion = "2021-11-01";
     private const int MaxPaginationRequests = 64;
 
+    private static bool ShouldBreakForPageCap(int requestCount) => requestCount > MaxPaginationRequests;
+
     private readonly HttpClient _httpClient =
         httpClient ?? throw new ArgumentNullException(nameof(httpClient));
 
@@ -58,7 +60,7 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
 
             requestCount++;
 
-            if (requestCount > MaxPaginationRequests)
+            if (ShouldBreakForPageCap(requestCount))
             {
                 break;
             }
@@ -167,10 +169,9 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
 
             requestCount++;
 
-            if (requestCount > MaxPaginationRequests)
+            if (ShouldBreakForPageCap(requestCount))
             {
-                throw new InvalidOperationException(
-                    $"Hosted Azure extractor stopped ARM {listingKind} listing after {MaxPaginationRequests} pages.");
+                break;
             }
 
             using HttpRequestMessage request = new(HttpMethod.Get, nextLink);
@@ -256,10 +257,9 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
 
             requestCount++;
 
-            if (requestCount > MaxPaginationRequests)
+            if (ShouldBreakForPageCap(requestCount))
             {
-                throw new InvalidOperationException(
-                    $"Hosted Azure extractor stopped ARM role eligibility listing after {MaxPaginationRequests} pages.");
+                break;
             }
 
             using HttpRequestMessage request = new(HttpMethod.Get, nextLink);
@@ -418,10 +418,9 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
 
             requestCount++;
 
-            if (requestCount > MaxPaginationRequests)
+            if (ShouldBreakForPageCap(requestCount))
             {
-                throw new InvalidOperationException(
-                    $"Hosted Azure extractor stopped ARM management group subscription listing after {MaxPaginationRequests} pages.");
+                break;
             }
 
             using HttpRequestMessage request = new(HttpMethod.Get, nextLink);
@@ -559,10 +558,9 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
 
             requestCount++;
 
-            if (requestCount > MaxPaginationRequests)
+            if (ShouldBreakForPageCap(requestCount))
             {
-                throw new InvalidOperationException(
-                    $"Hosted Azure extractor stopped ARM {listingKind} listing after {MaxPaginationRequests} pages.");
+                break;
             }
 
             using HttpRequestMessage request = new(HttpMethod.Get, nextLink);
@@ -646,10 +644,9 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
 
             requestCount++;
 
-            if (requestCount > MaxPaginationRequests)
+            if (ShouldBreakForPageCap(requestCount))
             {
-                throw new InvalidOperationException(
-                    $"Hosted Azure extractor stopped ARM management group role eligibility listing after {MaxPaginationRequests} pages.");
+                break;
             }
 
             using HttpRequestMessage request = new(HttpMethod.Get, nextLink);
@@ -862,10 +859,9 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
 
             requestCount++;
 
-            if (requestCount > MaxPaginationRequests)
+            if (ShouldBreakForPageCap(requestCount))
             {
-                throw new InvalidOperationException(
-                    $"Hosted Azure extractor stopped Defender secure score listing after {MaxPaginationRequests} pages.");
+                break;
             }
 
             using HttpRequestMessage request = new(HttpMethod.Get, nextLink);
@@ -1036,10 +1032,9 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
 
             requestCount++;
 
-            if (requestCount > MaxPaginationRequests)
+            if (ShouldBreakForPageCap(requestCount))
             {
-                throw new InvalidOperationException(
-                    $"Hosted Azure extractor stopped ARM policy assignment listing after {MaxPaginationRequests} pages.");
+                break;
             }
 
             using HttpRequestMessage request = new(HttpMethod.Get, nextLink);

@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-13 seed hunt (seed→hit): `cloud-extractors` — promoted `GetOnlyHostedAzureArmReadClient.ListSubscriptionDefenderSummariesAsync` and consolidated remaining ARM read pagination loops on `ShouldBreakForPageCap`; reachable secureScores `nextLink` pagination that exceeded `MaxPaginationRequests` (64) threw and failed the extract instead of returning the best score already observed across prior pages; break at the cap across role/policy/MG/ADF/child/type-list readers (repeating `nextLink` guards unchanged); regression `ListSubscriptionDefenderSummariesAsync_retains_best_score_when_max_pagination_limit_reached`; AWS/GCP extractor tests passed 58/58; Azure extractor scope passed 157/157.
+
 2026-10-13 seed hunt (seed→hit): `cloud-extractors` — promoted `GetOnlyHostedAzureArmReadClient.ListSubscriptionResourcesAsync`; reachable subscription ARM `nextLink` pagination that exceeded `MaxPaginationRequests` (64) threw `InvalidOperationException` and failed the hosted extract instead of returning resource rows already collected from earlier pages; stop pagination at the cap while returning accumulated rows; regression `ListSubscriptionResourcesAsync_retains_resources_when_max_pagination_limit_reached`; AWS/GCP extractor tests passed 58/58; Azure extractor scope passed 156/156.
 
 2026-10-13 seed hunt (seed→hit): `cloud-extractors` — promoted `GcpAssetInventoryCollector.CollectFromRawPagesAsync`; reachable Asset Search pagination that exceeded `MaxPaginationRequests` (64) threw `InvalidOperationException` and failed the hosted extract instead of returning resource rows already collected from earlier pages; stop pagination at the cap while returning accumulated rows; regressions `CollectFromRawPagesAsync_retains_resources_when_max_pagination_limit_reached` and `CollectFromRawPagesAsync_stops_at_max_pages_without_throwing`; AWS/GCP extractor tests passed 58/58; Azure extractor scope passed 155/155.
@@ -31749,6 +31751,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ## Zone: cloud-extractors
 
+2026-10-13 seed hunt (seed→hit): promoted Defender secureScores pagination + `ShouldBreakForPageCap` across remaining ARM GET list loops; max-page throw dropped partial extract outcomes; regression `ListSubscriptionDefenderSummariesAsync_retains_best_score_when_max_pagination_limit_reached`; Azure scope 157/157; AWS/GCP 58/58.
+
 2026-10-13 seed hunt (seed→hit): promoted `GetOnlyHostedAzureArmReadClient.ListSubscriptionResourcesAsync`; exceeding `MaxPaginationRequests` threw and failed subscription inventory; break at page cap; regression `ListSubscriptionResourcesAsync_retains_resources_when_max_pagination_limit_reached`; Azure scope 156/156; AWS/GCP 58/58.
 
 2026-10-13 seed hunt (seed→hit): promoted `GcpAssetInventoryCollector.CollectFromRawPagesAsync`; exceeding `MaxPaginationRequests` threw and failed the extract instead of returning prior pages; break at page cap; regressions `CollectFromRawPagesAsync_retains_resources_when_max_pagination_limit_reached` and `CollectFromRawPagesAsync_stops_at_max_pages_without_throwing`; Azure scope 155/155; AWS/GCP 58/58.
@@ -31840,11 +31844,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** aws extractor; gcp extractor; azure extractor
 - **paths:** ArchLucid.Integrations.AwsExtractor/; ArchLucid.Integrations.GcpExtractor/; ArchLucid.Integrations.AzureExtractor/
 - **test-filter:** FullyQualifiedName~AwsExtractor|FullyQualifiedName~GcpExtractor|FullyQualifiedName~AzureExtractor
-- **hunts:** 127
-- **bugs-found:** 74
+- **hunts:** 128
+- **bugs-found:** 75
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-13
-- **last-bug:** 2026-10-13 — Azure subscription ARM listing max page cap threw and dropped prior pages
+- **last-bug:** 2026-10-13 — ARM read pagination max page cap threw and dropped partial extract results
 - **related-pd-tb:** none
 - **code-changed-since:** 1
 
@@ -31872,6 +31876,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ### Hypotheses
 
+- [x] (proven) `GetOnlyHostedAzureArmReadClient` ARM GET pagination loops — reachable `nextLink` pagination that exceeded `MaxPaginationRequests` (64) threw `InvalidOperationException` and failed hosted extracts instead of returning rows or aggregates already collected (Defender secureScores, policy assignments, role listings, ADF child lists, etc.) — **hit 2026-10-13 seed hunt:** `ShouldBreakForPageCap` stops pagination at the cap while returning accumulated results; regression `ListSubscriptionDefenderSummariesAsync_retains_best_score_when_max_pagination_limit_reached` (plus prior `ListSubscriptionResourcesAsync_retains_resources_when_max_pagination_limit_reached`).
 - [x] (proven) `GetOnlyHostedAzureArmReadClient.ListSubscriptionResourcesAsync` — reachable subscription ARM `nextLink` pagination that exceeded `MaxPaginationRequests` (64) threw `InvalidOperationException` and failed the hosted extract instead of returning resource rows already collected from earlier pages — **hit 2026-10-13 seed hunt:** stop pagination at the cap while returning accumulated resources; regression `ListSubscriptionResourcesAsync_retains_resources_when_max_pagination_limit_reached`.
 - [x] (proven) `GcpAssetInventoryCollector.CollectFromRawPagesAsync` — reachable Asset Search pagination that exceeded `MaxPaginationRequests` (64) threw `InvalidOperationException` and failed the hosted extract instead of returning resource rows already collected from earlier pages — **hit 2026-10-13 seed hunt:** stop pagination at the cap while returning accumulated resources; regressions `CollectFromRawPagesAsync_retains_resources_when_max_pagination_limit_reached` and `CollectFromRawPagesAsync_stops_at_max_pages_without_throwing`.
 - [x] (proven) `AwsResourceExplorerInventoryCollector.CollectAsync` — reachable Resource Explorer listings that exceeded `MaxPaginationRequests` (64) threw `InvalidOperationException` and discarded every resource row already collected from earlier pages — **hit 2026-10-13 seed hunt:** stop pagination at the cap while returning accumulated resources; regression `CollectAsync_retains_resources_when_max_pagination_limit_reached`.
