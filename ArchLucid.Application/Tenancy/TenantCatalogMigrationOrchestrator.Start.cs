@@ -43,6 +43,24 @@ public sealed partial class TenantCatalogMigrationOrchestrator
 
         bool appliedScopeFreezeSuspend = suspendOutcome == TenantSuspendOutcome.Applied;
 
+        TenantRecord? tenantBeforeInsert =
+            await _tenantRepository.GetByIdAsync(tenantId, cancellationToken).ConfigureAwait(false);
+
+        if (tenantBeforeInsert is null)
+            return (TenantCatalogMigrationCommandOutcome.NotFound, null);
+
+        if (tenantBeforeInsert.OffboardedUtc is not null)
+        {
+            if (appliedScopeFreezeSuspend)
+            {
+                await _tenantSuspendCommandService
+                    .TryUnsuspendAsync(tenantId, actorUserId, actorUserName, correlationId, cancellationToken)
+                    .ConfigureAwait(false);
+            }
+
+            return (TenantCatalogMigrationCommandOutcome.InErasureQuarantine, null);
+        }
+
         Guid migrationId = Guid.NewGuid();
 
         TenantCatalogMigrationRecord record = new()

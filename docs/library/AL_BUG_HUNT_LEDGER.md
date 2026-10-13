@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-13 seed hunt (seed→hit): `application-tenancy-lifecycle` — promoted `TenantCatalogMigrationOrchestrator.StartAsync`; erasure offboard after successful scope-freeze `TrySuspendAsync` but before `InsertAsync` still created an active catalog migration on a quarantined tenant; re-read before insert and return `InErasureQuarantine` without insert (compensating unsuspend when scope-freeze suspend applied); regression `StartAsync_returns_in_erasure_quarantine_when_offboard_completes_after_scope_freeze_suspend_before_insert`; 168 scoped tenancy tests passed.
+
 2026-10-13 seed hunt (seed→hit): `application-tenancy-lifecycle` — promoted `TenantErasureCommandService.TryOffboardTenantAsync`; quarantine restore after successful `TryStartTenantErasureOffboardAsync` and suspend still appended `TenantErasureOffboarded` audit and returned offboard result while erasure quarantine no longer applied; re-read before audit and return null without audit when `OffboardedUtc` is cleared; regression `TryOffboardTenantAsync_returns_null_without_audit_when_quarantine_restored_after_atomic_offboard_start`; 167 scoped tenancy tests passed.
 
 2026-10-13 seed hunt (seed→hit): `application-tenancy-lifecycle` — promoted `TenantErasureCommandService.TryClearLegalHoldAsync`; concurrent legal-hold set after successful `TryClearTenantErasureLegalHoldAsync` still appended `TenantErasureLegalHoldCleared` audit while hold remained active; re-read before audit and skip when `LegalHoldUntilUtc` is still set; regression `TryClearLegalHoldAsync_returns_success_without_audit_when_legal_hold_set_after_atomic_clear`; 166 scoped tenancy tests passed.
@@ -34571,11 +34573,15 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 64
-- **bugs-found:** 49
+- **hunts:** 65
+- **bugs-found:** 50
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-13
-- **last-bug:** 2026-10-13 — Erasure offboard audit after concurrent quarantine restore
+- **last-bug:** 2026-10-13 — Catalog migration start after concurrent erasure offboard
+
+2026-10-13 seed hunt (seed→hit): reseeded catalog migration after erasure offboard post-suspend race; proved `StartAsync` inserted migration when offboard completed after scope-freeze suspend; re-read before insert; regression `StartAsync_returns_in_erasure_quarantine_when_offboard_completes_after_scope_freeze_suspend_before_insert`; 168 scoped tenancy tests passed.
+
+- [x] (proven) `TenantCatalogMigrationOrchestrator.StartAsync` — inserted active migration when erasure offboard completed after scope-freeze suspend — **hit 2026-10-13 seed hunt (seed→hit):** re-read tenant before `InsertAsync` and return `InErasureQuarantine` without migration record; compensating unsuspend when scope-freeze suspend was applied; regression `StartAsync_returns_in_erasure_quarantine_when_offboard_completes_after_scope_freeze_suspend_before_insert`.
 
 2026-10-13 seed hunt (seed→hit): reseeded erasure commands after clear-hold post-atomic race fix; proved `TryOffboardTenantAsync` emitted offboard audit when restore cleared quarantine after atomic start; re-read before audit; regression `TryOffboardTenantAsync_returns_null_without_audit_when_quarantine_restored_after_atomic_offboard_start`; 167 scoped tenancy tests passed.
 
@@ -34707,6 +34713,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) `TrialLifecycleTransitionEngine.TryAdvanceTenantAsync` hard-purged offboarded trial tenants on `Deleted` transition without honoring erasure quarantine — **hit 2026-09-04 (#709):** scheduler advanced `ExportOnly` tenants with `OffboardedUtc` set to `Deleted` and called `ITenantHardPurgeService` despite active legal hold; fixed by skipping automation when `OffboardedUtc` is set (`TryAdvanceTenantAsync_when_tenant_is_offboarded_does_not_advance_or_purge`, `IsTrialLifecycleAutomationCandidate_excludes_offboarded_tenants`).
 - [x] (proven) `TrialLifecyclePolicy.TryGetNextAdvancement` used Ordinal `TrialStatus` compares so lowercase or padded lifecycle labels never advanced — **hit 2026-09-05 (#808):** tenants with `active` trial status stalled past expiry while email and packaging layers already used `TrialLifecycleStatus.EqualsStatus`; fixed in policy and `ComputeDaysRemainingForStatusDisplay` (`TrialLifecyclePolicyTests`, `TrialLifecycleTransitionEngineTests`).
 - [x] (proven) `TenantCatalogMigrationOrchestrator.StartAsync` left tenant suspended without active migration when `InsertAsync` failed after scope-freeze suspend — **hit 2026-09-07 (#1164):** suspend ran before insert with no compensating unsuspend; fixed by rolling back scope-freeze suspend when insert throws while preserving admin-pre-suspended tenants (`StartAsync_unsuspends_when_migration_insert_fails_after_scope_freeze_suspend`, `StartAsync_preserves_admin_suspend_when_migration_insert_fails`).
+- [x] (proven) `TenantCatalogMigrationOrchestrator.StartAsync` — inserted active migration when erasure offboard completed after scope-freeze suspend — **hit 2026-10-13 seed hunt (seed→hit):** re-read before `InsertAsync`; regression `StartAsync_returns_in_erasure_quarantine_when_offboard_completes_after_scope_freeze_suspend_before_insert`.
 - [x] (proven) `TrialLifecycleTransitionEngine.TryAdvanceTenantAsync` ignored active `LegalHoldUntilUtc` when tenant is not offboarded — **hit 2026-09-07 (#1247):** platform admin `AdminTenantsController` sets legal hold with `requireErasureQuarantine: false`; scheduler still advanced `ExportOnly` → `Deleted` and invoked hard purge; fixed by skipping automation when `LegalHoldUntilUtc > utcNow`; regression `TryAdvanceTenantAsync_when_active_legal_hold_skips_export_only_to_deleted_purge`.
 - [x] (valid-no-repro) `TenantWorkOwnershipDeletePolicyService.GetAllowCreatorDeleteOwnedWorkAsync` fail-opens to allow delete when stored boolean is malformed — **cheap-disproof 2026-09-07 (#1247):** only `SetAllowCreatorDeleteOwnedWorkAsync` writes the key via `TenantSettingBooleanParser.Format`; malformed stored values require out-of-band DB tampering, not tenant-controlled input; default-allow on missing setting is documented product behavior.
 
