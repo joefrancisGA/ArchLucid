@@ -8616,3 +8616,4 @@
 {"at":"2026-10-13T00:03:25.9553452Z","zoneId":"application-billing-logic","outcome":"seed-only","productLine":"archlucid-shared","paths":["@(ArchLucid.Application/Billing/)"]}
 {"at":"2026-10-13T00:05:40.4367437Z","zoneId":"ui-governance-findings-queue","outcome":"hit","productLine":"securenow","paths":["@(archlucid-ui/src/app/(operator)/governance/findings/)"]}
 {"at":"2026-10-13T00:19:06.9961458Z","zoneId":"archlucid-core","outcome":"seed-only","productLine":"archlucid-shared","paths":["@(docs/library/AL_BUG_HUNT_LEDGER.md)"]}
+{"at":"2026-10-13T00:32:11.9216044Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit","productLine":"archlucid-shared","paths":["@(ArchLucid.Api/Controllers/Governance/GovernanceController.Logging.cs,ArchLucid.Api.Tests/GovernanceControllerRunHistoryScopeTests.cs)"]}

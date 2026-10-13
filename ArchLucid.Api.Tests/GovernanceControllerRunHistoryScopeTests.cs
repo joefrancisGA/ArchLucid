@@ -1625,6 +1625,75 @@ public sealed class GovernanceControllerRunHistoryScopeTests
     }
 
     [Fact]
+    public async Task SubmitApprovalRequest_logs_actor_context_id_in_audit_when_display_name_differs()
+    {
+        Guid runId = Guid.Parse("33333333-3333-3333-3333-333333333333");
+        const string displayName = "Pat Operator";
+        const string actorKey = "jwt:11111111-2222-3333-4444-555555555555:aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee";
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(Scope, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunRecord { RunId = runId });
+
+        Mock<IGovernanceWorkflowFacade> workflow = new();
+        workflow
+            .Setup(w => w.SubmitApprovalRequestAsync(
+                runId.ToString("D"),
+                "1",
+                "dev",
+                "test",
+                displayName,
+                actorKey,
+                null,
+                false,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new GovernanceApprovalRequest
+            {
+                RunId = runId.ToString("D"),
+                ManifestVersion = "1",
+                SourceEnvironment = "dev",
+                TargetEnvironment = "test",
+            });
+
+        Mock<IActorContext> actor = new();
+        actor.Setup(a => a.GetActor()).Returns(displayName);
+        actor.Setup(a => a.GetActorId()).Returns(actorKey);
+
+        AuditEvent? captured = null;
+        Mock<IAuditService> audit = new();
+        audit
+            .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Callback<AuditEvent, CancellationToken>((auditEvent, _) => captured = auditEvent)
+            .Returns(Task.CompletedTask);
+
+        GovernanceController sut = CreateController(
+            runRepository: runs.Object,
+            workflowFacade: workflow.Object,
+            actorContext: actor.Object,
+            auditService: audit.Object);
+        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+        sut.ControllerContext.HttpContext.Request.Headers["Idempotency-Key"] = "submit-audit-actor-id-test";
+
+        IActionResult result = await sut.SubmitApprovalRequest(
+            new CreateGovernanceApprovalRequest
+            {
+                RunId = runId.ToString("D"),
+                ManifestVersion = "1",
+                SourceEnvironment = "dev",
+                TargetEnvironment = "test",
+            },
+            dryRun: false,
+            CancellationToken.None);
+
+        result.Should().BeOfType<OkObjectResult>();
+        captured.Should().NotBeNull();
+        captured!.ExplicitActor.Should().BeTrue();
+        captured.ActorUserId.Should().Be(actorKey);
+        captured.ActorUserName.Should().Be(displayName);
+    }
+
+    [Fact]
     public async Task SubmitApprovalRequest_accepts_padded_run_id_when_run_is_in_scope()
     {
         Guid runId = Guid.Parse("33333333-3333-3333-3333-333333333333");

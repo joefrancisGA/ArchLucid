@@ -172,6 +172,8 @@
 
 2026-10-12 seed hunt (seed-only): re-read the selected queue outcome/error, toolbar disclosure, scope banner, header actions, and focused client/table tests with no code churn since the prior pass. No fresh reachable mechanism-backed candidate met the hunt-ready bar. The focused desktop-table suite passed 9/9. No production or regression change.
 
+2026-10-13 seed hunt (seed→hit): `api-governance-tenancy-controllers` — `LogGovernanceApprovalRequestedAuditAsync` logged `IActorContext.GetActor()` as both `ActorUserId` and `ActorUserName` without `ExplicitActor`, so approval-request audits stored the display name (or `AuditService` overwrote with `NameIdentifier`) instead of the stable `jwt:{tid}:{oid}` key; use `GetActorId()` plus `ExplicitActor`; regression `SubmitApprovalRequest_logs_actor_context_id_in_audit_when_display_name_differs`; 141 scoped Governance/Tenancy controller unit tests passed (18 SQL integration unavailable on Linux VM).
+
 2026-10-12 seed hunt (seed-only): `architecture-recommendation` — re-read the recommendation engine and trade-off builder; retained five bounded candidates, but provisional-model behavior is upstream-gated, dimension-pair completeness lacks a contract, null collection elements lack a reachable caller contract, duplicate finding semantics are unspecified, and priority-list order has no established precedence contract. The exact Alternatives/ProposedChange filter passed 45/45. No production or regression change.
 
 2026-10-12 seed hunt (seed-only): `core-costing` — re-read `ArchLucid.Core/Costing/` and focused costing tests; no new reachable pricing, parser, normalization, or cancellation boundary met the hunt-ready bar. The scoped Costing filter passed 286 tests and retained 6 explicitly invalid extra-`k` week-UOM baseline failures. No production or regression change.
@@ -32149,6 +32151,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ## Zone: api-governance-tenancy-controllers
 
+2026-10-13 seed hunt (seed→hit): promoted `GovernanceController.LogGovernanceApprovalRequestedAuditAsync` — `POST /v1/governance/approval-requests` audit events used display identity for `ActorUserId` and omitted `ExplicitActor`; align with tenancy settings parity (`GetActorId()` + display name on `ActorUserName`); regression `SubmitApprovalRequest_logs_actor_context_id_in_audit_when_display_name_differs`; 141 scoped Governance/Tenancy controller unit tests passed (18 SQL integration unavailable on Linux VM).
+
 2026-10-12 seed hunt (seed-only): the picker exposed only this ledger path for the retired controller mega-zone; no source-backed locus, reachable input, or mechanism met the hunt-ready bar, so no candidate was promoted or invented. The scoped governance controller test command was aborted before discovery and produced no repro or result. No production or regression change.
 
 2026-10-11 seed hunt (seed-only): the picker exposed only this ledger path for the retired controller mega-zone; existing actor-id parity rows are closed and no new source-backed candidate or hunt-ready row could be seeded without inventing a hypothesis. The solution-level scoped filter was blocked by unrelated compile errors, and the direct API test project was blocked by existing `TenantTrialControllerTests` `IActorContext` compile errors. No production or regression change.
@@ -32171,11 +32175,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** governance controllers; tenancy controllers; retired mega-zone
 - **paths:** docs/library/AL_BUG_HUNT_LEDGER.md
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 324
-- **last-hunt:** 2026-10-12
-- **bugs-found:** 519
+- **hunts:** 325
+- **last-hunt:** 2026-10-13
+- **bugs-found:** 520
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-10 — trial lifecycle passed display name instead of actor-context id
+- **last-bug:** 2026-10-13 — governance approval-request audit used display name instead of actor-context id
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -32189,6 +32193,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `TenantBaselineController.PutAsync` — `string actor = User.Identity?.Name ?? "operator"` reused for audit `ActorUserId` and `ActorUserName` on manual-prep and review-cycle baseline puts — **hit 2026-10-08 seed hunt:** `IActorContext.GetActorId()` for stable `ActorUserId`; display name stays on `ActorUserName`; regression `PutAsync_audit_uses_actor_context_id_when_display_name_differs`; reachable `PUT /v1/tenant/baseline`.
 - [x] (proven) `TenantTrialController` — trial lifecycle calls passed `User.Identity?.Name ?? "admin"` as actor id (`TenantTrialController.cs` ~64, 96) without `IActorContext`; reachable `POST /v1/tenant/link-entra` and `/v1/tenant/convert` routes — **hit 2026-10-10 seed hunt:** inject `IActorContext` and pass the canonical actor id to the trial facade; regression `LinkEntraAsync_passes_stable_actor_id_to_trial_facade`.
 - [x] (proven) `TenantErasureLegalHoldController` — `SetLegalHoldAsync` and `ApproveErasureAsync` passed `ClaimTypes.NameIdentifier` as `actorUserId`, and `AppendPlatformAuditAsync` stored that string on `PlatformAuditEvent.ActorUserId` — **hit 2026-10-09 seed hunt:** `IActorContext.GetActorId()` for the stable id; display name stays `Identity.Name`; regressions `SetLegalHoldAsync_passes_actor_context_id_when_name_identifier_differs` and `ApproveErasureAsync_passes_actor_context_id_when_name_identifier_differs`; reachable `POST /v1/tenant/erasure/legal-hold` and `POST /v1/tenant/erasure/approve`.
+
+- [x] (proven) `GovernanceController.LogGovernanceApprovalRequestedAuditAsync` — `GovernanceApprovalRequested` audit used `IActorContext.GetActor()` for `ActorUserId` without `ExplicitActor`, breaking stable actor correlation on `POST /v1/governance/approval-requests` — **hit 2026-10-13 seed hunt:** `GetActorId()` + `ExplicitActor`; display name on `ActorUserName`; regression `SubmitApprovalRequest_logs_actor_context_id_in_audit_when_display_name_differs`.
 
 - [x] (proven) `TenantHomepageSettingsController.PutAsync` — audit `ActorUserId` used display name instead of actor context id — **hit 2026-10-06 seed hunt (seed→hit):** `IActorContext.GetActorId()` for `ActorUserId`; regression `PutAsync_audit_uses_actor_context_id_when_display_name_differs`.
 - [x] (invalid) `GovernanceController.BatchReviewApprovalRequests` — approval ids need run-id invisible-char normalizer — **cheap-disproof 2026-10-06 seed hunt:** `approvalRequestId` values are opaque workflow strings (e.g. `apr-…`), not governance run GUID literals.
