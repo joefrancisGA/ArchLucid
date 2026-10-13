@@ -150,6 +150,12 @@ public sealed class TrialTenantBootstrapService(
                     expires,
                     cancellationToken);
 
+                TenantRecord? tenantBeforeTrialProvisionedAudit =
+                    await _tenantRepository.GetByIdAsync(result.TenantId, cancellationToken).ConfigureAwait(false);
+
+                if (tenantBeforeTrialProvisionedAudit?.OffboardedUtc is not null)
+                    return;
+
                 string actor = auditActorEmail.Trim();
                 await _auditService.LogAsync(
                     new AuditEvent

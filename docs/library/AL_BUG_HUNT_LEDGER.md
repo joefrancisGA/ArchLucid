@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-13 seed hunt (seed→hit): `application-tenancy-lifecycle` — promoted `TrialTenantBootstrapService.TryBootstrapAfterSelfRegistrationAsync`; erasure offboard after `CommitSelfServiceTrialAsync` but before `TrialProvisioned` audit still appended trial-provisioned audit and enqueued architecture preseed on quarantined tenant; re-read tenant before audit and return without audit/preseed/metrics when `OffboardedUtc` is set; regression `TryBootstrapAfterSelfRegistrationAsync_skips_trial_provisioned_audit_when_offboard_completes_after_commit_before_audit`; 198 scoped tenancy tests passed.
+
 2026-10-13 seed hunt (seed→hit): `application-tenancy-lifecycle` — promoted `TenantProvisioningService.ProvisionAsync`; erasure offboard after catalog/workspace insert but before `TenantProvisioned` platform audit still appended provision audit on quarantined tenant; re-read tenant before audit and return provision result without audit when `OffboardedUtc` is set; regression `ProvisionAsync_returns_without_platform_audit_when_offboard_completes_after_workspace_insert_before_audit`; 197 scoped tenancy tests passed.
 
 2026-10-13 seed hunt (seed→hit): `application-tenancy-lifecycle` — promoted `TenantCatalogMigrationOrchestrator.RunProjectionRefreshAsync`; erasure offboard after `UpdateStageAsync` to `ProjectionRefresh` but before projection-refresh-completed audit still returned `Applied` and appended `TenantCatalogMigrationProjectionRefreshCompleted`; re-read after stage update; regression `RunProjectionRefreshAsync_returns_in_erasure_quarantine_without_refresh_audit_when_offboarded_after_stage_update`; 196 scoped tenancy tests passed.
@@ -34648,11 +34650,20 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 92
-- **bugs-found:** 77
+- **hunts:** 93
+- **bugs-found:** 78
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-13
-- **last-bug:** 2026-10-13 — Self-service provision audit after workspace insert race
+- **last-bug:** 2026-10-13 — Trial bootstrap provisioned audit after commit race
+
+2026-10-13 seed hunt (seed→hit): reseeded trial self-service bootstrap from `TrialTenantBootstrapService`; proved `TrialProvisioned` audit after commit when offboard followed trial AI budget provisioning; re-read before audit; regression `TryBootstrapAfterSelfRegistrationAsync_skips_trial_provisioned_audit_when_offboard_completes_after_commit_before_audit`; 198 scoped tenancy tests passed.
+
+- [x] (proven) `TrialTenantBootstrapService.TryBootstrapAfterSelfRegistrationAsync` — appended `TrialProvisioned` audit when erasure offboard completed after `CommitSelfServiceTrialAsync` — **hit 2026-10-13 seed hunt (seed→hit):** skip audit, preseed enqueue, and signup metric when `OffboardedUtc` is set on pre-audit re-read; regression `TryBootstrapAfterSelfRegistrationAsync_skips_trial_provisioned_audit_when_offboard_completes_after_commit_before_audit`.
+
+2026-10-13 seed hunt (seed-only): reseeded trial bootstrap failure paths; added candidates for `TrialSignupFailed` audits racing erasure quarantine on email-verification block and bootstrap catch paths.
+
+- (candidate) `TrialTenantBootstrapService.TryBootstrapAfterSelfRegistrationAsync` — `TrialSignupFailed` (`email_verification` / `policy_blocked`) audit appended when tenant already in erasure quarantine before email policy check completes; reachable from `/v1/register` followed by immediate operator offboard on the new tenant row.
+- (candidate) `TrialTenantBootstrapService.TryBootstrapAfterSelfRegistrationAsync` — `TrialSignupFailed` (`trial_bootstrap` catch) audit appended when erasure offboard completes after failed `CommitSelfServiceTrialAsync` but before failure audit; reachable from demo seed throwing after partial tenant row insert.
 
 2026-10-13 seed hunt (seed→hit): reseeded self-service provisioning from ledger candidate; proved `ProvisionAsync` appended `TenantProvisioned` after workspace insert when offboard followed catalog setup; re-read before audit; regression `ProvisionAsync_returns_without_platform_audit_when_offboard_completes_after_workspace_insert_before_audit`; 197 scoped tenancy tests passed.
 
@@ -35011,6 +35022,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (invalid) `TenantMigrationProjectionRefreshService` — projection refresh without orchestrator quarantine guard — **cheap-disproof 2026-10-13 seed hunt:** only `TenantCatalogMigrationOrchestrator.RunProjectionRefreshAsync` calls `RefreshAsync`; orchestrator already re-reads before refresh and after refresh/stage update.
 - [x] (invalid) `TenantOrganizationDuplicateDetector` — duplicate organization slug collision returns wrong tenant id on concurrent provision race — **cheap-disproof 2026-10-13 seed hunt:** `InsertTenantAsync` duplicate catch re-resolves via `ResolveExistingTenantForProvisionAsync` (normalized organization name, then slug) and returns that tenant id in `BuildAlreadyProvisionedResultAsync`; no alternate wrong-id path in `TenantOrganizationDuplicateDetector`.
 - [x] (invalid) `WorkspaceAllowedEngineSetService` — persisted engine allowlist read returns stale set when tenant setting upsert races concurrent workspace default change — **cheap-disproof 2026-10-13 seed hunt:** service reads `TenantSettingKeys.WorkspaceAllowedEngineAliases` per request; catalog default snapshot is not workspace-scoped and concurrent upserts are last-write-wins on one setting key without a distinct wrong security outcome in these files.
+- [x] (proven) `TrialTenantBootstrapService.TryBootstrapAfterSelfRegistrationAsync` — `TrialProvisioned` audit when erasure offboard after trial commit — **hit 2026-10-13 seed hunt (seed→hit):** regression `TryBootstrapAfterSelfRegistrationAsync_skips_trial_provisioned_audit_when_offboard_completes_after_commit_before_audit`.
 
 ---
 
