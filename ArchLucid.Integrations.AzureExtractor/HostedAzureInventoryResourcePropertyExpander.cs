@@ -475,24 +475,21 @@ properties["definition"] = AzureExtractorSensitivePropertyRedactor.RedactStructu
 
             foreach (JsonElement networkInterface in networkInterfaces.EnumerateArray())
             {
-                if (!networkInterface.TryGetProperty("id", out JsonElement idElement)
-                    || idElement.ValueKind is not JsonValueKind.String)
+                if (networkInterface.TryGetProperty("id", out JsonElement idElement)
+                    && idElement.ValueKind is JsonValueKind.String)
                 {
-                    continue;
+                    string? nicId = idElement.GetString();
+
+                    if (!string.IsNullOrWhiteSpace(nicId))
+                    {
+                        properties[$"networkInterfaces[{index}]"] = nicId.Trim();
+                    }
                 }
 
-                string? nicId = idElement.GetString();
-
-                if (string.IsNullOrWhiteSpace(nicId))
-                {
-                    continue;
-                }
-
-                properties[$"networkInterfaces[{index}]"] = nicId.Trim();
                 index++;
             }
 
-            if (index > 0)
+            if (properties.Keys.Any(key => key.StartsWith("networkInterfaces[", StringComparison.Ordinal)))
             {
                 properties["networkInterfaces"] = string.Join(
                     '|',

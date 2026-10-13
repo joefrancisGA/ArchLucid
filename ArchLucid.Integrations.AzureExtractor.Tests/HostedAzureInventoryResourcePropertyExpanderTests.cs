@@ -314,6 +314,35 @@ public sealed class HostedAzureInventoryResourcePropertyExpanderTests
     }
 
     [Fact]
+    public void Expand_preserves_private_endpoint_network_interface_index_when_earlier_slot_has_no_id()
+    {
+        const string nicId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/networkInterfaces/pe-nic";
+        const string json = """
+            {
+              "networkInterfaces": [
+                {
+                  "properties": {}
+                },
+                {
+                  "id": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/networkInterfaces/pe-nic"
+                }
+              ]
+            }
+            """;
+
+        using JsonDocument document = JsonDocument.Parse(json);
+        Dictionary<string, object?> properties = HostedAzureInventoryResourcePropertyExpander.Expand(
+            "Microsoft.Network/privateEndpoints",
+            document.RootElement,
+            []);
+
+        Assert.Equal(nicId, properties["networkInterfaces[1]"]);
+        Assert.False(properties.ContainsKey("networkInterfaces[0]"));
+        Assert.Equal(nicId, properties["networkInterfaces"]);
+    }
+
+    [Fact]
     public void Expand_persists_every_private_link_service_id_across_connection_arrays()
     {
         const string automaticTarget =
