@@ -65,6 +65,7 @@ public static class StrictSchemaVersionReader
         if (element.TryGetDouble(out double numeric)
             && double.IsFinite(numeric)
             && numeric >= 0
+            && numeric <= int.MaxValue
             && numeric == Math.Floor(numeric))
         {
             schemaVersion = (int)numeric;
@@ -94,6 +95,7 @@ public static class StrictSchemaVersionReader
         if (jsonValue.TryGetValue<double>(out double numeric)
             && double.IsFinite(numeric)
             && numeric >= 0
+            && numeric <= int.MaxValue
             && numeric == Math.Floor(numeric))
         {
             schemaVersion = (int)numeric;
@@ -125,6 +127,7 @@ public static class StrictSchemaVersionReader
         if (double.TryParse(trimmed, NumberStyles.Float, CultureInfo.InvariantCulture, out double numeric)
             && double.IsFinite(numeric)
             && numeric >= 0
+            && numeric <= int.MaxValue
             && numeric == Math.Floor(numeric))
         {
             value = (int)numeric;

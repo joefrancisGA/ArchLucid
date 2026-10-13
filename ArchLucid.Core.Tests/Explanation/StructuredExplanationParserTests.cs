@@ -218,6 +218,17 @@ public sealed class StructuredExplanationParserTests
     }
 
     [Fact]
+    public void TryNormalizeStructuredJson_defaults_schema_version_when_numeric_schema_version_exceeds_int_range()
+    {
+        const string json = """{"schemaVersion":1e300,"reasoning":"Main"}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.SchemaVersion.Should().Be(1);
+    }
+
+    [Fact]
     public void Parse_does_not_treat_json_with_string_encoded_confidence_as_plain_text()
     {
         const string json = """{"reasoning":"Main","confidence":"75"}""";
