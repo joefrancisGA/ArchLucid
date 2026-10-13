@@ -86,6 +86,12 @@ public sealed class TenantTrialConversionStage(
             TrialLifecycleStatus.Active,
             tier?.ToString() ?? "unspecified");
 
+        TenantRecord? tenantBeforeMark =
+            await _tenantRepository.GetByIdAsync(tenant.Id, cancellationToken).ConfigureAwait(false);
+
+        if (tenantBeforeMark?.OffboardedUtc is not null)
+            return new TenantTrialConvertResult { Outcome = TenantTrialHttpOutcome.Success };
+
         bool converted = await _tenantRepository
             .MarkTrialConvertedAsync(tenant.Id, tier, cancellationToken)
             .ConfigureAwait(false);

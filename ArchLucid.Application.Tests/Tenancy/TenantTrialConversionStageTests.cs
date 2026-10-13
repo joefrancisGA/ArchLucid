@@ -148,6 +148,7 @@ public sealed class TenantTrialConversionStageTests
             .ReturnsAsync(active)
             .ReturnsAsync(active)
             .ReturnsAsync(active)
+            .ReturnsAsync(active)
             .ReturnsAsync(offboarded);
         tenants
             .Setup(r => r.MarkTrialConvertedAsync(tenantId, It.IsAny<TenantTier?>(), It.IsAny<CancellationToken>()))
@@ -169,6 +170,58 @@ public sealed class TenantTrialConversionStageTests
         TenantTrialConvertResult result = await sut.ConvertTrialAsync(null, "actor", CancellationToken.None);
 
         result.Outcome.Should().Be(TenantTrialHttpOutcome.Success);
+        audit.Verify(
+            a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task ConvertTrialAsync_returns_success_without_mark_when_offboard_completes_after_conversion_metrics_before_mark()
+    {
+        Guid tenantId = Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff");
+        DateTimeOffset anchor = new(2026, 10, 13, 17, 0, 0, TimeSpan.Zero);
+        TenantRecord active = new()
+        {
+            Id = tenantId,
+            TrialStatus = TrialLifecycleStatus.Active,
+            Tier = TenantTier.Free,
+        };
+        TenantRecord offboarded = new()
+        {
+            Id = tenantId,
+            TrialStatus = TrialLifecycleStatus.Active,
+            Tier = TenantTier.Free,
+            OffboardedUtc = anchor,
+            ErasureEligibleUtc = anchor.AddDays(30),
+        };
+
+        Mock<ITenantRepository> tenants = new(MockBehavior.Strict);
+        tenants
+            .SetupSequence(r => r.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(active)
+            .ReturnsAsync(active)
+            .ReturnsAsync(active)
+            .ReturnsAsync(offboarded);
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider
+            .Setup(s => s.GetCurrentScope())
+            .Returns(new ScopeContext { TenantId = tenantId, WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() });
+
+        Mock<IAuditService> audit = new(MockBehavior.Strict);
+        Mock<IBillingTrialConversionGate> gate = new();
+        gate
+            .Setup(g => g.EnsureManualConversionAllowedAsync(tenantId, It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        TenantTrialConversionStage sut = new(tenants.Object, scopeProvider.Object, audit.Object, gate.Object);
+
+        TenantTrialConvertResult result = await sut.ConvertTrialAsync(null, "actor", CancellationToken.None);
+
+        result.Outcome.Should().Be(TenantTrialHttpOutcome.Success);
+        tenants.Verify(
+            r => r.MarkTrialConvertedAsync(It.IsAny<Guid>(), It.IsAny<TenantTier?>(), It.IsAny<CancellationToken>()),
+            Times.Never);
         audit.Verify(
             a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()),
             Times.Never);

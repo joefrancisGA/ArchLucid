@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-13 seed hunt (seed→hit): `application-tenancy-lifecycle` — promoted `TenantTrialConversionStage.ConvertTrialAsync` post-metrics trial mark path; `MarkTrialConvertedAsync` still ran when erasure offboard completed after `RecordTrialConversion` but before trial mark (pre-convert re-read only); pre-mark `GetByIdAsync` quarantine guard; regression `ConvertTrialAsync_returns_success_without_mark_when_offboard_completes_after_conversion_metrics_before_mark`; tightened post-mark audit race sequence; 227 scoped tenancy tests passed.
+
 2026-10-13 seed hunt (seed→hit): `application-tenancy-lifecycle` — promoted `TenantCatalogMigrationOrchestrator.RunProjectionRefreshAsync` pre-refresh-run path; `ITenantMigrationProjectionRefreshService.RefreshAsync` still ran when erasure offboard completed after entry tenant read but before refresh (entry quarantine re-read only); pre-refresh-run `GetByIdAsync` quarantine guard; regression `RunProjectionRefreshAsync_returns_in_erasure_quarantine_without_calling_refresh_when_offboarded_after_entry_before_refresh_run`; tightened downstream projection-refresh race sequences; 226 scoped tenancy tests passed.
 
 2026-10-13 seed hunt (seed→hit): `application-tenancy-lifecycle` — promoted `TenantCatalogMigrationOrchestrator.RunProjectionRefreshAsync` post-refresh stage-advance path; `UpdateStageAsync` to `ProjectionRefresh` still ran when erasure offboard completed after projection refresh but before stage advance (post-refresh re-read only); pre-stage-advance `GetByIdAsync` quarantine guard; regression `RunProjectionRefreshAsync_returns_in_erasure_quarantine_without_stage_update_when_offboarded_after_refresh_before_stage_advance`; tightened post-stage-update audit race sequence; 225 scoped tenancy tests passed.
@@ -34702,11 +34704,15 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 119
-- **bugs-found:** 104
+- **hunts:** 120
+- **bugs-found:** 105
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-13
-- **last-bug:** 2026-10-13 — Catalog migration projection refresh on quarantined tenant before refresh run
+- **last-bug:** 2026-10-13 — Trial conversion mark on quarantined tenant after conversion metrics
+
+2026-10-13 seed hunt (seed→hit): reseeded trial conversion post-metrics mark window; proved `MarkTrialConvertedAsync` when offboard followed conversion metrics; pre-mark tenant re-read; regression `ConvertTrialAsync_returns_success_without_mark_when_offboard_completes_after_conversion_metrics_before_mark`; 227 scoped tenancy tests passed.
+
+- [x] (proven) `TenantTrialConversionStage.ConvertTrialAsync` — `MarkTrialConvertedAsync` when erasure offboard after conversion metrics before trial mark — **hit 2026-10-13 seed hunt (seed→hit):** pre-mark `GetByIdAsync` quarantine guard; regression `ConvertTrialAsync_returns_success_without_mark_when_offboard_completes_after_conversion_metrics_before_mark`.
 
 2026-10-13 seed hunt (seed→hit): reseeded projection refresh pre-run window; proved `RefreshAsync` when offboard followed entry read; pre-refresh-run tenant re-read; regression `RunProjectionRefreshAsync_returns_in_erasure_quarantine_without_calling_refresh_when_offboarded_after_entry_before_refresh_run`; 226 scoped tenancy tests passed.
 
@@ -35204,6 +35210,12 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (invalid) `TenantOrganizationDuplicateDetector` — duplicate organization slug collision returns wrong tenant id on concurrent provision race — **cheap-disproof 2026-10-13 seed hunt:** `InsertTenantAsync` duplicate catch re-resolves via `ResolveExistingTenantForProvisionAsync` (normalized organization name, then slug) and returns that tenant id in `BuildAlreadyProvisionedResultAsync`; no alternate wrong-id path in `TenantOrganizationDuplicateDetector`.
 - [x] (invalid) `WorkspaceAllowedEngineSetService` — persisted engine allowlist read returns stale set when tenant setting upsert races concurrent workspace default change — **cheap-disproof 2026-10-13 seed hunt:** service reads `TenantSettingKeys.WorkspaceAllowedEngineAliases` per request; catalog default snapshot is not workspace-scoped and concurrent upserts are last-write-wins on one setting key without a distinct wrong security outcome in these files.
 - [x] (proven) `TrialTenantBootstrapService.TryBootstrapAfterSelfRegistrationAsync` — `TrialProvisioned` audit when erasure offboard after trial commit — **hit 2026-10-13 seed hunt (seed→hit):** regression `TryBootstrapAfterSelfRegistrationAsync_skips_trial_provisioned_audit_when_offboard_completes_after_commit_before_audit`.
+- [x] (proven) `TenantTrialConversionStage.ConvertTrialAsync` — `MarkTrialConvertedAsync` when erasure offboard after conversion metrics before trial mark — **hit 2026-10-13 seed hunt (seed→hit):** pre-mark `GetByIdAsync` quarantine guard; regression `ConvertTrialAsync_returns_success_without_mark_when_offboard_completes_after_conversion_metrics_before_mark`.
+- [ ] (candidate) `TenantTrialConversionStage.ConvertTrialAsync` — `RecordTrialConversion` when erasure offboard after pre-convert read but before conversion metrics — locus: `TenantTrialConversionStage.cs` after `tenantBeforeConvert` guard; input: operator offboard races manual trial convert after billing gate passes.
+- [ ] (candidate) `TenantCatalogMigrationOrchestrator.AcknowledgeCatalogAttachDetachAsync` — migration row remains at `CatalogAttachDetach` without attach audit when erasure offboard after `UpdateStageAsync` — locus: `Acknowledge.cs` returns quarantine after stage advance; input: offboard between stage update and post-stage tenant read (stage not rolled back by design).
+- [ ] (candidate) `TenantCatalogMigrationOrchestrator.RunVerificationAsync` — `UpdateStageAsync` to `Verification` when erasure offboard after failed probe persistence attempt — locus: verification stage paths in `VerifyComplete.cs`; input: offboard between mark-result and verification audit on failing probe.
+- [ ] (candidate) `TrialLifecycleTransitionEngine.TryAdvanceTenantAsync` — `TryRecordTrialLifecycleTransitionAsync` when erasure offboard after workspace resolution but before transition record — locus: `TrialLifecycleTransitionEngine.cs`; input: scheduler advance races tenant erasure offboard mid-transition.
+- [ ] (candidate) `TenantErasureCommandService.TryOffboardTenantAsync` — compensating `TryUnsuspendAsync` when erasure offboard revoked between atomic offboard start and side-effect audit — locus: `TenantErasureCommandService` offboard completion paths; input: quarantine restore races first-time offboard audit append.
 
 ---
 
