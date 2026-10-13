@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-13 seed hunt (seed→hit): `cloud-extractors` — promoted `HostedAzureArmNextLinkValidator` ARM pagination guards; reachable `nextLink` values on an untrusted host with an otherwise valid subscription listing path were followed with the ARM bearer token attached; require HTTPS and sovereign management endpoints via `HostedAzureArmTrustedManagementHosts`; regression `ListSubscriptionResourcesAsync_rejects_next_link_on_untrusted_host`; AWS/GCP extractor tests passed 81/81; Azure extractor scope passed 150/150.
+
 2026-10-13 seed hunt (seed→hit): `cloud-extractors` — promoted `EntraGroupMembershipGraphReader.EnsureNextLinkTargetsGroup`; reachable `@odata.nextLink` values using plain HTTP on a trusted Graph host were accepted and could carry the bearer token over an insecure transport; require HTTPS before host/path checks; regression `TryReadDirectMembershipsAsync_rejects_odata_next_link_without_https`; AWS/GCP extractor tests passed 81/81; Azure extractor scope passed 149/149.
 
 2026-10-13 seed hunt (seed→hit): `cloud-extractors` — promoted `EntraGroupMembershipGraphReader.EnsureNextLinkTargetsGroup`; reachable `@odata.nextLink` values on an untrusted host were followed with the Graph bearer token attached; allowlist Microsoft Graph sovereign endpoints via `EntraGroupMembershipGraphTrustedHosts`; regression `TryReadDirectMembershipsAsync_rejects_odata_next_link_on_untrusted_host`; AWS/GCP extractor tests passed 81/81; Azure extractor scope passed 148/148.
@@ -31797,11 +31799,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** aws extractor; gcp extractor; azure extractor
 - **paths:** ArchLucid.Integrations.AwsExtractor/; ArchLucid.Integrations.GcpExtractor/; ArchLucid.Integrations.AzureExtractor/
 - **test-filter:** FullyQualifiedName~AwsExtractor|FullyQualifiedName~GcpExtractor|FullyQualifiedName~AzureExtractor
-- **hunts:** 116
-- **bugs-found:** 63
+- **hunts:** 117
+- **bugs-found:** 64
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-13
-- **last-bug:** 2026-10-13 — Entra Graph nextLink HTTP on trusted host
+- **last-bug:** 2026-10-13 — ARM nextLink untrusted management host
 - **related-pd-tb:** none
 - **code-changed-since:** 1
 
@@ -31838,6 +31840,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (invalid) `HostedAzureInventoryResourcePropertyExpander.AddSiteWorkflowConnectionParameters` — an ARM Logic Apps resource with `properties.parameters.$connections` containing credential-bearing connection metadata is copied with `GetRawText()` into inventory properties without structured redaction; input originates from the reachable `Microsoft.Logic/workflows` ARM payload, but a concrete secret-bearing field and downstream exposed output remain unverified — cheap-disproved 2026-10-11: the selected collector/ZIP paths expose connection resource IDs, names, hosts, status, and warning fields; no credential field or secret-bearing export was present.
 - [x] (invalid) `HostedAzureInventoryResourcePropertyExpander.AddManagedClusterProperties` — an ARM AKS resource with a `properties.networkProfile` field containing sensitive connection metadata is copied with `GetRawText()` into inventory properties; input originates from the reachable `Microsoft.ContainerService/managedClusters` ARM payload, but a concrete sensitive field and wrong exported outcome remain unverified — cheap-disproved 2026-10-11: the selected expander captures network profile topology JSON, with no credential-bearing field or downstream secret exposure established.
 
+- [x] (proven) `HostedAzureArmNextLinkValidator` — reachable ARM `nextLink` values on an untrusted host with a valid subscription listing path were followed with the management bearer token attached — **hit 2026-10-13 seed hunt:** require HTTPS and allowlisted management hosts on all pagination validators; regression `ListSubscriptionResourcesAsync_rejects_next_link_on_untrusted_host`.
 - [x] (proven) `EntraGroupMembershipGraphReader.EnsureNextLinkTargetsGroup` — reachable `@odata.nextLink` values using HTTP on a trusted Graph host were accepted and could send the bearer token over plaintext — **hit 2026-10-13 seed hunt:** require `https` scheme on pagination URLs; regression `TryReadDirectMembershipsAsync_rejects_odata_next_link_without_https`.
 - [x] (proven) `EntraGroupMembershipGraphReader.EnsureNextLinkTargetsGroup` — reachable `@odata.nextLink` values on an untrusted host were followed with the Graph bearer token attached — **hit 2026-10-13 seed hunt:** allowlist sovereign Graph hosts in `EntraGroupMembershipGraphTrustedHosts`; regression `TryReadDirectMembershipsAsync_rejects_odata_next_link_on_untrusted_host`.
 - [x] (proven) `EntraGroupMembershipGraphReader.EnsureNextLinkTargetsGroup` — reachable `@odata.nextLink` values for `/groups/{id}/members/owners` passed first-segment `members` validation and were followed while listing direct members — **hit 2026-10-13 seed hunt:** require collection path exactly `members` with no sub-resource; regression `TryReadDirectMembershipsAsync_rejects_odata_next_link_for_members_sub_path`.

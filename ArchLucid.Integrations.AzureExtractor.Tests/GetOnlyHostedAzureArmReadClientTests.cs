@@ -870,6 +870,60 @@ public sealed class GetOnlyHostedAzureArmReadClientTests
     }
 
     [Fact]
+    public async Task ListSubscriptionResourcesAsync_rejects_next_link_on_untrusted_host()
+    {
+        const string subscriptionId = "11111111-1111-1111-1111-111111111111";
+        const string untrustedHostNextLink =
+            $"https://evil.example.com/subscriptions/{subscriptionId}/resources?api-version=2021-04-01&$skiptoken=leak";
+
+        string firstPageBody = """
+                               {
+                                 "value": [
+                                   {
+                                     "id": "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet1",
+                                     "name": "vnet1",
+                                     "type": "Microsoft.Network/virtualNetworks",
+                                     "location": "eastus"
+                                   }
+                                 ],
+                                 "nextLink": "UNTRUSTED_HOST_LINK"
+                               }
+                               """.Replace("UNTRUSTED_HOST_LINK", untrustedHostNextLink, StringComparison.Ordinal);
+
+        int requestCount = 0;
+
+        HttpMessageHandler handler = new RecordingHandler(
+            (_, _) =>
+            {
+                int current = Interlocked.Increment(ref requestCount);
+
+                if (current == 1)
+                {
+                    return Task.FromResult(
+                        new HttpResponseMessage(HttpStatusCode.OK)
+                        {
+                            Content = new StringContent(firstPageBody)
+                        });
+                }
+
+                throw new InvalidOperationException(
+                    "Test hang guard: subscription resource listing did not stop on untrusted-host nextLink.");
+            });
+
+        HttpClient httpClient = new(handler);
+        GetOnlyHostedAzureArmReadClient client = new(httpClient, NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+
+        InvalidOperationException exception = await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            client.ListSubscriptionResourcesAsync(
+                "token-abc",
+                subscriptionId,
+                CancellationToken.None));
+
+        Assert.Contains("untrusted host", exception.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Equal(1, requestCount);
+    }
+
+    [Fact]
     public async Task ListSubscriptionPolicyDefinitionDocumentsAsync_rejects_next_link_for_different_policy_collection()
     {
         const string subscriptionId = "11111111-1111-1111-1111-111111111111";
