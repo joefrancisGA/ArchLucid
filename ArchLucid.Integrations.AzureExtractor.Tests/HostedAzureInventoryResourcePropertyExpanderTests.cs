@@ -272,6 +272,43 @@ public sealed class HostedAzureInventoryResourcePropertyExpanderTests
     }
 
     [Fact]
+    public void Expand_persists_every_private_link_service_id_across_connection_arrays()
+    {
+        const string automaticTarget =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1";
+        const string manualTarget =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Sql/servers/sql1";
+        const string json = """
+            {
+              "privateLinkServiceConnections": [
+                {
+                  "properties": {
+                    "privateLinkServiceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1"
+                  }
+                }
+              ],
+              "manualPrivateLinkServiceConnections": [
+                {
+                  "properties": {
+                    "privateLinkServiceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Sql/servers/sql1"
+                  }
+                }
+              ]
+            }
+            """;
+
+        using JsonDocument document = JsonDocument.Parse(json);
+        Dictionary<string, object?> properties = HostedAzureInventoryResourcePropertyExpander.Expand(
+            "Microsoft.Network/privateEndpoints",
+            document.RootElement,
+            []);
+
+        Assert.Equal(automaticTarget, properties["privateLinkServiceId[0]"]);
+        Assert.Equal(manualTarget, properties["privateLinkServiceId[1]"]);
+        Assert.Equal(automaticTarget, properties["privateLinkServiceId"]);
+    }
+
+    [Fact]
     public void Expand_persists_standard_logic_app_site_connection_parameters()
     {
         const string json = """

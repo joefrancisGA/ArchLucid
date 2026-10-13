@@ -8574,3 +8574,4 @@
 {"at":"2026-10-13T01:13:58.2408533Z","zoneId":"architecture-intelligence-orchestrator","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-13T01:23:31.2198195Z","zoneId":"architecture-intelligence-orchestrator","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-13T01:25:32.4986805Z","zoneId":"architecture-intelligence-orchestrator","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-13T01:32:04.7499635Z","zoneId":"cloud-extractors","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Integrations.AwsExtractor/,ArchLucid.Integrations.GcpExtractor/,ArchLucid.Integrations.AzureExtractor/"]}

@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-13 seed hunt (seed→hit): `cloud-extractors` — promoted `HostedAzureInventoryResourcePropertyExpander.AddPrivateLinkConnections`; reachable private endpoints with both `privateLinkServiceConnections` and `manualPrivateLinkServiceConnections` reset the indexed `privateLinkServiceId[n]` counter per array, so manual targets overwrote automatic `[0]` and dropped a private-link association target; continue a shared index across both arrays; regression `Expand_persists_every_private_link_service_id_across_connection_arrays`; AWS/GCP extractor tests passed 52/52; Azure extractor scope passed 133/134 with the known network-association baseline failure.
+
 2026-10-12 seed hunt (seed-only): `run-execute-ownership` — repeated the ownership acquire, renewal, release, drain, and orchestrator race review. Existing cancellation-during-drain and eligibility-race candidates remain unchanged; no fresh reachable mechanism-backed wrong outcome met the hunt-ready bar. The scoped ownership/orchestration filter again stopped before discovery on unrelated Application compile errors (`unmappedRoles` and `warnings`). No candidate was promoted and no production or regression code changed.
 
 2026-10-12 seed hunt (seed-only): `authority-pipeline-payload` — repeated the selected payload and null-element review. Materialization continues to reject null/empty documents, malformed JSON, invalid work kinds, invisible/combining-mark identifiers, and null string collections; no fresh reachable mechanism-backed wrong outcome met the hunt-ready bar. The scoped payload filter again stopped before discovery on unrelated Application compile errors (`unmappedRoles` and `warnings`). No candidate was promoted and no production or regression code changed.
@@ -31686,6 +31688,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ## Zone: cloud-extractors
 
+2026-10-13 seed hunt (seed→hit): promoted `HostedAzureInventoryResourcePropertyExpander.AddPrivateLinkConnections`; reachable `Microsoft.Network/privateEndpoints` payloads with both connection arrays wrote `privateLinkServiceId[0]` twice instead of appending manual targets; fixed with a shared index across `privateLinkServiceConnections` and `manualPrivateLinkServiceConnections`; regression `Expand_persists_every_private_link_service_id_across_connection_arrays`; AWS/GCP tests passed 52/52; Azure extractor scope passed 133/134 with the known network-association baseline failure.
+
 2026-10-12 seed hunt (seed-only): repeated the selected extractor review; no candidate was promoted and the existing five bounded candidates were retained. AWS/GCP tests passed 52/52; Azure extractor scope passed 130/131 with the known network-association baseline failure.
 
 2026-10-12 seed hunt (seed-only): repeated the selected extractor review; no candidate was promoted and the existing five bounded candidates were retained. AWS/GCP tests passed 52/52; Azure extractor scope passed 130/131 with the known network-association baseline failure.
@@ -31735,13 +31739,13 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** aws extractor; gcp extractor; azure extractor
 - **paths:** ArchLucid.Integrations.AwsExtractor/; ArchLucid.Integrations.GcpExtractor/; ArchLucid.Integrations.AzureExtractor/
 - **test-filter:** FullyQualifiedName~AwsExtractor|FullyQualifiedName~GcpExtractor|FullyQualifiedName~AzureExtractor
-- **hunts:** 98
-- **bugs-found:** 45
+- **hunts:** 99
+- **bugs-found:** 46
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-12
-- **last-bug:** 2026-10-12 — Azure Actual Cost numeric cells were parsed with the current culture
+- **last-hunt:** 2026-10-13
+- **last-bug:** 2026-10-13 — private endpoint manual private-link connections overwrote indexed service targets
 - **related-pd-tb:** none
-- **code-changed-since:** 0
+- **code-changed-since:** 1
 
 2026-10-08 seed hunt (hit): promoted Defender secure-score pagination; `ListSubscriptionDefenderSummariesAsync` validated only the subscription on `nextLink`, so a same-subscription cursor into `roleAssignments` was followed; fixed by also requiring `subscriptions/{id}/providers/Microsoft.Security/secureScores`; regression `ListSubscriptionDefenderSummariesAsync_rejects_next_link_for_different_security_collection`. Azure extractor tests passed 114/114.
 
@@ -31776,7 +31780,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (invalid) `HostedAzureInventoryResourcePropertyExpander.AddSiteWorkflowConnectionParameters` — an ARM Logic Apps resource with `properties.parameters.$connections` containing credential-bearing connection metadata is copied with `GetRawText()` into inventory properties without structured redaction; input originates from the reachable `Microsoft.Logic/workflows` ARM payload, but a concrete secret-bearing field and downstream exposed output remain unverified — cheap-disproved 2026-10-11: the selected collector/ZIP paths expose connection resource IDs, names, hosts, status, and warning fields; no credential field or secret-bearing export was present.
 - [x] (invalid) `HostedAzureInventoryResourcePropertyExpander.AddManagedClusterProperties` — an ARM AKS resource with a `properties.networkProfile` field containing sensitive connection metadata is copied with `GetRawText()` into inventory properties; input originates from the reachable `Microsoft.ContainerService/managedClusters` ARM payload, but a concrete sensitive field and wrong exported outcome remain unverified — cheap-disproved 2026-10-11: the selected expander captures network profile topology JSON, with no credential-bearing field or downstream secret exposure established.
 
-- (candidate) `HostedAzureInventoryResourcePropertyExpander.AddPrivateLinkConnections` — a reachable Azure private endpoint containing both `privateLinkServiceConnections` and `manualPrivateLinkServiceConnections` may write both arrays from index zero, causing the later array to overwrite `privateLinkServiceId[0]` and omit one target from normalized inventory properties; the ARM payload is reachable through `Microsoft.Network/privateEndpoints`, but the downstream contract for multiple connection arrays is not established in the selected files.
+- [x] (proven) `HostedAzureInventoryResourcePropertyExpander.AddPrivateLinkConnections` — reachable `Microsoft.Network/privateEndpoints` payloads with both `privateLinkServiceConnections` and `manualPrivateLinkServiceConnections` reset the indexed `privateLinkServiceId[n]` counter per array, so manual targets overwrote automatic `[0]` and dropped a private-link target from normalized inventory properties — **hit 2026-10-13 seed hunt:** continue a shared index across both arrays; regression `Expand_persists_every_private_link_service_id_across_connection_arrays`.
 - (candidate) `HostedAzureInventoryResourcePropertyExpander.AddVirtualMachineScaleSetNetworkProfileProperties` — a reachable VMSS `virtualMachineProfile.networkProfile.networkInterfaceConfigurations` payload with an earlier configuration lacking a subnet and a later configuration containing one may compact the emitted `ipConfiguration.subnet.id[n]` index instead of preserving the source position; the selected association reader may therefore misidentify positional data, but the wrong exported outcome is not yet established.
 - (candidate) `GcpWorkloadIdentityPoolProvider.TryGetProjectId` — a reachable hosted GCP request may supply `projects/{project}/anything` and pass project matching even though a workload-identity provider resource requires the full locations/pool/providers shape; the method only checks the project prefix and first slash, but a concrete downstream authorization or collection failure from the accepted malformed resource name remains unverified.
 

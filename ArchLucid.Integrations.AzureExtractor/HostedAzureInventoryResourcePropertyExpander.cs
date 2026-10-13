@@ -451,8 +451,9 @@ properties["definition"] = AzureExtractorSensitivePropertyRedactor.RedactStructu
         JsonElement propertiesElement,
         Dictionary<string, object?> properties)
     {
-        AddPrivateLinkConnections(propertiesElement, properties, "privateLinkServiceConnections");
-        AddPrivateLinkConnections(propertiesElement, properties, "manualPrivateLinkServiceConnections");
+        int privateLinkServiceIndex = 0;
+        AddPrivateLinkConnections(propertiesElement, properties, "privateLinkServiceConnections", ref privateLinkServiceIndex);
+        AddPrivateLinkConnections(propertiesElement, properties, "manualPrivateLinkServiceConnections", ref privateLinkServiceIndex);
 
         if (propertiesElement.TryGetProperty("subnet", out JsonElement subnetElement)
             && subnetElement.ValueKind is JsonValueKind.Object
@@ -508,15 +509,14 @@ properties["definition"] = AzureExtractorSensitivePropertyRedactor.RedactStructu
     private static void AddPrivateLinkConnections(
         JsonElement propertiesElement,
         Dictionary<string, object?> properties,
-        string propertyName)
+        string propertyName,
+        ref int index)
     {
         if (!propertiesElement.TryGetProperty(propertyName, out JsonElement connections)
             || connections.ValueKind is not JsonValueKind.Array)
         {
             return;
         }
-
-        int index = 0;
 
         foreach (JsonElement connection in connections.EnumerateArray())
         {
