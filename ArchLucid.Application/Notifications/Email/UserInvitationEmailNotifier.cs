@@ -46,12 +46,14 @@ public sealed class UserInvitationEmailNotifier(
         ArgumentException.ThrowIfNullOrWhiteSpace(displayEmail);
         ArgumentException.ThrowIfNullOrWhiteSpace(acceptUrl);
 
+        string normalizedAcceptUrl = EmailBrandingUrls.SanitizeOperatorAbsoluteUrl(acceptUrl.Trim());
+
         EmailNotificationOptions emailOptions = _emailOptionsMonitor.CurrentValue;
         string productName = EmailProductDisplayNameResolver.Resolve(emailOptions);
 
         string subject = $"You're invited to {productName}";
-        string text = BuildTextBody(productName, acceptUrl, appRole, expiryDays, personalMessage);
-        string html = BuildHtmlBody(productName, acceptUrl, appRole, expiryDays, personalMessage);
+        string text = BuildTextBody(productName, normalizedAcceptUrl, appRole, expiryDays, personalMessage);
+        string html = BuildHtmlBody(productName, normalizedAcceptUrl, appRole, expiryDays, personalMessage);
 
         EmailMessage message = new()
         {
@@ -59,7 +61,7 @@ public sealed class UserInvitationEmailNotifier(
             Subject = subject,
             HtmlBody = html,
             TextBody = text,
-            IdempotencyKey = BuildIdempotencyKey(displayEmail, acceptUrl),
+            IdempotencyKey = BuildIdempotencyKey(displayEmail, normalizedAcceptUrl),
             Tags = new EmailMessageTags { TenantId = Guid.Empty, EventType = TemplateId }
         };
 

@@ -93,6 +93,41 @@ public sealed class UserInvitationEmailNotifierTests
         sentMessage.TextBody.Should().NotContain("[Retail API platform]");
     }
 
+    [SkippableFact]
+    public async Task TrySendInvitationAsync_omits_user_info_from_accept_url_in_message_bodies()
+    {
+        EmailMessage? sentMessage = null;
+        Mock<IEmailProvider> email = new();
+        email
+            .Setup(x => x.SendAsync(It.IsAny<EmailMessage>(), It.IsAny<CancellationToken>()))
+            .Callback<EmailMessage, CancellationToken>((message, _) => sentMessage = message)
+            .Returns(Task.CompletedTask);
+
+        UserInvitationEmailNotifier sut = new(
+            email.Object,
+            BuildOptions(new EmailNotificationOptions { ProductDisplayName = "Prod" }),
+            NullLogger<UserInvitationEmailNotifier>.Instance);
+
+        const string acceptUrlWithUserInfo =
+            "https://user:secret@ops.example.test/auth/invite?token=stable-invite-token";
+
+        await sut.TrySendInvitationAsync(
+            "invitee@example.com",
+            acceptUrlWithUserInfo,
+            "Reader",
+            14,
+            null,
+            CancellationToken.None);
+
+        sentMessage.Should().NotBeNull();
+        const string expectedAcceptUrl =
+            "https://ops.example.test/auth/invite?token=stable-invite-token";
+        sentMessage!.HtmlBody.Should().Contain(expectedAcceptUrl);
+        sentMessage.TextBody.Should().Contain(expectedAcceptUrl);
+        sentMessage.HtmlBody.Should().NotContain("user:secret@");
+        sentMessage.TextBody.Should().NotContain("user:secret@");
+    }
+
     [SkippableTheory]
     [InlineData("javascript:alert(1)")]
     [InlineData("data:text/html;base64,PGI+")]
