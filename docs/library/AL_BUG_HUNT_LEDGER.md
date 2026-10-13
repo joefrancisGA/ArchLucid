@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-13 seed hunt (seed→hit): `application-tenancy-lifecycle` — promoted `TrialLifecycleTransitionEngine.TryAdvanceTenantAsync`; erasure offboard between initial read and `TryRecordTrialLifecycleTransitionAsync` made atomic miss return `false` and surfaced a failed scheduler tick while trial automation was superseded by quarantine; re-read after transition miss treats `OffboardedUtc` as idempotent success; regression `TryAdvanceTenantAsync_returns_success_when_erasure_offboard_completes_before_atomic_transition`; 150 scoped tenancy tests passed.
+
 2026-10-13 seed hunt (seed→hit): `application-tenancy-lifecycle` — promoted `TenantErasureCommandService.TryApproveErasureAsync`; concurrent quarantine restore before `TryApproveTenantErasureAsync` made atomic miss return `false` and surfaced 409 on approve retry despite erasure no longer applying; re-read maps cleared `OffboardedUtc` to idempotent success (parity with restore/clear legal-hold losers); regression `TryApproveErasureAsync_returns_success_when_quarantine_restored_before_atomic_approve`; 149 scoped tenancy tests passed.
 
 2026-10-13 seed hunt (seed→hit): `application-tenancy-lifecycle` — promoted `TenantDeletionService.DeleteTenantAsync`; missing tenant row surfaced the same `InvalidOperationException` as unapproved erasure because `tenant?.TenantErasureApprovedUtc == null` conflated null with not approved; distinct not-found guard before approval check; regressions `DeleteTenantAsync_throws_not_found_when_tenant_row_is_missing` and `DeleteTenantAsync_throws_when_erasure_not_approved`; 148 scoped tenancy tests passed.
@@ -34539,11 +34541,15 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 48
-- **bugs-found:** 33
+- **hunts:** 49
+- **bugs-found:** 34
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-13
-- **last-bug:** 2026-10-13 — Erasure approve returned conflict when quarantine was restored before atomic approve
+- **last-bug:** 2026-10-13 — Trial lifecycle scheduler failed tick when erasure offboard raced atomic transition
+
+2026-10-13 seed hunt (seed→hit): reseeded trial lifecycle after erasure approve restore fix; proved `TryAdvanceTenantAsync` returned `false` when admin erasure offboard landed before `TryRecordTrialLifecycleTransitionAsync`; extended `IsAdvancementAlreadyAppliedAsync` re-read to treat active quarantine as superseded automation; regression `TryAdvanceTenantAsync_returns_success_when_erasure_offboard_completes_before_atomic_transition`; 150 scoped tenancy tests passed.
+
+- [x] (proven) `TrialLifecycleTransitionEngine.TryAdvanceTenantAsync` — atomic lifecycle transition miss returned `false` while erasure offboard superseded trial automation — **hit 2026-10-13 seed hunt (seed→hit):** re-read after `TryRecordTrialLifecycleTransitionAsync` miss returns success when `OffboardedUtc` is set; regression `TryAdvanceTenantAsync_returns_success_when_erasure_offboard_completes_before_atomic_transition`.
 
 2026-10-13 seed hunt (seed→hit): reseeded erasure approval after tenant deletion fix; proved `TryApproveErasureAsync` returned `false` when quarantine restore cleared `OffboardedUtc` before atomic approve; fixed idempotent re-read after repository miss; regression `TryApproveErasureAsync_returns_success_when_quarantine_restored_before_atomic_approve`; 149 scoped tenancy tests passed.
 
