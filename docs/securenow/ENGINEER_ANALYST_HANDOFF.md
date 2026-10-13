@@ -52,7 +52,7 @@ Work passes back when verification fails: the analyst still has an open control,
 1. **UI only.** On My findings, show the framework control already stored on the finding or its rule. Do not add a field.
 2. **UI only.** From a Remediation tracker instance, link to Audit evidence for that control when the rule mapping already names one.
 3. **UI only.** From the Home "checks failed" count, open Remediation tracker filtered to `VerificationFailed`.
-4. **API plus UI.** Audit evidence does not list the remediation instance that last tried to satisfy the control. Return the existing instance id and status on the evidence read model when a mapping already exists. Do not invent a score.
+4. **API plus UI.** Audit evidence does not list the remediation instance that last tried to satisfy the control. Return the existing instance id and status on the evidence read model when a mapping already exists. Do not invent a score. Paste-ready prompts: [`../architecture/SECURENOW_ENGINEER_ANALYST_HANDOFF_LUNA_PROMPTS.md`](../architecture/SECURENOW_ENGINEER_ANALYST_HANDOFF_LUNA_PROMPTS.md) (**SN-HAND-09**, **SN-HAND-10**). Not implemented until those prompts are run.
 5. **Schema plus API plus UI.** There is no row that says "verified instance X, snapshot Y, evidenced control Z." Add that association only. Do not copy snapshot bytes into a second evidence store. Implementation prompts for this gap only: [`../architecture/SECURENOW_ENGINEER_ANALYST_HANDOFF_LUNA_PROMPTS.md`](../architecture/SECURENOW_ENGINEER_ANALYST_HANDOFF_LUNA_PROMPTS.md) (**SN-HAND-05–SN-HAND-08**). Gaps 1–4 are not in that set.
 
 ## Edition differences

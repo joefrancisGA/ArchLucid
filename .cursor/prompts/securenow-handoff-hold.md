@@ -7,7 +7,7 @@
 - Do not copy snapshot bytes, `AuditEvidenceSnapshotItems`, or `VerificationResultJson` into the association table or a second evidence store.
 - Do not change `ReadyForPositiveCheckbox`, `ChainComplete`, evaluation outcome, or human disposition because an association exists.
 - Do not let a model mark a control evidenced. The association is an identifier row. A person records the disposition.
-- Do not implement gap 4 here. Gap 4 returns an instance id when a mapping already exists and there is no association row. These prompts return only the association row.
+- Do not implement gap 4 in an SN-HAND-05–08 session. Gap 4 is [SN-HAND-09](securenow-handoff-09-latest-attempt.md) and [SN-HAND-10](securenow-handoff-10-latest-attempt-ui.md): one latest attempt when `ControlId` matches and that instance is not already in `verifiedRemediationAssociations`.
 - Do not re-implement gaps 1–3 (My findings control text, the remediation audit-evidence link, the Home checks-failed filter).
 - Do not add a second findings list.
 - Do not hide a review workspace tab behind a More menu.

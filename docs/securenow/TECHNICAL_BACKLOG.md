@@ -61,6 +61,7 @@ Ordered for SecureNow operator value after the shipped baseline. Size is enginee
 | Pri | ID | Title | Status | Size | Notes |
 |-----|-----|-------|--------|------|-------|
 | P1 | **SN-HAND-05–08** + hold | Verified remediation association | **Backlog** (prompts only) | M | One identifier row: verified instance, verification inventory snapshot, and control. Written only when verification passes and both ids exist. Lineage returns matches. Pages show the ids and do not mark the control evidenced. Index: [`SECURENOW_ENGINEER_ANALYST_HANDOFF_LUNA_PROMPTS.md`](../architecture/SECURENOW_ENGINEER_ANALYST_HANDOFF_LUNA_PROMPTS.md). |
+| P1 | **SN-HAND-09–10** | Latest remediation attempt on Audit evidence | **Backlog** (prompts only) | S | Gap 4. One `latestRemediationAttempt` on lineage when `ControlId` matches and that instance is not already in `verifiedRemediationAssociations`. UI shows the status. No score. Same index. |
 | P1 | **SN-HOME-01–06** + hold | SecureNow Home work summary | **Backlog** (prompts only) | M | Context line, four counted work links, short lead, outcome summaries, wrapping sidebar labels, compact directory. Index: [`SECURENOW_HOME_WORK_SUMMARY_LUNA_PROMPTS.md`](../architecture/SECURENOW_HOME_WORK_SUMMARY_LUNA_PROMPTS.md). |
 | P1 | **DIC-01–05** + hold | Diagram import comparison | **Backlog** (prompts only) | L | Advisory compare of a structured drawing to an inventory capture, saved architect mapping, structural connector gaps, count strip and CSV, match outlines on the imported drawing. Index: [`DIAGRAM_IMPORT_COMPARISON_LUNA_PROMPTS.md`](../architecture/DIAGRAM_IMPORT_COMPARISON_LUNA_PROMPTS.md). |
 | P1 | **DMW-01–02** | Diagram matcher warnings | **Backlog** (prompts only) | S | Stop the private-endpoint DNS warning from listing every VNet-integrated app against every endpoint, and match private-link hostnames already in the snapshot. Index: [`DIAGRAM_MATCHER_WARNING_LUNA_PROMPTS.md`](../architecture/DIAGRAM_MATCHER_WARNING_LUNA_PROMPTS.md). |
@@ -107,7 +108,7 @@ Paste **one** file per session from the repo root (Cloud Agent: `pwsh` + working
 | Diagram import comparison | [diagram-import-comparison-00-index.md](../../.cursor/prompts/diagram-import-comparison-00-index.md) | **DIC-01–DIC-05** + hold | [`DIAGRAM_IMPORT_COMPARISON_LUNA_PROMPTS.md`](../architecture/DIAGRAM_IMPORT_COMPARISON_LUNA_PROMPTS.md) |
 | Diagram matcher warnings | [diagram-matcher-warning-00-index.md](../../.cursor/prompts/diagram-matcher-warning-00-index.md) | **DMW-01–DMW-02** | [`DIAGRAM_MATCHER_WARNING_LUNA_PROMPTS.md`](../architecture/DIAGRAM_MATCHER_WARNING_LUNA_PROMPTS.md) |
 | Home work summary | [securenow-home-00-index.md](../../.cursor/prompts/securenow-home-00-index.md) | **SN-HOME-01–SN-HOME-06** + hold | [`SECURENOW_HOME_WORK_SUMMARY_LUNA_PROMPTS.md`](../architecture/SECURENOW_HOME_WORK_SUMMARY_LUNA_PROMPTS.md) |
-| Engineer-to-analyst handoff, gap 5 | [securenow-handoff-00-index.md](../../.cursor/prompts/securenow-handoff-00-index.md) | **SN-HAND-05–SN-HAND-08** + hold | [`SECURENOW_ENGINEER_ANALYST_HANDOFF_LUNA_PROMPTS.md`](../architecture/SECURENOW_ENGINEER_ANALYST_HANDOFF_LUNA_PROMPTS.md) |
+| Engineer-to-analyst handoff, gaps 4–5 | [securenow-handoff-00-index.md](../../.cursor/prompts/securenow-handoff-00-index.md) | **SN-HAND-05–SN-HAND-10** + hold | [`SECURENOW_ENGINEER_ANALYST_HANDOFF_LUNA_PROMPTS.md`](../architecture/SECURENOW_ENGINEER_ANALYST_HANDOFF_LUNA_PROMPTS.md) |
 | RBAC unmapped role | [rbac-unmapped-role-00-index.md](../../.cursor/prompts/rbac-unmapped-role-00-index.md) | **RUR-01–RUR-03** + hold | [`RBAC_UNMAPPED_ROLE_LUNA_PROMPTS.md`](../architecture/RBAC_UNMAPPED_ROLE_LUNA_PROMPTS.md) |
 
 ---
@@ -252,9 +253,9 @@ Prompts only. Run in order. Settled scope: [`../architecture/SECURENOW_QUESTION_
 | SN-QQ-10 | Open-question count: `Action needed`, medium helper type, outline `Review questions` | **Prompts** |
 | SN-QQ-HOLD | Stop list | **Hold** |
 
-### SN-HAND — Verified remediation association (**SN-HAND-05–SN-HAND-08**)
+### SN-HAND — Verified remediation association and latest attempt (**SN-HAND-05–SN-HAND-10**)
 
-Design note: [`ENGINEER_ANALYST_HANDOFF.md`](ENGINEER_ANALYST_HANDOFF.md) gap 5. Prompts only. Do not implement from the index.
+Design note: [`ENGINEER_ANALYST_HANDOFF.md`](ENGINEER_ANALYST_HANDOFF.md). Do not implement from the index. Gap 5 is **SN-HAND-05–08**. Gap 4 is **SN-HAND-09** then **SN-HAND-10**.
 
 | ID | Title | Status |
 |----|-------|--------|
@@ -262,6 +263,8 @@ Design note: [`ENGINEER_ANALYST_HANDOFF.md`](ENGINEER_ANALYST_HANDOFF.md) gap 5.
 | SN-HAND-06 | Write the row when verification passes | **Prompts** |
 | SN-HAND-07 | Lineage read returns matching rows | **Prompts** |
 | SN-HAND-08 | Audit evidence and Remediation tracker show the ids | **Prompts** |
+| SN-HAND-09 | Lineage returns `latestRemediationAttempt` when no association row covers that instance | **Prompts** |
+| SN-HAND-10 | Audit evidence shows the latest attempt | **Prompts** |
 | SN-HAND-HOLD | Stop list | **Hold** |
 
 ---
@@ -270,7 +273,7 @@ Design note: [`ENGINEER_ANALYST_HANDOFF.md`](ENGINEER_ANALYST_HANDOFF.md) gap 5.
 
 | Document | Use when |
 |----------|----------|
-| [`ENGINEER_ANALYST_HANDOFF.md`](ENGINEER_ANALYST_HANDOFF.md) | Finding to verified fix to control. Gap 5 prompts are SN-HAND-05–08 |
+| [`ENGINEER_ANALYST_HANDOFF.md`](ENGINEER_ANALYST_HANDOFF.md) | Finding to verified fix to control. Gap 5 is SN-HAND-05–08. Gap 4 is SN-HAND-09–10. |
 | [`DATA_ARCHITECTURE_AND_DATA_FLOW_DIAGRAMS.md`](DATA_ARCHITECTURE_AND_DATA_FLOW_DIAGRAMS.md) | Three diagram types; first slice vs gold standard |
 | [`EVIDENCE_BASED_PROBABLE_DATA_FLOWS.md`](EVIDENCE_BASED_PROBABLE_DATA_FLOWS.md) | Diagram 3 evidence families; ordinal bands |
 | [`RUNTIME_DECLARED_AND_OBSERVED_DATA_FLOWS.md`](RUNTIME_DECLARED_AND_OBSERVED_DATA_FLOWS.md) | Options A–E for empty Container Apps canvas |
