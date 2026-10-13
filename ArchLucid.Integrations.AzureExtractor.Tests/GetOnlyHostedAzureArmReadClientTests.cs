@@ -297,6 +297,62 @@ public sealed class GetOnlyHostedAzureArmReadClientTests
     }
 
     [Fact]
+    public async Task ListSubscriptionRoleAssignmentsAsync_retains_assignments_when_later_page_fails()
+    {
+        const string subscriptionId = "11111111-1111-1111-1111-111111111111";
+        const string nextLink =
+            $"https://management.azure.com/subscriptions/{subscriptionId}/providers/Microsoft.Authorization/roleAssignments?api-version=2022-04-01&$skiptoken=page2";
+
+        string firstPageBody = """
+                               {
+                                 "value": [
+                                   {
+                                     "properties": {
+                                       "scope": "/subscriptions/11111111-1111-1111-1111-111111111111",
+                                       "principalId": "11111111-1111-1111-1111-111111111111",
+                                       "principalType": "Group",
+                                       "roleDefinitionId": "/subscriptions/sub/providers/Microsoft.Authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c"
+                                     }
+                                   }
+                                 ],
+                                 "nextLink": "PAGE_TWO_LINK"
+                               }
+                               """.Replace("PAGE_TWO_LINK", nextLink, StringComparison.Ordinal);
+
+        int requestCount = 0;
+
+        HttpMessageHandler handler = new RecordingHandler(
+            (_, _) =>
+            {
+                int current = Interlocked.Increment(ref requestCount);
+
+                if (current == 1)
+                {
+                    return Task.FromResult(
+                        new HttpResponseMessage(HttpStatusCode.OK)
+                        {
+                            Content = new StringContent(firstPageBody)
+                        });
+                }
+
+                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.InternalServerError));
+            });
+
+        HttpClient httpClient = new(handler);
+        GetOnlyHostedAzureArmReadClient client = new(httpClient, NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+
+        IReadOnlyList<HostedAzureArmRoleAssignmentRecord> assignments =
+            await client.ListSubscriptionRoleAssignmentsAsync(
+                "token-abc",
+                subscriptionId,
+                CancellationToken.None);
+
+        Assert.Equal(2, requestCount);
+        Assert.Single(assignments);
+        Assert.Equal("11111111-1111-1111-1111-111111111111", assignments[0].PrincipalId);
+    }
+
+    [Fact]
     public async Task ListSubscriptionRoleAssignmentsAsync_rejects_next_link_for_different_role_listing_path()
     {
         const string subscriptionId = "11111111-1111-1111-1111-111111111111";

@@ -28,6 +28,23 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
 
     private static bool ShouldBreakForPageCap(int requestCount) => requestCount > MaxPaginationRequests;
 
+    private static bool ShouldBreakForPaginationHttpFailure(HttpResponseMessage response, int collectedCount)
+    {
+        if (response.IsSuccessStatusCode)
+        {
+            return false;
+        }
+
+        if (collectedCount > 0)
+        {
+            return true;
+        }
+
+        response.EnsureSuccessStatusCode();
+
+        return false;
+    }
+
     private readonly HttpClient _httpClient =
         httpClient ?? throw new ArgumentNullException(nameof(httpClient));
 
@@ -70,14 +87,9 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
             using HttpResponseMessage response =
                 await _httpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
 
-            if (!response.IsSuccessStatusCode)
+            if (ShouldBreakForPaginationHttpFailure(response, resources.Count))
             {
-                if (resources.Count > 0)
-                {
-                    break;
-                }
-
-                response.EnsureSuccessStatusCode();
+                break;
             }
 
             await using Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
@@ -186,7 +198,10 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
             using HttpResponseMessage response =
                 await _httpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
 
-            response.EnsureSuccessStatusCode();
+            if (ShouldBreakForPaginationHttpFailure(response, assignments.Count))
+            {
+                break;
+            }
 
             await using Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
 

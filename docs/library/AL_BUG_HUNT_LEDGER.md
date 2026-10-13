@@ -1,5 +1,9 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-13 seed hunt (seed→hit): `cloud-extractors` — promoted `GetOnlyHostedAzureArmReadClient.ListSubscriptionRoleAssignmentsAtListingPathAsync`; reachable non-success HTTP on a follow-up role-assignment `nextLink` page threw via `EnsureSuccessStatusCode` and failed the hosted extract instead of returning assignments already collected; shared `ShouldBreakForPaginationHttpFailure` with subscription resource listing; regression `ListSubscriptionRoleAssignmentsAsync_retains_assignments_when_later_page_fails`; AWS/GCP extractor tests passed 58/58; Azure extractor scope passed 161/161.
+
+2026-10-13 seed hunt (seed→hit): `cloud-extractors` — promoted `GetOnlyHostedAzureArmReadClient.ListSubscriptionResourcesAsync`; reachable non-success HTTP on a follow-up subscription ARM `nextLink` page threw via `EnsureSuccessStatusCode` and failed the hosted extract instead of returning resource rows already collected from earlier pages; stop pagination when `resources.Count > 0`; regression `ListSubscriptionResourcesAsync_retains_resources_when_later_page_fails`; AWS/GCP extractor tests passed 58/58; Azure extractor scope passed 160/160.
+
 2026-10-13 seed hunt (seed→hit): `cloud-extractors` — promoted `HostedAzureManagementPostReadClient.TryQueryActualCostSummaryAsync`; reachable non-success HTTP on a follow-up Actual Cost page returned `null` and discarded cost rows already collected from earlier pages in the same query; stop pagination and merge accumulated `pages` when `pages.Count > 0`; regression `TryQueryActualCostSummaryAsync_retains_merged_cost_when_later_page_fails`; AWS/GCP extractor tests passed 58/58; Azure extractor scope passed 159/159.
 
 2026-10-13 seed hunt (seed→hit): `cloud-extractors` — promoted `HostedAzureManagementPostReadClient.TryQueryActualCostSummaryAsync`; reachable Actual Cost `properties.nextLink` values that repeated after one or more successful cost pages returned `null` and discarded merged rows already collected in memory; stop paging with `break` and return `MergeActualCostPages` for accumulated pages; regression `TryQueryActualCostSummaryAsync_retains_merged_cost_when_next_link_repeats`; AWS/GCP extractor tests passed 58/58; Azure extractor scope passed 158/158.
@@ -31757,6 +31761,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ## Zone: cloud-extractors
 
+2026-10-13 seed hunt (seed→hit): promoted role-assignment listing follow-up HTTP failure; shared `ShouldBreakForPaginationHttpFailure`; regression `ListSubscriptionRoleAssignmentsAsync_retains_assignments_when_later_page_fails`; Azure scope 161/161; AWS/GCP 58/58.
+
+2026-10-13 seed hunt (seed→hit): promoted subscription ARM listing follow-up HTTP failure; `EnsureSuccessStatusCode` dropped prior pages; break when `resources.Count > 0`; regression `ListSubscriptionResourcesAsync_retains_resources_when_later_page_fails`; Azure scope 160/160; AWS/GCP 58/58.
+
 2026-10-13 seed hunt (seed→hit): promoted Actual Cost follow-up HTTP failure; `return null` dropped prior pages; merge when `pages.Count > 0`; regression `TryQueryActualCostSummaryAsync_retains_merged_cost_when_later_page_fails`; Azure scope 159/159; AWS/GCP 58/58.
 
 2026-10-13 seed hunt (seed→hit): promoted Actual Cost repeating `nextLink`; `return null` dropped in-memory pages; `break` then merge; regression `TryQueryActualCostSummaryAsync_retains_merged_cost_when_next_link_repeats`; Azure scope 158/158; AWS/GCP 58/58.
@@ -31856,11 +31864,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** aws extractor; gcp extractor; azure extractor
 - **paths:** ArchLucid.Integrations.AwsExtractor/; ArchLucid.Integrations.GcpExtractor/; ArchLucid.Integrations.AzureExtractor/
 - **test-filter:** FullyQualifiedName~AwsExtractor|FullyQualifiedName~GcpExtractor|FullyQualifiedName~AzureExtractor
-- **hunts:** 131
-- **bugs-found:** 78
+- **hunts:** 133
+- **bugs-found:** 80
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-13
-- **last-bug:** 2026-10-13 — Actual Cost follow-up HTTP failure returned null and dropped prior pages
+- **last-bug:** 2026-10-13 — role-assignment ARM listing follow-up HTTP failure threw and dropped prior pages
 - **related-pd-tb:** none
 - **code-changed-since:** 1
 
@@ -31888,6 +31896,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ### Hypotheses
 
+- [x] (proven) `GetOnlyHostedAzureArmReadClient.ListSubscriptionRoleAssignmentsAtListingPathAsync` — reachable non-success HTTP on a follow-up role-assignment `nextLink` page threw via `EnsureSuccessStatusCode` and failed the hosted extract instead of returning assignments already collected — **hit 2026-10-13 seed hunt:** `ShouldBreakForPaginationHttpFailure` stops pagination when prior rows exist; regression `ListSubscriptionRoleAssignmentsAsync_retains_assignments_when_later_page_fails`.
+- [x] (proven) `GetOnlyHostedAzureArmReadClient.ListSubscriptionResourcesAsync` — reachable non-success HTTP on a follow-up subscription ARM `nextLink` page threw via `EnsureSuccessStatusCode` and failed the hosted extract instead of returning resource rows already collected from earlier pages — **hit 2026-10-13 seed hunt:** stop pagination when `resources.Count > 0`; regression `ListSubscriptionResourcesAsync_retains_resources_when_later_page_fails`.
 - [x] (proven) `HostedAzureManagementPostReadClient.TryQueryActualCostSummaryAsync` — reachable non-success HTTP on a follow-up Actual Cost page returned `null` and discarded cost rows already collected from earlier pages in the same query — **hit 2026-10-13 seed hunt:** stop pagination and merge accumulated `pages` when `pages.Count > 0`; regression `TryQueryActualCostSummaryAsync_retains_merged_cost_when_later_page_fails`.
 - [x] (proven) `HostedAzureManagementPostReadClient.TryQueryActualCostSummaryAsync` — reachable Actual Cost `properties.nextLink` values that repeated after successful pages returned `null` and discarded cost rows already collected in the in-memory `pages` list — **hit 2026-10-13 seed hunt:** `break` on repeating cursor and merge accumulated pages; regression `TryQueryActualCostSummaryAsync_retains_merged_cost_when_next_link_repeats`.
 - [x] (proven) `GetOnlyHostedAzureArmReadClient` ARM GET pagination loops — reachable repeating `nextLink` values after successful pages threw `InvalidOperationException` and failed hosted extracts instead of returning rows or aggregates already collected — **hit 2026-10-13 seed hunt:** `break` when `visitedLinks` already contains the cursor (parity with AWS Resource Explorer repeating `NextToken` and Entra Graph pagination); regressions `ListSubscriptionResourcesAsync_retains_resources_when_next_link_repeats` and `ListSubscriptionDefenderSummariesAsync_retains_best_score_when_next_link_repeats`.
