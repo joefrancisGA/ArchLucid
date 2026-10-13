@@ -49,7 +49,7 @@ These waves are **closed for greenfield re-implementation**. Extend or fix with 
 | **Runtime connections** | **SN-RT-01–SN-RT-14** (core) | Container Apps env → `app-settings-hosts.json`, parsers, SQL catalog grain, PaaS stages, RBAC allowlist, opt-in `dependency-observations.json` + `ObservedRuntime`, SQL principals companion, upload parsers, operator confirm (`HumanAssertion`), inference questionnaire API + workbench panel. **SN-RT-14** maps the operator-inferred controller so Diagrams GETs stop 500ing `Unmapped API controller`. |
 | **Architect plane** | **SA-01–SA-21** | `SecurityEvidencePath` domain, security edges, privilege/reachability/toxic/capability engines, ranking, cut points, four-reality drift, neighborhood recompute, path inspector API + UI, constrained path explanation, asset assertions, outcome metrics, honesty copy. Optional Entra group + federated-credential **inventory** companions feed SA-02/SA-03. |
 | **Help job-match (partial set)** | **SH-01**, **SH-07–SH-10**, **SH-26**, others | Product-line contextual help rows for governance/infrastructure routes; Security help hub excludes Architecture-process featured slugs (e.g. `billing-and-plans`, `first-architecture-review`). |
-| **Engineer–analyst handoff (gap 5)** | **SN-HAND-05–SN-HAND-08** | Verified remediation association row (identifiers only): table, verify write, lineage read, Audit evidence + Remediation tracker UI. Gaps 1–3 UI slices pre-existed; gap 4 remains unprompted. |
+| **Engineer–analyst handoff (gap 5)** | **SN-HAND-05–SN-HAND-08** | Verified remediation association row (identifiers only): table, verify write, lineage read, Audit evidence + Remediation tracker UI. Gaps 1–3 UI slices pre-existed. Gap 4 prompts are **SN-HAND-09–10** and are not implemented on trunk. |
 
 **Holds (active):** [`SECURENOW_ARCHITECT_HOLD.md`](../library/SECURENOW_ARCHITECT_HOLD.md) (**SA-22**), [`SECURENOW_PROBABLE_EVIDENCE_HOLD.md`](../library/SECURENOW_PROBABLE_EVIDENCE_HOLD.md), [`SECURENOW_RUNTIME_CONNECTION_HOLD.md`](../library/SECURENOW_RUNTIME_CONNECTION_HOLD.md), [`SECURENOW_DATA_FLOW` hold via SN-DF-09](../architecture/SECURENOW_DATA_FLOW_DIAGRAM_COMPOSER_PROMPTS.md).
 
@@ -61,7 +61,8 @@ Ordered for SecureNow operator value after the shipped baseline. Size is enginee
 
 | Pri | ID | Title | Status | Size | Notes |
 |-----|-----|-------|--------|------|-------|
-| — | **SN-HAND-05–08** + hold | Verified remediation association | **Shipped** | — | On trunk. Do not greenfield. Index: [`SECURENOW_ENGINEER_ANALYST_HANDOFF_LUNA_PROMPTS.md`](../architecture/SECURENOW_ENGINEER_ANALYST_HANDOFF_LUNA_PROMPTS.md). Gap 4 and a hypothetical follow-on prompt set are **not** SN-HAND-09 in this repo. |
+| — | **SN-HAND-05–08** + hold | Verified remediation association | **Shipped** | — | On trunk. Do not greenfield. Index: [`SECURENOW_ENGINEER_ANALYST_HANDOFF_LUNA_PROMPTS.md`](../architecture/SECURENOW_ENGINEER_ANALYST_HANDOFF_LUNA_PROMPTS.md). |
+| P1 | **SN-HAND-09–10** | Latest remediation attempt on Audit evidence | **Backlog** (prompts only) | S | Gap 4. One `latestRemediationAttempt` on lineage when `ControlId` matches and that instance is not already in `verifiedRemediationAssociations`. UI shows the status. No score. Same index. |
 | P1 | **SN-HOME-01–06** + hold | SecureNow Home work summary | **Backlog** (prompts only) | M | Context line, four counted work links, short lead, outcome summaries, wrapping sidebar labels, compact directory. Index: [`SECURENOW_HOME_WORK_SUMMARY_LUNA_PROMPTS.md`](../architecture/SECURENOW_HOME_WORK_SUMMARY_LUNA_PROMPTS.md). |
 | P1 | **DIC-01–05** + hold | Diagram import comparison | **Backlog** (prompts only) | L | Advisory compare of a structured drawing to an inventory capture, saved architect mapping, structural connector gaps, count strip and CSV, match outlines on the imported drawing. Index: [`DIAGRAM_IMPORT_COMPARISON_LUNA_PROMPTS.md`](../architecture/DIAGRAM_IMPORT_COMPARISON_LUNA_PROMPTS.md). |
 | P1 | **DMW-01–02** | Diagram matcher warnings | **Backlog** (prompts only) | S | Stop the private-endpoint DNS warning from listing every VNet-integrated app against every endpoint, and match private-link hostnames already in the snapshot. Index: [`DIAGRAM_MATCHER_WARNING_LUNA_PROMPTS.md`](../architecture/DIAGRAM_MATCHER_WARNING_LUNA_PROMPTS.md). |
@@ -108,7 +109,7 @@ Paste **one** file per session from the repo root (Cloud Agent: `pwsh` + working
 | Diagram import comparison | [diagram-import-comparison-00-index.md](../../.cursor/prompts/diagram-import-comparison-00-index.md) | **DIC-01–DIC-05** + hold | [`DIAGRAM_IMPORT_COMPARISON_LUNA_PROMPTS.md`](../architecture/DIAGRAM_IMPORT_COMPARISON_LUNA_PROMPTS.md) |
 | Diagram matcher warnings | [diagram-matcher-warning-00-index.md](../../.cursor/prompts/diagram-matcher-warning-00-index.md) | **DMW-01–DMW-02** | [`DIAGRAM_MATCHER_WARNING_LUNA_PROMPTS.md`](../architecture/DIAGRAM_MATCHER_WARNING_LUNA_PROMPTS.md) |
 | Home work summary | [securenow-home-00-index.md](../../.cursor/prompts/securenow-home-00-index.md) | **SN-HOME-01–SN-HOME-06** + hold | [`SECURENOW_HOME_WORK_SUMMARY_LUNA_PROMPTS.md`](../architecture/SECURENOW_HOME_WORK_SUMMARY_LUNA_PROMPTS.md) |
-| Engineer-to-analyst handoff, gap 5 | [securenow-handoff-00-index.md](../../.cursor/prompts/securenow-handoff-00-index.md) | **SN-HAND-05–SN-HAND-08** (shipped) + hold | [`SECURENOW_ENGINEER_ANALYST_HANDOFF_LUNA_PROMPTS.md`](../architecture/SECURENOW_ENGINEER_ANALYST_HANDOFF_LUNA_PROMPTS.md) |
+| Engineer-to-analyst handoff, gaps 4–5 | [securenow-handoff-00-index.md](../../.cursor/prompts/securenow-handoff-00-index.md) | **SN-HAND-05–08** shipped; **SN-HAND-09–10** prompts + hold | [`SECURENOW_ENGINEER_ANALYST_HANDOFF_LUNA_PROMPTS.md`](../architecture/SECURENOW_ENGINEER_ANALYST_HANDOFF_LUNA_PROMPTS.md) |
 | RBAC unmapped role | [rbac-unmapped-role-00-index.md](../../.cursor/prompts/rbac-unmapped-role-00-index.md) | **RUR-01–RUR-03** + hold | [`RBAC_UNMAPPED_ROLE_LUNA_PROMPTS.md`](../architecture/RBAC_UNMAPPED_ROLE_LUNA_PROMPTS.md) |
 
 ---
@@ -253,9 +254,9 @@ Prompts only. Run in order. Settled scope: [`../architecture/SECURENOW_QUESTION_
 | SN-QQ-10 | Open-question count: `Action needed`, medium helper type, outline `Review questions` | **Prompts** |
 | SN-QQ-HOLD | Stop list | **Hold** |
 
-### SN-HAND — Verified remediation association (**SN-HAND-05–SN-HAND-08**)
+### SN-HAND — Verified remediation association and latest attempt (**SN-HAND-05–SN-HAND-10**)
 
-Design note: [`ENGINEER_ANALYST_HANDOFF.md`](ENGINEER_ANALYST_HANDOFF.md) gap 5. **Shipped on trunk** — extend with scoped fixes only. There is **no SN-HAND-09** prompt in this repository; gap 4 remains a separate, unprompted slice.
+Design note: [`ENGINEER_ANALYST_HANDOFF.md`](ENGINEER_ANALYST_HANDOFF.md). Do not implement from the index. Gap 5 (**SN-HAND-05–08**) is **shipped**. Gap 4 is **SN-HAND-09** then **SN-HAND-10** (prompts only).
 
 | ID | Title | Status |
 |----|-------|--------|
@@ -263,6 +264,8 @@ Design note: [`ENGINEER_ANALYST_HANDOFF.md`](ENGINEER_ANALYST_HANDOFF.md) gap 5.
 | SN-HAND-06 | Write the row when verification passes | **Shipped** |
 | SN-HAND-07 | Lineage read returns matching rows | **Shipped** |
 | SN-HAND-08 | Audit evidence and Remediation tracker show the ids | **Shipped** |
+| SN-HAND-09 | Lineage returns `latestRemediationAttempt` when no association row covers that instance | **Prompts** |
+| SN-HAND-10 | Audit evidence shows the latest attempt | **Prompts** |
 | SN-HAND-HOLD | Stop list | **Hold** |
 
 ---
@@ -271,7 +274,7 @@ Design note: [`ENGINEER_ANALYST_HANDOFF.md`](ENGINEER_ANALYST_HANDOFF.md) gap 5.
 
 | Document | Use when |
 |----------|----------|
-| [`ENGINEER_ANALYST_HANDOFF.md`](ENGINEER_ANALYST_HANDOFF.md) | Finding to verified fix to control. Gap 5 prompts are SN-HAND-05–08 |
+| [`ENGINEER_ANALYST_HANDOFF.md`](ENGINEER_ANALYST_HANDOFF.md) | Finding to verified fix to control. Gap 5 is SN-HAND-05–08. Gap 4 is SN-HAND-09–10. |
 | [`DATA_ARCHITECTURE_AND_DATA_FLOW_DIAGRAMS.md`](DATA_ARCHITECTURE_AND_DATA_FLOW_DIAGRAMS.md) | Three diagram types; first slice vs gold standard |
 | [`EVIDENCE_BASED_PROBABLE_DATA_FLOWS.md`](EVIDENCE_BASED_PROBABLE_DATA_FLOWS.md) | Diagram 3 evidence families; ordinal bands |
 | [`RUNTIME_DECLARED_AND_OBSERVED_DATA_FLOWS.md`](RUNTIME_DECLARED_AND_OBSERVED_DATA_FLOWS.md) | Options A–E for empty Container Apps canvas |

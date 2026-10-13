@@ -22,8 +22,8 @@ import {
   resolveFindingClassificationChipReason,
   resolveFindingClassificationLabel,
 } from "@/lib/findings/finding-classification-chip-presentation";
-import type { FindingSemanticSupportBandValue } from "@/lib/findings/semantic-support-band-presentation";
 import { askCitedFindingBandIndexForFinding } from "@/lib/ask/ask-cited-findings-semantic-support-band";
+import type { FindingSemanticSupportBandValue } from "@/lib/findings/semantic-support-band-presentation";
 import { BUYER_ASK_GROUNDING_ONCE } from "@/lib/buyer/buyer-polish-copy";
 import { askAboutFinding } from "@/lib/api/finding-ask-api";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";

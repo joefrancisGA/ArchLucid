@@ -22,12 +22,15 @@ export type AskCitedFindingBandIndexEntry = {
   readonly bandStored: boolean;
 };
 
-function askCitedFindingBandIndexEntry(
+/**
+ * Single-finding Ask surfaces pass a normalized optional band, not a findings list.
+ * Omitted/null must stay bandStored=false so the footnote uses not-stored copy instead of guessing NotScored.
+ */
+export function askCitedFindingBandIndexEntryFromOptionalBand(
   findingId: string,
-  rawBand: FindingSemanticSupportBandValue | null | undefined,
+  semanticSupportBand: FindingSemanticSupportBandValue | null | undefined,
 ): AskCitedFindingBandIndexEntry {
-  // Omitted or null bands stay bandStored:false so Ask does not invent NotScored.
-  if (rawBand === null || rawBand === undefined) {
+  if (semanticSupportBand === undefined || semanticSupportBand === null) {
     return {
       findingId,
       band: null,
@@ -37,7 +40,7 @@ function askCitedFindingBandIndexEntry(
 
   return {
     findingId,
-    band: rawBand,
+    band: semanticSupportBand,
     bandStored: true,
   };
 }
@@ -52,7 +55,7 @@ export function askCitedFindingBandIndexForFinding(
     return [];
   }
 
-  return [askCitedFindingBandIndexEntry(trimmedId, rawBand)];
+  return [askCitedFindingBandIndexEntryFromOptionalBand(trimmedId, rawBand)];
 }
 
 export function buildAskCitedFindingBandIndex(
