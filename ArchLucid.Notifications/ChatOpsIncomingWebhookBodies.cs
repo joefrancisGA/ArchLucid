@@ -91,7 +91,7 @@ public static class ChatOpsIncomingWebhookBodies
 
         string title = string.IsNullOrWhiteSpace(message.SeverityLabel)
             ? message.Title
-            : FormattableString.Invariant($"[{message.SeverityLabel!.Trim()}] {message.Title}");
+            : FormattableString.Invariant($"[{SanitizeTeamsSeverityLabel(message.SeverityLabel)}] {message.Title}");
 
         string text =
             TeamsTextBlock(
@@ -133,5 +133,23 @@ public static class ChatOpsIncomingWebhookBodies
         body = body.Trim();
 
         return string.IsNullOrWhiteSpace(supporting) ? body : $"{supporting.Trim()}\n\n{body}";
+    }
+
+    private static string SanitizeTeamsSeverityLabel(string severityLabel)
+    {
+        string withoutBrackets = severityLabel
+            .Trim()
+            .Replace("[", string.Empty, StringComparison.Ordinal)
+            .Replace("]", string.Empty, StringComparison.Ordinal);
+
+        return CollapseAsciiWhitespace(withoutBrackets);
+    }
+
+    private static string CollapseAsciiWhitespace(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return string.Empty;
+
+        return string.Join(' ', value.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries));
     }
 }

@@ -189,4 +189,20 @@ public sealed class ChatOpsIncomingWebhookBodiesTests
 
         act.Should().Throw<ArgumentNullException>().WithParameterName("message");
     }
+
+    [Fact]
+    public void ForTeams_strips_brackets_from_severity_label_before_title_prefix()
+    {
+        ChatOpsWebhookMessage message = new()
+        {
+            SeverityLabel = "Low] [Critical",
+            Title = "Actual headline",
+            Body = "details",
+        };
+
+        object payload = ChatOpsIncomingWebhookBodies.ForTeams(message);
+
+        NotificationsTestPayloadAssert.GetStringProperty(payload, "title")
+            .Should().Be("[Low Critical] Actual headline");
+    }
 }
