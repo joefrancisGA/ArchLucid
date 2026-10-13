@@ -267,7 +267,7 @@ This row records CI observations only. It is not a staging witness, Real-mode pi
 
 The refresh workflow is path-filtered to contract-layer paths; the RC35 repair set changed tests, UI, CI guards, and runbook documentation. This row records CI observations only and is not a staging witness, Real-mode pilot proof, ruleset application, or customer evidence.
 
-### Observed RC35 evidence row — 2026-10-13
+### Observed RC35 evidence row — 2026-10-13 (pre–#4653)
 
 | Field | Observed value |
 | --- | --- |
@@ -280,6 +280,20 @@ The refresh workflow is path-filtered to contract-layer paths; the RC35 repair s
 | G-REAL-06 | **Not started** |
 
 This row records CI observations only. It is not a staging witness, Real-mode pilot proof, ruleset application, or customer evidence.
+
+### Observed RC35 evidence row — 2026-10-13 (master merge)
+
+| Field | Observed value |
+| --- | --- |
+| RC35 head | `085ec05f139a74a2e70e9ae0cc41cc3f4be6007f` |
+| UI typecheck / OpenAPI refresh | **PASS** — runs `38392711590`, `38392711333` |
+| Private-beta JwtBearer access path | **FAIL** — run `38392711461` (session-expiry + TB-927; finalize hash fix **#4653** not yet on cut) |
+| RC release gate | **FAIL** — run `38392711498` (`demo-workspace-a` CG-046 stamp band) |
+| Gate 1 | **UNKNOWN** |
+| G-REAL-06 | **Not started** |
+
+**Cursor follow-up (**#4655**):** pipeline finalize manifest hash (TB-927), JwtBearer session-expiry dedupe, and CG-046 live demo assert spine **or** stamp semantic support after findings hydrate.
+
 
 ## Golden-cohort apply (owner, after first green)
 
