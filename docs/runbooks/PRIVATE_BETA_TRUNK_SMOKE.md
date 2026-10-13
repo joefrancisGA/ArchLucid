@@ -36,7 +36,7 @@ Only then dispatch the full matrix (`bash scripts/ci/dispatch_full_ci_matrix.sh 
 | Lockfile + typecheck unblocked | #1715 / `f5a907dfb0` | `Install UI deps, verify lockfile, and typecheck` **green** on run `34002442429` |
 | First Playwright execution post-lockfile | #1715 / `34002442429` | Job passed install, build, API warm; Playwright step reached (45m per-test CI budget) |
 | OpenAPI push corset unblocked | #1727 / `a63198e` | Snapshot regen after IE-UX + CA prompt API drift |
-| First green private-beta on `master` | — | **Not yet** — do not add to golden-cohort ruleset until observed |
+| First green private-beta on `master` | `7cc2d679e5` / run `38436208199` (2026-10-13) | **Observed** — owner may apply golden-cohort addon per § Golden-cohort apply; Cursor does not change org rulesets |
 | Branch concurrency + health poll diagnostics | #1733 / `c2ee3fc91b` | Supersedes stale queued runs; logs HTTP status during `/health/ready` poll |
 | Create-run preflight + identity desk e2e | #1736 / `ecbe600a7b` | `waitForLiveApiReady` before create-run; architecture identity desk smoke after run create |
 | Loader smoke + signin/invite Report Problem | #1792 / `159c5fab6a` | Vitest `e2e/live-api-private-beta-access.loader-smoke.test.ts`; TB-782 surfaces on `/auth/signin` + `/auth/invite` |
@@ -292,8 +292,33 @@ This row records CI observations only. It is not a staging witness, Real-mode pi
 | Gate 1 | **UNKNOWN** |
 | G-REAL-06 | **Not started** |
 
-**Cursor follow-up (**#4655**):** pipeline finalize manifest hash (TB-927), JwtBearer session-expiry dedupe, and CG-046 live demo assert spine **or** stamp semantic support after findings hydrate.
+**Cursor follow-up (**#4655** / **#4653** / **#4660**):** landed on `master` — finalize manifest hash (TB-927), session-expiry dedupe, Ask cited-band typecheck (**#4660**), CG-046 demo assert (spine **or** stamp). Remote **`RC35`** cut is retired; triage **`master`** only.
 
+### Observed `master` trunk evidence row — 2026-10-13
+
+| Field | Observed value |
+| --- | --- |
+| `master` head | `7cc2d679e5f27282ac8b15f3d96b7d430af21cb9` (merge **#4664**) |
+| UI typecheck on push | **PASS** — workflow run `38436208192` |
+| Push corset / OpenAPI fail-fast / beta-readiness guards | **PASS** — jobs on run `38436208192` |
+| JwtBearer production build | **PASS** — job on run `38436208192` |
+| Private-beta JwtBearer access path | **PASS** — workflow run `38436208199` |
+| `ui-e2e-live` (@release-gate) | **Not observed on this push** — runs on `ci.yml` `push` / `merge_group` / `workflow_dispatch`; dispatch full matrix if release-gate proof needed |
+| Staging deployment (`CD staging on merge`) | **Skipped** on observed merges (no staging witness) |
+| Gate 1 / G-REAL-06 | **Not started** (owner) |
+| Golden-cohort private-beta required check | **Not applied** — prerequisite green JwtBearer on `master` is met; **owner** runs `scripts/ci/apply-golden-cohort-gate-ruleset.ps1` |
+
+This row records CI observations only. It is not staging witness, Real-mode pilot proof, ruleset application, or customer evidence.
+
+## Cursor trunk triage snapshot (2026-10-13)
+
+| Lane | Status | Next action |
+| --- | --- | --- |
+| Trunk typecheck + JwtBearer | **Green** on `7cc2d679` | Monitor next `master` push; re-triage if either reds |
+| Golden-cohort ruleset | **Owner** | Apply addon after owner review of run `38436208199`; see `.github/BRANCH_PROTECTION.md` |
+| Open agent PR | **#4665** | Finish/review export copy polish; fix `CI: guards pre-corset` if still red on PR |
+| Assessment Tier 1 | **Owner** | Real-mode proof runs (G-REAL-06), commerce, M-110 — not Cursor batches |
+| Engineering backlog | No open **P0** summary rows detected | Use `/show-next-improvement` or ship **#4665**; avoid GTM cohort **M-90** / **M-44** / **M-91** / **M-92** |
 
 ## Golden-cohort apply (owner, after first green)
 
