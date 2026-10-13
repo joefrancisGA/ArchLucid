@@ -187,7 +187,7 @@ public sealed class TenantErasureCommandService(
             if (afterMiss is not null && IsIdenticalLegalHoldRetry(afterMiss, untilUtc, normalizedReason))
                 return true;
 
-            if (requireErasureQuarantine && afterMiss is not null && afterMiss.OffboardedUtc is null)
+            if (afterMiss is not null && afterMiss.OffboardedUtc is null && tenant.OffboardedUtc is not null)
                 return true;
 
             return false;
