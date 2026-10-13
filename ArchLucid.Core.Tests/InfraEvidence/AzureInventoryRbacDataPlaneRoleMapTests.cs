@@ -11,8 +11,6 @@ public sealed class AzureInventoryRbacDataPlaneRoleMapTests
     [InlineData("Reader", AzureInventoryDerivedDataPlanePermission.Read)]
     [InlineData("Storage Blob Data Reader", AzureInventoryDerivedDataPlanePermission.Read)]
     [InlineData("Key Vault Secrets User", AzureInventoryDerivedDataPlanePermission.Read)]
-    [InlineData("Contributor", AzureInventoryDerivedDataPlanePermission.Write)]
-    [InlineData("Owner", AzureInventoryDerivedDataPlanePermission.Write)]
     [InlineData("Storage Blob Data Contributor", AzureInventoryDerivedDataPlanePermission.Write)]
     [InlineData("SQL DB Contributor", AzureInventoryDerivedDataPlanePermission.ReadAndWrite)]
     [InlineData("Azure Service Bus Data Receiver", AzureInventoryDerivedDataPlanePermission.Read)]
@@ -43,13 +41,19 @@ public sealed class AzureInventoryRbacDataPlaneRoleMapTests
         AzureInventoryRbacDataPlaneRoleMap.Resolve(roleName).Should().Be(expected);
     }
 
-    [Fact]
-    public void Resolve_unknown_role_returns_none()
+    [Theory]
+    [InlineData("Contributor")]
+    [InlineData("Owner")]
+    [InlineData("Security Admin")]
+    public void Resolve_control_plane_and_unknown_roles_return_none(string roleName)
     {
-        AzureInventoryRbacDataPlaneRoleMap.Resolve("Security Admin").Should().Be(
+        AzureInventoryRbacDataPlaneRoleMap.Resolve(roleName).Should().Be(
             AzureInventoryDerivedDataPlanePermission.None);
-        AzureInventoryRbacDataPlaneRoleMap.Resolve("Contributor").Should().Be(
-            AzureInventoryDerivedDataPlanePermission.Write);
+    }
+
+    [Fact]
+    public void Resolve_acr_pull_returns_none()
+    {
         AzureInventoryRbacDataPlaneRoleMap.Resolve("AcrPull").Should().Be(
             AzureInventoryDerivedDataPlanePermission.None);
     }

@@ -31,9 +31,7 @@ public static class AzureInventoryRbacDataPlaneRoleMap
             return AzureInventoryDerivedDataPlanePermission.Read;
         }
 
-        if (normalized.Equals("Contributor", StringComparison.OrdinalIgnoreCase)
-            || normalized.Equals("Owner", StringComparison.OrdinalIgnoreCase)
-            || normalized.Equals("Storage Blob Data Contributor", StringComparison.OrdinalIgnoreCase))
+        if (normalized.Equals("Storage Blob Data Contributor", StringComparison.OrdinalIgnoreCase))
         {
             return AzureInventoryDerivedDataPlanePermission.Write;
         }

@@ -172,6 +172,11 @@ internal static class PrivilegePathEnumerator
             return true;
         }
 
+        if (TryFinalizeControlToDataConversionPath(graph, hops, hasRoleHop, mappedRole, out candidate))
+        {
+            return true;
+        }
+
         List<PrivilegePathEdge> hopsWithInsufficient = [.. hops];
         hopsWithInsufficient.Add(new PrivilegePathEdge
         {
@@ -256,6 +261,22 @@ internal static class PrivilegePathEnumerator
                 actionEdge = siblingAction;
                 return true;
             }
+
+            PrivilegePathEdge? descendantControlToData = fromEdges
+                .Where(edge =>
+                    edge.EdgeType is GraphEdgeTypes.CanRead or GraphEdgeTypes.CanWrite
+                    && IsControlToDataInferenceSource(edge.InferenceSource)
+                    && ArmResourceIdNormalizer.IsDescendantOf(edge.ToNodeId, hasRoleHop.ToNodeId))
+                .OrderByDescending(static edge =>
+                    edge.EdgeType.Equals(GraphEdgeTypes.CanWrite, StringComparison.OrdinalIgnoreCase))
+                .ThenBy(static edge => edge.ToNodeId, StringComparer.OrdinalIgnoreCase)
+                .FirstOrDefault();
+
+            if (descendantControlToData is not null)
+            {
+                actionEdge = descendantControlToData;
+                return true;
+            }
         }
 
         if (graph.OutgoingEdges.TryGetValue(hasRoleHop.ToNodeId, out List<PrivilegePathEdge>? toEdges))
@@ -320,6 +341,125 @@ internal static class PrivilegePathEnumerator
         return true;
     }
 
+    private static bool TryFinalizeControlToDataConversionPath(
+        InventoryPrivilegePathGraphSnapshot graph,
+        IReadOnlyList<PrivilegePathEdge> hops,
+        PrivilegePathEdge hasRoleHop,
+        string? mappedRole,
+        out PrivilegePathCandidate candidate)
+    {
+        candidate = null!;
+
+        if (!AzureInventoryControlPlaneBuiltinRoles.IsContributorOrOwner(mappedRole))
+        {
+            return false;
+        }
+
+        string scopeNodeId = hasRoleHop.ToNodeId;
+        string? resourceType = null;
+        IReadOnlyDictionary<string, string> properties = ReadResourceProperties(graph, scopeNodeId, ref resourceType);
+
+        if (string.IsNullOrWhiteSpace(resourceType))
+        {
+            resourceType = InferResourceTypeFromArmId(scopeNodeId);
+        }
+
+        AzureInventoryControlToDataConversionResult conversion =
+            AzureInventoryControlToDataConversionResolver.ResolveForResource(mappedRole, resourceType, properties);
+
+        if (!conversion.HasPermission)
+        {
+            return false;
+        }
+
+        string actionEdgeType = conversion.Permission is AzureInventoryDerivedDataPlanePermission.Write
+            or AzureInventoryDerivedDataPlanePermission.ReadAndWrite
+            ? GraphEdgeTypes.CanWrite
+            : GraphEdgeTypes.CanRead;
+
+        List<PrivilegePathEdge> hopsWithAction = [.. hops];
+        hopsWithAction.Add(new PrivilegePathEdge
+        {
+            FromNodeId = hasRoleHop.FromNodeId,
+            ToNodeId = hasRoleHop.ToNodeId,
+            EdgeType = actionEdgeType,
+            ProvenanceKind = ProvenanceKind.DerivedFact,
+            InferenceSource = string.IsNullOrWhiteSpace(conversion.InferenceQualifier)
+                ? GraphEdgeInferenceSources.InventoryControlToDataConversion
+                : GraphEdgeInferenceSources.WithQualifier(
+                    GraphEdgeInferenceSources.InventoryControlToDataConversion,
+                    conversion.InferenceQualifier!),
+            RoleName = mappedRole,
+        });
+
+        graph.ResourcesByArmId.TryGetValue(scopeNodeId, out AzureInventoryResourceRecord? scopeResource);
+
+        candidate = new PrivilegePathCandidate
+        {
+            Hops = hopsWithAction,
+            TerminalScopeNodeId = scopeNodeId,
+            EffectiveRoleName = mappedRole,
+            HasInsufficientEvidenceHop = HasInsufficientEvidenceHop(hopsWithAction),
+            TerminalCloudResourceId = scopeResource?.CloudResourceId,
+            TerminalResourceType = scopeResource?.ResourceType ?? resourceType,
+            ScopeTaggedProduction = InventoryPrivilegePathGraph.IsScopeTaggedProduction(
+                scopeNodeId,
+                graph.ResourcesByArmId,
+                graph.TagsByResourceRowId),
+            IsFederatedDeploymentPath = IsFederatedDeploymentPath(hopsWithAction),
+            IsGroupNestedPath = IsGroupNestedPath(hopsWithAction),
+        };
+
+        return true;
+    }
+
+    private static IReadOnlyDictionary<string, string> ReadResourceProperties(
+        InventoryPrivilegePathGraphSnapshot graph,
+        string scopeNodeId,
+        ref string? resourceType)
+    {
+        if (!graph.ResourcesByArmId.TryGetValue(scopeNodeId, out AzureInventoryResourceRecord? resource))
+        {
+            return new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        }
+
+        resourceType = resource.ResourceType;
+
+        if (!graph.PropertiesByResourceRowId.TryGetValue(resource.ResourceRowId, out List<AzureInventoryResourcePropertyReadModel>? properties))
+        {
+            return new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        }
+
+        Dictionary<string, string> map = new(StringComparer.OrdinalIgnoreCase);
+
+        foreach (AzureInventoryResourcePropertyReadModel property in properties)
+        {
+            if (string.IsNullOrWhiteSpace(property.PropertyKey))
+            {
+                continue;
+            }
+
+            map[property.PropertyKey] = property.PropertyValue ?? string.Empty;
+        }
+
+        return map;
+    }
+
+    private static string? InferResourceTypeFromArmId(string armId)
+    {
+        if (armId.Contains("/Microsoft.Storage/storageAccounts/", StringComparison.OrdinalIgnoreCase))
+        {
+            return "Microsoft.Storage/storageAccounts";
+        }
+
+        if (armId.Contains("/Microsoft.KeyVault/vaults/", StringComparison.OrdinalIgnoreCase))
+        {
+            return "Microsoft.KeyVault/vaults";
+        }
+
+        return null;
+    }
+
     private static string BuildPathSignature(IReadOnlyList<PrivilegePathEdge> hops) =>
         string.Join(
             ">",
@@ -337,4 +477,24 @@ internal static class PrivilegePathEnumerator
     private static bool HasInsufficientEvidenceHop(IReadOnlyList<PrivilegePathEdge> hops) =>
         hops.Any(static hop => hop.EdgeType == "unknown-role-actions")
         || hops.Any(static hop => hop.InferenceSource == GraphEdgeInferenceSources.PimEligibilityUnknown);
+
+    private static bool IsControlToDataInferenceSource(string? inferenceSource)
+    {
+        if (string.IsNullOrWhiteSpace(inferenceSource))
+        {
+            return false;
+        }
+
+        if (inferenceSource.Equals(
+                GraphEdgeInferenceSources.InventoryControlToDataConversion,
+                StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
+        string prefix = GraphEdgeInferenceSources.InventoryControlToDataConversion
+            + GraphEdgeInferenceSources.InferenceSourceQualifierSeparator;
+
+        return inferenceSource.StartsWith(prefix, StringComparison.OrdinalIgnoreCase);
+    }
 }
