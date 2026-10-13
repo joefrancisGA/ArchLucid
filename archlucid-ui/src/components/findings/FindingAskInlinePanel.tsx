@@ -15,6 +15,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { AskVsFrontierAiDifferentiationStrip } from "@/components/ask/AskVsFrontierAiDifferentiationStrip";
 import { AskCitedFindingsSemanticSupportBandFootnote } from "@/components/ask/AskCitedFindingsSemanticSupportBandFootnote";
+import type { AskCitedFindingBandIndexEntry } from "@/lib/ask/ask-cited-findings-semantic-support-band";
 import { AskRunCoverageHonestyStrip } from "@/components/ask/AskRunCoverageHonestyStrip";
 import { PolicyPackInfluenceHonestyChip } from "@/components/reviews/PolicyPackInfluenceHonestyChip";
 import type { FindingClassificationValue } from "@/lib/findings/finding-classification-chip-presentation";
@@ -52,6 +53,23 @@ type AskTurn = {
   question: string;
   answer: string | null;
 };
+
+function resolveFindingAskInlineCitedBandIndex(
+  findingId: string,
+  semanticSupportBand: FindingSemanticSupportBandValue | null | undefined,
+): readonly AskCitedFindingBandIndexEntry[] {
+  if (semanticSupportBand === undefined || semanticSupportBand === null) {
+    return [];
+  }
+
+  const entry: AskCitedFindingBandIndexEntry = {
+    findingId,
+    band: semanticSupportBand,
+    bandStored: true,
+  };
+
+  return [entry];
+}
 
 /**
  * Inline grounded Q&A for a single finding via POST /v1/architecture/finding/{findingId}/ask.
@@ -234,11 +252,10 @@ export function FindingAskInlinePanel(props: FindingAskInlinePanelProps) {
                   )}
                   <AskCitedFindingsSemanticSupportBandFootnote
                     referencedFindingIds={[props.findingId]}
-                    findingBandIndex={
-                      props.semanticSupportBand !== undefined && props.semanticSupportBand !== null
-                        ? [{ findingId: props.findingId, band: props.semanticSupportBand }]
-                        : []
-                    }
+                    findingBandIndex={resolveFindingAskInlineCitedBandIndex(
+                      props.findingId,
+                      props.semanticSupportBand,
+                    )}
                   />
                 </li>
               ))}
