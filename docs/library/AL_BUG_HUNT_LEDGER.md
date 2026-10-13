@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-13 seed hunt (seed→hit): `application-tenancy-lifecycle` — promoted `TenantProvisioningService.ProvisionAsync` catalog/workspace insert path; `ProvisionTenantCatalogAsync` / workspace / project inserts still ran when erasure offboard completed after `InsertTenantAsync` but before catalog provisioning; pre-catalog `GetByIdAsync` re-read with `BuildErasureQuarantineProvisionResult` (`Guid.Empty` workspace/project when inserts skipped); regression `ProvisionAsync_skips_catalog_and_workspace_when_offboard_completes_after_tenant_insert_before_catalog`; 205 scoped tenancy tests passed.
+
 2026-10-13 seed hunt (seed→hit): `application-tenancy-lifecycle` — promoted `TenantProvisioningService.ProvisionAsync` default policy-pack seed and nav settings paths; `EnsureDefaultPolicyPacksAsync` and `archlucid_nav_show_*` upserts still ran inside the insert block before the erasure-quarantine re-read; moved policy-pack seed and nav settings after the re-read with first-touch; regression `ProvisionAsync_skips_policy_pack_seed_and_nav_settings_when_offboard_completes_after_workspace_insert_before_audit`; 204 scoped tenancy tests passed.
 
 2026-10-13 seed hunt (seed→hit): `application-tenancy-lifecycle` — promoted `TenantProvisioningService.ProvisionAsync` marketing first-touch path; `PersistFirstTouchIfPresentAsync` still ran inside the catalog/workspace insert block before the erasure-quarantine re-read ahead of `TenantProvisioned`; moved first-touch persistence after the re-read so quarantined tenants skip attribution writes; regression `ProvisionAsync_skips_first_touch_persist_when_offboard_completes_after_workspace_insert_before_audit`; 203 scoped tenancy tests passed.
@@ -34658,11 +34660,19 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 97
-- **bugs-found:** 82
+- **hunts:** 98
+- **bugs-found:** 83
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-13
-- **last-bug:** 2026-10-13 — Provision policy-pack/nav side effects on quarantined tenant
+- **last-bug:** 2026-10-13 — Provision catalog/workspace on erasure-quarantined tenant
+
+2026-10-13 seed hunt (seed→hit): reseeded provision core insert block from ledger candidate; proved catalog/workspace/project inserts when offboard followed tenant row insert; pre-catalog erasure re-read; regression `ProvisionAsync_skips_catalog_and_workspace_when_offboard_completes_after_tenant_insert_before_catalog`; tightened post-workspace race tests with ordered tenant reads; 205 scoped tenancy tests passed.
+
+- [x] (proven) `TenantProvisioningService.ProvisionAsync` — catalog/workspace/project inserts when erasure offboard before pre-audit re-read — **hit 2026-10-13 seed hunt (seed→hit):** regression `ProvisionAsync_skips_catalog_and_workspace_when_offboard_completes_after_tenant_insert_before_catalog`.
+
+2026-10-13 seed hunt (seed-only): reseeded `BuildAlreadyProvisionedResultAsync` and duplicate-registration paths; added candidate for idempotent re-provision returning workspace ids for offboarded existing tenant without quarantine signal.
+
+- (candidate) `TenantProvisioningService.BuildAlreadyProvisionedResultAsync` — duplicate slug registration returns `WasAlreadyProvisioned` with workspace ids when matched tenant row has `OffboardedUtc` set; reachable from `/v1/register` retry after operator offboard of the original organization.
 
 2026-10-13 seed hunt (seed→hit): reseeded provision post-insert side effects from ledger candidates; proved default policy-pack seed and nav settings on quarantined tenant when offboard preceded pre-audit re-read; defer side effects after re-read; regression `ProvisionAsync_skips_policy_pack_seed_and_nav_settings_when_offboard_completes_after_workspace_insert_before_audit`; 204 scoped tenancy tests passed.
 
@@ -34671,7 +34681,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 2026-10-13 seed hunt (seed-only): reseeded provision core insert block; added candidate for tenant-catalog provision and workspace/project inserts racing erasure offboard before any post-insert re-read.
 
-- (candidate) `TenantProvisioningService.ProvisionAsync` — `ProvisionTenantCatalogAsync` / `InsertWorkspaceAsync` / `InsertAsync` still run when erasure offboard completes after `InsertTenantAsync` but before the pre-audit re-read; reachable from self-service registration racing operator offboard before catalog attach completes.
+- [x] (proven) `TenantProvisioningService.ProvisionAsync` — `ProvisionTenantCatalogAsync` / `InsertWorkspaceAsync` / `InsertAsync` when erasure offboard after `InsertTenantAsync` before pre-audit re-read — **hit 2026-10-13 seed hunt (seed→hit):** regression `ProvisionAsync_skips_catalog_and_workspace_when_offboard_completes_after_tenant_insert_before_catalog`.
 
 2026-10-13 seed hunt (seed→hit): reseeded `TenantProvisioningService` marketing attribution from ledger candidate; proved `PersistFirstTouchIfPresentAsync` on quarantined tenant when offboard followed workspace insert; defer first-touch until after erasure re-read; regression `ProvisionAsync_skips_first_touch_persist_when_offboard_completes_after_workspace_insert_before_audit`; 203 scoped tenancy tests passed.
 

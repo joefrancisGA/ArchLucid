@@ -99,6 +99,15 @@ public sealed class TenantProvisioningService(
 
         ScopeContext provisionScope = new() { TenantId = tenantId, WorkspaceId = workspaceId, ProjectId = projectId, };
         using (AmbientScopeContext.Push(provisionScope))
+        {
+            TenantRecord? tenantBeforeCatalogProvision =
+                await _tenantRepository.GetByIdAsync(tenantId, ct).ConfigureAwait(false);
+
+            if (tenantBeforeCatalogProvision?.OffboardedUtc is not null)
+            {
+                return BuildErasureQuarantineProvisionResult(tenantId, Guid.Empty, Guid.Empty);
+            }
+
             try
             {
                 await _tenantSqlCatalogProvisioner.ProvisionTenantCatalogAsync(tenantId, TenantDatabaseNaming.SqlLogicalNameForTenant(tenantId), ct);
@@ -117,19 +126,14 @@ public sealed class TenantProvisioningService(
                         tenantId);
                 throw;
             }
+        }
 
         TenantRecord? tenantBeforeProvisionAudit =
             await _tenantRepository.GetByIdAsync(tenantId, ct).ConfigureAwait(false);
 
         if (tenantBeforeProvisionAudit?.OffboardedUtc is not null)
         {
-            return new TenantProvisioningResult
-            {
-                TenantId = tenantId,
-                DefaultWorkspaceId = workspaceId,
-                DefaultProjectId = projectId,
-                WasAlreadyProvisioned = false,
-            };
+            return BuildErasureQuarantineProvisionResult(tenantId, workspaceId, projectId);
         }
 
         await _defaultPolicyPackSeeder.EnsureDefaultPolicyPacksAsync(tenantId, workspaceId, projectId, ct)
@@ -161,6 +165,20 @@ public sealed class TenantProvisioningService(
         return new TenantProvisioningResult
         {
             TenantId = tenantId, DefaultWorkspaceId = workspaceId, DefaultProjectId = projectId, WasAlreadyProvisioned = false,
+        };
+    }
+
+    private static TenantProvisioningResult BuildErasureQuarantineProvisionResult(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId)
+    {
+        return new TenantProvisioningResult
+        {
+            TenantId = tenantId,
+            DefaultWorkspaceId = workspaceId,
+            DefaultProjectId = projectId,
+            WasAlreadyProvisioned = false,
         };
     }
 
