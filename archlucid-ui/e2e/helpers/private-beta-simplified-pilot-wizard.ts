@@ -11,11 +11,6 @@ import {
   ensureFirstSessionPurposeChooserClosed,
   waitAndDismissFirstSessionPurposeChooser,
 } from "./live-seat-scope-assertions";
-import {
-  interpretWizardCreateOperation,
-  parseWizardOperationResponse,
-  type WizardCreateOperationPoll,
-} from "./wizard-create-response";
 
 /**
  * Working desks redirect `/architecture/reviews/new` when `path` is absent (DA-09).
@@ -74,8 +69,9 @@ export async function submitPrivateBetaSimplifiedPilotWizard(page: Page): Promis
 
   const systemName = page.getByRole("textbox", { name: "System Name" });
 
-  // Baseline wizard prefills CustomerWebApp. A timed-out first attempt still occupies that name,
-  // so Playwright retry 409s with "A review named 'CustomerWebApp' already exists".
+  // Baseline wizard prefills CustomerWebApp. Earlier private-beta cases in the same SQL catalog
+  // already occupy that name, and a timed-out first attempt still occupies it, so Playwright
+  // retry 409s with "A review named 'CustomerWebApp' already exists" unless this create is unique.
   await systemName.fill(uniquePrivateBetaSystemName("PrivateBetaInvitee"));
 
   const description = page.getByRole("textbox", { name: "Description" });
@@ -122,10 +118,9 @@ export async function submitPrivateBetaSimplifiedPilotWizard(page: Page): Promis
     `POST /architecture/request failed ${String(createResp.status())}: ${bodyText}`,
   ).toBeTruthy();
 
-  if (createResp.status() === 202) {
-    return await waitForAsyncWizardRun(page, createResp.headers()["location"]);
-  }
-
+  // Async create admits with 202 + Location while LegacyRunStatus stays Created, so
+  // GET /v1/operations/run:{id} stays Pending. Polling for Succeeded timed out after a
+  // successful pipeline (run 38424388174). Callers wait on the reviews list instead.
   return readCreatedRunIdFromArchitectureRequestCreate({
     status: createResp.status(),
     bodyText,
@@ -147,128 +142,4 @@ function liveE2ePrivateBetaWizardCreateTimeoutMs(): number {
   // Async create is stub + enqueue (202). The previous 540s CI budget waited for a JSON
   // sync body that Real-mode wizard create never sends.
   return process.env.CI ? 120_000 : 180_000;
-}
-
-async function waitForAsyncWizardRun(page: Page, location: string | undefined): Promise<string> {
-  if (!location) {
-    throw new Error(
-      "[wizard-create-response] Async create response did not include a Location header.",
-    );
-  }
-
-  const operationUrl = toProxyOperationUrl(page.url(), location);
-  const deadline = Date.now() + liveE2ePrivateBetaWizardCreateTimeoutMs();
-
-  while (Date.now() < deadline) {
-    const operationResponse = await page.evaluate(async (url) => {
-      const response = await fetch(url, {
-        headers: { Accept: "application/json" },
-      });
-
-      return {
-        body: await response.text(),
-        contentType: response.headers.get("content-type") ?? undefined,
-        status: response.status,
-      };
-    }, operationUrl);
-
-    if (!operationResponse.status || operationResponse.status < 200 || operationResponse.status >= 300) {
-      throw new Error(
-        `[wizard-create-response] Async operation poll failed. ` +
-          `Status: ${operationResponse.status}. URL: ${operationUrl}. ` +
-          `Body: ${operationResponse.body.slice(0, 400) || "<empty>"}.`,
-      );
-    }
-
-    const operation = parseWizardOperationResponse(
-      operationResponse.body,
-      operationResponse.status,
-      operationUrl,
-      operationResponse.contentType,
-    );
-    const poll: WizardCreateOperationPoll = interpretWizardCreateOperation(operation);
-
-    if (poll === "ready") {
-      const runId =
-        operation.resultRef?.runId?.trim() || parseRunIdFromOperationUrl(operationUrl) || "";
-
-      if (runId.length === 0) {
-        throw new Error(
-          `[wizard-create-response] Async operation succeeded without a run id. URL: ${operationUrl}.`,
-        );
-      }
-
-      return runId;
-    }
-
-    if (poll === "failed") {
-      const runId =
-        operation.resultRef?.runId?.trim() ||
-        parseRunIdFromOperationUrl(operationUrl) ||
-        "";
-      const lastFailureReason =
-        runId.length > 0
-          ? await readRunLastFailureReasonViaProxy(page, operationUrl, runId)
-          : undefined;
-      const failureDetail =
-        lastFailureReason && lastFailureReason.length > 0
-          ? ` LastFailureReason: ${lastFailureReason.slice(0, 500)}.`
-          : "";
-
-      throw new Error(
-        `[wizard-create-response] Async operation ended in ${operation.state} state. ` +
-          `URL: ${operationUrl}. Step: ${operation.stepLabel ?? "unknown"}.${failureDetail}`,
-      );
-    }
-
-    await page.waitForTimeout(1_000);
-  }
-
-  throw new Error(
-    `[wizard-create-response] Async operation did not complete before the timeout. ` +
-      `URL: ${operationUrl}.`,
-  );
-}
-
-function toProxyOperationUrl(pageUrl: string, location: string): string {
-  const operationUrl = new URL(location, pageUrl);
-
-  if (operationUrl.pathname.startsWith("/v1/")) {
-    operationUrl.pathname = `/api/proxy${operationUrl.pathname}`;
-  }
-
-  return operationUrl.toString();
-}
-
-function parseRunIdFromOperationUrl(operationUrl: string): string | undefined {
-  const match = operationUrl.match(/run:([0-9a-f-]{36})/i);
-  return match?.[1];
-}
-
-async function readRunLastFailureReasonViaProxy(
-  page: Page,
-  operationUrl: string,
-  runId: string,
-): Promise<string | undefined> {
-  const pageOrigin = new URL(operationUrl).origin;
-  const reviewUrl = `${pageOrigin}/api/proxy/v1/authority/reviews/${encodeURIComponent(runId)}`;
-  const response = await page.evaluate(async (url) => {
-    const res = await fetch(url, { headers: { Accept: "application/json" } });
-    return { status: res.status, body: await res.text() };
-  }, reviewUrl);
-
-  if (!response.status || response.status < 200 || response.status >= 300) {
-    return undefined;
-  }
-
-  try {
-    const json = JSON.parse(response.body) as {
-      lastFailureReason?: string | null;
-      run?: { lastFailureReason?: string | null };
-    };
-
-    return json.lastFailureReason ?? json.run?.lastFailureReason ?? undefined;
-  } catch {
-    return undefined;
-  }
 }
