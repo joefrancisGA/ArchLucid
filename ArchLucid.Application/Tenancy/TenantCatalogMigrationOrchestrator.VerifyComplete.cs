@@ -44,6 +44,15 @@ public sealed partial class TenantCatalogMigrationOrchestrator
             .MarkVerificationResultAsync(active.MigrationId, probe.Passed, probe.ErrorMessage, utcNow, cancellationToken)
             .ConfigureAwait(false);
 
+        if (probe.Passed)
+        {
+            TenantRecord? tenantAfterProbe =
+                await _tenantRepository.GetByIdAsync(tenantId, cancellationToken).ConfigureAwait(false);
+
+            if (tenantAfterProbe?.OffboardedUtc is not null)
+                return (TenantCatalogMigrationCommandOutcome.InErasureQuarantine, probe);
+        }
+
         string auditType = probe.Passed
             ? AuditEventTypes.TenantCatalogMigrationVerificationPassed
             : AuditEventTypes.TenantCatalogMigrationVerificationFailed;
