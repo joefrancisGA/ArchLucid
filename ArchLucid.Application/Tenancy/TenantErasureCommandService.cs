@@ -364,17 +364,19 @@ public sealed class TenantErasureCommandService(
         string? correlationId,
         CancellationToken cancellationToken)
     {
-        if (tenant.OffboardedUtc is null || tenant.ErasureEligibleUtc is null)
+        TenantRecord? current = await _tenantRepository.GetByIdAsync(tenant.Id, cancellationToken);
+
+        if (current is null || current.OffboardedUtc is null || current.ErasureEligibleUtc is null)
             return null;
 
-        if (tenant.SuspendedUtc is null)
-            await _tenantRepository.SuspendTenantAsync(tenant.Id, cancellationToken);
+        if (current.SuspendedUtc is null)
+            await _tenantRepository.SuspendTenantAsync(current.Id, cancellationToken);
 
-        int quarantineDays = QuarantineDaysBetween(tenant.OffboardedUtc.Value, tenant.ErasureEligibleUtc.Value);
+        int quarantineDays = QuarantineDaysBetween(current.OffboardedUtc.Value, current.ErasureEligibleUtc.Value);
 
         await AppendPlatformAuditAsync(
             AuditEventTypes.TenantErasureOffboarded,
-            tenant.Id,
+            current.Id,
             actorUserId,
             actorUserName,
             correlationId,
@@ -382,14 +384,14 @@ public sealed class TenantErasureCommandService(
             {
                 priorOffboardedUtc = (DateTimeOffset?)null,
                 priorErasureEligibleUtc = (DateTimeOffset?)null,
-                offboardedUtc = tenant.OffboardedUtc,
-                erasureEligibleUtc = tenant.ErasureEligibleUtc,
+                offboardedUtc = current.OffboardedUtc,
+                erasureEligibleUtc = current.ErasureEligibleUtc,
                 quarantineDays
             },
             cancellationToken,
-            CreateOffboardAuditEventId(tenant.Id, tenant.OffboardedUtc.Value, tenant.ErasureEligibleUtc.Value));
+            CreateOffboardAuditEventId(current.Id, current.OffboardedUtc.Value, current.ErasureEligibleUtc.Value));
 
-        return new TenantErasureOffboardResult(tenant.OffboardedUtc.Value, tenant.ErasureEligibleUtc.Value);
+        return new TenantErasureOffboardResult(current.OffboardedUtc.Value, current.ErasureEligibleUtc.Value);
     }
 
     private static int QuarantineDaysBetween(DateTimeOffset offboardedUtc, DateTimeOffset eligibleUtc)

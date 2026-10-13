@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-13 seed hunt (seed→hit): `application-tenancy-lifecycle` — promoted `TenantErasureCommandService.CompleteOffboardSideEffectsAsync`; quarantine restore after initial offboard read but before idempotent suspend/audit still suspended the tenant and appended `TenantErasureOffboarded` from a stale snapshot; re-read tenant before side effects and no-op when `OffboardedUtc` is cleared; regression `TryOffboardTenantAsync_returns_null_without_audit_when_quarantine_restored_before_idempotent_side_effects`; 169 scoped tenancy tests passed.
+
 2026-10-13 seed hunt (seed→hit): `application-tenancy-lifecycle` — promoted `TenantCatalogMigrationOrchestrator.StartAsync`; erasure offboard after successful scope-freeze `TrySuspendAsync` but before `InsertAsync` still created an active catalog migration on a quarantined tenant; re-read before insert and return `InErasureQuarantine` without insert (compensating unsuspend when scope-freeze suspend applied); regression `StartAsync_returns_in_erasure_quarantine_when_offboard_completes_after_scope_freeze_suspend_before_insert`; 168 scoped tenancy tests passed.
 
 2026-10-13 seed hunt (seed→hit): `application-tenancy-lifecycle` — promoted `TenantErasureCommandService.TryOffboardTenantAsync`; quarantine restore after successful `TryStartTenantErasureOffboardAsync` and suspend still appended `TenantErasureOffboarded` audit and returned offboard result while erasure quarantine no longer applied; re-read before audit and return null without audit when `OffboardedUtc` is cleared; regression `TryOffboardTenantAsync_returns_null_without_audit_when_quarantine_restored_after_atomic_offboard_start`; 167 scoped tenancy tests passed.
@@ -34573,11 +34575,15 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 65
-- **bugs-found:** 50
+- **hunts:** 66
+- **bugs-found:** 51
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-13
-- **last-bug:** 2026-10-13 — Catalog migration start after concurrent erasure offboard
+- **last-bug:** 2026-10-13 — Offboard idempotent path after concurrent quarantine restore
+
+2026-10-13 seed hunt (seed→hit): reseeded erasure offboard idempotent retry after migration start race fix; proved `CompleteOffboardSideEffectsAsync` used stale offboard snapshot after quarantine restore; re-read before suspend/audit; regression `TryOffboardTenantAsync_returns_null_without_audit_when_quarantine_restored_before_idempotent_side_effects`; 169 scoped tenancy tests passed.
+
+- [x] (proven) `TenantErasureCommandService.CompleteOffboardSideEffectsAsync` — suspended tenant and appended offboard audit after quarantine restore cleared `OffboardedUtc` — **hit 2026-10-13 seed hunt (seed→hit):** re-read tenant before idempotent side effects; regression `TryOffboardTenantAsync_returns_null_without_audit_when_quarantine_restored_before_idempotent_side_effects`.
 
 2026-10-13 seed hunt (seed→hit): reseeded catalog migration after erasure offboard post-suspend race; proved `StartAsync` inserted migration when offboard completed after scope-freeze suspend; re-read before insert; regression `StartAsync_returns_in_erasure_quarantine_when_offboard_completes_after_scope_freeze_suspend_before_insert`; 168 scoped tenancy tests passed.
 
