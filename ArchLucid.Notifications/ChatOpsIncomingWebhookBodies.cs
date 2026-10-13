@@ -8,9 +8,12 @@ public static class ChatOpsIncomingWebhookBodies
     {
         ArgumentNullException.ThrowIfNull(message);
 
+        string safeTitle = ChatOpsSlackMrkdwnEscaper.EscapeFormattingMetacharacters(message.Title);
+
         string headline = string.IsNullOrWhiteSpace(message.SeverityLabel)
-            ? $"*{message.Title}*"
-            : FormattableString.Invariant($"*[{message.SeverityLabel!.Trim()}]* {message.Title}");
+            ? $"*{safeTitle}*"
+            : FormattableString.Invariant(
+                $"*[{ChatOpsSlackMrkdwnEscaper.EscapeFormattingMetacharacters(message.SeverityLabel!.Trim())}]* {safeTitle}");
 
         string text = CombineBlocks(headline, message.SupportingParagraph, message.Body);
 
@@ -30,9 +33,12 @@ public static class ChatOpsIncomingWebhookBodies
         ArgumentNullException.ThrowIfNull(message);
         ArgumentException.ThrowIfNullOrWhiteSpace(approvalRequestId);
 
+        string safeTitle = ChatOpsSlackMrkdwnEscaper.EscapeFormattingMetacharacters(message.Title);
+
         string headline = string.IsNullOrWhiteSpace(message.SeverityLabel)
-            ? $"*{message.Title}*"
-            : FormattableString.Invariant($"*[{message.SeverityLabel!.Trim()}]* {message.Title}");
+            ? $"*{safeTitle}*"
+            : FormattableString.Invariant(
+                $"*[{ChatOpsSlackMrkdwnEscaper.EscapeFormattingMetacharacters(message.SeverityLabel!.Trim())}]* {safeTitle}");
 
         string body = CombineBlocks(headline, message.SupportingParagraph, message.Body);
 
