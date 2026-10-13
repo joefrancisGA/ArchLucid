@@ -236,10 +236,6 @@ public sealed class EntraGroupMembershipGraphReader(
 
         ReadOnlySpan<char> nextGroupId = remainder[..slashIndex];
         ReadOnlySpan<char> collectionSegment = remainder[(slashIndex + 1)..];
-        int collectionSlashIndex = collectionSegment.IndexOf('/');
-        ReadOnlySpan<char> collectionName = collectionSlashIndex < 0
-            ? collectionSegment
-            : collectionSegment[..collectionSlashIndex];
 
         if (nextGroupId.IsEmpty
             || !string.Equals(nextGroupId.ToString(), groupId.Trim(), StringComparison.OrdinalIgnoreCase))
@@ -248,7 +244,7 @@ public sealed class EntraGroupMembershipGraphReader(
                 "Entra group membership Graph read stopped because @odata.nextLink targets a different group.");
         }
 
-        if (!collectionName.Equals("members", StringComparison.OrdinalIgnoreCase))
+        if (!collectionSegment.Equals("members", StringComparison.OrdinalIgnoreCase))
         {
             throw new InvalidOperationException(
                 "Entra group membership Graph read stopped because @odata.nextLink is not a group members URL.");
