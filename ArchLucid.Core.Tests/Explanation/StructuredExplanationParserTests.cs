@@ -297,6 +297,28 @@ public sealed class StructuredExplanationParserTests
     }
 
     [Fact]
+    public void TryNormalizeStructuredJson_ignores_boolean_evidence_ref_entries()
+    {
+        const string json = """{"reasoning":"Main","evidenceRefs":[true,false,"dec-1"]}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.EvidenceRefs.Should().Equal("dec-1");
+    }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_ignores_fractional_numeric_evidence_ref_entries()
+    {
+        const string json = """{"reasoning":"Main","evidenceRefs":[42.5,"dec-1"]}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.EvidenceRefs.Should().Equal("dec-1");
+    }
+
+    [Fact]
     public void TryNormalizeStructuredJson_ignores_negative_numeric_evidence_ref_entries()
     {
         const string json = """{"reasoning":"Main","evidenceRefs":[-1,"dec-1"]}""";

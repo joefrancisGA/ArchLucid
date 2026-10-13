@@ -87,6 +87,9 @@ public static partial class StructuredExplanationParser
         if (item.ValueKind == JsonValueKind.String)
             return item.GetString();
 
+        if (item.ValueKind is JsonValueKind.True or JsonValueKind.False)
+            return null;
+
         if (item.ValueKind == JsonValueKind.Object)
             return TryReadObjectStringProperty(item, objectPropertyOrder);
 
