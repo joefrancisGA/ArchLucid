@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-13 seed hunt (seed→hit): `application-tenancy-lifecycle` — promoted `TenantDeletionService.DeleteTenantAsync`; erasure quarantine restore (`TryRestoreTenantErasureQuarantineAsync` clears `TenantErasureApprovedUtc`) between initial read and hard purge could still invoke SQL/blob deletion using stale approval; re-read approval immediately before purge; regression `DeleteTenantAsync_throws_when_erasure_approval_cleared_before_purge`; 157 scoped tenancy tests passed.
+
 2026-10-13 seed hunt (seed→hit): `application-tenancy-lifecycle` — promoted `TenantSuspendCommandService.ResolveOutcomeAfterFailedLifecycleTransitionAsync`; atomic suspend/unsuspend miss always returned `AlreadyInDesiredState` when tenant was not in erasure quarantine, so admin unsuspend could return 204 while `SuspendedUtc` remained set; re-read maps still-wrong suspend state to new `TenantSuspendOutcome.Conflict` (409 from `TenantsAdminController`); regressions `TryUnsuspendAsync_returns_conflict_when_atomic_miss_and_tenant_still_suspended` and `TrySuspendAsync_returns_conflict_when_atomic_miss_and_tenant_still_active`; 156 scoped tenancy tests passed.
 
 2026-10-13 seed hunt (seed→hit): `application-tenancy-lifecycle` — promoted `TrialLifecycleTransitionEngine.TryAdvanceTenantAsync`; platform legal hold applied after initial scheduler read but before `TryRecordTrialLifecycleTransitionAsync` / `Deleted` hard purge still recorded `ExportOnly`→`Deleted` and invoked purge; re-read automation gate before destructive steps; regressions `TryAdvanceTenantAsync_skips_export_only_to_deleted_when_legal_hold_activated_before_atomic_transition` and `TryAdvanceTenantAsync_skips_deleted_hard_purge_when_legal_hold_activated_before_purge`; 154 scoped tenancy tests passed.
@@ -34549,11 +34551,15 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 53
-- **bugs-found:** 38
+- **hunts:** 54
+- **bugs-found:** 39
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-13
-- **last-bug:** 2026-10-13 — Admin unsuspend reported success while tenant stayed suspended after atomic miss
+- **last-bug:** 2026-10-13 — Hard purge ran after erasure approval cleared by quarantine restore
+
+2026-10-13 seed hunt (seed→hit): reseeded tenant deletion after suspend conflict fix; proved `DeleteTenantAsync` only validated approval on first read; added `RevalidateTenantForHardPurgeAsync` before destructive purge; regression `DeleteTenantAsync_throws_when_erasure_approval_cleared_before_purge`; 157 scoped tenancy tests passed.
+
+- [x] (proven) `TenantDeletionService.DeleteTenantAsync` — hard purge proceeded after `TenantErasureApprovedUtc` cleared by concurrent quarantine restore — **hit 2026-10-13 seed hunt (seed→hit):** re-read tenant approval before purge (reachable from background deletion after platform restore); regression `DeleteTenantAsync_throws_when_erasure_approval_cleared_before_purge`.
 
 2026-10-13 seed hunt (seed→hit): reseeded suspend command service after trial legal-hold gate fix; proved failed unsuspend re-read returned `AlreadyInDesiredState` while `SuspendedUtc` still set; added `TenantSuspendOutcome.Conflict` and direction-aware re-read; regressions in `TenantSuspendCommandServiceTests`; 156 scoped tenancy tests passed.
 
