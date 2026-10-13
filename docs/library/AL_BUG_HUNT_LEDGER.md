@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-13 seed hunt (seed→hit): `application-tenancy-lifecycle` — promoted `TrialTenantBootstrapService` bootstrap entry guards; erasure-quarantined tenants still received signup baseline review-cycle persistence and post-auth demo welcome/full seed; early `IsTenantInErasureQuarantineAsync` return in self-registration and post-auth workspace bootstrap; regressions `TryBootstrapAfterSelfRegistrationAsync_skips_signup_baseline_persist_when_tenant_in_erasure_quarantine` and `TryBootstrapAfterPostAuthWorkspaceAsync_skips_demo_seed_when_tenant_in_erasure_quarantine`; 202 scoped tenancy tests passed.
+
 2026-10-13 seed hunt (seed→hit): `application-tenancy-lifecycle` — promoted `TrialTenantBootstrapService.TryBootstrapAfterSelfRegistrationAsync` (`TrialSignupFailed` paths); erasure offboard before email-verification or trial-bootstrap failure audits still appended signup-failed audits and failure metrics on quarantined tenants; centralized `IsTenantInErasureQuarantineAsync` guard before failure audits/metrics (and reused for `TrialProvisioned` skip); regressions `TryBootstrapAfterSelfRegistrationAsync_skips_email_verification_failure_audit_when_offboard_completes_before_audit` and `TryBootstrapAfterSelfRegistrationAsync_skips_trial_bootstrap_failure_audit_when_offboard_completes_after_commit_failure_before_audit`; 200 scoped tenancy tests passed.
 
 2026-10-13 seed hunt (seed→hit): `application-tenancy-lifecycle` — promoted `TrialTenantBootstrapService.TryBootstrapAfterSelfRegistrationAsync`; erasure offboard after `CommitSelfServiceTrialAsync` but before `TrialProvisioned` audit still appended trial-provisioned audit and enqueued architecture preseed on quarantined tenant; re-read tenant before audit and return without audit/preseed/metrics when `OffboardedUtc` is set; regression `TryBootstrapAfterSelfRegistrationAsync_skips_trial_provisioned_audit_when_offboard_completes_after_commit_before_audit`; 198 scoped tenancy tests passed.
@@ -34652,11 +34654,20 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 94
-- **bugs-found:** 79
+- **hunts:** 95
+- **bugs-found:** 80
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-13
-- **last-bug:** 2026-10-13 — Trial signup-failed audits on erasure-quarantined tenants
+- **last-bug:** 2026-10-13 — Trial bootstrap mutations on erasure-quarantined tenants
+
+2026-10-13 seed hunt (seed→hit): reseeded trial bootstrap entry paths from ledger candidates; proved signup baseline persist and post-auth demo seed on quarantined tenants; early erasure quarantine short-circuit; regressions `TryBootstrapAfterSelfRegistrationAsync_skips_signup_baseline_persist_when_tenant_in_erasure_quarantine` and `TryBootstrapAfterPostAuthWorkspaceAsync_skips_demo_seed_when_tenant_in_erasure_quarantine`; 202 scoped tenancy tests passed.
+
+- [x] (proven) `TrialTenantBootstrapService.TryBootstrapAfterSelfRegistrationAsync` — `PersistTrialSignupBaselineReviewCycleAsync` on erasure-quarantined tenant — **hit 2026-10-13 seed hunt (seed→hit):** skip entire self-registration bootstrap when `OffboardedUtc` is set on entry re-read; regression `TryBootstrapAfterSelfRegistrationAsync_skips_signup_baseline_persist_when_tenant_in_erasure_quarantine`.
+- [x] (proven) `TrialTenantBootstrapService.TryBootstrapAfterPostAuthWorkspaceAsync` — demo seed on erasure-quarantined tenant — **hit 2026-10-13 seed hunt (seed→hit):** skip post-auth demo bootstrap when quarantine applies; regression `TryBootstrapAfterPostAuthWorkspaceAsync_skips_demo_seed_when_tenant_in_erasure_quarantine`.
+
+2026-10-13 seed hunt (seed-only): reseeded `TenantProvisioningService` marketing attribution during provision; added candidate for first-touch persistence racing erasure offboard.
+
+- (candidate) `TenantProvisioningService.ProvisionAsync` — `PersistFirstTouchIfPresentAsync` still runs after workspace insert when erasure offboard completes before provision audit; reachable from self-service registration with `FirstTouch` payload racing operator offboard on the new tenant row.
 
 2026-10-13 seed hunt (seed→hit): reseeded trial bootstrap failure audits from ledger candidates; proved `TrialSignupFailed` email-verification and trial-bootstrap catch audits when offboard followed policy/commit failure; `IsTenantInErasureQuarantineAsync` guard; regressions `TryBootstrapAfterSelfRegistrationAsync_skips_email_verification_failure_audit_when_offboard_completes_before_audit` and `TryBootstrapAfterSelfRegistrationAsync_skips_trial_bootstrap_failure_audit_when_offboard_completes_after_commit_failure_before_audit`; 200 scoped tenancy tests passed.
 
@@ -34664,8 +34675,8 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 2026-10-13 seed hunt (seed-only): reseeded `PersistTrialSignupBaselineReviewCycleAsync` and post-auth demo bootstrap paths; added candidates for baseline persistence and demo seed on quarantined tenants.
 
-- (candidate) `TrialTenantBootstrapService.TryBootstrapAfterSelfRegistrationAsync` — `PersistTrialSignupBaselineReviewCycleAsync` writes signup baseline review-cycle capture on tenant already in erasure quarantine before email policy runs; reachable from `/v1/register` with baseline capture body racing operator offboard.
-- (candidate) `TrialTenantBootstrapService.TryBootstrapAfterPostAuthWorkspaceAsync` — demo welcome/full seed still runs when `OffboardedUtc` is set on tenant before post-auth workspace bootstrap; reachable from post-auth workspace provisioning on a quarantined tenant row.
+- [x] (proven) `TrialTenantBootstrapService.TryBootstrapAfterSelfRegistrationAsync` — `PersistTrialSignupBaselineReviewCycleAsync` on erasure-quarantined tenant before email policy — **hit 2026-10-13 seed hunt (seed→hit):** regression `TryBootstrapAfterSelfRegistrationAsync_skips_signup_baseline_persist_when_tenant_in_erasure_quarantine`.
+- [x] (proven) `TrialTenantBootstrapService.TryBootstrapAfterPostAuthWorkspaceAsync` — demo seed when `OffboardedUtc` set before post-auth bootstrap — **hit 2026-10-13 seed hunt (seed→hit):** regression `TryBootstrapAfterPostAuthWorkspaceAsync_skips_demo_seed_when_tenant_in_erasure_quarantine`.
 
 2026-10-13 seed hunt (seed→hit): reseeded trial self-service bootstrap from `TrialTenantBootstrapService`; proved `TrialProvisioned` audit after commit when offboard followed trial AI budget provisioning; re-read before audit; regression `TryBootstrapAfterSelfRegistrationAsync_skips_trial_provisioned_audit_when_offboard_completes_after_commit_before_audit`; 198 scoped tenancy tests passed.
 

@@ -57,6 +57,9 @@ public sealed class TrialTenantBootstrapService(
 
         using (AmbientScopeContext.Push(scope))
         {
+            if (await IsTenantInErasureQuarantineAsync(result.TenantId, cancellationToken))
+                return;
+
             if (baselineReviewCycle is not null)
                 await _tenantRepository.PersistTrialSignupBaselineReviewCycleAsync(
                     result.TenantId,
@@ -233,6 +236,9 @@ public sealed class TrialTenantBootstrapService(
 
         using (AmbientScopeContext.Push(scope))
         {
+            if (await IsTenantInErasureQuarantineAsync(result.TenantId, cancellationToken).ConfigureAwait(false))
+                return;
+
             try
             {
                 await _demoSeedService.SeedTrialWelcomeRunAsync(cancellationToken).ConfigureAwait(false);

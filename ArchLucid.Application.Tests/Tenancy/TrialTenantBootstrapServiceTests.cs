@@ -439,6 +439,11 @@ public sealed class TrialTenantBootstrapServiceTests
     {
         Guid tenantId = Guid.Parse("11111111-1111-1111-1111-111111111112");
         DateTimeOffset anchor = new(2026, 10, 13, 0, 0, 0, TimeSpan.Zero);
+        TenantRecord active = new()
+        {
+            Id = tenantId,
+            Tier = TenantTier.Free,
+        };
         TenantRecord offboarded = new()
         {
             Id = tenantId,
@@ -468,7 +473,8 @@ public sealed class TrialTenantBootstrapServiceTests
                 It.IsAny<string?>(),
                 It.IsAny<CancellationToken>()))
             .ThrowsAsync(new InvalidOperationException("commit failed"));
-        repo.Setup(r => r.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
+        repo.SetupSequence(r => r.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(active)
             .ReturnsAsync(offboarded);
 
         Mock<IAuditService> audit = new(MockBehavior.Strict);
@@ -550,6 +556,111 @@ public sealed class TrialTenantBootstrapServiceTests
                     && e.ActorUserName == "x@y.com"),
                 It.IsAny<CancellationToken>()),
             Times.Once);
+    }
+
+    [SkippableFact]
+    public async Task TryBootstrapAfterSelfRegistrationAsync_skips_signup_baseline_persist_when_tenant_in_erasure_quarantine()
+    {
+        Guid tenantId = Guid.Parse("22222222-2222-2222-2222-222222222223");
+        DateTimeOffset anchor = new(2026, 10, 13, 0, 0, 0, TimeSpan.Zero);
+        TenantRecord offboarded = new()
+        {
+            Id = tenantId,
+            Tier = TenantTier.Free,
+            OffboardedUtc = anchor,
+            ErasureEligibleUtc = anchor.AddDays(30),
+        };
+
+        Mock<IDemoSeedService> demo = new();
+        Mock<ITenantRepository> repo = new();
+        repo.Setup(r => r.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(offboarded);
+
+        Mock<IAuditService> audit = new();
+        Mock<ITrialBootstrapEmailVerificationPolicy> email = new();
+        email.Setup(e => e.CanProvisionTrialForRegisteredEmailAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+
+        TrialTenantBootstrapService sut = new(
+            demo.Object,
+            repo.Object,
+            audit.Object,
+            email.Object,
+            CreateTrialAiBudgetProvisionerMock().Object,
+            TimeProvider.System,
+            NullLogger<TrialTenantBootstrapService>.Instance);
+
+        TenantProvisioningResult result = new()
+        {
+            TenantId = tenantId,
+            DefaultWorkspaceId = Guid.NewGuid(),
+            DefaultProjectId = Guid.NewGuid(),
+            WasAlreadyProvisioned = false,
+        };
+
+        DateTimeOffset captured = DateTimeOffset.Parse("2026-05-02T12:00:00Z");
+        TrialSignupBaselineReviewCycleCapture baseline = new(22m, "note", captured);
+
+        await sut.TryBootstrapAfterSelfRegistrationAsync(result, "owner@example.com", baseline, null, CancellationToken.None);
+
+        repo.Verify(
+            r => r.PersistTrialSignupBaselineReviewCycleAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<decimal>(),
+                It.IsAny<string?>(),
+                It.IsAny<DateTimeOffset>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+        email.Verify(
+            e => e.CanProvisionTrialForRegisteredEmailAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+        demo.Verify(s => s.SeedTrialWelcomeRunAsync(It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [SkippableFact]
+    public async Task TryBootstrapAfterPostAuthWorkspaceAsync_skips_demo_seed_when_tenant_in_erasure_quarantine()
+    {
+        Guid tenantId = Guid.Parse("33333333-3333-3333-3333-333333333334");
+        DateTimeOffset anchor = new(2026, 10, 13, 0, 0, 0, TimeSpan.Zero);
+        TenantRecord offboarded = new()
+        {
+            Id = tenantId,
+            Tier = TenantTier.Free,
+            OffboardedUtc = anchor,
+            ErasureEligibleUtc = anchor.AddDays(30),
+        };
+
+        Mock<IDemoSeedService> demo = new();
+        Mock<ITenantRepository> repo = new();
+        repo.Setup(r => r.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(offboarded);
+
+        TrialTenantBootstrapService sut = new(
+            demo.Object,
+            repo.Object,
+            new Mock<IAuditService>().Object,
+            new Mock<ITrialBootstrapEmailVerificationPolicy>().Object,
+            CreateTrialAiBudgetProvisionerMock().Object,
+            TimeProvider.System,
+            NullLogger<TrialTenantBootstrapService>.Instance);
+
+        TenantProvisioningResult result = new()
+        {
+            TenantId = tenantId,
+            DefaultWorkspaceId = Guid.NewGuid(),
+            DefaultProjectId = Guid.NewGuid(),
+            WasAlreadyProvisioned = false,
+        };
+
+        await sut.TryBootstrapAfterPostAuthWorkspaceAsync(
+            result,
+            "owner@example.com",
+            null,
+            includeDemoSeed: true,
+            CancellationToken.None);
+
+        demo.Verify(s => s.SeedTrialWelcomeRunAsync(It.IsAny<CancellationToken>()), Times.Never);
+        demo.Verify(s => s.SeedAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [SkippableFact]
@@ -755,6 +866,11 @@ public sealed class TrialTenantBootstrapServiceTests
     {
         Guid tenantId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
         DateTimeOffset anchor = new(2026, 10, 13, 0, 0, 0, TimeSpan.Zero);
+        TenantRecord active = new()
+        {
+            Id = tenantId,
+            Tier = TenantTier.Free,
+        };
         TenantRecord offboarded = new()
         {
             Id = tenantId,
@@ -784,7 +900,8 @@ public sealed class TrialTenantBootstrapServiceTests
                 It.IsAny<string?>(),
                 It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
-        repo.Setup(r => r.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
+        repo.SetupSequence(r => r.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(active)
             .ReturnsAsync(offboarded);
 
         Mock<IAuditService> audit = new(MockBehavior.Strict);
