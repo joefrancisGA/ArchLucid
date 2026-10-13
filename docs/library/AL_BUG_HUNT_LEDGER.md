@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-13 seed hunt (seed→hit): `notifications-pipeline` — promoted `AlertOnCallWebhookDeliveryChannel.SendAsync`; generic on-call/pager `payload.Subscription.Destination` reached `IWebhookPoster.PostJsonAsync` without `ChatOpsWebhookAbsoluteUriValidator` (parity gap after Slack/Teams digest/alert hardening); `ResolveHttpsDeliveryUriOrThrow` before POST; regression `SendAsync_throws_when_subscription_destination_has_embedded_line_breaks` (on-call channel); 176 scoped notification/digest Application tests passed; 5 Decisioning on-call channel tests passed.
+
 2026-10-13 seed hunt (seed→hit): `notifications-pipeline` — promoted digest/alert Slack and Teams webhook delivery channels; `payload.Subscription.Destination` reached `ChatOpsWebhookDeliveryService.DeliverAsync` without `ChatOpsWebhookAbsoluteUriValidator` (CRLF smuggling parity with authority-run hook); `ResolveHttpsDeliveryUriOrThrow` on all four channels; regressions `SendAsync_throws_when_subscription_destination_has_embedded_line_breaks` (digest Slack + alert Slack); 176 scoped notification/digest Application tests passed.
 
 2026-10-13 seed hunt (seed→hit): `notifications-pipeline` — promoted `AuthorityRunCommittedChatOpsHook.DeliverIfEnabledAsync`; embedded CRLF in configured Slack/Teams incoming webhook URIs passed `Uri.TryCreate` and reached `DeliverAsync` as raw smuggled strings; shared `ChatOpsWebhookAbsoluteUriValidator`; regressions `NotifyAsync_skips_slack_delivery_when_webhook_uri_has_embedded_line_breaks` and `TryValidateHttpsAbsoluteUri_rejects_embedded_line_breaks`; 176 scoped notification/digest Application tests passed; 17 Notifications hook/validator tests passed.
@@ -31469,6 +31471,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ## Zone: notifications-pipeline
 
+2026-10-13 seed hunt (seed→hit): proved `AlertOnCallWebhookDeliveryChannel` forwarded CRLF-bearing subscription destinations to `PostJsonAsync` without validator; `ChatOpsWebhookAbsoluteUriValidator.ResolveHttpsDeliveryUriOrThrow`; 176 scoped Application notification tests passed; 5 on-call channel tests passed.
+
 2026-10-13 seed hunt (seed→hit): proved advisory digest and alert webhook channels forwarded CRLF-bearing subscription destinations to `DeliverAsync`; extended `ChatOpsWebhookAbsoluteUriValidator`; 176 scoped Application notification tests passed.
 
 2026-10-13 seed hunt (seed→hit): proved `AuthorityRunCommittedChatOpsHook` forwarded CRLF-bearing `ChatOpsIncomingWebhooksOptions` webhook URIs to `DeliverAsync`; `ChatOpsWebhookAbsoluteUriValidator`; 176 scoped Application notification tests passed.
@@ -31509,11 +31513,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** notifications; email dispatchers beyond weekly summary
 - **paths:** ArchLucid.Notifications/; ArchLucid.Application/Notifications/; ArchLucid.Api/Controllers/Advisory/DigestSubscriptionsController.cs
 - **test-filter:** FullyQualifiedName~Notifications|FullyQualifiedName~EmailDispatcher|FullyQualifiedName~DigestSubscriptionsController
-- **hunts:** 79
-- **bugs-found:** 61
+- **hunts:** 80
+- **bugs-found:** 62
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-13
-- **last-bug:** 2026-10-13 — Digest/alert webhook destination CRLF
+- **last-bug:** 2026-10-13 — Alert on-call webhook destination CRLF
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -31565,6 +31569,9 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `AuthorityRunCommittedChatOpsHook.DeliverIfEnabledAsync` — embedded CRLF in configured Slack/Teams incoming webhook URIs passed `Uri.TryCreate` and reached `DeliverAsync` as raw strings — **hit 2026-10-13 seed hunt (seed→hit):** `ChatOpsWebhookAbsoluteUriValidator.TryValidateHttpsAbsoluteUri`; regressions `NotifyAsync_skips_slack_delivery_when_webhook_uri_has_embedded_line_breaks` and `TryValidateHttpsAbsoluteUri_rejects_embedded_line_breaks`.
 
 - [x] (proven) `DigestSlackWebhookDeliveryChannel` / `DigestTeamsWebhookDeliveryChannel` / `AlertSlackWebhookDeliveryChannel` / `AlertTeamsWebhookDeliveryChannel` — CRLF in `payload.Subscription.Destination` reached `DeliverAsync` without validator — **hit 2026-10-13 seed hunt (seed→hit):** `ChatOpsWebhookAbsoluteUriValidator.ResolveHttpsDeliveryUriOrThrow` on all four channels; regressions `SendAsync_throws_when_subscription_destination_has_embedded_line_breaks` (digest Slack + alert Slack).
+
+- [x] (proven) `AlertOnCallWebhookDeliveryChannel.SendAsync` — CRLF in `payload.Subscription.Destination` reached `IWebhookPoster.PostJsonAsync` without validator — **hit 2026-10-13 seed hunt (seed→hit):** `ChatOpsWebhookAbsoluteUriValidator.ResolveHttpsDeliveryUriOrThrow` before POST; regression `SendAsync_throws_when_subscription_destination_has_embedded_line_breaks` (on-call channel).
+
 - [ ] (candidate) `AlertSlackWebhookDeliveryChannel.SendAsync` / `AlertTeamsWebhookDeliveryChannel.SendAsync` — `payload.Alert` or `payload.Subscription` null after `ThrowIfNull(payload)` yields `NullReferenceException` on property access — locus: alert webhook channels; input: internal caller passes partially constructed `AlertDeliveryPayload`.
 - [ ] (candidate) `ChatOpsIncomingWebhookBodies.ForSlack` / `ForTeams` — `message.Title`, `SeverityLabel`, or `Body` containing embedded newlines are concatenated into vendor `text`/`title` without normalization — locus: `ArchLucid.Notifications/ChatOpsIncomingWebhookBodies.cs`; input: alert or digest copy with CRLF in title/body from evaluation pipelines.
 - [ ] (candidate) `DigestSlackWebhookDeliveryChannel.SendAsync` — null `payload.Subscription` with non-null `payload.Digest` fails on `payload.Subscription.Destination` with `NullReferenceException` — locus: `ArchLucid.Notifications/Advisory/DigestSlackWebhookDeliveryChannel.cs`; input: internal scheduler bug omitting subscription on payload.
