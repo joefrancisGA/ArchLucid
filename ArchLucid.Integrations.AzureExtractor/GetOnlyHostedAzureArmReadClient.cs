@@ -333,8 +333,13 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
 
             await using Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
 
-            using JsonDocument document = await JsonDocument.ParseAsync(stream, cancellationToken: cancellationToken)
-                .ConfigureAwait(false);
+            using JsonDocument? document =
+                await TryParseArmPaginationPageAsync(stream, schedules.Count, cancellationToken).ConfigureAwait(false);
+
+            if (document is null)
+            {
+                break;
+            }
 
             if (document.RootElement.TryGetProperty("value", out JsonElement valueElement) &&
                 valueElement.ValueKind == JsonValueKind.Array)
@@ -493,8 +498,13 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
 
             await using Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
 
-            using JsonDocument document = await JsonDocument.ParseAsync(stream, cancellationToken: cancellationToken)
-                .ConfigureAwait(false);
+            using JsonDocument? document =
+                await TryParseArmPaginationPageAsync(stream, subscriptionIds.Count, cancellationToken).ConfigureAwait(false);
+
+            if (document is null)
+            {
+                break;
+            }
 
             if (document.RootElement.TryGetProperty("value", out JsonElement valueElement)
                 && valueElement.ValueKind == JsonValueKind.Array)
@@ -633,8 +643,13 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
 
             await using Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
 
-            using JsonDocument document = await JsonDocument.ParseAsync(stream, cancellationToken: cancellationToken)
-                .ConfigureAwait(false);
+            using JsonDocument? document =
+                await TryParseArmPaginationPageAsync(stream, assignments.Count, cancellationToken).ConfigureAwait(false);
+
+            if (document is null)
+            {
+                break;
+            }
 
             if (document.RootElement.TryGetProperty("value", out JsonElement valueElement)
                 && valueElement.ValueKind == JsonValueKind.Array)
@@ -717,8 +732,13 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
 
             await using Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
 
-            using JsonDocument document = await JsonDocument.ParseAsync(stream, cancellationToken: cancellationToken)
-                .ConfigureAwait(false);
+            using JsonDocument? document =
+                await TryParseArmPaginationPageAsync(stream, schedules.Count, cancellationToken).ConfigureAwait(false);
+
+            if (document is null)
+            {
+                break;
+            }
 
             if (document.RootElement.TryGetProperty("value", out JsonElement valueElement)
                 && valueElement.ValueKind == JsonValueKind.Array)
@@ -931,8 +951,15 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
 
             await using Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
 
-            using JsonDocument document = await JsonDocument.ParseAsync(stream, cancellationToken: cancellationToken)
-                .ConfigureAwait(false);
+            int partialRetentionCount = bestSecureScore is not null ? 1 : 0;
+
+            using JsonDocument? document =
+                await TryParseArmPaginationPageAsync(stream, partialRetentionCount, cancellationToken).ConfigureAwait(false);
+
+            if (document is null)
+            {
+                break;
+            }
 
             int? pageScore = TryReadSubscriptionSecureScorePercent(document.RootElement);
 
@@ -1103,8 +1130,13 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
 
             await using Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
 
-            using JsonDocument document = await JsonDocument.ParseAsync(stream, cancellationToken: cancellationToken)
-                .ConfigureAwait(false);
+            using JsonDocument? document =
+                await TryParseArmPaginationPageAsync(stream, assignments.Count, cancellationToken).ConfigureAwait(false);
+
+            if (document is null)
+            {
+                break;
+            }
 
             if (document.RootElement.TryGetProperty("value", out JsonElement valueElement)
                 && valueElement.ValueKind == JsonValueKind.Array)
@@ -1211,8 +1243,13 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
 
             await using Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
 
-            using JsonDocument document = await JsonDocument.ParseAsync(stream, cancellationToken: cancellationToken)
-                .ConfigureAwait(false);
+            using JsonDocument? document =
+                await TryParseArmPaginationPageAsync(stream, settings.Count, cancellationToken).ConfigureAwait(false);
+
+            if (document is null)
+            {
+                break;
+            }
 
             if (document.RootElement.TryGetProperty("value", out JsonElement valueElement)
                 && valueElement.ValueKind == JsonValueKind.Array)
@@ -1429,8 +1466,13 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
 
             await using Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
 
-            using JsonDocument document = await JsonDocument.ParseAsync(stream, cancellationToken: cancellationToken)
-                .ConfigureAwait(false);
+            using JsonDocument? document =
+                await TryParseArmPaginationPageAsync(stream, credentials.Count, cancellationToken).ConfigureAwait(false);
+
+            if (document is null)
+            {
+                break;
+            }
 
             if (document.RootElement.TryGetProperty("value", out JsonElement valueElement)
                 && valueElement.ValueKind == JsonValueKind.Array)
@@ -1804,8 +1846,13 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
 
             await using Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
 
-            using JsonDocument document = await JsonDocument.ParseAsync(stream, cancellationToken: cancellationToken)
-                .ConfigureAwait(false);
+            using JsonDocument? document =
+                await TryParseArmPaginationPageAsync(stream, items.Count, cancellationToken).ConfigureAwait(false);
+
+            if (document is null)
+            {
+                break;
+            }
 
             if (document.RootElement.TryGetProperty("value", out JsonElement valueElement)
                 && valueElement.ValueKind == JsonValueKind.Array)

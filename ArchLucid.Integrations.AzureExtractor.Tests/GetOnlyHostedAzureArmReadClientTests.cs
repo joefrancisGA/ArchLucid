@@ -2468,6 +2468,66 @@ public sealed class GetOnlyHostedAzureArmReadClientTests
     }
 
     [Fact]
+    public async Task ListSubscriptionDefenderSummariesAsync_retains_best_score_when_later_page_body_is_invalid_json()
+    {
+        const string subscriptionId = "11111111-1111-1111-1111-111111111111";
+        const string nextLink =
+            $"https://management.azure.com/subscriptions/{subscriptionId}/providers/Microsoft.Security/secureScores?api-version=2020-01-01&$skiptoken=page2";
+
+        string firstPageBody = """
+                               {
+                                 "value": [
+                                   {
+                                     "name": "ascScore",
+                                     "properties": {
+                                       "score": {
+                                         "percentage": 0.55
+                                       }
+                                     }
+                                   }
+                                 ],
+                                 "nextLink": "PAGE_TWO_LINK"
+                               }
+                               """.Replace("PAGE_TWO_LINK", nextLink, StringComparison.Ordinal);
+
+        int requestCount = 0;
+
+        HttpMessageHandler handler = new RecordingHandler(
+            (_, _) =>
+            {
+                int current = Interlocked.Increment(ref requestCount);
+
+                if (current == 1)
+                {
+                    return Task.FromResult(
+                        new HttpResponseMessage(HttpStatusCode.OK)
+                        {
+                            Content = new StringContent(firstPageBody)
+                        });
+                }
+
+                return Task.FromResult(
+                    new HttpResponseMessage(HttpStatusCode.OK)
+                    {
+                        Content = new StringContent("{ not-json")
+                    });
+            });
+
+        HttpClient httpClient = new(handler);
+        GetOnlyHostedAzureArmReadClient client = new(httpClient, NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+
+        IReadOnlyList<HostedAzureArmDefenderSummaryRecord> summaries =
+            await client.ListSubscriptionDefenderSummariesAsync(
+                "token-abc",
+                subscriptionId,
+                CancellationToken.None);
+
+        Assert.Equal(2, requestCount);
+        Assert.Single(summaries);
+        Assert.Equal(55, summaries[0].SecureScore);
+    }
+
+    [Fact]
     public async Task ListSubscriptionResourcesAsync_captures_databricks_access_connector_identity_and_workspace_link()
     {
         const string connectorId =
