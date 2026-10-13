@@ -50,10 +50,12 @@ public sealed class TenantDeletionService(
         if (tenant.TenantErasureApprovedUtc is null)
             throw new InvalidOperationException("Tenant erasure must be explicitly approved by an Admin before hard purge.");
 
-        tenant = await RevalidateTenantForHardPurgeAsync(tenantId, cancellationToken);
+        await RevalidateTenantForHardPurgeAsync(tenantId, cancellationToken);
 
         TrialLifecycleSchedulerOptions lifecycle = _trialLifecycleOptions.CurrentValue;
         int maxRows = lifecycle.HardPurgeMaxRowsPerStatement > 0 ? lifecycle.HardPurgeMaxRowsPerStatement : 5000;
+
+        await RevalidateTenantForHardPurgeAsync(tenantId, cancellationToken);
 
         TenantBlobPrefixDeletionResult blobs =
             await _tenantBlobPrefixDeletionService.DeleteAllTenantPrefixesAsync(tenantId, cancellationToken);
