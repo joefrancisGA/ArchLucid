@@ -96,12 +96,21 @@ public sealed partial class TenantCatalogMigrationOrchestrator
 
         TenantRecord? tenant = await _tenantRepository.GetByIdAsync(tenantId, cancellationToken).ConfigureAwait(false);
 
-        if (tenant?.SuspendedUtc is { } suspendedUtc && suspendedUtc >= active.StartedUtc)
+        if (tenant is not null
+            && tenant.OffboardedUtc is null
+            && tenant.SuspendedUtc is { } suspendedUtc
+            && suspendedUtc >= active.StartedUtc)
         {
             await _tenantSuspendCommandService
                 .TryUnsuspendAsync(tenantId, actorUserId, actorUserName, active.CorrelationId, cancellationToken)
                 .ConfigureAwait(false);
         }
+
+        TenantRecord? tenantBeforeAudit =
+            await _tenantRepository.GetByIdAsync(tenantId, cancellationToken).ConfigureAwait(false);
+
+        if (tenantBeforeAudit?.OffboardedUtc is not null)
+            return TenantCatalogMigrationCommandOutcome.InErasureQuarantine;
 
         await AppendPlatformAuditAsync(
             AuditEventTypes.TenantCatalogMigrationCompleted,
