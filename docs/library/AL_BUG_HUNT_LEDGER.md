@@ -31628,7 +31628,6 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [ ] (candidate) `ChatOpsIncomingWebhookBodies.ForTeams` — severity bracket prefix `[{label}]` combined with user `Title` containing `]` may confuse Teams card titles — locus: `ForTeams`; input: alert title starting with bracketed severity spoof.
 - [ ] (candidate) `DigestSubscriptionsController` — webhook destination validation only in application facade; API controller zone path cannot falsify without SQL integration host — locus: partial controller; input: invalid destination on create (requires Api integration test host).
 - [ ] (candidate) `Application/Notifications/Email` — `TryResolveDeliveryMailbox` helper consolidation (engineering; do not add one-off CRLF tests without helper).
-- [ ] (candidate) `Application/Notifications/Email` — introduce `TryResolveDeliveryMailbox` helper consolidating `IdentityEmailNormalizer.TryNormalize` guards (consolidation; do not add another one-off CRLF test without helper).
 
 - [x] (proven) `ExecDigestEmailDispatcher` — `DashboardUrl` / `SponsorValueReportUrl` with embedded userinfo reached digest template CTAs without sanitization — **hit 2026-10-13 seed hunt (seed→hit):** `SanitizeOperatorAbsoluteUrl` at dispatch (parity with unsubscribe and weekly sponsor `runDetailUrl`); regression `ExecDigestEmailDispatcher_omits_user_info_from_dashboard_and_sponsor_urls_in_template_model`.
 

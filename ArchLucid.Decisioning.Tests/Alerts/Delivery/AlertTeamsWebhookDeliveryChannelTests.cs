@@ -86,8 +86,46 @@ public sealed class AlertTeamsWebhookDeliveryChannelTests
 
         title.Should().Be("[High] Latency spike");
         text.Should().Contain("Category: Performance");
-        text.Should().Contain("Trigger: p99 > 2s");
+        text.Should().Contain("Trigger: p99 &gt; 2s");
         text.Should().Contain("Check downstream service.");
+    }
+
+    [Fact]
+    public async Task SendAsync_TeamsPayload_HtmlEncodes_evaluation_sourced_alert_copy()
+    {
+        Mock<IChatOpsWebhookDeliveryService> delivery = new();
+        ChatOpsWebhookMessage? captured = null;
+
+        delivery.Setup(x =>
+                x.DeliverAsync(
+                    ChatOpsWebhookTarget.Teams,
+                    It.IsAny<string>(),
+                    It.IsAny<ChatOpsWebhookMessage>(),
+                    It.IsAny<CancellationToken>(),
+                    It.IsAny<WebhookPostOptions?>()))
+            .Callback<ChatOpsWebhookTarget, string, ChatOpsWebhookMessage, CancellationToken, WebhookPostOptions?>(
+                (_, _, msg, _, _) =>
+                    captured = msg)
+            .Returns(Task.CompletedTask);
+
+        AlertTeamsWebhookDeliveryChannel sut = new(delivery.Object);
+        AlertDeliveryPayload payload = CreatePayload("https://outlook.office.com/webhook/x");
+        payload.Alert.Severity = "High";
+        payload.Alert.Title = "<b>Spoofed title</b>";
+        payload.Alert.Category = "Cost<script>";
+        payload.Alert.TriggerValue = "spend > 1";
+        payload.Alert.Description = "<i>Injected</i> description.";
+
+        await sut.SendAsync(payload, CancellationToken.None);
+
+        captured.Should().NotBeNull();
+        object body = ChatOpsIncomingWebhookBodies.ForTeams(captured!);
+        string title = GetStringProperty(body, "title");
+        string text = GetStringProperty(body, "text");
+
+        title.Should().Be("[High] &lt;b&gt;Spoofed title&lt;/b&gt;");
+        text.Should().Contain("Category: Cost&lt;script&gt;");
+        text.Should().Contain("&lt;i&gt;Injected&lt;/i&gt; description.");
     }
 
     [Fact]
