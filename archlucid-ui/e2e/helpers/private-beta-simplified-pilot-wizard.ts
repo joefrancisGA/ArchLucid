@@ -70,7 +70,7 @@ export async function submitPrivateBetaSimplifiedPilotWizard(page: Page): Promis
   const systemName = page.getByRole("textbox", { name: "System Name" });
 
   // Baseline wizard prefills CustomerWebApp. Earlier private-beta cases in the same SQL catalog
-  // already occupy that name, and a timed-out first attempt still occupies it, so Playwright
+  // already commit that name, and a timed-out first attempt still occupies it, so Playwright
   // retry 409s with "A review named 'CustomerWebApp' already exists" unless this create is unique.
   await systemName.fill(uniquePrivateBetaSystemName("PrivateBetaInvitee"));
 
@@ -119,8 +119,8 @@ export async function submitPrivateBetaSimplifiedPilotWizard(page: Page): Promis
   ).toBeTruthy();
 
   // Async create admits with 202 + Location while LegacyRunStatus stays Created, so
-  // GET /v1/operations/run:{id} stays Pending. Polling for Succeeded timed out after a
-  // successful pipeline (run 38424388174). Callers wait on the reviews list instead.
+  // GET /v1/operations/run:{id} stays Pending. Polling for Succeeded times out after a
+  // successful pipeline (run 38402768097). Callers wait on the reviews list instead.
   return readCreatedRunIdFromArchitectureRequestCreate({
     status: createResp.status(),
     bodyText,

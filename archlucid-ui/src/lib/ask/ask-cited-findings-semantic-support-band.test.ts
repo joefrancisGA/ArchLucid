@@ -3,8 +3,11 @@ import { describe, expect, it } from "vitest";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-finding-from-detail";
 import {
   ASK_CITED_FINDINGS_SEMANTIC_SUPPORT_NOT_SEALED_COPY,
+  askCitedFindingBandIndexEntryFromOptionalBand,
+  askCitedFindingBandIndexForFinding,
   buildAskCitedFindingBandIndex,
   formatAskCitedFindingsSemanticSupportBandFootnote,
+  resolveAskCitedSemanticSupportBandForFindingIds,
   resolveWeakestAskCitedSemanticSupportBand,
   resolveWeakestAskCitedSemanticSupportBandForFindingIds,
 } from "@/lib/ask/ask-cited-findings-semantic-support-band";
@@ -27,6 +30,37 @@ function sampleFinding(overrides: Partial<QuickDecisionFinding> = {}): QuickDeci
 }
 
 describe("ask-cited-findings-semantic-support-band", () => {
+  it("askCitedFindingBandIndexForFinding marks a stored band", () => {
+    expect(askCitedFindingBandIndexForFinding("f-1", "Unsupported")).toEqual([
+      { findingId: "f-1", band: "Unsupported", bandStored: true },
+    ]);
+  });
+
+  it("askCitedFindingBandIndexForFinding does not invent a band when omitted", () => {
+    expect(askCitedFindingBandIndexForFinding("f-1", undefined)).toEqual([
+      { findingId: "f-1", band: null, bandStored: false },
+    ]);
+    expect(askCitedFindingBandIndexForFinding("f-1", null)).toEqual([
+      { findingId: "f-1", band: null, bandStored: false },
+    ]);
+  });
+
+  it("askCitedFindingBandIndexForFinding skips blank finding ids", () => {
+    expect(askCitedFindingBandIndexForFinding("   ", "Supported")).toEqual([]);
+  });
+
+  it("omitted single-finding index uses not-stored footnote copy", () => {
+    const footnote = formatAskCitedFindingsSemanticSupportBandFootnote(
+      resolveAskCitedSemanticSupportBandForFindingIds({
+        index: askCitedFindingBandIndexForFinding("f-1", undefined),
+        referencedFindingIds: ["f-1"],
+      }),
+    );
+
+    expect(footnote).toContain("Semantic support band was not stored");
+    expect(footnote).not.toContain("NotScored");
+  });
+
   it("buildAskCitedFindingBandIndex keeps decision-grade rows only", () => {
     const index = buildAskCitedFindingBandIndex([
       sampleFinding({ findingId: "dg-1", semanticSupportBand: "Supported" }),
@@ -38,6 +72,27 @@ describe("ask-cited-findings-semantic-support-band", () => {
     ]);
 
     expect(index).toEqual([{ findingId: "dg-1", band: "Supported", bandStored: true }]);
+  });
+
+  it("askCitedFindingBandIndexEntryFromOptionalBand marks omitted band as not stored", () => {
+    expect(askCitedFindingBandIndexEntryFromOptionalBand("f-1", null)).toEqual({
+      findingId: "f-1",
+      band: null,
+      bandStored: false,
+    });
+    expect(askCitedFindingBandIndexEntryFromOptionalBand("f-1", undefined)).toEqual({
+      findingId: "f-1",
+      band: null,
+      bandStored: false,
+    });
+  });
+
+  it("askCitedFindingBandIndexEntryFromOptionalBand keeps a stored band", () => {
+    expect(askCitedFindingBandIndexEntryFromOptionalBand("f-1", "Unsupported")).toEqual({
+      findingId: "f-1",
+      band: "Unsupported",
+      bandStored: true,
+    });
   });
 
   it("uses omission copy when cited band was not stored", () => {
