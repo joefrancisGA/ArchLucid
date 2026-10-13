@@ -81,6 +81,19 @@ public sealed class TenantDeletionService(
                 blobsDeletedByContainer = blobs.BlobsDeletedByContainer
             });
 
+        TenantRecord? tenantBeforeAudit = await _tenantRepository.GetByIdAsync(tenantId, cancellationToken);
+
+        if (tenantBeforeAudit?.TenantErasureApprovedUtc is null)
+        {
+            return new TenantDeletionResult
+            {
+                TenantId = tenantId,
+                SqlRowsDeleted = purge.RowsDeleted,
+                SqlRowCountsByTable = purge.RowCountsByTable,
+                BlobsDeletedByContainer = blobs.BlobsDeletedByContainer
+            };
+        }
+
         await _platformAuditRepository
             .AppendAsync(
                 new PlatformAuditEvent
