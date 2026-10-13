@@ -1,3 +1,5 @@
+using System.Reflection;
+
 using ArchLucid.Decisioning.Alerts;
 using ArchLucid.Notifications.Alerts;
 using ArchLucid.Notifications;
@@ -122,6 +124,38 @@ public sealed class AlertSlackWebhookDeliveryChannelTests
     }
 
     [Fact]
+    public async Task SendAsync_SlackPayload_Escapes_mrkdwn_metacharacters_in_alert_description()
+    {
+        Mock<IChatOpsWebhookDeliveryService> delivery = new();
+        ChatOpsWebhookMessage? captured = null;
+
+        delivery.Setup(x =>
+                x.DeliverAsync(
+                    ChatOpsWebhookTarget.Slack,
+                    It.IsAny<string>(),
+                    It.IsAny<ChatOpsWebhookMessage>(),
+                    It.IsAny<CancellationToken>(),
+                    It.IsAny<WebhookPostOptions?>()))
+            .Callback<ChatOpsWebhookTarget, string, ChatOpsWebhookMessage, CancellationToken, WebhookPostOptions?>(
+                (_, _, msg, _, _) =>
+                    captured = msg)
+            .Returns(Task.CompletedTask);
+
+        AlertSlackWebhookDeliveryChannel sut = new(delivery.Object);
+        AlertDeliveryPayload payload = CreatePayload("https://hooks.slack.com/x");
+        payload.Alert.Description = "See *spoofed* emphasis in description.";
+
+        await sut.SendAsync(payload, CancellationToken.None);
+
+        captured.Should().NotBeNull();
+
+        object slackBody = ChatOpsIncomingWebhookBodies.ForSlack(captured!);
+        string text = GetStringProperty(slackBody, "text");
+
+        text.Should().Contain("See \\*spoofed\\* emphasis in description.");
+    }
+
+    [Fact]
     public async Task SendAsync_throws_when_subscription_destination_has_embedded_line_breaks()
     {
         Mock<IChatOpsWebhookDeliveryService> delivery = new();
@@ -141,6 +175,20 @@ public sealed class AlertSlackWebhookDeliveryChannelTests
                 It.IsAny<CancellationToken>(),
                 It.IsAny<WebhookPostOptions?>()),
             Times.Never);
+    }
+
+    private static string GetStringProperty(object target, string propertyName)
+    {
+        PropertyInfo? prop = target.GetType().GetProperty(
+            propertyName,
+            BindingFlags.Public | BindingFlags.Instance);
+
+        prop.Should().NotBeNull($"property {propertyName} should exist on payload body");
+        object? value = prop!.GetValue(target);
+
+        value.Should().NotBeNull();
+
+        return value!.ToString()!;
     }
 
     private static AlertDeliveryPayload CreatePayload(string destination)
