@@ -49,7 +49,15 @@ public sealed class TenantTrialIdentityHandoffStage(
 
         if (!directoryAlreadyBound)
         {
-            await _auditService.LogAsync(
+            TenantRecord? tenantBeforeDirectoryAudit =
+                await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
+
+            if (tenantBeforeDirectoryAudit?.OffboardedUtc is not null)
+                return new TenantTrialLinkEntraResult { Outcome = TenantTrialHttpOutcome.Success };
+
+            if (tenantBeforeDirectoryAudit is not null)
+            {
+                await _auditService.LogAsync(
                 new AuditEvent
                 {
                     EventType = AuditEventTypes.TenantEntraDirectoryBound,
@@ -61,6 +69,7 @@ public sealed class TenantTrialIdentityHandoffStage(
                     DataJson = JsonSerializer.Serialize(new { entraTenantId = body.EntraTenantId }),
                 },
                 cancellationToken).ConfigureAwait(false);
+            }
         }
 
         if (!hasIdentityPayload || normalizedLocalEmail is null)
@@ -90,7 +99,15 @@ public sealed class TenantTrialIdentityHandoffStage(
 
         if (!identityAlreadyLinked)
         {
-            await _auditService.LogAsync(
+            TenantRecord? tenantBeforeIdentityAudit =
+                await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
+
+            if (tenantBeforeIdentityAudit?.OffboardedUtc is not null)
+                return new TenantTrialLinkEntraResult { Outcome = TenantTrialHttpOutcome.Success };
+
+            if (tenantBeforeIdentityAudit is not null)
+            {
+                await _auditService.LogAsync(
                 new AuditEvent
                 {
                     EventType = AuditEventTypes.TrialLocalIdentityLinkedToEntra,
@@ -102,6 +119,7 @@ public sealed class TenantTrialIdentityHandoffStage(
                     DataJson = JsonSerializer.Serialize(new { normalizedEmail = normalizedLocalEmail }),
                 },
                 cancellationToken).ConfigureAwait(false);
+            }
         }
 
         return new TenantTrialLinkEntraResult { Outcome = TenantTrialHttpOutcome.Success };
