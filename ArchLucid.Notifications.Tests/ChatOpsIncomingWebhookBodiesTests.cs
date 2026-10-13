@@ -191,6 +191,23 @@ public sealed class ChatOpsIncomingWebhookBodiesTests
     }
 
     [Fact]
+    public void ForSlack_strips_brackets_from_severity_label_before_headline_emphasis()
+    {
+        ChatOpsWebhookMessage message = new()
+        {
+            SeverityLabel = "Low] [Critical",
+            Title = "Actual headline",
+            Body = "details",
+        };
+
+        object payload = ChatOpsIncomingWebhookBodies.ForSlack(message);
+
+        string text = NotificationsTestPayloadAssert.GetStringProperty(payload, "text");
+
+        text.Should().StartWith("*[Low Critical]* Actual headline");
+    }
+
+    [Fact]
     public void ForTeams_strips_brackets_from_severity_label_before_title_prefix()
     {
         ChatOpsWebhookMessage message = new()
