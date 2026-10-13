@@ -28,26 +28,52 @@ public sealed class ApplicationPackageCoverageBatch7Tests
         {
             Id = tenantId,
             OffboardedUtc = now,
-            ErasureEligibleUtc = now.AddDays(30),
+            ErasureEligibleUtc = now.AddDays(14),
         };
         TenantRecord withLegalHold = new()
         {
             Id = tenantId,
             OffboardedUtc = now,
-            ErasureEligibleUtc = now.AddDays(30),
+            ErasureEligibleUtc = now.AddDays(14),
             TenantErasureApprovedUtc = now,
             LegalHoldUntilUtc = now.AddDays(3),
             LegalHoldReason = "hold",
         };
 
-        tenants.SetupSequence(t => t.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync((TenantRecord?)null)
-            .ReturnsAsync(active)
-            .ReturnsAsync(offboarded)
-            .ReturnsAsync(offboarded)
-            .ReturnsAsync(withLegalHold)
-            .ReturnsAsync(withLegalHold)
-            .ReturnsAsync(offboarded);
+        int tenantReadIndex = -1;
+        TenantRecord?[] tenantReads =
+        [
+            null,
+            active,
+            offboarded,
+            offboarded,
+            offboarded,
+            offboarded,
+            withLegalHold,
+            withLegalHold,
+            offboarded,
+            withLegalHold,
+            withLegalHold,
+            withLegalHold,
+            withLegalHold,
+            offboarded,
+            offboarded,
+            offboarded,
+            active,
+            active,
+        ];
+
+        tenants
+            .Setup(t => t.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(() =>
+            {
+                int index = Interlocked.Increment(ref tenantReadIndex);
+
+                if (index < tenantReads.Length)
+                    return tenantReads[index];
+
+                return withLegalHold;
+            });
 
         tenants.Setup(t => t.TryStartTenantErasureOffboardAsync(tenantId, now, now.AddDays(14), It.IsAny<CancellationToken>()))
             .ReturnsAsync(true);

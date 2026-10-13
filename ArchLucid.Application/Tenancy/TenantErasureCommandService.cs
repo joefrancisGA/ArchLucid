@@ -72,6 +72,11 @@ public sealed class TenantErasureCommandService(
                 cancellationToken);
         }
 
+        TenantRecord? beforeSuspend = await _tenantRepository.GetByIdAsync(tenantId, cancellationToken);
+
+        if (beforeSuspend is null || beforeSuspend.OffboardedUtc is null)
+            return null;
+
         await _tenantRepository.SuspendTenantAsync(tenantId, cancellationToken);
 
         TenantRecord? afterStart = await _tenantRepository.GetByIdAsync(tenantId, cancellationToken);

@@ -1032,6 +1032,9 @@ public sealed class TenantErasureCommandServiceIdempotentRetryTests
             CancellationToken.None);
 
         result.Should().BeNull();
+        tenants.Verify(
+            t => t.SuspendTenantAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
+            Times.Never);
         audit.Verify(
             a => a.AppendAsync(It.IsAny<PlatformAuditEvent>(), It.IsAny<CancellationToken>()),
             Times.Never);
@@ -1051,6 +1054,7 @@ public sealed class TenantErasureCommandServiceIdempotentRetryTests
         tenants
             .SetupSequence(t => t.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(active)
+            .ReturnsAsync(offboarded)
             .ReturnsAsync(offboarded)
             .ReturnsAsync(restored);
         tenants
