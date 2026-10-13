@@ -36576,6 +36576,8 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: architecture-intelligence-orchestrator
 
+2026-10-13 seed hunt (seed→hit): promoted duplicate normalized `SourceTexts` rows and NFC vs NFD `TechnologyName` in ledger fingerprint; dedupe grouped attachments in `HashContent`; `NormalizeTechnologyName` (FormC) in `ReviewCacheLedgerFingerprint`; regressions `Build_matches_content_hash_when_duplicate_source_texts_normalize_to_identical_rows` and `Build_matches_content_hash_when_ledger_technology_name_differs_only_by_unicode_normalization_form`; 94 scoped tests passed.
+
 2026-10-13 seed hunt (seed→hit): promoted `%2F` percent-encoded slash and UTF-8 BOM prefix on source `Content`; `DecodePercentEncodedSlashes` + `StripUtf8Bom` in `ClosedLoopReasoningSourceTextNormalizer`; regressions `Build_matches_content_hash_when_file_name_differs_only_by_percent_encoded_slash` and `Build_matches_content_hash_when_source_content_differs_only_by_utf8_bom_prefix`; cheap-disproved duplicate ledger-order and publish-toggle candidates; 92 scoped tests passed.
 
 2026-10-13 seed hunt (seed→hit): promoted parent `..` path segments in `FileName` (`docs/sub/../arch.md`, `docs/foo/bar/../../arch.md`); `CollapseParentPathSegments` in `NormalizeFileNameForHash`; regression `Build_matches_content_hash_when_file_name_differs_only_by_parent_path_segments`; cheap-disproved stale CRLF, run-id whitespace, and publish coalesce-key rows; 90 scoped tests passed.
@@ -36608,10 +36610,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (valid-no-repro) `ReviewResultCache.TryGet` — client `RunId` surrounding whitespace — **cheap-disproof 2026-10-13 seed hunt:** `ClosedLoopRunIdNormalizer.NormalizeOptional` + regression `Build_matches_content_hash_when_client_run_id_is_whitespace_only_vs_omitted`.
 - [x] (valid-no-repro) `ClosedLoopContinueRunSingleFlight.BuildCoalesceKey` — `PublishToProduct` partition — **cheap-disproof 2026-10-13 seed hunt:** coalesce key appends `publish=1|0`; `ReviewCacheKeyBuilder.BuildInFlight` matches storage partition.
 - [x] (proven) `ClosedLoopReasoningSourceTextNormalizer.NormalizeFileNameForHash` — parent `..` segments (`docs/sub/../arch.md`, nested `docs/foo/bar/../../arch.md`) split `ContentHash` from canonical `docs/arch.md` — **hit 2026-10-13 seed hunt:** `CollapseParentPathSegments`; regression `Build_matches_content_hash_when_file_name_differs_only_by_parent_path_segments`.
-- [ ] (candidate) `ReviewCacheLedgerFingerprint` — ledger technology names differing only by Unicode NFC vs NFD may change `ledgerfp` — locus: `ReviewCacheLedgerFingerprint.Compute`; input: equivalent technology label imported in different normalization forms; wrong outcome: continue coalesce miss after ledger reload.
+- [x] (proven) `ReviewCacheLedgerFingerprint` — ledger technology names differing only by Unicode NFC vs NFD split `ledgerfp` — **hit 2026-10-13 seed hunt:** `NormalizeTechnologyName` with `NormalizationForm.FormC`; regression `Build_matches_content_hash_when_ledger_technology_name_differs_only_by_unicode_normalization_form`.
 - [x] (proven) `ClosedLoopReasoningSourceTextNormalizer` — percent-encoded slash (`%2F`) in `FileName` vs literal `/` split `ContentHash` — **hit 2026-10-13 seed hunt:** `DecodePercentEncodedSlashes`; regression `Build_matches_content_hash_when_file_name_differs_only_by_percent_encoded_slash`.
 - [x] (proven) `ClosedLoopReasoningSourceTextNormalizer` — UTF-8 BOM (`\uFEFF`) prefix in `Content` split `ContentHash` — **hit 2026-10-13 seed hunt:** `StripUtf8Bom` after line-ending normalize; regression `Build_matches_content_hash_when_source_content_differs_only_by_utf8_bom_prefix`.
-- [ ] (candidate) `ReviewCacheManifestBuilder.HashContent` — duplicate `SourceTexts` rows that normalize to identical file/type/content — locus: ordered foreach without dedupe; input: repeated attachment in request list; wrong outcome: hash inflation / false split vs deduped canonical list.
+- [x] (proven) `ReviewCacheManifestBuilder.HashContent` — duplicate `SourceTexts` rows that normalize to identical file/type/content split `ContentHash` — **hit 2026-10-13 seed hunt:** `GroupBy` dedupe after normalize; regression `Build_matches_content_hash_when_duplicate_source_texts_normalize_to_identical_rows`.
 - [ ] (candidate) `ClosedLoopFramingAnswersNormalizer` — framing answer keys differing only by Unicode compatibility case folding — locus: `HashContent` framing loop; input: Turkish dotted `I` key variants; wrong outcome: cache miss for equivalent answers.
 
 2026-10-06 seed hunt (seed→hit): source `ContentType` letter casing split cache manifest hash; lowercase in `ClosedLoopReasoningSourceTextNormalizer`; regression `Build_matches_content_hash_when_source_content_type_differs_only_by_casing`; seeded five follow-on candidates; 82 scoped tests passed.
@@ -36651,11 +36653,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** closed-loop orchestrator; review result cache; architecture intelligence
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.cs; ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.Cache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewResultCache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewCacheManifestBuilder.cs
 - **test-filter:** FullyQualifiedName~ClosedLoopArchitectureReasoningOrchestrator|FullyQualifiedName~ReviewResultCache|FullyQualifiedName~ReviewCacheManifestBuilder
-- **hunts:** 41
-- **bugs-found:** 20
+- **hunts:** 42
+- **bugs-found:** 22
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-13
-- **last-bug:** 2026-10-13 — `%2F` file names and UTF-8 BOM on source content split cache hash
+- **last-bug:** 2026-10-13 — duplicate source attachments and NFC/NFD ledger labels split cache hash
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 

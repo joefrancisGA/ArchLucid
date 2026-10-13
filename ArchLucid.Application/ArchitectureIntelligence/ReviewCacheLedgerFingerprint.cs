@@ -24,7 +24,7 @@ public static class ReviewCacheLedgerFingerprint
                      .ThenBy(item => item.ProviderFamily))
         {
             builder.Append(entry.Role.ToString()).Append('|');
-            builder.Append(entry.TechnologyName ?? string.Empty).Append('|');
+            builder.Append(NormalizeTechnologyName(entry.TechnologyName)).Append('|');
             builder.Append(entry.ProviderFamily).Append('|');
             builder.Append(entry.Status).Append('|');
             builder.Append(entry.Source).Append('|');
@@ -33,6 +33,14 @@ public static class ReviewCacheLedgerFingerprint
         }
 
         return Sha256Hex(builder.ToString());
+    }
+
+    private static string NormalizeTechnologyName(string? technologyName)
+    {
+        if (string.IsNullOrEmpty(technologyName))
+            return string.Empty;
+
+        return technologyName.Normalize(NormalizationForm.FormC);
     }
 
     private static string Sha256Hex(string value)

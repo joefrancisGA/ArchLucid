@@ -180,6 +180,61 @@ public sealed class ReviewCacheManifestBuilderTests
     }
 
     [Fact]
+    public void Build_matches_content_hash_when_duplicate_source_texts_normalize_to_identical_rows()
+    {
+        ClosedLoopReasoningSourceText attachment = new()
+        {
+            FileName = "arch.md",
+            ContentType = "text/markdown",
+            Content = "Same body.",
+        };
+
+        ClosedLoopReasoningRequest single = CreateRequest("ignored");
+        single.SourceTexts = [attachment];
+
+        ClosedLoopReasoningRequest duplicated = CreateRequest("ignored");
+        duplicated.SourceTexts = [attachment, attachment];
+
+        ReviewCacheManifestBuilder.Build(single).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(duplicated).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_ledger_technology_name_differs_only_by_unicode_normalization_form()
+    {
+        const string nfcName = "Caf\u00E9";
+        const string nfdName = "Cafe\u0301";
+
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-ledger-unicode";
+
+        TechnologyLedgerEntry nfcEntry = new()
+        {
+            RunId = request.RunId,
+            Role = TechnologyLedgerRole.CloudPlatform,
+            TechnologyName = nfcName,
+            ProviderFamily = ArchLucid.Contracts.Common.CloudProvider.Azure,
+            Status = TechnologyLedgerStatus.Chosen,
+            Source = TechnologyLedgerSource.User,
+        };
+
+        TechnologyLedgerEntry nfdEntry = new()
+        {
+            RunId = request.RunId,
+            Role = TechnologyLedgerRole.CloudPlatform,
+            TechnologyName = nfdName,
+            ProviderFamily = ArchLucid.Contracts.Common.CloudProvider.Azure,
+            Status = TechnologyLedgerStatus.Chosen,
+            Source = TechnologyLedgerSource.User,
+        };
+
+        ReviewCacheManifestBuilder.Build(request, null, [nfcEntry]).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, null, [nfdEntry]).ContentHash);
+    }
+
+    [Fact]
     public void Build_changes_content_hash_when_duplicate_filename_has_different_content()
     {
         ClosedLoopReasoningRequest firstBody = CreateRequest("Architecture note.");
