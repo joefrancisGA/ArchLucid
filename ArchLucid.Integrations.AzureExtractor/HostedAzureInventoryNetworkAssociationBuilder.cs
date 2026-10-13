@@ -1025,7 +1025,7 @@ internal static class HostedAzureInventoryNetworkAssociationBuilder
 
         foreach (KeyValuePair<string, object?> property in properties)
         {
-            if (!property.Key.StartsWith(propertyKeyPrefix, StringComparison.OrdinalIgnoreCase))
+            if (!IsDelimitedPropertyKey(property.Key, propertyKeyPrefix))
             {
                 continue;
             }
@@ -1052,6 +1052,16 @@ internal static class HostedAzureInventoryNetworkAssociationBuilder
         {
             yield return value;
         }
+    }
+
+    private static bool IsDelimitedPropertyKey(string propertyKey, string propertyKeyPrefix)
+    {
+        if (propertyKey.Equals(propertyKeyPrefix, StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
+        return propertyKey.StartsWith($"{propertyKeyPrefix}[", StringComparison.OrdinalIgnoreCase);
     }
 
     private static string? TryReadSubnetId(JsonElement subnet)

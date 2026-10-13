@@ -409,6 +409,32 @@ public sealed class HostedAzureInventoryNetworkAssociationBuilderTests
     }
 
     [Fact]
+    public void Build_ignores_private_link_service_id_property_key_prefix_collisions()
+    {
+        const string targetId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1";
+        HostedAzureArmResourceRecord privateEndpoint = new(
+            ResourceType: "Microsoft.Network/privateEndpoints",
+            ResourceId: "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/privateEndpoints/pe1",
+            Name: "pe1",
+            Location: "eastus",
+            Sku: null,
+            Tags: null,
+            Properties: new Dictionary<string, object?>
+            {
+                ["privateLinkServiceId[0]"] = targetId,
+                ["privateLinkServiceIdNotes"] = "not-an-arm-id",
+            });
+
+        IReadOnlyList<HostedAzureArmNetworkAssociationRecord> associations =
+            HostedAzureInventoryNetworkAssociationBuilder.Build([privateEndpoint]);
+
+        Assert.Single(associations);
+        Assert.Equal(AzureInventoryRelationshipAssociationTypes.PrivateEndpointTarget, associations[0].AssociationType);
+        Assert.Equal(targetId, associations[0].ToResourceId);
+    }
+
+    [Fact]
     public void Build_emits_private_endpoint_dns_zone_group_association()
     {
         HostedAzureArmResourceRecord privateEndpoint = new(

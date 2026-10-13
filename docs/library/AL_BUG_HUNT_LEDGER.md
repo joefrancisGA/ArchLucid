@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-13 seed hunt (seed→hit): `cloud-extractors` — `HostedAzureInventoryNetworkAssociationBuilder.ReadDelimitedIds` treated any property key starting with `privateLinkServiceId` as a target id, so a reachable `privateLinkServiceIdNotes` companion property emitted a spurious `privateEndpointTarget` association; match exact keys or indexed `[n]` slots via `IsDelimitedPropertyKey`; regression `Build_ignores_private_link_service_id_property_key_prefix_collisions`; AWS/GCP extractor tests passed 54/54; Azure extractor scope passed 139/139.
+
 2026-10-13 seed hunt (seed→hit): `cloud-extractors` — promoted `GcpWorkloadIdentityPoolProvider.TryGetProjectId`; reachable hosted requests with `projects/{project}/anything` passed project matching and reached STS token fetch despite not being a canonical `projects/.../locations/.../workloadIdentityPools/.../providers/...` resource; require full segment shape in `TryParseCanonicalProviderResource`; regressions `TryGetProjectId_rejects_provider_resource_missing_canonical_segments` and `CollectZipAsync_rejects_malformed_workload_identity_pool_provider_before_token_fetch`; AWS/GCP extractor tests passed 54/54; Azure extractor scope passed 138/138.
 
 2026-10-13 seed hunt (seed→hit): `cloud-extractors` — promoted `HostedAzureManagementPostReadClient.MergeActualCostPages`; reachable multi-page Actual Cost responses merged every row with the first page’s `columns` indexes, so a later page with reordered columns mis-aggregated service names and costs; aggregate each page with that page’s column indexes; regression `TryQueryActualCostSummaryAsync_merges_paginated_rows_using_each_page_column_order`; AWS/GCP extractor tests passed 52/52; Azure extractor scope passed 138/138.
@@ -31700,6 +31702,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ## Zone: cloud-extractors
 
+2026-10-13 seed hunt (seed→hit): `ReadDelimitedIds` prefix matching on `privateLinkServiceId` ingested `privateLinkServiceIdNotes`; fixed with `IsDelimitedPropertyKey`; regression `Build_ignores_private_link_service_id_property_key_prefix_collisions`; Azure scope 139/139; AWS/GCP 54/54.
+
 2026-10-13 seed hunt (seed→hit): `GcpWorkloadIdentityPoolProvider` accepted `projects/{project}/anything` for project matching; canonical WIF provider path validation added; GCP client tests 8/8; AWS/GCP 54/54; Azure scope 138/138.
 
 2026-10-13 seed hunt (seed→hit): `MergeActualCostPages` used first-page column indexes for all paginated Actual Cost rows; fixed with per-page column resolution; regression `TryQueryActualCostSummaryAsync_merges_paginated_rows_using_each_page_column_order`; Azure extractor scope passed 138/138; AWS/GCP passed 52/52.
@@ -31761,11 +31765,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** aws extractor; gcp extractor; azure extractor
 - **paths:** ArchLucid.Integrations.AwsExtractor/; ArchLucid.Integrations.GcpExtractor/; ArchLucid.Integrations.AzureExtractor/
 - **test-filter:** FullyQualifiedName~AwsExtractor|FullyQualifiedName~GcpExtractor|FullyQualifiedName~AzureExtractor
-- **hunts:** 105
-- **bugs-found:** 52
+- **hunts:** 106
+- **bugs-found:** 53
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-13
-- **last-bug:** 2026-10-13 — malformed GCP workload-identity provider resource accepted before token fetch
+- **last-bug:** 2026-10-13 — privateLinkServiceIdNotes false private-endpoint target association
 - **related-pd-tb:** none
 - **code-changed-since:** 1
 
