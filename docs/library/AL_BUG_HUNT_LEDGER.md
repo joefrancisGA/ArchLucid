@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-13 seed hunt (seed→hit): `application-agents` — promoted `TopologyProposalDualModelConsensusEnricher.PruneSiblingRelationshipsToConsensusTopology`; empty service intersection left `endpointKeys` empty so early return skipped pruning Cost `AddedRelationships` after dual-model disagreement; removed empty-key guard; regression `EnrichAsync_prunes_sibling_relationships_when_consensus_intersection_has_no_endpoints`; seeded five follow-on `(candidate)` rows; 110 scoped Application.Tests.Agents tests passed.
+
 2026-10-13 thorough hunt (hit): `core-findings-advice` — closed five open `(candidate)` rows: Unicode bullet (`\u2022`) resource-token Jaccard parity; `out of compliance with` / `fails to comply with` conflict falsifiability; `barred from` / `excluded from` prohibitive negation parity; regressions in `DeterministicInsightDensityGateTests` and `GenericArchitectureAdvicePatternsMultiCloudTests`; seeded five follow-on `(candidate)` rows; 1703 scoped tests passed.
 
 2026-10-13 thorough hunt (hit): `core-findings-advice` — closed five open `(candidate)` rows: middle-dot (`\u00b7`) resource-token Jaccard parity; `incompatible with` / `not in compliance with` conflict falsifiability; `restricted from` / `declined from` prohibitive negation parity; regressions in `DeterministicInsightDensityGateTests` and `GenericArchitectureAdvicePatternsMultiCloudTests`; 1732 scoped tests passed.
@@ -34440,15 +34442,18 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** application agents; agent handlers wiring
 - **paths:** ArchLucid.Application/Agents/
 - **test-filter:** FullyQualifiedName~Application.Tests.Agents
-- **hunts:** 39
-- **bugs-found:** 37
+- **hunts:** 40
+- **bugs-found:** 38
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-13
-- **last-bug:** 2026-10-13 — Sibling relationships after dual-model consensus shrink
+- **last-bug:** 2026-10-13 — Empty consensus intersection sibling relationship prune
 
 2026-10-13 seed hunt (seed→hit): reseeded enricher composition after tenancy churn; proved cross-agent consistency ran before consensus so Cost kept api→worker when intersection dropped `svc-worker`; prune sibling relationships to merged topology endpoints after consensus merge; regression `EnrichAsync_prunes_sibling_relationships_when_dual_model_consensus_removes_topology_endpoint`; 109 scoped Application.Tests.Agents tests passed.
 
+2026-10-13 seed hunt (seed→hit): promoted empty-intersection sibling prune; `PruneSiblingRelationshipsToConsensusTopology` returned before pruning when merged topology declared no services/datastores; Cost kept cross-endpoint edges; regression `EnrichAsync_prunes_sibling_relationships_when_consensus_intersection_has_no_endpoints`; 110 scoped Application.Tests.Agents tests passed.
+
 - [x] (proven) `TopologyProposalDualModelConsensusEnricher` / `CrossAgentProposalConsistencyEnricher` — sibling agents kept relationships to endpoints removed by consensus service intersection — **hit 2026-10-13 seed hunt (seed→hit):** `PruneSiblingRelationshipsToConsensusTopology` after merge; regression `EnrichAsync_prunes_sibling_relationships_when_dual_model_consensus_removes_topology_endpoint`. [class:state-machine-gap]
+- [x] (proven) `TopologyProposalDualModelConsensusEnricher.PruneSiblingRelationshipsToConsensusTopology` — empty consensus intersection skipped sibling relationship pruning when `CollectKnownEndpointKeys` returned an empty set — **hit 2026-10-13 seed hunt (seed→hit):** removed early return on empty endpoint keys; regression `EnrichAsync_prunes_sibling_relationships_when_consensus_intersection_has_no_endpoints`. [class:state-machine-gap]
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -34535,10 +34540,12 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 2026-10-06 seed hunt (seed→hit): promoted null topology collection lists on dual-model consensus path; proved `TopologyProposalConsensusMerger.Merge` NRE when `AddedServices` was null on deserialized primary proposal; fixed by null-coalescing services/datastores/relationships before intersection; regression `Merge_when_primary_added_services_is_null_does_not_throw`; seeded five follow-on `(candidate)` rows; 101 scoped Application.Tests.Agents tests passed.
 
 - [x] (proven) `AgentProposalStructuralPostProcessorEnricher` — assignment replaced `StructuralGroundingDropLog` when enricher ran again on the same `AgentEvidencePackage` (quality-gate retry path) — **hit 2026-10-06 seed hunt:** append via `AddRange`; regression `EnrichAsync_appends_structural_grounding_drop_log_when_enricher_runs_again_on_same_evidence`.
-- (candidate) `TopologyProposalDualModelConsensusEnricher` — `DisagreementConfidenceMultiplier` applied twice when merge disagreements exist and calibrated confidence was already scaled by an earlier enricher pass on the same `AgentResult` reference (no second enricher pass on same instance found in execute path).
-- (candidate) `EvidenceProposalPromoter.PromoteAsync` — `TryGetEvidenceProposalAsync` returns proposal JSON from enrichment overlay while base `AgentResult` row was deleted, allowing promote after run purge when enrichment row remains.
-- (candidate) `FindingIacStubGenerator.GenerateAndPersistStubsForRunAsync` — enrichment read path re-hydrates findings stripped by emission gate when `EnrichedResultJson` predates gate ordering fix, reviving stub generation for withheld prose.
-- (candidate) `AgentCuratedEvidenceProposer.BuildUserPrompt` — null `ArchitectureRequest.Description` bypasses minimum-length guard used elsewhere on execute requests when curated evidence runs on resumed runs with sparse request snapshots.
+
+- [ ] (candidate) `TopologyProposalDualModelConsensusEnricher.PruneSiblingRelationshipsToConsensusTopology` — Security or Compliance sibling agents with relationship-only `AgentTopologyProposal` may retain edges to endpoints dropped by consensus intersection the same way Cost did before sibling prune (reachable via `AgentType.Security` / `AgentType.Compliance` results in the shared `results` list).
+- [ ] (candidate) `TopologyProposalDualModelConsensusEnricher` — `DisagreementConfidenceMultiplier` scales topology `Confidence` and `CalibratedConfidence` but sibling agents whose relationships were pruned keep pre-consensus confidence values that implied the removed endpoints still existed.
+- [ ] (candidate) `AgentResultRegionMismatchEnricher` — runs after dual-model consensus in `AgentEnrichersCompositionModule` and may append region warnings using sibling proposal services that consensus pruning already invalidated on `AddedRelationships` only.
+- [ ] (candidate) `EvidenceProposalPromoter.PromoteAsync` — `BuildCatalogEntryId` slug from title may collide when titles differ only by diacritics stripped by slug normalization, surfacing as SQL unique-index failure instead of pre-insert validation (tenant curated evidence promote path).
+- [ ] (candidate) `FindingIacStubGenerator.GenerateAndPersistStubsForRunAsync` — enrichment overlay merge may re-expose findings in `Findings` when `WithheldFindings` is populated but `AgentArchitectureFindingEmissionGate.HasTypedEmission` is false on the merged read model.
 
 2026-10-05 seed hunt (seed→hit): re-read `ReviewRunEngineProvenanceAggregator`; proved `DerivePolicyPackVersion` threw when deserialized `AgentEvidencePackage.Policies` was null; fixed with null-coalescing; regression `Aggregate_tolerates_null_policies_on_deserialized_evidence_package`; seeded WithheldFindings and consensus audit-count candidates; 98 scoped Application.Tests.Agents tests passed.
 

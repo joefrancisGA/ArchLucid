@@ -136,9 +136,6 @@ public sealed class TopologyProposalDualModelConsensusEnricher(
             mergedTopology.AddedServices ?? [],
             mergedTopology.AddedDatastores ?? []);
 
-        if (endpointKeys.Count == 0)
-            return;
-
         foreach (AgentResult result in results)
         {
             if (result.AgentType is AgentType.Topology)

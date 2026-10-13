@@ -117,6 +117,87 @@ public sealed class TopologyProposalDualModelConsensusCrossAgentOrderTests
             "consensus removed svc-worker from topology so cost must not keep api→worker edges");
     }
 
+    [Fact]
+    public async Task EnrichAsync_prunes_sibling_relationships_when_consensus_intersection_has_no_endpoints()
+    {
+        AgentTopologyProposal primaryTopology = new()
+        {
+            SourceAgent = AgentType.Topology,
+            AddedServices =
+            [
+                new ManifestService
+                {
+                    ServiceName = "api",
+                    ServiceId = "svc-api",
+                    ServiceType = ServiceType.Api,
+                    RuntimePlatform = RuntimePlatform.AppService,
+                },
+            ],
+        };
+
+        AgentTopologyProposal secondaryTopology = new()
+        {
+            SourceAgent = AgentType.Topology,
+            AddedServices =
+            [
+                new ManifestService
+                {
+                    ServiceName = "worker",
+                    ServiceId = "svc-worker",
+                    ServiceType = ServiceType.Worker,
+                    RuntimePlatform = RuntimePlatform.AppService,
+                },
+            ],
+        };
+
+        AgentTopologyProposal costProposal = new()
+        {
+            SourceAgent = AgentType.Cost,
+            AddedRelationships =
+            [
+                new ManifestRelationship
+                {
+                    SourceId = "svc-api",
+                    TargetId = "svc-worker",
+                    RelationshipType = RelationshipType.Calls,
+                },
+            ],
+        };
+
+        List<AgentResult> results =
+        [
+            new AgentResult
+            {
+                RunId = "run-1",
+                TaskId = "topology-task",
+                AgentType = AgentType.Topology,
+                ProposedChanges = primaryTopology,
+            },
+            new AgentResult
+            {
+                RunId = "run-1",
+                TaskId = "cost-task",
+                AgentType = AgentType.Cost,
+                ProposedChanges = costProposal,
+            },
+        ];
+
+        TopologyProposalDualModelConsensusEnricher consensus = CreateConsensusEnricher(secondaryTopology);
+        await consensus.EnrichAsync(
+            "run-1",
+            new ArchitectureRequest { RequestId = "req", Description = new string('x', 12) },
+            new AgentEvidencePackage(),
+            results,
+            CancellationToken.None);
+
+        AgentTopologyProposal topologyAfter = (AgentTopologyProposal)results[0].ProposedChanges!;
+        topologyAfter.AddedServices.Should().BeEmpty();
+
+        AgentTopologyProposal costAfter = (AgentTopologyProposal)results[1].ProposedChanges!;
+        costAfter.AddedRelationships.Should().BeEmpty(
+            "empty consensus intersection means no topology endpoints remain for sibling relationship validation");
+    }
+
     private static TopologyProposalDualModelConsensusEnricher CreateConsensusEnricher(
         AgentTopologyProposal secondaryTopology)
     {
