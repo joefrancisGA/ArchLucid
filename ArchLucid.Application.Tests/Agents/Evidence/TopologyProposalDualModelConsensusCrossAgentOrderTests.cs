@@ -1,0 +1,147 @@
+using ArchLucid.Application.Agents.Evidence;
+using ArchLucid.Contracts.Abstractions.Agents;
+using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Manifest;
+using ArchLucid.Contracts.Requests;
+using ArchLucid.Core.AgentEvaluation;
+using ArchLucid.Core.Audit;
+using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Scoping;
+
+using FluentAssertions;
+
+using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Options;
+
+using Moq;
+
+namespace ArchLucid.Application.Tests.Agents.Evidence;
+
+[Trait("Suite", "Core")]
+public sealed class TopologyProposalDualModelConsensusCrossAgentOrderTests
+{
+    [Fact]
+    public async Task EnrichAsync_prunes_sibling_relationships_when_dual_model_consensus_removes_topology_endpoint()
+    {
+        AgentTopologyProposal primaryTopology = new()
+        {
+            SourceAgent = AgentType.Topology,
+            AddedServices =
+            [
+                new ManifestService
+                {
+                    ServiceName = "api",
+                    ServiceId = "svc-api",
+                    ServiceType = ServiceType.Api,
+                    RuntimePlatform = RuntimePlatform.AppService,
+                },
+                new ManifestService
+                {
+                    ServiceName = "worker",
+                    ServiceId = "svc-worker",
+                    ServiceType = ServiceType.Worker,
+                    RuntimePlatform = RuntimePlatform.AppService,
+                },
+            ],
+        };
+
+        AgentTopologyProposal secondaryTopology = new()
+        {
+            SourceAgent = AgentType.Topology,
+            AddedServices =
+            [
+                new ManifestService
+                {
+                    ServiceName = "api",
+                    ServiceId = "svc-api",
+                    ServiceType = ServiceType.Api,
+                    RuntimePlatform = RuntimePlatform.AppService,
+                },
+            ],
+        };
+
+        AgentTopologyProposal costProposal = new()
+        {
+            SourceAgent = AgentType.Cost,
+            AddedRelationships =
+            [
+                new ManifestRelationship
+                {
+                    SourceId = "svc-api",
+                    TargetId = "svc-worker",
+                    RelationshipType = RelationshipType.Calls,
+                },
+            ],
+        };
+
+        List<AgentResult> results =
+        [
+            new AgentResult
+            {
+                RunId = "run-1",
+                TaskId = "topology-task",
+                AgentType = AgentType.Topology,
+                ProposedChanges = primaryTopology,
+            },
+            new AgentResult
+            {
+                RunId = "run-1",
+                TaskId = "cost-task",
+                AgentType = AgentType.Cost,
+                ProposedChanges = costProposal,
+            },
+        ];
+
+        CrossAgentProposalConsistencyEnricher crossAgent = new();
+        await crossAgent.EnrichAsync(
+            "run-1",
+            new ArchitectureRequest { RequestId = "req", Description = new string('x', 12) },
+            new AgentEvidencePackage(),
+            results,
+            CancellationToken.None);
+
+        TopologyProposalDualModelConsensusEnricher consensus = CreateConsensusEnricher(secondaryTopology);
+        await consensus.EnrichAsync(
+            "run-1",
+            new ArchitectureRequest { RequestId = "req", Description = new string('x', 12) },
+            new AgentEvidencePackage(),
+            results,
+            CancellationToken.None);
+
+        AgentTopologyProposal topologyAfter = (AgentTopologyProposal)results[0].ProposedChanges!;
+        topologyAfter.AddedServices.Should().ContainSingle().Which.ServiceId.Should().Be("svc-api");
+
+        AgentTopologyProposal costAfter = (AgentTopologyProposal)results[1].ProposedChanges!;
+        costAfter.AddedRelationships.Should().BeEmpty(
+            "consensus removed svc-worker from topology so cost must not keep api→worker edges");
+    }
+
+    private static TopologyProposalDualModelConsensusEnricher CreateConsensusEnricher(
+        AgentTopologyProposal secondaryTopology)
+    {
+        Mock<ITopologyProposalSecondaryCompletionInvoker> secondary = new(MockBehavior.Strict);
+        secondary
+            .Setup(invoker => invoker.InvokeSecondaryAsync(
+                It.IsAny<string>(),
+                It.IsAny<ArchitectureRequest>(),
+                It.IsAny<AgentEvidencePackage>(),
+                It.IsAny<AgentTask>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(secondaryTopology);
+
+        Mock<IAuditService> audit = new(MockBehavior.Loose);
+        Mock<IScopeContextProvider> scope = new(MockBehavior.Strict);
+        scope.Setup(provider => provider.GetCurrentScope()).Returns(new ScopeContext());
+
+        IOptions<TopologyProposalConsensusOptions> options = Options.Create(
+            new TopologyProposalConsensusOptions { Enabled = true });
+
+        return new TopologyProposalDualModelConsensusEnricher(
+            secondary.Object,
+            audit.Object,
+            scope.Object,
+            options,
+            NullLogger<TopologyProposalDualModelConsensusEnricher>.Instance);
+    }
+}
