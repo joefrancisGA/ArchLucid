@@ -1,5 +1,11 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-13 seed hunt (seed→hit): `application-tenancy-lifecycle` — promoted `TrialTenantBootstrapService.TryBootstrapAfterSelfRegistrationAsync` trial AI budget policy path; `EnsureDefaultTrialPolicyIfAbsentAsync` still ran when erasure offboard completed after `CommitSelfServiceTrialAsync` but before the pre-audit quarantine re-read; added post-commit and post-policy `IsTenantInErasureQuarantineAsync` guards; regression `TryBootstrapAfterSelfRegistrationAsync_skips_trial_ai_budget_policy_when_offboard_completes_after_commit_before_policy`; tightened trial-provisioned audit race to three active tenant reads; 208 scoped tenancy tests passed.
+
+2026-10-13 seed hunt (seed-only): reseeded catalog migration verification audit path; added candidate for `TenantCatalogMigrationVerificationFailed` platform audit when erasure offboard completes after failed verification probe but before append (passed-probe path already re-reads).
+
+- (candidate) `TenantCatalogMigrationOrchestrator.RunVerificationAsync` — `AppendPlatformAuditAsync` (`TenantCatalogMigrationVerificationFailed`) when `probe.Passed` is false and erasure offboard completes after `RunAsync` / `MarkVerificationResultAsync` without post-probe quarantine re-read; reachable from operator verification retry on tenant racing erasure offboard mid-probe.
+
 2026-10-13 seed hunt (seed→hit): `application-tenancy-lifecycle` — promoted ledger candidate `TenantProvisioningService.ProvisionAsync` post-workspace project insert path; `IArchitectureProjectRepository.InsertAsync` still ran when erasure offboard completed after `InsertWorkspaceAsync` but before default project insert; pre-project `GetByIdAsync` re-read with `BuildErasureQuarantineProvisionResult(tenantId, workspaceId, Guid.Empty)`; regression `ProvisionAsync_skips_project_insert_when_offboard_completes_after_workspace_before_project`; tightened post-workspace pre-audit race tests to three active tenant reads; 207 scoped tenancy tests passed.
 
 2026-10-13 seed hunt (seed→hit): `application-tenancy-lifecycle` — promoted `TenantProvisioningService.ProvisionAsync` post-catalog workspace insert path; `InsertWorkspaceAsync` still ran when erasure offboard completed after `ProvisionTenantCatalogAsync` but before workspace insert; added pre-workspace `GetByIdAsync` re-read and `IsErasureQuarantine` helper; regression `ProvisionAsync_skips_workspace_insert_when_offboard_completes_after_catalog_before_workspace`; cheap-disproof closed `BuildAlreadyProvisionedResultAsync` offboard idempotent retry (registration maps `WasAlreadyProvisioned` to conflict without bootstrap); 206 scoped tenancy tests passed.
@@ -34664,11 +34670,15 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 100
-- **bugs-found:** 85
+- **hunts:** 101
+- **bugs-found:** 86
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-13
-- **last-bug:** 2026-10-13 — Provision project insert after workspace on quarantined tenant
+- **last-bug:** 2026-10-13 — Trial AI budget policy on quarantined tenant after trial commit
+
+2026-10-13 seed hunt (seed→hit): reseeded trial bootstrap post-commit side effects; proved `EnsureDefaultTrialPolicyIfAbsentAsync` when offboard followed `CommitSelfServiceTrialAsync`; post-commit/post-policy quarantine re-reads; regression `TryBootstrapAfterSelfRegistrationAsync_skips_trial_ai_budget_policy_when_offboard_completes_after_commit_before_policy`; 208 scoped tenancy tests passed.
+
+- [x] (proven) `TrialTenantBootstrapService.TryBootstrapAfterSelfRegistrationAsync` — `EnsureDefaultTrialPolicyIfAbsentAsync` when erasure offboard after trial commit before policy — **hit 2026-10-13 seed hunt (seed→hit):** regression `TryBootstrapAfterSelfRegistrationAsync_skips_trial_ai_budget_policy_when_offboard_completes_after_commit_before_policy`.
 
 2026-10-13 seed hunt (seed→hit): promoted ledger candidate for post-workspace project insert erasure race; proved `InsertAsync` after workspace when offboard followed workspace insert; pre-project re-read; regression `ProvisionAsync_skips_project_insert_when_offboard_completes_after_workspace_before_project`; 207 scoped tenancy tests passed.
 

@@ -151,6 +151,9 @@ public sealed class TrialTenantBootstrapService(
                     companyProfile?.IndustryVerticalOther,
                     cancellationToken);
 
+                if (await IsTenantInErasureQuarantineAsync(result.TenantId, cancellationToken))
+                    return;
+
                 await _trialAiBudgetPolicyProvisioner.EnsureDefaultTrialPolicyIfAbsentAsync(
                     result.TenantId,
                     expires,

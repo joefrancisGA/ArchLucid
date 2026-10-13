@@ -1,20 +1,3 @@
-{"at":"2026-09-13T15:16:49.6194496Z","zoneId":"topology-proposal-merge","outcome":"hit"}
-{"at":"2026-09-13T15:16:53.3241584Z","zoneId":"context-ingestion","outcome":"hit"}
-{"at":"2026-09-13T15:16:57.2836111Z","zoneId":"core-costing","outcome":"hit"}
-{"at":"2026-09-13T15:17:01.1405768Z","zoneId":"tenant-data-export","outcome":"seed-only"}
-{"at":"2026-09-13T15:17:04.6195119Z","zoneId":"persistence-identity","outcome":"seed-only"}
-{"at":"2026-09-13T15:17:08.1828082Z","zoneId":"topology-proposal-merge","outcome":"hit"}
-{"at":"2026-09-13T15:17:12.0383497Z","zoneId":"context-ingestion","outcome":"hit"}
-{"at":"2026-09-13T15:17:16.0359833Z","zoneId":"core-costing","outcome":"hit"}
-{"at":"2026-09-13T15:17:19.4598771Z","zoneId":"tenant-data-export","outcome":"seed-only"}
-{"at":"2026-09-13T15:17:22.9293153Z","zoneId":"persistence-identity","outcome":"seed-only"}
-{"at":"2026-09-13T15:17:26.3619164Z","zoneId":"topology-proposal-merge","outcome":"hit"}
-{"at":"2026-09-13T15:17:29.7662676Z","zoneId":"context-ingestion","outcome":"hit"}
-{"at":"2026-09-13T15:17:33.6182049Z","zoneId":"core-costing","outcome":"hit"}
-{"at":"2026-09-13T15:17:37.4536422Z","zoneId":"tenant-data-export","outcome":"seed-only"}
-{"at":"2026-09-13T15:17:40.8748439Z","zoneId":"persistence-identity","outcome":"seed-only"}
-{"at":"2026-09-13T15:17:44.226299Z","zoneId":"topology-proposal-merge","outcome":"hit"}
-{"at":"2026-09-13T15:17:47.660092Z","zoneId":"context-ingestion","outcome":"hit"}
 {"at":"2026-09-13T15:23:54.2216579Z","zoneId":"topology-proposal-merge","outcome":"hit"}
 {"at":"2026-09-13T15:28:47.7348524Z","zoneId":"context-ingestion","outcome":"hit"}
 {"at":"2026-09-13T15:28:51.4646156Z","zoneId":"core-costing","outcome":"hit"}
@@ -8502,3 +8485,4 @@
 {"at":"2026-10-13T15:05:33.0841876Z","zoneId":"application-tenancy-lifecycle","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Tenancy/"]}
 {"at":"2026-10-13T15:10:07.1882808Z","zoneId":"application-tenancy-lifecycle","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Tenancy/"]}
 {"at":"2026-10-13T15:16:06.8578669Z","zoneId":"application-tenancy-lifecycle","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-13T15:21:41.6090752Z","zoneId":"application-tenancy-lifecycle","outcome":"hit","productLine":"archlucid-shared"}
