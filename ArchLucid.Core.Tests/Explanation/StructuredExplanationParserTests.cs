@@ -218,6 +218,17 @@ public sealed class StructuredExplanationParserTests
     }
 
     [Fact]
+    public void TryNormalizeStructuredJson_ignores_out_of_range_numeric_evidence_ref_entries()
+    {
+        const string json = """{"reasoning":"Main","evidenceRefs":[1e300,"dec-1"]}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.EvidenceRefs.Should().Equal("dec-1");
+    }
+
+    [Fact]
     public void TryNormalizeStructuredJson_defaults_schema_version_when_numeric_schema_version_exceeds_int_range()
     {
         const string json = """{"schemaVersion":1e300,"reasoning":"Main"}""";

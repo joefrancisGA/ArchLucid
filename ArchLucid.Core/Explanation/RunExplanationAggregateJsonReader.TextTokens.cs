@@ -85,9 +85,9 @@ internal static partial class RunExplanationAggregateJsonReader
                 return !string.IsNullOrWhiteSpace(value);
             }
 
-            value = element.GetRawText();
+            value = null;
 
-            return !string.IsNullOrWhiteSpace(value);
+            return false;
         }
 
         if (element.ValueKind is JsonValueKind.True or JsonValueKind.False)
