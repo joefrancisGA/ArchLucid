@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-13 seed hunt (seed→hit): `application-tenancy-lifecycle` — promoted `TenantErasureCommandService.TrySetLegalHoldAsync` (`requireErasureQuarantine: true`); quarantine restore before `TrySetTenantErasureLegalHoldAsync` made atomic miss return `false` and surfaced 409 on legal-hold retry though erasure quarantine no longer applied; re-read after repository miss returns success when `OffboardedUtc` is cleared; regression `TrySetLegalHoldAsync_returns_success_when_quarantine_restored_before_atomic_set_with_quarantine_required`; 151 scoped tenancy tests passed.
+
 2026-10-13 seed hunt (seed→hit): `application-tenancy-lifecycle` — promoted `TrialLifecycleTransitionEngine.TryAdvanceTenantAsync`; erasure offboard between initial read and `TryRecordTrialLifecycleTransitionAsync` made atomic miss return `false` and surfaced a failed scheduler tick while trial automation was superseded by quarantine; re-read after transition miss treats `OffboardedUtc` as idempotent success; regression `TryAdvanceTenantAsync_returns_success_when_erasure_offboard_completes_before_atomic_transition`; 150 scoped tenancy tests passed.
 
 2026-10-13 seed hunt (seed→hit): `application-tenancy-lifecycle` — promoted `TenantErasureCommandService.TryApproveErasureAsync`; concurrent quarantine restore before `TryApproveTenantErasureAsync` made atomic miss return `false` and surfaced 409 on approve retry despite erasure no longer applying; re-read maps cleared `OffboardedUtc` to idempotent success (parity with restore/clear legal-hold losers); regression `TryApproveErasureAsync_returns_success_when_quarantine_restored_before_atomic_approve`; 149 scoped tenancy tests passed.
@@ -34541,11 +34543,15 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 49
-- **bugs-found:** 34
+- **hunts:** 50
+- **bugs-found:** 35
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-13
-- **last-bug:** 2026-10-13 — Trial lifecycle scheduler failed tick when erasure offboard raced atomic transition
+- **last-bug:** 2026-10-13 — Quarantine-required legal hold returned conflict when restore raced atomic set
+
+2026-10-13 seed hunt (seed→hit): reseeded erasure commands after trial lifecycle offboard race fix; proved `TrySetLegalHoldAsync` with `requireErasureQuarantine` returned `false` when restore cleared quarantine before atomic set; fixed idempotent re-read after repository miss; regression `TrySetLegalHoldAsync_returns_success_when_quarantine_restored_before_atomic_set_with_quarantine_required`; 151 scoped tenancy tests passed.
+
+- [x] (proven) `TenantErasureCommandService.TrySetLegalHoldAsync` (`requireErasureQuarantine: true`) — atomic legal-hold miss returned `false` while erasure quarantine was already cleared by concurrent restore — **hit 2026-10-13 seed hunt (seed→hit):** re-read after `TrySetTenantErasureLegalHoldAsync` miss returns success when `OffboardedUtc` is null; regression `TrySetLegalHoldAsync_returns_success_when_quarantine_restored_before_atomic_set_with_quarantine_required`.
 
 2026-10-13 seed hunt (seed→hit): reseeded trial lifecycle after erasure approve restore fix; proved `TryAdvanceTenantAsync` returned `false` when admin erasure offboard landed before `TryRecordTrialLifecycleTransitionAsync`; extended `IsAdvancementAlreadyAppliedAsync` re-read to treat active quarantine as superseded automation; regression `TryAdvanceTenantAsync_returns_success_when_erasure_offboard_completes_before_atomic_transition`; 150 scoped tenancy tests passed.
 
