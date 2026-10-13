@@ -1,18 +1,3 @@
-{"at":"2026-09-13T18:41:32.4902198Z","zoneId":"topology-proposal-merge","outcome":"hit"}
-{"at":"2026-09-13T18:41:37.5028038Z","zoneId":"context-ingestion","outcome":"hit"}
-{"at":"2026-09-13T18:41:42.2748067Z","zoneId":"core-costing","outcome":"hit"}
-{"at":"2026-09-13T18:41:47.3928142Z","zoneId":"tenant-data-export","outcome":"seed-only"}
-{"at":"2026-09-13T18:41:52.5802725Z","zoneId":"persistence-identity","outcome":"seed-only"}
-{"at":"2026-09-13T18:41:57.667562Z","zoneId":"topology-proposal-merge","outcome":"hit"}
-{"at":"2026-09-13T18:42:03.3812254Z","zoneId":"context-ingestion","outcome":"hit"}
-{"at":"2026-09-13T18:42:08.4422968Z","zoneId":"core-costing","outcome":"dry"}
-{"at":"2026-09-13T18:42:13.7039601Z","zoneId":"tenant-data-export","outcome":"seed-only"}
-{"at":"2026-09-13T18:42:18.7158317Z","zoneId":"persistence-identity","outcome":"seed-only"}
-{"at":"2026-09-13T18:42:23.742648Z","zoneId":"topology-proposal-merge","outcome":"dry"}
-{"at":"2026-09-13T18:42:28.7267683Z","zoneId":"context-ingestion","outcome":"dry"}
-{"at":"2026-09-13T18:42:34.1798588Z","zoneId":"core-costing","outcome":"dry"}
-{"at":"2026-09-13T18:42:39.0899506Z","zoneId":"tenant-data-export","outcome":"seed-only"}
-{"at":"2026-09-13T18:42:44.0704885Z","zoneId":"persistence-identity","outcome":"seed-only"}
 {"at":"2026-09-14T00:13:28.5770857Z","zoneId":"topology-proposal-merge","outcome":"hit"}
 {"at":"2026-09-14T00:13:32.2448783Z","zoneId":"context-ingestion","outcome":"hit"}
 {"at":"2026-09-14T00:13:35.9026189Z","zoneId":"core-costing","outcome":"hit"}
@@ -8406,3 +8391,4 @@
 {"at":"2026-10-13T18:25:35.3367756Z","zoneId":"notifications-pipeline","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-13T18:32:44.6917058Z","zoneId":"notifications-pipeline","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-13T18:39:45.6114706Z","zoneId":"notifications-pipeline","outcome":"seed-only","productLine":"archlucid-shared"}
+{"at":"2026-10-13T18:46:36.8673236Z","zoneId":"notifications-pipeline","outcome":"hit","productLine":"archlucid-shared"}

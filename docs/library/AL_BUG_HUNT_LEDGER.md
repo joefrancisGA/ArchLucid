@@ -31453,6 +31453,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ## Zone: notifications-pipeline
 
+2026-10-13 seed hunt (seed→hit): proved weekly sponsor `weekLabel` CRLF reached digest subject lines; shared `EmailHeaderFragmentSanitizer` for week labels and exec digest rehearsal prefix; regression `WeeklySponsorSummaryEmailDispatcher_omits_line_breaks_from_week_label_in_subject`; 168 scoped notification/digest Application tests passed.
+
 2026-10-13 seed hunt (seed→hit): proved misconfigured `ProductDisplayName` line breaks reached outbound email subjects (header-injection class); `EmailProductDisplayNameResolver.SanitizeForEmailHeader`; regressions `Resolve_strips_line_breaks_from_legacy_product_display_name` and `TrySendInvitationAsync_omits_line_breaks_from_product_display_name_in_subject`; 167 scoped notification/digest Application tests passed.
 
 2026-10-13 seed hunt (seed-only): re-read notification email dispatchers, ChatOps webhook delivery, and digest subscription controller boundaries; cheap-disproved four open candidates (webhook URL sanitization, Slack signature length, multi-recipient false return, facade-only digest validation); no hunt-ready repro; seeded five follow-on `(candidate)` rows; 165 scoped notification/digest Application tests passed.
@@ -31473,11 +31475,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** notifications; email dispatchers beyond weekly summary
 - **paths:** ArchLucid.Notifications/; ArchLucid.Application/Notifications/; ArchLucid.Api/Controllers/Advisory/DigestSubscriptionsController.cs
 - **test-filter:** FullyQualifiedName~Notifications|FullyQualifiedName~EmailDispatcher|FullyQualifiedName~DigestSubscriptionsController
-- **hunts:** 69
-- **bugs-found:** 52
+- **hunts:** 70
+- **bugs-found:** 53
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-13
-- **last-bug:** 2026-10-13 — Email product display name CRLF in subjects
+- **last-bug:** 2026-10-13 — Weekly digest week label CRLF in subjects
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -31494,7 +31496,9 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - [x] (proven) `UserInvitationEmailNotifier` personal-message plain http(s) URLs — non-markdown absolute links in administrator `Message` echoed embedded userinfo in HTML/text bodies — **hit 2026-10-13 seed hunt (seed→hit):** `SanitizeEmbeddedHttpUrls` before markdown formatting; regression `TrySendInvitationAsync_omits_user_info_from_plain_http_url_in_personal_message`.
 
-- [x] (proven) `EmailProductDisplayNameResolver.Resolve` — CRLF in configured `ProductDisplayName` reached templated email `Subject` lines across notification dispatchers — **hit 2026-10-13 seed hunt (seed→hit):** `SanitizeForEmailHeader` on all resolve paths; regressions `Resolve_strips_line_breaks_from_legacy_product_display_name` and `TrySendInvitationAsync_omits_line_breaks_from_product_display_name_in_subject`.
+- [x] (proven) `EmailProductDisplayNameResolver.Resolve` — CRLF in configured `ProductDisplayName` reached templated email `Subject` lines across notification dispatchers — **hit 2026-10-13 seed hunt (seed→hit):** `EmailHeaderFragmentSanitizer` on all resolve paths; regressions `Resolve_strips_line_breaks_from_legacy_product_display_name` and `TrySendInvitationAsync_omits_line_breaks_from_product_display_name_in_subject`.
+
+- [x] (proven) `WeeklySponsorSummaryEmailDispatcher` / `WeeklySponsorReportEmailDispatcher` / `ExecDigestEmailDispatcher` — CRLF in `weekLabel` or `RehearsalSubjectPrefix` reached weekly email subjects while product display names were already sanitized — **hit 2026-10-13 seed hunt (seed→hit):** `EmailHeaderFragmentSanitizer` on subject fragments; regression `WeeklySponsorSummaryEmailDispatcher_omits_line_breaks_from_week_label_in_subject`.
 
 - [ ] (candidate) `UserInvitationAdminService.BuildAcceptUrl` — concatenates trimmed `OperatorBaseUrl` without authority normalization; admin invite/list responses still expose raw `AcceptUrl` even when mail notifier sanitizes at send time (admin API zone; out of `notifications-pipeline` paths).
 - [x] (valid-no-repro) `BoardPackPdfBuilder.BuildPdfAsync` — raw `emailOptions.OperatorBaseUrl` passed into `ExecDigestComposer` — **cheap-disproof 2026-10-13 seed hunt:** `ExecDigestComposer.NormalizeBaseUrl` strips userinfo before dashboard/sponsor URLs are composed.

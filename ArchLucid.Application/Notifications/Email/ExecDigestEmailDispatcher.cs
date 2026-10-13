@@ -101,8 +101,9 @@ public sealed class ExecDigestEmailDispatcher(
         string text = await _templateRenderer.RenderTextAsync(TemplateId, model, cancellationToken);
         string subjectPrefix = string.IsNullOrWhiteSpace(composition.RehearsalSubjectPrefix)
             ? string.Empty
-            : composition.RehearsalSubjectPrefix.Trim();
-        string subject = $"{subjectPrefix}{productName} weekly digest — {normalizedWeekLabel}";
+            : EmailHeaderFragmentSanitizer.Sanitize(composition.RehearsalSubjectPrefix);
+        string subject =
+            $"{subjectPrefix}{productName} weekly digest — {EmailHeaderFragmentSanitizer.Sanitize(normalizedWeekLabel)}";
 
         return await MultiRecipientEmailDispatch.TrySendToMailboxesAsync(
             tenantId,
