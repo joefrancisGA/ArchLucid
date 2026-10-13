@@ -97,6 +97,9 @@ public sealed class TrialTenantBootstrapService(
                 return;
             }
 
+            if (await IsTenantInErasureQuarantineAsync(result.TenantId, cancellationToken))
+                return;
+
             ContosoRetailDemoIds demoIds = ContosoRetailDemoIds.ForTenant(result.TenantId);
             Guid sampleRunId = ContosoRetailDemoIds.TrialWelcomeAuthorityRunId(result.TenantId);
             bool fullDemoSeedSucceeded = false;

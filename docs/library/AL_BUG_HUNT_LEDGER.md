@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-13 seed hunt (seed→hit): `application-tenancy-lifecycle` — promoted `TrialTenantBootstrapService.TryBootstrapAfterSelfRegistrationAsync` post-email-verification demo seed path; `SeedTrialWelcomeRunAsync` / `SeedAsync` still ran when erasure offboard completed after email policy passed but before demo seed (entry quarantine only); pre-demo-seed `IsTenantInErasureQuarantineAsync` guard; regression `TryBootstrapAfterSelfRegistrationAsync_skips_demo_seed_when_offboard_completes_after_email_verification_before_seed`; tightened downstream race test tenant-read sequences; 211 scoped tenancy tests passed.
+
 2026-10-13 seed hunt (seed→hit): `application-tenancy-lifecycle` — promoted `TrialTenantBootstrapService.TryBootstrapAfterSelfRegistrationAsync` post-demo-seed trial commit path; `CommitSelfServiceTrialAsync` still ran when erasure offboard completed after `SeedTrialWelcomeRunAsync` / `SeedAsync` but before trial metadata commit (only entry quarantine re-read existed); pre-commit `IsTenantInErasureQuarantineAsync` guard; regression `TryBootstrapAfterSelfRegistrationAsync_skips_trial_commit_when_offboard_completes_after_demo_seed_before_commit`; tightened post-commit race tests with an extra active tenant read; 210 scoped tenancy tests passed.
 
 2026-10-13 seed hunt (seed→hit): `application-tenancy-lifecycle` — promoted ledger candidate `TenantCatalogMigrationOrchestrator.RunVerificationAsync`; `TenantCatalogMigrationVerificationFailed` platform audit still appended when erasure offboard completed after failed verification probe because post-probe quarantine re-read ran only for `probe.Passed`; unified post-probe `GetByIdAsync` for pass and fail paths; regression `RunVerificationAsync_returns_in_erasure_quarantine_without_failed_audit_when_offboarded_after_probe`; 209 scoped tenancy tests passed.
@@ -34670,11 +34672,15 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 103
-- **bugs-found:** 88
+- **hunts:** 104
+- **bugs-found:** 89
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-13
-- **last-bug:** 2026-10-13 — Trial commit on quarantined tenant after demo seed
+- **last-bug:** 2026-10-13 — Trial demo seed on quarantined tenant after email verification
+
+2026-10-13 seed hunt (seed→hit): reseeded trial bootstrap post-email demo seed window; proved demo seed when offboard followed email verification; pre-demo quarantine guard; regression `TryBootstrapAfterSelfRegistrationAsync_skips_demo_seed_when_offboard_completes_after_email_verification_before_seed`; 211 scoped tenancy tests passed.
+
+- [x] (proven) `TrialTenantBootstrapService.TryBootstrapAfterSelfRegistrationAsync` — demo seed when erasure offboard after email verification before `SeedTrialWelcomeRunAsync` — **hit 2026-10-13 seed hunt (seed→hit):** regression `TryBootstrapAfterSelfRegistrationAsync_skips_demo_seed_when_offboard_completes_after_email_verification_before_seed`.
 
 2026-10-13 seed hunt (seed→hit): reseeded trial bootstrap demo-seed window; proved `CommitSelfServiceTrialAsync` when offboard followed demo seed; pre-commit quarantine guard; regression `TryBootstrapAfterSelfRegistrationAsync_skips_trial_commit_when_offboard_completes_after_demo_seed_before_commit`; 210 scoped tenancy tests passed.
 
