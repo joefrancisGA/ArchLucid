@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-13 seed hunt (seed→hit): `application-tenancy-lifecycle` — promoted `TenantErasureCommandService.TrySetLegalHoldAsync` (`requireErasureQuarantine: true`); quarantine restore after successful `TrySetTenantErasureLegalHoldAsync` still appended `TenantErasureLegalHoldSet` audit; re-read before audit and skip when restore cleared `OffboardedUtc`; regression `TrySetLegalHoldAsync_returns_success_without_audit_when_quarantine_restored_after_atomic_set_with_quarantine_required`; 164 scoped tenancy tests passed.
+
 2026-10-13 seed hunt (seed→hit): `application-tenancy-lifecycle` — promoted `TenantErasureCommandService.TryApproveErasureAsync`; quarantine restore after successful `TryApproveTenantErasureAsync` still appended `TenantErasureApproved` platform audit while erasure no longer applied; re-read tenant before audit and skip audit when `OffboardedUtc` is cleared; regression `TryApproveErasureAsync_returns_success_without_audit_when_quarantine_restored_after_atomic_approve`; 163 scoped tenancy tests passed.
 
 2026-10-13 seed hunt (seed→hit): `application-tenancy-lifecycle` — promoted `TenantSuspendCommandService.TrySuspendAsync`; erasure offboard between successful `TrySuspendTenantAsync` and platform audit still returned `Applied` and appended `TenantSuspended`; re-read tenant before audit and map active quarantine to `InErasureQuarantine` (mirrored on `TryUnsuspendAsync`); regression `TrySuspendAsync_returns_quarantine_when_offboard_completes_after_atomic_suspend_before_audit`; 162 scoped tenancy tests passed.
@@ -34563,11 +34565,15 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 60
-- **bugs-found:** 45
+- **hunts:** 61
+- **bugs-found:** 46
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-13
-- **last-bug:** 2026-10-13 — Erasure approve audit after concurrent quarantine restore
+- **last-bug:** 2026-10-13 — Legal-hold set audit after concurrent quarantine restore
+
+2026-10-13 seed hunt (seed→hit): reseeded erasure commands after approve post-atomic audit race fix; proved `TrySetLegalHoldAsync` emitted legal-hold audit when restore cleared quarantine after atomic set; re-read before audit; regression `TrySetLegalHoldAsync_returns_success_without_audit_when_quarantine_restored_after_atomic_set_with_quarantine_required`; 164 scoped tenancy tests passed.
+
+- [x] (proven) `TenantErasureCommandService.TrySetLegalHoldAsync` — appended `TenantErasureLegalHoldSet` audit when quarantine restore completed after atomic set — **hit 2026-10-13 seed hunt (seed→hit):** skip audit when post-set re-read shows cleared `OffboardedUtc`; regression `TrySetLegalHoldAsync_returns_success_without_audit_when_quarantine_restored_after_atomic_set_with_quarantine_required`.
 
 2026-10-13 seed hunt (seed→hit): reseeded erasure commands after suspend post-atomic audit race fix; proved `TryApproveErasureAsync` emitted approve audit when restore cleared quarantine after atomic approve; re-read before audit; regression `TryApproveErasureAsync_returns_success_without_audit_when_quarantine_restored_after_atomic_approve`; 163 scoped tenancy tests passed.
 

@@ -450,6 +450,59 @@ public sealed class TenantErasureCommandServiceIdempotentRetryTests
     }
 
     [Fact]
+    public async Task TrySetLegalHoldAsync_returns_success_without_audit_when_quarantine_restored_after_atomic_set_with_quarantine_required()
+    {
+        Guid tenantId = Guid.NewGuid();
+        DateTimeOffset now = new(2026, 10, 13, 14, 0, 0, TimeSpan.Zero);
+        DateTimeOffset holdUntil = now.AddDays(14);
+        FakeTimeProvider clock = new(now);
+        TenantRecord offboarded = OffboardedTenant(tenantId, now);
+        TenantRecord restored = ActiveTenant(tenantId, now);
+
+        Mock<ITenantRepository> tenants = new(MockBehavior.Strict);
+        tenants
+            .SetupSequence(t => t.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(offboarded)
+            .ReturnsAsync(restored);
+        tenants
+            .Setup(t => t.TrySetTenantErasureLegalHoldAsync(
+                tenantId,
+                holdUntil,
+                It.IsAny<DateTimeOffset>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+
+        Mock<IPlatformAuditRepository> audit = new(MockBehavior.Strict);
+
+        Mock<IOptionsMonitor<TenantErasurePurgeOptions>> options = new();
+        options.Setup(o => o.CurrentValue).Returns(new TenantErasurePurgeOptions());
+
+        TenantErasureCommandService sut = new(
+            tenants.Object,
+            audit.Object,
+            clock,
+            options.Object);
+
+        (await sut.TrySetLegalHoldAsync(
+                tenantId,
+                holdUntil,
+                "litigation",
+                "counsel@example.com",
+                "Counsel",
+                requireErasureQuarantine: true,
+                "corr",
+                CancellationToken.None))
+            .Should()
+            .BeTrue();
+
+        audit.Verify(
+            a => a.AppendAsync(It.IsAny<PlatformAuditEvent>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task TryApproveErasureAsync_returns_success_when_quarantine_restored_before_atomic_approve()
     {
         Guid tenantId = Guid.NewGuid();
