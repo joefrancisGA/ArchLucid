@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-13 seed hunt (seed→hit): `application-tenancy-lifecycle` — promoted `TenantErasureCommandService.TrySetLegalHoldAsync` (`requireErasureQuarantine: true`); quarantine restore after post-set read but before `TenantErasureLegalHoldSet` audit still appended set-hold audit on non-quarantined tenant; re-read before audit; regression `TrySetLegalHoldAsync_returns_success_without_audit_when_quarantine_restored_after_post_set_read_before_audit_with_quarantine_required`; 188 scoped tenancy tests passed.
+
 2026-10-13 seed hunt (seed→hit): `application-tenancy-lifecycle` — promoted `TenantErasureCommandService.TryClearLegalHoldAsync`; legal hold re-applied after post-clear read but before `TenantErasureLegalHoldCleared` audit still appended clear audit while hold remained active; re-read before audit; regression `TryClearLegalHoldAsync_returns_success_without_audit_when_legal_hold_set_after_post_clear_read_before_audit`; 187 scoped tenancy tests passed.
 
 2026-10-13 seed hunt (seed→hit): `application-tenancy-lifecycle` — promoted `TenantErasureCommandService.TryApproveErasureAsync`; quarantine restore after post-approve read but before `TenantErasureApproved` audit still appended approve audit on non-quarantined tenant; re-read before audit; regression `TryApproveErasureAsync_returns_success_without_audit_when_quarantine_restored_after_post_approve_read_before_audit`; 186 scoped tenancy tests passed.
@@ -34628,11 +34630,15 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 82
-- **bugs-found:** 67
+- **hunts:** 83
+- **bugs-found:** 68
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-13
-- **last-bug:** 2026-10-13 — Legal-hold clear audit after concurrent re-hold race
+- **last-bug:** 2026-10-13 — Legal-hold set audit after quarantine restore race
+
+2026-10-13 seed hunt (seed→hit): reseeded legal-hold set from ledger candidate; proved `TrySetLegalHoldAsync` appended set-hold audit when quarantine restore followed post-set read; re-read before audit; regression `TrySetLegalHoldAsync_returns_success_without_audit_when_quarantine_restored_after_post_set_read_before_audit_with_quarantine_required`; 188 scoped tenancy tests passed.
+
+- [x] (proven) `TenantErasureCommandService.TrySetLegalHoldAsync` — appended legal-hold-set audit when quarantine restore completed after post-set read (`requireErasureQuarantine: true`) — **hit 2026-10-13 seed hunt (seed→hit):** re-read before audit and skip when `OffboardedUtc` is cleared; regression `TrySetLegalHoldAsync_returns_success_without_audit_when_quarantine_restored_after_post_set_read_before_audit_with_quarantine_required`.
 
 2026-10-13 seed hunt (seed→hit): reseeded legal-hold clear from ledger candidate; proved `TryClearLegalHoldAsync` appended clear audit when hold was re-applied after post-clear read; re-read before audit; regression `TryClearLegalHoldAsync_returns_success_without_audit_when_legal_hold_set_after_post_clear_read_before_audit`; 187 scoped tenancy tests passed.
 
@@ -34935,8 +34941,8 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 2026-10-02 thorough hunt (dry): cheap-disproved the deleted-tenant retry boolean because the production scheduler ignores the return value and only treats exceptions as tenant failures; invalidated the null maintenance-message candidate because the database column is `NOT NULL` and the migration start path supplies the default. The scoped test filter was blocked during build by unrelated pre-existing ARCH006/ARCH006a analyzer errors in `ArchLucid.Persistence`; no failing repro was run because no hunt-ready candidate remained.
 
-- (candidate) `TenantErasureCommandService.TrySetLegalHoldAsync` — quarantine restore after post-set read but before `TenantErasureLegalHoldSet` audit when `requireErasureQuarantine` is true; reachable via overlapping admin set-hold and restore commands.
 - (candidate) `TenantErasureCommandService.TrySetLegalHoldAsync` — legal hold cleared concurrently after post-set read but before `TenantErasureLegalHoldSet` audit when `requireErasureQuarantine` is false; reachable via overlapping admin set-hold and clear commands.
+- (candidate) `TenantCatalogMigrationOrchestrator.StartAsync` — compensating `TryUnsuspendAsync` after failed migration insert can append unsuspend audit when erasure offboard completes after insert failure read; reachable via catalog migration start racing erasure offboard.
 - (candidate) `TrialLifecycleTransitionEngine.EmitAuditAsync` — trial lifecycle transition audit uses the pre-transition `tenant` snapshot for workspace/project ids when `GetFirstWorkspaceAsync` lags a concurrent workspace delete; reachable from scheduler tick after workspace teardown begins.
 
 ---
