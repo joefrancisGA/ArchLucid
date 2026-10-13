@@ -14543,6 +14543,7 @@ public sealed class GenericArchitectureAdvicePatternsMultiCloudTests
     [InlineData("Storage account is contradicting the constraint on public blob access.")]
     [InlineData("Storage account is in conflict with the constraint on public blob access.")]
     [InlineData("Storage account is noncompliant with the constraint on public blob access.")]
+    [InlineData("Storage account is non-compliant with the constraint on public blob access.")]
     public void HasFalsifiabilitySignal_recognizes_conflict_wording_variants(string message)
     {
         GenericArchitectureAdvicePatterns.HasFalsifiabilitySignal(message).Should().BeTrue();

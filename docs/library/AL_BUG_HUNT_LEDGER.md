@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-13 thorough hunt (hit): `core-findings-advice` — promoted `InsightDensityTextSimilarity.Tokenize` percent/dollar/question-mark delimiter parity and `GenericArchitectureAdvicePatterns.ConflictFindingPattern` hyphenated `non-compliant`; cheap-disproof closed five stale `(candidate)` rows (caret/tilde already split; `in conflict`/`noncompliant`/`forbidden from` already covered); regressions `Jaccard_similarity_treats_percent_separated_resource_tokens_as_space_separated_peers`, `Jaccard_similarity_treats_dollar_separated_resource_tokens_as_space_separated_peers`, `Jaccard_similarity_treats_question_mark_separated_resource_tokens_as_space_separated_peers`, and `HasFalsifiabilitySignal_recognizes_conflict_wording_variants` (`non-compliant`); seeded five follow-on `(candidate)` rows; 1727 scoped GenericArchitectureAdvicePatterns + DeterministicInsightDensityGate tests passed.
+
 2026-10-13 seed hunt (seed→hit): `application-tenancy-lifecycle` — promoted `TenantErasureCommandService.CompleteOffboardSideEffectsAsync`; quarantine restore after initial offboard read but before idempotent suspend/audit still suspended the tenant and appended `TenantErasureOffboarded` from a stale snapshot; re-read tenant before side effects and no-op when `OffboardedUtc` is cleared; regression `TryOffboardTenantAsync_returns_null_without_audit_when_quarantine_restored_before_idempotent_side_effects`; 169 scoped tenancy tests passed.
 
 2026-10-13 seed hunt (seed→hit): `application-tenancy-lifecycle` — promoted `TenantCatalogMigrationOrchestrator.StartAsync`; erasure offboard after successful scope-freeze `TrySuspendAsync` but before `InsertAsync` still created an active catalog migration on a quarantined tenant; re-read before insert and return `InErasureQuarantine` without insert (compensating unsuspend when scope-freeze suspend applied); regression `StartAsync_returns_in_erasure_quarantine_when_offboard_completes_after_scope_freeze_suspend_before_insert`; 168 scoped tenancy tests passed.
@@ -25624,9 +25626,7 @@ Split from retired `archlucid-core` (ABQ-08).
 ---
 ## Zone: core-findings-advice
 
-2026-10-07 thorough hunt (hit): proved exclamation/asterisk marker parity, breach versus contradicting conflict falsifiability, and `prohibited from` negation parity; 1718 scoped tests passed.
-
-2026-10-07 seed hunt (seed→hit): proved hash-delimited resource token duplication parity; 1713 scoped GenericArchitectureAdvicePatterns + DeterministicInsightDensityGate tests passed.
+2026-10-13 thorough hunt (hit): proved `%`/`$`/`?` resource-token delimiter parity and hyphenated `non-compliant with the constraint` falsifiability; cheap-disproof closed five open `(candidate)` rows from 2026-10-07; 1727 scoped tests passed.
 
 - **id:** core-findings-advice
 - **split-from:** archlucid-core
@@ -25635,13 +25635,22 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** findings advice; generic architecture advice; split from archlucid-core
 - **paths:** ArchLucid.Core/Findings/
 - **test-filter:** FullyQualifiedName~GenericArchitectureAdvicePatterns
-- **hunts:** 24
-- **bugs-found:** 20
+- **hunts:** 25
+- **bugs-found:** 22
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-07
-- **last-bug:** 2026-10-07 — `prohibited from` negation gap on generic advice demotion
+- **last-hunt:** 2026-10-13
+- **last-bug:** 2026-10-13 — Percent/dollar/question-mark token parity and `non-compliant` conflict wording
 - **related-pd-tb:** none
 - **code-changed-since:** no
+
+2026-10-13 thorough hunt (hit): reseeded after master merge; proved `InsightDensityTextSimilarity.Tokenize` left `%`/`$`/`?` glued tokens at Jaccard 0.625; split delimiters; proved `non-compliant with the constraint` missed `HasFalsifiabilitySignal`; regex `non[- ]?compliant`; regressions in `DeterministicInsightDensityGateTests` and `HasFalsifiabilitySignal_recognizes_conflict_wording_variants`; cheap-disproof closed caret/tilde/conflict/noncompliant/forbidden-from candidates; 1727 scoped tests passed.
+
+- [x] (proven) `InsightDensityTextSimilarity.Tokenize` — percent/dollar/question-mark-separated resource tokens — **hit 2026-10-13 thorough hunt:** split on `%`, `$`, `?`; regressions `Jaccard_similarity_treats_percent_separated_resource_tokens_as_space_separated_peers`, `Jaccard_similarity_treats_dollar_separated_resource_tokens_as_space_separated_peers`, `Jaccard_similarity_treats_question_mark_separated_resource_tokens_as_space_separated_peers`.
+- [x] (proven) `GenericArchitectureAdvicePatterns.ConflictFindingPattern` — hyphenated `non-compliant with the constraint` — **hit 2026-10-13 thorough hunt:** `non[- ]?compliant`; regression in `HasFalsifiabilitySignal_recognizes_conflict_wording_variants`.
+
+2026-10-07 thorough hunt (hit): proved exclamation/asterisk marker parity, breach versus contradicting conflict falsifiability, and `prohibited from` negation parity; 1718 scoped tests passed.
+
+2026-10-07 seed hunt (seed→hit): proved hash-delimited resource token duplication parity; 1713 scoped GenericArchitectureAdvicePatterns + DeterministicInsightDensityGate tests passed.
 
 Split from retired `archlucid-core` (ABQ-08). Generic-advice negation parity history lives under retired `archlucid-core`; this zone owns ongoing `ArchLucid.Core/Findings/` hunts.
 
@@ -25681,11 +25690,17 @@ Split from retired `archlucid-core` (ABQ-08). Generic-advice negation parity his
 - [x] (proven) `GenericArchitectureAdvicePatterns.ConflictFindingPattern` — `contradicting the constraint` — **hit 2026-10-07 thorough hunt:** added `contradicting` branch; regression in `HasFalsifiabilitySignal_recognizes_conflict_wording_variants`.
 - [x] (proven) `GenericArchitectureAdvicePatterns.IsObviousGenericAdvice` — `prohibited from enable mfa` — **hit 2026-10-07 thorough hunt:** `EnglishNegationTokenizer` `prohibited from` multi-word negation; regression `IsObviousGenericAdvice_does_not_flag_negated_checklist_phrasing`.
 
-- [ ] (candidate) `InsightDensityTextSimilarity.Tokenize` — caret-separated resource tokens (`prod^sql^db`) vs space-separated peer may under-penalize duplication.
-- [ ] (candidate) `InsightDensityTextSimilarity.Tokenize` — tilde-separated resource tokens (`prod~sql~db`) vs space-separated peer may under-penalize duplication.
-- [ ] (candidate) `GenericArchitectureAdvicePatterns.ConflictFindingPattern` — `in conflict with the constraint` may miss falsifiability (`conflicts? with` requires trailing `with` only).
-- [ ] (candidate) `GenericArchitectureAdvicePatterns.ConflictFindingPattern` — `noncompliant with the constraint` regulatory wording may miss `HasFalsifiabilitySignal`.
-- [ ] (candidate) `EnglishNegationTokenizer` — `forbidden from enable mfa` prohibitive intent may still false-positive demote obvious generic advice.
+- [x] (valid-no-repro) `InsightDensityTextSimilarity.Tokenize` — caret-separated resource tokens — **cheap-disproof 2026-10-13 thorough hunt:** `^` already in `Tokenize` split set; regression `Jaccard_similarity_treats_caret_separated_resource_tokens_as_space_separated_peers`.
+- [x] (valid-no-repro) `InsightDensityTextSimilarity.Tokenize` — tilde-separated resource tokens — **cheap-disproof 2026-10-13 thorough hunt:** `~` already split; regression `Jaccard_similarity_treats_tilde_separated_resource_tokens_as_space_separated_peers`.
+- [x] (valid-no-repro) `GenericArchitectureAdvicePatterns.ConflictFindingPattern` — `in conflict with the constraint` — **cheap-disproof 2026-10-13 thorough hunt:** `\bconflicts? with\b` matches `conflict with` inside the phrase; regression `HasFalsifiabilitySignal_recognizes_conflict_wording_variants`.
+- [x] (valid-no-repro) `GenericArchitectureAdvicePatterns.ConflictFindingPattern` — `noncompliant with the constraint` — **cheap-disproof 2026-10-13 thorough hunt:** regex already includes `noncompliant with`; same regression suite.
+- [x] (valid-no-repro) `EnglishNegationTokenizer` — `forbidden from enable mfa` — **cheap-disproof 2026-10-13 thorough hunt:** `forbidden from` in `MultiWordNegations`; regression `IsObviousGenericAdvice_does_not_flag_negated_checklist_phrasing`.
+
+- [ ] (candidate) `InsightDensityTextSimilarity.Tokenize` — Unicode middle-dot-separated resource tokens (`prod·sql·db`) vs space-separated peer may under-penalize duplication.
+- [ ] (candidate) `GenericArchitectureAdvicePatterns.ConflictFindingPattern` — `incompatible with the constraint` regulatory wording may miss `HasFalsifiabilitySignal`.
+- [ ] (candidate) `GenericArchitectureAdvicePatterns.ConflictFindingPattern` — `not in compliance with the constraint` phrasing may miss `HasFalsifiabilitySignal`.
+- [ ] (candidate) `EnglishNegationTokenizer` — `restricted from enable mfa` prohibitive intent may still false-positive demote obvious generic advice.
+- [ ] (candidate) `EnglishNegationTokenizer` — `declined from enable mfa` prohibitive intent may still false-positive demote obvious generic advice.
 
 2026-10-07 thorough hunt (hit): proved five open `(candidate)` rows; 1718 scoped GenericArchitectureAdvicePatterns + DeterministicInsightDensityGate tests passed.
 
