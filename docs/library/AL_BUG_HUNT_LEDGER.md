@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-13 seed hunt (seed→hit): `cloud-extractors` — promoted `EntraGroupMembershipGraphReader.ReadGroupMembersPageAsync`; reachable Graph 403 on a follow-up `@odata.nextLink` page returned `Forbidden` and discarded members collected from earlier pages in the same group read; return accumulated rows when 403 arrives after pagination already succeeded; regression `TryReadDirectMembershipsAsync_retains_first_page_members_when_later_page_returns_forbidden`; AWS/GCP extractor tests passed 83/83; Azure extractor scope passed 155/155.
+
 2026-10-13 seed hunt (seed→hit): `cloud-extractors` — promoted `EntraGroupMembershipGraphReader.EnsureNextLinkTargetsGroup`; reachable `@odata.nextLink` values that failed group/collection/host validation after one or more successful member pages caused `InvalidOperationException` and dropped every membership row already collected for that group; stop pagination and return accumulated rows when validation fails but members or nested-group ids were already read; regression `TryReadDirectMembershipsAsync_retains_collected_members_when_next_link_validation_fails_after_a_successful_page`; AWS/GCP extractor tests passed 83/83; Azure extractor scope passed 154/154.
 
 2026-10-13 seed hunt (seed→hit): `artifact-synthesis` — promoted `MermaidDiagramDeterministicRepairer.Repair`; reachable policy-pack `QuestionableAttention` metadata on inventory diagram nodes was cleared during deterministic repair before `DiagramForestLayoutSvgRenderer`, so forest SVG cards lost the questionable highlight and badge; copy `QuestionableAttention` on repair; regressions `Repair_keeps_questionable_attention_for_forest_layout` and extended `Repair_keeps_node_and_edge_painter_metadata_and_copies_lists`; scoped ArtifactSynthesis/Docx filter passed 705/719 with 12 pre-existing diagram expectation failures and 2 skipped Terraform tests.
@@ -31739,6 +31741,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ## Zone: cloud-extractors
 
+2026-10-13 seed hunt (seed→hit): promoted `EntraGroupMembershipGraphReader.ReadGroupMembersPageAsync` follow-up 403 handling; Graph 403 on page 2+ returned `Forbidden` and dropped page-1 members; return partial memberships/nested ids when pagination already collected rows; regression `TryReadDirectMembershipsAsync_retains_first_page_members_when_later_page_returns_forbidden`; Azure scope 155/155; AWS/GCP 83/83.
+
 2026-10-13 seed hunt (seed→hit): promoted `EntraGroupMembershipGraphReader.EnsureNextLinkTargetsGroup` pagination guard; invalid `@odata.nextLink` after successful pages threw and discarded collected memberships; `TryAcceptNextLink` stops pagination while preserving rows; regression `TryReadDirectMembershipsAsync_retains_collected_members_when_next_link_validation_fails_after_a_successful_page`; Azure scope 154/154; AWS/GCP 83/83.
 
 2026-10-13 seed hunt (seed→hit): promoted `EntraGroupMembershipGraphReader.TryReadDirectMembershipsAsync` multi-seed 403 handling; a 403 on one seed group returned `Forbidden` and discarded memberships from other seeds already read; skip and continue when rows or queued groups remain; regression `TryReadDirectMembershipsAsync_retains_members_from_other_groups_when_one_seed_returns_forbidden`; Azure scope 152/152; AWS/GCP 83/83.
@@ -31820,11 +31824,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** aws extractor; gcp extractor; azure extractor
 - **paths:** ArchLucid.Integrations.AwsExtractor/; ArchLucid.Integrations.GcpExtractor/; ArchLucid.Integrations.AzureExtractor/
 - **test-filter:** FullyQualifiedName~AwsExtractor|FullyQualifiedName~GcpExtractor|FullyQualifiedName~AzureExtractor
-- **hunts:** 122
-- **bugs-found:** 69
+- **hunts:** 123
+- **bugs-found:** 70
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-13
-- **last-bug:** 2026-10-13 — Entra invalid nextLink after pagination dropped members
+- **last-bug:** 2026-10-13 — Entra 403 on follow-up page dropped first-page members
 - **related-pd-tb:** none
 - **code-changed-since:** 1
 
@@ -31852,6 +31856,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ### Hypotheses
 
+- [x] (proven) `EntraGroupMembershipGraphReader.ReadGroupMembersPageAsync` — reachable Graph 403 on a follow-up `@odata.nextLink` page returned `Forbidden` and discarded membership rows already collected from earlier pages in the same group read — **hit 2026-10-13 seed hunt:** return accumulated `memberships`/`nestedGroupIds` when 403 arrives after pagination already succeeded; regression `TryReadDirectMembershipsAsync_retains_first_page_members_when_later_page_returns_forbidden`.
 - [x] (proven) `EntraGroupMembershipGraphReader.EnsureNextLinkTargetsGroup` — reachable `@odata.nextLink` values that failed validation after one or more successful `/members` pages caused `InvalidOperationException` and discarded membership rows already collected for that group — **hit 2026-10-13 seed hunt:** `TryAcceptNextLink` stops pagination and returns accumulated rows when validation fails after data was read; regression `TryReadDirectMembershipsAsync_retains_collected_members_when_next_link_validation_fails_after_a_successful_page`.
 - [x] (proven) `EntraGroupMembershipGraphReader.TryReadDirectMembershipsAsync` — reachable multi-seed group membership reads where Graph returned 403 for one seed group after other seeds succeeded caused the reader to return `Forbidden` and discard every membership row already collected — **hit 2026-10-13 seed hunt:** skip forbidden groups when accumulated rows or queued groups remain; regression `TryReadDirectMembershipsAsync_retains_members_from_other_groups_when_one_seed_returns_forbidden`.
 - [x] (proven) `EntraGroupMembershipGraphReader.ReadGroupMembersPageAsync` — reachable Microsoft Graph `@odata.nextLink` pagination where an earlier page succeeded and a later page returned a non-success HTTP status caused the reader to return `Empty()` and drop memberships already collected for that group — **hit 2026-10-13 seed hunt:** return accumulated `memberships` and `nestedGroupIds` on non-success instead of `Empty()`; regression `TryReadDirectMembershipsAsync_retains_first_page_members_when_later_page_fails`.

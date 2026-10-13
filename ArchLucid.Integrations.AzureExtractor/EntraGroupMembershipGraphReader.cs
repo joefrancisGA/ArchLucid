@@ -141,6 +141,19 @@ public sealed class EntraGroupMembershipGraphReader(
 
             if (response.StatusCode == HttpStatusCode.Forbidden)
             {
+                if (memberships.Count > 0 || nestedGroupIds.Count > 0)
+                {
+                    logger.LogWarning(
+                        "Entra group membership Graph read stopped pagination for group {GroupId} after 403 on a follow-up page.",
+                        groupId);
+
+                    return new EntraGroupMembershipGraphReadResult
+                    {
+                        Memberships = memberships,
+                        NestedGroupIds = nestedGroupIds,
+                    };
+                }
+
                 logger.LogWarning(
                     "Entra group membership Graph read returned 403 for group {GroupId}. Required scope: {Scope}.",
                     groupId,
