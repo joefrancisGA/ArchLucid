@@ -2196,6 +2196,82 @@ public sealed class GetOnlyHostedAzureArmReadClientTests
     }
 
     [Fact]
+    public async Task ListDiagnosticSettingsAsync_continues_after_invalid_json_for_one_resource()
+    {
+        const string badStorageResourceId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa-bad";
+        const string goodStorageResourceId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa-good";
+
+        HttpMessageHandler handler = new RecordingHandler(
+            (request, _) =>
+            {
+                string uri = request.RequestUri!.AbsoluteUri;
+
+                if (uri.Contains("sa-bad", StringComparison.OrdinalIgnoreCase))
+                {
+                    return Task.FromResult(
+                        new HttpResponseMessage(HttpStatusCode.OK)
+                        {
+                            Content = new StringContent("{ not-json")
+                        });
+                }
+
+                if (uri.Contains("sa-good", StringComparison.OrdinalIgnoreCase))
+                {
+                    return Task.FromResult(
+                        new HttpResponseMessage(HttpStatusCode.OK)
+                        {
+                            Content = new StringContent("""
+                                                        {
+                                                          "value": [
+                                                            {
+                                                              "name": "diag-to-law",
+                                                              "properties": {
+                                                                "workspaceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.OperationalInsights/workspaces/ws1"
+                                                              }
+                                                            }
+                                                          ]
+                                                        }
+                                                        """)
+                        });
+                }
+
+                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.NotFound));
+            });
+
+        GetOnlyHostedAzureArmReadClient client = new(
+            new HttpClient(handler),
+            NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+
+        HostedAzureDiagnosticSettingsCollectResult result = await client.ListDiagnosticSettingsAsync(
+            "token-abc",
+            [
+                new HostedAzureArmResourceRecord(
+                    "Microsoft.Storage/storageAccounts",
+                    badStorageResourceId,
+                    "sa-bad",
+                    "eastus",
+                    null,
+                    null,
+                    new Dictionary<string, object?>()),
+                new HostedAzureArmResourceRecord(
+                    "Microsoft.Storage/storageAccounts",
+                    goodStorageResourceId,
+                    "sa-good",
+                    "eastus",
+                    null,
+                    null,
+                    new Dictionary<string, object?>()),
+            ],
+            CancellationToken.None);
+
+        Assert.False(result.PartialCollection);
+        Assert.Single(result.Settings);
+        Assert.Equal(goodStorageResourceId, result.Settings[0].TargetResourceId);
+    }
+
+    [Fact]
     public async Task ListDiagnosticSettingsAsync_does_not_mark_partial_when_resource_returns_forbidden_with_no_settings()
     {
         const string storageResourceId =
@@ -2224,6 +2300,74 @@ public sealed class GetOnlyHostedAzureArmReadClientTests
 
         Assert.False(result.PartialCollection);
         Assert.Empty(result.Settings);
+    }
+
+    [Fact]
+    public async Task ListDiagnosticSettingsAsync_marks_partial_when_follow_up_page_body_is_invalid_json()
+    {
+        const string storageResourceId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1";
+        const string nextLink =
+            $"https://management.azure.com{storageResourceId}/providers/Microsoft.Insights/diagnosticSettings?api-version=2021-05-01-preview&$skiptoken=page2";
+
+        string firstPageBody = """
+                               {
+                                 "value": [
+                                   {
+                                     "name": "diag-to-law",
+                                     "properties": {
+                                       "workspaceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.OperationalInsights/workspaces/ws1"
+                                     }
+                                   }
+                                 ],
+                                 "nextLink": "DIAG_SETTINGS_NEXT_LINK"
+                               }
+                               """.Replace("DIAG_SETTINGS_NEXT_LINK", nextLink, StringComparison.Ordinal);
+
+        int requestCount = 0;
+
+        HttpMessageHandler handler = new RecordingHandler(
+            (_, _) =>
+            {
+                int current = Interlocked.Increment(ref requestCount);
+
+                if (current == 1)
+                {
+                    return Task.FromResult(
+                        new HttpResponseMessage(HttpStatusCode.OK)
+                        {
+                            Content = new StringContent(firstPageBody)
+                        });
+                }
+
+                return Task.FromResult(
+                    new HttpResponseMessage(HttpStatusCode.OK)
+                    {
+                        Content = new StringContent("{ not-json")
+                    });
+            });
+
+        GetOnlyHostedAzureArmReadClient client = new(
+            new HttpClient(handler),
+            NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+
+        HostedAzureDiagnosticSettingsCollectResult result = await client.ListDiagnosticSettingsAsync(
+            "token-abc",
+            [
+                new HostedAzureArmResourceRecord(
+                    "Microsoft.Storage/storageAccounts",
+                    storageResourceId,
+                    "sa1",
+                    "eastus",
+                    null,
+                    null,
+                    new Dictionary<string, object?>()),
+            ],
+            CancellationToken.None);
+
+        Assert.Equal(2, requestCount);
+        Assert.True(result.PartialCollection);
+        Assert.Single(result.Settings);
     }
 
     [Fact]

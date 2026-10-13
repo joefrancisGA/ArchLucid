@@ -1262,11 +1262,25 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
 
             await using Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
 
-            using JsonDocument? document =
-                await TryParseArmPaginationPageAsync(stream, settings.Count, cancellationToken).ConfigureAwait(false);
+            JsonDocument? document;
+
+            try
+            {
+                document = await TryParseArmPaginationPageAsync(stream, settings.Count, cancellationToken)
+                    .ConfigureAwait(false);
+            }
+            catch (JsonException)
+            {
+                break;
+            }
 
             if (document is null)
             {
+                if (settings.Count > 0)
+                {
+                    partialCollection = true;
+                }
+
                 break;
             }
 
