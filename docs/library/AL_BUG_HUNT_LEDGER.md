@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-13 seed hunt (seed→hit): `core-requests-constraints` — promoted ASCII apostrophe-delimited capability slugs (`field'encryption'module`) false-positive phrase constraints while preserving possessive phrasing (`Tenant's encryption`); extended `IsCompoundIdentifierDelimiter` to `'`; regressions in `RequestConstraintCompoundIdentifierApostropheTests`; 899 scoped RequestConstraint tests passed.
+
 2026-10-13 seed hunt (seed→hit): `core-requests-constraints` — promoted question-mark-delimited capability slugs (`field?encryption?module`) false-positive phrase constraints; extended `IsCompoundIdentifierDelimiter` to `?`; regression in `RequestConstraintCompoundIdentifierQuestionMarkTests`; 897 scoped RequestConstraint tests passed.
 
 2026-10-13 seed hunt (seed→hit): `core-requests-constraints` — promoted asterisk- and bang-delimited capability slugs (`field*encryption*module`, `my!sql!server`) false-positive phrase and standalone token constraints; extended `IsCompoundIdentifierDelimiter` to `*` and `!`; regressions in `RequestConstraintCompoundIdentifierAsteriskBangTests`; 895 scoped RequestConstraint tests passed.
@@ -25663,11 +25665,15 @@ Split from retired `archlucid-core` (ABQ-08). Generic-advice negation parity his
 - **aliases:** request constraints; split from archlucid-core
 - **paths:** ArchLucid.Core/Requests/
 - **test-filter:** FullyQualifiedName~RequestConstraint
-- **hunts:** 28
-- **bugs-found:** 27
+- **hunts:** 29
+- **bugs-found:** 28
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-13
-- **last-bug:** 2026-10-13 — question-mark-delimited product slugs false-positive encryption constraints
+- **last-bug:** 2026-10-13 — apostrophe-delimited product slugs false-positive encryption constraints
+
+2026-10-13 seed hunt (seed→hit): reseeded compound-identifier boundaries after `?` fix; proved ASCII apostrophe-delimited slugs like `field'encryption'module` still false-positive `HasEncryptionConstraint`; fixed by extending `IsCompoundIdentifierDelimiter` to `'`; regressions in `RequestConstraintCompoundIdentifierApostropheTests`; 899 scoped RequestConstraint tests passed.
+
+- [x] (proven) `RequestConstraintTokenMatcher.IsEmbeddedInCompoundIdentifier` — ASCII apostrophe-delimited product slugs (e.g. `field'encryption'module`) may false-positive phrase constraints — **hit 2026-10-13 seed hunt (seed→hit):** possessive natural language (`Tenant's encryption`) remains affirmative; regressions in `RequestConstraintCompoundIdentifierApostropheTests`.
 
 2026-10-13 seed hunt (seed→hit): reseeded compound-identifier boundaries after asterisk/bang fix; proved `?`-delimited slugs like `field?encryption?module` still false-positive `HasEncryptionConstraint`; fixed by extending `IsCompoundIdentifierDelimiter` to `?`; regression in `RequestConstraintCompoundIdentifierQuestionMarkTests`; 897 scoped RequestConstraint tests passed.
 
