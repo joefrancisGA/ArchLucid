@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-13 seed hunt (seed→hit): `core-requests-constraints` — promoted duplicate ASCII spaces between phrase words (`managed  identity`, `private  endpoint`) breaking `ContainsAffirmativePhrase` after normalization; collapse consecutive ASCII spaces in `NormalizeConstraintMatchingText`; regressions in `RequestConstraintPhraseDuplicateSpaceTests`; 907 scoped RequestConstraint tests passed.
+
 2026-10-13 seed hunt (seed→hit): `core-requests-constraints` — promoted brace-wrapped capability slugs (`field{encryption}module`) false-positive phrase constraints; replaced per-character `IsCompoundIdentifierDelimiter` allowlist with “non-alphanumeric, non-space connector between slug segments”; regression in `RequestConstraintCompoundIdentifierBraceTests`; 905 scoped RequestConstraint tests passed.
 
 2026-10-13 seed hunt (seed→hit): `core-requests-constraints` — promoted square-bracket-wrapped capability slugs (`field[encryption]module`) false-positive phrase constraints while preserving natural-language brackets (`encryption [customer-managed keys]`); extended `IsCompoundIdentifierDelimiter` to `[` and `]`; regressions in `RequestConstraintCompoundIdentifierBracketTests`; 903 scoped RequestConstraint tests passed.
@@ -25671,11 +25673,15 @@ Split from retired `archlucid-core` (ABQ-08). Generic-advice negation parity his
 - **aliases:** request constraints; split from archlucid-core
 - **paths:** ArchLucid.Core/Requests/
 - **test-filter:** FullyQualifiedName~RequestConstraint
-- **hunts:** 32
-- **bugs-found:** 31
+- **hunts:** 33
+- **bugs-found:** 32
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-13
-- **last-bug:** 2026-10-13 — brace-wrapped slugs and per-character delimiter allowlist gap
+- **last-bug:** 2026-10-13 — duplicate ASCII spaces broke multi-word constraint phrases
+
+2026-10-13 seed hunt (seed→hit): reseeded phrase normalization after delimiter consolidation; proved duplicate ASCII spaces between words (`managed  identity`, `private  endpoint`) missed `ContainsAffirmativePhrase` despite exotic whitespace already mapping to a single space; fixed by collapsing consecutive ASCII spaces in `NormalizeConstraintMatchingText`; regressions in `RequestConstraintPhraseDuplicateSpaceTests`; 907 scoped RequestConstraint tests passed.
+
+- [x] (proven) `RequestConstraintTokenMatcher.NormalizeConstraintMatchingText` — duplicate ASCII spaces between phrase words broke `ContainsAffirmativePhrase` — **hit 2026-10-13 seed hunt (seed→hit):** `CollapseConsecutiveAsciiSpaces`; regressions in `RequestConstraintPhraseDuplicateSpaceTests`.
 
 2026-10-13 seed hunt (seed→hit): reseeded compound-identifier boundaries after bracket fix; proved brace-wrapped slugs like `field{encryption}module` still false-positive `HasEncryptionConstraint`; fixed by treating any non-alphanumeric, non-space connector between slug segments as a compound delimiter (closes remaining punctuation such as `{`/`}`); regression in `RequestConstraintCompoundIdentifierBraceTests`; 905 scoped RequestConstraint tests passed.
 

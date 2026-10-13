@@ -417,7 +417,35 @@ internal static class RequestConstraintTokenMatcher
             }
         }
 
-        return builder.ToString();
+        return CollapseConsecutiveAsciiSpaces(builder.ToString());
+    }
+
+    private static string CollapseConsecutiveAsciiSpaces(string haystack)
+    {
+        if (!haystack.Contains("  ", StringComparison.Ordinal))
+            return haystack;
+
+        StringBuilder collapsed = new(haystack.Length);
+        bool previousWasSpace = false;
+
+        foreach (char character in haystack)
+        {
+            if (character == ' ')
+            {
+                if (previousWasSpace)
+                    continue;
+
+                previousWasSpace = true;
+                collapsed.Append(character);
+            }
+            else
+            {
+                previousWasSpace = false;
+                collapsed.Append(character);
+            }
+        }
+
+        return collapsed.ToString();
     }
 
     private static bool ContainsConstraintNormalizationCharacters(string haystack)
