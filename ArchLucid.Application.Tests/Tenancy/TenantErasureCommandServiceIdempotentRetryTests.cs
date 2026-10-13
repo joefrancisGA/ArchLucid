@@ -698,6 +698,55 @@ public sealed class TenantErasureCommandServiceIdempotentRetryTests
     }
 
     [Fact]
+    public async Task TryOffboardTenantAsync_returns_null_without_audit_when_quarantine_restored_after_atomic_offboard_start()
+    {
+        Guid tenantId = Guid.NewGuid();
+        DateTimeOffset now = new(2026, 10, 13, 17, 0, 0, TimeSpan.Zero);
+        FakeTimeProvider clock = new(now);
+        TenantRecord active = ActiveTenant(tenantId, now);
+        TenantRecord restored = ActiveTenant(tenantId, now);
+
+        Mock<ITenantRepository> tenants = new(MockBehavior.Strict);
+        tenants
+            .SetupSequence(t => t.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(active)
+            .ReturnsAsync(restored);
+        tenants
+            .Setup(t => t.TryStartTenantErasureOffboardAsync(
+                tenantId,
+                It.IsAny<DateTimeOffset>(),
+                It.IsAny<DateTimeOffset>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+        tenants
+            .Setup(t => t.SuspendTenantAsync(tenantId, It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IPlatformAuditRepository> audit = new(MockBehavior.Strict);
+
+        Mock<IOptionsMonitor<TenantErasurePurgeOptions>> options = new();
+        options.Setup(o => o.CurrentValue).Returns(new TenantErasurePurgeOptions { QuarantineDays = 30 });
+
+        TenantErasureCommandService sut = new(
+            tenants.Object,
+            audit.Object,
+            clock,
+            options.Object);
+
+        TenantErasureOffboardResult? result = await sut.TryOffboardTenantAsync(
+            tenantId,
+            "admin@example.com",
+            "Admin",
+            "corr",
+            CancellationToken.None);
+
+        result.Should().BeNull();
+        audit.Verify(
+            a => a.AppendAsync(It.IsAny<PlatformAuditEvent>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task TryOffboardTenantAsync_retries_failed_audit_with_same_event_id_when_already_suspended()
     {
         Guid tenantId = Guid.NewGuid();

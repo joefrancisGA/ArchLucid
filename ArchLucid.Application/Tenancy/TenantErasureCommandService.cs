@@ -74,6 +74,14 @@ public sealed class TenantErasureCommandService(
 
         await _tenantRepository.SuspendTenantAsync(tenantId, cancellationToken);
 
+        TenantRecord? afterStart = await _tenantRepository.GetByIdAsync(tenantId, cancellationToken);
+
+        if (afterStart is null)
+            return null;
+
+        if (afterStart.OffboardedUtc is null)
+            return null;
+
         await AppendPlatformAuditAsync(
             AuditEventTypes.TenantErasureOffboarded,
             tenantId,
