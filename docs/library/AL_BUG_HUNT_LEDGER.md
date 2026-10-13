@@ -1,5 +1,9 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-13 seed hunt (seed→hit): `notifications-pipeline` — promoted `DigestTeamsWebhookDeliveryChannel.SendAsync`; evaluation-sourced digest `Title`/`Summary` reached Teams connector `title`/`text` without HTML encoding while `ContentMarkdown` stays raw (parity with alert Teams boundary); `WebUtility.HtmlEncode` on title and summary only; regression `SendAsync_TeamsPayload_HtmlEncodes_digest_title_and_summary`; 176 scoped notification/digest Application tests passed; 7 digest Teams channel tests passed.
+
+2026-10-13 seed hunt (seed→hit): `notifications-pipeline` — promoted `AlertTeamsWebhookDeliveryChannel.SendAsync`; evaluation-sourced alert title/category/trigger/description reached Teams connector JSON without HTML encoding; `WebUtility.HtmlEncode` at Teams alert channel boundary; regression `SendAsync_TeamsPayload_HtmlEncodes_evaluation_sourced_alert_copy`; 176 scoped notification/digest Application tests passed; 6 alert Teams channel tests passed.
+
 2026-10-13 seed hunt (seed-only): `notifications-pipeline` — cheap-disproved marketing sales notifier HTML injection (`WebUtility.HtmlEncode` on intake fields) and recurrence `ScheduleName` Razor output (HTML-encoded by default); added Teams webhook CRLF parity regressions `SendAsync_throws_when_subscription_destination_has_embedded_line_breaks` (alert + digest Teams; product already used `ChatOpsWebhookAbsoluteUriValidator`); no hunt-ready product defect; 176 scoped Application tests passed; 11 Teams webhook channel tests passed.
 
 2026-10-13 seed hunt (seed-only): `notifications-pipeline` — re-read zone after Slack mrkdwn hardening; cheap-disproved four open candidates (authority-run description length truncation, digest `ContentMarkdown` mrkdwn-by-design, Teams webhook CRLF product path already validated on channels, duplicate mailbox-consolidation rows); no hunt-ready repro (mrkdwn/CRLF classes saturated); seeded five follow-on `(candidate)` rows; 176 scoped notification/digest Application tests passed.
@@ -31487,6 +31491,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ## Zone: notifications-pipeline
 
+2026-10-13 seed hunt (seed→hit): proved digest Teams webhook forwarded raw HTML in `Title`/`Summary`; `WebUtility.HtmlEncode` in `DigestTeamsWebhookDeliveryChannel` (markdown body unchanged); 176 scoped Application tests passed; 7 digest Teams tests passed.
+
+2026-10-13 seed hunt (seed→hit): proved Teams alert webhook forwarded raw HTML metacharacters in evaluation copy; `WebUtility.HtmlEncode` in `AlertTeamsWebhookDeliveryChannel`; 176 scoped Application tests passed; 6 Teams alert tests passed.
+
 2026-10-13 seed hunt (seed-only): cheap-disproved marketing HTML and recurrence template encoding; locked Teams CRLF validator with parity regressions; 176 scoped Application tests passed; 11 Teams channel tests passed.
 
 2026-10-13 seed hunt (seed-only): cheap-disproved truncation, digest markdown boundary, Teams CRLF validator parity, and consolidation-only rows; seeded Teams test parity, `AlertTeamsWebhookDeliveryChannel` plain-text copy, integration-event description bounds, marketing intake body fields, and shared mailbox helper consolidation; 176 scoped Application notification tests passed.
@@ -31545,11 +31553,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** notifications; email dispatchers beyond weekly summary
 - **paths:** ArchLucid.Notifications/; ArchLucid.Application/Notifications/; ArchLucid.Api/Controllers/Advisory/DigestSubscriptionsController.cs
 - **test-filter:** FullyQualifiedName~Notifications|FullyQualifiedName~EmailDispatcher|FullyQualifiedName~DigestSubscriptionsController
-- **hunts:** 88
-- **bugs-found:** 68
+- **hunts:** 90
+- **bugs-found:** 70
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-13
-- **last-bug:** 2026-10-13 — Slack supporting paragraph backtick preservation
+- **last-bug:** 2026-10-13 — Teams digest webhook HTML encode (title/summary)
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -31623,7 +31631,9 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (valid-no-repro) `AlertTeamsWebhookDeliveryChannelTests` / `DigestTeamsWebhookDeliveryChannelTests` — Teams CRLF destination regression parity — **cheap-disproof 2026-10-13 seed hunt:** channels already validate HTTPS URIs; added regressions `SendAsync_throws_when_subscription_destination_has_embedded_line_breaks` (alert + digest Teams).
 - [x] (valid-no-repro) `MarketingEarlyAccessSalesNotifier` / `MarketingPricingQuoteSalesNotifier` — HTML metacharacters in intake fields — **cheap-disproof 2026-10-13 seed hunt:** `WebUtility.HtmlEncode` on email/company/role in notifier HTML bodies.
 - [x] (valid-no-repro) `RecurrenceCompletionEmailDispatcher` / `RecurrenceCompletion.cshtml` — `ScheduleName` CRLF in email HTML — **cheap-disproof 2026-10-13 seed hunt:** Razor `@Model.ScheduleName` HTML-encodes output; CRLF renders as safe entities in HTML part (subject line does not include schedule name).
-- [ ] (candidate) `AlertTeamsWebhookDeliveryChannel.SendAsync` — alert `Title`/`Description` forwarded verbatim to Teams connector `title`/`text` without HTML/mrkdwn escaping — locus: `ArchLucid.Notifications/Alerts/AlertTeamsWebhookDeliveryChannel.cs`; input: evaluation finding title with angle brackets (display integrity; lower severity than Slack mrkdwn).
+- [x] (proven) `AlertTeamsWebhookDeliveryChannel.SendAsync` — alert `Title`/`Category`/`TriggerValue`/`Description` forwarded verbatim to Teams connector JSON without HTML encoding — **hit 2026-10-13 seed hunt (seed→hit):** `WebUtility.HtmlEncode` at Teams alert channel boundary; regression `SendAsync_TeamsPayload_HtmlEncodes_evaluation_sourced_alert_copy`.
+- [x] (proven) `DigestTeamsWebhookDeliveryChannel.SendAsync` — digest `Title`/`Summary` forwarded verbatim to Teams connector `title`/`text` without HTML encoding — **hit 2026-10-13 seed hunt (seed→hit):** `WebUtility.HtmlEncode` on title and summary; `ContentMarkdown` unchanged; regression `SendAsync_TeamsPayload_HtmlEncodes_digest_title_and_summary`.
+- [ ] (candidate) `AuthorityRunCommittedChatOpsHook.BuildMessage` — Teams delivery reuses Slack mrkdwn escape on `notice.Description` body instead of Teams HTML encode at hook boundary — locus: `AuthorityRunCommittedChatOpsHook.cs`; input: run description with angle brackets on Teams-enabled hook (Slack path fixed 2026-10-13).
 - [ ] (candidate) `AuthorityRunCompletedChatOpsIntegrationEventHandler.HandleAsync` — Service Bus JSON `Description` forwarded to hook without length guard — locus: `AuthorityRunCompletedChatOpsIntegrationEventHandler.cs`; input: oversized description from publisher misconfiguration.
 - [ ] (candidate) `ChatOpsIncomingWebhookBodies.ForTeams` — severity bracket prefix `[{label}]` combined with user `Title` containing `]` may confuse Teams card titles — locus: `ForTeams`; input: alert title starting with bracketed severity spoof.
 - [ ] (candidate) `DigestSubscriptionsController` — webhook destination validation only in application facade; API controller zone path cannot falsify without SQL integration host — locus: partial controller; input: invalid destination on create (requires Api integration test host).
