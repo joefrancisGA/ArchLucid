@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-13 seed hunt (seed→hit): `cloud-extractors` — promoted `GcpWorkloadIdentityPoolProvider.TryGetProjectId`; reachable hosted requests with `projects/{project}/anything` passed project matching and reached STS token fetch despite not being a canonical `projects/.../locations/.../workloadIdentityPools/.../providers/...` resource; require full segment shape in `TryParseCanonicalProviderResource`; regressions `TryGetProjectId_rejects_provider_resource_missing_canonical_segments` and `CollectZipAsync_rejects_malformed_workload_identity_pool_provider_before_token_fetch`; AWS/GCP extractor tests passed 54/54; Azure extractor scope passed 138/138.
+
 2026-10-13 seed hunt (seed→hit): `cloud-extractors` — promoted `HostedAzureManagementPostReadClient.MergeActualCostPages`; reachable multi-page Actual Cost responses merged every row with the first page’s `columns` indexes, so a later page with reordered columns mis-aggregated service names and costs; aggregate each page with that page’s column indexes; regression `TryQueryActualCostSummaryAsync_merges_paginated_rows_using_each_page_column_order`; AWS/GCP extractor tests passed 52/52; Azure extractor scope passed 138/138.
 
 2026-10-13 seed hunt (seed→hit): `cloud-extractors` — `HostedAzureInventoryResourcePropertyExpander.AddVirtualMachineNetworkProfileProperties` compacted `networkProfile.networkInterfaces[n]` when earlier VM NIC slots lacked `id`; consolidated per-slot indexing with `WriteIndexedTopLevelArmIds` (shared with private-endpoint `networkInterfaces`); regression `Expand_preserves_vm_network_profile_network_interface_index_when_earlier_slot_has_no_id`; AWS/GCP extractor tests passed 52/52; Azure extractor scope passed 137/137.
@@ -31698,6 +31700,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ## Zone: cloud-extractors
 
+2026-10-13 seed hunt (seed→hit): `GcpWorkloadIdentityPoolProvider` accepted `projects/{project}/anything` for project matching; canonical WIF provider path validation added; GCP client tests 8/8; AWS/GCP 54/54; Azure scope 138/138.
+
 2026-10-13 seed hunt (seed→hit): `MergeActualCostPages` used first-page column indexes for all paginated Actual Cost rows; fixed with per-page column resolution; regression `TryQueryActualCostSummaryAsync_merges_paginated_rows_using_each_page_column_order`; Azure extractor scope passed 138/138; AWS/GCP passed 52/52.
 
 2026-10-13 seed hunt (seed→hit): VM `networkProfile.networkInterfaces` indexing compacted when earlier slots lacked `id`; shared `WriteIndexedTopLevelArmIds` with private-endpoint NIC expansion; regression `Expand_preserves_vm_network_profile_network_interface_index_when_earlier_slot_has_no_id`; Azure extractor scope passed 137/137; AWS/GCP passed 52/52.
@@ -31724,7 +31728,6 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 2026-10-12 seed hunt (seed-only): re-read the selected AWS, GCP, and Azure extractor paths after the culture-parsing fix; no candidate was promoted. AWS/GCP tests passed 52/52; Azure extractor scope passed 130/131 with the known network-association baseline failure.
 
-- (candidate) `GcpServiceAccountEmail.TryGetProjectId` — a reachable hosted GCP request `ServiceAccountEmail` containing an extra `@` before an otherwise valid `.iam.gserviceaccount.com` domain is accepted and passed into the impersonation URL; the downstream authentication outcome for this malformed email is not established in the selected files.
 
 2026-10-12 seed hunt (seed→hit): `HostedAzureManagementPostReadClient.ReadArrayCellDouble` parsed numeric Actual Cost cells with the current culture; a reachable `10.5` API value became `105` under `de-DE`. Fixed with `NumberStyles.Float` and `CultureInfo.InvariantCulture`; regression `TryQueryActualCostSummaryAsync_parses_numeric_cost_cells_invariantly` failed first and passed after the fix. AWS/GCP tests passed 52/52; Azure extractor scope passed 130/131 with the known network-association baseline failure.
 
@@ -31758,11 +31761,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** aws extractor; gcp extractor; azure extractor
 - **paths:** ArchLucid.Integrations.AwsExtractor/; ArchLucid.Integrations.GcpExtractor/; ArchLucid.Integrations.AzureExtractor/
 - **test-filter:** FullyQualifiedName~AwsExtractor|FullyQualifiedName~GcpExtractor|FullyQualifiedName~AzureExtractor
-- **hunts:** 104
-- **bugs-found:** 51
+- **hunts:** 105
+- **bugs-found:** 52
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-13
-- **last-bug:** 2026-10-13 — Actual Cost pagination merged rows with first-page column indexes only
+- **last-bug:** 2026-10-13 — malformed GCP workload-identity provider resource accepted before token fetch
 - **related-pd-tb:** none
 - **code-changed-since:** 1
 
@@ -31790,7 +31793,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ### Hypotheses
 
-- (candidate) `GcpServiceAccountEmail.TryGetProjectId` — a reachable `HostedGcpExtractorCollectionRequest.ServiceAccountEmail` with an extra `@` before a valid service-account domain passes project matching and reaches credential construction; the selected files do not establish a downstream authorization or collection wrong outcome.
+- [x] (valid-no-repro) `GcpServiceAccountEmail.TryGetProjectId` — service-account emails with an extra `@` before `.iam.gserviceaccount.com` can yield a non-canonical parsed project id, but `EnsureProjectMatches` still rejects mismatched `ProjectId` values and no hosted inventory wrong outcome was established — **cheap-disproof 2026-10-13 seed hunt:** no failing repro; no product change.
 - [x] (proven) `HostedAzureManagementPostReadClient.MergeActualCostPages` — reachable multi-page Actual Cost responses merged every row with the first page’s `columns` indexes, so a later page with reordered columns mis-aggregated service names and costs — **hit 2026-10-13 seed hunt:** resolve `PreTaxCost` / `ServiceName` / `Currency` indexes per page; regression `TryQueryActualCostSummaryAsync_merges_paginated_rows_using_each_page_column_order`.
 
 - [x] (proven) `HostedAzureManagementPostReadClient.ReadArrayCellDouble` — Azure Cost Management emits numeric JSON cells using invariant JSON formatting, but `double.TryParse` used the process culture; a reachable `10.5` value was collected as `105` under `de-DE` — **hit 2026-10-12 seed hunt:** parse cost cells with `NumberStyles.Float` and `CultureInfo.InvariantCulture`; regression `TryQueryActualCostSummaryAsync_parses_numeric_cost_cells_invariantly`.
@@ -31802,7 +31805,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `HostedAzureInventoryResourcePropertyExpander.AddPrivateLinkConnections` — reachable `Microsoft.Network/privateEndpoints` payloads with both `privateLinkServiceConnections` and `manualPrivateLinkServiceConnections` reset the indexed `privateLinkServiceId[n]` counter per array, so manual targets overwrote automatic `[0]` and dropped a private-link target from normalized inventory properties — **hit 2026-10-13 seed hunt:** continue a shared index across both arrays; regression `Expand_persists_every_private_link_service_id_across_connection_arrays`.
 - [x] (proven) `HostedAzureInventoryResourcePropertyExpander.AddVirtualMachineScaleSetNetworkProfileProperties` — reachable VMSS `networkInterfaceConfigurations` with an earlier `ipConfigurations` slot lacking a subnet compacted `ipConfiguration.subnet.id[n]` instead of preserving array position, misaligning `vmssToSubnet` association reads — **hit 2026-10-13 seed hunt:** advance index for every ipConfiguration slot (parity with firewall/NIC expanders); regression `Expand_preserves_vmss_ip_configuration_subnet_index_when_earlier_slot_has_no_subnet`.
 - [x] (proven) `HostedAzureInventoryResourcePropertyExpander.AddPrivateEndpointProperties` / `AddVirtualMachineNetworkProfileProperties` — reachable private-endpoint and VM `networkInterfaces` arrays compacted indexed NIC ids when earlier slots lacked `id`, misaligning `peToNic` and `vmToNic` association reads — **hit 2026-10-13 seed hunt:** `WriteIndexedTopLevelArmIds` advances index per array slot; regressions `Expand_preserves_private_endpoint_network_interface_index_when_earlier_slot_has_no_id` and `Expand_preserves_vm_network_profile_network_interface_index_when_earlier_slot_has_no_id`.
-- (candidate) `GcpWorkloadIdentityPoolProvider.TryGetProjectId` — a reachable hosted GCP request may supply `projects/{project}/anything` and pass project matching even though a workload-identity provider resource requires the full locations/pool/providers shape; the method only checks the project prefix and first slash, but a concrete downstream authorization or collection failure from the accepted malformed resource name remains unverified.
+- [x] (proven) `GcpWorkloadIdentityPoolProvider.TryGetProjectId` — reachable hosted requests with `projects/{project}/anything` passed project matching and reached STS token fetch without the canonical `projects/.../locations/.../workloadIdentityPools/.../providers/...` shape — **hit 2026-10-13 seed hunt:** `TryParseCanonicalProviderResource` validates segment shape; regressions `TryGetProjectId_rejects_provider_resource_missing_canonical_segments` and `CollectZipAsync_rejects_malformed_workload_identity_pool_provider_before_token_fetch`.
 
 - [x] (proven) `ListSubscriptionDefenderSummariesAsync` — a same-subscription ARM `nextLink` into `roleAssignments` passed subscription-only validation and was followed while reading Defender secure scores — **hit 2026-10-08 seed hunt:** required the secureScores listing path after the subscription check; regression `ListSubscriptionDefenderSummariesAsync_rejects_next_link_for_different_security_collection`.
 

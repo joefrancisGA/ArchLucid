@@ -20,6 +20,17 @@ public sealed class GcpWorkloadIdentityPoolProviderTests
     }
 
     [Fact]
+    public void TryGetProjectId_rejects_provider_resource_missing_canonical_segments()
+    {
+        bool parsed = GcpWorkloadIdentityPoolProvider.TryGetProjectId(
+            "projects/my-project/not-a-provider-resource",
+            out string projectId);
+
+        parsed.Should().BeFalse();
+        projectId.Should().BeEmpty();
+    }
+
+    [Fact]
     public void EnsureProjectMatches_rejects_provider_project_mismatch()
     {
         const string provider =
