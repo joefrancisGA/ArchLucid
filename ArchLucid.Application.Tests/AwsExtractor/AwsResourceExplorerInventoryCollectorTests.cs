@@ -113,6 +113,42 @@ public sealed class AwsResourceExplorerInventoryCollectorTests
     }
 
     [Fact]
+    public async Task CollectAsync_omits_resources_without_arn()
+    {
+        Mock<IAmazonResourceExplorer2> explorerClient = new();
+
+        explorerClient
+            .Setup(c => c.SearchAsync(It.IsAny<SearchRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new SearchResponse
+            {
+                Resources =
+                [
+                    new Resource
+                    {
+                        Arn = null,
+                        ResourceType = "AWS::S3::Bucket",
+                        Region = "us-east-1"
+                    },
+                    new Resource
+                    {
+                        Arn = "arn:aws:s3:::valid-bucket",
+                        ResourceType = "AWS::S3::Bucket",
+                        Region = "us-east-1"
+                    }
+                ],
+                NextToken = null
+            });
+
+        List<AwsInventoryResourceEntry> resources = await AwsResourceExplorerInventoryCollector.CollectAsync(
+            explorerClient.Object,
+            "us-east-1",
+            CancellationToken.None);
+
+        resources.Should().ContainSingle();
+        resources[0].Name.Should().Be("arn:aws:s3:::valid-bucket");
+    }
+
+    [Fact]
     public async Task CollectAsync_throws_when_next_token_repeats()
     {
         const string repeatingToken = "repeat-token";

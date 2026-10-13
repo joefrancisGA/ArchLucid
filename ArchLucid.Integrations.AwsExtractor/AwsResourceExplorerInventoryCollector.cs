@@ -56,10 +56,15 @@ internal static class AwsResourceExplorerInventoryCollector
             {
                 foreach (Resource resource in response.Resources)
                 {
+                    if (string.IsNullOrWhiteSpace(resource.Arn))
+                    {
+                        continue;
+                    }
+
                     string location = ResolveResourceLocation(resource, regionSystemName);
 
                     resources.Add(new AwsInventoryResourceEntry(
-                        resource.Arn ?? string.Empty,
+                        resource.Arn.Trim(),
                         resource.ResourceType ?? string.Empty,
                         location,
                         null));
