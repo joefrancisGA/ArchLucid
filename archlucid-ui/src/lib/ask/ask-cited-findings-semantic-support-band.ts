@@ -45,6 +45,19 @@ export function askCitedFindingBandIndexEntryFromOptionalBand(
   };
 }
 
+export function askCitedFindingBandIndexForFinding(
+  findingId: string,
+  rawBand: FindingSemanticSupportBandValue | null | undefined,
+): readonly AskCitedFindingBandIndexEntry[] {
+  const trimmedId = findingId.trim();
+
+  if (trimmedId.length === 0) {
+    return [];
+  }
+
+  return [askCitedFindingBandIndexEntryFromOptionalBand(trimmedId, rawBand)];
+}
+
 export function buildAskCitedFindingBandIndex(
   findings: readonly QuickDecisionFinding[],
 ): readonly AskCitedFindingBandIndexEntry[] {
