@@ -144,6 +144,12 @@ public sealed class HostedAzureManagementPostReadClient(
                 "Hosted Azure extractor skipped ActualCost for subscription {SubscriptionId}.",
                 subscriptionId);
 
+            // Retain merged pages when a follow-up response body is malformed; do not mask nextLink validation failures.
+            if (pages.Count > 0 && ex is JsonException)
+            {
+                return MergeActualCostPages(pages, "MonthToDate");
+            }
+
             return null;
         }
     }

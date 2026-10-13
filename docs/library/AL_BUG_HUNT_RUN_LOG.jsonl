@@ -8510,3 +8510,5 @@
 {"at":"2026-10-13T04:23:49.212485Z","zoneId":"cloud-extractors","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-13T04:27:01.5378968Z","zoneId":"cloud-extractors","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-13T04:30:24.8942156Z","zoneId":"cloud-extractors","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-13T04:34:07.7908017Z","zoneId":"cloud-extractors","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-13T04:39:04.7584660Z","zoneId":"cloud-extractors","outcome":"hit","productLine":"archlucid-shared","paths":["@(ArchLucid.Integrations.AwsExtractor/,ArchLucid.Integrations.GcpExtractor/,ArchLucid.Integrations.AzureExtractor/)"]}

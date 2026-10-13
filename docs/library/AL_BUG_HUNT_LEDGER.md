@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-13 seed hunt (seed→hit): `cloud-extractors` — promoted `HostedAzureManagementPostReadClient.TryQueryActualCostSummaryAsync`; reachable follow-up Actual Cost page bodies that were HTTP 200 but invalid JSON caused `JsonDocument.ParseAsync` to throw and the outer catch returned `null`, discarding cost rows already collected from earlier pages; merge accumulated `pages` on `JsonException` only (nextLink validation failures still return `null`); regression `TryQueryActualCostSummaryAsync_retains_merged_cost_when_later_page_body_is_invalid_json`; AWS/GCP extractor tests passed 58/58; Azure extractor scope passed 162/162.
+
 2026-10-13 seed hunt (seed→hit): `cloud-extractors` — promoted `GetOnlyHostedAzureArmReadClient.ListSubscriptionRoleAssignmentsAtListingPathAsync`; reachable non-success HTTP on a follow-up role-assignment `nextLink` page threw via `EnsureSuccessStatusCode` and failed the hosted extract instead of returning assignments already collected; shared `ShouldBreakForPaginationHttpFailure` with subscription resource listing; regression `ListSubscriptionRoleAssignmentsAsync_retains_assignments_when_later_page_fails`; AWS/GCP extractor tests passed 58/58; Azure extractor scope passed 161/161.
 
 2026-10-13 seed hunt (seed→hit): `cloud-extractors` — promoted `GetOnlyHostedAzureArmReadClient.ListSubscriptionResourcesAsync`; reachable non-success HTTP on a follow-up subscription ARM `nextLink` page threw via `EnsureSuccessStatusCode` and failed the hosted extract instead of returning resource rows already collected from earlier pages; stop pagination when `resources.Count > 0`; regression `ListSubscriptionResourcesAsync_retains_resources_when_later_page_fails`; AWS/GCP extractor tests passed 58/58; Azure extractor scope passed 160/160.
@@ -31761,6 +31763,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ## Zone: cloud-extractors
 
+2026-10-13 seed hunt (seed→hit): promoted Actual Cost follow-up invalid JSON; outer catch returned `null` and dropped prior pages; merge on `JsonException` when `pages.Count > 0`; regression `TryQueryActualCostSummaryAsync_retains_merged_cost_when_later_page_body_is_invalid_json`; Azure scope 162/162; AWS/GCP 58/58.
+
 2026-10-13 seed hunt (seed→hit): promoted role-assignment listing follow-up HTTP failure; shared `ShouldBreakForPaginationHttpFailure`; regression `ListSubscriptionRoleAssignmentsAsync_retains_assignments_when_later_page_fails`; Azure scope 161/161; AWS/GCP 58/58.
 
 2026-10-13 seed hunt (seed→hit): promoted subscription ARM listing follow-up HTTP failure; `EnsureSuccessStatusCode` dropped prior pages; break when `resources.Count > 0`; regression `ListSubscriptionResourcesAsync_retains_resources_when_later_page_fails`; Azure scope 160/160; AWS/GCP 58/58.
@@ -31864,11 +31868,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** aws extractor; gcp extractor; azure extractor
 - **paths:** ArchLucid.Integrations.AwsExtractor/; ArchLucid.Integrations.GcpExtractor/; ArchLucid.Integrations.AzureExtractor/
 - **test-filter:** FullyQualifiedName~AwsExtractor|FullyQualifiedName~GcpExtractor|FullyQualifiedName~AzureExtractor
-- **hunts:** 133
-- **bugs-found:** 80
+- **hunts:** 134
+- **bugs-found:** 81
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-13
-- **last-bug:** 2026-10-13 — role-assignment ARM listing follow-up HTTP failure threw and dropped prior pages
+- **last-bug:** 2026-10-13 — Actual Cost follow-up invalid JSON parse dropped prior pages
 - **related-pd-tb:** none
 - **code-changed-since:** 1
 
@@ -31896,6 +31900,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ### Hypotheses
 
+- [x] (proven) `HostedAzureManagementPostReadClient.TryQueryActualCostSummaryAsync` — reachable follow-up Actual Cost page bodies that were HTTP 200 but invalid JSON caused `JsonDocument.ParseAsync` to throw and the outer catch returned `null`, discarding cost rows already collected from earlier pages — **hit 2026-10-13 seed hunt:** merge accumulated `pages` on `JsonException` only; regression `TryQueryActualCostSummaryAsync_retains_merged_cost_when_later_page_body_is_invalid_json`.
 - [x] (proven) `GetOnlyHostedAzureArmReadClient.ListSubscriptionRoleAssignmentsAtListingPathAsync` — reachable non-success HTTP on a follow-up role-assignment `nextLink` page threw via `EnsureSuccessStatusCode` and failed the hosted extract instead of returning assignments already collected — **hit 2026-10-13 seed hunt:** `ShouldBreakForPaginationHttpFailure` stops pagination when prior rows exist; regression `ListSubscriptionRoleAssignmentsAsync_retains_assignments_when_later_page_fails`.
 - [x] (proven) `GetOnlyHostedAzureArmReadClient.ListSubscriptionResourcesAsync` — reachable non-success HTTP on a follow-up subscription ARM `nextLink` page threw via `EnsureSuccessStatusCode` and failed the hosted extract instead of returning resource rows already collected from earlier pages — **hit 2026-10-13 seed hunt:** stop pagination when `resources.Count > 0`; regression `ListSubscriptionResourcesAsync_retains_resources_when_later_page_fails`.
 - [x] (proven) `HostedAzureManagementPostReadClient.TryQueryActualCostSummaryAsync` — reachable non-success HTTP on a follow-up Actual Cost page returned `null` and discarded cost rows already collected from earlier pages in the same query — **hit 2026-10-13 seed hunt:** stop pagination and merge accumulated `pages` when `pages.Count > 0`; regression `TryQueryActualCostSummaryAsync_retains_merged_cost_when_later_page_fails`.
