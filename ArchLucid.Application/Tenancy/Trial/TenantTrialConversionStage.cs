@@ -59,6 +59,12 @@ public sealed class TenantTrialConversionStage(
             };
         }
 
+        TenantRecord? tenantBeforeBilling =
+            await _tenantRepository.GetByIdAsync(tenant.Id, cancellationToken).ConfigureAwait(false);
+
+        if (tenantBeforeBilling?.OffboardedUtc is not null)
+            return new TenantTrialConvertResult { Outcome = TenantTrialHttpOutcome.Success };
+
         try
         {
             await _billingTrialConversionGate
