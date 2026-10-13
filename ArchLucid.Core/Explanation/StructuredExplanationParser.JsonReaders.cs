@@ -152,6 +152,7 @@ public static partial class StructuredExplanationParser
         string? part = item.ValueKind switch
         {
             JsonValueKind.String => item.GetString(),
+            JsonValueKind.True or JsonValueKind.False => null,
             JsonValueKind.Object => TryReadObjectStringProperty(item, "text", "id"),
             _ => RunExplanationAggregateJsonReader.TryReadNonEmptyTextToken(item, out string? scalar)
                 ? scalar

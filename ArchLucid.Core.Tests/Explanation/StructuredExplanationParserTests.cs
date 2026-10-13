@@ -297,6 +297,17 @@ public sealed class StructuredExplanationParserTests
     }
 
     [Fact]
+    public void TryNormalizeStructuredJson_ignores_boolean_reasoning_array_entries()
+    {
+        const string json = """{"reasoning":[true,"Actual paragraph."]}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Reasoning.Should().Be("Actual paragraph.");
+    }
+
+    [Fact]
     public void TryNormalizeStructuredJson_ignores_boolean_evidence_ref_entries()
     {
         const string json = """{"reasoning":"Main","evidenceRefs":[true,false,"dec-1"]}""";

@@ -28508,6 +28508,8 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 ---
 ## Zone: core-explanation-json
 
+2026-10-13 seed hunt (seed→hit): promoted JSON boolean entries in structured `reasoning` arrays prepending `"true"`/`"false"` paragraphs; `CollectReasoningParts` skips boolean elements; regression `TryNormalizeStructuredJson_ignores_boolean_reasoning_array_entries`; seeded five follow-on `(candidate)` rows; scoped explanation tests 94/94.
+
 2026-10-13 seed hunt (seed→hit): promoted JSON boolean tokens in structured `evidenceRefs` arrays surfacing as `"true"`/`"false"` citation ids; drop booleans in `TryReadStringListEntry` without changing aggregate `TryReadNonEmptyTextToken` boolean coercion; regressions `TryNormalizeStructuredJson_ignores_boolean_evidence_ref_entries` and `TryNormalizeStructuredJson_ignores_fractional_numeric_evidence_ref_entries`; cheap-disproved aggregate/structured `TryReadFiniteDouble` boolean cross-surface row; scoped explanation tests 93/93.
 
 2026-10-13 seed hunt (seed→hit): promoted `alternativesConsidered` object entries preferring `id` over `text` prose and negative numeric `evidenceRefs` stringified via `TryGetInt64`; list field-specific object property order (`text`/`id` vs `id`/`text`) and reject negative JSON integers in `TryReadNonEmptyTextToken`; regressions `TryNormalizeStructuredJson_prefers_text_over_id_on_object_shaped_alternatives_considered` and `TryNormalizeStructuredJson_ignores_negative_numeric_evidence_ref_entries`; cheap-disproved schemaVersion zero asymmetry and whitespace-only reasoning array rows; scoped explanation tests 91/91.
@@ -28570,11 +28572,17 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 - **aliases:** run explanation; explanation json; split from archlucid-core
 - **paths:** ArchLucid.Core/Explanation/
 - **test-filter:** FullyQualifiedName~RunExplanation
-- **hunts:** 62
-- **bugs-found:** 39
+- [ ] (candidate) `CollectReasoningParts` — numeric scalar `reasoning` values (e.g. `42`) still stringify via `TryReadNonEmptyTextToken` while structured schema expects prose — locus: default branch; input: `{"reasoning":42}` without array wrapper.
+- [ ] (candidate) `TryReadStringList` — scalar boolean `evidenceRefs` property (`true`) may still coerce via non-array `TryReadNonEmptyTextToken` path — locus: `TryReadStringList` scalar branch; input: `{"reasoning":"Main","evidenceRefs":true}`.
+- [ ] (candidate) `TryReadObjectStringProperty` — object list entries with only a `content` key (no `id`/`text`) are dropped silently — locus: property name list; input: `{"evidenceRefs":[{"content":"dec-1"}]}` if any provider emits OpenAPI alias keys.
+- [ ] (candidate) `StructuredExplanationParser.TryNormalizeStructuredJson` — duplicate case-variant list properties may still use first empty array before later populated variant — locus: `TryGetPropertyCaseInsensitive` on list fields; input: mirrored reasoning duplicate-property case from 2026-10-10 hit but on `evidenceRefs`.
+- [ ] (candidate) `TryReadStringListEntry` — `null` JSON elements inside list arrays are skipped without failing structured parse — locus: `CollectStringListEntries`; input: `{"reasoning":"Main","evidenceRefs":[null,"dec-1"]}`.
+
+- **hunts:** 63
+- **bugs-found:** 40
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-13
-- **last-bug:** 2026-10-13 — boolean JSON tokens in structured evidence ref lists
+- **last-bug:** 2026-10-13 — boolean JSON tokens in structured reasoning arrays
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
