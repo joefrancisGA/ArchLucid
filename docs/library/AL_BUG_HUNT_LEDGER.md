@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-13 seed hunt (seed→hit): `application-tenancy-lifecycle` — promoted `TenantDeletionService.DeleteTenantAsync`; erasure approval revoked after SQL hard purge but before `TenantDataDeleted` platform audit still appended deletion audit; re-read tenant before audit and return purge result without audit when `TenantErasureApprovedUtc` is cleared; regression `DeleteTenantAsync_returns_without_platform_audit_when_erasure_approval_cleared_after_sql_purge`; 194 scoped tenancy tests passed.
+
 2026-10-13 seed hunt (seed→hit): `application-tenancy-lifecycle` — promoted `TenantTrialConversionStage.ConvertTrialAsync`; erasure offboard after `MarkTrialConvertedAsync` but before `TenantTrialConverted` audit still appended conversion audit on quarantined tenant; re-read tenant before audit and return success without audit when `OffboardedUtc` is set; regression `ConvertTrialAsync_returns_success_without_audit_when_offboard_completes_after_mark_before_audit`; 193 scoped tenancy tests passed.
 
 2026-10-13 seed hunt (seed→hit): `application-tenancy-lifecycle` — promoted `TrialLifecycleTransitionEngine.EmitAuditAsync`; workspace link removed after transition record but before `TrialLifecycleTransition` audit still logged transition with `WorkspaceId`/`ProjectId` `Guid.Empty`; skip audit when `GetFirstWorkspaceAsync` returns null (parity with `TrialScheduledLifecycleEmailScanner`); regression `TryAdvanceTenantAsync_skips_transition_audit_when_workspace_link_missing_before_audit`; 192 scoped tenancy tests passed.
@@ -34640,11 +34642,15 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 88
-- **bugs-found:** 73
+- **hunts:** 89
+- **bugs-found:** 74
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-13
-- **last-bug:** 2026-10-13 — Trial conversion audit after erasure offboard race
+- **last-bug:** 2026-10-13 — Hard-delete platform audit after erasure approval revoked
+
+2026-10-13 seed hunt (seed→hit): reseeded tenant hard-delete from ledger candidate; proved `DeleteTenantAsync` appended `TenantDataDeleted` after purge when erasure approval cleared before audit; re-read before platform audit append; regression `DeleteTenantAsync_returns_without_platform_audit_when_erasure_approval_cleared_after_sql_purge`; 194 scoped tenancy tests passed.
+
+- [x] (proven) `TenantDeletionService.DeleteTenantAsync` — appended `TenantDataDeleted` platform audit when erasure approval cleared after SQL purge — **hit 2026-10-13 seed hunt (seed→hit):** skip audit when `TenantErasureApprovedUtc` is null on pre-audit re-read; regression `DeleteTenantAsync_returns_without_platform_audit_when_erasure_approval_cleared_after_sql_purge`.
 
 2026-10-13 seed hunt (seed→hit): reseeded trial conversion from ledger candidate; proved `ConvertTrialAsync` appended `TenantTrialConverted` after mark when offboard followed post-mark read; re-read before audit; regression `ConvertTrialAsync_returns_success_without_audit_when_offboard_completes_after_mark_before_audit`; 193 scoped tenancy tests passed.
 
@@ -34974,9 +34980,14 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) `TrialLifecycleTransitionEngine.EmitAuditAsync` — `GetFirstWorkspaceAsync` returned null after transition record and audit still logged with empty workspace/project ids — **hit 2026-10-13 seed hunt (seed→hit):** skip audit when workspace link is missing; regression `TryAdvanceTenantAsync_skips_transition_audit_when_workspace_link_missing_before_audit`.
 - [x] (proven) `TenantTrialConversionStage.ConvertTrialAsync` — `TenantTrialConverted` audit appended when erasure offboard completed after `MarkTrialConvertedAsync` — **hit 2026-10-13 seed hunt (seed→hit):** regression `ConvertTrialAsync_returns_success_without_audit_when_offboard_completes_after_mark_before_audit`.
 - [x] (valid-no-repro) `TenantCatalogMigrationOrchestrator.StartAsync` — insert-failure compensating `TryUnsuspendAsync` when erasure offboard completes after pre-unsuspend read but before unsuspend — **cheap-disproof 2026-10-13 seed hunt:** `TenantSuspendCommandService.TryUnsuspendAsync` re-reads tenant and returns `InErasureQuarantine` without clearing suspend or audit when `OffboardedUtc` is set.
-- (candidate) `TenantDeletionService.DeleteTenantAsync` — `TenantDataDeleted` platform audit appended after hard purge when erasure approval is revoked between purge completion and audit append; reachable from operator hard-delete racing erasure quarantine restore.
-- (candidate) `TrialTenantBootstrapService` — trial bootstrap seat accounting double-counts when registering admin email matches JWT `sub` on retry paths not covered by seat-skip cache; reachable from self-service trial signup with duplicate bootstrap invocation.
-- (candidate) `TenantMigrationStatusService.GetForTenantAsync` — returns active migration banner when migration row is `Failed`/`Cancelled` but tenant row still shows scope-freeze suspend without active migration stage advance; reachable from operator migration status probe after failed migration cleanup.
+- [x] (proven) `TenantDeletionService.DeleteTenantAsync` — `TenantDataDeleted` platform audit appended after hard purge when erasure approval revoked before audit — **hit 2026-10-13 seed hunt (seed→hit):** regression `DeleteTenantAsync_returns_without_platform_audit_when_erasure_approval_cleared_after_sql_purge`.
+- [x] (invalid) `TrialTenantBootstrapService` — trial bootstrap seat double-count when admin email matches JWT `sub` on retry — **cheap-disproof 2026-10-13 seed hunt:** prior hit `GetTrialStatusAsync_reports_days_remaining_using_injected_clock` / bootstrap seat path already fixed; `TrialTenantBootstrapService` does not perform seat accounting in the selected files.
+- [x] (valid-no-repro) `TenantMigrationStatusService.GetForTenantAsync` — migration banner while verification failed — **cheap-disproof 2026-10-13 seed hunt:** `TenantCatalogMigrationRecord.IsActive` is `CompletedUtc is null`; failed verification keeps migration intentionally active until completion or operator action; no distinct wrong outcome without a completed migration row.
+- (candidate) `TenantDeletionService.DeleteTenantAsync` — hard purge proceeds when erasure approval cleared after blob deletion but before SQL purge re-read; destructive work may continue after quarantine restore (mirror pre-purge revalidate gaps).
+- (candidate) `TenantWorkOwnershipDeletePolicyService` — creator-delete policy evaluation uses stale tenant snapshot when suspend/offboard races between policy read and enforcement.
+- (candidate) `TrialSeatAccountant` — seat claim bypass when `ITenantTrialSeatSkipCache` remembers skip for a different tenant id in the same process after tenant recycle.
+- (candidate) `TenantUsageStatusService` — usage packaging reports trial-active when `TrialStatus` is `ExportOnly` but calendar expiry passed and scheduler has not advanced status.
+- (candidate) `TenantProvisioningDataRegionPolicy` — self-service signup accepts data region label that normalizes to empty string and persists default region without operator-visible validation error.
 
 ---
 
