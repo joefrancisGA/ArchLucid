@@ -232,6 +232,9 @@ public sealed class AuthorityRunOrchestratorTests
         runRepo.Verify(
             x => x.UpdateAsync(admittedStub, It.IsAny<CancellationToken>(), null, null),
             Times.AtLeastOnce);
+        admittedStub.EngineProvenanceJson.Should().NotBeNullOrWhiteSpace(
+            "engine provenance must be persisted before pipeline stages persist GoldenManifestId");
+        stageOrder.Should().ContainInOrder("apply_pins", "pipeline_stages");
     }
 
     [SkippableFact]

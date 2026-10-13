@@ -174,9 +174,22 @@ async function waitForAsyncWizardRun(page: Page, location: string | undefined): 
     }
 
     if (state === "failed" || state === "canceled") {
+      const runId =
+        operation.resultRef?.runId?.trim() ||
+        parseRunIdFromOperationUrl(operationUrl) ||
+        "";
+      const lastFailureReason =
+        runId.length > 0
+          ? await readRunLastFailureReasonViaProxy(page, operationUrl, runId)
+          : undefined;
+      const failureDetail =
+        lastFailureReason && lastFailureReason.length > 0
+          ? ` LastFailureReason: ${lastFailureReason.slice(0, 500)}.`
+          : "";
+
       throw new Error(
         `[wizard-create-response] Async operation ended in ${operation.state} state. ` +
-          `URL: ${operationUrl}. Step: ${operation.stepLabel ?? "unknown"}.`,
+          `URL: ${operationUrl}. Step: ${operation.stepLabel ?? "unknown"}.${failureDetail}`,
       );
     }
 
@@ -197,4 +210,37 @@ function toProxyOperationUrl(pageUrl: string, location: string): string {
   }
 
   return operationUrl.toString();
+}
+
+function parseRunIdFromOperationUrl(operationUrl: string): string | undefined {
+  const match = operationUrl.match(/run:([0-9a-f-]{36})/i);
+  return match?.[1];
+}
+
+async function readRunLastFailureReasonViaProxy(
+  page: Page,
+  operationUrl: string,
+  runId: string,
+): Promise<string | undefined> {
+  const pageOrigin = new URL(operationUrl).origin;
+  const reviewUrl = `${pageOrigin}/api/proxy/v1/authority/runs/${encodeURIComponent(runId)}`;
+  const response = await page.evaluate(async (url) => {
+    const res = await fetch(url, { headers: { Accept: "application/json" } });
+    return { status: res.status, body: await res.text() };
+  }, reviewUrl);
+
+  if (!response.status || response.status < 200 || response.status >= 300) {
+    return undefined;
+  }
+
+  try {
+    const json = JSON.parse(response.body) as {
+      lastFailureReason?: string | null;
+      run?: { lastFailureReason?: string | null };
+    };
+
+    return json.lastFailureReason ?? json.run?.lastFailureReason ?? undefined;
+  } catch {
+    return undefined;
+  }
 }
