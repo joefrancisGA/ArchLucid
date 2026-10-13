@@ -70,7 +70,15 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
             using HttpResponseMessage response =
                 await _httpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
 
-            response.EnsureSuccessStatusCode();
+            if (!response.IsSuccessStatusCode)
+            {
+                if (resources.Count > 0)
+                {
+                    break;
+                }
+
+                response.EnsureSuccessStatusCode();
+            }
 
             await using Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
 
