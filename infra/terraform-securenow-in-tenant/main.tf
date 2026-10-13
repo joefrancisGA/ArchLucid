@@ -70,16 +70,16 @@ resource "azurerm_storage_account" "app" {
     type = "SystemAssigned"
   }
 
-  tags = local.tags
-}
+  # Inline so Trivy config scan (AZU-0012) sees deny-by-default on the account resource.
+  # AzureServices bypass is not a substitute for a private endpoint; a Microsoft-hosted
+  # Automation sandbox may still be unable to reach this account. That follow-up is a
+  # hybrid worker in the VNet, not a public storage account.
+  network_rules {
+    default_action = "Deny"
+    bypass         = ["AzureServices"]
+  }
 
-# Deny the public data plane. AzureServices bypass is not a substitute for a private endpoint;
-# a Microsoft-hosted Automation sandbox may still be unable to reach this account. That follow-up
-# is a hybrid worker in the VNet, not a public storage account.
-resource "azurerm_storage_account_network_rules" "app" {
-  storage_account_id = azurerm_storage_account.app.id
-  default_action     = "Deny"
-  bypass             = ["AzureServices"]
+  tags = local.tags
 }
 
 resource "azurerm_storage_container" "handoff" {
