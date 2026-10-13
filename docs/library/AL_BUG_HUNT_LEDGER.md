@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-13 seed hunt (seed→hit): `notifications-pipeline` — promoted `EmailOtpEmailNotifier.TrySendSignInCodeAsync`; `displayEmail.Trim()` on `EmailMessage.To` bypassed `IdentityEmailNormalizer` at the notification boundary (defense-in-depth beyond `EmailOtpRequestFlow`); reject CRLF mailboxes before send; regression `TrySendSignInCodeAsync_rejects_recipient_mailbox_with_embedded_line_breaks`; 176 scoped notification/digest Application tests passed.
+
 2026-10-13 seed hunt (seed→hit): `notifications-pipeline` — promoted `TrialLocalIdentityAccountExistsEmailNotifier.NotifyAccountAlreadyExistsAsync`; duplicate trial registration passes raw `email.Trim()` with embedded CRLF into `EmailMessage.To`; `IdentityEmailNormalizer` gate before send; regression `NotifyAccountAlreadyExistsAsync_skips_send_when_recipient_has_embedded_line_breaks`; 175 scoped notification/digest Application tests passed.
 
 2026-10-13 seed hunt (seed→hit): `notifications-pipeline` — promoted `MarketingEarlyAccessSalesNotifier` / `MarketingPricingQuoteSalesNotifier`; CRLF in configured `PricingQuoteSalesInbox` reached sales notification `To`; `IdentityEmailNormalizer` before send; regressions `NotifyAsync_skips_send_when_sales_inbox_has_embedded_line_breaks` (both notifiers); 174 scoped notification/digest Application tests passed.
@@ -31461,6 +31463,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ## Zone: notifications-pipeline
 
+2026-10-13 seed hunt (seed→hit): proved `EmailOtpEmailNotifier` assigned CRLF-bearing `displayEmail` to `EmailMessage.To` via trim-only; `IdentityEmailNormalizer` gate; 176 scoped notification/digest Application tests passed.
+
 2026-10-13 seed hunt (seed→hit): proved trial duplicate-registration notice forwarded CRLF-bearing registration email into `EmailMessage.To`; `IdentityEmailNormalizer` before send; 175 scoped notification/digest Application tests passed.
 
 2026-10-13 seed hunt (seed→hit): proved marketing sales notifiers forwarded CRLF in `PricingQuoteSalesInbox` into `EmailMessage.To`; `IdentityEmailNormalizer` gate; 174 scoped notification/digest Application tests passed.
@@ -31493,11 +31497,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** notifications; email dispatchers beyond weekly summary
 - **paths:** ArchLucid.Notifications/; ArchLucid.Application/Notifications/; ArchLucid.Api/Controllers/Advisory/DigestSubscriptionsController.cs
 - **test-filter:** FullyQualifiedName~Notifications|FullyQualifiedName~EmailDispatcher|FullyQualifiedName~DigestSubscriptionsController
-- **hunts:** 75
-- **bugs-found:** 58
+- **hunts:** 76
+- **bugs-found:** 59
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-13
-- **last-bug:** 2026-10-13 — Trial account-exists notice mailbox CRLF
+- **last-bug:** 2026-10-13 — Email OTP notifier mailbox CRLF on To
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -31528,10 +31532,12 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - [x] (proven) `TrialLocalIdentityAccountExistsEmailNotifier.NotifyAccountAlreadyExistsAsync` — CRLF in duplicate-registration `email.Trim()` reached `EmailMessage.To` without normalization (`TrialLocalIdentityService.QueueAccountAlreadyExistsNotice`) — **hit 2026-10-13 seed hunt (seed→hit):** `IdentityEmailNormalizer.TryNormalize` before send; regression `NotifyAccountAlreadyExistsAsync_skips_send_when_recipient_has_embedded_line_breaks`.
 
+- [x] (proven) `EmailOtpEmailNotifier.TrySendSignInCodeAsync` — CRLF in `displayEmail` reached `EmailMessage.To` via trim-only at the notification boundary — **hit 2026-10-13 seed hunt (seed→hit):** `IdentityEmailNormalizer.TryNormalize` before send; regression `TrySendSignInCodeAsync_rejects_recipient_mailbox_with_embedded_line_breaks`.
+
 - [ ] (candidate) `UserInvitationAdminService.BuildAcceptUrl` — concatenates trimmed `OperatorBaseUrl` without authority normalization; admin invite/list responses still expose raw `AcceptUrl` even when mail notifier sanitizes at send time (admin API zone; out of `notifications-pipeline` paths).
 - [x] (valid-no-repro) `BoardPackPdfBuilder.BuildPdfAsync` — raw `emailOptions.OperatorBaseUrl` passed into `ExecDigestComposer` — **cheap-disproof 2026-10-13 seed hunt:** `ExecDigestComposer.NormalizeBaseUrl` strips userinfo before dashboard/sponsor URLs are composed.
 - [x] (valid-no-repro) `DigestSlackWebhookDeliveryChannel.SendAsync` — posts digest `ContentMarkdown` verbatim — **cheap-disproof 2026-10-13 seed hunt:** `ArchitectureDigestBuilder` markdown sections do not concatenate `OperatorBaseUrl`; exec digest operator links are normalized upstream before email dispatch and are outside advisory digest markdown today.
-- [x] (valid-no-repro) `EmailOtpEmailNotifier.TrySendSignInCodeAsync` — **cheap-disproof 2026-10-13 seed hunt:** OTP template has no operator-base absolute links today.
+- [x] (valid-no-repro) `EmailOtpEmailNotifier.TrySendSignInCodeAsync` — operator-base absolute links — **cheap-disproof 2026-10-13 seed hunt:** OTP template has no operator-base absolute links today (mailbox CRLF on `To` fixed separately 2026-10-13).
 - [x] (valid-no-repro) `MarketingEarlyAccessSalesNotifier` / `MarketingPricingQuoteSalesNotifier` — **cheap-disproof 2026-10-13 seed hunt:** sales inbox notifications embed requester fields only; no `OperatorBaseUrl` concatenation in zone files.
 - [x] (valid-no-repro) `TrialLocalIdentityAccountExistsEmailNotifier` — **cheap-disproof 2026-10-13 seed hunt:** account-exists mail is static copy with no operator deep links.
 - [x] (valid-no-repro) `DigestTeamsWebhookDeliveryChannel.SendAsync` — **cheap-disproof 2026-10-13 seed hunt:** same advisory digest markdown source as Slack; no operator-base URL concatenation in zone delivery channels today.
