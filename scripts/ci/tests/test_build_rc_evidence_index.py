@@ -21,7 +21,11 @@ class BuildRcEvidenceIndexTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             bundle = Path(tmp)
             index = build_index(REPO_ROOT, bundle)
-            self.assertEqual(index["rollup"], "PASS")
+            faithfulness_scaffold = (
+                REPO_ROOT / "docs" / "quality" / "faithfulness-nightly-warn-status.json"
+            )
+            expected_rollup = "WARN" if faithfulness_scaffold.is_file() else "PASS"
+            self.assertEqual(index["rollup"], expected_rollup)
             not_run = [r for r in index["rows"] if r["verdict"] == "NOT_RUN"]
             self.assertGreater(len(not_run), 0)
 

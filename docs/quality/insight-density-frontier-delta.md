@@ -1,6 +1,8 @@
+> **Scope:** Auto-generated insight-density frontier delta summary from CI quality fixtures; not a product readiness verdict.
+
 # Insight-density frontier-delta summary
 
-Generated UTC: **2026-10-13T16:49:51.934040+00:00**
+Generated UTC: **2026-10-13T17:16:49.093843+00:00**
 Rollup: **PASS**
 Match threshold: **0.6**
 

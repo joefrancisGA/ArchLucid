@@ -1,3 +1,5 @@
+> **Scope:** SecureNow engineer-to-analyst handoff design note for architects and GRC; not an implementation prompt or audit conclusion.
+
 # Engineer-to-analyst handoff
 
 **Status:** Design note only (SN-HAND-01). Not an implementation prompt.

@@ -1,6 +1,8 @@
+> **Scope:** Auto-generated policy-pack attribution summary from CI quality fixtures; not a buyer-facing attestation.
+
 # Policy-pack attribution summary
 
-Generated UTC: **2026-10-13T16:49:53.340588+00:00**
+Generated UTC: **2026-10-13T17:16:50.491225+00:00**
 Rollup: **PASS**
 
 | Scenario | Attribution % | Expected % | Match | Findings | Attributable |
