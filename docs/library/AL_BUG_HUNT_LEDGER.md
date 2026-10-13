@@ -31395,6 +31395,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ## Zone: artifact-synthesis
 
+2026-10-13 seed hunt (seed→hit): promoted `DocxExportService.BuildDocumentAsync` Appendix A artifacts table; persisted synthesized artifact `Name` / `ArtifactType` / `Format` with XML-invalid control characters reached `WordDocumentBuilder.AddThreeColumnTable` via newline-only `Sanitize` and caused DOCX save failure; sanitize appendix rows with `SanitizeArtifactText`; regression `ExportAsync_strips_control_chars_from_artifacts_appendix_table_cells`; Application scoped filter 103/104 (1 skip); ArtifactSynthesis scoped filter 705/719 (12 pre-existing diagram failures, 2 skipped Terraform).
+
 2026-10-13 seed hunt (seed→hit): promoted `MermaidDiagramDeterministicRepairer.Repair`; `QuestionableAttention` from policy-pack resolution was dropped during deterministic repair before forest SVG layout, hiding questionable-resource styling on painted cards; copy `QuestionableAttention` on repair; regressions `Repair_keeps_questionable_attention_for_forest_layout` and extended metadata test; scoped filter 705/719 (12 pre-existing diagram failures, 2 skipped Terraform).
 
 2026-10-12 seed hunt (seed-only): repeated the selected ArtifactSynthesis and DOCX review after the prior seed-only pass. No fresh reachable mechanism-backed hypothesis met the hunt-ready bar; no candidate was promoted or duplicated. The scoped ArtifactSynthesis/Docx filter passed 102/103 with one intentional skip. No production or regression code changed.
@@ -31439,16 +31441,17 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** artifact synthesis; docx generator; packaging sanitization
 - **paths:** ArchLucid.ArtifactSynthesis/
 - **test-filter:** FullyQualifiedName~ArtifactSynthesis|FullyQualifiedName~Docx
-- **hunts:** 62
+- **hunts:** 63
 - **last-hunt:** 2026-10-13
-- **bugs-found:** 48
+- **bugs-found:** 49
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-13 — Mermaid repair dropped questionable attention metadata
+- **last-bug:** 2026-10-13 — Artifacts appendix table omitted artifact-text sanitization
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
 
 ### Hypotheses
 
+- [x] (proven) `DocxExportService.BuildDocumentAsync` — persisted synthesized artifact `Name`, `ArtifactType`, and `Format` containing OpenXML-invalid control characters reached Appendix A `AddThreeColumnTable` without `LlmArtifactFreeTextSanitizer`, causing DOCX export save failure — **hit 2026-10-13 seed hunt:** `SanitizeArtifactText` on artifact appendix rows; regression `ExportAsync_strips_control_chars_from_artifacts_appendix_table_cells`.
 - [x] (proven) `MermaidDiagramDeterministicRepairer.Repair` — reachable `DiagramNode.QuestionableAttention` from `InventoryDiagramQuestionableAttentionResolver` was omitted when rebuilding nodes during deterministic repair before `DiagramForestLayoutSvgRenderer`, so forest SVG cards lost questionable highlighting — **hit 2026-10-13 seed hunt:** copy `QuestionableAttention` on repair; regressions `Repair_keeps_questionable_attention_for_forest_layout` and extended `Repair_keeps_node_and_edge_painter_metadata_and_copies_lists`.
 - [x] (invalid) `BrandedDiagramExportContainer.TryExtractInnerPng` — hostile length overflow claim — **cheap-disproof 2026-10-11 thorough hunt:** `TryExtractInnerPng` has no production caller in the selected repository; only its own unit test reaches it, so no caller-controlled import path is reachable.
 - [x] (proven) `DocxExportService.BuildDocumentAsync` provenance appendix — persisted manifest `RuleSetId` / `RuleSetVersion` control characters reached OpenXML table text and caused export save failure through `DocxExportController` — **hit 2026-10-11 thorough hunt:** sanitize the combined rule-set display value with `SanitizeArtifactText`; regression `ExportAsync_sanitizes_control_characters_in_provenance_rule_set_fields`.

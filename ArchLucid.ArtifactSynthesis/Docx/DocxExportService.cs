@@ -349,7 +349,10 @@ public sealed partial class DocxExportService(
             {
                 List<(string Name, string ArtifactType, string Format)> artRows = artifacts
                     .OrderBy(x => x.Name, StringComparer.OrdinalIgnoreCase)
-                    .Select(a => (a.Name, a.ArtifactType, a.Format))
+                    .Select(a => (
+                        SanitizeArtifactText(a.Name),
+                        SanitizeArtifactText(a.ArtifactType),
+                        SanitizeArtifactText(a.Format)))
                     .ToList();
                 WordDocumentBuilder.AddThreeColumnTable(
                     body,
