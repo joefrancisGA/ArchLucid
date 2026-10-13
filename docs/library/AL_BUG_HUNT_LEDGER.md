@@ -1,10 +1,8 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-13 seed hunt (seed→hit): `application-tenancy-lifecycle` — promoted ledger candidate `TenantCatalogMigrationOrchestrator.RunVerificationAsync`; `TenantCatalogMigrationVerificationFailed` platform audit still appended when erasure offboard completed after failed verification probe because post-probe quarantine re-read ran only for `probe.Passed`; unified post-probe `GetByIdAsync` for pass and fail paths; regression `RunVerificationAsync_returns_in_erasure_quarantine_without_failed_audit_when_offboarded_after_probe`; 209 scoped tenancy tests passed.
+
 2026-10-13 seed hunt (seed→hit): `application-tenancy-lifecycle` — promoted `TrialTenantBootstrapService.TryBootstrapAfterSelfRegistrationAsync` trial AI budget policy path; `EnsureDefaultTrialPolicyIfAbsentAsync` still ran when erasure offboard completed after `CommitSelfServiceTrialAsync` but before the pre-audit quarantine re-read; added post-commit and post-policy `IsTenantInErasureQuarantineAsync` guards; regression `TryBootstrapAfterSelfRegistrationAsync_skips_trial_ai_budget_policy_when_offboard_completes_after_commit_before_policy`; tightened trial-provisioned audit race to three active tenant reads; 208 scoped tenancy tests passed.
-
-2026-10-13 seed hunt (seed-only): reseeded catalog migration verification audit path; added candidate for `TenantCatalogMigrationVerificationFailed` platform audit when erasure offboard completes after failed verification probe but before append (passed-probe path already re-reads).
-
-- (candidate) `TenantCatalogMigrationOrchestrator.RunVerificationAsync` — `AppendPlatformAuditAsync` (`TenantCatalogMigrationVerificationFailed`) when `probe.Passed` is false and erasure offboard completes after `RunAsync` / `MarkVerificationResultAsync` without post-probe quarantine re-read; reachable from operator verification retry on tenant racing erasure offboard mid-probe.
 
 2026-10-13 seed hunt (seed→hit): `application-tenancy-lifecycle` — promoted ledger candidate `TenantProvisioningService.ProvisionAsync` post-workspace project insert path; `IArchitectureProjectRepository.InsertAsync` still ran when erasure offboard completed after `InsertWorkspaceAsync` but before default project insert; pre-project `GetByIdAsync` re-read with `BuildErasureQuarantineProvisionResult(tenantId, workspaceId, Guid.Empty)`; regression `ProvisionAsync_skips_project_insert_when_offboard_completes_after_workspace_before_project`; tightened post-workspace pre-audit race tests to three active tenant reads; 207 scoped tenancy tests passed.
 
@@ -34670,11 +34668,15 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 101
-- **bugs-found:** 86
+- **hunts:** 102
+- **bugs-found:** 87
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-13
-- **last-bug:** 2026-10-13 — Trial AI budget policy on quarantined tenant after trial commit
+- **last-bug:** 2026-10-13 — Migration verification-failed audit on quarantined tenant
+
+2026-10-13 seed hunt (seed→hit): promoted catalog migration verification failed-audit candidate; proved `TenantCatalogMigrationVerificationFailed` when offboard followed failed probe; unified post-probe erasure re-read; regression `RunVerificationAsync_returns_in_erasure_quarantine_without_failed_audit_when_offboarded_after_probe`; 209 scoped tenancy tests passed.
+
+- [x] (proven) `TenantCatalogMigrationOrchestrator.RunVerificationAsync` — `TenantCatalogMigrationVerificationFailed` audit when erasure offboard after failed probe — **hit 2026-10-13 seed hunt (seed→hit):** regression `RunVerificationAsync_returns_in_erasure_quarantine_without_failed_audit_when_offboarded_after_probe`.
 
 2026-10-13 seed hunt (seed→hit): reseeded trial bootstrap post-commit side effects; proved `EnsureDefaultTrialPolicyIfAbsentAsync` when offboard followed `CommitSelfServiceTrialAsync`; post-commit/post-policy quarantine re-reads; regression `TryBootstrapAfterSelfRegistrationAsync_skips_trial_ai_budget_policy_when_offboard_completes_after_commit_before_policy`; 208 scoped tenancy tests passed.
 
