@@ -12,11 +12,13 @@ import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   auditEvaluationOutcomeLabel,
   auditEvaluationOutcomeStatusKind,
+  auditEvidenceLatestRemediationAttemptStatusLabel,
   countAuditEvidenceLineageSummary,
   formatEvidenceHashVerificationSummary,
   humanizeAuditEvidenceLinkKind,
   resolveLatestCollectedUtc,
 } from "@/lib/audit-evidence-lineage-presentation";
+import { resolveLatestRemediationAttemptForSpine } from "@/lib/audit-evidence-lineage-parse";
 import { formatIsoUtcForDisplay } from "@/lib/format-iso-utc";
 import type { AuditEvidenceLineageRecord } from "@/lib/audit-evidence-lineage-types";
 import { buildRemediationWorkbenchHref } from "@/lib/infra-evidence/infra-evidence-workbench-url";
@@ -121,6 +123,7 @@ export function AuditEvidenceLineageSpine(props: AuditEvidenceLineageSpineProps)
 
   const summaryCounts = countAuditEvidenceLineageSummary(props.lineage);
   const verifiedRemediationAssociations = props.lineage.verifiedRemediationAssociations ?? [];
+  const latestRemediationAttempt = resolveLatestRemediationAttemptForSpine(props.lineage);
 
   if (!props.expanded) {
     const latestUtc = resolveLatestCollectedUtc(props.lineage);
@@ -261,6 +264,26 @@ export function AuditEvidenceLineageSpine(props: AuditEvidenceLineageSpineProps)
             </p>
           </li>
         ))}
+
+        {latestRemediationAttempt !== null ? (
+          <li
+            data-testid={`audit-evidence-spine-latest-remediation-attempt-${latestRemediationAttempt.instanceId}`}
+          >
+            <p className={cn("m-0 font-medium", OPERATOR_TYPOGRAPHY.body)}>Latest remediation attempt</p>
+            <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              {auditEvidenceLatestRemediationAttemptStatusLabel(latestRemediationAttempt.status)}
+            </p>
+            <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.body)}>
+              <Link
+                className={OPERATOR_LINK.inline}
+                href={buildRemediationWorkbenchHref({ instanceId: latestRemediationAttempt.instanceId })}
+                data-testid={`audit-evidence-spine-latest-remediation-attempt-link-${latestRemediationAttempt.instanceId}`}
+              >
+                {latestRemediationAttempt.instanceId}
+              </Link>
+            </p>
+          </li>
+        ) : null}
 
         {(props.lineage.requirementChains ?? []).map((chain) => (
           <li key={chain.requirementId ?? chain.requirementName} data-testid={`audit-evidence-spine-requirement-${chain.requirementId}`}>

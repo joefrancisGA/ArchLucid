@@ -1,4 +1,8 @@
-import type { AuditEvaluationOutcome, AuditEvidenceLineageRecord } from "@/lib/audit-evidence-lineage-types";
+import type {
+  AuditEvaluationOutcome,
+  AuditEvidenceLineageLatestRemediationAttemptStatus,
+  AuditEvidenceLineageRecord,
+} from "@/lib/audit-evidence-lineage-types";
 import type { EnterpriseStatusKind } from "@/lib/design-tokens";
 import { formatIsoUtcForDisplay, parseIsoUtcMs } from "@/lib/format-iso-utc";
 
@@ -192,4 +196,21 @@ export function collectBrokenEvidenceLinkKinds(lineage: AuditEvidenceLineageReco
   }
 
   return [...kinds];
+}
+
+export function auditEvidenceLatestRemediationAttemptStatusLabel(
+  status: AuditEvidenceLineageLatestRemediationAttemptStatus,
+): string {
+  switch (status) {
+    case "VerificationFailed":
+      return "Verification failed";
+    case "ChangeImplemented":
+      return "Awaiting verification";
+    case "Verified":
+      return "Verified";
+    default: {
+      const exhaustive: never = status;
+      return exhaustive;
+    }
+  }
 }
