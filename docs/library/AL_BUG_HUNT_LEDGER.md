@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-13 seed hunt (seed→hit): `notifications-pipeline` — promoted `MarketingEarlyAccessSalesNotifier` / `MarketingPricingQuoteSalesNotifier`; CRLF in configured `PricingQuoteSalesInbox` reached sales notification `To`; `IdentityEmailNormalizer` before send; regressions `NotifyAsync_skips_send_when_sales_inbox_has_embedded_line_breaks` (both notifiers); 174 scoped notification/digest Application tests passed.
+
 2026-10-13 seed hunt (seed→hit): `notifications-pipeline` — promoted `SupportProblemReportNotifier` support-inbox and submitter-ack paths; configured `SupportInbox` or submitter mailbox with embedded CRLF reached `EmailMessage.To` without `IdentityEmailNormalizer`; skip send when normalization fails; regressions `NotifySubmitterAsync_skips_send_when_submitter_mailbox_has_embedded_line_breaks` and `NotifySupportInboxAsync_skips_send_when_support_inbox_has_embedded_line_breaks`; 172 scoped notification/digest Application tests passed.
 
 2026-10-13 seed hunt (seed→hit): `notifications-pipeline` — promoted `UserInvitationEmailNotifier.TrySendInvitationAsync` recipient mailbox; embedded CRLF made `MailAddress` parse a smuggled `Bcc:` recipient so invitation mail could send off-inventory; `IdentityEmailNormalizer` rejects `\r`/`\n` before parse; notifier uses normalizer for `To` and idempotency key; regressions `TrySendInvitationAsync_rejects_recipient_mailbox_with_embedded_line_breaks` and Core `IdentityEmailNormalizer_TryNormalize_rejects_invalid_input`; 170 scoped notification/digest Application tests passed.
@@ -31457,6 +31459,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ## Zone: notifications-pipeline
 
+2026-10-13 seed hunt (seed→hit): proved marketing sales notifiers forwarded CRLF in `PricingQuoteSalesInbox` into `EmailMessage.To`; `IdentityEmailNormalizer` gate; 174 scoped notification/digest Application tests passed.
+
 2026-10-13 seed hunt (seed→hit): proved `SupportProblemReportNotifier` forwarded CRLF-bearing `SupportInbox` / submitter mailbox strings into `EmailMessage.To`; `IdentityEmailNormalizer` gate before send; 172 scoped notification/digest Application tests passed.
 
 2026-10-13 seed hunt (seed→hit): proved workspace invitation `displayEmail` with embedded CRLF smuggled alternate recipient via `MailAddress` parsing; `IdentityEmailNormalizer` rejects line breaks before parse; `UserInvitationEmailNotifier` routes `To`/idempotency through normalizer; regressions `TrySendInvitationAsync_rejects_recipient_mailbox_with_embedded_line_breaks` and Core normalizer theory rows; 170 scoped notification/digest Application tests passed.
@@ -31485,11 +31489,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** notifications; email dispatchers beyond weekly summary
 - **paths:** ArchLucid.Notifications/; ArchLucid.Application/Notifications/; ArchLucid.Api/Controllers/Advisory/DigestSubscriptionsController.cs
 - **test-filter:** FullyQualifiedName~Notifications|FullyQualifiedName~EmailDispatcher|FullyQualifiedName~DigestSubscriptionsController
-- **hunts:** 73
-- **bugs-found:** 56
+- **hunts:** 74
+- **bugs-found:** 57
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-13
-- **last-bug:** 2026-10-13 — Support problem report mailbox CRLF on To
+- **last-bug:** 2026-10-13 — Marketing sales inbox CRLF on To
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -31515,6 +31519,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `UserInvitationEmailNotifier.TrySendInvitationAsync` / `IdentityEmailNormalizer` — CRLF in `displayEmail` let `MailAddress` parse a smuggled `Bcc:` recipient so invitation mail could send to an attacker-controlled mailbox — **hit 2026-10-13 seed hunt (seed→hit):** reject `\r`/`\n` in `IdentityEmailNormalizer` before parse; notifier uses normalizer for `To` and idempotency key; regressions `TrySendInvitationAsync_rejects_recipient_mailbox_with_embedded_line_breaks` and Core normalizer theory rows.
 
 - [x] (proven) `SupportProblemReportNotifier.NotifySupportInboxAsync` / `NotifySubmitterAsync` — CRLF in configured `SupportInbox` or submitter mailbox reached `EmailMessage.To` without normalization — **hit 2026-10-13 seed hunt (seed→hit):** `IdentityEmailNormalizer.TryNormalize` before send; skip with warning when invalid; regressions `NotifySupportInboxAsync_skips_send_when_support_inbox_has_embedded_line_breaks` and `NotifySubmitterAsync_skips_send_when_submitter_mailbox_has_embedded_line_breaks`.
+
+- [x] (proven) `MarketingEarlyAccessSalesNotifier` / `MarketingPricingQuoteSalesNotifier` — CRLF in configured `PricingQuoteSalesInbox` reached sales notification `EmailMessage.To` without normalization — **hit 2026-10-13 seed hunt (seed→hit):** `IdentityEmailNormalizer.TryNormalize` before send; regressions `NotifyAsync_skips_send_when_sales_inbox_has_embedded_line_breaks` in both notifier test suites.
 
 - [ ] (candidate) `UserInvitationAdminService.BuildAcceptUrl` — concatenates trimmed `OperatorBaseUrl` without authority normalization; admin invite/list responses still expose raw `AcceptUrl` even when mail notifier sanitizes at send time (admin API zone; out of `notifications-pipeline` paths).
 - [x] (valid-no-repro) `BoardPackPdfBuilder.BuildPdfAsync` — raw `emailOptions.OperatorBaseUrl` passed into `ExecDigestComposer` — **cheap-disproof 2026-10-13 seed hunt:** `ExecDigestComposer.NormalizeBaseUrl` strips userinfo before dashboard/sponsor URLs are composed.
