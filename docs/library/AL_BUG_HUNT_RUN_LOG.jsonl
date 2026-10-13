@@ -1,8 +1,3 @@
-{"at":"2026-09-13T05:53:35.0207648Z","zoneId":"context-ingestion","outcome":"hit"}
-{"at":"2026-09-13T05:54:45.467428Z","zoneId":"core-costing","outcome":"hit"}
-{"at":"2026-09-13T05:55:29.9552962Z","zoneId":"tenant-data-export","outcome":"seed-only"}
-{"at":"2026-09-13T05:55:34.4325079Z","zoneId":"persistence-identity","outcome":"seed-only"}
-{"at":"2026-09-13T05:57:07.5842491Z","zoneId":"topology-proposal-merge","outcome":"hit"}
 {"at":"2026-09-13T05:58:04.259597Z","zoneId":"context-ingestion","outcome":"hit"}
 {"at":"2026-09-13T05:59:11.5190335Z","zoneId":"core-costing","outcome":"hit"}
 {"at":"2026-09-13T06:07:55.9884004Z","zoneId":"topology-proposal-merge","outcome":"hit"}
@@ -8505,4 +8500,5 @@
 {"at":"2026-10-13T05:36:28.1191083Z","zoneId":"cloud-extractors","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Integrations.AzureExtractor/GetOnlyHostedAzureArmReadClient.cs"]}
 {"at":"2026-10-13T05:43:24.5626313Z","zoneId":"artifact-synthesis","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.ArtifactSynthesis/Docx/DocxExportService.cs"]}
 {"at":"2026-10-13T05:47:30.9594111Z","zoneId":"artifact-synthesis","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.ArtifactSynthesis/Docx/DocxExportService.cs"]}
-{"at":"2026-10-13T05:52:42.5245030Z","zoneId":"securenow-question-queue","outcome":"hit","productLine":"securenow","paths":["ArchLucid.Application/InfraEvidence/SecureNowQuestionDispositions/SecureNowQuestionCompiler.cs"]}
+{"at":"2026-10-13T05:52:42.524503Z","zoneId":"securenow-question-queue","outcome":"hit","productLine":"securenow","paths":["ArchLucid.Application/InfraEvidence/SecureNowQuestionDispositions/SecureNowQuestionCompiler.cs"]}
+{"at":"2026-10-13T05:57:25.0571937Z","zoneId":"core-requests-constraints","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Core/Requests/"]}

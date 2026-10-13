@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-13 seed hunt (seed→hit): `core-requests-constraints` — promoted dollar-delimited capability slugs (`field$encryption$module`, `my$sql$server`) false-positive phrase and standalone token constraints; extended `IsCompoundIdentifierDelimiter` to `$`; regressions in `RequestConstraintCompoundIdentifierDollarTests`; 889 scoped RequestConstraint tests passed.
+
 2026-10-13 seed hunt (seed→hit): `cloud-extractors` — promoted `GetOnlyHostedAzureArmReadClient.ListDiagnosticSettingsForResourceAsync`; reachable cross-resource diagnostic-settings `nextLink` values failed `EnsureTargetsDiagnosticSettingsResource` after a successful first page and threw out of `ListDiagnosticSettingsAsync`, skipping every other path-relevant resource; stop pagination with `partialCollection` when `settings.Count > 0` and rethrow only when no rows were collected; regression `ListDiagnosticSettingsAsync_continues_after_cross_resource_next_link_for_one_resource`; AWS/GCP extractor tests passed 58/58; Azure extractor scope passed 174/174.
 
 2026-10-13 seed hunt (seed→hit): `cloud-extractors` — promoted `GetOnlyHostedAzureArmReadClient.ListDiagnosticSettingsForResourceAsync`; reachable HTTP 200 diagnostic-settings bodies that were invalid JSON on the first page for one resource caused `TryParseArmPaginationPageAsync` to throw and aborted diagnostic collection for every other path-relevant resource in the subscription; catch `JsonException` per resource and treat malformed follow-up pages as partial when `settings.Count > 0`; regressions `ListDiagnosticSettingsAsync_continues_after_invalid_json_for_one_resource`, `ListDiagnosticSettingsAsync_marks_partial_when_follow_up_page_body_is_invalid_json`; AWS/GCP extractor tests passed 58/58; Azure extractor scope passed 173/173.
@@ -25655,11 +25657,15 @@ Split from retired `archlucid-core` (ABQ-08). Generic-advice negation parity his
 - **aliases:** request constraints; split from archlucid-core
 - **paths:** ArchLucid.Core/Requests/
 - **test-filter:** FullyQualifiedName~RequestConstraint
-- **hunts:** 24
-- **bugs-found:** 23
+- **hunts:** 25
+- **bugs-found:** 24
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-06
-- **last-bug:** 2026-10-06 — Unicode slash and invisible filler characters split constraint phrases
+- **last-hunt:** 2026-10-13
+- **last-bug:** 2026-10-13 — dollar-delimited product slugs false-positive encryption/sql constraints
+
+2026-10-13 seed hunt (seed→hit): reseeded `RequestConstraintTokenMatcher` compound-identifier boundaries after delimiter-saturation note; proved `$`-delimited slugs like `field$encryption$module` and `my$sql$server` still false-positive `HasEncryptionConstraint` / `RequiresSqlCapability`; fixed by extending `IsCompoundIdentifierDelimiter` to `$`; regressions in `RequestConstraintCompoundIdentifierDollarTests`; 889 scoped RequestConstraint tests passed.
+
+- [x] (proven) `RequestConstraintTokenMatcher.IsEmbeddedInCompoundIdentifier` — dollar-delimited product slugs (e.g. `field$encryption$module`, `my$sql$server`) may false-positive phrase and standalone token constraints — **hit 2026-10-13 seed hunt (seed→hit):** `#1372`–`%`/`~` guarded eighteen delimiters but `$` was not; fixed by extending `IsCompoundIdentifierDelimiter` to `$`; regressions in `RequestConstraintCompoundIdentifierDollarTests`.
 
 2026-10-06 seed hunt (seed→hit): reseeded phrase normalization after fullwidth-hyphen fix; proved division/fullwidth/fraction slashes, hyphenation point, inverted undertie, and Hangul filler still split phrases like `managed identity`; fixed by mapping those separators to ASCII space; 886 scoped RequestConstraint tests passed.
 
