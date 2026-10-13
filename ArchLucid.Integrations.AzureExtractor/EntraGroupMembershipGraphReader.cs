@@ -217,6 +217,12 @@ public sealed class EntraGroupMembershipGraphReader(
                 "Entra group membership Graph read stopped due to an invalid @odata.nextLink.");
         }
 
+        if (!EntraGroupMembershipGraphTrustedHosts.IsTrusted(uri.Host))
+        {
+            throw new InvalidOperationException(
+                "Entra group membership Graph read stopped because @odata.nextLink targets an untrusted host.");
+        }
+
         const string groupsPathPrefix = "/v1.0/groups/";
 
         if (!uri.AbsolutePath.StartsWith(groupsPathPrefix, StringComparison.OrdinalIgnoreCase))

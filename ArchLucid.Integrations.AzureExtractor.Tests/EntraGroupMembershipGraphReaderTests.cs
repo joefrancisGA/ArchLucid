@@ -263,6 +263,34 @@ public sealed class EntraGroupMembershipGraphReaderTests
     }
 
     [Fact]
+    public async Task TryReadDirectMembershipsAsync_rejects_odata_next_link_on_untrusted_host()
+    {
+        HttpClient httpClient = CreateHttpClient(_ => JsonResponse(
+            $$"""
+            {
+              "value": [
+                {
+                  "id": "{{MemberUser}}",
+                  "@odata.type": "#microsoft.graph.user"
+                }
+              ],
+              "@odata.nextLink": "https://evil.example.com/v1.0/groups/{{GroupA}}/members?$select=id&$skiptoken=leak"
+            }
+            """));
+
+        EntraGroupMembershipGraphReader sut = new(httpClient, NullLogger<EntraGroupMembershipGraphReader>.Instance);
+
+        InvalidOperationException exception = await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            sut.TryReadDirectMembershipsAsync(
+                new StubTokenCredential(),
+                [GroupA],
+                maxNestedDepth: 0,
+                CancellationToken.None));
+
+        Assert.Contains("untrusted host", exception.Message, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
     public async Task TryReadDirectMembershipsAsync_rejects_invalid_odata_next_link_url()
     {
         HttpClient httpClient = CreateHttpClient(_ => JsonResponse(
