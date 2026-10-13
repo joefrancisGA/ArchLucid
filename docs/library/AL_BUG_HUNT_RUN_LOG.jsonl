@@ -8491,3 +8491,4 @@
 {"at":"2026-10-13T14:05:05.5225495Z","zoneId":"application-tenancy-lifecycle","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Tenancy/TrialLifecycleTransitionEngine.cs"]}
 {"at":"2026-10-13T14:10:54.433789Z","zoneId":"application-tenancy-lifecycle","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Tenancy/Trial/TenantTrialConversionStage.cs"]}
 {"at":"2026-10-13T14:15:31.0052017Z","zoneId":"application-tenancy-lifecycle","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Tenancy/TenantDeletionService.cs"]}
+{"at":"2026-10-13T14:23:54.6674610Z","zoneId":"application-tenancy-lifecycle","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Tenancy/Trial/TenantTrialIdentityHandoffStage.cs"]}
