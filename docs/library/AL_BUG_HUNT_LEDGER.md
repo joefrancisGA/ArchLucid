@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-13 seed hunt (seed→hit): `application-tenancy-lifecycle` — promoted `TenantErasureCommandService.TryOffboardTenantAsync` / `CompleteOffboardSideEffectsAsync`; quarantine restore after post-start or post-idempotent-suspend read still appended `TenantErasureOffboarded`; re-read immediately before first-time and idempotent offboard audits; regressions `TryOffboardTenantAsync_returns_null_without_audit_when_quarantine_restored_after_post_start_read_before_first_offboard_audit` and `TryOffboardTenantAsync_returns_null_without_audit_when_quarantine_restored_after_idempotent_suspend_before_offboard_audit`; 184 scoped tenancy tests passed.
+
 2026-10-13 seed hunt (seed→hit): `application-tenancy-lifecycle` — promoted `TenantSuspendCommandService.TrySuspendAsync` / `TryUnsuspendAsync`; erasure offboard after post-transition tenant read but before suspend/unsuspend platform audit still appended `TenantSuspended` / `TenantUnsuspended`; second quarantine re-read immediately before audit; regressions `TrySuspendAsync_returns_quarantine_without_audit_when_offboard_completes_after_post_suspend_read_before_audit` and `TryUnsuspendAsync_returns_quarantine_without_audit_when_offboard_completes_after_post_unsuspend_read_before_audit`; 182 scoped tenancy tests passed.
 
 2026-10-13 seed hunt (seed→hit): `application-tenancy-lifecycle` — promoted `TenantCatalogMigrationOrchestrator.CompleteAsync`; erasure offboard after post-repository read but before scope-freeze `TryUnsuspendAsync` still unsuspended tenant while returning `InErasureQuarantine` without completion audit; re-read before unsuspend and after repository complete; regression `CompleteAsync_skips_unsuspend_when_offboarded_after_post_complete_read_before_unsuspend`; 180 scoped tenancy tests passed.
@@ -34620,11 +34622,15 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 78
-- **bugs-found:** 63
+- **hunts:** 79
+- **bugs-found:** 64
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-13
-- **last-bug:** 2026-10-13 — Suspend/unsuspend audit after post-transition erasure offboard race
+- **last-bug:** 2026-10-13 — Offboard audit after quarantine restore race
+
+2026-10-13 seed hunt (seed→hit): reseeded erasure offboard from ledger candidates; proved first-time and idempotent offboard paths appended `TenantErasureOffboarded` when quarantine restore followed post-read; re-read before audit; regressions in `TenantErasureCommandServiceIdempotentRetryTests`; 184 scoped tenancy tests passed.
+
+- [x] (proven) `TenantErasureCommandService.TryOffboardTenantAsync` / `CompleteOffboardSideEffectsAsync` — appended offboard audit when quarantine restore followed post-start or post-idempotent-suspend read — **hit 2026-10-13 seed hunt (seed→hit):** re-read before offboard audit on both paths; regressions `TryOffboardTenantAsync_returns_null_without_audit_when_quarantine_restored_after_post_start_read_before_first_offboard_audit` and `TryOffboardTenantAsync_returns_null_without_audit_when_quarantine_restored_after_idempotent_suspend_before_offboard_audit`.
 
 2026-10-13 seed hunt (seed→hit): reseeded suspend command service after migration complete unsuspend guard; proved `TrySuspendAsync` / `TryUnsuspendAsync` appended platform audit when offboard followed post-transition read; second re-read before audit; regressions in `TenantSuspendCommandServiceOffboardRaceTests`; 182 scoped tenancy tests passed.
 
@@ -34911,8 +34917,8 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 2026-10-02 thorough hunt (dry): cheap-disproved the deleted-tenant retry boolean because the production scheduler ignores the return value and only treats exceptions as tenant failures; invalidated the null maintenance-message candidate because the database column is `NOT NULL` and the migration start path supplies the default. The scoped test filter was blocked during build by unrelated pre-existing ARCH006/ARCH006a analyzer errors in `ArchLucid.Persistence`; no failing repro was run because no hunt-ready candidate remained.
 
-- (candidate) `TenantErasureCommandService.TryOffboardTenantAsync` — first-time offboard path reads tenant after `SuspendTenantAsync` but appends `TenantErasureOffboarded` without a final re-read when quarantine restore follows that read; reachable via platform admin offboard after atomic start wins.
-- (candidate) `TenantErasureCommandService.CompleteOffboardSideEffectsAsync` — idempotent retry calls `SuspendTenantAsync` then audit without re-reading when quarantine restore follows compensating suspend; reachable via offboard retry when marker exists but audit previously failed.
+- (candidate) `TenantErasureCommandService.TryRestoreQuarantineAsync` — quarantine restore after post-restore read but before `TenantErasureQuarantineRestored` audit when concurrent offboard re-applies quarantine; reachable via overlapping admin restore and offboard retries.
+- (candidate) `TrialLifecycleTransitionEngine.EmitAuditAsync` — trial lifecycle transition audit uses the pre-transition `tenant` snapshot for workspace/project ids when `GetFirstWorkspaceAsync` lags a concurrent workspace delete; reachable from scheduler tick after workspace teardown begins.
 
 ---
 
