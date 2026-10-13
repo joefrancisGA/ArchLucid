@@ -692,6 +692,57 @@ public sealed class TenantErasureCommandServiceIdempotentRetryTests
     }
 
     [Fact]
+    public async Task TryApproveErasureAsync_returns_success_without_audit_when_quarantine_restored_after_post_approve_read_before_audit()
+    {
+        Guid tenantId = Guid.NewGuid();
+        DateTimeOffset now = new(2026, 10, 13, 22, 0, 0, TimeSpan.Zero);
+        FakeTimeProvider clock = new(now);
+        TenantRecord offboarded = OffboardedTenant(tenantId, now);
+        TenantRecord approvedStillOffboarded = new()
+        {
+            Id = tenantId,
+            Name = "Acme",
+            Slug = "acme",
+            Tier = TenantTier.Standard,
+            DataRegion = TenantDataRegions.Default,
+            CreatedUtc = now.AddDays(-1),
+            OffboardedUtc = now.AddDays(-1),
+            ErasureEligibleUtc = now.AddDays(29),
+            TenantErasureApprovedUtc = now,
+        };
+        TenantRecord restored = ActiveTenant(tenantId, now);
+
+        Mock<ITenantRepository> tenants = new(MockBehavior.Strict);
+        tenants
+            .SetupSequence(t => t.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(offboarded)
+            .ReturnsAsync(approvedStillOffboarded)
+            .ReturnsAsync(restored);
+        tenants
+            .Setup(t => t.TryApproveTenantErasureAsync(tenantId, It.IsAny<DateTimeOffset>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+
+        Mock<IPlatformAuditRepository> audit = new(MockBehavior.Strict);
+
+        Mock<IOptionsMonitor<TenantErasurePurgeOptions>> options = new();
+        options.Setup(o => o.CurrentValue).Returns(new TenantErasurePurgeOptions());
+
+        TenantErasureCommandService sut = new(
+            tenants.Object,
+            audit.Object,
+            clock,
+            options.Object);
+
+        (await sut.TryApproveErasureAsync(tenantId, "admin@example.com", "Admin", "corr", CancellationToken.None))
+            .Should()
+            .BeTrue();
+
+        audit.Verify(
+            a => a.AppendAsync(It.IsAny<PlatformAuditEvent>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task TryApproveErasureAsync_returns_success_without_duplicate_audit_when_already_approved_retry()
     {
         Guid tenantId = Guid.NewGuid();
