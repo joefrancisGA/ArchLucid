@@ -129,6 +129,35 @@ public sealed class UserInvitationEmailNotifierTests
     }
 
     [SkippableFact]
+    public async Task TrySendInvitationAsync_omits_line_breaks_from_product_display_name_in_subject()
+    {
+        EmailMessage? sentMessage = null;
+        Mock<IEmailProvider> email = new();
+        email
+            .Setup(x => x.SendAsync(It.IsAny<EmailMessage>(), It.IsAny<CancellationToken>()))
+            .Callback<EmailMessage, CancellationToken>((message, _) => sentMessage = message)
+            .Returns(Task.CompletedTask);
+
+        UserInvitationEmailNotifier sut = new(
+            email.Object,
+            BuildOptions(new EmailNotificationOptions { ProductDisplayName = "Prod\r\nBcc: injected@evil.test" }),
+            NullLogger<UserInvitationEmailNotifier>.Instance);
+
+        await sut.TrySendInvitationAsync(
+            "invitee@example.com",
+            AcceptUrl,
+            "Reader",
+            14,
+            null,
+            CancellationToken.None);
+
+        sentMessage.Should().NotBeNull();
+        sentMessage!.Subject.Should().Be("You're invited to Prod Bcc: injected@evil.test");
+        sentMessage.Subject.Should().NotContain("\r");
+        sentMessage.Subject.Should().NotContain("\n");
+    }
+
+    [SkippableFact]
     public async Task TrySendInvitationAsync_omits_user_info_from_plain_http_url_in_personal_message()
     {
         EmailMessage? sentMessage = null;

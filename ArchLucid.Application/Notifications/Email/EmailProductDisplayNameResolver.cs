@@ -18,11 +18,25 @@ public static class EmailProductDisplayNameResolver
         ArgumentNullException.ThrowIfNull(emailOptions);
 
         if (productLine is not null)
-            return ProductLineConsumerNames.DisplayName(productLine.Value, displayNames);
+            return SanitizeForEmailHeader(ProductLineConsumerNames.DisplayName(productLine.Value, displayNames));
 
         if (!string.IsNullOrWhiteSpace(emailOptions.ProductDisplayName))
-            return emailOptions.ProductDisplayName.Trim();
+            return SanitizeForEmailHeader(emailOptions.ProductDisplayName);
 
-        return ProductLineConsumerNames.DisplayName(ProductLineId.Architecture, displayNames);
+        return SanitizeForEmailHeader(ProductLineConsumerNames.DisplayName(ProductLineId.Architecture, displayNames));
+    }
+
+    /// <summary>Prevents SMTP header injection via configured display names embedded in subjects.</summary>
+    private static string SanitizeForEmailHeader(string displayName)
+    {
+        string trimmed = displayName.Trim();
+
+        if (trimmed.Length == 0)
+            return trimmed;
+
+        return trimmed
+            .Replace("\r\n", " ", StringComparison.Ordinal)
+            .Replace('\r', ' ')
+            .Replace('\n', ' ');
     }
 }
