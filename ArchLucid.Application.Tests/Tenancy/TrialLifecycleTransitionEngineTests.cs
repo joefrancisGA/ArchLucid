@@ -240,6 +240,73 @@ public sealed class TrialLifecycleTransitionEngineTests
     }
 
     [Fact]
+    public async Task TryAdvanceTenantAsync_skips_export_only_to_deleted_when_legal_hold_activated_before_atomic_transition()
+    {
+        Guid tenantId = Guid.NewGuid();
+        DateTimeOffset trialExpires = new(2026, 1, 1, 0, 0, 0, TimeSpan.Zero);
+        DateTimeOffset now = new(2026, 9, 1, 0, 0, 0, TimeSpan.Zero);
+
+        TenantRecord exportOnly = new()
+        {
+            Id = tenantId,
+            Name = "n",
+            Slug = "s",
+            Tier = TenantTier.Standard,
+            CreatedUtc = trialExpires,
+            TrialStatus = TrialLifecycleStatus.ExportOnly,
+            TrialExpiresUtc = trialExpires,
+        };
+        TenantRecord withHold = new()
+        {
+            Id = tenantId,
+            Name = "n",
+            Slug = "s",
+            Tier = TenantTier.Standard,
+            CreatedUtc = trialExpires,
+            TrialStatus = TrialLifecycleStatus.ExportOnly,
+            TrialExpiresUtc = trialExpires,
+            LegalHoldUntilUtc = now.AddDays(30),
+        };
+
+        Mock<ITenantRepository> repo = new();
+        repo.SetupSequence(r => r.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(exportOnly)
+            .ReturnsAsync(withHold);
+
+        Mock<ITenantHardPurgeService> purge = new();
+        Mock<IAuditService> audit = new();
+
+        Mock<IOptionsMonitor<TrialLifecycleSchedulerOptions>> opts = new();
+        opts.Setup(m => m.CurrentValue).Returns(new TrialLifecycleSchedulerOptions());
+
+        TrialLifecycleTransitionEngine engine = new(
+            repo.Object,
+            purge.Object,
+            audit.Object,
+            opts.Object,
+            new FixedUtcTimeProvider(now),
+            NullLogger<TrialLifecycleTransitionEngine>.Instance);
+
+        bool ok = await engine.TryAdvanceTenantAsync(tenantId, CancellationToken.None);
+
+        ok.Should().BeFalse();
+        repo.Verify(
+            r => r.TryRecordTrialLifecycleTransitionAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+        purge.Verify(
+            p => p.PurgeTenantAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<TenantHardPurgeOptions>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task TryAdvanceTenantAsync_when_active_legal_hold_skips_export_only_to_deleted_purge()
     {
         Guid tenantId = Guid.NewGuid();

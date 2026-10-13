@@ -52,6 +52,13 @@ public sealed class TrialLifecycleTransitionEngine(
 
         if (TrialLifecycleStatus.EqualsStatus(tenant.TrialStatus, TrialLifecycleStatus.Deleted))
         {
+            if (ShouldStopForAutomationGate(
+                    await EvaluateAutomationGateAsync(tenantId, utcNow, cancellationToken),
+                    out bool deletedGateReturn))
+            {
+                return deletedGateReturn;
+            }
+
             await _tenantHardPurgeService.PurgeTenantAsync(tenantId,
                 new TenantHardPurgeOptions { DryRun = false, MaxRowsPerStatement = options.HardPurgeMaxRowsPerStatement }, cancellationToken);
 
@@ -68,6 +75,13 @@ public sealed class TrialLifecycleTransitionEngine(
 
         if (string.Equals(advancement.ToStatus, TrialLifecycleStatus.Deleted, StringComparison.Ordinal))
         {
+            if (ShouldStopForAutomationGate(
+                    await EvaluateAutomationGateAsync(tenantId, utcNow, cancellationToken),
+                    out bool purgeTransitionGateReturn))
+            {
+                return purgeTransitionGateReturn;
+            }
+
             bool recorded = await _tenantRepository.TryRecordTrialLifecycleTransitionAsync(
                 tenantId,
                 persistedTrialStatus,
@@ -91,6 +105,13 @@ public sealed class TrialLifecycleTransitionEngine(
             return true;
         }
 
+        if (ShouldStopForAutomationGate(
+                await EvaluateAutomationGateAsync(tenantId, utcNow, cancellationToken),
+                out bool transitionGateReturn))
+        {
+            return transitionGateReturn;
+        }
+
         bool ok = await _tenantRepository.TryRecordTrialLifecycleTransitionAsync(
             tenantId,
             persistedTrialStatus,
@@ -109,6 +130,44 @@ public sealed class TrialLifecycleTransitionEngine(
         await EmitAuditAsync(tenant, advancement, cancellationToken);
         ArchLucidInstrumentation.RecordTrialExpiration($"{advancement.FromStatus}->{advancement.ToStatus}");
         return true;
+    }
+
+    private async Task<TrialLifecycleAutomationGate> EvaluateAutomationGateAsync(
+        Guid tenantId,
+        DateTimeOffset utcNow,
+        CancellationToken cancellationToken)
+    {
+        TenantRecord? tenant = await _tenantRepository.GetByIdAsync(tenantId, cancellationToken);
+
+        if (tenant is null)
+            return TrialLifecycleAutomationGate.Skip;
+
+        if (tenant.OffboardedUtc is not null)
+            return TrialLifecycleAutomationGate.SupersededByErasure;
+
+        if (tenant.LegalHoldUntilUtc is { } legalHoldUntil && legalHoldUntil > utcNow)
+            return TrialLifecycleAutomationGate.Skip;
+
+        return TrialLifecycleAutomationGate.Proceed;
+    }
+
+    private static bool ShouldStopForAutomationGate(TrialLifecycleAutomationGate gate, out bool returnValue)
+    {
+        returnValue = false;
+
+        if (gate == TrialLifecycleAutomationGate.Proceed)
+            return false;
+
+        returnValue = gate == TrialLifecycleAutomationGate.SupersededByErasure;
+
+        return true;
+    }
+
+    private enum TrialLifecycleAutomationGate
+    {
+        Proceed,
+        Skip,
+        SupersededByErasure,
     }
 
     private async Task<bool> IsAdvancementAlreadyAppliedAsync(
