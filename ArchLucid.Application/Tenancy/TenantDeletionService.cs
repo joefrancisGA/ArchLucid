@@ -40,10 +40,12 @@ public sealed class TenantDeletionService(
         ArgumentException.ThrowIfNullOrWhiteSpace(invocation.ActorUserName);
 
         TenantRecord? tenant = await _tenantRepository.GetByIdAsync(tenantId, cancellationToken);
-        if (tenant?.TenantErasureApprovedUtc == null)
-        {
+
+        if (tenant is null)
+            throw new InvalidOperationException($"Tenant '{tenantId:D}' was not found.");
+
+        if (tenant.TenantErasureApprovedUtc is null)
             throw new InvalidOperationException("Tenant erasure must be explicitly approved by an Admin before hard purge.");
-        }
 
         TrialLifecycleSchedulerOptions lifecycle = _trialLifecycleOptions.CurrentValue;
         int maxRows = lifecycle.HardPurgeMaxRowsPerStatement > 0 ? lifecycle.HardPurgeMaxRowsPerStatement : 5000;

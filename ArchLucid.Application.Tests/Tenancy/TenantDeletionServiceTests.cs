@@ -80,4 +80,66 @@ public sealed class TenantDeletionServiceTests
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }
+
+    [Fact]
+    public async Task DeleteTenantAsync_throws_not_found_when_tenant_row_is_missing()
+    {
+        Guid tenantId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+
+        Mock<ITenantRepository> tenantRepo = new();
+        tenantRepo
+            .Setup(r => r.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((TenantRecord?)null);
+
+        TenantDeletionService sut = new(
+            Mock.Of<ITenantHardPurgeService>(),
+            Mock.Of<ITenantBlobPrefixDeletionService>(),
+            Mock.Of<IPlatformAuditRepository>(),
+            Mock.Of<IOptionsMonitor<TrialLifecycleSchedulerOptions>>(),
+            tenantRepo.Object);
+
+        Func<Task> act = () => sut.DeleteTenantAsync(
+            tenantId,
+            new TenantDeletionInvocation
+            {
+                ActorUserId = "actor-1",
+                ActorUserName = "actor@example.com",
+                CorrelationId = "corr-delete",
+            },
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage($"*{tenantId:D}*not found*");
+    }
+
+    [Fact]
+    public async Task DeleteTenantAsync_throws_when_erasure_not_approved()
+    {
+        Guid tenantId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
+
+        Mock<ITenantRepository> tenantRepo = new();
+        tenantRepo
+            .Setup(r => r.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new TenantRecord { Id = tenantId, TenantErasureApprovedUtc = null });
+
+        TenantDeletionService sut = new(
+            Mock.Of<ITenantHardPurgeService>(),
+            Mock.Of<ITenantBlobPrefixDeletionService>(),
+            Mock.Of<IPlatformAuditRepository>(),
+            Mock.Of<IOptionsMonitor<TrialLifecycleSchedulerOptions>>(),
+            tenantRepo.Object);
+
+        Func<Task> act = () => sut.DeleteTenantAsync(
+            tenantId,
+            new TenantDeletionInvocation
+            {
+                ActorUserId = "actor-1",
+                ActorUserName = "actor@example.com",
+                CorrelationId = "corr-delete",
+            },
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage("*explicitly approved*");
+    }
 }
