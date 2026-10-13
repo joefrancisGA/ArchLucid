@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text.Json;
 
 using ArchLucid.Core.AzureExtractor;
@@ -1087,8 +1088,31 @@ properties["definition"] = AzureExtractorSensitivePropertyRedactor.RedactStructu
         properties[pipeDelimitedPropertyKey] = string.Join(
             '|',
             properties.Where(pair => pair.Key.StartsWith($"{indexedKeyPrefix}[", StringComparison.Ordinal))
-                .OrderBy(pair => pair.Key, StringComparer.Ordinal)
+                .OrderBy(pair => GetIndexedPropertyKeyOrder(pair.Key, indexedKeyPrefix))
                 .Select(pair => pair.Value?.ToString())
                 .Where(value => !string.IsNullOrWhiteSpace(value))!);
+    }
+
+    private static int GetIndexedPropertyKeyOrder(string propertyKey, string indexedKeyPrefix)
+    {
+        string indexPrefix = $"{indexedKeyPrefix}[";
+
+        if (!propertyKey.StartsWith(indexPrefix, StringComparison.Ordinal)
+            || propertyKey.Length <= indexPrefix.Length
+            || propertyKey[^1] != ']')
+        {
+            return int.MaxValue;
+        }
+
+        ReadOnlySpan<char> indexSpan = propertyKey.AsSpan(
+            indexPrefix.Length,
+            propertyKey.Length - indexPrefix.Length - 1);
+
+        if (int.TryParse(indexSpan, NumberStyles.None, CultureInfo.InvariantCulture, out int index))
+        {
+            return index;
+        }
+
+        return int.MaxValue;
     }
 }

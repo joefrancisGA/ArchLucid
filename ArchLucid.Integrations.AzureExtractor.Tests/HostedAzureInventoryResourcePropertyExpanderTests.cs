@@ -344,6 +344,37 @@ public sealed class HostedAzureInventoryResourcePropertyExpanderTests
     }
 
     [Fact]
+    public void Expand_orders_vm_network_interface_pipe_delimited_ids_by_numeric_index()
+    {
+        const string nicAt2 =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/networkInterfaces/nic-2";
+        const string nicAt10 =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/networkInterfaces/nic-10";
+        string json = """
+            {
+              "networkProfile": {
+                "networkInterfaces": [
+            """ + string.Join(",", Enumerable.Range(0, 11).Select(i =>
+            i == 2
+                ? $$"""{ "id": "{{nicAt2}}" }"""
+                : i == 10
+                    ? $$"""{ "id": "{{nicAt10}}" }"""
+                    : """{ "properties": {} }""")) + """
+                ]
+              }
+            }
+            """;
+
+        using JsonDocument document = JsonDocument.Parse(json);
+        Dictionary<string, object?> properties = HostedAzureInventoryResourcePropertyExpander.Expand(
+            "Microsoft.Compute/virtualMachines",
+            document.RootElement,
+            []);
+
+        Assert.Equal($"{nicAt2}|{nicAt10}", properties["networkProfile.networkInterfaces"]);
+    }
+
+    [Fact]
     public void Expand_preserves_vm_network_profile_network_interface_index_when_earlier_slot_has_no_id()
     {
         const string nicId =

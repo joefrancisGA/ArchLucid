@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-13 seed hunt (seed→hit): `cloud-extractors` — promoted `HostedAzureInventoryResourcePropertyExpander.WriteIndexedTopLevelArmIds`; reachable VM `networkProfile.networkInterfaces` pipe-delimited values were joined using lexicographic key order, so `networkProfile.networkInterfaces[10]` sorted before `[2]`; order by numeric bracket index via `GetIndexedPropertyKeyOrder`; regression `Expand_orders_vm_network_interface_pipe_delimited_ids_by_numeric_index`; AWS/GCP extractor tests passed 81/81; Azure extractor scope passed 142/142.
+
 2026-10-13 seed hunt (seed→hit): `cloud-extractors` — promoted `HostedAzureInventoryResourcePropertyExpander.AddPrivateLinkConnections`; reachable private-endpoint `privateLinkServiceConnections` with an earlier row lacking `privateLinkServiceId` compacted `privateLinkServiceId[n]` instead of preserving array position; advance index for every connection row; regression `Expand_preserves_private_link_service_id_index_when_earlier_connection_has_no_target`; AWS/GCP extractor tests passed 81/81; Azure extractor scope passed 141/141.
 
 2026-10-13 seed hunt (seed→hit): `cloud-extractors` — promoted `HostedAzureInventoryResourcePropertyExpander.AddNicProperties`; reachable NIC `ipConfigurations` with an earlier slot lacking a `properties` object compacted `ipConfiguration.subnet.id[n]` instead of preserving array position (parity with firewall/VMSS expanders); advance index for every ipConfiguration slot; same loop fix in `AddBastionProperties`; regression `Expand_preserves_nic_ip_configuration_subnet_index_when_earlier_slot_has_no_properties`; AWS/GCP extractor tests passed 81/81; Azure extractor scope passed 140/140.
@@ -31706,6 +31708,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ## Zone: cloud-extractors
 
+2026-10-13 seed hunt (seed→hit): promoted `WriteIndexedTopLevelArmIds`; pipe-delimited NIC lists used lexicographic property-key sort (`[10]` before `[2]`); numeric index ordering; regression `Expand_orders_vm_network_interface_pipe_delimited_ids_by_numeric_index`; Azure scope 142/142; AWS/GCP 81/81.
+
 2026-10-13 seed hunt (seed→hit): promoted `AddPrivateLinkConnections`; empty private-link connection rows skipped index advancement, compacting later `privateLinkServiceId[n]` keys; per-row index advancement; regression `Expand_preserves_private_link_service_id_index_when_earlier_connection_has_no_target`; Azure scope 141/141; AWS/GCP 81/81.
 
 2026-10-13 seed hunt (seed→hit): promoted `AddNicProperties` / `AddBastionProperties`; NIC and Bastion `ipConfigurations` slots without a `properties` object skipped index advancement, compacting later `ipConfiguration.subnet.id[n]` keys; fixed with per-slot index advancement; regression `Expand_preserves_nic_ip_configuration_subnet_index_when_earlier_slot_has_no_properties`; Azure scope 140/140; AWS/GCP 81/81.
@@ -31773,11 +31777,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** aws extractor; gcp extractor; azure extractor
 - **paths:** ArchLucid.Integrations.AwsExtractor/; ArchLucid.Integrations.GcpExtractor/; ArchLucid.Integrations.AzureExtractor/
 - **test-filter:** FullyQualifiedName~AwsExtractor|FullyQualifiedName~GcpExtractor|FullyQualifiedName~AzureExtractor
-- **hunts:** 108
-- **bugs-found:** 55
+- **hunts:** 109
+- **bugs-found:** 56
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-13
-- **last-bug:** 2026-10-13 — private link connection index compaction when earlier row lacks target id
+- **last-bug:** 2026-10-13 — VM NIC pipe-delimited list lexicographic index sort
 - **related-pd-tb:** none
 - **code-changed-since:** 1
 
@@ -31814,6 +31818,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (invalid) `HostedAzureInventoryResourcePropertyExpander.AddSiteWorkflowConnectionParameters` — an ARM Logic Apps resource with `properties.parameters.$connections` containing credential-bearing connection metadata is copied with `GetRawText()` into inventory properties without structured redaction; input originates from the reachable `Microsoft.Logic/workflows` ARM payload, but a concrete secret-bearing field and downstream exposed output remain unverified — cheap-disproved 2026-10-11: the selected collector/ZIP paths expose connection resource IDs, names, hosts, status, and warning fields; no credential field or secret-bearing export was present.
 - [x] (invalid) `HostedAzureInventoryResourcePropertyExpander.AddManagedClusterProperties` — an ARM AKS resource with a `properties.networkProfile` field containing sensitive connection metadata is copied with `GetRawText()` into inventory properties; input originates from the reachable `Microsoft.ContainerService/managedClusters` ARM payload, but a concrete sensitive field and wrong exported outcome remain unverified — cheap-disproved 2026-10-11: the selected expander captures network profile topology JSON, with no credential-bearing field or downstream secret exposure established.
 
+- [x] (proven) `HostedAzureInventoryResourcePropertyExpander.WriteIndexedTopLevelArmIds` — reachable VM and private-endpoint `networkInterfaces` pipe-delimited companion properties were joined using lexicographic property-key order, so `[10]` sorted before `[2]` and misordered multi-NIC inventory facts — **hit 2026-10-13 seed hunt:** `GetIndexedPropertyKeyOrder` sorts by numeric bracket index; regression `Expand_orders_vm_network_interface_pipe_delimited_ids_by_numeric_index`.
 - [x] (proven) `HostedAzureInventoryResourcePropertyExpander.AddPrivateLinkConnections` — reachable private-endpoint connection arrays with an earlier row lacking `privateLinkServiceId` skipped index advancement, compacting later `privateLinkServiceId[n]` keys and misaligning private-endpoint evidence property keys — **hit 2026-10-13 seed hunt:** advance index for every connection row; regression `Expand_preserves_private_link_service_id_index_when_earlier_connection_has_no_target`.
 - [x] (proven) `HostedAzureInventoryResourcePropertyExpander.AddNicProperties` / `AddBastionProperties` — reachable NIC or Bastion `ipConfigurations` with an earlier array slot lacking a `properties` object skipped index advancement, compacting later `ipConfiguration.subnet.id[n]` keys and misaligning subnet association reads — **hit 2026-10-13 seed hunt:** advance index for every ipConfiguration slot (parity with firewall/VMSS expanders); regression `Expand_preserves_nic_ip_configuration_subnet_index_when_earlier_slot_has_no_properties`.
 - [x] (proven) `HostedAzureInventoryResourcePropertyExpander.AddPrivateLinkConnections` — reachable `Microsoft.Network/privateEndpoints` payloads with both `privateLinkServiceConnections` and `manualPrivateLinkServiceConnections` reset the indexed `privateLinkServiceId[n]` counter per array, so manual targets overwrote automatic `[0]` and dropped a private-link target from normalized inventory properties — **hit 2026-10-13 seed hunt:** continue a shared index across both arrays; regression `Expand_persists_every_private_link_service_id_across_connection_arrays`.
