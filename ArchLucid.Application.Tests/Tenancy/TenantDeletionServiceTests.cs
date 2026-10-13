@@ -113,6 +113,60 @@ public sealed class TenantDeletionServiceTests
     }
 
     [Fact]
+    public async Task DeleteTenantAsync_throws_when_active_legal_hold_set_before_purge()
+    {
+        Guid tenantId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+        DateTimeOffset now = new(2026, 10, 13, 12, 0, 0, TimeSpan.Zero);
+        DateTimeOffset approvedUtc = now.AddHours(-2);
+        TenantRecord approved = new()
+        {
+            Id = tenantId,
+            OffboardedUtc = now.AddDays(-1),
+            TenantErasureApprovedUtc = approvedUtc,
+        };
+        TenantRecord withHold = new()
+        {
+            Id = tenantId,
+            OffboardedUtc = now.AddDays(-1),
+            TenantErasureApprovedUtc = approvedUtc,
+            LegalHoldUntilUtc = now.AddDays(30),
+        };
+
+        Mock<ITenantRepository> tenantRepo = new(MockBehavior.Strict);
+        tenantRepo
+            .SetupSequence(r => r.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(approved)
+            .ReturnsAsync(withHold);
+
+        Mock<ITenantHardPurgeService> purge = new(MockBehavior.Strict);
+
+        TenantDeletionService sut = new(
+            purge.Object,
+            Mock.Of<ITenantBlobPrefixDeletionService>(),
+            Mock.Of<IPlatformAuditRepository>(),
+            Mock.Of<IOptionsMonitor<TrialLifecycleSchedulerOptions>>(),
+            tenantRepo.Object,
+            new FixedUtcTimeProvider(now));
+
+        Func<Task> act = () => sut.DeleteTenantAsync(
+            tenantId,
+            new TenantDeletionInvocation
+            {
+                ActorUserId = "actor-1",
+                ActorUserName = "actor@example.com",
+                CorrelationId = "corr-delete",
+            },
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage("*legal hold*");
+
+        purge.Verify(
+            p => p.PurgeTenantAsync(It.IsAny<Guid>(), It.IsAny<TenantHardPurgeOptions>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task DeleteTenantAsync_throws_when_erasure_approval_cleared_before_purge()
     {
         Guid tenantId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
@@ -192,5 +246,10 @@ public sealed class TenantDeletionServiceTests
 
         await act.Should().ThrowAsync<InvalidOperationException>()
             .WithMessage("*explicitly approved*");
+    }
+
+    private sealed class FixedUtcTimeProvider(DateTimeOffset utcNow) : TimeProvider
+    {
+        public override DateTimeOffset GetUtcNow() => utcNow;
     }
 }
