@@ -15,6 +15,12 @@ public sealed class AlertOnCallWebhookDeliveryChannel(IWebhookPoster webhookPost
     /// <inheritdoc />
     public Task SendAsync(AlertDeliveryPayload payload, CancellationToken ct)
     {
+        ArgumentNullException.ThrowIfNull(payload);
+
+        string destination = ChatOpsWebhookAbsoluteUriValidator.ResolveHttpsDeliveryUriOrThrow(
+            payload.Subscription.Destination,
+            nameof(payload.Subscription.Destination));
+
         var body = new
         {
             severity = payload.Alert.Severity,
@@ -27,7 +33,7 @@ public sealed class AlertOnCallWebhookDeliveryChannel(IWebhookPoster webhookPost
         };
 
         return webhookPoster.PostJsonAsync(
-            payload.Subscription.Destination,
+            destination,
             body,
             ct);
     }
