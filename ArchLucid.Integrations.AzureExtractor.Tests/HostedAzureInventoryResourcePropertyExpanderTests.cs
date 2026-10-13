@@ -404,6 +404,37 @@ public sealed class HostedAzureInventoryResourcePropertyExpanderTests
     }
 
     [Fact]
+    public void Expand_preserves_private_link_service_id_index_when_earlier_connection_has_no_target()
+    {
+        const string targetId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1";
+        const string json = """
+            {
+              "privateLinkServiceConnections": [
+                {
+                  "properties": {}
+                },
+                {
+                  "properties": {
+                    "privateLinkServiceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1"
+                  }
+                }
+              ]
+            }
+            """;
+
+        using JsonDocument document = JsonDocument.Parse(json);
+        Dictionary<string, object?> properties = HostedAzureInventoryResourcePropertyExpander.Expand(
+            "Microsoft.Network/privateEndpoints",
+            document.RootElement,
+            []);
+
+        Assert.Equal(targetId, properties["privateLinkServiceId[1]"]);
+        Assert.False(properties.ContainsKey("privateLinkServiceId[0]"));
+        Assert.Equal(targetId, properties["privateLinkServiceId"]);
+    }
+
+    [Fact]
     public void Expand_persists_every_private_link_service_id_across_connection_arrays()
     {
         const string automaticTarget =

@@ -464,16 +464,14 @@ properties["definition"] = AzureExtractorSensitivePropertyRedactor.RedactStructu
         {
             string? targetId = TryReadPrivateLinkServiceId(connection);
 
-            if (string.IsNullOrWhiteSpace(targetId))
+            if (!string.IsNullOrWhiteSpace(targetId))
             {
-                continue;
-            }
+                properties[$"privateLinkServiceId[{index}]"] = targetId.Trim();
 
-            properties[$"privateLinkServiceId[{index}]"] = targetId.Trim();
-
-            if (!properties.ContainsKey("privateLinkServiceId"))
-            {
-                properties["privateLinkServiceId"] = targetId.Trim();
+                if (!properties.ContainsKey("privateLinkServiceId"))
+                {
+                    properties["privateLinkServiceId"] = targetId.Trim();
+                }
             }
 
             index++;
