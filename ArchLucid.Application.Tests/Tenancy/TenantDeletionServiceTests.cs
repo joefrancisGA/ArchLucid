@@ -113,6 +113,57 @@ public sealed class TenantDeletionServiceTests
     }
 
     [Fact]
+    public async Task DeleteTenantAsync_throws_when_erasure_approval_cleared_before_purge()
+    {
+        Guid tenantId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        DateTimeOffset approvedUtc = DateTimeOffset.UtcNow.AddHours(-1);
+        TenantRecord approved = new()
+        {
+            Id = tenantId,
+            OffboardedUtc = approvedUtc.AddDays(-1),
+            TenantErasureApprovedUtc = approvedUtc,
+        };
+        TenantRecord restored = new()
+        {
+            Id = tenantId,
+            OffboardedUtc = null,
+            TenantErasureApprovedUtc = null,
+        };
+
+        Mock<ITenantRepository> tenantRepo = new(MockBehavior.Strict);
+        tenantRepo
+            .SetupSequence(r => r.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(approved)
+            .ReturnsAsync(restored);
+
+        Mock<ITenantHardPurgeService> purge = new(MockBehavior.Strict);
+
+        TenantDeletionService sut = new(
+            purge.Object,
+            Mock.Of<ITenantBlobPrefixDeletionService>(),
+            Mock.Of<IPlatformAuditRepository>(),
+            Mock.Of<IOptionsMonitor<TrialLifecycleSchedulerOptions>>(),
+            tenantRepo.Object);
+
+        Func<Task> act = () => sut.DeleteTenantAsync(
+            tenantId,
+            new TenantDeletionInvocation
+            {
+                ActorUserId = "actor-1",
+                ActorUserName = "actor@example.com",
+                CorrelationId = "corr-delete",
+            },
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage("*explicitly approved*");
+
+        purge.Verify(
+            p => p.PurgeTenantAsync(It.IsAny<Guid>(), It.IsAny<TenantHardPurgeOptions>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task DeleteTenantAsync_throws_when_erasure_not_approved()
     {
         Guid tenantId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");

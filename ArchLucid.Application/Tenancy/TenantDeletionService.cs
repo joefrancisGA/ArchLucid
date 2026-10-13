@@ -47,6 +47,8 @@ public sealed class TenantDeletionService(
         if (tenant.TenantErasureApprovedUtc is null)
             throw new InvalidOperationException("Tenant erasure must be explicitly approved by an Admin before hard purge.");
 
+        tenant = await RevalidateTenantForHardPurgeAsync(tenantId, cancellationToken);
+
         TrialLifecycleSchedulerOptions lifecycle = _trialLifecycleOptions.CurrentValue;
         int maxRows = lifecycle.HardPurgeMaxRowsPerStatement > 0 ? lifecycle.HardPurgeMaxRowsPerStatement : 5000;
 
@@ -93,5 +95,18 @@ public sealed class TenantDeletionService(
             SqlRowCountsByTable = purge.RowCountsByTable,
             BlobsDeletedByContainer = blobs.BlobsDeletedByContainer
         };
+    }
+
+    private async Task<TenantRecord> RevalidateTenantForHardPurgeAsync(Guid tenantId, CancellationToken cancellationToken)
+    {
+        TenantRecord? tenant = await _tenantRepository.GetByIdAsync(tenantId, cancellationToken);
+
+        if (tenant is null)
+            throw new InvalidOperationException($"Tenant '{tenantId:D}' was not found.");
+
+        if (tenant.TenantErasureApprovedUtc is null)
+            throw new InvalidOperationException("Tenant erasure must be explicitly approved by an Admin before hard purge.");
+
+        return tenant;
     }
 }
