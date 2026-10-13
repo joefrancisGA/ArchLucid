@@ -339,7 +339,7 @@ test.describe(
   });
 
   test("session-expiry recovery is independent of the Reviews hub", async ({ page }) => {
-    test.setTimeout(120_000);
+    test.setTimeout(liveE2ePrivateBetaAccessPlaywrightTimeoutMs());
 
     const { accessToken } = requireLivePrivateBetaJwtEnv();
     const reviewPath = `/architecture/reviews/${toRunGuidPathSegment("00000000-0000-4000-8000-000000000000")}`;
@@ -368,29 +368,6 @@ test.describe(
 
     test.beforeEach(async ({ page }) => {
       await stubEmptyArchitectureDraftListRoute(page);
-    });
-
-    test("session-expiry recovery is independent of the Reviews hub", async ({ page }) => {
-      test.setTimeout(120_000);
-
-      const { accessToken } = requireLivePrivateBetaJwtEnv();
-      const reviewPath = `/architecture/reviews/${toRunGuidPathSegment("00000000-0000-4000-8000-000000000000")}`;
-
-      await primePrivateBetaBrowserPage(page, accessToken);
-      await page.goto("/", { waitUntil: "domcontentloaded" });
-      await waitAndDismissFirstSessionPurposeChooser(page);
-      // Home is not Start review / Create architecture; prove a live seat without hub locators.
-      await assertLiveSeatOperatorScopeChrome(page);
-
-      await clearJwtBrowserSession(page);
-      await page.goto(
-        `/auth/session-expired?reason=idle-timeout&returnUrl=${encodeURIComponent(reviewPath)}`,
-        { waitUntil: "domcontentloaded" },
-      );
-
-      await expect(page.getByTestId("session-expired-heading")).toBeVisible({ timeout: 30_000 });
-      await expect(page.getByRole("button", { name: /sign in/i })).toBeVisible({ timeout: 30_000 });
-      await expect(page.getByTestId("fatal-page-report-problem-row")).toBeVisible({ timeout: 30_000 });
     });
 
     test("invite → auth session → tenant scope → review → expiry recovery → deep-link round-trip", async ({
