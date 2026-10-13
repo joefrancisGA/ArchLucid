@@ -24,7 +24,11 @@ import {
   operatorInferredConnectionPanelErrorRecoveryScenario,
   type OperatorInferredConnectionPanelError,
 } from "@/lib/infra-evidence/operator-inferred-connection-panel-error";
-import type { OperatorInferredConnectionRow } from "@/lib/infra-evidence/operator-inferred-connection-types";
+import {
+  OPERATOR_INFERRED_CONNECTION_SOURCE_NOT_STORED_COPY,
+  OPERATOR_INFERRED_CONNECTION_STATUS_NOT_STORED_COPY,
+  type OperatorInferredConnectionRow,
+} from "@/lib/infra-evidence/operator-inferred-connection-types";
 import { cn } from "@/lib/utils";
 
 type OperatorInferredConnectionsPanelProps = {
@@ -33,6 +37,22 @@ type OperatorInferredConnectionsPanelProps = {
 
 function formatStoredValue(value: string | null | undefined, fallback: string): string {
   return value != null && value.trim().length > 0 ? value : fallback;
+}
+
+function formatConnectionStatus(status: OperatorInferredConnectionRow["status"]): string {
+  if (status === null || status === undefined) {
+    return OPERATOR_INFERRED_CONNECTION_STATUS_NOT_STORED_COPY;
+  }
+
+  return status;
+}
+
+function formatConnectionSource(source: OperatorInferredConnectionRow["source"]): string {
+  if (source === null || source === undefined) {
+    return OPERATOR_INFERRED_CONNECTION_SOURCE_NOT_STORED_COPY;
+  }
+
+  return source;
 }
 
 function formatEndpoint(row: OperatorInferredConnectionRow): string {
@@ -258,12 +278,8 @@ export function OperatorInferredConnectionsPanel(
                   <EnterpriseTableCell>
                     {formatStoredValue(row.settingName, "Setting name was not stored")}
                   </EnterpriseTableCell>
-                  <EnterpriseTableCell>
-                    {row.sourceFileFormat === null || row.sourceFileFormat === undefined
-                      ? "Source file format was not stored."
-                      : row.sourceFileFormat}
-                  </EnterpriseTableCell>
-                  <EnterpriseTableCell>{row.status}</EnterpriseTableCell>
+                  <EnterpriseTableCell>{formatConnectionSource(row.source)}</EnterpriseTableCell>
+                  <EnterpriseTableCell>{formatConnectionStatus(row.status)}</EnterpriseTableCell>
                 </EnterpriseTableRow>
               ))}
             </EnterpriseTableBody>

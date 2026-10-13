@@ -47,8 +47,21 @@ describe("semantic support band stamp (AS-062)", () => {
       unchecked: 1,
       unsupported: 1,
       notScored: 0,
+      missingStoredBand: 0,
       decisionGradeTotal: 3,
     });
+  });
+
+  it("treats a missing wire band as not stored instead of Not scored", () => {
+    const counts = countDecisionGradeSemanticSupportBands([
+      sampleFinding({ semanticSupportBand: null }),
+      sampleFinding({ findingId: "f-2", semanticSupportBand: "NotScored" }),
+    ]);
+
+    expect(counts.notScored).toBe(1);
+    expect(counts.missingStoredBand).toBe(1);
+    expect(formatStampSemanticSupportBandLine(counts)).toContain("Semantic support band was not stored.");
+    expect(formatStampSemanticSupportBandLine(counts)).not.toContain("2 Not scored");
   });
 
   it("formats Working stamp line with decision-grade prefix", () => {

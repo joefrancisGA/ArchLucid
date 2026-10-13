@@ -869,7 +869,11 @@ export function InfrastructureAskClient({ presentation = "page" }: Infrastructur
                   {turn.response.answer === null ? "Answer was not stored." : turn.response.answer}
                 </p>
 
-              {turn.response.viewPlan != null ? (
+              {turn.response.viewPlan === null ? (
+                <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                  View plan was not stored.
+                </p>
+              ) : turn.response.viewPlan != null ? (
                 <div className="grid gap-2" data-testid="infra-ask-apply-view">
                   <Button
                     type="button"

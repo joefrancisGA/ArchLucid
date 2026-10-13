@@ -37,7 +37,17 @@ describe("ask-cited-findings-semantic-support-band", () => {
       }),
     ]);
 
-    expect(index).toEqual([{ findingId: "dg-1", band: "Supported" }]);
+    expect(index).toEqual([{ findingId: "dg-1", band: "Supported", bandStored: true }]);
+  });
+
+  it("uses omission copy when cited band was not stored", () => {
+    const footnote = formatAskCitedFindingsSemanticSupportBandFootnote({
+      weakestBand: null,
+      hasMissingStoredBand: true,
+    });
+
+    expect(footnote).toContain("Semantic support band was not stored");
+    expect(footnote).not.toContain("NotScored");
   });
 
   it("resolveWeakestAskCitedSemanticSupportBand prefers Unsupported", () => {
@@ -49,8 +59,8 @@ describe("ask-cited-findings-semantic-support-band", () => {
   it("resolveWeakestAskCitedSemanticSupportBandForFindingIds matches ids case-insensitively", () => {
     const weakest = resolveWeakestAskCitedSemanticSupportBandForFindingIds({
       index: [
-        { findingId: "f-1", band: "Supported" },
-        { findingId: "F-2", band: "Unsupported" },
+        { findingId: "f-1", band: "Supported", bandStored: true },
+        { findingId: "F-2", band: "Unsupported", bandStored: true },
       ],
       referencedFindingIds: ["f-2", "f-1"],
     });

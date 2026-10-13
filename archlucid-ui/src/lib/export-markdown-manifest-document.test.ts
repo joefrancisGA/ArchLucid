@@ -79,6 +79,23 @@ describe("formatManifestDocumentShape component breakdown", () => {
     expect(missingImpact).toContain("Impact was not stored.");
   });
 
+  it("reports omitted requirements lists separately from empty arrays", () => {
+    const missingRoot = formatManifestDocumentShape({
+      metadata: { changeDescription: "Scope change" },
+      requirements: null,
+    });
+    const missingCovered = formatManifestDocumentShape({
+      requirements: { covered: null, uncovered: [] },
+    });
+    const emptyCovered = formatManifestDocumentShape({
+      requirements: { covered: [], uncovered: [] },
+    });
+
+    expect(missingRoot).toContain("Requirements were not stored.");
+    expect(missingCovered).toContain("Covered requirements were not stored.");
+    expect(emptyCovered).not.toContain("Covered requirements were not stored.");
+  });
+
   it("labels omitted mandatory constraints and security controls", () => {
     const markdown = formatManifestDocumentShape({
       constraints: { mandatoryConstraints: null, preferences: [] },

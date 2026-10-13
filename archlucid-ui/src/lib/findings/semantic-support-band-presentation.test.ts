@@ -4,6 +4,7 @@ import {
   findingSemanticSupportBandFromTypedPayload,
   normalizeFindingSemanticSupportBand,
   resolveDecisionGradeSemanticSupportBand,
+  semanticSupportBandInspectDetailFromWireBand,
   semanticSupportBandShortReason,
   semanticSupportBandStatusTagKind,
 } from "@/lib/findings/semantic-support-band-presentation";
@@ -31,6 +32,12 @@ describe("semantic support band presentation (AS-061)", () => {
     expect(semanticSupportBandShortReason("Supported")).toMatch(/heuristic/i);
     expect(semanticSupportBandShortReason("Unchecked")).toMatch(/async|partial/i);
     expect(semanticSupportBandShortReason("NotScored")).toMatch(/not scored|exempt/i);
+  });
+
+  it("does not explain a missing wire band using the NotScored reason", () => {
+    expect(semanticSupportBandInspectDetailFromWireBand(null)).toBe("Semantic support band was not stored.");
+    expect(semanticSupportBandInspectDetailFromWireBand("NotScored")).toMatch(/not scored|exempt/i);
+    expect(semanticSupportBandInspectDetailFromWireBand("")).toBe("");
   });
 
   it("maps typed payload bands without importing a client module", () => {

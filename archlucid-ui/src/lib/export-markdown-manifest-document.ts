@@ -3,7 +3,16 @@ import { formatFeasibilityVerdictMarkdownSection } from "@/lib/feasibility/forma
 import { formatTransparencyTrailMarkdownSection } from "@/lib/feasibility/export-transparency-trail-section";
 import { isRecord, normalizeInlineText, pushBulletLines } from "./export-markdown-text";
 
-function formatRequirementItems(items: unknown, heading: string, lines: string[]): void {
+function formatRequirementItems(items: unknown, heading: string, lines: string[], listNotStoredCopy: string): void {
+  if (items === null || items === undefined) {
+    lines.push(`### ${heading}`);
+    lines.push("");
+    lines.push(listNotStoredCopy);
+    lines.push("");
+
+    return;
+  }
+
   if (!Array.isArray(items) || items.length === 0) {
     return;
   }
@@ -117,9 +126,22 @@ export function formatManifestDocumentShape(m: Record<string, unknown>): string 
     lines.push("");
   }
 
-  if (requirements !== null) {
-    formatRequirementItems(requirements.covered, "Covered requirements", lines);
-    formatRequirementItems(requirements.uncovered, "Uncovered requirements", lines);
+  if (requirements === null || requirements === undefined) {
+    lines.push("Requirements were not stored.");
+    lines.push("");
+  } else {
+    formatRequirementItems(
+      requirements.covered,
+      "Covered requirements",
+      lines,
+      "Covered requirements were not stored.",
+    );
+    formatRequirementItems(
+      requirements.uncovered,
+      "Uncovered requirements",
+      lines,
+      "Uncovered requirements were not stored.",
+    );
   }
 
   formatPolicySection(policy, lines);

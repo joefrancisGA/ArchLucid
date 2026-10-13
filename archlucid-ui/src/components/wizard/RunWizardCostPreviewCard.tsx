@@ -78,9 +78,21 @@ export function RunWizardCostPreviewCard(props: RunWizardCostPreviewCardProps = 
 
   const bandLabel = hasBand ? `${formatUsd(low)}–${formatUsd(high)}` : null;
 
-  const headlineAmount =
-    bandLabel ??
-    (typeof high === "number" && !Number.isNaN(high) ? formatUsd(high) : null);
+  const hasPointEstimate = typeof high === "number" && !Number.isNaN(high);
+  const hasStoredCost =
+    hasBand
+    || hasPointEstimate
+    || (typeof data.estimatedCostUsd === "number" && !Number.isNaN(data.estimatedCostUsd));
+
+  const headlineAmount = hasBand
+    ? bandLabel
+    : hasPointEstimate
+      ? formatUsd(high)
+      : typeof data.estimatedCostUsd === "number" && !Number.isNaN(data.estimatedCostUsd)
+        ? formatUsd(data.estimatedCostUsd)
+        : null;
+
+  const costNotStoredCopy = "Estimated cost was not stored.";
 
   return (
     <div
@@ -91,13 +103,20 @@ export function RunWizardCostPreviewCard(props: RunWizardCostPreviewCardProps = 
         Estimated Azure OpenAI cost for this review:{" "}
         {headlineAmount !== null ? (
           <span data-testid="run-cost-preview-amount">{headlineAmount}</span>
+        ) : !hasStoredCost ? (
+          <span data-testid="run-cost-preview-amount">{costNotStoredCopy}</span>
         ) : (
           <span data-testid="run-cost-preview-amount">—</span>
         )}{" "}
         (band: low = small assumed prompt, high = four parallel agents at configured token ceiling;{" "}
         <code className={cn("rounded bg-neutral-100 px-1 dark:bg-neutral-800", OPERATOR_TYPOGRAPHY.helper)}>MaxCompletionTokens</code>
         ={data.maxCompletionTokens})
-        {data.deploymentName ? (
+        {data.deploymentName === null || data.deploymentName === undefined ? (
+          <>
+            {" "}
+            · <span data-testid="run-cost-preview-deployment-missing">Deployment name was not stored.</span>
+          </>
+        ) : data.deploymentName.length > 0 ? (
           <>
             {" "}
             · deployment <code className={cn("rounded bg-neutral-100 px-1 dark:bg-neutral-800", OPERATOR_TYPOGRAPHY.helper)}>{data.deploymentName}</code>
