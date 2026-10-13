@@ -98,6 +98,11 @@ public sealed class HostedAzureManagementPostReadClient(
                         (int)response.StatusCode,
                         Truncate(errorBody, 500));
 
+                    if (pages.Count > 0)
+                    {
+                        break;
+                    }
+
                     return null;
                 }
 

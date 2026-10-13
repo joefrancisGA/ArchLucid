@@ -404,6 +404,66 @@ public sealed class HostedAzureManagementPostReadClientTests
     }
 
     [Fact]
+    public async Task TryQueryActualCostSummaryAsync_retains_merged_cost_when_later_page_fails()
+    {
+        const string subscriptionId = "11111111-1111-1111-1111-111111111111";
+        const string nextLink =
+            $"https://management.azure.com/subscriptions/{subscriptionId}/providers/Microsoft.CostManagement/query";
+
+        const string firstPageBody = """
+                                     {
+                                       "properties": {
+                                         "columns": [
+                                           { "name": "PreTaxCost", "type": "Number" },
+                                           { "name": "ServiceName", "type": "String" },
+                                           { "name": "Currency", "type": "String" }
+                                         ],
+                                         "rows": [
+                                           [ 10.0, "Storage", "USD" ]
+                                         ],
+                                         "nextLink": "COST_QUERY_NEXT_LINK"
+                                       }
+                                     }
+                                     """;
+
+        int requestCount = 0;
+
+        HttpMessageHandler handler = new RecordingHandler(
+            (_, _) =>
+            {
+                int current = Interlocked.Increment(ref requestCount);
+
+                if (current == 1)
+                {
+                    return Task.FromResult(
+                        new HttpResponseMessage(HttpStatusCode.OK)
+                        {
+                            Content = new StringContent(
+                                firstPageBody.Replace("COST_QUERY_NEXT_LINK", nextLink, StringComparison.Ordinal),
+                                Encoding.UTF8,
+                                "application/json")
+                        });
+                }
+
+                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.InternalServerError));
+            });
+
+        HostedAzureManagementPostReadClient client = new(
+            new HttpClient(handler),
+            NullLogger<HostedAzureManagementPostReadClient>.Instance);
+
+        HostedAzureActualCostSummary? summary = await client.TryQueryActualCostSummaryAsync(
+            "token-abc",
+            subscriptionId,
+            CancellationToken.None);
+
+        Assert.Equal(2, requestCount);
+        Assert.NotNull(summary);
+        Assert.Equal(10.0, summary.TotalActualCostUsd);
+        Assert.Single(summary.BreakdownByServiceName);
+    }
+
+    [Fact]
     public async Task TryQueryActualCostSummaryAsync_retains_merged_cost_when_next_link_repeats()
     {
         const string subscriptionId = "11111111-1111-1111-1111-111111111111";
