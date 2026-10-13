@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-13 seed hunt (seed→hit): `notifications-pipeline` — promoted `AuthorityRunCommittedChatOpsHook.BuildMessage`; agent/run `notice.Description` reached Slack mrkdwn `text` body unescaped after prior alert-channel fix; `ChatOpsSlackMrkdwnEscaper` on hook body; regression `NotifyAsync_SlackPayload_Escapes_mrkdwn_metacharacters_in_run_description`; 176 scoped notification/digest Application tests passed; 16 authority-run ChatOps hook tests passed.
+
 2026-10-13 seed hunt (seed→hit): `notifications-pipeline` — promoted `AlertSlackWebhookDeliveryChannel.SendAsync`; evaluation-sourced alert `Description` reached Slack mrkdwn `text` unescaped while digest `ContentMarkdown` must stay raw in `ForSlack`; escape at alert channel boundary via `ChatOpsSlackMrkdwnEscaper`; regression `SendAsync_SlackPayload_Escapes_mrkdwn_metacharacters_in_alert_description`; 176 scoped notification/digest Application tests passed; 6 alert Slack channel tests passed.
 
 2026-10-13 seed hunt (seed→hit): `notifications-pipeline` — promoted `ChatOpsIncomingWebhookBodies.CombineBlocks` / `ForSlack` supporting path; alert `Category`/`TriggerValue` lines in `SupportingParagraph` forwarded unescaped `*` into mrkdwn `text` between headline and body; `EscapeSupportingParagraphForSlack` via `ChatOpsSlackMrkdwnEscaper`; regression `ForSlack_escapes_asterisks_in_supporting_paragraph_between_headline_and_body`; 176 scoped notification/digest Application tests passed; 9 incoming webhook body tests passed.
@@ -31479,6 +31481,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ## Zone: notifications-pipeline
 
+2026-10-13 seed hunt (seed→hit): proved authority-run ChatOps hook forwarded unescaped mrkdwn in run `Description` body; `ChatOpsSlackMrkdwnEscaper` in `BuildMessage`; 176 scoped Application tests passed; 16 hook tests passed.
+
 2026-10-13 seed hunt (seed→hit): proved alert `Description` forwarded unescaped mrkdwn into Slack webhook body segment; escape in `AlertSlackWebhookDeliveryChannel`; 176 scoped Application tests passed; 6 alert Slack tests passed.
 
 2026-10-13 seed hunt (seed→hit): proved alert category/trigger `SupportingParagraph` forwarded unescaped mrkdwn metacharacters into Slack webhook `text`; `EscapeSupportingParagraphForSlack`; 176 scoped Application notification tests passed; 9 body tests passed.
@@ -31529,11 +31533,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** notifications; email dispatchers beyond weekly summary
 - **paths:** ArchLucid.Notifications/; ArchLucid.Application/Notifications/; ArchLucid.Api/Controllers/Advisory/DigestSubscriptionsController.cs
 - **test-filter:** FullyQualifiedName~Notifications|FullyQualifiedName~EmailDispatcher|FullyQualifiedName~DigestSubscriptionsController
-- **hunts:** 84
-- **bugs-found:** 66
+- **hunts:** 85
+- **bugs-found:** 67
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-13
-- **last-bug:** 2026-10-13 — Alert Slack description mrkdwn escape
+- **last-bug:** 2026-10-13 — Authority-run ChatOps description mrkdwn escape
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -31598,7 +31602,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (valid-no-repro) `SlackInteractivityVerifier.Verify` — signature length timing side channel — **cheap-disproof 2026-10-13 seed hunt:** `CryptographicOperations.FixedTimeEquals` rejects length mismatches without comparing secret material; length is not secret.
 - [x] (proven) `ChatOpsIncomingWebhookBodies.ForSlack` — `SupportingParagraph` from alert category/trigger lines injected unescaped mrkdwn metacharacters between headline and body — **hit 2026-10-13 seed hunt (seed→hit):** `EscapeSupportingParagraphForSlack`; regression `ForSlack_escapes_asterisks_in_supporting_paragraph_between_headline_and_body`.
 - [x] (proven) `AlertSlackWebhookDeliveryChannel.SendAsync` — plain-text alert `Description` injected unescaped mrkdwn into Slack `text` body segment — **hit 2026-10-13 seed hunt (seed→hit):** `ChatOpsSlackMrkdwnEscaper` at alert channel boundary (digest markdown unchanged); regression `SendAsync_SlackPayload_Escapes_mrkdwn_metacharacters_in_alert_description`.
-- [ ] (candidate) `AuthorityRunCommittedChatOpsHook.BuildMessage` — `notice.Description` with excessive length posts full body to Slack/Teams without truncation — locus: `BuildMessage`; input: very long authority-run description from agent output.
+- [x] (proven) `AuthorityRunCommittedChatOpsHook.BuildMessage` — `notice.Description` with mrkdwn metacharacters reached Slack webhook body unescaped — **hit 2026-10-13 seed hunt (seed→hit):** `ChatOpsSlackMrkdwnEscaper` on hook body; regression `NotifyAsync_SlackPayload_Escapes_mrkdwn_metacharacters_in_run_description`.
+- [ ] (candidate) `AuthorityRunCommittedChatOpsHook.BuildMessage` — `notice.Description` with excessive length posts full body to Slack/Teams without truncation — locus: `BuildMessage`; input: very long authority-run description from agent output (length class; not mrkdwn).
 - [ ] (candidate) `DigestSlackWebhookDeliveryChannel.SendAsync` — `ContentMarkdown` body is posted with mrkdwn enabled while digest markdown may include vendor metacharacters by design — locus: digest delivery; input: intentional markdown vs spoofing boundary (document before changing).
 - [ ] (candidate) `AlertTeamsWebhookDeliveryChannelTests` / `DigestTeamsWebhookDeliveryChannelTests` — Teams CRLF destination regression test parity with Slack rows (coverage only).
 - [ ] (candidate) `Application/Notifications/Email` dispatchers — shared `TryResolveDeliveryMailbox` consolidation (see existing row).
