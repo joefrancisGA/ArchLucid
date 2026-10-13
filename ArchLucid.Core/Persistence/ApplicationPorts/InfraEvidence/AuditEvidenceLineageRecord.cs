@@ -96,6 +96,15 @@ public sealed class AuditEvidenceLineageRecord
         get;
         init;
     } = [];
+
+    /// <summary>
+    /// Newest mapped attempt that is not already in <see cref="VerifiedRemediationAssociations"/>. Null when none.
+    /// </summary>
+    public AuditEvidenceLineageLatestRemediationAttempt? LatestRemediationAttempt
+    {
+        get;
+        init;
+    }
 }
 
 /// <summary>

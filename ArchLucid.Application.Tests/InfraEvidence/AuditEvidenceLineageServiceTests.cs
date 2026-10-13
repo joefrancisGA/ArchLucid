@@ -380,6 +380,243 @@ public sealed class AuditEvidenceLineageServiceTests
     }
 
     [Fact]
+    public async Task TryGetControlLineageAsync_verification_failed_returns_latest_attempt_without_changing_checkbox()
+    {
+        LineageAssociationFixture fixture = await CreateLineageAssociationFixtureAsync(includeInventoryLink: false);
+        Guid instanceId = Guid.NewGuid();
+        DateTime updatedUtc = new(2026, 10, 13, 12, 0, 0, DateTimeKind.Utc);
+        fixture.RemediationInstances.Add(CreateRemediationInstance(
+            fixture,
+            instanceId,
+            RemediationInstanceStatus.VerificationFailed,
+            updatedUtc));
+
+        AuditEvidenceLineageQueryResult result = await fixture.Service.TryGetControlLineageAsync(
+            fixture.Scope,
+            fixture.AssessmentId,
+            fixture.AuditEvidenceSnapshotId,
+            fixture.ControlId);
+
+        result.Succeeded.Should().BeTrue();
+        result.Lineage!.ReadyForPositiveCheckbox.Should().BeTrue();
+        result.Lineage.VerifiedRemediationAssociations.Should().BeEmpty();
+        result.Lineage.LatestRemediationAttempt.Should().NotBeNull();
+        result.Lineage.LatestRemediationAttempt!.InstanceId.Should().Be(instanceId);
+        result.Lineage.LatestRemediationAttempt.Status.Should().Be(RemediationInstanceStatus.VerificationFailed);
+        result.Lineage.LatestRemediationAttempt.ControlId.Should().Be(fixture.ControlId);
+        result.Lineage.LatestRemediationAttempt.UpdatedUtc.Should().Be(updatedUtc);
+    }
+
+    [Fact]
+    public async Task TryGetControlLineageAsync_change_implemented_is_eligible_executed_and_classified_are_not()
+    {
+        LineageAssociationFixture fixture = await CreateLineageAssociationFixtureAsync(includeInventoryLink: false);
+        Guid changeImplementedId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+        DateTime older = new(2026, 10, 13, 8, 0, 0, DateTimeKind.Utc);
+        DateTime newer = new(2026, 10, 13, 9, 0, 0, DateTimeKind.Utc);
+
+        fixture.RemediationInstances.Add(CreateRemediationInstance(
+            fixture,
+            changeImplementedId,
+            RemediationInstanceStatus.ChangeImplemented,
+            older));
+        fixture.RemediationInstances.Add(CreateRemediationInstance(
+            fixture,
+            Guid.NewGuid(),
+            RemediationInstanceStatus.Executed,
+            newer));
+        fixture.RemediationInstances.Add(CreateRemediationInstance(
+            fixture,
+            Guid.NewGuid(),
+            RemediationInstanceStatus.Classified,
+            newer));
+
+        AuditEvidenceLineageQueryResult result = await fixture.Service.TryGetControlLineageAsync(
+            fixture.Scope,
+            fixture.AssessmentId,
+            fixture.AuditEvidenceSnapshotId,
+            fixture.ControlId);
+
+        result.Lineage!.LatestRemediationAttempt.Should().NotBeNull();
+        result.Lineage.LatestRemediationAttempt!.InstanceId.Should().Be(changeImplementedId);
+        result.Lineage.LatestRemediationAttempt.Status.Should().Be(RemediationInstanceStatus.ChangeImplemented);
+    }
+
+    [Fact]
+    public async Task TryGetControlLineageAsync_verified_without_association_is_returned_and_associated_instance_is_omitted()
+    {
+        LineageAssociationFixture fixture = await CreateLineageAssociationFixtureAsync(includeInventoryLink: true);
+        Guid verifiedWithoutAssociationId = Guid.NewGuid();
+        fixture.RemediationInstances.Add(CreateRemediationInstance(
+            fixture,
+            verifiedWithoutAssociationId,
+            RemediationInstanceStatus.Verified,
+            new DateTime(2026, 10, 13, 10, 0, 0, DateTimeKind.Utc)));
+
+        AuditEvidenceLineageQueryResult withoutAssociation = await fixture.Service.TryGetControlLineageAsync(
+            fixture.Scope,
+            fixture.AssessmentId,
+            fixture.AuditEvidenceSnapshotId,
+            fixture.ControlId);
+
+        withoutAssociation.Lineage!.LatestRemediationAttempt!.InstanceId.Should().Be(verifiedWithoutAssociationId);
+
+        await fixture.Associations.UpsertAsync(
+            fixture.Scope.ToProjectScopeKey(),
+            new VerifiedRemediationControlAssociationRecord
+            {
+                AssociationId = Guid.NewGuid(),
+                TenantId = fixture.Scope.TenantId,
+                WorkspaceId = fixture.Scope.WorkspaceId,
+                ProjectId = fixture.Scope.ProjectId,
+                InstanceId = verifiedWithoutAssociationId,
+                VerificationSnapshotId = fixture.InventorySnapshotId,
+                ControlId = fixture.ControlId,
+                CreatedUtc = DateTime.UtcNow,
+                UpdatedUtc = DateTime.UtcNow,
+            });
+
+        AuditEvidenceLineageQueryResult withAssociation = await fixture.Service.TryGetControlLineageAsync(
+            fixture.Scope,
+            fixture.AssessmentId,
+            fixture.AuditEvidenceSnapshotId,
+            fixture.ControlId);
+
+        withAssociation.Lineage!.VerifiedRemediationAssociations.Should().ContainSingle();
+        withAssociation.Lineage.LatestRemediationAttempt.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task TryGetControlLineageAsync_latest_attempt_prefers_newer_updated_utc_then_smaller_instance_id()
+    {
+        LineageAssociationFixture fixture = await CreateLineageAssociationFixtureAsync(includeInventoryLink: false);
+        Guid olderId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+        Guid newerId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
+        DateTime olderUtc = new(2026, 10, 13, 10, 0, 0, DateTimeKind.Utc);
+        DateTime newerUtc = new(2026, 10, 13, 11, 0, 0, DateTimeKind.Utc);
+
+        fixture.RemediationInstances.Add(CreateRemediationInstance(
+            fixture,
+            olderId,
+            RemediationInstanceStatus.VerificationFailed,
+            olderUtc));
+        fixture.RemediationInstances.Add(CreateRemediationInstance(
+            fixture,
+            newerId,
+            RemediationInstanceStatus.VerificationFailed,
+            newerUtc));
+
+        AuditEvidenceLineageQueryResult newerWins = await fixture.Service.TryGetControlLineageAsync(
+            fixture.Scope,
+            fixture.AssessmentId,
+            fixture.AuditEvidenceSnapshotId,
+            fixture.ControlId);
+
+        newerWins.Lineage!.LatestRemediationAttempt!.InstanceId.Should().Be(newerId);
+
+        fixture.RemediationInstances.Clear();
+        Guid smallerId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+        Guid largerId = Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff");
+        DateTime tiedUtc = new(2026, 10, 13, 12, 0, 0, DateTimeKind.Utc);
+        fixture.RemediationInstances.Add(CreateRemediationInstance(
+            fixture,
+            largerId,
+            RemediationInstanceStatus.ChangeImplemented,
+            tiedUtc));
+        fixture.RemediationInstances.Add(CreateRemediationInstance(
+            fixture,
+            smallerId,
+            RemediationInstanceStatus.ChangeImplemented,
+            tiedUtc));
+
+        AuditEvidenceLineageQueryResult tieBreak = await fixture.Service.TryGetControlLineageAsync(
+            fixture.Scope,
+            fixture.AssessmentId,
+            fixture.AuditEvidenceSnapshotId,
+            fixture.ControlId);
+
+        tieBreak.Lineage!.LatestRemediationAttempt!.InstanceId.Should().Be(smallerId);
+    }
+
+    [Fact]
+    public async Task TryGetControlLineageAsync_different_assessment_is_omitted_null_assessment_remains_eligible()
+    {
+        LineageAssociationFixture fixture = await CreateLineageAssociationFixtureAsync(includeInventoryLink: false);
+        Guid nullAssessmentId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        DateTime older = new(2026, 10, 13, 8, 0, 0, DateTimeKind.Utc);
+        DateTime newer = new(2026, 10, 13, 9, 0, 0, DateTimeKind.Utc);
+
+        fixture.RemediationInstances.Add(CreateRemediationInstance(
+            fixture,
+            nullAssessmentId,
+            RemediationInstanceStatus.VerificationFailed,
+            older,
+            useExplicitNullAssessment: true));
+        fixture.RemediationInstances.Add(CreateRemediationInstance(
+            fixture,
+            Guid.NewGuid(),
+            RemediationInstanceStatus.VerificationFailed,
+            newer,
+            assessmentId: Guid.NewGuid()));
+
+        AuditEvidenceLineageQueryResult result = await fixture.Service.TryGetControlLineageAsync(
+            fixture.Scope,
+            fixture.AssessmentId,
+            fixture.AuditEvidenceSnapshotId,
+            fixture.ControlId);
+
+        result.Lineage!.LatestRemediationAttempt!.InstanceId.Should().Be(nullAssessmentId);
+    }
+
+    [Fact]
+    public async Task TryGetControlLineageAsync_different_control_returns_null_latest_attempt()
+    {
+        LineageAssociationFixture fixture = await CreateLineageAssociationFixtureAsync(includeInventoryLink: false);
+        fixture.RemediationInstances.Add(CreateRemediationInstance(
+            fixture,
+            Guid.NewGuid(),
+            RemediationInstanceStatus.VerificationFailed,
+            DateTime.UtcNow,
+            controlId: Guid.NewGuid()));
+
+        AuditEvidenceLineageQueryResult result = await fixture.Service.TryGetControlLineageAsync(
+            fixture.Scope,
+            fixture.AssessmentId,
+            fixture.AuditEvidenceSnapshotId,
+            fixture.ControlId);
+
+        result.Succeeded.Should().BeTrue();
+        result.Lineage!.LatestRemediationAttempt.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task TryGetControlLineageAsync_other_tenant_does_not_receive_latest_attempt()
+    {
+        LineageAssociationFixture fixture = await CreateLineageAssociationFixtureAsync(includeInventoryLink: false);
+        fixture.RemediationInstances.Add(CreateRemediationInstance(
+            fixture,
+            Guid.NewGuid(),
+            RemediationInstanceStatus.VerificationFailed,
+            DateTime.UtcNow));
+
+        ScopeContext otherTenantScope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = fixture.Scope.WorkspaceId,
+            ProjectId = fixture.Scope.ProjectId,
+        };
+
+        AuditEvidenceLineageQueryResult result = await fixture.Service.TryGetControlLineageAsync(
+            otherTenantScope,
+            fixture.AssessmentId,
+            fixture.AuditEvidenceSnapshotId,
+            fixture.ControlId);
+
+        result.Succeeded.Should().BeFalse();
+        result.Lineage.Should().BeNull();
+    }
+
+    [Fact]
     public async Task TryGetControlLineageAsync_missing_raw_blob_breaks_hash_and_checkbox()
     {
         ScopeContext scope = CreateScopeContext();
@@ -697,6 +934,20 @@ public sealed class AuditEvidenceLineageServiceTests
         ];
 
         InMemoryVerifiedRemediationControlAssociationRepository associations = new();
+        List<RemediationInstanceRecord> remediationInstances = [];
+        Mock<IRemediationInstanceRepository> remediationInstanceRepository = new();
+        remediationInstanceRepository
+            .Setup(repository => repository.ListByControlIdInScopeAsync(
+                It.IsAny<ProjectScopeKey>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync((ProjectScopeKey key, Guid listedControlId, CancellationToken _) =>
+                remediationInstances
+                    .Where(instance =>
+                        key.Matches(instance.TenantId, instance.WorkspaceId, instance.ProjectId)
+                        && instance.ControlId == listedControlId)
+                    .ToList());
+
         Mock<IAuditEvidenceSnapshotVerificationService> verificationService = new();
         verificationService
             .Setup(service => service.TryVerifyInScopeAsync(
@@ -717,7 +968,8 @@ public sealed class AuditEvidenceLineageServiceTests
             snapshotRepository,
             evaluationRepository,
             verificationService.Object,
-            associations);
+            associations,
+            remediationInstanceRepository.Object);
 
         return new LineageAssociationFixture
         {
@@ -727,6 +979,7 @@ public sealed class AuditEvidenceLineageServiceTests
             AuditEvidenceSnapshotId = auditEvidenceSnapshotId,
             InventorySnapshotId = inventorySnapshotId,
             Associations = associations,
+            RemediationInstances = remediationInstances,
             Service = service,
         };
     }
@@ -769,11 +1022,62 @@ public sealed class AuditEvidenceLineageServiceTests
             init;
         }
 
+        public required List<RemediationInstanceRecord> RemediationInstances
+        {
+            get;
+            init;
+        }
+
         public required AuditEvidenceLineageService Service
         {
             get;
             init;
         }
+    }
+
+    private static IRemediationInstanceRepository CreateEmptyRemediationInstanceRepository()
+    {
+        Mock<IRemediationInstanceRepository> repository = new();
+        repository
+            .Setup(instanceRepository => instanceRepository.ListByControlIdInScopeAsync(
+                It.IsAny<ProjectScopeKey>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        return repository.Object;
+    }
+
+    private static RemediationInstanceRecord CreateRemediationInstance(
+        LineageAssociationFixture fixture,
+        Guid instanceId,
+        RemediationInstanceStatus status,
+        DateTime updatedUtc,
+        Guid? assessmentId = null,
+        bool useExplicitNullAssessment = false,
+        Guid? controlId = null)
+    {
+        ArgumentNullException.ThrowIfNull(fixture);
+
+        return new RemediationInstanceRecord
+        {
+            InstanceId = instanceId,
+            TenantId = fixture.Scope.TenantId,
+            WorkspaceId = fixture.Scope.WorkspaceId,
+            ProjectId = fixture.Scope.ProjectId,
+            FindingId = Guid.NewGuid(),
+            PatternId = Guid.NewGuid(),
+            PatternVersionId = Guid.NewGuid(),
+            PatternKey = "storage.encrypt-at-rest",
+            FrozenPatternVersion = "1.0.0",
+            AutomationLevel = RemediationAutomationLevel.Guided,
+            Status = status,
+            AssessmentId = useExplicitNullAssessment ? null : assessmentId ?? fixture.AssessmentId,
+            ControlId = controlId ?? fixture.ControlId,
+            CreatedByActorKey = "tester",
+            CreatedUtc = updatedUtc,
+            UpdatedUtc = updatedUtc,
+        };
     }
 
     private static AuditEvidenceLineageService CreateLineageService(
@@ -783,7 +1087,8 @@ public sealed class AuditEvidenceLineageServiceTests
         IAuditEvidenceSnapshotRepository snapshotRepository,
         IAuditControlEvaluationRepository evaluationRepository,
         IAuditEvidenceSnapshotVerificationService verificationService,
-        IVerifiedRemediationControlAssociationRepository? associationRepository = null)
+        IVerifiedRemediationControlAssociationRepository? associationRepository = null,
+        IRemediationInstanceRepository? remediationInstanceRepository = null)
     {
         Mock<IAuditManualEvidenceRepository> manualEvidenceRepository = new();
         manualEvidenceRepository
@@ -805,6 +1110,7 @@ public sealed class AuditEvidenceLineageServiceTests
             Mock.Of<IAuthorityQueryService>(),
             Mock.Of<IManifestHashService>(),
             associationRepository ?? new InMemoryVerifiedRemediationControlAssociationRepository(),
+            remediationInstanceRepository ?? CreateEmptyRemediationInstanceRepository(),
             NullLogger<AuditEvidenceLineageService>.Instance);
     }
 
