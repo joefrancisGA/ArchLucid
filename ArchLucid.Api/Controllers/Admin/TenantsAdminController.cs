@@ -136,6 +136,12 @@ public sealed class TenantsAdminController(
             case TenantSuspendOutcome.AlreadyInDesiredState:
             case TenantSuspendOutcome.Applied:
                 return NoContent();
+            case TenantSuspendOutcome.Conflict:
+                return this.ConflictProblem(
+                    shuttingOff
+                        ? "Tenant suspend could not be applied because the tenant state changed concurrently."
+                        : "Tenant unsuspend could not be applied because the tenant state changed concurrently.",
+                    ProblemTypes.Conflict);
             default:
                 throw new InvalidOperationException($"Unexpected tenant suspend outcome '{outcome}'.");
         }

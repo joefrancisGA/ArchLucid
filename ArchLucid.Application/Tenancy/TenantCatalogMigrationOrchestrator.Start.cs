@@ -90,6 +90,7 @@ public sealed partial class TenantCatalogMigrationOrchestrator
             TenantSuspendOutcome.AlreadyInDesiredState => null,
             TenantSuspendOutcome.InErasureQuarantine => TenantCatalogMigrationCommandOutcome.InErasureQuarantine,
             TenantSuspendOutcome.NotFound => TenantCatalogMigrationCommandOutcome.NotFound,
+            TenantSuspendOutcome.Conflict => TenantCatalogMigrationCommandOutcome.WrongStage,
             _ => throw new InvalidOperationException($"Unhandled tenant suspend outcome: {suspendOutcome}"),
         };
 }

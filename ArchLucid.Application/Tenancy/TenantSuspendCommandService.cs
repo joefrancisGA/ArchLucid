@@ -40,7 +40,7 @@ public sealed class TenantSuspendCommandService(
         bool suspended = await _tenantRepository.TrySuspendTenantAsync(tenantId, cancellationToken);
 
         if (!suspended)
-            return await ResolveOutcomeAfterFailedLifecycleTransitionAsync(tenantId, cancellationToken);
+            return await ResolveOutcomeAfterFailedLifecycleTransitionAsync(tenantId, unsuspendAttempt: false, cancellationToken);
 
         await AppendPlatformAuditAsync(
             AuditEventTypes.TenantSuspended,
@@ -76,7 +76,7 @@ public sealed class TenantSuspendCommandService(
         bool cleared = await _tenantRepository.TryUnsuspendTenantAsync(tenantId, cancellationToken);
 
         if (!cleared)
-            return await ResolveOutcomeAfterFailedLifecycleTransitionAsync(tenantId, cancellationToken);
+            return await ResolveOutcomeAfterFailedLifecycleTransitionAsync(tenantId, unsuspendAttempt: true, cancellationToken);
 
         await AppendPlatformAuditAsync(
             AuditEventTypes.TenantUnsuspended,
@@ -92,6 +92,7 @@ public sealed class TenantSuspendCommandService(
 
     private async Task<TenantSuspendOutcome> ResolveOutcomeAfterFailedLifecycleTransitionAsync(
         Guid tenantId,
+        bool unsuspendAttempt,
         CancellationToken cancellationToken)
     {
         TenantRecord? tenant = await _tenantRepository.GetByIdAsync(tenantId, cancellationToken);
@@ -102,7 +103,18 @@ public sealed class TenantSuspendCommandService(
         if (tenant.OffboardedUtc is not null)
             return TenantSuspendOutcome.InErasureQuarantine;
 
-        return TenantSuspendOutcome.AlreadyInDesiredState;
+        if (unsuspendAttempt)
+        {
+            if (tenant.SuspendedUtc is null)
+                return TenantSuspendOutcome.AlreadyInDesiredState;
+
+            return TenantSuspendOutcome.Conflict;
+        }
+
+        if (tenant.SuspendedUtc is not null)
+            return TenantSuspendOutcome.AlreadyInDesiredState;
+
+        return TenantSuspendOutcome.Conflict;
     }
 
     private async Task AppendPlatformAuditAsync(
