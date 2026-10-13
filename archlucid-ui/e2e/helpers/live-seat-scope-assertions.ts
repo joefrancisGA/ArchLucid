@@ -16,12 +16,21 @@ const SCOPE_SWITCHER_TRIGGER_TEST_ID = "operator-scope-switcher-trigger";
 const BLOCKING_MODAL_OVERLAY = 'div.fixed.inset-0.z-50.bg-neutral-900\\/50[data-state="open"]';
 
 /**
+ * `timeoutMs` on ensureFirstSessionPurposeChooserClosed is the dismiss budget.
+ * Waiting that long for the optional chooser to appear (it often never does — preferences already
+ * set, grandfathered, or a later test in the same worker) burns the 120s session-expiry smokes.
+ */
+export const FIRST_SESSION_PURPOSE_CHOOSER_APPEARANCE_TIMEOUT_MS = 10_000;
+
+/**
  * First-session purpose chooser is optional (grandfathered users, invite flows). When shown, pick live workspace.
  * Closing it without choosing live does not persist the preference, so it reopens and blocks clicks.
  */
 export async function ensureFirstSessionPurposeChooserClosed(page: Page, timeoutMs = 2_000): Promise<void> {
   const chooser = page.getByTestId(FIRST_SESSION_PURPOSE_CHOOSER_TEST_ID);
-  await chooser.waitFor({ state: "visible", timeout: timeoutMs }).catch(() => undefined);
+  const appearanceTimeoutMs = Math.min(timeoutMs, FIRST_SESSION_PURPOSE_CHOOSER_APPEARANCE_TIMEOUT_MS);
+
+  await chooser.waitFor({ state: "visible", timeout: appearanceTimeoutMs }).catch(() => undefined);
 
   await expect(async () => {
     if (await chooser.isVisible().catch(() => false)) {
