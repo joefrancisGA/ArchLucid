@@ -236,7 +236,13 @@ export function FindingAskInlinePanel(props: FindingAskInlinePanelProps) {
                     referencedFindingIds={[props.findingId]}
                     findingBandIndex={
                       props.semanticSupportBand !== undefined && props.semanticSupportBand !== null
-                        ? [{ findingId: props.findingId, band: props.semanticSupportBand }]
+                        ? [
+                            {
+                              findingId: props.findingId,
+                              band: props.semanticSupportBand,
+                              bandStored: true,
+                            },
+                          ]
                         : []
                     }
                   />
