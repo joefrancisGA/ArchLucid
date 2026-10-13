@@ -123,7 +123,7 @@ public sealed class AuthorityRunCommittedChatOpsHook(
         {
             Title = headline,
             SupportingParagraph = supporting,
-            Body = detail!,
+            Body = ChatOpsSlackMrkdwnEscaper.EscapeFormattingMetacharacters(detail!),
         };
     }
 }
