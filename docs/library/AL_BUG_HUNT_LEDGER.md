@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-13 seed hunt (seed→hit): `application-tenancy-lifecycle` — promoted `TenantProvisioningService.ProvisionAsync`; erasure offboard after catalog/workspace insert but before `TenantProvisioned` platform audit still appended provision audit on quarantined tenant; re-read tenant before audit and return provision result without audit when `OffboardedUtc` is set; regression `ProvisionAsync_returns_without_platform_audit_when_offboard_completes_after_workspace_insert_before_audit`; 197 scoped tenancy tests passed.
+
 2026-10-13 seed hunt (seed→hit): `application-tenancy-lifecycle` — promoted `TenantCatalogMigrationOrchestrator.RunProjectionRefreshAsync`; erasure offboard after `UpdateStageAsync` to `ProjectionRefresh` but before projection-refresh-completed audit still returned `Applied` and appended `TenantCatalogMigrationProjectionRefreshCompleted`; re-read after stage update; regression `RunProjectionRefreshAsync_returns_in_erasure_quarantine_without_refresh_audit_when_offboarded_after_stage_update`; 196 scoped tenancy tests passed.
 
 2026-10-13 seed hunt (seed→hit): `application-tenancy-lifecycle` — promoted `TenantTrialIdentityHandoffStage.LinkEntraAsync`; erasure offboard after `UpdateEntraTenantIdAsync` but before `TenantEntraDirectoryBound` audit still appended directory-bound audit on quarantined tenant; re-read tenant before directory and identity audits and skip when `OffboardedUtc` is set; regression `LinkEntraAsync_returns_success_without_directory_audit_when_offboard_completes_after_bind_before_audit`; 195 scoped tenancy tests passed.
@@ -34646,11 +34648,15 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 91
-- **bugs-found:** 76
+- **hunts:** 92
+- **bugs-found:** 77
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-13
-- **last-bug:** 2026-10-13 — Catalog migration projection-refresh audit after stage update race
+- **last-bug:** 2026-10-13 — Self-service provision audit after workspace insert race
+
+2026-10-13 seed hunt (seed→hit): reseeded self-service provisioning from ledger candidate; proved `ProvisionAsync` appended `TenantProvisioned` after workspace insert when offboard followed catalog setup; re-read before audit; regression `ProvisionAsync_returns_without_platform_audit_when_offboard_completes_after_workspace_insert_before_audit`; 197 scoped tenancy tests passed.
+
+- [x] (proven) `TenantProvisioningService.ProvisionAsync` — appended `TenantProvisioned` audit when erasure offboard completed after workspace/catalog insert — **hit 2026-10-13 seed hunt (seed→hit):** skip audit when `OffboardedUtc` is set on pre-audit re-read; regression `ProvisionAsync_returns_without_platform_audit_when_offboard_completes_after_workspace_insert_before_audit`.
 
 2026-10-13 seed hunt (seed→hit): reseeded catalog migration projection refresh from ledger candidate; proved `RunProjectionRefreshAsync` appended refresh-completed audit when offboard followed post-stage-update read; re-read after `UpdateStageAsync`; regression `RunProjectionRefreshAsync_returns_in_erasure_quarantine_without_refresh_audit_when_offboarded_after_stage_update`; 196 scoped tenancy tests passed.
 
@@ -35001,10 +35007,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (invalid) `TenantUsageStatusService` — `IsTrial` true for `ExportOnly` — **cheap-disproof 2026-10-13 seed hunt:** `IsTrial` is true only for `TrialLifecycleStatus.Active`; `ExportOnly` resolves commercial packaging instead.
 - [x] (invalid) `TenantProvisioningDataRegionPolicy` — whitespace data region fails open — **cheap-disproof 2026-10-13 seed hunt:** `TenantDataRegions.NormalizeOptional` maps whitespace to `default` by design; `TenantProvisioningDataRegionPolicy_normalizes_and_validates_supported_regions` covers allowlist validation.
 - [x] (valid-no-repro) `TenantTrialIdentityHandoffStage.LinkEntraAsync` — `TrialLocalIdentityLinkedToEntra` audit when offboard before identity audit — **cheap-disproof 2026-10-13 seed hunt:** same pre-audit re-read added for identity path in `LinkEntraAsync_returns_success_without_directory_audit_when_offboard_completes_after_bind_before_audit` follow-up.
-- (candidate) `TenantProvisioningService.ProvisionAsync` — `TenantProvisioned` audit appended when erasure offboard completes after catalog/workspace insert but before provision audit; reachable from self-service registration racing erasure offboard on the new tenant row.
+- [x] (proven) `TenantProvisioningService.ProvisionAsync` — `TenantProvisioned` audit appended when erasure offboard completes after catalog/workspace insert but before provision audit — **hit 2026-10-13 seed hunt (seed→hit):** regression `ProvisionAsync_returns_without_platform_audit_when_offboard_completes_after_workspace_insert_before_audit`.
 - [x] (invalid) `TenantMigrationProjectionRefreshService` — projection refresh without orchestrator quarantine guard — **cheap-disproof 2026-10-13 seed hunt:** only `TenantCatalogMigrationOrchestrator.RunProjectionRefreshAsync` calls `RefreshAsync`; orchestrator already re-reads before refresh and after refresh/stage update.
-- (candidate) `TenantOrganizationDuplicateDetector` — duplicate organization slug collision returns wrong tenant id on concurrent provision race; reachable from parallel self-service signup with same organization name.
-- (candidate) `WorkspaceAllowedEngineSetService` — persisted engine allowlist read returns stale set when tenant setting upsert races concurrent workspace default change.
+- [x] (invalid) `TenantOrganizationDuplicateDetector` — duplicate organization slug collision returns wrong tenant id on concurrent provision race — **cheap-disproof 2026-10-13 seed hunt:** `InsertTenantAsync` duplicate catch re-resolves via `ResolveExistingTenantForProvisionAsync` (normalized organization name, then slug) and returns that tenant id in `BuildAlreadyProvisionedResultAsync`; no alternate wrong-id path in `TenantOrganizationDuplicateDetector`.
+- [x] (invalid) `WorkspaceAllowedEngineSetService` — persisted engine allowlist read returns stale set when tenant setting upsert races concurrent workspace default change — **cheap-disproof 2026-10-13 seed hunt:** service reads `TenantSettingKeys.WorkspaceAllowedEngineAliases` per request; catalog default snapshot is not workspace-scoped and concurrent upserts are last-write-wins on one setting key without a distinct wrong security outcome in these files.
 
 ---
 

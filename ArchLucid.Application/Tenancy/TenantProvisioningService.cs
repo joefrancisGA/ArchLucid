@@ -129,6 +129,20 @@ public sealed class TenantProvisioningService(
                 throw;
             }
 
+        TenantRecord? tenantBeforeProvisionAudit =
+            await _tenantRepository.GetByIdAsync(tenantId, ct).ConfigureAwait(false);
+
+        if (tenantBeforeProvisionAudit?.OffboardedUtc is not null)
+        {
+            return new TenantProvisioningResult
+            {
+                TenantId = tenantId,
+                DefaultWorkspaceId = workspaceId,
+                DefaultProjectId = projectId,
+                WasAlreadyProvisioned = false,
+            };
+        }
+
         string actor = string.IsNullOrWhiteSpace(request.AuditActorOverride) ? _actorContext.GetActor() : request.AuditActorOverride.Trim();
         await _auditService.LogAsync(
             new AuditEvent
