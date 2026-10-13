@@ -12,6 +12,45 @@ export type WizardOperationResponse = {
   };
 };
 
+export type WizardCreateOperationPoll = "ready" | "failed" | "wait";
+
+/**
+ * Async create leaves LegacyRunStatus=Created after coordination, so GET /v1/operations/run:{id}
+ * stays Pending with stepLabel "Creating review". Waiting only for Succeeded times out TB-927
+ * after the review already exists.
+ */
+const CREATE_COORDINATION_READY_STEP_LABELS = new Set([
+  "creating review",
+  "agents queued",
+  "committed",
+  "execute complete",
+]);
+
+export function interpretWizardCreateOperation(
+  operation: WizardOperationResponse,
+): WizardCreateOperationPoll {
+  const state = String(operation.state ?? "")
+    .trim()
+    .toLowerCase();
+
+  if (state === "failed" || state === "canceled") {
+    return "failed";
+  }
+
+  if (state === "succeeded") {
+    return "ready";
+  }
+
+  const runId = operation.resultRef?.runId?.trim() ?? "";
+  const stepLabel = (operation.stepLabel ?? "").trim().toLowerCase();
+
+  if (runId.length > 0 && CREATE_COORDINATION_READY_STEP_LABELS.has(stepLabel)) {
+    return "ready";
+  }
+
+  return "wait";
+}
+
 export function parseWizardCreateResponse(
   responseBody: string,
   status: number,

@@ -10,10 +10,7 @@ import {
   ARCHITECT_RESTATEMENT_SEMANTIC_SUPPORT_BAND_RESTATEMENT_LINE_COPY,
   shouldShowArchitectRestatementSemanticSupportBandSplit,
 } from "@/lib/findings/finding-architect-restatement-semantic-support-band-honesty";
-import {
-  resolveDecisionGradeSemanticSupportBand,
-  semanticSupportBandInspectDetail,
-} from "@/lib/findings/semantic-support-band-presentation";
+import { semanticSupportBandInspectDetailFromWireBand } from "@/lib/findings/semantic-support-band-presentation";
 import { isDecisionGradeFinding } from "@/lib/findings/review-detail-findings-classification-band";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import { cn } from "@/lib/utils";
@@ -35,7 +32,7 @@ export function FindingSemanticSupportBandInspectSection(
     return null;
   }
 
-  const band = resolveDecisionGradeSemanticSupportBand(props.finding.semanticSupportBand);
+  const inspectDetail = semanticSupportBandInspectDetailFromWireBand(props.finding.semanticSupportBand);
   const showRestatementSplit = shouldShowArchitectRestatementSemanticSupportBandSplit(
     props.trailBackedArchitectRestatement,
   );
@@ -60,9 +57,11 @@ export function FindingSemanticSupportBandInspectSection(
           {ARCHITECT_RESTATEMENT_SEMANTIC_SUPPORT_BAND_CLAIM_LINE_COPY}
         </p>
       ) : null}
-      <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-        {semanticSupportBandInspectDetail(band)}
-      </p>
+      {inspectDetail.length > 0 ? (
+        <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+          {inspectDetail}
+        </p>
+      ) : null}
       {showRestatementSplit ? (
         <p
           className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}

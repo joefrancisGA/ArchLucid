@@ -95,6 +95,13 @@ describe("formatStructuralExecutionModeLabel", () => {
     expect(formatStructuralExecutionModeLabel({ structuralExecutionMode: 1 })).toBe("Real");
     expect(formatStructuralExecutionModeLabel({ structuralExecutionMode: "Simulator" })).toBe("Simulator");
   });
+
+  it("uses omission copy for missing mode instead of Unknown", () => {
+    expect(formatStructuralExecutionModeLabel({ structuralExecutionMode: null })).toBe(
+      "Execution mode was not stored.",
+    );
+    expect(formatStructuralExecutionModeLabel({ structuralExecutionMode: "" })).toBe("");
+  });
 });
 
 describe("isAgentOutputPilotStrictSponsorSafe", () => {

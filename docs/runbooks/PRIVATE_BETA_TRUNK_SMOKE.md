@@ -274,10 +274,12 @@ The refresh workflow is path-filtered to contract-layer paths; the RC35 repair s
 | RC35 head | `a6dfda5f0dcf17a1a74be23fc7b184e0738eaafe` (merge **#4647**) |
 | UI typecheck / OpenAPI refresh | **PASS** — runs `38390911873`, `38390911840` |
 | RC release gate | **PASS** — run `38390911842` |
-| Private-beta JwtBearer access path | **FAIL** — run `38390911841` (TB-927: `ConflictException` during authority pipeline finalize) |
+| Private-beta JwtBearer access path | **FAIL** — run `38390911841` (TB-927: `ConflictException` during authority pipeline finalize — integration event manifest hash resolver queried committed golden manifest before finalize commit) |
 | Staging deployment | **No run observed** |
 | Gate 1 | **UNKNOWN** |
 | G-REAL-06 | **Not started** |
+
+This row records CI observations only. It is not a staging witness, Real-mode pilot proof, ruleset application, or customer evidence.
 
 ### Observed RC35 evidence row — 2026-10-13 (master merge)
 
@@ -291,6 +293,7 @@ The refresh workflow is path-filtered to contract-layer paths; the RC35 repair s
 | G-REAL-06 | **Not started** |
 
 **Cursor follow-up (**#4655**):** pipeline finalize manifest hash (TB-927), JwtBearer session-expiry dedupe, and CG-046 live demo assert spine **or** stamp semantic support after findings hydrate.
+
 
 ## Golden-cohort apply (owner, after first green)
 

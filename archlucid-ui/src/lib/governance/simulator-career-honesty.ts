@@ -136,12 +136,21 @@ export function presentDecisionGradeSemanticSupportBand(input: {
   readonly wireBand: unknown;
   readonly structuralExecutionMode?: StructuralExecutionModeInput;
 }): PresentedSemanticSupportBand {
-  if (resolveDecisionGradeSemanticSupportBand(input.wireBand) === "NotScored" &&
-      (typeof input.wireBand !== "string" || input.wireBand.trim().length === 0)) {
+  if (input.wireBand === null || input.wireBand === undefined) {
     return {
       displayBand: "NotScored",
       label: "Semantic support band was not stored",
       reason: "The record did not include a semantic support value, so no support score can be displayed.",
+      statusTagKind: "neutral",
+      isRehearsalPresentation: false,
+    };
+  }
+
+  if (input.wireBand === "") {
+    return {
+      displayBand: "NotScored",
+      label: "",
+      reason: "",
       statusTagKind: "neutral",
       isRehearsalPresentation: false,
     };

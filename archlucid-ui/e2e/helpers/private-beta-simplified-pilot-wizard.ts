@@ -68,8 +68,10 @@ export async function submitPrivateBetaSimplifiedPilotWizard(page: Page): Promis
   await expect(page.getByRole("textbox", { name: "System Name" })).toBeVisible({ timeout: 30_000 });
 
   const systemName = page.getByRole("textbox", { name: "System Name" });
+
   // Baseline wizard prefills CustomerWebApp. Earlier private-beta cases in the same SQL catalog
-  // already commit that name, so a 202 retry 409s unless this create is unique.
+  // already commit that name, and a timed-out first attempt still occupies it, so Playwright
+  // retry 409s with "A review named 'CustomerWebApp' already exists" unless this create is unique.
   await systemName.fill(uniquePrivateBetaSystemName("PrivateBetaInvitee"));
 
   const description = page.getByRole("textbox", { name: "Description" });
