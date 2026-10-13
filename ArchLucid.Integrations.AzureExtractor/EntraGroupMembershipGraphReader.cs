@@ -67,6 +67,15 @@ public sealed class EntraGroupMembershipGraphReader(
 
             if (pageResult.Forbidden)
             {
+                if (rows.Count > 0 || pending.Count > 0)
+                {
+                    logger.LogWarning(
+                        "Entra group membership Graph read skipped group {GroupId} after 403; continuing with remaining groups.",
+                        groupId);
+
+                    continue;
+                }
+
                 return pageResult;
             }
 

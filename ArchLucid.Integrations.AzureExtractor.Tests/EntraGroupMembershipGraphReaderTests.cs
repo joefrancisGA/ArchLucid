@@ -69,6 +69,49 @@ public sealed class EntraGroupMembershipGraphReaderTests
     }
 
     [Fact]
+    public async Task TryReadDirectMembershipsAsync_retains_members_from_other_groups_when_one_seed_returns_forbidden()
+    {
+        HttpClient httpClient = CreateHttpClient(request =>
+        {
+            string groupId = request.RequestUri!.AbsolutePath.Split('/')[3];
+
+            if (groupId.Equals(GroupA, StringComparison.OrdinalIgnoreCase))
+            {
+                return JsonResponse(
+                    $$"""
+                    {
+                      "value": [
+                        {
+                          "id": "{{MemberUser}}",
+                          "@odata.type": "#microsoft.graph.user"
+                        }
+                      ]
+                    }
+                    """);
+            }
+
+            if (groupId.Equals(GroupB, StringComparison.OrdinalIgnoreCase))
+            {
+                return new HttpResponseMessage(HttpStatusCode.Forbidden);
+            }
+
+            return new HttpResponseMessage(HttpStatusCode.NotFound);
+        });
+
+        EntraGroupMembershipGraphReader sut = new(httpClient, NullLogger<EntraGroupMembershipGraphReader>.Instance);
+
+        EntraGroupMembershipGraphReadResult result = await sut.TryReadDirectMembershipsAsync(
+            new StubTokenCredential(),
+            [GroupA, GroupB],
+            maxNestedDepth: 0,
+            CancellationToken.None);
+
+        Assert.False(result.Forbidden);
+        Assert.Single(result.Memberships);
+        Assert.Contains(result.Memberships, row => row.MemberId == MemberUser && row.GroupId == GroupA);
+    }
+
+    [Fact]
     public async Task TryReadDirectMembershipsAsync_follows_odata_next_link_for_group_members()
     {
         const string memberPage1 = "dddddddd-dddd-dddd-dddd-dddddddddddd";
