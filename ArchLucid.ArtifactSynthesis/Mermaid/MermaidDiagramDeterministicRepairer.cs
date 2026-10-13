@@ -63,6 +63,7 @@ public sealed class MermaidDiagramDeterministicRepairer : IMermaidDiagramDetermi
                 ParentAttachmentDetails = node.ParentAttachmentDetails.ToList(),
                 ConnectionState = node.ConnectionState,
                 ConnectionStateMessage = node.ConnectionStateMessage,
+                QuestionableAttention = node.QuestionableAttention,
                 UnresolvedRelationshipDetails = node.UnresolvedRelationshipDetails.ToList(),
                 IsAvdCollapsedBoundary = node.IsAvdCollapsedBoundary,
                 DataFlowTraversalHopEvidenceDetails = node.DataFlowTraversalHopEvidenceDetails.ToList(),

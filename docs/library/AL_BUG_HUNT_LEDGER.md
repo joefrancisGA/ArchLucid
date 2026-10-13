@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-13 seed hunt (seed→hit): `artifact-synthesis` — promoted `MermaidDiagramDeterministicRepairer.Repair`; reachable policy-pack `QuestionableAttention` metadata on inventory diagram nodes was cleared during deterministic repair before `DiagramForestLayoutSvgRenderer`, so forest SVG cards lost the questionable highlight and badge; copy `QuestionableAttention` on repair; regressions `Repair_keeps_questionable_attention_for_forest_layout` and extended `Repair_keeps_node_and_edge_painter_metadata_and_copies_lists`; scoped ArtifactSynthesis/Docx filter passed 705/719 with 12 pre-existing diagram expectation failures and 2 skipped Terraform tests.
+
 2026-10-13 seed hunt (seed→hit): `cloud-extractors` — promoted `EntraGroupMembershipGraphReader.TryReadDirectMembershipsAsync`; when multiple seed group ids were supplied from role-assignment principals and Graph returned 403 for one group after another group’s members were already read, the reader returned `Forbidden` and dropped every collected membership row; skip forbidden groups when other seeds or accumulated rows remain; regression `TryReadDirectMembershipsAsync_retains_members_from_other_groups_when_one_seed_returns_forbidden`; AWS/GCP extractor tests passed 83/83; Azure extractor scope passed 152/152.
 
 2026-10-13 seed hunt (seed→hit): `cloud-extractors` — promoted `EntraGroupMembershipGraphReader.ReadGroupMembersPageAsync`; when Microsoft Graph returned a successful first `/members` page and a later `@odata.nextLink` page failed with a non-success status, the reader returned an empty membership list and dropped members already collected from the first page; return accumulated memberships and nested-group ids on pagination failure; regression `TryReadDirectMembershipsAsync_retains_first_page_members_when_later_page_fails`; AWS/GCP extractor tests passed 83/83; Azure extractor scope passed 151/151.
@@ -31343,6 +31345,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ## Zone: artifact-synthesis
 
+2026-10-13 seed hunt (seed→hit): promoted `MermaidDiagramDeterministicRepairer.Repair`; `QuestionableAttention` from policy-pack resolution was dropped during deterministic repair before forest SVG layout, hiding questionable-resource styling on painted cards; copy `QuestionableAttention` on repair; regressions `Repair_keeps_questionable_attention_for_forest_layout` and extended metadata test; scoped filter 705/719 (12 pre-existing diagram failures, 2 skipped Terraform).
+
 2026-10-12 seed hunt (seed-only): repeated the selected ArtifactSynthesis and DOCX review after the prior seed-only pass. No fresh reachable mechanism-backed hypothesis met the hunt-ready bar; no candidate was promoted or duplicated. The scoped ArtifactSynthesis/Docx filter passed 102/103 with one intentional skip. No production or regression code changed.
 
 2026-10-12 seed hunt (seed-only): repeated the selected ArtifactSynthesis, Mermaid renderer, packaging, and DOCX fallback review after the prior seed-only pass. No fresh reachable mechanism-backed hypothesis met the hunt-ready bar; no candidate was promoted or duplicated. The scoped ArtifactSynthesis/Docx filter passed 102/103 with one intentional skip. No production or regression code changed.
@@ -31385,16 +31389,17 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** artifact synthesis; docx generator; packaging sanitization
 - **paths:** ArchLucid.ArtifactSynthesis/
 - **test-filter:** FullyQualifiedName~ArtifactSynthesis|FullyQualifiedName~Docx
-- **hunts:** 61
-- **last-hunt:** 2026-10-12
-- **bugs-found:** 47
+- **hunts:** 62
+- **last-hunt:** 2026-10-13
+- **bugs-found:** 48
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-08 — Graphviz cluster IDs collided after sanitization
+- **last-bug:** 2026-10-13 — Mermaid repair dropped questionable attention metadata
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
 ### Hypotheses
 
+- [x] (proven) `MermaidDiagramDeterministicRepairer.Repair` — reachable `DiagramNode.QuestionableAttention` from `InventoryDiagramQuestionableAttentionResolver` was omitted when rebuilding nodes during deterministic repair before `DiagramForestLayoutSvgRenderer`, so forest SVG cards lost questionable highlighting — **hit 2026-10-13 seed hunt:** copy `QuestionableAttention` on repair; regressions `Repair_keeps_questionable_attention_for_forest_layout` and extended `Repair_keeps_node_and_edge_painter_metadata_and_copies_lists`.
 - [x] (invalid) `BrandedDiagramExportContainer.TryExtractInnerPng` — hostile length overflow claim — **cheap-disproof 2026-10-11 thorough hunt:** `TryExtractInnerPng` has no production caller in the selected repository; only its own unit test reaches it, so no caller-controlled import path is reachable.
 - [x] (proven) `DocxExportService.BuildDocumentAsync` provenance appendix — persisted manifest `RuleSetId` / `RuleSetVersion` control characters reached OpenXML table text and caused export save failure through `DocxExportController` — **hit 2026-10-11 thorough hunt:** sanitize the combined rule-set display value with `SanitizeArtifactText`; regression `ExportAsync_sanitizes_control_characters_in_provenance_rule_set_fields`.
 - [x] (proven) `WordDocumentBuilder.AddMonospaceSourceLines` — persisted Mermaid artifact content containing an XML-invalid control character reached OpenXML text through the no-renderer fallback and caused DOCX export save failure — **hit 2026-10-12 seed hunt:** sanitize every embedded source line with `LlmArtifactFreeTextSanitizer`; regression `ExportAsync_sanitizes_control_characters_in_embedded_mermaid_source`.
