@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-13 seed hunt (seed→hit): `cloud-extractors` — promoted `HostedAzureManagementPostReadClient.QueryPolicyComplianceAsync`; reachable non-success HTTP on a follow-up Policy Insights `@odata.nextLink` page returned `CreateEmptyPolicyCompliance` with a reader note claiming empty records even when policy rows were already collected; stop pagination and return the normal success document when `records.Count > 0`; regression `QueryPolicyComplianceAsync_retains_records_with_accurate_reader_note_when_later_page_fails`; AWS/GCP extractor tests passed 58/58; Azure extractor scope passed 165/165.
+
 2026-10-13 thorough hunt (hit): `ui-help-docs` — promoted `normalizeDocIndexUrlForDedupe` / `decodeDocIndexPathForDedupe`; reachable doc-index rows whose paths differed only by percent-encoding hex case (`%2F` vs `%2f`) bypassed `claimedUrls` dedupe and rendered duplicate cards; lowercase percent escapes before `decodeURI`; cheap-disproof closed four other seeded `(candidate)` rows (http vs https merge key, post-remount empty warning persistence, whitespace-only `q` URL vs filter); regressions `does not duplicate fetched doc links when percent-encoded hex digits differ only by case`, `does not duplicate fetched external doc links when http and https target the same host and path`, and tightened `refetches the doc-index after remount when the prior response was an empty array`; 49 scoped `HelpDocsClient` vitest tests passed.
 
 2026-10-13 seed hunt (seed→hit): `cloud-extractors` — promoted `GetOnlyHostedAzureArmReadClient.ListSubscriptionDefenderSummariesAsync`; reachable follow-up secureScores `nextLink` pages that were HTTP 200 but invalid JSON caused `JsonDocument.ParseAsync` to throw and failed the hosted extract instead of returning the best score already observed; extended `TryParseArmPaginationPageAsync` across remaining ARM paginated GET list readers; regression `ListSubscriptionDefenderSummariesAsync_retains_best_score_when_later_page_body_is_invalid_json`; AWS/GCP extractor tests passed 58/58; Azure extractor scope passed 164/164.
@@ -31771,6 +31773,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ## Zone: cloud-extractors
 
+2026-10-13 seed hunt (seed→hit): promoted Policy Insights follow-up HTTP failure; `CreateEmptyPolicyCompliance` mislabeled partial rows as empty; break when `records.Count > 0`; regression `QueryPolicyComplianceAsync_retains_records_with_accurate_reader_note_when_later_page_fails`; Azure scope 165/165; AWS/GCP 58/58.
+
 2026-10-13 seed hunt (seed→hit): promoted Defender secureScores follow-up invalid JSON; parse throw dropped prior best score; `TryParseArmPaginationPageAsync` rolled out to remaining ARM list loops; regression `ListSubscriptionDefenderSummariesAsync_retains_best_score_when_later_page_body_is_invalid_json`; Azure scope 164/164; AWS/GCP 58/58.
 
 2026-10-13 seed hunt (seed→hit): promoted subscription ARM listing follow-up invalid JSON; parse throw dropped prior pages; `TryParseArmPaginationPageAsync` + break; regression `ListSubscriptionResourcesAsync_retains_resources_when_later_page_body_is_invalid_json`; Azure scope 163/163; AWS/GCP 58/58.
@@ -31880,11 +31884,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** aws extractor; gcp extractor; azure extractor
 - **paths:** ArchLucid.Integrations.AwsExtractor/; ArchLucid.Integrations.GcpExtractor/; ArchLucid.Integrations.AzureExtractor/
 - **test-filter:** FullyQualifiedName~AwsExtractor|FullyQualifiedName~GcpExtractor|FullyQualifiedName~AzureExtractor
-- **hunts:** 136
-- **bugs-found:** 83
+- **hunts:** 137
+- **bugs-found:** 84
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-13
-- **last-bug:** 2026-10-13 — Defender secureScores follow-up invalid JSON dropped prior best score
+- **last-bug:** 2026-10-13 — Policy compliance follow-up HTTP failure mislabeled partial rows as empty
 - **related-pd-tb:** none
 - **code-changed-since:** 1
 
@@ -31912,6 +31916,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ### Hypotheses
 
+- [x] (proven) `HostedAzureManagementPostReadClient.QueryPolicyComplianceAsync` — reachable non-success HTTP on a follow-up Policy Insights `@odata.nextLink` page returned `CreateEmptyPolicyCompliance` with a reader note claiming empty records even when policy rows were already collected from earlier pages — **hit 2026-10-13 seed hunt:** stop pagination and return the normal success document when `records.Count > 0`; regression `QueryPolicyComplianceAsync_retains_records_with_accurate_reader_note_when_later_page_fails`.
 - [x] (proven) `GetOnlyHostedAzureArmReadClient.ListSubscriptionDefenderSummariesAsync` — reachable follow-up secureScores `nextLink` pages that were HTTP 200 but invalid JSON caused `JsonDocument.ParseAsync` to throw and failed the hosted extract instead of returning the best score already observed across prior pages — **hit 2026-10-13 seed hunt:** `TryParseArmPaginationPageAsync` stops pagination when a partial aggregate exists; regression `ListSubscriptionDefenderSummariesAsync_retains_best_score_when_later_page_body_is_invalid_json`.
 - [x] (proven) `GetOnlyHostedAzureArmReadClient.ListSubscriptionResourcesAsync` — reachable follow-up subscription ARM `nextLink` pages that were HTTP 200 but invalid JSON caused `JsonDocument.ParseAsync` to throw and failed the hosted extract instead of returning resource rows already collected — **hit 2026-10-13 seed hunt:** `TryParseArmPaginationPageAsync` stops pagination when prior rows exist; regression `ListSubscriptionResourcesAsync_retains_resources_when_later_page_body_is_invalid_json`.
 - [x] (proven) `HostedAzureManagementPostReadClient.TryQueryActualCostSummaryAsync` — reachable follow-up Actual Cost page bodies that were HTTP 200 but invalid JSON caused `JsonDocument.ParseAsync` to throw and the outer catch returned `null`, discarding cost rows already collected from earlier pages — **hit 2026-10-13 seed hunt:** merge accumulated `pages` on `JsonException` only; regression `TryQueryActualCostSummaryAsync_retains_merged_cost_when_later_page_body_is_invalid_json`.

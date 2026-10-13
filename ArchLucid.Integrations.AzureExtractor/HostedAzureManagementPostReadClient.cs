@@ -201,6 +201,11 @@ public sealed class HostedAzureManagementPostReadClient(
                         (int)response.StatusCode,
                         Truncate(errorBody, 500));
 
+                    if (records.Count > 0)
+                    {
+                        break;
+                    }
+
                     return CreateEmptyPolicyCompliance(scopeDescriptor, collectionTimestampUtc, records);
                 }
 

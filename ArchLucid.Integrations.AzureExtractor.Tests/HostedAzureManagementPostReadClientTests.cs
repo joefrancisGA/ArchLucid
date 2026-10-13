@@ -468,6 +468,64 @@ public sealed class HostedAzureManagementPostReadClientTests
     }
 
     [Fact]
+    public async Task QueryPolicyComplianceAsync_retains_records_with_accurate_reader_note_when_later_page_fails()
+    {
+        const string subscriptionId = "11111111-1111-1111-1111-111111111111";
+        const string nextLink =
+            $"https://management.azure.com/subscriptions/{subscriptionId}/providers/Microsoft.PolicyInsights/policyStates/latest/queryResults?api-version=2019-10-01&$skiptoken=page2";
+
+        const string firstPageBody = """
+                                     {
+                                       "value": [
+                                         {
+                                           "policyAssignmentId": "policy-1",
+                                           "complianceState": "Compliant"
+                                         }
+                                       ],
+                                       "@odata.nextLink": "POLICY_QUERY_NEXT_LINK"
+                                     }
+                                     """;
+
+        int requestCount = 0;
+
+        HttpMessageHandler handler = new RecordingHandler(
+            (_, _) =>
+            {
+                int current = Interlocked.Increment(ref requestCount);
+
+                if (current == 1)
+                {
+                    return Task.FromResult(
+                        new HttpResponseMessage(HttpStatusCode.OK)
+                        {
+                            Content = new StringContent(
+                                firstPageBody.Replace("POLICY_QUERY_NEXT_LINK", nextLink, StringComparison.Ordinal),
+                                Encoding.UTF8,
+                                "application/json")
+                        });
+                }
+
+                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.InternalServerError));
+            });
+
+        HostedAzureManagementPostReadClient client = new(
+            new HttpClient(handler),
+            NullLogger<HostedAzureManagementPostReadClient>.Instance);
+
+        HostedAzurePolicyComplianceDocument document = await client.QueryPolicyComplianceAsync(
+            "token-abc",
+            subscriptionId,
+            "subscription",
+            "2026-09-26T00:00:00Z",
+            CancellationToken.None);
+
+        Assert.Equal(2, requestCount);
+        Assert.Equal(1, document.RecordCount);
+        Assert.Single(document.Records);
+        Assert.DoesNotContain("empty records", document.ReaderNote, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
     public async Task TryQueryActualCostSummaryAsync_retains_merged_cost_when_later_page_fails()
     {
         const string subscriptionId = "11111111-1111-1111-1111-111111111111";
