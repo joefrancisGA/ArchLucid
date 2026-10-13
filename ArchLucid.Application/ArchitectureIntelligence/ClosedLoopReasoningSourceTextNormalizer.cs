@@ -23,7 +23,7 @@ internal static class ClosedLoopReasoningSourceTextNormalizer
             // Normalize platform line endings so equivalent uploaded documents share a cache key.
             Content = string.IsNullOrWhiteSpace(source.Content)
                 ? string.Empty
-                : NormalizeLineEndings(source.Content.Trim()),
+                : StripUtf8Bom(NormalizeLineEndings(source.Content.Trim())),
         };
     }
 
@@ -34,6 +34,7 @@ internal static class ClosedLoopReasoningSourceTextNormalizer
         if (fileName.Length == 0)
             return fileName;
 
+        fileName = DecodePercentEncodedSlashes(fileName);
         fileName = fileName.Replace('\\', '/');
 
         while (fileName.StartsWith("./", StringComparison.Ordinal))
@@ -93,5 +94,29 @@ internal static class ClosedLoopReasoningSourceTextNormalizer
             .Replace('\r', '\n')
             .Replace('\u2028', '\n')
             .Replace('\u2029', '\n');
+    }
+
+    private static string StripUtf8Bom(string content)
+    {
+        if (content.Length == 0)
+            return content;
+
+        if (content[0] == '\uFEFF')
+            return content[1..];
+
+        return content;
+    }
+
+    private static string DecodePercentEncodedSlashes(string fileName)
+    {
+        string decoded = fileName;
+
+        while (decoded.Contains("%2F", StringComparison.Ordinal) || decoded.Contains("%2f", StringComparison.Ordinal))
+        {
+            decoded = decoded.Replace("%2F", "/", StringComparison.Ordinal);
+            decoded = decoded.Replace("%2f", "/", StringComparison.Ordinal);
+        }
+
+        return decoded;
     }
 }

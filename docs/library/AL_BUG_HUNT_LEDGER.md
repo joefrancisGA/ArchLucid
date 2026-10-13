@@ -36576,6 +36576,8 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: architecture-intelligence-orchestrator
 
+2026-10-13 seed hunt (seed→hit): promoted `%2F` percent-encoded slash and UTF-8 BOM prefix on source `Content`; `DecodePercentEncodedSlashes` + `StripUtf8Bom` in `ClosedLoopReasoningSourceTextNormalizer`; regressions `Build_matches_content_hash_when_file_name_differs_only_by_percent_encoded_slash` and `Build_matches_content_hash_when_source_content_differs_only_by_utf8_bom_prefix`; cheap-disproved duplicate ledger-order and publish-toggle candidates; 92 scoped tests passed.
+
 2026-10-13 seed hunt (seed→hit): promoted parent `..` path segments in `FileName` (`docs/sub/../arch.md`, `docs/foo/bar/../../arch.md`); `CollapseParentPathSegments` in `NormalizeFileNameForHash`; regression `Build_matches_content_hash_when_file_name_differs_only_by_parent_path_segments`; cheap-disproved stale CRLF, run-id whitespace, and publish coalesce-key rows; 90 scoped tests passed.
 
 2026-10-13 seed hunt (seed→hit): promoted dot-segment and slash padding on `FileName` (`docs/./arch.md`, `/docs/arch.md`, trailing `/`); extended `NormalizeFileNameForHash`; regression `Build_matches_content_hash_when_file_name_differs_only_by_dot_segments_or_slashes`; scoped filter 89/89.
@@ -36607,8 +36609,8 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (valid-no-repro) `ClosedLoopContinueRunSingleFlight.BuildCoalesceKey` — `PublishToProduct` partition — **cheap-disproof 2026-10-13 seed hunt:** coalesce key appends `publish=1|0`; `ReviewCacheKeyBuilder.BuildInFlight` matches storage partition.
 - [x] (proven) `ClosedLoopReasoningSourceTextNormalizer.NormalizeFileNameForHash` — parent `..` segments (`docs/sub/../arch.md`, nested `docs/foo/bar/../../arch.md`) split `ContentHash` from canonical `docs/arch.md` — **hit 2026-10-13 seed hunt:** `CollapseParentPathSegments`; regression `Build_matches_content_hash_when_file_name_differs_only_by_parent_path_segments`.
 - [ ] (candidate) `ReviewCacheLedgerFingerprint` — ledger technology names differing only by Unicode NFC vs NFD may change `ledgerfp` — locus: `ReviewCacheLedgerFingerprint.Compute`; input: equivalent technology label imported in different normalization forms; wrong outcome: continue coalesce miss after ledger reload.
-- [ ] (candidate) `ClosedLoopReasoningSourceTextNormalizer` — percent-encoded slash (`%2F`) in `FileName` vs literal `/` — locus: `NormalizeFileNameForHash`; input: `docs%2Farch.md` vs `docs/arch.md`; wrong outcome: duplicate cache entries for same upload path.
-- [ ] (candidate) `ClosedLoopReasoningSourceTextNormalizer` — UTF-8 BOM (`\uFEFF`) prefix in `Content` — locus: `Normalize` content trim/hash; input: identical markdown with/without BOM; wrong outcome: spurious cache miss on Windows editor saves.
+- [x] (proven) `ClosedLoopReasoningSourceTextNormalizer` — percent-encoded slash (`%2F`) in `FileName` vs literal `/` split `ContentHash` — **hit 2026-10-13 seed hunt:** `DecodePercentEncodedSlashes`; regression `Build_matches_content_hash_when_file_name_differs_only_by_percent_encoded_slash`.
+- [x] (proven) `ClosedLoopReasoningSourceTextNormalizer` — UTF-8 BOM (`\uFEFF`) prefix in `Content` split `ContentHash` — **hit 2026-10-13 seed hunt:** `StripUtf8Bom` after line-ending normalize; regression `Build_matches_content_hash_when_source_content_differs_only_by_utf8_bom_prefix`.
 - [ ] (candidate) `ReviewCacheManifestBuilder.HashContent` — duplicate `SourceTexts` rows that normalize to identical file/type/content — locus: ordered foreach without dedupe; input: repeated attachment in request list; wrong outcome: hash inflation / false split vs deduped canonical list.
 - [ ] (candidate) `ClosedLoopFramingAnswersNormalizer` — framing answer keys differing only by Unicode compatibility case folding — locus: `HashContent` framing loop; input: Turkish dotted `I` key variants; wrong outcome: cache miss for equivalent answers.
 
@@ -36616,9 +36618,9 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 - [x] (proven) `ClosedLoopReasoningSourceTextNormalizer` / `ReviewCacheManifestBuilder.HashContent` — `SourceTexts.ContentType` casing split `ContentHash` for identical attachments — **hit 2026-10-06 seed hunt:** lowercase trimmed content types in normalizer (manifest + snapshot); regression `Build_matches_content_hash_when_source_content_type_differs_only_by_casing`.
 - [x] (proven) `ClosedLoopReasoningSourceTextNormalizer` — MIME parameters (`text/plain; charset=utf-8` vs bare `text/plain`) split cache keys — **hit 2026-10-06 seed hunt:** see charset-parameter entry above.
-- [ ] (candidate) `ReviewCacheLedgerFingerprint` — technology ledger entry order permutations may change `ledgerfp` when semantic content matches — **seed 2026-10-06:** reachable when ledger reload order differs between coalesced requests.
+- [x] (invalid) `ReviewCacheLedgerFingerprint` — technology ledger entry order permutations may change `ledgerfp` — **cheap-disproof 2026-10-13 seed hunt:** `Compute` sorts by role, technology name, provider family before hash.
 - [ ] (candidate) `ReviewCacheManifestBuilder.HashContent` — duplicate `SourceTexts` with identical `FileName`/`ContentType` but different `Content` order in request list — **seed 2026-10-06:** order-sensitive hash may false-split or false-merge multi-attachment reviews.
-- [ ] (candidate) `ClosedLoopArchitectureReasoningOrchestrator.RunAsync` — `PublishToProduct` toggled between consecutive identical analysis manifests may bypass vs hit review cache asymmetrically — **seed 2026-10-06:** `ReviewCacheKeyBuilder.BuildInFlight` publish partition vs storage keys.
+- [x] (invalid) `ClosedLoopArchitectureReasoningOrchestrator.RunAsync` — `PublishToProduct` toggled between consecutive identical analysis manifests — **cheap-disproof 2026-10-13 seed hunt:** duplicate of 2026-10-13 publish coalesce-key disproof; coalesce key includes `publish=1|0`.
 - [ ] (candidate) `ReviewResultCache.InvalidateForRun` — tombstone FIFO saturation when every queued run still has a pinned entry may leave deferred invalidation uncleared after last unpin — **seed 2026-10-06:** improve-loop pin pressure at `MaxTombstonedRunIds`.
 
 2026-10-06 thorough hunt (dry): closed five seeded candidates (source content null/empty, continue budget, framing key casing, Set saturation, unknown continue run id); 81 scoped tests passed.
@@ -36649,11 +36651,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** closed-loop orchestrator; review result cache; architecture intelligence
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.cs; ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.Cache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewResultCache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewCacheManifestBuilder.cs
 - **test-filter:** FullyQualifiedName~ClosedLoopArchitectureReasoningOrchestrator|FullyQualifiedName~ReviewResultCache|FullyQualifiedName~ReviewCacheManifestBuilder
-- **hunts:** 40
-- **bugs-found:** 18
+- **hunts:** 41
+- **bugs-found:** 20
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-13
-- **last-bug:** 2026-10-13 — parent `..` path segments on source file names split cache hash
+- **last-bug:** 2026-10-13 — `%2F` file names and UTF-8 BOM on source content split cache hash
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 

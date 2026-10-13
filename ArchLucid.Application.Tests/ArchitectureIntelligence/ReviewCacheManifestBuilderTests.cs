@@ -609,6 +609,66 @@ public sealed class ReviewCacheManifestBuilderTests
     }
 
     [Fact]
+    public void Build_matches_content_hash_when_file_name_differs_only_by_percent_encoded_slash()
+    {
+        ClosedLoopReasoningRequest literalSlash = CreateRequest("Same body.");
+        literalSlash.SourceTexts =
+        [
+            new ClosedLoopReasoningSourceText
+            {
+                FileName = "docs/arch.md",
+                ContentType = "text/markdown",
+                Content = "Same body.",
+            },
+        ];
+
+        ClosedLoopReasoningRequest encodedSlash = CreateRequest("ignored");
+        encodedSlash.SourceTexts =
+        [
+            new ClosedLoopReasoningSourceText
+            {
+                FileName = "docs%2Farch.md",
+                ContentType = "text/markdown",
+                Content = "Same body.",
+            },
+        ];
+
+        ReviewCacheManifestBuilder.Build(literalSlash).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(encodedSlash).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_source_content_differs_only_by_utf8_bom_prefix()
+    {
+        ClosedLoopReasoningRequest withoutBom = CreateRequest("Same body.");
+        withoutBom.SourceTexts =
+        [
+            new ClosedLoopReasoningSourceText
+            {
+                FileName = "arch.md",
+                ContentType = "text/markdown",
+                Content = "Same body.",
+            },
+        ];
+
+        ClosedLoopReasoningRequest withBom = CreateRequest("ignored");
+        withBom.SourceTexts =
+        [
+            new ClosedLoopReasoningSourceText
+            {
+                FileName = "arch.md",
+                ContentType = "text/markdown",
+                Content = "\uFEFFSame body.",
+            },
+        ];
+
+        ReviewCacheManifestBuilder.Build(withoutBom).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(withBom).ContentHash);
+    }
+
+    [Fact]
     public void Build_matches_content_hash_when_source_content_type_differs_only_by_charset_parameter()
     {
         ClosedLoopReasoningRequest bare = CreateRequest("Same body.");
