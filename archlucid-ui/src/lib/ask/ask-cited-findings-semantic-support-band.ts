@@ -22,6 +22,39 @@ export type AskCitedFindingBandIndexEntry = {
   readonly bandStored: boolean;
 };
 
+function askCitedFindingBandIndexEntry(
+  findingId: string,
+  rawBand: FindingSemanticSupportBandValue | null | undefined,
+): AskCitedFindingBandIndexEntry {
+  // Omitted or null bands stay bandStored:false so Ask does not invent NotScored.
+  if (rawBand === null || rawBand === undefined) {
+    return {
+      findingId,
+      band: null,
+      bandStored: false,
+    };
+  }
+
+  return {
+    findingId,
+    band: rawBand,
+    bandStored: true,
+  };
+}
+
+export function askCitedFindingBandIndexForFinding(
+  findingId: string,
+  rawBand: FindingSemanticSupportBandValue | null | undefined,
+): readonly AskCitedFindingBandIndexEntry[] {
+  const trimmedId = findingId.trim();
+
+  if (trimmedId.length === 0) {
+    return [];
+  }
+
+  return [askCitedFindingBandIndexEntry(trimmedId, rawBand)];
+}
+
 export function buildAskCitedFindingBandIndex(
   findings: readonly QuickDecisionFinding[],
 ): readonly AskCitedFindingBandIndexEntry[] {

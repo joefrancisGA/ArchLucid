@@ -23,6 +23,7 @@ import {
   resolveFindingClassificationLabel,
 } from "@/lib/findings/finding-classification-chip-presentation";
 import type { FindingSemanticSupportBandValue } from "@/lib/findings/semantic-support-band-presentation";
+import { askCitedFindingBandIndexForFinding } from "@/lib/ask/ask-cited-findings-semantic-support-band";
 import { BUYER_ASK_GROUNDING_ONCE } from "@/lib/buyer/buyer-polish-copy";
 import { askAboutFinding } from "@/lib/api/finding-ask-api";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
@@ -234,11 +235,10 @@ export function FindingAskInlinePanel(props: FindingAskInlinePanelProps) {
                   )}
                   <AskCitedFindingsSemanticSupportBandFootnote
                     referencedFindingIds={[props.findingId]}
-                    findingBandIndex={
-                      props.semanticSupportBand !== undefined && props.semanticSupportBand !== null
-                        ? [{ findingId: props.findingId, band: props.semanticSupportBand }]
-                        : []
-                    }
+                    findingBandIndex={askCitedFindingBandIndexForFinding(
+                      props.findingId,
+                      props.semanticSupportBand,
+                    )}
                   />
                 </li>
               ))}
