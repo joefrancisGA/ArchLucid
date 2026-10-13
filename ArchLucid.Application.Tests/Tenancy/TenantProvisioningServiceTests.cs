@@ -325,6 +325,101 @@ public sealed class TenantProvisioningServiceTests
     }
 
     [SkippableFact]
+    public async Task ProvisionAsync_skips_workspace_insert_when_offboard_completes_after_catalog_before_workspace()
+    {
+        Guid capturedTenantId = Guid.Empty;
+        DateTimeOffset anchor = new(2026, 10, 13, 0, 0, 0, TimeSpan.Zero);
+
+        Mock<ITenantRepository> repo = new();
+
+        SetupSlugNotFound(repo);
+
+        repo.Setup(r => r.InsertTenantAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<TenantTier>(),
+                It.IsAny<Guid?>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>(),
+                It.IsAny<int?>()))
+            .Callback<Guid, string, string, TenantTier, Guid?, string, CancellationToken, int?>(
+                (tid, _, _, _, _, _, _, _) => capturedTenantId = tid)
+            .Returns(Task.CompletedTask);
+
+        int tenantReadCount = 0;
+        repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((Guid id, CancellationToken _) =>
+            {
+                tenantReadCount++;
+
+                if (tenantReadCount == 1)
+                {
+                    return new TenantRecord { Id = id, Tier = TenantTier.Free };
+                }
+
+                return new TenantRecord
+                {
+                    Id = id,
+                    Tier = TenantTier.Free,
+                    OffboardedUtc = anchor,
+                    ErasureEligibleUtc = anchor.AddDays(30),
+                };
+            });
+
+        Mock<IArchitectureProjectRepository> projects = new(MockBehavior.Strict);
+        Mock<IAuditService> audit = new(MockBehavior.Strict);
+        Mock<ITenantSqlCatalogProvisioner> sqlCatalog = new();
+
+        sqlCatalog
+            .Setup(p => p.ProvisionTenantCatalogAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IOptionsMonitor<TenantProvisioningOptions>> options = DefaultProvisioningMonitor();
+
+        TenantProvisioningService sut = new(
+            repo.Object,
+            projects.Object,
+            new Mock<IActorContext>().Object,
+            audit.Object,
+            NullLogger<TenantProvisioningService>.Instance,
+            options.Object,
+            sqlCatalog.Object,
+            new Mock<IDefaultPolicyPackSeeder>().Object,
+            new Mock<IMarketingAttributionService>().Object,
+            new Mock<ITenantSettingsRepository>().Object);
+
+        TenantProvisioningRequest req = new()
+        {
+            Name = "Workspace Race Co",
+            AdminEmail = "owner@race.example",
+            Tier = TenantTier.Free,
+        };
+
+        await sut.ProvisionAsync(req, CancellationToken.None);
+
+        sqlCatalog.Verify(
+            p => p.ProvisionTenantCatalogAsync(capturedTenantId, It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Once);
+        repo.Verify(
+            r => r.InsertWorkspaceAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<string>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+        projects.Verify(
+            p => p.InsertAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [SkippableFact]
     public async Task ProvisionAsync_skips_catalog_and_workspace_when_offboard_completes_after_tenant_insert_before_catalog()
     {
         Guid capturedTenantId = Guid.Empty;
@@ -447,7 +542,7 @@ public sealed class TenantProvisioningServiceTests
             {
                 tenantReadCount++;
 
-                if (tenantReadCount == 1)
+                if (tenantReadCount <= 2)
                 {
                     return new TenantRecord { Id = id, Tier = TenantTier.Free };
                 }
@@ -562,7 +657,7 @@ public sealed class TenantProvisioningServiceTests
             {
                 tenantReadCount++;
 
-                if (tenantReadCount == 1)
+                if (tenantReadCount <= 2)
                 {
                     return new TenantRecord { Id = id, Tier = TenantTier.Free };
                 }
@@ -681,7 +776,7 @@ public sealed class TenantProvisioningServiceTests
             {
                 tenantReadCount++;
 
-                if (tenantReadCount == 1)
+                if (tenantReadCount <= 2)
                 {
                     return new TenantRecord { Id = id, Tier = TenantTier.Free };
                 }

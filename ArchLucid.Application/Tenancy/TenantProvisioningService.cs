@@ -103,7 +103,7 @@ public sealed class TenantProvisioningService(
             TenantRecord? tenantBeforeCatalogProvision =
                 await _tenantRepository.GetByIdAsync(tenantId, ct).ConfigureAwait(false);
 
-            if (tenantBeforeCatalogProvision?.OffboardedUtc is not null)
+            if (IsErasureQuarantine(tenantBeforeCatalogProvision))
             {
                 return BuildErasureQuarantineProvisionResult(tenantId, Guid.Empty, Guid.Empty);
             }
@@ -111,6 +111,15 @@ public sealed class TenantProvisioningService(
             try
             {
                 await _tenantSqlCatalogProvisioner.ProvisionTenantCatalogAsync(tenantId, TenantDatabaseNaming.SqlLogicalNameForTenant(tenantId), ct);
+
+                TenantRecord? tenantBeforeWorkspaceInsert =
+                    await _tenantRepository.GetByIdAsync(tenantId, ct).ConfigureAwait(false);
+
+                if (IsErasureQuarantine(tenantBeforeWorkspaceInsert))
+                {
+                    return BuildErasureQuarantineProvisionResult(tenantId, Guid.Empty, Guid.Empty);
+                }
+
                 await _tenantRepository.InsertWorkspaceAsync(
                     workspaceId,
                     tenantId,
@@ -131,7 +140,7 @@ public sealed class TenantProvisioningService(
         TenantRecord? tenantBeforeProvisionAudit =
             await _tenantRepository.GetByIdAsync(tenantId, ct).ConfigureAwait(false);
 
-        if (tenantBeforeProvisionAudit?.OffboardedUtc is not null)
+        if (IsErasureQuarantine(tenantBeforeProvisionAudit))
         {
             return BuildErasureQuarantineProvisionResult(tenantId, workspaceId, projectId);
         }
@@ -166,6 +175,11 @@ public sealed class TenantProvisioningService(
         {
             TenantId = tenantId, DefaultWorkspaceId = workspaceId, DefaultProjectId = projectId, WasAlreadyProvisioned = false,
         };
+    }
+
+    private static bool IsErasureQuarantine(TenantRecord? tenant)
+    {
+        return tenant?.OffboardedUtc is not null;
     }
 
     private static TenantProvisioningResult BuildErasureQuarantineProvisionResult(
