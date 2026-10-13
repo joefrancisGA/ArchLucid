@@ -370,6 +370,14 @@ public sealed class TenantErasureCommandService(
         if (afterClear.LegalHoldUntilUtc is not null)
             return true;
 
+        TenantRecord? beforeClearAudit = await _tenantRepository.GetByIdAsync(tenantId, cancellationToken);
+
+        if (beforeClearAudit is null)
+            return false;
+
+        if (beforeClearAudit.LegalHoldUntilUtc is not null)
+            return true;
+
         await AppendPlatformAuditAsync(
             AuditEventTypes.TenantErasureLegalHoldCleared,
             tenantId,
