@@ -74,6 +74,11 @@ public sealed class ArchitectureReviewRobustnessWave33ArchitectureTests
 
         manifestFinalization.Should().Contain("RunIntegrationEventManifestHashResolver");
         authorityFinalizer.Should().Contain("RunIntegrationEventManifestHashResolver");
+        // First-create JwtBearer finalize must hash the in-flight pipeline manifest. Calling
+        // TryResolveVerifiedManifestHashAsync hits GovernanceDispositionSealedManifestGuard before
+        // the golden row is visible and rolls back TB-927 async create (run 38402599827).
+        authorityFinalizer.Should().Contain("ResolvePipelineManifestHashForIntegrationEvent");
+        authorityFinalizer.Should().NotContain("TryResolveVerifiedManifestHashAsync");
         advisoryScan.Should().Contain("RunIntegrationEventManifestHashResolver");
     }
 
