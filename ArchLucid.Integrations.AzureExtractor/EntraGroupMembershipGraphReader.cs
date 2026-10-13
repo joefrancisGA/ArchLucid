@@ -203,7 +203,11 @@ public sealed class EntraGroupMembershipGraphReader(
 
             if (!string.IsNullOrWhiteSpace(candidateNextLink))
             {
-                EnsureNextLinkTargetsGroup(candidateNextLink, groupId);
+                if (!TryAcceptNextLink(candidateNextLink, groupId, memberships.Count, nestedGroupIds.Count))
+                {
+                    break;
+                }
+
                 nextLink = candidateNextLink;
             }
             else
@@ -217,6 +221,30 @@ public sealed class EntraGroupMembershipGraphReader(
             Memberships = memberships,
             NestedGroupIds = nestedGroupIds,
         };
+    }
+
+    private bool TryAcceptNextLink(
+        string candidateNextLink,
+        string groupId,
+        int membershipCount,
+        int nestedGroupCount)
+    {
+        try
+        {
+            EnsureNextLinkTargetsGroup(candidateNextLink, groupId);
+
+            return true;
+        }
+        catch (InvalidOperationException exception)
+            when (membershipCount > 0 || nestedGroupCount > 0)
+        {
+            logger.LogWarning(
+                exception,
+                "Entra group membership Graph read stopped pagination for group {GroupId} due to an invalid @odata.nextLink.",
+                groupId);
+
+            return false;
+        }
     }
 
     private static void EnsureNextLinkTargetsGroup(string nextLink, string groupId)

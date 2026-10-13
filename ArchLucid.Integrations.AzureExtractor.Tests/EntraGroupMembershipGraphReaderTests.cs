@@ -224,6 +224,78 @@ public sealed class EntraGroupMembershipGraphReaderTests
     }
 
     [Fact]
+    public async Task TryReadDirectMembershipsAsync_retains_collected_members_when_next_link_validation_fails_after_a_successful_page()
+    {
+        const string memberPage1 = "dddddddd-dddd-dddd-dddd-dddddddddddd";
+        const string memberPage2 = "eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee";
+        const string leakedMember = "ffffffff-ffff-ffff-ffff-ffffffffffff";
+        int requestCount = 0;
+
+        HttpClient httpClient = CreateHttpClient(request =>
+        {
+            int current = Interlocked.Increment(ref requestCount);
+
+            if (current == 1)
+            {
+                return JsonResponse(
+                    $$"""
+                    {
+                      "value": [
+                        {
+                          "id": "{{memberPage1}}",
+                          "@odata.type": "#microsoft.graph.user"
+                        }
+                      ],
+                      "@odata.nextLink": "https://graph.microsoft.com/v1.0/groups/{{GroupA}}/members?$select=id&$skiptoken=page2"
+                    }
+                    """);
+            }
+
+            if (current == 2)
+            {
+                return JsonResponse(
+                    $$"""
+                    {
+                      "value": [
+                        {
+                          "id": "{{memberPage2}}",
+                          "@odata.type": "#microsoft.graph.user"
+                        }
+                      ],
+                      "@odata.nextLink": "https://graph.microsoft.com/v1.0/groups/{{GroupB}}/members?$select=id&$skiptoken=leak"
+                    }
+                    """);
+            }
+
+            return JsonResponse(
+                $$"""
+                {
+                  "value": [
+                    {
+                      "id": "{{leakedMember}}",
+                      "@odata.type": "#microsoft.graph.user"
+                    }
+                  ]
+                }
+                """);
+        });
+
+        EntraGroupMembershipGraphReader sut = new(httpClient, NullLogger<EntraGroupMembershipGraphReader>.Instance);
+
+        EntraGroupMembershipGraphReadResult result = await sut.TryReadDirectMembershipsAsync(
+            new StubTokenCredential(),
+            [GroupA],
+            maxNestedDepth: 0,
+            CancellationToken.None);
+
+        Assert.Equal(2, requestCount);
+        Assert.Equal(2, result.Memberships.Count);
+        Assert.Contains(result.Memberships, row => row.MemberId == memberPage1 && row.GroupId == GroupA);
+        Assert.Contains(result.Memberships, row => row.MemberId == memberPage2 && row.GroupId == GroupA);
+        Assert.DoesNotContain(result.Memberships, row => row.MemberId == leakedMember);
+    }
+
+    [Fact]
     public async Task TryReadDirectMembershipsAsync_rejects_odata_next_link_for_different_group()
     {
         const string leakedMember = "ffffffff-ffff-ffff-ffff-ffffffffffff";
@@ -264,15 +336,16 @@ public sealed class EntraGroupMembershipGraphReaderTests
 
         EntraGroupMembershipGraphReader sut = new(httpClient, NullLogger<EntraGroupMembershipGraphReader>.Instance);
 
-        InvalidOperationException exception = await Assert.ThrowsAsync<InvalidOperationException>(() =>
-            sut.TryReadDirectMembershipsAsync(
-                new StubTokenCredential(),
-                [GroupA],
-                maxNestedDepth: 0,
-                CancellationToken.None));
+        EntraGroupMembershipGraphReadResult result = await sut.TryReadDirectMembershipsAsync(
+            new StubTokenCredential(),
+            [GroupA],
+            maxNestedDepth: 0,
+            CancellationToken.None);
 
-        Assert.Contains("different group", exception.Message, StringComparison.OrdinalIgnoreCase);
         Assert.Equal(1, requestCount);
+        Assert.Single(result.Memberships);
+        Assert.Contains(result.Memberships, row => row.MemberId == MemberUser && row.GroupId == GroupA);
+        Assert.DoesNotContain(result.Memberships, row => row.MemberId == leakedMember);
     }
 
     [Fact]
@@ -316,15 +389,16 @@ public sealed class EntraGroupMembershipGraphReaderTests
 
         EntraGroupMembershipGraphReader sut = new(httpClient, NullLogger<EntraGroupMembershipGraphReader>.Instance);
 
-        InvalidOperationException exception = await Assert.ThrowsAsync<InvalidOperationException>(() =>
-            sut.TryReadDirectMembershipsAsync(
-                new StubTokenCredential(),
-                [GroupA],
-                maxNestedDepth: 0,
-                CancellationToken.None));
+        EntraGroupMembershipGraphReadResult result = await sut.TryReadDirectMembershipsAsync(
+            new StubTokenCredential(),
+            [GroupA],
+            maxNestedDepth: 0,
+            CancellationToken.None);
 
-        Assert.Contains("members", exception.Message, StringComparison.OrdinalIgnoreCase);
         Assert.Equal(1, requestCount);
+        Assert.Single(result.Memberships);
+        Assert.Contains(result.Memberships, row => row.MemberId == MemberUser && row.GroupId == GroupA);
+        Assert.DoesNotContain(result.Memberships, row => row.MemberId == leakedOwner);
     }
 
     [Fact]
@@ -345,14 +419,14 @@ public sealed class EntraGroupMembershipGraphReaderTests
 
         EntraGroupMembershipGraphReader sut = new(httpClient, NullLogger<EntraGroupMembershipGraphReader>.Instance);
 
-        InvalidOperationException exception = await Assert.ThrowsAsync<InvalidOperationException>(() =>
-            sut.TryReadDirectMembershipsAsync(
-                new StubTokenCredential(),
-                [GroupA],
-                maxNestedDepth: 0,
-                CancellationToken.None));
+        EntraGroupMembershipGraphReadResult result = await sut.TryReadDirectMembershipsAsync(
+            new StubTokenCredential(),
+            [GroupA],
+            maxNestedDepth: 0,
+            CancellationToken.None);
 
-        Assert.Contains("members", exception.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Single(result.Memberships);
+        Assert.Contains(result.Memberships, row => row.MemberId == MemberUser && row.GroupId == GroupA);
     }
 
     [Fact]
@@ -373,14 +447,14 @@ public sealed class EntraGroupMembershipGraphReaderTests
 
         EntraGroupMembershipGraphReader sut = new(httpClient, NullLogger<EntraGroupMembershipGraphReader>.Instance);
 
-        InvalidOperationException exception = await Assert.ThrowsAsync<InvalidOperationException>(() =>
-            sut.TryReadDirectMembershipsAsync(
-                new StubTokenCredential(),
-                [GroupA],
-                maxNestedDepth: 0,
-                CancellationToken.None));
+        EntraGroupMembershipGraphReadResult result = await sut.TryReadDirectMembershipsAsync(
+            new StubTokenCredential(),
+            [GroupA],
+            maxNestedDepth: 0,
+            CancellationToken.None);
 
-        Assert.Contains("untrusted host", exception.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Single(result.Memberships);
+        Assert.Contains(result.Memberships, row => row.MemberId == MemberUser && row.GroupId == GroupA);
     }
 
     [Fact]
@@ -401,6 +475,29 @@ public sealed class EntraGroupMembershipGraphReaderTests
 
         EntraGroupMembershipGraphReader sut = new(httpClient, NullLogger<EntraGroupMembershipGraphReader>.Instance);
 
+        EntraGroupMembershipGraphReadResult result = await sut.TryReadDirectMembershipsAsync(
+            new StubTokenCredential(),
+            [GroupA],
+            maxNestedDepth: 0,
+            CancellationToken.None);
+
+        Assert.Single(result.Memberships);
+        Assert.Contains(result.Memberships, row => row.MemberId == MemberUser && row.GroupId == GroupA);
+    }
+
+    [Fact]
+    public async Task TryReadDirectMembershipsAsync_rejects_invalid_odata_next_link_url()
+    {
+        HttpClient httpClient = CreateHttpClient(_ => JsonResponse(
+            """
+            {
+              "value": [],
+              "@odata.nextLink": "not-a-valid-url"
+            }
+            """));
+
+        EntraGroupMembershipGraphReader sut = new(httpClient, NullLogger<EntraGroupMembershipGraphReader>.Instance);
+
         InvalidOperationException exception = await Assert.ThrowsAsync<InvalidOperationException>(() =>
             sut.TryReadDirectMembershipsAsync(
                 new StubTokenCredential(),
@@ -408,11 +505,11 @@ public sealed class EntraGroupMembershipGraphReaderTests
                 maxNestedDepth: 0,
                 CancellationToken.None));
 
-        Assert.Contains("HTTPS", exception.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("invalid @odata.nextLink", exception.Message, StringComparison.OrdinalIgnoreCase);
     }
 
     [Fact]
-    public async Task TryReadDirectMembershipsAsync_rejects_invalid_odata_next_link_url()
+    public async Task TryReadDirectMembershipsAsync_retains_members_when_next_link_url_is_invalid_on_an_otherwise_populated_page()
     {
         HttpClient httpClient = CreateHttpClient(_ => JsonResponse(
             """
@@ -429,14 +526,14 @@ public sealed class EntraGroupMembershipGraphReaderTests
 
         EntraGroupMembershipGraphReader sut = new(httpClient, NullLogger<EntraGroupMembershipGraphReader>.Instance);
 
-        InvalidOperationException exception = await Assert.ThrowsAsync<InvalidOperationException>(() =>
-            sut.TryReadDirectMembershipsAsync(
-                new StubTokenCredential(),
-                [GroupA],
-                maxNestedDepth: 0,
-                CancellationToken.None));
+        EntraGroupMembershipGraphReadResult result = await sut.TryReadDirectMembershipsAsync(
+            new StubTokenCredential(),
+            [GroupA],
+            maxNestedDepth: 0,
+            CancellationToken.None);
 
-        Assert.Contains("invalid @odata.nextLink", exception.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Single(result.Memberships);
+        Assert.Equal("dddddddd-dddd-dddd-dddd-dddddddddddd", result.Memberships[0].MemberId);
     }
 
     [Fact]
