@@ -8409,3 +8409,4 @@
 {"at":"2026-10-13T20:33:24.0911034Z","zoneId":"notifications-pipeline","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-13T20:40:14.6991871Z","zoneId":"notifications-pipeline","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-13T20:47:18.4066916Z","zoneId":"notifications-pipeline","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-13T20:56:35.1109086Z","zoneId":"notifications-pipeline","outcome":"seed-only","productLine":"archlucid-shared"}
