@@ -43,6 +43,27 @@ describe("RunWizardCostPreviewCard", () => {
     expect(container.querySelector('[data-testid="run-cost-preview-card"]')).toBeNull();
   });
 
+  it("labels omitted execution mode", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({
+        ok: true,
+        json: async () => ({
+          ...simulatorPayload,
+          mode: null,
+        }),
+      })),
+    );
+
+    render(<RunWizardCostPreviewCard previewUrl="/api/proxy/v1/agent-execution/cost-preview" />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("run-cost-preview-mode-omitted")).toHaveTextContent(
+        "Execution mode was not stored.",
+      );
+    });
+  });
+
   it("shows USD band and max tokens when mode is Real", async () => {
     vi.stubGlobal(
       "fetch",

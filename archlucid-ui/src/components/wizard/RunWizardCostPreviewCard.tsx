@@ -64,6 +64,17 @@ export function RunWizardCostPreviewCard(props: RunWizardCostPreviewCardProps = 
     );
   }
 
+  if (data.mode === null || data.mode === undefined) {
+    return (
+      <p
+        className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}
+        data-testid="run-cost-preview-mode-omitted"
+      >
+        Execution mode was not stored.
+      </p>
+    );
+  }
+
   if (data.mode !== "Real") {
     return null;
   }

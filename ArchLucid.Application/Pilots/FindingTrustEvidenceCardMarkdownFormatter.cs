@@ -44,7 +44,7 @@ public static class FindingTrustEvidenceCardMarkdownFormatter
         sb.AppendLine("| --- | --- |");
         sb.AppendLine(CultureInfo.InvariantCulture, $"| Finding id | `{deltas.TopFindingId}` |");
         sb.AppendLine(CultureInfo.InvariantCulture,
-            $"| Severity (selected for excerpt) | `{deltas.TopFindingSeverity ?? "Unknown"}` |");
+            $"| Severity (selected for excerpt) | `{deltas.TopFindingSeverity ?? "Severity was not stored."}` |");
 
         FindingEvidenceChainResponse? chain = deltas.TopFindingEvidenceChain;
 
@@ -57,7 +57,7 @@ public static class FindingTrustEvidenceCardMarkdownFormatter
         {
             sb.AppendLine(
                 CultureInfo.InvariantCulture,
-                $"| Manifest version (chain) | `{chain.ManifestVersion ?? "(none)"}` |");
+                $"| Manifest version (chain) | `{chain.ManifestVersion ?? "Manifest version was not stored."}` |");
 
             sb.AppendLine(
                 CultureInfo.InvariantCulture,

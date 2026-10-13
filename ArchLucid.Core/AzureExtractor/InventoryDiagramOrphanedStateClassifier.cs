@@ -286,7 +286,9 @@ public static class InventoryDiagramOrphanedStateClassifier
                 if (RequiresResolvableNextHop(route))
                 {
                     string hopLabel = string.IsNullOrWhiteSpace(route.NextHopIpAddress)
-                        ? route.NextHopType ?? "next hop"
+                        ? string.IsNullOrWhiteSpace(route.NextHopType)
+                            ? "Next hop type was not stored"
+                            : route.NextHopType
                         : route.NextHopIpAddress;
                     return InventoryDiagramConnectionStateResult.Orphaned(
                         $"route next hop {hopLabel} does not resolve");
@@ -339,7 +341,7 @@ public static class InventoryDiagramOrphanedStateClassifier
                 {
                     string targetName = ReadResourceName(association.TargetArmId, association.TargetKind ?? "target");
                     return InventoryDiagramConnectionStateResult.Orphaned(
-                        $"associated {association.TargetKind?.ToLowerInvariant() ?? "target"} {targetName} no longer exists");
+                        $"associated {FormatNsgTargetKindLabel(association.TargetKind)} {targetName} no longer exists");
                 }
 
                 resolvedAssociation = true;
@@ -350,7 +352,7 @@ public static class InventoryDiagramOrphanedStateClassifier
             {
                 string targetName = ReadResourceName(endpointArmId, association.TargetKind ?? "target");
                 return InventoryDiagramConnectionStateResult.Orphaned(
-                    $"associated {association.TargetKind?.ToLowerInvariant() ?? "target"} {targetName} no longer exists");
+                    $"associated {FormatNsgTargetKindLabel(association.TargetKind)} {targetName} no longer exists");
             }
 
             resolvedAssociation = true;
@@ -1078,6 +1080,16 @@ public static class InventoryDiagramOrphanedStateClassifier
     private static string? ReadArmType(GraphNode node)
     {
         return node.Properties.TryGetValue("arm.type", out string? armType) ? armType : null;
+    }
+
+    private static string FormatNsgTargetKindLabel(string? targetKind)
+    {
+        if (string.IsNullOrWhiteSpace(targetKind))
+        {
+            return "Target kind was not stored";
+        }
+
+        return targetKind.ToLowerInvariant();
     }
 
     private static string ReadResourceName(string? armResourceId, string fallbackLabel)

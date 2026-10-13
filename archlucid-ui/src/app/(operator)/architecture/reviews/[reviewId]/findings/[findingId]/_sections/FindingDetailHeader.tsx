@@ -197,22 +197,31 @@ export function FindingDetailHeader(props: FindingDetailHeaderProps) {
                 />
               ) : null}
               <StatusTag kind="neutral" label={labels.categoryLabel ?? "Category was not stored"} />
-              {labels.impactedAreaLabel ? (
-                <StatusTag kind="neutral" label={`Business impact: ${labels.impactedAreaLabel}`} />
-              ) : null}
+              {labels.impactedAreaLabel !== null && labels.impactedAreaLabel !== undefined ? (
+                labels.impactedAreaLabel.length > 0 ? (
+                  <StatusTag kind="neutral" label={`Business impact: ${labels.impactedAreaLabel}`} />
+                ) : null
+              ) : (
+                <StatusTag kind="neutral" label="Business impact was not stored." />
+              )}
             </div>
           ) : null}
 
-          {inspectPayload !== null &&
-          (confidenceLevel === "High" || confidenceLevel === "Medium" || confidenceLevel === "Low") ? (
-            <div className="flex flex-wrap items-center gap-2">
-              <FindingConfidenceBadge level={confidenceLevel} />
-              {evaluationScore !== null && Number.isFinite(evaluationScore) ? (
-                <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                  Score {evaluationScore.toFixed(2)}
-                </span>
-              ) : null}
-            </div>
+          {inspectPayload !== null ? (
+            confidenceLevel === "High" || confidenceLevel === "Medium" || confidenceLevel === "Low" ? (
+              <div className="flex flex-wrap items-center gap-2">
+                <FindingConfidenceBadge level={confidenceLevel} />
+                {evaluationScore !== null && Number.isFinite(evaluationScore) ? (
+                  <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                    Score {evaluationScore.toFixed(2)}
+                  </span>
+                ) : null}
+              </div>
+            ) : confidenceLevel === null || confidenceLevel === undefined ? (
+              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                Confidence was not stored.
+              </p>
+            ) : null
           ) : null}
 
           {inspectPayload !== null && severityRationale.length > 0 ? (

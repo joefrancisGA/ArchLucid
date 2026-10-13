@@ -132,7 +132,10 @@ export function GraphViewerNodeDetailPanel({
             <strong>ID:</strong> {selectedNode.id}
           </p>
           <p>
-            <strong>Label:</strong> {selectedNode.label}
+            <strong>Label:</strong>{" "}
+            {selectedNode.label === null || selectedNode.label === undefined
+              ? "Node label was not stored."
+              : selectedNode.label}
           </p>
         </>
       )}

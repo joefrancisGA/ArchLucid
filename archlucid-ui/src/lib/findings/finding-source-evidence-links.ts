@@ -127,8 +127,6 @@ function showcaseInspectEvidenceLink(
   }
 
   const detail = detailFromInspectRow(row);
-  const artifactLabel = nonEmpty(row.artifactId)?.replace(/-/g, " ") ?? "cited evidence";
-
   if (index === 0) {
     return linkFromKind(
       "manifestSection",
@@ -137,6 +135,17 @@ function showcaseInspectEvidenceLink(
       detail,
     );
   }
+
+  if (row.artifactId === null || row.artifactId === undefined) {
+    return linkFromKind(
+      "graphNode",
+      "Evidence artifact id was not stored.",
+      graphTrailHrefWithOptionalNode(ctx.runId, graphFocusId),
+      detail,
+    );
+  }
+
+  const artifactLabel = nonEmpty(row.artifactId)?.replace(/-/g, " ") ?? "cited evidence";
 
   return linkFromKind(
     "graphNode",

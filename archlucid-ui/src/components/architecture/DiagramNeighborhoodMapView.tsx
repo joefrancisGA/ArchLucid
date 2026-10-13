@@ -13,7 +13,11 @@ export type DiagramNeighborhoodMapViewProps = {
 function titleFor(map: DiagramNeighborhoodMap, id: string): string {
   const title = map.neighborhoods.find((neighborhood) => neighborhood.id === id)?.title;
 
-  return title === null || title === undefined ? id : title;
+  if (title === null || title === undefined) {
+    return "Neighborhood title was not stored";
+  }
+
+  return title;
 }
 
 function renderTypeChip(type: { readonly name: string | null; readonly count: number | null }): React.JSX.Element {

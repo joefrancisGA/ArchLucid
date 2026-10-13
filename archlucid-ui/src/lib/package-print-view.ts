@@ -208,12 +208,14 @@ export function buildPackagePrintSponsorSynopsis(summary: RunSummary): string | 
   const warnings = finiteCount(summary.warningCount);
   const findingsPhrase =
     findings === null
-      ? "findings are available on the review"
+      ? "Finding count was not stored."
       : `${findings} finding${findings === 1 ? "" : "s"} recorded`;
   const warningsPhrase =
-    warnings !== null && warnings > 0
-      ? ` ${warnings} approval-check warning${warnings === 1 ? "" : "s"} remain for attention.`
-      : " No open approval-check warnings on this summary.";
+    warnings === null
+      ? " Warning count was not stored."
+      : warnings > 0
+        ? ` ${warnings} approval-check warning${warnings === 1 ? "" : "s"} remain for attention.`
+        : " No open approval-check warnings on this summary.";
 
   return `Sponsor synopsis for "${title}": finalized architecture review with ${findingsPhrase}.${warningsPhrase}`;
 }

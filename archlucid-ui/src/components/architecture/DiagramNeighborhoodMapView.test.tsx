@@ -178,8 +178,14 @@ describe("DiagramNeighborhoodMapView", () => {
     );
 
     expect(screen.getByText("Neighborhood title was not stored.")).toBeInTheDocument();
-    expect(screen.getByText("vnet:app — Link count was not stored — vnet:app")).toBeInTheDocument();
-    expect(screen.getByText("vnet:app — 0 — vnet:app")).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "Neighborhood title was not stored — Link count was not stored — Neighborhood title was not stored",
+      ),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("Neighborhood title was not stored — 0 — Neighborhood title was not stored"),
+    ).toBeInTheDocument();
   });
 
   it("labels missing kinds and type names without changing stored counts", () => {

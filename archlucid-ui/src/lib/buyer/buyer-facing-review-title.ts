@@ -54,6 +54,10 @@ export function buyerFacingReviewTitleFromSummary(run: RunSummary): string {
     }
   }
 
+  if (run.displayName === null && run.description === null) {
+    return "Review title was not stored.";
+  }
+
   const description = stripRetiredDemoOrgBranding(run.description).trim();
 
   // Some APIs echo the run id as `description`; never show that slug as a human title.
