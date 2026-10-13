@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-13 seed hunt (seed→hit): `application-tenancy-lifecycle` — promoted `TenantCatalogMigrationOrchestrator.CompleteAsync`; erasure offboard after repository `CompleteAsync` but before completion audit still returned `Applied` and appended `TenantCatalogMigrationCompleted`; re-read before audit and return `InErasureQuarantine` without completed audit (skip unsuspend when already offboarded); regression `CompleteAsync_returns_in_erasure_quarantine_without_completed_audit_when_offboarded_after_repository_complete`; 172 scoped tenancy tests passed.
+
 2026-10-13 seed hunt (seed→hit): `application-tenancy-lifecycle` — promoted `TenantCatalogMigrationOrchestrator.StartAsync`; erasure offboard after `InsertAsync` but before `TenantCatalogMigrationStarted` audit still returned `Applied` and appended started audit on quarantined tenant; re-read after insert and return `InErasureQuarantine` with `migrationId` without started audit; regression `StartAsync_returns_in_erasure_quarantine_without_started_audit_when_offboard_completes_after_insert`; 171 scoped tenancy tests passed.
 
 2026-10-13 seed hunt (seed→hit): `application-tenancy-lifecycle` — promoted `TenantCatalogMigrationOrchestrator.CompleteAsync`; erasure offboard after verification passed but before migration completion still closed the active migration record; re-read tenant before `CompleteAsync` and return `InErasureQuarantine` without completing; regression `CompleteAsync_returns_in_erasure_quarantine_when_offboarded_before_complete`; 170 scoped tenancy tests passed.
@@ -34594,11 +34596,15 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 68
-- **bugs-found:** 53
+- **hunts:** 69
+- **bugs-found:** 54
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-13
-- **last-bug:** 2026-10-13 — Migration started audit after post-insert erasure offboard
+- **last-bug:** 2026-10-13 — Migration completed audit after post-repository offboard
+
+2026-10-13 seed hunt (seed→hit): reseeded catalog migration after post-insert offboard guard; proved `CompleteAsync` appended completed audit when offboard followed repository complete; re-read before audit; regression `CompleteAsync_returns_in_erasure_quarantine_without_completed_audit_when_offboarded_after_repository_complete`; 172 scoped tenancy tests passed.
+
+- [x] (proven) `TenantCatalogMigrationOrchestrator.CompleteAsync` — appended `TenantCatalogMigrationCompleted` after erasure offboard post-repository complete — **hit 2026-10-13 seed hunt (seed→hit):** return `InErasureQuarantine` without completed audit; regression `CompleteAsync_returns_in_erasure_quarantine_without_completed_audit_when_offboarded_after_repository_complete`.
 
 2026-10-13 seed hunt (seed→hit): reseeded catalog migration after complete guard; proved `StartAsync` appended started audit when offboard completed after insert; re-read after insert; regression `StartAsync_returns_in_erasure_quarantine_without_started_audit_when_offboard_completes_after_insert`; 171 scoped tenancy tests passed.
 
@@ -34608,7 +34614,6 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 - [x] (proven) `TenantCatalogMigrationOrchestrator.CompleteAsync` — completed active migration after erasure offboard — **hit 2026-10-13 seed hunt (seed→hit):** return `InErasureQuarantine` without calling migration `CompleteAsync`; regression `CompleteAsync_returns_in_erasure_quarantine_when_offboarded_before_complete`.
 
-- [ ] (candidate) `TenantCatalogMigrationOrchestrator.CompleteAsync` — may append `TenantCatalogMigrationCompleted` audit when erasure offboard completes after repository `CompleteAsync` but before audit append.
 - [ ] (candidate) `TenantCatalogMigrationOrchestrator.RunVerificationAsync` — may append verification-passed audit when erasure offboard completes during probe while migration stays verification-stage.
 - [ ] (candidate) `TenantCatalogMigrationOrchestrator.AcknowledgeCatalogAttachDetachAsync` — may advance stage and audit catalog attach when tenant enters erasure quarantine mid fan-out.
 - [ ] (candidate) `TenantCatalogMigrationOrchestrator.RunProjectionRefreshAsync` — may advance to projection refresh and audit when erasure offboard completes during `RefreshAsync`.
