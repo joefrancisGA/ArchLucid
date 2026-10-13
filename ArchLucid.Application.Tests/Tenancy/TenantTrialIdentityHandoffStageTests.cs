@@ -145,6 +145,70 @@ public sealed class TenantTrialIdentityHandoffStageTests
             .Setup(t => t.UpdateEntraTenantIdAsync(tenantId, entraTenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(true);
         tenants
+            .SetupSequence(t => t.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(tenant)
+            .ReturnsAsync(offboarded);
+
+        Mock<IAuditService> audit = new(MockBehavior.Strict);
+
+        TenantTrialIdentityHandoffStage sut = new(tenants.Object, Mock.Of<ITrialIdentityUserRepository>(), audit.Object);
+
+        TenantTrialLinkEntraResult result = await sut.LinkEntraAsync(
+            new TenantTrialLinkEntraBody { EntraTenantId = entraTenantId },
+            tenant,
+            scope,
+            "admin",
+            normalizedLocalEmail: null,
+            hasIdentityPayload: false,
+            CancellationToken.None);
+
+        result.Outcome.Should().Be(TenantTrialHttpOutcome.Success);
+        tenants.Verify(
+            t => t.UpdateEntraTenantIdAsync(tenantId, entraTenantId, It.IsAny<CancellationToken>()),
+            Times.Once);
+        audit.Verify(
+            a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task LinkEntraAsync_returns_success_without_entra_bind_when_offboard_completes_before_directory_bind()
+    {
+        Guid tenantId = Guid.Parse("12121212-1212-1212-1212-121212121212");
+        Guid entraTenantId = Guid.Parse("13131313-1313-1313-1313-131313131313");
+        DateTimeOffset anchor = new(2026, 10, 13, 12, 0, 0, TimeSpan.Zero);
+
+        TenantRecord tenant = new()
+        {
+            Id = tenantId,
+            Name = "home",
+            Slug = "home",
+            Tier = TenantTier.Standard,
+            CreatedUtc = TimeProvider.System.GetUtcNow(),
+            TrialStatus = TrialLifecycleStatus.Converted,
+        };
+
+        TenantRecord offboarded = new()
+        {
+            Id = tenantId,
+            Name = tenant.Name,
+            Slug = tenant.Slug,
+            Tier = tenant.Tier,
+            CreatedUtc = tenant.CreatedUtc,
+            TrialStatus = tenant.TrialStatus,
+            OffboardedUtc = anchor,
+            ErasureEligibleUtc = anchor.AddDays(30),
+        };
+
+        ScopeContext scope = new()
+        {
+            TenantId = tenantId,
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+
+        Mock<ITenantRepository> tenants = new(MockBehavior.Strict);
+        tenants
             .Setup(t => t.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(offboarded);
 
@@ -162,6 +226,9 @@ public sealed class TenantTrialIdentityHandoffStageTests
             CancellationToken.None);
 
         result.Outcome.Should().Be(TenantTrialHttpOutcome.Success);
+        tenants.Verify(
+            t => t.UpdateEntraTenantIdAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
+            Times.Never);
         audit.Verify(
             a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()),
             Times.Never);
@@ -212,6 +279,7 @@ public sealed class TenantTrialIdentityHandoffStageTests
         tenants
             .SetupSequence(t => t.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(active)
+            .ReturnsAsync(active)
             .ReturnsAsync(offboarded);
 
         Mock<ITrialIdentityUserRepository> trialUsers = new(MockBehavior.Strict);
@@ -244,6 +312,11 @@ public sealed class TenantTrialIdentityHandoffStageTests
                 It.Is<AuditEvent>(e => e.EventType == AuditEventTypes.TrialLocalIdentityLinkedToEntra),
                 It.IsAny<CancellationToken>()),
             Times.Never);
+        audit.Verify(
+            a => a.LogAsync(
+                It.Is<AuditEvent>(e => e.EventType == AuditEventTypes.TenantEntraDirectoryBound),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     [Fact]
