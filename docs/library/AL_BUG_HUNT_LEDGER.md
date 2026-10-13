@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-13 seed hunt (seed→hit): `application-tenancy-lifecycle` — promoted `TenantCatalogMigrationOrchestrator.RunProjectionRefreshAsync` post-refresh stage-advance path; `UpdateStageAsync` to `ProjectionRefresh` still ran when erasure offboard completed after projection refresh but before stage advance (post-refresh re-read only); pre-stage-advance `GetByIdAsync` quarantine guard; regression `RunProjectionRefreshAsync_returns_in_erasure_quarantine_without_stage_update_when_offboarded_after_refresh_before_stage_advance`; tightened post-stage-update audit race sequence; 225 scoped tenancy tests passed.
+
 2026-10-13 seed hunt (seed→hit): `application-tenancy-lifecycle` — promoted `TenantCatalogMigrationOrchestrator.CompleteAsync` pre-repository-complete path; `IMigrationRepository.CompleteAsync` still ran when erasure offboard completed after entry tenant read but before migration complete (post-complete audit re-read only); pre-repository-complete `GetByIdAsync` quarantine guard; regression `CompleteAsync_returns_in_erasure_quarantine_without_repository_complete_when_offboarded_after_entry_before_complete`; tightened post-repository-complete race sequences; 224 scoped tenancy tests passed.
 
 2026-10-13 seed hunt (seed→hit): `application-tenancy-lifecycle` — promoted `TenantCatalogMigrationOrchestrator.RunVerificationAsync` post-probe mark path; `MarkVerificationResultAsync` still ran when erasure offboard completed after verification probe but before persisting probe outcome (post-probe audit re-read only); pre-mark `GetByIdAsync` quarantine guard; regression `RunVerificationAsync_returns_in_erasure_quarantine_without_marking_result_when_offboarded_after_probe_before_mark`; tightened post-probe audit race sequences; 223 scoped tenancy tests passed.
@@ -34698,11 +34700,15 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 117
-- **bugs-found:** 102
+- **hunts:** 118
+- **bugs-found:** 103
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-13
-- **last-bug:** 2026-10-13 — Catalog migration repository complete on quarantined tenant
+- **last-bug:** 2026-10-13 — Catalog migration projection refresh stage advance on quarantined tenant
+
+2026-10-13 seed hunt (seed→hit): reseeded projection refresh post-refresh stage window; proved `UpdateStageAsync` when offboard followed refresh; pre-stage-advance tenant re-read; regression `RunProjectionRefreshAsync_returns_in_erasure_quarantine_without_stage_update_when_offboarded_after_refresh_before_stage_advance`; 225 scoped tenancy tests passed.
+
+- [x] (proven) `TenantCatalogMigrationOrchestrator.RunProjectionRefreshAsync` — `UpdateStageAsync` when erasure offboard after refresh before stage advance — **hit 2026-10-13 seed hunt (seed→hit):** pre-stage-advance `GetByIdAsync` quarantine guard; regression `RunProjectionRefreshAsync_returns_in_erasure_quarantine_without_stage_update_when_offboarded_after_refresh_before_stage_advance`.
 
 2026-10-13 seed hunt (seed→hit): reseeded catalog migration complete pre-repository window; proved `CompleteAsync` migration repository call when offboard followed entry read; pre-repository-complete tenant re-read; regression `CompleteAsync_returns_in_erasure_quarantine_without_repository_complete_when_offboarded_after_entry_before_complete`; 224 scoped tenancy tests passed.
 
