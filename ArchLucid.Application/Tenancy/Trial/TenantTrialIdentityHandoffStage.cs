@@ -81,18 +81,18 @@ public sealed class TenantTrialIdentityHandoffStage(
         if (!hasIdentityPayload || normalizedLocalEmail is null)
             return new TenantTrialLinkEntraResult { Outcome = TenantTrialHttpOutcome.Success };
 
+        TenantRecord? tenantBeforeIdentityWork =
+            await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
+
+        if (tenantBeforeIdentityWork?.OffboardedUtc is not null)
+            return new TenantTrialLinkEntraResult { Outcome = TenantTrialHttpOutcome.Success };
+
         TrialIdentityUserRecord? existingIdentity = await _trialIdentityUsers
             .GetByNormalizedEmailAsync(normalizedLocalEmail, cancellationToken)
             .ConfigureAwait(false);
 
         bool identityAlreadyLinked = existingIdentity?.LinkedEntraOid is not null
             && string.Equals(existingIdentity.LinkedEntraOid, body.EntraOid!.Trim(), StringComparison.OrdinalIgnoreCase);
-
-        TenantRecord? tenantBeforeIdentityLink =
-            await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
-
-        if (tenantBeforeIdentityLink?.OffboardedUtc is not null)
-            return new TenantTrialLinkEntraResult { Outcome = TenantTrialHttpOutcome.Success };
 
         bool identityLinked = await _trialIdentityUsers.TryLinkLocalIdentityToEntraAsync(
             normalizedLocalEmail,
