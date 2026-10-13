@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-13 seed hunt (seed→hit): `application-tenancy-lifecycle` — promoted `TenantErasureCommandService.TryApproveErasureAsync`; quarantine restore after successful `TryApproveTenantErasureAsync` still appended `TenantErasureApproved` platform audit while erasure no longer applied; re-read tenant before audit and skip audit when `OffboardedUtc` is cleared; regression `TryApproveErasureAsync_returns_success_without_audit_when_quarantine_restored_after_atomic_approve`; 163 scoped tenancy tests passed.
+
 2026-10-13 seed hunt (seed→hit): `application-tenancy-lifecycle` — promoted `TenantSuspendCommandService.TrySuspendAsync`; erasure offboard between successful `TrySuspendTenantAsync` and platform audit still returned `Applied` and appended `TenantSuspended`; re-read tenant before audit and map active quarantine to `InErasureQuarantine` (mirrored on `TryUnsuspendAsync`); regression `TrySuspendAsync_returns_quarantine_when_offboard_completes_after_atomic_suspend_before_audit`; 162 scoped tenancy tests passed.
 
 2026-10-13 seed hunt (seed→hit): `application-tenancy-lifecycle` — promoted `TenantDeletionService.DeleteTenantAsync`; quarantine restore cleared `TenantErasureApprovedUtc` after `DeleteAllTenantPrefixesAsync` but before `PurgeTenantAsync`, so SQL hard purge still ran without valid approval; third `RevalidateTenantForHardPurgeAsync` immediately before SQL purge; regression `DeleteTenantAsync_throws_when_erasure_approval_cleared_after_blob_deletion_before_sql_purge`; 161 scoped tenancy tests passed.
@@ -34561,11 +34563,15 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 59
-- **bugs-found:** 44
+- **hunts:** 60
+- **bugs-found:** 45
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-13
-- **last-bug:** 2026-10-13 — Admin suspend returned Applied after concurrent erasure offboard
+- **last-bug:** 2026-10-13 — Erasure approve audit after concurrent quarantine restore
+
+2026-10-13 seed hunt (seed→hit): reseeded erasure commands after suspend post-atomic audit race fix; proved `TryApproveErasureAsync` emitted approve audit when restore cleared quarantine after atomic approve; re-read before audit; regression `TryApproveErasureAsync_returns_success_without_audit_when_quarantine_restored_after_atomic_approve`; 163 scoped tenancy tests passed.
+
+- [x] (proven) `TenantErasureCommandService.TryApproveErasureAsync` — appended `TenantErasureApproved` audit when quarantine restore completed after atomic approve — **hit 2026-10-13 seed hunt (seed→hit):** skip audit when post-approve re-read shows cleared `OffboardedUtc`; regression `TryApproveErasureAsync_returns_success_without_audit_when_quarantine_restored_after_atomic_approve`.
 
 2026-10-13 seed hunt (seed→hit): reseeded suspend command service after tenant deletion post-blob revalidate fix; proved `TrySuspendAsync` ignored erasure offboard after atomic suspend won; re-read before platform audit; regression `TrySuspendAsync_returns_quarantine_when_offboard_completes_after_atomic_suspend_before_audit`; 162 scoped tenancy tests passed.
 
