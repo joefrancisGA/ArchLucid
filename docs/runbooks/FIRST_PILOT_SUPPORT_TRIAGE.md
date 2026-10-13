@@ -26,7 +26,7 @@ Tier C / private-beta wizard create may return **HTTP 202** with a **`Location`*
 | Signal | Meaning | Next step |
 | --- | --- | --- |
 | `state: running`, step labels like “Reading architecture evidence” | Authority pipeline still materializing the review | Keep polling; correlate worker logs with `run:{runId}` per [`TRACE_A_RUN.md`](TRACE_A_RUN.md) |
-| `state: failed`, step `Execute failed` | Run header `LegacyRunStatus` is **Failed** | `GET /v1/authority/runs/{runId}` → read **`lastFailureReason`** (JSON or plain text); check pipeline timeline and audit |
+| `state: failed`, step `Execute failed` | Run header `LegacyRunStatus` is **Failed** | `GET /v1/authority/reviews/{runId}` (or `GET /v1/runs/{runId}`) → read **`lastFailureReason`** (JSON or plain text); check pipeline timeline and audit |
 | `GET /v1/governance/pre-finalize/readiness/{runId}` → **409** “committed golden manifest is missing” | Governance checked before pipeline finished (or after a failed create) | Confirm operation poll outcome first; do not treat as a governance pack misconfiguration until the run reaches **ReadyForCommit** with a golden manifest |
 
 1. **Health and version** — `GET /health/ready`, `GET /version`, or `archlucid doctor`. Confirm SQL and worker/API roles.
