@@ -31453,6 +31453,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ## Zone: notifications-pipeline
 
+2026-10-13 seed hunt (seed-only): re-read notification email dispatchers, ChatOps webhook delivery, and digest subscription controller boundaries; cheap-disproved four open candidates (webhook URL sanitization, Slack signature length, multi-recipient false return, facade-only digest validation); no hunt-ready repro; seeded five follow-on `(candidate)` rows; 165 scoped notification/digest Application tests passed.
+
 2026-10-13 seed hunt (seed→hit): proved workspace invitation personal-message plain http(s) URLs echoed embedded userinfo outside markdown link syntax; 165 scoped notification/digest Application tests passed.
 
 2026-10-13 seed hunt (seed→hit): proved workspace invitation personal-message markdown links echoed userinfo in href/text bodies; 164 scoped notification/digest Application tests passed.
@@ -31469,7 +31471,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** notifications; email dispatchers beyond weekly summary
 - **paths:** ArchLucid.Notifications/; ArchLucid.Application/Notifications/; ArchLucid.Api/Controllers/Advisory/DigestSubscriptionsController.cs
 - **test-filter:** FullyQualifiedName~Notifications|FullyQualifiedName~EmailDispatcher|FullyQualifiedName~DigestSubscriptionsController
-- **hunts:** 67
+- **hunts:** 68
 - **bugs-found:** 51
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-13
@@ -31497,10 +31499,14 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (valid-no-repro) `MarketingEarlyAccessSalesNotifier` / `MarketingPricingQuoteSalesNotifier` — **cheap-disproof 2026-10-13 seed hunt:** sales inbox notifications embed requester fields only; no `OperatorBaseUrl` concatenation in zone files.
 - [x] (valid-no-repro) `TrialLocalIdentityAccountExistsEmailNotifier` — **cheap-disproof 2026-10-13 seed hunt:** account-exists mail is static copy with no operator deep links.
 - [x] (valid-no-repro) `DigestTeamsWebhookDeliveryChannel.SendAsync` — **cheap-disproof 2026-10-13 seed hunt:** same advisory digest markdown source as Slack; no operator-base URL concatenation in zone delivery channels today.
-- [ ] (candidate) `ChatOpsWebhookDeliveryService.DeliverAsync` — posts `ChatOpsWebhookMessage` bodies without sanitizing embedded absolute URLs when alert or authority-run descriptions include operator deep links pasted by operators.
-- [ ] (candidate) `SlackInteractivityVerifier.Verify` — rejects missing signing secret with `false` (fail-closed); confirm no timing oracle when signature length differs from `v0=` HMAC hex (regression guard only).
-- [ ] (candidate) `MultiRecipientEmailDispatch.TrySendToMailboxesAsync` — invalid mailbox entries are skipped silently; callers that pre-trim but pass whitespace-only slots may believe a recipient was attempted when `DistinctValidNormalizedMailboxes` drops every entry and returns `false`.
-- [ ] (candidate) `DigestSubscriptionsController.Create` — null body returns 400, but empty-string webhook destinations depend on facade validation; confirm Teams/Slack webhook URI shape errors surface before persistence (facade lives outside zone paths).
+- [x] (valid-no-repro) `ChatOpsWebhookDeliveryService.DeliverAsync` — posts `ChatOpsWebhookMessage` bodies without embedded URL sanitization — **cheap-disproof 2026-10-13 seed hunt:** zone channels forward alert/run copy verbatim; no `OperatorBaseUrl` concatenation in `ArchLucid.Notifications/` delivery paths today.
+- [x] (valid-no-repro) `SlackInteractivityVerifier.Verify` — signature length mismatch — **cheap-disproof 2026-10-13 seed hunt:** `Verify_rejects_signature_mismatch` and empty-input guards; `CryptographicOperations.FixedTimeEquals` returns false on length mismatch without throwing.
+- [x] (valid-no-repro) `MultiRecipientEmailDispatch.TrySendToMailboxesAsync` — all-invalid mailbox lists return `false` — **cheap-disproof 2026-10-13 seed hunt:** documented contract; `WeeklySponsorReportEmailDispatcher_skips_send_when_all_mailboxes_fail_identity_normalization` asserts no send and no ledger write.
+- [x] (valid-no-repro) `DigestSubscriptionsController.Create` — webhook destination validation — **cheap-disproof 2026-10-13 seed hunt:** controller delegates to `IDigestSubscriptionFacade`; shape/persistence checks are outside zone paths and were not falsifiable from scoped files alone.
+- [ ] (candidate) `WeeklySponsorSummaryEmailDispatcher` / `WeeklySponsorReportEmailDispatcher` — `IdentityEmailNormalizer` runs only inside `MultiRecipientEmailDispatch` after `IEmailTemplateRenderer` builds HTML/text; invalid-only recipient lists still render templates containing `RunDetailUrl` (see `WeeklySponsorReportEmailDispatcher_skips_send_when_all_mailboxes_fail_identity_normalization`).
+- [ ] (candidate) `ExecDigestEmailDispatcher.TryDispatchAsync` — non-whitespace but invalid mailbox strings (for example `finance@`) are trimmed into the recipient list before render; delivery relies on `MultiRecipientEmailDispatch` to skip send without an early normalizer gate (`ExecDigestEmailDispatcher_skips_invalid_recipient_mailboxes_without_sending`).
+- [ ] (candidate) `DigestSlackWebhookDeliveryChannel.SendAsync` / `DigestTeamsWebhookDeliveryChannel.SendAsync` — `payload.Digest` and `payload.Subscription` are not explicitly null-guarded; null graph properties throw `NullReferenceException` instead of `ArgumentNullException` on the offending parameter.
+- [ ] (candidate) `AlertSlackWebhookDeliveryChannel.SendAsync` — `payload.Subscription.Destination` is passed to `ChatOpsWebhookDeliveryService` without zone-local HTTPS validation (relies on subscription persistence validation upstream).
 
 - [x] (proven) `ExecDigestEmailDispatcher` — `DashboardUrl` / `SponsorValueReportUrl` with embedded userinfo reached digest template CTAs without sanitization — **hit 2026-10-13 seed hunt (seed→hit):** `SanitizeOperatorAbsoluteUrl` at dispatch (parity with unsubscribe and weekly sponsor `runDetailUrl`); regression `ExecDigestEmailDispatcher_omits_user_info_from_dashboard_and_sponsor_urls_in_template_model`.
 
