@@ -14,13 +14,16 @@ public sealed class ChatOpsWebhookDeliveryService(IWebhookPoster webhookPoster) 
         CancellationToken cancellationToken,
         WebhookPostOptions? webhookPostOptions = null)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(webhookAbsoluteUri);
         ArgumentNullException.ThrowIfNull(message);
+
+        string deliveryUri = ChatOpsWebhookAbsoluteUriValidator.ResolveHttpsDeliveryUriOrThrow(
+            webhookAbsoluteUri,
+            nameof(webhookAbsoluteUri));
 
         object body = BuildBody(target, message);
 
         return _webhookPoster.PostJsonAsync(
-            webhookAbsoluteUri,
+            deliveryUri,
             body,
             cancellationToken,
             webhookPostOptions);
