@@ -87,6 +87,42 @@ public sealed class DigestTeamsWebhookDeliveryChannelTests
     }
 
     [Fact]
+    public async Task SendAsync_TeamsPayload_HtmlEncodes_digest_title_and_summary()
+    {
+        Mock<IChatOpsWebhookDeliveryService> delivery = new();
+        ChatOpsWebhookMessage? captured = null;
+
+        delivery.Setup(x =>
+                x.DeliverAsync(
+                    ChatOpsWebhookTarget.Teams,
+                    It.IsAny<string>(),
+                    It.IsAny<ChatOpsWebhookMessage>(),
+                    It.IsAny<CancellationToken>(),
+                    It.IsAny<WebhookPostOptions?>()))
+            .Callback<ChatOpsWebhookTarget, string, ChatOpsWebhookMessage, CancellationToken, WebhookPostOptions?>(
+                (_, _, msg, _, _) =>
+                    captured = msg)
+            .Returns(Task.CompletedTask);
+
+        DigestTeamsWebhookDeliveryChannel sut = new(delivery.Object);
+        DigestDeliveryPayload payload = CreatePayload("https://outlook.office.com/webhook/x");
+        payload.Digest.Title = "<b>Spoofed digest title</b>";
+        payload.Digest.Summary = "Cost<script> in summary.";
+        payload.Digest.ContentMarkdown = "### Changes\n- keep <i>markdown</i> literal";
+
+        await sut.SendAsync(payload, CancellationToken.None);
+
+        captured.Should().NotBeNull();
+        object body = ChatOpsIncomingWebhookBodies.ForTeams(captured!);
+        string title = GetStringProperty(body, "title");
+        string text = GetStringProperty(body, "text");
+
+        title.Should().Be("&lt;b&gt;Spoofed digest title&lt;/b&gt;");
+        text.Should().StartWith("Cost&lt;script&gt; in summary.");
+        text.Should().Contain("### Changes\n- keep <i>markdown</i> literal");
+    }
+
+    [Fact]
     public async Task SendAsync_WhenPayloadIsNull_ThrowsArgumentNullException()
     {
         Mock<IChatOpsWebhookDeliveryService> delivery = new();
