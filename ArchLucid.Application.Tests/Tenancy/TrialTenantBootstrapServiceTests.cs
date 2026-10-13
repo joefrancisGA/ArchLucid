@@ -477,6 +477,7 @@ public sealed class TrialTenantBootstrapServiceTests
             .ReturnsAsync(active)
             .ReturnsAsync(active)
             .ReturnsAsync(active)
+            .ReturnsAsync(active)
             .ReturnsAsync(offboarded);
 
         Mock<IAuditService> audit = new(MockBehavior.Strict);
@@ -1042,6 +1043,7 @@ public sealed class TrialTenantBootstrapServiceTests
             .ReturnsAsync(active)
             .ReturnsAsync(active)
             .ReturnsAsync(active)
+            .ReturnsAsync(active)
             .ReturnsAsync(offboarded);
 
         Mock<ISelfServiceTrialAiBudgetPolicyProvisioner> policy = new(MockBehavior.Strict);
@@ -1124,6 +1126,7 @@ public sealed class TrialTenantBootstrapServiceTests
             .ReturnsAsync(active)
             .ReturnsAsync(active)
             .ReturnsAsync(active)
+            .ReturnsAsync(active)
             .ReturnsAsync(offboarded);
 
         Mock<IAuditService> audit = new(MockBehavior.Strict);
@@ -1170,6 +1173,78 @@ public sealed class TrialTenantBootstrapServiceTests
             a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()),
             Times.Never);
         repo.Verify(r => r.EnqueueTrialArchitecturePreseedAsync(tenantId, It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [SkippableFact]
+    public async Task TryBootstrapAfterSelfRegistrationAsync_skips_full_demo_seed_when_offboard_completes_after_welcome_before_full_seed()
+    {
+        Guid tenantId = Guid.Parse("99999999-9999-9999-9999-999999999991");
+        DateTimeOffset anchor = new(2026, 10, 13, 0, 0, 0, TimeSpan.Zero);
+        TenantRecord active = new()
+        {
+            Id = tenantId,
+            Tier = TenantTier.Free,
+        };
+        TenantRecord offboarded = new()
+        {
+            Id = tenantId,
+            Tier = TenantTier.Free,
+            OffboardedUtc = anchor,
+            ErasureEligibleUtc = anchor.AddDays(30),
+        };
+
+        Mock<IDemoSeedService> demo = new();
+        demo.Setup(s => s.SeedTrialWelcomeRunAsync(It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+
+        Mock<ITenantRepository> repo = new();
+        repo.SetupSequence(r => r.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(active)
+            .ReturnsAsync(active)
+            .ReturnsAsync(offboarded);
+
+        Mock<IAuditService> audit = new(MockBehavior.Strict);
+        Mock<ITrialBootstrapEmailVerificationPolicy> email = new();
+        email.Setup(e => e.CanProvisionTrialForRegisteredEmailAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+
+        TrialTenantBootstrapService sut = new(
+            demo.Object,
+            repo.Object,
+            audit.Object,
+            email.Object,
+            CreateTrialAiBudgetProvisionerMock().Object,
+            TimeProvider.System,
+            NullLogger<TrialTenantBootstrapService>.Instance);
+
+        TenantProvisioningResult result = new()
+        {
+            TenantId = tenantId,
+            DefaultWorkspaceId = Guid.NewGuid(),
+            DefaultProjectId = Guid.NewGuid(),
+            WasAlreadyProvisioned = false,
+        };
+
+        await sut.TryBootstrapAfterSelfRegistrationAsync(result, "owner@example.com", null, null, CancellationToken.None);
+
+        demo.Verify(s => s.SeedTrialWelcomeRunAsync(It.IsAny<CancellationToken>()), Times.Once);
+        demo.Verify(s => s.SeedAsync(It.IsAny<CancellationToken>()), Times.Never);
+        repo.Verify(
+            r => r.CommitSelfServiceTrialAsync(
+                tenantId,
+                It.IsAny<DateTimeOffset>(),
+                It.IsAny<DateTimeOffset>(),
+                It.IsAny<int>(),
+                It.IsAny<int>(),
+                It.IsAny<Guid>(),
+                It.IsAny<decimal?>(),
+                It.IsAny<string?>(),
+                It.IsAny<DateTimeOffset?>(),
+                It.IsAny<string?>(),
+                It.IsAny<int?>(),
+                It.IsAny<string?>(),
+                It.IsAny<string?>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     [SkippableFact]
