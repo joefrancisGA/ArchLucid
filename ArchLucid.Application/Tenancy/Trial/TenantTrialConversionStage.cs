@@ -87,6 +87,12 @@ public sealed class TenantTrialConversionStage(
             };
         }
 
+        TenantRecord? afterConvert =
+            await _tenantRepository.GetByIdAsync(tenant.Id, cancellationToken).ConfigureAwait(false);
+
+        if (afterConvert is null || afterConvert.OffboardedUtc is not null)
+            return new TenantTrialConvertResult { Outcome = TenantTrialHttpOutcome.Success };
+
         await _auditService.LogAsync(
             new AuditEvent
             {
