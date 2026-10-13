@@ -254,4 +254,20 @@ public sealed class ChatOpsIncomingWebhookBodiesTests
         NotificationsTestPayloadAssert.GetStringProperty(payload, "title")
             .Should().Be("[Low Critical] Actual headline");
     }
+
+    [Fact]
+    public void ForTeams_html_encodes_severity_label_before_title_prefix()
+    {
+        ChatOpsWebhookMessage message = new()
+        {
+            SeverityLabel = "High<script>alert(1)</script>",
+            Title = "Latency spike",
+            Body = "details",
+        };
+
+        object payload = ChatOpsIncomingWebhookBodies.ForTeams(message);
+
+        NotificationsTestPayloadAssert.GetStringProperty(payload, "title")
+            .Should().Be("[High&lt;script&gt;alert(1)&lt;/script&gt;] Latency spike");
+    }
 }

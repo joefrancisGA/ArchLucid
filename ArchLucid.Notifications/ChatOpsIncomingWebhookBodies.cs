@@ -1,3 +1,5 @@
+using System.Net;
+
 namespace ArchLucid.Notifications;
 
 /// <summary>Vendor JSON bodies for Slack and Microsoft Teams <em>incoming</em> webhooks (simple one-way POST).</summary>
@@ -145,7 +147,9 @@ public static class ChatOpsIncomingWebhookBodies
         if (sanitizedSeverity is null)
             return message.Title;
 
-        return FormattableString.Invariant($"[{sanitizedSeverity}] {message.Title}");
+        string encodedSeverity = WebUtility.HtmlEncode(sanitizedSeverity);
+
+        return FormattableString.Invariant($"[{encodedSeverity}] {message.Title}");
     }
 
     private static string? TrySanitizeSeverityLabel(string? severityLabel)

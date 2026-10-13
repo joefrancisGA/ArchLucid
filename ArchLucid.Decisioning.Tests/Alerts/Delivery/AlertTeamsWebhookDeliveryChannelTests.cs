@@ -129,6 +129,39 @@ public sealed class AlertTeamsWebhookDeliveryChannelTests
     }
 
     [Fact]
+    public async Task SendAsync_TeamsPayload_HtmlEncodes_severity_in_title_prefix()
+    {
+        Mock<IChatOpsWebhookDeliveryService> delivery = new();
+        ChatOpsWebhookMessage? captured = null;
+
+        delivery.Setup(x =>
+                x.DeliverAsync(
+                    ChatOpsWebhookTarget.Teams,
+                    It.IsAny<string>(),
+                    It.IsAny<ChatOpsWebhookMessage>(),
+                    It.IsAny<CancellationToken>(),
+                    It.IsAny<WebhookPostOptions?>()))
+            .Callback<ChatOpsWebhookTarget, string, ChatOpsWebhookMessage, CancellationToken, WebhookPostOptions?>(
+                (_, _, msg, _, _) =>
+                    captured = msg)
+            .Returns(Task.CompletedTask);
+
+        AlertTeamsWebhookDeliveryChannel sut = new(delivery.Object);
+        AlertDeliveryPayload payload = CreatePayload("https://outlook.office.com/webhook/x");
+        payload.Alert.Severity = "High<script>alert(1)</script>";
+        payload.Alert.Title = "Latency spike";
+        payload.Alert.Description = "Check service.";
+
+        await sut.SendAsync(payload, CancellationToken.None);
+
+        captured.Should().NotBeNull();
+        object body = ChatOpsIncomingWebhookBodies.ForTeams(captured!);
+        string title = GetStringProperty(body, "title");
+
+        title.Should().Be("[High&lt;script&gt;alert(1)&lt;/script&gt;] Latency spike");
+    }
+
+    [Fact]
     public async Task SendAsync_throws_when_subscription_destination_has_embedded_line_breaks()
     {
         Mock<IChatOpsWebhookDeliveryService> delivery = new();
