@@ -118,7 +118,13 @@ public sealed class TrialLifecycleTransitionEngine(
     {
         TenantRecord? afterMiss = await _tenantRepository.GetByIdAsync(tenantId, cancellationToken);
 
-        return afterMiss is not null && TrialLifecycleStatus.EqualsStatus(afterMiss.TrialStatus, targetStatus);
+        if (afterMiss is null)
+            return false;
+
+        if (afterMiss.OffboardedUtc is not null)
+            return true;
+
+        return TrialLifecycleStatus.EqualsStatus(afterMiss.TrialStatus, targetStatus);
     }
 
     private async Task EmitAuditAsync(TenantRecord tenant, TrialLifecycleAdvancement advancement, CancellationToken cancellationToken)
