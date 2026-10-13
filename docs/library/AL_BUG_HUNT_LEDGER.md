@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-13 thorough hunt (hit): `core-findings-advice` — closed five open `(candidate)` rows: middle-dot (`\u00b7`) resource-token Jaccard parity; `incompatible with` / `not in compliance with` conflict falsifiability; `restricted from` / `declined from` prohibitive negation parity; regressions in `DeterministicInsightDensityGateTests` and `GenericArchitectureAdvicePatternsMultiCloudTests`; 1732 scoped tests passed.
+
 2026-10-13 seed hunt (seed→hit): `core-requests-constraints` — promoted spaced ASCII solidus phrase splitting; `managed / identity` and `private / endpoint` missed `ContainsAffirmativePhrase` while fullwidth solidus (U+FF0F) already mapped to spaces; `NormalizeSpacedAsciiSolidus` maps `/` only when bounded by ASCII spaces; regressions in `RequestConstraintPhraseSpacedSolidusTests`; 910 scoped RequestConstraint tests passed.
 
 2026-10-13 thorough hunt (hit): `tenant-erasure` — promoted `TenantErasureCommandService.TryOffboardTenantAsync` pre-suspend path; `SuspendTenantAsync` still ran when erasure quarantine was restored after `TryStartTenantErasureOffboardAsync` succeeded but before the post-start tenant re-read; pre-suspend `GetByIdAsync` quarantine guard; tightened `TryOffboardTenantAsync_returns_null_without_audit_when_quarantine_restored_after_atomic_offboard_start` with `SuspendTenantAsync` never verification; 35 Application + 28 Api scoped `TenantErasure` tests passed.
@@ -25743,7 +25745,7 @@ Split from retired `archlucid-core` (ABQ-08).
 ---
 ## Zone: core-findings-advice
 
-2026-10-13 thorough hunt (hit): proved `%`/`$`/`?` resource-token delimiter parity and hyphenated `non-compliant with the constraint` falsifiability; cheap-disproof closed five open `(candidate)` rows from 2026-10-07; 1727 scoped tests passed.
+2026-10-13 thorough hunt (hit): proved middle-dot resource-token parity, `incompatible with` / `not in compliance with` conflict wording, and `restricted from` / `declined from` negation parity; 1732 scoped tests passed.
 
 - **id:** core-findings-advice
 - **split-from:** archlucid-core
@@ -25752,11 +25754,11 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** findings advice; generic architecture advice; split from archlucid-core
 - **paths:** ArchLucid.Core/Findings/
 - **test-filter:** FullyQualifiedName~GenericArchitectureAdvicePatterns
-- **hunts:** 25
-- **bugs-found:** 22
+- **hunts:** 26
+- **bugs-found:** 23
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-13
-- **last-bug:** 2026-10-13 — Percent/dollar/question-mark token parity and `non-compliant` conflict wording
+- **last-bug:** 2026-10-13 — Middle-dot token parity and conflict/negation wording gaps
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -25813,11 +25815,17 @@ Split from retired `archlucid-core` (ABQ-08). Generic-advice negation parity his
 - [x] (valid-no-repro) `GenericArchitectureAdvicePatterns.ConflictFindingPattern` — `noncompliant with the constraint` — **cheap-disproof 2026-10-13 thorough hunt:** regex already includes `noncompliant with`; same regression suite.
 - [x] (valid-no-repro) `EnglishNegationTokenizer` — `forbidden from enable mfa` — **cheap-disproof 2026-10-13 thorough hunt:** `forbidden from` in `MultiWordNegations`; regression `IsObviousGenericAdvice_does_not_flag_negated_checklist_phrasing`.
 
-- [ ] (candidate) `InsightDensityTextSimilarity.Tokenize` — Unicode middle-dot-separated resource tokens (`prod·sql·db`) vs space-separated peer may under-penalize duplication.
-- [ ] (candidate) `GenericArchitectureAdvicePatterns.ConflictFindingPattern` — `incompatible with the constraint` regulatory wording may miss `HasFalsifiabilitySignal`.
-- [ ] (candidate) `GenericArchitectureAdvicePatterns.ConflictFindingPattern` — `not in compliance with the constraint` phrasing may miss `HasFalsifiabilitySignal`.
-- [ ] (candidate) `EnglishNegationTokenizer` — `restricted from enable mfa` prohibitive intent may still false-positive demote obvious generic advice.
-- [ ] (candidate) `EnglishNegationTokenizer` — `declined from enable mfa` prohibitive intent may still false-positive demote obvious generic advice.
+- [x] (proven) `InsightDensityTextSimilarity.Tokenize` — Unicode middle-dot-separated resource tokens (`prod·sql·db`) — **hit 2026-10-13 thorough hunt:** split on U+00B7; regression `Jaccard_similarity_treats_middle_dot_separated_resource_tokens_as_space_separated_peers`.
+- [x] (proven) `GenericArchitectureAdvicePatterns.ConflictFindingPattern` — `incompatible with the constraint` — **hit 2026-10-13 thorough hunt:** extended `ConflictFindingPattern`; regression in `HasFalsifiabilitySignal_recognizes_conflict_wording_variants`.
+- [x] (proven) `GenericArchitectureAdvicePatterns.ConflictFindingPattern` — `not in compliance with the constraint` — **hit 2026-10-13 thorough hunt:** `not in compliance with` branch; regression in `HasFalsifiabilitySignal_recognizes_conflict_wording_variants`.
+- [x] (proven) `EnglishNegationTokenizer` — `restricted from enable mfa` — **hit 2026-10-13 thorough hunt:** `restricted from` multi-word negation; regression in `IsObviousGenericAdvice_does_not_flag_negated_checklist_phrasing`.
+- [x] (proven) `EnglishNegationTokenizer` — `declined from enable mfa` — **hit 2026-10-13 thorough hunt:** `declined from` multi-word negation; regression in `IsObviousGenericAdvice_does_not_flag_negated_checklist_phrasing`.
+
+- [ ] (candidate) `InsightDensityTextSimilarity.Tokenize` — Unicode bullet-separated resource tokens (`prod•sql•db`, U+2022) vs space-separated peer may under-penalize duplication.
+- [ ] (candidate) `GenericArchitectureAdvicePatterns.ConflictFindingPattern` — `out of compliance with the constraint` regulatory wording may miss `HasFalsifiabilitySignal`.
+- [ ] (candidate) `GenericArchitectureAdvicePatterns.ConflictFindingPattern` — `fails to comply with the constraint` phrasing may miss `HasFalsifiabilitySignal`.
+- [ ] (candidate) `EnglishNegationTokenizer` — `barred from enable mfa` prohibitive intent may still false-positive demote obvious generic advice.
+- [ ] (candidate) `EnglishNegationTokenizer` — `excluded from enable mfa` prohibitive intent may still false-positive demote obvious generic advice.
 
 2026-10-07 thorough hunt (hit): proved five open `(candidate)` rows; 1718 scoped GenericArchitectureAdvicePatterns + DeterministicInsightDensityGate tests passed.
 
