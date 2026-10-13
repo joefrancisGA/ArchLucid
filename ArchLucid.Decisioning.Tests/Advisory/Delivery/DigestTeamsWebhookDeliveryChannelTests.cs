@@ -98,6 +98,28 @@ public sealed class DigestTeamsWebhookDeliveryChannelTests
     }
 
     [Fact]
+    public async Task SendAsync_throws_when_subscription_destination_has_embedded_line_breaks()
+    {
+        Mock<IChatOpsWebhookDeliveryService> delivery = new();
+        DigestTeamsWebhookDeliveryChannel sut = new(delivery.Object);
+        DigestDeliveryPayload payload = CreatePayload("https://outlook.office.com/webhook/test");
+        payload.Subscription.Destination =
+            "https://outlook.office.com/webhook/test\r\nHost: injected.evil.test";
+
+        Func<Task> act = async () => await sut.SendAsync(payload, CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentException>();
+        delivery.Verify(
+            x => x.DeliverAsync(
+                It.IsAny<ChatOpsWebhookTarget>(),
+                It.IsAny<string>(),
+                It.IsAny<ChatOpsWebhookMessage>(),
+                It.IsAny<CancellationToken>(),
+                It.IsAny<WebhookPostOptions?>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task SendAsync_ForwardsCancellationToken()
     {
         Mock<IChatOpsWebhookDeliveryService> delivery = new();
