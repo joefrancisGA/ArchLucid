@@ -4,14 +4,18 @@ import {
   isArchitectureRequestCreateResponse,
   readCreatedRunIdFromArchitectureRequestCreate,
 } from "./architecture-request-create-response";
-import { liveE2eArchitectureDescription } from "./live-api-client";
+import { liveE2eArchitectureDescription, uniquePrivateBetaSystemName } from "./live-api-client";
 import { formatSimplifiedPilotWizardMountFailure } from "./simplified-pilot-wizard-mount-failure";
 import { clickThroughBlockingOverlays } from "./dismiss-blocking-modal-overlays";
 import {
   ensureFirstSessionPurposeChooserClosed,
   waitAndDismissFirstSessionPurposeChooser,
 } from "./live-seat-scope-assertions";
-import { parseWizardOperationResponse } from "./wizard-create-response";
+import {
+  interpretWizardCreateOperation,
+  parseWizardOperationResponse,
+  type WizardCreateOperationPoll,
+} from "./wizard-create-response";
 
 /**
  * Working desks redirect `/architecture/reviews/new` when `path` is absent (DA-09).
@@ -69,11 +73,10 @@ export async function submitPrivateBetaSimplifiedPilotWizard(page: Page): Promis
   await expect(page.getByRole("textbox", { name: "System Name" })).toBeVisible({ timeout: 30_000 });
 
   const systemName = page.getByRole("textbox", { name: "System Name" });
-  const systemNameValue = (await systemName.inputValue()).trim();
 
-  if (systemNameValue.length === 0) {
-    await systemName.fill(`PrivateBetaInvitee-${Date.now()}`);
-  }
+  // Baseline wizard prefills CustomerWebApp. A timed-out first attempt still occupies that name,
+  // so Playwright retry 409s with "A review named 'CustomerWebApp' already exists".
+  await systemName.fill(uniquePrivateBetaSystemName("PrivateBetaInvitee"));
 
   const description = page.getByRole("textbox", { name: "Description" });
   const descriptionText = (await description.inputValue()).trim();
@@ -183,10 +186,11 @@ async function waitForAsyncWizardRun(page: Page, location: string | undefined): 
       operationUrl,
       operationResponse.contentType,
     );
-    const state = operation.state?.toLowerCase();
+    const poll: WizardCreateOperationPoll = interpretWizardCreateOperation(operation);
 
-    if (state === "succeeded") {
-      const runId = operation.resultRef?.runId ?? "";
+    if (poll === "ready") {
+      const runId =
+        operation.resultRef?.runId?.trim() || parseRunIdFromOperationUrl(operationUrl) || "";
 
       if (runId.length === 0) {
         throw new Error(
@@ -197,7 +201,7 @@ async function waitForAsyncWizardRun(page: Page, location: string | undefined): 
       return runId;
     }
 
-    if (state === "failed" || state === "canceled") {
+    if (poll === "failed") {
       const runId =
         operation.resultRef?.runId?.trim() ||
         parseRunIdFromOperationUrl(operationUrl) ||

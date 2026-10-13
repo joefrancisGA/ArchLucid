@@ -3,7 +3,7 @@
 
 # Engineer-to-analyst handoff — Luna prompts
 
-**Created:** 2026-10-12 · **Updated:** 2026-10-13 (gap 4 prompts drafted) · **Status:** ready to paste · **Audience:** Composer 2.5 slow
+**Created:** 2026-10-12 · **Updated:** 2026-10-13 · **Status:** gap 5 **shipped** on trunk (SN-HAND-05–08). Gap 4 prompts **SN-HAND-09–10** are ready to paste and are not implemented on trunk. **Audience:** Composer 2.5 slow
 
 Paste **one** prompt per session. Do not implement from this index.
 
@@ -38,7 +38,7 @@ Restart the API after SN-HAND-06 and SN-HAND-07. Restart the UI after SN-HAND-08
 
 ## Not in this set
 
-- Gaps 1–3 (My findings control text, the remediation audit-evidence link, the Home checks-failed filter)
+- Gaps 1–3 (My findings control text, the remediation audit-evidence link, the Home checks-failed filter) — **already on trunk**; see `docs/securenow/ENGINEER_ANALYST_HANDOFF.md` § Implementation status.
 - Do not fold gap 4 into SN-HAND-05–08. Paste **SN-HAND-09**, then **SN-HAND-10**.
 - A copy of snapshot bytes or verification JSON
 - A model marking a control evidenced

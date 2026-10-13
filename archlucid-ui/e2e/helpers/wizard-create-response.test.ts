@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 
-import { parseWizardCreateResponse, parseWizardOperationResponse } from "./wizard-create-response";
+import {
+  interpretWizardCreateOperation,
+  parseWizardCreateResponse,
+  parseWizardOperationResponse,
+} from "./wizard-create-response";
 
 describe("parseWizardCreateResponse", () => {
   it("parses a created run response", () => {
@@ -42,5 +46,55 @@ describe("parseWizardCreateResponse", () => {
         "Status: 502. URL: /api/proxy/v1/operations/run:run-1. " +
         "Content type: missing. Body: <empty>.",
     );
+  });
+});
+
+describe("interpretWizardCreateOperation", () => {
+  it("treats Pending Creating review as ready so TB-927 does not wait for execute Succeeded", () => {
+    expect(
+      interpretWizardCreateOperation({
+        state: "Pending",
+        stepLabel: "Creating review",
+        resultRef: { runId: "868a3e6a-a366-4934-be82-9d8cf35b4135" },
+      }),
+    ).toBe("ready");
+  });
+
+  it("treats Succeeded as ready", () => {
+    expect(
+      interpretWizardCreateOperation({
+        state: "Succeeded",
+        stepLabel: "Committed",
+        resultRef: { runId: "run-1" },
+      }),
+    ).toBe("ready");
+  });
+
+  it("waits while async create is still coordinating snapshots", () => {
+    expect(
+      interpretWizardCreateOperation({
+        state: "Pending",
+        stepLabel: "Reading architecture evidence",
+        resultRef: { runId: "run-1" },
+      }),
+    ).toBe("wait");
+  });
+
+  it("fails when the operation is Failed or Canceled", () => {
+    expect(
+      interpretWizardCreateOperation({
+        state: "Failed",
+        stepLabel: "Execute failed",
+        resultRef: { runId: "9e76a8ca-448a-477c-aa47-6925afc0e4b8" },
+      }),
+    ).toBe("failed");
+
+    expect(
+      interpretWizardCreateOperation({
+        state: "Canceled",
+        stepLabel: "Canceled",
+        resultRef: { runId: "run-1" },
+      }),
+    ).toBe("failed");
   });
 });

@@ -165,18 +165,26 @@ export type StoredEvidenceFileActionHandlers = {
   }) => void;
 };
 
+export const STORED_EVIDENCE_CONTENT_TYPE_NOT_STORED_COPY =
+  "Content type was not stored." as const;
+
 export type StoredEvidenceFileCellsProps = {
   readonly runId: string;
   readonly evidenceItemId: string;
   readonly fileName: string;
-  readonly contentType?: string;
+  readonly contentType?: string | null;
   readonly handlers: StoredEvidenceFileActionHandlers;
   readonly openButtonRef?: RefObject<HTMLElement | null>;
 };
 
 export function StoredEvidenceFileCells(props: StoredEvidenceFileCellsProps): ReactElement {
-  const contentType = props.contentType ?? "application/octet-stream";
-  const previewKind = StoredEvidenceFileContentSafety.resolvePreviewKind(contentType, props.fileName);
+  const contentTypeForPreview =
+    props.contentType === null || props.contentType === undefined
+      ? "application/octet-stream"
+      : props.contentType;
+  const previewKind = StoredEvidenceFileContentSafety.resolvePreviewKind(contentTypeForPreview, props.fileName);
+  const showContentTypeOmission =
+    props.contentType === null || props.contentType === undefined;
   const canPreview = previewKind !== "download-only";
 
   return (
@@ -196,7 +204,7 @@ export function StoredEvidenceFileCells(props: StoredEvidenceFileCellsProps): Re
             props.handlers.onOpen({
               evidenceItemId: props.evidenceItemId,
               fileName: props.fileName,
-              contentType,
+              contentType: contentTypeForPreview,
             });
           }}
         >
@@ -205,6 +213,9 @@ export function StoredEvidenceFileCells(props: StoredEvidenceFileCellsProps): Re
       ) : (
         <span className="font-medium text-al-text-primary">{props.fileName}</span>
       )}
+      {showContentTypeOmission ? (
+        <span className="text-al-text-secondary">{STORED_EVIDENCE_CONTENT_TYPE_NOT_STORED_COPY}</span>
+      ) : null}
       <Button
         type="button"
         variant="outline"

@@ -55,7 +55,7 @@ export type FindingWorkItemBuildInput = {
   classification?: "DecisionGradeFinding" | "ChecklistCoverage" | null;
   /** Insight-density treatment when present (`FindingTreatment`: 0=Promote, 1=DemoteToChecklist). */
   treatment?: number | null;
-  semanticSupportBand?: FindingSemanticSupportBandValue | null;
+  semanticSupportBand?: FindingSemanticSupportBandValue | "" | null;
   semanticSupportBandScorerVersion?: string | null;
   /** Committed manifest version from inspect payload when available. */
   manifestVersion?: string | null;
@@ -83,7 +83,7 @@ export type TraceRowWorkItemInput = {
   classification?: "DecisionGradeFinding" | "ChecklistCoverage" | null;
   /** Insight-density treatment when present (`FindingTreatment`: 0=Promote, 1=DemoteToChecklist). */
   treatment?: number | null;
-  semanticSupportBand?: FindingSemanticSupportBandValue | null;
+  semanticSupportBand?: FindingSemanticSupportBandValue | "" | null;
   semanticSupportBandScorerVersion?: string | null;
   /** Pre-rendered honesty line for Working clipboard exports (FC-41). */
   coverageHonestyLine?: string | null;

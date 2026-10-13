@@ -13,6 +13,42 @@ export type DiagramReconcileScorecard = {
   readonly connectorGaps: number;
 };
 
+export const DIAGRAM_RECONCILE_RESOURCE_GROUP_NOT_STORED_COPY =
+  "Resource group was not stored." as const;
+
+export const DIAGRAM_RECONCILE_RESOURCE_TYPE_NOT_STORED_COPY =
+  "Resource type was not stored." as const;
+
+export function formatDiagramReconcileResourceGroupDisplay(
+  resourceGroup: string | null | undefined,
+): string {
+  if (resourceGroup === null || resourceGroup === undefined) {
+    return DIAGRAM_RECONCILE_RESOURCE_GROUP_NOT_STORED_COPY;
+  }
+
+  return resourceGroup;
+}
+
+export function formatDiagramReconcileResourceTypeDisplay(
+  resourceType: string | null | undefined,
+): string {
+  if (resourceType === null || resourceType === undefined) {
+    return DIAGRAM_RECONCILE_RESOURCE_TYPE_NOT_STORED_COPY;
+  }
+
+  return resourceType;
+}
+
+function diagramReconcileInventoryGroupKey(
+  resourceGroup: string | null | undefined,
+  resourceType: string | null | undefined,
+): string {
+  const groupKey = resourceGroup === null || resourceGroup === undefined ? "\u0000missing-rg" : resourceGroup;
+  const typeKey = resourceType === null || resourceType === undefined ? "\u0000missing-type" : resourceType;
+
+  return `${groupKey}\u0000${typeKey}`;
+}
+
 export type DiagramReconcileInventoryGroup = {
   readonly correspondenceId: string;
   readonly resourceGroup: string;
@@ -53,9 +89,9 @@ export function groupDiagramReconcileInventoryOnlyRows(
   rows
     .filter((row) => row.matchKind === DIAGRAM_INFRASTRUCTURE_MATCH_KINDS.infrastructureOnly)
     .forEach((row) => {
-      const resourceGroup = row.resourceGroup?.trim() || "Unassigned resource group";
-      const resourceType = row.resourceType?.trim() || "Unknown resource type";
-      const key = `${resourceGroup}\u0000${resourceType}`;
+      const resourceGroup = formatDiagramReconcileResourceGroupDisplay(row.resourceGroup);
+      const resourceType = formatDiagramReconcileResourceTypeDisplay(row.resourceType);
+      const key = diagramReconcileInventoryGroupKey(row.resourceGroup, row.resourceType);
       const group = groups.get(key) ?? { resourceGroup, resourceType, resourceNames: [], resourceRows: [] };
       group.resourceNames.push(displayInventoryResourceName(row));
       group.resourceRows.push(row);

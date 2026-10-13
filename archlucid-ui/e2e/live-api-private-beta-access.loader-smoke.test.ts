@@ -42,6 +42,8 @@ describe("live-api-private-beta-access loader smoke", () => {
     expect(source).toContain("waitAndDismissFirstSessionPurposeChooser");
     expect(source).toContain("isArchitectureRequestCreateResponse");
     expect(source).toContain("readCreatedRunIdFromArchitectureRequestCreate");
+    expect(source).toContain("uniquePrivateBetaSystemName");
+    expect(source).toContain("interpretWizardCreateOperation");
   });
 
   it("matches async 202 create POSTs without requiring a JSON body", async () => {

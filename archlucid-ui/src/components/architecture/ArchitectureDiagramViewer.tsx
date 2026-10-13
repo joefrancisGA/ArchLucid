@@ -1394,7 +1394,9 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
         </div>
       ) : null}
 
-      {questionableNode?.questionableReason != null ? (
+      {questionableNode != null
+      && (questionableNode.questionableReason != null
+        || typeof questionableNode.questionableAction === "string") ? (
         <aside
           className="mb-3 space-y-2 rounded-md border border-amber-300 bg-amber-50 p-3 text-amber-950 dark:border-amber-700 dark:bg-amber-950/40 dark:text-amber-100"
           data-testid="infra-diagrams-questionable-panel"
@@ -1411,7 +1413,11 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
               Close
             </Button>
           </div>
-          <p className="m-0">{questionableNode.questionableReason}</p>
+          <p className="m-0">
+            {questionableNode.questionableReason === null || questionableNode.questionableReason === undefined
+              ? "Question reason was not stored."
+              : questionableNode.questionableReason}
+          </p>
           <p className="m-0">
             <span className="font-semibold">Recommended action: </span>
             {questionableNode.questionableAction === null || questionableNode.questionableAction === undefined
