@@ -1,4 +1,3 @@
-{"at":"2026-09-13T11:50:24.7124036Z","zoneId":"topology-proposal-merge","outcome":"hit"}
 {"at":"2026-09-13T11:55:23.0298392Z","zoneId":"context-ingestion","outcome":"hit"}
 {"at":"2026-09-13T12:14:17.585822Z","zoneId":"core-costing","outcome":"hit"}
 {"at":"2026-09-13T12:14:21.0964645Z","zoneId":"tenant-data-export","outcome":"seed-only"}
@@ -8518,3 +8517,4 @@
 {"at":"2026-10-13T08:36:58.7106747Z","zoneId":"application-tenancy-lifecycle","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-13T11:45:13.7373172Z","zoneId":"core-findings-advice","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-13T11:50:17.8434203Z","zoneId":"application-tenancy-lifecycle","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-13T11:55:11.1636616Z","zoneId":"application-tenancy-lifecycle","outcome":"hit","productLine":"archlucid-shared"}
