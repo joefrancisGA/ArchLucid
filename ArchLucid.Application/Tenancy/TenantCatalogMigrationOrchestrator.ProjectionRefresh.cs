@@ -31,6 +31,12 @@ public sealed partial class TenantCatalogMigrationOrchestrator
         if (tenantBeforeRefresh?.OffboardedUtc is not null)
             return (TenantCatalogMigrationCommandOutcome.InErasureQuarantine, null);
 
+        TenantRecord? tenantBeforeRefreshRun =
+            await _tenantRepository.GetByIdAsync(tenantId, cancellationToken).ConfigureAwait(false);
+
+        if (tenantBeforeRefreshRun?.OffboardedUtc is not null)
+            return (TenantCatalogMigrationCommandOutcome.InErasureQuarantine, null);
+
         TenantMigrationProjectionRefreshResult refresh = await _projectionRefreshService
             .RefreshAsync(tenantId, workspaceId, projectId, cancellationToken)
             .ConfigureAwait(false);
