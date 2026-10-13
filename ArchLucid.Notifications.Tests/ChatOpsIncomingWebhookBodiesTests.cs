@@ -111,6 +111,24 @@ public sealed class ChatOpsIncomingWebhookBodiesTests
     }
 
     [Fact]
+    public void ForSlack_escapes_asterisks_in_supporting_paragraph_between_headline_and_body()
+    {
+        ChatOpsWebhookMessage message = new()
+        {
+            SeverityLabel = null,
+            Title = "Budget alert",
+            SupportingParagraph = "Category: Cost\nTrigger: *spoofed* emphasis",
+            Body = "Investigate spend.",
+        };
+
+        object payload = ChatOpsIncomingWebhookBodies.ForSlack(message);
+
+        string text = NotificationsTestPayloadAssert.GetStringProperty(payload, "text");
+
+        text.Should().Contain("Trigger: \\*spoofed\\* emphasis");
+    }
+
+    [Fact]
     public void ForSlack_escapes_asterisks_in_title_when_wrapping_headline_emphasis()
     {
         ChatOpsWebhookMessage message = new()

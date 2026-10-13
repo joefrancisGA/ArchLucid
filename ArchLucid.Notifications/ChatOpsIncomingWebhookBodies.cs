@@ -15,7 +15,10 @@ public static class ChatOpsIncomingWebhookBodies
             : FormattableString.Invariant(
                 $"*[{ChatOpsSlackMrkdwnEscaper.EscapeFormattingMetacharacters(message.SeverityLabel!.Trim())}]* {safeTitle}");
 
-        string text = CombineBlocks(headline, message.SupportingParagraph, message.Body);
+        string text = CombineBlocks(
+            headline,
+            EscapeSupportingParagraphForSlack(message.SupportingParagraph),
+            message.Body);
 
         return new
         {
@@ -40,7 +43,10 @@ public static class ChatOpsIncomingWebhookBodies
             : FormattableString.Invariant(
                 $"*[{ChatOpsSlackMrkdwnEscaper.EscapeFormattingMetacharacters(message.SeverityLabel!.Trim())}]* {safeTitle}");
 
-        string body = CombineBlocks(headline, message.SupportingParagraph, message.Body);
+        string body = CombineBlocks(
+            headline,
+            EscapeSupportingParagraphForSlack(message.SupportingParagraph),
+            message.Body);
 
         return new
         {
@@ -99,6 +105,17 @@ public static class ChatOpsIncomingWebhookBodies
             title,
             text
         };
+    }
+
+    private static string? EscapeSupportingParagraphForSlack(string? supporting)
+    {
+
+        if (string.IsNullOrWhiteSpace(supporting))
+        {
+            return supporting;
+        }
+
+        return ChatOpsSlackMrkdwnEscaper.EscapeFormattingMetacharacters(supporting.Trim());
     }
 
     private static string CombineBlocks(string paragraphHeadline, string? supporting, string body)
