@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-13 seed hunt (seed→hit): `application-tenancy-lifecycle` — promoted `TenantTrialIdentityHandoffStage.LinkEntraAsync` local identity link path; `TryLinkLocalIdentityToEntraAsync` still ran when erasure offboard completed after `TenantEntraDirectoryBound` audit but before identity link (pre-identity-audit re-read only); pre-link `GetByIdAsync` quarantine guard; regression `LinkEntraAsync_returns_success_without_identity_link_when_offboard_completes_after_directory_audit_before_link`; 215 scoped tenancy tests passed.
+
 2026-10-13 seed hunt (seed→hit): `application-tenancy-lifecycle` — promoted `TrialTenantBootstrapService.TryBootstrapAfterPostAuthWorkspaceAsync` post-welcome demo seed path; `SeedAsync` still ran when erasure offboard completed after `SeedTrialWelcomeRunAsync` (entry quarantine only); post-welcome `IsTenantInErasureQuarantineAsync` guard; regression `TryBootstrapAfterPostAuthWorkspaceAsync_skips_full_demo_seed_when_offboard_completes_after_welcome_before_full_seed`; 214 scoped tenancy tests passed.
 
 2026-10-13 seed hunt (seed→hit): `application-tenancy-lifecycle` — promoted `TrialTenantBootstrapService.TryBootstrapAfterSelfRegistrationAsync` mid-demo-seed path; `SeedAsync` still ran when erasure offboard completed after `SeedTrialWelcomeRunAsync` but before full demo seed; post-welcome `IsTenantInErasureQuarantineAsync` guard; regression `TryBootstrapAfterSelfRegistrationAsync_skips_full_demo_seed_when_offboard_completes_after_welcome_before_full_seed`; tightened downstream race test tenant-read sequences; 213 scoped tenancy tests passed.
@@ -34678,11 +34680,15 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 107
-- **bugs-found:** 92
+- **hunts:** 108
+- **bugs-found:** 93
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-13
-- **last-bug:** 2026-10-13 — Post-auth full demo seed on quarantined tenant after welcome seed
+- **last-bug:** 2026-10-13 — Trial Entra identity link on quarantined tenant after directory audit
+
+2026-10-13 seed hunt (seed→hit): reseeded trial Entra identity handoff; proved `TryLinkLocalIdentityToEntraAsync` when offboard followed directory-bound audit; pre-link tenant re-read; regression `LinkEntraAsync_returns_success_without_identity_link_when_offboard_completes_after_directory_audit_before_link`; 215 scoped tenancy tests passed.
+
+- [x] (proven) `TenantTrialIdentityHandoffStage.LinkEntraAsync` — `TryLinkLocalIdentityToEntraAsync` when erasure offboard after directory audit before identity link — **hit 2026-10-13 seed hunt (seed→hit):** regression `LinkEntraAsync_returns_success_without_identity_link_when_offboard_completes_after_directory_audit_before_link`.
 
 2026-10-13 seed hunt (seed→hit): reseeded post-auth workspace demo bootstrap; proved full `SeedAsync` when offboard followed welcome seed; post-welcome quarantine guard; regression `TryBootstrapAfterPostAuthWorkspaceAsync_skips_full_demo_seed_when_offboard_completes_after_welcome_before_full_seed`; 214 scoped tenancy tests passed.
 
