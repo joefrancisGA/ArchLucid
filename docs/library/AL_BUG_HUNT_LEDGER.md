@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-13 seed hunt (seed→hit): `core-requests-constraints` — promoted spaced ASCII solidus phrase splitting; `managed / identity` and `private / endpoint` missed `ContainsAffirmativePhrase` while fullwidth solidus (U+FF0F) already mapped to spaces; `NormalizeSpacedAsciiSolidus` maps `/` only when bounded by ASCII spaces; regressions in `RequestConstraintPhraseSpacedSolidusTests`; 910 scoped RequestConstraint tests passed.
+
 2026-10-13 thorough hunt (hit): `tenant-erasure` — promoted `TenantErasureCommandService.TryOffboardTenantAsync` pre-suspend path; `SuspendTenantAsync` still ran when erasure quarantine was restored after `TryStartTenantErasureOffboardAsync` succeeded but before the post-start tenant re-read; pre-suspend `GetByIdAsync` quarantine guard; tightened `TryOffboardTenantAsync_returns_null_without_audit_when_quarantine_restored_after_atomic_offboard_start` with `SuspendTenantAsync` never verification; 35 Application + 28 Api scoped `TenantErasure` tests passed.
 
 2026-10-13 seed hunt (seed→hit): `application-tenancy-lifecycle` — promoted `TenantTrialConversionStage.ConvertTrialAsync` post-metrics trial mark path; `MarkTrialConvertedAsync` still ran when erasure offboard completed after `RecordTrialConversion` but before trial mark (pre-convert re-read only); pre-mark `GetByIdAsync` quarantine guard; regression `ConvertTrialAsync_returns_success_without_mark_when_offboard_completes_after_conversion_metrics_before_mark`; tightened post-mark audit race sequence; 227 scoped tenancy tests passed.
@@ -8244,16 +8246,6 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-13 thorough hunt (hit): `tenant-erasure` — cheap-disproof closed duplicate open `(invalid)` backslash-normalization row; proved first-time offboard still suspended tenants when quarantine restore raced between atomic offboard start and post-start read; pre-suspend tenant re-read; 63 scoped `TenantErasure` tests passed.
 
-- **hunts:** 271
-- **bugs-found:** 492
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-13
-- **last-bug:** 2026-10-13 — Offboard suspend on restored tenant after atomic start
-
-- [x] (proven) `TenantErasureCommandService.TryOffboardTenantAsync` — `SuspendTenantAsync` when erasure quarantine restored after `TryStartTenantErasureOffboardAsync` before post-start read — **hit 2026-10-13 thorough hunt:** pre-suspend `GetByIdAsync` quarantine guard; regression tightened in `TryOffboardTenantAsync_returns_null_without_audit_when_quarantine_restored_after_atomic_offboard_start`.
-
-- [x] (invalid) `TenantErasureQuarantineMiddleware.NormalizeRequestPath` — backslash-separated path segments on Windows-hosted Kestrel may bypass allowlist normalization — **cheap-disproof 2026-10-13 thorough hunt:** duplicate of classified row; no reachable reverse-proxy input preserves `\` in `PathString.Value` for this middleware.
-
 2026-10-12 thorough hunt (dry): `tenant-erasure` — repeated the unchanged five classified hypotheses; no reachable bypass or lifecycle defect was found. Sequential Application/API runs again failed before tests on unrelated `AzureInventorySecurityEdgeMaterializer.cs` compile errors (`unmappedRoles` and `warnings`). No production or regression code changed.
 
 2026-10-12 thorough hunt (dry): `tenant-erasure` — repeated the same five classified hypotheses with no reachable bypass or lifecycle defect. Sequential Application/API runs again failed before tests on unrelated `AzureInventorySecurityEdgeMaterializer.cs` compile errors (`unmappedRoles` and `warnings`). No production or regression code changed.
@@ -8301,6 +8293,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **last-bug:** 2026-10-13 — Offboard suspend on restored tenant after atomic start
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+- [x] (proven) `TenantErasureCommandService.TryOffboardTenantAsync` — `SuspendTenantAsync` when erasure quarantine restored after `TryStartTenantErasureOffboardAsync` before post-start read — **hit 2026-10-13 thorough hunt:** pre-suspend `GetByIdAsync` quarantine guard; regression tightened in `TryOffboardTenantAsync_returns_null_without_audit_when_quarantine_restored_after_atomic_offboard_start`.
 
 2026-10-06 seed hunt (seed→hit): promoted dot-segment erasure lifecycle allowlist; proved offboarded tenants received `403` on `/v1/tenant/erasure/./approve` because `Skip` compared raw dot segments; collapse `.`/`..` segments in `NormalizeRequestPath`; regression `Erasure_quarantine_allows_tenant_erasure_lifecycle_routes_with_dot_segments_in_path`; seeded five `(candidate)` rows; 50 scoped `TenantErasure` tests passed.
 
@@ -25857,11 +25851,15 @@ Split from retired `archlucid-core` (ABQ-08). Generic-advice negation parity his
 - **aliases:** request constraints; split from archlucid-core
 - **paths:** ArchLucid.Core/Requests/
 - **test-filter:** FullyQualifiedName~RequestConstraint
-- **hunts:** 33
-- **bugs-found:** 32
+- **hunts:** 34
+- **bugs-found:** 33
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-13
-- **last-bug:** 2026-10-13 — duplicate ASCII spaces broke multi-word constraint phrases
+- **last-bug:** 2026-10-13 — spaced ASCII solidus broke multi-word constraint phrases
+
+2026-10-13 seed hunt (seed→hit): reseeded phrase normalization after duplicate-space fix; proved spaced ASCII `/` between words (`managed / identity`, `private / endpoint`) missed affirmative phrase detection while compact `managed/identity` slugs must stay suppressed; `NormalizeSpacedAsciiSolidus`; regressions in `RequestConstraintPhraseSpacedSolidusTests`; 910 scoped RequestConstraint tests passed.
+
+- [x] (proven) `RequestConstraintTokenMatcher.NormalizeConstraintMatchingText` — spaced ASCII solidus between phrase words broke `ContainsAffirmativePhrase` — **hit 2026-10-13 seed hunt (seed→hit):** map `/` to ASCII space when adjacent to ASCII spaces; regressions in `RequestConstraintPhraseSpacedSolidusTests`.
 
 2026-10-13 seed hunt (seed→hit): reseeded phrase normalization after delimiter consolidation; proved duplicate ASCII spaces between words (`managed  identity`, `private  endpoint`) missed `ContainsAffirmativePhrase` despite exotic whitespace already mapping to a single space; fixed by collapsing consecutive ASCII spaces in `NormalizeConstraintMatchingText`; regressions in `RequestConstraintPhraseDuplicateSpaceTests`; 907 scoped RequestConstraint tests passed.
 
@@ -25946,6 +25944,12 @@ Split from retired `archlucid-core` (ABQ-08). Generic-advice negation parity his
 Split from retired `archlucid-core` (ABQ-08). Prefix negation parity history lives under retired `archlucid-core`; this zone owns ongoing `ArchLucid.Core/Requests/` hunts.
 
 ### Hypotheses
+
+- [ ] (candidate) `RequestConstraintTokenMatcher.NormalizeConstraintMatchingText` — spaced ASCII backslash between phrase words (e.g. `managed \ identity`) may miss affirmative phrase detection while compact `managed\identity` slugs must stay suppressed — locus: `RequestConstraintTokenMatcher.cs`; input: architecture constraint strings pasted from path-style bullet lists.
+- [ ] (candidate) `RequestConstraintTokenMatcher.NormalizeConstraintMatchingText` — duplicate ASCII spaces inside `private networking` phrase may still miss `HasPrivateNetworkingConstraint` when no other normalization characters appear — locus: `CollapseConsecutiveAsciiSpaces`; input: `Use private  networking for spoke access`.
+- [ ] (candidate) `RequestConstraintTokenMatcher.ContainsAffirmativePhrase` — spaced hyphen clusters (`managed  -  identity`) may miss phrase detection while ASCII hyphen compounds remain suppressed — locus: post-normalization phrase scan; input: Word-style spaced dash separators between constraint words.
+- [ ] (candidate) `RequestConstraintTokenMatcher.ContainsStandaloneWordToken` — duplicate ASCII spaces around capability tokens (`Require my  sql  warehouse`) may miss `RequiresSqlCapability` — locus: `ContainsStandaloneWordToken`; input: required-capability strings with irregular spacing.
+- [ ] (candidate) `RequestConstraintTokenMatcher.IsNegatedPhraseSuffix` — duplicate ASCII spaces before suffix negation (`encryption  is not required`) may bypass negation detection — locus: `IsNegatedPhraseSuffix` immediate suffix scan; input: negated constraint clauses with irregular spacing.
 
 - [x] (proven) `RequestConstraintTokenMatcher.IsNegatedPhraseSuffix` — keyword-leading modal negation gap — **hit 2026-09-07 hunt #1185 (seed→hit):** prefix negation via `IsAdviceStyleNegation` only inspects text before the matched phrase; constraints like `encryption should not require customer-managed keys` and `encryption must not be required for legacy blobs` false-positive because trailing `should not` / `must not be required` sat outside the hard-coded suffix list; fixed by delegating trailing text to `EnglishNegationTokenizer.ContainsNegation`; removed dead `ContainsMidSentenceNegation`; regressions in `HasEncryptionConstraint_does_not_false_positive_on_encryption_leading_should_not_require_phrasing`, `HasEncryptionConstraint_does_not_false_positive_on_encryption_leading_must_not_be_required_phrasing`
 - [x] (proven) `RequestConstraintTokenMatcher.IsNegatedPhraseSuffix` — trailing-clause negation on unrelated requirement heads over-suppressed leading affirmative constraint mentions — **hit 2026-09-07 hunt #1277:** suffix negation scanned full trailing text so `encryption for tenants that do not require isolation` and `encryption that does not require customer-managed keys` missed `HasEncryptionConstraint`; fixed by scoping suffix negation to immediate text before subordinate introducers and treating object-style `that does not require` relative clauses separately from antecedent negation; regressions in `HasEncryptionConstraint_returns_true_when_trailing_clause_negates_unrelated_requirement`, `HasEncryptionConstraint_returns_true_when_encryption_leads_subordinate_clause_without_customer_keys`, `HasEncryptionConstraint_does_not_false_positive_on_encryption_that_is_not_required_phrasing`
