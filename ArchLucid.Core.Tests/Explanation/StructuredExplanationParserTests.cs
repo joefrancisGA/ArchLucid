@@ -680,4 +680,15 @@ public sealed class StructuredExplanationParserTests
         ok.Should().BeTrue();
         s!.Confidence.Should().Be(0.8m);
     }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_uses_non_empty_reasoning_when_later_case_variant_is_id_only_object()
+    {
+        const string json = """{"reasoning":"Recovered explanation","Reasoning":{"id":"provider-paragraph-id","text":"   "}}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Reasoning.Should().Be("Recovered explanation");
+    }
 }

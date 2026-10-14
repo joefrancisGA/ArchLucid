@@ -41,7 +41,7 @@ internal static partial class RunExplanationAggregateJsonReader
             if (!string.Equals(property.Name, propertyName, StringComparison.OrdinalIgnoreCase))
                 continue;
 
-            if (!IsNonEmptyJsonPropertyValue(property.Value))
+            if (!IsNonEmptyJsonPropertyValue(property.Value, propertyName))
                 continue;
 
             value = property.Value;
@@ -51,18 +51,18 @@ internal static partial class RunExplanationAggregateJsonReader
         return found;
     }
 
-    private static bool IsNonEmptyJsonPropertyValue(JsonElement jsonElement) =>
+    private static bool IsNonEmptyJsonPropertyValue(JsonElement jsonElement, string structuredPropertyName) =>
         jsonElement.ValueKind switch
         {
             JsonValueKind.Null => false,
             JsonValueKind.True or JsonValueKind.False => false,
             JsonValueKind.String => !string.IsNullOrWhiteSpace(jsonElement.GetString()),
-            JsonValueKind.Array => ArrayPropertyValueIsNonEmpty(jsonElement),
-            JsonValueKind.Object => ObjectPropertyValueIsNonEmpty(jsonElement),
+            JsonValueKind.Array => ArrayPropertyValueIsNonEmpty(jsonElement, structuredPropertyName),
+            JsonValueKind.Object => ObjectPropertyValueIsNonEmpty(jsonElement, structuredPropertyName),
             _ => true,
         };
 
-    private static bool ArrayPropertyValueIsNonEmpty(JsonElement jsonElement)
+    private static bool ArrayPropertyValueIsNonEmpty(JsonElement jsonElement, string structuredPropertyName)
     {
         foreach (JsonElement item in jsonElement.EnumerateArray())
         {
@@ -77,7 +77,7 @@ internal static partial class RunExplanationAggregateJsonReader
 
             if (item.ValueKind == JsonValueKind.Array)
             {
-                if (ArrayPropertyValueIsNonEmpty(item))
+                if (ArrayPropertyValueIsNonEmpty(item, structuredPropertyName))
                     return true;
 
                 continue;
@@ -85,8 +85,15 @@ internal static partial class RunExplanationAggregateJsonReader
 
             if (item.ValueKind == JsonValueKind.Object)
             {
-                if (ObjectPropertyValueIsNonEmpty(item))
+                if (structuredPropertyName.Equals("reasoning", StringComparison.OrdinalIgnoreCase))
+                {
+                    if (ReasoningArrayEntryObjectHasExtractableContent(item))
+                        return true;
+                }
+                else if (ObjectPropertyValueIsNonEmpty(item, structuredPropertyName))
+                {
                     return true;
+                }
 
                 continue;
             }
@@ -97,8 +104,11 @@ internal static partial class RunExplanationAggregateJsonReader
         return false;
     }
 
-    private static bool ObjectPropertyValueIsNonEmpty(JsonElement jsonElement)
+    private static bool ObjectPropertyValueIsNonEmpty(JsonElement jsonElement, string structuredPropertyName)
     {
+        if (structuredPropertyName.Equals("reasoning", StringComparison.OrdinalIgnoreCase))
+            return ReasoningObjectAliasHasExtractableContent(jsonElement);
+
         foreach (JsonProperty property in jsonElement.EnumerateObject())
         {
             if (property.Value.ValueKind is JsonValueKind.Array or JsonValueKind.Object)
@@ -108,6 +118,30 @@ internal static partial class RunExplanationAggregateJsonReader
                 && !string.IsNullOrWhiteSpace(text))
                 return true;
         }
+
+        return false;
+    }
+
+    private static bool ReasoningObjectAliasHasExtractableContent(JsonElement jsonElement)
+    {
+        if (!TryGetPropertyCaseInsensitive(jsonElement, "text", out JsonElement textElement))
+            return false;
+
+        return TryReadNonEmptyTextToken(textElement, out string? text)
+            && !string.IsNullOrWhiteSpace(text);
+    }
+
+    private static bool ReasoningArrayEntryObjectHasExtractableContent(JsonElement jsonElement)
+    {
+        if (TryGetPropertyCaseInsensitive(jsonElement, "text", out JsonElement textElement)
+            && TryReadNonEmptyTextToken(textElement, out string? text)
+            && !string.IsNullOrWhiteSpace(text))
+            return true;
+
+        if (TryGetPropertyCaseInsensitive(jsonElement, "id", out JsonElement idElement)
+            && TryReadNonEmptyTextToken(idElement, out string? id)
+            && !string.IsNullOrWhiteSpace(id))
+            return true;
 
         return false;
     }
