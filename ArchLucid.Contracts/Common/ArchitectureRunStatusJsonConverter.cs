@@ -1,6 +1,8 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Common;
 
 /// <summary>
@@ -28,7 +30,7 @@ public sealed class ArchitectureRunStatusJsonConverter : JsonConverter<Architect
         if (string.IsNullOrWhiteSpace(raw))
             throw new JsonException("Architecture run status value is required.");
 
-        if (Enum.TryParse(raw, ignoreCase: true, out ArchitectureRunStatus parsed))
+        if (DefinedEnumStringReader.TryParse(raw, out ArchitectureRunStatus parsed))
             return parsed;
 
         throw new JsonException($"Unknown architecture run status value '{raw}'.");

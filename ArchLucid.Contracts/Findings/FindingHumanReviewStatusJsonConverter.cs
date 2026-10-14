@@ -1,6 +1,8 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Findings;
 
 /// <summary>
@@ -31,7 +33,7 @@ public sealed class FindingHumanReviewStatusJsonConverter : JsonConverter<Findin
         if (string.IsNullOrWhiteSpace(raw))
             throw new JsonException("Finding human review status value is required.");
 
-        if (Enum.TryParse(raw, ignoreCase: true, out FindingHumanReviewStatus parsed))
+        if (DefinedEnumStringReader.TryParse(raw, out FindingHumanReviewStatus parsed))
             return parsed;
 
         throw new JsonException($"Unknown finding human review status value '{raw}'.");

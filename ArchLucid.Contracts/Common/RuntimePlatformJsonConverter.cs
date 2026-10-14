@@ -1,6 +1,8 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Common;
 
 /// <summary>
@@ -28,7 +30,11 @@ public sealed class RuntimePlatformJsonConverter : JsonConverter<RuntimePlatform
         if (string.IsNullOrWhiteSpace(raw))
             return RuntimePlatform.Unknown;
 
-        if (Enum.TryParse(raw, ignoreCase: true, out RuntimePlatform parsed))
+        DefinedEnumStringReader.ThrowIfUndefinedNumericString<RuntimePlatform>(
+            raw,
+            $"Unknown runtime platform value '{raw}'.");
+
+        if (DefinedEnumStringReader.TryParse(raw, out RuntimePlatform parsed))
             return parsed;
 
         string normalized = raw.Trim().ToLowerInvariant().Replace(" ", string.Empty).Replace("-", string.Empty);

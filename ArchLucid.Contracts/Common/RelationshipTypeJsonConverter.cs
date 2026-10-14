@@ -1,6 +1,8 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Common;
 
 /// <summary>
@@ -28,7 +30,7 @@ public sealed class RelationshipTypeJsonConverter : JsonConverter<RelationshipTy
         if (string.IsNullOrWhiteSpace(raw))
             throw new JsonException($"Unknown relationship type value '{raw}'.");
 
-        if (Enum.TryParse(raw, ignoreCase: true, out RelationshipType parsed))
+        if (DefinedEnumStringReader.TryParse(raw, out RelationshipType parsed))
             return parsed;
 
         string normalized = raw.Trim().ToLowerInvariant().Replace("_", " ").Replace("-", " ");

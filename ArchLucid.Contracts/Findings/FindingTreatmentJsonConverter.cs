@@ -1,6 +1,8 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Findings;
 
 /// <summary>
@@ -28,7 +30,7 @@ public sealed class FindingTreatmentJsonConverter : JsonConverter<FindingTreatme
         if (string.IsNullOrWhiteSpace(raw))
             throw new JsonException("Finding treatment value is required.");
 
-        if (Enum.TryParse(raw, ignoreCase: true, out FindingTreatment parsed))
+        if (DefinedEnumStringReader.TryParse(raw, out FindingTreatment parsed))
             return parsed;
 
         throw new JsonException($"Unknown finding treatment value '{raw}'.");

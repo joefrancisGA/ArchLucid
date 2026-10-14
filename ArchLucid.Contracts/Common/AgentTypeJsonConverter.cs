@@ -1,6 +1,8 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Common;
 
 /// <summary>
@@ -33,7 +35,7 @@ public sealed class AgentTypeJsonConverter : JsonConverter<AgentType>
         if (fromKey.HasValue)
             return fromKey.Value;
 
-        if (Enum.TryParse(raw, ignoreCase: true, out AgentType parsed))
+        if (DefinedEnumStringReader.TryParse(raw, out AgentType parsed))
             return parsed;
 
         throw new JsonException($"Unknown agent type value '{raw}'.");

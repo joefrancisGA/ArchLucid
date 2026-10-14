@@ -1,6 +1,8 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Common;
 
 /// <summary>
@@ -28,7 +30,11 @@ public sealed class ServiceTypeJsonConverter : JsonConverter<ServiceType>
         if (string.IsNullOrWhiteSpace(raw))
             return ServiceType.Unknown;
 
-        if (Enum.TryParse(raw, ignoreCase: true, out ServiceType parsed))
+        DefinedEnumStringReader.ThrowIfUndefinedNumericString<ServiceType>(
+            raw,
+            $"Unknown service type value '{raw}'.");
+
+        if (DefinedEnumStringReader.TryParse(raw, out ServiceType parsed))
             return parsed;
 
         return raw.Trim().ToLowerInvariant() switch

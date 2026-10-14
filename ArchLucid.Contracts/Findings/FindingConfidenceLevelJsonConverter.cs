@@ -1,6 +1,8 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Findings;
 
 /// <summary>
@@ -29,7 +31,7 @@ public sealed class FindingConfidenceLevelJsonConverter : JsonConverter<FindingC
         if (string.IsNullOrWhiteSpace(raw))
             throw new JsonException("Finding confidence level value is required.");
 
-        if (Enum.TryParse(raw, ignoreCase: true, out FindingConfidenceLevel parsed))
+        if (DefinedEnumStringReader.TryParse(raw, out FindingConfidenceLevel parsed))
             return parsed;
 
         throw new JsonException($"Unknown finding confidence level value '{raw}'.");

@@ -1,6 +1,8 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Findings;
 
 /// <summary>
@@ -28,14 +30,8 @@ public sealed class FindingEnforcementTierJsonConverter : JsonConverter<FindingE
         if (string.IsNullOrWhiteSpace(raw))
             throw new JsonException("Finding enforcement tier value is required.");
 
-        if (Enum.TryParse(raw, ignoreCase: true, out FindingEnforcementTier parsed))
-        {
-
-            if (!Enum.IsDefined(parsed))
-                throw new JsonException($"Unknown finding enforcement tier value '{raw}'.");
-
+        if (DefinedEnumStringReader.TryParse(raw, out FindingEnforcementTier parsed))
             return parsed;
-        }
 
         throw new JsonException($"Unknown finding enforcement tier value '{raw}'.");
     }

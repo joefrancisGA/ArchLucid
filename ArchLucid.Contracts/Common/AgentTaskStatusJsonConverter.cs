@@ -1,6 +1,8 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Common;
 
 /// <summary>
@@ -28,7 +30,7 @@ public sealed class AgentTaskStatusJsonConverter : JsonConverter<AgentTaskStatus
         if (string.IsNullOrWhiteSpace(raw))
             throw new JsonException("Agent task status value is required.");
 
-        if (Enum.TryParse(raw, ignoreCase: true, out AgentTaskStatus parsed))
+        if (DefinedEnumStringReader.TryParse(raw, out AgentTaskStatus parsed))
             return parsed;
 
         throw new JsonException($"Unknown agent task status value '{raw}'.");

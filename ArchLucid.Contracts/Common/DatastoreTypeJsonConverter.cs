@@ -1,6 +1,8 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Common;
 
 /// <summary>
@@ -28,7 +30,11 @@ public sealed class DatastoreTypeJsonConverter : JsonConverter<DatastoreType>
         if (string.IsNullOrWhiteSpace(raw))
             return DatastoreType.Unknown;
 
-        if (Enum.TryParse(raw, ignoreCase: true, out DatastoreType parsed))
+        DefinedEnumStringReader.ThrowIfUndefinedNumericString<DatastoreType>(
+            raw,
+            $"Unknown datastore type value '{raw}'.");
+
+        if (DefinedEnumStringReader.TryParse(raw, out DatastoreType parsed))
             return parsed;
 
         return raw.Trim().ToLowerInvariant() switch

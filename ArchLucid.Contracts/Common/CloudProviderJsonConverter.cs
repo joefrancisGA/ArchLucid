@@ -1,6 +1,8 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Common;
 
 /// <summary>
@@ -28,7 +30,7 @@ public sealed class CloudProviderJsonConverter : JsonConverter<CloudProvider>
         if (string.IsNullOrWhiteSpace(raw))
             throw new JsonException("Cloud provider value is required.");
 
-        if (Enum.TryParse(raw, ignoreCase: true, out CloudProvider parsed))
+        if (DefinedEnumStringReader.TryParse(raw, out CloudProvider parsed))
             return parsed;
 
         throw new JsonException($"Unknown cloud provider value '{raw}'.");

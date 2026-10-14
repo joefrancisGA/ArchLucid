@@ -1,6 +1,8 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Findings;
 
 /// <summary>
@@ -28,7 +30,11 @@ public sealed class EvalCorpusFindingSeverityJsonConverter : JsonConverter<Findi
         if (string.IsNullOrWhiteSpace(raw))
             return FindingSeverity.Info;
 
-        if (Enum.TryParse(raw, ignoreCase: true, out FindingSeverity parsed))
+        DefinedEnumStringReader.ThrowIfUndefinedNumericString<FindingSeverity>(
+            raw,
+            $"Unknown finding severity value '{raw}'.");
+
+        if (DefinedEnumStringReader.TryParse(raw, out FindingSeverity parsed))
             return parsed;
 
         return raw.Trim().ToLowerInvariant() switch

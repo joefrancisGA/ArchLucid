@@ -1,6 +1,8 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Common;
 
 /// <summary>
@@ -28,7 +30,7 @@ public sealed class StructuralExecutionModeJsonConverter : JsonConverter<Structu
         if (string.IsNullOrWhiteSpace(raw))
             throw new JsonException("Structural execution mode value is required.");
 
-        if (Enum.TryParse(raw, ignoreCase: true, out StructuralExecutionMode parsed))
+        if (DefinedEnumStringReader.TryParse(raw, out StructuralExecutionMode parsed))
             return parsed;
 
         throw new JsonException($"Unknown structural execution mode value '{raw}'.");
