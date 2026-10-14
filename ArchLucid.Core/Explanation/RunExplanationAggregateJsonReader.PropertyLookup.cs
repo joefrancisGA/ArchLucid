@@ -181,6 +181,17 @@ internal static partial class RunExplanationAggregateJsonReader
         }
 
         if (caseInsensitiveAliasMatchCount == 1
+            && lastMatch is JsonElement soleCalloutStringArray
+            && IsAggregateStringCalloutPropertyName(propertyName)
+            && soleCalloutStringArray.ValueKind == JsonValueKind.Array
+            && AggregateCalloutStringArrayHasReadableScalarEntry(soleCalloutStringArray))
+        {
+            value = soleCalloutStringArray;
+
+            return true;
+        }
+
+        if (caseInsensitiveAliasMatchCount == 1
             && lastMatch is JsonElement soleWholeNumberCountArray
             && IsAggregateWholeNumberCountPropertyName(propertyName)
             && soleWholeNumberCountArray.ValueKind == JsonValueKind.Array
@@ -536,6 +547,12 @@ internal static partial class RunExplanationAggregateJsonReader
                 continue;
             }
 
+            if (IsAggregateStringCalloutPropertyName(structuredPropertyName)
+                && AggregateCalloutArrayItemIsDuplicateAliasPoison(item))
+            {
+                continue;
+            }
+
             if (IsStructuredStringListPropertyName(structuredPropertyName)
                 && IsBooleanOneAliasValue(item))
             {
@@ -559,6 +576,42 @@ internal static partial class RunExplanationAggregateJsonReader
             }
 
             return true;
+        }
+
+        return false;
+    }
+
+    private static bool IsAggregateStringCalloutPropertyName(string propertyName) =>
+        propertyName.Equals("riskPosture", StringComparison.OrdinalIgnoreCase)
+        || propertyName.Equals("faithfulnessWarning", StringComparison.OrdinalIgnoreCase);
+
+    private static bool AggregateCalloutArrayItemIsDuplicateAliasPoison(JsonElement item)
+    {
+        if (IsZeroConfidenceAliasValue(item) || IsBooleanOneAliasValue(item))
+            return true;
+
+        if (item.ValueKind == JsonValueKind.Number)
+            return true;
+
+        if (item.ValueKind == JsonValueKind.String
+            && TryParseWholeNumberString(item.GetString()?.Trim() ?? string.Empty, out int calloutStringAlias)
+            && calloutStringAlias > 10)
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    private static bool AggregateCalloutStringArrayHasReadableScalarEntry(JsonElement calloutArray)
+    {
+        foreach (JsonElement item in calloutArray.EnumerateArray())
+        {
+            if (AggregateCalloutArrayItemIsDuplicateAliasPoison(item))
+                continue;
+
+            if (TryReadNonEmptyTextToken(item, out string? text) && !string.IsNullOrWhiteSpace(text))
+                return true;
         }
 
         return false;

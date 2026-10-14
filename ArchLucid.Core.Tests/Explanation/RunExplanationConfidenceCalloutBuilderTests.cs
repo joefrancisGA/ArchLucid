@@ -1313,6 +1313,42 @@ public sealed class RunExplanationConfidenceCalloutBuilderTests
     }
 
     [Fact]
+    public void RunExplanation_FromAggregateJson_keeps_risk_posture_when_later_duplicate_is_string_numeric_poison_array()
+    {
+        using JsonDocument document = JsonDocument.Parse(
+            """{"riskPosture":"elevated","RISKPOSTURE":["42"]}""");
+
+        RunExplanationRiskCalloutBuilder.TryParseRiskPosture(document.RootElement).Should().Be("elevated");
+    }
+
+    [Fact]
+    public void RunExplanation_FromAggregateJson_keeps_faithfulness_warning_when_later_duplicate_is_string_numeric_poison_array()
+    {
+        RunExplanationConfidenceSignals? signals = RunExplanationConfidenceCalloutBuilder.FromAggregateJson(
+            """
+            {
+              "faithfulnessSupportRatio": 0.95,
+              "faithfulnessWarning": "Citations incomplete",
+              "FAITHFULNESSWARNING": [ "42" ],
+              "citations": 1
+            }
+            """);
+
+        signals.Should().NotBeNull();
+        signals!.FaithfulnessWarning.Should().Be("Citations incomplete");
+        RunExplanationConfidenceCalloutBuilder.ResolveDisposition(signals).Should().Be("WARN");
+    }
+
+    [Fact]
+    public void RunExplanation_FromAggregateJson_keeps_compliance_gap_count_when_later_duplicate_is_string_numeric_poison_array()
+    {
+        using JsonDocument document = JsonDocument.Parse(
+            """{"complianceGapCount":2,"COMPLIANCEGAPCOUNT":["42"]}""");
+
+        RunExplanationComplianceCalloutBuilder.TryParseComplianceGapCount(document.RootElement).Should().Be(2);
+    }
+
+    [Fact]
     public void RunExplanation_FromAggregateJson_keeps_decision_count_when_later_duplicate_is_string_numeric_poison_array()
     {
         using JsonDocument document = JsonDocument.Parse(
