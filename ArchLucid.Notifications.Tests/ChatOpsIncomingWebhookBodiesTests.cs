@@ -270,4 +270,32 @@ public sealed class ChatOpsIncomingWebhookBodiesTests
         NotificationsTestPayloadAssert.GetStringProperty(payload, "title")
             .Should().Be("[High&lt;script&gt;alert(1)&lt;/script&gt;] Latency spike");
     }
+
+    [Fact]
+    public void ForTeams_html_encodes_title_metacharacters_in_connector_title_field()
+    {
+        ChatOpsWebhookMessage withSeverity = new()
+        {
+            SeverityLabel = "High",
+            Title = "<b>Spoofed</b> headline",
+            Body = "details",
+        };
+
+        object withSeverityPayload = ChatOpsIncomingWebhookBodies.ForTeams(withSeverity);
+
+        NotificationsTestPayloadAssert.GetStringProperty(withSeverityPayload, "title")
+            .Should().Be("[High] &lt;b&gt;Spoofed&lt;/b&gt; headline");
+
+        ChatOpsWebhookMessage withoutSeverity = new()
+        {
+            SeverityLabel = null,
+            Title = "<img onerror=alert(1)>",
+            Body = "details",
+        };
+
+        object withoutSeverityPayload = ChatOpsIncomingWebhookBodies.ForTeams(withoutSeverity);
+
+        NotificationsTestPayloadAssert.GetStringProperty(withoutSeverityPayload, "title")
+            .Should().Be("&lt;img onerror=alert(1)&gt;");
+    }
 }

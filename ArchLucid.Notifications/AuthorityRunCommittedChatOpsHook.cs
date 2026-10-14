@@ -148,7 +148,7 @@ public sealed class AuthorityRunCommittedChatOpsHook(
         {
             return new ChatOpsWebhookMessage
             {
-                Title = WebUtility.HtmlEncode(message.Title),
+                Title = message.Title,
                 SupportingParagraph = string.IsNullOrWhiteSpace(message.SupportingParagraph)
                     ? message.SupportingParagraph
                     : WebUtility.HtmlEncode(message.SupportingParagraph),

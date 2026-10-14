@@ -142,14 +142,16 @@ public static class ChatOpsIncomingWebhookBodies
 
     private static string BuildTeamsTitle(ChatOpsWebhookMessage message)
     {
+        string encodedTitle = WebUtility.HtmlEncode(message.Title);
+
         string? sanitizedSeverity = TrySanitizeSeverityLabel(message.SeverityLabel);
 
         if (sanitizedSeverity is null)
-            return message.Title;
+            return encodedTitle;
 
         string encodedSeverity = WebUtility.HtmlEncode(sanitizedSeverity);
 
-        return FormattableString.Invariant($"[{encodedSeverity}] {message.Title}");
+        return FormattableString.Invariant($"[{encodedSeverity}] {encodedTitle}");
     }
 
     private static string? TrySanitizeSeverityLabel(string? severityLabel)
