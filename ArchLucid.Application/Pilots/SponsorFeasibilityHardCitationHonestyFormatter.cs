@@ -6,11 +6,13 @@ namespace ArchLucid.Application.Pilots;
 /// <summary>LN-022 — sponsor PDF lists hard infeasible with citations or omits uncited hard (ADR 0093).</summary>
 public static class SponsorFeasibilityHardCitationHonestyFormatter
 {
+    public const string FeasibilityVerdictNotStoredLabel = "Feasibility verdict was not stored.";
+
     public static IReadOnlyList<string> RenderPlainTextLines(FeasibilityVerdict? verdict)
     {
         if (verdict is null)
         {
-            return [];
+            return [FeasibilityVerdictNotStoredLabel];
         }
 
         if (verdict.Kind == FeasibilityVerdictKind.HardInfeasible)
@@ -64,7 +66,7 @@ public static class SponsorFeasibilityHardCitationHonestyFormatter
     {
         if (verdict is null)
         {
-            return "Unknown";
+            return FeasibilityVerdictNotStoredLabel;
         }
 
         if (verdict.Kind == FeasibilityVerdictKind.HardInfeasible

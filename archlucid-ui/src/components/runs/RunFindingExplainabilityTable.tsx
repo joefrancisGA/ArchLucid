@@ -48,7 +48,7 @@ export type RunFindingExplainabilityTableProps = {
 
 function gapsSummary(row: FindingTraceConfidenceDto): string {
   if (row.missingTraceFields === null || row.missingTraceFields === undefined) {
-    return "Gaps not returned";
+    return "Gaps were not stored";
   }
 
   const m = row.missingTraceFields.filter((s) => s.trim().length > 0);

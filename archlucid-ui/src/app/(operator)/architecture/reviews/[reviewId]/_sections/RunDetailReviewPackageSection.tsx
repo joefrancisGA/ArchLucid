@@ -53,7 +53,7 @@ export function RunDetailReviewPackageSection(
             <li>
               Findings report (
               {props.findingCount === null || props.findingCount === undefined
-                ? "Not returned"
+                ? "Finding count was not stored"
                 : props.findingCount}{" "}
               findings)
             </li>

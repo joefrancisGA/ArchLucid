@@ -95,7 +95,11 @@ export function formatOpenQuestionsWorkingDocumentMarkdownSection(
   lines.push("");
 
   for (const entry of entries) {
-    lines.push(`- ${entry.key}: ${entry.value}`);
+    const answer = entry.value.trim();
+
+    lines.push(
+      `- ${entry.key}: ${answer.length > 0 ? answer : "Answer was not stored."}`,
+    );
   }
 
   lines.push("");

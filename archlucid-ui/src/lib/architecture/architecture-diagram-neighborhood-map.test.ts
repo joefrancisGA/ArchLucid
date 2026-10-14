@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   DIAGRAM_NEIGHBORHOOD_MAP_MIN_COUNT,
+  groupDiagramNeighborhoodSections,
   parseDiagramNeighborhoodMap,
   shouldAutoOpenDiagramNeighborhoodMap,
   type DiagramNeighborhoodMap,
@@ -86,6 +87,16 @@ describe("parseDiagramNeighborhoodMap", () => {
     `);
 
     expect(parsed?.neighborhoods[0]?.kind).toBeNull();
+  });
+});
+
+describe("groupDiagramNeighborhoodSections", () => {
+  it("labels a blank neighborhood kind as not stored", () => {
+    const sections = groupDiagramNeighborhoodSections([
+      { id: "x", kind: "   ", title: "t", resourceCount: 1, memberIds: [], frameIds: [], types: [] },
+    ]);
+
+    expect(sections[0]?.heading).toBe("Neighborhood kind was not stored.");
   });
 });
 

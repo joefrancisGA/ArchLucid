@@ -2750,7 +2750,7 @@ export function DiagramsWorkbenchClient() {
         <EnterpriseCompactEmptyState
           title={
             dataFlowEdgeCountUnknown
-              ? "Edge count not returned"
+              ? "Edge count was not stored"
               : dataFlowHasNoResourcesOrConnections
                 ? "This data-flow canvas has no resources and no connections."
                 : dataFlowHasNoConnections
@@ -2759,7 +2759,7 @@ export function DiagramsWorkbenchClient() {
           }
           description={
             dataFlowEdgeCountUnknown
-              ? "Diagram metrics were not returned for this snapshot — an empty canvas does not mean zero edges."
+              ? "Diagram metrics were not stored for this snapshot — an empty canvas does not mean zero edges."
               : dataFlowHasNoResourcesOrConnections
                 ? "This data-flow canvas has no resources and no connections."
                 : dataFlowHasNoConnections

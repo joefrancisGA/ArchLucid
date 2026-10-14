@@ -192,7 +192,7 @@ export function useNewRunWizardSteps(options: UseNewRunWizardStepsOptions) {
         trackWizardValidationFailed(
           "FullGuided",
           stepIndex,
-          stepDefinitions[stepIndex]?.label ?? "Unknown",
+          stepDefinitions[stepIndex]?.label ?? "Wizard step label was not stored.",
           "field_validation",
         );
         options.setStepValidationMessage(REVIEW_START_STEP_VALIDATION_MESSAGE);

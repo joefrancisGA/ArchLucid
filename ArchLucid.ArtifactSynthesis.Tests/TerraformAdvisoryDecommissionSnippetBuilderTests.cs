@@ -36,6 +36,24 @@ public sealed class TerraformAdvisoryDecommissionSnippetBuilderTests
     }
 
     [Fact]
+    public void BuildDecisionSection_labels_missing_address_as_not_stored()
+    {
+        ResolvedArchitectureDecision decision = new()
+        {
+            DecisionId = "dec-empty",
+            Category = "Cost",
+            Title = "No address hints",
+            SelectedOption = "retire",
+            Rationale = "No graph linkage.",
+            RelatedNodeIds = [],
+        };
+
+        string snippet = TerraformAdvisoryDecommissionSnippetBuilder.BuildDecisionSection(decision);
+
+        snippet.Should().Contain("Terraform address was not stored.");
+    }
+
+    [Fact]
     public void BuildNoDecommissionManifestStub_matches_stable_intro_lines()
     {
         string stub = TerraformAdvisoryDecommissionSnippetBuilder.BuildNoDecommissionManifestStub();

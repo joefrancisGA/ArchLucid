@@ -1,5 +1,8 @@
 import {
-  formatPolicyPackVersion,
+  formatAtCommitCoverageTypeForExport,
+  formatAtCommitPolicyPackVersionForExport,
+  formatAtCommitQualityDimensionForExport,
+  formatAtCommitSelectionStateForExport,
   parseCompareManifestGovernanceSnapshot,
   POLICY_PACK_VERSION_NOT_STORED,
 } from "@/lib/compare-effective-governance-diff";
@@ -105,24 +108,21 @@ export function pushPolicyAtCommitMarkdownLines(manifest: Record<string, unknown
   );
 
   for (const row of snapshot.packAssignments) {
-    const version =
-      row.policyPackVersion === POLICY_PACK_VERSION_NOT_STORED
-        ? POLICY_PACK_VERSION_NOT_STORED
-        : formatPolicyPackVersion(row.policyPackVersion);
+    const version = formatAtCommitPolicyPackVersionForExport(row.policyPackVersion);
     lines.push(`- Pack \`${row.policyPackId}\`${version.length > 0 ? ` ${version}` : ""} (${row.scopeLevel})`);
   }
 
   for (const row of snapshot.coverageAssignments) {
-    const version =
-      row.policyPackVersion === POLICY_PACK_VERSION_NOT_STORED
-        ? POLICY_PACK_VERSION_NOT_STORED
-        : formatPolicyPackVersion(row.policyPackVersion);
+    const version = formatAtCommitPolicyPackVersionForExport(row.policyPackVersion);
+    const qualityDimension = formatAtCommitQualityDimensionForExport(row.qualityDimension);
+    const coverageType = formatAtCommitCoverageTypeForExport(row.coverageType);
+    const selectionState = formatAtCommitSelectionStateForExport(row.selectionState);
     const exclusion =
       row.exclusionReason !== null && row.exclusionReason.length > 0
         ? ` · excluded: ${row.exclusionReason}`
         : "";
     lines.push(
-      `- Coverage \`${row.policyPackId}\`${version.length > 0 ? ` ${version}` : ""} · ${row.qualityDimension} · ${row.coverageType} · ${row.selectionState}${exclusion}`,
+      `- Coverage \`${row.policyPackId}\`${version.length > 0 ? ` ${version}` : ""} · ${qualityDimension} · ${coverageType} · ${selectionState}${exclusion}`,
     );
   }
 

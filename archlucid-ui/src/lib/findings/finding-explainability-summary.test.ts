@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   findingConfidenceExplanation,
   findingEvidenceCountPlainLine,
+  formatFindingExplainabilityPolicyRuleDisplay,
   findingRationalePreview,
   findingSeverityAudienceCopy,
   findingTraceCompletenessPlainEnglish,
@@ -30,8 +31,8 @@ describe("finding-explainability-summary", () => {
   });
 
   it("summarizes evidence ref counts deterministically", () => {
-    expect(findingEvidenceCountPlainLine(undefined)).toContain("not returned");
-    expect(findingEvidenceCountPlainLine(null)).toContain("not returned");
+    expect(findingEvidenceCountPlainLine(undefined)).toContain("not stored");
+    expect(findingEvidenceCountPlainLine(null)).toContain("not stored");
     expect(findingEvidenceCountPlainLine([])).toContain("No structured");
     expect(findingEvidenceCountPlainLine(["a"])).toContain("1 structured");
     expect(findingEvidenceCountPlainLine(["a", "b"])).toContain("2 structured");
@@ -117,6 +118,14 @@ describe("finding-explainability-summary", () => {
     });
   });
 
+  describe("formatFindingExplainabilityPolicyRuleDisplay", () => {
+    it("labels unspecified and empty rule ids as not stored", () => {
+      expect(formatFindingExplainabilityPolicyRuleDisplay("unspecified")).toBe("Policy rule was not stored.");
+      expect(formatFindingExplainabilityPolicyRuleDisplay("  ")).toBe("Policy rule was not stored.");
+      expect(formatFindingExplainabilityPolicyRuleDisplay("pack.rule.network")).toBe("pack.rule.network");
+    });
+  });
+
   describe("findingConfidenceExplanation", () => {
     it("explains why a low bucket is low instead of only labelling it", () => {
       const explanation = findingConfidenceExplanation({
@@ -173,7 +182,7 @@ describe("finding-explainability-summary", () => {
         missingTraceFieldCount: 0,
       });
 
-      expect(explanation.reason).toContain("supporting sources were not returned");
+      expect(explanation.reason).toContain("supporting sources were not stored");
       expect(explanation.reason).not.toContain("no supporting source was recorded");
     });
 

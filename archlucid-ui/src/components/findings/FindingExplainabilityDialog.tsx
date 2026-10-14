@@ -29,6 +29,7 @@ import { findingExplainBlockedReason } from "@/lib/explain/finding-explain-block
 import {
   findingRationalePreview,
   findingSeverityAudienceCopy,
+  formatFindingExplainabilityPolicyRuleDisplay,
 } from "@/lib/findings/finding-explainability-summary";
 import {
   FINDING_TRACE_FIELD_FILL_LABEL,
@@ -242,7 +243,7 @@ export function FindingExplainabilityDialog({
               ) : null}
               <p className={cn("m-0 mt-1.5 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
                 <span className="font-semibold">{FINDING_TRACE_FIELD_FILL_LABEL}:</span>{" "}
-                {traceCompleteness?.summaryLine ?? "Not recorded"}
+                {traceCompleteness?.summaryLine ?? "Trace completeness was not stored."}
               </p>
               <p className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                 {FINDING_TRACE_FIELD_FILL_SCOPE_LINE}
@@ -300,7 +301,9 @@ export function FindingExplainabilityDialog({
                             The rule that produced this conclusion.
                           </span>
                         </dt>
-                        <dd className="m-0 font-mono">{data.evidence.ruleId}</dd>
+                        <dd className="m-0 font-mono">
+                          {formatFindingExplainabilityPolicyRuleDisplay(data.evidence.ruleId)}
+                        </dd>
                       </div>
                       <div>
                         <dt className="font-semibold text-sky-900 dark:text-sky-200">

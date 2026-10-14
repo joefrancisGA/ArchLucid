@@ -51,8 +51,31 @@ describe("infra-evidence-diagram-reconcile-explanation", () => {
       securityDiscrepancy: false,
     };
 
-    expect(formatDiagramReconcileExplanation(row)).toBe("Correspondence explanation was not stored.");
-    expect(formatDiagramReconcileExplanation({ ...row, explainText: "" })).toBe("");
+    expect(formatDiagramReconcileExplanation(row)).toBe(
+      "Match kind: Exact match. Correspondence explanation was not stored.",
+    );
+    expect(formatDiagramReconcileExplanation({ ...row, explainText: "" })).toBe("Match kind: Exact match.");
+  });
+
+  it("labels unknown match kind severity as not stored", () => {
+    const row: DiagramInfrastructureCorrespondenceRow = {
+      correspondenceId: "diagram-node-2",
+      diagramNodeId: "node-2",
+      diagramNodeLabel: "gateway",
+      cloudResourceId: null,
+      azureResourceId: null,
+      resourceType: null,
+      resourceGroup: null,
+      terraformAddress: null,
+      matchKind: "Unknown",
+      confidenceBand: "Possible",
+      explainText: "Uncertain linkage.",
+      aiRationale: null,
+      securityDiscrepancy: false,
+    };
+
+    expect(formatDiagramReconcileExplanation(row)).toContain("Match kind recorded as unknown.");
+    expect(formatDiagramReconcileExplanation(row)).toContain("Match severity was not stored.");
   });
 
   it("lowercases diagram node labels for display", () => {
