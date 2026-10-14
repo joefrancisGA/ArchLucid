@@ -233,6 +233,14 @@ internal static partial class RunExplanationAggregateJsonReader
             return false;
         }
 
+        if (IsAggregateWholeNumberCountPropertyName(structuredPropertyName)
+            && jsonElement.ValueKind == JsonValueKind.String
+            && TryReadWholeNumber(jsonElement, out int wholeCountStringAlias)
+            && wholeCountStringAlias > 10)
+        {
+            return false;
+        }
+
         if ((structuredPropertyName.Equals("faithfulnessWarning", StringComparison.OrdinalIgnoreCase)
              || structuredPropertyName.Equals("riskPosture", StringComparison.OrdinalIgnoreCase))
             && (IsZeroConfidenceAliasValue(jsonElement) || IsBooleanOneAliasValue(jsonElement)))
@@ -256,6 +264,14 @@ internal static partial class RunExplanationAggregateJsonReader
 
         if (structuredPropertyName.Equals("reasoning", StringComparison.OrdinalIgnoreCase)
             && jsonElement.ValueKind == JsonValueKind.Number)
+        {
+            return false;
+        }
+
+        if (structuredPropertyName.Equals("reasoning", StringComparison.OrdinalIgnoreCase)
+            && jsonElement.ValueKind == JsonValueKind.String
+            && TryReadWholeNumber(jsonElement, out int reasoningStringAlias)
+            && reasoningStringAlias > 10)
         {
             return false;
         }
