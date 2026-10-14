@@ -181,12 +181,12 @@ internal static partial class RunExplanationAggregateJsonReader
         }
 
         if (caseInsensitiveAliasMatchCount == 1
-            && lastMatch is JsonElement soleCitationsArray
-            && propertyName.Equals("citations", StringComparison.OrdinalIgnoreCase)
-            && soleCitationsArray.ValueKind == JsonValueKind.Array
-            && CitationArrayHasReadableNumericEntry(soleCitationsArray))
+            && lastMatch is JsonElement soleWholeNumberCountArray
+            && IsAggregateWholeNumberCountPropertyName(propertyName)
+            && soleWholeNumberCountArray.ValueKind == JsonValueKind.Array
+            && AggregateWholeNumberCountArrayHasReadableNumericEntry(soleWholeNumberCountArray))
         {
-            value = soleCitationsArray;
+            value = soleWholeNumberCountArray;
 
             return true;
         }
@@ -464,24 +464,24 @@ internal static partial class RunExplanationAggregateJsonReader
                 continue;
             }
 
-            if (structuredPropertyName.Equals("citations", StringComparison.OrdinalIgnoreCase)
+            if (IsAggregateWholeNumberCountPropertyName(structuredPropertyName)
                 && IsBooleanOneAliasValue(item))
             {
                 continue;
             }
 
-            if (structuredPropertyName.Equals("citations", StringComparison.OrdinalIgnoreCase)
+            if (IsAggregateWholeNumberCountPropertyName(structuredPropertyName)
                 && item.ValueKind == JsonValueKind.Number
-                && TryReadWholeNumber(item, out int citationNumericAlias)
-                && citationNumericAlias > 10)
+                && TryReadWholeNumber(item, out int wholeNumberCountAlias)
+                && wholeNumberCountAlias > 10)
             {
                 continue;
             }
 
-            if (structuredPropertyName.Equals("citations", StringComparison.OrdinalIgnoreCase)
+            if (IsAggregateWholeNumberCountPropertyName(structuredPropertyName)
                 && item.ValueKind == JsonValueKind.String
-                && TryParseWholeNumberString(item.GetString()?.Trim() ?? string.Empty, out int citationStringAlias)
-                && (citationStringAlias > 10 || citationStringAlias == 1))
+                && TryParseWholeNumberString(item.GetString()?.Trim() ?? string.Empty, out int wholeNumberCountStringAlias)
+                && (wholeNumberCountStringAlias > 10 || wholeNumberCountStringAlias == 1))
             {
                 continue;
             }
@@ -555,9 +555,9 @@ internal static partial class RunExplanationAggregateJsonReader
         return false;
     }
 
-    private static bool CitationArrayHasReadableNumericEntry(JsonElement citationsArray)
+    private static bool AggregateWholeNumberCountArrayHasReadableNumericEntry(JsonElement countArray)
     {
-        foreach (JsonElement item in citationsArray.EnumerateArray())
+        foreach (JsonElement item in countArray.EnumerateArray())
         {
             if (item.ValueKind == JsonValueKind.Number && TryReadWholeNumber(item, out _))
                 return true;

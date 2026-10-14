@@ -1313,6 +1313,33 @@ public sealed class RunExplanationConfidenceCalloutBuilderTests
     }
 
     [Fact]
+    public void RunExplanation_FromAggregateJson_keeps_decision_count_when_later_duplicate_is_numeric_poison_array()
+    {
+        using JsonDocument document = JsonDocument.Parse(
+            """{"decisionCount":3,"DECISIONCOUNT":[42]}""");
+
+        RunExplanationCostCalloutBuilder.TryParseDecisionCount(document.RootElement).Should().Be(3);
+    }
+
+    [Fact]
+    public void RunExplanation_FromAggregateJson_keeps_compliance_gap_count_when_later_duplicate_is_numeric_poison_array()
+    {
+        using JsonDocument document = JsonDocument.Parse(
+            """{"complianceGapCount":2,"COMPLIANCEGAPCOUNT":[42]}""");
+
+        RunExplanationComplianceCalloutBuilder.TryParseComplianceGapCount(document.RootElement).Should().Be(2);
+    }
+
+    [Fact]
+    public void RunExplanation_FromAggregateJson_keeps_unresolved_issue_count_when_later_duplicate_is_numeric_poison_array()
+    {
+        using JsonDocument document = JsonDocument.Parse(
+            """{"unresolvedIssueCount":2,"UNRESOLVEDISSUECOUNT":[42]}""");
+
+        RunExplanationRiskCalloutBuilder.TryParseUnresolvedIssueCount(document.RootElement).Should().Be(2);
+    }
+
+    [Fact]
     public void RunExplanation_FromAggregateJson_keeps_unresolved_issue_count_when_later_duplicate_is_nested_empty_wrapper_object()
     {
         RunExplanationRiskCalloutBuilder.TryParseUnresolvedIssueCount(
