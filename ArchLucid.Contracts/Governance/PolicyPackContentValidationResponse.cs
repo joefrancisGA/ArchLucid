@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Governance;
 
 /// <summary>
@@ -17,9 +19,11 @@ public sealed class PolicyPackContentValidationResponse
         set;
     } = new();
 
+    private List<PolicyPackContentValidationIssue> issues = [];
+
     public List<PolicyPackContentValidationIssue> Issues
     {
-        get;
-        set;
-    } = [];
+        get => issues;
+        set => issues = ContractCollectionDefaults.Coalesce(value);
+    }
 }
