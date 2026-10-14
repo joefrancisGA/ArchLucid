@@ -27853,7 +27853,10 @@
           },
           "llmCallCount": {
             "format": "int32",
-            "type": "integer"
+            "type": [
+              "null",
+              "integer"
+            ]
           },
           "llmCallCountResolved": {
             "type": "boolean"

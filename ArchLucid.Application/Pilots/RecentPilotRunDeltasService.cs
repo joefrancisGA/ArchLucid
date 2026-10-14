@@ -42,7 +42,8 @@ public sealed class RecentPilotRunDeltasService(
         double? medianFindings = ComputeMedian(rows.Select(r => (double)r.TotalFindings));
         double? medianSeconds = ComputeMedian(rows.Where(r => r.TimeToCommittedManifestTotalSeconds is { } s && double.IsFinite(s) && s >= 0)
             .Select(r => r.TimeToCommittedManifestTotalSeconds!.Value));
-        double? medianLlm = ComputeMedian(rows.Where(r => r.LlmCallCountResolved).Select(r => (double)r.LlmCallCount));
+        double? medianLlm = ComputeMedian(
+            rows.Where(r => r.LlmCallCountResolved && r.LlmCallCount is not null).Select(r => (double)r.LlmCallCount!.Value));
 
         return new RecentPilotRunDeltasResponse
         {
@@ -82,7 +83,7 @@ public sealed class RecentPilotRunDeltasService(
                 TimeToCommittedManifestTotalSeconds = deltas.TimeToCommittedManifest?.TotalSeconds,
                 TotalFindings = totalFindings,
                 TopFindingSeverity = deltas.TopFindingSeverity,
-                LlmCallCount = deltas.LlmCallCount,
+                LlmCallCount = deltas.LlmCallCountResolved ? deltas.LlmCallCount : null,
                 LlmCallCountResolved = deltas.LlmCallCountResolved,
                 IsDemoTenant = isDemo
             };

@@ -212,6 +212,26 @@ public sealed class RecentPilotRunDeltasServiceTests
         result.Should().BeNull();
     }
 
+    [SkippableFact]
+    public async Task GetRecentDeltasAsync_WhenLlmTracesUnresolved_LlmCallCountIsNullOnRow()
+    {
+        Mock<IRunDetailQueryService> queryService = new();
+        Mock<IPilotRunDeltaComputer> deltaComputer = new();
+
+        RunSummary summary = BuildSummary("goodgoodgoodgoodgoodgoodgoodaaaa", "req-A", TimeProvider.System.UtcNowDateTime(), committed: true);
+        queryService.Setup(q => q.ListRunSummariesAsync(It.IsAny<CancellationToken>())).ReturnsAsync([summary]);
+        StubDetailAndDelta(queryService, deltaComputer, summary, findingsCount: 2, secondsToCommit: 60, llmCallCount: 0, llmCallCountResolved: false);
+
+        RecentPilotRunDeltasService sut = BuildSut(queryService, deltaComputer);
+
+        RecentPilotRunDeltasResponse response = await sut.GetRecentDeltasAsync(5);
+
+        response.Items.Should().ContainSingle();
+        response.Items[0].LlmCallCountResolved.Should().BeFalse();
+        response.Items[0].LlmCallCount.Should().BeNull();
+        response.MedianLlmCallCount.Should().BeNull();
+    }
+
     private static RecentPilotRunDeltasService BuildSut(
         Mock<IRunDetailQueryService> queryService,
         Mock<IPilotRunDeltaComputer> deltaComputer) =>

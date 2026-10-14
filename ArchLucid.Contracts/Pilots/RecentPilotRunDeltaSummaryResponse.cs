@@ -60,9 +60,10 @@ public sealed class RecentPilotRunDeltaSummaryResponse
     }
 
     /// <summary>
-    ///     LLM call count attested from execution traces (same semantics as per-run pilot-run-deltas).
+    ///     LLM call count attested from execution traces when <see cref="LlmCallCountResolved" /> is
+    ///     <see langword="true" />; otherwise <see langword="null" /> (same semantics as per-run pilot-run-deltas).
     /// </summary>
-    public int LlmCallCount
+    public int? LlmCallCount
     {
         get;
         init;
