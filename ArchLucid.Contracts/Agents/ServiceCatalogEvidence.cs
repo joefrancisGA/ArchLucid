@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Agents;
 
 /// <summary>
@@ -39,19 +41,23 @@ public sealed class ServiceCatalogEvidence
     } = string.Empty;
 
     /// <summary>Classification tags for filtering (e.g., <c>managed</c>, <c>serverless</c>, <c>regional</c>).</summary>
+    private List<string> tags = [];
+
     public List<string> Tags
     {
-        get;
-        set;
-    } = [];
+        get => tags;
+        set => tags = ContractCollectionDefaults.Coalesce(value);
+    }
 
     /// <summary>
     ///     Scenarios where this service is the preferred or canonical choice
     ///     (e.g., <c>Async event fan-out</c>, <c>Durable message queuing</c>).
     /// </summary>
+    private List<string> recommendedUseCases = [];
+
     public List<string> RecommendedUseCases
     {
-        get;
-        set;
-    } = [];
+        get => recommendedUseCases;
+        set => recommendedUseCases = ContractCollectionDefaults.Coalesce(value);
+    }
 }
