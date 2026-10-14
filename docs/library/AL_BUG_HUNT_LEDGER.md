@@ -29063,6 +29063,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 ---
 ## Zone: archlucid-contracts
 
+2026-10-14 seed hunt (seed→hit): promoted `FindingClassification` type-level `JsonStringEnumConverter` accepting undefined ordinals (`99` and `"99"` deserialized without throw); dedicated `FindingClassificationJsonConverter`; regressions `FindingClassificationJsonConverterTests`; 536 scoped `Contracts` filter tests passed.
+
 2026-10-14 seed hunt (seed→hit): promoted string-encoded numeric `kind` discriminator on `DecisionTraceDtoJsonConverter` (`"0"` rejected while integer `0` worked); `DefinedEnumStringReader.ThrowIfUndefinedNumericString` + `TryParse`; regressions `Deserialize_string_numeric_kind_maps_run_event_trace` and `Deserialize_string_numeric_kind_out_of_range_throws`; 531 scoped `Contracts` filter tests passed.
 
 2026-10-14 seed hunt (seed→hit): promoted whole-number double `insightDensityScore` on `ArchitectureFindingJsonConverter` (`82.0` was ignored while integer `82` worked); `DefinedEnumStringReader.TryReadWholeNumberInt32`; regression `Deserialize_whole_number_double_insight_density_score_maps_integer`; 529 scoped `Contracts` filter tests passed.
@@ -29097,11 +29099,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 56
-- **bugs-found:** 36
+- **hunts:** 57
+- **bugs-found:** 37
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-14
-- **last-bug:** 2026-10-14 — decision trace `kind` rejected string-encoded ordinals
+- **last-bug:** 2026-10-14 — `FindingClassification` accepted undefined enum ordinals via `JsonStringEnumConverter`
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -29123,6 +29125,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ### Hypotheses
 
+- [x] (proven) `FindingClassification` type-level `JsonStringEnumConverter` — numeric and string-encoded ordinals such as `99` and `"99"` deserialized without `JsonException` — **hit 2026-10-14 seed hunt:** inspect/listing DTOs deserialize `FindingClassification` via the enum attribute; fixed with dedicated `FindingClassificationJsonConverter`; regressions `FindingClassificationJsonConverterTests`.
 - [x] (proven) `DecisionTraceDtoJsonConverter` `kind` string ordinals — numeric strings such as `"0"` were rejected while integer `0` deserialized — **hit 2026-10-14 seed hunt:** persisted decision-trace JSON can carry string-encoded discriminators; fixed via `TryReadDecisionTraceKind` string path; regressions `Deserialize_string_numeric_kind_maps_run_event_trace` and `Deserialize_string_numeric_kind_out_of_range_throws`.
 - [x] (proven) `ArchitectureFindingJsonConverter` `insightDensityScore` — whole-number double values such as `82.0` were ignored while integer `82` deserialized — **hit 2026-10-14 seed hunt:** agent architecture-finding JSON can carry double-encoded scores; fixed via `DefinedEnumStringReader.TryReadWholeNumberInt32`; regression `Deserialize_whole_number_double_insight_density_score_maps_integer`.
 - [x] (proven) `DecisionTraceDtoJsonConverter` `kind` discriminator — whole-number double ordinals such as `0.0` failed `JsonElement.GetInt32` while integer `0` deserialized — **hit 2026-10-14 seed hunt:** persisted decision-trace JSON can carry double-encoded discriminators; fixed via `DefinedEnumStringReader.TryReadDefinedOrdinal`; regression `Deserialize_whole_number_double_kind_maps_run_event_trace`.
