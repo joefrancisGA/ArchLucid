@@ -477,6 +477,63 @@ public sealed class TenantErasureQuarantineMiddlewareRequestCacheTests
     }
 
     [Fact]
+    public async Task Erasure_quarantine_still_blocks_offboarded_tenant_when_path_traversal_reaches_admin_prefix()
+    {
+        InMemoryTenantRepository tenants = new();
+        await tenants.InsertTenantAsync(
+            TenantId,
+            "Offboarded",
+            "offboarded-traversal",
+            TenantTier.Standard,
+            null,
+            TenantDataRegions.Default,
+            CancellationToken.None);
+
+        DateTimeOffset offboardedUtc = new(2026, 8, 20, 12, 0, 0, TimeSpan.Zero);
+        (await tenants.TryStartTenantErasureOffboardAsync(
+                TenantId,
+                offboardedUtc,
+                offboardedUtc.AddDays(30),
+                CancellationToken.None))
+            .Should()
+            .BeTrue();
+
+        DefaultHttpContext http = new()
+        {
+            Request = { Path = "/v1/tenant/../admin/tenants" },
+            User = new ClaimsPrincipal(
+                new ClaimsIdentity(
+                    [
+                        new Claim("sub", "user-1"),
+                        new Claim("tenant_id", TenantId.ToString("D")),
+                    ],
+                    "Bearer")),
+            Response = { Body = new MemoryStream() },
+        };
+
+        ServiceCollection services = [];
+        services.AddMemoryCache();
+        services.AddSingleton<IHttpContextAccessor>(_ => new HttpContextAccessor { HttpContext = http });
+        services.AddSingleton<IScopeContextProvider, HttpScopeContextProvider>();
+        services.AddSingleton<ITenantRepository>(tenants);
+        services.AddSingleton<ITenantGetByIdRequestCache, TenantGetByIdRequestCache>();
+        services.AddSingleton(TimeProvider.System);
+        http.RequestServices = services.BuildServiceProvider();
+
+        RequestDelegate terminal = context =>
+        {
+            context.Response.StatusCode = StatusCodes.Status200OK;
+
+            return Task.CompletedTask;
+        };
+
+        TenantErasureQuarantineMiddleware middleware = new(terminal);
+        await middleware.InvokeAsync(http);
+
+        http.Response.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
+    }
+
+    [Fact]
     public async Task Erasure_quarantine_passes_through_when_tenant_record_missing()
     {
         DefaultHttpContext http = new()

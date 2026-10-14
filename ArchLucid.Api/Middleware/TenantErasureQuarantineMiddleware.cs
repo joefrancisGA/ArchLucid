@@ -50,26 +50,35 @@ internal sealed class TenantErasureQuarantineMiddleware(RequestDelegate next)
 
     private static bool Skip(PathString path)
     {
+        PathString rawPath = path;
         path = NormalizeRequestPath(path);
 
         if (path == "/" || path.StartsWithSegments("/robots.txt", StringComparison.OrdinalIgnoreCase) ||
             path.StartsWithSegments("/sitemap.xml", StringComparison.OrdinalIgnoreCase))
             return true;
 
-        return path.StartsWithSegments("/health", StringComparison.OrdinalIgnoreCase) ||
-               path.StartsWithSegments("/version", StringComparison.OrdinalIgnoreCase) ||
-               path.StartsWithSegments("/openapi", StringComparison.OrdinalIgnoreCase) ||
-               path.StartsWithSegments("/swagger", StringComparison.OrdinalIgnoreCase) ||
-               path.StartsWithSegments("/scalar", StringComparison.OrdinalIgnoreCase) ||
-               path.StartsWithSegments("/v1/register", StringComparison.OrdinalIgnoreCase) ||
-               path.StartsWithSegments("/v1/tenant/erasure", StringComparison.OrdinalIgnoreCase) ||
-               path.StartsWithSegments("/v1/admin", StringComparison.OrdinalIgnoreCase);
+        if (path.StartsWithSegments("/health", StringComparison.OrdinalIgnoreCase) ||
+            path.StartsWithSegments("/version", StringComparison.OrdinalIgnoreCase) ||
+            path.StartsWithSegments("/openapi", StringComparison.OrdinalIgnoreCase) ||
+            path.StartsWithSegments("/swagger", StringComparison.OrdinalIgnoreCase) ||
+            path.StartsWithSegments("/scalar", StringComparison.OrdinalIgnoreCase) ||
+            path.StartsWithSegments("/v1/tenant/erasure", StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        if (path.StartsWithSegments("/v1/register", StringComparison.OrdinalIgnoreCase))
+            return rawPath.StartsWithSegments("/v1/register", StringComparison.OrdinalIgnoreCase);
+
+        if (!path.StartsWithSegments("/v1/admin", StringComparison.OrdinalIgnoreCase))
+            return false;
+
+        // Parent-segment traversal can normalize tenant-scoped URLs onto /v1/admin and bypass quarantine.
+        return rawPath.StartsWithSegments("/v1/admin", StringComparison.OrdinalIgnoreCase);
     }
 
     /// <summary>Runs after authentication; denies tenant routes during erasure quarantine.</summary>
     public async Task InvokeAsync(HttpContext context)
     {
-        if (Skip(NormalizeRequestPath(context.Request.Path)) || context.User.Identity?.IsAuthenticated != true)
+        if (Skip(context.Request.Path) || context.User.Identity?.IsAuthenticated != true)
         {
             await next(context);
 

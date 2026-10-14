@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-14 seed hunt (seed→hit): `tenant-erasure` — promoted `TenantErasureQuarantineMiddleware.Skip` parent-segment traversal; reachable `/v1/tenant/../admin/...` normalized onto `/v1/admin` and bypassed quarantine while offboarded; require raw path prefix for `/v1/admin` and `/v1/register` skip entries; pass unnormalized `Request.Path` into `Skip`; regression `Erasure_quarantine_still_blocks_offboarded_tenant_when_path_traversal_reaches_admin_prefix`; Application 35/35 and Api 29/29 scoped `TenantErasure` tests passed.
+
 2026-10-14 seed hunt (seed→hit): `securenow-question-queue` — promoted stale `EvidenceFingerprint` on ignore; reachable `POST /ignore` accepted a fingerprint the compiler would not join, so the API reported success while the question stayed open; `WriteAsync` now validates answered and ignored mutations via shared `ValidateMutationAgainstCompiledQuestionAsync`; regression `Stale_evidence_fingerprint_is_rejected_before_persisting_an_ignore`; Application SecureNowQuestion filter 26/26.
 
 2026-10-13 seed hunt (seed→hit): `architecture-intelligence-orchestrator` — promoted `ClosedLoopReasoningSourceTextNormalizer.CollapseParentPathSegments`; `docs/sub/../arch.md` and `docs/foo/bar/../../arch.md` split review-cache `ContentHash` from `docs/arch.md`; cheap-disproved stale CRLF duplicate, run-id whitespace, and publish coalesce-key candidates; regression `Build_matches_content_hash_when_file_name_differs_only_by_parent_path_segments`; 90 scoped orchestrator/cache manifest tests passed.
@@ -8316,6 +8318,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: tenant-erasure
 
+2026-10-14 seed hunt (seed→hit): promoted `TenantErasureQuarantineMiddleware.Skip` traversal onto `/v1/admin`; offboarded tenants could bypass quarantine when `NormalizeRequestPath` collapsed `..` segments onto the admin allowlist while `InvokeAsync` passed an already-normalized path into `Skip`; skip admin/register only when the raw request path shares the same prefix; regression `Erasure_quarantine_still_blocks_offboarded_tenant_when_path_traversal_reaches_admin_prefix`; 64 scoped `TenantErasure` tests passed (35 Application + 29 Api).
+
 2026-10-13 thorough hunt (hit): `tenant-erasure` — cheap-disproof closed duplicate open `(invalid)` backslash-normalization row; proved first-time offboard still suspended tenants when quarantine restore raced between atomic offboard start and post-start read; pre-suspend tenant re-read; 63 scoped `TenantErasure` tests passed.
 
 2026-10-12 thorough hunt (dry): `tenant-erasure` — repeated the unchanged five classified hypotheses; no reachable bypass or lifecycle defect was found. Sequential Application/API runs again failed before tests on unrelated `AzureInventorySecurityEdgeMaterializer.cs` compile errors (`unmappedRoles` and `warnings`). No production or regression code changed.
@@ -8358,15 +8362,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant delete; erasure; quarantine middleware
 - **paths:** ArchLucid.Application/Tenancy/TenantErasureCommandService.cs; ArchLucid.Api/Middleware/TenantErasureQuarantineMiddleware.cs
 - **test-filter:** FullyQualifiedName~TenantErasure
-- **hunts:** 271
-- **bugs-found:** 492
+- **hunts:** 272
+- **bugs-found:** 493
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-13
-- **last-bug:** 2026-10-13 — Offboard suspend on restored tenant after atomic start
+- **last-hunt:** 2026-10-14
+- **last-bug:** 2026-10-14 — path traversal bypassed erasure quarantine via /v1/admin allowlist
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
 - [x] (proven) `TenantErasureCommandService.TryOffboardTenantAsync` — `SuspendTenantAsync` when erasure quarantine restored after `TryStartTenantErasureOffboardAsync` before post-start read — **hit 2026-10-13 thorough hunt:** pre-suspend `GetByIdAsync` quarantine guard; regression tightened in `TryOffboardTenantAsync_returns_null_without_audit_when_quarantine_restored_after_atomic_offboard_start`.
+- [x] (proven) `TenantErasureQuarantineMiddleware.Skip` — parent-segment traversal (`/v1/tenant/../admin/...`) normalized onto `/v1/admin` and skipped quarantine for offboarded tenants because `InvokeAsync` passed a pre-normalized path into `Skip`; **hit 2026-10-14 seed hunt:** require raw `/v1/admin` and `/v1/register` prefixes before those skip entries; regression `Erasure_quarantine_still_blocks_offboarded_tenant_when_path_traversal_reaches_admin_prefix`.
 
 2026-10-06 seed hunt (seed→hit): promoted dot-segment erasure lifecycle allowlist; proved offboarded tenants received `403` on `/v1/tenant/erasure/./approve` because `Skip` compared raw dot segments; collapse `.`/`..` segments in `NormalizeRequestPath`; regression `Erasure_quarantine_allows_tenant_erasure_lifecycle_routes_with_dot_segments_in_path`; seeded five `(candidate)` rows; 50 scoped `TenantErasure` tests passed.
 
