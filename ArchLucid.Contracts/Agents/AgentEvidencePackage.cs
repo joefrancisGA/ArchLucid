@@ -1,5 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Agents;
 
 /// <summary>
@@ -60,25 +62,31 @@ public sealed class AgentEvidencePackage
     } = new();
 
     /// <summary>Applicable policy evidence entries injected for agent evaluation.</summary>
+    private List<PolicyEvidence> policies = [];
+
     public List<PolicyEvidence> Policies
     {
-        get;
-        set;
-    } = [];
+        get => policies;
+        set => policies = ContractCollectionDefaults.Coalesce(value);
+    }
 
     /// <summary>Service catalog entries relevant to the request context.</summary>
+    private List<ServiceCatalogEvidence> serviceCatalog = [];
+
     public List<ServiceCatalogEvidence> ServiceCatalog
     {
-        get;
-        set;
-    } = [];
+        get => serviceCatalog;
+        set => serviceCatalog = ContractCollectionDefaults.Coalesce(value);
+    }
 
     /// <summary>Architecture pattern hints relevant to the request.</summary>
+    private List<PatternEvidence> patterns = [];
+
     public List<PatternEvidence> Patterns
     {
-        get;
-        set;
-    } = [];
+        get => patterns;
+        set => patterns = ContractCollectionDefaults.Coalesce(value);
+    }
 
     /// <summary>
     ///     Summary of the most recently committed manifest for this system, provided
@@ -92,18 +100,22 @@ public sealed class AgentEvidencePackage
     }
 
     /// <summary>Advisory notes added by the evidence builder (execution mode, hydration warnings, pattern hints, etc.).</summary>
+    private List<EvidenceNote> notes = [];
+
     public List<EvidenceNote> Notes
     {
-        get;
-        set;
-    } = [];
+        get => notes;
+        set => notes = ContractCollectionDefaults.Coalesce(value);
+    }
 
     /// <summary>Deterministic structural grounding drops from post-processors (TB-2349).</summary>
+    private List<string> structuralGroundingDropLog = [];
+
     public List<string> StructuralGroundingDropLog
     {
-        get;
-        set;
-    } = [];
+        get => structuralGroundingDropLog;
+        set => structuralGroundingDropLog = ContractCollectionDefaults.Coalesce(value);
+    }
 
     /// <summary>UTC timestamp when this package was built.</summary>
     public DateTime CreatedUtc
