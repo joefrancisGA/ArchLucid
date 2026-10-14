@@ -49,6 +49,7 @@ public sealed class ExecDigestEmailDispatcher(
             throw new ArgumentException("Week label is required.", nameof(composition));
 
         string normalizedWeekLabel = composition.WeekLabel.Trim();
+        string displayWeekLabel = EmailHeaderFragmentSanitizer.Sanitize(normalizedWeekLabel);
 
         List<string> normalizedMailboxes = [];
 
@@ -84,7 +85,7 @@ public sealed class ExecDigestEmailDispatcher(
         ExecDigestEmailModel model = new()
         {
             ProductName = productName,
-            WeekLabel = normalizedWeekLabel,
+            WeekLabel = displayWeekLabel,
             ComplianceDriftMarkdown = composition.ComplianceDriftMarkdown,
             CommittedManifestsInWeek = composition.CommittedManifestsInWeek,
             TopRuns = composition.TopManifestRuns,
@@ -102,8 +103,7 @@ public sealed class ExecDigestEmailDispatcher(
         string subjectPrefix = string.IsNullOrWhiteSpace(composition.RehearsalSubjectPrefix)
             ? string.Empty
             : EmailHeaderFragmentSanitizer.Sanitize(composition.RehearsalSubjectPrefix);
-        string subject =
-            $"{subjectPrefix}{productName} weekly digest — {EmailHeaderFragmentSanitizer.Sanitize(normalizedWeekLabel)}";
+        string subject = $"{subjectPrefix}{productName} weekly digest — {displayWeekLabel}";
 
         return await MultiRecipientEmailDispatch.TrySendToMailboxesAsync(
             tenantId,
