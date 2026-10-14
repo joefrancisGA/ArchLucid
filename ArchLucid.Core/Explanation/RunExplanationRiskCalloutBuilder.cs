@@ -17,7 +17,7 @@ public static class RunExplanationRiskCalloutBuilder
 
     public static string? TryParseRiskPosture(JsonElement root)
     {
-        if (!RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitive(root, "riskPosture", out JsonElement postureEl))
+        if (!RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitivePreferLastNonEmpty(root, "riskPosture", out JsonElement postureEl))
             return null;
 
         return RunExplanationAggregateJsonReader.TryReadNonEmptyTextToken(postureEl, out string? posture)

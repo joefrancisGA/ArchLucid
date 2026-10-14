@@ -764,4 +764,17 @@ public sealed class RunExplanationConfidenceCalloutBuilderTests
         signals!.FaithfulnessWarning.Should().Be("Citations missing");
         RunExplanationConfidenceCalloutBuilder.ResolveDisposition(signals).Should().Be("WARN");
     }
+
+    [Fact]
+    public void FromAggregateJson_uses_non_empty_risk_posture_when_later_duplicate_is_empty()
+    {
+        RunExplanationRiskCalloutBuilder.TryParseRiskPosture(
+            JsonDocument.Parse(
+                """
+                {
+                  "riskPosture": "elevated",
+                  "RISKPOSTURE": ""
+                }
+                """).RootElement).Should().Be("elevated");
+    }
 }
