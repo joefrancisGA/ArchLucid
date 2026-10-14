@@ -1,5 +1,7 @@
 using System.Text.Json.Serialization;
 
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Architecture;
 
 /// <summary>
@@ -48,12 +50,14 @@ public sealed class FeasibilityVerdict
     }
 
     /// <summary>Authority references — required and non-empty only for hard infeasibility.</summary>
+    private List<FeasibilityHardCitation> hardCitations = [];
+
     [JsonPropertyName("hardCitations")]
     public List<FeasibilityHardCitation> HardCitations
     {
-        get;
-        set;
-    } = [];
+        get => hardCitations;
+        set => hardCitations = ContractCollectionDefaults.Coalesce(value);
+    }
 
     /// <summary>Operating envelope — required only for soft infeasibility.</summary>
     [JsonPropertyName("softEnvelope")]
@@ -66,18 +70,22 @@ public sealed class FeasibilityVerdict
     /// <summary>
     ///     Minimal conflicting <c>INV-*</c> set when the design is over-constrained (unsat core).
     /// </summary>
+    private List<string> unsatCoreInvariantKeys = [];
+
     [JsonPropertyName("unsatCoreInvariantKeys")]
     public List<string> UnsatCoreInvariantKeys
     {
-        get;
-        set;
-    } = [];
+        get => unsatCoreInvariantKeys;
+        set => unsatCoreInvariantKeys = ContractCollectionDefaults.Coalesce(value);
+    }
 
     /// <summary>Trade-offs ArchLucid surfaces; the operator must explicitly accept any relaxation.</summary>
+    private List<ProposedRelaxation> proposedRelaxations = [];
+
     [JsonPropertyName("proposedRelaxations")]
     public List<ProposedRelaxation> ProposedRelaxations
     {
-        get;
-        set;
-    } = [];
+        get => proposedRelaxations;
+        set => proposedRelaxations = ContractCollectionDefaults.Coalesce(value);
+    }
 }
