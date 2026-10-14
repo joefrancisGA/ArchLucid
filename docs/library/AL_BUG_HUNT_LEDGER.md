@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-14 seed hunt (seed→hit): `archlucid-contracts` — promoted `ArchitectureFindingJsonConverter.TryReadEnforcementTier` accepting string numeric `"99"` without `Enum.IsDefined` (numeric JSON ordinals already threw); string path now matches treatment/classification guards; also rejects undefined numeric-string `sourceAgent` ordinals while preserving optional default `0` round-trip; regressions `Deserialize_string_numeric_enforcement_tier_out_of_range_throws` and `Deserialize_string_numeric_source_agent_out_of_range_throws`; 523 scoped `Contracts` filter tests passed.
+
 2026-10-14 seed hunt (seed→hit): `core-explanation-json` — promoted aggregate `deterministicFallbackUsed: -1` forcing HOLD (`TryReadBooleanScalarValue` treated any nonnegative-failed negative `int32` as non-zero true); boolean numeric coercion now rejects negative whole numbers (parity with `TryParseWholeNumberString` on the string path); regression `RunExplanation_FromAggregateJson_ignores_negative_numeric_deterministic_fallback_alias`; 214 scoped `RunExplanation` filter tests passed.
 
 2026-10-14 seed hunt (seed→hit): `core-explanation-json` — promoted aggregate `deterministicFallbackUsed: 1e20` forcing HOLD (`TryReadBooleanScalarValue` accepted any finite whole double without `int.MaxValue` bounds unlike `TryReadWholeNumber`); boolean numeric coercion now rejects out-of-range whole numbers before non-zero coercion; regression `RunExplanation_FromAggregateJson_ignores_out_of_range_numeric_deterministic_fallback_alias`; 213 scoped `RunExplanation` filter tests passed.
@@ -28955,6 +28957,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 ---
 ## Zone: archlucid-contracts
 
+2026-10-14 seed hunt (seed→hit): promoted `ArchitectureFindingJsonConverter.TryReadEnforcementTier` string numeric `"99"` bypass (parity gap vs integer ordinals and sibling enum readers); regressions `Deserialize_string_numeric_enforcement_tier_out_of_range_throws` and `Deserialize_string_numeric_source_agent_out_of_range_throws`; 523 scoped `Contracts` filter tests passed.
+
 2026-10-10 seed hunt (seed-only): repeated the architecture-model contract reread after the prior diagram-node candidate; existing constants and round-trip coverage exposed no fresh reachable wrong outcome. The scoped Contracts suite passed 520/520. No production or regression code was changed.
 
 2026-10-10 seed hunt (seed-only): repeated the Contracts architecture-model reread, including diagram node kinds/provenance and infrastructure comparison constants; no new contract-only wrong outcome met the promotion bar. The scoped Contracts suite passed 520/520. Seeded one bounded candidate for arbitrary diagram node-kind values; no production or regression code was changed.
@@ -29067,6 +29071,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `ArchitectureFindingJsonConverter.TryReadFindingSemanticSupportBand` — numeric `semanticSupportBand` ordinals outside `Enum.IsDefined` returned false and left `SemanticSupportBand` null while sibling `treatment`/`classification` readers throw — **hit 2026-09-26 seed hunt:** out-of-range ordinals now throw `JsonException`; regressions `Deserialize_integer_semantic_support_band_out_of_range_throws` and `Deserialize_numeric_semantic_support_band_maps_supported_ordinal`.
 
 - [x] (proven) `ArchitectureFindingJsonConverter.TryReadFindingSemanticSupportBand` — string numeric `semanticSupportBand` ordinals such as `"99"` passed `Enum.TryParse` without an `Enum.IsDefined` check and were silently ignored, while numeric ordinals throw — **hit 2026-10-11 seed hunt:** added the defined-value guard; regression `Deserialize_string_numeric_semantic_support_band_out_of_range_throws`.
+- [x] (proven) `ArchitectureFindingJsonConverter.TryReadEnforcementTier` — string numeric `enforcementTier` ordinals such as `"99"` deserialized without `Enum.IsDefined` while integer ordinals throw — **hit 2026-10-14 seed hunt:** defined-value guard on string parse; regression `Deserialize_string_numeric_enforcement_tier_out_of_range_throws`.
+- [x] (proven) `ArchitectureFindingJsonConverter.TryReadSourceAgent` — string numeric `sourceAgent` ordinals such as `"99"` deserialized to undefined enum values while integer ordinals throw — **hit 2026-10-14 seed hunt:** reject undefined numeric-string ordinals; regression `Deserialize_string_numeric_source_agent_out_of_range_throws`.
 
 2026-08-31 seed hunt #332 (hit): proved object-shaped claim `evidenceRefs` dropped in `AgentResultJsonConverter`; seeded numeric/PascalCase insight-density fields, `FindingConfidenceLevel` ordinal, and comma-delimiter brief sentinel candidates.
 

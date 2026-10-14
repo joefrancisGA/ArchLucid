@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -191,6 +192,20 @@ public sealed class ArchitectureFindingJsonConverter : JsonConverter<Architectur
 
             if (Enum.TryParse(label, ignoreCase: true, out AgentType parsed))
             {
+
+                if (!Enum.IsDefined(parsed))
+                {
+
+                    if (int.TryParse(label, NumberStyles.Integer, CultureInfo.InvariantCulture, out int numericOrdinal)
+                        && numericOrdinal != 0)
+                    {
+                        throw new JsonException($"Unknown source agent value '{label}'.");
+                    }
+
+                    agentType = default;
+                    return false;
+                }
+
                 agentType = parsed;
                 return true;
             }
@@ -303,6 +318,10 @@ public sealed class ArchitectureFindingJsonConverter : JsonConverter<Architectur
         if (element.ValueKind == JsonValueKind.String &&
             Enum.TryParse(element.GetString(), ignoreCase: true, out FindingEnforcementTier parsed))
         {
+
+            if (!Enum.IsDefined(parsed))
+                throw new JsonException($"Unknown finding enforcement tier value '{element.GetString()}'.");
+
             tier = parsed;
             return true;
         }
