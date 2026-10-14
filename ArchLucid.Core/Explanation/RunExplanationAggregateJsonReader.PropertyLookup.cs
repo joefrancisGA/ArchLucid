@@ -483,6 +483,17 @@ internal static partial class RunExplanationAggregateJsonReader
             if (item.ValueKind is JsonValueKind.True or JsonValueKind.False)
                 continue;
 
+            if (IsDeterministicFallbackPropertyName(structuredPropertyName)
+                && applyTrailingDuplicateArrayPoison
+                && (IsBooleanOneAliasValue(item)
+                    || IsZeroConfidenceAliasValue(item)
+                    || (item.ValueKind == JsonValueKind.String
+                        && TryParseWholeNumberString(item.GetString()?.Trim(), out int deterministicFallbackArrayStringAlias)
+                        && (deterministicFallbackArrayStringAlias == 0 || deterministicFallbackArrayStringAlias == 1))))
+            {
+                continue;
+            }
+
             if ((IsStructuredStringListPropertyName(structuredPropertyName)
                  || structuredPropertyName.Equals("reasoning", StringComparison.OrdinalIgnoreCase)
                  || structuredPropertyName.Equals("confidence", StringComparison.OrdinalIgnoreCase))
