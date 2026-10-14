@@ -29063,6 +29063,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 ---
 ## Zone: archlucid-contracts
 
+2026-10-14 seed hunt (seed→hit): promoted `FeasibilityVerdictKind` `JsonStringEnumConverter` undefined-ordinal acceptance; `DefinedEnumJsonConverter<FeasibilityVerdictKind>`; regressions `FeasibilityVerdictKindJsonConverterTests`; 576 scoped `Contracts` filter tests passed.
+
 2026-10-14 seed hunt (seed→hit): promoted `TrustOrigin` `JsonStringEnumConverter` undefined-ordinal acceptance; `DefinedEnumJsonConverter<TrustOrigin>`; regressions `TrustOriginJsonConverterTests`; 571 scoped `Contracts` filter tests passed.
 
 2026-10-14 seed hunt (seed→hit): promoted `ActorOrigin` `JsonStringEnumConverter` undefined-ordinal acceptance; `DefinedEnumJsonConverter<ActorOrigin>`; regressions `ActorOriginJsonConverterTests`; 566 scoped `Contracts` filter tests passed.
@@ -29113,11 +29115,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 64
-- **bugs-found:** 44
+- **hunts:** 65
+- **bugs-found:** 45
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-14
-- **last-bug:** 2026-10-14 — `TrustOrigin` accepted undefined ordinals via `JsonStringEnumConverter`
+- **last-bug:** 2026-10-14 — `FeasibilityVerdictKind` accepted undefined ordinals via `JsonStringEnumConverter`
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -29139,6 +29141,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ### Hypotheses
 
+- [x] (proven) `FeasibilityVerdictKind` type-level `JsonStringEnumConverter` — numeric and string-encoded ordinals such as `99` and `"99"` deserialized without `JsonException` — **hit 2026-10-14 seed hunt:** feasibility verdict contract JSON deserializes via the enum attribute; fixed with `DefinedEnumJsonConverter<FeasibilityVerdictKind>`; regressions `FeasibilityVerdictKindJsonConverterTests`.
 - [x] (proven) `TrustOrigin` type-level `JsonStringEnumConverter` — numeric and string-encoded ordinals such as `99` and `"99"` deserialized without `JsonException` — **hit 2026-10-14 seed hunt:** architecture actor trust-origin JSON deserializes via the enum attribute; fixed with `DefinedEnumJsonConverter<TrustOrigin>`; regressions `TrustOriginJsonConverterTests`.
 - [x] (proven) `ActorOrigin` type-level `JsonStringEnumConverter` — numeric and string-encoded ordinals such as `99` and `"99"` deserialized without `JsonException` — **hit 2026-10-14 seed hunt:** architecture actor descriptor JSON deserializes origin via the enum attribute; fixed with `DefinedEnumJsonConverter<ActorOrigin>`; regressions `ActorOriginJsonConverterTests`.
 - [x] (proven) `ActorKind` type-level `JsonStringEnumConverter` — numeric and string-encoded ordinals such as `99` and `"99"` deserialized without `JsonException` — **hit 2026-10-14 seed hunt:** architecture actor contract JSON deserializes kind via the enum attribute; fixed with `DefinedEnumJsonConverter<ActorKind>`; regressions `ActorKindJsonConverterTests`.
