@@ -128,6 +128,14 @@ internal static partial class RunExplanationAggregateJsonReader
         {
             if (element.TryGetInt32(out int numeric))
             {
+
+                if (numeric < 0)
+                {
+                    value = default;
+
+                    return false;
+                }
+
                 value = numeric != 0;
 
                 return true;
@@ -136,8 +144,8 @@ internal static partial class RunExplanationAggregateJsonReader
             if (element.TryGetDouble(out double wholeNumber)
                 && double.IsFinite(wholeNumber)
                 // Bound the conversion because an out-of-range double-to-int cast saturates instead of failing.
+                && wholeNumber >= 0
                 && wholeNumber <= int.MaxValue
-                && wholeNumber >= int.MinValue
                 && wholeNumber == Math.Floor(wholeNumber))
             {
                 value = wholeNumber != 0;
