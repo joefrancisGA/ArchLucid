@@ -12,7 +12,7 @@ import {
 } from "@/lib/finding-work-item-product-copy";
 
 import {
-  na,
+  workItemStoredText,
   type FindingWorkItemJsonDocument,
   type TraceRowWorkItemInput,
   type WorkItemClipboardFormat,
@@ -80,11 +80,11 @@ function buildTraceRowWorkItemJsonDocument(input: TraceRowWorkItemInput): Findin
     schema: "archlucid.work-item.v1",
     findingId: input.findingId,
     runId: input.runId,
-    title: na(input.findingTitle, "Finding title was not stored"),
-    severity: na(input.severityLabel, "Severity was not stored"),
-    recommendedAction: na(input.recommendedAction, "No recommended action recorded for this finding."),
-    status: na(input.statusLabel, "Status was not stored"),
-    ruleId: na(input.ruleId, "Rule was not stored"),
+    title: workItemStoredText(input.findingTitle, "Finding title was not stored."),
+    severity: workItemStoredText(input.severityLabel, "Severity was not stored."),
+    recommendedAction: workItemStoredText(input.recommendedAction, "Recommended action was not stored."),
+    status: workItemStoredText(input.statusLabel, "Status was not stored."),
+    ruleId: workItemStoredText(input.ruleId, "Rule was not stored."),
     ...trustFields,
     ...(semanticSupportFields === null
       ? {}
@@ -104,11 +104,11 @@ function buildTraceRowWorkItemJsonDocument(input: TraceRowWorkItemInput): Findin
 /** Builds pasted text for queue rows and aggregate explanation tables. */
 export function buildTraceRowWorkItemBody(format: WorkItemClipboardFormat, input: TraceRowWorkItemInput): string {
   const links = traceRowWorkItemLinks(input);
-  const title = na(input.findingTitle, "Finding title was not stored");
-  const severity = na(input.severityLabel, "Severity was not stored");
-  const reco = na(input.recommendedAction, "No recommended action recorded for this finding.");
-  const status = na(input.statusLabel, "Status was not stored");
-  const rule = na(input.ruleId, "Rule was not stored");
+  const title = workItemStoredText(input.findingTitle, "Finding title was not stored.");
+  const severity = workItemStoredText(input.severityLabel, "Severity was not stored.");
+  const reco = workItemStoredText(input.recommendedAction, "Recommended action was not stored.");
+  const status = workItemStoredText(input.statusLabel, "Status was not stored.");
+  const rule = workItemStoredText(input.ruleId, "Rule was not stored.");
   const trustLine = formatFindingTrustExportLine(input);
   const coverageHonestyLine = traceRowCoverageHonestyLineForExport(input);
 

@@ -39,6 +39,38 @@ export function resolveArtifactBundleIdLabel(artifactBundleId: string | null | u
   return artifactBundleId ?? "Artifact bundle id was not stored.";
 }
 
+export function resolveContextSnapshotIdLabel(contextSnapshotId: string | null | undefined): string {
+  if (contextSnapshotId === null || contextSnapshotId === undefined) {
+    return "Context snapshot id was not stored.";
+  }
+
+  return contextSnapshotId;
+}
+
+export function resolveGraphSnapshotIdLabel(graphSnapshotId: string | null | undefined): string {
+  if (graphSnapshotId === null || graphSnapshotId === undefined) {
+    return "Graph snapshot id was not stored.";
+  }
+
+  return graphSnapshotId;
+}
+
+export function resolveFindingsSnapshotIdLabel(findingsSnapshotId: string | null | undefined): string {
+  if (findingsSnapshotId === null || findingsSnapshotId === undefined) {
+    return "Findings snapshot id was not stored.";
+  }
+
+  return findingsSnapshotId;
+}
+
+export function resolveDecisionTraceIdLabel(decisionTraceId: string | null | undefined): string {
+  if (decisionTraceId === null || decisionTraceId === undefined) {
+    return "Decision trace id was not stored.";
+  }
+
+  return decisionTraceId;
+}
+
 /** Full-operator review trail: manifest link + collapsible audit identifiers. */
 export function RunDetailAuthorityChainSection(props: RunDetailAuthorityChainSectionProps): ReactElement {
   const { run, manifestId } = props;
@@ -163,7 +195,7 @@ export function RunDetailAuthorityChainSection(props: RunDetailAuthorityChainSec
                 </span>
                 <span className="flex min-w-0 flex-1 items-center justify-end gap-2 sm:justify-end">
                   <code className={monoCodeClass}>
-                    {run.contextSnapshotId ?? "Not returned"}
+                    {resolveContextSnapshotIdLabel(run.contextSnapshotId)}
                   </code>
                   {run.contextSnapshotId ? (
                     <CopyIdButton value={run.contextSnapshotId} aria-label="Copy context snapshot ID" />
@@ -174,7 +206,7 @@ export function RunDetailAuthorityChainSection(props: RunDetailAuthorityChainSec
                 <span className={rowLabelClass}>Graph snapshot</span>
                 <span className="flex min-w-0 flex-1 items-center justify-end gap-2">
                   <code className={monoCodeClass}>
-                    {run.graphSnapshotId ?? "Not returned"}
+                    {resolveGraphSnapshotIdLabel(run.graphSnapshotId)}
                   </code>
                   {run.graphSnapshotId ? (
                     <CopyIdButton value={run.graphSnapshotId} aria-label="Copy graph snapshot ID" />
@@ -185,7 +217,7 @@ export function RunDetailAuthorityChainSection(props: RunDetailAuthorityChainSec
                 <span className={rowLabelClass}>Findings snapshot</span>
                 <span className="flex min-w-0 flex-1 items-center justify-end gap-2">
                   <code className={monoCodeClass}>
-                    {run.findingsSnapshotId ?? "Not returned"}
+                    {resolveFindingsSnapshotIdLabel(run.findingsSnapshotId)}
                   </code>
                   {run.findingsSnapshotId ? (
                     <CopyIdButton value={run.findingsSnapshotId} aria-label="Copy findings snapshot ID" />
@@ -198,7 +230,7 @@ export function RunDetailAuthorityChainSection(props: RunDetailAuthorityChainSec
                 </span>
                 <span className="flex min-w-0 flex-1 items-center justify-end gap-2">
                   <code className={monoCodeClass}>
-                    {run.decisionTraceId ?? "Not returned"}
+                    {resolveDecisionTraceIdLabel(run.decisionTraceId)}
                   </code>
                   {run.decisionTraceId ? (
                     <CopyIdButton value={run.decisionTraceId} aria-label="Copy decision trace ID" />

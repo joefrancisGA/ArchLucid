@@ -246,6 +246,111 @@ public sealed class RunTrustEvidenceCardBuilderTests
     }
 
     [Fact]
+    public async Task BuildAsync_when_trace_confidence_missing_uses_not_stored_label()
+    {
+        Guid runGuid = Guid.Parse("55555555-5555-5555-5555-555555555555");
+        ArchitectureRunDetail detail = BuildCommittedDetail(runGuid);
+
+        RunTrustEvidenceCardBuilder sut = CreateSut(
+            out _,
+            out _,
+            explanationSummary: new RunExplanationSummary
+            {
+                Explanation = new ExplanationResult(),
+                ThemeSummaries = [],
+                OverallAssessment = "ok",
+                RiskPosture = "neutral",
+                FindingCount = 1,
+                DecisionCount = 0,
+                UnresolvedIssueCount = 0,
+                ComplianceGapCount = 0,
+                FaithfulnessSupportRatio = 0.9,
+                DeterministicFallbackUsed = false,
+                FaithfulnessWarning = null,
+                FindingTraceConfidences = [],
+            });
+
+        RunTrustEvidenceCard? card = await sut.BuildAsync(detail, "Real", CancellationToken.None);
+
+        card.Should().NotBeNull();
+        card!.TopFinding!.TraceCompletenessLabel.Should().Be("Trace completeness was not stored.");
+    }
+
+    [Fact]
+    public async Task BuildAsync_when_evidence_chain_missing_summarizes_not_stored()
+    {
+        Guid runGuid = Guid.Parse("66666666-6666-6666-6666-666666666666");
+        ArchitectureRunDetail detail = BuildCommittedDetail(runGuid);
+
+        Mock<IAuditRepository> audit = new();
+        Mock<IAgentExecutionTraceRepository> traces = new();
+        Mock<IFindingEvidenceChainService> evidence = new();
+        Mock<IRunExplanationSummaryService> explanation = new();
+        Mock<IScopeContextProvider> scope = new();
+
+        ScopeContext sc = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+        scope.Setup(s => s.GetCurrentScope()).Returns(sc);
+        audit.Setup(a => a.CountFilteredAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<AuditEventFilter>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(0);
+        traces.Setup(t => t.CountByRunIdAsync(It.IsAny<ScopeContext>(), detail.Run.RunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(0);
+        evidence.Setup(e => e.BuildAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((FindingEvidenceChainResponse?)null);
+        explanation.Setup(x => x.GetSummaryAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunExplanationSummary
+            {
+                Explanation = new ExplanationResult(),
+                ThemeSummaries = [],
+                OverallAssessment = "ok",
+                RiskPosture = "neutral",
+                FindingCount = 1,
+                DecisionCount = 0,
+                UnresolvedIssueCount = 0,
+                ComplianceGapCount = 0,
+                FaithfulnessSupportRatio = 0.9,
+                DeterministicFallbackUsed = false,
+                FaithfulnessWarning = null,
+                FindingTraceConfidences =
+                [
+                    new FindingTraceConfidenceDto
+                    {
+                        FindingId = "top-finding",
+                        TraceCompletenessRatio = 1,
+                        TraceConfidenceLabel = "High",
+                        RuleId = "r",
+                        EvidenceRefCount = 1,
+                        FindingTitle = "Title",
+                        MissingTraceFields = [],
+                    },
+                ],
+            });
+
+        RunTrustEvidenceCardBuilder sut = new(
+            audit.Object,
+            traces.Object,
+            evidence.Object,
+            explanation.Object,
+            scope.Object,
+            CreateSealedManifestAuthorityMock(sc).Object,
+            CreateSealedManifestHashMock());
+
+        RunTrustEvidenceCard? card = await sut.BuildAsync(detail, "Real", CancellationToken.None);
+
+        card.Should().NotBeNull();
+        card!.TopFinding!.EvidencePointersSummary.Should().Be("Evidence chain was not stored.");
+    }
+
+    [Fact]
     public async Task BuildAsync_without_top_finding_omits_evidence_chain_link()
     {
         Guid runGuid = Guid.Parse("44444444-4444-4444-4444-444444444444");

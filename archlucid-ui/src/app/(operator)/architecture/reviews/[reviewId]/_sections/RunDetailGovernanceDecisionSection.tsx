@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
 import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY, operatorSemanticSurface } from "@/lib/design-tokens";
 import { buildArchitectureActivityFinalizeReadinessHref } from "@/lib/architecture/architecture-created-finalize-readiness-href";
-import { formatActionActorName } from "@/lib/action-actor-display";
+import { formatGovernanceDecisionOwnerName } from "@/lib/action-actor-display";
 import { buildReviewWorkspaceTabHref } from "@/lib/unified-review-workspace-tabs";
 import {
   RUN_DETAIL_GOVERNANCE_PRE_COMMIT_APPROVAL_GATE_LABEL,
@@ -52,7 +52,7 @@ export function RunDetailGovernanceDecisionSection(
   const pagePrimaryOwnedElsewhere = props.pagePrimaryOwnedElsewhere === true;
   const decision = (props.operatorGovernanceDecision ?? "").trim();
   const rationale = (props.operatorGovernanceDecisionRationale ?? "").trim();
-  const decisionBy = formatActionActorName(props.operatorGovernanceDecisionByUserId);
+  const decisionBy = formatGovernanceDecisionOwnerName(props.operatorGovernanceDecisionByUserId);
   const manifestFinalized = (props.manifestId ?? "").trim().length > 0;
   const showGovernanceCta = shouldShowRunDetailGovernanceCta({
     runId: props.runId,

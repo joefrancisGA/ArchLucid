@@ -74,3 +74,24 @@ export function formatActionActorName(name: string | null | undefined): string {
 
   return trimmed;
 }
+
+/** Governance review workspace — missing approver/owner ids are omission copy, not N/A placeholders. */
+export function formatGovernanceDecisionOwnerName(name: string | null | undefined): string {
+  const trimmed = (name ?? "").trim();
+
+  if (trimmed.length === 0) {
+    return "Decision owner was not stored.";
+  }
+
+  return trimmed;
+}
+
+export function formatGovernanceApproverName(name: string | null | undefined): string {
+  const trimmed = (name ?? "").trim();
+
+  if (trimmed.length === 0) {
+    return "Approver was not stored.";
+  }
+
+  return trimmed;
+}

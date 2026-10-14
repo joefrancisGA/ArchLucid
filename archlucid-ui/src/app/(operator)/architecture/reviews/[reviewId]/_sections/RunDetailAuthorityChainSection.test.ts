@@ -2,7 +2,11 @@ import { describe, expect, it } from "vitest";
 
 import {
   resolveArtifactBundleIdLabel,
+  resolveContextSnapshotIdLabel,
+  resolveDecisionTraceIdLabel,
   resolveFinalizedReviewRecordLabel,
+  resolveFindingsSnapshotIdLabel,
+  resolveGraphSnapshotIdLabel,
 } from "./RunDetailAuthorityChainSection";
 
 describe("RunDetailAuthorityChainSection manifest label", () => {
@@ -17,5 +21,14 @@ describe("RunDetailAuthorityChainSection manifest label", () => {
     expect(resolveArtifactBundleIdLabel(undefined)).toBe("Artifact bundle id was not stored.");
     expect(resolveArtifactBundleIdLabel("")).toBe("");
     expect(resolveArtifactBundleIdLabel("bundle-1")).toBe("bundle-1");
+  });
+
+  it("uses per-id omission copy for authority chain snapshot pointers (P-14)", () => {
+    expect(resolveContextSnapshotIdLabel(null)).toBe("Context snapshot id was not stored.");
+    expect(resolveGraphSnapshotIdLabel(undefined)).toBe("Graph snapshot id was not stored.");
+    expect(resolveFindingsSnapshotIdLabel(null)).toBe("Findings snapshot id was not stored.");
+    expect(resolveDecisionTraceIdLabel(undefined)).toBe("Decision trace id was not stored.");
+    expect(resolveContextSnapshotIdLabel("ctx-1")).toBe("ctx-1");
+    expect(resolveGraphSnapshotIdLabel("")).toBe("");
   });
 });

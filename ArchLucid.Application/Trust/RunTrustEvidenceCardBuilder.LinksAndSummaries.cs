@@ -46,10 +46,13 @@ public sealed partial class RunTrustEvidenceCardBuilder
     private static string SummarizeChain(FindingEvidenceChainResponse? chain)
     {
         if (chain is null)
-            return "Evidence chain pointers not available.";
+            return "Evidence chain was not stored.";
         int nodes = chain.RelatedGraphNodeIds.Count;
         int traces = chain.AgentExecutionTraceIds.Count;
-        return FormattableString.Invariant($"Manifest version {chain.ManifestVersion ?? "—"}; graph nodes: {nodes}; linked trace ids: {traces}.");
+        string manifestVersion = string.IsNullOrWhiteSpace(chain.ManifestVersion)
+            ? "Manifest version was not stored."
+            : chain.ManifestVersion.Trim();
+        return FormattableString.Invariant($"Manifest version {manifestVersion}; graph nodes: {nodes}; linked trace ids: {traces}.");
     }
 
     private static ArchitectureFinding? SelectTopSeverityFinding(ArchitectureRunDetail detail)
