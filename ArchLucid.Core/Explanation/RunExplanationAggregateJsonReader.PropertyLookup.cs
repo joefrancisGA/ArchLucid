@@ -328,18 +328,6 @@ internal static partial class RunExplanationAggregateJsonReader
         return false;
     }
 
-    private static bool ReasoningArrayEntryObjectHasExtractableContent(JsonElement jsonElement)
-    {
-        if (TryGetPropertyCaseInsensitivePreferLastNonEmpty(jsonElement, "text", out JsonElement textElement)
-            && TryReadNonEmptyTextToken(textElement, out string? text)
-            && !string.IsNullOrWhiteSpace(text))
-            return true;
-
-        if (TryGetPropertyCaseInsensitivePreferLastNonEmpty(jsonElement, "id", out JsonElement idElement)
-            && TryReadNonEmptyTextToken(idElement, out string? id)
-            && !string.IsNullOrWhiteSpace(id))
-            return true;
-
-        return false;
-    }
+    private static bool ReasoningArrayEntryObjectHasExtractableContent(JsonElement jsonElement) =>
+        ProseListObjectAliasHasExtractableContent(jsonElement);
 }

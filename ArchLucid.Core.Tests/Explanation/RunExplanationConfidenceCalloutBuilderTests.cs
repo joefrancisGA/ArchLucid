@@ -848,4 +848,15 @@ public sealed class RunExplanationConfidenceCalloutBuilderTests
         ok.Should().BeTrue();
         structured!.EvidenceRefs.Should().Equal("dec-1");
     }
+
+    [Fact]
+    public void RunExplanation_structured_json_reasoning_survives_trailing_blank_text_object_array_with_id()
+    {
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(
+            """{"reasoning":"Recovered explanation","Reasoning":[{"text":"   ","id":"spoof"}]}""",
+            out StructuredExplanation? structured);
+
+        ok.Should().BeTrue();
+        structured!.Reasoning.Should().Be("Recovered explanation");
+    }
 }
