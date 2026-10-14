@@ -12,7 +12,7 @@ public static class EmailBrandingUrls
         if (string.IsNullOrWhiteSpace(operatorBaseUrl))
             return null;
 
-        string trimmedBase = operatorBaseUrl.Trim().TrimEnd('/');
+        string trimmedBase = TrimBeforeLineBreak(operatorBaseUrl.Trim().TrimEnd('/'));
 
         if (string.IsNullOrWhiteSpace(trimmedBase))
             return null;
@@ -31,6 +31,20 @@ public static class EmailBrandingUrls
         ArgumentNullException.ThrowIfNull(absoluteUrl);
 
         string trimmed = absoluteUrl.Trim();
+        int lineBreakIndex = IndexOfLineBreak(trimmed);
+
+        if (lineBreakIndex >= 0)
+        {
+            string? authority = TryNormalizeOperatorBaseAuthority(TrimBeforeLineBreak(trimmed));
+
+            if (authority is not null)
+            {
+                int pathStart = trimmed.IndexOf('/', lineBreakIndex);
+
+                if (pathStart >= 0)
+                    return authority + trimmed[pathStart..];
+            }
+        }
 
         if (!Uri.TryCreate(trimmed, UriKind.Absolute, out Uri? uri) || string.IsNullOrEmpty(uri.Host))
             return trimmed;
@@ -73,6 +87,30 @@ public static class EmailBrandingUrls
             return $"{authority}{relativePath}";
 
         return relativePath;
+    }
+
+    private static int IndexOfLineBreak(string value)
+    {
+        int carriageReturn = value.IndexOf('\r');
+        int lineFeed = value.IndexOf('\n');
+
+        if (carriageReturn < 0)
+            return lineFeed;
+
+        if (lineFeed < 0)
+            return carriageReturn;
+
+        return Math.Min(carriageReturn, lineFeed);
+    }
+
+    private static string TrimBeforeLineBreak(string value)
+    {
+        int lineBreakIndex = IndexOfLineBreak(value);
+
+        if (lineBreakIndex < 0)
+            return value;
+
+        return value[..lineBreakIndex];
     }
 
     private static string? TryExtractMalformedSchemeOnlyConcatPath(string sanitized)

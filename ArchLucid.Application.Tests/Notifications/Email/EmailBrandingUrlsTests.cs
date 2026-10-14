@@ -92,4 +92,27 @@ public sealed class EmailBrandingUrlsTests
 
         url.Should().Be("/architecture/reviews/a1b2c3d4");
     }
+
+    [SkippableFact]
+    public void SanitizeOperatorAbsoluteUrl_omits_embedded_crlf_from_exec_digest_scanner_style_unsubscribe_url()
+    {
+        string operatorBase = "https://ops.example.test\r\nBcc: injected@evil.test";
+        string token = "abc";
+        string raw = $"{operatorBase.Trim().TrimEnd('/')}/v1.0/notifications/exec-digest/unsubscribe?token={Uri.EscapeDataString(token)}";
+
+        string sanitized = EmailBrandingUrls.SanitizeOperatorAbsoluteUrl(raw);
+
+        sanitized.Should().NotContain("\r");
+        sanitized.Should().NotContain("\n");
+        sanitized.Should().Be("https://ops.example.test/v1.0/notifications/exec-digest/unsubscribe?token=abc");
+    }
+
+    [SkippableFact]
+    public void TryNormalizeOperatorBaseAuthority_ignores_lines_after_embedded_crlf_in_operator_base()
+    {
+        string? authority = EmailBrandingUrls.TryNormalizeOperatorBaseAuthority(
+            "https://ops.example.test\r\nBcc: injected@evil.test");
+
+        authority.Should().Be("https://ops.example.test");
+    }
 }
