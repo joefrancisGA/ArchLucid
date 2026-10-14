@@ -319,6 +319,28 @@ public sealed class StructuredExplanationParserTests
     }
 
     [Fact]
+    public void TryNormalizeStructuredJson_ignores_scalar_boolean_evidence_refs()
+    {
+        const string json = """{"reasoning":"Main","evidenceRefs":true}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.EvidenceRefs.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_rejects_scalar_boolean_reasoning()
+    {
+        const string json = """{"reasoning":true,"alternativesConsidered":["Keep monolith"]}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeFalse();
+        s.Should().BeNull();
+    }
+
+    [Fact]
     public void TryNormalizeStructuredJson_ignores_fractional_numeric_evidence_ref_entries()
     {
         const string json = """{"reasoning":"Main","evidenceRefs":[42.5,"dec-1"]}""";

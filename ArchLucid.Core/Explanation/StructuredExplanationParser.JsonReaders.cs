@@ -29,6 +29,9 @@ public static partial class StructuredExplanationParser
 
         if (arrayElement.ValueKind != JsonValueKind.Array)
         {
+            if (arrayElement.ValueKind is JsonValueKind.True or JsonValueKind.False)
+                return null;
+
             if (arrayElement.ValueKind == JsonValueKind.Object)
             {
                 string? objectEntry = TryReadStringListEntry(arrayElement, objectPropertyOrder);
@@ -120,6 +123,9 @@ public static partial class StructuredExplanationParser
 
         if (reasoningElement.ValueKind == JsonValueKind.Object)
             return TryReadObjectStringProperty(reasoningElement, "text", "id");
+
+        if (reasoningElement.ValueKind is JsonValueKind.True or JsonValueKind.False)
+            return null;
 
         if (reasoningElement.ValueKind != JsonValueKind.Array)
         {
