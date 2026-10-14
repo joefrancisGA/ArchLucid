@@ -64,6 +64,18 @@ internal static partial class RunExplanationAggregateJsonReader
             return true;
         }
 
+        if (lastMatch is JsonElement reasoningLast
+            && propertyName.Equals("reasoning", StringComparison.OrdinalIgnoreCase)
+            && (TryReadFiniteDouble(reasoningLast) is not null
+                || (reasoningLast.ValueKind == JsonValueKind.Array
+                    && !ArrayPropertyValueIsNonEmpty(reasoningLast, propertyName)
+                    && ArrayContainsOnlyZeroNumericElements(reasoningLast))))
+        {
+            value = reasoningLast;
+
+            return true;
+        }
+
         if (lastMatch is JsonElement stringListLast
             && IsStructuredStringListPropertyName(propertyName)
             && stringListLast.ValueKind == JsonValueKind.Array
@@ -85,7 +97,8 @@ internal static partial class RunExplanationAggregateJsonReader
 
     private static bool IsNonEmptyJsonPropertyValue(JsonElement jsonElement, string structuredPropertyName)
     {
-        if (structuredPropertyName.Equals("confidence", StringComparison.OrdinalIgnoreCase)
+        if ((structuredPropertyName.Equals("confidence", StringComparison.OrdinalIgnoreCase)
+             || structuredPropertyName.Equals("reasoning", StringComparison.OrdinalIgnoreCase))
             && IsZeroConfidenceAliasValue(jsonElement))
         {
             return false;
@@ -122,7 +135,8 @@ internal static partial class RunExplanationAggregateJsonReader
             if (item.ValueKind is JsonValueKind.True or JsonValueKind.False)
                 continue;
 
-            if (IsStructuredStringListPropertyName(structuredPropertyName)
+            if ((IsStructuredStringListPropertyName(structuredPropertyName)
+                 || structuredPropertyName.Equals("reasoning", StringComparison.OrdinalIgnoreCase))
                 && item.ValueKind == JsonValueKind.Number
                 && TryReadFiniteDouble(item) is 0)
             {

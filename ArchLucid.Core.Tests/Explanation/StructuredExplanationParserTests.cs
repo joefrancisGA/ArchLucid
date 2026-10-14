@@ -746,4 +746,37 @@ public sealed class StructuredExplanationParserTests
         ok.Should().BeTrue();
         s!.EvidenceRefs.Should().Equal("0");
     }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_uses_non_empty_reasoning_when_later_case_variant_is_zero_numeric_scalar()
+    {
+        const string json = """{"reasoning":"Main explanation","Reasoning":0}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Reasoning.Should().Be("Main explanation");
+    }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_preserves_explicit_zero_reasoning_when_only_numeric_scalar()
+    {
+        const string json = """{"reasoning":0}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Reasoning.Should().Be("0");
+    }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_uses_non_empty_reasoning_when_later_case_variant_is_zero_numeric_array()
+    {
+        const string json = """{"reasoning":"Main explanation","Reasoning":[0]}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Reasoning.Should().Be("Main explanation");
+    }
 }
