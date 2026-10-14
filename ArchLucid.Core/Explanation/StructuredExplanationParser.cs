@@ -84,6 +84,13 @@ public static partial class StructuredExplanationParser
         }
     }
 
+    internal static bool StructuredConfidenceElementHasReadableValue(JsonElement element) =>
+        TryReadStructuredConfidence(element) is not null;
+
+    internal static bool StructuredSchemaVersionElementHasReadableValue(JsonElement element) =>
+        StrictSchemaVersionReader.TryReadSchemaVersion(element, out int parsedSchemaVersion)
+        && parsedSchemaVersion > 0;
+
     private static double? TryReadStructuredConfidence(JsonElement element)
     {
         // Structured confidence is numeric; boolean coercion is reserved for aggregate compatibility fields.

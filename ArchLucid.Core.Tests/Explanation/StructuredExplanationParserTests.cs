@@ -649,6 +649,28 @@ public sealed class StructuredExplanationParserTests
     }
 
     [Fact]
+    public void RunExplanation_structured_json_keeps_confidence_when_later_case_variant_is_nested_empty_wrapper_object()
+    {
+        const string json = """{"reasoning":"Main","confidence":0.8,"CONFIDENCE":{"wrapper":{}}}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Confidence.Should().Be(0.8m);
+    }
+
+    [Fact]
+    public void RunExplanation_structured_json_keeps_schema_version_when_later_case_variant_is_nested_empty_wrapper_object()
+    {
+        const string json = """{"reasoning":"Main","schemaVersion":2,"SCHEMAVERSION":{"wrapper":{}}}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.SchemaVersion.Should().Be(2);
+    }
+
+    [Fact]
     public void TryNormalizeStructuredJson_uses_non_empty_reasoning_when_later_case_variant_is_blank_text_object()
     {
         const string json = """{"reasoning":"Recovered explanation","Reasoning":{"text":"   "}}""";

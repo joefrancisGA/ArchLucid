@@ -268,6 +268,12 @@ internal static partial class RunExplanationAggregateJsonReader
         if (structuredPropertyName.Equals("citations", StringComparison.OrdinalIgnoreCase))
             return !string.IsNullOrWhiteSpace(TryReadEvidenceRefObjectStringProperty(jsonElement));
 
+        if (structuredPropertyName.Equals("confidence", StringComparison.OrdinalIgnoreCase))
+            return StructuredExplanationParser.StructuredConfidenceElementHasReadableValue(jsonElement);
+
+        if (structuredPropertyName.Equals("schemaVersion", StringComparison.OrdinalIgnoreCase))
+            return StructuredExplanationParser.StructuredSchemaVersionElementHasReadableValue(jsonElement);
+
         foreach (JsonProperty property in jsonElement.EnumerateObject())
         {
             if (property.Value.ValueKind is JsonValueKind.Array or JsonValueKind.Object)
