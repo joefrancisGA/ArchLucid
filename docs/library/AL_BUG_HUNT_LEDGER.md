@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-14 seed hunt (seed→hit): `archlucid-contracts` — promoted `SecureNowQuestionDispositionResponse.AuditEntries` explicit JSON `null` overwriting the `= []` initializer so disposition detail consumers could null-deref; null-coalescing `init`; regression `Deserialize_null_audit_entries_yields_empty_list_not_null`; 632 scoped `Contracts` filter tests passed.
+
 2026-10-14 seed hunt (seed→hit): `archlucid-contracts` — promoted `InfrastructureDiagramComparisonCreateRequest.Sources` explicit JSON `null` overwriting the `= []` initializer so `InfrastructureDiagramComparisonService.CompareAsync` hit `NullReferenceException` on `.Count`; null-coalescing setter; regression `Deserialize_null_sources_yields_empty_list_not_null`; 631 scoped `Contracts` filter tests passed.
 
 2026-10-14 seed hunt (seed→hit): `archlucid-contracts` — promoted `ContractJson.Default` registering `JsonStringEnumConverter<AgentType>` so canonical contract JSON (e.g. `AgentExecutionTraceSummary.agentType`) accepted undefined ordinals `99` / `"99"` instead of `AgentTypeJsonConverter` guards; swapped to `AgentTypeJsonConverter`; regressions `ContractJsonAgentTypeDeserializationTests`; 630 scoped `Contracts` filter tests passed.
@@ -29075,6 +29077,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 ---
 ## Zone: archlucid-contracts
 
+2026-10-14 seed hunt (seed→hit): promoted `SecureNowQuestionDispositionResponse.AuditEntries` JSON `null` leaving `AuditEntries` null; null-coalescing `init`; regression `SecureNowQuestionDispositionResponseDeserializationTests`; 632 scoped `Contracts` filter tests passed.
+
 2026-10-14 seed hunt (seed→hit): promoted `InfrastructureDiagramComparisonCreateRequest.Sources` JSON `null` leaving `Sources` null; null-coalescing setter; regression `InfrastructureDiagramComparisonCreateRequestDeserializationTests`; 631 scoped `Contracts` filter tests passed.
 
 2026-10-14 seed hunt (seed→hit): promoted `ContractJson.Default` `JsonStringEnumConverter<AgentType>` bypass on trace summaries and standalone `AgentType` tokens; `AgentTypeJsonConverter`; regressions `ContractJsonAgentTypeDeserializationTests`; 630 scoped `Contracts` filter tests passed.
@@ -29147,11 +29151,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 75
-- **bugs-found:** 55
+- **hunts:** 76
+- **bugs-found:** 56
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-14
-- **last-bug:** 2026-10-14 — `InfrastructureDiagramComparisonCreateRequest.Sources` deserialized as null from explicit JSON null
+- **last-bug:** 2026-10-14 — `SecureNowQuestionDispositionResponse.AuditEntries` deserialized as null from explicit JSON null
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -29197,7 +29201,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - (candidate) `DiagramSourceReference.Content` — a comparison-create request can provide a named source with a supported format but empty content, and the contract accepts it as a valid source; the comparison may silently produce an empty diagram instead of rejecting or reporting the unusable source. Reachability: API request payload for the infrastructure-diagram comparison endpoint.
 - (candidate) `ArchitectureDiagramNodeRecord.Kind` — diagram-node JSON accepts arbitrary kind strings such as `"service "` even though the contract publishes `user`, `system`, `external`, and `boundary`; exact-value renderers may classify a real node as unknown. Reachability: architecture diagram node payload consumed by the diagram UI.
 - (candidate) `DiagramInfrastructureCorrespondenceRow.MatchKind` — reconciliation output accepts arbitrary strings such as `"Exact "` or `"Unexpected"` despite publishing a finite match-kind vocabulary; exact-value UI mapping can render a valid correspondence as unknown. Reachability: server-generated reconciliation response consumed by the diagram comparison UI.
-- (candidate) `SecureNowQuestionDispositionResponse.AuditEntries` — a response JSON payload can explicitly set `"auditEntries": null`, replacing the initialized list; a client that renders audit history without null normalization can fail on an otherwise valid disposition response. Reachability: API response payload for the SecureNow disposition detail route.
+- [x] (proven) `SecureNowQuestionDispositionResponse.AuditEntries` — explicit JSON `"auditEntries": null` assigned null despite `= []` initializer — **hit 2026-10-14 seed hunt:** null-coalescing `init`; regression `Deserialize_null_audit_entries_yields_empty_list_not_null`.
 - [x] (valid-no-repro) `SecureNowQuestionDispositionWriteApiRequest.ExpirationUtc` → `SecureNowQuestionDispositionResponse.ExpirationUtc` — nullable request expiration becomes a required response `DateTime` — **cheap-disproof 2026-10-03 thorough hunt:** `SecureNowQuestionDispositionService.WriteAsync` converts omitted expiration to `now + 90 days` before creating the persisted record and controller mapping; no default timestamp reaches the response.
 - [x] (valid-no-repro) `SecureNowQuestionDispositionWriteApiRequest` — nullable `AnswerCode` and `AnswerText` permit both fields to be absent or simultaneously supplied — **cheap-disproof 2026-10-03 thorough hunt:** answer operations require nonblank `AnswerCode`, answer text is optional supplementary context, and ignore operations intentionally clear both fields; no contract-only shape defect is present.
 - [x] (valid-no-repro) `SecureNowQuestionDispositionResponse.IsExpired` / `ExpirationUtc` — the response exposes both a derived boolean and timestamp without an invariant — **cheap-disproof 2026-10-03 thorough hunt:** `ListAsync` derives `IsExpired` directly from each record's `ExpirationUtc` using the same current timestamp; no disagreement path exists in the application mapping.

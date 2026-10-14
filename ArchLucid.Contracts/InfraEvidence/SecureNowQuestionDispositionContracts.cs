@@ -42,7 +42,14 @@ public sealed class SecureNowQuestionDispositionResponse
     public string EvidenceFingerprint { get; init; } = string.Empty;
     public string ActorKey { get; init; } = string.Empty;
     public DateTime UpdatedUtc { get; init; }
-    public IReadOnlyList<SecureNowQuestionDispositionAuditResponse> AuditEntries { get; init; } = [];
+
+    private IReadOnlyList<SecureNowQuestionDispositionAuditResponse> auditEntries = [];
+
+    public IReadOnlyList<SecureNowQuestionDispositionAuditResponse> AuditEntries
+    {
+        get => auditEntries;
+        init => auditEntries = value ?? [];
+    }
 }
 
 public sealed class SecureNowQuestionDispositionAuditResponse
