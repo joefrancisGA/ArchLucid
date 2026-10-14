@@ -1,5 +1,7 @@
 using System.Text.Json.Serialization;
 
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Governance;
 
 /// <summary>
@@ -48,19 +50,23 @@ public class PolicyPackContentDocument
 
     /// <summary>Key/value defaults merged into advisory improvement plans (string values).</summary>
     [JsonPropertyName("advisoryDefaults")]
+    private Dictionary<string, string> advisoryDefaults = new(StringComparer.OrdinalIgnoreCase);
+
     public Dictionary<string, string> AdvisoryDefaults
     {
-        get;
-        set;
-    } = new(StringComparer.OrdinalIgnoreCase);
+        get => advisoryDefaults;
+        set => advisoryDefaults = ContractCollectionDefaults.CoalesceStringDictionaryOrdinalIgnoreCase(value);
+    }
 
     /// <summary>Opaque key/value metadata merged with precedence during resolution (operator / integration hooks).</summary>
     [JsonPropertyName("metadata")]
+    private Dictionary<string, string> metadata = new(StringComparer.OrdinalIgnoreCase);
+
     public Dictionary<string, string> Metadata
     {
-        get;
-        set;
-    } = new(StringComparer.OrdinalIgnoreCase);
+        get => metadata;
+        set => metadata = ContractCollectionDefaults.CoalesceStringDictionaryOrdinalIgnoreCase(value);
+    }
 
     /// <summary>
     ///     Elicitation questions owned by this pack (ADR 0051 / R8).
