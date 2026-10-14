@@ -29063,6 +29063,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 ---
 ## Zone: archlucid-contracts
 
+2026-10-14 seed hunt (seed→hit): promoted `DraftRequestStatus` `JsonStringEnumConverter` undefined-ordinal acceptance; `DefinedEnumJsonConverter<DraftRequestStatus>`; regressions `DraftRequestStatusJsonConverterTests`; 586 scoped `Contracts` filter tests passed.
+
 2026-10-14 seed hunt (seed→hit): promoted `FeasibilityCitationKind` `JsonStringEnumConverter` undefined-ordinal acceptance; `DefinedEnumJsonConverter<FeasibilityCitationKind>`; regressions `FeasibilityCitationKindJsonConverterTests`; 581 scoped `Contracts` filter tests passed.
 
 2026-10-14 seed hunt (seed→hit): promoted `FeasibilityVerdictKind` `JsonStringEnumConverter` undefined-ordinal acceptance; `DefinedEnumJsonConverter<FeasibilityVerdictKind>`; regressions `FeasibilityVerdictKindJsonConverterTests`; 576 scoped `Contracts` filter tests passed.
@@ -29117,11 +29119,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 66
-- **bugs-found:** 46
+- **hunts:** 67
+- **bugs-found:** 47
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-14
-- **last-bug:** 2026-10-14 — `FeasibilityCitationKind` accepted undefined ordinals via `JsonStringEnumConverter`
+- **last-bug:** 2026-10-14 — `DraftRequestStatus` accepted undefined ordinals via `JsonStringEnumConverter`
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -29143,6 +29145,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ### Hypotheses
 
+- [x] (proven) `DraftRequestStatus` type-level `JsonStringEnumConverter` — numeric and string-encoded ordinals such as `99` and `"99"` deserialized without `JsonException` — **hit 2026-10-14 seed hunt:** draft request lifecycle JSON deserializes status via the enum attribute; fixed with `DefinedEnumJsonConverter<DraftRequestStatus>`; regressions `DraftRequestStatusJsonConverterTests`.
 - [x] (proven) `FeasibilityCitationKind` type-level `JsonStringEnumConverter` — numeric and string-encoded ordinals such as `99` and `"99"` deserialized without `JsonException` — **hit 2026-10-14 seed hunt:** hard-infeasibility citation JSON deserializes via the enum attribute; fixed with `DefinedEnumJsonConverter<FeasibilityCitationKind>`; regressions `FeasibilityCitationKindJsonConverterTests`.
 - [x] (proven) `FeasibilityVerdictKind` type-level `JsonStringEnumConverter` — numeric and string-encoded ordinals such as `99` and `"99"` deserialized without `JsonException` — **hit 2026-10-14 seed hunt:** feasibility verdict contract JSON deserializes via the enum attribute; fixed with `DefinedEnumJsonConverter<FeasibilityVerdictKind>`; regressions `FeasibilityVerdictKindJsonConverterTests`.
 - [x] (proven) `TrustOrigin` type-level `JsonStringEnumConverter` — numeric and string-encoded ordinals such as `99` and `"99"` deserialized without `JsonException` — **hit 2026-10-14 seed hunt:** architecture actor trust-origin JSON deserializes via the enum attribute; fixed with `DefinedEnumJsonConverter<TrustOrigin>`; regressions `TrustOriginJsonConverterTests`.
