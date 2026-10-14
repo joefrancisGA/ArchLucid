@@ -7,7 +7,7 @@ public static class RunExplanationRiskCalloutBuilder
 {
     public static int? TryParseUnresolvedIssueCount(JsonElement root)
     {
-        if (!RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitive(root, "unresolvedIssueCount", out JsonElement countEl))
+        if (!RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitivePreferLastNonEmpty(root, "unresolvedIssueCount", out JsonElement countEl))
             return null;
 
         return RunExplanationAggregateJsonReader.TryReadWholeNumber(countEl, out int count)

@@ -597,6 +597,26 @@ public sealed class RunExplanationConfidenceCalloutBuilderTests
     }
 
     [Fact]
+    public void FromAggregateJson_uses_non_empty_decision_count_when_later_duplicate_is_zero()
+    {
+        RunExplanationCostCalloutBuilder.TryParseDecisionCount(
+            JsonDocument.Parse(
+                """
+                {
+                  "decisionCount": 5,
+                  "DECISIONCOUNT": 0
+                }
+                """).RootElement).Should().Be(5);
+    }
+
+    [Fact]
+    public void FromAggregateJson_preserves_explicit_zero_decision_count_when_only_value()
+    {
+        RunExplanationCostCalloutBuilder.TryParseDecisionCount(
+            JsonDocument.Parse("""{"decisionCount":0}""").RootElement).Should().Be(0);
+    }
+
+    [Fact]
     public void FromAggregateJson_ignores_negative_string_encoded_whole_number_counts()
     {
         RunExplanationConfidenceCalloutBuilder.FromAggregateJson(
@@ -690,5 +710,40 @@ public sealed class RunExplanationConfidenceCalloutBuilderTests
         signals.Should().NotBeNull();
         signals!.CitationCount.Should().Be(0);
         RunExplanationConfidenceCalloutBuilder.ResolveDisposition(signals).Should().Be("WARN");
+    }
+
+    [Fact]
+    public void FromAggregateJson_uses_non_empty_deterministic_fallback_flag_when_later_duplicate_is_false()
+    {
+        RunExplanationConfidenceSignals? signals = RunExplanationConfidenceCalloutBuilder.FromAggregateJson(
+            """
+            {
+              "deterministicFallbackUsed": true,
+              "DETERMINISTICFALLBACKUSED": false,
+              "faithfulnessSupportRatio": 0.95,
+              "citations": 1
+            }
+            """);
+
+        signals.Should().NotBeNull();
+        signals!.DeterministicFallbackUsed.Should().BeTrue();
+        RunExplanationConfidenceCalloutBuilder.ResolveDisposition(signals).Should().Be("HOLD");
+    }
+
+    [Fact]
+    public void FromAggregateJson_preserves_explicit_false_deterministic_fallback_flag_when_only_value()
+    {
+        RunExplanationConfidenceSignals? signals = RunExplanationConfidenceCalloutBuilder.FromAggregateJson(
+            """
+            {
+              "deterministicFallbackUsed": false,
+              "faithfulnessSupportRatio": 0.95,
+              "citations": 1
+            }
+            """);
+
+        signals.Should().NotBeNull();
+        signals!.DeterministicFallbackUsed.Should().BeFalse();
+        RunExplanationConfidenceCalloutBuilder.ResolveDisposition(signals).Should().Be("PASS");
     }
 }

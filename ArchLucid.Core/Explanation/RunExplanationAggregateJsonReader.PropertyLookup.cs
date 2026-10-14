@@ -102,17 +102,27 @@ internal static partial class RunExplanationAggregateJsonReader
             return true;
         }
 
-        if (lastMatch is JsonElement citationLast
-            && propertyName.Equals("citations", StringComparison.OrdinalIgnoreCase)
-            && IsZeroConfidenceAliasValue(citationLast))
+        if (lastMatch is JsonElement countLast
+            && IsAggregateWholeNumberCountPropertyName(propertyName)
+            && IsZeroConfidenceAliasValue(countLast))
         {
-            value = citationLast;
+            value = countLast;
 
             return true;
         }
 
         return false;
     }
+
+    private static bool IsAggregateWholeNumberCountPropertyName(string propertyName) =>
+        propertyName.Equals("citations", StringComparison.OrdinalIgnoreCase)
+        || propertyName.Equals("decisionCount", StringComparison.OrdinalIgnoreCase)
+        || propertyName.Equals("unresolvedIssueCount", StringComparison.OrdinalIgnoreCase)
+        || propertyName.Equals("complianceGapCount", StringComparison.OrdinalIgnoreCase);
+
+    private static bool IsDeterministicFallbackPropertyName(string propertyName) =>
+        propertyName.Equals("deterministicFallbackUsed", StringComparison.OrdinalIgnoreCase)
+        || propertyName.Equals("usedDeterministicFallback", StringComparison.OrdinalIgnoreCase);
 
     private static bool IsStructuredStringListPropertyName(string propertyName) =>
         propertyName.Equals("evidenceRefs", StringComparison.OrdinalIgnoreCase)
@@ -125,7 +135,7 @@ internal static partial class RunExplanationAggregateJsonReader
              || structuredPropertyName.Equals("faithfulnessSupportRatio", StringComparison.OrdinalIgnoreCase)
              || structuredPropertyName.Equals("reasoning", StringComparison.OrdinalIgnoreCase)
              || structuredPropertyName.Equals("schemaVersion", StringComparison.OrdinalIgnoreCase)
-             || structuredPropertyName.Equals("citations", StringComparison.OrdinalIgnoreCase)
+             || IsAggregateWholeNumberCountPropertyName(structuredPropertyName)
              || IsStructuredStringListPropertyName(structuredPropertyName))
             && IsZeroConfidenceAliasValue(jsonElement))
         {
@@ -134,6 +144,12 @@ internal static partial class RunExplanationAggregateJsonReader
 
         if (structuredPropertyName.Equals("citations", StringComparison.OrdinalIgnoreCase)
             && jsonElement.ValueKind is JsonValueKind.True or JsonValueKind.False)
+        {
+            return true;
+        }
+
+        if (IsDeterministicFallbackPropertyName(structuredPropertyName)
+            && jsonElement.ValueKind == JsonValueKind.True)
         {
             return true;
         }

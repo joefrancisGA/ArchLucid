@@ -118,9 +118,9 @@ public static class RunExplanationConfidenceCalloutBuilder
                 RunExplanationAggregateJsonReader.TryReadFiniteDouble(ratioEl));
 
         bool fallback =
-            (RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitive(root, "deterministicFallbackUsed", out JsonElement direct)
+            (RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitivePreferLastNonEmpty(root, "deterministicFallbackUsed", out JsonElement direct)
              && RunExplanationAggregateJsonReader.TryReadBoolean(direct))
-            || (RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitive(root, "usedDeterministicFallback", out JsonElement legacy)
+            || (RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitivePreferLastNonEmpty(root, "usedDeterministicFallback", out JsonElement legacy)
                 && RunExplanationAggregateJsonReader.TryReadBoolean(legacy));
 
         string? warning = RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitive(root, "faithfulnessWarning", out JsonElement warningEl)

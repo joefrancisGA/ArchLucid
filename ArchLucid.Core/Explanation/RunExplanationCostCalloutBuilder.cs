@@ -7,7 +7,7 @@ public static class RunExplanationCostCalloutBuilder
 {
     public static int? TryParseDecisionCount(JsonElement root)
     {
-        if (!RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitive(root, "decisionCount", out JsonElement countEl))
+        if (!RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitivePreferLastNonEmpty(root, "decisionCount", out JsonElement countEl))
             return null;
 
         return RunExplanationAggregateJsonReader.TryReadWholeNumber(countEl, out int count)
