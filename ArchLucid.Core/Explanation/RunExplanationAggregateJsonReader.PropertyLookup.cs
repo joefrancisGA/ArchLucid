@@ -457,6 +457,14 @@ internal static partial class RunExplanationAggregateJsonReader
                 continue;
             }
 
+            if (structuredPropertyName.Equals("citations", StringComparison.OrdinalIgnoreCase)
+                && item.ValueKind == JsonValueKind.String
+                && TryParseWholeNumberString(item.GetString()?.Trim() ?? string.Empty, out int citationStringAlias)
+                && citationStringAlias > 10)
+            {
+                continue;
+            }
+
             return true;
         }
 
@@ -469,6 +477,13 @@ internal static partial class RunExplanationAggregateJsonReader
         {
             if (item.ValueKind == JsonValueKind.Number && TryReadWholeNumber(item, out _))
                 return true;
+
+            if (item.ValueKind == JsonValueKind.String
+                && !string.IsNullOrWhiteSpace(item.GetString())
+                && TryParseWholeNumberString(item.GetString()!.Trim(), out _))
+            {
+                return true;
+            }
         }
 
         return false;
