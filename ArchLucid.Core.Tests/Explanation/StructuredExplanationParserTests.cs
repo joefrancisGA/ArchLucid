@@ -385,6 +385,17 @@ public sealed class StructuredExplanationParserTests
     }
 
     [Fact]
+    public void TryNormalizeStructuredJson_maps_object_shaped_reasoning_when_later_case_variant_text_is_empty()
+    {
+        const string json = """{"reasoning":{"text":"Recovered explanation","TEXT":""}}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Reasoning.Should().Be("Recovered explanation");
+    }
+
+    [Fact]
     public void TryNormalizeStructuredJson_maps_object_shaped_evidence_ref_entries()
     {
         const string json = """{"reasoning":"Main","evidenceRefs":[{"id":"dec-1"}]}""";
