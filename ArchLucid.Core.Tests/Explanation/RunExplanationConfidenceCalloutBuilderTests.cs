@@ -1745,6 +1745,58 @@ public sealed class RunExplanationConfidenceCalloutBuilderTests
     }
 
     [Fact]
+    public void RunExplanation_FromAggregateJson_reads_deterministic_fallback_from_sole_nested_boolean_array_on_legacy_alias()
+    {
+        RunExplanationConfidenceSignals? signals = RunExplanationConfidenceCalloutBuilder.FromAggregateJson(
+            """
+            {
+              "usedDeterministicFallback": [[true]],
+              "faithfulnessSupportRatio": 0.95,
+              "citations": 1
+            }
+            """);
+
+        signals.Should().NotBeNull();
+        signals!.DeterministicFallbackUsed.Should().BeTrue();
+        RunExplanationConfidenceCalloutBuilder.ResolveDisposition(signals).Should().Be("HOLD");
+    }
+
+    [Fact]
+    public void RunExplanation_FromAggregateJson_keeps_deterministic_fallback_false_when_later_legacy_duplicate_is_nested_boolean_poison_array()
+    {
+        RunExplanationConfidenceSignals? signals = RunExplanationConfidenceCalloutBuilder.FromAggregateJson(
+            """
+            {
+              "deterministicFallbackUsed": false,
+              "USEDDETERMINISTICFALLBACK": [[true]],
+              "faithfulnessSupportRatio": 0.95,
+              "citations": 1
+            }
+            """);
+
+        signals.Should().NotBeNull();
+        signals!.DeterministicFallbackUsed.Should().BeFalse();
+    }
+
+    [Fact]
+    public void RunExplanation_FromAggregateJson_keeps_deterministic_fallback_false_when_later_canonical_duplicate_is_nested_boolean_poison_array()
+    {
+        RunExplanationConfidenceSignals? signals = RunExplanationConfidenceCalloutBuilder.FromAggregateJson(
+            """
+            {
+              "deterministicFallbackUsed": false,
+              "DETERMINISTICFALLBACKUSED": [[true]],
+              "faithfulnessSupportRatio": 0.95,
+              "citations": 1
+            }
+            """);
+
+        signals.Should().NotBeNull();
+        signals!.DeterministicFallbackUsed.Should().BeFalse();
+        RunExplanationConfidenceCalloutBuilder.ResolveDisposition(signals).Should().Be("PASS");
+    }
+
+    [Fact]
     public void RunExplanation_structured_json_object_evidence_ref_survives_empty_id_duplicate()
     {
         bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(

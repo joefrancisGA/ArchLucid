@@ -402,7 +402,7 @@ internal static partial class RunExplanationAggregateJsonReader
         }
 
         if (IsDeterministicFallbackPropertyName(structuredPropertyName)
-            && jsonElement.ValueKind == JsonValueKind.True)
+            && jsonElement.ValueKind is JsonValueKind.True or JsonValueKind.False)
         {
             return true;
         }

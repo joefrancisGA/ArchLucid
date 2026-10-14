@@ -117,13 +117,27 @@ public static class RunExplanationConfidenceCalloutBuilder
             ratio = RunExplanationAggregateJsonReader.NormalizeUnitRatio(
                 RunExplanationAggregateJsonReader.TryReadAggregateRatioToken(ratioEl));
 
-        bool fallback =
-            (RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitivePreferLastNonEmpty(root, "deterministicFallbackUsed", out JsonElement direct)
-             && RunExplanationAggregateJsonReader.TryReadAggregateBooleanToken(direct, out bool directFallback)
-             && directFallback)
-            || (RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitivePreferLastNonEmpty(root, "usedDeterministicFallback", out JsonElement legacy)
-                && RunExplanationAggregateJsonReader.TryReadAggregateBooleanToken(legacy, out bool legacyFallback)
-                && legacyFallback);
+        bool fallback = false;
+
+        if (RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitive(root, "deterministicFallbackUsed", out _))
+        {
+            if (RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitivePreferLastNonEmpty(
+                    root,
+                    "deterministicFallbackUsed",
+                    out JsonElement direct)
+                && RunExplanationAggregateJsonReader.TryReadAggregateBooleanToken(direct, out bool directFallback))
+            {
+                fallback = directFallback;
+            }
+        }
+        else if (RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitivePreferLastNonEmpty(
+                     root,
+                     "usedDeterministicFallback",
+                     out JsonElement legacy)
+                 && RunExplanationAggregateJsonReader.TryReadAggregateBooleanToken(legacy, out bool legacyFallback))
+        {
+            fallback = legacyFallback;
+        }
 
         string? warning = RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitivePreferLastNonEmpty(root, "faithfulnessWarning", out JsonElement warningEl)
                             && RunExplanationAggregateJsonReader.TryReadAggregateStringCalloutToken(warningEl, out string? warningText)
