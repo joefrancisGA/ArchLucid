@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-14 seed hunt (seed→hit): `application-pilots` — promoted `PilotValueReportMarkdownFormatter` omitting `RoiSourceFreshnessDisposition` from `GET /v1/tenant/pilot-value-report` markdown export while JSON responses included HOLD/WARN from `PilotValueReportService`; metadata table row; regression `Format_discloses_roi_source_freshness_disposition_in_metadata_table`; cheap-disproved five open candidates; reseeded five follow-on candidates; 50 scoped BuyerProofPack/BoardPack/PilotValueReport tests passed.
+
 2026-10-14 seed hunt (seed→hit): `notifications-pipeline` — promoted `ExecDigestSponsorDeepLinkOperatorLinks.BuildRunCollateralUrl` leaving `runIdHex` with embedded CRLF percent-encoded into exec digest sponsor CTA hrefs (`%0D%0A`) while `EmailBrandingUrls.SanitizeOperatorAbsoluteUrl` does not strip encoded breaks in path segments; `EmailHeaderFragmentSanitizer` on run id at link build (parity with weekly sponsor dispatch); regression `BuildRunCollateralUrl_strips_embedded_crlf_from_run_id_hex_before_path_encoding`; cheap-disproved four open candidates; reseeded five follow-on candidates; 207 scoped notification/digest Application tests passed.
 
 2026-10-14 seed hunt (seed→hit): `application-pilots` — promoted `PilotValueReportService.CollectCommittedRunsAsync` stopping at `RunSummaryMaxPages` without reporting inventory incompleteness on `PilotValueReport` (distinct from `RunDetailsTruncated`); `CommittedRunsInventoryTruncated` on report + markdown export row; regressions `BuildAsync_collect_committed_runs_stops_at_keyset_max_page_cap` assertion and `Format_discloses_committed_run_inventory_truncation`; cheap-disproved four open candidates; reseeded five follow-on candidates; 49 scoped BuyerProofPack/BoardPack/PilotValueReport tests passed.
@@ -18196,11 +18198,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** buyer proof pack; board pack; pilot artifacts
 - **paths:** ArchLucid.Application/Pilots/
 - **test-filter:** FullyQualifiedName~BuyerProofPack|FullyQualifiedName~BoardPack
-- **hunts:** 44
-- **bugs-found:** 29
-- **consecutive-dry-hunts:** 2
-- **last-hunt:** 2026-10-11
-- **last-bug:** 2026-10-09 — board-pack digest week extended outside the requested period
+- **hunts:** 45
+- **bugs-found:** 30
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-14
+- **last-bug:** 2026-10-14 — pilot value report markdown omitted ROI freshness disposition
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -18266,11 +18268,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `BuyerProofPackBuilder.TryBuildZipAsync` — trailing-30-day `ValueReportSnapshot` window — **cheap-disproof 2026-10-14 seed hunt:** intentional shared window across `PilotsApplicationService`, `FirstValueReportBuilder`, and `PilotValueReportRoiFreshnessResolver`; ROI freshness uses run-linked extractor timestamp (`BuyerProofPackBuilderRoiFreshnessTests`).
 - [x] (valid-no-repro) `PilotScorecardBuilder.BuildAsync` — `ListRecentInScopeAsync(10_000)` cap — **cheap-disproof 2026-10-14 seed hunt:** MVP scorecard aggregate; no truncation contract on `PilotScorecardSummary`; high-volume tenants need explicit product flag before promotion.
 - [x] (valid-no-repro) `SponsorEvidencePackService.TryBuildGovernanceOutcomesAsync` — `GovernanceListCap` (50) — **cheap-disproof 2026-10-14 seed hunt:** dashboard service returns capped slices; pack exposes counts from summary DTO only, not full list export.
-- (candidate) `BoardPackPdfBuilder.BuildPdfAsync` — quarterly value snapshot window vs `BoardPackQuarterWindow.DigestWeekInsideQuarter` clamp; reachable when board-pack period override is shorter than ISO digest week span.
-- (candidate) `WhyArchLucidSnapshotService.BuildAsync` — audit row cap uses over-fetch truncation pattern; reachable when default-scope audit events exceed cap but scoped export path differs.
-- (candidate) `PilotRunDeltaComputer` — `ManifestCommittedUtc` vs `CompletedUtc` preference class; reachable when persisted manifest timestamp is future-dated (proven 2026-10-03; verify no regression on clock-skew edge).
-- (candidate) `BuyerProofPackCommitGuard.TryValidateDeltasJson` — rejects malformed `runInCommittedStatus` types; reachable when hand-edited deltas JSON uses numeric booleans (string booleans accepted per 2026-10-04 hit).
-- (candidate) `ReferenceEvidenceAdminExportService.BuildZipAsync` — single-run export selection; reachable when admin requests reference evidence for non-committed run id (guard returns null before ZIP).
+- [x] (valid-no-repro) `BoardPackPdfBuilder.BuildPdfAsync` — digest week vs value-report quarter window — **cheap-disproof 2026-10-14 seed hunt:** `BoardPackQuarterWindow.DigestWeekInsideQuarter` clamps ISO week to override bounds (2026-10-09 hit); value snapshot uses full `qStart`/`qEnd` by design in pack copy.
+- [x] (valid-no-repro) `WhyArchLucidSnapshotService.BuildAsync` — audit row cap over-fetch — **cheap-disproof 2026-10-14 seed hunt:** `auditRowCap + 1` fetch marks truncated only when count exceeds cap (2026-10-04 hit); scoped pilot value report uses separate `GetExportAsync` path.
+- [x] (valid-no-repro) `PilotRunDeltaComputer` — future-dated manifest timestamp — **cheap-disproof 2026-10-14 seed hunt:** `ResolveManifestCommittedUtc` prefers `CompletedUtc` when present (2026-10-03 hit); no new clock-skew repro in zone paths.
+- [x] (valid-no-repro) `BuyerProofPackCommitGuard.TryValidateDeltasJson` — numeric `runInCommittedStatus` — **cheap-disproof 2026-10-14 seed hunt:** `TryParseJsonBoolean` fail-closed on non-string/non-bool JSON (intentional); buyer ZIP uses formatter output with boolean tokens only.
+- [x] (valid-no-repro) `ReferenceEvidenceAdminExportService.BuildZipAsync` — non-committed run export — **cheap-disproof 2026-10-14 seed hunt:** single-run selection with receipt guards; no multi-run truncation contract (invalid row 2026-10-14 seed-only).
+- [x] (proven) `PilotValueReportMarkdownFormatter` — markdown export omitted `RoiSourceFreshnessDisposition` while JSON pilot value report included HOLD/WARN — **hit 2026-10-14 seed hunt (seed→hit):** metadata table row; regression `Format_discloses_roi_source_freshness_disposition_in_metadata_table`.
+- (candidate) `PilotValueReportMarkdownFormatter` — `AuditExportTruncated` true but governance tallies in Summary lack “may be incomplete” copy beyond the boolean metadata row.
+- (candidate) `BoardPackPdfBuilder.BuildPdfAsync` — board-pack markdown combines digest + value snapshot without surfacing `PilotValueReport`-style truncation flags (value snapshot builder path).
+- (candidate) `BuyerProofPackBuilder.TryBuildZipAsync` — trailing-30-day `ValueReportSnapshot` window vs per-run deltas freshness evaluation instant (clock skew between snapshot end and deltas `freshnessEvaluationUtc`).
+- (candidate) `PilotValueReportService.BuildAsync` — `TotalRunsCommitted` metadata when `CommittedRunsInventoryTruncated` true does not qualify count as partial inventory in markdown (boolean flag only).
+- (candidate) `SponsorOnePagerPdfBuilder` — audit row count display uses `+ (cap reached)` suffix while pilot value report markdown uses separate `AuditExportTruncated` boolean (cross-surface copy parity).
 - [x] (valid-no-repro) `SponsorOnePagerPdfBuilder.RenderComputedDeltasTable` — unresolved LLM PDF row — **cheap-disproof 2026-10-14 seed hunt:** `FormatLlmCallCount` emits `(not attested — execution trace query failed)` when `LlmCallCountResolved` is false (parity with `FirstValueReportDeltasSectionFormatter`); gap is PDF text-extraction regression lock only.
 - [x] (valid-no-repro) `PilotOutcomeSummaryService.GetTrailing30DaysAsync` — workspace switch stale cache — **cheap-disproof 2026-10-14 seed hunt:** cache key includes `TenantId`, `WorkspaceId`, and `ProjectId`; different workspace yields different entry (ledger invalid row on pack builders already notes pattern).
 - [x] (invalid) `TenantMeasuredRoiService.GetAsync` — 90-day double-count — **cheap-disproof 2026-10-14 seed hunt:** service wraps `WhyArchLucidSnapshotService` + cost estimate only; no run window rollup or `fromUtc` clamp in this type (`PilotValueReportService` owns 90-day window clamp).

@@ -46,6 +46,9 @@ public sealed class PilotValueReportMarkdownFormatter(ExportFormatterService exp
         sb.AppendLine(
             CultureInfo.InvariantCulture,
             $"| Committed-run inventory truncated | {r.CommittedRunsInventoryTruncated} |");
+        sb.AppendLine(
+            CultureInfo.InvariantCulture,
+            $"| ROI source freshness disposition | {EscapeCell(r.RoiSourceFreshnessDisposition)} |");
         sb.AppendLine();
 
         sb.AppendLine("## Summary");
