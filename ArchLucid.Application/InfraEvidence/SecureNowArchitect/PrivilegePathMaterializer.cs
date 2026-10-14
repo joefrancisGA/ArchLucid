@@ -71,6 +71,7 @@ internal static class PrivilegePathMaterializer
             GraphEdgeTypes.CanRead or GraphEdgeTypes.CanWrite => GraphEdgeInferenceSources.InventoryRbacDataPlaneMap,
             GraphEdgeTypes.CanAssume => GraphEdgeInferenceSources.InventoryUsesIdentity,
             GraphEdgeTypes.CanControlCode => GraphEdgeInferenceSources.InventoryControlToDataConversion,
+            GraphEdgeTypes.CanAddCredential => GraphEdgeInferenceSources.InventoryAddCredential,
             GraphEdgeTypes.MemberOf => GraphEdgeInferenceSources.InventoryEntraGroupMembership,
             "unknown-role-actions" => GraphEdgeInferenceSources.InventoryRbacAssignment,
             _ => SecureNowArchitectConstants.SourceSystem,

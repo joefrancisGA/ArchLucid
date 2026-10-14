@@ -237,7 +237,14 @@ public sealed class AzureInventorySnapshotMaterializer(
                     inventory.SqlDatabasePrincipals,
                     inventory.SqlDatabasePrincipalsFilePresent,
                     inventory.RecoveryServicesProtectedItems,
-                    inventory.RecoveryServicesProtectedItemsFilePresent);
+                    inventory.RecoveryServicesProtectedItemsFilePresent,
+                    inventory.ApplicationOwners,
+                    inventory.ApplicationOwnersFilePresent,
+                    inventory.DirectoryRoleAssignments,
+                    inventory.DirectoryRoleAssignmentsFilePresent,
+                    inventory.EntraApplicationRegistrations,
+                    inventory.GraphAppRoleAssignments,
+                    inventory.GraphAppRoleAssignmentsFilePresent);
 
             AppendRecoveryServicesVaultProtectedItemProperties(
                 resources,

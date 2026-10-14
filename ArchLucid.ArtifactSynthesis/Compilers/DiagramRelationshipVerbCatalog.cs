@@ -56,6 +56,12 @@ internal static class DiagramRelationshipVerbCatalog
             return true;
         }
 
+        if (normalized.Equals(GraphEdgeTypes.CanAddCredential, StringComparison.OrdinalIgnoreCase))
+        {
+            label = "adds credential";
+            return true;
+        }
+
         if (normalized.Equals(GraphEdgeTypes.CanRead, StringComparison.OrdinalIgnoreCase))
         {
             label = "reads";

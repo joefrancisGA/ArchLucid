@@ -19,6 +19,12 @@ public static class AzureExtractorPackageZipEntryNames
 
     public const string EntraGroupMemberships = "entra-group-memberships.json";
 
+    public const string ApplicationOwners = "application-owners.json";
+
+    public const string DirectoryRoleAssignments = "directory-role-assignments.json";
+
+    public const string GraphAppRoleAssignments = "graph-app-role-assignments.json";
+
     public const string DefenderSummary = "defender-summary.json";
 
     public const string EffectiveNetworkControls = "effective-network-controls.json";
@@ -61,6 +67,9 @@ public static class AzureExtractorPackageZipEntryNames
         PolicyAssignments,
         FederatedCredentials,
         EntraGroupMemberships,
+        ApplicationOwners,
+        DirectoryRoleAssignments,
+        GraphAppRoleAssignments,
         DefenderSummary,
         EffectiveNetworkControls,
         AdfLinkedServices,

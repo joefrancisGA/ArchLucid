@@ -57,7 +57,14 @@ public static class AzureInventorySecurityEdgeMaterializer
         IReadOnlyList<AzureInventorySqlDatabasePrincipalRow>? sqlDatabasePrincipals = null,
         bool sqlDatabasePrincipalsFilePresent = false,
         IReadOnlyList<AzureInventoryRecoveryServicesProtectedItemRow>? recoveryServicesProtectedItems = null,
-        bool recoveryServicesProtectedItemsFilePresent = false)
+        bool recoveryServicesProtectedItemsFilePresent = false,
+        IReadOnlyList<AzureInventoryApplicationOwnerRow>? applicationOwners = null,
+        bool applicationOwnersFilePresent = false,
+        IReadOnlyList<AzureInventoryDirectoryRoleAssignmentRow>? directoryRoleAssignments = null,
+        bool directoryRoleAssignmentsFilePresent = false,
+        IReadOnlyList<AzureInventoryEntraApplicationRegistrationRow>? entraApplicationRegistrations = null,
+        IReadOnlyList<AzureInventoryGraphAppRoleAssignmentRow>? graphAppRoleAssignments = null,
+        bool graphAppRoleAssignmentsFilePresent = false)
     {
         ArgumentNullException.ThrowIfNull(resources);
         ArgumentNullException.ThrowIfNull(roleAssignments);
@@ -84,6 +91,11 @@ public static class AzureInventorySecurityEdgeMaterializer
         IReadOnlyList<AzureInventorySqlDatabasePrincipalRow> sqlDatabasePrincipalRows = sqlDatabasePrincipals ?? [];
         IReadOnlyList<AzureInventoryRecoveryServicesProtectedItemRow> recoveryServicesProtectedItemRows =
             recoveryServicesProtectedItems ?? [];
+        IReadOnlyList<AzureInventoryApplicationOwnerRow> applicationOwnerRows = applicationOwners ?? [];
+        IReadOnlyList<AzureInventoryDirectoryRoleAssignmentRow> directoryRoleAssignmentRows = directoryRoleAssignments ?? [];
+        IReadOnlyList<AzureInventoryEntraApplicationRegistrationRow> entraApplicationRegistrationRows =
+            entraApplicationRegistrations ?? [];
+        IReadOnlyList<AzureInventoryGraphAppRoleAssignmentRow> graphAppRoleAssignmentRows = graphAppRoleAssignments ?? [];
 
         List<AzureInventoryResourceRelationshipWrite> relationships = [];
         List<AzureInventoryAdfExternalSourceWrite> adfExternalSources = [];
@@ -100,6 +112,21 @@ public static class AzureInventorySecurityEdgeMaterializer
         if (!entraGroupMembershipsFilePresent)
         {
             warnings.Add(SecurityEvidenceEntraGroupAdapterWarnings.MissingFile);
+        }
+
+        if (!applicationOwnersFilePresent)
+        {
+            warnings.Add(SecurityEvidenceAddCredentialAdapterWarnings.MissingApplicationOwners);
+        }
+
+        if (!directoryRoleAssignmentsFilePresent)
+        {
+            warnings.Add(SecurityEvidenceAddCredentialAdapterWarnings.MissingDirectoryRoleAssignments);
+        }
+
+        if (!graphAppRoleAssignmentsFilePresent)
+        {
+            warnings.Add(SecurityEvidenceAddCredentialAdapterWarnings.MissingGraphAppRoleAssignments);
         }
 
         if (!adfLinkedServicesFilePresent)
@@ -147,6 +174,13 @@ public static class AzureInventorySecurityEdgeMaterializer
         AzureInventoryControlToDataConversionEdgeMapper.MapConversions(
             resources,
             roleAssignments,
+            relationships,
+            relationshipKeys);
+        AzureInventoryAddCredentialEdgeMapper.MapAddCredential(
+            applicationOwnerRows,
+            directoryRoleAssignmentRows,
+            entraApplicationRegistrationRows,
+            graphAppRoleAssignmentRows,
             relationships,
             relationshipKeys);
         AzureInventoryAppAuthorizedAccessEdgeMapper.MapAuthorizedAccess(

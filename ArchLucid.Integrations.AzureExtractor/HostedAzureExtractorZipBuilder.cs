@@ -49,6 +49,10 @@ public static class HostedAzureExtractorZipBuilder
         IReadOnlyList<AzureInventoryServiceConnectorLinkRow>? serviceConnectorLinks = null,
         IReadOnlyList<AzureInventoryAppSettingHostRow>? appSettingHosts = null,
         IReadOnlyList<AzureInventoryRecoveryServicesProtectedItemRow>? recoveryServicesProtectedItems = null,
+        IReadOnlyList<AzureInventoryApplicationOwnerRow>? applicationOwners = null,
+        IReadOnlyList<AzureInventoryDirectoryRoleAssignmentRow>? directoryRoleAssignments = null,
+        IReadOnlyList<AzureInventoryEntraApplicationRegistrationRow>? entraApplicationRegistrations = null,
+        IReadOnlyList<AzureInventoryGraphAppRoleAssignmentRow>? graphAppRoleAssignments = null,
         IReadOnlyList<string>? collectionWarnings = null,
         HostedAzureActualCostSummary? actualCostSummary = null,
         HostedAzurePolicyComplianceDocument? policyComplianceDocument = null,
@@ -148,6 +152,62 @@ public static class HostedAzureExtractorZipBuilder
                     : Convert.ToHexStringLower(row.EvidenceHashSha256),
             })
             .ToArray<object>();
+
+        object[] applicationOwnerRows = (applicationOwners ?? [])
+            .Select(static row => new
+            {
+                appObjectId = row.AppObjectId,
+                appId = row.AppId,
+                ownerId = row.OwnerId,
+                provenanceKind = row.ProvenanceKind.ToString(),
+                evidenceHashSha256 = row.EvidenceHashSha256 is null
+                    ? null
+                    : Convert.ToHexStringLower(row.EvidenceHashSha256),
+            })
+            .ToArray<object>();
+
+        object[] directoryRoleAssignmentRows = (directoryRoleAssignments ?? [])
+            .Select(static row => new
+            {
+                principalId = row.PrincipalId,
+                principalType = row.PrincipalType,
+                roleDefinitionId = row.RoleDefinitionId,
+                roleDefinitionTemplateId = row.RoleDefinitionTemplateId,
+                directoryScopeId = row.DirectoryScopeId,
+                roleName = row.RoleName,
+                pimEligibilityKind = row.PimEligibilityKind,
+                provenanceKind = row.ProvenanceKind.ToString(),
+                evidenceHashSha256 = row.EvidenceHashSha256 is null
+                    ? null
+                    : Convert.ToHexStringLower(row.EvidenceHashSha256),
+            })
+            .ToArray<object>();
+
+        List<object> graphCompanionRows = [];
+
+        foreach (AzureInventoryEntraApplicationRegistrationRow registration in entraApplicationRegistrations ?? [])
+        {
+            graphCompanionRows.Add(new
+            {
+                appObjectId = registration.AppObjectId,
+                appId = registration.AppId,
+                servicePrincipalObjectId = registration.ServicePrincipalObjectId,
+            });
+        }
+
+        foreach (AzureInventoryGraphAppRoleAssignmentRow assignment in graphAppRoleAssignments ?? [])
+        {
+            graphCompanionRows.Add(new
+            {
+                principalId = assignment.PrincipalId,
+                resourceId = assignment.ResourceId,
+                appRoleId = assignment.AppRoleId,
+                provenanceKind = assignment.ProvenanceKind.ToString(),
+                evidenceHashSha256 = assignment.EvidenceHashSha256 is null
+                    ? null
+                    : Convert.ToHexStringLower(assignment.EvidenceHashSha256),
+            });
+        }
 
         object[] roleAssignmentRows = (roleAssignments ?? [])
             .Select(static row => new
@@ -443,6 +503,18 @@ public static class HostedAzureExtractorZipBuilder
                 archive,
                 AzureExtractorPackageZipEntryNames.EntraGroupMemberships,
                 JsonSerializer.Serialize(entraMembershipRows, SerializerOptions));
+            AddUtf8Entry(
+                archive,
+                AzureExtractorPackageZipEntryNames.ApplicationOwners,
+                JsonSerializer.Serialize(applicationOwnerRows, SerializerOptions));
+            AddUtf8Entry(
+                archive,
+                AzureExtractorPackageZipEntryNames.DirectoryRoleAssignments,
+                JsonSerializer.Serialize(directoryRoleAssignmentRows, SerializerOptions));
+            AddUtf8Entry(
+                archive,
+                AzureExtractorPackageZipEntryNames.GraphAppRoleAssignments,
+                JsonSerializer.Serialize(graphCompanionRows, SerializerOptions));
             AddUtf8Entry(
                 archive,
                 AzureExtractorPackageZipEntryNames.EffectiveNetworkControls,
