@@ -443,6 +443,13 @@ internal static partial class RunExplanationAggregateJsonReader
             return true;
         }
 
+        if (applyTrailingDuplicateArrayPoison
+            && IsRatioPropertyName(structuredPropertyName)
+            && RatioDuplicateScalarAliasIsPoison(jsonElement))
+        {
+            return false;
+        }
+
         return jsonElement.ValueKind switch
         {
             JsonValueKind.Null => false,
@@ -909,6 +916,20 @@ internal static partial class RunExplanationAggregateJsonReader
         if (item.ValueKind is JsonValueKind.Number or JsonValueKind.String
             && TryReadFiniteDouble(item) is double ratioAlias
             && (ratioAlias > 1 || ratioAlias == 1))
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    private static bool RatioDuplicateScalarAliasIsPoison(JsonElement item)
+    {
+        if (RatioArrayItemIsDuplicateAliasPoison(item))
+            return true;
+
+        if (item.ValueKind == JsonValueKind.String
+            && TryParseBooleanString(item.GetString()?.Trim(), out _))
         {
             return true;
         }
