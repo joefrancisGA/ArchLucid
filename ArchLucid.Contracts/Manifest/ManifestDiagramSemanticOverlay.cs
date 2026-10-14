@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.Serialization;
 
 namespace ArchLucid.Contracts.Manifest;
 
@@ -7,27 +8,35 @@ namespace ArchLucid.Contracts.Manifest;
 /// </summary>
 public sealed class ManifestDiagramSemanticOverlay
 {
+    private List<ActorDescriptor> actors = [];
+
     public List<ActorDescriptor> Actors
     {
-        get;
-        set;
-    } = [];
+        get => actors;
+        set => actors = ContractCollectionDefaults.Coalesce(value);
+    }
+
+    private List<string> trustBoundaryLabels = [];
 
     public List<string> TrustBoundaryLabels
     {
-        get;
-        set;
-    } = [];
+        get => trustBoundaryLabels;
+        set => trustBoundaryLabels = ContractCollectionDefaults.Coalesce(value);
+    }
+
+    private List<string> requirementLabels = [];
 
     public List<string> RequirementLabels
     {
-        get;
-        set;
-    } = [];
+        get => requirementLabels;
+        set => requirementLabels = ContractCollectionDefaults.Coalesce(value);
+    }
+
+    private List<string> decisionLabels = [];
 
     public List<string> DecisionLabels
     {
-        get;
-        set;
-    } = [];
+        get => decisionLabels;
+        set => decisionLabels = ContractCollectionDefaults.Coalesce(value);
+    }
 }
