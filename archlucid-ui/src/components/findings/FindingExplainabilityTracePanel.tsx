@@ -200,7 +200,7 @@ export function FindingExplainabilityTracePanel(props: FindingExplainabilityTrac
               </>
             ) : (
               <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-                {traceCompleteness?.summaryLine ?? "Not recorded"}
+                {traceCompleteness?.summaryLine ?? "Trace completeness was not stored."}
               </p>
             )}
             <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>

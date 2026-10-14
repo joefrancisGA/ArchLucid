@@ -3,8 +3,16 @@ import { describe, expect, it } from "vitest";
 import {
   buildCompareEffectiveGovernanceSnapshot,
   buildCompareGovernanceDiffView,
+  COVERAGE_TYPE_RECORDED_UNKNOWN,
   diffCompareManifestRuleSets,
+  formatAtCommitCoverageTypeForExport,
+  formatAtCommitPolicyPackVersionForExport,
+  formatAtCommitQualityDimensionForExport,
+  formatAtCommitSelectionStateForExport,
   parseCompareManifestGovernanceSnapshot,
+  POLICY_PACK_VERSION_NOT_STORED,
+  QUALITY_DIMENSION_NOT_STORED,
+  SELECTION_STATE_NOT_STORED,
 } from "@/lib/compare-effective-governance-diff";
 import type { EffectivePolicyPackSet, PolicyPackContentDocument } from "@/types/policy-packs";
 
@@ -62,6 +70,13 @@ describe("compare-effective-governance-diff", () => {
     expect(snapshot.atCommit?.hasEffectivePolicy).toBe(true);
     expect(snapshot.atCommit?.packAssignments).toHaveLength(1);
     expect(snapshot.complianceRuleKeys).toEqual(["sec-base-010"]);
+  });
+
+  it("formats at-commit coverage export copy for empty strings and unknown type", () => {
+    expect(formatAtCommitPolicyPackVersionForExport("")).toBe(POLICY_PACK_VERSION_NOT_STORED);
+    expect(formatAtCommitCoverageTypeForExport("Unknown")).toBe(COVERAGE_TYPE_RECORDED_UNKNOWN);
+    expect(formatAtCommitQualityDimensionForExport("")).toBe(QUALITY_DIMENSION_NOT_STORED);
+    expect(formatAtCommitSelectionStateForExport("")).toBe(SELECTION_STATE_NOT_STORED);
   });
 
   it("preserves stored empty governance strings and explains omitted values", () => {

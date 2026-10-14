@@ -193,19 +193,19 @@ export function FindingExplainPanel({
           <dl className={cn("m-0 grid gap-2 text-violet-950 dark:text-violet-50 sm:grid-cols-2", OPERATOR_TYPOGRAPHY.helper)}>
             <div>
               <dt className="font-semibold">Review record version</dt>
-              <dd className="m-0 font-mono">{evidenceChain.manifestVersion?.trim() ? evidenceChain.manifestVersion : "Not returned"}</dd>
+              <dd className="m-0 font-mono">{evidenceChain.manifestVersion?.trim() ? evidenceChain.manifestVersion : "Review record version was not stored."}</dd>
             </div>
             <div>
               <dt className="font-semibold">Findings snapshot</dt>
-              <dd className="m-0 font-mono">{evidenceChain.findingsSnapshotId ?? "Not returned"}</dd>
+              <dd className="m-0 font-mono">{evidenceChain.findingsSnapshotId ?? "Findings snapshot id was not stored."}</dd>
             </div>
             <div>
               <dt className="font-semibold">Decision trace</dt>
-              <dd className="m-0 font-mono">{evidenceChain.decisionTraceId ?? "Not returned"}</dd>
+              <dd className="m-0 font-mono">{evidenceChain.decisionTraceId ?? "Decision trace id was not stored."}</dd>
             </div>
             <div>
               <dt className="font-semibold">Review record id</dt>
-              <dd className="m-0 font-mono">{evidenceChain.goldenManifestId ?? "Not returned"}</dd>
+              <dd className="m-0 font-mono">{evidenceChain.goldenManifestId ?? "Review record id was not stored."}</dd>
             </div>
           </dl>
           {evidenceChain.relatedGraphNodeIds.length > 0 ? (

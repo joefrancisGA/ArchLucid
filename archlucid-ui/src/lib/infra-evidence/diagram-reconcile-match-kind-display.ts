@@ -27,9 +27,9 @@ export function formatDiagramReconcileMatchKindLabel(matchKind: string | null | 
     case DIAGRAM_INFRASTRUCTURE_MATCH_KINDS.conflict:
       return "Conflict";
     case DIAGRAM_INFRASTRUCTURE_MATCH_KINDS.unknown:
-      return "Unknown";
+      return "Match kind recorded as unknown.";
     default:
-      return normalized;
+      return normalized.length === 0 ? "Match kind was not stored." : normalized;
   }
 }
 

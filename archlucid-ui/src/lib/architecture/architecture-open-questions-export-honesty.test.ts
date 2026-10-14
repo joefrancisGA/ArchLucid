@@ -35,6 +35,14 @@ describe("architecture-open-questions-export-honesty (LP-16)", () => {
     ]);
   });
 
+  it("labels blank open-question answers as not stored", () => {
+    const markdown = formatOpenQuestionsWorkingDocumentMarkdownSection([
+      { key: "openQuestions", value: "   " },
+    ]);
+
+    expect(markdown).toContain("Answer was not stored.");
+  });
+
   it("labels working-document open questions in markdown exports", () => {
     const markdown = formatOpenQuestionsWorkingDocumentMarkdownSection([
       { key: "openQuestions", value: "Who owns retention policy?" },

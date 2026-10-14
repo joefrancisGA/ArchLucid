@@ -10,7 +10,7 @@ export type WizardStepDefinition = {
 export type WizardStepFieldGroup = (keyof WizardFormValues)[];
 
 /** Telemetry label used when a step index falls outside the declared step list. */
-export const UNKNOWN_WIZARD_STEP_LABEL = "Unknown";
+export const UNKNOWN_WIZARD_STEP_LABEL = "Wizard step label was not stored.";
 
 export function clampWizardStepIndex(index: number, stepCount: number): number {
   if (stepCount <= 0) {

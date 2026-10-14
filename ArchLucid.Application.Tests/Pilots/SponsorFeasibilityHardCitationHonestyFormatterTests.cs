@@ -44,6 +44,23 @@ public sealed class SponsorFeasibilityHardCitationHonestyFormatterTests
     }
 
     [Fact]
+    public void RenderPlainTextLines_labels_null_verdict_as_not_stored()
+    {
+        IReadOnlyList<string> lines = SponsorFeasibilityHardCitationHonestyFormatter.RenderPlainTextLines(null);
+
+        lines.Should().ContainSingle(line =>
+            line.Equals(SponsorFeasibilityHardCitationHonestyFormatter.FeasibilityVerdictNotStoredLabel, StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void FormatVerdictKindLabelForSponsor_labels_null_verdict_as_not_stored()
+    {
+        string label = SponsorFeasibilityHardCitationHonestyFormatter.FormatVerdictKindLabelForSponsor(null);
+
+        label.Should().Be(SponsorFeasibilityHardCitationHonestyFormatter.FeasibilityVerdictNotStoredLabel);
+    }
+
+    [Fact]
     public void FormatVerdictKindLabelForSponsor_demotes_uncited_hard()
     {
         FeasibilityVerdict verdict = new()

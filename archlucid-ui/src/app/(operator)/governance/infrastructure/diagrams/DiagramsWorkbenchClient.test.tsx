@@ -824,7 +824,7 @@ describe("DiagramsWorkbenchClient", () => {
     render(<DiagramsWorkbenchClient />);
 
     const emptyState = await screen.findByTestId("infra-diagrams-empty-content");
-    expect(emptyState).toHaveTextContent("Edge count not returned");
+    expect(emptyState).toHaveTextContent("Edge count was not stored");
     expect(emptyState).not.toHaveTextContent("This data-flow canvas is empty.");
   });
 
@@ -855,7 +855,7 @@ describe("DiagramsWorkbenchClient", () => {
     const emptyState = await screen.findByTestId("infra-diagrams-empty-content");
     expect(emptyState).toHaveTextContent("This data-flow canvas is empty.");
     expect(emptyState).toHaveTextContent("no declared connection to draw");
-    expect(emptyState).not.toHaveTextContent("Edge count not returned");
+    expect(emptyState).not.toHaveTextContent("Edge count was not stored");
   });
 
   it("explains omitted identity resources instead of generic empty content", async () => {

@@ -6,9 +6,61 @@ export const COMPARE_GOVERNANCE_CURRENT_EFFECTIVE_DISCLAIMER =
 
 export const POLICY_PACK_VERSION_NOT_STORED = "Policy pack version was not stored.";
 export const SCOPE_LEVEL_NOT_STORED = "Scope level was not stored.";
+export const COVERAGE_TYPE_NOT_STORED = "Coverage type was not stored.";
+export const COVERAGE_TYPE_RECORDED_UNKNOWN = "Coverage type recorded as unknown.";
+export const SELECTION_STATE_NOT_STORED = "Selection state was not stored.";
+export const QUALITY_DIMENSION_NOT_STORED = "Quality dimension was not stored.";
 
 export function formatPolicyPackVersion(version: string): string {
   return version.length === 0 ? "" : `v${version}`;
+}
+
+function isAtCommitStoredOmissionCopy(value: string): boolean {
+  return value.endsWith(" was not stored.") || value === COVERAGE_TYPE_RECORDED_UNKNOWN;
+}
+
+export function formatAtCommitPolicyPackVersionForExport(version: string): string {
+  if (version === POLICY_PACK_VERSION_NOT_STORED || isAtCommitStoredOmissionCopy(version)) {
+    return version;
+  }
+
+  if (version.trim().length === 0) {
+    return POLICY_PACK_VERSION_NOT_STORED;
+  }
+
+  return formatPolicyPackVersion(version);
+}
+
+export function formatAtCommitCoverageTypeForExport(coverageType: string): string {
+  if (isAtCommitStoredOmissionCopy(coverageType)) {
+    return coverageType;
+  }
+
+  if (coverageType.trim().length === 0) {
+    return COVERAGE_TYPE_NOT_STORED;
+  }
+
+  if (coverageType.trim() === "Unknown") {
+    return COVERAGE_TYPE_RECORDED_UNKNOWN;
+  }
+
+  return coverageType;
+}
+
+export function formatAtCommitQualityDimensionForExport(qualityDimension: string): string {
+  if (isAtCommitStoredOmissionCopy(qualityDimension)) {
+    return qualityDimension;
+  }
+
+  return qualityDimension.trim().length === 0 ? QUALITY_DIMENSION_NOT_STORED : qualityDimension;
+}
+
+export function formatAtCommitSelectionStateForExport(selectionState: string): string {
+  if (isAtCommitStoredOmissionCopy(selectionState)) {
+    return selectionState;
+  }
+
+  return selectionState.trim().length === 0 ? SELECTION_STATE_NOT_STORED : selectionState;
 }
 
 export type CompareEffectivePackAssignmentAtCommitRow = {
@@ -143,10 +195,10 @@ function parseAtCommitCoverageAssignments(value: unknown): CompareEffectiveCover
       policyPackId,
       policyPackVersion:
         typeof item.policyPackVersion === "string" ? item.policyPackVersion : POLICY_PACK_VERSION_NOT_STORED,
-      coverageType: typeof item.coverageType === "string" ? item.coverageType : "Coverage type was not stored.",
-      selectionState: typeof item.selectionState === "string" ? item.selectionState : "Selection state was not stored.",
+      coverageType: typeof item.coverageType === "string" ? item.coverageType : COVERAGE_TYPE_NOT_STORED,
+      selectionState: typeof item.selectionState === "string" ? item.selectionState : SELECTION_STATE_NOT_STORED,
       qualityDimension:
-        typeof item.qualityDimension === "string" ? item.qualityDimension : "Quality dimension was not stored.",
+        typeof item.qualityDimension === "string" ? item.qualityDimension : QUALITY_DIMENSION_NOT_STORED,
       exclusionReason: readTrimmedString(item.exclusionReason),
     });
   }

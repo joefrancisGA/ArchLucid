@@ -60,7 +60,9 @@ describe("buyerFacingReviewTitleFromSummary", () => {
   it("falls back to description then untitled", () => {
     expect(buyerFacingReviewTitleFromSummary(summary({ runId: "other", description: "  My review  " }))).toBe("My review");
 
-    expect(buyerFacingReviewTitleFromSummary(summary({ runId: "other", description: "" }))).toBe("Untitled review");
+    expect(buyerFacingReviewTitleFromSummary(summary({ runId: "other", description: "" }))).toBe(
+      "Review description was not stored.",
+    );
   });
 
   it("does not use a description that only repeats the run id", () => {
