@@ -29,12 +29,17 @@ public sealed class RecentPilotRunDeltasService(
     {
         int requested = Math.Clamp(count, IRecentPilotRunDeltasService.MinCount, IRecentPilotRunDeltasService.MaxCount);
         IReadOnlyList<RunSummary> all = await _runDetailQueryService.ListRunSummariesAsync(cancellationToken);
-        List<RunSummary> committed = all.Where(IsCommitted).OrderByDescending(r => r.CompletedUtc ?? r.CreatedUtc).Take(requested).ToList();
+        List<RunSummary> committed = all.Where(IsCommitted).OrderByDescending(r => r.CompletedUtc ?? r.CreatedUtc).ToList();
         List<RecentPilotRunDeltaSummaryResponse> rows = [];
+
         foreach (RunSummary summary in committed)
         {
+            if (rows.Count >= requested)
+                break;
+
             cancellationToken.ThrowIfCancellationRequested();
             RecentPilotRunDeltaSummaryResponse? row = await TryProjectAsync(summary, cancellationToken);
+
             if (row is not null)
                 rows.Add(row);
         }
