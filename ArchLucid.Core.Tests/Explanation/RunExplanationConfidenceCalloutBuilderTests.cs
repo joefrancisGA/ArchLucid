@@ -1313,6 +1313,24 @@ public sealed class RunExplanationConfidenceCalloutBuilderTests
     }
 
     [Fact]
+    public void RunExplanation_FromAggregateJson_keeps_decision_count_when_later_duplicate_is_string_numeric_poison_array()
+    {
+        using JsonDocument document = JsonDocument.Parse(
+            """{"decisionCount":3,"DECISIONCOUNT":["42"]}""");
+
+        RunExplanationCostCalloutBuilder.TryParseDecisionCount(document.RootElement).Should().Be(3);
+    }
+
+    [Fact]
+    public void RunExplanation_FromAggregateJson_keeps_decision_count_when_later_duplicate_is_one_numeric_poison_array()
+    {
+        using JsonDocument document = JsonDocument.Parse(
+            """{"decisionCount":3,"DECISIONCOUNT":[1]}""");
+
+        RunExplanationCostCalloutBuilder.TryParseDecisionCount(document.RootElement).Should().Be(3);
+    }
+
+    [Fact]
     public void RunExplanation_FromAggregateJson_keeps_decision_count_when_later_duplicate_is_numeric_poison_array()
     {
         using JsonDocument document = JsonDocument.Parse(

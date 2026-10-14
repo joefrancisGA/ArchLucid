@@ -1040,6 +1040,30 @@ public sealed class StructuredExplanationParserTests
     }
 
     [Fact]
+    public void RunExplanation_structured_json_keeps_schema_version_when_later_case_variant_is_string_numeric_poison_array()
+    {
+        const string json =
+            """{"schemaVersion":2,"reasoning":"Main","SCHEMAVERSION":["42"]}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.SchemaVersion.Should().Be(2);
+    }
+
+    [Fact]
+    public void RunExplanation_structured_json_keeps_schema_version_when_later_case_variant_is_one_string_poison_array()
+    {
+        const string json =
+            """{"schemaVersion":2,"reasoning":"Main","SCHEMAVERSION":["1"]}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.SchemaVersion.Should().Be(2);
+    }
+
+    [Fact]
     public void RunExplanation_structured_json_keeps_schema_version_when_later_case_variant_is_numeric_poison_array()
     {
         const string json =

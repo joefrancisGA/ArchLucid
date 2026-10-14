@@ -527,6 +527,15 @@ internal static partial class RunExplanationAggregateJsonReader
                 continue;
             }
 
+            if (structuredPropertyName.Equals("schemaVersion", StringComparison.OrdinalIgnoreCase)
+                && item.ValueKind == JsonValueKind.String
+                && TryParseWholeNumberString(item.GetString()?.Trim() ?? string.Empty, out int schemaStringArrayAlias)
+                && (schemaStringArrayAlias == 1
+                    || schemaStringArrayAlias > StructuredExplanationParser.MaxSupportedStructuredExplanationSchemaVersion))
+            {
+                continue;
+            }
+
             if (IsStructuredStringListPropertyName(structuredPropertyName)
                 && IsBooleanOneAliasValue(item))
             {
