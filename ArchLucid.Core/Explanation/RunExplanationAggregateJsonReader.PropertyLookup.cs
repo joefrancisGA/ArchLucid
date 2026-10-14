@@ -191,6 +191,17 @@ internal static partial class RunExplanationAggregateJsonReader
         }
 
         if (caseInsensitiveAliasMatchCount == 1
+            && lastMatch is JsonElement soleStringListArray
+            && IsStructuredStringListPropertyName(propertyName)
+            && soleStringListArray.ValueKind == JsonValueKind.Array
+            && StructuredStringListArrayHasReadableScalarEntry(soleStringListArray))
+        {
+            value = soleStringListArray;
+
+            return true;
+        }
+
+        if (caseInsensitiveAliasMatchCount == 1
             && lastMatch is JsonElement soleSchemaVersion
             && propertyName.Equals("schemaVersion", StringComparison.OrdinalIgnoreCase)
             && StrictSchemaVersionReader.TryReadSchemaVersion(soleSchemaVersion, out _))
@@ -450,6 +461,12 @@ internal static partial class RunExplanationAggregateJsonReader
             }
 
             if (structuredPropertyName.Equals("citations", StringComparison.OrdinalIgnoreCase)
+                && IsBooleanOneAliasValue(item))
+            {
+                continue;
+            }
+
+            if (structuredPropertyName.Equals("citations", StringComparison.OrdinalIgnoreCase)
                 && item.ValueKind == JsonValueKind.Number
                 && TryReadWholeNumber(item, out int citationNumericAlias)
                 && citationNumericAlias > 10)
@@ -461,6 +478,22 @@ internal static partial class RunExplanationAggregateJsonReader
                 && item.ValueKind == JsonValueKind.String
                 && TryParseWholeNumberString(item.GetString()?.Trim() ?? string.Empty, out int citationStringAlias)
                 && citationStringAlias > 10)
+            {
+                continue;
+            }
+
+            if (IsStructuredStringListPropertyName(structuredPropertyName)
+                && item.ValueKind == JsonValueKind.Number
+                && TryReadWholeNumber(item, out int listNumericAlias)
+                && listNumericAlias > 10)
+            {
+                continue;
+            }
+
+            if (IsStructuredStringListPropertyName(structuredPropertyName)
+                && item.ValueKind == JsonValueKind.String
+                && TryParseWholeNumberString(item.GetString()?.Trim() ?? string.Empty, out int listStringAlias)
+                && listStringAlias > 10)
             {
                 continue;
             }
@@ -484,6 +517,20 @@ internal static partial class RunExplanationAggregateJsonReader
             {
                 return true;
             }
+        }
+
+        return false;
+    }
+
+    private static bool StructuredStringListArrayHasReadableScalarEntry(JsonElement stringListArray)
+    {
+        foreach (JsonElement item in stringListArray.EnumerateArray())
+        {
+            if (item.ValueKind == JsonValueKind.String && !string.IsNullOrWhiteSpace(item.GetString()))
+                return true;
+
+            if (item.ValueKind == JsonValueKind.Number && TryReadWholeNumber(item, out _))
+                return true;
         }
 
         return false;
