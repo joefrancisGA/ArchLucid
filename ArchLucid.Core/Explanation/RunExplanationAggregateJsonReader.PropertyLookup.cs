@@ -39,6 +39,7 @@ internal static partial class RunExplanationAggregateJsonReader
         JsonElement? lastMatch = null;
         JsonElement? lastNonEmpty = null;
         int caseInsensitiveAliasMatchCount = 0;
+        bool sawNonEmptyCaseInsensitiveAlias = false;
 
         foreach (JsonProperty property in element.EnumerateObject())
         {
@@ -48,8 +49,11 @@ internal static partial class RunExplanationAggregateJsonReader
             caseInsensitiveAliasMatchCount++;
             lastMatch = property.Value;
 
-            if (IsNonEmptyJsonPropertyValue(property.Value, propertyName))
+            if (IsNonEmptyJsonPropertyValue(property.Value, propertyName, sawNonEmptyCaseInsensitiveAlias))
+            {
                 lastNonEmpty = property.Value;
+                sawNonEmptyCaseInsensitiveAlias = true;
+            }
         }
 
         if (lastNonEmpty is JsonElement nonEmpty)
@@ -270,7 +274,10 @@ internal static partial class RunExplanationAggregateJsonReader
         || propertyName.Equals("alternativesConsidered", StringComparison.OrdinalIgnoreCase)
         || propertyName.Equals("caveats", StringComparison.OrdinalIgnoreCase);
 
-    private static bool IsNonEmptyJsonPropertyValue(JsonElement jsonElement, string structuredPropertyName)
+    private static bool IsNonEmptyJsonPropertyValue(
+        JsonElement jsonElement,
+        string structuredPropertyName,
+        bool applyTrailingDuplicateArrayPoison = false)
     {
         if ((structuredPropertyName.Equals("confidence", StringComparison.OrdinalIgnoreCase)
              || structuredPropertyName.Equals("faithfulnessSupportRatio", StringComparison.OrdinalIgnoreCase))
@@ -405,7 +412,7 @@ internal static partial class RunExplanationAggregateJsonReader
             JsonValueKind.Null => false,
             JsonValueKind.True or JsonValueKind.False => false,
             JsonValueKind.String => !string.IsNullOrWhiteSpace(jsonElement.GetString()),
-            JsonValueKind.Array => ArrayPropertyValueIsNonEmpty(jsonElement, structuredPropertyName),
+            JsonValueKind.Array => ArrayPropertyValueIsNonEmpty(jsonElement, structuredPropertyName, applyTrailingDuplicateArrayPoison),
             JsonValueKind.Object => ObjectPropertyValueIsNonEmpty(jsonElement, structuredPropertyName),
             _ => true,
         };
@@ -431,7 +438,10 @@ internal static partial class RunExplanationAggregateJsonReader
         return finite is 1;
     }
 
-    private static bool ArrayPropertyValueIsNonEmpty(JsonElement jsonElement, string structuredPropertyName)
+    private static bool ArrayPropertyValueIsNonEmpty(
+        JsonElement jsonElement,
+        string structuredPropertyName,
+        bool applyTrailingDuplicateArrayPoison = false)
     {
         foreach (JsonElement item in jsonElement.EnumerateArray())
         {
@@ -455,7 +465,7 @@ internal static partial class RunExplanationAggregateJsonReader
 
             if (item.ValueKind == JsonValueKind.Array)
             {
-                if (ArrayPropertyValueIsNonEmpty(item, structuredPropertyName))
+                if (ArrayPropertyValueIsNonEmpty(item, structuredPropertyName, applyTrailingDuplicateArrayPoison))
                     return true;
 
                 continue;
@@ -518,13 +528,17 @@ internal static partial class RunExplanationAggregateJsonReader
             }
 
             if (IsAggregateStringCalloutPropertyName(structuredPropertyName)
-                && AggregateCalloutArrayItemIsDuplicateAliasPoison(item))
+                && AggregateCalloutArrayItemIsDuplicateAliasPoison(item, jsonElement, applyTrailingDuplicateArrayPoison))
             {
                 continue;
             }
 
             if (IsStructuredStringListPropertyName(structuredPropertyName)
-                && StructuredStringListArrayItemIsDuplicateAliasPoison(item, jsonElement))
+                && StructuredStringListArrayItemIsDuplicateAliasPoison(
+                    item,
+                    jsonElement,
+                    structuredPropertyName,
+                    applyTrailingDuplicateArrayPoison))
             {
                 continue;
             }
@@ -539,7 +553,7 @@ internal static partial class RunExplanationAggregateJsonReader
         propertyName.Equals("riskPosture", StringComparison.OrdinalIgnoreCase)
         || propertyName.Equals("faithfulnessWarning", StringComparison.OrdinalIgnoreCase);
 
-    private static bool AggregateCalloutArrayItemIsDuplicateAliasPoison(JsonElement item)
+    private static bool AggregateCalloutArrayItemIsNumericAliasPoison(JsonElement item)
     {
         if (IsZeroConfidenceAliasValue(item) || IsBooleanOneAliasValue(item))
             return true;
@@ -557,11 +571,34 @@ internal static partial class RunExplanationAggregateJsonReader
         return false;
     }
 
+    private static bool AggregateCalloutArrayItemIsDuplicateAliasPoison(
+        JsonElement item,
+        JsonElement parentArray,
+        bool applyTrailingDuplicateArrayPoison)
+    {
+        if (AggregateCalloutArrayItemIsNumericAliasPoison(item))
+            return true;
+
+        if (!applyTrailingDuplicateArrayPoison)
+            return false;
+
+        if (!ArrayHasSingleNonNullEntry(parentArray))
+            return false;
+
+        if (item.ValueKind == JsonValueKind.String
+            && !string.IsNullOrWhiteSpace(item.GetString()))
+        {
+            return true;
+        }
+
+        return false;
+    }
+
     private static bool AggregateCalloutStringArrayHasReadableScalarEntry(JsonElement calloutArray)
     {
         foreach (JsonElement item in calloutArray.EnumerateArray())
         {
-            if (AggregateCalloutArrayItemIsDuplicateAliasPoison(item))
+            if (AggregateCalloutArrayItemIsNumericAliasPoison(item))
                 continue;
 
             if (TryReadNonEmptyTextToken(item, out string? text) && !string.IsNullOrWhiteSpace(text))
@@ -635,7 +672,15 @@ internal static partial class RunExplanationAggregateJsonReader
         return false;
     }
 
-    private static bool StructuredStringListArrayItemIsDuplicateAliasPoison(JsonElement item, JsonElement parentArray)
+    private static bool IsProseStructuredStringListPropertyName(string propertyName) =>
+        propertyName.Equals("alternativesConsidered", StringComparison.OrdinalIgnoreCase)
+        || propertyName.Equals("caveats", StringComparison.OrdinalIgnoreCase);
+
+    private static bool StructuredStringListArrayItemIsDuplicateAliasPoison(
+        JsonElement item,
+        JsonElement parentArray,
+        string structuredPropertyName,
+        bool applyTrailingDuplicateArrayPoison)
     {
         if (IsBooleanOneAliasValue(item))
             return true;
@@ -654,6 +699,9 @@ internal static partial class RunExplanationAggregateJsonReader
             return true;
         }
 
+        if (!applyTrailingDuplicateArrayPoison)
+            return false;
+
         if (!ArrayHasSingleNonNullEntry(parentArray))
             return false;
 
@@ -661,7 +709,13 @@ internal static partial class RunExplanationAggregateJsonReader
         {
             string? raw = item.GetString();
 
-            if (!string.IsNullOrWhiteSpace(raw) && raw.Trim().Length == 1)
+            if (string.IsNullOrWhiteSpace(raw))
+                return false;
+
+            if (IsProseStructuredStringListPropertyName(structuredPropertyName))
+                return true;
+
+            if (raw.Trim().Length == 1)
                 return true;
         }
 
@@ -759,7 +813,7 @@ internal static partial class RunExplanationAggregateJsonReader
 
         foreach (JsonElement item in element.EnumerateArray())
         {
-            if (AggregateCalloutArrayItemIsDuplicateAliasPoison(item))
+            if (AggregateCalloutArrayItemIsNumericAliasPoison(item))
                 continue;
 
             if (TryReadNonEmptyTextToken(item, out string? text) && !string.IsNullOrWhiteSpace(text))
