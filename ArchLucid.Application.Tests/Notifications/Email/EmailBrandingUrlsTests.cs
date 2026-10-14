@@ -115,4 +115,24 @@ public sealed class EmailBrandingUrlsTests
 
         authority.Should().Be("https://ops.example.test");
     }
+
+    [SkippableFact]
+    public void SanitizeOperatorNavigableUrl_repairs_malformed_run_detail_when_operator_base_has_embedded_crlf()
+    {
+        string url = EmailBrandingUrls.SanitizeOperatorNavigableUrl(
+            "https:/architecture/reviews/a1b2c3d4",
+            "https://ops.example.test\r\nBcc: injected@evil.test");
+
+        url.Should().Be("https://ops.example.test/architecture/reviews/a1b2c3d4");
+    }
+
+    [SkippableFact]
+    public void SanitizeOperatorNavigableUrl_omits_embedded_crlf_from_absolute_run_detail_url()
+    {
+        string url = EmailBrandingUrls.SanitizeOperatorNavigableUrl(
+            "https://ops.example.test/architecture/reviews/a1b2c3d4\r\nBcc: injected@evil.test",
+            "https://ops.example.test");
+
+        url.Should().Be("https://ops.example.test/architecture/reviews/a1b2c3d4");
+    }
 }

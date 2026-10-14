@@ -35,7 +35,18 @@ public static class EmailBrandingUrls
 
         if (lineBreakIndex >= 0)
         {
-            string? authority = TryNormalizeOperatorBaseAuthority(TrimBeforeLineBreak(trimmed));
+            string firstLine = trimmed[..lineBreakIndex].TrimEnd();
+            int schemeDelimiter = firstLine.IndexOf("://", StringComparison.OrdinalIgnoreCase);
+            bool authorityOnlyFirstLine = schemeDelimiter >= 0 && firstLine.IndexOf('/', schemeDelimiter + 3) < 0;
+
+            if (!authorityOnlyFirstLine
+                && Uri.TryCreate(firstLine, UriKind.Absolute, out Uri? firstLineUri)
+                && !string.IsNullOrEmpty(firstLineUri.Host))
+            {
+                return RebuildAbsoluteUrlWithoutUserInfo(firstLineUri);
+            }
+
+            string? authority = TryNormalizeOperatorBaseAuthority(firstLine);
 
             if (authority is not null)
             {
@@ -49,6 +60,11 @@ public static class EmailBrandingUrls
         if (!Uri.TryCreate(trimmed, UriKind.Absolute, out Uri? uri) || string.IsNullOrEmpty(uri.Host))
             return trimmed;
 
+        return RebuildAbsoluteUrlWithoutUserInfo(uri);
+    }
+
+    private static string RebuildAbsoluteUrlWithoutUserInfo(Uri uri)
+    {
         UriBuilder builder = new(uri.Scheme, uri.Host, uri.Port)
         {
             Path = uri.AbsolutePath,
