@@ -105,7 +105,7 @@ public static partial class StructuredExplanationParser
     {
         foreach (string propertyName in propertyNames)
         {
-            if (RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitive(item, propertyName, out JsonElement element)
+            if (RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitivePreferLastNonEmpty(item, propertyName, out JsonElement element)
                 && RunExplanationAggregateJsonReader.TryReadNonEmptyTextToken(element, out string? value)
                 && !string.IsNullOrWhiteSpace(value))
             {

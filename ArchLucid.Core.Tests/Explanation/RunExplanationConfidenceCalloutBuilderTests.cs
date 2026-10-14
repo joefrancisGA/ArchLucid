@@ -793,4 +793,15 @@ public sealed class RunExplanationConfidenceCalloutBuilderTests
         signals!.CitationCount.Should().Be(1);
         RunExplanationConfidenceCalloutBuilder.ResolveDisposition(signals).Should().Be("PASS");
     }
+
+    [Fact]
+    public void RunExplanation_structured_json_object_evidence_ref_survives_empty_id_duplicate()
+    {
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(
+            """{"reasoning":"Main","evidenceRefs":[{"id":"dec-1","ID":""}]}""",
+            out StructuredExplanation? structured);
+
+        ok.Should().BeTrue();
+        structured!.EvidenceRefs.Should().Equal("dec-1");
+    }
 }

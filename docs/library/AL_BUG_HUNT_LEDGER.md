@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-14 seed hunt (seed→hit): `core-explanation-json` — promoted `CountCitationObject` using last-match lookup so trailing empty `ID` duplicate on citation objects dropped countable `id`; switched to `TryGetPropertyCaseInsensitivePreferLastNonEmpty` for `id`/`text`; regression `FromAggregateJson_counts_object_citation_when_later_case_variant_id_is_empty`; 58 scoped `RunExplanation` filter tests passed.
+
 2026-10-14 seed hunt (seed→hit): `core-explanation-json` — promoted aggregate trailing empty `RISKPOSTURE` duplicate hiding earlier `riskPosture` string; `RunExplanationRiskCalloutBuilder.TryParseRiskPosture` now uses `TryGetPropertyCaseInsensitivePreferLastNonEmpty`; regression `FromAggregateJson_uses_non_empty_risk_posture_when_later_duplicate_is_empty`; 57 scoped `RunExplanation` filter tests passed.
 
 2026-10-14 seed hunt (seed→hit): `core-explanation-json` — promoted aggregate trailing empty `FAITHFULNESSWARNING` duplicate hiding earlier warning text (WARN disposition dropped to PASS); `faithfulnessWarning` now uses `TryGetPropertyCaseInsensitivePreferLastNonEmpty` with JSON booleans still non-empty alias tokens; regression `FromAggregateJson_uses_non_empty_faithfulness_warning_when_later_duplicate_is_empty`; 56 scoped `RunExplanation` filter tests passed.
@@ -28569,6 +28571,8 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 ---
 ## Zone: core-explanation-json
 
+2026-10-14 seed hunt (seed→hit): promoted citation object duplicate empty `ID` hiding earlier `id`; `PreferLastNonEmpty` in `CountCitationObject`; regression `FromAggregateJson_counts_object_citation_when_later_case_variant_id_is_empty`; 58 scoped `RunExplanation` tests passed.
+
 2026-10-14 seed hunt (seed→hit): promoted aggregate empty `RISKPOSTURE` duplicate hiding earlier posture; regression `FromAggregateJson_uses_non_empty_risk_posture_when_later_duplicate_is_empty`; 57 scoped `RunExplanation` tests passed.
 
 2026-10-14 seed hunt (seed→hit): promoted aggregate empty `FAITHFULNESSWARNING` duplicate hiding earlier warning; regression `FromAggregateJson_uses_non_empty_faithfulness_warning_when_later_duplicate_is_empty`; 56 scoped `RunExplanation` tests passed.
@@ -28687,6 +28691,7 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 - [x] (proven) `RunExplanationConfidenceCalloutBuilder` / `RunExplanationCostCalloutBuilder` — trailing duplicate `false` on `deterministicFallbackUsed` and `0` on `decisionCount` hid earlier usable aggregate values — **hit 2026-10-14 seed hunt:** `PreferLastNonEmpty` with `true`-only non-empty fallback flags and shared whole-number count zero-alias handling; regressions `FromAggregateJson_uses_non_empty_deterministic_fallback_flag_when_later_duplicate_is_false`, `FromAggregateJson_preserves_explicit_false_deterministic_fallback_flag_when_only_value`, `FromAggregateJson_uses_non_empty_decision_count_when_later_duplicate_is_zero`, and `FromAggregateJson_preserves_explicit_zero_decision_count_when_only_value`.
 - [x] (proven) `RunExplanationConfidenceCalloutBuilder.ParseConfidenceSignals` — trailing empty `faithfulnessWarning` duplicate discarded earlier warning text — **hit 2026-10-14 seed hunt:** `PreferLastNonEmpty` on `faithfulnessWarning`; regression `FromAggregateJson_uses_non_empty_faithfulness_warning_when_later_duplicate_is_empty`.
 - [x] (proven) `RunExplanationRiskCalloutBuilder.TryParseRiskPosture` — trailing empty `riskPosture` duplicate discarded earlier posture string — **hit 2026-10-14 seed hunt:** `PreferLastNonEmpty` on `riskPosture`; regression `FromAggregateJson_uses_non_empty_risk_posture_when_later_duplicate_is_empty`.
+- [x] (proven) `RunExplanationConfidenceCalloutBuilder.CountCitationObject` — trailing empty case-variant `id` on citation objects dropped countable citations — **hit 2026-10-14 seed hunt:** `PreferLastNonEmpty` for `id`/`text`; regression `FromAggregateJson_counts_object_citation_when_later_case_variant_id_is_empty`.
 
 - **hunts:** 71
 - **bugs-found:** 48
