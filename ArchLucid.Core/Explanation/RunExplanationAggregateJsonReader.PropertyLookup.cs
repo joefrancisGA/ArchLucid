@@ -478,6 +478,13 @@ internal static partial class RunExplanationAggregateJsonReader
             return false;
         }
 
+        if (applyTrailingDuplicateArrayPoison
+            && IsStructuredStringListPropertyName(structuredPropertyName)
+            && StructuredStringListTrailingDuplicateScalarAliasIsPoison(jsonElement))
+        {
+            return false;
+        }
+
         return jsonElement.ValueKind switch
         {
             JsonValueKind.Null => false,
@@ -993,6 +1000,34 @@ internal static partial class RunExplanationAggregateJsonReader
 
         if (item.ValueKind == JsonValueKind.String
             && TryParseBooleanString(item.GetString()?.Trim(), out _))
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    private static bool StructuredStringListTrailingDuplicateScalarAliasIsPoison(JsonElement item)
+    {
+        if (IsBooleanOneAliasValue(item))
+            return true;
+
+        if (item.ValueKind == JsonValueKind.String
+            && TryParseBooleanString(item.GetString()?.Trim(), out _))
+        {
+            return true;
+        }
+
+        if (item.ValueKind == JsonValueKind.String
+            && TryParseWholeNumberString(item.GetString()?.Trim() ?? string.Empty, out int listStringAlias)
+            && (listStringAlias > 10 || listStringAlias == 1))
+        {
+            return true;
+        }
+
+        if (item.ValueKind == JsonValueKind.Number
+            && TryReadWholeNumber(item, out int listNumericAlias)
+            && listNumericAlias > 10)
         {
             return true;
         }

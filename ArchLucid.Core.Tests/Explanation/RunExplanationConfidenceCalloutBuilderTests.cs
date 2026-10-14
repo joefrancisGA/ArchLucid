@@ -2168,6 +2168,39 @@ public sealed class RunExplanationConfidenceCalloutBuilderTests
     }
 
     [Fact]
+    public void RunExplanation_structured_json_keeps_evidence_refs_when_later_case_variant_is_on_string_poison_alias()
+    {
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(
+            """{"reasoning":"Main","evidenceRefs":["dec-1"],"EVIDENCEREFS":"on"}""",
+            out StructuredExplanation? structured);
+
+        ok.Should().BeTrue();
+        structured!.EvidenceRefs.Should().Equal("dec-1");
+    }
+
+    [Fact]
+    public void RunExplanation_structured_json_keeps_alternatives_when_later_case_variant_is_on_string_poison_alias()
+    {
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(
+            """{"reasoning":"Main","alternativesConsidered":["Keep monolith"],"ALTERNATIVESCONSIDERED":"on"}""",
+            out StructuredExplanation? structured);
+
+        ok.Should().BeTrue();
+        structured!.AlternativesConsidered.Should().Equal("Keep monolith");
+    }
+
+    [Fact]
+    public void RunExplanation_structured_json_keeps_caveats_when_later_case_variant_is_on_string_poison_alias()
+    {
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(
+            """{"reasoning":"Main","caveats":["Latency risk"],"CAVEATS":"on"}""",
+            out StructuredExplanation? structured);
+
+        ok.Should().BeTrue();
+        structured!.Caveats.Should().Equal("Latency risk");
+    }
+
+    [Fact]
     public void RunExplanation_structured_json_object_evidence_ref_survives_empty_id_duplicate()
     {
         bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(
