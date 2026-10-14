@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-14 seed hunt (seed→hit): `core-explanation-json` — promoted duplicate case-variant properties where trailing boolean scalar or boolean-only array aliases hid earlier usable `reasoning` or `confidence`; `IsNonEmptyJsonPropertyValue` and `ArrayPropertyValueIsNonEmpty` skip JSON booleans; regressions `TryNormalizeStructuredJson_uses_non_empty_reasoning_when_later_case_variant_is_boolean_only_array` and `TryNormalizeStructuredJson_uses_non_empty_confidence_when_later_case_variant_is_boolean_scalar`; 59 scoped `StructuredExplanationParser` tests passed.
+
 2026-10-14 seed hunt (seed→hit): `core-explanation-json` — promoted duplicate case-variant properties where a trailing array alias with only whitespace or empty string elements hid earlier usable `reasoning` or `confidence`; `ArrayPropertyValueIsNonEmpty` skips arrays with no extractable content; regressions `TryNormalizeStructuredJson_uses_non_empty_reasoning_when_later_case_variant_is_whitespace_only_array` and `TryNormalizeStructuredJson_uses_non_empty_confidence_when_later_case_variant_is_empty_string_array`; 57 scoped `StructuredExplanationParser` tests passed.
 
 2026-10-14 seed hunt (seed→hit): `core-explanation-json` — promoted duplicate case-variant properties where a trailing object alias with only whitespace `text` hid earlier usable `reasoning` or `evidenceRefs`; `ObjectPropertyValueIsNonEmpty` skips objects with no extractable non-whitespace string properties; regressions `TryNormalizeStructuredJson_uses_non_empty_reasoning_when_later_case_variant_is_blank_text_object` and `TryNormalizeStructuredJson_uses_non_empty_evidence_refs_when_later_case_variant_is_blank_text_object`; scoped explanation tests 57/57 passed.
@@ -28545,6 +28547,8 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 ---
 ## Zone: core-explanation-json
 
+2026-10-14 seed hunt (seed→hit): promoted duplicate case-variant boolean scalar/array aliases hiding earlier `reasoning` or `confidence`; regressions `TryNormalizeStructuredJson_uses_non_empty_reasoning_when_later_case_variant_is_boolean_only_array` and `TryNormalizeStructuredJson_uses_non_empty_confidence_when_later_case_variant_is_boolean_scalar`; 59 scoped parser tests passed.
+
 2026-10-14 seed hunt (seed→hit): promoted duplicate case-variant properties where a trailing array alias with only empty/whitespace elements hid earlier usable `reasoning` or `confidence`; `ArrayPropertyValueIsNonEmpty`; regressions `TryNormalizeStructuredJson_uses_non_empty_reasoning_when_later_case_variant_is_whitespace_only_array` and `TryNormalizeStructuredJson_uses_non_empty_confidence_when_later_case_variant_is_empty_string_array`; 57 scoped parser tests passed.
 
 2026-10-14 seed hunt (seed→hit): promoted duplicate case-variant properties where a trailing object alias with only whitespace `text` hid earlier usable `reasoning` or `evidenceRefs`; regressions `TryNormalizeStructuredJson_uses_non_empty_reasoning_when_later_case_variant_is_blank_text_object` and `TryNormalizeStructuredJson_uses_non_empty_evidence_refs_when_later_case_variant_is_blank_text_object`; scoped explanation tests 57/57 passed.
@@ -28631,12 +28635,13 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 - [x] (proven) `RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitivePreferLastNonEmpty` — trailing empty JSON object on duplicate case-variant `reasoning` or `confidence` hid earlier usable values — **hit 2026-10-14 seed hunt:** treat property-less objects as empty; regressions `TryNormalizeStructuredJson_uses_non_empty_reasoning_when_later_case_variant_is_empty_object` and `TryNormalizeStructuredJson_uses_non_empty_confidence_when_later_case_variant_is_empty_object`.
 - [x] (proven) `RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitivePreferLastNonEmpty` — trailing object alias with only whitespace `text` hid earlier usable `reasoning` or `evidenceRefs` — **hit 2026-10-14 seed hunt:** `ObjectPropertyValueIsNonEmpty` requires extractable non-whitespace string property values; regressions `TryNormalizeStructuredJson_uses_non_empty_reasoning_when_later_case_variant_is_blank_text_object` and `TryNormalizeStructuredJson_uses_non_empty_evidence_refs_when_later_case_variant_is_blank_text_object`.
 - [x] (proven) `RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitivePreferLastNonEmpty` — trailing array alias with only empty or whitespace elements hid earlier usable `reasoning` or `confidence` — **hit 2026-10-14 seed hunt:** `ArrayPropertyValueIsNonEmpty`; regressions `TryNormalizeStructuredJson_uses_non_empty_reasoning_when_later_case_variant_is_whitespace_only_array` and `TryNormalizeStructuredJson_uses_non_empty_confidence_when_later_case_variant_is_empty_string_array`.
+- [x] (proven) `RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitivePreferLastNonEmpty` — trailing boolean scalar or boolean-only array alias hid earlier usable `reasoning` or `confidence` — **hit 2026-10-14 seed hunt:** skip `True`/`False` in alias emptiness checks; regressions `TryNormalizeStructuredJson_uses_non_empty_reasoning_when_later_case_variant_is_boolean_only_array` and `TryNormalizeStructuredJson_uses_non_empty_confidence_when_later_case_variant_is_boolean_scalar`.
 
-- **hunts:** 68
-- **bugs-found:** 45
+- **hunts:** 69
+- **bugs-found:** 46
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-14
-- **last-bug:** 2026-10-14 — duplicate case-variant whitespace-only array alias hid structured reasoning and confidence
+- **last-bug:** 2026-10-14 — duplicate case-variant boolean alias hid structured reasoning and confidence
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
