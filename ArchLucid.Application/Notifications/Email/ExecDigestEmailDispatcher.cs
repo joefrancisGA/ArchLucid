@@ -90,6 +90,7 @@ public sealed class ExecDigestEmailDispatcher(
             CommittedManifestsInWeek = composition.CommittedManifestsInWeek,
             TopRuns = composition.TopManifestRuns,
             FindingsDeltaSummary = composition.FindingsDeltaSummary,
+            DecisionNeededMarkdown = composition.DecisionNeededMarkdown,
             DashboardUrl = normalizedDashboardUrl,
             SponsorValueReportUrl = normalizedSponsorValueReportUrl,
             UnsubscribeUrl = normalizedUnsubscribeUrl,

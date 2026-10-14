@@ -1,3 +1,4 @@
+using ArchLucid.Application.ExecDigest;
 using ArchLucid.Application.Notifications.Email;
 using ArchLucid.Application.Notifications.Email.Models;
 using ArchLucid.Application.Exports;
@@ -105,5 +106,29 @@ public sealed class SponsorWeeklyEmailTemplateRenderingTests
         text.Should().Contain("Line two");
         text.Should().NotContain("<pre");
         text.Should().NotContain("<p>");
+    }
+
+    [SkippableFact]
+    public async Task ExecDigest_renders_decision_needed_markdown_in_preformatted_block()
+    {
+        const string decisionMarkdown = "### Approvals pending\n- item one";
+
+        string html = await _renderer.RenderHtmlAsync(
+            ExecDigestEmailDispatcher.TemplateId,
+            new ExecDigestEmailModel
+            {
+                ProductName = "ArchLucid",
+                WeekLabel = "2026-W12",
+                DashboardUrl = "https://app.example/runs",
+                SponsorValueReportUrl = "https://app.example/sponsor",
+                UnsubscribeUrl = "https://app.example/unsub",
+                DecisionNeededMarkdown = decisionMarkdown,
+            },
+            CancellationToken.None);
+
+        html.Should().Contain("Decisions needed:");
+        html.Should().Contain("### Approvals pending");
+        html.Should().Contain("item one");
+        html.Should().NotContain("<h3>Approvals pending</h3>");
     }
 }

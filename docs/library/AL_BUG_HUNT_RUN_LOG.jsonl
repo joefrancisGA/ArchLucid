@@ -8478,3 +8478,4 @@
 {"at":"2026-10-14T20:49:06.3731026Z","zoneId":"application-pilots","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-14T20:52:14.1447762Z","zoneId":"application-pilots","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-14T20:58:08.3248131Z","zoneId":"application-pilots","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-14T21:07:53.5059791Z","zoneId":"notifications-pipeline","outcome":"hit","productLine":"archlucid-shared"}
