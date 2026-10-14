@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-14 seed hunt (seed→hit): `notifications-pipeline` — promoted `FindingRemediationAssignmentOperatorLinks.BuildFindingInspectUrl` leaving `findingId` with embedded CRLF percent-encoded into assignment email inspect href path (`%0D%0A`) while `SanitizeOperatorAbsoluteUrl` does not strip encoded breaks in path segments; `EmailHeaderFragmentSanitizer` on finding id at link build (parity with exec digest sponsor deep links); regression `BuildFindingInspectUrl_strips_embedded_crlf_from_finding_id_before_path_encoding`; cheap-disproved four open candidates; reseeded five follow-on candidates; 209 scoped notification/digest Application tests passed.
+
 2026-10-14 seed hunt (seed→hit): `notifications-pipeline` — promoted `ExecDigestSponsorDeepLinkOperatorLinks.BuildDashboardUrl` leaving sponsor `token` with embedded CRLF percent-encoded into dashboard CTA query (`%0D%0A`) while `SanitizeOperatorAbsoluteUrl` does not strip encoded breaks in query values; `EmailHeaderFragmentSanitizer` on token at link build (parity with run-collateral path fix); regression `BuildDashboardUrl_strips_embedded_crlf_from_token_before_query_encoding`; also sanitize token on `BuildRunCollateralUrl`; cheap-disproved four open candidates; reseeded five follow-on candidates; 208 scoped notification/digest Application tests passed.
 
 2026-10-14 seed hunt (seed→hit): `application-pilots` — promoted `PilotValueReportMarkdownFormatter` omitting `RoiSourceFreshnessDisposition` from `GET /v1/tenant/pilot-value-report` markdown export while JSON responses included HOLD/WARN from `PilotValueReportService`; metadata table row; regression `Format_discloses_roi_source_freshness_disposition_in_metadata_table`; cheap-disproved five open candidates; reseeded five follow-on candidates; 50 scoped BuyerProofPack/BoardPack/PilotValueReport tests passed.
@@ -32432,11 +32434,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** notifications; email dispatchers beyond weekly summary
 - **paths:** ArchLucid.Notifications/; ArchLucid.Application/Notifications/; ArchLucid.Api/Controllers/Advisory/DigestSubscriptionsController.cs
 - **test-filter:** FullyQualifiedName~Notifications|FullyQualifiedName~EmailDispatcher|FullyQualifiedName~DigestSubscriptionsController
-- **hunts:** 101
-- **bugs-found:** 77
+- **hunts:** 102
+- **bugs-found:** 78
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-14
-- **last-bug:** 2026-10-14 — exec digest sponsor dashboard token CRLF query encoding
+- **last-bug:** 2026-10-14 — finding remediation inspect href CRLF path encoding
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -32613,11 +32615,16 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (valid-no-repro) `FindingRemediationAssignmentOperatorLinks.BuildFindingInspectUrl` — non-GUID `findingId` CRLF in path — **cheap-disproof 2026-10-14 seed hunt:** production assignment path uses stable finding ids; `FindingTitle` sanitized at dispatch; inspect path uses `EscapeDataString` on id segment (no repro distinct from title class without attacker-controlled id shape in zone callers).
 - [x] (valid-no-repro) `RecurrenceCompletionOperatorLinks.BuildRunDetailUrl` — run label breaks in detail URL — **cheap-disproof 2026-10-14 seed hunt:** URLs built from `Guid` run ids; `ScheduleName` sanitized at dispatch; `SanitizeOperatorNavigableUrl` on dispatcher model URLs.
 - [x] (valid-no-repro) `EmailBrandingUrls.SanitizeOperatorAbsoluteUrl` — percent-encoded breaks in path segments — **cheap-disproof 2026-10-14 seed hunt:** sponsor deep-link builders sanitize fragments before encoding (2026-10-14 run-collateral + dashboard token hits); broad URI rebuild deferred as cross-cutting hardening.
-- (candidate) `FindingRemediationAssignmentOperatorLinks.BuildFindingInspectUrl` — `findingId` with embedded CRLF before `EscapeDataString` when agent-supplied opaque finding keys reach assignment email links.
-- (candidate) `RecurrenceCompletionOperatorLinks.BuildCompareUrl` — absolute compare URL passed to template without `SanitizeOperatorAbsoluteUrl` when operator base is relative-only (malformed concat class).
-- (candidate) `ExecDigestEmailDispatcher.TryDispatchAsync` — `composition.DashboardUrl` override with embedded CRLF in query when sponsor deep links are not rebuilt by weekly scanner path.
-- (candidate) `WeeklySponsorReportEmailDispatcher` — `RunDetailUrl` built upstream with percent-encoded CRLF in path when run id hex is sanitized at dispatch but URL is pre-built absolute href.
-- (candidate) `UserInvitationAdminService.BuildAcceptUrl` — admin API `AcceptUrl` response echoes raw operator base with CRLF while mail notifier sanitizes at send (out of zone paths; track for API zone promotion).
+- [x] (proven) `FindingRemediationAssignmentOperatorLinks.BuildFindingInspectUrl` — `findingId` CRLF percent-encoded into inspect href path — **hit 2026-10-14 seed hunt (seed→hit):** `EmailHeaderFragmentSanitizer` before `Uri.EscapeDataString`; regression `BuildFindingInspectUrl_strips_embedded_crlf_from_finding_id_before_path_encoding`.
+- [x] (valid-no-repro) `RecurrenceCompletionOperatorLinks.BuildCompareUrl` — relative-only operator base compare URL — **cheap-disproof 2026-10-14 seed hunt:** dispatcher uses `SanitizeOperatorNavigableUrl`; compare URLs use `Guid` segments only; no percent-encoded CRLF repro.
+- [x] (valid-no-repro) `ExecDigestEmailDispatcher.TryDispatchAsync` — composition `DashboardUrl` CRLF override — **cheap-disproof 2026-10-14 seed hunt:** weekly scanner rebuilds dashboard/sponsor URLs via sanitized `ExecDigestSponsorDeepLinkOperatorLinks`; dispatcher applies `SanitizeOperatorAbsoluteUrl` on model hrefs.
+- [x] (valid-no-repro) `WeeklySponsorReportEmailDispatcher` — pre-built absolute `RunDetailUrl` with encoded CRLF — **cheap-disproof 2026-10-14 seed hunt:** `runIdHex` sanitized at dispatch; `SanitizeOperatorNavigableUrl` on `runDetailUrl`; falsified prior `runDetailUrl` CRLF repro class.
+- [x] (valid-no-repro) `UserInvitationAdminService.BuildAcceptUrl` — admin `AcceptUrl` CRLF operator base — **cheap-disproof 2026-10-14 seed hunt:** locus outside `notifications-pipeline` zone paths; mail notifier sanitizes at send (existing candidate row).
+- (candidate) `RecurrenceCompletionOperatorLinks.BuildRunDetailUrl` — run detail path segment from recurrence metadata when opaque run label fragments reach URL builder before dispatch sanitization.
+- (candidate) `CommitSponsorEmailNotifier.NotifyAfterCommitAsync` — review workspace URL built from operator base with embedded CRLF in run id segment when guard accepts GUID-only ids.
+- (candidate) `SupportProblemReportNotifier.BuildSettingsSupportUrl` — settings support URL when `OperatorBaseUrl` carries percent-encoded breaks after authority normalize (encoded vs literal CRLF class).
+- (candidate) `TrialLifecycleEmailDispatcher.CombineUrl` — welcome/getting-started relative concat when operator base path includes encoded line breaks post-normalize.
+- (candidate) `EmailBrandingUrls.SanitizeOperatorNavigableUrl` — malformed `https:/` concat repair leaves percent-encoded `%0D` in relative tail when operator base was sanitized but path fragment was pre-encoded.
 - [x] (valid-no-repro) `WeeklySponsorReportEmailDispatcher` / `WeeklySponsorSummaryEmailDispatcher` — `SummaryMarkdown` SMTP smuggling in `<pre>` — **cheap-disproof 2026-10-14 seed hunt:** intentional multiline sponsor summary policy; `runIdHex`/`runDetailUrl` normalized at dispatch; falsified embedded-CRLF `runDetailUrl` repro (URI sanitizer).
 - [x] (valid-no-repro) `ExecDigestEmailDispatcher` — composition narrative CRLF beyond week label — **cheap-disproof 2026-10-14 seed hunt (superseded by compliance-drift hit):** week label + URLs + `ComplianceDriftMarkdown` sanitized at dispatch; `DecisionNeededMarkdown` intentionally multiline `\n`; rehearsal constants fixed.
 - [x] (valid-no-repro) `RecurrenceCompletionEmailDispatcher` — operator link text in plain-text part — **cheap-disproof 2026-10-14 seed hunt:** regression `RecurrenceCompletion_text_part_strips_html_without_emitting_href_urls`; `ScheduleName` sanitized at dispatch.
