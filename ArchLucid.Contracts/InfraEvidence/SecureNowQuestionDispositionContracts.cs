@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.InfraEvidence;
 
 public sealed class SecureNowQuestionResponse
@@ -15,7 +17,13 @@ public sealed class SecureNowQuestionResponse
     public string ResourceName { get; init; } = string.Empty;
     public string ReasonText { get; init; } = string.Empty;
     public string SourceLine { get; init; } = string.Empty;
-    public IReadOnlyList<string> AnswerCodes { get; init; } = [];
+    private IReadOnlyList<string> answerCodes = [];
+
+    public IReadOnlyList<string> AnswerCodes
+    {
+        get => answerCodes;
+        init => answerCodes = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
     public string EvidenceFingerprint { get; init; } = string.Empty;
     public DateTime? ExpirationUtc { get; init; }
     public bool IsExpired { get; init; }
@@ -48,7 +56,7 @@ public sealed class SecureNowQuestionDispositionResponse
     public IReadOnlyList<SecureNowQuestionDispositionAuditResponse> AuditEntries
     {
         get => auditEntries;
-        init => auditEntries = value ?? [];
+        init => auditEntries = ContractCollectionDefaults.CoalesceReadOnly(value);
     }
 }
 
