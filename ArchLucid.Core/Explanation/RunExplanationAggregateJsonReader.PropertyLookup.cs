@@ -268,6 +268,13 @@ internal static partial class RunExplanationAggregateJsonReader
             return false;
         }
 
+        if (structuredPropertyName.Equals("confidence", StringComparison.OrdinalIgnoreCase)
+            && jsonElement.ValueKind == JsonValueKind.String
+            && TryReadFiniteDouble(jsonElement) is > 1)
+        {
+            return false;
+        }
+
         if (structuredPropertyName.Equals("schemaVersion", StringComparison.OrdinalIgnoreCase)
             && StrictSchemaVersionReader.TryReadSchemaVersion(jsonElement, out int schemaAliasVersion)
             && schemaAliasVersion > StructuredExplanationParser.MaxSupportedStructuredExplanationSchemaVersion)

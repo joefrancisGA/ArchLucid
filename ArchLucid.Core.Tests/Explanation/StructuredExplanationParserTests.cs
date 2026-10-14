@@ -836,6 +836,17 @@ public sealed class StructuredExplanationParserTests
     }
 
     [Fact]
+    public void RunExplanation_structured_json_keeps_confidence_when_later_case_variant_is_arbitrary_numeric_string()
+    {
+        const string json = """{"reasoning":"Main","confidence":0.85,"CONFIDENCE":"42"}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Confidence.Should().Be(0.85m);
+    }
+
+    [Fact]
     public void TryNormalizeStructuredJson_uses_non_empty_confidence_when_later_case_variant_is_zero()
     {
         const string json = """{"reasoning":"Main","confidence":0.75,"CONFIDENCE":0}""";
