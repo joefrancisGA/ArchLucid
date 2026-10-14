@@ -14,7 +14,7 @@ public static class ChatOpsWebhookAbsoluteUriValidator
 
         string trimmed = rawUri.Trim();
 
-        if (ContainsEmbeddedLineBreaks(trimmed))
+        if (ContainsEmbeddedLineBreaks(trimmed) || ContainsPercentEncodedLineBreaks(trimmed))
         {
             return false;
         }
@@ -54,5 +54,11 @@ public static class ChatOpsWebhookAbsoluteUriValidator
         }
 
         return false;
+    }
+
+    private static bool ContainsPercentEncodedLineBreaks(string value)
+    {
+        return value.Contains("%0D", StringComparison.OrdinalIgnoreCase)
+            || value.Contains("%0A", StringComparison.OrdinalIgnoreCase);
     }
 }
