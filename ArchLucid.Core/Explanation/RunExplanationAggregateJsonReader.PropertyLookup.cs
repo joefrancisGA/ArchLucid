@@ -111,6 +111,15 @@ internal static partial class RunExplanationAggregateJsonReader
             return true;
         }
 
+        if (lastMatch is JsonElement warningLast
+            && propertyName.Equals("faithfulnessWarning", StringComparison.OrdinalIgnoreCase)
+            && warningLast.ValueKind == JsonValueKind.True)
+        {
+            value = warningLast;
+
+            return true;
+        }
+
         return false;
     }
 
@@ -140,12 +149,6 @@ internal static partial class RunExplanationAggregateJsonReader
             && IsZeroConfidenceAliasValue(jsonElement))
         {
             return false;
-        }
-
-        if (structuredPropertyName.Equals("faithfulnessWarning", StringComparison.OrdinalIgnoreCase)
-            && jsonElement.ValueKind == JsonValueKind.True)
-        {
-            return true;
         }
 
         if (structuredPropertyName.Equals("citations", StringComparison.OrdinalIgnoreCase)
