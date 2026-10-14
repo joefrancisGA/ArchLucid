@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-14 seed hunt (seed→hit): `archlucid-contracts` — promoted `ContractJson.Default` registering `JsonStringEnumConverter<AgentType>` so canonical contract JSON (e.g. `AgentExecutionTraceSummary.agentType`) accepted undefined ordinals `99` / `"99"` instead of `AgentTypeJsonConverter` guards; swapped to `AgentTypeJsonConverter`; regressions `ContractJsonAgentTypeDeserializationTests`; 630 scoped `Contracts` filter tests passed.
+
 2026-10-14 seed hunt (seed→hit): `archlucid-contracts` — promoted `HeldCheckInputCode` property-level `JsonStringEnumConverter` on `HeldCheckLedgerRollupEntry.InputCode` accepting undefined ordinals (`99` / `"99"`); type-level `DefinedEnumJsonConverter<HeldCheckInputCode>`; regressions `HeldCheckInputCodeJsonConverterTests` including rollup `inputCode` camelCase path via `ContractJson.CamelCaseCompact`; 627 scoped `Contracts` filter tests passed.
 
 2026-10-14 seed hunt (seed→hit): `archlucid-contracts` — promoted `InteractionContract` `JsonStringEnumConverter` undefined-ordinal acceptance on `ActorDescriptor.Contract` (`99` / `"99"` deserialized without throw; whole-number doubles `0.0`/`3.0` threw); `DefinedEnumJsonConverter<InteractionContract>`; regressions `InteractionContractJsonConverterTests`; 619 scoped `Contracts` filter tests passed.
@@ -29071,6 +29073,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 ---
 ## Zone: archlucid-contracts
 
+2026-10-14 seed hunt (seed→hit): promoted `ContractJson.Default` `JsonStringEnumConverter<AgentType>` bypass on trace summaries and standalone `AgentType` tokens; `AgentTypeJsonConverter`; regressions `ContractJsonAgentTypeDeserializationTests`; 630 scoped `Contracts` filter tests passed.
+
 2026-10-14 seed hunt (seed→hit): promoted `HeldCheckInputCode` undefined-ordinal acceptance on DX-52 ledger rollup `inputCode`; `DefinedEnumJsonConverter<HeldCheckInputCode>`; regressions `HeldCheckInputCodeJsonConverterTests`; 627 scoped `Contracts` filter tests passed.
 
 2026-10-14 seed hunt (seed→hit): promoted `InteractionContract` `JsonStringEnumConverter` undefined-ordinal acceptance on `ActorDescriptor.Contract`; `DefinedEnumJsonConverter<InteractionContract>`; regressions `InteractionContractJsonConverterTests`; 619 scoped `Contracts` filter tests passed.
@@ -29139,11 +29143,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 73
-- **bugs-found:** 53
+- **hunts:** 74
+- **bugs-found:** 54
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-14
-- **last-bug:** 2026-10-14 — `HeldCheckInputCode` accepted undefined ordinals via property `JsonStringEnumConverter`
+- **last-bug:** 2026-10-14 — `ContractJson.Default` used `JsonStringEnumConverter<AgentType>` instead of `AgentTypeJsonConverter`
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 

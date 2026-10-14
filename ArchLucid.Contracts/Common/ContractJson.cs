@@ -95,7 +95,7 @@ public static class ContractJson
             // Accept canonical enum names, legacy eval-corpus labels (Low/Medium/High), and integer ordinals.
             new EvalCorpusFindingSeverityJsonConverter(),
             new FindingConfidenceLevelJsonConverter(),
-            new JsonStringEnumConverter<AgentType>(allowIntegerValues: true),
+            new AgentTypeJsonConverter(),
         },
     };
 }
