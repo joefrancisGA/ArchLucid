@@ -210,6 +210,11 @@ internal static partial class RunExplanationAggregateJsonReader
                     if (ReasoningArrayEntryObjectHasExtractableContent(item))
                         return true;
                 }
+                else if (structuredPropertyName.Equals("evidenceRefs", StringComparison.OrdinalIgnoreCase))
+                {
+                    if (EvidenceRefObjectAliasHasExtractableContent(item))
+                        return true;
+                }
                 else if (ObjectPropertyValueIsNonEmpty(item, structuredPropertyName))
                 {
                     return true;
@@ -253,7 +258,7 @@ internal static partial class RunExplanationAggregateJsonReader
         }
 
         if (structuredPropertyName.Equals("evidenceRefs", StringComparison.OrdinalIgnoreCase))
-            return EvidenceRefObjectAliasHasExtractableContent(jsonElement);
+            return ProseListObjectAliasHasExtractableContent(jsonElement);
 
         foreach (JsonProperty property in jsonElement.EnumerateObject())
         {

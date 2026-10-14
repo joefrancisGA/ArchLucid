@@ -837,4 +837,15 @@ public sealed class RunExplanationConfidenceCalloutBuilderTests
         ok.Should().BeTrue();
         structured!.AlternativesConsidered.Should().Equal("Keep monolith");
     }
+
+    [Fact]
+    public void RunExplanation_structured_json_evidence_refs_survive_trailing_blank_text_object_with_id()
+    {
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(
+            """{"reasoning":"Main","evidenceRefs":["dec-1"],"EVIDENCEREFS":{"text":"   ","id":"spoof"}}""",
+            out StructuredExplanation? structured);
+
+        ok.Should().BeTrue();
+        structured!.EvidenceRefs.Should().Equal("dec-1");
+    }
 }
