@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-14 seed hunt (seed→hit): `archlucid-contracts` — promoted `RunRetrievalGroundingResponse.Rows` and `HeldCheckLedgerRollupEntry.EngineTypes` explicit JSON `null` overwriting `= []` initializers (operator grounding response + DX-52 rollup); `ContractCollectionDefaults.CoalesceReadOnly`; regressions `RunRetrievalGroundingResponseDeserializationTests` and `HeldCheckLedgerRollupEntryDeserializationTests`; 638 scoped `Contracts` filter tests passed.
+
 2026-10-14 seed hunt (seed→hit): `archlucid-contracts` — promoted `SecureNowQuestionDispositionResponse.AuditEntries` explicit JSON `null` overwriting the `= []` initializer so disposition detail consumers could null-deref; null-coalescing `init`; regression `Deserialize_null_audit_entries_yields_empty_list_not_null`; 632 scoped `Contracts` filter tests passed.
 
 2026-10-14 seed hunt (seed→hit): `archlucid-contracts` — promoted `InfrastructureDiagramComparisonCreateRequest.Sources` explicit JSON `null` overwriting the `= []` initializer so `InfrastructureDiagramComparisonService.CompareAsync` hit `NullReferenceException` on `.Count`; null-coalescing setter; regression `Deserialize_null_sources_yields_empty_list_not_null`; 631 scoped `Contracts` filter tests passed.
@@ -29077,6 +29079,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 ---
 ## Zone: archlucid-contracts
 
+2026-10-14 seed hunt (seed→hit): promoted `RunRetrievalGroundingResponse.Rows` and `HeldCheckLedgerRollupEntry.EngineTypes` JSON `null`; `ContractCollectionDefaults`; regressions `RunRetrievalGroundingResponseDeserializationTests` and `HeldCheckLedgerRollupEntryDeserializationTests`; 638 scoped `Contracts` filter tests passed.
+
 2026-10-14 seed hunt (seed→hit): promoted `SecureNowQuestionDispositionResponse.AuditEntries` JSON `null` leaving `AuditEntries` null; null-coalescing `init`; regression `SecureNowQuestionDispositionResponseDeserializationTests`; 632 scoped `Contracts` filter tests passed.
 
 2026-10-14 seed hunt (seed→hit): promoted `InfrastructureDiagramComparisonCreateRequest.Sources` JSON `null` leaving `Sources` null; null-coalescing setter; regression `InfrastructureDiagramComparisonCreateRequestDeserializationTests`; 631 scoped `Contracts` filter tests passed.
@@ -29151,11 +29155,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 76
-- **bugs-found:** 56
+- **hunts:** 79
+- **bugs-found:** 59
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-14
-- **last-bug:** 2026-10-14 — `SecureNowQuestionDispositionResponse.AuditEntries` deserialized as null from explicit JSON null
+- **last-bug:** 2026-10-14 — `RunRetrievalGroundingResponse.Rows` / `HeldCheckLedgerRollupEntry.EngineTypes` deserialized as null from explicit JSON null
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
