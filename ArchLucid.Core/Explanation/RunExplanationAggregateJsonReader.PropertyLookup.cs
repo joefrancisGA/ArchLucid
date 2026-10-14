@@ -114,9 +114,19 @@ internal static partial class RunExplanationAggregateJsonReader
         }
 
         if (caseInsensitiveAliasMatchCount == 1
+            && lastMatch is JsonElement soleCount
+            && IsAggregateWholeNumberCountPropertyName(propertyName)
+            && TryReadWholeNumber(soleCount, out _))
+        {
+            value = soleCount;
+
+            return true;
+        }
+
+        if (caseInsensitiveAliasMatchCount == 1
             && lastMatch is JsonElement warningLast
             && propertyName.Equals("faithfulnessWarning", StringComparison.OrdinalIgnoreCase)
-            && warningLast.ValueKind == JsonValueKind.True)
+            && (warningLast.ValueKind == JsonValueKind.True || IsBooleanOneAliasValue(warningLast)))
         {
             value = warningLast;
 
@@ -160,12 +170,22 @@ internal static partial class RunExplanationAggregateJsonReader
             return false;
         }
 
+        if (IsAggregateWholeNumberCountPropertyName(structuredPropertyName)
+            && (IsZeroConfidenceAliasValue(jsonElement) || IsBooleanOneAliasValue(jsonElement)))
+        {
+            return false;
+        }
+
         if ((structuredPropertyName.Equals("faithfulnessWarning", StringComparison.OrdinalIgnoreCase)
-             || structuredPropertyName.Equals("riskPosture", StringComparison.OrdinalIgnoreCase)
-             || structuredPropertyName.Equals("reasoning", StringComparison.OrdinalIgnoreCase)
+             || structuredPropertyName.Equals("riskPosture", StringComparison.OrdinalIgnoreCase))
+            && (IsZeroConfidenceAliasValue(jsonElement) || IsBooleanOneAliasValue(jsonElement)))
+        {
+            return false;
+        }
+
+        if ((structuredPropertyName.Equals("reasoning", StringComparison.OrdinalIgnoreCase)
              || structuredPropertyName.Equals("schemaVersion", StringComparison.OrdinalIgnoreCase)
              || IsDeterministicFallbackPropertyName(structuredPropertyName)
-             || IsAggregateWholeNumberCountPropertyName(structuredPropertyName)
              || IsStructuredStringListPropertyName(structuredPropertyName))
             && IsZeroConfidenceAliasValue(jsonElement))
         {
@@ -198,6 +218,12 @@ internal static partial class RunExplanationAggregateJsonReader
 
     private static bool IsBooleanOneAliasValue(JsonElement jsonElement)
     {
+        if (jsonElement.ValueKind == JsonValueKind.True)
+            return true;
+
+        if (jsonElement.ValueKind != JsonValueKind.Number)
+            return false;
+
         double? finite = TryReadFiniteDouble(jsonElement);
 
         return finite is 1;

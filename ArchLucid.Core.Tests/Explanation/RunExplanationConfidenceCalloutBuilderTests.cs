@@ -928,6 +928,49 @@ public sealed class RunExplanationConfidenceCalloutBuilderTests
     }
 
     [Fact]
+    public void RunExplanation_FromAggregateJson_keeps_faithfulness_warning_when_later_duplicate_is_one_numeric()
+    {
+        RunExplanationConfidenceSignals? signals = RunExplanationConfidenceCalloutBuilder.FromAggregateJson(
+            """
+            {
+              "faithfulnessSupportRatio": 0.95,
+              "faithfulnessWarning": "Citations missing",
+              "FAITHFULNESSWARNING": 1,
+              "citations": 1
+            }
+            """);
+
+        signals.Should().NotBeNull();
+        signals!.FaithfulnessWarning.Should().Be("Citations missing");
+        RunExplanationConfidenceCalloutBuilder.ResolveDisposition(signals).Should().Be("WARN");
+    }
+
+    [Fact]
+    public void RunExplanation_FromAggregateJson_keeps_decision_count_when_later_duplicate_is_one_numeric()
+    {
+        using JsonDocument document = JsonDocument.Parse("""{"decisionCount":5,"DECISIONCOUNT":1}""");
+
+        RunExplanationCostCalloutBuilder.TryParseDecisionCount(document.RootElement).Should().Be(5);
+    }
+
+    [Fact]
+    public void RunExplanation_FromAggregateJson_keeps_citation_array_count_when_later_duplicate_is_one_numeric()
+    {
+        RunExplanationConfidenceSignals? signals = RunExplanationConfidenceCalloutBuilder.FromAggregateJson(
+            """
+            {
+              "faithfulnessSupportRatio": 0.95,
+              "citations": [{"id":"c-1"},{"id":"c-2"}],
+              "CITATIONS": 1
+            }
+            """);
+
+        signals.Should().NotBeNull();
+        signals!.CitationCount.Should().Be(2);
+        RunExplanationConfidenceCalloutBuilder.ResolveDisposition(signals).Should().Be("PASS");
+    }
+
+    [Fact]
     public void FromAggregateJson_counts_object_citation_when_later_case_variant_id_is_empty()
     {
         RunExplanationConfidenceSignals? signals = RunExplanationConfidenceCalloutBuilder.FromAggregateJson(
