@@ -1,5 +1,7 @@
 using System.Text.Json.Serialization;
 
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Architecture;
 
 /// <summary>
@@ -19,7 +21,7 @@ namespace ArchLucid.Contracts.Architecture;
 ///     boundary and treats the external system as a black box with a trust label — preventing
 ///     unbounded recursion into dependent systems.
 /// </remarks>
-[JsonConverter(typeof(JsonStringEnumConverter))]
+[JsonConverter(typeof(DefinedEnumJsonConverter<InteractionContract>))]
 public enum InteractionContract
 {
     /// <summary>Synchronous request / response — the caller blocks until a response is returned.</summary>
