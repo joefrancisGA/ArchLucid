@@ -241,6 +241,17 @@ internal static partial class RunExplanationAggregateJsonReader
             return true;
         }
 
+        if (caseInsensitiveAliasMatchCount == 1
+            && lastMatch is JsonElement soleDeterministicFallbackArray
+            && IsDeterministicFallbackPropertyName(propertyName)
+            && soleDeterministicFallbackArray.ValueKind == JsonValueKind.Array
+            && TryReadAggregateBooleanToken(soleDeterministicFallbackArray, out _))
+        {
+            value = soleDeterministicFallbackArray;
+
+            return true;
+        }
+
         return false;
     }
 
@@ -476,23 +487,7 @@ internal static partial class RunExplanationAggregateJsonReader
             }
 
             if (IsAggregateWholeNumberCountPropertyName(structuredPropertyName)
-                && IsBooleanOneAliasValue(item))
-            {
-                continue;
-            }
-
-            if (IsAggregateWholeNumberCountPropertyName(structuredPropertyName)
-                && item.ValueKind == JsonValueKind.Number
-                && TryReadWholeNumber(item, out int wholeNumberCountAlias)
-                && wholeNumberCountAlias > 10)
-            {
-                continue;
-            }
-
-            if (IsAggregateWholeNumberCountPropertyName(structuredPropertyName)
-                && item.ValueKind == JsonValueKind.String
-                && TryParseWholeNumberString(item.GetString()?.Trim() ?? string.Empty, out int wholeNumberCountStringAlias)
-                && (wholeNumberCountStringAlias > 10 || wholeNumberCountStringAlias == 1))
+                && TryReadWholeNumber(item, out _))
             {
                 continue;
             }

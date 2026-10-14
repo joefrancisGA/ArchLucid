@@ -119,9 +119,11 @@ public static class RunExplanationConfidenceCalloutBuilder
 
         bool fallback =
             (RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitivePreferLastNonEmpty(root, "deterministicFallbackUsed", out JsonElement direct)
-             && RunExplanationAggregateJsonReader.TryReadBoolean(direct))
+             && RunExplanationAggregateJsonReader.TryReadAggregateBooleanToken(direct, out bool directFallback)
+             && directFallback)
             || (RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitivePreferLastNonEmpty(root, "usedDeterministicFallback", out JsonElement legacy)
-                && RunExplanationAggregateJsonReader.TryReadBoolean(legacy));
+                && RunExplanationAggregateJsonReader.TryReadAggregateBooleanToken(legacy, out bool legacyFallback)
+                && legacyFallback);
 
         string? warning = RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitivePreferLastNonEmpty(root, "faithfulnessWarning", out JsonElement warningEl)
                             && RunExplanationAggregateJsonReader.TryReadAggregateStringCalloutToken(warningEl, out string? warningText)
@@ -138,7 +140,7 @@ public static class RunExplanationConfidenceCalloutBuilder
             }
             else if (citationsEl.ValueKind == JsonValueKind.Array)
             {
-                citationCount = CountFlattenedCitations(citationsEl);
+                citationCount = TryParseCitationCountArray(citationsEl);
             }
             else if (citationsEl.ValueKind == JsonValueKind.Object)
             {
@@ -181,6 +183,25 @@ public static class RunExplanationConfidenceCalloutBuilder
         }
 
         return new RunExplanationConfidenceSignals(ratio, fallback, warning, citationCount);
+    }
+
+    private static int TryParseCitationCountArray(JsonElement citationsArray)
+    {
+        int nonNullEntries = 0;
+
+        foreach (JsonElement item in citationsArray.EnumerateArray())
+        {
+            if (item.ValueKind != JsonValueKind.Null)
+                nonNullEntries++;
+        }
+
+        if (nonNullEntries == 1
+            && RunExplanationAggregateJsonReader.TryReadAggregateWholeNumberCountToken(citationsArray, out int soleArrayCount))
+        {
+            return soleArrayCount;
+        }
+
+        return CountFlattenedCitations(citationsArray);
     }
 
     private static int CountFlattenedCitations(JsonElement citationsArray)
