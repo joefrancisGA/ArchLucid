@@ -682,6 +682,17 @@ public sealed class StructuredExplanationParserTests
     }
 
     [Fact]
+    public void RunExplanation_structured_json_keeps_schema_version_when_later_case_variant_is_arbitrary_numeric()
+    {
+        const string json = """{"reasoning":"Main","schemaVersion":2,"SCHEMAVERSION":42}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.SchemaVersion.Should().Be(2);
+    }
+
+    [Fact]
     public void RunExplanation_structured_json_keeps_evidence_refs_when_later_case_variant_is_one_numeric()
     {
         const string json = """{"reasoning":"Main","evidenceRefs":["dec-1"],"EVIDENCEREFS":1}""";

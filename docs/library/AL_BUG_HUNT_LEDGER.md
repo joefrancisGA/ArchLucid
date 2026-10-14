@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-14 seed hunt (seed→hit): `core-explanation-json` — promoted structured `schemaVersion` trailing `SCHEMAVERSION:42` duplicate replacing earlier supported version `2`; numeric schema aliases above `StructuredExplanationParser.MaxSupportedStructuredExplanationSchemaVersion` are empty during `PreferLastNonEmpty` duplicate scan; regression `RunExplanation_structured_json_keeps_schema_version_when_later_case_variant_is_arbitrary_numeric`; 95 scoped `RunExplanation` filter tests passed.
+
 2026-10-14 seed hunt (seed→hit): `core-explanation-json` — promoted structured `reasoning` trailing `REASONING:42` (and other non-zero/non-one numerics) duplicate replacing earlier prose with `TryReadFiniteDouble` string form (`42`); arbitrary numeric reasoning aliases are empty during duplicate scan while sole numeric reasoning still resolves via `reasoningLast` fallback; regression `RunExplanation_structured_json_keeps_reasoning_when_later_case_variant_is_arbitrary_numeric`; 94 scoped `RunExplanation` filter tests passed.
 
 2026-10-14 seed hunt (seed→hit): `core-explanation-json` — promoted structured `reasoning` trailing `REASONING:1` duplicate replacing earlier prose with literal `1`; `reasoning` now shares boolean-one alias emptiness with `schemaVersion`; regression `RunExplanation_structured_json_keeps_reasoning_when_later_case_variant_is_one_numeric`; 93 scoped `RunExplanation` filter tests passed.

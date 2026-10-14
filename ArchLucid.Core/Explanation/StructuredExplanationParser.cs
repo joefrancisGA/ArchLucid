@@ -12,6 +12,12 @@ namespace ArchLucid.Core.Explanation;
 public static partial class StructuredExplanationParser
 {
     /// <summary>
+    ///     Highest structured-explanation schema version this build accepts from model JSON during duplicate-alias selection.
+    ///     Values above this are treated as empty poison aliases when a lower supported version appears earlier.
+    /// </summary>
+    internal const int MaxSupportedStructuredExplanationSchemaVersion = 2;
+
+    /// <summary>
     ///     Returns <see langword="true" /> when <paramref name="rawText" /> is JSON that deserializes to a non-empty
     ///     <c>reasoning</c> field.
     /// </summary>

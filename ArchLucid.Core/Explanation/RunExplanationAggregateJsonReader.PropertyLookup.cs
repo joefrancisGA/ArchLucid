@@ -221,6 +221,14 @@ internal static partial class RunExplanationAggregateJsonReader
             return false;
         }
 
+        if (structuredPropertyName.Equals("schemaVersion", StringComparison.OrdinalIgnoreCase)
+            && jsonElement.ValueKind == JsonValueKind.Number
+            && StrictSchemaVersionReader.TryReadSchemaVersion(jsonElement, out int schemaAliasVersion)
+            && schemaAliasVersion > StructuredExplanationParser.MaxSupportedStructuredExplanationSchemaVersion)
+        {
+            return false;
+        }
+
         if (IsStructuredStringListPropertyName(structuredPropertyName)
             && (IsZeroConfidenceAliasValue(jsonElement) || IsBooleanOneAliasValue(jsonElement)))
         {
