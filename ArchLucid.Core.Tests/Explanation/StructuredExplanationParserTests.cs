@@ -1004,6 +1004,30 @@ public sealed class StructuredExplanationParserTests
     }
 
     [Fact]
+    public void RunExplanation_structured_json_keeps_alternatives_when_later_case_variant_is_one_numeric_poison_array()
+    {
+        const string json =
+            """{"reasoning":"Main","alternativesConsidered":["Keep monolith","Split services"],"ALTERNATIVESCONSIDERED":[1]}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.AlternativesConsidered.Should().Equal("Keep monolith", "Split services");
+    }
+
+    [Fact]
+    public void RunExplanation_structured_json_keeps_reasoning_when_later_case_variant_is_numeric_poison_array()
+    {
+        const string json =
+            """{"reasoning":"Recovered explanation","REASONING":[42]}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Reasoning.Should().Be("Recovered explanation");
+    }
+
+    [Fact]
     public void RunExplanation_structured_json_keeps_evidence_refs_when_later_case_variant_is_string_numeric_poison_array()
     {
         const string json =

@@ -78,7 +78,8 @@ internal static partial class RunExplanationAggregateJsonReader
             && (TryReadFiniteDouble(reasoningLast) is not null
                 || (reasoningLast.ValueKind == JsonValueKind.Array
                     && !ArrayPropertyValueIsNonEmpty(reasoningLast, propertyName)
-                    && ArrayContainsOnlyZeroNumericElements(reasoningLast))))
+                    && (ArrayContainsOnlyZeroNumericElements(reasoningLast)
+                        || ReasoningArrayHasReadableScalarEntry(reasoningLast)))))
         {
             value = reasoningLast;
 
@@ -477,7 +478,27 @@ internal static partial class RunExplanationAggregateJsonReader
             if (structuredPropertyName.Equals("citations", StringComparison.OrdinalIgnoreCase)
                 && item.ValueKind == JsonValueKind.String
                 && TryParseWholeNumberString(item.GetString()?.Trim() ?? string.Empty, out int citationStringAlias)
-                && citationStringAlias > 10)
+                && (citationStringAlias > 10 || citationStringAlias == 1))
+            {
+                continue;
+            }
+
+            if (structuredPropertyName.Equals("reasoning", StringComparison.OrdinalIgnoreCase)
+                && IsBooleanOneAliasValue(item))
+            {
+                continue;
+            }
+
+            if (structuredPropertyName.Equals("reasoning", StringComparison.OrdinalIgnoreCase)
+                && item.ValueKind == JsonValueKind.Number
+                && TryReadWholeNumber(item, out int reasoningNumericAlias)
+                && reasoningNumericAlias > 10)
+            {
+                continue;
+            }
+
+            if (IsStructuredStringListPropertyName(structuredPropertyName)
+                && IsBooleanOneAliasValue(item))
             {
                 continue;
             }
@@ -535,6 +556,9 @@ internal static partial class RunExplanationAggregateJsonReader
 
         return false;
     }
+
+    private static bool ReasoningArrayHasReadableScalarEntry(JsonElement reasoningArray) =>
+        StructuredStringListArrayHasReadableScalarEntry(reasoningArray);
 
     private static bool ArrayContainsOnlyZeroNumericElements(JsonElement jsonElement)
     {
