@@ -137,16 +137,20 @@ public static class EmailBrandingUrls
 
     private static int IndexOfLineBreak(string value)
     {
-        int carriageReturn = value.IndexOf('\r');
-        int lineFeed = value.IndexOf('\n');
+        int earliest = -1;
 
-        if (carriageReturn < 0)
-            return lineFeed;
+        for (int index = 0; index < value.Length; index++)
+        {
+            char character = value[index];
 
-        if (lineFeed < 0)
-            return carriageReturn;
+            if (character is not ('\r' or '\n' or '\u0085' or '\u2028' or '\u2029'))
+                continue;
 
-        return Math.Min(carriageReturn, lineFeed);
+            if (earliest < 0 || index < earliest)
+                earliest = index;
+        }
+
+        return earliest;
     }
 
     private static string TrimBeforeLineBreak(string value)

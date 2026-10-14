@@ -117,6 +117,15 @@ public sealed class EmailBrandingUrlsTests
     }
 
     [SkippableFact]
+    public void TryNormalizeOperatorBaseAuthority_ignores_content_after_unicode_line_separator_in_operator_base()
+    {
+        string? authority = EmailBrandingUrls.TryNormalizeOperatorBaseAuthority(
+            "https://ops.example.test\u2028https://evil.test");
+
+        authority.Should().Be("https://ops.example.test");
+    }
+
+    [SkippableFact]
     public void SanitizeOperatorNavigableUrl_repairs_malformed_run_detail_when_operator_base_has_embedded_crlf()
     {
         string url = EmailBrandingUrls.SanitizeOperatorNavigableUrl(
