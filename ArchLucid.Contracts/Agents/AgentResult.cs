@@ -3,6 +3,7 @@ using System.Text.Json.Serialization;
 
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
+using ArchLucid.Contracts.Serialization;
 
 namespace ArchLucid.Contracts.Agents;
 
@@ -50,23 +51,27 @@ public sealed class AgentResult
     ///     Natural-language claims produced by the agent supporting its proposed architecture changes.
     /// </summary>
     [Required]
+    private List<string> claims = [];
+
     [JsonConverter(typeof(AgentResultClaimListJsonConverter))]
     public List<string> Claims
     {
-        get;
-        set;
-    } = [];
+        get => claims;
+        set => claims = ContractCollectionDefaults.Coalesce(value);
+    }
 
     /// <summary>
     ///     References to evidence items (policy IDs, service catalog IDs, pattern IDs, etc.) that
     ///     the agent used to justify its claims.
     /// </summary>
     [Required]
+    private List<string> evidenceRefs = [];
+
     public List<string> EvidenceRefs
     {
-        get;
-        set;
-    } = [];
+        get => evidenceRefs;
+        set => evidenceRefs = ContractCollectionDefaults.Coalesce(value);
+    }
 
     /// <summary>
     ///     Agent's self-reported confidence in its result, in the range [0.0, 1.0].
@@ -91,25 +96,31 @@ public sealed class AgentResult
     }
 
     /// <summary>Architecture findings identified by the agent (security gaps, topology issues, etc.).</summary>
+    private List<ArchitectureFinding> findings = [];
+
     public List<ArchitectureFinding> Findings
     {
-        get;
-        set;
-    } = [];
+        get => findings;
+        set => findings = ContractCollectionDefaults.Coalesce(value);
+    }
 
     /// <summary>Hygiene observations routed to checklist coverage instead of decision-grade findings (TB-384).</summary>
+    private List<ArchitectureFinding> checklistCoverage = [];
+
     public List<ArchitectureFinding> ChecklistCoverage
     {
-        get;
-        set;
-    } = [];
+        get => checklistCoverage;
+        set => checklistCoverage = ContractCollectionDefaults.Coalesce(value);
+    }
 
     /// <summary>Agent findings stripped by the emission gate before persistence (DR-02).</summary>
+    private List<WithheldFindingSummary> withheldFindings = [];
+
     public List<WithheldFindingSummary> WithheldFindings
     {
-        get;
-        set;
-    } = [];
+        get => withheldFindings;
+        set => withheldFindings = ContractCollectionDefaults.Coalesce(value);
+    }
 
     /// <summary>Insight-density demotion vs retention counts when populated by the agent runtime gate (TB-385).</summary>
     public InsightDensityCurationSummary? InsightDensityCuration
