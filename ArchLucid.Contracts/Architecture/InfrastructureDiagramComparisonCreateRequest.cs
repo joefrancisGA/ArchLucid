@@ -8,9 +8,11 @@ public sealed class InfrastructureDiagramComparisonCreateRequest
         set;
     }
 
+    private List<DiagramSourceReference> sources = [];
+
     public List<DiagramSourceReference> Sources
     {
-        get;
-        set;
-    } = [];
+        get => sources;
+        set => sources = value ?? [];
+    }
 }
