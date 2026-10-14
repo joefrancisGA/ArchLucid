@@ -34,25 +34,48 @@ internal static partial class RunExplanationAggregateJsonReader
         out JsonElement value)
     {
         value = default;
-        bool found = false;
+        JsonElement? lastMatch = null;
+        JsonElement? lastNonEmpty = null;
 
         foreach (JsonProperty property in element.EnumerateObject())
         {
             if (!string.Equals(property.Name, propertyName, StringComparison.OrdinalIgnoreCase))
                 continue;
 
-            if (!IsNonEmptyJsonPropertyValue(property.Value, propertyName))
-                continue;
+            lastMatch = property.Value;
 
-            value = property.Value;
-            found = true;
+            if (IsNonEmptyJsonPropertyValue(property.Value, propertyName))
+                lastNonEmpty = property.Value;
         }
 
-        return found;
+        if (lastNonEmpty is JsonElement nonEmpty)
+        {
+            value = nonEmpty;
+
+            return true;
+        }
+
+        if (lastMatch is JsonElement last
+            && propertyName.Equals("confidence", StringComparison.OrdinalIgnoreCase)
+            && TryReadFiniteDouble(last) is not null)
+        {
+            value = last;
+
+            return true;
+        }
+
+        return false;
     }
 
-    private static bool IsNonEmptyJsonPropertyValue(JsonElement jsonElement, string structuredPropertyName) =>
-        jsonElement.ValueKind switch
+    private static bool IsNonEmptyJsonPropertyValue(JsonElement jsonElement, string structuredPropertyName)
+    {
+        if (structuredPropertyName.Equals("confidence", StringComparison.OrdinalIgnoreCase)
+            && IsZeroConfidenceAliasValue(jsonElement))
+        {
+            return false;
+        }
+
+        return jsonElement.ValueKind switch
         {
             JsonValueKind.Null => false,
             JsonValueKind.True or JsonValueKind.False => false,
@@ -61,6 +84,14 @@ internal static partial class RunExplanationAggregateJsonReader
             JsonValueKind.Object => ObjectPropertyValueIsNonEmpty(jsonElement, structuredPropertyName),
             _ => true,
         };
+    }
+
+    private static bool IsZeroConfidenceAliasValue(JsonElement jsonElement)
+    {
+        double? finite = TryReadFiniteDouble(jsonElement);
+
+        return finite is 0;
+    }
 
     private static bool ArrayPropertyValueIsNonEmpty(JsonElement jsonElement, string structuredPropertyName)
     {
