@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Explanation;
 
 /// <summary>Operator-visible retrieval grounding row for a run, without raw prompt or retrieved content.</summary>
@@ -9,11 +11,29 @@ public sealed class RunRetrievalGroundingRow
 
     public string? CorpusKind { get; set; }
 
-    public IReadOnlyList<string> RetrievedChunkIds { get; set; } = [];
+    private IReadOnlyList<string> retrievedChunkIds = [];
 
-    public IReadOnlyList<string> DocumentIds { get; set; } = [];
+    public IReadOnlyList<string> RetrievedChunkIds
+    {
+        get => retrievedChunkIds;
+        set => retrievedChunkIds = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 
-    public IReadOnlyList<RunRetrievalGroundingScoreSummary> ScoreSummaries { get; set; } = [];
+    private IReadOnlyList<string> documentIds = [];
+
+    public IReadOnlyList<string> DocumentIds
+    {
+        get => documentIds;
+        set => documentIds = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
+
+    private IReadOnlyList<RunRetrievalGroundingScoreSummary> scoreSummaries = [];
+
+    public IReadOnlyList<RunRetrievalGroundingScoreSummary> ScoreSummaries
+    {
+        get => scoreSummaries;
+        set => scoreSummaries = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 
     public int RetrievedChunkCount { get; set; }
 
