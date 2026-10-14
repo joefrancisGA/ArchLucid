@@ -63,10 +63,10 @@ internal static partial class RunExplanationAggregateJsonReader
             && (propertyName.Equals("confidence", StringComparison.OrdinalIgnoreCase)
                 || propertyName.Equals("faithfulnessSupportRatio", StringComparison.OrdinalIgnoreCase))
             && (TryReadFiniteDouble(confidenceLast) is not null
-                || (propertyName.Equals("confidence", StringComparison.OrdinalIgnoreCase)
-                    && confidenceLast.ValueKind == JsonValueKind.Array
+                || (confidenceLast.ValueKind == JsonValueKind.Array
                     && !ArrayPropertyValueIsNonEmpty(confidenceLast, propertyName)
-                    && ArrayContainsOnlyZeroNumericElements(confidenceLast))))
+                    && (ArrayContainsOnlyZeroNumericElements(confidenceLast)
+                        || ConfidenceRatioArrayHasReadableScalarEntry(confidenceLast)))))
         {
             value = confidenceLast;
 
@@ -497,6 +497,20 @@ internal static partial class RunExplanationAggregateJsonReader
                 continue;
             }
 
+            if (structuredPropertyName.Equals("reasoning", StringComparison.OrdinalIgnoreCase)
+                && item.ValueKind == JsonValueKind.String
+                && TryParseWholeNumberString(item.GetString()?.Trim() ?? string.Empty, out int reasoningStringAlias)
+                && reasoningStringAlias > 10)
+            {
+                continue;
+            }
+
+            if (IsRatioPropertyName(structuredPropertyName)
+                && RatioArrayItemIsDuplicateAliasPoison(item))
+            {
+                continue;
+            }
+
             if (IsStructuredStringListPropertyName(structuredPropertyName)
                 && IsBooleanOneAliasValue(item))
             {
@@ -559,6 +573,35 @@ internal static partial class RunExplanationAggregateJsonReader
 
     private static bool ReasoningArrayHasReadableScalarEntry(JsonElement reasoningArray) =>
         StructuredStringListArrayHasReadableScalarEntry(reasoningArray);
+
+    private static bool IsRatioPropertyName(string propertyName) =>
+        propertyName.Equals("confidence", StringComparison.OrdinalIgnoreCase)
+        || propertyName.Equals("faithfulnessSupportRatio", StringComparison.OrdinalIgnoreCase);
+
+    private static bool RatioArrayItemIsDuplicateAliasPoison(JsonElement item)
+    {
+        if (IsBooleanOneAliasValue(item))
+            return true;
+
+        if (item.ValueKind is JsonValueKind.Number or JsonValueKind.String
+            && TryReadFiniteDouble(item) is > 1)
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    private static bool ConfidenceRatioArrayHasReadableScalarEntry(JsonElement ratioArray)
+    {
+        foreach (JsonElement item in ratioArray.EnumerateArray())
+        {
+            if (TryReadFiniteDouble(item) is not null)
+                return true;
+        }
+
+        return false;
+    }
 
     private static bool ArrayContainsOnlyZeroNumericElements(JsonElement jsonElement)
     {
