@@ -68,7 +68,7 @@ public static class FirstValueReportTraceSectionFormatter
             return;
         }
 
-        sb.AppendLine($"Selected finding: `{deltas.TopFindingId}` (severity `{deltas.TopFindingSeverity ?? "Unknown"}`).");
+        sb.AppendLine($"Selected finding: `{deltas.TopFindingId}` (severity `{deltas.TopFindingSeverity ?? "Severity was not stored."}`).");
         sb.AppendLine();
         FindingEvidenceChainResponse? chain = deltas.TopFindingEvidenceChain;
         if (chain is null)
@@ -81,7 +81,7 @@ public static class FirstValueReportTraceSectionFormatter
 
         sb.AppendLine("| Pointer | Value |");
         sb.AppendLine("| --- | --- |");
-        sb.AppendLine($"| Manifest version | `{chain.ManifestVersion ?? "(none)"}` |");
+        sb.AppendLine($"| Manifest version | `{chain.ManifestVersion ?? "Manifest version was not stored."}` |");
         sb.AppendLine($"| Findings snapshot id | `{FormatGuid(chain.FindingsSnapshotId, "Findings snapshot id was not stored.")}` |");
         sb.AppendLine($"| Context snapshot id | `{FormatGuid(chain.ContextSnapshotId, "Context snapshot id was not stored.")}` |");
         sb.AppendLine($"| Graph snapshot id | `{FormatGuid(chain.GraphSnapshotId, "Graph snapshot id was not stored.")}` |");

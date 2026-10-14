@@ -23,6 +23,15 @@ describe("finding-source-evidence-links", () => {
     manifestId: SHOWCASE_STATIC_DEMO_MANIFEST_ID,
   };
 
+  it("labels omitted artifact id on showcase graph links", () => {
+    const payload = buildStaticDemoPrimaryFindingInspectPayload(SHOWCASE_STATIC_DEMO_RUN_ID);
+    const evidence = [...(payload.evidence ?? [])];
+    evidence[1] = { ...evidence[1], artifactId: null };
+    const links = buildSourceEvidenceLinksFromInspect(ctx, { ...payload, evidence });
+
+    expect(links[1]?.label).toBe("Evidence artifact id was not stored.");
+  });
+
   it("maps showcase inspect evidence rows to manifest and graph anchors", () => {
     const payload = buildStaticDemoPrimaryFindingInspectPayload(SHOWCASE_STATIC_DEMO_RUN_ID);
     const links = buildSourceEvidenceLinksFromInspect(ctx, payload);

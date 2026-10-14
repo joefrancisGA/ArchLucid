@@ -38,4 +38,34 @@ public sealed class InventoryDiagramMissingValueLabelTests
             .Should()
             .Be("Address prefix was not stored");
     }
+
+    [Fact]
+    public void RouteOutline_labels_missing_next_hop_type_when_name_does_not_resolve()
+    {
+        InventoryDiagramRouteOutlineSentenceFormatter
+            .TryFormat(
+                new AzureInventoryRouteTableRoute
+                {
+                    AddressPrefix = "10.0.0.0/24",
+                    NextHopType = null,
+                },
+                resolvedNextHopName: null)
+            .Should()
+            .Be("Next hop type was not stored");
+    }
+
+    [Fact]
+    public void RouteOutline_keeps_resolve_sentence_for_stored_virtual_appliance_type()
+    {
+        InventoryDiagramRouteOutlineSentenceFormatter
+            .TryFormat(
+                new AzureInventoryRouteTableRoute
+                {
+                    AddressPrefix = "10.0.0.0/24",
+                    NextHopType = "VirtualAppliance",
+                },
+                resolvedNextHopName: null)
+            .Should()
+            .Be("route next hop does not resolve");
+    }
 }

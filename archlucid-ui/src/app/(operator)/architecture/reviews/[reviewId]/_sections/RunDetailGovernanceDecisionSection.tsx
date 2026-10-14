@@ -199,7 +199,9 @@ export function RunDetailGovernanceDecisionSection(
     decision.length > 0
       ? decision
       : manifestFinalized
-        ? props.governanceGateLabel ?? "Awaiting decision"
+        ? props.governanceGateLabel !== null && props.governanceGateLabel !== undefined
+          ? props.governanceGateLabel
+          : "Approval decision was not stored."
         : "No approval decision recorded";
 
   const findingsHref = buildReviewWorkspaceTabHref(props.runId, "findings");

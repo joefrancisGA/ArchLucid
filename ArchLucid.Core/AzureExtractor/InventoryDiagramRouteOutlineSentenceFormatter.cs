@@ -31,6 +31,11 @@ public static class InventoryDiagramRouteOutlineSentenceFormatter
 
         if (string.IsNullOrWhiteSpace(resolvedNextHopName))
         {
+            if (string.IsNullOrWhiteSpace(route.NextHopType))
+            {
+                return "Next hop type was not stored";
+            }
+
             if (RequiresResolvableNextHop(route))
             {
                 return "route next hop does not resolve";

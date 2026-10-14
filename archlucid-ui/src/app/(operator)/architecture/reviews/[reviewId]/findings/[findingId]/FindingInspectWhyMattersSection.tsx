@@ -152,7 +152,12 @@ export function FindingInspectWhyMattersSection({
             <dt className="font-medium text-neutral-600 dark:text-neutral-400">Primary rule</dt>
             <dd className="m-0 mt-1">{BUYER_SHOWCASE_POLICY_PACK_LABEL} — PHI minimization at intake</dd>
           </div>
-        ) : null}
+        ) : (
+          <div>
+            <dt className="font-medium text-neutral-600 dark:text-neutral-400">Primary rule</dt>
+            <dd className="m-0 mt-1">Primary rule was not stored.</dd>
+          </div>
+        )}
       </dl>
       {payload.decisionRuleId ? (
         <div className="mt-3">
@@ -169,6 +174,10 @@ export function FindingInspectWhyMattersSection({
             </div>
           </CollapsibleSection>
         </div>
+      ) : payload.decisionRuleId === null || payload.decisionRuleId === undefined ? (
+        <p className={cn("m-0 mt-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+          Decision rule was not stored.
+        </p>
       ) : null}
     </section>
   );

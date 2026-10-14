@@ -143,7 +143,7 @@ internal static class DiagramForestDataFlowRollup
     {
         DiagramNode first = members[0];
         string typeCaption = DiagramNodeHumanCaptionFactory.TryFormatDataFlowTypeCaption(first)
-            ?? "resource";
+            ?? "Resource type was not stored";
         string title = $"{members.Count} {PluralizeTypeCaption(typeCaption)}";
         int used = members.Count(member => neighborIdsByNodeId[member.NodeId].Count > 0);
         string? statusLine = IsConsumerStatusResource(first.ArmResourceType)

@@ -14,6 +14,23 @@ namespace ArchLucid.Application.Tests.Pilots;
 public sealed class FindingTrustEvidenceCardMarkdownFormatterTests
 {
     [Fact]
+    public void AppendMarkdownSection_NullSeverity_UsesOmissionLabel()
+    {
+        StringBuilder sb = new();
+        PilotRunDeltas deltas = new()
+        {
+            TopFindingId = "f-null",
+            TopFindingSeverity = null,
+        };
+
+        FindingTrustEvidenceCardMarkdownFormatter.AppendMarkdownSection(sb, deltas, MinimalProof());
+
+        string md = sb.ToString();
+        md.Should().Contain("Severity was not stored.");
+        md.Should().NotContain("Unknown");
+    }
+
+    [Fact]
     public void AppendMarkdownSection_NoFinding_RendersExplicitSkip()
     {
         StringBuilder sb = new();

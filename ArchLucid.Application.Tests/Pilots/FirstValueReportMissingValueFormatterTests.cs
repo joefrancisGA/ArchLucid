@@ -3,6 +3,7 @@ using System.Text;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Pilots;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Explanation;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 
@@ -27,6 +28,29 @@ public sealed class FirstValueReportMissingValueFormatterTests
 
         markdown.ToString().Should().Contain("Time to committed manifest was not stored.");
         markdown.ToString().Should().NotContain("pending");
+    }
+
+    [Fact]
+    public void AppendEvidenceChainSection_labels_missing_severity_and_manifest_version()
+    {
+        StringBuilder markdown = new();
+        FirstValueReportTraceSectionFormatter.AppendEvidenceChainSection(
+            markdown,
+            new PilotRunDeltas
+            {
+                TopFindingId = "f-1",
+                TopFindingSeverity = null,
+                TopFindingEvidenceChain = new FindingEvidenceChainResponse
+                {
+                    ManifestVersion = null,
+                },
+            });
+
+        string text = markdown.ToString();
+        text.Should().Contain("Severity was not stored.");
+        text.Should().NotContain("`Unknown`");
+        text.Should().Contain("Manifest version was not stored.");
+        text.Should().NotContain("(none)");
     }
 
     [Fact]

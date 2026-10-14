@@ -550,7 +550,10 @@ public static class AzureInventoryAdfPipelineFlowExtractor
         List<AzureInventoryAdfPipelineFlowRow> flows,
         HashSet<string> flowKeys)
     {
-        string activityType = TryReadString(activity, "type") ?? "ExecuteDataFlow";
+        string? rawActivityType = TryReadString(activity, "type");
+        string activityType = rawActivityType is null
+            ? "Activity type was not stored"
+            : rawActivityType;
         string flowKey =
             $"{factoryResourceId}|{pipelineResourceId}|{activityName}|{flowDirection}|ls:{linkedServiceName}";
 

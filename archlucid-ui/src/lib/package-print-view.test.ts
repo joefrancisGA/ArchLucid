@@ -59,6 +59,27 @@ describe("package-print-view (TB-2205)", () => {
     expect(presentation.sponsorSynopsis).toContain("Payments edge");
   });
 
+  it("labels omitted finding and warning counts on sponsor synopsis", () => {
+    const synopsis = buildPackagePrintSponsorSynopsis(
+      summary({
+        findingCount: null,
+        warningCount: null,
+        displayName: "Payments edge",
+      }),
+    );
+
+    expect(synopsis).toContain("Finding count was not stored.");
+    expect(synopsis).toContain("Warning count was not stored.");
+    expect(synopsis).not.toContain("findings are available on the review");
+    expect(synopsis).not.toContain("No open approval-check warnings");
+  });
+
+  it("keeps no-warnings sentence when warning count is zero", () => {
+    const synopsis = buildPackagePrintSponsorSynopsis(summary({ warningCount: 0 }));
+
+    expect(synopsis).toContain("No open approval-check warnings");
+  });
+
   it("omits sponsor synopsis before finalize", () => {
     expect(
       buildPackagePrintSponsorSynopsis(

@@ -318,7 +318,7 @@ public sealed class SponsorOnePagerPdfBuilder(
 
         column.Column(c =>
         {
-            c.Item().Text($"Selected finding: {deltas.TopFindingId} (severity {deltas.TopFindingSeverity ?? "Unknown"}).");
+            c.Item().Text($"Selected finding: {deltas.TopFindingId} (severity {deltas.TopFindingSeverity ?? "Severity was not stored."}).");
             FindingEvidenceChainResponse? chain = deltas.TopFindingEvidenceChain;
             if (chain is null)
             {
@@ -326,7 +326,7 @@ public sealed class SponsorOnePagerPdfBuilder(
                 return;
             }
 
-            c.Item().Text($"Manifest version: {chain.ManifestVersion ?? "(none)"}");
+            c.Item().Text($"Manifest version: {chain.ManifestVersion ?? "Manifest version was not stored."}");
             c.Item().Text($"Findings snapshot: {FormatGuid(chain.FindingsSnapshotId, "Findings snapshot id was not stored.")} Â· context: {FormatGuid(chain.ContextSnapshotId, "Context snapshot id was not stored.")}");
             c.Item().Text($"Graph snapshot: {FormatGuid(chain.GraphSnapshotId, "Graph snapshot id was not stored.")} Â· decision trace: {FormatGuid(chain.DecisionTraceId, "Decision trace id was not stored.")}");
             c.Item().Text($"Golden manifest: {FormatGuid(chain.GoldenManifestId, "Golden manifest id was not stored.")}");

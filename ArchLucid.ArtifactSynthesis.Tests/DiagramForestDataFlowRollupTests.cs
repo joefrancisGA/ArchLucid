@@ -9,6 +9,46 @@ namespace ArchLucid.ArtifactSynthesis.Tests;
 public sealed class DiagramForestDataFlowRollupTests
 {
     [Fact]
+    public void Apply_uses_explicit_label_when_type_caption_is_missing()
+    {
+        const string consumerId = "consumer-app";
+        List<DiagramNode> nodes =
+        [
+            ..Enumerable.Range(0, 4).Select(index => new DiagramNode
+            {
+                NodeId = $"node-{index}",
+                Label = $"node-{index}",
+                NodeType = "TopologyResource",
+                SubgraphId = "source",
+                OrderKey = index,
+            }),
+            new DiagramNode
+            {
+                NodeId = consumerId,
+                Label = consumerId,
+                NodeType = "TopologyResource",
+                SubgraphId = "app",
+                OrderKey = 10,
+                ArmResourceType = "Microsoft.Web/sites",
+            },
+        ];
+        List<DiagramEdge> edges =
+        [
+            ..Enumerable.Range(0, 4).Select(index => new DiagramEdge
+            {
+                FromNodeId = $"node-{index}",
+                ToNodeId = consumerId,
+                Label = "uses",
+            }),
+        ];
+
+        DiagramForestDataFlowRollup.Result result = DiagramForestDataFlowRollup.Apply(nodes, edges);
+
+        DiagramNode rollup = result.Nodes.Single(node => node.IsDataFlowRollup);
+        rollup.Label.Should().Contain("Resource type was not stored");
+    }
+
+    [Fact]
     public void Apply_merges_parallel_rolled_up_edges_nsg_annotations_from_all_members()
     {
         const string consumerId = "consumer-app";
