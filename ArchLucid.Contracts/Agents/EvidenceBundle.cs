@@ -51,9 +51,11 @@ public sealed class EvidenceBundle
     }
 
     /// <summary>Arbitrary key/value pairs for additional evidence provenance or tagging.</summary>
+    private Dictionary<string, string> metadata = [];
+
     public Dictionary<string, string> Metadata
     {
-        get;
-        set;
-    } = [];
+        get => metadata;
+        set => metadata = ContractCollectionDefaults.CoalesceDictionary(value);
+    }
 }

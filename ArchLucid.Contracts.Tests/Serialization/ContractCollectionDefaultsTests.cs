@@ -18,4 +18,10 @@ public sealed class ContractCollectionDefaultsTests
     {
         ContractCollectionDefaults.CoalesceReadOnly<int>(null).Should().BeEmpty();
     }
+
+    [Fact]
+    public void CoalesceDictionary_maps_null_to_empty_dictionary()
+    {
+        ContractCollectionDefaults.CoalesceDictionary<string, string>(null).Should().BeEmpty();
+    }
 }

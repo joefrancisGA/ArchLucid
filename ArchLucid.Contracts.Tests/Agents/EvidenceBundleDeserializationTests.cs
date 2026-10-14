@@ -29,4 +29,20 @@ public sealed class EvidenceBundleDeserializationTests
         bundle.ServiceCatalogRefs.Should().NotBeNull().And.BeEmpty();
         bundle.PriorManifestRefs.Should().NotBeNull().And.BeEmpty();
     }
+
+    [Fact]
+    public void Deserialize_null_metadata_yields_empty_dictionary_not_null()
+    {
+        const string json = """
+            {
+              "evidenceBundleId": "eb1",
+              "requestDescription": "req",
+              "metadata": null
+            }
+            """;
+
+        EvidenceBundle bundle = JsonSerializer.Deserialize<EvidenceBundle>(json, ContractJson.Default)!;
+
+        bundle.Metadata.Should().NotBeNull().And.BeEmpty();
+    }
 }
