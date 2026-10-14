@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-14 seed hunt (seed-only): `ui-form-validation` (#9) — cheap-disproof closed five open `(candidate)` rows below against existing regressions; seeded five follow-on `(candidate)` rows; 112 scoped SignupForm vitest tests passed; no production or test code changed.
+
 2026-10-14 seed hunt (seed-only): `ui-form-validation` (#8) — cheap-disproof closed five open `(candidate)` rows below against existing regressions; seeded five follow-on `(candidate)` rows; 112 scoped SignupForm vitest tests passed; no production or test code changed.
 
 2026-10-14 seed hunt (seed-only): `ui-form-validation` (#7) — cheap-disproof closed five open `(candidate)` rows below against existing regressions; seeded five follow-on `(candidate)` rows; 112 scoped SignupForm vitest tests passed; no production or test code changed.
@@ -6324,17 +6326,25 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 2026-10-14 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below against existing regressions; seeded five follow-on `(candidate)` rows; 112 scoped SignupForm vitest tests passed; no production or test code changed.
 
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — HTTP `200 OK` register response still navigates to verify — **cheap-disproof 2026-10-14 seed hunt #9:** `res.ok` gate; regression `navigates to verify on HTTP 200 when register response is ok`.
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — plus-addressed work email encoded once in verify redirect query — **cheap-disproof 2026-10-14 seed hunt #9:** single `encodeURIComponent`; regression `encodes plus-addressed email in the verify redirect query`.
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — still navigates when `sessionStorage.setItem` throws during success handling — **cheap-disproof 2026-10-14 seed hunt #9:** swallowed storage errors; regression `still navigates when sessionStorage.setItem throws during success handling`.
+- [x] (valid-no-repro) `SignupForm` — invalid email keeps submit disabled and does not call register `fetch` — **cheap-disproof 2026-10-14 seed hunt #9:** `canSubmit` gate; regressions `shows inline email validation without a toast and keeps submit disabled` and `shows inline validation on keyboard submit without calling fetch`.
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — HTTP `201` with JSON `null` body still navigates to verify — **cheap-disproof 2026-10-14 seed hunt #9:** parse yields null but `res.ok` drives success; regression `still navigates after 201 when register response body is JSON null`.
+
+- [ ] (candidate) `SignupForm` `onSubmit` — malformed JSON `201` body still navigates to verify — locus: `JSON.parse` catch + `res.ok` (`SignupForm.tsx` ~151–175).
+- [ ] (candidate) `SignupForm` `onSubmit` — whitespace-only `201` response body still navigates — locus: non-JSON whitespace skip (`SignupForm.tsx` ~151–155).
+- [ ] (candidate) `SignupForm` `onSubmit` — non-JSON HTML error response surfaces raw body text in toast — locus: `!res.ok` detail fallback (`SignupForm.tsx` ~165–170).
+- [ ] (candidate) `SignupForm` `onSubmit` — subdomain work email encoded once in verify redirect query — locus: `encodeURIComponent` (`SignupForm.tsx` ~201).
+- [ ] (candidate) `SignupForm` — fractional optional architecture team size blocks submit without register `fetch` — locus: `signupFormSchema` + `canSubmit` (`SignupForm.tsx` ~105–106).
+
+2026-10-14 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below against existing regressions; seeded five follow-on `(candidate)` rows; 112 scoped SignupForm vitest tests passed; no production or test code changed.
+
 - [x] (valid-no-repro) `SignupForm` `onSubmit` — `router.push` throw after successful register surfaces error toast without duplicate POST — **cheap-disproof 2026-10-14 seed hunt #8:** success-path `catch`; regression `surfaces signup error when navigation throws after successful register`.
 - [x] (valid-no-repro) `SignupForm` `onSubmit` — HTTP `204 No Content` with empty body still navigates to verify — **cheap-disproof 2026-10-14 seed hunt #8:** `res.ok` gate; regression `still navigates after 204 when register response has no body`.
 - [x] (valid-no-repro) `SignupForm` — blocks second submit while register request is in flight (`Creating…` disabled) — **cheap-disproof 2026-10-14 seed hunt #8:** `registerInFlightRef` + `submitting`; regressions `disables submit and shows Creating while register request is in flight` and `does not fire a second register request when the form is submitted again while in flight`.
 - [x] (valid-no-repro) `SignupForm` `onSubmit` — still posts register when first-touch cookie JSON is malformed — **cheap-disproof 2026-10-14 seed hunt #8:** attribution must not block signup; regression `still posts register when first-touch cookie JSON is malformed`.
 - [x] (valid-no-repro) `SignupForm` `onSubmit` — persists `wasAlreadyProvisioned` in `archlucid_last_registration` when tenant ids omitted — **cheap-disproof 2026-10-14 seed hunt #8:** best-effort session JSON; regression `persists wasAlreadyProvisioned flag without tenant ids when register response omits tenantId`.
-
-- [ ] (candidate) `SignupForm` `onSubmit` — HTTP `200 OK` register response still navigates to verify — locus: `res.ok` (`SignupForm.tsx` ~175–201).
-- [ ] (candidate) `SignupForm` `onSubmit` — plus-addressed work email encoded once in verify redirect query — locus: `encodeURIComponent` (`SignupForm.tsx` ~201).
-- [ ] (candidate) `SignupForm` `onSubmit` — still navigates when `sessionStorage.setItem` throws during success handling — locus: swallowed storage errors (`SignupForm.tsx` ~178–197).
-- [ ] (candidate) `SignupForm` — invalid email keeps submit disabled and does not call register `fetch` — locus: `canSubmit` gate (`SignupForm.tsx` ~105–106, ~371).
-- [ ] (candidate) `SignupForm` `onSubmit` — HTTP `201` with JSON `null` body still navigates to verify — locus: parse + `res.ok` (`SignupForm.tsx` ~151–175).
 
 2026-10-14 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below against existing regressions; seeded five follow-on `(candidate)` rows; 112 scoped SignupForm vitest tests passed; no production or test code changed.
 
