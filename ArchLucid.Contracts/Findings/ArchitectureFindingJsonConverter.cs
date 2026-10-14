@@ -121,8 +121,7 @@ public sealed class ArchitectureFindingJsonConverter : JsonConverter<Architectur
     private static void ReadInsightDensityFields(JsonElement root, ArchitectureFinding finding)
     {
         if (TryGetPropertyIgnoreCase(root, "insightDensityScore", out JsonElement scoreElement) &&
-            scoreElement.ValueKind == JsonValueKind.Number &&
-            scoreElement.TryGetInt32(out int insightDensityScore))
+            DefinedEnumStringReader.TryReadWholeNumberInt32(scoreElement, out int insightDensityScore))
         {
             finding.InsightDensityScore = insightDensityScore;
         }

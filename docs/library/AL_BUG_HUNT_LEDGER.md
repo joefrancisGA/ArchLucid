@@ -29063,6 +29063,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 ---
 ## Zone: archlucid-contracts
 
+2026-10-14 seed hunt (seed→hit): promoted whole-number double `insightDensityScore` on `ArchitectureFindingJsonConverter` (`82.0` was ignored while integer `82` worked); `DefinedEnumStringReader.TryReadWholeNumberInt32`; regression `Deserialize_whole_number_double_insight_density_score_maps_integer`; 529 scoped `Contracts` filter tests passed.
+
 2026-10-14 seed hunt (seed→hit): promoted whole-number double `kind` discriminator on `DecisionTraceDtoJsonConverter` (`0.0` threw via `JsonElement.GetInt32` while integer `0` worked); `DefinedEnumStringReader.TryReadDefinedOrdinal`; regression `Deserialize_whole_number_double_kind_maps_run_event_trace`; 528 scoped `Contracts` filter tests passed.
 
 2026-10-14 seed hunt (seed→hit): promoted whole-number double JSON ordinals on dedicated `*JsonConverter` types (`1.0` threw via `GetInt32` while integer `1` worked); `DefinedEnumStringReader.ReadNumberTokenAsDefinedOrdinal`; regression `Read_maps_whole_number_double_ordinal` on `AgentTypeJsonConverter`; 527 scoped `Contracts` filter tests passed.
@@ -29093,11 +29095,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 54
-- **bugs-found:** 34
+- **hunts:** 55
+- **bugs-found:** 35
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-14
-- **last-bug:** 2026-10-14 — decision trace `kind` rejected whole-number double ordinals
+- **last-bug:** 2026-10-14 — architecture finding `insightDensityScore` ignored whole-number doubles
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -29119,6 +29121,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ### Hypotheses
 
+- [x] (proven) `ArchitectureFindingJsonConverter` `insightDensityScore` — whole-number double values such as `82.0` were ignored while integer `82` deserialized — **hit 2026-10-14 seed hunt:** agent architecture-finding JSON can carry double-encoded scores; fixed via `DefinedEnumStringReader.TryReadWholeNumberInt32`; regression `Deserialize_whole_number_double_insight_density_score_maps_integer`.
 - [x] (proven) `DecisionTraceDtoJsonConverter` `kind` discriminator — whole-number double ordinals such as `0.0` failed `JsonElement.GetInt32` while integer `0` deserialized — **hit 2026-10-14 seed hunt:** persisted decision-trace JSON can carry double-encoded discriminators; fixed via `DefinedEnumStringReader.TryReadDefinedOrdinal`; regression `Deserialize_whole_number_double_kind_maps_run_event_trace`.
 - [x] (proven) Dedicated contract enum `*JsonConverter` numeric paths — whole-number double ordinals such as `1.0` failed `Utf8JsonReader.GetInt32` while integer `1` deserialized — **hit 2026-10-14 seed hunt:** agent and API JSON can carry whole doubles for enum ordinals; fixed via shared `DefinedEnumStringReader.ReadNumberTokenAsDefinedOrdinal` across dedicated converters; regression `Read_maps_whole_number_double_ordinal`.
 - (candidate) `InfrastructureDiagramComparisonCreateRequest.Sources` — public comparison-create JSON can send `"sources": null` and replace the initialized list; if the orchestration enumerates without normalizing null, a valid request can fail or be treated as an empty comparison. Reachability: API request payload for the recently added infrastructure-diagram comparison endpoint.
