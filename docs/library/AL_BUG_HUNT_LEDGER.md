@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-14 seed hunt (seed→hit): `archlucid-contracts` — promoted `SponsorRoiBoardPackFormat` on `SponsorRoiBoardPackExportResult.Format` accepting undefined numeric ordinals such as `99` on board-pack export JSON via `ContractJson.Default`; `DefinedEnumJsonConverter<SponsorRoiBoardPackFormat>`; regressions `SponsorRoiBoardPackFormatDeserializationTests`; 667 scoped `Contracts` filter tests passed.
+
 2026-10-14 seed hunt (seed→hit): `archlucid-contracts` — promoted `PilotRoiBaselineInputBasis` on `PilotRoiBaselineInputsStatusResponse` (including nested `ProofPackageCompletenessResponse.RoiBaselineInputs`) accepting undefined numeric ordinals such as `99` via `ContractJson.Default`; `DefinedEnumJsonConverter<PilotRoiBaselineInputBasis>`; regressions `PilotRoiBaselineInputBasisDeserializationTests`; 664 scoped `Contracts` filter tests passed.
 
 2026-10-14 seed hunt (seed→hit): `archlucid-contracts` — promoted `ReviewCycleBaselineProvenance` on `ValueReportSnapshot` accepting undefined numeric ordinals such as `99` on sponsor value-report JSON via `ContractJson.Default`; `DefinedEnumJsonConverter<ReviewCycleBaselineProvenance>`; regressions `ReviewCycleBaselineProvenanceDeserializationTests`; cheap-disproof closed `SponsorRoiClaimDisposition` as `(invalid)` (derived in formatters, not a JSON field); 661 scoped `Contracts` filter tests passed.
@@ -29095,6 +29097,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 ---
 ## Zone: archlucid-contracts
 
+2026-10-14 seed hunt (seed→hit): promoted `SponsorRoiBoardPackFormat` undefined ordinals on board-pack export JSON; `DefinedEnumJsonConverter<SponsorRoiBoardPackFormat>`; regressions `SponsorRoiBoardPackFormatDeserializationTests`; 667 scoped `Contracts` filter tests passed.
+
 2026-10-14 seed hunt (seed→hit): promoted `PilotRoiBaselineInputBasis` undefined ordinals on ROI baseline inputs JSON; `DefinedEnumJsonConverter<PilotRoiBaselineInputBasis>`; regressions `PilotRoiBaselineInputBasisDeserializationTests`; 664 scoped `Contracts` filter tests passed.
 
 2026-10-14 seed hunt (seed→hit): promoted `ReviewCycleBaselineProvenance` undefined ordinals on `ValueReportSnapshot` JSON; `DefinedEnumJsonConverter<ReviewCycleBaselineProvenance>`; regressions `ReviewCycleBaselineProvenanceDeserializationTests`; 661 scoped `Contracts` filter tests passed.
@@ -29187,11 +29191,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 87
-- **bugs-found:** 67
+- **hunts:** 88
+- **bugs-found:** 68
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-14
-- **last-bug:** 2026-10-14 — `PilotRoiBaselineInputBasis` undefined ordinal on proof-package ROI baseline JSON
+- **last-bug:** 2026-10-14 — `SponsorRoiBoardPackFormat` undefined ordinal on board-pack export JSON
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -29244,7 +29248,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (invalid) `SponsorRoiClaimDisposition` on sponsor ROI value-report contract rows — **cheap-disproof 2026-10-14 seed hunt:** disposition is computed from `ReviewCycleBaselineProvenance` in `SponsorRoiClaimDispositionRules` / formatters, not serialized on `ValueReportSnapshot` or other contract DTOs.
 - [x] (proven) `ReviewCycleBaselineProvenance` on `ValueReportSnapshot.ReviewCycleBaselineProvenance` — undefined numeric ordinals such as `99` deserialized without `JsonException` — **hit 2026-10-14 seed hunt:** fixed with `DefinedEnumJsonConverter<ReviewCycleBaselineProvenance>`; regressions `ReviewCycleBaselineProvenanceDeserializationTests`.
 - [x] (proven) `PilotRoiBaselineInputBasis` on `PilotRoiBaselineInputsStatusResponse` — undefined numeric ordinals such as `99` deserialized without `JsonException` (standalone and nested under `ProofPackageCompletenessResponse.RoiBaselineInputs`) — **hit 2026-10-14 seed hunt:** fixed with `DefinedEnumJsonConverter<PilotRoiBaselineInputBasis>`; regressions `PilotRoiBaselineInputBasisDeserializationTests`.
-- (candidate) `SponsorRoiBoardPackFormat` on sponsor board-pack export request DTOs — export JSON can carry undefined numeric ordinals on `format` because the enum has no `DefinedEnumJsonConverter`. Reachability: `ArchLucid.Contracts.Roi` board-pack contract payloads deserialized via `ContractJson.Default`.
+- [x] (proven) `SponsorRoiBoardPackFormat` on `SponsorRoiBoardPackExportResult.Format` — undefined numeric ordinals such as `99` deserialized without `JsonException` — **hit 2026-10-14 seed hunt:** fixed with `DefinedEnumJsonConverter<SponsorRoiBoardPackFormat>`; regressions `SponsorRoiBoardPackFormatDeserializationTests`.
+- (candidate) `RoiMetricSourceKind` on `RoiMetricSourceRow` — ROI metric provenance JSON can carry undefined numeric ordinals on `sourceKind` because the enum has no `DefinedEnumJsonConverter`. Reachability: `ArchLucid.Contracts.Roi` metric source rows deserialized via `ContractJson.Default` on sponsor-facing ROI exports.
 - (candidate) `DiagramInfrastructureEdgeGapRow.GapKind` — reconciliation output can carry an arbitrary string such as `"PresentNotDrawn "` or an unknown value even though the contract publishes two constants; a client that switches on exact gap-kind values may render a real edge gap as unknown. Reachability: server-generated reconciliation response consumed by the diagram comparison UI.
 - (candidate) `DiagramSourceReference.Content` — a comparison-create request can provide a named source with a supported format but empty content, and the contract accepts it as a valid source; the comparison may silently produce an empty diagram instead of rejecting or reporting the unusable source. Reachability: API request payload for the infrastructure-diagram comparison endpoint.
 - (candidate) `ArchitectureDiagramNodeRecord.Kind` — diagram-node JSON accepts arbitrary kind strings such as `"service "` even though the contract publishes `user`, `system`, `external`, and `boundary`; exact-value renderers may classify a real node as unknown. Reachability: architecture diagram node payload consumed by the diagram UI.
