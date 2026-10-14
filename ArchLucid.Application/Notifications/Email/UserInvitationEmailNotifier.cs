@@ -144,8 +144,10 @@ public sealed class UserInvitationEmailNotifier(
 
     private static string FormatPersonalMessageText(string personalMessage)
     {
+        string sanitizedMessage = EmailHeaderFragmentSanitizer.Sanitize(personalMessage);
+
         return PersonalMessageMarkdownLinkRegex.Replace(
-            personalMessage,
+            sanitizedMessage,
             static match =>
             {
                 string label = match.Groups["label"].Value;
