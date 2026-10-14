@@ -228,16 +228,8 @@ public static class RunExplanationConfidenceCalloutBuilder
         if (item.ValueKind != JsonValueKind.Object)
             return 0;
 
-        foreach (string propertyName in new[] { "id", "text" })
-        {
-            if (RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitivePreferLastNonEmpty(item, propertyName, out JsonElement property)
-                && RunExplanationAggregateJsonReader.TryReadNonEmptyTextToken(property, out string? value)
-                && !string.IsNullOrWhiteSpace(value))
-            {
-                return 1;
-            }
-        }
-
-        return 0;
+        return string.IsNullOrWhiteSpace(RunExplanationAggregateJsonReader.TryReadEvidenceRefObjectStringProperty(item))
+            ? 0
+            : 1;
     }
 }
