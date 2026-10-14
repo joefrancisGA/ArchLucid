@@ -284,6 +284,19 @@ internal static class PrivilegePathEnumerator
                 actionEdge = descendantControlToData;
                 return true;
             }
+
+            PrivilegePathEdge? appSettingsCredentialRead = fromEdges
+                .Where(edge =>
+                    edge.EdgeType == GraphEdgeTypes.CanRead
+                    && IsAppSettingsConnectionStringConversion(edge.InferenceSource))
+                .OrderBy(static edge => edge.ToNodeId, StringComparer.OrdinalIgnoreCase)
+                .FirstOrDefault();
+
+            if (appSettingsCredentialRead is not null)
+            {
+                actionEdge = appSettingsCredentialRead;
+                return true;
+            }
         }
 
         if (graph.OutgoingEdges.TryGetValue(hasRoleHop.ToNodeId, out List<PrivilegePathEdge>? toEdges))
@@ -503,6 +516,17 @@ internal static class PrivilegePathEnumerator
             + GraphEdgeInferenceSources.InferenceSourceQualifierSeparator;
 
         return inferenceSource.StartsWith(prefix, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool IsAppSettingsConnectionStringConversion(string? inferenceSource)
+    {
+        if (!GraphEdgeInferenceSources.TrySplitQualifier(inferenceSource, out string baseSource, out string? qualifier))
+        {
+            return false;
+        }
+
+        return baseSource.Equals(GraphEdgeInferenceSources.InventoryControlToDataConversion, StringComparison.OrdinalIgnoreCase)
+            && string.Equals(qualifier, "app-settings-connection-string", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool IsGlobalAdminElevationGrantRole(string? inferenceSource)

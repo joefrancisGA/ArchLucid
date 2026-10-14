@@ -191,12 +191,17 @@ public static class AzureInventoryControlToDataConversionEdgeMapper
         string resourceType,
         IReadOnlyDictionary<string, string>? properties)
     {
-        if (!AzureInventoryWebSiteCodeDeployment.IsCodeDeploymentResourceType(resourceType))
+        if (!AzureInventoryCodeDeploymentTargets.IsCodeDeploymentResourceType(resourceType))
         {
             return;
         }
 
         if (!AzureInventoryRuntimeIdentityReader.HasRuntimeIdentity(properties))
+        {
+            return;
+        }
+
+        if (!AzureInventoryCodeDeploymentTargets.TryGetCodeDeploymentInferenceQualifier(resourceType, out string qualifier))
         {
             return;
         }
@@ -211,7 +216,7 @@ public static class AzureInventoryControlToDataConversionEdgeMapper
             DerivedFactConfidence,
             GraphEdgeInferenceSources.WithQualifier(
                 GraphEdgeInferenceSources.InventoryControlToDataConversion,
-                "site-code-deploy"));
+                qualifier));
     }
 
     private static void AddRelationship(
