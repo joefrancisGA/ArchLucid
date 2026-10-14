@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Agents;
 
 /// <summary>
@@ -32,19 +34,23 @@ public sealed class PatternEvidence
     ///     Required capabilities from <see cref="RequestEvidence.RequiredCapabilities" /> that
     ///     this pattern directly addresses.
     /// </summary>
+    private List<string> applicableCapabilities = [];
+
     public List<string> ApplicableCapabilities
     {
-        get;
-        set;
-    } = [];
+        get => applicableCapabilities;
+        set => applicableCapabilities = ContractCollectionDefaults.Coalesce(value);
+    }
 
     /// <summary>
     ///     Canonical service types or names typically used when implementing this pattern
     ///     (e.g., <c>Azure Service Bus</c>, <c>Azure Event Grid</c>).
     /// </summary>
+    private List<string> suggestedServices = [];
+
     public List<string> SuggestedServices
     {
-        get;
-        set;
-    } = [];
+        get => suggestedServices;
+        set => suggestedServices = ContractCollectionDefaults.Coalesce(value);
+    }
 }
