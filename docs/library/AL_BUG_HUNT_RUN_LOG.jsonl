@@ -1,16 +1,3 @@
-{"at":"2026-09-14T20:14:12.8180132Z","zoneId":"core-costing","outcome":"hit"}
-{"at":"2026-09-14T20:14:17.2614338Z","zoneId":"tenant-data-export","outcome":"seed-only"}
-{"at":"2026-09-14T20:14:21.7210735Z","zoneId":"persistence-identity","outcome":"seed-only"}
-{"at":"2026-09-14T20:15:59.1352344Z","zoneId":"topology-proposal-merge","outcome":"hit"}
-{"at":"2026-09-14T20:16:03.9963801Z","zoneId":"context-ingestion","outcome":"seed-only"}
-{"at":"2026-09-14T20:17:14.0689272Z","zoneId":"core-costing","outcome":"hit"}
-{"at":"2026-09-14T20:17:17.934171Z","zoneId":"tenant-data-export","outcome":"seed-only"}
-{"at":"2026-09-14T20:17:21.7208627Z","zoneId":"persistence-identity","outcome":"seed-only"}
-{"at":"2026-09-14T20:19:00.1580608Z","zoneId":"topology-proposal-merge","outcome":"hit"}
-{"at":"2026-09-14T20:19:04.3574412Z","zoneId":"context-ingestion","outcome":"seed-only"}
-{"at":"2026-09-14T20:20:13.8501474Z","zoneId":"core-costing","outcome":"hit"}
-{"at":"2026-09-14T20:20:17.7724946Z","zoneId":"tenant-data-export","outcome":"seed-only"}
-{"at":"2026-09-14T20:20:21.5933842Z","zoneId":"persistence-identity","outcome":"seed-only"}
 {"at":"2026-09-14T22:13:57.4694876Z","zoneId":"topology-proposal-merge","outcome":"hit"}
 {"at":"2026-09-14T22:16:54.3798427Z","zoneId":"context-ingestion","outcome":"seed-only"}
 {"at":"2026-09-14T22:19:05.8252372Z","zoneId":"core-costing","outcome":"hit"}
@@ -8484,3 +8471,4 @@
 {"at":"2026-10-14T20:05:03.1556805Z","zoneId":"notifications-pipeline","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Notifications/,ArchLucid.Application/Notifications/"]}
 {"at":"2026-10-14T20:09:19.6702713Z","zoneId":"notifications-pipeline","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Notifications/,ArchLucid.Application/Notifications/"]}
 {"at":"2026-10-14T20:14:09.5123551Z","zoneId":"notifications-pipeline","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Notifications/,ArchLucid.Application/Notifications/"]}
+{"at":"2026-10-14T20:24:35.8414887Z","zoneId":"notifications-pipeline","outcome":"hit","productLine":"archlucid-shared"}
