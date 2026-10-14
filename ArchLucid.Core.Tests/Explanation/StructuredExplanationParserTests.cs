@@ -1100,6 +1100,18 @@ public sealed class StructuredExplanationParserTests
     }
 
     [Fact]
+    public void RunExplanation_structured_json_keeps_caveats_when_later_case_variant_is_multi_entry_object_prose_poison_array()
+    {
+        const string json =
+            """{"reasoning":"Main","caveats":["Latency risk"],"CAVEATS":[{"text":"Spoof one"},{"text":"Spoof two"}]}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Caveats.Should().Equal("Latency risk");
+    }
+
+    [Fact]
     public void RunExplanation_structured_json_keeps_evidence_refs_when_later_case_variant_is_supported_ref_token_poison_array()
     {
         const string json =

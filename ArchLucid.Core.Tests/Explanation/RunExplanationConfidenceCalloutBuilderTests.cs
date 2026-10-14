@@ -1456,6 +1456,24 @@ public sealed class RunExplanationConfidenceCalloutBuilderTests
     }
 
     [Fact]
+    public void RunExplanation_FromAggregateJson_keeps_faithfulness_warning_when_later_duplicate_is_multi_entry_prose_poison_array()
+    {
+        RunExplanationConfidenceSignals? signals = RunExplanationConfidenceCalloutBuilder.FromAggregateJson(
+            """
+            {
+              "faithfulnessSupportRatio": 0.95,
+              "faithfulnessWarning": "Citations incomplete",
+              "FAITHFULNESSWARNING": [ "spoof-a", "spoof-b" ],
+              "citations": 1
+            }
+            """);
+
+        signals.Should().NotBeNull();
+        signals!.FaithfulnessWarning.Should().Be("Citations incomplete");
+        RunExplanationConfidenceCalloutBuilder.ResolveDisposition(signals).Should().Be("WARN");
+    }
+
+    [Fact]
     public void RunExplanation_FromAggregateJson_keeps_unresolved_issue_count_when_later_duplicate_is_one_string_poison_array()
     {
         using JsonDocument document = JsonDocument.Parse(
@@ -1478,6 +1496,15 @@ public sealed class RunExplanationConfidenceCalloutBuilderTests
     {
         using JsonDocument document = JsonDocument.Parse(
             """{"riskPosture":"elevated","RISKPOSTURE":["moderate"]}""");
+
+        RunExplanationRiskCalloutBuilder.TryParseRiskPosture(document.RootElement).Should().Be("elevated");
+    }
+
+    [Fact]
+    public void RunExplanation_FromAggregateJson_keeps_risk_posture_when_later_duplicate_is_multi_entry_prose_poison_array()
+    {
+        using JsonDocument document = JsonDocument.Parse(
+            """{"riskPosture":"elevated","RISKPOSTURE":["spoof-a","spoof-b"]}""");
 
         RunExplanationRiskCalloutBuilder.TryParseRiskPosture(document.RootElement).Should().Be("elevated");
     }

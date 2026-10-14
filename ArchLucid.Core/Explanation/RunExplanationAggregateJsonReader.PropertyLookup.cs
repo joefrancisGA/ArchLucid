@@ -593,7 +593,15 @@ internal static partial class RunExplanationAggregateJsonReader
             return false;
 
         if (!ArrayHasSingleNonNullEntry(parentArray))
+        {
+            if (item.ValueKind == JsonValueKind.String
+                && !string.IsNullOrWhiteSpace(item.GetString()))
+            {
+                return true;
+            }
+
             return false;
+        }
 
         if (item.ValueKind == JsonValueKind.String
             && !string.IsNullOrWhiteSpace(item.GetString()))
