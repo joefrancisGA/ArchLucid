@@ -29063,6 +29063,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 ---
 ## Zone: archlucid-contracts
 
+2026-10-14 seed hunt (seed→hit): promoted `ActorKind` `JsonStringEnumConverter` undefined-ordinal acceptance; `DefinedEnumJsonConverter<ActorKind>`; regressions `ActorKindJsonConverterTests`; 561 scoped `Contracts` filter tests passed.
+
 2026-10-14 seed hunt (seed→hit): promoted `ElicitationQuestionTier` `JsonStringEnumConverter` undefined-ordinal acceptance; `DefinedEnumJsonConverter<ElicitationQuestionTier>`; regressions `ElicitationQuestionTierJsonConverterTests`; 556 scoped `Contracts` filter tests passed.
 
 2026-10-14 seed hunt (seed→hit): promoted `ElicitationAnswerKind` `JsonStringEnumConverter` undefined-ordinal acceptance; consolidated contract enum deserialization via `DefinedEnumJsonConverter<TEnum>` / `ReadContractEnum` (refactored finding enum converters to thin subclasses); regressions `ElicitationAnswerKindJsonConverterTests`; 551 scoped `Contracts` filter tests passed.
@@ -29107,11 +29109,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 61
-- **bugs-found:** 41
+- **hunts:** 62
+- **bugs-found:** 42
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-14
-- **last-bug:** 2026-10-14 — `ElicitationQuestionTier` accepted undefined ordinals via `JsonStringEnumConverter`
+- **last-bug:** 2026-10-14 — `ActorKind` accepted undefined ordinals via `JsonStringEnumConverter`
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -29133,6 +29135,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ### Hypotheses
 
+- [x] (proven) `ActorKind` type-level `JsonStringEnumConverter` — numeric and string-encoded ordinals such as `99` and `"99"` deserialized without `JsonException` — **hit 2026-10-14 seed hunt:** architecture actor contract JSON deserializes kind via the enum attribute; fixed with `DefinedEnumJsonConverter<ActorKind>`; regressions `ActorKindJsonConverterTests`.
 - [x] (proven) `ElicitationQuestionTier` type-level `JsonStringEnumConverter` — numeric and string-encoded ordinals such as `99` and `"99"` deserialized without `JsonException` — **hit 2026-10-14 seed hunt:** elicitation question metadata deserializes tier via the enum attribute; fixed with `DefinedEnumJsonConverter<ElicitationQuestionTier>`; regressions `ElicitationQuestionTierJsonConverterTests`.
 - [x] (proven) `ElicitationAnswerKind` type-level `JsonStringEnumConverter` — numeric and string-encoded ordinals such as `99` and `"99"` deserialized without `JsonException` — **hit 2026-10-14 seed hunt:** elicitation draft/question payloads deserialize answer kind via the enum attribute; fixed with shared `DefinedEnumJsonConverter<ElicitationAnswerKind>`; regressions `ElicitationAnswerKindJsonConverterTests`.
 - [x] (proven) `FindingInsightSignalKind` type-level `JsonStringEnumConverter` — numeric and string-encoded ordinals such as `99` and `"99"` deserialized without `JsonException` — **hit 2026-10-14 seed hunt:** insight-density instrumentation DTOs deserialize via the enum attribute; fixed with dedicated `FindingInsightSignalKindJsonConverter`; regressions `FindingInsightSignalKindJsonConverterTests`.
