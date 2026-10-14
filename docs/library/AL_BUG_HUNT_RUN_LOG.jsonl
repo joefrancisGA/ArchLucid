@@ -1,16 +1,3 @@
-{"at":"2026-09-14T19:56:55.4050618Z","zoneId":"topology-proposal-merge","outcome":"hit"}
-{"at":"2026-09-14T19:56:59.7539582Z","zoneId":"context-ingestion","outcome":"hit"}
-{"at":"2026-09-14T19:57:04.656032Z","zoneId":"core-costing","outcome":"hit"}
-{"at":"2026-09-14T19:57:18.4177008Z","zoneId":"tenant-data-export","outcome":"seed-only"}
-{"at":"2026-09-14T19:57:21.0419685Z","zoneId":"persistence-identity","outcome":"seed-only"}
-{"at":"2026-09-14T19:57:25.5457296Z","zoneId":"topology-proposal-merge","outcome":"hit"}
-{"at":"2026-09-14T19:57:30.0526481Z","zoneId":"context-ingestion","outcome":"hit"}
-{"at":"2026-09-14T19:57:34.9523421Z","zoneId":"core-costing","outcome":"hit"}
-{"at":"2026-09-14T19:57:37.6043534Z","zoneId":"tenant-data-export","outcome":"seed-only"}
-{"at":"2026-09-14T19:57:40.1769733Z","zoneId":"persistence-identity","outcome":"seed-only"}
-{"at":"2026-09-14T19:57:44.452122Z","zoneId":"topology-proposal-merge","outcome":"hit"}
-{"at":"2026-09-14T19:57:48.691381Z","zoneId":"context-ingestion","outcome":"hit"}
-{"at":"2026-09-14T19:57:53.4730319Z","zoneId":"core-costing","outcome":"hit"}
 {"at":"2026-09-14T20:10:45.4085643Z","zoneId":"topology-proposal-merge","outcome":"hit"}
 {"at":"2026-09-14T20:11:27.4348779Z","zoneId":"context-ingestion","outcome":"seed-only"}
 {"at":"2026-09-14T20:13:00.5677051Z","zoneId":"context-ingestion","outcome":"seed-only"}
@@ -8496,3 +8483,4 @@
 {"at":"2026-10-14T19:45:03.2477748Z","zoneId":"application-pilots","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Pilots/"]}
 {"at":"2026-10-14T19:52:23.280277Z","zoneId":"notifications-pipeline","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Notifications/,ArchLucid.Application/Notifications/"]}
 {"at":"2026-10-14T19:56:54.5951923Z","zoneId":"notifications-pipeline","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Notifications/,ArchLucid.Application/Notifications/"]}
+{"at":"2026-10-14T20:01:06.8133311Z","zoneId":"notifications-pipeline","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Notifications/,ArchLucid.Application/Notifications/"]}
