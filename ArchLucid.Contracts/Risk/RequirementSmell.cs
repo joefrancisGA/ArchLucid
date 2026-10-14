@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Risk;
 
 public sealed class RequirementSmell
@@ -20,9 +22,11 @@ public sealed class RequirementSmell
         set;
     } = null!;
 
+    private List<string> evidenceRefs = [];
+
     public List<string> EvidenceRefs
     {
-        get;
-        set;
-    } = [];
+        get => evidenceRefs;
+        set => evidenceRefs = ContractCollectionDefaults.Coalesce(value);
+    }
 }

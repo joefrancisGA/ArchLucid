@@ -43,4 +43,22 @@ public sealed class RequirementSmellDeserializationTests
 
         smell.Kind.Should().Be(RequirementSmellKind.CostInfeasible);
     }
+
+    [Fact]
+    public void Deserialize_null_evidence_refs_yields_empty_list_not_null()
+    {
+        const string json = """
+            {
+              "requirementId": "req-1",
+              "kind": 0,
+              "rationale": "test",
+              "evidenceRefs": null
+            }
+            """;
+
+        RequirementSmell smell = JsonSerializer.Deserialize<RequirementSmell>(json, ContractJson.Default)!;
+
+        smell.EvidenceRefs.Should().NotBeNull();
+        smell.EvidenceRefs.Should().BeEmpty();
+    }
 }
