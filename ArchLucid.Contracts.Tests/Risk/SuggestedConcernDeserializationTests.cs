@@ -79,4 +79,23 @@ public sealed class SuggestedConcernDeserializationTests
         concern.Consequence.Should().Be(RiskConsequence.High);
         concern.Reversibility.Should().Be(ReversibilityClass.Costly);
     }
+
+    [Fact]
+    public void Deserialize_null_related_fact_refs_yields_empty_list_not_null()
+    {
+        const string json = """
+            {
+              "statement": "Test concern",
+              "relatedFactRefs": null,
+              "source": 0,
+              "consequence": 0,
+              "reversibility": 0
+            }
+            """;
+
+        SuggestedConcern concern = JsonSerializer.Deserialize<SuggestedConcern>(json, ContractJson.Default)!;
+
+        concern.RelatedFactRefs.Should().NotBeNull();
+        concern.RelatedFactRefs.Should().BeEmpty();
+    }
 }

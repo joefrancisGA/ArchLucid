@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Risk;
 
 public sealed class ArchitectureTradeoff
@@ -27,17 +29,21 @@ public sealed class ArchitectureTradeoff
         set;
     } = null!;
 
+    private List<string> evidenceNodeIds = [];
+
     public List<string> EvidenceNodeIds
     {
-        get;
-        set;
-    } = [];
+        get => evidenceNodeIds;
+        set => evidenceNodeIds = ContractCollectionDefaults.Coalesce(value);
+    }
+
+    private List<string> evidenceFindingIds = [];
 
     public List<string> EvidenceFindingIds
     {
-        get;
-        set;
-    } = [];
+        get => evidenceFindingIds;
+        set => evidenceFindingIds = ContractCollectionDefaults.Coalesce(value);
+    }
 
     /// <summary>L0 pillar answer key that explicitly accepts the sacrifice, if any.</summary>
     public string? AcknowledgedByAnswerKey

@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-14 seed hunt (seed→hit): `archlucid-contracts` — promoted `SuggestedConcern.RelatedFactRefs` explicit JSON `null` on nested concern rows; consolidated null-collection coalescing on sibling `ArchitectureTradeoff.EvidenceNodeIds` / `EvidenceFindingIds`; `ContractCollectionDefaults.Coalesce`; regressions `SuggestedConcernDeserializationTests` and `ArchitectureTradeoffDeserializationTests`; 686 scoped `Contracts` filter tests passed.
+
 2026-10-14 seed hunt (seed→hit): `archlucid-contracts` — promoted `RequirementSmell.EvidenceRefs` explicit JSON `null` overwriting `= []` initializer on nested smell rows; `ContractCollectionDefaults.Coalesce` on `EvidenceRefs` setter; regression `Deserialize_null_evidence_refs_yields_empty_list_not_null`; 684 scoped `Contracts` filter tests passed.
 
 2026-10-14 seed hunt (seed→hit): `archlucid-contracts` — promoted `RiskSnapshot` list properties (`Tradeoffs`, `RequirementSmells`, `Concerns`, `ExecutionContext`) explicit JSON `null` overwriting `= []` initializers; class fix with `ContractCollectionDefaults.Coalesce` on all four collection setters; regressions `RiskSnapshotDeserializationTests`; 683 scoped `Contracts` filter tests passed.
@@ -29113,6 +29115,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 ---
 ## Zone: archlucid-contracts
 
+2026-10-14 seed hunt (seed→hit): promoted nested risk row JSON `null` collections on `SuggestedConcern.RelatedFactRefs` and consolidated `ArchitectureTradeoff` evidence lists; `ContractCollectionDefaults.Coalesce`; 686 scoped `Contracts` filter tests passed.
+
 2026-10-14 seed hunt (seed→hit): promoted `RequirementSmell.EvidenceRefs` JSON `null` on nested smell rows; `ContractCollectionDefaults.Coalesce`; regression in `RequirementSmellDeserializationTests`; 684 scoped `Contracts` filter tests passed.
 
 2026-10-14 seed hunt (seed→hit): promoted `RiskSnapshot` JSON `null` collections leaving list properties null; `ContractCollectionDefaults.Coalesce` on all four snapshot lists; regressions `RiskSnapshotDeserializationTests`; 683 scoped `Contracts` filter tests passed.
@@ -29223,11 +29227,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 96
-- **bugs-found:** 76
+- **hunts:** 97
+- **bugs-found:** 77
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-14
-- **last-bug:** 2026-10-14 — `RequirementSmell.EvidenceRefs` JSON null
+- **last-bug:** 2026-10-14 — nested risk snapshot row JSON null collections
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -29289,7 +29293,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `RequirementSmellKind` on `RequirementSmell.Kind` — undefined numeric ordinals such as `99` deserialized without `JsonException` — **hit 2026-10-14 seed hunt:** fixed with `DefinedEnumJsonConverter<RequirementSmellKind>`; regressions `RequirementSmellDeserializationTests`.
 - [x] (proven) `RiskSnapshot` list properties (`Tradeoffs`, `RequirementSmells`, `Concerns`, `ExecutionContext`) — explicit JSON `null` assigned null despite `= []` initializers — **hit 2026-10-14 seed hunt:** class fix with `ContractCollectionDefaults.Coalesce` on all four collection setters; regressions `RiskSnapshotDeserializationTests`.
 - [x] (proven) `RequirementSmell.EvidenceRefs` — explicit JSON `null` assigned null despite `= []` initializer — **hit 2026-10-14 seed hunt:** `ContractCollectionDefaults.Coalesce` on `EvidenceRefs` setter; regression `Deserialize_null_evidence_refs_yields_empty_list_not_null`.
-- (candidate) `SuggestedConcern.RelatedFactRefs` — explicit JSON `null` on nested concern rows can assign null despite `= []` initializer while parent `RiskSnapshot.Concerns` is coalesced. Reachability: `concerns` entries deserialized via `ContractJson.Default` inside risk snapshot export JSON.
+- [x] (proven) `SuggestedConcern.RelatedFactRefs` / `ArchitectureTradeoff.EvidenceNodeIds` / `EvidenceFindingIds` — explicit JSON `null` assigned null despite `= []` initializers on nested risk snapshot rows — **hit 2026-10-14 seed hunt:** consolidated `ContractCollectionDefaults.Coalesce` on concern and tradeoff nested lists; regressions `Deserialize_null_related_fact_refs_yields_empty_list_not_null` and `Deserialize_null_evidence_collections_yields_empty_lists_not_null`.
 - (candidate) `DiagramInfrastructureEdgeGapRow.GapKind` — reconciliation output can carry an arbitrary string such as `"PresentNotDrawn "` or an unknown value even though the contract publishes two constants; a client that switches on exact gap-kind values may render a real edge gap as unknown. Reachability: server-generated reconciliation response consumed by the diagram comparison UI.
 - (candidate) `DiagramSourceReference.Content` — a comparison-create request can provide a named source with a supported format but empty content, and the contract accepts it as a valid source; the comparison may silently produce an empty diagram instead of rejecting or reporting the unusable source. Reachability: API request payload for the infrastructure-diagram comparison endpoint.
 - (candidate) `ArchitectureDiagramNodeRecord.Kind` — diagram-node JSON accepts arbitrary kind strings such as `"service "` even though the contract publishes `user`, `system`, `external`, and `boundary`; exact-value renderers may classify a real node as unknown. Reachability: architecture diagram node payload consumed by the diagram UI.

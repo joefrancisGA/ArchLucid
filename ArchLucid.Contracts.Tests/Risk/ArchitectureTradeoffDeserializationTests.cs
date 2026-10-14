@@ -68,4 +68,26 @@ public sealed class ArchitectureTradeoffDeserializationTests
         tradeoff.Consequence.Should().Be(RiskConsequence.Medium);
         tradeoff.Reversibility.Should().Be(ReversibilityClass.OneWayDoor);
     }
+
+    [Fact]
+    public void Deserialize_null_evidence_collections_yields_empty_lists_not_null()
+    {
+        const string json = """
+            {
+              "gainedPillar": 0,
+              "sacrificedPillar": 1,
+              "mechanism": "cost-reliability/single-region",
+              "evidenceNodeIds": null,
+              "evidenceFindingIds": null,
+              "status": 0,
+              "consequence": 0,
+              "reversibility": 0
+            }
+            """;
+
+        ArchitectureTradeoff tradeoff = JsonSerializer.Deserialize<ArchitectureTradeoff>(json, ContractJson.Default)!;
+
+        tradeoff.EvidenceNodeIds.Should().NotBeNull().And.BeEmpty();
+        tradeoff.EvidenceFindingIds.Should().NotBeNull().And.BeEmpty();
+    }
 }
