@@ -457,6 +457,13 @@ internal static partial class RunExplanationAggregateJsonReader
             return false;
         }
 
+        if (applyTrailingDuplicateArrayPoison
+            && IsAggregateStringCalloutPropertyName(structuredPropertyName)
+            && CalloutTrailingDuplicateScalarAliasIsPoison(jsonElement))
+        {
+            return false;
+        }
+
         return jsonElement.ValueKind switch
         {
             JsonValueKind.Null => false,
@@ -954,6 +961,20 @@ internal static partial class RunExplanationAggregateJsonReader
     private static bool WholeNumberCountTrailingDuplicateAliasIsPoison(JsonElement item)
     {
         if (AggregateWholeNumberCountArrayItemIsDuplicateAliasPoison(item))
+            return true;
+
+        if (item.ValueKind == JsonValueKind.String
+            && TryParseBooleanString(item.GetString()?.Trim(), out _))
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    private static bool CalloutTrailingDuplicateScalarAliasIsPoison(JsonElement item)
+    {
+        if (AggregateCalloutArrayItemIsNumericAliasPoison(item))
             return true;
 
         if (item.ValueKind == JsonValueKind.String
