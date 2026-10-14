@@ -1,11 +1,3 @@
-{"at":"2026-09-14T23:23:59.8162176Z","zoneId":"core-costing","outcome":"hit"}
-{"at":"2026-09-14T23:24:02.9440394Z","zoneId":"tenant-data-export","outcome":"seed-only"}
-{"at":"2026-09-14T23:24:05.9167257Z","zoneId":"persistence-identity","outcome":"seed-only"}
-{"at":"2026-09-14T23:25:38.1732712Z","zoneId":"topology-proposal-merge","outcome":"hit"}
-{"at":"2026-09-14T23:25:41.3713453Z","zoneId":"context-ingestion","outcome":"seed-only"}
-{"at":"2026-09-14T23:26:48.6756777Z","zoneId":"core-costing","outcome":"hit"}
-{"at":"2026-09-14T23:26:51.882046Z","zoneId":"tenant-data-export","outcome":"seed-only"}
-{"at":"2026-09-14T23:26:54.6716148Z","zoneId":"persistence-identity","outcome":"seed-only"}
 {"at":"2026-09-14T23:28:29.0014039Z","zoneId":"topology-proposal-merge","outcome":"hit"}
 {"at":"2026-09-14T23:28:32.1103877Z","zoneId":"context-ingestion","outcome":"seed-only"}
 {"at":"2026-09-14T23:30:39.3132991Z","zoneId":"core-costing","outcome":"hit"}
@@ -8433,3 +8425,4 @@
 {"at":"2026-10-14T23:12:11.4764959Z","zoneId":"notifications-pipeline","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-14T23:17:44.2200682Z","zoneId":"application-pilots","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-14T23:23:20.8818134Z","zoneId":"notifications-pipeline","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-14T23:28:03.9329387Z","zoneId":"notifications-pipeline","outcome":"hit","productLine":"archlucid-shared"}
