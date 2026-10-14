@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-14 seed hunt (seed→hit): `securenow-question-queue` — promoted stale `EvidenceFingerprint` on ignore; reachable `POST /ignore` accepted a fingerprint the compiler would not join, so the API reported success while the question stayed open; `WriteAsync` now validates answered and ignored mutations via shared `ValidateMutationAgainstCompiledQuestionAsync`; regression `Stale_evidence_fingerprint_is_rejected_before_persisting_an_ignore`; Application SecureNowQuestion filter 26/26.
+
 2026-10-13 seed hunt (seed→hit): `architecture-intelligence-orchestrator` — promoted `ClosedLoopReasoningSourceTextNormalizer.CollapseParentPathSegments`; `docs/sub/../arch.md` and `docs/foo/bar/../../arch.md` split review-cache `ContentHash` from `docs/arch.md`; cheap-disproved stale CRLF duplicate, run-id whitespace, and publish coalesce-key candidates; regression `Build_matches_content_hash_when_file_name_differs_only_by_parent_path_segments`; 90 scoped orchestrator/cache manifest tests passed.
 
 2026-10-13 seed hunt (seed-only): `notifications-pipeline` — cheap-disproved five open candidates (recurrence text URLs, weekly sponsor text strip-tags, authority-run Teams supporting display-only, governance Block Kit title escape parity, digest subscription facade-only validation); regression locks `TrialWelcome_html_encodes_organization_hint_metacharacters`, `WeeklySponsorReport_text_part_strips_html_tags_from_rendered_body`, and `RecurrenceCompletion_html_encodes_href_urls_with_quotes_in_attribute`; seeded five follow-on `(candidate)` rows; 182 scoped notification/digest Application tests passed.
@@ -38076,6 +38078,8 @@ ABQ-09 churn hotspot.
 
 ## Zone: securenow-question-queue
 
+2026-10-14 seed hunt (seed→hit): promoted stale `EvidenceFingerprint` on ignore; answered mutations already rejected changed evidence before persistence, but ignore skipped that check, so a successful ignore could persist while compilation left the question open; shared compiled-question validation for answered and ignored writes; regression `Stale_evidence_fingerprint_is_rejected_before_persisting_an_ignore`; Application SecureNowQuestion filter 26/26.
+
 2026-10-13 seed hunt (seed→hit): promoted case-variant `QuestionKey` disposition collision; reachable ignore mutations differing only by question-key casing could persist distinct rows while `SecureNowQuestionCompiler` built a case-insensitive disposition dictionary and threw listing questions; normalize question keys on write and identity hash, group duplicate dispositions by case-insensitive identity keeping the newest row; regressions `Question_key_is_case_insensitive_on_ignore` and `Dispositions_with_question_keys_differing_only_by_case_compile_without_failure`; Application SecureNowQuestion filter 25/25.
 
 2026-10-12 seed hunt (seed-only): re-read the selected compiler, disposition service, controller, persistence, contract, queue, and API paths. Reviewed the existing case-variant disposition candidate: two reachable API mutations differing only by `QuestionKey` casing can persist distinct SQL identity hashes, after which compiler `ToDictionary` with an ordinal-ignore-case key comparer can throw while listing questions. A focused repro was attempted but blocked before discovery by unrelated missing `unmappedRoles` and `warnings` members in `AzureInventorySecurityEdgeMaterializer.cs`; no production or regression code changed.
@@ -38114,11 +38118,11 @@ ABQ-09 churn hotspot.
 - **aliases:** securenow question queue; question disposition
 - **paths:** ArchLucid.Application/InfraEvidence/SecureNowQuestionDispositions/; ArchLucid.Api/Controllers/InfraEvidence/InfraEvidenceSecureNowQuestionsController.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/ISecureNowQuestionDispositionRepository.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/ISecureNowQuestionDispositionService.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/SecureNowQuestionDispositionRecord.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/SecureNowQuestionRecord.cs; ArchLucid.Persistence/InfraEvidence/NoOpSecureNowQuestionDispositionRepository.cs; ArchLucid.Persistence/InfraEvidence/SqlSecureNowQuestionDispositionRepository.cs; ArchLucid.Contracts/InfraEvidence/SecureNowQuestionDispositionContracts.cs; archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
-- **hunts:** 35
-- **bugs-found:** 14
+- **hunts:** 36
+- **bugs-found:** 15
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-13
-- **last-bug:** 2026-10-13 — case-variant question keys broke question compilation
+- **last-hunt:** 2026-10-14
+- **last-bug:** 2026-10-14 — stale evidence fingerprint on ignore left the queue open
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -38174,6 +38178,7 @@ ABQ-09 churn hotspot.
 
 - [x] (proven) `SecureNowQuestionDispositionService.WriteAsync` — a reachable `POST /answer` body supplied an `AnswerCode` not present in the compiled question's finite `AnswerCodes`, and the service had no question-choice membership check before persisting an answered disposition; fixed by validating membership against the compiled question; regression `Answer_code_must_be_one_of_the_compiled_question_choices`.
 - [x] (proven) `SecureNowQuestionDispositionService.WriteAsync` — a reachable `POST /answer` body supplied a stale `EvidenceFingerprint`; compilation only joins dispositions whose fingerprint matches current evidence, so the API could report success while leaving the question open; fixed by rejecting changed question evidence before persistence; regression `Stale_evidence_fingerprint_is_rejected_before_persisting_an_answer`.
+- [x] (proven) `SecureNowQuestionDispositionService.WriteAsync` — a reachable `POST /ignore` body supplied a stale `EvidenceFingerprint` while answered mutations already rejected changed evidence; ignore persisted successfully but compilation did not join the disposition, leaving the question open; fixed by validating ignored mutations against the compiled question fingerprint; regression `Stale_evidence_fingerprint_is_rejected_before_persisting_an_ignore`.
 - [x] (proven) `SecureNowQuestionQueueProvider.findInferredConnection` — a reachable persisted inferred-connection rule such as `Unresolved host` was compared as a space-preserving string while the compiler emitted `unresolved-host@v1`, so Yes/No actions reported that the connection was unavailable; fixed by sharing punctuation-to-hyphen normalization; regression `confirms an inferred connection when its rule name contains spaces`.
 - [x] (proven) `SecureNowQuestionDispositionService.ValidateAnswerCodeAsync` — a reachable inventory answer loaded optional inferred connections before validation, so an inferred-repository failure threw before persistence even though the inventory question was valid; fixed by compiling inventory questions without that optional dependency; regression `Inventory_answer_does_not_depend_on_inferred_connection_availability`.
 - [x] (proven) `SecureNowQuestionQueueProvider.loadQuestions` — reachable snapshot navigation could leave an older question request in flight, allowing its later response to overwrite the newest snapshot's question state; guarded question, error, and loading state with a monotonically increasing request sequence; regression `keeps the newest snapshot question when an older load finishes later`.

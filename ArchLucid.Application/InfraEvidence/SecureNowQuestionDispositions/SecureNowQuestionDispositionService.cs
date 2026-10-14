@@ -206,16 +206,18 @@ public sealed class SecureNowQuestionDispositionService(
         if (!await OwnsSnapshotAsync(scope, snapshotId, request.SubscriptionId, cancellationToken))
             return Failed("Snapshot was not found.");
 
-        if (status == SecureNowQuestionDispositionStatus.Answered)
+        if (status is SecureNowQuestionDispositionStatus.Answered
+            or SecureNowQuestionDispositionStatus.Ignored)
         {
-            string? answerValidationError = await ValidateAnswerCodeAsync(
+            string? mutationValidationError = await ValidateMutationAgainstCompiledQuestionAsync(
                 scope,
                 snapshotId,
                 request,
-                request.Source == SecureNowQuestionSource.InferredConnection,
+                status == SecureNowQuestionDispositionStatus.Answered
+                    && request.Source == SecureNowQuestionSource.InferredConnection,
                 cancellationToken);
-            if (answerValidationError is not null)
-                return Failed(answerValidationError);
+            if (mutationValidationError is not null)
+                return Failed(mutationValidationError);
         }
 
         DateTime now = TimeProvider.System.UtcNowDateTime();
@@ -286,7 +288,40 @@ public sealed class SecureNowQuestionDispositionService(
                    StringComparison.Ordinal);
     }
 
-    private async Task<string?> ValidateAnswerCodeAsync(
+    private async Task<string?> ValidateMutationAgainstCompiledQuestionAsync(
+        ScopeContext scope,
+        Guid snapshotId,
+        SecureNowQuestionDispositionWriteRequest request,
+        bool includeInferredConnections,
+        CancellationToken cancellationToken)
+    {
+        SecureNowQuestionRecord? question = await TryFindCompiledQuestionAsync(
+            scope,
+            snapshotId,
+            request,
+            includeInferredConnections,
+            cancellationToken);
+
+        if (question is null)
+            return "Question was not found.";
+
+        if (!string.Equals(
+                question.EvidenceFingerprint,
+                request.EvidenceFingerprint.Trim(),
+                StringComparison.Ordinal))
+            return "Question evidence has changed.";
+
+        if (request.AnswerCode is null)
+            return null;
+
+        return question.AnswerCodes.Contains(
+                   request.AnswerCode.Trim(),
+                   StringComparer.OrdinalIgnoreCase)
+            ? null
+            : "AnswerCode is invalid.";
+    }
+
+    private async Task<SecureNowQuestionRecord?> TryFindCompiledQuestionAsync(
         ScopeContext scope,
         Guid snapshotId,
         SecureNowQuestionDispositionWriteRequest request,
@@ -299,28 +334,14 @@ public sealed class SecureNowQuestionDispositionService(
                 snapshotId,
                 includeInferredConnections,
                 cancellationToken);
-        SecureNowQuestionRecord? question = questions.FirstOrDefault(item =>
+
+        return questions.FirstOrDefault(item =>
             string.Equals(item.SubscriptionId, Normalize(request.SubscriptionId), StringComparison.OrdinalIgnoreCase)
             && string.Equals(item.ResourceId, NormalizeResourceId(request.ResourceId), StringComparison.OrdinalIgnoreCase)
             && string.Equals(
                 item.QuestionKey,
                 NormalizeQuestionKey(request.QuestionKey),
                 StringComparison.OrdinalIgnoreCase));
-
-        if (question is null)
-            return "Question was not found.";
-
-        if (!string.Equals(
-                question.EvidenceFingerprint,
-                request.EvidenceFingerprint.Trim(),
-                StringComparison.Ordinal))
-            return "Question evidence has changed.";
-
-        return question.AnswerCodes.Contains(
-                   request.AnswerCode!.Trim(),
-                   StringComparer.OrdinalIgnoreCase)
-            ? null
-            : "AnswerCode is invalid.";
     }
 
     private static string? ValidateWriteRequest(

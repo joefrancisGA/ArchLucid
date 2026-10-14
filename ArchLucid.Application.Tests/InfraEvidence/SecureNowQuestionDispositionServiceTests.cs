@@ -33,7 +33,7 @@ public sealed class SecureNowQuestionDispositionServiceTests
         SecureNowQuestionDispositionMutationResult ignored = await sut.IgnoreAsync(
             Scope,
             SnapshotId,
-            CreateWriteRequest("SUB-1", "/subscriptions/SUB-1/resourceGroups/RG/providers/Microsoft.Compute/virtualMachines/VM1"),
+            CreateWriteRequest("SUB-1", "/subscriptions/SUB-1/resource"),
             "actor");
 
         ignored.Succeeded.Should().BeTrue();
@@ -55,20 +55,19 @@ public sealed class SecureNowQuestionDispositionServiceTests
         await sut.IgnoreAsync(
             Scope,
             SnapshotId,
-            CreateWriteRequest("sub-1", "/subscriptions/sub-1/resourceGroups/rg/resource")
-                with { QuestionKey = "orphan-still-needed@v1" },
+            CreateWriteRequest("sub-1", "/subscriptions/sub-1/resource"),
             "actor");
 
         SecureNowQuestionDispositionMutationResult second = await sut.IgnoreAsync(
             Scope,
             SnapshotId,
-            CreateWriteRequest("sub-1", "/subscriptions/sub-1/resourceGroups/rg/resource")
-                with { QuestionKey = "Orphan-Still-Needed@v1", Reason = "Second write." },
+            CreateWriteRequest("sub-1", "/subscriptions/sub-1/resource")
+                with { QuestionKey = "Unknown-Evidence@v1", Reason = "Second write." },
             "actor");
 
         second.Succeeded.Should().BeTrue();
         repository.Rows.Should().ContainSingle();
-        repository.Rows[0].QuestionKey.Should().Be("orphan-still-needed@v1");
+        repository.Rows[0].QuestionKey.Should().Be("unknown-evidence@v1");
     }
 
     [Fact]
@@ -80,14 +79,14 @@ public sealed class SecureNowQuestionDispositionServiceTests
         await sut.IgnoreAsync(
             Scope,
             SnapshotId,
-            CreateWriteRequest("sub-1", "/subscriptions/sub-1/resourceGroups/rg/resource"),
+            CreateWriteRequest("sub-1", "/subscriptions/sub-1/resource"),
             "actor");
 
         SecureNowQuestionDispositionRecord? row = await repository.TryGetByIdentityAsync(
             Scope.TenantId,
             "SUB-1",
-            "/SUBSCRIPTIONS/SUB-1/RESOURCEGROUPS/RG/RESOURCE",
-            "orphan-still-needed@v1");
+            "/SUBSCRIPTIONS/SUB-1/RESOURCE",
+            "unknown-evidence@v1");
 
         row.Should().NotBeNull();
     }
@@ -333,6 +332,27 @@ public async Task Foreign_snapshot_cannot_read_or_write()
     }
 
     [Fact]
+    public async Task Stale_evidence_fingerprint_is_rejected_before_persisting_an_ignore()
+    {
+        InMemoryDispositionRepository repository = new();
+        SecureNowQuestionDispositionService sut = CreateSut(repository, includeQuestion: true);
+
+        SecureNowQuestionDispositionMutationResult result = await sut.IgnoreAsync(
+            Scope,
+            SnapshotId,
+            CreateWriteRequest("sub-1", "/subscriptions/sub-1/resource") with
+            {
+                QuestionKey = "unknown-evidence@v1",
+                EvidenceFingerprint = "stale-fingerprint",
+            },
+            "actor");
+
+        result.Succeeded.Should().BeFalse();
+        result.ErrorMessage.Should().Be("Question evidence has changed.");
+        repository.Rows.Should().BeEmpty();
+    }
+
+    [Fact]
     public async Task Inventory_answer_does_not_depend_on_inferred_connection_availability()
     {
         InMemoryDispositionRepository repository = new();
@@ -358,10 +378,13 @@ public async Task Foreign_snapshot_cannot_read_or_write()
             && row.AnswerCode == "NamePeer");
     }
 
+    private const string UnknownEvidenceFingerprint =
+        "C70C7C824299E81D30618883C7BF8C4833B97799C8BBD8B92017CC6CE1E7C9AD";
+
     private static SecureNowQuestionDispositionService CreateSut(
         InMemoryDispositionRepository repository,
         bool snapshotOwned = true,
-        bool includeQuestion = false,
+        bool includeQuestion = true,
         bool inferredConnectionsUnavailable = false)
     {
         Mock<IAzureInventorySnapshotRepository> snapshots = new();
@@ -424,13 +447,13 @@ public async Task Foreign_snapshot_cannot_read_or_write()
         {
             SubscriptionId = subscriptionId,
             ResourceId = resourceId,
-            QuestionKey = "orphan-still-needed@v1",
+            QuestionKey = "unknown-evidence@v1",
             Source = SecureNowQuestionSource.InventoryEvidence,
             ScopeKind = SecureNowQuestionScopeKind.Resource,
-            AnswerCode = "Keep",
+            AnswerCode = "NamePeer",
             AnswerText = "Keep it.",
             Reason = "Reviewed by operator.",
-            EvidenceFingerprint = "fingerprint-1",
+            EvidenceFingerprint = UnknownEvidenceFingerprint,
         };
 
     private sealed class InMemoryDispositionRepository : ISecureNowQuestionDispositionRepository
