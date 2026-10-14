@@ -1371,6 +1371,63 @@ public sealed class RunExplanationConfidenceCalloutBuilderTests
     }
 
     [Fact]
+    public void RunExplanation_FromAggregateJson_reads_decision_count_from_sole_nested_numeric_array_alias()
+    {
+        RunExplanationCostCalloutBuilder.TryParseDecisionCount(
+            JsonDocument.Parse("""{"decisionCount":[[3]]}""").RootElement).Should().Be(3);
+    }
+
+    [Fact]
+    public void RunExplanation_FromAggregateJson_reads_faithfulness_ratio_from_sole_nested_numeric_array_alias()
+    {
+        RunExplanationConfidenceSignals? signals = RunExplanationConfidenceCalloutBuilder.FromAggregateJson(
+            """
+            {
+              "faithfulnessSupportRatio": [ [ 0.95 ] ],
+              "citations": 1
+            }
+            """);
+
+        signals.Should().NotBeNull();
+        signals!.FaithfulnessSupportRatio.Should().Be(0.95);
+    }
+
+    [Fact]
+    public void RunExplanation_FromAggregateJson_reads_deterministic_fallback_from_sole_nested_boolean_array_alias()
+    {
+        RunExplanationConfidenceSignals? signals = RunExplanationConfidenceCalloutBuilder.FromAggregateJson(
+            """
+            {
+              "faithfulnessSupportRatio": 0.95,
+              "deterministicFallbackUsed": [ [ true ] ],
+              "citations": 1
+            }
+            """);
+
+        signals.Should().NotBeNull();
+        signals!.DeterministicFallbackUsed.Should().BeTrue();
+        RunExplanationConfidenceCalloutBuilder.ResolveDisposition(signals).Should().Be("HOLD");
+    }
+
+    [Fact]
+    public void RunExplanation_FromAggregateJson_keeps_citation_count_when_later_duplicate_is_nested_numeric_poison_array()
+    {
+        RunExplanationConfidenceSignals? signals = RunExplanationConfidenceCalloutBuilder.FromAggregateJson(
+            """
+            {
+              "faithfulnessSupportRatio": 0.95,
+              "citations": 2,
+              "CITATIONS": [ [ 4 ] ],
+              "faithfulnessWarning": "Citations incomplete"
+            }
+            """);
+
+        signals.Should().NotBeNull();
+        signals!.CitationCount.Should().Be(2);
+        RunExplanationConfidenceCalloutBuilder.ResolveDisposition(signals).Should().Be("WARN");
+    }
+
+    [Fact]
     public void RunExplanation_FromAggregateJson_reads_faithfulness_ratio_from_sole_numeric_array_alias()
     {
         RunExplanationConfidenceSignals? signals = RunExplanationConfidenceCalloutBuilder.FromAggregateJson(

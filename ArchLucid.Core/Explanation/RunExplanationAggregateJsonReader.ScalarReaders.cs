@@ -91,6 +91,14 @@ internal static partial class RunExplanationAggregateJsonReader
 
         foreach (JsonElement item in element.EnumerateArray())
         {
+            if (item.ValueKind == JsonValueKind.Array)
+            {
+                if (TryReadAggregateBooleanToken(item, out value))
+                    return true;
+
+                continue;
+            }
+
             if (TryReadBooleanScalarValue(item, out value))
                 return true;
         }

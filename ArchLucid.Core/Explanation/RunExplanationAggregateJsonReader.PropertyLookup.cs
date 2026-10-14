@@ -642,6 +642,12 @@ internal static partial class RunExplanationAggregateJsonReader
     {
         foreach (JsonElement item in countArray.EnumerateArray())
         {
+            if (item.ValueKind == JsonValueKind.Array
+                && AggregateWholeNumberCountArrayHasReadableNumericEntry(item))
+            {
+                return true;
+            }
+
             if (item.ValueKind == JsonValueKind.Number && TryReadWholeNumber(item, out _))
                 return true;
 
@@ -889,8 +895,21 @@ internal static partial class RunExplanationAggregateJsonReader
             return false;
         }
 
-        foreach (JsonElement item in element.EnumerateArray())
+        return TryReadAggregateWholeNumberCountFromArrayItems(element, out value);
+    }
+
+    private static bool TryReadAggregateWholeNumberCountFromArrayItems(JsonElement countArray, out int value)
+    {
+        foreach (JsonElement item in countArray.EnumerateArray())
         {
+            if (item.ValueKind == JsonValueKind.Array)
+            {
+                if (TryReadAggregateWholeNumberCountFromArrayItems(item, out value))
+                    return true;
+
+                continue;
+            }
+
             if (AggregateWholeNumberCountArrayItemIsDuplicateAliasPoison(item))
                 continue;
 
@@ -913,8 +932,23 @@ internal static partial class RunExplanationAggregateJsonReader
         if (element.ValueKind != JsonValueKind.Array)
             return null;
 
-        foreach (JsonElement item in element.EnumerateArray())
+        return TryReadAggregateRatioFromArrayItems(element);
+    }
+
+    private static double? TryReadAggregateRatioFromArrayItems(JsonElement ratioArray)
+    {
+        foreach (JsonElement item in ratioArray.EnumerateArray())
         {
+            if (item.ValueKind == JsonValueKind.Array)
+            {
+                double? nestedRatio = TryReadAggregateRatioFromArrayItems(item);
+
+                if (nestedRatio is not null)
+                    return nestedRatio;
+
+                continue;
+            }
+
             if (RatioArrayItemIsDuplicateAliasPoison(item))
                 continue;
 
@@ -951,6 +985,12 @@ internal static partial class RunExplanationAggregateJsonReader
     {
         foreach (JsonElement item in ratioArray.EnumerateArray())
         {
+            if (item.ValueKind == JsonValueKind.Array
+                && ConfidenceRatioArrayHasReadableScalarEntry(item))
+            {
+                return true;
+            }
+
             if (TryReadFiniteDouble(item) is not null)
                 return true;
         }
