@@ -38,6 +38,12 @@ public sealed class AgentTypeJsonConverterTests
     }
 
     [Fact]
+    public void Read_maps_whole_number_double_ordinal()
+    {
+        JsonSerializer.Deserialize<AgentType>("1.0", Options).Should().Be(AgentType.Topology);
+    }
+
+    [Fact]
     public void Read_integer_out_of_range_throws()
     {
         Action act = () => JsonSerializer.Deserialize<AgentType>("99", Options);

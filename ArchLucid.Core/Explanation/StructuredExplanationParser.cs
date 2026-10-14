@@ -12,6 +12,12 @@ namespace ArchLucid.Core.Explanation;
 public static partial class StructuredExplanationParser
 {
     /// <summary>
+    ///     Highest structured-explanation schema version this build accepts from model JSON during duplicate-alias selection.
+    ///     Values above this are treated as empty poison aliases when a lower supported version appears earlier.
+    /// </summary>
+    internal const int MaxSupportedStructuredExplanationSchemaVersion = 2;
+
+    /// <summary>
     ///     Returns <see langword="true" /> when <paramref name="rawText" /> is JSON that deserializes to a non-empty
     ///     <c>reasoning</c> field.
     /// </summary>
@@ -32,7 +38,7 @@ public static partial class StructuredExplanationParser
             if (root.ValueKind != JsonValueKind.Object)
                 return false;
 
-            if (!RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitive(root, "reasoning", out JsonElement reasoningElement))
+            if (!RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitivePreferLastNonEmpty(root, "reasoning", out JsonElement reasoningElement))
             {
                 return false;
             }
@@ -44,8 +50,8 @@ public static partial class StructuredExplanationParser
 
             int schemaVersion = 1;
 
-            if (RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitive(root, "schemaVersion", out JsonElement schemaElement)
-                && StrictSchemaVersionReader.TryReadSchemaVersion(schemaElement, out int parsedSchemaVersion)
+            if (RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitivePreferLastNonEmpty(root, "schemaVersion", out JsonElement schemaElement)
+                && RunExplanationAggregateJsonReader.TryReadSchemaVersionFromAggregateAlias(schemaElement, out int parsedSchemaVersion)
                 && parsedSchemaVersion > 0)
             {
                 schemaVersion = parsedSchemaVersion;
@@ -53,7 +59,7 @@ public static partial class StructuredExplanationParser
 
             decimal? confidence = null;
 
-            if (RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitive(root, "confidence", out JsonElement confidenceElement))
+            if (RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitivePreferLastNonEmpty(root, "confidence", out JsonElement confidenceElement))
             {
                 double? finiteConfidence = TryReadStructuredConfidence(confidenceElement);
 
@@ -84,11 +90,39 @@ public static partial class StructuredExplanationParser
         }
     }
 
+    internal static bool StructuredConfidenceElementHasReadableValue(JsonElement element) =>
+        TryReadStructuredConfidence(element) is not null;
+
+    internal static bool StructuredSchemaVersionElementHasReadableValue(JsonElement element) =>
+        StrictSchemaVersionReader.TryReadSchemaVersion(element, out int parsedSchemaVersion)
+        && parsedSchemaVersion > 0;
+
     private static double? TryReadStructuredConfidence(JsonElement element)
     {
         // Structured confidence is numeric; boolean coercion is reserved for aggregate compatibility fields.
         if (element.ValueKind is JsonValueKind.True or JsonValueKind.False)
             return null;
+
+        if (element.ValueKind == JsonValueKind.Array)
+        {
+            JsonElement? soleEntry = null;
+
+            foreach (JsonElement item in element.EnumerateArray())
+            {
+                if (item.ValueKind == JsonValueKind.Null)
+                    continue;
+
+                if (soleEntry is not null)
+                    return null;
+
+                soleEntry = item;
+            }
+
+            if (soleEntry is JsonElement single)
+                return TryReadStructuredConfidence(single);
+
+            return null;
+        }
 
         string? raw = element.ValueKind == JsonValueKind.String ? element.GetString()?.Trim() : null;
 

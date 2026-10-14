@@ -1,6 +1,8 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Findings;
 
 /// <summary>
@@ -11,14 +13,10 @@ public sealed class EvalCorpusFindingSeverityJsonConverter : JsonConverter<Findi
     public override FindingSeverity Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
         if (reader.TokenType == JsonTokenType.Number)
-        {
-            int ordinal = reader.GetInt32();
-
-            if (!Enum.IsDefined(typeof(FindingSeverity), ordinal))
-                throw new JsonException($"Unknown finding severity value '{ordinal}'.");
-
-            return (FindingSeverity)ordinal;
-        }
+            return DefinedEnumStringReader.ReadNumberTokenAsDefinedOrdinal<FindingSeverity>(
+                ref reader,
+                ordinal => new JsonException($"Unknown finding severity value '{ordinal}'."),
+                () => new JsonException("Invalid finding severity number."));
 
         if (reader.TokenType != JsonTokenType.String)
             throw new JsonException("Expected string or number for finding severity.");
@@ -28,7 +26,11 @@ public sealed class EvalCorpusFindingSeverityJsonConverter : JsonConverter<Findi
         if (string.IsNullOrWhiteSpace(raw))
             return FindingSeverity.Info;
 
-        if (Enum.TryParse(raw, ignoreCase: true, out FindingSeverity parsed))
+        DefinedEnumStringReader.ThrowIfUndefinedNumericString<FindingSeverity>(
+            raw,
+            $"Unknown finding severity value '{raw}'.");
+
+        if (DefinedEnumStringReader.TryParse(raw, out FindingSeverity parsed))
             return parsed;
 
         return raw.Trim().ToLowerInvariant() switch

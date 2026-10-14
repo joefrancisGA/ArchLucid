@@ -221,6 +221,26 @@ public sealed class ArchitectureFindingJsonConverterTests
     }
 
     [Fact]
+    public void Deserialize_string_numeric_enforcement_tier_out_of_range_throws()
+    {
+        const string json = """
+                            {
+                              "severity": "Warning",
+                              "category": "Cost",
+                              "message": "Invalid string ordinal must not deserialize as PolicyViolation.",
+                              "enforcementTier": "99"
+                            }
+                            """;
+
+        JsonSerializerOptions options = CreateOptions();
+
+        Action act = () => JsonSerializer.Deserialize<ArchitectureFinding>(json, options);
+
+        act.Should().Throw<JsonException>()
+            .WithMessage("*Unknown finding enforcement tier value*");
+    }
+
+    [Fact]
     public void Deserialize_integer_severity_out_of_range_throws()
     {
         const string json = """
@@ -473,6 +493,27 @@ public sealed class ArchitectureFindingJsonConverterTests
     }
 
     [Fact]
+    public void Deserialize_whole_number_double_source_agent_maps_cost_ordinal()
+    {
+        const string json = """
+                            {
+                              "severity": "Warning",
+                              "category": "Cost",
+                              "enforcementTier": "Advisory",
+                              "message": "Reserved capacity recommendation.",
+                              "sourceAgent": 2.0
+                            }
+                            """;
+
+        JsonSerializerOptions options = CreateOptions();
+
+        ArchitectureFinding? finding = JsonSerializer.Deserialize<ArchitectureFinding>(json, options);
+
+        finding.Should().NotBeNull();
+        finding!.SourceAgent.Should().Be(AgentType.Cost);
+    }
+
+    [Fact]
     public void Deserialize_unknown_source_agent_string_throws()
     {
         const string json = """
@@ -503,6 +544,27 @@ public sealed class ArchitectureFindingJsonConverterTests
                               "enforcementTier": "Advisory",
                               "message": "Invalid source agent ordinal must not deserialize.",
                               "sourceAgent": 99
+                            }
+                            """;
+
+        JsonSerializerOptions options = CreateOptions();
+
+        Action act = () => JsonSerializer.Deserialize<ArchitectureFinding>(json, options);
+
+        act.Should().Throw<JsonException>()
+            .WithMessage("*Unknown source agent value*");
+    }
+
+    [Fact]
+    public void Deserialize_string_numeric_source_agent_out_of_range_throws()
+    {
+        const string json = """
+                            {
+                              "severity": "Warning",
+                              "category": "Cost",
+                              "enforcementTier": "Advisory",
+                              "message": "Invalid string ordinal must not deserialize.",
+                              "sourceAgent": "99"
                             }
                             """;
 

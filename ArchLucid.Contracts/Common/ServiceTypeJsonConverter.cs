@@ -1,6 +1,8 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Common;
 
 /// <summary>
@@ -11,14 +13,10 @@ public sealed class ServiceTypeJsonConverter : JsonConverter<ServiceType>
     public override ServiceType Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
         if (reader.TokenType == JsonTokenType.Number)
-        {
-            int ordinal = reader.GetInt32();
-
-            if (!Enum.IsDefined(typeof(ServiceType), ordinal))
-                throw new JsonException($"Unknown service type value '{ordinal}'.");
-
-            return (ServiceType)ordinal;
-        }
+            return DefinedEnumStringReader.ReadNumberTokenAsDefinedOrdinal<ServiceType>(
+                ref reader,
+                ordinal => new JsonException($"Unknown service type value '{ordinal}'."),
+                () => new JsonException("Invalid service type number."));
 
         if (reader.TokenType != JsonTokenType.String)
             throw new JsonException("Expected string or number for service type.");
@@ -28,7 +26,11 @@ public sealed class ServiceTypeJsonConverter : JsonConverter<ServiceType>
         if (string.IsNullOrWhiteSpace(raw))
             return ServiceType.Unknown;
 
-        if (Enum.TryParse(raw, ignoreCase: true, out ServiceType parsed))
+        DefinedEnumStringReader.ThrowIfUndefinedNumericString<ServiceType>(
+            raw,
+            $"Unknown service type value '{raw}'.");
+
+        if (DefinedEnumStringReader.TryParse(raw, out ServiceType parsed))
             return parsed;
 
         return raw.Trim().ToLowerInvariant() switch

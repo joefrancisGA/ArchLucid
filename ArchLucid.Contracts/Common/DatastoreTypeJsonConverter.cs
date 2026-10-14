@@ -1,6 +1,8 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Common;
 
 /// <summary>
@@ -11,14 +13,10 @@ public sealed class DatastoreTypeJsonConverter : JsonConverter<DatastoreType>
     public override DatastoreType Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
         if (reader.TokenType == JsonTokenType.Number)
-        {
-            int ordinal = reader.GetInt32();
-
-            if (!Enum.IsDefined(typeof(DatastoreType), ordinal))
-                throw new JsonException($"Unknown datastore type value '{ordinal}'.");
-
-            return (DatastoreType)ordinal;
-        }
+            return DefinedEnumStringReader.ReadNumberTokenAsDefinedOrdinal<DatastoreType>(
+                ref reader,
+                ordinal => new JsonException($"Unknown datastore type value '{ordinal}'."),
+                () => new JsonException("Invalid datastore type number."));
 
         if (reader.TokenType != JsonTokenType.String)
             throw new JsonException("Expected string or number for datastore type.");
@@ -28,7 +26,11 @@ public sealed class DatastoreTypeJsonConverter : JsonConverter<DatastoreType>
         if (string.IsNullOrWhiteSpace(raw))
             return DatastoreType.Unknown;
 
-        if (Enum.TryParse(raw, ignoreCase: true, out DatastoreType parsed))
+        DefinedEnumStringReader.ThrowIfUndefinedNumericString<DatastoreType>(
+            raw,
+            $"Unknown datastore type value '{raw}'.");
+
+        if (DefinedEnumStringReader.TryParse(raw, out DatastoreType parsed))
             return parsed;
 
         return raw.Trim().ToLowerInvariant() switch

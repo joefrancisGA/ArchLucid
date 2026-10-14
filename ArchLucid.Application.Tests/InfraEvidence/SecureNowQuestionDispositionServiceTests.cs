@@ -33,7 +33,7 @@ public sealed class SecureNowQuestionDispositionServiceTests
         SecureNowQuestionDispositionMutationResult ignored = await sut.IgnoreAsync(
             Scope,
             SnapshotId,
-            CreateWriteRequest("SUB-1", "/subscriptions/SUB-1/resourceGroups/RG/providers/Microsoft.Compute/virtualMachines/VM1"),
+            CreateWriteRequest("SUB-1", "/subscriptions/SUB-1/resource"),
             "actor");
 
         ignored.Succeeded.Should().BeTrue();
@@ -55,20 +55,19 @@ public sealed class SecureNowQuestionDispositionServiceTests
         await sut.IgnoreAsync(
             Scope,
             SnapshotId,
-            CreateWriteRequest("sub-1", "/subscriptions/sub-1/resourceGroups/rg/resource")
-                with { QuestionKey = "orphan-still-needed@v1" },
+            CreateWriteRequest("sub-1", "/subscriptions/sub-1/resource"),
             "actor");
 
         SecureNowQuestionDispositionMutationResult second = await sut.IgnoreAsync(
             Scope,
             SnapshotId,
-            CreateWriteRequest("sub-1", "/subscriptions/sub-1/resourceGroups/rg/resource")
-                with { QuestionKey = "Orphan-Still-Needed@v1", Reason = "Second write." },
+            CreateWriteRequest("sub-1", "/subscriptions/sub-1/resource")
+                with { QuestionKey = "Unknown-Evidence@v1", Reason = "Second write." },
             "actor");
 
         second.Succeeded.Should().BeTrue();
         repository.Rows.Should().ContainSingle();
-        repository.Rows[0].QuestionKey.Should().Be("orphan-still-needed@v1");
+        repository.Rows[0].QuestionKey.Should().Be("unknown-evidence@v1");
     }
 
     [Fact]
@@ -80,14 +79,14 @@ public sealed class SecureNowQuestionDispositionServiceTests
         await sut.IgnoreAsync(
             Scope,
             SnapshotId,
-            CreateWriteRequest("sub-1", "/subscriptions/sub-1/resourceGroups/rg/resource"),
+            CreateWriteRequest("sub-1", "/subscriptions/sub-1/resource"),
             "actor");
 
         SecureNowQuestionDispositionRecord? row = await repository.TryGetByIdentityAsync(
             Scope.TenantId,
             "SUB-1",
-            "/SUBSCRIPTIONS/SUB-1/RESOURCEGROUPS/RG/RESOURCE",
-            "orphan-still-needed@v1");
+            "/SUBSCRIPTIONS/SUB-1/RESOURCE",
+            "unknown-evidence@v1");
 
         row.Should().NotBeNull();
     }
@@ -333,6 +332,119 @@ public async Task Foreign_snapshot_cannot_read_or_write()
     }
 
     [Fact]
+    public async Task Stale_evidence_fingerprint_is_rejected_before_persisting_an_ignore()
+    {
+        InMemoryDispositionRepository repository = new();
+        SecureNowQuestionDispositionService sut = CreateSut(repository, includeQuestion: true);
+
+        SecureNowQuestionDispositionMutationResult result = await sut.IgnoreAsync(
+            Scope,
+            SnapshotId,
+            CreateWriteRequest("sub-1", "/subscriptions/sub-1/resource") with
+            {
+                QuestionKey = "unknown-evidence@v1",
+                EvidenceFingerprint = "stale-fingerprint",
+            },
+            "actor");
+
+        result.Succeeded.Should().BeFalse();
+        result.ErrorMessage.Should().Be("Question evidence has changed.");
+        repository.Rows.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task Inferred_connection_ignore_validates_against_the_compiled_question()
+    {
+        InMemoryDispositionRepository repository = new();
+        OperatorInferredConnectionRecord inferred = new()
+        {
+            ConnectionId = Guid.NewGuid(),
+            SnapshotId = SnapshotId,
+            Status = OperatorInferredConnectionStatus.Proposed,
+            Source = OperatorInferredConnectionSource.Questionnaire,
+            RuleName = "Unresolved host",
+            QuestionText = "Should this host connect to the app?",
+            FromArmId = "/subscriptions/sub-1/resource",
+            ToArmId = "/subscriptions/sub-1/target",
+        };
+        SecureNowQuestionDispositionService sut = CreateSut(
+            repository,
+            includeQuestion: false,
+            inferredConnections: [inferred]);
+
+        IReadOnlyList<SecureNowQuestionRecord> questions =
+            await sut.ListQuestionsAsync(Scope, SnapshotId);
+        SecureNowQuestionRecord question = questions.Should().ContainSingle().Subject;
+
+        SecureNowQuestionDispositionMutationResult result = await sut.IgnoreAsync(
+            Scope,
+            SnapshotId,
+            CreateWriteRequest("sub-1", question.ResourceId) with
+            {
+                QuestionKey = question.QuestionKey,
+                Source = SecureNowQuestionSource.InferredConnection,
+                AnswerCode = null,
+                AnswerText = null,
+                EvidenceFingerprint = question.EvidenceFingerprint,
+            },
+            "actor");
+
+        result.Succeeded.Should().BeTrue();
+        repository.Rows.Should().ContainSingle(row =>
+            row.Status == SecureNowQuestionDispositionStatus.Ignored
+            && row.Source == SecureNowQuestionSource.InferredConnection);
+    }
+
+    [Fact]
+    public async Task Unknown_evidence_question_is_emitted_when_relationship_peer_is_not_in_snapshot()
+    {
+        InMemoryDispositionRepository repository = new();
+        const string resourceId = "/subscriptions/sub-1/resource";
+        Mock<IAzureInventorySnapshotRepository> snapshots = new();
+        snapshots
+            .Setup(item => item.TryGetSnapshotDetailAsync(
+                Scope,
+                SnapshotId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new AzureInventorySnapshotDetailReadModel
+            {
+                Header = new AzureInventorySnapshotRecord
+                {
+                    SubscriptionId = "sub-1",
+                    TenantId = Scope.TenantId,
+                    WorkspaceId = Scope.WorkspaceId,
+                    ProjectId = Scope.ProjectId,
+                },
+                Resources =
+                [
+                    new AzureInventoryResourceRecord
+                    {
+                        AzureResourceId = resourceId,
+                        ResourceType = "Microsoft.DataFactory/factories",
+                    },
+                ],
+                Relationships =
+                [
+                    new AzureInventoryResourceRelationshipReadModel
+                    {
+                        FromAzureResourceId = resourceId,
+                        ToAzureResourceId = "/subscriptions/sub-1/missing-peer",
+                    },
+                ],
+            });
+        Mock<IAuditService> audit = new();
+        SecureNowQuestionDispositionService sut = new(
+            repository,
+            snapshots.Object,
+            audit.Object);
+
+        IReadOnlyList<SecureNowQuestionRecord> questions =
+            await sut.ListQuestionsAsync(Scope, SnapshotId);
+
+        questions.Should().ContainSingle(question => question.QuestionKey == "unknown-evidence@v1");
+    }
+
+    [Fact]
     public async Task Inventory_answer_does_not_depend_on_inferred_connection_availability()
     {
         InMemoryDispositionRepository repository = new();
@@ -358,11 +470,15 @@ public async Task Foreign_snapshot_cannot_read_or_write()
             && row.AnswerCode == "NamePeer");
     }
 
+    private const string UnknownEvidenceFingerprint =
+        "C70C7C824299E81D30618883C7BF8C4833B97799C8BBD8B92017CC6CE1E7C9AD";
+
     private static SecureNowQuestionDispositionService CreateSut(
         InMemoryDispositionRepository repository,
         bool snapshotOwned = true,
-        bool includeQuestion = false,
-        bool inferredConnectionsUnavailable = false)
+        bool includeQuestion = true,
+        bool inferredConnectionsUnavailable = false,
+        IReadOnlyList<OperatorInferredConnectionRecord>? inferredConnections = null)
     {
         Mock<IAzureInventorySnapshotRepository> snapshots = new();
         snapshots
@@ -398,23 +514,33 @@ public async Task Foreign_snapshot_cannot_read_or_write()
             .Setup(item => item.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
-        Mock<IOperatorInferredConnectionRepository>? inferredConnections = null;
+        Mock<IOperatorInferredConnectionRepository>? inferredConnectionsMock = null;
         if (inferredConnectionsUnavailable)
         {
-            inferredConnections = new Mock<IOperatorInferredConnectionRepository>();
-            inferredConnections
+            inferredConnectionsMock = new Mock<IOperatorInferredConnectionRepository>();
+            inferredConnectionsMock
                 .Setup(item => item.ListBySnapshotAsync(
                     Scope.TenantId,
                     It.IsAny<Guid>(),
                     It.IsAny<CancellationToken>()))
                 .ThrowsAsync(new InvalidOperationException("inferred connections unavailable"));
         }
+        else if (inferredConnections is not null)
+        {
+            inferredConnectionsMock = new Mock<IOperatorInferredConnectionRepository>();
+            inferredConnectionsMock
+                .Setup(item => item.ListBySnapshotAsync(
+                    Scope.TenantId,
+                    It.IsAny<Guid>(),
+                    It.IsAny<CancellationToken>()))
+                .ReturnsAsync(inferredConnections);
+        }
 
         return new SecureNowQuestionDispositionService(
             repository,
             snapshots.Object,
             audit.Object,
-            inferredConnections?.Object);
+            inferredConnectionsMock?.Object);
     }
 
     private static SecureNowQuestionDispositionWriteRequest CreateWriteRequest(
@@ -424,13 +550,13 @@ public async Task Foreign_snapshot_cannot_read_or_write()
         {
             SubscriptionId = subscriptionId,
             ResourceId = resourceId,
-            QuestionKey = "orphan-still-needed@v1",
+            QuestionKey = "unknown-evidence@v1",
             Source = SecureNowQuestionSource.InventoryEvidence,
             ScopeKind = SecureNowQuestionScopeKind.Resource,
-            AnswerCode = "Keep",
+            AnswerCode = "NamePeer",
             AnswerText = "Keep it.",
             Reason = "Reviewed by operator.",
-            EvidenceFingerprint = "fingerprint-1",
+            EvidenceFingerprint = UnknownEvidenceFingerprint,
         };
 
     private sealed class InMemoryDispositionRepository : ISecureNowQuestionDispositionRepository

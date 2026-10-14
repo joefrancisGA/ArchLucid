@@ -256,6 +256,76 @@ public sealed class GovernanceMutationCorrectionsControllerTests
     }
 
     [Fact]
+    public async Task RecordGovernanceMutationCorrection_passes_actor_context_id_to_service_when_display_name_differs()
+    {
+        Guid runId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+        const string displayName = "Pat Operator";
+        const string actorKey = "jwt:11111111-2222-3333-4444-555555555555:aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee";
+        const string manifestHash = "sealed-manifest-hash";
+        string? capturedActorUserId = null;
+
+        Mock<IAuthorityQueryService> authority = new(MockBehavior.Strict);
+        authority
+            .Setup(service => service.GetRunDetailAsync(Scope, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunDetailDto
+            {
+                GoldenManifest = new ManifestDocument
+                {
+                    RunId = runId,
+                    ManifestHash = manifestHash,
+                },
+            });
+
+        Mock<IManifestHashService> manifestHashes = new(MockBehavior.Strict);
+        manifestHashes
+            .Setup(service => service.ComputeHash(It.IsAny<ManifestDocument>()))
+            .Returns(manifestHash);
+
+        Mock<IGovernanceMutationCorrectionService> mutationCorrections = new(MockBehavior.Strict);
+        mutationCorrections
+            .Setup(service => service.RecordAsync(
+                It.IsAny<RecordGovernanceMutationCorrectionRequest>(),
+                Scope,
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .Callback<RecordGovernanceMutationCorrectionRequest, ScopeContext, string, CancellationToken>(
+                (_, _, actorUserId, _) => capturedActorUserId = actorUserId)
+            .ReturnsAsync(new GovernanceMutationCorrectionRecordedDto
+            {
+                CorrectionId = Guid.NewGuid().ToString("D"),
+                MutationKind = GovernanceMutationCorrectionKinds.QuickApprove,
+                SubjectId = "apr-1",
+                RunId = runId.ToString("D"),
+                Rationale = ValidRationale,
+            });
+
+        Mock<IActorContext> actor = new();
+        actor.Setup(a => a.GetActor()).Returns(displayName);
+        actor.Setup(a => a.GetActorId()).Returns(actorKey);
+
+        GovernanceController sut = CreateController(
+            mutationCorrections.Object,
+            authorityQueryService: authority.Object,
+            manifestHashService: manifestHashes.Object,
+            actorContext: actor.Object);
+        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+
+        IActionResult result = await sut.RecordGovernanceMutationCorrection(
+            new RecordGovernanceMutationCorrectionRequest
+            {
+                MutationKind = GovernanceMutationCorrectionKinds.QuickApprove,
+                SubjectId = "apr-1",
+                RunId = runId.ToString("D"),
+                Rationale = ValidRationale,
+            },
+            CancellationToken.None);
+
+        result.Should().BeOfType<OkObjectResult>();
+        capturedActorUserId.Should().Be(actorKey);
+        mutationCorrections.VerifyAll();
+    }
+
+    [Fact]
     public async Task RecordGovernanceMutationCorrection_returns_bad_request_when_mutation_kind_is_unsupported_and_tenant_missing()
     {
         Mock<IGovernanceMutationCorrectionService> mutationCorrections = new(MockBehavior.Strict);
@@ -284,16 +354,18 @@ public sealed class GovernanceMutationCorrectionsControllerTests
         IGovernanceMutationCorrectionService mutationCorrectionService,
         ITenantRepository? tenantRepository = null,
         IAuthorityQueryService? authorityQueryService = null,
-        IManifestHashService? manifestHashService = null)
+        IManifestHashService? manifestHashService = null,
+        IActorContext? actorContext = null)
     {
         Mock<IActorContext> actor = new();
         actor.Setup(a => a.GetActor()).Returns("operator@test");
+        actor.Setup(a => a.GetActorId()).Returns("operator@test");
 
         Mock<IScopeContextProvider> scope = new();
         scope.Setup(s => s.GetCurrentScope()).Returns(Scope);
 
         return GovernanceControllerTestFactory.Create(
-            actorContext: actor.Object,
+            actorContext: actorContext ?? actor.Object,
             scopeContextProvider: scope.Object,
             mutationCorrectionService: mutationCorrectionService,
             tenantRepository: tenantRepository ?? TenantExistsRepository(),

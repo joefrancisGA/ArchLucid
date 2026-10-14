@@ -32,4 +32,13 @@ public sealed class FindingTreatmentJsonConverterTests
         act.Should().Throw<JsonException>()
             .WithMessage("*Unknown finding treatment value*");
     }
+
+    [Fact]
+    public void Read_string_numeric_out_of_range_throws()
+    {
+        Action act = () => JsonSerializer.Deserialize<FindingTreatment>("\"99\"", Options);
+
+        act.Should().Throw<JsonException>()
+            .WithMessage("*Unknown finding treatment value*");
+    }
 }

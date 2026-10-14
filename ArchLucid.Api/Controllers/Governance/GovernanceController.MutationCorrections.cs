@@ -47,7 +47,7 @@ public sealed partial class GovernanceController
         if (sealedGuardResult is not null)
             return sealedGuardResult;
 
-        string actorUserId = actorContext.GetActor();
+        string actorUserId = actorContext.GetActorId();
 
         try
         {

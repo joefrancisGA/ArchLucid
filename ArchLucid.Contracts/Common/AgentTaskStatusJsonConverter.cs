@@ -1,6 +1,8 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Common;
 
 /// <summary>
@@ -11,14 +13,10 @@ public sealed class AgentTaskStatusJsonConverter : JsonConverter<AgentTaskStatus
     public override AgentTaskStatus Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
         if (reader.TokenType == JsonTokenType.Number)
-        {
-            int ordinal = reader.GetInt32();
-
-            if (!Enum.IsDefined(typeof(AgentTaskStatus), ordinal))
-                throw new JsonException($"Unknown agent task status value '{ordinal}'.");
-
-            return (AgentTaskStatus)ordinal;
-        }
+            return DefinedEnumStringReader.ReadNumberTokenAsDefinedOrdinal<AgentTaskStatus>(
+                ref reader,
+                ordinal => new JsonException($"Unknown agent task status value '{ordinal}'."),
+                () => new JsonException("Invalid agent task status number."));
 
         if (reader.TokenType != JsonTokenType.String)
             throw new JsonException("Expected string or number for agent task status.");
@@ -28,7 +26,7 @@ public sealed class AgentTaskStatusJsonConverter : JsonConverter<AgentTaskStatus
         if (string.IsNullOrWhiteSpace(raw))
             throw new JsonException("Agent task status value is required.");
 
-        if (Enum.TryParse(raw, ignoreCase: true, out AgentTaskStatus parsed))
+        if (DefinedEnumStringReader.TryParse(raw, out AgentTaskStatus parsed))
             return parsed;
 
         throw new JsonException($"Unknown agent task status value '{raw}'.");

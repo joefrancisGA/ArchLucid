@@ -297,6 +297,61 @@ public sealed class StructuredExplanationParserTests
     }
 
     [Fact]
+    public void TryNormalizeStructuredJson_ignores_boolean_reasoning_array_entries()
+    {
+        const string json = """{"reasoning":[true,"Actual paragraph."]}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Reasoning.Should().Be("Actual paragraph.");
+    }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_ignores_boolean_evidence_ref_entries()
+    {
+        const string json = """{"reasoning":"Main","evidenceRefs":[true,false,"dec-1"]}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.EvidenceRefs.Should().Equal("dec-1");
+    }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_ignores_scalar_boolean_evidence_refs()
+    {
+        const string json = """{"reasoning":"Main","evidenceRefs":true}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.EvidenceRefs.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_rejects_scalar_boolean_reasoning()
+    {
+        const string json = """{"reasoning":true,"alternativesConsidered":["Keep monolith"]}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeFalse();
+        s.Should().BeNull();
+    }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_ignores_fractional_numeric_evidence_ref_entries()
+    {
+        const string json = """{"reasoning":"Main","evidenceRefs":[42.5,"dec-1"]}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.EvidenceRefs.Should().Equal("dec-1");
+    }
+
+    [Fact]
     public void TryNormalizeStructuredJson_ignores_negative_numeric_evidence_ref_entries()
     {
         const string json = """{"reasoning":"Main","evidenceRefs":[-1,"dec-1"]}""";
@@ -316,6 +371,39 @@ public sealed class StructuredExplanationParserTests
 
         ok.Should().BeTrue();
         s!.EvidenceRefs.Should().Equal("dec-1");
+    }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_maps_object_shaped_evidence_ref_when_later_case_variant_id_is_empty()
+    {
+        const string json = """{"reasoning":"Main","evidenceRefs":[{"id":"dec-1","ID":""}]}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.EvidenceRefs.Should().Equal("dec-1");
+    }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_maps_object_shaped_reasoning_when_later_case_variant_text_is_empty()
+    {
+        const string json = """{"reasoning":{"text":"Recovered explanation","TEXT":""}}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Reasoning.Should().Be("Recovered explanation");
+    }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_maps_object_shaped_reasoning_when_only_id_property_is_populated()
+    {
+        const string json = """{"reasoning":{"id":"Recovered via id","ID":""}}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Reasoning.Should().Be("Recovered via id");
     }
 
     [Fact]
@@ -515,4 +603,918 @@ public sealed class StructuredExplanationParserTests
         ok.Should().BeTrue();
         s!.Caveats.Should().Equal("Assumes single-region deployment.");
     }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_uses_non_empty_confidence_when_later_case_variant_is_empty()
+    {
+        const string json = """{"reasoning":"Main","confidence":0.8,"CONFIDENCE":""}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Confidence.Should().Be(0.8m);
+    }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_uses_non_empty_evidence_refs_when_later_case_variant_is_empty()
+    {
+        const string json = """{"reasoning":"Main","evidenceRefs":["dec-1"],"EVIDENCEREFS":[]}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.EvidenceRefs.Should().Equal("dec-1");
+    }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_uses_non_empty_reasoning_when_later_case_variant_is_empty_object()
+    {
+        const string json = """{"reasoning":"Recovered explanation","Reasoning":{}}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Reasoning.Should().Be("Recovered explanation");
+    }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_uses_non_empty_confidence_when_later_case_variant_is_empty_object()
+    {
+        const string json = """{"reasoning":"Main","confidence":0.8,"CONFIDENCE":{}}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Confidence.Should().Be(0.8m);
+    }
+
+    [Fact]
+    public void RunExplanation_structured_json_keeps_confidence_when_later_case_variant_is_nested_empty_wrapper_object()
+    {
+        const string json = """{"reasoning":"Main","confidence":0.8,"CONFIDENCE":{"wrapper":{}}}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Confidence.Should().Be(0.8m);
+    }
+
+    [Fact]
+    public void RunExplanation_structured_json_keeps_schema_version_when_later_case_variant_is_nested_empty_wrapper_object()
+    {
+        const string json = """{"reasoning":"Main","schemaVersion":2,"SCHEMAVERSION":{"wrapper":{}}}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.SchemaVersion.Should().Be(2);
+    }
+
+    [Fact]
+    public void RunExplanation_structured_json_keeps_schema_version_when_later_case_variant_is_one_numeric()
+    {
+        const string json = """{"reasoning":"Main","schemaVersion":2,"SCHEMAVERSION":1}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.SchemaVersion.Should().Be(2);
+    }
+
+    [Fact]
+    public void RunExplanation_structured_json_keeps_schema_version_when_later_case_variant_is_arbitrary_numeric()
+    {
+        const string json = """{"reasoning":"Main","schemaVersion":2,"SCHEMAVERSION":42}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.SchemaVersion.Should().Be(2);
+    }
+
+    [Fact]
+    public void RunExplanation_structured_json_keeps_schema_version_when_later_case_variant_is_arbitrary_numeric_string()
+    {
+        const string json = """{"reasoning":"Main","schemaVersion":2,"SCHEMAVERSION":"42"}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.SchemaVersion.Should().Be(2);
+    }
+
+    [Fact]
+    public void RunExplanation_structured_json_keeps_evidence_refs_when_later_case_variant_is_one_numeric()
+    {
+        const string json = """{"reasoning":"Main","evidenceRefs":["dec-1"],"EVIDENCEREFS":1}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.EvidenceRefs.Should().Equal("dec-1");
+    }
+
+    [Fact]
+    public void RunExplanation_structured_json_keeps_evidence_refs_when_later_case_variant_is_arbitrary_numeric()
+    {
+        const string json = """{"reasoning":"Main","evidenceRefs":["dec-1"],"EVIDENCEREFS":42}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.EvidenceRefs.Should().Equal("dec-1");
+    }
+
+    [Fact]
+    public void RunExplanation_structured_json_keeps_evidence_refs_when_later_case_variant_is_arbitrary_numeric_string()
+    {
+        const string json = """{"reasoning":"Main","evidenceRefs":["dec-1"],"EVIDENCEREFS":"42"}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.EvidenceRefs.Should().Equal("dec-1");
+    }
+
+    [Fact]
+    public void RunExplanation_structured_json_keeps_reasoning_when_later_case_variant_is_one_numeric()
+    {
+        const string json = """{"reasoning":"Main text","REASONING":1}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Reasoning.Should().Be("Main text");
+    }
+
+    [Fact]
+    public void RunExplanation_structured_json_keeps_reasoning_when_later_case_variant_is_arbitrary_numeric()
+    {
+        const string json = """{"reasoning":"Main text","REASONING":42}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Reasoning.Should().Be("Main text");
+    }
+
+    [Fact]
+    public void RunExplanation_structured_json_keeps_reasoning_when_later_case_variant_is_arbitrary_numeric_string()
+    {
+        const string json = """{"reasoning":"Main text","REASONING":"42"}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Reasoning.Should().Be("Main text");
+    }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_uses_non_empty_reasoning_when_later_case_variant_is_blank_text_object()
+    {
+        const string json = """{"reasoning":"Recovered explanation","Reasoning":{"text":"   "}}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Reasoning.Should().Be("Recovered explanation");
+    }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_uses_non_empty_evidence_refs_when_later_case_variant_is_blank_text_object()
+    {
+        const string json = """{"reasoning":"Main","evidenceRefs":["dec-1"],"EVIDENCEREFS":{"text":"   "}}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.EvidenceRefs.Should().Equal("dec-1");
+    }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_uses_non_empty_reasoning_when_later_case_variant_is_whitespace_only_array()
+    {
+        const string json = """{"reasoning":"Recovered explanation","Reasoning":["   "]}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Reasoning.Should().Be("Recovered explanation");
+    }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_uses_non_empty_confidence_when_later_case_variant_is_empty_string_array()
+    {
+        const string json = """{"reasoning":"Main","confidence":0.75,"CONFIDENCE":[""]}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Confidence.Should().Be(0.75m);
+    }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_uses_non_empty_reasoning_when_later_case_variant_is_boolean_only_array()
+    {
+        const string json = """{"reasoning":"Recovered explanation","Reasoning":[true]}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Reasoning.Should().Be("Recovered explanation");
+    }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_uses_non_empty_confidence_when_later_case_variant_is_boolean_scalar()
+    {
+        const string json = """{"reasoning":"Main","confidence":0.8,"CONFIDENCE":false}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Confidence.Should().Be(0.8m);
+    }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_uses_non_empty_reasoning_when_later_case_variant_is_id_only_object()
+    {
+        const string json = """{"reasoning":"Recovered explanation","Reasoning":{"id":"provider-paragraph-id","text":"   "}}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Reasoning.Should().Be("Recovered explanation");
+    }
+
+    [Fact]
+    public void RunExplanation_structured_json_keeps_confidence_when_later_case_variant_is_arbitrary_numeric()
+    {
+        const string json = """{"reasoning":"Main","confidence":0.85,"CONFIDENCE":42}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Confidence.Should().Be(0.85m);
+    }
+
+    [Fact]
+    public void RunExplanation_structured_json_keeps_confidence_when_later_case_variant_is_arbitrary_numeric_string()
+    {
+        const string json = """{"reasoning":"Main","confidence":0.85,"CONFIDENCE":"42"}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Confidence.Should().Be(0.85m);
+    }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_uses_non_empty_confidence_when_later_case_variant_is_zero()
+    {
+        const string json = """{"reasoning":"Main","confidence":0.75,"CONFIDENCE":0}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Confidence.Should().Be(0.75m);
+    }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_preserves_explicit_zero_confidence_when_only_value()
+    {
+        const string json = """{"reasoning":"Main","confidence":0}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Confidence.Should().Be(0m);
+    }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_uses_non_empty_reasoning_when_later_case_variant_is_blank_object_array()
+    {
+        const string json = """{"reasoning":"Recovered explanation","Reasoning":[{"text":"   "}]}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Reasoning.Should().Be("Recovered explanation");
+    }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_uses_non_empty_evidence_refs_when_later_case_variant_is_zero_numeric_array()
+    {
+        const string json = """{"reasoning":"Main","evidenceRefs":["dec-1"],"EVIDENCEREFS":[0]}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.EvidenceRefs.Should().Equal("dec-1");
+    }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_preserves_explicit_zero_evidence_ref_when_only_numeric_array_value()
+    {
+        const string json = """{"reasoning":"Main","evidenceRefs":[0]}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.EvidenceRefs.Should().Equal("0");
+    }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_uses_non_empty_reasoning_when_later_case_variant_is_zero_numeric_scalar()
+    {
+        const string json = """{"reasoning":"Main explanation","Reasoning":0}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Reasoning.Should().Be("Main explanation");
+    }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_preserves_explicit_zero_reasoning_when_only_numeric_scalar()
+    {
+        const string json = """{"reasoning":0}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Reasoning.Should().Be("0");
+    }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_uses_non_empty_reasoning_when_later_case_variant_is_zero_numeric_array()
+    {
+        const string json = """{"reasoning":"Main explanation","Reasoning":[0]}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Reasoning.Should().Be("Main explanation");
+    }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_uses_non_empty_alternatives_considered_when_later_case_variant_is_zero_numeric_scalar()
+    {
+        const string json =
+            """{"reasoning":"Main","alternativesConsidered":["Keep monolith"],"ALTERNATIVESCONSIDERED":0}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.AlternativesConsidered.Should().Equal("Keep monolith");
+    }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_uses_non_empty_caveats_when_later_case_variant_is_blank_text_object_with_id()
+    {
+        const string json =
+            """{"reasoning":"Main","caveats":["Latency risk"],"CAVEATS":{"text":"   ","id":"spoof"}}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Caveats.Should().Equal("Latency risk");
+    }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_uses_non_empty_evidence_refs_when_later_case_variant_is_blank_text_object_with_id()
+    {
+        const string json =
+            """{"reasoning":"Main","evidenceRefs":["dec-1"],"EVIDENCEREFS":{"text":"   ","id":"spoof"}}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.EvidenceRefs.Should().Equal("dec-1");
+    }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_maps_object_shaped_evidence_ref_array_entry_when_id_property_is_populated()
+    {
+        const string json = """{"reasoning":"Main","evidenceRefs":[{"id":"dec-1","ID":""}]}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.EvidenceRefs.Should().Equal("dec-1");
+    }
+
+    [Fact]
+    public void RunExplanation_structured_json_keeps_alternatives_when_later_case_variant_is_one_numeric_poison_array()
+    {
+        const string json =
+            """{"reasoning":"Main","alternativesConsidered":["Keep monolith","Split services"],"ALTERNATIVESCONSIDERED":[1]}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.AlternativesConsidered.Should().Equal("Keep monolith", "Split services");
+    }
+
+    [Fact]
+    public void RunExplanation_structured_json_keeps_reasoning_when_later_case_variant_is_one_string_poison_array()
+    {
+        const string json =
+            """{"reasoning":"Recovered explanation","REASONING":["1"]}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Reasoning.Should().Be("Recovered explanation");
+    }
+
+    [Fact]
+    public void RunExplanation_structured_json_keeps_confidence_when_later_case_variant_is_one_string_poison_array()
+    {
+        const string json =
+            """{"reasoning":"Main","confidence":0.85,"CONFIDENCE":["1"]}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Confidence.Should().Be(0.85m);
+    }
+
+    [Fact]
+    public void RunExplanation_structured_json_keeps_confidence_when_later_case_variant_is_supported_ratio_poison_array()
+    {
+        const string json =
+            """{"reasoning":"Main","confidence":0.85,"CONFIDENCE":[0.75]}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Confidence.Should().Be(0.85m);
+    }
+
+    [Fact]
+    public void RunExplanation_structured_json_keeps_reasoning_when_later_case_variant_is_supported_prose_poison_array()
+    {
+        const string json =
+            """{"reasoning":"Main","REASONING":["Alternate prose"]}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Reasoning.Should().Be("Main");
+    }
+
+    [Fact]
+    public void RunExplanation_structured_json_keeps_evidence_refs_when_later_case_variant_is_supported_prose_poison_array()
+    {
+        const string json =
+            """{"reasoning":"Main","evidenceRefs":["a","b"],"EVIDENCEREFS":["c"]}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.EvidenceRefs.Should().Equal("a", "b");
+    }
+
+    [Fact]
+    public void RunExplanation_structured_json_keeps_alternatives_when_later_case_variant_is_supported_prose_poison_array()
+    {
+        const string json =
+            """{"reasoning":"Main","alternativesConsidered":["Keep monolith"],"ALTERNATIVESCONSIDERED":["Split services"]}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.AlternativesConsidered.Should().Equal("Keep monolith");
+    }
+
+    [Fact]
+    public void RunExplanation_structured_json_keeps_caveats_when_later_case_variant_is_supported_prose_poison_array()
+    {
+        const string json =
+            """{"reasoning":"Main","caveats":["Latency risk"],"CAVEATS":["Different caveat"]}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Caveats.Should().Equal("Latency risk");
+    }
+
+    [Fact]
+    public void RunExplanation_structured_json_keeps_caveats_when_later_case_variant_is_multi_entry_object_prose_poison_array()
+    {
+        const string json =
+            """{"reasoning":"Main","caveats":["Latency risk"],"CAVEATS":[{"text":"Spoof one"},{"text":"Spoof two"}]}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Caveats.Should().Equal("Latency risk");
+    }
+
+    [Fact]
+    public void RunExplanation_structured_json_reads_schema_version_from_sole_nested_numeric_array_alias()
+    {
+        const string json = """{"schemaVersion":[[2]],"reasoning":"Main"}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.SchemaVersion.Should().Be(2);
+    }
+
+    [Fact]
+    public void RunExplanation_structured_json_keeps_schema_version_when_later_case_variant_is_nested_numeric_poison_array()
+    {
+        const string json =
+            """{"schemaVersion":2,"reasoning":"Main","SCHEMAVERSION":[[3]]}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.SchemaVersion.Should().Be(2);
+    }
+
+    [Fact]
+    public void RunExplanation_structured_json_reads_alternatives_from_sole_nested_string_array_alias()
+    {
+        const string json =
+            """{"reasoning":"Main","alternativesConsidered":[["Keep monolith"]]}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.AlternativesConsidered.Should().Equal("Keep monolith");
+    }
+
+    [Fact]
+    public void RunExplanation_structured_json_reads_reasoning_from_sole_nested_string_array_alias()
+    {
+        const string json = """{"reasoning":[["Nested paragraph."]]}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Reasoning.Should().Be("Nested paragraph.");
+    }
+
+    [Fact]
+    public void RunExplanation_structured_json_keeps_reasoning_when_later_case_variant_is_nested_prose_poison_array()
+    {
+        const string json =
+            """{"reasoning":"Main","REASONING":[["Alternate nested prose"]]}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Reasoning.Should().Be("Main");
+    }
+
+    [Fact]
+    public void RunExplanation_structured_json_keeps_reasoning_when_later_case_variant_is_scalar_object_prose_poison_alias()
+    {
+        const string json =
+            """{"reasoning":"Main","REASONING":{"text":"Alternate prose"}}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Reasoning.Should().Be("Main");
+    }
+
+    [Fact]
+    public void RunExplanation_structured_json_keeps_evidence_refs_when_later_case_variant_is_scalar_object_ref_poison_alias()
+    {
+        const string json =
+            """{"reasoning":"Main","evidenceRefs":["dec-1"],"EVIDENCEREFS":{"id":"dec-spoof"}}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.EvidenceRefs.Should().Equal("dec-1");
+    }
+
+    [Fact]
+    public void RunExplanation_structured_json_keeps_evidence_refs_when_later_case_variant_is_supported_ref_token_poison_array()
+    {
+        const string json =
+            """{"reasoning":"Main","evidenceRefs":["dec-1"],"EVIDENCEREFS":["dec-2"]}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.EvidenceRefs.Should().Equal("dec-1");
+    }
+
+    [Fact]
+    public void RunExplanation_structured_json_keeps_evidence_refs_when_later_case_variant_is_multi_entry_prose_poison_array()
+    {
+        const string json =
+            """{"reasoning":"Main","evidenceRefs":["dec-1"],"EVIDENCEREFS":["spoof-a","spoof-b"]}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.EvidenceRefs.Should().Equal("dec-1");
+    }
+
+    [Fact]
+    public void RunExplanation_structured_json_keeps_reasoning_when_later_case_variant_is_supported_object_prose_poison_array()
+    {
+        const string json =
+            """{"reasoning":"Main","REASONING":[{"text":"Alternate prose","id":"alias-1"}]}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Reasoning.Should().Be("Main");
+    }
+
+    [Fact]
+    public void RunExplanation_structured_json_keeps_schema_version_when_later_case_variant_is_supported_string_poison_array()
+    {
+        const string json =
+            """{"schemaVersion":2,"reasoning":"Main","SCHEMAVERSION":["2"]}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.SchemaVersion.Should().Be(2);
+    }
+
+    [Fact]
+    public void RunExplanation_structured_json_reads_schema_version_from_sole_numeric_array_alias()
+    {
+        const string json = """{"schemaVersion":[2],"reasoning":"Main"}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.SchemaVersion.Should().Be(2);
+    }
+
+    [Fact]
+    public void RunExplanation_structured_json_keeps_schema_version_when_later_case_variant_is_supported_numeric_poison_array()
+    {
+        const string json =
+            """{"schemaVersion":2,"reasoning":"Main","SCHEMAVERSION":[2]}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.SchemaVersion.Should().Be(2);
+    }
+
+    [Fact]
+    public void RunExplanation_FromAggregateJson_reads_faithfulness_warning_from_sole_string_array_alias()
+    {
+        RunExplanationConfidenceSignals? signals = RunExplanationConfidenceCalloutBuilder.FromAggregateJson(
+            """
+            {
+              "faithfulnessSupportRatio": 0.95,
+              "faithfulnessWarning": [ "Citations incomplete" ],
+              "citations": 1
+            }
+            """);
+
+        signals.Should().NotBeNull();
+        signals!.FaithfulnessWarning.Should().Be("Citations incomplete");
+        RunExplanationConfidenceCalloutBuilder.ResolveDisposition(signals).Should().Be("WARN");
+    }
+
+    [Fact]
+    public void RunExplanation_structured_json_keeps_schema_version_when_later_case_variant_is_unsupported_string_poison_array()
+    {
+        const string json =
+            """{"schemaVersion":2,"reasoning":"Main","SCHEMAVERSION":["3"]}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.SchemaVersion.Should().Be(2);
+    }
+
+    [Fact]
+    public void RunExplanation_structured_json_keeps_schema_version_when_later_case_variant_is_string_numeric_poison_array()
+    {
+        const string json =
+            """{"schemaVersion":2,"reasoning":"Main","SCHEMAVERSION":["42"]}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.SchemaVersion.Should().Be(2);
+    }
+
+    [Fact]
+    public void RunExplanation_structured_json_keeps_schema_version_when_later_case_variant_is_one_string_poison_array()
+    {
+        const string json =
+            """{"schemaVersion":2,"reasoning":"Main","SCHEMAVERSION":["1"]}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.SchemaVersion.Should().Be(2);
+    }
+
+    [Fact]
+    public void RunExplanation_structured_json_keeps_schema_version_when_later_case_variant_is_numeric_poison_array()
+    {
+        const string json =
+            """{"schemaVersion":2,"reasoning":"Main","SCHEMAVERSION":[42]}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.SchemaVersion.Should().Be(2);
+    }
+
+    [Fact]
+    public void RunExplanation_structured_json_keeps_alternatives_when_later_case_variant_is_one_string_poison_array()
+    {
+        const string json =
+            """{"reasoning":"Main","alternativesConsidered":["Keep monolith"],"ALTERNATIVESCONSIDERED":["1"]}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.AlternativesConsidered.Should().Equal("Keep monolith");
+    }
+
+    [Fact]
+    public void RunExplanation_structured_json_keeps_confidence_when_later_case_variant_is_string_numeric_poison_array()
+    {
+        const string json =
+            """{"reasoning":"Main","confidence":0.85,"CONFIDENCE":["42"]}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Confidence.Should().Be(0.85m);
+    }
+
+    [Fact]
+    public void RunExplanation_structured_json_keeps_evidence_refs_when_later_case_variant_is_one_string_poison_array()
+    {
+        const string json =
+            """{"reasoning":"Main","evidenceRefs":["dec-1","dec-2"],"EVIDENCEREFS":["1"]}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.EvidenceRefs.Should().Equal("dec-1", "dec-2");
+    }
+
+    [Fact]
+    public void RunExplanation_structured_json_keeps_reasoning_when_later_case_variant_is_one_numeric_poison_array()
+    {
+        const string json =
+            """{"reasoning":"Recovered explanation","REASONING":[1]}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Reasoning.Should().Be("Recovered explanation");
+    }
+
+    [Fact]
+    public void RunExplanation_structured_json_keeps_confidence_when_later_case_variant_is_numeric_poison_array()
+    {
+        const string json =
+            """{"reasoning":"Main","confidence":0.85,"CONFIDENCE":[42]}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Confidence.Should().Be(0.85m);
+    }
+
+    [Fact]
+    public void RunExplanation_structured_json_keeps_caveats_when_later_case_variant_is_one_numeric_poison_array()
+    {
+        const string json =
+            """{"reasoning":"Main","caveats":["Latency risk","Scope gap"],"CAVEATS":[1]}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Caveats.Should().Equal("Latency risk", "Scope gap");
+    }
+
+    [Fact]
+    public void RunExplanation_structured_json_keeps_reasoning_when_later_case_variant_is_string_numeric_poison_array()
+    {
+        const string json =
+            """{"reasoning":"Recovered explanation","REASONING":["42"]}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Reasoning.Should().Be("Recovered explanation");
+    }
+
+    [Fact]
+    public void RunExplanation_structured_json_keeps_reasoning_when_later_case_variant_is_numeric_poison_array()
+    {
+        const string json =
+            """{"reasoning":"Recovered explanation","REASONING":[42]}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Reasoning.Should().Be("Recovered explanation");
+    }
+
+    [Fact]
+    public void RunExplanation_structured_json_keeps_evidence_refs_when_later_case_variant_is_string_numeric_poison_array()
+    {
+        const string json =
+            """{"reasoning":"Main","evidenceRefs":["dec-1","dec-2"],"EVIDENCEREFS":["42"]}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.EvidenceRefs.Should().Equal("dec-1", "dec-2");
+    }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_uses_non_empty_evidence_refs_when_later_case_variant_is_blank_text_object_array_with_id()
+    {
+        const string json =
+            """{"reasoning":"Main","evidenceRefs":["dec-1"],"EVIDENCEREFS":[{"text":"   ","id":"spoof"}]}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.EvidenceRefs.Should().Equal("dec-1");
+    }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_uses_non_empty_reasoning_when_later_case_variant_is_blank_text_object_array_with_id()
+    {
+        const string json =
+            """{"reasoning":"Recovered explanation","Reasoning":[{"text":"   ","id":"spoof"}]}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Reasoning.Should().Be("Recovered explanation");
+    }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_ignores_caveats_array_entries_with_blank_text_and_id_only_poison_shape()
+    {
+        const string json =
+            """{"reasoning":"Main","caveats":["Latency risk",{"text":"   ","id":"spoof"}]}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Caveats.Should().Equal("Latency risk");
+    }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_uses_non_empty_caveats_when_later_case_variant_is_zero_numeric_scalar()
+    {
+        const string json = """{"reasoning":"Main","caveats":["Latency risk"],"CAVEATS":0}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Caveats.Should().Equal("Latency risk");
+    }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_uses_non_empty_schema_version_when_later_case_variant_is_zero()
+    {
+        const string json = """{"schemaVersion":2,"reasoning":"Main","SCHEMAVERSION":0}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.SchemaVersion.Should().Be(2);
+    }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_uses_non_empty_confidence_when_later_case_variant_is_zero_numeric_array()
+    {
+        const string json = """{"reasoning":"Main","confidence":0.8,"CONFIDENCE":[0]}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Confidence.Should().Be(0.8m);
+    }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_preserves_explicit_zero_confidence_when_only_numeric_array_value()
+    {
+        const string json = """{"reasoning":"Main","confidence":[0]}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Confidence.Should().Be(0m);
+    }
+
 }

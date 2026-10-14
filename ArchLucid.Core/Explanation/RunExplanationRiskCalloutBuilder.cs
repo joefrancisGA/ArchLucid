@@ -7,20 +7,20 @@ public static class RunExplanationRiskCalloutBuilder
 {
     public static int? TryParseUnresolvedIssueCount(JsonElement root)
     {
-        if (!RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitive(root, "unresolvedIssueCount", out JsonElement countEl))
+        if (!RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitivePreferLastNonEmpty(root, "unresolvedIssueCount", out JsonElement countEl))
             return null;
 
-        return RunExplanationAggregateJsonReader.TryReadWholeNumber(countEl, out int count)
+        return RunExplanationAggregateJsonReader.TryReadAggregateWholeNumberCountToken(countEl, out int count)
             ? count
             : null;
     }
 
     public static string? TryParseRiskPosture(JsonElement root)
     {
-        if (!RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitive(root, "riskPosture", out JsonElement postureEl))
+        if (!RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitivePreferLastNonEmpty(root, "riskPosture", out JsonElement postureEl))
             return null;
 
-        return RunExplanationAggregateJsonReader.TryReadNonEmptyTextToken(postureEl, out string? posture)
+        return RunExplanationAggregateJsonReader.TryReadAggregateStringCalloutToken(postureEl, out string? posture)
             ? posture?.Trim()
             : null;
     }

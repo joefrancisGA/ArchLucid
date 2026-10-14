@@ -1,6 +1,8 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Findings;
 
 /// <summary>
@@ -11,14 +13,10 @@ public sealed class FindingTreatmentJsonConverter : JsonConverter<FindingTreatme
     public override FindingTreatment Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
         if (reader.TokenType == JsonTokenType.Number)
-        {
-            int ordinal = reader.GetInt32();
-
-            if (!Enum.IsDefined(typeof(FindingTreatment), ordinal))
-                throw new JsonException($"Unknown finding treatment value '{ordinal}'.");
-
-            return (FindingTreatment)ordinal;
-        }
+            return DefinedEnumStringReader.ReadNumberTokenAsDefinedOrdinal<FindingTreatment>(
+                ref reader,
+                ordinal => new JsonException($"Unknown finding treatment value '{ordinal}'."),
+                () => new JsonException("Invalid finding treatment number."));
 
         if (reader.TokenType != JsonTokenType.String)
             throw new JsonException("Expected string or number for finding treatment.");
@@ -28,7 +26,7 @@ public sealed class FindingTreatmentJsonConverter : JsonConverter<FindingTreatme
         if (string.IsNullOrWhiteSpace(raw))
             throw new JsonException("Finding treatment value is required.");
 
-        if (Enum.TryParse(raw, ignoreCase: true, out FindingTreatment parsed))
+        if (DefinedEnumStringReader.TryParse(raw, out FindingTreatment parsed))
             return parsed;
 
         throw new JsonException($"Unknown finding treatment value '{raw}'.");

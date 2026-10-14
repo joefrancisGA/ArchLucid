@@ -1,6 +1,8 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Common;
 
 /// <summary>
@@ -11,14 +13,10 @@ public sealed class RuntimePlatformJsonConverter : JsonConverter<RuntimePlatform
     public override RuntimePlatform Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
         if (reader.TokenType == JsonTokenType.Number)
-        {
-            int ordinal = reader.GetInt32();
-
-            if (!Enum.IsDefined(typeof(RuntimePlatform), ordinal))
-                throw new JsonException($"Unknown runtime platform value '{ordinal}'.");
-
-            return (RuntimePlatform)ordinal;
-        }
+            return DefinedEnumStringReader.ReadNumberTokenAsDefinedOrdinal<RuntimePlatform>(
+                ref reader,
+                ordinal => new JsonException($"Unknown runtime platform value '{ordinal}'."),
+                () => new JsonException("Invalid runtime platform number."));
 
         if (reader.TokenType != JsonTokenType.String)
             throw new JsonException("Expected string or number for runtime platform.");
@@ -28,7 +26,11 @@ public sealed class RuntimePlatformJsonConverter : JsonConverter<RuntimePlatform
         if (string.IsNullOrWhiteSpace(raw))
             return RuntimePlatform.Unknown;
 
-        if (Enum.TryParse(raw, ignoreCase: true, out RuntimePlatform parsed))
+        DefinedEnumStringReader.ThrowIfUndefinedNumericString<RuntimePlatform>(
+            raw,
+            $"Unknown runtime platform value '{raw}'.");
+
+        if (DefinedEnumStringReader.TryParse(raw, out RuntimePlatform parsed))
             return parsed;
 
         string normalized = raw.Trim().ToLowerInvariant().Replace(" ", string.Empty).Replace("-", string.Empty);

@@ -113,24 +113,37 @@ public static class RunExplanationConfidenceCalloutBuilder
     {
         double? ratio = null;
 
-        if (RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitive(root, "faithfulnessSupportRatio", out JsonElement ratioEl))
+        if (RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitivePreferLastNonEmpty(root, "faithfulnessSupportRatio", out JsonElement ratioEl))
             ratio = RunExplanationAggregateJsonReader.NormalizeUnitRatio(
-                RunExplanationAggregateJsonReader.TryReadFiniteDouble(ratioEl));
+                RunExplanationAggregateJsonReader.TryReadAggregateRatioToken(ratioEl));
 
-        bool fallback =
-            (RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitive(root, "deterministicFallbackUsed", out JsonElement direct)
-             && RunExplanationAggregateJsonReader.TryReadBoolean(direct))
-            || (RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitive(root, "usedDeterministicFallback", out JsonElement legacy)
-                && RunExplanationAggregateJsonReader.TryReadBoolean(legacy));
+        bool fallback = false;
 
-        string? warning = RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitive(root, "faithfulnessWarning", out JsonElement warningEl)
-                            && RunExplanationAggregateJsonReader.TryReadNonEmptyTextToken(warningEl, out string? warningText)
+        if (RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitivePreferLastNonEmpty(
+                root,
+                "deterministicFallbackUsed",
+                out JsonElement direct)
+            && RunExplanationAggregateJsonReader.TryReadAggregateBooleanToken(direct, out bool directFallback))
+        {
+            fallback = directFallback;
+        }
+        else if (RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitivePreferLastNonEmpty(
+                     root,
+                     "usedDeterministicFallback",
+                     out JsonElement legacy)
+                 && RunExplanationAggregateJsonReader.TryReadAggregateBooleanToken(legacy, out bool legacyFallback))
+        {
+            fallback = legacyFallback;
+        }
+
+        string? warning = RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitivePreferLastNonEmpty(root, "faithfulnessWarning", out JsonElement warningEl)
+                            && RunExplanationAggregateJsonReader.TryReadAggregateStringCalloutToken(warningEl, out string? warningText)
             ? warningText?.Trim()
             : null;
 
         int? citationCount = null;
 
-        if (RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitive(root, "citations", out JsonElement citationsEl))
+        if (RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitivePreferLastNonEmpty(root, "citations", out JsonElement citationsEl))
         {
             if (citationsEl.ValueKind == JsonValueKind.Null)
             {
@@ -138,7 +151,7 @@ public static class RunExplanationConfidenceCalloutBuilder
             }
             else if (citationsEl.ValueKind == JsonValueKind.Array)
             {
-                citationCount = CountFlattenedCitations(citationsEl);
+                citationCount = TryParseCitationCountArray(citationsEl);
             }
             else if (citationsEl.ValueKind == JsonValueKind.Object)
             {
@@ -181,6 +194,25 @@ public static class RunExplanationConfidenceCalloutBuilder
         }
 
         return new RunExplanationConfidenceSignals(ratio, fallback, warning, citationCount);
+    }
+
+    private static int TryParseCitationCountArray(JsonElement citationsArray)
+    {
+        int nonNullEntries = 0;
+
+        foreach (JsonElement item in citationsArray.EnumerateArray())
+        {
+            if (item.ValueKind != JsonValueKind.Null)
+                nonNullEntries++;
+        }
+
+        if (nonNullEntries == 1
+            && RunExplanationAggregateJsonReader.TryReadAggregateWholeNumberCountToken(citationsArray, out int soleArrayCount))
+        {
+            return soleArrayCount;
+        }
+
+        return CountFlattenedCitations(citationsArray);
     }
 
     private static int CountFlattenedCitations(JsonElement citationsArray)
@@ -228,16 +260,8 @@ public static class RunExplanationConfidenceCalloutBuilder
         if (item.ValueKind != JsonValueKind.Object)
             return 0;
 
-        foreach (string propertyName in new[] { "id", "text" })
-        {
-            if (RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitive(item, propertyName, out JsonElement property)
-                && RunExplanationAggregateJsonReader.TryReadNonEmptyTextToken(property, out string? value)
-                && !string.IsNullOrWhiteSpace(value))
-            {
-                return 1;
-            }
-        }
-
-        return 0;
+        return string.IsNullOrWhiteSpace(RunExplanationAggregateJsonReader.TryReadEvidenceRefObjectStringProperty(item))
+            ? 0
+            : 1;
     }
 }

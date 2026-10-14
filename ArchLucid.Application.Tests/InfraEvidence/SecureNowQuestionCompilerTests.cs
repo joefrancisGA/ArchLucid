@@ -309,6 +309,47 @@ public sealed class SecureNowQuestionCompilerTests
         questions[0].DispositionId.Should().Be(disposition.DispositionId);
     }
 
+    [Fact]
+    public void Distinct_proposed_inferred_connections_with_the_same_rule_emit_separate_questions()
+    {
+        const string fromArmId = "/subscriptions/sub/resource";
+        Guid firstConnectionId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+        Guid secondConnectionId = Guid.Parse("22222222-2222-2222-2222-222222222222");
+
+        IReadOnlyList<SecureNowQuestionRecord> questions = new SecureNowQuestionCompiler().Compile(
+            Scope,
+            CreateSnapshot(),
+            [],
+            [
+                new OperatorInferredConnectionRecord
+                {
+                    ConnectionId = firstConnectionId,
+                    SnapshotId = SnapshotId,
+                    Status = OperatorInferredConnectionStatus.Proposed,
+                    Source = OperatorInferredConnectionSource.Questionnaire,
+                    RuleName = "Unresolved host",
+                    QuestionText = "Should host A connect?",
+                    FromArmId = fromArmId,
+                    ToArmId = "/subscriptions/sub/target-a",
+                },
+                new OperatorInferredConnectionRecord
+                {
+                    ConnectionId = secondConnectionId,
+                    SnapshotId = SnapshotId,
+                    Status = OperatorInferredConnectionStatus.Proposed,
+                    Source = OperatorInferredConnectionSource.Questionnaire,
+                    RuleName = "Unresolved host",
+                    QuestionText = "Should host B connect?",
+                    FromArmId = fromArmId,
+                    ToArmId = "/subscriptions/sub/target-b",
+                },
+            ],
+            []);
+
+        questions.Should().HaveCount(2);
+        questions.Select(question => question.QuestionKey).Should().OnlyHaveUniqueItems();
+    }
+
     private static IReadOnlyList<SecureNowQuestionRecord> Compile(
         params SecureNowDiagramQuestionCandidate[] candidates) =>
         new SecureNowQuestionCompiler().Compile(

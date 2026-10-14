@@ -77,6 +77,22 @@ function normalizeRuleKey(value: string): string {
   return value.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 }
 
+function normalizeConnectionId(value: string): string {
+  return value.replace(/-/g, "").toLowerCase();
+}
+
+function connectionIdFromQuestionKey(questionKey: string): string | null {
+  const versionIndex = questionKey.toLowerCase().lastIndexOf("@v");
+  const base = versionIndex >= 0 ? questionKey.slice(0, versionIndex) : questionKey;
+  const suffix = base.split("-").pop() ?? "";
+
+  if (!/^[0-9a-f]{32}$/i.test(suffix)) {
+    return null;
+  }
+
+  return normalizeConnectionId(suffix);
+}
+
 function questionIdentity(question: SecureNowQuestion): string {
   return `${normalize(question.subscriptionId ?? "")}|${normalize(question.resourceId ?? "")}|${normalize(question.questionKey)}`;
 }
@@ -99,6 +115,14 @@ function findInferredConnection(
   question: SecureNowQuestion,
   connections: readonly OperatorInferredConnectionRow[],
 ): OperatorInferredConnectionRow | null {
+  const embeddedConnectionId = connectionIdFromQuestionKey(question.questionKey);
+
+  if (embeddedConnectionId != null) {
+    return connections.find((connection) =>
+      normalizeConnectionId(connection.connectionId) === embeddedConnectionId,
+    ) ?? null;
+  }
+
   const ruleKey = normalize(question.questionKey.split("@", 1)[0]);
   return connections.find((connection) => {
     const resourceMatches =
@@ -131,9 +155,14 @@ export function SecureNowQuestionQueueProvider(
   );
 
   useEffect(() => {
+    setQuestions([]);
+    setInferredConnections([]);
     setVisitedQuestionKeys(new Set());
     setSessionSkippedQuestionKeys(new Set());
     setQuestionsLoaded(false);
+    setCurrentIndex(0);
+    setSelectedAnswer(null);
+    setReason("");
   }, [snapshotId]);
 
   const loadQuestions = useCallback(async () => {
@@ -226,7 +255,12 @@ export function SecureNowQuestionQueueProvider(
   }, [currentQuestion, filteredQuestions.length]);
 
   const submitAction = useCallback(async (action: DrawerAction = drawerAction) => {
-    if (currentQuestion == null || busy) return;
+    if (!questionsLoaded || currentQuestion == null || busy) return;
+
+    if (currentQuestion.snapshotId.trim().length > 0
+      && currentQuestion.snapshotId !== snapshotId) {
+      return;
+    }
     if (action === "ignore" && reason.trim().length === 0) return;
     if (action === "reopen" && reason.trim().length === 0) return;
     if (action === "answer" && selectedAnswer == null) return;
@@ -307,6 +341,7 @@ export function SecureNowQuestionQueueProvider(
     loadQuestions,
     reason,
     selectedAnswer,
+    questionsLoaded,
     snapshotId,
   ]);
 

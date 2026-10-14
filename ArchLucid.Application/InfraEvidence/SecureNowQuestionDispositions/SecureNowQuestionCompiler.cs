@@ -67,7 +67,8 @@ public sealed class SecureNowQuestionCompiler
             if (resourceId.Length == 0)
                 continue;
 
-            string questionKey = $"{NormalizeKey(inferred.RuleName ?? "inferred-connection")}@v1";
+            string questionKey =
+                $"{NormalizeKey(inferred.RuleName ?? "inferred-connection")}-{inferred.ConnectionId:N}@v1";
             string fingerprint = Fingerprint(
                 questionKey,
                 resourceId,

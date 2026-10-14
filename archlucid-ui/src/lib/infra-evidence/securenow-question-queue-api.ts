@@ -69,7 +69,9 @@ function mapQuestion(raw: Record<string, unknown>): SecureNowQuestion {
     reasonText: stringOrDefault(raw.reasonText),
     sourceLine: stringOrDefault(raw.sourceLine),
     answerCodes: Array.isArray(raw.answerCodes)
-      ? raw.answerCodes.filter((value): value is string => typeof value === "string")
+      ? raw.answerCodes.filter(
+          (value): value is string => typeof value === "string" && value.trim().length > 0,
+        )
       : null,
     evidenceFingerprint: stringOrDefault(raw.evidenceFingerprint),
     expirationUtc: typeof raw.expirationUtc === "string" ? raw.expirationUtc : null,

@@ -336,8 +336,38 @@ describe("SecureNowQuestionQueue", () => {
     fireEvent.click(screen.getByRole("button", { name: "Not sure" }));
 
     view.rerender(<SecureNowQuestionQueue snapshotId="snapshot-2" />);
+    fireEvent.click(await screen.findByRole("button", { name: "Review" }));
 
     expect(await screen.findByText(question.questionText)).toBeInTheDocument();
+  });
+
+  it("does not persist a question from the previous snapshot while the next snapshot is loading", async () => {
+    const snapshotOneQuestion = {
+      ...question,
+      snapshotId: "snapshot-1",
+    };
+    let resolveSnapshotTwoLoad: ((value: typeof question[]) => void) | undefined;
+    const snapshotTwoLoad = new Promise<typeof question[]>((resolve) => {
+      resolveSnapshotTwoLoad = resolve;
+    });
+    mocks.listQuestions
+      .mockResolvedValueOnce([snapshotOneQuestion])
+      .mockImplementationOnce(() => snapshotTwoLoad);
+
+    const view = render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
+    fireEvent.click(await screen.findByRole("button", { name: "Review" }));
+    fireEvent.click(screen.getByRole("button", { name: "Don't ask again" }));
+    fireEvent.change(screen.getByRole("textbox", { name: "Reason for not asking again" }), {
+      target: { value: "Reviewed with the subscription owner." },
+    });
+
+    view.rerender(<SecureNowQuestionQueue snapshotId="snapshot-2" />);
+    await waitFor(() => expect(mocks.listQuestions).toHaveBeenCalledTimes(2));
+
+    expect(screen.queryByRole("button", { name: "Save" })).not.toBeInTheDocument();
+    expect(mocks.ignoreQuestion).not.toHaveBeenCalled();
+
+    resolveSnapshotTwoLoad?.([]);
   });
 
   it("keeps the newest snapshot question when an older load finishes later", async () => {
