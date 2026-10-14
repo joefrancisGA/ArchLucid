@@ -1,6 +1,7 @@
 using ArchLucid.Application.AzureExtractor;
 using ArchLucid.Contracts.Abstractions.Integrations;
 using ArchLucid.Core.Configuration;
+
 using ArchLucid.Core.AzureExtractor;
 using ArchLucid.Integrations.AzureExtractor;
 
@@ -132,12 +133,17 @@ public sealed class HostedAzureExtractorClientTests
 
         ConfigurePolicyDocumentMocks(armClient);
 
+        (Mock<IEntraAddCredentialGraphReader> addCredentialGraphReader, Mock<IOptionsMonitor<EntraAddCredentialGraphOptions>> addCredentialGraphOptions) =
+            HostedAzureExtractorGraphTestSupport.CreateAddCredentialGraphMocks();
+
         HostedAzureExtractorClient sut = new(
             credentialFactory.Object,
             armClient.Object,
             CreatePostReadClientMock().Object,
             graphReader.Object,
             options.Object,
+            addCredentialGraphReader.Object,
+            addCredentialGraphOptions.Object,
             NullLogger<HostedAzureExtractorClient>.Instance);
 
         HostedAzureExtractorCollectionRequest request = new()
@@ -275,12 +281,17 @@ public sealed class HostedAzureExtractorClientTests
         Mock<IOptionsMonitor<EntraGroupMembershipGraphOptions>> options = new();
         options.Setup(o => o.CurrentValue).Returns(new EntraGroupMembershipGraphOptions());
 
+        (Mock<IEntraAddCredentialGraphReader> addCredentialGraphReader, Mock<IOptionsMonitor<EntraAddCredentialGraphOptions>> addCredentialGraphOptions) =
+            HostedAzureExtractorGraphTestSupport.CreateAddCredentialGraphMocks();
+
         HostedAzureExtractorClient sut = new(
             credentialFactory.Object,
             armClient.Object,
             CreatePostReadClientMock().Object,
             graphReader.Object,
             options.Object,
+            addCredentialGraphReader.Object,
+            addCredentialGraphOptions.Object,
             NullLogger<HostedAzureExtractorClient>.Instance);
 
         HostedAzureExtractorCollectionRequest request = new()
@@ -446,12 +457,17 @@ public sealed class HostedAzureExtractorClientTests
 
         ConfigurePolicyDocumentMocks(armClient);
 
+        (Mock<IEntraAddCredentialGraphReader> addCredentialGraphReader, Mock<IOptionsMonitor<EntraAddCredentialGraphOptions>> addCredentialGraphOptions) =
+            HostedAzureExtractorGraphTestSupport.CreateAddCredentialGraphMocks();
+
         HostedAzureExtractorClient sut = new(
             credentialFactory.Object,
             armClient.Object,
             CreatePostReadClientMock().Object,
             graphReader.Object,
             options.Object,
+            addCredentialGraphReader.Object,
+            addCredentialGraphOptions.Object,
             NullLogger<HostedAzureExtractorClient>.Instance);
 
         HostedAzureExtractorCollectionResult result = await sut.CollectZipAsync(
