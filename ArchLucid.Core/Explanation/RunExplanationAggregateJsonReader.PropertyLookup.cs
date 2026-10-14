@@ -155,6 +155,7 @@ internal static partial class RunExplanationAggregateJsonReader
     {
         if ((structuredPropertyName.Equals("confidence", StringComparison.OrdinalIgnoreCase)
              || structuredPropertyName.Equals("faithfulnessSupportRatio", StringComparison.OrdinalIgnoreCase)
+             || structuredPropertyName.Equals("faithfulnessWarning", StringComparison.OrdinalIgnoreCase)
              || structuredPropertyName.Equals("reasoning", StringComparison.OrdinalIgnoreCase)
              || structuredPropertyName.Equals("schemaVersion", StringComparison.OrdinalIgnoreCase)
              || IsAggregateWholeNumberCountPropertyName(structuredPropertyName)
