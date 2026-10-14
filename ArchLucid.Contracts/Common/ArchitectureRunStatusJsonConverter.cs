@@ -13,14 +13,10 @@ public sealed class ArchitectureRunStatusJsonConverter : JsonConverter<Architect
     public override ArchitectureRunStatus Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
         if (reader.TokenType == JsonTokenType.Number)
-        {
-            int ordinal = reader.GetInt32();
-
-            if (!Enum.IsDefined(typeof(ArchitectureRunStatus), ordinal))
-                throw new JsonException($"Unknown architecture run status value '{ordinal}'.");
-
-            return (ArchitectureRunStatus)ordinal;
-        }
+            return DefinedEnumStringReader.ReadNumberTokenAsDefinedOrdinal<ArchitectureRunStatus>(
+                ref reader,
+                ordinal => new JsonException($"Unknown architecture run status value '{ordinal}'."),
+                () => new JsonException("Invalid architecture run status number."));
 
         if (reader.TokenType != JsonTokenType.String)
             throw new JsonException("Expected string or number for architecture run status.");

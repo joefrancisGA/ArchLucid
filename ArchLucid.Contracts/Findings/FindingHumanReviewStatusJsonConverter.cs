@@ -16,14 +16,10 @@ public sealed class FindingHumanReviewStatusJsonConverter : JsonConverter<Findin
         JsonSerializerOptions options)
     {
         if (reader.TokenType == JsonTokenType.Number)
-        {
-            int ordinal = reader.GetInt32();
-
-            if (!Enum.IsDefined(typeof(FindingHumanReviewStatus), ordinal))
-                throw new JsonException($"Unknown finding human review status value '{ordinal}'.");
-
-            return (FindingHumanReviewStatus)ordinal;
-        }
+            return DefinedEnumStringReader.ReadNumberTokenAsDefinedOrdinal<FindingHumanReviewStatus>(
+                ref reader,
+                ordinal => new JsonException($"Unknown finding human review status value '{ordinal}'."),
+                () => new JsonException("Invalid finding human review status number."));
 
         if (reader.TokenType != JsonTokenType.String)
             throw new JsonException("Expected string or number for finding human review status.");

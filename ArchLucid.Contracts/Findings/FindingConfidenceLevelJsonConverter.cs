@@ -13,15 +13,10 @@ public sealed class FindingConfidenceLevelJsonConverter : JsonConverter<FindingC
     public override FindingConfidenceLevel Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
         if (reader.TokenType == JsonTokenType.Number)
-        {
-            if (!reader.TryGetInt32(out int ordinal))
-                throw new JsonException("Expected integer for finding confidence level.");
-
-            if (!Enum.IsDefined(typeof(FindingConfidenceLevel), ordinal))
-                throw new JsonException($"Unknown finding confidence level value '{ordinal}'.");
-
-            return (FindingConfidenceLevel)ordinal;
-        }
+            return DefinedEnumStringReader.ReadNumberTokenAsDefinedOrdinal<FindingConfidenceLevel>(
+                ref reader,
+                ordinal => new JsonException($"Unknown finding confidence level value '{ordinal}'."),
+                () => new JsonException("Expected integer for finding confidence level."));
 
         if (reader.TokenType != JsonTokenType.String)
             throw new JsonException("Expected string or number for finding confidence level.");

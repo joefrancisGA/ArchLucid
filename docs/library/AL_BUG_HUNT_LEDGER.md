@@ -28963,6 +28963,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 ---
 ## Zone: archlucid-contracts
 
+2026-10-14 seed hunt (seed→hit): promoted whole-number double JSON ordinals on dedicated `*JsonConverter` types (`1.0` threw via `GetInt32` while integer `1` worked); `DefinedEnumStringReader.ReadNumberTokenAsDefinedOrdinal`; regression `Read_maps_whole_number_double_ordinal` on `AgentTypeJsonConverter`; 527 scoped `Contracts` filter tests passed.
+
 2026-10-14 seed hunt (seed→hit): promoted whole-number double JSON ordinals on architecture-finding inline enum readers (`sourceAgent: 2.0` dropped); `DefinedEnumStringReader.TryReadDefinedOrdinal`; regression `Deserialize_whole_number_double_source_agent_maps_cost_ordinal`; 526 scoped `Contracts` filter tests passed.
 
 2026-10-14 seed hunt (seed→hit): promoted string-encoded undefined enum ordinals across dedicated `*JsonConverter` types (class fix via `DefinedEnumStringReader`); regression `Read_string_numeric_out_of_range_throws` on `FindingTreatmentJsonConverter`; 525 scoped `Contracts` filter tests passed.
@@ -28989,11 +28991,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 52
-- **bugs-found:** 32
+- **hunts:** 53
+- **bugs-found:** 33
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-12
-- **last-bug:** 2026-10-11 — string numeric semantic support band ordinal silently accepted
+- **last-hunt:** 2026-10-14
+- **last-bug:** 2026-10-14 — dedicated enum converters rejected whole-number double ordinals
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -29015,6 +29017,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ### Hypotheses
 
+- [x] (proven) Dedicated contract enum `*JsonConverter` numeric paths — whole-number double ordinals such as `1.0` failed `Utf8JsonReader.GetInt32` while integer `1` deserialized — **hit 2026-10-14 seed hunt:** agent and API JSON can carry whole doubles for enum ordinals; fixed via shared `DefinedEnumStringReader.ReadNumberTokenAsDefinedOrdinal` across dedicated converters; regression `Read_maps_whole_number_double_ordinal`.
 - (candidate) `InfrastructureDiagramComparisonCreateRequest.Sources` — public comparison-create JSON can send `"sources": null` and replace the initialized list; if the orchestration enumerates without normalizing null, a valid request can fail or be treated as an empty comparison. Reachability: API request payload for the recently added infrastructure-diagram comparison endpoint.
 - (candidate) `InfrastructureDiagramComparisonCreateRequest.SnapshotId` — public comparison-create JSON can send the all-zero GUID; if the service treats the missing snapshot as an empty inventory rather than rejecting it, the caller can receive a successful comparison with no authoritative inventory. Reachability: API request payload for the recently added infrastructure-diagram comparison endpoint.
 - (candidate) `InfrastructureDiagramNodeMappingSaveRequest.DiagramNodeId` — mapping-save JSON can omit or set `"diagramNodeId": null` while supplying a normalized label and cloud-resource id; if null means “missing” rather than an intentional clear, the save path can create or overwrite a mapping that cannot be addressed by diagram node id. Reachability: API mapping-save payload for the recently added infrastructure-diagram comparison workflow.

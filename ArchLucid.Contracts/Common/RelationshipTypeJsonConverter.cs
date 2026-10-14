@@ -13,14 +13,10 @@ public sealed class RelationshipTypeJsonConverter : JsonConverter<RelationshipTy
     public override RelationshipType Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
         if (reader.TokenType == JsonTokenType.Number)
-        {
-            int ordinal = reader.GetInt32();
-
-            if (!Enum.IsDefined(typeof(RelationshipType), ordinal))
-                throw new JsonException($"Unknown relationship type value '{ordinal}'.");
-
-            return (RelationshipType)ordinal;
-        }
+            return DefinedEnumStringReader.ReadNumberTokenAsDefinedOrdinal<RelationshipType>(
+                ref reader,
+                ordinal => new JsonException($"Unknown relationship type value '{ordinal}'."),
+                () => new JsonException("Invalid relationship type number."));
 
         if (reader.TokenType != JsonTokenType.String)
             throw new JsonException("Expected string or number for relationship type.");

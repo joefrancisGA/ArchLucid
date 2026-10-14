@@ -13,14 +13,10 @@ public sealed class CloudProviderJsonConverter : JsonConverter<CloudProvider>
     public override CloudProvider Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
         if (reader.TokenType == JsonTokenType.Number)
-        {
-            int ordinal = reader.GetInt32();
-
-            if (!Enum.IsDefined(typeof(CloudProvider), ordinal))
-                throw new JsonException($"Unknown cloud provider value '{ordinal}'.");
-
-            return (CloudProvider)ordinal;
-        }
+            return DefinedEnumStringReader.ReadNumberTokenAsDefinedOrdinal<CloudProvider>(
+                ref reader,
+                ordinal => new JsonException($"Unknown cloud provider value '{ordinal}'."),
+                () => new JsonException("Invalid cloud provider number."));
 
         if (reader.TokenType != JsonTokenType.String)
             throw new JsonException("Expected string or number for cloud provider.");

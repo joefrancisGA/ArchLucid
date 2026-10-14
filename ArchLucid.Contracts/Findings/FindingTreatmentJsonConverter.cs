@@ -13,14 +13,10 @@ public sealed class FindingTreatmentJsonConverter : JsonConverter<FindingTreatme
     public override FindingTreatment Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
         if (reader.TokenType == JsonTokenType.Number)
-        {
-            int ordinal = reader.GetInt32();
-
-            if (!Enum.IsDefined(typeof(FindingTreatment), ordinal))
-                throw new JsonException($"Unknown finding treatment value '{ordinal}'.");
-
-            return (FindingTreatment)ordinal;
-        }
+            return DefinedEnumStringReader.ReadNumberTokenAsDefinedOrdinal<FindingTreatment>(
+                ref reader,
+                ordinal => new JsonException($"Unknown finding treatment value '{ordinal}'."),
+                () => new JsonException("Invalid finding treatment number."));
 
         if (reader.TokenType != JsonTokenType.String)
             throw new JsonException("Expected string or number for finding treatment.");

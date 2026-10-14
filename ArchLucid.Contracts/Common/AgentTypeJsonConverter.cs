@@ -13,14 +13,10 @@ public sealed class AgentTypeJsonConverter : JsonConverter<AgentType>
     public override AgentType Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
         if (reader.TokenType == JsonTokenType.Number)
-        {
-            int ordinal = reader.GetInt32();
-
-            if (!Enum.IsDefined(typeof(AgentType), ordinal))
-                throw new JsonException($"Unknown agent type value '{ordinal}'.");
-
-            return (AgentType)ordinal;
-        }
+            return DefinedEnumStringReader.ReadNumberTokenAsDefinedOrdinal<AgentType>(
+                ref reader,
+                ordinal => new JsonException($"Unknown agent type value '{ordinal}'."),
+                () => new JsonException("Invalid agent type number."));
 
         if (reader.TokenType != JsonTokenType.String)
             throw new JsonException("Expected string or number for agent type.");
