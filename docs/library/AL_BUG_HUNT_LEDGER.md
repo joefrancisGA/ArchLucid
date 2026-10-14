@@ -20526,6 +20526,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: archlucid-core
 
+2026-10-14 seed hunt (seed→hit): promoted `RunAuthorityPipelineDeadLetterDetection.TryDeserialize` dropping pipeline dead-letter state when a trailing empty case-variant `FAILURECLASS` followed a usable `failureClass`; structured reads now use `TryGetPropertyCaseInsensitivePreferLastNonEmpty` for `failureClass` and `schemaVersion`; regression `IsDeadLettered_returns_true_when_later_case_variant_failure_class_is_empty`; scoped `FullyQualifiedName~ArchLucid.Core` ran 7,392 passed and 6 failed on the invalid extra-`k` week-UOM baseline (`AzureRetailPricesSkuMatchersWeekMeterTests`).
+
 2026-10-13 seed hunt (seed-only): the picker still exposes only this ledger path for the retired mega-zone; re-read `ArchLucid.Core` infra-evidence and explanation parsers plus recent `bugsmash` churn without promoting an invented hypothesis. No hunt-ready row met the same-run failing-repro bar. The scoped Core filter ran 7,329 passed and 6 failed on the explicitly invalid extra-`k` week-UOM baseline (`AzureRetailPricesSkuMatchersWeekMeterTests`). No production or regression change.
 
 2026-10-12 seed hunt (seed-only): the picker exposed only this ledger path for the retired mega-zone; no source-backed locus, reachable input, or mechanism met the hunt-ready bar, so no candidate was promoted or invented. The scoped Core filter ran 7,311 passed and 6 failed on the explicitly invalid extra-`k` week-UOM baseline. No production or regression change.
@@ -20566,11 +20568,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models; retired mega-zone
 - **paths:** docs/library/AL_BUG_HUNT_LEDGER.md
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 476
-- **last-hunt:** 2026-10-13
-- **bugs-found:** 3511
+- **hunts:** 477
+- **last-hunt:** 2026-10-14
+- **bugs-found:** 3512
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-09 — Event Grid destination fields nested under properties were ignored
+- **last-bug:** 2026-10-14 — trailing empty duplicate failureClass hid pipeline dead-letter detection
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -20601,6 +20603,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-30 seed hunt (seed-only): re-read the picked zone; it still exposes only the ledger path and no source-backed candidate or hunt-ready row, so no product hypothesis was invented.
 
 ### Hypotheses
+
+- [x] (proven) `RunAuthorityPipelineDeadLetterDetection.TryDeserialize` — trailing empty case-variant `failureClass` hid `PipelineDeadLetter` — **hit 2026-10-14 seed hunt:** `TryGetPropertyCaseInsensitivePreferLastNonEmpty`; regression `IsDeadLettered_returns_true_when_later_case_variant_failure_class_is_empty`.
 
 - [x] (proven) `AzureInventoryRecoveryServicesProtectedItemSanitizer.TryReadRecoveryTargetRegion` — Site Recovery list items (`HostedAzureInventoryRecoveryServicesCollector` → replication protected items) published the current failover region on `providerSpecificDetails.recoveryFabricLocation` while the sanitizer stored `initialRecoveryFabricLocation`, so reprotected VMs kept the original region on `recoveryServices.targetRegion` — **hit 2026-10-08 seed hunt:** prefer the current fabric location and fall back to the initial location; regression `TrySanitizeReplicationItem_reads_current_recovery_fabric_location`.
 - [x] (proven) `AzureInventoryEventGridDestinationExtractor.Extract` — Event Grid list items nest destination fields under `properties` — **hit 2026-10-09 seed hunt:** `HostedAzureInventoryEventGridSubscriptionCollector` uses API `2022-06-15`, whose `destination.properties` holds `resourceId` and `endpointUrl`; the extractor read only the destination object, so storage-queue and webhook subscriptions stored no destination; read the nested bag and keep the flattened fallback; regressions `Extract_reads_storage_queue_resource_id_from_nested_destination_properties` and `Extract_reads_webhook_host_from_nested_destination_properties`.

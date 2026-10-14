@@ -1,20 +1,3 @@
-{"at":"2026-09-14T00:13:28.5770857Z","zoneId":"topology-proposal-merge","outcome":"hit"}
-{"at":"2026-09-14T00:13:32.2448783Z","zoneId":"context-ingestion","outcome":"hit"}
-{"at":"2026-09-14T00:13:35.9026189Z","zoneId":"core-costing","outcome":"hit"}
-{"at":"2026-09-14T00:13:39.4957911Z","zoneId":"tenant-data-export","outcome":"seed-only"}
-{"at":"2026-09-14T00:13:43.1329417Z","zoneId":"persistence-identity","outcome":"seed-only"}
-{"at":"2026-09-14T00:13:46.8478039Z","zoneId":"topology-proposal-merge","outcome":"hit"}
-{"at":"2026-09-14T00:13:50.5987826Z","zoneId":"context-ingestion","outcome":"hit"}
-{"at":"2026-09-14T00:13:54.037005Z","zoneId":"core-costing","outcome":"hit"}
-{"at":"2026-09-14T00:13:57.5128163Z","zoneId":"tenant-data-export","outcome":"seed-only"}
-{"at":"2026-09-14T00:14:01.0943963Z","zoneId":"persistence-identity","outcome":"seed-only"}
-{"at":"2026-09-14T00:14:05.1929956Z","zoneId":"topology-proposal-merge","outcome":"hit"}
-{"at":"2026-09-14T00:14:09.2404812Z","zoneId":"context-ingestion","outcome":"hit"}
-{"at":"2026-09-14T00:14:12.7920392Z","zoneId":"core-costing","outcome":"hit"}
-{"at":"2026-09-14T00:14:16.5039968Z","zoneId":"tenant-data-export","outcome":"seed-only"}
-{"at":"2026-09-14T00:14:20.0333444Z","zoneId":"persistence-identity","outcome":"seed-only"}
-{"at":"2026-09-14T00:14:23.5557089Z","zoneId":"topology-proposal-merge","outcome":"hit"}
-{"at":"2026-09-14T00:14:26.9237366Z","zoneId":"context-ingestion","outcome":"hit"}
 {"at":"2026-09-14T00:38:08.8334025Z","zoneId":"core-costing","outcome":"hit"}
 {"at":"2026-09-14T00:38:12.5733114Z","zoneId":"tenant-data-export","outcome":"seed-only"}
 {"at":"2026-09-14T00:38:16.2713938Z","zoneId":"persistence-identity","outcome":"seed-only"}
@@ -8435,3 +8418,4 @@
 {"at":"2026-10-14T00:01:54.9376275Z","zoneId":"core-explanation-json","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-14T00:03:16.9069026Z","zoneId":"core-explanation-json","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-14T00:11:01.3899955Z","zoneId":"core-explanation-json","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-14T00:14:32.4499649Z","zoneId":"archlucid-core","outcome":"hit","productLine":"archlucid-shared"}

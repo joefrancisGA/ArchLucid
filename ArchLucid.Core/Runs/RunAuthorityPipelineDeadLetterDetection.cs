@@ -58,7 +58,7 @@ public static class RunAuthorityPipelineDeadLetterDetection
             if (!TryReadSupportedSchemaVersion(document.RootElement, out int schemaVersion))
                 return null;
 
-            if (!RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitive(
+            if (!RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitivePreferLastNonEmpty(
                     document.RootElement,
                     "failureClass",
                     out JsonElement failureClassElement)
@@ -86,7 +86,7 @@ public static class RunAuthorityPipelineDeadLetterDetection
 
     private static bool TryReadSupportedSchemaVersion(JsonElement root, out int schemaVersion)
     {
-        if (!RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitive(root, "schemaVersion", out JsonElement element))
+        if (!RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitivePreferLastNonEmpty(root, "schemaVersion", out JsonElement element))
         {
             schemaVersion = SupportedSchemaVersion;
 

@@ -132,6 +132,16 @@ public sealed class RunAuthorityPipelineDeadLetterDetectionTests
     }
 
     [Fact]
+    public void IsDeadLettered_returns_true_when_later_case_variant_failure_class_is_empty()
+    {
+        const string json = """
+            {"schemaVersion":1,"failureClass":"PipelineDeadLetter","FAILURECLASS":""}
+            """;
+
+        RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(json).Should().BeTrue();
+    }
+
+    [Fact]
     public void IsDeadLettered_returns_true_for_forward_compatible_schema_version_2_pipeline_dead_letter()
     {
         const string json = """
