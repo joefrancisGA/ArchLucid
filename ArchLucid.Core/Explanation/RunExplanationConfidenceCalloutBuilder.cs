@@ -119,16 +119,13 @@ public static class RunExplanationConfidenceCalloutBuilder
 
         bool fallback = false;
 
-        if (RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitive(root, "deterministicFallbackUsed", out _))
+        if (RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitivePreferLastNonEmpty(
+                root,
+                "deterministicFallbackUsed",
+                out JsonElement direct)
+            && RunExplanationAggregateJsonReader.TryReadAggregateBooleanToken(direct, out bool directFallback))
         {
-            if (RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitivePreferLastNonEmpty(
-                    root,
-                    "deterministicFallbackUsed",
-                    out JsonElement direct)
-                && RunExplanationAggregateJsonReader.TryReadAggregateBooleanToken(direct, out bool directFallback))
-            {
-                fallback = directFallback;
-            }
+            fallback = directFallback;
         }
         else if (RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitivePreferLastNonEmpty(
                      root,

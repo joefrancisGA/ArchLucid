@@ -1797,6 +1797,75 @@ public sealed class RunExplanationConfidenceCalloutBuilderTests
     }
 
     [Fact]
+    public void RunExplanation_FromAggregateJson_keeps_legacy_deterministic_fallback_false_when_later_duplicate_is_nested_boolean_poison_array()
+    {
+        RunExplanationConfidenceSignals? signals = RunExplanationConfidenceCalloutBuilder.FromAggregateJson(
+            """
+            {
+              "usedDeterministicFallback": false,
+              "USEDDETERMINISTICFALLBACK": [[true]],
+              "faithfulnessSupportRatio": 0.95,
+              "citations": 1
+            }
+            """);
+
+        signals.Should().NotBeNull();
+        signals!.DeterministicFallbackUsed.Should().BeFalse();
+    }
+
+    [Fact]
+    public void RunExplanation_FromAggregateJson_prefers_canonical_false_deterministic_fallback_over_legacy_true()
+    {
+        RunExplanationConfidenceSignals? signals = RunExplanationConfidenceCalloutBuilder.FromAggregateJson(
+            """
+            {
+              "deterministicFallbackUsed": false,
+              "usedDeterministicFallback": true,
+              "faithfulnessSupportRatio": 0.95,
+              "citations": 1
+            }
+            """);
+
+        signals.Should().NotBeNull();
+        signals!.DeterministicFallbackUsed.Should().BeFalse();
+    }
+
+    [Fact]
+    public void RunExplanation_FromAggregateJson_reads_legacy_deterministic_fallback_when_canonical_alias_is_null()
+    {
+        RunExplanationConfidenceSignals? signals = RunExplanationConfidenceCalloutBuilder.FromAggregateJson(
+            """
+            {
+              "deterministicFallbackUsed": null,
+              "usedDeterministicFallback": true,
+              "faithfulnessSupportRatio": 0.95,
+              "citations": 1
+            }
+            """);
+
+        signals.Should().NotBeNull();
+        signals!.DeterministicFallbackUsed.Should().BeTrue();
+        RunExplanationConfidenceCalloutBuilder.ResolveDisposition(signals).Should().Be("HOLD");
+    }
+
+    [Fact]
+    public void RunExplanation_FromAggregateJson_reads_legacy_deterministic_fallback_when_canonical_alias_is_empty_array()
+    {
+        RunExplanationConfidenceSignals? signals = RunExplanationConfidenceCalloutBuilder.FromAggregateJson(
+            """
+            {
+              "deterministicFallbackUsed": [],
+              "usedDeterministicFallback": true,
+              "faithfulnessSupportRatio": 0.95,
+              "citations": 1
+            }
+            """);
+
+        signals.Should().NotBeNull();
+        signals!.DeterministicFallbackUsed.Should().BeTrue();
+    }
+
+    [Fact]
     public void RunExplanation_structured_json_object_evidence_ref_survives_empty_id_duplicate()
     {
         bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(

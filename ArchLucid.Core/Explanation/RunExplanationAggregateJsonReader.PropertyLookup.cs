@@ -396,15 +396,18 @@ internal static partial class RunExplanationAggregateJsonReader
         }
 
         if (IsDeterministicFallbackPropertyName(structuredPropertyName)
-            && IsZeroConfidenceAliasValue(jsonElement))
+            && jsonElement.ValueKind is JsonValueKind.True or JsonValueKind.False)
         {
-            return false;
+            if (applyTrailingDuplicateArrayPoison)
+                return false;
+
+            return true;
         }
 
         if (IsDeterministicFallbackPropertyName(structuredPropertyName)
-            && jsonElement.ValueKind is JsonValueKind.True or JsonValueKind.False)
+            && IsZeroConfidenceAliasValue(jsonElement))
         {
-            return true;
+            return false;
         }
 
         return jsonElement.ValueKind switch
