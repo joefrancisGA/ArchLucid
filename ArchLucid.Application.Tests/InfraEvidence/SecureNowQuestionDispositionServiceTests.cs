@@ -396,6 +396,55 @@ public async Task Foreign_snapshot_cannot_read_or_write()
     }
 
     [Fact]
+    public async Task Unknown_evidence_question_is_emitted_when_relationship_peer_is_not_in_snapshot()
+    {
+        InMemoryDispositionRepository repository = new();
+        const string resourceId = "/subscriptions/sub-1/resource";
+        Mock<IAzureInventorySnapshotRepository> snapshots = new();
+        snapshots
+            .Setup(item => item.TryGetSnapshotDetailAsync(
+                Scope,
+                SnapshotId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new AzureInventorySnapshotDetailReadModel
+            {
+                Header = new AzureInventorySnapshotRecord
+                {
+                    SubscriptionId = "sub-1",
+                    TenantId = Scope.TenantId,
+                    WorkspaceId = Scope.WorkspaceId,
+                    ProjectId = Scope.ProjectId,
+                },
+                Resources =
+                [
+                    new AzureInventoryResourceRecord
+                    {
+                        AzureResourceId = resourceId,
+                        ResourceType = "Microsoft.DataFactory/factories",
+                    },
+                ],
+                Relationships =
+                [
+                    new AzureInventoryResourceRelationshipReadModel
+                    {
+                        FromAzureResourceId = resourceId,
+                        ToAzureResourceId = "/subscriptions/sub-1/missing-peer",
+                    },
+                ],
+            });
+        Mock<IAuditService> audit = new();
+        SecureNowQuestionDispositionService sut = new(
+            repository,
+            snapshots.Object,
+            audit.Object);
+
+        IReadOnlyList<SecureNowQuestionRecord> questions =
+            await sut.ListQuestionsAsync(Scope, SnapshotId);
+
+        questions.Should().ContainSingle(question => question.QuestionKey == "unknown-evidence@v1");
+    }
+
+    [Fact]
     public async Task Inventory_answer_does_not_depend_on_inferred_connection_availability()
     {
         InMemoryDispositionRepository repository = new();

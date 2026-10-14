@@ -453,7 +453,20 @@ public sealed class SecureNowQuestionDispositionService(
     private static IReadOnlyList<SecureNowDiagramQuestionCandidate> BuildDiagramCandidates(
         AzureInventorySnapshotDetailReadModel snapshot)
     {
+        HashSet<string> resourceIds = snapshot.Resources
+            .Select(resource => Normalize(resource.AzureResourceId))
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
         HashSet<string> relationshipResourceIds = snapshot.Relationships
+            .Where(relationship =>
+            {
+                string fromResourceId = Normalize(relationship.FromAzureResourceId);
+                string toResourceId = Normalize(relationship.ToAzureResourceId);
+
+                return fromResourceId.Length > 0
+                       && toResourceId.Length > 0
+                       && resourceIds.Contains(fromResourceId)
+                       && resourceIds.Contains(toResourceId);
+            })
             .SelectMany(relationship => new[]
             {
                 relationship.FromAzureResourceId,
@@ -461,9 +474,6 @@ public sealed class SecureNowQuestionDispositionService(
             })
             .Select(Normalize)
             .Where(value => value.Length > 0)
-            .ToHashSet(StringComparer.OrdinalIgnoreCase);
-        HashSet<string> resourceIds = snapshot.Resources
-            .Select(resource => Normalize(resource.AzureResourceId))
             .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
         List<SecureNowDiagramQuestionCandidate> candidates = [];
