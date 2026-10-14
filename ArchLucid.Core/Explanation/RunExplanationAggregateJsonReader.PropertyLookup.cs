@@ -263,11 +263,35 @@ internal static partial class RunExplanationAggregateJsonReader
 
     private static bool ReasoningObjectAliasHasExtractableContent(JsonElement jsonElement)
     {
-        if (!TryGetPropertyCaseInsensitivePreferLastNonEmpty(jsonElement, "text", out JsonElement textElement))
+        if (TryGetPropertyCaseInsensitivePreferLastNonEmpty(jsonElement, "text", out JsonElement textElement)
+            && TryReadNonEmptyTextToken(textElement, out string? text)
+            && !string.IsNullOrWhiteSpace(text))
+        {
+            return true;
+        }
+
+        if (ObjectHasCaseInsensitiveProperty(jsonElement, "text"))
             return false;
 
-        return TryReadNonEmptyTextToken(textElement, out string? text)
-            && !string.IsNullOrWhiteSpace(text);
+        if (TryGetPropertyCaseInsensitivePreferLastNonEmpty(jsonElement, "id", out JsonElement idElement)
+            && TryReadNonEmptyTextToken(idElement, out string? id)
+            && !string.IsNullOrWhiteSpace(id))
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    private static bool ObjectHasCaseInsensitiveProperty(JsonElement jsonElement, string propertyName)
+    {
+        foreach (JsonProperty property in jsonElement.EnumerateObject())
+        {
+            if (string.Equals(property.Name, propertyName, StringComparison.OrdinalIgnoreCase))
+                return true;
+        }
+
+        return false;
     }
 
     private static bool ReasoningArrayEntryObjectHasExtractableContent(JsonElement jsonElement)

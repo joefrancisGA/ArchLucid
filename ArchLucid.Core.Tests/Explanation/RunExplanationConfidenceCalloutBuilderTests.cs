@@ -815,4 +815,15 @@ public sealed class RunExplanationConfidenceCalloutBuilderTests
         ok.Should().BeTrue();
         structured!.Reasoning.Should().Be("Recovered explanation");
     }
+
+    [Fact]
+    public void RunExplanation_structured_json_object_reasoning_accepts_id_only_object_shape()
+    {
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(
+            """{"reasoning":{"id":"Recovered via id","ID":""}}""",
+            out StructuredExplanation? structured);
+
+        ok.Should().BeTrue();
+        structured!.Reasoning.Should().Be("Recovered via id");
+    }
 }
