@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-14 seed hunt (seed→hit): `archlucid-contracts` — promoted `StructuredBriefSuggestionKind` `JsonStringEnumConverter` undefined-ordinal acceptance on `ExplainStructuredBriefSuggestionInput.SuggestionKind` (`99` / `"99"` deserialized without throw; whole-number double `0.0` threw); `DefinedEnumJsonConverter<StructuredBriefSuggestionKind>`; regressions `StructuredBriefSuggestionKindJsonConverterTests`; 603 scoped `Contracts` filter tests passed.
+
 2026-10-14 seed hunt (seed-only): `ui-form-validation` (#9) — cheap-disproof closed five open `(candidate)` rows below against existing regressions; seeded five follow-on `(candidate)` rows; 112 scoped SignupForm vitest tests passed; no production or test code changed.
 
 2026-10-14 seed hunt (seed-only): `ui-form-validation` (#8) — cheap-disproof closed five open `(candidate)` rows below against existing regressions; seeded five follow-on `(candidate)` rows; 112 scoped SignupForm vitest tests passed; no production or test code changed.
@@ -29063,6 +29065,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 ---
 ## Zone: archlucid-contracts
 
+2026-10-14 seed hunt (seed→hit): promoted `StructuredBriefSuggestionKind` `JsonStringEnumConverter` undefined-ordinal acceptance on explain-intake `SuggestionKind`; `DefinedEnumJsonConverter<StructuredBriefSuggestionKind>`; regressions `StructuredBriefSuggestionKindJsonConverterTests`; 603 scoped `Contracts` filter tests passed.
+
 2026-10-14 seed hunt (seed→hit): promoted `ElicitationQuestionSource` `JsonStringEnumConverter` undefined-ordinal acceptance; `DefinedEnumJsonConverter<ElicitationQuestionSource>`; regressions `ElicitationQuestionSourceJsonConverterTests`; 596 scoped `Contracts` filter tests passed.
 
 2026-10-14 seed hunt (seed→hit): promoted `DraftBranchOverrideKind` `JsonStringEnumConverter` undefined-ordinal acceptance; `DefinedEnumJsonConverter<DraftBranchOverrideKind>`; regressions `DraftBranchOverrideKindJsonConverterTests`; 591 scoped `Contracts` filter tests passed.
@@ -29123,11 +29127,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 69
-- **bugs-found:** 49
+- **hunts:** 70
+- **bugs-found:** 50
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-14
-- **last-bug:** 2026-10-14 — `ElicitationQuestionSource` accepted undefined ordinals via `JsonStringEnumConverter`
+- **last-bug:** 2026-10-14 — `StructuredBriefSuggestionKind` accepted undefined ordinals via `JsonStringEnumConverter`
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
