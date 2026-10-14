@@ -493,23 +493,7 @@ internal static partial class RunExplanationAggregateJsonReader
             }
 
             if (structuredPropertyName.Equals("reasoning", StringComparison.OrdinalIgnoreCase)
-                && IsBooleanOneAliasValue(item))
-            {
-                continue;
-            }
-
-            if (structuredPropertyName.Equals("reasoning", StringComparison.OrdinalIgnoreCase)
-                && item.ValueKind == JsonValueKind.Number
-                && TryReadWholeNumber(item, out int reasoningNumericAlias)
-                && reasoningNumericAlias > 10)
-            {
-                continue;
-            }
-
-            if (structuredPropertyName.Equals("reasoning", StringComparison.OrdinalIgnoreCase)
-                && item.ValueKind == JsonValueKind.String
-                && TryParseWholeNumberString(item.GetString()?.Trim() ?? string.Empty, out int reasoningStringAlias)
-                && (reasoningStringAlias > 10 || reasoningStringAlias == 1))
+                && ReasoningArrayItemIsDuplicateAliasPoison(item))
             {
                 continue;
             }
@@ -540,23 +524,7 @@ internal static partial class RunExplanationAggregateJsonReader
             }
 
             if (IsStructuredStringListPropertyName(structuredPropertyName)
-                && IsBooleanOneAliasValue(item))
-            {
-                continue;
-            }
-
-            if (IsStructuredStringListPropertyName(structuredPropertyName)
-                && item.ValueKind == JsonValueKind.Number
-                && TryReadWholeNumber(item, out int listNumericAlias)
-                && listNumericAlias > 10)
-            {
-                continue;
-            }
-
-            if (IsStructuredStringListPropertyName(structuredPropertyName)
-                && item.ValueKind == JsonValueKind.String
-                && TryParseWholeNumberString(item.GetString()?.Trim() ?? string.Empty, out int listStringAlias)
-                && (listStringAlias > 10 || listStringAlias == 1))
+                && StructuredStringListArrayItemIsDuplicateAliasPoison(item, jsonElement))
             {
                 continue;
             }
@@ -637,6 +605,86 @@ internal static partial class RunExplanationAggregateJsonReader
 
     private static bool ReasoningArrayHasReadableScalarEntry(JsonElement reasoningArray) =>
         StructuredStringListArrayHasReadableScalarEntry(reasoningArray);
+
+    private static bool ReasoningArrayItemIsDuplicateAliasPoison(JsonElement item)
+    {
+        if (IsBooleanOneAliasValue(item))
+            return true;
+
+        if (item.ValueKind == JsonValueKind.String
+            && !string.IsNullOrWhiteSpace(item.GetString()))
+        {
+            return true;
+        }
+
+        if (item.ValueKind == JsonValueKind.Object
+            && ReasoningArrayEntryObjectHasExtractableContent(item))
+        {
+            return true;
+        }
+
+        if (TryReadFiniteDouble(item) is not null)
+            return true;
+
+        if (item.ValueKind == JsonValueKind.Array
+            && ReasoningArrayHasReadableScalarEntry(item))
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    private static bool StructuredStringListArrayItemIsDuplicateAliasPoison(JsonElement item, JsonElement parentArray)
+    {
+        if (IsBooleanOneAliasValue(item))
+            return true;
+
+        if (item.ValueKind == JsonValueKind.Number
+            && TryReadWholeNumber(item, out int listNumericAlias)
+            && listNumericAlias > 10)
+        {
+            return true;
+        }
+
+        if (item.ValueKind == JsonValueKind.String
+            && TryParseWholeNumberString(item.GetString()?.Trim() ?? string.Empty, out int listStringAlias)
+            && (listStringAlias > 10 || listStringAlias == 1))
+        {
+            return true;
+        }
+
+        if (!ArrayHasSingleNonNullEntry(parentArray))
+            return false;
+
+        if (item.ValueKind == JsonValueKind.String)
+        {
+            string? raw = item.GetString();
+
+            if (!string.IsNullOrWhiteSpace(raw) && raw.Trim().Length == 1)
+                return true;
+        }
+
+        return false;
+    }
+
+    private static bool ArrayHasSingleNonNullEntry(JsonElement jsonArray)
+    {
+        int nonNullEntries = 0;
+
+        foreach (JsonElement entry in jsonArray.EnumerateArray())
+        {
+            if (entry.ValueKind == JsonValueKind.Null)
+                continue;
+
+            nonNullEntries++;
+
+            if (nonNullEntries > 1)
+                return false;
+        }
+
+        return nonNullEntries == 1;
+    }
 
     private static bool IsRatioPropertyName(string propertyName) =>
         propertyName.Equals("confidence", StringComparison.OrdinalIgnoreCase)
