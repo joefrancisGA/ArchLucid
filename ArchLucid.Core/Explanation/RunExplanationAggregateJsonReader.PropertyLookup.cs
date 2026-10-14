@@ -407,7 +407,10 @@ internal static partial class RunExplanationAggregateJsonReader
         if (IsDeterministicFallbackPropertyName(structuredPropertyName)
             && IsZeroConfidenceAliasValue(jsonElement))
         {
-            return false;
+            if (applyTrailingDuplicateArrayPoison)
+                return false;
+
+            return true;
         }
 
         return jsonElement.ValueKind switch
