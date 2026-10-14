@@ -161,7 +161,9 @@ internal static partial class RunExplanationAggregateJsonReader
             && (IsBooleanOneAliasValue(soleStringListScalar)
                 || soleStringListScalar.ValueKind == JsonValueKind.String
                 || soleStringListScalar.ValueKind == JsonValueKind.Object
-                || soleStringListScalar.ValueKind == JsonValueKind.Array))
+                || soleStringListScalar.ValueKind == JsonValueKind.Array
+                || (soleStringListScalar.ValueKind == JsonValueKind.Number
+                    && TryReadNonEmptyTextToken(soleStringListScalar, out _))))
         {
             value = soleStringListScalar;
 
@@ -231,6 +233,12 @@ internal static partial class RunExplanationAggregateJsonReader
 
         if (IsStructuredStringListPropertyName(structuredPropertyName)
             && (IsZeroConfidenceAliasValue(jsonElement) || IsBooleanOneAliasValue(jsonElement)))
+        {
+            return false;
+        }
+
+        if (IsStructuredStringListPropertyName(structuredPropertyName)
+            && jsonElement.ValueKind == JsonValueKind.Number)
         {
             return false;
         }
