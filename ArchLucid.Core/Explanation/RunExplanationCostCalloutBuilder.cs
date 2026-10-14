@@ -10,7 +10,7 @@ public static class RunExplanationCostCalloutBuilder
         if (!RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitivePreferLastNonEmpty(root, "decisionCount", out JsonElement countEl))
             return null;
 
-        return RunExplanationAggregateJsonReader.TryReadWholeNumber(countEl, out int count)
+        return RunExplanationAggregateJsonReader.TryReadAggregateWholeNumberCountToken(countEl, out int count)
             ? count
             : null;
     }

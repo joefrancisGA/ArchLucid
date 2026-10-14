@@ -1321,6 +1321,29 @@ public sealed class RunExplanationConfidenceCalloutBuilderTests
     }
 
     [Fact]
+    public void RunExplanation_FromAggregateJson_reads_decision_count_from_sole_numeric_array_alias()
+    {
+        RunExplanationCostCalloutBuilder.TryParseDecisionCount(
+            JsonDocument.Parse("""{"decisionCount":[3]}""").RootElement).Should().Be(3);
+    }
+
+    [Fact]
+    public void RunExplanation_FromAggregateJson_reads_faithfulness_ratio_from_sole_numeric_array_alias()
+    {
+        RunExplanationConfidenceSignals? signals = RunExplanationConfidenceCalloutBuilder.FromAggregateJson(
+            """
+            {
+              "faithfulnessSupportRatio": [ 0.95 ],
+              "citations": 1
+            }
+            """);
+
+        signals.Should().NotBeNull();
+        signals!.FaithfulnessSupportRatio.Should().Be(0.95);
+        RunExplanationConfidenceCalloutBuilder.ResolveDisposition(signals).Should().Be("PASS");
+    }
+
+    [Fact]
     public void RunExplanation_FromAggregateJson_keeps_risk_posture_when_later_duplicate_is_numeric_poison_array()
     {
         using JsonDocument document = JsonDocument.Parse(

@@ -732,6 +732,76 @@ internal static partial class RunExplanationAggregateJsonReader
         return false;
     }
 
+    internal static bool TryReadAggregateWholeNumberCountToken(JsonElement element, out int value)
+    {
+        if (TryReadWholeNumber(element, out value))
+            return true;
+
+        if (element.ValueKind != JsonValueKind.Array)
+        {
+            value = default;
+
+            return false;
+        }
+
+        foreach (JsonElement item in element.EnumerateArray())
+        {
+            if (AggregateWholeNumberCountArrayItemIsDuplicateAliasPoison(item))
+                continue;
+
+            if (TryReadWholeNumber(item, out value))
+                return true;
+        }
+
+        value = default;
+
+        return false;
+    }
+
+    internal static double? TryReadAggregateRatioToken(JsonElement element)
+    {
+        double? direct = TryReadFiniteDouble(element);
+
+        if (direct is not null)
+            return direct;
+
+        if (element.ValueKind != JsonValueKind.Array)
+            return null;
+
+        foreach (JsonElement item in element.EnumerateArray())
+        {
+            if (RatioArrayItemIsDuplicateAliasPoison(item))
+                continue;
+
+            if (TryReadFiniteDouble(item) is double ratio)
+                return ratio;
+        }
+
+        return null;
+    }
+
+    private static bool AggregateWholeNumberCountArrayItemIsDuplicateAliasPoison(JsonElement item)
+    {
+        if (IsBooleanOneAliasValue(item))
+            return true;
+
+        if (item.ValueKind == JsonValueKind.Number
+            && TryReadWholeNumber(item, out int wholeNumberCountAlias)
+            && wholeNumberCountAlias > 10)
+        {
+            return true;
+        }
+
+        if (item.ValueKind == JsonValueKind.String
+            && TryParseWholeNumberString(item.GetString()?.Trim() ?? string.Empty, out int wholeNumberCountStringAlias)
+            && (wholeNumberCountStringAlias > 10 || wholeNumberCountStringAlias == 1))
+        {
+            return true;
+        }
+
+        return false;
+    }
+
     private static bool ConfidenceRatioArrayHasReadableScalarEntry(JsonElement ratioArray)
     {
         foreach (JsonElement item in ratioArray.EnumerateArray())

@@ -10,7 +10,7 @@ public static class RunExplanationComplianceCalloutBuilder
         if (!RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitivePreferLastNonEmpty(root, "complianceGapCount", out JsonElement countEl))
             return null;
 
-        return RunExplanationAggregateJsonReader.TryReadWholeNumber(countEl, out int count)
+        return RunExplanationAggregateJsonReader.TryReadAggregateWholeNumberCountToken(countEl, out int count)
             ? count
             : null;
     }
