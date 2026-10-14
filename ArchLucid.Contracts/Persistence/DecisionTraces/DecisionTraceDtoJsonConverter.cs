@@ -1,6 +1,8 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Persistence.DecisionTraces;
 
 public sealed class DecisionTraceDtoJsonConverter : JsonConverter<DecisionTraceDto>
@@ -13,12 +15,13 @@ public sealed class DecisionTraceDtoJsonConverter : JsonConverter<DecisionTraceD
         if (!root.TryGetProperty("kind", out JsonElement kindElement))
             throw new JsonException("Decision trace JSON must include a numeric \"kind\" discriminator.");
 
-        int kindValue = kindElement.GetInt32();
-
-        if (!Enum.IsDefined(typeof(DecisionTraceKind), kindValue))
-            throw new JsonException($"Unknown decision trace kind value '{kindValue}'.");
-
-        DecisionTraceKind kind = (DecisionTraceKind)kindValue;
+        if (!DefinedEnumStringReader.TryReadDefinedOrdinal(
+                kindElement,
+                out DecisionTraceKind kind,
+                numeric => new JsonException($"Unknown decision trace kind value '{numeric}'.")))
+        {
+            throw new JsonException("Decision trace JSON \"kind\" must be a defined numeric discriminator.");
+        }
 
         if (kind == DecisionTraceKind.RunEvent)
         {

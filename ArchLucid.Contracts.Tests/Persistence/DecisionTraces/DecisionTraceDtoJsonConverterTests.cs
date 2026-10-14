@@ -75,4 +75,17 @@ public sealed class DecisionTraceDtoJsonConverterTests
 
         act.Should().Throw<JsonException>().WithMessage("*runEvent*");
     }
+
+    [Fact]
+    public void Deserialize_whole_number_double_kind_maps_run_event_trace()
+    {
+        string json =
+            """
+            {"kind":0.0,"runEvent":{"runId":"run-1","eventType":"merge","eventDescription":"Merged findings"}}
+            """;
+
+        DecisionTraceDto? dto = JsonSerializer.Deserialize<DecisionTraceDto>(json, Options);
+
+        dto.Should().BeOfType<RunEventTraceDto>();
+    }
 }
