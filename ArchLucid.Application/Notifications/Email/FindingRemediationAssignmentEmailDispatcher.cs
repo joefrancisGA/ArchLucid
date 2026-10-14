@@ -69,6 +69,7 @@ public sealed class FindingRemediationAssignmentEmailDispatcher(
 
         string trimmedFindingId = findingId.Trim();
         string trimmedTitle = string.IsNullOrWhiteSpace(findingTitle) ? trimmedFindingId : findingTitle.Trim();
+        string displayFindingTitle = EmailHeaderFragmentSanitizer.Sanitize(trimmedTitle);
         string runHex = runId.ToString("N");
         string idempotencyKey =
             $"finding-remediation-assignment:{tenantId:N}:{runHex}:{trimmedFindingId}:{mailbox.ToLowerInvariant()}";
@@ -79,7 +80,7 @@ public sealed class FindingRemediationAssignmentEmailDispatcher(
         FindingRemediationAssignmentEmailModel model = new()
         {
             ProductName = productName,
-            FindingTitle = trimmedTitle,
+            FindingTitle = displayFindingTitle,
             FindingInspectUrl = FindingRemediationAssignmentOperatorLinks.BuildFindingInspectUrl(
                 operatorBase,
                 runId,
