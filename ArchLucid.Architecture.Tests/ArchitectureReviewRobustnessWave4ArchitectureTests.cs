@@ -27,6 +27,11 @@ public sealed class ArchitectureReviewRobustnessWave4ArchitectureTests
         string topologyEngine = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Decisioning/Services/TopologyCrossRunDiffFindingEngine.cs");
 
         topologyEngine.Should().Contain("CrossRunDiffFindingPriorGuard.EnsurePriorPresentOrThrow");
+
+        string invokeStage = ArchitectureSourceProbe.ReadCsTypeFamily(
+            "ArchLucid.Decisioning/Services/Findings/FindingsEngineInvokeStage.cs");
+
+        invokeStage.Should().Contain("CrossRunDiffFindingPriorGuard.ShouldInvoke");
     }
 
     [Fact]

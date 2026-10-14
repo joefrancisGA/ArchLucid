@@ -37,14 +37,15 @@ public sealed partial class FindingsEngineInvokeStage(
         ArgumentNullException.ThrowIfNull(context);
 
         IReadOnlyList<EngineAdapter> allAdapters = EngineAdapter.FromEngines(_engines, _effectfulEngines);
+        EngineAdapter[] applicableAdapters = SelectApplicableAdapters(allAdapters, context.AnalysisContext);
         bool deferPortfolioRecurrence = _portfolioRecurrenceCurrentReviewIdentitySource is not null;
-        EngineAdapter[] primaryAdapters = allAdapters
+        EngineAdapter[] primaryAdapters = applicableAdapters
             .Where(adapter =>
                 !deferPortfolioRecurrence
                 || !string.Equals(adapter.EngineType, PortfolioRecurrenceEngineType, StringComparison.OrdinalIgnoreCase))
             .ToArray();
         EngineAdapter? portfolioRecurrenceAdapter = deferPortfolioRecurrence
-            ? allAdapters.FirstOrDefault(adapter =>
+            ? applicableAdapters.FirstOrDefault(adapter =>
                 string.Equals(adapter.EngineType, PortfolioRecurrenceEngineType, StringComparison.OrdinalIgnoreCase))
             : null;
 
