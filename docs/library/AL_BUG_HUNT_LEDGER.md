@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-14 seed hunt (seed→hit): `archlucid-contracts` — promoted `AgentExecutionOutcomeKind` on `AgentExecutionOutcome.Outcome` accepting undefined numeric ordinals such as `99` on buyer run-detail JSON via `ContractJson.Default` while `agentType` was guarded; `DefinedEnumJsonConverter<AgentExecutionOutcomeKind>`; regressions `AgentExecutionOutcomeKindDeserializationTests`; cheap-disproof closed `SnapshotId` all-zero GUID and nullable `DiagramNodeId` mapping-save rows as application-layer validation/intentional clear; 642 scoped `Contracts` filter tests passed.
+
 2026-10-14 seed hunt (seed→hit): `archlucid-contracts` — promoted `RunRetrievalGroundingResponse.Rows` and `HeldCheckLedgerRollupEntry.EngineTypes` explicit JSON `null` overwriting `= []` initializers (operator grounding response + DX-52 rollup); `ContractCollectionDefaults.CoalesceReadOnly`; regressions `RunRetrievalGroundingResponseDeserializationTests` and `HeldCheckLedgerRollupEntryDeserializationTests`; 638 scoped `Contracts` filter tests passed.
 
 2026-10-14 seed hunt (seed→hit): `archlucid-contracts` — promoted `SecureNowQuestionDispositionResponse.AuditEntries` explicit JSON `null` overwriting the `= []` initializer so disposition detail consumers could null-deref; null-coalescing `init`; regression `Deserialize_null_audit_entries_yields_empty_list_not_null`; 632 scoped `Contracts` filter tests passed.
@@ -29079,6 +29081,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 ---
 ## Zone: archlucid-contracts
 
+2026-10-14 seed hunt (seed→hit): promoted `AgentExecutionOutcomeKind` undefined ordinals on buyer `AgentExecutionOutcome` JSON; `DefinedEnumJsonConverter<AgentExecutionOutcomeKind>`; regressions `AgentExecutionOutcomeKindDeserializationTests`; cheap-disproof `SnapshotId` / `DiagramNodeId` candidates; 642 scoped `Contracts` filter tests passed.
+
 2026-10-14 seed hunt (seed→hit): promoted `RunRetrievalGroundingResponse.Rows` and `HeldCheckLedgerRollupEntry.EngineTypes` JSON `null`; `ContractCollectionDefaults`; regressions `RunRetrievalGroundingResponseDeserializationTests` and `HeldCheckLedgerRollupEntryDeserializationTests`; 638 scoped `Contracts` filter tests passed.
 
 2026-10-14 seed hunt (seed→hit): promoted `SecureNowQuestionDispositionResponse.AuditEntries` JSON `null` leaving `AuditEntries` null; null-coalescing `init`; regression `SecureNowQuestionDispositionResponseDeserializationTests`; 632 scoped `Contracts` filter tests passed.
@@ -29155,11 +29159,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 79
-- **bugs-found:** 59
+- **hunts:** 80
+- **bugs-found:** 60
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-14
-- **last-bug:** 2026-10-14 — `RunRetrievalGroundingResponse.Rows` / `HeldCheckLedgerRollupEntry.EngineTypes` deserialized as null from explicit JSON null
+- **last-bug:** 2026-10-14 — `AgentExecutionOutcomeKind` undefined ordinal `99` on buyer run-detail `AgentExecutionOutcome` JSON
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -29199,8 +29203,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `DecisionTraceDtoJsonConverter` `kind` discriminator — whole-number double ordinals such as `0.0` failed `JsonElement.GetInt32` while integer `0` deserialized — **hit 2026-10-14 seed hunt:** persisted decision-trace JSON can carry double-encoded discriminators; fixed via `DefinedEnumStringReader.TryReadDefinedOrdinal`; regression `Deserialize_whole_number_double_kind_maps_run_event_trace`.
 - [x] (proven) Dedicated contract enum `*JsonConverter` numeric paths — whole-number double ordinals such as `1.0` failed `Utf8JsonReader.GetInt32` while integer `1` deserialized — **hit 2026-10-14 seed hunt:** agent and API JSON can carry whole doubles for enum ordinals; fixed via shared `DefinedEnumStringReader.ReadNumberTokenAsDefinedOrdinal` across dedicated converters; regression `Read_maps_whole_number_double_ordinal`.
 - [x] (proven) `InfrastructureDiagramComparisonCreateRequest.Sources` — explicit JSON `"sources": null` assigned null despite `= []` initializer so `CompareAsync` threw `NullReferenceException` on `.Count` — **hit 2026-10-14 seed hunt:** null-coalescing setter; regression `Deserialize_null_sources_yields_empty_list_not_null`.
-- (candidate) `InfrastructureDiagramComparisonCreateRequest.SnapshotId` — public comparison-create JSON can send the all-zero GUID; if the service treats the missing snapshot as an empty inventory rather than rejecting it, the caller can receive a successful comparison with no authoritative inventory. Reachability: API request payload for the recently added infrastructure-diagram comparison endpoint.
-- (candidate) `InfrastructureDiagramNodeMappingSaveRequest.DiagramNodeId` — mapping-save JSON can omit or set `"diagramNodeId": null` while supplying a normalized label and cloud-resource id; if null means “missing” rather than an intentional clear, the save path can create or overwrite a mapping that cannot be addressed by diagram node id. Reachability: API mapping-save payload for the recently added infrastructure-diagram comparison workflow.
+- [x] (valid-no-repro) `InfrastructureDiagramComparisonCreateRequest.SnapshotId` — all-zero GUID comparison-create payload — **cheap-disproof 2026-10-14 seed hunt:** `InfrastructureDiagramComparisonsController` and `InfrastructureDiagramComparisonService.CompareAsync` reject `Guid.Empty` with `ArgumentException` / 400 before inventory load.
+- [x] (valid-no-repro) `InfrastructureDiagramNodeMappingSaveRequest.DiagramNodeId` — nullable mapping-save `diagramNodeId` — **cheap-disproof 2026-10-14 seed hunt:** `InfrastructureDiagramComparisonService` maps null/whitespace to `null` as an intentional diagram-node clear while persisting label + cloud-resource linkage.
+- [x] (proven) `AgentExecutionOutcomeKind` on `BuyerRunDetailSummaryDto.AgentExecutionOutcomes` — undefined numeric ordinals such as `99` deserialized without `JsonException` — **hit 2026-10-14 seed hunt:** fixed with `DefinedEnumJsonConverter<AgentExecutionOutcomeKind>`; regressions `AgentExecutionOutcomeKindDeserializationTests`.
+- (candidate) `AgentOutputQualityGateOutcome` on trace/evaluation DTOs — buyer and operator JSON can carry undefined numeric ordinals on nullable `qualityGateOutcome` / `aggregateQualityGateOutcome` fields because the enum has no `DefinedEnumJsonConverter` while sibling agent enums are guarded. Reachability: `AgentExecutionTrace` and `AgentOutputEvaluationPerspective` serialized via API contract JSON.
 - (candidate) `DiagramInfrastructureEdgeGapRow.GapKind` — reconciliation output can carry an arbitrary string such as `"PresentNotDrawn "` or an unknown value even though the contract publishes two constants; a client that switches on exact gap-kind values may render a real edge gap as unknown. Reachability: server-generated reconciliation response consumed by the diagram comparison UI.
 - (candidate) `DiagramSourceReference.Content` — a comparison-create request can provide a named source with a supported format but empty content, and the contract accepts it as a valid source; the comparison may silently produce an empty diagram instead of rejecting or reporting the unusable source. Reachability: API request payload for the infrastructure-diagram comparison endpoint.
 - (candidate) `ArchitectureDiagramNodeRecord.Kind` — diagram-node JSON accepts arbitrary kind strings such as `"service "` even though the contract publishes `user`, `system`, `external`, and `boundary`; exact-value renderers may classify a real node as unknown. Reachability: architecture diagram node payload consumed by the diagram UI.
