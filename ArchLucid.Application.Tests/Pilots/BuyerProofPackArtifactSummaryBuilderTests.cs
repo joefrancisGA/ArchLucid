@@ -35,4 +35,22 @@ public sealed class BuyerProofPackArtifactSummaryBuilderTests
         markdown.Should().Contain("| Governance-blocking | 1 |");
         markdown.Should().Contain("| Governed share | 50.0% |");
     }
+
+    [Fact]
+    public void Build_WhenProofPackageLlmCallCountNull_renders_null_not_zero()
+    {
+        const string deltasJson = """
+                                  {
+                                    "proofPackageCompleteness": {
+                                      "llmCallCount": null,
+                                      "llmCallCountResolved": false
+                                    }
+                                  }
+                                  """;
+
+        string markdown = BuyerProofPackArtifactSummaryBuilder.Build(deltasJson);
+
+        markdown.Should().Contain("`llmCallCount` | `null`");
+        markdown.Should().NotContain("`llmCallCount` | 0");
+    }
 }

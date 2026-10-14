@@ -9,4 +9,4 @@ public sealed record ExecutionProvenanceFooterInput(
     string? PilotAoaiDeploymentSnapshot,
     string HostAgentExecutionMode,
     string? HostAzureOpenAiDeploymentName,
-    int LlmCompletionTraceCount);
+    int? LlmCompletionTraceCount);

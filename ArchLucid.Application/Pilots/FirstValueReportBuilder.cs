@@ -319,8 +319,10 @@ public sealed class FirstValueReportBuilder(
     {
         string hostMode = _configuration["AgentExecution:Mode"]?.Trim() ?? "Simulator";
         string? hostDeployment = _configuration["AzureOpenAI:DeploymentName"]?.Trim();
+        int? llmCompletionTraceCount = deltas.LlmCallCountResolved ? deltas.LlmCallCount : null;
+
         return new ExecutionProvenanceFooterInput(run.StructuralExecutionMode, run.RealModeFellBackToSimulator, run.PilotAoaiDeploymentSnapshot, hostMode, hostDeployment,
-            deltas.LlmCallCount);
+            llmCompletionTraceCount);
     }
 
     private static string ResolveSavingsPricingBasisForBadges(

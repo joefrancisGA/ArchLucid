@@ -97,6 +97,23 @@ public sealed class ExecutionProvenanceFooterRendererTests
     }
 
     [SkippableFact]
+    public void BuildFooterMarkdown_WhenTraceCountUnattested_does_not_emit_zero()
+    {
+        ExecutionProvenanceFooterInput input = new(
+            PersistedStructuralExecutionMode: StructuralExecutionMode.Simulator,
+            RealModeFellBackToSimulator: false,
+            PilotAoaiDeploymentSnapshot: null,
+            HostAgentExecutionMode: "Simulator",
+            HostAzureOpenAiDeploymentName: null,
+            LlmCompletionTraceCount: null);
+
+        string md = _sut.BuildFooterMarkdown(input);
+
+        md.Should().NotContain("LLM completion traces (this run) | 0");
+        md.Should().Contain("not attested");
+    }
+
+    [SkippableFact]
     public void BuildYellowSimulatorSubstitutionCallout_containsWarningAndDocLink()
     {
         string callout = _sut.BuildYellowSimulatorSubstitutionCallout();
