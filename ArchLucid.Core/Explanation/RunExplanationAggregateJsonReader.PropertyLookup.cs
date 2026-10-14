@@ -592,6 +592,12 @@ internal static partial class RunExplanationAggregateJsonReader
         if (!applyTrailingDuplicateArrayPoison)
             return false;
 
+        if (item.ValueKind == JsonValueKind.Array
+            && AggregateCalloutStringArrayHasReadableScalarEntry(item))
+        {
+            return true;
+        }
+
         if (!ArrayHasSingleNonNullEntry(parentArray))
         {
             if (item.ValueKind == JsonValueKind.String
@@ -616,6 +622,12 @@ internal static partial class RunExplanationAggregateJsonReader
     {
         foreach (JsonElement item in calloutArray.EnumerateArray())
         {
+            if (item.ValueKind == JsonValueKind.Array
+                && AggregateCalloutStringArrayHasReadableScalarEntry(item))
+            {
+                return true;
+            }
+
             if (AggregateCalloutArrayItemIsNumericAliasPoison(item))
                 continue;
 
@@ -834,8 +846,21 @@ internal static partial class RunExplanationAggregateJsonReader
             return false;
         }
 
-        foreach (JsonElement item in element.EnumerateArray())
+        return TryReadAggregateStringCalloutFromArrayItems(element, out value);
+    }
+
+    private static bool TryReadAggregateStringCalloutFromArrayItems(JsonElement calloutArray, out string? value)
+    {
+        foreach (JsonElement item in calloutArray.EnumerateArray())
         {
+            if (item.ValueKind == JsonValueKind.Array)
+            {
+                if (TryReadAggregateStringCalloutFromArrayItems(item, out value))
+                    return true;
+
+                continue;
+            }
+
             if (AggregateCalloutArrayItemIsNumericAliasPoison(item))
                 continue;
 
