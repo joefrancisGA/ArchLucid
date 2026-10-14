@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Persistence.DecisionTraces;
 
 /// <summary>
@@ -35,9 +37,11 @@ public sealed class RunEventTracePayload
         set;
     } = TimeProvider.System.GetUtcNow().UtcDateTime;
 
+    private Dictionary<string, string> metadata = [];
+
     public Dictionary<string, string> Metadata
     {
-        get;
-        set;
-    } = [];
+        get => metadata;
+        set => metadata = ContractCollectionDefaults.CoalesceDictionary(value);
+    }
 }
