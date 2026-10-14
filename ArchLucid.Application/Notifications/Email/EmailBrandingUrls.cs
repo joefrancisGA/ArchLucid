@@ -65,18 +65,48 @@ public static class EmailBrandingUrls
 
     private static string RebuildAbsoluteUrlWithoutUserInfo(Uri uri)
     {
+        string decodedPath = Uri.UnescapeDataString(uri.AbsolutePath);
+        string sanitizedPath = EmailHeaderFragmentSanitizer.Sanitize(decodedPath);
+        bool pathHadLineBreaks =
+            uri.AbsolutePath.Contains("%0D", StringComparison.OrdinalIgnoreCase)
+            || uri.AbsolutePath.Contains("%0A", StringComparison.OrdinalIgnoreCase)
+            || decodedPath.Contains('\r')
+            || decodedPath.Contains('\n');
+
         UriBuilder builder = new(uri.Scheme, uri.Host, uri.Port)
         {
-            Path = uri.AbsolutePath,
+            Path = pathHadLineBreaks ? sanitizedPath : uri.AbsolutePath,
         };
 
         if (uri.Query.Length > 0)
-            builder.Query = uri.Query.StartsWith('?') ? uri.Query[1..] : uri.Query;
+        {
+            string rawQuery = uri.Query.StartsWith('?') ? uri.Query[1..] : uri.Query;
+            builder.Query = SanitizeUriQueryOrFragment(rawQuery);
+        }
 
         if (uri.Fragment.Length > 0)
-            builder.Fragment = uri.Fragment.StartsWith('#') ? uri.Fragment[1..] : uri.Fragment;
+        {
+            string rawFragment = uri.Fragment.StartsWith('#') ? uri.Fragment[1..] : uri.Fragment;
+            builder.Fragment = SanitizeUriQueryOrFragment(rawFragment);
+        }
 
         return builder.Uri.ToString();
+    }
+
+    private static string SanitizeUriQueryOrFragment(string value)
+    {
+        if (string.IsNullOrEmpty(value))
+            return value;
+
+        if (!value.Contains("%0D", StringComparison.OrdinalIgnoreCase)
+            && !value.Contains("%0A", StringComparison.OrdinalIgnoreCase)
+            && !value.Contains('\r')
+            && !value.Contains('\n'))
+        {
+            return value;
+        }
+
+        return EmailHeaderFragmentSanitizer.Sanitize(Uri.UnescapeDataString(value));
     }
 
     /// <summary>

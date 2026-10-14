@@ -145,4 +145,20 @@ public sealed class EmailBrandingUrlsTests
 
         url.Should().Be("https://ops.example.test/architecture/reviews/a1b2c3d4");
     }
+
+    [SkippableFact]
+    public void SanitizeOperatorNavigableUrl_omits_percent_encoded_crlf_from_absolute_run_detail_path()
+    {
+        string url = EmailBrandingUrls.SanitizeOperatorNavigableUrl(
+            "https://ops.example.test/architecture/reviews/a1b2c3d4%0D%0ABcc%3A%20injected%40evil.test",
+            "https://ops.example.test");
+
+        url.Should().NotContain("%0D", "percent-encoded CR must not survive operator navigable URL sanitization");
+        url.Should().NotContain("%0A", "percent-encoded LF must not survive operator navigable URL sanitization");
+
+        Uri absolute = new(url);
+        Uri.UnescapeDataString(absolute.AbsolutePath)
+            .Should()
+            .Be("/architecture/reviews/a1b2c3d4 Bcc: injected@evil.test");
+    }
 }
