@@ -405,6 +405,26 @@ internal static partial class RunExplanationAggregateJsonReader
         }
 
         if (IsDeterministicFallbackPropertyName(structuredPropertyName)
+            && IsBooleanOneAliasValue(jsonElement))
+        {
+            if (applyTrailingDuplicateArrayPoison)
+                return false;
+
+            return true;
+        }
+
+        if (IsDeterministicFallbackPropertyName(structuredPropertyName)
+            && jsonElement.ValueKind == JsonValueKind.String
+            && TryParseWholeNumberString(jsonElement.GetString()?.Trim(), out int deterministicFallbackStringAlias)
+            && deterministicFallbackStringAlias == 1)
+        {
+            if (applyTrailingDuplicateArrayPoison)
+                return false;
+
+            return true;
+        }
+
+        if (IsDeterministicFallbackPropertyName(structuredPropertyName)
             && IsZeroConfidenceAliasValue(jsonElement))
         {
             if (applyTrailingDuplicateArrayPoison)
