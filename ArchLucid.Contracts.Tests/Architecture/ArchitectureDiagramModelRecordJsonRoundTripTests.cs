@@ -1,6 +1,7 @@
 using System.Text.Json;
 
 using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.Common;
 
 using FluentAssertions;
 
@@ -80,5 +81,43 @@ public sealed class ArchitectureDiagramModelRecordJsonRoundTripTests
 
         valid.Should().BeFalse();
         failureReason.Should().Contain("invalid");
+    }
+
+    [Fact]
+    public void TryValidate_rejects_unknown_node_kind()
+    {
+        ArchitectureDiagramModelRecord model = new()
+        {
+            Nodes =
+            [
+                new ArchitectureDiagramNodeRecord { Id = "api", Label = "API", Kind = "service " },
+            ],
+        };
+
+        bool valid = ArchitectureDiagramModelValidator.TryValidate(model, out string? failureReason);
+
+        valid.Should().BeFalse();
+        failureReason.Should().Contain("kind");
+    }
+
+    [Fact]
+    public void Deserialize_null_collection_properties_yields_empty_lists_not_null()
+    {
+        const string json = """
+            {
+              "nodes": null,
+              "edges": null,
+              "subgraphs": null,
+              "trustBoundaryLabels": null
+            }
+            """;
+
+        ArchitectureDiagramModelRecord model =
+            JsonSerializer.Deserialize<ArchitectureDiagramModelRecord>(json, ContractJson.Default)!;
+
+        model.Nodes.Should().NotBeNull().And.BeEmpty();
+        model.Edges.Should().NotBeNull().And.BeEmpty();
+        model.Subgraphs.Should().NotBeNull().And.BeEmpty();
+        model.TrustBoundaryLabels.Should().NotBeNull().And.BeEmpty();
     }
 }

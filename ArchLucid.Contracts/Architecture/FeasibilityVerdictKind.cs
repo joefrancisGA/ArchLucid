@@ -1,9 +1,11 @@
 using System.Text.Json.Serialization;
 
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Architecture;
 
 /// <summary>Three-value feasibility classification (ADR 0050 / R5).</summary>
-[JsonConverter(typeof(JsonStringEnumConverter))]
+[JsonConverter(typeof(DefinedEnumJsonConverter<FeasibilityVerdictKind>))]
 public enum FeasibilityVerdictKind
 {
     /// <summary>Design constraints are satisfiable within stated assumptions.</summary>

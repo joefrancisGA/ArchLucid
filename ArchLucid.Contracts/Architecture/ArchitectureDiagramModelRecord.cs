@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Architecture;
 
 /// <summary>
@@ -12,29 +14,37 @@ namespace ArchLucid.Contracts.Architecture;
 /// </summary>
 public sealed class ArchitectureDiagramModelRecord
 {
+    private List<ArchitectureDiagramNodeRecord> nodes = [];
+
     public List<ArchitectureDiagramNodeRecord> Nodes
     {
-        get;
-        set;
-    } = [];
+        get => nodes;
+        set => nodes = ContractCollectionDefaults.Coalesce(value);
+    }
+
+    private List<ArchitectureDiagramEdgeRecord> edges = [];
 
     public List<ArchitectureDiagramEdgeRecord> Edges
     {
-        get;
-        set;
-    } = [];
+        get => edges;
+        set => edges = ContractCollectionDefaults.Coalesce(value);
+    }
+
+    private List<ArchitectureDiagramSubgraphRecord> subgraphs = [];
 
     public List<ArchitectureDiagramSubgraphRecord> Subgraphs
     {
-        get;
-        set;
-    } = [];
+        get => subgraphs;
+        set => subgraphs = ContractCollectionDefaults.Coalesce(value);
+    }
+
+    private List<string> trustBoundaryLabels = [];
 
     public List<string> TrustBoundaryLabels
     {
-        get;
-        set;
-    } = [];
+        get => trustBoundaryLabels;
+        set => trustBoundaryLabels = ContractCollectionDefaults.Coalesce(value);
+    }
 
     public string ExtractionMethod
     {

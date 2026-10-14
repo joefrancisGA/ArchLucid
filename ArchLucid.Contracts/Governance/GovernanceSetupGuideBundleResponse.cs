@@ -1,5 +1,6 @@
 using ArchLucid.Contracts.Alerts.Delivery;
 using ArchLucid.Contracts.Governance.PolicyPacks;
+using ArchLucid.Contracts.Serialization;
 
 namespace ArchLucid.Contracts.Governance;
 
@@ -12,9 +13,11 @@ public sealed class GovernanceSetupGuideBundleResponse
         init;
     } = new();
 
+    private IReadOnlyList<AlertRoutingSubscription> alertRoutingSubscriptions = [];
+
     public IReadOnlyList<AlertRoutingSubscription> AlertRoutingSubscriptions
     {
-        get;
-        init;
-    } = [];
+        get => alertRoutingSubscriptions;
+        init => alertRoutingSubscriptions = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 }

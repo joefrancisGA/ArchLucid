@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Risk;
 
 public sealed class SuggestedConcern
@@ -16,11 +18,13 @@ public sealed class SuggestedConcern
     } = null!;
 
     /// <summary>Must contain at least two held facts (named entities) to pass the quality gate.</summary>
+    private List<string> relatedFactRefs = [];
+
     public List<string> RelatedFactRefs
     {
-        get;
-        set;
-    } = [];
+        get => relatedFactRefs;
+        set => relatedFactRefs = ContractCollectionDefaults.Coalesce(value);
+    }
 
     public ConcernSource Source
     {

@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Architecture;
 
 public sealed class DiagramInfrastructureReconciliationResult
@@ -20,11 +22,13 @@ public sealed class DiagramInfrastructureReconciliationResult
         set;
     }
 
+    private List<DiagramInfrastructureCorrespondenceRow> rows = [];
+
     public List<DiagramInfrastructureCorrespondenceRow> Rows
     {
-        get;
-        set;
-    } = [];
+        get => rows;
+        set => rows = ContractCollectionDefaults.Coalesce(value);
+    }
 
     public int DiagramNodeCount
     {
@@ -38,9 +42,11 @@ public sealed class DiagramInfrastructureReconciliationResult
         set;
     }
 
+    private List<DiagramInfrastructureEdgeGapRow> edgeGaps = [];
+
     public List<DiagramInfrastructureEdgeGapRow> EdgeGaps
     {
-        get;
-        set;
-    } = [];
+        get => edgeGaps;
+        set => edgeGaps = ContractCollectionDefaults.Coalesce(value);
+    }
 }

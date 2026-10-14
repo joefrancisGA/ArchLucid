@@ -1,11 +1,10 @@
-namespace ArchLucid.Contracts.Findings;
+using ArchLucid.Contracts.Serialization;
 
-using System.Text.Json.Serialization;
+namespace ArchLucid.Contracts.Findings;
 
 /// <summary>Ranked rollup of engines blocked by one missing input (DX-52).</summary>
 public sealed class HeldCheckLedgerRollupEntry
 {
-    [JsonConverter(typeof(JsonStringEnumConverter))]
     public HeldCheckInputCode InputCode
     {
         get;
@@ -18,9 +17,11 @@ public sealed class HeldCheckLedgerRollupEntry
         init;
     }
 
+    private IReadOnlyList<string> engineTypes = [];
+
     public IReadOnlyList<string> EngineTypes
     {
-        get;
-        init;
-    } = [];
+        get => engineTypes;
+        init => engineTypes = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 }

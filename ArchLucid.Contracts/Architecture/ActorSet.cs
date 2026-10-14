@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Architecture;
 
 /// <summary>
@@ -30,11 +32,13 @@ public sealed class ActorSet
     ///     a draft may be admitted (ADR 0048 — the admission gate requires ≥1 actor + ≥1 functional
     ///     outcome).
     /// </summary>
+    private List<ActorDescriptor> actors = [];
+
     public List<ActorDescriptor> Actors
     {
-        get;
-        set;
-    } = [];
+        get => actors;
+        set => actors = ContractCollectionDefaults.Coalesce(value);
+    }
 
     /// <summary>
     ///     Returns <see langword="true" /> when the set contains at least one actor, satisfying the

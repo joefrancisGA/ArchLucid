@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Governance;
 
 /// <summary>Outcome of evaluating whether manifest commit is allowed under governance policy.</summary>
@@ -15,11 +17,13 @@ public sealed class PreCommitGateResult
         init;
     }
 
+    private IReadOnlyList<string> blockingFindingIds = [];
+
     public IReadOnlyList<string> BlockingFindingIds
     {
-        get;
-        init;
-    } = [];
+        get => blockingFindingIds;
+        init => blockingFindingIds = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 
     /// <summary>Policy pack identifier (string form) that enforced the gate, when applicable.</summary>
     public string? PolicyPackId
@@ -46,11 +50,13 @@ public sealed class PreCommitGateResult
     }
 
     /// <summary>Warning messages when <see cref="WarnOnly" /> is true.</summary>
+    private IReadOnlyList<string> warnings = [];
+
     public IReadOnlyList<string> Warnings
     {
-        get;
-        init;
-    } = [];
+        get => warnings;
+        init => warnings = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 
     public string? BlockExplanation
     {

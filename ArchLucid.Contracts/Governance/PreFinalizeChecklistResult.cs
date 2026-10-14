@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Governance;
 
 /// <summary>Aggregated pre-finalize readiness for an architecture run.</summary>
@@ -16,11 +18,13 @@ public sealed class PreFinalizeChecklistResult
         init;
     }
 
+    private IReadOnlyList<PreFinalizeChecklistItem> items = [];
+
     public IReadOnlyList<PreFinalizeChecklistItem> Items
     {
-        get;
-        init;
-    } = [];
+        get => items;
+        init => items = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 
     public int AdvisoryCount
     {

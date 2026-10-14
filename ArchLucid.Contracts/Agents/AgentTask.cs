@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 
 using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Serialization;
 
 namespace ArchLucid.Contracts.Agents;
 
@@ -91,18 +92,22 @@ public sealed class AgentTask
     ///     <see cref="Common.AgentTypeKeys.UnrestrictedDispatch" /> explicitly.
     ///     On Development and other non-production-like hosts, empty remains unrestricted for local/test convenience.
     /// </summary>
+    private List<string> allowedTools = [];
+
     public List<string> AllowedTools
     {
-        get;
-        set;
-    } = [];
+        get => allowedTools;
+        set => allowedTools = ContractCollectionDefaults.Coalesce(value);
+    }
 
     /// <summary>Evidence source identifiers the agent may consult (empty = unrestricted).</summary>
+    private List<string> allowedSources = [];
+
     public List<string> AllowedSources
     {
-        get;
-        set;
-    } = [];
+        get => allowedSources;
+        set => allowedSources = ContractCollectionDefaults.Coalesce(value);
+    }
 
     /// <summary>
     ///     Optional model tier override for this task. When null, tier routing uses

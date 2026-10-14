@@ -1,5 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Agents;
 
 /// <summary>
@@ -30,23 +32,29 @@ public sealed class PriorManifestEvidence
     } = string.Empty;
 
     /// <summary>Service names already present in the prior manifest's topology.</summary>
+    private List<string> existingServices = [];
+
     public List<string> ExistingServices
     {
-        get;
-        set;
-    } = [];
+        get => existingServices;
+        set => existingServices = ContractCollectionDefaults.Coalesce(value);
+    }
 
     /// <summary>Datastore names already present in the prior manifest's topology.</summary>
+    private List<string> existingDatastores = [];
+
     public List<string> ExistingDatastores
     {
-        get;
-        set;
-    } = [];
+        get => existingDatastores;
+        set => existingDatastores = ContractCollectionDefaults.Coalesce(value);
+    }
 
     /// <summary>Security controls that were required by the prior manifest and should be preserved.</summary>
+    private List<string> existingRequiredControls = [];
+
     public List<string> ExistingRequiredControls
     {
-        get;
-        set;
-    } = [];
+        get => existingRequiredControls;
+        set => existingRequiredControls = ContractCollectionDefaults.Coalesce(value);
+    }
 }

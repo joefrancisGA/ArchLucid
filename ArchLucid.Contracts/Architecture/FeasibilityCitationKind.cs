@@ -1,9 +1,11 @@
 using System.Text.Json.Serialization;
 
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Architecture;
 
 /// <summary>Kind of authority backing a <see cref="FeasibilityVerdictKind.HardInfeasible" /> verdict (ADR 0050).</summary>
-[JsonConverter(typeof(JsonStringEnumConverter))]
+[JsonConverter(typeof(DefinedEnumJsonConverter<FeasibilityCitationKind>))]
 public enum FeasibilityCitationKind
 {
     /// <summary>A named physical or mathematical law (e.g. speed-of-light RTT, CAP).</summary>

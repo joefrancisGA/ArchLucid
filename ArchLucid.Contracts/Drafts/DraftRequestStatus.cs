@@ -1,11 +1,13 @@
 using System.Text.Json.Serialization;
 
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Drafts;
 
 /// <summary>
 ///     Lifecycle state for a <see cref="DraftRequestDocument" /> (ADR 0048).
 /// </summary>
-[JsonConverter(typeof(JsonStringEnumConverter))]
+[JsonConverter(typeof(DefinedEnumJsonConverter<DraftRequestStatus>))]
 public enum DraftRequestStatus
 {
     /// <summary>Mutable — intent is being shaped through elicitation.</summary>

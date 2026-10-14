@@ -1,5 +1,7 @@
 using System.Text.Json.Serialization;
 
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Governance;
 
 /// <summary>
@@ -67,9 +69,11 @@ public sealed class ElicitationQuestion
     ///     May be empty when a question is cross-cutting (not specific to a single rule).
     /// </summary>
     [JsonPropertyName("ruleKeys")]
+    private List<string> ruleKeys = [];
+
     public List<string> RuleKeys
     {
-        get;
-        set;
-    } = [];
+        get => ruleKeys;
+        set => ruleKeys = ContractCollectionDefaults.Coalesce(value);
+    }
 }

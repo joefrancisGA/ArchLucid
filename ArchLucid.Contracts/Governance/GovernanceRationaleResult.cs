@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Governance;
 
 /// <summary>
@@ -23,9 +25,11 @@ public sealed class GovernanceRationaleResult
         set;
     } = string.Empty;
 
+    private List<string> bullets = [];
+
     public List<string> Bullets
     {
-        get;
-        set;
-    } = [];
+        get => bullets;
+        set => bullets = ContractCollectionDefaults.Coalesce(value);
+    }
 }

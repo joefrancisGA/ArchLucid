@@ -111,6 +111,36 @@ public sealed class ChatOpsIncomingWebhookBodiesTests
     }
 
     [Fact]
+    public void ForSlackWithGovernanceActions_escapes_mrkdwn_metacharacters_in_body_section()
+    {
+        ChatOpsWebhookMessage message = new()
+        {
+            SeverityLabel = null,
+            Title = "Governance approval",
+            SupportingParagraph = null,
+            Body = "Reviewer note: *urgent* action required",
+        };
+
+        object payload = ChatOpsIncomingWebhookBodies.ForSlackWithGovernanceActions(message, "req-approve-1");
+
+        PropertyInfo? blocksProp = payload.GetType().GetProperty("blocks", BindingFlags.Public | BindingFlags.Instance);
+
+        blocksProp.Should().NotBeNull();
+
+        object? blocksObj = blocksProp!.GetValue(payload);
+
+        object[] blocks = ((IEnumerable)blocksObj!).Cast<object>().ToArray();
+
+        string sectionJson = System.Text.Json.JsonSerializer.Serialize(blocks[0]);
+
+        using System.Text.Json.JsonDocument document = System.Text.Json.JsonDocument.Parse(sectionJson);
+
+        string mrkdwnText = document.RootElement.GetProperty("text").GetProperty("text").GetString()!;
+
+        mrkdwnText.Should().Contain("Reviewer note: \\*urgent\\* action required");
+    }
+
+    [Fact]
     public void ForSlack_preserves_backtick_code_span_in_supporting_paragraph()
     {
         ChatOpsWebhookMessage message = new()
@@ -269,5 +299,33 @@ public sealed class ChatOpsIncomingWebhookBodiesTests
 
         NotificationsTestPayloadAssert.GetStringProperty(payload, "title")
             .Should().Be("[High&lt;script&gt;alert(1)&lt;/script&gt;] Latency spike");
+    }
+
+    [Fact]
+    public void ForTeams_html_encodes_title_metacharacters_in_connector_title_field()
+    {
+        ChatOpsWebhookMessage withSeverity = new()
+        {
+            SeverityLabel = "High",
+            Title = "<b>Spoofed</b> headline",
+            Body = "details",
+        };
+
+        object withSeverityPayload = ChatOpsIncomingWebhookBodies.ForTeams(withSeverity);
+
+        NotificationsTestPayloadAssert.GetStringProperty(withSeverityPayload, "title")
+            .Should().Be("[High] &lt;b&gt;Spoofed&lt;/b&gt; headline");
+
+        ChatOpsWebhookMessage withoutSeverity = new()
+        {
+            SeverityLabel = null,
+            Title = "<img onerror=alert(1)>",
+            Body = "details",
+        };
+
+        object withoutSeverityPayload = ChatOpsIncomingWebhookBodies.ForTeams(withoutSeverity);
+
+        NotificationsTestPayloadAssert.GetStringProperty(withoutSeverityPayload, "title")
+            .Should().Be("&lt;img onerror=alert(1)&gt;");
     }
 }

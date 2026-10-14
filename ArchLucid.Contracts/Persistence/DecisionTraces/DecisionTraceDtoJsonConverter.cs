@@ -1,6 +1,8 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Persistence.DecisionTraces;
 
 public sealed class DecisionTraceDtoJsonConverter : JsonConverter<DecisionTraceDto>
@@ -13,12 +15,8 @@ public sealed class DecisionTraceDtoJsonConverter : JsonConverter<DecisionTraceD
         if (!root.TryGetProperty("kind", out JsonElement kindElement))
             throw new JsonException("Decision trace JSON must include a numeric \"kind\" discriminator.");
 
-        int kindValue = kindElement.GetInt32();
-
-        if (!Enum.IsDefined(typeof(DecisionTraceKind), kindValue))
-            throw new JsonException($"Unknown decision trace kind value '{kindValue}'.");
-
-        DecisionTraceKind kind = (DecisionTraceKind)kindValue;
+        if (!TryReadDecisionTraceKind(kindElement, out DecisionTraceKind kind))
+            throw new JsonException("Decision trace JSON \"kind\" must be a defined discriminator.");
 
         if (kind == DecisionTraceKind.RunEvent)
         {
@@ -49,6 +47,34 @@ public sealed class DecisionTraceDtoJsonConverter : JsonConverter<DecisionTraceD
         }
 
         throw new JsonException($"Unsupported decision trace kind '{kind}'.");
+    }
+
+    private static bool TryReadDecisionTraceKind(JsonElement kindElement, out DecisionTraceKind kind)
+    {
+        if (DefinedEnumStringReader.TryReadDefinedOrdinal(
+                kindElement,
+                out kind,
+                numeric => new JsonException($"Unknown decision trace kind value '{numeric}'.")))
+        {
+            return true;
+        }
+
+        if (kindElement.ValueKind != JsonValueKind.String)
+            return false;
+
+        string? raw = kindElement.GetString();
+
+        if (string.IsNullOrWhiteSpace(raw))
+            return false;
+
+        DefinedEnumStringReader.ThrowIfUndefinedNumericString<DecisionTraceKind>(
+            raw,
+            $"Unknown decision trace kind value '{raw}'.");
+
+        if (DefinedEnumStringReader.TryParse(raw, out kind))
+            return true;
+
+        throw new JsonException($"Unknown decision trace kind value '{raw}'.");
     }
 
     public override void Write(Utf8JsonWriter writer, DecisionTraceDto value, JsonSerializerOptions options)
