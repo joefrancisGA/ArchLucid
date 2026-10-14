@@ -2083,6 +2083,37 @@ public sealed class RunExplanationConfidenceCalloutBuilderTests
     }
 
     [Fact]
+    public void RunExplanation_FromAggregateJson_keeps_citation_count_when_later_duplicate_is_on_string_poison_alias()
+    {
+        RunExplanationConfidenceSignals? signals = RunExplanationConfidenceCalloutBuilder.FromAggregateJson(
+            """
+            {
+              "citations": 2,
+              "faithfulnessSupportRatio": 0.95,
+              "CITATIONS": "on"
+            }
+            """);
+
+        signals.Should().NotBeNull();
+        signals!.CitationCount.Should().Be(2);
+    }
+
+    [Fact]
+    public void RunExplanation_FromAggregateJson_keeps_decision_count_when_later_duplicate_is_on_string_poison_alias()
+    {
+        int? count = RunExplanationCostCalloutBuilder.TryParseDecisionCount(
+            JsonDocument.Parse(
+                """
+                {
+                  "decisionCount": 3,
+                  "DECISIONCOUNT": "on"
+                }
+                """).RootElement);
+
+        count.Should().Be(3);
+    }
+
+    [Fact]
     public void RunExplanation_structured_json_object_evidence_ref_survives_empty_id_duplicate()
     {
         bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(

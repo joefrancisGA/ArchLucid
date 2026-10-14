@@ -450,6 +450,13 @@ internal static partial class RunExplanationAggregateJsonReader
             return false;
         }
 
+        if (applyTrailingDuplicateArrayPoison
+            && IsAggregateWholeNumberCountPropertyName(structuredPropertyName)
+            && WholeNumberCountTrailingDuplicateAliasIsPoison(jsonElement))
+        {
+            return false;
+        }
+
         return jsonElement.ValueKind switch
         {
             JsonValueKind.Null => false,
@@ -573,6 +580,13 @@ internal static partial class RunExplanationAggregateJsonReader
 
             if (IsAggregateWholeNumberCountPropertyName(structuredPropertyName)
                 && TryReadWholeNumber(item, out _))
+            {
+                continue;
+            }
+
+            if (IsAggregateWholeNumberCountPropertyName(structuredPropertyName)
+                && applyTrailingDuplicateArrayPoison
+                && WholeNumberCountTrailingDuplicateAliasIsPoison(item))
             {
                 continue;
             }
@@ -926,6 +940,20 @@ internal static partial class RunExplanationAggregateJsonReader
     private static bool RatioDuplicateScalarAliasIsPoison(JsonElement item)
     {
         if (RatioArrayItemIsDuplicateAliasPoison(item))
+            return true;
+
+        if (item.ValueKind == JsonValueKind.String
+            && TryParseBooleanString(item.GetString()?.Trim(), out _))
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    private static bool WholeNumberCountTrailingDuplicateAliasIsPoison(JsonElement item)
+    {
+        if (AggregateWholeNumberCountArrayItemIsDuplicateAliasPoison(item))
             return true;
 
         if (item.ValueKind == JsonValueKind.String
