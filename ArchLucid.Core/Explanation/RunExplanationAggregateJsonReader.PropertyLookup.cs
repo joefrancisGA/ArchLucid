@@ -223,7 +223,8 @@ internal static partial class RunExplanationAggregateJsonReader
             return false;
         }
 
-        if (structuredPropertyName.Equals("confidence", StringComparison.OrdinalIgnoreCase)
+        if ((structuredPropertyName.Equals("confidence", StringComparison.OrdinalIgnoreCase)
+             || structuredPropertyName.Equals("faithfulnessSupportRatio", StringComparison.OrdinalIgnoreCase))
             && jsonElement.ValueKind == JsonValueKind.Number
             && TryReadFiniteDouble(jsonElement) is > 1)
         {
