@@ -45,24 +45,21 @@ internal static class InventoryReachabilityPathGraph
                 publicIpArmIds.Add(resource.AzureResourceId);
             }
 
-            if (!propertiesByResourceRowId.TryGetValue(resource.ResourceRowId, out List<AzureInventoryResourcePropertyReadModel>? properties))
+            Dictionary<string, string> propertyBag = BuildPropertyBag(
+                resource.ResourceRowId,
+                propertiesByResourceRowId);
+
+            if (propertyBag.Count == 0)
             {
                 continue;
             }
 
-            bool hasPrivateEndpoint = properties.Any(static property =>
-                property.PropertyKey.Contains("privateEndpointConnections", StringComparison.OrdinalIgnoreCase));
-
-            bool publicAccessEnabled = properties.Any(static property =>
-                property.PropertyKey.Contains("enablePublicNetworkAccess", StringComparison.OrdinalIgnoreCase)
-                && property.PropertyValue?.Equals("true", StringComparison.OrdinalIgnoreCase) == true);
-
-            if (publicAccessEnabled)
+            if (AzureInventoryPublicNetworkAccessResolver.IsPublicNetworkAccessEnabled(propertyBag))
             {
                 publicNetworkAccessArmIds.Add(resource.AzureResourceId);
             }
 
-            if (hasPrivateEndpoint && !publicAccessEnabled)
+            if (AzureInventoryPublicNetworkAccessResolver.IsPrivateEndpointOnlyExposure(propertyBag))
             {
                 privateEndpointOnlyArmIds.Add(resource.AzureResourceId);
             }
@@ -134,6 +131,30 @@ internal static class InventoryReachabilityPathGraph
 
     public static bool IsSubnetNode(string nodeId) =>
         nodeId.Contains("/subnets/", StringComparison.OrdinalIgnoreCase);
+
+    private static Dictionary<string, string> BuildPropertyBag(
+        Guid resourceRowId,
+        IReadOnlyDictionary<Guid, List<AzureInventoryResourcePropertyReadModel>> propertiesByResourceRowId)
+    {
+        Dictionary<string, string> propertyBag = new(StringComparer.OrdinalIgnoreCase);
+
+        if (!propertiesByResourceRowId.TryGetValue(resourceRowId, out List<AzureInventoryResourcePropertyReadModel>? properties))
+        {
+            return propertyBag;
+        }
+
+        foreach (AzureInventoryResourcePropertyReadModel property in properties)
+        {
+            if (string.IsNullOrWhiteSpace(property.PropertyKey))
+            {
+                continue;
+            }
+
+            propertyBag[property.PropertyKey] = property.PropertyValue ?? string.Empty;
+        }
+
+        return propertyBag;
+    }
 
     private static void AddEdge(
         Dictionary<string, List<PrivilegePathEdge>> outgoing,

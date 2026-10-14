@@ -90,6 +90,38 @@ public sealed class IntendedReachabilityEngineTests
     }
 
     [Fact]
+    public void Enumerate_storage_publicNetworkAccess_enabled_produces_internet_exposure_path()
+    {
+        Guid storageRowId = Guid.NewGuid();
+        AzureInventorySnapshotDetailReadModel snapshot = new()
+        {
+            Header = CreateHeader(),
+            Resources =
+            [
+                Resource(StorageArm, "Microsoft.Storage/storageAccounts", storageRowId),
+            ],
+            Properties =
+            [
+                new AzureInventoryResourcePropertyReadModel
+                {
+                    ResourceRowId = storageRowId,
+                    PropertyKey = "publicNetworkAccess",
+                    PropertyValue = "Enabled",
+                },
+            ],
+        };
+
+        InventoryReachabilityPathGraphSnapshot graph = InventoryReachabilityPathGraph.Build(snapshot);
+        IReadOnlyList<ReachabilityPathCandidate> candidates =
+            IntendedReachabilityPathEnumerator.Enumerate(graph, new PrivilegePathEngineOptions());
+
+        ReachabilityPathCandidate candidate = candidates.Should().ContainSingle().Subject;
+        candidate.Hops[0].FromNodeId.Should().Be(SecureNowArchitectConstants.InternetPublicExposureNodeId);
+        candidate.Hops[0].EdgeType.Should().Be(SecureNowArchitectConstants.PublicNetworkAccessHopEdgeType);
+        candidate.TerminalAssetNodeId.Should().Be(StorageArm);
+    }
+
+    [Fact]
     public void Enumerate_private_endpoint_only_sql_produces_no_internet_paths()
     {
         AzureInventorySnapshotDetailReadModel snapshot = BuildPrivateEndpointSqlSnapshot();
