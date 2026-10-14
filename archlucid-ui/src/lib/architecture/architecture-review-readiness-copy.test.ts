@@ -39,6 +39,6 @@ describe("architecture-review-readiness-copy", () => {
     expect(message).toContain("constraints");
     expect(message).toContain("assumptions");
     expect(message).toContain("quality attributes");
-    expect(message).toContain("Unknown — confirm before review");
+    expect(message).toContain("Skipped — not a stored constraint.");
   });
 });

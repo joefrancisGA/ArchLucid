@@ -150,11 +150,15 @@ export function WizardStepReview(props: { readonly focusedPilotModeEnabled?: boo
 
         <ReadOnlyBlock title="Constraints & capabilities">
           <p className={cn("m-0 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>Constraints</p>
-          <ul className="mt-1 list-disc pl-5">
-            {(v.constraints ?? []).map((c) => (
-              <li key={c}>{c}</li>
-            ))}
-          </ul>
+          {v.constraints === null || v.constraints === undefined ? (
+            <p className="m-0">Constraints were not stored.</p>
+          ) : (
+            <ul className="mt-1 list-disc pl-5">
+              {v.constraints.map((c) => (
+                <li key={c}>{c}</li>
+              ))}
+            </ul>
+          )}
           <p className={cn("mt-2 m-0 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>
             {GUIDED_INTAKE_STRUCTURED_BRIEF_REQUIRED_CAPABILITIES_LABEL}
           </p>

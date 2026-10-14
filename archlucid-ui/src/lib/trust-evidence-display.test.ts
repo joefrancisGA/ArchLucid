@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  formatTraceCompletenessDisplayLabel,
   trustEvidenceGoldenManifestFieldDetail,
   trustEvidenceGoldenManifestFieldTitle,
   trustEvidenceProofChainManifestStepLabel,
@@ -24,5 +25,10 @@ describe("trust-evidence-display", () => {
     expect(trustEvidenceGoldenManifestFieldDetail("Golden manifest snapshot detail")).toBe(
       "Finalized review record snapshot detail",
     );
+  });
+
+  it("relabels legacy Not available trace completeness as not stored (P-08)", () => {
+    expect(formatTraceCompletenessDisplayLabel("Not available")).toBe("Trace completeness was not stored.");
+    expect(formatTraceCompletenessDisplayLabel("High")).toBe("High");
   });
 });

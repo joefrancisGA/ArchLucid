@@ -1072,14 +1072,14 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                       <dd className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
                         The group recorded as containing this resource.
                       </dd>
-                      <dd>{hub.currentConfiguration.resourceGroup ?? "—"}</dd>
+                      <dd>{hub.currentConfiguration.resourceGroup?.trim() || "Resource group was not stored."}</dd>
                     </div>
                     <div>
                       <dt className="font-medium">Region</dt>
                       <dd className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
                         The Azure region recorded for this resource.
                       </dd>
-                      <dd>{hub.currentConfiguration.region ?? "—"}</dd>
+                      <dd>{hub.currentConfiguration.region?.trim() || "Azure region was not stored."}</dd>
                     </div>
                   </dl>
                   {Object.keys(hub.currentConfiguration.properties).length > 0 ? (

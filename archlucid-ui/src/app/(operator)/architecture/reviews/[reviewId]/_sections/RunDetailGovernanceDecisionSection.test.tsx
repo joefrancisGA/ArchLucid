@@ -116,6 +116,13 @@ describe("RunDetailGovernanceDecisionSection", () => {
     expect(screen.getByTestId("run-detail-governance-warning-banner")).toBeInTheDocument();
   });
 
+  it("labels missing decision owner without N/A placeholders (P-16)", () => {
+    render(<RunDetailGovernanceDecisionSection {...baseProps} manifestId="manifest-1" />);
+
+    expect(screen.getByText("Decision owner was not stored.")).toBeInTheDocument();
+    expect(screen.queryByText("N/A")).not.toBeInTheDocument();
+  });
+
   it("shows post-commit governance decision chrome when manifest exists", () => {
     render(<RunDetailGovernanceDecisionSection {...baseProps} manifestId="manifest-1" />);
 

@@ -18,7 +18,7 @@ export const GRAPH_NODE_KIND_LEGEND_ENTRIES: ReadonlyArray<GraphNodeKindLegendEn
   { key: "artifact", label: "Artifact" },
   { key: "review", label: "Review" },
   { key: "component", label: "Component" },
-  { key: "default", label: "Unknown" },
+  { key: "default", label: "Other type" },
 ] as const;
 
 const GRAPH_NODE_KIND_CSS_PREFIX = "--al-graph-kind";

@@ -293,4 +293,25 @@ describe("buildTraceRowWorkItemBody", () => {
     expect(text).toContain("|SecureNow review)");
     expect(text).not.toContain("ArchLucid");
   });
+
+  it("labels null trace-row clipboard fields with omission copy (P-10)", () => {
+    const sparse = {
+      runId: "r",
+      findingId: "f",
+      findingTitle: null,
+      severityLabel: null,
+      recommendedAction: null,
+      statusLabel: null,
+      ruleId: null,
+      siteOrigin: "https://h.example.org",
+    };
+
+    const markdown = buildTraceRowWorkItemBody("markdown", sparse);
+
+    expect(markdown).toContain("## Finding: Finding title was not stored.");
+    expect(markdown).toContain("**Severity:** Severity was not stored.");
+    expect(markdown).toContain("Recommended action was not stored.");
+    expect(markdown).not.toContain("Not available");
+    expect(markdown).not.toContain("No recommended action recorded");
+  });
 });

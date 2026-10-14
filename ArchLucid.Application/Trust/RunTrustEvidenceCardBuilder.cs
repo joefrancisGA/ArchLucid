@@ -108,7 +108,9 @@ public sealed partial class RunTrustEvidenceCardBuilder(
             {
                 FindingId = topFinding.FindingId,
                 Title = TruncateTitle(topFinding.Message),
-                TraceCompletenessLabel = match?.TraceConfidenceLabel ?? "Not available",
+                TraceCompletenessLabel = string.IsNullOrWhiteSpace(match?.TraceConfidenceLabel)
+                    ? "Trace completeness was not stored."
+                    : match!.TraceConfidenceLabel.Trim(),
                 EvidencePointersSummary = SummarizeChain(chain),
             };
         }
