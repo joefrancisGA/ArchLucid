@@ -29063,6 +29063,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 ---
 ## Zone: archlucid-contracts
 
+2026-10-14 seed hunt (seed→hit): promoted `ElicitationQuestionSource` `JsonStringEnumConverter` undefined-ordinal acceptance; `DefinedEnumJsonConverter<ElicitationQuestionSource>`; regressions `ElicitationQuestionSourceJsonConverterTests`; 596 scoped `Contracts` filter tests passed.
+
 2026-10-14 seed hunt (seed→hit): promoted `DraftBranchOverrideKind` `JsonStringEnumConverter` undefined-ordinal acceptance; `DefinedEnumJsonConverter<DraftBranchOverrideKind>`; regressions `DraftBranchOverrideKindJsonConverterTests`; 591 scoped `Contracts` filter tests passed.
 
 2026-10-14 seed hunt (seed→hit): promoted `DraftRequestStatus` `JsonStringEnumConverter` undefined-ordinal acceptance; `DefinedEnumJsonConverter<DraftRequestStatus>`; regressions `DraftRequestStatusJsonConverterTests`; 586 scoped `Contracts` filter tests passed.
@@ -29121,11 +29123,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 68
-- **bugs-found:** 48
+- **hunts:** 69
+- **bugs-found:** 49
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-14
-- **last-bug:** 2026-10-14 — `DraftBranchOverrideKind` accepted undefined ordinals via `JsonStringEnumConverter`
+- **last-bug:** 2026-10-14 — `ElicitationQuestionSource` accepted undefined ordinals via `JsonStringEnumConverter`
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -29147,6 +29149,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ### Hypotheses
 
+- [x] (proven) `ElicitationQuestionSource` type-level `JsonStringEnumConverter` — numeric and string-encoded ordinals such as `99` and `"99"` deserialized without `JsonException` — **hit 2026-10-14 seed hunt:** intake question provenance JSON deserializes source via the enum attribute; fixed with `DefinedEnumJsonConverter<ElicitationQuestionSource>`; regressions `ElicitationQuestionSourceJsonConverterTests`.
 - [x] (proven) `DraftBranchOverrideKind` type-level `JsonStringEnumConverter` — numeric and string-encoded ordinals such as `99` and `"99"` deserialized without `JsonException` — **hit 2026-10-14 seed hunt:** what-if branch override JSON deserializes kind via the enum attribute; fixed with `DefinedEnumJsonConverter<DraftBranchOverrideKind>`; regressions `DraftBranchOverrideKindJsonConverterTests`.
 - [x] (proven) `DraftRequestStatus` type-level `JsonStringEnumConverter` — numeric and string-encoded ordinals such as `99` and `"99"` deserialized without `JsonException` — **hit 2026-10-14 seed hunt:** draft request lifecycle JSON deserializes status via the enum attribute; fixed with `DefinedEnumJsonConverter<DraftRequestStatus>`; regressions `DraftRequestStatusJsonConverterTests`.
 - [x] (proven) `FeasibilityCitationKind` type-level `JsonStringEnumConverter` — numeric and string-encoded ordinals such as `99` and `"99"` deserialized without `JsonException` — **hit 2026-10-14 seed hunt:** hard-infeasibility citation JSON deserializes via the enum attribute; fixed with `DefinedEnumJsonConverter<FeasibilityCitationKind>`; regressions `FeasibilityCitationKindJsonConverterTests`.
