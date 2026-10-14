@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Architecture;
 
 public sealed class StructuredDiagramIngestResult
@@ -8,11 +10,13 @@ public sealed class StructuredDiagramIngestResult
         init;
     } = new();
 
+    private IReadOnlyList<string> warnings = [];
+
     public IReadOnlyList<string> Warnings
     {
-        get;
-        init;
-    } = [];
+        get => warnings;
+        init => warnings = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 
     public string ExtractionMethod
     {
@@ -20,9 +24,11 @@ public sealed class StructuredDiagramIngestResult
         init;
     } = DiagramExtractionMethods.StructuredParse;
 
+    private IReadOnlyList<string> sourceFingerprints = [];
+
     public IReadOnlyList<string> SourceFingerprints
     {
-        get;
-        init;
-    } = [];
+        get => sourceFingerprints;
+        init => sourceFingerprints = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 }
