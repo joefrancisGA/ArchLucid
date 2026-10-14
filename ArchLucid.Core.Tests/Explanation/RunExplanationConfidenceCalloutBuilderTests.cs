@@ -828,6 +828,32 @@ public sealed class RunExplanationConfidenceCalloutBuilderTests
     }
 
     [Fact]
+    public void RunExplanation_FromAggregateJson_keeps_faithfulness_ratio_when_later_duplicate_is_nested_empty_wrapper_object()
+    {
+        RunExplanationConfidenceSignals? signals = RunExplanationConfidenceCalloutBuilder.FromAggregateJson(
+            """
+            {
+              "faithfulnessSupportRatio": 0.95,
+              "FAITHFULNESSSUPPORTRATIO": {"wrapper":{}},
+              "citations": [{"id":"c-1"}]
+            }
+            """);
+
+        signals.Should().NotBeNull();
+        signals!.FaithfulnessSupportRatio.Should().Be(0.95);
+        RunExplanationConfidenceCalloutBuilder.ResolveDisposition(signals).Should().Be("PASS");
+    }
+
+    [Fact]
+    public void RunExplanation_FromAggregateJson_keeps_decision_count_when_later_duplicate_is_nested_empty_wrapper_object()
+    {
+        using JsonDocument document = JsonDocument.Parse(
+            """{"decisionCount":3,"DECISIONCOUNT":{"wrapper":{}}}""");
+
+        RunExplanationCostCalloutBuilder.TryParseDecisionCount(document.RootElement).Should().Be(3);
+    }
+
+    [Fact]
     public void RunExplanation_structured_json_object_evidence_ref_survives_empty_id_duplicate()
     {
         bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(
