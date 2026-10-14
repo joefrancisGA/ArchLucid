@@ -78,6 +78,28 @@ public sealed class PilotValueReportMarkdownFormatterTests
     }
 
     [Fact]
+    public void Format_when_run_details_truncated_discloses_newest_run_sampling()
+    {
+        PilotValueReportMarkdownFormatter sut = new(new ExportFormatterService());
+        DateTime from = new(2026, 4, 1, 0, 0, 0, DateTimeKind.Utc);
+        int cap = PilotValueReportService.DefaultRunDetailCap;
+        PilotValueReport report = new()
+        {
+            TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+            FromUtc = from,
+            ToUtc = from.AddDays(30),
+            TotalRunsCommitted = cap + 50,
+            RunDetailsTruncated = true,
+            RunDetailCap = cap,
+        };
+
+        string markdown = sut.Format(report);
+
+        markdown.Should().Contain("newest", "sponsor markdown must match TakeLast run-detail sampling");
+        markdown.Should().NotContain("earliest", "earliest-run wording contradicts PilotValueReportService");
+    }
+
+    [Fact]
     public void Format_labels_empty_agent_types_system_name_and_missing_commit_time()
     {
         PilotValueReportMarkdownFormatter sut = new(new ExportFormatterService());

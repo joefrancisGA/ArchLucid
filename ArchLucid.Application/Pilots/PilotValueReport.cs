@@ -34,7 +34,7 @@ public sealed class PilotValueReport
 
     /// <summary>
     ///     When true, finding/agent/timing aggregates consider at most <see cref="RunDetailCap" /> committed runs
-    ///     (earliest in window by <c>CreatedUtc</c>).
+    ///     (newest in window by <c>CreatedUtc</c>, matching <see cref="PilotValueReportService" /> detail loading).
     /// </summary>
     public bool RunDetailsTruncated
     {

@@ -30,8 +30,18 @@ public sealed class PilotValueReportMarkdownFormatter(ExportFormatterService exp
             CultureInfo.InvariantCulture,
             $"| Window (UTC) | `{_exportFormatter.FormatIso8601Utc(r.FromUtc)}` inclusive → `{_exportFormatter.FormatIso8601Utc(r.ToUtc)}` exclusive |");
         sb.AppendLine(CultureInfo.InvariantCulture, $"| Committed runs | {r.TotalRunsCommitted} |");
-        sb.AppendLine(CultureInfo.InvariantCulture,
-            $"| Run-detail cap | {r.RunDetailCap} (truncated: {r.RunDetailsTruncated}) |");
+
+        if (r.RunDetailsTruncated)
+        {
+            sb.AppendLine(
+                CultureInfo.InvariantCulture,
+                $"| Run-detail cap | {r.RunDetailCap} (truncated: true; newest committed runs by CreatedUtc) |");
+        }
+        else
+        {
+            sb.AppendLine(CultureInfo.InvariantCulture,
+                $"| Run-detail cap | {r.RunDetailCap} (truncated: {r.RunDetailsTruncated}) |");
+        }
         sb.AppendLine(CultureInfo.InvariantCulture, $"| Audit export truncated | {r.AuditExportTruncated} |");
         sb.AppendLine();
 
