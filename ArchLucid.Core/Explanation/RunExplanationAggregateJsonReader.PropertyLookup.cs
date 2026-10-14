@@ -650,6 +650,13 @@ internal static partial class RunExplanationAggregateJsonReader
                 continue;
             }
 
+            if (structuredPropertyName.Equals("schemaVersion", StringComparison.OrdinalIgnoreCase)
+                && applyTrailingDuplicateArrayPoison
+                && SchemaVersionTrailingDuplicateScalarAliasIsPoison(item))
+            {
+                continue;
+            }
+
             if (IsAggregateStringCalloutPropertyName(structuredPropertyName)
                 && AggregateCalloutArrayItemIsDuplicateAliasPoison(item, jsonElement, applyTrailingDuplicateArrayPoison))
             {
