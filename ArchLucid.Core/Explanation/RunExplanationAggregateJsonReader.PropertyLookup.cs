@@ -55,6 +55,7 @@ internal static partial class RunExplanationAggregateJsonReader
         jsonElement.ValueKind switch
         {
             JsonValueKind.Null => false,
+            JsonValueKind.True or JsonValueKind.False => false,
             JsonValueKind.String => !string.IsNullOrWhiteSpace(jsonElement.GetString()),
             JsonValueKind.Array => ArrayPropertyValueIsNonEmpty(jsonElement),
             JsonValueKind.Object => ObjectPropertyValueIsNonEmpty(jsonElement),
@@ -69,6 +70,9 @@ internal static partial class RunExplanationAggregateJsonReader
                 continue;
 
             if (item.ValueKind == JsonValueKind.String && string.IsNullOrWhiteSpace(item.GetString()))
+                continue;
+
+            if (item.ValueKind is JsonValueKind.True or JsonValueKind.False)
                 continue;
 
             if (item.ValueKind == JsonValueKind.Array)
