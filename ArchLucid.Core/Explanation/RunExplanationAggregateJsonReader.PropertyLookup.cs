@@ -280,6 +280,13 @@ internal static partial class RunExplanationAggregateJsonReader
         if (IsAggregateWholeNumberCountPropertyName(structuredPropertyName))
             return TryReadWholeNumber(jsonElement, out _);
 
+        if (structuredPropertyName.Equals("riskPosture", StringComparison.OrdinalIgnoreCase)
+            || structuredPropertyName.Equals("faithfulnessWarning", StringComparison.OrdinalIgnoreCase))
+        {
+            return TryReadNonEmptyTextToken(jsonElement, out string? aggregateString)
+                && !string.IsNullOrWhiteSpace(aggregateString);
+        }
+
         foreach (JsonProperty property in jsonElement.EnumerateObject())
         {
             if (property.Value.ValueKind is JsonValueKind.Array or JsonValueKind.Object)

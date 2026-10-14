@@ -779,6 +779,37 @@ public sealed class RunExplanationConfidenceCalloutBuilderTests
     }
 
     [Fact]
+    public void RunExplanation_FromAggregateJson_keeps_risk_posture_when_later_duplicate_is_nested_empty_wrapper_object()
+    {
+        RunExplanationRiskCalloutBuilder.TryParseRiskPosture(
+            JsonDocument.Parse(
+                """
+                {
+                  "riskPosture": "elevated",
+                  "RISKPOSTURE": {"wrapper":{}}
+                }
+                """).RootElement).Should().Be("elevated");
+    }
+
+    [Fact]
+    public void RunExplanation_FromAggregateJson_keeps_faithfulness_warning_when_later_duplicate_is_nested_empty_wrapper_object()
+    {
+        RunExplanationConfidenceSignals? signals = RunExplanationConfidenceCalloutBuilder.FromAggregateJson(
+            """
+            {
+              "faithfulnessSupportRatio": 0.95,
+              "faithfulnessWarning": "Citations missing",
+              "FAITHFULNESSWARNING": {"wrapper":{}},
+              "citations": [{"id":"c-1"}]
+            }
+            """);
+
+        signals.Should().NotBeNull();
+        signals!.FaithfulnessWarning.Should().Be("Citations missing");
+        RunExplanationConfidenceCalloutBuilder.ResolveDisposition(signals).Should().Be("WARN");
+    }
+
+    [Fact]
     public void FromAggregateJson_counts_object_citation_when_later_case_variant_id_is_empty()
     {
         RunExplanationConfidenceSignals? signals = RunExplanationConfidenceCalloutBuilder.FromAggregateJson(
