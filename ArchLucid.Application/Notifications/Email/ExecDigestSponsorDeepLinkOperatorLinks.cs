@@ -17,7 +17,9 @@ public static class ExecDigestSponsorDeepLinkOperatorLinks
 
     public static string BuildRunCollateralUrl(string? operatorBaseUrl, string runIdHex, string token)
     {
-        string normalizedRunIdHex = runIdHex.Trim().Replace("-", string.Empty, StringComparison.Ordinal);
+        string normalizedRunIdHex = EmailHeaderFragmentSanitizer
+            .Sanitize(runIdHex.Trim())
+            .Replace("-", string.Empty, StringComparison.Ordinal);
         string relativePath =
             $"/digest/sponsor/run/{Uri.EscapeDataString(normalizedRunIdHex)}?token={Uri.EscapeDataString(token)}";
 

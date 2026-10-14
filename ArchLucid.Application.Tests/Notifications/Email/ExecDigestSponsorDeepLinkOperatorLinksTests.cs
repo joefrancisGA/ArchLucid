@@ -50,4 +50,26 @@ public sealed class ExecDigestSponsorDeepLinkOperatorLinksTests
 
         url.Should().Be($"https://ops.example.test/digest/sponsor/run/{RunIdHex}?token=signed-token");
     }
+
+    [Fact]
+    public void BuildRunCollateralUrl_strips_embedded_crlf_from_run_id_hex_before_path_encoding()
+    {
+        const string injectedLine = "Bcc: injected@evil.test";
+        string runIdWithBreak = $"{RunIdHex}\r\n{injectedLine}";
+
+        string url = ExecDigestSponsorDeepLinkOperatorLinks.BuildRunCollateralUrl(
+            "https://app.example.com",
+            runIdWithBreak,
+            Token);
+
+        string sanitizedForEmail = EmailBrandingUrls.SanitizeOperatorAbsoluteUrl(url);
+
+        sanitizedForEmail.Should().NotContain("%0D", "percent-encoded CR must not reach exec digest sponsor hrefs");
+        sanitizedForEmail.Should().NotContain("%0A", "percent-encoded LF must not reach exec digest sponsor hrefs");
+
+        Uri absolute = new(sanitizedForEmail);
+        Uri.UnescapeDataString(absolute.AbsolutePath)
+            .Should()
+            .Be($"/digest/sponsor/run/{RunIdHex} {injectedLine}");
+    }
 }
