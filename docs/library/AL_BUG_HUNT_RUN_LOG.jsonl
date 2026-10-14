@@ -1,6 +1,3 @@
-{"at":"2026-09-14T18:19:34.6778167Z","zoneId":"core-costing","outcome":"hit"}
-{"at":"2026-09-14T18:19:38.8468378Z","zoneId":"tenant-data-export","outcome":"seed-only"}
-{"at":"2026-09-14T18:19:42.5470715Z","zoneId":"persistence-identity","outcome":"seed-only"}
 {"at":"2026-09-14T19:09:35.04073Z","zoneId":"topology-proposal-merge","outcome":"hit"}
 {"at":"2026-09-14T19:26:07.128695Z","zoneId":"context-ingestion","outcome":"hit"}
 {"at":"2026-09-14T19:27:16.7705546Z","zoneId":"core-costing","outcome":"hit"}
@@ -8503,3 +8500,4 @@
 {"at":"2026-10-14T18:10:19.3927663Z","zoneId":"archlucid-contracts","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-14T18:15:29.0745245Z","zoneId":"archlucid-contracts","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-14T18:19:15.1078379Z","zoneId":"archlucid-contracts","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-14T18:24:11.9682875Z","zoneId":"archlucid-contracts","outcome":"hit","productLine":"archlucid-shared"}
