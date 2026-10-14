@@ -79,12 +79,20 @@ export function resolveGraphNodeKindKey(nodeType: string): GraphNodeKindKey {
   }
 }
 
+const NODE_KIND_NOT_STORED_LABEL = "Node kind was not stored.";
+
 /** Buyer-trail type caption — omitted when evidence-source subtitles already name the role. */
 export function resolveGraphNodeKindBuyerLabel(nodeType: string): string | null {
+  const trimmed = nodeType.trim();
+
+  if (trimmed.length === 0) {
+    return NODE_KIND_NOT_STORED_LABEL;
+  }
+
   const key = resolveGraphNodeKindKey(nodeType);
 
   if (key === "default") {
-    return "Unknown";
+    return trimmed;
   }
 
   const entry = GRAPH_NODE_KIND_LEGEND_ENTRIES.find((row) => row.key === key);

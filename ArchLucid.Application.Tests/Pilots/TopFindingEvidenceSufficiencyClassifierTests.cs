@@ -68,6 +68,14 @@ public sealed class TopFindingEvidenceSufficiencyClassifierTests
     }
 
     [Fact]
+    public void DescribeConfidenceClass_Null_UsesOmissionLabel()
+    {
+        TopFindingEvidenceSufficiencyClassifier.DescribeConfidenceClass(null)
+            .Should()
+            .Be("Confidence class was not stored.");
+    }
+
+    [Fact]
     public void Classify_DemoDerived_ReturnsLow_NotDefinitiveLabelRequiredInCard()
     {
         PilotRunDeltas deltas = new()

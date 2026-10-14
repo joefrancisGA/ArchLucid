@@ -52,7 +52,7 @@ function humanizeEdgeLabel(edgeType: string): string {
   const t = edgeType.trim();
 
   if (t.length === 0) {
-    return "";
+    return "Relationship was not stored";
   }
 
   return t.replace(/[._]/g, " ");
@@ -223,7 +223,11 @@ export function mapGraphToReactFlow(
       data: {
         raw: edge,
       },
-      label: showHumanLabel ? buyerTrailEdgeDisplayPhrase(edge.type) : edge.type,
+      label: showHumanLabel
+        ? buyerTrailEdgeDisplayPhrase(edge.type)
+        : edge.type.trim().length === 0
+          ? humanizeEdgeLabel(edge.type)
+          : edge.type,
       type: "smoothstep",
       animated: isBuyerTrail && (edge.type === "raised" || touchesHero),
       style: isBuyerTrail

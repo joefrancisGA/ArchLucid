@@ -11,6 +11,14 @@ namespace ArchLucid.Application.Tests.Pilots;
 public sealed class SponsorEvidenceBasisLabelResolverTests
 {
     [Fact]
+    public void FormatLabelsForMarkdownTable_EmptyList_UsesOmissionLabel()
+    {
+        SponsorEvidenceBasisLabelResolver.FormatLabelsForMarkdownTable([])
+            .Should()
+            .Be("Evidence basis was not stored.");
+    }
+
+    [Fact]
     public void ResolveLabels_StrongProof_EvidenceBackedOnly()
     {
         ProofPackageCompletenessResponse proof = new()

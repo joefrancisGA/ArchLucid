@@ -10,6 +10,17 @@ public sealed class DiagramInventoryNodeCanvasLabelFormatterTests
     private static readonly DiagramForestLayoutOptions DefaultOptions = new();
 
     [Fact]
+    public void FormatLines_uses_omission_sentence_when_resource_name_missing()
+    {
+        IReadOnlyList<string> lines = DiagramInventoryNodeCanvasLabelFormatter.FormatLines(
+            "   ",
+            [],
+            DefaultOptions);
+
+        lines.Should().Equal("Resource name was not stored.");
+    }
+
+    [Fact]
     public void FormatLines_keeps_short_names_on_one_line()
     {
         IReadOnlyList<string> lines = DiagramInventoryNodeCanvasLabelFormatter.FormatLines(

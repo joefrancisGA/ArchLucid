@@ -25,7 +25,7 @@ function normalizeSeverityLabel(raw: string | null | undefined): string {
   const t = (raw ?? "").trim();
 
   if (t.length === 0) {
-    return "Unknown";
+    return "Severity was not stored.";
   }
 
   const lower = t.toLowerCase();

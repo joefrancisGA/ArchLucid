@@ -72,7 +72,7 @@ public static class TopFindingEvidenceSufficiencyClassifier
     public static string DescribeConfidenceClass(TopFindingEvidenceSufficiency? sufficiency)
     {
         if (sufficiency is null)
-            return "N/A";
+            return "Confidence class was not stored.";
 
         return sufficiency switch
         {

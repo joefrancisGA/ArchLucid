@@ -76,4 +76,36 @@ public sealed class PilotValueReportMarkdownFormatterTests
         markdown.Should().Contain("Average pipeline completion was not stored.");
         markdown.Should().NotContain("| Avg pipeline completion | — |");
     }
+
+    [Fact]
+    public void Format_labels_empty_agent_types_system_name_and_missing_commit_time()
+    {
+        PilotValueReportMarkdownFormatter sut = new(new ExportFormatterService());
+        DateTime from = new(2026, 4, 1, 0, 0, 0, DateTimeKind.Utc);
+        PilotValueReport report = new()
+        {
+            TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+            FromUtc = from,
+            ToUtc = from.AddDays(30),
+            UniqueAgentTypes = [],
+            CommittedRunsTimeline =
+            [
+                new PilotValueReportRunTimelinePoint
+                {
+                    RunId = "run-1",
+                    CreatedUtc = from,
+                    CommittedUtc = null,
+                    SystemName = "",
+                },
+            ],
+            AveragePipelineCompletionSeconds = double.NaN,
+        };
+
+        string markdown = sut.Format(report);
+
+        markdown.Should().Contain("Agent types were not stored.");
+        markdown.Should().Contain("System name was not stored.");
+        markdown.Should().Contain("Committed time was not stored.");
+        markdown.Should().Contain("Average pipeline completion was not stored.");
+    }
 }

@@ -142,7 +142,8 @@ export function GraphViewerNodeDetailPanel({
 
       {!buyerTrailPanel ? (
         <p>
-          <strong>Type:</strong> {selectedNode.type}
+          <strong>Type:</strong>{" "}
+          {selectedNode.type.trim().length > 0 ? selectedNode.type : "Node type was not stored."}
         </p>
       ) : null}
 

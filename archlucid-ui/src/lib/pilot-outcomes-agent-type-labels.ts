@@ -11,7 +11,7 @@ export function formatPilotOutcomesAgentTypeLabel(agentType: string): string {
   const trimmed = agentType.trim();
 
   if (trimmed.length === 0) {
-    return "Unknown analysis";
+    return "Analysis type was not stored.";
   }
 
   const mapped = AGENT_TYPE_SPONSOR_LABELS[trimmed];
@@ -27,7 +27,7 @@ export function formatPilotOutcomesAgentTypeLabel(agentType: string): string {
 
 export function formatPilotOutcomesAnalysisCoverage(agentTypes: readonly string[]): string {
   if (agentTypes.length === 0) {
-    return "Not available";
+    return "Analysis coverage was not stored.";
   }
 
   return agentTypes.map(formatPilotOutcomesAgentTypeLabel).join(", ");

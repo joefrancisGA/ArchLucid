@@ -21,7 +21,6 @@ import {
 import { resolveFindingWorkItemCoverageHonestyFromInput } from "./copy-finding-as-work-item-coverage-honesty";
 
 import {
-  na,
   type FindingWorkItemBuildInput,
   type WorkItemClipboardFormat,
   workItemStoredText,
@@ -60,7 +59,22 @@ function coverageHonestyJsonFields(
   return fields;
 }
 
+function businessImpactForExport(value: string | null | undefined): string {
+  if (value === null || value === undefined) {
+    return "Business impact was not stored.";
+  }
+
+  return value;
+}
+
 function findingHeading(input: FindingWorkItemBuildInput): string {
+  const categoryMissing = input.categoryLabel === null || input.categoryLabel === undefined;
+  const titleMissing = input.title === null || input.title === undefined;
+
+  if (categoryMissing && titleMissing) {
+    return "Finding title was not stored.";
+  }
+
   const parts = [input.categoryLabel?.trim(), input.title?.trim()].filter((x) => x !== undefined && x !== null && x.length > 0);
 
   return parts.join(" — ") || findingWorkItemDefaultTitle(input.productLineId);
@@ -108,7 +122,7 @@ export function buildInspectFindingWorkItemBody(format: WorkItemClipboardFormat,
 
   const whatFlagged = workItemStoredText(input.description, "Description was not stored.");
 
-  const whyItMatters = na(input.impactedAreaLabel);
+  const whyItMatters = businessImpactForExport(input.impactedAreaLabel);
   const reco = workItemStoredText(input.recommendedAction, "Recommended action was not stored.");
   const severity = workItemStoredText(input.severityLabel, "Severity was not stored.");
   const ruleLine = ruleSummary(input.decisionRuleName, input.decisionRuleId);

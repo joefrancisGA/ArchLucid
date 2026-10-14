@@ -45,7 +45,50 @@ public sealed class DiagramForestDataFlowRollupTests
         DiagramForestDataFlowRollup.Result result = DiagramForestDataFlowRollup.Apply(nodes, edges);
 
         DiagramNode rollup = result.Nodes.Single(node => node.IsDataFlowRollup);
-        rollup.Label.Should().Contain("Resource type was not stored");
+        rollup.Label.Should().Contain("resource type was not stored");
+        rollup.Label.Should().NotContain("storeds");
+        rollup.Label.Should().Be("4 resources; resource type was not stored");
+    }
+
+    [Fact]
+    public void Apply_rollup_member_line_includes_resource_group_omission_when_missing()
+    {
+        const string consumerId = "consumer-app";
+        List<DiagramNode> nodes =
+        [
+            ..Enumerable.Range(0, 4).Select(index => new DiagramNode
+            {
+                NodeId = $"node-{index}",
+                Label = $"node-{index}",
+                NodeType = "TopologyResource",
+                SubgraphId = "source",
+                OrderKey = index,
+                ArmResourceType = "Microsoft.Storage/storageAccounts",
+            }),
+            new DiagramNode
+            {
+                NodeId = consumerId,
+                Label = consumerId,
+                NodeType = "TopologyResource",
+                SubgraphId = "app",
+                OrderKey = 10,
+                ArmResourceType = "Microsoft.Web/sites",
+            },
+        ];
+        List<DiagramEdge> edges =
+        [
+            ..Enumerable.Range(0, 4).Select(index => new DiagramEdge
+            {
+                FromNodeId = $"node-{index}",
+                ToNodeId = consumerId,
+                Label = "uses",
+            }),
+        ];
+
+        DiagramForestDataFlowRollup.Result result = DiagramForestDataFlowRollup.Apply(nodes, edges);
+
+        DiagramNode rollup = result.Nodes.Single(node => node.IsDataFlowRollup);
+        rollup.DataFlowRollupMemberNames.Should().OnlyContain(name => name.Contains("Resource group was not stored."));
     }
 
     [Fact]

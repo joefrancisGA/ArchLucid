@@ -47,7 +47,7 @@ public static class SponsorEvidenceBasisLabelResolver
         ArgumentNullException.ThrowIfNull(labels);
 
         if (labels.Count == 0)
-            return "**Unknown**";
+            return "Evidence basis was not stored.";
 
         return string.Join(" · ", labels.Select(static label => $"**{label}**"));
     }

@@ -58,6 +58,26 @@ describe("WizardStepReview", () => {
     expect(screen.getByText("1 attached")).toBeInTheDocument();
   });
 
+  it("labels blank identity draft fields as not stored", () => {
+    render(
+      <DirectWizardFormProvider
+        values={{
+          systemName: "",
+          environment: "",
+          cloudProvider: "",
+          description: "",
+        }}
+      >
+        <WizardStepReview />
+      </DirectWizardFormProvider>,
+    );
+
+    expect(screen.getByText("System name was not stored.")).toBeInTheDocument();
+    expect(screen.getByText("Environment was not stored.")).toBeInTheDocument();
+    expect(screen.getByText("Cloud was not stored.")).toBeInTheDocument();
+    expect(screen.getByText("Description was not stored.")).toBeInTheDocument();
+  });
+
   it("explains omitted optional scalar and empty string lists", () => {
     render(
       <WizardFormTestHarness

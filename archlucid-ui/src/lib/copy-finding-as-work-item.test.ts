@@ -81,8 +81,12 @@ describe("buildInspectFindingWorkItemBody", () => {
     };
 
     const markdown = buildInspectFindingWorkItemBody("markdown", sparse);
+    expect(markdown).toContain("Finding title was not stored.");
+    expect(markdown).toContain("Business impact was not stored.");
     expect(markdown).toContain("**Severity:** Severity was not stored.");
     expect(markdown).toContain("Description was not stored.");
+    expect(markdown).not.toContain("Not available");
+    expect(markdown).not.toContain("ArchLucid finding");
     expect(markdown).toContain("Recommended action was not stored.");
     expect(markdown).toContain("Decision rule was not stored.");
     expect(markdown).toContain("Evidence excerpt was not stored.");
