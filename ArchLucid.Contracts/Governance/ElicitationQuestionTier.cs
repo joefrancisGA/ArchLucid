@@ -1,5 +1,7 @@
 using System.Text.Json.Serialization;
 
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Governance;
 
 /// <summary>
@@ -13,7 +15,7 @@ namespace ArchLucid.Contracts.Governance;
 ///     has been answered.  <see cref="Should" /> questions contribute to the 1–100 confidence
 ///     score per ADR 0050 but are never blocking.
 /// </remarks>
-[JsonConverter(typeof(JsonStringEnumConverter))]
+[JsonConverter(typeof(DefinedEnumJsonConverter<ElicitationQuestionTier>))]
 public enum ElicitationQuestionTier
 {
     /// <summary>Must be answered before the draft can be submitted.</summary>
