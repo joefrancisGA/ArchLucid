@@ -102,6 +102,15 @@ internal static partial class RunExplanationAggregateJsonReader
             return true;
         }
 
+        if (lastMatch is JsonElement citationLast
+            && propertyName.Equals("citations", StringComparison.OrdinalIgnoreCase)
+            && IsZeroConfidenceAliasValue(citationLast))
+        {
+            value = citationLast;
+
+            return true;
+        }
+
         return false;
     }
 
@@ -116,10 +125,17 @@ internal static partial class RunExplanationAggregateJsonReader
              || structuredPropertyName.Equals("faithfulnessSupportRatio", StringComparison.OrdinalIgnoreCase)
              || structuredPropertyName.Equals("reasoning", StringComparison.OrdinalIgnoreCase)
              || structuredPropertyName.Equals("schemaVersion", StringComparison.OrdinalIgnoreCase)
+             || structuredPropertyName.Equals("citations", StringComparison.OrdinalIgnoreCase)
              || IsStructuredStringListPropertyName(structuredPropertyName))
             && IsZeroConfidenceAliasValue(jsonElement))
         {
             return false;
+        }
+
+        if (structuredPropertyName.Equals("citations", StringComparison.OrdinalIgnoreCase)
+            && jsonElement.ValueKind is JsonValueKind.True or JsonValueKind.False)
+        {
+            return true;
         }
 
         return jsonElement.ValueKind switch

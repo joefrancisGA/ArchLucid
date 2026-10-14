@@ -658,4 +658,37 @@ public sealed class RunExplanationConfidenceCalloutBuilderTests
         signals!.FaithfulnessSupportRatio.Should().Be(0);
         RunExplanationConfidenceCalloutBuilder.ResolveDisposition(signals).Should().Be("HOLD");
     }
+
+    [Fact]
+    public void FromAggregateJson_uses_non_empty_citation_count_when_later_duplicate_is_zero()
+    {
+        RunExplanationConfidenceSignals? signals = RunExplanationConfidenceCalloutBuilder.FromAggregateJson(
+            """
+            {
+              "faithfulnessSupportRatio": 0.95,
+              "citations": 2,
+              "CITATIONS": 0
+            }
+            """);
+
+        signals.Should().NotBeNull();
+        signals!.CitationCount.Should().Be(2);
+        RunExplanationConfidenceCalloutBuilder.ResolveDisposition(signals).Should().Be("PASS");
+    }
+
+    [Fact]
+    public void FromAggregateJson_preserves_explicit_zero_citation_count_when_only_value()
+    {
+        RunExplanationConfidenceSignals? signals = RunExplanationConfidenceCalloutBuilder.FromAggregateJson(
+            """
+            {
+              "faithfulnessSupportRatio": 0.95,
+              "citations": 0
+            }
+            """);
+
+        signals.Should().NotBeNull();
+        signals!.CitationCount.Should().Be(0);
+        RunExplanationConfidenceCalloutBuilder.ResolveDisposition(signals).Should().Be("WARN");
+    }
 }

@@ -130,7 +130,7 @@ public static class RunExplanationConfidenceCalloutBuilder
 
         int? citationCount = null;
 
-        if (RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitive(root, "citations", out JsonElement citationsEl))
+        if (RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitivePreferLastNonEmpty(root, "citations", out JsonElement citationsEl))
         {
             if (citationsEl.ValueKind == JsonValueKind.Null)
             {
