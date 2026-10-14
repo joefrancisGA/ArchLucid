@@ -2452,4 +2452,131 @@ describe("SignupForm", () => {
     funnelSpy.mockRestore();
     vi.unstubAllGlobals();
   });
+
+  it("trims padded work email in register POST JSON on UI submit", async () => {
+    const fetchMock = vi.fn(async () =>
+      new Response(JSON.stringify({ tenantId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa" }), {
+        status: 201,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<SignupForm />);
+    fireEvent.change(screen.getByLabelText(/Work email/i), { target: { value: "  ops@example.com  " } });
+    fireEvent.change(screen.getByLabelText(/Full name/i), { target: { value: "Ops User" } });
+    fireEvent.change(screen.getByLabelText(/Organization name/i), { target: { value: "Contoso Trial Org" } });
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeEnabled();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /Create evaluation workspace/i }));
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalled();
+    });
+
+    const [, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+    const body = JSON.parse(String(init.body)) as Record<string, unknown>;
+    expect(body.adminEmail).toBe("ops@example.com");
+
+    vi.unstubAllGlobals();
+  });
+
+  it("includes trimmed industry vertical other in register POST when Other is selected in the UI", async () => {
+    const fetchMock = vi.fn(async () =>
+      new Response(JSON.stringify({ tenantId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa" }), {
+        status: 201,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<SignupForm />);
+    fillRequiredFields();
+
+    fireEvent.click(screen.getByText("Tell us a little more"));
+    fireEvent.click(screen.getByTestId("signup-industry"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("signup-industry-Other")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId("signup-industry-Other"));
+    fireEvent.change(screen.getByTestId("signup-industry-specify"), {
+      target: { value: "  Custom vertical  " },
+    });
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeEnabled();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /Create evaluation workspace/i }));
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalled();
+    });
+
+    const [, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+    const body = JSON.parse(String(init.body)) as Record<string, unknown>;
+    expect(body.industryVertical).toBe("Other");
+    expect(body.industryVerticalOther).toBe("Custom vertical");
+
+    vi.unstubAllGlobals();
+  });
+
+  it("allows register retry after a non-ok register response", async () => {
+    vi.mocked(showError).mockClear();
+    vi.mocked(showSuccess).mockClear();
+
+    let registerAttempt = 0;
+
+    const fetchMock = vi.fn(async (url: string) => {
+      if (url !== "/api/proxy/v1/register") {
+        throw new Error(`Unexpected fetch URL: ${url}`);
+      }
+
+      registerAttempt += 1;
+
+      if (registerAttempt === 1) {
+        return Response.json({ detail: "Temporary failure." }, { status: 503 });
+      }
+
+      return new Response(JSON.stringify({ tenantId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa" }), {
+        status: 201,
+        headers: { "Content-Type": "application/json" },
+      });
+    });
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    const registerFetchCount = () =>
+      fetchMock.mock.calls.filter((call) => call[0] === "/api/proxy/v1/register").length;
+
+    render(<SignupForm />);
+    fillRequiredFields();
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeEnabled();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /Create evaluation workspace/i }));
+
+    await waitFor(() => {
+      expect(showError).toHaveBeenCalledWith("Signup", "Temporary failure.");
+      expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeEnabled();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /Create evaluation workspace/i }));
+
+    await waitFor(() => {
+      expect(registerFetchCount()).toBe(2);
+      expect(showSuccess).toHaveBeenCalled();
+    });
+
+    vi.unstubAllGlobals();
+  });
 });
