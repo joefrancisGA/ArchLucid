@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-14 seed hunt (seed→hit): `archlucid-contracts` — promoted `DiagramInfrastructureReconciliationResult.Rows` / `EdgeGaps` explicit JSON `null` overwriting `= []` initializers on diagram comparison result JSON; class fix with `ContractCollectionDefaults.Coalesce` on both list setters; regressions `DiagramInfrastructureReconciliationResultDeserializationTests`; 688 scoped `Contracts` filter tests passed.
+
 2026-10-14 seed hunt (seed→hit): `archlucid-contracts` — promoted `ArchitectureDiagramNodeRecord.Kind` garbage tokens such as `"service "` passing `ArchitectureDiagramModelValidator.TryValidate`; `ArchitectureDiagramNodeKindRules.IsKnownKind`; regression `TryValidate_rejects_unknown_node_kind`; cheap-disproof closed diagram reconciliation string-token and empty-source-content candidates as outside contract-only wrong outcomes; 687 scoped `Contracts` filter tests passed.
 
 2026-10-14 seed hunt (seed→hit): `archlucid-contracts` — promoted `SuggestedConcern.RelatedFactRefs` explicit JSON `null` on nested concern rows; consolidated null-collection coalescing on sibling `ArchitectureTradeoff.EvidenceNodeIds` / `EvidenceFindingIds`; `ContractCollectionDefaults.Coalesce`; regressions `SuggestedConcernDeserializationTests` and `ArchitectureTradeoffDeserializationTests`; 686 scoped `Contracts` filter tests passed.
@@ -29117,6 +29119,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 ---
 ## Zone: archlucid-contracts
 
+2026-10-14 seed hunt (seed→hit): promoted diagram reconciliation result JSON `null` collections on `Rows` and `EdgeGaps`; `ContractCollectionDefaults.Coalesce`; 688 scoped `Contracts` filter tests passed.
+
 2026-10-14 seed hunt (seed→hit): promoted structured diagram node `Kind` validation gap in `ArchitectureDiagramModelValidator`; `ArchitectureDiagramNodeKindRules`; 687 scoped `Contracts` filter tests passed.
 
 2026-10-14 seed hunt (seed→hit): promoted nested risk row JSON `null` collections on `SuggestedConcern.RelatedFactRefs` and consolidated `ArchitectureTradeoff` evidence lists; `ContractCollectionDefaults.Coalesce`; 686 scoped `Contracts` filter tests passed.
@@ -29231,11 +29235,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 98
-- **bugs-found:** 78
+- **hunts:** 99
+- **bugs-found:** 79
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-14
-- **last-bug:** 2026-10-14 — structured diagram node kind validation
+- **last-bug:** 2026-10-14 — diagram reconciliation result JSON null collections
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -29301,7 +29305,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (invalid) `DiagramInfrastructureEdgeGapRow.GapKind` / `DiagramInfrastructureCorrespondenceRow.MatchKind` — **cheap-disproof 2026-10-14 seed hunt:** reconciliation rows are application-emitted response DTOs with string vocabularies for forward compatibility; undefined tokens are not a `ContractJson.Default` ingest defect in zone `paths` — emission normalization lives in `DiagramInfrastructureMatcher` / comparison services.
 - [x] (valid-no-repro) `DiagramSourceReference.Content` — empty supported-format payload — **cheap-disproof 2026-10-14 seed hunt:** diagram parsers intentionally return an empty model for blank content (`MermaidDiagramSourceParser`, `ArchLucidDiagramJsonParser`); `InfrastructureDiagramComparisonService.ValidateSources` gates format, not non-empty prose, before parse.
 - [x] (proven) `ArchitectureDiagramNodeRecord.Kind` — garbage kind tokens such as `"service "` passed `ArchitectureDiagramModelValidator.TryValidate` — **hit 2026-10-14 seed hunt:** `ArchitectureDiagramNodeKindRules.IsKnownKind` guard in validator; regression `TryValidate_rejects_unknown_node_kind`.
-- (candidate) `DiagramInfrastructureReconciliationResult.Rows` / `EdgeGaps` — explicit JSON `null` can assign null despite `= []` initializers on diagram reconciliation export JSON. Reachability: `DiagramInfrastructureReconciliationResult` deserialized via `ContractJson.Default` on comparison result paths.
+- [x] (proven) `DiagramInfrastructureReconciliationResult.Rows` / `EdgeGaps` — explicit JSON `null` assigned null despite `= []` initializers — **hit 2026-10-14 seed hunt:** class fix with `ContractCollectionDefaults.Coalesce` on both list setters; regressions `DiagramInfrastructureReconciliationResultDeserializationTests`.
+- (candidate) `ArchitectureDiagramModelRecord` list properties (`Nodes`, `Edges`, `Subgraphs`, `TrustBoundaryLabels`) — explicit JSON `null` can assign null despite `= []` initializers on structured diagram ingest JSON. Reachability: `ArchitectureDiagramModelRecord` deserialized via `ContractJson.Default` on diagram JSON parse and round-trip paths.
 - [x] (proven) `SecureNowQuestionDispositionResponse.AuditEntries` — explicit JSON `"auditEntries": null` assigned null despite `= []` initializer — **hit 2026-10-14 seed hunt:** null-coalescing `init`; regression `Deserialize_null_audit_entries_yields_empty_list_not_null`.
 - [x] (valid-no-repro) `SecureNowQuestionDispositionWriteApiRequest.ExpirationUtc` → `SecureNowQuestionDispositionResponse.ExpirationUtc` — nullable request expiration becomes a required response `DateTime` — **cheap-disproof 2026-10-03 thorough hunt:** `SecureNowQuestionDispositionService.WriteAsync` converts omitted expiration to `now + 90 days` before creating the persisted record and controller mapping; no default timestamp reaches the response.
 - [x] (valid-no-repro) `SecureNowQuestionDispositionWriteApiRequest` — nullable `AnswerCode` and `AnswerText` permit both fields to be absent or simultaneously supplied — **cheap-disproof 2026-10-03 thorough hunt:** answer operations require nonblank `AnswerCode`, answer text is optional supplementary context, and ignore operations intentionally clear both fields; no contract-only shape defect is present.
