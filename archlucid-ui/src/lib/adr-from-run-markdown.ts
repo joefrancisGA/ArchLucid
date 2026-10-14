@@ -1,4 +1,5 @@
 import { formatFindingTrustExportLine } from "@/lib/findings/finding-trust-export";
+import { RISK_POSTURE_NOT_STORED_LABEL } from "@/lib/verdict-taxonomy";
 
 import {
   EXCERPT_CAP,
@@ -263,7 +264,7 @@ ${bulletBlock(contextReviewSignals)}
 
 ### Risk posture (aggregate label)
 
-${exp !== null && exp.riskPosture.length > 0 ? exp.riskPosture : "_Not specified._"}
+${exp !== null && exp.riskPosture.length > 0 ? exp.riskPosture : `_${RISK_POSTURE_NOT_STORED_LABEL}_`}
 
 ### AI assessment / narrative
 

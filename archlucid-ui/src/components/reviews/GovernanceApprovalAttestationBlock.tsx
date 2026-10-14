@@ -4,7 +4,7 @@ import type { ReactElement } from "react";
 
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { formatActionActorName } from "@/lib/action-actor-display";
+import { formatGovernanceApproverName } from "@/lib/action-actor-display";
 
 export type GovernanceApprovalAttestationBlockProps = {
   /** The governance decision value (e.g. "Approved", "ApprovedWithMonitoring", "Rejected"). */
@@ -87,7 +87,7 @@ export function GovernanceApprovalAttestationBlock({
             Approver
           </dt>
           <dd className={cn("mt-0.5 font-mono text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.navHelper)}>
-            {formatActionActorName(approvedByUserId)}
+            {formatGovernanceApproverName(approvedByUserId)}
           </dd>
         </div>
         <div>

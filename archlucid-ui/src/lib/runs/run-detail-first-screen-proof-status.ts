@@ -110,7 +110,7 @@ function governedCoverageLabel(
   }
 
   if (!coverage.isAvailable) {
-    return "Not available";
+    return "Governed coverage was not available.";
   }
 
   const governedCount = coverage.governedCount;

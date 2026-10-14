@@ -150,23 +150,23 @@ public class ArchitectureNarrativeArtifactGenerator : IArtifactGenerator
         sb.AppendLine();
 
         sb.AppendLine("## Architecture Overview");
-        sb.AppendLine("Not specified.");
+        sb.AppendLine("Architecture overview was not stored.");
         sb.AppendLine();
 
         sb.AppendLine("## Component Breakdown");
-        sb.AppendLine("Not specified.");
+        sb.AppendLine("Component breakdown was not stored.");
         sb.AppendLine();
 
         sb.AppendLine("## Data Flow");
-        sb.AppendLine("Not specified.");
+        sb.AppendLine("Data flow was not stored.");
         sb.AppendLine();
 
         sb.AppendLine("## Security Model");
-        sb.AppendLine("Not specified.");
+        sb.AppendLine("Security model was not stored.");
         sb.AppendLine();
 
         sb.AppendLine("## Operational Considerations");
-        sb.AppendLine("Not specified.");
+        sb.AppendLine("Operational considerations were not stored.");
         sb.AppendLine();
 
         sb.AppendLine("## Decisions");

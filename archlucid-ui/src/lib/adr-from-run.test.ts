@@ -388,6 +388,74 @@ describe("adr-from-run", () => {
     expect(buildMadrMarkdownFromRun(input)).toContain("**Provenance:** Provenance kind was not stored.");
   });
 
+  it("labels missing aggregate risk posture with not-stored copy (P-06)", () => {
+    const md = buildMadrMarkdownFromRun({
+      runId: "r1",
+      projectId: "p1",
+      reviewTitle: "T",
+      createdUtc: "2026-01-01T00:00:00.000Z",
+      manifestStatusLabel: null,
+      policyPackLabel: null,
+      manifestCounts: null,
+      explanation: null,
+      findings: [],
+    });
+
+    expect(md).toContain("_Risk posture was not stored._");
+    expect(md).not.toContain("_Not specified._");
+  });
+
+  it("keeps unmapped trust labels and never maps Unknown provenance kind (P-07)", () => {
+    const custom = buildAdrGeneratorRunInput({
+      runId: "r1",
+      projectId: "p1",
+      reviewTitle: "T",
+      createdUtc: "2026-01-01T00:00:00.000Z",
+      manifestStatusLabel: null,
+      policyPackLabel: null,
+      manifestCounts: null,
+      explanationSummary: null,
+      quickDecisionFindings: [
+        {
+          findingId: "f-custom",
+          title: "Finding",
+          recommendation: "Fix",
+          severityValue: 2,
+          aiReasoning: { reasoningTrace: "trace" },
+          trustLabel: "CustomVendorLabel",
+        } as QuickDecisionFinding,
+      ],
+      severityLabelForFinding: severityBadgeLabel,
+    });
+
+    expect(custom.findings[0]?.provenanceKind).toBe("CustomVendorLabel");
+
+    const unknown = buildAdrGeneratorRunInput({
+      runId: "r1",
+      projectId: "p1",
+      reviewTitle: "T",
+      createdUtc: "2026-01-01T00:00:00.000Z",
+      manifestStatusLabel: null,
+      policyPackLabel: null,
+      manifestCounts: null,
+      explanationSummary: null,
+      quickDecisionFindings: [
+        {
+          findingId: "f-unknown",
+          title: "Finding",
+          recommendation: "Fix",
+          severityValue: 2,
+          aiReasoning: { reasoningTrace: "trace" },
+          trustLabel: "Unknown",
+        } as QuickDecisionFinding,
+      ],
+      severityLabelForFinding: severityBadgeLabel,
+    });
+
+    expect(unknown.findings[0]?.provenanceKind).toBeNull();
+    expect(buildMadrMarkdownFromRun(unknown)).not.toContain("**Provenance:** Unknown");
+  });
+
   it("buildAdrExplanationSlice maps provenance and faithfulness flags", () => {
     const summary: RunExplanationSummary = {
       explanation: {

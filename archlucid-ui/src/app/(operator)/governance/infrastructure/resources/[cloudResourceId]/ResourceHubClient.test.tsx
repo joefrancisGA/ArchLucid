@@ -851,4 +851,20 @@ describe("ResourceHubClient", () => {
     await screen.findByTestId("infra-resource-hub-open-remediation-work");
     expect(screen.queryByTestId("infra-resource-hub-open-terraform-work")).not.toBeInTheDocument();
   });
+
+  it("labels missing resource group and region with omission copy (P-13)", async () => {
+    fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
+      buildResourceHubTestMockHub({
+        currentConfiguration: {
+          ...buildResourceHubTestMockHub().currentConfiguration,
+          resourceGroup: null,
+          region: null,
+        },
+      }),
+    );
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    expect(await screen.findByText("Resource group was not stored.")).toBeInTheDocument();
+    expect(screen.getByText("Azure region was not stored.")).toBeInTheDocument();
+  });
 });

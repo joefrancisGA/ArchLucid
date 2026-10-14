@@ -145,6 +145,31 @@ public sealed class ArtifactSynthesisPackageCoverageBatchRc28eTests
     }
 
     [Fact]
+    public async Task ArchitectureNarrativeArtifactGenerator_GenerateAsync_emits_not_stored_narrative_section_placeholders()
+    {
+        ManifestDocument manifest = new()
+        {
+            RunId = Guid.NewGuid(),
+            ManifestId = Guid.NewGuid(),
+            RuleSetId = "core-default",
+            RuleSetVersion = "1",
+            ManifestHash = "empty-hash",
+            Metadata = new ManifestMetadata { Name = "Empty Manifest" },
+        };
+
+        ArchitectureNarrativeArtifactGenerator generator = new();
+
+        SynthesizedArtifact artifact = await generator.GenerateAsync(manifest, CancellationToken.None);
+
+        artifact.Content.Should().Contain("Architecture overview was not stored.");
+        artifact.Content.Should().Contain("Component breakdown was not stored.");
+        artifact.Content.Should().Contain("Data flow was not stored.");
+        artifact.Content.Should().Contain("Security model was not stored.");
+        artifact.Content.Should().Contain("Operational considerations were not stored.");
+        artifact.Content.Should().NotContain("Not specified.");
+    }
+
+    [Fact]
     public async Task ReferenceArchitectureMarkdownGenerator_GenerateAsync_emits_committed_constraints_not_not_specified()
     {
         ManifestDocument manifest = new()

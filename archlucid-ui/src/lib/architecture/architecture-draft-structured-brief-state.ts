@@ -1,7 +1,9 @@
 /** Types, constants, and validation helpers for architecture draft structured brief state. */
 
 /** Explicit unknown sentinel — silence is not treated as “none” (TB-2282). */
-export const ARCHITECTURE_DRAFT_UNKNOWN_CONFIRM_LABEL = "Unknown — confirm before review" as const;
+export const ARCHITECTURE_DRAFT_UNKNOWN_CONFIRM_LABEL = "Skipped — not a stored constraint." as const;
+
+const LEGACY_UNKNOWN_CONFIRM_LABEL = "Unknown — confirm before review";
 
 export type ArchitectureDraftStructuredBriefState = {
   readonly confirmedConstraints: readonly string[];
@@ -67,9 +69,11 @@ function normalizeUnknownSentinelKey(value: string): string {
 }
 
 export function isUnknownConfirmSentinel(value: string): boolean {
+  const key = normalizeUnknownSentinelKey(value);
+
   return (
-    normalizeUnknownSentinelKey(value) ===
-    normalizeUnknownSentinelKey(ARCHITECTURE_DRAFT_UNKNOWN_CONFIRM_LABEL)
+    key === normalizeUnknownSentinelKey(ARCHITECTURE_DRAFT_UNKNOWN_CONFIRM_LABEL)
+    || key === normalizeUnknownSentinelKey(LEGACY_UNKNOWN_CONFIRM_LABEL)
   );
 }
 
