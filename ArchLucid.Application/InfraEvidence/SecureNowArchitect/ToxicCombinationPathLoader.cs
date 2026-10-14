@@ -1,86 +1,57 @@
 using ArchLucid.Core.InfraEvidence;
-using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.InfraEvidence;
 
 namespace ArchLucid.Application.InfraEvidence.SecureNowArchitect;
 
 internal static class ToxicCombinationPathLoader
 {
-    public static async Task<IReadOnlyList<ToxicCombinationPathSnapshot>> LoadSnapshotsAsync(
-        ISecurityEvidencePathRepository pathRepository,
-        ScopeContext scope,
-        Guid snapshotId,
+    public static IReadOnlyList<ToxicCombinationPathSnapshot> BuildSnapshots(
+        IReadOnlyList<SecurityEvidencePathWithHops> paths,
         PathKind pathKind,
-        AzureInventorySnapshotDetailReadModel snapshot,
-        CancellationToken cancellationToken)
+        AzureInventorySnapshotDetailReadModel snapshot)
     {
         List<ToxicCombinationPathSnapshot> snapshots = [];
         Dictionary<string, AzureInventoryResourceRecord> resourcesByArmId =
             snapshot.Resources.ToDictionary(static resource => resource.AzureResourceId, StringComparer.OrdinalIgnoreCase);
 
-        int page = 1;
-        const int pageSize = 200;
-        int loadedCount = 0;
-        int totalCount;
-
-        do
+        foreach (SecurityEvidencePathWithHops item in paths.Where(item => item.Path.PathKind == pathKind)
+                     .OrderByDescending(item => item.Path.CreatedUtc).ThenBy(item => item.Path.PathId))
         {
-            (IReadOnlyList<SecurityEvidencePathRecord> items, totalCount) = await pathRepository.ListPagedAsync(
-                scope.TenantId,
-                scope.WorkspaceId,
-                scope.ProjectId,
-                new SecurityEvidencePathListFilter
-                {
-                    SnapshotId = snapshotId,
-                    PathKind = pathKind,
-                },
-                page,
-                pageSize,
-                cancellationToken);
-
-            foreach (SecurityEvidencePathRecord path in items)
+            SecurityEvidencePathRecord path = item.Path;
+            IReadOnlyList<SecurityEvidencePathHopRecord> hops = item.Hops;
+            if (hops.Count == 0)
             {
-                IReadOnlyList<SecurityEvidencePathHopRecord> hops =
-                    await pathRepository.ListHopsByPathAsync(scope.TenantId, path.PathId, cancellationToken);
-
-                if (hops.Count == 0)
-                {
-                    continue;
-                }
-
-                HashSet<string> nodeIds = new(StringComparer.OrdinalIgnoreCase);
-
-                foreach (SecurityEvidencePathHopRecord hop in hops)
-                {
-                    nodeIds.Add(hop.FromNodeId);
-                    nodeIds.Add(hop.ToNodeId);
-                }
-
-                string terminalNodeId = hops[^1].ToNodeId;
-                Guid? terminalCloudResourceId = null;
-                string? terminalResourceType = null;
-
-                if (resourcesByArmId.TryGetValue(terminalNodeId, out AzureInventoryResourceRecord? terminalResource))
-                {
-                    terminalCloudResourceId = terminalResource.CloudResourceId;
-                    terminalResourceType = terminalResource.ResourceType;
-                }
-
-                snapshots.Add(new ToxicCombinationPathSnapshot
-                {
-                    Path = path,
-                    Hops = hops,
-                    NodeIds = nodeIds,
-                    TerminalNodeId = terminalNodeId,
-                    TerminalCloudResourceId = terminalCloudResourceId,
-                    TerminalResourceType = terminalResourceType,
-                });
+                continue;
             }
 
-            loadedCount += items.Count;
-            page++;
+            HashSet<string> nodeIds = new(StringComparer.OrdinalIgnoreCase);
+
+            foreach (SecurityEvidencePathHopRecord hop in hops)
+            {
+                nodeIds.Add(hop.FromNodeId);
+                nodeIds.Add(hop.ToNodeId);
+            }
+
+            string terminalNodeId = hops[^1].ToNodeId;
+            Guid? terminalCloudResourceId = null;
+            string? terminalResourceType = null;
+
+            if (resourcesByArmId.TryGetValue(terminalNodeId, out AzureInventoryResourceRecord? terminalResource))
+            {
+                terminalCloudResourceId = terminalResource.CloudResourceId;
+                terminalResourceType = terminalResource.ResourceType;
+            }
+
+            snapshots.Add(new ToxicCombinationPathSnapshot
+            {
+                Path = path,
+                Hops = hops,
+                NodeIds = nodeIds,
+                TerminalNodeId = terminalNodeId,
+                TerminalCloudResourceId = terminalCloudResourceId,
+                TerminalResourceType = terminalResourceType,
+            });
         }
-        while (loadedCount < totalCount);
 
         return snapshots;
     }

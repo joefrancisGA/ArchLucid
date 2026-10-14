@@ -1182,24 +1182,20 @@ public sealed class AzureInventorySnapshotMaterializerSecurityEdgeIntegrationTes
         Mock<ICloudResourceIdentityDirectory> identityDirectory = new();
 
         identityDirectory
-            .Setup(d => d.UpsertOnSnapshotAsync(
-                scope,
-                CloudProvider.Azure,
-                It.IsAny<string>(),
-                snapshotId,
-                It.IsAny<string?>(),
-                It.IsAny<string?>(),
-                It.IsAny<string?>(),
-                It.IsAny<string?>(),
-                It.IsAny<string?>(),
+            .Setup(d => d.UpsertSnapshotBatchAsync(
+                scope, CloudProvider.Azure, snapshotId,
+                It.IsAny<IReadOnlyList<CloudResourceIdentitySnapshotWrite>>(),
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync((ScopeContext _, CloudProvider _, string externalId, Guid _, string? _, string? _, string? _, string? _, string? _, CancellationToken _) =>
-                new CloudResourceIdentityRecord
-                {
-                    CloudResourceId = Guid.NewGuid(),
-                    ExternalResourceIdNormalized = externalId,
-                    Provider = CloudProvider.Azure,
-                });
+            .ReturnsAsync((ScopeContext _, CloudProvider _, Guid _,
+                IReadOnlyList<CloudResourceIdentitySnapshotWrite> rows, CancellationToken _) =>
+                (IReadOnlyDictionary<string, CloudResourceIdentityRecord>)rows
+                    .DistinctBy(row => row.ExternalResourceId, StringComparer.OrdinalIgnoreCase)
+                    .ToDictionary(row => row.ExternalResourceId, row => new CloudResourceIdentityRecord
+                    {
+                        CloudResourceId = Guid.NewGuid(),
+                        ExternalResourceIdNormalized = row.ExternalResourceId,
+                        Provider = CloudProvider.Azure,
+                    }, StringComparer.OrdinalIgnoreCase));
 
         return identityDirectory;
     }

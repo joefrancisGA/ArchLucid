@@ -21,7 +21,7 @@ public sealed class SecureNowArchitectPathCarryForwardService(ISecurityEvidenceP
             return 0;
         }
 
-        IReadOnlyList<SecurityEvidencePathRecord> sourcePaths = await pathRepository.ListBySnapshotAsync(
+        IReadOnlyList<SecurityEvidencePathWithHops> sourcePaths = await pathRepository.ListWithHopsBySnapshotAsync(
             ProjectSnapshotScopeKey.Create(scope.ToProjectScopeKey(), fromSnapshotId),
             cancellationToken);
 
@@ -31,12 +31,12 @@ public sealed class SecureNowArchitectPathCarryForwardService(ISecurityEvidenceP
         }
 
         DateTime utcNow = TimeProvider.System.UtcNowDateTime();
-        int carried = 0;
+        List<SecurityEvidencePathWithHops> writes = [];
 
-        foreach (SecurityEvidencePathRecord sourcePath in sourcePaths)
+        foreach (SecurityEvidencePathWithHops item in sourcePaths)
         {
-            IReadOnlyList<SecurityEvidencePathHopRecord> sourceHops =
-                await pathRepository.ListHopsByPathInScopeAsync(scope.ToProjectScopeKey(), sourcePath.PathId, cancellationToken);
+            SecurityEvidencePathRecord sourcePath = item.Path;
+            IReadOnlyList<SecurityEvidencePathHopRecord> sourceHops = item.Hops;
 
             if (excludeCloudResourceIds is not null
                 && excludeCloudResourceIds.Count > 0
@@ -84,15 +84,11 @@ public sealed class SecureNowArchitectPathCarryForwardService(ISecurityEvidenceP
                 UpdatedUtc = utcNow,
             };
 
-            SecurityEvidencePathInsertResult insertResult =
-                await pathRepository.InsertIfNotExistsAsync(header, copiedHops, cancellationToken);
-
-            if (insertResult.Created)
-            {
-                carried++;
-            }
+            writes.Add(new(header, copiedHops));
         }
 
-        return carried;
+        IReadOnlyList<SecurityEvidencePathInsertResult> results =
+            await pathRepository.InsertBatchIfNotExistsAsync(writes, cancellationToken);
+        return results.Count(result => result.Created);
     }
 }

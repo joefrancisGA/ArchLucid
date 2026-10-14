@@ -55,21 +55,12 @@ public sealed class CutPointAnalysisEngine(
 
         List<(SecurityEvidencePathRecord Path, IReadOnlyList<SecurityEvidencePathHopRecord> Hops)> rankedPaths = [];
 
+        IReadOnlyList<SecurityEvidencePathWithHops> paths = await pathRepository.ListWithHopsBySnapshotAsync(
+            ProjectSnapshotScopeKey.Create(scope.ToProjectScopeKey(), snapshotId), cancellationToken);
+        Dictionary<Guid, SecurityEvidencePathWithHops> pathsById = paths.ToDictionary(item => item.Path.PathId);
         foreach (SecurityEvidencePathRankRecord rank in ranks)
-        {
-            SecurityEvidencePathRecord? path =
-                await pathRepository.TryGetByIdInScopeAsync(scope.ToProjectScopeKey(), rank.PathId, cancellationToken);
-
-            if (path is null)
-            {
-                continue;
-            }
-
-            IReadOnlyList<SecurityEvidencePathHopRecord> hops =
-                await pathRepository.ListHopsByPathInScopeAsync(scope.ToProjectScopeKey(), rank.PathId, cancellationToken);
-
-            rankedPaths.Add((path, hops));
-        }
+            if (pathsById.TryGetValue(rank.PathId, out SecurityEvidencePathWithHops? item))
+                rankedPaths.Add((item.Path, item.Hops));
 
         IReadOnlyList<SecurityEvidenceCutPointCandidate> candidates =
             SecurityEvidenceCutPointAnalyzer.Analyze(rankedPaths, resourceTypesByCloudResourceId);

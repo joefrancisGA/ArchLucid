@@ -13,7 +13,7 @@ using Dapper;
 
 namespace ArchLucid.Persistence.InfraEvidence;
 
-public sealed class SqlCloudResourceIdentityDirectory(ISqlConnectionFactory connectionFactory)
+public sealed partial class SqlCloudResourceIdentityDirectory(ISqlConnectionFactory connectionFactory)
     : ICloudResourceIdentityDirectory
 {
     private static readonly string VisibleExplorerResourceTypePredicate =
