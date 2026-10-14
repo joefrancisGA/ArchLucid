@@ -38,6 +38,14 @@ internal static class InventoryReachabilityPathGraph
         HashSet<string> publicNetworkAccessArmIds = new(StringComparer.OrdinalIgnoreCase);
         HashSet<string> privateEndpointOnlyArmIds = new(StringComparer.OrdinalIgnoreCase);
 
+        AzureInventoryPrivateEndpointDnsJoinIndex dnsJoinIndex =
+            AzureInventoryPrivateEndpointDnsJoinIndex.Build(
+                snapshot.Relationships.Select(static relationship =>
+                    new AzureInventoryRelationshipArmTriple(
+                        relationship.FromAzureResourceId,
+                        relationship.ToAzureResourceId,
+                        relationship.InferenceSource)));
+
         foreach (AzureInventoryResourceRecord resource in resourcesByArmId.Values)
         {
             if (resource.ResourceType.Contains("publicIPAddresses", StringComparison.OrdinalIgnoreCase))
@@ -85,6 +93,7 @@ internal static class InventoryReachabilityPathGraph
                     ToNodeId = relationship.ToAzureResourceId,
                     EdgeType = relationship.RelationshipType,
                     ProvenanceKind = relationship.ProvenanceKind,
+                    InferenceSource = relationship.InferenceSource,
                     RoleName = null,
                 });
         }
@@ -112,8 +121,16 @@ internal static class InventoryReachabilityPathGraph
             PublicIpArmIds = publicIpArmIds,
             PublicNetworkAccessArmIds = publicNetworkAccessArmIds,
             PrivateEndpointOnlyArmIds = privateEndpointOnlyArmIds,
+            PrivateIntegratedComputeArmIds = dnsJoinIndex.ComputeToVnetArmId.Keys.ToHashSet(StringComparer.OrdinalIgnoreCase),
+            DnsJoinIndex = dnsJoinIndex,
         };
     }
+
+    public static bool IsPeReachablePrivateHop(PrivilegePathEdge hop) =>
+        string.Equals(
+            hop.InferenceSource,
+            GraphEdgeInferenceSources.InventoryPeReachableTarget,
+            StringComparison.OrdinalIgnoreCase);
 
     public static bool IsReachabilityAsset(string? resourceType)
     {
@@ -213,4 +230,16 @@ internal sealed class InventoryReachabilityPathGraphSnapshot
         get;
         init;
     } = new HashSet<string>();
+
+    public IReadOnlySet<string> PrivateIntegratedComputeArmIds
+    {
+        get;
+        init;
+    } = new HashSet<string>();
+
+    public AzureInventoryPrivateEndpointDnsJoinIndex? DnsJoinIndex
+    {
+        get;
+        init;
+    }
 }

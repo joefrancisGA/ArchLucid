@@ -40,6 +40,9 @@ public static class SecureNowArchitectConstants
 
     public const string InsufficientEvidenceNsgHopEdgeType = "nsg-not-collected-or-unassociated";
 
+    /// <summary>Private DNS join or resolver evidence missing for an intended private path (Ch. 7).</summary>
+    public const string InsufficientEvidenceDnsHopEdgeType = "dns-not-collected-or-unverified";
+
     public const string PublicNetworkAccessHopEdgeType = "public-network-access";
 
     public const string UnrestrictedEgressHopEdgeType = "unrestricted-egress";

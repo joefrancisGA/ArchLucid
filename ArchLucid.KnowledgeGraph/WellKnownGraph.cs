@@ -74,6 +74,9 @@ public static class GraphEdgeTypes
 
     /// <summary>MI + RBAC composed authorization hop (AX-DE-03); not confirmed data-plane traffic.</summary>
     public const string MayAccess = "MAY_ACCESS";
+
+    /// <summary>Derived network reachability between a position/workload and an endpoint (book Ch. 5–7 <c>canReach</c>).</summary>
+    public const string CanReach = "CAN_REACH";
 }
 
 /// <summary>

@@ -16,6 +16,7 @@ internal static class InventoryPrivilegePathGraph
         GraphEdgeTypes.CanControlCode,
         GraphEdgeTypes.CanAddCredential,
         GraphEdgeTypes.CanGrantRole,
+        GraphEdgeTypes.CanReach,
         GraphEdgeTypes.FederatesAs,
         GraphEdgeTypes.MemberOf,
     ];
@@ -118,6 +119,8 @@ internal static class InventoryPrivilegePathGraph
                     RoleName = null,
                 });
         }
+
+        InventoryPrivilegePathCanReachAppender.Append(snapshot, outgoing);
 
         return new InventoryPrivilegePathGraphSnapshot
         {
@@ -242,7 +245,7 @@ internal static class InventoryPrivilegePathGraph
             : (relationship.ProvenanceKind, relationship.InferenceSource);
     }
 
-    private static void AddEdge(
+    internal static void AddEdge(
         Dictionary<string, List<PrivilegePathEdge>> outgoing,
         PrivilegePathEdge edge)
     {
