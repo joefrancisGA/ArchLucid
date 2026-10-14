@@ -36,12 +36,14 @@ internal static partial class RunExplanationAggregateJsonReader
         value = default;
         JsonElement? lastMatch = null;
         JsonElement? lastNonEmpty = null;
+        int caseInsensitiveAliasMatchCount = 0;
 
         foreach (JsonProperty property in element.EnumerateObject())
         {
             if (!string.Equals(property.Name, propertyName, StringComparison.OrdinalIgnoreCase))
                 continue;
 
+            caseInsensitiveAliasMatchCount++;
             lastMatch = property.Value;
 
             if (IsNonEmptyJsonPropertyValue(property.Value, propertyName))
@@ -111,11 +113,22 @@ internal static partial class RunExplanationAggregateJsonReader
             return true;
         }
 
-        if (lastMatch is JsonElement warningLast
+        if (caseInsensitiveAliasMatchCount == 1
+            && lastMatch is JsonElement warningLast
             && propertyName.Equals("faithfulnessWarning", StringComparison.OrdinalIgnoreCase)
             && warningLast.ValueKind == JsonValueKind.True)
         {
             value = warningLast;
+
+            return true;
+        }
+
+        if (caseInsensitiveAliasMatchCount == 1
+            && lastMatch is JsonElement citationsLast
+            && propertyName.Equals("citations", StringComparison.OrdinalIgnoreCase)
+            && citationsLast.ValueKind == JsonValueKind.True)
+        {
+            value = citationsLast;
 
             return true;
         }
@@ -149,12 +162,6 @@ internal static partial class RunExplanationAggregateJsonReader
             && IsZeroConfidenceAliasValue(jsonElement))
         {
             return false;
-        }
-
-        if (structuredPropertyName.Equals("citations", StringComparison.OrdinalIgnoreCase)
-            && jsonElement.ValueKind is JsonValueKind.True or JsonValueKind.False)
-        {
-            return true;
         }
 
         if (IsDeterministicFallbackPropertyName(structuredPropertyName)
