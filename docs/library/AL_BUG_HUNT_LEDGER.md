@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-14 seed hunt (seed→hit): `archlucid-contracts` — promoted `ReviewCycleBaselineProvenance` on `ValueReportSnapshot` accepting undefined numeric ordinals such as `99` on sponsor value-report JSON via `ContractJson.Default`; `DefinedEnumJsonConverter<ReviewCycleBaselineProvenance>`; regressions `ReviewCycleBaselineProvenanceDeserializationTests`; cheap-disproof closed `SponsorRoiClaimDisposition` as `(invalid)` (derived in formatters, not a JSON field); 661 scoped `Contracts` filter tests passed.
+
 2026-10-14 seed hunt (seed→hit): `archlucid-contracts` — promoted `PilotRoiEvidenceConfidence` on `ProofPackageCompletenessResponse.RoiEvidenceConfidence` accepting undefined numeric ordinals such as `99` via `ContractJson.Default`; `DefinedEnumJsonConverter<PilotRoiEvidenceConfidence>`; regressions `PilotRoiEvidenceConfidenceDeserializationTests`; cheap-disproof closed `FirstValueEvidenceCompletenessLevel` as `(invalid)` (enum not on any serializable contract property—exported as string); 659 scoped `Contracts` filter tests passed.
 
 2026-10-14 seed hunt (seed→hit): `archlucid-contracts` — promoted `TechnologyLedgerStatus` on `TechnologyLedgerEntry` accepting undefined numeric ordinals such as `99` on ledger import JSON via `ContractJson.Default`; class fix also guarded sibling `TechnologyLedgerRole` and `TechnologyLedgerSource` on the same DTO; `DefinedEnumJsonConverter<T>` on all three; regressions `TechnologyLedgerStatusDeserializationTests`; 656 scoped `Contracts` filter tests passed.
@@ -29091,6 +29093,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 ---
 ## Zone: archlucid-contracts
 
+2026-10-14 seed hunt (seed→hit): promoted `ReviewCycleBaselineProvenance` undefined ordinals on `ValueReportSnapshot` JSON; `DefinedEnumJsonConverter<ReviewCycleBaselineProvenance>`; regressions `ReviewCycleBaselineProvenanceDeserializationTests`; 661 scoped `Contracts` filter tests passed.
+
 2026-10-14 seed hunt (seed→hit): promoted `PilotRoiEvidenceConfidence` undefined ordinals on proof-package completeness JSON; `DefinedEnumJsonConverter<PilotRoiEvidenceConfidence>`; regressions `PilotRoiEvidenceConfidenceDeserializationTests`; 659 scoped `Contracts` filter tests passed.
 
 2026-10-14 seed hunt (seed→hit): promoted technology-ledger enum undefined ordinals on `TechnologyLedgerEntry` JSON (`Status`, `Role`, `Source`); `DefinedEnumJsonConverter<T>`; regressions `TechnologyLedgerStatusDeserializationTests`; 656 scoped `Contracts` filter tests passed.
@@ -29179,11 +29183,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 85
-- **bugs-found:** 65
+- **hunts:** 86
+- **bugs-found:** 66
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-14
-- **last-bug:** 2026-10-14 — `PilotRoiEvidenceConfidence` undefined ordinal on `ProofPackageCompletenessResponse` JSON
+- **last-bug:** 2026-10-14 — `ReviewCycleBaselineProvenance` undefined ordinal on `ValueReportSnapshot` JSON
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -29233,7 +29237,9 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `TechnologyLedgerStatus` / `TechnologyLedgerRole` / `TechnologyLedgerSource` on `TechnologyLedgerEntry` — undefined numeric ordinals such as `99` deserialized without `JsonException` — **hit 2026-10-14 seed hunt:** class fix with `DefinedEnumJsonConverter<T>` on all three ledger enums; regressions `TechnologyLedgerStatusDeserializationTests`.
 - [x] (invalid) `FirstValueEvidenceCompletenessLevel` on pilot first-value evidence DTOs — **cheap-disproof 2026-10-14 seed hunt:** the enum is used in application classifiers only; `ProofPackageCompletenessResponse.EvidenceCompleteness` is a string mirror, so no `ContractJson` deserialize path references the enum type.
 - [x] (proven) `PilotRoiEvidenceConfidence` on `ProofPackageCompletenessResponse.RoiEvidenceConfidence` — undefined numeric ordinals such as `99` deserialized without `JsonException` — **hit 2026-10-14 seed hunt:** fixed with `DefinedEnumJsonConverter<PilotRoiEvidenceConfidence>`; regressions `PilotRoiEvidenceConfidenceDeserializationTests`.
-- (candidate) `SponsorRoiClaimDisposition` on sponsor ROI value-report contract rows — persisted/export JSON can carry undefined numeric ordinals on disposition fields because the enum has no `DefinedEnumJsonConverter`. Reachability: `ArchLucid.Contracts.Pilots` / `ValueReports` DTOs deserialized via `ContractJson.Default` on sponsor board-pack export paths.
+- [x] (invalid) `SponsorRoiClaimDisposition` on sponsor ROI value-report contract rows — **cheap-disproof 2026-10-14 seed hunt:** disposition is computed from `ReviewCycleBaselineProvenance` in `SponsorRoiClaimDispositionRules` / formatters, not serialized on `ValueReportSnapshot` or other contract DTOs.
+- [x] (proven) `ReviewCycleBaselineProvenance` on `ValueReportSnapshot.ReviewCycleBaselineProvenance` — undefined numeric ordinals such as `99` deserialized without `JsonException` — **hit 2026-10-14 seed hunt:** fixed with `DefinedEnumJsonConverter<ReviewCycleBaselineProvenance>`; regressions `ReviewCycleBaselineProvenanceDeserializationTests`.
+- (candidate) `PilotRoiBaselineInputBasis` on `PilotRoiBaselineInputsStatusResponse` — proof-package JSON can carry undefined numeric ordinals on `reviewCycleHoursBasis` / sibling basis fields because the enum has no `DefinedEnumJsonConverter`. Reachability: nested under `ProofPackageCompletenessResponse.RoiBaselineInputs` via `ContractJson.Default`.
 - (candidate) `DiagramInfrastructureEdgeGapRow.GapKind` — reconciliation output can carry an arbitrary string such as `"PresentNotDrawn "` or an unknown value even though the contract publishes two constants; a client that switches on exact gap-kind values may render a real edge gap as unknown. Reachability: server-generated reconciliation response consumed by the diagram comparison UI.
 - (candidate) `DiagramSourceReference.Content` — a comparison-create request can provide a named source with a supported format but empty content, and the contract accepts it as a valid source; the comparison may silently produce an empty diagram instead of rejecting or reporting the unusable source. Reachability: API request payload for the infrastructure-diagram comparison endpoint.
 - (candidate) `ArchitectureDiagramNodeRecord.Kind` — diagram-node JSON accepts arbitrary kind strings such as `"service "` even though the contract publishes `user`, `system`, `external`, and `boundary`; exact-value renderers may classify a real node as unknown. Reachability: architecture diagram node payload consumed by the diagram UI.
