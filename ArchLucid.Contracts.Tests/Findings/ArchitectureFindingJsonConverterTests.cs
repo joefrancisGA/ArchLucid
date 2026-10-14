@@ -493,6 +493,27 @@ public sealed class ArchitectureFindingJsonConverterTests
     }
 
     [Fact]
+    public void Deserialize_whole_number_double_source_agent_maps_cost_ordinal()
+    {
+        const string json = """
+                            {
+                              "severity": "Warning",
+                              "category": "Cost",
+                              "enforcementTier": "Advisory",
+                              "message": "Reserved capacity recommendation.",
+                              "sourceAgent": 2.0
+                            }
+                            """;
+
+        JsonSerializerOptions options = CreateOptions();
+
+        ArchitectureFinding? finding = JsonSerializer.Deserialize<ArchitectureFinding>(json, options);
+
+        finding.Should().NotBeNull();
+        finding!.SourceAgent.Should().Be(AgentType.Cost);
+    }
+
+    [Fact]
     public void Deserialize_unknown_source_agent_string_throws()
     {
         const string json = """

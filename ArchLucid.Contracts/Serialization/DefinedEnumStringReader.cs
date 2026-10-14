@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text.Json;
 
 namespace ArchLucid.Contracts.Serialization;
@@ -30,6 +31,51 @@ internal static class DefinedEnumStringReader
         if (Enum.IsDefined(candidate))
             return;
 
+        // Optional source-agent payloads serialize default enum ordinals as "0"; treat as absent, not out-of-range.
+        if (int.TryParse(raw, NumberStyles.Integer, CultureInfo.InvariantCulture, out int numericOrdinal)
+            && numericOrdinal == 0)
+        {
+            return;
+        }
+
         throw new JsonException(unknownValueMessage);
+    }
+
+    public static bool TryReadDefinedOrdinal<TEnum>(
+        JsonElement element,
+        out TEnum value,
+        Func<int, JsonException> throwUnknownOrdinal) where TEnum : struct, Enum
+    {
+        value = default;
+
+        if (element.ValueKind != JsonValueKind.Number)
+            return false;
+
+        if (element.TryGetInt32(out int numeric))
+        {
+
+            if (!Enum.IsDefined(typeof(TEnum), numeric))
+                throw throwUnknownOrdinal(numeric);
+
+            value = (TEnum)(object)numeric;
+            return true;
+        }
+
+        if (element.TryGetDouble(out double wholeNumber)
+            && double.IsFinite(wholeNumber)
+            && wholeNumber >= 0
+            && wholeNumber <= int.MaxValue
+            && wholeNumber == Math.Floor(wholeNumber))
+        {
+            int ordinal = (int)wholeNumber;
+
+            if (!Enum.IsDefined(typeof(TEnum), ordinal))
+                throw throwUnknownOrdinal(ordinal);
+
+            value = (TEnum)(object)ordinal;
+            return true;
+        }
+
+        return false;
     }
 }

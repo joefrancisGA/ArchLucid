@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-14 seed hunt (seed→hit): `archlucid-contracts` — promoted `ArchitectureFindingJsonConverter.TryReadSourceAgent` ignoring whole-number JSON doubles such as `sourceAgent: 2.0` (`TryGetInt32` only) leaving invalid default `AgentType` 0; `DefinedEnumStringReader.TryReadDefinedOrdinal` now accepts bounded whole-number doubles for inline architecture-finding enum readers; regression `Deserialize_whole_number_double_source_agent_maps_cost_ordinal`; 526 scoped `Contracts` filter tests passed.
+
 2026-10-14 seed hunt (seed→hit): `archlucid-contracts` — promoted dedicated contract enum converters accepting string-encoded out-of-range ordinals (`"99"`) via bare `Enum.TryParse` while integer JSON ordinals already threw; consolidated `DefinedEnumStringReader` for defined string parse + undefined numeric-string rejection across finding/common converters (alias-based converters throw before unknown fallback); regression `FindingTreatmentJsonConverterTests.Read_string_numeric_out_of_range_throws`; 525 scoped `Contracts` filter tests passed.
 
 2026-10-14 seed hunt (seed→hit): `archlucid-contracts` — promoted `FindingEnforcementTierJsonConverter` accepting string numeric `"99"` without `Enum.IsDefined` (parity gap vs integer ordinals and `ArchitectureFindingJsonConverter.TryReadEnforcementTier` fixed earlier same day); regression `Read_string_numeric_out_of_range_throws`; 524 scoped `Contracts` filter tests passed.
@@ -28961,6 +28963,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 ---
 ## Zone: archlucid-contracts
 
+2026-10-14 seed hunt (seed→hit): promoted whole-number double JSON ordinals on architecture-finding inline enum readers (`sourceAgent: 2.0` dropped); `DefinedEnumStringReader.TryReadDefinedOrdinal`; regression `Deserialize_whole_number_double_source_agent_maps_cost_ordinal`; 526 scoped `Contracts` filter tests passed.
+
 2026-10-14 seed hunt (seed→hit): promoted string-encoded undefined enum ordinals across dedicated `*JsonConverter` types (class fix via `DefinedEnumStringReader`); regression `Read_string_numeric_out_of_range_throws` on `FindingTreatmentJsonConverter`; 525 scoped `Contracts` filter tests passed.
 
 2026-10-14 seed hunt (seed→hit): promoted `FindingEnforcementTierJsonConverter` string numeric `"99"` bypass (dedicated converter missed the inline `ArchitectureFindingJsonConverter` guard); regression `Read_string_numeric_out_of_range_throws`; 524 scoped `Contracts` filter tests passed.
@@ -29082,6 +29086,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `ArchitectureFindingJsonConverter.TryReadEnforcementTier` — string numeric `enforcementTier` ordinals such as `"99"` deserialized without `Enum.IsDefined` while integer ordinals throw — **hit 2026-10-14 seed hunt:** defined-value guard on string parse; regression `Deserialize_string_numeric_enforcement_tier_out_of_range_throws`.
 - [x] (proven) `FindingEnforcementTierJsonConverter` — string numeric ordinals such as `"99"` deserialized without `Enum.IsDefined` while integer ordinals throw — **hit 2026-10-14 seed hunt:** defined-value guard on string parse; regression `Read_string_numeric_out_of_range_throws`.
 - [x] (proven) dedicated contract `*JsonConverter` string paths — string-encoded out-of-range ordinals such as `"99"` accepted via `Enum.TryParse` on finding/common enums while JSON numbers threw — **hit 2026-10-14 seed hunt:** shared `DefinedEnumStringReader`; regression `FindingTreatmentJsonConverterTests.Read_string_numeric_out_of_range_throws`.
+- [x] (proven) `ArchitectureFindingJsonConverter.TryReadSourceAgent` — whole-number JSON doubles such as `sourceAgent: 2.0` ignored while integer `2` mapped to `AgentType.Cost` — **hit 2026-10-14 seed hunt:** `DefinedEnumStringReader.TryReadDefinedOrdinal`; regression `Deserialize_whole_number_double_source_agent_maps_cost_ordinal`.
 - [x] (proven) `ArchitectureFindingJsonConverter.TryReadSourceAgent` — string numeric `sourceAgent` ordinals such as `"99"` deserialized to undefined enum values while integer ordinals throw — **hit 2026-10-14 seed hunt:** reject undefined numeric-string ordinals; regression `Deserialize_string_numeric_source_agent_out_of_range_throws`.
 
 2026-08-31 seed hunt #332 (hit): proved object-shaped claim `evidenceRefs` dropped in `AgentResultJsonConverter`; seeded numeric/PascalCase insight-density fields, `FindingConfidenceLevel` ordinal, and comma-delimiter brief sentinel candidates.

@@ -4,6 +4,7 @@ using System.Text.Json.Serialization;
 
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
+using ArchLucid.Contracts.Serialization;
 
 namespace ArchLucid.Contracts.Findings;
 
@@ -170,13 +171,12 @@ public sealed class ArchitectureFindingJsonConverter : JsonConverter<Architectur
 
     private static bool TryReadSourceAgent(JsonElement element, out AgentType agentType)
     {
-        if (element.ValueKind == JsonValueKind.Number && element.TryGetInt32(out int numeric))
+
+        if (DefinedEnumStringReader.TryReadDefinedOrdinal(
+                element,
+                out agentType,
+                numeric => new JsonException($"Unknown source agent value '{numeric}'.")))
         {
-
-            if (!Enum.IsDefined(typeof(AgentType), numeric))
-                throw new JsonException($"Unknown source agent value '{numeric}'.");
-
-            agentType = (AgentType)numeric;
             return true;
         }
 
@@ -190,24 +190,18 @@ public sealed class ArchitectureFindingJsonConverter : JsonConverter<Architectur
                 return false;
             }
 
-            if (Enum.TryParse(label, ignoreCase: true, out AgentType parsed))
-            {
-
-                if (!Enum.IsDefined(parsed))
-                {
-
-                    if (int.TryParse(label, NumberStyles.Integer, CultureInfo.InvariantCulture, out int numericOrdinal)
-                        && numericOrdinal != 0)
-                    {
-                        throw new JsonException($"Unknown source agent value '{label}'.");
-                    }
-
-                    agentType = default;
-                    return false;
-                }
-
-                agentType = parsed;
+            if (DefinedEnumStringReader.TryParse(label, out agentType))
                 return true;
+
+            DefinedEnumStringReader.ThrowIfUndefinedNumericString<AgentType>(
+                label,
+                $"Unknown source agent value '{label}'.");
+
+            if (int.TryParse(label, NumberStyles.Integer, CultureInfo.InvariantCulture, out int numericOrdinal)
+                && numericOrdinal == 0)
+            {
+                agentType = default;
+                return false;
             }
 
             throw new JsonException($"Unknown source agent value '{label}'.");
@@ -219,24 +213,26 @@ public sealed class ArchitectureFindingJsonConverter : JsonConverter<Architectur
 
     private static bool TryReadFindingTreatment(JsonElement element, out FindingTreatment treatment)
     {
-        if (element.ValueKind == JsonValueKind.Number && element.TryGetInt32(out int numeric))
+
+        if (DefinedEnumStringReader.TryReadDefinedOrdinal(
+                element,
+                out treatment,
+                numeric => new JsonException($"Unknown finding treatment value '{numeric}'.")))
         {
-
-            if (!Enum.IsDefined(typeof(FindingTreatment), numeric))
-                throw new JsonException($"Unknown finding treatment value '{numeric}'.");
-
-            treatment = (FindingTreatment)numeric;
             return true;
         }
 
-        if (element.ValueKind == JsonValueKind.String &&
-            Enum.TryParse(element.GetString(), ignoreCase: true, out FindingTreatment parsed))
+        if (element.ValueKind == JsonValueKind.String)
         {
-            if (!Enum.IsDefined(parsed))
-                throw new JsonException($"Unknown finding treatment value '{element.GetString()}'.");
+            string? raw = element.GetString();
+            DefinedEnumStringReader.ThrowIfUndefinedNumericString<FindingTreatment>(
+                raw!,
+                $"Unknown finding treatment value '{raw}'.");
 
-            treatment = parsed;
-            return true;
+            if (DefinedEnumStringReader.TryParse(raw!, out treatment))
+                return true;
+
+            throw new JsonException($"Unknown finding treatment value '{raw}'.");
         }
 
         treatment = default;
@@ -247,24 +243,25 @@ public sealed class ArchitectureFindingJsonConverter : JsonConverter<Architectur
         JsonElement element,
         out FindingSemanticSupportBand supportBand)
     {
-        if (element.ValueKind == JsonValueKind.Number && element.TryGetInt32(out int numeric))
+        if (DefinedEnumStringReader.TryReadDefinedOrdinal(
+                element,
+                out supportBand,
+                numeric => new JsonException($"Unknown finding semantic support band value '{numeric}'.")))
         {
-
-            if (!Enum.IsDefined(typeof(FindingSemanticSupportBand), numeric))
-                throw new JsonException($"Unknown finding semantic support band value '{numeric}'.");
-
-            supportBand = (FindingSemanticSupportBand)numeric;
             return true;
         }
 
-        if (element.ValueKind == JsonValueKind.String &&
-            Enum.TryParse(element.GetString(), ignoreCase: true, out FindingSemanticSupportBand parsed))
+        if (element.ValueKind == JsonValueKind.String)
         {
-            if (!Enum.IsDefined(parsed))
-                throw new JsonException($"Unknown finding semantic support band value '{element.GetString()}'.");
+            string? raw = element.GetString();
+            DefinedEnumStringReader.ThrowIfUndefinedNumericString<FindingSemanticSupportBand>(
+                raw!,
+                $"Unknown finding semantic support band value '{raw}'.");
 
-            supportBand = parsed;
-            return true;
+            if (DefinedEnumStringReader.TryParse(raw!, out supportBand))
+                return true;
+
+            throw new JsonException($"Unknown finding semantic support band value '{raw}'.");
         }
 
         supportBand = default;
@@ -273,24 +270,26 @@ public sealed class ArchitectureFindingJsonConverter : JsonConverter<Architectur
 
     private static bool TryReadFindingClassification(JsonElement element, out FindingClassification classification)
     {
-        if (element.ValueKind == JsonValueKind.Number && element.TryGetInt32(out int numeric))
+
+        if (DefinedEnumStringReader.TryReadDefinedOrdinal(
+                element,
+                out classification,
+                numeric => new JsonException($"Unknown finding classification value '{numeric}'.")))
         {
-
-            if (!Enum.IsDefined(typeof(FindingClassification), numeric))
-                throw new JsonException($"Unknown finding classification value '{numeric}'.");
-
-            classification = (FindingClassification)numeric;
             return true;
         }
 
-        if (element.ValueKind == JsonValueKind.String &&
-            Enum.TryParse(element.GetString(), ignoreCase: true, out FindingClassification parsed))
+        if (element.ValueKind == JsonValueKind.String)
         {
-            if (!Enum.IsDefined(parsed))
-                throw new JsonException($"Unknown finding classification value '{element.GetString()}'.");
+            string? raw = element.GetString();
+            DefinedEnumStringReader.ThrowIfUndefinedNumericString<FindingClassification>(
+                raw!,
+                $"Unknown finding classification value '{raw}'.");
 
-            classification = parsed;
-            return true;
+            if (DefinedEnumStringReader.TryParse(raw!, out classification))
+                return true;
+
+            throw new JsonException($"Unknown finding classification value '{raw}'.");
         }
 
         classification = default;
@@ -305,25 +304,29 @@ public sealed class ArchitectureFindingJsonConverter : JsonConverter<Architectur
     {
         tier = default;
 
-        if (element.ValueKind == JsonValueKind.Number && element.TryGetInt32(out int numeric))
+        if (DefinedEnumStringReader.TryReadDefinedOrdinal(
+                element,
+                out tier,
+                numeric => new JsonException($"Unknown finding enforcement tier value '{numeric}'.")))
         {
-
-            if (!Enum.IsDefined(typeof(FindingEnforcementTier), numeric))
-                throw new JsonException($"Unknown finding enforcement tier value '{numeric}'.");
-
-            tier = (FindingEnforcementTier)numeric;
             return true;
         }
 
-        if (element.ValueKind == JsonValueKind.String &&
-            Enum.TryParse(element.GetString(), ignoreCase: true, out FindingEnforcementTier parsed))
+        if (element.ValueKind == JsonValueKind.String)
         {
+            string? raw = element.GetString();
 
-            if (!Enum.IsDefined(parsed))
-                throw new JsonException($"Unknown finding enforcement tier value '{element.GetString()}'.");
+            if (string.IsNullOrWhiteSpace(raw))
+                return false;
 
-            tier = parsed;
-            return true;
+            DefinedEnumStringReader.ThrowIfUndefinedNumericString<FindingEnforcementTier>(
+                raw,
+                $"Unknown finding enforcement tier value '{raw}'.");
+
+            if (DefinedEnumStringReader.TryParse(raw, out tier))
+                return true;
+
+            throw new JsonException($"Unknown finding enforcement tier value '{raw}'.");
         }
 
         return false;
@@ -404,12 +407,12 @@ public sealed class ArchitectureFindingJsonConverter : JsonConverter<Architectur
 
     private static FindingSeverity ReadSeverity(JsonElement severityElement)
     {
-        if (severityElement.ValueKind == JsonValueKind.Number && severityElement.TryGetInt32(out int numeric))
+        if (DefinedEnumStringReader.TryReadDefinedOrdinal(
+                severityElement,
+                out FindingSeverity numericSeverity,
+                numeric => new JsonException($"Unknown finding severity value '{numeric}'.")))
         {
-            if (!Enum.IsDefined(typeof(FindingSeverity), numeric))
-                throw new JsonException($"Unknown finding severity value '{numeric}'.");
-
-            return (FindingSeverity)numeric;
+            return numericSeverity;
         }
 
         if (severityElement.ValueKind != JsonValueKind.String)
