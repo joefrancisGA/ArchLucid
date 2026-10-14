@@ -1313,6 +1313,42 @@ public sealed class RunExplanationConfidenceCalloutBuilderTests
     }
 
     [Fact]
+    public void RunExplanation_FromAggregateJson_keeps_risk_posture_when_later_duplicate_is_numeric_poison_array()
+    {
+        using JsonDocument document = JsonDocument.Parse(
+            """{"riskPosture":"elevated","RISKPOSTURE":[42]}""");
+
+        RunExplanationRiskCalloutBuilder.TryParseRiskPosture(document.RootElement).Should().Be("elevated");
+    }
+
+    [Fact]
+    public void RunExplanation_FromAggregateJson_keeps_faithfulness_warning_when_later_duplicate_is_one_string_poison_array()
+    {
+        RunExplanationConfidenceSignals? signals = RunExplanationConfidenceCalloutBuilder.FromAggregateJson(
+            """
+            {
+              "faithfulnessSupportRatio": 0.95,
+              "faithfulnessWarning": "Citations incomplete",
+              "FAITHFULNESSWARNING": [ "1" ],
+              "citations": 1
+            }
+            """);
+
+        signals.Should().NotBeNull();
+        signals!.FaithfulnessWarning.Should().Be("Citations incomplete");
+        RunExplanationConfidenceCalloutBuilder.ResolveDisposition(signals).Should().Be("WARN");
+    }
+
+    [Fact]
+    public void RunExplanation_FromAggregateJson_keeps_unresolved_issue_count_when_later_duplicate_is_one_string_poison_array()
+    {
+        using JsonDocument document = JsonDocument.Parse(
+            """{"unresolvedIssueCount":2,"UNRESOLVEDISSUECOUNT":["1"]}""");
+
+        RunExplanationRiskCalloutBuilder.TryParseUnresolvedIssueCount(document.RootElement).Should().Be(2);
+    }
+
+    [Fact]
     public void RunExplanation_FromAggregateJson_keeps_risk_posture_when_later_duplicate_is_string_numeric_poison_array()
     {
         using JsonDocument document = JsonDocument.Parse(

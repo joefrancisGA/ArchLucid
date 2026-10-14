@@ -595,7 +595,7 @@ internal static partial class RunExplanationAggregateJsonReader
 
         if (item.ValueKind == JsonValueKind.String
             && TryParseWholeNumberString(item.GetString()?.Trim() ?? string.Empty, out int calloutStringAlias)
-            && calloutStringAlias > 10)
+            && (calloutStringAlias > 10 || calloutStringAlias == 1))
         {
             return true;
         }
