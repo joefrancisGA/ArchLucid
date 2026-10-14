@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-14 seed hunt (seed→hit): `core-explanation-json` — promoted aggregate `riskPosture` trailing `RISKPOSTURE:0` duplicate hiding earlier posture string (parsed as literal `0`); `riskPosture` now uses zero-alias emptiness in `IsNonEmptyJsonPropertyValue`; regression `RunExplanation_FromAggregateJson_keeps_risk_posture_when_later_duplicate_is_zero_numeric`; 86 scoped `RunExplanation` filter tests passed.
+
 2026-10-14 seed hunt (seed→hit): `core-explanation-json` — promoted aggregate `deterministicFallbackUsed` trailing `DETERMINISTICFALLBACKUSED:0` duplicate clearing earlier `true` (HOLD dropped to PASS); fallback flags now use zero-alias emptiness in `IsNonEmptyJsonPropertyValue`; regression `RunExplanation_FromAggregateJson_keeps_deterministic_fallback_when_later_duplicate_is_zero_numeric`; 85 scoped `RunExplanation` filter tests passed.
 
 2026-10-14 seed hunt (seed→hit): `core-explanation-json` — promoted aggregate `faithfulnessWarning` trailing `FAITHFULNESSWARNING:0` duplicate hiding earlier warning prose (export showed literal `0`); `faithfulnessWarning` now uses zero-alias emptiness in `IsNonEmptyJsonPropertyValue` like ratio/count fields; regression `RunExplanation_FromAggregateJson_keeps_faithfulness_warning_when_later_duplicate_is_zero_numeric`; 84 scoped `RunExplanation` filter tests passed.
