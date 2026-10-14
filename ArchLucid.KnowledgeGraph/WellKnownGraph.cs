@@ -58,6 +58,9 @@ public static class GraphEdgeTypes
     /// <summary>Principal may add a credential and sign in as the target application (book Ch. 4 §4.3 <c>canAddCredential</c>).</summary>
     public const string CanAddCredential = "CAN_ADD_CREDENTIAL";
 
+    /// <summary>Principal may grant a role or directory permission that creates downstream access (book Ch. 4 §4.4).</summary>
+    public const string CanGrantRole = "CAN_GRANT_ROLE";
+
     public const string RoutesTo = "ROUTES_TO";
 
     /// <summary>CI federated credential adapter edge (SA-19); emitted when optional ZIP sibling is present.</summary>

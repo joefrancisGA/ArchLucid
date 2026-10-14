@@ -15,6 +15,7 @@ internal static class InventoryPrivilegePathGraph
         GraphEdgeTypes.CanAssume,
         GraphEdgeTypes.CanControlCode,
         GraphEdgeTypes.CanAddCredential,
+        GraphEdgeTypes.CanGrantRole,
         GraphEdgeTypes.FederatesAs,
         GraphEdgeTypes.MemberOf,
     ];

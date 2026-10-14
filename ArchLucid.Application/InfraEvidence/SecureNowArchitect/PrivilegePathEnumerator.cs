@@ -111,6 +111,13 @@ internal static class PrivilegePathEnumerator
         }
 
         PrivilegePathEdge lastHop = hops[^1];
+
+        if (lastHop.EdgeType == GraphEdgeTypes.CanGrantRole
+            && IsGlobalAdminElevationGrantRole(lastHop.InferenceSource))
+        {
+            return TryFinalizeGrantRoleElevationPath(graph, hops, lastHop, out candidate);
+        }
+
         bool hasHasRole = hops.Any(static hop => hop.EdgeType == GraphEdgeTypes.HasRole);
         bool endsWithAction = lastHop.EdgeType is GraphEdgeTypes.CanRead or GraphEdgeTypes.CanWrite;
 
@@ -496,5 +503,103 @@ internal static class PrivilegePathEnumerator
             + GraphEdgeInferenceSources.InferenceSourceQualifierSeparator;
 
         return inferenceSource.StartsWith(prefix, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool IsGlobalAdminElevationGrantRole(string? inferenceSource)
+    {
+        if (!GraphEdgeInferenceSources.TrySplitQualifier(inferenceSource, out string baseSource, out string? qualifier))
+        {
+            return false;
+        }
+
+        return baseSource.Equals(GraphEdgeInferenceSources.InventoryGrantRole, StringComparison.OrdinalIgnoreCase)
+            && string.Equals(
+                qualifier,
+                AzureInventoryGrantRoleInferenceQualifiers.GlobalAdminElevation,
+                StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool TryFinalizeGrantRoleElevationPath(
+        InventoryPrivilegePathGraphSnapshot graph,
+        IReadOnlyList<PrivilegePathEdge> hops,
+        PrivilegePathEdge elevationHop,
+        out PrivilegePathCandidate candidate)
+    {
+        candidate = null!;
+
+        const string ownerRoleName = "Owner";
+        string elevationScope = ArmResourceIdNormalizer.Normalize(elevationHop.ToNodeId);
+
+        foreach (KeyValuePair<string, AzureInventoryResourceRecord> resourceEntry in graph.ResourcesByArmId
+                     .OrderBy(static entry => entry.Key, StringComparer.OrdinalIgnoreCase))
+        {
+            if (!AzureInventoryControlToDataConversionResolver.RoleAssignmentScopeAppliesToResource(
+                    elevationScope,
+                    resourceEntry.Key))
+            {
+                continue;
+            }
+
+            string? resourceType = resourceEntry.Value.ResourceType;
+            IReadOnlyDictionary<string, string> properties =
+                ReadResourceProperties(graph, resourceEntry.Key, ref resourceType);
+
+            if (string.IsNullOrWhiteSpace(resourceType))
+            {
+                resourceType = InferResourceTypeFromArmId(resourceEntry.Key);
+            }
+
+            AzureInventoryControlToDataConversionResult conversion =
+                AzureInventoryControlToDataConversionResolver.ResolveForResource(
+                    ownerRoleName,
+                    resourceType,
+                    properties);
+
+            if (!conversion.HasPermission)
+            {
+                continue;
+            }
+
+            string normalizedResourceArmId = ArmResourceIdNormalizer.Normalize(resourceEntry.Key);
+            string actionEdgeType = conversion.Permission is AzureInventoryDerivedDataPlanePermission.Write
+                or AzureInventoryDerivedDataPlanePermission.ReadAndWrite
+                ? GraphEdgeTypes.CanWrite
+                : GraphEdgeTypes.CanRead;
+
+            List<PrivilegePathEdge> hopsWithAction = [.. hops];
+            hopsWithAction.Add(new PrivilegePathEdge
+            {
+                FromNodeId = elevationHop.FromNodeId,
+                ToNodeId = normalizedResourceArmId,
+                EdgeType = actionEdgeType,
+                ProvenanceKind = ProvenanceKind.DerivedFact,
+                InferenceSource = string.IsNullOrWhiteSpace(conversion.InferenceQualifier)
+                    ? GraphEdgeInferenceSources.InventoryControlToDataConversion
+                    : GraphEdgeInferenceSources.WithQualifier(
+                        GraphEdgeInferenceSources.InventoryControlToDataConversion,
+                        conversion.InferenceQualifier!),
+                RoleName = ownerRoleName,
+            });
+
+            candidate = new PrivilegePathCandidate
+            {
+                Hops = hopsWithAction,
+                TerminalScopeNodeId = normalizedResourceArmId,
+                EffectiveRoleName = ownerRoleName,
+                HasInsufficientEvidenceHop = HasInsufficientEvidenceHop(hopsWithAction),
+                TerminalCloudResourceId = resourceEntry.Value.CloudResourceId,
+                TerminalResourceType = resourceEntry.Value.ResourceType ?? resourceType,
+                ScopeTaggedProduction = InventoryPrivilegePathGraph.IsScopeTaggedProduction(
+                    resourceEntry.Key,
+                    graph.ResourcesByArmId,
+                    graph.TagsByResourceRowId),
+                IsFederatedDeploymentPath = IsFederatedDeploymentPath(hopsWithAction),
+                IsGroupNestedPath = IsGroupNestedPath(hopsWithAction),
+            };
+
+            return true;
+        }
+
+        return false;
     }
 }

@@ -579,6 +579,13 @@ internal static class DiagramEdgeLabelHumanizer
             return true;
         }
 
+        if (string.Equals(value, GraphEdgeTypes.CanGrantRole, StringComparison.OrdinalIgnoreCase))
+        {
+            humanized = "grants role";
+
+            return true;
+        }
+
         if (string.Equals(value, GraphEdgeTypes.CanRead, StringComparison.OrdinalIgnoreCase))
         {
             humanized = "reads";
