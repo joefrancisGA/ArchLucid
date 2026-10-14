@@ -777,4 +777,20 @@ public sealed class RunExplanationConfidenceCalloutBuilderTests
                 }
                 """).RootElement).Should().Be("elevated");
     }
+
+    [Fact]
+    public void FromAggregateJson_counts_object_citation_when_later_case_variant_id_is_empty()
+    {
+        RunExplanationConfidenceSignals? signals = RunExplanationConfidenceCalloutBuilder.FromAggregateJson(
+            """
+            {
+              "faithfulnessSupportRatio": 0.95,
+              "citations": [{"id":"c-1","ID":""}]
+            }
+            """);
+
+        signals.Should().NotBeNull();
+        signals!.CitationCount.Should().Be(1);
+        RunExplanationConfidenceCalloutBuilder.ResolveDisposition(signals).Should().Be("PASS");
+    }
 }

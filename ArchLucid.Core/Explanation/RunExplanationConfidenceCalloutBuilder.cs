@@ -230,7 +230,7 @@ public static class RunExplanationConfidenceCalloutBuilder
 
         foreach (string propertyName in new[] { "id", "text" })
         {
-            if (RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitive(item, propertyName, out JsonElement property)
+            if (RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitivePreferLastNonEmpty(item, propertyName, out JsonElement property)
                 && RunExplanationAggregateJsonReader.TryReadNonEmptyTextToken(property, out string? value)
                 && !string.IsNullOrWhiteSpace(value))
             {
