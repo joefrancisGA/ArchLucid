@@ -1,6 +1,11 @@
 namespace ArchLucid.Contracts.Integrations;
 
+using System.Text.Json.Serialization;
+
+using ArchLucid.Contracts.Serialization;
+
 /// <summary>Outcome of a Key Vault secret probe for Teams incoming webhook configuration.</summary>
+[JsonConverter(typeof(DefinedEnumJsonConverter<TeamsIncomingWebhookSecretValidationOutcome>))]
 public enum TeamsIncomingWebhookSecretValidationOutcome
 {
     Found,
