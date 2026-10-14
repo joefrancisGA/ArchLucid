@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-14 seed hunt (seed→hit): `archlucid-contracts` — promoted `TeamsIncomingWebhookSecretValidationOutcome` on `TeamsIncomingWebhookSecretValidationResponse.Outcome` accepting undefined numeric ordinals such as `99` on validate-secret API JSON via `ContractJson.Default`; `DefinedEnumJsonConverter<TeamsIncomingWebhookSecretValidationOutcome>`; regressions `TeamsIncomingWebhookSecretValidationOutcomeDeserializationTests`; 671 scoped `Contracts` filter tests passed.
+
 2026-10-14 seed hunt (seed→hit): `archlucid-contracts` — promoted `RoiMetricSourceKind` on `RoiMetricSourceRow.SourceKind` accepting undefined numeric ordinals such as `99` on sponsor ROI metric JSON via `ContractJson.Default`; `DefinedEnumJsonConverter<RoiMetricSourceKind>`; regressions `RoiMetricSourceKindDeserializationTests`; 669 scoped `Contracts` filter tests passed.
 
 2026-10-14 seed hunt (seed→hit): `archlucid-contracts` — promoted `SponsorRoiBoardPackFormat` on `SponsorRoiBoardPackExportResult.Format` accepting undefined numeric ordinals such as `99` on board-pack export JSON via `ContractJson.Default`; `DefinedEnumJsonConverter<SponsorRoiBoardPackFormat>`; regressions `SponsorRoiBoardPackFormatDeserializationTests`; 667 scoped `Contracts` filter tests passed.
@@ -29099,6 +29101,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 ---
 ## Zone: archlucid-contracts
 
+2026-10-14 seed hunt (seed→hit): promoted `TeamsIncomingWebhookSecretValidationOutcome` undefined ordinals on Teams validate-secret response JSON; `DefinedEnumJsonConverter<TeamsIncomingWebhookSecretValidationOutcome>`; regressions `TeamsIncomingWebhookSecretValidationOutcomeDeserializationTests`; 671 scoped `Contracts` filter tests passed.
+
 2026-10-14 seed hunt (seed→hit): promoted `RoiMetricSourceKind` undefined ordinals on `RoiMetricSourceRow` JSON; `DefinedEnumJsonConverter<RoiMetricSourceKind>`; regressions `RoiMetricSourceKindDeserializationTests`; 669 scoped `Contracts` filter tests passed.
 
 2026-10-14 seed hunt (seed→hit): promoted `SponsorRoiBoardPackFormat` undefined ordinals on board-pack export JSON; `DefinedEnumJsonConverter<SponsorRoiBoardPackFormat>`; regressions `SponsorRoiBoardPackFormatDeserializationTests`; 667 scoped `Contracts` filter tests passed.
@@ -29195,11 +29199,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 89
-- **bugs-found:** 69
+- **hunts:** 90
+- **bugs-found:** 70
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-14
-- **last-bug:** 2026-10-14 — `RoiMetricSourceKind` undefined ordinal on `RoiMetricSourceRow` JSON
+- **last-bug:** 2026-10-14 — `TeamsIncomingWebhookSecretValidationOutcome` undefined ordinal on validate-secret response JSON
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -29254,7 +29258,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `PilotRoiBaselineInputBasis` on `PilotRoiBaselineInputsStatusResponse` — undefined numeric ordinals such as `99` deserialized without `JsonException` (standalone and nested under `ProofPackageCompletenessResponse.RoiBaselineInputs`) — **hit 2026-10-14 seed hunt:** fixed with `DefinedEnumJsonConverter<PilotRoiBaselineInputBasis>`; regressions `PilotRoiBaselineInputBasisDeserializationTests`.
 - [x] (proven) `SponsorRoiBoardPackFormat` on `SponsorRoiBoardPackExportResult.Format` — undefined numeric ordinals such as `99` deserialized without `JsonException` — **hit 2026-10-14 seed hunt:** fixed with `DefinedEnumJsonConverter<SponsorRoiBoardPackFormat>`; regressions `SponsorRoiBoardPackFormatDeserializationTests`.
 - [x] (proven) `RoiMetricSourceKind` on `RoiMetricSourceRow.SourceKind` — undefined numeric ordinals such as `99` deserialized without `JsonException` — **hit 2026-10-14 seed hunt:** fixed with `DefinedEnumJsonConverter<RoiMetricSourceKind>`; regressions `RoiMetricSourceKindDeserializationTests`.
-- (candidate) `TeamsIncomingWebhookSecretValidationOutcome` on Teams webhook probe response DTOs — integration probe JSON can carry undefined numeric ordinals on `outcome` because the enum has no `DefinedEnumJsonConverter`. Reachability: `ArchLucid.Contracts.Integrations.TeamsIncomingWebhookProbeContracts` deserialized via `ContractJson.Default` on webhook validation API responses.
+- [x] (proven) `TeamsIncomingWebhookSecretValidationOutcome` on `TeamsIncomingWebhookSecretValidationResponse.Outcome` — undefined numeric ordinals such as `99` deserialized without `JsonException` — **hit 2026-10-14 seed hunt:** fixed with `DefinedEnumJsonConverter<TeamsIncomingWebhookSecretValidationOutcome>`; regressions `TeamsIncomingWebhookSecretValidationOutcomeDeserializationTests`.
+- (candidate) `ConcernSource` on risk/concern contract DTOs — concern intake JSON can carry undefined numeric ordinals on `source` because the enum has no `DefinedEnumJsonConverter`. Reachability: `ArchLucid.Contracts.Risk` concern rows deserialized via `ContractJson.Default` on review and export surfaces.
 - (candidate) `DiagramInfrastructureEdgeGapRow.GapKind` — reconciliation output can carry an arbitrary string such as `"PresentNotDrawn "` or an unknown value even though the contract publishes two constants; a client that switches on exact gap-kind values may render a real edge gap as unknown. Reachability: server-generated reconciliation response consumed by the diagram comparison UI.
 - (candidate) `DiagramSourceReference.Content` — a comparison-create request can provide a named source with a supported format but empty content, and the contract accepts it as a valid source; the comparison may silently produce an empty diagram instead of rejecting or reporting the unusable source. Reachability: API request payload for the infrastructure-diagram comparison endpoint.
 - (candidate) `ArchitectureDiagramNodeRecord.Kind` — diagram-node JSON accepts arbitrary kind strings such as `"service "` even though the contract publishes `user`, `system`, `external`, and `boundary`; exact-value renderers may classify a real node as unknown. Reachability: architecture diagram node payload consumed by the diagram UI.
