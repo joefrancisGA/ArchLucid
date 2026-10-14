@@ -57,14 +57,21 @@ internal static partial class RunExplanationAggregateJsonReader
             JsonValueKind.Null => false,
             JsonValueKind.String => !string.IsNullOrWhiteSpace(jsonElement.GetString()),
             JsonValueKind.Array => jsonElement.GetArrayLength() > 0,
-            JsonValueKind.Object => HasAnyObjectProperty(jsonElement),
+            JsonValueKind.Object => ObjectPropertyValueIsNonEmpty(jsonElement),
             _ => true,
         };
 
-    private static bool HasAnyObjectProperty(JsonElement jsonElement)
+    private static bool ObjectPropertyValueIsNonEmpty(JsonElement jsonElement)
     {
-        foreach (JsonProperty _ in jsonElement.EnumerateObject())
-            return true;
+        foreach (JsonProperty property in jsonElement.EnumerateObject())
+        {
+            if (property.Value.ValueKind is JsonValueKind.Array or JsonValueKind.Object)
+                return true;
+
+            if (TryReadNonEmptyTextToken(property.Value, out string? text)
+                && !string.IsNullOrWhiteSpace(text))
+                return true;
+        }
 
         return false;
     }

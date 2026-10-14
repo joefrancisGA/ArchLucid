@@ -8391,3 +8391,4 @@
 {"at":"2026-10-14T00:59:08.3349547Z","zoneId":"host-core-jobs","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-10-14T01:08:44.2281794Z","zoneId":"weekly-digest-email","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-14T01:14:40.0843504Z","zoneId":"core-explanation-json","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-14T01:19:26.5178340Z","zoneId":"core-explanation-json","outcome":"hit","productLine":"archlucid-shared"}
