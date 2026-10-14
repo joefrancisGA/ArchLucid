@@ -802,4 +802,37 @@ public sealed class StructuredExplanationParserTests
         ok.Should().BeTrue();
         s!.Caveats.Should().Equal("Latency risk");
     }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_uses_non_empty_schema_version_when_later_case_variant_is_zero()
+    {
+        const string json = """{"schemaVersion":2,"reasoning":"Main","SCHEMAVERSION":0}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.SchemaVersion.Should().Be(2);
+    }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_uses_non_empty_confidence_when_later_case_variant_is_zero_numeric_array()
+    {
+        const string json = """{"reasoning":"Main","confidence":0.8,"CONFIDENCE":[0]}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Confidence.Should().Be(0.8m);
+    }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_preserves_explicit_zero_confidence_when_only_numeric_array_value()
+    {
+        const string json = """{"reasoning":"Main","confidence":[0]}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Confidence.Should().Be(0m);
+    }
 }

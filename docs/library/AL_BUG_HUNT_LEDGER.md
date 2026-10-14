@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-14 seed hunt (seed→hit): `core-explanation-json` — promoted trailing duplicate `SCHEMAVERSION:0` and `CONFIDENCE:[0]` hiding earlier `schemaVersion` / `confidence`; zero-valued schema-version scalars and zero-only confidence arrays are empty for `PreferLastNonEmpty` with sole `[0]` confidence fallback via single-element array coercion in `TryReadStructuredConfidence`; regressions `TryNormalizeStructuredJson_uses_non_empty_schema_version_when_later_case_variant_is_zero`, `TryNormalizeStructuredJson_uses_non_empty_confidence_when_later_case_variant_is_zero_numeric_array`, and `TryNormalizeStructuredJson_preserves_explicit_zero_confidence_when_only_numeric_array_value`; 73 scoped `StructuredExplanationParser` tests passed.
+
 2026-10-14 seed hunt (seed→hit): `core-explanation-json` — promoted trailing duplicate scalar `0` on `alternativesConsidered` / `caveats` hiding earlier string-list values; zero-valued numeric scalars are empty for `PreferLastNonEmpty` on structured string lists with sole-value fallback; regressions `TryNormalizeStructuredJson_uses_non_empty_alternatives_considered_when_later_case_variant_is_zero_numeric_scalar` and `TryNormalizeStructuredJson_uses_non_empty_caveats_when_later_case_variant_is_zero_numeric_scalar`; 70 scoped `StructuredExplanationParser` tests passed.
 
 2026-10-14 seed hunt (seed→hit): `core-explanation-json` — promoted trailing duplicate `Reasoning:0` / `Reasoning:[0]` hiding earlier prose `reasoning`; zero-valued numeric reasoning aliases are empty for `PreferLastNonEmpty` with sole-value fallback for scalar and zero-only arrays; regressions `TryNormalizeStructuredJson_uses_non_empty_reasoning_when_later_case_variant_is_zero_numeric_scalar`, `TryNormalizeStructuredJson_preserves_explicit_zero_reasoning_when_only_numeric_scalar`, and `TryNormalizeStructuredJson_uses_non_empty_reasoning_when_later_case_variant_is_zero_numeric_array`; 68 scoped `StructuredExplanationParser` tests and 47 `RunExplanation` filter tests passed.
@@ -28556,6 +28558,8 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 
 ---
 ## Zone: core-explanation-json
+
+2026-10-14 seed hunt (seed→hit): promoted trailing `SCHEMAVERSION:0` / `CONFIDENCE:[0]` duplicate aliases; regressions `TryNormalizeStructuredJson_uses_non_empty_schema_version_when_later_case_variant_is_zero`, `TryNormalizeStructuredJson_uses_non_empty_confidence_when_later_case_variant_is_zero_numeric_array`, and `TryNormalizeStructuredJson_preserves_explicit_zero_confidence_when_only_numeric_array_value`; 73 scoped parser tests passed.
 
 2026-10-14 seed hunt (seed→hit): promoted trailing scalar `0` duplicate on `alternativesConsidered` / `caveats`; zero numeric scalars empty for structured string lists with sole-value fallback; regressions `TryNormalizeStructuredJson_uses_non_empty_alternatives_considered_when_later_case_variant_is_zero_numeric_scalar` and `TryNormalizeStructuredJson_uses_non_empty_caveats_when_later_case_variant_is_zero_numeric_scalar`; 70 scoped parser tests passed.
 

@@ -90,6 +90,27 @@ public static partial class StructuredExplanationParser
         if (element.ValueKind is JsonValueKind.True or JsonValueKind.False)
             return null;
 
+        if (element.ValueKind == JsonValueKind.Array)
+        {
+            JsonElement? soleEntry = null;
+
+            foreach (JsonElement item in element.EnumerateArray())
+            {
+                if (item.ValueKind == JsonValueKind.Null)
+                    continue;
+
+                if (soleEntry is not null)
+                    return null;
+
+                soleEntry = item;
+            }
+
+            if (soleEntry is JsonElement single)
+                return TryReadStructuredConfidence(single);
+
+            return null;
+        }
+
         string? raw = element.ValueKind == JsonValueKind.String ? element.GetString()?.Trim() : null;
 
         if (raw is not null
