@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-14 thorough hunt (hit): `core-findings-advice` — proved en-dash token parity in `InsightDensityTextSimilarity.Tokenize`, `failed`/`does not comply with the constraint` conflict falsifiability gaps in `ConflictFindingPattern`, and `prevented from`/`disallowed from` negation parity in `EnglishNegationTokenizer`; closed five open `(candidate)` rows; regressions `Jaccard_similarity_treats_en_dash_separated_resource_tokens_as_space_separated_peers`, `HasFalsifiabilitySignal_recognizes_conflict_wording_variants`, and `IsObviousGenericAdvice_does_not_flag_prohibitive_from_phrasing`; 1687 scoped `GenericArchitectureAdvicePatterns` tests passed.
+
 2026-10-14 seed hunt (seed→hit): `tenant-erasure` — promoted `TenantErasureQuarantineMiddleware.Skip` parent-segment traversal; reachable `/v1/tenant/../admin/...` normalized onto `/v1/admin` and bypassed quarantine while offboarded; require raw path prefix for `/v1/admin` and `/v1/register` skip entries; pass unnormalized `Request.Path` into `Skip`; regression `Erasure_quarantine_still_blocks_offboarded_tenant_when_path_traversal_reaches_admin_prefix`; Application 35/35 and Api 29/29 scoped `TenantErasure` tests passed.
 
 2026-10-14 seed hunt (seed→hit): `securenow-question-queue` — promoted stale `EvidenceFingerprint` on ignore; reachable `POST /ignore` accepted a fingerprint the compiler would not join, so the API reported success while the question stayed open; `WriteAsync` now validates answered and ignored mutations via shared `ValidateMutationAgainstCompiledQuestionAsync`; regression `Stale_evidence_fingerprint_is_rejected_before_persisting_an_ignore`; Application SecureNowQuestion filter 26/26.
@@ -25824,6 +25826,8 @@ Split from retired `archlucid-core` (ABQ-08).
 ---
 ## Zone: core-findings-advice
 
+2026-10-14 thorough hunt (hit): cheap-disproof closed five picker `(candidate)` rows with failing repros; en-dash (`U+2013`) resource tokens split for Jaccard parity; `ConflictFindingPattern` extended for `failed to comply` and `does not comply with the constraint`; `EnglishNegationTokenizer` adds `prevented from` and `disallowed from`; 1687 scoped `GenericArchitectureAdvicePatterns` tests passed.
+
 2026-10-13 thorough hunt (hit): proved Unicode bullet resource-token parity, `out of compliance with` / `fails to comply with` conflict wording, and `barred from` / `excluded from` negation parity; seeded five follow-on `(candidate)` rows; 1703 scoped tests passed.
 
 - **id:** core-findings-advice
@@ -25833,13 +25837,13 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** findings advice; generic architecture advice; split from archlucid-core
 - **paths:** ArchLucid.Core/Findings/
 - **test-filter:** FullyQualifiedName~GenericArchitectureAdvicePatterns
-- **hunts:** 27
-- **bugs-found:** 28
+- **hunts:** 28
+- **bugs-found:** 29
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-13
-- **last-bug:** 2026-10-13 — Unicode bullet token parity and compliance/negation wording gaps
+- **last-hunt:** 2026-10-14
+- **last-bug:** 2026-10-14 — en-dash Jaccard parity, compliance tense variants, prohibitive-from negation
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 2026-10-13 thorough hunt (hit): reseeded after master merge; proved `InsightDensityTextSimilarity.Tokenize` left `%`/`$`/`?` glued tokens at Jaccard 0.625; split delimiters; proved `non-compliant with the constraint` missed `HasFalsifiabilitySignal`; regex `non[- ]?compliant`; regressions in `DeterministicInsightDensityGateTests` and `HasFalsifiabilitySignal_recognizes_conflict_wording_variants`; cheap-disproof closed caret/tilde/conflict/noncompliant/forbidden-from candidates; 1727 scoped tests passed.
 
@@ -25906,11 +25910,11 @@ Split from retired `archlucid-core` (ABQ-08). Generic-advice negation parity his
 - [x] (proven) `EnglishNegationTokenizer` — `barred from enable mfa` — **hit 2026-10-13 thorough hunt:** `barred from` multi-word negation; regression in `IsObviousGenericAdvice_does_not_flag_negated_checklist_phrasing`.
 - [x] (proven) `EnglishNegationTokenizer` — `excluded from enable mfa` — **hit 2026-10-13 thorough hunt:** `excluded from` multi-word negation; regression in `IsObviousGenericAdvice_does_not_flag_negated_checklist_phrasing`.
 
-- [ ] (candidate) `InsightDensityTextSimilarity.Tokenize` — en-dash-separated resource tokens (`prod–sql–db`, U+2013) vs space-separated peer may under-penalize duplication.
-- [ ] (candidate) `GenericArchitectureAdvicePatterns.ConflictFindingPattern` — `failed to comply with the constraint` past-tense phrasing may miss `HasFalsifiabilitySignal`.
-- [ ] (candidate) `GenericArchitectureAdvicePatterns.ConflictFindingPattern` — `does not comply with the constraint` phrasing may miss `HasFalsifiabilitySignal`.
-- [ ] (candidate) `EnglishNegationTokenizer` — `prevented from enable mfa` prohibitive intent may still false-positive demote obvious generic advice.
-- [ ] (candidate) `EnglishNegationTokenizer` — `disallowed from enable mfa` prohibitive intent may still false-positive demote obvious generic advice.
+- [x] (proven) `InsightDensityTextSimilarity.Tokenize` — en-dash-separated resource tokens (`prod–sql–db`, U+2013) vs space-separated peer under-penalized duplication — **hit 2026-10-14 thorough hunt:** split on `\u2013`/`\u2014`; regression `Jaccard_similarity_treats_en_dash_separated_resource_tokens_as_space_separated_peers`.
+- [x] (proven) `GenericArchitectureAdvicePatterns.ConflictFindingPattern` — `failed to comply with the constraint` missed `HasFalsifiabilitySignal` — **hit 2026-10-14 thorough hunt:** `fail(?:s|ed) to comply`; regression in `HasFalsifiabilitySignal_recognizes_conflict_wording_variants`.
+- [x] (proven) `GenericArchitectureAdvicePatterns.ConflictFindingPattern` — `does not comply with the constraint` missed `HasFalsifiabilitySignal` — **hit 2026-10-14 thorough hunt:** `does not comply with`; regression in `HasFalsifiabilitySignal_recognizes_conflict_wording_variants`.
+- [x] (proven) `EnglishNegationTokenizer` — `prevented from enable mfa` false-positive demoted obvious generic advice — **hit 2026-10-14 thorough hunt:** added `prevented from` to multi-word negations; regression `IsObviousGenericAdvice_does_not_flag_prohibitive_from_phrasing`.
+- [x] (proven) `EnglishNegationTokenizer` — `disallowed from enable mfa` false-positive demoted obvious generic advice — **hit 2026-10-14 thorough hunt:** added `disallowed from` to multi-word negations; regression `IsObviousGenericAdvice_does_not_flag_prohibitive_from_phrasing`.
 
 2026-10-07 thorough hunt (hit): proved five open `(candidate)` rows; 1718 scoped GenericArchitectureAdvicePatterns + DeterministicInsightDensityGate tests passed.
 

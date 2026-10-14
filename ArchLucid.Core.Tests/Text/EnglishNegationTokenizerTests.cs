@@ -9,6 +9,8 @@ namespace ArchLucid.Core.Tests.Text;
 public sealed class EnglishNegationTokenizerTests
 {
     [Theory]
+    [InlineData("users are prevented from enable mfa on legacy apps")]
+    [InlineData("users are disallowed from enable mfa on legacy apps")]
     [InlineData("must not expose Redis to the internet")]
     [InlineData("do not require a public IP")]
     [InlineData("shouldn't allow SSH from 0.0.0.0/0")]
