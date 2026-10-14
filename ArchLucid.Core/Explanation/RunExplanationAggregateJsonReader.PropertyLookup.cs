@@ -158,6 +158,18 @@ internal static partial class RunExplanationAggregateJsonReader
         }
 
         if (caseInsensitiveAliasMatchCount == 1
+            && lastMatch is JsonElement soleCalloutString
+            && (propertyName.Equals("faithfulnessWarning", StringComparison.OrdinalIgnoreCase)
+                || propertyName.Equals("riskPosture", StringComparison.OrdinalIgnoreCase))
+            && soleCalloutString.ValueKind == JsonValueKind.String
+            && TryReadNonEmptyTextToken(soleCalloutString, out _))
+        {
+            value = soleCalloutString;
+
+            return true;
+        }
+
+        if (caseInsensitiveAliasMatchCount == 1
             && lastMatch is JsonElement citationsLast
             && propertyName.Equals("citations", StringComparison.OrdinalIgnoreCase)
             && citationsLast.ValueKind == JsonValueKind.True)
@@ -251,6 +263,15 @@ internal static partial class RunExplanationAggregateJsonReader
         if ((structuredPropertyName.Equals("faithfulnessWarning", StringComparison.OrdinalIgnoreCase)
              || structuredPropertyName.Equals("riskPosture", StringComparison.OrdinalIgnoreCase))
             && jsonElement.ValueKind == JsonValueKind.Number)
+        {
+            return false;
+        }
+
+        if ((structuredPropertyName.Equals("faithfulnessWarning", StringComparison.OrdinalIgnoreCase)
+             || structuredPropertyName.Equals("riskPosture", StringComparison.OrdinalIgnoreCase))
+            && jsonElement.ValueKind == JsonValueKind.String
+            && TryReadWholeNumber(jsonElement, out int calloutStringAlias)
+            && calloutStringAlias > 10)
         {
             return false;
         }
