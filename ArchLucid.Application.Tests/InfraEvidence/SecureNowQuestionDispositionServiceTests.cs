@@ -353,6 +353,49 @@ public async Task Foreign_snapshot_cannot_read_or_write()
     }
 
     [Fact]
+    public async Task Inferred_connection_ignore_validates_against_the_compiled_question()
+    {
+        InMemoryDispositionRepository repository = new();
+        OperatorInferredConnectionRecord inferred = new()
+        {
+            ConnectionId = Guid.NewGuid(),
+            SnapshotId = SnapshotId,
+            Status = OperatorInferredConnectionStatus.Proposed,
+            Source = OperatorInferredConnectionSource.Questionnaire,
+            RuleName = "Unresolved host",
+            QuestionText = "Should this host connect to the app?",
+            FromArmId = "/subscriptions/sub-1/resource",
+            ToArmId = "/subscriptions/sub-1/target",
+        };
+        SecureNowQuestionDispositionService sut = CreateSut(
+            repository,
+            includeQuestion: false,
+            inferredConnections: [inferred]);
+
+        IReadOnlyList<SecureNowQuestionRecord> questions =
+            await sut.ListQuestionsAsync(Scope, SnapshotId);
+        SecureNowQuestionRecord question = questions.Should().ContainSingle().Subject;
+
+        SecureNowQuestionDispositionMutationResult result = await sut.IgnoreAsync(
+            Scope,
+            SnapshotId,
+            CreateWriteRequest("sub-1", question.ResourceId) with
+            {
+                QuestionKey = question.QuestionKey,
+                Source = SecureNowQuestionSource.InferredConnection,
+                AnswerCode = null,
+                AnswerText = null,
+                EvidenceFingerprint = question.EvidenceFingerprint,
+            },
+            "actor");
+
+        result.Succeeded.Should().BeTrue();
+        repository.Rows.Should().ContainSingle(row =>
+            row.Status == SecureNowQuestionDispositionStatus.Ignored
+            && row.Source == SecureNowQuestionSource.InferredConnection);
+    }
+
+    [Fact]
     public async Task Inventory_answer_does_not_depend_on_inferred_connection_availability()
     {
         InMemoryDispositionRepository repository = new();
@@ -385,7 +428,8 @@ public async Task Foreign_snapshot_cannot_read_or_write()
         InMemoryDispositionRepository repository,
         bool snapshotOwned = true,
         bool includeQuestion = true,
-        bool inferredConnectionsUnavailable = false)
+        bool inferredConnectionsUnavailable = false,
+        IReadOnlyList<OperatorInferredConnectionRecord>? inferredConnections = null)
     {
         Mock<IAzureInventorySnapshotRepository> snapshots = new();
         snapshots
@@ -421,23 +465,33 @@ public async Task Foreign_snapshot_cannot_read_or_write()
             .Setup(item => item.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
-        Mock<IOperatorInferredConnectionRepository>? inferredConnections = null;
+        Mock<IOperatorInferredConnectionRepository>? inferredConnectionsMock = null;
         if (inferredConnectionsUnavailable)
         {
-            inferredConnections = new Mock<IOperatorInferredConnectionRepository>();
-            inferredConnections
+            inferredConnectionsMock = new Mock<IOperatorInferredConnectionRepository>();
+            inferredConnectionsMock
                 .Setup(item => item.ListBySnapshotAsync(
                     Scope.TenantId,
                     It.IsAny<Guid>(),
                     It.IsAny<CancellationToken>()))
                 .ThrowsAsync(new InvalidOperationException("inferred connections unavailable"));
         }
+        else if (inferredConnections is not null)
+        {
+            inferredConnectionsMock = new Mock<IOperatorInferredConnectionRepository>();
+            inferredConnectionsMock
+                .Setup(item => item.ListBySnapshotAsync(
+                    Scope.TenantId,
+                    It.IsAny<Guid>(),
+                    It.IsAny<CancellationToken>()))
+                .ReturnsAsync(inferredConnections);
+        }
 
         return new SecureNowQuestionDispositionService(
             repository,
             snapshots.Object,
             audit.Object,
-            inferredConnections?.Object);
+            inferredConnectionsMock?.Object);
     }
 
     private static SecureNowQuestionDispositionWriteRequest CreateWriteRequest(

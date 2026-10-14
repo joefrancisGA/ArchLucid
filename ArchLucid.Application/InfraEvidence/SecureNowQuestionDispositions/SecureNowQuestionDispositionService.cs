@@ -213,8 +213,7 @@ public sealed class SecureNowQuestionDispositionService(
                 scope,
                 snapshotId,
                 request,
-                status == SecureNowQuestionDispositionStatus.Answered
-                    && request.Source == SecureNowQuestionSource.InferredConnection,
+                request.Source == SecureNowQuestionSource.InferredConnection,
                 cancellationToken);
             if (mutationValidationError is not null)
                 return Failed(mutationValidationError);

@@ -198,6 +198,8 @@
 
 2026-10-14 seed hunt (seed→hit): `tenant-erasure` — promoted `TenantErasureQuarantineMiddleware.Skip` parent-segment traversal; reachable `/v1/tenant/../admin/...` normalized onto `/v1/admin` and bypassed quarantine while offboarded; require raw path prefix for `/v1/admin` and `/v1/register` skip entries; pass unnormalized `Request.Path` into `Skip`; regression `Erasure_quarantine_still_blocks_offboarded_tenant_when_path_traversal_reaches_admin_prefix`; Application 35/35 and Api 29/29 scoped `TenantErasure` tests passed.
 
+2026-10-14 seed hunt (seed→hit): `securenow-question-queue` — promoted inferred-connection ignore validation compiling without proposed connections; reachable ignore on inferred questions failed `Question was not found.`; load inferred connections for any inferred-connection mutation; regression `Inferred_connection_ignore_validates_against_the_compiled_question`; Application SecureNowQuestion filter 27/27.
+
 2026-10-14 seed hunt (seed→hit): `securenow-question-queue` — promoted stale `EvidenceFingerprint` on ignore; reachable `POST /ignore` accepted a fingerprint the compiler would not join, so the API reported success while the question stayed open; `WriteAsync` now validates answered and ignored mutations via shared `ValidateMutationAgainstCompiledQuestionAsync`; regression `Stale_evidence_fingerprint_is_rejected_before_persisting_an_ignore`; Application SecureNowQuestion filter 26/26.
 
 2026-10-13 seed hunt (seed→hit): `architecture-intelligence-orchestrator` — promoted `ClosedLoopReasoningSourceTextNormalizer.CollapseParentPathSegments`; `docs/sub/../arch.md` and `docs/foo/bar/../../arch.md` split review-cache `ContentHash` from `docs/arch.md`; cheap-disproved stale CRLF duplicate, run-id whitespace, and publish coalesce-key candidates; regression `Build_matches_content_hash_when_file_name_differs_only_by_parent_path_segments`; 90 scoped orchestrator/cache manifest tests passed.
@@ -38357,6 +38359,8 @@ ABQ-09 churn hotspot.
 
 ## Zone: securenow-question-queue
 
+2026-10-14 seed hunt (seed→hit): promoted inferred-connection ignore validation compiling without proposed connections; `ValidateMutationAgainstCompiledQuestionAsync` only loaded inferred connections for answered mutations, so reachable `POST /ignore` with `Source=InferredConnection` failed with `Question was not found.`; include inferred connections whenever the mutation source is inferred; regression `Inferred_connection_ignore_validates_against_the_compiled_question`; Application SecureNowQuestion filter 27/27 and queue UI vitest 19/19.
+
 2026-10-14 seed hunt (seed→hit): promoted stale `EvidenceFingerprint` on ignore; answered mutations already rejected changed evidence before persistence, but ignore skipped that check, so a successful ignore could persist while compilation left the question open; shared compiled-question validation for answered and ignored writes; regression `Stale_evidence_fingerprint_is_rejected_before_persisting_an_ignore`; Application SecureNowQuestion filter 26/26.
 
 2026-10-13 seed hunt (seed→hit): promoted case-variant `QuestionKey` disposition collision; reachable ignore mutations differing only by question-key casing could persist distinct rows while `SecureNowQuestionCompiler` built a case-insensitive disposition dictionary and threw listing questions; normalize question keys on write and identity hash, group duplicate dispositions by case-insensitive identity keeping the newest row; regressions `Question_key_is_case_insensitive_on_ignore` and `Dispositions_with_question_keys_differing_only_by_case_compile_without_failure`; Application SecureNowQuestion filter 25/25.
@@ -38397,11 +38401,11 @@ ABQ-09 churn hotspot.
 - **aliases:** securenow question queue; question disposition
 - **paths:** ArchLucid.Application/InfraEvidence/SecureNowQuestionDispositions/; ArchLucid.Api/Controllers/InfraEvidence/InfraEvidenceSecureNowQuestionsController.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/ISecureNowQuestionDispositionRepository.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/ISecureNowQuestionDispositionService.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/SecureNowQuestionDispositionRecord.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/SecureNowQuestionRecord.cs; ArchLucid.Persistence/InfraEvidence/NoOpSecureNowQuestionDispositionRepository.cs; ArchLucid.Persistence/InfraEvidence/SqlSecureNowQuestionDispositionRepository.cs; ArchLucid.Contracts/InfraEvidence/SecureNowQuestionDispositionContracts.cs; archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
-- **hunts:** 36
-- **bugs-found:** 15
+- **hunts:** 37
+- **bugs-found:** 16
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-14
-- **last-bug:** 2026-10-14 — stale evidence fingerprint on ignore left the queue open
+- **last-bug:** 2026-10-14 — inferred-connection ignore could not find compiled question
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -38460,6 +38464,7 @@ ABQ-09 churn hotspot.
 - [x] (proven) `SecureNowQuestionDispositionService.WriteAsync` — a reachable `POST /ignore` body supplied a stale `EvidenceFingerprint` while answered mutations already rejected changed evidence; ignore persisted successfully but compilation did not join the disposition, leaving the question open; fixed by validating ignored mutations against the compiled question fingerprint; regression `Stale_evidence_fingerprint_is_rejected_before_persisting_an_ignore`.
 - [x] (proven) `SecureNowQuestionQueueProvider.findInferredConnection` — a reachable persisted inferred-connection rule such as `Unresolved host` was compared as a space-preserving string while the compiler emitted `unresolved-host@v1`, so Yes/No actions reported that the connection was unavailable; fixed by sharing punctuation-to-hyphen normalization; regression `confirms an inferred connection when its rule name contains spaces`.
 - [x] (proven) `SecureNowQuestionDispositionService.ValidateAnswerCodeAsync` — a reachable inventory answer loaded optional inferred connections before validation, so an inferred-repository failure threw before persistence even though the inventory question was valid; fixed by compiling inventory questions without that optional dependency; regression `Inventory_answer_does_not_depend_on_inferred_connection_availability`.
+- [x] (proven) `SecureNowQuestionDispositionService.ValidateMutationAgainstCompiledQuestionAsync` — reachable `POST /ignore` with `Source=InferredConnection` compiled questions without proposed connections during validation, so ignore failed with `Question was not found.` even though listing included the inferred question; fixed by loading inferred connections for any inferred-connection mutation; regression `Inferred_connection_ignore_validates_against_the_compiled_question`.
 - [x] (proven) `SecureNowQuestionQueueProvider.loadQuestions` — reachable snapshot navigation could leave an older question request in flight, allowing its later response to overwrite the newest snapshot's question state; guarded question, error, and loading state with a monotonically increasing request sequence; regression `keeps the newest snapshot question when an older load finishes later`.
 - [x] (proven) `SecureNowQuestionCompiler.Compile` — a reachable proposed inferred connection with both `FromArmId` and `ToArmId` blank emitted an `Open` question with an empty `ResourceId`, but `SecureNowQuestionDispositionService.ValidateIdentity` rejects empty resource ids on answer/ignore; endpoint-less proposals are now suppressed; regression `Proposed_inference_without_an_arm_endpoint_is_not_emitted_as_an_unanswerable_question`.
 - (candidate) `SecureNowQuestionCompiler.AddQuestion` — two proposed `OperatorInferredConnectionRecord` inputs with the same normalized resource/question identity but different endpoints are collapsed by `emitted`, so one actionable inferred connection may disappear; input originates from the inferred-connection list passed into compilation.
