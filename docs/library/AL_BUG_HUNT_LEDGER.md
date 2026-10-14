@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-14 seed hunt (seed→hit): `archlucid-contracts` — promoted `TechnologyLedgerStatus` on `TechnologyLedgerEntry` accepting undefined numeric ordinals such as `99` on ledger import JSON via `ContractJson.Default`; class fix also guarded sibling `TechnologyLedgerRole` and `TechnologyLedgerSource` on the same DTO; `DefinedEnumJsonConverter<T>` on all three; regressions `TechnologyLedgerStatusDeserializationTests`; 656 scoped `Contracts` filter tests passed.
+
 2026-10-14 seed hunt (seed→hit): `archlucid-contracts` — promoted `ApprovalStatus` on `CandidateChangeSet.ApprovalStatus` accepting undefined numeric ordinals such as `99` on 60R change-set JSON via `ContractJson.Default`; `DefinedEnumJsonConverter<ApprovalStatus>`; regressions `ApprovalStatusDeserializationTests`; cheap-disproof closed `RequestStatus` as `(invalid)` (enum not referenced by any serializable contract DTO); 651 scoped `Contracts` filter tests passed.
 
 2026-10-14 seed hunt (seed→hit): `archlucid-contracts` — promoted `OperationState` on `OperationDetail.State` accepting undefined numeric ordinals such as `99` on operation-poll JSON via `ContractJson.Default`; `DefinedEnumJsonConverter<OperationState>`; regressions `OperationStateDeserializationTests`; 648 scoped `Contracts` filter tests passed.
@@ -29087,6 +29089,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 ---
 ## Zone: archlucid-contracts
 
+2026-10-14 seed hunt (seed→hit): promoted technology-ledger enum undefined ordinals on `TechnologyLedgerEntry` JSON (`Status`, `Role`, `Source`); `DefinedEnumJsonConverter<T>`; regressions `TechnologyLedgerStatusDeserializationTests`; 656 scoped `Contracts` filter tests passed.
+
 2026-10-14 seed hunt (seed→hit): promoted `ApprovalStatus` undefined ordinals on `CandidateChangeSet` JSON; `DefinedEnumJsonConverter<ApprovalStatus>`; regressions `ApprovalStatusDeserializationTests`; 651 scoped `Contracts` filter tests passed.
 
 2026-10-14 seed hunt (seed→hit): promoted `OperationState` undefined ordinals on `OperationDetail` poll JSON; `DefinedEnumJsonConverter<OperationState>`; regressions `OperationStateDeserializationTests`; 648 scoped `Contracts` filter tests passed.
@@ -29171,11 +29175,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 83
-- **bugs-found:** 63
+- **hunts:** 84
+- **bugs-found:** 64
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-14
-- **last-bug:** 2026-10-14 — `ApprovalStatus` undefined ordinal `99` on `CandidateChangeSet` JSON
+- **last-bug:** 2026-10-14 — technology-ledger enum undefined ordinals on `TechnologyLedgerEntry` JSON
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -29222,7 +29226,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `OperationState` on `OperationDetail.State` — undefined numeric ordinals such as `99` deserialized without `JsonException` — **hit 2026-10-14 seed hunt:** fixed with `DefinedEnumJsonConverter<OperationState>`; regressions `OperationStateDeserializationTests`.
 - [x] (invalid) `RequestStatus` on architecture request lifecycle DTOs — **cheap-disproof 2026-10-14 seed hunt:** `RequestStatus` is defined in `ArchLucid.Contracts.Common` but no contract DTO or JSON round-trip path references it; guarding the orphan enum would not close a reachable deserialization surface in this zone.
 - [x] (proven) `ApprovalStatus` on `CandidateChangeSet.ApprovalStatus` — undefined numeric ordinals such as `99` deserialized without `JsonException` — **hit 2026-10-14 seed hunt:** fixed with `DefinedEnumJsonConverter<ApprovalStatus>`; regressions `ApprovalStatusDeserializationTests`.
-- (candidate) `TechnologyLedgerStatus` on technology-ledger contract rows — persisted ledger JSON can carry undefined numeric ordinals on `status` because the enum has no `DefinedEnumJsonConverter`. Reachability: `ArchLucid.Contracts.Persistence.TechnologyLedger` DTOs deserialized via `ContractJson.Default` on ledger import/export paths.
+- [x] (proven) `TechnologyLedgerStatus` / `TechnologyLedgerRole` / `TechnologyLedgerSource` on `TechnologyLedgerEntry` — undefined numeric ordinals such as `99` deserialized without `JsonException` — **hit 2026-10-14 seed hunt:** class fix with `DefinedEnumJsonConverter<T>` on all three ledger enums; regressions `TechnologyLedgerStatusDeserializationTests`.
+- (candidate) `FirstValueEvidenceCompletenessLevel` on pilot first-value evidence DTOs — export/import JSON can carry undefined numeric ordinals on completeness level because the enum has no `DefinedEnumJsonConverter`. Reachability: `ArchLucid.Contracts.Pilots` evidence summary payloads deserialized via `ContractJson.Default`.
 - (candidate) `DiagramInfrastructureEdgeGapRow.GapKind` — reconciliation output can carry an arbitrary string such as `"PresentNotDrawn "` or an unknown value even though the contract publishes two constants; a client that switches on exact gap-kind values may render a real edge gap as unknown. Reachability: server-generated reconciliation response consumed by the diagram comparison UI.
 - (candidate) `DiagramSourceReference.Content` — a comparison-create request can provide a named source with a supported format but empty content, and the contract accepts it as a valid source; the comparison may silently produce an empty diagram instead of rejecting or reporting the unusable source. Reachability: API request payload for the infrastructure-diagram comparison endpoint.
 - (candidate) `ArchitectureDiagramNodeRecord.Kind` — diagram-node JSON accepts arbitrary kind strings such as `"service "` even though the contract publishes `user`, `system`, `external`, and `boundary`; exact-value renderers may classify a real node as unknown. Reachability: architecture diagram node payload consumed by the diagram UI.

@@ -1,10 +1,15 @@
 namespace ArchLucid.Contracts.Persistence.TechnologyLedger;
 
+using System.Text.Json.Serialization;
+
+using ArchLucid.Contracts.Serialization;
+
 /// <summary>
 ///     Identifies the architectural role a <see cref="TechnologyLedgerEntry" /> fills for an architecture run.
 ///     A second <see cref="Chosen" />-status entry for the same run and role with a different
 ///     <see cref="TechnologyLedgerEntry.ProviderFamily" /> is a technology consistency violation.
 /// </summary>
+[JsonConverter(typeof(DefinedEnumJsonConverter<TechnologyLedgerRole>))]
 public enum TechnologyLedgerRole
 {
     /// <summary>The overall target cloud platform for the run (or <c>None</c> for a cloud-neutral posture).</summary>
