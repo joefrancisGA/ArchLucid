@@ -287,6 +287,9 @@ internal static partial class RunExplanationAggregateJsonReader
                 && !string.IsNullOrWhiteSpace(aggregateString);
         }
 
+        if (IsDeterministicFallbackPropertyName(structuredPropertyName))
+            return TryReadBoolean(jsonElement);
+
         foreach (JsonProperty property in jsonElement.EnumerateObject())
         {
             if (property.Value.ValueKind is JsonValueKind.Array or JsonValueKind.Object)
