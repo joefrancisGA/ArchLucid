@@ -123,7 +123,7 @@ public static class RunExplanationConfidenceCalloutBuilder
             || (RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitivePreferLastNonEmpty(root, "usedDeterministicFallback", out JsonElement legacy)
                 && RunExplanationAggregateJsonReader.TryReadBoolean(legacy));
 
-        string? warning = RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitive(root, "faithfulnessWarning", out JsonElement warningEl)
+        string? warning = RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitivePreferLastNonEmpty(root, "faithfulnessWarning", out JsonElement warningEl)
                             && RunExplanationAggregateJsonReader.TryReadNonEmptyTextToken(warningEl, out string? warningText)
             ? warningText?.Trim()
             : null;

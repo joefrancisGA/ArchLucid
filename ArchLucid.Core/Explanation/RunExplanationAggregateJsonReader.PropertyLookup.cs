@@ -142,7 +142,8 @@ internal static partial class RunExplanationAggregateJsonReader
             return false;
         }
 
-        if (structuredPropertyName.Equals("citations", StringComparison.OrdinalIgnoreCase)
+        if ((structuredPropertyName.Equals("citations", StringComparison.OrdinalIgnoreCase)
+             || structuredPropertyName.Equals("faithfulnessWarning", StringComparison.OrdinalIgnoreCase))
             && jsonElement.ValueKind is JsonValueKind.True or JsonValueKind.False)
         {
             return true;

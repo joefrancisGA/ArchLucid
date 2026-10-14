@@ -746,4 +746,22 @@ public sealed class RunExplanationConfidenceCalloutBuilderTests
         signals!.DeterministicFallbackUsed.Should().BeFalse();
         RunExplanationConfidenceCalloutBuilder.ResolveDisposition(signals).Should().Be("PASS");
     }
+
+    [Fact]
+    public void FromAggregateJson_uses_non_empty_faithfulness_warning_when_later_duplicate_is_empty()
+    {
+        RunExplanationConfidenceSignals? signals = RunExplanationConfidenceCalloutBuilder.FromAggregateJson(
+            """
+            {
+              "faithfulnessSupportRatio": 0.95,
+              "faithfulnessWarning": "Citations missing",
+              "FAITHFULNESSWARNING": "",
+              "citations": 1
+            }
+            """);
+
+        signals.Should().NotBeNull();
+        signals!.FaithfulnessWarning.Should().Be("Citations missing");
+        RunExplanationConfidenceCalloutBuilder.ResolveDisposition(signals).Should().Be("WARN");
+    }
 }
