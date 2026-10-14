@@ -32,4 +32,13 @@ public sealed class FindingEnforcementTierJsonConverterTests
         act.Should().Throw<JsonException>()
             .WithMessage("*Unknown finding enforcement tier value*");
     }
+
+    [Fact]
+    public void Read_string_numeric_out_of_range_throws()
+    {
+        Action act = () => JsonSerializer.Deserialize<FindingEnforcementTier>("\"99\"", Options);
+
+        act.Should().Throw<JsonException>()
+            .WithMessage("*Unknown finding enforcement tier value*");
+    }
 }

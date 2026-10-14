@@ -29,7 +29,13 @@ public sealed class FindingEnforcementTierJsonConverter : JsonConverter<FindingE
             throw new JsonException("Finding enforcement tier value is required.");
 
         if (Enum.TryParse(raw, ignoreCase: true, out FindingEnforcementTier parsed))
+        {
+
+            if (!Enum.IsDefined(parsed))
+                throw new JsonException($"Unknown finding enforcement tier value '{raw}'.");
+
             return parsed;
+        }
 
         throw new JsonException($"Unknown finding enforcement tier value '{raw}'.");
     }
