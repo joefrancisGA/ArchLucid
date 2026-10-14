@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 
 using ArchLucid.Contracts.Governance;
+using ArchLucid.Contracts.Serialization;
 
 namespace ArchLucid.Contracts.Architecture;
 
@@ -23,28 +24,34 @@ namespace ArchLucid.Contracts.Architecture;
 public sealed class TransparencyTrail
 {
     /// <summary>Items the user explicitly stated or confirmed.</summary>
+    private List<AssertedTrailEntry> asserted = [];
+
     [JsonPropertyName("asserted")]
     public List<AssertedTrailEntry> Asserted
     {
-        get;
-        set;
-    } = [];
+        get => asserted;
+        set => asserted = ContractCollectionDefaults.Coalesce(value);
+    }
 
     /// <summary>Items ArchLucid inferred on the user's behalf, each with a confidence score.</summary>
+    private List<InferredTrailEntry> inferred = [];
+
     [JsonPropertyName("inferred")]
     public List<InferredTrailEntry> Inferred
     {
-        get;
-        set;
-    } = [];
+        get => inferred;
+        set => inferred = ContractCollectionDefaults.Coalesce(value);
+    }
 
     /// <summary>Elicitation questions offered but not answered before the verdict was produced.</summary>
+    private List<SkippedQuestionTrailEntry> skipped = [];
+
     [JsonPropertyName("skipped")]
     public List<SkippedQuestionTrailEntry> Skipped
     {
-        get;
-        set;
-    } = [];
+        get => skipped;
+        set => skipped = ContractCollectionDefaults.Coalesce(value);
+    }
 
     /// <summary>
     ///     Returns <see langword="true" /> when at least one skipped question was MUST-tier.
