@@ -1,5 +1,6 @@
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Configuration;
 using ArchLucid.Persistence.Sql;
 
@@ -60,18 +61,7 @@ public sealed partial class SqlSecurityEvidencePathRepository
         if (conn is not SqlConnection sqlConn)
             throw new InvalidOperationException("Path batch insert requires SqlConnection.");
         using SqlTransaction tx = sqlConn.BeginTransaction();
-        const string stageSql = """
-            SELECT TOP (0) PathId, TenantId, WorkspaceId, ProjectId, SnapshotId, PathKind, PathConfidenceBand,
-                CanonicalHopHashSha256, WeakestHopOrdinal, WeakestHopReason, CrownJewelAssertionId, CreatedUtc, UpdatedUtc
-            INTO #PathHeaders FROM dbo.SecurityEvidencePaths
-            WHERE TenantId = @TenantId AND WorkspaceId = @WorkspaceId AND ProjectId = @ProjectId;
-            SELECT TOP (0) HopRowId, PathId, TenantId, HopOrdinal, FromNodeId, ToNodeId, EdgeType,
-                ProvenanceKind, HopConfidenceBand, InferenceSource, EvidenceReference, CloudResourceId
-            INTO #PathHops FROM dbo.SecurityEvidencePathHops WHERE TenantId = @TenantId;
-            CREATE TABLE #CreatedPaths (PathId uniqueidentifier NOT NULL PRIMARY KEY);
-            """;
-        await sqlConn.ExecuteAsync(new CommandDefinition(stageSql, new { validated[0].Path.TenantId, validated[0].Path.WorkspaceId, validated[0].Path.ProjectId }, transaction: tx,
-            commandTimeout: DapperCommandTimeoutSeconds.Report, cancellationToken: cancellationToken));
+        await CreatePathStagingTablesAsync(sqlConn, tx, cancellationToken);
         await SqlBufferedBulkCopy.WriteAsync(sqlConn, tx, "#PathHeaders", distinct.Select(item => new
         {
             item.Path.PathId, item.Path.TenantId, item.Path.WorkspaceId, item.Path.ProjectId, item.Path.SnapshotId,
@@ -144,5 +134,24 @@ public sealed partial class SqlSecurityEvidencePathRepository
         public Guid SnapshotId { get; init; }
         public byte[] CanonicalHopHashSha256 { get; init; } = [];
         public bool Created { get; init; }
+    }
+
+    // Parameters would execute SELECT INTO inside sp_executesql and drop the temp tables on return.
+    [TenantScopeExempt(TenantScopeExemptReason.Operational,
+        "SELECT TOP (0) copies column definitions only into session-local staging tables; no tenant rows are read. All data operations retain scoped joins.")]
+    private static Task CreatePathStagingTablesAsync(
+        SqlConnection connection, SqlTransaction transaction, CancellationToken cancellationToken)
+    {
+        const string stageSql = """
+            SELECT TOP (0) PathId, TenantId, WorkspaceId, ProjectId, SnapshotId, PathKind, PathConfidenceBand,
+                CanonicalHopHashSha256, WeakestHopOrdinal, WeakestHopReason, CrownJewelAssertionId, CreatedUtc, UpdatedUtc
+            INTO #PathHeaders FROM dbo.SecurityEvidencePaths;
+            SELECT TOP (0) HopRowId, PathId, TenantId, HopOrdinal, FromNodeId, ToNodeId, EdgeType,
+                ProvenanceKind, HopConfidenceBand, InferenceSource, EvidenceReference, CloudResourceId
+            INTO #PathHops FROM dbo.SecurityEvidencePathHops;
+            CREATE TABLE #CreatedPaths (PathId uniqueidentifier NOT NULL PRIMARY KEY);
+            """;
+        return connection.ExecuteAsync(new CommandDefinition(stageSql, transaction: transaction,
+            commandTimeout: DapperCommandTimeoutSeconds.Report, cancellationToken: cancellationToken));
     }
 }

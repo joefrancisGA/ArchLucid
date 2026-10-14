@@ -1,6 +1,7 @@
 using ArchLucid.Contracts.Common;
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Configuration;
 using ArchLucid.Persistence.Sql;
 
@@ -43,16 +44,7 @@ public sealed partial class SqlCloudResourceIdentityDirectory
         if (conn is not SqlConnection sqlConn)
             throw new InvalidOperationException("Identity batch upsert requires SqlConnection.");
         using SqlTransaction tx = sqlConn.BeginTransaction();
-        const string stageSql = """
-            SELECT TOP (0) CloudResourceId, TenantId, WorkspaceId, ProjectId, Provider,
-                ExternalResourceIdNormalized, ResourceType, SubscriptionOrAccountId, ResourceGroupOrProject,
-                Region, DisplayName, FirstSeenSnapshotId, LastSeenSnapshotId, FirstSeenUtc, LastSeenUtc
-            INTO #IdentitySnapshot FROM dbo.CloudResourceIdentities
-            WHERE TenantId = @TenantId AND WorkspaceId = @WorkspaceId AND ProjectId = @ProjectId;
-            """;
-        await sqlConn.ExecuteAsync(new CommandDefinition(stageSql, new { scope.TenantId, scope.WorkspaceId, scope.ProjectId }, transaction: tx,
-            commandTimeout: DapperCommandTimeoutSeconds.Report, cancellationToken: cancellationToken));
-
+        await CreateIdentityStagingTableAsync(sqlConn, tx, cancellationToken);
         DateTime utcNow = TimeProvider.System.UtcNowDateTime();
         await SqlBufferedBulkCopy.WriteAsync(sqlConn, tx, "#IdentitySnapshot",
             distinct.Select(pair => new
@@ -103,5 +95,21 @@ public sealed partial class SqlCloudResourceIdentityDirectory
             identity => identity.ExternalResourceIdNormalized, StringComparer.OrdinalIgnoreCase);
         tx.Commit();
         return result;
+    }
+
+    // Parameters would execute SELECT INTO inside sp_executesql and drop the temp tables on return.
+    [TenantScopeExempt(TenantScopeExemptReason.Operational,
+        "SELECT TOP (0) copies column definitions only into session-local staging tables; no tenant rows are read. All data operations retain scoped joins.")]
+    private static Task CreateIdentityStagingTableAsync(
+        SqlConnection connection, SqlTransaction transaction, CancellationToken cancellationToken)
+    {
+        const string stageSql = """
+            SELECT TOP (0) CloudResourceId, TenantId, WorkspaceId, ProjectId, Provider,
+                ExternalResourceIdNormalized, ResourceType, SubscriptionOrAccountId, ResourceGroupOrProject,
+                Region, DisplayName, FirstSeenSnapshotId, LastSeenSnapshotId, FirstSeenUtc, LastSeenUtc
+            INTO #IdentitySnapshot FROM dbo.CloudResourceIdentities;
+            """;
+        return connection.ExecuteAsync(new CommandDefinition(stageSql, transaction: transaction,
+            commandTimeout: DapperCommandTimeoutSeconds.Report, cancellationToken: cancellationToken));
     }
 }
