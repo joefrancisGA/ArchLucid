@@ -135,4 +135,14 @@ public sealed class EmailBrandingUrlsTests
 
         url.Should().Be("https://ops.example.test/architecture/reviews/a1b2c3d4");
     }
+
+    [SkippableFact]
+    public void SanitizeOperatorNavigableUrl_repairs_malformed_run_detail_when_operator_base_is_padded_and_has_embedded_crlf()
+    {
+        string url = EmailBrandingUrls.SanitizeOperatorNavigableUrl(
+            "https:/architecture/reviews/a1b2c3d4",
+            "  https://ops.example.test\r\nBcc: injected@evil.test  ");
+
+        url.Should().Be("https://ops.example.test/architecture/reviews/a1b2c3d4");
+    }
 }

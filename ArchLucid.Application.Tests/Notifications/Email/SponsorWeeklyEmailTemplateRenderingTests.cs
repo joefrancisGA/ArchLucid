@@ -131,4 +131,27 @@ public sealed class SponsorWeeklyEmailTemplateRenderingTests
         html.Should().Contain("item one");
         html.Should().NotContain("<h3>Approvals pending</h3>");
     }
+
+    [SkippableFact]
+    public async Task ExecDigest_text_part_includes_decision_needed_markdown_after_tag_strip()
+    {
+        const string decisionMarkdown = "### Approvals pending\n- item one";
+
+        string text = await _renderer.RenderTextAsync(
+            ExecDigestEmailDispatcher.TemplateId,
+            new ExecDigestEmailModel
+            {
+                ProductName = "ArchLucid",
+                WeekLabel = "2026-W12",
+                DashboardUrl = "https://app.example/runs",
+                SponsorValueReportUrl = "https://app.example/sponsor",
+                UnsubscribeUrl = "https://app.example/unsub",
+                DecisionNeededMarkdown = decisionMarkdown,
+            },
+            CancellationToken.None);
+
+        text.Should().Contain("Decisions needed:");
+        text.Should().Contain("Approvals pending");
+        text.Should().Contain("item one");
+    }
 }
