@@ -111,6 +111,36 @@ public sealed class ChatOpsIncomingWebhookBodiesTests
     }
 
     [Fact]
+    public void ForSlackWithGovernanceActions_escapes_mrkdwn_metacharacters_in_body_section()
+    {
+        ChatOpsWebhookMessage message = new()
+        {
+            SeverityLabel = null,
+            Title = "Governance approval",
+            SupportingParagraph = null,
+            Body = "Reviewer note: *urgent* action required",
+        };
+
+        object payload = ChatOpsIncomingWebhookBodies.ForSlackWithGovernanceActions(message, "req-approve-1");
+
+        PropertyInfo? blocksProp = payload.GetType().GetProperty("blocks", BindingFlags.Public | BindingFlags.Instance);
+
+        blocksProp.Should().NotBeNull();
+
+        object? blocksObj = blocksProp!.GetValue(payload);
+
+        object[] blocks = ((IEnumerable)blocksObj!).Cast<object>().ToArray();
+
+        string sectionJson = System.Text.Json.JsonSerializer.Serialize(blocks[0]);
+
+        using System.Text.Json.JsonDocument document = System.Text.Json.JsonDocument.Parse(sectionJson);
+
+        string mrkdwnText = document.RootElement.GetProperty("text").GetProperty("text").GetString()!;
+
+        mrkdwnText.Should().Contain("Reviewer note: \\*urgent\\* action required");
+    }
+
+    [Fact]
     public void ForSlack_preserves_backtick_code_span_in_supporting_paragraph()
     {
         ChatOpsWebhookMessage message = new()

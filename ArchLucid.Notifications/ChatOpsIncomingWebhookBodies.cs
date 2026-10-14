@@ -42,7 +42,7 @@ public static class ChatOpsIncomingWebhookBodies
         string body = CombineBlocks(
             headline,
             EscapeSupportingParagraphForSlack(message.SupportingParagraph),
-            message.Body);
+            ChatOpsSlackMrkdwnEscaper.EscapeFormattingMetacharacters(message.Body));
 
         return new
         {
