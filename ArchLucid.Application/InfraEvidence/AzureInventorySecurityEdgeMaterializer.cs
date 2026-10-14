@@ -176,6 +176,17 @@ public static class AzureInventorySecurityEdgeMaterializer
             roleAssignments,
             relationships,
             relationshipKeys);
+
+        if (appSettingHostsFilePresent)
+        {
+            AzureInventoryAppSettingsCredentialConversionEdgeMapper.MapConversions(
+                resources,
+                roleAssignments,
+                appSettingHostRows,
+                relationships,
+                relationshipKeys);
+        }
+
         AzureInventoryAddCredentialEdgeMapper.MapAddCredential(
             applicationOwnerRows,
             directoryRoleAssignmentRows,
