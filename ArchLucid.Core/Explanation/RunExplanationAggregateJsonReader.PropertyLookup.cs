@@ -533,16 +533,7 @@ internal static partial class RunExplanationAggregateJsonReader
 
             if (structuredPropertyName.Equals("schemaVersion", StringComparison.OrdinalIgnoreCase)
                 && StrictSchemaVersionReader.TryReadSchemaVersion(item, out int schemaArrayAlias)
-                && schemaArrayAlias > StructuredExplanationParser.MaxSupportedStructuredExplanationSchemaVersion)
-            {
-                continue;
-            }
-
-            if (structuredPropertyName.Equals("schemaVersion", StringComparison.OrdinalIgnoreCase)
-                && item.ValueKind == JsonValueKind.String
-                && TryParseWholeNumberString(item.GetString()?.Trim() ?? string.Empty, out int schemaStringArrayAlias)
-                && (schemaStringArrayAlias == 1
-                    || schemaStringArrayAlias > StructuredExplanationParser.MaxSupportedStructuredExplanationSchemaVersion))
+                && schemaArrayAlias > 0)
             {
                 continue;
             }
@@ -678,6 +669,65 @@ internal static partial class RunExplanationAggregateJsonReader
             if (StrictSchemaVersionReader.TryReadSchemaVersion(item, out _))
                 return true;
         }
+
+        return false;
+    }
+
+    internal static bool TryReadSchemaVersionFromAggregateAlias(JsonElement element, out int schemaVersion)
+    {
+        if (StrictSchemaVersionReader.TryReadSchemaVersion(element, out schemaVersion)
+            && schemaVersion > 0)
+        {
+            return true;
+        }
+
+        if (element.ValueKind != JsonValueKind.Array)
+        {
+            schemaVersion = default;
+
+            return false;
+        }
+
+        foreach (JsonElement item in element.EnumerateArray())
+        {
+            if (StrictSchemaVersionReader.TryReadSchemaVersion(item, out schemaVersion)
+                && schemaVersion > 0)
+            {
+                return true;
+            }
+        }
+
+        schemaVersion = default;
+
+        return false;
+    }
+
+    internal static bool TryReadAggregateStringCalloutToken(JsonElement element, out string? value)
+    {
+        if (TryReadNonEmptyTextToken(element, out value))
+            return true;
+
+        if (element.ValueKind != JsonValueKind.Array)
+        {
+            value = null;
+
+            return false;
+        }
+
+        foreach (JsonElement item in element.EnumerateArray())
+        {
+            if (AggregateCalloutArrayItemIsDuplicateAliasPoison(item))
+                continue;
+
+            if (TryReadNonEmptyTextToken(item, out string? text) && !string.IsNullOrWhiteSpace(text))
+            {
+                value = text;
+
+                return true;
+            }
+        }
+
+        value = null;
 
         return false;
     }

@@ -124,7 +124,7 @@ public static class RunExplanationConfidenceCalloutBuilder
                 && RunExplanationAggregateJsonReader.TryReadBoolean(legacy));
 
         string? warning = RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitivePreferLastNonEmpty(root, "faithfulnessWarning", out JsonElement warningEl)
-                            && RunExplanationAggregateJsonReader.TryReadNonEmptyTextToken(warningEl, out string? warningText)
+                            && RunExplanationAggregateJsonReader.TryReadAggregateStringCalloutToken(warningEl, out string? warningText)
             ? warningText?.Trim()
             : null;
 

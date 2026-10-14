@@ -51,7 +51,7 @@ public static partial class StructuredExplanationParser
             int schemaVersion = 1;
 
             if (RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitivePreferLastNonEmpty(root, "schemaVersion", out JsonElement schemaElement)
-                && StrictSchemaVersionReader.TryReadSchemaVersion(schemaElement, out int parsedSchemaVersion)
+                && RunExplanationAggregateJsonReader.TryReadSchemaVersionFromAggregateAlias(schemaElement, out int parsedSchemaVersion)
                 && parsedSchemaVersion > 0)
             {
                 schemaVersion = parsedSchemaVersion;
