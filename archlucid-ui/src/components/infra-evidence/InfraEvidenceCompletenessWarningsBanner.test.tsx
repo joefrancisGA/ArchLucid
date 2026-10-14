@@ -20,7 +20,11 @@ describe("InfraEvidenceCompletenessWarningsBanner", () => {
       />,
     );
 
-    expect(screen.getByTestId("infra-evidence-completeness-warnings-banner")).toBeInTheDocument();
+    const banner = screen.getByTestId("infra-evidence-completeness-warnings-banner");
+
+    expect(banner).toBeInTheDocument();
+    expect(banner.className).not.toMatch(/amber/);
+    expect(banner.className).toContain("bg-al-surface-raised");
     expect(screen.getByTestId("infra-evidence-completeness-warnings-details")).toBeInTheDocument();
     expect(screen.getByText("Inventory completeness warnings (2)")).toBeInTheDocument();
     expect(screen.getByText(/App setting hostnames not collected on hosted pull/)).toBeInTheDocument();

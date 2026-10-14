@@ -1,7 +1,7 @@
 "use client";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 import {
   resolveInfraEvidenceCompletenessWarningPresentation,
@@ -31,22 +31,22 @@ export function InfraEvidenceCompletenessWarningsBanner(
 
   return (
     <div
-      className="space-y-2 rounded-md border border-amber-200 bg-amber-50/80 p-3 dark:border-amber-900/60 dark:bg-amber-950/20"
+      className={cn(DESIGN_TOKENS.callout.neutral, "space-y-2 p-3")}
       data-testid="infra-evidence-completeness-warnings-banner"
     >
-      <p className={cn("m-0 font-medium text-amber-950 dark:text-amber-100", OPERATOR_TYPOGRAPHY.body)}>
+      <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
         Inventory completeness warnings ({warnings.length})
       </p>
-      <p className={cn("m-0 text-amber-900/90 dark:text-amber-100/90", OPERATOR_TYPOGRAPHY.helper)}>
+      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
         These warnings do not block rendering. Connection lines may be missing or weaker than the underlying authorization facts.
       </p>
       {summary ? (
-        <p className={cn("m-0 text-amber-900/90 dark:text-amber-100/90", OPERATOR_TYPOGRAPHY.helper)}>
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
           {formatInfraEvidenceCompletenessSummaryBannerLine(summary)}
         </p>
       ) : null}
       {tier1HostsIncluded ? (
-        <p className={cn("m-0 text-amber-900/90 dark:text-amber-100/90", OPERATOR_TYPOGRAPHY.helper)}>
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
           App setting hostnames are included in this package (values are never collected).
         </p>
       ) : null}
@@ -54,6 +54,8 @@ export function InfraEvidenceCompletenessWarningsBanner(
         title="Warning details"
         defaultOpen={warnings.length <= 3}
         sectionTestId="infra-evidence-completeness-warnings-details"
+        // The shared disclosure is its own card. Flatten it so the note stays one surface.
+        className="mb-0 border-0 bg-transparent p-0 shadow-none dark:border-0 dark:bg-transparent"
       >
         <ul className={cn("m-0 list-disc space-y-2 pl-5", OPERATOR_TYPOGRAPHY.helper)}>
           {warnings.map((warning) => {
@@ -61,8 +63,8 @@ export function InfraEvidenceCompletenessWarningsBanner(
 
             return (
               <li key={presentation.code}>
-                <span className="font-medium text-amber-950 dark:text-amber-50">{presentation.title}</span>
-                <span className="text-amber-900/90 dark:text-amber-100/90"> — {presentation.detail}</span>
+                <span className="font-medium text-al-text-primary">{presentation.title}</span>
+                <span> — {presentation.detail}</span>
               </li>
             );
           })}
