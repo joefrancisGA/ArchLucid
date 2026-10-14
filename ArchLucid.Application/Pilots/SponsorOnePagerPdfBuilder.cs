@@ -280,7 +280,7 @@ public sealed class SponsorOnePagerPdfBuilder(
             AddDeltaRow(table, "Time to committed manifest", FormatTimeToCommit(deltas));
             AddDeltaRow(table, "Findings (total)", deltas.FindingsBySeverity.Sum(static p => p.Value).ToString(CultureInfo.InvariantCulture));
             AddDeltaRow(table, "Findings by severity", FormatFindingsBySeverity(deltas));
-            AddDeltaRow(table, "LLM calls for this run", deltas.LlmCallCount.ToString(CultureInfo.InvariantCulture));
+            AddDeltaRow(table, "LLM calls for this run", FormatLlmCallCount(deltas));
             AddDeltaRow(table, "Audit rows for this run", FormatAuditRows(deltas));
         });
     }
@@ -306,6 +306,14 @@ public sealed class SponsorOnePagerPdfBuilder(
         if (deltas.AuditRowCount == 0)
             return "0";
         return deltas.AuditRowCountTruncated ? $"{deltas.AuditRowCount}+ (cap reached)" : deltas.AuditRowCount.ToString(CultureInfo.InvariantCulture);
+    }
+
+    private static string FormatLlmCallCount(PilotRunDeltas deltas)
+    {
+        if (!deltas.LlmCallCountResolved)
+            return "(not attested — execution trace query failed)";
+
+        return deltas.LlmCallCount.ToString(CultureInfo.InvariantCulture);
     }
 
     private static void RenderEvidenceChain(IContainer column, PilotRunDeltas deltas)

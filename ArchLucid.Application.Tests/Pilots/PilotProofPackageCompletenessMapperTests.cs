@@ -125,6 +125,7 @@ public sealed class PilotProofPackageCompletenessMapperTests
         ProofPackageCompletenessResponse c = PilotProofPackageCompletenessMapper.Build(run, manifest, deltas, gate, snap);
 
         c.LlmCallCountResolved.Should().BeFalse();
+        c.LlmCallCount.Should().BeNull();
         c.EvidenceCompleteness.Should().Be(nameof(FirstValueEvidenceCompletenessLevel.Partial));
         c.SponsorProofReadiness.Should().Be(nameof(SponsorProofReadinessClassification.Incomplete));
     }

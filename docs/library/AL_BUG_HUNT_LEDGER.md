@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-14 thorough hunt (hit): `application-pilots` — `ProofPackageCompletenessResponse.LlmCallCount` and sponsor markdown/PDF delta tables emitted `0` when `LlmCallCountResolved` was false; nullable proof count + unattested copy in `FirstValueReportDeltasSectionFormatter` and `SponsorOnePagerPdfBuilder`; regressions `Build_UnresolvedLlmTraces_FlagsLlmCallCountUnresolved`, `AppendComputedDeltasSection_when_llm_count_unresolved_does_not_emit_zero_in_table`; buyer OpenAPI snapshot nullable `llmCallCount`; 29 scoped BuyerProofPack/BoardPack tests passed.
+
 2026-10-14 seed hunt (seed→hit): `archlucid-contracts` — promoted `PolicyPackGovernanceDryRunResult` list properties (`PassedChecks`, `FailedChecks`, `Warnings`) explicit JSON `null` on policy-pack governance dry-run result JSON; `ContractCollectionDefaults.CoalesceReadOnly` on all three `init` accessors; regression `PolicyPackGovernanceDryRunResultDeserializationTests`; 735 scoped `Contracts` filter tests passed.
 
 2026-10-14 seed hunt (seed→hit): `archlucid-contracts` — promoted `PreCommitGateResult` list properties (`BlockingFindingIds`, `Warnings`) explicit JSON `null` on pre-commit gate result JSON; `ContractCollectionDefaults.CoalesceReadOnly` on both `init` accessors; regression `PreCommitGateResultDeserializationTests`; 734 scoped `Contracts` filter tests passed.
