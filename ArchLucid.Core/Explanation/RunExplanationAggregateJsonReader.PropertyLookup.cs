@@ -212,7 +212,7 @@ internal static partial class RunExplanationAggregateJsonReader
                 }
                 else if (structuredPropertyName.Equals("evidenceRefs", StringComparison.OrdinalIgnoreCase))
                 {
-                    if (EvidenceRefObjectAliasHasExtractableContent(item))
+                    if (ProseListObjectAliasHasExtractableContent(item))
                         return true;
                 }
                 else if (ObjectPropertyValueIsNonEmpty(item, structuredPropertyName))
