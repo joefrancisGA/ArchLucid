@@ -203,6 +203,14 @@ internal static partial class RunExplanationAggregateJsonReader
             return false;
         }
 
+        if (IsAggregateWholeNumberCountPropertyName(structuredPropertyName)
+            && jsonElement.ValueKind == JsonValueKind.Number
+            && TryReadWholeNumber(jsonElement, out int wholeCountAlias)
+            && wholeCountAlias > 10)
+        {
+            return false;
+        }
+
         if ((structuredPropertyName.Equals("faithfulnessWarning", StringComparison.OrdinalIgnoreCase)
              || structuredPropertyName.Equals("riskPosture", StringComparison.OrdinalIgnoreCase))
             && (IsZeroConfidenceAliasValue(jsonElement) || IsBooleanOneAliasValue(jsonElement)))
