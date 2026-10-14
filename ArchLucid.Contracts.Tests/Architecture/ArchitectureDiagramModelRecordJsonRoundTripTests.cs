@@ -81,4 +81,21 @@ public sealed class ArchitectureDiagramModelRecordJsonRoundTripTests
         valid.Should().BeFalse();
         failureReason.Should().Contain("invalid");
     }
+
+    [Fact]
+    public void TryValidate_rejects_unknown_node_kind()
+    {
+        ArchitectureDiagramModelRecord model = new()
+        {
+            Nodes =
+            [
+                new ArchitectureDiagramNodeRecord { Id = "api", Label = "API", Kind = "service " },
+            ],
+        };
+
+        bool valid = ArchitectureDiagramModelValidator.TryValidate(model, out string? failureReason);
+
+        valid.Should().BeFalse();
+        failureReason.Should().Contain("kind");
+    }
 }
