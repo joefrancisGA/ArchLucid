@@ -1,7 +1,3 @@
-{"at":"2026-09-14T17:07:25.3810921Z","zoneId":"context-ingestion","outcome":"hit"}
-{"at":"2026-09-14T17:09:26.1380268Z","zoneId":"core-costing","outcome":"hit"}
-{"at":"2026-09-14T17:09:30.0400346Z","zoneId":"tenant-data-export","outcome":"seed-only"}
-{"at":"2026-09-14T17:09:34.0153307Z","zoneId":"persistence-identity","outcome":"seed-only"}
 {"at":"2026-09-14T17:12:18.7044332Z","zoneId":"topology-proposal-merge","outcome":"hit"}
 {"at":"2026-09-14T17:12:19.6710875Z","zoneId":"context-ingestion","outcome":"hit"}
 {"at":"2026-09-14T17:18:23.301815Z","zoneId":"topology-proposal-merge","outcome":"hit"}
@@ -8522,3 +8518,4 @@
 {"at":"2026-10-14T17:01:34.0611593Z","zoneId":"archlucid-contracts","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-14T17:04:24.641042Z","zoneId":"archlucid-contracts","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-14T17:07:22.1679485Z","zoneId":"archlucid-contracts","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-14T17:10:24.0767370Z","zoneId":"archlucid-contracts","outcome":"hit","productLine":"archlucid-shared"}
