@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-14 seed hunt (seed-only): `ui-form-validation` (#8) — cheap-disproof closed five open `(candidate)` rows below against existing regressions; seeded five follow-on `(candidate)` rows; 112 scoped SignupForm vitest tests passed; no production or test code changed.
+
 2026-10-14 seed hunt (seed-only): `ui-form-validation` (#7) — cheap-disproof closed five open `(candidate)` rows below against existing regressions; seeded five follow-on `(candidate)` rows; 112 scoped SignupForm vitest tests passed; no production or test code changed.
 
 2026-10-14 seed hunt (seed-only): `ui-form-validation` (#6) — cheap-disproof closed five open `(candidate)` rows below with falsify attempts; added one integration regression in `SignupForm.test.tsx`; seeded five follow-on `(candidate)` rows; 112 scoped SignupForm vitest tests passed; no production code changed.
@@ -6322,17 +6324,25 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 2026-10-14 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below against existing regressions; seeded five follow-on `(candidate)` rows; 112 scoped SignupForm vitest tests passed; no production or test code changed.
 
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — `router.push` throw after successful register surfaces error toast without duplicate POST — **cheap-disproof 2026-10-14 seed hunt #8:** success-path `catch`; regression `surfaces signup error when navigation throws after successful register`.
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — HTTP `204 No Content` with empty body still navigates to verify — **cheap-disproof 2026-10-14 seed hunt #8:** `res.ok` gate; regression `still navigates after 204 when register response has no body`.
+- [x] (valid-no-repro) `SignupForm` — blocks second submit while register request is in flight (`Creating…` disabled) — **cheap-disproof 2026-10-14 seed hunt #8:** `registerInFlightRef` + `submitting`; regressions `disables submit and shows Creating while register request is in flight` and `does not fire a second register request when the form is submitted again while in flight`.
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — still posts register when first-touch cookie JSON is malformed — **cheap-disproof 2026-10-14 seed hunt #8:** attribution must not block signup; regression `still posts register when first-touch cookie JSON is malformed`.
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — persists `wasAlreadyProvisioned` in `archlucid_last_registration` when tenant ids omitted — **cheap-disproof 2026-10-14 seed hunt #8:** best-effort session JSON; regression `persists wasAlreadyProvisioned flag without tenant ids when register response omits tenantId`.
+
+- [ ] (candidate) `SignupForm` `onSubmit` — HTTP `200 OK` register response still navigates to verify — locus: `res.ok` (`SignupForm.tsx` ~175–201).
+- [ ] (candidate) `SignupForm` `onSubmit` — plus-addressed work email encoded once in verify redirect query — locus: `encodeURIComponent` (`SignupForm.tsx` ~201).
+- [ ] (candidate) `SignupForm` `onSubmit` — still navigates when `sessionStorage.setItem` throws during success handling — locus: swallowed storage errors (`SignupForm.tsx` ~178–197).
+- [ ] (candidate) `SignupForm` — invalid email keeps submit disabled and does not call register `fetch` — locus: `canSubmit` gate (`SignupForm.tsx` ~105–106, ~371).
+- [ ] (candidate) `SignupForm` `onSubmit` — HTTP `201` with JSON `null` body still navigates to verify — locus: parse + `res.ok` (`SignupForm.tsx` ~151–175).
+
+2026-10-14 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below against existing regressions; seeded five follow-on `(candidate)` rows; 112 scoped SignupForm vitest tests passed; no production or test code changed.
+
 - [x] (valid-no-repro) `SignupForm` `onSubmit` — register `fetch` throw surfaces `Error.message` in toast without navigation — **cheap-disproof 2026-10-14 seed hunt #7:** outer `catch`; regression `shows a toast when register fetch throws`.
 - [x] (valid-no-repro) `SignupForm` — whitespace-only required organization name keeps submit disabled after trim — **cheap-disproof 2026-10-14 seed hunt #7:** `.trim().min(1)`; regressions `signupFormSchema rejects whitespace-only organization name after trim` and `keeps submit disabled when required fields are whitespace-only`.
 - [x] (valid-no-repro) `SignupForm` `onSubmit` — HTTP `201` with empty JSON body still navigates to verify — **cheap-disproof 2026-10-14 seed hunt #7:** `res.ok` success path; regression `still navigates after 201 when register response body is empty`.
 - [x] (valid-no-repro) `SignupForm` — `deriveSignupFormReadinessMessage` surfaces incomplete Other industry guidance — **cheap-disproof 2026-10-14 seed hunt #7:** readiness helper; regression `shows industry readiness when Other is selected without a specification`.
 - [x] (valid-no-repro) `SignupForm` `onSubmit` — keeps submit button disabled with `Creating…` label after success until navigation — **cheap-disproof 2026-10-14 seed hunt #7:** success `finally` gate; regression `keeps Creating label on the submit button after successful register until navigation`.
-
-- [ ] (candidate) `SignupForm` `onSubmit` — `router.push` throw after successful register surfaces error toast without duplicate POST — locus: success-path `catch` (`SignupForm.tsx` ~201–204).
-- [ ] (candidate) `SignupForm` `onSubmit` — HTTP `204 No Content` with empty body still navigates to verify — locus: `res.ok` (`SignupForm.tsx` ~175–201).
-- [ ] (candidate) `SignupForm` — blocks second submit while register request is in flight (`Creating…` disabled) — locus: `registerInFlightRef` + `submitting` (`SignupForm.tsx` ~109–115, ~371).
-- [ ] (candidate) `SignupForm` `onSubmit` — still posts register when first-touch cookie JSON is malformed — locus: `readFirstTouchCookie` (`SignupForm.tsx` ~126–134).
-- [ ] (candidate) `SignupForm` `onSubmit` — persists `wasAlreadyProvisioned` in `archlucid_last_registration` when tenant ids omitted — locus: `sessionStorage.setItem` (`SignupForm.tsx` ~187–194).
 
 2026-10-14 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below with falsify attempts; added one integration regression; seeded five follow-on `(candidate)` rows; 112 scoped SignupForm vitest tests passed; no production code changed.
 
@@ -6404,7 +6414,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 2026-10-10 seed hunt (seed-only): re-read `SignupForm.tsx` submit gating, payload shaping, response handling, first-touch attribution, and optional-field state transitions; no new hunt-ready row was promoted. The exact SignupForm filter passed 99/99; retained the existing bounded candidates and made no production code change.
 
-**Hunts:** 77 · **Bugs found:** 9 · **Consecutive dry hunts:** 16
+**Hunts:** 78 · **Bugs found:** 9 · **Consecutive dry hunts:** 17
 
 2026-10-08 seed hunt (seed-only): no hunt-ready hypotheses were available after reading `SignupForm.tsx`; seeded five reachable follow-on `(candidate)` rows; 94 focused SignupForm tests passed; no production code changed and no regression was added.
 
