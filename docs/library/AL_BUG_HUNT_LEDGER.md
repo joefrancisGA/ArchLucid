@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-14 seed hunt (seed→hit): `archlucid-contracts` — promoted `FeasibilityHardCitation.InvariantKeys` explicit JSON `null` on hard-citation rows; `ContractCollectionDefaults.Coalesce` on `InvariantKeys` setter; regressions `FeasibilityHardCitationDeserializationTests`; 697 scoped `Contracts` filter tests passed.
+
 2026-10-14 seed hunt (seed→hit): `archlucid-contracts` — promoted `ArchitectureRunProvenanceGraph` list properties (`Nodes`, `Edges`, `Timeline`, `TraceabilityGaps`) explicit JSON `null` on run provenance graph JSON; class fix with `ContractCollectionDefaults.Coalesce` on all four collection setters; regressions `ArchitectureRunProvenanceGraphDeserializationTests`; 696 scoped `Contracts` filter tests passed.
 
 2026-10-14 seed hunt (seed→hit): `archlucid-contracts` — promoted `TransparencyTrail` list properties (`Asserted`, `Inferred`, `Skipped`) explicit JSON `null` on nested transparency-trail JSON; class fix with `ContractCollectionDefaults.Coalesce` on all three collection setters; regressions `TransparencyTrailDeserializationTests`; 695 scoped `Contracts` filter tests passed.
@@ -29259,11 +29261,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 107
-- **bugs-found:** 87
+- **hunts:** 108
+- **bugs-found:** 88
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-14
-- **last-bug:** 2026-10-14 — run provenance graph JSON null collections
+- **last-bug:** 2026-10-14 — feasibility hard citation JSON null invariantKeys
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -29338,7 +29340,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `FeasibilityVerdict` list properties (`HardCitations`, `UnsatCoreInvariantKeys`, `ProposedRelaxations`) — explicit JSON `null` assigned null despite `= []` initializers — **hit 2026-10-14 seed hunt:** class fix with `ContractCollectionDefaults.Coalesce` on all three collection setters; regression `Deserialize_null_collection_properties_yields_empty_lists_not_null`.
 - [x] (proven) `TransparencyTrail` list properties (`Asserted`, `Inferred`, `Skipped`) — explicit JSON `null` assigned null despite `= []` initializers — **hit 2026-10-14 seed hunt:** class fix with `ContractCollectionDefaults.Coalesce` on all three collection setters; regression `Deserialize_null_collection_properties_yields_empty_lists_not_null`.
 - [x] (proven) `ArchitectureRunProvenanceGraph` list properties (`Nodes`, `Edges`, `Timeline`, `TraceabilityGaps`) — explicit JSON `null` assigned null despite `= []` initializers — **hit 2026-10-14 seed hunt:** class fix with `ContractCollectionDefaults.Coalesce` on all four collection setters; regression `Deserialize_null_collection_properties_yields_empty_lists_not_null`.
-- (candidate) `FeasibilityHardCitation.InvariantKeys` — explicit JSON `null` can assign null despite `= []` initializer on hard-citation rows nested under `FeasibilityVerdict.hardCitations`. Reachability: `FeasibilityHardCitation` deserialized via `ContractJson.Default` on ADR 0050 verdict JSON.
+- [x] (proven) `FeasibilityHardCitation.InvariantKeys` — explicit JSON `null` assigned null despite `= []` initializer — **hit 2026-10-14 seed hunt:** `ContractCollectionDefaults.Coalesce` on `InvariantKeys` setter; regression `Deserialize_null_invariant_keys_yields_empty_list_not_null`.
+- (candidate) `ManifestMetadata.DecisionTraceIds` — explicit JSON `null` can assign null despite `= []` initializer on golden-manifest metadata JSON. Reachability: `ManifestMetadata` deserialized via `ContractJson.Default` on manifest export and persistence round-trips.
 - [x] (proven) `SecureNowQuestionDispositionResponse.AuditEntries` — explicit JSON `"auditEntries": null` assigned null despite `= []` initializer — **hit 2026-10-14 seed hunt:** null-coalescing `init`; regression `Deserialize_null_audit_entries_yields_empty_list_not_null`.
 - [x] (valid-no-repro) `SecureNowQuestionDispositionWriteApiRequest.ExpirationUtc` → `SecureNowQuestionDispositionResponse.ExpirationUtc` — nullable request expiration becomes a required response `DateTime` — **cheap-disproof 2026-10-03 thorough hunt:** `SecureNowQuestionDispositionService.WriteAsync` converts omitted expiration to `now + 90 days` before creating the persisted record and controller mapping; no default timestamp reaches the response.
 - [x] (valid-no-repro) `SecureNowQuestionDispositionWriteApiRequest` — nullable `AnswerCode` and `AnswerText` permit both fields to be absent or simultaneously supplied — **cheap-disproof 2026-10-03 thorough hunt:** answer operations require nonblank `AnswerCode`, answer text is optional supplementary context, and ignore operations intentionally clear both fields; no contract-only shape defect is present.
