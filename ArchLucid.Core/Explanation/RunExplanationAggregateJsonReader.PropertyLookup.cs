@@ -1,5 +1,7 @@
 using System.Text.Json;
 
+using ArchLucid.Core.Json;
+
 namespace ArchLucid.Core.Explanation;
 
 internal static partial class RunExplanationAggregateJsonReader
@@ -143,6 +145,29 @@ internal static partial class RunExplanationAggregateJsonReader
             return true;
         }
 
+        if (caseInsensitiveAliasMatchCount == 1
+            && lastMatch is JsonElement soleSchemaVersion
+            && propertyName.Equals("schemaVersion", StringComparison.OrdinalIgnoreCase)
+            && StrictSchemaVersionReader.TryReadSchemaVersion(soleSchemaVersion, out _))
+        {
+            value = soleSchemaVersion;
+
+            return true;
+        }
+
+        if (caseInsensitiveAliasMatchCount == 1
+            && lastMatch is JsonElement soleStringListScalar
+            && IsStructuredStringListPropertyName(propertyName)
+            && (IsBooleanOneAliasValue(soleStringListScalar)
+                || soleStringListScalar.ValueKind == JsonValueKind.String
+                || soleStringListScalar.ValueKind == JsonValueKind.Object
+                || soleStringListScalar.ValueKind == JsonValueKind.Array))
+        {
+            value = soleStringListScalar;
+
+            return true;
+        }
+
         return false;
     }
 
@@ -183,10 +208,20 @@ internal static partial class RunExplanationAggregateJsonReader
             return false;
         }
 
+        if (structuredPropertyName.Equals("schemaVersion", StringComparison.OrdinalIgnoreCase)
+            && (IsZeroConfidenceAliasValue(jsonElement) || IsBooleanOneAliasValue(jsonElement)))
+        {
+            return false;
+        }
+
+        if (IsStructuredStringListPropertyName(structuredPropertyName)
+            && (IsZeroConfidenceAliasValue(jsonElement) || IsBooleanOneAliasValue(jsonElement)))
+        {
+            return false;
+        }
+
         if ((structuredPropertyName.Equals("reasoning", StringComparison.OrdinalIgnoreCase)
-             || structuredPropertyName.Equals("schemaVersion", StringComparison.OrdinalIgnoreCase)
-             || IsDeterministicFallbackPropertyName(structuredPropertyName)
-             || IsStructuredStringListPropertyName(structuredPropertyName))
+             || IsDeterministicFallbackPropertyName(structuredPropertyName))
             && IsZeroConfidenceAliasValue(jsonElement))
         {
             return false;
