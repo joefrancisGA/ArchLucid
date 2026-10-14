@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Risk;
 
 /// <summary>Immutable risk analysis snapshot for one review run (mirrors <see cref="Findings.FindingsSnapshot" />).</summary>
@@ -27,27 +29,35 @@ public sealed class RiskSnapshot
         set;
     }
 
+    private List<ArchitectureTradeoff> tradeoffs = [];
+
     public List<ArchitectureTradeoff> Tradeoffs
     {
-        get;
-        set;
-    } = [];
+        get => tradeoffs;
+        set => tradeoffs = ContractCollectionDefaults.Coalesce(value);
+    }
+
+    private List<RequirementSmell> requirementSmells = [];
 
     public List<RequirementSmell> RequirementSmells
     {
-        get;
-        set;
-    } = [];
+        get => requirementSmells;
+        set => requirementSmells = ContractCollectionDefaults.Coalesce(value);
+    }
+
+    private List<SuggestedConcern> concerns = [];
 
     public List<SuggestedConcern> Concerns
     {
-        get;
-        set;
-    } = [];
+        get => concerns;
+        set => concerns = ContractCollectionDefaults.Coalesce(value);
+    }
+
+    private List<ExecutionContextItem> executionContext = [];
 
     public List<ExecutionContextItem> ExecutionContext
     {
-        get;
-        set;
-    } = [];
+        get => executionContext;
+        set => executionContext = ContractCollectionDefaults.Coalesce(value);
+    }
 }
