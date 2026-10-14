@@ -515,7 +515,7 @@ internal static partial class RunExplanationAggregateJsonReader
             }
 
             if (IsRatioPropertyName(structuredPropertyName)
-                && RatioArrayItemIsDuplicateAliasPoison(item))
+                && TryReadFiniteDouble(item) is not null)
             {
                 continue;
             }

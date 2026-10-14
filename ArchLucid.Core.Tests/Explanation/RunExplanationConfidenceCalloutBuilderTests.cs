@@ -1344,6 +1344,23 @@ public sealed class RunExplanationConfidenceCalloutBuilderTests
     }
 
     [Fact]
+    public void RunExplanation_FromAggregateJson_keeps_faithfulness_ratio_when_later_duplicate_is_supported_ratio_array()
+    {
+        RunExplanationConfidenceSignals? signals = RunExplanationConfidenceCalloutBuilder.FromAggregateJson(
+            """
+            {
+              "faithfulnessSupportRatio": 0.95,
+              "FAITHFULNESSSUPPORTRATIO": [ 0.5 ],
+              "citations": 1
+            }
+            """);
+
+        signals.Should().NotBeNull();
+        signals!.FaithfulnessSupportRatio.Should().Be(0.95);
+        RunExplanationConfidenceCalloutBuilder.ResolveDisposition(signals).Should().Be("PASS");
+    }
+
+    [Fact]
     public void RunExplanation_FromAggregateJson_reads_citation_count_from_sole_numeric_array_alias()
     {
         RunExplanationConfidenceSignals? signals = RunExplanationConfidenceCalloutBuilder.FromAggregateJson(
