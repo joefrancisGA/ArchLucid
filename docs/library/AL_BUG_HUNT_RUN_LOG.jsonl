@@ -8456,3 +8456,4 @@
 {"at":"2026-10-14T08:47:51.0254226Z","zoneId":"securenow-question-queue","outcome":"hit","productLine":"securenow","paths":["ArchLucid.Application/InfraEvidence/SecureNowQuestionDispositions/"]}
 {"at":"2026-10-14T08:53:41.2925035Z","zoneId":"securenow-question-queue","outcome":"hit","productLine":"securenow","paths":["ArchLucid.Application/InfraEvidence/SecureNowQuestionDispositions/"]}
 {"at":"2026-10-14T08:58:39.1575225Z","zoneId":"securenow-question-queue","outcome":"hit","productLine":"securenow","paths":["archlucid-ui/src/components/infra-evidence/securenow-question-queue-provider.tsx"]}
+{"at":"2026-10-14T09:04:35.7168627Z","zoneId":"securenow-question-queue","outcome":"hit","productLine":"securenow","paths":["ArchLucid.Application/InfraEvidence/SecureNowQuestionDispositions/SecureNowQuestionDispositionService.cs"]}
