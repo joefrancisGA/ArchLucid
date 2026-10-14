@@ -32931,6 +32931,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ## Zone: api-governance-tenancy-controllers
 
+2026-10-14 seed hunt (seed→hit): promoted `GovernanceController.RecordGovernanceMutationCorrection` passing `IActorContext.GetActor()` (display name) as `actorUserId` into `IGovernanceMutationCorrectionService.RecordAsync` on `POST /v1/governance/mutation-corrections`; use `GetActorId()` for stable actor correlation in mutation-correction audits; regression `RecordGovernanceMutationCorrection_passes_actor_context_id_to_service_when_display_name_differs`; 141 scoped Governance/Tenancy controller unit tests passed (18 SQL integration unavailable on Linux VM).
+
 2026-10-13 seed hunt (seed→hit): promoted `GovernanceController.LogGovernanceApprovalRequestedAuditAsync` — `POST /v1/governance/approval-requests` audit events used display identity for `ActorUserId` and omitted `ExplicitActor`; align with tenancy settings parity (`GetActorId()` + display name on `ActorUserName`); regression `SubmitApprovalRequest_logs_actor_context_id_in_audit_when_display_name_differs`; 141 scoped Governance/Tenancy controller unit tests passed (18 SQL integration unavailable on Linux VM).
 
 2026-10-12 seed hunt (seed-only): the picker exposed only this ledger path for the retired controller mega-zone; no source-backed locus, reachable input, or mechanism met the hunt-ready bar, so no candidate was promoted or invented. The scoped governance controller test command was aborted before discovery and produced no repro or result. No production or regression change.
@@ -32955,11 +32957,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** governance controllers; tenancy controllers; retired mega-zone
 - **paths:** docs/library/AL_BUG_HUNT_LEDGER.md
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 325
-- **last-hunt:** 2026-10-13
-- **bugs-found:** 520
+- **hunts:** 326
+- **last-hunt:** 2026-10-14
+- **bugs-found:** 521
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-13 — governance approval-request audit used display name instead of actor-context id
+- **last-bug:** 2026-10-14 — governance mutation-correction route passed display name as actor user id
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -32973,6 +32975,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `TenantBaselineController.PutAsync` — `string actor = User.Identity?.Name ?? "operator"` reused for audit `ActorUserId` and `ActorUserName` on manual-prep and review-cycle baseline puts — **hit 2026-10-08 seed hunt:** `IActorContext.GetActorId()` for stable `ActorUserId`; display name stays on `ActorUserName`; regression `PutAsync_audit_uses_actor_context_id_when_display_name_differs`; reachable `PUT /v1/tenant/baseline`.
 - [x] (proven) `TenantTrialController` — trial lifecycle calls passed `User.Identity?.Name ?? "admin"` as actor id (`TenantTrialController.cs` ~64, 96) without `IActorContext`; reachable `POST /v1/tenant/link-entra` and `/v1/tenant/convert` routes — **hit 2026-10-10 seed hunt:** inject `IActorContext` and pass the canonical actor id to the trial facade; regression `LinkEntraAsync_passes_stable_actor_id_to_trial_facade`.
 - [x] (proven) `TenantErasureLegalHoldController` — `SetLegalHoldAsync` and `ApproveErasureAsync` passed `ClaimTypes.NameIdentifier` as `actorUserId`, and `AppendPlatformAuditAsync` stored that string on `PlatformAuditEvent.ActorUserId` — **hit 2026-10-09 seed hunt:** `IActorContext.GetActorId()` for the stable id; display name stays `Identity.Name`; regressions `SetLegalHoldAsync_passes_actor_context_id_when_name_identifier_differs` and `ApproveErasureAsync_passes_actor_context_id_when_name_identifier_differs`; reachable `POST /v1/tenant/erasure/legal-hold` and `POST /v1/tenant/erasure/approve`.
+
+- [x] (proven) `GovernanceController.RecordGovernanceMutationCorrection` — `POST /v1/governance/mutation-corrections` passed display name via `GetActor()` as `actorUserId` to mutation-correction service audits — **hit 2026-10-14 seed hunt:** `GetActorId()`; regression `RecordGovernanceMutationCorrection_passes_actor_context_id_to_service_when_display_name_differs`.
 
 - [x] (proven) `GovernanceController.LogGovernanceApprovalRequestedAuditAsync` — `GovernanceApprovalRequested` audit used `IActorContext.GetActor()` for `ActorUserId` without `ExplicitActor`, breaking stable actor correlation on `POST /v1/governance/approval-requests` — **hit 2026-10-13 seed hunt:** `GetActorId()` + `ExplicitActor`; display name on `ActorUserName`; regression `SubmitApprovalRequest_logs_actor_context_id_in_audit_when_display_name_differs`.
 
