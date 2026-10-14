@@ -198,6 +198,8 @@
 
 2026-10-14 seed hunt (seed→hit): `tenant-erasure` — promoted `TenantErasureQuarantineMiddleware.Skip` parent-segment traversal; reachable `/v1/tenant/../admin/...` normalized onto `/v1/admin` and bypassed quarantine while offboarded; require raw path prefix for `/v1/admin` and `/v1/register` skip entries; pass unnormalized `Request.Path` into `Skip`; regression `Erasure_quarantine_still_blocks_offboarded_tenant_when_path_traversal_reaches_admin_prefix`; Application 35/35 and Api 29/29 scoped `TenantErasure` tests passed.
 
+2026-10-14 seed hunt (seed→hit): `securenow-question-queue` — promoted blank `answerCodes` entries in `mapQuestion`; regression `drops blank answer code entries from list responses`.
+
 2026-10-14 seed hunt (seed→hit): `securenow-question-queue` — promoted `BuildDiagramCandidates` hiding unknown-evidence questions for unresolved relationship peers; regression `Unknown_evidence_question_is_emitted_when_relationship_peer_is_not_in_snapshot`; Application SecureNowQuestion filter 29/29.
 
 2026-10-14 seed hunt (seed→hit): `securenow-question-queue` — promoted stale queue mutations during snapshot navigation; regression `does not persist a question from the previous snapshot while the next snapshot is loading`; queue UI vitest 20/20.
@@ -38365,6 +38367,8 @@ ABQ-09 churn hotspot.
 
 ## Zone: securenow-question-queue
 
+2026-10-14 seed hunt (seed→hit): promoted `securenow-question-queue-api.mapQuestion` blank `answerCodes` entries; reachable list responses with `""` or whitespace-only codes rendered bogus action buttons; filter to non-blank strings in `mapQuestion`; regression `drops blank answer code entries from list responses` in `securenow-question-queue-api.test.ts`; queue UI vitest 20/20 and Application SecureNowQuestion filter 29/29.
+
 2026-10-14 seed hunt (seed→hit): promoted `BuildDiagramCandidates` suppressing unknown-evidence questions when a relationship cited a peer outside the snapshot; only treat inventory relationships with both endpoints present in the snapshot as cited connections; regression `Unknown_evidence_question_is_emitted_when_relationship_peer_is_not_in_snapshot`; Application SecureNowQuestion filter 29/29 and queue UI vitest 20/20.
 
 2026-10-14 seed hunt (seed→hit): promoted stale queue mutations during snapshot navigation; `SecureNowQuestionQueueProvider` kept the prior snapshot's questions actionable while the next snapshot load was in flight, so ignore/answer could target the new `snapshotId` with the old question identity; clear queue state on `snapshotId` change, require `questionsLoaded`, and reject mismatched `currentQuestion.snapshotId`; regression `does not persist a question from the previous snapshot while the next snapshot is loading`; Application SecureNowQuestion filter 28/28 and queue UI vitest 20/20.
@@ -38413,11 +38417,11 @@ ABQ-09 churn hotspot.
 - **aliases:** securenow question queue; question disposition
 - **paths:** ArchLucid.Application/InfraEvidence/SecureNowQuestionDispositions/; ArchLucid.Api/Controllers/InfraEvidence/InfraEvidenceSecureNowQuestionsController.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/ISecureNowQuestionDispositionRepository.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/ISecureNowQuestionDispositionService.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/SecureNowQuestionDispositionRecord.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/SecureNowQuestionRecord.cs; ArchLucid.Persistence/InfraEvidence/NoOpSecureNowQuestionDispositionRepository.cs; ArchLucid.Persistence/InfraEvidence/SqlSecureNowQuestionDispositionRepository.cs; ArchLucid.Contracts/InfraEvidence/SecureNowQuestionDispositionContracts.cs; archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
-- **hunts:** 40
-- **bugs-found:** 19
+- **hunts:** 41
+- **bugs-found:** 20
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-14
-- **last-bug:** 2026-10-14 — unresolved relationship peer hid unknown-evidence questions
+- **last-bug:** 2026-10-14 — blank answer codes rendered bogus queue buttons
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -38481,7 +38485,7 @@ ABQ-09 churn hotspot.
 - [x] (proven) `SecureNowQuestionCompiler.Compile` — a reachable proposed inferred connection with both `FromArmId` and `ToArmId` blank emitted an `Open` question with an empty `ResourceId`, but `SecureNowQuestionDispositionService.ValidateIdentity` rejects empty resource ids on answer/ignore; endpoint-less proposals are now suppressed; regression `Proposed_inference_without_an_arm_endpoint_is_not_emitted_as_an_unanswerable_question`.
 - [x] (proven) `SecureNowQuestionCompiler.AddQuestion` — two proposed `OperatorInferredConnectionRecord` inputs with the same normalized resource/question identity but different endpoints were collapsed by `emitted`, so one actionable inferred connection disappeared from the queue; fixed by embedding `ConnectionId` in inferred question keys and matching inferred rows by that id in the queue provider; regression `Distinct_proposed_inferred_connections_with_the_same_rule_emit_separate_questions`.
 - [x] (proven) `SecureNowQuestionDispositionService.BuildDiagramCandidates` — an inventory resource was suppressed whenever its ID appeared in any relationship, even when the relationship's peer endpoint was missing from the snapshot; fixed by counting only relationships whose both endpoints exist in the snapshot resource set; regression `Unknown_evidence_question_is_emitted_when_relationship_peer_is_not_in_snapshot`.
-- (candidate) `securenow-question-queue-api.mapQuestion` — an API response containing blank string entries in `answerCodes` passes the type-only filter and can render a blank answer button; input is the reachable question API response.
+- [x] (proven) `securenow-question-queue-api.mapQuestion` — an API response containing blank string entries in `answerCodes` passed the type-only filter and rendered a bogus action button via `secureNowQuestionAnswerLabel`; fixed by dropping blank and whitespace-only codes in `mapQuestion`; regression `drops blank answer code entries from list responses`.
 - [x] (proven) `SecureNowQuestionCompiler.Compile` / `SecureNowQuestionDispositionService.WriteAsync` / `SqlSecureNowQuestionDispositionRepository.ComputeIdentityHash` — reachable API ignore mutations differing only by `QuestionKey` casing could persist distinct disposition rows while compilation used a case-insensitive disposition dictionary and threw listing questions — **hit 2026-10-13 seed hunt:** normalize question keys on write and in identity hashes, and group duplicate dispositions by case-insensitive identity keeping the newest row; regressions `Question_key_is_case_insensitive_on_ignore` and `Dispositions_with_question_keys_differing_only_by_case_compile_without_failure`.
 - [x] (proven) `SecureNowQuestionQueueProvider` — while a new `snapshotId` request was in flight, the old question remained actionable, so a queue mutation could submit the old question identity under the new snapshot; fixed by clearing queue state on snapshot change, requiring `questionsLoaded`, and rejecting mismatched `currentQuestion.snapshotId`; regression `does not persist a question from the previous snapshot while the next snapshot is loading`.
 - (candidate) `securenow-question-queue-api.answerSecureNowQuestion` / `ignoreSecureNowQuestion` / `reopenSecureNowQuestion` — mutation helpers declare a full `SecureNowQuestion` response although the controller returns `SecureNowQuestionDispositionResponse` without display fields; a future reachable caller consuming the mutation response could replace queue state with an incomplete question object. Current provider reloads and ignores the response, so this remains a bounded contract-drift candidate.
