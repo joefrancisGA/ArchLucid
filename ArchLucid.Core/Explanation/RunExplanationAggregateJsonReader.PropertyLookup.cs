@@ -311,4 +311,64 @@ internal static partial class RunExplanationAggregateJsonReader
 
     private static bool ReasoningArrayEntryObjectHasExtractableContent(JsonElement jsonElement) =>
         ProseListObjectAliasHasExtractableContent(jsonElement);
+
+    internal static string? TryReadProseListObjectStringProperty(JsonElement jsonElement)
+    {
+        if (TryGetPropertyCaseInsensitivePreferLastNonEmpty(jsonElement, "text", out JsonElement textElement)
+            && TryReadNonEmptyTextToken(textElement, out string? text)
+            && !string.IsNullOrWhiteSpace(text))
+        {
+            return text.Trim();
+        }
+
+        if (ObjectHasCaseInsensitiveProperty(jsonElement, "text"))
+            return null;
+
+        if (TryGetPropertyCaseInsensitivePreferLastNonEmpty(jsonElement, "id", out JsonElement idElement)
+            && TryReadNonEmptyTextToken(idElement, out string? id)
+            && !string.IsNullOrWhiteSpace(id))
+        {
+            return id.Trim();
+        }
+
+        return null;
+    }
+
+    internal static string? TryReadEvidenceRefObjectStringProperty(JsonElement jsonElement)
+    {
+        if (ObjectHasCaseInsensitiveProperty(jsonElement, "text"))
+        {
+            if (TryGetPropertyCaseInsensitivePreferLastNonEmpty(jsonElement, "text", out JsonElement textElement)
+                && TryReadNonEmptyTextToken(textElement, out string? text)
+                && !string.IsNullOrWhiteSpace(text))
+            {
+                if (TryGetPropertyCaseInsensitivePreferLastNonEmpty(jsonElement, "id", out JsonElement idElement)
+                    && TryReadNonEmptyTextToken(idElement, out string? id)
+                    && !string.IsNullOrWhiteSpace(id))
+                {
+                    return id.Trim();
+                }
+
+                return text.Trim();
+            }
+
+            return null;
+        }
+
+        if (TryGetPropertyCaseInsensitivePreferLastNonEmpty(jsonElement, "id", out JsonElement idOnlyElement)
+            && TryReadNonEmptyTextToken(idOnlyElement, out string? idOnly)
+            && !string.IsNullOrWhiteSpace(idOnly))
+        {
+            return idOnly.Trim();
+        }
+
+        if (TryGetPropertyCaseInsensitivePreferLastNonEmpty(jsonElement, "text", out JsonElement textOnlyElement)
+            && TryReadNonEmptyTextToken(textOnlyElement, out string? textOnly)
+            && !string.IsNullOrWhiteSpace(textOnly))
+        {
+            return textOnly.Trim();
+        }
+
+        return null;
+    }
 }
