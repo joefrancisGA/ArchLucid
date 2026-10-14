@@ -136,6 +136,28 @@ internal static partial class RunExplanationAggregateJsonReader
         }
 
         if (caseInsensitiveAliasMatchCount == 1
+            && lastMatch is JsonElement soleWarningNumeric
+            && propertyName.Equals("faithfulnessWarning", StringComparison.OrdinalIgnoreCase)
+            && soleWarningNumeric.ValueKind == JsonValueKind.Number
+            && TryReadNonEmptyTextToken(soleWarningNumeric, out _))
+        {
+            value = soleWarningNumeric;
+
+            return true;
+        }
+
+        if (caseInsensitiveAliasMatchCount == 1
+            && lastMatch is JsonElement soleRiskPostureNumeric
+            && propertyName.Equals("riskPosture", StringComparison.OrdinalIgnoreCase)
+            && soleRiskPostureNumeric.ValueKind == JsonValueKind.Number
+            && TryReadNonEmptyTextToken(soleRiskPostureNumeric, out _))
+        {
+            value = soleRiskPostureNumeric;
+
+            return true;
+        }
+
+        if (caseInsensitiveAliasMatchCount == 1
             && lastMatch is JsonElement citationsLast
             && propertyName.Equals("citations", StringComparison.OrdinalIgnoreCase)
             && citationsLast.ValueKind == JsonValueKind.True)
@@ -218,6 +240,13 @@ internal static partial class RunExplanationAggregateJsonReader
             return false;
         }
 
+        if ((structuredPropertyName.Equals("faithfulnessWarning", StringComparison.OrdinalIgnoreCase)
+             || structuredPropertyName.Equals("riskPosture", StringComparison.OrdinalIgnoreCase))
+            && jsonElement.ValueKind == JsonValueKind.Number)
+        {
+            return false;
+        }
+
         if ((structuredPropertyName.Equals("schemaVersion", StringComparison.OrdinalIgnoreCase)
              || structuredPropertyName.Equals("reasoning", StringComparison.OrdinalIgnoreCase))
             && (IsZeroConfidenceAliasValue(jsonElement) || IsBooleanOneAliasValue(jsonElement)))
@@ -240,7 +269,6 @@ internal static partial class RunExplanationAggregateJsonReader
         }
 
         if (structuredPropertyName.Equals("schemaVersion", StringComparison.OrdinalIgnoreCase)
-            && jsonElement.ValueKind == JsonValueKind.Number
             && StrictSchemaVersionReader.TryReadSchemaVersion(jsonElement, out int schemaAliasVersion)
             && schemaAliasVersion > StructuredExplanationParser.MaxSupportedStructuredExplanationSchemaVersion)
         {
