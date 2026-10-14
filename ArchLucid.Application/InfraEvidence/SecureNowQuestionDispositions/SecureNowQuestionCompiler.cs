@@ -40,9 +40,13 @@ public sealed class SecureNowQuestionCompiler
 
         string subscriptionId = Normalize(snapshot.Header.SubscriptionId);
         DateTime now = TimeProvider.System.UtcNowDateTime();
-        Dictionary<string, SecureNowQuestionDispositionRecord> dispositionsByIdentity =
-            dispositions.ToDictionary(
+        Dictionary<string, SecureNowQuestionDispositionRecord> dispositionsByIdentity = dispositions
+            .GroupBy(
                 record => Identity(record.SubscriptionId, record.ResourceId, record.QuestionKey),
+                StringComparer.OrdinalIgnoreCase)
+            .ToDictionary(
+                group => group.Key,
+                group => group.OrderByDescending(record => record.UpdatedUtc).First(),
                 StringComparer.OrdinalIgnoreCase);
         List<SecureNowQuestionRecord> questions = [];
         HashSet<string> emitted = new(StringComparer.OrdinalIgnoreCase);
@@ -192,7 +196,10 @@ public sealed class SecureNowQuestionCompiler
     }
 
     private static string Identity(string subscriptionId, string resourceId, string questionKey) =>
-        $"{Normalize(subscriptionId)}|{Normalize(resourceId)}|{questionKey.Trim()}";
+        $"{Normalize(subscriptionId)}|{Normalize(resourceId)}|{NormalizeQuestionKey(questionKey)}";
+
+    private static string NormalizeQuestionKey(string? questionKey) =>
+        questionKey?.Trim().ToLowerInvariant() ?? string.Empty;
 
     private static string Fingerprint(string questionKey, string resourceId, string problemText) =>
         Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(

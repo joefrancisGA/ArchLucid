@@ -76,7 +76,8 @@ internal static class ConfigurationSensitiveConfigValueScanner
 
     /// <summary>
     ///     ADO.NET and Azure storage connection strings allow whitespace around <c>=</c>.
-    ///     Pair keys are recognized at the start of the value and after each semicolon.
+    ///     Pair keys are recognized at the start of the value and after each <c>;</c> or <c>,</c>
+    ///     (Azure Cache for Redis uses comma-delimited pairs).
     /// </summary>
     private static bool ContainsCredentialConnectionPair(ReadOnlySpan<char> trimmed)
     {
@@ -88,18 +89,32 @@ internal static class ConfigurationSensitiveConfigValueScanner
             if (TryMatchCredentialPairAt(trimmed, index))
                 return true;
 
-            int semicolon = trimmed.Slice(index).IndexOf(';');
+            ReadOnlySpan<char> remainder = trimmed.Slice(index);
+            int semicolon = remainder.IndexOf(';');
+            int comma = remainder.IndexOf(',');
+            int delimiter = NextPairDelimiterOffset(semicolon, comma);
 
-            if (semicolon < 0)
+            if (delimiter < 0)
                 return false;
 
-            index += semicolon + 1;
+            index += delimiter + 1;
 
             while (index < trimmed.Length && char.IsWhiteSpace(trimmed[index]))
                 index++;
         }
 
         return false;
+    }
+
+    private static int NextPairDelimiterOffset(int semicolon, int comma)
+    {
+        if (semicolon < 0)
+            return comma;
+
+        if (comma < 0)
+            return semicolon;
+
+        return semicolon < comma ? semicolon : comma;
     }
 
     private static bool TryMatchCredentialPairAt(ReadOnlySpan<char> value, int index)

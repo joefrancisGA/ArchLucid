@@ -43,6 +43,15 @@ public sealed partial class TenantCatalogMigrationOrchestrator
 
         bool appliedScopeFreezeSuspend = suspendOutcome == TenantSuspendOutcome.Applied;
 
+        TenantRecord? tenantBeforeInsert =
+            await _tenantRepository.GetByIdAsync(tenantId, cancellationToken).ConfigureAwait(false);
+
+        if (tenantBeforeInsert is null)
+            return (TenantCatalogMigrationCommandOutcome.NotFound, null);
+
+        if (tenantBeforeInsert.OffboardedUtc is not null)
+            return (TenantCatalogMigrationCommandOutcome.InErasureQuarantine, null);
+
         Guid migrationId = Guid.NewGuid();
 
         TenantCatalogMigrationRecord record = new()
@@ -63,13 +72,25 @@ public sealed partial class TenantCatalogMigrationOrchestrator
         {
             if (appliedScopeFreezeSuspend)
             {
-                await _tenantSuspendCommandService
-                    .TryUnsuspendAsync(tenantId, actorUserId, actorUserName, correlationId, cancellationToken)
-                    .ConfigureAwait(false);
+                TenantRecord? tenantBeforeCompensatingUnsuspend =
+                    await _tenantRepository.GetByIdAsync(tenantId, cancellationToken).ConfigureAwait(false);
+
+                if (tenantBeforeCompensatingUnsuspend?.OffboardedUtc is null)
+                {
+                    await _tenantSuspendCommandService
+                        .TryUnsuspendAsync(tenantId, actorUserId, actorUserName, correlationId, cancellationToken)
+                        .ConfigureAwait(false);
+                }
             }
 
             throw;
         }
+
+        TenantRecord? tenantAfterInsert =
+            await _tenantRepository.GetByIdAsync(tenantId, cancellationToken).ConfigureAwait(false);
+
+        if (tenantAfterInsert?.OffboardedUtc is not null)
+            return (TenantCatalogMigrationCommandOutcome.InErasureQuarantine, migrationId);
 
         await AppendPlatformAuditAsync(
             AuditEventTypes.TenantCatalogMigrationStarted,
@@ -90,6 +111,7 @@ public sealed partial class TenantCatalogMigrationOrchestrator
             TenantSuspendOutcome.AlreadyInDesiredState => null,
             TenantSuspendOutcome.InErasureQuarantine => TenantCatalogMigrationCommandOutcome.InErasureQuarantine,
             TenantSuspendOutcome.NotFound => TenantCatalogMigrationCommandOutcome.NotFound,
+            TenantSuspendOutcome.Conflict => TenantCatalogMigrationCommandOutcome.WrongStage,
             _ => throw new InvalidOperationException($"Unhandled tenant suspend outcome: {suspendOutcome}"),
         };
 }

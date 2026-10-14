@@ -4,6 +4,7 @@ using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Contracts.Abstractions.Agents;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Core.Audit;
@@ -88,6 +89,8 @@ public sealed class TopologyProposalDualModelConsensusEnricher(
 
         topologyResult.ProposedChanges = mergeResult.MergedProposal;
 
+        PruneSiblingRelationshipsToConsensusTopology(results, mergeResult.MergedProposal);
+
         if (mergeResult.DisagreementCount > 0)
         {
             topologyResult.Confidence *= _options.DisagreementConfidenceMultiplier;
@@ -123,5 +126,38 @@ public sealed class TopologyProposalDualModelConsensusEnricher(
             _logger,
             nameof(TopologyProposalDualModelConsensusEnricher),
             cancellationToken);
+    }
+
+    private static void PruneSiblingRelationshipsToConsensusTopology(
+        IReadOnlyList<AgentResult> results,
+        AgentTopologyProposal mergedTopology)
+    {
+        HashSet<string> endpointKeys = TopologyProposalRelationshipEndpointIndex.CollectKnownEndpointKeys(
+            mergedTopology.AddedServices ?? [],
+            mergedTopology.AddedDatastores ?? []);
+
+        foreach (AgentResult result in results)
+        {
+            if (result.AgentType is AgentType.Topology)
+                continue;
+
+            if (result.ProposedChanges is not AgentTopologyProposal proposal)
+                continue;
+
+            IReadOnlyList<ManifestRelationship>? relationships = proposal.AddedRelationships;
+
+            if (relationships is null || relationships.Count == 0)
+                continue;
+
+            List<ManifestRelationship> pruned = [];
+
+            foreach (ManifestRelationship relationship in relationships)
+            {
+                if (TopologyProposalRelationshipEndpointIndex.RelationshipEndpointsAreKnown(relationship, endpointKeys))
+                    pruned.Add(relationship);
+            }
+
+            proposal.AddedRelationships = pruned;
+        }
     }
 }

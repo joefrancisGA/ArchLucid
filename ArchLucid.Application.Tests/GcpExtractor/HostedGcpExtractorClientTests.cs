@@ -85,6 +85,30 @@ public sealed class HostedGcpExtractorClientTests
     }
 
     [Fact]
+    public async Task CollectZipAsync_rejects_malformed_workload_identity_pool_provider_before_token_fetch()
+    {
+        Mock<IGcpSubjectTokenProvider> tokenProvider = new();
+        GcpWorkloadIdentityCredentialFactory credentialFactory = new(tokenProvider.Object);
+        HostedGcpExtractorClient client = new(credentialFactory, NullLogger<HostedGcpExtractorClient>.Instance);
+
+        HostedGcpExtractorCollectionRequest request = new()
+        {
+            ProjectId = "my-gcp-project",
+            WorkloadIdentityPoolProvider = "projects/my-gcp-project/not-a-provider-resource",
+            ServiceAccountEmail = "readonly@my-gcp-project.iam.gserviceaccount.com"
+        };
+
+        Func<Task> act = () => client.CollectZipAsync(request, CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentException>()
+            .WithMessage("*not a valid GCP provider resource name*");
+
+        tokenProvider.Verify(
+            p => p.GetSubjectTokenAsync(It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task CollectZipAsync_rejects_blank_service_account_email_before_token_fetch()
     {
         Mock<IGcpSubjectTokenProvider> tokenProvider = new();

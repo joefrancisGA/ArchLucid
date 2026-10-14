@@ -69,6 +69,14 @@ internal static partial class RunExplanationAggregateJsonReader
         {
             if (element.TryGetInt64(out long numeric))
             {
+
+                if (numeric < 0)
+                {
+                    value = null;
+
+                    return false;
+                }
+
                 value = numeric.ToString(CultureInfo.InvariantCulture);
 
                 return !string.IsNullOrWhiteSpace(value);
@@ -85,9 +93,9 @@ internal static partial class RunExplanationAggregateJsonReader
                 return !string.IsNullOrWhiteSpace(value);
             }
 
-            value = element.GetRawText();
+            value = null;
 
-            return !string.IsNullOrWhiteSpace(value);
+            return false;
         }
 
         if (element.ValueKind is JsonValueKind.True or JsonValueKind.False)

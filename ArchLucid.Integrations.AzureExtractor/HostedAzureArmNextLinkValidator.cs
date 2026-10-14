@@ -17,11 +17,9 @@ internal static class HostedAzureArmNextLinkValidator
         ArgumentException.ThrowIfNullOrWhiteSpace(nextLink);
         HostedAzureExtractorGuidValidator.RequireAzureGuid(nameof(subscriptionId), subscriptionId);
 
-        if (!Uri.TryCreate(nextLink, UriKind.Absolute, out Uri? uri))
-        {
-            throw new InvalidOperationException(
-                "Hosted Azure extractor stopped ARM resource listing due to an invalid nextLink.");
-        }
+        Uri uri = ParseTrustedPaginationUri(
+            nextLink,
+            "Hosted Azure extractor stopped ARM resource listing due to an invalid nextLink.");
 
         string normalizedSubscriptionId = subscriptionId.Trim();
         string? nextLinkSubscriptionId = TryGetSubscriptionId(uri.AbsolutePath);
@@ -57,11 +55,9 @@ internal static class HostedAzureArmNextLinkValidator
         ArgumentException.ThrowIfNullOrWhiteSpace(nextLink);
         ArgumentException.ThrowIfNullOrWhiteSpace(resourceId);
 
-        if (!Uri.TryCreate(nextLink, UriKind.Absolute, out Uri? uri))
-        {
-            throw new InvalidOperationException(
-                "Hosted Azure extractor stopped diagnostic setting listing due to an invalid nextLink.");
-        }
+        Uri uri = ParseTrustedPaginationUri(
+            nextLink,
+            "Hosted Azure extractor stopped diagnostic setting listing due to an invalid nextLink.");
 
         string normalizedResourceId = resourceId.Trim();
         string expectedPathPrefix = normalizedResourceId + DiagnosticSettingsPathSuffix;
@@ -79,11 +75,9 @@ internal static class HostedAzureArmNextLinkValidator
         ArgumentException.ThrowIfNullOrWhiteSpace(nextLink);
         ArgumentException.ThrowIfNullOrWhiteSpace(identityResourceId);
 
-        if (!Uri.TryCreate(nextLink, UriKind.Absolute, out Uri? uri))
-        {
-            throw new InvalidOperationException(
-                "Hosted Azure extractor stopped federated credential listing due to an invalid nextLink.");
-        }
+        Uri uri = ParseTrustedPaginationUri(
+            nextLink,
+            "Hosted Azure extractor stopped federated credential listing due to an invalid nextLink.");
 
         string normalizedIdentityResourceId = identityResourceId.Trim();
         string expectedPathPrefix = normalizedIdentityResourceId + FederatedIdentityCredentialsPathSuffix;
@@ -100,11 +94,9 @@ internal static class HostedAzureArmNextLinkValidator
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(nextLink);
 
-        if (!Uri.TryCreate(nextLink, UriKind.Absolute, out Uri? uri))
-        {
-            throw new InvalidOperationException(
-                "Hosted Azure extractor stopped built-in policy definition listing due to an invalid nextLink.");
-        }
+        Uri uri = ParseTrustedPaginationUri(
+            nextLink,
+            "Hosted Azure extractor stopped built-in policy definition listing due to an invalid nextLink.");
 
         string absolutePath = uri.AbsolutePath;
 
@@ -121,11 +113,9 @@ internal static class HostedAzureArmNextLinkValidator
         ArgumentException.ThrowIfNullOrWhiteSpace(nextLink);
         ArgumentException.ThrowIfNullOrWhiteSpace(listingRelativePath);
 
-        if (!Uri.TryCreate(nextLink, UriKind.Absolute, out Uri? uri))
-        {
-            throw new InvalidOperationException(
-                "Hosted Azure extractor stopped ARM resource listing due to an invalid nextLink.");
-        }
+        Uri uri = ParseTrustedPaginationUri(
+            nextLink,
+            "Hosted Azure extractor stopped ARM resource listing due to an invalid nextLink.");
 
         string normalizedListingPath = "/" + listingRelativePath.Trim().TrimStart('/');
         string absolutePath = uri.AbsolutePath;
@@ -143,11 +133,9 @@ internal static class HostedAzureArmNextLinkValidator
         ArgumentException.ThrowIfNullOrWhiteSpace(nextLink);
         ArgumentException.ThrowIfNullOrWhiteSpace(factoryResourceId);
 
-        if (!Uri.TryCreate(nextLink, UriKind.Absolute, out Uri? uri))
-        {
-            throw new InvalidOperationException(
-                "Hosted Azure extractor stopped ADF factory listing due to an invalid nextLink.");
-        }
+        Uri uri = ParseTrustedPaginationUri(
+            nextLink,
+            "Hosted Azure extractor stopped ADF factory listing due to an invalid nextLink.");
 
         string normalizedFactoryResourceId = "/" + factoryResourceId.Trim().TrimStart('/');
         string expectedPathPrefix = normalizedFactoryResourceId + "/";
@@ -164,11 +152,9 @@ internal static class HostedAzureArmNextLinkValidator
         ArgumentException.ThrowIfNullOrWhiteSpace(nextLink);
         HostedAzureExtractorGuidValidator.RequireManagementGroupId(nameof(managementGroupId), managementGroupId);
 
-        if (!Uri.TryCreate(nextLink, UriKind.Absolute, out Uri? uri))
-        {
-            throw new InvalidOperationException(
-                "Hosted Azure extractor stopped ARM management group listing due to an invalid nextLink.");
-        }
+        Uri uri = ParseTrustedPaginationUri(
+            nextLink,
+            "Hosted Azure extractor stopped ARM management group listing due to an invalid nextLink.");
 
         string normalizedManagementGroupId = managementGroupId.Trim();
         string? nextLinkManagementGroupId = TryGetManagementGroupId(uri.AbsolutePath);
@@ -197,5 +183,32 @@ internal static class HostedAzureArmNextLinkValidator
             return null;
 
         return managementGroupId.ToString();
+    }
+
+    private static Uri ParseTrustedPaginationUri(string nextLink, string invalidUriMessage)
+    {
+        if (!Uri.TryCreate(nextLink, UriKind.Absolute, out Uri? uri))
+        {
+            throw new InvalidOperationException(invalidUriMessage);
+        }
+
+        EnsureTrustedPaginationUri(uri);
+
+        return uri;
+    }
+
+    private static void EnsureTrustedPaginationUri(Uri uri)
+    {
+        if (!uri.Scheme.Equals(Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase))
+        {
+            throw new InvalidOperationException(
+                "Hosted Azure extractor stopped ARM pagination because nextLink must use HTTPS.");
+        }
+
+        if (!HostedAzureArmTrustedManagementHosts.IsTrusted(uri.Host))
+        {
+            throw new InvalidOperationException(
+                "Hosted Azure extractor stopped ARM pagination because nextLink targets an untrusted host.");
+        }
     }
 }

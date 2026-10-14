@@ -72,6 +72,36 @@ public sealed class MarketingPricingQuoteSalesNotifierTests
     }
 
     [SkippableFact]
+    public async Task NotifyAsync_skips_send_when_sales_inbox_has_embedded_line_breaks()
+    {
+        Mock<IEmailProvider> email = new();
+        email.SetupGet(x => x.ProviderName).Returns(EmailProviderNames.Smtp);
+
+        IOptionsMonitor<EmailNotificationOptions> options = BuildOptionsMonitor(
+            new EmailNotificationOptions
+            {
+                PricingQuoteSalesInbox = "sales@archlucid.net\r\nBcc: injected@evil.test"
+            });
+
+        MarketingPricingQuoteSalesNotifier sut = new(
+            email.Object,
+            options,
+            NullLogger<MarketingPricingQuoteSalesNotifier>.Instance);
+
+        await sut.NotifyAsync(
+            SampleInsert,
+            "buyer@example.com",
+            "Contoso",
+            "Team",
+            "Hello",
+            CancellationToken.None);
+
+        email.Verify(
+            x => x.SendAsync(It.IsAny<EmailMessage>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [SkippableFact]
     public async Task NotifyAsync_when_smtp_provider_sends_to_configured_inbox()
     {
         Mock<IEmailProvider> email = new();

@@ -10,6 +10,36 @@ namespace ArchLucid.Integrations.AzureExtractor.Tests;
 public sealed class HostedAzureInventoryResourcePropertyExpanderTests
 {
     [Fact]
+    public void Expand_preserves_nic_ip_configuration_subnet_index_when_earlier_slot_has_no_properties()
+    {
+        const string subnetId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet1/subnets/b";
+        const string json = """
+            {
+              "ipConfigurations": [
+                {},
+                {
+                  "properties": {
+                    "subnet": {
+                      "id": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet1/subnets/b"
+                    }
+                  }
+                }
+              ]
+            }
+            """;
+
+        using JsonDocument document = JsonDocument.Parse(json);
+        Dictionary<string, object?> properties = HostedAzureInventoryResourcePropertyExpander.Expand(
+            "Microsoft.Network/networkInterfaces",
+            document.RootElement,
+            []);
+
+        Assert.Equal(subnetId, properties["ipConfiguration.subnet.id[1]"]);
+        Assert.False(properties.ContainsKey("ipConfiguration.subnet.id[0]"));
+    }
+
+    [Fact]
     public void Expand_persists_every_nic_ip_configuration_subnet_id()
     {
         const string json = """
@@ -269,6 +299,207 @@ public sealed class HostedAzureInventoryResourcePropertyExpanderTests
             []);
 
         Assert.DoesNotContain("source.id", properties.Keys);
+    }
+
+    [Fact]
+    public void Expand_preserves_vmss_ip_configuration_subnet_index_when_earlier_slot_has_no_subnet()
+    {
+        const string subnetId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet1/subnets/workers";
+        const string json = """
+            {
+              "virtualMachineProfile": {
+                "networkProfile": {
+                  "networkInterfaceConfigurations": [
+                    {
+                      "properties": {
+                        "ipConfigurations": [
+                          {
+                            "properties": {}
+                          },
+                          {
+                            "properties": {
+                              "subnet": {
+                                "id": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet1/subnets/workers"
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+            """;
+
+        using JsonDocument document = JsonDocument.Parse(json);
+        Dictionary<string, object?> properties = HostedAzureInventoryResourcePropertyExpander.Expand(
+            "Microsoft.Compute/virtualMachineScaleSets",
+            document.RootElement,
+            []);
+
+        Assert.Equal(subnetId, properties["ipConfiguration.subnet.id[1]"]);
+        Assert.False(properties.ContainsKey("ipConfiguration.subnet.id[0]"));
+    }
+
+    [Fact]
+    public void Expand_orders_vm_network_interface_pipe_delimited_ids_by_numeric_index()
+    {
+        const string nicAt2 =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/networkInterfaces/nic-2";
+        const string nicAt10 =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/networkInterfaces/nic-10";
+        string json = """
+            {
+              "networkProfile": {
+                "networkInterfaces": [
+            """ + string.Join(",", Enumerable.Range(0, 11).Select(i =>
+            i == 2
+                ? $$"""{ "id": "{{nicAt2}}" }"""
+                : i == 10
+                    ? $$"""{ "id": "{{nicAt10}}" }"""
+                    : """{ "properties": {} }""")) + """
+                ]
+              }
+            }
+            """;
+
+        using JsonDocument document = JsonDocument.Parse(json);
+        Dictionary<string, object?> properties = HostedAzureInventoryResourcePropertyExpander.Expand(
+            "Microsoft.Compute/virtualMachines",
+            document.RootElement,
+            []);
+
+        Assert.Equal($"{nicAt2}|{nicAt10}", properties["networkProfile.networkInterfaces"]);
+    }
+
+    [Fact]
+    public void Expand_preserves_vm_network_profile_network_interface_index_when_earlier_slot_has_no_id()
+    {
+        const string nicId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/networkInterfaces/nic-b";
+        const string json = """
+            {
+              "networkProfile": {
+                "networkInterfaces": [
+                  {
+                    "properties": {}
+                  },
+                  {
+                    "id": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/networkInterfaces/nic-b"
+                  }
+                ]
+              }
+            }
+            """;
+
+        using JsonDocument document = JsonDocument.Parse(json);
+        Dictionary<string, object?> properties = HostedAzureInventoryResourcePropertyExpander.Expand(
+            "Microsoft.Compute/virtualMachines",
+            document.RootElement,
+            []);
+
+        Assert.Equal(nicId, properties["networkProfile.networkInterfaces[1]"]);
+        Assert.False(properties.ContainsKey("networkProfile.networkInterfaces[0]"));
+        Assert.Equal(nicId, properties["networkProfile.networkInterfaces"]);
+    }
+
+    [Fact]
+    public void Expand_preserves_private_endpoint_network_interface_index_when_earlier_slot_has_no_id()
+    {
+        const string nicId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/networkInterfaces/pe-nic";
+        const string json = """
+            {
+              "networkInterfaces": [
+                {
+                  "properties": {}
+                },
+                {
+                  "id": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/networkInterfaces/pe-nic"
+                }
+              ]
+            }
+            """;
+
+        using JsonDocument document = JsonDocument.Parse(json);
+        Dictionary<string, object?> properties = HostedAzureInventoryResourcePropertyExpander.Expand(
+            "Microsoft.Network/privateEndpoints",
+            document.RootElement,
+            []);
+
+        Assert.Equal(nicId, properties["networkInterfaces[1]"]);
+        Assert.False(properties.ContainsKey("networkInterfaces[0]"));
+        Assert.Equal(nicId, properties["networkInterfaces"]);
+    }
+
+    [Fact]
+    public void Expand_preserves_private_link_service_id_index_when_earlier_connection_has_no_target()
+    {
+        const string targetId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1";
+        const string json = """
+            {
+              "privateLinkServiceConnections": [
+                {
+                  "properties": {}
+                },
+                {
+                  "properties": {
+                    "privateLinkServiceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1"
+                  }
+                }
+              ]
+            }
+            """;
+
+        using JsonDocument document = JsonDocument.Parse(json);
+        Dictionary<string, object?> properties = HostedAzureInventoryResourcePropertyExpander.Expand(
+            "Microsoft.Network/privateEndpoints",
+            document.RootElement,
+            []);
+
+        Assert.Equal(targetId, properties["privateLinkServiceId[1]"]);
+        Assert.False(properties.ContainsKey("privateLinkServiceId[0]"));
+        Assert.Equal(targetId, properties["privateLinkServiceId"]);
+    }
+
+    [Fact]
+    public void Expand_persists_every_private_link_service_id_across_connection_arrays()
+    {
+        const string automaticTarget =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1";
+        const string manualTarget =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Sql/servers/sql1";
+        const string json = """
+            {
+              "privateLinkServiceConnections": [
+                {
+                  "properties": {
+                    "privateLinkServiceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1"
+                  }
+                }
+              ],
+              "manualPrivateLinkServiceConnections": [
+                {
+                  "properties": {
+                    "privateLinkServiceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Sql/servers/sql1"
+                  }
+                }
+              ]
+            }
+            """;
+
+        using JsonDocument document = JsonDocument.Parse(json);
+        Dictionary<string, object?> properties = HostedAzureInventoryResourcePropertyExpander.Expand(
+            "Microsoft.Network/privateEndpoints",
+            document.RootElement,
+            []);
+
+        Assert.Equal(automaticTarget, properties["privateLinkServiceId[0]"]);
+        Assert.Equal(manualTarget, properties["privateLinkServiceId[1]"]);
+        Assert.Equal(automaticTarget, properties["privateLinkServiceId"]);
     }
 
     [Fact]

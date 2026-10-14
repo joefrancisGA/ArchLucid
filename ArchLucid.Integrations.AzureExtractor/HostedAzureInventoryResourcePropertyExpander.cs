@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text.Json;
 
 using ArchLucid.Core.AzureExtractor;
@@ -302,36 +303,11 @@ properties["definition"] = AzureExtractorSensitivePropertyRedactor.RedactStructu
             return;
         }
 
-        int index = 0;
-
-        foreach (JsonElement networkInterface in networkInterfaces.EnumerateArray())
-        {
-            if (!networkInterface.TryGetProperty("id", out JsonElement idElement)
-                || idElement.ValueKind is not JsonValueKind.String)
-            {
-                continue;
-            }
-
-            string? nicId = idElement.GetString();
-
-            if (string.IsNullOrWhiteSpace(nicId))
-            {
-                continue;
-            }
-
-            properties[$"networkProfile.networkInterfaces[{index}]"] = nicId.Trim();
-            index++;
-        }
-
-        if (index > 0)
-        {
-            properties["networkProfile.networkInterfaces"] = string.Join(
-                '|',
-                properties.Where(pair => pair.Key.StartsWith("networkProfile.networkInterfaces[", StringComparison.Ordinal))
-                    .OrderBy(pair => pair.Key, StringComparer.Ordinal)
-                    .Select(pair => pair.Value?.ToString())
-                    .Where(value => !string.IsNullOrWhiteSpace(value))!);
-        }
+        WriteIndexedTopLevelArmIds(
+            networkInterfaces,
+            properties,
+            "networkProfile.networkInterfaces",
+            "networkProfile.networkInterfaces");
     }
 
     private static void AddNicProperties(
@@ -374,28 +350,23 @@ properties["definition"] = AzureExtractorSensitivePropertyRedactor.RedactStructu
 
         foreach (JsonElement ipConfiguration in ipConfigurations.EnumerateArray())
         {
-            if (!ipConfiguration.TryGetProperty("properties", out JsonElement ipConfigurationProperties)
-                || ipConfigurationProperties.ValueKind is not JsonValueKind.Object)
+            if (ipConfiguration.TryGetProperty("properties", out JsonElement ipConfigurationProperties)
+                && ipConfigurationProperties.ValueKind is JsonValueKind.Object)
             {
-                continue;
-            }
+                string? subnetId = TryReadNestedString(ipConfigurationProperties, "subnet", "id");
+                string? publicIpId = TryReadNestedString(ipConfigurationProperties, "publicIPAddress", "id");
 
-            string? subnetId = TryReadNestedString(ipConfigurationProperties, "subnet", "id");
-            string? publicIpId = TryReadNestedString(ipConfigurationProperties, "publicIPAddress", "id");
-
-            if (!string.IsNullOrWhiteSpace(subnetId))
-            {
-                properties[$"ipConfiguration.subnet.id[{index}]"] = subnetId;
-            }
-
-            if (!string.IsNullOrWhiteSpace(publicIpId))
-            {
-                properties[$"ipConfiguration.publicIPAddress.id[{index}]"] = publicIpId;
-            }
-
-            if (index == 0)
-            {
                 if (!string.IsNullOrWhiteSpace(subnetId))
+                {
+                    properties[$"ipConfiguration.subnet.id[{index}]"] = subnetId;
+                }
+
+                if (!string.IsNullOrWhiteSpace(publicIpId))
+                {
+                    properties[$"ipConfiguration.publicIPAddress.id[{index}]"] = publicIpId;
+                }
+
+                if (index == 0 && !string.IsNullOrWhiteSpace(subnetId))
                 {
                     properties["ipConfiguration.subnet.id"] = subnetId;
                 }
@@ -419,28 +390,26 @@ properties["definition"] = AzureExtractorSensitivePropertyRedactor.RedactStructu
 
         foreach (JsonElement ipConfiguration in ipConfigurations.EnumerateArray())
         {
-            if (!ipConfiguration.TryGetProperty("properties", out JsonElement ipConfigurationProperties)
-                || ipConfigurationProperties.ValueKind is not JsonValueKind.Object)
+            if (ipConfiguration.TryGetProperty("properties", out JsonElement ipConfigurationProperties)
+                && ipConfigurationProperties.ValueKind is JsonValueKind.Object)
             {
-                continue;
-            }
+                string? subnetId = TryReadNestedString(ipConfigurationProperties, "subnet", "id");
+                string? publicIpId = TryReadNestedString(ipConfigurationProperties, "publicIPAddress", "id");
 
-            string? subnetId = TryReadNestedString(ipConfigurationProperties, "subnet", "id");
-            string? publicIpId = TryReadNestedString(ipConfigurationProperties, "publicIPAddress", "id");
-
-            if (!string.IsNullOrWhiteSpace(subnetId))
-            {
-                properties[$"ipConfiguration.subnet.id[{index}]"] = subnetId;
-
-                if (index == 0)
+                if (!string.IsNullOrWhiteSpace(subnetId))
                 {
-                    properties["ipConfiguration.subnet.id"] = subnetId;
-                }
-            }
+                    properties[$"ipConfiguration.subnet.id[{index}]"] = subnetId;
 
-            if (!string.IsNullOrWhiteSpace(publicIpId))
-            {
-                properties[$"ipConfiguration.publicIPAddress.id[{index}]"] = publicIpId;
+                    if (index == 0)
+                    {
+                        properties["ipConfiguration.subnet.id"] = subnetId;
+                    }
+                }
+
+                if (!string.IsNullOrWhiteSpace(publicIpId))
+                {
+                    properties[$"ipConfiguration.publicIPAddress.id[{index}]"] = publicIpId;
+                }
             }
 
             index++;
@@ -451,8 +420,9 @@ properties["definition"] = AzureExtractorSensitivePropertyRedactor.RedactStructu
         JsonElement propertiesElement,
         Dictionary<string, object?> properties)
     {
-        AddPrivateLinkConnections(propertiesElement, properties, "privateLinkServiceConnections");
-        AddPrivateLinkConnections(propertiesElement, properties, "manualPrivateLinkServiceConnections");
+        int privateLinkServiceIndex = 0;
+        AddPrivateLinkConnections(propertiesElement, properties, "privateLinkServiceConnections", ref privateLinkServiceIndex);
+        AddPrivateLinkConnections(propertiesElement, properties, "manualPrivateLinkServiceConnections", ref privateLinkServiceIndex);
 
         if (propertiesElement.TryGetProperty("subnet", out JsonElement subnetElement)
             && subnetElement.ValueKind is JsonValueKind.Object
@@ -467,39 +437,13 @@ properties["definition"] = AzureExtractorSensitivePropertyRedactor.RedactStructu
             }
         }
 
-        if (propertiesElement.TryGetProperty("networkInterfaces", out JsonElement networkInterfaces)
-            && networkInterfaces.ValueKind is JsonValueKind.Array)
+        if (propertiesElement.TryGetProperty("networkInterfaces", out JsonElement networkInterfaces))
         {
-            int index = 0;
-
-            foreach (JsonElement networkInterface in networkInterfaces.EnumerateArray())
-            {
-                if (!networkInterface.TryGetProperty("id", out JsonElement idElement)
-                    || idElement.ValueKind is not JsonValueKind.String)
-                {
-                    continue;
-                }
-
-                string? nicId = idElement.GetString();
-
-                if (string.IsNullOrWhiteSpace(nicId))
-                {
-                    continue;
-                }
-
-                properties[$"networkInterfaces[{index}]"] = nicId.Trim();
-                index++;
-            }
-
-            if (index > 0)
-            {
-                properties["networkInterfaces"] = string.Join(
-                    '|',
-                    properties.Where(pair => pair.Key.StartsWith("networkInterfaces[", StringComparison.Ordinal))
-                        .OrderBy(pair => pair.Key, StringComparer.Ordinal)
-                        .Select(pair => pair.Value?.ToString())
-                        .Where(value => !string.IsNullOrWhiteSpace(value))!);
-            }
+            WriteIndexedTopLevelArmIds(
+                networkInterfaces,
+                properties,
+                "networkInterfaces",
+                "networkInterfaces");
         }
 
         AddJsonArrayProperty(propertiesElement, properties, "privateDnsZoneGroups");
@@ -508,7 +452,8 @@ properties["definition"] = AzureExtractorSensitivePropertyRedactor.RedactStructu
     private static void AddPrivateLinkConnections(
         JsonElement propertiesElement,
         Dictionary<string, object?> properties,
-        string propertyName)
+        string propertyName,
+        ref int index)
     {
         if (!propertiesElement.TryGetProperty(propertyName, out JsonElement connections)
             || connections.ValueKind is not JsonValueKind.Array)
@@ -516,22 +461,18 @@ properties["definition"] = AzureExtractorSensitivePropertyRedactor.RedactStructu
             return;
         }
 
-        int index = 0;
-
         foreach (JsonElement connection in connections.EnumerateArray())
         {
             string? targetId = TryReadPrivateLinkServiceId(connection);
 
-            if (string.IsNullOrWhiteSpace(targetId))
+            if (!string.IsNullOrWhiteSpace(targetId))
             {
-                continue;
-            }
+                properties[$"privateLinkServiceId[{index}]"] = targetId.Trim();
 
-            properties[$"privateLinkServiceId[{index}]"] = targetId.Trim();
-
-            if (!properties.ContainsKey("privateLinkServiceId"))
-            {
-                properties["privateLinkServiceId"] = targetId.Trim();
+                if (!properties.ContainsKey("privateLinkServiceId"))
+                {
+                    properties["privateLinkServiceId"] = targetId.Trim();
+                }
             }
 
             index++;
@@ -695,9 +636,11 @@ properties["definition"] = AzureExtractorSensitivePropertyRedactor.RedactStructu
 
                 if (!string.IsNullOrWhiteSpace(subnetId))
                 {
+                    // Index tracks ipConfigurations array position (parity with firewall and NIC expanders).
                     properties[$"ipConfiguration.subnet.id[{index}]"] = subnetId.Trim();
-                    index++;
                 }
+
+                index++;
             }
         }
     }
@@ -1101,5 +1044,75 @@ properties["definition"] = AzureExtractorSensitivePropertyRedactor.RedactStructu
         }
 
         return null;
+    }
+
+    private static void WriteIndexedTopLevelArmIds(
+        JsonElement elements,
+        Dictionary<string, object?> properties,
+        string indexedKeyPrefix,
+        string? pipeDelimitedPropertyKey)
+    {
+        if (elements.ValueKind is not JsonValueKind.Array)
+        {
+            return;
+        }
+
+        int index = 0;
+
+        foreach (JsonElement element in elements.EnumerateArray())
+        {
+            if (element.TryGetProperty("id", out JsonElement idElement)
+                && idElement.ValueKind is JsonValueKind.String)
+            {
+                string? armId = idElement.GetString();
+
+                if (!string.IsNullOrWhiteSpace(armId))
+                {
+                    properties[$"{indexedKeyPrefix}[{index}]"] = armId.Trim();
+                }
+            }
+
+            index++;
+        }
+
+        if (pipeDelimitedPropertyKey is null)
+        {
+            return;
+        }
+
+        if (!properties.Keys.Any(key => key.StartsWith($"{indexedKeyPrefix}[", StringComparison.Ordinal)))
+        {
+            return;
+        }
+
+        properties[pipeDelimitedPropertyKey] = string.Join(
+            '|',
+            properties.Where(pair => pair.Key.StartsWith($"{indexedKeyPrefix}[", StringComparison.Ordinal))
+                .OrderBy(pair => GetIndexedPropertyKeyOrder(pair.Key, indexedKeyPrefix))
+                .Select(pair => pair.Value?.ToString())
+                .Where(value => !string.IsNullOrWhiteSpace(value))!);
+    }
+
+    private static int GetIndexedPropertyKeyOrder(string propertyKey, string indexedKeyPrefix)
+    {
+        string indexPrefix = $"{indexedKeyPrefix}[";
+
+        if (!propertyKey.StartsWith(indexPrefix, StringComparison.Ordinal)
+            || propertyKey.Length <= indexPrefix.Length
+            || propertyKey[^1] != ']')
+        {
+            return int.MaxValue;
+        }
+
+        ReadOnlySpan<char> indexSpan = propertyKey.AsSpan(
+            indexPrefix.Length,
+            propertyKey.Length - indexPrefix.Length - 1);
+
+        if (int.TryParse(indexSpan, NumberStyles.None, CultureInfo.InvariantCulture, out int index))
+        {
+            return index;
+        }
+
+        return int.MaxValue;
     }
 }

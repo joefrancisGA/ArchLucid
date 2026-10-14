@@ -99,27 +99,43 @@ public sealed class TenantProvisioningService(
 
         ScopeContext provisionScope = new() { TenantId = tenantId, WorkspaceId = workspaceId, ProjectId = projectId, };
         using (AmbientScopeContext.Push(provisionScope))
+        {
+            TenantRecord? tenantBeforeCatalogProvision =
+                await _tenantRepository.GetByIdAsync(tenantId, ct).ConfigureAwait(false);
+
+            if (IsErasureQuarantine(tenantBeforeCatalogProvision))
+            {
+                return BuildErasureQuarantineProvisionResult(tenantId, Guid.Empty, Guid.Empty);
+            }
+
             try
             {
                 await _tenantSqlCatalogProvisioner.ProvisionTenantCatalogAsync(tenantId, TenantDatabaseNaming.SqlLogicalNameForTenant(tenantId), ct);
+
+                TenantRecord? tenantBeforeWorkspaceInsert =
+                    await _tenantRepository.GetByIdAsync(tenantId, ct).ConfigureAwait(false);
+
+                if (IsErasureQuarantine(tenantBeforeWorkspaceInsert))
+                {
+                    return BuildErasureQuarantineProvisionResult(tenantId, Guid.Empty, Guid.Empty);
+                }
+
                 await _tenantRepository.InsertWorkspaceAsync(
                     workspaceId,
                     tenantId,
                     ResolveWorkspaceDisplayName(request.WorkspaceDisplayName),
                     projectId,
                     ct);
-                await _architectureProjectRepository.InsertAsync(projectId, tenantId, workspaceId, "default", ct);
 
-                await _defaultPolicyPackSeeder.EnsureDefaultPolicyPacksAsync(tenantId, workspaceId, projectId, ct);
+                TenantRecord? tenantBeforeProjectInsert =
+                    await _tenantRepository.GetByIdAsync(tenantId, ct).ConfigureAwait(false);
 
-                // Default Advanced mode to OFF for new tenants to reduce cognitive load on first-run (Imp-2)
-                await _tenantSettingsRepository.UpsertAsync(tenantId, "archlucid_nav_show_advanced", "0", ct);
-                await _tenantSettingsRepository.UpsertAsync(tenantId, "archlucid_nav_show_extended", "0", ct);
-
-                if (request.FirstTouch is not null)
+                if (IsErasureQuarantine(tenantBeforeProjectInsert))
                 {
-                    await _marketingAttributionService.PersistFirstTouchIfPresentAsync(tenantId, request.FirstTouch, ct);
+                    return BuildErasureQuarantineProvisionResult(tenantId, workspaceId, Guid.Empty);
                 }
+
+                await _architectureProjectRepository.InsertAsync(projectId, tenantId, workspaceId, "default", ct);
             }
             catch (Exception ex)
             {
@@ -128,6 +144,28 @@ public sealed class TenantProvisioningService(
                         tenantId);
                 throw;
             }
+        }
+
+        TenantRecord? tenantBeforeProvisionAudit =
+            await _tenantRepository.GetByIdAsync(tenantId, ct).ConfigureAwait(false);
+
+        if (IsErasureQuarantine(tenantBeforeProvisionAudit))
+        {
+            return BuildErasureQuarantineProvisionResult(tenantId, workspaceId, projectId);
+        }
+
+        await _defaultPolicyPackSeeder.EnsureDefaultPolicyPacksAsync(tenantId, workspaceId, projectId, ct)
+            .ConfigureAwait(false);
+
+        // Default Advanced mode to OFF for new tenants to reduce cognitive load on first-run (Imp-2)
+        await _tenantSettingsRepository.UpsertAsync(tenantId, "archlucid_nav_show_advanced", "0", ct).ConfigureAwait(false);
+        await _tenantSettingsRepository.UpsertAsync(tenantId, "archlucid_nav_show_extended", "0", ct).ConfigureAwait(false);
+
+        if (request.FirstTouch is not null)
+        {
+            await _marketingAttributionService.PersistFirstTouchIfPresentAsync(tenantId, request.FirstTouch, ct)
+                .ConfigureAwait(false);
+        }
 
         string actor = string.IsNullOrWhiteSpace(request.AuditActorOverride) ? _actorContext.GetActor() : request.AuditActorOverride.Trim();
         await _auditService.LogAsync(
@@ -145,6 +183,25 @@ public sealed class TenantProvisioningService(
         return new TenantProvisioningResult
         {
             TenantId = tenantId, DefaultWorkspaceId = workspaceId, DefaultProjectId = projectId, WasAlreadyProvisioned = false,
+        };
+    }
+
+    private static bool IsErasureQuarantine(TenantRecord? tenant)
+    {
+        return tenant?.OffboardedUtc is not null;
+    }
+
+    private static TenantProvisioningResult BuildErasureQuarantineProvisionResult(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId)
+    {
+        return new TenantProvisioningResult
+        {
+            TenantId = tenantId,
+            DefaultWorkspaceId = workspaceId,
+            DefaultProjectId = projectId,
+            WasAlreadyProvisioned = false,
         };
     }
 

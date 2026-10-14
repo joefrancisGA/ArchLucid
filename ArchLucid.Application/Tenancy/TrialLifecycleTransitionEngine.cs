@@ -52,9 +52,18 @@ public sealed class TrialLifecycleTransitionEngine(
 
         if (TrialLifecycleStatus.EqualsStatus(tenant.TrialStatus, TrialLifecycleStatus.Deleted))
         {
-            TenantHardPurgeResult retry = await _tenantHardPurgeService.PurgeTenantAsync(tenantId,
+            if (ShouldStopForAutomationGate(
+                    await EvaluateAutomationGateAsync(tenantId, utcNow, cancellationToken),
+                    out bool deletedGateReturn))
+            {
+                return deletedGateReturn;
+            }
+
+            await _tenantHardPurgeService.PurgeTenantAsync(tenantId,
                 new TenantHardPurgeOptions { DryRun = false, MaxRowsPerStatement = options.HardPurgeMaxRowsPerStatement }, cancellationToken);
-            return retry.RowsDeleted > 0;
+
+            // Idempotent scheduler retries: a no-row purge pass still means the tick completed successfully.
+            return true;
         }
 
         TrialLifecycleAdvancement? advancement = TrialLifecyclePolicy.TryGetNextAdvancement(tenant, _timeProvider.GetUtcNow(), options);
@@ -66,6 +75,13 @@ public sealed class TrialLifecycleTransitionEngine(
 
         if (string.Equals(advancement.ToStatus, TrialLifecycleStatus.Deleted, StringComparison.Ordinal))
         {
+            if (ShouldStopForAutomationGate(
+                    await EvaluateAutomationGateAsync(tenantId, utcNow, cancellationToken),
+                    out bool purgeTransitionGateReturn))
+            {
+                return purgeTransitionGateReturn;
+            }
+
             bool recorded = await _tenantRepository.TryRecordTrialLifecycleTransitionAsync(
                 tenantId,
                 persistedTrialStatus,
@@ -83,10 +99,25 @@ public sealed class TrialLifecycleTransitionEngine(
 
             await EmitAuditAsync(tenant, advancement, cancellationToken);
             ArchLucidInstrumentation.RecordTrialExpiration($"{advancement.FromStatus}->{advancement.ToStatus}");
+
+            if (ShouldStopForAutomationGate(
+                    await EvaluateAutomationGateAsync(tenantId, utcNow, cancellationToken),
+                    out bool purgeGateReturn))
+            {
+                return purgeGateReturn;
+            }
+
             TenantHardPurgeResult purgeResult = await _tenantHardPurgeService.PurgeTenantAsync(tenantId,
                 new TenantHardPurgeOptions { DryRun = false, MaxRowsPerStatement = options.HardPurgeMaxRowsPerStatement }, cancellationToken);
             _logger.LogInformation("Trial hard purge completed for tenant {TenantId}: rowsDeleted={Rows}.", tenantId, purgeResult.RowsDeleted);
             return true;
+        }
+
+        if (ShouldStopForAutomationGate(
+                await EvaluateAutomationGateAsync(tenantId, utcNow, cancellationToken),
+                out bool transitionGateReturn))
+        {
+            return transitionGateReturn;
         }
 
         bool ok = await _tenantRepository.TryRecordTrialLifecycleTransitionAsync(
@@ -109,6 +140,44 @@ public sealed class TrialLifecycleTransitionEngine(
         return true;
     }
 
+    private async Task<TrialLifecycleAutomationGate> EvaluateAutomationGateAsync(
+        Guid tenantId,
+        DateTimeOffset utcNow,
+        CancellationToken cancellationToken)
+    {
+        TenantRecord? tenant = await _tenantRepository.GetByIdAsync(tenantId, cancellationToken);
+
+        if (tenant is null)
+            return TrialLifecycleAutomationGate.Skip;
+
+        if (tenant.OffboardedUtc is not null)
+            return TrialLifecycleAutomationGate.SupersededByErasure;
+
+        if (tenant.LegalHoldUntilUtc is { } legalHoldUntil && legalHoldUntil > utcNow)
+            return TrialLifecycleAutomationGate.Skip;
+
+        return TrialLifecycleAutomationGate.Proceed;
+    }
+
+    private static bool ShouldStopForAutomationGate(TrialLifecycleAutomationGate gate, out bool returnValue)
+    {
+        returnValue = false;
+
+        if (gate == TrialLifecycleAutomationGate.Proceed)
+            return false;
+
+        returnValue = gate == TrialLifecycleAutomationGate.SupersededByErasure;
+
+        return true;
+    }
+
+    private enum TrialLifecycleAutomationGate
+    {
+        Proceed,
+        Skip,
+        SupersededByErasure,
+    }
+
     private async Task<bool> IsAdvancementAlreadyAppliedAsync(
         Guid tenantId,
         string targetStatus,
@@ -116,21 +185,36 @@ public sealed class TrialLifecycleTransitionEngine(
     {
         TenantRecord? afterMiss = await _tenantRepository.GetByIdAsync(tenantId, cancellationToken);
 
-        return afterMiss is not null && TrialLifecycleStatus.EqualsStatus(afterMiss.TrialStatus, targetStatus);
+        if (afterMiss is null)
+            return false;
+
+        if (afterMiss.OffboardedUtc is not null)
+            return true;
+
+        return TrialLifecycleStatus.EqualsStatus(afterMiss.TrialStatus, targetStatus);
     }
 
     private async Task EmitAuditAsync(TenantRecord tenant, TrialLifecycleAdvancement advancement, CancellationToken cancellationToken)
     {
+        TenantRecord? current = await _tenantRepository.GetByIdAsync(tenant.Id, cancellationToken).ConfigureAwait(false);
+
+        if (current is null || current.OffboardedUtc is not null)
+            return;
+
         TenantWorkspaceLink? workspace = await _tenantRepository.GetFirstWorkspaceAsync(tenant.Id, cancellationToken).ConfigureAwait(false);
-        Guid workspaceId = workspace?.WorkspaceId ?? Guid.Empty;
-        Guid projectId = workspace?.DefaultProjectId ?? Guid.Empty;
+
+        if (workspace is null)
+            return;
+
+        Guid workspaceId = workspace.WorkspaceId;
+        Guid projectId = workspace.DefaultProjectId;
         await _auditService.LogAsync(
             new AuditEvent
             {
                 EventType = AuditEventTypes.TrialLifecycleTransition,
                 ActorUserId = "system:trial-lifecycle-scheduler",
                 ActorUserName = "system:trial-lifecycle-scheduler",
-                TenantId = tenant.Id,
+                TenantId = current.Id,
                 WorkspaceId = workspaceId,
                 ProjectId = projectId,
                 DataJson = JsonSerializer.Serialize(new

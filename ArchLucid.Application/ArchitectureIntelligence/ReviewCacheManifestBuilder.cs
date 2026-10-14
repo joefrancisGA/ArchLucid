@@ -103,6 +103,8 @@ public static class ReviewCacheManifestBuilder
 
         foreach (ClosedLoopReasoningSourceText source in request.SourceTexts
                      .Select(ClosedLoopReasoningSourceTextNormalizer.Normalize)
+                     .GroupBy(item => (item.FileName, item.ContentType, item.Content))
+                     .Select(group => group.First())
                      .OrderBy(item => item.FileName, StringComparer.Ordinal)
                      .ThenBy(item => item.ContentType, StringComparer.Ordinal))
         {

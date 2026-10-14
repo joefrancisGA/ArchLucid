@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Text;
 
 using ArchLucid.Application.Governance;
+using ArchLucid.Application.Notifications.Email;
 using ArchLucid.Application.Operator;
 using ArchLucid.Application.Pilots;
 using ArchLucid.Contracts.Architecture;
@@ -245,7 +246,12 @@ public sealed class ExecDigestComposer(
 
     private static string NormalizeBaseUrl(string operatorBaseUrl)
     {
-        return string.IsNullOrWhiteSpace(operatorBaseUrl) ? "http://localhost:3000" : operatorBaseUrl.Trim().TrimEnd('/');
+        if (string.IsNullOrWhiteSpace(operatorBaseUrl))
+            return "http://localhost:3000";
+
+        string? authority = EmailBrandingUrls.TryNormalizeOperatorBaseAuthority(operatorBaseUrl);
+
+        return authority ?? "http://localhost:3000";
     }
 
     private static string FormatWeekLabel(DateTime startUtc, DateTime endUtc)

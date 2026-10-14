@@ -72,7 +72,7 @@ public static class BackgroundJobStuckRunningWatchdogBackgroundWork
 
                 int retryCount = current?.RetryCount ?? 0;
 
-                await repository.MarkFailedTerminalAsync(
+                await repository.MarkFailedTerminalFromQueuedStateAsync(
                     jobId,
                     $"Queue notification failed: {ex.Message}",
                     retryCount,

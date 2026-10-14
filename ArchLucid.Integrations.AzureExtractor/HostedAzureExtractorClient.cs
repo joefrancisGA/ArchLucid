@@ -272,7 +272,7 @@ public sealed class HostedAzureExtractorClient(
         {
             ZipBytes = zipBytes,
             OriginalFileName = fileName,
-            ResourceCount = inventoryResources.Count
+            ResourceCount = CountPackagedResources(inventoryResources)
         };
     }
 
@@ -482,8 +482,13 @@ public sealed class HostedAzureExtractorClient(
         {
             ZipBytes = zipBytes,
             OriginalFileName = fileName,
-            ResourceCount = inventoryResources.Count
+            ResourceCount = CountPackagedResources(inventoryResources)
         };
+    }
+
+    private static int CountPackagedResources(IReadOnlyList<HostedAzureArmResourceRecord> resources)
+    {
+        return resources.Count(static r => !AzureInventoryNeverShowArmTypes.ShouldOmitResource(r.ResourceType, r.ResourceId));
     }
 
     private async Task AppendAvdSessionHostAssociationsAsync(

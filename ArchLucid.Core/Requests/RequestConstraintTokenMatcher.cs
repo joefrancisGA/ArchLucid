@@ -161,7 +161,11 @@ internal static class RequestConstraintTokenMatcher
 
     private static bool IsCompoundIdentifierDelimiter(char connector)
     {
-        return connector is '-' or '_' or '.' or '/' or ':' or '\\' or '|' or '+' or '@' or '#' or ',' or ';' or '=' or '&' or '%' or '~';
+        // Compact capability slugs glue tokens with punctuation; natural-language constraints use ASCII spaces (after normalization).
+        if (connector == ' ')
+            return false;
+
+        return !char.IsLetterOrDigit(connector);
     }
 
     private static bool IsNegatedPhrasePrefix(string haystack, int tokenIndex)
@@ -397,7 +401,7 @@ internal static class RequestConstraintTokenMatcher
             return haystack;
 
         if (!ContainsConstraintNormalizationCharacters(haystack))
-            return haystack;
+            return NormalizeSpacedAsciiSolidus(haystack);
 
         StringBuilder builder = new(haystack.Length);
 
@@ -413,7 +417,61 @@ internal static class RequestConstraintTokenMatcher
             }
         }
 
-        return builder.ToString();
+        return NormalizeSpacedAsciiSolidus(CollapseConsecutiveAsciiSpaces(builder.ToString()));
+    }
+
+    private static string NormalizeSpacedAsciiSolidus(string haystack)
+    {
+        if (!haystack.Contains('/'))
+            return haystack;
+
+        StringBuilder normalized = new(haystack.Length);
+
+        for (int index = 0; index < haystack.Length; index++)
+        {
+            char character = haystack[index];
+
+            if (character == '/'
+                && ((index > 0 && haystack[index - 1] == ' ')
+                    || (index + 1 < haystack.Length && haystack[index + 1] == ' ')))
+            {
+                normalized.Append(' ');
+            }
+            else
+            {
+                normalized.Append(character);
+            }
+        }
+
+        return CollapseConsecutiveAsciiSpaces(normalized.ToString());
+    }
+
+    private static string CollapseConsecutiveAsciiSpaces(string haystack)
+    {
+        if (!haystack.Contains("  ", StringComparison.Ordinal))
+            return haystack;
+
+        StringBuilder collapsed = new(haystack.Length);
+        bool previousWasSpace = false;
+
+        foreach (char character in haystack)
+        {
+            if (character == ' ')
+            {
+                if (previousWasSpace)
+                    continue;
+
+                previousWasSpace = true;
+                collapsed.Append(character);
+            }
+            else
+            {
+                previousWasSpace = false;
+                collapsed.Append(character);
+            }
+        }
+
+        return collapsed.ToString();
     }
 
     private static bool ContainsConstraintNormalizationCharacters(string haystack)

@@ -15,18 +15,45 @@ internal static class GcpWorkloadIdentityPoolProvider
 
         string trimmed = StripAudiencePrefix(workloadIdentityPoolProvider.Trim());
 
+        if (!TryParseCanonicalProviderResource(trimmed, out projectId))
+            return false;
+
+        return !string.IsNullOrWhiteSpace(projectId);
+    }
+
+    private static bool TryParseCanonicalProviderResource(string trimmed, out string projectId)
+    {
+        projectId = string.Empty;
+
         if (!trimmed.StartsWith(ProjectsPrefix, StringComparison.OrdinalIgnoreCase))
             return false;
 
-        int projectStart = ProjectsPrefix.Length;
-        int slashAfterProject = trimmed.IndexOf('/', projectStart);
+        string[] segments = trimmed.Split(
+            '/',
+            StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 
-        if (slashAfterProject <= projectStart)
+        if (segments.Length < 8)
             return false;
 
-        projectId = trimmed.Substring(projectStart, slashAfterProject - projectStart);
+        if (!segments[0].Equals("projects", StringComparison.OrdinalIgnoreCase)
+            || !segments[2].Equals("locations", StringComparison.OrdinalIgnoreCase)
+            || !segments[4].Equals("workloadIdentityPools", StringComparison.OrdinalIgnoreCase)
+            || !segments[6].Equals("providers", StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
 
-        return !string.IsNullOrWhiteSpace(projectId);
+        if (string.IsNullOrWhiteSpace(segments[1])
+            || string.IsNullOrWhiteSpace(segments[3])
+            || string.IsNullOrWhiteSpace(segments[5])
+            || string.IsNullOrWhiteSpace(segments[7]))
+        {
+            return false;
+        }
+
+        projectId = segments[1];
+
+        return true;
     }
 
     public static void EnsureProjectMatches(string projectId, string workloadIdentityPoolProvider)

@@ -78,6 +78,27 @@ public sealed class AlertOnCallWebhookDeliveryChannelTests
     }
 
     [Fact]
+    public async Task SendAsync_throws_when_subscription_destination_has_embedded_line_breaks()
+    {
+        Mock<IWebhookPoster> poster = new();
+        AlertOnCallWebhookDeliveryChannel sut = new(poster.Object);
+        AlertDeliveryPayload payload = CreatePayload("https://pager.example.com/ingest", runId: null);
+        payload.Subscription.Destination =
+            "https://pager.example.com/ingest\r\nHost: injected.evil.test";
+
+        Func<Task> act = async () => await sut.SendAsync(payload, CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentException>();
+        poster.Verify(
+            x => x.PostJsonAsync(
+                It.IsAny<string>(),
+                It.IsAny<object>(),
+                It.IsAny<CancellationToken>(),
+                It.IsAny<WebhookPostOptions?>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task SendAsync_Body_HasNullRunId_WhenAlertRunIdIsNull()
     {
         Mock<IWebhookPoster> poster = new();

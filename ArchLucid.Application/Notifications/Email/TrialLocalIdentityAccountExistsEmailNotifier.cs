@@ -3,6 +3,7 @@ using System.Net;
 using ArchLucid.Application.Identity;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Identity;
 using ArchLucid.Core.Notifications.Email;
 
 using Microsoft.Extensions.Logging;
@@ -34,7 +35,16 @@ public sealed class TrialLocalIdentityAccountExistsEmailNotifier(
             return;
         }
 
-        string trimmed = toEmail.Trim();
+        if (!IdentityEmailNormalizer.TryNormalize(toEmail, out string normalizedMailbox, out string mailboxForDelivery))
+        {
+            if (_logger.IsEnabled(LogLevel.Warning))
+            {
+                _logger.LogWarning("Trial local account-exists email skipped: invalid recipient mailbox.");
+            }
+
+            return;
+        }
+
         EmailNotificationOptions emailOptions = _emailOptionsMonitor.CurrentValue;
         string productName = EmailProductDisplayNameResolver.Resolve(emailOptions);
         string safeProduct = WebUtility.HtmlEncode(productName);
@@ -47,11 +57,11 @@ public sealed class TrialLocalIdentityAccountExistsEmailNotifier(
                       "If you did not try to register again, you can ignore this message.\n";
         EmailMessage message = new()
         {
-            To = trimmed,
+            To = mailboxForDelivery,
             Subject = subject,
             HtmlBody = html,
             TextBody = text,
-            IdempotencyKey = $"{TemplateId}:{TrialEmailNormalizer.Normalize(trimmed)}",
+            IdempotencyKey = $"{TemplateId}:{normalizedMailbox}",
             Tags = new EmailMessageTags { TenantId = Guid.Empty, EventType = TemplateId }
         };
         try
@@ -60,7 +70,7 @@ public sealed class TrialLocalIdentityAccountExistsEmailNotifier(
         }
         catch (Exception ex) when (!cancellationToken.IsCancellationRequested)
         {
-            string recipientCorrelation = TrialEmailCorrelationFingerprint.ComputeHexPrefix(trimmed);
+            string recipientCorrelation = TrialEmailCorrelationFingerprint.ComputeHexPrefix(mailboxForDelivery);
 
             if (_logger.IsEnabled(LogLevel.Warning))
             {

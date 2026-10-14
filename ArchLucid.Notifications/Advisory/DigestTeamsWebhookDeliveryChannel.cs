@@ -1,3 +1,5 @@
+using System.Net;
+
 using ArchLucid.Contracts.Advisory.Delivery;
 using ArchLucid.Core.Persistence.Ports;
 
@@ -20,14 +22,18 @@ public sealed class DigestTeamsWebhookDeliveryChannel(IChatOpsWebhookDeliverySer
 
         ChatOpsWebhookMessage body = new()
         {
-            Title = payload.Digest.Title,
-            SupportingParagraph = payload.Digest.Summary,
+            Title = WebUtility.HtmlEncode(payload.Digest.Title),
+            SupportingParagraph = WebUtility.HtmlEncode(payload.Digest.Summary),
             Body = payload.Digest.ContentMarkdown,
         };
 
+        string destination = ChatOpsWebhookAbsoluteUriValidator.ResolveHttpsDeliveryUriOrThrow(
+            payload.Subscription.Destination,
+            nameof(payload.Subscription.Destination));
+
         return _chatOpsWebhookDelivery.DeliverAsync(
             ChatOpsWebhookTarget.Teams,
-            payload.Subscription.Destination,
+            destination,
             body,
             ct);
     }

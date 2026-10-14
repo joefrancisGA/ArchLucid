@@ -1,4 +1,5 @@
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Identity;
 using ArchLucid.Core.Notifications.Email;
 
 using Microsoft.Extensions.Logging;
@@ -26,6 +27,9 @@ public sealed class UserInvitationEmailNotifier(
     private static readonly System.Text.RegularExpressions.Regex PersonalMessageMarkdownLinkRegex =
         new(@"\[(?<label>[^\]]+)\]\((?<url>[^)]+)\)", System.Text.RegularExpressions.RegexOptions.Compiled);
 
+    private static readonly System.Text.RegularExpressions.Regex PersonalMessageEmbeddedHttpUrlRegex =
+        new(@"https?://[^\s<>""'\)\]]+", System.Text.RegularExpressions.RegexOptions.Compiled | System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+
     private readonly IEmailProvider _emailProvider =
         emailProvider ?? throw new ArgumentNullException(nameof(emailProvider));
 
@@ -46,20 +50,33 @@ public sealed class UserInvitationEmailNotifier(
         ArgumentException.ThrowIfNullOrWhiteSpace(displayEmail);
         ArgumentException.ThrowIfNullOrWhiteSpace(acceptUrl);
 
+        if (!IdentityEmailNormalizer.TryNormalize(displayEmail, out string normalizedMailbox, out string mailboxForDelivery))
+        {
+            if (_logger.IsEnabled(LogLevel.Warning))
+            {
+                _logger.LogWarning("Workspace invitation email skipped: invalid recipient mailbox.");
+            }
+
+            return false;
+        }
+
+        string normalizedAcceptUrl = EmailBrandingUrls.SanitizeOperatorAbsoluteUrl(acceptUrl.Trim());
+        string? normalizedPersonalMessage = NormalizePersonalMessage(personalMessage);
+
         EmailNotificationOptions emailOptions = _emailOptionsMonitor.CurrentValue;
         string productName = EmailProductDisplayNameResolver.Resolve(emailOptions);
 
         string subject = $"You're invited to {productName}";
-        string text = BuildTextBody(productName, acceptUrl, appRole, expiryDays, personalMessage);
-        string html = BuildHtmlBody(productName, acceptUrl, appRole, expiryDays, personalMessage);
+        string text = BuildTextBody(productName, normalizedAcceptUrl, appRole, expiryDays, normalizedPersonalMessage);
+        string html = BuildHtmlBody(productName, normalizedAcceptUrl, appRole, expiryDays, normalizedPersonalMessage);
 
         EmailMessage message = new()
         {
-            To = displayEmail.Trim(),
+            To = mailboxForDelivery,
             Subject = subject,
             HtmlBody = html,
             TextBody = text,
-            IdempotencyKey = BuildIdempotencyKey(displayEmail, acceptUrl),
+            IdempotencyKey = BuildIdempotencyKey(normalizedMailbox, normalizedAcceptUrl),
             Tags = new EmailMessageTags { TenantId = Guid.Empty, EventType = TemplateId }
         };
 
@@ -129,7 +146,13 @@ public sealed class UserInvitationEmailNotifier(
     {
         return PersonalMessageMarkdownLinkRegex.Replace(
             personalMessage,
-            static match => $"{match.Groups["label"].Value} ({match.Groups["url"].Value})");
+            static match =>
+            {
+                string label = match.Groups["label"].Value;
+                string url = SanitizePersonalMessageLinkUrl(match.Groups["url"].Value);
+
+                return $"{label} ({url})";
+            });
     }
 
     private static string FormatPersonalMessageHtml(string personalMessage)
@@ -152,7 +175,8 @@ public sealed class UserInvitationEmailNotifier(
             if (Uri.TryCreate(rawUrl.Trim(), UriKind.Absolute, out Uri? uri)
                 && (uri.Scheme == Uri.UriSchemeHttps || uri.Scheme == Uri.UriSchemeHttp))
             {
-                string url = System.Net.WebUtility.HtmlEncode(uri.ToString());
+                string sanitizedUrl = SanitizePersonalMessageLinkUrl(rawUrl);
+                string url = System.Net.WebUtility.HtmlEncode(sanitizedUrl);
                 builder.Append($"<a href=\"{url}\" rel=\"noopener noreferrer\">{label}</a>");
             }
             else
@@ -169,6 +193,34 @@ public sealed class UserInvitationEmailNotifier(
         }
 
         return builder.ToString();
+    }
+
+    private static string SanitizePersonalMessageLinkUrl(string rawUrl)
+    {
+        string trimmed = rawUrl.Trim();
+
+        if (!Uri.TryCreate(trimmed, UriKind.Absolute, out Uri? uri)
+            || (uri.Scheme != Uri.UriSchemeHttps && uri.Scheme != Uri.UriSchemeHttp))
+        {
+            return trimmed;
+        }
+
+        return EmailBrandingUrls.SanitizeOperatorAbsoluteUrl(trimmed);
+    }
+
+    private static string? NormalizePersonalMessage(string? personalMessage)
+    {
+        if (string.IsNullOrWhiteSpace(personalMessage))
+            return null;
+
+        return SanitizeEmbeddedHttpUrls(personalMessage.Trim());
+    }
+
+    private static string SanitizeEmbeddedHttpUrls(string message)
+    {
+        return PersonalMessageEmbeddedHttpUrlRegex.Replace(
+            message,
+            static match => SanitizePersonalMessageLinkUrl(match.Value));
     }
 
     private static string BuildIdempotencyKey(string displayEmail, string acceptUrl)

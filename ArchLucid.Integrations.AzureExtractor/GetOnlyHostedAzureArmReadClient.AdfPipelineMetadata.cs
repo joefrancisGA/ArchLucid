@@ -119,16 +119,14 @@ public sealed partial class GetOnlyHostedAzureArmReadClient
         {
             if (!visitedLinks.Add(nextLink))
             {
-                throw new InvalidOperationException(
-                    $"Hosted Azure extractor stopped {logLabel} listing due to repeating nextLink.");
+                break;
             }
 
             requestCount++;
 
-            if (requestCount > MaxPaginationRequests)
+            if (ShouldBreakForPageCap(requestCount))
             {
-                throw new InvalidOperationException(
-                    $"Hosted Azure extractor stopped {logLabel} listing after {MaxPaginationRequests} pages.");
+                break;
             }
 
             using HttpRequestMessage request = new(HttpMethod.Get, nextLink);
@@ -136,6 +134,11 @@ public sealed partial class GetOnlyHostedAzureArmReadClient
 
             using HttpResponseMessage response =
                 await _httpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
+
+            if (ShouldBreakForFactoryPaginationTerminalHttpFailure(response, childResources.Count))
+            {
+                break;
+            }
 
             if (response.StatusCode == System.Net.HttpStatusCode.Forbidden)
             {
@@ -168,8 +171,13 @@ public sealed partial class GetOnlyHostedAzureArmReadClient
 
             await using Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
 
-            using JsonDocument document = await JsonDocument.ParseAsync(stream, cancellationToken: cancellationToken)
-                .ConfigureAwait(false);
+            using JsonDocument? document =
+                await TryParseArmPaginationPageAsync(stream, childResources.Count, cancellationToken).ConfigureAwait(false);
+
+            if (document is null)
+            {
+                break;
+            }
 
             if (document.RootElement.TryGetProperty("value", out JsonElement valueElement)
                 && valueElement.ValueKind == JsonValueKind.Array)

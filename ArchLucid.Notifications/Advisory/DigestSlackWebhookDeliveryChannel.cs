@@ -25,9 +25,13 @@ public sealed class DigestSlackWebhookDeliveryChannel(IChatOpsWebhookDeliverySer
             Body = payload.Digest.ContentMarkdown,
         };
 
+        string destination = ChatOpsWebhookAbsoluteUriValidator.ResolveHttpsDeliveryUriOrThrow(
+            payload.Subscription.Destination,
+            nameof(payload.Subscription.Destination));
+
         return _chatOpsWebhookDelivery.DeliverAsync(
             ChatOpsWebhookTarget.Slack,
-            payload.Subscription.Destination,
+            destination,
             body,
             ct);
     }

@@ -57,13 +57,21 @@ public sealed class TrialTenantBootstrapService(
 
         using (AmbientScopeContext.Push(scope))
         {
+            if (await IsTenantInErasureQuarantineAsync(result.TenantId, cancellationToken))
+                return;
+
             if (baselineReviewCycle is not null)
+            {
+                if (await IsTenantInErasureQuarantineAsync(result.TenantId, cancellationToken))
+                    return;
+
                 await _tenantRepository.PersistTrialSignupBaselineReviewCycleAsync(
                     result.TenantId,
                     baselineReviewCycle.Hours,
                     baselineReviewCycle.SourceNote,
                     baselineReviewCycle.CapturedUtc,
                     cancellationToken);
+            }
 
             if (!await _emailVerificationPolicy.CanProvisionTrialForRegisteredEmailAsync(auditActorEmail, cancellationToken))
             {
@@ -74,22 +82,28 @@ public sealed class TrialTenantBootstrapService(
                         result.TenantId,
                         auditActorEmail);
                 }
-                ArchLucidInstrumentation.RecordTrialSignupFailure("email_verification", "policy_blocked");
-                await _auditService.LogAsync(
-                    new AuditEvent
-                    {
-                        EventType = AuditEventTypes.TrialSignupFailed,
-                        ActorUserId = auditActorEmail.Trim(),
-                        ActorUserName = auditActorEmail.Trim(),
-                        TenantId = result.TenantId,
-                        WorkspaceId = result.DefaultWorkspaceId,
-                        ProjectId = result.DefaultProjectId,
-                        DataJson = JsonSerializer.Serialize(new { stage = "email_verification", reason = "policy_blocked" })
-                    },
-                    cancellationToken);
+                if (!await IsTenantInErasureQuarantineAsync(result.TenantId, cancellationToken))
+                {
+                    ArchLucidInstrumentation.RecordTrialSignupFailure("email_verification", "policy_blocked");
+                    await _auditService.LogAsync(
+                        new AuditEvent
+                        {
+                            EventType = AuditEventTypes.TrialSignupFailed,
+                            ActorUserId = auditActorEmail.Trim(),
+                            ActorUserName = auditActorEmail.Trim(),
+                            TenantId = result.TenantId,
+                            WorkspaceId = result.DefaultWorkspaceId,
+                            ProjectId = result.DefaultProjectId,
+                            DataJson = JsonSerializer.Serialize(new { stage = "email_verification", reason = "policy_blocked" })
+                        },
+                        cancellationToken);
+                }
 
                 return;
             }
+
+            if (await IsTenantInErasureQuarantineAsync(result.TenantId, cancellationToken))
+                return;
 
             ContosoRetailDemoIds demoIds = ContosoRetailDemoIds.ForTenant(result.TenantId);
             Guid sampleRunId = ContosoRetailDemoIds.TrialWelcomeAuthorityRunId(result.TenantId);
@@ -98,6 +112,9 @@ public sealed class TrialTenantBootstrapService(
             try
             {
                 await _demoSeedService.SeedTrialWelcomeRunAsync(cancellationToken);
+
+                if (await IsTenantInErasureQuarantineAsync(result.TenantId, cancellationToken))
+                    return;
 
                 try
                 {
@@ -125,6 +142,9 @@ public sealed class TrialTenantBootstrapService(
             if (fullDemoSeedSucceeded)
                 sampleRunId = demoIds.AuthorityRunBaselineId;
 
+            if (await IsTenantInErasureQuarantineAsync(result.TenantId, cancellationToken))
+                return;
+
             try
             {
                 DateTimeOffset start = _timeProvider.GetUtcNow();
@@ -145,10 +165,16 @@ public sealed class TrialTenantBootstrapService(
                     companyProfile?.IndustryVerticalOther,
                     cancellationToken);
 
+                if (await IsTenantInErasureQuarantineAsync(result.TenantId, cancellationToken))
+                    return;
+
                 await _trialAiBudgetPolicyProvisioner.EnsureDefaultTrialPolicyIfAbsentAsync(
                     result.TenantId,
                     expires,
                     cancellationToken);
+
+                if (await IsTenantInErasureQuarantineAsync(result.TenantId, cancellationToken))
+                    return;
 
                 string actor = auditActorEmail.Trim();
                 await _auditService.LogAsync(
@@ -174,21 +200,31 @@ public sealed class TrialTenantBootstrapService(
                         ex,
                         "Trial bootstrap failed for tenant {TenantId}; tenant row exists without trial metadata.",
                         result.TenantId);
-                ArchLucidInstrumentation.RecordTrialSignupFailure("trial_bootstrap", ex.GetType().Name);
-                await _auditService.LogAsync(
-                    new AuditEvent
-                    {
-                        EventType = AuditEventTypes.TrialSignupFailed,
-                        ActorUserId = auditActorEmail.Trim(),
-                        ActorUserName = auditActorEmail.Trim(),
-                        TenantId = result.TenantId,
-                        WorkspaceId = result.DefaultWorkspaceId,
-                        ProjectId = result.DefaultProjectId,
-                        DataJson = JsonSerializer.Serialize(new { stage = "trial_bootstrap", reason = ex.GetType().Name })
-                    },
-                    cancellationToken);
+                if (!await IsTenantInErasureQuarantineAsync(result.TenantId, cancellationToken))
+                {
+                    ArchLucidInstrumentation.RecordTrialSignupFailure("trial_bootstrap", ex.GetType().Name);
+                    await _auditService.LogAsync(
+                        new AuditEvent
+                        {
+                            EventType = AuditEventTypes.TrialSignupFailed,
+                            ActorUserId = auditActorEmail.Trim(),
+                            ActorUserName = auditActorEmail.Trim(),
+                            TenantId = result.TenantId,
+                            WorkspaceId = result.DefaultWorkspaceId,
+                            ProjectId = result.DefaultProjectId,
+                            DataJson = JsonSerializer.Serialize(new { stage = "trial_bootstrap", reason = ex.GetType().Name })
+                        },
+                        cancellationToken);
+                }
             }
         }
+    }
+
+    private async Task<bool> IsTenantInErasureQuarantineAsync(Guid tenantId, CancellationToken cancellationToken)
+    {
+        TenantRecord? tenant = await _tenantRepository.GetByIdAsync(tenantId, cancellationToken).ConfigureAwait(false);
+
+        return tenant?.OffboardedUtc is not null;
     }
 
     /// <inheritdoc/>
@@ -217,9 +253,15 @@ public sealed class TrialTenantBootstrapService(
 
         using (AmbientScopeContext.Push(scope))
         {
+            if (await IsTenantInErasureQuarantineAsync(result.TenantId, cancellationToken).ConfigureAwait(false))
+                return;
+
             try
             {
                 await _demoSeedService.SeedTrialWelcomeRunAsync(cancellationToken).ConfigureAwait(false);
+
+                if (await IsTenantInErasureQuarantineAsync(result.TenantId, cancellationToken).ConfigureAwait(false))
+                    return;
 
                 try
                 {

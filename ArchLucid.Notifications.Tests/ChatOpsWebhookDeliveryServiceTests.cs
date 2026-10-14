@@ -81,6 +81,28 @@ public sealed class ChatOpsWebhookDeliveryServiceTests
     }
 
     [Fact]
+    public async Task DeliverAsync_throws_when_webhook_uri_has_embedded_line_breaks()
+    {
+        Mock<IWebhookPoster> poster = new();
+        ChatOpsWebhookDeliveryService sut = new(poster.Object);
+        ChatOpsWebhookMessage msg = new() { Title = "t", Body = "b" };
+        const string smuggledUri =
+            "https://hooks.slack.com/services/TEST\r\nHost: injected.evil.test";
+
+        Func<Task> act = async () =>
+            await sut.DeliverAsync(ChatOpsWebhookTarget.Slack, smuggledUri, msg, CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentException>().WithParameterName("webhookAbsoluteUri");
+        poster.Verify(
+            p => p.PostJsonAsync(
+                It.IsAny<string>(),
+                It.IsAny<object>(),
+                It.IsAny<CancellationToken>(),
+                It.IsAny<WebhookPostOptions?>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task DeliverAsync_throws_when_uri_blank()
     {
         ChatOpsWebhookDeliveryService sut = new(Mock.Of<IWebhookPoster>());

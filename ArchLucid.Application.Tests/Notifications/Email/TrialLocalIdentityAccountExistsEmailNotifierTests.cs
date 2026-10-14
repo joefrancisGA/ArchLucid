@@ -6,6 +6,7 @@ using ArchLucid.Core.Notifications.Email;
 using FluentAssertions;
 
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 
 using Moq;
@@ -65,6 +66,28 @@ public sealed class TrialLocalIdentityAccountExistsEmailNotifierTests
         text.Should().Contain("recipientCorrelation=");
         text.Should().NotContain("PrivateVictim");
         text.Should().NotContain("example.com");
+    }
+
+    [Fact]
+    public async Task NotifyAccountAlreadyExistsAsync_skips_send_when_recipient_has_embedded_line_breaks()
+    {
+        Mock<IEmailProvider> email = new();
+
+        Mock<IOptionsMonitor<EmailNotificationOptions>> options = new();
+        options.Setup(x => x.CurrentValue).Returns(new EmailNotificationOptions());
+
+        TrialLocalIdentityAccountExistsEmailNotifier sut = new(
+            email.Object,
+            options.Object,
+            NullLogger<TrialLocalIdentityAccountExistsEmailNotifier>.Instance);
+
+        await sut.NotifyAccountAlreadyExistsAsync(
+            "trial@example.com\r\nBcc: injected@evil.test",
+            CancellationToken.None);
+
+        email.Verify(
+            x => x.SendAsync(It.IsAny<EmailMessage>(), It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     [Fact]

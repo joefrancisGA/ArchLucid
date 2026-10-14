@@ -7,4 +7,5 @@ public enum TenantSuspendOutcome
     InErasureQuarantine = 1,
     AlreadyInDesiredState = 2,
     Applied = 3,
+    Conflict = 4,
 }

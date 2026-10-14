@@ -1,3 +1,5 @@
+using System.Net;
+
 using ArchLucid.Contracts.Alerts.Delivery;
 using ArchLucid.Core.Persistence.Ports;
 
@@ -24,15 +26,19 @@ public sealed class AlertTeamsWebhookDeliveryChannel(IChatOpsWebhookDeliveryServ
         ChatOpsWebhookMessage body = new()
         {
             SeverityLabel = payload.Alert.Severity,
-            Title = payload.Alert.Title,
+            Title = WebUtility.HtmlEncode(payload.Alert.Title),
             SupportingParagraph =
-                $"Category: {payload.Alert.Category}\nTrigger: {payload.Alert.TriggerValue}",
-            Body = payload.Alert.Description,
+                $"Category: {WebUtility.HtmlEncode(payload.Alert.Category)}\nTrigger: {WebUtility.HtmlEncode(payload.Alert.TriggerValue)}",
+            Body = WebUtility.HtmlEncode(payload.Alert.Description ?? string.Empty),
         };
+
+        string destination = ChatOpsWebhookAbsoluteUriValidator.ResolveHttpsDeliveryUriOrThrow(
+            payload.Subscription.Destination,
+            nameof(payload.Subscription.Destination));
 
         return _chatOpsWebhookDelivery.DeliverAsync(
             ChatOpsWebhookTarget.Teams,
-            payload.Subscription.Destination,
+            destination,
             body,
             ct);
     }

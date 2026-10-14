@@ -27,6 +27,12 @@ public sealed partial class TenantCatalogMigrationOrchestrator
         if (!isFirstVerificationAttempt && !isVerificationRetry)
             return (TenantCatalogMigrationCommandOutcome.WrongStage, null);
 
+        TenantRecord? tenantBeforeProbe =
+            await _tenantRepository.GetByIdAsync(tenantId, cancellationToken).ConfigureAwait(false);
+
+        if (tenantBeforeProbe?.OffboardedUtc is not null)
+            return (TenantCatalogMigrationCommandOutcome.InErasureQuarantine, null);
+
         if (isFirstVerificationAttempt)
         {
             await _migrationRepository
@@ -34,15 +40,33 @@ public sealed partial class TenantCatalogMigrationOrchestrator
                 .ConfigureAwait(false);
         }
 
+        TenantRecord? tenantBeforeProbeRun =
+            await _tenantRepository.GetByIdAsync(tenantId, cancellationToken).ConfigureAwait(false);
+
+        if (tenantBeforeProbeRun?.OffboardedUtc is not null)
+            return (TenantCatalogMigrationCommandOutcome.InErasureQuarantine, null);
+
         TenantMigrationVerificationProbeResult probe = await _verificationProbe
             .RunAsync(tenantId, cancellationToken)
             .ConfigureAwait(false);
+
+        TenantRecord? tenantBeforeMark =
+            await _tenantRepository.GetByIdAsync(tenantId, cancellationToken).ConfigureAwait(false);
+
+        if (tenantBeforeMark?.OffboardedUtc is not null)
+            return (TenantCatalogMigrationCommandOutcome.InErasureQuarantine, probe);
 
         DateTimeOffset utcNow = _timeProvider.GetUtcNow();
 
         await _migrationRepository
             .MarkVerificationResultAsync(active.MigrationId, probe.Passed, probe.ErrorMessage, utcNow, cancellationToken)
             .ConfigureAwait(false);
+
+        TenantRecord? tenantAfterProbe =
+            await _tenantRepository.GetByIdAsync(tenantId, cancellationToken).ConfigureAwait(false);
+
+        if (tenantAfterProbe?.OffboardedUtc is not null)
+            return (TenantCatalogMigrationCommandOutcome.InErasureQuarantine, probe);
 
         string auditType = probe.Passed
             ? AuditEventTypes.TenantCatalogMigrationVerificationPassed
@@ -84,18 +108,48 @@ public sealed partial class TenantCatalogMigrationOrchestrator
         if (active.VerificationPassedUtc is null)
             return TenantCatalogMigrationCommandOutcome.VerificationRequired;
 
+        TenantRecord? tenantBeforeComplete =
+            await _tenantRepository.GetByIdAsync(tenantId, cancellationToken).ConfigureAwait(false);
+
+        if (tenantBeforeComplete?.OffboardedUtc is not null)
+            return TenantCatalogMigrationCommandOutcome.InErasureQuarantine;
+
+        TenantRecord? tenantBeforeRepositoryComplete =
+            await _tenantRepository.GetByIdAsync(tenantId, cancellationToken).ConfigureAwait(false);
+
+        if (tenantBeforeRepositoryComplete?.OffboardedUtc is not null)
+            return TenantCatalogMigrationCommandOutcome.InErasureQuarantine;
+
         DateTimeOffset completedUtc = _timeProvider.GetUtcNow();
 
         await _migrationRepository.CompleteAsync(active.MigrationId, completedUtc, cancellationToken).ConfigureAwait(false);
 
-        TenantRecord? tenant = await _tenantRepository.GetByIdAsync(tenantId, cancellationToken).ConfigureAwait(false);
+        TenantRecord? tenantAfterRepositoryComplete =
+            await _tenantRepository.GetByIdAsync(tenantId, cancellationToken).ConfigureAwait(false);
 
-        if (tenant?.SuspendedUtc is { } suspendedUtc && suspendedUtc >= active.StartedUtc)
+        if (tenantAfterRepositoryComplete?.OffboardedUtc is not null)
+            return TenantCatalogMigrationCommandOutcome.InErasureQuarantine;
+
+        if (tenantAfterRepositoryComplete is not null
+            && tenantAfterRepositoryComplete.SuspendedUtc is { } suspendedUtc
+            && suspendedUtc >= active.StartedUtc)
         {
+            TenantRecord? tenantBeforeUnsuspend =
+                await _tenantRepository.GetByIdAsync(tenantId, cancellationToken).ConfigureAwait(false);
+
+            if (tenantBeforeUnsuspend?.OffboardedUtc is not null)
+                return TenantCatalogMigrationCommandOutcome.InErasureQuarantine;
+
             await _tenantSuspendCommandService
                 .TryUnsuspendAsync(tenantId, actorUserId, actorUserName, active.CorrelationId, cancellationToken)
                 .ConfigureAwait(false);
         }
+
+        TenantRecord? tenantBeforeAudit =
+            await _tenantRepository.GetByIdAsync(tenantId, cancellationToken).ConfigureAwait(false);
+
+        if (tenantBeforeAudit?.OffboardedUtc is not null)
+            return TenantCatalogMigrationCommandOutcome.InErasureQuarantine;
 
         await AppendPlatformAuditAsync(
             AuditEventTypes.TenantCatalogMigrationCompleted,

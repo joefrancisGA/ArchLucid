@@ -26,12 +26,17 @@ public sealed class AlertSlackWebhookDeliveryChannel(IChatOpsWebhookDeliveryServ
             Title = payload.Alert.Title,
             SupportingParagraph =
                 $"Category: {payload.Alert.Category}\nTrigger: {payload.Alert.TriggerValue}",
-            Body = payload.Alert.Description,
+            Body = ChatOpsSlackMrkdwnEscaper.EscapeFormattingMetacharacters(
+                payload.Alert.Description ?? string.Empty),
         };
+
+        string destination = ChatOpsWebhookAbsoluteUriValidator.ResolveHttpsDeliveryUriOrThrow(
+            payload.Subscription.Destination,
+            nameof(payload.Subscription.Destination));
 
         return _chatOpsWebhookDelivery.DeliverAsync(
             ChatOpsWebhookTarget.Slack,
-            payload.Subscription.Destination,
+            destination,
             body,
             ct);
     }

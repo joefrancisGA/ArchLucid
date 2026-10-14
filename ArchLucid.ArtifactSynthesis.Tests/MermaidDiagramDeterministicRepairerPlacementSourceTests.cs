@@ -45,6 +45,34 @@ public sealed class MermaidDiagramDeterministicRepairerPlacementSourceTests
     }
 
     [Fact]
+    public void Repair_keeps_questionable_attention_for_forest_layout()
+    {
+        DiagramAst repaired = Repair(new DiagramAst
+        {
+            Title = "Azure inventory (FullSubscription)",
+            Nodes =
+            [
+                new DiagramNode
+                {
+                    NodeId = "vm",
+                    Label = "vm-review",
+                    NodeType = "TopologyResource",
+                    ArmResourceType = "Microsoft.Compute/virtualMachines",
+                    QuestionableAttention = new DiagramQuestionableAttention(
+                        "Unregistered AVD session host",
+                        "Register the host with the host pool"),
+                },
+            ],
+        });
+
+        DiagramForestLayoutResult result = new DiagramForestLayoutSvgRenderer().Render(repaired);
+
+        result.Succeeded.Should().BeTrue(result.Error);
+        result.Svg.Should().Contain("node-card-questionable");
+        result.Svg.Should().Contain("Questionable");
+    }
+
+    [Fact]
     public void Repair_keeps_nsg_inbound_rule_chips_for_forest_layout()
     {
         DiagramAst repaired = Repair(new DiagramAst
@@ -120,6 +148,7 @@ public sealed class MermaidDiagramDeterministicRepairerPlacementSourceTests
             ParentAttachmentDetails = ["parent detail"],
             ConnectionState = InventoryDiagramConnectionState.Used,
             ConnectionStateMessage = "used by app",
+            QuestionableAttention = new DiagramQuestionableAttention("needs review", "fix it"),
             UnresolvedRelationshipDetails = ["missing relationship"],
             IsAvdCollapsedBoundary = true,
             DataFlowTraversalHopEvidenceDetails = ["hop evidence"],
@@ -162,6 +191,7 @@ public sealed class MermaidDiagramDeterministicRepairerPlacementSourceTests
         repairedNode.ParentAttachmentDetails.Should().NotBeSameAs(sourceNode.ParentAttachmentDetails);
         repairedNode.ConnectionState.Should().Be(sourceNode.ConnectionState);
         repairedNode.ConnectionStateMessage.Should().Be(sourceNode.ConnectionStateMessage);
+        repairedNode.QuestionableAttention.Should().Be(sourceNode.QuestionableAttention);
         repairedNode.UnresolvedRelationshipDetails.Should().Equal(sourceNode.UnresolvedRelationshipDetails);
         repairedNode.UnresolvedRelationshipDetails.Should().NotBeSameAs(sourceNode.UnresolvedRelationshipDetails);
         repairedNode.IsAvdCollapsedBoundary.Should().BeTrue();

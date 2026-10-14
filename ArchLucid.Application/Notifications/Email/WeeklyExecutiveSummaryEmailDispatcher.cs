@@ -103,7 +103,8 @@ public sealed class WeeklySponsorReportEmailDispatcher(
         string idempotencyKey = $"weekly-sponsor-report:{tenantId:N}:{normalizedIsoWeekKey}";
         string html = await _templateRenderer.RenderHtmlAsync(TemplateId, model, cancellationToken);
         string text = await _templateRenderer.RenderTextAsync(TemplateId, model, cancellationToken);
-        string subject = $"{productName} weekly Sponsor report — {normalizedWeekLabel}";
+        string subject =
+            $"{productName} weekly Sponsor report — {EmailHeaderFragmentSanitizer.Sanitize(normalizedWeekLabel)}";
 
         return await MultiRecipientEmailDispatch.TrySendToMailboxesAsync(
             tenantId,

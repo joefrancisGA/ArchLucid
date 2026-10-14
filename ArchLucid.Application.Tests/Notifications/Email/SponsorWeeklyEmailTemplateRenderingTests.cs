@@ -62,4 +62,48 @@ public sealed class SponsorWeeklyEmailTemplateRenderingTests
         html.Should().Contain("Policy influence:");
         html.Should().Contain(SendableExportCoverComposer.PolicyPackInfluenceHonestyLine);
     }
+
+    [SkippableFact]
+    public async Task WeeklySponsorReport_html_encodes_summary_markdown_in_preformatted_block()
+    {
+        const string maliciousMarkdown = "</pre><img src=x onerror=alert(1)>";
+
+        string html = await _renderer.RenderHtmlAsync(
+            WeeklySponsorReportEmailDispatcher.TemplateId,
+            new WeeklySponsorReportEmailModel
+            {
+                ProductName = "ArchLucid",
+                WeekLabel = "2026-W12",
+                RunIdHex = "e5f6a7b8",
+                RunDetailUrl = "https://app.example/architecture/reviews/e5f6a7b8",
+                SummaryMarkdown = maliciousMarkdown,
+            },
+            CancellationToken.None);
+
+        html.Should().Contain("&lt;/pre&gt;&lt;img src=x onerror=alert(1)&gt;");
+        html.Should().NotContain("</pre><img src=x onerror=alert(1)>");
+    }
+
+    [SkippableFact]
+    public async Task WeeklySponsorReport_text_part_strips_html_tags_from_rendered_body()
+    {
+        const string summary = "Line one\nLine two";
+
+        string text = await _renderer.RenderTextAsync(
+            WeeklySponsorReportEmailDispatcher.TemplateId,
+            new WeeklySponsorReportEmailModel
+            {
+                ProductName = "ArchLucid",
+                WeekLabel = "2026-W12",
+                RunIdHex = "e5f6a7b8",
+                RunDetailUrl = "https://app.example/architecture/reviews/e5f6a7b8",
+                SummaryMarkdown = summary,
+            },
+            CancellationToken.None);
+
+        text.Should().Contain("Line one");
+        text.Should().Contain("Line two");
+        text.Should().NotContain("<pre");
+        text.Should().NotContain("<p>");
+    }
 }

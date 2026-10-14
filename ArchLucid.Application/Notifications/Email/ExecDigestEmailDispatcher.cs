@@ -72,8 +72,8 @@ public sealed class ExecDigestEmailDispatcher(
         if (string.IsNullOrWhiteSpace(composition.SponsorValueReportUrl))
             throw new ArgumentException("Sponsor value report URL is required.", nameof(composition));
 
-        string normalizedDashboardUrl = composition.DashboardUrl.Trim();
-        string normalizedSponsorValueReportUrl = composition.SponsorValueReportUrl.Trim();
+        string normalizedDashboardUrl = EmailBrandingUrls.SanitizeOperatorAbsoluteUrl(composition.DashboardUrl);
+        string normalizedSponsorValueReportUrl = EmailBrandingUrls.SanitizeOperatorAbsoluteUrl(composition.SponsorValueReportUrl);
         string normalizedUnsubscribeUrl = EmailBrandingUrls.SanitizeOperatorAbsoluteUrl(unsubscribeAbsoluteUrl);
 
         EmailNotificationOptions emailOptions = _emailOptionsMonitor.CurrentValue;
@@ -101,8 +101,9 @@ public sealed class ExecDigestEmailDispatcher(
         string text = await _templateRenderer.RenderTextAsync(TemplateId, model, cancellationToken);
         string subjectPrefix = string.IsNullOrWhiteSpace(composition.RehearsalSubjectPrefix)
             ? string.Empty
-            : composition.RehearsalSubjectPrefix.Trim();
-        string subject = $"{subjectPrefix}{productName} weekly digest — {normalizedWeekLabel}";
+            : EmailHeaderFragmentSanitizer.Sanitize(composition.RehearsalSubjectPrefix);
+        string subject =
+            $"{subjectPrefix}{productName} weekly digest — {EmailHeaderFragmentSanitizer.Sanitize(normalizedWeekLabel)}";
 
         return await MultiRecipientEmailDispatch.TrySendToMailboxesAsync(
             tenantId,

@@ -18,11 +18,11 @@ public static class EmailProductDisplayNameResolver
         ArgumentNullException.ThrowIfNull(emailOptions);
 
         if (productLine is not null)
-            return ProductLineConsumerNames.DisplayName(productLine.Value, displayNames);
+            return EmailHeaderFragmentSanitizer.Sanitize(ProductLineConsumerNames.DisplayName(productLine.Value, displayNames));
 
         if (!string.IsNullOrWhiteSpace(emailOptions.ProductDisplayName))
-            return emailOptions.ProductDisplayName.Trim();
+            return EmailHeaderFragmentSanitizer.Sanitize(emailOptions.ProductDisplayName);
 
-        return ProductLineConsumerNames.DisplayName(ProductLineId.Architecture, displayNames);
+        return EmailHeaderFragmentSanitizer.Sanitize(ProductLineConsumerNames.DisplayName(ProductLineId.Architecture, displayNames));
     }
 }

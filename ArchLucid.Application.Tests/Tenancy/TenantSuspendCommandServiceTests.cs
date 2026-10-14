@@ -82,6 +82,18 @@ public sealed class TenantSuspendCommandServiceTests
             new(TaskCreationOptions.RunContinuationsAsynchronously);
         int reads = 0;
 
+        TenantRecord active = ActiveTenant();
+        TenantRecord suspended = new()
+        {
+            Id = TenantId,
+            Name = "Acme",
+            Slug = "acme",
+            Tier = TenantTier.Standard,
+            DataRegion = TenantDataRegions.Default,
+            CreatedUtc = clock.GetUtcNow().AddDays(-1),
+            SuspendedUtc = clock.GetUtcNow(),
+        };
+
         tenants
             .Setup(t => t.GetByIdAsync(TenantId, It.IsAny<CancellationToken>()))
             .Returns(async () =>
@@ -90,7 +102,8 @@ public sealed class TenantSuspendCommandServiceTests
                     bothReadsCompleted.TrySetResult(true);
 
                 await bothReadsCompleted.Task;
-                return ActiveTenant();
+
+                return reads <= 2 ? active : suspended;
             });
         tenants
             .SetupSequence(t => t.TrySuspendTenantAsync(TenantId, It.IsAny<CancellationToken>()))
@@ -162,6 +175,26 @@ public sealed class TenantSuspendCommandServiceTests
         TaskCompletionSource<bool> bothReadsCompleted =
             new(TaskCreationOptions.RunContinuationsAsynchronously);
         int reads = 0;
+        TenantRecord suspended = new()
+        {
+            Id = TenantId,
+            Name = "Acme",
+            Slug = "acme",
+            Tier = TenantTier.Standard,
+            DataRegion = TenantDataRegions.Default,
+            CreatedUtc = clock.GetUtcNow().AddDays(-1),
+            SuspendedUtc = clock.GetUtcNow().AddHours(-1),
+        };
+        TenantRecord active = new()
+        {
+            Id = TenantId,
+            Name = "Acme",
+            Slug = "acme",
+            Tier = TenantTier.Standard,
+            DataRegion = TenantDataRegions.Default,
+            CreatedUtc = clock.GetUtcNow().AddDays(-1),
+            SuspendedUtc = null,
+        };
 
         tenants
             .Setup(t => t.GetByIdAsync(TenantId, It.IsAny<CancellationToken>()))
@@ -172,16 +205,7 @@ public sealed class TenantSuspendCommandServiceTests
 
                 await bothReadsCompleted.Task;
 
-                return new TenantRecord
-                {
-                    Id = TenantId,
-                    Name = "Acme",
-                    Slug = "acme",
-                    Tier = TenantTier.Standard,
-                    DataRegion = TenantDataRegions.Default,
-                    CreatedUtc = clock.GetUtcNow().AddDays(-1),
-                    SuspendedUtc = clock.GetUtcNow().AddHours(-1),
-                };
+                return reads <= 2 ? suspended : active;
             });
         tenants
             .SetupSequence(t => t.TryUnsuspendTenantAsync(TenantId, It.IsAny<CancellationToken>()))
@@ -206,6 +230,60 @@ public sealed class TenantSuspendCommandServiceTests
                 It.Is<PlatformAuditEvent>(e => e.EventType == AuditEventTypes.TenantUnsuspended),
                 It.IsAny<CancellationToken>()),
             Times.Once);
+    }
+
+    [Fact]
+    public async Task TryUnsuspendAsync_returns_conflict_when_atomic_miss_and_tenant_still_suspended()
+    {
+        Mock<ITenantRepository> tenants = new(MockBehavior.Strict);
+        Mock<IPlatformAuditRepository> audit = new(MockBehavior.Strict);
+        FakeTimeProvider clock = new(new DateTimeOffset(2026, 8, 3, 12, 0, 0, TimeSpan.Zero));
+        TenantRecord suspended = new()
+        {
+            Id = TenantId,
+            Name = "Acme",
+            Slug = "acme",
+            Tier = TenantTier.Standard,
+            DataRegion = TenantDataRegions.Default,
+            CreatedUtc = clock.GetUtcNow().AddDays(-1),
+            SuspendedUtc = clock.GetUtcNow().AddHours(-1),
+        };
+
+        tenants
+            .Setup(t => t.GetByIdAsync(TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(suspended);
+        tenants
+            .Setup(t => t.TryUnsuspendTenantAsync(TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
+
+        TenantSuspendCommandService sut = new(tenants.Object, audit.Object, clock);
+
+        TenantSuspendOutcome outcome =
+            await sut.TryUnsuspendAsync(TenantId, "u1", "admin", "corr", CancellationToken.None);
+
+        Assert.Equal(TenantSuspendOutcome.Conflict, outcome);
+    }
+
+    [Fact]
+    public async Task TrySuspendAsync_returns_conflict_when_atomic_miss_and_tenant_still_active()
+    {
+        Mock<ITenantRepository> tenants = new(MockBehavior.Strict);
+        Mock<IPlatformAuditRepository> audit = new(MockBehavior.Strict);
+        FakeTimeProvider clock = new(new DateTimeOffset(2026, 8, 3, 12, 0, 0, TimeSpan.Zero));
+
+        tenants
+            .Setup(t => t.GetByIdAsync(TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(ActiveTenant());
+        tenants
+            .Setup(t => t.TrySuspendTenantAsync(TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
+
+        TenantSuspendCommandService sut = new(tenants.Object, audit.Object, clock);
+
+        TenantSuspendOutcome outcome =
+            await sut.TrySuspendAsync(TenantId, "u1", "admin", "corr", CancellationToken.None);
+
+        Assert.Equal(TenantSuspendOutcome.Conflict, outcome);
     }
 
     [Fact]

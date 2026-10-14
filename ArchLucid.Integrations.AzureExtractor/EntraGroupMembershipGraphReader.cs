@@ -67,6 +67,15 @@ public sealed class EntraGroupMembershipGraphReader(
 
             if (pageResult.Forbidden)
             {
+                if (rows.Count > 0 || pending.Count > 0)
+                {
+                    logger.LogWarning(
+                        "Entra group membership Graph read skipped group {GroupId} after 403; continuing with remaining groups.",
+                        groupId);
+
+                    continue;
+                }
+
                 return pageResult;
             }
 
@@ -132,6 +141,19 @@ public sealed class EntraGroupMembershipGraphReader(
 
             if (response.StatusCode == HttpStatusCode.Forbidden)
             {
+                if (memberships.Count > 0 || nestedGroupIds.Count > 0)
+                {
+                    logger.LogWarning(
+                        "Entra group membership Graph read stopped pagination for group {GroupId} after 403 on a follow-up page.",
+                        groupId);
+
+                    return new EntraGroupMembershipGraphReadResult
+                    {
+                        Memberships = memberships,
+                        NestedGroupIds = nestedGroupIds,
+                    };
+                }
+
                 logger.LogWarning(
                     "Entra group membership Graph read returned 403 for group {GroupId}. Required scope: {Scope}.",
                     groupId,
@@ -151,7 +173,11 @@ public sealed class EntraGroupMembershipGraphReader(
                     (int)response.StatusCode,
                     body);
 
-                return EntraGroupMembershipGraphReadResult.Empty();
+                return new EntraGroupMembershipGraphReadResult
+                {
+                    Memberships = memberships,
+                    NestedGroupIds = nestedGroupIds,
+                };
             }
 
             await using Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
@@ -190,7 +216,11 @@ public sealed class EntraGroupMembershipGraphReader(
 
             if (!string.IsNullOrWhiteSpace(candidateNextLink))
             {
-                EnsureNextLinkTargetsGroup(candidateNextLink, groupId);
+                if (!TryAcceptNextLink(candidateNextLink, groupId, memberships.Count, nestedGroupIds.Count))
+                {
+                    break;
+                }
+
                 nextLink = candidateNextLink;
             }
             else
@@ -206,6 +236,30 @@ public sealed class EntraGroupMembershipGraphReader(
         };
     }
 
+    private bool TryAcceptNextLink(
+        string candidateNextLink,
+        string groupId,
+        int membershipCount,
+        int nestedGroupCount)
+    {
+        try
+        {
+            EnsureNextLinkTargetsGroup(candidateNextLink, groupId);
+
+            return true;
+        }
+        catch (InvalidOperationException exception)
+            when (membershipCount > 0 || nestedGroupCount > 0)
+        {
+            logger.LogWarning(
+                exception,
+                "Entra group membership Graph read stopped pagination for group {GroupId} due to an invalid @odata.nextLink.",
+                groupId);
+
+            return false;
+        }
+    }
+
     private static void EnsureNextLinkTargetsGroup(string nextLink, string groupId)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(nextLink);
@@ -215,6 +269,18 @@ public sealed class EntraGroupMembershipGraphReader(
         {
             throw new InvalidOperationException(
                 "Entra group membership Graph read stopped due to an invalid @odata.nextLink.");
+        }
+
+        if (!uri.Scheme.Equals(Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase))
+        {
+            throw new InvalidOperationException(
+                "Entra group membership Graph read stopped because @odata.nextLink must use HTTPS.");
+        }
+
+        if (!EntraGroupMembershipGraphTrustedHosts.IsTrusted(uri.Host))
+        {
+            throw new InvalidOperationException(
+                "Entra group membership Graph read stopped because @odata.nextLink targets an untrusted host.");
         }
 
         const string groupsPathPrefix = "/v1.0/groups/";
@@ -228,15 +294,26 @@ public sealed class EntraGroupMembershipGraphReader(
         ReadOnlySpan<char> remainder = uri.AbsolutePath.AsSpan(groupsPathPrefix.Length);
         int slashIndex = remainder.IndexOf('/');
 
-        ReadOnlySpan<char> nextGroupId = slashIndex < 0
-            ? remainder
-            : remainder[..slashIndex];
+        if (slashIndex < 0)
+        {
+            throw new InvalidOperationException(
+                "Entra group membership Graph read stopped because @odata.nextLink is not a group members URL.");
+        }
+
+        ReadOnlySpan<char> nextGroupId = remainder[..slashIndex];
+        ReadOnlySpan<char> collectionSegment = remainder[(slashIndex + 1)..];
 
         if (nextGroupId.IsEmpty
             || !string.Equals(nextGroupId.ToString(), groupId.Trim(), StringComparison.OrdinalIgnoreCase))
         {
             throw new InvalidOperationException(
                 "Entra group membership Graph read stopped because @odata.nextLink targets a different group.");
+        }
+
+        if (!collectionSegment.Equals("members", StringComparison.OrdinalIgnoreCase))
+        {
+            throw new InvalidOperationException(
+                "Entra group membership Graph read stopped because @odata.nextLink is not a group members URL.");
         }
     }
 
@@ -272,6 +349,6 @@ public sealed class EntraGroupMembershipGraphReader(
         }
 
         public bool IsGroup =>
-            ODataType?.Contains("group", StringComparison.OrdinalIgnoreCase) == true;
+            string.Equals(ODataType, "#microsoft.graph.group", StringComparison.OrdinalIgnoreCase);
     }
 }

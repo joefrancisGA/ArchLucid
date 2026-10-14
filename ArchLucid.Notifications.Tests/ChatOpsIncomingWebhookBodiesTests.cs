@@ -111,6 +111,60 @@ public sealed class ChatOpsIncomingWebhookBodiesTests
     }
 
     [Fact]
+    public void ForSlack_preserves_backtick_code_span_in_supporting_paragraph()
+    {
+        ChatOpsWebhookMessage message = new()
+        {
+            Title = "Authority run completed (1 finding)",
+            SupportingParagraph = "Run `11111111-2222-3333-4444-555555555555`",
+            Body = "Done",
+        };
+
+        object payload = ChatOpsIncomingWebhookBodies.ForSlack(message);
+
+        string text = NotificationsTestPayloadAssert.GetStringProperty(payload, "text");
+
+        text.Should().Contain("Run `11111111-2222-3333-4444-555555555555`");
+        text.Should().NotContain("Run \\`");
+    }
+
+    [Fact]
+    public void ForSlack_escapes_asterisks_in_supporting_paragraph_between_headline_and_body()
+    {
+        ChatOpsWebhookMessage message = new()
+        {
+            SeverityLabel = null,
+            Title = "Budget alert",
+            SupportingParagraph = "Category: Cost\nTrigger: *spoofed* emphasis",
+            Body = "Investigate spend.",
+        };
+
+        object payload = ChatOpsIncomingWebhookBodies.ForSlack(message);
+
+        string text = NotificationsTestPayloadAssert.GetStringProperty(payload, "text");
+
+        text.Should().Contain("Trigger: \\*spoofed\\* emphasis");
+    }
+
+    [Fact]
+    public void ForSlack_escapes_asterisks_in_title_when_wrapping_headline_emphasis()
+    {
+        ChatOpsWebhookMessage message = new()
+        {
+            SeverityLabel = "Warning",
+            Title = "See *spoofed* emphasis",
+            SupportingParagraph = null,
+            Body = "Details",
+        };
+
+        object payload = ChatOpsIncomingWebhookBodies.ForSlack(message);
+
+        string text = NotificationsTestPayloadAssert.GetStringProperty(payload, "text");
+
+        text.Should().Contain("*[Warning]* See \\*spoofed\\* emphasis");
+    }
+
+    [Fact]
     public void ForSlack_throws_when_message_null()
     {
         Action act = () => ChatOpsIncomingWebhookBodies.ForSlack(null!);
@@ -134,5 +188,86 @@ public sealed class ChatOpsIncomingWebhookBodiesTests
         Action act = () => ChatOpsIncomingWebhookBodies.ForTeams(null!);
 
         act.Should().Throw<ArgumentNullException>().WithParameterName("message");
+    }
+
+    [Fact]
+    public void ForTeams_omits_severity_prefix_when_label_is_bracket_only()
+    {
+        ChatOpsWebhookMessage message = new()
+        {
+            SeverityLabel = " ]][ ",
+            Title = "Actual headline",
+            Body = "details",
+        };
+
+        object payload = ChatOpsIncomingWebhookBodies.ForTeams(message);
+
+        NotificationsTestPayloadAssert.GetStringProperty(payload, "title").Should().Be("Actual headline");
+    }
+
+    [Fact]
+    public void ForSlack_omits_severity_emphasis_when_label_is_bracket_only()
+    {
+        ChatOpsWebhookMessage message = new()
+        {
+            SeverityLabel = "[[ ]]",
+            Title = "Actual headline",
+            Body = "details",
+        };
+
+        object payload = ChatOpsIncomingWebhookBodies.ForSlack(message);
+
+        string text = NotificationsTestPayloadAssert.GetStringProperty(payload, "text");
+
+        text.Should().StartWith("*Actual headline*");
+    }
+
+    [Fact]
+    public void ForSlack_strips_brackets_from_severity_label_before_headline_emphasis()
+    {
+        ChatOpsWebhookMessage message = new()
+        {
+            SeverityLabel = "Low] [Critical",
+            Title = "Actual headline",
+            Body = "details",
+        };
+
+        object payload = ChatOpsIncomingWebhookBodies.ForSlack(message);
+
+        string text = NotificationsTestPayloadAssert.GetStringProperty(payload, "text");
+
+        text.Should().StartWith("*[Low Critical]* Actual headline");
+    }
+
+    [Fact]
+    public void ForTeams_strips_brackets_from_severity_label_before_title_prefix()
+    {
+        ChatOpsWebhookMessage message = new()
+        {
+            SeverityLabel = "Low] [Critical",
+            Title = "Actual headline",
+            Body = "details",
+        };
+
+        object payload = ChatOpsIncomingWebhookBodies.ForTeams(message);
+
+        NotificationsTestPayloadAssert.GetStringProperty(payload, "title")
+            .Should().Be("[Low Critical] Actual headline");
+    }
+
+    [Fact]
+    public void ForTeams_html_encodes_severity_label_before_title_prefix()
+    {
+        ChatOpsWebhookMessage message = new()
+        {
+            SeverityLabel = "High<script>alert(1)</script>",
+            Title = "Latency spike",
+            Body = "details",
+        };
+
+        object payload = ChatOpsIncomingWebhookBodies.ForTeams(message);
+
+        NotificationsTestPayloadAssert.GetStringProperty(payload, "title")
+            .Should().Be("[High&lt;script&gt;alert(1)&lt;/script&gt;] Latency spike");
     }
 }

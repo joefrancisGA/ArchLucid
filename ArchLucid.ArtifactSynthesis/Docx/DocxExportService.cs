@@ -349,7 +349,10 @@ public sealed partial class DocxExportService(
             {
                 List<(string Name, string ArtifactType, string Format)> artRows = artifacts
                     .OrderBy(x => x.Name, StringComparer.OrdinalIgnoreCase)
-                    .Select(a => (a.Name, a.ArtifactType, a.Format))
+                    .Select(a => (
+                        SanitizeArtifactText(a.Name),
+                        SanitizeArtifactText(a.ArtifactType),
+                        SanitizeArtifactText(a.Format)))
                     .ToList();
                 WordDocumentBuilder.AddThreeColumnTable(
                     body,
@@ -365,7 +368,7 @@ public sealed partial class DocxExportService(
         [
             ("Metric", "Value"),
             ("Rule set", SanitizeArtifactText($"{manifest.RuleSetId} {manifest.RuleSetVersion}")),
-            ("Manifest hash", manifest.ManifestHash),
+            ("Manifest hash", SanitizeArtifactText(manifest.ManifestHash)),
             ("Source findings", manifest.Provenance.SourceFindingIds.Count.ToString()),
             ("Source graph nodes", manifest.Provenance.SourceGraphNodeIds.Count.ToString()),
             ("Applied rules", manifest.Provenance.AppliedRuleIds.Count.ToString())

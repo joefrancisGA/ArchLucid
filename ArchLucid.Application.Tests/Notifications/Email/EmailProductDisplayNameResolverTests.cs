@@ -41,4 +41,12 @@ public sealed class EmailProductDisplayNameResolverTests
             .Should()
             .Be("SecureNow Pro");
     }
+
+    [Fact]
+    public void Resolve_strips_line_breaks_from_legacy_product_display_name()
+    {
+        EmailNotificationOptions options = new() { ProductDisplayName = "Prod\r\nBcc: injected@evil.test" };
+
+        EmailProductDisplayNameResolver.Resolve(options).Should().Be("Prod Bcc: injected@evil.test");
+    }
 }

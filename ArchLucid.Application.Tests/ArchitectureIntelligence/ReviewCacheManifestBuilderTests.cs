@@ -180,6 +180,61 @@ public sealed class ReviewCacheManifestBuilderTests
     }
 
     [Fact]
+    public void Build_matches_content_hash_when_duplicate_source_texts_normalize_to_identical_rows()
+    {
+        ClosedLoopReasoningSourceText attachment = new()
+        {
+            FileName = "arch.md",
+            ContentType = "text/markdown",
+            Content = "Same body.",
+        };
+
+        ClosedLoopReasoningRequest single = CreateRequest("ignored");
+        single.SourceTexts = [attachment];
+
+        ClosedLoopReasoningRequest duplicated = CreateRequest("ignored");
+        duplicated.SourceTexts = [attachment, attachment];
+
+        ReviewCacheManifestBuilder.Build(single).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(duplicated).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_ledger_technology_name_differs_only_by_unicode_normalization_form()
+    {
+        const string nfcName = "Caf\u00E9";
+        const string nfdName = "Cafe\u0301";
+
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.RunId = "run-ledger-unicode";
+
+        TechnologyLedgerEntry nfcEntry = new()
+        {
+            RunId = request.RunId,
+            Role = TechnologyLedgerRole.CloudPlatform,
+            TechnologyName = nfcName,
+            ProviderFamily = ArchLucid.Contracts.Common.CloudProvider.Azure,
+            Status = TechnologyLedgerStatus.Chosen,
+            Source = TechnologyLedgerSource.User,
+        };
+
+        TechnologyLedgerEntry nfdEntry = new()
+        {
+            RunId = request.RunId,
+            Role = TechnologyLedgerRole.CloudPlatform,
+            TechnologyName = nfdName,
+            ProviderFamily = ArchLucid.Contracts.Common.CloudProvider.Azure,
+            Status = TechnologyLedgerStatus.Chosen,
+            Source = TechnologyLedgerSource.User,
+        };
+
+        ReviewCacheManifestBuilder.Build(request, null, [nfcEntry]).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(request, null, [nfdEntry]).ContentHash);
+    }
+
+    [Fact]
     public void Build_changes_content_hash_when_duplicate_filename_has_different_content()
     {
         ClosedLoopReasoningRequest firstBody = CreateRequest("Architecture note.");
@@ -468,6 +523,204 @@ public sealed class ReviewCacheManifestBuilderTests
         ReviewCacheManifestBuilder.Build(forwardSlash).ContentHash
             .Should()
             .Be(ReviewCacheManifestBuilder.Build(backslash).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_file_name_differs_only_by_leading_dot_slash_or_duplicate_slashes()
+    {
+        ClosedLoopReasoningRequest canonical = CreateRequest("Same body.");
+        canonical.SourceTexts =
+        [
+            new ClosedLoopReasoningSourceText
+            {
+                FileName = "docs/arch.md",
+                ContentType = "text/markdown",
+                Content = "Same body.",
+            },
+        ];
+
+        ClosedLoopReasoningRequest leadingDotSlash = CreateRequest("ignored");
+        leadingDotSlash.SourceTexts =
+        [
+            new ClosedLoopReasoningSourceText
+            {
+                FileName = "./docs/arch.md",
+                ContentType = "text/markdown",
+                Content = "Same body.",
+            },
+        ];
+
+        ClosedLoopReasoningRequest duplicateSlash = CreateRequest("ignored");
+        duplicateSlash.SourceTexts =
+        [
+            new ClosedLoopReasoningSourceText
+            {
+                FileName = "docs//arch.md",
+                ContentType = "text/markdown",
+                Content = "Same body.",
+            },
+        ];
+
+        string canonicalHash = ReviewCacheManifestBuilder.Build(canonical).ContentHash;
+
+        ReviewCacheManifestBuilder.Build(leadingDotSlash).ContentHash.Should().Be(canonicalHash);
+        ReviewCacheManifestBuilder.Build(duplicateSlash).ContentHash.Should().Be(canonicalHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_file_name_differs_only_by_dot_segments_or_slashes()
+    {
+        ClosedLoopReasoningRequest canonical = CreateRequest("Same body.");
+        canonical.SourceTexts =
+        [
+            new ClosedLoopReasoningSourceText
+            {
+                FileName = "docs/arch.md",
+                ContentType = "text/markdown",
+                Content = "Same body.",
+            },
+        ];
+
+        ClosedLoopReasoningRequest dotSegment = CreateRequest("ignored");
+        dotSegment.SourceTexts =
+        [
+            new ClosedLoopReasoningSourceText
+            {
+                FileName = "docs/./arch.md",
+                ContentType = "text/markdown",
+                Content = "Same body.",
+            },
+        ];
+
+        ClosedLoopReasoningRequest trailingSlash = CreateRequest("ignored");
+        trailingSlash.SourceTexts =
+        [
+            new ClosedLoopReasoningSourceText
+            {
+                FileName = "docs/arch.md/",
+                ContentType = "text/markdown",
+                Content = "Same body.",
+            },
+        ];
+
+        ClosedLoopReasoningRequest leadingSlash = CreateRequest("ignored");
+        leadingSlash.SourceTexts =
+        [
+            new ClosedLoopReasoningSourceText
+            {
+                FileName = "/docs/arch.md",
+                ContentType = "text/markdown",
+                Content = "Same body.",
+            },
+        ];
+
+        string canonicalHash = ReviewCacheManifestBuilder.Build(canonical).ContentHash;
+
+        ReviewCacheManifestBuilder.Build(dotSegment).ContentHash.Should().Be(canonicalHash);
+        ReviewCacheManifestBuilder.Build(trailingSlash).ContentHash.Should().Be(canonicalHash);
+        ReviewCacheManifestBuilder.Build(leadingSlash).ContentHash.Should().Be(canonicalHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_file_name_differs_only_by_parent_path_segments()
+    {
+        ClosedLoopReasoningRequest canonical = CreateRequest("Same body.");
+        canonical.SourceTexts =
+        [
+            new ClosedLoopReasoningSourceText
+            {
+                FileName = "docs/arch.md",
+                ContentType = "text/markdown",
+                Content = "Same body.",
+            },
+        ];
+
+        ClosedLoopReasoningRequest childSegment = CreateRequest("ignored");
+        childSegment.SourceTexts =
+        [
+            new ClosedLoopReasoningSourceText
+            {
+                FileName = "docs/sub/../arch.md",
+                ContentType = "text/markdown",
+                Content = "Same body.",
+            },
+        ];
+
+        ClosedLoopReasoningRequest nestedParent = CreateRequest("ignored");
+        nestedParent.SourceTexts =
+        [
+            new ClosedLoopReasoningSourceText
+            {
+                FileName = "docs/foo/bar/../../arch.md",
+                ContentType = "text/markdown",
+                Content = "Same body.",
+            },
+        ];
+
+        string canonicalHash = ReviewCacheManifestBuilder.Build(canonical).ContentHash;
+
+        ReviewCacheManifestBuilder.Build(childSegment).ContentHash.Should().Be(canonicalHash);
+        ReviewCacheManifestBuilder.Build(nestedParent).ContentHash.Should().Be(canonicalHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_file_name_differs_only_by_percent_encoded_slash()
+    {
+        ClosedLoopReasoningRequest literalSlash = CreateRequest("Same body.");
+        literalSlash.SourceTexts =
+        [
+            new ClosedLoopReasoningSourceText
+            {
+                FileName = "docs/arch.md",
+                ContentType = "text/markdown",
+                Content = "Same body.",
+            },
+        ];
+
+        ClosedLoopReasoningRequest encodedSlash = CreateRequest("ignored");
+        encodedSlash.SourceTexts =
+        [
+            new ClosedLoopReasoningSourceText
+            {
+                FileName = "docs%2Farch.md",
+                ContentType = "text/markdown",
+                Content = "Same body.",
+            },
+        ];
+
+        ReviewCacheManifestBuilder.Build(literalSlash).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(encodedSlash).ContentHash);
+    }
+
+    [Fact]
+    public void Build_matches_content_hash_when_source_content_differs_only_by_utf8_bom_prefix()
+    {
+        ClosedLoopReasoningRequest withoutBom = CreateRequest("Same body.");
+        withoutBom.SourceTexts =
+        [
+            new ClosedLoopReasoningSourceText
+            {
+                FileName = "arch.md",
+                ContentType = "text/markdown",
+                Content = "Same body.",
+            },
+        ];
+
+        ClosedLoopReasoningRequest withBom = CreateRequest("ignored");
+        withBom.SourceTexts =
+        [
+            new ClosedLoopReasoningSourceText
+            {
+                FileName = "arch.md",
+                ContentType = "text/markdown",
+                Content = "\uFEFFSame body.",
+            },
+        ];
+
+        ReviewCacheManifestBuilder.Build(withoutBom).ContentHash
+            .Should()
+            .Be(ReviewCacheManifestBuilder.Build(withBom).ContentHash);
     }
 
     [Fact]

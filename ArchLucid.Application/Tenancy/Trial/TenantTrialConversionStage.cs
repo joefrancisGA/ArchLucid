@@ -59,6 +59,12 @@ public sealed class TenantTrialConversionStage(
             };
         }
 
+        TenantRecord? tenantBeforeBilling =
+            await _tenantRepository.GetByIdAsync(tenant.Id, cancellationToken).ConfigureAwait(false);
+
+        if (tenantBeforeBilling?.OffboardedUtc is not null)
+            return new TenantTrialConvertResult { Outcome = TenantTrialHttpOutcome.Success };
+
         try
         {
             await _billingTrialConversionGate
@@ -70,9 +76,21 @@ public sealed class TenantTrialConversionStage(
             return new TenantTrialConvertResult { Outcome = TenantTrialHttpOutcome.Conflict, Message = ex.Message };
         }
 
+        TenantRecord? tenantBeforeConvert =
+            await _tenantRepository.GetByIdAsync(tenant.Id, cancellationToken).ConfigureAwait(false);
+
+        if (tenantBeforeConvert?.OffboardedUtc is not null)
+            return new TenantTrialConvertResult { Outcome = TenantTrialHttpOutcome.Success };
+
         ArchLucidInstrumentation.RecordTrialConversion(
             TrialLifecycleStatus.Active,
             tier?.ToString() ?? "unspecified");
+
+        TenantRecord? tenantBeforeMark =
+            await _tenantRepository.GetByIdAsync(tenant.Id, cancellationToken).ConfigureAwait(false);
+
+        if (tenantBeforeMark?.OffboardedUtc is not null)
+            return new TenantTrialConvertResult { Outcome = TenantTrialHttpOutcome.Success };
 
         bool converted = await _tenantRepository
             .MarkTrialConvertedAsync(tenant.Id, tier, cancellationToken)
@@ -86,6 +104,12 @@ public sealed class TenantTrialConversionStage(
                 Message = "Tenant is not on an active self-service trial.",
             };
         }
+
+        TenantRecord? afterConvert =
+            await _tenantRepository.GetByIdAsync(tenant.Id, cancellationToken).ConfigureAwait(false);
+
+        if (afterConvert is null || afterConvert.OffboardedUtc is not null)
+            return new TenantTrialConvertResult { Outcome = TenantTrialHttpOutcome.Success };
 
         await _auditService.LogAsync(
             new AuditEvent

@@ -2,6 +2,7 @@ using System.Net;
 
 using ArchLucid.Contracts.Marketing;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Identity;
 using ArchLucid.Core.Notifications.Email;
 
 using Microsoft.Extensions.Logging;
@@ -43,6 +44,18 @@ public sealed class MarketingEarlyAccessSalesNotifier(
             return;
         }
 
+        if (!IdentityEmailNormalizer.TryNormalize(inbox, out _, out string salesInboxForDelivery))
+        {
+            if (_logger.IsEnabled(LogLevel.Warning))
+            {
+                _logger.LogWarning(
+                    "Marketing early-access sales notification skipped: {ConfigKey} is not a valid mailbox.",
+                    nameof(EmailNotificationOptions.PricingQuoteSalesInbox));
+            }
+
+            return;
+        }
+
         if (string.Equals(_emailProvider.ProviderName, EmailProviderNames.Noop, StringComparison.OrdinalIgnoreCase))
         {
             if (_logger.IsEnabled(LogLevel.Information))
@@ -66,7 +79,7 @@ public sealed class MarketingEarlyAccessSalesNotifier(
                       $"Email: {email}\nCompany: {companyName ?? "—"}\nRole: {role ?? "—"}\n";
         EmailMessage emailMessage = new()
         {
-            To = inbox.Trim(),
+            To = salesInboxForDelivery,
             Subject = subject,
             HtmlBody = html,
             TextBody = text,

@@ -3,6 +3,7 @@ using System.Net;
 using ArchLucid.Application.Support;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Identity;
 using ArchLucid.Core.Notifications.Email;
 using ArchLucid.Core.Support;
 
@@ -53,6 +54,18 @@ public sealed class SupportProblemReportNotifier(
             return;
         }
 
+        if (!IdentityEmailNormalizer.TryNormalize(inbox, out _, out string supportInboxForDelivery))
+        {
+            if (_logger.IsEnabled(LogLevel.Warning))
+            {
+                _logger.LogWarning(
+                    "Support problem report notification skipped: {ConfigKey} is not a valid mailbox.",
+                    nameof(EmailNotificationOptions.SupportInbox));
+            }
+
+            return;
+        }
+
         if (string.Equals(_emailProvider.ProviderName, EmailProviderNames.Noop, StringComparison.OrdinalIgnoreCase))
         {
             if (_logger.IsEnabled(LogLevel.Information))
@@ -90,7 +103,7 @@ public sealed class SupportProblemReportNotifier(
                       $"SLA: {SupportProblemReportIntakeService.SlaMessage}\n";
         EmailMessage emailMessage = new()
         {
-            To = inbox.Trim(),
+            To = supportInboxForDelivery,
             Subject = subject,
             HtmlBody = html,
             TextBody = text,
@@ -109,6 +122,18 @@ public sealed class SupportProblemReportNotifier(
     {
         ArgumentNullException.ThrowIfNull(report);
         ArgumentException.ThrowIfNullOrWhiteSpace(submitterMailbox);
+
+        if (!IdentityEmailNormalizer.TryNormalize(submitterMailbox, out _, out string submitterMailboxForDelivery))
+        {
+            if (_logger.IsEnabled(LogLevel.Warning))
+            {
+                _logger.LogWarning(
+                    "Support problem report acknowledgement skipped: submitter mailbox is not valid for report id {ReportId}.",
+                    report.Id);
+            }
+
+            return;
+        }
 
         if (string.Equals(_emailProvider.ProviderName, EmailProviderNames.Noop, StringComparison.OrdinalIgnoreCase))
         {
@@ -145,7 +170,7 @@ public sealed class SupportProblemReportNotifier(
                       $"Support settings: {settingsUrl}\n";
         EmailMessage emailMessage = new()
         {
-            To = submitterMailbox.Trim(),
+            To = submitterMailboxForDelivery,
             Subject = subject,
             HtmlBody = html,
             TextBody = text,

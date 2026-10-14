@@ -208,8 +208,9 @@ public sealed class TrialLifecycleEmailDispatcher(
             return null;
         {
             string tier = string.IsNullOrWhiteSpace(envelope.TargetTier) ? tenant.Tier.ToString() : envelope.TargetTier.Trim();
-            TrialConvertedEmailModel model = new(productName, tier, logoImageUrl);
-            return new TrialDispatchPlan(idempotencyKey, EmailTemplateIds.TrialConverted, $"Welcome to {tier}", model);
+            string sanitizedTier = EmailHeaderFragmentSanitizer.Sanitize(tier);
+            TrialConvertedEmailModel model = new(productName, sanitizedTier, logoImageUrl);
+            return new TrialDispatchPlan(idempotencyKey, EmailTemplateIds.TrialConverted, $"Welcome to {sanitizedTier}", model);
         }
     }
 

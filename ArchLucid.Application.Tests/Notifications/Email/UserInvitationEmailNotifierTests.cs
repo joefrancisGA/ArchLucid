@@ -1,5 +1,6 @@
 using ArchLucid.Application.Notifications.Email;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Identity;
 using ArchLucid.Core.Notifications.Email;
 
 using FluentAssertions;
@@ -91,6 +92,169 @@ public sealed class UserInvitationEmailNotifierTests
         sentMessage.TextBody.Should().Contain(
             "Retail API platform (https://app.example.com/architecture/reviews/run-abc)");
         sentMessage.TextBody.Should().NotContain("[Retail API platform]");
+    }
+
+    [SkippableFact]
+    public async Task TrySendInvitationAsync_omits_user_info_from_accept_url_in_message_bodies()
+    {
+        EmailMessage? sentMessage = null;
+        Mock<IEmailProvider> email = new();
+        email
+            .Setup(x => x.SendAsync(It.IsAny<EmailMessage>(), It.IsAny<CancellationToken>()))
+            .Callback<EmailMessage, CancellationToken>((message, _) => sentMessage = message)
+            .Returns(Task.CompletedTask);
+
+        UserInvitationEmailNotifier sut = new(
+            email.Object,
+            BuildOptions(new EmailNotificationOptions { ProductDisplayName = "Prod" }),
+            NullLogger<UserInvitationEmailNotifier>.Instance);
+
+        const string acceptUrlWithUserInfo =
+            "https://user:secret@ops.example.test/auth/invite?token=stable-invite-token";
+
+        await sut.TrySendInvitationAsync(
+            "invitee@example.com",
+            acceptUrlWithUserInfo,
+            "Reader",
+            14,
+            null,
+            CancellationToken.None);
+
+        sentMessage.Should().NotBeNull();
+        const string expectedAcceptUrl =
+            "https://ops.example.test/auth/invite?token=stable-invite-token";
+        sentMessage!.HtmlBody.Should().Contain(expectedAcceptUrl);
+        sentMessage.TextBody.Should().Contain(expectedAcceptUrl);
+        sentMessage.HtmlBody.Should().NotContain("user:secret@");
+        sentMessage.TextBody.Should().NotContain("user:secret@");
+    }
+
+    [SkippableFact]
+    public async Task TrySendInvitationAsync_rejects_recipient_mailbox_with_embedded_line_breaks()
+    {
+        EmailMessage? sentMessage = null;
+        Mock<IEmailProvider> email = new();
+        email
+            .Setup(x => x.SendAsync(It.IsAny<EmailMessage>(), It.IsAny<CancellationToken>()))
+            .Callback<EmailMessage, CancellationToken>((message, _) => sentMessage = message)
+            .Returns(Task.CompletedTask);
+
+        UserInvitationEmailNotifier sut = new(
+            email.Object,
+            BuildOptions(new EmailNotificationOptions { ProductDisplayName = "Prod" }),
+            NullLogger<UserInvitationEmailNotifier>.Instance);
+
+        bool sent = await sut.TrySendInvitationAsync(
+            "invitee@example.com\r\nBcc: injected@evil.test",
+            AcceptUrl,
+            "Reader",
+            14,
+            null,
+            CancellationToken.None);
+
+        sent.Should().BeFalse();
+        sentMessage.Should().BeNull();
+        email.Verify(
+            p => p.SendAsync(It.IsAny<EmailMessage>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [SkippableFact]
+    public async Task TrySendInvitationAsync_omits_line_breaks_from_product_display_name_in_subject()
+    {
+        EmailMessage? sentMessage = null;
+        Mock<IEmailProvider> email = new();
+        email
+            .Setup(x => x.SendAsync(It.IsAny<EmailMessage>(), It.IsAny<CancellationToken>()))
+            .Callback<EmailMessage, CancellationToken>((message, _) => sentMessage = message)
+            .Returns(Task.CompletedTask);
+
+        UserInvitationEmailNotifier sut = new(
+            email.Object,
+            BuildOptions(new EmailNotificationOptions { ProductDisplayName = "Prod\r\nBcc: injected@evil.test" }),
+            NullLogger<UserInvitationEmailNotifier>.Instance);
+
+        await sut.TrySendInvitationAsync(
+            "invitee@example.com",
+            AcceptUrl,
+            "Reader",
+            14,
+            null,
+            CancellationToken.None);
+
+        sentMessage.Should().NotBeNull();
+        sentMessage!.Subject.Should().Be("You're invited to Prod Bcc: injected@evil.test");
+        sentMessage.Subject.Should().NotContain("\r");
+        sentMessage.Subject.Should().NotContain("\n");
+    }
+
+    [SkippableFact]
+    public async Task TrySendInvitationAsync_omits_user_info_from_plain_http_url_in_personal_message()
+    {
+        EmailMessage? sentMessage = null;
+        Mock<IEmailProvider> email = new();
+        email
+            .Setup(x => x.SendAsync(It.IsAny<EmailMessage>(), It.IsAny<CancellationToken>()))
+            .Callback<EmailMessage, CancellationToken>((message, _) => sentMessage = message)
+            .Returns(Task.CompletedTask);
+
+        UserInvitationEmailNotifier sut = new(
+            email.Object,
+            BuildOptions(new EmailNotificationOptions { ProductDisplayName = "Prod" }),
+            NullLogger<UserInvitationEmailNotifier>.Instance);
+
+        const string personalMessage =
+            "Use this link: https://user:secret@ops.example.test/architecture/reviews/run-abc";
+
+        await sut.TrySendInvitationAsync(
+            "invitee@example.com",
+            AcceptUrl,
+            "Reader",
+            14,
+            personalMessage,
+            CancellationToken.None);
+
+        sentMessage.Should().NotBeNull();
+        const string expectedUrl = "https://ops.example.test/architecture/reviews/run-abc";
+        sentMessage!.HtmlBody.Should().Contain(expectedUrl);
+        sentMessage.TextBody.Should().Contain(expectedUrl);
+        sentMessage.HtmlBody.Should().NotContain("user:secret@");
+        sentMessage.TextBody.Should().NotContain("user:secret@");
+    }
+
+    [SkippableFact]
+    public async Task TrySendInvitationAsync_omits_user_info_from_personal_message_markdown_link_urls()
+    {
+        EmailMessage? sentMessage = null;
+        Mock<IEmailProvider> email = new();
+        email
+            .Setup(x => x.SendAsync(It.IsAny<EmailMessage>(), It.IsAny<CancellationToken>()))
+            .Callback<EmailMessage, CancellationToken>((message, _) => sentMessage = message)
+            .Returns(Task.CompletedTask);
+
+        UserInvitationEmailNotifier sut = new(
+            email.Object,
+            BuildOptions(new EmailNotificationOptions { ProductDisplayName = "Prod" }),
+            NullLogger<UserInvitationEmailNotifier>.Instance);
+
+        const string personalMessage =
+            "See [run details](https://user:secret@ops.example.test/architecture/reviews/run-abc).";
+
+        await sut.TrySendInvitationAsync(
+            "invitee@example.com",
+            AcceptUrl,
+            "Reader",
+            14,
+            personalMessage,
+            CancellationToken.None);
+
+        sentMessage.Should().NotBeNull();
+        sentMessage!.HtmlBody.Should().Contain(
+            "<a href=\"https://ops.example.test/architecture/reviews/run-abc\" rel=\"noopener noreferrer\">run details</a>");
+        sentMessage.TextBody.Should().Contain(
+            "run details (https://ops.example.test/architecture/reviews/run-abc)");
+        sentMessage.HtmlBody.Should().NotContain("user:secret@");
+        sentMessage.TextBody.Should().NotContain("user:secret@");
     }
 
     [SkippableTheory]

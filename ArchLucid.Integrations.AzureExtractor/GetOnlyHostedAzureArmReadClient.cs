@@ -26,6 +26,64 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
     private const string ReplicationProtectedItemsApiVersion = "2021-11-01";
     private const int MaxPaginationRequests = 64;
 
+    private static bool ShouldBreakForPageCap(int requestCount) => requestCount > MaxPaginationRequests;
+
+    private static bool ShouldBreakForPaginationHttpFailure(HttpResponseMessage response, int collectedCount)
+    {
+        if (response.IsSuccessStatusCode)
+        {
+            return false;
+        }
+
+        if (collectedCount > 0)
+        {
+            return true;
+        }
+
+        response.EnsureSuccessStatusCode();
+
+        return false;
+    }
+
+    private static bool ShouldBreakForFactoryPaginationTerminalHttpFailure(
+        HttpResponseMessage response,
+        int collectedCount)
+    {
+        if (collectedCount == 0)
+        {
+            return false;
+        }
+
+        if (response.StatusCode == System.Net.HttpStatusCode.Forbidden
+            || response.StatusCode == System.Net.HttpStatusCode.NotFound
+            || (int)response.StatusCode == 429)
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    private static async Task<JsonDocument?> TryParseArmPaginationPageAsync(
+        Stream stream,
+        int collectedCount,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            return await JsonDocument.ParseAsync(stream, cancellationToken: cancellationToken).ConfigureAwait(false);
+        }
+        catch (JsonException)
+        {
+            if (collectedCount > 0)
+            {
+                return null;
+            }
+
+            throw;
+        }
+    }
+
     private readonly HttpClient _httpClient =
         httpClient ?? throw new ArgumentNullException(nameof(httpClient));
 
@@ -52,16 +110,14 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
         {
             if (!visitedLinks.Add(nextLink))
             {
-                throw new InvalidOperationException(
-                    "Hosted Azure extractor stopped ARM resource listing due to repeating nextLink.");
+                break;
             }
 
             requestCount++;
 
-            if (requestCount > MaxPaginationRequests)
+            if (ShouldBreakForPageCap(requestCount))
             {
-                throw new InvalidOperationException(
-                    $"Hosted Azure extractor stopped ARM resource listing after {MaxPaginationRequests} pages.");
+                break;
             }
 
             using HttpRequestMessage request = new(HttpMethod.Get, nextLink);
@@ -70,12 +126,20 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
             using HttpResponseMessage response =
                 await _httpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
 
-            response.EnsureSuccessStatusCode();
+            if (ShouldBreakForPaginationHttpFailure(response, resources.Count))
+            {
+                break;
+            }
 
             await using Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
 
-            using JsonDocument document = await JsonDocument.ParseAsync(stream, cancellationToken: cancellationToken)
-                .ConfigureAwait(false);
+            using JsonDocument? document =
+                await TryParseArmPaginationPageAsync(stream, resources.Count, cancellationToken).ConfigureAwait(false);
+
+            if (document is null)
+            {
+                break;
+            }
 
             if (document.RootElement.TryGetProperty("value", out JsonElement valueElement) &&
                 valueElement.ValueKind == JsonValueKind.Array)
@@ -162,16 +226,14 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
         {
             if (!visitedLinks.Add(nextLink))
             {
-                throw new InvalidOperationException(
-                    $"Hosted Azure extractor stopped ARM {listingKind} listing due to repeating nextLink.");
+                break;
             }
 
             requestCount++;
 
-            if (requestCount > MaxPaginationRequests)
+            if (ShouldBreakForPageCap(requestCount))
             {
-                throw new InvalidOperationException(
-                    $"Hosted Azure extractor stopped ARM {listingKind} listing after {MaxPaginationRequests} pages.");
+                break;
             }
 
             using HttpRequestMessage request = new(HttpMethod.Get, nextLink);
@@ -180,12 +242,20 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
             using HttpResponseMessage response =
                 await _httpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
 
-            response.EnsureSuccessStatusCode();
+            if (ShouldBreakForPaginationHttpFailure(response, assignments.Count))
+            {
+                break;
+            }
 
             await using Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
 
-            using JsonDocument document = await JsonDocument.ParseAsync(stream, cancellationToken: cancellationToken)
-                .ConfigureAwait(false);
+            using JsonDocument? document =
+                await TryParseArmPaginationPageAsync(stream, assignments.Count, cancellationToken).ConfigureAwait(false);
+
+            if (document is null)
+            {
+                break;
+            }
 
             if (document.RootElement.TryGetProperty("value", out JsonElement valueElement) &&
                 valueElement.ValueKind == JsonValueKind.Array)
@@ -251,16 +321,14 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
         {
             if (!visitedLinks.Add(nextLink))
             {
-                throw new InvalidOperationException(
-                    "Hosted Azure extractor stopped ARM role eligibility listing due to repeating nextLink.");
+                break;
             }
 
             requestCount++;
 
-            if (requestCount > MaxPaginationRequests)
+            if (ShouldBreakForPageCap(requestCount))
             {
-                throw new InvalidOperationException(
-                    $"Hosted Azure extractor stopped ARM role eligibility listing after {MaxPaginationRequests} pages.");
+                break;
             }
 
             using HttpRequestMessage request = new(HttpMethod.Get, nextLink);
@@ -284,8 +352,13 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
 
             await using Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
 
-            using JsonDocument document = await JsonDocument.ParseAsync(stream, cancellationToken: cancellationToken)
-                .ConfigureAwait(false);
+            using JsonDocument? document =
+                await TryParseArmPaginationPageAsync(stream, schedules.Count, cancellationToken).ConfigureAwait(false);
+
+            if (document is null)
+            {
+                break;
+            }
 
             if (document.RootElement.TryGetProperty("value", out JsonElement valueElement) &&
                 valueElement.ValueKind == JsonValueKind.Array)
@@ -413,16 +486,14 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
         {
             if (!visitedLinks.Add(nextLink))
             {
-                throw new InvalidOperationException(
-                    "Hosted Azure extractor stopped ARM management group subscription listing due to repeating nextLink.");
+                break;
             }
 
             requestCount++;
 
-            if (requestCount > MaxPaginationRequests)
+            if (ShouldBreakForPageCap(requestCount))
             {
-                throw new InvalidOperationException(
-                    $"Hosted Azure extractor stopped ARM management group subscription listing after {MaxPaginationRequests} pages.");
+                break;
             }
 
             using HttpRequestMessage request = new(HttpMethod.Get, nextLink);
@@ -446,8 +517,13 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
 
             await using Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
 
-            using JsonDocument document = await JsonDocument.ParseAsync(stream, cancellationToken: cancellationToken)
-                .ConfigureAwait(false);
+            using JsonDocument? document =
+                await TryParseArmPaginationPageAsync(stream, subscriptionIds.Count, cancellationToken).ConfigureAwait(false);
+
+            if (document is null)
+            {
+                break;
+            }
 
             if (document.RootElement.TryGetProperty("value", out JsonElement valueElement)
                 && valueElement.ValueKind == JsonValueKind.Array)
@@ -554,16 +630,14 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
         {
             if (!visitedLinks.Add(nextLink))
             {
-                throw new InvalidOperationException(
-                    $"Hosted Azure extractor stopped ARM {listingKind} listing due to repeating nextLink.");
+                break;
             }
 
             requestCount++;
 
-            if (requestCount > MaxPaginationRequests)
+            if (ShouldBreakForPageCap(requestCount))
             {
-                throw new InvalidOperationException(
-                    $"Hosted Azure extractor stopped ARM {listingKind} listing after {MaxPaginationRequests} pages.");
+                break;
             }
 
             using HttpRequestMessage request = new(HttpMethod.Get, nextLink);
@@ -588,8 +662,13 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
 
             await using Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
 
-            using JsonDocument document = await JsonDocument.ParseAsync(stream, cancellationToken: cancellationToken)
-                .ConfigureAwait(false);
+            using JsonDocument? document =
+                await TryParseArmPaginationPageAsync(stream, assignments.Count, cancellationToken).ConfigureAwait(false);
+
+            if (document is null)
+            {
+                break;
+            }
 
             if (document.RootElement.TryGetProperty("value", out JsonElement valueElement)
                 && valueElement.ValueKind == JsonValueKind.Array)
@@ -641,16 +720,14 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
         {
             if (!visitedLinks.Add(nextLink))
             {
-                throw new InvalidOperationException(
-                    "Hosted Azure extractor stopped ARM management group role eligibility listing due to repeating nextLink.");
+                break;
             }
 
             requestCount++;
 
-            if (requestCount > MaxPaginationRequests)
+            if (ShouldBreakForPageCap(requestCount))
             {
-                throw new InvalidOperationException(
-                    $"Hosted Azure extractor stopped ARM management group role eligibility listing after {MaxPaginationRequests} pages.");
+                break;
             }
 
             using HttpRequestMessage request = new(HttpMethod.Get, nextLink);
@@ -674,8 +751,13 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
 
             await using Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
 
-            using JsonDocument document = await JsonDocument.ParseAsync(stream, cancellationToken: cancellationToken)
-                .ConfigureAwait(false);
+            using JsonDocument? document =
+                await TryParseArmPaginationPageAsync(stream, schedules.Count, cancellationToken).ConfigureAwait(false);
+
+            if (document is null)
+            {
+                break;
+            }
 
             if (document.RootElement.TryGetProperty("value", out JsonElement valueElement)
                 && valueElement.ValueKind == JsonValueKind.Array)
@@ -857,16 +939,14 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
         {
             if (!visitedLinks.Add(nextLink))
             {
-                throw new InvalidOperationException(
-                    "Hosted Azure extractor stopped Defender secure score listing due to repeating nextLink.");
+                break;
             }
 
             requestCount++;
 
-            if (requestCount > MaxPaginationRequests)
+            if (ShouldBreakForPageCap(requestCount))
             {
-                throw new InvalidOperationException(
-                    $"Hosted Azure extractor stopped Defender secure score listing after {MaxPaginationRequests} pages.");
+                break;
             }
 
             using HttpRequestMessage request = new(HttpMethod.Get, nextLink);
@@ -890,8 +970,15 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
 
             await using Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
 
-            using JsonDocument document = await JsonDocument.ParseAsync(stream, cancellationToken: cancellationToken)
-                .ConfigureAwait(false);
+            int partialRetentionCount = bestSecureScore is not null ? 1 : 0;
+
+            using JsonDocument? document =
+                await TryParseArmPaginationPageAsync(stream, partialRetentionCount, cancellationToken).ConfigureAwait(false);
+
+            if (document is null)
+            {
+                break;
+            }
 
             int? pageScore = TryReadSubscriptionSecureScorePercent(document.RootElement);
 
@@ -1031,16 +1118,14 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
         {
             if (!visitedLinks.Add(nextLink))
             {
-                throw new InvalidOperationException(
-                    "Hosted Azure extractor stopped ARM policy assignment listing due to repeating nextLink.");
+                break;
             }
 
             requestCount++;
 
-            if (requestCount > MaxPaginationRequests)
+            if (ShouldBreakForPageCap(requestCount))
             {
-                throw new InvalidOperationException(
-                    $"Hosted Azure extractor stopped ARM policy assignment listing after {MaxPaginationRequests} pages.");
+                break;
             }
 
             using HttpRequestMessage request = new(HttpMethod.Get, nextLink);
@@ -1064,8 +1149,13 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
 
             await using Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
 
-            using JsonDocument document = await JsonDocument.ParseAsync(stream, cancellationToken: cancellationToken)
-                .ConfigureAwait(false);
+            using JsonDocument? document =
+                await TryParseArmPaginationPageAsync(stream, assignments.Count, cancellationToken).ConfigureAwait(false);
+
+            if (document is null)
+            {
+                break;
+            }
 
             if (document.RootElement.TryGetProperty("value", out JsonElement valueElement)
                 && valueElement.ValueKind == JsonValueKind.Array)
@@ -1135,6 +1225,11 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
 
             if (requestCount > MaxPaginationRequests)
             {
+                if (settings.Count > 0)
+                {
+                    partialCollection = true;
+                }
+
                 if (_logger.IsEnabled(LogLevel.Debug))
                 {
                     _logger.LogDebug(
@@ -1154,7 +1249,7 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
 
             if (!response.IsSuccessStatusCode)
             {
-                if (response.StatusCode == System.Net.HttpStatusCode.Forbidden)
+                if (settings.Count > 0)
                 {
                     partialCollection = true;
                 }
@@ -1172,8 +1267,27 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
 
             await using Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
 
-            using JsonDocument document = await JsonDocument.ParseAsync(stream, cancellationToken: cancellationToken)
-                .ConfigureAwait(false);
+            JsonDocument? document;
+
+            try
+            {
+                document = await TryParseArmPaginationPageAsync(stream, settings.Count, cancellationToken)
+                    .ConfigureAwait(false);
+            }
+            catch (JsonException)
+            {
+                break;
+            }
+
+            if (document is null)
+            {
+                if (settings.Count > 0)
+                {
+                    partialCollection = true;
+                }
+
+                break;
+            }
 
             if (document.RootElement.TryGetProperty("value", out JsonElement valueElement)
                 && valueElement.ValueKind == JsonValueKind.Array)
@@ -1198,10 +1312,23 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
 
                 if (!string.IsNullOrWhiteSpace(candidateNextLink))
                 {
-                    HostedAzureArmNextLinkValidator.EnsureTargetsDiagnosticSettingsResource(
-                        candidateNextLink,
-                        resourceId);
-                    nextLink = candidateNextLink;
+                    try
+                    {
+                        HostedAzureArmNextLinkValidator.EnsureTargetsDiagnosticSettingsResource(
+                            candidateNextLink,
+                            resourceId);
+                        nextLink = candidateNextLink;
+                    }
+                    catch (InvalidOperationException)
+                    {
+                        if (settings.Count > 0)
+                        {
+                            partialCollection = true;
+                            break;
+                        }
+
+                        throw;
+                    }
                 }
             }
         }
@@ -1390,8 +1517,13 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
 
             await using Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
 
-            using JsonDocument document = await JsonDocument.ParseAsync(stream, cancellationToken: cancellationToken)
-                .ConfigureAwait(false);
+            using JsonDocument? document =
+                await TryParseArmPaginationPageAsync(stream, credentials.Count, cancellationToken).ConfigureAwait(false);
+
+            if (document is null)
+            {
+                break;
+            }
 
             if (document.RootElement.TryGetProperty("value", out JsonElement valueElement)
                 && valueElement.ValueKind == JsonValueKind.Array)
@@ -1719,7 +1851,7 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
 
             requestCount++;
 
-            if (requestCount > MaxPaginationRequests)
+            if (ShouldBreakForPageCap(requestCount))
             {
                 if (_logger.IsEnabled(LogLevel.Debug))
                 {
@@ -1730,12 +1862,7 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
                         MaxPaginationRequests);
                 }
 
-                return new HostedAzureVaultProtectedItemListResult
-                {
-                    Items = items,
-                    Succeeded = false,
-                    HttpStatusCode = 429,
-                };
+                break;
             }
 
             using HttpRequestMessage request = new(HttpMethod.Get, nextLink);
@@ -1755,6 +1882,11 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
                         (int)response.StatusCode);
                 }
 
+                if (items.Count > 0)
+                {
+                    break;
+                }
+
                 return new HostedAzureVaultProtectedItemListResult
                 {
                     Items = items,
@@ -1765,8 +1897,13 @@ public sealed partial class GetOnlyHostedAzureArmReadClient(
 
             await using Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
 
-            using JsonDocument document = await JsonDocument.ParseAsync(stream, cancellationToken: cancellationToken)
-                .ConfigureAwait(false);
+            using JsonDocument? document =
+                await TryParseArmPaginationPageAsync(stream, items.Count, cancellationToken).ConfigureAwait(false);
+
+            if (document is null)
+            {
+                break;
+            }
 
             if (document.RootElement.TryGetProperty("value", out JsonElement valueElement)
                 && valueElement.ValueKind == JsonValueKind.Array)

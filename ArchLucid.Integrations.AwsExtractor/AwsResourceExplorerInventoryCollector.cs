@@ -28,8 +28,7 @@ internal static class AwsResourceExplorerInventoryCollector
             {
                 if (!visitedTokens.Add(nextToken))
                 {
-                    throw new InvalidOperationException(
-                        "Hosted AWS extractor stopped Resource Explorer listing due to repeating NextToken.");
+                    break;
                 }
             }
 
@@ -37,8 +36,7 @@ internal static class AwsResourceExplorerInventoryCollector
 
             if (requestCount > MaxPaginationRequests)
             {
-                throw new InvalidOperationException(
-                    $"Hosted AWS extractor stopped Resource Explorer listing after {MaxPaginationRequests} pages.");
+                break;
             }
 
             SearchResponse response = await explorerClient
@@ -56,10 +54,15 @@ internal static class AwsResourceExplorerInventoryCollector
             {
                 foreach (Resource resource in response.Resources)
                 {
+                    if (string.IsNullOrWhiteSpace(resource.Arn))
+                    {
+                        continue;
+                    }
+
                     string location = ResolveResourceLocation(resource, regionSystemName);
 
                     resources.Add(new AwsInventoryResourceEntry(
-                        resource.Arn ?? string.Empty,
+                        resource.Arn.Trim(),
                         resource.ResourceType ?? string.Empty,
                         location,
                         null));

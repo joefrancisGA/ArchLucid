@@ -64,4 +64,32 @@ public sealed class EmailOtpEmailNotifierTests
         sentMessages.Should().HaveCount(2);
         sentMessages[0].IdempotencyKey.Should().Be(sentMessages[1].IdempotencyKey);
     }
+
+    [SkippableFact]
+    public async Task TrySendSignInCodeAsync_rejects_recipient_mailbox_with_embedded_line_breaks()
+    {
+        Mock<IEmailProvider> email = new();
+        email
+            .Setup(x => x.SendAsync(It.IsAny<EmailMessage>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IOptionsMonitor<EmailNotificationOptions>> options = new();
+        options.Setup(x => x.CurrentValue).Returns(new EmailNotificationOptions { ProductDisplayName = "Prod" });
+
+        EmailOtpEmailNotifier sut = new(
+            email.Object,
+            options.Object,
+            NullLogger<EmailOtpEmailNotifier>.Instance);
+
+        bool sent = await sut.TrySendSignInCodeAsync(
+            "user@example.com\r\nBcc: injected@evil.test",
+            "111111",
+            10,
+            CancellationToken.None);
+
+        sent.Should().BeFalse();
+        email.Verify(
+            x => x.SendAsync(It.IsAny<EmailMessage>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
 }

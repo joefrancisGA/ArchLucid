@@ -113,7 +113,80 @@ public sealed class AwsResourceExplorerInventoryCollectorTests
     }
 
     [Fact]
-    public async Task CollectAsync_throws_when_next_token_repeats()
+    public async Task CollectAsync_omits_resources_without_arn()
+    {
+        Mock<IAmazonResourceExplorer2> explorerClient = new();
+
+        explorerClient
+            .Setup(c => c.SearchAsync(It.IsAny<SearchRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new SearchResponse
+            {
+                Resources =
+                [
+                    new Resource
+                    {
+                        Arn = null,
+                        ResourceType = "AWS::S3::Bucket",
+                        Region = "us-east-1"
+                    },
+                    new Resource
+                    {
+                        Arn = "arn:aws:s3:::valid-bucket",
+                        ResourceType = "AWS::S3::Bucket",
+                        Region = "us-east-1"
+                    }
+                ],
+                NextToken = null
+            });
+
+        List<AwsInventoryResourceEntry> resources = await AwsResourceExplorerInventoryCollector.CollectAsync(
+            explorerClient.Object,
+            "us-east-1",
+            CancellationToken.None);
+
+        resources.Should().ContainSingle();
+        resources[0].Name.Should().Be("arn:aws:s3:::valid-bucket");
+    }
+
+    [Fact]
+    public async Task CollectAsync_retains_resources_when_max_pagination_limit_reached()
+    {
+        Mock<IAmazonResourceExplorer2> explorerClient = new();
+        int requestCount = 0;
+
+        explorerClient
+            .Setup(c => c.SearchAsync(It.IsAny<SearchRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(() =>
+            {
+                int page = Interlocked.Increment(ref requestCount);
+
+                return new SearchResponse
+                {
+                    Resources =
+                    [
+                        new Resource
+                        {
+                            Arn = $"arn:aws:ec2:us-east-1:123456789012:vpc/vpc-{page}",
+                            ResourceType = "AWS::EC2::VPC"
+                        }
+                    ],
+                    NextToken = $"page-{page}"
+                };
+            });
+
+        List<AwsInventoryResourceEntry> resources = await AwsResourceExplorerInventoryCollector.CollectAsync(
+            explorerClient.Object,
+            "us-east-1",
+            CancellationToken.None);
+
+        requestCount.Should().Be(64);
+        resources.Should().HaveCount(64);
+        resources[0].Name.Should().Contain("vpc-1");
+        resources[^1].Name.Should().Contain("vpc-64");
+    }
+
+    [Fact]
+    public async Task CollectAsync_retains_resources_when_next_token_repeats()
     {
         const string repeatingToken = "repeat-token";
         Mock<IAmazonResourceExplorer2> explorerClient = new();
@@ -137,7 +210,7 @@ public sealed class AwsResourceExplorerInventoryCollectorTests
                     [
                         new Resource
                         {
-                            Arn = "arn:aws:ec2:us-east-1:123456789012:vpc/vpc-1",
+                            Arn = $"arn:aws:ec2:us-east-1:123456789012:vpc/vpc-{current}",
                             ResourceType = "AWS::EC2::VPC"
                         }
                     ],
@@ -145,14 +218,14 @@ public sealed class AwsResourceExplorerInventoryCollectorTests
                 };
             });
 
-        Func<Task> act = () => AwsResourceExplorerInventoryCollector.CollectAsync(
+        List<AwsInventoryResourceEntry> resources = await AwsResourceExplorerInventoryCollector.CollectAsync(
             explorerClient.Object,
             "us-east-1",
             CancellationToken.None);
 
-        InvalidOperationException exception = (await act.Should().ThrowAsync<InvalidOperationException>()).Which;
-
-        exception.Message.Should().ContainEquivalentOf("repeating NextToken");
         requestCount.Should().Be(2);
+        resources.Should().HaveCount(2);
+        resources[0].Name.Should().Contain("vpc-1");
+        resources[1].Name.Should().Contain("vpc-2");
     }
 }

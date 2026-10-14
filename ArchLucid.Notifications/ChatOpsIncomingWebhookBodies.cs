@@ -1,3 +1,5 @@
+using System.Net;
+
 namespace ArchLucid.Notifications;
 
 /// <summary>Vendor JSON bodies for Slack and Microsoft Teams <em>incoming</em> webhooks (simple one-way POST).</summary>
@@ -8,11 +10,14 @@ public static class ChatOpsIncomingWebhookBodies
     {
         ArgumentNullException.ThrowIfNull(message);
 
-        string headline = string.IsNullOrWhiteSpace(message.SeverityLabel)
-            ? $"*{message.Title}*"
-            : FormattableString.Invariant($"*[{message.SeverityLabel!.Trim()}]* {message.Title}");
+        string safeTitle = ChatOpsSlackMrkdwnEscaper.EscapeFormattingMetacharacters(message.Title);
 
-        string text = CombineBlocks(headline, message.SupportingParagraph, message.Body);
+        string headline = BuildSlackHeadline(message, safeTitle);
+
+        string text = CombineBlocks(
+            headline,
+            EscapeSupportingParagraphForSlack(message.SupportingParagraph),
+            message.Body);
 
         return new
         {
@@ -30,11 +35,14 @@ public static class ChatOpsIncomingWebhookBodies
         ArgumentNullException.ThrowIfNull(message);
         ArgumentException.ThrowIfNullOrWhiteSpace(approvalRequestId);
 
-        string headline = string.IsNullOrWhiteSpace(message.SeverityLabel)
-            ? $"*{message.Title}*"
-            : FormattableString.Invariant($"*[{message.SeverityLabel!.Trim()}]* {message.Title}");
+        string safeTitle = ChatOpsSlackMrkdwnEscaper.EscapeFormattingMetacharacters(message.Title);
 
-        string body = CombineBlocks(headline, message.SupportingParagraph, message.Body);
+        string headline = BuildSlackHeadline(message, safeTitle);
+
+        string body = CombineBlocks(
+            headline,
+            EscapeSupportingParagraphForSlack(message.SupportingParagraph),
+            message.Body);
 
         return new
         {
@@ -77,9 +85,7 @@ public static class ChatOpsIncomingWebhookBodies
     {
         ArgumentNullException.ThrowIfNull(message);
 
-        string title = string.IsNullOrWhiteSpace(message.SeverityLabel)
-            ? message.Title
-            : FormattableString.Invariant($"[{message.SeverityLabel!.Trim()}] {message.Title}");
+        string title = BuildTeamsTitle(message);
 
         string text =
             TeamsTextBlock(
@@ -93,6 +99,17 @@ public static class ChatOpsIncomingWebhookBodies
             title,
             text
         };
+    }
+
+    private static string? EscapeSupportingParagraphForSlack(string? supporting)
+    {
+
+        if (string.IsNullOrWhiteSpace(supporting))
+        {
+            return supporting;
+        }
+
+        return ChatOpsSlackMrkdwnEscaper.EscapeSupportingParagraphMetacharacters(supporting.Trim());
     }
 
     private static string CombineBlocks(string paragraphHeadline, string? supporting, string body)
@@ -110,5 +127,59 @@ public static class ChatOpsIncomingWebhookBodies
         body = body.Trim();
 
         return string.IsNullOrWhiteSpace(supporting) ? body : $"{supporting.Trim()}\n\n{body}";
+    }
+
+    private static string BuildSlackHeadline(ChatOpsWebhookMessage message, string safeTitle)
+    {
+        string? sanitizedSeverity = TrySanitizeSeverityLabel(message.SeverityLabel);
+
+        if (sanitizedSeverity is null)
+            return FormattableString.Invariant($"*{safeTitle}*");
+
+        return FormattableString.Invariant(
+            $"*[{ChatOpsSlackMrkdwnEscaper.EscapeFormattingMetacharacters(sanitizedSeverity)}]* {safeTitle}");
+    }
+
+    private static string BuildTeamsTitle(ChatOpsWebhookMessage message)
+    {
+        string? sanitizedSeverity = TrySanitizeSeverityLabel(message.SeverityLabel);
+
+        if (sanitizedSeverity is null)
+            return message.Title;
+
+        string encodedSeverity = WebUtility.HtmlEncode(sanitizedSeverity);
+
+        return FormattableString.Invariant($"[{encodedSeverity}] {message.Title}");
+    }
+
+    private static string? TrySanitizeSeverityLabel(string? severityLabel)
+    {
+        if (string.IsNullOrWhiteSpace(severityLabel))
+            return null;
+
+        string sanitized = SanitizeBracketedSeverityLabel(severityLabel);
+
+        if (string.IsNullOrWhiteSpace(sanitized))
+            return null;
+
+        return sanitized;
+    }
+
+    private static string SanitizeBracketedSeverityLabel(string severityLabel)
+    {
+        string withoutBrackets = severityLabel
+            .Trim()
+            .Replace("[", string.Empty, StringComparison.Ordinal)
+            .Replace("]", string.Empty, StringComparison.Ordinal);
+
+        return CollapseAsciiWhitespace(withoutBrackets);
+    }
+
+    private static string CollapseAsciiWhitespace(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return string.Empty;
+
+        return string.Join(' ', value.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries));
     }
 }
