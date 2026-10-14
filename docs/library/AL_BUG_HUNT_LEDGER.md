@@ -198,6 +198,10 @@
 
 2026-10-14 seed hunt (seed→hit): `tenant-erasure` — promoted `TenantErasureQuarantineMiddleware.Skip` parent-segment traversal; reachable `/v1/tenant/../admin/...` normalized onto `/v1/admin` and bypassed quarantine while offboarded; require raw path prefix for `/v1/admin` and `/v1/register` skip entries; pass unnormalized `Request.Path` into `Skip`; regression `Erasure_quarantine_still_blocks_offboarded_tenant_when_path_traversal_reaches_admin_prefix`; Application 35/35 and Api 29/29 scoped `TenantErasure` tests passed.
 
+2026-10-14 seed hunt (seed→hit): `securenow-question-queue` — promoted stale queue mutations during snapshot navigation; regression `does not persist a question from the previous snapshot while the next snapshot is loading`; queue UI vitest 20/20.
+
+2026-10-14 seed hunt (seed→hit): `securenow-question-queue` — promoted duplicate inferred-connection suppression; compiler now embeds `ConnectionId` in inferred question keys; regression `Distinct_proposed_inferred_connections_with_the_same_rule_emit_separate_questions`; Application SecureNowQuestion filter 28/28.
+
 2026-10-14 seed hunt (seed→hit): `securenow-question-queue` — promoted inferred-connection ignore validation compiling without proposed connections; reachable ignore on inferred questions failed `Question was not found.`; load inferred connections for any inferred-connection mutation; regression `Inferred_connection_ignore_validates_against_the_compiled_question`; Application SecureNowQuestion filter 27/27.
 
 2026-10-14 seed hunt (seed→hit): `securenow-question-queue` — promoted stale `EvidenceFingerprint` on ignore; reachable `POST /ignore` accepted a fingerprint the compiler would not join, so the API reported success while the question stayed open; `WriteAsync` now validates answered and ignored mutations via shared `ValidateMutationAgainstCompiledQuestionAsync`; regression `Stale_evidence_fingerprint_is_rejected_before_persisting_an_ignore`; Application SecureNowQuestion filter 26/26.
@@ -38359,6 +38363,8 @@ ABQ-09 churn hotspot.
 
 ## Zone: securenow-question-queue
 
+2026-10-14 seed hunt (seed→hit): promoted stale queue mutations during snapshot navigation; `SecureNowQuestionQueueProvider` kept the prior snapshot's questions actionable while the next snapshot load was in flight, so ignore/answer could target the new `snapshotId` with the old question identity; clear queue state on `snapshotId` change, require `questionsLoaded`, and reject mismatched `currentQuestion.snapshotId`; regression `does not persist a question from the previous snapshot while the next snapshot is loading`; Application SecureNowQuestion filter 28/28 and queue UI vitest 20/20.
+
 2026-10-14 seed hunt (seed→hit): promoted duplicate inferred-connection suppression in `SecureNowQuestionCompiler`; two proposed connections sharing the same rule and source ARM id collapsed to one queue row because `questionKey` omitted `ConnectionId`; compiler now embeds the connection id in inferred question keys and the queue provider resolves inferred rows by that id; regression `Distinct_proposed_inferred_connections_with_the_same_rule_emit_separate_questions`; Application SecureNowQuestion filter 28/28 and queue UI vitest 19/19.
 
 2026-10-14 seed hunt (seed→hit): promoted inferred-connection ignore validation compiling without proposed connections; `ValidateMutationAgainstCompiledQuestionAsync` only loaded inferred connections for answered mutations, so reachable `POST /ignore` with `Source=InferredConnection` failed with `Question was not found.`; include inferred connections whenever the mutation source is inferred; regression `Inferred_connection_ignore_validates_against_the_compiled_question`; Application SecureNowQuestion filter 27/27 and queue UI vitest 19/19.
@@ -38403,11 +38409,11 @@ ABQ-09 churn hotspot.
 - **aliases:** securenow question queue; question disposition
 - **paths:** ArchLucid.Application/InfraEvidence/SecureNowQuestionDispositions/; ArchLucid.Api/Controllers/InfraEvidence/InfraEvidenceSecureNowQuestionsController.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/ISecureNowQuestionDispositionRepository.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/ISecureNowQuestionDispositionService.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/SecureNowQuestionDispositionRecord.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/SecureNowQuestionRecord.cs; ArchLucid.Persistence/InfraEvidence/NoOpSecureNowQuestionDispositionRepository.cs; ArchLucid.Persistence/InfraEvidence/SqlSecureNowQuestionDispositionRepository.cs; ArchLucid.Contracts/InfraEvidence/SecureNowQuestionDispositionContracts.cs; archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
-- **hunts:** 38
-- **bugs-found:** 17
+- **hunts:** 39
+- **bugs-found:** 18
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-14
-- **last-bug:** 2026-10-14 — duplicate inferred-connection questions collapsed in compiler
+- **last-bug:** 2026-10-14 — queue mutations during snapshot load used stale questions
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -38473,7 +38479,7 @@ ABQ-09 churn hotspot.
 - (candidate) `SecureNowQuestionDispositionService.BuildDiagramCandidates` — an inventory resource is suppressed whenever its ID appears in any relationship, even when the relationship's peer endpoint is missing or unresolved; input originates from persisted inventory relationship records and could hide an unknown-evidence question.
 - (candidate) `securenow-question-queue-api.mapQuestion` — an API response containing blank string entries in `answerCodes` passes the type-only filter and can render a blank answer button; input is the reachable question API response.
 - [x] (proven) `SecureNowQuestionCompiler.Compile` / `SecureNowQuestionDispositionService.WriteAsync` / `SqlSecureNowQuestionDispositionRepository.ComputeIdentityHash` — reachable API ignore mutations differing only by `QuestionKey` casing could persist distinct disposition rows while compilation used a case-insensitive disposition dictionary and threw listing questions — **hit 2026-10-13 seed hunt:** normalize question keys on write and in identity hashes, and group duplicate dispositions by case-insensitive identity keeping the newest row; regressions `Question_key_is_case_insensitive_on_ignore` and `Dispositions_with_question_keys_differing_only_by_case_compile_without_failure`.
-- (candidate) `SecureNowQuestionQueueProvider` — while a new `snapshotId` request is in flight, the old question remains actionable, so a queue answer can submit the old question identity under the new snapshot; input originates from snapshot navigation followed by a queue action before the new load completes.
+- [x] (proven) `SecureNowQuestionQueueProvider` — while a new `snapshotId` request was in flight, the old question remained actionable, so a queue mutation could submit the old question identity under the new snapshot; fixed by clearing queue state on snapshot change, requiring `questionsLoaded`, and rejecting mismatched `currentQuestion.snapshotId`; regression `does not persist a question from the previous snapshot while the next snapshot is loading`.
 - (candidate) `securenow-question-queue-api.answerSecureNowQuestion` / `ignoreSecureNowQuestion` / `reopenSecureNowQuestion` — mutation helpers declare a full `SecureNowQuestion` response although the controller returns `SecureNowQuestionDispositionResponse` without display fields; a future reachable caller consuming the mutation response could replace queue state with an incomplete question object. Current provider reloads and ignores the response, so this remains a bounded contract-drift candidate.
 
 

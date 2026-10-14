@@ -155,9 +155,14 @@ export function SecureNowQuestionQueueProvider(
   );
 
   useEffect(() => {
+    setQuestions([]);
+    setInferredConnections([]);
     setVisitedQuestionKeys(new Set());
     setSessionSkippedQuestionKeys(new Set());
     setQuestionsLoaded(false);
+    setCurrentIndex(0);
+    setSelectedAnswer(null);
+    setReason("");
   }, [snapshotId]);
 
   const loadQuestions = useCallback(async () => {
@@ -250,7 +255,12 @@ export function SecureNowQuestionQueueProvider(
   }, [currentQuestion, filteredQuestions.length]);
 
   const submitAction = useCallback(async (action: DrawerAction = drawerAction) => {
-    if (currentQuestion == null || busy) return;
+    if (!questionsLoaded || currentQuestion == null || busy) return;
+
+    if (currentQuestion.snapshotId.trim().length > 0
+      && currentQuestion.snapshotId !== snapshotId) {
+      return;
+    }
     if (action === "ignore" && reason.trim().length === 0) return;
     if (action === "reopen" && reason.trim().length === 0) return;
     if (action === "answer" && selectedAnswer == null) return;
@@ -331,6 +341,7 @@ export function SecureNowQuestionQueueProvider(
     loadQuestions,
     reason,
     selectedAnswer,
+    questionsLoaded,
     snapshotId,
   ]);
 
