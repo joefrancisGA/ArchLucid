@@ -69,6 +69,9 @@ public sealed class MarketingEarlyAccessSalesNotifier(
         string safeEmail = WebUtility.HtmlEncode(email);
         string safeCompany = string.IsNullOrWhiteSpace(companyName) ? "—" : WebUtility.HtmlEncode(companyName);
         string safeRole = string.IsNullOrWhiteSpace(role) ? "—" : WebUtility.HtmlEncode(role);
+        string textEmail = EmailHeaderFragmentSanitizer.Sanitize(email);
+        string textCompany = string.IsNullOrWhiteSpace(companyName) ? "—" : EmailHeaderFragmentSanitizer.Sanitize(companyName);
+        string textRole = string.IsNullOrWhiteSpace(role) ? "—" : EmailHeaderFragmentSanitizer.Sanitize(role);
         const string subject = "ArchLucid: early access / waitlist request";
         string html = "<p>A new <strong>early access</strong> submission was captured from the public <strong>/welcome</strong> hero " +
                       "(not a tenant signup — manual follow-up).</p>" +
@@ -76,7 +79,7 @@ public sealed class MarketingEarlyAccessSalesNotifier(
                       $"<p><strong>Email:</strong> {safeEmail}</p>" + $"<p><strong>Company:</strong> {safeCompany}</p>" +
                       $"<p><strong>Role:</strong> {safeRole}</p>";
         string text = $"ArchLucid early-access request\nRequest id: {insert.Id:N}\nCreated (UTC): {insert.CreatedUtc:O}\n" +
-                      $"Email: {email}\nCompany: {companyName ?? "—"}\nRole: {role ?? "—"}\n";
+                      $"Email: {textEmail}\nCompany: {textCompany}\nRole: {textRole}\n";
         EmailMessage emailMessage = new()
         {
             To = salesInboxForDelivery,
