@@ -183,6 +183,13 @@ public static class AzureInventorySecurityEdgeMaterializer
             graphAppRoleAssignmentRows,
             relationships,
             relationshipKeys);
+        AzureInventoryGrantRoleEdgeMapper.MapGrantRole(
+            resources,
+            directoryRoleAssignmentRows,
+            entraApplicationRegistrationRows,
+            graphAppRoleAssignmentRows,
+            relationships,
+            relationshipKeys);
         AzureInventoryAppAuthorizedAccessEdgeMapper.MapAuthorizedAccess(
             resources,
             roleAssignments,

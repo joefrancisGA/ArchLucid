@@ -62,6 +62,12 @@ internal static class DiagramRelationshipVerbCatalog
             return true;
         }
 
+        if (normalized.Equals(GraphEdgeTypes.CanGrantRole, StringComparison.OrdinalIgnoreCase))
+        {
+            label = "grants role";
+            return true;
+        }
+
         if (normalized.Equals(GraphEdgeTypes.CanRead, StringComparison.OrdinalIgnoreCase))
         {
             label = "reads";

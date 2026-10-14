@@ -171,6 +171,8 @@ public static class GraphEdgeInferenceSources
 
     public const string InventoryAddCredential = "inventory-add-credential";
 
+    public const string InventoryGrantRole = "inventory-grant-role";
+
     public const string HumanDeclaredConnection = "human-declared-connection";
 
     public const string OperatorConfirmedConnection = "inventory-operator-confirmed-connection";
