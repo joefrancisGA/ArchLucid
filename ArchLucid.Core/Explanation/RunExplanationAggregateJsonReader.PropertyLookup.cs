@@ -154,8 +154,13 @@ internal static partial class RunExplanationAggregateJsonReader
     private static bool IsNonEmptyJsonPropertyValue(JsonElement jsonElement, string structuredPropertyName)
     {
         if ((structuredPropertyName.Equals("confidence", StringComparison.OrdinalIgnoreCase)
-             || structuredPropertyName.Equals("faithfulnessSupportRatio", StringComparison.OrdinalIgnoreCase)
-             || structuredPropertyName.Equals("faithfulnessWarning", StringComparison.OrdinalIgnoreCase)
+             || structuredPropertyName.Equals("faithfulnessSupportRatio", StringComparison.OrdinalIgnoreCase))
+            && (IsZeroConfidenceAliasValue(jsonElement) || IsBooleanOneAliasValue(jsonElement)))
+        {
+            return false;
+        }
+
+        if ((structuredPropertyName.Equals("faithfulnessWarning", StringComparison.OrdinalIgnoreCase)
              || structuredPropertyName.Equals("riskPosture", StringComparison.OrdinalIgnoreCase)
              || structuredPropertyName.Equals("reasoning", StringComparison.OrdinalIgnoreCase)
              || structuredPropertyName.Equals("schemaVersion", StringComparison.OrdinalIgnoreCase)
@@ -189,6 +194,13 @@ internal static partial class RunExplanationAggregateJsonReader
         double? finite = TryReadFiniteDouble(jsonElement);
 
         return finite is 0;
+    }
+
+    private static bool IsBooleanOneAliasValue(JsonElement jsonElement)
+    {
+        double? finite = TryReadFiniteDouble(jsonElement);
+
+        return finite is 1;
     }
 
     private static bool ArrayPropertyValueIsNonEmpty(JsonElement jsonElement, string structuredPropertyName)
