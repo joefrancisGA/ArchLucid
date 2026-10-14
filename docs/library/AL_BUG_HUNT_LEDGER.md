@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-14 seed hunt (seed-only): `ui-form-validation` (#6) — cheap-disproof closed five open `(candidate)` rows below with falsify attempts; added one integration regression in `SignupForm.test.tsx`; seeded five follow-on `(candidate)` rows; 112 scoped SignupForm vitest tests passed; no production code changed.
+
 2026-10-14 seed hunt (seed-only): `ui-form-validation` (#5) — cheap-disproof closed five open `(candidate)` rows below with falsify attempts; added three integration regressions in `SignupForm.test.tsx`; seeded five follow-on `(candidate)` rows; 111 scoped SignupForm vitest tests passed; no production code changed.
 
 2026-10-14 seed hunt (seed-only): `ui-form-validation` (#4) — cheap-disproof closed five open `(candidate)` rows below with falsify attempts; added four integration regressions in `SignupForm.test.tsx`; seeded five follow-on `(candidate)` rows; 108 scoped SignupForm vitest tests passed; no production code changed.
@@ -6316,6 +6318,20 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: ui-form-validation
 
+2026-10-14 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below with falsify attempts; added one integration regression; seeded five follow-on `(candidate)` rows; 112 scoped SignupForm vitest tests passed; no production code changed.
+
+- [x] (valid-no-repro) `SignupForm` — padded organization and display names trimmed in register POST JSON on UI submit — **cheap-disproof 2026-10-14 seed hunt #6:** zod `.trim()` on required names via `handleSubmit`; regression `trims padded organization and display names in register POST JSON on UI submit`.
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — verify redirect query uses trimmed `adminEmail` after padded input — **cheap-disproof 2026-10-14 seed hunt #6:** `encodeURIComponent` on submit values; regression `persists trimmed required fields in archlucid_last_registration after successful register` (asserts `/signup/verify?email=ops%40example.com` after padded email).
+- [x] (valid-no-repro) `SignupForm` — incomplete Other industry keeps submit disabled until specification provided — **cheap-disproof 2026-10-14 seed hunt #6:** `signupFormSchema` superRefine; regression `keeps submit disabled when industry Other is selected without a specification`.
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — duplicate organization `409` shows fixed toast without server `detail` text — **cheap-disproof 2026-10-14 seed hunt #6:** dedicated `409` branch; regression `shows fixed duplicate organization toast when register returns 409 with JSON detail`.
+- [x] (valid-no-repro) `SignupForm` — `noValidate` on form defers validation to zod `canSubmit` gate — **cheap-disproof 2026-10-14 seed hunt #6:** `noValidate` + `disabled={!canSubmit}`; regressions `disables native html5 validation on the signup form` and `disables submit until required fields are valid (TB-2010)`.
+
+- [ ] (candidate) `SignupForm` `onSubmit` — register `fetch` throw surfaces `Error.message` in toast without navigation — locus: outer `catch` (`SignupForm.tsx` ~202–204).
+- [ ] (candidate) `SignupForm` — whitespace-only required organization name keeps submit disabled after trim — locus: `.trim().min(1)` (`signup-schema.ts` ~46–54).
+- [ ] (candidate) `SignupForm` `onSubmit` — HTTP `201` with empty JSON body still navigates to verify — locus: `res.ok` success path (`SignupForm.tsx` ~175–201).
+- [ ] (candidate) `SignupForm` — `deriveSignupFormReadinessMessage` surfaces incomplete Other industry guidance — locus: readiness helper (`signup-schema.ts`).
+- [ ] (candidate) `SignupForm` `onSubmit` — keeps submit button disabled with `Creating…` label after success until navigation — locus: success `finally` gate (`SignupForm.tsx` ~205–209).
+
 2026-10-14 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below with falsify attempts; added three integration regressions; seeded five follow-on `(candidate)` rows; 111 scoped SignupForm vitest tests passed; no production code changed.
 
 - [x] (valid-no-repro) `SignupForm` — padded work email trimmed in register POST JSON on UI submit — **cheap-disproof 2026-10-14 seed hunt #5:** zod `.trim()` via `handleSubmit`; regression `trims padded work email in register POST JSON on UI submit`.
@@ -6323,12 +6339,6 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] (valid-no-repro) `SignupForm` `onSubmit` — writes `archlucid_last_registration` session JSON with `adminEmail` after successful register — **cheap-disproof 2026-10-14 seed hunt #5:** post-success `setItem`; regression `persists trimmed required fields in archlucid_last_registration after successful register`.
 - [x] (valid-no-repro) `SignupForm` `onSubmit` — shows organization-created success toast on HTTP 201 register response — **cheap-disproof 2026-10-14 seed hunt #5:** `showSuccess` on `res.ok`; regression `shows organization created success toast when register response was already provisioned`.
 - [x] (valid-no-repro) `SignupForm` `onSubmit` — clears in-flight gate and allows retry after non-ok register response — **cheap-disproof 2026-10-14 seed hunt #5:** `finally` when `!registerSucceeded`; regressions `allows register retry after a non-ok register response` and `still allows register retry after duplicate organization conflict`.
-
-- [ ] (candidate) `SignupForm` — padded organization and display names trimmed in register POST JSON on UI submit — locus: zod `.trim()` on required names (`signup-schema.ts` ~36–54).
-- [ ] (candidate) `SignupForm` `onSubmit` — verify redirect query uses trimmed `adminEmail` after padded input — locus: `router.push` (`SignupForm.tsx` ~201).
-- [ ] (candidate) `SignupForm` — incomplete Other industry keeps submit disabled until specification provided — locus: `signupFormSchema` superRefine (`signup-schema.ts`).
-- [ ] (candidate) `SignupForm` `onSubmit` — duplicate organization `409` shows fixed toast without server `detail` text — locus: `res.status === 409` (`SignupForm.tsx` ~159–162).
-- [ ] (candidate) `SignupForm` — `noValidate` on form defers validation to zod `canSubmit` gate — locus: form `noValidate` + `disabled={!canSubmit}` (`SignupForm.tsx` ~219, ~371).
 
 2026-10-14 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below with falsify attempts; added four integration regressions; seeded five follow-on `(candidate)` rows; 108 scoped SignupForm vitest tests passed; no production code changed.
 
@@ -6384,7 +6394,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 2026-10-10 seed hunt (seed-only): re-read `SignupForm.tsx` submit gating, payload shaping, response handling, first-touch attribution, and optional-field state transitions; no new hunt-ready row was promoted. The exact SignupForm filter passed 99/99; retained the existing bounded candidates and made no production code change.
 
-**Hunts:** 75 · **Bugs found:** 9 · **Consecutive dry hunts:** 14
+**Hunts:** 76 · **Bugs found:** 9 · **Consecutive dry hunts:** 15
 
 2026-10-08 seed hunt (seed-only): no hunt-ready hypotheses were available after reading `SignupForm.tsx`; seeded five reachable follow-on `(candidate)` rows; 94 focused SignupForm tests passed; no production code changed and no regression was added.
 

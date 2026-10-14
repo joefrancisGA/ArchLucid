@@ -2579,4 +2579,37 @@ describe("SignupForm", () => {
 
     vi.unstubAllGlobals();
   });
+
+  it("trims padded organization and display names in register POST JSON on UI submit", async () => {
+    const fetchMock = vi.fn(async () =>
+      new Response(JSON.stringify({ tenantId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa" }), {
+        status: 201,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<SignupForm />);
+    fireEvent.change(screen.getByLabelText(/Work email/i), { target: { value: "ops@example.com" } });
+    fireEvent.change(screen.getByLabelText(/Full name/i), { target: { value: "  Ops User  " } });
+    fireEvent.change(screen.getByLabelText(/Organization name/i), { target: { value: "  Contoso Trial Org  " } });
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeEnabled();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /Create evaluation workspace/i }));
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalled();
+    });
+
+    const [, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+    const body = JSON.parse(String(init.body)) as Record<string, unknown>;
+    expect(body.adminDisplayName).toBe("Ops User");
+    expect(body.organizationName).toBe("Contoso Trial Org");
+
+    vi.unstubAllGlobals();
+  });
 });
