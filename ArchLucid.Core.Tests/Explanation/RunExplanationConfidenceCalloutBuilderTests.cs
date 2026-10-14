@@ -2146,6 +2146,28 @@ public sealed class RunExplanationConfidenceCalloutBuilderTests
     }
 
     [Fact]
+    public void RunExplanation_structured_json_keeps_reasoning_when_later_case_variant_is_on_string_poison_alias()
+    {
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(
+            """{"reasoning":"Main explanation","REASONING":"on"}""",
+            out StructuredExplanation? structured);
+
+        ok.Should().BeTrue();
+        structured!.Reasoning.Should().Be("Main explanation");
+    }
+
+    [Fact]
+    public void RunExplanation_structured_json_keeps_schema_version_when_later_case_variant_is_on_string_poison_alias()
+    {
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(
+            """{"schemaVersion":2,"reasoning":"Main","SCHEMAVERSION":"on"}""",
+            out StructuredExplanation? structured);
+
+        ok.Should().BeTrue();
+        structured!.SchemaVersion.Should().Be(2);
+    }
+
+    [Fact]
     public void RunExplanation_structured_json_object_evidence_ref_survives_empty_id_duplicate()
     {
         bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(

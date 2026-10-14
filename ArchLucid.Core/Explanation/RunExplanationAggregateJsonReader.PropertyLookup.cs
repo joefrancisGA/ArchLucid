@@ -464,6 +464,20 @@ internal static partial class RunExplanationAggregateJsonReader
             return false;
         }
 
+        if (applyTrailingDuplicateArrayPoison
+            && structuredPropertyName.Equals("reasoning", StringComparison.OrdinalIgnoreCase)
+            && ReasoningArrayItemIsDuplicateAliasPoison(jsonElement, applyTrailingDuplicateArrayPoison: true))
+        {
+            return false;
+        }
+
+        if (applyTrailingDuplicateArrayPoison
+            && structuredPropertyName.Equals("schemaVersion", StringComparison.OrdinalIgnoreCase)
+            && SchemaVersionTrailingDuplicateScalarAliasIsPoison(jsonElement))
+        {
+            return false;
+        }
+
         return jsonElement.ValueKind switch
         {
             JsonValueKind.Null => false,
@@ -979,6 +993,36 @@ internal static partial class RunExplanationAggregateJsonReader
 
         if (item.ValueKind == JsonValueKind.String
             && TryParseBooleanString(item.GetString()?.Trim(), out _))
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    private static bool SchemaVersionTrailingDuplicateScalarAliasIsPoison(JsonElement item)
+    {
+        if (IsBooleanOneAliasValue(item))
+            return true;
+
+        if (item.ValueKind == JsonValueKind.String
+            && TryParseBooleanString(item.GetString()?.Trim(), out _))
+        {
+            return true;
+        }
+
+        if (item.ValueKind == JsonValueKind.String
+            && TryParseWholeNumberString(item.GetString()?.Trim(), out int schemaStringAlias)
+            && (schemaStringAlias == 1
+                || schemaStringAlias > StructuredExplanationParser.MaxSupportedStructuredExplanationSchemaVersion))
+        {
+            return true;
+        }
+
+        if (item.ValueKind == JsonValueKind.Number
+            && StrictSchemaVersionReader.TryReadSchemaVersion(item, out int schemaNumericAlias)
+            && (schemaNumericAlias == 1
+                || schemaNumericAlias > StructuredExplanationParser.MaxSupportedStructuredExplanationSchemaVersion))
         {
             return true;
         }
