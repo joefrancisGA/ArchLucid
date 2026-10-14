@@ -51,7 +51,11 @@ public sealed class PilotRunDeltasResponse
         init;
     }
 
-    public int LlmCallCount
+    /// <summary>
+    ///     Per-run LLM completion rows when <see cref="LlmCallCountResolved" /> is <see langword="true" />; otherwise
+    ///     <see langword="null" />.
+    /// </summary>
+    public int? LlmCallCount
     {
         get;
         init;
@@ -59,7 +63,7 @@ public sealed class PilotRunDeltasResponse
 
     /// <summary>
     ///     <see langword="false" /> when the per-run execution-trace query failed — <see cref="LlmCallCount" /> is then
-    ///     zero as a placeholder, not an attested call tally.
+    ///     <see langword="null" />, not an attested call tally.
     /// </summary>
     public bool LlmCallCountResolved
     {
