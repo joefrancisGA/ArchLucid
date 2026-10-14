@@ -779,4 +779,27 @@ public sealed class StructuredExplanationParserTests
         ok.Should().BeTrue();
         s!.Reasoning.Should().Be("Main explanation");
     }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_uses_non_empty_alternatives_considered_when_later_case_variant_is_zero_numeric_scalar()
+    {
+        const string json =
+            """{"reasoning":"Main","alternativesConsidered":["Keep monolith"],"ALTERNATIVESCONSIDERED":0}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.AlternativesConsidered.Should().Equal("Keep monolith");
+    }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_uses_non_empty_caveats_when_later_case_variant_is_zero_numeric_scalar()
+    {
+        const string json = """{"reasoning":"Main","caveats":["Latency risk"],"CAVEATS":0}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Caveats.Should().Equal("Latency risk");
+    }
 }

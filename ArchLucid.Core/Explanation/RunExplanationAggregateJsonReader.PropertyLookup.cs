@@ -87,6 +87,16 @@ internal static partial class RunExplanationAggregateJsonReader
             return true;
         }
 
+        if (lastMatch is JsonElement stringListScalarLast
+            && IsStructuredStringListPropertyName(propertyName)
+            && stringListScalarLast.ValueKind != JsonValueKind.Array
+            && IsZeroConfidenceAliasValue(stringListScalarLast))
+        {
+            value = stringListScalarLast;
+
+            return true;
+        }
+
         return false;
     }
 
@@ -98,7 +108,8 @@ internal static partial class RunExplanationAggregateJsonReader
     private static bool IsNonEmptyJsonPropertyValue(JsonElement jsonElement, string structuredPropertyName)
     {
         if ((structuredPropertyName.Equals("confidence", StringComparison.OrdinalIgnoreCase)
-             || structuredPropertyName.Equals("reasoning", StringComparison.OrdinalIgnoreCase))
+             || structuredPropertyName.Equals("reasoning", StringComparison.OrdinalIgnoreCase)
+             || IsStructuredStringListPropertyName(structuredPropertyName))
             && IsZeroConfidenceAliasValue(jsonElement))
         {
             return false;
