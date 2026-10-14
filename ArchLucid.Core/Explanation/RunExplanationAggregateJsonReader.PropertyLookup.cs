@@ -528,7 +528,7 @@ internal static partial class RunExplanationAggregateJsonReader
             if (IsStructuredStringListPropertyName(structuredPropertyName)
                 && item.ValueKind == JsonValueKind.String
                 && TryParseWholeNumberString(item.GetString()?.Trim() ?? string.Empty, out int listStringAlias)
-                && listStringAlias > 10)
+                && (listStringAlias > 10 || listStringAlias == 1))
             {
                 continue;
             }
