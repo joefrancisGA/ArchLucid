@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-14 seed hunt (seed→hit): `weekly-digest-email` — promoted embedded CR/LF in `weekLabel` reaching `WeeklySponsorReportEmailModel.WeekLabel` while the SMTP subject was already sanitized; fixed with shared `displayWeekLabel` via `EmailHeaderFragmentSanitizer`; regression `WeeklySponsorReportEmailDispatcher_strips_embedded_crlf_from_week_label_in_template_model_and_subject`; 28 scoped report dispatcher + `WeeklyExecutiveSummaryJobTests` passed.
+
 2026-10-14 thorough hunt (dry): `host-core-jobs` — cheap-disproof closed four open `(candidate)` rows after the 2026-10-13 `MarkFailedTerminalFromQueuedStateAsync` notify-failure fix (stale `MarkFailedTerminalAsync` watchdog wording, enqueue cancel vs notify races, exhausted-retry `IsRunningJobRow` gate, in-memory shutdown re-queue single-writer contract); seeded five follow-on `(candidate)` rows; Host.Core scoped filter 77/77; Api `BackgroundJob` filter passed (9 SQL integration tests unavailable on Linux VM).
 
 2026-10-14 thorough hunt (hit): `core-findings-advice` — proved en-dash token parity in `InsightDensityTextSimilarity.Tokenize`, `failed`/`does not comply with the constraint` conflict falsifiability gaps in `ConflictFindingPattern`, and `prevented from`/`disallowed from` negation parity in `EnglishNegationTokenizer`; closed five open `(candidate)` rows; regressions `Jaccard_similarity_treats_en_dash_separated_resource_tokens_as_space_separated_peers`, `HasFalsifiabilitySignal_recognizes_conflict_wording_variants`, and `IsObviousGenericAdvice_does_not_flag_prohibitive_from_phrasing`; 1687 scoped `GenericArchitectureAdvicePatterns` tests passed.
@@ -10145,6 +10147,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: weekly-digest-email
 
+2026-10-14 seed hunt (seed→hit): `weekly-digest-email` — `WeeklySponsorReportEmailDispatcher` copied embedded CR/LF from `weekLabel` into the Razor template model while the SMTP subject already used `EmailHeaderFragmentSanitizer`, so buyer-facing HTML showed a multiline week segment inconsistent with the subject line; fixed by reusing one `displayWeekLabel` for model and subject; regression `WeeklySponsorReportEmailDispatcher_strips_embedded_crlf_from_week_label_in_template_model_and_subject`; 28 scoped report dispatcher + `WeeklyExecutiveSummaryJobTests` passed.
+
 2026-10-06 seed hunt (seed→hit): reseeded weekly-digest-email; proved scheme-only operator-base concat produced malformed `https:/architecture/…` run-detail hrefs in weekly mail; fixed with `EmailBrandingUrls.SanitizeOperatorNavigableUrl`; 65 scoped branding + digest idempotency tests passed.
 
 2026-10-06 seed hunt (seed→hit): reseeded weekly-digest-email; proved `runDetailUrl` values with embedded userinfo reached weekly Sponsor report/summary template `RunDetailUrl` hrefs; fixed with `EmailBrandingUrls.SanitizeOperatorAbsoluteUrl` in both weekly dispatchers; 54 scoped digest idempotency tests passed.
@@ -10159,11 +10163,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** weekly digest; executive summary email
 - **paths:** ArchLucid.Application/Notifications/Email/WeeklyExecutiveSummaryEmailDispatcher.cs
 - **test-filter:** FullyQualifiedName~WeeklyExecutiveSummaryJobTests
-- **hunts:** 31
-- **bugs-found:** 14
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-10-06
-- **last-bug:** 2026-10-06 — scheme-only operator base produced malformed weekly run-detail hrefs
+- **hunts:** 32
+- **bugs-found:** 15
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-14
+- **last-bug:** 2026-10-14 — embedded CR/LF in weekLabel reached weekly Sponsor report template model
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -10228,6 +10232,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `WeeklySponsorReportEmailDispatcher` / `WeeklySponsorSummaryEmailDispatcher` — `runDetailUrl` built from misconfigured `OperatorBaseUrl` via `WorkingOperatorReviewLinks.BuildReviewWorkspaceUrl` retained `user:password@` userinfo in template `RunDetailUrl` hrefs — **hit 2026-10-06 seed hunt (seed→hit):** `EmailBrandingUrls.SanitizeOperatorAbsoluteUrl` after trim; regressions `WeeklySponsorReportEmailDispatcher_omits_user_info_from_run_detail_url_in_template_model` and `WeeklySponsorSummaryEmailDispatcher_omits_user_info_from_run_detail_url_in_template_model`.
 
 - [x] (proven) `WeeklySponsorReportEmailDispatcher` / `WeeklySponsorSummaryEmailDispatcher` — scheme-only `OperatorBaseUrl` (`https://`) produced malformed `https:/architecture/…` run-detail hrefs via `WorkingOperatorReviewLinks.BuildReviewWorkspaceUrl` — **hit 2026-10-06 seed hunt (seed→hit):** `EmailBrandingUrls.SanitizeOperatorNavigableUrl` repairs with operator authority or relative path; regressions `SanitizeOperatorNavigableUrl_repairs_scheme_only_concat_run_detail_url_with_operator_authority` and `WeeklySponsorReportEmailDispatcher_repairs_scheme_only_concat_run_detail_url_using_operator_base_authority`.
+
+- [x] (proven) `WeeklySponsorReportEmailDispatcher.TryDispatchAsync` — embedded CR/LF in `weekLabel` reached `WeeklySponsorReportEmailModel.WeekLabel` while the subject line was sanitized — **hit 2026-10-14 seed hunt (seed→hit):** reuse `EmailHeaderFragmentSanitizer` for template model and subject via `displayWeekLabel`; regression `WeeklySponsorReportEmailDispatcher_strips_embedded_crlf_from_week_label_in_template_model_and_subject`.
 
 2026-09-10 seed hunt #1681 (seed-only): reseeded weekly-digest-email after #1593; cheap-disproof closed summary-dispatcher tenant guard, whitespace ISO-week rejection, and event-type tag candidates; 28 scoped digest/job tests passed.
 

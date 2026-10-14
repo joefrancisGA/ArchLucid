@@ -65,6 +65,7 @@ public sealed class WeeklySponsorReportEmailDispatcher(
 
         string normalizedIsoWeekKey = isoWeekIdempotencyKey.Trim();
         string normalizedWeekLabel = weekLabel.Trim();
+        string displayWeekLabel = EmailHeaderFragmentSanitizer.Sanitize(normalizedWeekLabel);
         string normalizedRunIdHex = runIdHex.Trim();
         string normalizedSummaryMarkdown = summaryMarkdown.Trim();
 
@@ -93,7 +94,7 @@ public sealed class WeeklySponsorReportEmailDispatcher(
         WeeklySponsorReportEmailModel model = new()
         {
             ProductName = productName,
-            WeekLabel = normalizedWeekLabel,
+            WeekLabel = displayWeekLabel,
             RunIdHex = normalizedRunIdHex,
             RunDetailUrl = normalizedRunDetailUrl,
             SummaryMarkdown = normalizedSummaryMarkdown,
@@ -103,8 +104,7 @@ public sealed class WeeklySponsorReportEmailDispatcher(
         string idempotencyKey = $"weekly-sponsor-report:{tenantId:N}:{normalizedIsoWeekKey}";
         string html = await _templateRenderer.RenderHtmlAsync(TemplateId, model, cancellationToken);
         string text = await _templateRenderer.RenderTextAsync(TemplateId, model, cancellationToken);
-        string subject =
-            $"{productName} weekly Sponsor report — {EmailHeaderFragmentSanitizer.Sanitize(normalizedWeekLabel)}";
+        string subject = $"{productName} weekly Sponsor report — {displayWeekLabel}";
 
         return await MultiRecipientEmailDispatch.TrySendToMailboxesAsync(
             tenantId,
