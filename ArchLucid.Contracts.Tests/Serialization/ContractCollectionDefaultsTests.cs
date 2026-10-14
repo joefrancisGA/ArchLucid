@@ -24,4 +24,14 @@ public sealed class ContractCollectionDefaultsTests
     {
         ContractCollectionDefaults.CoalesceDictionary<string, string>(null).Should().BeEmpty();
     }
+
+    [Fact]
+    public void CoalesceStringDictionaryOrdinalIgnoreCase_maps_null_to_empty_case_insensitive_dictionary()
+    {
+        Dictionary<string, string> metadata = ContractCollectionDefaults.CoalesceStringDictionaryOrdinalIgnoreCase(null);
+
+        metadata.Should().BeEmpty();
+        metadata["AgentType"] = "topology";
+        metadata.Should().ContainKey("agenttype");
+    }
 }

@@ -11,4 +11,7 @@ public static class ContractCollectionDefaults
 
     public static Dictionary<TKey, TValue> CoalesceDictionary<TKey, TValue>(Dictionary<TKey, TValue>? value)
         where TKey : notnull => value ?? [];
+
+    public static Dictionary<string, string> CoalesceStringDictionaryOrdinalIgnoreCase(Dictionary<string, string>? value) =>
+        value ?? new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 }

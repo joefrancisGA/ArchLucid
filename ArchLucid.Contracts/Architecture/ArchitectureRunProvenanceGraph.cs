@@ -95,11 +95,13 @@ public sealed class ArchitectureLinkageNode
     } = string.Empty;
 
     /// <summary>Optional facets (agent type, event type, snapshot hints).</summary>
+    private Dictionary<string, string> metadata = new(StringComparer.OrdinalIgnoreCase);
+
     public Dictionary<string, string> Metadata
     {
-        get;
-        set;
-    } = new(StringComparer.OrdinalIgnoreCase);
+        get => metadata;
+        set => metadata = ContractCollectionDefaults.CoalesceStringDictionaryOrdinalIgnoreCase(value);
+    }
 }
 
 /// <summary>Directed link between <see cref="ArchitectureLinkageNode" /> instances.</summary>
@@ -134,11 +136,13 @@ public sealed class ArchitectureLinkageEdge
         set;
     } = string.Empty;
 
+    private Dictionary<string, string> metadata = new(StringComparer.OrdinalIgnoreCase);
+
     public Dictionary<string, string> Metadata
     {
-        get;
-        set;
-    } = new(StringComparer.OrdinalIgnoreCase);
+        get => metadata;
+        set => metadata = ContractCollectionDefaults.CoalesceStringDictionaryOrdinalIgnoreCase(value);
+    }
 }
 
 /// <summary>One row in the run trace timeline.</summary>
@@ -171,9 +175,11 @@ public sealed class ArchitectureTraceTimelineEntry
         set;
     }
 
+    private Dictionary<string, string> metadata = new(StringComparer.OrdinalIgnoreCase);
+
     public Dictionary<string, string> Metadata
     {
-        get;
-        set;
-    } = new(StringComparer.OrdinalIgnoreCase);
+        get => metadata;
+        set => metadata = ContractCollectionDefaults.CoalesceStringDictionaryOrdinalIgnoreCase(value);
+    }
 }
