@@ -476,12 +476,22 @@ internal static partial class RunExplanationAggregateJsonReader
                 if (structuredPropertyName.Equals("reasoning", StringComparison.OrdinalIgnoreCase))
                 {
                     if (ReasoningArrayEntryObjectHasExtractableContent(item))
-                        return true;
+                    {
+                        if (!applyTrailingDuplicateArrayPoison)
+                            return true;
+
+                        continue;
+                    }
                 }
-                else if (structuredPropertyName.Equals("evidenceRefs", StringComparison.OrdinalIgnoreCase))
+                else if (IsStructuredStringListPropertyName(structuredPropertyName))
                 {
                     if (ProseListObjectAliasHasExtractableContent(item))
-                        return true;
+                    {
+                        if (!applyTrailingDuplicateArrayPoison)
+                            return true;
+
+                        continue;
+                    }
                 }
                 else if (structuredPropertyName.Equals("citations", StringComparison.OrdinalIgnoreCase))
                 {
@@ -699,7 +709,21 @@ internal static partial class RunExplanationAggregateJsonReader
             return false;
 
         if (!ArrayHasSingleNonNullEntry(parentArray))
+        {
+            if (item.ValueKind == JsonValueKind.String
+                && !string.IsNullOrWhiteSpace(item.GetString()))
+            {
+                return true;
+            }
+
+            if (item.ValueKind == JsonValueKind.Object
+                && ProseListObjectAliasHasExtractableContent(item))
+            {
+                return true;
+            }
+
             return false;
+        }
 
         if (item.ValueKind == JsonValueKind.String
             && !string.IsNullOrWhiteSpace(item.GetString()))
