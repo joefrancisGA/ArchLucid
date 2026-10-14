@@ -180,6 +180,17 @@ internal static partial class RunExplanationAggregateJsonReader
         }
 
         if (caseInsensitiveAliasMatchCount == 1
+            && lastMatch is JsonElement soleCitationsArray
+            && propertyName.Equals("citations", StringComparison.OrdinalIgnoreCase)
+            && soleCitationsArray.ValueKind == JsonValueKind.Array
+            && CitationArrayHasReadableNumericEntry(soleCitationsArray))
+        {
+            value = soleCitationsArray;
+
+            return true;
+        }
+
+        if (caseInsensitiveAliasMatchCount == 1
             && lastMatch is JsonElement soleSchemaVersion
             && propertyName.Equals("schemaVersion", StringComparison.OrdinalIgnoreCase)
             && StrictSchemaVersionReader.TryReadSchemaVersion(soleSchemaVersion, out _))
@@ -438,7 +449,26 @@ internal static partial class RunExplanationAggregateJsonReader
                 continue;
             }
 
+            if (structuredPropertyName.Equals("citations", StringComparison.OrdinalIgnoreCase)
+                && item.ValueKind == JsonValueKind.Number
+                && TryReadWholeNumber(item, out int citationNumericAlias)
+                && citationNumericAlias > 10)
+            {
+                continue;
+            }
+
             return true;
+        }
+
+        return false;
+    }
+
+    private static bool CitationArrayHasReadableNumericEntry(JsonElement citationsArray)
+    {
+        foreach (JsonElement item in citationsArray.EnumerateArray())
+        {
+            if (item.ValueKind == JsonValueKind.Number && TryReadWholeNumber(item, out _))
+                return true;
         }
 
         return false;
