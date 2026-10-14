@@ -107,7 +107,7 @@ public class ReferenceArchitectureMarkdownGenerator : IArtifactGenerator
 
         sb.AppendLine("## Cost");
         sb.AppendLine(
-            $"- Max Monthly Cost: {(manifest.Cost.MaxMonthlyCost.HasValue ? manifest.Cost.MaxMonthlyCost.Value.ToString("0.00") : "Not specified")}");
+            $"- Max Monthly Cost: {(manifest.Cost.MaxMonthlyCost.HasValue ? manifest.Cost.MaxMonthlyCost.Value.ToString("0.00") : "Max monthly cost was not stored.")}");
         foreach (string risk in manifest.Cost.CostRisks)
 
             sb.AppendLine($"- Risk: {risk}");
@@ -119,7 +119,7 @@ public class ReferenceArchitectureMarkdownGenerator : IArtifactGenerator
         sb.AppendLine();
 
         sb.AppendLine("## Objective");
-        sb.AppendLine("Not specified.");
+        sb.AppendLine("Objective was not stored.");
         sb.AppendLine();
 
         sb.AppendLine("## Assumptions");

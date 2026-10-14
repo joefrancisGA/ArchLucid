@@ -14,7 +14,14 @@ import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY, operatorSemanticBadg
 import { getFindingEvidenceInspectHref } from "@/lib/findings/finding-evidence-navigation";
 import { severityFromTrace, severitySortRank } from "@/lib/sponsor-finding-severity";
 import { decisionGradeSponsorTraceRows } from "@/lib/sponsor-decision-grade-trace-rows";
-import { verdictTierFromRiskPosture, verdictTierLabel, verdictTierTone } from "@/lib/verdict-taxonomy";
+import {
+  RISK_POSTURE_NOT_STORED_LABEL,
+  tryVerdictTierFromRiskPosture,
+  VERDICT_NOT_STORED_LABEL,
+  verdictTierLabel,
+  verdictTierTone,
+  type VerdictTier,
+} from "@/lib/verdict-taxonomy";
 import type { FindingTraceConfidenceDto } from "@/types/explanation";
 import type { RunExplanationSummary } from "@/types/explanation";
 
@@ -44,10 +51,12 @@ function pickRecommendedSponsorAction(summary: RunExplanationSummary): string {
     return driver;
   }
 
-  return "Review prioritized findings below and align control owners on monitored items before the next production change window.";
+  return "Recommended action was not stored.";
 }
 
-function verdictTierBadgeClassName(tier: ReturnType<typeof verdictTierFromRiskPosture>): string {
+const OVERALL_ASSESSMENT_NOT_STORED_LABEL = "Overall assessment was not stored.";
+
+function verdictTierBadgeClassName(tier: VerdictTier): string {
   const tone = verdictTierTone(tier);
 
   if (tone === "success") {
@@ -67,7 +76,13 @@ const governanceStepHref = BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS[3]?.href ?? "/g
 export function CtoDemoSponsorAboveFold(props: CtoDemoSponsorAboveFoldProps): ReactElement {
   const { runId, headline, summary, topRisks } = props;
   const recommendedAction = pickRecommendedSponsorAction(summary);
-  const verdictTier = verdictTierFromRiskPosture(summary.riskPosture ?? "");
+  const verdictTier = tryVerdictTierFromRiskPosture(summary.riskPosture);
+  const riskPostureDisplay =
+    (summary.riskPosture ?? "").trim().length > 0 ? summary.riskPosture : RISK_POSTURE_NOT_STORED_LABEL;
+  const overallAssessmentDisplay =
+    (summary.overallAssessment ?? "").trim().length > 0
+      ? summary.overallAssessment
+      : OVERALL_ASSESSMENT_NOT_STORED_LABEL;
   const showHeroStat = isCtoDemoPackEnv();
   const heroPayload = buildStaticCtoDemoRecapPayload();
   const heroStat = formatCtoDemoHeroStat(heroPayload);
@@ -100,15 +115,15 @@ export function CtoDemoSponsorAboveFold(props: CtoDemoSponsorAboveFoldProps): Re
           </p>
           <span
             className={cn("mt-1 inline-flex rounded-full border px-2 py-0.5 font-semibold", OPERATOR_TYPOGRAPHY.helper,
-              verdictTierBadgeClassName(verdictTier),
+              verdictTier === null ? operatorSemanticBadge("neutral") : verdictTierBadgeClassName(verdictTier),
             )}
             data-testid="cto-demo-verdict-tier-badge"
           >
-            {verdictTierLabel(verdictTier)}
+            {verdictTier === null ? VERDICT_NOT_STORED_LABEL : verdictTierLabel(verdictTier)}
           </span>
-          <p className={cn("m-0 mt-2 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>{summary.riskPosture}</p>
+          <p className={cn("m-0 mt-2 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>{riskPostureDisplay}</p>
           <p className={cn("m-0 mt-2 leading-relaxed text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
-            {summary.overallAssessment}
+            {overallAssessmentDisplay}
           </p>
         </div>
 

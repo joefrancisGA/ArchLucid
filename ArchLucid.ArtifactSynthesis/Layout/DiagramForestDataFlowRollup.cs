@@ -144,7 +144,9 @@ internal static class DiagramForestDataFlowRollup
         DiagramNode first = members[0];
         string typeCaption = DiagramNodeHumanCaptionFactory.TryFormatDataFlowTypeCaption(first)
             ?? "Resource type was not stored";
-        string title = $"{members.Count} {PluralizeTypeCaption(typeCaption)}";
+        string title = string.Equals(typeCaption, "Resource type was not stored", StringComparison.Ordinal)
+            ? $"{members.Count} resources; resource type was not stored"
+            : $"{members.Count} {PluralizeTypeCaption(typeCaption)}";
         int used = members.Count(member => neighborIdsByNodeId[member.NodeId].Count > 0);
         string? statusLine = IsConsumerStatusResource(first.ArmResourceType)
             ? $"{used} used · {members.Count - used} no consumer found"
@@ -262,7 +264,7 @@ internal static class DiagramForestDataFlowRollup
                 : $"Used by {neighborCount}";
         }
         string resourceGroup = string.IsNullOrWhiteSpace(member.ArmResourceGroup)
-            ? string.Empty
+            ? "Resource group was not stored."
             : member.ArmResourceGroup.Trim();
         return string.Join(
             " · ",

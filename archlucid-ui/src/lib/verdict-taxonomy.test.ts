@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  tryVerdictTierFromRiskPosture,
   verdictKindLabel,
   verdictTierFromFeasibilityKind,
   verdictTierFromRiskPosture,
@@ -31,5 +32,11 @@ describe("verdict-taxonomy", () => {
     expect(verdictTierFromRiskPosture("Approved with monitoring")).toBe("Proceed");
     expect(verdictTierFromRiskPosture("Elevated residual risk")).toBe("Remediate");
     expect(verdictTierFromRiskPosture("Critical hold required")).toBe("Hold");
+  });
+
+  it("returns null tier when risk posture was not stored", () => {
+    expect(tryVerdictTierFromRiskPosture("")).toBeNull();
+    expect(tryVerdictTierFromRiskPosture(null)).toBeNull();
+    expect(tryVerdictTierFromRiskPosture("Critical hold required")).toBe("Hold");
   });
 });

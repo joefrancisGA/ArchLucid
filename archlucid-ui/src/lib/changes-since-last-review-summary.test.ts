@@ -81,4 +81,36 @@ describe("deriveChangesSinceLastReviewCopy", () => {
     expect(derived?.severityShiftLine).toContain("new Medium");
     expect(derived?.severityShiftLine).toContain("resolved High");
   });
+
+  it("labels blank severities as not stored instead of unknown", () => {
+    const cmp: RunComparison = {
+      leftRunId: "a",
+      rightRunId: "b",
+      runLevelDiffs: [],
+      manifestComparison: {
+        leftManifestId: "m1",
+        rightManifestId: "m2",
+        leftManifestHash: "h1",
+        rightManifestHash: "h2",
+        addedCount: 1,
+        removedCount: 0,
+        changedCount: 0,
+        diffs: [
+          {
+            section: "Issues",
+            key: "Issue blank",
+            diffKind: "Added",
+            beforeValue: null,
+            afterValue: "   ",
+          },
+        ],
+      },
+      hasManifestComparison: true,
+    };
+
+    const derived = deriveChangesSinceLastReviewCopy(cmp);
+
+    expect(derived?.severityShiftLine).toContain("Severity was not stored.");
+    expect(derived?.severityShiftLine).not.toContain("Unknown");
+  });
 });

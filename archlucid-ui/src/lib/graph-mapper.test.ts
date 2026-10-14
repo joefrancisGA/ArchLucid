@@ -4,7 +4,7 @@ import type { GraphViewModel } from "@/types/graph";
 
 import { SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID } from "@/lib/showcase-static-demo";
 
-import { isBuyerTrailPhiHeroNode, mapGraphToReactFlow } from "./graph-mapper";
+import { buyerTrailEdgeDisplayPhrase, isBuyerTrailPhiHeroNode, mapGraphToReactFlow } from "./graph-mapper";
 
 describe("mapGraphToReactFlow", () => {
   it("returns empty arrays for an empty graph", () => {
@@ -55,6 +55,26 @@ describe("mapGraphToReactFlow", () => {
     });
   });
 
+  it("labels empty edge types as relationship not stored", () => {
+    expect(buyerTrailEdgeDisplayPhrase("")).toBe("Relationship was not stored");
+    expect(buyerTrailEdgeDisplayPhrase("raised")).toBe("Flagged risk");
+
+    const graph: GraphViewModel = {
+      nodes: [
+        { id: "s", label: "S", type: "GraphNode" },
+        { id: "t", label: "T", type: "GraphNode" },
+      ],
+      edges: [{ source: "s", target: "t", type: "" }],
+    };
+
+    const { edges } = mapGraphToReactFlow(graph, "buyerTrail");
+
+    expect(edges[0]?.label).toBe("Relationship was not stored");
+
+    const operator = mapGraphToReactFlow(graph, "operator");
+    expect(operator.edges[0]?.label).toBe("Relationship was not stored");
+  });
+
   it("maps edges with deterministic ids and smoothstep type", () => {
     const graph: GraphViewModel = {
       nodes: [
@@ -103,7 +123,7 @@ describe("mapGraphToReactFlow", () => {
     });
   });
 
-  it("labels unknown node types as Unknown in operator presentation", () => {
+  it("shows stored unknown node types without collapsing to Unknown in operator presentation", () => {
     const graph: GraphViewModel = {
       nodes: [{ id: "u", label: "Mystery node", type: "UnknownKind" }],
       edges: [],
@@ -112,7 +132,7 @@ describe("mapGraphToReactFlow", () => {
     const { nodes } = mapGraphToReactFlow(graph);
 
     expect(nodes[0]?.data).toMatchObject({
-      label: "Mystery node\n(Unknown)",
+      label: "Mystery node\n(UnknownKind)",
     });
   });
 

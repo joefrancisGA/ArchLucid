@@ -4,6 +4,10 @@ export type VerdictTier = "Proceed" | "Remediate" | "Hold";
 
 export const VERDICT_KIND_NOT_STORED_LABEL = "Verdict kind was not stored." as const;
 
+export const VERDICT_NOT_STORED_LABEL = "Verdict was not stored." as const;
+
+export const RISK_POSTURE_NOT_STORED_LABEL = "Risk posture was not stored." as const;
+
 export function verdictTierFromFeasibilityKind(kind: FeasibilityVerdictKind): VerdictTier {
   switch (kind) {
     case "Feasible":
@@ -53,6 +57,17 @@ export function verdictTierTone(tier: VerdictTier): "success" | "warning" | "dan
 
 export function verdictTierLabel(tier: VerdictTier): string {
   return tier;
+}
+
+/** Best-effort mapper for free-text sponsor risk posture strings. */
+export function tryVerdictTierFromRiskPosture(riskPosture: string | null | undefined): VerdictTier | null {
+  const normalized = (riskPosture ?? "").trim().toLowerCase();
+
+  if (normalized.length === 0) {
+    return null;
+  }
+
+  return verdictTierFromRiskPosture(riskPosture ?? "");
 }
 
 /** Best-effort mapper for free-text sponsor risk posture strings. */

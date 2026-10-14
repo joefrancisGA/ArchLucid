@@ -2,7 +2,7 @@
 
 import { StatusTag } from "@/components/ui/status-tag";
 import {
-  formatStructuralExecutionModeLabel,
+  formatStructuralExecutionModeBadgeLabel,
   structuralExecutionModeBadgeTitle,
   StructuralExecutionModeWire,
   type StructuralExecutionModeInput,
@@ -17,11 +17,7 @@ export type StructuralExecutionModeBadgeProps = {
 export function StructuralExecutionModeBadge(props: StructuralExecutionModeBadgeProps) {
   const mode = props.structuralExecutionMode;
 
-  if (mode === null || mode === undefined) {
-    return null;
-  }
-
-  const label = formatStructuralExecutionModeLabel(mode);
+  const label = formatStructuralExecutionModeBadgeLabel(mode);
   const title = structuralExecutionModeBadgeTitle(mode);
 
   const kind =
@@ -35,7 +31,7 @@ export function StructuralExecutionModeBadge(props: StructuralExecutionModeBadge
   return (
     <StatusTag
       kind={kind}
-      label={`${label} execution`}
+      label={label}
       className={props.className}
       title={title}
     />

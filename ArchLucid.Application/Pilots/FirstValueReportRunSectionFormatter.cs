@@ -28,7 +28,7 @@ public static class FirstValueReportRunSectionFormatter
         sb.AppendLine($"| Request id | `{run.RequestId}` |");
         sb.AppendLine($"| Created (UTC) | `{run.CreatedUtc:O}` |");
         sb.AppendLine(
-            $"| Completed (UTC) | `{(run.CompletedUtc is null ? "(pending)" : run.CompletedUtc.Value.ToString("O", CultureInfo.InvariantCulture))}` |");
+            $"| Completed (UTC) | `{(run.CompletedUtc is null ? "Completed time was not stored." : run.CompletedUtc.Value.ToString("O", CultureInfo.InvariantCulture))}` |");
         if (manifest is null)
         {
             sb.AppendLine("| Committed manifest | Committed manifest was not stored. |");
@@ -39,7 +39,7 @@ public static class FirstValueReportRunSectionFormatter
         sb.AppendLine($"| System | `{manifest.SystemName}` |");
         sb.AppendLine($"| Manifest version | `{manifest.Metadata.ManifestVersion}` |");
         sb.AppendLine($"| Commit snapshot (UTC) | `{manifest.Metadata.CreatedUtc:O}` |");
-        sb.AppendLine("| Environment (capture) | _(from original architecture request — add during pilot)_ |");
+        sb.AppendLine("| Environment (capture) | Environment was not stored. |");
         sb.AppendLine();
         sb.AppendLine("### Evidence links");
         sb.AppendLine();

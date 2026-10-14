@@ -16,6 +16,10 @@ import { ARCHITECTURE_HINTS_BUYER_LABEL } from "@/lib/usability/canonical-produc
 import { deriveWizardPolicyPackCloudMismatch } from "@/lib/wizard-payload";
 import type { WizardFormValues } from "@/lib/wizard-schema";
 
+function wizardConfirmIdentityField(value: string, notStoredLabel: string): string {
+  return value.trim().length > 0 ? value : notStoredLabel;
+}
+
 function ErrorList({ errors }: { errors: FieldErrors<WizardFormValues> }) {
   const messages: string[] = [];
 
@@ -107,11 +111,11 @@ export function WizardStepReview(props: { readonly focusedPilotModeEnabled?: boo
         <ReadOnlyBlock title="Identity">
           <dl className="m-0 grid gap-1 sm:grid-cols-[8rem_1fr]">
             <dt className="text-neutral-500">System</dt>
-            <dd className="m-0">{v.systemName}</dd>
+            <dd className="m-0">{wizardConfirmIdentityField(v.systemName, "System name was not stored.")}</dd>
             <dt className="text-neutral-500">Environment</dt>
-            <dd className="m-0">{v.environment}</dd>
+            <dd className="m-0">{wizardConfirmIdentityField(v.environment, "Environment was not stored.")}</dd>
             <dt className="text-neutral-500">Cloud</dt>
-            <dd className="m-0">{v.cloudProvider}</dd>
+            <dd className="m-0">{wizardConfirmIdentityField(v.cloudProvider, "Cloud was not stored.")}</dd>
             <dt className="text-neutral-500">Prior manifest</dt>
             <dd className="m-0">
               {v.priorManifestVersion === null || v.priorManifestVersion === undefined
@@ -124,7 +128,9 @@ export function WizardStepReview(props: { readonly focusedPilotModeEnabled?: boo
         <Separator />
 
         <ReadOnlyBlock title="Description">
-          <p className="m-0 whitespace-pre-wrap">{v.description}</p>
+          <p className="m-0 whitespace-pre-wrap">
+            {wizardConfirmIdentityField(v.description, "Description was not stored.")}
+          </p>
           {(v.inlineRequirements ?? []).some((s) => s.trim()) ? (
             <div className="mt-2">
               <p className={cn("m-0 font-medium text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>Inline requirements</p>

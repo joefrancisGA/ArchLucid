@@ -67,7 +67,14 @@ public sealed class PilotValueReportMarkdownFormatter(ExportFormatterService exp
 
         sb.AppendLine("## Agent types observed");
         sb.AppendLine();
-        sb.AppendLine(string.Join(", ", r.UniqueAgentTypes.Select(static t => $"`{t}`")));
+        if (r.UniqueAgentTypes.Count == 0)
+        {
+            sb.AppendLine("Agent types were not stored.");
+        }
+        else
+        {
+            sb.AppendLine(string.Join(", ", r.UniqueAgentTypes.Select(static t => $"`{t}`")));
+        }
         sb.AppendLine();
 
         sb.AppendLine("## Committed runs (sample loaded for detail)");
@@ -76,7 +83,9 @@ public sealed class PilotValueReportMarkdownFormatter(ExportFormatterService exp
 
         foreach (PilotValueReportRunTimelinePoint row in r.CommittedRunsTimeline)
         {
-            string committedCell = _exportFormatter.FormatIso8601UtcMarkdownQuotedCell(row.CommittedUtc);
+            string committedCell = row.CommittedUtc is null
+                ? "Committed time was not stored."
+                : _exportFormatter.FormatIso8601UtcMarkdownQuotedCell(row.CommittedUtc);
 
             sb.AppendLine(
                 CultureInfo.InvariantCulture,
@@ -103,7 +112,7 @@ public sealed class PilotValueReportMarkdownFormatter(ExportFormatterService exp
         double s = seconds.Value;
 
         if (double.IsNaN(s) || double.IsInfinity(s))
-            return "—";
+            return "Average pipeline completion was not stored.";
 
         if (s >= 3600)
             return $"{s / 3600:0.##} h";
@@ -113,6 +122,8 @@ public sealed class PilotValueReportMarkdownFormatter(ExportFormatterService exp
 
     private static string EscapeCell(string value)
     {
-        return string.IsNullOrEmpty(value) ? "—" : value.Replace("|", "\\|", StringComparison.Ordinal);
+        return string.IsNullOrEmpty(value)
+            ? "System name was not stored."
+            : value.Replace("|", "\\|", StringComparison.Ordinal);
     }
 }

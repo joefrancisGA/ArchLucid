@@ -21,6 +21,8 @@ export type StructuralExecutionModeInput =
 /** Marker phrase in within-run Mixed operator badge copy (TB-971). */
 export const EXECUTION_MODE_WITHIN_RUN_MIXED_BADGE_MARKER = "deterministic substitution";
 
+export const EXECUTION_MODE_NOT_STORED_LABEL = "Execution mode was not stored.";
+
 export function normalizeStructuralExecutionModeWire(
   mode: StructuralExecutionModeInput,
 ): StructuralExecutionModeWireValue | null {
@@ -57,8 +59,19 @@ export function formatStructuralExecutionModeLabel(
     case StructuralExecutionModeWire.Simulator:
       return "Simulator";
     default:
-      return "Unknown";
+      return EXECUTION_MODE_NOT_STORED_LABEL;
   }
+}
+
+/** Operator badge label — omits the trailing "execution" suffix when mode was not stored. */
+export function formatStructuralExecutionModeBadgeLabel(mode: StructuralExecutionModeInput): string {
+  const wireLabel = formatStructuralExecutionModeLabel(mode);
+
+  if (wireLabel === EXECUTION_MODE_NOT_STORED_LABEL) {
+    return EXECUTION_MODE_NOT_STORED_LABEL;
+  }
+
+  return `${wireLabel} execution`;
 }
 
 /** Buyer-facing execution mode label — Simulator reads as rule-based analysis, not a demo mode. */

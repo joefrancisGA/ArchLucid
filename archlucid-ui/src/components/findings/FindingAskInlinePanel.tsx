@@ -196,18 +196,20 @@ export function FindingAskInlinePanel(props: FindingAskInlinePanelProps) {
             <AskRunCoverageHonestyStrip runId={props.runId} />
           ) : null}
           <AskVsFrontierAiDifferentiationStrip variant="compact" />
-          {props.classification !== null && props.classification !== undefined ? (
-            <p
-              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-              data-testid="finding-ask-inline-classification-honesty"
-            >
-              <span className="font-medium text-al-text-primary">Classification:</span>{" "}
-              {resolveFindingClassificationLabel(props.classification, props.treatment)}
-              {resolveFindingClassificationChipReason(props.classification, props.treatment) !== null
-                ? ` — ${resolveFindingClassificationChipReason(props.classification, props.treatment)}`
-                : ""}
-            </p>
-          ) : null}
+          <p
+            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="finding-ask-inline-classification-honesty"
+          >
+            <span className="font-medium text-al-text-primary">Classification:</span>{" "}
+            {props.classification !== null && props.classification !== undefined
+              ? resolveFindingClassificationLabel(props.classification, props.treatment)
+              : "Classification was not stored."}
+            {props.classification !== null &&
+            props.classification !== undefined &&
+            resolveFindingClassificationChipReason(props.classification, props.treatment) !== null
+              ? ` — ${resolveFindingClassificationChipReason(props.classification, props.treatment)}`
+              : ""}
+          </p>
           <PolicyPackInfluenceHonestyChip className="mt-1" />
           {isBuyerPolishedOperatorShellEnv() ? (
             <p className={cn("m-0 leading-relaxed text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>{BUYER_ASK_GROUNDING_ONCE}</p>
