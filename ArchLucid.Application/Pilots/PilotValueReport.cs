@@ -128,6 +128,16 @@ public sealed class PilotValueReport
     }
 
     /// <summary>
+    ///     True when committed-run inventory collection hit <see cref="PilotValueReportService.RunSummaryMaxPages" />;
+    ///     <see cref="TotalRunsCommitted" /> may under-count in-window committed runs.
+    /// </summary>
+    public bool CommittedRunsInventoryTruncated
+    {
+        get;
+        init;
+    }
+
+    /// <summary>
     ///     Sponsor-handoff ROI freshness disposition for the latest committed run in the window
     ///     (<see cref="RoiMetricSourceFreshnessRules" />).
     /// </summary>

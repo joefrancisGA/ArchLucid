@@ -100,6 +100,24 @@ public sealed class PilotValueReportMarkdownFormatterTests
     }
 
     [Fact]
+    public void Format_discloses_committed_run_inventory_truncation()
+    {
+        PilotValueReportMarkdownFormatter sut = new(new ExportFormatterService());
+        DateTime from = new(2026, 4, 1, 0, 0, 0, DateTimeKind.Utc);
+        PilotValueReport report = new()
+        {
+            TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+            FromUtc = from,
+            ToUtc = from.AddDays(30),
+            CommittedRunsInventoryTruncated = true,
+        };
+
+        string markdown = sut.Format(report);
+
+        markdown.Should().Contain("| Committed-run inventory truncated | True |");
+    }
+
+    [Fact]
     public void Format_labels_empty_agent_types_system_name_and_missing_commit_time()
     {
         PilotValueReportMarkdownFormatter sut = new(new ExportFormatterService());

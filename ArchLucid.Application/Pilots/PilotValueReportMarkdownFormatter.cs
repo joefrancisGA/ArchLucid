@@ -43,6 +43,9 @@ public sealed class PilotValueReportMarkdownFormatter(ExportFormatterService exp
                 $"| Run-detail cap | {r.RunDetailCap} (truncated: {r.RunDetailsTruncated}) |");
         }
         sb.AppendLine(CultureInfo.InvariantCulture, $"| Audit export truncated | {r.AuditExportTruncated} |");
+        sb.AppendLine(
+            CultureInfo.InvariantCulture,
+            $"| Committed-run inventory truncated | {r.CommittedRunsInventoryTruncated} |");
         sb.AppendLine();
 
         sb.AppendLine("## Summary");

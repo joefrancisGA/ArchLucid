@@ -111,7 +111,8 @@ public sealed class PilotValueReportService(
 
         if (toExclusive <= from)
             return EmptyReport(scope.TenantId, from, toExclusive, pendingApprovalsNow);
-        List<CommittedRunRef> committedRuns = await CollectCommittedRunsAsync(from, toExclusive, cancellationToken).ConfigureAwait(false);
+        (List<CommittedRunRef> committedRuns, bool committedRunsInventoryTruncated) =
+            await CollectCommittedRunsAsync(from, toExclusive, cancellationToken).ConfigureAwait(false);
         committedRuns.Sort(static (a, b) => a.CreatedUtc.CompareTo(b.CreatedUtc));
         IReadOnlyList<AuditEvent> auditFetch = await _auditRepository
             .GetExportAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, from, toExclusive, AuditExportMaxRows + 1, cancellationToken).ConfigureAwait(false);
@@ -211,20 +212,27 @@ public sealed class PilotValueReportService(
             CommittedRunsTimeline = timeline,
             GovernancePendingApprovalsNow = pendingApprovalsNow,
             AuditExportTruncated = auditTruncated,
+            CommittedRunsInventoryTruncated = committedRunsInventoryTruncated,
             RoiSourceFreshnessDisposition = roiSourceFreshnessDisposition
         };
     }
 
-    private async Task<List<CommittedRunRef>> CollectCommittedRunsAsync(DateTime fromInclusive, DateTime toExclusive, CancellationToken cancellationToken)
+    private async Task<(List<CommittedRunRef> Runs, bool InventoryTruncated)> CollectCommittedRunsAsync(
+        DateTime fromInclusive,
+        DateTime toExclusive,
+        CancellationToken cancellationToken)
     {
         List<CommittedRunRef> rows = [];
         string? cursor = null;
         int pageCount = 0;
+        bool inventoryTruncated = false;
 
         while (true)
         {
             if (pageCount >= RunSummaryMaxPages)
             {
+                inventoryTruncated = true;
+
                 if (_logger.IsEnabled(LogLevel.Warning))
                 {
                     _logger.LogWarning(
@@ -260,7 +268,7 @@ public sealed class PilotValueReportService(
             cursor = next;
         }
 
-        return rows;
+        return (rows, inventoryTruncated);
     }
 
     private static bool IsCommittedSummary(RunSummary summary)
@@ -313,6 +321,7 @@ public sealed class PilotValueReportService(
             CommittedRunsTimeline = [],
             GovernancePendingApprovalsNow = pendingApprovals,
             AuditExportTruncated = false,
+            CommittedRunsInventoryTruncated = false,
             RoiSourceFreshnessDisposition = "PASS"
         };
     }

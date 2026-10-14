@@ -126,6 +126,8 @@ public sealed class PilotValueReportServiceTests
         PilotValueReport? report = await sut.BuildAsync(from, to, CancellationToken.None);
 
         report.Should().NotBeNull();
+        report!.CommittedRunsInventoryTruncated.Should().BeTrue(
+            "keyset paging stopped at RunSummaryMaxPages without surfacing incompleteness on the report");
         runs.Verify(
             r => r.ListRunSummariesKeysetAsync(It.IsAny<string?>(), 100, It.IsAny<CancellationToken>()),
             Times.Exactly(2_000));
