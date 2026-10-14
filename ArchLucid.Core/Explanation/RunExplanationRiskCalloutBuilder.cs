@@ -20,7 +20,7 @@ public static class RunExplanationRiskCalloutBuilder
         if (!RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitivePreferLastNonEmpty(root, "riskPosture", out JsonElement postureEl))
             return null;
 
-        return RunExplanationAggregateJsonReader.TryReadNonEmptyTextToken(postureEl, out string? posture)
+        return RunExplanationAggregateJsonReader.TryReadAggregateStringCalloutToken(postureEl, out string? posture)
             ? posture?.Trim()
             : null;
     }

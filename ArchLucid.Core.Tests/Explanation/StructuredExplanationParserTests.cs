@@ -1052,6 +1052,29 @@ public sealed class StructuredExplanationParserTests
     }
 
     [Fact]
+    public void RunExplanation_structured_json_reads_schema_version_from_sole_numeric_array_alias()
+    {
+        const string json = """{"schemaVersion":[2],"reasoning":"Main"}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.SchemaVersion.Should().Be(2);
+    }
+
+    [Fact]
+    public void RunExplanation_structured_json_keeps_schema_version_when_later_case_variant_is_supported_numeric_poison_array()
+    {
+        const string json =
+            """{"schemaVersion":2,"reasoning":"Main","SCHEMAVERSION":[2]}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.SchemaVersion.Should().Be(2);
+    }
+
+    [Fact]
     public void RunExplanation_FromAggregateJson_reads_faithfulness_warning_from_sole_string_array_alias()
     {
         RunExplanationConfidenceSignals? signals = RunExplanationConfidenceCalloutBuilder.FromAggregateJson(

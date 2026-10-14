@@ -1313,6 +1313,14 @@ public sealed class RunExplanationConfidenceCalloutBuilderTests
     }
 
     [Fact]
+    public void RunExplanation_FromAggregateJson_reads_risk_posture_from_sole_string_array_alias()
+    {
+        using JsonDocument document = JsonDocument.Parse("""{"riskPosture":["elevated"]}""");
+
+        RunExplanationRiskCalloutBuilder.TryParseRiskPosture(document.RootElement).Should().Be("elevated");
+    }
+
+    [Fact]
     public void RunExplanation_FromAggregateJson_keeps_risk_posture_when_later_duplicate_is_numeric_poison_array()
     {
         using JsonDocument document = JsonDocument.Parse(
