@@ -495,6 +495,9 @@ internal static partial class RunExplanationAggregateJsonReader
                 }
                 else if (structuredPropertyName.Equals("citations", StringComparison.OrdinalIgnoreCase))
                 {
+                    if (CitationArrayItemIsDuplicateAliasPoison(item, applyTrailingDuplicateArrayPoison))
+                        continue;
+
                     if (!string.IsNullOrWhiteSpace(TryReadEvidenceRefObjectStringProperty(item)))
                         return true;
                 }
@@ -514,6 +517,12 @@ internal static partial class RunExplanationAggregateJsonReader
 
             if (structuredPropertyName.Equals("reasoning", StringComparison.OrdinalIgnoreCase)
                 && ReasoningArrayItemIsDuplicateAliasPoison(item, applyTrailingDuplicateArrayPoison))
+            {
+                continue;
+            }
+
+            if (structuredPropertyName.Equals("citations", StringComparison.OrdinalIgnoreCase)
+                && CitationArrayItemIsDuplicateAliasPoison(item, applyTrailingDuplicateArrayPoison))
             {
                 continue;
             }
@@ -613,6 +622,58 @@ internal static partial class RunExplanationAggregateJsonReader
             && !string.IsNullOrWhiteSpace(item.GetString()))
         {
             return true;
+        }
+
+        return false;
+    }
+
+    private static bool CitationArrayItemIsDuplicateAliasPoison(JsonElement item, bool applyTrailingDuplicateArrayPoison)
+    {
+        if (!applyTrailingDuplicateArrayPoison)
+            return false;
+
+        if (item.ValueKind == JsonValueKind.String
+            && !string.IsNullOrWhiteSpace(item.GetString()))
+        {
+            return true;
+        }
+
+        if (item.ValueKind == JsonValueKind.Object
+            && !string.IsNullOrWhiteSpace(TryReadEvidenceRefObjectStringProperty(item)))
+        {
+            return true;
+        }
+
+        if (item.ValueKind == JsonValueKind.Array
+            && CitationNestedArrayHasReadableCitationEntry(item))
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    private static bool CitationNestedArrayHasReadableCitationEntry(JsonElement citationArray)
+    {
+        foreach (JsonElement item in citationArray.EnumerateArray())
+        {
+            if (item.ValueKind == JsonValueKind.Array
+                && CitationNestedArrayHasReadableCitationEntry(item))
+            {
+                return true;
+            }
+
+            if (item.ValueKind == JsonValueKind.Object
+                && !string.IsNullOrWhiteSpace(TryReadEvidenceRefObjectStringProperty(item)))
+            {
+                return true;
+            }
+
+            if (item.ValueKind == JsonValueKind.String
+                && !string.IsNullOrWhiteSpace(item.GetString()))
+            {
+                return true;
+            }
         }
 
         return false;
