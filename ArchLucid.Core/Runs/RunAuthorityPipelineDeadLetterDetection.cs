@@ -88,6 +88,7 @@ public static class RunAuthorityPipelineDeadLetterDetection
     {
         // Last-match lookup on purpose: PreferLastNonEmpty treats JSON true as an empty poison alias
         // (explanation-parser behavior). A sole schemaVersion:true would then look omitted and default to v1.
+
         if (!RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitive(root, "schemaVersion", out JsonElement element))
         {
             schemaVersion = SupportedSchemaVersion;
