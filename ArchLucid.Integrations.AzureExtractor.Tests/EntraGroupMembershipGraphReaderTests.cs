@@ -723,12 +723,17 @@ public sealed class EntraGroupMembershipGraphReaderTests
         Mock<IOptionsMonitor<EntraGroupMembershipGraphOptions>> options = new();
         options.Setup(o => o.CurrentValue).Returns(new EntraGroupMembershipGraphOptions { Enabled = false });
 
+        (Mock<IEntraAddCredentialGraphReader> addCredentialGraphReader, Mock<IOptionsMonitor<EntraAddCredentialGraphOptions>> addCredentialGraphOptions) =
+            HostedAzureExtractorGraphTestSupport.CreateAddCredentialGraphMocks();
+
         HostedAzureExtractorClient sut = new(
             credentialFactory.Object,
             armClient.Object,
             CreatePostReadClientMock().Object,
             graphReader.Object,
             options.Object,
+            addCredentialGraphReader.Object,
+            addCredentialGraphOptions.Object,
             NullLogger<HostedAzureExtractorClient>.Instance);
 
         await sut.CollectZipAsync(
@@ -806,12 +811,17 @@ public sealed class EntraGroupMembershipGraphReaderTests
         Mock<IOptionsMonitor<EntraGroupMembershipGraphOptions>> options = new();
         options.Setup(o => o.CurrentValue).Returns(new EntraGroupMembershipGraphOptions { Enabled = true });
 
+        (Mock<IEntraAddCredentialGraphReader> addCredentialGraphReader, Mock<IOptionsMonitor<EntraAddCredentialGraphOptions>> addCredentialGraphOptions) =
+            HostedAzureExtractorGraphTestSupport.CreateAddCredentialGraphMocks();
+
         HostedAzureExtractorClient sut = new(
             credentialFactory.Object,
             armClient.Object,
             CreatePostReadClientMock().Object,
             graphReader.Object,
             options.Object,
+            addCredentialGraphReader.Object,
+            addCredentialGraphOptions.Object,
             NullLogger<HostedAzureExtractorClient>.Instance);
 
         await sut.CollectZipAsync(

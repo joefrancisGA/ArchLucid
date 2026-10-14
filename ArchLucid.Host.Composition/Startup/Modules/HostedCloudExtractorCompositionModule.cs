@@ -55,11 +55,19 @@ public static class HostedCloudExtractorCompositionModule
         services.Configure<HostedAzureExtractorOptions>(configuration.GetSection(HostedAzureExtractorOptions.SectionName));
         services.Configure<EntraGroupMembershipGraphOptions>(
             configuration.GetSection(EntraGroupMembershipGraphOptions.SectionName));
+        services.Configure<EntraAddCredentialGraphOptions>(
+            configuration.GetSection(EntraAddCredentialGraphOptions.SectionName));
         services.AddSingleton<IHostedAzureExtractorCredentialFactory, WorkloadIdentityHostedAzureExtractorCredentialFactory>();
         services
             .AddHttpClient<IEntraGroupMembershipGraphReader, EntraGroupMembershipGraphReader>(static client =>
             {
                 client.Timeout = TimeSpan.FromMinutes(2);
+            })
+            .ConfigureArchLucidOutboundSocketsHandler(OutboundHttpSocketsHandlerProfile.CloudControlPlane);
+        services
+            .AddHttpClient<IEntraAddCredentialGraphReader, EntraAddCredentialGraphReader>(static client =>
+            {
+                client.Timeout = TimeSpan.FromMinutes(5);
             })
             .ConfigureArchLucidOutboundSocketsHandler(OutboundHttpSocketsHandlerProfile.CloudControlPlane);
         services

@@ -17,6 +17,8 @@ public sealed class HostedAzureExtractorClient(
     IHostedAzureManagementPostReadClient postReadClient,
     IEntraGroupMembershipGraphReader entraGroupMembershipGraphReader,
     IOptionsMonitor<EntraGroupMembershipGraphOptions> entraGroupMembershipGraphOptions,
+    IEntraAddCredentialGraphReader entraAddCredentialGraphReader,
+    IOptionsMonitor<EntraAddCredentialGraphOptions> entraAddCredentialGraphOptions,
     ILogger<HostedAzureExtractorClient> logger) : IHostedAzureExtractorClient
 {
     private const string ManagementScope = "https://management.azure.com/.default";
@@ -35,6 +37,12 @@ public sealed class HostedAzureExtractorClient(
 
     private readonly IOptionsMonitor<EntraGroupMembershipGraphOptions> _entraGroupMembershipGraphOptions =
         entraGroupMembershipGraphOptions ?? throw new ArgumentNullException(nameof(entraGroupMembershipGraphOptions));
+
+    private readonly IEntraAddCredentialGraphReader _entraAddCredentialGraphReader =
+        entraAddCredentialGraphReader ?? throw new ArgumentNullException(nameof(entraAddCredentialGraphReader));
+
+    private readonly IOptionsMonitor<EntraAddCredentialGraphOptions> _entraAddCredentialGraphOptions =
+        entraAddCredentialGraphOptions ?? throw new ArgumentNullException(nameof(entraAddCredentialGraphOptions));
 
     private readonly ILogger<HostedAzureExtractorClient> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
@@ -231,6 +239,11 @@ public sealed class HostedAzureExtractorClient(
                 subscriptionId,
                 cancellationToken).ConfigureAwait(false);
 
+        EntraAddCredentialGraphReadResult addCredentialSnapshot = await TryReadEntraAddCredentialSnapshotAsync(
+            credential,
+            subscriptionId,
+            cancellationToken).ConfigureAwait(false);
+
         byte[] zipBytes = HostedAzureExtractorZipBuilder.BuildZip(
             subscriptionId,
             inventoryResources,
@@ -259,6 +272,10 @@ public sealed class HostedAzureExtractorClient(
             diagramEnrichment.ServiceConnectorLinks,
             appSettingHosts: diagramEnrichment.AppSettingHosts,
             recoveryServicesProtectedItems: recoveryServicesProtectedItems,
+            applicationOwners: addCredentialSnapshot.ApplicationOwners,
+            directoryRoleAssignments: addCredentialSnapshot.DirectoryRoleAssignments,
+            entraApplicationRegistrations: addCredentialSnapshot.ApplicationRegistrations,
+            graphAppRoleAssignments: addCredentialSnapshot.GraphAppRoleAssignments,
             collectionWarnings: collectionWarnings,
             actualCostSummary: actualCostSummary,
             policyComplianceDocument: policyComplianceDocument,
@@ -445,6 +462,11 @@ public sealed class HostedAzureExtractorClient(
                 managementGroupId,
                 cancellationToken).ConfigureAwait(false);
 
+        EntraAddCredentialGraphReadResult addCredentialSnapshot = await TryReadEntraAddCredentialSnapshotAsync(
+            credential,
+            managementGroupId,
+            cancellationToken).ConfigureAwait(false);
+
         byte[] zipBytes = HostedAzureExtractorZipBuilder.BuildZip(
             subscriptionId: null,
             inventoryResources,
@@ -473,6 +495,10 @@ public sealed class HostedAzureExtractorClient(
             diagramEnrichment.ServiceConnectorLinks,
             appSettingHosts: diagramEnrichment.AppSettingHosts,
             recoveryServicesProtectedItems: recoveryServicesProtectedItems,
+            applicationOwners: addCredentialSnapshot.ApplicationOwners,
+            directoryRoleAssignments: addCredentialSnapshot.DirectoryRoleAssignments,
+            entraApplicationRegistrations: addCredentialSnapshot.ApplicationRegistrations,
+            graphAppRoleAssignments: addCredentialSnapshot.GraphAppRoleAssignments,
             collectionWarnings: collectionWarnings);
 
         string fileName =
@@ -608,6 +634,39 @@ public sealed class HostedAzureExtractorClient(
         }
 
         return graphResult.Memberships;
+    }
+
+    private async Task<EntraAddCredentialGraphReadResult> TryReadEntraAddCredentialSnapshotAsync(
+        TokenCredential credential,
+        string scopeLabel,
+        CancellationToken cancellationToken)
+    {
+        EntraAddCredentialGraphOptions graphOptions = _entraAddCredentialGraphOptions.CurrentValue;
+
+        if (!graphOptions.Enabled)
+        {
+            return EntraAddCredentialGraphReadResult.Empty();
+        }
+
+        EntraAddCredentialGraphReadResult graphResult = await _entraAddCredentialGraphReader
+            .TryReadSnapshotAsync(
+                credential,
+                graphOptions.MaxPaginationRequests,
+                graphOptions.MaxApplicationOwnerRequests,
+                cancellationToken)
+            .ConfigureAwait(false);
+
+        if (graphResult.Forbidden)
+        {
+            _logger.LogWarning(
+                "Hosted Azure extractor skipped Entra add-credential Graph merge for scope {ScopeLabel}: {Warning}",
+                scopeLabel,
+                graphResult.Warnings.FirstOrDefault());
+
+            return EntraAddCredentialGraphReadResult.Empty();
+        }
+
+        return graphResult;
     }
 
     private static IReadOnlyList<string> ExtractGroupPrincipalIds(
