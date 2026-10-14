@@ -55,6 +55,9 @@ public static class GraphEdgeTypes
     /// <summary>Control-plane code deployment onto an App Service or Function App (book Ch. 5 <c>canControlCode</c>).</summary>
     public const string CanControlCode = "CAN_CONTROL_CODE";
 
+    /// <summary>Principal may add a credential and sign in as the target application (book Ch. 4 §4.3 <c>canAddCredential</c>).</summary>
+    public const string CanAddCredential = "CAN_ADD_CREDENTIAL";
+
     public const string RoutesTo = "ROUTES_TO";
 
     /// <summary>CI federated credential adapter edge (SA-19); emitted when optional ZIP sibling is present.</summary>

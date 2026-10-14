@@ -26,6 +26,12 @@ public static class AzureExtractorPackageInventoryReader
                 ReadFederatedCredentials(archive);
             (bool entraGroupMembershipsFilePresent, List<AzureInventoryEntraGroupMembershipRow> entraGroupMemberships) =
                 ReadEntraGroupMemberships(archive);
+            (bool applicationOwnersFilePresent, List<AzureInventoryApplicationOwnerRow> applicationOwners) =
+                ReadApplicationOwners(archive);
+            (bool directoryRoleAssignmentsFilePresent, List<AzureInventoryDirectoryRoleAssignmentRow> directoryRoleAssignments) =
+                ReadDirectoryRoleAssignments(archive);
+            (bool graphAppRoleAssignmentsFilePresent, AzureInventoryGraphAppRoleAssignmentsDocument graphAppRoleAssignmentsDocument) =
+                ReadGraphAppRoleAssignments(archive);
             List<JsonElement> defenderSummary = ReadOptionalArray(archive, AzureExtractorPackageZipEntryNames.DefenderSummary);
             (bool effectiveNetworkControlsFilePresent, List<AzureInventoryEffectiveNetworkControlRow> effectiveNetworkControls) =
                 ReadEffectiveNetworkControls(archive);
@@ -71,6 +77,13 @@ public static class AzureExtractorPackageInventoryReader
                 FederatedCredentialsFilePresent = federatedCredentialsFilePresent,
                 EntraGroupMemberships = entraGroupMemberships,
                 EntraGroupMembershipsFilePresent = entraGroupMembershipsFilePresent,
+                ApplicationOwners = applicationOwners,
+                ApplicationOwnersFilePresent = applicationOwnersFilePresent,
+                DirectoryRoleAssignments = directoryRoleAssignments,
+                DirectoryRoleAssignmentsFilePresent = directoryRoleAssignmentsFilePresent,
+                EntraApplicationRegistrations = graphAppRoleAssignmentsDocument.Registrations,
+                GraphAppRoleAssignments = graphAppRoleAssignmentsDocument.AppRoleAssignments,
+                GraphAppRoleAssignmentsFilePresent = graphAppRoleAssignmentsFilePresent,
                 DefenderSummary = defenderSummary,
                 EffectiveNetworkControls = effectiveNetworkControls,
                 EffectiveNetworkControlsFilePresent = effectiveNetworkControlsFilePresent,
@@ -223,6 +236,52 @@ public static class AzureExtractorPackageInventoryReader
             archive,
             AzureExtractorPackageZipEntryNames.EntraGroupMemberships,
             AzureInventoryEntraGroupMembershipParser.TryParse);
+    }
+
+    private static (bool FilePresent, List<AzureInventoryApplicationOwnerRow> Rows) ReadApplicationOwners(
+        ZipArchive archive)
+    {
+        return ReadCompanionRows<AzureInventoryApplicationOwnerRow>(
+            archive,
+            AzureExtractorPackageZipEntryNames.ApplicationOwners,
+            AzureInventoryApplicationOwnerParser.TryParse);
+    }
+
+    private static (bool FilePresent, List<AzureInventoryDirectoryRoleAssignmentRow> Rows) ReadDirectoryRoleAssignments(
+        ZipArchive archive)
+    {
+        return ReadCompanionRows<AzureInventoryDirectoryRoleAssignmentRow>(
+            archive,
+            AzureExtractorPackageZipEntryNames.DirectoryRoleAssignments,
+            AzureInventoryDirectoryRoleAssignmentParser.TryParse);
+    }
+
+    private static (bool FilePresent, AzureInventoryGraphAppRoleAssignmentsDocument Document) ReadGraphAppRoleAssignments(
+        ZipArchive archive)
+    {
+        ZipArchiveEntry? entry = FindEntry(archive, AzureExtractorPackageZipEntryNames.GraphAppRoleAssignments);
+
+        if (entry is null)
+        {
+            return (false, new AzureInventoryGraphAppRoleAssignmentsDocument());
+        }
+
+        using Stream stream = entry.Open();
+
+        try
+        {
+            using JsonDocument document = JsonDocument.Parse(stream);
+
+            return (true, AzureInventoryGraphAppRoleAssignmentsDocumentParser.Parse(document.RootElement));
+        }
+        catch (JsonException ex) when (ex.Message.Contains("root must be a JSON array", StringComparison.Ordinal))
+        {
+            throw;
+        }
+        catch (JsonException)
+        {
+            throw new JsonException($"{AzureExtractorPackageZipEntryNames.GraphAppRoleAssignments} is not valid JSON.");
+        }
     }
 
     private static (bool FilePresent, List<AzureInventoryAdfLinkedServiceRow> Rows) ReadAdfLinkedServices(
@@ -642,6 +701,48 @@ public sealed class AzureExtractorPackageInventoryReadResult
     } = [];
 
     public bool EntraGroupMembershipsFilePresent
+    {
+        get;
+        init;
+    }
+
+    public IReadOnlyList<AzureInventoryApplicationOwnerRow> ApplicationOwners
+    {
+        get;
+        init;
+    } = [];
+
+    public bool ApplicationOwnersFilePresent
+    {
+        get;
+        init;
+    }
+
+    public IReadOnlyList<AzureInventoryDirectoryRoleAssignmentRow> DirectoryRoleAssignments
+    {
+        get;
+        init;
+    } = [];
+
+    public bool DirectoryRoleAssignmentsFilePresent
+    {
+        get;
+        init;
+    }
+
+    public IReadOnlyList<AzureInventoryEntraApplicationRegistrationRow> EntraApplicationRegistrations
+    {
+        get;
+        init;
+    } = [];
+
+    public IReadOnlyList<AzureInventoryGraphAppRoleAssignmentRow> GraphAppRoleAssignments
+    {
+        get;
+        init;
+    } = [];
+
+    public bool GraphAppRoleAssignmentsFilePresent
     {
         get;
         init;
