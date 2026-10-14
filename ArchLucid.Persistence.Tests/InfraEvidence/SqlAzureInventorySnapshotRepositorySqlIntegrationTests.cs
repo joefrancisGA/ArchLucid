@@ -98,12 +98,20 @@ public sealed class SqlAzureInventorySnapshotRepositorySqlIntegrationTests(SqlSe
         new AzureInventoryResourceRecord { SnapshotId = header.SnapshotId, TenantId = TenantId, ResourceRowId = hiddenRowId, AzureResourceId = hiddenId, ResourceType = "Microsoft.ManagedIdentity/userAssignedIdentities" },
         new AzureInventoryResourceRecord { SnapshotId = header.SnapshotId, TenantId = TenantId, ResourceRowId = Guid.NewGuid(), AzureResourceId = visibleId, ResourceType = "Microsoft.Network/virtualNetworks" },
       ],
-      Properties = [new AzureInventoryResourcePropertyWrite { ResourceRowId = hiddenRowId, PropertyKey = "principalId", PropertyValue = "principal-a" }],
+      Properties = Enumerable.Range(0, 1001).Select(index => new AzureInventoryResourcePropertyWrite
+      {
+        ResourceRowId = hiddenRowId, PropertyKey = $"property-{index}", PropertyValue = index % 2 == 0 ? null : $"value-{index}",
+        IsRedacted = index % 3 == 0,
+      }).ToList(),
       Relationships = [new AzureInventoryResourceRelationshipWrite { FromAzureResourceId = visibleId, ToAzureResourceId = hiddenId, RelationshipType = "contains", ProvenanceKind = ProvenanceKind.ObservedFact }],
     });
     AzureInventorySnapshotDetailReadModel? canonical = await snapshotRepository.TryGetCanonicalSnapshotDetailAsync(scopeA, header.SnapshotId);
     canonical!.Resources.Should().HaveCount(2);
-    canonical.Properties.Should().ContainSingle(property => property.ResourceRowId == hiddenRowId);
+    canonical.Properties.Should().HaveCount(1001);
+    canonical.Properties.Should().OnlyContain(property => property.ResourceRowId == hiddenRowId);
+    canonical.Properties.Single(property => property.PropertyKey == "property-0").PropertyValue.Should().BeNull();
+    canonical.Properties.Single(property => property.PropertyKey == "property-1").PropertyValue.Should().Be("value-1");
+    canonical.Properties.Single(property => property.PropertyKey == "property-3").IsRedacted.Should().BeTrue();
     canonical.Relationships.Should().ContainSingle();
     AzureInventorySnapshotDetailReadModel? visible = await snapshotRepository.TryGetSnapshotDetailAsync(scopeA, header.SnapshotId);
     visible!.Resources.Should().ContainSingle(resource => resource.AzureResourceId == visibleId);
@@ -154,5 +162,41 @@ public sealed class SqlAzureInventorySnapshotRepositorySqlIntegrationTests(SqlSe
 
     second.CloudResourceId.Should().Be(first.CloudResourceId);
     second.LastSeenSnapshotId.Should().Be(snapshotB);
+  }
+
+  [SkippableFact]
+  public async Task Identity_batch_crosses_buffer_boundary_reuses_ids_and_preserves_null_metadata_and_tenant_isolation()
+  {
+    Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+    SqlCloudResourceIdentityDirectory directory = new(new SqlConnectionFactory(fixture.ConnectionString));
+    ScopeContext scope = new() { TenantId = Guid.NewGuid(), WorkspaceId = WorkspaceId, ProjectId = ProjectA };
+    Guid snapshotA = Guid.NewGuid();
+    Guid snapshotB = Guid.NewGuid();
+    List<CloudResourceIdentitySnapshotWrite> rows = Enumerable.Range(0, 1001)
+      .Select(index => new CloudResourceIdentitySnapshotWrite(
+        $"/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/batch{index}",
+        "Microsoft.Storage/storageAccounts", "sub", "rg", "eastus", $"batch{index}")).ToList();
+    IReadOnlyDictionary<string, CloudResourceIdentityRecord> first =
+      await directory.UpsertSnapshotBatchAsync(scope, CloudProvider.Azure, snapshotA, rows);
+    first.Should().HaveCount(rows.Count);
+    CloudResourceIdentitySnapshotWrite updated = rows[0] with { ExternalResourceId = rows[0].ExternalResourceId + "/", Region = "westus" };
+    IReadOnlyDictionary<string, CloudResourceIdentityRecord> second = await directory.UpsertSnapshotBatchAsync(
+      scope, CloudProvider.Azure, snapshotB,
+      [updated, updated with { ResourceType = null, SubscriptionOrAccountId = null, Region = null, DisplayName = null }]);
+    CloudResourceIdentityRecord identity = second.Values.Single();
+    CloudResourceIdentityRecord original = first[identity.ExternalResourceIdNormalized];
+    identity.CloudResourceId.Should().Be(original.CloudResourceId);
+    identity.FirstSeenSnapshotId.Should().Be(snapshotA);
+    identity.FirstSeenUtc.Should().Be(original.FirstSeenUtc);
+    identity.LastSeenSnapshotId.Should().Be(snapshotB);
+    identity.Region.Should().Be("westus");
+    identity.DisplayName.Should().Be(rows[0].DisplayName);
+    identity.ResourceType.Should().Be(rows[0].ResourceType);
+
+    ScopeContext otherTenant = new() { TenantId = Guid.NewGuid(), WorkspaceId = WorkspaceId, ProjectId = ProjectA };
+    IReadOnlyDictionary<string, CloudResourceIdentityRecord> isolated = await directory.UpsertSnapshotBatchAsync(
+      otherTenant, CloudProvider.Azure, snapshotB, [rows[0]]);
+    isolated.Values.Single().CloudResourceId.Should().NotBe(identity.CloudResourceId);
+    (await directory.UpsertSnapshotBatchAsync(scope, CloudProvider.Azure, snapshotB, [])).Should().BeEmpty();
   }
 }

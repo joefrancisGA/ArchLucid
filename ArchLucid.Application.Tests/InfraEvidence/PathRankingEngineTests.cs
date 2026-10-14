@@ -65,23 +65,11 @@ public sealed class PathRankingEngineTests
 
         Mock<ISecurityEvidencePathRepository> pathRepository = new();
         pathRepository
-            .Setup(repository => repository.ListBySnapshotAsync(
-                It.Is<ProjectSnapshotScopeKey>(scope =>
-                    scope.TenantId == TenantId
-                    && scope.WorkspaceId == WorkspaceId
-                    && scope.ProjectId == ProjectId
-                    && scope.SnapshotId == SnapshotId),
+            .Setup(repository => repository.ListWithHopsBySnapshotAsync(
+                It.Is<ProjectSnapshotScopeKey>(key => key.TenantId == TenantId
+                    && key.WorkspaceId == WorkspaceId && key.ProjectId == ProjectId && key.SnapshotId == SnapshotId),
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync([path]);
-        pathRepository
-            .Setup(repository => repository.ListHopsByPathInScopeAsync(
-                It.Is<ProjectScopeKey>(scopeKey =>
-                    scopeKey.TenantId == TenantId
-                    && scopeKey.WorkspaceId == WorkspaceId
-                    && scopeKey.ProjectId == ProjectId),
-                PathId,
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync(hops);
+            .ReturnsAsync([new SecurityEvidencePathWithHops(path, hops)]);
 
         List<SecurityEvidencePathRankRecord> persistedRanks = [];
         Mock<ISecurityEvidencePathRankRepository> rankRepository = new();
@@ -148,6 +136,10 @@ public sealed class PathRankingEngineTests
             SecureNowArchitectConstants.SystemActorId,
             CancellationToken.None);
 
+        pathRepository.Verify(repository => repository.ListWithHopsBySnapshotAsync(
+            It.IsAny<ProjectSnapshotScopeKey>(), It.IsAny<CancellationToken>()), Times.Once);
+        pathRepository.Verify(repository => repository.ListHopsByPathInScopeAsync(
+            It.IsAny<ProjectScopeKey>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Never);
         result.Succeeded.Should().BeTrue();
         result.PathsRanked.Should().Be(1);
         persistedRanks.Should().ContainSingle();

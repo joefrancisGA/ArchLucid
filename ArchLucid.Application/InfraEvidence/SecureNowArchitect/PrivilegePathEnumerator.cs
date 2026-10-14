@@ -8,10 +8,21 @@ internal static class PrivilegePathEnumerator
 {
     public static IReadOnlyList<PrivilegePathCandidate> Enumerate(
         InventoryPrivilegePathGraphSnapshot graph,
-        PrivilegePathEngineOptions options)
+        PrivilegePathEngineOptions options,
+        SecureNowArchitectEngineRunScope? runScope = null)
     {
         ArgumentNullException.ThrowIfNull(graph);
         ArgumentNullException.ThrowIfNull(options);
+
+        SecureNowArchitectTraversalNeighborhood? neighborhood = runScope is { IsFullEstate: false }
+            ? new(graph.OutgoingEdges, graph.ResourcesByArmId, runScope.SeedCloudResourceIds, options.MaxDepth)
+            : null;
+        IReadOnlyDictionary<string, Guid> resourceIds = neighborhood is null
+            ? new Dictionary<string, Guid>()
+            : graph.ResourcesByArmId.Values
+                .Where(resource => resource.CloudResourceId is Guid id && id != Guid.Empty)
+                .ToDictionary(resource => resource.AzureResourceId, resource => resource.CloudResourceId!.Value,
+                    StringComparer.OrdinalIgnoreCase);
 
         List<PrivilegePathCandidate> results = [];
         HashSet<string> seenPathSignatures = new(StringComparer.Ordinal);
@@ -20,7 +31,8 @@ internal static class PrivilegePathEnumerator
             .Where(static nodeId => nodeId.StartsWith(AzureInventoryPrincipalNodeId.Prefix, StringComparison.Ordinal)
                 || !nodeId.StartsWith("azure-ad://", StringComparison.Ordinal));
 
-        foreach (string startNode in startNodes.OrderBy(static node => node, StringComparer.OrdinalIgnoreCase))
+        foreach (string startNode in startNodes.Where(node => neighborhood is null || neighborhood.CanReachSeed(node))
+                     .OrderBy(static node => node, StringComparer.OrdinalIgnoreCase))
         {
             if (results.Count >= options.MaxPaths)
             {
@@ -34,7 +46,8 @@ internal static class PrivilegePathEnumerator
                 [],
                 new HashSet<string>(StringComparer.OrdinalIgnoreCase) { startNode },
                 results,
-                seenPathSignatures);
+                seenPathSignatures, neighborhood, runScope, resourceIds,
+                neighborhood?.TouchesSeed(startNode) == true);
         }
 
         return results;
@@ -47,7 +60,11 @@ internal static class PrivilegePathEnumerator
         List<PrivilegePathEdge> path,
         HashSet<string> visited,
         List<PrivilegePathCandidate> results,
-        HashSet<string> seenPathSignatures)
+        HashSet<string> seenPathSignatures,
+        SecureNowArchitectTraversalNeighborhood? neighborhood,
+        SecureNowArchitectEngineRunScope? runScope,
+        IReadOnlyDictionary<string, Guid> resourceIds,
+        bool touchedSeed)
     {
         if (path.Count >= options.MaxDepth || results.Count >= options.MaxPaths)
         {
@@ -73,6 +90,9 @@ internal static class PrivilegePathEnumerator
                 continue;
             }
 
+            if (neighborhood is not null && !touchedSeed && !neighborhood.CanReachSeed(edge.ToNodeId))
+                continue;
+
             fanOut++;
             List<PrivilegePathEdge> nextPath = [.. path, edge];
             HashSet<string> nextVisited = [.. visited, edge.ToNodeId];
@@ -81,7 +101,9 @@ internal static class PrivilegePathEnumerator
             {
                 string signature = BuildPathSignature(candidate.Hops);
 
-                if (seenPathSignatures.Add(signature))
+                if ((runScope is null || runScope.IsFullEstate
+                    || SecureNowArchitectNeighborhoodFilter.CandidateTouchesSeeds(candidate, runScope.SeedCloudResourceIds, resourceIds))
+                    && seenPathSignatures.Add(signature))
                 {
                     results.Add(candidate);
                 }
@@ -94,7 +116,8 @@ internal static class PrivilegePathEnumerator
                 nextPath,
                 nextVisited,
                 results,
-                seenPathSignatures);
+                seenPathSignatures, neighborhood, runScope, resourceIds,
+                touchedSeed || neighborhood?.TouchesSeed(edge.ToNodeId) == true);
         }
     }
 

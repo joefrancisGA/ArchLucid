@@ -7,6 +7,25 @@ namespace ArchLucid.Persistence.InfraEvidence;
 
 public interface ICloudResourceIdentityDirectory
 {
+    async Task<IReadOnlyDictionary<string, CloudResourceIdentityRecord>> UpsertSnapshotBatchAsync(
+        ScopeContext scope,
+        CloudProvider provider,
+        Guid snapshotId,
+        IReadOnlyList<CloudResourceIdentitySnapshotWrite> resources,
+        CancellationToken cancellationToken = default)
+    {
+        Dictionary<string, CloudResourceIdentityRecord> result = new(StringComparer.OrdinalIgnoreCase);
+        foreach (CloudResourceIdentitySnapshotWrite resource in resources)
+        {
+            CloudResourceIdentityRecord identity = await UpsertOnSnapshotAsync(
+                scope, provider, resource.ExternalResourceId, snapshotId, resource.ResourceType,
+                resource.SubscriptionOrAccountId, resource.ResourceGroupOrProject, resource.Region,
+                resource.DisplayName, cancellationToken);
+            result[identity.ExternalResourceIdNormalized] = identity;
+        }
+        return result;
+    }
+
     Task<CloudResourceIdentityRecord> UpsertOnSnapshotAsync(
         ScopeContext scope,
         CloudProvider provider,
