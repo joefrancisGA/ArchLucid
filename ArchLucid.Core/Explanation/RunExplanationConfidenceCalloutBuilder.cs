@@ -113,7 +113,7 @@ public static class RunExplanationConfidenceCalloutBuilder
     {
         double? ratio = null;
 
-        if (RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitive(root, "faithfulnessSupportRatio", out JsonElement ratioEl))
+        if (RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitivePreferLastNonEmpty(root, "faithfulnessSupportRatio", out JsonElement ratioEl))
             ratio = RunExplanationAggregateJsonReader.NormalizeUnitRatio(
                 RunExplanationAggregateJsonReader.TryReadFiniteDouble(ratioEl));
 

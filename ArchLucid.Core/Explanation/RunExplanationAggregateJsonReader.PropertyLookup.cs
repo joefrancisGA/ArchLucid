@@ -56,9 +56,11 @@ internal static partial class RunExplanationAggregateJsonReader
         }
 
         if (lastMatch is JsonElement confidenceLast
-            && propertyName.Equals("confidence", StringComparison.OrdinalIgnoreCase)
+            && (propertyName.Equals("confidence", StringComparison.OrdinalIgnoreCase)
+                || propertyName.Equals("faithfulnessSupportRatio", StringComparison.OrdinalIgnoreCase))
             && (TryReadFiniteDouble(confidenceLast) is not null
-                || (confidenceLast.ValueKind == JsonValueKind.Array
+                || (propertyName.Equals("confidence", StringComparison.OrdinalIgnoreCase)
+                    && confidenceLast.ValueKind == JsonValueKind.Array
                     && !ArrayPropertyValueIsNonEmpty(confidenceLast, propertyName)
                     && ArrayContainsOnlyZeroNumericElements(confidenceLast))))
         {
@@ -111,6 +113,7 @@ internal static partial class RunExplanationAggregateJsonReader
     private static bool IsNonEmptyJsonPropertyValue(JsonElement jsonElement, string structuredPropertyName)
     {
         if ((structuredPropertyName.Equals("confidence", StringComparison.OrdinalIgnoreCase)
+             || structuredPropertyName.Equals("faithfulnessSupportRatio", StringComparison.OrdinalIgnoreCase)
              || structuredPropertyName.Equals("reasoning", StringComparison.OrdinalIgnoreCase)
              || structuredPropertyName.Equals("schemaVersion", StringComparison.OrdinalIgnoreCase)
              || IsStructuredStringListPropertyName(structuredPropertyName))

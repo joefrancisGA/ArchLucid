@@ -835,4 +835,5 @@ public sealed class StructuredExplanationParserTests
         ok.Should().BeTrue();
         s!.Confidence.Should().Be(0m);
     }
+
 }
