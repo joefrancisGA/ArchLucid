@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Architecture;
 
 public sealed class VisionDiagramIngestResult
@@ -8,11 +10,13 @@ public sealed class VisionDiagramIngestResult
         init;
     } = new();
 
+    private IReadOnlyList<string> warnings = [];
+
     public IReadOnlyList<string> Warnings
     {
-        get;
-        init;
-    } = [];
+        get => warnings;
+        init => warnings = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 
     public string ExtractionMethod
     {

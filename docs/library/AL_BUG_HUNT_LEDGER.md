@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-14 seed hunt (seed→hit): `archlucid-contracts` — promoted `VisionDiagramIngestResult.Warnings` explicit JSON `null` on vision diagram ingest response JSON; `ContractCollectionDefaults.CoalesceReadOnly` on `Warnings` `init`; regressions `VisionDiagramIngestResultDeserializationTests`; 691 scoped `Contracts` filter tests passed.
+
 2026-10-14 seed hunt (seed→hit): `archlucid-contracts` — promoted `StructuredDiagramIngestResult.Warnings` / `SourceFingerprints` explicit JSON `null` on diagram ingest response JSON; `ContractCollectionDefaults.CoalesceReadOnly` on both `init` accessors; regressions `StructuredDiagramIngestResultDeserializationTests`; 690 scoped `Contracts` filter tests passed.
 
 2026-10-14 seed hunt (seed→hit): `archlucid-contracts` — promoted `ArchitectureDiagramModelRecord` list properties (`Nodes`, `Edges`, `Subgraphs`, `TrustBoundaryLabels`) explicit JSON `null` overwriting `= []` initializers; class fix with `ContractCollectionDefaults.Coalesce` on all four collection setters; regression `Deserialize_null_collection_properties_yields_empty_lists_not_null` in `ArchitectureDiagramModelRecordJsonRoundTripTests`; 689 scoped `Contracts` filter tests passed.
@@ -29123,6 +29125,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 ---
 ## Zone: archlucid-contracts
 
+2026-10-14 seed hunt (seed→hit): promoted vision diagram ingest result JSON `null` on `Warnings`; `ContractCollectionDefaults.CoalesceReadOnly`; 691 scoped `Contracts` filter tests passed.
+
 2026-10-14 seed hunt (seed→hit): promoted structured diagram ingest result JSON `null` on `Warnings` and `SourceFingerprints`; `ContractCollectionDefaults.CoalesceReadOnly`; 690 scoped `Contracts` filter tests passed.
 
 2026-10-14 seed hunt (seed→hit): promoted structured diagram model JSON `null` collections on `Nodes`, `Edges`, `Subgraphs`, and `TrustBoundaryLabels`; `ContractCollectionDefaults.Coalesce`; 689 scoped `Contracts` filter tests passed.
@@ -29243,11 +29247,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 101
-- **bugs-found:** 81
+- **hunts:** 102
+- **bugs-found:** 82
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-14
-- **last-bug:** 2026-10-14 — structured diagram ingest result JSON null collections
+- **last-bug:** 2026-10-14 — vision diagram ingest result JSON null warnings
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -29316,7 +29320,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `DiagramInfrastructureReconciliationResult.Rows` / `EdgeGaps` — explicit JSON `null` assigned null despite `= []` initializers — **hit 2026-10-14 seed hunt:** class fix with `ContractCollectionDefaults.Coalesce` on both list setters; regressions `DiagramInfrastructureReconciliationResultDeserializationTests`.
 - [x] (proven) `ArchitectureDiagramModelRecord` list properties (`Nodes`, `Edges`, `Subgraphs`, `TrustBoundaryLabels`) — explicit JSON `null` assigned null despite `= []` initializers — **hit 2026-10-14 seed hunt:** class fix with `ContractCollectionDefaults.Coalesce` on all four collection setters; regression `Deserialize_null_collection_properties_yields_empty_lists_not_null`.
 - [x] (proven) `StructuredDiagramIngestResult.Warnings` / `SourceFingerprints` — explicit JSON `null` assigned null despite `= []` initializers — **hit 2026-10-14 seed hunt:** `ContractCollectionDefaults.CoalesceReadOnly` on both `init` accessors; regressions `StructuredDiagramIngestResultDeserializationTests`.
-- (candidate) `VisionDiagramIngestResult.Warnings` — explicit JSON `null` can assign null despite `= []` initializer on vision diagram ingest response JSON. Reachability: `VisionDiagramIngestResult` deserialized via `ContractJson.Default` on vision ingest API paths.
+- [x] (proven) `VisionDiagramIngestResult.Warnings` — explicit JSON `null` assigned null despite `= []` initializer — **hit 2026-10-14 seed hunt:** `ContractCollectionDefaults.CoalesceReadOnly` on `Warnings` `init`; regression `Deserialize_null_warnings_yields_empty_list_not_null`.
+- (candidate) `StructuredDiagramIngestRequest.Sources` — explicit JSON `null` can assign null despite `= []` initializer on structured diagram ingest request JSON. Reachability: `StructuredDiagramIngestRequest` deserialized via `ContractJson.Default` on diagram ingest API paths.
 - [x] (proven) `SecureNowQuestionDispositionResponse.AuditEntries` — explicit JSON `"auditEntries": null` assigned null despite `= []` initializer — **hit 2026-10-14 seed hunt:** null-coalescing `init`; regression `Deserialize_null_audit_entries_yields_empty_list_not_null`.
 - [x] (valid-no-repro) `SecureNowQuestionDispositionWriteApiRequest.ExpirationUtc` → `SecureNowQuestionDispositionResponse.ExpirationUtc` — nullable request expiration becomes a required response `DateTime` — **cheap-disproof 2026-10-03 thorough hunt:** `SecureNowQuestionDispositionService.WriteAsync` converts omitted expiration to `now + 90 days` before creating the persisted record and controller mapping; no default timestamp reaches the response.
 - [x] (valid-no-repro) `SecureNowQuestionDispositionWriteApiRequest` — nullable `AnswerCode` and `AnswerText` permit both fields to be absent or simultaneously supplied — **cheap-disproof 2026-10-03 thorough hunt:** answer operations require nonblank `AnswerCode`, answer text is optional supplementary context, and ignore operations intentionally clear both fields; no contract-only shape defect is present.
