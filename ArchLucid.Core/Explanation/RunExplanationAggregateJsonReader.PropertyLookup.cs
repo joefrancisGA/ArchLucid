@@ -804,6 +804,12 @@ internal static partial class RunExplanationAggregateJsonReader
     {
         foreach (JsonElement item in schemaVersionArray.EnumerateArray())
         {
+            if (item.ValueKind == JsonValueKind.Array
+                && SchemaVersionArrayHasReadableScalarEntry(item))
+            {
+                return true;
+            }
+
             if (StrictSchemaVersionReader.TryReadSchemaVersion(item, out _))
                 return true;
         }
@@ -826,8 +832,21 @@ internal static partial class RunExplanationAggregateJsonReader
             return false;
         }
 
-        foreach (JsonElement item in element.EnumerateArray())
+        return TryReadSchemaVersionFromArrayItems(element, out schemaVersion);
+    }
+
+    private static bool TryReadSchemaVersionFromArrayItems(JsonElement schemaVersionArray, out int schemaVersion)
+    {
+        foreach (JsonElement item in schemaVersionArray.EnumerateArray())
         {
+            if (item.ValueKind == JsonValueKind.Array)
+            {
+                if (TryReadSchemaVersionFromArrayItems(item, out schemaVersion))
+                    return true;
+
+                continue;
+            }
+
             if (StrictSchemaVersionReader.TryReadSchemaVersion(item, out schemaVersion)
                 && schemaVersion > 0)
             {

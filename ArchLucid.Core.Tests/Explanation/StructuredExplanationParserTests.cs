@@ -1112,6 +1112,41 @@ public sealed class StructuredExplanationParserTests
     }
 
     [Fact]
+    public void RunExplanation_structured_json_reads_schema_version_from_sole_nested_numeric_array_alias()
+    {
+        const string json = """{"schemaVersion":[[2]],"reasoning":"Main"}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.SchemaVersion.Should().Be(2);
+    }
+
+    [Fact]
+    public void RunExplanation_structured_json_keeps_schema_version_when_later_case_variant_is_nested_numeric_poison_array()
+    {
+        const string json =
+            """{"schemaVersion":2,"reasoning":"Main","SCHEMAVERSION":[[3]]}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.SchemaVersion.Should().Be(2);
+    }
+
+    [Fact]
+    public void RunExplanation_structured_json_reads_alternatives_from_sole_nested_string_array_alias()
+    {
+        const string json =
+            """{"reasoning":"Main","alternativesConsidered":[["Keep monolith"]]}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.AlternativesConsidered.Should().Equal("Keep monolith");
+    }
+
+    [Fact]
     public void RunExplanation_structured_json_reads_reasoning_from_sole_nested_string_array_alias()
     {
         const string json = """{"reasoning":[["Nested paragraph."]]}""";
