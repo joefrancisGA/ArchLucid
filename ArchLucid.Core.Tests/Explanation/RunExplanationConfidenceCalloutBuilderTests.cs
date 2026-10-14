@@ -2020,6 +2020,41 @@ public sealed class RunExplanationConfidenceCalloutBuilderTests
     }
 
     [Fact]
+    public void RunExplanation_FromAggregateJson_keeps_deterministic_fallback_false_when_later_duplicate_is_string_true_poison_alias()
+    {
+        RunExplanationConfidenceSignals? signals = RunExplanationConfidenceCalloutBuilder.FromAggregateJson(
+            """
+            {
+              "deterministicFallbackUsed": false,
+              "DETERMINISTICFALLBACKUSED": "true",
+              "faithfulnessSupportRatio": 0.95,
+              "citations": 1
+            }
+            """);
+
+        signals.Should().NotBeNull();
+        signals!.DeterministicFallbackUsed.Should().BeFalse();
+    }
+
+    [Fact]
+    public void RunExplanation_FromAggregateJson_keeps_deterministic_fallback_true_when_later_duplicate_is_string_false_poison_alias()
+    {
+        RunExplanationConfidenceSignals? signals = RunExplanationConfidenceCalloutBuilder.FromAggregateJson(
+            """
+            {
+              "deterministicFallbackUsed": true,
+              "DETERMINISTICFALLBACKUSED": "false",
+              "faithfulnessSupportRatio": 0.95,
+              "citations": 1
+            }
+            """);
+
+        signals.Should().NotBeNull();
+        signals!.DeterministicFallbackUsed.Should().BeTrue();
+        RunExplanationConfidenceCalloutBuilder.ResolveDisposition(signals).Should().Be("HOLD");
+    }
+
+    [Fact]
     public void RunExplanation_structured_json_object_evidence_ref_survives_empty_id_duplicate()
     {
         bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(

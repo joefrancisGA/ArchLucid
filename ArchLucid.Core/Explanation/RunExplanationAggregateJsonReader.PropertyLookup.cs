@@ -425,6 +425,16 @@ internal static partial class RunExplanationAggregateJsonReader
         }
 
         if (IsDeterministicFallbackPropertyName(structuredPropertyName)
+            && jsonElement.ValueKind == JsonValueKind.String
+            && TryParseBooleanString(jsonElement.GetString()?.Trim(), out _))
+        {
+            if (applyTrailingDuplicateArrayPoison)
+                return false;
+
+            return true;
+        }
+
+        if (IsDeterministicFallbackPropertyName(structuredPropertyName)
             && IsZeroConfidenceAliasValue(jsonElement))
         {
             if (applyTrailingDuplicateArrayPoison)
@@ -489,7 +499,9 @@ internal static partial class RunExplanationAggregateJsonReader
                     || IsZeroConfidenceAliasValue(item)
                     || (item.ValueKind == JsonValueKind.String
                         && TryParseWholeNumberString(item.GetString()?.Trim(), out int deterministicFallbackArrayStringAlias)
-                        && (deterministicFallbackArrayStringAlias == 0 || deterministicFallbackArrayStringAlias == 1))))
+                        && (deterministicFallbackArrayStringAlias == 0 || deterministicFallbackArrayStringAlias == 1))
+                    || (item.ValueKind == JsonValueKind.String
+                        && TryParseBooleanString(item.GetString()?.Trim(), out _))))
             {
                 continue;
             }
