@@ -32,7 +32,7 @@ public static partial class StructuredExplanationParser
             if (root.ValueKind != JsonValueKind.Object)
                 return false;
 
-            if (!RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitive(root, "reasoning", out JsonElement reasoningElement))
+            if (!RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitivePreferLastNonEmpty(root, "reasoning", out JsonElement reasoningElement))
             {
                 return false;
             }
@@ -44,7 +44,7 @@ public static partial class StructuredExplanationParser
 
             int schemaVersion = 1;
 
-            if (RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitive(root, "schemaVersion", out JsonElement schemaElement)
+            if (RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitivePreferLastNonEmpty(root, "schemaVersion", out JsonElement schemaElement)
                 && StrictSchemaVersionReader.TryReadSchemaVersion(schemaElement, out int parsedSchemaVersion)
                 && parsedSchemaVersion > 0)
             {
@@ -53,7 +53,7 @@ public static partial class StructuredExplanationParser
 
             decimal? confidence = null;
 
-            if (RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitive(root, "confidence", out JsonElement confidenceElement))
+            if (RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitivePreferLastNonEmpty(root, "confidence", out JsonElement confidenceElement))
             {
                 double? finiteConfidence = TryReadStructuredConfidence(confidenceElement);
 

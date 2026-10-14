@@ -23,4 +23,40 @@ internal static partial class RunExplanationAggregateJsonReader
 
         return false;
     }
+
+    /// <summary>
+    ///     When duplicate case-variant properties appear, retain the last token that is not an empty string or empty array
+    ///     so a trailing empty alias cannot discard an earlier usable model value.
+    /// </summary>
+    public static bool TryGetPropertyCaseInsensitivePreferLastNonEmpty(
+        JsonElement element,
+        string propertyName,
+        out JsonElement value)
+    {
+        value = default;
+        bool found = false;
+
+        foreach (JsonProperty property in element.EnumerateObject())
+        {
+            if (!string.Equals(property.Name, propertyName, StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            if (!IsNonEmptyJsonPropertyValue(property.Value))
+                continue;
+
+            value = property.Value;
+            found = true;
+        }
+
+        return found;
+    }
+
+    private static bool IsNonEmptyJsonPropertyValue(JsonElement jsonElement) =>
+        jsonElement.ValueKind switch
+        {
+            JsonValueKind.Null => false,
+            JsonValueKind.String => !string.IsNullOrWhiteSpace(jsonElement.GetString()),
+            JsonValueKind.Array => jsonElement.GetArrayLength() > 0,
+            _ => true,
+        };
 }

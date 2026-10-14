@@ -570,4 +570,26 @@ public sealed class StructuredExplanationParserTests
         ok.Should().BeTrue();
         s!.Caveats.Should().Equal("Assumes single-region deployment.");
     }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_uses_non_empty_confidence_when_later_case_variant_is_empty()
+    {
+        const string json = """{"reasoning":"Main","confidence":0.8,"CONFIDENCE":""}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Confidence.Should().Be(0.8m);
+    }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_uses_non_empty_evidence_refs_when_later_case_variant_is_empty()
+    {
+        const string json = """{"reasoning":"Main","evidenceRefs":["dec-1"],"EVIDENCEREFS":[]}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.EvidenceRefs.Should().Equal("dec-1");
+    }
 }

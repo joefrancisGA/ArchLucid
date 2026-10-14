@@ -28508,6 +28508,8 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 ---
 ## Zone: core-explanation-json
 
+2026-10-14 seed hunt (seed→hit): promoted duplicate case-variant structured properties where a trailing empty string or empty array hid an earlier usable `confidence` or `evidenceRefs` value; structured reads now use `TryGetPropertyCaseInsensitivePreferLastNonEmpty`; regressions `TryNormalizeStructuredJson_uses_non_empty_confidence_when_later_case_variant_is_empty` and `TryNormalizeStructuredJson_uses_non_empty_evidence_refs_when_later_case_variant_is_empty`; cheap-disproved null array entries and scalar boolean `alternativesConsidered` as already handled; scoped explanation tests 98/98.
+
 2026-10-13 seed hunt (seed→hit): promoted scalar JSON booleans on structured list fields and `reasoning` coercing to `"true"`/`"false"` via `TryReadNonEmptyTextToken` while array entries already skipped booleans; reject `True`/`False` on non-array list scalars and scalar `reasoning`; regressions `TryNormalizeStructuredJson_ignores_scalar_boolean_evidence_refs` and `TryNormalizeStructuredJson_rejects_scalar_boolean_reasoning`; scoped explanation tests 96/96.
 
 2026-10-13 seed hunt (seed→hit): promoted JSON boolean entries in structured `reasoning` arrays prepending `"true"`/`"false"` paragraphs; `CollectReasoningParts` skips boolean elements; regression `TryNormalizeStructuredJson_ignores_boolean_reasoning_array_entries`; seeded five follow-on `(candidate)` rows; scoped explanation tests 94/94.
@@ -28580,14 +28582,15 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 - [x] (proven) `TryReadStringList` — scalar boolean `evidenceRefs` (`true`) coerced to a single `"true"` citation id — **hit 2026-10-13 seed hunt:** reject boolean scalars before `TryReadNonEmptyTextToken`; regression `TryNormalizeStructuredJson_ignores_scalar_boolean_evidence_refs`.
 - [x] (proven) `TryReadReasoningText` — scalar boolean `reasoning` (`true`) accepted as prose `"true"` — **hit 2026-10-13 seed hunt:** reject boolean scalars; regression `TryNormalizeStructuredJson_rejects_scalar_boolean_reasoning`.
 - [ ] (candidate) `TryReadObjectStringProperty` — object list entries with only a `content` key (no `id`/`text`) are dropped silently — locus: property name list; input: `{"evidenceRefs":[{"content":"dec-1"}]}` if any provider emits OpenAPI alias keys.
-- [ ] (candidate) `StructuredExplanationParser.TryNormalizeStructuredJson` — duplicate case-variant list properties may still use first empty array before later populated variant — locus: `TryGetPropertyCaseInsensitive` on list fields; input: mirrored reasoning duplicate-property case from 2026-10-10 hit but on `evidenceRefs`.
+- [x] (proven) `StructuredExplanationParser.TryNormalizeStructuredJson` — duplicate case-variant list properties where trailing empty array hid earlier `evidenceRefs` — **hit 2026-10-14 seed hunt:** `TryGetPropertyCaseInsensitivePreferLastNonEmpty`; regression `TryNormalizeStructuredJson_uses_non_empty_evidence_refs_when_later_case_variant_is_empty`.
+- [x] (proven) `StructuredExplanationParser.TryNormalizeStructuredJson` — duplicate case-variant `confidence` where trailing empty string hid earlier numeric confidence — **hit 2026-10-14 seed hunt:** same helper; regression `TryNormalizeStructuredJson_uses_non_empty_confidence_when_later_case_variant_is_empty`.
 - [ ] (candidate) `TryReadStringListEntry` — `null` JSON elements inside list arrays are skipped without failing structured parse — locus: `CollectStringListEntries`; input: `{"reasoning":"Main","evidenceRefs":[null,"dec-1"]}`.
 
-- **hunts:** 64
-- **bugs-found:** 41
+- **hunts:** 65
+- **bugs-found:** 42
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-13
-- **last-bug:** 2026-10-13 — scalar boolean JSON on structured reasoning and list fields
+- **last-hunt:** 2026-10-14
+- **last-bug:** 2026-10-14 — duplicate case-variant empty alias hid structured confidence and evidence refs
 - **related-pd-tb:** none
 - **code-changed-since:** no
 

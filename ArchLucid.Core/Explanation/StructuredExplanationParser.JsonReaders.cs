@@ -10,7 +10,7 @@ public static partial class StructuredExplanationParser
 
     private static List<string>? TryReadStringList(JsonElement root, string propertyName)
     {
-        if (!RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitive(root, propertyName, out JsonElement arrayElement))
+        if (!RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitivePreferLastNonEmpty(root, propertyName, out JsonElement arrayElement))
         {
             return null;
         }
