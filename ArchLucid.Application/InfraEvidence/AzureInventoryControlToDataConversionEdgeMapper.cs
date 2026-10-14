@@ -78,6 +78,13 @@ public static class AzureInventoryControlToDataConversionEdgeMapper
                     roleName,
                     resource.ResourceType,
                     resource.Properties);
+                AddCodeControlEdge(
+                    relationships,
+                    relationshipKeys,
+                    principalNodeId,
+                    normalizedResourceArmId,
+                    resource.ResourceType,
+                    resource.Properties);
             }
 
             if (!matchedResource)
@@ -174,6 +181,37 @@ public static class AzureInventoryControlToDataConversionEdgeMapper
                 DerivedFactConfidence,
                 inferenceSource);
         }
+    }
+
+    private static void AddCodeControlEdge(
+        List<AzureInventoryResourceRelationshipWrite> relationships,
+        HashSet<string> relationshipKeys,
+        string principalNodeId,
+        string targetArmId,
+        string resourceType,
+        IReadOnlyDictionary<string, string>? properties)
+    {
+        if (!AzureInventoryWebSiteCodeDeployment.IsCodeDeploymentResourceType(resourceType))
+        {
+            return;
+        }
+
+        if (!AzureInventoryRuntimeIdentityReader.HasRuntimeIdentity(properties))
+        {
+            return;
+        }
+
+        AddRelationship(
+            relationships,
+            relationshipKeys,
+            principalNodeId,
+            targetArmId,
+            GraphEdgeTypes.CanControlCode,
+            ProvenanceKind.DerivedFact,
+            DerivedFactConfidence,
+            GraphEdgeInferenceSources.WithQualifier(
+                GraphEdgeInferenceSources.InventoryControlToDataConversion,
+                "site-code-deploy"));
     }
 
     private static void AddRelationship(

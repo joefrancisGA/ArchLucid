@@ -50,6 +50,12 @@ internal static class DiagramRelationshipVerbCatalog
             return true;
         }
 
+        if (normalized.Equals(GraphEdgeTypes.CanControlCode, StringComparison.OrdinalIgnoreCase))
+        {
+            label = "deploys code";
+            return true;
+        }
+
         if (normalized.Equals(GraphEdgeTypes.CanRead, StringComparison.OrdinalIgnoreCase))
         {
             label = "reads";

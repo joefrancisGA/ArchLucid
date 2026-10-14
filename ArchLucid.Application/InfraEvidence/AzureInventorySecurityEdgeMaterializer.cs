@@ -425,6 +425,21 @@ public static class AzureInventorySecurityEdgeMaterializer
                 ObservedFactConfidence,
                 GraphEdgeInferenceSources.InventoryUsesIdentity);
         }
+
+        if (AzureInventoryRuntimeIdentityReader.TryReadSystemAssignedPrincipalId(
+                resource.Properties,
+                out string systemAssignedPrincipalId))
+        {
+            AddRelationship(
+                relationships,
+                relationshipKeys,
+                normalizedArmId,
+                AzureInventoryPrincipalNodeId.Format(systemAssignedPrincipalId),
+                GraphEdgeTypes.UsesIdentity,
+                ProvenanceKind.ObservedFact,
+                ObservedFactConfidence,
+                GraphEdgeInferenceSources.InventoryUsesIdentity);
+        }
     }
 
     private static void AddObservedPublicExposure(
