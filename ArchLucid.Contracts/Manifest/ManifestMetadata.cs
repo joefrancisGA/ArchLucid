@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Manifest;
 
 /// <summary>
@@ -33,11 +35,13 @@ public sealed class ManifestMetadata
     } = string.Empty;
 
     /// <summary>Identifiers of decision traces that contributed to this manifest version.</summary>
+    private List<string> decisionTraceIds = [];
+
     public List<string> DecisionTraceIds
     {
-        get;
-        set;
-    } = [];
+        get => decisionTraceIds;
+        set => decisionTraceIds = ContractCollectionDefaults.Coalesce(value);
+    }
 
     /// <summary>UTC timestamp when this manifest snapshot was committed.</summary>
     public DateTime CreatedUtc
