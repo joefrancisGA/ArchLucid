@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Agents;
 
 /// <summary>
@@ -36,16 +38,20 @@ public sealed class PolicyEvidence
     ///     Mandatory security controls that compliant architectures must implement
     ///     in order to satisfy this policy.
     /// </summary>
+    private List<string> requiredControls = [];
+
     public List<string> RequiredControls
     {
-        get;
-        set;
-    } = [];
+        get => requiredControls;
+        set => requiredControls = ContractCollectionDefaults.Coalesce(value);
+    }
 
     /// <summary>Classification tags for filtering and grouping (e.g., <c>security</c>, <c>networking</c>).</summary>
+    private List<string> tags = [];
+
     public List<string> Tags
     {
-        get;
-        set;
-    } = [];
+        get => tags;
+        set => tags = ContractCollectionDefaults.Coalesce(value);
+    }
 }
