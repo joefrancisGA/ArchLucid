@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-14 seed hunt (seed→hit): `core-explanation-json` — promoted duplicate case-variant properties where a trailing empty JSON object (`{}`) hid earlier usable `reasoning` or `confidence`; `IsNonEmptyJsonPropertyValue` now treats property-less objects as empty for `TryGetPropertyCaseInsensitivePreferLastNonEmpty`; regressions `TryNormalizeStructuredJson_uses_non_empty_reasoning_when_later_case_variant_is_empty_object` and `TryNormalizeStructuredJson_uses_non_empty_confidence_when_later_case_variant_is_empty_object`; scoped `RunExplanation` filter 47/47 Core + 3 Application passed.
+
 2026-10-14 seed hunt (seed→hit): `weekly-digest-email` — promoted embedded CR/LF in `weekLabel` reaching `WeeklySponsorReportEmailModel.WeekLabel` while the SMTP subject was already sanitized; fixed with shared `displayWeekLabel` via `EmailHeaderFragmentSanitizer`; regression `WeeklySponsorReportEmailDispatcher_strips_embedded_crlf_from_week_label_in_template_model_and_subject`; 28 scoped report dispatcher + `WeeklyExecutiveSummaryJobTests` passed.
 
 2026-10-14 thorough hunt (dry): `host-core-jobs` — cheap-disproof closed four open `(candidate)` rows after the 2026-10-13 `MarkFailedTerminalFromQueuedStateAsync` notify-failure fix (stale `MarkFailedTerminalAsync` watchdog wording, enqueue cancel vs notify races, exhausted-retry `IsRunningJobRow` gate, in-memory shutdown re-queue single-writer contract); seeded five follow-on `(candidate)` rows; Host.Core scoped filter 77/77; Api `BackgroundJob` filter passed (9 SQL integration tests unavailable on Linux VM).
@@ -28539,6 +28541,8 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 ---
 ## Zone: core-explanation-json
 
+2026-10-14 seed hunt (seed→hit): promoted duplicate case-variant properties where a trailing empty JSON object hid earlier usable `reasoning` or `confidence`; empty objects no longer count as non-empty alias tokens in `TryGetPropertyCaseInsensitivePreferLastNonEmpty`; regressions `TryNormalizeStructuredJson_uses_non_empty_reasoning_when_later_case_variant_is_empty_object` and `TryNormalizeStructuredJson_uses_non_empty_confidence_when_later_case_variant_is_empty_object`; scoped `RunExplanation` filter 50/50 passed.
+
 2026-10-14 seed hunt (seed→hit): promoted duplicate case-variant structured properties where a trailing empty string or empty array hid an earlier usable `confidence` or `evidenceRefs` value; structured reads now use `TryGetPropertyCaseInsensitivePreferLastNonEmpty`; regressions `TryNormalizeStructuredJson_uses_non_empty_confidence_when_later_case_variant_is_empty` and `TryNormalizeStructuredJson_uses_non_empty_evidence_refs_when_later_case_variant_is_empty`; cheap-disproved null array entries and scalar boolean `alternativesConsidered` as already handled; scoped explanation tests 98/98.
 
 2026-10-13 seed hunt (seed→hit): promoted scalar JSON booleans on structured list fields and `reasoning` coercing to `"true"`/`"false"` via `TryReadNonEmptyTextToken` while array entries already skipped booleans; reject `True`/`False` on non-array list scalars and scalar `reasoning`; regressions `TryNormalizeStructuredJson_ignores_scalar_boolean_evidence_refs` and `TryNormalizeStructuredJson_rejects_scalar_boolean_reasoning`; scoped explanation tests 96/96.
@@ -28609,19 +28613,20 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 - **aliases:** run explanation; explanation json; split from archlucid-core
 - **paths:** ArchLucid.Core/Explanation/
 - **test-filter:** FullyQualifiedName~RunExplanation
-- [ ] (candidate) `CollectReasoningParts` — numeric scalar `reasoning` values (e.g. `42`) still stringify via `TryReadNonEmptyTextToken` while structured schema expects prose — locus: default branch; input: `{"reasoning":42}` without array wrapper.
+- [x] (valid-no-repro) `CollectReasoningParts` — numeric scalar `reasoning` values (e.g. `42`) stringify via `TryReadNonEmptyTextToken` — **cheap-disproof 2026-10-14 seed hunt:** intentional numeric coercion parity with array entries and evidence refs; regression `TryNormalizeStructuredJson_coerces_numeric_scalar_reasoning`.
 - [x] (proven) `TryReadStringList` — scalar boolean `evidenceRefs` (`true`) coerced to a single `"true"` citation id — **hit 2026-10-13 seed hunt:** reject boolean scalars before `TryReadNonEmptyTextToken`; regression `TryNormalizeStructuredJson_ignores_scalar_boolean_evidence_refs`.
 - [x] (proven) `TryReadReasoningText` — scalar boolean `reasoning` (`true`) accepted as prose `"true"` — **hit 2026-10-13 seed hunt:** reject boolean scalars; regression `TryNormalizeStructuredJson_rejects_scalar_boolean_reasoning`.
-- [ ] (candidate) `TryReadObjectStringProperty` — object list entries with only a `content` key (no `id`/`text`) are dropped silently — locus: property name list; input: `{"evidenceRefs":[{"content":"dec-1"}]}` if any provider emits OpenAPI alias keys.
+- [x] (invalid) `TryReadObjectStringProperty` — object list entries with only a `content` key (no `id`/`text`) are dropped silently — **cheap-disproof 2026-10-14 seed hunt:** duplicate of 2026-10-03 invalid row; structured LLM prompt schema uses `id`/`text` only.
 - [x] (proven) `StructuredExplanationParser.TryNormalizeStructuredJson` — duplicate case-variant list properties where trailing empty array hid earlier `evidenceRefs` — **hit 2026-10-14 seed hunt:** `TryGetPropertyCaseInsensitivePreferLastNonEmpty`; regression `TryNormalizeStructuredJson_uses_non_empty_evidence_refs_when_later_case_variant_is_empty`.
 - [x] (proven) `StructuredExplanationParser.TryNormalizeStructuredJson` — duplicate case-variant `confidence` where trailing empty string hid earlier numeric confidence — **hit 2026-10-14 seed hunt:** same helper; regression `TryNormalizeStructuredJson_uses_non_empty_confidence_when_later_case_variant_is_empty`.
-- [ ] (candidate) `TryReadStringListEntry` — `null` JSON elements inside list arrays are skipped without failing structured parse — locus: `CollectStringListEntries`; input: `{"reasoning":"Main","evidenceRefs":[null,"dec-1"]}`.
+- [x] (valid-no-repro) `TryReadStringListEntry` — `null` JSON elements inside list arrays are skipped without failing structured parse — **cheap-disproof 2026-10-14 seed hunt:** lenient partial-list contract; valid entries still normalize.
+- [x] (proven) `RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitivePreferLastNonEmpty` — trailing empty JSON object on duplicate case-variant `reasoning` or `confidence` hid earlier usable values — **hit 2026-10-14 seed hunt:** treat property-less objects as empty; regressions `TryNormalizeStructuredJson_uses_non_empty_reasoning_when_later_case_variant_is_empty_object` and `TryNormalizeStructuredJson_uses_non_empty_confidence_when_later_case_variant_is_empty_object`.
 
-- **hunts:** 65
-- **bugs-found:** 42
+- **hunts:** 66
+- **bugs-found:** 43
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-14
-- **last-bug:** 2026-10-14 — duplicate case-variant empty alias hid structured confidence and evidence refs
+- **last-bug:** 2026-10-14 — duplicate case-variant empty object hid structured reasoning and confidence
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
