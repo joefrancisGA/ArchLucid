@@ -42,6 +42,5 @@ public static partial class DecisionGradeFindingProvenanceValidator
     }
 
     private static bool IsCrossRunDiffEngine(string? engineType) =>
-        string.Equals(engineType, "requirement-cross-run-diff", StringComparison.OrdinalIgnoreCase)
-        || string.Equals(engineType, "topology-cross-run-diff", StringComparison.OrdinalIgnoreCase);
+        CrossRunDiffFindingPriorGuard.IsCrossRunDiffEngine(engineType);
 }

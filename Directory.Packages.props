@@ -119,7 +119,9 @@
     <!-- Test-only: text extraction from QuestPDF PDFs (MIT; package id is PdfPig on NuGet). -->
     <PackageVersion Include="PdfPig" Version="0.1.14" />
     <PackageVersion Include="System.ClientModel" Version="1.14.0" />
-    <PackageVersion Include="System.Security.Cryptography.Xml" Version="10.0.10" />
+    <!-- Oct 2026 Patch Tuesday: GHSA-846f-f764-76mx (Pkcs) and GHSA-c399-9853-6jmj (Xml) High DoS. CPM transitive pin. -->
+    <PackageVersion Include="System.Security.Cryptography.Pkcs" Version="10.0.13" />
+    <PackageVersion Include="System.Security.Cryptography.Xml" Version="10.0.13" />
     <PackageVersion Include="Verify.Xunit" Version="31.12.5" />
     <PackageVersion Include="xunit" Version="2.9.3" />
     <!-- WireMock.Net 1.25.0 pulls Scriban.Signed 5.5.0 (GHSA-24c8-4792-22hx); explicit refs in WireMock test csprojs. -->

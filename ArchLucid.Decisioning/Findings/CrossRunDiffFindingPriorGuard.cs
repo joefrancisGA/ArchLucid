@@ -11,8 +11,7 @@ public static partial class CrossRunDiffFindingPriorGuard
 {
     public static void EnsurePriorPresentOrThrow(FindingAnalysisContext? analysisContext, string engineType)
     {
-        if (analysisContext?.Prior is not null
-            && analysisContext.Prior.PriorRunId != Guid.Empty)
+        if (HasBoundPrior(analysisContext))
         {
             return;
         }
@@ -20,6 +19,28 @@ public static partial class CrossRunDiffFindingPriorGuard
         throw new InvalidOperationException(
             $"Cross-run engine '{engineType}' requires FindingAnalysisContext.Prior; snapshot generation is incomplete.");
     }
+
+    /// <summary>
+    ///     First reviews have no prior. Invoking a cross-run engine then throws, which is recorded as an
+    ///     engine failure and blocks Working finalize as degraded coverage. Skip those engines unless a
+    ///     prior run is bound; they still fail closed if invoked without prior.
+    /// </summary>
+    public static bool ShouldInvoke(string engineType, FindingAnalysisContext? analysisContext)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(engineType);
+
+        if (!IsCrossRunDiffEngine(engineType))
+            return true;
+
+        return HasBoundPrior(analysisContext);
+    }
+
+    public static bool IsCrossRunDiffEngine(string? engineType) =>
+        string.Equals(engineType, "requirement-cross-run-diff", StringComparison.OrdinalIgnoreCase)
+        || string.Equals(engineType, "topology-cross-run-diff", StringComparison.OrdinalIgnoreCase);
+
+    private static bool HasBoundPrior(FindingAnalysisContext? analysisContext) =>
+        analysisContext?.Prior?.PriorRunId is Guid priorRunId && priorRunId != Guid.Empty;
 
     /// <summary>
     ///     Wave-6 suggestion 54: when a prior graph snapshot id is present, missing Γ is incomplete — not a quiet first review.
