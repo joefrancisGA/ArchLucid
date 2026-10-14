@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-14 seed hunt (seed→hit): `archlucid-contracts` — promoted `ManifestService` list properties (`Tags`, `RequiredControls`) explicit JSON `null` on nested manifest service rows; `ContractCollectionDefaults.Coalesce` on both collection setters; regressions `ManifestServiceDeserializationTests`; 702 scoped `Contracts` filter tests passed.
+
 2026-10-14 seed hunt (seed→hit): `archlucid-contracts` — promoted `ManifestDiagramSemanticOverlay` list properties (`Actors`, `TrustBoundaryLabels`, `RequirementLabels`, `DecisionLabels`) explicit JSON `null` on nested diagram-semantics JSON; class fix with `ContractCollectionDefaults.Coalesce` on all four collection setters; regressions `ManifestDiagramSemanticOverlayDeserializationTests`; 701 scoped `Contracts` filter tests passed.
 
 2026-10-14 seed hunt (seed→hit): `archlucid-contracts` — promoted `ManifestGovernance` list properties (`ComplianceTags`, `PolicyConstraints`, `RequiredControls`) explicit JSON `null` on nested governance JSON; class fix with `ContractCollectionDefaults.Coalesce` on all three collection setters; regressions `ManifestGovernanceDeserializationTests`; 700 scoped `Contracts` filter tests passed.
@@ -29269,11 +29271,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 112
-- **bugs-found:** 92
+- **hunts:** 113
+- **bugs-found:** 93
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-14
-- **last-bug:** 2026-10-14 — manifest diagram semantic overlay JSON null collections
+- **last-bug:** 2026-10-14 — manifest service JSON null collections
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -29353,7 +29355,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `GoldenManifest` list properties (`Services`, `Datastores`, `Relationships`) — explicit JSON `null` assigned null despite `= []` initializers — **hit 2026-10-14 seed hunt:** class fix with `ContractCollectionDefaults.Coalesce` on all three collection setters; regression `Deserialize_null_collection_properties_yields_empty_lists_not_null`.
 - [x] (proven) `ManifestGovernance` list properties (`ComplianceTags`, `PolicyConstraints`, `RequiredControls`) — explicit JSON `null` assigned null despite `= []` initializers — **hit 2026-10-14 seed hunt:** class fix with `ContractCollectionDefaults.Coalesce` on all three collection setters; regression `Deserialize_null_collection_properties_yields_empty_lists_not_null`.
 - [x] (proven) `ManifestDiagramSemanticOverlay` list properties (`Actors`, `TrustBoundaryLabels`, `RequirementLabels`, `DecisionLabels`) — explicit JSON `null` assigned null despite `= []` initializers — **hit 2026-10-14 seed hunt:** class fix with `ContractCollectionDefaults.Coalesce` on all four collection setters; regression `Deserialize_null_collection_properties_yields_empty_lists_not_null`.
-- (candidate) `ManifestService` list properties (`Tags`, `RequiredControls`) — explicit JSON `null` can assign null despite `= []` initializers on nested manifest service rows. Reachability: `ManifestService` deserialized via `ContractJson.Default` on `GoldenManifest.services` JSON.
+- [x] (proven) `ManifestService` list properties (`Tags`, `RequiredControls`) — explicit JSON `null` assigned null despite `= []` initializers — **hit 2026-10-14 seed hunt:** `ContractCollectionDefaults.Coalesce` on both collection setters; regression `Deserialize_null_collection_properties_yields_empty_lists_not_null`.
+- (candidate) `ActorSet.Actors` — explicit JSON `null` can assign null despite `= []` initializer on actor-set intake JSON (`MeetsAdmissionMinimum` / `InferredActors` enumerate without null guard). Reachability: `ActorSet` deserialized via `ContractJson.Default` on ADR 0049 actor intake surfaces.
 - [x] (proven) `SecureNowQuestionDispositionResponse.AuditEntries` — explicit JSON `"auditEntries": null` assigned null despite `= []` initializer — **hit 2026-10-14 seed hunt:** null-coalescing `init`; regression `Deserialize_null_audit_entries_yields_empty_list_not_null`.
 - [x] (valid-no-repro) `SecureNowQuestionDispositionWriteApiRequest.ExpirationUtc` → `SecureNowQuestionDispositionResponse.ExpirationUtc` — nullable request expiration becomes a required response `DateTime` — **cheap-disproof 2026-10-03 thorough hunt:** `SecureNowQuestionDispositionService.WriteAsync` converts omitted expiration to `now + 90 days` before creating the persisted record and controller mapping; no default timestamp reaches the response.
 - [x] (valid-no-repro) `SecureNowQuestionDispositionWriteApiRequest` — nullable `AnswerCode` and `AnswerText` permit both fields to be absent or simultaneously supplied — **cheap-disproof 2026-10-03 thorough hunt:** answer operations require nonblank `AnswerCode`, answer text is optional supplementary context, and ignore operations intentionally clear both fields; no contract-only shape defect is present.
