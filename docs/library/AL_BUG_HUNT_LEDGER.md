@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-14 seed hunt (seed→hit): `archlucid-contracts` — promoted `OperationState` on `OperationDetail.State` accepting undefined numeric ordinals such as `99` on operation-poll JSON via `ContractJson.Default`; `DefinedEnumJsonConverter<OperationState>`; regressions `OperationStateDeserializationTests`; 648 scoped `Contracts` filter tests passed.
+
 2026-10-14 seed hunt (seed→hit): `archlucid-contracts` — promoted `AgentOutputQualityGateOutcome` on `AgentOutputEvaluationPerspective.AggregateQualityGateOutcome` accepting undefined numeric ordinals such as `99` via `ContractJson.Default`; `DefinedEnumJsonConverter<AgentOutputQualityGateOutcome>`; regressions `AgentOutputQualityGateOutcomeDeserializationTests`; 645 scoped `Contracts` filter tests passed.
 
 2026-10-14 seed hunt (seed→hit): `archlucid-contracts` — promoted `AgentExecutionOutcomeKind` on `AgentExecutionOutcome.Outcome` accepting undefined numeric ordinals such as `99` on buyer run-detail JSON via `ContractJson.Default` while `agentType` was guarded; `DefinedEnumJsonConverter<AgentExecutionOutcomeKind>`; regressions `AgentExecutionOutcomeKindDeserializationTests`; cheap-disproof closed `SnapshotId` all-zero GUID and nullable `DiagramNodeId` mapping-save rows as application-layer validation/intentional clear; 642 scoped `Contracts` filter tests passed.
@@ -29083,6 +29085,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 ---
 ## Zone: archlucid-contracts
 
+2026-10-14 seed hunt (seed→hit): promoted `OperationState` undefined ordinals on `OperationDetail` poll JSON; `DefinedEnumJsonConverter<OperationState>`; regressions `OperationStateDeserializationTests`; 648 scoped `Contracts` filter tests passed.
+
 2026-10-14 seed hunt (seed→hit): promoted `AgentOutputQualityGateOutcome` undefined ordinals on evaluation perspective JSON; `DefinedEnumJsonConverter<AgentOutputQualityGateOutcome>`; regressions `AgentOutputQualityGateOutcomeDeserializationTests`; 645 scoped `Contracts` filter tests passed.
 
 2026-10-14 seed hunt (seed→hit): promoted `AgentExecutionOutcomeKind` undefined ordinals on buyer `AgentExecutionOutcome` JSON; `DefinedEnumJsonConverter<AgentExecutionOutcomeKind>`; regressions `AgentExecutionOutcomeKindDeserializationTests`; cheap-disproof `SnapshotId` / `DiagramNodeId` candidates; 642 scoped `Contracts` filter tests passed.
@@ -29163,11 +29167,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 81
-- **bugs-found:** 61
+- **hunts:** 82
+- **bugs-found:** 62
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-14
-- **last-bug:** 2026-10-14 — `AgentOutputQualityGateOutcome` undefined ordinal `99` on agent evaluation perspective JSON
+- **last-bug:** 2026-10-14 — `OperationState` undefined ordinal `99` on `OperationDetail` poll JSON
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -29211,7 +29215,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (valid-no-repro) `InfrastructureDiagramNodeMappingSaveRequest.DiagramNodeId` — nullable mapping-save `diagramNodeId` — **cheap-disproof 2026-10-14 seed hunt:** `InfrastructureDiagramComparisonService` maps null/whitespace to `null` as an intentional diagram-node clear while persisting label + cloud-resource linkage.
 - [x] (proven) `AgentExecutionOutcomeKind` on `BuyerRunDetailSummaryDto.AgentExecutionOutcomes` — undefined numeric ordinals such as `99` deserialized without `JsonException` — **hit 2026-10-14 seed hunt:** fixed with `DefinedEnumJsonConverter<AgentExecutionOutcomeKind>`; regressions `AgentExecutionOutcomeKindDeserializationTests`.
 - [x] (proven) `AgentOutputQualityGateOutcome` on `AgentOutputEvaluationPerspective.AggregateQualityGateOutcome` — undefined numeric ordinals such as `99` deserialized without `JsonException` — **hit 2026-10-14 seed hunt:** fixed with `DefinedEnumJsonConverter<AgentOutputQualityGateOutcome>`; regressions `AgentOutputQualityGateOutcomeDeserializationTests`.
-- (candidate) `OperationState` on long-running operation status DTOs — API JSON can carry undefined numeric ordinals on `state` because the enum has no `DefinedEnumJsonConverter` while other workflow enums in the same package use dedicated converters. Reachability: `ArchLucid.Contracts.Operations` DTOs returned from operation polling endpoints.
+- [x] (proven) `OperationState` on `OperationDetail.State` — undefined numeric ordinals such as `99` deserialized without `JsonException` — **hit 2026-10-14 seed hunt:** fixed with `DefinedEnumJsonConverter<OperationState>`; regressions `OperationStateDeserializationTests`.
+- (candidate) `RequestStatus` on architecture request lifecycle DTOs — persisted/export JSON can carry undefined numeric ordinals on `status` because the enum has no `DefinedEnumJsonConverter` while `ArchitectureRunStatus` and related workflow enums are guarded. Reachability: `ArchLucid.Contracts.Common` request rows deserialized via `ContractJson.Default` on run orchestration surfaces.
 - (candidate) `DiagramInfrastructureEdgeGapRow.GapKind` — reconciliation output can carry an arbitrary string such as `"PresentNotDrawn "` or an unknown value even though the contract publishes two constants; a client that switches on exact gap-kind values may render a real edge gap as unknown. Reachability: server-generated reconciliation response consumed by the diagram comparison UI.
 - (candidate) `DiagramSourceReference.Content` — a comparison-create request can provide a named source with a supported format but empty content, and the contract accepts it as a valid source; the comparison may silently produce an empty diagram instead of rejecting or reporting the unusable source. Reachability: API request payload for the infrastructure-diagram comparison endpoint.
 - (candidate) `ArchitectureDiagramNodeRecord.Kind` — diagram-node JSON accepts arbitrary kind strings such as `"service "` even though the contract publishes `user`, `system`, `external`, and `boundary`; exact-value renderers may classify a real node as unknown. Reachability: architecture diagram node payload consumed by the diagram UI.
