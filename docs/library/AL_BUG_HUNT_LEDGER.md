@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-14 thorough hunt (dry): `host-core-jobs` — cheap-disproof closed four open `(candidate)` rows after the 2026-10-13 `MarkFailedTerminalFromQueuedStateAsync` notify-failure fix (stale `MarkFailedTerminalAsync` watchdog wording, enqueue cancel vs notify races, exhausted-retry `IsRunningJobRow` gate, in-memory shutdown re-queue single-writer contract); seeded five follow-on `(candidate)` rows; Host.Core scoped filter 77/77; Api `BackgroundJob` filter passed (9 SQL integration tests unavailable on Linux VM).
+
 2026-10-14 thorough hunt (hit): `core-findings-advice` — proved en-dash token parity in `InsightDensityTextSimilarity.Tokenize`, `failed`/`does not comply with the constraint` conflict falsifiability gaps in `ConflictFindingPattern`, and `prevented from`/`disallowed from` negation parity in `EnglishNegationTokenizer`; closed five open `(candidate)` rows; regressions `Jaccard_similarity_treats_en_dash_separated_resource_tokens_as_space_separated_peers`, `HasFalsifiabilitySignal_recognizes_conflict_wording_variants`, and `IsObviousGenericAdvice_does_not_flag_prohibitive_from_phrasing`; 1687 scoped `GenericArchitectureAdvicePatterns` tests passed.
 
 2026-10-14 seed hunt (seed→hit): `tenant-erasure` — promoted `TenantErasureQuarantineMiddleware.Skip` parent-segment traversal; reachable `/v1/tenant/../admin/...` normalized onto `/v1/admin` and bypassed quarantine while offboarded; require raw path prefix for `/v1/admin` and `/v1/register` skip entries; pass unnormalized `Request.Path` into `Skip`; regression `Erasure_quarantine_still_blocks_offboarded_tenant_when_path_traversal_reaches_admin_prefix`; Application 35/35 and Api 29/29 scoped `TenantErasure` tests passed.
@@ -15550,6 +15552,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: host-core-jobs
 
+2026-10-14 thorough hunt (dry): cheap-disproof closed four picker `(candidate)` rows (watchdog notify-failure path now uses `MarkFailedTerminalFromQueuedStateAsync` with dual cancel re-reads; enqueue notify failure covered by `DurableBackgroundJobQueue_EnqueueAsync_does_not_mark_failed_terminal_when_cancel_visible_before_notify_failure_terminal_assignment`; processor exhausted-retry path guarded by `IsRunningJobRow` before `MarkFailedTerminalAsync`; in-memory `TryRequeuePendingRetryWorkItemAsync` uses non-blocking `WaitAsync(0)` and releases on `TryWrite` failure). Seeded five follow-on candidates; Host.Core scoped filter 77/77.
+
 2026-10-13 thorough hunt (hit): `DurableBackgroundJobQueue.EnqueueAsync` and `BackgroundJobStuckRunningWatchdogBackgroundWork` still called `MarkFailedTerminalAsync` after queue notify failure, but the 2026-10-12 `Running`-only SQL guard made those updates a no-op for `Pending` rows (orphan pending without queue notification); added `MarkFailedTerminalFromQueuedStateAsync` (`Pending` or `Running`) for notify-failure paths; regression `EnqueueAsync_notify_failure_marks_pending_row_failed_when_running_only_terminal_is_no_op`; cheap-disproof closed the four open candidates (watchdog cancel re-read parity, enqueue cancel vs notify race, exhausted-retry reclaim window covered by `IsRunningJobRow`, in-memory shutdown re-queue bounded by `WaitAsync(0)` + single writer). Host.Core scoped filter 77/77; Api scoped filter 97 passed (9 SQL integration unavailable on Linux VM).
 
 2026-10-07 thorough hunt (hit): proved stale processor success assignment after watchdog reclaim to `Pending`; fixed Running re-read + SQL guard; regression above; cheap-disproof closed four reseeded candidates; reseeded four new candidates.
@@ -15564,10 +15568,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** background jobs; hosted services; durable job queue
 - **paths:** ArchLucid.Host.Core/Jobs/; ArchLucid.Host.Core/Hosted/
 - **test-filter:** FullyQualifiedName~ArchLucidJob|FullyQualifiedName~BackgroundJob|FullyQualifiedName~Hosted
-- **hunts:** 49
+- **hunts:** 50
 - **bugs-found:** 34
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-13
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-10-14
 - **last-bug:** 2026-10-13 — queue notify failure could not terminal-fail Pending rows after Running-only SQL guard
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -15661,10 +15665,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `BackgroundJobQueueProcessorHostedService` success path — blob uploaded then Running check fails leaves orphan result blob without `ResultBlobName` on row — **valid-no-repro 2026-10-12 thorough hunt:** cancel/reclaim-wins on job state is the supported contract; download APIs gate on `Succeeded` + `ResultBlobName`; orphan blob bytes are storage hygiene only (same class as 2026-10-07 dry row).
 - [x] (valid-no-repro) `InMemoryBackgroundJobQueue.ExecuteAsync` — success assigns `_files` before cancel re-read; canceled row may retain bytes until eviction — **valid-no-repro 2026-10-12 thorough hunt:** `JobsController.DownloadJobFile` requires `Succeeded`; bounded eviction clears `_files` with terminal `_info`; not incorrect queue state.
 
-- [ ] (candidate) `BackgroundJobStuckRunningWatchdogBackgroundWork` — stale reclaim notify failure calls `MarkFailedTerminalAsync` while row is no longer `Running` after concurrent cancel (application re-read parity vs new SQL guard).
-- [ ] (candidate) `DurableBackgroundJobQueue.EnqueueAsync` — post-insert notify failure marks terminal while caller still holds a canceled enqueue token race with `MarkCanceledAsync`.
-- [ ] (candidate) `BackgroundJobQueueProcessorHostedService.HandleFailureAsync` — exhausted-retry terminal path when `GetAsync` flips `Running` → `Pending` between post-log cancel reads and `IsRunningJobRow` (narrow window after 2026-10-12 fixes).
-- [ ] (candidate) `InMemoryBackgroundJobQueue.TryRequeuePendingRetryWorkItemAsync` — shutdown-interrupted retry when pending capacity frees between stop and re-queue attempt leaves duplicate channel items.
+- [x] (invalid) `BackgroundJobStuckRunningWatchdogBackgroundWork` — stale reclaim notify failure calls `MarkFailedTerminalAsync` while row is no longer `Running` — **cheap-disproof 2026-10-14 thorough hunt:** candidate text is stale; notify failure uses `MarkFailedTerminalFromQueuedStateAsync` for `Pending`/`Running` rows; regressions `RunSinglePassAsync_does_not_mark_failed_terminal_when_job_canceled_before_notify_failure_handling` and `EnqueueAsync_notify_failure_marks_pending_row_failed_when_running_only_terminal_is_no_op`.
+- [x] (valid-no-repro) `DurableBackgroundJobQueue.EnqueueAsync` — post-insert notify failure vs concurrent `MarkCanceledAsync` — **cheap-disproof 2026-10-14 thorough hunt:** dual cancel re-read before queued-state terminal; `OperationCanceledException` when `cancellationToken` requests cancel routes to `TryCancelInsertedPendingJobAfterEnqueueAbortedAsync`; regressions `DurableBackgroundJobQueue_EnqueueAsync_does_not_mark_failed_terminal_when_cancel_visible_before_notify_failure_terminal_assignment` and `DurableBackgroundJobQueue_EnqueueAsync_marks_canceled_when_enqueue_canceled_before_notify_completes`.
+- [x] (valid-no-repro) `BackgroundJobQueueProcessorHostedService.HandleFailureAsync` — exhausted-retry terminal when row flips `Running` → `Pending` before terminal write — **cheap-disproof 2026-10-14 thorough hunt:** `IsRunningJobRow` guard immediately before `MarkFailedTerminalAsync` on the exhausted path (lines 403–407); parity with invalid-payload and capacity-exhausted terminal regressions from 2026-10-12.
+- [x] (valid-no-repro) `InMemoryBackgroundJobQueue.TryRequeuePendingRetryWorkItemAsync` — shutdown retry leaves duplicate channel items — **cheap-disproof 2026-10-14 thorough hunt:** re-queue uses `WaitAsync(0)` and releases pending slot when `Writer.TryWrite` fails; single shutdown call site; regression `StopAsync_during_retry_backoff_requeues_pending_job_for_next_start`.
+
+- (candidate) `BackgroundJobQueueProcessorHostedService.HandleFailureAsync` — `MarkPendingRetryAsync` may run after watchdog reclaim to `Pending` when only pre-SQL cancel re-reads passed and `IsRunningJobRow` was not re-checked immediately before the retry update (narrow race vs durable `State = N'Running'` SQL guard).
+- (candidate) `BackgroundJobStuckRunningWatchdogBackgroundWork` — reclaimed stale `Running` rows already at `RetryCount == MaxRetries` are moved to `Pending` and re-notified instead of failing terminal without queue delivery.
+- (candidate) `DurableBackgroundJobQueue.TryCancelInsertedPendingJobAfterEnqueueAbortedAsync` — failed `MarkCanceledAsync` after caller-cancelled enqueue leaves a `Pending` row that a later watchdog pass may re-notify as reclaimed work.
+- (candidate) `InMemoryBackgroundJobQueue.ExecuteAsync` — capacity-exhausted retry terminal assigns `Failed` after post-log cancel re-reads but before second `_info` read parity on the shutdown-interrupted backoff branch (symmetry with 2026-09-27 capacity-exhausted fix).
+- (candidate) `BackgroundJobQueueProcessorHostedService.ProcessOneMessageAsync` — invalid-payload terminal uses prepare-snapshot `row.RetryCount + 1` without re-reading `RetryCount` after dual `IsRunningJobRow` checks when concurrent retry mutation is in flight.
 
 - [x] (proven) `InMemoryBackgroundJobQueue` dequeue `Running` assignment — **hit 2026-10-05 seed hunt:** `ExecuteAsync` wrote `Running` via `_info[jobId]` after a `Pending` snapshot while `MarkCanceledAsync` could land on another thread between the read and write; use `TryAssignUnlessCanceled` for the `Running` transition; regression `MarkCanceled_during_dequeue_does_not_overwrite_with_running`.
 
