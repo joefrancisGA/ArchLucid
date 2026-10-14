@@ -1,5 +1,7 @@
 using System.Text.Json.Serialization;
 
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Governance;
 
 /// <summary>The data type expected for the user's answer to an elicitation question.</summary>
@@ -7,7 +9,7 @@ namespace ArchLucid.Contracts.Governance;
 ///     Used by the question-selection engine (ADR 0051) and UI to render the appropriate
 ///     input control and to validate/parse the answer before storing it on the draft.
 /// </remarks>
-[JsonConverter(typeof(JsonStringEnumConverter))]
+[JsonConverter(typeof(DefinedEnumJsonConverter<ElicitationAnswerKind>))]
 public enum ElicitationAnswerKind
 {
     /// <summary>Free-form text (single-line or multi-line).</summary>
