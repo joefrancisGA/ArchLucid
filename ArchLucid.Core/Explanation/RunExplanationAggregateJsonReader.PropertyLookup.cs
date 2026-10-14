@@ -245,8 +245,15 @@ internal static partial class RunExplanationAggregateJsonReader
 
     private static bool ObjectPropertyValueIsNonEmpty(JsonElement jsonElement, string structuredPropertyName)
     {
-        if (structuredPropertyName.Equals("reasoning", StringComparison.OrdinalIgnoreCase))
-            return ReasoningObjectAliasHasExtractableContent(jsonElement);
+        if (structuredPropertyName.Equals("reasoning", StringComparison.OrdinalIgnoreCase)
+            || structuredPropertyName.Equals("alternativesConsidered", StringComparison.OrdinalIgnoreCase)
+            || structuredPropertyName.Equals("caveats", StringComparison.OrdinalIgnoreCase))
+        {
+            return ProseListObjectAliasHasExtractableContent(jsonElement);
+        }
+
+        if (structuredPropertyName.Equals("evidenceRefs", StringComparison.OrdinalIgnoreCase))
+            return EvidenceRefObjectAliasHasExtractableContent(jsonElement);
 
         foreach (JsonProperty property in jsonElement.EnumerateObject())
         {
@@ -261,7 +268,10 @@ internal static partial class RunExplanationAggregateJsonReader
         return false;
     }
 
-    private static bool ReasoningObjectAliasHasExtractableContent(JsonElement jsonElement)
+    private static bool ReasoningObjectAliasHasExtractableContent(JsonElement jsonElement) =>
+        ProseListObjectAliasHasExtractableContent(jsonElement);
+
+    private static bool ProseListObjectAliasHasExtractableContent(JsonElement jsonElement)
     {
         if (TryGetPropertyCaseInsensitivePreferLastNonEmpty(jsonElement, "text", out JsonElement textElement)
             && TryReadNonEmptyTextToken(textElement, out string? text)
@@ -276,6 +286,25 @@ internal static partial class RunExplanationAggregateJsonReader
         if (TryGetPropertyCaseInsensitivePreferLastNonEmpty(jsonElement, "id", out JsonElement idElement)
             && TryReadNonEmptyTextToken(idElement, out string? id)
             && !string.IsNullOrWhiteSpace(id))
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    private static bool EvidenceRefObjectAliasHasExtractableContent(JsonElement jsonElement)
+    {
+        if (TryGetPropertyCaseInsensitivePreferLastNonEmpty(jsonElement, "id", out JsonElement idElement)
+            && TryReadNonEmptyTextToken(idElement, out string? id)
+            && !string.IsNullOrWhiteSpace(id))
+        {
+            return true;
+        }
+
+        if (TryGetPropertyCaseInsensitivePreferLastNonEmpty(jsonElement, "text", out JsonElement textElement)
+            && TryReadNonEmptyTextToken(textElement, out string? text)
+            && !string.IsNullOrWhiteSpace(text))
         {
             return true;
         }
