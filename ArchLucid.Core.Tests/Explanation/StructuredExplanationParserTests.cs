@@ -885,6 +885,18 @@ public sealed class StructuredExplanationParserTests
     }
 
     [Fact]
+    public void TryNormalizeStructuredJson_ignores_caveats_array_entries_with_blank_text_and_id_only_poison_shape()
+    {
+        const string json =
+            """{"reasoning":"Main","caveats":["Latency risk",{"text":"   ","id":"spoof"}]}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Caveats.Should().Equal("Latency risk");
+    }
+
+    [Fact]
     public void TryNormalizeStructuredJson_uses_non_empty_caveats_when_later_case_variant_is_zero_numeric_scalar()
     {
         const string json = """{"reasoning":"Main","caveats":["Latency risk"],"CAVEATS":0}""";
