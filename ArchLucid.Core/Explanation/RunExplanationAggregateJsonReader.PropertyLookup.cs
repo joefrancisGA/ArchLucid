@@ -672,10 +672,6 @@ internal static partial class RunExplanationAggregateJsonReader
         return false;
     }
 
-    private static bool IsProseStructuredStringListPropertyName(string propertyName) =>
-        propertyName.Equals("alternativesConsidered", StringComparison.OrdinalIgnoreCase)
-        || propertyName.Equals("caveats", StringComparison.OrdinalIgnoreCase);
-
     private static bool StructuredStringListArrayItemIsDuplicateAliasPoison(
         JsonElement item,
         JsonElement parentArray,
@@ -705,18 +701,10 @@ internal static partial class RunExplanationAggregateJsonReader
         if (!ArrayHasSingleNonNullEntry(parentArray))
             return false;
 
-        if (item.ValueKind == JsonValueKind.String)
+        if (item.ValueKind == JsonValueKind.String
+            && !string.IsNullOrWhiteSpace(item.GetString()))
         {
-            string? raw = item.GetString();
-
-            if (string.IsNullOrWhiteSpace(raw))
-                return false;
-
-            if (IsProseStructuredStringListPropertyName(structuredPropertyName))
-                return true;
-
-            if (raw.Trim().Length == 1)
-                return true;
+            return true;
         }
 
         return false;

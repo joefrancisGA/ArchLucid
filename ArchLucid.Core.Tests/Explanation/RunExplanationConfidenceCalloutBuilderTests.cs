@@ -1474,6 +1474,15 @@ public sealed class RunExplanationConfidenceCalloutBuilderTests
     }
 
     [Fact]
+    public void RunExplanation_FromAggregateJson_keeps_risk_posture_when_later_duplicate_is_supported_prose_poison_array()
+    {
+        using JsonDocument document = JsonDocument.Parse(
+            """{"riskPosture":"elevated","RISKPOSTURE":["moderate"]}""");
+
+        RunExplanationRiskCalloutBuilder.TryParseRiskPosture(document.RootElement).Should().Be("elevated");
+    }
+
+    [Fact]
     public void RunExplanation_FromAggregateJson_keeps_faithfulness_warning_when_later_duplicate_is_string_numeric_poison_array()
     {
         RunExplanationConfidenceSignals? signals = RunExplanationConfidenceCalloutBuilder.FromAggregateJson(

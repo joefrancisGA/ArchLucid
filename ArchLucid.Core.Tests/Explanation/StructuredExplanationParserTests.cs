@@ -1088,6 +1088,30 @@ public sealed class StructuredExplanationParserTests
     }
 
     [Fact]
+    public void RunExplanation_structured_json_keeps_caveats_when_later_case_variant_is_supported_prose_poison_array()
+    {
+        const string json =
+            """{"reasoning":"Main","caveats":["Latency risk"],"CAVEATS":["Different caveat"]}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Caveats.Should().Equal("Latency risk");
+    }
+
+    [Fact]
+    public void RunExplanation_structured_json_keeps_evidence_refs_when_later_case_variant_is_supported_ref_token_poison_array()
+    {
+        const string json =
+            """{"reasoning":"Main","evidenceRefs":["dec-1"],"EVIDENCEREFS":["dec-2"]}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.EvidenceRefs.Should().Equal("dec-1");
+    }
+
+    [Fact]
     public void RunExplanation_structured_json_keeps_schema_version_when_later_case_variant_is_supported_string_poison_array()
     {
         const string json =
