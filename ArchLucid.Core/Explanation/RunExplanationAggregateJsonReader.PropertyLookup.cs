@@ -268,7 +268,8 @@ internal static partial class RunExplanationAggregateJsonReader
             return false;
         }
 
-        if (structuredPropertyName.Equals("confidence", StringComparison.OrdinalIgnoreCase)
+        if ((structuredPropertyName.Equals("confidence", StringComparison.OrdinalIgnoreCase)
+             || structuredPropertyName.Equals("faithfulnessSupportRatio", StringComparison.OrdinalIgnoreCase))
             && jsonElement.ValueKind == JsonValueKind.String
             && TryReadFiniteDouble(jsonElement) is > 1)
         {
@@ -290,6 +291,14 @@ internal static partial class RunExplanationAggregateJsonReader
 
         if (IsStructuredStringListPropertyName(structuredPropertyName)
             && jsonElement.ValueKind == JsonValueKind.Number)
+        {
+            return false;
+        }
+
+        if (IsStructuredStringListPropertyName(structuredPropertyName)
+            && jsonElement.ValueKind == JsonValueKind.String
+            && TryReadWholeNumber(jsonElement, out int wholeStringListAlias)
+            && wholeStringListAlias > 10)
         {
             return false;
         }

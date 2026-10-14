@@ -726,6 +726,17 @@ public sealed class StructuredExplanationParserTests
     }
 
     [Fact]
+    public void RunExplanation_structured_json_keeps_evidence_refs_when_later_case_variant_is_arbitrary_numeric_string()
+    {
+        const string json = """{"reasoning":"Main","evidenceRefs":["dec-1"],"EVIDENCEREFS":"42"}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.EvidenceRefs.Should().Equal("dec-1");
+    }
+
+    [Fact]
     public void RunExplanation_structured_json_keeps_reasoning_when_later_case_variant_is_one_numeric()
     {
         const string json = """{"reasoning":"Main text","REASONING":1}""";

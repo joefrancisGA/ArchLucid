@@ -1101,6 +1101,23 @@ public sealed class RunExplanationConfidenceCalloutBuilderTests
     }
 
     [Fact]
+    public void RunExplanation_FromAggregateJson_keeps_faithfulness_ratio_when_later_duplicate_is_arbitrary_numeric_string()
+    {
+        RunExplanationConfidenceSignals? signals = RunExplanationConfidenceCalloutBuilder.FromAggregateJson(
+            """
+            {
+              "faithfulnessSupportRatio": 0.45,
+              "FAITHFULNESSSUPPORTRATIO": "42",
+              "citations": 1
+            }
+            """);
+
+        signals.Should().NotBeNull();
+        signals!.FaithfulnessSupportRatio.Should().Be(0.45);
+        RunExplanationConfidenceCalloutBuilder.ResolveDisposition(signals).Should().Be("HOLD");
+    }
+
+    [Fact]
     public void RunExplanation_FromAggregateJson_keeps_decision_count_when_later_duplicate_is_nested_empty_wrapper_object()
     {
         using JsonDocument document = JsonDocument.Parse(
