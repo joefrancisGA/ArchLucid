@@ -205,7 +205,10 @@ internal static partial class RunExplanationAggregateJsonReader
         if (caseInsensitiveAliasMatchCount == 1
             && lastMatch is JsonElement soleSchemaVersion
             && propertyName.Equals("schemaVersion", StringComparison.OrdinalIgnoreCase)
-            && StrictSchemaVersionReader.TryReadSchemaVersion(soleSchemaVersion, out _))
+            && (StrictSchemaVersionReader.TryReadSchemaVersion(soleSchemaVersion, out _)
+                || (soleSchemaVersion.ValueKind == JsonValueKind.Array
+                    && !ArrayPropertyValueIsNonEmpty(soleSchemaVersion, propertyName)
+                    && SchemaVersionArrayHasReadableScalarEntry(soleSchemaVersion))))
         {
             value = soleSchemaVersion;
 
@@ -500,13 +503,26 @@ internal static partial class RunExplanationAggregateJsonReader
             if (structuredPropertyName.Equals("reasoning", StringComparison.OrdinalIgnoreCase)
                 && item.ValueKind == JsonValueKind.String
                 && TryParseWholeNumberString(item.GetString()?.Trim() ?? string.Empty, out int reasoningStringAlias)
-                && reasoningStringAlias > 10)
+                && (reasoningStringAlias > 10 || reasoningStringAlias == 1))
             {
                 continue;
             }
 
             if (IsRatioPropertyName(structuredPropertyName)
                 && RatioArrayItemIsDuplicateAliasPoison(item))
+            {
+                continue;
+            }
+
+            if (structuredPropertyName.Equals("schemaVersion", StringComparison.OrdinalIgnoreCase)
+                && IsBooleanOneAliasValue(item))
+            {
+                continue;
+            }
+
+            if (structuredPropertyName.Equals("schemaVersion", StringComparison.OrdinalIgnoreCase)
+                && StrictSchemaVersionReader.TryReadSchemaVersion(item, out int schemaArrayAlias)
+                && schemaArrayAlias > StructuredExplanationParser.MaxSupportedStructuredExplanationSchemaVersion)
             {
                 continue;
             }
@@ -584,9 +600,21 @@ internal static partial class RunExplanationAggregateJsonReader
             return true;
 
         if (item.ValueKind is JsonValueKind.Number or JsonValueKind.String
-            && TryReadFiniteDouble(item) is > 1)
+            && TryReadFiniteDouble(item) is double ratioAlias
+            && (ratioAlias > 1 || ratioAlias == 1))
         {
             return true;
+        }
+
+        return false;
+    }
+
+    private static bool SchemaVersionArrayHasReadableScalarEntry(JsonElement schemaVersionArray)
+    {
+        foreach (JsonElement item in schemaVersionArray.EnumerateArray())
+        {
+            if (StrictSchemaVersionReader.TryReadSchemaVersion(item, out _))
+                return true;
         }
 
         return false;
