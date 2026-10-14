@@ -47,4 +47,26 @@ public sealed class ChatOpsWebhookAbsoluteUriValidatorTests
         ok.Should().BeFalse("percent-encoded CR/LF must not reach outbound webhook POST destinations");
         deliveryUri.Should().BeEmpty();
     }
+
+    [Fact]
+    public void TryValidateHttpsAbsoluteUri_rejects_unicode_line_separator_in_path()
+    {
+        bool ok = ChatOpsWebhookAbsoluteUriValidator.TryValidateHttpsAbsoluteUri(
+            "https://hooks.slack.com/services/X/Y/Z\u2028Host: evil.test",
+            out string deliveryUri);
+
+        ok.Should().BeFalse("Unicode line separators must not reach outbound webhook POST destinations");
+        deliveryUri.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void TryValidateHttpsAbsoluteUri_rejects_percent_encoded_unicode_line_separator_in_path()
+    {
+        bool ok = ChatOpsWebhookAbsoluteUriValidator.TryValidateHttpsAbsoluteUri(
+            "https://hooks.slack.com/services/X/Y/Z%E2%80%A8Host:%20evil.test",
+            out string deliveryUri);
+
+        ok.Should().BeFalse("percent-encoded Unicode line separators must not reach outbound webhook POST destinations");
+        deliveryUri.Should().BeEmpty();
+    }
 }

@@ -47,7 +47,7 @@ public static class ChatOpsWebhookAbsoluteUriValidator
         foreach (char character in value)
         {
 
-            if (character is '\r' or '\n')
+            if (character is '\r' or '\n' or '\u0085' or '\u2028' or '\u2029')
             {
                 return true;
             }
@@ -59,6 +59,9 @@ public static class ChatOpsWebhookAbsoluteUriValidator
     private static bool ContainsPercentEncodedLineBreaks(string value)
     {
         return value.Contains("%0D", StringComparison.OrdinalIgnoreCase)
-            || value.Contains("%0A", StringComparison.OrdinalIgnoreCase);
+            || value.Contains("%0A", StringComparison.OrdinalIgnoreCase)
+            || value.Contains("%E2%80%A8", StringComparison.OrdinalIgnoreCase)
+            || value.Contains("%E2%80%A9", StringComparison.OrdinalIgnoreCase)
+            || value.Contains("%C2%85", StringComparison.OrdinalIgnoreCase);
     }
 }
