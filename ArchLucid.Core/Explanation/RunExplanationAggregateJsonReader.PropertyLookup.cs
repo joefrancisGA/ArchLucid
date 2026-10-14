@@ -513,7 +513,7 @@ internal static partial class RunExplanationAggregateJsonReader
             }
 
             if (structuredPropertyName.Equals("reasoning", StringComparison.OrdinalIgnoreCase)
-                && ReasoningArrayItemIsDuplicateAliasPoison(item))
+                && ReasoningArrayItemIsDuplicateAliasPoison(item, applyTrailingDuplicateArrayPoison))
             {
                 continue;
             }
@@ -661,10 +661,16 @@ internal static partial class RunExplanationAggregateJsonReader
     private static bool ReasoningArrayHasReadableScalarEntry(JsonElement reasoningArray) =>
         StructuredStringListArrayHasReadableScalarEntry(reasoningArray);
 
-    private static bool ReasoningArrayItemIsDuplicateAliasPoison(JsonElement item)
+    private static bool ReasoningArrayItemIsDuplicateAliasPoison(JsonElement item, bool applyTrailingDuplicateArrayPoison)
     {
         if (IsBooleanOneAliasValue(item))
             return true;
+
+        if (TryReadFiniteDouble(item) is not null)
+            return true;
+
+        if (!applyTrailingDuplicateArrayPoison)
+            return false;
 
         if (item.ValueKind == JsonValueKind.String
             && !string.IsNullOrWhiteSpace(item.GetString()))
@@ -677,9 +683,6 @@ internal static partial class RunExplanationAggregateJsonReader
         {
             return true;
         }
-
-        if (TryReadFiniteDouble(item) is not null)
-            return true;
 
         if (item.ValueKind == JsonValueKind.Array
             && ReasoningArrayHasReadableScalarEntry(item))

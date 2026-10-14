@@ -1112,6 +1112,29 @@ public sealed class StructuredExplanationParserTests
     }
 
     [Fact]
+    public void RunExplanation_structured_json_reads_reasoning_from_sole_nested_string_array_alias()
+    {
+        const string json = """{"reasoning":[["Nested paragraph."]]}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Reasoning.Should().Be("Nested paragraph.");
+    }
+
+    [Fact]
+    public void RunExplanation_structured_json_keeps_reasoning_when_later_case_variant_is_nested_prose_poison_array()
+    {
+        const string json =
+            """{"reasoning":"Main","REASONING":[["Alternate nested prose"]]}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Reasoning.Should().Be("Main");
+    }
+
+    [Fact]
     public void RunExplanation_structured_json_keeps_evidence_refs_when_later_case_variant_is_supported_ref_token_poison_array()
     {
         const string json =
