@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-14 seed hunt (seed-only): `ui-form-validation` (#4) — cheap-disproof closed five open `(candidate)` rows below with falsify attempts; added four integration regressions in `SignupForm.test.tsx`; seeded five follow-on `(candidate)` rows; 108 scoped SignupForm vitest tests passed; no production code changed.
+
 2026-10-14 seed hunt (seed-only): `ui-form-validation` (#3) — cheap-disproof closed five open `(candidate)` rows below with falsify attempts; added five integration regressions in `SignupForm.test.tsx`; seeded five follow-on `(candidate)` rows; 104 scoped SignupForm vitest tests passed; no production code changed.
 
 2026-10-14 seed hunt (seed-only): `ui-form-validation` (#2) — cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 99 scoped SignupForm vitest tests passed; no production code changed.
@@ -6312,6 +6314,20 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: ui-form-validation
 
+2026-10-14 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below with falsify attempts; added four integration regressions; seeded five follow-on `(candidate)` rows; 108 scoped SignupForm vitest tests passed; no production code changed.
+
+- [x] (valid-no-repro) `SignupForm` — UI-selected company size `1-10` includes `companySize` in register POST JSON — **cheap-disproof 2026-10-14 seed hunt #4:** `buildSignupRegisterPayload` on submit; regression `includes company size in register POST when 1-10 is selected in the UI`.
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — persists `archlucid_signup_company_size` in `sessionStorage` when company size chosen in UI — **cheap-disproof 2026-10-14 seed hunt #4:** post-success `setItem` when `values.companySize` set; regression `persists archlucid_signup_company_size when company size is selected in the UI`.
+- [x] (valid-no-repro) `SignupForm` — Technology industry selected in optional UI includes `industryVertical` in register POST — **cheap-disproof 2026-10-14 seed hunt #4:** industry `Select` + payload builder; regression `includes Technology industryVertical in register POST from the UI`.
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — calls `recordFirstTenantFunnelEvent("signup")` after successful register before navigation — **cheap-disproof 2026-10-14 seed hunt #4:** source order before `router.push`; regression `records funnel signup before navigation on successful register`.
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — blocks overlapping register POST while `registerInFlightRef` is true — **cheap-disproof 2026-10-14 seed hunt #4:** early return when in-flight; regression `does not fire a second register request on rapid double-click before submitting state updates`.
+
+- [ ] (candidate) `SignupForm` — padded work email trimmed in register POST JSON on UI submit — locus: zod trim via `handleSubmit` (`signup-schema.ts` ~35, `SignupForm.tsx` ~109).
+- [ ] (candidate) `SignupForm` — Other industry with specification includes trimmed `industryVerticalOther` in register POST from UI — locus: industry Other branch (`SignupForm.tsx` ~347–356, ~68–74).
+- [ ] (candidate) `SignupForm` `onSubmit` — writes `archlucid_last_registration` session JSON with `adminEmail` after successful register — locus: `sessionStorage.setItem` (`SignupForm.tsx` ~187–194).
+- [ ] (candidate) `SignupForm` `onSubmit` — shows organization-created success toast on HTTP 201 register response — locus: `showSuccess` (`SignupForm.tsx` ~199–200).
+- [ ] (candidate) `SignupForm` `onSubmit` — clears in-flight gate and allows retry after non-ok register response — locus: `finally` when `!registerSucceeded` (`SignupForm.tsx` ~205–209).
+
 2026-10-14 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below with falsify attempts; added five integration regressions; seeded five follow-on `(candidate)` rows; 104 scoped SignupForm vitest tests passed; no production code changed.
 
 - [x] (valid-no-repro) `SignupForm` — selecting company size then Prefer not to say (`__none__`) omits `companySize` from register POST body — **cheap-disproof 2026-10-14 seed hunt #3:** `setValue(..., undefined)` on `__none__`; regression `omits company size from register POST after switching to Prefer not to say`.
@@ -6319,12 +6335,6 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] (valid-no-repro) `SignupForm` `onSubmit` — Latin1-safe first-touch cookie sends non-empty `x-archlucid-first-touch` header on register POST — **cheap-disproof 2026-10-14 seed hunt #3:** `serializeFirstTouchHeader`; regression `sends first-touch attribution header when cookie is valid Latin1`.
 - [x] (valid-no-repro) `SignupForm` `onSubmit` — HTTP `502` with `Content-Type: application/json` and `{ detail: string }` shows detail in toast — **cheap-disproof 2026-10-14 seed hunt #3:** shared `!res.ok` detail branch; regression `shows server detail from HTTP 502 JSON register responses`.
 - [x] (valid-no-repro) `signupFormSchema` — `safeParse` rejects organization name of 201 characters without relying on React onChange — **cheap-disproof 2026-10-14 seed hunt #3:** `.max(200)`; regression `signupFormSchema rejects organization name longer than 200 characters via safeParse`.
-
-- [ ] (candidate) `SignupForm` — UI-selected company size `1-10` includes `companySize` in register POST JSON — locus: company size `Select` (`SignupForm.tsx` ~274–280).
-- [ ] (candidate) `SignupForm` `onSubmit` — persists `archlucid_signup_company_size` in `sessionStorage` when company size chosen in UI — locus: post-success `setItem` (`SignupForm.tsx` ~178–184).
-- [ ] (candidate) `SignupForm` — Technology industry selected in optional UI includes `industryVertical` in register POST — locus: industry `Select` (`SignupForm.tsx` ~320–331).
-- [ ] (candidate) `SignupForm` `onSubmit` — calls `recordFirstTenantFunnelEvent("signup")` after successful register before navigation — locus: (`SignupForm.tsx` ~199–201).
-- [ ] (candidate) `SignupForm` `onSubmit` — blocks overlapping register POST while `registerInFlightRef` is true — locus: (`SignupForm.tsx` ~109–112).
 
 2026-10-14 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 99 scoped SignupForm vitest tests passed; no production code changed.
 
@@ -6364,7 +6374,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 2026-10-10 seed hunt (seed-only): re-read `SignupForm.tsx` submit gating, payload shaping, response handling, first-touch attribution, and optional-field state transitions; no new hunt-ready row was promoted. The exact SignupForm filter passed 99/99; retained the existing bounded candidates and made no production code change.
 
-**Hunts:** 73 · **Bugs found:** 9 · **Consecutive dry hunts:** 12
+**Hunts:** 74 · **Bugs found:** 9 · **Consecutive dry hunts:** 13
 
 2026-10-08 seed hunt (seed-only): no hunt-ready hypotheses were available after reading `SignupForm.tsx`; seeded five reachable follow-on `(candidate)` rows; 94 focused SignupForm tests passed; no production code changed and no regression was added.
 
