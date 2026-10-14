@@ -413,7 +413,10 @@ internal static partial class RunExplanationAggregateJsonReader
             JsonValueKind.True or JsonValueKind.False => false,
             JsonValueKind.String => !string.IsNullOrWhiteSpace(jsonElement.GetString()),
             JsonValueKind.Array => ArrayPropertyValueIsNonEmpty(jsonElement, structuredPropertyName, applyTrailingDuplicateArrayPoison),
-            JsonValueKind.Object => ObjectPropertyValueIsNonEmpty(jsonElement, structuredPropertyName),
+            JsonValueKind.Object => ObjectPropertyValueIsNonEmpty(
+                jsonElement,
+                structuredPropertyName,
+                applyTrailingDuplicateArrayPoison),
             _ => true,
         };
     }
@@ -501,7 +504,10 @@ internal static partial class RunExplanationAggregateJsonReader
                     if (!string.IsNullOrWhiteSpace(TryReadEvidenceRefObjectStringProperty(item)))
                         return true;
                 }
-                else if (ObjectPropertyValueIsNonEmpty(item, structuredPropertyName))
+                else if (ObjectPropertyValueIsNonEmpty(
+                             item,
+                             structuredPropertyName,
+                             applyTrailingDuplicateArrayPoison))
                 {
                     return true;
                 }
@@ -1097,8 +1103,41 @@ internal static partial class RunExplanationAggregateJsonReader
         return sawZero;
     }
 
-    private static bool ObjectPropertyValueIsNonEmpty(JsonElement jsonElement, string structuredPropertyName)
+    private static bool ScalarObjectAliasIsDuplicateAliasPoison(JsonElement jsonElement, string structuredPropertyName)
     {
+        if (structuredPropertyName.Equals("reasoning", StringComparison.OrdinalIgnoreCase)
+            || IsStructuredStringListPropertyName(structuredPropertyName))
+        {
+            return ProseListObjectAliasHasExtractableContent(jsonElement);
+        }
+
+        if (structuredPropertyName.Equals("evidenceRefs", StringComparison.OrdinalIgnoreCase)
+            || structuredPropertyName.Equals("citations", StringComparison.OrdinalIgnoreCase))
+        {
+            return !string.IsNullOrWhiteSpace(TryReadEvidenceRefObjectStringProperty(jsonElement));
+        }
+
+        if (structuredPropertyName.Equals("faithfulnessWarning", StringComparison.OrdinalIgnoreCase)
+            || structuredPropertyName.Equals("riskPosture", StringComparison.OrdinalIgnoreCase))
+        {
+            return TryReadNonEmptyTextToken(jsonElement, out string? calloutText)
+                && !string.IsNullOrWhiteSpace(calloutText);
+        }
+
+        return false;
+    }
+
+    private static bool ObjectPropertyValueIsNonEmpty(
+        JsonElement jsonElement,
+        string structuredPropertyName,
+        bool applyTrailingDuplicateArrayPoison = false)
+    {
+        if (applyTrailingDuplicateArrayPoison
+            && ScalarObjectAliasIsDuplicateAliasPoison(jsonElement, structuredPropertyName))
+        {
+            return false;
+        }
+
         if (structuredPropertyName.Equals("reasoning", StringComparison.OrdinalIgnoreCase)
             || structuredPropertyName.Equals("alternativesConsidered", StringComparison.OrdinalIgnoreCase)
             || structuredPropertyName.Equals("caveats", StringComparison.OrdinalIgnoreCase))

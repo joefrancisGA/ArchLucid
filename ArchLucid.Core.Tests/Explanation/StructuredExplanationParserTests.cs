@@ -1170,6 +1170,30 @@ public sealed class StructuredExplanationParserTests
     }
 
     [Fact]
+    public void RunExplanation_structured_json_keeps_reasoning_when_later_case_variant_is_scalar_object_prose_poison_alias()
+    {
+        const string json =
+            """{"reasoning":"Main","REASONING":{"text":"Alternate prose"}}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Reasoning.Should().Be("Main");
+    }
+
+    [Fact]
+    public void RunExplanation_structured_json_keeps_evidence_refs_when_later_case_variant_is_scalar_object_ref_poison_alias()
+    {
+        const string json =
+            """{"reasoning":"Main","evidenceRefs":["dec-1"],"EVIDENCEREFS":{"id":"dec-spoof"}}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.EvidenceRefs.Should().Equal("dec-1");
+    }
+
+    [Fact]
     public void RunExplanation_structured_json_keeps_evidence_refs_when_later_case_variant_is_supported_ref_token_poison_array()
     {
         const string json =

@@ -1428,6 +1428,24 @@ public sealed class RunExplanationConfidenceCalloutBuilderTests
     }
 
     [Fact]
+    public void RunExplanation_FromAggregateJson_keeps_faithfulness_warning_when_later_duplicate_is_scalar_object_prose_poison_alias()
+    {
+        RunExplanationConfidenceSignals? signals = RunExplanationConfidenceCalloutBuilder.FromAggregateJson(
+            """
+            {
+              "faithfulnessSupportRatio": 0.95,
+              "faithfulnessWarning": "Citations incomplete",
+              "FAITHFULNESSWARNING": { "text": "Nested spoof warning" },
+              "citations": 1
+            }
+            """);
+
+        signals.Should().NotBeNull();
+        signals!.FaithfulnessWarning.Should().Be("Citations incomplete");
+        RunExplanationConfidenceCalloutBuilder.ResolveDisposition(signals).Should().Be("WARN");
+    }
+
+    [Fact]
     public void RunExplanation_FromAggregateJson_keeps_citation_count_when_later_duplicate_is_flat_citation_object_poison_array()
     {
         RunExplanationConfidenceSignals? signals = RunExplanationConfidenceCalloutBuilder.FromAggregateJson(
