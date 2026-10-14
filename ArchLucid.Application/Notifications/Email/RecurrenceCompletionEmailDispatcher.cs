@@ -57,6 +57,7 @@ public sealed class RecurrenceCompletionEmailDispatcher(
             throw new ArgumentException("Schedule name is required.", nameof(scheduleName));
 
         string normalizedScheduleName = scheduleName.Trim();
+        string displayScheduleName = EmailHeaderFragmentSanitizer.Sanitize(normalizedScheduleName);
 
         List<string> normalizedMailboxes = [];
 
@@ -85,7 +86,7 @@ public sealed class RecurrenceCompletionEmailDispatcher(
         RecurrenceCompletionEmailModel model = new()
         {
             ProductName = productName,
-            ScheduleName = normalizedScheduleName,
+            ScheduleName = displayScheduleName,
             NewFindingCount = newFindingCount,
             ResolvedFindingCount = resolvedFindingCount,
             RunDetailUrl = runDetailUrl,
