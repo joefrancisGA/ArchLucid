@@ -29063,6 +29063,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 ---
 ## Zone: archlucid-contracts
 
+2026-10-14 seed hunt (seed→hit): promoted `FindingInsightSignalKind` type-level `JsonStringEnumConverter` accepting undefined ordinals (`99` and `"99"` deserialized without throw); dedicated `FindingInsightSignalKindJsonConverter`; regressions `FindingInsightSignalKindJsonConverterTests`; 546 scoped `Contracts` filter tests passed.
+
 2026-10-14 seed hunt (seed→hit): promoted `FindingSemanticSupportBand` type-level `JsonStringEnumConverter` accepting undefined ordinals (`99` and `"99"` deserialized without throw); dedicated `FindingSemanticSupportBandJsonConverter`; regressions `FindingSemanticSupportBandJsonConverterTests`; 541 scoped `Contracts` filter tests passed.
 
 2026-10-14 seed hunt (seed→hit): promoted `FindingClassification` type-level `JsonStringEnumConverter` accepting undefined ordinals (`99` and `"99"` deserialized without throw); dedicated `FindingClassificationJsonConverter`; regressions `FindingClassificationJsonConverterTests`; 536 scoped `Contracts` filter tests passed.
@@ -29101,11 +29103,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 58
-- **bugs-found:** 38
+- **hunts:** 59
+- **bugs-found:** 39
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-14
-- **last-bug:** 2026-10-14 — `FindingSemanticSupportBand` accepted undefined enum ordinals via `JsonStringEnumConverter`
+- **last-bug:** 2026-10-14 — `FindingInsightSignalKind` accepted undefined enum ordinals via `JsonStringEnumConverter`
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -29127,6 +29129,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ### Hypotheses
 
+- [x] (proven) `FindingInsightSignalKind` type-level `JsonStringEnumConverter` — numeric and string-encoded ordinals such as `99` and `"99"` deserialized without `JsonException` — **hit 2026-10-14 seed hunt:** insight-density instrumentation DTOs deserialize via the enum attribute; fixed with dedicated `FindingInsightSignalKindJsonConverter`; regressions `FindingInsightSignalKindJsonConverterTests`.
 - [x] (proven) `FindingSemanticSupportBand` type-level `JsonStringEnumConverter` — numeric and string-encoded ordinals such as `99` and `"99"` deserialized without `JsonException` — **hit 2026-10-14 seed hunt:** inspect/listing DTOs deserialize `FindingSemanticSupportBand` via the enum attribute; fixed with dedicated `FindingSemanticSupportBandJsonConverter`; regressions `FindingSemanticSupportBandJsonConverterTests`.
 - [x] (proven) `FindingClassification` type-level `JsonStringEnumConverter` — numeric and string-encoded ordinals such as `99` and `"99"` deserialized without `JsonException` — **hit 2026-10-14 seed hunt:** inspect/listing DTOs deserialize `FindingClassification` via the enum attribute; fixed with dedicated `FindingClassificationJsonConverter`; regressions `FindingClassificationJsonConverterTests`.
 - [x] (proven) `DecisionTraceDtoJsonConverter` `kind` string ordinals — numeric strings such as `"0"` were rejected while integer `0` deserialized — **hit 2026-10-14 seed hunt:** persisted decision-trace JSON can carry string-encoded discriminators; fixed via `TryReadDecisionTraceKind` string path; regressions `Deserialize_string_numeric_kind_maps_run_event_trace` and `Deserialize_string_numeric_kind_out_of_range_throws`.
