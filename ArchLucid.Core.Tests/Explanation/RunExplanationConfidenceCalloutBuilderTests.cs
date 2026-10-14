@@ -1008,6 +1008,24 @@ public sealed class RunExplanationConfidenceCalloutBuilderTests
     }
 
     [Fact]
+    public void RunExplanation_FromAggregateJson_keeps_deterministic_fallback_when_later_duplicate_is_zero_numeric()
+    {
+        RunExplanationConfidenceSignals? signals = RunExplanationConfidenceCalloutBuilder.FromAggregateJson(
+            """
+            {
+              "deterministicFallbackUsed": true,
+              "DETERMINISTICFALLBACKUSED": 0,
+              "faithfulnessSupportRatio": 0.95,
+              "citations": 1
+            }
+            """);
+
+        signals.Should().NotBeNull();
+        signals!.DeterministicFallbackUsed.Should().BeTrue();
+        RunExplanationConfidenceCalloutBuilder.ResolveDisposition(signals).Should().Be("HOLD");
+    }
+
+    [Fact]
     public void RunExplanation_FromAggregateJson_keeps_unresolved_issue_count_when_later_duplicate_is_nested_empty_wrapper_object()
     {
         RunExplanationRiskCalloutBuilder.TryParseUnresolvedIssueCount(

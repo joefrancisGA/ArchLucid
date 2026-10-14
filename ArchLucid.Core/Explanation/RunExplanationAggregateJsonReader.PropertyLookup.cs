@@ -158,6 +158,7 @@ internal static partial class RunExplanationAggregateJsonReader
              || structuredPropertyName.Equals("faithfulnessWarning", StringComparison.OrdinalIgnoreCase)
              || structuredPropertyName.Equals("reasoning", StringComparison.OrdinalIgnoreCase)
              || structuredPropertyName.Equals("schemaVersion", StringComparison.OrdinalIgnoreCase)
+             || IsDeterministicFallbackPropertyName(structuredPropertyName)
              || IsAggregateWholeNumberCountPropertyName(structuredPropertyName)
              || IsStructuredStringListPropertyName(structuredPropertyName))
             && IsZeroConfidenceAliasValue(jsonElement))
