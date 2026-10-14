@@ -1,5 +1,9 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-14 seed hunt (seed→hit): `archlucid-contracts` — promoted `DisclosureState` on `ExecutionContextItem.Disclosure` accepting undefined numeric ordinals such as `99` on risk snapshot execution-context JSON via `ContractJson.Default`; `DefinedEnumJsonConverter<DisclosureState>`; regressions `ExecutionContextItemDeserializationTests`; 680 scoped `Contracts` filter tests passed.
+
+2026-10-14 seed hunt (seed→hit): `archlucid-contracts` — promoted `TradeoffStatus` on `ArchitectureTradeoff.Status` accepting undefined numeric ordinals such as `99` on tradeoff review JSON via `ContractJson.Default`; class fix also guarded `WafPillar` on gained/sacrificed pillars; `DefinedEnumJsonConverter<T>`; regressions `ArchitectureTradeoffDeserializationTests`; 678 scoped `Contracts` filter tests passed.
+
 2026-10-14 seed hunt (seed→hit): `archlucid-contracts` — promoted `ConcernSource` on `SuggestedConcern` accepting undefined numeric ordinals such as `99` on concern intake JSON via `ContractJson.Default`; class fix also guarded `RiskConsequence` and `ReversibilityClass` on the same DTO; `DefinedEnumJsonConverter<T>` on all three; regressions `SuggestedConcernDeserializationTests`; 675 scoped `Contracts` filter tests passed.
 
 2026-10-14 seed hunt (seed→hit): `archlucid-contracts` — promoted `TeamsIncomingWebhookSecretValidationOutcome` on `TeamsIncomingWebhookSecretValidationResponse.Outcome` accepting undefined numeric ordinals such as `99` on validate-secret API JSON via `ContractJson.Default`; `DefinedEnumJsonConverter<TeamsIncomingWebhookSecretValidationOutcome>`; regressions `TeamsIncomingWebhookSecretValidationOutcomeDeserializationTests`; 671 scoped `Contracts` filter tests passed.
@@ -29103,6 +29107,10 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 ---
 ## Zone: archlucid-contracts
 
+2026-10-14 seed hunt (seed→hit): promoted `DisclosureState` undefined ordinals on `ExecutionContextItem.Disclosure` in risk snapshot execution-context JSON; `DefinedEnumJsonConverter<DisclosureState>`; regressions `ExecutionContextItemDeserializationTests`; 680 scoped `Contracts` filter tests passed.
+
+2026-10-14 seed hunt (seed→hit): promoted tradeoff risk enum undefined ordinals on `ArchitectureTradeoff` JSON (`Status`, `GainedPillar`, `SacrificedPillar`); `DefinedEnumJsonConverter<T>`; regressions `ArchitectureTradeoffDeserializationTests`; 678 scoped `Contracts` filter tests passed.
+
 2026-10-14 seed hunt (seed→hit): promoted suggested-concern risk enum undefined ordinals on `SuggestedConcern` JSON (`Source`, `Consequence`, `Reversibility`); `DefinedEnumJsonConverter<T>`; regressions `SuggestedConcernDeserializationTests`; 675 scoped `Contracts` filter tests passed.
 
 2026-10-14 seed hunt (seed→hit): promoted `TeamsIncomingWebhookSecretValidationOutcome` undefined ordinals on Teams validate-secret response JSON; `DefinedEnumJsonConverter<TeamsIncomingWebhookSecretValidationOutcome>`; regressions `TeamsIncomingWebhookSecretValidationOutcomeDeserializationTests`; 671 scoped `Contracts` filter tests passed.
@@ -29203,11 +29211,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 91
-- **bugs-found:** 71
+- **hunts:** 93
+- **bugs-found:** 73
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-14
-- **last-bug:** 2026-10-14 — suggested-concern risk enums undefined ordinals on `SuggestedConcern` JSON
+- **last-bug:** 2026-10-14 — `DisclosureState` undefined ordinals on `ExecutionContextItem` JSON
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -29264,7 +29272,9 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `RoiMetricSourceKind` on `RoiMetricSourceRow.SourceKind` — undefined numeric ordinals such as `99` deserialized without `JsonException` — **hit 2026-10-14 seed hunt:** fixed with `DefinedEnumJsonConverter<RoiMetricSourceKind>`; regressions `RoiMetricSourceKindDeserializationTests`.
 - [x] (proven) `TeamsIncomingWebhookSecretValidationOutcome` on `TeamsIncomingWebhookSecretValidationResponse.Outcome` — undefined numeric ordinals such as `99` deserialized without `JsonException` — **hit 2026-10-14 seed hunt:** fixed with `DefinedEnumJsonConverter<TeamsIncomingWebhookSecretValidationOutcome>`; regressions `TeamsIncomingWebhookSecretValidationOutcomeDeserializationTests`.
 - [x] (proven) `ConcernSource` / `RiskConsequence` / `ReversibilityClass` on `SuggestedConcern` — undefined numeric ordinals such as `99` deserialized without `JsonException` — **hit 2026-10-14 seed hunt:** class fix with `DefinedEnumJsonConverter<T>` on all three risk enums; regressions `SuggestedConcernDeserializationTests`.
-- (candidate) `TradeoffStatus` on risk tradeoff contract rows — tradeoff review JSON can carry undefined numeric ordinals on `status` because the enum has no `DefinedEnumJsonConverter`. Reachability: `ArchLucid.Contracts.Risk` tradeoff DTOs deserialized via `ContractJson.Default` on review workspace export paths.
+- [x] (proven) `TradeoffStatus` / `WafPillar` on `ArchitectureTradeoff` — undefined numeric ordinals such as `99` deserialized without `JsonException` — **hit 2026-10-14 seed hunt:** class fix with `DefinedEnumJsonConverter<T>` on `TradeoffStatus` and `WafPillar`; regressions `ArchitectureTradeoffDeserializationTests`.
+- [x] (proven) `DisclosureState` on `ExecutionContextItem.Disclosure` — undefined numeric ordinals such as `99` deserialized without `JsonException` — **hit 2026-10-14 seed hunt:** fixed with `DefinedEnumJsonConverter<DisclosureState>`; regressions `ExecutionContextItemDeserializationTests`.
+- (candidate) `RequirementSmellKind` on `RequirementSmell.Kind` — risk snapshot `requirementSmells` JSON can carry undefined numeric ordinals such as `99` because the enum has no `DefinedEnumJsonConverter`. Reachability: `RiskSnapshot` deserialized via `ContractJson.Default` on risk review export paths.
 - (candidate) `DiagramInfrastructureEdgeGapRow.GapKind` — reconciliation output can carry an arbitrary string such as `"PresentNotDrawn "` or an unknown value even though the contract publishes two constants; a client that switches on exact gap-kind values may render a real edge gap as unknown. Reachability: server-generated reconciliation response consumed by the diagram comparison UI.
 - (candidate) `DiagramSourceReference.Content` — a comparison-create request can provide a named source with a supported format but empty content, and the contract accepts it as a valid source; the comparison may silently produce an empty diagram instead of rejecting or reporting the unusable source. Reachability: API request payload for the infrastructure-diagram comparison endpoint.
 - (candidate) `ArchitectureDiagramNodeRecord.Kind` — diagram-node JSON accepts arbitrary kind strings such as `"service "` even though the contract publishes `user`, `system`, `external`, and `boundary`; exact-value renderers may classify a real node as unknown. Reachability: architecture diagram node payload consumed by the diagram UI.
