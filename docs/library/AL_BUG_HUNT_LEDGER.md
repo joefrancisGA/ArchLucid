@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-14 seed hunt (seed→hit): `core-explanation-json` — promoted trailing duplicate `EVIDENCEREFS:[0]` hiding earlier string `evidenceRefs`; zero-only numeric array aliases are empty for `PreferLastNonEmpty` on structured string lists with sole-value fallback when the array contains only numeric zero; regressions `TryNormalizeStructuredJson_uses_non_empty_evidence_refs_when_later_case_variant_is_zero_numeric_array` and `TryNormalizeStructuredJson_preserves_explicit_zero_evidence_ref_when_only_numeric_array_value`; 65 scoped `StructuredExplanationParser` tests passed.
+
 2026-10-14 seed hunt (seed→hit): `core-explanation-json` — promoted trailing duplicate `CONFIDENCE:0` hiding earlier numeric confidence; zero-valued confidence aliases are empty for `PreferLastNonEmpty` with sole-value fallback via `TryReadFiniteDouble`; regressions `TryNormalizeStructuredJson_uses_non_empty_confidence_when_later_case_variant_is_zero` and `TryNormalizeStructuredJson_preserves_explicit_zero_confidence_when_only_value`; 63 scoped `StructuredExplanationParser` tests passed.
 
 2026-10-14 seed hunt (seed→hit): `core-explanation-json` — promoted duplicate case-variant `reasoning` object aliases with only `id` and whitespace `text` hiding earlier prose strings; reasoning alias emptiness requires non-whitespace `text` while array paragraph objects still accept `id`; regression `TryNormalizeStructuredJson_uses_non_empty_reasoning_when_later_case_variant_is_id_only_object`; 60 scoped `StructuredExplanationParser` tests passed.
@@ -28550,6 +28552,8 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 
 ---
 ## Zone: core-explanation-json
+
+2026-10-14 seed hunt (seed→hit): promoted trailing `EVIDENCEREFS:[0]` duplicate alias hiding earlier string refs; zero-only numeric array aliases empty for structured string lists with sole `[0]` fallback; regressions `TryNormalizeStructuredJson_uses_non_empty_evidence_refs_when_later_case_variant_is_zero_numeric_array` and `TryNormalizeStructuredJson_preserves_explicit_zero_evidence_ref_when_only_numeric_array_value`; 65 scoped parser tests passed.
 
 2026-10-14 seed hunt (seed→hit): promoted trailing `CONFIDENCE:0` duplicate alias hiding earlier confidence; regressions `TryNormalizeStructuredJson_uses_non_empty_confidence_when_later_case_variant_is_zero` and `TryNormalizeStructuredJson_preserves_explicit_zero_confidence_when_only_value`; 63 scoped parser tests passed.
 

@@ -64,8 +64,24 @@ internal static partial class RunExplanationAggregateJsonReader
             return true;
         }
 
+        if (lastMatch is JsonElement stringListLast
+            && IsStructuredStringListPropertyName(propertyName)
+            && stringListLast.ValueKind == JsonValueKind.Array
+            && !ArrayPropertyValueIsNonEmpty(stringListLast, propertyName)
+            && ArrayContainsOnlyZeroNumericElements(stringListLast))
+        {
+            value = stringListLast;
+
+            return true;
+        }
+
         return false;
     }
+
+    private static bool IsStructuredStringListPropertyName(string propertyName) =>
+        propertyName.Equals("evidenceRefs", StringComparison.OrdinalIgnoreCase)
+        || propertyName.Equals("alternativesConsidered", StringComparison.OrdinalIgnoreCase)
+        || propertyName.Equals("caveats", StringComparison.OrdinalIgnoreCase);
 
     private static bool IsNonEmptyJsonPropertyValue(JsonElement jsonElement, string structuredPropertyName)
     {
@@ -106,6 +122,13 @@ internal static partial class RunExplanationAggregateJsonReader
             if (item.ValueKind is JsonValueKind.True or JsonValueKind.False)
                 continue;
 
+            if (IsStructuredStringListPropertyName(structuredPropertyName)
+                && item.ValueKind == JsonValueKind.Number
+                && TryReadFiniteDouble(item) is 0)
+            {
+                continue;
+            }
+
             if (item.ValueKind == JsonValueKind.Array)
             {
                 if (ArrayPropertyValueIsNonEmpty(item, structuredPropertyName))
@@ -133,6 +156,25 @@ internal static partial class RunExplanationAggregateJsonReader
         }
 
         return false;
+    }
+
+    private static bool ArrayContainsOnlyZeroNumericElements(JsonElement jsonElement)
+    {
+        bool sawZero = false;
+
+        foreach (JsonElement item in jsonElement.EnumerateArray())
+        {
+            if (item.ValueKind == JsonValueKind.Number && TryReadFiniteDouble(item) is 0)
+            {
+                sawZero = true;
+
+                continue;
+            }
+
+            return false;
+        }
+
+        return sawZero;
     }
 
     private static bool ObjectPropertyValueIsNonEmpty(JsonElement jsonElement, string structuredPropertyName)

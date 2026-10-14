@@ -724,4 +724,26 @@ public sealed class StructuredExplanationParserTests
         ok.Should().BeTrue();
         s!.Reasoning.Should().Be("Recovered explanation");
     }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_uses_non_empty_evidence_refs_when_later_case_variant_is_zero_numeric_array()
+    {
+        const string json = """{"reasoning":"Main","evidenceRefs":["dec-1"],"EVIDENCEREFS":[0]}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.EvidenceRefs.Should().Equal("dec-1");
+    }
+
+    [Fact]
+    public void TryNormalizeStructuredJson_preserves_explicit_zero_evidence_ref_when_only_numeric_array_value()
+    {
+        const string json = """{"reasoning":"Main","evidenceRefs":[0]}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.EvidenceRefs.Should().Equal("0");
+    }
 }
