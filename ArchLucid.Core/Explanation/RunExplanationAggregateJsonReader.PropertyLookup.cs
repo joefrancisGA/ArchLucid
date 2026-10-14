@@ -298,25 +298,6 @@ internal static partial class RunExplanationAggregateJsonReader
         return false;
     }
 
-    private static bool EvidenceRefObjectAliasHasExtractableContent(JsonElement jsonElement)
-    {
-        if (TryGetPropertyCaseInsensitivePreferLastNonEmpty(jsonElement, "id", out JsonElement idElement)
-            && TryReadNonEmptyTextToken(idElement, out string? id)
-            && !string.IsNullOrWhiteSpace(id))
-        {
-            return true;
-        }
-
-        if (TryGetPropertyCaseInsensitivePreferLastNonEmpty(jsonElement, "text", out JsonElement textElement)
-            && TryReadNonEmptyTextToken(textElement, out string? text)
-            && !string.IsNullOrWhiteSpace(text))
-        {
-            return true;
-        }
-
-        return false;
-    }
-
     private static bool ObjectHasCaseInsensitiveProperty(JsonElement jsonElement, string propertyName)
     {
         foreach (JsonProperty property in jsonElement.EnumerateObject())
