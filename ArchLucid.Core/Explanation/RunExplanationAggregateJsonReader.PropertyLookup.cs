@@ -208,7 +208,8 @@ internal static partial class RunExplanationAggregateJsonReader
             return false;
         }
 
-        if (structuredPropertyName.Equals("schemaVersion", StringComparison.OrdinalIgnoreCase)
+        if ((structuredPropertyName.Equals("schemaVersion", StringComparison.OrdinalIgnoreCase)
+             || structuredPropertyName.Equals("reasoning", StringComparison.OrdinalIgnoreCase))
             && (IsZeroConfidenceAliasValue(jsonElement) || IsBooleanOneAliasValue(jsonElement)))
         {
             return false;
@@ -220,8 +221,7 @@ internal static partial class RunExplanationAggregateJsonReader
             return false;
         }
 
-        if ((structuredPropertyName.Equals("reasoning", StringComparison.OrdinalIgnoreCase)
-             || IsDeterministicFallbackPropertyName(structuredPropertyName))
+        if (IsDeterministicFallbackPropertyName(structuredPropertyName)
             && IsZeroConfidenceAliasValue(jsonElement))
         {
             return false;
