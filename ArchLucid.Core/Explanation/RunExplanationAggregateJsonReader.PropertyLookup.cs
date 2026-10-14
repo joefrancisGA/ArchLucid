@@ -215,6 +215,12 @@ internal static partial class RunExplanationAggregateJsonReader
             return false;
         }
 
+        if (structuredPropertyName.Equals("reasoning", StringComparison.OrdinalIgnoreCase)
+            && jsonElement.ValueKind == JsonValueKind.Number)
+        {
+            return false;
+        }
+
         if (IsStructuredStringListPropertyName(structuredPropertyName)
             && (IsZeroConfidenceAliasValue(jsonElement) || IsBooleanOneAliasValue(jsonElement)))
         {

@@ -704,6 +704,17 @@ public sealed class StructuredExplanationParserTests
     }
 
     [Fact]
+    public void RunExplanation_structured_json_keeps_reasoning_when_later_case_variant_is_arbitrary_numeric()
+    {
+        const string json = """{"reasoning":"Main text","REASONING":42}""";
+
+        bool ok = StructuredExplanationParser.TryNormalizeStructuredJson(json, out StructuredExplanation? s);
+
+        ok.Should().BeTrue();
+        s!.Reasoning.Should().Be("Main text");
+    }
+
+    [Fact]
     public void TryNormalizeStructuredJson_uses_non_empty_reasoning_when_later_case_variant_is_blank_text_object()
     {
         const string json = """{"reasoning":"Recovered explanation","Reasoning":{"text":"   "}}""";
