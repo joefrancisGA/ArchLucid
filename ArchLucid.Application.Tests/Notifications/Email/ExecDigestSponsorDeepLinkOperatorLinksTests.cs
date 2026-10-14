@@ -72,4 +72,25 @@ public sealed class ExecDigestSponsorDeepLinkOperatorLinksTests
             .Should()
             .Be($"/digest/sponsor/run/{RunIdHex} {injectedLine}");
     }
+
+    [Fact]
+    public void BuildDashboardUrl_strips_embedded_crlf_from_token_before_query_encoding()
+    {
+        const string injectedLine = "Bcc: injected@evil.test";
+        string tokenWithBreak = $"{Token}\r\n{injectedLine}";
+
+        string url = ExecDigestSponsorDeepLinkOperatorLinks.BuildDashboardUrl(
+            "https://app.example.com",
+            tokenWithBreak);
+
+        string sanitizedForEmail = EmailBrandingUrls.SanitizeOperatorAbsoluteUrl(url);
+
+        sanitizedForEmail.Should().NotContain("%0D", "percent-encoded CR must not reach exec digest sponsor dashboard hrefs");
+        sanitizedForEmail.Should().NotContain("%0A", "percent-encoded LF must not reach exec digest sponsor dashboard hrefs");
+
+        Uri absolute = new(sanitizedForEmail);
+        string query = Uri.UnescapeDataString(absolute.Query);
+
+        query.Should().Be($"?token={Token} {injectedLine}");
+    }
 }
