@@ -86,7 +86,7 @@ public sealed class ExecDigestEmailDispatcher(
         {
             ProductName = productName,
             WeekLabel = displayWeekLabel,
-            ComplianceDriftMarkdown = composition.ComplianceDriftMarkdown,
+            ComplianceDriftMarkdown = SanitizeOptionalPlainTextFragment(composition.ComplianceDriftMarkdown),
             CommittedManifestsInWeek = composition.CommittedManifestsInWeek,
             TopRuns = composition.TopManifestRuns,
             FindingsDeltaSummary = composition.FindingsDeltaSummary,
@@ -137,5 +137,14 @@ public sealed class ExecDigestEmailDispatcher(
                 }
             },
             cancellationToken);
+    }
+
+    // Compliance drift tables are rendered in multipart plain text; strip all line breaks (same class as week-label CRLF hits).
+    private static string? SanitizeOptionalPlainTextFragment(string? value)
+    {
+        if (value is null)
+            return null;
+
+        return EmailHeaderFragmentSanitizer.Sanitize(value);
     }
 }
