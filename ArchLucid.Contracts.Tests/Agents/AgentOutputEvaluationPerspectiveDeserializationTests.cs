@@ -20,9 +20,10 @@ public sealed class AgentOutputEvaluationPerspectiveDeserializationTests
             }
             """;
 
-        AgentOutputEvaluationPerspective perspective =
-            JsonSerializer.Deserialize<AgentOutputEvaluationPerspective>(json, ContractJson.CamelCaseCompact)!;
+        AgentOutputEvaluationPerspective? result =
+            JsonSerializer.Deserialize<AgentOutputEvaluationPerspective>(json, ContractJson.CamelCaseCompact);
 
-        perspective.Scores.Should().NotBeNull().And.BeEmpty();
+        result.Should().NotBeNull();
+        result!.Scores.Should().NotBeNull().And.BeEmpty();
     }
 }

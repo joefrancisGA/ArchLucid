@@ -30069,7 +30069,21 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 ---
 ## Zone: archlucid-contracts
 
-**Hunts:** 166 · **Bugs found:** 200 · **Consecutive dry hunts:** 0
+**Hunts:** 167 · **Bugs found:** 203 · **Consecutive dry hunts:** 0
+
+2026-10-15 seed hunt (seed→hit): promoted four open `(candidate)` rows on architecture identity list/detail/seal-delta lists; cheap-disproof closed mis-scoped `ArchitectureVersionRecord` (no list properties) and already-coalesced `AgentOutputEvaluationPerspective.Scores`; coalesce fix on `ArchitectureIdentityListPage`, `ArchitectureIdentityDetail`, and `ArchitectureSealDeltaResponse`; regressions in `ArchitectureIdentityListPageDeserializationTests`, `ArchitectureIdentityDetailDeserializationTests`, `ArchitectureSealDeltaResponseDeserializationTests`, and lock `AgentOutputEvaluationPerspectiveDeserializationTests`; reseeded five follow-on `(candidate)` rows; 898 scoped `Contracts` filter tests passed.
+
+- [x] (invalid) `ArchitectureVersionRecord` — explicit JSON `null` on version record lists — **cheap-disproof 2026-10-15 seed hunt:** record exposes only `byte[]` content hashes, no list/array properties; mis-scoped candidate.
+- [x] (proven) `ArchitectureIdentityListPage.Items` — explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_items_yields_empty_list_not_null`.
+- [x] (proven) `ArchitectureIdentityDetail` — `Drafts` / `Reviews` / `Versions` explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_list_properties_yields_empty_lists_not_null`.
+- [x] (proven) `ArchitectureSealDeltaResponse.Diffs` — explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_diffs_yields_empty_list_not_null`.
+- [x] (valid-no-repro) `AgentOutputEvaluationPerspective.Scores` — explicit JSON `null` — **cheap-disproof 2026-10-15 seed hunt:** setter already uses `ContractCollectionDefaults.CoalesceReadOnly`; lock regression `Deserialize_null_scores_yields_empty_list_not_null`.
+
+- [ ] (candidate) `OperatorSavedViewListResponse.Views` — explicit JSON `null` on operator saved-views list — locus: `Operator.OperatorSavedViewListResponse`; input: `GET /v1/operator/saved-views` JSON with null `views`.
+- [ ] (candidate) `ArchitectureDraftStructuredBrief` — explicit JSON `null` on draft brief list properties — locus: `Drafts.ArchitectureDraftStructuredBrief`; input: draft brief JSON with null `confirmedConstraints` / `suggestedAssumptions` tokens (see file).
+- [ ] (candidate) `DraftRequestDocument.RequiredMustQuestionKeys` — explicit JSON `null` — locus: `Drafts.DraftRequestDocument`; input: draft request document JSON with null `requiredMustQuestionKeys`.
+- [ ] (candidate) `RuleSimulationResult` — explicit JSON `null` on simulation rollup lists — locus: `Alerts.Simulation.RuleSimulationResult`; input: rule simulation result JSON with null `summaryNotes` or `outcomes`.
+- [ ] (candidate) `CompositeAlertRule.Conditions` — explicit JSON `null` — locus: `Alerts.Composite.CompositeAlertRule`; input: composite alert rule JSON with null `conditions`.
 
 2026-10-15 seed hunt (seed→hit): promoted five open `(candidate)` rows on agent result payload lists, architecture run `taskIds`, comparison `tags`, share list `shares`, and finding analysis context lists; cheap-disproof closed observable gap on `AgentResultJsonPayload` (`AgentResult` setters already coalesced); hardened nested payload lists in `AgentResultJsonConverter`; coalesce fix on `ArchitectureRun`, `ComparisonRecord`, `ArchitectureShareListResponse`, and `FindingAnalysisContext`; regressions in `ArchitectureRunDeserializationTests`, `ComparisonRecordDeserializationTests`, `ArchitectureShareListResponseDeserializationTests`, and `FindingAnalysisContextDeserializationTests`; reseeded five follow-on `(candidate)` rows; 895 scoped `Contracts` filter tests passed.
 
@@ -30078,12 +30092,6 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `ComparisonRecord.Tags` — explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_tags_yields_empty_list_not_null`.
 - [x] (proven) `ArchitectureShareListResponse.Shares` — explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_shares_yields_empty_list_not_null`.
 - [x] (proven) `FindingAnalysisContext` — analysis context list properties explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_list_properties_yields_empty_lists_not_null`.
-
-- [ ] (candidate) `ArchitectureVersionRecord` — explicit JSON `null` on version record lists — locus: `Architecture.ArchitectureVersionRecord`; input: version record JSON with null list tokens (see file).
-- [ ] (candidate) `ArchitectureIdentityListPage` — explicit JSON `null` on identity list page — locus: `Architecture.ArchitectureIdentityListPage`; input: identity list page JSON with null list token (see file).
-- [ ] (candidate) `ArchitectureIdentityDetail` — explicit JSON `null` on identity detail lists — locus: `Architecture.ArchitectureIdentityDetail`; input: identity detail JSON with null list tokens (see file).
-- [ ] (candidate) `ArchitectureSealDeltaResponse` — explicit JSON `null` on seal delta list — locus: `Architecture.ArchitectureSealDeltaResponse`; input: seal delta response JSON with null list token (see file).
-- [ ] (candidate) `AgentOutputEvaluationPerspective.Scores` — explicit JSON `null` — locus: `Agents.AgentOutputEvaluationPerspective`; input: evaluation perspective JSON with null `scores`.
 
 2026-10-15 seed hunt (seed→hit): promoted four open `(candidate)` rows on planning plan evidence lists, dashboard summary notes, triage queue `items`, and planning materialize citation lists; cheap-disproof closed mis-seeded `LearningPlanningReportThemeEntry` (no collection properties); coalesce fix on `LearningPlanningReportPlanEvidenceBlock`, `ProductLearningDashboardSummaryResponse`, `ProductLearningTriageQueueResponse`, and `ProductLearningPlanningMaterializeResult`; regressions in matching `*DeserializationTests`; reseeded five follow-on `(candidate)` rows; 891 scoped `Contracts` filter tests passed.
 

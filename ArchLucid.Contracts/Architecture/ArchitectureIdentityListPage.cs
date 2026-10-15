@@ -1,13 +1,17 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Architecture;
 
 /// <summary>Paged architecture identity list with optional archived-hidden metadata (CA-49).</summary>
 public sealed class ArchitectureIdentityListPage
 {
+    private IReadOnlyList<ArchitectureIdentityListItem> items = [];
+
     public IReadOnlyList<ArchitectureIdentityListItem> Items
     {
-        get;
-        init;
-    } = [];
+        get => items;
+        init => items = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 
     public int TotalCount
     {

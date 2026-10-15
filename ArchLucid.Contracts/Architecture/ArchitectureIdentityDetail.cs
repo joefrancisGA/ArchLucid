@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Architecture;
 
 /// <summary>Architecture identity with child draft and review summaries (ADR 0074).</summary>
@@ -75,21 +77,27 @@ public sealed class ArchitectureIdentityDetail
         set;
     }
 
+    private IReadOnlyList<ArchitectureIdentityChildDraftSummary> drafts = [];
+
     public IReadOnlyList<ArchitectureIdentityChildDraftSummary> Drafts
     {
-        get;
-        set;
-    } = [];
+        get => drafts;
+        set => drafts = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
+
+    private IReadOnlyList<ArchitectureIdentityChildReviewSummary> reviews = [];
 
     public IReadOnlyList<ArchitectureIdentityChildReviewSummary> Reviews
     {
-        get;
-        set;
-    } = [];
+        get => reviews;
+        set => reviews = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
+
+    private IReadOnlyList<ArchitectureIdentityVersionSummary> versions = [];
 
     public IReadOnlyList<ArchitectureIdentityVersionSummary> Versions
     {
-        get;
-        set;
-    } = [];
+        get => versions;
+        set => versions = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 }
