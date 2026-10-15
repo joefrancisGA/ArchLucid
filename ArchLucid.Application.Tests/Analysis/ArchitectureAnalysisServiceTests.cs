@@ -5,6 +5,7 @@ using ArchLucid.Application.Diffs;
 using ArchLucid.Application.Summaries;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scoping;
@@ -111,5 +112,89 @@ public sealed class ArchitectureAnalysisServiceTests
             });
 
         await act.Should().ThrowAsync<ConflictException>();
+    }
+
+    [Fact]
+    public async Task BuildAsync_nulls_preloaded_manifest_when_manifest_run_id_does_not_match_request_run()
+    {
+        Guid primaryRunId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+        Guid foreignRunId = Guid.Parse("22222222-2222-2222-2222-222222222222");
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+            WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+        };
+
+        ArchitectureRunDetail preloadedDetail = new()
+        {
+            Run = new ArchitectureRun
+            {
+                RunId = primaryRunId.ToString("N"),
+                CurrentManifestVersion = "v1-primary",
+            },
+            Manifest = new GoldenManifest
+            {
+                RunId = foreignRunId.ToString("N"),
+                SystemName = "foreign",
+                Metadata = new ManifestMetadata { ManifestVersion = "v1-foreign" },
+            },
+        };
+
+        Mock<IAuthorityQueryService> authority = new();
+        authority
+            .Setup(service => service.GetRunDetailForManifestCompareAsync(
+                It.IsAny<ScopeContext>(),
+                primaryRunId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunDetailDto
+            {
+                Run = new RunRecord { RunId = primaryRunId },
+                GoldenManifest = new ManifestDocument
+                {
+                    RunId = primaryRunId,
+                    ManifestHash = "sealed-primary",
+                },
+            });
+
+        Mock<IManifestHashService> manifestHash = new();
+        manifestHash
+            .Setup(service => service.ComputeHash(It.IsAny<ManifestDocument>()))
+            .Returns("sealed-primary");
+
+        Mock<IUnifiedGoldenManifestReader> manifestReader = new();
+        manifestReader
+            .Setup(reader => reader.GetByVersionAsync("v1-primary", It.IsAny<CancellationToken>()))
+            .ReturnsAsync((GoldenManifest?)null);
+
+        ArchitectureAnalysisService sut = new(
+            Mock.Of<IRunDetailQueryService>(),
+            Mock.Of<IScopeContextProvider>(provider => provider.GetCurrentScope() == scope),
+            manifestReader.Object,
+            Mock.Of<IAgentEvidencePackageRepository>(),
+            Mock.Of<IAgentExecutionTraceRepository>(),
+            Mock.Of<IAgentResultRepository>(),
+            Mock.Of<IDiagramGenerator>(),
+            Mock.Of<IManifestSummaryGenerator>(),
+            Mock.Of<IDeterminismCheckService>(),
+            Mock.Of<IManifestDiffService>(),
+            Mock.Of<IAgentResultDiffService>(),
+            authority.Object,
+            manifestHash.Object);
+
+        ArchitectureAnalysisReport report = await sut.BuildAsync(
+            new ArchitectureAnalysisRequest
+            {
+                RunId = primaryRunId.ToString("N"),
+                PreloadedRunDetail = preloadedDetail,
+                IncludeManifest = true,
+                IncludeEvidence = false,
+                IncludeExecutionTraces = false,
+                IncludeDiagram = false,
+                IncludeSummary = false,
+            });
+
+        report.Manifest.Should().BeNull();
+        report.Warnings.Should().Contain("Manifest 'v1-primary' was not found.");
     }
 }

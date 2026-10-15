@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-15 seed hunt (seed→hit): `application-analysis` — promoted preloaded `ArchitectureAnalysisService.BuildAsync` manifest provenance mismatch; discard `PreloadedRunDetail.Manifest` when `Manifest.RunId` does not match the primary run; regression `BuildAsync_nulls_preloaded_manifest_when_manifest_run_id_does_not_match_request_run`; 26 scoped ArchitectureAnalysis/CompareQuality tests passed.
+
 2026-10-15 seed hunt (seed→hit): `archlucid-contracts` — promoted `CanonicalObject.Name` explicit JSON `null` (`ContractCollectionDefaults.CoalesceRequired` on setter); regression `Deserialize_null_name_yields_empty_string_not_null`; reseeded five follow-on `(candidate)` rows; 1036 scoped `Contracts` filter tests passed.
 
 2026-10-15 seed hunt (seed→hit): `archlucid-contracts` — promoted `ComplianceRulePack.Version` explicit JSON `null` (`ContractCollectionDefaults.CoalesceRequired` on setter); regression `Deserialize_null_version_yields_empty_string_not_null`; reseeded five follow-on `(candidate)` rows; 1035 scoped `Contracts` filter tests passed.
@@ -18353,13 +18355,23 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 40
-- **bugs-found:** 38
+- **hunts:** 41
+- **bugs-found:** 39
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-09
-- **last-bug:** 2026-10-09 — DOCX architecture-analysis export omitted parent manifest version and governance
+- **last-hunt:** 2026-10-15
+- **last-bug:** 2026-10-15 — preloaded analysis manifest accepted when `Manifest.RunId` did not match primary run
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
+
+2026-10-15 seed hunt (seed→hit): promoted `ArchitectureAnalysisService.BuildAsync` preloaded manifest provenance mismatch; discard foreign `PreloadedRunDetail.Manifest` before version fallback; regression `BuildAsync_nulls_preloaded_manifest_when_manifest_run_id_does_not_match_request_run`; 26 scoped ArchitectureAnalysis/CompareQuality tests passed.
+
+- [x] (proven) `ArchitectureAnalysisService.BuildAsync` — `PreloadedRunDetail.Manifest` with foreign `RunId` accepted into report — **hit 2026-10-15 seed hunt:** regression `BuildAsync_nulls_preloaded_manifest_when_manifest_run_id_does_not_match_request_run`.
+
+- [ ] (candidate) `ArchitectureAnalysisService.BuildAsync` — `IncludeManifestCompare` loads `CompareManifestVersion` without proving compare manifest belongs to the same tenant/run lineage (reachable input: caller-supplied compare manifest version; needs concrete cross-tenant lookup repro).
+- [ ] (candidate) `DocxArchitectureAnalysisExportService.GenerateDocxAsync` — manifest relationship list omitted from DOCX while relationship count is shown (reachable input: manifest with populated `Relationships`; compare markdown export parity).
+- [ ] (candidate) `CompareQualityDeltaCalculator.Build` — `FindingSeverity.Information` findings may be counted in `HighSeverityFindings` metric via default severity mapping (reachable input: info-only findings on both sides; verify metric contract).
+- [ ] (candidate) `ComparisonReplayPayloadComplexity.ScorePayloadComplexity` — agent-only confidence deltas may under-score replay cost (reachable input: end-to-end report JSON with confidence-only agent deltas; verify estimator bump).
+- [ ] (candidate) `MarkdownArchitectureAnalysisExportService` — governance section hidden when only risk/cost classifications are set without control/tag lists (reachable input: manifest governance with classifications only; parity with DOCX).
 
 - [x] (proven) `DocxArchitectureAnalysisExportService.GenerateDocxAsync` — parent manifest version and governance controls, tags, and policy constraints were omitted from DOCX output even though the markdown export rendered them — **hit 2026-10-09 seed hunt:** render the parent version and a Governance section when those lists are populated; regression `GenerateDocxAsync_includes_parent_manifest_version_and_governance`; 24 scoped ArchitectureAnalysis/CompareQuality tests passed.
 
@@ -18376,7 +18388,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-08 seed hunt (hit): proved DOCX architecture-analysis exports dropped evidence assumptions, policies, service-catalog hints, and pattern hints that markdown already rendered; added those sections. `DocxArchitectureAnalysisExportServiceTests` passed 4/4.
 - [ ] (candidate) `ArchitectureAnalysisService.BuildAsync` — `IncludeManifestCompare` loads `CompareManifestVersion` directly without proving that the comparison manifest belongs to the current scoped tenant/run lineage (reachable input: caller-supplied compare manifest version on an analysis request; needs a concrete cross-run/tenant lookup path and wrong-result repro).
-- [ ] (candidate) `ArchitectureAnalysisService.BuildAsync` — a supplied `PreloadedRunDetail.Manifest` is accepted after validating only `PreloadedRunDetail.Run.RunId`, so a stale preloaded detail could carry a manifest from another run into the report (reachable input: internal export/analysis caller supplying a preloaded detail; needs proof that such preloaded details can be assembled with mismatched manifest provenance).
+- [x] (proven) `ArchitectureAnalysisService.BuildAsync` — preloaded manifest provenance mismatch — **hit 2026-10-15 seed hunt:** regression `BuildAsync_nulls_preloaded_manifest_when_manifest_run_id_does_not_match_request_run`.
 
 2026-10-02 seed hunt (seed-only): reseeded architecture-analysis and compare-quality orchestration paths; 19 picker-scoped tests passed with analyzers disabled; no candidate met the failing-repro bar.
 
