@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.ProductLearning;
 
 /// <summary>Outcome of a planning bridge materialization request (59R V1 derivation).</summary>
@@ -30,16 +32,20 @@ public sealed class ProductLearningPlanningMaterializeResult
     }
 
     /// <summary>Citable pilot-feedback excerpts surfaced for the materialize response.</summary>
+    private IReadOnlyList<PlanningMaterializeCitation> citations = [];
+
     public IReadOnlyList<PlanningMaterializeCitation> Citations
     {
-        get;
-        init;
-    } = [];
+        get => citations;
+        init => citations = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
+
+    private IReadOnlyList<PlanningRetrievalCitation> retrievalCitations = [];
 
     /// <summary>Semantic retrieval priors from indexed pilot-feedback corpus (TB-879).</summary>
     public IReadOnlyList<PlanningRetrievalCitation> RetrievalCitations
     {
-        get;
-        init;
-    } = [];
+        get => retrievalCitations;
+        init => retrievalCitations = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 }

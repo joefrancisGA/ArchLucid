@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.ProductLearning.Planning;
 
 /// <summary>Evidence backing a plan: totals plus capped, deterministically ordered reference lists.</summary>
@@ -21,21 +23,27 @@ public sealed class LearningPlanningReportPlanEvidenceBlock
         init;
     }
 
+    private IReadOnlyList<LearningPlanningReportSignalRef> signals = [];
+
     public IReadOnlyList<LearningPlanningReportSignalRef> Signals
     {
-        get;
-        init;
-    } = [];
+        get => signals;
+        init => signals = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
+
+    private IReadOnlyList<LearningPlanningReportArtifactRef> artifacts = [];
 
     public IReadOnlyList<LearningPlanningReportArtifactRef> Artifacts
     {
-        get;
-        init;
-    } = [];
+        get => artifacts;
+        init => artifacts = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
+
+    private IReadOnlyList<string> architectureRunIds = [];
 
     public IReadOnlyList<string> ArchitectureRunIds
     {
-        get;
-        init;
-    } = [];
+        get => architectureRunIds;
+        init => architectureRunIds = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 }
