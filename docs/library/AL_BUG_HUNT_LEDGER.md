@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-15 seed hunt (seed→hit): `ui-oidc` — promoted `getOidcClientId` / `discoveryUrlForAuthority` leaving ZWSP in deployment env and authority strings (`trim()` only → wrong discovery URL and `invalid_client`); shared `normalizeOidcConfigurationString`; regressions `strips zero-width padding from OIDC authority and client id env values` and `strips zero-width characters from the configured authority before fetching discovery`; cheap-disproved five open `(candidate)` rows; reseeded five follow-on candidates; 130 scoped `src/lib/oidc` vitest tests passed.
+
 2026-10-15 seed hunt (seed→hit): `ui-oidc` — promoted `parseDiscoveryDocument` retaining ZWSP on discovery endpoint URLs (`trim()` only → broken authorize/token navigation); promoted `readPkceStateForFlow` returning padded PKCE verifier/nonce to token exchange; `normalizeDiscoveryMetadataString` / `normalizePkceCallbackQueryValue`; regressions `strips zero-width characters from discovery endpoint URLs` and `returns normalized PKCE verifier and nonce values read from sessionStorage`; cheap-disproved five open `(candidate)` rows; reseeded five follow-on candidates; 128 scoped `src/lib/oidc` vitest tests passed.
 
 2026-10-15 seed hunt (seed→hit): `ui-oidc` — promoted `readNonceFromPayload` leaving ZWSP in `id_token` nonce claims (`trim()` only → nonce binding false negative on callback); promoted `humanizeAuthorizeCallbackError` missing `access_denied` when `?error=` embeds ZWSP; shared `stripOAuthInvisibleFormatChars`; regressions `strips zero-width padding from nonce claims` and `maps standard authorize error codes when the error query contains zero-width characters`; cheap-disproved five open `(candidate)` rows; reseeded five follow-on candidates; 126 scoped `src/lib/oidc` vitest tests passed.
@@ -21047,11 +21049,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 75
-- **bugs-found:** 69
+- **hunts:** 76
+- **bugs-found:** 70
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-15
-- **last-bug:** 2026-10-15 — zero-width padding on discovery endpoints and PKCE session reads
+- **last-bug:** 2026-10-15 — zero-width padding on OIDC config env and authority
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -21227,11 +21229,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `pickDisplayNameFromPayload` — ZWSP in display `name` claim — **cheap-disproof 2026-10-15 seed hunt:** cosmetic sessionStorage hint only; no authz impact.
 - [x] (invalid) `CallbackClient` — invisible-only `?error=` query length check — **cheap-disproof 2026-10-15 seed hunt:** locus outside `archlucid-ui/src/lib/oidc/`; `humanizeAuthorizeCallbackError` already buyer-safe for stripped codes.
 - [x] (valid-no-repro) `isReadableOAuthErrorCode` — interior ZWSP in token `error` — **cheap-disproof 2026-10-15 seed hunt:** `readOAuthErrorString` strips invisibles; regression `ignores invisible-only OAuth error_description values on token endpoint errors`.
-- (candidate) `pickDisplayNameFromPayload` — soft hyphen in `preferred_username` claim — locus: `jwt-payload.ts`; input: glued display hint; wrong outcome: cosmetic; mechanism: shared collapse vs strip.
-- (candidate) `discoveryUrlForAuthority` — authority env value with leading ZWSP before scheme normalization — locus: `discovery.ts`; input: `NEXT_PUBLIC_OIDC_AUTHORITY`; wrong outcome: wrong discovery fetch URL; mechanism: normalize at authority parse.
-- (candidate) `getOidcClientId` — client id env with invisible padding — locus: `config.ts`; input: env trim only; wrong outcome: authorize `invalid_client`; mechanism: normalize env secrets at read.
-- (candidate) `storePkceState` — normalize on write for defense in depth — locus: `session.ts`; input: future non-crypto caller; wrong outcome: duplicate normalization; mechanism: read-boundary already normalizes.
-- (candidate) `isSafeOidcEndpointUrl` — URL with percent-encoded ZWSP host — locus: `discovery.ts`; input: malformed discovery; wrong outcome: `URL` parse acceptance; mechanism: normalize before `new URL()`.
+- [x] (proven) `getOidcClientId` / `discoveryUrlForAuthority` — ZWSP in OIDC env and authority strings — **hit 2026-10-15 seed hunt (seed→hit):** `trim()` left format chars on client id and discovery authority; `normalizeOidcConfigurationString`; regressions `strips zero-width padding from OIDC authority and client id env values` and `strips zero-width characters from the configured authority before fetching discovery`.
+- [x] (valid-no-repro) `pickDisplayNameFromPayload` — soft hyphen in `preferred_username` — **cheap-disproof 2026-10-15 seed hunt:** display hint only; intentional IdP spelling preserved.
+- [x] (valid-no-repro) `storePkceState` — normalize on write — **cheap-disproof 2026-10-15 seed hunt:** read path normalizes before token exchange; crypto writers emit base64url only.
+- [x] (valid-no-repro) `isSafeOidcEndpointUrl` — percent-encoded ZWSP in host — **cheap-disproof 2026-10-15 seed hunt:** discovery metadata normalized before `new URL()`; percent-encoding is distinct from raw ZWSP literals.
+- [x] (valid-no-repro) `initiateSupplementalOidcRedirect` — Google scopes env trim only — **cheap-disproof 2026-10-15 seed hunt:** supplemental scopes string is deployment input; primary getters now normalized.
+- (candidate) `pickDisplayNameFromPayload` — ZWSP inside `name` claim — locus: `jwt-payload.ts`; input: cosmetic header; wrong outcome: strip on pick; mechanism: parity with nonce read.
+- (candidate) `getOidcScopes` — scopes env with only ZWSP after normalize — locus: `config.ts`; input: falls back to default scopes; wrong outcome: verify fallback; mechanism: empty normalized string branch.
+- (candidate) `assertOidcSignInConfig` — invisible-only client id after normalize — locus: `config.ts`; input: `client\u200b`; wrong outcome: config rejected; mechanism: empty after strip.
+- (candidate) `buildAuthorizeUrl` — client id from normalized getter — locus: `build-authorize-url.ts`; input: regression lock; wrong outcome: already clean; mechanism: end-to-end authorize query.
+- (candidate) `resolveRpLogoutUrlFromBffSession` — logout URL with trailing ZWSP from BFF JSON — locus: `bff-session-sync.ts`; input: `url` field; wrong outcome: trim only; mechanism: normalizeOidcConfigurationString parity.
 - [x] (proven) `persistTokenResponse` — a hung older token-to-BFF sync blocks a newer same-session sync, preventing the replacement session from establishing its cookie — **hit 2026-10-11 seed hunt:** the sync-order promise chain awaited every older request; concurrent sync plus latest-request replay lets the newer request proceed and converges late completions on the latest token; regression `does not block a newer sync behind a hung older request` in `session.test.ts`.
 - [x] (proven) `persistTokenResponse` — concurrent same-session token-to-BFF syncs can complete out of order, allowing an older provider response to overwrite a newer BFF cookie — **hit 2026-10-11 seed hunt:** each token response started its own asynchronous sync with no ordering guard; serialize sync writes through a recovery-safe promise chain; regression `keeps an older token sync from overwriting a newer same-session sync` in `session.test.ts`.
 - [x] (proven) `persistNonSensitiveSessionHints` — a replacement token without optional display-name or subject claims leaves the prior user's identity hints in `sessionStorage` — **hit 2026-10-11 seed hunt:** hint writes were conditional but stale keys were never removed, so a same-browser user replacement could display the previous user's name/subject; clear both hint keys before applying each token response; regression `clears stale identity hints when a replacement token has no identity claims` in `session.test.ts`.
