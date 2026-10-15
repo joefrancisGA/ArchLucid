@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Alerts.Delivery;
 
 /// <summary>
@@ -6,11 +8,29 @@ namespace ArchLucid.Contracts.Alerts.Delivery;
 /// </summary>
 public sealed class AlertRoutingCriteria
 {
-    public IReadOnlyList<string> Severities { get; init; } = [];
+    private IReadOnlyList<string> severities = [];
+
+    public IReadOnlyList<string> Severities
+    {
+        get => severities;
+        init => severities = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 
     /// <summary>Matched against <see cref="AlertRecord.Category" /> and optional <c>tags:</c> finding-type hints.</summary>
-    public IReadOnlyList<string> FindingTypes { get; init; } = [];
+    private IReadOnlyList<string> findingTypes = [];
+
+    public IReadOnlyList<string> FindingTypes
+    {
+        get => findingTypes;
+        init => findingTypes = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 
     /// <summary>Matched against alert routing tags (see <see cref="AlertRoutingSignal" />).</summary>
-    public IReadOnlyList<string> Tags { get; init; } = [];
+    private IReadOnlyList<string> tags = [];
+
+    public IReadOnlyList<string> Tags
+    {
+        get => tags;
+        init => tags = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 }
