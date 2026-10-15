@@ -29470,11 +29470,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 116
-- **bugs-found:** 96
+- **hunts:** 117
+- **bugs-found:** 97
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-14
-- **last-bug:** 2026-10-14 — agent task JSON null allowedTools/allowedSources
+- **last-hunt:** 2026-10-15
+- **last-bug:** 2026-10-15 — pilot run-deltas JSON null collections
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -29558,6 +29558,13 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `ActorSet.Actors` — explicit JSON `null` assigned null despite `= []` initializer (`MeetsAdmissionMinimum` / `InferredActors` threw on null) — **hit 2026-10-14 seed hunt:** `ContractCollectionDefaults.Coalesce` on `Actors` setter; regression `Deserialize_null_actors_yields_empty_list_not_null`.
 - [x] (proven) `AgentResult` collection properties (`Claims`, `EvidenceRefs`, `Findings`, `ChecklistCoverage`, `WithheldFindings`) — explicit JSON `null` assigned null despite `= []` initializers (`AgentResultJsonConverter` payload → `ToAgentResult`; `MergeClaimEvidenceRefs` threw on null `EvidenceRefs`) — **hit 2026-10-14 seed hunt:** class fix with `ContractCollectionDefaults.Coalesce` on all list setters; regression `Deserialize_null_collection_properties_yields_empty_lists_not_null`.
 - [x] (proven) `AgentTask` list properties (`AllowedTools`, `AllowedSources`) — explicit JSON `null` assigned null despite `= []` initializers — **hit 2026-10-14 seed hunt:** `ContractCollectionDefaults.Coalesce` on both collection setters; regression `Deserialize_null_collection_properties_yields_empty_lists_not_null`.
+- [x] (proven) `PilotRunDeltasResponse` (`FindingsBySeverity`, `RoiMetricSources`) and `RecentPilotRunDeltasResponse.Items` — explicit JSON `null` assigned null despite `= []` initializers on pilot proof-of-ROI API payloads — **hit 2026-10-15 seed hunt:** `ContractCollectionDefaults.CoalesceReadOnly` on `init`; regressions `Deserialize_null_findings_by_severity_yields_empty_list_not_null` and `Deserialize_null_items_yields_empty_list_not_null`.
+- (candidate) `GovernedFindingCoverageMetric` nested under `PilotRunDeltasResponse` — JSON `null` on optional coverage sub-object vs empty metric shell — locus: `PilotRunDeltasResponse.GovernedFindingCoverage`; input: `GET /v1/pilots/runs/{id}/pilot-run-deltas` body with `"governedFindingCoverage": null`.
+- (candidate) `PilotRunDeltasResponse.ProofPackageCompleteness` — nested null vs empty checklist object when sponsor-sendability fields omitted — locus: proof-package completeness projection; input: cached proof ZIP JSON round-trip.
+- (candidate) `BuyerProofPackDeltasJsonFormatter.Serialize` — re-deserialize round-trip after null-coalesced lists still emits explicit `null` arrays for omitted properties — locus: `ContractJson.CamelCaseCompact` serialize of `PilotRunDeltasResponse`.
+- (candidate) `StructuralExecutionMode` undefined ordinals on `PilotRunDeltasResponse.StructuralExecutionMode` — locus: enum property on pilot deltas JSON; input: numeric `99` on structural execution mode field.
+- (candidate) `PilotRoiBaselineInputsStatusResponse` nested null collections on ROI baseline status rows — locus: nested under `ProofPackageCompletenessResponse.RoiBaselineInputs`; input: `"roiBaselineInputs": { ... "missingFields": null }`.
+
 - [x] (proven) `AgentTopologyProposal` list properties (`AddedServices`, `AddedDatastores`, `AddedRelationships`, `RequiredControls`, `Warnings`) — explicit JSON `null` assigned null despite `= []` initializers on nested `AgentResult.proposedChanges` JSON (`AgentTopologyProposalJsonConverter` delegates to `JsonSerializer.Deserialize`) — **hit 2026-10-14 seed hunt:** class fix with `ContractCollectionDefaults.Coalesce` on all five collection setters; regression `Deserialize_null_collection_properties_yields_empty_lists_not_null`.
 - [x] (proven) `EvidenceBundle` list properties (`PolicyRefs`, `ServiceCatalogRefs`, `PriorManifestRefs`) — explicit JSON `null` assigned null despite `= []` initializers on agent evidence-bundle intake JSON — **hit 2026-10-14 seed hunt:** class fix with `ContractCollectionDefaults.Coalesce` on all three collection setters; regression `Deserialize_null_collection_properties_yields_empty_lists_not_null`.
 - [x] (proven) `AgentEvidencePackage` list properties (`Policies`, `ServiceCatalog`, `Patterns`, `Notes`, `StructuralGroundingDropLog`) — explicit JSON `null` assigned null despite `= []` initializers on run-level agent evidence package JSON — **hit 2026-10-14 seed hunt:** class fix with `ContractCollectionDefaults.Coalesce` on all five collection setters; regression `Deserialize_null_collection_properties_yields_empty_lists_not_null`.
