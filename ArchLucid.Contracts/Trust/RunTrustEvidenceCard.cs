@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Trust;
 
 /// <summary>
@@ -60,9 +62,11 @@ public sealed class RunTrustEvidenceCard
         set;
     }
 
+    private List<RunTrustEvidenceRouteRef> links = [];
+
     public List<RunTrustEvidenceRouteRef> Links
     {
-        get;
-        set;
-    } = [];
+        get => links;
+        set => links = ContractCollectionDefaults.Coalesce(value);
+    }
 }

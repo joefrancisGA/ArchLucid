@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.ArchitectureIntelligence;
 
 public class ChangeImpactResult
@@ -8,11 +10,13 @@ public class ChangeImpactResult
         set;
     } = null!;
 
+    private List<ChangeImpactItem> impactedItems = [];
+
     public List<ChangeImpactItem> ImpactedItems
     {
-        get;
-        set;
-    } = [];
+        get => impactedItems;
+        set => impactedItems = ContractCollectionDefaults.Coalesce(value);
+    }
 
     public string GraphCompletenessCaveat
     {

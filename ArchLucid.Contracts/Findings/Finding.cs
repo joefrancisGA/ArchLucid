@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Findings;
 
 public class Finding
@@ -61,24 +63,30 @@ public class Finding
         set;
     } = null!;
 
+    private List<string> relatedNodeIds = [];
+
     public List<string> RelatedNodeIds
     {
-        get;
-        set;
-    } = [];
+        get => relatedNodeIds;
+        set => relatedNodeIds = ContractCollectionDefaults.Coalesce(value);
+    }
 
     /// <summary>Package-resolvable citation refs for insight-density dismiss scoring (ADR 0070).</summary>
+    private List<string> evidenceRefs = [];
+
     public List<string> EvidenceRefs
     {
-        get;
-        set;
-    } = [];
+        get => evidenceRefs;
+        set => evidenceRefs = ContractCollectionDefaults.Coalesce(value);
+    }
+
+    private List<string> recommendedActions = [];
 
     public List<string> RecommendedActions
     {
-        get;
-        set;
-    } = [];
+        get => recommendedActions;
+        set => recommendedActions = ContractCollectionDefaults.Coalesce(value);
+    }
 
     public Dictionary<string, string> Properties
     {

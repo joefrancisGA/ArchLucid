@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.ArchitectureIntelligence;
 
 public class ProgressiveInterviewState
@@ -8,17 +10,21 @@ public class ProgressiveInterviewState
         set;
     } = null!;
 
+    private List<FramingQuestion> framingQuestions = [];
+
     public List<FramingQuestion> FramingQuestions
     {
-        get;
-        set;
-    } = [];
+        get => framingQuestions;
+        set => framingQuestions = ContractCollectionDefaults.Coalesce(value);
+    }
+
+    private List<FramingQuestion> evidenceDrivenQuestions = [];
 
     public List<FramingQuestion> EvidenceDrivenQuestions
     {
-        get;
-        set;
-    } = [];
+        get => evidenceDrivenQuestions;
+        set => evidenceDrivenQuestions = ContractCollectionDefaults.Coalesce(value);
+    }
 
     public bool IsFramingComplete
     {
