@@ -492,6 +492,28 @@ function Get-ArchLucidAzureAksWorkloadImageKubectlCommand
     return 'kubectl get deployments,statefulsets,daemonsets,jobs,cronjobs -A -o jsonpath=''{range .items[*]}{range .spec.template.spec.containers[*]}{.image}{\"\n\"}{end}{range .spec.template.spec.initContainers[*]}{.image}{\"\n\"}{end}{end}'''
 }
 
+function Get-ArchLucidAzureAksRunCommandPollPath([string] $CommandResultId)
+{
+    [string]$path = "$CommandResultId".Trim()
+
+    if ([string]::IsNullOrWhiteSpace($path))
+    {
+        return $null
+    }
+
+    if ($path.StartsWith('http', [StringComparison]::OrdinalIgnoreCase))
+    {
+        $path = ([Uri]$path).AbsolutePath
+    }
+
+    if ($path -notmatch '\?api-version=')
+    {
+        $path = "$path?api-version=2024-02-01"
+    }
+
+    return $path
+}
+
 function Read-ArchLucidAzureAksRunCommandLogs([object] $Document)
 {
     if ($null -eq $Document -or $null -eq $Document.properties)
@@ -548,9 +570,9 @@ function Get-ArchLucidAzureAksWorkloadImageCommandOutput([string] $ResourceId)
         return $initialLogs.logs
     }
 
-    [string]$commandResultId = "$( $document.id )".Trim()
+    [string]$pollPath = Get-ArchLucidAzureAksRunCommandPollPath -CommandResultId "$( $document.id )"
 
-    if ([string]::IsNullOrWhiteSpace($commandResultId))
+    if ([string]::IsNullOrWhiteSpace($pollPath))
     {
         return $null
     }
@@ -561,12 +583,17 @@ function Get-ArchLucidAzureAksWorkloadImageCommandOutput([string] $ResourceId)
 
         [object]$pollResponse = Invoke-AzRestMethod `
             -Method GET `
-            -Path "$commandResultId" `
+            -Path $pollPath `
             -ErrorAction Stop
 
         if ($pollResponse.StatusCode -lt 200 -or $pollResponse.StatusCode -ge 300)
         {
             return $null
+        }
+
+        if ([string]::IsNullOrWhiteSpace($pollResponse.Content))
+        {
+            continue
         }
 
         [object]$pollDocument = $pollResponse.Content | ConvertFrom-Json -ErrorAction Stop
@@ -748,15 +775,18 @@ function Add-ArchLucidAzureAksWorkloadImageProperties(
                     Select-Object -Unique
             )
 
-            if ($null -eq $resource.properties)
+            [hashtable]$propertyBag = $resource.properties
+
+            if ($null -eq $propertyBag)
             {
-                $resource.properties = @{}
+                $propertyBag = @{}
+                $resource | Add-Member -NotePropertyName properties -NotePropertyValue $propertyBag -Force
             }
 
             foreach ($image in $images)
             {
                 Add-ArchLucidAzureContainerImageProperty `
-                    -Properties $resource.properties `
+                    -Properties $propertyBag `
                     -Image $image
             }
         }

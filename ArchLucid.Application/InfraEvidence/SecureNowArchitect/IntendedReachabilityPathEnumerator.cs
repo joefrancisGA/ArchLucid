@@ -242,6 +242,13 @@ internal static class IntendedReachabilityPathEnumerator
             hasInsufficientEvidence = true;
         }
 
+        if (!hasInsufficientEvidence
+            && graph.EdgeControlIndex is not null
+            && TryAppendEdgeControlInsufficientHop(graph, finalHops, hasPublicExposureHop, currentNode))
+        {
+            hasInsufficientEvidence = true;
+        }
+
         candidate = new ReachabilityPathCandidate
         {
             Hops = finalHops,
@@ -286,5 +293,66 @@ internal static class IntendedReachabilityPathEnumerator
         }
 
         return false;
+    }
+
+    private static bool TryAppendEdgeControlInsufficientHop(
+        InventoryReachabilityPathGraphSnapshot graph,
+        List<PrivilegePathEdge> finalHops,
+        bool hasPublicExposureHop,
+        string terminalAssetNodeId)
+    {
+        AzureInventoryReachabilityEdgeControlIndex edgeControlIndex = graph.EdgeControlIndex!;
+
+        foreach (string subnetNode in finalHops
+                     .SelectMany(static hop => new[] { hop.FromNodeId, hop.ToNodeId })
+                     .Where(InventoryReachabilityPathGraph.IsSubnetNode)
+                     .Distinct(StringComparer.OrdinalIgnoreCase))
+        {
+            if (edgeControlIndex.SubnetRequiresEdgeControlEvidence(subnetNode))
+            {
+                AppendEdgeControlHop(finalHops, subnetNode, terminalAssetNodeId);
+
+                return true;
+            }
+        }
+
+        if (!hasPublicExposureHop)
+        {
+            return false;
+        }
+
+        bool traversesEdgeAppliance = finalHops.Any(hop =>
+            InventoryReachabilityPathGraph.IsEdgeApplianceNode(hop.FromNodeId, graph.ResourcesByArmId)
+            || InventoryReachabilityPathGraph.IsEdgeApplianceNode(hop.ToNodeId, graph.ResourcesByArmId));
+
+        if (traversesEdgeAppliance)
+        {
+            return false;
+        }
+
+        if (edgeControlIndex.AssetDeclaredBehindApplicationGateway(terminalAssetNodeId)
+            || edgeControlIndex.AssetDeclaredBehindFrontDoor(terminalAssetNodeId))
+        {
+            AppendEdgeControlHop(finalHops, terminalAssetNodeId, terminalAssetNodeId);
+
+            return true;
+        }
+
+        return false;
+    }
+
+    private static void AppendEdgeControlHop(
+        List<PrivilegePathEdge> finalHops,
+        string fromNodeId,
+        string toNodeId)
+    {
+        finalHops.Add(new PrivilegePathEdge
+        {
+            FromNodeId = fromNodeId,
+            ToNodeId = toNodeId,
+            EdgeType = SecureNowArchitectConstants.InsufficientEvidenceNetworkEdgeControlHopEdgeType,
+            ProvenanceKind = ProvenanceKind.DeterministicInference,
+            RoleName = null,
+        });
     }
 }

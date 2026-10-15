@@ -55,7 +55,7 @@ export function formatInfraEvidenceDriftRiskLabel(riskKey: InfraEvidenceDriftRis
   }
 
   if (riskKey === "unknown") {
-    return "Unknown";
+    return "Drift risk recorded as unknown.";
   }
 
   const override = DRIFT_RISK_LABEL_OVERRIDES[riskKey];

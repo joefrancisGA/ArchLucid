@@ -711,7 +711,7 @@ describe("InfraEvidenceDiagramOutline", () => {
       "ArchLucid has a question about 1 resource.",
     );
     const unknownSection = screen.getByTestId("infra-diagrams-unknown-nodes-list");
-    expect(within(unknownSection).getByText("Needs evidence (1)")).toBeTruthy();
+    expect(within(unknownSection).getByText("Connection state recorded as unknown. (1)")).toBeTruthy();
     expect(
       within(unknownSection).getByText(
         "No connection state detail was stored.",
@@ -769,7 +769,9 @@ describe("InfraEvidenceDiagramOutline", () => {
     expect(screen.getByTestId("infra-diagrams-notstored-nodes-list")).toHaveTextContent(
       "Connection state was not stored. (1)",
     );
-    expect(screen.getByTestId("infra-diagrams-unknown-nodes-list")).toHaveTextContent("Needs evidence (1)");
+    expect(screen.getByTestId("infra-diagrams-unknown-nodes-list")).toHaveTextContent(
+      "Connection state recorded as unknown. (1)",
+    );
   });
 
   it("puts orphaned-node problems in a separate Problem column", () => {

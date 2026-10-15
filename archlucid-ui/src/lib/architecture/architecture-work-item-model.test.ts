@@ -77,6 +77,20 @@ describe("architecture-work-item-model", () => {
     );
   });
 
+  it("labels blank architecture overview and name without inventing defaults (P-09, P-10)", () => {
+    const preview = buildArchitectureWorkItemPreview({
+      runId: "run-1",
+      architectureName: "   ",
+      architectureOverview: "",
+      ownerLabel: "Platform team",
+      findings: [],
+      siteOrigin: "https://app.archlucid.test",
+    });
+
+    expect(preview.title).toBe("Architecture name was not stored.");
+    expect(preview.description).toBe("Architecture overview was not stored.");
+  });
+
   it("preserves a stored empty owner and labels a missing owner", () => {
     const missingOwner = buildArchitectureWorkItemPreview({
       runId: "run-1",

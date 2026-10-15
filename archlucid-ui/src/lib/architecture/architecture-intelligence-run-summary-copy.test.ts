@@ -22,16 +22,16 @@ describe("architecture-intelligence-run-summary-copy", () => {
     );
   });
 
-  it("labels omitted integrity finding counts as not returned", () => {
+  it("labels omitted integrity finding counts as not stored (P-15)", () => {
     expect(formatArchitectureIntelligenceRunHeadline(sampleResult({ integrityPassedFindingIds: undefined }))).toBe(
-      "Analysis complete · Finding count not returned",
+      "Analysis complete · Finding count was not stored.",
     );
 
     expect(
       listArchitectureIntelligenceRunTechnicalDetails(sampleResult({ integrityPassedFindingIds: undefined })).find(
         (row) => row.label === "Findings passed evidence checks",
       )?.value,
-    ).toBe("Not returned");
+    ).toBe("Finding count was not stored.");
   });
 
   it("uses singular and zero finding phrasing", () => {

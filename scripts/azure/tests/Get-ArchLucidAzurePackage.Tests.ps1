@@ -134,6 +134,12 @@ Describe 'Get-ArchLucidAzurePackage.ps1' {
         $cluster.properties.Keys | Where-Object { $_ -like 'container.image[*]' } | Should -BeNullOrEmpty
     }
 
+    It 'appends api-version to AKS runCommand poll paths' {
+        Get-ArchLucidAzureAksRunCommandPollPath `
+            -CommandResultId '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.ContainerService/managedClusters/aks/commandResults/abc' |
+            Should -Be '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.ContainerService/managedClusters/aks/commandResults/abc?api-version=2024-02-01'
+    }
+
     It 'builds the AKS workload image kubectl command with a jsonpath backslash-n separator' {
         [string]$command = Get-ArchLucidAzureAksWorkloadImageKubectlCommand
         $command | Should -Match '\{\.image\}\{\\"\\n\\"\}'

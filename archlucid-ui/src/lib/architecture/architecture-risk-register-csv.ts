@@ -1,5 +1,9 @@
 import { getFindingEvidenceTraceHref } from "@/lib/findings/finding-evidence-navigation";
 
+export const ARCHITECTURE_RISK_REGISTER_OWNER_NOT_STORED = "Owner was not stored." as const;
+
+export const ARCHITECTURE_RISK_REGISTER_EVIDENCE_LINK_NOT_STORED = "Evidence link was not stored." as const;
+
 export type ArchitectureRiskRegisterCsvRow = {
   recordKind: "finding" | "decision";
   runId: string;
@@ -57,7 +61,7 @@ export function buildArchitectureRiskRegisterCsv(rows: readonly ArchitectureRisk
       row.category,
       row.title,
       row.severity,
-      row.ownerUserId ?? "unassigned",
+      formatRiskRegisterOwnerCell(row.ownerUserId),
       row.recommended,
       row.status,
       row.evidenceHref ?? inspectPath(row.runId, row.findingId),
@@ -75,12 +79,24 @@ export function buildArchitectureRiskRegisterCsv(rows: readonly ArchitectureRisk
   return `${lines.join("\r\n")}\r\n`;
 }
 
-function inspectPath(runId: string, findingId: string): string {
-  if (runId === " — " || runId.trim().length === 0) {
-    return findingId;
+function formatRiskRegisterOwnerCell(ownerUserId: string | null | undefined): string {
+  const trimmed = ownerUserId?.trim() ?? "";
+
+  if (trimmed.length === 0) {
+    return ARCHITECTURE_RISK_REGISTER_OWNER_NOT_STORED;
   }
 
-  return getFindingEvidenceTraceHref(runId, findingId);
+  return trimmed;
+}
+
+function inspectPath(runId: string, findingId: string): string {
+  const trimmedRunId = runId.trim();
+
+  if (trimmedRunId.length === 0 || trimmedRunId === "—" || trimmedRunId === " — ") {
+    return ARCHITECTURE_RISK_REGISTER_EVIDENCE_LINK_NOT_STORED;
+  }
+
+  return getFindingEvidenceTraceHref(trimmedRunId, findingId);
 }
 
 export function downloadArchitectureRiskRegisterCsv(

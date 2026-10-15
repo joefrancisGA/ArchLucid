@@ -81,10 +81,16 @@ export function buildArchitectureWorkItemPreview(
   const description =
     overview.length > 0
       ? overview
-      : "Implementation work derived from the ArchLucid architecture review.";
+      : "Architecture overview was not stored.";
+
+  const architectureName = input.architectureName.trim();
+  const title =
+    architectureName.length > 0
+      ? `Implement architecture — ${architectureName}`
+      : "Architecture name was not stored.";
 
   return {
-    title: `Implement architecture — ${input.architectureName.trim() || "ArchLucid review"}`,
+    title,
     description,
     priority: deriveArchitecturePriority(input.findings),
     owner:

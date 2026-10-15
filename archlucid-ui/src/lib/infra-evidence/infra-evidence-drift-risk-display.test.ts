@@ -54,7 +54,7 @@ describe("infra-evidence-drift-risk-display", () => {
     expect(resolveInfraEvidenceDriftRiskKey("unknown")).toBe("unknown");
     expect(formatInfraEvidenceDriftRiskLabel("not-recorded")).toBe("Not recorded");
     expect(formatInfraEvidenceDriftRiskLabel("none")).toBe("None");
-    expect(formatInfraEvidenceDriftRiskLabel("unknown")).toBe("Unknown");
+    expect(formatInfraEvidenceDriftRiskLabel("unknown")).toBe("Drift risk recorded as unknown.");
   });
 
   it("labels classified drift risk and enables tooltip eligibility", () => {

@@ -258,6 +258,109 @@ public sealed class IntendedReachabilityEngineTests
     }
 
     [Fact]
+    public void Enumerate_subnet_with_forced_tunnel_route_appends_edge_control_insufficient_hop()
+    {
+        const string routeTableArm =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/routeTables/rt1";
+        Guid routeTableRowId = Guid.NewGuid();
+        Guid storageRowId = Guid.NewGuid();
+
+        AzureInventorySnapshotDetailReadModel baseSnapshot = BuildPublicStoragePathSnapshot(includeNsgRoute: true);
+        List<AzureInventoryResourceRecord> resources = [..baseSnapshot.Resources];
+        resources.Add(Resource(routeTableArm, "Microsoft.Network/routeTables", routeTableRowId));
+        List<AzureInventoryResourcePropertyReadModel> properties = [..baseSnapshot.Properties];
+        properties.Add(new AzureInventoryResourcePropertyReadModel
+        {
+            ResourceRowId = routeTableRowId,
+            PropertyKey = "inventory.policy.route.0.addressPrefix",
+            PropertyValue = "0.0.0.0/0",
+        });
+        properties.Add(new AzureInventoryResourcePropertyReadModel
+        {
+            ResourceRowId = routeTableRowId,
+            PropertyKey = "inventory.policy.route.0.nextHopType",
+            PropertyValue = "VirtualNetworkGateway",
+        });
+        List<AzureInventoryResourceRelationshipReadModel> relationships = [..baseSnapshot.Relationships];
+        relationships.Add(Observed(SubnetArm, routeTableArm, GraphEdgeInferenceSources.InventorySubnetRouteTable));
+
+        AzureInventorySnapshotDetailReadModel snapshot = new()
+        {
+            Header = baseSnapshot.Header,
+            Resources = resources,
+            Properties = properties,
+            Relationships = relationships,
+        };
+
+        InventoryReachabilityPathGraphSnapshot graph = InventoryReachabilityPathGraph.Build(snapshot);
+        IReadOnlyList<ReachabilityPathCandidate> candidates =
+            IntendedReachabilityPathEnumerator.Enumerate(graph, new PrivilegePathEngineOptions());
+
+        ReachabilityPathCandidate candidate = candidates.Should().ContainSingle().Subject;
+        candidate.HasInsufficientEvidenceHop.Should().BeTrue();
+        candidate.Hops[^1].EdgeType.Should().Be(
+            SecureNowArchitectConstants.InsufficientEvidenceNetworkEdgeControlHopEdgeType);
+    }
+
+    [Fact]
+    public void Enumerate_public_asset_behind_agw_without_traversing_agw_appends_edge_control_hop()
+    {
+        const string agwArm =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/applicationGateways/agw1";
+        Guid storageRowId = Guid.NewGuid();
+
+        AzureInventorySnapshotDetailReadModel snapshot = new()
+        {
+            Header = CreateHeader(),
+            Resources =
+            [
+                Resource(agwArm, "Microsoft.Network/applicationGateways"),
+                Resource(StorageArm, "Microsoft.Storage/storageAccounts", storageRowId),
+            ],
+            Properties =
+            [
+                new AzureInventoryResourcePropertyReadModel
+                {
+                    ResourceRowId = storageRowId,
+                    PropertyKey = "publicNetworkAccess",
+                    PropertyValue = "Enabled",
+                },
+            ],
+            Relationships =
+            [
+                Observed(agwArm, StorageArm, GraphEdgeInferenceSources.InventoryAgwBackend),
+            ],
+        };
+
+        InventoryReachabilityPathGraphSnapshot graph = InventoryReachabilityPathGraph.Build(snapshot);
+        IReadOnlyList<ReachabilityPathCandidate> candidates =
+            IntendedReachabilityPathEnumerator.Enumerate(graph, new PrivilegePathEngineOptions());
+
+        ReachabilityPathCandidate candidate = candidates.Should().ContainSingle().Subject;
+        candidate.HasInsufficientEvidenceHop.Should().BeTrue();
+        candidate.Hops[^1].EdgeType.Should().Be(
+            SecureNowArchitectConstants.InsufficientEvidenceNetworkEdgeControlHopEdgeType);
+    }
+
+    [Fact]
+    public async Task RunAsync_without_nsg_sets_path_confidence_to_insufficient_evidence()
+    {
+        ScopeContext scope = CreateScope();
+        AzureInventorySnapshotDetailReadModel snapshot = BuildPublicStoragePathSnapshot(includeNsgRoute: false);
+        InMemorySecurityEvidencePathRepository pathRepository = new();
+        IntendedReachabilityEngine sut = CreateEngine(
+            snapshot,
+            scope,
+            pathRepository,
+            new InMemoryOperationalSecurityFindingRepository());
+
+        await sut.RunAsync(scope, SnapshotId, SecureNowArchitectConstants.SystemActorId, CancellationToken.None);
+
+        pathRepository.StoredPaths.Should().ContainSingle().Which.PathConfidenceBand
+            .Should().Be(PathConfidenceBand.InsufficientEvidence);
+    }
+
+    [Fact]
     public void Enumerate_private_endpoint_only_sql_produces_no_internet_paths()
     {
         AzureInventorySnapshotDetailReadModel snapshot = BuildPrivateEndpointSqlSnapshot();

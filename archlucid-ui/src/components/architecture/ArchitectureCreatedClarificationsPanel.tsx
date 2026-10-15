@@ -64,7 +64,7 @@ export function presentOpenQuestionEntityCount(
   section: ReturnType<typeof parseArchitectureGeneratedContent>["sections"][number] | undefined,
 ): string {
   if (section === undefined) {
-    return "Not returned";
+    return "Open question count was not stored.";
   }
 
   if (section.entities == null) {
