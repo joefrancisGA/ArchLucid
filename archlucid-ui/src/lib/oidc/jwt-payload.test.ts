@@ -28,6 +28,14 @@ describe("decodeJwtPayload", () => {
     expect(decodeJwtPayload("not-a-jwt")).toBeNull();
     expect(decodeJwtPayload("")).toBeNull();
   });
+
+  it("reads the second segment when the token has extra dot-separated parts", () => {
+    const payload = { sub: "u1", name: "Extra Segment" };
+    const b64 = Buffer.from(JSON.stringify(payload), "utf8").toString("base64url");
+    const jwt = `h.${b64}.sig.extra`;
+
+    expect(decodeJwtPayload(jwt)).toEqual(payload);
+  });
 });
 
 describe("readNonceFromPayload", () => {

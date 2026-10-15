@@ -11,6 +11,10 @@ describe("resolveExpiresInSeconds", () => {
     expect(resolveExpiresInSeconds(10.9)).toBe(10);
   });
 
+  it("honors sub-second fractional expires_in as zero seconds", () => {
+    expect(resolveExpiresInSeconds(0.9)).toBe(0);
+  });
+
   it("maps negative expires_in to the default lifetime", () => {
     expect(resolveExpiresInSeconds(-30)).toBe(3600);
   });

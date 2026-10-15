@@ -129,9 +129,11 @@ export function humanizeAuthorizeCallbackError(errorCode: string, decodedDescrip
       return "Your identity provider reported a temporary error. Wait a minute and try signing in again.";
     default:
       if (detail.length > 0) {
-        return `${readableCode}: ${detail}`;
+        return sanitizeOAuthUserFacingMessage(`${readableCode}: ${detail}`);
       }
 
-      return `Sign-in did not finish (${readableCode}). Try again, or contact support if this persists.`;
+      return sanitizeOAuthUserFacingMessage(
+        `Sign-in did not finish (${readableCode}). Try again, or contact support if this persists.`,
+      );
   }
 }

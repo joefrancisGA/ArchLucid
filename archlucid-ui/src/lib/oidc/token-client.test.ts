@@ -433,6 +433,23 @@ describe("refreshAccessToken", () => {
     expect(message).not.toMatch(/\r|\n/u);
   });
 
+  it("throws when the token endpoint returns an empty success body", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () => "",
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      refreshAccessToken({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        refreshToken: "rt",
+      }),
+    ).rejects.toThrow(/not valid JSON/i);
+  });
+
   it("throws a buyer-safe error when the token endpoint returns non-JSON success bodies", async () => {
     const fetchMock = vi.fn(async () => ({
       ok: true,
