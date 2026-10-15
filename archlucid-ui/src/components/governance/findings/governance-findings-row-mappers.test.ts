@@ -3,6 +3,8 @@ import { describe, expect, it } from "vitest";
 import type { ArchitectureRiskRegisterEntry } from "@/lib/api/governance-stickiness-api";
 import { matchesRiskRegisterFilter } from "@/lib/architecture/architecture-risk-register-page";
 
+import { ARCHITECTURE_RISK_REGISTER_OWNER_NOT_STORED } from "@/lib/architecture/architecture-risk-register-csv";
+
 import { decisionRegisterRows, riskRegisterRows, traceRowsForRun } from "./governance-findings-row-mappers";
 
 describe("riskRegisterRows", () => {
@@ -74,6 +76,44 @@ describe("riskRegisterRows", () => {
 
     expect(row?.status).toBe("");
     expect(() => (row === undefined ? false : matchesRiskRegisterFilter(row, "open"))).not.toThrow();
+  });
+
+  it("labels missing risk-register owners without unassigned (P-06)", () => {
+    const [row] = riskRegisterRows([
+      {
+        findingId: "finding-owner",
+        runId: "run-1",
+        manifestId: "manifest-1",
+        title: "Owner gap",
+        severity: "High",
+        category: "Privacy",
+        statusLabel: "Open",
+        latestDisposition: "Accepted",
+        ownerUserId: null,
+        agingDays: 1,
+        isStale: false,
+        evidenceHref: "/graph?runId=run-1",
+      } as ArchitectureRiskRegisterEntry,
+    ]);
+
+    expect(row?.recommended).toContain(ARCHITECTURE_RISK_REGISTER_OWNER_NOT_STORED);
+  });
+
+  it("labels decision rows without inventing Info severity (P-08)", () => {
+    const [row] = decisionRegisterRows([
+      {
+        decisionId: "decision-1",
+        runId: "run-1",
+        manifestId: "manifest-1",
+        title: "Choose a pattern",
+        category: "Architecture",
+        rationale: "",
+        selectedOption: "",
+        recordedAtUtc: "2026-01-01T00:00:00.000Z",
+      },
+    ]);
+
+    expect(row?.severity).toBe("Severity was not stored.");
   });
 
   it("uses the missing-rule label for whitespace-only trace rule ids", () => {

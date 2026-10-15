@@ -23,7 +23,10 @@ export type ReviewPackageValidationRow = {
 };
 
 /** Shown when no package owner can be resolved for a review row. */
-export const REVIEW_PACKAGE_OWNER_UNAVAILABLE = "Owner not recorded";
+export const REVIEW_PACKAGE_OWNER_UNAVAILABLE = "Owner was not stored.";
+
+/** Shown when a validation replay outcome was not stored for the package row. */
+export const REVIEW_PACKAGE_VALIDATION_OUTCOME_NOT_STORED = "Validation outcome was not stored." as const;
 
 /** Legacy draft-registry placeholder for the signed-in operator — replaced with username when known. */
 export const REVIEW_PACKAGE_SELF_OWNER_PLACEHOLDER = "You";
@@ -165,16 +168,6 @@ function normalizeResolvedOwnerLabel(
   return formatted;
 }
 
-function currentUserOwnerFallback(currentUserLabel: string | null | undefined): string | null {
-  const formatted = formatActionActorName(currentUserLabel);
-
-  if (formatted === ACTION_ACTOR_UNAVAILABLE) {
-    return null;
-  }
-
-  return formatted;
-}
-
 /** Resolves the review package owner shown in reviews hub and validation pickers. */
 export function reviewPackageOwnerLabel(
   run: RunSummary,
@@ -198,20 +191,12 @@ export function reviewPackageOwnerLabel(
     return governanceOwner;
   }
 
-  if (context.currentUserLabel !== undefined) {
-    const currentUserOwner = currentUserOwnerFallback(context.currentUserLabel);
-
-    if (currentUserOwner !== null) {
-      return currentUserOwner;
-    }
-  }
-
   return REVIEW_PACKAGE_OWNER_UNAVAILABLE;
 }
 
 export function toReviewPackageValidationRow(
   run: RunSummary,
-  lastValidationLabel = REVIEW_PACKAGE_OWNER_UNAVAILABLE,
+  lastValidationLabel: string = REVIEW_PACKAGE_VALIDATION_OUTCOME_NOT_STORED,
   ownerContext: ReviewPackageOwnerResolutionContext = {},
 ): ReviewPackageValidationRow {
   return {
@@ -245,7 +230,7 @@ export function matchesReviewPackageValidationSearch(row: ReviewPackageValidatio
 
 export function formatLastValidationOutcomeLabel(outcome: ReplayValidationOutcome | null): string {
   if (outcome === null) {
-    return REVIEW_PACKAGE_OWNER_UNAVAILABLE;
+    return REVIEW_PACKAGE_VALIDATION_OUTCOME_NOT_STORED;
   }
 
   return replayValidationOutcomeLabel(outcome);

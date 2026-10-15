@@ -65,8 +65,20 @@ function collectionRunStatusKind(status: CollectionRun["status"]): "ready" | "ne
   }
 }
 
-function collectionRunStatusLabel(status: CollectionRun["status"]): string {
-  return status ?? "Unknown";
+export function collectionRunStatusLabel(status: CollectionRun["status"]): string {
+  if (status === null || status === undefined) {
+    return "Capture status was not stored.";
+  }
+
+  return status;
+}
+
+export function collectionRunStartedUtcDisplay(startedUtc: string | undefined): string {
+  if (startedUtc === undefined) {
+    return "Start time was not stored.";
+  }
+
+  return formatIsoUtcForDisplay(startedUtc);
 }
 
 function CollectionRunRow({ run }: { readonly run: CollectionRun }): React.JSX.Element {
@@ -87,7 +99,7 @@ function CollectionRunRow({ run }: { readonly run: CollectionRun }): React.JSX.E
           }
         }}
       >
-        <EnterpriseTableCell>{run.startedUtc === undefined ? "Unknown" : formatIsoUtcForDisplay(run.startedUtc)}</EnterpriseTableCell>
+        <EnterpriseTableCell>{collectionRunStartedUtcDisplay(run.startedUtc)}</EnterpriseTableCell>
         <EnterpriseTableCell>{formatCollectionRunDuration(run)}</EnterpriseTableCell>
         <EnterpriseTableCell>
           <StatusTag kind={collectionRunStatusKind(run.status)} label={collectionRunStatusLabel(run.status)} />

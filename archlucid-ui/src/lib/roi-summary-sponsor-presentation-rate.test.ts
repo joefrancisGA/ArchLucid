@@ -37,6 +37,6 @@ describe("formatRoiSummaryUsdWithRateBasis", () => {
       isDefaultRate: true,
     });
 
-    expect(result.display).toBe("Not returned");
+    expect(result.display).toBe("Estimate withheld");
   });
 });
