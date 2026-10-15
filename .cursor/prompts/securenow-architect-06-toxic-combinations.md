@@ -20,10 +20,12 @@ A missing tag, a public storage account, an old credential, and broad egress hav
 ## What to build
 
 1. Join key: shared `CloudResourceId` / identity node on two or more path kinds.
-2. Persist a new path whose hops are the concatenation (or a documented DAG walk) with provenance preserved per hop. Path band = weakest hop.
-3. Finding title names the combination (exposure + identity + asset), not “multiple issues detected.”
-4. If only one path kind exists, do not mint a toxic combination.
-5. Tests: public storage + MI reader + outbound * NSG compose; missing-tag-only finding does not compose; idempotent hash.
+2. Persist a new path whose hops are the concatenation (or a documented DAG walk) with provenance preserved per hop. Path band = **weakest hop** via `SecurityEvidencePathConfidenceBandResolver.ResolveWeakestHopBand` (`PathConfidenceBand`: lower ordinal = stronger; `InsufficientEvidence` is weakest).
+3. Finding metadata: `pathConfidenceBand`, `hasInsufficientEvidenceHop` (plus existing `reachabilityPathId`, `privilegePathId`, `hasEgressHop`, `hopCount`).
+4. Description copy when any hop is unverified: weakest-hop `InsufficientEvidence` sentence in `ToxicCombinationPathNarrative` (not observed traffic).
+5. Finding title names the combination (exposure + identity + asset), not “multiple issues detected.”
+6. If only one path kind exists, do not mint a toxic combination.
+7. Tests: public storage + MI reader + outbound * NSG compose; missing-tag-only finding does not compose; idempotent hash; `RunAsync_unverified_reachability_hop_downgrades_toxic_path_confidence_band`; `SecurityEvidencePathConfidenceBandResolverTests`.
 
 ## Acceptance criteria
 

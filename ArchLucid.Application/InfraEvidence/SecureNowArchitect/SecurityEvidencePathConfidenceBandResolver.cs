@@ -12,11 +12,12 @@ internal static class SecurityEvidencePathConfidenceBandResolver
             return PathConfidenceBand.Possible;
         }
 
+        // Higher ordinal = weaker evidence (see <see cref="PathConfidenceBand"/>).
         PathConfidenceBand weakest = PathConfidenceBand.Confirmed;
 
         foreach (SecurityEvidencePathHopRecord hop in hops)
         {
-            if ((int)hop.HopConfidenceBand < (int)weakest)
+            if (hop.HopConfidenceBand > weakest)
             {
                 weakest = hop.HopConfidenceBand;
             }
