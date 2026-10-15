@@ -25,4 +25,21 @@ public sealed class RecommendationLearningOperationalStatusResponseDeserializati
         status.Should().NotBeNull();
         status!.Eligibility.Should().NotBeNull();
     }
+
+    [Fact]
+    public void Deserialize_null_active_profile_remains_null()
+    {
+        const string json = """
+            {
+              "eligibility": {},
+              "activeProfile": null
+            }
+            """;
+
+        RecommendationLearningOperationalStatusResponse? status =
+            JsonSerializer.Deserialize<RecommendationLearningOperationalStatusResponse>(json, ContractJson.CamelCaseCompact);
+
+        status.Should().NotBeNull();
+        status!.ActiveProfile.Should().BeNull();
+    }
 }

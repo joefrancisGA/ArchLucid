@@ -30069,7 +30069,21 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 ---
 ## Zone: archlucid-contracts
 
-**Hunts:** 193 · **Bugs found:** 308 · **Consecutive dry hunts:** 1
+**Hunts:** 194 · **Bugs found:** 308 · **Consecutive dry hunts:** 2
+
+2026-10-15 seed hunt (dry): cheap-disproved five open `(candidate)` optional nullable nested DTO rows on sponsor ROI business-impact counts, learning ops active profile, draft work lease, and closed-loop optional slices as `(valid-no-repro)`; lock regressions in `SponsorRoiSummaryResponseDeserializationTests`, `RecommendationLearningOperationalStatusResponseDeserializationTests`, `DraftRequestResponseDeserializationTests`, and reaffirmed `ClosedLoopReasoningResultDeserializationTests.Deserialize_null_re_review_and_golden_metrics_remain_null`; no production change; reseeded five follow-on `(candidate)` rows; 1015 scoped `Contracts` filter tests passed.
+
+- [x] (valid-no-repro) `SponsorRoiSummaryResponse.BusinessImpactCategoryCounts` — explicit JSON `null` — **cheap-disproof 2026-10-15 seed hunt:** optional theme-count rollup remains null; lock regression `Deserialize_null_business_impact_category_counts_remains_null`.
+- [x] (valid-no-repro) `RecommendationLearningOperationalStatusResponse.ActiveProfile` — explicit JSON `null` — **cheap-disproof 2026-10-15 seed hunt:** optional active profile metadata remains null; lock regression `Deserialize_null_active_profile_remains_null`.
+- [x] (valid-no-repro) `DraftRequestResponse.WorkLease` — explicit JSON `null` — **cheap-disproof 2026-10-15 seed hunt:** unleased desk keeps null work lease; lock regression `Deserialize_null_work_lease_remains_null`.
+- [x] (valid-no-repro) `ClosedLoopReasoningResult.ReReview` — explicit JSON `null` — **cheap-disproof 2026-10-15 seed hunt:** optional incremental re-review slice remains null; lock regression `Deserialize_null_re_review_and_golden_metrics_remain_null`.
+- [x] (valid-no-repro) `ClosedLoopReasoningResult.GoldenMetrics` — explicit JSON `null` — **cheap-disproof 2026-10-15 seed hunt:** optional golden metrics remain null; lock regression `Deserialize_null_re_review_and_golden_metrics_remain_null`.
+
+- [ ] (candidate) `Finding.FindingType` — explicit JSON `null` on finding envelope JSON — locus: `Findings.Finding`; input: persisted/API finding JSON with `"findingType": null` (see `= null!` initializer).
+- [ ] (candidate) `Finding.Title` — explicit JSON `null` on finding envelope JSON — locus: `Findings.Finding`; input: finding JSON with `"title": null` (see file).
+- [ ] (candidate) `SpecialistReviewFinding.Title` — explicit JSON `null` on specialist review finding JSON — locus: `ArchitectureIntelligence.SpecialistReviewFinding`; input: closed-loop specialist finding JSON with `"title": null` (see file).
+- [ ] (candidate) `ArchitectureModelElement.Name` — explicit JSON `null` on architecture model element JSON — locus: `ArchitectureIntelligence.ArchitectureModelElement`; input: model element JSON with `"name": null` (see file).
+- [ ] (candidate) `RunDecisionExplainabilityDto.AuthorityRuleAudit` — explicit JSON `null` on run explainability JSON — locus: `Runs.RunDecisionExplainabilityDto`; input: explainability DTO JSON with `"authorityRuleAudit": null` (see file).
 
 2026-10-15 seed hunt (dry): cheap-disproved five open `(candidate)` optional nullable nested DTO rows on run detail LLM estimate, decision receipt intake, and sponsor ROI summary optional slices as `(valid-no-repro)`; lock regressions in `ArchitectureRunDetailDeserializationTests`, `DecisionReceiptDocumentDeserializationTests`, and `SponsorRoiSummaryResponseDeserializationTests`; no production change; reseeded five follow-on `(candidate)` rows; 1012 scoped `Contracts` filter tests passed.
 
@@ -30078,12 +30092,6 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (valid-no-repro) `SponsorRoiSummaryResponse.RealizedValue` — explicit JSON `null` — **cheap-disproof 2026-10-15 seed hunt:** optional realized-value summary remains null; lock regression `Deserialize_null_optional_roi_nested_summaries_remain_null`.
 - [x] (valid-no-repro) `SponsorRoiSummaryResponse.BasisBreakdown` — explicit JSON `null` — **cheap-disproof 2026-10-15 seed hunt:** optional basis breakdown remains null; lock regression `Deserialize_null_optional_roi_nested_summaries_remain_null`.
 - [x] (valid-no-repro) `SponsorRoiSummaryResponse.OrphanCandidates` — explicit JSON `null` — **cheap-disproof 2026-10-15 seed hunt:** optional orphan rollup remains null; lock regression `Deserialize_null_optional_roi_nested_summaries_remain_null`.
-
-- [ ] (candidate) `SponsorRoiSummaryResponse.BusinessImpactCategoryCounts` — explicit JSON `null` on sponsor ROI summary JSON — locus: `Roi.SponsorRoiSummaryResponse`; input: ROI summary JSON with `"businessImpactCategoryCounts": null` (see file).
-- [ ] (candidate) `RecommendationLearningOperationalStatusResponse.ActiveProfile` — explicit JSON `null` on learning ops status JSON — locus: `Advisory.Learning.RecommendationLearningOperationalStatusResponse`; input: operational status JSON with `"activeProfile": null` (see file).
-- [ ] (candidate) `DraftRequestResponse.WorkLease` — explicit JSON `null` on draft request response JSON — locus: `Drafts.DraftRequestResponse`; input: draft response JSON with `"workLease": null` when desk is unleased (see file).
-- [ ] (candidate) `ClosedLoopReasoningResult.ReReview` — explicit JSON `null` on closed-loop reasoning result JSON — locus: `ArchitectureIntelligence.ClosedLoopReasoningResult`; input: closed-loop result JSON with `"reReview": null` (see file).
-- [ ] (candidate) `ClosedLoopReasoningResult.GoldenMetrics` — explicit JSON `null` on closed-loop reasoning result JSON — locus: `ArchitectureIntelligence.ClosedLoopReasoningResult`; input: closed-loop result JSON with `"goldenMetrics": null` (see file).
 
 2026-10-15 seed hunt (seed→hit): promoted `BuyerRunDetailSummaryDto.Run` explicit JSON `null` while cheap-disproving five open `(candidate)` optional nullable nested DTO rows on buyer summary and run detail manifest; null guard on `BuyerRunDetailSummaryDto.Run`; lock regressions in `BuyerRunDetailSummaryDtoDeserializationTests` and `ArchitectureRunDetailDeserializationTests`; reseeded five follow-on `(candidate)` rows; 1009 scoped `Contracts` filter tests passed.
 

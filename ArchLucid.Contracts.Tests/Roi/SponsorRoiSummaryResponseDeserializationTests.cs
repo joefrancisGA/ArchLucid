@@ -49,4 +49,20 @@ public sealed class SponsorRoiSummaryResponseDeserializationTests
         result.BasisBreakdown.Should().BeNull();
         result.OrphanCandidates.Should().BeNull();
     }
+
+    [Fact]
+    public void Deserialize_null_business_impact_category_counts_remains_null()
+    {
+        const string json = """
+            {
+              "businessImpactCategoryCounts": null
+            }
+            """;
+
+        SponsorRoiSummaryResponse? result =
+            JsonSerializer.Deserialize<SponsorRoiSummaryResponse>(json, ContractJson.CamelCaseCompact);
+
+        result.Should().NotBeNull();
+        result!.BusinessImpactCategoryCounts.Should().BeNull();
+    }
 }
