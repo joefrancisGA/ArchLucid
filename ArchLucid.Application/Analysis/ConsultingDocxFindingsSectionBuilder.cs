@@ -20,7 +20,10 @@ internal static class ConsultingDocxFindingsSectionBuilder
         }
 
         ConsultingDocxOpenXmlPrimitives.AddHeading(body, "Request Context", 2);
-        ConsultingDocxOpenXmlPrimitives.AddStyledParagraph(body, report.Evidence.Request.Description, "BodyText");
+        ConsultingDocxOpenXmlPrimitives.AddStyledParagraph(
+            body,
+            ArchitectureEvidenceRequestExport.FormatDescription(report.Evidence.Request.Description),
+            "BodyText");
 
         if (report.Evidence.Request.Constraints.Count > 0)
         {

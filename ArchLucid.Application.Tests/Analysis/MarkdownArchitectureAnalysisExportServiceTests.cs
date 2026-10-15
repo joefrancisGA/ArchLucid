@@ -224,4 +224,30 @@ public sealed class MarkdownArchitectureAnalysisExportServiceTests
         md.Should().Contain("At least ten characters for export body.");
         md.Should().NotContain("- Constraints:");
     }
+
+    [Fact]
+    public void GenerateMarkdown_uses_omission_copy_for_missing_evidence_description()
+    {
+        ArchitectureAnalysisReport report = new()
+        {
+            Run = new ArchitectureRun
+            {
+                RunId = "a1b2c3d4e5f678901234567890abcd",
+                RequestId = "req-1",
+                Status = ArchitectureRunStatus.Committed,
+            },
+            Evidence = new AgentEvidencePackage
+            {
+                EvidencePackageId = "ev-1",
+                SystemName = "Sys",
+                Environment = "prod",
+                CloudProvider = "Azure",
+                Request = new RequestEvidence { Description = null! },
+            },
+        };
+
+        string md = _sut.GenerateMarkdown(report);
+
+        md.Should().Contain($"- Description: {ArchitectureEvidenceRequestExport.MissingDescriptionCopy}");
+    }
 }

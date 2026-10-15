@@ -113,6 +113,34 @@ public sealed class DocxArchitectureAnalysisExportServiceTests
     }
 
     [Fact]
+    public async Task GenerateDocxAsync_uses_omission_copy_for_missing_evidence_description()
+    {
+        DocxArchitectureAnalysisExportService sut = new(new NullDiagramImageRenderer());
+        ArchitectureAnalysisReport report = new()
+        {
+            Run = new ArchitectureRun
+            {
+                RunId = "a1b2c3d4e5f678901234567890abcd",
+                RequestId = "req-1",
+                Status = ArchitectureRunStatus.Committed,
+            },
+            Evidence = new AgentEvidencePackage
+            {
+                EvidencePackageId = "evidence-1",
+                SystemName = "billing",
+                Environment = "prod",
+                CloudProvider = "Azure",
+                Request = new RequestEvidence { Description = null! },
+            },
+        };
+
+        byte[] docx = await sut.GenerateDocxAsync(report);
+        string text = ExtractDocxBodyText(docx);
+
+        text.Should().Contain(ArchitectureEvidenceRequestExport.MissingDescriptionCopy);
+    }
+
+    [Fact]
     public async Task GenerateDocxAsync_includes_execution_traces()
     {
         DocxArchitectureAnalysisExportService sut = new(new NullDiagramImageRenderer());

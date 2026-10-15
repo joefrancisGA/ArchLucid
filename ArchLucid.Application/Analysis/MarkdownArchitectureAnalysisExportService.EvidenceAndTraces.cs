@@ -22,7 +22,8 @@ public sealed partial class MarkdownArchitectureAnalysisExportService
             sb.AppendLine("### Request Context");
             sb.AppendLine();
 
-            sb.AppendLine($"- Description: {report.Evidence.Request.Description}");
+            sb.AppendLine(
+                $"- Description: {ArchitectureEvidenceRequestExport.FormatDescription(report.Evidence.Request.Description)}");
 
             if (report.Evidence.Request.Constraints.Count > 0)
             {

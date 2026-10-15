@@ -45,7 +45,7 @@ public sealed class DocxArchitectureAnalysisExportService(IDiagramImageRenderer 
             builder.AddParagraph($"Cloud Provider: {report.Evidence.CloudProvider}");
             builder.AddSpacer();
             builder.AddHeading("Request Context", 3);
-            builder.AddParagraph(report.Evidence.Request.Description);
+            builder.AddParagraph(ArchitectureEvidenceRequestExport.FormatDescription(report.Evidence.Request.Description));
             if (report.Evidence.Request.Constraints.Count > 0)
             {
                 builder.AddHeading("Constraints", 3);
