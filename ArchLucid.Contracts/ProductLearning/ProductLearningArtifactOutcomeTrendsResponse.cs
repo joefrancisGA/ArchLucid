@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.ProductLearning;
 
 /// <summary>Artifact-level outcome rollups for trend visualization.</summary>
@@ -9,9 +11,11 @@ public sealed class ProductLearningArtifactOutcomeTrendsResponse
         init;
     }
 
+    private IReadOnlyList<ArtifactOutcomeTrend> trends = [];
+
     public IReadOnlyList<ArtifactOutcomeTrend> Trends
     {
-        get;
-        init;
-    } = [];
+        get => trends;
+        init => trends = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 }

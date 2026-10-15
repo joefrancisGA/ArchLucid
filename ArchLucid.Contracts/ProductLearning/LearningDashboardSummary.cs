@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.ProductLearning;
 
 /// <summary>
@@ -42,34 +44,44 @@ public sealed class LearningDashboardSummary
         init;
     }
 
+    private IReadOnlyList<FeedbackAggregate> topAggregates = [];
+
     public IReadOnlyList<FeedbackAggregate> TopAggregates
     {
-        get;
-        init;
-    } = [];
+        get => topAggregates;
+        init => topAggregates = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
+
+    private IReadOnlyList<ArtifactOutcomeTrend> artifactTrends = [];
 
     public IReadOnlyList<ArtifactOutcomeTrend> ArtifactTrends
     {
-        get;
-        init;
-    } = [];
+        get => artifactTrends;
+        init => artifactTrends = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
+
+    private IReadOnlyList<ImprovementOpportunity> opportunities = [];
 
     public IReadOnlyList<ImprovementOpportunity> Opportunities
     {
-        get;
-        init;
-    } = [];
+        get => opportunities;
+        init => opportunities = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
+
+    private IReadOnlyList<TriageQueueItem> triageQueue = [];
 
     public IReadOnlyList<TriageQueueItem> TriageQueue
     {
-        get;
-        init;
-    } = [];
+        get => triageQueue;
+        init => triageQueue = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
+
+    private IReadOnlyList<string> summaryNotes = [];
 
     /// <summary>Optional human-readable bullets for the dashboard header (filled by services later).</summary>
     public IReadOnlyList<string> SummaryNotes
     {
-        get;
-        init;
-    } = [];
+        get => summaryNotes;
+        init => summaryNotes = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 }

@@ -30069,7 +30069,21 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 ---
 ## Zone: archlucid-contracts
 
-**Hunts:** 163 · **Bugs found:** 187 · **Consecutive dry hunts:** 0
+**Hunts:** 164 · **Bugs found:** 192 · **Consecutive dry hunts:** 0
+
+2026-10-15 seed hunt (seed→hit): promoted five open `(candidate)` rows on product-learning dashboard, triage report, artifact trends, planning report, and aggregation snapshot lists; consolidated coalesce fix on `LearningDashboardSummary`, `ProductLearningTriageReportDocument`, `ProductLearningArtifactOutcomeTrendsResponse`, `LearningPlanningReportDocument`, and `ProductLearningAggregationSnapshot`; regressions in matching `*DeserializationTests` under `ArchLucid.Contracts.Tests/ProductLearning/`; reseeded five follow-on `(candidate)` rows; 887 scoped `Contracts` filter tests passed.
+
+- [x] (proven) `LearningDashboardSummary` — dashboard summary list properties explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_list_properties_yields_empty_lists_not_null`.
+- [x] (proven) `ProductLearningTriageReportDocument` — triage report list properties explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_list_properties_yields_empty_lists_not_null`.
+- [x] (proven) `ProductLearningArtifactOutcomeTrendsResponse.Trends` — explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_trends_yields_empty_list_not_null`.
+- [x] (proven) `LearningPlanningReportDocument` — `Themes` / `Plans` explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_list_properties_yields_empty_lists_not_null`.
+- [x] (proven) `ProductLearningAggregationSnapshot` — aggregation snapshot list properties explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_list_properties_yields_empty_lists_not_null`.
+
+- [ ] (candidate) `LearningPlanningReportPlanEvidenceBlock` — explicit JSON `null` on plan evidence lists — locus: `ProductLearning.Planning.LearningPlanningReportPlanEvidenceBlock`; input: plan evidence JSON with null `signals`, `artifacts`, or `architectureRunIds`.
+- [ ] (candidate) `AgentResultJsonConverter` nested payload lists — explicit JSON `null` — locus: `Agents.AgentResultJsonConverter` private DTO shapes; input: agent result JSON with null list tokens (see converter).
+- [ ] (candidate) `ProductLearningFeedbackListResponse` — explicit JSON `null` on feedback list — locus: `ProductLearning.ProductLearningFeedbackListResponse`; input: feedback list response JSON with null list token (see file).
+- [ ] (candidate) `ProductLearningSignalSearchResponse` — explicit JSON `null` on search hits — locus: `ProductLearning.ProductLearningSignalSearchResponse`; input: signal search JSON with null list token (see file).
+- [ ] (candidate) `LearningPlanningReportThemeEntry` — explicit JSON `null` on theme child lists — locus: `ProductLearning.Planning.LearningPlanningReportThemeEntry`; input: theme entry JSON with null list tokens (see file).
 
 2026-10-15 seed hunt (seed→hit): promoted five open `(candidate)` rows on sponsor dashboard drift trend, ROI export lists, ROI history `points`, systemic issue trend `points`, and product-learning opportunities; coalesce fix on `SponsorDashboardBundleResponse`, `SponsorRoiExportResponse`, `SponsorRoiHistoryResponse`, `SponsorRoiSystemicIssueTrendSeries`, and `ProductLearningImprovementOpportunitiesResponse`; regressions in matching `*DeserializationTests` under `ArchLucid.Contracts.Tests/Roi/` and `ProductLearning/`; reseeded five follow-on `(candidate)` rows; 882 scoped `Contracts` filter tests passed.
 
@@ -30078,12 +30092,6 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `SponsorRoiHistoryResponse.Points` — explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_points_yields_empty_list_not_null`.
 - [x] (proven) `SponsorRoiSystemicIssueTrendSeries.Points` — explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_points_yields_empty_list_not_null`.
 - [x] (proven) `ProductLearningImprovementOpportunitiesResponse.Opportunities` — explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_opportunities_yields_empty_list_not_null`.
-
-- [ ] (candidate) `LearningDashboardSummary` — explicit JSON `null` on dashboard summary lists — locus: `ProductLearning.LearningDashboardSummary`; input: learning dashboard JSON with null list tokens (see file).
-- [ ] (candidate) `ProductLearningTriageReportDocument` — explicit JSON `null` on triage list — locus: `ProductLearning.ProductLearningTriageReportDocument`; input: triage report JSON with null list token (see file).
-- [ ] (candidate) `ProductLearningArtifactOutcomeTrendsResponse` — explicit JSON `null` on trends list — locus: `ProductLearning.ProductLearningArtifactOutcomeTrendsResponse`; input: artifact outcome trends JSON with null list token (see file).
-- [ ] (candidate) `LearningPlanningReportDocument` — explicit JSON `null` on planning report lists — locus: `ProductLearning.Planning.LearningPlanningReportDocument`; input: planning report JSON with null list tokens (see file).
-- [ ] (candidate) `ProductLearningAggregationSnapshot` — explicit JSON `null` on aggregation snapshot lists — locus: `ProductLearning.ProductLearningAggregationSnapshot`; input: aggregation snapshot JSON with null list tokens (see file).
 
 2026-10-15 seed hunt (seed→hit): promoted five open `(candidate)` rows on schema validation error lists, working continuity lists, rephrase batch `items`, architecture request intake lists, and sponsor ROI summary lists; coalesce fix on `SchemaValidationResult`, `WorkingWorkspaceContinuityDto`, `RephraseClarificationAnswersInput`, `ArchitectureRequest`, and `SponsorRoiSummaryResponse`; regressions in `SchemaValidationResultDeserializationTests`, `WorkingWorkspaceContinuityDtoDeserializationTests`, `RephraseClarificationAnswersInputDeserializationTests`, `ArchitectureRequestDeserializationTests`, and `SponsorRoiSummaryResponseDeserializationTests`; reseeded five follow-on `(candidate)` rows; 877 scoped `Contracts` filter tests passed.
 

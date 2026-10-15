@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.ProductLearning;
 
 /// <summary>
@@ -50,31 +52,36 @@ public sealed class ProductLearningTriageReportDocument
         init;
     }
 
+    private IReadOnlyList<ProductLearningTriageReportArtifactRow> artifactOutcomes = [];
+
     public IReadOnlyList<ProductLearningTriageReportArtifactRow> ArtifactOutcomes
     {
-        get;
-        init;
-    } =
-        [];
+        get => artifactOutcomes;
+        init => artifactOutcomes = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
+
+    private IReadOnlyList<string> topProblemAreas = [];
 
     /// <summary>Short bullets for recurring pain (aggregates + opportunities, deduplicated).</summary>
     public IReadOnlyList<string> TopProblemAreas
     {
-        get;
-        init;
-    } = [];
+        get => topProblemAreas;
+        init => topProblemAreas = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
+
+    private IReadOnlyList<ProductLearningTriageReportImprovementLine> topImprovements = [];
 
     public IReadOnlyList<ProductLearningTriageReportImprovementLine> TopImprovements
     {
-        get;
-        init;
-    } =
-        [];
+        get => topImprovements;
+        init => topImprovements = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
+
+    private IReadOnlyList<ProductLearningTriageReportTriageLine> triageQueuePreview = [];
 
     public IReadOnlyList<ProductLearningTriageReportTriageLine> TriageQueuePreview
     {
-        get;
-        init;
-    } =
-        [];
+        get => triageQueuePreview;
+        init => triageQueuePreview = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 }
