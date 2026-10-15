@@ -133,7 +133,7 @@ function normalizeOptionalIdToken(value: unknown): string | undefined {
   const trimmed = value.trim();
 
   if (trimmed.length === 0) {
-    return value.length === 0 ? undefined : value;
+    return undefined;
   }
 
   return trimmed;

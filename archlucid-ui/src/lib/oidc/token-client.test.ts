@@ -224,6 +224,27 @@ describe("refreshAccessToken", () => {
     expect(tokens.refresh_token).toBeUndefined();
   });
 
+  it("omits whitespace-only id_token values from token responses", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () =>
+        JSON.stringify({
+          access_token: "access-1",
+          id_token: "   ",
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    const tokens = await refreshAccessToken({
+      tokenEndpoint: "https://login.example.com/token",
+      clientId: "client",
+      refreshToken: "rt",
+    });
+
+    expect(tokens.id_token).toBeUndefined();
+  });
+
   it("truncates oversized OAuth error descriptions from the token endpoint", async () => {
     const oversized = `${"expired ".repeat(80)}done`;
     const fetchMock = vi.fn(async () => ({

@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-15 seed hunt (seed→hit): `ui-oidc` — promoted `normalizeOptionalIdToken` retaining whitespace-only `id_token` in successful token JSON while `refresh_token` was omitted (`parseOidcTokenResponse` spread exposed `"   "` to callers); align with `normalizeOptionalRefreshToken`; regression `omits whitespace-only id_token values from token responses`; cheap-disproved five open `(candidate)` rows; reseeded five follow-on candidates; 117 scoped `src/lib/oidc` vitest tests passed.
+
 2026-10-15 seed hunt (seed→hit): `ui-oidc` — promoted `readOAuthErrorString` retaining invisible-only token-endpoint `error` / `error_description` fields (callback shows `invalid_grant: ⁠`); `stripOAuthInvisibleFormatChars` shared with authorize copy; collapse strips invisibles in descriptions; regression `ignores invisible-only OAuth error_description values on token endpoint errors`; cheap-disproved five open `(candidate)` rows; reseeded five follow-on candidates; 116 scoped `src/lib/oidc` vitest tests passed.
 
 2026-10-15 seed hunt (seed→hit): `ui-oidc` — promoted `formatErrorCodeForReading` leaving U+2060 WORD JOINER authorize `?error=` visible inside empty-looking parentheses; shared `OAUTH_INVISIBLE_FORMAT_CHARS` with ZWSP/BOM strip set; regression `treats word-joiner-only authorize error codes as missing codes`; cheap-disproved five open `(candidate)` rows; reseeded five follow-on candidates; 115 scoped `src/lib/oidc` vitest tests passed.
@@ -21031,11 +21033,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 67
-- **bugs-found:** 61
+- **hunts:** 68
+- **bugs-found:** 62
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-15
-- **last-bug:** 2026-10-15 — invisible-only OAuth error fields on token endpoint errors
+- **last-bug:** 2026-10-15 — whitespace-only id_token retained in token JSON parse
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -21166,11 +21168,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `syncBffSessionCookieFromTokenResponse` — SSR early return — **cheap-disproof 2026-10-15 seed hunt:** token persist runs client-side only after callback.
 - [x] (valid-no-repro) `discoveryUrlForAuthority` — authority userinfo stripped — **cheap-disproof 2026-10-15 seed hunt:** `URL.origin` credential drop is intentional for discovery fetch safety.
 - [x] (proven) `readOAuthErrorString` — invisible-only token-endpoint OAuth fields — **hit 2026-10-15 seed hunt (seed→hit):** `stripOAuthInvisibleFormatChars`; regression `ignores invisible-only OAuth error_description values on token endpoint errors`.
-- (candidate) `errorFromOAuthJson` — empty `Error.message` when sanitize zeroes joined text — locus: `token-client.ts`; input: both fields invisible after strip; wrong outcome: empty throw; mechanism: verify fall-through to status-only on HTTP error.
-- (candidate) `decodeOAuthErrorDescription` — invisible chars only in authorize query description — locus: `oauth-callback-messages.ts`; input: `%E2%81%A0` word joiner; wrong outcome: empty detail after collapse; mechanism: shared invisible strip in collapse path.
-- (candidate) `buildAuthorizeUrl` — empty `clientId` after trim still encoded — locus: `build-authorize-url.ts`; input: whitespace-only client id; wrong outcome: authorize with empty param; mechanism: trim without non-empty guard.
-- (candidate) `refreshBffSessionCookie` — JSON body missing `expires_at_ms` on 200 — locus: `bff-session-sync.ts`; input: `{}` success JSON; wrong outcome: `shouldClearSession` false; mechanism: regression `rejects refresh responses whose expires_at_ms is far in the past` pattern.
-- (candidate) `signOutAndRedirectHome` — RP logout URL open redirect if BFF misconfigured — locus: `session.ts` + `bff-session-sync.ts`; input: unsafe URL from BFF; wrong outcome: blocked by `isSafeOidcEndpointUrl`; mechanism: existing guard (verify no bypass).
+- [x] (proven) `normalizeOptionalIdToken` — whitespace-only `id_token` in token JSON — **hit 2026-10-15 seed hunt (seed→hit):** returned untrimmed `"   "` while refresh_token used `undefined`; parity with `normalizeOptionalRefreshToken`; regression `omits whitespace-only id_token values from token responses`.
+- [x] (valid-no-repro) `errorFromOAuthJson` — empty joined text after invisible strip — **cheap-disproof 2026-10-15 seed hunt:** `readOAuthError` falls through to `Token endpoint error ${status}` when OAuth fields sanitize to empty; regression `ignores invisible-only OAuth error_description values on token endpoint errors`.
+- [x] (valid-no-repro) `decodeOAuthErrorDescription` — invisible-only authorize description — **cheap-disproof 2026-10-15 seed hunt:** `collapseOAuthErrorDescriptionLineBreaks` strips format chars and trims to empty detail; buyer-safe incomplete-response copy when code and detail absent.
+- [x] (valid-no-repro) `buildAuthorizeUrl` — whitespace-only `clientId` after trim — **cheap-disproof 2026-10-15 seed hunt:** `assertOidcSignInConfig` / `getOidcClientId` reject empty configured client id before authorize URL construction.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — HTTP 200 JSON missing `expires_at_ms` — **cheap-disproof 2026-10-15 seed hunt:** intentional soft-fail (`ok: false`, `shouldClearSession: false`) when refresh hint absent; distinct from stale `expires_at_ms` rejection.
+- [x] (valid-no-repro) `signOutAndRedirectHome` — unsafe RP logout URL from BFF — **cheap-disproof 2026-10-15 seed hunt:** `resolveRpLogoutUrlFromBffSession` gates with `isSafeOidcEndpointUrl`; regression `returns null when the BFF logout URL embeds userinfo credentials`.
+- (candidate) `humanizeAuthorizeCallbackError` — NBSP-only authorize `error_description` after decode — locus: `oauth-callback-messages.ts`; input: `%C2%A0` non-breaking space only; wrong outcome: empty-looking detail still passed to sanitize; mechanism: `trim()` vs collapse coverage.
+- (candidate) `parseOidcTokenResponse` — numeric `access_token` scalar in JSON — locus: `token-client.ts`; input: `{ access_token: 12345 }`; wrong outcome: throws vs coerces; mechanism: typeof guard before trim.
+- (candidate) `errorFromOAuthJson` — HTTP 200 OAuth error with only `error_uri` field — locus: `token-client.ts`; input: `{ error_uri: "https://idp/hint" }`; wrong outcome: treated as success until parse; mechanism: fields read list.
+- (candidate) `buildAuthorizeUrl` — discovery `authorization_endpoint` with trailing whitespace only in path — locus: `discovery.ts` + `build-authorize-url.ts`; input: endpoint trimmed at parse; wrong outcome: malformed authorize host; mechanism: `parseDiscoveryDocument` trim parity.
+- (candidate) `exchangeAuthorizationCode` — caller `clientId` with internal tab characters — locus: `token-client.ts`; input: `client_id` containing `\t`; wrong outcome: posted verbatim vs trim; mechanism: `trimTokenFormParams` only trims ends not internal controls.
 - [x] (proven) `persistTokenResponse` — a hung older token-to-BFF sync blocks a newer same-session sync, preventing the replacement session from establishing its cookie — **hit 2026-10-11 seed hunt:** the sync-order promise chain awaited every older request; concurrent sync plus latest-request replay lets the newer request proceed and converges late completions on the latest token; regression `does not block a newer sync behind a hung older request` in `session.test.ts`.
 - [x] (proven) `persistTokenResponse` — concurrent same-session token-to-BFF syncs can complete out of order, allowing an older provider response to overwrite a newer BFF cookie — **hit 2026-10-11 seed hunt:** each token response started its own asynchronous sync with no ordering guard; serialize sync writes through a recovery-safe promise chain; regression `keeps an older token sync from overwriting a newer same-session sync` in `session.test.ts`.
 - [x] (proven) `persistNonSensitiveSessionHints` — a replacement token without optional display-name or subject claims leaves the prior user's identity hints in `sessionStorage` — **hit 2026-10-11 seed hunt:** hint writes were conditional but stale keys were never removed, so a same-browser user replacement could display the previous user's name/subject; clear both hint keys before applying each token response; regression `clears stale identity hints when a replacement token has no identity claims` in `session.test.ts`.
