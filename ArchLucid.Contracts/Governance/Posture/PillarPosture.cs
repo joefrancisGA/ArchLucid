@@ -4,11 +4,13 @@ namespace ArchLucid.Contracts.Governance.Posture;
 
 public sealed class PillarPosture
 {
+    private string pillarKey = string.Empty;
+
     public string PillarKey
     {
-        get;
-        init;
-    } = null!;
+        get => pillarKey;
+        init => pillarKey = ContractCollectionDefaults.CoalesceRequired(value);
+    }
 
     public string DisplayName
     {

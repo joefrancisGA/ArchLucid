@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-15 seed hunt (seed→hit): `archlucid-contracts` — promoted `PillarPosture.PillarKey` explicit JSON `null` (`ContractCollectionDefaults.CoalesceRequired` on `init`); regression `Deserialize_null_pillar_key_yields_empty_string_not_null`; reseeded five follow-on `(candidate)` rows; 1024 scoped `Contracts` filter tests passed.
+
 2026-10-15 seed hunt (seed→hit): `archlucid-contracts` — promoted `AlertRoutingSignal.FindingType` explicit JSON `null` (`ContractCollectionDefaults.CoalesceRequired` on `init`); regression `Deserialize_null_finding_type_yields_empty_string_not_null`; reseeded five follow-on `(candidate)` rows; 1023 scoped `Contracts` filter tests passed.
 
 2026-10-15 seed hunt (seed→hit): `archlucid-contracts` — promoted `AlertRoutingSignal.Severity` explicit JSON `null` (`ContractCollectionDefaults.CoalesceRequired` on `init`); regression `Deserialize_null_severity_yields_empty_string_not_null`; reseeded five follow-on `(candidate)` rows; 1022 scoped `Contracts` filter tests passed.
@@ -30083,14 +30085,22 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 ---
 ## Zone: archlucid-contracts
 
-**Hunts:** 201 · **Bugs found:** 315 · **Consecutive dry hunts:** 0
+**Hunts:** 202 · **Bugs found:** 316 · **Consecutive dry hunts:** 0
+
+2026-10-15 seed hunt (seed→hit): promoted `PillarPosture.PillarKey` explicit JSON `null` on pillar posture JSON; `ContractCollectionDefaults.CoalesceRequired` on `init`; regression `Deserialize_null_pillar_key_yields_empty_string_not_null` in `PillarPostureDeserializationTests`; reseeded five follow-on `(candidate)` rows; 1024 scoped `Contracts` filter tests passed.
+
+- [x] (proven) `Governance.Posture.PillarPosture.PillarKey` — explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_pillar_key_yields_empty_string_not_null`.
+
+- [ ] (candidate) `Governance.Posture.PillarPosture.DisplayName` — explicit JSON `null` on pillar posture JSON — locus: `Governance.Posture.PillarPosture`; input: posture JSON with `"displayName": null` (see `init` + `= null!`).
+- [ ] (candidate) `Governance.Posture.ExaminationStateResolution.ReasonText` — explicit JSON `null` on examination resolution JSON — locus: `Governance.Posture.ExaminationStateResolution`; input: examination JSON with `"reasonText": null` (see file).
+- [ ] (candidate) `Persistence.Graph.GraphEdge.EdgeType` — explicit JSON `null` on graph edge JSON — locus: `Persistence.Graph.GraphEdge`; input: graph edge JSON with `"edgeType": null` (see file).
+- [ ] (candidate) `Compliance.ComplianceRulePack.RulePackHash` — explicit JSON `null` on rule pack JSON — locus: `Compliance.ComplianceRulePack`; input: rule pack JSON with `"rulePackHash": null` (see file).
+- [ ] (candidate) `ArchitectureIntelligence.ArchitectureModelElement.ElementId` — explicit JSON `null` on architecture model element JSON — locus: `ArchitectureIntelligence.ArchitectureModelElement`; input: model element JSON with `"elementId": null` (see file).
 
 2026-10-15 seed hunt (seed→hit): promoted `AlertRoutingSignal.FindingType` explicit JSON `null` on alert routing signal JSON; `ContractCollectionDefaults.CoalesceRequired` on `init`; regression `Deserialize_null_finding_type_yields_empty_string_not_null` in `AlertRoutingSignalDeserializationTests`; reseeded five follow-on `(candidate)` rows; 1023 scoped `Contracts` filter tests passed.
 
 - [x] (proven) `Alerts.Delivery.AlertRoutingSignal.FindingType` — explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_finding_type_yields_empty_string_not_null`.
 
-- [ ] (candidate) `Governance.Posture.PillarPosture.PillarKey` — explicit JSON `null` on pillar posture JSON — locus: `Governance.Posture.PillarPosture`; input: posture JSON with `"pillarKey": null` (see `init` + `= null!`).
-- [ ] (candidate) `Governance.Posture.PillarPosture.DisplayName` — explicit JSON `null` on pillar posture JSON — locus: `Governance.Posture.PillarPosture`; input: posture JSON with `"displayName": null` (see file).
 - [ ] (candidate) `Persistence.Graph.GraphNode.Label` — explicit JSON `null` on graph node JSON — locus: `Persistence.Graph.GraphNode`; input: graph node JSON with `"label": null` (see file).
 - [ ] (candidate) `Persistence.Context.CanonicalObject.ObjectType` — explicit JSON `null` on canonical object JSON — locus: `Persistence.Context.CanonicalObject`; input: canonical object JSON with `"objectType": null` (see file).
 - [ ] (candidate) `ArchitectureIntelligence.SpecialistReviewFinding.Title` — explicit JSON `null` on specialist review finding JSON — locus: `ArchitectureIntelligence.SpecialistReviewFinding`; input: specialist finding JSON with `"title": null` (see file).

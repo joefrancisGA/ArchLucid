@@ -11,6 +11,25 @@ namespace ArchLucid.Contracts.Tests.Governance;
 public sealed class PillarPostureDeserializationTests
 {
     [Fact]
+    public void Deserialize_null_pillar_key_yields_empty_string_not_null()
+    {
+        const string json = """
+            {
+              "pillarKey": null,
+              "displayName": "Security",
+              "displayOrder": 1,
+              "examination": { "state": 0 }
+            }
+            """;
+
+        PillarPosture? result =
+            JsonSerializer.Deserialize<PillarPosture>(json, ContractJson.CamelCaseCompact);
+
+        result.Should().NotBeNull();
+        result!.PillarKey.Should().BeEmpty();
+    }
+
+    [Fact]
     public void Deserialize_null_pack_assignments_yields_empty_list_not_null()
     {
         const string json = """
