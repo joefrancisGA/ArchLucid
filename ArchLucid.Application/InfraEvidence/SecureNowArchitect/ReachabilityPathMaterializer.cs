@@ -40,7 +40,8 @@ internal static class ReachabilityPathMaterializer
     private static PathConfidenceBand MapConfidenceBand(PrivilegePathEdge hop)
     {
         if (hop.EdgeType == SecureNowArchitectConstants.InsufficientEvidenceNsgHopEdgeType
-            || hop.EdgeType == SecureNowArchitectConstants.InsufficientEvidenceDnsHopEdgeType)
+            || hop.EdgeType == SecureNowArchitectConstants.InsufficientEvidenceDnsHopEdgeType
+            || hop.EdgeType == SecureNowArchitectConstants.InsufficientEvidenceNetworkEdgeControlHopEdgeType)
         {
             return PathConfidenceBand.InsufficientEvidence;
         }
@@ -74,6 +75,11 @@ internal static class ReachabilityPathMaterializer
         if (hop.EdgeType == SecureNowArchitectConstants.InsufficientEvidenceDnsHopEdgeType)
         {
             return SecureNowArchitectConstants.InsufficientEvidenceDnsHopEdgeType;
+        }
+
+        if (hop.EdgeType == SecureNowArchitectConstants.InsufficientEvidenceNetworkEdgeControlHopEdgeType)
+        {
+            return SecureNowArchitectConstants.InsufficientEvidenceNetworkEdgeControlHopEdgeType;
         }
 
         if (hop.InferenceSource == GraphEdgeInferenceSources.InventoryPeReachableTarget)

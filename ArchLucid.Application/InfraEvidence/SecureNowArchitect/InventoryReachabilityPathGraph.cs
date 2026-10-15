@@ -40,6 +40,8 @@ internal static class InventoryReachabilityPathGraph
                         relationship.ToAzureResourceId,
                         relationship.InferenceSource)));
 
+        Dictionary<string, AzureInventoryReachabilityResourceProperties> reachabilityResourcesByArmId = new(StringComparer.OrdinalIgnoreCase);
+
         foreach (AzureInventoryResourceRecord resource in resourcesByArmId.Values)
         {
             if (resource.ResourceType.Contains("publicIPAddresses", StringComparison.OrdinalIgnoreCase))
@@ -50,6 +52,12 @@ internal static class InventoryReachabilityPathGraph
             Dictionary<string, string> propertyBag = BuildPropertyBag(
                 resource.ResourceRowId,
                 propertiesByResourceRowId);
+
+            reachabilityResourcesByArmId[resource.AzureResourceId] = new AzureInventoryReachabilityResourceProperties
+            {
+                ResourceType = resource.ResourceType,
+                Properties = propertyBag,
+            };
 
             if (propertyBag.Count == 0)
             {
@@ -106,6 +114,15 @@ internal static class InventoryReachabilityPathGraph
                 });
         }
 
+        AzureInventoryReachabilityEdgeControlIndex edgeControlIndex =
+            AzureInventoryReachabilityEdgeControlIndex.Build(
+                snapshot.Relationships.Select(static relationship =>
+                    new AzureInventoryRelationshipArmTriple(
+                        relationship.FromAzureResourceId,
+                        relationship.ToAzureResourceId,
+                        relationship.InferenceSource)),
+                reachabilityResourcesByArmId);
+
         return new InventoryReachabilityPathGraphSnapshot
         {
             OutgoingEdges = outgoing,
@@ -117,7 +134,24 @@ internal static class InventoryReachabilityPathGraph
             PrivateEndpointOnlyArmIds = privateEndpointOnlyArmIds,
             PrivateIntegratedComputeArmIds = dnsJoinIndex.ComputeToVnetArmId.Keys.ToHashSet(StringComparer.OrdinalIgnoreCase),
             DnsJoinIndex = dnsJoinIndex,
+            EdgeControlIndex = edgeControlIndex,
         };
+    }
+
+    public static bool IsEdgeApplianceNode(
+        string nodeId,
+        IReadOnlyDictionary<string, AzureInventoryResourceRecord> resourcesByArmId)
+    {
+        if (!resourcesByArmId.TryGetValue(nodeId, out AzureInventoryResourceRecord? resource))
+        {
+            return nodeId.Contains("applicationGateways", StringComparison.OrdinalIgnoreCase)
+                   || nodeId.Contains("frontDoors", StringComparison.OrdinalIgnoreCase)
+                   || nodeId.Contains("azureFirewalls", StringComparison.OrdinalIgnoreCase);
+        }
+
+        return resource.ResourceType.Contains("applicationGateways", StringComparison.OrdinalIgnoreCase)
+               || resource.ResourceType.Contains("frontDoors", StringComparison.OrdinalIgnoreCase)
+               || resource.ResourceType.Contains("azureFirewalls", StringComparison.OrdinalIgnoreCase);
     }
 
     public static bool IsPeReachablePrivateHop(PrivilegePathEdge hop) =>
@@ -232,6 +266,12 @@ internal sealed class InventoryReachabilityPathGraphSnapshot
     } = new HashSet<string>();
 
     public AzureInventoryPrivateEndpointDnsJoinIndex? DnsJoinIndex
+    {
+        get;
+        init;
+    }
+
+    public AzureInventoryReachabilityEdgeControlIndex? EdgeControlIndex
     {
         get;
         init;
