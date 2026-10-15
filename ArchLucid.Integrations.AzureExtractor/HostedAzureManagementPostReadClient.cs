@@ -435,7 +435,14 @@ public sealed class HostedAzureManagementPostReadClient(
             return null;
         }
 
-        return uri.AbsoluteUri;
+        if (uri.Query.Contains("api-version=", StringComparison.OrdinalIgnoreCase))
+        {
+            return uri.AbsoluteUri;
+        }
+
+        string separator = string.IsNullOrEmpty(uri.Query) ? "?" : "&";
+
+        return $"{uri.AbsoluteUri}{separator}api-version={ContainerServiceApiVersion}";
     }
 
     private static HostedAzurePolicyComplianceDocument CreateEmptyPolicyCompliance(
