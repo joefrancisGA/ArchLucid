@@ -1,3 +1,5 @@
+2026-10-15 seed hunt (seed→hit): `host-composition` — promoted `AzureBlobCollectionRunArtifactReader` null-bound `CollectionRunStorageOptions.Prefix` / `ContainerName` causing `NullReferenceException` or `ArgumentNullException` during SecureNow collection discovery; default fallbacks aligned with option defaults; regressions `ManifestPrefix_null_bound_prefix_falls_back_to_default_without_null_reference` and `Container_null_bound_container_name_falls_back_to_default_without_argument_null`; 467 scoped Host.Composition/ServiceCollectionExtensions tests passed.
+
 2026-10-15 seed hunt (seed→hit): `application-analysis` — promoted preloaded manifest discarded when `GoldenManifest.RunId` used dashed GUID format for the same run as `run.RunId` (N-format); `RunIdsReferToSameRun` on preload and reader fallback; regression `BuildAsync_keeps_preloaded_manifest_when_manifest_run_id_uses_different_guid_format`; 32 scoped ArchitectureAnalysis/CompareQuality tests passed.
 
 2026-10-15 seed hunt (seed→hit): `application-analysis` — promoted manifest compare `RunId` guard false reject when compare manifest uses dashed GUID format for the same run; `RunIdsReferToSameRun` on compare lineage check; regression `BuildAsync_compares_manifests_when_compare_run_id_uses_different_guid_format`; 31 scoped ArchitectureAnalysis/CompareQuality tests passed.
@@ -34735,13 +34737,24 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** host composition; DI registration; startup modules
 - **paths:** ArchLucid.Host.Composition/
 - **test-filter:** FullyQualifiedName~Host.Composition|FullyQualifiedName~ServiceCollectionExtensions
-- **hunts:** 57
-- **bugs-found:** 36
+- **hunts:** 58
+- **bugs-found:** 37
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-09
-- **last-bug:** 2026-10-09 — failed usage flush dropped events after metering was disabled
-- **code-changed-since:** yes
+- **last-hunt:** 2026-10-15
+- **last-bug:** 2026-10-15 — SecureNow collection blob reader NRE on null-bound storage prefix
+- **code-changed-since:** no
 - **related-pd-tb:** none
+
+2026-10-15 seed hunt (seed→hit): promoted `AzureBlobCollectionRunArtifactReader` null-bound `SecureNow:CollectionStorage` prefix/container options; fall back to `runs/` and `securenow-collection` when configuration binding leaves null; regressions `ManifestPrefix_null_bound_prefix_falls_back_to_default_without_null_reference` and `Container_null_bound_container_name_falls_back_to_default_without_argument_null`; 467 scoped host-composition tests passed.
+
+- [x] (proven) `AzureBlobCollectionRunArtifactReader.ManifestPrefix` / `Container` — null-bound `CollectionRunStorageOptions.Prefix` or `ContainerName` from configuration binding — **hit 2026-10-15 seed hunt:** null-safe defaults before trim/GetBlobContainerClient; regressions in `AzureBlobCollectionRunArtifactReaderTests`.
+
+- [ ] (candidate) `PollingCollectionRunDiscovery.DiscoverAsync` — manifests with missing `packageBlobPath` are skipped silently without ingest audit (reachable input: blob manifest JSON omitting package path).
+- [ ] (candidate) `ApiRequestUsageEventBatchFlushHostedService.ExecuteAsync` — metering disabled via options reload leaves buffered events until host stop (reachable input: `MeteringOptions.Enabled` flips false without shutdown).
+- [ ] (candidate) `GraphProjectionCacheInvalidationSubscriberHostedService` — malformed pub/sub payload is ignored without metric (reachable input: invalid JSON on invalidate channel).
+- [ ] (candidate) `SqlStorageProviderRegistrar` `ICollectionRunArtifactReader` factory — `BlobServiceClient` missing uses empty reader even when collection storage section is configured (reachable input: SQL host without artifact blob URI).
+- [ ] (candidate) `InMemoryValueReportJobQueue` — distributed poll state write failure logs warning but local poll still succeeds with stale phase (reachable input: `IValueReportJobPollStateCache.Set` throws).
+
 
 2026-10-09 seed hunt (seed→hit): failed usage flush returned events through `Enqueue`, which drops them when metering is disabled. Already-accepted events now use `Requeue`. Regression `StopAsync_keeps_dequeued_usage_events_when_persist_fails_after_metering_disabled` failed first.
 
