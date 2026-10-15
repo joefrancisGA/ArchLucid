@@ -508,7 +508,7 @@ function Get-ArchLucidAzureAksRunCommandPollPath([string] $CommandResultId)
 
     if ($path -notmatch '\?api-version=')
     {
-        $path = "$path?api-version=2024-02-01"
+        $path = "${path}?api-version=2024-02-01"
     }
 
     return $path

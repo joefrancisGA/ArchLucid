@@ -626,6 +626,7 @@ public sealed class FinalizeReadinessServiceTests
 
         Mock<IActorContext> actor = new();
         actor.Setup(context => context.GetActor()).Returns("operator@test");
+        actor.Setup(context => context.GetActorId()).Returns("operator@test");
 
         Mock<IPreCommitGovernanceGate> gate = new();
         gate
