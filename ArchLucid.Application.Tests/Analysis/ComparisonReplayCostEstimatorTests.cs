@@ -316,6 +316,42 @@ public sealed class ComparisonReplayCostEstimatorTests
     }
 
     [SkippableFact]
+    public async Task TryEstimateAsync_pascal_case_artifact_sizes_bytes_adds_factor()
+    {
+        const string pascalPayloadJson = """{"ArtifactSizesBytes":[600000,600000]}""";
+        const string camelPayloadJson = """{"artifactSizesBytes":[600000,600000]}""";
+
+        Mock<IComparisonRecordRepository> repo = new();
+        repo.Setup(r => r.GetByIdAsync("c1", It.IsAny<CancellationToken>())).ReturnsAsync(
+            new ComparisonRecord
+            {
+                ComparisonRecordId = "c1",
+                ComparisonType = ComparisonTypes.EndToEndReplay,
+                PayloadJson = pascalPayloadJson,
+            });
+        repo.Setup(r => r.GetByIdAsync("c2", It.IsAny<CancellationToken>())).ReturnsAsync(
+            new ComparisonRecord
+            {
+                ComparisonRecordId = "c2",
+                ComparisonType = ComparisonTypes.EndToEndReplay,
+                PayloadJson = camelPayloadJson,
+            });
+
+        ComparisonReplayCostEstimator sut = CreateSut(repo.Object);
+
+        ComparisonReplayCostEstimate? pascalCase =
+            await sut.TryEstimateAsync("c1", "markdown", "artifact", false, CancellationToken.None);
+        ComparisonReplayCostEstimate? camelCase =
+            await sut.TryEstimateAsync("c2", "markdown", "artifact", false, CancellationToken.None);
+
+        pascalCase.Should().NotBeNull();
+        camelCase.Should().NotBeNull();
+        pascalCase.ApproximateRelativeScore.Should().Be(camelCase.ApproximateRelativeScore);
+        pascalCase.Factors.Should()
+            .Contain(f => f.Contains("referenced artifact", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [SkippableFact]
     public async Task TryEstimateAsync_low_band_upper_bound_score_4_is_low()
     {
         Mock<IComparisonRecordRepository> repo = new();

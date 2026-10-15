@@ -243,7 +243,7 @@ internal static partial class ComparisonReplayPayloadComplexity
     {
         sum = 0;
 
-        if (!root.TryGetProperty(propertyName, out JsonElement arr) || arr.ValueKind != JsonValueKind.Array ||
+        if (!TryGetPropertyIgnoreCase(root, propertyName, out JsonElement arr) || arr.ValueKind != JsonValueKind.Array ||
             arr.GetArrayLength() == 0)
             return false;
 
