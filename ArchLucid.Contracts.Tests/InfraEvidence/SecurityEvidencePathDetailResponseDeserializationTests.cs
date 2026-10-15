@@ -59,4 +59,20 @@ public sealed class SecurityEvidencePathDetailResponseDeserializationTests
         detail.Should().NotBeNull();
         detail!.ExplanationTemplate.Should().NotBeNull();
     }
+
+    [Fact]
+    public void Deserialize_null_weakest_hop_remains_null()
+    {
+        const string json = """
+            {
+              "weakestHop": null
+            }
+            """;
+
+        SecurityEvidencePathDetailResponse? detail =
+            JsonSerializer.Deserialize<SecurityEvidencePathDetailResponse>(json, ContractJson.CamelCaseCompact);
+
+        detail.Should().NotBeNull();
+        detail!.WeakestHop.Should().BeNull();
+    }
 }

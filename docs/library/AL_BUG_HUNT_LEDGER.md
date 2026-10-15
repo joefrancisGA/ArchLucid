@@ -30069,7 +30069,21 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 ---
 ## Zone: archlucid-contracts
 
-**Hunts:** 189 · **Bugs found:** 306 · **Consecutive dry hunts:** 0
+**Hunts:** 190 · **Bugs found:** 307 · **Consecutive dry hunts:** 0
+
+2026-10-15 seed hunt (seed→hit): promoted `RoiSponsorFacingScopeManifestDocument` nested `Codes` / `Descriptions` explicit JSON `null`; cheap-disproved four optional nullable nested DTO rows on `PilotRunDeltasResponse` and `SecurityEvidencePathDetailResponse.WeakestHop` as `(valid-no-repro)`; null guards on `RoiSponsorFacingScopeManifestDocument`; regressions in `RoiSponsorFacingScopeManifestDocumentDeserializationTests`, `PilotRunDeltasResponseDeserializationTests`, and `SecurityEvidencePathDetailResponseDeserializationTests`; reseeded five follow-on `(candidate)` rows; 1003 scoped `Contracts` filter tests passed.
+
+- [x] (proven) `RoiSponsorFacingScopeManifestDocument` — `Codes` / `Descriptions` explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_codes_and_descriptions_yields_non_null_nested_objects`.
+- [x] (valid-no-repro) `PilotRunDeltasResponse.ProofPackageCompleteness` — explicit JSON `null` — **cheap-disproof 2026-10-15 seed hunt:** optional nested DTO remains null when omitted or explicit null; lock regression `Deserialize_null_proof_package_completeness_remains_null`.
+- [x] (valid-no-repro) `PilotRunDeltasResponse.GovernedFindingCoverage` — explicit JSON `null` — **cheap-disproof 2026-10-15 seed hunt:** optional metric remains null; lock regression `Deserialize_null_governed_finding_coverage_remains_null`.
+- [x] (valid-no-repro) `PilotRunDeltasResponse.TopFindingEvidenceChain` — explicit JSON `null` — **cheap-disproof 2026-10-15 seed hunt:** optional evidence chain remains null; lock regression `Deserialize_null_top_finding_evidence_chain_remains_null`.
+- [x] (valid-no-repro) `SecurityEvidencePathDetailResponse.WeakestHop` — explicit JSON `null` — **cheap-disproof 2026-10-15 seed hunt:** optional weakest-hop slice remains null; lock regression `Deserialize_null_weakest_hop_remains_null`.
+
+- [ ] (candidate) `SecurityEvidencePathExplanationResultResponse.Explanation` — explicit JSON `null` on path explanation result JSON — locus: `InfraEvidence.SecurityEvidencePathExplanationResultResponse`; input: explanation result JSON with `"explanation": null` when `succeeded` is false (see file).
+- [ ] (candidate) `BuyerRunDetailSummaryDto.FindingCoverageSummary` — explicit JSON `null` on buyer run detail summary JSON — locus: `Runs.BuyerRunDetailSummaryDto`; input: buyer summary JSON with `"findingCoverageSummary": null` (see file).
+- [ ] (candidate) `BuyerRunDetailSummaryDto.AgentExecutionLlmCostEstimate` — explicit JSON `null` on buyer run detail summary JSON — locus: `Runs.BuyerRunDetailSummaryDto`; input: buyer summary JSON with `"agentExecutionLlmCostEstimate": null` (see file).
+- [ ] (candidate) `BuyerRunDetailSummaryDto.TrustEvidenceCard` — explicit JSON `null` on buyer run detail summary JSON — locus: `Runs.BuyerRunDetailSummaryDto`; input: buyer summary JSON with `"trustEvidenceCard": null` (see file).
+- [ ] (candidate) `SponsorEvidencePackResponse.DemoRunValueReportDelta` — explicit JSON `null` on sponsor evidence pack JSON — locus: `Pilots.SponsorEvidencePackResponse`; input: evidence pack JSON with `"demoRunValueReportDelta": null` (see file).
 
 2026-10-15 seed hunt (seed→hit): promoted five open `(candidate)` rows on security evidence path explanation remediation, path inspector explanation template, path rank dimension prose, run agent LLM token counts, and recommendation learning ops eligibility; null guards on `SecurityEvidencePathExplanationResponse`, `SecurityEvidencePathDetailResponse`, `SecurityEvidencePathRankDetailResponse`, `RunAgentLlmCostEstimateDto`, and `RecommendationLearningOperationalStatusResponse`; regressions in `SecurityEvidencePathExplanationResponseDeserializationTests`, `SecurityEvidencePathDetailResponseDeserializationTests`, `SecurityEvidencePathRankDetailResponseDeserializationTests`, `RunAgentLlmCostEstimateDtoDeserializationTests`, and `RecommendationLearningOperationalStatusResponseDeserializationTests`; reseeded five follow-on `(candidate)` rows; 998 scoped `Contracts` filter tests passed.
 
@@ -30078,12 +30092,6 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `SecurityEvidencePathRankDetailResponse.DimensionProse` — explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_dimension_prose_yields_non_null_prose_not_null`.
 - [x] (proven) `RunAgentLlmCostEstimateDto.TokenCounts` — explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_token_counts_yields_non_null_token_counts_not_null`.
 - [x] (proven) `RecommendationLearningOperationalStatusResponse.Eligibility` — explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_eligibility_yields_non_null_eligibility_not_null`.
-
-- [ ] (candidate) `RoiSponsorFacingScopeManifestDocument` — `Codes` / `Descriptions` explicit JSON `null` on ROI scope manifest JSON — locus: `Roi.RoiSponsorFacingScopeManifestDocument`; input: sponsor-facing scope manifest JSON with null nested object tokens (see file).
-- [ ] (candidate) `PilotRunDeltasResponse.ProofPackageCompleteness` — explicit JSON `null` on pilot run deltas JSON when sibling fields present — locus: `Pilots.PilotRunDeltasResponse`; input: `GET /v1/pilots/runs/.../pilot-run-deltas` JSON with `"proofPackageCompleteness": null` (see file).
-- [ ] (candidate) `PilotRunDeltasResponse.GovernedFindingCoverage` — explicit JSON `null` on pilot run deltas JSON — locus: `Pilots.PilotRunDeltasResponse`; input: pilot run deltas JSON with `"governedFindingCoverage": null` (see file).
-- [ ] (candidate) `PilotRunDeltasResponse.TopFindingEvidenceChain` — explicit JSON `null` on pilot run deltas JSON — locus: `Pilots.PilotRunDeltasResponse`; input: pilot run deltas JSON with `"topFindingEvidenceChain": null` (see file).
-- [ ] (candidate) `SecurityEvidencePathDetailResponse.WeakestHop` — explicit JSON `null` on path inspector detail JSON — locus: `InfraEvidence.SecurityEvidencePathDetailResponse`; input: path detail JSON with `"weakestHop": null` (see file).
 
 2026-10-15 seed hunt (seed→hit): promoted five open `(candidate)` rows on create saved view payload, candidate change set expected impact, tenant ITSM deployment credentials, admin IdP health probes, and governance registers bundle; null guards on `CreateOperatorSavedViewRequest`, `CandidateChangeSet`, `TenantItsmOutboundSettingsResponse`, `AdminIdentityProviderDiagnosticsResponse`, and `GovernanceFindingsRegistersBundleResponse`; regressions in `CreateOperatorSavedViewRequestDeserializationTests`, `CandidateChangeSetDeserializationTests`, `TenantItsmOutboundSettingsResponseDeserializationTests`, `AdminIdentityProviderDiagnosticsResponseDeserializationTests`, and `GovernanceFindingsRegistersBundleResponseDeserializationTests`; reseeded five follow-on `(candidate)` rows; 993 scoped `Contracts` filter tests passed.
 
