@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-15 seed hunt (seed→hit): `ui-oidc` — promoted `readNonceFromPayload` leaving ZWSP in `id_token` nonce claims (`trim()` only → nonce binding false negative on callback); promoted `humanizeAuthorizeCallbackError` missing `access_denied` when `?error=` embeds ZWSP; shared `stripOAuthInvisibleFormatChars`; regressions `strips zero-width padding from nonce claims` and `maps standard authorize error codes when the error query contains zero-width characters`; cheap-disproved five open `(candidate)` rows; reseeded five follow-on candidates; 126 scoped `src/lib/oidc` vitest tests passed.
+
 2026-10-15 seed hunt (seed→hit): `ui-oidc` — promoted `consumePkceState` strict equality on callback `state` with zero-width padding (`trim()` only → false expired sign-in); `normalizePkceCallbackQueryValue` with `stripOAuthInvisibleFormatChars`; regression `matches stored PKCE state when the callback state query value has zero-width padding`; regression lock `collapses soft hyphens in token endpoint OAuth error descriptions`; cheap-disproved five open `(candidate)` rows; reseeded five follow-on candidates; 124 scoped `src/lib/oidc` vitest tests passed.
 
 2026-10-15 seed hunt (seed→hit): `ui-oidc` — promoted `collapseOAuthErrorDescriptionLineBreaks` leaving U+00AD soft hyphens in authorize `error_description` (single-line copy showed `Policydenied`); normalize soft hyphens to spaces with C0/Unicode separators; regression `collapses soft hyphens in authorize error descriptions for readable single-line copy`; cheap-disproved five open `(candidate)` rows; reseeded five follow-on candidates; 122 scoped `src/lib/oidc` vitest tests passed.
@@ -21043,11 +21045,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 73
-- **bugs-found:** 67
+- **hunts:** 74
+- **bugs-found:** 68
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-15
-- **last-bug:** 2026-10-15 — zero-width padding on callback state query
+- **last-bug:** 2026-10-15 — zero-width padding on nonce claims and authorize error codes
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -21213,11 +21215,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `buildAuthorizeUrl` — ZWSP in `state` / `nonce` — **cheap-disproof 2026-10-15 seed hunt:** `randomOpaqueState` / PKCE use base64url alphabet without format characters.
 - [x] (valid-no-repro) `decodeJwtPayload` — soft hyphen in display `name` claim — **cheap-disproof 2026-10-15 seed hunt:** display-only hint; UTF-8 decode preserves intentional IdP spelling.
 - [x] (valid-no-repro) `pulseBffSessionActivity` — CSRF cookie with ZWSP — **cheap-disproof 2026-10-15 seed hunt:** host sets CSRF token; malformed cookie yields `ignored` by contract without session corruption.
-- (candidate) `storePkceState` — verifier/nonce with accidental whitespace from caller — locus: `session.ts`; input: padded verifier string; wrong outcome: token exchange mismatch; mechanism: normalize at store boundary.
-- (candidate) `humanizeAuthorizeCallbackError` — `error` query with interior ZWSP breaking `access_denied` switch — locus: `oauth-callback-messages.ts`; input: `access\u200b_denied`; wrong outcome: default branch copy; mechanism: normalize error code before switch.
-- (candidate) `readNonceFromPayload` — nonce claim with ZWSP padding — locus: `jwt-payload.ts`; input: `nonce` with `\u200b`; wrong outcome: nonce binding false negative; mechanism: strip invisible on read.
-- (candidate) `getOidcRedirectUri` — window origin redirect with trailing ZWSP in env override — locus: `config.ts`; input: `NEXT_PUBLIC_OIDC_REDIRECT_URI`; wrong outcome: authorize mismatch; mechanism: trim without invisible strip.
-- (candidate) `discoveryUrlForAuthority` — authority string with interior ZWSP — locus: `discovery.ts`; input: env authority; wrong outcome: wrong discovery URL; mechanism: URL parse vs invisible strip.
+- [x] (proven) `readNonceFromPayload` — ZWSP padding on `id_token` nonce claim — **hit 2026-10-15 seed hunt (seed→hit):** `CallbackClient` nonce check false negative; `stripOAuthInvisibleFormatChars`; regression `strips zero-width padding from nonce claims`.
+- [x] (proven) `humanizeAuthorizeCallbackError` — ZWSP inside authorize `?error=` code — **hit 2026-10-15 seed hunt (seed→hit):** `access\u200b_denied` missed `access_denied` switch; strip before lowercasing; regression `maps standard authorize error codes when the error query contains zero-width characters`.
+- [x] (valid-no-repro) `storePkceState` — padded verifier from caller — **cheap-disproof 2026-10-15 seed hunt:** `initiate-redirect` writes crypto-generated base64url values only; token POST normalizes at exchange.
+- [x] (valid-no-repro) `getOidcRedirectUri` — ZWSP in env redirect override — **cheap-disproof 2026-10-15 seed hunt:** deployment configuration; operator env hygiene; authorize trim on query params separate from env read.
+- [x] (valid-no-repro) `discoveryUrlForAuthority` — interior ZWSP in authority env — **cheap-disproof 2026-10-15 seed hunt:** misconfigured authority; `URL` constructor does not treat ZWSP as delimiter; operational not attacker input in zone.
+- (candidate) `pickDisplayNameFromPayload` — display name claim with ZWSP padding — locus: `jwt-payload.ts`; input: `name` with `\u200b`; wrong outcome: cosmetic header hint; mechanism: strip invisible on pick.
+- (candidate) `CallbackClient` — `oauthError` query checked before ZWSP strip on empty-looking codes — locus: `CallbackClient.tsx`; input: `error=\u200b`; wrong outcome: error path vs incomplete response; mechanism: length check on raw query.
+- (candidate) `normalizePkceCallbackQueryValue` — reuse for stored PKCE verifier at read — locus: `session.ts`; input: sessionStorage corruption; mechanism: normalize at read vs store.
+- (candidate) `buildAuthorizeUrl` — `authorization_endpoint` with ZWSP from discovery trim gap — locus: `discovery.ts`; input: discovery JSON endpoints; wrong outcome: invalid authorize URL; mechanism: endpoint trim without invisible strip.
+- (candidate) `isReadableOAuthErrorCode` — token `error` with interior ZWSP in `invalid_grant` — locus: `token-client.ts`; input: already stripped; wrong outcome: verify readable guard; mechanism: regression lock only.
 - [x] (proven) `persistTokenResponse` — a hung older token-to-BFF sync blocks a newer same-session sync, preventing the replacement session from establishing its cookie — **hit 2026-10-11 seed hunt:** the sync-order promise chain awaited every older request; concurrent sync plus latest-request replay lets the newer request proceed and converges late completions on the latest token; regression `does not block a newer sync behind a hung older request` in `session.test.ts`.
 - [x] (proven) `persistTokenResponse` — concurrent same-session token-to-BFF syncs can complete out of order, allowing an older provider response to overwrite a newer BFF cookie — **hit 2026-10-11 seed hunt:** each token response started its own asynchronous sync with no ordering guard; serialize sync writes through a recovery-safe promise chain; regression `keeps an older token sync from overwriting a newer same-session sync` in `session.test.ts`.
 - [x] (proven) `persistNonSensitiveSessionHints` — a replacement token without optional display-name or subject claims leaves the prior user's identity hints in `sessionStorage` — **hit 2026-10-11 seed hunt:** hint writes were conditional but stale keys were never removed, so a same-browser user replacement could display the previous user's name/subject; clear both hint keys before applying each token response; regression `clears stale identity hints when a replacement token has no identity claims` in `session.test.ts`.
