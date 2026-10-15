@@ -16,11 +16,13 @@ public class ComplianceRulePack
         set;
     } = null!;
 
+    private string version = string.Empty;
+
     public string Version
     {
-        get;
-        set;
-    } = null!;
+        get => version;
+        set => version = ContractCollectionDefaults.CoalesceRequired(value);
+    }
 
     public string RulePackHash
     {
