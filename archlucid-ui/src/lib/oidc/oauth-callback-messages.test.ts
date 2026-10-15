@@ -33,6 +33,10 @@ describe("decodeOAuthErrorDescription", () => {
   it("collapses percent-encoded tab characters in error descriptions", () => {
     expect(decodeOAuthErrorDescription("Policy%09denied")).toBe("Policy denied");
   });
+
+  it("collapses percent-encoded C0 control characters in error descriptions", () => {
+    expect(decodeOAuthErrorDescription("Policy%08denied")).toBe("Policy denied");
+  });
 });
 
 describe("humanizeAuthorizeCallbackError", () => {

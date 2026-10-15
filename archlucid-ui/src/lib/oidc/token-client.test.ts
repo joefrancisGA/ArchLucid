@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { refreshAccessToken } from "@/lib/oidc/token-client";
+import { exchangeAuthorizationCode, refreshAccessToken } from "@/lib/oidc/token-client";
 
 describe("refreshAccessToken", () => {
   afterEach(() => {
@@ -77,6 +77,50 @@ describe("refreshAccessToken", () => {
         refreshToken: "rt",
       }),
     ).rejects.toThrow(/hint only/i);
+  });
+
+  it("trims caller-supplied refresh token values before posting the form", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () => JSON.stringify({ access_token: "access-1" }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await refreshAccessToken({
+      tokenEndpoint: "https://login.example.com/token",
+      clientId: "client",
+      refreshToken: "  refresh-1  ",
+    });
+
+    const requestInit = fetchMock.mock.calls[0]?.[1] as { body?: URLSearchParams };
+    const posted = new URLSearchParams(requestInit.body);
+
+    expect(posted.get("refresh_token")).toBe("refresh-1");
+  });
+
+  it("trims authorization code and PKCE fields before posting the form", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () => JSON.stringify({ access_token: "access-1" }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await exchangeAuthorizationCode({
+      tokenEndpoint: "https://login.example.com/token",
+      clientId: "client",
+      code: "  auth-code  ",
+      redirectUri: "  https://app.example/callback  ",
+      codeVerifier: "  verifier  ",
+    });
+
+    const requestInit = fetchMock.mock.calls[0]?.[1] as { body?: URLSearchParams };
+    const posted = new URLSearchParams(requestInit.body);
+
+    expect(posted.get("code")).toBe("auth-code");
+    expect(posted.get("redirect_uri")).toBe("https://app.example/callback");
+    expect(posted.get("code_verifier")).toBe("verifier");
   });
 
   it("omits whitespace-only refresh_token values from token responses", async () => {

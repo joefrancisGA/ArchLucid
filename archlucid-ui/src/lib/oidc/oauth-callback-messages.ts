@@ -5,7 +5,7 @@
 
 export function collapseOAuthErrorDescriptionLineBreaks(text: string): string {
   return text
-    .replace(/[\r\n\u2028\u2029\u0085]/gu, " ")
+    .replace(/[\u0000-\u001F\u007F\u2028\u2029\u0085]/gu, " ")
     .replace(/\s+/gu, " ")
     .trim();
 }

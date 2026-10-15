@@ -41,6 +41,16 @@ async function readOAuthError(res: Response, bodyText: string): Promise<Error> {
   return new Error(`Token endpoint error ${res.status}`);
 }
 
+function trimTokenFormParams(params: Record<string, string>): Record<string, string> {
+  const trimmed: Record<string, string> = {};
+
+  for (const [key, value] of Object.entries(params)) {
+    trimmed[key] = value.trim();
+  }
+
+  return trimmed;
+}
+
 async function postTokenForm(
   tokenEndpoint: string,
   params: Record<string, string>,
@@ -49,7 +59,7 @@ async function postTokenForm(
     throw new Error("Invalid token endpoint URL");
   }
 
-  const body = new URLSearchParams(params);
+  const body = new URLSearchParams(trimTokenFormParams(params));
   const response = await fetch(tokenEndpoint, {
     method: "POST",
     headers: {
