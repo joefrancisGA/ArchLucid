@@ -275,6 +275,22 @@ describe("refreshBffSessionCookie (LK-06 P2)", () => {
     expect(result).toEqual({ ok: true, expiresAtMs: futureMs });
   });
 
+  it("accepts refresh responses whose expires_at_ms is a fractional epoch number", async () => {
+    const futureMs = Date.now() + 3_600_000 + 0.5;
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({
+        ok: true,
+        json: async () => ({ expires_at_ms: futureMs }),
+      })),
+    );
+
+    const result = await refreshBffSessionCookie();
+
+    expect(result).toEqual({ ok: true, expiresAtMs: futureMs });
+  });
+
   it("accepts refresh responses whose expires_at_ms string has zero-width padding", async () => {
     const futureMs = Date.now() + 3_600_000;
 

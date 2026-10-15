@@ -129,6 +129,13 @@ describe("getAccessTokenForApi / isLikelySignedIn expiry parsing (LK-06 P2)", ()
     expect(isLikelySignedIn()).toBe(false);
     expect(getAccessTokenForApi()).toBeUndefined();
   });
+
+  it("treats comma-grouped expires_at_ms session hints as expired", () => {
+    sessionStorage.setItem(OIDC_EXPIRES_AT_MS_KEY, "1,730,000,000,000");
+
+    expect(isLikelySignedIn()).toBe(false);
+    expect(getAccessTokenForApi()).toBeUndefined();
+  });
 });
 
 describe("persistTokenResponse", () => {

@@ -71,6 +71,10 @@ describe("decodeOAuthErrorDescription", () => {
   it("returns empty for percent-encoded plus-only error descriptions", () => {
     expect(decodeOAuthErrorDescription("%2B%2B")).toBe("");
   });
+
+  it("returns empty for literal plus-only error descriptions", () => {
+    expect(decodeOAuthErrorDescription("+++")).toBe("");
+  });
 });
 
 describe("humanizeAuthorizeCallbackError", () => {
@@ -195,6 +199,13 @@ describe("humanizeAuthorizeCallbackError", () => {
 
     expect(message).toContain("canceled sign-in");
     expect(message).not.toContain("🔒");
+  });
+
+  it("omits plus-only detail on default-branch authorize errors", () => {
+    const message = humanizeAuthorizeCallbackError("custom_problem", "+++");
+
+    expect(message).toContain("custom problem");
+    expect(message).not.toContain("+++");
   });
 
   it("omits punctuation-only detail on default-branch authorize errors", () => {

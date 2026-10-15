@@ -92,4 +92,8 @@ describe("resolveExpiresInSeconds", () => {
   it("maps a string expires_in with a trailing unit suffix to the default lifetime", () => {
     expect(resolveExpiresInSeconds("3600s" as unknown as number)).toBe(3600);
   });
+
+  it("parses a numeric string expires_in with a leading tab character", () => {
+    expect(resolveExpiresInSeconds("\t3600" as unknown as number)).toBe(3600);
+  });
 });
