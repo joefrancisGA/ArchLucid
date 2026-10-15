@@ -1,4 +1,4 @@
-/** Workspace administration settings surfaces and matching help topics. */
+/** Workspace administration settings surfaces and matching help topics (Architecture defaults). SecureNow overrides: `securenow-contextual-help-overrides.ts`. */
 
 import type { PageContextualHelpRow } from "@/lib/contextual-help/types";
 import {

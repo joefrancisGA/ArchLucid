@@ -1,10 +1,11 @@
 "use client";
 
 import { UrlSyncedSourcesCollapsibleStrip } from "@/components/evidence-orientation/UrlSyncedSourcesCollapsibleStrip";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import {
   USERS_AND_ROLES_HELP_FOLLOW_UPS_TITLE,
-  USERS_AND_ROLES_HELP_SOURCES,
-  USERS_AND_ROLES_HELP_SOURCES_INTRO,
+  resolveUsersAndRolesHelpSources,
+  resolveUsersAndRolesHelpSourcesIntro,
 } from "@/lib/users-and-roles-help-evidence-copy";
 import { USERS_AND_ROLES_HELP_ORIENTATION_BOTTOM_TEST_ID } from "@/lib/users-and-roles-help-page-copy";
 import {
@@ -14,6 +15,8 @@ import {
 
 /** Sources-only follow-ups — URL-synced disclosure with pre-commit auto-open. */
 export function HelpUsersAndRolesSourcesOrientationStrip(): React.JSX.Element {
+  const { productLine } = useProductLine();
+
   return (
     <UrlSyncedSourcesCollapsibleStrip
       surfaceId="help-users-and-roles-sources"
@@ -22,8 +25,8 @@ export function HelpUsersAndRolesSourcesOrientationStrip(): React.JSX.Element {
       disclosureHrefFromSearch={helpUsersAndRolesSourcesDisclosureHrefFromSearch}
       sectionTestId={USERS_AND_ROLES_HELP_ORIENTATION_BOTTOM_TEST_ID}
       title={USERS_AND_ROLES_HELP_FOLLOW_UPS_TITLE}
-      intro={USERS_AND_ROLES_HELP_SOURCES_INTRO}
-      links={USERS_AND_ROLES_HELP_SOURCES}
+      intro={resolveUsersAndRolesHelpSourcesIntro(productLine)}
+      links={resolveUsersAndRolesHelpSources(productLine)}
       sourcesTestId="help-users-and-roles-sources"
     />
   );

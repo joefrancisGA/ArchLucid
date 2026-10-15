@@ -38,7 +38,7 @@ import {
 } from "@/lib/users-and-roles-help-copy";
 import {
   USERS_AND_ROLES_HELP_CANONICAL_PATH,
-  USERS_AND_ROLES_HELP_CLAIM_DISCIPLINE,
+  resolveUsersAndRolesHelpClaimDiscipline,
 } from "@/lib/users-and-roles-help-evidence-copy";
 import {
   USERS_AND_ROLES_MANAGING_ACCESS_STEPS,
@@ -210,7 +210,7 @@ export function HelpUsersAndRolesGuideView(props: HelpUsersAndRolesGuideViewProp
           subtitle={usersAndRolesPageIntro(productLineId)}
           navHref={USERS_AND_ROLES_HELP_CANONICAL_PATH}
           headingLevel="h1"
-          claimDiscipline={buyerPolishedShell ? USERS_AND_ROLES_HELP_CLAIM_DISCIPLINE : undefined}
+          claimDiscipline={buyerPolishedShell ? resolveUsersAndRolesHelpClaimDiscipline(productLineId) : undefined}
           claimDisciplineTestId={
             buyerPolishedShell ? USERS_AND_ROLES_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID : undefined
           }
@@ -260,7 +260,9 @@ export function HelpUsersAndRolesGuideView(props: HelpUsersAndRolesGuideViewProp
 
             <section className="space-y-3" aria-labelledby="users-and-roles-capability-matrix-heading">
               <HelpSectionHeading id="capability-matrix">{USERS_AND_ROLES_CAPABILITY_MATRIX_HEADING}</HelpSectionHeading>
-              {!buyerPolishedShell ? <UsersAndRolesHelpEvidenceOrientationStrip /> : null}
+              {!buyerPolishedShell ? (
+                <UsersAndRolesHelpEvidenceOrientationStrip productLineId={productLineId} />
+              ) : null}
               <p
                 id="users-and-roles-capability-matrix-heading"
                 className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
