@@ -2,6 +2,8 @@
 
 **Model:** GPT-5.6 Luna. Paste this file as the whole task. Do not treat a private link scope as a data-flow hop. Do not infer a scoped member from a name, a resource group, or diagnostic settings alone.
 
+**Implementation (Composer):** shipped in **PR #4703** — follow-up fixes branch from `origin/master` only. Paste [`.cursor/prompts/node-relationship-39-kubernetes-service-load-balancer-composer.md`](node-relationship-39-kubernetes-service-load-balancer-composer.md) for the next slice (NR-39).
+
 **Repo:** `c:\ArchLucid`
 
 **Record:** `docs/architecture/INVENTORY_DIAGRAM_NODE_RELATIONSHIP_LUNA_PROMPTS.md`
