@@ -148,6 +148,31 @@ public sealed class PilotValueReportMarkdownFormatterTests
     }
 
     [Fact]
+    public void Format_when_run_details_truncated_discloses_partial_sample_on_agent_types_section()
+    {
+        PilotValueReportMarkdownFormatter sut = new(new ExportFormatterService());
+        DateTime from = new(2026, 4, 1, 0, 0, 0, DateTimeKind.Utc);
+        PilotValueReport report = new()
+        {
+            TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+            FromUtc = from,
+            ToUtc = from.AddDays(30),
+            RunDetailsTruncated = true,
+            RunDetailCap = PilotValueReportService.DefaultRunDetailCap,
+            UniqueAgentTypes = ["ReviewAgent"],
+        };
+
+        string markdown = sut.Format(report);
+
+        int agentHeading = markdown.IndexOf("## Agent types observed", StringComparison.Ordinal);
+        agentHeading.Should().BeGreaterThan(-1);
+        string agentSection = markdown[agentHeading..];
+        agentSection.Should().Contain(
+            "> Agent types listed reflect",
+            "agent-type list must not read as tenant-wide when run-detail cap applied");
+    }
+
+    [Fact]
     public void Format_when_run_details_truncated_discloses_partial_sample_on_findings_by_severity_section()
     {
         PilotValueReportMarkdownFormatter sut = new(new ExportFormatterService());
@@ -209,6 +234,27 @@ public sealed class PilotValueReportMarkdownFormatterTests
         markdown.Should().Contain(
             "under-count",
             "metadata count must warn sponsors when keyset inventory collection stopped early");
+    }
+
+    [Fact]
+    public void Format_when_audit_export_truncated_discloses_truncation_in_metadata_not_summary_comparison_row()
+    {
+        PilotValueReportMarkdownFormatter sut = new(new ExportFormatterService());
+        DateTime from = new(2026, 4, 1, 0, 0, 0, DateTimeKind.Utc);
+        PilotValueReport report = new()
+        {
+            TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+            FromUtc = from,
+            ToUtc = from.AddDays(30),
+            AuditExportTruncated = true,
+            ComparisonOrDriftDetections = 42,
+        };
+
+        string markdown = sut.Format(report);
+
+        markdown.Should().Contain("| Audit export truncated | True |");
+        markdown.Should().Contain("| Comparison / drift detections | 42 |");
+        markdown.Should().NotContain("partial audit");
     }
 
     [Fact]
