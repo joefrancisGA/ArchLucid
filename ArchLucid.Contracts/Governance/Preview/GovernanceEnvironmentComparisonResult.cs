@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Governance.Preview;
 
 /// <summary>
@@ -19,17 +21,21 @@ public sealed class GovernanceEnvironmentComparisonResult
         set;
     } = string.Empty;
 
+    private List<GovernanceDiffItem> differences = [];
+
     /// <summary>Diff items between the source and target active manifests.</summary>
     public List<GovernanceDiffItem> Differences
     {
-        get;
-        set;
-    } = [];
+        get => differences;
+        set => differences = ContractCollectionDefaults.Coalesce(value);
+    }
+
+    private List<string> notes = [];
 
     /// <summary>Advisory notes about the comparison (e.g. no active manifest in one slot).</summary>
     public List<string> Notes
     {
-        get;
-        set;
-    } = [];
+        get => notes;
+        set => notes = ContractCollectionDefaults.Coalesce(value);
+    }
 }

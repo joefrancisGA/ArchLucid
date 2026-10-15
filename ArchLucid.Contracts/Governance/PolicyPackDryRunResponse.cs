@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Governance;
 
 /// <summary>
@@ -76,10 +78,12 @@ public sealed class PolicyPackDryRunResponse
         init;
     } = new();
 
+    private IReadOnlyList<PolicyPackDryRunRunItem> items = [];
+
     /// <summary>Per-run dry-run results for the current page (newest first when input order is preserved).</summary>
     public IReadOnlyList<PolicyPackDryRunRunItem> Items
     {
-        get;
-        init;
-    } = [];
+        get => items;
+        init => items = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 }

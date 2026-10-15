@@ -1,19 +1,25 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Governance.Posture;
 
 /// <summary>Aggregate read model for the architecture posture overview (TB-2375).</summary>
 public sealed class ArchitecturePostureReadModel
 {
+    private IReadOnlyList<PillarFindingAggregate> pillarAggregates = [];
+
     public IReadOnlyList<PillarFindingAggregate> PillarAggregates
     {
-        get;
-        init;
-    } = [];
+        get => pillarAggregates;
+        init => pillarAggregates = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
+
+    private IReadOnlyList<PillarPackAssignment> packAssignments = [];
 
     public IReadOnlyList<PillarPackAssignment> PackAssignments
     {
-        get;
-        init;
-    } = [];
+        get => packAssignments;
+        init => packAssignments = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 
     public ReviewIntegrityAggregate ReviewIntegrity
     {

@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Governance.Preview;
 
 /// <summary>
@@ -41,17 +43,21 @@ public sealed class GovernancePreviewResult
         set;
     } = string.Empty;
 
+    private List<GovernanceDiffItem> differences = [];
+
     /// <summary>Diff items between the currently active manifest and the preview candidate.</summary>
     public List<GovernanceDiffItem> Differences
     {
-        get;
-        set;
-    } = [];
+        get => differences;
+        set => differences = ContractCollectionDefaults.Coalesce(value);
+    }
+
+    private List<string> notes = [];
 
     /// <summary>Advisory notes generated during the preview (e.g. first-promotion or diff-only notes).</summary>
     public List<string> Notes
     {
-        get;
-        set;
-    } = [];
+        get => notes;
+        set => notes = ContractCollectionDefaults.Coalesce(value);
+    }
 }
