@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-15 thorough hunt (hit): `ui-oidc` — promoted `parseDiscoveryDocument` accepting HTTP(S) authorization/token endpoints with embedded userinfo (`https://user:pass@…`) that would reach `buildAuthorizeUrl` browser navigation; reject username/password in `isHttpOrHttpsUrl`; promoted `syncBffSessionCookieFromTokenResponse` forwarding whitespace-padded `refresh_token` / `id_token` while access tokens were trimmed; cheap-disproved `syncTokenToBff` unbounded replay (rapid overlapping persists stay ≤7 BFF POSTs and converge on latest token); regressions `rejects authorization endpoints that embed userinfo credentials`, `trims whitespace from refresh_token and id_token before posting to the BFF`, and `keeps BFF sync POST count bounded during rapid overlapping token persists`; 79 scoped `src/lib/oidc` vitest tests passed.
+
 2026-10-15 seed hunt (seed→hit): `application-pilots` — promoted `PilotValueReportMarkdownFormatter` Summary `Avg pipeline completion` and **Findings by severity** section when `RunDetailsTruncated` (total-findings row already qualified); shared `PartialRunDetailSampleFragment`; regressions `Format_when_run_details_truncated_qualifies_avg_pipeline_completion_as_partial_run_detail_sample` and `Format_when_run_details_truncated_discloses_partial_sample_on_findings_by_severity_section`; cheap-disproved four open `(candidate)` rows; reseeded five follow-on candidates; 32 scoped BuyerProofPack/BoardPack tests plus 11 `PilotValueReportMarkdownFormatter` tests passed.
 
 2026-10-15 seed hunt (seed→hit): `application-pilots` — promoted `PilotValueReportMarkdownFormatter` Summary `Total findings` row when `RunDetailsTruncated` is true (metadata disclosed newest-run cap but finding totals read tenant-wide); qualify with partial run-detail sample copy (parity with committed-run inventory count row); regression `Format_when_run_details_truncated_qualifies_total_findings_as_partial_run_detail_sample`; cheap-disproved five stale `(candidate)` rows; reseeded five follow-on candidates; 32 scoped BuyerProofPack/BoardPack tests plus 9 `PilotValueReportMarkdownFormatter` tests passed.
@@ -20923,6 +20925,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-oidc
 
+2026-10-15 thorough hunt (hit): proved discovery HTTP(S) endpoint validation accepted userinfo-bearing authorization URLs; proved BFF session sync omitted trim on refresh/id tokens; cheap-disproved unbounded `syncTokenToBff` replay during burst sign-ins; 79 scoped oidc vitest tests passed.
+
 2026-10-11 seed hunt (seed-only): re-read the latest concurrent BFF sync/replay, token normalization, discovery endpoint validation, and refresh-hint paths; no new row met the full hunt-ready bar for same-run repro. Seeded three bounded `(candidate)` rows; the focused OIDC suite passed 76/76. No production or regression code changed.
 
 2026-10-11 seed hunt (seed→hit): proved the sync-order fix's blocking promise chain could let a hung older BFF request prevent a newer session from establishing its cookie; replaced it with concurrent sync plus latest-request replay so newer sessions proceed and late responses converge on the newest cookie; regression `does not block a newer sync behind a hung older request`; focused OIDC suite passed 76/76.
@@ -20983,11 +20987,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 44
-- **bugs-found:** 38
+- **hunts:** 45
+- **bugs-found:** 40
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-11
-- **last-bug:** 2026-10-11 — hung OIDC sync blocked newer BFF session
+- **last-hunt:** 2026-10-15
+- **last-bug:** 2026-10-15 — discovery userinfo endpoints and padded refresh/id BFF sync
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -20995,9 +20999,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
-- [ ] (candidate) `syncTokenToBff` — latest-request replay may recursively reapply BFF syncs during rapid primary/Google callback completions — locus: `session.ts`; input: reachable overlapping primary and supplemental OIDC redirects from `initiate-redirect.ts`; wrong outcome: duplicate or unbounded BFF session POSTs during a burst; mechanism: every stale completion recursively replays the current latest request, but the bounded request sequence and convergence behavior need a repro.
-- [ ] (candidate) `syncBffSessionCookieFromTokenResponse` — refresh and ID tokens are forwarded without the access-token trim normalization — locus: `bff-session-sync.ts`; input: token endpoint JSON with a whitespace-padded `refresh_token` or `id_token`; wrong outcome: BFF stores a credential that later fails refresh or nonce validation; mechanism: only `access_token` is trimmed before transport; reachability is the provider token response boundary.
-- [ ] (candidate) `parseDiscoveryDocument` — HTTP(S) endpoint validation permits user-info-bearing authorization URLs — locus: `discovery.ts`; input: configured issuer discovery JSON with `authorization_endpoint: "https://user:pass@issuer.example/authorize"`; wrong outcome: browser authorization navigation exposes credentials in URL/referrer context; mechanism: `new URL()` plus scheme checking does not reject `username`/`password` components; reachability is the configured provider discovery response.
+- [x] (valid-no-repro) `syncTokenToBff` — unbounded BFF replay during burst sign-ins — **cheap-disproof 2026-10-15 thorough hunt:** three overlapping slow syncs produce at most seven POSTs and the final call uses the latest access token; regression `keeps BFF sync POST count bounded during rapid overlapping token persists`.
+- [x] (proven) `syncBffSessionCookieFromTokenResponse` — refresh and ID tokens forwarded without trim — **hit 2026-10-15 thorough hunt:** trim `refresh_token` and `id_token` before JSON body (parity with `access_token`); regression `trims whitespace from refresh_token and id_token before posting to the BFF`.
+- [x] (proven) `parseDiscoveryDocument` — HTTP(S) endpoints with embedded userinfo — **hit 2026-10-15 thorough hunt:** `isHttpOrHttpsUrl` rejects `username`/`password` on authorization and token endpoints; regression `rejects authorization endpoints that embed userinfo credentials`.
+- (candidate) `parseDiscoveryDocument` — token_endpoint with embedded userinfo may still be accepted when authorization_endpoint is clean — locus: `discovery.ts`; input: discovery JSON with padded credentials only on token endpoint; wrong outcome: server-side refresh posts credentials in URL authority; mechanism: shared validator now rejects userinfo but needs explicit token-endpoint regression lock.
+- (candidate) `buildAuthorizeUrl` — discovery document trimmed endpoints could still carry encoded userinfo (`%40`) if provider emits obfuscated credentials — locus: `build-authorize-url.ts`; input: `authorization_endpoint` with percent-encoded `@` in authority; wrong outcome: browser navigates to credential-bearing URL; mechanism: `new URL()` decoding vs discovery trim-only validation.
+- (candidate) `token-client.ts` — token exchange forwards provider JSON without normalizing padded `access_token` before `persistTokenResponse` — locus: token client boundary; input: `" access "` access token from misbehaving proxy; wrong outcome: depends on downstream trim (verify single normalization locus).
+- (candidate) `initiate-redirect.ts` — supplemental Google flow shares discovery cache key with primary authority — locus: `loadDiscoveryDocument` map keyed by discovery URL; input: two authorities resolving to same `.well-known` URL with different endpoint sets; wrong outcome: wrong endpoints used for second flow; mechanism: cache key collision when normalized URLs match.
+- (candidate) `resolveRpLogoutUrlFromBffSession` — RP logout URL from BFF is trimmed client-side but not validated for embedded userinfo before `window.location.assign` — locus: `bff-session-sync.ts` / `signOutAndRedirectHome`; input: BFF returns logout URL with credentials in authority; wrong outcome: credential leak on redirect; mechanism: client trusts server JSON without URL safety gate.
 - [x] (proven) `persistTokenResponse` — a hung older token-to-BFF sync blocks a newer same-session sync, preventing the replacement session from establishing its cookie — **hit 2026-10-11 seed hunt:** the sync-order promise chain awaited every older request; concurrent sync plus latest-request replay lets the newer request proceed and converges late completions on the latest token; regression `does not block a newer sync behind a hung older request` in `session.test.ts`.
 - [x] (proven) `persistTokenResponse` — concurrent same-session token-to-BFF syncs can complete out of order, allowing an older provider response to overwrite a newer BFF cookie — **hit 2026-10-11 seed hunt:** each token response started its own asynchronous sync with no ordering guard; serialize sync writes through a recovery-safe promise chain; regression `keeps an older token sync from overwriting a newer same-session sync` in `session.test.ts`.
 - [x] (proven) `persistNonSensitiveSessionHints` — a replacement token without optional display-name or subject claims leaves the prior user's identity hints in `sessionStorage` — **hit 2026-10-11 seed hunt:** hint writes were conditional but stale keys were never removed, so a same-browser user replacement could display the previous user's name/subject; clear both hint keys before applying each token response; regression `clears stale identity hints when a replacement token has no identity claims` in `session.test.ts`.

@@ -265,6 +265,36 @@ describe("persistTokenResponse", () => {
     expect(bffAccessToken).toBe("newer-token");
   });
 
+  it("keeps BFF sync POST count bounded during rapid overlapping token persists", async () => {
+    const releaseByToken = new Map<string, () => void>();
+    const syncMock = vi
+      .spyOn(bffSessionSync, "syncBffSessionCookieFromTokenResponse")
+      .mockImplementation(async (tokens) => {
+        const token = tokens.access_token;
+
+        if (token.startsWith("slow-")) {
+          await new Promise<void>((resolve) => {
+            releaseByToken.set(token, resolve);
+          });
+        }
+      });
+
+    persistTokenResponse({ access_token: "slow-1", expires_in: 3600 });
+    persistTokenResponse({ access_token: "slow-2", expires_in: 3600 });
+    persistTokenResponse({ access_token: "final-token", expires_in: 3600 });
+
+    await Promise.resolve();
+    await Promise.resolve();
+
+    releaseByToken.get("slow-1")?.();
+    await Promise.resolve();
+    releaseByToken.get("slow-2")?.();
+    await vi.waitUntil(() => syncMock.mock.calls.length >= 5);
+
+    expect(syncMock.mock.calls.length).toBeLessThanOrEqual(7);
+    expect(syncMock.mock.calls.at(-1)?.[0].access_token).toBe("final-token");
+  });
+
   it("does not block a newer sync behind a hung older request", async () => {
     let bffAccessToken = "";
     const syncMock = vi

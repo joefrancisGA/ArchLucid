@@ -39,6 +39,9 @@ export async function syncBffSessionCookieFromTokenResponse(tokens: OidcTokenRes
     return;
   }
 
+  const refreshToken = tokens.refresh_token?.trim() ?? "";
+  const idToken = tokens.id_token?.trim() ?? "";
+
   try {
     await fetch(BFF_SESSION_SYNC_PATH, {
       method: "POST",
@@ -47,8 +50,8 @@ export async function syncBffSessionCookieFromTokenResponse(tokens: OidcTokenRes
       body: JSON.stringify({
         access_token: accessToken,
         expires_in: resolveExpiresInSeconds(tokens.expires_in),
-        refresh_token: tokens.refresh_token ?? undefined,
-        id_token: tokens.id_token ?? undefined,
+        refresh_token: refreshToken.length > 0 ? refreshToken : undefined,
+        id_token: idToken.length > 0 ? idToken : undefined,
         working_mode: resolveWorkingModeForBffSession(),
       }),
     });

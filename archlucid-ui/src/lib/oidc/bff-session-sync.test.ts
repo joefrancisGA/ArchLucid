@@ -88,6 +88,28 @@ describe("bff-session-sync (LK-05 P1)", () => {
     );
   });
 
+  it("trims whitespace from refresh_token and id_token before posting to the BFF", async () => {
+    await syncBffSessionCookieFromTokenResponse({
+      access_token: "access-1",
+      expires_in: 3600,
+      refresh_token: "  refresh-1  ",
+      id_token: "  id-1  ",
+    });
+
+    expect(fetch).toHaveBeenCalledWith(
+      "/api/auth/bff-session",
+      expect.objectContaining({
+        body: JSON.stringify({
+          access_token: "access-1",
+          expires_in: 3600,
+          refresh_token: "refresh-1",
+          id_token: "id-1",
+          working_mode: true,
+        }),
+      }),
+    );
+  });
+
   it("maps negative expires_in to the default lifetime (parity with session.resolveExpiresInSeconds)", async () => {
     await syncBffSessionCookieFromTokenResponse({
       access_token: "access-1",

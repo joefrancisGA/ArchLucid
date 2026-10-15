@@ -11,7 +11,16 @@ function isHttpOrHttpsUrl(url: string): boolean {
   try {
     const parsed = new URL(url);
 
-    return parsed.protocol === "http:" || parsed.protocol === "https:";
+    if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
+      return false;
+    }
+
+    // Embedded credentials in discovery endpoints would leak into browser navigation or server refresh calls.
+    if (parsed.username.length > 0 || parsed.password.length > 0) {
+      return false;
+    }
+
+    return true;
   } catch {
     return false;
   }
