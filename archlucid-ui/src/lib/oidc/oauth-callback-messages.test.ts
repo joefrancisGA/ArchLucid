@@ -153,6 +153,13 @@ describe("humanizeAuthorizeCallbackError", () => {
     expect(message.endsWith("…")).toBe(true);
   });
 
+  it("uses fixed copy for access_denied when error_description is absent", () => {
+    const message = humanizeAuthorizeCallbackError("access_denied", "");
+
+    expect(message).toContain("canceled sign-in");
+    expect(message.length).toBeLessThanOrEqual(280);
+  });
+
   it("keeps invalid_request authorize copy bounded when error_description is absent", () => {
     const message = humanizeAuthorizeCallbackError("invalid_request", "");
 

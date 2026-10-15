@@ -1,5 +1,8 @@
 import { normalizeOidcConfigurationString } from "@/lib/oidc/oauth-callback-messages";
 
+/** OAuth access-token lifetimes above one year are treated as malformed provider input. */
+const MAX_PLAUSIBLE_OIDC_EXPIRES_IN_SEC = 31_536_000;
+
 /** Normalizes OIDC `expires_in` (seconds) for client hints and BFF cookie TTL parity. */
 export function resolveExpiresInSeconds(expiresIn: number | undefined): number {
   const defaultExpiresInSec = 3600;
@@ -44,6 +47,10 @@ export function resolveExpiresInSeconds(expiresIn: number | undefined): number {
 
   // JSON numbers above 2^53-1 are not safe integers; do not write misleading century-long TTL hints.
   if (!Number.isSafeInteger(truncatedExpiresIn)) {
+    return defaultExpiresInSec;
+  }
+
+  if (truncatedExpiresIn > MAX_PLAUSIBLE_OIDC_EXPIRES_IN_SEC) {
     return defaultExpiresInSec;
   }
 

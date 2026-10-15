@@ -206,6 +206,24 @@ describe("refreshAccessToken", () => {
     ).rejects.toThrow(/^Session expired$/);
   });
 
+  it("surfaces hyphen-only OAuth error_description values on token endpoint errors", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: false,
+      status: 400,
+      text: async () => JSON.stringify({ error: "invalid_grant", error_description: "---" }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      refreshAccessToken({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        refreshToken: "rt",
+      }),
+    ).rejects.toThrow(/^invalid_grant: ---$/);
+  });
+
   it("ignores invisible-only OAuth error_description values on token endpoint errors", async () => {
     const fetchMock = vi.fn(async () => ({
       ok: false,

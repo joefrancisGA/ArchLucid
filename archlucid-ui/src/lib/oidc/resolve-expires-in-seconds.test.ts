@@ -48,4 +48,12 @@ describe("resolveExpiresInSeconds", () => {
   it("maps a comma-grouped string expires_in to the default lifetime", () => {
     expect(resolveExpiresInSeconds("3,600" as unknown as number)).toBe(3600);
   });
+
+  it("maps an implausibly large safe-integer expires_in to the default lifetime", () => {
+    expect(resolveExpiresInSeconds(Number.MAX_SAFE_INTEGER)).toBe(3600);
+  });
+
+  it("honors expires_in values up to one year", () => {
+    expect(resolveExpiresInSeconds(31_536_000)).toBe(31_536_000);
+  });
 });
