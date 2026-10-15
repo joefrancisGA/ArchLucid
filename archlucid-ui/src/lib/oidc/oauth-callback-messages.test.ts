@@ -75,6 +75,10 @@ describe("decodeOAuthErrorDescription", () => {
   it("returns empty for literal plus-only error descriptions", () => {
     expect(decodeOAuthErrorDescription("+++")).toBe("");
   });
+
+  it("returns empty for percent-encoded colon-only error descriptions", () => {
+    expect(decodeOAuthErrorDescription("%3A%3A")).toBe("");
+  });
 });
 
 describe("humanizeAuthorizeCallbackError", () => {
@@ -247,6 +251,13 @@ describe("humanizeAuthorizeCallbackError", () => {
 
     expect(message).toBe("This sign-in request was not valid. Try signing in again.");
     expect(message).not.toContain("---");
+  });
+
+  it("omits plus-only authorize error descriptions from invalid_request copy", () => {
+    const message = humanizeAuthorizeCallbackError("invalid_request", "+++");
+
+    expect(message).toBe("This sign-in request was not valid. Try signing in again.");
+    expect(message).not.toContain("+++");
   });
 
   it("uses fixed copy for unauthorized_client regardless of oversized error_description", () => {
