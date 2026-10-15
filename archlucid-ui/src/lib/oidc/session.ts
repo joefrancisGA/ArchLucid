@@ -30,6 +30,7 @@ import {
   syncBffSessionCookieFromTokenResponse,
 } from "@/lib/oidc/bff-session-sync";
 import { isSafeReturnPath } from "@/lib/navigation/safe-return-path";
+import { stripOAuthInvisibleFormatChars } from "@/lib/oidc/oauth-callback-messages";
 import { resolveExpiresInSeconds } from "@/lib/oidc/resolve-expires-in-seconds";
 
 export type OidcPkceFlow = "primary" | "google";
@@ -42,6 +43,10 @@ type StoredPkceState = {
 };
 
 const EXPIRY_SKEW_MS = 60_000;
+
+function normalizePkceCallbackQueryValue(value: string): string {
+  return stripOAuthInvisibleFormatChars(value.trim()).trim();
+}
 
 let refreshInFlight: Promise<void> | null = null;
 let refreshSessionGeneration = 0;
@@ -236,7 +241,7 @@ export function readPkceState(flow: OidcPkceFlow = "primary"): Omit<StoredPkceSt
 }
 
 export function consumePkceState(expectedState: string): StoredPkceState | null {
-  const normalizedExpected = expectedState.trim();
+  const normalizedExpected = normalizePkceCallbackQueryValue(expectedState);
 
   if (normalizedExpected.length === 0) {
     return null;
@@ -247,7 +252,7 @@ export function consumePkceState(expectedState: string): StoredPkceState | null 
   for (const flow of flows) {
     const pair = readPkceStateForFlow(flow);
 
-    if (!pair || pair.state !== normalizedExpected) {
+    if (!pair || normalizePkceCallbackQueryValue(pair.state) !== normalizedExpected) {
       continue;
     }
 

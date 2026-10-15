@@ -358,6 +358,17 @@ describe("consumePkceState", () => {
 
     expect(consumePkceState("   ")).toBeNull();
   });
+
+  it("matches stored PKCE state when the callback state query value has zero-width padding", () => {
+    storePkceState("primary-state", "primary-verifier", "primary-nonce", "primary");
+
+    expect(consumePkceState(`\u200bprimary-state\u200b`)).toEqual({
+      state: "primary-state",
+      codeVerifier: "primary-verifier",
+      nonce: "primary-nonce",
+      flow: "primary",
+    });
+  });
 });
 
 describe("clearOidcSession", () => {

@@ -166,6 +166,28 @@ describe("refreshAccessToken", () => {
     expect(message).not.toMatch(/403: true/i);
   });
 
+  it("collapses soft hyphens in token endpoint OAuth error descriptions", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: false,
+      status: 400,
+      text: async () =>
+        JSON.stringify({
+          error: "invalid_grant",
+          error_description: "Policy\u00ADdenied",
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      refreshAccessToken({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        refreshToken: "rt",
+      }),
+    ).rejects.toThrow(/^invalid_grant: Policy denied$/);
+  });
+
   it("omits underscore-only OAuth error codes when building token endpoint errors", async () => {
     const fetchMock = vi.fn(async () => ({
       ok: false,
