@@ -1774,4 +1774,100 @@ describe("AuthCallbackAccessPanel", () => {
     expect(fatalReportProblemCapture.lastProps?.errorTitle).toBe(AUTH_CALLBACK_ACCESS_HEADING);
     expect(screen.getByText("Refreshed failure detail.")).toBeInTheDocument();
   });
+
+  it("posts whitespace-only name when native validation is bypassed", async () => {
+    const fetchMock = vi.fn(async () => Response.json({ message: "Name is required." }, { status: 400 }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<AuthCallbackAccessPanel technicalDetail="Sign-in was blocked." />);
+
+    fireEvent.click(screen.getByTestId("auth-callback-request-access"));
+    fireEvent.change(screen.getByLabelText("Name"), { target: { value: "   " } });
+    fireEvent.change(screen.getByLabelText("Work email"), { target: { value: "jordan@fabrikam.com" } });
+    fireEvent.change(screen.getByLabelText("Company"), { target: { value: "Fabrikam" } });
+    fireEvent.change(screen.getByLabelText("Role / title"), { target: { value: "Architect" } });
+    fireEvent.submit(screen.getByTestId("auth-callback-access-form"));
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalledOnce();
+    });
+
+    const [, requestInit] = fetchMock.mock.calls[0] as [string, RequestInit];
+    const body = JSON.parse(String(requestInit.body)) as { name: string };
+
+    expect(body.name).toBe("   ");
+    vi.unstubAllGlobals();
+  });
+
+  it("posts tab-only honeypot websiteUrl without tripping the unsupported-text guard", async () => {
+    const fetchMock = vi.fn(async () => new Response(null, { status: 204 }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<AuthCallbackAccessPanel technicalDetail="Sign-in was blocked." />);
+
+    fireEvent.click(screen.getByTestId("auth-callback-request-access"));
+    fireEvent.change(screen.getByLabelText("Name"), { target: { value: "Jordan Lee" } });
+    fireEvent.change(screen.getByLabelText("Work email"), { target: { value: "jordan@fabrikam.com" } });
+    fireEvent.change(screen.getByLabelText("Company"), { target: { value: "Fabrikam" } });
+    fireEvent.change(screen.getByLabelText("Role / title"), { target: { value: "Architect" } });
+    fireEvent.change(screen.getByLabelText("Website"), { target: { value: "\t\t" } });
+    fireEvent.click(screen.getByRole("button", { name: "Submit request" }));
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalledOnce();
+    });
+
+    const [, requestInit] = fetchMock.mock.calls[0] as [string, RequestInit];
+    const body = JSON.parse(String(requestInit.body)) as { websiteUrl: string };
+
+    expect(body.websiteUrl).toBe("\t\t");
+    vi.unstubAllGlobals();
+  });
+
+  it("submits successfully after toggling the request form closed and reopened without submitting", async () => {
+    const fetchMock = vi.fn(async () => new Response(null, { status: 204 }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<AuthCallbackAccessPanel technicalDetail="Sign-in was blocked." />);
+
+    fireEvent.click(screen.getByTestId("auth-callback-request-access"));
+    fireEvent.change(screen.getByLabelText("Name"), { target: { value: "Jordan Lee" } });
+    fireEvent.change(screen.getByLabelText("Work email"), { target: { value: "jordan@fabrikam.com" } });
+    fireEvent.change(screen.getByLabelText("Company"), { target: { value: "Fabrikam" } });
+    fireEvent.change(screen.getByLabelText("Role / title"), { target: { value: "Architect" } });
+    fireEvent.click(screen.getByTestId("auth-callback-request-access"));
+    fireEvent.click(screen.getByTestId("auth-callback-request-access"));
+    fireEvent.click(screen.getByRole("button", { name: "Submit request" }));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("auth-callback-access-success")).toBeInTheDocument();
+    });
+
+    expect(fetchMock).toHaveBeenCalledOnce();
+    vi.unstubAllGlobals();
+  });
+
+  it("retains generic submit error after editing work email following a failed response", async () => {
+    const fetchMock = vi.fn(async () => Response.json({ error: "send_failed" }, { status: 502 }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<AuthCallbackAccessPanel technicalDetail="Sign-in was blocked." />);
+
+    fireEvent.click(screen.getByTestId("auth-callback-request-access"));
+    fireEvent.change(screen.getByLabelText("Name"), { target: { value: "Jordan Lee" } });
+    fireEvent.change(screen.getByLabelText("Work email"), { target: { value: "jordan@fabrikam.com" } });
+    fireEvent.change(screen.getByLabelText("Company"), { target: { value: "Fabrikam" } });
+    fireEvent.change(screen.getByLabelText("Role / title"), { target: { value: "Architect" } });
+    fireEvent.click(screen.getByRole("button", { name: "Submit request" }));
+
+    await waitFor(() => {
+      expect(screen.getByText(AUTH_CALLBACK_ACCESS_SUBMIT_ERROR)).toBeInTheDocument();
+    });
+
+    fireEvent.change(screen.getByLabelText("Work email"), { target: { value: "jordan2@fabrikam.com" } });
+
+    expect(screen.getByText(AUTH_CALLBACK_ACCESS_SUBMIT_ERROR)).toBeInTheDocument();
+    expect(fetchMock).toHaveBeenCalledOnce();
+    vi.unstubAllGlobals();
+  });
 });
