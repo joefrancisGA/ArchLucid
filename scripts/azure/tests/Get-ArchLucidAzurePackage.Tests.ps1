@@ -94,7 +94,7 @@ Describe 'Get-ArchLucidAzurePackage.ps1' {
 
             return [pscustomobject]@{
                 StatusCode = 200
-                Content = '{"properties":{"provisioningState":"Succeeded","logResult":"acr.azurecr.io/app:1\nacr.azurecr.io/app:1\nmcr.microsoft.com/pause:3"}}'
+                Content = '{"properties":{"provisioningState":"Succeeded","logs":"acr.azurecr.io/app:1\nacr.azurecr.io/app:1\nmcr.microsoft.com/pause:3"}}'
             }
         }
 
@@ -106,6 +106,77 @@ Describe 'Get-ArchLucidAzurePackage.ps1' {
         $cluster.properties.'container.image[1]' | Should -Be 'mcr.microsoft.com/pause:3'
         $aksResult.warnings | Should -BeNullOrEmpty
         ($cluster.properties | ConvertTo-Json -Depth 12) | Should -Not -Match 'secret|environment|password'
+    }
+
+    It 'reads AKS runCommand output from logs and warns when logs are absent' {
+        [object]$cluster = [pscustomobject]@{
+            resourceType = 'Microsoft.ContainerService/managedClusters'
+            resourceId = '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.ContainerService/managedClusters/aks'
+            properties = @{}
+        }
+
+        Mock Invoke-AzRestMethod {
+            [CmdletBinding()]
+            param(
+                [string]$Method,
+                [string]$Path,
+                [string]$Payload
+            )
+
+            return [pscustomobject]@{
+                StatusCode = 200
+                Content = '{"properties":{"provisioningState":"Succeeded","logResult":"ignored.azurecr.io/app:1"}}'
+            }
+        }
+
+        [object]$missingLogsResult = Add-ArchLucidAzureAksWorkloadImageProperties -InventoryResources @($cluster)
+        $missingLogsResult.warnings | Should -Contain 'aks-workload-images-not-collected-customer-script'
+        $cluster.properties.Keys | Where-Object { $_ -like 'container.image[*]' } | Should -BeNullOrEmpty
+    }
+
+    It 'builds the AKS workload image kubectl command with a jsonpath backslash-n separator' {
+        [string]$command = Get-ArchLucidAzureAksWorkloadImageKubectlCommand
+        $command | Should -Match '\{\.image\}\{\\"\\n\\"\}'
+        $command.Contains([char]10) | Should -Be $false
+    }
+
+    It 'stores nodeResourceGroup and vmssToSubnet companion rows' {
+        [object]$cluster = [pscustomobject]@{
+            resourceType = 'Microsoft.ContainerService/managedClusters'
+            resourceId = '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.ContainerService/managedClusters/aks'
+            properties = @{}
+        }
+        [object]$vmss = [pscustomobject]@{
+            resourceType = 'Microsoft.Compute/virtualMachineScaleSets'
+            resourceId = '/subscriptions/sub/resourceGroups/MC_rg_aks_westus/providers/Microsoft.Compute/virtualMachineScaleSets/aks-aephidev-16035491-vmss'
+            properties = @{
+                'ipConfiguration.subnet.id[0]' = '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet/subnets/nodes'
+            }
+        }
+
+        Mock Invoke-AzRestMethod {
+            [CmdletBinding()]
+            param(
+                [string]$Method,
+                [string]$Path
+            )
+
+            if ($Method -eq 'GET' -and $Path -like '*managedClusters/*')
+            {
+                return [pscustomobject]@{
+                    StatusCode = 200
+                    Content = '{"properties":{"nodeResourceGroup":"MC_rg_aks_westus"}}'
+                }
+            }
+
+            return [pscustomobject]@{ StatusCode = 404 }
+        }
+
+        Expand-ArchLucidAzureManagedClusterAndVmssProperties -InventoryResources @($cluster, $vmss)
+        [object[]]$rows = @(Get-ArchLucidAzureNetworkAssociationCompanionRows -InventoryResources @($vmss))
+
+        $cluster.properties['nodeResourceGroup'] | Should -Be 'MC_rg_aks_westus'
+        @($rows | Where-Object { $_.associationType -eq 'vmssToSubnet' }).Count | Should -Be 1
     }
 
     It 'writes a schema-version-2 ZIP with manifest.json and resources.json from mocked ARM inventory' {

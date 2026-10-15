@@ -882,6 +882,13 @@ properties["definition"] = AzureExtractorSensitivePropertyRedactor.RedactStructu
     {
         AddJsonArrayProperty(propertiesElement, properties, "agentPoolProfiles");
 
+        string? nodeResourceGroup = TryReadNestedString(propertiesElement, "nodeResourceGroup");
+
+        if (!string.IsNullOrWhiteSpace(nodeResourceGroup))
+        {
+            properties["nodeResourceGroup"] = nodeResourceGroup.Trim();
+        }
+
         if (propertiesElement.TryGetProperty("networkProfile", out JsonElement networkProfile)
             && networkProfile.ValueKind is JsonValueKind.Object)
         {

@@ -22,6 +22,8 @@ public static class AzureInventoryRelationshipAssociationTypes
 
     public const string VmssToSubnet = "vmssToSubnet";
 
+    public const string VmssToManagedCluster = "vmssToManagedCluster";
+
     public const string DatabricksWorkspaceToSubnet = "databricksWorkspaceToSubnet";
 
     public const string NicToNsg = "nicToNsg";
@@ -140,6 +142,7 @@ public static class AzureInventoryRelationshipAssociationTypes
         Inferred(NsgAllowRule, AzureInventoryRelationshipArmKind.Subnet, AzureInventoryRelationshipArmKind.StorageAccount, "ROUTES_TO", "inventory-nsg-allow-rule", ProvenanceKind.DeterministicInference),
         Observed(VmToNic, AzureInventoryRelationshipArmKind.VirtualMachine, AzureInventoryRelationshipArmKind.NetworkInterface, "CONNECTS_TO", "inventory-vm-nic"),
         Observed(VmssToSubnet, AzureInventoryRelationshipArmKind.VirtualMachineScaleSet, AzureInventoryRelationshipArmKind.Subnet, "CONNECTS_TO", "inventory-vmss-subnet"),
+        Observed(VmssToManagedCluster, AzureInventoryRelationshipArmKind.VirtualMachineScaleSet, AzureInventoryRelationshipArmKind.Compute, "CONNECTS_TO", "inventory-node-pool"),
         Observed(DatabricksWorkspaceToSubnet, AzureInventoryRelationshipArmKind.DatabricksWorkspace, AzureInventoryRelationshipArmKind.Subnet, "CONNECTS_TO", "inventory-databricks-workspace-subnet"),
         Observed(NicToNsg, AzureInventoryRelationshipArmKind.NetworkInterface, AzureInventoryRelationshipArmKind.NetworkSecurityGroup, "APPLIES_TO", "inventory-nic-nsg"),
         Observed(SubnetToNsg, AzureInventoryRelationshipArmKind.Subnet, AzureInventoryRelationshipArmKind.NetworkSecurityGroup, "APPLIES_TO", "inventory-subnet-nsg"),

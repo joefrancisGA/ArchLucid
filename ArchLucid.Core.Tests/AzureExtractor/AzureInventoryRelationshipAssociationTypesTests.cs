@@ -115,6 +115,7 @@ public sealed class AzureInventoryRelationshipAssociationTypesTests
     [InlineData("eventHubCapture")]
     [InlineData("avdSessionHostToVm")]
     [InlineData("vmssToSubnet")]
+    [InlineData("vmssToManagedCluster")]
     [InlineData("databricksWorkspaceToSubnet")]
     public void New_association_types_are_known_members(string associationType)
     {
