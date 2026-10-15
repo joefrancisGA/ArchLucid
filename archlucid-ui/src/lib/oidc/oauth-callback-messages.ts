@@ -32,20 +32,25 @@ function formatErrorCodeForReading(errorCode: string): string {
   return errorCode.replace(/_/g, " ").trim();
 }
 
-const MAX_AUTHORIZE_CALLBACK_DETAIL_LENGTH = 280;
+const MAX_OAUTH_USER_FACING_MESSAGE_LENGTH = 280;
 
-function truncateAuthorizeCallbackDetail(detail: string): string {
-  if (detail.length <= MAX_AUTHORIZE_CALLBACK_DETAIL_LENGTH) {
-    return detail;
+function truncateOAuthUserFacingMessage(text: string): string {
+  if (text.length <= MAX_OAUTH_USER_FACING_MESSAGE_LENGTH) {
+    return text;
   }
 
-  return `${detail.slice(0, MAX_AUTHORIZE_CALLBACK_DETAIL_LENGTH - 1)}…`;
+  return `${text.slice(0, MAX_OAUTH_USER_FACING_MESSAGE_LENGTH - 1)}…`;
+}
+
+/** Collapses line breaks and caps length for authorize-callback and token-endpoint operator copy. */
+export function sanitizeOAuthUserFacingMessage(text: string): string {
+  return truncateOAuthUserFacingMessage(collapseOAuthErrorDescriptionLineBreaks(text));
 }
 
 /** Maps standard OAuth authorize errors to actionable copy for the SPA callback route. */
 export function humanizeAuthorizeCallbackError(errorCode: string, decodedDescription: string): string {
   const normalized = errorCode.trim().toLowerCase();
-  const detail = truncateAuthorizeCallbackDetail(collapseOAuthErrorDescriptionLineBreaks(decodedDescription));
+  const detail = sanitizeOAuthUserFacingMessage(decodedDescription);
 
   switch (normalized) {
     case "access_denied":

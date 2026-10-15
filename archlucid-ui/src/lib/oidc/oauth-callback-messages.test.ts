@@ -29,6 +29,10 @@ describe("decodeOAuthErrorDescription", () => {
   it("collapses literal line breaks in already-decoded error descriptions", () => {
     expect(decodeOAuthErrorDescription("line1\nline2")).toBe("line1 line2");
   });
+
+  it("collapses percent-encoded tab characters in error descriptions", () => {
+    expect(decodeOAuthErrorDescription("Policy%09denied")).toBe("Policy denied");
+  });
 });
 
 describe("humanizeAuthorizeCallbackError", () => {

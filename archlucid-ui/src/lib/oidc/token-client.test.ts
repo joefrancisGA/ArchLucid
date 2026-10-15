@@ -79,6 +79,57 @@ describe("refreshAccessToken", () => {
     ).rejects.toThrow(/hint only/i);
   });
 
+  it("omits whitespace-only refresh_token values from token responses", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () =>
+        JSON.stringify({
+          access_token: "access-1",
+          refresh_token: "   ",
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    const tokens = await refreshAccessToken({
+      tokenEndpoint: "https://login.example.com/token",
+      clientId: "client",
+      refreshToken: "rt",
+    });
+
+    expect(tokens.refresh_token).toBeUndefined();
+  });
+
+  it("truncates oversized OAuth error descriptions from the token endpoint", async () => {
+    const oversized = `${"expired ".repeat(80)}done`;
+    const fetchMock = vi.fn(async () => ({
+      ok: false,
+      status: 400,
+      text: async () =>
+        JSON.stringify({
+          error: "invalid_grant",
+          error_description: oversized,
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    let message = "";
+
+    try {
+      await refreshAccessToken({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        refreshToken: "rt",
+      });
+    } catch (error) {
+      message = error instanceof Error ? error.message : String(error);
+    }
+
+    expect(message.length).toBeLessThanOrEqual(320);
+    expect(message.endsWith("…")).toBe(true);
+  });
+
   it("trims surrounding whitespace from optional refresh_token and id_token fields", async () => {
     const fetchMock = vi.fn(async () => ({
       ok: true,

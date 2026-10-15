@@ -1,5 +1,5 @@
 import { isSafeOidcEndpointUrl } from "@/lib/oidc/discovery";
-import { collapseOAuthErrorDescriptionLineBreaks } from "@/lib/oidc/oauth-callback-messages";
+import { sanitizeOAuthUserFacingMessage } from "@/lib/oidc/oauth-callback-messages";
 
 export type OidcTokenResponse = {
   access_token: string;
@@ -22,7 +22,7 @@ function errorFromOAuthJson(json: unknown): Error | null {
     return null;
   }
 
-  return new Error(collapseOAuthErrorDescriptionLineBreaks(msg));
+  return new Error(sanitizeOAuthUserFacingMessage(msg));
 }
 
 async function readOAuthError(res: Response, bodyText: string): Promise<Error> {
@@ -82,7 +82,21 @@ async function postTokenForm(
   return parseOidcTokenResponse(parsed);
 }
 
-function normalizeOptionalTrimmedToken(value: unknown): string | undefined {
+function normalizeOptionalRefreshToken(value: unknown): string | undefined {
+  if (typeof value !== "string") {
+    return undefined;
+  }
+
+  const trimmed = value.trim();
+
+  if (trimmed.length === 0) {
+    return undefined;
+  }
+
+  return trimmed;
+}
+
+function normalizeOptionalIdToken(value: unknown): string | undefined {
   if (typeof value !== "string") {
     return undefined;
   }
@@ -108,8 +122,8 @@ function parseOidcTokenResponse(parsed: unknown): OidcTokenResponse {
     throw new Error("Token response missing access_token");
   }
 
-  const refreshToken = normalizeOptionalTrimmedToken(record.refresh_token);
-  const idToken = normalizeOptionalTrimmedToken(record.id_token);
+  const refreshToken = normalizeOptionalRefreshToken(record.refresh_token);
+  const idToken = normalizeOptionalIdToken(record.id_token);
 
   return {
     ...(parsed as OidcTokenResponse),
