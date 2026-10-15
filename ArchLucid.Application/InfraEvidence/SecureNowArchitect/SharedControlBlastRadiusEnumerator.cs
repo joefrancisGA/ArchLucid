@@ -42,13 +42,14 @@ internal static class SharedControlBlastRadiusEnumerator
 {
     public static IReadOnlyList<SharedControlBlastRadiusCandidate> Enumerate(
         AzureInventorySnapshotDetailReadModel snapshot,
-        SharedControlBlastRadiusEngineOptions options)
+        SharedControlBlastRadiusEngineOptions options,
+        SecureNowAnalysisSnapshot? analysisSnapshot = null)
     {
         ArgumentNullException.ThrowIfNull(snapshot);
         ArgumentNullException.ThrowIfNull(options);
 
-        Dictionary<string, AzureInventoryResourceRecord> resourcesByArmId =
-            snapshot.Resources.ToDictionary(static resource => resource.AzureResourceId, StringComparer.OrdinalIgnoreCase);
+        IReadOnlyDictionary<string, AzureInventoryResourceRecord> resourcesByArmId =
+            (analysisSnapshot ?? new SecureNowAnalysisSnapshot(snapshot)).ResourcesByArmId;
 
         List<SharedControlBlastRadiusCandidate> results = [];
         HashSet<string> seenSignatures = new(StringComparer.Ordinal);

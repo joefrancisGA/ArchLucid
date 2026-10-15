@@ -468,7 +468,7 @@ internal static class PrivilegePathEnumerator
 
         resourceType = resource.ResourceType;
 
-        if (!graph.PropertiesByResourceRowId.TryGetValue(resource.ResourceRowId, out List<AzureInventoryResourcePropertyReadModel>? properties))
+        if (!graph.PropertiesByResourceRowId.TryGetValue(resource.ResourceRowId, out IReadOnlyList<AzureInventoryResourcePropertyReadModel>? properties))
         {
             return new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         }

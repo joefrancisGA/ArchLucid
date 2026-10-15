@@ -29,6 +29,7 @@ public sealed class SecureNowArchitectNeighborhoodRunner(
         ArgumentNullException.ThrowIfNull(scope);
         ArgumentNullException.ThrowIfNull(summary);
         ArgumentNullException.ThrowIfNull(changes);
+        using IDisposable analysisRun = SecureNowAnalysisRun.JoinOrBegin();
 
         if (changes.Count == 0)
         {
@@ -39,8 +40,9 @@ public sealed class SecureNowArchitectNeighborhoodRunner(
             };
         }
 
-        AzureInventorySnapshotDetailReadModel? snapshot =
-            await snapshotRepository.TryGetSnapshotDetailAsync(scope, summary.SnapshotBId, cancellationToken);
+        SecureNowAnalysisSnapshot? analysisSnapshot =
+            await SecureNowAnalysisRun.LoadAsync(snapshotRepository, scope, summary.SnapshotBId, cancellationToken);
+        AzureInventorySnapshotDetailReadModel? snapshot = analysisSnapshot?.Snapshot;
 
         if (snapshot is null)
         {
@@ -51,9 +53,9 @@ public sealed class SecureNowArchitectNeighborhoodRunner(
             };
         }
 
-        IReadOnlySet<Guid> seeds = SecureNowArchitectNeighborhoodExpander.Expand(snapshot, changes);
+        IReadOnlySet<Guid> seeds = SecureNowArchitectNeighborhoodExpander.Expand(snapshot, changes, analysisSnapshot);
         IReadOnlyDictionary<string, Guid> cloudResourceIdByArmId =
-            SecureNowArchitectNeighborhoodFilter.BuildCloudResourceIdByArmId(snapshot);
+            analysisSnapshot!.CloudResourceIdsByArmId;
 
         if (seeds.Count == 0)
         {

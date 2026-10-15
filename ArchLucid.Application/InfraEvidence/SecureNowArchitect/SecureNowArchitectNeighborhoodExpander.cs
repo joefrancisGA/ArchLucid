@@ -17,14 +17,14 @@ internal static class SecureNowArchitectNeighborhoodExpander
 
     public static IReadOnlySet<Guid> Expand(
         AzureInventorySnapshotDetailReadModel snapshot,
-        IReadOnlyList<AzureInventoryChangeRecord> changes)
+        IReadOnlyList<AzureInventoryChangeRecord> changes,
+        SecureNowAnalysisSnapshot? analysisSnapshot = null)
     {
         ArgumentNullException.ThrowIfNull(snapshot);
         ArgumentNullException.ThrowIfNull(changes);
 
-        Dictionary<string, Guid> cloudResourceIdByArmId = snapshot.Resources
-            .Where(resource => resource.CloudResourceId is Guid cloudResourceId && cloudResourceId != Guid.Empty)
-            .ToDictionary(resource => resource.AzureResourceId, resource => resource.CloudResourceId!.Value, StringComparer.OrdinalIgnoreCase);
+        IReadOnlyDictionary<string, Guid> cloudResourceIdByArmId =
+            (analysisSnapshot ?? new SecureNowAnalysisSnapshot(snapshot)).CloudResourceIdsByArmId;
 
         HashSet<Guid> seeds = [];
 

@@ -33,15 +33,16 @@ public sealed class PrivilegePathEngine(
             return Failed("ActorId is required.");
         }
 
-        AzureInventorySnapshotDetailReadModel? snapshot =
-            await snapshotRepository.TryGetSnapshotDetailAsync(scope, snapshotId, cancellationToken);
+        SecureNowAnalysisSnapshot? analysisSnapshot =
+            await SecureNowAnalysisRun.LoadAsync(snapshotRepository, scope, snapshotId, cancellationToken);
+        AzureInventorySnapshotDetailReadModel? snapshot = analysisSnapshot?.Snapshot;
 
         if (snapshot is null)
         {
             return Failed("Snapshot was not found in the current tenant scope.");
         }
 
-        InventoryPrivilegePathGraphSnapshot graph = InventoryPrivilegePathGraph.Build(snapshot);
+        InventoryPrivilegePathGraphSnapshot graph = InventoryPrivilegePathGraph.Build(snapshot, analysisSnapshot);
         IReadOnlyList<PrivilegePathCandidate> candidates =
             PrivilegePathEnumerator.Enumerate(graph, new PrivilegePathEngineOptions(), runScope);
 

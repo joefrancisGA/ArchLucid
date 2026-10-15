@@ -30,7 +30,7 @@ public sealed class SecurityEvidencePathRoutingSyncService(
         }
 
         AzureInventorySnapshotDetailReadModel? snapshot =
-            await snapshotRepository.TryGetSnapshotDetailAsync(scope, snapshotId, cancellationToken);
+            (await SecureNowAnalysisRun.LoadAsync(snapshotRepository, scope, snapshotId, cancellationToken))?.Snapshot;
 
         if (snapshot is null)
         {

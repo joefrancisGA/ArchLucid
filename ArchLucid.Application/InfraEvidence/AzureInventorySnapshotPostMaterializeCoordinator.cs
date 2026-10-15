@@ -38,6 +38,7 @@ public sealed class AzureInventorySnapshotPostMaterializeCoordinator(
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(scope);
+        using IDisposable analysisRun = SecureNowAnalysisRun.Begin();
 
         Guid? priorSnapshotId = null;
         AzureInventoryDiffComputeResult? diffResult = null;
