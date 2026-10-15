@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 
-import { buildArchitectureRiskRegisterCsv } from "@/lib/architecture/architecture-risk-register-csv";
+import {
+  ARCHITECTURE_RISK_REGISTER_EVIDENCE_LINK_NOT_STORED,
+  ARCHITECTURE_RISK_REGISTER_OWNER_NOT_STORED,
+  buildArchitectureRiskRegisterCsv,
+} from "@/lib/architecture/architecture-risk-register-csv";
 
 describe("buildArchitectureRiskRegisterCsv", () => {
   it("maps last reviewed and next review columns separately from waiver expiry", () => {
@@ -61,5 +65,27 @@ describe("buildArchitectureRiskRegisterCsv", () => {
     expect(csv).toContain("PHI exposure");
     expect(csv).not.toContain("Ignore me");
     expect(csv).toContain("yes");
+  });
+
+  it("labels missing owner and evidence link without inventing values (P-06, P-07)", () => {
+    const csv = buildArchitectureRiskRegisterCsv([
+      {
+        recordKind: "finding",
+        runId: "",
+        findingId: "f-orphan",
+        title: "Orphan finding",
+        severity: "High",
+        category: "Claims intake",
+        status: "Open",
+        recommended: "Review",
+        ownerUserId: null,
+        agingDays: 0,
+        isStale: false,
+      },
+    ]);
+
+    expect(csv).toContain(ARCHITECTURE_RISK_REGISTER_OWNER_NOT_STORED);
+    expect(csv).toContain(ARCHITECTURE_RISK_REGISTER_EVIDENCE_LINK_NOT_STORED);
+    expect(csv).not.toContain("f-orphan,");
   });
 });

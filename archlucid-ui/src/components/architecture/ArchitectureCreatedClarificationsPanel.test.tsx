@@ -21,7 +21,7 @@ describe("ArchitectureCreatedClarificationsPanel", () => {
       (section) => section.key === "open-questions",
     );
 
-    expect(presentOpenQuestionEntityCount(undefined)).toBe("Not returned");
+    expect(presentOpenQuestionEntityCount(undefined)).toBe("Open question count was not stored.");
     expect(presentOpenQuestionEntityCount(openQuestions)).toBe(
       "Open question count was not stored.",
     );

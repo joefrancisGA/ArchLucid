@@ -9,7 +9,7 @@ import {
   EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
 import { StatusTag } from "@/components/ui/status-tag";
-import { finiteIntegerCountDisplay } from "@/lib/finite-count-display";
+import { reviewsHubFindingsCountDisplay, reviewsHubRiskCountDisplay } from "@/lib/reviews/reviews-hub-inventory-count-display";
 import type { ReviewPackageOwnerResolutionContext } from "@/lib/review-package-validation-picker";
 import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
@@ -98,10 +98,10 @@ export function ReviewsHubInventoryRow(props: ReviewsHubInventoryRowProps): Reac
         {row.lastUpdated}
       </EnterpriseTableCell>
       <EnterpriseTableCell className="text-right tabular-nums">
-        {finiteIntegerCountDisplay(row.findingsCount)}
+        {reviewsHubFindingsCountDisplay(row.findingsCount)}
       </EnterpriseTableCell>
       <EnterpriseTableCell className="text-right tabular-nums">
-        {finiteIntegerCountDisplay(row.riskCount)}
+        {reviewsHubRiskCountDisplay(row.riskCount)}
       </EnterpriseTableCell>
       <EnterpriseTableCell>
         <ReviewsHubInventoryRowActions run={props.run} row={row} />

@@ -9,6 +9,8 @@ import {
   reviewPackageFinalizedDateLabel,
   reviewPackageOwnerLabel,
   REVIEW_PACKAGE_OWNER_UNAVAILABLE,
+  REVIEW_PACKAGE_VALIDATION_OUTCOME_NOT_STORED,
+  formatLastValidationOutcomeLabel,
 } from "./review-package-validation-picker";
 
 describe("reviewPackageFinalizedDateLabel", () => {
@@ -70,7 +72,7 @@ describe("reviewPackageOwnerLabel", () => {
     expect(label).toBe("jordan.lee@example.com");
   });
 
-  it("falls back to the current user label when no other owner is recorded", () => {
+  it("does not invent an owner from the signed-in user when none was stored (P-20)", () => {
     const label = reviewPackageOwnerLabel(
       {
         runId: "draft-review",
@@ -80,7 +82,7 @@ describe("reviewPackageOwnerLabel", () => {
       { currentUserLabel: "Taylor Morgan" },
     );
 
-    expect(label).toBe("Taylor Morgan");
+    expect(label).toBe(REVIEW_PACKAGE_OWNER_UNAVAILABLE);
   });
 
   it("returns unavailable marker when the current user label is missing", () => {
@@ -130,6 +132,12 @@ describe("reviewPackageOwnerLabel", () => {
     } satisfies RunSummary);
 
     expect(label).toBe(REVIEW_PACKAGE_OWNER_UNAVAILABLE);
+  });
+});
+
+describe("formatLastValidationOutcomeLabel", () => {
+  it("labels a missing validation outcome without owner copy (P-19)", () => {
+    expect(formatLastValidationOutcomeLabel(null)).toBe(REVIEW_PACKAGE_VALIDATION_OUTCOME_NOT_STORED);
   });
 });
 

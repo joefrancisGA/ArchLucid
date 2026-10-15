@@ -37,7 +37,12 @@ import {
 import { usePrefetchItsmFindingCorrelations } from "@/lib/use-itsm-finding-correlations";
 import type { FindingWireSnapshot } from "@/lib/quick-decision-summary-derive";
 import type { FindingTraceConfidenceDto } from "@/types/explanation";
+import { formatFindingExplainabilityPolicyRuleDisplay } from "@/lib/findings/finding-explainability-summary";
 import { normalizeFindingConfidenceLevel, traceCompletenessPercent } from "@/types/explanation";
+
+export const RUN_FINDING_EXPLAINABILITY_EVIDENCE_LINK_OMITTED = "Evidence link was not stored." as const;
+
+export const RUN_FINDING_EXPLAINABILITY_TITLE_OMITTED = "Finding title was not stored." as const;
 
 export type RunFindingExplainabilityTableProps = {
   runId: string;
@@ -362,7 +367,7 @@ export function RunFindingExplainabilityTable({
               row.findingTitle !== undefined &&
               row.findingTitle.trim().length > 0
                 ? row.findingTitle.trim()
-                : "(no title)";
+                : RUN_FINDING_EXPLAINABILITY_TITLE_OMITTED;
 
             const confidenceLevel = normalizeFindingConfidenceLevel(row.confidenceLevel);
 
@@ -421,7 +426,7 @@ export function RunFindingExplainabilityTable({
                   {row.ruleId && row.ruleId.trim().length > 0 ? (
                     <FindingPolicyRuleBadge policyRuleId={row.ruleId} />
                   ) : (
-                    "Not returned"
+                    formatFindingExplainabilityPolicyRuleDisplay(row.ruleId)
                   )}
                 </div>
                 <div className={cn("tabular-nums text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
@@ -431,7 +436,7 @@ export function RunFindingExplainabilityTable({
                       evidenceRefCount={row.evidenceRefCount}
                     />
                   ) : (
-                    "Not returned"
+                    RUN_FINDING_EXPLAINABILITY_EVIDENCE_LINK_OMITTED
                   )}
                 </div>
                 <div className={cn("min-w-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>{row.traceConfidenceLabel}</div>
@@ -468,7 +473,9 @@ export function RunFindingExplainabilityTable({
                       className={cn("h-7 px-2", OPERATOR_TYPOGRAPHY.button)}
                       onClick={() => {
                         setReasoningFindingId(row.findingId);
-                        setReasoningTitle(titleFull === "(no title)" ? "" : titleFull);
+                        setReasoningTitle(
+                          titleFull === RUN_FINDING_EXPLAINABILITY_TITLE_OMITTED ? "" : titleFull,
+                        );
                         setReasoningOpen(true);
                       }}
                     >
