@@ -38,4 +38,10 @@ describe("resolveExpiresInSeconds", () => {
   it("parses a numeric string expires_in with a leading plus sign", () => {
     expect(resolveExpiresInSeconds("+3600" as unknown as number)).toBe(3600);
   });
+
+  it("documents unsafe-integer expires_in coercion for falsify attempts", () => {
+    const unsafeInteger = Number.MAX_SAFE_INTEGER + 1;
+
+    expect(resolveExpiresInSeconds(unsafeInteger)).toBe(unsafeInteger);
+  });
 });

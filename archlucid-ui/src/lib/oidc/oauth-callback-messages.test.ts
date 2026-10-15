@@ -121,9 +121,18 @@ describe("humanizeAuthorizeCallbackError", () => {
     const oversized = `${"Policy ".repeat(80)}end`;
     const message = humanizeAuthorizeCallbackError("access_denied", oversized);
 
-    expect(message.length).toBeLessThanOrEqual(320);
+    expect(message.length).toBeLessThanOrEqual(280);
     expect(message.endsWith("…")).toBe(true);
     expect(message.startsWith("Sign-in stopped:")).toBe(true);
+  });
+
+  it("truncates buyer-safe authorize copy when the error code is unreadable and description is oversized", () => {
+    const oversized = `${"Policy ".repeat(80)}end`;
+    const message = humanizeAuthorizeCallbackError("___", oversized);
+
+    expect(message.length).toBeLessThanOrEqual(280);
+    expect(message.endsWith("…")).toBe(true);
+    expect(message.startsWith("Sign-in did not finish:")).toBe(true);
   });
 
   it("truncates oversized unknown authorize error codes for callback copy", () => {

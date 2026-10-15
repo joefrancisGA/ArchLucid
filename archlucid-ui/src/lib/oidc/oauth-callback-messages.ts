@@ -90,7 +90,7 @@ export function sanitizeOAuthUserFacingMessage(text: string): string {
 /** Maps standard OAuth authorize errors to actionable copy for the SPA callback route. */
 function buyerSafeAuthorizeErrorWithoutCode(detail: string): string {
   if (detail.length > 0) {
-    return `Sign-in did not finish: ${detail}`;
+    return sanitizeOAuthUserFacingMessage(`Sign-in did not finish: ${detail}`);
   }
 
   return "We did not receive a complete response from your identity provider. Start sign-in again.";
@@ -109,7 +109,7 @@ export function humanizeAuthorizeCallbackError(errorCode: string, decodedDescrip
   switch (normalized) {
     case "access_denied":
       return detail.length > 0
-        ? `Sign-in stopped: ${detail}`
+        ? sanitizeOAuthUserFacingMessage(`Sign-in stopped: ${detail}`)
         : "You canceled sign-in or your organization declined access. Try again if that was unintentional.";
     case "login_required":
     case "interaction_required":
