@@ -188,6 +188,48 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestratorCareerArtifa
         thrown.Should().NotBeOfType<PreCommitGovernanceBlockedException>();
     }
 
+    [SkippableFact]
+    public async Task CommitRunAsync_resolves_working_desk_from_actor_id_not_display_name()
+    {
+        Guid findingsSnapshotId = Guid.Parse("eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
+        FindingsSnapshot oneEngineSnapshot = new()
+        {
+            FindingsSnapshotId = findingsSnapshotId,
+            RunId = RunGuid,
+            ContextSnapshotId = Guid.NewGuid(),
+            GraphSnapshotId = Guid.NewGuid(),
+            GenerationStatus = FindingsSnapshotGenerationStatus.Complete,
+            Findings =
+            [
+                new Finding
+                {
+                    FindingType = "RequirementFinding",
+                    Category = "Requirement",
+                    EngineType = "requirement",
+                    Title = "title",
+                    Rationale = "rationale",
+                    Severity = FindingSeverity.Info,
+                },
+            ],
+        };
+
+        AuthorityDrivenArchitectureRunCommitOrchestrator sut = CreateSut(
+            out _,
+            transparencyTrail: new TransparencyTrail(),
+            findingsSnapshot: oneEngineSnapshot,
+            findingsSnapshotId: findingsSnapshotId,
+            structuralExecutionMode: StructuralExecutionMode.Simulator,
+            workingCareerRehearsalDoor: WorkingCareerRehearsalDoorValues.Career,
+            actorDisplayName: "Developer",
+            actorId: "jwt:dev-user",
+            workingDeskOnDisplayName: true,
+            workingDeskOnActorId: false);
+
+        Exception? thrown = await Record.ExceptionAsync(() => sut.CommitRunAsync(RunId, CancellationToken.None));
+
+        thrown.Should().NotBeOfType<PreCommitGovernanceBlockedException>();
+    }
+
     private static FindingsSnapshot CreateMeasurementFloorPassingSnapshot(Guid snapshotId)
     {
         List<Finding> findings = [];
@@ -222,7 +264,11 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestratorCareerArtifa
         FindingsSnapshot? findingsSnapshot = null,
         Guid? findingsSnapshotId = null,
         StructuralExecutionMode structuralExecutionMode = StructuralExecutionMode.Real,
-        string? workingCareerRehearsalDoor = null)
+        string? workingCareerRehearsalDoor = null,
+        string actorDisplayName = "unit-test-actor",
+        string actorId = "unit-test-actor",
+        bool workingDeskOnDisplayName = true,
+        bool workingDeskOnActorId = true)
     {
         requestRepository = new Mock<IArchitectureRequestRepository>();
         requestRepository
@@ -270,14 +316,19 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestratorCareerArtifa
             .Returns(Task.CompletedTask);
 
         Mock<IActorContext> actor = new();
-        actor.Setup(context => context.GetActor()).Returns("unit-test-actor");
+        actor.Setup(context => context.GetActor()).Returns(actorDisplayName);
+        actor.Setup(context => context.GetActorId()).Returns(actorId);
 
         Mock<IUserWorkspaceModeReader> userWorkspaceModeReader = new();
         userWorkspaceModeReader
-            .Setup(reader => reader.IsWorkingDeskAsync("unit-test-actor", It.IsAny<CancellationToken>()))
-            .ReturnsAsync(true);
+            .Setup(reader => reader.IsWorkingDeskAsync(actorDisplayName, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(workingDeskOnDisplayName);
+        userWorkspaceModeReader
+            .Setup(reader => reader.IsWorkingDeskAsync(actorId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(workingDeskOnActorId);
 
         Mock<IFindingsSnapshotRepository> findingsSnapshotRepository = new();
+
         if (findingsSnapshot is not null && findingsSnapshotId is Guid snapshotId)
         {
             findingsSnapshotRepository

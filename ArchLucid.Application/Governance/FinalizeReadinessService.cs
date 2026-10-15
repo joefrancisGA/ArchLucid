@@ -241,8 +241,9 @@ public sealed class FinalizeReadinessService(
             .ApplyAsync(architectureRun, findings, scope, cancellationToken)
             .ConfigureAwait(false);
 
+        // Preferences persist workspace mode under GetActorId (JWT oid / DevBypass id), not the display name.
         bool workingDesk = await _userWorkspaceModeReader
-            .IsWorkingDeskAsync(_actorContext.GetActor(), cancellationToken)
+            .IsWorkingDeskAsync(_actorContext.GetActorId(), cancellationToken)
             .ConfigureAwait(false);
 
         (bool degradedFindingCoverage, RunFindingCoverageSummary? coverageSummary) =

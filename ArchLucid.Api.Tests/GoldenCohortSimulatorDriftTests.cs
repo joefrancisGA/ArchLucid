@@ -6,6 +6,7 @@ using System.Text.Json;
 using ArchLucid.Api.Tests.TestDtos;
 using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.User;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Contracts.Manifest;
@@ -50,6 +51,13 @@ public sealed class GoldenCohortSimulatorDriftTests(ArchLucidApiFactory factory)
                 "ARCHLUCID_GOLDEN_COHORT_BASELINE_LOCKED is true but cohort.json still contains SHA placeholders. "
                 + "Clear the repository variable or run `archlucid golden-cohort lock-baseline --write` after owner approval (PENDING_QUESTIONS item 33).");
         }
+
+        // Simulator SHA lock is Guided/eval (ADR 0086), not Working career export. Default workspace
+        // mode is Working, which applies the 47-engine career-export floor and blocks finalize.
+        HttpResponseMessage workspaceModeResponse = await Client.PutAsync(
+            "/v1/user/preferences/workspace-mode",
+            JsonContent(new SetWorkspaceModeRequest { Mode = WorkspaceModeValues.Guided }));
+        await workspaceModeResponse.EnsureSuccessForTestAsync();
 
         int cap = document.Items.Count;
         string? capRaw = Environment.GetEnvironmentVariable("ARCHLUCID_GOLDEN_COHORT_DRIFT_ITEM_CAP");

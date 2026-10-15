@@ -33,7 +33,10 @@ import {
 } from "@/lib/governance/governance-infrastructure-route-paths";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { GOVERNANCE_SETUP_HREF, GOVERNANCE_SETUP_PAGE_TITLE } from "@/lib/governance/governance-setup-route";
-import { GOVERNANCE_EXCEPTIONS_PATH } from "@/lib/governance/governance-route-paths";
+import {
+  GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH,
+  GOVERNANCE_EXCEPTIONS_PATH,
+} from "@/lib/governance/governance-route-paths";
 import { GOVERNANCE_APPROVAL_HELP_TOPIC_LABEL } from "@/lib/governance/governance-approval-help-evidence-copy";
 import { POLICY_PACKS_HUB_HELP_TOPIC_LABEL } from "@/lib/policy/policy-packs-hub-evidence-copy";
 import { RECURRENCE_SCHEDULES_HELP_TOPIC_LABEL } from "@/lib/recurrence-schedules-help-evidence-copy";
@@ -55,6 +58,14 @@ export const PAGE_HELP_TOPIC_ROWS_OPERATOR_GOVERNANCE: readonly PageHelpTopicRow
   {
     prefix: "/help/governance-approval",
     topic: { slug: "governance-approval", label: GOVERNANCE_APPROVAL_HELP_TOPIC_LABEL },
+  },
+  {
+    prefix: GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH,
+    topic: {
+      slug: "findings",
+      label: OPERATOR_NAV_LINK_LABELS.assignedToMeFindings,
+      hashFragment: "assigned-to-me",
+    },
   },
   { prefix: "/governance/findings", topic: { slug: "findings", label: OPERATOR_NAV_LINK_LABELS.findings } },
   {

@@ -29,6 +29,8 @@ public sealed class ArchitectureReviewRobustnessWave15ArchitectureTests
 
         cohort.Should().Contain("committedArtifactInventory");
         cohort.Should().Contain("ComputeContentSha256Hex(");
+        cohort.Should().Contain("workspace-mode");
+        cohort.Should().Contain("WorkspaceModeValues.Guided");
 
         string cli = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Cli/ArchLucidCliApiClient.Runs.FingerprintSeed.cs");
 
