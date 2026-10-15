@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Roi;
 
 /// <summary>Flat finding row for sponsor ROI CSV export.</summary>
@@ -61,18 +63,22 @@ public sealed class SponsorRoiExportRow
 /// <summary>Deduplicated finding rows for CSV export.</summary>
 public sealed class SponsorRoiExportResponse
 {
+    private IReadOnlyList<SponsorRoiExportRow> rows = [];
+
     public IReadOnlyList<SponsorRoiExportRow> Rows
     {
-        get;
-        init;
-    } = [];
+        get => rows;
+        init => rows = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
+
+    private IReadOnlyList<SponsorRoiEnvironmentSavingsSlice> savingsByEnvironment = [];
 
     /// <summary>Aggregated savings by environment tag for dashboard pie charts.</summary>
     public IReadOnlyList<SponsorRoiEnvironmentSavingsSlice> SavingsByEnvironment
     {
-        get;
-        init;
-    } = [];
+        get => savingsByEnvironment;
+        init => savingsByEnvironment = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 
     /// <summary>Enterprise Agreement discount multiplier applied to cost-category savings (1.0 = Retail list).</summary>
     public decimal EaDiscountMultiplier

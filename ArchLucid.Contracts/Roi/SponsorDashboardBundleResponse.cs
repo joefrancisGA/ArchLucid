@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Governance;
+using ArchLucid.Contracts.Serialization;
 
 namespace ArchLucid.Contracts.Roi;
 
@@ -11,9 +12,11 @@ public sealed class SponsorDashboardBundleResponse
         init;
     } = new();
 
+    private IReadOnlyList<ComplianceDriftTrendPoint> complianceDriftTrend = [];
+
     public IReadOnlyList<ComplianceDriftTrendPoint> ComplianceDriftTrend
     {
-        get;
-        init;
-    } = [];
+        get => complianceDriftTrend;
+        init => complianceDriftTrend = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 }

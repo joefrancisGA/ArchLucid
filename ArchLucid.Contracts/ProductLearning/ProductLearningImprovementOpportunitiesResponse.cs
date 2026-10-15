@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.ProductLearning;
 
 /// <summary>Ranked improvement opportunities for the current scope and query window.</summary>
@@ -9,9 +11,11 @@ public sealed class ProductLearningImprovementOpportunitiesResponse
         init;
     }
 
+    private IReadOnlyList<ImprovementOpportunity> opportunities = [];
+
     public IReadOnlyList<ImprovementOpportunity> Opportunities
     {
-        get;
-        init;
-    } = [];
+        get => opportunities;
+        init => opportunities = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 }

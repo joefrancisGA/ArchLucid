@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Roi;
 
 /// <summary>One historical sponsor ROI snapshot for trend charts.</summary>
@@ -53,9 +55,11 @@ public sealed class SponsorRoiHistoryPoint
 /// <summary>Longitudinal sponsor ROI series (typically last six months).</summary>
 public sealed class SponsorRoiHistoryResponse
 {
+    private IReadOnlyList<SponsorRoiHistoryPoint> points = [];
+
     public IReadOnlyList<SponsorRoiHistoryPoint> Points
     {
-        get;
-        init;
-    } = [];
+        get => points;
+        init => points = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 }
