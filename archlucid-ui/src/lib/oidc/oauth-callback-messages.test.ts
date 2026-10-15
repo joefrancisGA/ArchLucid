@@ -59,6 +59,10 @@ describe("decodeOAuthErrorDescription", () => {
   it("returns empty for nbsp-only percent-encoded error descriptions", () => {
     expect(decodeOAuthErrorDescription("%C2%A0")).toBe("");
   });
+
+  it("returns empty for percent-encoded punctuation-only error descriptions", () => {
+    expect(decodeOAuthErrorDescription("%2E%2E%2E")).toBe("");
+  });
 });
 
 describe("humanizeAuthorizeCallbackError", () => {
@@ -179,6 +183,29 @@ describe("humanizeAuthorizeCallbackError", () => {
     expect(message).toContain("Another sign-in step");
     expect(message.length).toBeLessThanOrEqual(280);
     expect(message).not.toContain("Policy");
+  });
+
+  it("uses fixed copy for interaction_required regardless of oversized error_description", () => {
+    const oversized = `${"Policy ".repeat(80)}end`;
+    const message = humanizeAuthorizeCallbackError("interaction_required", oversized);
+
+    expect(message).toContain("Another sign-in step");
+    expect(message.length).toBeLessThanOrEqual(280);
+    expect(message).not.toContain("Policy");
+  });
+
+  it("uses fixed copy for consent_required regardless of oversized error_description", () => {
+    const oversized = `${"Policy ".repeat(80)}end`;
+    const message = humanizeAuthorizeCallbackError("consent_required", oversized);
+
+    expect(message).toContain("administrator consent");
+    expect(message.length).toBeLessThanOrEqual(280);
+    expect(message).not.toContain("Policy");
+  });
+
+  it("surfaces readable authorize error_description when the error code is punctuation-only", () => {
+    expect(humanizeAuthorizeCallbackError("...", "Policy enforced")).toBe("Sign-in did not finish: Policy enforced");
+    expect(humanizeAuthorizeCallbackError("...", "Policy enforced")).not.toContain("...");
   });
 
   it("uses fixed copy for access_denied when error_description is absent", () => {

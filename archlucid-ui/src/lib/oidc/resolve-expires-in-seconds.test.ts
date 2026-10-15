@@ -64,4 +64,8 @@ describe("resolveExpiresInSeconds", () => {
   it("parses a binary-prefixed string expires_in when Number accepts the literal", () => {
     expect(resolveExpiresInSeconds("0b101" as unknown as number)).toBe(5);
   });
+
+  it("parses a string expires_in with leading zeros", () => {
+    expect(resolveExpiresInSeconds("0003600" as unknown as number)).toBe(3600);
+  });
 });

@@ -100,8 +100,12 @@ function persistNonSensitiveSessionHints(tokens: OidcTokenResponse, expiresAtMs:
 
   const subject = accessPayload?.sub;
 
-  if (typeof subject === "string" && subject.trim().length > 0) {
-    sessionStorage.setItem(OIDC_USER_SUBJECT_KEY, subject.trim());
+  if (typeof subject === "string") {
+    const normalizedSubject = normalizeOidcConfigurationString(subject);
+
+    if (normalizedSubject.length > 0) {
+      sessionStorage.setItem(OIDC_USER_SUBJECT_KEY, normalizedSubject);
+    }
   }
 }
 

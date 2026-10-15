@@ -67,4 +67,9 @@ describe("pickDisplayNameFromPayload", () => {
   it("falls back to sub", () => {
     expect(pickDisplayNameFromPayload({ sub: "abc-123" })).toBe("abc-123");
   });
+
+  it("strips zero-width padding from display-name claims", () => {
+    expect(pickDisplayNameFromPayload({ name: "\u200bJane Operator\u200b" })).toBe("Jane Operator");
+    expect(pickDisplayNameFromPayload({ preferred_username: "\u200b" })).toBeNull();
+  });
 });

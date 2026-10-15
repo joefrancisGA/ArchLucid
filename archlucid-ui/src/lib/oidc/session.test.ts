@@ -219,6 +219,18 @@ describe("persistTokenResponse", () => {
     expect(clearBffSessionCookieMock).toHaveBeenCalledTimes(1);
   });
 
+  it("does not store zero-width-only subject hints from JWT claims", () => {
+    const header = Buffer.from(JSON.stringify({ alg: "none", typ: "JWT" })).toString("base64url");
+    const payload = Buffer.from(JSON.stringify({ sub: "\u200b\u200b", exp: Math.floor(Date.now() / 1000) + 3600 })).toString(
+      "base64url",
+    );
+    const accessToken = `${header}.${payload}.sig`;
+
+    persistTokenResponse({ access_token: accessToken, expires_in: 3600 });
+
+    expect(sessionStorage.getItem(OIDC_USER_SUBJECT_KEY)).toBeNull();
+  });
+
   it("stores non-sensitive display name and subject hints from JWT claims", () => {
     const header = Buffer.from(JSON.stringify({ alg: "none", typ: "JWT" })).toString("base64url");
     const payload = Buffer.from(

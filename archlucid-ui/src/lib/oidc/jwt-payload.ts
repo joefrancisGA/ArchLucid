@@ -1,4 +1,7 @@
-import { stripOAuthInvisibleFormatChars } from "@/lib/oidc/oauth-callback-messages";
+import {
+  normalizeOidcConfigurationString,
+  stripOAuthInvisibleFormatChars,
+} from "@/lib/oidc/oauth-callback-messages";
 
 /**
  * Decode JWT payload for display only (no signature verification — server validates on API calls).
@@ -64,8 +67,14 @@ export function pickDisplayNameFromPayload(payload: Record<string, unknown> | nu
   const sub = payload.sub;
 
   for (const candidate of [preferred, name, upn, email, sub]) {
-    if (typeof candidate === "string" && candidate.trim().length > 0) {
-      return candidate.trim();
+    if (typeof candidate !== "string") {
+      continue;
+    }
+
+    const normalized = normalizeOidcConfigurationString(candidate);
+
+    if (normalized.length > 0) {
+      return normalized;
     }
   }
 
