@@ -18377,7 +18377,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
-2026-10-15 seed hunt (seed→hit): promoted `IncludeDeterminismCheck` with `DeterminismIterations` &lt; 2; skip `IDeterminismCheckService.RunAsync` and warn (matches service minimum); regression `BuildAsync_skips_determinism_check_when_iterations_below_minimum`; 33 scoped ArchitectureAnalysis/CompareQuality tests passed.
+2026-10-15 seed hunt (seed→hit): promoted `IncludeDeterminismCheck` with `DeterminismIterations` below 2; skip `IDeterminismCheckService.RunAsync` and warn (matches service minimum); regression `BuildAsync_skips_determinism_check_when_iterations_below_minimum`; 33 scoped ArchitectureAnalysis/CompareQuality tests passed.
 
 - [x] (proven) `ArchitectureAnalysisService.BuildAsync` — `IncludeDeterminismCheck` with zero `DeterminismIterations` still invokes determinism service — **hit 2026-10-15 seed hunt:** regression `BuildAsync_skips_determinism_check_when_iterations_below_minimum`.
 
