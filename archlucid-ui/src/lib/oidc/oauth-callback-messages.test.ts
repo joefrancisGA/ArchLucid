@@ -38,6 +38,11 @@ describe("decodeOAuthErrorDescription", () => {
   it("collapses percent-encoded C0 control characters in error descriptions", () => {
     expect(decodeOAuthErrorDescription("Policy%08denied")).toBe("Policy denied");
   });
+
+  it("collapses soft hyphens in authorize error descriptions for readable single-line copy", () => {
+    expect(decodeOAuthErrorDescription("Policy%C2%ADdenied")).toBe("Policy denied");
+    expect(decodeOAuthErrorDescription("%C2%AD")).toBe("");
+  });
 });
 
 describe("humanizeAuthorizeCallbackError", () => {

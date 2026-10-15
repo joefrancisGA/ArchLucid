@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-15 seed hunt (seed→hit): `ui-oidc` — promoted `collapseOAuthErrorDescriptionLineBreaks` leaving U+00AD soft hyphens in authorize `error_description` (single-line copy showed `Policydenied`); normalize soft hyphens to spaces with C0/Unicode separators; regression `collapses soft hyphens in authorize error descriptions for readable single-line copy`; cheap-disproved five open `(candidate)` rows; reseeded five follow-on candidates; 122 scoped `src/lib/oidc` vitest tests passed.
+
 2026-10-15 seed hunt (seed→hit): `ui-oidc` — promoted `trimTokenFormParams` posting authorization `code` / PKCE fields with zero-width padding (`trim()` only) while inbound token JSON was normalized; reuse `normalizeTokenString` on all token-endpoint form values; regression `strips zero-width characters from authorization code and PKCE fields before posting the form`; cheap-disproved five open `(candidate)` rows; reseeded five follow-on candidates; 121 scoped `src/lib/oidc` vitest tests passed.
 
 2026-10-15 seed hunt (seed→hit): `ui-oidc` — promoted `parseOidcTokenResponse` leaving zero-width characters on `access_token` / optional tokens (`String.trim` does not strip ZWSP); shared `normalizeTokenString` with OAuth error strip helper; regressions `strips zero-width characters from access_token in successful token responses` and `omits zero-width-only refresh_token values from token responses`; cheap-disproved five open `(candidate)` rows; reseeded five follow-on candidates; 120 scoped `src/lib/oidc` vitest tests passed.
@@ -21039,11 +21041,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 71
-- **bugs-found:** 65
+- **hunts:** 72
+- **bugs-found:** 66
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-15
-- **last-bug:** 2026-10-15 — zero-width padding on token-endpoint form POST
+- **last-bug:** 2026-10-15 — soft hyphens in authorize error_description copy
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -21198,11 +21200,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `syncBffSessionCookieFromTokenResponse` — interior ZWSP on access token — **cheap-disproof 2026-10-15 seed hunt:** parse boundary normalizes before BFF POST; transport `trim()` is idempotent on clean tokens.
 - [x] (valid-no-repro) `humanizeAuthorizeCallbackError` — soft hyphen-only description — **cheap-disproof 2026-10-15 seed hunt:** rare IdP copy; no demonstrated callback UI breakage beyond cosmetic invisible glyph (defer charset expansion).
 - [x] (valid-no-repro) `loadDiscoveryDocument` — authority host casing cache — **cheap-disproof 2026-10-15 seed hunt:** discovery URL built from `URL` origin + pathname; duplicate fetches are benign per-tab cache behavior.
-- (candidate) `decodeOAuthErrorDescription` — percent-encoded soft hyphen in authorize description — locus: `oauth-callback-messages.ts`; input: `Policy%C2%ADdenied`; wrong outcome: buyer copy shows optional break; mechanism: collapse charset.
-- (candidate) `consumePkceState` — callback `code` query with ZWSP before exchange — locus: `CallbackClient.tsx` + `token-client.ts`; input: `?code=%E2%80%8Babc`; wrong outcome: now stripped at POST; mechanism: verify end-to-end after form fix.
-- (candidate) `readOAuthErrorString` — interior ZWSP inside token `error` code — locus: `token-client.ts`; input: `in\u200bvalid_grant`; wrong outcome: strip normalizes to readable code; mechanism: shared strip on error field.
-- (candidate) `refreshAccessToken` — refresh token with word joiner padding from storage — locus: `token-client.ts`; input: caller-supplied refresh with `\u2060`; wrong outcome: strip at POST; mechanism: normalizeTokenString on form path.
-- (candidate) `parseDiscoveryDocument` — `issuer` with surrounding ZWSP — locus: `discovery.ts`; input: discovery JSON issuer field; wrong outcome: trimmed issuer stored; mechanism: issuer trim without invisible strip.
+- [x] (proven) `collapseOAuthErrorDescriptionLineBreaks` — soft hyphen in authorize `error_description` — **hit 2026-10-15 seed hunt (seed→hit):** `Policy%C2%ADdenied` rendered as glued words on single-line callback copy; include `\u00AD` in separator collapse; regression `collapses soft hyphens in authorize error descriptions for readable single-line copy`.
+- [x] (valid-no-repro) `consumePkceState` — ZWSP in callback `code` query — **cheap-disproof 2026-10-15 seed hunt:** `normalizeTokenString` on token-endpoint POST; regression `strips zero-width characters from authorization code and PKCE fields before posting the form`.
+- [x] (valid-no-repro) `readOAuthErrorString` — interior ZWSP in token `error` — **cheap-disproof 2026-10-15 seed hunt:** `stripOAuthInvisibleFormatChars` removes interior format chars; `invalid_grant` preserved.
+- [x] (valid-no-repro) `refreshAccessToken` — word-joiner-padded refresh token argument — **cheap-disproof 2026-10-15 seed hunt:** form params use `normalizeTokenString`; regression `trims caller-supplied refresh token values before posting the form`.
+- [x] (valid-no-repro) `parseDiscoveryDocument` — issuer with surrounding ZWSP — **cheap-disproof 2026-10-15 seed hunt:** parsed `issuer` is not used for navigation in zone files; endpoint URLs are trimmed and scheme-validated.
+- (candidate) `sanitizeOAuthUserFacingMessage` — token-endpoint error with embedded soft hyphen — locus: `oauth-callback-messages.ts`; input: `error_description` JSON with `\u00AD`; wrong outcome: shared collapse path; mechanism: parity with authorize decode.
+- (candidate) `humanizeAuthorizeCallbackError` — `error` code with interior soft hyphen — locus: `oauth-callback-messages.ts`; input: `access\u00ADdenied`; wrong outcome: unknown-code branch; mechanism: `formatErrorCodeForReading` underscore-only vs AD.
+- (candidate) `buildAuthorizeUrl` — `nonce` / `state` with ZWSP from `randomOpaqueState` — locus: `pkce.ts` + `build-authorize-url.ts`; input: crypto output; wrong outcome: unreachable ZWSP; mechanism: base64url alphabet.
+- (candidate) `decodeJwtPayload` — JWT payload with soft hyphen in `name` claim — locus: `jwt-payload.ts`; input: display hint only; wrong outcome: cosmetic mojibake; mechanism: UTF-8 decode path.
+- (candidate) `pulseBffSessionActivity` — activity POST when CSRF cookie has surrounding ZWSP — locus: `bff-session-sync.ts`; input: malformed document cookie; wrong outcome: ignored pulse; mechanism: CSRF reader trim coverage.
 - [x] (proven) `persistTokenResponse` — a hung older token-to-BFF sync blocks a newer same-session sync, preventing the replacement session from establishing its cookie — **hit 2026-10-11 seed hunt:** the sync-order promise chain awaited every older request; concurrent sync plus latest-request replay lets the newer request proceed and converges late completions on the latest token; regression `does not block a newer sync behind a hung older request` in `session.test.ts`.
 - [x] (proven) `persistTokenResponse` — concurrent same-session token-to-BFF syncs can complete out of order, allowing an older provider response to overwrite a newer BFF cookie — **hit 2026-10-11 seed hunt:** each token response started its own asynchronous sync with no ordering guard; serialize sync writes through a recovery-safe promise chain; regression `keeps an older token sync from overwriting a newer same-session sync` in `session.test.ts`.
 - [x] (proven) `persistNonSensitiveSessionHints` — a replacement token without optional display-name or subject claims leaves the prior user's identity hints in `sessionStorage` — **hit 2026-10-11 seed hunt:** hint writes were conditional but stale keys were never removed, so a same-browser user replacement could display the previous user's name/subject; clear both hint keys before applying each token response; regression `clears stale identity hints when a replacement token has no identity claims` in `session.test.ts`.

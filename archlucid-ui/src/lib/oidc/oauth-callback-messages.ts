@@ -12,7 +12,8 @@ export function stripOAuthInvisibleFormatChars(text: string): string {
 export function collapseOAuthErrorDescriptionLineBreaks(text: string): string {
   return text
     .replace(OAUTH_INVISIBLE_FORMAT_CHARS, " ")
-    .replace(/[\u0000-\u001F\u007F\u2028\u2029\u0085]/gu, " ")
+    // Soft hyphens are optional break points; on single-line callback copy they glue words (Policy\u00ADdenied).
+    .replace(/[\u0000-\u001F\u007F\u2028\u2029\u0085\u00AD]/gu, " ")
     .replace(/\s+/gu, " ")
     .trim();
 }
