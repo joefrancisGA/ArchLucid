@@ -9,8 +9,14 @@ import {
   SECURENOW_CLOUD_CONNECTIONS_HELP,
   SECURENOW_POLICY_PACKS_HUB,
   SECURENOW_STANDARDS_RULES_HUB,
+  SECURENOW_INVITE_REVIEWER,
   SECURENOW_TROUBLESHOOTING_HELP,
+  SECURENOW_USERS_ADMIN,
+  SECURENOW_USERS_AND_ROLES_HELP,
 } from "@/lib/contextual-help/securenow-contextual-help-overrides";
+import { INVITE_REVIEWER_CANONICAL_PATH } from "@/lib/invite-reviewer-evidence-copy";
+import { SETTINGS_USERS_CANONICAL_PATH } from "@/lib/settings-users-evidence-copy";
+import { USERS_AND_ROLES_HELP_CANONICAL_PATH } from "@/lib/users-and-roles-help-evidence-copy";
 import {
   resolveGettingStartedHelpClaimDiscipline,
   resolveGettingStartedHelpPlainLanguageTerms,
@@ -55,6 +61,7 @@ import {
   troubleshootingDecisionTreeSteps,
 } from "@/lib/troubleshooting-help-guide-content";
 import {
+  usersAndRolesCapabilityLabel,
   usersAndRolesCapabilityRows,
   usersAndRolesFaq,
   usersAndRolesRoleOverview,
@@ -203,6 +210,21 @@ describe("SecureNow help guide content", () => {
     expect(contextualHelpForPathname("/help/troubleshooting", { productLineId: "security" })?.whatIsThisPage).toBe(
       SECURENOW_TROUBLESHOOTING_HELP.whatIsThisPage,
     );
+    expect(contextualHelpForPathname("/help/troubleshooting", { productLineId: "security" })?.whatIsThisPage).not.toMatch(
+      /architect workflows/i,
+    );
+    expect(contextualHelpForPathname(SETTINGS_USERS_CANONICAL_PATH, { productLineId: "security" })?.whatIsThisPage).toBe(
+      SECURENOW_USERS_ADMIN.whatIsThisPage,
+    );
+    expect(contextualHelpForPathname(INVITE_REVIEWER_CANONICAL_PATH, { productLineId: "security" })?.whatIsThisPage).toBe(
+      SECURENOW_INVITE_REVIEWER.whatIsThisPage,
+    );
+    expect(
+      contextualHelpForPathname(INVITE_REVIEWER_CANONICAL_PATH, { productLineId: "security" })?.whatIsThisPage,
+    ).not.toMatch(/sign off on architecture reviews/i);
+    expect(contextualHelpForPathname(USERS_AND_ROLES_HELP_CANONICAL_PATH, { productLineId: "security" })?.whatIsThisPage).toBe(
+      SECURENOW_USERS_AND_ROLES_HELP.whatIsThisPage,
+    );
     expect(
       contextualHelpForPathname("/security/assigned-to-me", { productLineId: "security" })?.whatIsThisPage,
     ).not.toContain("architecture risks");
@@ -275,5 +297,10 @@ describe("SecureNow help guide content", () => {
       "not administered in SecureNow",
     );
     expect(usersAndRolesCapabilityRows("architecture").map((row) => row.id)).toContain("manage-billing");
+    expect(usersAndRolesCapabilityLabel("view-reviews", "security")).toContain("findings");
+    expect(usersAndRolesCapabilityLabel("view-reviews", "security")).not.toContain("architectures");
+    expect(usersAndRolesCapabilityRows("security").find((row) => row.id === "view-reviews")?.label).toContain(
+      "findings",
+    );
   });
 });
