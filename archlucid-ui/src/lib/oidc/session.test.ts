@@ -341,6 +341,23 @@ describe("consumePkceState", () => {
       flow: "primary",
     });
   });
+
+  it("matches stored PKCE state when the callback state query value has surrounding whitespace", () => {
+    storePkceState("primary-state", "primary-verifier", "primary-nonce", "primary");
+
+    expect(consumePkceState("  primary-state  ")).toEqual({
+      state: "primary-state",
+      codeVerifier: "primary-verifier",
+      nonce: "primary-nonce",
+      flow: "primary",
+    });
+  });
+
+  it("rejects whitespace-only callback state values", () => {
+    storePkceState("primary-state", "primary-verifier", "primary-nonce", "primary");
+
+    expect(consumePkceState("   ")).toBeNull();
+  });
 });
 
 describe("clearOidcSession", () => {

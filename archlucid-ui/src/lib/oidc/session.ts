@@ -236,12 +236,18 @@ export function readPkceState(flow: OidcPkceFlow = "primary"): Omit<StoredPkceSt
 }
 
 export function consumePkceState(expectedState: string): StoredPkceState | null {
+  const normalizedExpected = expectedState.trim();
+
+  if (normalizedExpected.length === 0) {
+    return null;
+  }
+
   const flows: OidcPkceFlow[] = ["primary", "google"];
 
   for (const flow of flows) {
     const pair = readPkceStateForFlow(flow);
 
-    if (!pair || pair.state !== expectedState) {
+    if (!pair || pair.state !== normalizedExpected) {
       continue;
     }
 
