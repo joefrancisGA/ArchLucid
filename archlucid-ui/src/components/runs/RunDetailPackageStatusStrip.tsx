@@ -160,7 +160,9 @@ export function RunDetailPackageStatusStrip(props: RunDetailPackageStatusStripPr
       ? isBuyerPolishedOperatorShellEnv() && warningN !== null && warningN > 0
         ? BUYER_FINDINGS_COUNT_WITH_MONITORED_RISK(findingN, warningN)
         : `${findingN} ${findingsWord}`
-      : finiteIntegerCountDisplay(props.findingCountDisplay);
+      : finiteIntegerCountDisplay(props.findingCountDisplay, {
+          notStoredLabel: "Finding count was not stored.",
+        });
   const severitySignal = buyerFindingSeveritySignal(props.findingCountDisplay, props.aggregateRiskPosture);
   const gateRaw = props.governanceGateLabel?.trim() ?? "";
   const gateOmitted = gateRaw.length === 0;

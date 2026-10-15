@@ -4,6 +4,7 @@ import {
   formatAzureResourceDisplay,
   formatAzureResourceTypeForDisplay,
   formatCloudResourceDisplayName,
+  isSecureNowResourceDisplayNameMissing,
   normalizeSecureNowResourceNameForDisplay,
 } from "@/lib/infra-evidence/format-azure-resource-display";
 
@@ -86,6 +87,12 @@ describe("normalizeSecureNowResourceNameForDisplay", () => {
 
   it("preserves the empty placeholder", () => {
     expect(normalizeSecureNowResourceNameForDisplay("—")).toBe("—");
+  });
+
+  it("treats empty and em-dash names as missing for outline omission copy (P-02)", () => {
+    expect(isSecureNowResourceDisplayNameMissing("")).toBe(true);
+    expect(isSecureNowResourceDisplayNameMissing("—")).toBe(true);
+    expect(isSecureNowResourceDisplayNameMissing("gateway-pip")).toBe(false);
   });
 });
 

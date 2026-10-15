@@ -136,14 +136,13 @@ export function RunDetailManifestSummarySection(
                   ) : manifestSummary.effectiveGovernanceAtCommit.hasEffectivePolicy ? (
                     <>
                       <p className="m-0">
-                        {finiteIntegerCountDisplay(
-                          manifestSummary.effectiveGovernanceAtCommit.packAssignments === undefined
-                          || manifestSummary.effectiveGovernanceAtCommit.packAssignments === null
-                            ? undefined
-                            : manifestSummary.effectiveGovernanceAtCommit.packAssignments.length,
-                          { missingLabel: "not-returned" },
-                        )}{" "}
-                        pack assignment(s) ·{" "}
+                        {manifestSummary.effectiveGovernanceAtCommit.packAssignments === undefined
+                        || manifestSummary.effectiveGovernanceAtCommit.packAssignments === null
+                          ? "Pack assignment count was not stored."
+                          : `${finiteIntegerCountDisplay(
+                              manifestSummary.effectiveGovernanceAtCommit.packAssignments.length,
+                            )} pack assignment(s)`}{" "}
+                        ·{" "}
                         {manifestSummary.effectiveGovernanceAtCommit.complianceRuleKeyCount === null
                           ? "Compliance rule key count was not stored."
                           : finiteIntegerCountDisplay(

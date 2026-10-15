@@ -12,36 +12,59 @@ type StageKey = "context" | "graph" | "findings" | "manifest";
 type StageDef = {
   key: StageKey;
   label: string;
-  present: boolean;
+  snapshot: boolean | undefined;
 };
 
-function stageChipLabel(stage: StageDef, buyerPolished: boolean): string {
-  if (buyerPolished && stage.key === "manifest") {
-    if (!stage.present) {
-      return "Package · …";
-    }
+function stageNotStoredLabel(stage: StageDef): string {
+  switch (stage.key) {
+    case "context":
+      return "Context snapshot status was not stored.";
 
+    case "graph":
+      return "Graph snapshot status was not stored.";
+
+    case "findings":
+      return "Findings snapshot status was not stored.";
+
+    case "manifest":
+      return "Package snapshot status was not stored.";
+
+    default:
+      return `${stage.label} snapshot status was not stored.`;
+  }
+}
+
+function stageNotCapturedLabel(stage: StageDef, buyerPolished: boolean): string {
+  if (buyerPolished && stage.key === "manifest") {
+    return "Package was not captured.";
+  }
+
+  if (buyerPolished && stage.key === "graph") {
+    return "Evidence graph was not captured.";
+  }
+
+  if (buyerPolished && stage.key === "findings") {
+    return "Risks were not captured.";
+  }
+
+  if (buyerPolished && stage.key === "context") {
+    return "Source context was not captured.";
+  }
+
+  return `${stage.label} was not captured.`;
+}
+
+function stageCapturedLabel(stage: StageDef, buyerPolished: boolean): string {
+  if (buyerPolished && stage.key === "manifest") {
     return "Package finalized";
   }
 
   if (buyerPolished && stage.key === "graph") {
-    if (!stage.present) {
-      return "Evidence graph · …";
-    }
-
     return "Evidence graph ready";
   }
 
   if (buyerPolished && stage.key === "findings") {
-    if (!stage.present) {
-      return "Risks · …";
-    }
-
     return "Risks reviewed";
-  }
-
-  if (!stage.present) {
-    return `${stage.label} · …`;
   }
 
   switch (stage.key) {
@@ -62,34 +85,47 @@ function stageChipLabel(stage: StageDef, buyerPolished: boolean): string {
   }
 }
 
+function stageChipLabel(stage: StageDef, buyerPolished: boolean): string {
+  if (stage.snapshot === undefined) {
+    return stageNotStoredLabel(stage);
+  }
+
+  if (stage.snapshot === false) {
+    return stageNotCapturedLabel(stage, buyerPolished);
+  }
+
+  return stageCapturedLabel(stage, buyerPolished);
+}
+
 function stagesForRun(run: RunSummary, buyerPolished: boolean): StageDef[] {
   const graphPresentShowcaseFallback =
     buyerPolished === true && canonicalizeDemoRunId(run.runId) === SHOWCASE_STATIC_DEMO_RUN_ID;
 
-  const graphPresent =
-    run.hasGraphSnapshot === true ||
-    graphPresentShowcaseFallback === true;
+  const graphSnapshot =
+    run.hasGraphSnapshot === true || graphPresentShowcaseFallback === true
+      ? true
+      : run.hasGraphSnapshot;
 
   return [
     {
       key: "context",
       label: "Context",
-      present: run.hasContextSnapshot === true,
+      snapshot: run.hasContextSnapshot,
     },
     {
       key: "graph",
       label: "Graph",
-      present: graphPresent,
+      snapshot: graphSnapshot,
     },
     {
       key: "findings",
       label: "Findings",
-      present: run.hasFindingsSnapshot === true,
+      snapshot: run.hasFindingsSnapshot,
     },
     {
       key: "manifest",
       label: "Package",
-      present: run.hasGoldenManifest === true,
+      snapshot: run.hasGoldenManifest,
     },
   ];
 }
@@ -107,7 +143,7 @@ export type RunProvenanceInlineProps = {
  */
 export function RunProvenanceInline({ run, buyerPolished = false, summaryOnly = false }: RunProvenanceInlineProps) {
   const stages = stagesForRun(run, buyerPolished);
-  const presentCount = stages.filter((s) => s.present).length;
+  const presentCount = stages.filter((s) => s.snapshot === true).length;
   const stageCount = stages.length;
 
   const summaryLine =
@@ -141,7 +177,7 @@ export function RunProvenanceInline({ run, buyerPolished = false, summaryOnly = 
               className={cn(
                 "inline-flex items-center rounded-full border px-2 py-px font-semibold uppercase tracking-wide",
                 OPERATOR_NAV_GROUP_LABEL,
-                stage.present
+                stage.snapshot === true
                   ? "border-neutral-400 bg-al-surface-raised text-al-text-primary dark:border-neutral-600 dark:bg-neutral-800/80"
                   : "border-neutral-300 bg-white text-neutral-500 dark:border-neutral-600 dark:bg-neutral-950 dark:text-neutral-400",
               )}

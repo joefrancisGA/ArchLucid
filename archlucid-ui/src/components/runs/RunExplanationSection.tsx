@@ -21,6 +21,9 @@ import {
 import {
   presentRunExplanationHeadlineCount,
   resolveRunExplanationFindingCountForHeadline,
+  RUN_EXPLANATION_COMPLIANCE_GAP_COUNT_NOT_STORED_LABEL,
+  RUN_EXPLANATION_DECISION_COUNT_NOT_STORED_LABEL,
+  RUN_EXPLANATION_UNRESOLVED_COUNT_NOT_STORED_LABEL,
 } from "@/lib/runs/run-explanation-headline-stats-display";
 
 export type RunExplanationSectionProps = {
@@ -313,15 +316,31 @@ export function RunExplanationSection({
     displayFindingCount,
     summary.findingCount,
   );
-  const decisionCountForStats = presentRunExplanationHeadlineCount(summary.decisionCount);
-  const unresolvedCountForStats = presentRunExplanationHeadlineCount(summary.unresolvedIssueCount);
-  const complianceGapCountForStats = presentRunExplanationHeadlineCount(summary.complianceGapCount);
+  const decisionCountForStats = presentRunExplanationHeadlineCount(
+    summary.decisionCount,
+    RUN_EXPLANATION_DECISION_COUNT_NOT_STORED_LABEL,
+  );
+  const unresolvedCountForStats = presentRunExplanationHeadlineCount(
+    summary.unresolvedIssueCount,
+    RUN_EXPLANATION_UNRESOLVED_COUNT_NOT_STORED_LABEL,
+  );
+  const complianceGapCountForStats = presentRunExplanationHeadlineCount(
+    summary.complianceGapCount,
+    RUN_EXPLANATION_COMPLIANCE_GAP_COUNT_NOT_STORED_LABEL,
+  );
 
   const expl = explanationBody(summary);
   const themesMissing = summary.themeSummaries === null || summary.themeSummaries === undefined;
   const themeSummaries = summary.themeSummaries ?? [];
   const explanationMissing = summary.explanation === null || summary.explanation === undefined;
-  const overallAssessment = summary.overallAssessment?.trim() ?? "Assessment details are not available for this review.";
+  const overallAssessmentRaw = summary.overallAssessment;
+  const overallAssessmentTrimmed = overallAssessmentRaw?.trim() ?? "";
+  const overallAssessment =
+    overallAssessmentRaw === null
+    || overallAssessmentRaw === undefined
+    || overallAssessmentTrimmed.length === 0
+      ? "Overall assessment was not stored."
+      : overallAssessmentTrimmed;
   const riskPostureLabel = summary.riskPosture?.trim() || "Risk posture was not stored.";
   const postureClass = riskPostureBadgeClass(riskPostureLabel);
   const deterministicFallback = isDeterministicExplanationFallback(summary);

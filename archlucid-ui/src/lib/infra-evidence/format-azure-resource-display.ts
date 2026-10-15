@@ -13,6 +13,14 @@ export type CloudResourceDisplayNameInput = {
 
 const EMPTY_RESOURCE_NAME_PLACEHOLDER = "—";
 
+export const SECURE_NOW_RESOURCE_NAME_NOT_STORED_LABEL = "Node name was not stored" as const;
+
+export function isSecureNowResourceDisplayNameMissing(resourceName: string | null | undefined): boolean {
+  const trimmed = resourceName?.trim() ?? "";
+
+  return trimmed.length === 0 || trimmed === EMPTY_RESOURCE_NAME_PLACEHOLDER;
+}
+
 /** Operator tables — missing ARM id or name (UU-457). */
 export const AZURE_RESOURCE_NAME_NOT_RECORDED_LABEL = "Name not recorded" as const;
 

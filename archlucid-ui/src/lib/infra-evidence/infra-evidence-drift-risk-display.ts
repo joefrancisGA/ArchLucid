@@ -47,7 +47,7 @@ export function resolveInfraEvidenceDriftRiskKey(
 
 export function formatInfraEvidenceDriftRiskLabel(riskKey: InfraEvidenceDriftRiskKey): string {
   if (riskKey === INFRA_EVIDENCE_DRIFT_RISK_NOT_RECORDED_KEY) {
-    return "Not recorded";
+    return "Drift risk was not stored.";
   }
 
   if (riskKey === "none") {

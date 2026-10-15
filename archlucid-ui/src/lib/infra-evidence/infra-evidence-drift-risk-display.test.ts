@@ -52,7 +52,7 @@ describe("infra-evidence-drift-risk-display", () => {
     expect(resolveInfraEvidenceDriftRiskKey("")).toBe("not-recorded");
     expect(resolveInfraEvidenceDriftRiskKey("none")).toBe("none");
     expect(resolveInfraEvidenceDriftRiskKey("unknown")).toBe("unknown");
-    expect(formatInfraEvidenceDriftRiskLabel("not-recorded")).toBe("Not recorded");
+    expect(formatInfraEvidenceDriftRiskLabel("not-recorded")).toBe("Drift risk was not stored.");
     expect(formatInfraEvidenceDriftRiskLabel("none")).toBe("None");
     expect(formatInfraEvidenceDriftRiskLabel("unknown")).toBe("Drift risk recorded as unknown.");
   });

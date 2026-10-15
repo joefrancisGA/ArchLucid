@@ -146,28 +146,20 @@ type InfraEvidenceDiagramOutlineProps = {
   readonly defaultEdgesOpen?: boolean;
 };
 
-function formatOutlineCell(value: string | null, missingLabel = "Not recorded", emptyLabel = "Not recorded"): string {
-  if (value == null) {
+function formatOutlineCell(value: string | null, missingLabel = "Not recorded"): string {
+  if (value == null || value.trim().length === 0) {
     return missingLabel;
-  }
-
-  if (value.trim().length === 0) {
-    return emptyLabel;
   }
 
   return value;
 }
 
 function formatOutlineResourceType(resourceType: string | null): string {
-  if (resourceType == null) {
+  if (resourceType == null || resourceType.trim().length === 0) {
     return "Resource type was not stored";
   }
 
-  if (resourceType.length === 0) {
-    return "";
-  }
-
-  return formatOutlineCell(formatDiagramArmTypeFriendlyName(resourceType), "Resource type was not stored", "");
+  return formatOutlineCell(formatDiagramArmTypeFriendlyName(resourceType), "Resource type was not stored");
 }
 
 function formatOutlineEdgeSource(source: InfraEvidenceDiagramOutlineEdgeSource): string {
@@ -355,7 +347,7 @@ function InfraEvidenceDiagramOutlineNodeTable(props: {
                 </td>
                 <td className="px-3 py-2">{formatOutlineResourceType(node.resourceType)}</td>
                 <td className={cn("px-3 py-2 font-mono", OPERATOR_TYPOGRAPHY.body)}>
-                  {formatOutlineCell(node.resourceGroup, "Resource group was not stored.", "")}
+                  {formatOutlineCell(node.resourceGroup, "Resource group was not stored.")}
                 </td>
                 {showProblem ? (
                   <td className={cn("px-3 py-2", OPERATOR_TYPOGRAPHY.body)}>
@@ -885,7 +877,6 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
                             {formatOutlineCell(
                               resolveInfraEvidenceOutlineEdgeLabel(edge, outline.nodes),
                               "Edge label was not stored",
-                              "",
                             )}
                           </td>
                           <td className="px-3 py-2">{toDisplay}</td>

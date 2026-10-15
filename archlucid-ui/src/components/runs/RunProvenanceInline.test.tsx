@@ -49,4 +49,17 @@ describe("RunProvenanceInline", () => {
 
     expect(screen.getByText("Risks reviewed")).toBeInTheDocument();
   });
+
+  it("labels undefined snapshot flags as not stored (P-13)", () => {
+    render(<RunProvenanceInline run={minimalRun()} />);
+
+    expect(screen.getByText("Context snapshot status was not stored.")).toBeInTheDocument();
+  });
+
+  it("labels false snapshot flags as not captured (P-13)", () => {
+    render(<RunProvenanceInline run={minimalRun({ hasContextSnapshot: false })} />);
+
+    expect(screen.getByText("Context was not captured.")).toBeInTheDocument();
+    expect(screen.queryByText(/· …/)).not.toBeInTheDocument();
+  });
 });

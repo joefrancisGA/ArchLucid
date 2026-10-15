@@ -64,13 +64,19 @@ function ReviewsHubRecentPackageRow(props: RecentPackageRowProps): React.JSX.Ele
       </EnterpriseTableCell>
       <EnterpriseTableCell>{row.lastUpdated}</EnterpriseTableCell>
       <EnterpriseTableCell className="text-right tabular-nums">
-        {finiteIntegerCountDisplay(row.findingsCount)}
+        {finiteIntegerCountDisplay(row.findingsCount, {
+          notStoredLabel: "Finding count was not stored.",
+        })}
       </EnterpriseTableCell>
       <EnterpriseTableCell className="text-right tabular-nums">
-        {finiteIntegerCountDisplay(row.riskCount)}
+        {finiteIntegerCountDisplay(row.riskCount, {
+          notStoredLabel: "Risk count was not stored.",
+        })}
       </EnterpriseTableCell>
       <EnterpriseTableCell className="text-right tabular-nums">
-        {finiteIntegerCountDisplay(row.evidenceCount)}
+        {finiteIntegerCountDisplay(row.evidenceCount, {
+          notStoredLabel: "Evidence count was not stored.",
+        })}
       </EnterpriseTableCell>
       <EnterpriseTableCell>{row.governanceState}</EnterpriseTableCell>
       <EnterpriseTableCell>

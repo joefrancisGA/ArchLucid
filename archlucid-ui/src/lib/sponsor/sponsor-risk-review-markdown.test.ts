@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 
-import { buildSponsorRiskReviewMarkdown, executiveRiskReviewMarkdownFilename } from "./sponsor-risk-review-markdown";
+import {
+  buildSponsorRiskReviewMarkdown,
+  executiveRiskReviewMarkdownFilename,
+  SPONSOR_EVIDENCE_CONFIDENCE_EMPTY_LINE,
+} from "./sponsor-risk-review-markdown";
 
 import type { RunExplanationSummary } from "@/types/explanation";
 
@@ -126,6 +130,11 @@ describe("buildSponsorRiskReviewMarkdown", () => {
     expect(missing).toContain("Faithfulness support ratio was not stored.");
     expect(stored).toContain("0 architecture findings");
     expect(stored).toContain("Faithfulness support ratio: stored.");
+  });
+
+  it("uses evidence confidence not-stored copy when confidence metadata is absent (P-08)", () => {
+    expect(SPONSOR_EVIDENCE_CONFIDENCE_EMPTY_LINE).toContain("Evidence confidence was not stored.");
+    expect(SPONSOR_EVIDENCE_CONFIDENCE_EMPTY_LINE).not.toContain("was not returned");
   });
 
   it("distinguishes missing faithfulness and fallback flags from stored empty and false values", () => {

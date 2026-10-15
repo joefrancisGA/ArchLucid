@@ -56,7 +56,7 @@ export const INFRA_EVIDENCE_DRIFT_CHANGE_TYPE_FILTER_OPTIONS: readonly { value: 
 
 export const INFRA_EVIDENCE_DRIFT_RISK_FILTER_OPTIONS: readonly { value: string; label: string }[] = [
   { value: "", label: "All risk levels" },
-  { value: "not-recorded", label: "Not recorded (unclassified)" },
+  { value: "not-recorded", label: "Drift risk was not stored." },
   { value: "none", label: "None (classified)" },
   { value: "unknown", label: "Drift risk recorded as unknown." },
   { value: "elevated", label: "Elevated" },

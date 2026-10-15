@@ -361,7 +361,7 @@ export function RunFindingExplainabilityTable({
           {rowVirtualizer.getVirtualItems().map((vi) => {
             const row = sortedRows[vi.index]!;
             const tracePct = traceCompletenessPercent(row.traceCompletenessRatio);
-            const tracePctDisplay = tracePct === null ? "Not returned" : `${tracePct}%`;
+            const tracePctDisplay = tracePct === null ? "Trace completeness was not stored." : `${tracePct}%`;
             const titleFull =
               row.findingTitle !== null &&
               row.findingTitle !== undefined &&
@@ -375,7 +375,7 @@ export function RunFindingExplainabilityTable({
               confidenceLevel !== null ? (
                 <FindingConfidenceBadge level={confidenceLevel} />
               ) : (
-                <span className="text-neutral-400 dark:text-neutral-500">Confidence not recorded</span>
+                <span className="text-neutral-400 dark:text-neutral-500">Confidence was not stored.</span>
               );
 
             const graphFocusId = preferredGraphNodeIdForFindingDeepLink(runId, row.findingId);
