@@ -47,23 +47,29 @@ public sealed class CloudResourceEvidenceHubResponse
         set;
     }
 
+    private CloudResourceEvidenceFindingStreamPage operationalSecurityFindings = new();
+
     public CloudResourceEvidenceFindingStreamPage OperationalSecurityFindings
     {
-        get;
-        set;
-    } = new();
+        get => operationalSecurityFindings;
+        set => operationalSecurityFindings = value ?? new CloudResourceEvidenceFindingStreamPage();
+    }
+
+    private CloudResourceEvidenceFindingStreamPage architectureReviewFindings = new();
 
     public CloudResourceEvidenceFindingStreamPage ArchitectureReviewFindings
     {
-        get;
-        set;
-    } = new();
+        get => architectureReviewFindings;
+        set => architectureReviewFindings = value ?? new CloudResourceEvidenceFindingStreamPage();
+    }
+
+    private CloudResourceRemediationStreamPage remediationInstances = new();
 
     public CloudResourceRemediationStreamPage RemediationInstances
     {
-        get;
-        set;
-    } = new();
+        get => remediationInstances;
+        set => remediationInstances = value ?? new CloudResourceRemediationStreamPage();
+    }
 
     private List<CloudResourceRbacAssignmentSummary> rbacAssignments = [];
 
@@ -89,11 +95,13 @@ public sealed class CloudResourceEvidenceHubResponse
         set => recentChanges = ContractCollectionDefaults.Coalesce(value);
     }
 
+    private CloudResourceAuditLineageLink auditLineageLink = new();
+
     public CloudResourceAuditLineageLink AuditLineageLink
     {
-        get;
-        set;
-    } = new();
+        get => auditLineageLink;
+        set => auditLineageLink = value ?? new CloudResourceAuditLineageLink();
+    }
 
     private List<CloudResourceEvidencePointer> evidencePointers = [];
 

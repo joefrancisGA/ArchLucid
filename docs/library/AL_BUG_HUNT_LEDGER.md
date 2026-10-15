@@ -30069,7 +30069,21 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 ---
 ## Zone: archlucid-contracts
 
-**Hunts:** 181 · **Bugs found:** 269 · **Consecutive dry hunts:** 0
+**Hunts:** 182 · **Bugs found:** 274 · **Consecutive dry hunts:** 0
+
+2026-10-15 seed hunt (seed→hit): promoted five open `(candidate)` rows on pillar finding counts, posture read-model review integrity, policy pack dry-run delta counts, cloud resource evidence hub nested sections, and governance lineage approval request; coalesce fix on `PillarPosture`, `ArchitecturePostureReadModel`, `PolicyPackDryRunResponse`, `CloudResourceEvidenceHubResponse`, and `GovernanceLineageResult`; regressions in `PillarPostureDeserializationTests`, `ArchitecturePostureReadModelDeserializationTests`, `PolicyPackDryRunResponseDeserializationTests`, `CloudResourceEvidenceHubResponseDeserializationTests`, and `GovernanceLineageResultDeserializationTests`; reseeded five follow-on `(candidate)` rows; 964 scoped `Contracts` filter tests passed.
+
+- [x] (proven) `PillarPosture.FindingCounts` — explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_finding_counts_yields_non_null_aggregate_not_null`.
+- [x] (proven) `ArchitecturePostureReadModel.ReviewIntegrity` — explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_review_integrity_yields_non_null_aggregate_not_null`.
+- [x] (proven) `PolicyPackDryRunResponse.DeltaCounts` — explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_delta_counts_yields_non_null_counts_not_null`.
+- [x] (proven) `CloudResourceEvidenceHubResponse` — finding streams / remediation / audit lineage explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_hub_nested_sections_yields_non_null_defaults`.
+- [x] (proven) `GovernanceLineageResult.ApprovalRequest` — explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_approval_request_yields_non_null_request_not_null`.
+
+- [ ] (candidate) `IncrementalReReviewResult.Scope` — explicit JSON `null` on incremental re-review scope — locus: `ArchitectureIntelligence.IncrementalReReviewResult`; input: incremental re-review result JSON with null `scope`.
+- [ ] (candidate) `ClosedLoopReasoningResult` — explicit JSON `null` on nested closed-loop reasoning payloads — locus: `ArchitectureIntelligence.ClosedLoopReasoningResult`; input: closed-loop reasoning result JSON with null nested object token (see file).
+- [ ] (candidate) `TenantBrandingAdminContracts` — explicit JSON `null` on tenant branding admin nested payloads — locus: `InfraEvidence.TenantBrandingAdminContracts`; input: tenant branding admin JSON with null nested object token (see file).
+- [ ] (candidate) `ArchitectureRecommendation` — explicit JSON `null` on architecture recommendation nested payloads — locus: `ArchitectureIntelligence.ArchitectureRecommendation`; input: architecture recommendation JSON with null nested object token (see file).
+- [ ] (candidate) `RunDecisionExplainabilityDto` — explicit JSON `null` on optional explainability authority section — locus: `Runs.RunDecisionExplainabilityDto`; input: run decision explainability JSON with null `authorityRuleAudit` when other nested ids are present.
 
 2026-10-15 seed hunt (seed→hit): promoted five open `(candidate)` rows on structured diagram ingest model, posture review integrity, trust evidence field snapshots, policy packs page bundle nested payloads, and effective governance resolution content; coalesce fix on `StructuredDiagramIngestResult`, `ArchitecturePostureSummary`, `RunTrustEvidenceCard` (all `TrustEvidenceFieldSnapshot` properties), `PolicyPacksPageBundleResponse`, and `EffectiveGovernanceResolutionResult`; regressions in `StructuredDiagramIngestResultDeserializationTests`, `ArchitecturePostureSummaryDeserializationTests`, `RunTrustEvidenceCardDeserializationTests`, `PolicyPacksPageBundleResponseDeserializationTests`, and `EffectiveGovernanceResolutionResultDeserializationTests`; reseeded five follow-on `(candidate)` rows; 959 scoped `Contracts` filter tests passed.
 
@@ -30078,12 +30092,6 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `RunTrustEvidenceCard` — `ExecutionMode` and sibling field snapshots explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_field_snapshots_yields_non_null_snapshots_not_null`.
 - [x] (proven) `PolicyPacksPageBundleResponse` — `Effective` / `EffectiveContent` explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_effective_and_content_yields_non_null_nested_objects`.
 - [x] (proven) `EffectiveGovernanceResolutionResult.EffectiveContent` — explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_effective_content_yields_non_null_document_not_null`.
-
-- [ ] (candidate) `PillarPosture.FindingCounts` — explicit JSON `null` on pillar finding aggregate — locus: `Governance.Posture.PillarPosture`; input: pillar posture JSON with null `findingCounts`.
-- [ ] (candidate) `ArchitecturePostureReadModel.ReviewIntegrity` — explicit JSON `null` on posture read-model review integrity — locus: `Governance.Posture.ArchitecturePostureReadModel`; input: architecture posture read model JSON with null `reviewIntegrity`.
-- [ ] (candidate) `PolicyPackDryRunResponse.DeltaCounts` — explicit JSON `null` on policy pack dry-run delta counts — locus: `Governance.PolicyPackDryRunResponse`; input: policy pack dry-run response JSON with null `deltaCounts`.
-- [ ] (candidate) `CloudResourceEvidenceHubResponse` — explicit JSON `null` on nested cloud resource evidence hub sections — locus: `InfraEvidence.CloudResourceEvidenceHubResponse`; input: cloud resource evidence hub JSON with null nested object token (see file).
-- [ ] (candidate) `GovernanceLineageDtos` — explicit JSON `null` on nested governance lineage payload — locus: `Governance.GovernanceLineageDtos`; input: governance lineage JSON with null nested object token (see file).
 
 2026-10-15 seed hunt (seed→hit): promoted five open `(candidate)` rows on learning ops status, run explainability snapshot ids, finding trace, sponsor dashboard bundle report, and vision diagram ingest model; coalesce fix on `RecommendationLearningOpsPageResponse`, `RunDecisionExplainabilityDto`, `Finding`, `SponsorDashboardBundleResponse`, and `VisionDiagramIngestResult` (nested-object null guards on both `init` and `set` accessors); regressions in `AdvisoryContractDeserializationTests`, `RunDecisionExplainabilityDtoDeserializationTests`, `FindingListDeserializationTests`, `SponsorDashboardBundleResponseDeserializationTests`, and `VisionDiagramIngestResultDeserializationTests`; reseeded five follow-on `(candidate)` rows; 954 scoped `Contracts` filter tests passed.
 

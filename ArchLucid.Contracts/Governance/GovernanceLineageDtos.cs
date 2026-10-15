@@ -119,11 +119,13 @@ public sealed class GovernanceLineageFindingSummary
 /// </summary>
 public sealed class GovernanceLineageResult
 {
+    private GovernanceApprovalRequest approvalRequest = new();
+
     public GovernanceApprovalRequest ApprovalRequest
     {
-        get;
-        set;
-    } = new();
+        get => approvalRequest;
+        set => approvalRequest = value ?? new GovernanceApprovalRequest();
+    }
 
     public GovernanceLineageRunSummary? Run
     {

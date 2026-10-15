@@ -22,11 +22,13 @@ public sealed class PillarPosture
         init;
     }
 
+    private PillarFindingAggregate findingCounts = new();
+
     public PillarFindingAggregate FindingCounts
     {
-        get;
-        init;
-    } = new();
+        get => findingCounts;
+        init => findingCounts = value ?? new PillarFindingAggregate();
+    }
 
     public ExaminationStateResolution Examination
     {

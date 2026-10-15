@@ -25,4 +25,20 @@ public sealed class PolicyPackDryRunResponseDeserializationTests
         response.Should().NotBeNull();
         response!.Items.Should().NotBeNull().And.BeEmpty();
     }
+
+    [Fact]
+    public void Deserialize_null_delta_counts_yields_non_null_counts_not_null()
+    {
+        const string json = """
+            {
+              "deltaCounts": null
+            }
+            """;
+
+        PolicyPackDryRunResponse? response =
+            JsonSerializer.Deserialize<PolicyPackDryRunResponse>(json, ContractJson.CamelCaseCompact);
+
+        response.Should().NotBeNull();
+        response!.DeltaCounts.Should().NotBeNull();
+    }
 }

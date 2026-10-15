@@ -31,4 +31,26 @@ public sealed class CloudResourceEvidenceHubResponseDeserializationTests
         response.RecentChanges.Should().NotBeNull().And.BeEmpty();
         response.EvidencePointers.Should().NotBeNull().And.BeEmpty();
     }
+
+    [Fact]
+    public void Deserialize_null_hub_nested_sections_yields_non_null_defaults()
+    {
+        const string json = """
+            {
+              "operationalSecurityFindings": null,
+              "architectureReviewFindings": null,
+              "remediationInstances": null,
+              "auditLineageLink": null
+            }
+            """;
+
+        CloudResourceEvidenceHubResponse? response =
+            JsonSerializer.Deserialize<CloudResourceEvidenceHubResponse>(json, ContractJson.CamelCaseCompact);
+
+        response.Should().NotBeNull();
+        response!.OperationalSecurityFindings.Should().NotBeNull();
+        response.ArchitectureReviewFindings.Should().NotBeNull();
+        response.RemediationInstances.Should().NotBeNull();
+        response.AuditLineageLink.Should().NotBeNull();
+    }
 }

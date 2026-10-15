@@ -21,11 +21,13 @@ public sealed class ArchitecturePostureReadModel
         init => packAssignments = ContractCollectionDefaults.CoalesceReadOnly(value);
     }
 
+    private ReviewIntegrityAggregate reviewIntegrity = new();
+
     public ReviewIntegrityAggregate ReviewIntegrity
     {
-        get;
-        init;
-    } = new();
+        get => reviewIntegrity;
+        init => reviewIntegrity = value ?? new ReviewIntegrityAggregate();
+    }
 
     public int UncategorizedCount
     {

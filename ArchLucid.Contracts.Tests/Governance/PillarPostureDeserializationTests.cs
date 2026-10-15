@@ -25,4 +25,20 @@ public sealed class PillarPostureDeserializationTests
         result.Should().NotBeNull();
         result!.PackAssignments.Should().NotBeNull().And.BeEmpty();
     }
+
+    [Fact]
+    public void Deserialize_null_finding_counts_yields_non_null_aggregate_not_null()
+    {
+        const string json = """
+            {
+              "findingCounts": null
+            }
+            """;
+
+        PillarPosture? result =
+            JsonSerializer.Deserialize<PillarPosture>(json, ContractJson.CamelCaseCompact);
+
+        result.Should().NotBeNull();
+        result!.FindingCounts.Should().NotBeNull();
+    }
 }

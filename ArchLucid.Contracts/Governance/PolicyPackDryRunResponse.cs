@@ -72,11 +72,13 @@ public sealed class PolicyPackDryRunResponse
     ///     Tally across <em>all</em> evaluated run ids in the request (not just the current page),
     ///     so a UI can render a stable "would have blocked N of M" headline regardless of pagination.
     /// </summary>
+    private PolicyPackDryRunDeltaCounts deltaCounts = new();
+
     public PolicyPackDryRunDeltaCounts DeltaCounts
     {
-        get;
-        init;
-    } = new();
+        get => deltaCounts;
+        init => deltaCounts = value ?? new PolicyPackDryRunDeltaCounts();
+    }
 
     private IReadOnlyList<PolicyPackDryRunRunItem> items = [];
 
