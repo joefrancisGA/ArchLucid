@@ -45,7 +45,7 @@ internal static class AzureInventoryContainerImageEdgeMapper
             foreach (string image in ReadImageReferences(workload))
             {
                 if (!TryReadImageHost(image, out string? imageHost)
-                    || !registryIdsByLoginServer.TryGetValue(imageHost, out string? registryId))
+                    || !TryResolveRegistryId(registryIdsByLoginServer, imageHost, out string? registryId))
                 {
                     continue;
                 }
@@ -92,6 +92,59 @@ internal static class AzureInventoryContainerImageEdgeMapper
     private static string NormalizeHost(string host)
     {
         return host.Trim().TrimEnd('/').ToLowerInvariant();
+    }
+
+    private static bool TryResolveRegistryId(
+        IReadOnlyDictionary<string, string> registryIdsByLoginServer,
+        string imageHost,
+        out string registryId)
+    {
+        registryId = string.Empty;
+
+        if (registryIdsByLoginServer.TryGetValue(imageHost, out string? directMatch))
+        {
+            registryId = directMatch;
+            return true;
+        }
+
+        if (TryCanonicalizeAzureContainerRegistryDataPlaneHost(imageHost, out string loginServerHost)
+            && registryIdsByLoginServer.TryGetValue(loginServerHost, out string? canonicalMatch))
+        {
+            registryId = canonicalMatch;
+            return true;
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    ///     AKS runCommand can report regional data-plane hosts ({name}.{region}.data.azurecr.io)
+    ///     while inventory stores the registry login server ({name}.azurecr.io).
+    /// </summary>
+    private static bool TryCanonicalizeAzureContainerRegistryDataPlaneHost(
+        string imageHost,
+        out string loginServerHost)
+    {
+        loginServerHost = string.Empty;
+        string normalizedHost = NormalizeHost(imageHost);
+
+        const string dataPlaneSuffix = ".data.azurecr.io";
+
+        if (!normalizedHost.EndsWith(dataPlaneSuffix, StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        int firstDotIndex = normalizedHost.IndexOf('.', StringComparison.Ordinal);
+
+        if (firstDotIndex <= 0)
+        {
+            return false;
+        }
+
+        loginServerHost = $"{normalizedHost[..firstDotIndex]}.azurecr.io";
+
+        return true;
     }
 
     private static string? ReadProperty(
