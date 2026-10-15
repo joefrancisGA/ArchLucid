@@ -135,6 +135,24 @@ describe("humanizeAuthorizeCallbackError", () => {
     expect(message).toContain("Sign-in did not finish");
   });
 
+  it("truncates default-branch authorize errors when error code and description are oversized", () => {
+    const oversizedCode = "custom_problem";
+    const oversized = `${"Policy ".repeat(80)}end`;
+    const message = humanizeAuthorizeCallbackError(oversizedCode, oversized);
+
+    expect(message.length).toBeLessThanOrEqual(320);
+    expect(message.endsWith("…")).toBe(true);
+  });
+
+  it("truncates invalid_request authorize errors when error_description is oversized", () => {
+    const oversized = `${"Policy ".repeat(80)}end`;
+    const message = humanizeAuthorizeCallbackError("invalid_request", oversized);
+
+    expect(message.length).toBeLessThanOrEqual(320);
+    expect(message.endsWith("…")).toBe(true);
+    expect(message.startsWith("This sign-in request was not valid")).toBe(true);
+  });
+
   it("keeps access_denied detail on one line when the description embeds CRLF", () => {
     const message = humanizeAuthorizeCallbackError(
       "access_denied",

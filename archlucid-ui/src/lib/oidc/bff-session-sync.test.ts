@@ -273,6 +273,20 @@ describe("refreshBffSessionCookie (LK-06 P2)", () => {
     expect(result).toEqual({ ok: true, expiresAtMs: futureMs });
   });
 
+  it("soft-fails refresh when expires_at_ms string has interior ASCII spaces", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({
+        ok: true,
+        json: async () => ({ expires_at_ms: "1 730000000000" }),
+      })),
+    );
+
+    const result = await refreshBffSessionCookie();
+
+    expect(result).toEqual({ ok: false, shouldClearSession: false });
+  });
+
   it("soft-fails refresh when the response body omits expires_at_ms", async () => {
     vi.stubGlobal(
       "fetch",

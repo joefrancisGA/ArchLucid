@@ -118,7 +118,9 @@ export function humanizeAuthorizeCallbackError(errorCode: string, decodedDescrip
       return "Your organization requires administrator consent for this app. Contact IT, then try again.";
     case "invalid_request":
       return detail.length > 0
-        ? `This sign-in request was not valid (${detail}). Try signing in again.`
+        ? sanitizeOAuthUserFacingMessage(
+            `This sign-in request was not valid (${detail}). Try signing in again.`,
+          )
         : "This sign-in request was not valid. Try signing in again.";
     case "unauthorized_client":
       return "This sign-in route is not enabled for your identity provider registration. Contact your ArchLucid account team.";
