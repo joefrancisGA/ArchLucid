@@ -15,16 +15,14 @@ public sealed class RecentPilotRunDeltasResponseDeserializationTests
     {
         const string json = """
             {
-              "items": null,
-              "requestedCount": 5,
-              "returnedCount": 0
+              "items": null
             }
             """;
 
-        RecentPilotRunDeltasResponse? response =
+        RecentPilotRunDeltasResponse? result =
             JsonSerializer.Deserialize<RecentPilotRunDeltasResponse>(json, ContractJson.CamelCaseCompact);
 
-        response.Should().NotBeNull();
-        response!.Items.Should().NotBeNull().And.BeEmpty();
+        result.Should().NotBeNull();
+        result!.Items.Should().NotBeNull().And.BeEmpty();
     }
 }

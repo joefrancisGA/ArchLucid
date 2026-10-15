@@ -62,12 +62,14 @@ public sealed class DraftRequestDocument
     } = new();
 
     /// <summary>Answers keyed by <see cref="Governance.ElicitationQuestion.QuestionKey" />.</summary>
+    private Dictionary<string, string> questionAnswers = new(StringComparer.OrdinalIgnoreCase);
+
     [JsonPropertyName("questionAnswers")]
     public Dictionary<string, string> QuestionAnswers
     {
-        get;
-        set;
-    } = new(StringComparer.OrdinalIgnoreCase);
+        get => questionAnswers;
+        set => questionAnswers = ContractCollectionDefaults.CoalesceStringDictionaryOrdinalIgnoreCase(value);
+    }
 
     /// <summary>
     ///     MUST-tier question keys still required before submit (populated at admission by ADR 0051 L0/L1 selection).

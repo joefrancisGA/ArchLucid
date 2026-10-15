@@ -25,4 +25,20 @@ public sealed class DraftRequestDocumentDeserializationTests
         result.Should().NotBeNull();
         result!.RequiredMustQuestionKeys.Should().NotBeNull().And.BeEmpty();
     }
+
+    [Fact]
+    public void Deserialize_null_question_answers_yields_empty_dictionary_not_null()
+    {
+        const string json = """
+            {
+              "questionAnswers": null
+            }
+            """;
+
+        DraftRequestDocument? result =
+            JsonSerializer.Deserialize<DraftRequestDocument>(json, ContractJson.CamelCaseCompact);
+
+        result.Should().NotBeNull();
+        result!.QuestionAnswers.Should().NotBeNull().And.BeEmpty();
+    }
 }

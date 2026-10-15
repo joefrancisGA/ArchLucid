@@ -1,4 +1,6 @@
-﻿namespace ArchLucid.Contracts.Persistence.Graph;
+﻿using ArchLucid.Contracts.Serialization;
+
+namespace ArchLucid.Contracts.Persistence.Graph;
 
 /// <summary>
 ///     Persisted typed architecture graph for a run.
@@ -39,22 +41,28 @@ public class GraphSnapshot
         set;
     }
 
+    private List<GraphNode> nodes = [];
+
     public List<GraphNode> Nodes
     {
-        get;
-        set;
-    } = [];
+        get => nodes;
+        set => nodes = ContractCollectionDefaults.Coalesce(value);
+    }
+
+    private List<GraphEdge> edges = [];
 
     public List<GraphEdge> Edges
     {
-        get;
-        set;
-    } = [];
+        get => edges;
+        set => edges = ContractCollectionDefaults.Coalesce(value);
+    }
+
+    private List<string> warnings = [];
 
     public List<string> Warnings
     {
-        get;
-        set;
-    } = [];
+        get => warnings;
+        set => warnings = ContractCollectionDefaults.Coalesce(value);
+    }
 }
 

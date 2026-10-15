@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Persistence.Context;
 
 public class CanonicalObject
@@ -32,9 +34,11 @@ public class CanonicalObject
         set;
     } = null!;
 
+    private Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase);
+
     public Dictionary<string, string> Properties
     {
-        get;
-        set;
-    } = [];
+        get => properties;
+        set => properties = ContractCollectionDefaults.CoalesceStringDictionaryOrdinalIgnoreCase(value);
+    }
 }
