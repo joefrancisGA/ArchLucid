@@ -53,4 +53,23 @@ public sealed class BuyerProofPackArtifactSummaryBuilderTests
         markdown.Should().Contain("`llmCallCount` | `null`");
         markdown.Should().NotContain("`llmCallCount` | 0");
     }
+
+    [Fact]
+    public void Build_when_audit_row_count_truncated_does_not_echo_cap_in_compact_summary()
+    {
+        const string deltasJson = """
+                                  {
+                                    "auditRowCount": 500,
+                                    "auditRowCountTruncated": true,
+                                    "findingsBySeverity": [
+                                      { "severity": "Warning", "count": 1 }
+                                    ]
+                                  }
+                                  """;
+
+        string markdown = BuyerProofPackArtifactSummaryBuilder.Build(deltasJson);
+
+        markdown.Should().NotContain("query cap");
+        markdown.Should().NotContain("auditRowCountTruncated");
+    }
 }

@@ -143,7 +143,17 @@ public sealed class PilotValueReportMarkdownFormatter(ExportFormatterService exp
         }
         sb.AppendLine();
 
-        sb.AppendLine("## Committed runs (sample loaded for detail)");
+        if (r.RunDetailsTruncated)
+        {
+            sb.AppendLine(
+                CultureInfo.InvariantCulture,
+                $"## Committed runs (sample: {r.CommittedRunsTimeline.Count} of {r.TotalRunsCommitted} in-window committed runs loaded for detail)");
+        }
+        else
+        {
+            sb.AppendLine("## Committed runs (sample loaded for detail)");
+        }
+
         sb.AppendLine();
         _exportFormatter.AppendMarkdownFourColumnTableStart(sb, "Run", "Created (UTC)", "Committed (UTC)", "System");
 

@@ -148,6 +148,38 @@ public sealed class PilotValueReportMarkdownFormatterTests
     }
 
     [Fact]
+    public void Format_when_run_details_truncated_discloses_timeline_sample_size_in_section_header()
+    {
+        PilotValueReportMarkdownFormatter sut = new(new ExportFormatterService());
+        DateTime from = new(2026, 4, 1, 0, 0, 0, DateTimeKind.Utc);
+        int cap = PilotValueReportService.DefaultRunDetailCap;
+        PilotValueReport report = new()
+        {
+            TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+            FromUtc = from,
+            ToUtc = from.AddDays(30),
+            TotalRunsCommitted = cap + 25,
+            RunDetailsTruncated = true,
+            RunDetailCap = cap,
+            CommittedRunsTimeline =
+            [
+                new PilotValueReportRunTimelinePoint
+                {
+                    RunId = "run-1",
+                    CreatedUtc = from,
+                    CommittedUtc = from.AddHours(1),
+                    SystemName = "alpha",
+                },
+            ],
+        };
+
+        string markdown = sut.Format(report);
+
+        markdown.Should().Contain("sample: 1 of");
+        markdown.Should().Contain($"{cap + 25} in-window committed runs loaded for detail");
+    }
+
+    [Fact]
     public void Format_when_run_details_truncated_with_empty_agent_types_explains_partial_sample_not_missing_storage()
     {
         PilotValueReportMarkdownFormatter sut = new(new ExportFormatterService());
@@ -256,6 +288,27 @@ public sealed class PilotValueReportMarkdownFormatterTests
         markdown.Should().Contain(
             "under-count",
             "metadata count must warn sponsors when keyset inventory collection stopped early");
+    }
+
+    [Fact]
+    public void Format_when_audit_export_truncated_discloses_truncation_in_metadata_not_summary_policy_pack_row()
+    {
+        PilotValueReportMarkdownFormatter sut = new(new ExportFormatterService());
+        DateTime from = new(2026, 4, 1, 0, 0, 0, DateTimeKind.Utc);
+        PilotValueReport report = new()
+        {
+            TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+            FromUtc = from,
+            ToUtc = from.AddDays(30),
+            AuditExportTruncated = true,
+            PolicyPackAssignments = 7,
+        };
+
+        string markdown = sut.Format(report);
+
+        markdown.Should().Contain("| Audit export truncated | True |");
+        markdown.Should().Contain("| Policy pack assignments | 7 |");
+        markdown.Should().NotContain("partial audit");
     }
 
     [Fact]
