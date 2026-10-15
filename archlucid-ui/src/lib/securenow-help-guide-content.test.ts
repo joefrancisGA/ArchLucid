@@ -11,8 +11,10 @@ import {
   resolveGettingStartedHelpClaimDiscipline,
   resolveGettingStartedHelpPlainLanguageTerms,
   resolveGettingStartedHelpSources,
+  resolveGettingStartedHelpWorkflowSectionIntro,
   SECURENOW_GETTING_STARTED_HELP_CLAIM_DISCIPLINE,
   SECURENOW_GETTING_STARTED_HELP_SOURCES,
+  SECURENOW_GETTING_STARTED_HELP_WORKFLOW_SECTION_INTRO,
 } from "@/lib/getting-started-help-guide-content";
 import { resolveDataHandlingTenantIsolationHelpClaimDiscipline } from "@/lib/data-handling-tenant-isolation-help-evidence-copy";
 import { dataHandlingTenantIsolationHelpLeavesStaysHelper } from "@/lib/data-handling-tenant-isolation-help-guide-content";
@@ -90,6 +92,13 @@ describe("SecureNow help guide content", () => {
     expect(sources).toEqual(SECURENOW_GETTING_STARTED_HELP_SOURCES);
     expect(sources.some((link) => link.href.includes("/architecture/reviews"))).toBe(false);
     expect(sources.some((link) => link.href.includes("first-architecture-review"))).toBe(false);
+  });
+
+  it("uses SecureNow getting-started workflow section intro without sealed-review language", () => {
+    expect(resolveGettingStartedHelpWorkflowSectionIntro("security")).toBe(
+      SECURENOW_GETTING_STARTED_HELP_WORKFLOW_SECTION_INTRO,
+    );
+    expect(resolveGettingStartedHelpWorkflowSectionIntro("security")).not.toContain("shareable outputs");
   });
 
   it("keeps architecture getting-started sources unchanged", () => {
