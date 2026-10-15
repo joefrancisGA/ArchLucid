@@ -181,6 +181,24 @@ describe("loadDiscoveryDocument", () => {
     expect(doc.end_session_endpoint).toBeUndefined();
   });
 
+  it("omits zero-width-only end_session_endpoint values", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      json: async () => ({
+        ...discoveryDoc,
+        end_session_endpoint: "\u200b\u200b",
+      }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    const { loadDiscoveryDocument } = await import("@/lib/oidc/discovery");
+
+    const doc = await loadDiscoveryDocument("https://login.microsoftonline.com/tenant/v2.0");
+
+    expect(doc.end_session_endpoint).toBeUndefined();
+  });
+
   it("keeps a valid end_session_endpoint", async () => {
     const fetchMock = vi.fn(async () => ({
       ok: true,

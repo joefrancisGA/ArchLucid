@@ -69,6 +69,10 @@ describe("resolveExpiresInSeconds", () => {
     expect(resolveExpiresInSeconds("0003600" as unknown as number)).toBe(3600);
   });
 
+  it("maps a spaced string expires_in to the default lifetime", () => {
+    expect(resolveExpiresInSeconds("3 600" as unknown as number)).toBe(3600);
+  });
+
   it("maps an underscore-grouped string expires_in to the default lifetime", () => {
     expect(resolveExpiresInSeconds("3_600" as unknown as number)).toBe(3600);
   });

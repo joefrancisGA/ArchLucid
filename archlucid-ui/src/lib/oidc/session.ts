@@ -315,8 +315,10 @@ export function consumePkceState(expectedState: string): StoredPkceState | null 
  * relative path (open-redirect protection) — unsafe values are silently dropped.
  */
 export function storePostSignInReturnUrl(url: string): void {
-  if (isSafeReturnPath(url)) {
-    sessionStorage.setItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY, url);
+  const normalized = normalizeOidcConfigurationString(url);
+
+  if (isSafeReturnPath(normalized)) {
+    sessionStorage.setItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY, normalized);
   }
 }
 
@@ -333,7 +335,13 @@ export function consumePostSignInReturnUrl(): string | null {
 
   sessionStorage.removeItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY);
 
-  return isSafeReturnPath(url) ? url : null;
+  if (url === null) {
+    return null;
+  }
+
+  const normalized = normalizeOidcConfigurationString(url);
+
+  return isSafeReturnPath(normalized) ? normalized : null;
 }
 
 function getExpiresAtMs(): number {

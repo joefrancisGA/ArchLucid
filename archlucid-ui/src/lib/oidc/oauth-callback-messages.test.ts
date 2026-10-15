@@ -180,6 +180,13 @@ describe("humanizeAuthorizeCallbackError", () => {
     expect(message).not.toContain("Policy");
   });
 
+  it("uses canceled-sign-in copy when access_denied error_description is emoji-only", () => {
+    const message = humanizeAuthorizeCallbackError("access_denied", "🔒");
+
+    expect(message).toContain("canceled sign-in");
+    expect(message).not.toContain("🔒");
+  });
+
   it("omits punctuation-only detail on default-branch authorize errors", () => {
     const message = humanizeAuthorizeCallbackError("custom_problem", "---");
 
@@ -258,6 +265,15 @@ describe("humanizeAuthorizeCallbackError", () => {
 
     expect(message).toContain("canceled sign-in");
     expect(message.length).toBeLessThanOrEqual(280);
+  });
+
+  it("uses invalid_request copy without detail when error_description is whitespace-only", () => {
+    const message = humanizeAuthorizeCallbackError(
+      "invalid_request",
+      decodeOAuthErrorDescription("%20%20%20"),
+    );
+
+    expect(message).toBe("This sign-in request was not valid. Try signing in again.");
   });
 
   it("keeps invalid_request authorize copy bounded when error_description is absent", () => {

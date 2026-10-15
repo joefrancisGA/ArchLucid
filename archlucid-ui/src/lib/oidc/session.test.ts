@@ -33,6 +33,12 @@ describe("storePostSignInReturnUrl / consumePostSignInReturnUrl", () => {
     expect(consumePostSignInReturnUrl()).toBe("/architecture/reviews/123");
   });
 
+  it("strips zero-width characters from stored post-sign-in return paths", () => {
+    storePostSignInReturnUrl("/architecture\u200b/reviews/123");
+
+    expect(consumePostSignInReturnUrl()).toBe("/architecture/reviews/123");
+  });
+
   it("is single-use — consuming twice returns null the second time", () => {
     storePostSignInReturnUrl("/architecture/reviews/123");
     consumePostSignInReturnUrl();
