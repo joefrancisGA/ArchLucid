@@ -42,6 +42,11 @@ function formatErrorCodeForReading(errorCode: string): string {
     .trim();
 }
 
+/** True when an OAuth `error` query/code value is not underscore/invisible padding. */
+export function isReadableOAuthErrorCode(errorCode: string): boolean {
+  return formatErrorCodeForReading(errorCode).length > 0;
+}
+
 const MAX_OAUTH_USER_FACING_MESSAGE_LENGTH = 280;
 
 function truncateOAuthUserFacingMessage(text: string): string {

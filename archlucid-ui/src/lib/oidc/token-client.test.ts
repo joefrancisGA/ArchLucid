@@ -144,6 +144,24 @@ describe("refreshAccessToken", () => {
     expect(message).not.toMatch(/403: true/i);
   });
 
+  it("omits underscore-only OAuth error codes when building token endpoint errors", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: false,
+      status: 400,
+      text: async () => JSON.stringify({ error: "___", error_description: "Session expired" }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      refreshAccessToken({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        refreshToken: "rt",
+      }),
+    ).rejects.toThrow(/^Session expired$/);
+  });
+
   it("ignores invisible-only OAuth error_description values on token endpoint errors", async () => {
     const fetchMock = vi.fn(async () => ({
       ok: false,

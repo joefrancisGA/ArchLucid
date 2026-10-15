@@ -1,5 +1,6 @@
 import { isSafeOidcEndpointUrl } from "@/lib/oidc/discovery";
 import {
+  isReadableOAuthErrorCode,
   sanitizeOAuthUserFacingMessage,
   stripOAuthInvisibleFormatChars,
 } from "@/lib/oidc/oauth-callback-messages";
@@ -20,7 +21,7 @@ function readOAuthErrorString(value: unknown): string {
 
   const trimmed = stripOAuthInvisibleFormatChars(value.trim()).trim();
 
-  if (trimmed.length === 0) {
+  if (trimmed.length === 0 || !isReadableOAuthErrorCode(trimmed)) {
     return "";
   }
 
