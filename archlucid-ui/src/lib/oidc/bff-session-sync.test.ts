@@ -183,6 +183,20 @@ describe("resolveRpLogoutUrlFromBffSession", () => {
 
     expect(url).toBe("https://idp.example/logout");
   });
+
+  it("strips zero-width characters from BFF logout URLs before safety checks", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({
+        ok: true,
+        json: async () => ({ url: "https://idp.example/logout\u200b" }),
+      })),
+    );
+
+    const url = await resolveRpLogoutUrlFromBffSession();
+
+    expect(url).toBe("https://idp.example/logout");
+  });
 });
 
 describe("refreshBffSessionCookie (LK-06 P2)", () => {
