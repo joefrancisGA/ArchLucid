@@ -118,6 +118,27 @@ public sealed class PilotValueReportMarkdownFormatterTests
     }
 
     [Fact]
+    public void Format_when_committed_run_inventory_truncated_qualifies_total_runs_committed_as_partial_inventory()
+    {
+        PilotValueReportMarkdownFormatter sut = new(new ExportFormatterService());
+        DateTime from = new(2026, 4, 1, 0, 0, 0, DateTimeKind.Utc);
+        PilotValueReport report = new()
+        {
+            TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+            FromUtc = from,
+            ToUtc = from.AddDays(30),
+            TotalRunsCommitted = 12_000,
+            CommittedRunsInventoryTruncated = true,
+        };
+
+        string markdown = sut.Format(report);
+
+        markdown.Should().Contain(
+            "under-count",
+            "metadata count must warn sponsors when keyset inventory collection stopped early");
+    }
+
+    [Fact]
     public void Format_discloses_roi_source_freshness_disposition_in_metadata_table()
     {
         PilotValueReportMarkdownFormatter sut = new(new ExportFormatterService());
