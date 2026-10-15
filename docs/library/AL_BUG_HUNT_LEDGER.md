@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-15 seed hunt (seed→hit): `ui-oidc` — promoted `parseDiscoveryDocument` retaining ZWSP on discovery endpoint URLs (`trim()` only → broken authorize/token navigation); promoted `readPkceStateForFlow` returning padded PKCE verifier/nonce to token exchange; `normalizeDiscoveryMetadataString` / `normalizePkceCallbackQueryValue`; regressions `strips zero-width characters from discovery endpoint URLs` and `returns normalized PKCE verifier and nonce values read from sessionStorage`; cheap-disproved five open `(candidate)` rows; reseeded five follow-on candidates; 128 scoped `src/lib/oidc` vitest tests passed.
+
 2026-10-15 seed hunt (seed→hit): `ui-oidc` — promoted `readNonceFromPayload` leaving ZWSP in `id_token` nonce claims (`trim()` only → nonce binding false negative on callback); promoted `humanizeAuthorizeCallbackError` missing `access_denied` when `?error=` embeds ZWSP; shared `stripOAuthInvisibleFormatChars`; regressions `strips zero-width padding from nonce claims` and `maps standard authorize error codes when the error query contains zero-width characters`; cheap-disproved five open `(candidate)` rows; reseeded five follow-on candidates; 126 scoped `src/lib/oidc` vitest tests passed.
 
 2026-10-15 seed hunt (seed→hit): `ui-oidc` — promoted `consumePkceState` strict equality on callback `state` with zero-width padding (`trim()` only → false expired sign-in); `normalizePkceCallbackQueryValue` with `stripOAuthInvisibleFormatChars`; regression `matches stored PKCE state when the callback state query value has zero-width padding`; regression lock `collapses soft hyphens in token endpoint OAuth error descriptions`; cheap-disproved five open `(candidate)` rows; reseeded five follow-on candidates; 124 scoped `src/lib/oidc` vitest tests passed.
@@ -21045,11 +21047,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 74
-- **bugs-found:** 68
+- **hunts:** 75
+- **bugs-found:** 69
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-15
-- **last-bug:** 2026-10-15 — zero-width padding on nonce claims and authorize error codes
+- **last-bug:** 2026-10-15 — zero-width padding on discovery endpoints and PKCE session reads
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -21220,11 +21222,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `storePkceState` — padded verifier from caller — **cheap-disproof 2026-10-15 seed hunt:** `initiate-redirect` writes crypto-generated base64url values only; token POST normalizes at exchange.
 - [x] (valid-no-repro) `getOidcRedirectUri` — ZWSP in env redirect override — **cheap-disproof 2026-10-15 seed hunt:** deployment configuration; operator env hygiene; authorize trim on query params separate from env read.
 - [x] (valid-no-repro) `discoveryUrlForAuthority` — interior ZWSP in authority env — **cheap-disproof 2026-10-15 seed hunt:** misconfigured authority; `URL` constructor does not treat ZWSP as delimiter; operational not attacker input in zone.
-- (candidate) `pickDisplayNameFromPayload` — display name claim with ZWSP padding — locus: `jwt-payload.ts`; input: `name` with `\u200b`; wrong outcome: cosmetic header hint; mechanism: strip invisible on pick.
-- (candidate) `CallbackClient` — `oauthError` query checked before ZWSP strip on empty-looking codes — locus: `CallbackClient.tsx`; input: `error=\u200b`; wrong outcome: error path vs incomplete response; mechanism: length check on raw query.
-- (candidate) `normalizePkceCallbackQueryValue` — reuse for stored PKCE verifier at read — locus: `session.ts`; input: sessionStorage corruption; mechanism: normalize at read vs store.
-- (candidate) `buildAuthorizeUrl` — `authorization_endpoint` with ZWSP from discovery trim gap — locus: `discovery.ts`; input: discovery JSON endpoints; wrong outcome: invalid authorize URL; mechanism: endpoint trim without invisible strip.
-- (candidate) `isReadableOAuthErrorCode` — token `error` with interior ZWSP in `invalid_grant` — locus: `token-client.ts`; input: already stripped; wrong outcome: verify readable guard; mechanism: regression lock only.
+- [x] (proven) `parseDiscoveryDocument` — ZWSP on discovery endpoint URLs — **hit 2026-10-15 seed hunt (seed→hit):** authorize/token URLs kept trailing format chars; `normalizeDiscoveryMetadataString`; regression `strips zero-width characters from discovery endpoint URLs`.
+- [x] (proven) `readPkceStateForFlow` — ZWSP on stored PKCE verifier/nonce — **hit 2026-10-15 seed hunt (seed→hit):** token exchange received padded verifier; normalize on session read; regression `returns normalized PKCE verifier and nonce values read from sessionStorage`.
+- [x] (valid-no-repro) `pickDisplayNameFromPayload` — ZWSP in display `name` claim — **cheap-disproof 2026-10-15 seed hunt:** cosmetic sessionStorage hint only; no authz impact.
+- [x] (invalid) `CallbackClient` — invisible-only `?error=` query length check — **cheap-disproof 2026-10-15 seed hunt:** locus outside `archlucid-ui/src/lib/oidc/`; `humanizeAuthorizeCallbackError` already buyer-safe for stripped codes.
+- [x] (valid-no-repro) `isReadableOAuthErrorCode` — interior ZWSP in token `error` — **cheap-disproof 2026-10-15 seed hunt:** `readOAuthErrorString` strips invisibles; regression `ignores invisible-only OAuth error_description values on token endpoint errors`.
+- (candidate) `pickDisplayNameFromPayload` — soft hyphen in `preferred_username` claim — locus: `jwt-payload.ts`; input: glued display hint; wrong outcome: cosmetic; mechanism: shared collapse vs strip.
+- (candidate) `discoveryUrlForAuthority` — authority env value with leading ZWSP before scheme normalization — locus: `discovery.ts`; input: `NEXT_PUBLIC_OIDC_AUTHORITY`; wrong outcome: wrong discovery fetch URL; mechanism: normalize at authority parse.
+- (candidate) `getOidcClientId` — client id env with invisible padding — locus: `config.ts`; input: env trim only; wrong outcome: authorize `invalid_client`; mechanism: normalize env secrets at read.
+- (candidate) `storePkceState` — normalize on write for defense in depth — locus: `session.ts`; input: future non-crypto caller; wrong outcome: duplicate normalization; mechanism: read-boundary already normalizes.
+- (candidate) `isSafeOidcEndpointUrl` — URL with percent-encoded ZWSP host — locus: `discovery.ts`; input: malformed discovery; wrong outcome: `URL` parse acceptance; mechanism: normalize before `new URL()`.
 - [x] (proven) `persistTokenResponse` — a hung older token-to-BFF sync blocks a newer same-session sync, preventing the replacement session from establishing its cookie — **hit 2026-10-11 seed hunt:** the sync-order promise chain awaited every older request; concurrent sync plus latest-request replay lets the newer request proceed and converges late completions on the latest token; regression `does not block a newer sync behind a hung older request` in `session.test.ts`.
 - [x] (proven) `persistTokenResponse` — concurrent same-session token-to-BFF syncs can complete out of order, allowing an older provider response to overwrite a newer BFF cookie — **hit 2026-10-11 seed hunt:** each token response started its own asynchronous sync with no ordering guard; serialize sync writes through a recovery-safe promise chain; regression `keeps an older token sync from overwriting a newer same-session sync` in `session.test.ts`.
 - [x] (proven) `persistNonSensitiveSessionHints` — a replacement token without optional display-name or subject claims leaves the prior user's identity hints in `sessionStorage` — **hit 2026-10-11 seed hunt:** hint writes were conditional but stale keys were never removed, so a same-browser user replacement could display the previous user's name/subject; clear both hint keys before applying each token response; regression `clears stale identity hints when a replacement token has no identity claims` in `session.test.ts`.
