@@ -46,11 +46,13 @@ public class SpecialistReviewFinding
         set;
     } = GovernanceDisposition.Open;
 
+    private ClaimProvenance provenance = new();
+
     public ClaimProvenance Provenance
     {
-        get;
-        set;
-    } = new();
+        get => provenance;
+        set => provenance = value ?? new ClaimProvenance();
+    }
 
     public double Confidence
     {

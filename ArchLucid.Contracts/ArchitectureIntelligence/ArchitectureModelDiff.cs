@@ -21,15 +21,19 @@ public class ArchitectureModelDiff
         set => entries = ContractCollectionDefaults.Coalesce(value);
     }
 
+    private ArchitectureKnowledgeModel beforeModel = new();
+
     public ArchitectureKnowledgeModel BeforeModel
     {
-        get;
-        set;
-    } = new();
+        get => beforeModel;
+        set => beforeModel = value ?? new ArchitectureKnowledgeModel();
+    }
+
+    private ArchitectureKnowledgeModel afterModel = new();
 
     public ArchitectureKnowledgeModel AfterModel
     {
-        get;
-        set;
-    } = new();
+        get => afterModel;
+        set => afterModel = value ?? new ArchitectureKnowledgeModel();
+    }
 }

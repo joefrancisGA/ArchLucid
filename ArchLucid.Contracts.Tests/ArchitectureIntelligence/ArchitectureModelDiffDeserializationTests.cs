@@ -26,4 +26,23 @@ public sealed class ArchitectureModelDiffDeserializationTests
         diff.Should().NotBeNull();
         diff!.Entries.Should().NotBeNull().And.BeEmpty();
     }
+
+    [Fact]
+    public void Deserialize_null_before_and_after_models_yields_non_null_models_not_null()
+    {
+        const string json = """
+            {
+              "recommendationId": "rec-1",
+              "beforeModel": null,
+              "afterModel": null
+            }
+            """;
+
+        ArchitectureModelDiff? diff =
+            JsonSerializer.Deserialize<ArchitectureModelDiff>(json, ContractJson.CamelCaseCompact);
+
+        diff.Should().NotBeNull();
+        diff!.BeforeModel.Should().NotBeNull();
+        diff.AfterModel.Should().NotBeNull();
+    }
 }

@@ -39,4 +39,28 @@ public sealed class SpecialistReviewFindingDeserializationTests
         finding.RelatedRequirementElementIds.Should().NotBeNull().And.BeEmpty();
         finding.RelatedDecisionElementIds.Should().NotBeNull().And.BeEmpty();
     }
+
+    [Fact]
+    public void Deserialize_null_provenance_yields_non_null_provenance_not_null()
+    {
+        const string json = """
+            {
+              "findingId": "f-1",
+              "dimension": 0,
+              "title": "t",
+              "rationale": "r",
+              "conclusion": 0,
+              "evidenceCondition": 0,
+              "confidence": 0.5,
+              "severity": "Low",
+              "provenance": null
+            }
+            """;
+
+        SpecialistReviewFinding? finding =
+            JsonSerializer.Deserialize<SpecialistReviewFinding>(json, ContractJson.CamelCaseCompact);
+
+        finding.Should().NotBeNull();
+        finding!.Provenance.Should().NotBeNull();
+    }
 }

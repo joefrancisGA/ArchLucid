@@ -28,11 +28,13 @@ public class ArchitectureModelElement
         set;
     }
 
+    private ClaimProvenance provenance = new();
+
     public ClaimProvenance Provenance
     {
-        get;
-        set;
-    } = new();
+        get => provenance;
+        set => provenance = value ?? new ClaimProvenance();
+    }
 
     /// <summary>Extraction confidence in [0, 1].</summary>
     public double ExtractionConfidence

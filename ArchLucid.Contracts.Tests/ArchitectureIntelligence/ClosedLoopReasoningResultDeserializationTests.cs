@@ -63,4 +63,22 @@ public sealed class ClosedLoopReasoningResultDeserializationTests
         result.Interview.Should().NotBeNull();
         result.Adversarial.Should().NotBeNull();
     }
+
+    [Fact]
+    public void Deserialize_null_re_review_and_golden_metrics_remain_null()
+    {
+        const string json = """
+            {
+              "reReview": null,
+              "goldenMetrics": null
+            }
+            """;
+
+        ClosedLoopReasoningResult? result =
+            JsonSerializer.Deserialize<ClosedLoopReasoningResult>(json, ContractJson.CamelCaseCompact);
+
+        result.Should().NotBeNull();
+        result!.ReReview.Should().BeNull();
+        result.GoldenMetrics.Should().BeNull();
+    }
 }
