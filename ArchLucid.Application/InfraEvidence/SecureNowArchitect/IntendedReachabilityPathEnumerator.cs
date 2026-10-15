@@ -30,7 +30,8 @@ internal static class IntendedReachabilityPathEnumerator
         IEnumerable<string> startNodes = graph.PublicIpArmIds
             .Concat(graph.OutgoingEdges.ContainsKey(SecureNowArchitectConstants.InternetPublicExposureNodeId)
                 ? [SecureNowArchitectConstants.InternetPublicExposureNodeId]
-                : []);
+                : [])
+            .Concat(graph.PrivateIntegratedComputeArmIds);
 
         foreach (string startNode in startNodes.Where(node => neighborhood is null || neighborhood.CanReachSeed(node))
                      .OrderBy(static node => node, StringComparer.OrdinalIgnoreCase))
@@ -153,12 +154,17 @@ internal static class IntendedReachabilityPathEnumerator
             return false;
         }
 
-        bool hasExposureHop = hops.Any(static hop =>
+        bool hasPublicExposureHop = hops.Any(static hop =>
             hop.EdgeType is GraphEdgeTypes.Exposes
                 or GraphEdgeTypes.RoutesTo
                 or SecureNowArchitectConstants.PublicNetworkAccessHopEdgeType);
 
-        if (!hasExposureHop)
+        bool startsFromPrivateCompute = graph.PrivateIntegratedComputeArmIds.Contains(hops[0].FromNodeId)
+            || graph.PrivateIntegratedComputeArmIds.Contains(currentNode);
+
+        bool hasPrivatePeReachableHop = hops.Any(InventoryReachabilityPathGraph.IsPeReachablePrivateHop);
+
+        if (!hasPublicExposureHop && !hasPrivatePeReachableHop && !startsFromPrivateCompute)
         {
             return false;
         }
@@ -197,6 +203,23 @@ internal static class IntendedReachabilityPathEnumerator
             break;
         }
 
+        if (!hasInsufficientEvidence
+            && graph.DnsJoinIndex is not null
+            && TryResolvePrivateComputeOrigin(hops, currentNode, graph, out string? computeArmId)
+            && !string.IsNullOrWhiteSpace(computeArmId)
+            && graph.DnsJoinIndex.IsMissingDnsJoin(computeArmId, currentNode))
+        {
+            finalHops.Add(new PrivilegePathEdge
+            {
+                FromNodeId = computeArmId,
+                ToNodeId = currentNode,
+                EdgeType = SecureNowArchitectConstants.InsufficientEvidenceDnsHopEdgeType,
+                ProvenanceKind = ProvenanceKind.DeterministicInference,
+                RoleName = null,
+            });
+            hasInsufficientEvidence = true;
+        }
+
         candidate = new ReachabilityPathCandidate
         {
             Hops = finalHops,
@@ -217,4 +240,29 @@ internal static class IntendedReachabilityPathEnumerator
         string.Join(
             ">",
             hops.Select(static hop => $"{hop.FromNodeId}|{hop.EdgeType}|{hop.ToNodeId}"));
+
+    private static bool TryResolvePrivateComputeOrigin(
+        IReadOnlyList<PrivilegePathEdge> hops,
+        string terminalNodeId,
+        InventoryReachabilityPathGraphSnapshot graph,
+        out string? computeArmId)
+    {
+        computeArmId = null;
+
+        if (hops.Count == 0)
+        {
+            return false;
+        }
+
+        string candidateOrigin = hops[0].FromNodeId;
+
+        if (graph.PrivateIntegratedComputeArmIds.Contains(candidateOrigin))
+        {
+            computeArmId = candidateOrigin;
+
+            return true;
+        }
+
+        return false;
+    }
 }

@@ -519,7 +519,13 @@ internal static class PrivilegePathEnumerator
 
     private static bool HasInsufficientEvidenceHop(IReadOnlyList<PrivilegePathEdge> hops) =>
         hops.Any(static hop => hop.EdgeType == "unknown-role-actions")
-        || hops.Any(static hop => hop.InferenceSource == GraphEdgeInferenceSources.PimEligibilityUnknown);
+        || hops.Any(static hop => hop.InferenceSource == GraphEdgeInferenceSources.PimEligibilityUnknown)
+        || hops.Any(static hop =>
+            hop.EdgeType == GraphEdgeTypes.CanReach
+            && string.Equals(
+                hop.InferenceSource,
+                SecureNowArchitectConstants.InsufficientEvidenceDnsHopEdgeType,
+                StringComparison.OrdinalIgnoreCase));
 
     private static bool IsControlToDataInferenceSource(string? inferenceSource)
     {

@@ -46,14 +46,19 @@ internal static class AzureInventoryPrivateEndpointReachableEdgeMapper
             return;
         }
 
-        Dictionary<string, string> computeToVnet = BuildComputeToVnetMap(relationships);
+        AzureInventoryPrivateEndpointDnsJoinIndex dnsJoinIndex =
+            AzureInventoryPrivateEndpointDnsJoinIndex.Build(
+                relationships.Select(static relationship =>
+                    new AzureInventoryRelationshipArmTriple(
+                        relationship.FromAzureResourceId,
+                        relationship.ToAzureResourceId,
+                        relationship.InferenceSource)));
+
+        Dictionary<string, string> computeToVnet = dnsJoinIndex.ComputeToVnetArmId
+            .ToDictionary(static pair => pair.Key, static pair => pair.Value, StringComparer.OrdinalIgnoreCase);
         Dictionary<string, string> peToTarget = BuildDirectedMap(
             relationships,
             GraphEdgeInferenceSources.InventoryPrivateEndpoint);
-        Dictionary<string, string> peToZone = BuildDirectedMap(
-            relationships,
-            GraphEdgeInferenceSources.InventoryPeDnsZoneGroup);
-        Dictionary<string, HashSet<string>> zoneToVnets = BuildZoneToVnetMap(relationships);
         Dictionary<string, string> peToSubnet = BuildDirectedMap(
             relationships,
             GraphEdgeInferenceSources.InventoryPeSubnet);
@@ -77,7 +82,7 @@ internal static class AzureInventoryPrivateEndpointReachableEdgeMapper
                         continue;
                     }
 
-                    if (!TryHasDnsJoin(peArmId, computeVnetArmId, peToZone, zoneToVnets))
+                    if (!dnsJoinIndex.TryHasDnsJoin(peArmId, computeVnetArmId))
                     {
                         continue;
                     }
@@ -110,21 +115,6 @@ internal static class AzureInventoryPrivateEndpointReachableEdgeMapper
         }
     }
 
-    private static bool TryHasDnsJoin(
-        string peArmId,
-        string computeVnetArmId,
-        IReadOnlyDictionary<string, string> peToZone,
-        IReadOnlyDictionary<string, HashSet<string>> zoneToVnets)
-    {
-        if (!peToZone.TryGetValue(peArmId, out string? zoneArmId))
-        {
-            return false;
-        }
-
-        return zoneToVnets.TryGetValue(zoneArmId, out HashSet<string>? linkedVnets)
-            && linkedVnets.Contains(computeVnetArmId);
-    }
-
     private static PathConfidenceBand ResolveBand(
         string peArmId,
         string computeVnetArmId,
@@ -132,7 +122,7 @@ internal static class AzureInventoryPrivateEndpointReachableEdgeMapper
     {
         if (peToSubnet.TryGetValue(peArmId, out string? peSubnetArmId)
             && string.Equals(
-                TryResolveVnetIdFromSubnetArmId(peSubnetArmId),
+                AzureInventorySubnetArmIdHelper.TryResolveVnetArmIdFromSubnetArmId(peSubnetArmId),
                 computeVnetArmId,
                 StringComparison.OrdinalIgnoreCase))
         {
@@ -140,48 +130,6 @@ internal static class AzureInventoryPrivateEndpointReachableEdgeMapper
         }
 
         return PathConfidenceBand.Probable;
-    }
-
-    private static Dictionary<string, string> BuildComputeToVnetMap(
-        IReadOnlyList<AzureInventoryResourceRelationshipWrite> relationships)
-    {
-        Dictionary<string, string> computeToVnet = new(StringComparer.OrdinalIgnoreCase);
-        Dictionary<string, string> vmToNic = BuildDirectedMap(relationships, GraphEdgeInferenceSources.InventoryVmNic);
-        Dictionary<string, string> nicToSubnet = BuildDirectedMap(relationships, GraphEdgeInferenceSources.InventoryNicSubnet);
-        Dictionary<string, string> appToSubnet = BuildDirectedMap(
-            relationships,
-            GraphEdgeInferenceSources.InventoryAppServiceSubnet);
-
-        foreach ((string appArmId, string subnetArmId) in appToSubnet)
-        {
-            string? vnetArmId = TryResolveVnetIdFromSubnetArmId(subnetArmId);
-
-            if (string.IsNullOrWhiteSpace(vnetArmId))
-            {
-                continue;
-            }
-
-            computeToVnet[appArmId] = vnetArmId;
-        }
-
-        foreach ((string vmArmId, string nicArmId) in vmToNic)
-        {
-            if (!nicToSubnet.TryGetValue(nicArmId, out string? subnetArmId))
-            {
-                continue;
-            }
-
-            string? vnetArmId = TryResolveVnetIdFromSubnetArmId(subnetArmId);
-
-            if (string.IsNullOrWhiteSpace(vnetArmId))
-            {
-                continue;
-            }
-
-            computeToVnet[vmArmId] = vnetArmId;
-        }
-
-        return computeToVnet;
     }
 
     private static Dictionary<string, string> BuildDirectedMap(
@@ -246,36 +194,6 @@ internal static class AzureInventoryPrivateEndpointReachableEdgeMapper
             || ArmResourceIdNormalizer.IsDescendantOf(targetArmId, intentTargetArmId));
     }
 
-    private static Dictionary<string, HashSet<string>> BuildZoneToVnetMap(
-        IReadOnlyList<AzureInventoryResourceRelationshipWrite> relationships)
-    {
-        Dictionary<string, HashSet<string>> map = new(StringComparer.OrdinalIgnoreCase);
-
-        foreach (AzureInventoryResourceRelationshipWrite relationship in relationships)
-        {
-            if (!string.Equals(
-                    relationship.InferenceSource,
-                    GraphEdgeInferenceSources.InventoryPrivateDnsVnet,
-                    StringComparison.OrdinalIgnoreCase))
-            {
-                continue;
-            }
-
-            string zoneArmId = ArmResourceIdNormalizer.Normalize(relationship.FromAzureResourceId);
-            string vnetArmId = ArmResourceIdNormalizer.Normalize(relationship.ToAzureResourceId);
-
-            if (!map.TryGetValue(zoneArmId, out HashSet<string>? vnets))
-            {
-                vnets = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-                map[zoneArmId] = vnets;
-            }
-
-            vnets.Add(vnetArmId);
-        }
-
-        return map;
-    }
-
     private static void TryAddDnsMissingWarning(
         string computeArmId,
         string targetArmId,
@@ -290,20 +208,6 @@ internal static class AzureInventoryPrivateEndpointReachableEdgeMapper
         }
 
         warnings.Add($"{AzureInventoryRelationshipCompletenessWarningCodes.PeReachableDnsLinkMissing}:{computeArmId}:{targetArmId}");
-    }
-
-    private static string? TryResolveVnetIdFromSubnetArmId(string subnetArmId)
-    {
-        const string marker = "/subnets/";
-
-        int subnetsIndex = subnetArmId.IndexOf(marker, StringComparison.OrdinalIgnoreCase);
-
-        if (subnetsIndex <= 0)
-        {
-            return null;
-        }
-
-        return subnetArmId[..subnetsIndex];
     }
 
     private static void AddRelationship(
