@@ -34,4 +34,29 @@ public sealed class BuyerRunDetailSummaryDtoDeserializationTests
         summary.FindingSummaries.Should().NotBeNull().And.BeEmpty();
         summary.AgentExecutionOutcomes.Should().NotBeNull().And.BeEmpty();
     }
+
+    [Fact]
+    public void Deserialize_null_optional_nested_summaries_remain_null()
+    {
+        const string json = """
+            {
+              "run": {
+                "runId": "00000000-0000-0000-0000-000000000001",
+                "scopeProjectId": "00000000-0000-0000-0000-000000000002",
+                "projectId": "p"
+              },
+              "findingCoverageSummary": null,
+              "agentExecutionLlmCostEstimate": null,
+              "trustEvidenceCard": null
+            }
+            """;
+
+        BuyerRunDetailSummaryDto? summary =
+            JsonSerializer.Deserialize<BuyerRunDetailSummaryDto>(json, ContractJson.CamelCaseCompact);
+
+        summary.Should().NotBeNull();
+        summary!.FindingCoverageSummary.Should().BeNull();
+        summary.AgentExecutionLlmCostEstimate.Should().BeNull();
+        summary.TrustEvidenceCard.Should().BeNull();
+    }
 }

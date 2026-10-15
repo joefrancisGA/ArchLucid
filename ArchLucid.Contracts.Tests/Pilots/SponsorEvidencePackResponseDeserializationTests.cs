@@ -29,4 +29,20 @@ public sealed class SponsorEvidencePackResponseDeserializationTests
         response.ExplainabilityTrace.Should().NotBeNull();
         response.GovernanceOutcomes.Should().NotBeNull();
     }
+
+    [Fact]
+    public void Deserialize_null_demo_run_value_report_delta_remains_null()
+    {
+        const string json = """
+            {
+              "demoRunValueReportDelta": null
+            }
+            """;
+
+        SponsorEvidencePackResponse? response =
+            JsonSerializer.Deserialize<SponsorEvidencePackResponse>(json, ContractJson.CamelCaseCompact);
+
+        response.Should().NotBeNull();
+        response!.DemoRunValueReportDelta.Should().BeNull();
+    }
 }
