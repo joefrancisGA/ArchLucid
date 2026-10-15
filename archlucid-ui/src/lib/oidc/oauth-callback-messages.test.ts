@@ -153,6 +153,20 @@ describe("humanizeAuthorizeCallbackError", () => {
     expect(message.endsWith("…")).toBe(true);
   });
 
+  it("keeps invalid_request authorize copy bounded when error_description is absent", () => {
+    const message = humanizeAuthorizeCallbackError("invalid_request", "");
+
+    expect(message).toBe("This sign-in request was not valid. Try signing in again.");
+    expect(message.length).toBeLessThanOrEqual(280);
+  });
+
+  it("does not duplicate ellipsis when invalid_request detail was already truncated", () => {
+    const oversized = `${"Policy ".repeat(80)}end`;
+    const message = humanizeAuthorizeCallbackError("invalid_request", oversized);
+
+    expect((message.match(/…/gu) ?? []).length).toBe(1);
+  });
+
   it("truncates invalid_request authorize errors when error_description is oversized", () => {
     const oversized = `${"Policy ".repeat(80)}end`;
     const message = humanizeAuthorizeCallbackError("invalid_request", oversized);

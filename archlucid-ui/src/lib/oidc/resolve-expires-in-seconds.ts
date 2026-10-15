@@ -32,13 +32,20 @@ export function resolveExpiresInSeconds(expiresIn: number | undefined): number {
     return defaultExpiresInSec;
   }
 
-  if (numericExpiresIn === 0) {
+  const truncatedExpiresIn = Math.trunc(numericExpiresIn);
+
+  if (truncatedExpiresIn === 0) {
     return 0;
   }
 
-  if (numericExpiresIn < 0) {
+  if (truncatedExpiresIn < 0) {
     return defaultExpiresInSec;
   }
 
-  return Math.trunc(numericExpiresIn);
+  // JSON numbers above 2^53-1 are not safe integers; do not write misleading century-long TTL hints.
+  if (!Number.isSafeInteger(truncatedExpiresIn)) {
+    return defaultExpiresInSec;
+  }
+
+  return truncatedExpiresIn;
 }
