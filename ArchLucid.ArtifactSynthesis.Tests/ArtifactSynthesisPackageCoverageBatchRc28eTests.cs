@@ -139,7 +139,7 @@ public sealed class ArtifactSynthesisPackageCoverageBatchRc28eTests
         artifact.Content.Should().Contain("- No topology information recorded.");
         artifact.Content.Should().Contain("- No security posture recorded.");
         artifact.Content.Should().Contain("- No compliance posture recorded.");
-        artifact.Content.Should().Contain("- Max Monthly Cost: Not specified");
+        artifact.Content.Should().Contain("- Max Monthly Cost: Max monthly cost was not stored.");
         artifact.Content.Should().Contain("- No decisions recorded.");
         artifact.Content.Should().Contain("- No unresolved issues.");
     }

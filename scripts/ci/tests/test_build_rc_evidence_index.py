@@ -21,7 +21,12 @@ class BuildRcEvidenceIndexTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             bundle = Path(tmp)
             index = build_index(REPO_ROOT, bundle)
-            self.assertEqual(index["rollup"], "PASS")
+            # The repo-level G-FAITH-01 scaffold is warn-only even when the bundle is empty.
+            self.assertEqual(index["rollup"], "WARN")
+            faith_row = next(
+                row for row in index["rows"] if row["artifact"] == "faithfulness-nightly-warn-status.json"
+            )
+            self.assertEqual(faith_row["verdict"], "WARN")
             not_run = [r for r in index["rows"] if r["verdict"] == "NOT_RUN"]
             self.assertGreater(len(not_run), 0)
 

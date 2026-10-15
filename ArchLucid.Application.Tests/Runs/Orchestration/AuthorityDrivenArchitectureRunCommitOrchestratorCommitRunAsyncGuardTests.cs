@@ -137,6 +137,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestratorCommitRunAsy
 
         Mock<IActorContext> actor = new();
         actor.Setup(a => a.GetActor()).Returns("unit-test-actor");
+        actor.Setup(a => a.GetActorId()).Returns("unit-test-actor");
 
         return new AuthorityDrivenArchitectureRunCommitOrchestrator(
             runRepository.Object,
