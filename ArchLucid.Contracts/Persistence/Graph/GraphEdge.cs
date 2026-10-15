@@ -25,11 +25,13 @@ public class GraphEdge
         set => fromNodeId = ContractCollectionDefaults.CoalesceRequired(value);
     }
 
+    private string toNodeId = string.Empty;
+
     public string ToNodeId
     {
-        get;
-        set;
-    } = null!;
+        get => toNodeId;
+        set => toNodeId = ContractCollectionDefaults.CoalesceRequired(value);
+    }
 
     public string EdgeType
     {

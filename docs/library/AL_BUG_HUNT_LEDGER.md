@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-15 seed hunt (seed→hit): `archlucid-contracts` — promoted `GraphEdge.ToNodeId` explicit JSON `null` (`ContractCollectionDefaults.CoalesceRequired` on setter); regression `Deserialize_null_to_node_id_yields_empty_string_not_null`; reseeded five follow-on `(candidate)` rows; 1033 scoped `Contracts` filter tests passed.
+
 2026-10-15 seed hunt (seed→hit): `archlucid-contracts` — promoted `GraphEdge.FromNodeId` explicit JSON `null` (`ContractCollectionDefaults.CoalesceRequired` on setter); regression `Deserialize_null_from_node_id_yields_empty_string_not_null`; reseeded five follow-on `(candidate)` rows; 1032 scoped `Contracts` filter tests passed.
 
 2026-10-15 seed hunt (seed→hit): `archlucid-contracts` — promoted `GraphEdge.EdgeId` explicit JSON `null` (`ContractCollectionDefaults.CoalesceRequired` on setter); regression `Deserialize_null_edge_id_yields_empty_string_not_null`; reseeded five follow-on `(candidate)` rows; 1031 scoped `Contracts` filter tests passed.
@@ -30101,7 +30103,17 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 ---
 ## Zone: archlucid-contracts
 
-**Hunts:** 210 · **Bugs found:** 324 · **Consecutive dry hunts:** 0
+**Hunts:** 211 · **Bugs found:** 325 · **Consecutive dry hunts:** 0
+
+2026-10-15 seed hunt (seed→hit): promoted `GraphEdge.ToNodeId` explicit JSON `null` on graph edge JSON; `ContractCollectionDefaults.CoalesceRequired` on setter; regression `Deserialize_null_to_node_id_yields_empty_string_not_null` in `GraphEdgeDeserializationTests`; reseeded five follow-on `(candidate)` rows; 1033 scoped `Contracts` filter tests passed.
+
+- [x] (proven) `Persistence.Graph.GraphEdge.ToNodeId` — explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_to_node_id_yields_empty_string_not_null`.
+
+- [ ] (candidate) `Persistence.Graph.GraphEdge.EdgeType` — explicit JSON `null` on graph edge JSON — locus: `Persistence.Graph.GraphEdge`; input: graph edge JSON with `"edgeType": null` (see file).
+- [ ] (candidate) `Compliance.ComplianceRulePack.Version` — explicit JSON `null` on rule pack JSON — locus: `Compliance.ComplianceRulePack`; input: rule pack JSON with `"version": null` (see file).
+- [ ] (candidate) `Persistence.Context.CanonicalObject.Name` — explicit JSON `null` on canonical object JSON — locus: `Persistence.Context.CanonicalObject`; input: canonical object JSON with `"name": null` (see file).
+- [ ] (candidate) `ArchitectureIntelligence.SpecialistReviewFinding.Title` — explicit JSON `null` on specialist review finding JSON — locus: `ArchitectureIntelligence.SpecialistReviewFinding`; input: specialist finding JSON with `"title": null` (see file).
+- [ ] (candidate) `Compliance.ComplianceRulePack.RulePackId` — explicit JSON `null` on rule pack JSON — locus: `Compliance.ComplianceRulePack`; input: rule pack JSON with `"rulePackId": null` (see file).
 
 2026-10-15 seed hunt (seed→hit): promoted `GraphEdge.FromNodeId` explicit JSON `null` on graph edge JSON; `ContractCollectionDefaults.CoalesceRequired` on setter; regression `Deserialize_null_from_node_id_yields_empty_string_not_null` in `GraphEdgeDeserializationTests`; reseeded five follow-on `(candidate)` rows; 1032 scoped `Contracts` filter tests passed.
 
