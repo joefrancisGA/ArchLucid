@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-15 seed hunt (seed→hit): `archlucid-contracts` — promoted `AdversarialReviewResult.FalsePositiveRateByLane`, `EvidenceValidationResult.StageResults`, `IncrementalReReviewResult` lists, `SecurityBaselineCompletenessFindingPayload` lists, and `ClosedLoopReasoningResult` list properties explicit JSON `null` (consolidated coalesce); five deserialization regressions; reseeded five follow-on `(candidate)` rows; 788 scoped `Contracts` filter tests passed.
+
 2026-10-15 seed hunt (seed→hit): `archlucid-contracts` — promoted `Finding.Properties`, `AdversarialReviewResult` lists, `ComplianceFindingPayload.AffectedResources`, `ArchitectureModelDiff.Entries`, and `SpecialistReviewResult` lists explicit JSON `null` (consolidated coalesce); five deserialization regressions; reseeded five follow-on `(candidate)` rows; 783 scoped `Contracts` filter tests passed.
 
 2026-10-15 seed hunt (seed→hit): `archlucid-contracts` — promoted `RunTrustEvidenceCard.Links`, `Finding` list properties (`RelatedNodeIds`, `EvidenceRefs`, `RecommendedActions`), `EngineInsightNoveltyRatesResponse.Rows`, `ChangeImpactResult.ImpactedItems`, and `ProgressiveInterviewState` question lists explicit JSON `null` (consolidated `ContractCollectionDefaults` coalesce); five deserialization regressions; reseeded five follow-on `(candidate)` rows; 778 scoped `Contracts` filter tests passed.
@@ -30045,9 +30047,21 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 ---
 ## Zone: archlucid-contracts
 
-**Hunts:** 143 · **Bugs found:** 123 · **Consecutive dry hunts:** 0
+**Hunts:** 144 · **Bugs found:** 124 · **Consecutive dry hunts:** 0
 
-2026-10-15 seed hunt (seed→hit): promoted five open `(candidate)` rows (`Finding.Properties`, adversarial review lists, compliance payload resources, model diff entries, specialist review lists); consolidated coalesce fix; regressions in `FindingListDeserializationTests`, `AdversarialReviewResultDeserializationTests`, `ComplianceFindingPayloadDeserializationTests`, `ArchitectureModelDiffDeserializationTests`, and `SpecialistReviewResultDeserializationTests`; reseeded five follow-on `(candidate)` rows; 783 scoped `Contracts` filter tests passed.
+2026-10-15 seed hunt (seed→hit): promoted five open `(candidate)` rows on adversarial lane dictionary, evidence validation stages, incremental re-review lists, security baseline payload lists, and closed-loop reasoning lists; consolidated coalesce fix; regressions in `AdversarialReviewResultDeserializationTests`, `EvidenceValidationResultDeserializationTests`, `IncrementalReReviewResultDeserializationTests`, `SecurityBaselineCompletenessFindingPayloadDeserializationTests`, and `ClosedLoopReasoningResultDeserializationTests`; reseeded five follow-on `(candidate)` rows; 788 scoped `Contracts` filter tests passed.
+
+- [x] (proven) `AdversarialReviewResult.FalsePositiveRateByLane` — explicit JSON `null` — **hit 2026-10-15 seed hunt:** `CoalesceDictionary` on setter; regression `Deserialize_null_false_positive_rate_by_lane_yields_empty_dictionary_not_null`.
+- [x] (proven) `EvidenceValidationResult.StageResults` — explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_stage_results_yields_empty_list_not_null`.
+- [x] (proven) `IncrementalReReviewResult` — `SpecialistResults` / `GlobalInvariantResults` / `MergedFindingIds` explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_collection_properties_yields_empty_lists_not_null`.
+- [x] (proven) `SecurityBaselineCompletenessFindingPayload` — four list properties explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_list_properties_yields_empty_lists_not_null`.
+- [x] (proven) `ClosedLoopReasoningResult` — ten list properties explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_collection_properties_yields_empty_lists_not_null`.
+
+- [ ] (candidate) `GoldenArchitectureTestResult` — explicit JSON `null` on golden-architecture test metric lists — locus: `GoldenArchitectureTestResult` collection setters; input: golden test result JSON with null case or failure lists.
+- [ ] (candidate) `ArchitectureRecommendation` — explicit JSON `null` on recommendation evidence lists — locus: `ArchitectureRecommendation` list properties with `= []` only; input: recommendation JSON with null supporting-evidence lists.
+- [ ] (candidate) `ClosedLoopReasoningRequest` — explicit JSON `null` on closed-loop request source lists — locus: `ClosedLoopReasoningRequest` collection setters; input: reasoning request JSON with null artifact or scope lists.
+- [ ] (candidate) `TopologyCoverageFindingPayload` — explicit JSON `null` on topology coverage payload lists — locus: `Findings.Payloads.TopologyCoverageFindingPayload`; input: null uncovered-node list in finding payload JSON.
+- [ ] (candidate) `FindingsSnapshot.Findings` — explicit JSON `null` on findings snapshot container JSON — locus: `FindingsSnapshot` list setter; input: persisted snapshot with `"findings": null`.
 
 - [x] (proven) `Finding.Properties` — explicit JSON `null` — **hit 2026-10-15 seed hunt:** `CoalesceDictionary` on setter; regression `Deserialize_null_properties_yields_empty_dictionary_not_null`.
 - [x] (proven) `AdversarialReviewResult` — `SubstantiatedFindings` / `Challenges` explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_collection_properties_yields_empty_lists_not_null`.
@@ -30055,11 +30069,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (invalid) `ArchitectureModelDiff.Changes` — **cheap-disproof 2026-10-15 seed hunt:** list property is `Entries`; regression `Deserialize_null_entries_yields_empty_list_not_null`.
 - [x] (proven) `SpecialistReviewResult.Findings` / `OpenQuestions` — explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_list_properties_yields_empty_lists_not_null`.
 
-- [ ] (candidate) `AdversarialReviewResult.FalsePositiveRateByLane` — explicit JSON `null` on lane rate dictionary — locus: `Dictionary<AdversarialLane,double>` initializer; input: `"falsePositiveRateByLane": null`.
-- [ ] (candidate) `EvidenceValidationResult.StageResults` — explicit JSON `null` on evidence validation result JSON — locus: `EvidenceValidationResult` list setter; input: validation result with null stage-results list.
-- [ ] (candidate) `IncrementalReReviewResult` list properties — explicit JSON `null` on incremental re-review JSON — locus: `IncrementalReReviewResult` collection setters; input: null added/removed finding lists.
-- [ ] (candidate) `SecurityBaselineCompletenessFindingPayload` — explicit JSON `null` on nested baseline payload lists — locus: `Findings.Payloads.SecurityBaselineCompletenessFindingPayload`; input: null missing-control list in finding payload JSON.
-- [ ] (candidate) `ClosedLoopReasoningResult` — explicit JSON `null` on closed-loop reasoning response lists — locus: `ClosedLoopReasoningResult` multiple list properties with `= []` only; input: reasoning result JSON with null hypothesis or action lists.
+- [x] (proven) `AdversarialReviewResult.FalsePositiveRateByLane` — **cheap-disproof 2026-10-15 seed hunt (tenth pass):** regression `Deserialize_null_false_positive_rate_by_lane_yields_empty_dictionary_not_null`.
+- [x] (proven) `EvidenceValidationResult.StageResults` — **cheap-disproof 2026-10-15 seed hunt (tenth pass):** regression `Deserialize_null_stage_results_yields_empty_list_not_null`.
+- [x] (proven) `IncrementalReReviewResult` list properties — **cheap-disproof 2026-10-15 seed hunt (tenth pass):** regression `Deserialize_null_collection_properties_yields_empty_lists_not_null`.
+- [x] (proven) `SecurityBaselineCompletenessFindingPayload` — **cheap-disproof 2026-10-15 seed hunt (tenth pass):** regression `Deserialize_null_list_properties_yields_empty_lists_not_null`.
+- [x] (proven) `ClosedLoopReasoningResult` — **cheap-disproof 2026-10-15 seed hunt (tenth pass):** regression `Deserialize_null_collection_properties_yields_empty_lists_not_null`.
 
 - [x] (proven) `RunTrustEvidenceCard.Links` — explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_links_yields_empty_list_not_null`.
 - [x] (proven) `Finding` — `RelatedNodeIds` / `EvidenceRefs` / `RecommendedActions` explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_list_properties_yields_empty_lists_not_null`.

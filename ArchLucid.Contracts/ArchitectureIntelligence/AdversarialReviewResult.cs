@@ -20,9 +20,11 @@ public class AdversarialReviewResult
         set => challenges = ContractCollectionDefaults.Coalesce(value);
     }
 
+    private Dictionary<AdversarialLane, double> falsePositiveRateByLane = new();
+
     public Dictionary<AdversarialLane, double> FalsePositiveRateByLane
     {
-        get;
-        set;
-    } = new();
+        get => falsePositiveRateByLane;
+        set => falsePositiveRateByLane = ContractCollectionDefaults.CoalesceDictionary(value);
+    }
 }

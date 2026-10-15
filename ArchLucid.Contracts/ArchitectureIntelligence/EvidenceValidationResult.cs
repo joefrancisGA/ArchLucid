@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.ArchitectureIntelligence;
 
 public class EvidenceValidationResult
@@ -8,11 +10,13 @@ public class EvidenceValidationResult
         set;
     } = null!;
 
+    private List<EvidenceValidationStageOutcome> stageResults = [];
+
     public List<EvidenceValidationStageOutcome> StageResults
     {
-        get;
-        set;
-    } = [];
+        get => stageResults;
+        set => stageResults = ContractCollectionDefaults.Coalesce(value);
+    }
 
     public bool OverallPassedIntegrity
     {

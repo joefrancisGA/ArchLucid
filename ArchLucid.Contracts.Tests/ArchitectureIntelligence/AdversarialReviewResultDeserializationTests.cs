@@ -27,4 +27,20 @@ public sealed class AdversarialReviewResultDeserializationTests
         result!.SubstantiatedFindings.Should().NotBeNull().And.BeEmpty();
         result.Challenges.Should().NotBeNull().And.BeEmpty();
     }
+
+    [Fact]
+    public void Deserialize_null_false_positive_rate_by_lane_yields_empty_dictionary_not_null()
+    {
+        const string json = """
+            {
+              "falsePositiveRateByLane": null
+            }
+            """;
+
+        AdversarialReviewResult? result =
+            JsonSerializer.Deserialize<AdversarialReviewResult>(json, ContractJson.CamelCaseCompact);
+
+        result.Should().NotBeNull();
+        result!.FalsePositiveRateByLane.Should().NotBeNull().And.BeEmpty();
+    }
 }

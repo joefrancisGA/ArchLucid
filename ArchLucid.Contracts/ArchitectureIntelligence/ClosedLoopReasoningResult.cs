@@ -1,5 +1,6 @@
 using ArchLucid.Contracts.Advisory.Workflow;
 using ArchLucid.Contracts.Findings;
+using ArchLucid.Contracts.Serialization;
 
 namespace ArchLucid.Contracts.ArchitectureIntelligence;
 
@@ -17,11 +18,13 @@ public class ClosedLoopReasoningResult
         set;
     } = new();
 
+    private List<SpecialistReviewResult> specialistReviews = [];
+
     public List<SpecialistReviewResult> SpecialistReviews
     {
-        get;
-        set;
-    } = [];
+        get => specialistReviews;
+        set => specialistReviews = ContractCollectionDefaults.Coalesce(value);
+    }
 
     public AdversarialReviewResult Adversarial
     {
@@ -29,17 +32,21 @@ public class ClosedLoopReasoningResult
         set;
     } = new();
 
+    private List<ArchitectureRecommendation> recommendations = [];
+
     public List<ArchitectureRecommendation> Recommendations
     {
-        get;
-        set;
-    } = [];
+        get => recommendations;
+        set => recommendations = ContractCollectionDefaults.Coalesce(value);
+    }
+
+    private List<ChangeImpactResult> impactResults = [];
 
     public List<ChangeImpactResult> ImpactResults
     {
-        get;
-        set;
-    } = [];
+        get => impactResults;
+        set => impactResults = ContractCollectionDefaults.Coalesce(value);
+    }
 
     public IncrementalReReviewResult? ReReview
     {
@@ -53,31 +60,39 @@ public class ClosedLoopReasoningResult
         set;
     }
 
+    private List<MustNotFailViolation> mustNotFailViolations = [];
+
     public List<MustNotFailViolation> MustNotFailViolations
     {
-        get;
-        set;
-    } = [];
+        get => mustNotFailViolations;
+        set => mustNotFailViolations = ContractCollectionDefaults.Coalesce(value);
+    }
+
+    private List<EvidenceValidationResult> validationResults = [];
 
     public List<EvidenceValidationResult> ValidationResults
     {
-        get;
-        set;
-    } = [];
+        get => validationResults;
+        set => validationResults = ContractCollectionDefaults.Coalesce(value);
+    }
 
     /// <summary>Product-shaped findings for reuse with existing Finding pipelines/UI.</summary>
+    private List<Finding> productFindings = [];
+
     public List<Finding> ProductFindings
     {
-        get;
-        set;
-    } = [];
+        get => productFindings;
+        set => productFindings = ContractCollectionDefaults.Coalesce(value);
+    }
 
     /// <summary>Product-shaped recommendation records (Proposed) for advisory workflow reuse.</summary>
+    private List<RecommendationRecord> productRecommendations = [];
+
     public List<RecommendationRecord> ProductRecommendations
     {
-        get;
-        set;
-    } = [];
+        get => productRecommendations;
+        set => productRecommendations = ContractCollectionDefaults.Coalesce(value);
+    }
 
     /// <summary>
     /// True when publishable output was emptied by integrity/must-not-fail gating (TB-1981 / TB-1991).
@@ -95,25 +110,31 @@ public class ClosedLoopReasoningResult
         set;
     }
 
+    private List<string> publishBlockReasons = [];
+
     public List<string> PublishBlockReasons
     {
-        get;
-        set;
-    } = [];
+        get => publishBlockReasons;
+        set => publishBlockReasons = ContractCollectionDefaults.Coalesce(value);
+    }
 
     /// <summary>Finding ids that passed deterministic integrity (stage 1).</summary>
+    private List<string> integrityPassedFindingIds = [];
+
     public List<string> IntegrityPassedFindingIds
     {
-        get;
-        set;
-    } = [];
+        get => integrityPassedFindingIds;
+        set => integrityPassedFindingIds = ContractCollectionDefaults.Coalesce(value);
+    }
 
     /// <summary>Explicit model diffs produced while evaluating recommendations.</summary>
+    private List<ArchitectureModelDiff> modelDiffs = [];
+
     public List<ArchitectureModelDiff> ModelDiffs
     {
-        get;
-        set;
-    } = [];
+        get => modelDiffs;
+        set => modelDiffs = ContractCollectionDefaults.Coalesce(value);
+    }
 
     public string? RunId
     {
