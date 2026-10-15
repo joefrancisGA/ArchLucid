@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Persistence.Context;
 
 public class ContextIngestionRequest
@@ -27,59 +29,77 @@ public class ContextIngestionRequest
         set;
     }
 
+    private List<string> inlineRequirements = [];
+
     public List<string> InlineRequirements
     {
-        get;
-        set;
-    } = [];
+        get => inlineRequirements;
+        set => inlineRequirements = ContractCollectionDefaults.Coalesce(value);
+    }
+
+    private List<ContextDocumentReference> documents = [];
 
     public List<ContextDocumentReference> Documents
     {
-        get;
-        set;
-    } = [];
+        get => documents;
+        set => documents = ContractCollectionDefaults.Coalesce(value);
+    }
+
+    private List<string> policyReferences = [];
 
     public List<string> PolicyReferences
     {
-        get;
-        set;
-    } = [];
+        get => policyReferences;
+        set => policyReferences = ContractCollectionDefaults.Coalesce(value);
+    }
+
+    private List<string> topologyHints = [];
 
     public List<string> TopologyHints
     {
-        get;
-        set;
-    } = [];
+        get => topologyHints;
+        set => topologyHints = ContractCollectionDefaults.Coalesce(value);
+    }
+
+    private List<string> securityBaselineHints = [];
 
     public List<string> SecurityBaselineHints
     {
-        get;
-        set;
-    } = [];
+        get => securityBaselineHints;
+        set => securityBaselineHints = ContractCollectionDefaults.Coalesce(value);
+    }
+
+    private List<InfrastructureDeclarationReference> infrastructureDeclarations = [];
 
     public List<InfrastructureDeclarationReference> InfrastructureDeclarations
     {
-        get;
-        set;
-    } = [];
+        get => infrastructureDeclarations;
+        set => infrastructureDeclarations = ContractCollectionDefaults.Coalesce(value);
+    }
+
+    private List<string> requiredCapabilities = [];
 
     public List<string> RequiredCapabilities
     {
-        get;
-        set;
-    } = [];
+        get => requiredCapabilities;
+        set => requiredCapabilities = ContractCollectionDefaults.Coalesce(value);
+    }
+
+    private List<string> constraints = [];
 
     public List<string> Constraints
     {
-        get;
-        set;
-    } = [];
+        get => constraints;
+        set => constraints = ContractCollectionDefaults.Coalesce(value);
+    }
+
+    private List<string> assumptions = [];
 
     public List<string> Assumptions
     {
-        get;
-        set;
-    } = [];
+        get => assumptions;
+        set => assumptions = ContractCollectionDefaults.Coalesce(value);
+    }
 
     /// <summary>JSON array of <see cref="Architecture.ActorDescriptor" /> for graph actor materialization.</summary>
     public string? ActorsJson

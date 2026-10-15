@@ -1,4 +1,6 @@
-﻿namespace ArchLucid.Contracts.Persistence.Graph;
+﻿using ArchLucid.Contracts.Serialization;
+
+namespace ArchLucid.Contracts.Persistence.Graph;
 
 /// <summary>
 ///     Directed edge in a <see cref="GraphSnapshot" />.
@@ -74,11 +76,13 @@ public class GraphEdge
         set;
     }
 
+    private Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase);
+
     public Dictionary<string, string> Properties
     {
-        get;
-        set;
-    } = [];
+        get => properties;
+        set => properties = ContractCollectionDefaults.CoalesceStringDictionaryOrdinalIgnoreCase(value);
+    }
 
     /// <summary>
     ///     Optional inference explanation (deterministic heuristic text or propagated agent narration).

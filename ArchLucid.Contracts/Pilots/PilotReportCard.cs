@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Pilots;
 
 /// <summary>
@@ -61,12 +63,13 @@ public sealed class PilotReportCard
         init;
     }
 
+    private IReadOnlyList<PilotReportCardFindingSeverity> findingsBySeverity = [];
+
     public IReadOnlyList<PilotReportCardFindingSeverity> FindingsBySeverity
     {
-        get;
-        init;
+        get => findingsBySeverity;
+        init => findingsBySeverity = ContractCollectionDefaults.CoalesceReadOnly(value);
     }
-        = [];
 
     public int GovernanceApprovalActions
     {
