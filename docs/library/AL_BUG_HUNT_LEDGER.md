@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-15 thorough hunt (hit): `ui-marketing-surfaces` — promoted `ensureSessionId` / `ensureBrowserId` forwarding whitespace-padded `localStorage` values on `X-Quick-Scan-Session` / `X-Quick-Scan-Browser` (non-canonical abuse-limit identity); trim + persist normalized ids in `quick-scan-session.ts`; promoted `useQuickScanClient.showSampleResult` applying stale overlapping sample fetches in completion order; generation guard; promoted `ShowcasePageTelemetry` double-firing `showcase_viewed` on `renderMode` prop transition for the same `runId`; once-per-run ref; cheap-disproved `DemoPreviewArtifactNav` orphan buttons (`DemoPreviewMarketingBody` always mounts paired artifact sections); regressions `quick-scan-session.test.ts`, `ignores stale sample responses when a newer sample request was started`, `ShowcasePageTelemetry.test.tsx`; reseeded five follow-on `(candidate)` rows; 8 focused marketing quick-scan/showcase/demo-nav vitest tests passed.
+
 2026-10-15 seed hunt (seed→hit): `application-pilots` — promoted `PilotValueReportMarkdownFormatter` Summary **Total findings** / **Avg pipeline completion** / **Findings by severity** when `RunDetailsTruncated` with empty `CommittedRunsTimeline` but positive `TotalRunsCommitted` (partial-sample fragment on aggregates implied tenant-wide counts while zero runs loaded for detail); `RunDetailSampleLoadedNoRows` + not-computed copy; regressions `Format_when_run_details_truncated_with_empty_timeline_does_not_label_zero_findings_as_partial_sample`, `Format_when_run_details_truncated_with_empty_timeline_does_not_label_positive_findings_as_partial_sample`, and `Format_when_audit_export_truncated_with_empty_timeline_still_surfaces_comparison_drift_count`; cheap-disproved four open `(candidate)` rows; regression lock `Serialize_does_not_emit_explicit_null_properties_on_buyer_zip_json`; reseeded five follow-on candidates; 56 scoped BuyerProofPack/BoardPack/PilotValueReportMarkdownFormatter tests passed.
 
 2026-10-15 seed hunt (seed→hit): `application-pilots` — promoted `PilotValueReportMarkdownFormatter` metadata **Run-detail cap** row when `RunDetailsTruncated` with empty `CommittedRunsTimeline` (implied newest runs loaded while detail queries returned zero rows); copy `0 of newest committed runs loaded for detail`; regression `Format_when_run_details_truncated_with_empty_timeline_qualifies_run_detail_cap_metadata`; cheap-disproved four open `(candidate)` rows; regression lock `Format_when_audit_export_truncated_discloses_truncation_in_metadata_not_summary_recommendations_row`; reseeded five follow-on candidates; 52 scoped BuyerProofPack/BoardPack/PilotValueReportMarkdownFormatter tests passed.
@@ -37363,11 +37365,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** marketing pages; pricing; trust center UI
 - **paths:** archlucid-ui/src/app/(marketing)/
 - **test-filter:** marketing
-- **hunts:** 33
-- **bugs-found:** 34
+- **hunts:** 34
+- **bugs-found:** 37
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-11
-- **last-bug:** 2026-10-11 — marketing API bases with multiple trailing slashes
+- **last-hunt:** 2026-10-15
+- **last-bug:** 2026-10-15 — Quick Scan identity trim, sample race, showcase_viewed dedupe
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -37381,11 +37383,16 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ### Hypotheses
 
-- [ ] (candidate) `ensureSessionId` — a whitespace-padded existing `localStorage` value is forwarded unchanged as `X-Quick-Scan-Session`; input: browser storage contains `" session-id "`; wrong outcome: the anonymous Quick Scan request can use a non-canonical rate-limit/session identity; reachability: browser-controlled `al_quick_scan_session` storage and the POST header in `useQuickScanClient`.
-- [ ] (candidate) `ensureBrowserId` — a whitespace-padded existing `localStorage` value is forwarded unchanged as `X-Quick-Scan-Browser`; input: browser storage contains `" browser-id "`; wrong outcome: browser-level abuse accounting can split or miss the intended identity; reachability: browser-controlled `al_quick_scan_browser` storage and the POST header in `useQuickScanClient`.
-- [ ] (candidate) `useQuickScanClient.showSampleResult` — overlapping sample requests can commit in completion order rather than activation order; input: two reachable “View sample” clicks with delayed responses; wrong outcome: an older sample response can replace the later selected sample state; reachability: the visible sample links in `QuickScanWorkspaceSection`.
-- [ ] (candidate) `ShowcasePageTelemetry` — a client-side render-mode prop transition records another `showcase_viewed` event for the same run; input: the same route changes from `api` to `api_fallback`; wrong outcome: page-view analytics overcounts a single showcase visit; reachability: the server-selected render mode is passed to the mounted client telemetry component.
-- [ ] (candidate) `DemoPreviewArtifactNav` — static navigation buttons remain rendered when an optional artifact section is absent; input: a preview body omits one artifact section while the nav remains mounted; wrong outcome: a visible guided-path control scrolls to no target; reachability: `document.getElementById` filtering in the nav and the preview section composition.
+- [x] (proven) `ensureSessionId` — whitespace-padded `localStorage` forwarded as `X-Quick-Scan-Session` — **hit 2026-10-15 thorough hunt:** trim + rewrite storage in `quick-scan-session.ts`; regression `ensureSessionId trims whitespace-padded localStorage values before returning them`.
+- [x] (proven) `ensureBrowserId` — whitespace-padded `localStorage` forwarded as `X-Quick-Scan-Browser` — **hit 2026-10-15 thorough hunt:** same normalization path; regression `ensureBrowserId trims whitespace-padded localStorage values before returning them`.
+- [x] (proven) `useQuickScanClient.showSampleResult` — overlapping sample requests commit in completion order — **hit 2026-10-15 thorough hunt:** `sampleRequestGenerationRef` ignores stale responses; regression `ignores stale sample responses when a newer sample request was started`.
+- [x] (proven) `ShowcasePageTelemetry` — `renderMode` transition records duplicate `showcase_viewed` — **hit 2026-10-15 thorough hunt:** once-per-`runId` ref; regression `records showcase_viewed once per run even when renderMode changes`.
+- [x] (invalid) `DemoPreviewArtifactNav` — nav buttons when optional artifact section absent — **cheap-disproof 2026-10-15 thorough hunt:** buyer `DemoPreviewMarketingBody` always renders the five artifact sections with fixed ids paired to `ARTIFACT_ITEMS`; engineering body omits the nav entirely.
+- [ ] (candidate) `useQuickScanClient.onSubmit` — overlapping AI submit and in-flight sample load can interleave `setResult` without generation guard on the POST path; input: sample fetch still running when Analyze succeeds; wrong outcome: sample JSON briefly replaces or follows real analysis; reachability: shared `result` state in `useQuickScanClient`.
+- [ ] (candidate) `QuickScanWorkspaceSection` — capacity-state sample CTA and manual “View sample” can invoke `showSampleResult` twice before the first fetch settles; input: double activation on SampleOnly; wrong outcome: duplicate telemetry or flickering status copy; reachability: workspace section handlers calling `client.showSampleResult`.
+- [ ] (candidate) `recordShowcaseViewed` — empty scenario slug after `resolveShowcaseScenarioSlug` skips all telemetry silently; input: malformed showcase `runId` route segment; wrong outcome: marketing funnel under-reports visits without a failed-state signal; reachability: `ShowcasePageTelemetry` mount on `/showcase/[runId]`.
+- [ ] (candidate) `DemoPreviewArtifactNav.scrollToSection` — click no-ops when target id missing without aria feedback; input: DOM mutation removing a section after mount; wrong outcome: keyboard/screen-reader users get no scroll or focus change; reachability: `scrollToSection` early return when `getElementById` is null.
+- [ ] (candidate) `ensureSessionId` volatile fallback — private-mode `localStorage` throw uses per-tab volatile id without surfacing storage loss to capacity messaging; input: `localStorage.setItem` throws after read; wrong outcome: session identity resets every navigation without operator-visible hint; reachability: `quick-scan-session.ts` catch branch + marketing POST headers.
 
 - [x] (proven) `resolveSeeItDemoApiBase` removes only one trailing slash — **hit 2026-10-11 thorough hunt #31:** `NEXT_PUBLIC_DEMO_API_BASE="https://demo.example///"` produced a malformed preview URL; normalize all trailing slashes; regression in `see-it.test.tsx`.
 - [x] (proven) `resolveShowcaseApiBase` removes only one trailing slash — **hit 2026-10-11 thorough hunt #31:** `NEXT_PUBLIC_DEMO_PREVIEW_API_BASE="https://demo.example///"` produced a malformed showcase URL; normalize all trailing slashes; regression in `showcase-page-server-resolution.test.ts`.

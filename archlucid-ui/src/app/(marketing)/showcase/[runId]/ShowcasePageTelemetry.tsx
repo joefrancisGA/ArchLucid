@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, type ReactElement, type ReactNode } from "react";
+import { useEffect, useRef, type ReactElement, type ReactNode } from "react";
 
 import {
   recordShowcaseViewed,
@@ -20,7 +20,15 @@ export function ShowcasePageTelemetry({
   renderMode,
   children,
 }: ShowcasePageTelemetryProps): ReactElement {
+  const viewedRunIdRef = useRef<string | null>(null);
+
   useEffect(() => {
+    if (viewedRunIdRef.current === runId) {
+      return;
+    }
+
+    viewedRunIdRef.current = runId;
+
     recordShowcaseViewed({
       scenario: resolveShowcaseScenarioSlug(runId),
       renderMode,
