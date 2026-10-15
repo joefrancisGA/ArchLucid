@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-15 seed hunt (seed→hit): `archlucid-contracts` — promoted `CandidateChangeSet`, `EvaluationScore.RegressionSignals`, and `ReviewClarificationQuestionsResponse.Questions` explicit JSON `null` (consolidated null-collection fix across evolution and clarification DTOs); coalesce on `init`/`set`; regressions `CandidateChangeSetDeserializationTests`, `EvaluationScoreDeserializationTests`, and `ReviewClarificationQuestionsResponseDeserializationTests`; reseeded five follow-on `(candidate)` rows; 768 scoped `Contracts` filter tests passed.
+
 2026-10-15 seed hunt (seed→hit): `archlucid-contracts` — promoted `OperationalSecurityFindingLookupRequest.SourceFindingIds`, `AgentOutputEvaluationPerspective.Scores`, and `DraftIntakeReaperBatchResult.DeletedDraftIds` explicit JSON `null` (consolidated null-collection fix); `ContractCollectionDefaults.Coalesce` / `CoalesceReadOnly` on `init`; regressions for all three DTOs; reseeded five follow-on `(candidate)` rows; 765 scoped `Contracts` filter tests passed.
 
 2026-10-15 seed hunt (seed→hit): `archlucid-contracts` — promoted `QuestionSelectionResult` list properties (`AllQuestions`, `RequiredMustQuestionKeys`, `PendingMustQuestions`) explicit JSON `null` on draft question selection JSON (consolidated fix); `ContractCollectionDefaults.CoalesceReadOnly` on all three `init` accessors; regression `QuestionSelectionResultDeserializationTests`; reseeded five follow-on `(candidate)` rows; 762 scoped `Contracts` filter tests passed.
@@ -29896,6 +29898,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 ---
 ## Zone: archlucid-contracts
 
+2026-10-15 seed hunt (seed→hit): promoted evolution change-set, evaluation score, and review clarification questions JSON `null` list properties; consolidated coalesce fix; three deserialization regressions; 768 scoped `Contracts` filter tests passed.
+
 2026-10-15 seed hunt (seed→hit): promoted operational security lookup, agent evaluation perspective, and draft reaper batch JSON `null` list properties; consolidated coalesce on `init`; three deserialization regressions; 765 scoped `Contracts` filter tests passed.
 
 2026-10-15 seed hunt (seed→hit): promoted `QuestionSelectionResult` JSON `null` on all list properties; consolidated `ContractCollectionDefaults.CoalesceReadOnly` on `init`; regression `QuestionSelectionResultDeserializationTests`; 762 scoped `Contracts` filter tests passed.
@@ -30066,11 +30070,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 139
-- **bugs-found:** 119
+- **hunts:** 140
+- **bugs-found:** 120
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-15
-- **last-bug:** 2026-10-15 — Operational security lookup / agent evaluation / draft reaper JSON null lists
+- **last-bug:** 2026-10-15 — Evolution / clarification contract JSON null lists
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -30116,10 +30120,15 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `QuestionSelectionResult.RequiredMustQuestionKeys` — explicit JSON `null` on draft question selection JSON — **hit 2026-10-15 seed hunt (seed→hit):** same consolidated fix as `AllQuestions`.
 - [x] (proven) `QuestionSelectionResult.PendingMustQuestions` — explicit JSON `null` on draft question selection JSON — **hit 2026-10-15 seed hunt (seed→hit):** same consolidated fix as `AllQuestions`.
 - [x] (proven) `DraftIntakeReaperBatchResult.DeletedDraftIds` — explicit JSON `null` on draft intake reaper batch JSON — **hit 2026-10-15 seed hunt (seed→hit):** `ContractCollectionDefaults.CoalesceReadOnly` on `init`; regression `DraftIntakeReaperBatchResultDeserializationTests`.
-- [ ] (candidate) `CandidateChangeSet.ProposedActions` — explicit JSON `null` on evolution candidate change-set JSON; locus: `CandidateChangeSet`; input: `"proposedActions": null`; wrong outcome: evolution review assumes non-null proposed action steps; reachability: candidate change-set API JSON.
-- [ ] (candidate) `CandidateChangeSet.AffectedComponents` — explicit JSON `null` on evolution candidate change-set JSON; locus: `CandidateChangeSet`; input: `"affectedComponents": null`; wrong outcome: change-set summary assumes non-null affected component rows; reachability: candidate change-set API JSON.
-- [ ] (candidate) `EvaluationScore.RegressionSignals` — explicit JSON `null` on evolution evaluation score JSON; locus: `EvaluationScore`; input: `"regressionSignals": null`; wrong outcome: evolution scoring explainability assumes non-null signal strings; reachability: evaluation score contract JSON.
-- [ ] (candidate) `ReviewClarificationQuestionsResponse.Questions` — explicit JSON `null` on review clarification questions JSON; locus: `ReviewClarificationQuestionsResponse`; input: `"questions": null`; wrong outcome: clarification panel assumes non-null question rows; reachability: review clarification questions API JSON.
+- [x] (proven) `CandidateChangeSet.ProposedActions` — explicit JSON `null` on evolution candidate change-set JSON — **hit 2026-10-15 seed hunt (seed→hit):** consolidated with `AffectedComponents`; regression `CandidateChangeSetDeserializationTests`.
+- [x] (proven) `CandidateChangeSet.AffectedComponents` — explicit JSON `null` on evolution candidate change-set JSON — **hit 2026-10-15 seed hunt (seed→hit):** same consolidated fix as `ProposedActions`.
+- [x] (proven) `EvaluationScore.RegressionSignals` — explicit JSON `null` on evolution evaluation score JSON — **hit 2026-10-15 seed hunt (seed→hit):** `ContractCollectionDefaults.CoalesceReadOnly` on `init`; regression `EvaluationScoreDeserializationTests`.
+- [x] (proven) `ReviewClarificationQuestionsResponse.Questions` — explicit JSON `null` on review clarification questions JSON — **hit 2026-10-15 seed hunt (seed→hit):** `ContractCollectionDefaults.Coalesce` on `set`; regression `ReviewClarificationQuestionsResponseDeserializationTests`.
+- [ ] (candidate) `ReviewClarificationDelta.ResolvedByEvidenceQuestionIds` — explicit JSON `null` on clarification delta JSON; locus: `ReviewClarificationDelta`; input: `"resolvedByEvidenceQuestionIds": null`; wrong outcome: delta summary assumes non-null resolved-id list; reachability: nested `ReviewClarificationQuestionsResponse.DeltaFromPriorRun` JSON.
+- [ ] (candidate) `ReviewClarificationDelta.StillOpenQuestionIds` — explicit JSON `null` on clarification delta JSON; locus: `ReviewClarificationDelta`; input: `"stillOpenQuestionIds": null`; wrong outcome: delta summary assumes non-null open-id list; reachability: nested clarification delta API JSON.
+- [ ] (candidate) `InferenceQuestionnaireListResponse.Items` — explicit JSON `null` on inference questionnaire list JSON; locus: `InferenceQuestionnaireListResponse`; input: `"items": null`; wrong outcome: operator questionnaire UI assumes non-null connection rows; reachability: inference questionnaire list API JSON.
+- [ ] (candidate) `BuyerRunDetailSummaryDto.DegradedExecutionAgents` — explicit JSON `null` on buyer run detail summary JSON; locus: `BuyerRunDetailSummaryDto`; input: `"degradedExecutionAgents": null`; wrong outcome: buyer run summary assumes non-null degraded-agent labels; reachability: buyer-polished run detail API JSON.
+- [ ] (candidate) `BuyerRunDetailSummaryDto.FindingSummaries` — explicit JSON `null` on buyer run detail summary JSON; locus: `BuyerRunDetailSummaryDto`; input: `"findingSummaries": null`; wrong outcome: buyer finding table assumes non-null summary rows; reachability: buyer-polished run detail API JSON.
 - [x] (invalid) `AgentOutputEvaluationScore.MissingKeys` — duplicate candidate row — **cheap-disproof 2026-10-15 seed hunt:** already proven 2026-10-14 with `AgentOutputEvaluationScoreDeserializationTests`.
 
 2026-10-10 seed hunt (seed-only): reread advisory scheduling/digest DTOs and agent trace summary projection with the existing Contracts coverage; no fresh contract-local wrong outcome or reachable serialization mismatch met the promotion bar. The scoped Contracts filter passed 520/520. No production or regression code was changed.

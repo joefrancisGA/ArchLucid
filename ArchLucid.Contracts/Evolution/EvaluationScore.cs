@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Evolution;
 
 /// <summary>Normalized or domain-specific scores for a simulation or aggregate evaluation (scale defined by producer).</summary>
@@ -29,11 +31,13 @@ public sealed class EvaluationScore
     }
 
     /// <summary>Sorted, human-readable regression/determinism signals (explainability).</summary>
+    private IReadOnlyList<string> regressionSignals = [];
+
     public IReadOnlyList<string> RegressionSignals
     {
-        get;
-        init;
-    } = [];
+        get => regressionSignals;
+        init => regressionSignals = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 
     /// <summary>Trust in inputs and evaluation coverage, [0,1]. Lower when manifests or determinism are missing.</summary>
     public double? ConfidenceScore

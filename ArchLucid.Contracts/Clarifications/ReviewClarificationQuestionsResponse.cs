@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Clarifications;
 
 /// <summary>Derived clarification questions for a committed review run.</summary>
@@ -9,11 +11,13 @@ public sealed class ReviewClarificationQuestionsResponse
         set;
     } = string.Empty;
 
+    private List<ReviewClarificationQuestion> questions = [];
+
     public List<ReviewClarificationQuestion> Questions
     {
-        get;
-        set;
-    } = [];
+        get => questions;
+        set => questions = ContractCollectionDefaults.Coalesce(value);
+    }
 
     public int TotalDerivedCount
     {
