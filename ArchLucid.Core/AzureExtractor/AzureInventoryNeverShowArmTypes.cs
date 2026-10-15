@@ -47,6 +47,7 @@ public static class AzureInventoryNeverShowArmTypes
         "Microsoft.Network/networkSecurityPerimeters/profiles",
         "Microsoft.Network/networkSecurityPerimeters/profiles/accessRules",
         "Microsoft.Network/networkSecurityPerimeters/resourceAssociations",
+        "Microsoft.Insights/privateLinkScopes/scopedResources",
         "Microsoft.Web/serverFarms",
     ];
 
@@ -81,6 +82,7 @@ public static class AzureInventoryNeverShowArmTypes
         "virtualnetworklinks",
         "virtualnetworkpeerings",
         "resourceassociations",
+        "scopedresources",
         "accessrules",
         "maintenanceconfigurations",
         "configurationassignments",

@@ -37,14 +37,14 @@ describe("formatInfraEvidenceOutlineEdgeToLabel", () => {
     ).toBe("sql-mi (SQL Managed Instance)");
   });
 
-  it("does not append when the To type is missing", () => {
+  it("appends a missing-type hint when names match and the To type is missing", () => {
     expect(
       formatInfraEvidenceOutlineEdgeToLabel({
         fromName: "sql-mi",
         toName: "sql-mi",
         toResourceType: null,
       }),
-    ).toBe("sql-mi");
+    ).toBe("sql-mi (Resource type was not stored)");
   });
 
   it("does not double-append a type that is already in the To name", () => {

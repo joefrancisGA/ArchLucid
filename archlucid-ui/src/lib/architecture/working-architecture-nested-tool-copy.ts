@@ -27,6 +27,10 @@ export const WORKING_ARCHITECTURE_NESTED_RESUME_LOADING_LABEL = "Loading resume 
 
 export const WORKING_ARCHITECTURE_NESTED_IDENTITY_LOADING_LABEL = "Loading architecture" as const;
 
+export const WORKING_ARCHITECTURE_NESTED_IDENTITY_NAME_LOADING_LABEL = "Loading architecture name…" as const;
+
+export const WORKING_ARCHITECTURE_NESTED_IDENTITY_NAME_NOT_STORED_LABEL = "Architecture name was not stored." as const;
+
 export const WORKING_ARCHITECTURE_NESTED_IDENTITY_UNAVAILABLE_LABEL = "Architecture unavailable" as const;
 
 export const WORKING_ARCHITECTURE_NESTED_PRIMARY_CONTENT_ID =

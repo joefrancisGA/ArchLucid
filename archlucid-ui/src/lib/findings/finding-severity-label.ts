@@ -1,6 +1,6 @@
 /**
  * Maps API numeric finding severity (contract enum) to a short UI label.
- * Unknown values fall back to their numeric string so future enum additions still render.
+ * Unknown values report that the label was not stored instead of showing a bare number.
  */
 export function findingSeverityLabel(severity: number | undefined): string {
   if (severity === undefined) {
@@ -21,6 +21,6 @@ export function findingSeverityLabel(severity: number | undefined): string {
       return "Critical";
 
     default:
-      return String(severity);
+      return "Severity label was not stored.";
   }
 }

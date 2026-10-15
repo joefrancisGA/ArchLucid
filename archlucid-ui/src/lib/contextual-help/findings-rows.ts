@@ -1,4 +1,8 @@
-/** Policy findings queue surface and findings help topic. */
+/** Policy findings queue surface and findings help topic.
+ *  Architecture defaults below. SecureNow overrides live in
+ *  `securenow-contextual-help-overrides.ts` (SH-03 / SH-04). Keep
+ *  `GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH` listed before `GOVERNANCE_FINDINGS_PATH`
+ *  so assigned-to-me wins longest-prefix matching. */
 
 import type { PageContextualHelpRow } from "@/lib/contextual-help/types";
 import { FINDINGS_HELP_TOPIC_LABEL } from "@/lib/findings/findings-help-evidence-copy";

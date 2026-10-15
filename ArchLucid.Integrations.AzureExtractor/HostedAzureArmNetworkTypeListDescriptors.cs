@@ -10,6 +10,8 @@ internal static class HostedAzureArmNetworkTypeListDescriptors
 
     internal const string NetworkSecurityPerimeterApiVersion = "2024-07-01";
 
+    internal const string MonitorPrivateLinkScopeApiVersion = "2021-07-01-preview";
+
     internal const string ComputeApiVersion = "2024-03-01";
 
     internal const string WebApiVersion = "2023-01-01";
@@ -51,6 +53,9 @@ internal static class HostedAzureArmNetworkTypeListDescriptors
         new(
             "Microsoft.Network/networkSecurityPerimeters",
             $"providers/Microsoft.Network/networkSecurityPerimeters?api-version={NetworkSecurityPerimeterApiVersion}"),
+        new(
+            "Microsoft.Insights/privateLinkScopes",
+            $"providers/Microsoft.Insights/privateLinkScopes?api-version={MonitorPrivateLinkScopeApiVersion}"),
     ];
 }
 

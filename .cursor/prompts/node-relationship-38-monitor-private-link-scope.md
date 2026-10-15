@@ -1,83 +1,86 @@
-# NR-38 — Link an Azure Monitor private link scope to visible members
+# NR-38 — Link an Azure Monitor private link scope to scoped resources and private endpoints
 
-**Model:** GPT-5.6 Luna. Paste this file as the whole task. Do not treat a private link scope as a data-flow hop. Do not put a Log Analytics workspace on the plate. Do not infer a member from a name or a resource group.
+**Model:** GPT-5.6 Luna. Paste this file as the whole task. Do not treat a private link scope as a data-flow hop. Do not infer a scoped member from a name, a resource group, or diagnostic settings alone.
 
 **Repo:** `c:\ArchLucid`
 
 **Record:** `docs/architecture/INVENTORY_DIAGRAM_NODE_RELATIONSHIP_LUNA_PROMPTS.md`
 
-**Depends on:** NR-04, NR-05, and NR-24. The owner is looking at a `Microsoft.Insights/privateLinkScopes` card on the full subscription diagram. The outline says it stands alone. Scoped workspaces stay off the plate. Membership and private-endpoint proof are not stored.
+**Depends on:** NR-04, NR-05, and NR-24. The owner is looking at `extension-pls` (`Microsoft.Insights/privateLinkScopes`) on the full subscription diagram. The outline says it stands alone. That name is not evidence that a Log Analytics workspace or Application Insights component is already linked in Azure.
 
 ## Goal
 
-The next inventory capture stores each Azure Monitor private link scope (AMPLS) scoped resource and each scope private-endpoint connection. When a scoped resource id is already a visible node, draw one solid **Scopes monitoring for** line from that scope to that node. When a stored private endpoint cites the scope, reuse the existing **Private access** path from NR-24. A scope with no visible member and no cited private endpoint stays unconnected. Scoped-resource and private-endpoint-connection child rows are not diagram cards. Log Analytics workspaces stay off the plate.
+The next inventory capture stores each Azure Monitor Private Link Scope (AMPLS) **scoped resource** and each cited **private endpoint connection** on the scope. When `properties.linkedResourceId` names a resource that is already a node in the snapshot, draw one solid **Scopes monitoring for** line from that scope to that resource. When a stored private endpoint in the snapshot is cited on the scope’s `privateEndpointConnections`, draw one solid **Private access** line from that private endpoint to the scope (same visibility rules as NR-24). A scope with no stored scoped resource and no resolvable private endpoint connection stays unconnected. Scoped-resource child rows are not diagram cards.
 
 ## Why
 
-`InventoryDiagramIndirectRelationshipClassifier` treats any ARM type that contains `privateLinkScopes` as `PrivateLinkScope`. `InventoryDiagramOrphanedStateClassifier.TryClassifyUnconnected` then marks that node Unconnected when it has no cited diagram edge. The outline renders Unconnected as `Stands alone`. That label is the current evidence, not a claim that Azure has no members.
+`InventoryDiagramIndirectRelationshipClassifier` classifies any ARM type that **contains** `privateLinkScopes` as `PrivateLinkScope`. `InventoryDiagramOrphanedStateClassifier.TryClassifyUnconnected` then marks that node Unconnected when it has no cited diagram edge. The outline renders Unconnected as `Stands alone`.
 
-NR-04 named the cited proof: scoped-resource membership and private-endpoint connections. Nothing collects them.
+NR-04 named the cited proof: the Azure Monitor scope and its **VNet private-link configuration**. Nothing collects scoped resources or scope private endpoint connections today.
 
-Customer script inventory (`Get-ArchLucidAzureResourcesViaResourceGraph`) projects `id`, `name`, `type`, `location`, `tags`, `sku`, and `resourceGroup`. It does not project AMPLS properties. `Get-ArchLucidArgNetworkAssociationQuerySpecs` has no query for `microsoft.insights/privatelinkscopes/scopedresources` or `microsoft.insights/privatelinkscopes/privateendpointconnections`. A scope GET does not embed the member list. Members live on child resources of type `Microsoft.Insights/privateLinkScopes/scopedResources`, in `properties.linkedResourceId`. Private endpoints that land on the scope live on `Microsoft.Insights/privateLinkScopes/privateEndpointConnections`, in `properties.privateEndpoint.id`.
+Membership is not on the parent scope GET. It lives on child resources `Microsoft.Insights/privateLinkScopes/scopedResources` (`properties.linkedResourceId`, optional `properties.kind`) and on `properties.privateEndpointConnections[]` on the scope (private endpoint resource id).
 
-Hosted collection lists network types in `HostedAzureArmNetworkTypeListDescriptors` and PaaS types in `HostedAzureArmPaasTypeListDescriptors`. Neither list includes `Microsoft.Insights/privateLinkScopes`, so a hosted snapshot can omit the scope entirely. Customer script is why an AMPLS card can already be on the plate.
+Customer script inventory does not query `microsoft.insights/privatelinkscopes/scopedresources`. Hosted collection does not list AMPLS children. The scope appears because `Get-AzResource` / Resource Graph lists the parent.
 
-`InventoryDiagramDataFlowTraversalHopClassifier` does not treat a private link scope as a traversal hop. Keep that. AMPLS is a monitoring-plane access boundary, in the same family as an NSG, not a firewall hop.
+`AzureInventoryNeverShowArmTypes` already omits `Microsoft.OperationalInsights/workspaces` from inventory and diagram nodes. A scoped Log Analytics workspace is still stored in `network-associations.json`, but **no line is drawn** when the linked resource is never shown. That is honest evidence, not a failure. Application Insights components and other visible linked types can receive **Scopes monitoring for** when they are in the snapshot.
 
-`Contains("privateLinkScopes")` would also classify Azure Arc `Microsoft.HybridCompute/privateLinkScopes` and AMPLS child rows as the same category if those rows become nodes. Only `Microsoft.Insights/privateLinkScopes` is a diagram node for this prompt.
+`InventoryDiagramDataFlowTraversalHopClassifier` must not treat a private link scope as a traversal hop.
 
-A Log Analytics workspace is not a general-diagram card. Do not add one to show AMPLS membership. Draw **Scopes monitoring for** only when the linked resource is already a visible node (for example an Application Insights component or a data-collection endpoint already on the plate).
+`Contains("privateLinkScopes")` would classify scoped-resource children as the same indirect category if they become nodes. Only the parent `Microsoft.Insights/privateLinkScopes` is a diagram node.
 
-NR-24 already labels a hidden private endpoint **Private access**. Reuse that path when the stored private-endpoint target is the AMPLS. Do not invent a second private-endpoint edge renderer.
+Do not confuse this with `Microsoft.Network/networkSecurityPerimeters` (NR-37) or with a Kubernetes load balancer in the node resource group.
 
 ## Read first
 
 - `ArchLucid.Core/AzureExtractor/InventoryDiagramIndirectRelationshipClassifier.cs`
 - `ArchLucid.Core/AzureExtractor/InventoryDiagramOrphanedStateClassifier.cs`
 - `ArchLucid.Core/AzureExtractor/InventoryDiagramDataFlowTraversalHopClassifier.cs`
+- `ArchLucid.Core/AzureExtractor/AzureInventoryNeverShowArmTypes.cs`
 - `ArchLucid.Core/AzureExtractor/AzureInventoryRelationshipAssociationTypes.cs`
-- `ArchLucid.Core/AzureExtractor/AzureInventoryNetworkSecurityPerimeterResourceTypes.cs` (exact-type + omit-child pattern)
-- `scripts/azure/ArchLucid.ResourceGraph.RelationshipQueries.helpers.ps1` (`Get-ArchLucidArgNetworkAssociationQuerySpecs`)
-- `ArchLucid.Integrations.AzureExtractor/HostedAzureArmNetworkTypeListDescriptors.cs`
-- `ArchLucid.Integrations.AzureExtractor/HostedAzureArmPaasTypeListDescriptors.cs`
+- `ArchLucid.ArtifactSynthesis/Compilers/InventoryDiagramPrivateAccessRelationshipApplier.cs` (NR-24 pattern)
+- `ArchLucid.ArtifactSynthesis/Compilers/InventoryDiagramNetworkSecurityPerimeterRelationshipApplier.cs` (NR-37 label applier pattern)
+- `scripts/azure/ArchLucid.ResourceGraph.RelationshipQueries.helpers.ps1`
+- `ArchLucid.Integrations.AzureExtractor/HostedAzureArmPaasTypeListDescriptors.cs` or network descriptors as appropriate
 - `ArchLucid.Integrations.AzureExtractor/HostedAzureInventoryNetworkAssociationBuilder.cs`
-- `.cursor/prompts/node-relationship-24-private-access.md` (label reuse only)
+- `ArchLucid.Integrations.AzureExtractor/HostedAzureInventoryResourcePropertyExpander.cs`
 
 ## What to build
 
-1. Add association type `monitorPrivateLinkScopeToResource`. Evidence label **Current**. Diagram label **Scopes monitoring for**. Inference source `inventory-ampls-scoped-resource`. One class per new type if the catalog pattern needs a new definition object. Reuse the existing association row and edge materializer. Do not add a second edge path.
-2. Customer script: add one Resource Graph query for `microsoft.insights/privatelinkscopes/scopedresources`. Project the child id and `linkedResourceId = tostring(properties.linkedResourceId)`. The scope id is the child id with the `/scopedResources/{name}` suffix removed. Emit one association row from that scope id to `linkedResourceId` when both ids are non-empty.
-3. Customer script: add one Resource Graph query for `microsoft.insights/privatelinkscopes/privateendpointconnections`. Project the child id and `privateEndpointId = tostring(properties.privateEndpoint.id)`. Feed that private-endpoint id into the existing private-endpoint target path so NR-24 can draw **Private access**. Do not add a third edge renderer.
-4. Hosted extractor: list `Microsoft.Insights/privateLinkScopes`, then list `scopedResources` and `privateEndpointConnections` children with a GET. Use a stable `api-version` documented for Azure Monitor private link scopes. Do not invent a preview version when Learn documents a GA version. Store the same scope id, linked resource id, and private-endpoint id.
-5. When the linked resource id is a visible node in the snapshot, draw one solid **Scopes monitoring for** edge from the scope to that member. Two scoped-resource rows that name the same member produce one edge. A linked Log Analytics workspace that is not a diagram node does not create a node and does not create an edge.
-6. Classify only the exact type `Microsoft.Insights/privateLinkScopes` as `PrivateLinkScope`. Do not emit diagram nodes for `.../scopedResources` or `.../privateEndpointConnections`. Do not classify `Microsoft.HybridCompute/privateLinkScopes` as the same category.
-7. Keep the new association out of `InventoryDiagramDataFlowTraversalHopClassifier`. Do not add the scope to `IsTraversalHopArmType`.
-8. A scope with no visible member and no cited private endpoint stays Unconnected. The outline keeps `Stands alone`. A linked resource id that is not a visible node does not create a node.
+1. Add association type `monitorPrivateLinkScopeToScopedResource`. Evidence label **Current**. Diagram label **Scopes monitoring for**. Inference source `inventory-ampls-scoped-resource`. Reuse the existing association row and `AzureInventoryNetworkAssociationEdgeMapper` path.
+2. Add association type `privateEndpointToMonitorPrivateLinkScope` **only if** NR-24’s existing `privateEndpointTarget` / **Private access** path cannot represent an AMPLS scope id as the target. Prefer reusing NR-24 when the stored PE target id is the scope. Document the choice in code comments only when non-obvious.
+3. Customer script: add one Resource Graph query for `microsoft.insights/privatelinkscopes/scopedresources`. Project `id`, `linkedResourceId = tostring(properties.linkedResourceId)`, and `kind = tostring(properties.kind)`. The scope id is the scoped-resource id with the `/scopedResources/{name}` suffix removed. Emit one association row from that scope id to `linkedResourceId` when both ids are non-empty. Store optional `kind` on the association row when present.
+4. Customer script or companion derivation: when a collected `Microsoft.Insights/privateLinkScopes` resource has `privateEndpointConnections` in properties (full GET or ARG projection), emit rows that cite each connected private endpoint id and the scope id. Do not invent connections without stored ids.
+5. Hosted extractor: list `Microsoft.Insights/privateLinkScopes` and list `scopedResources` per scope (GET with `api-version` from [Microsoft Learn](https://learn.microsoft.com/en-us/azure/templates/microsoft.insights/privatelinkscopes/scopedresources) — use `2023-06-01-preview` unless a newer stable version is documented for list). Merge scoped-resource payloads into the resource set used by `HostedAzureInventoryNetworkAssociationBuilder`. Expand `privateLinkResource` / `linkedResourceId` and scope `privateEndpointConnections` in the property expander when needed.
+6. Classify only the exact type `Microsoft.Insights/privateLinkScopes` as `PrivateLinkScope`. Add `Microsoft.Insights/privateLinkScopes/scopedResources` to `AzureInventoryNeverShowArmTypes` (catalog or suffix rule). Do not emit diagram nodes for scoped-resource children.
+7. When the linked resource id resolves to a visible graph node, draw one solid **Scopes monitoring for** edge. Duplicate scoped rows for the same linked resource produce one edge.
+8. When a private endpoint connection row resolves to a visible private endpoint node, draw **Private access** per NR-24. Do not duplicate NR-24 behavior for non-AMPLS targets.
+9. Keep both association types out of `InventoryDiagramDataFlowTraversalHopClassifier`.
+10. A scope whose scoped members are only never-show types (for example Log Analytics workspaces) and that has no resolvable private endpoint connection stays **Stands alone**. Do not create a synthetic workspace node. Optional: store a completeness note in manifest warnings when the scope has scoped resources but zero visible diagram targets — only if an existing warning code pattern already exists for relationship completeness; do not invent a new warning taxonomy in this session.
 
-Do not draw a line because the scope name contains `monitor` or a workspace name. Do not draw a line from resource-group collocation. Do not query AMPLS diagnostic logs. Do not add a Log Analytics workspace card. Do not change NR-24's hidden-versus-visible private-endpoint rule.
+Do not draw a line because the scope name ends in `-pls`. Do not draw a line from resource-group collocation. Do not treat `publicNetworkAccessForQuery` / `publicNetworkAccessForIngestion` on a workspace as scope membership without a stored `linkedResourceId`. Do not collect AMPLS access-mode exclusions or metric-dataplane subscription location in this session unless required to emit the scoped-resource row. Do not change NR-37 NSP edges.
 
 Bump `scriptVersion` and `collectorVersion` in `Get-ArchLucidAzurePackage.ps1` and `Get-SecureNowAzurePackage.ps1` by one patch from the version already in those files.
 
 ## Tests
 
-1. A scoped-resource whose id ends in `/privateLinkScopes/ampls-prod/scopedResources/appi-1` and whose `linkedResourceId` is an Application Insights component already on the plate emits one `monitorPrivateLinkScopeToResource` row from `ampls-prod` to that component. A second scoped-resource row to the same component does not emit a second diagram edge.
-2. A snapshot with that stored row draws one solid **Scopes monitoring for** edge. The scope is not Unconnected. The edge is not a data-flow hop.
-3. A scoped-resource whose `linkedResourceId` is a Log Analytics workspace that is not a diagram node stores the association row and draws no edge and no workspace card.
-4. A scope with no scoped-resource row and no private-endpoint connection stays Unconnected.
-5. A scoped-resource or private-endpoint-connection child resource is not a diagram node.
-6. A hidden private endpoint whose stored target is the AMPLS draws **Private access** using the NR-24 path. A visible private endpoint, when Show network details is on, stays a card and does not also draw that shortcut.
-7. `Microsoft.HybridCompute/privateLinkScopes` is not classified as `PrivateLinkScope`.
+1. A scoped resource whose id ends in `/privateLinkScopes/extension-pls/scopedResources/law-connection` and whose `linkedResourceId` is an Application Insights component emits one `monitorPrivateLinkScopeToScopedResource` row from `extension-pls` to that component. A second scoped row to the same component does not emit a second diagram edge.
+2. A scoped resource whose `linkedResourceId` is a Log Analytics workspace emits the association row in `network-associations.json` but draws **no** diagram edge when the workspace is never shown.
+3. A snapshot with a visible App Insights target draws one solid **Scopes monitoring for** edge. The scope is not Unconnected. The edge is not a data-flow hop.
+4. A scope with a stored `privateEndpointConnections` entry pointing at a private endpoint in the snapshot draws **Private access** from that endpoint to the scope when NR-24 rules allow it.
+5. A scope with no scoped rows and no PE connections stays Unconnected.
+6. A `Microsoft.Insights/privateLinkScopes/scopedResources` resource is not a diagram node.
+7. A scope named `extension-pls` with no stored links does not connect to a Databricks workspace or AKS cluster in the same resource group.
 
-Use the Resource Graph association tests, one hosted association builder test with a fake payload, and one diagram applier or materializer test. Do not call Azure. Do not require the `ArchitectureDiagramViewer` zoom suite to pass.
+Use Resource Graph association Pester tests, one hosted association builder test with fake scoped-resource and scope payloads, one `AzureInventoryNetworkAssociationEdgeMapper` test, and one diagram applier test for **Scopes monitoring for**. Do not call Azure. Do not require the `ArchitectureDiagramViewer` zoom suite to pass.
 
 ## Constraints
 
 - Before editing a tracked file, run `.\scripts\agent\check-working-tree-path.ps1 -Path '<path>'`. Stop on exit code 2.
-- Compile the projects you edit with `.\scripts\ci\agent-compile-check.ps1` and run the new tests. Run the focused Pester file for the Resource Graph association change.
+- Compile the projects you edit with `.\scripts\ci\agent-compile-check.ps1` and run the new tests.
 - Do not commit unless the user names the branch in that request.
 - Do not write to customer Azure.
 - Do not re-run NR-01 through NR-37 or SB-01 through SB-06 as greenfield.
 
 ## Done when
 
-After the next collection, the AMPLS has one solid **Scopes monitoring for** line to each in-snapshot visible resource cited by a stored scoped-resource row. A cited private endpoint uses **Private access**. The scope no longer stands alone when at least one such visible member or cited private endpoint is in the snapshot. A scope with no stored visible member still stands alone. The current snapshot keeps the old result until that subscription is captured again.
+After the next collection, `extension-pls` has **Scopes monitoring for** to each **visible** in-snapshot scoped member, and **Private access** from each cited in-snapshot private endpoint when connections are stored. It no longer stands alone when at least one such visible link exists. Scoped Log Analytics workspaces still do not appear as nodes; the scope may remain unconnected when every member is omitted by never-show rules. The current snapshot keeps the old result until that subscription is captured again.

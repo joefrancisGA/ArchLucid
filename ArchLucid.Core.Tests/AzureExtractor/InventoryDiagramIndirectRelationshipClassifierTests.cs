@@ -56,4 +56,25 @@ public sealed class InventoryDiagramIndirectRelationshipClassifierTests
         classified.Should().BeTrue();
         category.Should().Be(InventoryDiagramIndirectRelationshipCategory.NetworkSecurityPerimeter);
     }
+
+    [Fact]
+    public void TryClassify_does_not_classify_ampls_scoped_resource_child_as_private_link_scope()
+    {
+        InventoryDiagramIndirectRelationshipClassifier.TryClassify(
+                "Microsoft.Insights/privateLinkScopes/extension-pls/scopedResources/appinsights-1",
+                out _)
+            .Should()
+            .BeFalse();
+    }
+
+    [Fact]
+    public void TryClassify_classifies_ampls_parent_resource()
+    {
+        bool classified = InventoryDiagramIndirectRelationshipClassifier.TryClassify(
+            "Microsoft.Insights/privateLinkScopes",
+            out InventoryDiagramIndirectRelationshipCategory category);
+
+        classified.Should().BeTrue();
+        category.Should().Be(InventoryDiagramIndirectRelationshipCategory.PrivateLinkScope);
+    }
 }
