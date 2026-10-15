@@ -314,6 +314,11 @@ public static class AzureInventorySecurityEdgeMaterializer
             relationships,
             relationshipKeys);
 
+        AzureInventoryVmssToManagedClusterEdgeMapper.MapNodePools(
+            resources,
+            relationships,
+            relationshipKeys);
+
         if (dependencyObservationsFilePresent)
         {
             AzureInventoryDependencyObservationEdgeMapper.MapObservations(

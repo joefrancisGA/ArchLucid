@@ -46,6 +46,29 @@ public sealed class HostedAzureAksWorkloadImageCollectorTests
     }
 
     [Fact]
+    public async Task CollectAsync_does_not_warn_when_command_returns_empty_logs()
+    {
+        Mock<IHostedAzureManagementPostReadClient> client = new();
+        client
+            .Setup(postClient => postClient.TryRunAksWorkloadImageCommandAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(string.Empty);
+
+        HostedAzureAksWorkloadImageCollectResult result =
+            await HostedAzureAksWorkloadImageCollector.CollectAsync(
+                client.Object,
+                "token",
+                [CreateCluster()],
+                NullLogger.Instance,
+                CancellationToken.None);
+
+        Assert.Empty(result.EnrichedResources);
+        Assert.Empty(result.CollectionWarnings);
+    }
+
+    [Fact]
     public async Task CollectAsync_records_warning_when_command_is_unavailable()
     {
         Mock<IHostedAzureManagementPostReadClient> client = new();

@@ -302,6 +302,25 @@ public sealed class HostedAzureInventoryResourcePropertyExpanderTests
     }
 
     [Fact]
+    public void Expand_stores_node_resource_group_on_managed_cluster()
+    {
+        const string json = """
+            {
+              "nodeResourceGroup": "MC_rg_aks_westus",
+              "agentPoolProfiles": []
+            }
+            """;
+
+        using JsonDocument document = JsonDocument.Parse(json);
+        Dictionary<string, object?> properties = HostedAzureInventoryResourcePropertyExpander.Expand(
+            "Microsoft.ContainerService/managedClusters",
+            document.RootElement,
+            []);
+
+        Assert.Equal("MC_rg_aks_westus", properties["nodeResourceGroup"]);
+    }
+
+    [Fact]
     public void Expand_preserves_vmss_ip_configuration_subnet_index_when_earlier_slot_has_no_subnet()
     {
         const string subnetId =

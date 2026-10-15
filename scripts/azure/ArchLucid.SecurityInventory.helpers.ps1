@@ -487,9 +487,42 @@ function Expand-ArchLucidAzureContainerImageAndRegistryProperties(
     }
 }
 
+function Get-ArchLucidAzureAksWorkloadImageKubectlCommand
+{
+    return 'kubectl get deployments,statefulsets,daemonsets,jobs,cronjobs -A -o jsonpath=''{range .items[*]}{range .spec.template.spec.containers[*]}{.image}{\"\n\"}{end}{range .spec.template.spec.initContainers[*]}{.image}{\"\n\"}{end}{end}'''
+}
+
+function Read-ArchLucidAzureAksRunCommandLogs([object] $Document)
+{
+    if ($null -eq $Document -or $null -eq $Document.properties)
+    {
+        return $null
+    }
+
+    [string]$provisioningState = "$( $Document.properties.provisioningState )".Trim()
+
+    if (-not $provisioningState.Equals('Succeeded', [System.StringComparison]::OrdinalIgnoreCase))
+    {
+        return $null
+    }
+
+    if (-not ($Document.properties.PSObject.Properties.Name -contains 'logs'))
+    {
+        return [pscustomobject]@{
+            missingLogs = $true
+            logs = $null
+        }
+    }
+
+    return [pscustomobject]@{
+        missingLogs = $false
+        logs = "$( $Document.properties.logs )"
+    }
+}
+
 function Get-ArchLucidAzureAksWorkloadImageCommandOutput([string] $ResourceId)
 {
-    [string]$command = "kubectl get deployments,statefulsets,daemonsets,jobs,cronjobs -A -o jsonpath='{range .items[*]}{range .spec.template.spec.containers[*]}{.image}{`"`n`"}{end}{range .spec.template.spec.initContainers[*]}{.image}{`"`n`"}{end}{end}'"
+    [string]$command = Get-ArchLucidAzureAksWorkloadImageKubectlCommand
     [string]$payload = @{ command = $command } | ConvertTo-Json -Compress
     [object]$response = Invoke-AzRestMethod `
         -Method POST `
@@ -503,11 +536,16 @@ function Get-ArchLucidAzureAksWorkloadImageCommandOutput([string] $ResourceId)
     }
 
     [object]$document = $response.Content | ConvertFrom-Json -ErrorAction Stop
-    [string]$output = "$( $document.properties.logResult )"
+    [object]$initialLogs = Read-ArchLucidAzureAksRunCommandLogs -Document $document
 
-    if ("$( $document.properties.provisioningState )" -eq 'Succeeded')
+    if ($null -ne $initialLogs)
     {
-        return $output
+        if ($initialLogs.missingLogs)
+        {
+            return [pscustomobject]@{ missingLogs = $true }
+        }
+
+        return $initialLogs.logs
     }
 
     [string]$commandResultId = "$( $document.id )".Trim()
@@ -532,12 +570,19 @@ function Get-ArchLucidAzureAksWorkloadImageCommandOutput([string] $ResourceId)
         }
 
         [object]$pollDocument = $pollResponse.Content | ConvertFrom-Json -ErrorAction Stop
-        [string]$pollState = "$( $pollDocument.properties.provisioningState )"
+        [object]$pollLogs = Read-ArchLucidAzureAksRunCommandLogs -Document $pollDocument
 
-        if ($pollState -eq 'Succeeded')
+        if ($null -ne $pollLogs)
         {
-            return "$( $pollDocument.properties.logResult )"
+            if ($pollLogs.missingLogs)
+            {
+                return [pscustomobject]@{ missingLogs = $true }
+            }
+
+            return $pollLogs.logs
         }
+
+        [string]$pollState = "$( $pollDocument.properties.provisioningState )"
 
         if ($pollState -in @('Failed', 'Canceled', 'Cancelled'))
         {
@@ -546,6 +591,114 @@ function Get-ArchLucidAzureAksWorkloadImageCommandOutput([string] $ResourceId)
     }
 
     return $null
+}
+
+function Add-ArchLucidAzureVmssSubnetPropertiesFromPayload(
+    [hashtable] $Properties,
+    [object] $Payload)
+{
+    if ($null -eq $Payload -or $null -eq $Payload.properties)
+    {
+        return
+    }
+
+    [object]$configurations = $Payload.properties.virtualMachineProfile.networkProfile.networkInterfaceConfigurations
+
+    if ($null -eq $configurations)
+    {
+        return
+    }
+
+    [int]$index = 0
+
+    foreach ($configuration in @($configurations))
+    {
+        foreach ($ipConfiguration in @($configuration.properties.ipConfigurations))
+        {
+            [string]$subnetId = "$( $ipConfiguration.properties.subnet.id )".Trim()
+
+            if (-not [string]::IsNullOrWhiteSpace($subnetId))
+            {
+                $Properties["ipConfiguration.subnet.id[$index]"] = $subnetId
+            }
+
+            $index++
+        }
+    }
+}
+
+function Expand-ArchLucidAzureManagedClusterAndVmssProperties(
+    [object[]] $InventoryResources)
+{
+    foreach ($resource in @($InventoryResources))
+    {
+        if ($null -eq $resource)
+        {
+            continue
+        }
+
+        [string]$resourceType = "$( $resource.resourceType )".Trim()
+        [string]$resourceId = "$( $resource.resourceId )".Trim()
+
+        if ([string]::IsNullOrWhiteSpace($resourceId))
+        {
+            continue
+        }
+
+        if ($resourceType -notin @(
+                'Microsoft.ContainerService/managedClusters',
+                'Microsoft.Compute/virtualMachineScaleSets'))
+        {
+            continue
+        }
+
+        try
+        {
+            [string]$apiVersion = switch ($resourceType)
+            {
+                'Microsoft.ContainerService/managedClusters' { '2024-02-01' }
+                default { '2024-03-01' }
+            }
+
+            [string]$path = "${resourceId}?api-version=$apiVersion"
+            [object]$response = Invoke-AzRestMethod -Method GET -Path $path -ErrorAction Stop
+
+            if ($response.StatusCode -lt 200 -or $response.StatusCode -ge 300)
+            {
+                continue
+            }
+
+            [object]$payload = $response.Content | ConvertFrom-Json -ErrorAction Stop
+
+            [hashtable]$propertyBag = $resource.properties
+
+            if ($null -eq $propertyBag)
+            {
+                $propertyBag = @{}
+                $resource | Add-Member -NotePropertyName properties -NotePropertyValue $propertyBag -Force
+            }
+
+            if ($resourceType -eq 'Microsoft.ContainerService/managedClusters')
+            {
+                [string]$nodeResourceGroup = "$( $payload.properties.nodeResourceGroup )".Trim()
+
+                if (-not [string]::IsNullOrWhiteSpace($nodeResourceGroup))
+                {
+                    $propertyBag['nodeResourceGroup'] = $nodeResourceGroup
+                }
+
+                continue
+            }
+
+            Add-ArchLucidAzureVmssSubnetPropertiesFromPayload `
+                -Properties $propertyBag `
+                -Payload $payload
+        }
+        catch
+        {
+            # Optional enrichment must never prevent the base inventory from being emitted.
+        }
+    }
 }
 
 function Add-ArchLucidAzureAksWorkloadImageProperties(
@@ -574,7 +727,7 @@ function Add-ArchLucidAzureAksWorkloadImageProperties(
 
         try
         {
-            [string]$output = Get-ArchLucidAzureAksWorkloadImageCommandOutput -ResourceId $resourceId
+            [object]$output = Get-ArchLucidAzureAksWorkloadImageCommandOutput -ResourceId $resourceId
 
             if ($null -eq $output)
             {
@@ -582,8 +735,14 @@ function Add-ArchLucidAzureAksWorkloadImageProperties(
                 continue
             }
 
+            if ($output -is [pscustomobject] -and $output.missingLogs)
+            {
+                [void]$warnings.Add('aks-workload-images-not-collected-customer-script')
+                continue
+            }
+
             [string[]]$images = @(
-                $output -split '\r?\n' |
+                "$( $output )" -split '\r?\n' |
                     ForEach-Object { "$_".Trim() } |
                     Where-Object { -not [string]::IsNullOrWhiteSpace($_) } |
                     Select-Object -Unique
@@ -1369,6 +1528,27 @@ function Get-ArchLucidAzureNetworkAssociationCompanionRows
                             -FromResourceId $resourceId `
                             -ToResourceId $subnetId `
                             -AssociationType "bastionToSubnet"
+                    }
+                }
+            }
+        }
+
+        if ($resourceType -like "*virtualMachineScaleSets*")
+        {
+            foreach ($property in @(Get-ArchLucidInventoryPropertyEntries $resource.properties))
+            {
+                if ($property.Name -like 'ipConfiguration.subnet.id*')
+                {
+                    [string]$subnetId = "$( $property.Value )".Trim()
+
+                    if (-not ([string]::IsNullOrWhiteSpace($subnetId)))
+                    {
+                        Add-ArchLucidNetworkAssociationRow `
+                            -Rows $rows `
+                            -Seen $seen `
+                            -FromResourceId $resourceId `
+                            -ToResourceId $subnetId `
+                            -AssociationType "vmssToSubnet"
                     }
                 }
             }
