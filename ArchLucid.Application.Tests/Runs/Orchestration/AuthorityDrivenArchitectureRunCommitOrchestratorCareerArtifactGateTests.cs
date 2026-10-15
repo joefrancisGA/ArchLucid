@@ -328,6 +328,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestratorCareerArtifa
             .ReturnsAsync(workingDeskOnActorId);
 
         Mock<IFindingsSnapshotRepository> findingsSnapshotRepository = new();
+
         if (findingsSnapshot is not null && findingsSnapshotId is Guid snapshotId)
         {
             findingsSnapshotRepository
