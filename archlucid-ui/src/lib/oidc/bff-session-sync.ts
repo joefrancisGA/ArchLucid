@@ -1,5 +1,8 @@
 import { isSafeOidcEndpointUrl } from "@/lib/oidc/discovery";
-import { normalizeOidcConfigurationString } from "@/lib/oidc/oauth-callback-messages";
+import {
+  normalizeNumericOidcHintString,
+  normalizeOidcConfigurationString,
+} from "@/lib/oidc/oauth-callback-messages";
 import { resolveExpiresInSeconds } from "@/lib/oidc/resolve-expires-in-seconds";
 import type { OidcTokenResponse } from "@/lib/oidc/token-client";
 import { applyBffCsrfHeader, readBffCsrfTokenFromDocument } from "@/lib/proxy/bff-session-csrf-client";
@@ -16,7 +19,7 @@ const BFF_REFRESH_EXPIRY_SKEW_MS = 60_000;
 
 function parseBffExpiresAtMs(raw: unknown): number {
   if (typeof raw === "string") {
-    const normalized = normalizeOidcConfigurationString(raw);
+    const normalized = normalizeNumericOidcHintString(raw);
 
     if (normalized.length === 0) {
       return Number.NaN;

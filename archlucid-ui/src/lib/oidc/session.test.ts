@@ -18,6 +18,7 @@ import {
   OIDC_DISPLAY_NAME_KEY,
   OIDC_EXPIRES_AT_MS_KEY,
   OIDC_ID_TOKEN_KEY,
+  OIDC_POST_SIGN_IN_RETURN_URL_KEY,
   OIDC_REFRESH_TOKEN_KEY,
   OIDC_USER_SUBJECT_KEY,
 } from "@/lib/oidc/storage-keys";
@@ -52,6 +53,12 @@ describe("storePostSignInReturnUrl / consumePostSignInReturnUrl", () => {
 
   it("does not store an absolute external URL", () => {
     storePostSignInReturnUrl("https://evil.example/phish");
+
+    expect(consumePostSignInReturnUrl()).toBeNull();
+  });
+
+  it("returns null when legacy post-sign-in return path is zero-width-only", () => {
+    sessionStorage.setItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY, "\u200b\u200b");
 
     expect(consumePostSignInReturnUrl()).toBeNull();
   });
@@ -101,6 +108,13 @@ describe("getAccessTokenForApi / isLikelySignedIn expiry parsing (LK-06 P2)", ()
     sessionStorage.setItem(OIDC_EXPIRES_AT_MS_KEY, `${futureMs}\u200b`);
 
     expect(isLikelySignedIn()).toBe(true);
+  });
+
+  it("does not merge digits around interior zero-width characters in expires_at_ms hints", () => {
+    const futureMs = Date.now() + 3_600_000;
+    sessionStorage.setItem(OIDC_EXPIRES_AT_MS_KEY, `${futureMs}\u200b000`);
+
+    expect(isLikelySignedIn()).toBe(false);
   });
 
   it("treats zero-width-only expires_at_ms session hints as expired", () => {

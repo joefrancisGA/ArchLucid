@@ -180,6 +180,12 @@ describe("humanizeAuthorizeCallbackError", () => {
     expect(message).not.toContain("Policy");
   });
 
+  it("preserves access_denied detail when error_description mixes letters and emoji", () => {
+    const message = humanizeAuthorizeCallbackError("access_denied", "Policy 🔒");
+
+    expect(message).toBe("Sign-in stopped: Policy 🔒");
+  });
+
   it("uses canceled-sign-in copy when access_denied error_description is emoji-only", () => {
     const message = humanizeAuthorizeCallbackError("access_denied", "🔒");
 

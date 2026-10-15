@@ -14,6 +14,48 @@ export function normalizeOidcConfigurationString(value: string): string {
   return stripOAuthInvisibleFormatChars(value.trim()).trim();
 }
 
+function isOAuthInvisibleFormatChar(char: string): boolean {
+  if (char.length === 0) {
+    return false;
+  }
+
+  const code = char.charCodeAt(0);
+
+  return code === 0x200b || code === 0x200c || code === 0x200d || code === 0x2060 || code === 0xfeff;
+}
+
+/**
+ * Normalizes numeric OIDC/BFF hints (`expires_in`, `expires_at_ms`) by trimming and
+ * stripping invisible format characters at the edges only — interior ZWSP must not
+ * merge digits (e.g. `1730\u200b000` → `1730000`).
+ */
+export function normalizeNumericOidcHintString(value: string): string {
+  let start = 0;
+  let end = value.length;
+
+  while (start < end) {
+    const char = value[start];
+
+    if (!isOAuthInvisibleFormatChar(char) && char.trim().length > 0) {
+      break;
+    }
+
+    start += 1;
+  }
+
+  while (end > start) {
+    const char = value[end - 1];
+
+    if (!isOAuthInvisibleFormatChar(char) && char.trim().length > 0) {
+      break;
+    }
+
+    end -= 1;
+  }
+
+  return value.slice(start, end);
+}
+
 export function collapseOAuthErrorDescriptionLineBreaks(text: string): string {
   return text
     .replace(OAUTH_INVISIBLE_FORMAT_CHARS, " ")

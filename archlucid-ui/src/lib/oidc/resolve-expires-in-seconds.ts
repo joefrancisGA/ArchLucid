@@ -1,4 +1,4 @@
-import { normalizeOidcConfigurationString } from "@/lib/oidc/oauth-callback-messages";
+import { normalizeNumericOidcHintString } from "@/lib/oidc/oauth-callback-messages";
 
 /** OAuth access-token lifetimes above one year are treated as malformed provider input. */
 const MAX_PLAUSIBLE_OIDC_EXPIRES_IN_SEC = 31_536_000;
@@ -20,7 +20,7 @@ export function resolveExpiresInSeconds(expiresIn: number | undefined): number {
   let numericExpiresIn: number;
 
   if (typeof expiresIn === "string") {
-    const normalized = normalizeOidcConfigurationString(expiresIn);
+    const normalized = normalizeNumericOidcHintString(expiresIn);
 
     if (normalized.length === 0) {
       return defaultExpiresInSec;

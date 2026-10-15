@@ -69,6 +69,14 @@ describe("resolveExpiresInSeconds", () => {
     expect(resolveExpiresInSeconds("0003600" as unknown as number)).toBe(3600);
   });
 
+  it("maps a thin-space grouped string expires_in to the default lifetime", () => {
+    expect(resolveExpiresInSeconds("3\u202f600" as unknown as number)).toBe(3600);
+  });
+
+  it("maps an expires_in string with interior zero-width characters to the default lifetime", () => {
+    expect(resolveExpiresInSeconds("72\u200b00" as unknown as number)).toBe(3600);
+  });
+
   it("maps a spaced string expires_in to the default lifetime", () => {
     expect(resolveExpiresInSeconds("3 600" as unknown as number)).toBe(3600);
   });
