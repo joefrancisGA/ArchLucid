@@ -42,7 +42,7 @@ internal static partial class ComparisonReplayPayloadComplexity
             bump += 1;
             factors.Add("Manifest includes structural changes (services, datastores, controls, or relationships).");
         }
-        else if (manifestDiff.TryGetProperty("warnings", out JsonElement warnings) &&
+        else if (TryGetPropertyIgnoreCase(manifestDiff, "warnings", out JsonElement warnings) &&
                  warnings.ValueKind == JsonValueKind.Array &&
                  warnings.GetArrayLength() > 0)
         {

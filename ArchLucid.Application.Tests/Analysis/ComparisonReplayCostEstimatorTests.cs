@@ -209,6 +209,48 @@ public sealed class ComparisonReplayCostEstimatorTests
     }
 
     [SkippableFact]
+    public async Task TryEstimateAsync_pascal_case_warning_only_manifestDiff_adds_factor()
+    {
+        EndToEndReplayComparisonReport report = new()
+        {
+            LeftRunId = "a".PadRight(32, 'a'),
+            RightRunId = "b".PadRight(32, 'b'),
+            ManifestDiff = new ManifestDiffResult { Warnings = ["Manifest metadata drift only."] },
+        };
+        string payloadJson = JsonSerializer.Serialize(report);
+
+        Mock<IComparisonRecordRepository> repo = new();
+        repo.Setup(r => r.GetByIdAsync("c1", It.IsAny<CancellationToken>())).ReturnsAsync(
+            new ComparisonRecord
+            {
+                ComparisonRecordId = "c1",
+                ComparisonType = ComparisonTypes.EndToEndReplay,
+                PayloadJson = payloadJson,
+            });
+
+        ComparisonReplayCostEstimator sut = CreateSut(repo.Object);
+
+        ComparisonReplayCostEstimate? rich =
+            await sut.TryEstimateAsync("c1", "markdown", "artifact", false, CancellationToken.None);
+
+        repo.Setup(r => r.GetByIdAsync("c2", It.IsAny<CancellationToken>())).ReturnsAsync(
+            new ComparisonRecord
+            {
+                ComparisonRecordId = "c2",
+                ComparisonType = ComparisonTypes.EndToEndReplay,
+                PayloadJson = "{}",
+            });
+
+        ComparisonReplayCostEstimate? baseline =
+            await sut.TryEstimateAsync("c2", "markdown", "artifact", false, CancellationToken.None);
+
+        rich.Should().NotBeNull();
+        baseline.Should().NotBeNull();
+        rich.ApproximateRelativeScore.Should().BeGreaterThan(baseline.ApproximateRelativeScore);
+        rich.Factors.Should().Contain(f => f.Contains("warning-only", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [SkippableFact]
     public async Task TryEstimateAsync_export_record_diff_payload_with_many_changed_fields_adds_factor()
     {
         JsonSerializerOptions jsonOptions = new(JsonSerializerDefaults.Web);
