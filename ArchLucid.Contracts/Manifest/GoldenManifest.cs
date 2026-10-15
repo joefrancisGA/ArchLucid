@@ -62,26 +62,32 @@ public sealed class GoldenManifest
     ///     constraints, required controls, and risk classification.
     /// </summary>
     [Required]
+    private ManifestGovernance governance = new();
+
     public ManifestGovernance Governance
     {
-        get;
-        set;
-    } = new();
+        get => governance;
+        set => governance = value ?? new ManifestGovernance();
+    }
 
     /// <summary>
     ///     Version, schema, and provenance metadata for this manifest snapshot.
     /// </summary>
     [Required]
+    private ManifestMetadata metadata = new();
+
     public ManifestMetadata Metadata
     {
-        get;
-        set;
-    } = new();
+        get => metadata;
+        set => metadata = value ?? new ManifestMetadata();
+    }
 
     /// <summary>Semantic diagram overlay: actors, trust, requirements, and decisions (TB-2351).</summary>
+    private ManifestDiagramSemanticOverlay diagramSemantics = new();
+
     public ManifestDiagramSemanticOverlay DiagramSemantics
     {
-        get;
-        set;
-    } = new();
+        get => diagramSemantics;
+        set => diagramSemantics = value ?? new ManifestDiagramSemanticOverlay();
+    }
 }

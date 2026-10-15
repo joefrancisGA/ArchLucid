@@ -3,27 +3,35 @@ namespace ArchLucid.Contracts.ProductLearning;
 /// <summary>All product-learning dashboard slices from one scoped dashboard computation.</summary>
 public sealed class ProductLearningDashboardBundleResponse
 {
+    private ProductLearningDashboardSummaryResponse summary = new();
+
     public ProductLearningDashboardSummaryResponse Summary
     {
-        get;
-        init;
-    } = new();
+        get => summary;
+        init => summary = value ?? new ProductLearningDashboardSummaryResponse();
+    }
+
+    private ProductLearningImprovementOpportunitiesResponse opportunities = new();
 
     public ProductLearningImprovementOpportunitiesResponse Opportunities
     {
-        get;
-        init;
-    } = new();
+        get => opportunities;
+        init => opportunities = value ?? new ProductLearningImprovementOpportunitiesResponse();
+    }
+
+    private ProductLearningArtifactOutcomeTrendsResponse trends = new();
 
     public ProductLearningArtifactOutcomeTrendsResponse Trends
     {
-        get;
-        init;
-    } = new();
+        get => trends;
+        init => trends = value ?? new ProductLearningArtifactOutcomeTrendsResponse();
+    }
+
+    private ProductLearningTriageQueueResponse triage = new();
 
     public ProductLearningTriageQueueResponse Triage
     {
-        get;
-        init;
-    } = new();
+        get => triage;
+        init => triage = value ?? new ProductLearningTriageQueueResponse();
+    }
 }

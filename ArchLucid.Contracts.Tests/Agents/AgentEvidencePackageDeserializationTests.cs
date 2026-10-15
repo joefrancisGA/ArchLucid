@@ -33,4 +33,21 @@ public sealed class AgentEvidencePackageDeserializationTests
         package.Notes.Should().NotBeNull().And.BeEmpty();
         package.StructuralGroundingDropLog.Should().NotBeNull().And.BeEmpty();
     }
+
+    [Fact]
+    public void Deserialize_null_request_evidence_yields_non_null_request_not_null()
+    {
+        const string json = """
+            {
+              "evidencePackageId": "ep1",
+              "request": null
+            }
+            """;
+
+        AgentEvidencePackage? package =
+            JsonSerializer.Deserialize<AgentEvidencePackage>(json, ContractJson.Default);
+
+        package.Should().NotBeNull();
+        package!.Request.Should().NotBeNull();
+    }
 }

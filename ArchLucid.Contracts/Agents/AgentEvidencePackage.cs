@@ -55,11 +55,13 @@ public sealed class AgentEvidencePackage
 
     /// <summary>Request description, constraints, capabilities, and assumptions.</summary>
     [Required]
+    private RequestEvidence request = new();
+
     public RequestEvidence Request
     {
-        get;
-        set;
-    } = new();
+        get => request;
+        set => request = value ?? new RequestEvidence();
+    }
 
     /// <summary>Applicable policy evidence entries injected for agent evaluation.</summary>
     private List<PolicyEvidence> policies = [];

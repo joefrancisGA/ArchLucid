@@ -31,4 +31,26 @@ public sealed class GoldenManifestDeserializationTests
         manifest.Datastores.Should().NotBeNull().And.BeEmpty();
         manifest.Relationships.Should().NotBeNull().And.BeEmpty();
     }
+
+    [Fact]
+    public void Deserialize_null_nested_manifest_objects_yields_non_null_defaults()
+    {
+        const string json = """
+            {
+              "runId": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "systemName": "demo",
+              "governance": null,
+              "metadata": null,
+              "diagramSemantics": null
+            }
+            """;
+
+        GoldenManifest? manifest =
+            JsonSerializer.Deserialize<GoldenManifest>(json, ContractJson.Default);
+
+        manifest.Should().NotBeNull();
+        manifest!.Governance.Should().NotBeNull();
+        manifest.Metadata.Should().NotBeNull();
+        manifest.DiagramSemantics.Should().NotBeNull();
+    }
 }

@@ -25,4 +25,20 @@ public sealed class GovernanceSetupGuideBundleResponseDeserializationTests
 
         response.AlertRoutingSubscriptions.Should().NotBeNull().And.BeEmpty();
     }
+
+    [Fact]
+    public void Deserialize_null_effective_policy_packs_yields_non_null_set_not_null()
+    {
+        const string json = """
+            {
+              "effectivePolicyPacks": null
+            }
+            """;
+
+        GovernanceSetupGuideBundleResponse? response =
+            JsonSerializer.Deserialize<GovernanceSetupGuideBundleResponse>(json, ContractJson.Default);
+
+        response.Should().NotBeNull();
+        response!.EffectivePolicyPacks.Should().NotBeNull();
+    }
 }

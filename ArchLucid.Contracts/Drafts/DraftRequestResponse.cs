@@ -39,11 +39,13 @@ public sealed class DraftRequestResponse
         set;
     }
 
+    private DraftRequestDocument document = new();
+
     public DraftRequestDocument Document
     {
-        get;
-        set;
-    } = new();
+        get => document;
+        set => document = value ?? new DraftRequestDocument();
+    }
 
     /// <summary>Populated when <see cref="Status" /> is <see cref="DraftRequestStatus.Redirected" />.</summary>
     public string? RedirectReason

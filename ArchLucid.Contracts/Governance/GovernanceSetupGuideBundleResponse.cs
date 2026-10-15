@@ -7,11 +7,13 @@ namespace ArchLucid.Contracts.Governance;
 /// <summary>Governance setup guide: effective policy packs and alert routing subscriptions.</summary>
 public sealed class GovernanceSetupGuideBundleResponse
 {
+    private EffectivePolicyPackSet effectivePolicyPacks = new();
+
     public EffectivePolicyPackSet EffectivePolicyPacks
     {
-        get;
-        init;
-    } = new();
+        get => effectivePolicyPacks;
+        init => effectivePolicyPacks = value ?? new EffectivePolicyPackSet();
+    }
 
     private IReadOnlyList<AlertRoutingSubscription> alertRoutingSubscriptions = [];
 
