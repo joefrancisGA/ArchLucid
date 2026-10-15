@@ -40,11 +40,11 @@ import {
 } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 import {
-  STANDARDS_RULES_HELP_CLAIM_DISCIPLINE,
   STANDARDS_RULES_HELP_CLAIM_DISCIPLINE_HEADING,
   STANDARDS_RULES_HELP_FOLLOW_UPS_TITLE,
-  STANDARDS_RULES_HELP_SOURCES,
-  STANDARDS_RULES_HELP_SOURCES_INTRO,
+  resolveStandardsRulesHelpClaimDiscipline,
+  resolveStandardsRulesHelpOrientationSources,
+  resolveStandardsRulesHelpSourcesIntro,
 } from "@/lib/standards-rules-help-evidence-copy";
 import { STANDARDS_RULES_HELP_CLAIM_HEADING_ID } from "@/lib/standards-rules-help-guide-content";
 import {
@@ -74,12 +74,12 @@ import {
   PRIOR_MANIFEST_RETRIEVAL_HELP_SOURCES_INTRO,
 } from "@/lib/prior-manifest-retrieval-help-evidence-copy";
 import {
-  POLICY_PACKS_HELP_CLAIM_DISCIPLINE,
   POLICY_PACKS_HELP_CLAIM_DISCIPLINE_HEADING,
   POLICY_PACKS_HELP_CLAIM_HEADING_ID,
   POLICY_PACKS_HELP_FOLLOW_UPS_TITLE,
-  POLICY_PACKS_HELP_SOURCES,
-  POLICY_PACKS_HELP_SOURCES_INTRO,
+  resolvePolicyPacksHelpClaimDiscipline,
+  resolvePolicyPacksHelpSources,
+  resolvePolicyPacksHelpSourcesIntro,
 } from "@/lib/policy/policy-packs-help-evidence-copy";
 import {
   REPEAT_REVIEW_LOOP_HELP_CLAIM_DISCIPLINE,
@@ -188,21 +188,22 @@ export type StandardsRulesHelpEvidenceOrientationStripProps = {
 export function StandardsRulesHelpEvidenceOrientationStrip(
   props: StandardsRulesHelpEvidenceOrientationStripProps = {},
 ): React.JSX.Element {
+  const productLineId = resolveProductLineIdFromEnv();
   const sectionHeadingClass = cn(
     OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
     OPERATOR_TYPOGRAPHY.sectionTitle,
     "m-0 scroll-mt-24",
   );
-  const sources = props.sources ?? STANDARDS_RULES_HELP_SOURCES;
+  const sources = props.sources ?? resolveStandardsRulesHelpOrientationSources(productLineId);
 
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="help-standards-rules"
-      claim={STANDARDS_RULES_HELP_CLAIM_DISCIPLINE}
+      claim={resolveStandardsRulesHelpClaimDiscipline(productLineId)}
       claimHeading={STANDARDS_RULES_HELP_CLAIM_DISCIPLINE_HEADING}
       claimHeadingId={STANDARDS_RULES_HELP_CLAIM_HEADING_ID}
       sourcesTitle={STANDARDS_RULES_HELP_FOLLOW_UPS_TITLE}
-      sourcesIntro={STANDARDS_RULES_HELP_SOURCES_INTRO}
+      sourcesIntro={resolveStandardsRulesHelpSourcesIntro(productLineId)}
       sources={sources}
       sourcesHeadingId="where-to-go-next"
       readingBodyClassName={props.readingBodyClassName ?? HELP_PAGE_LAYOUT.readingBody}
@@ -284,16 +285,20 @@ export function PriorManifestRetrievalHelpEvidenceOrientationStrip(): React.JSX.
   );
 }
 
-export function PolicyPacksHelpEvidenceOrientationStrip(): React.JSX.Element {
+export function PolicyPacksHelpEvidenceOrientationStrip(
+  props: { readonly productLineId?: ProductLineId } = {},
+): React.JSX.Element {
+  const productLineId = props.productLineId ?? resolveProductLineIdFromEnv();
+
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="policy-packs-help"
-      claim={POLICY_PACKS_HELP_CLAIM_DISCIPLINE}
+      claim={resolvePolicyPacksHelpClaimDiscipline(productLineId)}
       claimHeading={POLICY_PACKS_HELP_CLAIM_DISCIPLINE_HEADING}
       claimHeadingId={POLICY_PACKS_HELP_CLAIM_HEADING_ID}
       sourcesTitle={POLICY_PACKS_HELP_FOLLOW_UPS_TITLE}
-      sourcesIntro={POLICY_PACKS_HELP_SOURCES_INTRO}
-      sources={POLICY_PACKS_HELP_SOURCES}
+      sourcesIntro={resolvePolicyPacksHelpSourcesIntro(productLineId)}
+      sources={resolvePolicyPacksHelpSources(productLineId)}
       sourcesHeadingId="where-to-go-next"
     />
   );

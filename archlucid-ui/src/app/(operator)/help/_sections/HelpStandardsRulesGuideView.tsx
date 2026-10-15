@@ -36,7 +36,7 @@ import {
 import { resolveProductLineIdFromEnv } from "@/lib/product-line/resolve-product-line-id";
 import {
   STANDARDS_RULES_HELP_CANONICAL_PATH,
-  STANDARDS_RULES_HELP_ORIENTATION_SOURCES,
+  resolveStandardsRulesHelpOrientationSources,
 } from "@/lib/standards-rules-help-evidence-copy";
 import { cn } from "@/lib/utils";
 import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
@@ -68,7 +68,9 @@ export function HelpStandardsRulesGuideView(props: HelpStandardsRulesGuideViewPr
   );
   const contentGridClass = resolveHelpPageContentGridClass(guideHeadings.length);
   const readingBodyClass = cn("m-0 leading-relaxed", HELP_PAGE_LAYOUT.readingBody);
-  const orientationSources = buyerPolishedShell ? STANDARDS_RULES_HELP_ORIENTATION_SOURCES : undefined;
+  const orientationSources = buyerPolishedShell
+    ? resolveStandardsRulesHelpOrientationSources(productLineId)
+    : undefined;
 
   return (
     <article

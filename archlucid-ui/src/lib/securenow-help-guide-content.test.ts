@@ -5,6 +5,8 @@ import {
   SECURENOW_ASSIGNED_TO_ME_FINDINGS,
   SECURENOW_FINDINGS_QUEUE_HUB,
   SECURENOW_GETTING_STARTED_HELP,
+  SECURENOW_POLICY_PACKS_HUB,
+  SECURENOW_STANDARDS_RULES_HUB,
   SECURENOW_TROUBLESHOOTING_HELP,
 } from "@/lib/contextual-help/securenow-contextual-help-overrides";
 import {
@@ -215,6 +217,31 @@ describe("SecureNow help guide content", () => {
     expect(standardsRulesHelpOverview("security")).not.toContain("review in scope");
     expect(standardsRulesHelpHowToReadSteps("security").join(" ")).toContain("workspace scope");
     expect(standardsRulesHelpOverview("architecture")).toContain("Standards & rules resolution view");
+  });
+
+  it("resolves SecureNow policy packs contextual help without review-baseline language", () => {
+    const complianceHub = contextualHelpForPathname("/compliance/policy-packs", { productLineId: "security" });
+    const governanceHub = contextualHelpForPathname("/governance/policy-packs", { productLineId: "security" });
+    const architectureHub = contextualHelpForPathname("/governance/policy-packs", { productLineId: "architecture" });
+
+    expect(complianceHub?.whatIsThisPage).toBe(SECURENOW_POLICY_PACKS_HUB.whatIsThisPage);
+    expect(governanceHub?.whatIsThisPage).toBe(SECURENOW_POLICY_PACKS_HUB.whatIsThisPage);
+    expect(complianceHub?.whatToDoNext).not.toMatch(/review baseline/i);
+    expect(complianceHub?.whatToDoNext).not.toMatch(/starting a review/i);
+    expect(complianceHub?.whereToConfigureAction?.href).toBe("/compliance/findings");
+    expect(architectureHub?.whatToDoNext).toMatch(/review/i);
+  });
+
+  it("resolves SecureNow standards and rules contextual help for workspace scope", () => {
+    const complianceHub = contextualHelpForPathname("/compliance/standards-and-rules", { productLineId: "security" });
+    const architectureHub = contextualHelpForPathname("/governance/standards-and-rules", {
+      productLineId: "architecture",
+    });
+
+    expect(complianceHub?.whatIsThisPage).toBe(SECURENOW_STANDARDS_RULES_HUB.whatIsThisPage);
+    expect(complianceHub?.whatIsThisPage).not.toMatch(/applied to a review/i);
+    expect(complianceHub?.whyEmpty).toContain("workspace scope");
+    expect(architectureHub?.whatIsThisPage).toMatch(/applied to a review/i);
   });
 
   it("omits architecture-only user capabilities for SecureNow", () => {

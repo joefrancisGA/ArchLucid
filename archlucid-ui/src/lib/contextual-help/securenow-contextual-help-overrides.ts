@@ -114,6 +114,14 @@ const SECURENOW_POLICY_PACKS_HUB: PageContextualHelpEntry = {
   whatToDoNext: "Open a pack, set priority floors, then open standards and rules or findings to confirm effective rules.",
   whyEmpty: "Packs appear after bundled packs are available for this workspace.",
   whereToConfigurePrerequisite: "Policy packs respect the workspace and project selected in the header switcher.",
+  whatToDoNextAction: {
+    label: "Open standards and rules",
+    href: SECURENOW_STANDARDS_AND_RULES_PATH,
+  },
+  whereToConfigureAction: {
+    label: "Open findings",
+    href: SECURENOW_FINDINGS_PATH,
+  },
   taskSteps: [
     "Open a pack to inspect rules and version history.",
     "Set priority floors for cloud evidence scans.",
@@ -412,5 +420,7 @@ export {
   SECURENOW_ASSIGNED_TO_ME_FINDINGS,
   SECURENOW_FINDINGS_QUEUE_HUB,
   SECURENOW_GETTING_STARTED_HELP,
+  SECURENOW_POLICY_PACKS_HUB,
+  SECURENOW_STANDARDS_RULES_HUB,
   SECURENOW_TROUBLESHOOTING_HELP,
 };
