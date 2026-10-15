@@ -44,6 +44,9 @@ public static class AzureInventoryNeverShowArmTypes
         "Microsoft.Network/dnsForwardingRulesets/virtualNetworkLinks",
         // Companion child used to emit PEERS_WITH; omit from inventory/diagram nodes.
         "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
+        "Microsoft.Network/networkSecurityPerimeters/profiles",
+        "Microsoft.Network/networkSecurityPerimeters/profiles/accessRules",
+        "Microsoft.Network/networkSecurityPerimeters/resourceAssociations",
         "Microsoft.Web/serverFarms",
     ];
 
@@ -77,6 +80,8 @@ public static class AzureInventoryNeverShowArmTypes
         "versions",
         "virtualnetworklinks",
         "virtualnetworkpeerings",
+        "resourceassociations",
+        "accessrules",
         "maintenanceconfigurations",
         "configurationassignments",
         "serverfarms",

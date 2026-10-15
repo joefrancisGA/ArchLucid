@@ -133,6 +133,8 @@ public static class AzureInventoryRelationshipAssociationTypes
 
     public const string RecoveryServicesReplicates = "recoveryServicesReplicates";
 
+    public const string NetworkSecurityPerimeterToResource = "networkSecurityPerimeterToResource";
+
     private static readonly AzureInventoryRelationshipAssociationTypeDefinition[] Catalog =
     [
         Observed(NicToSubnet, AzureInventoryRelationshipArmKind.NetworkInterface, AzureInventoryRelationshipArmKind.Subnet, "CONNECTS_TO", "inventory-nic-subnet"),
@@ -210,6 +212,12 @@ public static class AzureInventoryRelationshipAssociationTypes
             AzureInventoryRelationshipArmKind.VirtualMachine,
             "PROTECTS",
             "inventory-recovery-services-replicates"),
+        Observed(
+            NetworkSecurityPerimeterToResource,
+            AzureInventoryRelationshipArmKind.NetworkSecurityPerimeter,
+            AzureInventoryRelationshipArmKind.LinkedServiceTarget,
+            "PROTECTS",
+            "inventory-nsp-association"),
     ];
 
     private static readonly Dictionary<string, AzureInventoryRelationshipAssociationTypeDefinition> Lookup =

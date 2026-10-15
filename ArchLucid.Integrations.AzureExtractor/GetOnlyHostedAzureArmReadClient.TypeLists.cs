@@ -312,6 +312,93 @@ public sealed partial class GetOnlyHostedAzureArmReadClient
         return resources;
     }
 
+    public async Task<IReadOnlyList<HostedAzureArmResourceRecord>> ListNetworkSecurityPerimeterResourceAssociationsAsync(
+        string accessToken,
+        string subscriptionId,
+        string networkSecurityPerimeterResourceId,
+        CancellationToken cancellationToken)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(accessToken);
+        ArgumentException.ThrowIfNullOrWhiteSpace(networkSecurityPerimeterResourceId);
+        HostedAzureExtractorGuidValidator.RequireAzureGuid(nameof(subscriptionId), subscriptionId);
+
+        List<HostedAzureArmResourceRecord> resources = [];
+        string trimmedPerimeterId = networkSecurityPerimeterResourceId.Trim().TrimStart('/');
+        string listingRelativePath = $"{trimmedPerimeterId}/resourceAssociations";
+        string? nextLink =
+            $"https://management.azure.com/{listingRelativePath}?api-version={HostedAzureArmNetworkTypeListDescriptors.NetworkSecurityPerimeterApiVersion}";
+        HashSet<string> visitedLinks = new(StringComparer.OrdinalIgnoreCase);
+        int requestCount = 0;
+
+        while (!string.IsNullOrWhiteSpace(nextLink))
+        {
+            if (!visitedLinks.Add(nextLink))
+            {
+                break;
+            }
+
+            requestCount++;
+
+            if (requestCount > MaxPaginationRequests)
+            {
+                break;
+            }
+
+            using HttpRequestMessage request = new(HttpMethod.Get, nextLink);
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
+            using HttpResponseMessage response =
+                await _httpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                break;
+            }
+
+            await using Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
+
+            using JsonDocument? document =
+                await TryParseArmPaginationPageAsync(stream, resources.Count, cancellationToken).ConfigureAwait(false);
+
+            if (document is null)
+            {
+                break;
+            }
+
+            if (document.RootElement.TryGetProperty("value", out JsonElement valueElement)
+                && valueElement.ValueKind == JsonValueKind.Array)
+            {
+                foreach (JsonElement item in valueElement.EnumerateArray())
+                {
+                    HostedAzureArmResourceRecord? mapped = MapResource(item);
+
+                    if (mapped is not null)
+                    {
+                        resources.Add(mapped);
+                    }
+                }
+            }
+
+            nextLink = null;
+
+            if (document.RootElement.TryGetProperty("nextLink", out JsonElement nextLinkElement)
+                && nextLinkElement.ValueKind == JsonValueKind.String)
+            {
+                string? candidateNextLink = nextLinkElement.GetString();
+
+                if (!string.IsNullOrWhiteSpace(candidateNextLink))
+                {
+                    HostedAzureArmNextLinkValidator.EnsureTargetsArmRelativeListingPath(
+                        candidateNextLink,
+                        listingRelativePath);
+                    nextLink = candidateNextLink;
+                }
+            }
+        }
+
+        return resources;
+    }
+
     private static HostedAzureArmResourceRecord? MapPrivateDnsVirtualNetworkLink(JsonElement item, string zoneResourceId)
     {
         if (!TryGetString(item, "id", out string? resourceId)

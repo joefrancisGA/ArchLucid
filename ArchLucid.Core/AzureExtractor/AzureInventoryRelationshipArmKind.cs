@@ -55,4 +55,7 @@ public enum AzureInventoryRelationshipArmKind
     RecoveryServicesVault = 33,
 
     VirtualMachineScaleSet = 36,
+
+    /// <summary>Azure Network Security Perimeter parent resource (NR-37).</summary>
+    NetworkSecurityPerimeter = 37,
 }

@@ -583,6 +583,38 @@ public sealed class HostedAzureInventoryNetworkAssociationBuilderTests
     }
 
     [Fact]
+    public void Build_emits_network_security_perimeter_to_resource_association()
+    {
+        const string perimeterId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/networkSecurityPerimeters/databricks-nsp";
+        const string storageId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1";
+        const string associationId = $"{perimeterId}/resourceAssociations/storage-1";
+
+        HostedAzureArmResourceRecord association = new(
+            ResourceType: "Microsoft.Network/networkSecurityPerimeters/resourceAssociations",
+            ResourceId: associationId,
+            Name: "storage-1",
+            Location: "eastus",
+            Sku: null,
+            Tags: null,
+            Properties: new Dictionary<string, object?>
+            {
+                ["privateLinkResource.id"] = storageId,
+            });
+
+        IReadOnlyList<HostedAzureArmNetworkAssociationRecord> associations =
+            HostedAzureInventoryNetworkAssociationBuilder.Build([association]);
+
+        Assert.Single(associations);
+        Assert.Equal(
+            AzureInventoryRelationshipAssociationTypes.NetworkSecurityPerimeterToResource,
+            associations[0].AssociationType);
+        Assert.Equal(perimeterId, associations[0].FromResourceId);
+        Assert.Equal(storageId, associations[0].ToResourceId);
+    }
+
+    [Fact]
     public void Build_does_not_label_databricks_workspace_to_subnet_as_app_service()
     {
         const string vnetId =

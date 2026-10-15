@@ -74,6 +74,23 @@ internal static class HostedAzureInventoryResourcePropertyExpander
             AddRemoteVirtualNetworkIdProperty(propertiesElement, properties);
         }
 
+        if (resourceType.Contains("networkSecurityPerimeters/resourceAssociations", StringComparison.OrdinalIgnoreCase))
+        {
+            AddArmReferenceProperty(propertiesElement, properties, "privateLinkResource");
+            AddArmReferenceProperty(propertiesElement, properties, "profile");
+
+            if (propertiesElement.TryGetProperty("accessMode", out JsonElement accessModeElement)
+                && accessModeElement.ValueKind is JsonValueKind.String)
+            {
+                string? accessMode = accessModeElement.GetString();
+
+                if (!string.IsNullOrWhiteSpace(accessMode))
+                {
+                    properties["accessMode"] = accessMode.Trim();
+                }
+            }
+        }
+
         if (resourceType.Contains("applicationGateways", StringComparison.OrdinalIgnoreCase))
         {
             AddJsonArrayProperty(propertiesElement, properties, "backendAddressPools");
