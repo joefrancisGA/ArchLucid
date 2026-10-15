@@ -65,6 +65,11 @@ describe("humanizeAuthorizeCallbackError", () => {
     expect(humanizeAuthorizeCallbackError("   ", "Policy enforced")).toBe("Sign-in did not finish: Policy enforced");
   });
 
+  it("avoids empty parentheses when the authorize error code is underscore-only", () => {
+    expect(humanizeAuthorizeCallbackError("___", "")).toContain("complete response");
+    expect(humanizeAuthorizeCallbackError("___", "")).not.toMatch(/\(\s*\)/u);
+  });
+
   it("truncates oversized authorize error descriptions for callback copy", () => {
     const oversized = `${"Policy ".repeat(80)}end`;
     const message = humanizeAuthorizeCallbackError("access_denied", oversized);

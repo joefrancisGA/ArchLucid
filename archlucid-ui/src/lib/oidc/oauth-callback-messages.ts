@@ -48,16 +48,21 @@ export function sanitizeOAuthUserFacingMessage(text: string): string {
 }
 
 /** Maps standard OAuth authorize errors to actionable copy for the SPA callback route. */
+function buyerSafeAuthorizeErrorWithoutCode(detail: string): string {
+  if (detail.length > 0) {
+    return `Sign-in did not finish: ${detail}`;
+  }
+
+  return "We did not receive a complete response from your identity provider. Start sign-in again.";
+}
+
 export function humanizeAuthorizeCallbackError(errorCode: string, decodedDescription: string): string {
   const normalized = errorCode.trim().toLowerCase();
   const detail = sanitizeOAuthUserFacingMessage(decodedDescription);
+  const readableCode = formatErrorCodeForReading(normalized);
 
-  if (normalized.length === 0) {
-    if (detail.length > 0) {
-      return `Sign-in did not finish: ${detail}`;
-    }
-
-    return "We did not receive a complete response from your identity provider. Start sign-in again.";
+  if (normalized.length === 0 || readableCode.length === 0) {
+    return buyerSafeAuthorizeErrorWithoutCode(detail);
   }
 
   switch (normalized) {
@@ -83,9 +88,9 @@ export function humanizeAuthorizeCallbackError(errorCode: string, decodedDescrip
       return "Your identity provider reported a temporary error. Wait a minute and try signing in again.";
     default:
       if (detail.length > 0) {
-        return `${formatErrorCodeForReading(normalized)}: ${detail}`;
+        return `${readableCode}: ${detail}`;
       }
 
-      return `Sign-in did not finish (${formatErrorCodeForReading(normalized)}). Try again, or contact support if this persists.`;
+      return `Sign-in did not finish (${readableCode}). Try again, or contact support if this persists.`;
   }
 }
