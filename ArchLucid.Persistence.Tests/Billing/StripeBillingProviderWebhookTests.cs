@@ -65,6 +65,46 @@ public sealed class StripeBillingProviderWebhookTests
     }
 
     [SkippableFact]
+    public async Task HandleWebhookAsync_rejects_before_ledger_insert_when_webhook_signing_secret_missing()
+    {
+        BillingOptions billing = new()
+        {
+            Provider = BillingProviderNames.Stripe,
+            Stripe = new StripeBillingOptions { WebhookSigningSecret = "   " }
+        };
+
+        TestMonitor<BillingOptions> monitor = new(billing);
+        Mock<IBillingLedger> ledger = new();
+        Mock<ITenantRepository> tenants = new();
+        Mock<IAuditService> audit = new();
+        BillingWebhookTrialActivator activator = new(ledger.Object, tenants.Object, audit.Object);
+        Mock<IMarketplaceChangePlanWebhookMutationHandler> changePlan = new();
+        StripeBillingSubscriptionWebhookProcessor subscriptionProcessor =
+            new(ledger.Object, activator, changePlan.Object, audit.Object);
+        StripeBillingProvider sut = StripeBillingProviderTestSupport.CreateSut(
+            monitor,
+            ledger,
+            subscriptionProcessor,
+            changePlan);
+
+        BillingWebhookHandleResult result = await sut.HandleWebhookAsync(
+            new BillingWebhookInbound
+            {
+                RawBody = "{}",
+                StripeSignatureHeader = "t=1,v1=deadbeef",
+                StripeWebhookRoute = StripeBillingWebhookRoute.Subscription
+            },
+            CancellationToken.None);
+
+        result.Succeeded.Should().BeFalse();
+        result.ErrorDetail.Should().Contain("signing secret");
+        ledger.Verify(
+            static l => l.TryInsertWebhookEventAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(),
+                It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [SkippableFact]
     public async Task HandleWebhookAsync_checkout_session_completed_without_object_discriminator_still_activates()
     {
         byte[] signingKeyMaterial = new byte[32];

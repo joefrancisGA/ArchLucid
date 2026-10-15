@@ -19,6 +19,61 @@ namespace ArchLucid.Persistence.Tests.Billing;
 public sealed class AzureMarketplaceBillingProviderChangeWebhookTests
 {
     [SkippableFact]
+    public async Task HandleWebhookAsync_rejects_before_ledger_insert_when_marketplace_bearer_missing()
+    {
+        BillingOptions billing = new()
+        {
+            Provider = BillingProviderNames.AzureMarketplace,
+            AzureMarketplace = new AzureMarketplaceBillingOptions
+            {
+                GaEnabled = true,
+                OpenIdMetadataAddress =
+                    "https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration",
+                ValidAudiences = ["https://marketplaceapi.microsoft.com"]
+            }
+        };
+
+        TestMonitor<BillingOptions> monitor = new(billing);
+        Mock<IBillingLedger> ledger = new();
+        Mock<ITenantRepository> tenants = new();
+        Mock<IAuditService> audit = new();
+        BillingWebhookTrialActivator activator = new(ledger.Object, tenants.Object, audit.Object);
+        Mock<IMarketplaceWebhookTokenVerifier> verifier = new();
+        Mock<IHttpClientFactory> httpFactory = new();
+        MarketplaceChangePlanWebhookMutationHandler changePlanHandler = new(
+            monitor,
+            ledger.Object,
+            NullLogger<MarketplaceChangePlanWebhookMutationHandler>.Instance);
+        MarketplaceChangeQuantityWebhookMutationHandler changeQtyHandler = new(
+            monitor,
+            ledger.Object,
+            NullLogger<MarketplaceChangeQuantityWebhookMutationHandler>.Instance);
+        AzureMarketplaceBillingProvider sut = new(
+            monitor,
+            ledger.Object,
+            BillingWebhookReplayGuardTestSupport.CreatePermissiveReplayGuard().Object,
+            activator,
+            verifier.Object,
+            httpFactory.Object,
+            changePlanHandler,
+            changeQtyHandler);
+
+        BillingWebhookHandleResult result = await sut.HandleWebhookAsync(
+            new BillingWebhookInbound { RawBody = """{"action":"ChangePlan"}""", MarketplaceAuthorizationBearer = null },
+            CancellationToken.None);
+
+        result.Succeeded.Should().BeFalse();
+        result.ErrorDetail.Should().Contain("bearer");
+        verifier.Verify(
+            v => v.ValidateAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+        ledger.Verify(
+            static l => l.TryInsertWebhookEventAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(),
+                It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [SkippableFact]
     public async Task ChangePlan_ga_off_skips_ledger_change_plan()
     {
         BillingOptions billing = new()

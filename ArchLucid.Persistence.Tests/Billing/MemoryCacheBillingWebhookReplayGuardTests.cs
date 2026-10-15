@@ -229,6 +229,44 @@ public sealed class MemoryCacheBillingWebhookReplayGuardTests
     }
 
     [Fact]
+    public async Task TryRegisterEventAsync_throws_when_event_id_is_whitespace_only()
+    {
+        MemoryCache cache = new(new MemoryCacheOptions { SizeLimit = 16 });
+        MemoryCacheBillingWebhookReplayGuard sut = new(cache, TimeProvider.System);
+
+        Func<Task> act = () => sut.TryRegisterEventAsync("stripe", "   ", CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentException>();
+    }
+
+    [Fact]
+    public async Task RememberAsync_throws_when_provider_name_is_whitespace_only()
+    {
+        MemoryCache cache = new(new MemoryCacheOptions { SizeLimit = 16 });
+        MemoryCacheBillingWebhookReplayGuard sut = new(cache, TimeProvider.System);
+
+        Func<Task> act = () => sut.RememberAsync("   ", "evt_provider_blank", CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentException>();
+    }
+
+    [Fact]
+    public async Task TryRegisterEventAsync_cache_failure_does_not_leave_event_claimed()
+    {
+        Mock<IMemoryCache> cache = new();
+        cache
+            .Setup(c => c.CreateEntry(It.IsAny<object>()))
+            .Throws<InvalidOperationException>();
+
+        MemoryCacheBillingWebhookReplayGuard sut = new(cache.Object, TimeProvider.System);
+
+        Func<Task> act = () => sut.TryRegisterEventAsync("stripe", "evt_try_register_cache_failure", CancellationToken.None);
+
+        await act.Should().ThrowAsync<InvalidOperationException>();
+        (await sut.HasSeenAsync("stripe", "evt_try_register_cache_failure", CancellationToken.None)).Should().BeFalse();
+    }
+
+    [Fact]
     public async Task RememberAsync_cache_failure_does_not_leave_event_claimed()
     {
         Mock<IMemoryCache> cache = new();
