@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Runs;
 
 /// <summary>
@@ -11,18 +13,22 @@ public sealed class RunRetrievalGroundingSummaryDto
         set;
     }
 
+    private IReadOnlyList<string> agentsWithTraces = [];
+
     public IReadOnlyList<string> AgentsWithTraces
     {
-        get;
-        set;
-    } = [];
+        get => agentsWithTraces;
+        set => agentsWithTraces = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 
     /// <summary>RAG agents that executed but have no persisted grounding trace row.</summary>
+    private IReadOnlyList<string> expectedAgentsMissingTraces = [];
+
     public IReadOnlyList<string> ExpectedAgentsMissingTraces
     {
-        get;
-        set;
-    } = [];
+        get => expectedAgentsMissingTraces;
+        set => expectedAgentsMissingTraces = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 
     public double AverageCitationCoverage
     {
@@ -95,11 +101,13 @@ public sealed class RunRetrievalGroundingSummaryDto
     }
 
     /// <summary>Distinct exemplar document ids from Topology grounding traces (redaction-safe ids only).</summary>
+    private IReadOnlyList<string> topologyReferenceArchitectureExemplarDocumentIds = [];
+
     public IReadOnlyList<string> TopologyReferenceArchitectureExemplarDocumentIds
     {
-        get;
-        set;
-    } = [];
+        get => topologyReferenceArchitectureExemplarDocumentIds;
+        set => topologyReferenceArchitectureExemplarDocumentIds = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 
     /// <summary>True when Topology ran but no reference-architecture exemplar chunks were retrieved.</summary>
     public bool TopologyReferenceArchitectureExemplarMissing

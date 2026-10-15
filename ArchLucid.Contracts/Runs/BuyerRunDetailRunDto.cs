@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Runs;
 
 /// <summary>
@@ -79,11 +81,13 @@ public sealed class BuyerRunDetailRunDto
         set;
     }
 
+    private IReadOnlyList<string> degradedExecutionAgents = [];
+
     public IReadOnlyList<string> DegradedExecutionAgents
     {
-        get;
-        set;
-    } = [];
+        get => degradedExecutionAgents;
+        set => degradedExecutionAgents = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 
     /// <summary>When <see langword="true" />, deferred authority pipeline work dead-lettered after retry exhaustion.</summary>
     public bool IsDeadLettered

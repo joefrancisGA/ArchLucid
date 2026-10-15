@@ -1,5 +1,6 @@
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Findings;
+using ArchLucid.Contracts.Serialization;
 using ArchLucid.Contracts.Trust;
 
 namespace ArchLucid.Contracts.Runs;
@@ -27,11 +28,13 @@ public sealed class BuyerRunDetailSummaryDto
         set;
     }
 
+    private IReadOnlyList<string> degradedExecutionAgents = [];
+
     public IReadOnlyList<string> DegradedExecutionAgents
     {
-        get;
-        set;
-    } = [];
+        get => degradedExecutionAgents;
+        set => degradedExecutionAgents = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 
     public bool DegradedFindingCoverage
     {
@@ -46,11 +49,13 @@ public sealed class BuyerRunDetailSummaryDto
     }
 
     /// <summary>Finding id/severity/title rows for first paint without <c>PayloadJson</c> (TB-930).</summary>
+    private IReadOnlyList<BuyerFindingSummaryDto> findingSummaries = [];
+
     public IReadOnlyList<BuyerFindingSummaryDto> FindingSummaries
     {
-        get;
-        set;
-    } = [];
+        get => findingSummaries;
+        set => findingSummaries = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 
     public RunAgentLlmCostEstimateDto? AgentExecutionLlmCostEstimate
     {
@@ -77,11 +82,13 @@ public sealed class BuyerRunDetailSummaryDto
     }
 
     /// <summary>Required-agent outcome matrix for partial-run honesty on buyer summary (TB-937).</summary>
+    private IReadOnlyList<AgentExecutionOutcome> agentExecutionOutcomes = [];
+
     public IReadOnlyList<AgentExecutionOutcome> AgentExecutionOutcomes
     {
-        get;
-        set;
-    } = [];
+        get => agentExecutionOutcomes;
+        set => agentExecutionOutcomes = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 
     public RunEstimatedUsdSavingsDto? EstimatedUsdSavingsSummary
     {

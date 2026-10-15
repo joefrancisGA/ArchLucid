@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Persistence.DecisionTraces;
+using ArchLucid.Contracts.Serialization;
 
 namespace ArchLucid.Contracts.Runs;
 
@@ -29,51 +30,67 @@ public sealed class RunAuthorityRuleAuditExplainabilitySection
         set;
     } = string.Empty;
 
+    private IReadOnlyList<string> appliedRuleIds = [];
+
     public IReadOnlyList<string> AppliedRuleIds
     {
-        get;
-        set;
-    } = [];
+        get => appliedRuleIds;
+        set => appliedRuleIds = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
+
+    private IReadOnlyList<string> acceptedFindingIds = [];
 
     public IReadOnlyList<string> AcceptedFindingIds
     {
-        get;
-        set;
-    } = [];
+        get => acceptedFindingIds;
+        set => acceptedFindingIds = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
+
+    private IReadOnlyList<string> requiredFindingIds = [];
 
     public IReadOnlyList<string> RequiredFindingIds
     {
-        get;
-        set;
-    } = [];
+        get => requiredFindingIds;
+        set => requiredFindingIds = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
+
+    private IReadOnlyList<string> allowedFindingIds = [];
 
     public IReadOnlyList<string> AllowedFindingIds
     {
-        get;
-        set;
-    } = [];
+        get => allowedFindingIds;
+        set => allowedFindingIds = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
+
+    private IReadOnlyList<string> preferredFindingIds = [];
 
     public IReadOnlyList<string> PreferredFindingIds
     {
-        get;
-        set;
-    } = [];
+        get => preferredFindingIds;
+        set => preferredFindingIds = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
+
+    private IReadOnlyList<string> rejectedFindingIds = [];
 
     public IReadOnlyList<string> RejectedFindingIds
     {
-        get;
-        set;
-    } = [];
+        get => rejectedFindingIds;
+        set => rejectedFindingIds = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
+
+    private IReadOnlyList<string> notes = [];
 
     public IReadOnlyList<string> Notes
     {
-        get;
-        set;
-    } = [];
+        get => notes;
+        set => notes = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
+
+    private IReadOnlyList<RuleAuditTracePromptRef> promptRefs = [];
 
     public IReadOnlyList<RuleAuditTracePromptRef> PromptRefs
     {
-        get;
-        set;
-    } = [];
+        get => promptRefs;
+        set => promptRefs = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 }

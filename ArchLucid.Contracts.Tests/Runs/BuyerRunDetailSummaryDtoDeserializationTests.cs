@@ -1,0 +1,37 @@
+using System.Text.Json;
+
+using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Runs;
+
+using FluentAssertions;
+
+namespace ArchLucid.Contracts.Tests.Runs;
+
+[Trait("Category", "Unit")]
+public sealed class BuyerRunDetailSummaryDtoDeserializationTests
+{
+    [Fact]
+    public void Deserialize_null_summary_lists_yields_empty_lists_not_null()
+    {
+        const string json = """
+            {
+              "run": {
+                "runId": "00000000-0000-0000-0000-000000000001",
+                "scopeProjectId": "00000000-0000-0000-0000-000000000002",
+                "projectId": "p"
+              },
+              "degradedExecutionAgents": null,
+              "findingSummaries": null,
+              "agentExecutionOutcomes": null
+            }
+            """;
+
+        BuyerRunDetailSummaryDto? summary =
+            JsonSerializer.Deserialize<BuyerRunDetailSummaryDto>(json, ContractJson.CamelCaseCompact);
+
+        summary.Should().NotBeNull();
+        summary!.DegradedExecutionAgents.Should().NotBeNull().And.BeEmpty();
+        summary.FindingSummaries.Should().NotBeNull().And.BeEmpty();
+        summary.AgentExecutionOutcomes.Should().NotBeNull().And.BeEmpty();
+    }
+}
