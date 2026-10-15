@@ -30069,7 +30069,22 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 ---
 ## Zone: archlucid-contracts
 
-**Hunts:** 191 · **Bugs found:** 307 · **Consecutive dry hunts:** 1
+**Hunts:** 192 · **Bugs found:** 308 · **Consecutive dry hunts:** 0
+
+2026-10-15 seed hunt (seed→hit): promoted `BuyerRunDetailSummaryDto.Run` explicit JSON `null` while cheap-disproving five open `(candidate)` optional nullable nested DTO rows on buyer summary and run detail manifest; null guard on `BuyerRunDetailSummaryDto.Run`; lock regressions in `BuyerRunDetailSummaryDtoDeserializationTests` and `ArchitectureRunDetailDeserializationTests`; reseeded five follow-on `(candidate)` rows; 1009 scoped `Contracts` filter tests passed.
+
+- [x] (proven) `BuyerRunDetailSummaryDto.Run` — explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_run_yields_non_null_run_not_null`.
+- [x] (valid-no-repro) `BuyerRunDetailSummaryDto.RetrievalGroundingSummary` — explicit JSON `null` — **cheap-disproof 2026-10-15 seed hunt:** optional grounding summary remains null; lock regression `Deserialize_null_remaining_optional_nested_summaries_remain_null`.
+- [x] (valid-no-repro) `BuyerRunDetailSummaryDto.LastAgentExecutionFailure` — explicit JSON `null` — **cheap-disproof 2026-10-15 seed hunt:** optional failure summary remains null; lock regression `Deserialize_null_remaining_optional_nested_summaries_remain_null`.
+- [x] (valid-no-repro) `BuyerRunDetailSummaryDto.EstimatedUsdSavingsSummary` — explicit JSON `null` — **cheap-disproof 2026-10-15 seed hunt:** optional savings summary remains null; lock regression `Deserialize_null_remaining_optional_nested_summaries_remain_null`.
+- [x] (valid-no-repro) `BuyerRunDetailSummaryDto.DecisionExplainability` — explicit JSON `null` — **cheap-disproof 2026-10-15 seed hunt:** optional explainability slice remains null; lock regression `Deserialize_null_remaining_optional_nested_summaries_remain_null`.
+- [x] (valid-no-repro) `ArchitectureRunDetail.Manifest` — explicit JSON `null` — **cheap-disproof 2026-10-15 seed hunt:** uncommitted runs keep null manifest; lock regression `Deserialize_null_manifest_remains_null`.
+
+- [ ] (candidate) `ArchitectureRunDetail.AgentExecutionLlmCostEstimate` — explicit JSON `null` on run detail aggregate JSON — locus: `Architecture.ArchitectureRunDetail`; input: run detail JSON with `"agentExecutionLlmCostEstimate": null` (see file).
+- [ ] (candidate) `DecisionReceiptDocument.Intake` — explicit JSON `null` on decision receipt export JSON — locus: `Exports.DecisionReceiptDocument`; input: receipt JSON with `"intake": null` (see file).
+- [ ] (candidate) `SponsorRoiSummaryResponse.RealizedValue` — explicit JSON `null` on sponsor ROI summary JSON — locus: `Roi.SponsorRoiSummaryResponse`; input: ROI summary JSON with `"realizedValue": null` (see file).
+- [ ] (candidate) `SponsorRoiSummaryResponse.BasisBreakdown` — explicit JSON `null` on sponsor ROI summary JSON — locus: `Roi.SponsorRoiSummaryResponse`; input: ROI summary JSON with `"basisBreakdown": null` (see file).
+- [ ] (candidate) `SponsorRoiSummaryResponse.OrphanCandidates` — explicit JSON `null` on sponsor ROI summary JSON — locus: `Roi.SponsorRoiSummaryResponse`; input: ROI summary JSON with `"orphanCandidates": null` (see file).
 
 2026-10-15 seed hunt (dry): cheap-disproved five open `(candidate)` optional nullable nested DTO rows on path explanation result, buyer run detail summary, and sponsor evidence pack as `(valid-no-repro)`; lock regressions in `SecurityEvidencePathExplanationResultResponseDeserializationTests`, `BuyerRunDetailSummaryDtoDeserializationTests`, and `SponsorEvidencePackResponseDeserializationTests`; no production change; reseeded five follow-on `(candidate)` rows; 1006 scoped `Contracts` filter tests passed.
 
@@ -30078,12 +30093,6 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (valid-no-repro) `BuyerRunDetailSummaryDto.AgentExecutionLlmCostEstimate` — explicit JSON `null` — **cheap-disproof 2026-10-15 seed hunt:** optional LLM cost estimate remains null; lock regression `Deserialize_null_optional_nested_summaries_remain_null`.
 - [x] (valid-no-repro) `BuyerRunDetailSummaryDto.TrustEvidenceCard` — explicit JSON `null` — **cheap-disproof 2026-10-15 seed hunt:** optional trust card remains null; lock regression `Deserialize_null_optional_nested_summaries_remain_null`.
 - [x] (valid-no-repro) `SponsorEvidencePackResponse.DemoRunValueReportDelta` — explicit JSON `null` — **cheap-disproof 2026-10-15 seed hunt:** optional demo-run delta remains null when run out of scope; lock regression `Deserialize_null_demo_run_value_report_delta_remains_null`.
-
-- [ ] (candidate) `BuyerRunDetailSummaryDto.RetrievalGroundingSummary` — explicit JSON `null` on buyer run detail summary JSON — locus: `Runs.BuyerRunDetailSummaryDto`; input: buyer summary JSON with `"retrievalGroundingSummary": null` (see file).
-- [ ] (candidate) `BuyerRunDetailSummaryDto.LastAgentExecutionFailure` — explicit JSON `null` on buyer run detail summary JSON — locus: `Runs.BuyerRunDetailSummaryDto`; input: buyer summary JSON with `"lastAgentExecutionFailure": null` (see file).
-- [ ] (candidate) `BuyerRunDetailSummaryDto.EstimatedUsdSavingsSummary` — explicit JSON `null` on buyer run detail summary JSON — locus: `Runs.BuyerRunDetailSummaryDto`; input: buyer summary JSON with `"estimatedUsdSavingsSummary": null` (see file).
-- [ ] (candidate) `BuyerRunDetailSummaryDto.DecisionExplainability` — explicit JSON `null` on buyer run detail summary JSON — locus: `Runs.BuyerRunDetailSummaryDto`; input: buyer summary JSON with `"decisionExplainability": null` (see file).
-- [ ] (candidate) `ArchitectureRunDetail.Manifest` — explicit JSON `null` on run detail aggregate JSON — locus: `Architecture.ArchitectureRunDetail`; input: run detail JSON with `"manifest": null` before commit (see file).
 
 2026-10-15 seed hunt (seed→hit): promoted `RoiSponsorFacingScopeManifestDocument` nested `Codes` / `Descriptions` explicit JSON `null`; cheap-disproved four optional nullable nested DTO rows on `PilotRunDeltasResponse` and `SecurityEvidencePathDetailResponse.WeakestHop` as `(valid-no-repro)`; null guards on `RoiSponsorFacingScopeManifestDocument`; regressions in `RoiSponsorFacingScopeManifestDocumentDeserializationTests`, `PilotRunDeltasResponseDeserializationTests`, and `SecurityEvidencePathDetailResponseDeserializationTests`; reseeded five follow-on `(candidate)` rows; 1003 scoped `Contracts` filter tests passed.
 

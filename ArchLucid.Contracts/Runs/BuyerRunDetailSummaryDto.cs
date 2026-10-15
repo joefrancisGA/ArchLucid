@@ -10,11 +10,13 @@ namespace ArchLucid.Contracts.Runs;
 /// </summary>
 public sealed class BuyerRunDetailSummaryDto
 {
+    private BuyerRunDetailRunDto run = new();
+
     public BuyerRunDetailRunDto Run
     {
-        get;
-        set;
-    } = null!;
+        get => run;
+        set => run = value ?? new();
+    }
 
     public string? ExecutionFlavorBuyerSummary
     {

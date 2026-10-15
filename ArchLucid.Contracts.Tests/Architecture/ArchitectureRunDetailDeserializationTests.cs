@@ -49,4 +49,26 @@ public sealed class ArchitectureRunDetailDeserializationTests
         detail.Should().NotBeNull();
         detail!.Run.Should().NotBeNull();
     }
+
+    [Fact]
+    public void Deserialize_null_manifest_remains_null()
+    {
+        const string json = """
+            {
+              "run": {
+                "runId": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                "requestId": "req-1",
+                "status": 1
+              },
+              "manifest": null
+            }
+            """;
+
+        ArchitectureRunDetail? detail =
+            JsonSerializer.Deserialize<ArchitectureRunDetail>(json, ContractJson.Default);
+
+        detail.Should().NotBeNull();
+        detail!.Manifest.Should().BeNull();
+        detail.IsCommitted.Should().BeFalse();
+    }
 }
