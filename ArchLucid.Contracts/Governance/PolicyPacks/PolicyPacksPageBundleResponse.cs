@@ -13,15 +13,19 @@ public sealed class PolicyPacksPageBundleResponse
         init => packs = ContractCollectionDefaults.CoalesceReadOnly(value);
     }
 
+    private EffectivePolicyPackSet effective = new();
+
     public EffectivePolicyPackSet Effective
     {
-        get;
-        init;
-    } = new();
+        get => effective;
+        init => effective = value ?? new EffectivePolicyPackSet();
+    }
+
+    private PolicyPackContentDocument effectiveContent = new();
 
     public PolicyPackContentDocument EffectiveContent
     {
-        get;
-        init;
-    } = new();
+        get => effectiveContent;
+        init => effectiveContent = value ?? new PolicyPackContentDocument();
+    }
 }

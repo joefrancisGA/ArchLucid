@@ -4,11 +4,13 @@ namespace ArchLucid.Contracts.Architecture;
 
 public sealed class StructuredDiagramIngestResult
 {
+    private ArchitectureDiagramModelRecord model = new();
+
     public ArchitectureDiagramModelRecord Model
     {
-        get;
-        init;
-    } = new();
+        get => model;
+        init => model = value ?? new ArchitectureDiagramModelRecord();
+    }
 
     private IReadOnlyList<string> warnings = [];
 

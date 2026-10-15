@@ -24,11 +24,13 @@ public class EffectiveGovernanceResolutionResult
         set;
     }
 
+    private PolicyPackContentDocument effectiveContent = new();
+
     public PolicyPackContentDocument EffectiveContent
     {
-        get;
-        set;
-    } = new();
+        get => effectiveContent;
+        set => effectiveContent = value ?? new PolicyPackContentDocument();
+    }
 
     private List<GovernanceResolutionDecision> decisions = [];
 

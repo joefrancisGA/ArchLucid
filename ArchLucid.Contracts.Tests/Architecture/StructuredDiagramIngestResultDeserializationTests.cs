@@ -27,4 +27,20 @@ public sealed class StructuredDiagramIngestResultDeserializationTests
         result.Warnings.Should().NotBeNull().And.BeEmpty();
         result.SourceFingerprints.Should().NotBeNull().And.BeEmpty();
     }
+
+    [Fact]
+    public void Deserialize_null_model_yields_non_null_model_not_null()
+    {
+        const string json = """
+            {
+              "model": null
+            }
+            """;
+
+        StructuredDiagramIngestResult? result =
+            JsonSerializer.Deserialize<StructuredDiagramIngestResult>(json, ContractJson.Default);
+
+        result.Should().NotBeNull();
+        result!.Model.Should().NotBeNull();
+    }
 }

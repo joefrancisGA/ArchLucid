@@ -14,47 +14,61 @@ public sealed class RunTrustEvidenceCard
         set;
     } = string.Empty;
 
+    private TrustEvidenceFieldSnapshot executionMode = new();
+
     public TrustEvidenceFieldSnapshot ExecutionMode
     {
-        get;
-        set;
-    } = new();
+        get => executionMode;
+        set => executionMode = value ?? new TrustEvidenceFieldSnapshot();
+    }
+
+    private TrustEvidenceFieldSnapshot goldenManifest = new();
 
     public TrustEvidenceFieldSnapshot GoldenManifest
     {
-        get;
-        set;
-    } = new();
+        get => goldenManifest;
+        set => goldenManifest = value ?? new TrustEvidenceFieldSnapshot();
+    }
+
+    private TrustEvidenceFieldSnapshot auditTrail = new();
 
     public TrustEvidenceFieldSnapshot AuditTrail
     {
-        get;
-        set;
-    } = new();
+        get => auditTrail;
+        set => auditTrail = value ?? new TrustEvidenceFieldSnapshot();
+    }
+
+    private TrustEvidenceFieldSnapshot agentTraces = new();
 
     public TrustEvidenceFieldSnapshot AgentTraces
     {
-        get;
-        set;
-    } = new();
+        get => agentTraces;
+        set => agentTraces = value ?? new TrustEvidenceFieldSnapshot();
+    }
+
+    private TrustEvidenceFieldSnapshot artifactBundlePointer = new();
 
     public TrustEvidenceFieldSnapshot ArtifactBundlePointer
     {
-        get;
-        set;
-    } = new();
+        get => artifactBundlePointer;
+        set => artifactBundlePointer = value ?? new TrustEvidenceFieldSnapshot();
+    }
+
+    private TrustEvidenceFieldSnapshot traceabilityExport = new();
 
     public TrustEvidenceFieldSnapshot TraceabilityExport
     {
-        get;
-        set;
-    } = new();
+        get => traceabilityExport;
+        set => traceabilityExport = value ?? new TrustEvidenceFieldSnapshot();
+    }
+
+    private TrustEvidenceFieldSnapshot aiExplainability = new();
 
     public TrustEvidenceFieldSnapshot AiExplainability
     {
-        get;
-        set;
-    } = new();
+        get => aiExplainability;
+        set => aiExplainability = value ?? new TrustEvidenceFieldSnapshot();
+    }
 
     public RunTrustEvidenceTopFindingRow? TopFinding
     {

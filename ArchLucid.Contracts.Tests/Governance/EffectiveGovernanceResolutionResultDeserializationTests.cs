@@ -29,4 +29,20 @@ public sealed class EffectiveGovernanceResolutionResultDeserializationTests
         result.Conflicts.Should().NotBeNull().And.BeEmpty();
         result.Notes.Should().NotBeNull().And.BeEmpty();
     }
+
+    [Fact]
+    public void Deserialize_null_effective_content_yields_non_null_document_not_null()
+    {
+        const string json = """
+            {
+              "effectiveContent": null
+            }
+            """;
+
+        EffectiveGovernanceResolutionResult? result =
+            JsonSerializer.Deserialize<EffectiveGovernanceResolutionResult>(json, ContractJson.CamelCaseCompact);
+
+        result.Should().NotBeNull();
+        result!.EffectiveContent.Should().NotBeNull();
+    }
 }
