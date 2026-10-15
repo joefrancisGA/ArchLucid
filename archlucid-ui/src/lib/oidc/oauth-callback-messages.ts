@@ -52,6 +52,14 @@ export function humanizeAuthorizeCallbackError(errorCode: string, decodedDescrip
   const normalized = errorCode.trim().toLowerCase();
   const detail = sanitizeOAuthUserFacingMessage(decodedDescription);
 
+  if (normalized.length === 0) {
+    if (detail.length > 0) {
+      return `Sign-in did not finish: ${detail}`;
+    }
+
+    return "We did not receive a complete response from your identity provider. Start sign-in again.";
+  }
+
   switch (normalized) {
     case "access_denied":
       return detail.length > 0

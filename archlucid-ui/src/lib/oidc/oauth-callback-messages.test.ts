@@ -56,6 +56,15 @@ describe("humanizeAuthorizeCallbackError", () => {
     expect(humanizeAuthorizeCallbackError("custom_problem", "")).toContain("custom problem");
   });
 
+  it("avoids empty parentheses when the authorize error code is whitespace-only", () => {
+    expect(humanizeAuthorizeCallbackError("   ", "")).toContain("complete response");
+    expect(humanizeAuthorizeCallbackError("   ", "")).not.toMatch(/\(\s*\)/u);
+  });
+
+  it("still surfaces authorize error_description when the error code is whitespace-only", () => {
+    expect(humanizeAuthorizeCallbackError("   ", "Policy enforced")).toBe("Sign-in did not finish: Policy enforced");
+  });
+
   it("truncates oversized authorize error descriptions for callback copy", () => {
     const oversized = `${"Policy ".repeat(80)}end`;
     const message = humanizeAuthorizeCallbackError("access_denied", oversized);

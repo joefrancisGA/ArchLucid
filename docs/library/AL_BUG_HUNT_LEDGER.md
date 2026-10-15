@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-15 seed hunt (seed→hit): `ui-oidc` — promoted `humanizeAuthorizeCallbackError` emitting `Sign-in did not finish ()` when authorize `?error=` is whitespace-only (proxy/IdP malformed query); buyer-safe incomplete-response copy when code and detail absent; regressions `avoids empty parentheses when the authorize error code is whitespace-only` and `still surfaces authorize error_description when the error code is whitespace-only`; cheap-disproved five open `(candidate)` rows; reseeded five follow-on candidates; 110 scoped `src/lib/oidc` vitest tests passed.
+
 2026-10-15 seed hunt (seed→hit): `ui-oidc` — promoted `consumePkceState` strict equality on callback `state` query values (leading/trailing whitespace from IdP/proxy echo → false “expired sign-in”); trim before match; regressions `matches stored PKCE state when the callback state query value has surrounding whitespace` and `rejects whitespace-only callback state values`; cheap-disproved five open `(candidate)` rows; reseeded five follow-on candidates; 108 scoped `src/lib/oidc` vitest tests passed.
 
 2026-10-15 seed hunt (seed→hit): `ui-oidc` — promoted `errorFromOAuthJson` joining non-string `error` / `error_description` scalars into operator-facing `Error.message` (e.g. `403: true`); `readOAuthErrorString` accepts trimmed strings only; regressions `ignores non-string OAuth error fields when building token endpoint errors` and `uses only string OAuth error fields when token JSON mixes types`; cheap-disproved `client_id` POST trim candidate (`trimTokenFormParams` already trims all form keys; regression `trims padded client_id values before posting the form`); cheap-disproved four other `(candidate)` rows; reseeded five follow-on candidates; 106 scoped `src/lib/oidc` vitest tests passed.
@@ -21017,11 +21019,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 60
-- **bugs-found:** 54
+- **hunts:** 61
+- **bugs-found:** 55
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-15
-- **last-bug:** 2026-10-15 — PKCE state match failed on padded callback state query
+- **last-bug:** 2026-10-15 — whitespace-only authorize error code produced empty parentheses in callback copy
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -21111,11 +21113,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `humanizeAuthorizeCallbackError` — unknown `error` without description — **cheap-disproof 2026-10-15 seed hunt:** default branch includes readable code; regression `uses readable unknown codes`.
 - [x] (valid-no-repro) `loadDiscoveryDocument` — shared in-flight discovery promise — **cheap-disproof 2026-10-15 seed hunt:** intentional per-URL dedup; failures evict cache entry before rethrow.
 - [x] (proven) `consumePkceState` — padded callback `state` query breaks strict match — **hit 2026-10-15 seed hunt (seed→hit):** trim `expectedState` before compare; regressions `matches stored PKCE state when the callback state query value has surrounding whitespace` and `rejects whitespace-only callback state values`.
-- (candidate) `buildAuthorizeUrl` — `redirect_uri` / `scope` query values not trimmed at authorize boundary — locus: `build-authorize-url.ts`; input: caller passes untrimmed redirect URI; wrong outcome: redirect mismatch at token exchange; mechanism: verbatim `searchParams.set` (callers mostly trim via `config.ts`).
-- (candidate) `storePkceState` — oversized state/verifier strings not bounded before `sessionStorage` write — locus: `session.ts`; input: corrupted writer passes multi-kB state; wrong outcome: quota errors or partial writes; mechanism: no length guard on PKCE keys.
-- (candidate) `exchangeAuthorizationCode` — `clientId` not validated non-empty before POST — locus: `token-client.ts`; input: empty `clientId` after env misconfig; wrong outcome: opaque `invalid_client` from IdP; mechanism: form posts empty `client_id` (trim only).
-- (candidate) `parseDiscoveryDocument` — relative `authorization_endpoint` accepted when `new URL` throws on issuer-relative strings — locus: `discovery.ts`; input: discovery JSON with path-only endpoint; wrong outcome: parse throw vs silent bad navigation; mechanism: `new URL(authorizationEndpoint)` without base.
-- (candidate) `readPkceState` — flow key confusion when both primary and google states exist — locus: `session.ts`; input: dual stored flows; wrong outcome: wrong verifier paired if state values collide; mechanism: opaque state should be unique (entropy check only).
+- [x] (valid-no-repro) `buildAuthorizeUrl` — untrimmed `redirect_uri` / `scope` — **cheap-disproof 2026-10-15 seed hunt:** `config.ts` and Google env readers trim before `initiateOidcRedirect`; token exchange uses the same `getOidcRedirectUri()` source.
+- [x] (valid-no-repro) `storePkceState` — oversized PKCE strings — **cheap-disproof 2026-10-15 seed hunt:** only `randomOpaqueState` / `createPkcePair` writers populate keys; no reachable attacker input in zone paths.
+- [x] (valid-no-repro) `exchangeAuthorizationCode` — empty `clientId` — **cheap-disproof 2026-10-15 seed hunt:** `assertOidcSignInConfig` blocks sign-in before redirect when client id missing; misconfig is deployment hygiene.
+- [x] (valid-no-repro) `parseDiscoveryDocument` — relative `authorization_endpoint` — **cheap-disproof 2026-10-15 seed hunt:** `new URL` on non-absolute strings throws; discovery rejected with `invalid endpoint URLs`; regression `rejects discovery endpoints that do not use http or https`.
+- [x] (valid-no-repro) `readPkceState` — dual-flow state collision — **cheap-disproof 2026-10-15 seed hunt:** 128-bit opaque states; `consumePkceState` matches exact state before returning verifier.
+- [x] (proven) `humanizeAuthorizeCallbackError` — whitespace-only authorize `error` query — **hit 2026-10-15 seed hunt (seed→hit):** early guard before default branch; regressions `avoids empty parentheses when the authorize error code is whitespace-only` and `still surfaces authorize error_description when the error code is whitespace-only`.
+- (candidate) `buildAuthorizeUrl` — authorize query params not trimmed at URL builder boundary — locus: `build-authorize-url.ts`; input: future caller passes padded `clientId`; wrong outcome: authorize `invalid_client`; mechanism: relies on caller trim today.
+- (candidate) `decodeOAuthErrorDescription` — plus-only `error_description` treated as space — locus: `oauth-callback-messages.ts`; input: `++++` query value; wrong outcome: collapsed to empty detail; mechanism: `replace(/\+/g, " ")` before decode.
+- (candidate) `persistTokenResponse` — numeric-string `expires_in` on token spread vs normalized session write — locus: `session.ts` + `token-client.ts`; input: `{ "expires_in": "7200" }`; wrong outcome: verify parity between returned object and persisted expiry; mechanism: `resolveExpiresInSeconds` coerces at hint write only.
+- (candidate) `refreshBffSessionCookie` — non-OK refresh without clearing client session hints — locus: `bff-session-sync.ts`; input: BFF refresh 401; wrong outcome: stale hints until pulse; mechanism: best-effort refresh path (see prior dry classifications).
+- (candidate) `isJwtAuthMode` — unknown `NEXT_PUBLIC_ARCHLUCID_AUTH_MODE` values treated as non-JWT — locus: `config.ts`; input: typo env mode; wrong outcome: sign-in disabled vs cookie mode; mechanism: strict equality on mode reader.
 - [x] (proven) `persistTokenResponse` — a hung older token-to-BFF sync blocks a newer same-session sync, preventing the replacement session from establishing its cookie — **hit 2026-10-11 seed hunt:** the sync-order promise chain awaited every older request; concurrent sync plus latest-request replay lets the newer request proceed and converges late completions on the latest token; regression `does not block a newer sync behind a hung older request` in `session.test.ts`.
 - [x] (proven) `persistTokenResponse` — concurrent same-session token-to-BFF syncs can complete out of order, allowing an older provider response to overwrite a newer BFF cookie — **hit 2026-10-11 seed hunt:** each token response started its own asynchronous sync with no ordering guard; serialize sync writes through a recovery-safe promise chain; regression `keeps an older token sync from overwriting a newer same-session sync` in `session.test.ts`.
 - [x] (proven) `persistNonSensitiveSessionHints` — a replacement token without optional display-name or subject claims leaves the prior user's identity hints in `sessionStorage` — **hit 2026-10-11 seed hunt:** hint writes were conditional but stale keys were never removed, so a same-browser user replacement could display the previous user's name/subject; clear both hint keys before applying each token response; regression `clears stale identity hints when a replacement token has no identity claims` in `session.test.ts`.
