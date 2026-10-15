@@ -150,7 +150,7 @@ internal static partial class ComparisonReplayPayloadComplexity
     {
         int bump = 0;
 
-        if (root.TryGetProperty("changedTopLevelFields", out JsonElement fields) && fields.ValueKind == JsonValueKind.Array)
+        if (TryGetPropertyIgnoreCase(root, "changedTopLevelFields", out JsonElement fields) && fields.ValueKind == JsonValueKind.Array)
         {
             int n = fields.GetArrayLength();
 
@@ -171,12 +171,12 @@ internal static partial class ComparisonReplayPayloadComplexity
             }
         }
 
-        if (root.TryGetProperty("requestDiff", out JsonElement requestDiff) && requestDiff.ValueKind == JsonValueKind.Object)
+        if (TryGetPropertyIgnoreCase(root, "requestDiff", out JsonElement requestDiff) && requestDiff.ValueKind == JsonValueKind.Object)
         {
-            int flags = requestDiff.TryGetProperty("changedFlags", out JsonElement cf) && cf.ValueKind == JsonValueKind.Array
+            int flags = TryGetPropertyIgnoreCase(requestDiff, "changedFlags", out JsonElement cf) && cf.ValueKind == JsonValueKind.Array
                 ? cf.GetArrayLength()
                 : 0;
-            int values = requestDiff.TryGetProperty("changedValues", out JsonElement cv) && cv.ValueKind == JsonValueKind.Array
+            int values = TryGetPropertyIgnoreCase(requestDiff, "changedValues", out JsonElement cv) && cv.ValueKind == JsonValueKind.Array
                 ? cv.GetArrayLength()
                 : 0;
             int requestSurface = flags + values;
