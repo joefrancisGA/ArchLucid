@@ -30069,7 +30069,21 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 ---
 ## Zone: archlucid-contracts
 
-**Hunts:** 154 · **Bugs found:** 145 · **Consecutive dry hunts:** 0
+**Hunts:** 155 · **Bugs found:** 150 · **Consecutive dry hunts:** 0
+
+2026-10-15 seed hunt (seed→hit): promoted five open `(candidate)` rows on finding stream page items, identity diagram hints, audit lineage matches, diagram peel catalog entries, and path rank related cut points; consolidated coalesce fix; regressions in `CloudResourceEvidenceFindingStreamPageDeserializationTests`, `InfraEvidenceMermaidIdentityDiagramHintsDeserializationTests`, `CloudResourceAuditLineageLinkDeserializationTests`, `DiagramPeelCatalogSnapshotDeserializationTests`, and `SecurityEvidencePathRankSummaryResponseDeserializationTests`; reseeded five follow-on `(candidate)` rows; 843 scoped `Contracts` filter tests passed.
+
+- [x] (proven) `CloudResourceEvidenceFindingStreamPage.Items` — explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_items_yields_empty_list_not_null`.
+- [x] (proven) `InfraEvidenceMermaidIdentityDiagramHints.InventoryFilteredIdentityArmTypes` — explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_inventory_filtered_identity_arm_types_yields_empty_list_not_null`.
+- [x] (proven) `CloudResourceAuditLineageLink.Matches` — explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_matches_yields_empty_list_not_null`.
+- [x] (proven) `DiagramPeelCatalogSnapshot.Entries` — explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_entries_yields_empty_list_not_null`.
+- [x] (proven) `SecurityEvidencePathRankSummaryResponse.RelatedCutPoints` — explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_related_cut_points_yields_empty_list_not_null`.
+
+- [ ] (candidate) `SecurityEvidencePathDetailResponse.Hops` — explicit JSON `null` — locus: `InfraEvidence.SecurityEvidencePathInspectorContracts`; input: path detail JSON with null `hops`.
+- [ ] (candidate) `SecurityEvidencePathDetailResponse.CitingFindingIds` — explicit JSON `null` — locus: path detail `init` list; input: path detail JSON with null `citingFindingIds`.
+- [ ] (candidate) `SecureNowHypothesisResponse.CitedPathIds` — explicit JSON `null` — locus: hypothesis response `init` list; input: hypothesis JSON with null `citedPathIds`.
+- [ ] (candidate) `SecurityEvidencePathExplanationContracts` — explicit JSON `null` on explanation hop list — locus: `InfraEvidence.SecurityEvidencePathExplanationContracts` (see file for type and property name); input: explanation response JSON with null list token.
+- [ ] (candidate) `SecurityEvidenceCutPointContracts` — explicit JSON `null` on cut-point related list — locus: `InfraEvidence.SecurityEvidenceCutPointContracts` (see file for type and property name); input: cut-point response JSON with null list token.
 
 2026-10-15 seed hunt (seed→hit): promoted five open `(candidate)` rows on cloud resource evidence hub lists, draft architecture response arrays, mermaid collapse entries, remediation stream items, and mode preview fallback artifacts; consolidated coalesce fix (including `EvidenceContradictedAssumptions` on draft response); regressions in `CloudResourceEvidenceHubResponseDeserializationTests`, `DraftArchitectureRequestResponseDeserializationTests`, `InfraEvidenceMermaidCollapseReportDeserializationTests`, `CloudResourceRemediationStreamPageDeserializationTests`, and `InfraEvidenceMermaidModePreviewDeserializationTests`; reseeded five follow-on `(candidate)` rows; 838 scoped `Contracts` filter tests passed.
 
@@ -30078,12 +30092,6 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `InfraEvidenceMermaidCollapseReport.Entries` — explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_entries_yields_empty_list_not_null`.
 - [x] (proven) `CloudResourceRemediationStreamPage.Items` — explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_items_yields_empty_list_not_null`.
 - [x] (proven) `InfraEvidenceMermaidModePreview.FallbackArtifacts` — explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_fallback_artifacts_yields_empty_list_not_null`.
-
-- [ ] (candidate) `CloudResourceEvidenceFindingStreamPage.Items` — explicit JSON `null` — locus: `InfraEvidence.CloudResourceEvidenceFindingStreamPage`; input: finding stream page JSON with null `items`.
-- [ ] (candidate) `InfraEvidenceMermaidIdentityDiagramHints.InventoryFilteredIdentityArmTypes` — explicit JSON `null` — locus: identity diagram hints list setter; input: hints JSON with null `inventoryFilteredIdentityArmTypes`.
-- [ ] (candidate) `CloudResourceAuditLineageLink.Matches` — explicit JSON `null` — locus: `InfraEvidence.CloudResourceAuditLineageLink`; input: audit lineage JSON with null `matches`.
-- [ ] (candidate) `DiagramPeelCatalogSnapshot` — explicit JSON `null` on catalog entry list — locus: `InfraEvidence.DiagramPeel.DiagramPeelCatalogSnapshot`; input: peel snapshot JSON with null list token (see file for property name).
-- [ ] (candidate) `SecurityEvidencePathRankContracts` — explicit JSON `null` on ranked path list — locus: `InfraEvidence.SecurityEvidencePathRankContracts`; input: path rank response JSON with null list token (see file for property name).
 
 2026-10-15 seed hunt (seed→hit): promoted five open `(candidate)` rows on mermaid preview/render lists, ask citations, draft request string arrays, and engine provenance nullable list; coalesce fix on four types plus `ContractCollectionDefaults.CoalesceArray`; cheap-disproof closed nullable provenance row; regressions in `InfraEvidenceMermaidPreviewResponseDeserializationTests`, `InfraEvidenceAskResponseDeserializationTests`, `DraftArchitectureRequestInputDeserializationTests`, `InfraEvidenceMermaidRenderResponseDeserializationTests`, and `ReviewRunEngineProvenanceDeserializationTests`; reseeded five follow-on `(candidate)` rows; 833 scoped `Contracts` filter tests passed.
 

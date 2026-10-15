@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.InfraEvidence;
 
 public sealed class CloudResourceEvidenceFindingStreamPage
@@ -38,9 +40,11 @@ public sealed class CloudResourceEvidenceFindingStreamPage
         set;
     }
 
+    private List<CloudResourceEvidenceFindingHubItem> items = [];
+
     public List<CloudResourceEvidenceFindingHubItem> Items
     {
-        get;
-        set;
-    } = [];
+        get => items;
+        set => items = ContractCollectionDefaults.Coalesce(value);
+    }
 }
