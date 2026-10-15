@@ -5,6 +5,8 @@ import {
   SECURENOW_ASSIGNED_TO_ME_FINDINGS,
   SECURENOW_FINDINGS_QUEUE_HUB,
   SECURENOW_GETTING_STARTED_HELP,
+  SECURENOW_CLOUD_CONNECTIONS_HUB,
+  SECURENOW_CLOUD_CONNECTIONS_HELP,
   SECURENOW_POLICY_PACKS_HUB,
   SECURENOW_STANDARDS_RULES_HUB,
   SECURENOW_TROUBLESHOOTING_HELP,
@@ -230,6 +232,22 @@ describe("SecureNow help guide content", () => {
     expect(complianceHub?.whatToDoNext).not.toMatch(/starting a review/i);
     expect(complianceHub?.whereToConfigureAction?.href).toBe("/compliance/findings");
     expect(architectureHub?.whatToDoNext).toMatch(/review/i);
+  });
+
+  it("resolves SecureNow cloud connections contextual help without multi-cloud or review CTAs", () => {
+    const hubHelp = contextualHelpForPathname("/integrations/cloud-connections", { productLineId: "security" });
+    const articleHelp = contextualHelpForPathname("/help/cloud-connections", { productLineId: "security" });
+    const architectureHub = contextualHelpForPathname("/integrations/cloud-connections", {
+      productLineId: "architecture",
+    });
+
+    expect(hubHelp?.whatIsThisPage).toBe(SECURENOW_CLOUD_CONNECTIONS_HUB.whatIsThisPage);
+    expect(hubHelp?.whatToDoNext).not.toMatch(/choose platforms/i);
+    expect(hubHelp?.whatToDoNext).not.toMatch(/evidence-only review/i);
+    expect(hubHelp?.whereToConfigureAction?.href).toContain("extract-upload");
+    expect(articleHelp?.whatIsThisPage).toBe(SECURENOW_CLOUD_CONNECTIONS_HELP.whatIsThisPage);
+    expect(articleHelp?.whatIsThisPage).not.toMatch(/AWS|GCP/i);
+    expect(architectureHub?.whatToDoNext).toMatch(/evidence-only review/i);
   });
 
   it("resolves SecureNow standards and rules contextual help for workspace scope", () => {

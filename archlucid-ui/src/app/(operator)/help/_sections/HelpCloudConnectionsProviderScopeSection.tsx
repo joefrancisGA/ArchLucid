@@ -7,7 +7,8 @@ import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { Button } from "@/components/ui/button";
 import {
   CLOUD_CONNECTIONS_HELP_CHOOSE_PLATFORM_TITLE,
-  CLOUD_CONNECTIONS_HELP_PRIMARY_ACTIONS,
+  cloudConnectionsHelpPrimaryActions,
+  cloudConnectionsHelpPrimaryCta,
   cloudConnectionsHelpScheduledAgent,
   cloudConnectionsHelpTier1,
   cloudConnectionsHelpProviderScopeRows,
@@ -45,6 +46,8 @@ export function HelpCloudConnectionsProviderScopeSection(): React.ReactElement {
   const tier1 = cloudConnectionsHelpTier1(productLine);
   const tier2 = cloudConnectionsHelpTier2(productLine);
   const providerRows = cloudConnectionsHelpProviderScopeRows(productLine);
+  const primaryActions = cloudConnectionsHelpPrimaryActions(productLine);
+  const primaryCta = cloudConnectionsHelpPrimaryCta(productLine);
 
   return (
     <section
@@ -88,9 +91,7 @@ export function HelpCloudConnectionsProviderScopeSection(): React.ReactElement {
           {buyerPolishedShell ? null : (
             <div className="flex flex-wrap items-center gap-2">
               <Button asChild size="sm" variant="primary" data-testid="help-cloud-connections-primary-cta">
-                <Link href={CLOUD_CONNECTIONS_HELP_PRIMARY_ACTIONS.startEvidenceOnlyReview.href}>
-                  {CLOUD_CONNECTIONS_HELP_PRIMARY_ACTIONS.startEvidenceOnlyReview.label}
-                </Link>
+                <Link href={primaryCta.href}>{primaryCta.label}</Link>
               </Button>
             </div>
           )}
@@ -104,9 +105,7 @@ export function HelpCloudConnectionsProviderScopeSection(): React.ReactElement {
           </p>
           <div className="flex flex-wrap items-center gap-2">
             <Button asChild size="sm" variant="outline">
-              <Link href={CLOUD_CONNECTIONS_HELP_PRIMARY_ACTIONS.openHub.href}>
-                {CLOUD_CONNECTIONS_HELP_PRIMARY_ACTIONS.openHub.label}
-              </Link>
+              <Link href={primaryActions.openHub.href}>{primaryActions.openHub.label}</Link>
             </Button>
           </div>
         </div>

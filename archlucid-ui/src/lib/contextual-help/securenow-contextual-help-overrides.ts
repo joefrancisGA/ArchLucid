@@ -183,6 +183,14 @@ const SECURENOW_CLOUD_CONNECTIONS_HUB: PageContextualHelpEntry = {
   whatToDoNext: "Open Azure connection settings, run preflight, or open Extract and upload for a local ZIP package.",
   whyEmpty: "Azure stays Not connected until Tier 2 federation is validated; ZIP upload stays available anytime.",
   whereToConfigurePrerequisite: "Choose a workspace in the header scope switcher before saving connector settings.",
+  whatToDoNextAction: {
+    label: "Open Azure connection settings",
+    href: "/integrations/cloud-connections/azure",
+  },
+  whereToConfigureAction: {
+    label: "Open Extract and upload",
+    href: SECURENOW_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH,
+  },
   taskSteps: [
     "Open the Azure provider card to configure federation.",
     "Run preflight and validate read-only roles.",
@@ -418,6 +426,8 @@ export function secureNowContextualHelpOverrideForPath(
 
 export {
   SECURENOW_ASSIGNED_TO_ME_FINDINGS,
+  SECURENOW_CLOUD_CONNECTIONS_HUB,
+  SECURENOW_CLOUD_CONNECTIONS_HELP,
   SECURENOW_FINDINGS_QUEUE_HUB,
   SECURENOW_GETTING_STARTED_HELP,
   SECURENOW_POLICY_PACKS_HUB,

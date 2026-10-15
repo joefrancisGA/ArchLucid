@@ -29,6 +29,14 @@ import {
   resolveStandardsRulesHelpClaimDiscipline,
   resolveStandardsRulesHelpSources,
 } from "@/lib/standards-rules-help-evidence-copy";
+import {
+  resolveCloudConnectionsSources,
+  resolveCloudConnectionsSourcesIntro,
+} from "@/lib/cloud-connections-evidence-copy";
+import {
+  cloudConnectionsHelpClaimDiscipline,
+  resolveCloudConnectionsHelpSources,
+} from "@/lib/cloud-connections-help-guide-content";
 import { localizeHelpSearchPanelTopic } from "@/lib/help/help-product-copy";
 import { START_HERE_TOPICS } from "@/lib/help/help-search-panel-catalog-topics";
 
@@ -59,6 +67,10 @@ function collectSecureNowHelpStrings(): string[] {
     ...resolvePolicyPacksHelpSources("security").flatMap((source) => [source.label, source.href]),
     resolveStandardsRulesHelpClaimDiscipline("security"),
     ...resolveStandardsRulesHelpSources("security").flatMap((source) => [source.label, source.href]),
+    cloudConnectionsHelpClaimDiscipline("security"),
+    resolveCloudConnectionsSourcesIntro("security"),
+    ...resolveCloudConnectionsSources("security").flatMap((source) => [source.label, source.href]),
+    ...resolveCloudConnectionsHelpSources("security").flatMap((source) => [source.label, source.href]),
     ...findingsHelpAnatomyFields("security").map((field) => field.description),
     ...findingsHelpRoleGuidance("security").flatMap((entry) => [entry.role, entry.guidance]),
     findingsHelpSemanticSupportCopy("security"),

@@ -1,4 +1,5 @@
-/** Cloud connections integration surfaces and cloud-connections help topics. */
+/** Cloud connections integration surfaces and cloud-connections help topics.
+ *  SecureNow Category-1 overrides: `securenow-contextual-help-overrides.ts` (SH-18). */
 
 import type { PageContextualHelpRow } from "@/lib/contextual-help/types";
 import {
