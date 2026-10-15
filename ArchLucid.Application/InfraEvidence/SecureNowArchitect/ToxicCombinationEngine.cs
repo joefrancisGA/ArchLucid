@@ -129,7 +129,7 @@ public sealed class ToxicCombinationEngine(
                 ProjectId = scope.ProjectId,
                 SnapshotId = snapshotId,
                 PathKind = PathKind.ToxicCombination,
-                PathConfidenceBand = PathConfidenceBand.Confirmed,
+                PathConfidenceBand = SecurityEvidencePathConfidenceBandResolver.ResolveWeakestHopBand(hopRecords),
                 CreatedUtc = utcNow,
                 UpdatedUtc = utcNow,
             };

@@ -31,6 +31,7 @@ internal static class InventoryReachabilityPathGraph
         HashSet<string> publicIpArmIds = new(StringComparer.OrdinalIgnoreCase);
         HashSet<string> publicNetworkAccessArmIds = new(StringComparer.OrdinalIgnoreCase);
         HashSet<string> privateEndpointOnlyArmIds = new(StringComparer.OrdinalIgnoreCase);
+        List<AzureInventoryVnetCustomDnsResourceProperties> virtualNetworkProperties = [];
 
         AzureInventoryPrivateEndpointDnsJoinIndex dnsJoinIndex =
             AzureInventoryPrivateEndpointDnsJoinIndex.Build(
@@ -50,6 +51,17 @@ internal static class InventoryReachabilityPathGraph
             Dictionary<string, string> propertyBag = BuildPropertyBag(
                 resource.ResourceRowId,
                 propertiesByResourceRowId);
+
+            if (resource.ResourceType.Contains("virtualNetworks", StringComparison.OrdinalIgnoreCase)
+                && !resource.AzureResourceId.Contains("/subnets/", StringComparison.OrdinalIgnoreCase))
+            {
+                virtualNetworkProperties.Add(new AzureInventoryVnetCustomDnsResourceProperties
+                {
+                    AzureResourceId = resource.AzureResourceId,
+                    ResourceType = resource.ResourceType,
+                    Properties = propertyBag,
+                });
+            }
 
             if (propertyBag.Count == 0)
             {
@@ -106,6 +118,9 @@ internal static class InventoryReachabilityPathGraph
                 });
         }
 
+        AzureInventoryVnetCustomDnsIndex customDnsIndex =
+            AzureInventoryVnetCustomDnsIndex.Build(virtualNetworkProperties);
+
         return new InventoryReachabilityPathGraphSnapshot
         {
             OutgoingEdges = outgoing,
@@ -117,6 +132,7 @@ internal static class InventoryReachabilityPathGraph
             PrivateEndpointOnlyArmIds = privateEndpointOnlyArmIds,
             PrivateIntegratedComputeArmIds = dnsJoinIndex.ComputeToVnetArmId.Keys.ToHashSet(StringComparer.OrdinalIgnoreCase),
             DnsJoinIndex = dnsJoinIndex,
+            CustomDnsIndex = customDnsIndex,
         };
     }
 
@@ -232,6 +248,12 @@ internal sealed class InventoryReachabilityPathGraphSnapshot
     } = new HashSet<string>();
 
     public AzureInventoryPrivateEndpointDnsJoinIndex? DnsJoinIndex
+    {
+        get;
+        init;
+    }
+
+    public AzureInventoryVnetCustomDnsIndex? CustomDnsIndex
     {
         get;
         init;

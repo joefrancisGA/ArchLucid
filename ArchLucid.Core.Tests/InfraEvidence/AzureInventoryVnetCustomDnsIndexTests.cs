@@ -1,0 +1,51 @@
+using ArchLucid.Core.InfraEvidence;
+
+using FluentAssertions;
+
+namespace ArchLucid.Core.Tests.InfraEvidence;
+
+[Trait("Category", "Unit")]
+[Trait("Suite", "Core")]
+public sealed class AzureInventoryVnetCustomDnsIndexTests
+{
+    private const string VnetArm =
+        "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet1";
+
+    [Fact]
+    public void VnetUsesCustomDns_true_when_dhcpOptions_lists_non_azure_server()
+    {
+        AzureInventoryVnetCustomDnsIndex index = AzureInventoryVnetCustomDnsIndex.Build(
+        [
+            new AzureInventoryVnetCustomDnsResourceProperties
+            {
+                AzureResourceId = VnetArm,
+                ResourceType = "Microsoft.Network/virtualNetworks",
+                Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                {
+                    ["dhcpOptions"] = """{"dnsServers":["10.0.0.4"]}""",
+                },
+            },
+        ]);
+
+        index.VnetUsesCustomDns(VnetArm).Should().BeTrue();
+    }
+
+    [Fact]
+    public void VnetUsesCustomDns_false_when_only_azure_default_resolver()
+    {
+        AzureInventoryVnetCustomDnsIndex index = AzureInventoryVnetCustomDnsIndex.Build(
+        [
+            new AzureInventoryVnetCustomDnsResourceProperties
+            {
+                AzureResourceId = VnetArm,
+                ResourceType = "Microsoft.Network/virtualNetworks",
+                Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                {
+                    ["dhcpOptions"] = """{"dnsServers":["168.63.129.16"]}""",
+                },
+            },
+        ]);
+
+        index.VnetUsesCustomDns(VnetArm).Should().BeFalse();
+    }
+}

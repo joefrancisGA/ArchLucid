@@ -20,7 +20,11 @@ internal static class IntendedReachabilityPathNarrative
 
         string pathSummary = string.Join("; ", hopDescriptions);
 
-        return $"Intended control-plane path (not observed traffic). {pathSummary}.";
+        string confidenceNote = candidate.HasInsufficientEvidenceHop
+            ? "Weakest hop: InsufficientEvidence (unverified control or missing input)."
+            : "Weakest hop: see path confidence band on the path record.";
+
+        return $"Intended control-plane path — not observed traffic. {confidenceNote} {pathSummary}.";
     }
 
     private static string ShortNodeLabel(string nodeId)

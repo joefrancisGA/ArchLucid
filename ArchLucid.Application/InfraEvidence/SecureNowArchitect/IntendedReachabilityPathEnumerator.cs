@@ -220,6 +220,28 @@ internal static class IntendedReachabilityPathEnumerator
             hasInsufficientEvidence = true;
         }
 
+        if (!hasInsufficientEvidence
+            && graph.CustomDnsIndex is not null
+            && graph.DnsJoinIndex is not null
+            && TryResolvePrivateComputeOrigin(hops, currentNode, graph, out string? computeForDns)
+            && !string.IsNullOrWhiteSpace(computeForDns)
+            && graph.DnsJoinIndex.ComputeToVnetArmId.TryGetValue(
+                ArmResourceIdNormalizer.Normalize(computeForDns),
+                out string? computeVnetArmId)
+            && graph.CustomDnsIndex.VnetUsesCustomDns(computeVnetArmId)
+            && (hasPrivatePeReachableHop || startsFromPrivateCompute))
+        {
+            finalHops.Add(new PrivilegePathEdge
+            {
+                FromNodeId = computeForDns,
+                ToNodeId = currentNode,
+                EdgeType = SecureNowArchitectConstants.InsufficientEvidenceCustomDnsResolverHopEdgeType,
+                ProvenanceKind = ProvenanceKind.DeterministicInference,
+                RoleName = null,
+            });
+            hasInsufficientEvidence = true;
+        }
+
         candidate = new ReachabilityPathCandidate
         {
             Hops = finalHops,
