@@ -156,12 +156,16 @@ public sealed class ToxicCombinationEngine(
 
             PrivilegePathSeverityResult severity = ToxicCombinationSeverityTable.Resolve(candidate);
 
+            SecurityEvidencePathRecord toxicPathHeader = pathWrites[index].Path;
+
             Dictionary<string, string?> metadata = new()
             {
                 ["pathKind"] = PathKind.ToxicCombination.ToString(),
+                ["pathConfidenceBand"] = toxicPathHeader.PathConfidenceBand.ToString(),
                 ["reachabilityPathId"] = candidate.ReachabilityPathId.ToString("D"),
                 ["privilegePathId"] = candidate.PrivilegePathId.ToString("D"),
                 ["hasEgressHop"] = candidate.HasEgressHop.ToString(),
+                ["hasInsufficientEvidenceHop"] = candidate.HasInsufficientEvidenceHop.ToString(),
                 ["hopCount"] = candidate.Hops.Count.ToString(),
             };
 
