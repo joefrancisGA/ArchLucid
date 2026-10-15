@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-15 seed hunt (seed→hit): `ui-auth-callback` — promoted honeypot `websiteUrl` omitted from `containsUnsupportedAccessRequestText` (control characters in hidden `websiteUrl` still POSTed and could reach success); scan `websiteUrl` with the same guard; regression `does not post access request when honeypot websiteUrl contains control characters` failed first with success view and one POST; reseeded five follow-on `(candidate)` rows; 74 scoped `AuthCallbackAccessPanel` vitest tests passed.
+
 2026-10-15 seed hunt (seed-only): `ui-auth-callback` — cheap-disproved five open `(candidate)` rows (Cancel mid-flight resubmit unreachable, required fields untrimmed client-side, tab-only `cloudPlatformFocus`, unsupported-text error on toggle close, report-problem `errorTitle` vs `technicalDetail`); regression locks `disables cancel while submit is in flight so cancel cannot close the form mid-request`, `posts required fields without client-side trim`, `sends null cloudPlatformFocus when the optional field contains only tabs`, `retains unsupported-text submit error when the form is toggled closed without cancel`, and `keeps report problem errorTitle on the access heading when technicalDetail prop changes`; reseeded five follow-on `(candidate)` rows; 73 scoped `AuthCallbackAccessPanel` vitest tests passed; no production change.
 
 2026-10-15 seed hunt (seed-only): `ui-auth-callback` — cheap-disproved five open `(candidate)` rows (silent blocked resubmit while `networkInFlightCount > 0`, stale in-flight POST without client abort, bidi in `workEmail` via `containsUnsupportedAccessRequestText`, request-access toggle left enabled during `submitting`, terminal success view without report-problem row); regression locks `does not surface a submit error when a second submit is blocked while the first POST is still in flight`, `does not post access request when work email contains bidi format characters`, `keeps the request access toggle enabled while submit is in flight`, plus reaffirmed `dismisses the form via request access toggle while submit is in flight` and `omits report problem support on the success view`; reseeded five follow-on `(candidate)` rows; 68 scoped `AuthCallbackAccessPanel` vitest tests passed; no production change.
@@ -12223,7 +12225,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-auth-callback
 
-**Hunts:** 43 · **Bugs found:** 6 · **Consecutive dry hunts:** 0
+**Hunts:** 44 · **Bugs found:** 7 · **Consecutive dry hunts:** 0
+
+2026-10-15 seed hunt (seed→hit): `containsUnsupportedAccessRequestText` — honeypot `websiteUrl` omitted from scanned fields so NUL-suffixed bot trap values bypassed the client guard and reached `fetch`; include `websiteUrl` in the guard scan; regression `does not post access request when honeypot websiteUrl contains control characters`.
+
+- [x] (proven) `containsUnsupportedAccessRequestText` — honeypot `websiteUrl` omitted from scanned fields — **hit 2026-10-15 seed hunt:** control characters in hidden `websiteUrl` posted successfully; regression `does not post access request when honeypot websiteUrl contains control characters`.
+
+- [ ] (candidate) `errorMessage` — unsupported-text alert remains after the operator fixes the invalid field without resubmitting — locus: no `onChange` clear; input: trigger guard error, edit name to valid text, alert still visible.
+- [ ] (candidate) `onSubmit` — `networkInFlightCount` gate returns without re-enabling submit affordance when the first POST is still pending after toggle dismiss — locus: blocked second click with `submitting` false; input: toggle-dismiss mid-flight, reopen, Submit label not `Sending` but click is ignored.
+- [ ] (candidate) `roleTitle` — required field accepts only whitespace when native validation is bypassed — locus: `fireEvent.submit` path; input: whitespace-only role title reaches `fetch` body.
+- [ ] (candidate) `technicalDetail` — peripheral whitespace in prop still renders when `trim()` is non-empty — locus: paragraph guard `technicalDetail.trim() !== ""`; input: `"  detail  "` shows leading/trailing spaces in the helper paragraph.
+- [ ] (candidate) `containsUnsupportedAccessRequestText` — bidi format characters in honeypot `websiteUrl` only — locus: shared guard now includes `websiteUrl`; input: `\u202e` prefix on otherwise valid honeypot URL string.
 
 2026-10-15 seed hunt (seed-only): cheap-disproved five open `(candidate)` rows; regression locks `disables cancel while submit is in flight so cancel cannot close the form mid-request`, `posts required fields without client-side trim`, `sends null cloudPlatformFocus when the optional field contains only tabs`, `retains unsupported-text submit error when the form is toggled closed without cancel`, and `keeps report problem errorTitle on the access heading when technicalDetail prop changes`; reseeded five follow-on `(candidate)` rows; 73 scoped `AuthCallbackAccessPanel` vitest tests passed.
 
@@ -12233,7 +12245,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `errorMessage` — unsupported-text error on request-access toggle close — **cheap-disproof 2026-10-15 seed hunt:** matches duplicate-error retention policy; regression `retains unsupported-text submit error when the form is toggled closed without cancel`.
 - [x] (valid-no-repro) `FatalPageReportProblemSupportRow` — `errorTitle` vs `technicalDetail` — **cheap-disproof 2026-10-15 seed hunt:** support row intentionally uses stable heading copy; regression `keeps report problem errorTitle on the access heading when technicalDetail prop changes`.
 
-- [ ] (candidate) `containsUnsupportedAccessRequestText` — honeypot `websiteUrl` omitted from the scanned fields — locus: guard array excludes `websiteUrl`; input: NUL or `\p{Cf}` only in hidden `websiteUrl` with otherwise valid visible fields.
+- [x] (proven) `containsUnsupportedAccessRequestText` — honeypot `websiteUrl` omitted from the scanned fields — **hit 2026-10-15 seed hunt:** regression `does not post access request when honeypot websiteUrl contains control characters`.
 - [ ] (candidate) `errorMessage` — unsupported-text alert remains after the operator fixes the invalid field without resubmitting — locus: no `onChange` clear; input: trigger guard error, edit name to valid text, alert still visible.
 - [ ] (candidate) `onSubmit` — `networkInFlightCount` gate returns without re-enabling submit affordance when the first POST is still pending after toggle dismiss — locus: blocked second click with `submitting` false; input: toggle-dismiss mid-flight, reopen, Submit label not `Sending` but click is ignored.
 - [ ] (candidate) `roleTitle` — required field accepts only whitespace when native validation is bypassed — locus: `fireEvent.submit` path; input: whitespace-only role title reaches `fetch` body.

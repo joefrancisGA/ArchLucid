@@ -58,6 +58,7 @@ function containsUnsupportedAccessRequestText(form: FormState): boolean {
     form.roleTitle,
     form.cloudPlatformFocus,
     form.note,
+    form.websiteUrl,
   ].some((value) =>
     unsupportedAccessRequestTextCharacters.test(value.replace(permittedAccessRequestControlCharacters, "")),
   );
