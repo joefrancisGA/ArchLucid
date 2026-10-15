@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.ArchitectureIntelligence;
 
 public class TradeOffObject
@@ -26,11 +28,13 @@ public class TradeOffObject
         set;
     } = null!;
 
+    private List<string> competingPositions = [];
+
     public List<string> CompetingPositions
     {
-        get;
-        set;
-    } = [];
+        get => competingPositions;
+        set => competingPositions = ContractCollectionDefaults.Coalesce(value);
+    }
 
     public string? RecommendedResolution
     {

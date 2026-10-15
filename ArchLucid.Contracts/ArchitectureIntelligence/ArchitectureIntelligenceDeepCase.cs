@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.ArchitectureIntelligence;
 
 public class ArchitectureIntelligenceDeepCase
@@ -20,15 +22,19 @@ public class ArchitectureIntelligenceDeepCase
         set;
     } = string.Empty;
 
+    private List<PlantedDefectExpectation> plantedDefects = [];
+
     public List<PlantedDefectExpectation> PlantedDefects
     {
-        get;
-        set;
-    } = [];
+        get => plantedDefects;
+        set => plantedDefects = ContractCollectionDefaults.Coalesce(value);
+    }
+
+    private List<string> expectedMutationIds = [];
 
     public List<string> ExpectedMutationIds
     {
-        get;
-        set;
-    } = [];
+        get => expectedMutationIds;
+        set => expectedMutationIds = ContractCollectionDefaults.Coalesce(value);
+    }
 }

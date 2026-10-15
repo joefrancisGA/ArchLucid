@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.ArchitectureIntelligence;
 
 public class ArchitectureModelElement
@@ -39,23 +41,29 @@ public class ArchitectureModelElement
         set;
     }
 
+    private List<string> sourcePassageIds = [];
+
     public List<string> SourcePassageIds
     {
-        get;
-        set;
-    } = [];
+        get => sourcePassageIds;
+        set => sourcePassageIds = ContractCollectionDefaults.Coalesce(value);
+    }
+
+    private List<string> relatedElementIds = [];
 
     public List<string> RelatedElementIds
     {
-        get;
-        set;
-    } = [];
+        get => relatedElementIds;
+        set => relatedElementIds = ContractCollectionDefaults.Coalesce(value);
+    }
+
+    private Dictionary<string, string> properties = new();
 
     public Dictionary<string, string> Properties
     {
-        get;
-        set;
-    } = new();
+        get => properties;
+        set => properties = ContractCollectionDefaults.CoalesceDictionary(value);
+    }
 
     /// <summary>Whether the element describes as-is, to-be, or transitional architecture state.</summary>
     public ArchitectureLifecycleScope LifecycleScope

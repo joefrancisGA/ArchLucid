@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Findings.Payloads;
 
 public class RequirementCoverageFindingPayload
@@ -20,9 +22,11 @@ public class RequirementCoverageFindingPayload
         set;
     }
 
+    private List<string> uncoveredRequirements = [];
+
     public List<string> UncoveredRequirements
     {
-        get;
-        set;
-    } = [];
+        get => uncoveredRequirements;
+        set => uncoveredRequirements = ContractCollectionDefaults.Coalesce(value);
+    }
 }

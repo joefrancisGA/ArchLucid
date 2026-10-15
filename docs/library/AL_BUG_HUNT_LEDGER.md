@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-15 seed hunt (seed→hit): `archlucid-contracts` — promoted `ArchitectureModelElement` reference collections, `TradeOffObject.CompetingPositions`, `RunFindingsListResponse.Items`, `RequirementCoverageFindingPayload.UncoveredRequirements`, and `ArchitectureIntelligenceDeepCase` list properties explicit JSON `null` (consolidated coalesce); five deserialization regressions; reseeded five follow-on `(candidate)` rows; 803 scoped `Contracts` filter tests passed.
+
 2026-10-15 seed hunt (seed→hit): `archlucid-contracts` — promoted `ExplainabilityTrace` list properties, `ArchitectureKnowledgeModel` container collections, `SpecialistReviewFinding` related-id lists, `ReReviewScope.AffectedElementIds`, and `CrossReviewFindingCorrelationResult` correlation lists explicit JSON `null` (consolidated coalesce); five deserialization regressions; reseeded five follow-on `(candidate)` rows; 798 scoped `Contracts` filter tests passed.
 
 2026-10-15 seed hunt (seed→hit): `archlucid-contracts` — promoted `GoldenArchitectureTestResult` metric lists and dictionaries, `ArchitectureRecommendation` list properties, `ClosedLoopReasoningRequest` source lists and `FramingAnswers`, `TopologyCoverageFindingPayload` category lists, and `FindingsSnapshot` container lists explicit JSON `null` (consolidated `ContractCollectionDefaults` coalesce); five deserialization regressions; reseeded five follow-on `(candidate)` rows; 793 scoped `Contracts` filter tests passed.
@@ -30051,7 +30053,21 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 ---
 ## Zone: archlucid-contracts
 
-**Hunts:** 146 · **Bugs found:** 126 · **Consecutive dry hunts:** 0
+**Hunts:** 147 · **Bugs found:** 127 · **Consecutive dry hunts:** 0
+
+2026-10-15 seed hunt (seed→hit): promoted five open `(candidate)` rows on architecture model element references, trade-off competing positions, run findings list items, requirement coverage payload lists, and deep-case planted defect lists; consolidated coalesce fix; regressions in `ArchitectureModelElementDeserializationTests`, `TradeOffObjectDeserializationTests`, `RunFindingsListResponseDeserializationTests`, `RequirementCoverageFindingPayloadDeserializationTests`, and `ArchitectureIntelligenceDeepCaseDeserializationTests`; reseeded five follow-on `(candidate)` rows; 803 scoped `Contracts` filter tests passed.
+
+- [x] (proven) `ArchitectureModelElement` — `SourcePassageIds` / `RelatedElementIds` / `Properties` explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_reference_collections_yields_empty_collections_not_null`.
+- [x] (proven) `TradeOffObject.CompetingPositions` — explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_competing_positions_yields_empty_list_not_null`.
+- [x] (invalid) `RunFindingsListResponse.Findings` — **cheap-disproof 2026-10-15 seed hunt:** list property is `Items`; regression `Deserialize_null_items_yields_empty_list_not_null`.
+- [x] (proven) `RequirementCoverageFindingPayload.UncoveredRequirements` — explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_uncovered_requirements_yields_empty_list_not_null`.
+- [x] (proven) `ArchitectureIntelligenceDeepCase` — `PlantedDefects` / `ExpectedMutationIds` explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_planted_defect_lists_yields_empty_lists_not_null`.
+
+- [ ] (candidate) `ExtractionFidelityCase` — explicit JSON `null` on fidelity-case expectation lists — locus: `ExtractionFidelityCase` list setters; input: evaluation fidelity JSON with null `expectedNames`.
+- [ ] (candidate) `ArchitectureFinding.EvidenceRefs` — explicit JSON `null` on architecture finding evidence refs — locus: `ArchitectureFinding` list setter; input: architecture finding JSON with null `evidenceRefs`.
+- [ ] (candidate) `PolicyApplicabilityFindingPayload` — explicit JSON `null` on applicable topology node id list — locus: `PolicyApplicabilityFindingPayload.ApplicableTopologyNodeIds`; input: policy applicability payload JSON with null node ids.
+- [ ] (candidate) `HeldCheckSecondPassResult` — explicit JSON `null` on held-check second-pass list properties — locus: `HeldCheckSecondPassResult` collection setters; input: second-pass result JSON with null held finding id list.
+- [ ] (candidate) `ChecklistClusterSynthesisFindingPayload` — explicit JSON `null` on cluster synthesis payload lists — locus: `Findings.Payloads.ChecklistClusterSynthesisFindingPayload`; input: synthesis payload JSON with null cluster member list.
 
 2026-10-15 seed hunt (seed→hit): promoted five open `(candidate)` rows on explainability trace lists, architecture knowledge model collections, specialist review finding id lists, re-review scope element ids, and cross-review correlation lists; consolidated coalesce fix; regressions in `ExplainabilityTraceDeserializationTests`, `ArchitectureKnowledgeModelDeserializationTests`, `SpecialistReviewFindingDeserializationTests`, `ReReviewScopeDeserializationTests`, and `CrossReviewFindingCorrelationResultDeserializationTests`; reseeded five follow-on `(candidate)` rows; 798 scoped `Contracts` filter tests passed.
 
@@ -30060,12 +30076,6 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `SpecialistReviewFinding` — evidence and related element id lists explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_related_id_lists_yields_empty_lists_not_null`.
 - [x] (proven) `ReReviewScope.AffectedElementIds` — explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_affected_element_ids_yields_empty_list_not_null`.
 - [x] (proven) `CrossReviewFindingCorrelationResult` — matched/unmatched list properties explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_list_properties_yields_empty_lists_not_null`.
-
-- [ ] (candidate) `ArchitectureModelElement` — explicit JSON `null` on model element reference lists — locus: `ArchitectureModelElement` `SourcePassageIds` / `RelatedElementIds` / `Properties`; input: model element JSON with null `relatedElementIds`.
-- [ ] (candidate) `TradeOffObject.CompetingPositions` — explicit JSON `null` on trade-off position list — locus: `TradeOffObject` list setter; input: recommendation trade-off JSON with null `competingPositions`.
-- [ ] (candidate) `RunFindingsListResponse` — explicit JSON `null` on run findings list response — locus: `RunFindingsListResponse` findings list setter; input: API list response JSON with null `findings`.
-- [ ] (candidate) `RequirementCoverageFindingPayload` — explicit JSON `null` on requirement coverage payload lists — locus: `Findings.Payloads.RequirementCoverageFindingPayload`; input: finding payload JSON with null uncovered-requirement list.
-- [ ] (candidate) `ArchitectureIntelligenceDeepCase` — explicit JSON `null` on deep-case planted defect lists — locus: `ArchitectureIntelligenceDeepCase` list setters; input: evaluation deep-case JSON with null `plantedDefects`.
 
 2026-10-15 seed hunt (seed→hit): promoted five open `(candidate)` rows on golden-architecture test metrics, architecture recommendation lists, closed-loop reasoning request collections, topology coverage payload lists, and findings snapshot container lists; consolidated coalesce fix; regressions in `GoldenArchitectureTestResultDeserializationTests`, `ArchitectureRecommendationDeserializationTests`, `ClosedLoopReasoningRequestDeserializationTests`, `TopologyCoverageFindingPayloadDeserializationTests`, and `FindingsSnapshotDeserializationTests`; reseeded five follow-on `(candidate)` rows; 793 scoped `Contracts` filter tests passed.
 
