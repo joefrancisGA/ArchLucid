@@ -30083,7 +30083,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [ ] (candidate) `ArchitectureIdentityListPage` — explicit JSON `null` on identity list page — locus: `Architecture.ArchitectureIdentityListPage`; input: identity list page JSON with null list token (see file).
 - [ ] (candidate) `ArchitectureIdentityDetail` — explicit JSON `null` on identity detail lists — locus: `Architecture.ArchitectureIdentityDetail`; input: identity detail JSON with null list tokens (see file).
 - [ ] (candidate) `ArchitectureSealDeltaResponse` — explicit JSON `null` on seal delta list — locus: `Architecture.ArchitectureSealDeltaResponse`; input: seal delta response JSON with null list token (see file).
-- [ ] (candidate) `AgentTask` — explicit JSON `null` on agent task dependency lists — locus: `Agents.AgentTask`; input: agent task JSON with null list tokens (see file).
+- [ ] (candidate) `AgentOutputEvaluationPerspective.Scores` — explicit JSON `null` — locus: `Agents.AgentOutputEvaluationPerspective`; input: evaluation perspective JSON with null `scores`.
 
 2026-10-15 seed hunt (seed→hit): promoted four open `(candidate)` rows on planning plan evidence lists, dashboard summary notes, triage queue `items`, and planning materialize citation lists; cheap-disproof closed mis-seeded `LearningPlanningReportThemeEntry` (no collection properties); coalesce fix on `LearningPlanningReportPlanEvidenceBlock`, `ProductLearningDashboardSummaryResponse`, `ProductLearningTriageQueueResponse`, and `ProductLearningPlanningMaterializeResult`; regressions in matching `*DeserializationTests`; reseeded five follow-on `(candidate)` rows; 891 scoped `Contracts` filter tests passed.
 
