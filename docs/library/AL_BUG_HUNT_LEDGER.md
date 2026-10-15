@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-15 seed hunt (seed→hit): `archlucid-contracts` — promoted `Finding.FindingType` explicit JSON `null` (`ContractCollectionDefaults.CoalesceRequired`); regression `Deserialize_null_finding_type_yields_empty_string_not_null`; reseeded five follow-on `(candidate)` rows; 1017 scoped `Contracts` filter tests passed.
+
 2026-10-15 seed hunt (seed→hit): `archlucid-contracts` — promoted buyer run detail, decision explainability, retrieval grounding, and authority audit `Runs` DTO list properties explicit JSON `null` (consolidated `CoalesceReadOnly`); five deserialization regressions; reseeded five follow-on `(candidate)` rows; 823 scoped `Contracts` filter tests passed.
 
 2026-10-15 seed hunt (seed→hit): `archlucid-contracts` — promoted five finding payload DTO list properties (`SecurityCoverageFindingPayload.UnprotectedResources`, `PolicyCoverageFindingPayload.UncoveredResources`, `RequirementExpectationFindingPayload` theme lists, `InventoryReconciliationFindingPayload` resource id lists, `DecisionGradeFusionFindingPayload` member lists) explicit JSON `null` (consolidated coalesce); five deserialization regressions; reseeded five follow-on `(candidate)` rows; 818 scoped `Contracts` filter tests passed.
