@@ -29,20 +29,35 @@ function buildBffMutationHeaders(): Headers {
   return headers;
 }
 
+function normalizeOptionalBffTokenField(value: string | undefined): string | undefined {
+  if (value === undefined) {
+    return undefined;
+  }
+
+  const normalized = normalizeOidcConfigurationString(value);
+
+  if (normalized.length === 0) {
+    return undefined;
+  }
+
+  return normalized;
+}
+
 /** LK-06 P2: mirror OIDC token material into the HttpOnly BFF cookie (no sessionStorage tokens). */
 export async function syncBffSessionCookieFromTokenResponse(tokens: OidcTokenResponse): Promise<void> {
   if (typeof fetch === "undefined") {
     return;
   }
 
-  const accessToken = tokens.access_token?.trim() ?? "";
+  const accessToken =
+    tokens.access_token === undefined ? "" : normalizeOidcConfigurationString(tokens.access_token);
 
   if (accessToken.length === 0) {
     return;
   }
 
-  const refreshToken = tokens.refresh_token?.trim() ?? "";
-  const idToken = tokens.id_token?.trim() ?? "";
+  const refreshToken = normalizeOptionalBffTokenField(tokens.refresh_token);
+  const idToken = normalizeOptionalBffTokenField(tokens.id_token);
 
   try {
     await fetch(BFF_SESSION_SYNC_PATH, {
@@ -52,8 +67,8 @@ export async function syncBffSessionCookieFromTokenResponse(tokens: OidcTokenRes
       body: JSON.stringify({
         access_token: accessToken,
         expires_in: resolveExpiresInSeconds(tokens.expires_in),
-        refresh_token: refreshToken.length > 0 ? refreshToken : undefined,
-        id_token: idToken.length > 0 ? idToken : undefined,
+        refresh_token: refreshToken,
+        id_token: idToken,
         working_mode: resolveWorkingModeForBffSession(),
       }),
     });

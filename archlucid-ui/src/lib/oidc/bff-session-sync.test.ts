@@ -17,6 +17,29 @@ describe("bff-session-sync (LK-05 P1)", () => {
     vi.unstubAllGlobals();
   });
 
+  it("strips zero-width characters from token fields before posting to the BFF", async () => {
+    await syncBffSessionCookieFromTokenResponse({
+      access_token: "access\u200b-1",
+      expires_in: 3600,
+      refresh_token: "refresh\u200b-1",
+      id_token: "id\u200b-1",
+    });
+
+    expect(fetch).toHaveBeenCalledWith(
+      "/api/auth/bff-session",
+      expect.objectContaining({
+        method: "POST",
+        body: JSON.stringify({
+          access_token: "access-1",
+          expires_in: 3600,
+          refresh_token: "refresh-1",
+          id_token: "id-1",
+          working_mode: true,
+        }),
+      }),
+    );
+  });
+
   it("posts token material to the BFF session route after sign-in", async () => {
     await syncBffSessionCookieFromTokenResponse({
       access_token: "access-1",
