@@ -32,4 +32,20 @@ public sealed class RunDecisionExplainabilityDtoDeserializationTests
         dto.FindingEngineFailures.Should().NotBeNull().And.BeEmpty();
         dto.ManifestHonestyWarnings.Should().NotBeNull().And.BeEmpty();
     }
+
+    [Fact]
+    public void Deserialize_null_snapshot_ids_yields_non_null_snapshot_ids_not_null()
+    {
+        const string json = """
+            {
+              "snapshotIds": null
+            }
+            """;
+
+        RunDecisionExplainabilityDto? dto =
+            JsonSerializer.Deserialize<RunDecisionExplainabilityDto>(json, ContractJson.CamelCaseCompact);
+
+        dto.Should().NotBeNull();
+        dto!.SnapshotIds.Should().NotBeNull();
+    }
 }

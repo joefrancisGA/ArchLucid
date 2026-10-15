@@ -5,11 +5,13 @@ namespace ArchLucid.Contracts.Runs;
 /// <summary>Unified authority + coordinator decision explainability on run detail (TB-054).</summary>
 public sealed class RunDecisionExplainabilityDto
 {
+    private RunDecisionExplainabilitySnapshotIds snapshotIds = new();
+
     public RunDecisionExplainabilitySnapshotIds SnapshotIds
     {
-        get;
-        set;
-    } = new();
+        get => snapshotIds;
+        set => snapshotIds = value ?? new RunDecisionExplainabilitySnapshotIds();
+    }
 
     public RunAuthorityRuleAuditExplainabilitySection? AuthorityRuleAudit
     {

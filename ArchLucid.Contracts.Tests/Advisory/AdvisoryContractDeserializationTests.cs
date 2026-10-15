@@ -28,6 +28,22 @@ public sealed class AdvisoryContractDeserializationTests
     }
 
     [Fact]
+    public void Deserialize_null_status_yields_non_null_ops_status_not_null()
+    {
+        const string json = """
+            {
+              "status": null
+            }
+            """;
+
+        RecommendationLearningOpsPageResponse? result =
+            JsonSerializer.Deserialize<RecommendationLearningOpsPageResponse>(json, ContractJson.CamelCaseCompact);
+
+        result.Should().NotBeNull();
+        result!.Status.Should().NotBeNull();
+    }
+
+    [Fact]
     public void Deserialize_null_improvement_plan_collections_yield_empty_collections_not_null()
     {
         const string json = """

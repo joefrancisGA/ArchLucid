@@ -6,11 +6,13 @@ namespace ArchLucid.Contracts.Roi;
 /// <summary>Sponsor dashboard: ROI summary plus 30-day compliance drift trend in one payload.</summary>
 public sealed class SponsorDashboardBundleResponse
 {
+    private SponsorRoiSummaryResponse sponsorReport = new();
+
     public SponsorRoiSummaryResponse SponsorReport
     {
-        get;
-        init;
-    } = new();
+        get => sponsorReport;
+        init => sponsorReport = value ?? new SponsorRoiSummaryResponse();
+    }
 
     private IReadOnlyList<ComplianceDriftTrendPoint> complianceDriftTrend = [];
 

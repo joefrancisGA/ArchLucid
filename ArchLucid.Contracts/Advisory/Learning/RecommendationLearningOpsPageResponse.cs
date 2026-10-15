@@ -5,11 +5,13 @@ namespace ArchLucid.Contracts.Advisory.Learning;
 /// <summary>Internal recommendation-learning ops page: status, latest profile, and history in one payload.</summary>
 public sealed class RecommendationLearningOpsPageResponse
 {
+    private RecommendationLearningOperationalStatusResponse status = new();
+
     public RecommendationLearningOperationalStatusResponse Status
     {
-        get;
-        init;
-    } = new();
+        get => status;
+        init => status = value ?? new RecommendationLearningOperationalStatusResponse();
+    }
 
     public RecommendationLearningProfile? LatestProfile
     {

@@ -26,4 +26,20 @@ public sealed class VisionDiagramIngestResultDeserializationTests
         result.Warnings.Should().NotBeNull();
         result.Warnings.Should().BeEmpty();
     }
+
+    [Fact]
+    public void Deserialize_null_model_yields_non_null_model_not_null()
+    {
+        const string json = """
+            {
+              "model": null
+            }
+            """;
+
+        VisionDiagramIngestResult? result =
+            JsonSerializer.Deserialize<VisionDiagramIngestResult>(json, ContractJson.Default);
+
+        result.Should().NotBeNull();
+        result!.Model.Should().NotBeNull();
+    }
 }

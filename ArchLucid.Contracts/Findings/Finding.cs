@@ -108,11 +108,13 @@ public class Finding
         set;
     }
 
+    private ExplainabilityTrace trace = new();
+
     public ExplainabilityTrace Trace
     {
-        get;
-        set;
-    } = new();
+        get => trace;
+        set => trace = value ?? new ExplainabilityTrace();
+    }
 
     /// <summary><see cref="ArchLucid.Contracts.Requests.ArchitectureRequest.RequestId" /> for the run input.</summary>
     public string? RequestInputRef
