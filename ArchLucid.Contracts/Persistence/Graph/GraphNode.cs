@@ -25,11 +25,13 @@ public class GraphNode
         set => nodeType = ContractCollectionDefaults.CoalesceRequired(value);
     }
 
+    private string label = string.Empty;
+
     public string Label
     {
-        get;
-        set;
-    } = null!;
+        get => label;
+        set => label = ContractCollectionDefaults.CoalesceRequired(value);
+    }
 
     public string? Category
     {
