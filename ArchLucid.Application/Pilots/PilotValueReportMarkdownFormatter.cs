@@ -73,7 +73,11 @@ public sealed class PilotValueReportMarkdownFormatter(ExportFormatterService exp
         sb.AppendLine();
         _exportFormatter.AppendMarkdownTwoColumnTableStart(sb, "Metric", "Value");
 
-        if (r.RunDetailsTruncated)
+        if (RunDetailSampleLoadedNoRows(r))
+        {
+            sb.AppendLine("| Total findings | not computed — no committed runs loaded for detail in the partial sample |");
+        }
+        else if (r.RunDetailsTruncated)
         {
             sb.AppendLine(
                 CultureInfo.InvariantCulture,
@@ -86,7 +90,7 @@ public sealed class PilotValueReportMarkdownFormatter(ExportFormatterService exp
 
         string avgCompletionCell = FormatAvgSeconds(r.AveragePipelineCompletionSeconds);
 
-        if (r.RunDetailsTruncated)
+        if (r.RunDetailsTruncated && !RunDetailSampleLoadedNoRows(r))
             avgCompletionCell = $"{avgCompletionCell} {PartialRunDetailSampleFragment(r.RunDetailCap)}";
 
         sb.AppendLine(CultureInfo.InvariantCulture, $"| Avg pipeline completion | {avgCompletionCell} |");
@@ -104,7 +108,13 @@ public sealed class PilotValueReportMarkdownFormatter(ExportFormatterService exp
         sb.AppendLine("## Findings by severity");
         sb.AppendLine();
 
-        if (r.RunDetailsTruncated)
+        if (RunDetailSampleLoadedNoRows(r))
+        {
+            sb.AppendLine(
+                "> Severity counts were not computed — no committed runs loaded for detail in the partial sample.");
+            sb.AppendLine();
+        }
+        else if (r.RunDetailsTruncated)
         {
             sb.AppendLine(
                 CultureInfo.InvariantCulture,
@@ -182,6 +192,9 @@ public sealed class PilotValueReportMarkdownFormatter(ExportFormatterService exp
 
         return sb.ToString();
     }
+
+    private static bool RunDetailSampleLoadedNoRows(PilotValueReport report) =>
+        report.RunDetailsTruncated && report.CommittedRunsTimeline.Count == 0 && report.TotalRunsCommitted > 0;
 
     private static string PartialRunDetailSampleFragment(int runDetailCap) =>
         FormattableString.Invariant($"(partial run-detail sample: newest {runDetailCap} committed runs by CreatedUtc)");

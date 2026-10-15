@@ -99,6 +99,18 @@ public sealed class BuyerProofPackDeltasJsonFormatterTests
     }
 
     [Fact]
+    public void Serialize_does_not_emit_explicit_null_properties_on_buyer_zip_json()
+    {
+        PilotRunDeltasResponse response = BuildCommittedResponse(extractorCollectionTimestampUtc: UtcNow.AddDays(-1));
+
+        string json = BuyerProofPackDeltasJsonFormatter.Serialize(response);
+
+        json.Should().NotContain(":null", "buyer ZIP deltas JSON uses ignore-null contract serialization");
+        bool ok = BuyerProofPackCommitGuard.TryValidateDeltasJson(json, out _, out string? error);
+        ok.Should().BeTrue(error);
+    }
+
+    [Fact]
     public void Default_pascalCase_serialization_fails_commit_guard()
     {
         PilotRunDeltasResponse response = BuildCommittedResponse(extractorCollectionTimestampUtc: UtcNow.AddDays(-1));

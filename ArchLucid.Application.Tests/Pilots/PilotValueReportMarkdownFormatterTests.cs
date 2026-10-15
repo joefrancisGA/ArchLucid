@@ -114,12 +114,22 @@ public sealed class PilotValueReportMarkdownFormatterTests
             TotalFindings = 88,
             RunDetailsTruncated = true,
             RunDetailCap = cap,
+            CommittedRunsTimeline =
+            [
+                new PilotValueReportRunTimelinePoint
+                {
+                    RunId = "run-1",
+                    CreatedUtc = from,
+                    CommittedUtc = from.AddHours(1),
+                    SystemName = "alpha",
+                },
+            ],
         };
 
         string markdown = sut.Format(report);
 
         markdown.Should().Contain(
-            "partial run-detail sample",
+            "| Total findings | 88 (partial run-detail sample:",
             "finding totals must not read as tenant-wide when only newest committed runs were loaded");
     }
 
@@ -138,6 +148,16 @@ public sealed class PilotValueReportMarkdownFormatterTests
             RunDetailsTruncated = true,
             RunDetailCap = cap,
             AveragePipelineCompletionSeconds = 120,
+            CommittedRunsTimeline =
+            [
+                new PilotValueReportRunTimelinePoint
+                {
+                    RunId = "run-1",
+                    CreatedUtc = from,
+                    CommittedUtc = from.AddHours(1),
+                    SystemName = "alpha",
+                },
+            ],
         };
 
         string markdown = sut.Format(report);
@@ -145,6 +165,55 @@ public sealed class PilotValueReportMarkdownFormatterTests
         markdown.Should().Contain(
             "| Avg pipeline completion | 2 min (partial run-detail sample:",
             "avg completion must not read as tenant-wide when only newest committed runs were loaded");
+    }
+
+    [Fact]
+    public void Format_when_run_details_truncated_with_empty_timeline_does_not_label_positive_findings_as_partial_sample()
+    {
+        PilotValueReportMarkdownFormatter sut = new(new ExportFormatterService());
+        DateTime from = new(2026, 4, 1, 0, 0, 0, DateTimeKind.Utc);
+        int cap = PilotValueReportService.DefaultRunDetailCap;
+        PilotValueReport report = new()
+        {
+            TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+            FromUtc = from,
+            ToUtc = from.AddDays(30),
+            TotalRunsCommitted = cap + 10,
+            TotalFindings = 88,
+            RunDetailsTruncated = true,
+            RunDetailCap = cap,
+            CommittedRunsTimeline = [],
+        };
+
+        string markdown = sut.Format(report);
+
+        markdown.Should().Contain("not computed — no committed runs loaded for detail");
+        markdown.Should().NotContain("| Total findings | 88 (partial run-detail sample:");
+    }
+
+    [Fact]
+    public void Format_when_run_details_truncated_with_empty_timeline_does_not_label_zero_findings_as_partial_sample()
+    {
+        PilotValueReportMarkdownFormatter sut = new(new ExportFormatterService());
+        DateTime from = new(2026, 4, 1, 0, 0, 0, DateTimeKind.Utc);
+        int cap = PilotValueReportService.DefaultRunDetailCap;
+        PilotValueReport report = new()
+        {
+            TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+            FromUtc = from,
+            ToUtc = from.AddDays(30),
+            TotalRunsCommitted = cap + 10,
+            TotalFindings = 0,
+            RunDetailsTruncated = true,
+            RunDetailCap = cap,
+            CommittedRunsTimeline = [],
+        };
+
+        string markdown = sut.Format(report);
+
+        markdown.Should().Contain("not computed — no committed runs loaded for detail");
+        markdown.Should().NotContain("| Total findings | 0 (partial run-detail sample:");
+        markdown.Should().Contain("Severity counts were not computed");
     }
 
     [Fact]
@@ -311,6 +380,30 @@ public sealed class PilotValueReportMarkdownFormatterTests
         markdown.Should().Contain(
             "under-count",
             "metadata count must warn sponsors when keyset inventory collection stopped early");
+    }
+
+    [Fact]
+    public void Format_when_audit_export_truncated_with_empty_timeline_still_surfaces_comparison_drift_count()
+    {
+        PilotValueReportMarkdownFormatter sut = new(new ExportFormatterService());
+        DateTime from = new(2026, 4, 1, 0, 0, 0, DateTimeKind.Utc);
+        PilotValueReport report = new()
+        {
+            TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+            FromUtc = from,
+            ToUtc = from.AddDays(30),
+            AuditExportTruncated = true,
+            ComparisonOrDriftDetections = 5,
+            RunDetailsTruncated = true,
+            RunDetailCap = PilotValueReportService.DefaultRunDetailCap,
+            TotalRunsCommitted = PilotValueReportService.DefaultRunDetailCap + 1,
+            CommittedRunsTimeline = [],
+        };
+
+        string markdown = sut.Format(report);
+
+        markdown.Should().Contain("| Comparison / drift detections | 5 |");
+        markdown.Should().Contain("| Audit export truncated | True |");
     }
 
     [Fact]
