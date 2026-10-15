@@ -1484,4 +1484,88 @@ describe("AuthCallbackAccessPanel", () => {
     resolveFetch?.(new Response(null, { status: 204 }));
     vi.unstubAllGlobals();
   });
+
+  it("does not surface a submit error when a second submit is blocked while the first POST is still in flight", async () => {
+    let resolveFetch: ((value: Response) => void) | undefined;
+    const fetchMock = vi.fn(
+      () =>
+        new Promise<Response>((resolve) => {
+          resolveFetch = resolve;
+        }),
+    );
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<AuthCallbackAccessPanel technicalDetail="Sign-in was blocked." />);
+
+    fireEvent.click(screen.getByTestId("auth-callback-request-access"));
+    fireEvent.change(screen.getByLabelText("Name"), { target: { value: "Jordan Lee" } });
+    fireEvent.change(screen.getByLabelText("Work email"), { target: { value: "jordan@fabrikam.com" } });
+    fireEvent.change(screen.getByLabelText("Company"), { target: { value: "Fabrikam" } });
+    fireEvent.change(screen.getByLabelText("Role / title"), { target: { value: "Architect" } });
+    fireEvent.click(screen.getByRole("button", { name: "Submit request" }));
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: AUTH_CALLBACK_ACCESS_SUBMITTING_LABEL })).toBeDisabled();
+    });
+
+    fireEvent.click(screen.getByTestId("auth-callback-request-access"));
+    fireEvent.click(screen.getByTestId("auth-callback-request-access"));
+    fireEvent.click(screen.getByRole("button", { name: "Submit request" }));
+
+    expect(fetchMock).toHaveBeenCalledOnce();
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+
+    resolveFetch?.(new Response(null, { status: 204 }));
+    vi.unstubAllGlobals();
+  });
+
+  it("does not post access request when work email contains bidi format characters", async () => {
+    const fetchMock = vi.fn(async () => new Response(null, { status: 204 }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<AuthCallbackAccessPanel technicalDetail="Sign-in was blocked." />);
+
+    fireEvent.click(screen.getByTestId("auth-callback-request-access"));
+    fireEvent.change(screen.getByLabelText("Name"), { target: { value: "Jordan Lee" } });
+    fireEvent.change(screen.getByLabelText("Work email"), { target: { value: "jordan\u202efabrikam.com" } });
+    fireEvent.change(screen.getByLabelText("Company"), { target: { value: "Fabrikam" } });
+    fireEvent.change(screen.getByLabelText("Role / title"), { target: { value: "Architect" } });
+    fireEvent.submit(screen.getByTestId("auth-callback-access-form"));
+
+    await waitFor(() => {
+      expect(screen.getByRole("alert")).toHaveTextContent(AUTH_CALLBACK_ACCESS_SUBMIT_ERROR);
+    });
+
+    expect(fetchMock).not.toHaveBeenCalled();
+    vi.unstubAllGlobals();
+  });
+
+  it("keeps the request access toggle enabled while submit is in flight", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(
+        () =>
+          new Promise<Response>(() => {
+            /* pending */
+          }),
+      ),
+    );
+
+    render(<AuthCallbackAccessPanel technicalDetail="Sign-in was blocked." />);
+
+    fireEvent.click(screen.getByTestId("auth-callback-request-access"));
+    fireEvent.change(screen.getByLabelText("Name"), { target: { value: "Jordan Lee" } });
+    fireEvent.change(screen.getByLabelText("Work email"), { target: { value: "jordan@fabrikam.com" } });
+    fireEvent.change(screen.getByLabelText("Company"), { target: { value: "Fabrikam" } });
+    fireEvent.change(screen.getByLabelText("Role / title"), { target: { value: "Architect" } });
+    fireEvent.click(screen.getByRole("button", { name: "Submit request" }));
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: AUTH_CALLBACK_ACCESS_SUBMITTING_LABEL })).toBeDisabled();
+    });
+
+    expect(screen.getByTestId("auth-callback-request-access")).not.toBeDisabled();
+
+    vi.unstubAllGlobals();
+  });
 });
