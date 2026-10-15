@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-15 seed hunt (seed→hit): `ui-oidc` — promoted `consumePkceState` strict equality on callback `state` with zero-width padding (`trim()` only → false expired sign-in); `normalizePkceCallbackQueryValue` with `stripOAuthInvisibleFormatChars`; regression `matches stored PKCE state when the callback state query value has zero-width padding`; regression lock `collapses soft hyphens in token endpoint OAuth error descriptions`; cheap-disproved five open `(candidate)` rows; reseeded five follow-on candidates; 124 scoped `src/lib/oidc` vitest tests passed.
+
 2026-10-15 seed hunt (seed→hit): `ui-oidc` — promoted `collapseOAuthErrorDescriptionLineBreaks` leaving U+00AD soft hyphens in authorize `error_description` (single-line copy showed `Policydenied`); normalize soft hyphens to spaces with C0/Unicode separators; regression `collapses soft hyphens in authorize error descriptions for readable single-line copy`; cheap-disproved five open `(candidate)` rows; reseeded five follow-on candidates; 122 scoped `src/lib/oidc` vitest tests passed.
 
 2026-10-15 seed hunt (seed→hit): `ui-oidc` — promoted `trimTokenFormParams` posting authorization `code` / PKCE fields with zero-width padding (`trim()` only) while inbound token JSON was normalized; reuse `normalizeTokenString` on all token-endpoint form values; regression `strips zero-width characters from authorization code and PKCE fields before posting the form`; cheap-disproved five open `(candidate)` rows; reseeded five follow-on candidates; 121 scoped `src/lib/oidc` vitest tests passed.
@@ -21041,11 +21043,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 72
-- **bugs-found:** 66
+- **hunts:** 73
+- **bugs-found:** 67
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-15
-- **last-bug:** 2026-10-15 — soft hyphens in authorize error_description copy
+- **last-bug:** 2026-10-15 — zero-width padding on callback state query
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -21205,11 +21207,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `readOAuthErrorString` — interior ZWSP in token `error` — **cheap-disproof 2026-10-15 seed hunt:** `stripOAuthInvisibleFormatChars` removes interior format chars; `invalid_grant` preserved.
 - [x] (valid-no-repro) `refreshAccessToken` — word-joiner-padded refresh token argument — **cheap-disproof 2026-10-15 seed hunt:** form params use `normalizeTokenString`; regression `trims caller-supplied refresh token values before posting the form`.
 - [x] (valid-no-repro) `parseDiscoveryDocument` — issuer with surrounding ZWSP — **cheap-disproof 2026-10-15 seed hunt:** parsed `issuer` is not used for navigation in zone files; endpoint URLs are trimmed and scheme-validated.
-- (candidate) `sanitizeOAuthUserFacingMessage` — token-endpoint error with embedded soft hyphen — locus: `oauth-callback-messages.ts`; input: `error_description` JSON with `\u00AD`; wrong outcome: shared collapse path; mechanism: parity with authorize decode.
-- (candidate) `humanizeAuthorizeCallbackError` — `error` code with interior soft hyphen — locus: `oauth-callback-messages.ts`; input: `access\u00ADdenied`; wrong outcome: unknown-code branch; mechanism: `formatErrorCodeForReading` underscore-only vs AD.
-- (candidate) `buildAuthorizeUrl` — `nonce` / `state` with ZWSP from `randomOpaqueState` — locus: `pkce.ts` + `build-authorize-url.ts`; input: crypto output; wrong outcome: unreachable ZWSP; mechanism: base64url alphabet.
-- (candidate) `decodeJwtPayload` — JWT payload with soft hyphen in `name` claim — locus: `jwt-payload.ts`; input: display hint only; wrong outcome: cosmetic mojibake; mechanism: UTF-8 decode path.
-- (candidate) `pulseBffSessionActivity` — activity POST when CSRF cookie has surrounding ZWSP — locus: `bff-session-sync.ts`; input: malformed document cookie; wrong outcome: ignored pulse; mechanism: CSRF reader trim coverage.
+- [x] (proven) `consumePkceState` — zero-width padding on callback `state` query — **hit 2026-10-15 seed hunt (seed→hit):** `trim()` left ZWSP so stored PKCE state never matched; `normalizePkceCallbackQueryValue`; regression `matches stored PKCE state when the callback state query value has zero-width padding`.
+- [x] (valid-no-repro) `sanitizeOAuthUserFacingMessage` — soft hyphen in token-endpoint `error_description` — **cheap-disproof 2026-10-15 seed hunt:** shared collapse path; regression lock `collapses soft hyphens in token endpoint OAuth error descriptions`.
+- [x] (valid-no-repro) `humanizeAuthorizeCallbackError` — `error` code with interior soft hyphen — **cheap-disproof 2026-10-15 seed hunt:** OAuth error codes are snake_case from IdP; no reachable `access\u00ADdenied` branch in production redirects.
+- [x] (valid-no-repro) `buildAuthorizeUrl` — ZWSP in `state` / `nonce` — **cheap-disproof 2026-10-15 seed hunt:** `randomOpaqueState` / PKCE use base64url alphabet without format characters.
+- [x] (valid-no-repro) `decodeJwtPayload` — soft hyphen in display `name` claim — **cheap-disproof 2026-10-15 seed hunt:** display-only hint; UTF-8 decode preserves intentional IdP spelling.
+- [x] (valid-no-repro) `pulseBffSessionActivity` — CSRF cookie with ZWSP — **cheap-disproof 2026-10-15 seed hunt:** host sets CSRF token; malformed cookie yields `ignored` by contract without session corruption.
+- (candidate) `storePkceState` — verifier/nonce with accidental whitespace from caller — locus: `session.ts`; input: padded verifier string; wrong outcome: token exchange mismatch; mechanism: normalize at store boundary.
+- (candidate) `humanizeAuthorizeCallbackError` — `error` query with interior ZWSP breaking `access_denied` switch — locus: `oauth-callback-messages.ts`; input: `access\u200b_denied`; wrong outcome: default branch copy; mechanism: normalize error code before switch.
+- (candidate) `readNonceFromPayload` — nonce claim with ZWSP padding — locus: `jwt-payload.ts`; input: `nonce` with `\u200b`; wrong outcome: nonce binding false negative; mechanism: strip invisible on read.
+- (candidate) `getOidcRedirectUri` — window origin redirect with trailing ZWSP in env override — locus: `config.ts`; input: `NEXT_PUBLIC_OIDC_REDIRECT_URI`; wrong outcome: authorize mismatch; mechanism: trim without invisible strip.
+- (candidate) `discoveryUrlForAuthority` — authority string with interior ZWSP — locus: `discovery.ts`; input: env authority; wrong outcome: wrong discovery URL; mechanism: URL parse vs invisible strip.
 - [x] (proven) `persistTokenResponse` — a hung older token-to-BFF sync blocks a newer same-session sync, preventing the replacement session from establishing its cookie — **hit 2026-10-11 seed hunt:** the sync-order promise chain awaited every older request; concurrent sync plus latest-request replay lets the newer request proceed and converges late completions on the latest token; regression `does not block a newer sync behind a hung older request` in `session.test.ts`.
 - [x] (proven) `persistTokenResponse` — concurrent same-session token-to-BFF syncs can complete out of order, allowing an older provider response to overwrite a newer BFF cookie — **hit 2026-10-11 seed hunt:** each token response started its own asynchronous sync with no ordering guard; serialize sync writes through a recovery-safe promise chain; regression `keeps an older token sync from overwriting a newer same-session sync` in `session.test.ts`.
 - [x] (proven) `persistNonSensitiveSessionHints` — a replacement token without optional display-name or subject claims leaves the prior user's identity hints in `sessionStorage` — **hit 2026-10-11 seed hunt:** hint writes were conditional but stale keys were never removed, so a same-browser user replacement could display the previous user's name/subject; clear both hint keys before applying each token response; regression `clears stale identity hints when a replacement token has no identity claims` in `session.test.ts`.
