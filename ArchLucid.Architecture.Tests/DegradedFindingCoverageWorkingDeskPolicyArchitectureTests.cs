@@ -24,11 +24,22 @@ public sealed class DegradedFindingCoverageWorkingDeskPolicyArchitectureTests
     }
 
     [Fact]
+    public void Finalize_readiness_resolves_working_desk_from_actor_id()
+    {
+        string readiness = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Governance/FinalizeReadinessService.cs");
+
+        readiness.Should().Contain("IsWorkingDeskAsync(_actorContext.GetActorId()");
+        readiness.Should().NotContain("IsWorkingDeskAsync(_actorContext.GetActor(),");
+    }
+
+    [Fact]
     public void Orchestrator_passes_working_desk_and_degraded_coverage_into_finalize_completeness_input()
     {
         string orchestrator = ArchitectureSourceProbe.ReadCsTypeFamily("ArchLucid.Application/Runs/Orchestration/AuthorityDrivenArchitectureRunCommitOrchestrator.cs");
 
         orchestrator.Should().Contain("IsWorkingDeskAsync");
+        orchestrator.Should().Contain("GetActorId()");
+        orchestrator.Should().NotContain("IsWorkingDeskAsync(actor,");
         orchestrator.Should().Contain("RunFindingCoverageProjection.Build");
         orchestrator.Should().Contain("MapForFinalize");
         orchestrator.Should().Contain("degradedFindingCoverage");

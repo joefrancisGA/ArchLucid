@@ -335,7 +335,10 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
         ArchitectureRequest request = await _requestRepository.GetByIdAsync(run.RequestId, cancellationToken) ??
                                       throw new InvalidOperationException($"Request '{run.RequestId}' not found.");
 
-        bool workingDesk = await _userWorkspaceModeReader.IsWorkingDeskAsync(actor, cancellationToken);
+        // Preferences persist workspace mode under GetActorId (JWT oid / DevBypass id), not the display name.
+        bool workingDesk = await _userWorkspaceModeReader.IsWorkingDeskAsync(
+            _actorContext.GetActorId(),
+            cancellationToken);
 
         bool degradedFindingCoverage = false;
         IReadOnlyList<string> degradedFindingCoverageFailedEngineLabels = [];
