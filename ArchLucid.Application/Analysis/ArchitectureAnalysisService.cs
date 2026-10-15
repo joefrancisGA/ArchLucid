@@ -51,6 +51,7 @@ public sealed class ArchitectureAnalysisService(
         ArgumentException.ThrowIfNullOrWhiteSpace(request.RunId);
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        string primaryRunId = CanonicalRunIdForLookup(request.RunId);
 
         await ArchitectureAnalysisSealedManifestHashGuard.EnsureRunSealedManifestHashOrThrowAsync(
             request.RunId,
@@ -72,7 +73,7 @@ public sealed class ArchitectureAnalysisService(
             run = request.PreloadedRun;
         else
         {
-            primaryDetail = await runDetailQueryService.GetRunDetailAsync(request.RunId, cancellationToken) ?? throw new RunNotFoundException(request.RunId);
+            primaryDetail = await runDetailQueryService.GetRunDetailAsync(primaryRunId, cancellationToken) ?? throw new RunNotFoundException(request.RunId);
             run = primaryDetail.Run;
         }
 
@@ -80,7 +81,7 @@ public sealed class ArchitectureAnalysisService(
 
         if (request.IncludeEvidence)
         {
-            report.Evidence = await evidenceRepository.GetByRunIdAsync(request.RunId, cancellationToken);
+            report.Evidence = await evidenceRepository.GetByRunIdAsync(primaryRunId, cancellationToken);
 
             if (report.Evidence is null)
                 report.Warnings.Add("Evidence package was not found for this run.");
@@ -88,7 +89,7 @@ public sealed class ArchitectureAnalysisService(
 
         if (request.IncludeExecutionTraces)
         {
-            report.ExecutionTraces = (await traceRepository.GetByRunIdAsync(scope, request.RunId, cancellationToken)).ToList();
+            report.ExecutionTraces = (await traceRepository.GetByRunIdAsync(scope, primaryRunId, cancellationToken)).ToList();
 
             if (report.ExecutionTraces.Count == 0)
                 report.Warnings.Add("No execution traces were found for this run.");
@@ -134,7 +135,7 @@ public sealed class ArchitectureAnalysisService(
                 report.Determinism = await determinismCheckService.RunAsync(
                     new DeterminismCheckRequest
                     {
-                        RunId = request.RunId,
+                        RunId = primaryRunId,
                         Iterations = request.DeterminismIterations,
                         ExecutionMode = ExecutionModeCurrent,
                         CommitReplays = false,
@@ -184,9 +185,9 @@ public sealed class ArchitectureAnalysisService(
 
                 IReadOnlyList<AgentResult> leftResults = primaryDetail is not null && primaryDetail.Results.Count > 0
                     ? primaryDetail.Results
-                    : await resultRepository.GetByRunIdAsync(scope, request.RunId, cancellationToken);
+                    : await resultRepository.GetByRunIdAsync(scope, primaryRunId, cancellationToken);
                 List<AgentResult> rightResults = compareDetail.Results;
-                report.AgentResultDiff = agentResultDiffService.Compare(request.RunId, leftResults, compareRunId, rightResults);
+                report.AgentResultDiff = agentResultDiffService.Compare(primaryRunId, leftResults, compareRunId, rightResults);
             }
         }
 
