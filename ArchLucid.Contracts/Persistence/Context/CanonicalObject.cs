@@ -16,11 +16,13 @@ public class CanonicalObject
         set;
     } = null!;
 
+    private string name = string.Empty;
+
     public string Name
     {
-        get;
-        set;
-    } = null!;
+        get => name;
+        set => name = ContractCollectionDefaults.CoalesceRequired(value);
+    }
 
     public string SourceType
     {

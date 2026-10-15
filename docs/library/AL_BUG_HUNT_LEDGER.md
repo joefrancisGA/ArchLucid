@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-15 seed hunt (seed→hit): `archlucid-contracts` — promoted `CanonicalObject.Name` explicit JSON `null` (`ContractCollectionDefaults.CoalesceRequired` on setter); regression `Deserialize_null_name_yields_empty_string_not_null`; reseeded five follow-on `(candidate)` rows; 1036 scoped `Contracts` filter tests passed.
+
 2026-10-15 seed hunt (seed→hit): `archlucid-contracts` — promoted `ComplianceRulePack.Version` explicit JSON `null` (`ContractCollectionDefaults.CoalesceRequired` on setter); regression `Deserialize_null_version_yields_empty_string_not_null`; reseeded five follow-on `(candidate)` rows; 1035 scoped `Contracts` filter tests passed.
 
 2026-10-15 seed hunt (seed→hit): `archlucid-contracts` — promoted `GraphEdge.EdgeType` explicit JSON `null` (`ContractCollectionDefaults.CoalesceRequired` on setter); regression `Deserialize_null_edge_type_yields_empty_string_not_null`; reseeded five follow-on `(candidate)` rows; 1034 scoped `Contracts` filter tests passed.
@@ -30107,7 +30109,17 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 ---
 ## Zone: archlucid-contracts
 
-**Hunts:** 213 · **Bugs found:** 327 · **Consecutive dry hunts:** 0
+**Hunts:** 214 · **Bugs found:** 328 · **Consecutive dry hunts:** 0
+
+2026-10-15 seed hunt (seed→hit): promoted `CanonicalObject.Name` explicit JSON `null` on canonical object JSON; `ContractCollectionDefaults.CoalesceRequired` on setter; regression `Deserialize_null_name_yields_empty_string_not_null` in `CanonicalObjectDeserializationTests`; reseeded five follow-on `(candidate)` rows; 1036 scoped `Contracts` filter tests passed.
+
+- [x] (proven) `Persistence.Context.CanonicalObject.Name` — explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_name_yields_empty_string_not_null`.
+
+- [ ] (candidate) `ArchitectureIntelligence.SpecialistReviewFinding.Title` — explicit JSON `null` on specialist review finding JSON — locus: `ArchitectureIntelligence.SpecialistReviewFinding`; input: specialist finding JSON with `"title": null` (see file).
+- [ ] (candidate) `Compliance.ComplianceRulePack.RulePackId` — explicit JSON `null` on rule pack JSON — locus: `Compliance.ComplianceRulePack`; input: rule pack JSON with `"rulePackId": null` (see file).
+- [ ] (candidate) `Persistence.Context.CanonicalObject.ObjectType` — explicit JSON `null` on canonical object JSON — locus: `Persistence.Context.CanonicalObject`; input: canonical object JSON with `"objectType": null` (see file).
+- [ ] (candidate) `Compliance.ComplianceRulePack.RulePackHash` — explicit JSON `null` on rule pack JSON — locus: `Compliance.ComplianceRulePack`; input: rule pack JSON with `"rulePackHash": null` (see file).
+- [ ] (candidate) `Persistence.Context.CanonicalObject.SourceId` — explicit JSON `null` on canonical object JSON — locus: `Persistence.Context.CanonicalObject`; input: canonical object JSON with `"sourceId": null` (see file).
 
 2026-10-15 seed hunt (seed→hit): promoted `ComplianceRulePack.Version` explicit JSON `null` on rule pack JSON; `ContractCollectionDefaults.CoalesceRequired` on setter; regression `Deserialize_null_version_yields_empty_string_not_null` in `ComplianceRulePackDeserializationTests`; reseeded five follow-on `(candidate)` rows; 1035 scoped `Contracts` filter tests passed.
 
