@@ -85,7 +85,10 @@ function parseOidcTokenResponse(parsed: unknown): OidcTokenResponse {
     throw new Error("Token response missing access_token");
   }
 
-  return parsed as OidcTokenResponse;
+  return {
+    ...(parsed as OidcTokenResponse),
+    access_token: accessToken.trim(),
+  };
 }
 
 export async function exchangeAuthorizationCode(params: {

@@ -8,6 +8,28 @@ describe("refreshAccessToken", () => {
     vi.unstubAllGlobals();
   });
 
+  it("trims surrounding whitespace from access_token in successful token responses", async () => {
+    const jwtPayload = { sub: "user-42", name: "Whitespace User" };
+    const segment = Buffer.from(JSON.stringify(jwtPayload), "utf8").toString("base64url");
+    const accessToken = `x.${segment}.y`;
+    const paddedAccessToken = `  ${accessToken}  `;
+
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () => JSON.stringify({ access_token: paddedAccessToken, token_type: "Bearer" }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    const tokens = await refreshAccessToken({
+      tokenEndpoint: "https://login.example.com/token",
+      clientId: "client",
+      refreshToken: "rt",
+    });
+
+    expect(tokens.access_token).toBe(accessToken);
+  });
+
   it("throws when a successful token response omits access_token", async () => {
     const fetchMock = vi.fn(async () => ({
       ok: true,
