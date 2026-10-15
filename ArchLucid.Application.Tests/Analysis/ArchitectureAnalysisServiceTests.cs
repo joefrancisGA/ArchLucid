@@ -116,6 +116,79 @@ public sealed class ArchitectureAnalysisServiceTests
     }
 
     [Fact]
+    public async Task BuildAsync_skips_determinism_check_when_iterations_below_minimum()
+    {
+        Guid primaryRunId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+            WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+        };
+
+        Mock<IAuthorityQueryService> authority = new();
+        authority
+            .Setup(service => service.GetRunDetailForManifestCompareAsync(
+                It.IsAny<ScopeContext>(),
+                primaryRunId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunDetailDto
+            {
+                Run = new RunRecord { RunId = primaryRunId },
+                GoldenManifest = new ManifestDocument
+                {
+                    RunId = primaryRunId,
+                    ManifestHash = "ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789",
+                },
+            });
+
+        Mock<IManifestHashService> manifestHash = new();
+        manifestHash
+            .Setup(service => service.ComputeHash(It.IsAny<ManifestDocument>()))
+            .Returns("ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789");
+
+        Mock<IDeterminismCheckService> determinism = new();
+
+        ArchitectureAnalysisService sut = new(
+            Mock.Of<IRunDetailQueryService>(),
+            Mock.Of<IScopeContextProvider>(provider => provider.GetCurrentScope() == scope),
+            Mock.Of<IUnifiedGoldenManifestReader>(),
+            Mock.Of<IAgentEvidencePackageRepository>(),
+            Mock.Of<IAgentExecutionTraceRepository>(),
+            Mock.Of<IAgentResultRepository>(),
+            Mock.Of<IDiagramGenerator>(),
+            Mock.Of<IManifestSummaryGenerator>(),
+            determinism.Object,
+            Mock.Of<IManifestDiffService>(),
+            Mock.Of<IAgentResultDiffService>(),
+            authority.Object,
+            manifestHash.Object);
+
+        ArchitectureAnalysisReport report = await sut.BuildAsync(
+            new ArchitectureAnalysisRequest
+            {
+                RunId = primaryRunId.ToString("N"),
+                PreloadedRunDetail = new ArchitectureRunDetail
+                {
+                    Run = new ArchitectureRun { RunId = primaryRunId.ToString("N") },
+                },
+                IncludeDeterminismCheck = true,
+                DeterminismIterations = 0,
+                IncludeEvidence = false,
+                IncludeExecutionTraces = false,
+                IncludeManifest = false,
+                IncludeDiagram = false,
+                IncludeSummary = false,
+            });
+
+        report.Determinism.Should().BeNull();
+        report.Warnings.Should().Contain("Determinism check was requested but DeterminismIterations must be at least 2.");
+        determinism.Verify(
+            service => service.RunAsync(It.IsAny<DeterminismCheckRequest>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task BuildAsync_nulls_preloaded_manifest_when_manifest_run_id_does_not_match_request_run()
     {
         Guid primaryRunId = Guid.Parse("11111111-1111-1111-1111-111111111111");

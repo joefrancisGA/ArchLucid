@@ -128,11 +128,18 @@ public sealed class ArchitectureAnalysisService(
                 report.Warnings.Add("Summary was requested but the manifest is unavailable; summary was not generated.");
 
         if (request.IncludeDeterminismCheck)
-            report.Determinism = await determinismCheckService.RunAsync(
-                new DeterminismCheckRequest
-                {
-                    RunId = request.RunId, Iterations = request.DeterminismIterations, ExecutionMode = ExecutionModeCurrent, CommitReplays = false
-                }, cancellationToken);
+            if (request.DeterminismIterations < 2)
+                report.Warnings.Add("Determinism check was requested but DeterminismIterations must be at least 2.");
+            else
+                report.Determinism = await determinismCheckService.RunAsync(
+                    new DeterminismCheckRequest
+                    {
+                        RunId = request.RunId,
+                        Iterations = request.DeterminismIterations,
+                        ExecutionMode = ExecutionModeCurrent,
+                        CommitReplays = false,
+                    },
+                    cancellationToken);
 
         if (request.IncludeManifestCompare)
             if (string.IsNullOrWhiteSpace(request.CompareManifestVersion))
