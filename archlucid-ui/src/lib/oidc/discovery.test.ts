@@ -12,6 +12,24 @@ describe("loadDiscoveryDocument", () => {
     vi.resetModules();
   });
 
+  it("strips zero-width characters from the configured authority before fetching discovery", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      json: async () => discoveryDoc,
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    const { loadDiscoveryDocument } = await import("@/lib/oidc/discovery");
+
+    await loadDiscoveryDocument(`\u200blogin.microsoftonline.com/tenant/v2.0\u200b`);
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      "https://login.microsoftonline.com/tenant/v2.0/.well-known/openid-configuration",
+      { cache: "no-store" },
+    );
+  });
+
   it("prefixes https:// when authority omits a scheme", async () => {
     const fetchMock = vi.fn(async () => ({
       ok: true,

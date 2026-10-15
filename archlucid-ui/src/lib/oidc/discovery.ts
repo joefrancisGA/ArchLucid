@@ -1,4 +1,4 @@
-import { stripOAuthInvisibleFormatChars } from "@/lib/oidc/oauth-callback-messages";
+import { normalizeOidcConfigurationString } from "@/lib/oidc/oauth-callback-messages";
 
 export type OidcDiscoveryDocument = {
   issuer: string;
@@ -33,10 +33,6 @@ function isHttpOrHttpsUrl(url: string): boolean {
   }
 }
 
-function normalizeDiscoveryMetadataString(value: string): string {
-  return stripOAuthInvisibleFormatChars(value.trim()).trim();
-}
-
 function parseDiscoveryDocument(body: unknown, discoveryUrl: string): OidcDiscoveryDocument {
   if (!body || typeof body !== "object") {
     throw new Error(`OIDC discovery document is not a JSON object: ${discoveryUrl}`);
@@ -55,9 +51,9 @@ function parseDiscoveryDocument(body: unknown, discoveryUrl: string): OidcDiscov
     throw new Error(`OIDC discovery document missing required endpoints: ${discoveryUrl}`);
   }
 
-  const issuer = normalizeDiscoveryMetadataString(issuerRaw);
-  const authorizationEndpoint = normalizeDiscoveryMetadataString(authorizationEndpointRaw);
-  const tokenEndpoint = normalizeDiscoveryMetadataString(tokenEndpointRaw);
+  const issuer = normalizeOidcConfigurationString(issuerRaw);
+  const authorizationEndpoint = normalizeOidcConfigurationString(authorizationEndpointRaw);
+  const tokenEndpoint = normalizeOidcConfigurationString(tokenEndpointRaw);
 
   if (issuer.length === 0 || authorizationEndpoint.length === 0 || tokenEndpoint.length === 0) {
     throw new Error(`OIDC discovery document missing required endpoints: ${discoveryUrl}`);
@@ -83,7 +79,7 @@ function parseDiscoveryDocument(body: unknown, discoveryUrl: string): OidcDiscov
   const endSessionEndpoint = record.end_session_endpoint;
 
   if (typeof endSessionEndpoint === "string" && endSessionEndpoint.trim().length > 0) {
-    const trimmedEndSession = normalizeDiscoveryMetadataString(endSessionEndpoint);
+    const trimmedEndSession = normalizeOidcConfigurationString(endSessionEndpoint);
 
     try {
       new URL(trimmedEndSession);
@@ -100,7 +96,7 @@ function parseDiscoveryDocument(body: unknown, discoveryUrl: string): OidcDiscov
 }
 
 function discoveryUrlForAuthority(authority: string): string {
-  const trimmed = authority.trim();
+  const trimmed = normalizeOidcConfigurationString(authority);
   const withScheme = trimmed.includes("://") ? trimmed : `https://${trimmed}`;
   const parsed = new URL(withScheme);
   const pathname = parsed.pathname.replace(/\/+$/, "");

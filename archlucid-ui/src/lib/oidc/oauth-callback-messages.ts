@@ -9,6 +9,11 @@ export function stripOAuthInvisibleFormatChars(text: string): string {
   return text.replace(OAUTH_INVISIBLE_FORMAT_CHARS, "");
 }
 
+/** Trims deployment configuration strings and removes zero-width format characters. */
+export function normalizeOidcConfigurationString(value: string): string {
+  return stripOAuthInvisibleFormatChars(value.trim()).trim();
+}
+
 export function collapseOAuthErrorDescriptionLineBreaks(text: string): string {
   return text
     .replace(OAUTH_INVISIBLE_FORMAT_CHARS, " ")
