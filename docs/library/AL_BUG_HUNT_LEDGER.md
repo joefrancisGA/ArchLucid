@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-15 seed hunt (seed→hit): `archlucid-contracts` — promoted `PreviewRecurrenceScheduleRunsResponse.NextRunUtc` explicit JSON `null` on recurrence preview JSON; `ContractCollectionDefaults.CoalesceReadOnly` on `NextRunUtc` setter; regression `Deserialize_null_next_run_utc_yields_empty_list_not_null`; reseeded five follow-on `(candidate)` rows; 753 scoped `Contracts` filter tests passed.
+
 2026-10-15 seed hunt (seed→hit): `archlucid-contracts` — promoted `GovernanceEnvironmentCatalog` and `ReplaceGovernanceEnvironmentCatalogRequest` explicit JSON `null` on `Environments` / `Transitions` (consolidated null-collection fix on both DTOs); `ContractCollectionDefaults.CoalesceReadOnly` on all four setters; regressions `GovernanceEnvironmentCatalogDeserializationTests` and `ReplaceGovernanceEnvironmentCatalogRequestDeserializationTests`; reseeded five follow-on `(candidate)` rows; 752 scoped `Contracts` filter tests passed.
 
 2026-10-15 seed hunt (seed→hit): `archlucid-contracts` — promoted `WorkspaceAiAvailabilityResponse.Debug` explicit JSON `null` on workspace AI availability diagnostics JSON; null-coalescing `init` on `Debug`; regression `Deserialize_null_debug_yields_empty_dictionary_not_null`; reseeded five follow-on `(candidate)` rows; 750 scoped `Contracts` filter tests passed.
@@ -29882,6 +29884,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 ---
 ## Zone: archlucid-contracts
 
+2026-10-15 seed hunt (seed→hit): promoted `PreviewRecurrenceScheduleRunsResponse.NextRunUtc` JSON `null` leaving `NextRunUtc` null despite `Array.Empty` default; `ContractCollectionDefaults.CoalesceReadOnly` on setter; regression `PreviewRecurrenceScheduleRunsResponseDeserializationTests`; 753 scoped `Contracts` filter tests passed.
+
 2026-10-15 seed hunt (seed→hit): promoted `GovernanceEnvironmentCatalog` and `ReplaceGovernanceEnvironmentCatalogRequest` JSON `null` on environment catalog list properties; `ContractCollectionDefaults.CoalesceReadOnly` on `Environments` and `Transitions` setters; regressions `GovernanceEnvironmentCatalogDeserializationTests` and `ReplaceGovernanceEnvironmentCatalogRequestDeserializationTests`; 752 scoped `Contracts` filter tests passed.
 
 2026-10-15 seed hunt (seed→hit): promoted `WorkspaceAiAvailabilityResponse.Debug` JSON `null` leaving `Debug` null despite default dictionary; null-coalescing `init`; regression `WorkspaceAiAvailabilityResponseDeserializationTests`; 750 scoped `Contracts` filter tests passed.
@@ -30038,11 +30042,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 132
-- **bugs-found:** 112
+- **hunts:** 133
+- **bugs-found:** 113
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-15
-- **last-bug:** 2026-10-15 — GovernanceEnvironmentCatalog / ReplaceGovernanceEnvironmentCatalogRequest JSON null collections
+- **last-bug:** 2026-10-15 — PreviewRecurrenceScheduleRunsResponse.NextRunUtc JSON null
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -30070,11 +30074,12 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `GovernanceEnvironmentCatalog.Transitions` — explicit JSON `null` on governance environment catalog JSON — **hit 2026-10-15 seed hunt (seed→hit):** same consolidated fix as `Environments`.
 - [x] (proven) `ReplaceGovernanceEnvironmentCatalogRequest.Environments` — explicit JSON `null` on replace-catalog request JSON — **hit 2026-10-15 seed hunt (seed→hit):** `ContractCollectionDefaults.CoalesceReadOnly` on `Environments` and `Transitions` setters; regression `ReplaceGovernanceEnvironmentCatalogRequestDeserializationTests`.
 - [x] (proven) `ReplaceGovernanceEnvironmentCatalogRequest.Transitions` — explicit JSON `null` on replace-catalog request JSON — **hit 2026-10-15 seed hunt (seed→hit):** same consolidated fix as `Environments`.
-- [ ] (candidate) `PreviewRecurrenceScheduleRunsResponse.NextRunUtc` — explicit JSON `null` on recurrence preview JSON; locus: `PreviewRecurrenceScheduleRunsResponse`; input: `"nextRunUtc": null`; wrong outcome: schedule preview UI enumerates null upcoming run timestamps; reachability: governance recurrence preview API JSON.
+- [x] (proven) `PreviewRecurrenceScheduleRunsResponse.NextRunUtc` — explicit JSON `null` on recurrence preview JSON — **hit 2026-10-15 seed hunt (seed→hit):** `ContractCollectionDefaults.CoalesceReadOnly` on `NextRunUtc` setter; regression `Deserialize_null_next_run_utc_yields_empty_list_not_null`.
 - [ ] (candidate) `ItsmFindingCorrelationsBatchResponse.Findings` — explicit JSON `null` on ITSM batch correlations JSON; locus: `ItsmFindingCorrelationsBatchResponse`; input: `"findings": null`; wrong outcome: integrations UI assumes non-null per-finding correlation rows; reachability: ITSM finding correlations batch list API JSON.
 - [ ] (candidate) `ItsmFindingCorrelationsByFindingResponse.Correlations` — explicit JSON `null` on per-finding ITSM correlations JSON; locus: `ItsmFindingCorrelationsByFindingResponse`; input: `"correlations": null`; wrong outcome: correlation detail assumes non-null ticket rows; reachability: ITSM finding correlations by-finding API JSON.
 - [ ] (candidate) `GeneratePolicyPackResponse.ValidationWarnings` — explicit JSON `null` on AI policy-pack generation JSON; locus: `GeneratePolicyPackResponse`; input: `"validationWarnings": null`; wrong outcome: governance UI assumes non-null warning list after pack generation; reachability: generate policy pack API response JSON.
 - [ ] (candidate) `RunToolInvocationForensicsResponse.Rows` — explicit JSON `null` on run tool-invocation forensics JSON; locus: `RunToolInvocationForensicsResponse`; input: `"rows": null`; wrong outcome: run forensics panel assumes non-null invocation rows; reachability: architecture run tool forensics API JSON.
+- [ ] (candidate) `TrialFunnelOperationalSummaryResponse.Stages` — explicit JSON `null` on trial funnel operational summary JSON; locus: `TrialFunnelOperationalSummaryResponse`; input: `"stages": null`; wrong outcome: operations funnel UI assumes non-null stage metrics; reachability: trial funnel operational summary API JSON.
 - [x] (invalid) `AgentOutputEvaluationScore.MissingKeys` — duplicate candidate row — **cheap-disproof 2026-10-15 seed hunt:** already proven 2026-10-14 with `AgentOutputEvaluationScoreDeserializationTests`.
 
 2026-10-10 seed hunt (seed-only): reread advisory scheduling/digest DTOs and agent trace summary projection with the existing Contracts coverage; no fresh contract-local wrong outcome or reachable serialization mismatch met the promotion bar. The scoped Contracts filter passed 520/520. No production or regression code was changed.
