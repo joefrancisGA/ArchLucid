@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-15 seed hunt (seed→hit): `archlucid-contracts` — promoted `WorkspaceAiAvailabilityResponse.Debug` explicit JSON `null` on workspace AI availability diagnostics JSON; null-coalescing `init` on `Debug`; regression `Deserialize_null_debug_yields_empty_dictionary_not_null`; reseeded five follow-on `(candidate)` rows; 750 scoped `Contracts` filter tests passed.
+
 2026-10-15 seed hunt (seed→hit): `archlucid-contracts` — promoted `WorkspaceAiAvailabilityResponse.Checks` explicit JSON `null` on workspace AI availability diagnostics JSON; `ContractCollectionDefaults.CoalesceReadOnly` on `Checks` `init`; regression `Deserialize_null_checks_yields_empty_list_not_null`; reseeded five follow-on `(candidate)` rows; 749 scoped `Contracts` filter tests passed.
 
 2026-10-15 seed hunt (seed→hit): `archlucid-contracts` — promoted `ExecDigestSponsorDeepLinkViewResponse.TopRuns` explicit JSON `null` on exec digest sponsor deep-link view JSON; `ContractCollectionDefaults.CoalesceReadOnly` on `TopRuns` `init`; regression `Deserialize_null_top_runs_yields_empty_list_not_null`; reseeded five follow-on `(candidate)` rows; 748 scoped `Contracts` filter tests passed.
@@ -29878,6 +29880,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 ---
 ## Zone: archlucid-contracts
 
+2026-10-15 seed hunt (seed→hit): promoted `WorkspaceAiAvailabilityResponse.Debug` JSON `null` leaving `Debug` null despite default dictionary; null-coalescing `init`; regression `WorkspaceAiAvailabilityResponseDeserializationTests`; 750 scoped `Contracts` filter tests passed.
+
 2026-10-15 seed hunt (seed→hit): promoted `WorkspaceAiAvailabilityResponse.Checks` JSON `null` leaving `Checks` null despite `Array.Empty` default; `ContractCollectionDefaults.CoalesceReadOnly` on `init`; regression `WorkspaceAiAvailabilityResponseDeserializationTests`; 749 scoped `Contracts` filter tests passed.
 
 2026-10-15 seed hunt (seed→hit): promoted `ExecDigestSponsorDeepLinkViewResponse.TopRuns` JSON `null` leaving `TopRuns` null despite `Array.Empty` default; `ContractCollectionDefaults.CoalesceReadOnly` on `init`; regression `ExecDigestSponsorDeepLinkViewResponseDeserializationTests`; 748 scoped `Contracts` filter tests passed.
@@ -30030,11 +30034,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 130
-- **bugs-found:** 109
+- **hunts:** 131
+- **bugs-found:** 110
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-15
-- **last-bug:** 2026-10-15 — WorkspaceAiAvailabilityResponse.Checks JSON null
+- **last-bug:** 2026-10-15 — WorkspaceAiAvailabilityResponse.Debug JSON null
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -30057,7 +30061,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (valid-no-repro) `AgentResultJsonConverter.AgentResultJsonPayload.Claims` — **cheap-disproof 2026-10-15 seed hunt:** same reachable deserialize path; `"claims": null` yields empty `AgentResult.Claims`.
 - [x] (proven) `ExecDigestSponsorDeepLinkViewResponse.TopRuns` — explicit JSON `null` on digest deep-link sponsor view JSON — **hit 2026-10-15 seed hunt (seed→hit):** `ContractCollectionDefaults.CoalesceReadOnly` on `TopRuns` `init`; regression `Deserialize_null_top_runs_yields_empty_list_not_null`.
 - [x] (proven) `WorkspaceAiAvailabilityResponse.Checks` — explicit JSON `null` on workspace AI availability diagnostics JSON — **hit 2026-10-15 seed hunt (seed→hit):** `ContractCollectionDefaults.CoalesceReadOnly` on `Checks` `init`; regression `Deserialize_null_checks_yields_empty_list_not_null`.
-- [ ] (candidate) `WorkspaceAiAvailabilityResponse.Debug` — explicit JSON `null` on workspace AI availability diagnostics JSON; locus: `WorkspaceAiAvailabilityResponse`; input: `"debug": null`; wrong outcome: operator troubleshooting panel enumerates null debug metadata; reachability: workspace AI availability API JSON.
+- [x] (proven) `WorkspaceAiAvailabilityResponse.Debug` — explicit JSON `null` on workspace AI availability diagnostics JSON — **hit 2026-10-15 seed hunt (seed→hit):** null-coalescing `init` on `Debug`; regression `Deserialize_null_debug_yields_empty_dictionary_not_null`.
 - [ ] (candidate) `GovernanceEnvironmentCatalog.Environments` — explicit JSON `null` on governance environment catalog JSON; locus: `GovernanceEnvironmentCatalog`; input: `"environments": null`; wrong outcome: environment ladder UI assumes non-null catalog rows; reachability: governance environment catalog read API JSON.
 - [ ] (candidate) `GovernanceEnvironmentCatalog.Transitions` — explicit JSON `null` on governance environment catalog JSON; locus: `GovernanceEnvironmentCatalog`; input: `"transitions": null`; wrong outcome: transition matrix UI enumerates null edges; reachability: governance environment catalog read API JSON.
 - [ ] (candidate) `PreviewRecurrenceScheduleRunsResponse.NextRunUtc` — explicit JSON `null` on recurrence preview JSON; locus: `PreviewRecurrenceScheduleRunsResponse`; input: `"nextRunUtc": null`; wrong outcome: schedule preview assumes non-null upcoming run timestamps; reachability: governance recurrence preview API JSON.
