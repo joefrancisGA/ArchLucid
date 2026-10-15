@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.ArchitectureIntelligence;
 
 public class ArchitectureRecommendation
@@ -38,23 +40,29 @@ public class ArchitectureRecommendation
         set;
     } = null!;
 
+    private List<string> alternatives = [];
+
     public List<string> Alternatives
     {
-        get;
-        set;
-    } = [];
+        get => alternatives;
+        set => alternatives = ContractCollectionDefaults.Coalesce(value);
+    }
+
+    private List<RecommendationAlternative> alternativeOptions = [];
 
     public List<RecommendationAlternative> AlternativeOptions
     {
-        get;
-        set;
-    } = [];
+        get => alternativeOptions;
+        set => alternativeOptions = ContractCollectionDefaults.Coalesce(value);
+    }
+
+    private List<TradeOffObject> tradeOffs = [];
 
     public List<TradeOffObject> TradeOffs
     {
-        get;
-        set;
-    } = [];
+        get => tradeOffs;
+        set => tradeOffs = ContractCollectionDefaults.Coalesce(value);
+    }
 
     public EffortEstimate Effort
     {
@@ -68,11 +76,13 @@ public class ArchitectureRecommendation
         set;
     } = new();
 
+    private List<string> dependencies = [];
+
     public List<string> Dependencies
     {
-        get;
-        set;
-    } = [];
+        get => dependencies;
+        set => dependencies = ContractCollectionDefaults.Coalesce(value);
+    }
 
     public string ValidationMethod
     {

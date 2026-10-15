@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.ArchitectureIntelligence;
 
 public class ClosedLoopReasoningRequest
@@ -30,27 +32,33 @@ public class ClosedLoopReasoningRequest
         set;
     }
 
+    private List<ClosedLoopReasoningSourceText> sourceTexts = [];
+
     public List<ClosedLoopReasoningSourceText> SourceTexts
     {
-        get;
-        set;
-    } = [];
+        get => sourceTexts;
+        set => sourceTexts = ContractCollectionDefaults.Coalesce(value);
+    }
+
+    private List<string> declaredPriorities = [];
 
     public List<string> DeclaredPriorities
     {
-        get;
-        set;
-    } = [];
+        get => declaredPriorities;
+        set => declaredPriorities = ContractCollectionDefaults.Coalesce(value);
+    }
 
     /// <summary>
     /// Operator answers to framing / evidence-driven interview questions (questionId → answer).
     /// Merged into the model before review on re-run (TB-1980 round-trip).
     /// </summary>
+    private Dictionary<string, string> framingAnswers = new();
+
     public Dictionary<string, string> FramingAnswers
     {
-        get;
-        set;
-    } = new();
+        get => framingAnswers;
+        set => framingAnswers = ContractCollectionDefaults.CoalesceDictionary(value);
+    }
 
     /// <summary>
     /// When true and source texts are empty, the API may substitute the golden incomplete fixture.

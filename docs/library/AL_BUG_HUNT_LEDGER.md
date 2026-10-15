@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-15 seed hunt (seed→hit): `archlucid-contracts` — promoted `GoldenArchitectureTestResult` metric lists and dictionaries, `ArchitectureRecommendation` list properties, `ClosedLoopReasoningRequest` source lists and `FramingAnswers`, `TopologyCoverageFindingPayload` category lists, and `FindingsSnapshot` container lists explicit JSON `null` (consolidated `ContractCollectionDefaults` coalesce); five deserialization regressions; reseeded five follow-on `(candidate)` rows; 793 scoped `Contracts` filter tests passed.
+
 2026-10-15 seed hunt (seed→hit): `archlucid-contracts` — promoted `AdversarialReviewResult.FalsePositiveRateByLane`, `EvidenceValidationResult.StageResults`, `IncrementalReReviewResult` lists, `SecurityBaselineCompletenessFindingPayload` lists, and `ClosedLoopReasoningResult` list properties explicit JSON `null` (consolidated coalesce); five deserialization regressions; reseeded five follow-on `(candidate)` rows; 788 scoped `Contracts` filter tests passed.
 
 2026-10-15 seed hunt (seed→hit): `archlucid-contracts` — promoted `Finding.Properties`, `AdversarialReviewResult` lists, `ComplianceFindingPayload.AffectedResources`, `ArchitectureModelDiff.Entries`, and `SpecialistReviewResult` lists explicit JSON `null` (consolidated coalesce); five deserialization regressions; reseeded five follow-on `(candidate)` rows; 783 scoped `Contracts` filter tests passed.
@@ -30047,7 +30049,21 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 ---
 ## Zone: archlucid-contracts
 
-**Hunts:** 144 · **Bugs found:** 124 · **Consecutive dry hunts:** 0
+**Hunts:** 145 · **Bugs found:** 125 · **Consecutive dry hunts:** 0
+
+2026-10-15 seed hunt (seed→hit): promoted five open `(candidate)` rows on golden-architecture test metrics, architecture recommendation lists, closed-loop reasoning request collections, topology coverage payload lists, and findings snapshot container lists; consolidated coalesce fix; regressions in `GoldenArchitectureTestResultDeserializationTests`, `ArchitectureRecommendationDeserializationTests`, `ClosedLoopReasoningRequestDeserializationTests`, `TopologyCoverageFindingPayloadDeserializationTests`, and `FindingsSnapshotDeserializationTests`; reseeded five follow-on `(candidate)` rows; 793 scoped `Contracts` filter tests passed.
+
+- [x] (proven) `GoldenArchitectureTestResult` — metric lists and count dictionaries explicit JSON `null` — **hit 2026-10-15 seed hunt:** `Coalesce` / `CoalesceDictionary` on setters; regression `Deserialize_null_metric_collections_yields_empty_collections_not_null`.
+- [x] (proven) `ArchitectureRecommendation` — `Alternatives` / `AlternativeOptions` / `TradeOffs` / `Dependencies` explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_list_properties_yields_empty_lists_not_null`.
+- [x] (proven) `ClosedLoopReasoningRequest` — `SourceTexts` / `DeclaredPriorities` / `FramingAnswers` explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_source_lists_yields_empty_lists_not_null`.
+- [x] (proven) `TopologyCoverageFindingPayload` — category list properties explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_category_lists_yields_empty_lists_not_null`.
+- [x] (proven) `FindingsSnapshot` — `Findings` / `EngineFailures` / `ChecklistCoverage` / `WithheldFindings` explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_findings_yields_empty_list_not_null`.
+
+- [ ] (candidate) `ExplainabilityTrace` — explicit JSON `null` on explainability trace list properties — locus: `Findings.ExplainabilityTrace` six list setters with `= []` only; input: finding explainability JSON with null `graphNodeIdsExamined` or `citations`.
+- [ ] (candidate) `ArchitectureKnowledgeModel` — explicit JSON `null` on knowledge-model container collections — locus: `ArchitectureKnowledgeModel.Elements` / `DeclaredPriorities` / `FramingAnswers`; input: closed-loop model JSON with null `elements`.
+- [ ] (candidate) `SpecialistReviewFinding` — explicit JSON `null` on specialist finding evidence id lists — locus: `SpecialistReviewFinding` related-id list setters; input: specialist review finding JSON with null `evidenceArtifactIds`.
+- [ ] (candidate) `ReReviewScope.AffectedElementIds` — explicit JSON `null` on incremental re-review scope JSON — locus: `ReReviewScope` list setter; input: re-review scope payload with `"affectedElementIds": null`.
+- [ ] (candidate) `CrossReviewFindingCorrelationResult` — explicit JSON `null` on cross-review correlation lists — locus: `CrossReviewFindingCorrelationResult` matched/unmatched id lists; input: correlation result JSON with null `matchedPairs`.
 
 2026-10-15 seed hunt (seed→hit): promoted five open `(candidate)` rows on adversarial lane dictionary, evidence validation stages, incremental re-review lists, security baseline payload lists, and closed-loop reasoning lists; consolidated coalesce fix; regressions in `AdversarialReviewResultDeserializationTests`, `EvidenceValidationResultDeserializationTests`, `IncrementalReReviewResultDeserializationTests`, `SecurityBaselineCompletenessFindingPayloadDeserializationTests`, and `ClosedLoopReasoningResultDeserializationTests`; reseeded five follow-on `(candidate)` rows; 788 scoped `Contracts` filter tests passed.
 
@@ -30056,12 +30072,6 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `IncrementalReReviewResult` — `SpecialistResults` / `GlobalInvariantResults` / `MergedFindingIds` explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_collection_properties_yields_empty_lists_not_null`.
 - [x] (proven) `SecurityBaselineCompletenessFindingPayload` — four list properties explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_list_properties_yields_empty_lists_not_null`.
 - [x] (proven) `ClosedLoopReasoningResult` — ten list properties explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_collection_properties_yields_empty_lists_not_null`.
-
-- [ ] (candidate) `GoldenArchitectureTestResult` — explicit JSON `null` on golden-architecture test metric lists — locus: `GoldenArchitectureTestResult` collection setters; input: golden test result JSON with null case or failure lists.
-- [ ] (candidate) `ArchitectureRecommendation` — explicit JSON `null` on recommendation evidence lists — locus: `ArchitectureRecommendation` list properties with `= []` only; input: recommendation JSON with null supporting-evidence lists.
-- [ ] (candidate) `ClosedLoopReasoningRequest` — explicit JSON `null` on closed-loop request source lists — locus: `ClosedLoopReasoningRequest` collection setters; input: reasoning request JSON with null artifact or scope lists.
-- [ ] (candidate) `TopologyCoverageFindingPayload` — explicit JSON `null` on topology coverage payload lists — locus: `Findings.Payloads.TopologyCoverageFindingPayload`; input: null uncovered-node list in finding payload JSON.
-- [ ] (candidate) `FindingsSnapshot.Findings` — explicit JSON `null` on findings snapshot container JSON — locus: `FindingsSnapshot` list setter; input: persisted snapshot with `"findings": null`.
 
 - [x] (proven) `Finding.Properties` — explicit JSON `null` — **hit 2026-10-15 seed hunt:** `CoalesceDictionary` on setter; regression `Deserialize_null_properties_yields_empty_dictionary_not_null`.
 - [x] (proven) `AdversarialReviewResult` — `SubstantiatedFindings` / `Challenges` explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_collection_properties_yields_empty_lists_not_null`.
