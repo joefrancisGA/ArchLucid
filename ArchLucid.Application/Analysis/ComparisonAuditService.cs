@@ -25,8 +25,8 @@ public sealed class ComparisonAuditService(IComparisonRecordRepository repositor
         {
             ComparisonRecordId = Guid.NewGuid().ToString("N"),
             ComparisonType = ComparisonTypes.EndToEndReplay,
-            LeftRunId = report.LeftRunId,
-            RightRunId = report.RightRunId,
+            LeftRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForPersistence(report.LeftRunId),
+            RightRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForPersistence(report.RightRunId),
             Format = ComparisonTypes.FormatJsonMarkdown,
             SummaryMarkdown = summaryMarkdown,
             PayloadJson = JsonSerializer.Serialize(report, JsonOptions),
@@ -62,8 +62,8 @@ public sealed class ComparisonAuditService(IComparisonRecordRepository repositor
         {
             ComparisonRecordId = Guid.NewGuid().ToString("N"),
             ComparisonType = ComparisonTypes.ExportRecordDiff,
-            LeftRunId = diff.LeftRunId,
-            RightRunId = diff.RightRunId,
+            LeftRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForPersistenceOrNull(diff.LeftRunId),
+            RightRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForPersistenceOrNull(diff.RightRunId),
             LeftExportRecordId = diff.LeftExportRecordId,
             RightExportRecordId = diff.RightExportRecordId,
             Format = ComparisonTypes.FormatJsonMarkdown,
@@ -85,8 +85,8 @@ public sealed class ComparisonAuditService(IComparisonRecordRepository repositor
         {
             ComparisonRecordId = Guid.NewGuid().ToString("N"),
             ComparisonType = sourceRecord.ComparisonType,
-            LeftRunId = sourceRecord.LeftRunId,
-            RightRunId = sourceRecord.RightRunId,
+            LeftRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForPersistenceOrNull(sourceRecord.LeftRunId),
+            RightRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForPersistenceOrNull(sourceRecord.RightRunId),
             LeftExportRecordId = sourceRecord.LeftExportRecordId,
             RightExportRecordId = sourceRecord.RightExportRecordId,
             LeftManifestVersion = sourceRecord.LeftManifestVersion,

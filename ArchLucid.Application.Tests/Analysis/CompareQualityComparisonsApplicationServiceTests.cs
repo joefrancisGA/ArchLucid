@@ -2,6 +2,7 @@ using ArchLucid.Application;
 using ArchLucid.Application.Analysis;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Metadata;
+using ArchLucid.Core.Audit;
 using ArchLucid.Persistence.Data.Repositories;
 
 using FluentAssertions;
@@ -88,5 +89,46 @@ public sealed class CompareQualityComparisonsApplicationServiceTests
             CancellationToken.None);
 
         result.Records.Should().ContainSingle(r => r.ComparisonRecordId == "cmp-search-left");
+    }
+
+    [Fact]
+    public async Task CompareQuality_TryListByRunIdAsync_lists_audit_persisted_record_when_report_used_dashed_left_run_id()
+    {
+        Guid leftKey = Guid.Parse("55555555-5555-5555-5555-555555555555");
+        string dashedLeftRunId = leftKey.ToString("D");
+        string canonicalLeftRunId = leftKey.ToString("N");
+
+        InMemoryComparisonRecordRepository comparisonRecords = new();
+        ComparisonAuditService audit = new(comparisonRecords, Mock.Of<IAuditService>());
+        await audit.RecordEndToEndAsync(
+            new EndToEndReplayComparisonReport
+            {
+                LeftRunId = dashedLeftRunId,
+                RightRunId = "cccccccccccccccccccccccccccccccc",
+            },
+            "# summary",
+            CancellationToken.None);
+
+        Mock<IRunDetailQueryService> runDetail = new();
+        runDetail
+            .Setup(s => s.GetRunDetailAsync(dashedLeftRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchitectureRunDetail { Run = new() { RunId = canonicalLeftRunId } });
+
+        ComparisonsApplicationService sut = new(
+            runDetail.Object,
+            new Mock<IRunExportRecordRepository>().Object,
+            comparisonRecords,
+            new Mock<IComparisonReplayService>().Object,
+            new Mock<ICompareRunsApplicationFacade>().Object,
+            new Mock<IComparisonReplayCostEstimator>().Object,
+            new Mock<IDriftReportFormatter>().Object,
+            new DriftReportDocxExport());
+
+        IReadOnlyList<ComparisonRecord>? records =
+            await sut.TryListByRunIdAsync(dashedLeftRunId, CancellationToken.None);
+
+        records.Should().NotBeNull();
+        records!.Should().ContainSingle();
+        records[0].LeftRunId.Should().Be(canonicalLeftRunId);
     }
 }
