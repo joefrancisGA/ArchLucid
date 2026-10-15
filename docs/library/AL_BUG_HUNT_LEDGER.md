@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-15 seed hunt (seed→hit): `ui-oidc` — promoted `buildAuthorizeUrl` encoding padded `client_id` / `redirect_uri` / `scope` / PKCE query values verbatim (token exchange uses trimmed redirect URI → `invalid_grant` / `invalid_client`); `trimAuthorizeQueryValue` on all authorize query fields; regression `trims padded authorize query parameters before encoding`; cheap-disproved five open `(candidate)` rows; reseeded five follow-on candidates; 114 scoped `src/lib/oidc` vitest tests passed.
+
 2026-10-15 seed hunt (seed→hit): `ui-oidc` — promoted `humanizeAuthorizeCallbackError` showing invisible zero-width authorize `?error=` (e.g. `%E2%80%8B`) inside parentheses; strip ZWSP/ZWNJ/ZWJ/BOM in `formatErrorCodeForReading`; regression `treats zero-width authorize error codes as missing codes`; cheap-disproved five open `(candidate)` rows; reseeded five follow-on candidates; 113 scoped `src/lib/oidc` vitest tests passed.
 
 2026-10-15 seed hunt (seed→hit): `ui-oidc` — promoted `truncateOAuthUserFacingMessage` slicing mid UTF-16 surrogate pair at the 280-character cap (mojibake/ill-formed operator copy on long authorize or token errors); step cut index back when boundary lands on a high surrogate; regression `does not truncate OAuth user-facing copy on a lone UTF-16 surrogate`; cheap-disproved five open `(candidate)` rows; reseeded five follow-on candidates; 112 scoped `src/lib/oidc` vitest tests passed.
@@ -21025,11 +21027,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 64
-- **bugs-found:** 58
+- **hunts:** 65
+- **bugs-found:** 59
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-15
-- **last-bug:** 2026-10-15 — zero-width authorize error code shown in callback parentheses
+- **last-bug:** 2026-10-15 — padded authorize query params broke IdP authorize vs token redirect parity
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -21142,11 +21144,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `parseOidcTokenResponse` — lowercase `token_type` — **cheap-disproof 2026-10-15 seed hunt:** no `src/lib/oidc/` consumer compares `token_type` strings.
 - [x] (valid-no-repro) `decodeJwtPayload` — four-segment JWT input — **cheap-disproof 2026-10-15 seed hunt:** display-only decoder intentionally reads payload segment; signature not verified in browser.
 - [x] (proven) `formatErrorCodeForReading` / `humanizeAuthorizeCallbackError` — zero-width authorize `error` query — **hit 2026-10-15 seed hunt (seed→hit):** strip `\u200B-\u200D` and BOM before readable-code guard; regression `treats zero-width authorize error codes as missing codes`.
-- (candidate) `buildAuthorizeUrl` — duplicate `scope` keys when caller passes pre-encoded scope string — locus: `build-authorize-url.ts`; input: scope already contains `+`; wrong outcome: double encoding; mechanism: `searchParams.set` encodes once.
-- (candidate) `syncBffSessionCookieFromTokenResponse` — swallows non-OK POST without surfacing failure — locus: `bff-session-sync.ts`; input: BFF 500 on sign-in; wrong outcome: client hints without cookie; mechanism: empty catch by design (best-effort).
-- (candidate) `ensureAccessTokenFresh` — no refresh when expiry hint missing — locus: `session.ts`; input: cleared `OIDC_EXPIRES_AT_MS_KEY`; wrong outcome: refresh skipped; mechanism: `getExpiresAtMs` returns 0.
-- (candidate) `initiateSupplementalOidcRedirect` — Google authority env without client id — locus: `initiate-redirect.ts`; input: partial Google env; wrong outcome: throws before redirect; mechanism: explicit configuration guard.
-- (candidate) `decodeOAuthErrorDescription` — `+` in percent-encoded descriptions — locus: `oauth-callback-messages.ts`; input: `100%25+tax`; wrong outcome: plus decoded before `%` handling; mechanism: application/x-www-form-urlencoded semantics.
+- [x] (valid-no-repro) `buildAuthorizeUrl` — pre-encoded `scope` with `+` — **cheap-disproof 2026-10-15 seed hunt:** `URLSearchParams.set` performs single encoding; scopes are space-delimited plain text from env.
+- [x] (valid-no-repro) `syncBffSessionCookieFromTokenResponse` — silent BFF POST failure — **cheap-disproof 2026-10-15 seed hunt:** best-effort BFF sync by design; client hints are non-authoritative in LK-06 P2.
+- [x] (valid-no-repro) `ensureAccessTokenFresh` — missing expiry hint — **cheap-disproof 2026-10-15 seed hunt:** `getExpiresAtMs` returns `0`; skew check fails open and refresh still runs.
+- [x] (valid-no-repro) `initiateSupplementalOidcRedirect` — partial Google env — **cheap-disproof 2026-10-15 seed hunt:** explicit throw before redirect when authority or client id missing.
+- [x] (valid-no-repro) `decodeOAuthErrorDescription` — `+` vs `%25` in descriptions — **cheap-disproof 2026-10-15 seed hunt:** query decoding follows application/x-www-form-urlencoded rules; regression `decodes URI encoding and plus-as-space`.
+- [x] (proven) `buildAuthorizeUrl` — padded authorize query parameters — **hit 2026-10-15 seed hunt (seed→hit):** `trimAuthorizeQueryValue` on all authorize fields; regression `trims padded authorize query parameters before encoding`.
+- (candidate) `consumePostSignInReturnUrl` — unsafe stored path cleared only at consume — locus: `session.ts`; input: tampered `sessionStorage` return key; wrong outcome: null redirect; mechanism: `isSafeReturnPath` defense on read.
+- (candidate) `loadDiscoveryDocument` — successful discovery cached while endpoints later rotate — locus: `discovery.ts`; input: issuer migration without reload; wrong outcome: stale token endpoint; mechanism: intentional per-tab cache.
+- (candidate) `pulseBffSessionActivity` — ignored when CSRF meta missing — locus: `bff-session-sync.ts`; input: presenter page without CSRF token; wrong outcome: idle timeout; mechanism: documented `ignored` result.
+- (candidate) `readSignedInDisplayName` — stale hint after `clearOidcSession` partial failure — locus: `session.ts`; input: storage clear interrupted; wrong outcome: ghost display name; mechanism: synchronous `removeOidcKeys` bundle.
+- (candidate) `exchangeAuthorizationCode` — does not re-check `isSafeOidcEndpointUrl` on token endpoint passed from discovery — locus: `token-client.ts`; input: discovery doc swapped between authorize and token; wrong outcome: POST to unsafe URL; mechanism: discovery reloaded per callback today.
 - [x] (proven) `persistTokenResponse` — a hung older token-to-BFF sync blocks a newer same-session sync, preventing the replacement session from establishing its cookie — **hit 2026-10-11 seed hunt:** the sync-order promise chain awaited every older request; concurrent sync plus latest-request replay lets the newer request proceed and converges late completions on the latest token; regression `does not block a newer sync behind a hung older request` in `session.test.ts`.
 - [x] (proven) `persistTokenResponse` — concurrent same-session token-to-BFF syncs can complete out of order, allowing an older provider response to overwrite a newer BFF cookie — **hit 2026-10-11 seed hunt:** each token response started its own asynchronous sync with no ordering guard; serialize sync writes through a recovery-safe promise chain; regression `keeps an older token sync from overwriting a newer same-session sync` in `session.test.ts`.
 - [x] (proven) `persistNonSensitiveSessionHints` — a replacement token without optional display-name or subject claims leaves the prior user's identity hints in `sessionStorage` — **hit 2026-10-11 seed hunt:** hint writes were conditional but stale keys were never removed, so a same-browser user replacement could display the previous user's name/subject; clear both hint keys before applying each token response; regression `clears stale identity hints when a replacement token has no identity claims` in `session.test.ts`.
