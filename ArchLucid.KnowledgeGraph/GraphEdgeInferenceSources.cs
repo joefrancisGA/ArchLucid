@@ -80,6 +80,8 @@ public static class GraphEdgeInferenceSources
 
     public const string InventoryNspAssociation = "inventory-nsp-association";
 
+    public const string InventoryAmplsScopedResource = "inventory-ampls-scoped-resource";
+
     public const string InventoryServiceConnectorLink = "inventory-service-connector-link";
 
     public const string InventorySynapseLinkedService = "inventory-synapse-linked-service";

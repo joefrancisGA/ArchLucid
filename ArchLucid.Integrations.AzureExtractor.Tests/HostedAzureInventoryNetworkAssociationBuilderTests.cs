@@ -615,6 +615,38 @@ public sealed class HostedAzureInventoryNetworkAssociationBuilderTests
     }
 
     [Fact]
+    public void Build_emits_monitor_private_link_scope_to_scoped_resource_association()
+    {
+        const string scopeId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Insights/privateLinkScopes/extension-pls";
+        const string appInsightsId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Insights/components/app1";
+        const string scopedResourceId = $"{scopeId}/scopedResources/app1";
+
+        HostedAzureArmResourceRecord scopedResource = new(
+            ResourceType: "Microsoft.Insights/privateLinkScopes/scopedResources",
+            ResourceId: scopedResourceId,
+            Name: "app1",
+            Location: "eastus",
+            Sku: null,
+            Tags: null,
+            Properties: new Dictionary<string, object?>
+            {
+                ["linkedResourceId"] = appInsightsId,
+            });
+
+        IReadOnlyList<HostedAzureArmNetworkAssociationRecord> associations =
+            HostedAzureInventoryNetworkAssociationBuilder.Build([scopedResource]);
+
+        Assert.Single(associations);
+        Assert.Equal(
+            AzureInventoryRelationshipAssociationTypes.MonitorPrivateLinkScopeToScopedResource,
+            associations[0].AssociationType);
+        Assert.Equal(scopeId, associations[0].FromResourceId);
+        Assert.Equal(appInsightsId, associations[0].ToResourceId);
+    }
+
+    [Fact]
     public void Build_does_not_label_databricks_workspace_to_subnet_as_app_service()
     {
         const string vnetId =

@@ -91,6 +91,38 @@ internal static class HostedAzureInventoryResourcePropertyExpander
             }
         }
 
+        if (AzureInventoryMonitorPrivateLinkScopeResourceTypes.IsScopeResourceType(resourceType))
+        {
+            AddJsonArrayProperty(propertiesElement, properties, "privateEndpointConnections");
+        }
+
+        if (resourceType.Contains("privateLinkScopes/scopedResources", StringComparison.OrdinalIgnoreCase))
+        {
+            AddArmReferenceProperty(propertiesElement, properties, "linkedResource");
+
+            if (propertiesElement.TryGetProperty("linkedResourceId", out JsonElement linkedResourceIdElement)
+                && linkedResourceIdElement.ValueKind is JsonValueKind.String)
+            {
+                string? linkedResourceId = linkedResourceIdElement.GetString();
+
+                if (!string.IsNullOrWhiteSpace(linkedResourceId))
+                {
+                    properties["linkedResourceId"] = linkedResourceId.Trim();
+                }
+            }
+
+            if (propertiesElement.TryGetProperty("kind", out JsonElement kindElement)
+                && kindElement.ValueKind is JsonValueKind.String)
+            {
+                string? kind = kindElement.GetString();
+
+                if (!string.IsNullOrWhiteSpace(kind))
+                {
+                    properties["kind"] = kind.Trim();
+                }
+            }
+        }
+
         if (resourceType.Contains("applicationGateways", StringComparison.OrdinalIgnoreCase))
         {
             AddJsonArrayProperty(propertiesElement, properties, "backendAddressPools");

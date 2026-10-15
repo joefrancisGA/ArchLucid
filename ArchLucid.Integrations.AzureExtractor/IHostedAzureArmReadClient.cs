@@ -117,6 +117,15 @@ public interface IHostedAzureArmReadClient
         CancellationToken cancellationToken);
 
     /// <summary>
+    ///     GET scoped resources for one Azure Monitor private link scope (NR-38).
+    /// </summary>
+    Task<IReadOnlyList<HostedAzureArmResourceRecord>> ListMonitorPrivateLinkScopeScopedResourcesAsync(
+        string accessToken,
+        string subscriptionId,
+        string monitorPrivateLinkScopeResourceId,
+        CancellationToken cancellationToken);
+
+    /// <summary>
     ///     GET NIC effective NSG and route table (IE-RF-10). Fail-soft per control kind.
     /// </summary>
     Task<IReadOnlyList<HostedAzureArmEffectiveNetworkControlRecord>> ListEffectiveNetworkControlsForNicAsync(

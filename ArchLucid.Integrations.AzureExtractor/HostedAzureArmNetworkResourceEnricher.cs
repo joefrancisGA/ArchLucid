@@ -96,6 +96,20 @@ internal static class HostedAzureArmNetworkResourceEnricher
             merged = HostedAzureArmResourceRecordMerger.MergeByResourceId(merged, nspAssociationResources).ToList();
         }
 
+        IReadOnlyList<HostedAzureArmResourceRecord> amplsScopedResources =
+            await TryListMonitorPrivateLinkScopeScopedResourcesAsync(
+                armReadClient,
+                accessToken,
+                subscriptionId,
+                merged,
+                logger,
+                cancellationToken).ConfigureAwait(false);
+
+        if (amplsScopedResources.Count > 0)
+        {
+            merged = HostedAzureArmResourceRecordMerger.MergeByResourceId(merged, amplsScopedResources).ToList();
+        }
+
         return new HostedAzureArmNetworkResourceEnrichResult(merged, warnings);
     }
 
@@ -231,6 +245,49 @@ internal static class HostedAzureArmNetworkResourceEnricher
         }
 
         return associationResources;
+    }
+
+    private static async Task<IReadOnlyList<HostedAzureArmResourceRecord>> TryListMonitorPrivateLinkScopeScopedResourcesAsync(
+        IHostedAzureArmReadClient armReadClient,
+        string accessToken,
+        string subscriptionId,
+        IReadOnlyList<HostedAzureArmResourceRecord> resources,
+        ILogger logger,
+        CancellationToken cancellationToken)
+    {
+        List<HostedAzureArmResourceRecord> scopedResources = [];
+
+        foreach (HostedAzureArmResourceRecord scope in resources.Where(resource =>
+                     AzureInventoryMonitorPrivateLinkScopeResourceTypes.IsScopeResourceType(resource.ResourceType)))
+        {
+            try
+            {
+                IReadOnlyList<HostedAzureArmResourceRecord> listed = await armReadClient
+                    .ListMonitorPrivateLinkScopeScopedResourcesAsync(
+                        accessToken,
+                        subscriptionId,
+                        scope.ResourceId,
+                        cancellationToken)
+                    .ConfigureAwait(false);
+
+                if (listed.Count > 0)
+                {
+                    scopedResources.AddRange(listed);
+                }
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                if (logger.IsEnabled(LogLevel.Debug))
+                {
+                    logger.LogDebug(
+                        ex,
+                        "Hosted Azure extractor AMPLS scoped resource list failed for {ScopeId}.",
+                        scope.ResourceId);
+                }
+            }
+        }
+
+        return scopedResources;
     }
 
     private static bool HasNestedPeeringRemoteVnets(HostedAzureArmResourceRecord vnet)
