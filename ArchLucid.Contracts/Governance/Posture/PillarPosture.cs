@@ -12,11 +12,13 @@ public sealed class PillarPosture
         init => pillarKey = ContractCollectionDefaults.CoalesceRequired(value);
     }
 
+    private string displayName = string.Empty;
+
     public string DisplayName
     {
-        get;
-        init;
-    } = null!;
+        get => displayName;
+        init => displayName = ContractCollectionDefaults.CoalesceRequired(value);
+    }
 
     public int DisplayOrder
     {
