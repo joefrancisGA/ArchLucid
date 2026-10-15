@@ -28,4 +28,23 @@ public sealed class WorkspaceAiAvailabilityResponseDeserializationTests
 
         response.Checks.Should().NotBeNull().And.BeEmpty();
     }
+
+    [Fact]
+    public void Deserialize_null_debug_yields_empty_dictionary_not_null()
+    {
+        const string json = """
+            {
+              "isAvailable": true,
+              "aiSource": "simulator",
+              "summary": "ok",
+              "asOfUtc": "2026-10-15T00:00:00Z",
+              "debug": null
+            }
+            """;
+
+        WorkspaceAiAvailabilityResponse response =
+            JsonSerializer.Deserialize<WorkspaceAiAvailabilityResponse>(json, ContractJson.CamelCaseCompact)!;
+
+        response.Debug.Should().NotBeNull().And.BeEmpty();
+    }
 }

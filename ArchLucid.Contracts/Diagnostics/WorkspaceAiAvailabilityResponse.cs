@@ -27,6 +27,11 @@ public sealed class WorkspaceAiAvailabilityResponse
     }
 
     /// <summary>Non-secret configuration and probe metadata for operator troubleshooting.</summary>
-    public IReadOnlyDictionary<string, string> Debug { get; init; } =
-        new Dictionary<string, string>();
+    private IReadOnlyDictionary<string, string> debug = new Dictionary<string, string>();
+
+    public IReadOnlyDictionary<string, string> Debug
+    {
+        get => debug;
+        init => debug = value ?? new Dictionary<string, string>();
+    }
 }
