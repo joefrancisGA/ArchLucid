@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-15 seed hunt (seed-only): `weekly-digest-email` — cheap-disproved report-dispatcher unicode week-label and CRLF `runIdHex` parity gaps against existing `EmailHeaderFragmentSanitizer` / `EmailProductDisplayNameResolver` guards; regression locks `WeeklySponsorReportEmailDispatcher_omits_unicode_line_separators_from_week_label_in_subject` and `WeeklySponsorReportEmailDispatcher_strips_embedded_crlf_from_run_id_hex_in_template_model`; 29 scoped `WeeklySponsorReportEmailDispatcher` tests plus 2 `WeeklyExecutiveSummaryJobTests` passed; no production change.
+
 2026-10-15 seed hunt (seed→hit): `archlucid-contracts` — promoted `PilotRunDeltasResponse.FindingsBySeverity` / `RoiMetricSources` and `RecentPilotRunDeltasResponse.Items` JSON `null` leaving list properties null despite `= []` initializers; `ContractCollectionDefaults.CoalesceReadOnly` on `init`; regressions `PilotRunDeltasResponseDeserializationTests` and `RecentPilotRunDeltasResponseDeserializationTests`; 737 scoped `Contracts` filter tests passed.
 
 2026-10-15 seed hunt (seed→hit): `api-governance-tenancy-controllers` — promoted `GovernanceController.Promote` / `Activate` passing `IActorContext.GetActor()` as `promotedBy` / `activatedBy` into promotion and activation workflow persistence and audit payloads, storing display names instead of stable `jwt:{tid}:{oid}` actor keys; use `GetActorId()`; regressions `Promote_passes_actor_context_id_to_workflow_when_display_name_differs` and `Activate_passes_actor_context_id_to_workflow_when_display_name_differs`; 143 scoped Governance/Tenancy controller unit tests passed (18 SQL integration unavailable on Linux VM).
@@ -10677,6 +10679,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: weekly-digest-email
 
+2026-10-15 seed hunt (seed-only): cheap-disproved report-dispatcher unicode week-label and CRLF `runIdHex` header-fragment gaps; regression locks above; 31 scoped digest/job tests passed; seeded five follow-on candidates; no production change.
+
 2026-10-14 seed hunt (seed→hit): `weekly-digest-email` — `WeeklySponsorReportEmailDispatcher` copied embedded CR/LF from `weekLabel` into the Razor template model while the SMTP subject already used `EmailHeaderFragmentSanitizer`, so buyer-facing HTML showed a multiline week segment inconsistent with the subject line; fixed by reusing one `displayWeekLabel` for model and subject; regression `WeeklySponsorReportEmailDispatcher_strips_embedded_crlf_from_week_label_in_template_model_and_subject`; 28 scoped report dispatcher + `WeeklyExecutiveSummaryJobTests` passed.
 
 2026-10-06 seed hunt (seed→hit): reseeded weekly-digest-email; proved scheme-only operator-base concat produced malformed `https:/architecture/…` run-detail hrefs in weekly mail; fixed with `EmailBrandingUrls.SanitizeOperatorNavigableUrl`; 65 scoped branding + digest idempotency tests passed.
@@ -10693,10 +10697,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** weekly digest; executive summary email
 - **paths:** ArchLucid.Application/Notifications/Email/WeeklyExecutiveSummaryEmailDispatcher.cs
 - **test-filter:** FullyQualifiedName~WeeklyExecutiveSummaryJobTests
-- **hunts:** 32
+- **hunts:** 33
 - **bugs-found:** 15
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-14
+- **last-hunt:** 2026-10-15
 - **last-bug:** 2026-10-14 — embedded CR/LF in weekLabel reached weekly Sponsor report template model
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -10764,6 +10768,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `WeeklySponsorReportEmailDispatcher` / `WeeklySponsorSummaryEmailDispatcher` — scheme-only `OperatorBaseUrl` (`https://`) produced malformed `https:/architecture/…` run-detail hrefs via `WorkingOperatorReviewLinks.BuildReviewWorkspaceUrl` — **hit 2026-10-06 seed hunt (seed→hit):** `EmailBrandingUrls.SanitizeOperatorNavigableUrl` repairs with operator authority or relative path; regressions `SanitizeOperatorNavigableUrl_repairs_scheme_only_concat_run_detail_url_with_operator_authority` and `WeeklySponsorReportEmailDispatcher_repairs_scheme_only_concat_run_detail_url_using_operator_base_authority`.
 
 - [x] (proven) `WeeklySponsorReportEmailDispatcher.TryDispatchAsync` — embedded CR/LF in `weekLabel` reached `WeeklySponsorReportEmailModel.WeekLabel` while the subject line was sanitized — **hit 2026-10-14 seed hunt (seed→hit):** reuse `EmailHeaderFragmentSanitizer` for template model and subject via `displayWeekLabel`; regression `WeeklySponsorReportEmailDispatcher_strips_embedded_crlf_from_week_label_in_template_model_and_subject`.
+
+- [x] (valid-no-repro) `WeeklySponsorReportEmailDispatcher` — Unicode line separator (`U+2028`) in `weekLabel` reaches SMTP subject without `EmailHeaderFragmentSanitizer` parity to summary dispatcher — **cheap-disproof 2026-10-15 seed hunt:** `displayWeekLabel` already sanitized; regression lock `WeeklySponsorReportEmailDispatcher_omits_unicode_line_separators_from_week_label_in_subject`.
+- [x] (valid-no-repro) `WeeklySponsorReportEmailDispatcher` — embedded CR/LF in `runIdHex` reaches template `RunIdHex` without header-fragment sanitization — **cheap-disproof 2026-10-15 seed hunt:** `EmailHeaderFragmentSanitizer.Sanitize(runIdHex.Trim())` at dispatch; regression lock `WeeklySponsorReportEmailDispatcher_strips_embedded_crlf_from_run_id_hex_in_template_model`.
+- (candidate) `WeeklySponsorReportEmailDispatcher` — interior CR/LF inside `isoWeekIdempotencyKey` after trim creates a distinct `weekly-sponsor-report:{tenant}:{key}` ledger scope — locus: `normalizedIsoWeekKey = isoWeekIdempotencyKey.Trim()`; input: `"2026-W22\r\nBcc: injected"` (production scanner emits canonical `{isoYear}-W{isoWeek:00}` only).
+- (candidate) `WeeklySponsorReportEmailDispatcher` — `summaryMarkdown` with Unicode NEL/LS/PS only (no CR/LF) normalizes to LF in template while HTML renderer still treats as plain markdown — locus: `EmailMultipartPlainTextLineBreakNormalizer.NormalizeOptional`; input: `"## Summary\u2028line"`.
+- (candidate) `WeeklySponsorReportEmailDispatcher` — `runDetailUrl` with percent-encoded line-separator (`%E2%80%A8`) in path after `SanitizeOperatorNavigableUrl` — locus: `EmailBrandingUrls` path truncation vs encoded material; input: absolute review URL from misconfigured export pipeline.
+- (candidate) `WeeklySponsorReportEmailDispatcher` — duplicate `ProductName` in Razor template when `EmailNotificationOptions.ProductDisplayName` is whitespace-only and resolver falls back to Architecture default — locus: `EmailProductDisplayNameResolver.Resolve` empty/whitespace branch; input: `ProductDisplayName = "   "`.
+- (candidate) `WeeklySponsorReportDeliveryScanner` — `FormatWeekLabel` en-dash (`–`) vs ASCII hyphen in ISO week segment confuses buyer copy-paste into idempotency keys — locus: `WeeklySponsorReportDeliveryScanner.FormatWeekLabel`; input: scanner-produced `weekLabel` vs manual `isoWeekIdempotencyKey`.
 
 2026-09-10 seed hunt #1681 (seed-only): reseeded weekly-digest-email after #1593; cheap-disproof closed summary-dispatcher tenant guard, whitespace ISO-week rejection, and event-type tag candidates; 28 scoped digest/job tests passed.
 
