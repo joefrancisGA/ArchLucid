@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Operations;
 
 public sealed class TrialFunnelDataQualityResponse
@@ -38,9 +40,11 @@ public sealed class TrialFunnelDataQualityResponse
         init;
     }
 
+    private IReadOnlyList<string> stageDefinitions = [];
+
     public IReadOnlyList<string> StageDefinitions
     {
-        get;
-        init;
-    } = Array.Empty<string>();
+        get => stageDefinitions;
+        init => stageDefinitions = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 }
