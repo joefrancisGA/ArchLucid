@@ -30069,7 +30069,21 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 ---
 ## Zone: archlucid-contracts
 
-**Hunts:** 158 · **Bugs found:** 162 · **Consecutive dry hunts:** 0
+**Hunts:** 159 · **Bugs found:** 167 · **Consecutive dry hunts:** 0
+
+2026-10-15 seed hunt (seed→hit): promoted five open `(candidate)` rows on dry-run run item lists, posture summary `pillars`, effective pack set `packs`, resolution decision `candidates`, and schema key tree `children`; coalesce fix on `PolicyPackDryRunRunItem`, `ArchitecturePostureSummary`, `EffectivePolicyPackSet`, `GovernanceResolutionDecision`, and `PolicyPackSchemaKeyNode`; regressions in `PolicyPackDryRunRunItemDeserializationTests`, `ArchitecturePostureSummaryDeserializationTests`, `EffectivePolicyPackSetDeserializationTests`, `GovernanceResolutionDecisionDeserializationTests`, and `PolicyPackSchemaKeyNodeDeserializationTests`; reseeded five follow-on `(candidate)` rows; 862 scoped `Contracts` filter tests passed.
+
+- [x] (proven) `PolicyPackDryRunRunItem.FindingsBySeverity` / `ThresholdOutcomes` — explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_list_properties_yields_empty_lists_not_null`.
+- [x] (proven) `ArchitecturePostureSummary.Pillars` — explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_pillars_yields_empty_list_not_null`.
+- [x] (proven) `EffectivePolicyPackSet.Packs` — explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_packs_yields_empty_list_not_null`.
+- [x] (proven) `GovernanceResolutionDecision.Candidates` — explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_candidates_yields_empty_list_not_null`.
+- [x] (proven) `PolicyPackSchemaKeyNode.Children` — explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_children_yields_empty_list_not_null`.
+
+- [ ] (candidate) `PillarPosture.PackAssignments` — explicit JSON `null` — locus: `Governance.Posture.PillarPosture`; input: pillar posture JSON with null `packAssignments`.
+- [ ] (candidate) `ArchitectureDecisionRegisterEntry.SupportingFindingIds` — explicit JSON `null` — locus: `Governance.ArchitectureDecisionRegisterEntry`; input: ADR register entry JSON with null `supportingFindingIds`.
+- [ ] (candidate) `GovernanceLineageRunDetail.TopFindings` / `Promotions` — explicit JSON `null` — locus: `Governance.GovernanceLineageDtos`; input: lineage run detail JSON with null list tokens (see file).
+- [ ] (candidate) `GovernanceConflictRecord.Candidates` — explicit JSON `null` — locus: `Governance.Resolution.GovernanceConflictRecord`; input: conflict record JSON with null `candidates`.
+- [ ] (candidate) `ArchitectureRiskRegisterListOptions.AssignedToUserIds` — explicit JSON `null` — locus: `Governance.ArchitectureRiskRegisterListOptions`; input: risk register list options JSON with null `assignedToUserIds`.
 
 2026-10-15 seed hunt (seed→hit): promoted five open `(candidate)` rows on governance preview/comparison diff lists, policy packs hub `packs`, posture read model aggregates, and policy pack dry-run `items`; coalesce fix on `GovernancePreviewResult`, `GovernanceEnvironmentComparisonResult`, `PolicyPacksPageBundleResponse`, `ArchitecturePostureReadModel`, and `PolicyPackDryRunResponse`; regressions in `GovernancePreviewResultDeserializationTests`, `GovernanceEnvironmentComparisonResultDeserializationTests`, `PolicyPacksPageBundleResponseDeserializationTests`, `ArchitecturePostureReadModelDeserializationTests`, and `PolicyPackDryRunResponseDeserializationTests`; reseeded five follow-on `(candidate)` rows; 857 scoped `Contracts` filter tests passed.
 
@@ -30078,12 +30092,6 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `PolicyPacksPageBundleResponse.Packs` — explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_packs_yields_empty_list_not_null`.
 - [x] (proven) `ArchitecturePostureReadModel.PillarAggregates` / `PackAssignments` — explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_list_properties_yields_empty_lists_not_null`.
 - [x] (proven) `PolicyPackDryRunResponse.Items` — explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_items_yields_empty_list_not_null`.
-
-- [ ] (candidate) `PolicyPackDryRunRunItem` — explicit JSON `null` on per-run dry-run lists — locus: `Governance.PolicyPackDryRunRunItem`; input: dry-run run item JSON with null `findingsBySeverity` or `thresholdOutcomes`.
-- [ ] (candidate) `ArchitecturePostureSummary.Pillars` — explicit JSON `null` — locus: `Governance.Posture.ArchitecturePostureSummary`; input: posture summary JSON with null `pillars`.
-- [ ] (candidate) `EffectivePolicyPackSet.Packs` — explicit JSON `null` — locus: `Governance.PolicyPacks.EffectivePolicyPackSet`; input: effective pack set JSON with null `packs`.
-- [ ] (candidate) `GovernanceResolutionDecision.Candidates` — explicit JSON `null` — locus: `Governance.Resolution.GovernanceResolutionDecision`; input: resolution decision JSON with null `candidates`.
-- [ ] (candidate) `PolicyPackSchemaKeyNode.Children` — explicit JSON `null` — locus: `Governance.PolicyPackSchemaKeyNode`; input: schema key tree JSON with null `children`.
 
 2026-10-15 seed hunt (seed→hit): promoted five open `(candidate)` rows on tenant branding validation issue lists and SecureNow path DTO lists coalesced in the prior hunt; coalesce fix on `TenantBrandingAdminStateResponse` and `TenantBrandingActivateResponse`; lock regressions for `Routing`, `CitedEvidenceRefs`, and `EvidenceReferences`; regressions in `TenantBrandingAdminContractsDeserializationTests` plus extended path detail, explanation, and cut-point summary tests; reseeded five follow-on `(candidate)` rows; 852 scoped `Contracts` filter tests passed.
 

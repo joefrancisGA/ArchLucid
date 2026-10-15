@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Governance;
 
 /// <summary>
@@ -24,12 +26,16 @@ public sealed class PolicyPackDryRunRunItem
         init;
     }
 
+    private IReadOnlyList<PolicyPackDryRunSeverityCount> findingsBySeverity = [];
+
     /// <summary>Run-level finding counts grouped case-insensitively by severity (descending by count).</summary>
     public IReadOnlyList<PolicyPackDryRunSeverityCount> FindingsBySeverity
     {
-        get;
-        init;
-    } = [];
+        get => findingsBySeverity;
+        init => findingsBySeverity = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
+
+    private IReadOnlyList<PolicyPackDryRunThresholdOutcome> thresholdOutcomes = [];
 
     /// <summary>
     ///     Per-threshold-key breach map. Keys mirror <see cref="PolicyPackDryRunSupportedThresholdKeys" />
@@ -38,9 +44,9 @@ public sealed class PolicyPackDryRunRunItem
     /// </summary>
     public IReadOnlyList<PolicyPackDryRunThresholdOutcome> ThresholdOutcomes
     {
-        get;
-        init;
-    } = [];
+        get => thresholdOutcomes;
+        init => thresholdOutcomes = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 
     /// <summary>
     ///     <see langword="true" /> when at least one of <see cref="ThresholdOutcomes" /> reports

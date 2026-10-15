@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Governance;
 
 /// <summary>
@@ -47,10 +49,12 @@ public sealed class PolicyPackSchemaKeyNode
         set;
     }
 
+    private IReadOnlyList<PolicyPackSchemaKeyNode> children = [];
+
     /// <summary>Nested configurable paths (e.g. <c>{key}</c> placeholder under dictionary objects).</summary>
     public IReadOnlyList<PolicyPackSchemaKeyNode> Children
     {
-        get;
-        set;
-    } = [];
+        get => children;
+        set => children = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 }

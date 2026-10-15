@@ -1,12 +1,16 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Governance.Posture;
 
 public sealed class ArchitecturePostureSummary
 {
+    private IReadOnlyList<PillarPosture> pillars = [];
+
     public IReadOnlyList<PillarPosture> Pillars
     {
-        get;
-        init;
-    } = [];
+        get => pillars;
+        init => pillars = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 
     public ReviewIntegrityAggregate ReviewIntegrity
     {
