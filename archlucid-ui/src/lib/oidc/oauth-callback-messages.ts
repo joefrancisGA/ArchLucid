@@ -3,6 +3,13 @@
  * — avoids leaking internals while staying accurate for admins.
  */
 
+function collapseOAuthErrorDescriptionLineBreaks(text: string): string {
+  return text
+    .replace(/[\r\n\u2028\u2029\u0085]/gu, " ")
+    .replace(/\s+/gu, " ")
+    .trim();
+}
+
 export function decodeOAuthErrorDescription(encoded: string | null | undefined): string {
   if (encoded === null || encoded === undefined) {
     return "";
@@ -15,9 +22,9 @@ export function decodeOAuthErrorDescription(encoded: string | null | undefined):
   }
 
   try {
-    return decodeURIComponent(trimmed.replace(/\+/g, " "));
+    return collapseOAuthErrorDescriptionLineBreaks(decodeURIComponent(trimmed.replace(/\+/g, " ")));
   } catch {
-    return trimmed.replace(/\+/g, " ");
+    return collapseOAuthErrorDescriptionLineBreaks(trimmed.replace(/\+/g, " "));
   }
 }
 

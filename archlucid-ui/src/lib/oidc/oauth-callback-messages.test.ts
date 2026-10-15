@@ -21,6 +21,10 @@ describe("decodeOAuthErrorDescription", () => {
   it("falls back safely on invalid percent sequences", () => {
     expect(decodeOAuthErrorDescription("%E0%A4%A")).toBe("%E0%A4%A");
   });
+
+  it("collapses percent-encoded line breaks to spaces for single-line callback copy", () => {
+    expect(decodeOAuthErrorDescription("Policy%20denied%0D%0Ainjected")).toBe("Policy denied injected");
+  });
 });
 
 describe("humanizeAuthorizeCallbackError", () => {
@@ -38,5 +42,15 @@ describe("humanizeAuthorizeCallbackError", () => {
 
   it("uses readable unknown codes", () => {
     expect(humanizeAuthorizeCallbackError("custom_problem", "")).toContain("custom problem");
+  });
+
+  it("keeps access_denied detail on one line when the description embeds CRLF", () => {
+    const message = humanizeAuthorizeCallbackError(
+      "access_denied",
+      decodeOAuthErrorDescription("Tenant%20blocked%0D%0Aextra"),
+    );
+
+    expect(message).toBe("Sign-in stopped: Tenant blocked extra");
+    expect(message).not.toMatch(/\r|\n/u);
   });
 });
