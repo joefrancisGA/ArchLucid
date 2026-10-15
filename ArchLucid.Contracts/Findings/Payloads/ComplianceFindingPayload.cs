@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Findings.Payloads;
 
 public class ComplianceFindingPayload
@@ -38,9 +40,11 @@ public class ComplianceFindingPayload
         set;
     } = null!;
 
+    private List<string> affectedResources = [];
+
     public List<string> AffectedResources
     {
-        get;
-        set;
-    } = [];
+        get => affectedResources;
+        set => affectedResources = ContractCollectionDefaults.Coalesce(value);
+    }
 }

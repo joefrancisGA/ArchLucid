@@ -34,4 +34,25 @@ public sealed class FindingListDeserializationTests
         finding.EvidenceRefs.Should().NotBeNull().And.BeEmpty();
         finding.RecommendedActions.Should().NotBeNull().And.BeEmpty();
     }
+
+    [Fact]
+    public void Deserialize_null_properties_yields_empty_dictionary_not_null()
+    {
+        const string json = """
+            {
+              "findingType": "test",
+              "category": "test",
+              "engineType": "test",
+              "severity": 0,
+              "title": "t",
+              "rationale": "r",
+              "properties": null
+            }
+            """;
+
+        Finding? finding = JsonSerializer.Deserialize<Finding>(json, ContractJson.CamelCaseCompact);
+
+        finding.Should().NotBeNull();
+        finding!.Properties.Should().NotBeNull().And.BeEmpty();
+    }
 }

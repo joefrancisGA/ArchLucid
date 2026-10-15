@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.ArchitectureIntelligence;
 
 /// <summary>
@@ -11,11 +13,13 @@ public class ArchitectureModelDiff
         set;
     } = string.Empty;
 
+    private List<ArchitectureModelDiffEntry> entries = [];
+
     public List<ArchitectureModelDiffEntry> Entries
     {
-        get;
-        set;
-    } = [];
+        get => entries;
+        set => entries = ContractCollectionDefaults.Coalesce(value);
+    }
 
     public ArchitectureKnowledgeModel BeforeModel
     {

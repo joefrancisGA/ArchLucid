@@ -88,11 +88,13 @@ public class Finding
         set => recommendedActions = ContractCollectionDefaults.Coalesce(value);
     }
 
+    private Dictionary<string, string> properties = new();
+
     public Dictionary<string, string> Properties
     {
-        get;
-        set;
-    } = new();
+        get => properties;
+        set => properties = ContractCollectionDefaults.CoalesceDictionary(value);
+    }
 
     public object? Payload
     {
