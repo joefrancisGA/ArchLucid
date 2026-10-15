@@ -1,3 +1,5 @@
+2026-10-15 seed hunt (seed→hit): `application-analysis` — promoted PascalCase `ExportRecordDiffResult` payloads skipping replay cost scoring; case-insensitive reads in `ScoreExportRecordDiffShape`; regression `TryEstimateAsync_pascal_case_export_record_diff_payload_adds_factor`; 53 scoped ArchitectureAnalysis/CompareQuality/ComparisonReplayCostEstimator tests passed.
+
 2026-10-15 seed hunt (seed→hit): `application-analysis` — promoted `ComparisonReplayPayloadComplexity` missing warning-only `ManifestDiff` scoring when comparison payload JSON uses PascalCase property names; case-insensitive JSON property reads; regression `TryEstimateAsync_pascal_case_warning_only_manifestDiff_adds_factor`; 35 scoped ArchitectureAnalysis/CompareQuality tests + 17 ComparisonReplayCostEstimator tests passed.
 
 2026-10-15 seed hunt (seed→hit): `application-analysis` — promoted null evidence `Request.Description` rendering blank in DOCX/markdown exports; shared `ArchitectureEvidenceRequestExport.FormatDescription`; regressions `GenerateDocxAsync_uses_omission_copy_for_missing_evidence_description` and `GenerateMarkdown_uses_omission_copy_for_missing_evidence_description`; 35 scoped ArchitectureAnalysis/CompareQuality tests passed.
@@ -18373,13 +18375,24 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 49
-- **bugs-found:** 47
+- **hunts:** 50
+- **bugs-found:** 48
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-15
-- **last-bug:** 2026-10-15 — replay cost estimator ignored PascalCase manifestDiff warnings
+- **last-bug:** 2026-10-15 — replay cost estimator ignored PascalCase export record diff payloads
 - **related-pd-tb:** none
 - **code-changed-since:** no
+
+2026-10-15 seed hunt (seed→hit): promoted PascalCase `ExportRecordDiffResult` JSON not recognized by export-record replay cost heuristics; extended `TryGetPropertyIgnoreCase` to `ScoreExportRecordDiffShape`; regression `TryEstimateAsync_pascal_case_export_record_diff_payload_adds_factor`; 53 scoped ArchitectureAnalysis/CompareQuality/ComparisonReplayCostEstimator tests passed.
+
+- [x] (proven) `ComparisonReplayPayloadComplexity` — export record diff PascalCase `ChangedTopLevelFields` may skip scoring — **hit 2026-10-15 seed hunt:** regression `TryEstimateAsync_pascal_case_export_record_diff_payload_adds_factor`.
+
+- [ ] (candidate) `CompareQualityDeltaCalculator.Build` — functional requirement coverage uses `min(requirements, components)` heuristic (reachable input: requirements without component traceability links).
+- [ ] (candidate) `ArchitectureAnalysisService.BuildAsync` — `IncludeSummary` with `IncludeEvidence=false` omits evidence section in summary without explicit warning (reachable input: summary-only export request).
+- [ ] (candidate) `ComparisonReplayPayloadComplexity` — `decisionsDelta` / `tasks` top-level keys remain case-sensitive (reachable input: PascalCase legacy comparison JSON).
+- [ ] (candidate) `EndToEndReplayComparisonService` — compare quality delta omitted when one knowledge model fails to load (reachable input: partial model availability on replay).
+- [ ] (candidate) `MarkdownArchitectureAnalysisExportService` — manifest diff warnings section ordering differs from DOCX export (reachable input: report with warnings-only manifest diff).
+
 
 2026-10-15 seed hunt (seed→hit): promoted PascalCase end-to-end comparison payloads skipping warning-only `ManifestDiff` replay cost scoring; `TryGetPropertyIgnoreCase` across payload heuristics; regression `TryEstimateAsync_pascal_case_warning_only_manifestDiff_adds_factor`; 35 scoped ArchitectureAnalysis/CompareQuality tests + 17 ComparisonReplayCostEstimator tests passed.
 
@@ -18388,7 +18401,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [ ] (candidate) `CompareQualityDeltaCalculator.Build` — functional requirement coverage uses `min(requirements, components)` heuristic (reachable input: more requirements than components without traceability links).
 - [ ] (candidate) `ArchitectureAnalysisService.BuildAsync` — `IncludeSummary` with missing evidence still generates summary without warning (reachable input: `IncludeEvidence=false`, `IncludeSummary=true`).
 - [x] (invalid) `ConsultingDocxFindingsSectionBuilder` — whitespace-only evidence description still exported as blank — **cheap-disproof 2026-10-15 seed hunt:** `ArchitectureEvidenceRequestExport.FormatDescription` treats whitespace as missing.
-- [ ] (candidate) `ComparisonReplayPayloadComplexity` — export record diff PascalCase `ChangedTopLevelFields` may skip scoring (reachable input: PascalCase `ExportRecordDiffResult` JSON).
+- [x] (proven) `ComparisonReplayPayloadComplexity` — export record diff PascalCase `ChangedTopLevelFields` may skip scoring (reachable input: PascalCase `ExportRecordDiffResult` JSON). — **hit 2026-10-15 seed hunt:** see `TryEstimateAsync_pascal_case_export_record_diff_payload_adds_factor`.
 - [ ] (candidate) `CompareQualityDeltaCalculator.Build` — `FindingSeverity.Information` mapped to Low but still included in specialist list used for other metrics (reachable input: verify no double impact).
 
 
