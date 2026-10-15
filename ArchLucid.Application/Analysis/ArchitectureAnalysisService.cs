@@ -169,7 +169,9 @@ public sealed class ArchitectureAnalysisService(
                     _manifestHashService,
                     cancellationToken);
 
-                IReadOnlyList<AgentResult> leftResults = primaryDetail?.Results ?? await resultRepository.GetByRunIdAsync(scope, request.RunId, cancellationToken);
+                IReadOnlyList<AgentResult> leftResults = primaryDetail is not null && primaryDetail.Results.Count > 0
+                    ? primaryDetail.Results
+                    : await resultRepository.GetByRunIdAsync(scope, request.RunId, cancellationToken);
                 List<AgentResult> rightResults = compareDetail.Results;
                 report.AgentResultDiff = agentResultDiffService.Compare(request.RunId, leftResults, request.CompareRunId, rightResults);
             }

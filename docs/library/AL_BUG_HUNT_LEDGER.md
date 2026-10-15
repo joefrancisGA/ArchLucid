@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-15 seed hunt (seed→hit): `application-analysis` — promoted `ArchitectureAnalysisService.BuildAsync` agent compare using empty `PreloadedRunDetail.Results` without repository reload; regression `BuildAsync_loads_primary_agent_results_when_preloaded_detail_omits_results_for_agent_compare`; 29 scoped ArchitectureAnalysis/CompareQuality tests passed.
+
 2026-10-15 seed hunt (seed→hit): `application-analysis` — promoted manifest governance classifications omitted when control/tag lists empty; shared `ArchitectureManifestGovernanceExport.ShouldRender` for markdown and DOCX; regressions `GenerateMarkdown_includes_governance_classifications_when_control_lists_empty` and `GenerateDocxAsync_includes_governance_classifications_when_control_lists_empty`; 28 scoped ArchitectureAnalysis/CompareQuality tests passed.
 
 2026-10-15 seed hunt (seed→hit): `application-analysis` — promoted preloaded `ArchitectureAnalysisService.BuildAsync` manifest provenance mismatch; discard `PreloadedRunDetail.Manifest` when `Manifest.RunId` does not match the primary run; regression `BuildAsync_nulls_preloaded_manifest_when_manifest_run_id_does_not_match_request_run`; 26 scoped ArchitectureAnalysis/CompareQuality tests passed.
@@ -18357,20 +18359,30 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 42
-- **bugs-found:** 40
+- **hunts:** 43
+- **bugs-found:** 41
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-15
-- **last-bug:** 2026-10-15 — architecture analysis exports omitted governance when only risk/cost classifications were set
+- **last-bug:** 2026-10-15 — agent compare used empty preloaded results instead of repository reload
 - **related-pd-tb:** none
 - **code-changed-since:** no
+
+2026-10-15 seed hunt (seed→hit): promoted `ArchitectureAnalysisService.BuildAsync` agent compare with empty preloaded `Results`; reload from `IAgentResultRepository` when preload has no rows; regression `BuildAsync_loads_primary_agent_results_when_preloaded_detail_omits_results_for_agent_compare`; 29 scoped ArchitectureAnalysis/CompareQuality tests passed.
+
+- [x] (proven) `ArchitectureAnalysisService.BuildAsync` — `IncludeAgentResultCompare` with empty `PreloadedRunDetail.Results` — **hit 2026-10-15 seed hunt:** regression `BuildAsync_loads_primary_agent_results_when_preloaded_detail_omits_results_for_agent_compare`.
+
+- [ ] (candidate) `ArchitectureAnalysisService.BuildAsync` — `IncludeManifestCompare` loads `CompareManifestVersion` without proving compare manifest belongs to the same tenant/run lineage (reachable input: caller-supplied compare manifest version; needs concrete cross-tenant lookup repro).
+- [ ] (candidate) `DocxArchitectureAnalysisExportService.GenerateDocxAsync` — evidence `Request.Description` null renders blank paragraph without omission copy (reachable input: evidence package with null description after JSON deserialization).
+- [ ] (candidate) `CompareQualityDeltaCalculator.Build` — functional requirement coverage uses component count cap heuristic (reachable input: model with requirements but zero components; verify uncovered mandatory metric).
+- [ ] (candidate) `ComparisonReplayCostEstimator` — warnings-only manifest diff JSON may skip manifest structural scoring (reachable input: persisted report with manifestDiff warnings only).
+- [ ] (candidate) `MarkdownArchitectureAnalysisExportService` — execution trace section always emitted even when `IncludeExecutionTraces` false on request (reachable input: API omits traces flag but export still lists section).
 
 2026-10-15 seed hunt (seed→hit): promoted manifest governance classifications omitted when control/tag/policy lists empty; `ArchitectureManifestGovernanceExport.ShouldRender` shared by markdown and DOCX exports; regressions `GenerateMarkdown_includes_governance_classifications_when_control_lists_empty` and `GenerateDocxAsync_includes_governance_classifications_when_control_lists_empty`; 28 scoped ArchitectureAnalysis/CompareQuality tests passed.
 
 - [x] (proven) `MarkdownArchitectureAnalysisExportService` / `DocxArchitectureAnalysisExportService` — governance hidden when only risk/cost classifications set — **hit 2026-10-15 seed hunt:** shared `ArchitectureManifestGovernanceExport.ShouldRender`.
 
 - [ ] (candidate) `ArchitectureAnalysisService.BuildAsync` — `IncludeManifestCompare` loads `CompareManifestVersion` without proving compare manifest belongs to the same tenant/run lineage (reachable input: caller-supplied compare manifest version; needs concrete cross-tenant lookup repro).
-- [ ] (candidate) `ArchitectureAnalysisService.BuildAsync` — `IncludeAgentResultCompare` uses `primaryDetail?.Results` without reloading when `PreloadedRunDetail` omits results (reachable input: preloaded detail with empty `Results`; wrong agent diff).
+- [x] (proven) `ArchitectureAnalysisService.BuildAsync` — `IncludeAgentResultCompare` uses empty preloaded `Results` without repository reload — **hit 2026-10-15 seed hunt:** see `BuildAsync_loads_primary_agent_results_when_preloaded_detail_omits_results_for_agent_compare`.
 - [ ] (candidate) `DocxArchitectureAnalysisExportService.GenerateDocxAsync` — evidence `Request.Description` null renders blank paragraph without omission copy (reachable input: evidence package with null description).
 - [ ] (candidate) `CompareQualityDeltaCalculator.Build` — functional requirement coverage uses component count cap heuristic (reachable input: model with requirements but zero components; verify uncovered mandatory metric).
 - [ ] (candidate) `ComparisonReplayCostEstimator` — warnings-only manifest diff JSON may skip manifest structural scoring (reachable input: persisted report with manifestDiff warnings only).
