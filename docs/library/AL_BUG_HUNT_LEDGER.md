@@ -1,3 +1,5 @@
+2026-10-15 seed hunt (seed→hit): `application-analysis` — promoted `ExportRecordDiffService` treating dashed vs N-format `RunId`/`CompareRunId` as different runs; `GovernanceRunIdNormalizer.AreEquivalent` for warnings and diff fields; regressions `CompareQuality_export_record_diff_treats_equivalent_guid_run_ids_as_same_run` and `CompareQuality_export_record_diff_treats_equivalent_compare_run_ids_as_unchanged`; 39 scoped ArchitectureAnalysis/CompareQuality tests passed.
+
 2026-10-15 seed hunt (seed→hit): `application-analysis` — promoted dashed primary `RunId` on evidence/trace/agent-result loads missing N-format repository rows; `CanonicalRunIdForLookup` for primary persistence lookups; regression `BuildAsync_loads_evidence_when_run_id_uses_dashed_guid_format`; 37 scoped ArchitectureAnalysis/CompareQuality tests passed.
 
 2026-10-15 seed hunt (seed→hit): `application-analysis` — promoted PascalCase `LeftExists`/`RightExists`/`LeftConfidence`/`RightConfidence` on stored agent deltas skipping replay-cost materiality; case-insensitive reads in `ComparisonReplayPayloadComplexity.AgentDelta`; regression `TryEstimateAsync_pascal_case_agent_presence_delta_adds_factor`; 56 scoped ArchitectureAnalysis/CompareQuality/ComparisonReplayCostEstimator tests passed.
@@ -18385,23 +18387,23 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 54
-- **bugs-found:** 52
+- **hunts:** 55
+- **bugs-found:** 53
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-15
-- **last-bug:** 2026-10-15 — dashed primary RunId evidence lookup normalization
+- **last-bug:** 2026-10-15 — export record diff GUID format equivalence
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
-2026-10-15 seed hunt (seed→hit): promoted dashed primary `RunId` on `IncludeEvidence` / traces / agent-result reload missing N-format keys; `primaryRunId = CanonicalRunIdForLookup(request.RunId)` for repository reads and diff left-hand id; regression `BuildAsync_loads_evidence_when_run_id_uses_dashed_guid_format`; 37 scoped ArchitectureAnalysis/CompareQuality tests passed.
+2026-10-15 seed hunt (seed→hit): promoted `ExportRecordDiffService` false "different runs" warning and spurious `CompareRunId` diffs when export rows used equivalent GUID strings (N vs D); `GovernanceRunIdNormalizer.AreEquivalent` via `RunIdsEquivalent` / `AddRunIdIfChanged`; regressions in `CompareQualityExportRecordDiffTests`; 39 scoped ArchitectureAnalysis/CompareQuality tests passed.
 
-- [x] (proven) `ArchitectureAnalysisService.BuildAsync` — dashed primary `RunId` skipped evidence and persistence lookups — **hit 2026-10-15 seed hunt:** regression `BuildAsync_loads_evidence_when_run_id_uses_dashed_guid_format`.
+- [x] (proven) `ExportRecordDiffService` — equivalent GUID `RunId`/`CompareRunId` formats treated as different — **hit 2026-10-15 seed hunt:** `CompareQuality_export_record_diff_treats_equivalent_guid_run_ids_as_same_run` and `CompareQuality_export_record_diff_treats_equivalent_compare_run_ids_as_unchanged`.
 
 - [ ] (candidate) `CompareQualityDeltaCalculator.Build` — functional requirement coverage uses requirements-minus-covered heuristic when requirements lack design links (reachable input: FR elements without traceability).
 - [ ] (candidate) `ArchitectureAnalysisService.BuildAsync` — `IncludeSummary` with `IncludeEvidence=false` omits evidence section in summary without explicit warning (reachable input: summary-only export request; generator intentionally omits evidence block).
-- [ ] (candidate) `EndToEndReplayComparisonService` — compare quality delta omitted when one knowledge model fails to load (reachable input: partial model availability on replay).
+- [x] (invalid) `EndToEndReplayComparisonService` — compare quality delta omitted without note when knowledge model missing — **cheap-disproof 2026-10-15 seed hunt:** `ReplayComparisonFindingLifecycleDiffSlice` adds warning when `CompareQualityDeltaCalculator.Build` returns null.
 - [ ] (candidate) `MarkdownArchitectureAnalysisExportService` — manifest diff warnings section ordering differs from DOCX export (reachable input: report with warnings-only manifest diff).
-- [ ] (candidate) `ArchitectureAnalysisService.BuildAsync` — dashed primary `RunId` without preload still fails `GetRunDetailAsync` when only N-format key exists (reachable input: verify run load path uses `primaryRunId` — covered by shared canonicalization).
+- [ ] (candidate) `ExportReplayService.ReplayAsync` — dashed `record.RunId` skips `GetRunDetailAsync` preload for career export gate (reachable input: persisted export row with D-format run id).
 
 
 2026-10-15 seed hunt (seed→hit): promoted PascalCase end-to-end comparison payloads skipping warning-only `ManifestDiff` replay cost scoring; `TryGetPropertyIgnoreCase` across payload heuristics; regression `TryEstimateAsync_pascal_case_warning_only_manifestDiff_adds_factor`; 35 scoped ArchitectureAnalysis/CompareQuality tests + 17 ComparisonReplayCostEstimator tests passed.
