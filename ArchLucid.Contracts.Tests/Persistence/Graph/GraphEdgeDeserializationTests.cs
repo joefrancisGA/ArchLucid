@@ -11,6 +11,24 @@ namespace ArchLucid.Contracts.Tests.Persistence.Graph;
 public sealed class GraphEdgeDeserializationTests
 {
     [Fact]
+    public void Deserialize_null_edge_id_yields_empty_string_not_null()
+    {
+        const string json = """
+            {
+              "edgeId": null,
+              "fromNodeId": "n1",
+              "toNodeId": "n2",
+              "edgeType": "depends"
+            }
+            """;
+
+        GraphEdge? result = JsonSerializer.Deserialize<GraphEdge>(json, ContractJson.CamelCaseCompact);
+
+        result.Should().NotBeNull();
+        result!.EdgeId.Should().BeEmpty();
+    }
+
+    [Fact]
     public void Deserialize_null_properties_yields_empty_dictionary_not_null()
     {
         const string json = """

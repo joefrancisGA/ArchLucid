@@ -9,11 +9,13 @@ namespace ArchLucid.Contracts.Persistence.Graph;
 /// </summary>
 public class GraphEdge
 {
+    private string edgeId = string.Empty;
+
     public string EdgeId
     {
-        get;
-        set;
-    } = null!;
+        get => edgeId;
+        set => edgeId = ContractCollectionDefaults.CoalesceRequired(value);
+    }
 
     public string FromNodeId
     {
