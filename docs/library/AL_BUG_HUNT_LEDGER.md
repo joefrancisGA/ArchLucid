@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-15 seed hunt (seed→hit): `archlucid-contracts` — promoted `Finding.Title` explicit JSON `null` (`ContractCollectionDefaults.CoalesceRequired`); regression `Deserialize_null_title_yields_empty_string_not_null`; reseeded five follow-on `(candidate)` rows; 1020 scoped `Contracts` filter tests passed.
+
 2026-10-15 seed hunt (seed→hit): `archlucid-contracts` — promoted `Finding.EngineType` explicit JSON `null` (`ContractCollectionDefaults.CoalesceRequired`); regression `Deserialize_null_engine_type_yields_empty_string_not_null`; reseeded five follow-on `(candidate)` rows; 1019 scoped `Contracts` filter tests passed.
 
 2026-10-15 seed hunt (seed→hit): `archlucid-contracts` — promoted `Finding.Category` explicit JSON `null` (`ContractCollectionDefaults.CoalesceRequired`); regression `Deserialize_null_category_yields_empty_string_not_null`; reseeded five follow-on `(candidate)` rows; 1018 scoped `Contracts` filter tests passed.
@@ -30075,14 +30077,22 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 ---
 ## Zone: archlucid-contracts
 
-**Hunts:** 197 · **Bugs found:** 311 · **Consecutive dry hunts:** 0
+**Hunts:** 198 · **Bugs found:** 312 · **Consecutive dry hunts:** 0
+
+2026-10-15 seed hunt (seed→hit): promoted `Finding.Title` explicit JSON `null` on finding envelope JSON; `ContractCollectionDefaults.CoalesceRequired` on setter; regression `Deserialize_null_title_yields_empty_string_not_null` in `FindingListDeserializationTests`; reseeded five follow-on `(candidate)` rows; 1020 scoped `Contracts` filter tests passed.
+
+- [x] (proven) `Finding.Title` — explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_title_yields_empty_string_not_null`.
+
+- [ ] (candidate) `Finding.Rationale` — explicit JSON `null` on finding envelope JSON — locus: `Findings.Finding`; input: finding JSON with `"rationale": null` (see `= null!` initializer).
+- [ ] (candidate) `Persistence.Graph.GraphEdge.EdgeId` — explicit JSON `null` on graph edge JSON — locus: `Persistence.Graph.GraphEdge`; input: graph edge JSON with `"edgeId": null` (see file).
+- [ ] (candidate) `Persistence.Context.CanonicalObject.ObjectId` — explicit JSON `null` on canonical object JSON — locus: `Persistence.Context.CanonicalObject`; input: canonical object JSON with `"objectId": null` (see file).
+- [ ] (candidate) `ArchitectureIntelligence.ArchitectureRecommendation.RecommendationId` — explicit JSON `null` on architecture recommendation JSON — locus: `ArchitectureIntelligence.ArchitectureRecommendation`; input: recommendation JSON with `"recommendationId": null` (see file).
+- [ ] (candidate) `Compliance.ComplianceRulePack.Name` — explicit JSON `null` on rule pack JSON — locus: `Compliance.ComplianceRulePack`; input: rule pack JSON with `"name": null` (see file).
 
 2026-10-15 seed hunt (seed→hit): promoted `Finding.EngineType` explicit JSON `null` on finding envelope JSON; `ContractCollectionDefaults.CoalesceRequired` on setter; regression `Deserialize_null_engine_type_yields_empty_string_not_null` in `FindingListDeserializationTests`; reseeded five follow-on `(candidate)` rows; 1019 scoped `Contracts` filter tests passed.
 
 - [x] (proven) `Finding.EngineType` — explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_engine_type_yields_empty_string_not_null`.
 
-- [ ] (candidate) `Finding.Title` — explicit JSON `null` on finding envelope JSON — locus: `Findings.Finding`; input: finding JSON with `"title": null` (see `= null!` initializer).
-- [ ] (candidate) `Finding.Rationale` — explicit JSON `null` on finding envelope JSON — locus: `Findings.Finding`; input: finding JSON with `"rationale": null` (see file).
 - [ ] (candidate) `Governance.Posture.PillarPosture.DisplayName` — explicit JSON `null` on pillar posture JSON — locus: `Governance.Posture.PillarPosture`; input: posture JSON with `"displayName": null` (see `init` + `= null!`).
 - [ ] (candidate) `Persistence.Graph.GraphNode.NodeId` — explicit JSON `null` on graph node JSON — locus: `Persistence.Graph.GraphNode`; input: graph node JSON with `"nodeId": null` (see file).
 - [ ] (candidate) `Compliance.ComplianceRulePack.RulePackId` — explicit JSON `null` on rule pack JSON — locus: `Compliance.ComplianceRulePack`; input: rule pack JSON with `"rulePackId": null` (see file).
