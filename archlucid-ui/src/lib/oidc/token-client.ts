@@ -1,5 +1,8 @@
 import { isSafeOidcEndpointUrl } from "@/lib/oidc/discovery";
-import { sanitizeOAuthUserFacingMessage } from "@/lib/oidc/oauth-callback-messages";
+import {
+  sanitizeOAuthUserFacingMessage,
+  stripOAuthInvisibleFormatChars,
+} from "@/lib/oidc/oauth-callback-messages";
 
 export type OidcTokenResponse = {
   access_token: string;
@@ -15,7 +18,7 @@ function readOAuthErrorString(value: unknown): string {
     return "";
   }
 
-  const trimmed = value.trim();
+  const trimmed = stripOAuthInvisibleFormatChars(value.trim()).trim();
 
   if (trimmed.length === 0) {
     return "";

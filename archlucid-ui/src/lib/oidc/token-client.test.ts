@@ -144,6 +144,24 @@ describe("refreshAccessToken", () => {
     expect(message).not.toMatch(/403: true/i);
   });
 
+  it("ignores invisible-only OAuth error_description values on token endpoint errors", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: false,
+      status: 400,
+      text: async () => JSON.stringify({ error: "invalid_grant", error_description: "\u2060" }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      refreshAccessToken({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        refreshToken: "rt",
+      }),
+    ).rejects.toThrow(/^invalid_grant$/);
+  });
+
   it("uses only string OAuth error fields when token JSON mixes types", async () => {
     const fetchMock = vi.fn(async () => ({
       ok: true,

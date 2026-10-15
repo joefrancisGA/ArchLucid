@@ -5,8 +5,13 @@
 
 const OAUTH_INVISIBLE_FORMAT_CHARS = /[\u200B-\u200D\u2060\uFEFF]/gu;
 
+export function stripOAuthInvisibleFormatChars(text: string): string {
+  return text.replace(OAUTH_INVISIBLE_FORMAT_CHARS, "");
+}
+
 export function collapseOAuthErrorDescriptionLineBreaks(text: string): string {
   return text
+    .replace(OAUTH_INVISIBLE_FORMAT_CHARS, " ")
     .replace(/[\u0000-\u001F\u007F\u2028\u2029\u0085]/gu, " ")
     .replace(/\s+/gu, " ")
     .trim();
