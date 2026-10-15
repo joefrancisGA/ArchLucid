@@ -1,18 +1,3 @@
-{"at":"2026-09-15T21:35:05.1670655Z","zoneId":"topology-proposal-merge","outcome":"hit"}
-{"at":"2026-09-15T21:36:07.242838Z","zoneId":"context-ingestion","outcome":"hit"}
-{"at":"2026-09-15T21:36:10.6971341Z","zoneId":"core-costing","outcome":"seed-only"}
-{"at":"2026-09-15T21:36:14.3366953Z","zoneId":"tenant-data-export","outcome":"seed-only"}
-{"at":"2026-09-15T21:36:18.3067201Z","zoneId":"persistence-identity","outcome":"seed-only"}
-{"at":"2026-09-15T21:37:54.2903835Z","zoneId":"topology-proposal-merge","outcome":"hit"}
-{"at":"2026-09-15T21:37:57.9074708Z","zoneId":"context-ingestion","outcome":"seed-only"}
-{"at":"2026-09-15T21:38:01.1066309Z","zoneId":"core-costing","outcome":"seed-only"}
-{"at":"2026-09-15T21:38:04.1414403Z","zoneId":"tenant-data-export","outcome":"seed-only"}
-{"at":"2026-09-15T21:38:07.1412065Z","zoneId":"persistence-identity","outcome":"seed-only"}
-{"at":"2026-09-15T21:39:41.6033552Z","zoneId":"topology-proposal-merge","outcome":"hit"}
-{"at":"2026-09-15T21:39:45.0886496Z","zoneId":"context-ingestion","outcome":"seed-only"}
-{"at":"2026-09-15T21:39:48.3349338Z","zoneId":"core-costing","outcome":"seed-only"}
-{"at":"2026-09-15T21:39:51.7139771Z","zoneId":"tenant-data-export","outcome":"seed-only"}
-{"at":"2026-09-15T21:39:54.8805888Z","zoneId":"persistence-identity","outcome":"seed-only"}
 {"at":"2026-09-15T21:41:27.323683Z","zoneId":"topology-proposal-merge","outcome":"hit"}
 {"at":"2026-09-15T21:41:30.60716Z","zoneId":"context-ingestion","outcome":"seed-only"}
 {"at":"2026-09-15T21:41:33.7032463Z","zoneId":"core-costing","outcome":"seed-only"}
@@ -7832,3 +7817,4 @@
 {"at":"2026-10-15T21:26:11.3153891Z","zoneId":"host-composition","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Host.Composition/"]}
 {"at":"2026-10-15T21:30:20.3624435Z","zoneId":"application-analysis","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Analysis/"]}
 {"at":"2026-10-15T21:34:46.4628537Z","zoneId":"application-analysis","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Analysis/"]}
+{"at":"2026-10-15T21:40:09.3615529Z","zoneId":"application-analysis","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Analysis/"]}

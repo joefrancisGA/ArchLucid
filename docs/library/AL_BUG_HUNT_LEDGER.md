@@ -1,3 +1,5 @@
+2026-10-15 seed hunt (seed→hit): `application-analysis` — promoted `ComparisonReplayPayloadComplexity` missing warning-only `ManifestDiff` scoring when comparison payload JSON uses PascalCase property names; case-insensitive JSON property reads; regression `TryEstimateAsync_pascal_case_warning_only_manifestDiff_adds_factor`; 35 scoped ArchitectureAnalysis/CompareQuality tests + 17 ComparisonReplayCostEstimator tests passed.
+
 2026-10-15 seed hunt (seed→hit): `application-analysis` — promoted null evidence `Request.Description` rendering blank in DOCX/markdown exports; shared `ArchitectureEvidenceRequestExport.FormatDescription`; regressions `GenerateDocxAsync_uses_omission_copy_for_missing_evidence_description` and `GenerateMarkdown_uses_omission_copy_for_missing_evidence_description`; 35 scoped ArchitectureAnalysis/CompareQuality tests passed.
 
 2026-10-15 seed hunt (seed→hit): `application-analysis` — promoted `IncludeDeterminismCheck` with `DeterminismIterations` below 2 invoking `DeterminismCheckService` and faulting the report build; guard with warning instead; regression `BuildAsync_skips_determinism_check_when_iterations_below_minimum`; 33 scoped ArchitectureAnalysis/CompareQuality tests passed.
@@ -18371,13 +18373,24 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 48
-- **bugs-found:** 46
+- **hunts:** 49
+- **bugs-found:** 47
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-15
-- **last-bug:** 2026-10-15 — evidence request description omitted in analysis exports
+- **last-bug:** 2026-10-15 — replay cost estimator ignored PascalCase manifestDiff warnings
 - **related-pd-tb:** none
 - **code-changed-since:** no
+
+2026-10-15 seed hunt (seed→hit): promoted PascalCase end-to-end comparison payloads skipping warning-only `ManifestDiff` replay cost scoring; `TryGetPropertyIgnoreCase` across payload heuristics; regression `TryEstimateAsync_pascal_case_warning_only_manifestDiff_adds_factor`; 35 scoped ArchitectureAnalysis/CompareQuality tests + 17 ComparisonReplayCostEstimator tests passed.
+
+- [x] (proven) `ComparisonReplayCostEstimator` / `ComparisonReplayPayloadComplexity` — legacy or PascalCase JSON warning-only manifest diff may skip manifest structural scoring — **hit 2026-10-15 seed hunt:** case-insensitive property resolution for `ManifestDiff` / `warnings`; regression `TryEstimateAsync_pascal_case_warning_only_manifestDiff_adds_factor`.
+
+- [ ] (candidate) `CompareQualityDeltaCalculator.Build` — functional requirement coverage uses `min(requirements, components)` heuristic (reachable input: more requirements than components without traceability links).
+- [ ] (candidate) `ArchitectureAnalysisService.BuildAsync` — `IncludeSummary` with missing evidence still generates summary without warning (reachable input: `IncludeEvidence=false`, `IncludeSummary=true`).
+- [x] (invalid) `ConsultingDocxFindingsSectionBuilder` — whitespace-only evidence description still exported as blank — **cheap-disproof 2026-10-15 seed hunt:** `ArchitectureEvidenceRequestExport.FormatDescription` treats whitespace as missing.
+- [ ] (candidate) `ComparisonReplayPayloadComplexity` — export record diff PascalCase `ChangedTopLevelFields` may skip scoring (reachable input: PascalCase `ExportRecordDiffResult` JSON).
+- [ ] (candidate) `CompareQualityDeltaCalculator.Build` — `FindingSeverity.Information` mapped to Low but still included in specialist list used for other metrics (reachable input: verify no double impact).
+
 
 2026-10-15 seed hunt (seed→hit): promoted null/whitespace evidence `Request.Description` in architecture analysis exports; shared `ArchitectureEvidenceRequestExport.FormatDescription` for DOCX, markdown, and consulting DOCX evidence sections; regressions `GenerateDocxAsync_uses_omission_copy_for_missing_evidence_description` and `GenerateMarkdown_uses_omission_copy_for_missing_evidence_description`; 35 scoped ArchitectureAnalysis/CompareQuality tests passed.
 
@@ -18385,7 +18398,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `MarkdownArchitectureAnalysisExportService` — evidence request description null renders empty bullet without omission copy — **hit 2026-10-15 seed hunt:** see `GenerateMarkdown_uses_omission_copy_for_missing_evidence_description`.
 
 - [ ] (candidate) `CompareQualityDeltaCalculator.Build` — functional requirement coverage uses `min(requirements, components)` heuristic (reachable input: more requirements than components; verify overstated coverage count).
-- [ ] (candidate) `ComparisonReplayCostEstimator` — legacy payload with only `manifestDelta` warnings may score differently than modern `manifestDiff.warnings` shape (reachable input: stored end-to-end JSON without `manifestDiff` property).
+- [x] (proven) `ComparisonReplayCostEstimator` — legacy payload with only `manifestDelta` warnings may score differently than modern `manifestDiff.warnings` shape (reachable input: stored end-to-end JSON without `manifestDiff` property). — **hit 2026-10-15 seed hunt:** see `TryEstimateAsync_pascal_case_warning_only_manifestDiff_adds_factor`.
 - [ ] (candidate) `ConsultingDocxFindingsSectionBuilder` — whitespace-only evidence description still exported as blank (reachable input: `Request.Description` of spaces after JSON bind).
 - [ ] (candidate) `ArchitectureAnalysisService.BuildAsync` — `IncludeSummary` with null evidence still calls summary generator (reachable input: manifest present, evidence package missing).
 - [ ] (candidate) `CompareQualityDeltaCalculator.Build` — muted findings excluded from high-severity counts but still mapped into specialist list (reachable input: verify metric double-count path).
@@ -18397,7 +18410,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `DocxArchitectureAnalysisExportService.GenerateDocxAsync` — evidence `Request.Description` null renders blank paragraph without omission copy (reachable input: evidence package with null description after JSON deserialization). — **hit 2026-10-15 seed hunt:** see `GenerateDocxAsync_uses_omission_copy_for_missing_evidence_description`.
 - [ ] (candidate) `CompareQualityDeltaCalculator.Build` — functional requirement coverage uses `min(requirements, components)` heuristic (reachable input: more requirements than components; verify overstated coverage count).
-- [ ] (candidate) `ComparisonReplayCostEstimator` — legacy payload with only `manifestDelta` warnings may score differently than modern `manifestDiff.warnings` shape (reachable input: stored end-to-end JSON without `manifestDiff` property).
+- [x] (proven) `ComparisonReplayCostEstimator` — legacy payload with only `manifestDelta` warnings may score differently than modern `manifestDiff.warnings` shape (reachable input: stored end-to-end JSON without `manifestDiff` property). — **hit 2026-10-15 seed hunt:** see `TryEstimateAsync_pascal_case_warning_only_manifestDiff_adds_factor`.
 - [x] (invalid) `ExportReplayService` — replayed analysis request may not restore `CompareManifestVersion` — **cheap-disproof 2026-10-15 seed hunt:** `ExportReplayService` maps `persistedRequest.CompareManifestVersion` into `ArchitectureAnalysisRequest` (lines 159–160).
 - [x] (proven) `MarkdownArchitectureAnalysisExportService` — evidence request description null renders empty bullet without omission copy (reachable input: same as DOCX export path). — **hit 2026-10-15 seed hunt:** see `GenerateMarkdown_uses_omission_copy_for_missing_evidence_description`.
 
@@ -18408,7 +18421,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `DocxArchitectureAnalysisExportService.GenerateDocxAsync` — evidence `Request.Description` null renders blank paragraph without omission copy (reachable input: evidence package with null description after JSON deserialization). — **hit 2026-10-15 seed hunt:** see `GenerateDocxAsync_uses_omission_copy_for_missing_evidence_description`.
 - [ ] (candidate) `CompareQualityDeltaCalculator.Build` — functional requirement coverage uses `min(requirements, components)` heuristic (reachable input: more requirements than components; verify overstated coverage count).
-- [ ] (candidate) `ComparisonReplayCostEstimator` — legacy payload with only `manifestDelta` warnings may score differently than modern `manifestDiff.warnings` shape (reachable input: stored end-to-end JSON without `manifestDiff` property).
+- [x] (proven) `ComparisonReplayCostEstimator` — legacy payload with only `manifestDelta` warnings may score differently than modern `manifestDiff.warnings` shape (reachable input: stored end-to-end JSON without `manifestDiff` property). — **hit 2026-10-15 seed hunt:** see `TryEstimateAsync_pascal_case_warning_only_manifestDiff_adds_factor`.
 - [x] (proven) `ArchitectureAnalysisService.BuildAsync` — `IncludeDeterminismCheck` with zero `DeterminismIterations` still invokes determinism service (reachable input: analysis request with `DeterminismIterations = 0`). — **hit 2026-10-15 seed hunt:** see `BuildAsync_skips_determinism_check_when_iterations_below_minimum`.
 - [ ] (candidate) `ExportReplayService` — replayed analysis request may not restore `CompareManifestVersion` when rebuilding from persisted export (reachable input: persisted export record with manifest compare flags).
 
@@ -18420,7 +18433,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `DocxArchitectureAnalysisExportService.GenerateDocxAsync` — evidence `Request.Description` null renders blank paragraph without omission copy (reachable input: evidence package with null description after JSON deserialization). — **hit 2026-10-15 seed hunt:** see `GenerateDocxAsync_uses_omission_copy_for_missing_evidence_description`.
 - [ ] (candidate) `CompareQualityDeltaCalculator.Build` — functional requirement coverage uses `min(requirements, components)` heuristic (reachable input: more requirements than components; verify overstated coverage count).
 - [x] (proven) `ArchitectureAnalysisService.BuildAsync` — preloaded primary manifest `RunId` format mismatch still discarded with ordinal compare (reachable input: `PreloadedRunDetail.Manifest.RunId` dashed vs `run.RunId` N-format for same GUID).
-- [ ] (candidate) `ComparisonReplayCostEstimator` — legacy payload with only `manifestDelta` warnings may score differently than modern `manifestDiff.warnings` shape (reachable input: stored end-to-end JSON without `manifestDiff` property).
+- [x] (proven) `ComparisonReplayCostEstimator` — legacy payload with only `manifestDelta` warnings may score differently than modern `manifestDiff.warnings` shape (reachable input: stored end-to-end JSON without `manifestDiff` property). — **hit 2026-10-15 seed hunt:** see `TryEstimateAsync_pascal_case_warning_only_manifestDiff_adds_factor`.
 - [x] (proven) `ArchitectureAnalysisService.BuildAsync` — `IncludeDeterminismCheck` with zero `DeterminismIterations` still invokes determinism service (reachable input: analysis request with `DeterminismIterations = 0`). — **hit 2026-10-15 seed hunt:** see `BuildAsync_skips_determinism_check_when_iterations_below_minimum`.
 
 
