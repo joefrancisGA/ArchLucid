@@ -1,5 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Alerts.Simulation;
 
 /// <summary>
@@ -24,9 +26,11 @@ public class RuleCandidateComparisonResult
     } = null!;
 
     /// <summary>Cross-candidate summary lines (e.g. would-create counts).</summary>
+    private List<string> summaryNotes = [];
+
     public List<string> SummaryNotes
     {
-        get;
-        set;
-    } = [];
+        get => summaryNotes;
+        set => summaryNotes = ContractCollectionDefaults.Coalesce(value);
+    }
 }
