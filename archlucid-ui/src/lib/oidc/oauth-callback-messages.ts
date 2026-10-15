@@ -29,7 +29,10 @@ export function decodeOAuthErrorDescription(encoded: string | null | undefined):
 }
 
 function formatErrorCodeForReading(errorCode: string): string {
-  return errorCode.replace(/_/g, " ").trim();
+  return errorCode
+    .replace(/_/g, " ")
+    .replace(/[\u200B-\u200D\uFEFF]/gu, "")
+    .trim();
 }
 
 const MAX_OAUTH_USER_FACING_MESSAGE_LENGTH = 280;
