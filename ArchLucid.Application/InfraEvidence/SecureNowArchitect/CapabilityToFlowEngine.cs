@@ -31,8 +31,9 @@ public sealed class CapabilityToFlowEngine(
             return Failed("ActorId is required.");
         }
 
-        AzureInventorySnapshotDetailReadModel? snapshot =
-            await snapshotRepository.TryGetSnapshotDetailAsync(scope, snapshotId, cancellationToken);
+        SecureNowAnalysisSnapshot? analysisSnapshot =
+            await SecureNowAnalysisRun.LoadAsync(snapshotRepository, scope, snapshotId, cancellationToken);
+        AzureInventorySnapshotDetailReadModel? snapshot = analysisSnapshot?.Snapshot;
 
         if (snapshot is null)
         {
@@ -40,7 +41,7 @@ public sealed class CapabilityToFlowEngine(
         }
 
         IReadOnlyList<CapabilityToFlowCandidate> candidates =
-            CapabilityToFlowEnumerator.Enumerate(snapshot, new PrivilegePathEngineOptions());
+            CapabilityToFlowEnumerator.Enumerate(snapshot, new PrivilegePathEngineOptions(), analysisSnapshot);
 
         if (candidates.Count == 0)
         {

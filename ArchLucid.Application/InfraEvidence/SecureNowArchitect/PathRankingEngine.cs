@@ -59,8 +59,9 @@ public sealed class PathRankingEngine(
 
         DefenderSecureScoreOrdinalBand subscriptionDefenderBand = DefenderSecureScoreOrdinalBand.Unknown;
 
-        AzureInventorySnapshotDetailReadModel? snapshot =
-            await snapshotRepository.TryGetSnapshotDetailAsync(scope, snapshotId, cancellationToken);
+        SecureNowAnalysisSnapshot? analysisSnapshot =
+            await SecureNowAnalysisRun.LoadAsync(snapshotRepository, scope, snapshotId, cancellationToken);
+        AzureInventorySnapshotDetailReadModel? snapshot = analysisSnapshot?.Snapshot;
 
         if (snapshot is not null)
         {

@@ -8,11 +8,12 @@ internal static class ToxicCombinationPathLoader
     public static IReadOnlyList<ToxicCombinationPathSnapshot> BuildSnapshots(
         IReadOnlyList<SecurityEvidencePathWithHops> paths,
         PathKind pathKind,
-        AzureInventorySnapshotDetailReadModel snapshot)
+        AzureInventorySnapshotDetailReadModel snapshot,
+        SecureNowAnalysisSnapshot? analysisSnapshot = null)
     {
         List<ToxicCombinationPathSnapshot> snapshots = [];
-        Dictionary<string, AzureInventoryResourceRecord> resourcesByArmId =
-            snapshot.Resources.ToDictionary(static resource => resource.AzureResourceId, StringComparer.OrdinalIgnoreCase);
+        IReadOnlyDictionary<string, AzureInventoryResourceRecord> resourcesByArmId =
+            (analysisSnapshot ?? new SecureNowAnalysisSnapshot(snapshot)).ResourcesByArmId;
 
         foreach (SecurityEvidencePathWithHops item in paths.Where(item => item.Path.PathKind == pathKind)
                      .OrderByDescending(item => item.Path.CreatedUtc).ThenBy(item => item.Path.PathId))

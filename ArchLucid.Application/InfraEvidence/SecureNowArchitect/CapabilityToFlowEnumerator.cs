@@ -8,12 +8,13 @@ internal static class CapabilityToFlowEnumerator
 {
     public static IReadOnlyList<CapabilityToFlowCandidate> Enumerate(
         AzureInventorySnapshotDetailReadModel snapshot,
-        PrivilegePathEngineOptions options)
+        PrivilegePathEngineOptions options,
+        SecureNowAnalysisSnapshot? analysisSnapshot = null)
     {
         ArgumentNullException.ThrowIfNull(snapshot);
         ArgumentNullException.ThrowIfNull(options);
 
-        InventoryPrivilegePathGraphSnapshot graph = InventoryPrivilegePathGraph.Build(snapshot);
+        InventoryPrivilegePathGraphSnapshot graph = InventoryPrivilegePathGraph.Build(snapshot, analysisSnapshot);
         IReadOnlyList<PrivilegePathCandidate> privilegePaths = PrivilegePathEnumerator.Enumerate(graph, options);
         IReadOnlyDictionary<string, PrivilegePathEdge> egressBySubnetArmId =
             ToxicCombinationEgressDetector.DetectUnrestrictedEgressBySubnet(snapshot);

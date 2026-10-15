@@ -15,23 +15,17 @@ internal static class InventoryReachabilityPathGraph
         GraphEdgeTypes.Contains,
     ];
 
-    public static InventoryReachabilityPathGraphSnapshot Build(AzureInventorySnapshotDetailReadModel snapshot)
+    public static InventoryReachabilityPathGraphSnapshot Build(
+        AzureInventorySnapshotDetailReadModel snapshot,
+        SecureNowAnalysisSnapshot? analysisSnapshot = null)
     {
         ArgumentNullException.ThrowIfNull(snapshot);
 
         Dictionary<string, List<PrivilegePathEdge>> outgoing = new(StringComparer.OrdinalIgnoreCase);
-        Dictionary<string, AzureInventoryResourceRecord> resourcesByArmId =
-            snapshot.Resources.ToDictionary(static resource => resource.AzureResourceId, StringComparer.OrdinalIgnoreCase);
-
-        Dictionary<Guid, List<AzureInventoryTagReadModel>> tagsByResourceRowId =
-            snapshot.Tags
-                .GroupBy(static tag => tag.ResourceRowId)
-                .ToDictionary(static group => group.Key, static group => group.ToList());
-
-        Dictionary<Guid, List<AzureInventoryResourcePropertyReadModel>> propertiesByResourceRowId =
-            snapshot.Properties
-                .GroupBy(static property => property.ResourceRowId)
-                .ToDictionary(static group => group.Key, static group => group.ToList());
+        SecureNowAnalysisSnapshot indexes = analysisSnapshot ?? new SecureNowAnalysisSnapshot(snapshot);
+        IReadOnlyDictionary<string, AzureInventoryResourceRecord> resourcesByArmId = indexes.ResourcesByArmId;
+        IReadOnlyDictionary<Guid, IReadOnlyList<AzureInventoryTagReadModel>> tagsByResourceRowId = indexes.TagsByResourceRowId;
+        IReadOnlyDictionary<Guid, IReadOnlyList<AzureInventoryResourcePropertyReadModel>> propertiesByResourceRowId = indexes.PropertiesByResourceRowId;
 
         HashSet<string> subnetsWithNsgAllowRule = new(StringComparer.OrdinalIgnoreCase);
         HashSet<string> publicIpArmIds = new(StringComparer.OrdinalIgnoreCase);
@@ -134,11 +128,11 @@ internal static class InventoryReachabilityPathGraph
 
     private static Dictionary<string, string> BuildPropertyBag(
         Guid resourceRowId,
-        IReadOnlyDictionary<Guid, List<AzureInventoryResourcePropertyReadModel>> propertiesByResourceRowId)
+        IReadOnlyDictionary<Guid, IReadOnlyList<AzureInventoryResourcePropertyReadModel>> propertiesByResourceRowId)
     {
         Dictionary<string, string> propertyBag = new(StringComparer.OrdinalIgnoreCase);
 
-        if (!propertiesByResourceRowId.TryGetValue(resourceRowId, out List<AzureInventoryResourcePropertyReadModel>? properties))
+        if (!propertiesByResourceRowId.TryGetValue(resourceRowId, out IReadOnlyList<AzureInventoryResourcePropertyReadModel>? properties))
         {
             return propertyBag;
         }
@@ -184,11 +178,11 @@ internal sealed class InventoryReachabilityPathGraphSnapshot
         init;
     } = new Dictionary<string, AzureInventoryResourceRecord>();
 
-    public IReadOnlyDictionary<Guid, List<AzureInventoryTagReadModel>> TagsByResourceRowId
+    public IReadOnlyDictionary<Guid, IReadOnlyList<AzureInventoryTagReadModel>> TagsByResourceRowId
     {
         get;
         init;
-    } = new Dictionary<Guid, List<AzureInventoryTagReadModel>>();
+    } = new Dictionary<Guid, IReadOnlyList<AzureInventoryTagReadModel>>();
 
     public IReadOnlySet<string> SubnetsWithNsgAllowRule
     {

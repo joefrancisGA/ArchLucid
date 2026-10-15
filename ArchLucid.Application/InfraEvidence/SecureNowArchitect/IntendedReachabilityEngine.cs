@@ -32,15 +32,16 @@ public sealed class IntendedReachabilityEngine(
             return Failed("ActorId is required.");
         }
 
-        AzureInventorySnapshotDetailReadModel? snapshot =
-            await snapshotRepository.TryGetSnapshotDetailAsync(scope, snapshotId, cancellationToken);
+        SecureNowAnalysisSnapshot? analysisSnapshot =
+            await SecureNowAnalysisRun.LoadAsync(snapshotRepository, scope, snapshotId, cancellationToken);
+        AzureInventorySnapshotDetailReadModel? snapshot = analysisSnapshot?.Snapshot;
 
         if (snapshot is null)
         {
             return Failed("Snapshot was not found in the current tenant scope.");
         }
 
-        InventoryReachabilityPathGraphSnapshot graph = InventoryReachabilityPathGraph.Build(snapshot);
+        InventoryReachabilityPathGraphSnapshot graph = InventoryReachabilityPathGraph.Build(snapshot, analysisSnapshot);
         IReadOnlyList<ReachabilityPathCandidate> candidates =
             IntendedReachabilityPathEnumerator.Enumerate(graph, new PrivilegePathEngineOptions(), runScope);
 

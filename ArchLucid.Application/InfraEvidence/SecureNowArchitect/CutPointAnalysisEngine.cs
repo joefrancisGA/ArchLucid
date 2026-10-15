@@ -47,7 +47,7 @@ public sealed class CutPointAnalysisEngine(
             };
         }
 
-        Dictionary<Guid, string?> resourceTypesByCloudResourceId =
+        IReadOnlyDictionary<Guid, string?> resourceTypesByCloudResourceId =
             await BuildResourceTypeLookupAsync(scope, snapshotId, cancellationToken);
 
         IReadOnlyList<RemediationPatternApprovedVersionRecord> approvedPatterns =
@@ -105,25 +105,21 @@ public sealed class CutPointAnalysisEngine(
         };
     }
 
-    private async Task<Dictionary<Guid, string?>> BuildResourceTypeLookupAsync(
+    private async Task<IReadOnlyDictionary<Guid, string?>> BuildResourceTypeLookupAsync(
         ScopeContext scope,
         Guid snapshotId,
         CancellationToken cancellationToken)
     {
-        AzureInventorySnapshotDetailReadModel? snapshot =
-            await snapshotRepository.TryGetSnapshotDetailAsync(scope, snapshotId, cancellationToken);
+        SecureNowAnalysisSnapshot? analysisSnapshot =
+            await SecureNowAnalysisRun.LoadAsync(snapshotRepository, scope, snapshotId, cancellationToken);
+        AzureInventorySnapshotDetailReadModel? snapshot = analysisSnapshot?.Snapshot;
 
         if (snapshot is null)
         {
-            return [];
+            return new Dictionary<Guid, string?>();
         }
 
-        return snapshot.Resources
-            .Where(resource => resource.CloudResourceId is not null && resource.CloudResourceId != Guid.Empty)
-            .GroupBy(resource => resource.CloudResourceId!.Value)
-            .ToDictionary(
-                group => group.Key,
-                group => (string?)group.First().ResourceType);
+        return analysisSnapshot!.ResourceTypesByCloudResourceId;
     }
 
     private static CutPointAnalysisEngineResult Failed(string message) =>

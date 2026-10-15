@@ -32,8 +32,9 @@ public sealed class ToxicCombinationEngine(
             return Failed("ActorId is required.");
         }
 
-        AzureInventorySnapshotDetailReadModel? snapshot =
-            await snapshotRepository.TryGetSnapshotDetailAsync(scope, snapshotId, cancellationToken);
+        SecureNowAnalysisSnapshot? analysisSnapshot =
+            await SecureNowAnalysisRun.LoadAsync(snapshotRepository, scope, snapshotId, cancellationToken);
+        AzureInventorySnapshotDetailReadModel? snapshot = analysisSnapshot?.Snapshot;
 
         if (snapshot is null)
         {
@@ -43,9 +44,9 @@ public sealed class ToxicCombinationEngine(
         IReadOnlyList<SecurityEvidencePathWithHops> existingPaths = await pathRepository.ListWithHopsBySnapshotAsync(
             ProjectSnapshotScopeKey.Create(scope.ToProjectScopeKey(), snapshotId), cancellationToken);
         IReadOnlyList<ToxicCombinationPathSnapshot> reachabilityPaths =
-            ToxicCombinationPathLoader.BuildSnapshots(existingPaths, PathKind.IntendedReachability, snapshot);
+            ToxicCombinationPathLoader.BuildSnapshots(existingPaths, PathKind.IntendedReachability, snapshot, analysisSnapshot);
         IReadOnlyList<ToxicCombinationPathSnapshot> privilegePaths =
-            ToxicCombinationPathLoader.BuildSnapshots(existingPaths, PathKind.Privilege, snapshot);
+            ToxicCombinationPathLoader.BuildSnapshots(existingPaths, PathKind.Privilege, snapshot, analysisSnapshot);
 
         if (reachabilityPaths.Count == 0 || privilegePaths.Count == 0)
         {
@@ -63,7 +64,7 @@ public sealed class ToxicCombinationEngine(
         if (runScope is { IsFullEstate: false })
         {
             IReadOnlyDictionary<string, Guid> resourceIds =
-                SecureNowArchitectNeighborhoodFilter.BuildCloudResourceIdByArmId(snapshot);
+                analysisSnapshot!.CloudResourceIdsByArmId;
             affectedPathIds = existingPaths.Where(item => SecureNowArchitectNeighborhoodFilter.PathTouchesSeeds(
                 item.Hops, runScope.SeedCloudResourceIds, resourceIds)).Select(item => item.Path.PathId).ToHashSet();
             foreach (ToxicCombinationPathSnapshot path in reachabilityPaths.Concat(privilegePaths))
@@ -81,7 +82,7 @@ public sealed class ToxicCombinationEngine(
         if (runScope is { IsFullEstate: false })
         {
             IReadOnlyDictionary<string, Guid> cloudResourceIdByArmId =
-                SecureNowArchitectNeighborhoodFilter.BuildCloudResourceIdByArmId(snapshot);
+                analysisSnapshot!.CloudResourceIdsByArmId;
 
             Dictionary<Guid, ToxicCombinationPathSnapshot> reachabilityByPathId = reachabilityPaths
                 .ToDictionary(path => path.Path.PathId);
