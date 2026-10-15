@@ -3,6 +3,8 @@
  * — avoids leaking internals while staying accurate for admins.
  */
 
+const OAUTH_INVISIBLE_FORMAT_CHARS = /[\u200B-\u200D\u2060\uFEFF]/gu;
+
 export function collapseOAuthErrorDescriptionLineBreaks(text: string): string {
   return text
     .replace(/[\u0000-\u001F\u007F\u2028\u2029\u0085]/gu, " ")
@@ -31,7 +33,7 @@ export function decodeOAuthErrorDescription(encoded: string | null | undefined):
 function formatErrorCodeForReading(errorCode: string): string {
   return errorCode
     .replace(/_/g, " ")
-    .replace(/[\u200B-\u200D\uFEFF]/gu, "")
+    .replace(OAUTH_INVISIBLE_FORMAT_CHARS, "")
     .trim();
 }
 

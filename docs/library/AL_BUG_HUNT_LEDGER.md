@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-15 seed hunt (seed→hit): `ui-oidc` — promoted `formatErrorCodeForReading` leaving U+2060 WORD JOINER authorize `?error=` visible inside empty-looking parentheses; shared `OAUTH_INVISIBLE_FORMAT_CHARS` with ZWSP/BOM strip set; regression `treats word-joiner-only authorize error codes as missing codes`; cheap-disproved five open `(candidate)` rows; reseeded five follow-on candidates; 115 scoped `src/lib/oidc` vitest tests passed.
+
 2026-10-15 seed hunt (seed→hit): `ui-oidc` — promoted `buildAuthorizeUrl` encoding padded `client_id` / `redirect_uri` / `scope` / PKCE query values verbatim (token exchange uses trimmed redirect URI → `invalid_grant` / `invalid_client`); `trimAuthorizeQueryValue` on all authorize query fields; regression `trims padded authorize query parameters before encoding`; cheap-disproved five open `(candidate)` rows; reseeded five follow-on candidates; 114 scoped `src/lib/oidc` vitest tests passed.
 
 2026-10-15 seed hunt (seed→hit): `ui-oidc` — promoted `humanizeAuthorizeCallbackError` showing invisible zero-width authorize `?error=` (e.g. `%E2%80%8B`) inside parentheses; strip ZWSP/ZWNJ/ZWJ/BOM in `formatErrorCodeForReading`; regression `treats zero-width authorize error codes as missing codes`; cheap-disproved five open `(candidate)` rows; reseeded five follow-on candidates; 113 scoped `src/lib/oidc` vitest tests passed.
@@ -21027,11 +21029,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 65
-- **bugs-found:** 59
+- **hunts:** 66
+- **bugs-found:** 60
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-15
-- **last-bug:** 2026-10-15 — padded authorize query params broke IdP authorize vs token redirect parity
+- **last-bug:** 2026-10-15 — word-joiner authorize error code in callback parentheses
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 

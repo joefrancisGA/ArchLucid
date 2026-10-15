@@ -76,6 +76,11 @@ describe("humanizeAuthorizeCallbackError", () => {
     expect(humanizeAuthorizeCallbackError("\u200b", "")).not.toMatch(/\(/u);
   });
 
+  it("treats word-joiner-only authorize error codes as missing codes", () => {
+    expect(humanizeAuthorizeCallbackError("\u2060", "")).toContain("complete response");
+    expect(humanizeAuthorizeCallbackError("\u2060", "")).not.toMatch(/\(/u);
+  });
+
   it("does not truncate OAuth user-facing copy on a lone UTF-16 surrogate", () => {
     const emoji = "\uD83D\uDE00";
     const oversized = `${"x".repeat(278)}${emoji}tail`;
