@@ -62,6 +62,46 @@ describe("refreshAccessToken", () => {
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
+  it("throws when HTTP 200 OAuth JSON includes only error_description", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () => JSON.stringify({ error_description: "hint only" }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      refreshAccessToken({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        refreshToken: "rt",
+      }),
+    ).rejects.toThrow(/hint only/i);
+  });
+
+  it("trims surrounding whitespace from optional refresh_token and id_token fields", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () =>
+        JSON.stringify({
+          access_token: "access-1",
+          refresh_token: "  refresh-1  ",
+          id_token: "  id-1  ",
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    const tokens = await refreshAccessToken({
+      tokenEndpoint: "https://login.example.com/token",
+      clientId: "client",
+      refreshToken: "rt",
+    });
+
+    expect(tokens.refresh_token).toBe("refresh-1");
+    expect(tokens.id_token).toBe("id-1");
+  });
+
   it("collapses line breaks in OAuth error descriptions from the token endpoint", async () => {
     const fetchMock = vi.fn(async () => ({
       ok: false,

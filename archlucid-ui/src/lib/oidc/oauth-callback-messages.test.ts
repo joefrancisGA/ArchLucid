@@ -48,6 +48,15 @@ describe("humanizeAuthorizeCallbackError", () => {
     expect(humanizeAuthorizeCallbackError("custom_problem", "")).toContain("custom problem");
   });
 
+  it("truncates oversized authorize error descriptions for callback copy", () => {
+    const oversized = `${"Policy ".repeat(80)}end`;
+    const message = humanizeAuthorizeCallbackError("access_denied", oversized);
+
+    expect(message.length).toBeLessThanOrEqual(320);
+    expect(message.endsWith("…")).toBe(true);
+    expect(message.startsWith("Sign-in stopped:")).toBe(true);
+  });
+
   it("keeps access_denied detail on one line when the description embeds CRLF", () => {
     const message = humanizeAuthorizeCallbackError(
       "access_denied",

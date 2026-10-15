@@ -32,10 +32,20 @@ function formatErrorCodeForReading(errorCode: string): string {
   return errorCode.replace(/_/g, " ").trim();
 }
 
+const MAX_AUTHORIZE_CALLBACK_DETAIL_LENGTH = 280;
+
+function truncateAuthorizeCallbackDetail(detail: string): string {
+  if (detail.length <= MAX_AUTHORIZE_CALLBACK_DETAIL_LENGTH) {
+    return detail;
+  }
+
+  return `${detail.slice(0, MAX_AUTHORIZE_CALLBACK_DETAIL_LENGTH - 1)}…`;
+}
+
 /** Maps standard OAuth authorize errors to actionable copy for the SPA callback route. */
 export function humanizeAuthorizeCallbackError(errorCode: string, decodedDescription: string): string {
   const normalized = errorCode.trim().toLowerCase();
-  const detail = decodedDescription.trim();
+  const detail = truncateAuthorizeCallbackDetail(collapseOAuthErrorDescriptionLineBreaks(decodedDescription));
 
   switch (normalized) {
     case "access_denied":

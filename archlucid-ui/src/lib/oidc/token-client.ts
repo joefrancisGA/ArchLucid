@@ -82,6 +82,20 @@ async function postTokenForm(
   return parseOidcTokenResponse(parsed);
 }
 
+function normalizeOptionalTrimmedToken(value: unknown): string | undefined {
+  if (typeof value !== "string") {
+    return undefined;
+  }
+
+  const trimmed = value.trim();
+
+  if (trimmed.length === 0) {
+    return value.length === 0 ? undefined : value;
+  }
+
+  return trimmed;
+}
+
 function parseOidcTokenResponse(parsed: unknown): OidcTokenResponse {
   if (!parsed || typeof parsed !== "object") {
     throw new Error("Token response missing access_token");
@@ -94,9 +108,14 @@ function parseOidcTokenResponse(parsed: unknown): OidcTokenResponse {
     throw new Error("Token response missing access_token");
   }
 
+  const refreshToken = normalizeOptionalTrimmedToken(record.refresh_token);
+  const idToken = normalizeOptionalTrimmedToken(record.id_token);
+
   return {
     ...(parsed as OidcTokenResponse),
     access_token: accessToken.trim(),
+    refresh_token: refreshToken,
+    id_token: idToken,
   };
 }
 
