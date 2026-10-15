@@ -34,11 +34,13 @@ public sealed class PillarPosture
         init => findingCounts = value ?? new PillarFindingAggregate();
     }
 
+    private ExaminationStateResolution examination = new();
+
     public ExaminationStateResolution Examination
     {
-        get;
-        init;
-    } = null!;
+        get => examination;
+        init => examination = value ?? new ExaminationStateResolution();
+    }
 
     private IReadOnlyList<PillarPackAssignment> packAssignments = [];
 
