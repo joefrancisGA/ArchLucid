@@ -63,7 +63,17 @@ public sealed class PilotValueReportMarkdownFormatter(ExportFormatterService exp
         sb.AppendLine("## Summary");
         sb.AppendLine();
         _exportFormatter.AppendMarkdownTwoColumnTableStart(sb, "Metric", "Value");
-        sb.AppendLine(CultureInfo.InvariantCulture, $"| Total findings | {r.TotalFindings} |");
+
+        if (r.RunDetailsTruncated)
+        {
+            sb.AppendLine(
+                CultureInfo.InvariantCulture,
+                $"| Total findings | {r.TotalFindings} (partial run-detail sample: newest {r.RunDetailCap} committed runs by CreatedUtc) |");
+        }
+        else
+        {
+            sb.AppendLine(CultureInfo.InvariantCulture, $"| Total findings | {r.TotalFindings} |");
+        }
         sb.AppendLine(
             CultureInfo.InvariantCulture,
             $"| Avg pipeline completion | {FormatAvgSeconds(r.AveragePipelineCompletionSeconds)} |");

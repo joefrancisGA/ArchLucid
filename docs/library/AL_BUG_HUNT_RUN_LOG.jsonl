@@ -8354,3 +8354,4 @@
 {"at":"2026-10-15T00:32:55.683774Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit","productLine":"archlucid-shared","paths":["@(ArchLucid.Api/Controllers/Governance,ArchLucid.Api/Controllers/Tenancy)"]}
 {"at":"2026-10-15T00:36:12.3824371Z","zoneId":"archlucid-contracts","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Contracts"]}
 {"at":"2026-10-15T00:41:07.2665394Z","zoneId":"weekly-digest-email","outcome":"seed-only","productLine":"archlucid-shared"}
+{"at":"2026-10-15T00:46:18.7927548Z","zoneId":"application-pilots","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Pilots/"]}

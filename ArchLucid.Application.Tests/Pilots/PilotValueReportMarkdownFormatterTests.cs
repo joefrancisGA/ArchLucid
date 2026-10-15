@@ -100,6 +100,30 @@ public sealed class PilotValueReportMarkdownFormatterTests
     }
 
     [Fact]
+    public void Format_when_run_details_truncated_qualifies_total_findings_as_partial_run_detail_sample()
+    {
+        PilotValueReportMarkdownFormatter sut = new(new ExportFormatterService());
+        DateTime from = new(2026, 4, 1, 0, 0, 0, DateTimeKind.Utc);
+        int cap = PilotValueReportService.DefaultRunDetailCap;
+        PilotValueReport report = new()
+        {
+            TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+            FromUtc = from,
+            ToUtc = from.AddDays(30),
+            TotalRunsCommitted = cap + 200,
+            TotalFindings = 88,
+            RunDetailsTruncated = true,
+            RunDetailCap = cap,
+        };
+
+        string markdown = sut.Format(report);
+
+        markdown.Should().Contain(
+            "partial run-detail sample",
+            "finding totals must not read as tenant-wide when only newest committed runs were loaded");
+    }
+
+    [Fact]
     public void Format_discloses_committed_run_inventory_truncation()
     {
         PilotValueReportMarkdownFormatter sut = new(new ExportFormatterService());
