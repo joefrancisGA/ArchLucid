@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Findings;
 
 public sealed class EngineVerificationConfirmedRatesResponse
@@ -14,9 +16,11 @@ public sealed class EngineVerificationConfirmedRatesResponse
         set;
     }
 
+    private IReadOnlyList<EngineVerificationConfirmedRateRow> rows = [];
+
     public IReadOnlyList<EngineVerificationConfirmedRateRow> Rows
     {
-        get;
-        set;
-    } = [];
+        get => rows;
+        set => rows = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 }

@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Findings;
 
 /// <summary>First-class run outcome for finding-engine coverage (Batch A / TB-054 partial).</summary>
@@ -45,11 +47,13 @@ public sealed class RunFindingCoverageSummary
     }
 
     /// <summary>Sanitized engine identifiers for operator UI (engine type + category, no exception text).</summary>
+    private IReadOnlyList<string> failedEngineLabels = [];
+
     public IReadOnlyList<string> FailedEngineLabels
     {
-        get;
-        init;
-    } = [];
+        get => failedEngineLabels;
+        init => failedEngineLabels = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 
     /// <summary>Snapshot generation status persisted on the findings snapshot header.</summary>
     public FindingsSnapshotGenerationStatus GenerationStatus

@@ -2,6 +2,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 
 using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Serialization;
 
 namespace ArchLucid.Contracts.Findings;
 
@@ -72,11 +73,13 @@ public sealed class FindingInspectResponse
         init;
     }
 
+    private IReadOnlyList<FindingInspectEvidenceItem> evidence = [];
+
     public IReadOnlyList<FindingInspectEvidenceItem> Evidence
     {
-        get;
-        init;
-    } = [];
+        get => evidence;
+        init => evidence = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 
     /// <summary>
     /// Best-effort durable audit row written when the authority chain that included this findings snapshot was committed
@@ -154,11 +157,13 @@ public sealed class FindingInspectResponse
     /// Populated from <c>dbo.FindingRecommendedActions ORDER BY SortOrder</c>.
     /// Empty when the finding engine produced no explicit actions.
     /// </summary>
+    private IReadOnlyList<string> recommendedActions = [];
+
     public IReadOnlyList<string> RecommendedActions
     {
-        get;
-        init;
-    } = [];
+        get => recommendedActions;
+        init => recommendedActions = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 
     /// <summary>
     ///     Deterministic 2–3 sentence explanation of why this finding was raised (template-built from persisted metadata;
