@@ -1,3 +1,5 @@
+2026-10-15 seed hunt (seed→hit): `application-analysis` — promoted dashed `CompareRunId` on `IncludeAgentResultCompare` failing `IRunDetailQueryService` lookup (N-format persistence); `CanonicalRunIdForLookup` before compare load and sealed-hash guard; regression `BuildAsync_loads_compare_run_when_compare_run_id_uses_dashed_guid_format`; 36 scoped ArchitectureAnalysis/CompareQuality tests passed.
+
 2026-10-15 seed hunt (seed→hit): `application-analysis` — promoted PascalCase `ExportRecordDiffResult` payloads skipping replay cost scoring; case-insensitive reads in `ScoreExportRecordDiffShape`; regression `TryEstimateAsync_pascal_case_export_record_diff_payload_adds_factor`; 53 scoped ArchitectureAnalysis/CompareQuality/ComparisonReplayCostEstimator tests passed.
 
 2026-10-15 seed hunt (seed→hit): `application-analysis` — promoted `ComparisonReplayPayloadComplexity` missing warning-only `ManifestDiff` scoring when comparison payload JSON uses PascalCase property names; case-insensitive JSON property reads; regression `TryEstimateAsync_pascal_case_warning_only_manifestDiff_adds_factor`; 35 scoped ArchitectureAnalysis/CompareQuality tests + 17 ComparisonReplayCostEstimator tests passed.
@@ -18375,23 +18377,23 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 50
-- **bugs-found:** 48
+- **hunts:** 51
+- **bugs-found:** 49
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-15
-- **last-bug:** 2026-10-15 — replay cost estimator ignored PascalCase export record diff payloads
+- **last-bug:** 2026-10-15 — agent compare dashed `CompareRunId` lookup normalization
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
-2026-10-15 seed hunt (seed→hit): promoted PascalCase `ExportRecordDiffResult` JSON not recognized by export-record replay cost heuristics; extended `TryGetPropertyIgnoreCase` to `ScoreExportRecordDiffShape`; regression `TryEstimateAsync_pascal_case_export_record_diff_payload_adds_factor`; 53 scoped ArchitectureAnalysis/CompareQuality/ComparisonReplayCostEstimator tests passed.
+2026-10-15 seed hunt (seed→hit): promoted `IncludeAgentResultCompare` with dashed `CompareRunId` missing compare run because `GetRunDetailAsync` keys N-format ids; `CanonicalRunIdForLookup` for lookup, sealed-hash guard, and diff RHS; regression `BuildAsync_loads_compare_run_when_compare_run_id_uses_dashed_guid_format`; 36 scoped ArchitectureAnalysis/CompareQuality tests passed.
 
-- [x] (proven) `ComparisonReplayPayloadComplexity` — export record diff PascalCase `ChangedTopLevelFields` may skip scoring — **hit 2026-10-15 seed hunt:** regression `TryEstimateAsync_pascal_case_export_record_diff_payload_adds_factor`.
+- [x] (proven) `ArchitectureAnalysisService.BuildAsync` — `IncludeAgentResultCompare` with dashed `CompareRunId` fails compare-run lookup — **hit 2026-10-15 seed hunt:** regression `BuildAsync_loads_compare_run_when_compare_run_id_uses_dashed_guid_format`.
 
 - [ ] (candidate) `CompareQualityDeltaCalculator.Build` — functional requirement coverage uses `min(requirements, components)` heuristic (reachable input: requirements without component traceability links).
 - [ ] (candidate) `ArchitectureAnalysisService.BuildAsync` — `IncludeSummary` with `IncludeEvidence=false` omits evidence section in summary without explicit warning (reachable input: summary-only export request).
-- [ ] (candidate) `ComparisonReplayPayloadComplexity` — `decisionsDelta` / `tasks` top-level keys remain case-sensitive (reachable input: PascalCase legacy comparison JSON).
+- [x] (invalid) `ComparisonReplayPayloadComplexity` — `decisionsDelta` / `tasks` top-level keys case-sensitive — **cheap-disproof 2026-10-15 seed hunt:** `TryCountCollection` already uses `TryGetPropertyIgnoreCase`.
+- [ ] (candidate) `ComparisonReplayPayloadComplexity` — `artifactSizesBytes` numeric array property name case-sensitive (reachable input: PascalCase `ArtifactSizesBytes` on replay payload JSON).
 - [ ] (candidate) `EndToEndReplayComparisonService` — compare quality delta omitted when one knowledge model fails to load (reachable input: partial model availability on replay).
-- [ ] (candidate) `MarkdownArchitectureAnalysisExportService` — manifest diff warnings section ordering differs from DOCX export (reachable input: report with warnings-only manifest diff).
 
 
 2026-10-15 seed hunt (seed→hit): promoted PascalCase end-to-end comparison payloads skipping warning-only `ManifestDiff` replay cost scoring; `TryGetPropertyIgnoreCase` across payload heuristics; regression `TryEstimateAsync_pascal_case_warning_only_manifestDiff_adds_factor`; 35 scoped ArchitectureAnalysis/CompareQuality tests + 17 ComparisonReplayCostEstimator tests passed.

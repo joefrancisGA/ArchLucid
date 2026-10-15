@@ -168,14 +168,15 @@ public sealed class ArchitectureAnalysisService(
             report.Warnings.Add("Agent-result comparison was requested but CompareRunId was not provided.");
         else
         {
-            ArchitectureRunDetail? compareDetail = await runDetailQueryService.GetRunDetailAsync(request.CompareRunId, cancellationToken);
+            string compareRunId = CanonicalRunIdForLookup(request.CompareRunId);
+            ArchitectureRunDetail? compareDetail = await runDetailQueryService.GetRunDetailAsync(compareRunId, cancellationToken);
 
             if (compareDetail is null)
                 report.Warnings.Add($"Compare run '{request.CompareRunId}' was not found.");
             else
             {
                 await ArchitectureAnalysisSealedManifestHashGuard.EnsureRunSealedManifestHashOrThrowAsync(
-                    request.CompareRunId,
+                    compareRunId,
                     scope,
                     _authorityQueryService,
                     _manifestHashService,
@@ -185,7 +186,7 @@ public sealed class ArchitectureAnalysisService(
                     ? primaryDetail.Results
                     : await resultRepository.GetByRunIdAsync(scope, request.RunId, cancellationToken);
                 List<AgentResult> rightResults = compareDetail.Results;
-                report.AgentResultDiff = agentResultDiffService.Compare(request.RunId, leftResults, request.CompareRunId, rightResults);
+                report.AgentResultDiff = agentResultDiffService.Compare(request.RunId, leftResults, compareRunId, rightResults);
             }
         }
 
@@ -205,4 +206,7 @@ public sealed class ArchitectureAnalysisService(
 
         return false;
     }
+
+    private static string CanonicalRunIdForLookup(string runId) =>
+        Guid.TryParse(runId, out Guid guid) ? guid.ToString("N") : runId;
 }
