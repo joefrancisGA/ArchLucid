@@ -9,17 +9,44 @@ export function resolveDeclaredConnectionDisplayStatus(
   row: SecurityDeclaredConnectionRow,
   nowMs: number = Date.now(),
 ): DeclaredConnectionDisplayStatus {
-  if (row.status !== "Active") {
-    return row.status;
+  const status = readDeclaredConnectionStatus(row.status);
+
+  switch (status) {
+    case "Expired":
+    case "Revoked":
+      return status;
+    case "Active":
+      return resolveActiveDeclaredConnectionDisplayStatus(row.expirationUtc, nowMs);
+    default: {
+      const unexpected: never = status;
+
+      return unexpected;
+    }
+  }
+}
+
+function readDeclaredConnectionStatus(
+  status: SecurityDeclaredConnectionStatus | undefined,
+): SecurityDeclaredConnectionStatus {
+  // TypeScript 7 keeps `undefined` on property access after a negative status check.
+  if (status === "Active" || status === "Expired" || status === "Revoked") {
+    return status;
   }
 
-  const expiryMs = parseIsoUtcMs(row.expirationUtc);
+  return "Active";
+}
+
+function resolveActiveDeclaredConnectionDisplayStatus(
+  expirationUtc: string,
+  nowMs: number,
+): DeclaredConnectionDisplayStatus {
+  const expiryMs = parseIsoUtcMs(expirationUtc);
 
   if (!Number.isNaN(expiryMs) && expiryMs > nowMs && expiryMs - nowMs <= NEAR_EXPIRY_MS) {
     return "NearExpiry";
   }
 
-  return row.status;
+  return "Active";
 }
 
 export function countActiveDeclaredConnections(rows: readonly SecurityDeclaredConnectionRow[]): number {

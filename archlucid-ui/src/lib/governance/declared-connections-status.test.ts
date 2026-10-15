@@ -5,7 +5,7 @@ import {
   isExpirationUtcInFuture,
   resolveDeclaredConnectionDisplayStatus,
 } from "@/lib/governance/declared-connections-status";
-import type { SecurityDeclaredConnectionRow } from "@/lib/security-declared-connection-types";
+import type { SecurityDeclaredConnectionRow, SecurityDeclaredConnectionStatus } from "@/lib/security-declared-connection-types";
 
 const baseRow: SecurityDeclaredConnectionRow = {
   connectionId: "id-1",
@@ -29,6 +29,36 @@ describe("declared-connections-status", () => {
     };
 
     expect(resolveDeclaredConnectionDisplayStatus(nearExpiryRow)).toBe("NearExpiry");
+  });
+
+  it("keeps active rows that are not near expiry", () => {
+    const farExpiryRow = {
+      ...baseRow,
+      expirationUtc: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+    };
+
+    expect(resolveDeclaredConnectionDisplayStatus(farExpiryRow)).toBe("Active");
+  });
+
+  it("returns revoked and expired statuses without near-expiry overlay", () => {
+    const soon = new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString();
+
+    expect(resolveDeclaredConnectionDisplayStatus({ ...baseRow, status: "Revoked", expirationUtc: soon })).toBe(
+      "Revoked",
+    );
+    expect(resolveDeclaredConnectionDisplayStatus({ ...baseRow, status: "Expired", expirationUtc: soon })).toBe(
+      "Expired",
+    );
+  });
+
+  it("treats a missing status as active for display", () => {
+    const missingStatusRow = {
+      ...baseRow,
+      status: undefined as unknown as SecurityDeclaredConnectionStatus,
+      expirationUtc: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+    };
+
+    expect(resolveDeclaredConnectionDisplayStatus(missingStatusRow)).toBe("Active");
   });
 
   it("counts only active rows", () => {
