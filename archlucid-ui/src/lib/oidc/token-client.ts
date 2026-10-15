@@ -1,3 +1,5 @@
+import { isSafeOidcEndpointUrl } from "@/lib/oidc/discovery";
+
 export type OidcTokenResponse = {
   access_token: string;
   token_type?: string;
@@ -41,6 +43,10 @@ async function postTokenForm(
   tokenEndpoint: string,
   params: Record<string, string>,
 ): Promise<OidcTokenResponse> {
+  if (!isSafeOidcEndpointUrl(tokenEndpoint)) {
+    throw new Error("Invalid token endpoint URL");
+  }
+
   const body = new URLSearchParams(params);
   const response = await fetch(tokenEndpoint, {
     method: "POST",
