@@ -5,7 +5,7 @@
 
 **Audience:** Francis Architecture LLC owner and coding agents scoping SecureNow work.
 
-**Last reconciled:** 2026-10-14 (marked **SN-HAND-09–10** shipped on trunk — gap 4 latest remediation attempt on Audit evidence lineage). Prior 2026-10-13 (marked **SN-HAND-05–08** shipped; gaps 1–3 baseline in `ENGINEER_ANALYST_HANDOFF.md`). Prior 2026-10-12 (added **RUR-01–RUR-03** + hold — role display name, counted plain-language `rbac-role-unmapped` warning, and a read / write / nothing question for one app and one resource; prompts only). Prior same day (added **SN-HOME-01–SN-HOME-06** + hold — SecureNow Home work summary, environment freshness, outcome copy, and visible labels; prompts only). Prior 2026-10-06 (added **SN-QQ-09** and **SN-QQ-10** — resource identity on the question card, then a readable open-question count; prompts only). Prior 2026-10-04 (added **DIC-01–DIC-05** + hold — import a customer drawing and compare it to an inventory capture without a sealed review; prompts only). Prior 2026-10-03 (added **SN-QQ-08** — map the questions controller so Diagrams stops 500ing `Unmapped API controller`; prompts only. Prior same day added **SN-QQ-07** — a failed question-queue load shows the API reason; prompts only. Prior same day added **DCU-01–DCU-05** + hold and **SN-QQ-01–SN-QQ-06** + hold; prompts only). Prior 2026-09-20 (trunk scan + prompt indexes under `.cursor/prompts/securenow-*`).
+**Last reconciled:** 2026-10-15 (marked **SN-HOME-01–06** shipped on trunk — SecureNow Home work summary). Prior 2026-10-14 (marked **SN-HAND-09–10** shipped — gap 4 latest remediation attempt on Audit evidence lineage). Prior 2026-10-13 (marked **SN-HAND-05–08** shipped; gaps 1–3 baseline in `ENGINEER_ANALYST_HANDOFF.md`). Prior 2026-10-12 (added **RUR-01–RUR-03** + hold — role display name, counted plain-language `rbac-role-unmapped` warning, and a read / write / nothing question for one app and one resource; prompts only). Prior same day (added **SN-HOME-01–SN-HOME-06** + hold — SecureNow Home work summary, environment freshness, outcome copy, and visible labels; prompts only). Prior 2026-10-06 (added **SN-QQ-09** and **SN-QQ-10** — resource identity on the question card, then a readable open-question count; prompts only). Prior 2026-10-04 (added **DIC-01–DIC-05** + hold — import a customer drawing and compare it to an inventory capture without a sealed review; prompts only). Prior 2026-10-03 (added **SN-QQ-08** — map the questions controller so Diagrams stops 500ing `Unmapped API controller`; prompts only. Prior same day added **SN-QQ-07** — a failed question-queue load shows the API reason; prompts only. Prior same day added **DCU-01–DCU-05** + hold and **SN-QQ-01–SN-QQ-06** + hold; prompts only). Prior 2026-09-20 (trunk scan + prompt indexes under `.cursor/prompts/securenow-*`).
 
 ## How to use this file
 
@@ -50,6 +50,7 @@ These waves are **closed for greenfield re-implementation**. Extend or fix with 
 | **Architect plane** | **SA-01–SA-21** | `SecurityEvidencePath` domain, security edges, privilege/reachability/toxic/capability engines, ranking, cut points, four-reality drift, neighborhood recompute, path inspector API + UI, constrained path explanation, asset assertions, outcome metrics, honesty copy. Optional Entra group + federated-credential **inventory** companions feed SA-02/SA-03. |
 | **Help job-match (partial set)** | **SH-01**, **SH-07–SH-10**, **SH-26**, others | Product-line contextual help rows for governance/infrastructure routes; Security help hub excludes Architecture-process featured slugs (e.g. `billing-and-plans`, `first-architecture-review`). |
 | **Engineer–analyst handoff (gaps 4–5)** | **SN-HAND-05–SN-HAND-10** | Gap 5: verified remediation association row (identifiers only) — table, verify write, lineage read, Audit evidence + Remediation tracker UI. Gap 4: `latestRemediationAttempt` on lineage + Audit evidence spine row. Gaps 1–3 UI slices pre-existed. Do not greenfield. |
+| **SecureNow Home work summary** | **SN-HOME-01–SN-HOME-06** | Short lead, environment context line, four counted work links, outcome directory copy, wrapping sidebar labels + SecureNow route titles, compact directory tables (`SecureNowHomeEnvironmentContext`, `SecureNowHomeWorkSummary`, `SecureNowHomeDestinationSection`). Do not greenfield. |
 
 **Holds (active):** [`SECURENOW_ARCHITECT_HOLD.md`](../library/SECURENOW_ARCHITECT_HOLD.md) (**SA-22**), [`SECURENOW_PROBABLE_EVIDENCE_HOLD.md`](../library/SECURENOW_PROBABLE_EVIDENCE_HOLD.md), [`SECURENOW_RUNTIME_CONNECTION_HOLD.md`](../library/SECURENOW_RUNTIME_CONNECTION_HOLD.md), [`SECURENOW_DATA_FLOW` hold via SN-DF-09](../architecture/SECURENOW_DATA_FLOW_DIAGRAM_COMPOSER_PROMPTS.md).
 
@@ -62,7 +63,7 @@ Ordered for SecureNow operator value after the shipped baseline. Size is enginee
 | Pri | ID | Title | Status | Size | Notes |
 |-----|-----|-------|--------|------|-------|
 | — | **SN-HAND-05–10** + hold | Engineer–analyst handoff (gaps 4–5) | **Shipped** | — | On trunk. Do not greenfield. Index: [`SECURENOW_ENGINEER_ANALYST_HANDOFF_LUNA_PROMPTS.md`](../architecture/SECURENOW_ENGINEER_ANALYST_HANDOFF_LUNA_PROMPTS.md). |
-| P1 | **SN-HOME-01–06** + hold | SecureNow Home work summary | **Backlog** (prompts only) | M | Context line, four counted work links, short lead, outcome summaries, wrapping sidebar labels, compact directory. Index: [`SECURENOW_HOME_WORK_SUMMARY_LUNA_PROMPTS.md`](../architecture/SECURENOW_HOME_WORK_SUMMARY_LUNA_PROMPTS.md). |
+| — | **SN-HOME-01–06** + hold | SecureNow Home work summary | **Shipped** | — | On trunk. Do not greenfield. Index: [`SECURENOW_HOME_WORK_SUMMARY_LUNA_PROMPTS.md`](../architecture/SECURENOW_HOME_WORK_SUMMARY_LUNA_PROMPTS.md). |
 | P1 | **DIC-01–05** + hold | Diagram import comparison | **Backlog** (prompts only) | L | Advisory compare of a structured drawing to an inventory capture, saved architect mapping, structural connector gaps, count strip and CSV, match outlines on the imported drawing. Index: [`DIAGRAM_IMPORT_COMPARISON_LUNA_PROMPTS.md`](../architecture/DIAGRAM_IMPORT_COMPARISON_LUNA_PROMPTS.md). |
 | P1 | **DMW-01–02** | Diagram matcher warnings | **Backlog** (prompts only) | S | Stop the private-endpoint DNS warning from listing every VNet-integrated app against every endpoint, and match private-link hostnames already in the snapshot. Index: [`DIAGRAM_MATCHER_WARNING_LUNA_PROMPTS.md`](../architecture/DIAGRAM_MATCHER_WARNING_LUNA_PROMPTS.md). |
 | P1 | **RUR-01–03** + hold | RBAC unmapped role | **Backlog** (prompts only) | M | Store the role display name, translate built-in roles the data-plane map already understands, show one counted plain-language warning, and ask read / write / nothing only for a managed identity on a resource in the snapshot. Do not ask whether a role can be deleted. Index: [`RBAC_UNMAPPED_ROLE_LUNA_PROMPTS.md`](../architecture/RBAC_UNMAPPED_ROLE_LUNA_PROMPTS.md). |
@@ -107,7 +108,7 @@ Paste **one** file per session from the repo root (Cloud Agent: `pwsh` + working
 | Diagram consumption UX | [diagram-consumption-ux-00-index.md](../../.cursor/prompts/diagram-consumption-ux-00-index.md) | **DCU-01–DCU-05** + hold | [`DIAGRAM_CONSUMPTION_UX_COMPOSER_PROMPTS.md`](../architecture/DIAGRAM_CONSUMPTION_UX_COMPOSER_PROMPTS.md) |
 | Diagram import comparison | [diagram-import-comparison-00-index.md](../../.cursor/prompts/diagram-import-comparison-00-index.md) | **DIC-01–DIC-05** + hold | [`DIAGRAM_IMPORT_COMPARISON_LUNA_PROMPTS.md`](../architecture/DIAGRAM_IMPORT_COMPARISON_LUNA_PROMPTS.md) |
 | Diagram matcher warnings | [diagram-matcher-warning-00-index.md](../../.cursor/prompts/diagram-matcher-warning-00-index.md) | **DMW-01–DMW-02** | [`DIAGRAM_MATCHER_WARNING_LUNA_PROMPTS.md`](../architecture/DIAGRAM_MATCHER_WARNING_LUNA_PROMPTS.md) |
-| Home work summary | [securenow-home-00-index.md](../../.cursor/prompts/securenow-home-00-index.md) | **SN-HOME-01–SN-HOME-06** + hold | [`SECURENOW_HOME_WORK_SUMMARY_LUNA_PROMPTS.md`](../architecture/SECURENOW_HOME_WORK_SUMMARY_LUNA_PROMPTS.md) |
+| Home work summary | [securenow-home-00-index.md](../../.cursor/prompts/securenow-home-00-index.md) | **SN-HOME-01–06** shipped + hold | [`SECURENOW_HOME_WORK_SUMMARY_LUNA_PROMPTS.md`](../architecture/SECURENOW_HOME_WORK_SUMMARY_LUNA_PROMPTS.md) |
 | Engineer-to-analyst handoff, gaps 4–5 | [securenow-handoff-00-index.md](../../.cursor/prompts/securenow-handoff-00-index.md) | **SN-HAND-05–10** shipped + hold | [`SECURENOW_ENGINEER_ANALYST_HANDOFF_LUNA_PROMPTS.md`](../architecture/SECURENOW_ENGINEER_ANALYST_HANDOFF_LUNA_PROMPTS.md) |
 | RBAC unmapped role | [rbac-unmapped-role-00-index.md](../../.cursor/prompts/rbac-unmapped-role-00-index.md) | **RUR-01–RUR-03** + hold | [`RBAC_UNMAPPED_ROLE_LUNA_PROMPTS.md`](../architecture/RBAC_UNMAPPED_ROLE_LUNA_PROMPTS.md) |
 
@@ -252,6 +253,20 @@ Prompts only. Run in order. Settled scope: [`../architecture/SECURENOW_QUESTION_
 | SN-QQ-09 | Name the resource, say why SecureNow is asking, and show its neighborhood | **Prompts** |
 | SN-QQ-10 | Open-question count: `Action needed`, medium helper type, outline `Review questions` | **Prompts** |
 | SN-QQ-HOLD | Stop list | **Hold** |
+
+### SN-HOME — SecureNow Home work summary (**SN-HOME-01–SN-HOME-06**)
+
+Index: [`SECURENOW_HOME_WORK_SUMMARY_LUNA_PROMPTS.md`](../architecture/SECURENOW_HOME_WORK_SUMMARY_LUNA_PROMPTS.md). Do not implement from the index. **Shipped** on trunk.
+
+| ID | Title | Status |
+|----|-------|--------|
+| SN-HOME-01 | Short Home lead and claim discipline | **Shipped** |
+| SN-HOME-02 | Environment and collection freshness line | **Shipped** |
+| SN-HOME-03 | Your work — four counted links | **Shipped** |
+| SN-HOME-04 | Directory outcome copy and sidebar labels | **Shipped** |
+| SN-HOME-05 | Wrapping sidebar labels; SecureNow route titles | **Shipped** |
+| SN-HOME-06 | Compact directory (sr-only column headers) | **Shipped** |
+| SN-HOME-HOLD | Stop list | **Hold** |
 
 ### SN-HAND — Verified remediation association and latest attempt (**SN-HAND-05–SN-HAND-10**)
 
