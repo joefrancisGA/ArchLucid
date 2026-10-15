@@ -116,7 +116,7 @@ public sealed class PilotValueReportMarkdownFormatter(ExportFormatterService exp
         sb.AppendLine("## Agent types observed");
         sb.AppendLine();
 
-        if (r.RunDetailsTruncated)
+        if (r.RunDetailsTruncated && r.UniqueAgentTypes.Count > 0)
         {
             sb.AppendLine(
                 CultureInfo.InvariantCulture,
@@ -126,7 +126,16 @@ public sealed class PilotValueReportMarkdownFormatter(ExportFormatterService exp
 
         if (r.UniqueAgentTypes.Count == 0)
         {
-            sb.AppendLine("Agent types were not stored.");
+            if (r.RunDetailsTruncated)
+            {
+                sb.AppendLine(
+                    CultureInfo.InvariantCulture,
+                    $"No agent types appeared in the loaded run-detail sample (newest {r.RunDetailCap} committed runs by CreatedUtc); additional types may exist on runs excluded by the cap.");
+            }
+            else
+            {
+                sb.AppendLine("Agent types were not stored.");
+            }
         }
         else
         {
