@@ -27,6 +27,10 @@ describe("resolveExpiresInSeconds", () => {
     expect(resolveExpiresInSeconds(true as unknown as number)).toBe(3600);
   });
 
+  it("maps a boolean false expires_in to the default lifetime", () => {
+    expect(resolveExpiresInSeconds(false as unknown as number)).toBe(3600);
+  });
+
   it("maps a whitespace-only string expires_in to the default lifetime", () => {
     expect(resolveExpiresInSeconds("   " as unknown as number)).toBe(3600);
   });

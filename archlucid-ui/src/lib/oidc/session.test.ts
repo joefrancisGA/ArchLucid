@@ -143,6 +143,13 @@ describe("getAccessTokenForApi / isLikelySignedIn expiry parsing (LK-06 P2)", ()
     expect(isLikelySignedIn()).toBe(false);
     expect(getAccessTokenForApi()).toBeUndefined();
   });
+
+  it("treats binary-prefixed expires_at_ms session hints as expired", () => {
+    sessionStorage.setItem(OIDC_EXPIRES_AT_MS_KEY, "0b101");
+
+    expect(isLikelySignedIn()).toBe(false);
+    expect(getAccessTokenForApi()).toBeUndefined();
+  });
 });
 
 describe("persistTokenResponse", () => {
@@ -186,6 +193,18 @@ describe("persistTokenResponse", () => {
 
     expect(sessionStorage.getItem(OIDC_EXPIRES_AT_MS_KEY)).toBeNull();
     expect(isLikelySignedIn()).toBe(false);
+  });
+
+  it("maps boolean false expires_in from malformed token JSON to the default lifetime", () => {
+    persistTokenResponse({ access_token: "tok", expires_in: false as unknown as number });
+
+    const expiresAtMs = Number(sessionStorage.getItem(OIDC_EXPIRES_AT_MS_KEY));
+    const expectedMin = Date.now() + 3590 * 1000;
+    const expectedMax = Date.now() + 3610 * 1000;
+
+    expect(expiresAtMs).toBeGreaterThanOrEqual(expectedMin);
+    expect(expiresAtMs).toBeLessThanOrEqual(expectedMax);
+    expect(isLikelySignedIn()).toBe(true);
   });
 
   it("maps boolean expires_in from malformed token JSON to the default lifetime", () => {

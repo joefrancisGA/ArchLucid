@@ -79,6 +79,10 @@ describe("decodeOAuthErrorDescription", () => {
   it("returns empty for percent-encoded colon-only error descriptions", () => {
     expect(decodeOAuthErrorDescription("%3A%3A")).toBe("");
   });
+
+  it("returns empty for percent-encoded slash-only error descriptions", () => {
+    expect(decodeOAuthErrorDescription("%2F%2F")).toBe("");
+  });
 });
 
 describe("humanizeAuthorizeCallbackError", () => {
@@ -203,6 +207,13 @@ describe("humanizeAuthorizeCallbackError", () => {
 
     expect(message).toContain("canceled sign-in");
     expect(message).not.toContain("🔒");
+  });
+
+  it("omits colon-only authorize error descriptions from access_denied copy", () => {
+    const message = humanizeAuthorizeCallbackError("access_denied", ":::");
+
+    expect(message).toContain("canceled sign-in");
+    expect(message).not.toContain(":::");
   });
 
   it("omits plus-only detail on default-branch authorize errors", () => {
