@@ -10,13 +10,29 @@ export type OidcTokenResponse = {
   scope?: string;
 };
 
+function readOAuthErrorString(value: unknown): string {
+  if (typeof value !== "string") {
+    return "";
+  }
+
+  const trimmed = value.trim();
+
+  if (trimmed.length === 0) {
+    return "";
+  }
+
+  return trimmed;
+}
+
 function errorFromOAuthJson(json: unknown): Error | null {
   if (!json || typeof json !== "object") {
     return null;
   }
 
-  const record = json as { error?: string; error_description?: string };
-  const msg = [record.error, record.error_description].filter(Boolean).join(": ");
+  const record = json as { error?: unknown; error_description?: unknown };
+  const msg = [readOAuthErrorString(record.error), readOAuthErrorString(record.error_description)]
+    .filter((part) => part.length > 0)
+    .join(": ");
 
   if (!msg) {
     return null;

@@ -99,6 +99,68 @@ describe("refreshAccessToken", () => {
     expect(posted.get("refresh_token")).toBe("refresh-1");
   });
 
+  it("trims padded client_id values before posting the form", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () => JSON.stringify({ access_token: "access-1" }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await refreshAccessToken({
+      tokenEndpoint: "https://login.example.com/token",
+      clientId: "  client-1  ",
+      refreshToken: "rt",
+    });
+
+    const requestInit = fetchMock.mock.calls[0]?.[1] as { body?: URLSearchParams };
+    const posted = new URLSearchParams(requestInit.body);
+
+    expect(posted.get("client_id")).toBe("client-1");
+  });
+
+  it("ignores non-string OAuth error fields when building token endpoint errors", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: false,
+      status: 400,
+      text: async () => JSON.stringify({ error: 403, error_description: true }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    let message = "";
+
+    try {
+      await refreshAccessToken({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        refreshToken: "rt",
+      });
+    } catch (error) {
+      message = error instanceof Error ? error.message : String(error);
+    }
+
+    expect(message).toMatch(/token endpoint error 400/i);
+    expect(message).not.toMatch(/403: true/i);
+  });
+
+  it("uses only string OAuth error fields when token JSON mixes types", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () => JSON.stringify({ error: "invalid_grant", error_description: 123 }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      refreshAccessToken({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        refreshToken: "rt",
+      }),
+    ).rejects.toThrow(/^invalid_grant$/);
+  });
+
   it("trims authorization code and PKCE fields before posting the form", async () => {
     const fetchMock = vi.fn(async () => ({
       ok: true,
