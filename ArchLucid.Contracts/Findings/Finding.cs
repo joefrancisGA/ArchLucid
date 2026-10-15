@@ -43,11 +43,13 @@ public class Finding
         set;
     }
 
+    private string engineType = string.Empty;
+
     public string EngineType
     {
-        get;
-        set;
-    } = null!;
+        get => engineType;
+        set => engineType = ContractCollectionDefaults.CoalesceRequired(value);
+    }
 
     public FindingSeverity Severity
     {
