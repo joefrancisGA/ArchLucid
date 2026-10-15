@@ -17,11 +17,13 @@ public class GraphNode
         set => nodeId = ContractCollectionDefaults.CoalesceRequired(value);
     }
 
+    private string nodeType = string.Empty;
+
     public string NodeType
     {
-        get;
-        set;
-    } = null!;
+        get => nodeType;
+        set => nodeType = ContractCollectionDefaults.CoalesceRequired(value);
+    }
 
     public string Label
     {
