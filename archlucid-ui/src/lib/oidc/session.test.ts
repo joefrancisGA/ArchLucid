@@ -110,6 +110,12 @@ describe("getAccessTokenForApi / isLikelySignedIn expiry parsing (LK-06 P2)", ()
     expect(isLikelySignedIn()).toBe(true);
   });
 
+  it("treats scientific-notation expires_at_ms session hints in the past as expired", () => {
+    sessionStorage.setItem(OIDC_EXPIRES_AT_MS_KEY, "1.73e12");
+
+    expect(isLikelySignedIn()).toBe(false);
+  });
+
   it("does not merge digits around interior zero-width characters in expires_at_ms hints", () => {
     const futureMs = Date.now() + 3_600_000;
     sessionStorage.setItem(OIDC_EXPIRES_AT_MS_KEY, `${futureMs}\u200b000`);

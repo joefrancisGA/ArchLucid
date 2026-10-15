@@ -67,6 +67,10 @@ describe("decodeOAuthErrorDescription", () => {
   it("returns empty for percent-encoded underscore-only error descriptions", () => {
     expect(decodeOAuthErrorDescription("%5F%5F%5F")).toBe("");
   });
+
+  it("returns empty for percent-encoded plus-only error descriptions", () => {
+    expect(decodeOAuthErrorDescription("%2B%2B")).toBe("");
+  });
 });
 
 describe("humanizeAuthorizeCallbackError", () => {
@@ -271,6 +275,12 @@ describe("humanizeAuthorizeCallbackError", () => {
 
     expect(message).toContain("canceled sign-in");
     expect(message.length).toBeLessThanOrEqual(280);
+  });
+
+  it("includes numeric invalid_request error_description in callback copy", () => {
+    const message = humanizeAuthorizeCallbackError("invalid_request", "403");
+
+    expect(message).toBe("This sign-in request was not valid (403). Try signing in again.");
   });
 
   it("uses invalid_request copy without detail when error_description is whitespace-only", () => {

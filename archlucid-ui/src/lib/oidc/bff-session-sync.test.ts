@@ -134,6 +134,24 @@ describe("bff-session-sync (LK-05 P1)", () => {
     );
   });
 
+  it("coerces string expires_in through resolveExpiresInSeconds when syncing BFF cookie", async () => {
+    await syncBffSessionCookieFromTokenResponse({
+      access_token: "access-1",
+      expires_in: "7200" as unknown as number,
+    });
+
+    expect(fetch).toHaveBeenCalledWith(
+      "/api/auth/bff-session",
+      expect.objectContaining({
+        body: JSON.stringify({
+          access_token: "access-1",
+          expires_in: 7200,
+          working_mode: true,
+        }),
+      }),
+    );
+  });
+
   it("maps negative expires_in to the default lifetime (parity with session.resolveExpiresInSeconds)", async () => {
     await syncBffSessionCookieFromTokenResponse({
       access_token: "access-1",
