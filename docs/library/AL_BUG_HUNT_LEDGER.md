@@ -30069,7 +30069,21 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 ---
 ## Zone: archlucid-contracts
 
-**Hunts:** 168 · **Bugs found:** 208 · **Consecutive dry hunts:** 0
+**Hunts:** 169 · **Bugs found:** 213 · **Consecutive dry hunts:** 0
+
+2026-10-15 seed hunt (seed→hit): promoted five open `(candidate)` rows on draft admit response lists, elicitation `ruleKeys`, pilot explainability `byEngine`, threshold recommendation lists, and graph build result lists; coalesce fix on `DraftAdmissionResponse`, `DraftElicitationQuestion`, `ExplainabilityTraceCompletenessPack`, `ThresholdRecommendationResult`, and `GraphBuildResult`; regressions in matching `*DeserializationTests`; reseeded five follow-on `(candidate)` rows; 908 scoped `Contracts` filter tests passed.
+
+- [x] (proven) `DraftAdmissionResponse` — `PendingMustQuestions` / `RequiredMustQuestionKeys` explicit JSON `null` on admit response JSON — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_list_properties_yields_empty_lists_not_null`.
+- [x] (proven) `DraftElicitationQuestion.RuleKeys` — explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_rule_keys_yields_empty_list_not_null`.
+- [x] (proven) `ExplainabilityTraceCompletenessPack.ByEngine` — explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_by_engine_yields_empty_list_not_null`.
+- [x] (proven) `ThresholdRecommendationResult` — `SummaryNotes` / `Candidates` explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_list_properties_yields_empty_lists_not_null`.
+- [x] (proven) `GraphBuildResult` — `Nodes` / `Edges` / `Warnings` explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_list_properties_yields_empty_lists_not_null`.
+
+- [ ] (candidate) `RuleCandidateComparisonResult.SummaryNotes` — explicit JSON `null` — locus: `Alerts.Simulation.RuleCandidateComparisonResult`; input: `CompareCandidatesAsync` comparison JSON with null `summaryNotes`.
+- [ ] (candidate) `ThresholdRecommendationRequest.CandidateThresholds` — explicit JSON `null` — locus: `Alerts.Tuning.ThresholdRecommendationRequest`; input: threshold sweep request JSON with null `candidateThresholds`.
+- [ ] (candidate) `NoiseScoreBreakdown` — explicit JSON `null` on noise score list properties — locus: `Alerts.Tuning.NoiseScoreBreakdown`; input: noise breakdown JSON with null list tokens (see file).
+- [ ] (candidate) `SimulatedAlertOutcome` — explicit JSON `null` on simulated outcome lists — locus: `Alerts.Simulation.SimulatedAlertOutcome`; input: simulated alert outcome JSON with null list token (see file).
+- [ ] (candidate) `RuleAuditTraceWarning` — explicit JSON `null` on rule audit trace warning lists — locus: `Persistence.DecisionTraces.RuleAuditTraceWarning`; input: decision trace warning JSON with null list token (see file).
 
 2026-10-15 seed hunt (seed→hit): promoted five open `(candidate)` rows on operator saved-views, draft structured brief lists, draft request MUST keys, rule simulation rollup lists, and composite alert rule conditions; coalesce fix on `OperatorSavedViewListResponse`, `ArchitectureDraftStructuredBrief`, `DraftRequestDocument`, `RuleSimulationResult`, and `CompositeAlertRule`; regressions in matching `*DeserializationTests`; reseeded five follow-on `(candidate)` rows; 903 scoped `Contracts` filter tests passed.
 

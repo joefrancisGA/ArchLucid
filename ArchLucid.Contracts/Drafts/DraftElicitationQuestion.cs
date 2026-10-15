@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 
 using ArchLucid.Contracts.Governance;
+using ArchLucid.Contracts.Serialization;
 
 namespace ArchLucid.Contracts.Drafts;
 
@@ -43,10 +44,12 @@ public sealed class DraftElicitationQuestion
     }
 
     /// <summary>Linked governance rule keys when sourced from a pack (may be empty for L0).</summary>
+    private List<string> ruleKeys = [];
+
     [JsonPropertyName("ruleKeys")]
     public List<string> RuleKeys
     {
-        get;
-        set;
-    } = [];
+        get => ruleKeys;
+        set => ruleKeys = ContractCollectionDefaults.Coalesce(value);
+    }
 }
