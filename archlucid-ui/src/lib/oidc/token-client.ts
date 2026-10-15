@@ -70,6 +70,21 @@ async function postTokenForm(
     throw oauthError;
   }
 
+  return parseOidcTokenResponse(parsed);
+}
+
+function parseOidcTokenResponse(parsed: unknown): OidcTokenResponse {
+  if (!parsed || typeof parsed !== "object") {
+    throw new Error("Token response missing access_token");
+  }
+
+  const record = parsed as Record<string, unknown>;
+  const accessToken = record.access_token;
+
+  if (typeof accessToken !== "string" || accessToken.trim().length === 0) {
+    throw new Error("Token response missing access_token");
+  }
+
   return parsed as OidcTokenResponse;
 }
 
