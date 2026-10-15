@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Findings;
 
 public class ExplainabilityTrace
@@ -11,41 +13,53 @@ public class ExplainabilityTrace
         set;
     }
 
+    private List<string> graphNodeIdsExamined = [];
+
     public List<string> GraphNodeIdsExamined
     {
-        get;
-        set;
-    } = [];
+        get => graphNodeIdsExamined;
+        set => graphNodeIdsExamined = ContractCollectionDefaults.Coalesce(value);
+    }
+
+    private List<string> rulesApplied = [];
 
     public List<string> RulesApplied
     {
-        get;
-        set;
-    } = [];
+        get => rulesApplied;
+        set => rulesApplied = ContractCollectionDefaults.Coalesce(value);
+    }
+
+    private List<string> decisionsTaken = [];
 
     public List<string> DecisionsTaken
     {
-        get;
-        set;
-    } = [];
+        get => decisionsTaken;
+        set => decisionsTaken = ContractCollectionDefaults.Coalesce(value);
+    }
+
+    private List<string> alternativePathsConsidered = [];
 
     public List<string> AlternativePathsConsidered
     {
-        get;
-        set;
-    } = [];
+        get => alternativePathsConsidered;
+        set => alternativePathsConsidered = ContractCollectionDefaults.Coalesce(value);
+    }
+
+    private List<string> notes = [];
 
     public List<string> Notes
     {
-        get;
-        set;
-    } = [];
+        get => notes;
+        set => notes = ContractCollectionDefaults.Coalesce(value);
+    }
+
+    private List<string> citations = [];
 
     public List<string> Citations
     {
-        get;
-        set;
-    } = [];
+        get => citations;
+        set => citations = ContractCollectionDefaults.Coalesce(value);
+    }
 
     /// <summary>Bounded agent reasoning text copied from <c>AgentResult.ReasoningTrace</c> (TB-055).</summary>
     public string? ReasoningTrace

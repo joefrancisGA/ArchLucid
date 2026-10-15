@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.ArchitectureIntelligence;
 
 public class SpecialistReviewFinding
@@ -56,11 +58,13 @@ public class SpecialistReviewFinding
         set;
     }
 
+    private List<string> evidenceArtifactIds = [];
+
     public List<string> EvidenceArtifactIds
     {
-        get;
-        set;
-    } = [];
+        get => evidenceArtifactIds;
+        set => evidenceArtifactIds = ContractCollectionDefaults.Coalesce(value);
+    }
 
     /// <summary>Severity label: Critical, High, Medium, or Low.</summary>
     public string Severity
@@ -76,23 +80,29 @@ public class SpecialistReviewFinding
         set;
     } = ArchitectureLifecycleScope.Unspecified;
 
+    private List<string> relatedModelElementIds = [];
+
     public List<string> RelatedModelElementIds
     {
-        get;
-        set;
-    } = [];
+        get => relatedModelElementIds;
+        set => relatedModelElementIds = ContractCollectionDefaults.Coalesce(value);
+    }
+
+    private List<string> relatedRequirementElementIds = [];
 
     public List<string> RelatedRequirementElementIds
     {
-        get;
-        set;
-    } = [];
+        get => relatedRequirementElementIds;
+        set => relatedRequirementElementIds = ContractCollectionDefaults.Coalesce(value);
+    }
+
+    private List<string> relatedDecisionElementIds = [];
 
     public List<string> RelatedDecisionElementIds
     {
-        get;
-        set;
-    } = [];
+        get => relatedDecisionElementIds;
+        set => relatedDecisionElementIds = ContractCollectionDefaults.Coalesce(value);
+    }
 
     /// <summary>Honest integrity vs semantic inference label after validation (TB-2340 item 46).</summary>
     public EvidenceSupportTier EvidenceSupportTier

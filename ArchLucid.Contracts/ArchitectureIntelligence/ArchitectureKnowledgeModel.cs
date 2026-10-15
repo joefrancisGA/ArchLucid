@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.ArchitectureIntelligence;
 
 public class ArchitectureKnowledgeModel
@@ -38,23 +40,29 @@ public class ArchitectureKnowledgeModel
         set;
     }
 
+    private List<ArchitectureModelElement> elements = [];
+
     public List<ArchitectureModelElement> Elements
     {
-        get;
-        set;
-    } = [];
+        get => elements;
+        set => elements = ContractCollectionDefaults.Coalesce(value);
+    }
+
+    private List<string> declaredPriorities = [];
 
     public List<string> DeclaredPriorities
     {
-        get;
-        set;
-    } = [];
+        get => declaredPriorities;
+        set => declaredPriorities = ContractCollectionDefaults.Coalesce(value);
+    }
+
+    private Dictionary<string, string> framingAnswers = new();
 
     public Dictionary<string, string> FramingAnswers
     {
-        get;
-        set;
-    } = new();
+        get => framingAnswers;
+        set => framingAnswers = ContractCollectionDefaults.CoalesceDictionary(value);
+    }
 
     /// <summary>
     /// True when framing questions remain unanswered; specialist Fail conclusions are held as Indeterminate until complete.
