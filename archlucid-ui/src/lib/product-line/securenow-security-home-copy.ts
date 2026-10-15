@@ -38,8 +38,8 @@ export const SECURENOW_SECURITY_HOME_ROWS: readonly SecureNowHomeDestinationRow[
   },
 ];
 
+/** Findings home section — full queue only; assigned-to-me is on the Your work summary. */
 export const SECURENOW_FINDINGS_HOME_ROWS: readonly SecureNowHomeDestinationRow[] = [
-  SECURENOW_SECURITY_HOME_ROWS[0]!,
   {
     href: SECURENOW_FINDINGS_PATH,
     label: SECURENOW_NAV_LABELS[SECURENOW_FINDINGS_PATH],

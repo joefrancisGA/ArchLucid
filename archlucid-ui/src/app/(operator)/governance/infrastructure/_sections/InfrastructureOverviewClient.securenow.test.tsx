@@ -32,7 +32,7 @@ vi.mock("@/components/product-line/SecureNowHomeWorkSummary", () => ({
 }));
 
 import {
-  SECURENOW_ASSIGNED_TO_ME_FINDINGS_PATH,
+  SECURENOW_FINDINGS_PATH,
   SECURENOW_POLICY_PACKS_PATH,
 } from "@/lib/governance/governance-route-paths";
 import { SECURENOW_EDITION_ENV_NAME } from "@/lib/product-line/resolve-securenow-edition-id";
@@ -87,9 +87,11 @@ describe("InfrastructureOverviewClient SecureNow grouped home sections", () => {
       "href",
       "/infrastructure/resources",
     );
-    expect(
-      screen.getByTestId(`securenow-findings-home-link-${SECURENOW_ASSIGNED_TO_ME_FINDINGS_PATH}`),
-    ).toHaveAttribute("href", SECURENOW_ASSIGNED_TO_ME_FINDINGS_PATH);
+    expect(screen.getByTestId(`securenow-findings-home-link-${SECURENOW_FINDINGS_PATH}`)).toHaveAttribute(
+      "href",
+      SECURENOW_FINDINGS_PATH,
+    );
+    expect(screen.queryByTestId("securenow-findings-home-link-/security/assigned-to-me")).not.toBeInTheDocument();
     expect(screen.getByTestId("securenow-data-sources-home-link-/integrations/cloud-connections")).toBeInTheDocument();
     expect(screen.queryByTestId("securenow-security-home-link-/integrations/jira")).not.toBeInTheDocument();
     expect(screen.queryByTestId("securenow-security-home-link-/integrations/servicenow")).not.toBeInTheDocument();
