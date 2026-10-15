@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Runs;
 
 /// <summary>
@@ -26,9 +28,11 @@ public sealed class RunAssumptionAcknowledgementDocument
         set;
     } = string.Empty;
 
+    private List<string> acknowledgedAssumptionIds = [];
+
     public List<string> AcknowledgedAssumptionIds
     {
-        get;
-        set;
-    } = [];
+        get => acknowledgedAssumptionIds;
+        set => acknowledgedAssumptionIds = ContractCollectionDefaults.Coalesce(value);
+    }
 }

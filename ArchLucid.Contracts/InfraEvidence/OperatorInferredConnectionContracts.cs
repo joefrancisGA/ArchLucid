@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.InfraEvidence;
 
 public sealed class OperatorInferredConnectionResponse
@@ -161,11 +163,13 @@ public sealed class OperatorInferredConnectionDismissApiRequest
 
 public sealed class InferenceQuestionnaireListResponse
 {
+    private IReadOnlyList<OperatorInferredConnectionResponse> items = [];
+
     public IReadOnlyList<OperatorInferredConnectionResponse> Items
     {
-        get;
-        init;
-    } = [];
+        get => items;
+        init => items = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 
     public int TotalCount
     {

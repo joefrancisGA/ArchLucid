@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Ingestion;
 
 /// <summary>POST body for <c>POST /v1/architecture/fast-path/context-preview</c>.</summary>
@@ -50,11 +52,13 @@ public sealed class FastPathContextPreviewResponse
         set;
     } = string.Empty;
 
+    private IReadOnlyList<FastPathContextElementDto> elements = [];
+
     public IReadOnlyList<FastPathContextElementDto> Elements
     {
-        get;
-        set;
-    } = [];
+        get => elements;
+        set => elements = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 
     /// <summary>Version tag for clients that cache previews.</summary>
     public string Mode

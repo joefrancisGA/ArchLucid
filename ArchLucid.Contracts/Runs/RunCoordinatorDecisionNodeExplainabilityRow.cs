@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Runs;
 
 /// <summary>Coordinator V2 decision node row on unified run decision explainability (TB-054).</summary>
@@ -39,15 +41,19 @@ public sealed class RunCoordinatorDecisionNodeExplainabilityRow
         set;
     }
 
+    private IReadOnlyList<string> supportingEvaluationIds = [];
+
     public IReadOnlyList<string> SupportingEvaluationIds
     {
-        get;
-        set;
-    } = [];
+        get => supportingEvaluationIds;
+        set => supportingEvaluationIds = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
+
+    private IReadOnlyList<string> opposingEvaluationIds = [];
 
     public IReadOnlyList<string> OpposingEvaluationIds
     {
-        get;
-        set;
-    } = [];
+        get => opposingEvaluationIds;
+        set => opposingEvaluationIds = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 }
