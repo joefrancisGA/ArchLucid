@@ -51,6 +51,10 @@ describe("decodeOAuthErrorDescription", () => {
   it("returns empty for underscore-only error descriptions", () => {
     expect(decodeOAuthErrorDescription("___")).toBe("");
   });
+
+  it("returns empty for nbsp-only percent-encoded error descriptions", () => {
+    expect(decodeOAuthErrorDescription("%C2%A0")).toBe("");
+  });
 });
 
 describe("humanizeAuthorizeCallbackError", () => {

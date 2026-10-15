@@ -34,6 +34,22 @@ describe("ensureAccessTokenFresh (LK-06 P2 BFF refresh)", () => {
     expect(Number(sessionStorage.getItem(OIDC_EXPIRES_AT_MS_KEY))).toBeGreaterThan(Date.now());
   });
 
+  it("refreshes via BFF when the expires_at_ms session hint has zero-width padding", async () => {
+    const refreshedMs = Date.now() + 3_600_000;
+
+    vi.mocked(bffSessionSync.refreshBffSessionCookie).mockResolvedValue({
+      ok: true,
+      expiresAtMs: refreshedMs,
+    });
+
+    sessionStorage.setItem(OIDC_EXPIRES_AT_MS_KEY, `${Date.now()}\u200b`);
+
+    await ensureAccessTokenFresh();
+
+    expect(bffSessionSync.refreshBffSessionCookie).toHaveBeenCalledTimes(1);
+    expect(sessionStorage.getItem(OIDC_EXPIRES_AT_MS_KEY)).toBe(String(refreshedMs));
+  });
+
   it("dedupes concurrent BFF refresh attempts", async () => {
     vi.mocked(bffSessionSync.refreshBffSessionCookie).mockImplementation(async () => {
       await new Promise((resolve) => setTimeout(resolve, 25));
