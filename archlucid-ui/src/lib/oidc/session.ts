@@ -213,7 +213,19 @@ function readPkceStateForFlow(flow: OidcPkceFlow): Omit<StoredPkceState, "flow">
     return null;
   }
 
-  return { state, codeVerifier, nonce };
+  const normalizedState = normalizePkceCallbackQueryValue(state);
+  const normalizedVerifier = normalizePkceCallbackQueryValue(codeVerifier);
+  const normalizedNonce = normalizePkceCallbackQueryValue(nonce);
+
+  if (normalizedState.length === 0 || normalizedVerifier.length === 0 || normalizedNonce.length === 0) {
+    return null;
+  }
+
+  return {
+    state: normalizedState,
+    codeVerifier: normalizedVerifier,
+    nonce: normalizedNonce,
+  };
 }
 
 /** PKCE OAuth state is short-lived and not an access token — safe in sessionStorage (LK-06 P2). */

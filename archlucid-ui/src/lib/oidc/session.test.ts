@@ -369,6 +369,17 @@ describe("consumePkceState", () => {
       flow: "primary",
     });
   });
+
+  it("returns normalized PKCE verifier and nonce values read from sessionStorage", () => {
+    storePkceState("primary-state", `\u200bprimary-verifier\u200b`, `\u200bprimary-nonce\u200b`, "primary");
+
+    expect(consumePkceState("primary-state")).toEqual({
+      state: "primary-state",
+      codeVerifier: "primary-verifier",
+      nonce: "primary-nonce",
+      flow: "primary",
+    });
+  });
 });
 
 describe("clearOidcSession", () => {

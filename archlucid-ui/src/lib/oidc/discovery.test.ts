@@ -165,6 +165,26 @@ describe("loadDiscoveryDocument", () => {
     expect(doc.end_session_endpoint).toBe("https://login.microsoftonline.com/logout");
   });
 
+  it("strips zero-width characters from discovery endpoint URLs", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      json: async () => ({
+        issuer: "https://login.microsoftonline.com/tenant/v2.0",
+        authorization_endpoint: `https://login.microsoftonline.com/authorize\u200b`,
+        token_endpoint: `https://login.microsoftonline.com/token\u200b`,
+      }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    const { loadDiscoveryDocument } = await import("@/lib/oidc/discovery");
+
+    const doc = await loadDiscoveryDocument("https://login.microsoftonline.com/tenant/v2.0");
+
+    expect(doc.authorization_endpoint).toBe("https://login.microsoftonline.com/authorize");
+    expect(doc.token_endpoint).toBe("https://login.microsoftonline.com/token");
+  });
+
   it("ignores hash fragments when building the discovery URL", async () => {
     const fetchMock = vi.fn(async () => ({
       ok: true,

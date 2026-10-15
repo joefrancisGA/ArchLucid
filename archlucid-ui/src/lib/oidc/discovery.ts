@@ -1,3 +1,5 @@
+import { stripOAuthInvisibleFormatChars } from "@/lib/oidc/oauth-callback-messages";
+
 export type OidcDiscoveryDocument = {
   issuer: string;
   authorization_endpoint: string;
@@ -31,24 +33,33 @@ function isHttpOrHttpsUrl(url: string): boolean {
   }
 }
 
+function normalizeDiscoveryMetadataString(value: string): string {
+  return stripOAuthInvisibleFormatChars(value.trim()).trim();
+}
+
 function parseDiscoveryDocument(body: unknown, discoveryUrl: string): OidcDiscoveryDocument {
   if (!body || typeof body !== "object") {
     throw new Error(`OIDC discovery document is not a JSON object: ${discoveryUrl}`);
   }
 
   const record = body as Record<string, unknown>;
-  const issuer = record.issuer;
-  const authorizationEndpoint = record.authorization_endpoint;
-  const tokenEndpoint = record.token_endpoint;
+  const issuerRaw = record.issuer;
+  const authorizationEndpointRaw = record.authorization_endpoint;
+  const tokenEndpointRaw = record.token_endpoint;
 
   if (
-    typeof issuer !== "string" ||
-    issuer.trim().length === 0 ||
-    typeof authorizationEndpoint !== "string" ||
-    authorizationEndpoint.trim().length === 0 ||
-    typeof tokenEndpoint !== "string" ||
-    tokenEndpoint.trim().length === 0
+    typeof issuerRaw !== "string" ||
+    typeof authorizationEndpointRaw !== "string" ||
+    typeof tokenEndpointRaw !== "string"
   ) {
+    throw new Error(`OIDC discovery document missing required endpoints: ${discoveryUrl}`);
+  }
+
+  const issuer = normalizeDiscoveryMetadataString(issuerRaw);
+  const authorizationEndpoint = normalizeDiscoveryMetadataString(authorizationEndpointRaw);
+  const tokenEndpoint = normalizeDiscoveryMetadataString(tokenEndpointRaw);
+
+  if (issuer.length === 0 || authorizationEndpoint.length === 0 || tokenEndpoint.length === 0) {
     throw new Error(`OIDC discovery document missing required endpoints: ${discoveryUrl}`);
   }
 
@@ -64,15 +75,15 @@ function parseDiscoveryDocument(body: unknown, discoveryUrl: string): OidcDiscov
   }
 
   const doc: OidcDiscoveryDocument = {
-    issuer: issuer.trim(),
-    authorization_endpoint: authorizationEndpoint.trim(),
-    token_endpoint: tokenEndpoint.trim(),
+    issuer,
+    authorization_endpoint: authorizationEndpoint,
+    token_endpoint: tokenEndpoint,
   };
 
   const endSessionEndpoint = record.end_session_endpoint;
 
   if (typeof endSessionEndpoint === "string" && endSessionEndpoint.trim().length > 0) {
-    const trimmedEndSession = endSessionEndpoint.trim();
+    const trimmedEndSession = normalizeDiscoveryMetadataString(endSessionEndpoint);
 
     try {
       new URL(trimmedEndSession);
