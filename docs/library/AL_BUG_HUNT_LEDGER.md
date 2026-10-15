@@ -1,3 +1,5 @@
+2026-10-15 seed hunt (seed→hit): `application-analysis` — promoted PascalCase `LeftExists`/`RightExists`/`LeftConfidence`/`RightConfidence` on stored agent deltas skipping replay-cost materiality; case-insensitive reads in `ComparisonReplayPayloadComplexity.AgentDelta`; regression `TryEstimateAsync_pascal_case_agent_presence_delta_adds_factor`; 56 scoped ArchitectureAnalysis/CompareQuality/ComparisonReplayCostEstimator tests passed.
+
 2026-10-15 seed hunt (seed→hit): `api-tenancy-workspaces` — promoted `ListAsync` null `ListActiveByTenantAsync` before `ToLookup` (parity with recycle-bin null soft-deleted list); regression `ListAsync_returns_ok_with_empty_projects_when_active_project_list_is_null`; 51 scoped TenantWorkspaces tests passed.
 
 2026-10-15 seed hunt (seed→hit): `application-analysis` — promoted PascalCase `ArtifactSizesBytes` on stored comparison JSON skipping replay-cost IO heuristics; case-insensitive read in `TrySumNumericArray`; regression `TryEstimateAsync_pascal_case_artifact_sizes_bytes_adds_factor`; 55 scoped ArchitectureAnalysis/CompareQuality/ComparisonReplayCostEstimator tests passed.
@@ -18381,23 +18383,23 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 52
-- **bugs-found:** 50
+- **hunts:** 53
+- **bugs-found:** 51
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-15
-- **last-bug:** 2026-10-15 — PascalCase `ArtifactSizesBytes` replay cost IO heuristic
+- **last-bug:** 2026-10-15 — PascalCase agent delta presence/confidence replay cost materiality
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
-2026-10-15 seed hunt (seed→hit): promoted PascalCase `ArtifactSizesBytes` not summed by `TrySumNumericArray` so replay cost underestimated vs camelCase payloads; `TryGetPropertyIgnoreCase` in `TrySumNumericArray`; regression `TryEstimateAsync_pascal_case_artifact_sizes_bytes_adds_factor`; 55 scoped ArchitectureAnalysis/CompareQuality/ComparisonReplayCostEstimator tests passed.
+2026-10-15 seed hunt (seed→hit): promoted PascalCase agent delta `LeftExists`/`RightExists` (and confidence fields) not counted as substantive agent replay work; `TryGetPropertyIgnoreCase` in agent delta materiality helpers; regression `TryEstimateAsync_pascal_case_agent_presence_delta_adds_factor`; 56 scoped ArchitectureAnalysis/CompareQuality/ComparisonReplayCostEstimator tests passed.
 
-- [x] (proven) `ComparisonReplayPayloadComplexity` — `artifactSizesBytes` PascalCase property skipped IO scoring — **hit 2026-10-15 seed hunt:** regression `TryEstimateAsync_pascal_case_artifact_sizes_bytes_adds_factor`.
+- [x] (proven) `ComparisonReplayPayloadComplexity` — PascalCase agent presence/confidence delta properties skipped materiality scoring — **hit 2026-10-15 seed hunt:** regression `TryEstimateAsync_pascal_case_agent_presence_delta_adds_factor`.
 
-- [ ] (candidate) `CompareQualityDeltaCalculator.Build` — functional requirement coverage uses `min(requirements, components)` heuristic (reachable input: requirements without component traceability links).
+- [ ] (candidate) `CompareQualityDeltaCalculator.Build` — functional requirement coverage uses requirements-minus-covered heuristic when requirements lack design links (reachable input: FR elements without traceability).
 - [ ] (candidate) `ArchitectureAnalysisService.BuildAsync` — `IncludeSummary` with `IncludeEvidence=false` omits evidence section in summary without explicit warning (reachable input: summary-only export request).
 - [ ] (candidate) `EndToEndReplayComparisonService` — compare quality delta omitted when one knowledge model fails to load (reachable input: partial model availability on replay).
 - [ ] (candidate) `MarkdownArchitectureAnalysisExportService` — manifest diff warnings section ordering differs from DOCX export (reachable input: report with warnings-only manifest diff).
-- [ ] (candidate) `CompareQualityDeltaCalculator.Build` — muted findings excluded from high-severity counts but still mapped into specialist list (reachable input: verify metric double-count path).
+- [ ] (candidate) `CompareQualityDeltaCalculator.Build` — null knowledge model returns null delta without interpretation note on replay compare (reachable input: one-sided model load failure).
 
 
 2026-10-15 seed hunt (seed→hit): promoted PascalCase end-to-end comparison payloads skipping warning-only `ManifestDiff` replay cost scoring; `TryGetPropertyIgnoreCase` across payload heuristics; regression `TryEstimateAsync_pascal_case_warning_only_manifestDiff_adds_factor`; 35 scoped ArchitectureAnalysis/CompareQuality tests + 17 ComparisonReplayCostEstimator tests passed.
