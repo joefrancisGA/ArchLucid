@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-15 seed hunt (seed→hit): `archlucid-contracts` — promoted `QuestionSelectionResult` list properties (`AllQuestions`, `RequiredMustQuestionKeys`, `PendingMustQuestions`) explicit JSON `null` on draft question selection JSON (consolidated fix); `ContractCollectionDefaults.CoalesceReadOnly` on all three `init` accessors; regression `QuestionSelectionResultDeserializationTests`; reseeded five follow-on `(candidate)` rows; 762 scoped `Contracts` filter tests passed.
+
 2026-10-15 seed hunt (seed→hit): `archlucid-contracts` — promoted `SponsorDigestPreferencesResponse.RecipientEmails` and `ExecDigestPreferencesResponse.RecipientEmails` explicit JSON `null` on digest preferences JSON (consolidated fix); `ContractCollectionDefaults.CoalesceReadOnly` on both `init` accessors; regression `DigestPreferencesDeserializationTests`; reseeded five follow-on `(candidate)` rows; 761 scoped `Contracts` filter tests passed.
 
 2026-10-15 seed hunt (seed→hit): `archlucid-contracts` — promoted trial funnel operational summary and data-quality list properties (`Stages`, `CohortRows`, `StageDefinitions`) explicit JSON `null` (consolidated fix); `ContractCollectionDefaults.CoalesceReadOnly` on all three `init` accessors; regression `TrialFunnelDeserializationTests`; reseeded five follow-on `(candidate)` rows; 759 scoped `Contracts` filter tests passed.
@@ -29892,6 +29894,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 ---
 ## Zone: archlucid-contracts
 
+2026-10-15 seed hunt (seed→hit): promoted `QuestionSelectionResult` JSON `null` on all list properties; consolidated `ContractCollectionDefaults.CoalesceReadOnly` on `init`; regression `QuestionSelectionResultDeserializationTests`; 762 scoped `Contracts` filter tests passed.
+
 2026-10-15 seed hunt (seed→hit): promoted sponsor and exec digest `RecipientEmails` JSON `null`; consolidated `ContractCollectionDefaults.CoalesceReadOnly` on `init`; regression `DigestPreferencesDeserializationTests`; 761 scoped `Contracts` filter tests passed.
 
 2026-10-15 seed hunt (seed→hit): promoted trial funnel `Stages` / `CohortRows` / `StageDefinitions` JSON `null`; consolidated `ContractCollectionDefaults.CoalesceReadOnly` on `init`; regression `TrialFunnelDeserializationTests`; 759 scoped `Contracts` filter tests passed.
@@ -30058,11 +30062,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 137
-- **bugs-found:** 117
+- **hunts:** 138
+- **bugs-found:** 118
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-15
-- **last-bug:** 2026-10-15 — Sponsor / exec digest preferences RecipientEmails JSON null
+- **last-bug:** 2026-10-15 — QuestionSelectionResult JSON null lists
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -30104,8 +30108,12 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `ExecDigestPreferencesResponse.RecipientEmails` — explicit JSON `null` on exec digest preferences JSON — **hit 2026-10-15 seed hunt (seed→hit):** same consolidated fix as sponsor digest.
 - [ ] (candidate) `OperationalSecurityFindingLookupRequest.SourceFindingIds` — explicit JSON `null` on operational security finding lookup POST body; locus: `OperationalSecurityFindingLookupRequest`; input: `"sourceFindingIds": null`; wrong outcome: lookup handler assumes non-null id list; reachability: operational security finding lookup API request contract.
 - [ ] (candidate) `AgentOutputEvaluationPerspective.Scores` — explicit JSON `null` on agent output evaluation perspective JSON; locus: `AgentOutputEvaluationPerspective`; input: `"scores": null`; wrong outcome: evaluation UI assumes non-null score rows; reachability: run agent evaluation perspective API JSON.
-- [ ] (candidate) `QuestionSelectionResult.AllQuestions` — explicit JSON `null` on draft question selection JSON; locus: `QuestionSelectionResult`; input: `"allQuestions": null`; wrong outcome: draft intake assumes non-null selected questions; reachability: draft question selection engine output serialization.
+- [x] (proven) `QuestionSelectionResult.AllQuestions` — explicit JSON `null` on draft question selection JSON — **hit 2026-10-15 seed hunt (seed→hit):** consolidated with `RequiredMustQuestionKeys` and `PendingMustQuestions`; regression `QuestionSelectionResultDeserializationTests`.
+- [x] (proven) `QuestionSelectionResult.RequiredMustQuestionKeys` — explicit JSON `null` on draft question selection JSON — **hit 2026-10-15 seed hunt (seed→hit):** same consolidated fix as `AllQuestions`.
+- [x] (proven) `QuestionSelectionResult.PendingMustQuestions` — explicit JSON `null` on draft question selection JSON — **hit 2026-10-15 seed hunt (seed→hit):** same consolidated fix as `AllQuestions`.
 - [ ] (candidate) `DraftIntakeReaperBatchResult.DeletedDraftIds` — explicit JSON `null` on draft intake reaper batch JSON; locus: `DraftIntakeReaperBatchResult`; input: `"deletedDraftIds": null`; wrong outcome: reaper summary assumes non-null deleted id list; reachability: draft intake reaper batch result contract JSON.
+- [ ] (candidate) `CandidateChangeSet.ProposedActions` — explicit JSON `null` on evolution candidate change-set JSON; locus: `CandidateChangeSet`; input: `"proposedActions": null`; wrong outcome: evolution review assumes non-null proposed action steps; reachability: candidate change-set API JSON.
+- [ ] (candidate) `CandidateChangeSet.AffectedComponents` — explicit JSON `null` on evolution candidate change-set JSON; locus: `CandidateChangeSet`; input: `"affectedComponents": null`; wrong outcome: change-set summary assumes non-null affected component rows; reachability: candidate change-set API JSON.
 - [x] (invalid) `AgentOutputEvaluationScore.MissingKeys` — duplicate candidate row — **cheap-disproof 2026-10-15 seed hunt:** already proven 2026-10-14 with `AgentOutputEvaluationScoreDeserializationTests`.
 
 2026-10-10 seed hunt (seed-only): reread advisory scheduling/digest DTOs and agent trace summary projection with the existing Contracts coverage; no fresh contract-local wrong outcome or reachable serialization mismatch met the promotion bar. The scoped Contracts filter passed 520/520. No production or regression code was changed.
