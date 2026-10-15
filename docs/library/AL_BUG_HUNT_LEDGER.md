@@ -30069,7 +30069,21 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 ---
 ## Zone: archlucid-contracts
 
-**Hunts:** 185 · **Bugs found:** 286 · **Consecutive dry hunts:** 0
+**Hunts:** 186 · **Bugs found:** 291 · **Consecutive dry hunts:** 0
+
+2026-10-15 seed hunt (seed→hit): promoted five open `(candidate)` rows on sponsor evidence pack nested payloads, draft questions selection, policy pack validation summary, branch draft nested draft, and clone snapshot nested draft; null guards on `SponsorEvidencePackResponse`, `DraftQuestionsResponse`, `PolicyPackContentValidationResponse`, `BranchDraftResponse`, and `CloneSnapshotDraftResponse`; regressions in `SponsorEvidencePackResponseDeserializationTests`, `DraftQuestionsResponseDeserializationTests`, `PolicyPackContentValidationResponseDeserializationTests`, `BranchDraftResponseDeserializationTests`, and `CloneSnapshotDraftResponseDeserializationTests`; reseeded five follow-on `(candidate)` rows; 983 scoped `Contracts` filter tests passed.
+
+- [x] (proven) `SponsorEvidencePackResponse` — `ProcessInstrumentation` / `ExplainabilityTrace` / `GovernanceOutcomes` explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_nested_pack_objects_yields_non_null_defaults`.
+- [x] (proven) `DraftQuestionsResponse.Selection` — explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_selection_yields_non_null_selection_not_null`.
+- [x] (proven) `PolicyPackContentValidationResponse.Summary` — explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_summary_yields_non_null_summary_not_null`.
+- [x] (proven) `BranchDraftResponse.Branch` — explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_branch_yields_non_null_branch_not_null`.
+- [x] (proven) `CloneSnapshotDraftResponse.Clone` — explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_clone_yields_non_null_clone_not_null`.
+
+- [ ] (candidate) `RewriteArchitectureOverviewInput.StructuredBrief` — explicit JSON `null` on advisory rewrite input JSON — locus: `Requests.RewriteArchitectureOverviewInput`; input: `POST` rewrite-overview body with `"structuredBrief": null` (see file).
+- [ ] (candidate) `DecisionReceiptDocument` — `Verdict` / `CostStory` explicit JSON `null` on decision receipt export JSON — locus: `Exports.DecisionReceiptDocument`; input: receipt document JSON with null nested object tokens (see file).
+- [ ] (candidate) `OperatorSavedViewResponse.Payload` — explicit JSON `null` on operator saved view JSON — locus: `Operator.OperatorSavedViewResponse`; input: saved view response JSON with `"payload": null` (see file).
+- [ ] (candidate) `TenantBrandingPresentationResponse.Colors` — explicit JSON `null` on tenant branding presentation JSON — locus: `InfraEvidence.TenantBrandingPresentationResponse`; input: branding presentation JSON with `"colors": null` (see file).
+- [ ] (candidate) `ItsmIntegrationHealthStatusResponse` — `Jira` / `ServiceNow` probe objects explicit JSON `null` — locus: `Integrations.ItsmIntegrationHealthStatusResponse`; input: ITSM health JSON with null provider probe tokens (see file).
 
 2026-10-15 seed hunt (seed→hit): promoted five open `(candidate)` rows on golden manifest nested objects, product-learning dashboard bundle slices, draft request document, agent evidence request payload, and governance setup effective policy packs; coalesce fix on `GoldenManifest`, `ProductLearningDashboardBundleResponse`, `DraftRequestResponse`, `AgentEvidencePackage`, and `GovernanceSetupGuideBundleResponse`; regressions in `GoldenManifestDeserializationTests`, `ProductLearningDashboardBundleResponseDeserializationTests`, `DraftRequestResponseDeserializationTests`, `AgentEvidencePackageDeserializationTests`, and `GovernanceSetupGuideBundleResponseDeserializationTests`; reseeded five follow-on `(candidate)` rows; 978 scoped `Contracts` filter tests passed.
 
@@ -30078,12 +30092,6 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `DraftRequestResponse.Document` — explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_document_yields_non_null_document_not_null`.
 - [x] (proven) `AgentEvidencePackage.Request` — explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_request_evidence_yields_non_null_request_not_null`.
 - [x] (proven) `GovernanceSetupGuideBundleResponse.EffectivePolicyPacks` — explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_effective_policy_packs_yields_non_null_set_not_null`.
-
-- [ ] (candidate) `SponsorEvidencePackResponse` — explicit JSON `null` on nested sponsor evidence pack payloads — locus: `Pilots.SponsorEvidencePackResponse`; input: sponsor evidence pack JSON with null nested object token (see file).
-- [ ] (candidate) `DraftQuestionsResponse` — explicit JSON `null` on nested draft questions response payload — locus: `Drafts.DraftQuestionsResponse`; input: draft questions response JSON with null nested object token (see file).
-- [ ] (candidate) `PolicyPackContentValidationResponse` — explicit JSON `null` on nested policy pack validation payload — locus: `Governance.PolicyPackContentValidationResponse`; input: policy pack content validation JSON with null nested object token (see file).
-- [ ] (candidate) `BranchDraftResponse` — explicit JSON `null` on nested branch draft response payload — locus: `Drafts.BranchDraftResponse`; input: branch draft response JSON with null nested object token (see file).
-- [ ] (candidate) `CloneSnapshotDraftResponse` — explicit JSON `null` on nested clone snapshot draft response payload — locus: `Drafts.CloneSnapshotDraftResponse`; input: clone snapshot draft response JSON with null nested object token (see file).
 
 2026-10-15 seed hunt (seed→hit): promoted five open `(candidate)` rows on structured diagram ingest model, posture review integrity, trust evidence field snapshots, policy packs page bundle nested payloads, and effective governance resolution content; coalesce fix on `StructuredDiagramIngestResult`, `ArchitecturePostureSummary`, `RunTrustEvidenceCard` (all `TrustEvidenceFieldSnapshot` properties), `PolicyPacksPageBundleResponse`, and `EffectiveGovernanceResolutionResult`; regressions in `StructuredDiagramIngestResultDeserializationTests`, `ArchitecturePostureSummaryDeserializationTests`, `RunTrustEvidenceCardDeserializationTests`, `PolicyPacksPageBundleResponseDeserializationTests`, and `EffectiveGovernanceResolutionResultDeserializationTests`; reseeded five follow-on `(candidate)` rows; 959 scoped `Contracts` filter tests passed.
 

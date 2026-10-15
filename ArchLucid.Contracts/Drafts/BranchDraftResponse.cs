@@ -16,9 +16,11 @@ public sealed class BranchDraftResponse
         set;
     }
 
+    private DraftRequestResponse branch = new();
+
     public DraftRequestResponse Branch
     {
-        get;
-        set;
-    } = new();
+        get => branch;
+        set => branch = value ?? new();
+    }
 }

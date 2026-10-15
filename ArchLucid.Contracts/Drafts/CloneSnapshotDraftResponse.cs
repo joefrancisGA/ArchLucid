@@ -16,9 +16,11 @@ public sealed class CloneSnapshotDraftResponse
         set;
     }
 
+    private DraftRequestResponse clone = new();
+
     public DraftRequestResponse Clone
     {
-        get;
-        set;
-    } = new();
+        get => clone;
+        set => clone = value ?? new();
+    }
 }

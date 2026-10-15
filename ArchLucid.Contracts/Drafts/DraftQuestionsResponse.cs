@@ -15,9 +15,11 @@ public sealed class DraftQuestionsResponse
         set;
     }
 
+    private QuestionSelectionResult selection = new();
+
     public QuestionSelectionResult Selection
     {
-        get;
-        set;
-    } = new();
+        get => selection;
+        set => selection = value ?? new();
+    }
 }

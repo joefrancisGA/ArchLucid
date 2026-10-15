@@ -13,11 +13,13 @@ public sealed class PolicyPackContentValidationResponse
         set;
     }
 
+    private PolicyPackContentValidationSummary summary = new();
+
     public PolicyPackContentValidationSummary Summary
     {
-        get;
-        set;
-    } = new();
+        get => summary;
+        set => summary = value ?? new();
+    }
 
     private List<PolicyPackContentValidationIssue> issues = [];
 

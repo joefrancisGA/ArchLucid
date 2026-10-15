@@ -26,4 +26,21 @@ public sealed class PolicyPackContentValidationResponseDeserializationTests
 
         response.Issues.Should().NotBeNull().And.BeEmpty();
     }
+
+    [Fact]
+    public void Deserialize_null_summary_yields_non_null_summary_not_null()
+    {
+        const string json = """
+            {
+              "valid": true,
+              "summary": null,
+              "issues": []
+            }
+            """;
+
+        PolicyPackContentValidationResponse response =
+            JsonSerializer.Deserialize<PolicyPackContentValidationResponse>(json, ContractJson.Default)!;
+
+        response.Summary.Should().NotBeNull();
+    }
 }
