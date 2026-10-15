@@ -5,6 +5,8 @@ import {
   GOVERNANCE_FINDINGS_PATH,
   GOVERNANCE_POLICY_PACKS_PATH,
   GOVERNANCE_RESOLUTION_PATH,
+  SECURENOW_ASSIGNED_TO_ME_FINDINGS_PATH,
+  SECURENOW_POLICY_PACKS_PATH,
 } from "@/lib/governance/governance-route-paths";
 import { GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
 import { AUDIT_EVIDENCE_LINEAGE_LOOKUP_PATH } from "@/lib/audit-evidence-lineage-route";
@@ -351,6 +353,7 @@ export const FINDINGS_HELP_GUIDE_HEADINGS: readonly HelpMarkdownHeading[] = [
   { level: 2, id: "severity-and-impact", title: "Severity and impact" },
   { level: 2, id: "inspect-the-evidence", title: "Inspect the evidence" },
   { level: 2, id: "respond-to-a-finding", title: "Respond to a finding" },
+  { level: 2, id: "assigned-to-me", title: "Assigned to me" },
   { level: 2, id: "findings-and-governance", title: "Findings and approval" },
   { level: 2, id: "role-guidance", title: "What each role usually does" },
   { level: 2, id: FINDINGS_HELP_CLAIM_HEADING_ID, title: FINDINGS_HELP_CLAIM_DISCIPLINE_HEADING },
@@ -385,11 +388,11 @@ export const SECURENOW_FINDINGS_HELP_PRIMARY_ACTIONS = {
   openFindings: FINDINGS_HELP_PRIMARY_ACTIONS.openFindings,
   openAssignedToMe: {
     label: "Open assigned to me",
-    href: GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH,
+    href: SECURENOW_ASSIGNED_TO_ME_FINDINGS_PATH,
   },
   openPolicyPacks: {
     label: "Open policy packs",
-    href: GOVERNANCE_POLICY_PACKS_PATH,
+    href: SECURENOW_POLICY_PACKS_PATH,
   },
 } as const;
 

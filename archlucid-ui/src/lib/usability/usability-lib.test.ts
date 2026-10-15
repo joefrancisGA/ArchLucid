@@ -71,6 +71,9 @@ describe("usability lib", () => {
     expect(pageHelpTopicForPathname("/governance/advisory-scans")?.label).toBe(ADVISORY_SCANS_HELP_TOPIC_LABEL);
     expect(pageHelpTopicForPathname("/governance/decision-register")?.slug).toBe("decision-register");
     expect(pageHelpTopicForPathname("/governance/decision-register")?.label).toBe(DECISION_REGISTER_HELP_TOPIC_LABEL);
+    expect(pageHelpTopicForPathname("/governance/findings/assigned-to-me")?.slug).toBe("findings");
+    expect(pageHelpTopicForPathname("/governance/findings/assigned-to-me")?.hashFragment).toBe("assigned-to-me");
+    expect(pageHelpTopicForPathname("/governance/findings")?.hashFragment).toBeUndefined();
     expect(pageHelpTopicForPathname("/administration/workspace-settings")?.slug).toBe("workspace-settings");
     expect(pageHelpTopicForPathname("/internal/recommendation-learning")?.slug).toBe("pilot-feedback");
     expect(pageHelpTopicForPathname("/architecture/reviews/run-1/artifacts/cost-summary")?.slug).toBe("review-artifacts");
