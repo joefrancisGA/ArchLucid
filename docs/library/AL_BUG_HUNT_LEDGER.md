@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-15 seed hunt (seed→hit): `archlucid-contracts` — promoted `ExecDigestSponsorDeepLinkViewResponse.TopRuns` explicit JSON `null` on exec digest sponsor deep-link view JSON; `ContractCollectionDefaults.CoalesceReadOnly` on `TopRuns` `init`; regression `Deserialize_null_top_runs_yields_empty_list_not_null`; reseeded five follow-on `(candidate)` rows; 748 scoped `Contracts` filter tests passed.
+
 2026-10-15 seed hunt (seed-only): `archlucid-contracts` — cheap-disproved five `AgentResultJsonConverter.AgentResultJsonPayload` list-null candidates (`Claims`, `EvidenceRefs`, `Findings`, `ChecklistCoverage`, `WithheldFindings`); reachable `AgentResultJsonConverter` deserialize path already coalesces via `AgentResult` property setters in `ToAgentResult()`; regression lock extended `Deserialize_null_collection_properties_yields_empty_lists_not_null`; reseeded five follow-on `(candidate)` rows; 747 scoped `Contracts` filter tests passed; no production change.
 
 2026-10-15 seed hunt (seed→hit): `archlucid-contracts` — promoted `InfraEvidenceMermaidCompletenessSummary.MissingClasses` and `CollectedClasses` explicit JSON `null` on mermaid completeness JSON (single consolidated fix); `ContractCollectionDefaults.Coalesce` on both setters; regression `Deserialize_null_class_list_properties_yields_empty_lists_not_null`; reseeded five follow-on `(candidate)` rows; 747 scoped `Contracts` filter tests passed.
@@ -29874,6 +29876,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 ---
 ## Zone: archlucid-contracts
 
+2026-10-15 seed hunt (seed→hit): promoted `ExecDigestSponsorDeepLinkViewResponse.TopRuns` JSON `null` leaving `TopRuns` null despite `Array.Empty` default; `ContractCollectionDefaults.CoalesceReadOnly` on `init`; regression `ExecDigestSponsorDeepLinkViewResponseDeserializationTests`; 748 scoped `Contracts` filter tests passed.
+
 2026-10-15 seed hunt (seed-only): cheap-disproved nested `AgentResultJsonPayload` explicit JSON `null` list properties; no failing repro on `AgentResult` deserialize path; extended `AgentResultDeserializationTests`; 747 scoped `Contracts` filter tests passed; no production change.
 
 2026-10-15 seed hunt (seed→hit): promoted `InfraEvidenceMermaidCompletenessSummary` JSON `null` on `MissingClasses` and `CollectedClasses`; `ContractCollectionDefaults.Coalesce` on both setters; regression `InfraEvidenceMermaidCompletenessSummaryDeserializationTests`; 747 scoped `Contracts` filter tests passed.
@@ -30022,8 +30026,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 128
-- **bugs-found:** 107
+- **hunts:** 129
+- **bugs-found:** 108
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-15
 - **last-bug:** 2026-10-15 — InfraEvidenceMermaidCompletenessSummary list JSON null
