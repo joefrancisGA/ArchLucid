@@ -34,11 +34,15 @@ export function decodeOAuthErrorDescription(encoded: string | null | undefined):
     return "";
   }
 
+  let decoded: string;
+
   try {
-    return collapseOAuthErrorDescriptionLineBreaks(decodeURIComponent(trimmed.replace(/\+/g, " ")));
+    decoded = collapseOAuthErrorDescriptionLineBreaks(decodeURIComponent(trimmed.replace(/\+/g, " ")));
   } catch {
-    return collapseOAuthErrorDescriptionLineBreaks(trimmed.replace(/\+/g, " "));
+    decoded = collapseOAuthErrorDescriptionLineBreaks(trimmed.replace(/\+/g, " "));
   }
+
+  return isReadableOAuthErrorDetail(decoded) ? decoded : "";
 }
 
 function formatErrorCodeForReading(errorCode: string): string {

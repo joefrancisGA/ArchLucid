@@ -43,6 +43,14 @@ describe("decodeOAuthErrorDescription", () => {
     expect(decodeOAuthErrorDescription("Policy%C2%ADdenied")).toBe("Policy denied");
     expect(decodeOAuthErrorDescription("%C2%AD")).toBe("");
   });
+
+  it("returns empty for zero-width-only percent-encoded error descriptions", () => {
+    expect(decodeOAuthErrorDescription("%E2%80%8B")).toBe("");
+  });
+
+  it("returns empty for underscore-only error descriptions", () => {
+    expect(decodeOAuthErrorDescription("___")).toBe("");
+  });
 });
 
 describe("humanizeAuthorizeCallbackError", () => {
