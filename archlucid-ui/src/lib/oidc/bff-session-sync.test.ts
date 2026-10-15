@@ -4,6 +4,7 @@ import {
   clearBffSessionCookie,
   pulseBffSessionActivity,
   refreshBffSessionCookie,
+  resolveRpLogoutUrlFromBffSession,
   syncBffSessionCookieFromTokenResponse,
 } from "@/lib/oidc/bff-session-sync";
 
@@ -147,6 +148,40 @@ describe("pulseBffSessionActivity (LK-07)", () => {
     const result = await pulseBffSessionActivity();
 
     expect(result).toBe("unauthorized");
+  });
+});
+
+describe("resolveRpLogoutUrlFromBffSession", () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("returns null when the BFF logout URL embeds userinfo credentials", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({
+        ok: true,
+        json: async () => ({ url: "https://user:pass@idp.example/logout" }),
+      })),
+    );
+
+    const url = await resolveRpLogoutUrlFromBffSession();
+
+    expect(url).toBeNull();
+  });
+
+  it("returns a trimmed logout URL when the BFF response is safe", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({
+        ok: true,
+        json: async () => ({ url: "  https://idp.example/logout  " }),
+      })),
+    );
+
+    const url = await resolveRpLogoutUrlFromBffSession();
+
+    expect(url).toBe("https://idp.example/logout");
   });
 });
 

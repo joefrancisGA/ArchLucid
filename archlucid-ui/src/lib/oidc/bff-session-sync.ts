@@ -1,3 +1,4 @@
+import { isSafeOidcEndpointUrl } from "@/lib/oidc/discovery";
 import { resolveExpiresInSeconds } from "@/lib/oidc/resolve-expires-in-seconds";
 import type { OidcTokenResponse } from "@/lib/oidc/token-client";
 import { applyBffCsrfHeader, readBffCsrfTokenFromDocument } from "@/lib/proxy/bff-session-csrf-client";
@@ -171,7 +172,11 @@ export async function resolveRpLogoutUrlFromBffSession(): Promise<string | null>
     const body = (await response.json()) as { url?: string | null };
     const url = body.url?.trim() ?? "";
 
-    return url.length > 0 ? url : null;
+    if (url.length === 0 || !isSafeOidcEndpointUrl(url)) {
+      return null;
+    }
+
+    return url;
   } catch {
     return null;
   }

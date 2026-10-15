@@ -7,6 +7,11 @@ export type OidcDiscoveryDocument = {
 
 const discoveryPromises = new Map<string, Promise<OidcDiscoveryDocument>>();
 
+/** Rejects non-http(s) URLs and embedded userinfo credentials for OIDC endpoints and logout redirects. */
+export function isSafeOidcEndpointUrl(url: string): boolean {
+  return isHttpOrHttpsUrl(url);
+}
+
 function isHttpOrHttpsUrl(url: string): boolean {
   try {
     const parsed = new URL(url);

@@ -165,6 +165,25 @@ describe("loadDiscoveryDocument", () => {
     );
   });
 
+  it("rejects token endpoints that embed userinfo credentials", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      json: async () => ({
+        issuer: "https://login.microsoftonline.com/tenant/v2.0",
+        authorization_endpoint: "https://login.microsoftonline.com/authorize",
+        token_endpoint: "https://user:pass@login.microsoftonline.com/token",
+      }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    const { loadDiscoveryDocument } = await import("@/lib/oidc/discovery");
+
+    await expect(loadDiscoveryDocument("https://login.microsoftonline.com/tenant/v2.0")).rejects.toThrow(
+      /invalid endpoint URLs/i,
+    );
+  });
+
   it("rejects authorization endpoints that embed userinfo credentials", async () => {
     const fetchMock = vi.fn(async () => ({
       ok: true,
