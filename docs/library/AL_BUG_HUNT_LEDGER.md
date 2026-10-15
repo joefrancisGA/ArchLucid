@@ -30081,7 +30081,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - [ ] (candidate) `PillarPosture.PackAssignments` — explicit JSON `null` — locus: `Governance.Posture.PillarPosture`; input: pillar posture JSON with null `packAssignments`.
 - [ ] (candidate) `ArchitectureDecisionRegisterEntry.SupportingFindingIds` — explicit JSON `null` — locus: `Governance.ArchitectureDecisionRegisterEntry`; input: ADR register entry JSON with null `supportingFindingIds`.
-- [ ] (candidate) `GovernanceLineageRunDetail.TopFindings` / `Promotions` — explicit JSON `null` — locus: `Governance.GovernanceLineageDtos`; input: lineage run detail JSON with null list tokens (see file).
+- [ ] (candidate) `GovernanceLineageResult.TopFindings` / `Promotions` — explicit JSON `null` — locus: `Governance.GovernanceLineageResult`; input: lineage result JSON with null `topFindings` or `promotions`.
 - [ ] (candidate) `GovernanceConflictRecord.Candidates` — explicit JSON `null` — locus: `Governance.Resolution.GovernanceConflictRecord`; input: conflict record JSON with null `candidates`.
 - [ ] (candidate) `ArchitectureRiskRegisterListOptions.AssignedToUserIds` — explicit JSON `null` — locus: `Governance.ArchitectureRiskRegisterListOptions`; input: risk register list options JSON with null `assignedToUserIds`.
 
