@@ -1,6 +1,7 @@
-namespace ArchLucid.Contracts.Architecture;
-
 using ArchLucid.Contracts.Findings;
+using ArchLucid.Contracts.Serialization;
+
+namespace ArchLucid.Contracts.Architecture;
 
 /// <summary>
 ///     Policy theory-in-force and typed prior revision for finding-engine orchestration.
@@ -25,11 +26,13 @@ public sealed class FindingAnalysisContext
         init;
     }
 
+    private IReadOnlyList<string> enabledPolicyPackIds = [];
+
     public IReadOnlyList<string> EnabledPolicyPackIds
     {
-        get;
-        init;
-    } = [];
+        get => enabledPolicyPackIds;
+        init => enabledPolicyPackIds = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 
     public PriorReviewSnapshots? Prior
     {
@@ -50,18 +53,22 @@ public sealed class FindingAnalysisContext
     } = string.Empty;
 
     /// <summary>Categories that enabled policy packs require engines to cover (wave-3 suggestion 26).</summary>
+    private IReadOnlyList<string> requiredFindingCategories = [];
+
     public IReadOnlyList<string> RequiredFindingCategories
     {
-        get;
-        init;
-    } = [];
+        get => requiredFindingCategories;
+        init => requiredFindingCategories = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
+
+    private IReadOnlyList<string> requiredEngineTypes = [];
 
     /// <summary>Engine types that enabled policy packs require to succeed (wave-4 suggestion 33).</summary>
     public IReadOnlyList<string> RequiredEngineTypes
     {
-        get;
-        init;
-    } = [];
+        get => requiredEngineTypes;
+        init => requiredEngineTypes = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 
     /// <summary>Primary pinned extractor evidence for effectful engines (wave-4 suggestion 32).</summary>
     public EvidencePackagePin? EvidencePin
@@ -71,11 +78,13 @@ public sealed class FindingAnalysisContext
     }
 
     /// <summary>All pinned extractor packages for multi-cloud effectful engines (wave-6 suggestion 55).</summary>
+    private IReadOnlyList<EvidencePackagePin> evidencePins = [];
+
     public IReadOnlyList<EvidencePackagePin> EvidencePins
     {
-        get;
-        init;
-    } = [];
+        get => evidencePins;
+        init => evidencePins = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 
     /// <summary>Wave-7 suggestion 67: run header carries a create-time evidence pin hash commitment.</summary>
     public bool HasCreateTimeEvidencePinCommitment
