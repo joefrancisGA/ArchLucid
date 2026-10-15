@@ -355,6 +355,36 @@ Describe 'ArchLucid.ResourceGraph.RelationshipQueries.helpers.ps1' {
         $spec[0].Query | Should -Match 'privateLinkResource.id'
     }
 
+    It 'emits monitor private link scope to scoped resource association from ARG row' {
+        $rows = [System.Collections.ArrayList]::new()
+        $seen = @{}
+        $scopeId = '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Insights/privateLinkScopes/extension-pls'
+        $appInsightsId = '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Insights/components/app1'
+        $scopedResourceId = "$scopeId/scopedResources/app1"
+
+        Add-ArchLucidArgNetworkAssociationRowsFromMonitorScopedResourceRecord `
+            -Rows $rows `
+            -Seen $seen `
+            -ScopedResourceId $scopedResourceId `
+            -LinkedResourceId $appInsightsId `
+            -Kind 'components'
+
+        $rows.Count | Should -Be 1
+        $rows[0].associationType | Should -Be 'monitorPrivateLinkScopeToScopedResource'
+        $rows[0].fromResourceId | Should -Be $scopeId
+        $rows[0].toResourceId | Should -Be $appInsightsId
+        $rows[0].kind | Should -Be 'components'
+    }
+
+    It 'includes monitor private link scope scoped resource ARG query' {
+        $spec = @(Get-ArchLucidArgNetworkAssociationQuerySpecs |
+            Where-Object { $_.Kind -eq 'monitorPrivateLinkScopeScopedResource' })
+
+        $spec.Count | Should -Be 1
+        $spec[0].Query | Should -Match 'privatelinkscopes/scopedresources'
+        $spec[0].Query | Should -Match 'linkedResourceId'
+    }
+
     It 'builds an ARG query for AVD session host to VM associations' {
         $specQuery = @(
             Get-ArchLucidArgNetworkAssociationQuerySpecs |

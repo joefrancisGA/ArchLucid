@@ -135,6 +135,8 @@ public static class AzureInventoryRelationshipAssociationTypes
 
     public const string NetworkSecurityPerimeterToResource = "networkSecurityPerimeterToResource";
 
+    public const string MonitorPrivateLinkScopeToScopedResource = "monitorPrivateLinkScopeToScopedResource";
+
     private static readonly AzureInventoryRelationshipAssociationTypeDefinition[] Catalog =
     [
         Observed(NicToSubnet, AzureInventoryRelationshipArmKind.NetworkInterface, AzureInventoryRelationshipArmKind.Subnet, "CONNECTS_TO", "inventory-nic-subnet"),
@@ -218,6 +220,12 @@ public static class AzureInventoryRelationshipAssociationTypes
             AzureInventoryRelationshipArmKind.LinkedServiceTarget,
             "PROTECTS",
             "inventory-nsp-association"),
+        Observed(
+            MonitorPrivateLinkScopeToScopedResource,
+            AzureInventoryRelationshipArmKind.MonitorPrivateLinkScope,
+            AzureInventoryRelationshipArmKind.LinkedServiceTarget,
+            "CONNECTS_TO",
+            "inventory-ampls-scoped-resource"),
     ];
 
     private static readonly Dictionary<string, AzureInventoryRelationshipAssociationTypeDefinition> Lookup =
