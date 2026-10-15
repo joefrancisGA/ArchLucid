@@ -25,11 +25,13 @@ public class Finding
         set => findingType = ContractCollectionDefaults.CoalesceRequired(value);
     }
 
+    private string category = string.Empty;
+
     public string Category
     {
-        get;
-        set;
-    } = null!;
+        get => category;
+        set => category = ContractCollectionDefaults.CoalesceRequired(value);
+    }
 
     /// <summary>
     ///     Canonical architecture pillar key from <see cref="Governance.Posture.ArchitecturePillar" />

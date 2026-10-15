@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-15 seed hunt (seed→hit): `archlucid-contracts` — promoted `Finding.Category` explicit JSON `null` (`ContractCollectionDefaults.CoalesceRequired`); regression `Deserialize_null_category_yields_empty_string_not_null`; reseeded five follow-on `(candidate)` rows; 1018 scoped `Contracts` filter tests passed.
+
 2026-10-15 seed hunt (seed→hit): `archlucid-contracts` — promoted `Finding.FindingType` explicit JSON `null` (`ContractCollectionDefaults.CoalesceRequired`); regression `Deserialize_null_finding_type_yields_empty_string_not_null`; reseeded five follow-on `(candidate)` rows; 1017 scoped `Contracts` filter tests passed.
 
 2026-10-15 seed hunt (seed→hit): `archlucid-contracts` — promoted buyer run detail, decision explainability, retrieval grounding, and authority audit `Runs` DTO list properties explicit JSON `null` (consolidated `CoalesceReadOnly`); five deserialization regressions; reseeded five follow-on `(candidate)` rows; 823 scoped `Contracts` filter tests passed.
@@ -30071,13 +30073,22 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 ---
 ## Zone: archlucid-contracts
 
-**Hunts:** 195 · **Bugs found:** 309 · **Consecutive dry hunts:** 0
+**Hunts:** 196 · **Bugs found:** 310 · **Consecutive dry hunts:** 0
+
+2026-10-15 seed hunt (seed→hit): promoted `Finding.Category` explicit JSON `null` on finding envelope JSON; `ContractCollectionDefaults.CoalesceRequired` on setter; regression `Deserialize_null_category_yields_empty_string_not_null` in `FindingListDeserializationTests`; reseeded five follow-on `(candidate)` rows; 1018 scoped `Contracts` filter tests passed.
+
+- [x] (proven) `Finding.Category` — explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_category_yields_empty_string_not_null`.
+
+- [ ] (candidate) `Alerts.Delivery.AlertRoutingSignal.Severity` — explicit JSON `null` on alert routing signal JSON — locus: `Alerts.Delivery.AlertRoutingSignal`; input: routing signal JSON with `"severity": null` (see `init` + `= null!`).
+- [ ] (candidate) `Alerts.Delivery.AlertRoutingSignal.FindingType` — explicit JSON `null` on alert routing signal JSON — locus: `Alerts.Delivery.AlertRoutingSignal`; input: routing signal JSON with `"findingType": null` (see file).
+- [ ] (candidate) `Governance.Posture.PillarPosture.PillarKey` — explicit JSON `null` on pillar posture JSON — locus: `Governance.Posture.PillarPosture`; input: posture JSON with `"pillarKey": null` (see file).
+- [ ] (candidate) `SpecialistReviewFinding.Severity` — explicit JSON `null` on specialist review finding JSON — locus: `ArchitectureIntelligence.SpecialistReviewFinding`; input: specialist finding JSON with `"severity": null` (see `= null!`).
+- [ ] (candidate) `SpecialistReviewFinding.FindingId` — explicit JSON `null` on specialist review finding JSON — locus: `ArchitectureIntelligence.SpecialistReviewFinding`; input: specialist finding JSON with `"findingId": null` (see file).
 
 2026-10-15 seed hunt (seed→hit): promoted `Finding.FindingType` explicit JSON `null` on finding envelope JSON; `ContractCollectionDefaults.CoalesceRequired` on setter; regression `Deserialize_null_finding_type_yields_empty_string_not_null` in `FindingListDeserializationTests`; reseeded five follow-on `(candidate)` rows; 1017 scoped `Contracts` filter tests passed.
 
 - [x] (proven) `Finding.FindingType` — explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_finding_type_yields_empty_string_not_null`.
 
-- [ ] (candidate) `Finding.Category` — explicit JSON `null` on finding envelope JSON — locus: `Findings.Finding`; input: finding JSON with `"category": null` (see `= null!` initializer).
 - [ ] (candidate) `Finding.EngineType` — explicit JSON `null` on finding envelope JSON — locus: `Findings.Finding`; input: finding JSON with `"engineType": null` (see file).
 - [ ] (candidate) `SpecialistReviewFinding.Rationale` — explicit JSON `null` on specialist review finding JSON — locus: `ArchitectureIntelligence.SpecialistReviewFinding`; input: specialist finding JSON with `"rationale": null` (see file).
 - [ ] (candidate) `ArchitectureModelElement.ElementId` — explicit JSON `null` on architecture model element JSON — locus: `ArchitectureIntelligence.ArchitectureModelElement`; input: model element JSON with `"elementId": null` (see file).
