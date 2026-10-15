@@ -29,4 +29,24 @@ public sealed class SponsorRoiSummaryResponseDeserializationTests
         result.TopSystemicIssues.Should().NotBeNull().And.BeEmpty();
         result.HistoricalTrends.Should().NotBeNull().And.BeEmpty();
     }
+
+    [Fact]
+    public void Deserialize_null_optional_roi_nested_summaries_remain_null()
+    {
+        const string json = """
+            {
+              "realizedValue": null,
+              "basisBreakdown": null,
+              "orphanCandidates": null
+            }
+            """;
+
+        SponsorRoiSummaryResponse? result =
+            JsonSerializer.Deserialize<SponsorRoiSummaryResponse>(json, ContractJson.CamelCaseCompact);
+
+        result.Should().NotBeNull();
+        result!.RealizedValue.Should().BeNull();
+        result.BasisBreakdown.Should().BeNull();
+        result.OrphanCandidates.Should().BeNull();
+    }
 }

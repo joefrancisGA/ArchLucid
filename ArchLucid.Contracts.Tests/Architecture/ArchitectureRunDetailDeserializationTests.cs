@@ -71,4 +71,25 @@ public sealed class ArchitectureRunDetailDeserializationTests
         detail!.Manifest.Should().BeNull();
         detail.IsCommitted.Should().BeFalse();
     }
+
+    [Fact]
+    public void Deserialize_null_agent_execution_llm_cost_estimate_remains_null()
+    {
+        const string json = """
+            {
+              "run": {
+                "runId": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                "requestId": "req-1",
+                "status": 1
+              },
+              "agentExecutionLlmCostEstimate": null
+            }
+            """;
+
+        ArchitectureRunDetail? detail =
+            JsonSerializer.Deserialize<ArchitectureRunDetail>(json, ContractJson.Default);
+
+        detail.Should().NotBeNull();
+        detail!.AgentExecutionLlmCostEstimate.Should().BeNull();
+    }
 }

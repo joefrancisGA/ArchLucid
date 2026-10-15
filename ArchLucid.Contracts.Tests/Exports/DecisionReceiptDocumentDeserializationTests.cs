@@ -28,4 +28,21 @@ public sealed class DecisionReceiptDocumentDeserializationTests
         document!.Verdict.Should().NotBeNull();
         document.CostStory.Should().NotBeNull();
     }
+
+    [Fact]
+    public void Deserialize_null_intake_remains_null()
+    {
+        const string json = """
+            {
+              "source": 0,
+              "intake": null
+            }
+            """;
+
+        DecisionReceiptDocument? document =
+            JsonSerializer.Deserialize<DecisionReceiptDocument>(json, ContractJson.CamelCaseCompact);
+
+        document.Should().NotBeNull();
+        document!.Intake.Should().BeNull();
+    }
 }
