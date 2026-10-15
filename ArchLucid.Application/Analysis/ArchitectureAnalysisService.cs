@@ -98,7 +98,7 @@ public sealed class ArchitectureAnalysisService(
         {
             report.Manifest = primaryDetail?.Manifest;
 
-            if (report.Manifest is not null && !string.Equals(report.Manifest.RunId, run.RunId, StringComparison.Ordinal))
+            if (report.Manifest is not null && !RunIdsReferToSameRun(report.Manifest.RunId, run.RunId))
                 report.Manifest = null;
 
             string manifestVersionKey = string.IsNullOrWhiteSpace(run.CurrentManifestVersion) ? $"v1-{run.RunId}" : run.CurrentManifestVersion;
@@ -107,7 +107,7 @@ public sealed class ArchitectureAnalysisService(
             {
                 report.Manifest = await unifiedGoldenManifestReader.GetByVersionAsync(manifestVersionKey, cancellationToken);
 
-                if (report.Manifest is not null && !string.Equals(report.Manifest.RunId, run.RunId, StringComparison.Ordinal))
+                if (report.Manifest is not null && !RunIdsReferToSameRun(report.Manifest.RunId, run.RunId))
                     report.Manifest = null;
             }
 
