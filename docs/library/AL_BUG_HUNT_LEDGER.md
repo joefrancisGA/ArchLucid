@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-15 seed hunt (seed→hit): `ui-oidc` — promoted `trimTokenFormParams` posting authorization `code` / PKCE fields with zero-width padding (`trim()` only) while inbound token JSON was normalized; reuse `normalizeTokenString` on all token-endpoint form values; regression `strips zero-width characters from authorization code and PKCE fields before posting the form`; cheap-disproved five open `(candidate)` rows; reseeded five follow-on candidates; 121 scoped `src/lib/oidc` vitest tests passed.
+
 2026-10-15 seed hunt (seed→hit): `ui-oidc` — promoted `parseOidcTokenResponse` leaving zero-width characters on `access_token` / optional tokens (`String.trim` does not strip ZWSP); shared `normalizeTokenString` with OAuth error strip helper; regressions `strips zero-width characters from access_token in successful token responses` and `omits zero-width-only refresh_token values from token responses`; cheap-disproved five open `(candidate)` rows; reseeded five follow-on candidates; 120 scoped `src/lib/oidc` vitest tests passed.
 
 2026-10-15 seed hunt (seed→hit): `ui-oidc` — promoted `readOAuthErrorString` retaining underscore-only token-endpoint `error` values in operator `Error.message` (e.g. `___: Session expired`); shared `isReadableOAuthErrorCode` with authorize `formatErrorCodeForReading`; regression `omits underscore-only OAuth error codes when building token endpoint errors`; cheap-disproved five open `(candidate)` rows; reseeded five follow-on candidates; 118 scoped `src/lib/oidc` vitest tests passed.
@@ -21037,11 +21039,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 70
-- **bugs-found:** 64
+- **hunts:** 71
+- **bugs-found:** 65
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-15
-- **last-bug:** 2026-10-15 — zero-width characters on token response strings
+- **last-bug:** 2026-10-15 — zero-width padding on token-endpoint form POST
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -21190,11 +21192,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `parseOidcTokenResponse` — whitespace-only `scope` in spread — **cheap-disproof 2026-10-15 seed hunt:** `scope` is not consumed in `archlucid-ui/src/lib/oidc/` after parse.
 - [x] (valid-no-repro) `decodeOAuthErrorDescription` — `+` decoded as space — **cheap-disproof 2026-10-15 seed hunt:** OAuth query/form percent-decoding convention; regression `decodes URI encoding and plus-as-space`.
 - [x] (valid-no-repro) `refreshBffSessionCookie` — string `expires_at_ms` from JSON — **cheap-disproof 2026-10-15 seed hunt:** `Number("1730000000000")` coerces to finite future ms; parity with numeric JSON bodies from BFF routes.
-- (candidate) `parseOidcTokenResponse` — WORD JOINER-only `access_token` after strip — locus: `token-client.ts`; input: `\u2060` only; wrong outcome: missing access_token throw; mechanism: verify after `normalizeTokenString`.
-- (candidate) `readOAuthErrorString` — `error_description` with leading ZWSP before visible text — locus: `token-client.ts`; input: `\u200bPolicy denied`; wrong outcome: strip preserves readable tail; mechanism: shared strip helper.
-- (candidate) `syncBffSessionCookieFromTokenResponse` — access token with interior ZWSP after parse fix — locus: `bff-session-sync.ts`; input: tokens already normalized at client; wrong outcome: double-strip; mechanism: transport trim only.
-- (candidate) `humanizeAuthorizeCallbackError` — `error_description` with soft hyphen (U+00AD) only — locus: `oauth-callback-messages.ts`; input: `%C2%AD`; wrong outcome: empty detail; mechanism: collapse charset coverage.
-- (candidate) `loadDiscoveryDocument` — fetch cache key case sensitivity — locus: `discovery.ts`; input: authority host casing drift; wrong outcome: duplicate discovery fetches; mechanism: normalized discovery URL key.
+- [x] (proven) `trimTokenFormParams` — zero-width padding on token-endpoint form fields — **hit 2026-10-15 seed hunt (seed→hit):** `code` / `code_verifier` posted with ZWSP while response parse normalized tokens; `normalizeTokenString` on all form values; regression `strips zero-width characters from authorization code and PKCE fields before posting the form`.
+- [x] (valid-no-repro) `parseOidcTokenResponse` — WORD JOINER-only `access_token` — **cheap-disproof 2026-10-15 seed hunt:** `normalizeTokenString` strips `\u2060`; empty token throws `missing access_token`.
+- [x] (valid-no-repro) `readOAuthErrorString` — leading ZWSP before visible `error_description` — **cheap-disproof 2026-10-15 seed hunt:** `stripOAuthInvisibleFormatChars` preserves `Policy denied` tail; covered by form/response strip regressions.
+- [x] (valid-no-repro) `syncBffSessionCookieFromTokenResponse` — interior ZWSP on access token — **cheap-disproof 2026-10-15 seed hunt:** parse boundary normalizes before BFF POST; transport `trim()` is idempotent on clean tokens.
+- [x] (valid-no-repro) `humanizeAuthorizeCallbackError` — soft hyphen-only description — **cheap-disproof 2026-10-15 seed hunt:** rare IdP copy; no demonstrated callback UI breakage beyond cosmetic invisible glyph (defer charset expansion).
+- [x] (valid-no-repro) `loadDiscoveryDocument` — authority host casing cache — **cheap-disproof 2026-10-15 seed hunt:** discovery URL built from `URL` origin + pathname; duplicate fetches are benign per-tab cache behavior.
+- (candidate) `decodeOAuthErrorDescription` — percent-encoded soft hyphen in authorize description — locus: `oauth-callback-messages.ts`; input: `Policy%C2%ADdenied`; wrong outcome: buyer copy shows optional break; mechanism: collapse charset.
+- (candidate) `consumePkceState` — callback `code` query with ZWSP before exchange — locus: `CallbackClient.tsx` + `token-client.ts`; input: `?code=%E2%80%8Babc`; wrong outcome: now stripped at POST; mechanism: verify end-to-end after form fix.
+- (candidate) `readOAuthErrorString` — interior ZWSP inside token `error` code — locus: `token-client.ts`; input: `in\u200bvalid_grant`; wrong outcome: strip normalizes to readable code; mechanism: shared strip on error field.
+- (candidate) `refreshAccessToken` — refresh token with word joiner padding from storage — locus: `token-client.ts`; input: caller-supplied refresh with `\u2060`; wrong outcome: strip at POST; mechanism: normalizeTokenString on form path.
+- (candidate) `parseDiscoveryDocument` — `issuer` with surrounding ZWSP — locus: `discovery.ts`; input: discovery JSON issuer field; wrong outcome: trimmed issuer stored; mechanism: issuer trim without invisible strip.
 - [x] (proven) `persistTokenResponse` — a hung older token-to-BFF sync blocks a newer same-session sync, preventing the replacement session from establishing its cookie — **hit 2026-10-11 seed hunt:** the sync-order promise chain awaited every older request; concurrent sync plus latest-request replay lets the newer request proceed and converges late completions on the latest token; regression `does not block a newer sync behind a hung older request` in `session.test.ts`.
 - [x] (proven) `persistTokenResponse` — concurrent same-session token-to-BFF syncs can complete out of order, allowing an older provider response to overwrite a newer BFF cookie — **hit 2026-10-11 seed hunt:** each token response started its own asynchronous sync with no ordering guard; serialize sync writes through a recovery-safe promise chain; regression `keeps an older token sync from overwriting a newer same-session sync` in `session.test.ts`.
 - [x] (proven) `persistNonSensitiveSessionHints` — a replacement token without optional display-name or subject claims leaves the prior user's identity hints in `sessionStorage` — **hit 2026-10-11 seed hunt:** hint writes were conditional but stale keys were never removed, so a same-browser user replacement could display the previous user's name/subject; clear both hint keys before applying each token response; regression `clears stale identity hints when a replacement token has no identity claims` in `session.test.ts`.

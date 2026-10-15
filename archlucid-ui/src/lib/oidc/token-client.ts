@@ -65,7 +65,7 @@ function trimTokenFormParams(params: Record<string, string>): Record<string, str
   const trimmed: Record<string, string> = {};
 
   for (const [key, value] of Object.entries(params)) {
-    trimmed[key] = value.trim();
+    trimmed[key] = normalizeTokenString(value);
   }
 
   return trimmed;
