@@ -30030,7 +30030,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **bugs-found:** 108
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-15
-- **last-bug:** 2026-10-15 — InfraEvidenceMermaidCompletenessSummary list JSON null
+- **last-bug:** 2026-10-15 — ExecDigestSponsorDeepLinkViewResponse.TopRuns JSON null
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -30051,11 +30051,12 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (valid-no-repro) `AgentResultJsonConverter.AgentResultJsonPayload.ChecklistCoverage` — **cheap-disproof 2026-10-15 seed hunt:** same reachable deserialize path; extended regression lock covers `"checklistCoverage": null`.
 - [x] (valid-no-repro) `AgentResultJsonConverter.AgentResultJsonPayload.WithheldFindings` — **cheap-disproof 2026-10-15 seed hunt:** same reachable deserialize path; extended regression lock covers `"withheldFindings": null`.
 - [x] (valid-no-repro) `AgentResultJsonConverter.AgentResultJsonPayload.Claims` — **cheap-disproof 2026-10-15 seed hunt:** same reachable deserialize path; `"claims": null` yields empty `AgentResult.Claims`.
-- [ ] (candidate) `ExecDigestSponsorDeepLinkViewResponse.TopRuns` — explicit JSON `null` on digest deep-link sponsor view JSON; locus: `ExecDigestSponsorDeepLinkViewResponse`; input: `"topRuns": null`; wrong outcome: anonymous digest view iterates null highlighted runs; reachability: exec digest sponsor deep-link API JSON.
+- [x] (proven) `ExecDigestSponsorDeepLinkViewResponse.TopRuns` — explicit JSON `null` on digest deep-link sponsor view JSON — **hit 2026-10-15 seed hunt (seed→hit):** `ContractCollectionDefaults.CoalesceReadOnly` on `TopRuns` `init`; regression `Deserialize_null_top_runs_yields_empty_list_not_null`.
 - [ ] (candidate) `WorkspaceAiAvailabilityResponse.Checks` — explicit JSON `null` on workspace AI availability diagnostics JSON; locus: `WorkspaceAiAvailabilityResponse`; input: `"checks": null`; wrong outcome: operator workspace AI panel enumerates null check rows; reachability: workspace AI availability API JSON.
 - [ ] (candidate) `GovernanceEnvironmentCatalog.Environments` — explicit JSON `null` on governance environment catalog JSON; locus: `GovernanceEnvironmentCatalog`; input: `"environments": null`; wrong outcome: environment ladder UI assumes non-null catalog rows; reachability: governance environment catalog read API JSON.
 - [ ] (candidate) `GovernanceEnvironmentCatalog.Transitions` — explicit JSON `null` on governance environment catalog JSON; locus: `GovernanceEnvironmentCatalog`; input: `"transitions": null`; wrong outcome: transition matrix UI enumerates null edges; reachability: governance environment catalog read API JSON.
 - [ ] (candidate) `PreviewRecurrenceScheduleRunsResponse.NextRunUtc` — explicit JSON `null` on recurrence preview JSON; locus: `PreviewRecurrenceScheduleRunsResponse`; input: `"nextRunUtc": null`; wrong outcome: schedule preview assumes non-null upcoming run timestamps; reachability: governance recurrence preview API JSON.
+- [ ] (candidate) `ReplaceGovernanceEnvironmentCatalogRequest.Environments` — explicit JSON `null` on replace-catalog request JSON; locus: `ReplaceGovernanceEnvironmentCatalogRequest`; input: `"environments": null`; wrong outcome: catalog replace handler assumes non-null environment rows; reachability: governance environment catalog replace API body contract.
 - [x] (invalid) `AgentOutputEvaluationScore.MissingKeys` — duplicate candidate row — **cheap-disproof 2026-10-15 seed hunt:** already proven 2026-10-14 with `AgentOutputEvaluationScoreDeserializationTests`.
 
 2026-10-10 seed hunt (seed-only): reread advisory scheduling/digest DTOs and agent trace summary projection with the existing Contracts coverage; no fresh contract-local wrong outcome or reachable serialization mismatch met the promotion bar. The scoped Contracts filter passed 520/520. No production or regression code was changed.
