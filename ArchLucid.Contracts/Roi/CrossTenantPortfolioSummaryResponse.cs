@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Roi;
 
 /// <summary>
@@ -19,7 +21,13 @@ public sealed class CrossTenantPortfolioSummaryResponse
     public int TotalCriticalFindings { get; set; }
 
     /// <summary>Top five (category, severity) finding groups across all accessible tenants.</summary>
-    public List<SystemicIssueSummary> TopSystemicIssues { get; set; } = [];
+    private List<SystemicIssueSummary> topSystemicIssues = [];
+
+    public List<SystemicIssueSummary> TopSystemicIssues
+    {
+        get => topSystemicIssues;
+        set => topSystemicIssues = ContractCollectionDefaults.Coalesce(value);
+    }
 
     /// <summary>Whether k-anonymity was satisfied (k >= 5). If false, metrics are zeroed out.</summary>
     public bool IsKAnonymitySatisfied { get; set; }
