@@ -219,6 +219,39 @@ public sealed class DocxArchitectureAnalysisExportServiceTests
     }
 
     [Fact]
+    public async Task GenerateDocxAsync_includes_governance_classifications_when_control_lists_empty()
+    {
+        DocxArchitectureAnalysisExportService sut = new(new NullDiagramImageRenderer());
+        ArchitectureAnalysisReport report = new()
+        {
+            Run = new ArchitectureRun
+            {
+                RunId = "a1b2c3d4e5f678901234567890abcd",
+                RequestId = "req-1",
+                Status = ArchitectureRunStatus.Committed,
+            },
+            Manifest = new GoldenManifest
+            {
+                RunId = "a1b2c3d4e5f678901234567890abcd",
+                SystemName = "Acme",
+                Metadata = new ManifestMetadata { ManifestVersion = "v1" },
+                Governance = new ManifestGovernance
+                {
+                    RiskClassification = "High",
+                    CostClassification = "Low",
+                },
+            },
+        };
+
+        byte[] docx = await sut.GenerateDocxAsync(report);
+        string text = ExtractDocxBodyText(docx);
+
+        text.Should().Contain("Governance");
+        text.Should().Contain("Risk Classification: High");
+        text.Should().Contain("Cost Classification: Low");
+    }
+
+    [Fact]
     public async Task GenerateDocxAsync_includes_parent_manifest_version_and_governance()
     {
         DocxArchitectureAnalysisExportService sut = new(new NullDiagramImageRenderer());

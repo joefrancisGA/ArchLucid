@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-15 seed hunt (seed→hit): `application-analysis` — promoted manifest governance classifications omitted when control/tag lists empty; shared `ArchitectureManifestGovernanceExport.ShouldRender` for markdown and DOCX; regressions `GenerateMarkdown_includes_governance_classifications_when_control_lists_empty` and `GenerateDocxAsync_includes_governance_classifications_when_control_lists_empty`; 28 scoped ArchitectureAnalysis/CompareQuality tests passed.
+
 2026-10-15 seed hunt (seed→hit): `application-analysis` — promoted preloaded `ArchitectureAnalysisService.BuildAsync` manifest provenance mismatch; discard `PreloadedRunDetail.Manifest` when `Manifest.RunId` does not match the primary run; regression `BuildAsync_nulls_preloaded_manifest_when_manifest_run_id_does_not_match_request_run`; 26 scoped ArchitectureAnalysis/CompareQuality tests passed.
 
 2026-10-15 seed hunt (seed→hit): `archlucid-contracts` — promoted `CanonicalObject.Name` explicit JSON `null` (`ContractCollectionDefaults.CoalesceRequired` on setter); regression `Deserialize_null_name_yields_empty_string_not_null`; reseeded five follow-on `(candidate)` rows; 1036 scoped `Contracts` filter tests passed.
@@ -18355,23 +18357,33 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 41
-- **bugs-found:** 39
+- **hunts:** 42
+- **bugs-found:** 40
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-15
-- **last-bug:** 2026-10-15 — preloaded analysis manifest accepted when `Manifest.RunId` did not match primary run
+- **last-bug:** 2026-10-15 — architecture analysis exports omitted governance when only risk/cost classifications were set
 - **related-pd-tb:** none
 - **code-changed-since:** no
+
+2026-10-15 seed hunt (seed→hit): promoted manifest governance classifications omitted when control/tag/policy lists empty; `ArchitectureManifestGovernanceExport.ShouldRender` shared by markdown and DOCX exports; regressions `GenerateMarkdown_includes_governance_classifications_when_control_lists_empty` and `GenerateDocxAsync_includes_governance_classifications_when_control_lists_empty`; 28 scoped ArchitectureAnalysis/CompareQuality tests passed.
+
+- [x] (proven) `MarkdownArchitectureAnalysisExportService` / `DocxArchitectureAnalysisExportService` — governance hidden when only risk/cost classifications set — **hit 2026-10-15 seed hunt:** shared `ArchitectureManifestGovernanceExport.ShouldRender`.
+
+- [ ] (candidate) `ArchitectureAnalysisService.BuildAsync` — `IncludeManifestCompare` loads `CompareManifestVersion` without proving compare manifest belongs to the same tenant/run lineage (reachable input: caller-supplied compare manifest version; needs concrete cross-tenant lookup repro).
+- [ ] (candidate) `ArchitectureAnalysisService.BuildAsync` — `IncludeAgentResultCompare` uses `primaryDetail?.Results` without reloading when `PreloadedRunDetail` omits results (reachable input: preloaded detail with empty `Results`; wrong agent diff).
+- [ ] (candidate) `DocxArchitectureAnalysisExportService.GenerateDocxAsync` — evidence `Request.Description` null renders blank paragraph without omission copy (reachable input: evidence package with null description).
+- [ ] (candidate) `CompareQualityDeltaCalculator.Build` — functional requirement coverage uses component count cap heuristic (reachable input: model with requirements but zero components; verify uncovered mandatory metric).
+- [ ] (candidate) `ComparisonReplayCostEstimator` — warnings-only manifest diff JSON may skip manifest structural scoring (reachable input: persisted report with manifestDiff warnings only).
 
 2026-10-15 seed hunt (seed→hit): promoted `ArchitectureAnalysisService.BuildAsync` preloaded manifest provenance mismatch; discard foreign `PreloadedRunDetail.Manifest` before version fallback; regression `BuildAsync_nulls_preloaded_manifest_when_manifest_run_id_does_not_match_request_run`; 26 scoped ArchitectureAnalysis/CompareQuality tests passed.
 
 - [x] (proven) `ArchitectureAnalysisService.BuildAsync` — `PreloadedRunDetail.Manifest` with foreign `RunId` accepted into report — **hit 2026-10-15 seed hunt:** regression `BuildAsync_nulls_preloaded_manifest_when_manifest_run_id_does_not_match_request_run`.
 
 - [ ] (candidate) `ArchitectureAnalysisService.BuildAsync` — `IncludeManifestCompare` loads `CompareManifestVersion` without proving compare manifest belongs to the same tenant/run lineage (reachable input: caller-supplied compare manifest version; needs concrete cross-tenant lookup repro).
-- [ ] (candidate) `DocxArchitectureAnalysisExportService.GenerateDocxAsync` — manifest relationship list omitted from DOCX while relationship count is shown (reachable input: manifest with populated `Relationships`; compare markdown export parity).
-- [ ] (candidate) `CompareQualityDeltaCalculator.Build` — `FindingSeverity.Information` findings may be counted in `HighSeverityFindings` metric via default severity mapping (reachable input: info-only findings on both sides; verify metric contract).
-- [ ] (candidate) `ComparisonReplayPayloadComplexity.ScorePayloadComplexity` — agent-only confidence deltas may under-score replay cost (reachable input: end-to-end report JSON with confidence-only agent deltas; verify estimator bump).
-- [ ] (candidate) `MarkdownArchitectureAnalysisExportService` — governance section hidden when only risk/cost classifications are set without control/tag lists (reachable input: manifest governance with classifications only; parity with DOCX).
+- [x] (valid-no-repro) `DocxArchitectureAnalysisExportService.GenerateDocxAsync` — manifest relationship list omitted from DOCX — markdown export also renders relationship count only; not a DOCX-only gap.
+- [x] (invalid) `CompareQualityDeltaCalculator.Build` — `FindingSeverity.Information` counted as high severity — `MapSeverity` maps Information to `Low`; metric counts High/Critical only.
+- [x] (valid-no-repro) `ComparisonReplayPayloadComplexity.ScorePayloadComplexity` — confidence-only agent deltas — `DeltaIndicatesConfidenceChange` already marks substantive agent deltas.
+- [x] (proven) `MarkdownArchitectureAnalysisExportService` — governance section hidden when only risk/cost classifications are set — **hit 2026-10-15 seed hunt:** see `ArchitectureManifestGovernanceExport.ShouldRender`.
 
 - [x] (proven) `DocxArchitectureAnalysisExportService.GenerateDocxAsync` — parent manifest version and governance controls, tags, and policy constraints were omitted from DOCX output even though the markdown export rendered them — **hit 2026-10-09 seed hunt:** render the parent version and a Governance section when those lists are populated; regression `GenerateDocxAsync_includes_parent_manifest_version_and_governance`; 24 scoped ArchitectureAnalysis/CompareQuality tests passed.
 

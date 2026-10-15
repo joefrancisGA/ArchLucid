@@ -147,9 +147,7 @@ public sealed class DocxArchitectureAnalysisExportService(IDiagramImageRenderer 
 
             ManifestGovernance governance = report.Manifest.Governance;
 
-            if (governance.RequiredControls.Count > 0
-                || governance.ComplianceTags.Count > 0
-                || governance.PolicyConstraints.Count > 0)
+            if (ArchitectureManifestGovernanceExport.ShouldRender(governance))
             {
                 builder.AddHeading("Governance", 3);
                 builder.AddBullet($"Required Controls: {string.Join(", ", governance.RequiredControls)}");
