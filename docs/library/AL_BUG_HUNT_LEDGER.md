@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-15 seed hunt (seed→hit): `archlucid-contracts` — promoted `PilotRunDeltasResponse.FindingsBySeverity` / `RoiMetricSources` and `RecentPilotRunDeltasResponse.Items` JSON `null` leaving list properties null despite `= []` initializers; `ContractCollectionDefaults.CoalesceReadOnly` on `init`; regressions `PilotRunDeltasResponseDeserializationTests` and `RecentPilotRunDeltasResponseDeserializationTests`; 737 scoped `Contracts` filter tests passed.
+
 2026-10-15 seed hunt (seed→hit): `api-governance-tenancy-controllers` — promoted `GovernanceController.Promote` / `Activate` passing `IActorContext.GetActor()` as `promotedBy` / `activatedBy` into promotion and activation workflow persistence and audit payloads, storing display names instead of stable `jwt:{tid}:{oid}` actor keys; use `GetActorId()`; regressions `Promote_passes_actor_context_id_to_workflow_when_display_name_differs` and `Activate_passes_actor_context_id_to_workflow_when_display_name_differs`; 143 scoped Governance/Tenancy controller unit tests passed (18 SQL integration unavailable on Linux VM).
 
 2026-10-15 seed hunt (seed→hit): `archlucid-core` — promoted `RunAuthorityPipelineDeadLetterDetection.TryReadSupportedSchemaVersion` taking only the last case-variant `schemaVersion` token so a trailing below-minimum alias (e.g. `SCHEMAVERSION`:0 after `schemaVersion`:1) dropped pipeline dead-letter detection; scan aliases and retain the last supported version; regression `IsDeadLettered_returns_true_when_later_case_variant_schema_version_is_below_minimum`; scoped `FullyQualifiedName~ArchLucid.Core` ran 7,609 passed and 6 failed on the invalid extra-`k` week-UOM baseline (`AzureRetailPricesSkuMatchersWeekMeterTests`).
@@ -29341,6 +29343,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ---
 ## Zone: archlucid-contracts
+
+2026-10-15 seed hunt (seed→hit): promoted pilot run-deltas JSON `null` on `FindingsBySeverity`, `RoiMetricSources`, and recent-deltas `Items`; `ContractCollectionDefaults.CoalesceReadOnly`; regressions `Deserialize_null_findings_by_severity_yields_empty_list_not_null` and `Deserialize_null_items_yields_empty_list_not_null`; 737 scoped `Contracts` filter tests passed.
 
 2026-10-14 seed hunt (seed→hit): promoted structured diagram ingest request JSON `null` on `Sources`; `ContractCollectionDefaults.CoalesceReadOnly`; 692 scoped `Contracts` filter tests passed.
 
