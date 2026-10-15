@@ -40,11 +40,13 @@ public sealed class TenantItsmOutboundSettingsResponse
     }
 
     /// <summary>Deployment-wide outbound credential posture (masked identifiers only).</summary>
+    private TenantItsmDeploymentCredentialSummary deploymentCredentials = new();
+
     public TenantItsmDeploymentCredentialSummary DeploymentCredentials
     {
-        get;
-        init;
-    } = new();
+        get => deploymentCredentials;
+        init => deploymentCredentials = value ?? new();
+    }
 
     /// <summary>When <see langword="false"/>, one-click outbound create is disabled for this deployment.</summary>
     public bool NativeEnabled

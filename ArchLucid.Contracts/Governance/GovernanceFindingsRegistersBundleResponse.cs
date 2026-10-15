@@ -5,15 +5,19 @@ namespace ArchLucid.Contracts.Governance;
 /// <summary>Governance findings queue: risk and decision registers from one scoped read.</summary>
 public sealed class GovernanceFindingsRegistersBundleResponse
 {
+    private ArchitectureRiskRegisterResponse riskRegister = new();
+
     public ArchitectureRiskRegisterResponse RiskRegister
     {
-        get;
-        init;
-    } = new();
+        get => riskRegister;
+        init => riskRegister = value ?? new();
+    }
+
+    private ArchitectureDecisionRegisterResponse decisionRegister = new();
 
     public ArchitectureDecisionRegisterResponse DecisionRegister
     {
-        get;
-        init;
-    } = new();
+        get => decisionRegister;
+        init => decisionRegister = value ?? new();
+    }
 }

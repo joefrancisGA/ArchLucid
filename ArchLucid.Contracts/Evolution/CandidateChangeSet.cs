@@ -42,11 +42,13 @@ public sealed class CandidateChangeSet
         init => affectedComponents = ContractCollectionDefaults.CoalesceReadOnly(value);
     }
 
+    private ExpectedImpact expectedImpact = new();
+
     public ExpectedImpact ExpectedImpact
     {
-        get;
-        init;
-    } = new();
+        get => expectedImpact;
+        init => expectedImpact = value ?? new();
+    }
 
     public double? SimulationScore
     {
