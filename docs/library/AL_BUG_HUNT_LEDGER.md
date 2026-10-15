@@ -30069,7 +30069,21 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 ---
 ## Zone: archlucid-contracts
 
-**Hunts:** 164 · **Bugs found:** 192 · **Consecutive dry hunts:** 0
+**Hunts:** 165 · **Bugs found:** 196 · **Consecutive dry hunts:** 0
+
+2026-10-15 seed hunt (seed→hit): promoted four open `(candidate)` rows on planning plan evidence lists, dashboard summary notes, triage queue `items`, and planning materialize citation lists; cheap-disproof closed mis-seeded `LearningPlanningReportThemeEntry` (no collection properties); coalesce fix on `LearningPlanningReportPlanEvidenceBlock`, `ProductLearningDashboardSummaryResponse`, `ProductLearningTriageQueueResponse`, and `ProductLearningPlanningMaterializeResult`; regressions in matching `*DeserializationTests`; reseeded five follow-on `(candidate)` rows; 891 scoped `Contracts` filter tests passed.
+
+- [x] (proven) `LearningPlanningReportPlanEvidenceBlock` — `Signals` / `Artifacts` / `ArchitectureRunIds` explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_list_properties_yields_empty_lists_not_null`.
+- [x] (proven) `ProductLearningDashboardSummaryResponse.SummaryNotes` — explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_summary_notes_yields_empty_list_not_null`.
+- [x] (proven) `ProductLearningTriageQueueResponse.Items` — explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_items_yields_empty_list_not_null`.
+- [x] (proven) `ProductLearningPlanningMaterializeResult` — `Citations` / `RetrievalCitations` explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_list_properties_yields_empty_lists_not_null`.
+- [x] (invalid) `LearningPlanningReportThemeEntry` theme child lists — **cheap-disproof 2026-10-15 seed hunt:** export theme row has no list/array properties; mis-seeded candidate.
+
+- [ ] (candidate) `AgentResultJsonConverter.AgentResultJsonPayload` — explicit JSON `null` on agent result payload lists — locus: `Agents.AgentResultJsonConverter` nested payload; input: agent result JSON with null `claims`, `findings`, or sibling list tokens (see converter).
+- [ ] (candidate) `ArchitectureRun.TaskIds` — explicit JSON `null` — locus: `Metadata.ArchitectureRun`; input: architecture run JSON with null `taskIds`.
+- [ ] (candidate) `ComparisonRecord.Tags` — explicit JSON `null` — locus: `Metadata.ComparisonRecord`; input: comparison record JSON with null `tags`.
+- [ ] (candidate) `ArchitectureShareListResponse` — explicit JSON `null` on share list — locus: `Architecture.ArchitectureShareListResponse`; input: share list response JSON with null list token (see file).
+- [ ] (candidate) `FindingAnalysisContext` — explicit JSON `null` on finding analysis lists — locus: `Architecture.FindingAnalysisContext`; input: finding analysis context JSON with null list tokens (see file).
 
 2026-10-15 seed hunt (seed→hit): promoted five open `(candidate)` rows on product-learning dashboard, triage report, artifact trends, planning report, and aggregation snapshot lists; consolidated coalesce fix on `LearningDashboardSummary`, `ProductLearningTriageReportDocument`, `ProductLearningArtifactOutcomeTrendsResponse`, `LearningPlanningReportDocument`, and `ProductLearningAggregationSnapshot`; regressions in matching `*DeserializationTests` under `ArchLucid.Contracts.Tests/ProductLearning/`; reseeded five follow-on `(candidate)` rows; 887 scoped `Contracts` filter tests passed.
 
@@ -30078,12 +30092,6 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `ProductLearningArtifactOutcomeTrendsResponse.Trends` — explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_trends_yields_empty_list_not_null`.
 - [x] (proven) `LearningPlanningReportDocument` — `Themes` / `Plans` explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_list_properties_yields_empty_lists_not_null`.
 - [x] (proven) `ProductLearningAggregationSnapshot` — aggregation snapshot list properties explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_list_properties_yields_empty_lists_not_null`.
-
-- [ ] (candidate) `LearningPlanningReportPlanEvidenceBlock` — explicit JSON `null` on plan evidence lists — locus: `ProductLearning.Planning.LearningPlanningReportPlanEvidenceBlock`; input: plan evidence JSON with null `signals`, `artifacts`, or `architectureRunIds`.
-- [ ] (candidate) `ProductLearningDashboardSummaryResponse` — explicit JSON `null` on dashboard response lists — locus: `ProductLearning.ProductLearningDashboardSummaryResponse`; input: dashboard summary response JSON with null list token (see file).
-- [ ] (candidate) `ProductLearningTriageQueueResponse` — explicit JSON `null` on triage queue list — locus: `ProductLearning.ProductLearningTriageQueueResponse`; input: triage queue response JSON with null list token (see file).
-- [ ] (candidate) `ProductLearningPlanningMaterializeResult` — explicit JSON `null` on materialize result lists — locus: `ProductLearning.ProductLearningPlanningMaterializeResult`; input: materialize result JSON with null list tokens (see file).
-- [ ] (candidate) `LearningPlanningReportThemeEntry` — explicit JSON `null` on theme child lists — locus: `ProductLearning.Planning.LearningPlanningReportThemeEntry`; input: theme entry JSON with null list tokens (see file).
 
 2026-10-15 seed hunt (seed→hit): promoted five open `(candidate)` rows on sponsor dashboard drift trend, ROI export lists, ROI history `points`, systemic issue trend `points`, and product-learning opportunities; coalesce fix on `SponsorDashboardBundleResponse`, `SponsorRoiExportResponse`, `SponsorRoiHistoryResponse`, `SponsorRoiSystemicIssueTrendSeries`, and `ProductLearningImprovementOpportunitiesResponse`; regressions in matching `*DeserializationTests` under `ArchLucid.Contracts.Tests/Roi/` and `ProductLearning/`; reseeded five follow-on `(candidate)` rows; 882 scoped `Contracts` filter tests passed.
 
