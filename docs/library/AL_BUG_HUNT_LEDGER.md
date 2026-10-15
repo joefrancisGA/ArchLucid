@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-15 seed hunt (seed→hit): `archlucid-contracts` — promoted `ReviewClarificationDelta` nested list properties (`ResolvedByEvidenceQuestionIds`, `ResolvedByAssertionQuestionIds`, `StillOpenQuestionIds`) explicit JSON `null` on clarification response `deltaFromPriorRun`; `ContractCollectionDefaults.Coalesce` on setters; regression `Deserialize_null_delta_question_id_lists_yields_empty_lists_not_null`; cheap-disproved four open `(candidate)` rows on `PilotRunDeltasResponse` optional nesting and structural mode ordinals plus invalid `PilotRoiBaselineInputsStatusResponse.missingFields` locus; reseeded five follow-on `(candidate)` rows; 773 scoped `Contracts` filter tests passed.
+
 2026-10-15 seed hunt (seed-only): `ui-auth-callback` — cheap-disproved five open `(candidate)` rows (HTML 502 error bodies, IDN work email gate, CRLF inside optional note, honeypot state after success, try-again during submit); regression locks `shows generic submit error when the API returns an HTML error body`, `does not post access request when work email uses a non-ASCII domain label`, `posts access request with punycode-encoded work email`, `preserves multiline note line breaks in the POST body`, `omits the access request form from the DOM on the success view after a filled honeypot posts`, plus reaffirmed `keeps try again navigation enabled while submit is in flight`; reseeded five follow-on `(candidate)` rows; 98 scoped `AuthCallbackAccessPanel` vitest tests passed; no production change.
 
 2026-10-15 seed hunt (seed-only): `ui-auth-callback` — cheap-disproved five open `(candidate)` rows (429 vs 502 copy, `cloudPlatformFocus` trim asymmetry, success view without request-access, CRLF honeypot guard strip, duplicate error cancel vs toggle); regression locks `trims peripheral spaces on cloudPlatformFocus in the POST body`, `posts CRLF-only honeypot websiteUrl without tripping the unsupported-text guard`, `clears duplicate submit error when cancel closes the form`, plus reaffirmed `shows generic submit error when the API returns rate limited` and `omits request access control on the success view`; reseeded five follow-on `(candidate)` rows; 93 scoped `AuthCallbackAccessPanel` vitest tests passed; no production change.
@@ -30038,6 +30040,29 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ---
 ## Zone: archlucid-contracts
+
+**Hunts:** 141 · **Bugs found:** 121 · **Consecutive dry hunts:** 0
+
+2026-10-15 seed hunt (seed→hit): promoted `ReviewClarificationDelta` nested list JSON `null`; cheap-disproved optional `GovernedFindingCoverage` / `ProofPackageCompleteness` null nesting, structural mode ordinal guard, and `ContractJson` re-serialize empty arrays; regression `Deserialize_null_delta_question_id_lists_yields_empty_lists_not_null`; reseeded five follow-on `(candidate)` rows; 773 scoped `Contracts` filter tests passed.
+
+- [x] (proven) `ReviewClarificationDelta` — nested question-id lists explicit JSON `null` — **hit 2026-10-15 seed hunt:** `ContractCollectionDefaults.Coalesce` on three setters; regression `Deserialize_null_delta_question_id_lists_yields_empty_lists_not_null`.
+- [x] (valid-no-repro) `PilotRunDeltasResponse.GovernedFindingCoverage` — JSON `null` optional metric — **cheap-disproof 2026-10-15 seed hunt:** nullable nested object is intentional; regression `Deserialize_null_governed_finding_coverage_preserves_null_optional_metric`.
+- [x] (valid-no-repro) `PilotRunDeltasResponse.ProofPackageCompleteness` — nested null checklist — **cheap-disproof 2026-10-15 seed hunt:** nullable nested object is intentional; regression `Deserialize_null_proof_package_completeness_preserves_null_nested_object`.
+- [x] (valid-no-repro) `PilotRunDeltasResponse` serialize after coalesce — **cheap-disproof 2026-10-15 seed hunt:** `ContractJson.CamelCaseCompact` emits `[]` not `null` for coalesced lists; regression `Serialize_after_null_coalesced_lists_emits_empty_arrays_not_null`.
+- [x] (valid-no-repro) `StructuralExecutionMode` on `PilotRunDeltasResponse` — undefined ordinal `99` — **cheap-disproof 2026-10-15 seed hunt:** `StructuralExecutionModeJsonConverter` throws; regression `Deserialize_undefined_structural_execution_mode_ordinal_throws`.
+- [x] (invalid) `PilotRoiBaselineInputsStatusResponse` — `missingFields` null collection — **cheap-disproof 2026-10-15 seed hunt:** DTO has no `missingFields` property; only per-field `PilotRoiBaselineInputBasis` scalars.
+
+- [ ] (candidate) `RunTrustEvidenceCard.Links` — explicit JSON `null` on run trust evidence card response — locus: `List<RunTrustEvidenceRouteRef> Links` auto-property initializer; input: `"links": null` on trust card JSON.
+- [ ] (candidate) `Finding.EvidenceRefs` / `RelatedFactRefs` / `RemediationSteps` — explicit JSON `null` on architecture finding rows — locus: `ArchLucid.Contracts.Findings.Finding` list setters without coalesce; input: persisted finding JSON with null evidence lists.
+- [ ] (candidate) `EngineInsightNoveltyRatesResponse.Rows` — explicit JSON `null` on engine insight novelty API response — locus: list property with `= []` initializer only; input: `"rows": null` on novelty rates JSON.
+- [ ] (candidate) `ChangeImpactResult.AffectedElements` — explicit JSON `null` on architecture intelligence change-impact JSON — locus: `ChangeImpactResult` collection setter; input: change-impact result payload with null affected-element list.
+- [ ] (candidate) `ProgressiveInterviewState.AnsweredQuestionIds` — explicit JSON `null` on progressive interview state persistence JSON — locus: interview state list properties; input: saved interview state with null answered-id list.
+
+- [x] (valid-no-repro) `GovernedFindingCoverageMetric` nested under `PilotRunDeltasResponse` — JSON `null` optional coverage — **cheap-disproof 2026-10-15 seed hunt (prior pass):** regression `Deserialize_null_governed_finding_coverage_preserves_null_optional_metric`.
+- [x] (valid-no-repro) `PilotRunDeltasResponse.ProofPackageCompleteness` — nested null checklist — **cheap-disproof 2026-10-15 seed hunt (prior pass):** regression `Deserialize_null_proof_package_completeness_preserves_null_nested_object`.
+- [x] (valid-no-repro) `BuyerProofPackDeltasJsonFormatter.Serialize` — explicit null arrays — **cheap-disproof 2026-10-15 seed hunt (prior pass):** contracts `ContractJson.CamelCaseCompact` round-trip; regression `Serialize_after_null_coalesced_lists_emits_empty_arrays_not_null` (application formatter tracked under `application-pilots`).
+- [x] (valid-no-repro) `StructuralExecutionMode` undefined ordinals on `PilotRunDeltasResponse` — **cheap-disproof 2026-10-15 seed hunt (prior pass):** regression `Deserialize_undefined_structural_execution_mode_ordinal_throws`.
+- [x] (invalid) `PilotRoiBaselineInputsStatusResponse` nested null collections — **cheap-disproof 2026-10-15 seed hunt (prior pass):** no list properties on ROI baseline status DTO.
 
 2026-10-15 seed hunt (seed→hit): promoted evolution change-set, evaluation score, and review clarification questions JSON `null` list properties; consolidated coalesce fix; three deserialization regressions; 768 scoped `Contracts` filter tests passed.
 
