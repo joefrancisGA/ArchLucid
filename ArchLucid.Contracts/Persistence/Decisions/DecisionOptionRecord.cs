@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Persistence.Decisions;
 
 public sealed class DecisionOptionRecord
@@ -34,9 +36,11 @@ public sealed class DecisionOptionRecord
 
     public double FinalScore => BaseConfidence + SupportScore - OppositionScore;
 
+    private List<string> evidenceRefs = [];
+
     public List<string> EvidenceRefs
     {
-        get;
-        set;
-    } = [];
+        get => evidenceRefs;
+        set => evidenceRefs = ContractCollectionDefaults.Coalesce(value);
+    }
 }

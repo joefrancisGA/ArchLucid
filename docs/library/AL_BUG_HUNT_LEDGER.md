@@ -30069,7 +30069,21 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 ---
 ## Zone: archlucid-contracts
 
-**Hunts:** 175 · **Bugs found:** 241 · **Consecutive dry hunts:** 0
+**Hunts:** 176 · **Bugs found:** 246 · **Consecutive dry hunts:** 0
+
+2026-10-15 seed hunt (seed→hit): promoted five open `(candidate)` rows on decision persistence records, recommendation learning ops `history`, and improvement plan collections; coalesce fix on `DecisionNodeRecord`, `DecisionOptionRecord`, `AgentEvaluationRecord`, `RecommendationLearningOpsPageResponse`, and `ImprovementPlan` (lists plus `PolicyPackAdvisoryDefaults` dictionary); regressions in `DecisionNodeRecordDeserializationTests`, `DecisionPersistenceDeserializationTests`, and `AdvisoryContractDeserializationTests`; reseeded five follow-on `(candidate)` rows; 936 scoped `Contracts` filter tests passed.
+
+- [x] (proven) `DecisionNodeRecord` — `Options` / `SupportingEvaluationIds` / `OpposingEvaluationIds` explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_list_properties_yields_empty_lists_not_null`.
+- [x] (proven) `DecisionOptionRecord.EvidenceRefs` — explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_evidence_refs_on_option_yields_empty_list_not_null`.
+- [x] (proven) `AgentEvaluationRecord.EvidenceRefs` — explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_evidence_refs_on_evaluation_yields_empty_list_not_null`.
+- [x] (proven) `RecommendationLearningOpsPageResponse.History` — explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_history_yields_empty_list_not_null`.
+- [x] (proven) `ImprovementPlan` — `Recommendations` / `SummaryNotes` / `PolicyPackAdvisoryDefaults` explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_improvement_plan_collections_yield_empty_collections_not_null`.
+
+- [ ] (candidate) `ImprovementRecommendation` — explicit JSON `null` on improvement recommendation list properties — locus: `Advisory.Models.ImprovementRecommendation`; input: improvement recommendation JSON with null `supportingFindingIds` / `supportingDecisionIds` / `supportingArtifactIds`.
+- [ ] (candidate) `RecommendationLearningPreviewResponse` — explicit JSON `null` on learning preview lists — locus: `Advisory.Learning.RecommendationLearningPreviewResponse`; input: learning preview JSON with null `weightDeltas` or `validationChecks`.
+- [ ] (candidate) `RecommendationLearningProfile` — explicit JSON `null` on learning profile list properties — locus: `Advisory.Learning.RecommendationLearningProfile`; input: learning profile JSON with null list tokens (see file).
+- [ ] (candidate) `Advisory.Models.TradeStudyResult` — explicit JSON `null` on trade study list properties — locus: `Advisory.Models.TradeStudyResult`; input: trade study result JSON with null list tokens (see file).
+- [ ] (candidate) `Advisory.Learning.RecommendationLearningOperationalStatusResponse` — explicit JSON `null` on learning operational status lists — locus: `Advisory.Learning.RecommendationLearningOperationalStatusResponse`; input: operational status JSON with null list token (see file).
 
 2026-10-15 seed hunt (seed→hit): promoted five open `(candidate)` rows on deployment status `links`, quality-gate `perAgentTypeFloors`, outbox bulk-retry `retriedOutboxIds`, LLM cost dashboard lists, and fleet COGS dashboard `rows`; cheap-disproof closed mis-scoped `AdminFleetLlmCogsRowResponse` (row DTO has no lists); coalesce fix on `AdminDeploymentStatusResponse`, `AdminQualityGateDiagnosticsResponse`, `IntegrationOutboxDeadLetterBulkRetryResponse`, `LlmCostReportingDashboardResponse`, and `AdminFleetLlmCogsDashboardResponse`; regressions in `AdminDeploymentStatusResponseDeserializationTests`, `AdminOperatorDiagnosticsDeserializationTests`, and `LlmCostReportingDeserializationTests`; reseeded five follow-on `(candidate)` rows; 931 scoped `Contracts` filter tests passed.
 
