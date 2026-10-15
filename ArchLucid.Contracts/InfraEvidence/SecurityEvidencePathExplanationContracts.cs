@@ -46,11 +46,13 @@ public sealed class SecurityEvidencePathExplanationResponse
         init => businessImpactHypotheses = ContractCollectionDefaults.CoalesceReadOnly(value);
     }
 
+    private SecurityEvidencePathProposedRemediationResponse proposedRemediation = new();
+
     public SecurityEvidencePathProposedRemediationResponse ProposedRemediation
     {
-        get;
-        init;
-    } = new();
+        get => proposedRemediation;
+        init => proposedRemediation = value ?? new();
+    }
 
     private IReadOnlyList<string> citedEvidenceRefs = [];
 

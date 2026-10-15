@@ -183,11 +183,13 @@ public sealed class SecurityEvidencePathRankDetailResponse
         init;
     } = string.Empty;
 
+    private SecurityEvidencePathRankDimensionProseResponse dimensionProse = new();
+
     public SecurityEvidencePathRankDimensionProseResponse DimensionProse
     {
-        get;
-        init;
-    } = new();
+        get => dimensionProse;
+        init => dimensionProse = value ?? new();
+    }
 
     public DateTime ComputedUtc
     {

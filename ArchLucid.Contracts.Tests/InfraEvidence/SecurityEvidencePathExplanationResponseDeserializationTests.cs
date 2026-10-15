@@ -41,4 +41,20 @@ public sealed class SecurityEvidencePathExplanationResponseDeserializationTests
         response.Should().NotBeNull();
         response!.CitedEvidenceRefs.Should().NotBeNull().And.BeEmpty();
     }
+
+    [Fact]
+    public void Deserialize_null_proposed_remediation_yields_non_null_remediation_not_null()
+    {
+        const string json = """
+            {
+              "proposedRemediation": null
+            }
+            """;
+
+        SecurityEvidencePathExplanationResponse? response =
+            JsonSerializer.Deserialize<SecurityEvidencePathExplanationResponse>(json, ContractJson.CamelCaseCompact);
+
+        response.Should().NotBeNull();
+        response!.ProposedRemediation.Should().NotBeNull();
+    }
 }

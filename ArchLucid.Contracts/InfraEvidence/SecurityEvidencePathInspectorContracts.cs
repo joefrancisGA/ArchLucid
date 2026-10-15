@@ -119,11 +119,13 @@ public sealed class SecurityEvidencePathDetailResponse
         init;
     }
 
+    private SecurityEvidencePathExplanationTemplateResponse explanationTemplate = new();
+
     public SecurityEvidencePathExplanationTemplateResponse ExplanationTemplate
     {
-        get;
-        init;
-    } = new();
+        get => explanationTemplate;
+        init => explanationTemplate = value ?? new();
+    }
 
     private IReadOnlyList<SecurityEvidenceCutPointSummaryResponse> relatedCutPoints = [];
 

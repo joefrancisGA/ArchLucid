@@ -30069,7 +30069,21 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 ---
 ## Zone: archlucid-contracts
 
-**Hunts:** 188 · **Bugs found:** 301 · **Consecutive dry hunts:** 0
+**Hunts:** 189 · **Bugs found:** 306 · **Consecutive dry hunts:** 0
+
+2026-10-15 seed hunt (seed→hit): promoted five open `(candidate)` rows on security evidence path explanation remediation, path inspector explanation template, path rank dimension prose, run agent LLM token counts, and recommendation learning ops eligibility; null guards on `SecurityEvidencePathExplanationResponse`, `SecurityEvidencePathDetailResponse`, `SecurityEvidencePathRankDetailResponse`, `RunAgentLlmCostEstimateDto`, and `RecommendationLearningOperationalStatusResponse`; regressions in `SecurityEvidencePathExplanationResponseDeserializationTests`, `SecurityEvidencePathDetailResponseDeserializationTests`, `SecurityEvidencePathRankDetailResponseDeserializationTests`, `RunAgentLlmCostEstimateDtoDeserializationTests`, and `RecommendationLearningOperationalStatusResponseDeserializationTests`; reseeded five follow-on `(candidate)` rows; 998 scoped `Contracts` filter tests passed.
+
+- [x] (proven) `SecurityEvidencePathExplanationResponse.ProposedRemediation` — explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_proposed_remediation_yields_non_null_remediation_not_null`.
+- [x] (proven) `SecurityEvidencePathDetailResponse.ExplanationTemplate` — explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_explanation_template_yields_non_null_template_not_null`.
+- [x] (proven) `SecurityEvidencePathRankDetailResponse.DimensionProse` — explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_dimension_prose_yields_non_null_prose_not_null`.
+- [x] (proven) `RunAgentLlmCostEstimateDto.TokenCounts` — explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_token_counts_yields_non_null_token_counts_not_null`.
+- [x] (proven) `RecommendationLearningOperationalStatusResponse.Eligibility` — explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_eligibility_yields_non_null_eligibility_not_null`.
+
+- [ ] (candidate) `RoiSponsorFacingScopeManifestDocument` — `Codes` / `Descriptions` explicit JSON `null` on ROI scope manifest JSON — locus: `Roi.RoiSponsorFacingScopeManifestDocument`; input: sponsor-facing scope manifest JSON with null nested object tokens (see file).
+- [ ] (candidate) `PilotRunDeltasResponse.ProofPackageCompleteness` — explicit JSON `null` on pilot run deltas JSON when sibling fields present — locus: `Pilots.PilotRunDeltasResponse`; input: `GET /v1/pilots/runs/.../pilot-run-deltas` JSON with `"proofPackageCompleteness": null` (see file).
+- [ ] (candidate) `PilotRunDeltasResponse.GovernedFindingCoverage` — explicit JSON `null` on pilot run deltas JSON — locus: `Pilots.PilotRunDeltasResponse`; input: pilot run deltas JSON with `"governedFindingCoverage": null` (see file).
+- [ ] (candidate) `PilotRunDeltasResponse.TopFindingEvidenceChain` — explicit JSON `null` on pilot run deltas JSON — locus: `Pilots.PilotRunDeltasResponse`; input: pilot run deltas JSON with `"topFindingEvidenceChain": null` (see file).
+- [ ] (candidate) `SecurityEvidencePathDetailResponse.WeakestHop` — explicit JSON `null` on path inspector detail JSON — locus: `InfraEvidence.SecurityEvidencePathDetailResponse`; input: path detail JSON with `"weakestHop": null` (see file).
 
 2026-10-15 seed hunt (seed→hit): promoted five open `(candidate)` rows on create saved view payload, candidate change set expected impact, tenant ITSM deployment credentials, admin IdP health probes, and governance registers bundle; null guards on `CreateOperatorSavedViewRequest`, `CandidateChangeSet`, `TenantItsmOutboundSettingsResponse`, `AdminIdentityProviderDiagnosticsResponse`, and `GovernanceFindingsRegistersBundleResponse`; regressions in `CreateOperatorSavedViewRequestDeserializationTests`, `CandidateChangeSetDeserializationTests`, `TenantItsmOutboundSettingsResponseDeserializationTests`, `AdminIdentityProviderDiagnosticsResponseDeserializationTests`, and `GovernanceFindingsRegistersBundleResponseDeserializationTests`; reseeded five follow-on `(candidate)` rows; 993 scoped `Contracts` filter tests passed.
 
@@ -30078,12 +30092,6 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `TenantItsmOutboundSettingsResponse.DeploymentCredentials` — explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_deployment_credentials_yields_non_null_summary_not_null`.
 - [x] (proven) `AdminIdentityProviderDiagnosticsResponse` — `Oidc` / `Saml` explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_idp_probes_yields_non_null_defaults`.
 - [x] (proven) `GovernanceFindingsRegistersBundleResponse` — `RiskRegister` / `DecisionRegister` explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_registers_yields_non_null_nested_objects`.
-
-- [ ] (candidate) `SecurityEvidencePathExplanationResponse.ProposedRemediation` — explicit JSON `null` on path explanation JSON — locus: `InfraEvidence.SecurityEvidencePathExplanationResponse`; input: explanation response JSON with `"proposedRemediation": null` (see file).
-- [ ] (candidate) `SecurityEvidencePathDetailResponse.ExplanationTemplate` — explicit JSON `null` on path inspector detail JSON — locus: `InfraEvidence.SecurityEvidencePathDetailResponse`; input: path detail JSON with `"explanationTemplate": null` (see file).
-- [ ] (candidate) `SecurityEvidencePathRankDetailResponse.DimensionProse` — explicit JSON `null` on path rank detail JSON — locus: `InfraEvidence.SecurityEvidencePathRankDetailResponse`; input: rank detail JSON with `"dimensionProse": null` (see file).
-- [ ] (candidate) `RunAgentLlmCostEstimateDto.TokenCounts` — explicit JSON `null` on run LLM cost estimate JSON — locus: `Runs.RunAgentLlmCostEstimateDto`; input: cost estimate DTO JSON with `"tokenCounts": null` (see file).
-- [ ] (candidate) `RecommendationLearningOperationalStatusResponse.Eligibility` — explicit JSON `null` on learning ops status JSON — locus: `Advisory.Learning.RecommendationLearningOperationalStatusResponse`; input: operational status JSON with `"eligibility": null` (see file).
 
 2026-10-15 seed hunt (seed→hit): promoted five open `(candidate)` rows on rewrite-overview structured brief, decision receipt nested objects, operator saved view payload, tenant branding colors, and ITSM health provider probes; null guards on `RewriteArchitectureOverviewInput`, `DecisionReceiptDocument`, `OperatorSavedViewResponse`, `TenantBrandingPresentationResponse`, and `ItsmIntegrationHealthStatusResponse`; regressions in `RewriteArchitectureOverviewInputDeserializationTests`, `DecisionReceiptDocumentDeserializationTests`, `OperatorSavedViewResponseDeserializationTests`, `TenantBrandingPresentationResponseDeserializationTests`, and `ItsmIntegrationHealthStatusResponseDeserializationTests`; reseeded five follow-on `(candidate)` rows; 988 scoped `Contracts` filter tests passed.
 

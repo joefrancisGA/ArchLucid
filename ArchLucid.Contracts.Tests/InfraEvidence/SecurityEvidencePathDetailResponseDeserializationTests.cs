@@ -43,4 +43,20 @@ public sealed class SecurityEvidencePathDetailResponseDeserializationTests
         detail.Should().NotBeNull();
         detail!.Routing.Should().NotBeNull().And.BeEmpty();
     }
+
+    [Fact]
+    public void Deserialize_null_explanation_template_yields_non_null_template_not_null()
+    {
+        const string json = """
+            {
+              "explanationTemplate": null
+            }
+            """;
+
+        SecurityEvidencePathDetailResponse? detail =
+            JsonSerializer.Deserialize<SecurityEvidencePathDetailResponse>(json, ContractJson.CamelCaseCompact);
+
+        detail.Should().NotBeNull();
+        detail!.ExplanationTemplate.Should().NotBeNull();
+    }
 }
