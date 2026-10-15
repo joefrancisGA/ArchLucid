@@ -21,7 +21,9 @@ public sealed class AgentResultDeserializationTests
               "agentType": 1,
               "claims": null,
               "evidenceRefs": null,
-              "findings": null
+              "findings": null,
+              "checklistCoverage": null,
+              "withheldFindings": null
             }
             """;
 
@@ -30,5 +32,7 @@ public sealed class AgentResultDeserializationTests
         result.Claims.Should().NotBeNull().And.BeEmpty();
         result.EvidenceRefs.Should().NotBeNull().And.BeEmpty();
         result.Findings.Should().NotBeNull().And.BeEmpty();
+        result.ChecklistCoverage.Should().NotBeNull().And.BeEmpty();
+        result.WithheldFindings.Should().NotBeNull().And.BeEmpty();
     }
 }
