@@ -25,11 +25,13 @@ public sealed class DraftAdmissionResponse
         set;
     }
 
+    private DraftRequestResponse draft = new();
+
     public DraftRequestResponse Draft
     {
-        get;
-        set;
-    } = new();
+        get => draft;
+        set => draft = value ?? new DraftRequestResponse();
+    }
 
     /// <summary>MUST-tier questions still required before submit (ADR 0051 deterministic termination).</summary>
     private IReadOnlyList<DraftElicitationQuestion> pendingMustQuestions = [];
@@ -50,9 +52,11 @@ public sealed class DraftAdmissionResponse
     }
 
     /// <summary>Typed feasibility outcome with mandatory transparency trail (ADR 0050).</summary>
+    private FeasibilityVerdict verdict = new();
+
     public FeasibilityVerdict Verdict
     {
-        get;
-        set;
-    } = new();
+        get => verdict;
+        set => verdict = value ?? new FeasibilityVerdict();
+    }
 }

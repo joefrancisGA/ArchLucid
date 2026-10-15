@@ -27,4 +27,22 @@ public sealed class DraftAdmissionResponseDeserializationTests
         result!.PendingMustQuestions.Should().NotBeNull().And.BeEmpty();
         result.RequiredMustQuestionKeys.Should().NotBeNull().And.BeEmpty();
     }
+
+    [Fact]
+    public void Deserialize_null_draft_and_verdict_yields_non_null_nested_objects()
+    {
+        const string json = """
+            {
+              "draft": null,
+              "verdict": null
+            }
+            """;
+
+        DraftAdmissionResponse? result =
+            JsonSerializer.Deserialize<DraftAdmissionResponse>(json, ContractJson.CamelCaseCompact);
+
+        result.Should().NotBeNull();
+        result!.Draft.Should().NotBeNull();
+        result.Verdict.Should().NotBeNull();
+    }
 }

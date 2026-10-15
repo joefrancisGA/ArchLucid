@@ -30,4 +30,22 @@ public sealed class FeasibilityVerdictDeserializationTests
         verdict.UnsatCoreInvariantKeys.Should().NotBeNull().And.BeEmpty();
         verdict.ProposedRelaxations.Should().NotBeNull().And.BeEmpty();
     }
+
+    [Fact]
+    public void Deserialize_null_transparency_trail_yields_non_null_trail_not_null()
+    {
+        const string json = """
+            {
+              "kind": 0,
+              "summary": "ok",
+              "transparencyTrail": null
+            }
+            """;
+
+        FeasibilityVerdict? verdict =
+            JsonSerializer.Deserialize<FeasibilityVerdict>(json, ContractJson.Default);
+
+        verdict.Should().NotBeNull();
+        verdict!.TransparencyTrail.Should().NotBeNull();
+    }
 }

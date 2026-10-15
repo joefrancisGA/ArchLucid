@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Architecture;
 
 /// <summary>
@@ -44,18 +46,22 @@ public sealed class ArchitectureVersionRecord
     }
 
     /// <summary>SHA-256 over admitted architecture artifact (κ when present; else intake request).</summary>
+    private byte[] contentHashSha256 = [];
+
     public byte[] ContentHashSha256
     {
-        get;
-        set;
-    } = [];
+        get => contentHashSha256;
+        set => contentHashSha256 = ContractCollectionDefaults.CoalesceArray(value);
+    }
 
     /// <summary>SHA-256 over canonical intake <c>ArchitectureRequest</c> JSON (provenance only).</summary>
+    private byte[] intakeRequestHashSha256 = [];
+
     public byte[] IntakeRequestHashSha256
     {
-        get;
-        set;
-    } = [];
+        get => intakeRequestHashSha256;
+        set => intakeRequestHashSha256 = ContractCollectionDefaults.CoalesceArray(value);
+    }
 
     public string? SourceRequestId
     {

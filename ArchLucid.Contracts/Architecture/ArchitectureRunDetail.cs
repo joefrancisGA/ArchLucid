@@ -17,11 +17,13 @@ namespace ArchLucid.Contracts.Architecture;
 public sealed class ArchitectureRunDetail
 {
     /// <summary>Core run record including status, timestamps, and version references.</summary>
+    private ArchitectureRun run = new();
+
     public ArchitectureRun Run
     {
-        get;
-        set;
-    } = new();
+        get => run;
+        set => run = value ?? new ArchitectureRun();
+    }
 
     /// <summary>Agent tasks created for this run.</summary>
     private List<AgentTask> tasks = [];

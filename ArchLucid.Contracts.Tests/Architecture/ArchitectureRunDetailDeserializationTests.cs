@@ -32,4 +32,21 @@ public sealed class ArchitectureRunDetailDeserializationTests
         detail.Results.Should().NotBeNull().And.BeEmpty();
         detail.DecisionTraces.Should().NotBeNull().And.BeEmpty();
     }
+
+    [Fact]
+    public void Deserialize_null_run_yields_non_null_run_not_null()
+    {
+        const string json = """
+            {
+              "run": null,
+              "tasks": []
+            }
+            """;
+
+        ArchitectureRunDetail? detail =
+            JsonSerializer.Deserialize<ArchitectureRunDetail>(json, ContractJson.Default);
+
+        detail.Should().NotBeNull();
+        detail!.Run.Should().NotBeNull();
+    }
 }

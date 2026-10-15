@@ -32,12 +32,14 @@ public sealed class FeasibilityVerdict
     } = string.Empty;
 
     /// <summary>Mandatory provenance record (ADR 0050 / R4) — absence is a defect.</summary>
+    private TransparencyTrail transparencyTrail = new();
+
     [JsonPropertyName("transparencyTrail")]
     public TransparencyTrail TransparencyTrail
     {
-        get;
-        set;
-    } = new();
+        get => transparencyTrail;
+        set => transparencyTrail = value ?? new TransparencyTrail();
+    }
 
     /// <summary>
     ///     Fixed at 100 for <see cref="FeasibilityVerdictKind.HardInfeasible" />; optional for other kinds.

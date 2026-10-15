@@ -46,20 +46,24 @@ public sealed class DraftRequestDocument
     }
 
     /// <summary>Inferred-then-confirmed actor set (ADR 0049).</summary>
+    private ActorSet actorSet = new();
+
     [JsonPropertyName("actorSet")]
     public ActorSet ActorSet
     {
-        get;
-        set;
-    } = new();
+        get => actorSet;
+        set => actorSet = value ?? new ActorSet();
+    }
 
     /// <summary>Mandatory transparency trail accumulating asserted / inferred / skipped items (ADR 0050).</summary>
+    private TransparencyTrail transparencyTrail = new();
+
     [JsonPropertyName("transparencyTrail")]
     public TransparencyTrail TransparencyTrail
     {
-        get;
-        set;
-    } = new();
+        get => transparencyTrail;
+        set => transparencyTrail = value ?? new TransparencyTrail();
+    }
 
     /// <summary>Answers keyed by <see cref="Governance.ElicitationQuestion.QuestionKey" />.</summary>
     private Dictionary<string, string> questionAnswers = new(StringComparer.OrdinalIgnoreCase);
@@ -121,12 +125,14 @@ public sealed class DraftRequestDocument
     }
 
     /// <summary>Confirmable structured brief lists and quality notes (TB-2282).</summary>
+    private ArchitectureDraftStructuredBrief structuredBrief = new();
+
     [JsonPropertyName("structuredBrief")]
     public ArchitectureDraftStructuredBrief StructuredBrief
     {
-        get;
-        set;
-    } = new();
+        get => structuredBrief;
+        set => structuredBrief = value ?? new ArchitectureDraftStructuredBrief();
+    }
 
     /// <summary>Prior committed run id for semantic inheritance on second reviews (TB-2350).</summary>
     [JsonPropertyName("priorRunId")]
