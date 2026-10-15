@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Governance.Resolution;
 
 /// <summary>Describes a governance conflict detected during merge.</summary>
@@ -27,9 +29,11 @@ public class GovernanceConflictRecord
         set;
     } = null!;
 
+    private List<GovernanceResolutionCandidate> candidates = [];
+
     public List<GovernanceResolutionCandidate> Candidates
     {
-        get;
-        set;
-    } = [];
+        get => candidates;
+        set => candidates = ContractCollectionDefaults.Coalesce(value);
+    }
 }

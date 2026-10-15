@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Governance;
 
 /// <summary>
@@ -135,11 +137,13 @@ public sealed class GovernanceLineageResult
         set;
     }
 
+    private List<GovernanceLineageFindingSummary> topFindings = [];
+
     public List<GovernanceLineageFindingSummary> TopFindings
     {
-        get;
-        set;
-    } = [];
+        get => topFindings;
+        set => topFindings = ContractCollectionDefaults.Coalesce(value);
+    }
 
     public string? RiskPosture
     {
@@ -147,9 +151,11 @@ public sealed class GovernanceLineageResult
         set;
     }
 
+    private List<GovernancePromotionRecord> promotions = [];
+
     public List<GovernancePromotionRecord> Promotions
     {
-        get;
-        set;
-    } = [];
+        get => promotions;
+        set => promotions = ContractCollectionDefaults.Coalesce(value);
+    }
 }

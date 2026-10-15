@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Governance.Posture;
 
 public sealed class PillarPosture
@@ -32,9 +34,11 @@ public sealed class PillarPosture
         init;
     } = null!;
 
+    private IReadOnlyList<PillarPackAssignment> packAssignments = [];
+
     public IReadOnlyList<PillarPackAssignment> PackAssignments
     {
-        get;
-        init;
-    } = [];
+        get => packAssignments;
+        init => packAssignments = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 }
