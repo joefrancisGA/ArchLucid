@@ -1694,6 +1694,124 @@ public sealed class GovernanceControllerRunHistoryScopeTests
     }
 
     [Fact]
+    public async Task Promote_passes_actor_context_id_to_workflow_when_display_name_differs()
+    {
+        Guid runId = Guid.Parse("44444444-4444-4444-4444-444444444444");
+        const string displayName = "Pat Operator";
+        const string actorKey = "jwt:11111111-2222-3333-4444-555555555555:aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee";
+        string? capturedPromotedBy = null;
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(Scope, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunRecord { RunId = runId });
+
+        Mock<IGovernanceWorkflowFacade> workflow = new();
+        workflow
+            .Setup(w => w.PromoteAsync(
+                runId.ToString("D"),
+                "1",
+                "dev",
+                "test",
+                It.IsAny<string>(),
+                null,
+                null,
+                true,
+                false,
+                It.IsAny<CancellationToken>()))
+            .Callback<string, string, string, string, string, string?, string?, bool, bool, CancellationToken>(
+                (_, _, _, _, promotedBy, _, _, _, _, _) => capturedPromotedBy = promotedBy)
+            .ReturnsAsync(
+                new GovernancePromotionRecord
+                {
+                    RunId = runId.ToString("D"),
+                    ManifestVersion = "1",
+                    SourceEnvironment = "dev",
+                    TargetEnvironment = "test",
+                    PromotedBy = actorKey,
+                });
+
+        Mock<IActorContext> actor = new();
+        actor.Setup(a => a.GetActor()).Returns(displayName);
+        actor.Setup(a => a.GetActorId()).Returns(actorKey);
+
+        GovernanceController sut = CreateController(
+            runRepository: runs.Object,
+            workflowFacade: workflow.Object,
+            actorContext: actor.Object);
+        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+
+        IActionResult result = await sut.Promote(
+            new CreateGovernancePromotionRequest
+            {
+                RunId = runId.ToString("D"),
+                ManifestVersion = "1",
+                SourceEnvironment = "dev",
+                TargetEnvironment = "test",
+            },
+            dryRun: true,
+            CancellationToken.None);
+
+        result.Should().BeOfType<OkObjectResult>();
+        capturedPromotedBy.Should().Be(actorKey);
+    }
+
+    [Fact]
+    public async Task Activate_passes_actor_context_id_to_workflow_when_display_name_differs()
+    {
+        Guid runId = Guid.Parse("55555555-5555-5555-5555-555555555555");
+        const string displayName = "Pat Operator";
+        const string actorKey = "jwt:11111111-2222-3333-4444-555555555555:aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee";
+        string? capturedActivatedBy = null;
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(Scope, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunRecord { RunId = runId });
+
+        Mock<IGovernanceWorkflowFacade> workflow = new();
+        workflow
+            .Setup(w => w.ActivateAsync(
+                runId.ToString("D"),
+                "1",
+                "test",
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .Callback<string, string, string, string, CancellationToken>(
+                (_, _, _, activatedBy, _) => capturedActivatedBy = activatedBy)
+            .ReturnsAsync(
+                new GovernanceEnvironmentActivation
+                {
+                    RunId = runId.ToString("D"),
+                    ManifestVersion = "1",
+                    Environment = "test",
+                });
+
+        Mock<IActorContext> actor = new();
+        actor.Setup(a => a.GetActor()).Returns(displayName);
+        actor.Setup(a => a.GetActorId()).Returns(actorKey);
+
+        GovernanceController sut = CreateController(
+            runRepository: runs.Object,
+            workflowFacade: workflow.Object,
+            actorContext: actor.Object);
+        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+        sut.ControllerContext.HttpContext.Request.Headers["Idempotency-Key"] = "activate-actor-id-test";
+
+        IActionResult result = await sut.Activate(
+            new CreateGovernanceActivationRequest
+            {
+                RunId = runId.ToString("D"),
+                ManifestVersion = "1",
+                Environment = "test",
+            },
+            CancellationToken.None);
+
+        result.Should().BeOfType<OkObjectResult>();
+        capturedActivatedBy.Should().Be(actorKey);
+    }
+
+    [Fact]
     public async Task SubmitApprovalRequest_accepts_padded_run_id_when_run_is_in_scope()
     {
         Guid runId = Guid.Parse("33333333-3333-3333-3333-333333333333");
