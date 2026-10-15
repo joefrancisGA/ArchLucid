@@ -39,6 +39,11 @@ describe("readNonceFromPayload", () => {
     expect(readNonceFromPayload({ sub: "x" })).toBeNull();
     expect(readNonceFromPayload(null)).toBeNull();
   });
+
+  it("strips zero-width padding from nonce claims", () => {
+    expect(readNonceFromPayload({ nonce: "\u200bn1\u200b", sub: "x" })).toBe("n1");
+    expect(readNonceFromPayload({ nonce: "\u200b", sub: "x" })).toBeNull();
+  });
 });
 
 describe("pickDisplayNameFromPayload", () => {

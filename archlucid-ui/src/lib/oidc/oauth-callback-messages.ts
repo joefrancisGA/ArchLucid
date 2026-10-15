@@ -84,7 +84,7 @@ function buyerSafeAuthorizeErrorWithoutCode(detail: string): string {
 }
 
 export function humanizeAuthorizeCallbackError(errorCode: string, decodedDescription: string): string {
-  const normalized = errorCode.trim().toLowerCase();
+  const normalized = stripOAuthInvisibleFormatChars(errorCode.trim()).trim().toLowerCase();
   const detail = sanitizeOAuthUserFacingMessage(decodedDescription);
   const readableCode = formatErrorCodeForReading(normalized);
 

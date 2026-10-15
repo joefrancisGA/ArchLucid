@@ -52,6 +52,10 @@ describe("humanizeAuthorizeCallbackError", () => {
     expect(humanizeAuthorizeCallbackError("access_denied", "Policy enforced")).toContain("Policy enforced");
   });
 
+  it("maps standard authorize error codes when the error query contains zero-width characters", () => {
+    expect(humanizeAuthorizeCallbackError("access\u200b_denied", "")).toContain("canceled sign-in");
+  });
+
   it("maps interaction and consent cases", () => {
     expect(humanizeAuthorizeCallbackError("interaction_required", "")).toContain("Another sign-in step");
 
