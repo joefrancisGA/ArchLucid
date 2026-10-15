@@ -11,6 +11,23 @@ namespace ArchLucid.Contracts.Tests.Persistence.Graph;
 public sealed class GraphNodeDeserializationTests
 {
     [Fact]
+    public void Deserialize_null_node_id_yields_empty_string_not_null()
+    {
+        const string json = """
+            {
+              "nodeId": null,
+              "nodeType": "service",
+              "label": "svc"
+            }
+            """;
+
+        GraphNode? result = JsonSerializer.Deserialize<GraphNode>(json, ContractJson.CamelCaseCompact);
+
+        result.Should().NotBeNull();
+        result!.NodeId.Should().BeEmpty();
+    }
+
+    [Fact]
     public void Deserialize_null_properties_yields_empty_dictionary_not_null()
     {
         const string json = """
