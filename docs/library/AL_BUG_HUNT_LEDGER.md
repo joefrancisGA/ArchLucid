@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-15 seed hunt (seed→hit): `ui-oidc` — promoted `truncateOAuthUserFacingMessage` slicing mid UTF-16 surrogate pair at the 280-character cap (mojibake/ill-formed operator copy on long authorize or token errors); step cut index back when boundary lands on a high surrogate; regression `does not truncate OAuth user-facing copy on a lone UTF-16 surrogate`; cheap-disproved five open `(candidate)` rows; reseeded five follow-on candidates; 112 scoped `src/lib/oidc` vitest tests passed.
+
 2026-10-15 seed hunt (seed→hit): `ui-oidc` — promoted `humanizeAuthorizeCallbackError` emitting `Sign-in did not finish ()` when authorize `?error=` is underscore-only (`___` → empty readable code after `formatErrorCodeForReading`); shared `buyerSafeAuthorizeErrorWithoutCode` with whitespace-only guard; regression `avoids empty parentheses when the authorize error code is underscore-only`; cheap-disproved five open `(candidate)` rows; reseeded five follow-on candidates; 111 scoped `src/lib/oidc` vitest tests passed.
 
 2026-10-15 seed hunt (seed→hit): `ui-oidc` — promoted `humanizeAuthorizeCallbackError` emitting `Sign-in did not finish ()` when authorize `?error=` is whitespace-only (proxy/IdP malformed query); buyer-safe incomplete-response copy when code and detail absent; regressions `avoids empty parentheses when the authorize error code is whitespace-only` and `still surfaces authorize error_description when the error code is whitespace-only`; cheap-disproved five open `(candidate)` rows; reseeded five follow-on candidates; 110 scoped `src/lib/oidc` vitest tests passed.
@@ -21021,11 +21023,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 62
-- **bugs-found:** 56
+- **hunts:** 63
+- **bugs-found:** 57
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-15
-- **last-bug:** 2026-10-15 — underscore-only authorize error code produced empty parentheses in callback copy
+- **last-bug:** 2026-10-15 — OAuth message truncation split UTF-16 surrogate pairs
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -21127,11 +21129,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `refreshBffSessionCookie` — refresh 401 without hint clear — **cheap-disproof 2026-10-15 seed hunt:** `ensureAccessTokenFresh` calls `clearOidcSession` when `shouldClearSession`; regression in `session-ensure-fresh.test.ts`.
 - [x] (valid-no-repro) `isJwtAuthMode` — unknown auth mode env — **cheap-disproof 2026-10-15 seed hunt:** deployment configuration; non-JWT modes intentionally skip OIDC client paths.
 - [x] (proven) `humanizeAuthorizeCallbackError` — underscore-only authorize `error` query — **hit 2026-10-15 seed hunt (seed→hit):** treat empty `formatErrorCodeForReading` like missing code; regression `avoids empty parentheses when the authorize error code is underscore-only`.
-- (candidate) `buildAuthorizeUrl` — `response_mode=query` not validated against IdP capabilities — locus: `build-authorize-url.ts`; input: fragment-only SPA on legacy IdP; wrong outcome: authorize succeeds but callback misses `code`; mechanism: fixed query mode by design (deployment pairing).
-- (candidate) `token-client` — HTTP 200 empty JSON object `{}` — locus: `token-client.ts`; input: `{}` success body; wrong outcome: `missing access_token` throw; mechanism: already fail-closed (verify message parity).
-- (candidate) `discoveryUrlForAuthority` — authority without path segment — locus: `discovery.ts`; input: `https://issuer.example` only; wrong outcome: discovery URL path join; mechanism: regression `prefixes https:// when authority omits a scheme` covers normalization.
-- (candidate) `sanitizeOAuthUserFacingMessage` — mid-string ellipsis breaks surrogate pairs — locus: `oauth-callback-messages.ts`; input: 280+ char UTF-16 supplementary text; wrong outcome: corrupted display; mechanism: `slice` without grapheme awareness.
-- (candidate) `clearOidcSession` — broadcast channel post when `broadcastAuthCleared` false — locus: `session.ts`; input: internal sign-out without broadcast; wrong outcome: other tabs stale; mechanism: intentional opt-in flag.
+- [x] (valid-no-repro) `buildAuthorizeUrl` — fixed `response_mode=query` — **cheap-disproof 2026-10-15 seed hunt:** ArchLucid SPA callback expects query `code`; fragment mode is unsupported deployment pairing.
+- [x] (valid-no-repro) `token-client` — HTTP 200 `{}` success body — **cheap-disproof 2026-10-15 seed hunt:** `parseOidcTokenResponse` throws `missing access_token`; regression `throws when a successful token response omits access_token`.
+- [x] (valid-no-repro) `discoveryUrlForAuthority` — bare issuer host — **cheap-disproof 2026-10-15 seed hunt:** pathname normalization appends `/.well-known/openid-configuration`; regression `prefixes https:// when authority omits a scheme`.
+- [x] (proven) `truncateOAuthUserFacingMessage` — UTF-16 surrogate split at cap — **hit 2026-10-15 seed hunt (seed→hit):** adjust cut index before ellipsis; regression `does not truncate OAuth user-facing copy on a lone UTF-16 surrogate`.
+- [x] (valid-no-repro) `clearOidcSession` — optional auth-cleared broadcast — **cheap-disproof 2026-10-15 seed hunt:** `broadcastAuthCleared` defaults false; cross-tab refresh uses explicit broadcast when needed.
+- (candidate) `humanizeAuthorizeCallbackError` — `access_denied` detail wrapped in duplicate prefixes when detail repeats error code — locus: `oauth-callback-messages.ts`; input: description mirrors code text; wrong outcome: redundant copy; mechanism: template always prefixes `Sign-in stopped:`.
+- (candidate) `resolveRpLogoutUrlFromBffSession` — non-JSON 200 body — locus: `bff-session-sync.ts`; input: HTML error page; wrong outcome: JSON parse throw; mechanism: caller try/catch returns null.
+- (candidate) `storePostSignInReturnUrl` — unsafe path rejected but PKCE already stored — locus: `session.ts` + `initiate-redirect.ts`; input: unsafe `returnUrl` after PKCE write; wrong outcome: PKCE without return path; mechanism: return URL dropped by design.
+- (candidate) `parseOidcTokenResponse` — `token_type` casing not normalized — locus: `token-client.ts`; input: `{ "token_type": "bearer" }`; wrong outcome: downstream case-sensitive compare; mechanism: no zone consumer compares token_type.
+- (candidate) `jwt-payload` — `decodeJwtPayload` accepts JWT with four segments — locus: `jwt-payload.ts`; input: `a.b.c.d`; wrong outcome: parses segment 2 only; mechanism: `parts.length < 2` guard uses first payload segment.
 - [x] (proven) `persistTokenResponse` — a hung older token-to-BFF sync blocks a newer same-session sync, preventing the replacement session from establishing its cookie — **hit 2026-10-11 seed hunt:** the sync-order promise chain awaited every older request; concurrent sync plus latest-request replay lets the newer request proceed and converges late completions on the latest token; regression `does not block a newer sync behind a hung older request` in `session.test.ts`.
 - [x] (proven) `persistTokenResponse` — concurrent same-session token-to-BFF syncs can complete out of order, allowing an older provider response to overwrite a newer BFF cookie — **hit 2026-10-11 seed hunt:** each token response started its own asynchronous sync with no ordering guard; serialize sync writes through a recovery-safe promise chain; regression `keeps an older token sync from overwriting a newer same-session sync` in `session.test.ts`.
 - [x] (proven) `persistNonSensitiveSessionHints` — a replacement token without optional display-name or subject claims leaves the prior user's identity hints in `sessionStorage` — **hit 2026-10-11 seed hunt:** hint writes were conditional but stale keys were never removed, so a same-browser user replacement could display the previous user's name/subject; clear both hint keys before applying each token response; regression `clears stale identity hints when a replacement token has no identity claims` in `session.test.ts`.

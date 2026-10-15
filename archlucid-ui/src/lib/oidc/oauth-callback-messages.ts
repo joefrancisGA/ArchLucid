@@ -39,7 +39,18 @@ function truncateOAuthUserFacingMessage(text: string): string {
     return text;
   }
 
-  return `${text.slice(0, MAX_OAUTH_USER_FACING_MESSAGE_LENGTH - 1)}…`;
+  let cutIndex = MAX_OAUTH_USER_FACING_MESSAGE_LENGTH - 1;
+
+  if (cutIndex > 0) {
+    const codeUnitBeforeCut = text.charCodeAt(cutIndex - 1);
+
+    // Avoid ending operator-facing copy on a high surrogate without its pair.
+    if (codeUnitBeforeCut >= 0xd800 && codeUnitBeforeCut <= 0xdbff) {
+      cutIndex -= 1;
+    }
+  }
+
+  return `${text.slice(0, cutIndex)}…`;
 }
 
 /** Collapses line breaks and caps length for authorize-callback and token-endpoint operator copy. */

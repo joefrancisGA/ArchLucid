@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   decodeOAuthErrorDescription,
   humanizeAuthorizeCallbackError,
+  sanitizeOAuthUserFacingMessage,
 } from "@/lib/oidc/oauth-callback-messages";
 
 describe("decodeOAuthErrorDescription", () => {
@@ -68,6 +69,16 @@ describe("humanizeAuthorizeCallbackError", () => {
   it("avoids empty parentheses when the authorize error code is underscore-only", () => {
     expect(humanizeAuthorizeCallbackError("___", "")).toContain("complete response");
     expect(humanizeAuthorizeCallbackError("___", "")).not.toMatch(/\(\s*\)/u);
+  });
+
+  it("does not truncate OAuth user-facing copy on a lone UTF-16 surrogate", () => {
+    const emoji = "\uD83D\uDE00";
+    const oversized = `${"x".repeat(278)}${emoji}tail`;
+    const sanitized = sanitizeOAuthUserFacingMessage(oversized);
+    const withoutEllipsis = sanitized.endsWith("…") ? sanitized.slice(0, -1) : sanitized;
+
+    expect(sanitized.endsWith("…")).toBe(true);
+    expect(withoutEllipsis.isWellFormed()).toBe(true);
   });
 
   it("truncates oversized authorize error descriptions for callback copy", () => {
