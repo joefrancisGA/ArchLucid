@@ -12,7 +12,19 @@ export function resolveExpiresInSeconds(expiresIn: number | undefined): number {
     return defaultExpiresInSec;
   }
 
-  const numericExpiresIn = Number(expiresIn);
+  let numericExpiresIn: number;
+
+  if (typeof expiresIn === "string") {
+    const trimmed = expiresIn.trim();
+
+    if (trimmed.length === 0) {
+      return defaultExpiresInSec;
+    }
+
+    numericExpiresIn = Number(trimmed);
+  } else {
+    numericExpiresIn = Number(expiresIn);
+  }
 
   if (!Number.isFinite(numericExpiresIn)) {
     return defaultExpiresInSec;

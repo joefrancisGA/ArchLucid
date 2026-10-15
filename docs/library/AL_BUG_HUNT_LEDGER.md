@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-15 seed hunt (seed→hit): `ui-oidc` — promoted `resolveExpiresInSeconds` coercing whitespace-only string `expires_in` from token JSON to `0` via `Number("   ")` (immediate client/BFF expiry); treat empty trimmed strings like absent scalars; regressions `maps a whitespace-only string expires_in to the default lifetime` and `parses a numeric string expires_in after trimming`; cheap-disproved five open `(candidate)` rows; reseeded five follow-on candidates; 88 scoped `src/lib/oidc` vitest tests passed.
+
 2026-10-15 seed hunt (seed-only): `ui-oidc` — falsify attempt on `persistTokenResponse` padded `access_token` bypass showed outer-padding does not break `decodeJwtPayload` (payload segment unchanged); cheap-disproved five open `(candidate)` rows; reseeded five follow-on candidates; 86 scoped `src/lib/oidc` vitest tests passed; no production change.
 
 2026-10-15 seed hunt (seed→hit): `ui-oidc` — promoted `parseOidcTokenResponse` accepting surrounding whitespace on `access_token` while `persistNonSensitiveSessionHints` called `decodeJwtPayload` on the unpadded string (BFF sync already trimmed); normalize `access_token` at token-client boundary; regression `trims surrounding whitespace from access_token in successful token responses`; cheap-disproved five open `(candidate)` rows; reseeded five follow-on candidates; 86 scoped `src/lib/oidc` vitest tests passed.
@@ -20999,11 +21001,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 51
-- **bugs-found:** 44
+- **hunts:** 52
+- **bugs-found:** 45
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-15
-- **last-bug:** 2026-10-15 — token client left padded access_token breaking session hint decode
+- **last-bug:** 2026-10-15 — whitespace-only string expires_in collapsed session TTL to zero
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -21046,11 +21048,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `parseDiscoveryDocument` — unvalidated `issuer` string — **cheap-disproof 2026-10-15 seed hunt:** browser authorize/token flows consume validated endpoint fields only; issuer string is not used for navigation in these files (see 2026-09-30 classification).
 - [x] (valid-no-repro) `assertOidcSignInConfig` — authority env with embedded userinfo — **cheap-disproof 2026-10-15 seed hunt:** deployment misconfiguration; discovery fetch uses `URL.origin` without attacker-controlled discovery JSON in this path.
 - [x] (valid-no-repro) `humanizeAuthorizeCallbackError` — unbounded `error_description` — **cheap-disproof 2026-10-15 seed hunt:** IdP-controlled admin copy; callback buyer-safe messaging; no zone regression demonstrating UI breakage.
-- (candidate) `parseOidcTokenResponse` — optional `refresh_token` / `id_token` not trimmed at token-client boundary — locus: `token-client.ts`; input: HTTP 200 with padded optional tokens; wrong outcome: inconsistent normalization vs `access_token` trim; mechanism: only `access_token` normalized before return.
-- (candidate) `isLikelySignedIn` — treats missing `sessionStorage` expiry as signed-out while HttpOnly BFF cookie may still be valid — locus: `session.ts`; input: operator clears sessionStorage without clearing BFF cookie; wrong outcome: signed-out chrome with working API proxy; mechanism: LK-06 hint-only expiry gate.
-- (candidate) `consumePkceState` — callback `state` query param not trimmed before PKCE lookup — locus: `session.ts` / `CallbackClient` consumer; input: IdP echoes `state` with leading/trailing whitespace; wrong outcome: false expired-state failure; mechanism: exact string equality on stored opaque state.
-- (candidate) `getOidcScopes` — returns env scope string verbatim into authorize URL — locus: `config.ts`; input: `NEXT_PUBLIC_OIDC_SCOPES` with embedded CR/LF; wrong outcome: malformed authorize query; mechanism: no `EmailHeaderFragmentSanitizer`-style collapse on scope env.
-- (candidate) `syncBffSessionCookieFromTokenResponse` — initial sign-in POST uses JSON content-type without CSRF while refresh requires `buildBffMutationHeaders` — locus: `bff-session-sync.ts`; input: attacker tricks same-site credentialed POST; wrong outcome: session swap; mechanism: parity gap vs refresh route CSRF (same-origin already enforced server-side).
+- [x] (proven) `resolveExpiresInSeconds` — whitespace-only string `expires_in` from token JSON — **hit 2026-10-15 seed hunt (seed→hit):** `Number("   ")` became `0`; trim-empty strings use default lifetime; regressions `maps a whitespace-only string expires_in to the default lifetime` and `parses a numeric string expires_in after trimming`.
+- [x] (valid-no-repro) `parseOidcTokenResponse` — optional token padding at client boundary — **cheap-disproof 2026-10-15 seed hunt:** BFF sync already trims `refresh_token` / `id_token`; padded JWT segments decode via payload part; no wrong outcome beyond access_token trim shipped earlier.
+- [x] (valid-no-repro) `isLikelySignedIn` — BFF cookie without sessionStorage expiry — **cheap-disproof 2026-10-15 seed hunt:** intentional LK-06 hint-only gate; partial storage clear is operator/browser hygiene, not attacker input in zone files.
+- [x] (valid-no-repro) `consumePkceState` — untrimmed callback `state` — **cheap-disproof 2026-10-15 seed hunt:** opaque PKCE state is base64url without whitespace; Entra/Google echo exact `state` query values.
+- [x] (valid-no-repro) `getOidcScopes` — verbatim env scope with embedded breaks — **cheap-disproof 2026-10-15 seed hunt:** deployment configuration surface; no production scope scanner emits CR/LF in `NEXT_PUBLIC_OIDC_SCOPES`.
+- [x] (valid-no-repro) `syncBffSessionCookieFromTokenResponse` — sign-in POST CSRF parity — **duplicate cheap-disproof 2026-10-15 seed hunt:** same-origin gate on `POST /api/auth/bff-session` already blocks cross-site establishment.
+- (candidate) `parseOidcTokenResponse` — string `expires_in` with non-numeric characters after trim falls through `Number()` to `NaN` — locus: `token-client.ts` / `persistTokenResponse`; input: `{ "expires_in": "3600sec" }`; wrong outcome: default lifetime vs thrown token response; mechanism: numeric coercion happens only in `resolveExpiresInSeconds` after cast.
+- (candidate) `postTokenForm` — non-JSON success body throws generic `JSON.parse` error — locus: `token-client.ts`; input: HTTP 200 HTML error page; wrong outcome: opaque callback failure; mechanism: no content-type guard before parse.
+- (candidate) `loadDiscoveryDocument` — successful discovery cached forever even when `authorization_endpoint` later changes on issuer — locus: `discovery.ts` `discoveryPromises`; input: issuer metadata rotation without full page reload; wrong outcome: stale authorize URL; mechanism: cache key is discovery URL only (operational).
+- (candidate) `decodeOAuthErrorDescription` — percent-encoded CR/LF in `error_description` reaches humanized callback copy — locus: `oauth-callback-messages.ts`; input: `error_description` with `%0D%0A`; wrong outcome: multiline buyer-facing error; mechanism: decodeURIComponent without line-break sanitizer.
+- (candidate) `refreshAccessToken` — does not trim caller-supplied `refreshToken` before form POST — locus: `token-client.ts`; input: refresh token with surrounding whitespace from storage corruption; wrong outcome: `invalid_grant`; mechanism: refresh form uses raw param (BFF server path unaffected).
 - [x] (proven) `persistTokenResponse` — a hung older token-to-BFF sync blocks a newer same-session sync, preventing the replacement session from establishing its cookie — **hit 2026-10-11 seed hunt:** the sync-order promise chain awaited every older request; concurrent sync plus latest-request replay lets the newer request proceed and converges late completions on the latest token; regression `does not block a newer sync behind a hung older request` in `session.test.ts`.
 - [x] (proven) `persistTokenResponse` — concurrent same-session token-to-BFF syncs can complete out of order, allowing an older provider response to overwrite a newer BFF cookie — **hit 2026-10-11 seed hunt:** each token response started its own asynchronous sync with no ordering guard; serialize sync writes through a recovery-safe promise chain; regression `keeps an older token sync from overwriting a newer same-session sync` in `session.test.ts`.
 - [x] (proven) `persistNonSensitiveSessionHints` — a replacement token without optional display-name or subject claims leaves the prior user's identity hints in `sessionStorage` — **hit 2026-10-11 seed hunt:** hint writes were conditional but stale keys were never removed, so a same-browser user replacement could display the previous user's name/subject; clear both hint keys before applying each token response; regression `clears stale identity hints when a replacement token has no identity claims` in `session.test.ts`.

@@ -18,4 +18,12 @@ describe("resolveExpiresInSeconds", () => {
   it("maps a null provider expires_in to the default lifetime", () => {
     expect(resolveExpiresInSeconds(null as unknown as number)).toBe(3600);
   });
+
+  it("maps a whitespace-only string expires_in to the default lifetime", () => {
+    expect(resolveExpiresInSeconds("   " as unknown as number)).toBe(3600);
+  });
+
+  it("parses a numeric string expires_in after trimming", () => {
+    expect(resolveExpiresInSeconds("  7200  " as unknown as number)).toBe(7200);
+  });
 });
