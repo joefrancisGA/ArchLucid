@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-15 seed hunt (seed-only): `ui-auth-callback` — cheap-disproved five open `(candidate)` rows (HTML 502 error bodies, IDN work email gate, CRLF inside optional note, honeypot state after success, try-again during submit); regression locks `shows generic submit error when the API returns an HTML error body`, `does not post access request when work email uses a non-ASCII domain label`, `posts access request with punycode-encoded work email`, `preserves multiline note line breaks in the POST body`, `omits the access request form from the DOM on the success view after a filled honeypot posts`, plus reaffirmed `keeps try again navigation enabled while submit is in flight`; reseeded five follow-on `(candidate)` rows; 98 scoped `AuthCallbackAccessPanel` vitest tests passed; no production change.
+
 2026-10-15 seed hunt (seed-only): `ui-auth-callback` — cheap-disproved five open `(candidate)` rows (429 vs 502 copy, `cloudPlatformFocus` trim asymmetry, success view without request-access, CRLF honeypot guard strip, duplicate error cancel vs toggle); regression locks `trims peripheral spaces on cloudPlatformFocus in the POST body`, `posts CRLF-only honeypot websiteUrl without tripping the unsupported-text guard`, `clears duplicate submit error when cancel closes the form`, plus reaffirmed `shows generic submit error when the API returns rate limited` and `omits request access control on the success view`; reseeded five follow-on `(candidate)` rows; 93 scoped `AuthCallbackAccessPanel` vitest tests passed; no production change.
 
 2026-10-15 seed hunt (seed-only): `ui-auth-callback` — cheap-disproved five open `(candidate)` rows (JSON `Content-Type` charset, note-only vertical tabs, generation guard on first submit, report-problem on success view, plus-addressed work email); regression locks `posts access request with Content-Type application/json without a charset parameter`, `does not post access request when the optional note is only vertical tabs`, `posts access request with plus-addressed work email`, `does not show report problem support on the success view after submit`, plus reaffirmed `does not show success after cancel while submit is in flight`; reseeded five follow-on `(candidate)` rows; 90 scoped `AuthCallbackAccessPanel` vitest tests passed; no production change.
@@ -12235,7 +12237,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-auth-callback
 
-**Hunts:** 49 · **Bugs found:** 7 · **Consecutive dry hunts:** 0
+**Hunts:** 50 · **Bugs found:** 7 · **Consecutive dry hunts:** 0
+
+2026-10-15 seed hunt (seed-only): cheap-disproved five open `(candidate)` rows; regression locks `shows generic submit error when the API returns an HTML error body`, `does not post access request when work email uses a non-ASCII domain label`, `posts access request with punycode-encoded work email`, `preserves multiline note line breaks in the POST body`, `omits the access request form from the DOM on the success view after a filled honeypot posts`, plus reaffirmed `keeps try again navigation enabled while submit is in flight`; reseeded five follow-on `(candidate)` rows; 98 scoped `AuthCallbackAccessPanel` vitest tests passed.
+
+- [x] (valid-no-repro) `onSubmit` — non-JSON HTML error bodies not surfaced — **cheap-disproof 2026-10-15 seed hunt:** generic copy by design; regression `shows generic submit error when the API returns an HTML error body`.
+- [x] (valid-no-repro) `workEmail` — IDN domain blocked before `fetch` — **cheap-disproof 2026-10-15 seed hunt:** HTML5 gate; punycode still posts; regressions `does not post access request when work email uses a non-ASCII domain label` and `posts access request with punycode-encoded work email`.
+- [x] (valid-no-repro) `note` — CRLF line endings in JSON body — **cheap-disproof 2026-10-15 seed hunt:** textarea normalizes CRLF to LF before state; regression `preserves multiline note line breaks in the POST body`.
+- [x] (valid-no-repro) success path — honeypot `websiteUrl` not cleared in state — **cheap-disproof 2026-10-15 seed hunt:** success view unmounts form; regression `omits the access request form from the DOM on the success view after a filled honeypot posts`.
+- [x] (valid-no-repro) try-again link enabled during submit — **cheap-disproof 2026-10-15 seed hunt:** intentional escape hatch; regression `keeps try again navigation enabled while submit is in flight`.
+
+- [ ] (candidate) `workEmail` — peripheral spaces posted without client trim — locus: `JSON.stringify({ workEmail: form.workEmail })`; input: `" jordan@fabrikam.com "` in harness.
+- [ ] (candidate) `onSubmit` — HTTP 200 with `{ error }` JSON still treated as success — locus: only `response.ok`; input: 200 + error envelope body.
+- [ ] (candidate) `errorMessage` — generic submit error survives request-access toggle-close — locus: toggle calls `dismissAccessRequestForm` without `setErrorMessage(null)`; input: failed POST then collapse via toggle.
+- [ ] (candidate) `fetch` — access-request POST omits explicit `credentials` — locus: `fetch("/api/access-requests", { method: "POST", … })`; input: same-origin cookie expectations for operator session.
+- [ ] (candidate) `note` — note trimmed to `null` when value is only `\n` and spaces — locus: `form.note.trim() === ""`; input: multiline whitespace-only note bypassing guard.
 
 2026-10-15 seed hunt (seed-only): cheap-disproved five open `(candidate)` rows; regression locks `trims peripheral spaces on cloudPlatformFocus in the POST body`, `posts CRLF-only honeypot websiteUrl without tripping the unsupported-text guard`, `clears duplicate submit error when cancel closes the form`, plus reaffirmed `shows generic submit error when the API returns rate limited` and `omits request access control on the success view`; reseeded five follow-on `(candidate)` rows; 93 scoped `AuthCallbackAccessPanel` vitest tests passed.
 
@@ -12245,11 +12261,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `containsUnsupportedAccessRequestText` — CRLF-only honeypot — **cheap-disproof 2026-10-15 seed hunt:** permitted strip + controlled input normalizes to empty; regression `posts CRLF-only honeypot websiteUrl without tripping the unsupported-text guard`.
 - [x] (valid-no-repro) `errorMessage` — duplicate `409` cancel vs toggle — **cheap-disproof 2026-10-15 seed hunt:** cancel clears, toggle retains; regression `clears duplicate submit error when cancel closes the form` plus `hides duplicate submit error when the request form is toggled closed`.
 
-- [ ] (candidate) `onSubmit` — non-JSON error bodies on failed responses are not surfaced — locus: `response.ok` branch; input: 502 with HTML body (ignored).
-- [ ] (candidate) `workEmail` — `type="email"` rejects internationalized domain before `fetch` — locus: HTML5 validation; input: punycode or IDN email in harness.
-- [ ] (candidate) `note` — multiline note preserves `\r\n` line endings in JSON body — locus: `JSON.stringify`; input: note with Windows line endings.
-- [ ] (candidate) `invalidateInFlightSubmit` — honeypot cleared on toggle-close but not on successful submit — locus: success path; input: honeypot filled, successful POST leaves `websiteUrl` in state until unmount.
-- [ ] (candidate) `AuthCallbackAccessPanel` — `try again` link remains enabled while `submitting` — locus: Link not disabled; input: in-flight POST navigation away (intentional).
+- [x] (valid-no-repro) `onSubmit` — non-JSON error bodies on failed responses are not surfaced — **cheap-disproof 2026-10-15 seed hunt (eighth pass):** regression `shows generic submit error when the API returns an HTML error body`.
+- [x] (valid-no-repro) `workEmail` — `type="email"` rejects internationalized domain before `fetch` — **cheap-disproof 2026-10-15 seed hunt (eighth pass):** regressions `does not post access request when work email uses a non-ASCII domain label` and `posts access request with punycode-encoded work email`.
+- [x] (valid-no-repro) `note` — multiline note preserves `\r\n` line endings in JSON body — **cheap-disproof 2026-10-15 seed hunt (eighth pass):** regression `preserves multiline note line breaks in the POST body`.
+- [x] (valid-no-repro) `invalidateInFlightSubmit` — honeypot cleared on toggle-close but not on successful submit — **cheap-disproof 2026-10-15 seed hunt (eighth pass):** regression `omits the access request form from the DOM on the success view after a filled honeypot posts`.
+- [x] (valid-no-repro) `AuthCallbackAccessPanel` — `try again` link remains enabled while `submitting` — **cheap-disproof 2026-10-15 seed hunt (eighth pass):** regression `keeps try again navigation enabled while submit is in flight`.
 
 2026-10-15 seed hunt (seed-only): cheap-disproved five open `(candidate)` rows; regression locks `posts access request with Content-Type application/json without a charset parameter`, `does not post access request when the optional note is only vertical tabs`, `posts access request with plus-addressed work email`, `does not show report problem support on the success view after submit`, plus reaffirmed `does not show success after cancel while submit is in flight`; reseeded five follow-on `(candidate)` rows; 90 scoped `AuthCallbackAccessPanel` vitest tests passed.
 

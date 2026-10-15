@@ -2187,4 +2187,123 @@ describe("AuthCallbackAccessPanel", () => {
     expect(screen.queryByText(AUTH_CALLBACK_ACCESS_DUPLICATE_ERROR)).not.toBeInTheDocument();
     vi.unstubAllGlobals();
   });
+
+  it("shows generic submit error when the API returns an HTML error body", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(
+        async () =>
+          new Response("<html><body>Bad gateway</body></html>", {
+            status: 502,
+            headers: { "Content-Type": "text/html" },
+          }),
+      ),
+    );
+
+    render(<AuthCallbackAccessPanel technicalDetail="Sign-in was blocked." />);
+
+    fireEvent.click(screen.getByTestId("auth-callback-request-access"));
+    fireEvent.change(screen.getByLabelText("Name"), { target: { value: "Jordan Lee" } });
+    fireEvent.change(screen.getByLabelText("Work email"), { target: { value: "jordan@fabrikam.com" } });
+    fireEvent.change(screen.getByLabelText("Company"), { target: { value: "Fabrikam" } });
+    fireEvent.change(screen.getByLabelText("Role / title"), { target: { value: "Architect" } });
+    fireEvent.click(screen.getByRole("button", { name: "Submit request" }));
+
+    await waitFor(() => {
+      expect(screen.getByText(AUTH_CALLBACK_ACCESS_SUBMIT_ERROR)).toBeInTheDocument();
+    });
+
+    expect(screen.queryByText(/Bad gateway/i)).not.toBeInTheDocument();
+    vi.unstubAllGlobals();
+  });
+
+  it("does not post access request when work email uses a non-ASCII domain label", async () => {
+    const fetchMock = vi.fn(async () => new Response(null, { status: 204 }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<AuthCallbackAccessPanel technicalDetail="Sign-in was blocked." />);
+
+    fireEvent.click(screen.getByTestId("auth-callback-request-access"));
+    fireEvent.change(screen.getByLabelText("Name"), { target: { value: "Jordan Lee" } });
+    fireEvent.change(screen.getByLabelText("Work email"), { target: { value: "jordan@例子.测试" } });
+    fireEvent.change(screen.getByLabelText("Company"), { target: { value: "Fabrikam" } });
+    fireEvent.change(screen.getByLabelText("Role / title"), { target: { value: "Architect" } });
+    fireEvent.click(screen.getByRole("button", { name: "Submit request" }));
+
+    expect(fetchMock).not.toHaveBeenCalled();
+    vi.unstubAllGlobals();
+  });
+
+  it("posts access request with punycode-encoded work email", async () => {
+    const fetchMock = vi.fn(async () => new Response(null, { status: 204 }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<AuthCallbackAccessPanel technicalDetail="Sign-in was blocked." />);
+
+    fireEvent.click(screen.getByTestId("auth-callback-request-access"));
+    fireEvent.change(screen.getByLabelText("Name"), { target: { value: "Jordan Lee" } });
+    fireEvent.change(screen.getByLabelText("Work email"), { target: { value: "jordan@xn--fsq.xn--0zwm56d" } });
+    fireEvent.change(screen.getByLabelText("Company"), { target: { value: "Fabrikam" } });
+    fireEvent.change(screen.getByLabelText("Role / title"), { target: { value: "Architect" } });
+    fireEvent.click(screen.getByRole("button", { name: "Submit request" }));
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalledOnce();
+    });
+
+    const [, requestInit] = fetchMock.mock.calls[0] as [string, RequestInit];
+    const body = JSON.parse(String(requestInit.body)) as { workEmail: string };
+
+    expect(body.workEmail).toBe("jordan@xn--fsq.xn--0zwm56d");
+    vi.unstubAllGlobals();
+  });
+
+  it("preserves multiline note line breaks in the POST body", async () => {
+    const fetchMock = vi.fn(async () => new Response(null, { status: 204 }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<AuthCallbackAccessPanel technicalDetail="Sign-in was blocked." />);
+
+    fireEvent.click(screen.getByTestId("auth-callback-request-access"));
+    fireEvent.change(screen.getByLabelText("Name"), { target: { value: "Jordan Lee" } });
+    fireEvent.change(screen.getByLabelText("Work email"), { target: { value: "jordan@fabrikam.com" } });
+    fireEvent.change(screen.getByLabelText("Company"), { target: { value: "Fabrikam" } });
+    fireEvent.change(screen.getByLabelText("Role / title"), { target: { value: "Architect" } });
+    fireEvent.change(screen.getByLabelText("Brief note (optional)"), { target: { value: "line one\r\nline two" } });
+    fireEvent.click(screen.getByRole("button", { name: "Submit request" }));
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalledOnce();
+    });
+
+    const [, requestInit] = fetchMock.mock.calls[0] as [string, RequestInit];
+    const body = JSON.parse(String(requestInit.body)) as { note: string };
+
+    // Controlled textarea inputs normalize CRLF to LF before React state is updated.
+    expect(body.note).toBe("line one\nline two");
+    vi.unstubAllGlobals();
+  });
+
+  it("omits the access request form from the DOM on the success view after a filled honeypot posts", async () => {
+    const fetchMock = vi.fn(async () => new Response(null, { status: 204 }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<AuthCallbackAccessPanel technicalDetail="Sign-in was blocked." />);
+
+    fireEvent.click(screen.getByTestId("auth-callback-request-access"));
+    fireEvent.change(screen.getByLabelText("Name"), { target: { value: "Jordan Lee" } });
+    fireEvent.change(screen.getByLabelText("Work email"), { target: { value: "jordan@fabrikam.com" } });
+    fireEvent.change(screen.getByLabelText("Company"), { target: { value: "Fabrikam" } });
+    fireEvent.change(screen.getByLabelText("Role / title"), { target: { value: "Architect" } });
+    fireEvent.change(screen.getByLabelText("Website"), { target: { value: "https://bot.example" } });
+    fireEvent.click(screen.getByRole("button", { name: "Submit request" }));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("auth-callback-access-success")).toBeInTheDocument();
+    });
+
+    expect(screen.queryByLabelText("Website")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("auth-callback-access-form")).not.toBeInTheDocument();
+    vi.unstubAllGlobals();
+  });
 });
