@@ -31,6 +31,16 @@ describe("declared-connections-status", () => {
     expect(resolveDeclaredConnectionDisplayStatus(nearExpiryRow)).toBe("NearExpiry");
   });
 
+  it("treats missing status as Active for display when not near expiry", () => {
+    expect(
+      resolveDeclaredConnectionDisplayStatus({
+        ...baseRow,
+        status: undefined,
+        expirationUtc: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+      }),
+    ).toBe("Active");
+  });
+
   it("counts only active rows", () => {
     expect(
       countActiveDeclaredConnections([
