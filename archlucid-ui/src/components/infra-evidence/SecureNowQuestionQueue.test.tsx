@@ -77,7 +77,8 @@ describe("SecureNowQuestionQueue", () => {
     render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
 
     expect(await screen.findByTestId("infra-diagrams-question-snapshot-promo")).toHaveTextContent("1 open question");
-    fireEvent.click(screen.getByRole("button", { name: "Review" }));
+    expect(screen.getByLabelText("Status: Action needed")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Review questions" }));
 
     expect(screen.getByTestId("infra-diagrams-question-bar")).toBeInTheDocument();
     expect(screen.getByTestId("infra-diagrams-question-text")).toHaveTextContent(question.questionText);
@@ -100,7 +101,7 @@ describe("SecureNowQuestionQueue", () => {
     ]);
 
     render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
-    fireEvent.click(await screen.findByRole("button", { name: "Review" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
     fireEvent.click(screen.getByRole("button", { name: "Answered", exact: true }));
 
     expect(screen.getByTestId("infra-diagrams-question-answer")).toHaveTextContent("Name the peer");
@@ -115,7 +116,7 @@ describe("SecureNowQuestionQueue", () => {
     ]);
 
     render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
-    fireEvent.click(await screen.findByRole("button", { name: "Review" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
     fireEvent.click(screen.getByRole("button", { name: "Answered", exact: true }));
 
     expect(screen.getByTestId("infra-diagrams-question-answer")).toHaveTextContent("Answer code was not stored.");
@@ -129,7 +130,7 @@ describe("SecureNowQuestionQueue", () => {
     mocks.listQuestions.mockResolvedValue([question, { ...question, status: "Answered" }]);
 
     render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
-    fireEvent.click(await screen.findByRole("button", { name: "Review" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
     fireEvent.click(screen.getByRole("button", { name: "Answered", exact: true }));
 
     const answerPanel = screen.getByTestId("infra-diagrams-question-answer");
@@ -151,7 +152,7 @@ describe("SecureNowQuestionQueue", () => {
     ]);
 
     render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
-    fireEvent.click(await screen.findByRole("button", { name: "Review" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
     fireEvent.click(screen.getByRole("button", { name: "Dismissed", exact: true }));
 
     const answerPanel = screen.getByTestId("infra-diagrams-question-answer");
@@ -166,7 +167,7 @@ describe("SecureNowQuestionQueue", () => {
     ]);
 
     render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
-    fireEvent.click(await screen.findByRole("button", { name: "Review" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
 
     expect(screen.getByText("Subscription: Subscription id was not stored.")).toBeInTheDocument();
     expect(screen.getByText(/Expiration status was not stored/)).toBeInTheDocument();
@@ -178,7 +179,7 @@ describe("SecureNowQuestionQueue", () => {
     ]);
 
     render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
-    fireEvent.click(await screen.findByRole("button", { name: "Review" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
 
     expect(screen.getByText("Source: Question source was not stored.")).toBeInTheDocument();
     expect(screen.getByText("Scope: Question scope was not stored.")).toBeInTheDocument();
@@ -188,7 +189,7 @@ describe("SecureNowQuestionQueue", () => {
     mocks.listQuestions.mockResolvedValue([question, { ...question, status: null, resourceName: "" }]);
 
     render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
-    fireEvent.click(await screen.findByRole("button", { name: "Review" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
     fireEvent.click(screen.getByRole("button", { name: "Next" }));
 
     expect(screen.getByTestId("infra-diagrams-question-resource-name")).toHaveTextContent(
@@ -207,7 +208,7 @@ describe("SecureNowQuestionQueue", () => {
     }]);
 
     render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
-    fireEvent.click(await screen.findByRole("button", { name: "Review" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
 
     expect(screen.getByTestId("infra-diagrams-question-text")).toHaveTextContent("Question text was not stored");
     expect(screen.getByText("Resource type was not stored")).toBeInTheDocument();
@@ -219,7 +220,7 @@ describe("SecureNowQuestionQueue", () => {
     mocks.listQuestions.mockResolvedValue([{ ...question, answerCodes: [] }]);
 
     render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
-    fireEvent.click(await screen.findByRole("button", { name: "Review" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
 
     expect(screen.queryByText("No answer choices were stored on this question.")).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Name the peer" })).not.toBeInTheDocument();
@@ -231,7 +232,8 @@ describe("SecureNowQuestionQueue", () => {
 
     render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
 
-    expect(await screen.findByTestId("infra-diagrams-question-snapshot-promo")).toHaveTextContent("Questions could not be loaded.");
+    expect(await screen.findByTestId("infra-diagrams-question-snapshot-promo")).toHaveTextContent("1 open question");
+    expect(screen.getByLabelText("Status: Action needed")).toBeInTheDocument();
     expect(screen.getByText("inferred connections unavailable")).toBeInTheDocument();
   });
 
@@ -239,8 +241,9 @@ describe("SecureNowQuestionQueue", () => {
     render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
 
     await waitFor(() => expect(mocks.listQuestions).toHaveBeenCalledWith("snapshot-1"));
-    expect(screen.getByTestId("infra-diagrams-question-snapshot-promo")).toHaveTextContent("0 open questions");
-    expect(screen.queryByRole("button", { name: "Review" })).not.toBeInTheDocument();
+    expect(screen.queryByTestId("infra-diagrams-question-snapshot-promo")).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("Status: Action needed")).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Review questions" })).not.toBeInTheDocument();
     expect(screen.queryByText("No proposed questionnaire items remain for this snapshot.")).not.toBeInTheDocument();
   });
 
@@ -269,7 +272,7 @@ describe("SecureNowQuestionQueue", () => {
     mocks.listQuestions.mockResolvedValue([question]);
 
     render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
-    fireEvent.click(await screen.findByRole("button", { name: "Review" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
     fireEvent.click(screen.getByRole("button", { name: "Not sure" }));
 
     await waitFor(() => expect(screen.getByText("No questions match this filter.")).toBeInTheDocument());
@@ -295,7 +298,7 @@ describe("SecureNowQuestionQueue", () => {
     mocks.confirmConnection.mockResolvedValue(undefined);
 
     render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
-    fireEvent.click(await screen.findByRole("button", { name: "Review" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
     fireEvent.click(screen.getByRole("button", { name: "Yes" }));
     fireEvent.click(screen.getByRole("button", { name: "Continue" }));
 
@@ -320,7 +323,7 @@ describe("SecureNowQuestionQueue", () => {
     ]);
 
     render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
-    fireEvent.click(await screen.findByRole("button", { name: "Review" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
     fireEvent.click(screen.getByRole("button", { name: "Not sure" }));
 
     expect(
@@ -332,11 +335,11 @@ describe("SecureNowQuestionQueue", () => {
     mocks.listQuestions.mockResolvedValue([question]);
 
     const view = render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
-    fireEvent.click(await screen.findByRole("button", { name: "Review" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
     fireEvent.click(screen.getByRole("button", { name: "Not sure" }));
 
     view.rerender(<SecureNowQuestionQueue snapshotId="snapshot-2" />);
-    fireEvent.click(await screen.findByRole("button", { name: "Review" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
 
     expect(await screen.findByText(question.questionText)).toBeInTheDocument();
   });
@@ -355,7 +358,7 @@ describe("SecureNowQuestionQueue", () => {
       .mockImplementationOnce(() => snapshotTwoLoad);
 
     const view = render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
-    fireEvent.click(await screen.findByRole("button", { name: "Review" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
     fireEvent.click(screen.getByRole("button", { name: "Don't ask again" }));
     fireEvent.change(screen.getByRole("textbox", { name: "Reason for not asking again" }), {
       target: { value: "Reviewed with the subscription owner." },
@@ -396,7 +399,7 @@ describe("SecureNowQuestionQueue", () => {
     };
     resolveSecondLoad?.([newestQuestion]);
 
-    fireEvent.click(await screen.findByRole("button", { name: "Review" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
     expect(await screen.findByText("Newest snapshot question")).toBeInTheDocument();
 
     resolveFirstLoad?.([question]);
@@ -408,7 +411,7 @@ describe("SecureNowQuestionQueue", () => {
     mocks.listQuestions.mockResolvedValue([question]);
 
     render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
-    fireEvent.click(await screen.findByRole("button", { name: "Review" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
     fireEvent.click(screen.getByRole("button", { name: "Don't ask again" }));
 
     expect(screen.getByRole("button", { name: "Save" })).toBeDisabled();
