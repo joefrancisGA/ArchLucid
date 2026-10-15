@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Admin;
 
 public sealed class AdminRagHealthResponse
@@ -8,9 +10,11 @@ public sealed class AdminRagHealthResponse
         set;
     } = "";
 
+    private IReadOnlyList<AdminRagCorpusHealthItem> corpora = [];
+
     public IReadOnlyList<AdminRagCorpusHealthItem> Corpora
     {
-        get;
-        set;
-    } = [];
+        get => corpora;
+        set => corpora = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 }
