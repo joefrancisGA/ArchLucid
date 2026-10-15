@@ -145,7 +145,7 @@ public sealed class ArchitectureAnalysisService(
 
                 if (compareManifest is null)
                     report.Warnings.Add($"Compare manifest '{request.CompareManifestVersion}' was not found.");
-                else if (!string.Equals(compareManifest.RunId, report.Manifest.RunId, StringComparison.Ordinal))
+                else if (!RunIdsReferToSameRun(compareManifest.RunId, report.Manifest.RunId))
                 {
                     report.Warnings.Add(
                         $"Compare manifest '{request.CompareManifestVersion}' does not belong to run '{report.Manifest.RunId}'.");

@@ -1,3 +1,5 @@
+2026-10-15 seed hunt (seed→hit): `application-analysis` — promoted manifest compare `RunId` guard false reject when compare manifest uses dashed GUID format for the same run; `RunIdsReferToSameRun` on compare lineage check; regression `BuildAsync_compares_manifests_when_compare_run_id_uses_different_guid_format`; 31 scoped ArchitectureAnalysis/CompareQuality tests passed.
+
 2026-10-15 seed hunt (seed→hit): `application-analysis` — promoted `IncludeManifestCompare` accepting compare manifest from a different run; skip diff and warn when `compareManifest.RunId` ≠ primary manifest `RunId`; regression `BuildAsync_skips_manifest_diff_when_compare_manifest_run_id_mismatches_primary`; 30 scoped ArchitectureAnalysis/CompareQuality tests passed.
 
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
@@ -18361,13 +18363,24 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 44
-- **bugs-found:** 42
+- **hunts:** 45
+- **bugs-found:** 43
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-15
-- **last-bug:** 2026-10-15 — manifest compare diff ran for foreign-run compare manifest version
+- **last-bug:** 2026-10-15 — manifest compare skipped when RunId differed only by GUID format
 - **related-pd-tb:** none
 - **code-changed-since:** no
+
+2026-10-15 seed hunt (seed→hit): promoted manifest compare `RunId` format normalization; use `RunIdsReferToSameRun` when validating compare manifest lineage; regression `BuildAsync_compares_manifests_when_compare_run_id_uses_different_guid_format`; 31 scoped ArchitectureAnalysis/CompareQuality tests passed.
+
+- [x] (proven) `ArchitectureAnalysisService.BuildAsync` — `IncludeManifestCompare` rejects compare manifest when `RunId` strings differ only by GUID format (N vs D) — **hit 2026-10-15 seed hunt:** regression `BuildAsync_compares_manifests_when_compare_run_id_uses_different_guid_format`.
+
+- [ ] (candidate) `DocxArchitectureAnalysisExportService.GenerateDocxAsync` — evidence `Request.Description` null renders blank paragraph without omission copy (reachable input: evidence package with null description after JSON deserialization).
+- [ ] (candidate) `CompareQualityDeltaCalculator.Build` — functional requirement coverage uses `min(requirements, components)` heuristic (reachable input: more requirements than components; verify overstated coverage count).
+- [ ] (candidate) `ArchitectureAnalysisService.BuildAsync` — preloaded primary manifest `RunId` format mismatch still discarded with ordinal compare (reachable input: `PreloadedRunDetail.Manifest.RunId` dashed vs `run.RunId` N-format for same GUID).
+- [ ] (candidate) `ComparisonReplayCostEstimator` — legacy payload with only `manifestDelta` warnings may score differently than modern `manifestDiff.warnings` shape (reachable input: stored end-to-end JSON without `manifestDiff` property).
+- [ ] (candidate) `ArchitectureAnalysisService.BuildAsync` — `IncludeDeterminismCheck` with zero `DeterminismIterations` still invokes determinism service (reachable input: analysis request with `DeterminismIterations = 0`).
+
 
 2026-10-15 seed hunt (seed→hit): promoted `IncludeManifestCompare` compare manifest `RunId` guard; skip `manifestDiffService.Compare` when loaded compare manifest belongs to another run; regression `BuildAsync_skips_manifest_diff_when_compare_manifest_run_id_mismatches_primary`; 30 scoped ArchitectureAnalysis/CompareQuality tests passed.
 
