@@ -148,6 +148,29 @@ public sealed class PilotValueReportMarkdownFormatterTests
     }
 
     [Fact]
+    public void Format_when_run_details_truncated_with_empty_timeline_qualifies_run_detail_cap_metadata()
+    {
+        PilotValueReportMarkdownFormatter sut = new(new ExportFormatterService());
+        DateTime from = new(2026, 4, 1, 0, 0, 0, DateTimeKind.Utc);
+        int cap = PilotValueReportService.DefaultRunDetailCap;
+        PilotValueReport report = new()
+        {
+            TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+            FromUtc = from,
+            ToUtc = from.AddDays(30),
+            TotalRunsCommitted = cap + 10,
+            RunDetailsTruncated = true,
+            RunDetailCap = cap,
+            CommittedRunsTimeline = [],
+        };
+
+        string markdown = sut.Format(report);
+
+        markdown.Should().Contain("0 of newest committed runs loaded for detail");
+        markdown.Should().Contain("sample: 0 of");
+    }
+
+    [Fact]
     public void Format_when_run_details_truncated_discloses_timeline_sample_size_in_section_header()
     {
         PilotValueReportMarkdownFormatter sut = new(new ExportFormatterService());
@@ -288,6 +311,27 @@ public sealed class PilotValueReportMarkdownFormatterTests
         markdown.Should().Contain(
             "under-count",
             "metadata count must warn sponsors when keyset inventory collection stopped early");
+    }
+
+    [Fact]
+    public void Format_when_audit_export_truncated_discloses_truncation_in_metadata_not_summary_recommendations_row()
+    {
+        PilotValueReportMarkdownFormatter sut = new(new ExportFormatterService());
+        DateTime from = new(2026, 4, 1, 0, 0, 0, DateTimeKind.Utc);
+        PilotValueReport report = new()
+        {
+            TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+            FromUtc = from,
+            ToUtc = from.AddDays(30),
+            AuditExportTruncated = true,
+            TotalRecommendationsProduced = 12,
+        };
+
+        string markdown = sut.Format(report);
+
+        markdown.Should().Contain("| Audit export truncated | True |");
+        markdown.Should().Contain("| Recommendations generated (audit) | 12 |");
+        markdown.Should().NotContain("partial audit");
     }
 
     [Fact]

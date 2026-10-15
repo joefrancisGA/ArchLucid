@@ -42,9 +42,18 @@ public sealed class PilotValueReportMarkdownFormatter(ExportFormatterService exp
 
         if (r.RunDetailsTruncated)
         {
-            sb.AppendLine(
-                CultureInfo.InvariantCulture,
-                $"| Run-detail cap | {r.RunDetailCap} (truncated: true; newest committed runs by CreatedUtc) |");
+            if (r.CommittedRunsTimeline.Count == 0 && r.TotalRunsCommitted > 0)
+            {
+                sb.AppendLine(
+                    CultureInfo.InvariantCulture,
+                    $"| Run-detail cap | {r.RunDetailCap} (truncated: true; 0 of newest committed runs loaded for detail) |");
+            }
+            else
+            {
+                sb.AppendLine(
+                    CultureInfo.InvariantCulture,
+                    $"| Run-detail cap | {r.RunDetailCap} (truncated: true; newest committed runs by CreatedUtc) |");
+            }
         }
         else
         {
