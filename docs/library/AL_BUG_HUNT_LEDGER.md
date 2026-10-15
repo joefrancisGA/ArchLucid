@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-15 seed hunt (seed→hit): `archlucid-contracts` — promoted five finding payload DTO list properties (`SecurityCoverageFindingPayload.UnprotectedResources`, `PolicyCoverageFindingPayload.UncoveredResources`, `RequirementExpectationFindingPayload` theme lists, `InventoryReconciliationFindingPayload` resource id lists, `DecisionGradeFusionFindingPayload` member lists) explicit JSON `null` (consolidated coalesce); five deserialization regressions; reseeded five follow-on `(candidate)` rows; 818 scoped `Contracts` filter tests passed.
+
 2026-10-15 seed hunt (seed→hit): `archlucid-contracts` — promoted `FindingInsightSignalStatusResponse.Kinds`, `SecurityBaselineExpectationFindingPayload` category lists, `EngineVerificationConfirmedRatesResponse.Rows`, `RunFindingCoverageSummary.FailedEngineLabels`, and `FindingInspectResponse` list properties explicit JSON `null` (consolidated coalesce); five deserialization regressions; reseeded five follow-on `(candidate)` rows; 813 scoped `Contracts` filter tests passed.
 
 2026-10-15 seed hunt (seed→hit): `archlucid-contracts` — promoted `ExtractionFidelityCase` expectation lists, `ArchitectureFinding.EvidenceRefs`, `PolicyApplicabilityFindingPayload.ApplicableTopologyNodeIds`, `HeldCheckSecondPassResult.UnblockedEngineTypes`, and `ChecklistClusterSynthesisFindingPayload.MemberFindingIds` explicit JSON `null` (consolidated coalesce); five deserialization regressions; reseeded five follow-on `(candidate)` rows; 808 scoped `Contracts` filter tests passed.
@@ -30057,7 +30059,21 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 ---
 ## Zone: archlucid-contracts
 
-**Hunts:** 149 · **Bugs found:** 129 · **Consecutive dry hunts:** 0
+**Hunts:** 150 · **Bugs found:** 130 · **Consecutive dry hunts:** 0
+
+2026-10-15 seed hunt (seed→hit): promoted five open `(candidate)` rows on security/policy/requirement coverage payloads, inventory reconciliation ids, and decision-grade fusion members; consolidated coalesce fix; regressions in `SecurityCoverageFindingPayloadDeserializationTests`, `PolicyCoverageFindingPayloadDeserializationTests`, `RequirementExpectationFindingPayloadDeserializationTests`, `InventoryReconciliationFindingPayloadDeserializationTests`, and `DecisionGradeFusionFindingPayloadDeserializationTests`; reseeded five follow-on `(candidate)` rows; 818 scoped `Contracts` filter tests passed.
+
+- [x] (invalid) `SecurityCoverageFindingPayload` uncovered control list — **cheap-disproof 2026-10-15 seed hunt:** list property is `UnprotectedResources`; regression `Deserialize_null_unprotected_resources_yields_empty_list_not_null`.
+- [x] (invalid) `PolicyCoverageFindingPayload` applicable node ids — **cheap-disproof 2026-10-15 seed hunt:** list property is `UncoveredResources`; regression `Deserialize_null_uncovered_resources_yields_empty_list_not_null`.
+- [x] (invalid) `RequirementExpectationFindingPayload` `missingRequirements` — **cheap-disproof 2026-10-15 seed hunt:** lists are `ExpectedThemes` / `PresentThemes` / `MissingThemes`; regression `Deserialize_null_theme_lists_yields_empty_lists_not_null`.
+- [x] (invalid) `InventoryReconciliationFindingPayload` orphan resource list — **cheap-disproof 2026-10-15 seed hunt:** lists are `GraphOnlyResourceIds` / `InventoryOnlyResourceIds`; regression `Deserialize_null_resource_id_lists_yields_empty_lists_not_null`.
+- [x] (invalid) `DecisionGradeFusionFindingPayload` contributing finding id list — **cheap-disproof 2026-10-15 seed hunt:** lists are `ConstituentFindingIds` / `SharedNodeIds` / `SourceEngineTypes`; regression `Deserialize_null_member_lists_yields_empty_lists_not_null`.
+
+- [ ] (candidate) `BuyerRunDetailSummaryDto` — explicit JSON `null` on buyer run detail summary lists — locus: `Runs.BuyerRunDetailSummaryDto` list setters; input: buyer run detail JSON with null highlight finding id list.
+- [ ] (candidate) `RunDecisionExplainabilityDto` — explicit JSON `null` on decision explainability trace lists — locus: four list properties on explainability DTO; input: explainability JSON with null applied rule id list.
+- [ ] (candidate) `RunRetrievalGroundingSummaryDto` — explicit JSON `null` on retrieval grounding summary rows — locus: grounding summary list setters; input: grounding summary JSON with null chunk row list.
+- [ ] (candidate) `BuyerRunDetailRunDto` — explicit JSON `null` on buyer run detail run list — locus: `BuyerRunDetailRunDto` collection setter; input: run detail JSON with null related run id list.
+- [ ] (candidate) `RunAuthorityRuleAuditExplainabilitySection` — explicit JSON `null` on authority rule audit explainability lists — locus: eight list setters on audit section DTO; input: audit explainability JSON with null matched finding id list.
 
 2026-10-15 seed hunt (seed→hit): promoted five open `(candidate)` rows on insight signal status, security baseline expectation categories, engine verification rate rows, run finding coverage labels, and finding inspect lists; consolidated coalesce fix; regressions in `FindingInsightSignalStatusResponseDeserializationTests`, `SecurityBaselineExpectationFindingPayloadDeserializationTests`, `EngineVerificationConfirmedRatesResponseDeserializationTests`, `RunFindingCoverageSummaryDeserializationTests`, and `FindingInspectResponseDeserializationTests`; reseeded five follow-on `(candidate)` rows; 813 scoped `Contracts` filter tests passed.
 
@@ -30066,12 +30082,6 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `EngineVerificationConfirmedRatesResponse.Rows` — explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_rows_yields_empty_list_not_null`.
 - [x] (invalid) `RunFindingCoverageSummary` severity bucket list — **cheap-disproof 2026-10-15 seed hunt:** list property is `FailedEngineLabels`; regression `Deserialize_null_failed_engine_labels_yields_empty_list_not_null`.
 - [x] (invalid) `FindingInspectResponse` related-node list — **cheap-disproof 2026-10-15 seed hunt:** lists are `Evidence` and `RecommendedActions`; regression `Deserialize_null_list_properties_yields_empty_lists_not_null`.
-
-- [ ] (candidate) `SecurityCoverageFindingPayload` — explicit JSON `null` on security coverage payload lists — locus: `Findings.Payloads.SecurityCoverageFindingPayload` list setters; input: security coverage finding payload JSON with null uncovered control list.
-- [ ] (candidate) `PolicyCoverageFindingPayload` — explicit JSON `null` on policy coverage node id list — locus: `PolicyCoverageFindingPayload` list setter; input: policy coverage payload JSON with null applicable node ids.
-- [ ] (candidate) `RequirementExpectationFindingPayload` — explicit JSON `null` on requirement expectation lists — locus: three requirement list setters; input: requirement expectation payload JSON with null `missingRequirements`.
-- [ ] (candidate) `InventoryReconciliationFindingPayload` — explicit JSON `null` on inventory reconciliation lists — locus: unmatched resource list setters; input: reconciliation payload JSON with null orphan resource list.
-- [ ] (candidate) `DecisionGradeFusionFindingPayload` — explicit JSON `null` on fusion payload member lists — locus: `DecisionGradeFusionFindingPayload` list setters; input: fusion finding payload JSON with null contributing finding id list.
 
 2026-10-15 seed hunt (seed→hit): promoted five open `(candidate)` rows on extraction fidelity expectations, architecture finding evidence refs, policy applicability node ids, held-check second-pass engine types, and checklist cluster synthesis members; consolidated coalesce fix; regressions in `ExtractionFidelityCaseDeserializationTests`, `ArchitectureFindingDeserializationTests`, `PolicyApplicabilityFindingPayloadDeserializationTests`, `HeldCheckSecondPassResultDeserializationTests`, and `ChecklistClusterSynthesisFindingPayloadDeserializationTests`; reseeded five follow-on `(candidate)` rows; 808 scoped `Contracts` filter tests passed.
 
