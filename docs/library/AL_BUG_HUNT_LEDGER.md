@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-15 seed hunt (seed→hit): `ui-auth-callback` — promoted toggle close-and-reopen during in-flight submit (`invalidateInFlightSubmit` cleared `inFlight` while `fetch` was still pending, so a second POST could enqueue duplicate access requests); `networkInFlightCount` on `SubmitControl` blocks new submits until the outstanding POST settles; regression `does not enqueue a second POST when the form is toggled closed and reopened during an in-flight submit` failed first with two POSTs; reseeded five follow-on `(candidate)` rows; 65 scoped `AuthCallbackAccessPanel` vitest tests passed.
+
 2026-10-15 seed hunt (seed→hit): `archlucid-contracts` — promoted `CandidateChangeSet`, `EvaluationScore.RegressionSignals`, and `ReviewClarificationQuestionsResponse.Questions` explicit JSON `null` (consolidated null-collection fix across evolution and clarification DTOs); coalesce on `init`/`set`; regressions `CandidateChangeSetDeserializationTests`, `EvaluationScoreDeserializationTests`, and `ReviewClarificationQuestionsResponseDeserializationTests`; reseeded five follow-on `(candidate)` rows; 768 scoped `Contracts` filter tests passed.
 
 2026-10-15 seed hunt (seed→hit): `archlucid-contracts` — promoted `OperationalSecurityFindingLookupRequest.SourceFindingIds`, `AgentOutputEvaluationPerspective.Scores`, and `DraftIntakeReaperBatchResult.DeletedDraftIds` explicit JSON `null` (consolidated null-collection fix); `ContractCollectionDefaults.Coalesce` / `CoalesceReadOnly` on `init`; regressions for all three DTOs; reseeded five follow-on `(candidate)` rows; 765 scoped `Contracts` filter tests passed.
@@ -12217,7 +12219,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-auth-callback
 
-**Hunts:** 40 · **Bugs found:** 5 · **Consecutive dry hunts:** 0
+**Hunts:** 41 · **Bugs found:** 6 · **Consecutive dry hunts:** 0
+
+2026-10-15 seed hunt (seed→hit): `invalidateInFlightSubmit` / `onSubmit` — dismissing the access form via the request-access toggle cleared `inFlight` while the first `fetch` was still pending, so reopening and submitting again issued a second POST; `networkInFlightCount` now gates new submits until the outstanding request finishes; regression `does not enqueue a second POST when the form is toggled closed and reopened during an in-flight submit`.
+
+- [x] (proven) `onSubmit` / toggle close-and-reopen — duplicate POST while first cancelled-generation request still in flight — **hit 2026-10-15 seed hunt:** `invalidateInFlightSubmit` reset `inFlight` without aborting `fetch`; regression `does not enqueue a second POST when the form is toggled closed and reopened during an in-flight submit`.
+
+- [ ] (candidate) `onSubmit` — silent no-op when Submit is clicked while `networkInFlightCount > 0` after dismiss mid-flight — locus: early return with no `errorMessage`; input: toggle-close during flight, reopen, click Submit before the first response returns.
+- [ ] (candidate) `onSubmit` — stale first response can still complete server-side after generation invalidation — locus: no `AbortController`; input: slow first POST after dismiss/reopen with a second attempt blocked client-side.
+- [ ] (candidate) `containsUnsupportedAccessRequestText` — `\p{Cf}` bidi format characters in required `workEmail` — locus: `unsupportedAccessRequestTextCharacters`; input: RLO/LRO in email field before submit.
+- [ ] (candidate) `dismissAccessRequestForm` — request-access toggle remains enabled during `submitting` — locus: toggle `onClick` not tied to `submitting`; input: collapse form mid-flight without using Cancel.
+- [ ] (candidate) success branch — terminal success view omits `FatalPageReportProblemSupportRow` — locus: `submitted` early return; input: `204` success then operator needs support without remounting the page.
 
 2026-10-11 seed hunt (seed→hit): `containsUnsupportedAccessRequestText` rejected normal newline characters in the user-editable optional note because Unicode `Cc` includes line breaks, so a valid multiline access request never reached `fetch`. The guard now permits CR/LF/tab while retaining rejection of other control and bidi-format characters; regression `posts access request when the optional note contains a normal newline` failed first with zero POSTs and the focused `AuthCallbackAccessPanel` Vitest suite passes 64/64.
 
@@ -12225,7 +12237,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-08 seed hunt (seed-only): no hunt-ready hypotheses were available after reading the selected component; seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
 
-- [ ] (candidate) `onSubmit` / toggle close-and-reopen — a second submit can begin while the first cancelled-generation request is still in flight — locus: `invalidateInFlightSubmit` clears the local in-flight flag without aborting `fetch`; input: submit, close the form, reopen it, and submit again before the first response arrives.
+- [x] (proven) `onSubmit` / toggle close-and-reopen — a second submit can begin while the first cancelled-generation request is still in flight — **hit 2026-10-15 seed hunt:** consolidated into `networkInFlightCount` gate; regression `does not enqueue a second POST when the form is toggled closed and reopened during an in-flight submit`.
 - [ ] (candidate) `onSubmit` — a stale first response can still complete server-side after the UI ignores it — locus: generation guard only surrounds client state updates; input: delayed first POST followed by a second POST after form dismissal and reopening.
 - [ ] (candidate) `submitting` — required inputs remain editable while the submit request is pending — locus: only the submit button receives `disabled`; input: keyboard focus and edit `workEmail` or `company` while the button says `Sending`.
 - [ ] (candidate) honeypot `websiteUrl` — programmatic assignment can populate the hidden field despite `tabIndex={-1}` and `aria-hidden` — locus: controlled hidden input remains mounted; input: script calls `focus()`/sets its value before submit.
