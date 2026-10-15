@@ -30,6 +30,28 @@ describe("refreshAccessToken", () => {
     expect(tokens.access_token).toBe(accessToken);
   });
 
+  it("strips zero-width characters from access_token in successful token responses", async () => {
+    const jwtPayload = { sub: "user-42", name: "Invisible User" };
+    const segment = Buffer.from(JSON.stringify(jwtPayload), "utf8").toString("base64url");
+    const accessToken = `x.${segment}.y`;
+    const paddedAccessToken = `\u200b${accessToken}\u200b`;
+
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () => JSON.stringify({ access_token: paddedAccessToken, token_type: "Bearer" }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    const tokens = await refreshAccessToken({
+      tokenEndpoint: "https://login.example.com/token",
+      clientId: "client",
+      refreshToken: "rt",
+    });
+
+    expect(tokens.access_token).toBe(accessToken);
+  });
+
   it("throws when a successful token response omits access_token", async () => {
     const fetchMock = vi.fn(async () => ({
       ok: true,
@@ -261,6 +283,27 @@ describe("refreshAccessToken", () => {
     });
 
     expect(tokens.id_token).toBeUndefined();
+  });
+
+  it("omits zero-width-only refresh_token values from token responses", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () =>
+        JSON.stringify({
+          access_token: "access-1",
+          refresh_token: "\u200b",
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    const tokens = await refreshAccessToken({
+      tokenEndpoint: "https://login.example.com/token",
+      clientId: "client",
+      refreshToken: "rt",
+    });
+
+    expect(tokens.refresh_token).toBeUndefined();
   });
 
   it("truncates oversized OAuth error descriptions from the token endpoint", async () => {

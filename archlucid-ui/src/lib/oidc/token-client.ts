@@ -112,32 +112,22 @@ async function postTokenForm(
   return parseOidcTokenResponse(parsed);
 }
 
-function normalizeOptionalRefreshToken(value: unknown): string | undefined {
-  if (typeof value !== "string") {
-    return undefined;
-  }
-
-  const trimmed = value.trim();
-
-  if (trimmed.length === 0) {
-    return undefined;
-  }
-
-  return trimmed;
+function normalizeTokenString(value: string): string {
+  return stripOAuthInvisibleFormatChars(value.trim()).trim();
 }
 
-function normalizeOptionalIdToken(value: unknown): string | undefined {
+function normalizeOptionalTokenString(value: unknown): string | undefined {
   if (typeof value !== "string") {
     return undefined;
   }
 
-  const trimmed = value.trim();
+  const normalized = normalizeTokenString(value);
 
-  if (trimmed.length === 0) {
+  if (normalized.length === 0) {
     return undefined;
   }
 
-  return trimmed;
+  return normalized;
 }
 
 function parseOidcTokenResponse(parsed: unknown): OidcTokenResponse {
@@ -146,18 +136,24 @@ function parseOidcTokenResponse(parsed: unknown): OidcTokenResponse {
   }
 
   const record = parsed as Record<string, unknown>;
-  const accessToken = record.access_token;
+  const accessTokenRaw = record.access_token;
 
-  if (typeof accessToken !== "string" || accessToken.trim().length === 0) {
+  if (typeof accessTokenRaw !== "string") {
     throw new Error("Token response missing access_token");
   }
 
-  const refreshToken = normalizeOptionalRefreshToken(record.refresh_token);
-  const idToken = normalizeOptionalIdToken(record.id_token);
+  const accessToken = normalizeTokenString(accessTokenRaw);
+
+  if (accessToken.length === 0) {
+    throw new Error("Token response missing access_token");
+  }
+
+  const refreshToken = normalizeOptionalTokenString(record.refresh_token);
+  const idToken = normalizeOptionalTokenString(record.id_token);
 
   return {
     ...(parsed as OidcTokenResponse),
-    access_token: accessToken.trim(),
+    access_token: accessToken,
     refresh_token: refreshToken,
     id_token: idToken,
   };
