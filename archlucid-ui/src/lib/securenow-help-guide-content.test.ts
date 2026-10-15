@@ -3,10 +3,13 @@ import { describe, expect, it } from "vitest";
 import { contextualHelpForPathname } from "@/lib/contextual-help-registry";
 import {
   SECURENOW_ASSIGNED_TO_ME_FINDINGS,
+  SECURENOW_DATA_HANDLING_HELP,
+  SECURENOW_ENTERPRISE_ONBOARDING_HELP,
   SECURENOW_FINDINGS_QUEUE_HUB,
   SECURENOW_GETTING_STARTED_HELP,
   SECURENOW_CLOUD_CONNECTIONS_HUB,
   SECURENOW_CLOUD_CONNECTIONS_HELP,
+  SECURENOW_INTEGRATION_READINESS_HELP,
   SECURENOW_POLICY_PACKS_HUB,
   SECURENOW_STANDARDS_RULES_HUB,
   SECURENOW_INVITE_REVIEWER,
@@ -14,6 +17,8 @@ import {
   SECURENOW_USERS_ADMIN,
   SECURENOW_USERS_AND_ROLES_HELP,
 } from "@/lib/contextual-help/securenow-contextual-help-overrides";
+import { ENTERPRISE_ONBOARDING_HELP_CANONICAL_PATH } from "@/lib/enterprise-onboarding-help-evidence-copy";
+import { INTEGRATION_READINESS_HELP_CANONICAL_PATH } from "@/lib/integration-readiness-help-evidence-copy";
 import { INVITE_REVIEWER_CANONICAL_PATH } from "@/lib/invite-reviewer-evidence-copy";
 import { SETTINGS_USERS_CANONICAL_PATH } from "@/lib/settings-users-evidence-copy";
 import { USERS_AND_ROLES_HELP_CANONICAL_PATH } from "@/lib/users-and-roles-help-evidence-copy";
@@ -27,7 +32,12 @@ import {
   SECURENOW_GETTING_STARTED_HELP_WORKFLOW_SECTION_INTRO,
 } from "@/lib/getting-started-help-guide-content";
 import { resolveDataHandlingTenantIsolationHelpClaimDiscipline } from "@/lib/data-handling-tenant-isolation-help-evidence-copy";
-import { dataHandlingTenantIsolationHelpLeavesStaysHelper } from "@/lib/data-handling-tenant-isolation-help-guide-content";
+import {
+  dataHandlingTenantIsolationHelpLeavesStaysHelper,
+  dataHandlingTenantIsolationHelpOverviewLead,
+  dataHandlingTenantIsolationHelpPageSubtitle,
+} from "@/lib/data-handling-tenant-isolation-help-guide-content";
+import { integrationReadinessHelpOverview } from "@/lib/integration-readiness-help-guide-content";
 import {
   findingsHelpAnatomyFields,
   findingsHelpOverview,
@@ -83,6 +93,28 @@ describe("SecureNow help guide content", () => {
     expect(resolveDataHandlingTenantIsolationHelpClaimDiscipline("security")).toContain("cloud inventory evidence");
     expect(dataHandlingTenantIsolationHelpLeavesStaysHelper("security")).toContain("cloud inventory evidence");
     expect(dataHandlingTenantIsolationHelpLeavesStaysHelper("security")).not.toContain("review evidence");
+    expect(dataHandlingTenantIsolationHelpPageSubtitle(false, "security")).toContain("SecureNow");
+    expect(dataHandlingTenantIsolationHelpPageSubtitle(false, "security")).not.toContain("review evidence flows");
+    expect(dataHandlingTenantIsolationHelpOverviewLead("security")).not.toContain("architecture reviews");
+    expect(contextualHelpForPathname("/help/data-handling", { productLineId: "security" })?.whatIsThisPage).toBe(
+      SECURENOW_DATA_HANDLING_HELP.whatIsThisPage,
+    );
+  });
+
+  it("resolves SecureNow integration readiness and enterprise onboarding contextual help", () => {
+    const integrationHelp = contextualHelpForPathname(INTEGRATION_READINESS_HELP_CANONICAL_PATH, {
+      productLineId: "security",
+    });
+    const onboardingHelp = contextualHelpForPathname(ENTERPRISE_ONBOARDING_HELP_CANONICAL_PATH, {
+      productLineId: "security",
+    });
+
+    expect(integrationHelp?.whatIsThisPage).toBe(SECURENOW_INTEGRATION_READINESS_HELP.whatIsThisPage);
+    expect(integrationHelp?.whatToDoNext).not.toMatch(/chat connectors first/i);
+    expect(integrationReadinessHelpOverview("security")).not.toMatch(/architecture reviews/i);
+
+    expect(onboardingHelp?.whatIsThisPage).toBe(SECURENOW_ENTERPRISE_ONBOARDING_HELP.whatIsThisPage);
+    expect(onboardingHelp?.whatToDoNext).not.toMatch(/first architecture review/i);
   });
 
   it("uses SecureNow findings claim, sources, anatomy, and roles without architecture-review language", () => {

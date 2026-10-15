@@ -2,10 +2,11 @@
 
 import Link from "next/link";
 
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { StatusTag } from "@/components/ui/status-tag";
 
 import {
-  ENTERPRISE_ONBOARDING_HUB_STEPS,
+  enterpriseOnboardingHubSteps,
   isEnterpriseOnboardingInPageAnchorHref,
   type EnterpriseOnboardingHubStepLink,
 } from "@/lib/enterprise-onboarding-hub-steps";
@@ -91,8 +92,11 @@ function HubStepTitle(props: {
   return <span className={cn("font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>{titleText}</span>;
 }
 
-/** Eight-step onboarding index for `/help/enterprise-onboarding`. */
+/** Onboarding hub index for `/help/enterprise-onboarding`. */
 export function EnterpriseOnboardingHubSteps(): React.JSX.Element {
+  const { productLine } = useProductLine();
+  const hubSteps = enterpriseOnboardingHubSteps(productLine);
+
   return (
     <section
       id="onboarding-hub"
@@ -107,7 +111,7 @@ export function EnterpriseOnboardingHubSteps(): React.JSX.Element {
       </div>
 
       <ol className="m-0 list-none space-y-4 p-0">
-        {ENTERPRISE_ONBOARDING_HUB_STEPS.map((step, index) => {
+        {hubSteps.map((step, index) => {
           const recommendedNext = index === 0;
 
           return (

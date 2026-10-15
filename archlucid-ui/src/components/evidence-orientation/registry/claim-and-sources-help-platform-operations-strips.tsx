@@ -55,13 +55,14 @@ import {
 } from "@/lib/enterprise-onboarding-help-evidence-copy";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import {
-  INTEGRATION_READINESS_HELP_CLAIM_DISCIPLINE,
   INTEGRATION_READINESS_HELP_CLAIM_DISCIPLINE_HEADING,
   INTEGRATION_READINESS_HELP_CLAIM_HEADING_ID,
   INTEGRATION_READINESS_HELP_FOLLOW_UPS_TITLE,
-  INTEGRATION_READINESS_HELP_SOURCES,
-  INTEGRATION_READINESS_HELP_SOURCES_INTRO,
+  resolveIntegrationReadinessHelpClaimDiscipline,
+  resolveIntegrationReadinessHelpSources,
+  resolveIntegrationReadinessHelpSourcesIntro,
 } from "@/lib/integration-readiness-help-evidence-copy";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
 import {
   MODEL_GOVERNANCE_HELP_CLAIM_DISCIPLINE,
   MODEL_GOVERNANCE_HELP_CLAIM_DISCIPLINE_HEADING,
@@ -229,16 +230,20 @@ export function EnterpriseOnboardingHelpEvidenceOrientationStrip(): React.JSX.El
   );
 }
 
-export function IntegrationReadinessHelpEvidenceOrientationStrip(): React.JSX.Element {
+export function IntegrationReadinessHelpEvidenceOrientationStrip(props: {
+  readonly productLineId?: ProductLineId;
+}): React.JSX.Element {
+  const productLineId = props.productLineId ?? "architecture";
+
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="integration-readiness-help"
-      claim={INTEGRATION_READINESS_HELP_CLAIM_DISCIPLINE}
+      claim={resolveIntegrationReadinessHelpClaimDiscipline(productLineId)}
       claimHeading={INTEGRATION_READINESS_HELP_CLAIM_DISCIPLINE_HEADING}
       claimHeadingId={INTEGRATION_READINESS_HELP_CLAIM_HEADING_ID}
       sourcesTitle={INTEGRATION_READINESS_HELP_FOLLOW_UPS_TITLE}
-      sourcesIntro={INTEGRATION_READINESS_HELP_SOURCES_INTRO}
-      sources={INTEGRATION_READINESS_HELP_SOURCES}
+      sourcesIntro={resolveIntegrationReadinessHelpSourcesIntro(productLineId)}
+      sources={resolveIntegrationReadinessHelpSources(productLineId)}
       sourcesHeadingId="where-to-go-next"
     />
   );
