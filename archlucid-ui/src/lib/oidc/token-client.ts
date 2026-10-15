@@ -1,4 +1,5 @@
 import { isSafeOidcEndpointUrl } from "@/lib/oidc/discovery";
+import { collapseOAuthErrorDescriptionLineBreaks } from "@/lib/oidc/oauth-callback-messages";
 
 export type OidcTokenResponse = {
   access_token: string;
@@ -21,7 +22,7 @@ function errorFromOAuthJson(json: unknown): Error | null {
     return null;
   }
 
-  return new Error(msg);
+  return new Error(collapseOAuthErrorDescriptionLineBreaks(msg));
 }
 
 async function readOAuthError(res: Response, bodyText: string): Promise<Error> {
@@ -64,7 +65,14 @@ async function postTokenForm(
     throw await readOAuthError(response, text);
   }
 
-  const parsed = JSON.parse(text) as unknown;
+  let parsed: unknown;
+
+  try {
+    parsed = JSON.parse(text) as unknown;
+  } catch {
+    throw new Error("Token response was not valid JSON");
+  }
+
   const oauthError = errorFromOAuthJson(parsed);
 
   if (oauthError) {

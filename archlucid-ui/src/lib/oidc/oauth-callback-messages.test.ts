@@ -25,6 +25,10 @@ describe("decodeOAuthErrorDescription", () => {
   it("collapses percent-encoded line breaks to spaces for single-line callback copy", () => {
     expect(decodeOAuthErrorDescription("Policy%20denied%0D%0Ainjected")).toBe("Policy denied injected");
   });
+
+  it("collapses literal line breaks in already-decoded error descriptions", () => {
+    expect(decodeOAuthErrorDescription("line1\nline2")).toBe("line1 line2");
+  });
 });
 
 describe("humanizeAuthorizeCallbackError", () => {

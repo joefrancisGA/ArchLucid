@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-15 seed hunt (seed→hit): `ui-oidc` — promoted `errorFromOAuthJson` leaving CR/LF in token-endpoint `error_description` on `Error.message` (callback shows token-exchange failures); reuse `collapseOAuthErrorDescriptionLineBreaks`; promoted `postTokenForm` surfacing raw `JSON.parse` failures on HTTP 200 non-JSON bodies; regressions `collapses line breaks in OAuth error descriptions from the token endpoint`, `throws a buyer-safe error when the token endpoint returns non-JSON success bodies`, and `collapses literal line breaks in already-decoded error descriptions`; cheap-disproved five open `(candidate)` rows; reseeded five follow-on candidates; 94 scoped `src/lib/oidc` vitest tests passed.
+
 2026-10-15 seed hunt (seed→hit): `ui-oidc` — promoted `postTokenForm` `readOAuthError` appending up to 200 characters of non-OAuth HTTP error bodies into `Error.message` (callback route shows token exchange failures to operators); status-only message; regression `does not echo non-OAuth error response bodies in thrown errors`; cheap-disproved five open `(candidate)` rows; reseeded five follow-on candidates; 91 scoped `src/lib/oidc` vitest tests passed.
 
 2026-10-15 seed hunt (seed→hit): `ui-oidc` — promoted `decodeOAuthErrorDescription` leaving percent-encoded `%0D%0A` in authorize `error_description` as multiline buyer callback copy; collapse CR/LF and Unicode line/paragraph separators to spaces; regressions `collapses percent-encoded line breaks to spaces for single-line callback copy` and `keeps access_denied detail on one line when the description embeds CRLF`; cheap-disproved five open `(candidate)` rows; reseeded five follow-on candidates; 90 scoped `src/lib/oidc` vitest tests passed.
@@ -21005,11 +21007,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 54
-- **bugs-found:** 47
+- **hunts:** 55
+- **bugs-found:** 48
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-15
-- **last-bug:** 2026-10-15 — token client echoed proxy HTML in error messages
+- **last-bug:** 2026-10-15 — token OAuth errors and non-JSON bodies leaked raw text
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -21068,11 +21070,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `parseOidcTokenResponse` — optional token padding — **cheap-disproof 2026-10-15 seed hunt:** BFF sync trims optional fields; JWT payload segment decode unaffected by outer padding.
 - [x] (valid-no-repro) `buildAuthorizeUrl` / `getOidcScopes` — scope env control characters — **cheap-disproof 2026-10-15 seed hunt:** deployment configuration; no reachable attacker input in zone paths.
 - [x] (valid-no-repro) `exchangeAuthorizationCode` — untrimmed code/verifier/redirect — **cheap-disproof 2026-10-15 seed hunt:** PKCE material is base64url from `crypto.getRandomValues`; callback `searchParams` do not introduce surrounding whitespace on codes.
-- (candidate) `errorFromOAuthJson` — token-endpoint OAuth errors with `error_description` containing CR/LF pass through to `Error.message` without callback humanizer — locus: `token-client.ts`; input: 400 JSON `{ "error": "invalid_grant", "error_description": "a\r\nb" }`; wrong outcome: multiline token exchange failure copy; mechanism: no line-break collapse on token errors.
-- (candidate) `exchangeAuthorizationCode` — HTTP 200 with invalid JSON throws raw `JSON.parse` exception — locus: `token-client.ts`; input: HTML success body; wrong outcome: SyntaxError message in callback; mechanism: unguarded parse after ok check.
-- (candidate) `parseOidcTokenResponse` — spreads full provider JSON including unexpected scalar fields into `OidcTokenResponse` — locus: `token-client.ts`; input: extra properties on token JSON; wrong outcome: downstream consumers read unknown fields; mechanism: object spread before return.
-- (candidate) `decodeOAuthErrorDescription` — literal (non-percent-encoded) CR/LF in query `error_description` — locus: `oauth-callback-messages.ts`; input: `error_description=line1%0d%0aline2` vs raw newline; wrong outcome: multiline copy; mechanism: collapse runs only after decodeURIComponent path.
-- (candidate) `refreshAccessToken` — does not trim `refreshToken` param before POST — locus: `token-client.ts`; input: padded refresh token string; wrong outcome: `invalid_grant`; mechanism: raw form field (BFF server refresh unaffected).
+- [x] (proven) `errorFromOAuthJson` — CR/LF in token-endpoint OAuth `error_description` — **hit 2026-10-15 seed hunt (seed→hit):** `collapseOAuthErrorDescriptionLineBreaks` on joined OAuth error message; regression `collapses line breaks in OAuth error descriptions from the token endpoint`.
+- [x] (proven) `postTokenForm` — HTTP 200 non-JSON body surfaces `JSON.parse` exception text — **hit 2026-10-15 seed hunt (seed→hit):** throw `Token response was not valid JSON`; regression `throws a buyer-safe error when the token endpoint returns non-JSON success bodies`.
+- [x] (valid-no-repro) `decodeOAuthErrorDescription` — literal CR/LF in decoded query text — **cheap-disproof 2026-10-15 seed hunt:** collapse already runs on decoded/fallback paths; regression `collapses literal line breaks in already-decoded error descriptions`.
+- [x] (valid-no-repro) `parseOidcTokenResponse` — extra JSON properties on token response — **cheap-disproof 2026-10-15 seed hunt:** TypeScript consumers read known fields only; no zone file reads unknown provider extensions.
+- [x] (valid-no-repro) `refreshAccessToken` — untrimmed `refreshToken` param — **cheap-disproof 2026-10-15 seed hunt:** duplicate of prior BFF-server refresh layout; client param not used in LK-06 P2 production path.
+- (candidate) `parseOidcTokenResponse` — does not trim optional `id_token` / `refresh_token` at token-client boundary — locus: `token-client.ts`; input: padded optional tokens; wrong outcome: inconsistent with `access_token` trim; mechanism: BFF sync trims at transport only.
+- (candidate) `humanizeAuthorizeCallbackError` — no max length on embedded `detail` after CRLF collapse — locus: `oauth-callback-messages.ts`; input: multi-kilobyte authorize `error_description`; wrong outcome: oversized callback panel; mechanism: string interpolation without cap.
+- (candidate) `postTokenForm` — HTTP 200 OAuth error JSON with only `error_description` and no `error` field — locus: `token-client.ts` `errorFromOAuthJson`; input: `{ "error_description": "hint only" }`; wrong outcome: treated as success path; mechanism: empty `error` may skip oauth error detection.
+- (candidate) `loadDiscoveryDocument` — authority value with trailing slash and path normalization — locus: `discoveryUrlForAuthority`; input: `https://host/tenant/` vs `https://host/tenant`; wrong outcome: duplicate or missed discovery URL cache entries; mechanism: pathname slash trimming only.
+- (candidate) `exchangeAuthorizationCode` — does not validate `redirect_uri` matches configured value before POST — locus: `token-client.ts`; input: caller-supplied redirect URI drift; wrong outcome: `invalid_grant` at IdP; mechanism: intentional trust of callback caller.
 - [x] (proven) `persistTokenResponse` — a hung older token-to-BFF sync blocks a newer same-session sync, preventing the replacement session from establishing its cookie — **hit 2026-10-11 seed hunt:** the sync-order promise chain awaited every older request; concurrent sync plus latest-request replay lets the newer request proceed and converges late completions on the latest token; regression `does not block a newer sync behind a hung older request` in `session.test.ts`.
 - [x] (proven) `persistTokenResponse` — concurrent same-session token-to-BFF syncs can complete out of order, allowing an older provider response to overwrite a newer BFF cookie — **hit 2026-10-11 seed hunt:** each token response started its own asynchronous sync with no ordering guard; serialize sync writes through a recovery-safe promise chain; regression `keeps an older token sync from overwriting a newer same-session sync` in `session.test.ts`.
 - [x] (proven) `persistNonSensitiveSessionHints` — a replacement token without optional display-name or subject claims leaves the prior user's identity hints in `sessionStorage` — **hit 2026-10-11 seed hunt:** hint writes were conditional but stale keys were never removed, so a same-browser user replacement could display the previous user's name/subject; clear both hint keys before applying each token response; regression `clears stale identity hints when a replacement token has no identity claims` in `session.test.ts`.

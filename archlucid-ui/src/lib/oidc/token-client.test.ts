@@ -62,6 +62,59 @@ describe("refreshAccessToken", () => {
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
+  it("collapses line breaks in OAuth error descriptions from the token endpoint", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: false,
+      status: 400,
+      text: async () =>
+        JSON.stringify({
+          error: "invalid_grant",
+          error_description: "expired\r\ninjected",
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    let message = "";
+
+    try {
+      await refreshAccessToken({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        refreshToken: "rt",
+      });
+    } catch (error) {
+      message = error instanceof Error ? error.message : String(error);
+    }
+
+    expect(message).toBe("invalid_grant: expired injected");
+    expect(message).not.toMatch(/\r|\n/u);
+  });
+
+  it("throws a buyer-safe error when the token endpoint returns non-JSON success bodies", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () => "<html>not json</html>",
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    let message = "";
+
+    try {
+      await refreshAccessToken({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        refreshToken: "rt",
+      });
+    } catch (error) {
+      message = error instanceof Error ? error.message : String(error);
+    }
+
+    expect(message).toBe("Token response was not valid JSON");
+    expect(message.toLowerCase()).not.toContain("html");
+  });
+
   it("does not echo non-OAuth error response bodies in thrown errors", async () => {
     const fetchMock = vi.fn(async () => ({
       ok: false,

@@ -3,7 +3,7 @@
  * — avoids leaking internals while staying accurate for admins.
  */
 
-function collapseOAuthErrorDescriptionLineBreaks(text: string): string {
+export function collapseOAuthErrorDescriptionLineBreaks(text: string): string {
   return text
     .replace(/[\r\n\u2028\u2029\u0085]/gu, " ")
     .replace(/\s+/gu, " ")
