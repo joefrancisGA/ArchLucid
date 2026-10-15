@@ -123,6 +123,15 @@ describe("persistTokenResponse", () => {
     expect(getAccessTokenForApi()).toBeUndefined();
   });
 
+  it("rejects zero-width-only access_token values instead of writing partial session hints", () => {
+    expect(() => persistTokenResponse({ access_token: "\u200b", expires_in: 3600 })).toThrow(
+      /access_token/i,
+    );
+
+    expect(sessionStorage.getItem(OIDC_EXPIRES_AT_MS_KEY)).toBeNull();
+    expect(isLikelySignedIn()).toBe(false);
+  });
+
   it("coerces string expires_in from the token response before writing expiry", () => {
     persistTokenResponse({ access_token: "tok", expires_in: "7200" as unknown as number });
 

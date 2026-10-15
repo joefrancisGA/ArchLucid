@@ -30,7 +30,10 @@ import {
   syncBffSessionCookieFromTokenResponse,
 } from "@/lib/oidc/bff-session-sync";
 import { isSafeReturnPath } from "@/lib/navigation/safe-return-path";
-import { stripOAuthInvisibleFormatChars } from "@/lib/oidc/oauth-callback-messages";
+import {
+  normalizeOidcConfigurationString,
+  stripOAuthInvisibleFormatChars,
+} from "@/lib/oidc/oauth-callback-messages";
 import { resolveExpiresInSeconds } from "@/lib/oidc/resolve-expires-in-seconds";
 
 export type OidcPkceFlow = "primary" | "google";
@@ -132,20 +135,29 @@ async function syncTokenToBff(request: TokenSyncRequest): Promise<void> {
  * Token material is issued only to the HttpOnly BFF cookie; PKCE verifier/state may remain in sessionStorage.
  */
 export function persistTokenResponse(tokens: OidcTokenResponse): void {
-  if (typeof tokens.access_token !== "string" || tokens.access_token.trim().length === 0) {
+  if (typeof tokens.access_token !== "string") {
     throw new Error("OIDC token response missing access_token");
   }
+
+  const accessToken = normalizeOidcConfigurationString(tokens.access_token);
+
+  if (accessToken.length === 0) {
+    throw new Error("OIDC token response missing access_token");
+  }
+
+  const normalizedTokens: OidcTokenResponse =
+    accessToken === tokens.access_token ? tokens : { ...tokens, access_token: accessToken };
 
   const expiresInSec = resolveExpiresInSeconds(tokens.expires_in);
   const expiresAtMs = Date.now() + expiresInSec * 1000;
 
-  persistNonSensitiveSessionHints(tokens, expiresAtMs);
+  persistNonSensitiveSessionHints(normalizedTokens, expiresAtMs);
   const generationAtPersist = refreshSessionGeneration;
   latestTokenSyncGeneration = generationAtPersist;
   const request: TokenSyncRequest = {
     sequence: ++tokenSyncSequence,
     generation: generationAtPersist,
-    tokens,
+    tokens: normalizedTokens,
   };
   latestTokenSyncRequest = request;
 
