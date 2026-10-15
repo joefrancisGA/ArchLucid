@@ -7,6 +7,8 @@ public static class ContractCollectionDefaults
 {
     public static List<T> Coalesce<T>(List<T>? value) => value ?? [];
 
+    public static T[] CoalesceArray<T>(T[]? value) => value ?? [];
+
     public static IReadOnlyList<T> CoalesceReadOnly<T>(IReadOnlyList<T>? value) => value ?? [];
 
     public static Dictionary<TKey, TValue> CoalesceDictionary<TKey, TValue>(Dictionary<TKey, TValue>? value)

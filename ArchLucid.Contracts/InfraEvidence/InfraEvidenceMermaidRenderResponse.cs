@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.InfraEvidence;
 
 public sealed class InfraEvidenceMermaidRenderResponse
@@ -44,11 +46,13 @@ public sealed class InfraEvidenceMermaidRenderResponse
         set;
     }
 
+    private List<InfraEvidenceMermaidFallbackArtifactSummary> fallbackArtifacts = [];
+
     public List<InfraEvidenceMermaidFallbackArtifactSummary> FallbackArtifacts
     {
-        get;
-        set;
-    } = [];
+        get => fallbackArtifacts;
+        set => fallbackArtifacts = ContractCollectionDefaults.Coalesce(value);
+    }
 
     public string? LayoutSvg
     {
@@ -74,11 +78,13 @@ public sealed class InfraEvidenceMermaidRenderResponse
         set;
     }
 
+    private List<string> completenessWarnings = [];
+
     public List<string> CompletenessWarnings
     {
-        get;
-        set;
-    } = [];
+        get => completenessWarnings;
+        set => completenessWarnings = ContractCollectionDefaults.Coalesce(value);
+    }
 
     public InfraEvidenceMermaidCompletenessSummary? CompletenessSummary
     {

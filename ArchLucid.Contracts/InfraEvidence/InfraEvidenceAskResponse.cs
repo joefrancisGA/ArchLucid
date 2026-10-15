@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.InfraEvidence;
 
 public sealed class InfraEvidenceAskResponse
@@ -20,11 +22,13 @@ public sealed class InfraEvidenceAskResponse
         set;
     }
 
+    private List<InfraEvidenceAskCitation> citations = [];
+
     public List<InfraEvidenceAskCitation> Citations
     {
-        get;
-        set;
-    } = [];
+        get => citations;
+        set => citations = ContractCollectionDefaults.Coalesce(value);
+    }
 
     public string? SimulatorLabel
     {

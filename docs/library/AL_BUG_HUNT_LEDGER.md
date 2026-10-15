@@ -30069,7 +30069,21 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 ---
 ## Zone: archlucid-contracts
 
-**Hunts:** 152 · **Bugs found:** 136 · **Consecutive dry hunts:** 0
+**Hunts:** 153 · **Bugs found:** 140 · **Consecutive dry hunts:** 0
+
+2026-10-15 seed hunt (seed→hit): promoted five open `(candidate)` rows on mermaid preview/render lists, ask citations, draft request string arrays, and engine provenance nullable list; coalesce fix on four types plus `ContractCollectionDefaults.CoalesceArray`; cheap-disproof closed nullable provenance row; regressions in `InfraEvidenceMermaidPreviewResponseDeserializationTests`, `InfraEvidenceAskResponseDeserializationTests`, `DraftArchitectureRequestInputDeserializationTests`, `InfraEvidenceMermaidRenderResponseDeserializationTests`, and `ReviewRunEngineProvenanceDeserializationTests`; reseeded five follow-on `(candidate)` rows; 833 scoped `Contracts` filter tests passed.
+
+- [x] (proven) `InfraEvidenceMermaidPreviewResponse` — `Modes` / `CompletenessWarnings` explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_list_properties_yields_empty_lists_not_null`.
+- [x] (proven) `InfraEvidenceAskResponse.Citations` — explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_citations_yields_empty_list_not_null`.
+- [x] (proven) `DraftArchitectureRequestInput` — `CurrentConstraints` / `CurrentAssumptions` / `ConfirmedAssumptions` explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_string_array_properties_yields_empty_arrays_not_null`.
+- [x] (valid-no-repro) `ReviewRunEngineProvenance.TaskEvaluationSnapshotsAtSelection` — explicit JSON `null` — **cheap-disproof 2026-10-15 seed hunt:** nullable property without collection initializer; absent snapshots stay null for `ReplayComparisonInterpretationDiffSlice.HasNotEvaluatedSnapshot`; regression `Deserialize_null_task_evaluation_snapshots_at_selection_remains_null`.
+- [x] (proven) `InfraEvidenceMermaidRenderResponse` — `FallbackArtifacts` / `CompletenessWarnings` explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_list_properties_yields_empty_lists_not_null`.
+
+- [ ] (candidate) `CloudResourceEvidenceHubResponse` — explicit JSON `null` on `RbacAssignments` / `NetworkRelationships` / `RecentChanges` / `EvidencePointers` — locus: `InfraEvidence.CloudResourceEvidenceHubResponse`; input: hub response JSON with null `rbacAssignments`.
+- [ ] (candidate) `DraftArchitectureRequestResponse` — explicit JSON `null` on suggested string-array properties — locus: `Requests.DraftArchitectureRequestResponse`; input: draft response JSON with null `suggestedConstraints`.
+- [ ] (candidate) `InfraEvidenceMermaidCollapseReport.Entries` — explicit JSON `null` — locus: collapse report list setter; input: collapse report JSON with null `entries`.
+- [ ] (candidate) `CloudResourceRemediationStreamPage.Items` — explicit JSON `null` — locus: remediation stream page list setter; input: stream page JSON with null `items`.
+- [ ] (candidate) `InfraEvidenceMermaidModePreview` — explicit JSON `null` on nested list properties — locus: `InfraEvidence.InfraEvidenceMermaidModePreview` (see file for list property names); input: mode preview JSON with null list token.
 
 2026-10-15 seed hunt (seed→hit): promoted five open `(candidate)` rows on coordinator/manifest explainability row lists, assumption acknowledgement ids, fast-path preview elements, and inference questionnaire items; consolidated `ContractCollectionDefaults` coalesce fix; regressions in `RunCoordinatorDecisionNodeExplainabilityRowDeserializationTests`, `RunManifestDecisionExplainabilityRowDeserializationTests`, `RunAssumptionAcknowledgementDocumentDeserializationTests`, `FastPathContextPreviewResponseDeserializationTests`, and `InferenceQuestionnaireListResponseDeserializationTests`; reseeded five follow-on `(candidate)` rows; 828 scoped `Contracts` filter tests passed.
 
@@ -30078,12 +30092,6 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `RunAssumptionAcknowledgementDocument.AcknowledgedAssumptionIds` — explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_acknowledged_assumption_ids_yields_empty_list_not_null`.
 - [x] (proven) `FastPathContextPreviewResponse.Elements` — explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_elements_yields_empty_list_not_null`.
 - [x] (proven) `InferenceQuestionnaireListResponse.Items` — explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_items_yields_empty_list_not_null`.
-
-- [ ] (candidate) `InfraEvidenceMermaidPreviewResponse` — explicit JSON `null` on `Modes` / `CompletenessWarnings` — locus: `InfraEvidence.InfraEvidenceMermaidPreviewResponse`; input: mermaid preview JSON with null `modes`.
-- [ ] (candidate) `InfraEvidenceAskResponse.Citations` — explicit JSON `null` — locus: ask response citation list setter; input: ask response JSON with null `citations`.
-- [ ] (candidate) `DraftArchitectureRequestInput` — explicit JSON `null` on `CurrentConstraints` / `CurrentAssumptions` / `ConfirmedAssumptions` — locus: `Requests.DraftArchitectureRequestInput` string-array setters; input: draft input JSON with null `currentConstraints`.
-- [ ] (candidate) `ReviewRunEngineProvenance.TaskEvaluationSnapshotsAtSelection` — explicit JSON `null` on nullable list property — locus: `Runs.ReviewRunEngineProvenance`; input: engine provenance JSON with null `taskEvaluationSnapshotsAtSelection`.
-- [ ] (candidate) `InfraEvidenceMermaidRenderResponse` — explicit JSON `null` on `FallbackArtifacts` / `CompletenessWarnings` — locus: `InfraEvidence.InfraEvidenceMermaidRenderResponse`; input: render response JSON with null `fallbackArtifacts`.
 
 2026-10-15 seed hunt (seed→hit): promoted five open `(candidate)` rows on buyer run detail summary lists, decision explainability lists, retrieval grounding agent lists, buyer run degraded-agent list, and authority audit finding/rule lists; consolidated coalesce fix; regressions in `BuyerRunDetailSummaryDtoDeserializationTests`, `RunDecisionExplainabilityDtoDeserializationTests`, `RunRetrievalGroundingSummaryDtoDeserializationTests`, `BuyerRunDetailRunDtoDeserializationTests`, and `RunAuthorityRuleAuditExplainabilitySectionDeserializationTests`; reseeded five follow-on `(candidate)` rows; 823 scoped `Contracts` filter tests passed.
 
