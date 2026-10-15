@@ -200,4 +200,20 @@ public sealed class EmailBrandingUrlsTests
             .Be("/architecture/reviews/a1b2c3d4 Bcc: injected@evil.test");
         Uri.UnescapeDataString(absolute.AbsolutePath).Should().NotContain("\u2028");
     }
+
+    [SkippableFact]
+    public void SanitizeOperatorNavigableUrl_omits_percent_encoded_unicode_line_separator_from_query_string_only()
+    {
+        string url = EmailBrandingUrls.SanitizeOperatorNavigableUrl(
+            "https://ops.example.test/architecture/reviews/run?token=abc%E2%80%A8Bcc%3A%20injected%40evil.test",
+            "https://ops.example.test");
+
+        url.Should().NotContain("%E2%80%A8", "percent-encoded line separator must not survive query sanitization");
+
+        Uri absolute = new(url);
+        string query = Uri.UnescapeDataString(absolute.Query);
+
+        query.Should().Contain("token=abc Bcc: injected@evil.test");
+        query.Should().NotContain("\u2028");
+    }
 }
