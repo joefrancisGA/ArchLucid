@@ -1,14 +1,18 @@
+"use client";
+
 import Link from "next/link";
 
 import { Info } from "lucide-react";
+
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 
 import {
   CLOUD_CONNECTIONS_HELP_ORIENTATION_BOUNDARY_AFTER_LINKS,
   CLOUD_CONNECTIONS_HELP_ORIENTATION_BOUNDARY_BEFORE_LINKS,
   CLOUD_CONNECTIONS_HELP_ORIENTATION_ID,
-  CLOUD_CONNECTIONS_HELP_ORIENTATION_LEAD,
   CLOUD_CONNECTIONS_HELP_ORIENTATION_TITLE,
-  CLOUD_CONNECTIONS_HELP_PRIMARY_ACTIONS,
+  cloudConnectionsHelpOrientationLead,
+  cloudConnectionsHelpPrimaryActions,
 } from "@/lib/cloud-connections-help-guide-content";
 import {
   DESIGN_TOKENS,
@@ -20,6 +24,9 @@ import { cn } from "@/lib/utils";
 
 /** Orientation callout for `/help/cloud-connections` (HCE). */
 export function HelpCloudConnectionsClaimDisciplineCallout(): React.ReactElement {
+  const { productLine } = useProductLine();
+  const primaryActions = cloudConnectionsHelpPrimaryActions(productLine);
+
   return (
     <aside
       id={CLOUD_CONNECTIONS_HELP_ORIENTATION_ID}
@@ -41,13 +48,13 @@ export function HelpCloudConnectionsClaimDisciplineCallout(): React.ReactElement
           {CLOUD_CONNECTIONS_HELP_ORIENTATION_TITLE}
         </h3>
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
-          {CLOUD_CONNECTIONS_HELP_ORIENTATION_LEAD} {CLOUD_CONNECTIONS_HELP_ORIENTATION_BOUNDARY_BEFORE_LINKS}{" "}
+          {cloudConnectionsHelpOrientationLead(productLine)} {CLOUD_CONNECTIONS_HELP_ORIENTATION_BOUNDARY_BEFORE_LINKS}{" "}
           <Link href="/assurance-status" className={OPERATOR_LINK.inline}>
             Assurance status
           </Link>{" "}
           or the live{" "}
-          <Link href={CLOUD_CONNECTIONS_HELP_PRIMARY_ACTIONS.openHub.href} className={OPERATOR_LINK.inline}>
-            Cloud connections hub
+          <Link href={primaryActions.openHub.href} className={OPERATOR_LINK.inline}>
+            {primaryActions.openHub.label}
           </Link>{" "}
           {CLOUD_CONNECTIONS_HELP_ORIENTATION_BOUNDARY_AFTER_LINKS}
         </p>

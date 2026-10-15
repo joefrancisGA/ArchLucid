@@ -1,4 +1,5 @@
-/** Governance audit, policy packs surfaces, and matching help topics. */
+/** Governance audit, policy packs surfaces, and matching help topics.
+ *  SecureNow Category-1 overrides: `securenow-contextual-help-overrides.ts` (SH-05). */
 
 import type { PageContextualHelpRow } from "@/lib/contextual-help/types";
 import {

@@ -1,10 +1,12 @@
 "use client";
 
 import { UrlSyncedSourcesCollapsibleStrip } from "@/components/evidence-orientation/UrlSyncedSourcesCollapsibleStrip";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
+
 import {
   CLOUD_CONNECTIONS_FOLLOW_UPS_TITLE,
-  CLOUD_CONNECTIONS_SOURCES,
-  CLOUD_CONNECTIONS_SOURCES_INTRO,
+  resolveCloudConnectionsSources,
+  resolveCloudConnectionsSourcesIntro,
 } from "@/lib/cloud-connections-evidence-copy";
 import { CLOUD_CONNECTIONS_HELP_ORIENTATION_BOTTOM_TEST_ID } from "@/lib/cloud-connections-help-page-copy";
 import {
@@ -14,6 +16,8 @@ import {
 
 /** Sources-only follow-ups — URL-synced disclosure with pre-commit auto-open. */
 export function HelpCloudConnectionsSourcesOrientationStrip(): React.JSX.Element {
+  const { productLine } = useProductLine();
+
   return (
     <UrlSyncedSourcesCollapsibleStrip
       surfaceId="help-cloud-connections-sources"
@@ -22,8 +26,8 @@ export function HelpCloudConnectionsSourcesOrientationStrip(): React.JSX.Element
       disclosureHrefFromSearch={helpCloudConnectionsSourcesDisclosureHrefFromSearch}
       sectionTestId={CLOUD_CONNECTIONS_HELP_ORIENTATION_BOTTOM_TEST_ID}
       title={CLOUD_CONNECTIONS_FOLLOW_UPS_TITLE}
-      intro={CLOUD_CONNECTIONS_SOURCES_INTRO}
-      links={CLOUD_CONNECTIONS_SOURCES}
+      intro={resolveCloudConnectionsSourcesIntro(productLine)}
+      links={resolveCloudConnectionsSources(productLine)}
       sourcesTestId="help-cloud-connections-sources"
     />
   );

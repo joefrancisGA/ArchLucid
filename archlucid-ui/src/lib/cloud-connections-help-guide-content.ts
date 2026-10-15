@@ -1,3 +1,4 @@
+import { SECURENOW_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
 import type { ProductLineId } from "@/lib/product-line/product-line-id";
 import {
   cloudConnectionsHelpSubtitleForProductLine,
@@ -230,7 +231,7 @@ export const SECURENOW_CLOUD_CONNECTIONS_HELP_TIER_1 = {
 export const SECURENOW_CLOUD_CONNECTIONS_HELP_PRIMARY_ACTIONS = {
   openExtractUpload: {
     label: "Extract and upload",
-    href: "/governance/infrastructure/extract-upload",
+    href: SECURENOW_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH,
   },
   openHub: { label: "Open Azure connections", href: "/integrations/cloud-connections" },
 } as const;
@@ -299,4 +300,26 @@ export const CLOUD_CONNECTIONS_HELP_SOURCES: readonly CloudConnectionsHelpFollow
   },
 ] as const;
 
+export const SECURENOW_CLOUD_CONNECTIONS_HELP_SOURCES: readonly CloudConnectionsHelpFollowUpLink[] = [
+  { label: "Azure connections hub", href: "/integrations/cloud-connections", kind: "product" },
+  { label: "Extract and upload", href: SECURENOW_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH, kind: "product" },
+  { label: "Connect Azure securely", href: inAppHelpHref("cloud-connections-azure"), kind: "help" },
+  { label: "Getting started", href: inAppHelpHref("getting-started"), kind: "help" },
+] as const;
+
+export const SECURENOW_CLOUD_CONNECTIONS_HELP_ACTION_PANEL_INTRO =
+  "Use these follow-ups when connector setup needs the Azure hub, federation help, or inventory ZIP intake.";
+
 export const CLOUD_CONNECTIONS_HELP_SOURCES_INTRO = CLOUD_CONNECTIONS_HELP_ACTION_PANEL_INTRO;
+
+export function resolveCloudConnectionsHelpSourcesIntro(productLineId: ProductLineId = "architecture"): string {
+  return isSecureNowProductLine(productLineId)
+    ? SECURENOW_CLOUD_CONNECTIONS_HELP_ACTION_PANEL_INTRO
+    : CLOUD_CONNECTIONS_HELP_ACTION_PANEL_INTRO;
+}
+
+export function resolveCloudConnectionsHelpSources(
+  productLineId: ProductLineId = "architecture",
+): readonly CloudConnectionsHelpFollowUpLink[] {
+  return isSecureNowProductLine(productLineId) ? SECURENOW_CLOUD_CONNECTIONS_HELP_SOURCES : CLOUD_CONNECTIONS_HELP_SOURCES;
+}
