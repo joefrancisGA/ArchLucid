@@ -1,7 +1,8 @@
 import type { OidcDiscoveryDocument } from "@/lib/oidc/discovery";
+import { normalizeOidcConfigurationString } from "@/lib/oidc/oauth-callback-messages";
 
 function trimAuthorizeQueryValue(value: string): string {
-  return value.trim();
+  return normalizeOidcConfigurationString(value);
 }
 
 export function buildAuthorizeUrl(params: {
