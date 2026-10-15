@@ -48,7 +48,11 @@ export function resolveCollectionAgentHealth(
 
 export function formatCollectionRunDuration(run: CollectionRun): string {
   if (run.finishedUtc === null || run.finishedUtc === undefined) {
-    return "In progress";
+    if (run.status === "Running") {
+      return "In progress";
+    }
+
+    return "Finish time was not stored.";
   }
 
   const durationMs = Date.parse(run.finishedUtc) - Date.parse(run.startedUtc ?? "");
@@ -66,20 +70,70 @@ export function formatCollectionRunDuration(run: CollectionRun): string {
   return `${Math.floor(durationSeconds / 60)}m ${durationSeconds % 60}s`;
 }
 
-export function parseCollectionRunSubscriptions(run: CollectionRun): string[] {
+export type CollectionRunSubscriptionsPresentation =
+  | { readonly kind: "missing" }
+  | { readonly kind: "unreadable" }
+  | { readonly kind: "empty" }
+  | { readonly kind: "listed"; readonly subscriptions: readonly string[] };
+
+export function resolveCollectionRunSubscriptionsPresentation(
+  run: CollectionRun,
+): CollectionRunSubscriptionsPresentation {
   if (run.subscriptionsCoveredJson === undefined || run.subscriptionsCoveredJson.trim().length === 0) {
-    return [];
+    return { kind: "missing" };
   }
 
   try {
     const parsed: unknown = JSON.parse(run.subscriptionsCoveredJson);
 
-    if (Array.isArray(parsed)) {
-      return parsed.filter((item): item is string => typeof item === "string" && item.trim().length > 0);
+    if (!Array.isArray(parsed)) {
+      return { kind: "unreadable" };
     }
 
-    return [];
+    const subscriptions = parsed.filter(
+      (item): item is string => typeof item === "string" && item.trim().length > 0,
+    );
+
+    if (subscriptions.length === 0) {
+      return { kind: "empty" };
+    }
+
+    return { kind: "listed", subscriptions };
   } catch {
+    return { kind: "unreadable" };
+  }
+}
+
+export function formatCollectionRunSubscriptionsLabel(run: CollectionRun): string {
+  const presentation = resolveCollectionRunSubscriptionsPresentation(run);
+
+  switch (presentation.kind) {
+    case "missing":
+      return "Subscriptions covered were not stored.";
+
+    case "unreadable":
+      return "Subscriptions covered could not be read.";
+
+    case "empty":
+      return "Subscriptions covered were stored as an empty list.";
+
+    case "listed":
+      return String(presentation.subscriptions.length);
+
+    default: {
+      const _exhaustive: never = presentation;
+
+      return _exhaustive;
+    }
+  }
+}
+
+export function parseCollectionRunSubscriptions(run: CollectionRun): string[] {
+  const presentation = resolveCollectionRunSubscriptionsPresentation(run);
+
+  if (presentation.kind !== "listed") {
     return [];
   }
+
+  return [...presentation.subscriptions];
 }

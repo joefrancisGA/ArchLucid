@@ -80,7 +80,7 @@ export function RunsListBuyerFeaturedCard({ run }: RunsListBuyerFeaturedCardProp
                 Risk owner
               </dt>
               <dd className="m-0 font-medium text-neutral-900 dark:text-neutral-100">
-                {meta?.riskOwner ?? "Not recorded"}
+                {meta?.riskOwner ?? "Risk owner was not stored."}
               </dd>
             </div>
             <div>

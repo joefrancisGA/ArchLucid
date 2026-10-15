@@ -9,6 +9,8 @@ import { architectureIdentityPath } from "@/lib/architecture/architecture-routes
 import {
   WORKING_ARCHITECTURE_NESTED_ARCHITECTURE_SLUG_LABEL,
   WORKING_ARCHITECTURE_NESTED_IDENTITY_LOADING_LABEL,
+  WORKING_ARCHITECTURE_NESTED_IDENTITY_NAME_LOADING_LABEL,
+  WORKING_ARCHITECTURE_NESTED_IDENTITY_NAME_NOT_STORED_LABEL,
   WORKING_ARCHITECTURE_NESTED_IDENTITY_UNAVAILABLE_LABEL,
 } from "@/lib/architecture/working-architecture-nested-tool-copy";
 import {
@@ -54,7 +56,12 @@ export function WorkingNestedArchitectureIdentityChrome(
 ): React.JSX.Element {
   const query = useArchitectureIdentityQuery(props.architectureId);
   const identity = query.data;
-  const displayName = identity?.displayName?.trim() ?? "Architecture";
+  const storedName = identity?.displayName?.trim() ?? "";
+  const displayName = query.isLoading
+    ? WORKING_ARCHITECTURE_NESTED_IDENTITY_NAME_LOADING_LABEL
+    : storedName.length > 0
+      ? storedName
+      : WORKING_ARCHITECTURE_NESTED_IDENTITY_NAME_NOT_STORED_LABEL;
   const status = resolveArchitectureIdentityStatusPresentation(identity, query.isLoading, query.isError);
   const deskHref = architectureIdentityPath(props.architectureId);
 

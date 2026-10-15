@@ -43,6 +43,9 @@ export const ARCHITECTURE_DRAFT_STATUS_LABELS: Record<ArchitectureDraftCustomerS
 /** Customer-facing placeholder when an architecture draft has no system name. */
 export const UNTITLED_ARCHITECTURE_LABEL = "System name was not stored" as const;
 
+/** Customer-facing owner cell when the draft row has no stored owner. */
+export const ARCHITECTURE_DRAFT_OWNER_NOT_STORED_LABEL = "Owner was not stored." as const;
+
 /**
  * Prior untitled labels still present in local registries — sanitized on read.
  * Includes dated "Architecture draft · Created …" titles from an earlier list layout.
@@ -148,12 +151,6 @@ export function architectureDraftDisplayName(systemName: string | undefined, fre
 
   if (isArchitectureCreationBootstrapIntent(freeTextIntent)) {
     return UNTITLED_ARCHITECTURE_LABEL;
-  }
-
-  const intent = stripLeadingMarkdownHeading(freeTextIntent.trim());
-
-  if (intent.length > 0) {
-    return intent.length > 64 ? `${intent.slice(0, 61)}…` : intent;
   }
 
   return UNTITLED_ARCHITECTURE_LABEL;

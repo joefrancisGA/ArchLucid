@@ -126,7 +126,7 @@ describe("formatAzureResourceTypeForDisplay", () => {
   });
 
   it("returns an em dash when the type is missing", () => {
-    expect(formatAzureResourceTypeForDisplay(null)).toBe("Not recorded");
-    expect(formatAzureResourceTypeForDisplay("  ")).toBe("Not recorded");
+    expect(formatAzureResourceTypeForDisplay(null)).toBe("Resource type was not stored.");
+    expect(formatAzureResourceTypeForDisplay("  ")).toBe("Resource type was not stored.");
   });
 });

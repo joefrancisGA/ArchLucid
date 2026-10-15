@@ -22,7 +22,7 @@ public static class TerraformAdvisoryHclSanitizer
         if (outcome.IsValid)
             return hclBody;
 
-        string reason = outcome.FailureReason ?? "Unknown validation failure.";
+        string reason = outcome.FailureReason ?? "Validation reason was not stored.";
         return BuildValidationWarningStub(reason);
     }
 

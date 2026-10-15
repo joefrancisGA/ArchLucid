@@ -83,13 +83,13 @@ function stripMicrosoftProviderPrefix(namespace: string): string {
  */
 export function formatAzureResourceTypeForDisplay(resourceType: string | null | undefined): string {
   if (resourceType == null) {
-    return "Not recorded";
+    return "Resource type was not stored.";
   }
 
   const trimmed = resourceType.trim();
 
   if (trimmed.length === 0) {
-    return "Not recorded";
+    return "Resource type was not stored.";
   }
 
   const slashIndex = trimmed.indexOf("/");

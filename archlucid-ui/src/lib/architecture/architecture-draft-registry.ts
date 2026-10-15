@@ -1,6 +1,7 @@
 import { reviewReadinessFromDraftDocument } from "@/lib/architecture/architecture-draft-readiness";
 import type { ArchitectureDraftCustomerStatus } from "@/lib/architecture/architecture-draft-status";
 import {
+  ARCHITECTURE_DRAFT_OWNER_NOT_STORED_LABEL,
   architectureDraftDisplayName,
   customerFacingArchitectureDraftTitle,
   resolveArchitectureDraftCustomerStatus,
@@ -216,7 +217,7 @@ export function buildArchitectureDraftRegistryEntry(
     draftId: draft.draftId,
     displayName: architectureDraftDisplayName(draft.document.systemName, draft.document.freeTextIntent),
     customerStatus: deriveRegistryCustomerStatus(draft, options),
-    ownerLabel: options.ownerLabel ?? "You",
+    ownerLabel: options.ownerLabel ?? ARCHITECTURE_DRAFT_OWNER_NOT_STORED_LABEL,
     lastUpdatedUtc: draft.updatedUtc,
     linkedReviewId,
     parentArchitectureId: parentArchitectureId.length > 0 ? parentArchitectureId : null,

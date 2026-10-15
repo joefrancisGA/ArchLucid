@@ -80,7 +80,7 @@ function questionStatusLabel(status: string | null): string {
     return "Dismissed";
   }
 
-  return status;
+  return `Question status "${status}" has no reviewer label.`;
 }
 
 function openQuestionsCountLabel(count: number): string {
@@ -258,7 +258,7 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
               ) : null}
               {currentQuestion.answerCodes !== null && currentQuestion.answerCodes.length === 0 ? (
                 <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                  0 answer choices
+                  Answer choices were stored as an empty list.
                 </p>
               ) : null}
               <div className="flex flex-wrap gap-2">
