@@ -26,7 +26,7 @@ export function formatInfraEvidenceOutlineEdgeToLabel(input: {
   const friendlyType = formatDiagramArmTypeFriendlyName(input.toResourceType);
 
   if (friendlyType == null || friendlyType.trim().length === 0) {
-    return toName;
+    return `${toName} (Resource type was not stored)`;
   }
 
   const suffix = ` (${friendlyType})`;

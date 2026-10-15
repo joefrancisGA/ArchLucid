@@ -3,7 +3,10 @@ import {
   type ArchitectureDraftRegistryEntry,
 } from "@/lib/architecture/architecture-draft-registry";
 import { architectureDraftSpawnedRunId } from "@/lib/architecture/architecture-draft-handoff-gate";
-import { resolveArchitectureDraftCustomerStatus } from "@/lib/architecture/architecture-draft-status";
+import {
+  ARCHITECTURE_DRAFT_OWNER_NOT_STORED_LABEL,
+  resolveArchitectureDraftCustomerStatus,
+} from "@/lib/architecture/architecture-draft-status";
 import type { DraftRequestResponse, DraftRequestSummary } from "@/types/draft-intake";
 
 function mapDraftSummaryToDraftRequestResponse(summary: DraftRequestSummary): DraftRequestResponse {
@@ -46,7 +49,7 @@ export function mapDraftSummaryToRegistryEntry(summary: DraftRequestSummary): Ar
   const entry = buildArchitectureDraftRegistryEntry(draft, {
     customerStatus,
     linkedReviewId,
-    ownerLabel: "You",
+    ownerLabel: ARCHITECTURE_DRAFT_OWNER_NOT_STORED_LABEL,
   });
 
   const architectureId = summary.architectureId?.trim() ?? "";

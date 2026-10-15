@@ -29,19 +29,16 @@ describe("architectureDraftDisplayName", () => {
     );
   });
 
-  it("uses a truncated free-text intent when the architecture draft has a meaningful name", () => {
+  it("does not use free-text intent as the list title when the system name is missing", () => {
     const longIntent = "A".repeat(80);
 
-    expect(architectureDraftDisplayName(undefined, longIntent)).toBe(`${"A".repeat(61)}…`);
-  });
-
-  it("strips a leading markdown heading from intent used as the title", () => {
+    expect(architectureDraftDisplayName(undefined, longIntent)).toBe(UNTITLED_ARCHITECTURE_LABEL);
     expect(
       architectureDraftDisplayName(
         undefined,
         "# Architecture Review Packet: B2B SaaS Tenant Migration Platform",
       ),
-    ).toBe("Architecture Review Packet: B2B SaaS Tenant Migration Platform");
+    ).toBe(UNTITLED_ARCHITECTURE_LABEL);
   });
 
   it("reports a missing system name when intent is empty", () => {

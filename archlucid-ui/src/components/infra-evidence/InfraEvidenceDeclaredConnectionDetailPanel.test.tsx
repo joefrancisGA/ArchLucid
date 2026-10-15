@@ -99,8 +99,9 @@ describe("InfraEvidenceDeclaredConnectionDetailPanel", () => {
       />,
     );
 
-    expect(screen.getAllByText("Not recorded").length).toBeGreaterThanOrEqual(2);
-    expect(screen.queryByText("Expiration was not stored.")).not.toBeInTheDocument();
-    expect(screen.queryByText("Rationale was not stored.")).not.toBeInTheDocument();
+    expect(screen.getByText("Status was not stored.")).toBeInTheDocument();
+    expect(screen.getByText("Evidence reference was not stored.")).toBeInTheDocument();
+    expect(screen.getByText("Expiration was not stored.")).toBeInTheDocument();
+    expect(screen.getByText("Rationale was not stored.")).toBeInTheDocument();
   });
 });
