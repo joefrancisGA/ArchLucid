@@ -1,3 +1,5 @@
+2026-10-15 seed hunt (seed→hit): `application-analysis` — promoted dashed route `runId` on `ComparisonsApplicationService.TryListByRunIdAsync` returning empty lists against N-format persisted `LeftRunId`/`RightRunId` (in-memory repository ordinal match); `CanonicalRunIdForLookup` before `IComparisonRecordRepository.GetByRunIdAsync`; regression `CompareQuality_TryListByRunIdAsync_lists_records_when_query_uses_dashed_guid_and_persisted_left_uses_n_format`; 41 scoped ArchitectureAnalysis/CompareQuality tests passed.
+
 2026-10-15 seed hunt (seed→hit): `application-analysis` — promoted dashed `RunExportRecord.RunId` skipping career export gate preload via `IRunDetailQueryService`; `CanonicalRunIdForLookup` in `ExportReplayService`; regression `ArchitectureAnalysis_export_replay_applies_career_gate_when_record_run_id_uses_dashed_guid_format`; 40 scoped ArchitectureAnalysis/CompareQuality tests passed.
 
 2026-10-15 seed hunt (seed→hit): `application-analysis` — promoted `ExportRecordDiffService` treating dashed vs N-format `RunId`/`CompareRunId` as different runs; `GovernanceRunIdNormalizer.AreEquivalent` for warnings and diff fields; regressions `CompareQuality_export_record_diff_treats_equivalent_guid_run_ids_as_same_run` and `CompareQuality_export_record_diff_treats_equivalent_compare_run_ids_as_unchanged`; 39 scoped ArchitectureAnalysis/CompareQuality tests passed.
@@ -18396,6 +18398,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **last-bug:** 2026-10-15 — export replay dashed RunId career gate bypass
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+- [x] (proven) `ComparisonsApplicationService.TryListByRunIdAsync` — dashed query `runId` missed N-format persisted comparison anchors (in-memory ordinal `GetByRunIdAsync`) — **hit 2026-10-15 seed hunt:** regression `CompareQuality_TryListByRunIdAsync_lists_records_when_query_uses_dashed_guid_and_persisted_left_uses_n_format`.
 
 2026-10-15 seed hunt (seed→hit): promoted `ExportReplayService.ReplayAsync` career completeness gate skipped when export `RunId` stored in dashed GUID form; canonical N-format lookup before `IRunDetailQueryService.GetRunDetailAsync`; regression `ArchitectureAnalysis_export_replay_applies_career_gate_when_record_run_id_uses_dashed_guid_format`; 40 scoped ArchitectureAnalysis/CompareQuality tests passed.
 

@@ -47,7 +47,9 @@ public sealed partial class ComparisonsApplicationService(
         if (await _runDetailQueryService.GetRunDetailAsync(runId, ct) is null)
             return null;
 
-        return await _comparisonRecordRepository.GetByRunIdAsync(runId, ct);
+        string lookupRunId = CanonicalRunIdForLookup(runId);
+
+        return await _comparisonRecordRepository.GetByRunIdAsync(lookupRunId, ct);
     }
 
     /// <inheritdoc />
@@ -213,4 +215,10 @@ public sealed partial class ComparisonsApplicationService(
 
         return false;
     }
+
+    /// <summary>
+    ///     Route and API callers may use dashed GUIDs while persisted comparison rows use canonical N-format ids.
+    /// </summary>
+    private static string CanonicalRunIdForLookup(string runId) =>
+        Guid.TryParse(runId, out Guid guid) ? guid.ToString("N") : runId;
 }
