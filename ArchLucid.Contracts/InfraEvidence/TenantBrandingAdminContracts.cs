@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.InfraEvidence;
 
 public sealed class TenantBrandingAdminStateResponse
@@ -20,11 +22,13 @@ public sealed class TenantBrandingAdminStateResponse
         init;
     } = new();
 
+    private IReadOnlyList<TenantBrandingValidationIssueResponse> validationIssues = [];
+
     public IReadOnlyList<TenantBrandingValidationIssueResponse> ValidationIssues
     {
-        get;
-        init;
-    } = [];
+        get => validationIssues;
+        init => validationIssues = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 
     public bool CanActivate
     {
@@ -347,9 +351,11 @@ public sealed class TenantBrandingActivateResponse
         init;
     }
 
+    private IReadOnlyList<TenantBrandingValidationIssueResponse> validationIssues = [];
+
     public IReadOnlyList<TenantBrandingValidationIssueResponse> ValidationIssues
     {
-        get;
-        init;
-    } = [];
+        get => validationIssues;
+        init => validationIssues = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 }

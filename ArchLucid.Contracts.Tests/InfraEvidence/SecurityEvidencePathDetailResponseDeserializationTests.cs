@@ -27,4 +27,20 @@ public sealed class SecurityEvidencePathDetailResponseDeserializationTests
         detail!.Hops.Should().NotBeNull().And.BeEmpty();
         detail.CitingFindingIds.Should().NotBeNull().And.BeEmpty();
     }
+
+    [Fact]
+    public void Deserialize_null_routing_yields_empty_list_not_null()
+    {
+        const string json = """
+            {
+              "routing": null
+            }
+            """;
+
+        SecurityEvidencePathDetailResponse? detail =
+            JsonSerializer.Deserialize<SecurityEvidencePathDetailResponse>(json, ContractJson.CamelCaseCompact);
+
+        detail.Should().NotBeNull();
+        detail!.Routing.Should().NotBeNull().And.BeEmpty();
+    }
 }

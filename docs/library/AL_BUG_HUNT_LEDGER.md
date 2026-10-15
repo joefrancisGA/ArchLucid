@@ -30069,7 +30069,21 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 ---
 ## Zone: archlucid-contracts
 
-**Hunts:** 156 · **Bugs found:** 155 · **Consecutive dry hunts:** 0
+**Hunts:** 157 · **Bugs found:** 157 · **Consecutive dry hunts:** 0
+
+2026-10-15 seed hunt (seed→hit): promoted five open `(candidate)` rows on tenant branding validation issue lists and SecureNow path DTO lists coalesced in the prior hunt; coalesce fix on `TenantBrandingAdminStateResponse` and `TenantBrandingActivateResponse`; lock regressions for `Routing`, `CitedEvidenceRefs`, and `EvidenceReferences`; regressions in `TenantBrandingAdminContractsDeserializationTests` plus extended path detail, explanation, and cut-point summary tests; reseeded five follow-on `(candidate)` rows; 852 scoped `Contracts` filter tests passed.
+
+- [x] (proven) `TenantBrandingAdminStateResponse.ValidationIssues` — explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_validation_issues_on_admin_state_yields_empty_list_not_null`.
+- [x] (proven) `TenantBrandingActivateResponse.ValidationIssues` — explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_validation_issues_on_activate_response_yields_empty_list_not_null`.
+- [x] (valid-no-repro) `SecurityEvidencePathDetailResponse.Routing` — explicit JSON `null` — **cheap-disproof 2026-10-15 seed hunt:** coalesced in prior hunt; regression lock `Deserialize_null_routing_yields_empty_list_not_null`.
+- [x] (valid-no-repro) `SecurityEvidencePathExplanationResponse.CitedEvidenceRefs` — explicit JSON `null` — **cheap-disproof 2026-10-15 seed hunt:** coalesced in prior hunt; regression lock `Deserialize_null_cited_evidence_refs_yields_empty_list_not_null`.
+- [x] (valid-no-repro) `SecurityEvidenceCutPointSummaryResponse.EvidenceReferences` — explicit JSON `null` — **cheap-disproof 2026-10-15 seed hunt:** coalesced in prior hunt; regression lock `Deserialize_null_evidence_references_yields_empty_list_not_null`.
+
+- [ ] (candidate) `GovernancePreviewResult` — explicit JSON `null` on preview list properties — locus: `Governance.Preview.GovernancePreviewResult`; input: preview result JSON with null list token (see file for property names).
+- [ ] (candidate) `GovernanceEnvironmentComparisonResult` — explicit JSON `null` on comparison diff lists — locus: `Governance.Preview.GovernanceEnvironmentComparisonResult`; input: comparison JSON with null list token.
+- [ ] (candidate) `PolicyPacksPageBundleResponse` — explicit JSON `null` on page bundle list — locus: `Governance.PolicyPacks.PolicyPacksPageBundleResponse`; input: bundle JSON with null list token.
+- [ ] (candidate) `ArchitecturePostureReadModel` — explicit JSON `null` on posture list properties — locus: `Governance.Posture.ArchitecturePostureReadModel`; input: posture read model JSON with null list token.
+- [ ] (candidate) `PolicyPackDryRunResponse` — explicit JSON `null` on dry-run result list — locus: `Governance.PolicyPackDryRunResponse`; input: dry-run response JSON with null list token.
 
 2026-10-15 seed hunt (seed→hit): promoted five open `(candidate)` rows on path detail hops/citing ids, SecureNow hypothesis cited path ids, explanation business-impact hypotheses, and cut-point collapsed path ids; consolidated coalesce fix across `SecurityEvidencePathInspectorContracts`, `SecurityEvidencePathExplanationContracts`, and `SecurityEvidenceCutPointContracts` (sibling lists on same types included); regressions in `SecurityEvidencePathDetailResponseDeserializationTests`, `SecureNowHypothesisResponseDeserializationTests`, `SecurityEvidencePathExplanationResponseDeserializationTests`, and `SecurityEvidenceCutPointSummaryResponseDeserializationTests`; reseeded five follow-on `(candidate)` rows; 847 scoped `Contracts` filter tests passed.
 
@@ -30078,12 +30092,6 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `SecureNowHypothesisResponse.CitedPathIds` — explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_cited_path_ids_yields_empty_list_not_null`.
 - [x] (proven) `SecurityEvidencePathExplanationResponse.BusinessImpactHypotheses` — explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_business_impact_hypotheses_yields_empty_list_not_null`.
 - [x] (proven) `SecurityEvidenceCutPointSummaryResponse.CollapsedPathIds` — explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_collapsed_path_ids_yields_empty_list_not_null`.
-
-- [ ] (candidate) `TenantBrandingAdminStateResponse.ValidationIssues` — explicit JSON `null` — locus: `InfraEvidence.TenantBrandingAdminContracts`; input: branding admin state JSON with null `validationIssues`.
-- [ ] (candidate) `SecurityEvidencePathRankedPageResponse.Items` — explicit JSON `null` — locus: `InfraEvidence.SecurityEvidenceCutPointContracts`; input: ranked page JSON with null `items`.
-- [ ] (candidate) `SecurityEvidencePathProposedRemediationResponse.VerificationQueries` — explicit JSON `null` — locus: `InfraEvidence.SecurityEvidencePathExplanationContracts`; input: proposed remediation JSON with null `verificationQueries`.
-- [ ] (candidate) `SecurityEvidencePathDetailResponse.RelatedCutPoints` — explicit JSON `null` — locus: path detail `init` list (coalesced in same hunt batch file; regression via extended path detail test if promoted).
-- [ ] (candidate) `SecureNowHypothesisResponse.CitedFindingIds` — explicit JSON `null` — locus: hypothesis `init` list; input: hypothesis JSON with null `citedFindingIds`.
 
 2026-10-15 seed hunt (seed→hit): promoted five open `(candidate)` rows on finding stream page items, identity diagram hints, audit lineage matches, diagram peel catalog entries, and path rank related cut points; consolidated coalesce fix; regressions in `CloudResourceEvidenceFindingStreamPageDeserializationTests`, `InfraEvidenceMermaidIdentityDiagramHintsDeserializationTests`, `CloudResourceAuditLineageLinkDeserializationTests`, `DiagramPeelCatalogSnapshotDeserializationTests`, and `SecurityEvidencePathRankSummaryResponseDeserializationTests`; reseeded five follow-on `(candidate)` rows; 843 scoped `Contracts` filter tests passed.
 

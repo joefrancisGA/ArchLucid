@@ -25,4 +25,20 @@ public sealed class SecurityEvidenceCutPointSummaryResponseDeserializationTests
         summary.Should().NotBeNull();
         summary!.CollapsedPathIds.Should().NotBeNull().And.BeEmpty();
     }
+
+    [Fact]
+    public void Deserialize_null_evidence_references_yields_empty_list_not_null()
+    {
+        const string json = """
+            {
+              "evidenceReferences": null
+            }
+            """;
+
+        SecurityEvidenceCutPointSummaryResponse? summary =
+            JsonSerializer.Deserialize<SecurityEvidenceCutPointSummaryResponse>(json, ContractJson.CamelCaseCompact);
+
+        summary.Should().NotBeNull();
+        summary!.EvidenceReferences.Should().NotBeNull().And.BeEmpty();
+    }
 }

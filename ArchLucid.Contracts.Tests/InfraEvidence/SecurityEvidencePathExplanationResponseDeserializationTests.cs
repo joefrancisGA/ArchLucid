@@ -25,4 +25,20 @@ public sealed class SecurityEvidencePathExplanationResponseDeserializationTests
         response.Should().NotBeNull();
         response!.BusinessImpactHypotheses.Should().NotBeNull().And.BeEmpty();
     }
+
+    [Fact]
+    public void Deserialize_null_cited_evidence_refs_yields_empty_list_not_null()
+    {
+        const string json = """
+            {
+              "citedEvidenceRefs": null
+            }
+            """;
+
+        SecurityEvidencePathExplanationResponse? response =
+            JsonSerializer.Deserialize<SecurityEvidencePathExplanationResponse>(json, ContractJson.CamelCaseCompact);
+
+        response.Should().NotBeNull();
+        response!.CitedEvidenceRefs.Should().NotBeNull().And.BeEmpty();
+    }
 }
