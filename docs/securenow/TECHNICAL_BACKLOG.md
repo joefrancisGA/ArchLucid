@@ -136,7 +136,7 @@ Paste **one** file per session from the repo root (Cloud Agent: `pwsh` + working
 | SH-01 | Resolver / Learn more product-line branch | **Shipped** |
 | SH-02 | `/help/getting-started` | **Shipped** |
 | SH-03 | Findings help + page | **Shipped** |
-| SH-04 | Assigned-to-me queue | **Backlog** |
+| SH-04 | Assigned-to-me queue | **Shipped** |
 | SH-05 | Policy packs | **Backlog** |
 | SH-06 | Standards and rules | **Backlog** |
 | SH-07 | Remediation factory drawer | **Shipped** |
