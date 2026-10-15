@@ -96,6 +96,13 @@ describe("getAccessTokenForApi / isLikelySignedIn expiry parsing (LK-06 P2)", ()
 
     expect(isLikelySignedIn()).toBe(true);
   });
+
+  it("treats zero-width-only expires_at_ms session hints as expired", () => {
+    sessionStorage.setItem(OIDC_EXPIRES_AT_MS_KEY, "\u200b\u200b");
+
+    expect(isLikelySignedIn()).toBe(false);
+    expect(getAccessTokenForApi()).toBeUndefined();
+  });
 });
 
 describe("persistTokenResponse", () => {
@@ -237,6 +244,12 @@ describe("persistTokenResponse", () => {
     sessionStorage.setItem(OIDC_DISPLAY_NAME_KEY, "\u200bJane Operator\u200b");
 
     expect(readSignedInDisplayName()).toBe("Jane Operator");
+  });
+
+  it("strips zero-width padding when reading user subject hints from sessionStorage", () => {
+    sessionStorage.setItem(OIDC_USER_SUBJECT_KEY, "\u200buser-123\u200b");
+
+    expect(readSignedInUserSubject()).toBe("user-123");
   });
 
   it("does not store zero-width-only subject hints from JWT claims", () => {

@@ -63,6 +63,10 @@ describe("decodeOAuthErrorDescription", () => {
   it("returns empty for percent-encoded punctuation-only error descriptions", () => {
     expect(decodeOAuthErrorDescription("%2E%2E%2E")).toBe("");
   });
+
+  it("returns empty for percent-encoded underscore-only error descriptions", () => {
+    expect(decodeOAuthErrorDescription("%5F%5F%5F")).toBe("");
+  });
 });
 
 describe("humanizeAuthorizeCallbackError", () => {
@@ -165,6 +169,22 @@ describe("humanizeAuthorizeCallbackError", () => {
 
     expect(message.length).toBeLessThanOrEqual(320);
     expect(message.endsWith("…")).toBe(true);
+  });
+
+  it("uses fixed copy for temporarily_unavailable regardless of oversized error_description", () => {
+    const oversized = `${"Policy ".repeat(80)}end`;
+    const message = humanizeAuthorizeCallbackError("temporarily_unavailable", oversized);
+
+    expect(message).toContain("temporary error");
+    expect(message.length).toBeLessThanOrEqual(280);
+    expect(message).not.toContain("Policy");
+  });
+
+  it("omits punctuation-only detail on default-branch authorize errors", () => {
+    const message = humanizeAuthorizeCallbackError("custom_problem", "---");
+
+    expect(message).toContain("custom problem");
+    expect(message).not.toContain("---");
   });
 
   it("uses fixed copy for server_error regardless of oversized error_description", () => {
