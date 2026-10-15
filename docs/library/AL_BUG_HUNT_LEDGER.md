@@ -30069,7 +30069,21 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 ---
 ## Zone: archlucid-contracts
 
-**Hunts:** 174 · **Bugs found:** 236 · **Consecutive dry hunts:** 0
+**Hunts:** 175 · **Bugs found:** 241 · **Consecutive dry hunts:** 0
+
+2026-10-15 seed hunt (seed→hit): promoted five open `(candidate)` rows on deployment status `links`, quality-gate `perAgentTypeFloors`, outbox bulk-retry `retriedOutboxIds`, LLM cost dashboard lists, and fleet COGS dashboard `rows`; cheap-disproof closed mis-scoped `AdminFleetLlmCogsRowResponse` (row DTO has no lists); coalesce fix on `AdminDeploymentStatusResponse`, `AdminQualityGateDiagnosticsResponse`, `IntegrationOutboxDeadLetterBulkRetryResponse`, `LlmCostReportingDashboardResponse`, and `AdminFleetLlmCogsDashboardResponse`; regressions in `AdminDeploymentStatusResponseDeserializationTests`, `AdminOperatorDiagnosticsDeserializationTests`, and `LlmCostReportingDeserializationTests`; reseeded five follow-on `(candidate)` rows; 931 scoped `Contracts` filter tests passed.
+
+- [x] (proven) `AdminDeploymentStatusResponse.Links` — explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_links_yields_empty_list_not_null`.
+- [x] (proven) `AdminQualityGateDiagnosticsResponse.PerAgentTypeFloors` — explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_per_agent_type_floors_yields_empty_list_not_null`.
+- [x] (proven) `IntegrationOutboxDeadLetterBulkRetryResponse.RetriedOutboxIds` — explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_retried_outbox_ids_yields_empty_list_not_null`.
+- [x] (proven) `LlmCostReportingDashboardResponse` — `Daily` / `ByWorkspaceProject` / `TopRuns` explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_list_properties_yields_empty_lists_not_null`.
+- [x] (invalid) `AdminFleetLlmCogsRowResponse` — fleet row DTO list properties — **cheap-disproof 2026-10-15 seed hunt:** row type has no list properties; **`AdminFleetLlmCogsDashboardResponse.Rows`** fixed instead — regression `Deserialize_null_fleet_cogs_rows_yields_empty_list_not_null`.
+
+- [ ] (candidate) `DecisionNodeRecord` — explicit JSON `null` on decision node list properties — locus: `Persistence.Decisions.DecisionNodeRecord`; input: decision node record JSON with null list tokens (see file).
+- [ ] (candidate) `DecisionOptionRecord` — explicit JSON `null` on decision option lists — locus: `Persistence.Decisions.DecisionOptionRecord`; input: decision option record JSON with null list token (see file).
+- [ ] (candidate) `AgentEvaluationRecord` — explicit JSON `null` on agent evaluation record lists — locus: `Persistence.Decisions.AgentEvaluationRecord`; input: agent evaluation record JSON with null list token (see file).
+- [ ] (candidate) `RecommendationLearningOpsPageResponse` — explicit JSON `null` on recommendation learning ops page lists — locus: `Advisory.Learning.RecommendationLearningOpsPageResponse`; input: learning ops page JSON with null list token (see file).
+- [ ] (candidate) `ImprovementPlan` — explicit JSON `null` on improvement plan lists — locus: `Advisory.Models.ImprovementPlan`; input: improvement plan JSON with null list tokens (see file).
 
 2026-10-15 seed hunt (seed→hit): promoted five open `(candidate)` rows on admin token-claims diagnostics, user invitations, tenant health list, compliance rule pack `rules`, and RAG health `corpora`; coalesce fix on `AdminTokenClaimsDiagnosticResponse`, `UserInvitationListResponse`, `AdminTenantHealthListResponse`, `ComplianceRulePack`, and `AdminRagHealthResponse`; regressions in `AdminTokenClaimsDiagnosticResponseDeserializationTests`, `AdminContractListDeserializationTests`, and `ComplianceRulePackDeserializationTests`; reseeded five follow-on `(candidate)` rows; 926 scoped `Contracts` filter tests passed.
 
@@ -30081,9 +30095,9 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - [ ] (candidate) `AdminDeploymentStatusResponse.Links` — explicit JSON `null` — locus: `Admin.AdminDeploymentStatusResponse`; input: admin deployment status JSON with null `links`.
 - [ ] (candidate) `AdminQualityGateDiagnosticsResponse.PerAgentTypeFloors` — explicit JSON `null` — locus: `Admin.AdminQualityGateDiagnosticsResponse`; input: admin quality-gate diagnostics JSON with null `perAgentTypeFloors`.
-- [ ] (candidate) `IntegrationOutboxDeadLetterBulkRetryContracts` — explicit JSON `null` on bulk-retry result lists — locus: `Admin.IntegrationOutboxDeadLetterBulkRetryContracts`; input: integration outbox bulk-retry JSON with null `retriedOutboxIds`.
-- [ ] (candidate) `AdminAuthConfigurationDiagnosticsResponse` — explicit JSON `null` on auth configuration diagnostic lists — locus: `Admin.AdminAuthConfigurationDiagnosticsResponse`; input: admin auth configuration diagnostics JSON with null list tokens (see file).
-- [ ] (candidate) `Diagnostics.WorkspaceAiAvailabilityResponse` — explicit JSON `null` on workspace AI availability lists — locus: `Diagnostics.WorkspaceAiAvailabilityResponse`; input: workspace AI availability JSON with null list token (see file).
+- [ ] (candidate) `IntegrationOutboxDeadLetterBulkRetryResponse.RetriedOutboxIds` — explicit JSON `null` — locus: `Admin.IntegrationOutboxDeadLetterBulkRetryResponse`; input: integration outbox bulk-retry response JSON with null `retriedOutboxIds`.
+- [ ] (candidate) `LlmCostReportingDashboardResponse` — explicit JSON `null` on LLM cost dashboard lists — locus: `Billing.LlmCostReportingDashboardResponse`; input: LLM cost reporting dashboard JSON with null list tokens (see file).
+- [ ] (candidate) `AdminFleetLlmCogsRowResponse` — explicit JSON `null` on fleet LLM COGS row lists — locus: `Billing.AdminFleetLlmCogsRowResponse`; input: admin fleet LLM COGS row JSON with null list token (see file).
 
 2026-10-15 seed hunt (seed→hit): promoted five open `(candidate)` rows on context snapshot lists/`sourceHashes`, sponsor packet `nextActions`, and Teams webhook `enabledTriggers`/`triggerCatalog`; coalesce fix on `ContextSnapshot`, `SponsorReviewPacketPortfolioSignals`, `TeamsIncomingWebhookConnectionResponse`, and `TeamsIncomingWebhookPageBundleResponse`; regressions in `ContextSnapshotDeserializationTests`, `SponsorReviewPacketPortfolioSignalsDeserializationTests`, and `TeamsIncomingWebhookDeserializationTests`; reseeded five follow-on `(candidate)` rows; 921 scoped `Contracts` filter tests passed.
 

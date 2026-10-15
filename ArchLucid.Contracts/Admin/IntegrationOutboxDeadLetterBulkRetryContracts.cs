@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Admin;
 
 /// <summary>Request body for bulk integration outbox dead-letter retry.</summary>
@@ -32,9 +34,11 @@ public sealed class IntegrationOutboxDeadLetterBulkRetryResponse
         init;
     }
 
+    private IReadOnlyList<Guid> retriedOutboxIds = [];
+
     public IReadOnlyList<Guid> RetriedOutboxIds
     {
-        get;
-        init;
-    } = [];
+        get => retriedOutboxIds;
+        init => retriedOutboxIds = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 }

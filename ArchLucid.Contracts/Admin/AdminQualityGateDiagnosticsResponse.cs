@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Admin;
 
 /// <summary>Effective agent output quality gate floors for operator diagnostics (no secrets).</summary>
@@ -82,9 +84,11 @@ public sealed class AdminQualityGateDiagnosticsResponse
     }
 
     /// <summary>Effective warn/reject floors per agent type (global defaults merged with overrides).</summary>
+    private IReadOnlyList<AdminQualityGateAgentFloorDiagnostics> perAgentTypeFloors = [];
+
     public IReadOnlyList<AdminQualityGateAgentFloorDiagnostics> PerAgentTypeFloors
     {
-        get;
-        init;
-    } = [];
+        get => perAgentTypeFloors;
+        init => perAgentTypeFloors = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 }
