@@ -53,4 +53,40 @@ public sealed class CompareQualityComparisonsApplicationServiceTests
         records.Should().NotBeNull();
         records!.Should().ContainSingle(r => r.ComparisonRecordId == "cmp-guid-list");
     }
+
+    [Fact]
+    public async Task CompareQuality_SearchAsync_finds_records_when_left_run_filter_uses_dashed_guid_and_persisted_left_uses_n_format()
+    {
+        Guid leftKey = Guid.Parse("44444444-4444-4444-4444-444444444444");
+        string canonicalLeftRunId = leftKey.ToString("N");
+        string dashedLeftRunId = leftKey.ToString("D");
+
+        InMemoryComparisonRecordRepository comparisonRecords = new();
+        await comparisonRecords.CreateAsync(
+            new ComparisonRecord
+            {
+                ComparisonRecordId = "cmp-search-left",
+                ComparisonType = ComparisonTypes.EndToEndReplay,
+                LeftRunId = canonicalLeftRunId,
+                RightRunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+                CreatedUtc = DateTime.UtcNow,
+            },
+            CancellationToken.None);
+
+        ComparisonsApplicationService sut = new(
+            new Mock<IRunDetailQueryService>().Object,
+            new Mock<IRunExportRecordRepository>().Object,
+            comparisonRecords,
+            new Mock<IComparisonReplayService>().Object,
+            new Mock<ICompareRunsApplicationFacade>().Object,
+            new Mock<IComparisonReplayCostEstimator>().Object,
+            new Mock<IDriftReportFormatter>().Object,
+            new DriftReportDocxExport());
+
+        ComparisonHistorySearchResult result = await sut.SearchAsync(
+            new ComparisonHistorySearchCriteria { LeftRunId = dashedLeftRunId, Limit = 10 },
+            CancellationToken.None);
+
+        result.Records.Should().ContainSingle(r => r.ComparisonRecordId == "cmp-search-left");
+    }
 }

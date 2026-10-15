@@ -1,3 +1,5 @@
+2026-10-15 seed hunt (seed→hit): `application-analysis` — promoted dashed `LeftRunId`/`RightRunId` filters on `ComparisonsApplicationService.SearchAsync` missing N-format persisted comparison rows (in-memory ordinal filter); `CanonicalRunIdForLookupOrNull` before repository search; regression `CompareQuality_SearchAsync_finds_records_when_left_run_filter_uses_dashed_guid_and_persisted_left_uses_n_format`; 42 scoped ArchitectureAnalysis/CompareQuality tests passed.
+
 2026-10-15 seed hunt (seed→hit): `application-analysis` — promoted dashed route `runId` on `ComparisonsApplicationService.TryListByRunIdAsync` returning empty lists against N-format persisted `LeftRunId`/`RightRunId` (in-memory repository ordinal match); `CanonicalRunIdForLookup` before `IComparisonRecordRepository.GetByRunIdAsync`; regression `CompareQuality_TryListByRunIdAsync_lists_records_when_query_uses_dashed_guid_and_persisted_left_uses_n_format`; 41 scoped ArchitectureAnalysis/CompareQuality tests passed.
 
 2026-10-15 seed hunt (seed→hit): `application-analysis` — promoted dashed `RunExportRecord.RunId` skipping career export gate preload via `IRunDetailQueryService`; `CanonicalRunIdForLookup` in `ExportReplayService`; regression `ArchitectureAnalysis_export_replay_applies_career_gate_when_record_run_id_uses_dashed_guid_format`; 40 scoped ArchitectureAnalysis/CompareQuality tests passed.
@@ -18398,6 +18400,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **last-bug:** 2026-10-15 — export replay dashed RunId career gate bypass
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+- [x] (proven) `ComparisonsApplicationService.SearchAsync` — dashed `LeftRunId`/`RightRunId` filters missed N-format persisted rows (in-memory ordinal filter) — **hit 2026-10-15 seed hunt:** regression `CompareQuality_SearchAsync_finds_records_when_left_run_filter_uses_dashed_guid_and_persisted_left_uses_n_format`.
 
 - [x] (proven) `ComparisonsApplicationService.TryListByRunIdAsync` — dashed query `runId` missed N-format persisted comparison anchors (in-memory ordinal `GetByRunIdAsync`) — **hit 2026-10-15 seed hunt:** regression `CompareQuality_TryListByRunIdAsync_lists_records_when_query_uses_dashed_guid_and_persisted_left_uses_n_format`.
 

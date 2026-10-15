@@ -77,6 +77,8 @@ public sealed partial class ComparisonsApplicationService(
             : criteria.ComparisonType.Trim();
 
         int limit = criteria.Limit <= 0 ? Core.Pagination.PaginationDefaults.DefaultPageSize : criteria.Limit;
+        string? leftRunIdFilter = CanonicalRunIdForLookupOrNull(criteria.LeftRunId);
+        string? rightRunIdFilter = CanonicalRunIdForLookupOrNull(criteria.RightRunId);
 
         IReadOnlyList<ComparisonRecord> records;
 
@@ -84,8 +86,8 @@ public sealed partial class ComparisonsApplicationService(
         {
             records = await _comparisonRecordRepository.SearchByCursorAsync(
                 normalizedType,
-                criteria.LeftRunId,
-                criteria.RightRunId,
+                leftRunIdFilter,
+                rightRunIdFilter,
                 criteria.CreatedFromUtc,
                 criteria.CreatedToUtc,
                 criteria.LeftExportRecordId,
@@ -103,8 +105,8 @@ public sealed partial class ComparisonsApplicationService(
         {
             records = await _comparisonRecordRepository.SearchAsync(
                 normalizedType,
-                criteria.LeftRunId,
-                criteria.RightRunId,
+                leftRunIdFilter,
+                rightRunIdFilter,
                 criteria.CreatedFromUtc,
                 criteria.CreatedToUtc,
                 criteria.LeftExportRecordId,
@@ -221,4 +223,7 @@ public sealed partial class ComparisonsApplicationService(
     /// </summary>
     private static string CanonicalRunIdForLookup(string runId) =>
         Guid.TryParse(runId, out Guid guid) ? guid.ToString("N") : runId;
+
+    private static string? CanonicalRunIdForLookupOrNull(string? runId) =>
+        string.IsNullOrWhiteSpace(runId) ? runId : CanonicalRunIdForLookup(runId);
 }
