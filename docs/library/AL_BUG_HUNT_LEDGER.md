@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-15 seed hunt (seed→hit): `ui-help-docs` — promoted `HelpDocsClient` link `href` using `normalizeDocIndexUrlForDedupe` (stripped `?` / `#` on relative doc-index urls such as `/operations/runbooks?slug=network`); `helpDocLinkHref` preserves relative query/hash while outbound urls stay canonical; regressions `preserves query strings on internal documentation link href` and `preserves hash fragments on internal documentation link href`; reseeded five follow-on `(candidate)` rows; 51 scoped `HelpDocsClient` vitest tests passed.
+
 2026-10-15 thorough hunt (hit): `ui-marketing-surfaces` — promoted `ensureSessionId` / `ensureBrowserId` forwarding whitespace-padded `localStorage` values on `X-Quick-Scan-Session` / `X-Quick-Scan-Browser` (non-canonical abuse-limit identity); trim + persist normalized ids in `quick-scan-session.ts`; promoted `useQuickScanClient.showSampleResult` applying stale overlapping sample fetches in completion order; generation guard; promoted `ShowcasePageTelemetry` double-firing `showcase_viewed` on `renderMode` prop transition for the same `runId`; once-per-run ref; cheap-disproved `DemoPreviewArtifactNav` orphan buttons (`DemoPreviewMarketingBody` always mounts paired artifact sections); regressions `quick-scan-session.test.ts`, `ignores stale sample responses when a newer sample request was started`, `ShowcasePageTelemetry.test.tsx`; reseeded five follow-on `(candidate)` rows; 8 focused marketing quick-scan/showcase/demo-nav vitest tests passed.
 
 2026-10-15 seed hunt (seed→hit): `application-pilots` — promoted `PilotValueReportMarkdownFormatter` Summary **Total findings** / **Avg pipeline completion** / **Findings by severity** when `RunDetailsTruncated` with empty `CommittedRunsTimeline` but positive `TotalRunsCommitted` (partial-sample fragment on aggregates implied tenant-wide counts while zero runs loaded for detail); `RunDetailSampleLoadedNoRows` + not-computed copy; regressions `Format_when_run_details_truncated_with_empty_timeline_does_not_label_zero_findings_as_partial_sample`, `Format_when_run_details_truncated_with_empty_timeline_does_not_label_positive_findings_as_partial_sample`, and `Format_when_audit_export_truncated_with_empty_timeline_still_surfaces_comparison_drift_count`; cheap-disproved four open `(candidate)` rows; regression lock `Serialize_does_not_emit_explicit_null_properties_on_buyer_zip_json`; reseeded five follow-on candidates; 56 scoped BuyerProofPack/BoardPack/PilotValueReportMarkdownFormatter tests passed.
@@ -12321,6 +12323,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-help-docs
 
+2026-10-15 seed hunt (seed→hit): promoted internal link `href` stripping query/hash via dedupe normalizer; `helpDocLinkHref`; 51 scoped `HelpDocsClient` vitest tests passed.
+
 2026-10-13 thorough hunt (hit): promoted percent-encoding hex case dedupe gap; cheap-disproof closed http/https scheme, remount empty-warning persistence, and whitespace-only `q` sync candidates; 49 scoped `HelpDocsClient` vitest tests passed.
 
 2026-10-07 thorough hunt (hit): cheap-disproof closed five seeded `(candidate)` rows; proved scheme-relative vs https dedupe and empty doc-index cache remount gaps; seeded five follow-on `(candidate)` rows; 47 scoped `HelpDocsClient` vitest tests passed.
@@ -12331,15 +12335,22 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** help docs; help client
 - **paths:** archlucid-ui/src/app/(operator)/help/HelpDocsClient.tsx
 - **test-filter:** HelpDocsClient
-- **hunts:** 32
-- **bugs-found:** 17
+- **hunts:** 33
+- **bugs-found:** 18
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-13
-- **last-bug:** 2026-10-13 — percent-encoding hex case bypassed doc-index merge dedupe
+- **last-hunt:** 2026-10-15
+- **last-bug:** 2026-10-15 — help hub internal link href stripped query/hash
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 ### Hypotheses
+
+- [x] (proven) `HelpDocsClient` link `href` — `normalizeDocIndexUrlForDedupe` stripped query and hash on relative doc-index urls before navigation — **hit 2026-10-15 seed hunt (seed→hit):** `helpDocLinkHref` preserves relative `?` / `#` while merge dedupe unchanged; regressions `preserves query strings on internal documentation link href` and `preserves hash fragments on internal documentation link href`.
+- [ ] (candidate) `mergeDocIndex` — fetched rows whose url differs from a static quick link only by query/hash never render (dedupe key strips search), so deep links such as `/architecture/reviews?tab=active` cannot surface even when titles differ — locus: `docIndexMergeDedupeKey` + static `claimedUrls`; input: doc-index row with query suffix on an existing static path; wrong outcome: operator loses the deep-link card entirely; reachability: shipped `public/doc-index.json` and static `HELP_DOCS_STATIC_ENTRIES`.
+- [ ] (candidate) `helpDocLinkHref` — percent-encoded path segments on relative urls are not decoded for navigation while dedupe decodes (`%2F` vs `/`) — locus: relative branch returns raw `trimmed`; input: `/help/%65ncoded-topic`; wrong outcome: Next.js `Link` href may not match decoded route; reachability: doc-index generator and merge tests.
+- [ ] (candidate) `HelpDocsClient` list item `key` — `${cat}-${row.title}-${row.url}` collides when two rows share category/title but differ only by normalized-url merge collapse — locus: React key on `<li>`; input: duplicate titles after merge with distinct raw urls; wrong outcome: React reconciliation warning or wrong row updates; reachability: merged static+fetched index rendering.
+- [ ] (candidate) `normalizeHelpHubFilterQuery` — interior spaces in multi-word queries are not collapsed, so `policy  packs` misses `Policy packs` rows whose haystack has a single space — locus: filter haystack `includes` check; input: double-space typo in search box; wrong outcome: false empty results; reachability: help hub search input.
+- [ ] (candidate) `useHelpDocsIndexQuery` — `refetchOnMount: 'always'` only when cached data is `[]`, not when cached data is `undefined` after gc — locus: TanStack `refetchOnMount` callback; input: remount after gc eviction with prior successful non-empty index; wrong outcome: stale index until manual navigation; reachability: operator help route remount within `gcTime`.
 2026-09-12 seed hunt #1938 (seed-only): reseeded ui-help-docs; scoped tests passed; no new hunt-ready defect proven this pass.
 
 - [x] Topic markdown fetch follows an external URL instead of the in-app help route (retired: fetchHelpTopicMarkdown uses `/api/help/{slug}`)
