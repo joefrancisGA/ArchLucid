@@ -1,3 +1,5 @@
+2026-10-15 seed hunt (seed→hit): `application-analysis` — promoted `ExportRecordDiffService` leaving dashed `RightRunId` on diff results when export records used mixed GUID formats (misleading summary/export copy and audit anchors); `AnalysisRunIdCanonicalization` on `ExportRecordDiffResult.LeftRunId`/`RightRunId`; regression `CompareQuality_export_record_diff_canonicalizes_run_ids_on_result`; 44 scoped ArchitectureAnalysis/CompareQuality tests passed.
+
 2026-10-15 seed hunt (seed→hit): `application-analysis` — promoted `ComparisonAuditService` persisting dashed `LeftRunId`/`RightRunId` from end-to-end reports so list/search canonical N-format lookups missed audit rows; `AnalysisRunIdCanonicalization` on persist paths; regression `CompareQuality_TryListByRunIdAsync_lists_audit_persisted_record_when_report_used_dashed_left_run_id`; 48 scoped ArchitectureAnalysis/CompareQuality/ComparisonAuditService tests passed.
 
 2026-10-15 seed hunt (seed→hit): `application-analysis` — promoted dashed `LeftRunId`/`RightRunId` filters on `ComparisonsApplicationService.SearchAsync` missing N-format persisted comparison rows (in-memory ordinal filter); `CanonicalRunIdForLookupOrNull` before repository search; regression `CompareQuality_SearchAsync_finds_records_when_left_run_filter_uses_dashed_guid_and_persisted_left_uses_n_format`; 42 scoped ArchitectureAnalysis/CompareQuality tests passed.
@@ -18402,6 +18404,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **last-bug:** 2026-10-15 — export replay dashed RunId career gate bypass
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+- [x] (proven) `ExportRecordDiffService.Compare` — mixed GUID `RunId` formats on export records produced inconsistent `LeftRunId`/`RightRunId` on diff results — **hit 2026-10-15 seed hunt:** regression `CompareQuality_export_record_diff_canonicalizes_run_ids_on_result`.
 
 - [x] (proven) `ComparisonAuditService` — dashed `LeftRunId`/`RightRunId` on persist broke N-format list/search lookups — **hit 2026-10-15 seed hunt:** regression `CompareQuality_TryListByRunIdAsync_lists_audit_persisted_record_when_report_used_dashed_left_run_id`.
 

@@ -72,4 +72,35 @@ public sealed class CompareQualityExportRecordDiffTests
         result.ChangedTopLevelFields.Should().NotContain("CompareRunId");
         result.RequestDiff.ChangedValues.Should().NotContain("CompareRunId");
     }
+
+    [Fact]
+    public void CompareQuality_export_record_diff_canonicalizes_run_ids_on_result()
+    {
+        Guid runId = Guid.Parse("66666666-6666-6666-6666-666666666666");
+        string canonicalRunId = runId.ToString("N");
+        ExportRecordDiffService sut = new();
+        RunExportRecord left = new()
+        {
+            ExportRecordId = "left",
+            RunId = canonicalRunId,
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "a.md",
+            AnalysisRequestJson = """{"includeManifest":true}""",
+        };
+        RunExportRecord right = new()
+        {
+            ExportRecordId = "right",
+            RunId = runId.ToString("D"),
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "a.md",
+            AnalysisRequestJson = """{"includeManifest":true}""",
+        };
+
+        ExportRecordDiffResult result = sut.Compare(left, right);
+
+        result.LeftRunId.Should().Be(canonicalRunId);
+        result.RightRunId.Should().Be(canonicalRunId);
+    }
 }

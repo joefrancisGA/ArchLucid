@@ -22,7 +22,10 @@ public sealed class ExportRecordDiffService : IExportRecordDiffService
 
         ExportRecordDiffResult result = new()
         {
-            LeftExportRecordId = left.ExportRecordId, RightExportRecordId = right.ExportRecordId, LeftRunId = left.RunId, RightRunId = right.RunId
+            LeftExportRecordId = left.ExportRecordId,
+            RightExportRecordId = right.ExportRecordId,
+            LeftRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForPersistence(left.RunId),
+            RightRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForPersistence(right.RunId),
         };
 
         CompareTopLevel(left, right, result);
