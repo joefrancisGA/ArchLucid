@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.InfraEvidence;
 
 public sealed class BuildSecurityEvidencePathExplanationRequest
@@ -36,11 +38,13 @@ public sealed class SecurityEvidencePathExplanationResponse
         init;
     } = string.Empty;
 
+    private IReadOnlyList<string> businessImpactHypotheses = [];
+
     public IReadOnlyList<string> BusinessImpactHypotheses
     {
-        get;
-        init;
-    } = [];
+        get => businessImpactHypotheses;
+        init => businessImpactHypotheses = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 
     public SecurityEvidencePathProposedRemediationResponse ProposedRemediation
     {
@@ -48,11 +52,13 @@ public sealed class SecurityEvidencePathExplanationResponse
         init;
     } = new();
 
+    private IReadOnlyList<string> citedEvidenceRefs = [];
+
     public IReadOnlyList<string> CitedEvidenceRefs
     {
-        get;
-        init;
-    } = [];
+        get => citedEvidenceRefs;
+        init => citedEvidenceRefs = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 
     public string ProvenanceKind
     {
@@ -87,17 +93,21 @@ public sealed class SecurityEvidencePathProposedRemediationResponse
         init;
     } = string.Empty;
 
+    private IReadOnlyList<string> verificationQueries = [];
+
     public IReadOnlyList<string> VerificationQueries
     {
-        get;
-        init;
-    } = [];
+        get => verificationQueries;
+        init => verificationQueries = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
+
+    private IReadOnlyList<string> preconditions = [];
 
     public IReadOnlyList<string> Preconditions
     {
-        get;
-        init;
-    } = [];
+        get => preconditions;
+        init => preconditions = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 
     public string? SuggestedPatternKey
     {

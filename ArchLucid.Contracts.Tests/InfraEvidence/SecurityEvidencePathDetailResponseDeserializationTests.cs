@@ -1,0 +1,30 @@
+using System.Text.Json;
+
+using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.InfraEvidence;
+
+using FluentAssertions;
+
+namespace ArchLucid.Contracts.Tests.InfraEvidence;
+
+[Trait("Category", "Unit")]
+public sealed class SecurityEvidencePathDetailResponseDeserializationTests
+{
+    [Fact]
+    public void Deserialize_null_hops_and_citing_finding_ids_yields_empty_lists_not_null()
+    {
+        const string json = """
+            {
+              "hops": null,
+              "citingFindingIds": null
+            }
+            """;
+
+        SecurityEvidencePathDetailResponse? detail =
+            JsonSerializer.Deserialize<SecurityEvidencePathDetailResponse>(json, ContractJson.CamelCaseCompact);
+
+        detail.Should().NotBeNull();
+        detail!.Hops.Should().NotBeNull().And.BeEmpty();
+        detail.CitingFindingIds.Should().NotBeNull().And.BeEmpty();
+    }
+}

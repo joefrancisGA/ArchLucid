@@ -30069,7 +30069,21 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 ---
 ## Zone: archlucid-contracts
 
-**Hunts:** 155 · **Bugs found:** 150 · **Consecutive dry hunts:** 0
+**Hunts:** 156 · **Bugs found:** 155 · **Consecutive dry hunts:** 0
+
+2026-10-15 seed hunt (seed→hit): promoted five open `(candidate)` rows on path detail hops/citing ids, SecureNow hypothesis cited path ids, explanation business-impact hypotheses, and cut-point collapsed path ids; consolidated coalesce fix across `SecurityEvidencePathInspectorContracts`, `SecurityEvidencePathExplanationContracts`, and `SecurityEvidenceCutPointContracts` (sibling lists on same types included); regressions in `SecurityEvidencePathDetailResponseDeserializationTests`, `SecureNowHypothesisResponseDeserializationTests`, `SecurityEvidencePathExplanationResponseDeserializationTests`, and `SecurityEvidenceCutPointSummaryResponseDeserializationTests`; reseeded five follow-on `(candidate)` rows; 847 scoped `Contracts` filter tests passed.
+
+- [x] (proven) `SecurityEvidencePathDetailResponse.Hops` — explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_hops_and_citing_finding_ids_yields_empty_lists_not_null`.
+- [x] (proven) `SecurityEvidencePathDetailResponse.CitingFindingIds` — explicit JSON `null` — **hit 2026-10-15 seed hunt:** same regression as `Hops`.
+- [x] (proven) `SecureNowHypothesisResponse.CitedPathIds` — explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_cited_path_ids_yields_empty_list_not_null`.
+- [x] (proven) `SecurityEvidencePathExplanationResponse.BusinessImpactHypotheses` — explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_business_impact_hypotheses_yields_empty_list_not_null`.
+- [x] (proven) `SecurityEvidenceCutPointSummaryResponse.CollapsedPathIds` — explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_collapsed_path_ids_yields_empty_list_not_null`.
+
+- [ ] (candidate) `TenantBrandingAdminStateResponse.ValidationIssues` — explicit JSON `null` — locus: `InfraEvidence.TenantBrandingAdminContracts`; input: branding admin state JSON with null `validationIssues`.
+- [ ] (candidate) `SecurityEvidencePathRankedPageResponse.Items` — explicit JSON `null` — locus: `InfraEvidence.SecurityEvidenceCutPointContracts`; input: ranked page JSON with null `items`.
+- [ ] (candidate) `SecurityEvidencePathProposedRemediationResponse.VerificationQueries` — explicit JSON `null` — locus: `InfraEvidence.SecurityEvidencePathExplanationContracts`; input: proposed remediation JSON with null `verificationQueries`.
+- [ ] (candidate) `SecurityEvidencePathDetailResponse.RelatedCutPoints` — explicit JSON `null` — locus: path detail `init` list (coalesced in same hunt batch file; regression via extended path detail test if promoted).
+- [ ] (candidate) `SecureNowHypothesisResponse.CitedFindingIds` — explicit JSON `null` — locus: hypothesis `init` list; input: hypothesis JSON with null `citedFindingIds`.
 
 2026-10-15 seed hunt (seed→hit): promoted five open `(candidate)` rows on finding stream page items, identity diagram hints, audit lineage matches, diagram peel catalog entries, and path rank related cut points; consolidated coalesce fix; regressions in `CloudResourceEvidenceFindingStreamPageDeserializationTests`, `InfraEvidenceMermaidIdentityDiagramHintsDeserializationTests`, `CloudResourceAuditLineageLinkDeserializationTests`, `DiagramPeelCatalogSnapshotDeserializationTests`, and `SecurityEvidencePathRankSummaryResponseDeserializationTests`; reseeded five follow-on `(candidate)` rows; 843 scoped `Contracts` filter tests passed.
 
@@ -30078,12 +30092,6 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `CloudResourceAuditLineageLink.Matches` — explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_matches_yields_empty_list_not_null`.
 - [x] (proven) `DiagramPeelCatalogSnapshot.Entries` — explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_entries_yields_empty_list_not_null`.
 - [x] (proven) `SecurityEvidencePathRankSummaryResponse.RelatedCutPoints` — explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_related_cut_points_yields_empty_list_not_null`.
-
-- [ ] (candidate) `SecurityEvidencePathDetailResponse.Hops` — explicit JSON `null` — locus: `InfraEvidence.SecurityEvidencePathInspectorContracts`; input: path detail JSON with null `hops`.
-- [ ] (candidate) `SecurityEvidencePathDetailResponse.CitingFindingIds` — explicit JSON `null` — locus: path detail `init` list; input: path detail JSON with null `citingFindingIds`.
-- [ ] (candidate) `SecureNowHypothesisResponse.CitedPathIds` — explicit JSON `null` — locus: hypothesis response `init` list; input: hypothesis JSON with null `citedPathIds`.
-- [ ] (candidate) `SecurityEvidencePathExplanationContracts` — explicit JSON `null` on explanation hop list — locus: `InfraEvidence.SecurityEvidencePathExplanationContracts` (see file for type and property name); input: explanation response JSON with null list token.
-- [ ] (candidate) `SecurityEvidenceCutPointContracts` — explicit JSON `null` on cut-point related list — locus: `InfraEvidence.SecurityEvidenceCutPointContracts` (see file for type and property name); input: cut-point response JSON with null list token.
 
 2026-10-15 seed hunt (seed→hit): promoted five open `(candidate)` rows on cloud resource evidence hub lists, draft architecture response arrays, mermaid collapse entries, remediation stream items, and mode preview fallback artifacts; consolidated coalesce fix (including `EvidenceContradictedAssumptions` on draft response); regressions in `CloudResourceEvidenceHubResponseDeserializationTests`, `DraftArchitectureRequestResponseDeserializationTests`, `InfraEvidenceMermaidCollapseReportDeserializationTests`, `CloudResourceRemediationStreamPageDeserializationTests`, and `InfraEvidenceMermaidModePreviewDeserializationTests`; reseeded five follow-on `(candidate)` rows; 838 scoped `Contracts` filter tests passed.
 
