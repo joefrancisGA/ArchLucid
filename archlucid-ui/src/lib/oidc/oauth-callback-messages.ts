@@ -53,6 +53,10 @@ export function isReadableOAuthErrorCode(errorCode: string): boolean {
   return formatErrorCodeForReading(errorCode).length > 0;
 }
 
+function isReadableOAuthErrorDetail(detail: string): boolean {
+  return formatErrorCodeForReading(detail).length > 0;
+}
+
 const MAX_OAUTH_USER_FACING_MESSAGE_LENGTH = 280;
 
 function truncateOAuthUserFacingMessage(text: string): string {
@@ -90,7 +94,8 @@ function buyerSafeAuthorizeErrorWithoutCode(detail: string): string {
 
 export function humanizeAuthorizeCallbackError(errorCode: string, decodedDescription: string): string {
   const normalized = stripOAuthInvisibleFormatChars(errorCode.trim()).trim().toLowerCase();
-  const detail = sanitizeOAuthUserFacingMessage(decodedDescription);
+  const sanitizedDetail = sanitizeOAuthUserFacingMessage(decodedDescription);
+  const detail = isReadableOAuthErrorDetail(sanitizedDetail) ? sanitizedDetail : "";
   const readableCode = formatErrorCodeForReading(normalized);
 
   if (normalized.length === 0 || readableCode.length === 0) {

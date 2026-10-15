@@ -80,6 +80,11 @@ describe("humanizeAuthorizeCallbackError", () => {
     expect(humanizeAuthorizeCallbackError("___", "")).not.toMatch(/\(\s*\)/u);
   });
 
+  it("omits underscore-only authorize error descriptions from callback copy", () => {
+    expect(humanizeAuthorizeCallbackError("access_denied", "___")).toContain("canceled sign-in");
+    expect(humanizeAuthorizeCallbackError("access_denied", "___")).not.toContain("___");
+  });
+
   it("treats zero-width authorize error codes as missing codes", () => {
     expect(humanizeAuthorizeCallbackError("\u200b", "")).toContain("complete response");
     expect(humanizeAuthorizeCallbackError("\u200b", "")).not.toMatch(/\(/u);
