@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Governance.Resolution;
 
 /// <summary>
@@ -36,11 +38,13 @@ public sealed class CommittedEffectiveGovernanceSnapshotDescriptor
         set;
     }
 
+    private List<string> complianceRuleKeys = [];
+
     public List<string> ComplianceRuleKeys
     {
-        get;
-        set;
-    } = [];
+        get => complianceRuleKeys;
+        set => complianceRuleKeys = ContractCollectionDefaults.Coalesce(value);
+    }
 
     public int ConflictCount
     {
@@ -48,17 +52,21 @@ public sealed class CommittedEffectiveGovernanceSnapshotDescriptor
         set;
     }
 
+    private List<CommittedGovernancePackAssignmentSnapshot> packAssignments = [];
+
     public List<CommittedGovernancePackAssignmentSnapshot> PackAssignments
     {
-        get;
-        set;
-    } = [];
+        get => packAssignments;
+        set => packAssignments = ContractCollectionDefaults.Coalesce(value);
+    }
+
+    private List<CommittedCoverageAssignmentSnapshot> coverageAssignments = [];
 
     public List<CommittedCoverageAssignmentSnapshot> CoverageAssignments
     {
-        get;
-        set;
-    } = [];
+        get => coverageAssignments;
+        set => coverageAssignments = ContractCollectionDefaults.Coalesce(value);
+    }
 
     /// <summary>True when at least one pack assignment or compliance rule key was present at commit.</summary>
     public bool HasEffectivePolicy
