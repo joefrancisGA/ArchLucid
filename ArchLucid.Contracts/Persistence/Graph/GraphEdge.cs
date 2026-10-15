@@ -17,11 +17,13 @@ public class GraphEdge
         set => edgeId = ContractCollectionDefaults.CoalesceRequired(value);
     }
 
+    private string fromNodeId = string.Empty;
+
     public string FromNodeId
     {
-        get;
-        set;
-    } = null!;
+        get => fromNodeId;
+        set => fromNodeId = ContractCollectionDefaults.CoalesceRequired(value);
+    }
 
     public string ToNodeId
     {
