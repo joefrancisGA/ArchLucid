@@ -1,3 +1,5 @@
+2026-10-15 seed hunt (seed→hit): `api-tenancy-workspaces` — promoted `ListAsync` null `ListActiveByTenantAsync` before `ToLookup` (parity with recycle-bin null soft-deleted list); regression `ListAsync_returns_ok_with_empty_projects_when_active_project_list_is_null`; 51 scoped TenantWorkspaces tests passed.
+
 2026-10-15 seed hunt (seed→hit): `application-analysis` — promoted PascalCase `ArtifactSizesBytes` on stored comparison JSON skipping replay-cost IO heuristics; case-insensitive read in `TrySumNumericArray`; regression `TryEstimateAsync_pascal_case_artifact_sizes_bytes_adds_factor`; 55 scoped ArchitectureAnalysis/CompareQuality/ComparisonReplayCostEstimator tests passed.
 
 2026-10-15 seed hunt (seed→hit): `application-analysis` — promoted dashed `CompareRunId` on `IncludeAgentResultCompare` failing `IRunDetailQueryService` lookup (N-format persistence); `CanonicalRunIdForLookup` before compare load and sealed-hash guard; regression `BuildAsync_loads_compare_run_when_compare_run_id_uses_dashed_guid_format`; 36 scoped ArchitectureAnalysis/CompareQuality tests passed.
@@ -37281,13 +37283,23 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant workspaces controller; split from api-governance-tenancy-controllers
 - **paths:** ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~TenantWorkspaces
-- **hunts:** 30
-- **bugs-found:** 10
+- **hunts:** 31
+- **bugs-found:** 11
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-09
-- **last-bug:** 2026-10-09 — tenancy audits dropped stable actor id when NameIdentifier differed
+- **last-hunt:** 2026-10-15
+- **last-bug:** 2026-10-15 — workspace list null active-project repository result
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
+
+2026-10-15 seed hunt (seed→hit): promoted `TenantWorkspacesController.ListAsync` null-reference when `ListActiveByTenantAsync` returns null; null-coalesce parity with `ListRecycleBinAsync` / `RestoreProjectAsync`; regression `ListAsync_returns_ok_with_empty_projects_when_active_project_list_is_null`; 51 scoped TenantWorkspaces tests passed.
+
+- [x] (proven) `TenantWorkspacesController.ListAsync` — `ListActiveByTenantAsync` null before `ToLookup` — **hit 2026-10-15 seed hunt:** regression `ListAsync_returns_ok_with_empty_projects_when_active_project_list_is_null`.
+
+- [ ] (candidate) `TenantWorkspacesController.DeleteProjectAsync` — `ListActiveByTenantAsync` null during tenant-wide default-metadata pin guard may throw instead of failing closed with HTTP 409/503 (reachable input: defective repository/test double returning null while metadata pins `projectId`).
+- [ ] (candidate) `TenantIntegrationsOperationsController.GetAsync` — `ConnectorOperationsSummary.Surfaces` null before `.Select` (reachable input: summary reader returns null collection).
+- [ ] (candidate) `TenantErasureLegalHoldController.SetLegalHoldAsync` — empty-string `Reason` after trim stored vs omitted (reachable input: whitespace-only reason body).
+- [ ] (candidate) `TenantUsageStatusController.GetUsageStatusAsync` — trial tenant with null `CommercialTier` in snapshot maps to unexpected response default (reachable input: `BuildAsync` snapshot for trial row).
+- [ ] (candidate) `TenantTrialController.ConvertTrialAsync` — null request body maps to validation message vs generic facade validation (reachable input: POST convert with omitted body).
 
 2026-10-09 seed hunt (seed→hit): promoted sibling audit-actor parity with `TenantWorkspacesController`; baseline, cost, homepage, digest, and checklist events set `ActorUserId` from `IActorContext` but omitted `ExplicitActor`, so persisted rows kept `ClaimTypes.NameIdentifier`; regression `PutAsync_persisted_audit_keeps_actor_context_id_when_name_identifier_differs`; 99 scoped tenancy controller tests passed.
 
