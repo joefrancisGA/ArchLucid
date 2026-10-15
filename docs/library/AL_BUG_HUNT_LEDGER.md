@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-15 seed hunt (seed→hit): `archlucid-contracts` — promoted `AlertRoutingSignal.Tags` explicit JSON `null` on alert routing signal JSON; backing field + `ContractCollectionDefaults.CoalesceReadOnly` on `Tags` `init`; regression `Deserialize_null_tags_yields_empty_list_not_null`; cheap-disproved duplicate `AgentOutputEvaluationScore.MissingKeys` candidate (proven 2026-10-14); reseeded five follow-on `(candidate)` rows; 739 scoped `Contracts` filter tests passed.
+
 2026-10-15 seed hunt (seed→hit): `archlucid-contracts` — promoted `AlertRoutingCriteria` list properties (`Severities`, `FindingTypes`, `Tags`) explicit JSON `null` on alert-routing subscription metadata; `ContractCollectionDefaults.CoalesceReadOnly` on all three `init` accessors; regression `AlertRoutingCriteriaDeserializationTests`; 738 scoped `Contracts` filter tests passed.
 
 2026-10-15 seed hunt (seed→hit): `ui-help-docs` — promoted `HelpDocsClient` link `href` using `normalizeDocIndexUrlForDedupe` (stripped `?` / `#` on relative doc-index urls such as `/operations/runbooks?slug=network`); `helpDocLinkHref` preserves relative query/hash while outbound urls stay canonical; regressions `preserves query strings on internal documentation link href` and `preserves hash fragments on internal documentation link href`; reseeded five follow-on `(candidate)` rows; 51 scoped `HelpDocsClient` vitest tests passed.
@@ -29854,6 +29856,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 ---
 ## Zone: archlucid-contracts
 
+2026-10-15 seed hunt (seed→hit): promoted `AlertRoutingSignal.Tags` JSON `null` leaving `Tags` null despite `= []` initializer; `ContractCollectionDefaults.CoalesceReadOnly` on `Tags` `init`; regression `AlertRoutingSignalDeserializationTests`; 739 scoped `Contracts` filter tests passed.
+
 2026-10-15 seed hunt (seed→hit): promoted `AlertRoutingCriteria` JSON `null` on `Severities`, `FindingTypes`, and `Tags`; `ContractCollectionDefaults.CoalesceReadOnly`; regression `AlertRoutingCriteriaDeserializationTests`; 738 scoped `Contracts` filter tests passed.
 
 2026-10-15 seed hunt (seed→hit): promoted pilot run-deltas JSON `null` on `FindingsBySeverity`, `RoiMetricSources`, and recent-deltas `Items`; `ContractCollectionDefaults.CoalesceReadOnly`; regressions `Deserialize_null_findings_by_severity_yields_empty_list_not_null` and `Deserialize_null_items_yields_empty_list_not_null`; 737 scoped `Contracts` filter tests passed.
@@ -29982,20 +29986,22 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 118
-- **bugs-found:** 98
+- **hunts:** 119
+- **bugs-found:** 99
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-15
-- **last-bug:** 2026-10-15 — AlertRoutingCriteria JSON null collections
+- **last-bug:** 2026-10-15 — AlertRoutingSignal.Tags JSON null
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
 - [x] (proven) `AlertRoutingCriteria` — `Severities`, `FindingTypes`, and `Tags` explicit JSON `null` on subscription metadata JSON — **hit 2026-10-15 seed hunt (seed→hit):** `ContractCollectionDefaults.CoalesceReadOnly` on all three `init` accessors; regression `Deserialize_null_collection_properties_yields_empty_lists_not_null`.
-- [ ] (candidate) `AlertRoutingSignal.Tags` — explicit JSON `null` leaves `Tags` null despite `= []` initializer; locus: `AlertRoutingSignal`; input: alert routing signal JSON with `"tags": null`; wrong outcome: downstream tag matching throws or skips delivery; reachability: `AlertRoutingSubscription.MetadataJson` deserialization path.
-- [ ] (candidate) `AdminAuthConfigurationDiagnosticsResponse.MisconfigurationHints` — explicit JSON `null` on admin auth diagnostics response; locus: `GET` admin auth configuration diagnostics contract; input: `"misconfigurationHints": null`; wrong outcome: UI iterates null hints; reachability: operator admin diagnostics API JSON.
-- [ ] (candidate) `FindingEvidenceChainResponse` — forensic list properties (`RelatedGraphNodeIds`, `AgentExecutionTraceIds`, etc.) explicit JSON `null` on `{ get; set; }` collections; locus: findings evidence chain response; input: `"relatedGraphNodeIds": null`; wrong outcome: explainability panel null-ref; reachability: explanation API read path.
+- [x] (proven) `AlertRoutingSignal.Tags` — explicit JSON `null` leaves `Tags` null despite `= []` initializer — **hit 2026-10-15 seed hunt (seed→hit):** `ContractCollectionDefaults.CoalesceReadOnly` on `Tags` `init`; regression `Deserialize_null_tags_yields_empty_list_not_null`.
+- [ ] (candidate) `AdminAuthConfigurationDiagnosticsResponse.MisconfigurationHints` — explicit JSON `null` on admin auth diagnostics response; locus: `AdminAuthConfigurationDiagnosticsResponse`; input: `"misconfigurationHints": null`; wrong outcome: operator diagnostics UI iterates null hints; reachability: admin auth configuration diagnostics API JSON.
+- [ ] (candidate) `FindingEvidenceChainResponse` — forensic list properties (`RelatedGraphNodeIds`, `AgentExecutionTraceIds`, etc.) explicit JSON `null` on `{ get; set; }` collections; locus: `FindingEvidenceChainResponse`; input: `"relatedGraphNodeIds": null`; wrong outcome: explainability panel null-ref; reachability: findings evidence chain read API JSON.
 - [ ] (candidate) `ArchitectureQuickScanResponse` — `Findings`, `PositiveObservations`, and `RecommendedNextSteps` explicit JSON `null` on marketing quick-scan sample JSON; locus: `ArchitectureQuickScanResponse`; input: `"findings": null`; wrong outcome: anonymous quick-scan UI assumes non-null lists; reachability: marketing quick-scan proxy response contract.
-- [ ] (candidate) `AgentOutputEvaluationScore.MissingKeys` — explicit JSON `null` on evaluation score JSON; locus: agent output evaluation contract; input: `"missingKeys": null`; wrong outcome: quality-gate summaries enumerate null keys; reachability: evaluation persistence read models.
+- [ ] (candidate) `ArchitectureQuickScanRequest.ArchitectureConcerns` — explicit JSON `null` on quick-scan request JSON; locus: `ArchitectureQuickScanRequest`; input: `"architectureConcerns": null`; wrong outcome: intake validation or marketing client assumes non-null concern list; reachability: anonymous quick-scan POST body contract.
+- [ ] (candidate) `QuickScanResult.Findings` — explicit JSON `null` on internal quick-scan result JSON; locus: `QuickScanResult`; input: `"findings": null`; wrong outcome: downstream formatters enumerate null findings; reachability: quick-scan application read models deserialized from stored JSON.
+- [x] (invalid) `AgentOutputEvaluationScore.MissingKeys` — duplicate candidate row — **cheap-disproof 2026-10-15 seed hunt:** already proven 2026-10-14 with `AgentOutputEvaluationScoreDeserializationTests`.
 
 2026-10-10 seed hunt (seed-only): reread advisory scheduling/digest DTOs and agent trace summary projection with the existing Contracts coverage; no fresh contract-local wrong outcome or reachable serialization mismatch met the promotion bar. The scoped Contracts filter passed 520/520. No production or regression code was changed.
 
