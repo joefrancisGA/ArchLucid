@@ -194,6 +194,31 @@ describe("humanizeAuthorizeCallbackError", () => {
     expect(message).not.toContain("Policy");
   });
 
+  it("omits punctuation-only authorize error descriptions from invalid_request copy", () => {
+    const message = humanizeAuthorizeCallbackError("invalid_request", "---");
+
+    expect(message).toBe("This sign-in request was not valid. Try signing in again.");
+    expect(message).not.toContain("---");
+  });
+
+  it("uses fixed copy for unauthorized_client regardless of oversized error_description", () => {
+    const oversized = `${"Policy ".repeat(80)}end`;
+    const message = humanizeAuthorizeCallbackError("unauthorized_client", oversized);
+
+    expect(message).toContain("not enabled");
+    expect(message.length).toBeLessThanOrEqual(280);
+    expect(message).not.toContain("Policy");
+  });
+
+  it("uses fixed copy for invalid_scope regardless of oversized error_description", () => {
+    const oversized = `${"Policy ".repeat(80)}end`;
+    const message = humanizeAuthorizeCallbackError("invalid_scope", oversized);
+
+    expect(message).toContain("permissions");
+    expect(message.length).toBeLessThanOrEqual(280);
+    expect(message).not.toContain("Policy");
+  });
+
   it("uses fixed copy for consent_required regardless of oversized error_description", () => {
     const oversized = `${"Policy ".repeat(80)}end`;
     const message = humanizeAuthorizeCallbackError("consent_required", oversized);

@@ -68,4 +68,8 @@ describe("resolveExpiresInSeconds", () => {
   it("parses a string expires_in with leading zeros", () => {
     expect(resolveExpiresInSeconds("0003600" as unknown as number)).toBe(3600);
   });
+
+  it("maps an underscore-grouped string expires_in to the default lifetime", () => {
+    expect(resolveExpiresInSeconds("3_600" as unknown as number)).toBe(3600);
+  });
 });

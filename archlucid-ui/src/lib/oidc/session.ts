@@ -78,6 +78,22 @@ function readSessionKey(key: string): string | null {
   return value;
 }
 
+function readNormalizedIdentitySessionKey(key: string): string | null {
+  const value = readSessionKey(key);
+
+  if (value === null) {
+    return null;
+  }
+
+  const normalized = normalizeOidcConfigurationString(value);
+
+  if (normalized.length === 0) {
+    return null;
+  }
+
+  return normalized;
+}
+
 function removeOidcKeys(keys: readonly string[]): void {
   for (const key of keys) {
     sessionStorage.removeItem(key);
@@ -394,7 +410,7 @@ export function readSignedInDisplayName(): string | null {
     return null;
   }
 
-  return readSessionKey(OIDC_DISPLAY_NAME_KEY);
+  return readNormalizedIdentitySessionKey(OIDC_DISPLAY_NAME_KEY);
 }
 
 export function readSignedInUserSubject(): string | null {
@@ -402,7 +418,7 @@ export function readSignedInUserSubject(): string | null {
     return null;
   }
 
-  return readSessionKey(OIDC_USER_SUBJECT_KEY);
+  return readNormalizedIdentitySessionKey(OIDC_USER_SUBJECT_KEY);
 }
 
 export function isLikelySignedIn(): boolean {

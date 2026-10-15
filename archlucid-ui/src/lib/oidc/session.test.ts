@@ -8,6 +8,8 @@ import {
   getAccessTokenForApi,
   isLikelySignedIn,
   persistTokenResponse,
+  readSignedInDisplayName,
+  readSignedInUserSubject,
   storePkceState,
   storePostSignInReturnUrl,
 } from "@/lib/oidc/session";
@@ -217,6 +219,24 @@ describe("persistTokenResponse", () => {
     await Promise.resolve();
 
     expect(clearBffSessionCookieMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("returns null for zero-width-only display-name hints read from sessionStorage", () => {
+    sessionStorage.setItem(OIDC_DISPLAY_NAME_KEY, "\u200b\u200b");
+
+    expect(readSignedInDisplayName()).toBeNull();
+  });
+
+  it("returns null for zero-width-only subject hints read from sessionStorage", () => {
+    sessionStorage.setItem(OIDC_USER_SUBJECT_KEY, "\u200b");
+
+    expect(readSignedInUserSubject()).toBeNull();
+  });
+
+  it("strips zero-width padding when reading display-name hints from sessionStorage", () => {
+    sessionStorage.setItem(OIDC_DISPLAY_NAME_KEY, "\u200bJane Operator\u200b");
+
+    expect(readSignedInDisplayName()).toBe("Jane Operator");
   });
 
   it("does not store zero-width-only subject hints from JWT claims", () => {
