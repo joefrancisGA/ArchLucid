@@ -15,7 +15,13 @@ public sealed class AlertRoutingSignal
     }
 
     /// <summary>Typically <see cref="AlertRecord.Category" /> (advisory, security, compliance, …).</summary>
-    public string FindingType { get; init; } = null!;
+    private string findingType = string.Empty;
+
+    public string FindingType
+    {
+        get => findingType;
+        init => findingType = ContractCollectionDefaults.CoalesceRequired(value);
+    }
 
     private IReadOnlyList<string> tags = [];
 

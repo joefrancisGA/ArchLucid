@@ -11,6 +11,23 @@ namespace ArchLucid.Contracts.Tests.Alerts.Delivery;
 public sealed class AlertRoutingSignalDeserializationTests
 {
     [Fact]
+    public void Deserialize_null_finding_type_yields_empty_string_not_null()
+    {
+        const string json = """
+            {
+              "severity": "High",
+              "findingType": null,
+              "tags": []
+            }
+            """;
+
+        AlertRoutingSignal signal =
+            JsonSerializer.Deserialize<AlertRoutingSignal>(json, ContractJson.CamelCaseCompact)!;
+
+        signal.FindingType.Should().BeEmpty();
+    }
+
+    [Fact]
     public void Deserialize_null_severity_yields_empty_string_not_null()
     {
         const string json = """
