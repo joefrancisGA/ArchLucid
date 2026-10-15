@@ -34,4 +34,11 @@ public sealed class ContractCollectionDefaultsTests
         metadata["AgentType"] = "topology";
         metadata.Should().ContainKey("agenttype");
     }
+
+    [Fact]
+    public void CoalesceRequired_maps_null_to_empty_string()
+    {
+        ContractCollectionDefaults.CoalesceRequired(null).Should().BeEmpty();
+        ContractCollectionDefaults.CoalesceRequired("x").Should().Be("x");
+    }
 }

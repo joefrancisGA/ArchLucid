@@ -11,6 +11,26 @@ namespace ArchLucid.Contracts.Tests.Findings;
 public sealed class FindingListDeserializationTests
 {
     [Fact]
+    public void Deserialize_null_finding_type_yields_empty_string_not_null()
+    {
+        const string json = """
+            {
+              "findingType": null,
+              "category": "test",
+              "engineType": "test",
+              "severity": 0,
+              "title": "t",
+              "rationale": "r"
+            }
+            """;
+
+        Finding? finding = JsonSerializer.Deserialize<Finding>(json, ContractJson.CamelCaseCompact);
+
+        finding.Should().NotBeNull();
+        finding!.FindingType.Should().BeEmpty();
+    }
+
+    [Fact]
     public void Deserialize_null_list_properties_yields_empty_lists_not_null()
     {
         const string json = """

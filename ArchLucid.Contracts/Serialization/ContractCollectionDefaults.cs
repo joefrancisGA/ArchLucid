@@ -16,4 +16,6 @@ public static class ContractCollectionDefaults
 
     public static Dictionary<string, string> CoalesceStringDictionaryOrdinalIgnoreCase(Dictionary<string, string>? value) =>
         value ?? new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
+    public static string CoalesceRequired(string? value) => value ?? string.Empty;
 }

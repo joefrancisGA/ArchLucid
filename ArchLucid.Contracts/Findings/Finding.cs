@@ -17,11 +17,13 @@ public class Finding
         set;
     } = Guid.NewGuid().ToString("N");
 
+    private string findingType = string.Empty;
+
     public string FindingType
     {
-        get;
-        set;
-    } = null!;
+        get => findingType;
+        set => findingType = ContractCollectionDefaults.CoalesceRequired(value);
+    }
 
     public string Category
     {

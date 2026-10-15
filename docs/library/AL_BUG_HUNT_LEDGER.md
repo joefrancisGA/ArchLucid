@@ -30069,7 +30069,17 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 ---
 ## Zone: archlucid-contracts
 
-**Hunts:** 194 · **Bugs found:** 308 · **Consecutive dry hunts:** 2
+**Hunts:** 195 · **Bugs found:** 309 · **Consecutive dry hunts:** 0
+
+2026-10-15 seed hunt (seed→hit): promoted `Finding.FindingType` explicit JSON `null` on finding envelope JSON; `ContractCollectionDefaults.CoalesceRequired` on setter; regression `Deserialize_null_finding_type_yields_empty_string_not_null` in `FindingListDeserializationTests`; reseeded five follow-on `(candidate)` rows; 1017 scoped `Contracts` filter tests passed.
+
+- [x] (proven) `Finding.FindingType` — explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_finding_type_yields_empty_string_not_null`.
+
+- [ ] (candidate) `Finding.Category` — explicit JSON `null` on finding envelope JSON — locus: `Findings.Finding`; input: finding JSON with `"category": null` (see `= null!` initializer).
+- [ ] (candidate) `Finding.EngineType` — explicit JSON `null` on finding envelope JSON — locus: `Findings.Finding`; input: finding JSON with `"engineType": null` (see file).
+- [ ] (candidate) `SpecialistReviewFinding.Rationale` — explicit JSON `null` on specialist review finding JSON — locus: `ArchitectureIntelligence.SpecialistReviewFinding`; input: specialist finding JSON with `"rationale": null` (see file).
+- [ ] (candidate) `ArchitectureModelElement.ElementId` — explicit JSON `null` on architecture model element JSON — locus: `ArchitectureIntelligence.ArchitectureModelElement`; input: model element JSON with `"elementId": null` (see file).
+- [ ] (candidate) `Clarifications.ReviewClarificationQuestion.SourceFindingType` — explicit JSON `null` on clarification question JSON — locus: `Clarifications.ReviewClarificationQuestion`; input: clarification question JSON with `"sourceFindingType": null` (see file).
 
 2026-10-15 seed hunt (dry): cheap-disproved five open `(candidate)` optional nullable nested DTO rows on sponsor ROI business-impact counts, learning ops active profile, draft work lease, and closed-loop optional slices as `(valid-no-repro)`; lock regressions in `SponsorRoiSummaryResponseDeserializationTests`, `RecommendationLearningOperationalStatusResponseDeserializationTests`, `DraftRequestResponseDeserializationTests`, and reaffirmed `ClosedLoopReasoningResultDeserializationTests.Deserialize_null_re_review_and_golden_metrics_remain_null`; no production change; reseeded five follow-on `(candidate)` rows; 1015 scoped `Contracts` filter tests passed.
 
@@ -30079,7 +30089,6 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (valid-no-repro) `ClosedLoopReasoningResult.ReReview` — explicit JSON `null` — **cheap-disproof 2026-10-15 seed hunt:** optional incremental re-review slice remains null; lock regression `Deserialize_null_re_review_and_golden_metrics_remain_null`.
 - [x] (valid-no-repro) `ClosedLoopReasoningResult.GoldenMetrics` — explicit JSON `null` — **cheap-disproof 2026-10-15 seed hunt:** optional golden metrics remain null; lock regression `Deserialize_null_re_review_and_golden_metrics_remain_null`.
 
-- [ ] (candidate) `Finding.FindingType` — explicit JSON `null` on finding envelope JSON — locus: `Findings.Finding`; input: persisted/API finding JSON with `"findingType": null` (see `= null!` initializer).
 - [ ] (candidate) `Finding.Title` — explicit JSON `null` on finding envelope JSON — locus: `Findings.Finding`; input: finding JSON with `"title": null` (see file).
 - [ ] (candidate) `SpecialistReviewFinding.Title` — explicit JSON `null` on specialist review finding JSON — locus: `ArchitectureIntelligence.SpecialistReviewFinding`; input: closed-loop specialist finding JSON with `"title": null` (see file).
 - [ ] (candidate) `ArchitectureModelElement.Name` — explicit JSON `null` on architecture model element JSON — locus: `ArchitectureIntelligence.ArchitectureModelElement`; input: model element JSON with `"name": null` (see file).
