@@ -1,3 +1,5 @@
+2026-10-15 seed hunt (seed→hit): `application-analysis` — promoted `IncludeManifestCompare` accepting compare manifest from a different run; skip diff and warn when `compareManifest.RunId` ≠ primary manifest `RunId`; regression `BuildAsync_skips_manifest_diff_when_compare_manifest_run_id_mismatches_primary`; 30 scoped ArchitectureAnalysis/CompareQuality tests passed.
+
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
 2026-10-15 seed hunt (seed→hit): `application-analysis` — promoted `ArchitectureAnalysisService.BuildAsync` agent compare using empty `PreloadedRunDetail.Results` without repository reload; regression `BuildAsync_loads_primary_agent_results_when_preloaded_detail_omits_results_for_agent_compare`; 29 scoped ArchitectureAnalysis/CompareQuality tests passed.
@@ -18359,19 +18361,30 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 43
-- **bugs-found:** 41
+- **hunts:** 44
+- **bugs-found:** 42
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-15
-- **last-bug:** 2026-10-15 — agent compare used empty preloaded results instead of repository reload
+- **last-bug:** 2026-10-15 — manifest compare diff ran for foreign-run compare manifest version
 - **related-pd-tb:** none
 - **code-changed-since:** no
+
+2026-10-15 seed hunt (seed→hit): promoted `IncludeManifestCompare` compare manifest `RunId` guard; skip `manifestDiffService.Compare` when loaded compare manifest belongs to another run; regression `BuildAsync_skips_manifest_diff_when_compare_manifest_run_id_mismatches_primary`; 30 scoped ArchitectureAnalysis/CompareQuality tests passed.
+
+- [x] (proven) `ArchitectureAnalysisService.BuildAsync` — `IncludeManifestCompare` with `CompareManifestVersion` whose `RunId` does not match primary manifest — **hit 2026-10-15 seed hunt:** regression `BuildAsync_skips_manifest_diff_when_compare_manifest_run_id_mismatches_primary`.
+
+- [ ] (candidate) `DocxArchitectureAnalysisExportService.GenerateDocxAsync` — evidence `Request.Description` null renders blank paragraph without omission copy (reachable input: evidence package with null description after JSON deserialization).
+- [ ] (candidate) `CompareQualityDeltaCalculator.Build` — functional requirement coverage uses component count cap heuristic (reachable input: model with requirements but zero components; verify uncovered mandatory metric).
+- [ ] (candidate) `ComparisonReplayCostEstimator` — warnings-only manifest diff JSON may skip manifest structural scoring (reachable input: persisted report with manifestDiff warnings only).
+- [ ] (candidate) `MarkdownArchitectureAnalysisExportService` — execution trace section always emitted even when `IncludeExecutionTraces` false on request (reachable input: API omits traces flag but export still lists section).
+- [ ] (candidate) `ArchitectureAnalysisService.BuildAsync` — `IncludeDeterminismCheck` with invalid iteration count may still invoke determinism service (reachable input: zero or negative `DeterminismIterations` on analysis request).
+
 
 2026-10-15 seed hunt (seed→hit): promoted `ArchitectureAnalysisService.BuildAsync` agent compare with empty preloaded `Results`; reload from `IAgentResultRepository` when preload has no rows; regression `BuildAsync_loads_primary_agent_results_when_preloaded_detail_omits_results_for_agent_compare`; 29 scoped ArchitectureAnalysis/CompareQuality tests passed.
 
 - [x] (proven) `ArchitectureAnalysisService.BuildAsync` — `IncludeAgentResultCompare` with empty `PreloadedRunDetail.Results` — **hit 2026-10-15 seed hunt:** regression `BuildAsync_loads_primary_agent_results_when_preloaded_detail_omits_results_for_agent_compare`.
 
-- [ ] (candidate) `ArchitectureAnalysisService.BuildAsync` — `IncludeManifestCompare` loads `CompareManifestVersion` without proving compare manifest belongs to the same tenant/run lineage (reachable input: caller-supplied compare manifest version; needs concrete cross-tenant lookup repro).
+- [x] (proven) `ArchitectureAnalysisService.BuildAsync` — `IncludeManifestCompare` loads `CompareManifestVersion` without proving compare manifest belongs to the same tenant/run lineage (reachable input: caller-supplied compare manifest version; needs concrete cross-tenant lookup repro) — **hit 2026-10-15 seed hunt:** RunId mismatch guard; see `BuildAsync_skips_manifest_diff_when_compare_manifest_run_id_mismatches_primary`.
 - [ ] (candidate) `DocxArchitectureAnalysisExportService.GenerateDocxAsync` — evidence `Request.Description` null renders blank paragraph without omission copy (reachable input: evidence package with null description after JSON deserialization).
 - [ ] (candidate) `CompareQualityDeltaCalculator.Build` — functional requirement coverage uses component count cap heuristic (reachable input: model with requirements but zero components; verify uncovered mandatory metric).
 - [ ] (candidate) `ComparisonReplayCostEstimator` — warnings-only manifest diff JSON may skip manifest structural scoring (reachable input: persisted report with manifestDiff warnings only).
@@ -18381,7 +18394,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `MarkdownArchitectureAnalysisExportService` / `DocxArchitectureAnalysisExportService` — governance hidden when only risk/cost classifications set — **hit 2026-10-15 seed hunt:** shared `ArchitectureManifestGovernanceExport.ShouldRender`.
 
-- [ ] (candidate) `ArchitectureAnalysisService.BuildAsync` — `IncludeManifestCompare` loads `CompareManifestVersion` without proving compare manifest belongs to the same tenant/run lineage (reachable input: caller-supplied compare manifest version; needs concrete cross-tenant lookup repro).
+- [x] (proven) `ArchitectureAnalysisService.BuildAsync` — `IncludeManifestCompare` loads `CompareManifestVersion` without proving compare manifest belongs to the same tenant/run lineage (reachable input: caller-supplied compare manifest version; needs concrete cross-tenant lookup repro) — **hit 2026-10-15 seed hunt:** RunId mismatch guard; see `BuildAsync_skips_manifest_diff_when_compare_manifest_run_id_mismatches_primary`.
 - [x] (proven) `ArchitectureAnalysisService.BuildAsync` — `IncludeAgentResultCompare` uses empty preloaded `Results` without repository reload — **hit 2026-10-15 seed hunt:** see `BuildAsync_loads_primary_agent_results_when_preloaded_detail_omits_results_for_agent_compare`.
 - [ ] (candidate) `DocxArchitectureAnalysisExportService.GenerateDocxAsync` — evidence `Request.Description` null renders blank paragraph without omission copy (reachable input: evidence package with null description).
 - [ ] (candidate) `CompareQualityDeltaCalculator.Build` — functional requirement coverage uses component count cap heuristic (reachable input: model with requirements but zero components; verify uncovered mandatory metric).
@@ -18391,7 +18404,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `ArchitectureAnalysisService.BuildAsync` — `PreloadedRunDetail.Manifest` with foreign `RunId` accepted into report — **hit 2026-10-15 seed hunt:** regression `BuildAsync_nulls_preloaded_manifest_when_manifest_run_id_does_not_match_request_run`.
 
-- [ ] (candidate) `ArchitectureAnalysisService.BuildAsync` — `IncludeManifestCompare` loads `CompareManifestVersion` without proving compare manifest belongs to the same tenant/run lineage (reachable input: caller-supplied compare manifest version; needs concrete cross-tenant lookup repro).
+- [x] (proven) `ArchitectureAnalysisService.BuildAsync` — `IncludeManifestCompare` loads `CompareManifestVersion` without proving compare manifest belongs to the same tenant/run lineage (reachable input: caller-supplied compare manifest version; needs concrete cross-tenant lookup repro) — **hit 2026-10-15 seed hunt:** RunId mismatch guard; see `BuildAsync_skips_manifest_diff_when_compare_manifest_run_id_mismatches_primary`.
 - [x] (valid-no-repro) `DocxArchitectureAnalysisExportService.GenerateDocxAsync` — manifest relationship list omitted from DOCX — markdown export also renders relationship count only; not a DOCX-only gap.
 - [x] (invalid) `CompareQualityDeltaCalculator.Build` — `FindingSeverity.Information` counted as high severity — `MapSeverity` maps Information to `Low`; metric counts High/Critical only.
 - [x] (valid-no-repro) `ComparisonReplayPayloadComplexity.ScorePayloadComplexity` — confidence-only agent deltas — `DeltaIndicatesConfidenceChange` already marks substantive agent deltas.

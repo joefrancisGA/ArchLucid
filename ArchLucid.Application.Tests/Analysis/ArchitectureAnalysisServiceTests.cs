@@ -200,6 +200,105 @@ public sealed class ArchitectureAnalysisServiceTests
     }
 
     [Fact]
+    public async Task BuildAsync_skips_manifest_diff_when_compare_manifest_run_id_mismatches_primary()
+    {
+        Guid primaryRunId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+        Guid foreignRunId = Guid.Parse("22222222-2222-2222-2222-222222222222");
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+            WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+        };
+
+        GoldenManifest primaryManifest = new()
+        {
+            RunId = primaryRunId.ToString("N"),
+            SystemName = "primary",
+            Metadata = new ManifestMetadata { ManifestVersion = "v1-primary" },
+        };
+
+        ArchitectureRunDetail preloadedDetail = new()
+        {
+            Run = new ArchitectureRun
+            {
+                RunId = primaryRunId.ToString("N"),
+                CurrentManifestVersion = "v1-primary",
+            },
+            Manifest = primaryManifest,
+        };
+
+        Mock<IUnifiedGoldenManifestReader> manifestReader = new();
+        manifestReader
+            .Setup(reader => reader.GetByVersionAsync("v1-foreign", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new GoldenManifest
+            {
+                RunId = foreignRunId.ToString("N"),
+                SystemName = "foreign",
+                Metadata = new ManifestMetadata { ManifestVersion = "v1-foreign" },
+            });
+
+        Mock<IAuthorityQueryService> authority = new();
+        authority
+            .Setup(service => service.GetRunDetailForManifestCompareAsync(
+                It.IsAny<ScopeContext>(),
+                primaryRunId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunDetailDto
+            {
+                Run = new RunRecord { RunId = primaryRunId },
+                GoldenManifest = new ManifestDocument
+                {
+                    RunId = primaryRunId,
+                    ManifestHash = "ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789",
+                },
+            });
+
+        Mock<IManifestHashService> manifestHash = new();
+        manifestHash
+            .Setup(service => service.ComputeHash(It.IsAny<ManifestDocument>()))
+            .Returns("ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789");
+
+        Mock<IManifestDiffService> manifestDiff = new();
+
+        ArchitectureAnalysisService sut = new(
+            Mock.Of<IRunDetailQueryService>(),
+            Mock.Of<IScopeContextProvider>(provider => provider.GetCurrentScope() == scope),
+            manifestReader.Object,
+            Mock.Of<IAgentEvidencePackageRepository>(),
+            Mock.Of<IAgentExecutionTraceRepository>(),
+            Mock.Of<IAgentResultRepository>(),
+            Mock.Of<IDiagramGenerator>(),
+            Mock.Of<IManifestSummaryGenerator>(),
+            Mock.Of<IDeterminismCheckService>(),
+            manifestDiff.Object,
+            Mock.Of<IAgentResultDiffService>(),
+            authority.Object,
+            manifestHash.Object);
+
+        ArchitectureAnalysisReport report = await sut.BuildAsync(
+            new ArchitectureAnalysisRequest
+            {
+                RunId = primaryRunId.ToString("N"),
+                PreloadedRunDetail = preloadedDetail,
+                IncludeManifest = true,
+                IncludeManifestCompare = true,
+                CompareManifestVersion = "v1-foreign",
+                IncludeEvidence = false,
+                IncludeExecutionTraces = false,
+                IncludeDiagram = false,
+                IncludeSummary = false,
+            });
+
+        report.ManifestDiff.Should().BeNull();
+        report.Warnings.Should().Contain(
+            $"Compare manifest 'v1-foreign' does not belong to run '{primaryRunId:N}'.");
+        manifestDiff.Verify(
+            service => service.Compare(It.IsAny<GoldenManifest>(), It.IsAny<GoldenManifest>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task BuildAsync_loads_primary_agent_results_when_preloaded_detail_omits_results_for_agent_compare()
     {
         Guid primaryRunId = Guid.Parse("11111111-1111-1111-1111-111111111111");
