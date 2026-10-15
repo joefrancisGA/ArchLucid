@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-15 seed hunt (seed-only): `ui-auth-callback` — cheap-disproved five open `(candidate)` rows (JSON `Content-Type` charset, note-only vertical tabs, generation guard on first submit, report-problem on success view, plus-addressed work email); regression locks `posts access request with Content-Type application/json without a charset parameter`, `does not post access request when the optional note is only vertical tabs`, `posts access request with plus-addressed work email`, `does not show report problem support on the success view after submit`, plus reaffirmed `does not show success after cancel while submit is in flight`; reseeded five follow-on `(candidate)` rows; 90 scoped `AuthCallbackAccessPanel` vitest tests passed; no production change.
+
 2026-10-15 seed hunt (seed-only): `ui-auth-callback` — cheap-disproved five open `(candidate)` rows (whitespace-only `company`, honeypot autofill after toggle-close, `networkInFlightCount` overlap race, vertical tab in `note`, duplicate `409` error on toggle-close); regression locks `posts whitespace-only company when native validation is bypassed`, `clears honeypot websiteUrl on toggle-close even when autofill repopulates before reopen`, `does not allow a second POST until the first in-flight request settles after toggle dismiss`, `does not post access request when the optional note contains a vertical tab`, and `hides duplicate submit error when the request form is toggled closed`; reseeded five follow-on `(candidate)` rows; 86 scoped `AuthCallbackAccessPanel` vitest tests passed; no production change.
 
 2026-10-15 seed hunt (seed-only): `ui-auth-callback` — cheap-disproved five open `(candidate)` rows (whitespace-only `name` on bypass submit, tab-only honeypot `websiteUrl` guard bypass, generation bump on toggle-close without submit, stale generic error after field edit, success view without `technicalDetail`); regression locks `posts whitespace-only name when native validation is bypassed`, `posts tab-only honeypot websiteUrl without tripping the unsupported-text guard`, `submits successfully after toggling the request form closed and reopened without submitting`, `retains generic submit error after editing work email following a failed response`, plus reaffirmed `omits callback technical detail on the success view`; reseeded five follow-on `(candidate)` rows; 81 scoped `AuthCallbackAccessPanel` vitest tests passed; no production change.
@@ -12231,7 +12233,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-auth-callback
 
-**Hunts:** 47 · **Bugs found:** 7 · **Consecutive dry hunts:** 0
+**Hunts:** 48 · **Bugs found:** 7 · **Consecutive dry hunts:** 0
+
+2026-10-15 seed hunt (seed-only): cheap-disproved five open `(candidate)` rows; regression locks `posts access request with Content-Type application/json without a charset parameter`, `does not post access request when the optional note is only vertical tabs`, `posts access request with plus-addressed work email`, `does not show report problem support on the success view after submit`, plus reaffirmed `does not show success after cancel while submit is in flight`; reseeded five follow-on `(candidate)` rows; 90 scoped `AuthCallbackAccessPanel` vitest tests passed.
+
+- [x] (valid-no-repro) `onSubmit` — JSON POST without `charset` on `Content-Type` — **cheap-disproof 2026-10-15 seed hunt:** UTF-8 default for `JSON.stringify` + fetch; regression `posts access request with Content-Type application/json without a charset parameter`.
+- [x] (invalid) `note` — only vertical tabs coalesced to `null` — **cheap-disproof 2026-10-15 seed hunt:** guard blocks before payload trim; regression `does not post access request when the optional note is only vertical tabs`.
+- [x] (valid-no-repro) `submitControlRef` — generation guard on stale responses — **cheap-disproof 2026-10-15 seed hunt:** cancel mid-flight ignores stale success; regression `does not show success after cancel while submit is in flight`.
+- [x] (valid-no-repro) `FatalPageReportProblemSupportRow` absent on success view — **cheap-disproof 2026-10-15 seed hunt:** intentional terminal UX; regression `does not show report problem support on the success view after submit`.
+- [x] (valid-no-repro) `workEmail` — plus-addressed email — **cheap-disproof 2026-10-15 seed hunt:** HTML5 accepts plus tags; regression `posts access request with plus-addressed work email`.
+
+- [ ] (candidate) `onSubmit` — `catch` path does not distinguish HTTP 429 from 502 for operator copy — locus: `!response.ok` branch; input: rate-limit response body (server-dependent).
+- [ ] (candidate) `cloudPlatformFocus` — leading/trailing spaces posted verbatim while `note` trims to null when whitespace-only — locus: optional field trim asymmetry; input: focus field `"  Azure  "` in POST body.
+- [ ] (candidate) `AuthCallbackAccessPanel` — `submitted` state prevents returning to access-request form without remount — locus: success early return; input: after success, request-access control absent (expect absent).
+- [ ] (candidate) `containsUnsupportedAccessRequestText` — `websiteUrl` with only `\r\n` honeypot bytes — locus: permitted strip on website field; input: CRLF-only website value with valid visible fields.
+- [ ] (candidate) `errorMessage` — duplicate `409` copy persists when only Cancel clears errors — locus: cancel vs toggle; input: duplicate error, cancel clears, toggle-close retains (policy).
 
 2026-10-15 seed hunt (seed-only): cheap-disproved five open `(candidate)` rows; regression locks `posts whitespace-only company when native validation is bypassed`, `clears honeypot websiteUrl on toggle-close even when autofill repopulates before reopen`, `does not allow a second POST until the first in-flight request settles after toggle dismiss`, `does not post access request when the optional note contains a vertical tab`, and `hides duplicate submit error when the request form is toggled closed`; reseeded five follow-on `(candidate)` rows; 86 scoped `AuthCallbackAccessPanel` vitest tests passed.
 
@@ -12241,11 +12257,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `containsUnsupportedAccessRequestText` — vertical tab in `note` — **cheap-disproof 2026-10-15 seed hunt:** `\u000b` blocked by `Cc` guard; regression `does not post access request when the optional note contains a vertical tab`.
 - [x] (valid-no-repro) duplicate `409` error on toggle-close — **cheap-disproof 2026-10-15 seed hunt:** intentional hide/show policy; regression `hides duplicate submit error when the request form is toggled closed`.
 
-- [ ] (candidate) `onSubmit` — `Accept: application/json` header present but no `charset` on JSON POST — locus: `fetch` headers; input: inspect request init on successful submit.
-- [ ] (candidate) `note` — optional note with only vertical tabs coalesces to `null` like whitespace — locus: `note.trim() === ""` in payload; input: note `\u000b\u000b` only (blocked by guard before trim).
-- [ ] (candidate) `submitControlRef` — generation starts at 0 and first submit uses generation 1 — locus: `generation + 1` assignment; input: trace generation guard on first successful POST.
-- [ ] (candidate) `FatalPageReportProblemSupportRow` — rendered on success view — locus: success early return; input: successful submit still shows report-problem row (expect absent).
-- [ ] (candidate) `workEmail` — HTML5 `type="email"` blocks plus-addressed work email before `fetch` — locus: email input; input: `jordan+tag@fabrikam.com` submit.
+- [x] (valid-no-repro) `onSubmit` — JSON POST without `charset` on `Content-Type` — **cheap-disproof 2026-10-15 seed hunt (sixth pass):** regression `posts access request with Content-Type application/json without a charset parameter`.
+- [x] (invalid) `note` — only vertical tabs coalesced to `null` — **cheap-disproof 2026-10-15 seed hunt (sixth pass):** regression `does not post access request when the optional note is only vertical tabs`.
+- [x] (valid-no-repro) `submitControlRef` — generation guard — **cheap-disproof 2026-10-15 seed hunt (sixth pass):** regression `does not show success after cancel while submit is in flight`.
+- [x] (valid-no-repro) `FatalPageReportProblemSupportRow` on success view — **cheap-disproof 2026-10-15 seed hunt (sixth pass):** regression `does not show report problem support on the success view after submit`.
+- [x] (valid-no-repro) `workEmail` — plus-addressed email — **cheap-disproof 2026-10-15 seed hunt (sixth pass):** regression `posts access request with plus-addressed work email`.
 
 2026-10-15 seed hunt (seed-only): cheap-disproved five open `(candidate)` rows; regression locks `posts whitespace-only name when native validation is bypassed`, `posts tab-only honeypot websiteUrl without tripping the unsupported-text guard`, `submits successfully after toggling the request form closed and reopened without submitting`, `retains generic submit error after editing work email following a failed response`, plus reaffirmed `omits callback technical detail on the success view`; reseeded five follow-on `(candidate)` rows; 81 scoped `AuthCallbackAccessPanel` vitest tests passed.
 
