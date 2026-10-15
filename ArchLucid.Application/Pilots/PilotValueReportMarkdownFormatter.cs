@@ -68,15 +68,19 @@ public sealed class PilotValueReportMarkdownFormatter(ExportFormatterService exp
         {
             sb.AppendLine(
                 CultureInfo.InvariantCulture,
-                $"| Total findings | {r.TotalFindings} (partial run-detail sample: newest {r.RunDetailCap} committed runs by CreatedUtc) |");
+                $"| Total findings | {r.TotalFindings} {PartialRunDetailSampleFragment(r.RunDetailCap)} |");
         }
         else
         {
             sb.AppendLine(CultureInfo.InvariantCulture, $"| Total findings | {r.TotalFindings} |");
         }
-        sb.AppendLine(
-            CultureInfo.InvariantCulture,
-            $"| Avg pipeline completion | {FormatAvgSeconds(r.AveragePipelineCompletionSeconds)} |");
+
+        string avgCompletionCell = FormatAvgSeconds(r.AveragePipelineCompletionSeconds);
+
+        if (r.RunDetailsTruncated)
+            avgCompletionCell = $"{avgCompletionCell} {PartialRunDetailSampleFragment(r.RunDetailCap)}";
+
+        sb.AppendLine(CultureInfo.InvariantCulture, $"| Avg pipeline completion | {avgCompletionCell} |");
 
         sb.AppendLine(CultureInfo.InvariantCulture,
             $"| Recommendations generated (audit) | {r.TotalRecommendationsProduced} |");
@@ -90,6 +94,15 @@ public sealed class PilotValueReportMarkdownFormatter(ExportFormatterService exp
 
         sb.AppendLine("## Findings by severity");
         sb.AppendLine();
+
+        if (r.RunDetailsTruncated)
+        {
+            sb.AppendLine(
+                CultureInfo.InvariantCulture,
+                $"> Severity counts reflect a partial run-detail sample: newest {r.RunDetailCap} committed runs by CreatedUtc.");
+            sb.AppendLine();
+        }
+
         _exportFormatter.AppendMarkdownTwoColumnTableStart(sb, "Severity", "Count");
         sb.AppendLine(CultureInfo.InvariantCulture, $"| Critical | {r.FindingsBySeverity.Critical} |");
         sb.AppendLine(CultureInfo.InvariantCulture, $"| High | {r.FindingsBySeverity.High} |");
@@ -132,6 +145,9 @@ public sealed class PilotValueReportMarkdownFormatter(ExportFormatterService exp
 
         return sb.ToString();
     }
+
+    private static string PartialRunDetailSampleFragment(int runDetailCap) =>
+        FormattableString.Invariant($"(partial run-detail sample: newest {runDetailCap} committed runs by CreatedUtc)");
 
     private static void AppendSeverityNote(StringBuilder sb)
     {

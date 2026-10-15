@@ -124,6 +124,55 @@ public sealed class PilotValueReportMarkdownFormatterTests
     }
 
     [Fact]
+    public void Format_when_run_details_truncated_qualifies_avg_pipeline_completion_as_partial_run_detail_sample()
+    {
+        PilotValueReportMarkdownFormatter sut = new(new ExportFormatterService());
+        DateTime from = new(2026, 4, 1, 0, 0, 0, DateTimeKind.Utc);
+        int cap = PilotValueReportService.DefaultRunDetailCap;
+        PilotValueReport report = new()
+        {
+            TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+            FromUtc = from,
+            ToUtc = from.AddDays(30),
+            TotalRunsCommitted = cap + 10,
+            RunDetailsTruncated = true,
+            RunDetailCap = cap,
+            AveragePipelineCompletionSeconds = 120,
+        };
+
+        string markdown = sut.Format(report);
+
+        markdown.Should().Contain(
+            "| Avg pipeline completion | 2 min (partial run-detail sample:",
+            "avg completion must not read as tenant-wide when only newest committed runs were loaded");
+    }
+
+    [Fact]
+    public void Format_when_run_details_truncated_discloses_partial_sample_on_findings_by_severity_section()
+    {
+        PilotValueReportMarkdownFormatter sut = new(new ExportFormatterService());
+        DateTime from = new(2026, 4, 1, 0, 0, 0, DateTimeKind.Utc);
+        PilotValueReport report = new()
+        {
+            TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+            FromUtc = from,
+            ToUtc = from.AddDays(30),
+            RunDetailsTruncated = true,
+            RunDetailCap = PilotValueReportService.DefaultRunDetailCap,
+            FindingsBySeverity = new PilotValueReportSeverityBreakdown { Critical = 2, High = 1 },
+        };
+
+        string markdown = sut.Format(report);
+
+        int severityHeading = markdown.IndexOf("## Findings by severity", StringComparison.Ordinal);
+        severityHeading.Should().BeGreaterThan(-1);
+        string severitySection = markdown[severityHeading..];
+        severitySection.Should().Contain(
+            "> Severity counts reflect a partial run-detail sample",
+            "severity buckets must not read as tenant-wide when run-detail cap applied");
+    }
+
+    [Fact]
     public void Format_discloses_committed_run_inventory_truncation()
     {
         PilotValueReportMarkdownFormatter sut = new(new ExportFormatterService());
