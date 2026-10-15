@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 
 using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.Serialization;
 
 namespace ArchLucid.Contracts.Drafts;
 
@@ -71,12 +72,14 @@ public sealed class DraftRequestDocument
     /// <summary>
     ///     MUST-tier question keys still required before submit (populated at admission by ADR 0051 L0/L1 selection).
     /// </summary>
+    private List<string> requiredMustQuestionKeys = [];
+
     [JsonPropertyName("requiredMustQuestionKeys")]
     public List<string> RequiredMustQuestionKeys
     {
-        get;
-        set;
-    } = [];
+        get => requiredMustQuestionKeys;
+        set => requiredMustQuestionKeys = ContractCollectionDefaults.Coalesce(value);
+    }
 
     /// <summary>Optional conversation thread for pre-run intake (reuses <c>IConversationService</c>).</summary>
     [JsonPropertyName("conversationThreadId")]

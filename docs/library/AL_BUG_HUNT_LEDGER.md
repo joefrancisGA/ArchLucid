@@ -30069,7 +30069,21 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 ---
 ## Zone: archlucid-contracts
 
-**Hunts:** 167 · **Bugs found:** 203 · **Consecutive dry hunts:** 0
+**Hunts:** 168 · **Bugs found:** 208 · **Consecutive dry hunts:** 0
+
+2026-10-15 seed hunt (seed→hit): promoted five open `(candidate)` rows on operator saved-views, draft structured brief lists, draft request MUST keys, rule simulation rollup lists, and composite alert rule conditions; coalesce fix on `OperatorSavedViewListResponse`, `ArchitectureDraftStructuredBrief`, `DraftRequestDocument`, `RuleSimulationResult`, and `CompositeAlertRule`; regressions in matching `*DeserializationTests`; reseeded five follow-on `(candidate)` rows; 903 scoped `Contracts` filter tests passed.
+
+- [x] (proven) `OperatorSavedViewListResponse.Views` — explicit JSON `null` on `GET /v1/operator/saved-views` JSON — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_views_yields_empty_list_not_null`.
+- [x] (proven) `ArchitectureDraftStructuredBrief` — confirmed/suggested/denied brief list properties explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_list_properties_yields_empty_lists_not_null`.
+- [x] (proven) `DraftRequestDocument.RequiredMustQuestionKeys` — explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_required_must_question_keys_yields_empty_list_not_null`.
+- [x] (proven) `RuleSimulationResult` — `SummaryNotes` / `Outcomes` explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_list_properties_yields_empty_lists_not_null`.
+- [x] (proven) `CompositeAlertRule.Conditions` — explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_conditions_yields_empty_list_not_null`.
+
+- [ ] (candidate) `DraftAdmissionResponse` — explicit JSON `null` on admit response lists — locus: `Drafts.DraftAdmissionResponse`; input: `POST /v1/architecture/draft/{draftId}/admit` JSON with null `pendingMustQuestions` or `requiredMustQuestionKeys`.
+- [ ] (candidate) `DraftElicitationQuestion.RuleKeys` — explicit JSON `null` — locus: `Drafts.DraftElicitationQuestion`; input: elicitation question JSON with null `ruleKeys`.
+- [ ] (candidate) `ExplainabilityTraceCompletenessPack.ByEngine` — explicit JSON `null` — locus: `Pilots.ExplainabilityTraceCompletenessPack`; input: pilot explainability pack JSON with null `byEngine`.
+- [ ] (candidate) `ThresholdRecommendationResult` — explicit JSON `null` on tuning recommendation lists — locus: `Alerts.Tuning.ThresholdRecommendationResult`; input: threshold recommendation JSON with null `summaryNotes` or `candidates`.
+- [ ] (candidate) `GraphBuildResult` — explicit JSON `null` on graph build lists — locus: `Persistence.Graph.GraphBuildResult`; input: graph build result JSON with null `nodes`, `edges`, or `warnings`.
 
 2026-10-15 seed hunt (seed→hit): promoted four open `(candidate)` rows on architecture identity list/detail/seal-delta lists; cheap-disproof closed mis-scoped `ArchitectureVersionRecord` (no list properties) and already-coalesced `AgentOutputEvaluationPerspective.Scores`; coalesce fix on `ArchitectureIdentityListPage`, `ArchitectureIdentityDetail`, and `ArchitectureSealDeltaResponse`; regressions in `ArchitectureIdentityListPageDeserializationTests`, `ArchitectureIdentityDetailDeserializationTests`, `ArchitectureSealDeltaResponseDeserializationTests`, and lock `AgentOutputEvaluationPerspectiveDeserializationTests`; reseeded five follow-on `(candidate)` rows; 898 scoped `Contracts` filter tests passed.
 

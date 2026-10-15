@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Alerts.Composite;
 
 /// <summary>
@@ -108,9 +110,11 @@ public class CompositeAlertRule
     } = TimeProvider.System.GetUtcNow().UtcDateTime;
 
     /// <summary>Child conditions loaded with the rule from persistence.</summary>
+    private List<AlertRuleCondition> conditions = [];
+
     public List<AlertRuleCondition> Conditions
     {
-        get;
-        set;
-    } = [];
+        get => conditions;
+        set => conditions = ContractCollectionDefaults.Coalesce(value);
+    }
 }
