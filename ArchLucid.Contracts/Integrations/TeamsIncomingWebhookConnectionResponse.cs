@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Integrations;
 
 /// <summary>Read model for a tenant's Teams incoming-webhook configuration (secret values are never returned).</summary>
@@ -35,11 +37,13 @@ public sealed class TeamsIncomingWebhookConnectionResponse
     ///     from <c>TeamsNotificationTriggerCatalog.All</c>; for a configured row this is the persisted subset, ordered
     ///     canonically and filtered to known catalog entries.
     /// </summary>
+    private IReadOnlyList<string> enabledTriggers = [];
+
     public IReadOnlyList<string> EnabledTriggers
     {
-        get;
-        init;
-    } = [];
+        get => enabledTriggers;
+        init => enabledTriggers = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 
     public DateTimeOffset UpdatedUtc
     {

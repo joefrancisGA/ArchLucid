@@ -30069,7 +30069,21 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 ---
 ## Zone: archlucid-contracts
 
-**Hunts:** 172 · **Bugs found:** 226 · **Consecutive dry hunts:** 0
+**Hunts:** 173 · **Bugs found:** 231 · **Consecutive dry hunts:** 0
+
+2026-10-15 seed hunt (seed→hit): promoted five open `(candidate)` rows on context snapshot lists/`sourceHashes`, sponsor packet `nextActions`, and Teams webhook `enabledTriggers`/`triggerCatalog`; coalesce fix on `ContextSnapshot`, `SponsorReviewPacketPortfolioSignals`, `TeamsIncomingWebhookConnectionResponse`, and `TeamsIncomingWebhookPageBundleResponse`; regressions in `ContextSnapshotDeserializationTests`, `SponsorReviewPacketPortfolioSignalsDeserializationTests`, and `TeamsIncomingWebhookDeserializationTests`; reseeded five follow-on `(candidate)` rows; 921 scoped `Contracts` filter tests passed.
+
+- [x] (proven) `ContextSnapshot` — `CanonicalObjects` / `Warnings` / `Errors` explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_list_and_dictionary_properties_yield_empty_collections_not_null`.
+- [x] (proven) `ContextSnapshot.SourceHashes` — explicit JSON `null` — **hit 2026-10-15 seed hunt:** same regression as snapshot lists.
+- [x] (proven) `SponsorReviewPacketPortfolioSignals.NextActions` — explicit JSON `null` on sponsor review packet JSON — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_next_actions_yields_empty_list_not_null`.
+- [x] (proven) `TeamsIncomingWebhookConnectionResponse.EnabledTriggers` — explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_enabled_triggers_yields_empty_list_not_null`.
+- [x] (proven) `TeamsIncomingWebhookPageBundleResponse.TriggerCatalog` — explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_trigger_catalog_yields_empty_list_not_null`.
+
+- [ ] (candidate) `AdminTokenClaimsDiagnosticResponse` — explicit JSON `null` on admin token-claims diagnostic lists — locus: `Admin.AdminTokenClaimsDiagnosticResponse`; input: admin diagnostics JSON with null list tokens (see file).
+- [ ] (candidate) `UserInvitationListResponse` — explicit JSON `null` on user invitation list — locus: `Admin.UserInvitationListResponse`; input: admin user-invitation list JSON with null list token (see file).
+- [ ] (candidate) `AdminTenantHealthListResponse` — explicit JSON `null` on tenant health list — locus: `Admin.AdminTenantHealthListResponse`; input: admin tenant health list JSON with null list token (see file).
+- [ ] (candidate) `ComplianceRulePack` — explicit JSON `null` on compliance rule pack lists — locus: `Compliance.ComplianceRulePack`; input: compliance rule pack JSON with null list token (see file).
+- [ ] (candidate) `AdminRagHealthResponse` — explicit JSON `null` on RAG health diagnostic lists — locus: `Admin.AdminRagHealthResponse`; input: admin RAG health JSON with null list token (see file).
 
 2026-10-15 seed hunt (seed→hit): promoted five open `(candidate)` rows on graph snapshot lists, canonical object property bag, draft `questionAnswers`, and pilot delta responses; cheap-disproof closed already-coalesced `RecentPilotRunDeltasResponse.Items` and `PilotRunDeltasResponse.FindingsBySeverity`; coalesce fix on `GraphSnapshot`, `CanonicalObject`, and `DraftRequestDocument.QuestionAnswers`; regressions in `GraphSnapshotDeserializationTests`, `CanonicalObjectDeserializationTests`, `DraftRequestDocumentDeserializationTests`, and lock tests for pilot delta DTOs; reseeded five follow-on `(candidate)` rows; 917 scoped `Contracts` filter tests passed.
 

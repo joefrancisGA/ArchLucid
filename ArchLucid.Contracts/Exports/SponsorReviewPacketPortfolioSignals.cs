@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Exports;
 
 /// <summary>Cross-run governance and ROI signals included in sponsor review packets (TB-062 / Batch C).</summary>
@@ -27,9 +29,11 @@ public sealed class SponsorReviewPacketPortfolioSignals
         set;
     }
 
+    private List<string> nextActions = [];
+
     public List<string> NextActions
     {
-        get;
-        set;
-    } = [];
+        get => nextActions;
+        set => nextActions = ContractCollectionDefaults.Coalesce(value);
+    }
 }
