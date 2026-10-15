@@ -67,11 +67,7 @@ public static class EmailBrandingUrls
     {
         string decodedPath = Uri.UnescapeDataString(uri.AbsolutePath);
         string sanitizedPath = EmailHeaderFragmentSanitizer.Sanitize(decodedPath);
-        bool pathHadLineBreaks =
-            uri.AbsolutePath.Contains("%0D", StringComparison.OrdinalIgnoreCase)
-            || uri.AbsolutePath.Contains("%0A", StringComparison.OrdinalIgnoreCase)
-            || decodedPath.Contains('\r')
-            || decodedPath.Contains('\n');
+        bool pathHadLineBreaks = PathOrQueryContainsLineBreakMaterial(uri.AbsolutePath, decodedPath);
 
         UriBuilder builder = new(uri.Scheme, uri.Host, uri.Port)
         {
@@ -98,15 +94,31 @@ public static class EmailBrandingUrls
         if (string.IsNullOrEmpty(value))
             return value;
 
-        if (!value.Contains("%0D", StringComparison.OrdinalIgnoreCase)
-            && !value.Contains("%0A", StringComparison.OrdinalIgnoreCase)
-            && !value.Contains('\r')
-            && !value.Contains('\n'))
-        {
+        if (!PathOrQueryContainsLineBreakMaterial(value, Uri.UnescapeDataString(value)))
             return value;
-        }
 
         return EmailHeaderFragmentSanitizer.Sanitize(Uri.UnescapeDataString(value));
+    }
+
+    private static bool PathOrQueryContainsLineBreakMaterial(string encoded, string decoded)
+    {
+        if (encoded.Contains("%0D", StringComparison.OrdinalIgnoreCase)
+            || encoded.Contains("%0A", StringComparison.OrdinalIgnoreCase)
+            || encoded.Contains("%E2%80%A8", StringComparison.OrdinalIgnoreCase)
+            || encoded.Contains("%E2%80%A9", StringComparison.OrdinalIgnoreCase)
+            || encoded.Contains("%C2%85", StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
+        foreach (char character in decoded)
+        {
+
+            if (character is '\r' or '\n' or '\u0085' or '\u2028' or '\u2029')
+                return true;
+        }
+
+        return false;
     }
 
     /// <summary>

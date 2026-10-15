@@ -170,4 +170,34 @@ public sealed class EmailBrandingUrlsTests
             .Should()
             .Be("/architecture/reviews/a1b2c3d4 Bcc: injected@evil.test");
     }
+
+    [SkippableFact]
+    public void SanitizeOperatorNavigableUrl_omits_literal_unicode_line_separator_from_absolute_run_detail_path()
+    {
+        string url = EmailBrandingUrls.SanitizeOperatorNavigableUrl(
+            "https://ops.example.test/architecture/reviews/a1b2c3d4\u2028Bcc: injected@evil.test",
+            "https://ops.example.test");
+
+        url.Should().NotContain("\u2028");
+        url.Should().NotContain("Bcc", "smuggled path suffix after a line separator must be dropped");
+
+        Uri absolute = new(url);
+        Uri.UnescapeDataString(absolute.AbsolutePath).Should().Be("/architecture/reviews/a1b2c3d4");
+    }
+
+    [SkippableFact]
+    public void SanitizeOperatorNavigableUrl_omits_percent_encoded_unicode_line_separator_from_absolute_run_detail_path()
+    {
+        string url = EmailBrandingUrls.SanitizeOperatorNavigableUrl(
+            "https://ops.example.test/architecture/reviews/a1b2c3d4%E2%80%A8Bcc%3A%20injected%40evil.test",
+            "https://ops.example.test");
+
+        url.Should().NotContain("%E2%80%A8", "percent-encoded line separator must not survive operator navigable URL sanitization");
+
+        Uri absolute = new(url);
+        Uri.UnescapeDataString(absolute.AbsolutePath)
+            .Should()
+            .Be("/architecture/reviews/a1b2c3d4 Bcc: injected@evil.test");
+        Uri.UnescapeDataString(absolute.AbsolutePath).Should().NotContain("\u2028");
+    }
 }
