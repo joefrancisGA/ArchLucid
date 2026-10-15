@@ -1,5 +1,9 @@
 import type { OidcDiscoveryDocument } from "@/lib/oidc/discovery";
 
+function trimAuthorizeQueryValue(value: string): string {
+  return value.trim();
+}
+
 export function buildAuthorizeUrl(params: {
   doc: OidcDiscoveryDocument;
   clientId: string;
@@ -11,13 +15,13 @@ export function buildAuthorizeUrl(params: {
 }): string {
   const url = new URL(params.doc.authorization_endpoint);
 
-  url.searchParams.set("client_id", params.clientId);
+  url.searchParams.set("client_id", trimAuthorizeQueryValue(params.clientId));
   url.searchParams.set("response_type", "code");
-  url.searchParams.set("redirect_uri", params.redirectUri);
-  url.searchParams.set("scope", params.scope);
-  url.searchParams.set("state", params.state);
-  url.searchParams.set("nonce", params.nonce);
-  url.searchParams.set("code_challenge", params.codeChallenge);
+  url.searchParams.set("redirect_uri", trimAuthorizeQueryValue(params.redirectUri));
+  url.searchParams.set("scope", trimAuthorizeQueryValue(params.scope));
+  url.searchParams.set("state", trimAuthorizeQueryValue(params.state));
+  url.searchParams.set("nonce", trimAuthorizeQueryValue(params.nonce));
+  url.searchParams.set("code_challenge", trimAuthorizeQueryValue(params.codeChallenge));
   url.searchParams.set("code_challenge_method", "S256");
   url.searchParams.set("response_mode", "query");
 
