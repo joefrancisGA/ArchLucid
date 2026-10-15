@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Agents;
 
 /// <summary>Trace-derived invocation forensics for one architecture run (TB-110).</summary>
@@ -27,9 +29,11 @@ public sealed class RunToolInvocationForensicsResponse
         set;
     } = string.Empty;
 
+    private IReadOnlyList<RunToolInvocationForensicRow> rows = [];
+
     public IReadOnlyList<RunToolInvocationForensicRow> Rows
     {
-        get;
-        set;
-    } = Array.Empty<RunToolInvocationForensicRow>();
+        get => rows;
+        set => rows = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 }
