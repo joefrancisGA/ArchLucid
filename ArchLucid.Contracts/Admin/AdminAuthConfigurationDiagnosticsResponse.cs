@@ -1,5 +1,7 @@
 namespace ArchLucid.Contracts.Admin;
 
+using ArchLucid.Contracts.Serialization;
+
 /// <summary>
 ///     Operator-facing auth configuration checks for OIDC, SAML, and tenant SSO wizard state. No secrets.
 /// </summary>
@@ -58,7 +60,13 @@ public sealed class AdminAuthConfigurationDiagnosticsResponse
     public bool? RoleClaimNameConfigured { get; init; }
 
     /// <summary>Bounded operator hints — safe for logs and tickets (no secrets).</summary>
-    public IReadOnlyList<string> MisconfigurationHints { get; init; } = [];
+    private IReadOnlyList<string> misconfigurationHints = [];
+
+    public IReadOnlyList<string> MisconfigurationHints
+    {
+        get => misconfigurationHints;
+        init => misconfigurationHints = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 
     /// <summary>True when <c>Email:OperatorBaseUrl</c> is a non-empty absolute HTTP(S) URI for invite accept links.</summary>
     public bool OperatorBaseUrlConfigured { get; init; }
