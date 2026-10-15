@@ -178,9 +178,12 @@ describe("SecureNow help guide content", () => {
   });
 
   it("resolves SecureNow contextual help for findings and onboarding routes", () => {
-    expect(contextualHelpForPathname("/governance/findings", { productLineId: "security" })?.whatIsThisPage).toBe(
-      SECURENOW_FINDINGS_QUEUE_HUB.whatIsThisPage,
-    );
+    const tenantFindingsHelp = contextualHelpForPathname("/governance/findings", { productLineId: "security" });
+
+    expect(tenantFindingsHelp?.whatIsThisPage).toBe(SECURENOW_FINDINGS_QUEUE_HUB.whatIsThisPage);
+    expect(tenantFindingsHelp?.whatIsThisPage).not.toMatch(/architecture review/i);
+    expect(tenantFindingsHelp?.whyEmpty).not.toMatch(/approval decisions are recorded in reviews/i);
+    expect(tenantFindingsHelp?.whereToConfigureAction?.href).not.toContain("search-review-evidence");
     expect(contextualHelpForPathname("/compliance/findings", { productLineId: "security" })?.whatIsThisPage).toBe(
       SECURENOW_FINDINGS_QUEUE_HUB.whatIsThisPage,
     );
