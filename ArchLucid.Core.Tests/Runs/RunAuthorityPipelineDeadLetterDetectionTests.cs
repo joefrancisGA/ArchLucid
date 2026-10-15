@@ -320,4 +320,15 @@ public sealed class RunAuthorityPipelineDeadLetterDetectionTests
         // Conservative reader requires a non-empty failureClass token; empty objects are not pipeline dead letters.
         RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(json).Should().BeFalse();
     }
+
+    [Fact]
+    public void IsDeadLettered_returns_true_when_later_case_variant_schema_version_is_below_minimum()
+    {
+        const string json = """
+            {"schemaVersion":1,"failureClass":"PipelineDeadLetter","SCHEMAVERSION":0}
+            """;
+
+        RunAuthorityPipelineDeadLetterDetection.IsDeadLettered(json).Should().BeTrue(
+            "a trailing poison schemaVersion alias must not hide an earlier supported version");
+    }
 }

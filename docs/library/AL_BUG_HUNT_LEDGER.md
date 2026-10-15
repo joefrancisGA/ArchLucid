@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-15 seed hunt (seed→hit): `archlucid-core` — promoted `RunAuthorityPipelineDeadLetterDetection.TryReadSupportedSchemaVersion` taking only the last case-variant `schemaVersion` token so a trailing below-minimum alias (e.g. `SCHEMAVERSION`:0 after `schemaVersion`:1) dropped pipeline dead-letter detection; scan aliases and retain the last supported version; regression `IsDeadLettered_returns_true_when_later_case_variant_schema_version_is_below_minimum`; scoped `FullyQualifiedName~ArchLucid.Core` ran 7,609 passed and 6 failed on the invalid extra-`k` week-UOM baseline (`AzureRetailPricesSkuMatchersWeekMeterTests`).
+
 2026-10-15 seed hunt (seed-only): `notifications-pipeline` — cheap-disproved five open candidates (opaque run-id `%E2%80%A8` literal substring at link build, compare-URL fragment with authority-normalized operator base, percent-encoded LS in navigable query-only `runDetailUrl`, digest Slack `Summary` LS as ChatOps display policy, product display name resolver bypass call sites); regression lock `SanitizeOperatorNavigableUrl_omits_percent_encoded_unicode_line_separator_from_query_string_only`; reseeded five follow-on candidates; 220 scoped notification/digest Application tests plus 16 digest webhook Decisioning tests passed.
 
 2026-10-15 seed hunt (seed→hit): `application-pilots` — promoted `PilotValueReportMarkdownFormatter` emitting bare `TotalRunsCommitted` in metadata when `CommittedRunsInventoryTruncated` is true (boolean row only; XML documents count may under-count); qualify committed-run count with partial-inventory copy (parity with run-detail cap row); regression `Format_when_committed_run_inventory_truncated_qualifies_total_runs_committed_as_partial_inventory`; cheap-disproved four open candidates; reseeded five follow-on candidates; 32 scoped BuyerProofPack/BoardPack tests plus 8 `PilotValueReportMarkdownFormatter` tests passed.
@@ -21108,7 +21110,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: archlucid-core
 
-2026-10-14 seed hunt (seed→hit): promoted `RunAuthorityPipelineDeadLetterDetection.TryDeserialize` dropping pipeline dead-letter state when a trailing empty case-variant `FAILURECLASS` followed a usable `failureClass`; structured reads now use `TryGetPropertyCaseInsensitivePreferLastNonEmpty` for `failureClass` and `schemaVersion`; regression `IsDeadLettered_returns_true_when_later_case_variant_failure_class_is_empty`; scoped `FullyQualifiedName~ArchLucid.Core` ran 7,392 passed and 6 failed on the invalid extra-`k` week-UOM baseline (`AzureRetailPricesSkuMatchersWeekMeterTests`).
+2026-10-15 seed hunt (seed→hit): promoted `RunAuthorityPipelineDeadLetterDetection.TryReadSupportedSchemaVersion` trailing below-minimum `SCHEMAVERSION` alias hiding supported `schemaVersion`; regression `IsDeadLettered_returns_true_when_later_case_variant_schema_version_is_below_minimum`; 7,609 Core scoped tests passed (6 invalid week-UOM baseline failures).
+
+2026-10-14 seed hunt (seed→hit): promoted `RunAuthorityPipelineDeadLetterDetection.TryDeserialize` dropping pipeline dead-letter state when a trailing empty case-variant `FAILURECLASS` followed a usable `failureClass`; structured reads now use `TryGetPropertyCaseInsensitivePreferLastNonEmpty` for `failureClass`; regression `IsDeadLettered_returns_true_when_later_case_variant_failure_class_is_empty`; scoped `FullyQualifiedName~ArchLucid.Core` ran 7,392 passed and 6 failed on the invalid extra-`k` week-UOM baseline (`AzureRetailPricesSkuMatchersWeekMeterTests`).
 
 2026-10-13 seed hunt (seed-only): the picker still exposes only this ledger path for the retired mega-zone; re-read `ArchLucid.Core` infra-evidence and explanation parsers plus recent `bugsmash` churn without promoting an invented hypothesis. No hunt-ready row met the same-run failing-repro bar. The scoped Core filter ran 7,329 passed and 6 failed on the explicitly invalid extra-`k` week-UOM baseline (`AzureRetailPricesSkuMatchersWeekMeterTests`). No production or regression change.
 
@@ -21150,11 +21154,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models; retired mega-zone
 - **paths:** docs/library/AL_BUG_HUNT_LEDGER.md
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 477
-- **last-hunt:** 2026-10-14
-- **bugs-found:** 3512
+- **hunts:** 478
+- **last-hunt:** 2026-10-15
+- **bugs-found:** 3513
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-14 — trailing empty duplicate failureClass hid pipeline dead-letter detection
+- **last-bug:** 2026-10-15 — trailing below-minimum schemaVersion alias hid pipeline dead-letter detection
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -21187,6 +21191,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ### Hypotheses
 
 - [x] (proven) `RunAuthorityPipelineDeadLetterDetection.TryDeserialize` — trailing empty case-variant `failureClass` hid `PipelineDeadLetter` — **hit 2026-10-14 seed hunt:** `TryGetPropertyCaseInsensitivePreferLastNonEmpty`; regression `IsDeadLettered_returns_true_when_later_case_variant_failure_class_is_empty`.
+- [x] (proven) `RunAuthorityPipelineDeadLetterDetection.TryReadSupportedSchemaVersion` — trailing below-minimum case-variant `schemaVersion` hid `PipelineDeadLetter` after an earlier supported version — **hit 2026-10-15 seed hunt (seed→hit):** scan case-insensitive aliases and keep last supported version; regression `IsDeadLettered_returns_true_when_later_case_variant_schema_version_is_below_minimum`.
 
 - [x] (proven) `AzureInventoryRecoveryServicesProtectedItemSanitizer.TryReadRecoveryTargetRegion` — Site Recovery list items (`HostedAzureInventoryRecoveryServicesCollector` → replication protected items) published the current failover region on `providerSpecificDetails.recoveryFabricLocation` while the sanitizer stored `initialRecoveryFabricLocation`, so reprotected VMs kept the original region on `recoveryServices.targetRegion` — **hit 2026-10-08 seed hunt:** prefer the current fabric location and fall back to the initial location; regression `TrySanitizeReplicationItem_reads_current_recovery_fabric_location`.
 - [x] (proven) `AzureInventoryEventGridDestinationExtractor.Extract` — Event Grid list items nest destination fields under `properties` — **hit 2026-10-09 seed hunt:** `HostedAzureInventoryEventGridSubscriptionCollector` uses API `2022-06-15`, whose `destination.properties` holds `resourceId` and `endpointUrl`; the extractor read only the destination object, so storage-queue and webhook subscriptions stored no destination; read the nested bag and keep the flattened fallback; regressions `Extract_reads_storage_queue_resource_id_from_nested_destination_properties` and `Extract_reads_webhook_host_from_nested_destination_properties`.
