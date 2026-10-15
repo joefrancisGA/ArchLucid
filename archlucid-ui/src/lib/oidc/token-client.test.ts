@@ -206,6 +206,24 @@ describe("refreshAccessToken", () => {
     ).rejects.toThrow(/^Session expired$/);
   });
 
+  it("surfaces numeric-string OAuth error codes on token endpoint errors", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: false,
+      status: 400,
+      text: async () => JSON.stringify({ error: "403", error_description: "Forbidden" }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      refreshAccessToken({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        refreshToken: "rt",
+      }),
+    ).rejects.toThrow(/^403: Forbidden$/);
+  });
+
   it("omits hyphen-only OAuth error_description values on token endpoint errors", async () => {
     const fetchMock = vi.fn(async () => ({
       ok: false,

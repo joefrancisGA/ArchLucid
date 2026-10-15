@@ -60,4 +60,8 @@ describe("resolveExpiresInSeconds", () => {
   it("parses a numeric string expires_in in scientific notation", () => {
     expect(resolveExpiresInSeconds("3.6e3" as unknown as number)).toBe(3600);
   });
+
+  it("parses a binary-prefixed string expires_in when Number accepts the literal", () => {
+    expect(resolveExpiresInSeconds("0b101" as unknown as number)).toBe(5);
+  });
 });

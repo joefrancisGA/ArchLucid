@@ -110,7 +110,7 @@ export function humanizeAuthorizeCallbackError(errorCode: string, decodedDescrip
   const detail = isReadableOAuthErrorDetail(sanitizedDetail) ? sanitizedDetail : "";
   const readableCode = formatErrorCodeForReading(normalized);
 
-  if (normalized.length === 0 || readableCode.length === 0) {
+  if (!isReadableOAuthErrorCode(normalized)) {
     return buyerSafeAuthorizeErrorWithoutCode(detail);
   }
 

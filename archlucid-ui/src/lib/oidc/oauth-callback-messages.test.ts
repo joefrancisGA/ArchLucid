@@ -96,6 +96,12 @@ describe("humanizeAuthorizeCallbackError", () => {
     expect(humanizeAuthorizeCallbackError("___", "")).not.toMatch(/\(\s*\)/u);
   });
 
+  it("avoids punctuation-only authorize error codes in default callback copy", () => {
+    expect(humanizeAuthorizeCallbackError("...", "")).toContain("complete response");
+    expect(humanizeAuthorizeCallbackError("...", "")).not.toContain("...");
+    expect(humanizeAuthorizeCallbackError("...", "")).not.toMatch(/Sign-in did not finish \(\.\.\.\)/u);
+  });
+
   it("omits underscore-only authorize error descriptions from callback copy", () => {
     expect(humanizeAuthorizeCallbackError("access_denied", "___")).toContain("canceled sign-in");
     expect(humanizeAuthorizeCallbackError("access_denied", "___")).not.toContain("___");
@@ -162,6 +168,15 @@ describe("humanizeAuthorizeCallbackError", () => {
     const message = humanizeAuthorizeCallbackError("server_error", oversized);
 
     expect(message).toContain("temporary error");
+    expect(message.length).toBeLessThanOrEqual(280);
+    expect(message).not.toContain("Policy");
+  });
+
+  it("uses fixed copy for login_required regardless of oversized error_description", () => {
+    const oversized = `${"Policy ".repeat(80)}end`;
+    const message = humanizeAuthorizeCallbackError("login_required", oversized);
+
+    expect(message).toContain("Another sign-in step");
     expect(message.length).toBeLessThanOrEqual(280);
     expect(message).not.toContain("Policy");
   });
