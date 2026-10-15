@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Pilots;
 
 /// <summary>
@@ -15,11 +17,13 @@ namespace ArchLucid.Contracts.Pilots;
 public sealed class RecentPilotRunDeltasResponse
 {
     /// <summary>The committed runs included in the aggregate (newest first), each pre-projected for slim transport.</summary>
+    private IReadOnlyList<RecentPilotRunDeltaSummaryResponse> items = [];
+
     public IReadOnlyList<RecentPilotRunDeltaSummaryResponse> Items
     {
-        get;
-        init;
-    } = [];
+        get => items;
+        init => items = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 
     /// <summary>Number requested by the caller via <c>?count=</c> (clamped to the service's hard upper bound before this query ran).</summary>
     public int RequestedCount

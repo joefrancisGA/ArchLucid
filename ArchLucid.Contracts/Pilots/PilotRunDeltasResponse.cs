@@ -1,6 +1,7 @@
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Explanation;
 using ArchLucid.Contracts.Roi;
+using ArchLucid.Contracts.Serialization;
 
 namespace ArchLucid.Contracts.Pilots;
 
@@ -33,11 +34,13 @@ public sealed class PilotRunDeltasResponse
         init;
     }
 
+    private IReadOnlyList<PilotRunDeltaSeverityCountResponse> findingsBySeverity = [];
+
     public IReadOnlyList<PilotRunDeltaSeverityCountResponse> FindingsBySeverity
     {
-        get;
-        init;
-    } = [];
+        get => findingsBySeverity;
+        init => findingsBySeverity = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 
     public int AuditRowCount
     {
@@ -123,11 +126,13 @@ public sealed class PilotRunDeltasResponse
     }
 
     /// <summary>ROI source catalog rows for the tenant value window aligned with this run (proof-packet).</summary>
+    private IReadOnlyList<RoiMetricSourceRow> roiMetricSources = [];
+
     public IReadOnlyList<RoiMetricSourceRow> RoiMetricSources
     {
-        get;
-        init;
-    } = [];
+        get => roiMetricSources;
+        init => roiMetricSources = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 
     /// <summary>PASS, WARN, or HOLD — server-side ROI freshness disposition (assessment #6).</summary>
     public string RoiSourceFreshnessDisposition
