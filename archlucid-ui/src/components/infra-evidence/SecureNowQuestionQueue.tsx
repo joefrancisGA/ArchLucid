@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 
 import { Button } from "@/components/ui/button";
+import { StatusTag } from "@/components/ui/status-tag";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { formatDiagramArmTypeFriendlyName } from "@/lib/infra-evidence/format-diagram-arm-type-friendly-name";
 import { normalizeSecureNowResourceNameForDisplay } from "@/lib/infra-evidence/format-azure-resource-display";
@@ -94,9 +95,6 @@ export function SecureNowQuestionQueueSnapshotPromo(): React.JSX.Element | null 
   const {
     drawerOpen,
     openQuestions,
-    loading,
-    questionsLoaded,
-    loadError,
     setFilter,
     setCurrentIndex,
     setDrawerOpen,
@@ -112,10 +110,7 @@ export function SecureNowQuestionQueueSnapshotPromo(): React.JSX.Element | null 
       ?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [drawerOpen]);
 
-  if (
-    openQuestions.length === 0
-    && (loading || loadError || !questionsLoaded)
-  ) {
+  if (openQuestions.length === 0) {
     return null;
   }
 
@@ -124,24 +119,23 @@ export function SecureNowQuestionQueueSnapshotPromo(): React.JSX.Element | null 
       className={cn("m-0 flex flex-wrap items-center gap-x-2 gap-y-1", OPERATOR_TYPOGRAPHY.helper)}
       data-testid="infra-diagrams-question-snapshot-promo"
     >
-      <span className="text-al-text-secondary">
-        {loadError ? "Questions could not be loaded." : openQuestionsCountLabel(openQuestions.length)}
+      <StatusTag kind="needs-attention" />
+      <span className={cn("font-medium", OPERATOR_TYPOGRAPHY.helper)}>
+        {openQuestionsCountLabel(openQuestions.length)}
       </span>
-      {openQuestions.length > 0 ? (
-        <Button
-          type="button"
-          size="sm"
-          variant="outline"
-          data-testid="infra-diagrams-question-review"
-          onClick={() => {
-            setFilter("Open");
-            setCurrentIndex(0);
-            setDrawerOpen(true);
-          }}
-        >
-          Review
-        </Button>
-      ) : null}
+      <Button
+        type="button"
+        size="sm"
+        variant="outline"
+        data-testid="infra-diagrams-question-review"
+        onClick={() => {
+          setFilter("Open");
+          setCurrentIndex(0);
+          setDrawerOpen(true);
+        }}
+      >
+        Review questions
+      </Button>
     </p>
   );
 }
