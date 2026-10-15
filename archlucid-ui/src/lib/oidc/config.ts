@@ -105,6 +105,20 @@ export function getGoogleOidcClientId(): string {
   return normalizeOidcConfigurationString(clientId);
 }
 
+export function getGoogleOidcScopes(): string {
+  const scopes = process.env.NEXT_PUBLIC_GOOGLE_OIDC_SCOPES;
+
+  if (scopes !== undefined) {
+    const normalized = normalizeOidcConfigurationString(scopes);
+
+    if (normalized.length > 0) {
+      return normalized;
+    }
+  }
+
+  return "openid profile email";
+}
+
 export function assertOidcSignInConfig(): { ok: true } | { ok: false; message: string } {
   if (!isJwtAuthMode()) {
     return { ok: false, message: "Set NEXT_PUBLIC_ARCHLUCID_AUTH_MODE to jwt or jwt-bearer." };
