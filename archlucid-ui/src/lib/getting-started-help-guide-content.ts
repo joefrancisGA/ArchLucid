@@ -913,6 +913,22 @@ export function resolveGettingStartedHelpWorkflowSectionTitle(productLineId: Pro
   return "What happens during a review?";
 }
 
+export const SECURENOW_GETTING_STARTED_HELP_WORKFLOW_SECTION_INTRO =
+  "Follow this path from cloud evidence intake through findings triage and remediation follow-up.";
+
+export const GETTING_STARTED_HELP_WORKFLOW_SECTION_INTRO =
+  "Follow this path from evidence intake through shareable outputs.";
+
+export function resolveGettingStartedHelpWorkflowSectionIntro(
+  productLineId: ProductLineId = "architecture",
+): string {
+  if (isSecureNowProductLine(productLineId)) {
+    return SECURENOW_GETTING_STARTED_HELP_WORKFLOW_SECTION_INTRO;
+  }
+
+  return GETTING_STARTED_HELP_WORKFLOW_SECTION_INTRO;
+}
+
 export const GETTING_STARTED_HELP_GUIDE_HEADINGS: readonly HelpMarkdownHeading[] = [
   { level: 2, id: "quick-start", title: GETTING_STARTED_HELP_QUICK_START_TITLE },
   { level: 2, id: "what-to-do-next", title: "What to do next" },
