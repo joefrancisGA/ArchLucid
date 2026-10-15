@@ -148,6 +148,62 @@ public sealed class ToxicCombinationEngineTests
     }
 
     [Fact]
+    public async Task RunAsync_unverified_reachability_hop_downgrades_toxic_path_confidence_band()
+    {
+        ScopeContext scope = CreateScope();
+        Guid storageRowId = Guid.NewGuid();
+        Guid managedIdentityRowId = Guid.NewGuid();
+        AzureInventorySnapshotDetailReadModel snapshot =
+            BuildToxicCombinationSnapshotWithUnverifiedReachability(storageRowId, managedIdentityRowId);
+
+        InMemorySecurityEvidencePathRepository pathRepository = new();
+        InMemoryOperationalSecurityFindingRepository findingRepository = new();
+        OperationalSecurityFindingIngestService ingestService = CreateIngestService(findingRepository);
+
+        PrivilegePathEngine privilegeEngine = CreatePrivilegeEngine(snapshot, scope, pathRepository, ingestService);
+        IntendedReachabilityEngine reachabilityEngine =
+            CreateReachabilityEngine(snapshot, scope, pathRepository, ingestService);
+        ToxicCombinationEngine toxicEngine = CreateToxicEngine(snapshot, scope, pathRepository, ingestService);
+
+        await privilegeEngine.RunAsync(scope, SnapshotId, SecureNowArchitectConstants.SystemActorId, CancellationToken.None);
+        (await reachabilityEngine.RunAsync(scope, SnapshotId, SecureNowArchitectConstants.SystemActorId, CancellationToken.None))
+            .PathsDiscovered.Should().BeGreaterThan(0);
+
+        await toxicEngine.RunAsync(scope, SnapshotId, SecureNowArchitectConstants.SystemActorId, CancellationToken.None);
+
+        SecurityEvidencePathRecord toxicPath = pathRepository.StoredPaths
+            .Should()
+            .ContainSingle(path => path.PathKind == PathKind.ToxicCombination)
+            .Subject;
+
+        toxicPath.PathConfidenceBand.Should().Be(PathConfidenceBand.InsufficientEvidence);
+
+        IReadOnlyList<SecurityEvidencePathHopRecord> hops =
+            await pathRepository.ListHopsByPathAsync(TenantId, toxicPath.PathId, CancellationToken.None);
+
+        hops.Should().Contain(hop =>
+            hop.EdgeType == SecureNowArchitectConstants.InsufficientEvidenceNsgHopEdgeType
+            && hop.HopConfidenceBand == PathConfidenceBand.InsufficientEvidence);
+
+        OperationalSecurityFindingRecord finding = findingRepository.StoredFindings
+            .Should()
+            .ContainSingle(storedFinding =>
+                storedFinding.PathId == toxicPath.PathId
+                && storedFinding.ControlId == SecureNowArchitectConstants.ToxicCombinationControlId)
+            .Subject;
+
+        finding.Description.Should().Contain("InsufficientEvidence");
+        findingRepository.StoredMetadata.Should().Contain(metadata =>
+            metadata.FindingId == finding.FindingId
+            && metadata.MetadataKey == "pathConfidenceBand"
+            && metadata.MetadataValue == nameof(PathConfidenceBand.InsufficientEvidence));
+        findingRepository.StoredMetadata.Should().Contain(metadata =>
+            metadata.FindingId == finding.FindingId
+            && metadata.MetadataKey == "hasInsufficientEvidenceHop"
+            && metadata.MetadataValue == bool.TrueString);
+    }
+
+    [Fact]
     public async Task RunAsync_only_privilege_paths_produces_no_toxic_combination()
     {
         ScopeContext scope = CreateScope();
@@ -272,10 +328,37 @@ public sealed class ToxicCombinationEngineTests
 
     private static AzureInventorySnapshotDetailReadModel BuildToxicCombinationSnapshot(
         Guid storageRowId,
-        Guid managedIdentityRowId)
+        Guid managedIdentityRowId) =>
+        BuildToxicCombinationSnapshotCore(storageRowId, managedIdentityRowId, includeNsgReachabilityRoute: true);
+
+    private static AzureInventorySnapshotDetailReadModel BuildToxicCombinationSnapshotWithUnverifiedReachability(
+        Guid storageRowId,
+        Guid managedIdentityRowId) =>
+        BuildToxicCombinationSnapshotCore(storageRowId, managedIdentityRowId, includeNsgReachabilityRoute: false);
+
+    private static AzureInventorySnapshotDetailReadModel BuildToxicCombinationSnapshotCore(
+        Guid storageRowId,
+        Guid managedIdentityRowId,
+        bool includeNsgReachabilityRoute)
     {
         string userPrincipalNode = AzureInventoryPrincipalNodeId.Format(UserPrincipalId);
         string managedIdentityPrincipalNode = AzureInventoryPrincipalNodeId.Format(ManagedIdentityPrincipalId);
+
+        AzureInventoryResourceRelationshipReadModel subnetToStorage = includeNsgReachabilityRoute
+            ? new AzureInventoryResourceRelationshipReadModel
+            {
+                FromAzureResourceId = SubnetArm,
+                ToAzureResourceId = StorageArm,
+                RelationshipType = GraphEdgeTypes.RoutesTo,
+                ProvenanceKind = ProvenanceKind.DeterministicInference,
+            }
+            : new AzureInventoryResourceRelationshipReadModel
+            {
+                FromAzureResourceId = SubnetArm,
+                ToAzureResourceId = StorageArm,
+                RelationshipType = GraphEdgeTypes.ConnectsTo,
+                ProvenanceKind = ProvenanceKind.ObservedFact,
+            };
 
         return new AzureInventorySnapshotDetailReadModel
         {
@@ -322,13 +405,7 @@ public sealed class ToxicCombinationEngineTests
                     RelationshipType = GraphEdgeTypes.ConnectsTo,
                     ProvenanceKind = ProvenanceKind.ObservedFact,
                 },
-                new AzureInventoryResourceRelationshipReadModel
-                {
-                    FromAzureResourceId = SubnetArm,
-                    ToAzureResourceId = StorageArm,
-                    RelationshipType = GraphEdgeTypes.RoutesTo,
-                    ProvenanceKind = ProvenanceKind.DeterministicInference,
-                },
+                subnetToStorage,
                 new AzureInventoryResourceRelationshipReadModel
                 {
                     FromAzureResourceId = SubnetArm,
