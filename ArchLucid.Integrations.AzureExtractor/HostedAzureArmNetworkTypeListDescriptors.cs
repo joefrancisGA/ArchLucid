@@ -8,6 +8,8 @@ internal static class HostedAzureArmNetworkTypeListDescriptors
 {
     internal const string NetworkApiVersion = "2023-09-01";
 
+    internal const string NetworkSecurityPerimeterApiVersion = "2024-07-01";
+
     internal const string ComputeApiVersion = "2024-03-01";
 
     internal const string WebApiVersion = "2023-01-01";
@@ -46,6 +48,9 @@ internal static class HostedAzureArmNetworkTypeListDescriptors
         new("Microsoft.Network/frontDoors", $"providers/Microsoft.Network/frontDoors?api-version={FrontDoorApiVersion}"),
         new("Microsoft.App/containerApps", $"providers/Microsoft.App/containerApps?api-version={ContainerAppsApiVersion}"),
         new("Microsoft.App/managedEnvironments", $"providers/Microsoft.App/managedEnvironments?api-version={ContainerAppsApiVersion}"),
+        new(
+            "Microsoft.Network/networkSecurityPerimeters",
+            $"providers/Microsoft.Network/networkSecurityPerimeters?api-version={NetworkSecurityPerimeterApiVersion}"),
     ];
 }
 

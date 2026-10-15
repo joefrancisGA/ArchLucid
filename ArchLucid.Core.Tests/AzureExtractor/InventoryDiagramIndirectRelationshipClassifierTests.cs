@@ -35,4 +35,25 @@ public sealed class InventoryDiagramIndirectRelationshipClassifierTests
             .Should()
             .BeFalse();
     }
+
+    [Fact]
+    public void TryClassify_does_not_classify_nsp_child_resources_as_perimeter()
+    {
+        InventoryDiagramIndirectRelationshipClassifier.TryClassify(
+                "Microsoft.Network/networkSecurityPerimeters/databricks-nsp/resourceAssociations/storage-1",
+                out _)
+            .Should()
+            .BeFalse();
+    }
+
+    [Fact]
+    public void TryClassify_classifies_nsp_parent_resource()
+    {
+        bool classified = InventoryDiagramIndirectRelationshipClassifier.TryClassify(
+            "Microsoft.Network/networkSecurityPerimeters",
+            out InventoryDiagramIndirectRelationshipCategory category);
+
+        classified.Should().BeTrue();
+        category.Should().Be(InventoryDiagramIndirectRelationshipCategory.NetworkSecurityPerimeter);
+    }
 }

@@ -78,6 +78,8 @@ public static class GraphEdgeInferenceSources
 
     public const string InventoryNodePool = "inventory-node-pool";
 
+    public const string InventoryNspAssociation = "inventory-nsp-association";
+
     public const string InventoryServiceConnectorLink = "inventory-service-connector-link";
 
     public const string InventorySynapseLinkedService = "inventory-synapse-linked-service";

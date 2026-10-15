@@ -108,6 +108,15 @@ public interface IHostedAzureArmReadClient
         CancellationToken cancellationToken);
 
     /// <summary>
+    ///     GET resource associations for one network security perimeter (NR-37).
+    /// </summary>
+    Task<IReadOnlyList<HostedAzureArmResourceRecord>> ListNetworkSecurityPerimeterResourceAssociationsAsync(
+        string accessToken,
+        string subscriptionId,
+        string networkSecurityPerimeterResourceId,
+        CancellationToken cancellationToken);
+
+    /// <summary>
     ///     GET NIC effective NSG and route table (IE-RF-10). Fail-soft per control kind.
     /// </summary>
     Task<IReadOnlyList<HostedAzureArmEffectiveNetworkControlRecord>> ListEffectiveNetworkControlsForNicAsync(

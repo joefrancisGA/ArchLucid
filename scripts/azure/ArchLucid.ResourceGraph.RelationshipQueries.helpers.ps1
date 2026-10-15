@@ -577,6 +577,64 @@ function Add-ArchLucidArgNetworkAssociationRowsFromPrivateEndpointRecord
     }
 }
 
+function Get-ArchLucidNetworkSecurityPerimeterIdFromAssociationResourceId
+{
+    param(
+        [Parameter(Mandatory = $true)]
+        [string] $AssociationResourceId
+    )
+
+    [string]$normalized = "$AssociationResourceId".Trim()
+    [string]$segment = '/resourceAssociations/'
+
+    if ([string]::IsNullOrWhiteSpace($normalized)) { return $null }
+
+    [int]$segmentIndex = $normalized.IndexOf($segment, [System.StringComparison]::OrdinalIgnoreCase)
+
+    if ($segmentIndex -le 0) { return $null }
+
+    return $normalized.Substring(0, $segmentIndex)
+}
+
+function Add-ArchLucidArgNetworkAssociationRowsFromNspResourceAssociationRecord
+{
+    param(
+        [System.Collections.IList] $Rows,
+        [hashtable] $Seen,
+        [string] $AssociationResourceId,
+        [string] $PrivateLinkResourceId,
+        [string] $ProfileId = $null,
+        [string] $AccessMode = $null
+    )
+
+    [string]$perimeterId = Get-ArchLucidNetworkSecurityPerimeterIdFromAssociationResourceId -AssociationResourceId $AssociationResourceId
+    [string]$memberId = "$PrivateLinkResourceId".Trim()
+
+    if ([string]::IsNullOrWhiteSpace($perimeterId) -or [string]::IsNullOrWhiteSpace($memberId)) { return }
+
+    [string]$normalizedProfileId = "$( $ProfileId )".Trim()
+    [string]$normalizedAccessMode = "$( $AccessMode )".Trim()
+    [hashtable]$rowParams = @{
+        Rows = $Rows
+        Seen = $Seen
+        FromResourceId = $perimeterId
+        ToResourceId = $memberId
+        AssociationType = 'networkSecurityPerimeterToResource'
+    }
+
+    if (-not [string]::IsNullOrWhiteSpace($normalizedProfileId))
+    {
+        $rowParams['ProfileId'] = $normalizedProfileId
+    }
+
+    if (-not [string]::IsNullOrWhiteSpace($normalizedAccessMode))
+    {
+        $rowParams['AccessMode'] = $normalizedAccessMode
+    }
+
+    Add-ArchLucidNetworkAssociationRow @rowParams
+}
+
 function Get-ArchLucidArgNetworkAssociationQuerySpecs
 {
     param(
@@ -631,6 +689,10 @@ function Get-ArchLucidArgNetworkAssociationQuerySpecs
         [pscustomobject]@{
             Kind = 'privateEndpoint'
             Query = "Resources | where type =~ 'microsoft.network/privateendpoints' $rgFilter | project id, type, subnetId = tostring(properties.subnet.id), networkInterfaces = properties.networkInterfaces, privateLinkServiceConnections = properties.privateLinkServiceConnections, manualPrivateLinkServiceConnections = properties.manualPrivateLinkServiceConnections"
+        }
+        [pscustomobject]@{
+            Kind = 'networkSecurityPerimeterResourceAssociation'
+            Query = "Resources | where type =~ 'microsoft.network/networksecurityperimeters/resourceassociations' $rgFilter | project id, type, privateLinkResourceId = tostring(properties.privateLinkResource.id), profileId = tostring(properties.profile.id), accessMode = tostring(properties.accessMode)"
         }
     )
 }
@@ -816,6 +878,15 @@ function Get-ArchLucidAzureNetworkAssociationRowsViaResourceGraph
                             -NetworkInterfacesJson $Row.networkInterfaces `
                             -PrivateLinkServiceConnectionsJson $Row.privateLinkServiceConnections `
                             -ManualPrivateLinkServiceConnectionsJson $Row.manualPrivateLinkServiceConnections
+                    }
+                    'networkSecurityPerimeterResourceAssociation' {
+                        Add-ArchLucidArgNetworkAssociationRowsFromNspResourceAssociationRecord `
+                            -Rows $rows `
+                            -Seen $seen `
+                            -AssociationResourceId $resourceId `
+                            -PrivateLinkResourceId "$( $Row.privateLinkResourceId )".Trim() `
+                            -ProfileId "$( $Row.profileId )".Trim() `
+                            -AccessMode "$( $Row.accessMode )".Trim()
                     }
                 }
             }

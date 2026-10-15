@@ -314,6 +314,47 @@ Describe 'ArchLucid.ResourceGraph.RelationshipQueries.helpers.ps1' {
         $rows[0].toResourceId | Should -Match 'virtualNetworks/hub'
     }
 
+    It 'emits network security perimeter to resource association from ARG row' {
+        $rows = [System.Collections.ArrayList]::new()
+        $seen = @{}
+        $perimeterId = '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/networkSecurityPerimeters/databricks-nsp'
+        $storageId = '/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1'
+        $associationId = "$perimeterId/resourceAssociations/storage-1"
+        $profileId = "$perimeterId/profiles/default"
+
+        Add-ArchLucidArgNetworkAssociationRowsFromNspResourceAssociationRecord `
+            -Rows $rows `
+            -Seen $seen `
+            -AssociationResourceId $associationId `
+            -PrivateLinkResourceId $storageId `
+            -ProfileId $profileId `
+            -AccessMode 'Learning'
+
+        $rows.Count | Should -Be 1
+        $rows[0].associationType | Should -Be 'networkSecurityPerimeterToResource'
+        $rows[0].fromResourceId | Should -Be $perimeterId
+        $rows[0].toResourceId | Should -Be $storageId
+        $rows[0].profileId | Should -Be $profileId
+        $rows[0].accessMode | Should -Be 'Learning'
+
+        Add-ArchLucidArgNetworkAssociationRowsFromNspResourceAssociationRecord `
+            -Rows $rows `
+            -Seen $seen `
+            -AssociationResourceId "$associationId-duplicate" `
+            -PrivateLinkResourceId $storageId
+
+        $rows.Count | Should -Be 1
+    }
+
+    It 'includes network security perimeter resource association ARG query' {
+        $spec = @(Get-ArchLucidArgNetworkAssociationQuerySpecs |
+            Where-Object { $_.Kind -eq 'networkSecurityPerimeterResourceAssociation' })
+
+        $spec.Count | Should -Be 1
+        $spec[0].Query | Should -Match 'networksecurityperimeters/resourceassociations'
+        $spec[0].Query | Should -Match 'privateLinkResource.id'
+    }
+
     It 'builds an ARG query for AVD session host to VM associations' {
         $specQuery = @(
             Get-ArchLucidArgNetworkAssociationQuerySpecs |

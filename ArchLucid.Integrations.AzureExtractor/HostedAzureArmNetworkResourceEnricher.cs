@@ -82,6 +82,20 @@ internal static class HostedAzureArmNetworkResourceEnricher
             merged = HostedAzureArmResourceRecordMerger.MergeByResourceId(merged, peeringResources).ToList();
         }
 
+        IReadOnlyList<HostedAzureArmResourceRecord> nspAssociationResources =
+            await TryListNetworkSecurityPerimeterResourceAssociationsAsync(
+                armReadClient,
+                accessToken,
+                subscriptionId,
+                merged,
+                logger,
+                cancellationToken).ConfigureAwait(false);
+
+        if (nspAssociationResources.Count > 0)
+        {
+            merged = HostedAzureArmResourceRecordMerger.MergeByResourceId(merged, nspAssociationResources).ToList();
+        }
+
         return new HostedAzureArmNetworkResourceEnrichResult(merged, warnings);
     }
 
@@ -174,6 +188,49 @@ internal static class HostedAzureArmNetworkResourceEnricher
         }
 
         return peeringResources;
+    }
+
+    private static async Task<IReadOnlyList<HostedAzureArmResourceRecord>> TryListNetworkSecurityPerimeterResourceAssociationsAsync(
+        IHostedAzureArmReadClient armReadClient,
+        string accessToken,
+        string subscriptionId,
+        IReadOnlyList<HostedAzureArmResourceRecord> resources,
+        ILogger logger,
+        CancellationToken cancellationToken)
+    {
+        List<HostedAzureArmResourceRecord> associationResources = [];
+
+        foreach (HostedAzureArmResourceRecord perimeter in resources.Where(resource =>
+                     AzureInventoryNetworkSecurityPerimeterResourceTypes.IsPerimeterResourceType(resource.ResourceType)))
+        {
+            try
+            {
+                IReadOnlyList<HostedAzureArmResourceRecord> listed = await armReadClient
+                    .ListNetworkSecurityPerimeterResourceAssociationsAsync(
+                        accessToken,
+                        subscriptionId,
+                        perimeter.ResourceId,
+                        cancellationToken)
+                    .ConfigureAwait(false);
+
+                if (listed.Count > 0)
+                {
+                    associationResources.AddRange(listed);
+                }
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                if (logger.IsEnabled(LogLevel.Debug))
+                {
+                    logger.LogDebug(
+                        ex,
+                        "Hosted Azure extractor NSP resource association list failed for {PerimeterId}.",
+                        perimeter.ResourceId);
+                }
+            }
+        }
+
+        return associationResources;
     }
 
     private static bool HasNestedPeeringRemoteVnets(HostedAzureArmResourceRecord vnet)

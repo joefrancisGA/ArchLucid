@@ -37,7 +37,7 @@ public static class InventoryDiagramIndirectRelationshipClassifier
             return true;
         }
 
-        if (armResourceType.Contains("networkSecurityPerimeters", StringComparison.OrdinalIgnoreCase))
+        if (AzureInventoryNetworkSecurityPerimeterResourceTypes.IsPerimeterResourceType(armResourceType))
         {
             category = InventoryDiagramIndirectRelationshipCategory.NetworkSecurityPerimeter;
             return true;
