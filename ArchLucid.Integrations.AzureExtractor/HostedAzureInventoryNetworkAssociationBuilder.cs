@@ -39,6 +39,8 @@ internal static class HostedAzureInventoryNetworkAssociationBuilder
             AddManagedClusterAssociations(resource, rows, keys);
             AddDatabricksWorkspaceAssociations(resource, rows, keys);
             AddNetworkSecurityPerimeterResourceAssociation(resource, rows, keys);
+            AddMonitorPrivateLinkScopeScopedResourceAssociation(resource, rows, keys);
+            AddMonitorPrivateLinkScopePrivateEndpointConnections(resource, rows, keys);
             AddPeDnsZoneGroupAssociations(resource, rows, keys);
         }
 
@@ -898,6 +900,118 @@ internal static class HostedAzureInventoryNetworkAssociationBuilder
             perimeterId,
             memberId,
             AzureInventoryRelationshipAssociationTypes.NetworkSecurityPerimeterToResource);
+    }
+
+    private static void AddMonitorPrivateLinkScopeScopedResourceAssociation(
+        HostedAzureArmResourceRecord resource,
+        List<HostedAzureArmNetworkAssociationRecord> rows,
+        HashSet<string> keys)
+    {
+        if (!resource.ResourceType.Contains("privateLinkScopes/scopedResources", StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        if (!AzureInventoryMonitorPrivateLinkScopeResourceTypes.TryParseScopeIdFromScopedResourceId(
+                resource.ResourceId,
+                out string? scopeId)
+            || string.IsNullOrWhiteSpace(scopeId))
+        {
+            return;
+        }
+
+        string? linkedResourceId = TryReadProperty(
+            resource.Properties,
+            "linkedResourceId",
+            "properties.linkedResourceId");
+
+        if (string.IsNullOrWhiteSpace(linkedResourceId))
+        {
+            linkedResourceId = TryReadNestedArmIdFromProperties(resource.Properties, "linkedResource");
+        }
+
+        if (string.IsNullOrWhiteSpace(linkedResourceId))
+        {
+            return;
+        }
+
+        AddRow(
+            rows,
+            keys,
+            scopeId,
+            linkedResourceId,
+            AzureInventoryRelationshipAssociationTypes.MonitorPrivateLinkScopeToScopedResource);
+    }
+
+    private static void AddMonitorPrivateLinkScopePrivateEndpointConnections(
+        HostedAzureArmResourceRecord resource,
+        List<HostedAzureArmNetworkAssociationRecord> rows,
+        HashSet<string> keys)
+    {
+        if (!AzureInventoryMonitorPrivateLinkScopeResourceTypes.IsScopeResourceType(resource.ResourceType))
+        {
+            return;
+        }
+
+        string? connectionsJson = TryReadProperty(resource.Properties, "privateEndpointConnections");
+
+        if (string.IsNullOrWhiteSpace(connectionsJson))
+        {
+            return;
+        }
+
+        try
+        {
+            using JsonDocument document = JsonDocument.Parse(connectionsJson);
+
+            if (document.RootElement.ValueKind is not JsonValueKind.Array)
+            {
+                return;
+            }
+
+            foreach (JsonElement connection in document.RootElement.EnumerateArray())
+            {
+                string? privateEndpointId = TryReadPrivateEndpointIdFromConnection(connection);
+
+                if (string.IsNullOrWhiteSpace(privateEndpointId))
+                {
+                    continue;
+                }
+
+                AddRow(
+                    rows,
+                    keys,
+                    privateEndpointId,
+                    resource.ResourceId,
+                    AzureInventoryRelationshipAssociationTypes.PrivateEndpointTarget);
+            }
+        }
+        catch (JsonException)
+        {
+        }
+    }
+
+    private static string? TryReadPrivateEndpointIdFromConnection(JsonElement connection)
+    {
+        if (connection.TryGetProperty("properties", out JsonElement propertiesElement)
+            && propertiesElement.ValueKind is JsonValueKind.Object
+            && propertiesElement.TryGetProperty("privateEndpoint", out JsonElement privateEndpointElement)
+            && privateEndpointElement.ValueKind is JsonValueKind.Object
+            && privateEndpointElement.TryGetProperty("id", out JsonElement idElement)
+            && idElement.ValueKind is JsonValueKind.String)
+        {
+            return idElement.GetString();
+        }
+
+        if (connection.TryGetProperty("privateEndpoint", out JsonElement directPrivateEndpointElement)
+            && directPrivateEndpointElement.ValueKind is JsonValueKind.Object
+            && directPrivateEndpointElement.TryGetProperty("id", out JsonElement directIdElement)
+            && directIdElement.ValueKind is JsonValueKind.String)
+        {
+            return directIdElement.GetString();
+        }
+
+        return null;
     }
 
     private static string? TryReadNestedArmIdFromProperties(

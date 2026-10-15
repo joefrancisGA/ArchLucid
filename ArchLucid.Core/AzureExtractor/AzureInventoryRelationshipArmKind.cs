@@ -58,4 +58,7 @@ public enum AzureInventoryRelationshipArmKind
 
     /// <summary>Azure Network Security Perimeter parent resource (NR-37).</summary>
     NetworkSecurityPerimeter = 37,
+
+    /// <summary>Azure Monitor private link scope parent resource (NR-38).</summary>
+    MonitorPrivateLinkScope = 38,
 }
