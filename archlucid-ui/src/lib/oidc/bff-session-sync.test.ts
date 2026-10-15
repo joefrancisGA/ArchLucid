@@ -256,4 +256,20 @@ describe("refreshBffSessionCookie (LK-06 P2)", () => {
 
     expect(result).toEqual({ ok: true, expiresAtMs: futureMs });
   });
+
+  it("accepts refresh responses whose expires_at_ms string has zero-width padding", async () => {
+    const futureMs = Date.now() + 3_600_000;
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({
+        ok: true,
+        json: async () => ({ expires_at_ms: `${futureMs}\u200b` }),
+      })),
+    );
+
+    const result = await refreshBffSessionCookie();
+
+    expect(result).toEqual({ ok: true, expiresAtMs: futureMs });
+  });
 });
