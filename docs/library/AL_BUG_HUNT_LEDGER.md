@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-15 seed hunt (seed→hit): `archlucid-contracts` — promoted `InfraEvidenceMermaidCompletenessSummary.MissingClasses` and `CollectedClasses` explicit JSON `null` on mermaid completeness JSON (single consolidated fix); `ContractCollectionDefaults.Coalesce` on both setters; regression `Deserialize_null_class_list_properties_yields_empty_lists_not_null`; reseeded five follow-on `(candidate)` rows; 747 scoped `Contracts` filter tests passed.
+
 2026-10-15 seed hunt (seed→hit): `archlucid-contracts` — promoted `PolicyPackSimulateBulkSummary.Results` explicit JSON `null` on bulk policy-pack simulate summary JSON; `ContractCollectionDefaults.Coalesce` on `Results` setter; regression `Deserialize_null_results_yields_empty_list_not_null`; reseeded five follow-on `(candidate)` rows; 746 scoped `Contracts` filter tests passed.
 
 2026-10-15 seed hunt (seed→hit): `archlucid-contracts` — promoted `CrossTenantPortfolioSummaryResponse.TopSystemicIssues` explicit JSON `null` on cross-tenant portfolio summary JSON; `ContractCollectionDefaults.Coalesce` on `TopSystemicIssues` setter; regression `Deserialize_null_top_systemic_issues_yields_empty_list_not_null`; reseeded five follow-on `(candidate)` rows; 745 scoped `Contracts` filter tests passed.
@@ -29870,6 +29872,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 ---
 ## Zone: archlucid-contracts
 
+2026-10-15 seed hunt (seed→hit): promoted `InfraEvidenceMermaidCompletenessSummary` JSON `null` on `MissingClasses` and `CollectedClasses`; `ContractCollectionDefaults.Coalesce` on both setters; regression `InfraEvidenceMermaidCompletenessSummaryDeserializationTests`; 747 scoped `Contracts` filter tests passed.
+
 2026-10-15 seed hunt (seed→hit): promoted `PolicyPackSimulateBulkSummary.Results` JSON `null` leaving `Results` null despite `= []` initializer; `ContractCollectionDefaults.Coalesce` on setter; regression `PolicyPackSimulateBulkSummaryDeserializationTests`; 746 scoped `Contracts` filter tests passed.
 
 2026-10-15 seed hunt (seed→hit): promoted `CrossTenantPortfolioSummaryResponse.TopSystemicIssues` JSON `null` leaving `TopSystemicIssues` null despite `= []` initializer; `ContractCollectionDefaults.Coalesce` on setter; regression `CrossTenantPortfolioSummaryResponseDeserializationTests`; 745 scoped `Contracts` filter tests passed.
@@ -30014,11 +30018,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 126
-- **bugs-found:** 106
+- **hunts:** 127
+- **bugs-found:** 107
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-15
-- **last-bug:** 2026-10-15 — PolicyPackSimulateBulkSummary.Results JSON null
+- **last-bug:** 2026-10-15 — InfraEvidenceMermaidCompletenessSummary list JSON null
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -30031,10 +30035,14 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `QuickScanResult.Findings` — explicit JSON `null` on internal quick-scan result JSON — **hit 2026-10-15 seed hunt (seed→hit):** `ContractCollectionDefaults.Coalesce` on `Findings` `init`; regression `Deserialize_null_findings_yields_empty_list_not_null`.
 - [x] (proven) `CrossTenantPortfolioSummaryResponse.TopSystemicIssues` — explicit JSON `null` on portfolio summary JSON — **hit 2026-10-15 seed hunt (seed→hit):** `ContractCollectionDefaults.Coalesce` on `TopSystemicIssues` setter; regression `Deserialize_null_top_systemic_issues_yields_empty_list_not_null`.
 - [x] (proven) `PolicyPackSimulateBulkSummary.Results` — explicit JSON `null` on bulk simulate summary JSON — **hit 2026-10-15 seed hunt (seed→hit):** `ContractCollectionDefaults.Coalesce` on `Results` setter; regression `Deserialize_null_results_yields_empty_list_not_null`.
-- [ ] (candidate) `InfraEvidenceMermaidCompletenessSummary.MissingClasses` — explicit JSON `null` on infra evidence mermaid completeness JSON; locus: `InfraEvidenceMermaidCompletenessSummary`; input: `"missingClasses": null`; wrong outcome: completeness views enumerate null missing-class lists; reachability: infra evidence diagram completeness API JSON.
-- [ ] (candidate) `InfraEvidenceMermaidCompletenessSummary.CollectedClasses` — explicit JSON `null` on infra evidence mermaid completeness JSON; locus: `InfraEvidenceMermaidCompletenessSummary`; input: `"collectedClasses": null`; wrong outcome: completeness summaries enumerate null collected-class lists; reachability: infra evidence diagram completeness API JSON.
-- [x] (invalid) `InfraEvidenceMermaidCompletenessSummary` — combined duplicate of per-property candidates — **cheap-disproof 2026-10-15 seed hunt:** promote via single-type fix covering both list properties when proven.
-- [ ] (candidate) `AgentResultJsonConverter.AgentResultPayload.Findings` — explicit JSON `null` on agent result payload list properties (`Claims`, `EvidenceRefs`, `Findings`, `ChecklistCoverage`, `WithheldFindings`); locus: nested `AgentResultPayload` in `AgentResultJsonConverter`; input: `"findings": null` on deserialized payload; wrong outcome: agent output readers enumerate null lists; reachability: agent result JSON converter read path.
+- [x] (proven) `InfraEvidenceMermaidCompletenessSummary.MissingClasses` — explicit JSON `null` on mermaid completeness JSON — **hit 2026-10-15 seed hunt (seed→hit):** consolidated with `CollectedClasses` in one `ContractCollectionDefaults.Coalesce` fix; regression `Deserialize_null_class_list_properties_yields_empty_lists_not_null`.
+- [x] (proven) `InfraEvidenceMermaidCompletenessSummary.CollectedClasses` — explicit JSON `null` on mermaid completeness JSON — **hit 2026-10-15 seed hunt (seed→hit):** same consolidated fix as `MissingClasses`.
+- [x] (invalid) `InfraEvidenceMermaidCompletenessSummary` — combined duplicate of per-property candidates — **cheap-disproof 2026-10-15 seed hunt:** closed by consolidated per-property proof in the same run.
+- [ ] (candidate) `AgentResultJsonConverter.AgentResultJsonPayload` — explicit JSON `null` on agent result payload list properties (`Claims`, `EvidenceRefs`, `Findings`, `ChecklistCoverage`, `WithheldFindings`); locus: nested `AgentResultJsonPayload` in `AgentResultJsonConverter`; input: `"findings": null` on deserialized payload; wrong outcome: agent output readers enumerate null lists; reachability: `AgentResultJsonConverter` deserialize path.
+- [ ] (candidate) `AgentResultJsonConverter.AgentResultJsonPayload.EvidenceRefs` — explicit JSON `null` leaving `EvidenceRefs` null despite `= []` initializer; locus: `AgentResultJsonPayload`; input: `"evidenceRefs": null`; wrong outcome: citation/evidence enumeration null-ref; reachability: agent result JSON round-trip.
+- [ ] (candidate) `AgentResultJsonConverter.AgentResultJsonPayload.ChecklistCoverage` — explicit JSON `null` on checklist coverage list; locus: `AgentResultJsonPayload`; input: `"checklistCoverage": null`; wrong outcome: checklist coverage UI assumes non-null list; reachability: agent result JSON round-trip.
+- [ ] (candidate) `AgentResultJsonConverter.AgentResultJsonPayload.WithheldFindings` — explicit JSON `null` on withheld findings summary list; locus: `AgentResultJsonPayload`; input: `"withheldFindings": null`; wrong outcome: withheld-finding summaries enumerate null; reachability: agent result JSON round-trip.
+- [ ] (candidate) `AgentResultJsonConverter.AgentResultJsonPayload.Claims` — explicit JSON `null` on claims list (`AgentResultClaimListJsonConverter` on property); locus: `AgentResultJsonPayload`; input: `"claims": null`; wrong outcome: claim lists null after deserialize; reachability: agent result JSON converter read path.
 - [x] (invalid) `AgentOutputEvaluationScore.MissingKeys` — duplicate candidate row — **cheap-disproof 2026-10-15 seed hunt:** already proven 2026-10-14 with `AgentOutputEvaluationScoreDeserializationTests`.
 
 2026-10-10 seed hunt (seed-only): reread advisory scheduling/digest DTOs and agent trace summary projection with the existing Contracts coverage; no fresh contract-local wrong outcome or reachable serialization mismatch met the promotion bar. The scoped Contracts filter passed 520/520. No production or regression code was changed.
