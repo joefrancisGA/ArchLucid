@@ -3,6 +3,7 @@ using System.Text.Json.Serialization;
 
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Serialization;
 
 namespace ArchLucid.Contracts.Requests;
 
@@ -59,34 +60,42 @@ public sealed class ArchitectureRequest
         set;
     } = CloudProvider.None;
 
+    private List<string> constraints = [];
+
     /// <summary>Hard constraints the architecture must satisfy (max 50 items).</summary>
     public List<string> Constraints
     {
-        get;
-        set;
-    } = [];
+        get => constraints;
+        set => constraints = ContractCollectionDefaults.Coalesce(value);
+    }
+
+    private List<string> requiredCapabilities = [];
 
     /// <summary>Capabilities the architecture is required to support (max 50 items).</summary>
     public List<string> RequiredCapabilities
     {
-        get;
-        set;
-    } = [];
+        get => requiredCapabilities;
+        set => requiredCapabilities = ContractCollectionDefaults.Coalesce(value);
+    }
+
+    private List<string> assumptions = [];
 
     /// <summary>Assumptions that agents may rely on when proposing the architecture (max 50 items).</summary>
     public List<string> Assumptions
     {
-        get;
-        set;
-    } = [];
+        get => assumptions;
+        set => assumptions = ContractCollectionDefaults.Coalesce(value);
+    }
+
+    private List<ActorDescriptor> draftActors = [];
 
     /// <summary>Structured actors from draft intake projected for graph materialization (TB-2344).</summary>
     [JsonPropertyName("draftActors")]
     public List<ActorDescriptor> DraftActors
     {
-        get;
-        set;
-    } = [];
+        get => draftActors;
+        set => draftActors = ContractCollectionDefaults.Coalesce(value);
+    }
 
     /// <summary>Confirmed structured-brief quality attribute snapshot (TB-2345).</summary>
     [JsonPropertyName("qualityAttributeSnapshot")]
@@ -118,11 +127,15 @@ public sealed class ArchitectureRequest
     ///     Free-text requirements supplementing the description (max 100 items, each max
     ///     <see cref="ArchitectureRequestFieldLimits.MaxInlineRequirementLength" /> characters).
     /// </summary>
+    private List<string> inlineRequirements = [];
+
     public List<string> InlineRequirements
     {
-        get;
-        set;
-    } = [];
+        get => inlineRequirements;
+        set => inlineRequirements = ContractCollectionDefaults.Coalesce(value);
+    }
+
+    private List<ContextDocumentRequest> documents = [];
 
     /// <summary>
     ///     Attached reference documents (e.g. ADRs, RFCs, runbooks) provided as context for agents.
@@ -130,30 +143,38 @@ public sealed class ArchitectureRequest
     /// </summary>
     public List<ContextDocumentRequest> Documents
     {
-        get;
-        set;
-    } = [];
+        get => documents;
+        set => documents = ContractCollectionDefaults.Coalesce(value);
+    }
+
+    private List<string> policyReferences = [];
 
     /// <summary>References to policy packs that must be evaluated against the proposed architecture (max 100 items).</summary>
     public List<string> PolicyReferences
     {
-        get;
-        set;
-    } = [];
+        get => policyReferences;
+        set => policyReferences = ContractCollectionDefaults.Coalesce(value);
+    }
+
+    private List<string> topologyHints = [];
 
     /// <summary>Hints about which topology patterns to prefer or avoid (max 100 items).</summary>
     public List<string> TopologyHints
     {
-        get;
-        set;
-    } = [];
+        get => topologyHints;
+        set => topologyHints = ContractCollectionDefaults.Coalesce(value);
+    }
+
+    private List<string> securityBaselineHints = [];
 
     /// <summary>Hints about security baseline requirements for the architecture (max 100 items).</summary>
     public List<string> SecurityBaselineHints
     {
-        get;
-        set;
-    } = [];
+        get => securityBaselineHints;
+        set => securityBaselineHints = ContractCollectionDefaults.Coalesce(value);
+    }
+
+    private List<InfrastructureDeclarationRequest> infrastructureDeclarations = [];
 
     /// <summary>
     ///     Existing infrastructure declarations (IaC, service mesh config, etc.) that agents
@@ -161,9 +182,9 @@ public sealed class ArchitectureRequest
     /// </summary>
     public List<InfrastructureDeclarationRequest> InfrastructureDeclarations
     {
-        get;
-        set;
-    } = [];
+        get => infrastructureDeclarations;
+        set => infrastructureDeclarations = ContractCollectionDefaults.Coalesce(value);
+    }
 
     /// <summary>Indicates if this request has been archived by the user.</summary>
     public bool IsArchived

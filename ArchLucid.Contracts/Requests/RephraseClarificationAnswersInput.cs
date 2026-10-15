@@ -1,5 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Requests;
 
 /// <summary>
@@ -7,11 +9,13 @@ namespace ArchLucid.Contracts.Requests;
 /// </summary>
 public sealed class RephraseClarificationAnswersInput
 {
+    private IReadOnlyList<ClarificationAnswerRephraseItem> items = [];
+
     [Required]
     [MinLength(1)]
     public IReadOnlyList<ClarificationAnswerRephraseItem> Items
     {
-        get;
-        set;
-    } = [];
+        get => items;
+        set => items = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 }

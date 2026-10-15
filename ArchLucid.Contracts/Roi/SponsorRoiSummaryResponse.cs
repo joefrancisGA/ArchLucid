@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Roi;
 
 /// <summary>
@@ -65,18 +67,22 @@ public sealed class SponsorRoiSummaryResponse
         set;
     }
 
+    private List<SystemLatestRunRoi> systems = [];
+
     public List<SystemLatestRunRoi> Systems
     {
-        get;
-        set;
-    } = [];
+        get => systems;
+        set => systems = ContractCollectionDefaults.Coalesce(value);
+    }
+
+    private List<SystemicIssueSummary> topSystemicIssues = [];
 
     /// <summary>Top five (category, severity) finding groups across the latest runs.</summary>
     public List<SystemicIssueSummary> TopSystemicIssues
     {
-        get;
-        set;
-    } = [];
+        get => topSystemicIssues;
+        set => topSystemicIssues = ContractCollectionDefaults.Coalesce(value);
+    }
 
     /// <summary>Enterprise Agreement discount multiplier applied to cost-category savings (1.0 = Retail list).</summary>
     public decimal EaDiscountMultiplier
@@ -138,12 +144,14 @@ public sealed class SponsorRoiSummaryResponse
         set;
     }
 
+    private List<SponsorRoiSystemicIssueTrendSeries> historicalTrends = [];
+
     /// <summary>Top five systemic issue themes by month for the trailing six months (Improvement #12).</summary>
     public List<SponsorRoiSystemicIssueTrendSeries> HistoricalTrends
     {
-        get;
-        set;
-    } = [];
+        get => historicalTrends;
+        set => historicalTrends = ContractCollectionDefaults.Coalesce(value);
+    }
 
     /// <summary>Hybrid realized-value metrics from disposition and waiver workflow (Batch B item 20).</summary>
     public RealizedValueSummary? RealizedValue
