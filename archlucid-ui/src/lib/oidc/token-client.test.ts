@@ -62,6 +62,32 @@ describe("refreshAccessToken", () => {
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
+  it("does not echo non-OAuth error response bodies in thrown errors", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: false,
+      status: 502,
+      text: async () => "<html><body>gateway failure</body></html>",
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    let message = "";
+
+    try {
+      await refreshAccessToken({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        refreshToken: "rt",
+      });
+    } catch (error) {
+      message = error instanceof Error ? error.message : String(error);
+    }
+
+    expect(message).toBe("Token endpoint error 502");
+    expect(message.toLowerCase()).not.toContain("html");
+    expect(message.toLowerCase()).not.toContain("gateway failure");
+  });
+
   it("throws OAuth errors returned with HTTP 200 instead of treating them as token responses", async () => {
     const fetchMock = vi.fn(async () => ({
       ok: true,

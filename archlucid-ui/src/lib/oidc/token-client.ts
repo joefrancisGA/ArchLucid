@@ -36,7 +36,8 @@ async function readOAuthError(res: Response, bodyText: string): Promise<Error> {
     /* fall through */
   }
 
-  return new Error(`Token endpoint error ${res.status}: ${bodyText.slice(0, 200)}`);
+  // Do not echo proxy/HTML error pages — callback surfaces `Error.message` to operators.
+  return new Error(`Token endpoint error ${res.status}`);
 }
 
 async function postTokenForm(
