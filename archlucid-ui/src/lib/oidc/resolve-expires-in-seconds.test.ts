@@ -26,4 +26,8 @@ describe("resolveExpiresInSeconds", () => {
   it("parses a numeric string expires_in after trimming", () => {
     expect(resolveExpiresInSeconds("  7200  " as unknown as number)).toBe(7200);
   });
+
+  it("parses a numeric string expires_in after stripping zero-width characters", () => {
+    expect(resolveExpiresInSeconds("7200\u200b" as unknown as number)).toBe(7200);
+  });
 });

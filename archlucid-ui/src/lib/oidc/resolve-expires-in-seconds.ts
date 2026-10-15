@@ -1,3 +1,5 @@
+import { normalizeOidcConfigurationString } from "@/lib/oidc/oauth-callback-messages";
+
 /** Normalizes OIDC `expires_in` (seconds) for client hints and BFF cookie TTL parity. */
 export function resolveExpiresInSeconds(expiresIn: number | undefined): number {
   const defaultExpiresInSec = 3600;
@@ -15,13 +17,13 @@ export function resolveExpiresInSeconds(expiresIn: number | undefined): number {
   let numericExpiresIn: number;
 
   if (typeof expiresIn === "string") {
-    const trimmed = expiresIn.trim();
+    const normalized = normalizeOidcConfigurationString(expiresIn);
 
-    if (trimmed.length === 0) {
+    if (normalized.length === 0) {
       return defaultExpiresInSec;
     }
 
-    numericExpiresIn = Number(trimmed);
+    numericExpiresIn = Number(normalized);
   } else {
     numericExpiresIn = Number(expiresIn);
   }
