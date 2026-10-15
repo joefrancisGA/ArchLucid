@@ -65,11 +65,13 @@ public class Finding
         set => title = ContractCollectionDefaults.CoalesceRequired(value);
     }
 
+    private string rationale = string.Empty;
+
     public string Rationale
     {
-        get;
-        set;
-    } = null!;
+        get => rationale;
+        set => rationale = ContractCollectionDefaults.CoalesceRequired(value);
+    }
 
     private List<string> relatedNodeIds = [];
 
