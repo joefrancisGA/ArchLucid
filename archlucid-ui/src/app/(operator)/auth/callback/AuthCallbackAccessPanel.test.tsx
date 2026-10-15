@@ -1693,6 +1693,76 @@ describe("AuthCallbackAccessPanel", () => {
     vi.unstubAllGlobals();
   });
 
+  it("retains unsupported-text submit error after correcting the invalid field without submitting again", async () => {
+    const fetchMock = vi.fn(async () => new Response(null, { status: 204 }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<AuthCallbackAccessPanel technicalDetail="Sign-in was blocked." />);
+
+    fireEvent.click(screen.getByTestId("auth-callback-request-access"));
+    fireEvent.change(screen.getByLabelText("Name"), { target: { value: "Jordan\u0000Lee" } });
+    fireEvent.change(screen.getByLabelText("Work email"), { target: { value: "jordan@fabrikam.com" } });
+    fireEvent.change(screen.getByLabelText("Company"), { target: { value: "Fabrikam" } });
+    fireEvent.change(screen.getByLabelText("Role / title"), { target: { value: "Architect" } });
+    fireEvent.submit(screen.getByTestId("auth-callback-access-form"));
+
+    await waitFor(() => {
+      expect(screen.getByRole("alert")).toHaveTextContent(AUTH_CALLBACK_ACCESS_SUBMIT_ERROR);
+    });
+
+    fireEvent.change(screen.getByLabelText("Name"), { target: { value: "Jordan Lee" } });
+
+    expect(screen.getByRole("alert")).toHaveTextContent(AUTH_CALLBACK_ACCESS_SUBMIT_ERROR);
+    expect(fetchMock).not.toHaveBeenCalled();
+    vi.unstubAllGlobals();
+  });
+
+  it("posts whitespace-only role title when native validation is bypassed", async () => {
+    const fetchMock = vi.fn(async () => Response.json({ message: "Role or title is required." }, { status: 400 }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<AuthCallbackAccessPanel technicalDetail="Sign-in was blocked." />);
+
+    fireEvent.click(screen.getByTestId("auth-callback-request-access"));
+    fireEvent.change(screen.getByLabelText("Name"), { target: { value: "Jordan Lee" } });
+    fireEvent.change(screen.getByLabelText("Work email"), { target: { value: "jordan@fabrikam.com" } });
+    fireEvent.change(screen.getByLabelText("Company"), { target: { value: "Fabrikam" } });
+    fireEvent.change(screen.getByLabelText("Role / title"), { target: { value: "   " } });
+    fireEvent.submit(screen.getByTestId("auth-callback-access-form"));
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalledOnce();
+    });
+
+    const [, requestInit] = fetchMock.mock.calls[0] as [string, RequestInit];
+    const body = JSON.parse(String(requestInit.body)) as { roleTitle: string };
+
+    expect(body.roleTitle).toBe("   ");
+    vi.unstubAllGlobals();
+  });
+
+  it("does not post access request when honeypot websiteUrl contains bidi format characters", async () => {
+    const fetchMock = vi.fn(async () => new Response(null, { status: 204 }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<AuthCallbackAccessPanel technicalDetail="Sign-in was blocked." />);
+
+    fireEvent.click(screen.getByTestId("auth-callback-request-access"));
+    fireEvent.change(screen.getByLabelText("Name"), { target: { value: "Jordan Lee" } });
+    fireEvent.change(screen.getByLabelText("Work email"), { target: { value: "jordan@fabrikam.com" } });
+    fireEvent.change(screen.getByLabelText("Company"), { target: { value: "Fabrikam" } });
+    fireEvent.change(screen.getByLabelText("Role / title"), { target: { value: "Architect" } });
+    fireEvent.change(screen.getByLabelText("Website"), { target: { value: "\u202ehttps://spam.example" } });
+    fireEvent.submit(screen.getByTestId("auth-callback-access-form"));
+
+    await waitFor(() => {
+      expect(screen.getByRole("alert")).toHaveTextContent(AUTH_CALLBACK_ACCESS_SUBMIT_ERROR);
+    });
+
+    expect(fetchMock).not.toHaveBeenCalled();
+    vi.unstubAllGlobals();
+  });
+
   it("keeps report problem errorTitle on the access heading when technicalDetail prop changes", () => {
     fatalReportProblemCapture.lastProps = null;
 
