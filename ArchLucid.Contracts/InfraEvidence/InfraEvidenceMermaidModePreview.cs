@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.InfraEvidence;
 
 public sealed class InfraEvidenceMermaidModePreview
@@ -32,9 +34,11 @@ public sealed class InfraEvidenceMermaidModePreview
         set;
     }
 
+    private List<InfraEvidenceMermaidFallbackArtifactSummary> fallbackArtifacts = [];
+
     public List<InfraEvidenceMermaidFallbackArtifactSummary> FallbackArtifacts
     {
-        get;
-        set;
-    } = [];
+        get => fallbackArtifacts;
+        set => fallbackArtifacts = ContractCollectionDefaults.Coalesce(value);
+    }
 }

@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.InfraEvidence;
 
 public sealed class CloudResourceRemediationStreamPage
@@ -26,9 +28,11 @@ public sealed class CloudResourceRemediationStreamPage
         set;
     }
 
+    private List<CloudResourceRemediationHubItem> items = [];
+
     public List<CloudResourceRemediationHubItem> Items
     {
-        get;
-        set;
-    } = [];
+        get => items;
+        set => items = ContractCollectionDefaults.Coalesce(value);
+    }
 }

@@ -1,6 +1,7 @@
-namespace ArchLucid.Contracts.InfraEvidence;
-
 using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.Serialization;
+
+namespace ArchLucid.Contracts.InfraEvidence;
 
 public sealed class CloudResourceEvidenceHubResponse
 {
@@ -64,23 +65,29 @@ public sealed class CloudResourceEvidenceHubResponse
         set;
     } = new();
 
+    private List<CloudResourceRbacAssignmentSummary> rbacAssignments = [];
+
     public List<CloudResourceRbacAssignmentSummary> RbacAssignments
     {
-        get;
-        set;
-    } = [];
+        get => rbacAssignments;
+        set => rbacAssignments = ContractCollectionDefaults.Coalesce(value);
+    }
+
+    private List<CloudResourceNetworkRelationshipSummary> networkRelationships = [];
 
     public List<CloudResourceNetworkRelationshipSummary> NetworkRelationships
     {
-        get;
-        set;
-    } = [];
+        get => networkRelationships;
+        set => networkRelationships = ContractCollectionDefaults.Coalesce(value);
+    }
+
+    private List<CloudResourceInventoryChangeSummary> recentChanges = [];
 
     public List<CloudResourceInventoryChangeSummary> RecentChanges
     {
-        get;
-        set;
-    } = [];
+        get => recentChanges;
+        set => recentChanges = ContractCollectionDefaults.Coalesce(value);
+    }
 
     public CloudResourceAuditLineageLink AuditLineageLink
     {
@@ -88,9 +95,11 @@ public sealed class CloudResourceEvidenceHubResponse
         set;
     } = new();
 
+    private List<CloudResourceEvidencePointer> evidencePointers = [];
+
     public List<CloudResourceEvidencePointer> EvidencePointers
     {
-        get;
-        set;
-    } = [];
+        get => evidencePointers;
+        set => evidencePointers = ContractCollectionDefaults.Coalesce(value);
+    }
 }
