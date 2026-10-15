@@ -167,6 +167,60 @@ public sealed class IntendedReachabilityEngineTests
     }
 
     [Fact]
+    public void Enumerate_custom_vnet_dns_on_private_path_appends_insufficient_hop()
+    {
+        const string vnetArm =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet1";
+        const string subnetArm = $"{vnetArm}/subnets/app";
+        const string appArm =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Web/sites/app1";
+        const string peArm =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/privateEndpoints/pe1";
+        const string zoneArm =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/privateDnsZones/privatelink.database.windows.net";
+        Guid vnetRowId = Guid.NewGuid();
+
+        AzureInventorySnapshotDetailReadModel snapshot = new()
+        {
+            Header = CreateHeader(),
+            Resources =
+            [
+                Resource(vnetArm, "Microsoft.Network/virtualNetworks", vnetRowId),
+                Resource(appArm, "Microsoft.Web/sites"),
+                Resource(SqlArm, "Microsoft.Sql/servers"),
+                Resource(peArm, "Microsoft.Network/privateEndpoints"),
+                Resource(zoneArm, "Microsoft.Network/privateDnsZones"),
+            ],
+            Properties =
+            [
+                new AzureInventoryResourcePropertyReadModel
+                {
+                    ResourceRowId = vnetRowId,
+                    PropertyKey = "dhcpOptions",
+                    PropertyValue = """{"dnsServers":["10.0.0.4"]}""",
+                },
+            ],
+            Relationships =
+            [
+                Observed(appArm, subnetArm, GraphEdgeInferenceSources.InventoryAppServiceSubnet),
+                Observed(peArm, SqlArm, GraphEdgeInferenceSources.InventoryPrivateEndpoint),
+                Observed(peArm, zoneArm, GraphEdgeInferenceSources.InventoryPeDnsZoneGroup),
+                Observed(zoneArm, vnetArm, GraphEdgeInferenceSources.InventoryPrivateDnsVnet),
+                Derived(appArm, SqlArm, GraphEdgeInferenceSources.InventoryPeReachableTarget),
+            ],
+        };
+
+        InventoryReachabilityPathGraphSnapshot graph = InventoryReachabilityPathGraph.Build(snapshot);
+        IReadOnlyList<ReachabilityPathCandidate> candidates =
+            IntendedReachabilityPathEnumerator.Enumerate(graph, new PrivilegePathEngineOptions());
+
+        ReachabilityPathCandidate candidate = candidates.Should().ContainSingle().Subject;
+        candidate.HasInsufficientEvidenceHop.Should().BeTrue();
+        candidate.Hops[^1].EdgeType.Should().Be(
+            SecureNowArchitectConstants.InsufficientEvidenceCustomDnsResolverHopEdgeType);
+    }
+
+    [Fact]
     public void Enumerate_missing_dns_join_appends_insufficient_evidence_hop()
     {
         const string vnetArm =
