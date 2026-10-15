@@ -29,4 +29,20 @@ public sealed class IncrementalReReviewResultDeserializationTests
         result.GlobalInvariantResults.Should().NotBeNull().And.BeEmpty();
         result.MergedFindingIds.Should().NotBeNull().And.BeEmpty();
     }
+
+    [Fact]
+    public void Deserialize_null_scope_yields_non_null_scope_not_null()
+    {
+        const string json = """
+            {
+              "scope": null
+            }
+            """;
+
+        IncrementalReReviewResult? result =
+            JsonSerializer.Deserialize<IncrementalReReviewResult>(json, ContractJson.CamelCaseCompact);
+
+        result.Should().NotBeNull();
+        result!.Scope.Should().NotBeNull();
+    }
 }

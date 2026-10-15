@@ -41,4 +41,24 @@ public sealed class TenantBrandingAdminContractsDeserializationTests
         response.Should().NotBeNull();
         response!.ValidationIssues.Should().NotBeNull().And.BeEmpty();
     }
+
+    [Fact]
+    public void Deserialize_null_admin_state_nested_objects_yields_non_null_defaults()
+    {
+        const string json = """
+            {
+              "draft": null,
+              "active": null,
+              "productDefaults": null
+            }
+            """;
+
+        TenantBrandingAdminStateResponse? state =
+            JsonSerializer.Deserialize<TenantBrandingAdminStateResponse>(json, ContractJson.CamelCaseCompact);
+
+        state.Should().NotBeNull();
+        state!.Draft.Should().NotBeNull();
+        state.Active.Should().NotBeNull();
+        state.ProductDefaults.Should().NotBeNull();
+    }
 }

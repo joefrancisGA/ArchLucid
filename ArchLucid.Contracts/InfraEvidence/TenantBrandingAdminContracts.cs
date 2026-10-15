@@ -4,23 +4,29 @@ namespace ArchLucid.Contracts.InfraEvidence;
 
 public sealed class TenantBrandingAdminStateResponse
 {
+    private TenantBrandingDraftResponse draft = new();
+
     public TenantBrandingDraftResponse Draft
     {
-        get;
-        init;
-    } = new();
+        get => draft;
+        init => draft = value ?? new TenantBrandingDraftResponse();
+    }
+
+    private TenantBrandingActiveSummaryResponse active = new();
 
     public TenantBrandingActiveSummaryResponse Active
     {
-        get;
-        init;
-    } = new();
+        get => active;
+        init => active = value ?? new TenantBrandingActiveSummaryResponse();
+    }
+
+    private TenantBrandColorsResponse productDefaults = new();
 
     public TenantBrandColorsResponse ProductDefaults
     {
-        get;
-        init;
-    } = new();
+        get => productDefaults;
+        init => productDefaults = value ?? new TenantBrandColorsResponse();
+    }
 
     private IReadOnlyList<TenantBrandingValidationIssueResponse> validationIssues = [];
 

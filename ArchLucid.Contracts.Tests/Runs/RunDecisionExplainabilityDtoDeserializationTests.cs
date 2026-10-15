@@ -48,4 +48,21 @@ public sealed class RunDecisionExplainabilityDtoDeserializationTests
         dto.Should().NotBeNull();
         dto!.SnapshotIds.Should().NotBeNull();
     }
+
+    [Fact]
+    public void Deserialize_null_authority_rule_audit_remains_null()
+    {
+        const string json = """
+            {
+              "snapshotIds": {},
+              "authorityRuleAudit": null
+            }
+            """;
+
+        RunDecisionExplainabilityDto? dto =
+            JsonSerializer.Deserialize<RunDecisionExplainabilityDto>(json, ContractJson.CamelCaseCompact);
+
+        dto.Should().NotBeNull();
+        dto!.AuthorityRuleAudit.Should().BeNull();
+    }
 }

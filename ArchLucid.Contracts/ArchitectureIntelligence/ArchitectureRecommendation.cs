@@ -64,17 +64,21 @@ public class ArchitectureRecommendation
         set => tradeOffs = ContractCollectionDefaults.Coalesce(value);
     }
 
+    private EffortEstimate effort = new();
+
     public EffortEstimate Effort
     {
-        get;
-        set;
-    } = new();
+        get => effort;
+        set => effort = value ?? new EffortEstimate();
+    }
+
+    private RiskReductionEstimate riskReduction = new();
 
     public RiskReductionEstimate RiskReduction
     {
-        get;
-        set;
-    } = new();
+        get => riskReduction;
+        set => riskReduction = value ?? new RiskReductionEstimate();
+    }
 
     private List<string> dependencies = [];
 
@@ -102,9 +106,11 @@ public class ArchitectureRecommendation
         set;
     }
 
+    private ClaimProvenance provenance = new();
+
     public ClaimProvenance Provenance
     {
-        get;
-        set;
-    } = new();
+        get => provenance;
+        set => provenance = value ?? new ClaimProvenance();
+    }
 }

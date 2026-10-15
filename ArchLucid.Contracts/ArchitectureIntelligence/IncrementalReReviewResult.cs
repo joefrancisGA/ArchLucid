@@ -4,11 +4,13 @@ namespace ArchLucid.Contracts.ArchitectureIntelligence;
 
 public class IncrementalReReviewResult
 {
+    private ReReviewScope scope = new();
+
     public ReReviewScope Scope
     {
-        get;
-        set;
-    } = new();
+        get => scope;
+        set => scope = value ?? new ReReviewScope();
+    }
 
     private List<SpecialistReviewResult> specialistResults = [];
 

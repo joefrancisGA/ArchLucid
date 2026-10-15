@@ -43,4 +43,24 @@ public sealed class ClosedLoopReasoningResultDeserializationTests
         result.IntegrityPassedFindingIds.Should().NotBeNull().And.BeEmpty();
         result.ModelDiffs.Should().NotBeNull().And.BeEmpty();
     }
+
+    [Fact]
+    public void Deserialize_null_nested_reasoning_objects_yields_non_null_defaults()
+    {
+        const string json = """
+            {
+              "model": null,
+              "interview": null,
+              "adversarial": null
+            }
+            """;
+
+        ClosedLoopReasoningResult? result =
+            JsonSerializer.Deserialize<ClosedLoopReasoningResult>(json, ContractJson.CamelCaseCompact);
+
+        result.Should().NotBeNull();
+        result!.Model.Should().NotBeNull();
+        result.Interview.Should().NotBeNull();
+        result.Adversarial.Should().NotBeNull();
+    }
 }

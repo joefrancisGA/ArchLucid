@@ -6,17 +6,21 @@ namespace ArchLucid.Contracts.ArchitectureIntelligence;
 
 public class ClosedLoopReasoningResult
 {
+    private ArchitectureKnowledgeModel model = new();
+
     public ArchitectureKnowledgeModel Model
     {
-        get;
-        set;
-    } = new();
+        get => model;
+        set => model = value ?? new ArchitectureKnowledgeModel();
+    }
+
+    private ProgressiveInterviewState interview = new();
 
     public ProgressiveInterviewState Interview
     {
-        get;
-        set;
-    } = new();
+        get => interview;
+        set => interview = value ?? new ProgressiveInterviewState();
+    }
 
     private List<SpecialistReviewResult> specialistReviews = [];
 
@@ -26,11 +30,13 @@ public class ClosedLoopReasoningResult
         set => specialistReviews = ContractCollectionDefaults.Coalesce(value);
     }
 
+    private AdversarialReviewResult adversarial = new();
+
     public AdversarialReviewResult Adversarial
     {
-        get;
-        set;
-    } = new();
+        get => adversarial;
+        set => adversarial = value ?? new AdversarialReviewResult();
+    }
 
     private List<ArchitectureRecommendation> recommendations = [];
 

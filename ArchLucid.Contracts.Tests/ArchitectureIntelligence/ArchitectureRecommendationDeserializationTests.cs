@@ -39,4 +39,32 @@ public sealed class ArchitectureRecommendationDeserializationTests
         recommendation.TradeOffs.Should().NotBeNull().And.BeEmpty();
         recommendation.Dependencies.Should().NotBeNull().And.BeEmpty();
     }
+
+    [Fact]
+    public void Deserialize_null_nested_estimate_objects_yields_non_null_defaults()
+    {
+        const string json = """
+            {
+              "recommendationId": "rec-1",
+              "problem": "p",
+              "evidence": "e",
+              "affectedRequirementOrQualityAttribute": "a",
+              "consequenceOfInaction": "c",
+              "proposedChange": "x",
+              "validationMethod": "v",
+              "confidence": 0.5,
+              "effort": null,
+              "riskReduction": null,
+              "provenance": null
+            }
+            """;
+
+        ArchitectureRecommendation? recommendation =
+            JsonSerializer.Deserialize<ArchitectureRecommendation>(json, ContractJson.CamelCaseCompact);
+
+        recommendation.Should().NotBeNull();
+        recommendation!.Effort.Should().NotBeNull();
+        recommendation.RiskReduction.Should().NotBeNull();
+        recommendation.Provenance.Should().NotBeNull();
+    }
 }
