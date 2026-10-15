@@ -56,4 +56,8 @@ describe("resolveExpiresInSeconds", () => {
   it("honors expires_in values up to one year", () => {
     expect(resolveExpiresInSeconds(31_536_000)).toBe(31_536_000);
   });
+
+  it("parses a numeric string expires_in in scientific notation", () => {
+    expect(resolveExpiresInSeconds("3.6e3" as unknown as number)).toBe(3600);
+  });
 });

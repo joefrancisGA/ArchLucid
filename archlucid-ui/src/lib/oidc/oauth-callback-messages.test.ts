@@ -52,6 +52,10 @@ describe("decodeOAuthErrorDescription", () => {
     expect(decodeOAuthErrorDescription("___")).toBe("");
   });
 
+  it("returns empty for hyphen-only error descriptions", () => {
+    expect(decodeOAuthErrorDescription("---")).toBe("");
+  });
+
   it("returns empty for nbsp-only percent-encoded error descriptions", () => {
     expect(decodeOAuthErrorDescription("%C2%A0")).toBe("");
   });
@@ -151,6 +155,15 @@ describe("humanizeAuthorizeCallbackError", () => {
 
     expect(message.length).toBeLessThanOrEqual(320);
     expect(message.endsWith("…")).toBe(true);
+  });
+
+  it("uses fixed copy for server_error regardless of oversized error_description", () => {
+    const oversized = `${"Policy ".repeat(80)}end`;
+    const message = humanizeAuthorizeCallbackError("server_error", oversized);
+
+    expect(message).toContain("temporary error");
+    expect(message.length).toBeLessThanOrEqual(280);
+    expect(message).not.toContain("Policy");
   });
 
   it("uses fixed copy for access_denied when error_description is absent", () => {

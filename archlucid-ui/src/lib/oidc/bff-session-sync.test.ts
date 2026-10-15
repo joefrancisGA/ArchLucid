@@ -273,6 +273,20 @@ describe("refreshBffSessionCookie (LK-06 P2)", () => {
     expect(result).toEqual({ ok: true, expiresAtMs: futureMs });
   });
 
+  it("soft-fails refresh when expires_at_ms is negative", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({
+        ok: true,
+        json: async () => ({ expires_at_ms: -1 }),
+      })),
+    );
+
+    const result = await refreshBffSessionCookie();
+
+    expect(result).toEqual({ ok: false, shouldClearSession: false });
+  });
+
   it("soft-fails refresh when expires_at_ms is a small hex-encoded string", async () => {
     vi.stubGlobal(
       "fetch",

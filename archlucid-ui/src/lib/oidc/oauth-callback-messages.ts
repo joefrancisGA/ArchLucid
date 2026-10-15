@@ -52,13 +52,21 @@ function formatErrorCodeForReading(errorCode: string): string {
     .trim();
 }
 
+function containsReadableOAuthCharacters(text: string): boolean {
+  return /[\p{L}\p{N}]/u.test(text);
+}
+
 /** True when an OAuth `error` query/code value is not underscore/invisible padding. */
 export function isReadableOAuthErrorCode(errorCode: string): boolean {
-  return formatErrorCodeForReading(errorCode).length > 0;
+  const formatted = formatErrorCodeForReading(errorCode);
+
+  return formatted.length > 0 && containsReadableOAuthCharacters(formatted);
 }
 
 function isReadableOAuthErrorDetail(detail: string): boolean {
-  return formatErrorCodeForReading(detail).length > 0;
+  const formatted = formatErrorCodeForReading(detail);
+
+  return formatted.length > 0 && containsReadableOAuthCharacters(formatted);
 }
 
 const MAX_OAUTH_USER_FACING_MESSAGE_LENGTH = 280;

@@ -6,6 +6,7 @@ import {
   getGoogleOidcScopes,
   getOidcAuthority,
   getOidcClientId,
+  getOidcRedirectUri,
 } from "@/lib/oidc/config";
 
 describe("oidc config env normalization", () => {
@@ -29,5 +30,11 @@ describe("oidc config env normalization", () => {
     expect(getGoogleOidcAuthority()).toBe("https://accounts.google.com");
     expect(getGoogleOidcClientId()).toBe("google-client");
     expect(getGoogleOidcScopes()).toBe("openid profile email");
+  });
+
+  it("falls back to the runtime origin redirect URI when the env override is whitespace-only", () => {
+    vi.stubEnv("NEXT_PUBLIC_OIDC_REDIRECT_URI", "   \u200b  ");
+
+    expect(getOidcRedirectUri()).toBe("http://localhost:3000/auth/callback");
   });
 });
