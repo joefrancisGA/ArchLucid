@@ -30069,7 +30069,21 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 ---
 ## Zone: archlucid-contracts
 
-**Hunts:** 186 · **Bugs found:** 291 · **Consecutive dry hunts:** 0
+**Hunts:** 187 · **Bugs found:** 296 · **Consecutive dry hunts:** 0
+
+2026-10-15 seed hunt (seed→hit): promoted five open `(candidate)` rows on rewrite-overview structured brief, decision receipt nested objects, operator saved view payload, tenant branding colors, and ITSM health provider probes; null guards on `RewriteArchitectureOverviewInput`, `DecisionReceiptDocument`, `OperatorSavedViewResponse`, `TenantBrandingPresentationResponse`, and `ItsmIntegrationHealthStatusResponse`; regressions in `RewriteArchitectureOverviewInputDeserializationTests`, `DecisionReceiptDocumentDeserializationTests`, `OperatorSavedViewResponseDeserializationTests`, `TenantBrandingPresentationResponseDeserializationTests`, and `ItsmIntegrationHealthStatusResponseDeserializationTests`; reseeded five follow-on `(candidate)` rows; 988 scoped `Contracts` filter tests passed.
+
+- [x] (proven) `RewriteArchitectureOverviewInput.StructuredBrief` — explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_structured_brief_yields_non_null_brief_not_null`.
+- [x] (proven) `DecisionReceiptDocument` — `Verdict` / `CostStory` explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_verdict_and_cost_story_yields_non_null_nested_objects`.
+- [x] (proven) `OperatorSavedViewResponse.Payload` — explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_payload_yields_non_null_payload_not_null`.
+- [x] (proven) `TenantBrandingPresentationResponse.Colors` — explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_colors_yields_non_null_colors_not_null`.
+- [x] (proven) `ItsmIntegrationHealthStatusResponse` — `Jira` / `ServiceNow` explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_provider_probes_yields_non_null_defaults`.
+
+- [ ] (candidate) `CreateOperatorSavedViewRequest.Payload` — explicit JSON `null` on create saved view request JSON — locus: `Operator.CreateOperatorSavedViewRequest`; input: `POST /v1/operator/saved-views` body with `"payload": null` (see file).
+- [ ] (candidate) `CandidateChangeSet.ExpectedImpact` — explicit JSON `null` on evolution candidate change set JSON — locus: `Evolution.CandidateChangeSet`; input: change set JSON with `"expectedImpact": null` (see file).
+- [ ] (candidate) `TenantItsmOutboundSettingsResponse.DeploymentCredentials` — explicit JSON `null` on tenant ITSM settings JSON — locus: `Integrations.TenantItsmOutboundSettingsResponse`; input: settings response JSON with `"deploymentCredentials": null` (see file).
+- [ ] (candidate) `AdminIdentityProviderDiagnosticsResponse` — `Oidc` / `Saml` probe objects explicit JSON `null` — locus: `Admin.AdminIdentityProviderDiagnosticsResponse`; input: IdP diagnostics JSON with null probe tokens (see file).
+- [ ] (candidate) `GovernanceFindingsRegistersBundleResponse` — `RiskRegister` / `DecisionRegister` explicit JSON `null` — locus: `Governance.GovernanceFindingsRegistersBundleResponse`; input: governance registers bundle JSON with null nested register tokens (see file).
 
 2026-10-15 seed hunt (seed→hit): promoted five open `(candidate)` rows on sponsor evidence pack nested payloads, draft questions selection, policy pack validation summary, branch draft nested draft, and clone snapshot nested draft; null guards on `SponsorEvidencePackResponse`, `DraftQuestionsResponse`, `PolicyPackContentValidationResponse`, `BranchDraftResponse`, and `CloneSnapshotDraftResponse`; regressions in `SponsorEvidencePackResponseDeserializationTests`, `DraftQuestionsResponseDeserializationTests`, `PolicyPackContentValidationResponseDeserializationTests`, `BranchDraftResponseDeserializationTests`, and `CloneSnapshotDraftResponseDeserializationTests`; reseeded five follow-on `(candidate)` rows; 983 scoped `Contracts` filter tests passed.
 
@@ -30078,12 +30092,6 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `PolicyPackContentValidationResponse.Summary` — explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_summary_yields_non_null_summary_not_null`.
 - [x] (proven) `BranchDraftResponse.Branch` — explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_branch_yields_non_null_branch_not_null`.
 - [x] (proven) `CloneSnapshotDraftResponse.Clone` — explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_clone_yields_non_null_clone_not_null`.
-
-- [ ] (candidate) `RewriteArchitectureOverviewInput.StructuredBrief` — explicit JSON `null` on advisory rewrite input JSON — locus: `Requests.RewriteArchitectureOverviewInput`; input: `POST` rewrite-overview body with `"structuredBrief": null` (see file).
-- [ ] (candidate) `DecisionReceiptDocument` — `Verdict` / `CostStory` explicit JSON `null` on decision receipt export JSON — locus: `Exports.DecisionReceiptDocument`; input: receipt document JSON with null nested object tokens (see file).
-- [ ] (candidate) `OperatorSavedViewResponse.Payload` — explicit JSON `null` on operator saved view JSON — locus: `Operator.OperatorSavedViewResponse`; input: saved view response JSON with `"payload": null` (see file).
-- [ ] (candidate) `TenantBrandingPresentationResponse.Colors` — explicit JSON `null` on tenant branding presentation JSON — locus: `InfraEvidence.TenantBrandingPresentationResponse`; input: branding presentation JSON with `"colors": null` (see file).
-- [ ] (candidate) `ItsmIntegrationHealthStatusResponse` — `Jira` / `ServiceNow` probe objects explicit JSON `null` — locus: `Integrations.ItsmIntegrationHealthStatusResponse`; input: ITSM health JSON with null provider probe tokens (see file).
 
 2026-10-15 seed hunt (seed→hit): promoted five open `(candidate)` rows on golden manifest nested objects, product-learning dashboard bundle slices, draft request document, agent evidence request payload, and governance setup effective policy packs; coalesce fix on `GoldenManifest`, `ProductLearningDashboardBundleResponse`, `DraftRequestResponse`, `AgentEvidencePackage`, and `GovernanceSetupGuideBundleResponse`; regressions in `GoldenManifestDeserializationTests`, `ProductLearningDashboardBundleResponseDeserializationTests`, `DraftRequestResponseDeserializationTests`, `AgentEvidencePackageDeserializationTests`, and `GovernanceSetupGuideBundleResponseDeserializationTests`; reseeded five follow-on `(candidate)` rows; 978 scoped `Contracts` filter tests passed.
 

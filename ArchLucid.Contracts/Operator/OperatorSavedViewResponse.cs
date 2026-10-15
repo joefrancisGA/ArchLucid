@@ -21,11 +21,13 @@ public sealed class OperatorSavedViewResponse
         set;
     } = string.Empty;
 
+    private OperatorSavedViewPayload payload = new();
+
     public OperatorSavedViewPayload Payload
     {
-        get;
-        set;
-    } = new();
+        get => payload;
+        set => payload = value ?? new();
+    }
 
     public DateTimeOffset CreatedUtc
     {

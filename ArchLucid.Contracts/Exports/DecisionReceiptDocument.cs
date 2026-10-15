@@ -48,11 +48,13 @@ public sealed class DecisionReceiptDocument
         set;
     }
 
+    private FeasibilityVerdict verdict = new();
+
     public FeasibilityVerdict Verdict
     {
-        get;
-        set;
-    } = new();
+        get => verdict;
+        set => verdict = value ?? new();
+    }
 
     /// <summary>Wave-13 suggestion 123: SHA-256 over canonical committed manifest hash at receipt time.</summary>
     public string? ManifestHashSha256
@@ -75,11 +77,13 @@ public sealed class DecisionReceiptDocument
         set;
     }
 
+    private DecisionReceiptCostStory costStory = new();
+
     public DecisionReceiptCostStory CostStory
     {
-        get;
-        set;
-    } = new();
+        get => costStory;
+        set => costStory = value ?? new();
+    }
 
     /// <summary>CG-025 — structural execute Mode stamped on committed-run receipts (not part of sealed receipt hash).</summary>
     public StructuralExecutionMode? StructuralExecutionMode

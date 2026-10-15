@@ -31,9 +31,11 @@ public sealed class RewriteArchitectureOverviewInput
         set;
     }
 
+    private ArchitectureDraftStructuredBrief structuredBrief = new();
+
     public ArchitectureDraftStructuredBrief StructuredBrief
     {
-        get;
-        set;
-    } = new();
+        get => structuredBrief;
+        set => structuredBrief = value ?? new();
+    }
 }
