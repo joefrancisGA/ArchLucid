@@ -92,4 +92,20 @@ public sealed class AdvisoryContractDeserializationTests
         result.SignalTypeWeights.Should().NotBeNull().And.BeEmpty();
         result.Notes.Should().NotBeNull().And.BeEmpty();
     }
+
+    [Fact]
+    public void Deserialize_null_proposed_profile_yields_empty_profile_not_null()
+    {
+        const string json = """
+            {
+              "proposedProfile": null
+            }
+            """;
+
+        RecommendationLearningPreviewResponse? result =
+            JsonSerializer.Deserialize<RecommendationLearningPreviewResponse>(json, ContractJson.CamelCaseCompact);
+
+        result.Should().NotBeNull();
+        result!.ProposedProfile.Should().NotBeNull();
+    }
 }

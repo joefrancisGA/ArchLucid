@@ -5,11 +5,13 @@ namespace ArchLucid.Contracts.Advisory.Learning;
 /// <summary>Dry-run rebuild result — never persisted or activated.</summary>
 public sealed class RecommendationLearningPreviewResponse
 {
+    private RecommendationLearningProfile proposedProfile = new();
+
     public RecommendationLearningProfile ProposedProfile
     {
-        get;
-        set;
-    } = new();
+        get => proposedProfile;
+        set => proposedProfile = value ?? new RecommendationLearningProfile();
+    }
 
     private IReadOnlyList<RecommendationLearningWeightDelta> weightDeltas = [];
 

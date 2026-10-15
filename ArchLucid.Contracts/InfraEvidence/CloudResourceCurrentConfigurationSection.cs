@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.InfraEvidence;
 
 public sealed class CloudResourceCurrentConfigurationSection
@@ -32,15 +34,19 @@ public sealed class CloudResourceCurrentConfigurationSection
         set;
     }
 
+    private Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase);
+
     public Dictionary<string, string> Properties
     {
-        get;
-        set;
-    } = new(StringComparer.OrdinalIgnoreCase);
+        get => properties;
+        set => properties = ContractCollectionDefaults.CoalesceStringDictionaryOrdinalIgnoreCase(value);
+    }
+
+    private Dictionary<string, string> tags = new(StringComparer.OrdinalIgnoreCase);
 
     public Dictionary<string, string> Tags
     {
-        get;
-        set;
-    } = new(StringComparer.OrdinalIgnoreCase);
+        get => tags;
+        set => tags = ContractCollectionDefaults.CoalesceStringDictionaryOrdinalIgnoreCase(value);
+    }
 }

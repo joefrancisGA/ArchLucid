@@ -233,12 +233,14 @@ public sealed class ArchitectureRequest
     /// <summary>
     ///     L0 MUST question answers supplied by Quick start or other direct CreateRun paths (TB-2283).
     /// </summary>
+    private Dictionary<string, string> intakeQuestionAnswers = new(StringComparer.OrdinalIgnoreCase);
+
     [JsonPropertyName("intakeQuestionAnswers")]
     public Dictionary<string, string> IntakeQuestionAnswers
     {
-        get;
-        set;
-    } = new(StringComparer.OrdinalIgnoreCase);
+        get => intakeQuestionAnswers;
+        set => intakeQuestionAnswers = ContractCollectionDefaults.CoalesceStringDictionaryOrdinalIgnoreCase(value);
+    }
 
     /// <summary>
     ///     Explicit create-vs-review intent from homepage CTAs (<see cref="Common.ArchitectureWorkflowIntent" />).

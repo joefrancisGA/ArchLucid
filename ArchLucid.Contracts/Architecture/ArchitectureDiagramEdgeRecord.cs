@@ -39,9 +39,11 @@ public sealed class ArchitectureDiagramEdgeRecord
     }
 
     /// <summary>Optional parser metadata (stroke color, dash style, etc.) — never compiled as protocol facts (AS-021).</summary>
+    private Dictionary<string, string> properties = new(StringComparer.Ordinal);
+
     public Dictionary<string, string> Properties
     {
-        get;
-        set;
-    } = new(StringComparer.Ordinal);
+        get => properties;
+        set => properties = value ?? new Dictionary<string, string>(StringComparer.Ordinal);
+    }
 }

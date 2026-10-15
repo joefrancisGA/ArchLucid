@@ -47,4 +47,24 @@ public sealed class ArchitectureRequestDeserializationTests
         result.SecurityBaselineHints.Should().NotBeNull().And.BeEmpty();
         result.InfrastructureDeclarations.Should().NotBeNull().And.BeEmpty();
     }
+
+    [Fact]
+    public void Deserialize_null_intake_question_answers_yields_empty_dictionary_not_null()
+    {
+        const string json = """
+            {
+              "description": "abcdefghijklmnopqrst",
+              "systemName": "Sys",
+              "environment": "prod",
+              "cloudProvider": 0,
+              "intakeQuestionAnswers": null
+            }
+            """;
+
+        ArchitectureRequest? result =
+            JsonSerializer.Deserialize<ArchitectureRequest>(json, ContractJson.CamelCaseCompact);
+
+        result.Should().NotBeNull();
+        result!.IntakeQuestionAnswers.Should().NotBeNull().And.BeEmpty();
+    }
 }
