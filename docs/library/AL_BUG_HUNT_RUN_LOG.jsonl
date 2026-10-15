@@ -8351,4 +8351,5 @@
 {"at":"2026-10-15T00:12:59.6117787Z","zoneId":"application-pilots","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Pilots/"]}
 {"at":"2026-10-15T00:19:49.5864857Z","zoneId":"notifications-pipeline","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Notifications/,ArchLucid.Application/Notifications/,ArchLucid.Api/Controllers/Advisory/DigestSubscriptionsController.cs"]}
 {"at":"2026-10-15T00:24:47.765151Z","zoneId":"archlucid-core","outcome":"hit","productLine":"archlucid-shared","paths":["@(ArchLucid.Core,ArchLucid.Core.Tests)"]}
-{"at":"2026-10-15T00:32:55.6837740Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit","productLine":"archlucid-shared","paths":["@(ArchLucid.Api/Controllers/Governance,ArchLucid.Api/Controllers/Tenancy)"]}
+{"at":"2026-10-15T00:32:55.683774Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit","productLine":"archlucid-shared","paths":["@(ArchLucid.Api/Controllers/Governance,ArchLucid.Api/Controllers/Tenancy)"]}
+{"at":"2026-10-15T00:36:12.3824371Z","zoneId":"archlucid-contracts","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Contracts"]}
