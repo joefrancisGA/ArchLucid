@@ -38,7 +38,8 @@ class TestAiReadinessBatch5BU(unittest.TestCase):
         path = REPO_ROOT / "archlucid-ui" / "src" / "components" / "findings" / "FindingIacStubPanel.tsx"
         text = path.read_text(encoding="utf-8")
         self.assertIn("FindingIacStubPanel", text)
-        self.assertIn("GenerateIacStubs", text)
+        self.assertIn("Bicep stub", text)
+        self.assertIn("iacStub", text)
 
 
 if __name__ == "__main__":
