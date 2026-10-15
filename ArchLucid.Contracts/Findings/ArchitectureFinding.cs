@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Serialization;
 
 namespace ArchLucid.Contracts.Findings;
 
@@ -76,11 +77,13 @@ public sealed class ArchitectureFinding
         set;
     }
 
+    private List<string> evidenceRefs = [];
+
     public List<string> EvidenceRefs
     {
-        get;
-        set;
-    } = [];
+        get => evidenceRefs;
+        set => evidenceRefs = ContractCollectionDefaults.Coalesce(value);
+    }
 
     /// <summary>Optional minimal IaC remediation snippet (for example, Azure Bicep) generated for this finding.</summary>
     public string? IacStub
