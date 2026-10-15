@@ -46,4 +46,50 @@ public sealed class AdvisoryContractDeserializationTests
         result.SummaryNotes.Should().NotBeNull().And.BeEmpty();
         result.PolicyPackAdvisoryDefaults.Should().NotBeNull().And.BeEmpty();
     }
+
+    [Fact]
+    public void Deserialize_null_preview_list_properties_yields_empty_lists_not_null()
+    {
+        const string json = """
+            {
+              "weightDeltas": null,
+              "validationChecks": null
+            }
+            """;
+
+        RecommendationLearningPreviewResponse? result =
+            JsonSerializer.Deserialize<RecommendationLearningPreviewResponse>(json, ContractJson.CamelCaseCompact);
+
+        result.Should().NotBeNull();
+        result!.WeightDeltas.Should().NotBeNull().And.BeEmpty();
+        result.ValidationChecks.Should().NotBeNull().And.BeEmpty();
+    }
+
+    [Fact]
+    public void Deserialize_null_learning_profile_collections_yield_empty_collections_not_null()
+    {
+        const string json = """
+            {
+              "categoryStats": null,
+              "urgencyStats": null,
+              "signalTypeStats": null,
+              "categoryWeights": null,
+              "urgencyWeights": null,
+              "signalTypeWeights": null,
+              "notes": null
+            }
+            """;
+
+        RecommendationLearningProfile? result =
+            JsonSerializer.Deserialize<RecommendationLearningProfile>(json, ContractJson.CamelCaseCompact);
+
+        result.Should().NotBeNull();
+        result!.CategoryStats.Should().NotBeNull().And.BeEmpty();
+        result.UrgencyStats.Should().NotBeNull().And.BeEmpty();
+        result.SignalTypeStats.Should().NotBeNull().And.BeEmpty();
+        result.CategoryWeights.Should().NotBeNull().And.BeEmpty();
+        result.UrgencyWeights.Should().NotBeNull().And.BeEmpty();
+        result.SignalTypeWeights.Should().NotBeNull().And.BeEmpty();
+        result.Notes.Should().NotBeNull().And.BeEmpty();
+    }
 }

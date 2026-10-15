@@ -30069,7 +30069,21 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 ---
 ## Zone: archlucid-contracts
 
-**Hunts:** 176 · **Bugs found:** 246 · **Consecutive dry hunts:** 0
+**Hunts:** 177 · **Bugs found:** 249 · **Consecutive dry hunts:** 0
+
+2026-10-15 seed hunt (seed→hit): promoted five open `(candidate)` rows on improvement recommendation lists, learning preview/profile collections, and trial funnel ops responses; cheap-disproof closed already-coalesced `TrialFunnelOperationalSummaryResponse` and `TrialFunnelDataQualityResponse`; coalesce fix on `ImprovementRecommendation`, `RecommendationLearningPreviewResponse`, and `RecommendationLearningProfile`; regressions in `ImprovementRecommendationDeserializationTests`, `AdvisoryContractDeserializationTests`, and existing `TrialFunnelDeserializationTests` lock tests; reseeded five follow-on `(candidate)` rows; 939 scoped `Contracts` filter tests passed.
+
+- [x] (proven) `ImprovementRecommendation` — `SupportingFindingIds` / `SupportingDecisionIds` / `SupportingArtifactIds` explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_supporting_id_lists_yields_empty_lists_not_null`.
+- [x] (proven) `RecommendationLearningPreviewResponse` — `WeightDeltas` / `ValidationChecks` explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_preview_list_properties_yields_empty_lists_not_null`.
+- [x] (proven) `RecommendationLearningProfile` — stats lists / weight dictionaries / `Notes` explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_learning_profile_collections_yield_empty_collections_not_null`.
+- [x] (valid-no-repro) `TrialFunnelOperationalSummaryResponse` — explicit JSON `null` on `stages` / `cohortRows` — **cheap-disproof 2026-10-15 seed hunt:** init already uses `CoalesceReadOnly`; lock regression `Deserialize_null_operational_summary_list_properties_yields_empty_lists_not_null`.
+- [x] (valid-no-repro) `TrialFunnelDataQualityResponse.StageDefinitions` — explicit JSON `null` — **cheap-disproof 2026-10-15 seed hunt:** init already coalesced; lock regression `Deserialize_null_data_quality_stage_definitions_yields_empty_list_not_null`.
+
+- [ ] (candidate) `ArchitectureRequest.IntakeQuestionAnswers` — explicit JSON `null` on intake question-answer map — locus: `Requests.ArchitectureRequest`; input: architecture request JSON with null `intakeQuestionAnswers`.
+- [ ] (candidate) `CloudResourceCurrentConfigurationSection` — explicit JSON `null` on cloud resource configuration dictionaries — locus: `InfraEvidence.CloudResourceCurrentConfigurationSection`; input: cloud resource current-configuration JSON with null `properties` or `tags`.
+- [ ] (candidate) `ApplyKnowledgeModelClarificationAnswersRequest.Answers` — explicit JSON `null` — locus: `Clarifications.ApplyKnowledgeModelClarificationAnswersRequest`; input: apply clarification answers request JSON with null `answers`.
+- [ ] (candidate) `ArchitectureDiagramEdgeRecord.Properties` — explicit JSON `null` on diagram edge metadata map — locus: `Architecture.ArchitectureDiagramEdgeRecord`; input: architecture diagram edge record JSON with null `properties`.
+- [ ] (candidate) `RecommendationLearningPreviewResponse.ProposedProfile` — explicit JSON `null` on nested learning profile — locus: `Advisory.Learning.RecommendationLearningPreviewResponse`; input: learning preview JSON with null `proposedProfile`.
 
 2026-10-15 seed hunt (seed→hit): promoted five open `(candidate)` rows on decision persistence records, recommendation learning ops `history`, and improvement plan collections; coalesce fix on `DecisionNodeRecord`, `DecisionOptionRecord`, `AgentEvaluationRecord`, `RecommendationLearningOpsPageResponse`, and `ImprovementPlan` (lists plus `PolicyPackAdvisoryDefaults` dictionary); regressions in `DecisionNodeRecordDeserializationTests`, `DecisionPersistenceDeserializationTests`, and `AdvisoryContractDeserializationTests`; reseeded five follow-on `(candidate)` rows; 936 scoped `Contracts` filter tests passed.
 
@@ -30078,12 +30092,6 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `AgentEvaluationRecord.EvidenceRefs` — explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_evidence_refs_on_evaluation_yields_empty_list_not_null`.
 - [x] (proven) `RecommendationLearningOpsPageResponse.History` — explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_history_yields_empty_list_not_null`.
 - [x] (proven) `ImprovementPlan` — `Recommendations` / `SummaryNotes` / `PolicyPackAdvisoryDefaults` explicit JSON `null` — **hit 2026-10-15 seed hunt:** regression `Deserialize_null_improvement_plan_collections_yield_empty_collections_not_null`.
-
-- [ ] (candidate) `ImprovementRecommendation` — explicit JSON `null` on improvement recommendation list properties — locus: `Advisory.Models.ImprovementRecommendation`; input: improvement recommendation JSON with null `supportingFindingIds` / `supportingDecisionIds` / `supportingArtifactIds`.
-- [ ] (candidate) `RecommendationLearningPreviewResponse` — explicit JSON `null` on learning preview lists — locus: `Advisory.Learning.RecommendationLearningPreviewResponse`; input: learning preview JSON with null `weightDeltas` or `validationChecks`.
-- [ ] (candidate) `RecommendationLearningProfile` — explicit JSON `null` on learning profile list properties — locus: `Advisory.Learning.RecommendationLearningProfile`; input: learning profile JSON with null list tokens (see file).
-- [ ] (candidate) `Advisory.Models.TradeStudyResult` — explicit JSON `null` on trade study list properties — locus: `Advisory.Models.TradeStudyResult`; input: trade study result JSON with null list tokens (see file).
-- [ ] (candidate) `Advisory.Learning.RecommendationLearningOperationalStatusResponse` — explicit JSON `null` on learning operational status lists — locus: `Advisory.Learning.RecommendationLearningOperationalStatusResponse`; input: operational status JSON with null list token (see file).
 
 2026-10-15 seed hunt (seed→hit): promoted five open `(candidate)` rows on deployment status `links`, quality-gate `perAgentTypeFloors`, outbox bulk-retry `retriedOutboxIds`, LLM cost dashboard lists, and fleet COGS dashboard `rows`; cheap-disproof closed mis-scoped `AdminFleetLlmCogsRowResponse` (row DTO has no lists); coalesce fix on `AdminDeploymentStatusResponse`, `AdminQualityGateDiagnosticsResponse`, `IntegrationOutboxDeadLetterBulkRetryResponse`, `LlmCostReportingDashboardResponse`, and `AdminFleetLlmCogsDashboardResponse`; regressions in `AdminDeploymentStatusResponseDeserializationTests`, `AdminOperatorDiagnosticsDeserializationTests`, and `LlmCostReportingDeserializationTests`; reseeded five follow-on `(candidate)` rows; 931 scoped `Contracts` filter tests passed.
 
