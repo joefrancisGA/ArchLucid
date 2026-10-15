@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-15 seed hunt (seed→hit): `archlucid-contracts` — promoted `SponsorDigestPreferencesResponse.RecipientEmails` and `ExecDigestPreferencesResponse.RecipientEmails` explicit JSON `null` on digest preferences JSON (consolidated fix); `ContractCollectionDefaults.CoalesceReadOnly` on both `init` accessors; regression `DigestPreferencesDeserializationTests`; reseeded five follow-on `(candidate)` rows; 761 scoped `Contracts` filter tests passed.
+
 2026-10-15 seed hunt (seed→hit): `archlucid-contracts` — promoted trial funnel operational summary and data-quality list properties (`Stages`, `CohortRows`, `StageDefinitions`) explicit JSON `null` (consolidated fix); `ContractCollectionDefaults.CoalesceReadOnly` on all three `init` accessors; regression `TrialFunnelDeserializationTests`; reseeded five follow-on `(candidate)` rows; 759 scoped `Contracts` filter tests passed.
 
 2026-10-15 seed hunt (seed→hit): `archlucid-contracts` — promoted `GeneratePolicyPackResponse.ValidationWarnings` and `RunToolInvocationForensicsResponse.Rows` explicit JSON `null` on policy-pack generation and run forensics JSON (consolidated fix); `ContractCollectionDefaults.CoalesceReadOnly` on both setters; regressions `GeneratePolicyPackResponseDeserializationTests` and `RunToolInvocationForensicsResponseDeserializationTests`; reseeded five follow-on `(candidate)` rows; 757 scoped `Contracts` filter tests passed.
@@ -29890,6 +29892,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 ---
 ## Zone: archlucid-contracts
 
+2026-10-15 seed hunt (seed→hit): promoted sponsor and exec digest `RecipientEmails` JSON `null`; consolidated `ContractCollectionDefaults.CoalesceReadOnly` on `init`; regression `DigestPreferencesDeserializationTests`; 761 scoped `Contracts` filter tests passed.
+
 2026-10-15 seed hunt (seed→hit): promoted trial funnel `Stages` / `CohortRows` / `StageDefinitions` JSON `null`; consolidated `ContractCollectionDefaults.CoalesceReadOnly` on `init`; regression `TrialFunnelDeserializationTests`; 759 scoped `Contracts` filter tests passed.
 
 2026-10-15 seed hunt (seed→hit): promoted `GeneratePolicyPackResponse.ValidationWarnings` and `RunToolInvocationForensicsResponse.Rows` JSON `null`; consolidated `ContractCollectionDefaults.CoalesceReadOnly` fix; regressions `GeneratePolicyPackResponseDeserializationTests` and `RunToolInvocationForensicsResponseDeserializationTests`; 757 scoped `Contracts` filter tests passed.
@@ -30054,11 +30058,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 136
-- **bugs-found:** 116
+- **hunts:** 137
+- **bugs-found:** 117
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-15
-- **last-bug:** 2026-10-15 — Trial funnel operational summary / data-quality JSON null lists
+- **last-bug:** 2026-10-15 — Sponsor / exec digest preferences RecipientEmails JSON null
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -30096,11 +30100,12 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (proven) `TrialFunnelDataQualityResponse.StageDefinitions` — explicit JSON `null` on trial funnel data-quality JSON — **hit 2026-10-15 seed hunt (seed→hit):** same consolidated fix as operational summary lists.
 - [x] (invalid) `RunRetrievalGroundingResponse.Rows` — duplicate candidate — **cheap-disproof 2026-10-15 seed hunt:** already proven 2026-10-14 with `RunRetrievalGroundingResponseDeserializationTests`.
 - [x] (invalid) `VisionDiagramIngestResult.Warnings` — duplicate candidate — **cheap-disproof 2026-10-15 seed hunt:** already proven 2026-10-14 with `VisionDiagramIngestResultDeserializationTests`.
-- [ ] (candidate) `SponsorDigestPreferencesResponse.RecipientEmails` — explicit JSON `null` on sponsor digest preferences JSON; locus: `SponsorDigestPreferencesResponse`; input: `"recipientEmails": null`; wrong outcome: notifications UI assumes non-null recipient list; reachability: sponsor digest preferences GET API JSON.
-- [ ] (candidate) `ExecDigestPreferencesResponse.RecipientEmails` — explicit JSON `null` on exec digest preferences JSON; locus: `ExecDigestPreferencesResponse`; input: `"recipientEmails": null`; wrong outcome: exec digest settings assume non-null recipients; reachability: exec digest preferences GET API JSON.
+- [x] (proven) `SponsorDigestPreferencesResponse.RecipientEmails` — explicit JSON `null` on sponsor digest preferences JSON — **hit 2026-10-15 seed hunt (seed→hit):** consolidated with exec digest `RecipientEmails` via `ContractCollectionDefaults.CoalesceReadOnly`; regression `DigestPreferencesDeserializationTests`.
+- [x] (proven) `ExecDigestPreferencesResponse.RecipientEmails` — explicit JSON `null` on exec digest preferences JSON — **hit 2026-10-15 seed hunt (seed→hit):** same consolidated fix as sponsor digest.
 - [ ] (candidate) `OperationalSecurityFindingLookupRequest.SourceFindingIds` — explicit JSON `null` on operational security finding lookup POST body; locus: `OperationalSecurityFindingLookupRequest`; input: `"sourceFindingIds": null`; wrong outcome: lookup handler assumes non-null id list; reachability: operational security finding lookup API request contract.
 - [ ] (candidate) `AgentOutputEvaluationPerspective.Scores` — explicit JSON `null` on agent output evaluation perspective JSON; locus: `AgentOutputEvaluationPerspective`; input: `"scores": null`; wrong outcome: evaluation UI assumes non-null score rows; reachability: run agent evaluation perspective API JSON.
 - [ ] (candidate) `QuestionSelectionResult.AllQuestions` — explicit JSON `null` on draft question selection JSON; locus: `QuestionSelectionResult`; input: `"allQuestions": null`; wrong outcome: draft intake assumes non-null selected questions; reachability: draft question selection engine output serialization.
+- [ ] (candidate) `DraftIntakeReaperBatchResult.DeletedDraftIds` — explicit JSON `null` on draft intake reaper batch JSON; locus: `DraftIntakeReaperBatchResult`; input: `"deletedDraftIds": null`; wrong outcome: reaper summary assumes non-null deleted id list; reachability: draft intake reaper batch result contract JSON.
 - [x] (invalid) `AgentOutputEvaluationScore.MissingKeys` — duplicate candidate row — **cheap-disproof 2026-10-15 seed hunt:** already proven 2026-10-14 with `AgentOutputEvaluationScoreDeserializationTests`.
 
 2026-10-10 seed hunt (seed-only): reread advisory scheduling/digest DTOs and agent trace summary projection with the existing Contracts coverage; no fresh contract-local wrong outcome or reachable serialization mismatch met the promotion bar. The scoped Contracts filter passed 520/520. No production or regression code was changed.
