@@ -87,6 +87,13 @@ describe("getAccessTokenForApi / isLikelySignedIn expiry parsing (LK-06 P2)", ()
     expect(getAccessTokenForApi()).toBeUndefined();
     expect(isLikelySignedIn()).toBe(false);
   });
+
+  it("parses expires_at_ms session hints after stripping zero-width padding", () => {
+    const futureMs = Date.now() + 3_600_000;
+    sessionStorage.setItem(OIDC_EXPIRES_AT_MS_KEY, `${futureMs}\u200b`);
+
+    expect(isLikelySignedIn()).toBe(true);
+  });
 });
 
 describe("persistTokenResponse", () => {

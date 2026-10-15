@@ -318,7 +318,7 @@ export function consumePostSignInReturnUrl(): string | null {
 
 function getExpiresAtMs(): number {
   const raw = readSessionKey(OIDC_EXPIRES_AT_MS_KEY) ?? "0";
-  const parsed = Number(raw);
+  const parsed = Number(normalizeOidcConfigurationString(raw));
 
   return Number.isFinite(parsed) ? parsed : 0;
 }
