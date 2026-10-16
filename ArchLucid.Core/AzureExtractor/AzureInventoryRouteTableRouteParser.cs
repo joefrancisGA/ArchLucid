@@ -16,7 +16,7 @@ public static class AzureInventoryRouteTableRouteParser
 
         List<AzureInventoryRouteTableRoute> explicitRoutes = ParseExplicitRouteProperties(properties);
 
-        if (explicitRoutes.Count > 0)
+        if (explicitRoutes.Count > 0 && ExplicitRoutesSpecifyNextHop(explicitRoutes))
         {
             return explicitRoutes;
         }
@@ -106,6 +106,22 @@ public static class AzureInventoryRouteTableRouteParser
                || !string.IsNullOrWhiteSpace(route.NextHopType)
                || !string.IsNullOrWhiteSpace(route.NextHopIpAddress)
                || !string.IsNullOrWhiteSpace(route.NextHopArmId);
+    }
+
+    private static bool ExplicitRoutesSpecifyNextHop(IReadOnlyList<AzureInventoryRouteTableRoute> explicitRoutes)
+    {
+        foreach (AzureInventoryRouteTableRoute route in explicitRoutes)
+        {
+
+            if (!string.IsNullOrWhiteSpace(route.NextHopType)
+                || !string.IsNullOrWhiteSpace(route.NextHopIpAddress)
+                || !string.IsNullOrWhiteSpace(route.NextHopArmId))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private static List<AzureInventoryRouteTableRoute> ParseRoutesJson(string routesJson)

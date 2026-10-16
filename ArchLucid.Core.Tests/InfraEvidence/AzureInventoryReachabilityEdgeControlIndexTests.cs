@@ -235,6 +235,45 @@ public sealed class AzureInventoryReachabilityEdgeControlIndexTests
     }
 
     [Fact]
+    public void SubnetRequiresEdgeControlEvidence_true_when_explicit_route_has_prefix_only_and_routes_json_lists_next_hop()
+    {
+        string vnet = BuildVnet("vnet");
+        string subnet = BuildSubnet(vnet, "app");
+        string routeTable = BuildRouteTable("routes");
+
+        Dictionary<string, AzureInventoryReachabilityResourceProperties> resources =
+            new(StringComparer.OrdinalIgnoreCase)
+            {
+                [routeTable] = new AzureInventoryReachabilityResourceProperties
+                {
+                    ResourceType = "Microsoft.Network/routeTables",
+                    Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["inventory.policy.route.0.addressPrefix"] = "0.0.0.0/0",
+                        ["routes"] = """
+                            [
+                              {
+                                "properties": {
+                                  "addressPrefix": "0.0.0.0/0",
+                                  "nextHopType": "VirtualNetworkGateway"
+                                }
+                              }
+                            ]
+                            """,
+                    },
+                },
+            };
+
+        AzureInventoryReachabilityEdgeControlIndex index = AzureInventoryReachabilityEdgeControlIndex.Build(
+        [
+            new AzureInventoryRelationshipArmTriple(subnet, routeTable, "inventory-subnet-route-table"),
+        ], resources);
+
+        index.SubnetRequiresEdgeControlEvidence(subnet).Should().BeTrue(
+            "prefix-only explicit route slots must not suppress routes JSON next-hop fields");
+    }
+
+    [Fact]
     public void SubnetRequiresEdgeControlEvidence_true_when_placeholder_explicit_route_coexists_with_routes_json()
     {
         string vnet = BuildVnet("vnet");
