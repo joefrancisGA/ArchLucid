@@ -3,7 +3,18 @@ import {
   PROOF_CONFIDENCE_FIELD_LABEL,
 } from "@/lib/proof-confidence-taxonomy";
 import { trustEvidenceFieldOrUnavailable } from "@/lib/trust-evidence-field-snapshot";
+import { formatTraceCompletenessDisplayLabel } from "@/lib/trust-evidence-display";
 import type { RunTrustEvidenceCard } from "@/types/authority";
+
+function formatEvidencePointersExportSummary(summary: string | null | undefined): string {
+  const trimmed = summary?.trim() ?? "";
+
+  if (trimmed.length === 0 || trimmed === "Evidence chain pointers not available.") {
+    return "Evidence chain was not stored.";
+  }
+
+  return trimmed;
+}
 
 export function appendTrustEvidenceMarkdownSection(body: string, card: RunTrustEvidenceCard | null | undefined): string {
   if (!card) {
@@ -67,8 +78,10 @@ export function formatTrustEvidenceCardMarkdown(card: RunTrustEvidenceCard): str
       lines.push(`- **Title:** ${card.topFinding.title}`);
     }
 
-    lines.push(`- **Trace completeness:** ${card.topFinding.traceCompletenessLabel}`);
-    lines.push(`- **Evidence pointers:** ${card.topFinding.evidencePointersSummary}`);
+    lines.push(`- **Trace completeness:** ${formatTraceCompletenessDisplayLabel(card.topFinding.traceCompletenessLabel)}`);
+    lines.push(
+      `- **Evidence pointers:** ${formatEvidencePointersExportSummary(card.topFinding.evidencePointersSummary)}`,
+    );
   }
 
   lines.push("");

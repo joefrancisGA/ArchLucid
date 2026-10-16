@@ -2,6 +2,19 @@ import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 
 const GOLDEN_MANIFEST_TITLE_PATTERN = /golden manifest/i;
 
+export const TRACE_COMPLETENESS_NOT_STORED_LABEL = "Trace completeness was not stored.";
+
+/** Normalizes legacy API placeholders for top-finding trace completeness. */
+export function formatTraceCompletenessDisplayLabel(label: string | null | undefined): string {
+  const trimmed = label?.trim() ?? "";
+
+  if (trimmed.length === 0 || trimmed === "Not available") {
+    return TRACE_COMPLETENESS_NOT_STORED_LABEL;
+  }
+
+  return trimmed;
+}
+
 /** Proof-chain step label for the committed review record step. */
 export function trustEvidenceProofChainManifestStepLabel(): string {
   return SIGNED_MANIFEST_LABEL;

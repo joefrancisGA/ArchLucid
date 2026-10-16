@@ -1,0 +1,69 @@
+name: SecureNow performance regression
+
+on:
+  pull_request:
+    branches: [main, master]
+    paths:
+      - 'ArchLucid.Application/InfraEvidence/**'
+      - 'ArchLucid.Application.Tests/InfraEvidence/**'
+      - 'ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/**'
+      - 'ArchLucid.Persistence/InfraEvidence/**'
+      - 'ArchLucid.Persistence/Sql/SqlBufferedBulkCopy.cs'
+      - 'ArchLucid.Persistence.Tests/InfraEvidence/**'
+      - '.github/workflows/securenow-performance-regression.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: securenow-performance-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  snapshot-and-path-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      sqlserver:
+        image: mcr.microsoft.com/mssql/server:2022-latest
+        env:
+          ACCEPT_EULA: Y
+          MSSQL_SA_PASSWORD: 'LocalTesting123!'
+        ports:
+          - 1433:1433
+        options: >-
+          --health-cmd "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'LocalTesting123!' -C -b -Q \"SELECT 1\" || exit 1"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 30
+          --health-start-period 60s
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
+          cache: true
+          cache-dependency-path: |
+            Directory.Packages.props
+            global.json
+            **/*.csproj
+      - uses: ./.github/actions/wait-for-sqlserver
+      - name: Application regression (Release)
+        run: >-
+          dotnet test ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj -c Release
+          --filter 'FullyQualifiedName~SecureNowAnalysis|FullyQualifiedName~SecureNowArchitectPostMaterializeCoordinatorTests|FullyQualifiedName~AzureInventoryDiffServiceTests|FullyQualifiedName~CapabilityToFlowEngineTests|FullyQualifiedName~SharedControlBlastRadiusEngineTests|FullyQualifiedName~FourRealityDriftEngineTests|FullyQualifiedName~SecureNowArchitectNeighborhoodTraversalTests|FullyQualifiedName~PrivilegePathEngineTests|FullyQualifiedName~IntendedReachabilityEngineTests|FullyQualifiedName~ToxicCombinationEngineTests|FullyQualifiedName~AzureInventorySnapshotMaterializerTests|FullyQualifiedName~AzureInventorySecurityEdgeMaterializerTests|FullyQualifiedName~PathRankingEngineTests|FullyQualifiedName~CutPointAnalysisEngineTests|FullyQualifiedName~SecureNowReference|FullyQualifiedName~SecureNowArchitectTwoSnapshotGoldenFixtureTests|FullyQualifiedName~AzureInventoryGrantRolePrivilegePathTests|FullyQualifiedName~AzureInventoryControlToDataPrivilegePathTests|FullyQualifiedName~AzureInventoryAddCredentialPrivilegePathTests'
+          --logger 'trx;LogFileName=securenow-application.trx'
+      - name: SQL snapshot and path contracts (Release)
+        env:
+          ARCHLUCID_SQL_TEST: 'Server=127.0.0.1,1433;User Id=sa;Password=LocalTesting123!;TrustServerCertificate=True;Initial Catalog=ArchLucidPersistenceTests'
+        run: >-
+          dotnet test ArchLucid.Persistence.Tests/ArchLucid.Persistence.Tests.csproj -c Release
+          --filter 'FullyQualifiedName~SqlAzureInventorySnapshotRepositorySqlIntegrationTests|FullyQualifiedName~SqlSecurityEvidencePathRepositorySqlIntegrationTests'
+          --logger 'trx;LogFileName=securenow-sql.trx'
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: securenow-regression-results
+          path: '**/TestResults/securenow-*.trx'
+          if-no-files-found: warn

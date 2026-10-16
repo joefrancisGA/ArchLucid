@@ -76,6 +76,12 @@ public static class GraphEdgeInferenceSources
 
     public const string InventoryContainerImage = "inventory-container-image";
 
+    public const string InventoryNodePool = "inventory-node-pool";
+
+    public const string InventoryNspAssociation = "inventory-nsp-association";
+
+    public const string InventoryAmplsScopedResource = "inventory-ampls-scoped-resource";
+
     public const string InventoryServiceConnectorLink = "inventory-service-connector-link";
 
     public const string InventorySynapseLinkedService = "inventory-synapse-linked-service";
@@ -170,6 +176,8 @@ public static class GraphEdgeInferenceSources
     public const string InventoryEntraGroupMembership = "inventory-entra-group-membership";
 
     public const string InventoryAddCredential = "inventory-add-credential";
+
+    public const string InventoryGrantRole = "inventory-grant-role";
 
     public const string HumanDeclaredConnection = "human-declared-connection";
 

@@ -9,7 +9,7 @@ export function resolveDeclaredConnectionDisplayStatus(
   row: SecurityDeclaredConnectionRow,
   nowMs: number = Date.now(),
 ): DeclaredConnectionDisplayStatus {
-  if (row.status !== "Active") {
+  if (row.status === "Expired" || row.status === "Revoked") {
     return row.status;
   }
 
@@ -19,7 +19,7 @@ export function resolveDeclaredConnectionDisplayStatus(
     return "NearExpiry";
   }
 
-  return row.status;
+  return "Active";
 }
 
 export function countActiveDeclaredConnections(rows: readonly SecurityDeclaredConnectionRow[]): number {

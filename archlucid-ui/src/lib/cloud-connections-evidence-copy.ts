@@ -1,3 +1,6 @@
+import { SECURENOW_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
@@ -44,4 +47,25 @@ export const CLOUD_CONNECTIONS_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "How ArchLucid works", href: inAppHelpHref("getting-started", "how-archlucid-works") },
 
 ] as const;
+
+export const SECURENOW_CLOUD_CONNECTIONS_SOURCES_INTRO = hubSecondaryFollowUpsIntro(
+  "you need Connection status, Extract and upload, or cloud connections help after configuring Azure above",
+);
+
+export const SECURENOW_CLOUD_CONNECTIONS_SOURCES: readonly EvidenceSourceLink[] = [
+  { label: "Connection status", href: "/administration/connection-status" },
+  { label: "Extract and upload", href: SECURENOW_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH },
+  { label: "Cloud connections help", href: inAppHelpHref("cloud-connections") },
+  { label: "Getting started", href: inAppHelpHref("getting-started") },
+] as const;
+
+export function resolveCloudConnectionsSourcesIntro(productLineId: ProductLineId = "architecture"): string {
+  return isSecureNowProductLine(productLineId) ? SECURENOW_CLOUD_CONNECTIONS_SOURCES_INTRO : CLOUD_CONNECTIONS_SOURCES_INTRO;
+}
+
+export function resolveCloudConnectionsSources(
+  productLineId: ProductLineId = "architecture",
+): readonly EvidenceSourceLink[] {
+  return isSecureNowProductLine(productLineId) ? SECURENOW_CLOUD_CONNECTIONS_SOURCES : CLOUD_CONNECTIONS_SOURCES;
+}
 

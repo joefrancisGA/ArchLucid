@@ -148,8 +148,13 @@ describe("formatGoldenManifestMarkdown", () => {
       lines,
     );
 
-    expect(lines.join("\n")).toContain("Coverage `pack-a` ·  · Unknown");
-    expect(lines.join("\n")).not.toContain("v —");
+    const policyLines = lines.join("\n");
+
+    expect(policyLines).toContain("Policy pack version was not stored.");
+    expect(policyLines).toContain("Coverage type recorded as unknown.");
+    expect(policyLines).toContain("Quality dimension was not stored.");
+    expect(policyLines).toContain("Selection state was not stored.");
+    expect(policyLines).not.toContain("v —");
   });
 
   it("distinguishes missing manifest fields from stored empty collections and strings", () => {

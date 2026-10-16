@@ -8,7 +8,7 @@ using Dapper;
 
 namespace ArchLucid.Persistence.InfraEvidence;
 
-public sealed class SqlSecurityEvidencePathRepository(ISqlConnectionFactory connectionFactory)
+public sealed partial class SqlSecurityEvidencePathRepository(ISqlConnectionFactory connectionFactory)
     : ISecurityEvidencePathRepository
 {
     public async Task<SecurityEvidencePathRecord?> TryGetByIdAsync(
@@ -146,108 +146,9 @@ public sealed class SqlSecurityEvidencePathRepository(ISqlConnectionFactory conn
         IReadOnlyList<SecurityEvidencePathHopRecord> hops,
         CancellationToken cancellationToken = default)
     {
-        SecurityEvidencePathGuard.ValidatedPath validated =
-            SecurityEvidencePathGuard.ValidateAndMaterialize(pathHeader, hops);
-
-        SecurityEvidencePathRecord? existing = await TryGetByCanonicalHashAsync(
-            validated.Path.TenantId,
-            validated.Path.SnapshotId,
-            validated.Path.CanonicalHopHashSha256,
-            cancellationToken);
-
-        if (existing is not null)
-        {
-            return new SecurityEvidencePathInsertResult
-            {
-                PathId = existing.PathId,
-                Created = false,
-            };
-        }
-
-        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
-        using System.Data.IDbTransaction tx = conn.BeginTransaction();
-
-        const string insertPathSql = """
-                                     INSERT INTO dbo.SecurityEvidencePaths
-                                     (
-                                         PathId, TenantId, WorkspaceId, ProjectId, SnapshotId, PathKind, PathConfidenceBand,
-                                         CanonicalHopHashSha256, WeakestHopOrdinal, WeakestHopReason, CrownJewelAssertionId,
-                                         CreatedUtc, UpdatedUtc
-                                     )
-                                     VALUES
-                                     (
-                                         @PathId, @TenantId, @WorkspaceId, @ProjectId, @SnapshotId, @PathKind, @PathConfidenceBand,
-                                         @CanonicalHopHashSha256, @WeakestHopOrdinal, @WeakestHopReason, @CrownJewelAssertionId,
-                                         @CreatedUtc, @UpdatedUtc
-                                     );
-                                     """;
-
-        await conn.ExecuteAsync(
-            new CommandDefinition(
-                insertPathSql,
-                new
-                {
-                    validated.Path.PathId,
-                    validated.Path.TenantId,
-                    validated.Path.WorkspaceId,
-                    validated.Path.ProjectId,
-                    validated.Path.SnapshotId,
-                    PathKind = (int)validated.Path.PathKind,
-                    PathConfidenceBand = (int)validated.Path.PathConfidenceBand,
-                    validated.Path.CanonicalHopHashSha256,
-                    validated.Path.WeakestHopOrdinal,
-                    validated.Path.WeakestHopReason,
-                    validated.Path.CrownJewelAssertionId,
-                    validated.Path.CreatedUtc,
-                    validated.Path.UpdatedUtc,
-                },
-                transaction: tx,
-                cancellationToken: cancellationToken));
-
-        const string insertHopSql = """
-                                      INSERT INTO dbo.SecurityEvidencePathHops
-                                      (
-                                          HopRowId, PathId, TenantId, HopOrdinal, FromNodeId, ToNodeId, EdgeType,
-                                          ProvenanceKind, HopConfidenceBand, InferenceSource, EvidenceReference, CloudResourceId
-                                      )
-                                      VALUES
-                                      (
-                                          @HopRowId, @PathId, @TenantId, @HopOrdinal, @FromNodeId, @ToNodeId, @EdgeType,
-                                          @ProvenanceKind, @HopConfidenceBand, @InferenceSource, @EvidenceReference, @CloudResourceId
-                                      );
-                                      """;
-
-        foreach (SecurityEvidencePathHopRecord hop in validated.Hops)
-        {
-            await conn.ExecuteAsync(
-                new CommandDefinition(
-                    insertHopSql,
-                    new
-                    {
-                        hop.HopRowId,
-                        hop.PathId,
-                        hop.TenantId,
-                        hop.HopOrdinal,
-                        hop.FromNodeId,
-                        hop.ToNodeId,
-                        hop.EdgeType,
-                        ProvenanceKind = (int)hop.ProvenanceKind,
-                        HopConfidenceBand = (int)hop.HopConfidenceBand,
-                        hop.InferenceSource,
-                        hop.EvidenceReference,
-                        hop.CloudResourceId,
-                    },
-                    transaction: tx,
-                    cancellationToken: cancellationToken));
-        }
-
-        tx.Commit();
-
-        return new SecurityEvidencePathInsertResult
-        {
-            PathId = validated.Path.PathId,
-            Created = true,
-        };
+        IReadOnlyList<SecurityEvidencePathInsertResult> result = await InsertBatchIfNotExistsAsync(
+            [new(pathHeader, hops)], cancellationToken);
+        return result[0];
     }
 
     public async Task<(IReadOnlyList<SecurityEvidencePathRecord> Items, int TotalCount)> ListPagedAsync(

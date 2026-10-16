@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   formatCollectionRunDuration,
+  formatCollectionRunSubscriptionsLabel,
   resolveCollectionAgentHealth,
 } from "@/lib/collection-agent-presentation";
 import type { CollectionRun } from "@/lib/collection-runs-api";
@@ -67,6 +68,22 @@ describe("collection-agent-presentation", () => {
 
   it("formats completed and in-progress durations", () => {
     expect(formatCollectionRunDuration(run())).toBe("5m 0s");
-    expect(formatCollectionRunDuration(run({ finishedUtc: null }))).toBe("In progress");
+    expect(formatCollectionRunDuration(run({ finishedUtc: null, status: "Running" }))).toBe("In progress");
+    expect(formatCollectionRunDuration(run({ finishedUtc: null, status: "Failed" }))).toBe(
+      "Finish time was not stored.",
+    );
+  });
+
+  it("labels subscription coverage without collapsing missing, unreadable, and empty cases", () => {
+    expect(formatCollectionRunSubscriptionsLabel(run({ subscriptionsCoveredJson: undefined }))).toBe(
+      "Subscriptions covered were not stored.",
+    );
+    expect(formatCollectionRunSubscriptionsLabel(run({ subscriptionsCoveredJson: "not-json" }))).toBe(
+      "Subscriptions covered could not be read.",
+    );
+    expect(formatCollectionRunSubscriptionsLabel(run({ subscriptionsCoveredJson: "[]" }))).toBe(
+      "Subscriptions covered were stored as an empty list.",
+    );
+    expect(formatCollectionRunSubscriptionsLabel(run({ subscriptionsCoveredJson: '["sub-a"]' }))).toBe("1");
   });
 });

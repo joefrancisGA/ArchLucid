@@ -3,7 +3,7 @@
 
 # Engineer-to-analyst handoff — Luna prompts
 
-**Created:** 2026-10-12 · **Updated:** 2026-10-13 · **Status:** gap 5 **shipped** on trunk (SN-HAND-05–08). Gap 4 prompts **SN-HAND-09–10** are ready to paste and are not implemented on trunk. **Audience:** Composer 2.5 slow
+**Created:** 2026-10-12 · **Updated:** 2026-10-14 · **Status:** gaps 4–5 **shipped** on trunk (**SN-HAND-05–10**). Prompt files remain for regression reference; do not re-run as greenfield. **Audience:** Composer 2.5 slow
 
 Paste **one** prompt per session. Do not implement from this index.
 
@@ -21,7 +21,7 @@ Source: [`docs/securenow/ENGINEER_ANALYST_HANDOFF.md`](../securenow/ENGINEER_ANA
 
 ## Run order
 
-**05 → 06 → 07 → 08**, then gap 4 as **09 → 10**. Do not run two of these in one session. SN-HAND-06 stops if the table is not on `master`. SN-HAND-07 stops if verify does not write the row. SN-HAND-08 stops if lineage does not return the list. SN-HAND-09 stops if `verifiedRemediationAssociations` is missing. SN-HAND-10 stops if `latestRemediationAttempt` is missing.
+Historical run order was **05 → 06 → 07 → 08**, then gap 4 as **09 → 10**. All are on trunk. Use scoped bugfix rows only; do not run two prompts in one session when extending behavior.
 
 ## How to check
 
@@ -39,7 +39,7 @@ Restart the API after SN-HAND-06 and SN-HAND-07. Restart the UI after SN-HAND-08
 ## Not in this set
 
 - Gaps 1–3 (My findings control text, the remediation audit-evidence link, the Home checks-failed filter) — **already on trunk**; see `docs/securenow/ENGINEER_ANALYST_HANDOFF.md` § Implementation status.
-- Do not fold gap 4 into SN-HAND-05–08. Paste **SN-HAND-09**, then **SN-HAND-10**.
+- Do not fold gap 4 into SN-HAND-05–08. Gap 4 shipped as **SN-HAND-09**, then **SN-HAND-10**.
 - A copy of snapshot bytes or verification JSON
 - A model marking a control evidenced
 - A second findings list, a hidden review tab, or an Azure write

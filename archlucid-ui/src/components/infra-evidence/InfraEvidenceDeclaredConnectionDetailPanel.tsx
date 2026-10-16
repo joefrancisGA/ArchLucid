@@ -31,21 +31,17 @@ export type InfraEvidenceDeclaredConnectionDetailPanelProps = {
   readonly onClose: () => void;
 };
 
-function formatPanelCell(value: string | null | undefined): string {
+function formatStoredField(value: string | null | undefined, fieldLabel: string): string {
   if (value == null || value.trim().length === 0) {
-    return "Not recorded";
+    return `${fieldLabel} was not stored.`;
   }
 
   return value;
 }
 
 function formatExpiration(value: string | null | undefined): string {
-  if (value === null || value === undefined) {
+  if (value === null || value === undefined || value.trim().length === 0) {
     return "Expiration was not stored.";
-  }
-
-  if (value.trim().length === 0) {
-    return "Not recorded";
   }
 
   const parsed = new Date(value);
@@ -70,6 +66,47 @@ function formatUnavailableConnectionField(
   }
 
   return `${label} could not be resolved because the declared connection was not found.`;
+}
+
+function formatConnectionStatus(
+  props: InfraEvidenceDeclaredConnectionDetailPanelProps,
+  matchedConnection: SecurityDeclaredConnectionRow | null,
+): string {
+  if (matchedConnection === null) {
+    return formatUnavailableConnectionField("Status", props);
+  }
+
+  return formatStoredField(matchedConnection.status, "Status");
+}
+
+function formatConnectionEvidenceReference(
+  props: InfraEvidenceDeclaredConnectionDetailPanelProps,
+  matchedConnection: SecurityDeclaredConnectionRow | null,
+): string {
+  if (matchedConnection === null) {
+    return formatUnavailableConnectionField("Evidence reference", props);
+  }
+
+  return formatStoredField(matchedConnection.evidenceReference, "Evidence reference");
+}
+
+function formatConnectionProvenance(
+  props: InfraEvidenceDeclaredConnectionDetailPanelProps,
+  matchedConnection: SecurityDeclaredConnectionRow | null,
+): string {
+  if (matchedConnection === null) {
+    return formatUnavailableConnectionField("Provenance", props);
+  }
+
+  if (
+    matchedConnection.provenanceKind === null
+    || matchedConnection.provenanceKind === undefined
+    || matchedConnection.provenanceKind.trim().length === 0
+  ) {
+    return "Provenance was not stored.";
+  }
+
+  return formatSecurityEvidenceProvenanceKindLabel(matchedConnection.provenanceKind);
 }
 
 /** Read-only accountability panel for a declared diagram edge. */
@@ -121,15 +158,11 @@ export function InfraEvidenceDeclaredConnectionDetailPanel(
         </div>
         <div>
           <dt className="text-al-text-secondary">Relationship</dt>
-          <dd className="m-0">{formatPanelCell(relationshipLabel)}</dd>
+          <dd className="m-0">{formatStoredField(relationshipLabel, "Relationship")}</dd>
         </div>
         <div>
           <dt className="text-al-text-secondary">Provenance</dt>
-          <dd className="m-0">
-            {matchedConnection == null
-              ? "Provenance was not stored"
-              : formatSecurityEvidenceProvenanceKindLabel("HumanAssertion")}
-          </dd>
+          <dd className="m-0">{formatConnectionProvenance(props, matchedConnection)}</dd>
         </div>
         <div className="sm:col-span-2">
           <dt className="text-al-text-secondary">Rationale</dt>
@@ -138,12 +171,12 @@ export function InfraEvidenceDeclaredConnectionDetailPanel(
               ? formatUnavailableConnectionField("Rationale", props)
               : matchedConnection.rationale === null || matchedConnection.rationale === undefined
                 ? "Rationale was not stored."
-                : formatPanelCell(matchedConnection.rationale)}
+                : formatStoredField(matchedConnection.rationale, "Rationale")}
           </dd>
         </div>
         <div>
           <dt className="text-al-text-secondary">Evidence reference</dt>
-          <dd className="m-0">{formatPanelCell(matchedConnection?.evidenceReference)}</dd>
+          <dd className="m-0">{formatConnectionEvidenceReference(props, matchedConnection)}</dd>
         </div>
         <div>
           <dt className="text-al-text-secondary">Approved by</dt>
@@ -169,7 +202,7 @@ export function InfraEvidenceDeclaredConnectionDetailPanel(
         </div>
         <div>
           <dt className="text-al-text-secondary">Status</dt>
-          <dd className="m-0">{formatPanelCell(matchedConnection?.status)}</dd>
+          <dd className="m-0">{formatConnectionStatus(props, matchedConnection)}</dd>
         </div>
       </dl>
 

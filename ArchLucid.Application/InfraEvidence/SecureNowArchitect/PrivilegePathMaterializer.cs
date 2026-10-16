@@ -45,7 +45,12 @@ internal static class PrivilegePathMaterializer
     private static PathConfidenceBand MapConfidenceBand(PrivilegePathEdge hop)
     {
         if (hop.EdgeType == "unknown-role-actions"
-            || hop.InferenceSource == GraphEdgeInferenceSources.PimEligibilityUnknown)
+            || hop.InferenceSource == GraphEdgeInferenceSources.PimEligibilityUnknown
+            || (hop.EdgeType == GraphEdgeTypes.CanReach
+                && string.Equals(
+                    hop.InferenceSource,
+                    SecureNowArchitectConstants.InsufficientEvidenceDnsHopEdgeType,
+                    StringComparison.OrdinalIgnoreCase)))
         {
             return PathConfidenceBand.InsufficientEvidence;
         }
@@ -72,6 +77,8 @@ internal static class PrivilegePathMaterializer
             GraphEdgeTypes.CanAssume => GraphEdgeInferenceSources.InventoryUsesIdentity,
             GraphEdgeTypes.CanControlCode => GraphEdgeInferenceSources.InventoryControlToDataConversion,
             GraphEdgeTypes.CanAddCredential => GraphEdgeInferenceSources.InventoryAddCredential,
+            GraphEdgeTypes.CanGrantRole => GraphEdgeInferenceSources.InventoryGrantRole,
+            GraphEdgeTypes.CanReach => GraphEdgeInferenceSources.InventoryPeReachableTarget,
             GraphEdgeTypes.MemberOf => GraphEdgeInferenceSources.InventoryEntraGroupMembership,
             "unknown-role-actions" => GraphEdgeInferenceSources.InventoryRbacAssignment,
             _ => SecureNowArchitectConstants.SourceSystem,

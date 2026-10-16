@@ -31,13 +31,13 @@ public static class InventoryDiagramIndirectRelationshipClassifier
             return true;
         }
 
-        if (armResourceType.Contains("privateLinkScopes", StringComparison.OrdinalIgnoreCase))
+        if (AzureInventoryMonitorPrivateLinkScopeResourceTypes.IsScopeResourceType(armResourceType))
         {
             category = InventoryDiagramIndirectRelationshipCategory.PrivateLinkScope;
             return true;
         }
 
-        if (armResourceType.Contains("networkSecurityPerimeters", StringComparison.OrdinalIgnoreCase))
+        if (AzureInventoryNetworkSecurityPerimeterResourceTypes.IsPerimeterResourceType(armResourceType))
         {
             category = InventoryDiagramIndirectRelationshipCategory.NetworkSecurityPerimeter;
             return true;

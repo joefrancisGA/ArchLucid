@@ -176,25 +176,25 @@ export function graphBuyerTrailMetadataLines(
       lower === "businessmeaning" ||
       lower === "sponsorimpact"
     ) {
-      summaryLines.push({ label: "Why it matters", value: value.length > 0 ? value : "Why it matters not returned" });
+      summaryLines.push({ label: "Why it matters", value: value.length > 0 ? value : "Why it matters was not stored." });
 
       continue;
     }
 
     if (lower === "evidence" || lower === "citations" || lower === "evidencecitations") {
-      summaryLines.push({ label: "Evidence citations", value: value.length > 0 ? value : "Evidence citations not returned" });
+      summaryLines.push({ label: "Evidence citations", value: value.length > 0 ? value : "Evidence citations were not stored." });
 
       continue;
     }
 
     if (lower === "mitigation" || lower === "remediation") {
-      summaryLines.push({ label: "Mitigation", value: value.length > 0 ? value : "Mitigation not returned" });
+      summaryLines.push({ label: "Mitigation", value: value.length > 0 ? value : "Mitigation was not stored." });
 
       continue;
     }
 
     if (lower === "relateddecisions" || lower === "manifestdecisions") {
-      summaryLines.push({ label: "Related decisions", value: value.length > 0 ? value : "Related decisions not returned" });
+      summaryLines.push({ label: "Related decisions", value: value.length > 0 ? value : "Related decisions were not stored." });
 
       continue;
     }
@@ -206,13 +206,13 @@ export function graphBuyerTrailMetadataLines(
     }
 
     if (lower === "severity" || lower.endsWith("severity")) {
-      summaryLines.push({ label: "Severity", value: value.length > 0 ? value : "Severity not returned" });
+      summaryLines.push({ label: "Severity", value: value.length > 0 ? value : "Severity was not stored." });
 
       continue;
     }
 
     if (lower === "rationale" || lower === "summary") {
-      summaryLines.push({ label: "Rationale", value: value.length > 0 ? value : "Rationale not returned" });
+      summaryLines.push({ label: "Rationale", value: value.length > 0 ? value : "Rationale was not stored." });
 
       continue;
     }

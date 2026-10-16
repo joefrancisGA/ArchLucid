@@ -1,3 +1,4 @@
+using ArchLucid.Application.InfraEvidence.SecureNowArchitect;
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.InfraEvidence;
@@ -19,6 +20,7 @@ public sealed class AzureInventoryDiffService(
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(scope);
+        using IDisposable analysisRun = SecureNowAnalysisRun.JoinOrBegin();
 
         try
         {
@@ -45,10 +47,10 @@ public sealed class AzureInventoryDiffService(
             }
 
             AzureInventorySnapshotDetailReadModel? snapshotA =
-                await snapshotRepository.TryGetSnapshotDetailAsync(scope, snapshotAId, cancellationToken);
+                (await SecureNowAnalysisRun.LoadAsync(snapshotRepository, scope, snapshotAId, cancellationToken))?.Snapshot;
 
             AzureInventorySnapshotDetailReadModel? snapshotB =
-                await snapshotRepository.TryGetSnapshotDetailAsync(scope, snapshotBId, cancellationToken);
+                (await SecureNowAnalysisRun.LoadAsync(snapshotRepository, scope, snapshotBId, cancellationToken))?.Snapshot;
 
             if (snapshotA is null || snapshotB is null)
             {

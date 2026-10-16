@@ -139,9 +139,34 @@ public sealed class ArtifactSynthesisPackageCoverageBatchRc28eTests
         artifact.Content.Should().Contain("- No topology information recorded.");
         artifact.Content.Should().Contain("- No security posture recorded.");
         artifact.Content.Should().Contain("- No compliance posture recorded.");
-        artifact.Content.Should().Contain("- Max Monthly Cost: Not specified");
+        artifact.Content.Should().Contain("- Max Monthly Cost: Max monthly cost was not stored.");
         artifact.Content.Should().Contain("- No decisions recorded.");
         artifact.Content.Should().Contain("- No unresolved issues.");
+    }
+
+    [Fact]
+    public async Task ArchitectureNarrativeArtifactGenerator_GenerateAsync_emits_not_stored_narrative_section_placeholders()
+    {
+        ManifestDocument manifest = new()
+        {
+            RunId = Guid.NewGuid(),
+            ManifestId = Guid.NewGuid(),
+            RuleSetId = "core-default",
+            RuleSetVersion = "1",
+            ManifestHash = "empty-hash",
+            Metadata = new ManifestMetadata { Name = "Empty Manifest" },
+        };
+
+        ArchitectureNarrativeArtifactGenerator generator = new();
+
+        SynthesizedArtifact artifact = await generator.GenerateAsync(manifest, CancellationToken.None);
+
+        artifact.Content.Should().Contain("Architecture overview was not stored.");
+        artifact.Content.Should().Contain("Component breakdown was not stored.");
+        artifact.Content.Should().Contain("Data flow was not stored.");
+        artifact.Content.Should().Contain("Security model was not stored.");
+        artifact.Content.Should().Contain("Operational considerations were not stored.");
+        artifact.Content.Should().NotContain("Not specified.");
     }
 
     [Fact]

@@ -46,9 +46,24 @@ public sealed class TerraformAdvisoryHclSanitizerTests
         result.Should().Contain(TerraformAdvisoryHclSanitizer.ValidationWarningPrefix);
     }
 
+    [Fact]
+    public void ValidateAndSanitize_when_failure_reason_missing_uses_stored_omission_copy()
+    {
+        NoReasonInvalidValidator validator = new();
+        string result = TerraformAdvisoryHclSanitizer.ValidateAndSanitize("# ok", validator);
+
+        result.Should().Contain("# Reason: Validation reason was not stored.");
+    }
+
     private sealed class AlwaysInvalidValidator : ITerraformValidator
     {
         public TerraformValidationOutcome Validate(string hclBody) =>
             TerraformValidationOutcome.Invalid("forced test failure");
+    }
+
+    private sealed class NoReasonInvalidValidator : ITerraformValidator
+    {
+        public TerraformValidationOutcome Validate(string hclBody) =>
+            new(false, null);
     }
 }

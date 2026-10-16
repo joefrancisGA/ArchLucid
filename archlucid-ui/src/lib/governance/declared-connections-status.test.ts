@@ -31,6 +31,36 @@ describe("declared-connections-status", () => {
     expect(resolveDeclaredConnectionDisplayStatus(nearExpiryRow)).toBe("NearExpiry");
   });
 
+  it("keeps active rows that are not near expiry", () => {
+    const farExpiryRow = {
+      ...baseRow,
+      expirationUtc: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+    };
+
+    expect(resolveDeclaredConnectionDisplayStatus(farExpiryRow)).toBe("Active");
+  });
+
+  it("returns revoked and expired statuses without near-expiry overlay", () => {
+    const soon = new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString();
+
+    expect(resolveDeclaredConnectionDisplayStatus({ ...baseRow, status: "Revoked", expirationUtc: soon })).toBe(
+      "Revoked",
+    );
+    expect(resolveDeclaredConnectionDisplayStatus({ ...baseRow, status: "Expired", expirationUtc: soon })).toBe(
+      "Expired",
+    );
+  });
+
+  it("treats missing status as Active for display when not near expiry", () => {
+    expect(
+      resolveDeclaredConnectionDisplayStatus({
+        ...baseRow,
+        status: undefined,
+        expirationUtc: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+      }),
+    ).toBe("Active");
+  });
+
   it("counts only active rows", () => {
     expect(
       countActiveDeclaredConnections([

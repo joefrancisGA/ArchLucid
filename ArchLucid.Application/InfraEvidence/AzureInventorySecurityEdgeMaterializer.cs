@@ -176,8 +176,26 @@ public static class AzureInventorySecurityEdgeMaterializer
             roleAssignments,
             relationships,
             relationshipKeys);
+
+        if (appSettingHostsFilePresent)
+        {
+            AzureInventoryAppSettingsCredentialConversionEdgeMapper.MapConversions(
+                resources,
+                roleAssignments,
+                appSettingHostRows,
+                relationships,
+                relationshipKeys);
+        }
+
         AzureInventoryAddCredentialEdgeMapper.MapAddCredential(
             applicationOwnerRows,
+            directoryRoleAssignmentRows,
+            entraApplicationRegistrationRows,
+            graphAppRoleAssignmentRows,
+            relationships,
+            relationshipKeys);
+        AzureInventoryGrantRoleEdgeMapper.MapGrantRole(
+            resources,
             directoryRoleAssignmentRows,
             entraApplicationRegistrationRows,
             graphAppRoleAssignmentRows,
@@ -292,6 +310,11 @@ public static class AzureInventorySecurityEdgeMaterializer
         }
 
         AzureInventoryContainerImageEdgeMapper.MapImages(
+            resources,
+            relationships,
+            relationshipKeys);
+
+        AzureInventoryVmssToManagedClusterEdgeMapper.MapNodePools(
             resources,
             relationships,
             relationshipKeys);

@@ -89,9 +89,7 @@ export function buildAdrExplanationSlice(summary: RunExplanationSummary | null):
   };
 }
 
-function resolveAdrFindingProvenanceKind(
-  finding: QuickDecisionFinding,
-): "Asserted" | "Inferred" | "Unknown" | null {
+function resolveAdrFindingProvenanceKind(finding: QuickDecisionFinding): string | null {
   const storedTrustLabel = finding.trustLabel?.trim() ?? "";
 
   if (storedTrustLabel.length === 0) {
@@ -99,7 +97,7 @@ function resolveAdrFindingProvenanceKind(
   }
 
   if (storedTrustLabel.toLowerCase() === "unknown") {
-    return "Unknown";
+    return null;
   }
 
   const trustLabel = deriveFindingTrustLabelName({
@@ -125,7 +123,7 @@ function resolveAdrFindingProvenanceKind(
     return "Inferred";
   }
 
-  return "Unknown";
+  return storedTrustLabel;
 }
 
 /**

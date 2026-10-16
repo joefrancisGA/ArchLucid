@@ -52,6 +52,7 @@ describe("RunsListBuyerFeaturedCard", () => {
     expect(screen.getByText("Review owner was not stored.")).toBeInTheDocument();
     expect(screen.getByText("Approval authority was not stored.")).toBeInTheDocument();
     expect(screen.getByText("Last audit event was not stored.")).toBeInTheDocument();
+    expect(screen.getByText("Risk owner was not stored.")).toBeInTheDocument();
   });
 
   it("preserves stored in-progress card metadata", () => {

@@ -74,6 +74,55 @@ internal static class HostedAzureInventoryResourcePropertyExpander
             AddRemoteVirtualNetworkIdProperty(propertiesElement, properties);
         }
 
+        if (resourceType.Contains("networkSecurityPerimeters/resourceAssociations", StringComparison.OrdinalIgnoreCase))
+        {
+            AddArmReferenceProperty(propertiesElement, properties, "privateLinkResource");
+            AddArmReferenceProperty(propertiesElement, properties, "profile");
+
+            if (propertiesElement.TryGetProperty("accessMode", out JsonElement accessModeElement)
+                && accessModeElement.ValueKind is JsonValueKind.String)
+            {
+                string? accessMode = accessModeElement.GetString();
+
+                if (!string.IsNullOrWhiteSpace(accessMode))
+                {
+                    properties["accessMode"] = accessMode.Trim();
+                }
+            }
+        }
+
+        if (AzureInventoryMonitorPrivateLinkScopeResourceTypes.IsScopeResourceType(resourceType))
+        {
+            AddJsonArrayProperty(propertiesElement, properties, "privateEndpointConnections");
+        }
+
+        if (resourceType.Contains("privateLinkScopes/scopedResources", StringComparison.OrdinalIgnoreCase))
+        {
+            AddArmReferenceProperty(propertiesElement, properties, "linkedResource");
+
+            if (propertiesElement.TryGetProperty("linkedResourceId", out JsonElement linkedResourceIdElement)
+                && linkedResourceIdElement.ValueKind is JsonValueKind.String)
+            {
+                string? linkedResourceId = linkedResourceIdElement.GetString();
+
+                if (!string.IsNullOrWhiteSpace(linkedResourceId))
+                {
+                    properties["linkedResourceId"] = linkedResourceId.Trim();
+                }
+            }
+
+            if (propertiesElement.TryGetProperty("kind", out JsonElement kindElement)
+                && kindElement.ValueKind is JsonValueKind.String)
+            {
+                string? kind = kindElement.GetString();
+
+                if (!string.IsNullOrWhiteSpace(kind))
+                {
+                    properties["kind"] = kind.Trim();
+                }
+            }
+        }
+
         if (resourceType.Contains("applicationGateways", StringComparison.OrdinalIgnoreCase))
         {
             AddJsonArrayProperty(propertiesElement, properties, "backendAddressPools");
@@ -881,6 +930,13 @@ properties["definition"] = AzureExtractorSensitivePropertyRedactor.RedactStructu
         Dictionary<string, object?> properties)
     {
         AddJsonArrayProperty(propertiesElement, properties, "agentPoolProfiles");
+
+        string? nodeResourceGroup = TryReadNestedString(propertiesElement, "nodeResourceGroup");
+
+        if (!string.IsNullOrWhiteSpace(nodeResourceGroup))
+        {
+            properties["nodeResourceGroup"] = nodeResourceGroup.Trim();
+        }
 
         if (propertiesElement.TryGetProperty("networkProfile", out JsonElement networkProfile)
             && networkProfile.ValueKind is JsonValueKind.Object)

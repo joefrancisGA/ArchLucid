@@ -40,6 +40,15 @@ public static class SecureNowArchitectConstants
 
     public const string InsufficientEvidenceNsgHopEdgeType = "nsg-not-collected-or-unassociated";
 
+    /// <summary>Private DNS join or resolver evidence missing for an intended private path (Ch. 7).</summary>
+    public const string InsufficientEvidenceDnsHopEdgeType = "dns-not-collected-or-unverified";
+
+    /// <summary>VNet custom DNS resolvers without collected answers (Ch. 7).</summary>
+    public const string InsufficientEvidenceCustomDnsResolverHopEdgeType = "custom-dns-resolver-not-collected-or-unverified";
+
+    /// <summary>Azure Firewall, App Gateway, Front Door, NVA, or gateway hop not fully evaluable (SA-05 / Ch. 7).</summary>
+    public const string InsufficientEvidenceNetworkEdgeControlHopEdgeType = "network-edge-control-not-collected-or-unverified";
+
     public const string PublicNetworkAccessHopEdgeType = "public-network-access";
 
     public const string UnrestrictedEgressHopEdgeType = "unrestricted-egress";

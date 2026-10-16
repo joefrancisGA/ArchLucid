@@ -37,6 +37,13 @@ export function ArchitectureIdentityDeskOpenQuestions(
   }
 
   const openQuestions = draftQuery.data?.document.openQuestions?.trim() ?? "";
+  const openQuestionsBody = draftQuery.isLoading
+    ? "Open questions are still loading."
+    : draftQuery.isError
+      ? "Open questions could not be loaded."
+      : openQuestions.length > 0
+        ? openQuestions
+        : ARCHITECTURE_IDENTITY_DESK_OPEN_QUESTIONS_EMPTY;
 
   return (
     <section
@@ -60,7 +67,7 @@ export function ArchitectureIdentityDeskOpenQuestions(
         {ARCHITECTURE_OPEN_QUESTIONS_HELPER}
       </p>
       <p className={cn("mt-3 whitespace-pre-wrap", OPERATOR_TYPOGRAPHY.body)} data-testid="architecture-identity-open-questions-body">
-        {openQuestions.length > 0 ? openQuestions : ARCHITECTURE_IDENTITY_DESK_OPEN_QUESTIONS_EMPTY}
+        {openQuestionsBody}
       </p>
     </section>
   );

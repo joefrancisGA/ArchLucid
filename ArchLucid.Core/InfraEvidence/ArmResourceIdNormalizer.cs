@@ -17,6 +17,33 @@ public static class ArmResourceIdNormalizer
         return trimmed.ToString().ToLowerInvariant();
     }
 
+    /// <summary>Returns the resource group segment from a top-level ARM resource id.</summary>
+    public static bool TryGetResourceGroupName(string? azureResourceId, out string resourceGroupName)
+    {
+        resourceGroupName = string.Empty;
+
+        if (string.IsNullOrWhiteSpace(azureResourceId))
+        {
+            return false;
+        }
+
+        string[] segments = azureResourceId
+            .Trim()
+            .TrimEnd('/')
+            .Split('/', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+        if (segments.Length < 4
+            || !segments[0].Equals("subscriptions", StringComparison.OrdinalIgnoreCase)
+            || !segments[2].Equals("resourceGroups", StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        resourceGroupName = segments[3];
+
+        return !string.IsNullOrWhiteSpace(resourceGroupName);
+    }
+
     /// <summary>
     /// Returns whether <paramref name="descendantId"/> is a nested ARM child of <paramref name="ancestorId"/>.
     /// </summary>

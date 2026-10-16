@@ -8,10 +8,21 @@ internal static class IntendedReachabilityPathEnumerator
 {
     public static IReadOnlyList<ReachabilityPathCandidate> Enumerate(
         InventoryReachabilityPathGraphSnapshot graph,
-        PrivilegePathEngineOptions options)
+        PrivilegePathEngineOptions options,
+        SecureNowArchitectEngineRunScope? runScope = null)
     {
         ArgumentNullException.ThrowIfNull(graph);
         ArgumentNullException.ThrowIfNull(options);
+
+        SecureNowArchitectTraversalNeighborhood? neighborhood = runScope is { IsFullEstate: false }
+            ? new(graph.OutgoingEdges, graph.ResourcesByArmId, runScope.SeedCloudResourceIds, options.MaxDepth)
+            : null;
+        IReadOnlyDictionary<string, Guid> resourceIds = neighborhood is null
+            ? new Dictionary<string, Guid>()
+            : graph.ResourcesByArmId.Values
+                .Where(resource => resource.CloudResourceId is Guid id && id != Guid.Empty)
+                .ToDictionary(resource => resource.AzureResourceId, resource => resource.CloudResourceId!.Value,
+                    StringComparer.OrdinalIgnoreCase);
 
         List<ReachabilityPathCandidate> results = [];
         HashSet<string> seenPathSignatures = new(StringComparer.Ordinal);
@@ -19,9 +30,11 @@ internal static class IntendedReachabilityPathEnumerator
         IEnumerable<string> startNodes = graph.PublicIpArmIds
             .Concat(graph.OutgoingEdges.ContainsKey(SecureNowArchitectConstants.InternetPublicExposureNodeId)
                 ? [SecureNowArchitectConstants.InternetPublicExposureNodeId]
-                : []);
+                : [])
+            .Concat(graph.PrivateIntegratedComputeArmIds);
 
-        foreach (string startNode in startNodes.OrderBy(static node => node, StringComparer.OrdinalIgnoreCase))
+        foreach (string startNode in startNodes.Where(node => neighborhood is null || neighborhood.CanReachSeed(node))
+                     .OrderBy(static node => node, StringComparer.OrdinalIgnoreCase))
         {
             if (results.Count >= options.MaxPaths)
             {
@@ -35,7 +48,8 @@ internal static class IntendedReachabilityPathEnumerator
                 [],
                 new HashSet<string>(StringComparer.OrdinalIgnoreCase) { startNode },
                 results,
-                seenPathSignatures);
+                seenPathSignatures, neighborhood, runScope, resourceIds,
+                neighborhood?.TouchesSeed(startNode) == true);
         }
 
         return results;
@@ -48,7 +62,11 @@ internal static class IntendedReachabilityPathEnumerator
         List<PrivilegePathEdge> path,
         HashSet<string> visited,
         List<ReachabilityPathCandidate> results,
-        HashSet<string> seenPathSignatures)
+        HashSet<string> seenPathSignatures,
+        SecureNowArchitectTraversalNeighborhood? neighborhood,
+        SecureNowArchitectEngineRunScope? runScope,
+        IReadOnlyDictionary<string, Guid> resourceIds,
+        bool touchedSeed)
     {
         if (path.Count >= options.MaxDepth || results.Count >= options.MaxPaths)
         {
@@ -59,7 +77,9 @@ internal static class IntendedReachabilityPathEnumerator
         {
             string signature = BuildPathSignature(candidate.Hops);
 
-            if (seenPathSignatures.Add(signature))
+            if ((runScope is null || runScope.IsFullEstate
+                    || SecureNowArchitectNeighborhoodFilter.CandidateTouchesSeeds(candidate, runScope.SeedCloudResourceIds, resourceIds))
+                    && seenPathSignatures.Add(signature))
             {
                 results.Add(candidate);
             }
@@ -84,6 +104,9 @@ internal static class IntendedReachabilityPathEnumerator
                 continue;
             }
 
+            if (neighborhood is not null && !touchedSeed && !neighborhood.CanReachSeed(edge.ToNodeId))
+                continue;
+
             fanOut++;
             List<PrivilegePathEdge> nextPath = [.. path, edge];
             HashSet<string> nextVisited = [.. visited, edge.ToNodeId];
@@ -95,7 +118,8 @@ internal static class IntendedReachabilityPathEnumerator
                 nextPath,
                 nextVisited,
                 results,
-                seenPathSignatures);
+                seenPathSignatures, neighborhood, runScope, resourceIds,
+                touchedSeed || neighborhood?.TouchesSeed(edge.ToNodeId) == true);
         }
     }
 
@@ -130,12 +154,17 @@ internal static class IntendedReachabilityPathEnumerator
             return false;
         }
 
-        bool hasExposureHop = hops.Any(static hop =>
+        bool hasPublicExposureHop = hops.Any(static hop =>
             hop.EdgeType is GraphEdgeTypes.Exposes
                 or GraphEdgeTypes.RoutesTo
                 or SecureNowArchitectConstants.PublicNetworkAccessHopEdgeType);
 
-        if (!hasExposureHop)
+        bool startsFromPrivateCompute = graph.PrivateIntegratedComputeArmIds.Contains(hops[0].FromNodeId)
+            || graph.PrivateIntegratedComputeArmIds.Contains(currentNode);
+
+        bool hasPrivatePeReachableHop = hops.Any(InventoryReachabilityPathGraph.IsPeReachablePrivateHop);
+
+        if (!hasPublicExposureHop && !hasPrivatePeReachableHop && !startsFromPrivateCompute)
         {
             return false;
         }
@@ -174,6 +203,52 @@ internal static class IntendedReachabilityPathEnumerator
             break;
         }
 
+        if (!hasInsufficientEvidence
+            && graph.DnsJoinIndex is not null
+            && TryResolvePrivateComputeOrigin(hops, currentNode, graph, out string? computeArmId)
+            && !string.IsNullOrWhiteSpace(computeArmId)
+            && graph.DnsJoinIndex.IsMissingDnsJoin(computeArmId, currentNode))
+        {
+            finalHops.Add(new PrivilegePathEdge
+            {
+                FromNodeId = computeArmId,
+                ToNodeId = currentNode,
+                EdgeType = SecureNowArchitectConstants.InsufficientEvidenceDnsHopEdgeType,
+                ProvenanceKind = ProvenanceKind.DeterministicInference,
+                RoleName = null,
+            });
+            hasInsufficientEvidence = true;
+        }
+
+        if (!hasInsufficientEvidence
+            && graph.CustomDnsIndex is not null
+            && graph.DnsJoinIndex is not null
+            && TryResolvePrivateComputeOrigin(hops, currentNode, graph, out string? computeForDns)
+            && !string.IsNullOrWhiteSpace(computeForDns)
+            && graph.DnsJoinIndex.ComputeToVnetArmId.TryGetValue(
+                ArmResourceIdNormalizer.Normalize(computeForDns),
+                out string? computeVnetArmId)
+            && graph.CustomDnsIndex.VnetUsesCustomDns(computeVnetArmId)
+            && (hasPrivatePeReachableHop || startsFromPrivateCompute))
+        {
+            finalHops.Add(new PrivilegePathEdge
+            {
+                FromNodeId = computeForDns,
+                ToNodeId = currentNode,
+                EdgeType = SecureNowArchitectConstants.InsufficientEvidenceCustomDnsResolverHopEdgeType,
+                ProvenanceKind = ProvenanceKind.DeterministicInference,
+                RoleName = null,
+            });
+            hasInsufficientEvidence = true;
+        }
+
+        if (!hasInsufficientEvidence
+            && graph.EdgeControlIndex is not null
+            && TryAppendEdgeControlInsufficientHop(graph, finalHops, hasPublicExposureHop, currentNode))
+        {
+            hasInsufficientEvidence = true;
+        }
+
         candidate = new ReachabilityPathCandidate
         {
             Hops = finalHops,
@@ -194,4 +269,90 @@ internal static class IntendedReachabilityPathEnumerator
         string.Join(
             ">",
             hops.Select(static hop => $"{hop.FromNodeId}|{hop.EdgeType}|{hop.ToNodeId}"));
+
+    private static bool TryResolvePrivateComputeOrigin(
+        IReadOnlyList<PrivilegePathEdge> hops,
+        string terminalNodeId,
+        InventoryReachabilityPathGraphSnapshot graph,
+        out string? computeArmId)
+    {
+        computeArmId = null;
+
+        if (hops.Count == 0)
+        {
+            return false;
+        }
+
+        string candidateOrigin = hops[0].FromNodeId;
+
+        if (graph.PrivateIntegratedComputeArmIds.Contains(candidateOrigin))
+        {
+            computeArmId = candidateOrigin;
+
+            return true;
+        }
+
+        return false;
+    }
+
+    private static bool TryAppendEdgeControlInsufficientHop(
+        InventoryReachabilityPathGraphSnapshot graph,
+        List<PrivilegePathEdge> finalHops,
+        bool hasPublicExposureHop,
+        string terminalAssetNodeId)
+    {
+        AzureInventoryReachabilityEdgeControlIndex edgeControlIndex = graph.EdgeControlIndex!;
+
+        foreach (string subnetNode in finalHops
+                     .SelectMany(static hop => new[] { hop.FromNodeId, hop.ToNodeId })
+                     .Where(InventoryReachabilityPathGraph.IsSubnetNode)
+                     .Distinct(StringComparer.OrdinalIgnoreCase))
+        {
+            if (edgeControlIndex.SubnetRequiresEdgeControlEvidence(subnetNode))
+            {
+                AppendEdgeControlHop(finalHops, subnetNode, terminalAssetNodeId);
+
+                return true;
+            }
+        }
+
+        if (!hasPublicExposureHop)
+        {
+            return false;
+        }
+
+        bool traversesEdgeAppliance = finalHops.Any(hop =>
+            InventoryReachabilityPathGraph.IsEdgeApplianceNode(hop.FromNodeId, graph.ResourcesByArmId)
+            || InventoryReachabilityPathGraph.IsEdgeApplianceNode(hop.ToNodeId, graph.ResourcesByArmId));
+
+        if (traversesEdgeAppliance)
+        {
+            return false;
+        }
+
+        if (edgeControlIndex.AssetDeclaredBehindApplicationGateway(terminalAssetNodeId)
+            || edgeControlIndex.AssetDeclaredBehindFrontDoor(terminalAssetNodeId))
+        {
+            AppendEdgeControlHop(finalHops, terminalAssetNodeId, terminalAssetNodeId);
+
+            return true;
+        }
+
+        return false;
+    }
+
+    private static void AppendEdgeControlHop(
+        List<PrivilegePathEdge> finalHops,
+        string fromNodeId,
+        string toNodeId)
+    {
+        finalHops.Add(new PrivilegePathEdge
+        {
+            FromNodeId = fromNodeId,
+            ToNodeId = toNodeId,
+            EdgeType = SecureNowArchitectConstants.InsufficientEvidenceNetworkEdgeControlHopEdgeType,
+            ProvenanceKind = ProvenanceKind.DeterministicInference,
+            RoleName = null,
+        });
+    }
 }

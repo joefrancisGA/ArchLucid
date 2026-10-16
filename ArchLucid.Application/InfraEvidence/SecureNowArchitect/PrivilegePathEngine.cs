@@ -33,30 +33,18 @@ public sealed class PrivilegePathEngine(
             return Failed("ActorId is required.");
         }
 
-        AzureInventorySnapshotDetailReadModel? snapshot =
-            await snapshotRepository.TryGetSnapshotDetailAsync(scope, snapshotId, cancellationToken);
+        SecureNowAnalysisSnapshot? analysisSnapshot =
+            await SecureNowAnalysisRun.LoadAsync(snapshotRepository, scope, snapshotId, cancellationToken);
+        AzureInventorySnapshotDetailReadModel? snapshot = analysisSnapshot?.Snapshot;
 
         if (snapshot is null)
         {
             return Failed("Snapshot was not found in the current tenant scope.");
         }
 
-        InventoryPrivilegePathGraphSnapshot graph = InventoryPrivilegePathGraph.Build(snapshot);
+        InventoryPrivilegePathGraphSnapshot graph = InventoryPrivilegePathGraph.Build(snapshot, analysisSnapshot);
         IReadOnlyList<PrivilegePathCandidate> candidates =
-            PrivilegePathEnumerator.Enumerate(graph, new PrivilegePathEngineOptions());
-
-        if (runScope is { IsFullEstate: false })
-        {
-            IReadOnlyDictionary<string, Guid> cloudResourceIdByArmId =
-                SecureNowArchitectNeighborhoodFilter.BuildCloudResourceIdByArmId(snapshot);
-
-            candidates = candidates
-                .Where(candidate => SecureNowArchitectNeighborhoodFilter.CandidateTouchesSeeds(
-                    candidate,
-                    runScope.SeedCloudResourceIds,
-                    cloudResourceIdByArmId))
-                .ToList();
-        }
+            PrivilegePathEnumerator.Enumerate(graph, new PrivilegePathEngineOptions(), runScope);
 
         if (candidates.Count == 0)
         {
@@ -69,7 +57,7 @@ public sealed class PrivilegePathEngine(
 
         DateTime utcNow = TimeProvider.System.UtcNowDateTime();
         List<OperationalSecurityFindingIngestItem> ingestItems = [];
-        int pathsPersisted = 0;
+        List<SecurityEvidencePathWithHops> pathWrites = [];
 
         foreach (PrivilegePathCandidate candidate in candidates)
         {
@@ -90,31 +78,25 @@ public sealed class PrivilegePathEngine(
                 UpdatedUtc = utcNow,
             };
 
-            SecurityEvidencePathInsertResult insertResult;
+            pathWrites.Add(new(header, hopRecords));
+        }
 
-            try
-            {
-                insertResult = await pathRepository.InsertIfNotExistsAsync(header, hopRecords, cancellationToken);
-            }
-            catch (Exception ex) when (ex is not OperationCanceledException)
-            {
-                logger.LogWarning(ex, "Privilege path persist failed for SnapshotId={SnapshotId}.", snapshotId);
-
-                continue;
-            }
-
-            if (insertResult.Created)
-            {
-                pathsPersisted++;
-            }
-
-            SecurityEvidencePathRecord? persisted = await pathRepository.TryGetByIdAsync(
-                scope.TenantId,
-                insertResult.PathId,
-                cancellationToken);
-
-            byte[] canonicalHash = persisted?.CanonicalHopHashSha256
-                                   ?? SecurityEvidencePathCanonicalHash.ComputeSha256(hopRecords);
+        IReadOnlyList<SecurityEvidencePathInsertResult> insertResults;
+        try
+        {
+            insertResults = await pathRepository.InsertBatchIfNotExistsAsync(pathWrites, cancellationToken);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            logger.LogWarning(ex, "Privilege path batch persist failed for SnapshotId={SnapshotId}.", snapshotId);
+            return Failed("Privilege path batch persist failed.");
+        }
+        int pathsPersisted = insertResults.Count(result => result.Created);
+        for (int index = 0; index < candidates.Count; index++)
+        {
+            PrivilegePathCandidate candidate = candidates[index];
+            SecurityEvidencePathInsertResult insertResult = insertResults[index];
+            byte[] canonicalHash = SecurityEvidencePathCanonicalHash.ComputeSha256(pathWrites[index].Hops);
 
             PrivilegePathSeverityResult severity = PrivilegePathSeverityTable.Resolve(
                 candidate.EffectiveRoleName,

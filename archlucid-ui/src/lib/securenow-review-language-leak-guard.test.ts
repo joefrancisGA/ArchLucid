@@ -21,6 +21,22 @@ import {
   resolveFindingsHelpClaimDiscipline,
   resolveFindingsHelpSources,
 } from "@/lib/findings/findings-help-evidence-copy";
+import {
+  resolvePolicyPacksHelpClaimDiscipline,
+  resolvePolicyPacksHelpSources,
+} from "@/lib/policy/policy-packs-help-evidence-copy";
+import {
+  resolveStandardsRulesHelpClaimDiscipline,
+  resolveStandardsRulesHelpSources,
+} from "@/lib/standards-rules-help-evidence-copy";
+import {
+  resolveCloudConnectionsSources,
+  resolveCloudConnectionsSourcesIntro,
+} from "@/lib/cloud-connections-evidence-copy";
+import {
+  cloudConnectionsHelpClaimDiscipline,
+  resolveCloudConnectionsHelpSources,
+} from "@/lib/cloud-connections-help-guide-content";
 import { localizeHelpSearchPanelTopic } from "@/lib/help/help-product-copy";
 import { START_HERE_TOPICS } from "@/lib/help/help-search-panel-catalog-topics";
 
@@ -47,6 +63,14 @@ function collectSecureNowHelpStrings(): string[] {
     ...resolveGettingStartedHelpTechnicalTerms(false, "security").flatMap((term) => [term.term, term.definition]),
     resolveFindingsHelpClaimDiscipline("security"),
     ...resolveFindingsHelpSources("security").flatMap((source) => [source.label, source.href]),
+    resolvePolicyPacksHelpClaimDiscipline("security"),
+    ...resolvePolicyPacksHelpSources("security").flatMap((source) => [source.label, source.href]),
+    resolveStandardsRulesHelpClaimDiscipline("security"),
+    ...resolveStandardsRulesHelpSources("security").flatMap((source) => [source.label, source.href]),
+    cloudConnectionsHelpClaimDiscipline("security"),
+    resolveCloudConnectionsSourcesIntro("security"),
+    ...resolveCloudConnectionsSources("security").flatMap((source) => [source.label, source.href]),
+    ...resolveCloudConnectionsHelpSources("security").flatMap((source) => [source.label, source.href]),
     ...findingsHelpAnatomyFields("security").map((field) => field.description),
     ...findingsHelpRoleGuidance("security").flatMap((entry) => [entry.role, entry.guidance]),
     findingsHelpSemanticSupportCopy("security"),

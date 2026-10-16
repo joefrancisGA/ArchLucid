@@ -1,5 +1,8 @@
 import { formatAzureResourceDisplay, normalizeSecureNowResourceNameForDisplay } from "@/lib/infra-evidence/format-azure-resource-display";
 import {
+  formatDiagramReconcileMatchKindLabel,
+} from "@/lib/infra-evidence/diagram-reconcile-match-kind-display";
+import {
   DIAGRAM_INFRASTRUCTURE_MATCH_KINDS,
   type DiagramInfrastructureCorrespondenceRow,
 } from "@/lib/infra-evidence/infra-evidence-diagram-reconcile-types";
@@ -28,6 +31,12 @@ export const DIAGRAM_RECONCILE_NOTES_DO_NOT_RAISE_BAND_LINE =
 /** Deterministic explanation column — AI rationale only on Possible/Unknown rows. */
 export function formatDiagramReconcileExplanation(row: DiagramInfrastructureCorrespondenceRow): string {
   const parts: string[] = [];
+
+  parts.push(`Match kind: ${formatDiagramReconcileMatchKindLabel(row.matchKind)}.`);
+
+  if (row.matchKind === DIAGRAM_INFRASTRUCTURE_MATCH_KINDS.unknown) {
+    parts.push("Match severity was not stored.");
+  }
 
   if (row.explainText == null) {
     parts.push("Correspondence explanation was not stored.");

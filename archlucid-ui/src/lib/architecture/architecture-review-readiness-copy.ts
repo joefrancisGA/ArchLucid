@@ -1,6 +1,7 @@
 import { GUIDED_INTAKE_ARCHITECTURE_INTENT_MIN_CHARS } from "@/lib/guided-intake-copy";
 
 import {
+  ARCHITECTURE_DRAFT_UNKNOWN_CONFIRM_LABEL,
   listUnconfirmedStructuredBriefFieldLabels,
   type ArchitectureDraftStructuredBriefState,
 } from "./architecture-draft-structured-brief-state";
@@ -26,7 +27,7 @@ export const ARCHITECTURE_REVIEW_READINESS_BLOCKER_MESSAGES: Readonly<
   "quality-attributes":
     "at least one quality attribute (numeric such as RTO 4h or p95 latency 200ms, or qualitative such as defense in depth)",
   "structured-brief-placeholders":
-    "confirmed constraints, assumptions, capabilities, or quality attributes instead of Unknown — confirm before review placeholders",
+    `confirmed constraints, assumptions, capabilities, or quality attributes instead of ${ARCHITECTURE_DRAFT_UNKNOWN_CONFIRM_LABEL} placeholders`,
 };
 
 export function formatArchitectureReviewReadinessMessage(
@@ -44,7 +45,7 @@ export function formatArchitectureReviewReadinessMessage(
       if (placeholderFields.length > 0) {
         return placeholderFields.map(
           (fieldLabel) =>
-            `confirmed ${fieldLabel.toLowerCase()} instead of Unknown — confirm before review placeholders`,
+            `confirmed ${fieldLabel.toLowerCase()} instead of ${ARCHITECTURE_DRAFT_UNKNOWN_CONFIRM_LABEL} placeholders`,
         );
       }
     }

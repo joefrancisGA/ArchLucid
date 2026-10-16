@@ -153,6 +153,31 @@ export const USERS_AND_ROLES_CAPABILITY_LABELS: Readonly<Record<UsersAndRolesCap
   "manage-billing": "Manage billing",
 };
 
+const SECURENOW_USERS_AND_ROLES_CAPABILITY_LABELS: Readonly<Record<UsersAndRolesCapabilityId, string>> = {
+  "view-reviews": "View findings, inventory, and audit lineage",
+  "create-reviews": USERS_AND_ROLES_CAPABILITY_LABELS["create-reviews"],
+  "finalize-reviews": USERS_AND_ROLES_CAPABILITY_LABELS["finalize-reviews"],
+  "finding-feedback": USERS_AND_ROLES_CAPABILITY_LABELS["finding-feedback"],
+  "configure-governance": USERS_AND_ROLES_CAPABILITY_LABELS["configure-governance"],
+  "author-policy-packs": USERS_AND_ROLES_CAPABILITY_LABELS["author-policy-packs"],
+  "manage-integrations": USERS_AND_ROLES_CAPABILITY_LABELS["manage-integrations"],
+  "manage-users": USERS_AND_ROLES_CAPABILITY_LABELS["manage-users"],
+  "view-audit": USERS_AND_ROLES_CAPABILITY_LABELS["view-audit"],
+  "export-audit": USERS_AND_ROLES_CAPABILITY_LABELS["export-audit"],
+  "manage-billing": USERS_AND_ROLES_CAPABILITY_LABELS["manage-billing"],
+};
+
+export function usersAndRolesCapabilityLabel(
+  capabilityId: UsersAndRolesCapabilityId,
+  productLineId: ProductLineId = "architecture",
+): string {
+  if (isSecureNowProductLine(productLineId)) {
+    return SECURENOW_USERS_AND_ROLES_CAPABILITY_LABELS[capabilityId];
+  }
+
+  return USERS_AND_ROLES_CAPABILITY_LABELS[capabilityId];
+}
+
 function buildUsersAndRolesRoleOverview(productLineId: ProductLineId): readonly UsersAndRolesRoleOverview[] {
   const secureNow = isSecureNowProductLine(productLineId);
 
@@ -180,7 +205,7 @@ function buildUsersAndRolesCapabilityRows(productLineId: ProductLineId): readonl
 
   return filteredIds.map((id) => ({
     id,
-    label: USERS_AND_ROLES_CAPABILITY_LABELS[id],
+    label: usersAndRolesCapabilityLabel(id, productLineId),
     roles: BUILTIN_CAPABILITY_MATRIX[id],
   }));
 }

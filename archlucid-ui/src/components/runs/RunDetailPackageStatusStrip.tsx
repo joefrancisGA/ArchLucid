@@ -162,12 +162,9 @@ export function RunDetailPackageStatusStrip(props: RunDetailPackageStatusStripPr
         : `${findingN} ${findingsWord}`
       : finiteIntegerCountDisplay(props.findingCountDisplay);
   const severitySignal = buyerFindingSeveritySignal(props.findingCountDisplay, props.aggregateRiskPosture);
-  const gate =
-    props.governanceGateLabel !== null &&
-    props.governanceGateLabel !== undefined &&
-    props.governanceGateLabel.trim().length > 0
-      ? props.governanceGateLabel.trim()
-      : "Not returned";
+  const gateRaw = props.governanceGateLabel?.trim() ?? "";
+  const gateOmitted = gateRaw.length === 0;
+  const gate = gateOmitted ? "Approval status was not stored." : gateRaw;
   const authorityPhaseLabel = authorityLifecyclePhaseLabel(props.authorityLifecyclePhase);
 
   const segmentInner = "min-w-0 flex-1 px-3 py-3 sm:px-4";
@@ -291,10 +288,10 @@ export function RunDetailPackageStatusStrip(props: RunDetailPackageStatusStripPr
       <div className={segmentInner}>
         <p className={stripSegmentLabelClass()}>Approval status</p>
         <div className="mt-1 flex flex-wrap items-center gap-2">
-          {gate !== " — " ? (
-            <GovernanceStatusTag status={gate} aria-label={`${approvalStatusLabel}: ${gate}`} />
-          ) : (
+          {gateOmitted ? (
             <p className={cn(valueClass, "mt-0")}>{gate}</p>
+          ) : (
+            <GovernanceStatusTag status={gate} aria-label={`${approvalStatusLabel}: ${gate}`} />
           )}
         </div>
       </div>

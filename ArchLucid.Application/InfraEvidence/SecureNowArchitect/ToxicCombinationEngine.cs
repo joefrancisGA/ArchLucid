@@ -32,31 +32,21 @@ public sealed class ToxicCombinationEngine(
             return Failed("ActorId is required.");
         }
 
-        AzureInventorySnapshotDetailReadModel? snapshot =
-            await snapshotRepository.TryGetSnapshotDetailAsync(scope, snapshotId, cancellationToken);
+        SecureNowAnalysisSnapshot? analysisSnapshot =
+            await SecureNowAnalysisRun.LoadAsync(snapshotRepository, scope, snapshotId, cancellationToken);
+        AzureInventorySnapshotDetailReadModel? snapshot = analysisSnapshot?.Snapshot;
 
         if (snapshot is null)
         {
             return Failed("Snapshot was not found in the current tenant scope.");
         }
 
+        IReadOnlyList<SecurityEvidencePathWithHops> existingPaths = await pathRepository.ListWithHopsBySnapshotAsync(
+            ProjectSnapshotScopeKey.Create(scope.ToProjectScopeKey(), snapshotId), cancellationToken);
         IReadOnlyList<ToxicCombinationPathSnapshot> reachabilityPaths =
-            await ToxicCombinationPathLoader.LoadSnapshotsAsync(
-                pathRepository,
-                scope,
-                snapshotId,
-                PathKind.IntendedReachability,
-                snapshot,
-                cancellationToken);
-
+            ToxicCombinationPathLoader.BuildSnapshots(existingPaths, PathKind.IntendedReachability, snapshot, analysisSnapshot);
         IReadOnlyList<ToxicCombinationPathSnapshot> privilegePaths =
-            await ToxicCombinationPathLoader.LoadSnapshotsAsync(
-                pathRepository,
-                scope,
-                snapshotId,
-                PathKind.Privilege,
-                snapshot,
-                cancellationToken);
+            ToxicCombinationPathLoader.BuildSnapshots(existingPaths, PathKind.Privilege, snapshot, analysisSnapshot);
 
         if (reachabilityPaths.Count == 0 || privilegePaths.Count == 0)
         {
@@ -70,15 +60,29 @@ public sealed class ToxicCombinationEngine(
         IReadOnlyDictionary<string, PrivilegePathEdge> egressBySubnetArmId =
             ToxicCombinationEgressDetector.DetectUnrestrictedEgressBySubnet(snapshot);
 
+        HashSet<Guid>? affectedPathIds = null;
+        if (runScope is { IsFullEstate: false })
+        {
+            IReadOnlyDictionary<string, Guid> resourceIds =
+                analysisSnapshot!.CloudResourceIdsByArmId;
+            affectedPathIds = existingPaths.Where(item => SecureNowArchitectNeighborhoodFilter.PathTouchesSeeds(
+                item.Hops, runScope.SeedCloudResourceIds, resourceIds)).Select(item => item.Path.PathId).ToHashSet();
+            foreach (ToxicCombinationPathSnapshot path in reachabilityPaths.Concat(privilegePaths))
+                if (path.TerminalCloudResourceId is Guid id && runScope.SeedCloudResourceIds.Contains(id))
+                    affectedPathIds.Add(path.Path.PathId);
+        }
+
         IReadOnlyList<ToxicCombinationCandidate> candidates = ToxicCombinationPathComposer.Compose(
             reachabilityPaths,
             privilegePaths,
-            egressBySubnetArmId);
+            egressBySubnetArmId,
+            affectedPathIds is null ? null : (reachability, privilege) =>
+                affectedPathIds.Contains(reachability.Path.PathId) || affectedPathIds.Contains(privilege.Path.PathId));
 
         if (runScope is { IsFullEstate: false })
         {
             IReadOnlyDictionary<string, Guid> cloudResourceIdByArmId =
-                SecureNowArchitectNeighborhoodFilter.BuildCloudResourceIdByArmId(snapshot);
+                analysisSnapshot!.CloudResourceIdsByArmId;
 
             Dictionary<Guid, ToxicCombinationPathSnapshot> reachabilityByPathId = reachabilityPaths
                 .ToDictionary(path => path.Path.PathId);
@@ -107,7 +111,7 @@ public sealed class ToxicCombinationEngine(
 
         DateTime utcNow = TimeProvider.System.UtcNowDateTime();
         List<OperationalSecurityFindingIngestItem> ingestItems = [];
-        int pathsPersisted = 0;
+        List<SecurityEvidencePathWithHops> pathWrites = [];
         DefenderSecureScoreOrdinalBand defenderSecureScoreBand =
             DefenderSnapshotContextResolver.ResolveSubscriptionBand(snapshot);
 
@@ -125,45 +129,43 @@ public sealed class ToxicCombinationEngine(
                 ProjectId = scope.ProjectId,
                 SnapshotId = snapshotId,
                 PathKind = PathKind.ToxicCombination,
-                PathConfidenceBand = PathConfidenceBand.Confirmed,
+                PathConfidenceBand = SecurityEvidencePathConfidenceBandResolver.ResolveWeakestHopBand(hopRecords),
                 CreatedUtc = utcNow,
                 UpdatedUtc = utcNow,
             };
 
-            SecurityEvidencePathInsertResult insertResult;
+            pathWrites.Add(new(header, hopRecords));
+        }
 
-            try
-            {
-                insertResult = await pathRepository.InsertIfNotExistsAsync(header, hopRecords, cancellationToken);
-            }
-            catch (Exception ex) when (ex is not OperationCanceledException)
-            {
-                logger.LogWarning(ex, "Toxic combination path persist failed for SnapshotId={SnapshotId}.", snapshotId);
-
-                continue;
-            }
-
-            if (insertResult.Created)
-            {
-                pathsPersisted++;
-            }
-
-            SecurityEvidencePathRecord? persisted = await pathRepository.TryGetByIdAsync(
-                scope.TenantId,
-                insertResult.PathId,
-                cancellationToken);
-
-            byte[] canonicalHash = persisted?.CanonicalHopHashSha256
-                                   ?? SecurityEvidencePathCanonicalHash.ComputeSha256(hopRecords);
+        IReadOnlyList<SecurityEvidencePathInsertResult> insertResults;
+        try
+        {
+            insertResults = await pathRepository.InsertBatchIfNotExistsAsync(pathWrites, cancellationToken);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            logger.LogWarning(ex, "Toxic combination path batch persist failed for SnapshotId={SnapshotId}.", snapshotId);
+            return Failed("Toxic combination path batch persist failed.");
+        }
+        int pathsPersisted = insertResults.Count(result => result.Created);
+        for (int index = 0; index < candidates.Count; index++)
+        {
+            ToxicCombinationCandidate candidate = candidates[index];
+            SecurityEvidencePathInsertResult insertResult = insertResults[index];
+            byte[] canonicalHash = SecurityEvidencePathCanonicalHash.ComputeSha256(pathWrites[index].Hops);
 
             PrivilegePathSeverityResult severity = ToxicCombinationSeverityTable.Resolve(candidate);
+
+            SecurityEvidencePathRecord toxicPathHeader = pathWrites[index].Path;
 
             Dictionary<string, string?> metadata = new()
             {
                 ["pathKind"] = PathKind.ToxicCombination.ToString(),
+                ["pathConfidenceBand"] = toxicPathHeader.PathConfidenceBand.ToString(),
                 ["reachabilityPathId"] = candidate.ReachabilityPathId.ToString("D"),
                 ["privilegePathId"] = candidate.PrivilegePathId.ToString("D"),
                 ["hasEgressHop"] = candidate.HasEgressHop.ToString(),
+                ["hasInsufficientEvidenceHop"] = candidate.HasInsufficientEvidenceHop.ToString(),
                 ["hopCount"] = candidate.Hops.Count.ToString(),
             };
 

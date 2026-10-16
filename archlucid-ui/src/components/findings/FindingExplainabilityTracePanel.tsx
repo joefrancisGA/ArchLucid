@@ -200,7 +200,7 @@ export function FindingExplainabilityTracePanel(props: FindingExplainabilityTrac
               </>
             ) : (
               <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-                {traceCompleteness?.summaryLine ?? "Not recorded"}
+                {traceCompleteness?.summaryLine ?? "Trace completeness was not stored."}
               </p>
             )}
             <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
@@ -224,8 +224,8 @@ export function FindingExplainabilityTracePanel(props: FindingExplainabilityTrac
           failure !== null
             ? unavailableCopy?.body ?? "Explainability trace unavailable."
             : data !== null
-              ? traceCompleteness?.summaryLine ?? "Not recorded"
-              : "Deterministic pipeline evidence for this finding."
+              ? traceCompleteness?.summaryLine ?? "Trace completeness was not stored."
+              : "Explainability trace was not loaded."
         }
       >
         <div data-testid="finding-explainability-trace-panel">{panelBody}</div>

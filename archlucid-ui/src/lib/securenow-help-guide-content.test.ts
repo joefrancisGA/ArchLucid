@@ -5,14 +5,26 @@ import {
   SECURENOW_ASSIGNED_TO_ME_FINDINGS,
   SECURENOW_FINDINGS_QUEUE_HUB,
   SECURENOW_GETTING_STARTED_HELP,
+  SECURENOW_CLOUD_CONNECTIONS_HUB,
+  SECURENOW_CLOUD_CONNECTIONS_HELP,
+  SECURENOW_POLICY_PACKS_HUB,
+  SECURENOW_STANDARDS_RULES_HUB,
+  SECURENOW_INVITE_REVIEWER,
   SECURENOW_TROUBLESHOOTING_HELP,
+  SECURENOW_USERS_ADMIN,
+  SECURENOW_USERS_AND_ROLES_HELP,
 } from "@/lib/contextual-help/securenow-contextual-help-overrides";
+import { INVITE_REVIEWER_CANONICAL_PATH } from "@/lib/invite-reviewer-evidence-copy";
+import { SETTINGS_USERS_CANONICAL_PATH } from "@/lib/settings-users-evidence-copy";
+import { USERS_AND_ROLES_HELP_CANONICAL_PATH } from "@/lib/users-and-roles-help-evidence-copy";
 import {
   resolveGettingStartedHelpClaimDiscipline,
   resolveGettingStartedHelpPlainLanguageTerms,
   resolveGettingStartedHelpSources,
+  resolveGettingStartedHelpWorkflowSectionIntro,
   SECURENOW_GETTING_STARTED_HELP_CLAIM_DISCIPLINE,
   SECURENOW_GETTING_STARTED_HELP_SOURCES,
+  SECURENOW_GETTING_STARTED_HELP_WORKFLOW_SECTION_INTRO,
 } from "@/lib/getting-started-help-guide-content";
 import { resolveDataHandlingTenantIsolationHelpClaimDiscipline } from "@/lib/data-handling-tenant-isolation-help-evidence-copy";
 import { dataHandlingTenantIsolationHelpLeavesStaysHelper } from "@/lib/data-handling-tenant-isolation-help-guide-content";
@@ -49,6 +61,7 @@ import {
   troubleshootingDecisionTreeSteps,
 } from "@/lib/troubleshooting-help-guide-content";
 import {
+  usersAndRolesCapabilityLabel,
   usersAndRolesCapabilityRows,
   usersAndRolesFaq,
   usersAndRolesRoleOverview,
@@ -90,6 +103,13 @@ describe("SecureNow help guide content", () => {
     expect(sources).toEqual(SECURENOW_GETTING_STARTED_HELP_SOURCES);
     expect(sources.some((link) => link.href.includes("/architecture/reviews"))).toBe(false);
     expect(sources.some((link) => link.href.includes("first-architecture-review"))).toBe(false);
+  });
+
+  it("uses SecureNow getting-started workflow section intro without sealed-review language", () => {
+    expect(resolveGettingStartedHelpWorkflowSectionIntro("security")).toBe(
+      SECURENOW_GETTING_STARTED_HELP_WORKFLOW_SECTION_INTRO,
+    );
+    expect(resolveGettingStartedHelpWorkflowSectionIntro("security")).not.toContain("shareable outputs");
   });
 
   it("keeps architecture getting-started sources unchanged", () => {
@@ -169,9 +189,12 @@ describe("SecureNow help guide content", () => {
   });
 
   it("resolves SecureNow contextual help for findings and onboarding routes", () => {
-    expect(contextualHelpForPathname("/governance/findings", { productLineId: "security" })?.whatIsThisPage).toBe(
-      SECURENOW_FINDINGS_QUEUE_HUB.whatIsThisPage,
-    );
+    const tenantFindingsHelp = contextualHelpForPathname("/governance/findings", { productLineId: "security" });
+
+    expect(tenantFindingsHelp?.whatIsThisPage).toBe(SECURENOW_FINDINGS_QUEUE_HUB.whatIsThisPage);
+    expect(tenantFindingsHelp?.whatIsThisPage).not.toMatch(/architecture review/i);
+    expect(tenantFindingsHelp?.whyEmpty).not.toMatch(/approval decisions are recorded in reviews/i);
+    expect(tenantFindingsHelp?.whereToConfigureAction?.href).not.toContain("search-review-evidence");
     expect(contextualHelpForPathname("/compliance/findings", { productLineId: "security" })?.whatIsThisPage).toBe(
       SECURENOW_FINDINGS_QUEUE_HUB.whatIsThisPage,
     );
@@ -187,6 +210,21 @@ describe("SecureNow help guide content", () => {
     expect(contextualHelpForPathname("/help/troubleshooting", { productLineId: "security" })?.whatIsThisPage).toBe(
       SECURENOW_TROUBLESHOOTING_HELP.whatIsThisPage,
     );
+    expect(contextualHelpForPathname("/help/troubleshooting", { productLineId: "security" })?.whatIsThisPage).not.toMatch(
+      /architect workflows/i,
+    );
+    expect(contextualHelpForPathname(SETTINGS_USERS_CANONICAL_PATH, { productLineId: "security" })?.whatIsThisPage).toBe(
+      SECURENOW_USERS_ADMIN.whatIsThisPage,
+    );
+    expect(contextualHelpForPathname(INVITE_REVIEWER_CANONICAL_PATH, { productLineId: "security" })?.whatIsThisPage).toBe(
+      SECURENOW_INVITE_REVIEWER.whatIsThisPage,
+    );
+    expect(
+      contextualHelpForPathname(INVITE_REVIEWER_CANONICAL_PATH, { productLineId: "security" })?.whatIsThisPage,
+    ).not.toMatch(/sign off on architecture reviews/i);
+    expect(contextualHelpForPathname(USERS_AND_ROLES_HELP_CANONICAL_PATH, { productLineId: "security" })?.whatIsThisPage).toBe(
+      SECURENOW_USERS_AND_ROLES_HELP.whatIsThisPage,
+    );
     expect(
       contextualHelpForPathname("/security/assigned-to-me", { productLineId: "security" })?.whatIsThisPage,
     ).not.toContain("architecture risks");
@@ -198,11 +236,72 @@ describe("SecureNow help guide content", () => {
     );
   });
 
+  it("resolves assigned-to-me contextual help without tenant register or approval copy", () => {
+    const architectureAssigned = contextualHelpForPathname("/governance/findings/assigned-to-me", {
+      productLineId: "architecture",
+    });
+    const securityAssignedGovernance = contextualHelpForPathname("/governance/findings/assigned-to-me", {
+      productLineId: "security",
+    });
+    const securityAssignedShell = contextualHelpForPathname("/security/assigned-to-me", {
+      productLineId: "security",
+    });
+
+    expect(architectureAssigned?.whatIsThisPage).toContain("personal queue");
+    expect(architectureAssigned?.whatIsThisPage).not.toContain("architecture risks");
+    expect(architectureAssigned?.whatIsThisPage).not.toMatch(/approval queue/i);
+
+    expect(securityAssignedGovernance?.whatIsThisPage).toBe(SECURENOW_ASSIGNED_TO_ME_FINDINGS.whatIsThisPage);
+    expect(securityAssignedShell?.whatIsThisPage).toBe(SECURENOW_ASSIGNED_TO_ME_FINDINGS.whatIsThisPage);
+    expect(securityAssignedGovernance?.whatIsThisPage).not.toContain("architecture risks");
+  });
+
   it("uses workspace-scoped standards and rules help for SecureNow", () => {
     expect(standardsRulesHelpPageSubtitle(false, "security")).toContain("workspace scope");
     expect(standardsRulesHelpOverview("security")).not.toContain("review in scope");
     expect(standardsRulesHelpHowToReadSteps("security").join(" ")).toContain("workspace scope");
     expect(standardsRulesHelpOverview("architecture")).toContain("Standards & rules resolution view");
+  });
+
+  it("resolves SecureNow policy packs contextual help without review-baseline language", () => {
+    const complianceHub = contextualHelpForPathname("/compliance/policy-packs", { productLineId: "security" });
+    const governanceHub = contextualHelpForPathname("/governance/policy-packs", { productLineId: "security" });
+    const architectureHub = contextualHelpForPathname("/governance/policy-packs", { productLineId: "architecture" });
+
+    expect(complianceHub?.whatIsThisPage).toBe(SECURENOW_POLICY_PACKS_HUB.whatIsThisPage);
+    expect(governanceHub?.whatIsThisPage).toBe(SECURENOW_POLICY_PACKS_HUB.whatIsThisPage);
+    expect(complianceHub?.whatToDoNext).not.toMatch(/review baseline/i);
+    expect(complianceHub?.whatToDoNext).not.toMatch(/starting a review/i);
+    expect(complianceHub?.whereToConfigureAction?.href).toBe("/compliance/findings");
+    expect(architectureHub?.whatToDoNext).toMatch(/review/i);
+  });
+
+  it("resolves SecureNow cloud connections contextual help without multi-cloud or review CTAs", () => {
+    const hubHelp = contextualHelpForPathname("/integrations/cloud-connections", { productLineId: "security" });
+    const articleHelp = contextualHelpForPathname("/help/cloud-connections", { productLineId: "security" });
+    const architectureHub = contextualHelpForPathname("/integrations/cloud-connections", {
+      productLineId: "architecture",
+    });
+
+    expect(hubHelp?.whatIsThisPage).toBe(SECURENOW_CLOUD_CONNECTIONS_HUB.whatIsThisPage);
+    expect(hubHelp?.whatToDoNext).not.toMatch(/choose platforms/i);
+    expect(hubHelp?.whatToDoNext).not.toMatch(/evidence-only review/i);
+    expect(hubHelp?.whereToConfigureAction?.href).toContain("extract-upload");
+    expect(articleHelp?.whatIsThisPage).toBe(SECURENOW_CLOUD_CONNECTIONS_HELP.whatIsThisPage);
+    expect(articleHelp?.whatIsThisPage).not.toMatch(/AWS|GCP/i);
+    expect(architectureHub?.whatToDoNext).toMatch(/evidence-only review/i);
+  });
+
+  it("resolves SecureNow standards and rules contextual help for workspace scope", () => {
+    const complianceHub = contextualHelpForPathname("/compliance/standards-and-rules", { productLineId: "security" });
+    const architectureHub = contextualHelpForPathname("/governance/standards-and-rules", {
+      productLineId: "architecture",
+    });
+
+    expect(complianceHub?.whatIsThisPage).toBe(SECURENOW_STANDARDS_RULES_HUB.whatIsThisPage);
+    expect(complianceHub?.whatIsThisPage).not.toMatch(/applied to a review/i);
+    expect(complianceHub?.whyEmpty).toContain("workspace scope");
+    expect(architectureHub?.whatIsThisPage).toMatch(/applied to a review/i);
   });
 
   it("omits architecture-only user capabilities for SecureNow", () => {
@@ -218,5 +317,10 @@ describe("SecureNow help guide content", () => {
       "not administered in SecureNow",
     );
     expect(usersAndRolesCapabilityRows("architecture").map((row) => row.id)).toContain("manage-billing");
+    expect(usersAndRolesCapabilityLabel("view-reviews", "security")).toContain("findings");
+    expect(usersAndRolesCapabilityLabel("view-reviews", "security")).not.toContain("architectures");
+    expect(usersAndRolesCapabilityRows("security").find((row) => row.id === "view-reviews")?.label).toContain(
+      "findings",
+    );
   });
 });

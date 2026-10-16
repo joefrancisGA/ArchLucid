@@ -18,6 +18,19 @@ import type { RunSummary } from "@/types/authority";
 
 import type { GovernanceFindingQueueRow } from "@/app/(operator)/governance/findings/governance-finding-queue-row";
 import { governanceFindingsDemoPhiRow } from "@/components/governance/findings/governance-findings-demo-rows";
+import { ARCHITECTURE_RISK_REGISTER_OWNER_NOT_STORED } from "@/lib/architecture/architecture-risk-register-csv";
+
+const GOVERNANCE_DECISION_ROW_SEVERITY_NOT_STORED = "Severity was not stored." as const;
+
+function formatRiskRegisterQueueOwner(ownerUserId: string | null | undefined): string {
+  const trimmed = ownerUserId?.trim() ?? "";
+
+  if (trimmed.length === 0) {
+    return ARCHITECTURE_RISK_REGISTER_OWNER_NOT_STORED;
+  }
+
+  return trimmed;
+}
 
 export function riskRegisterRows(entries: ArchitectureRiskRegisterEntry[]): GovernanceFindingQueueRow[] {
   // OpenAPI marks findingId optional; malformed register rows must not become selectable queue items.
@@ -32,7 +45,7 @@ export function riskRegisterRows(entries: ArchitectureRiskRegisterEntry[]): Gove
     const statusLabel = (entry.statusLabel ?? "").trim();
     const recommended =
       entry.latestDisposition !== null && entry.latestDisposition !== undefined
-        ? `Latest disposition: ${entry.latestDisposition}. Owner: ${entry.ownerUserId ?? "unassigned"}.`
+        ? `Latest disposition: ${entry.latestDisposition}. Owner: ${formatRiskRegisterQueueOwner(entry.ownerUserId)}.`
         : "Open evidence trace to record disposition or a time-bounded waiver.";
     const runLabel =
       systemName.length > 0 ? systemName : runId.length > 0 ? runId : "Not returned";
@@ -91,7 +104,7 @@ export function decisionRegisterRows(entries: ArchitectureDecisionRegisterEntry[
       manifestId,
       findingId: decisionId,
       title: titleRaw.length > 0 ? titleRaw : decisionId,
-      severity: "Info",
+      severity: GOVERNANCE_DECISION_ROW_SEVERITY_NOT_STORED,
       category: (entry.category ?? "").trim().length > 0 ? entry.category : "Architecture decision",
       status: "Recorded",
       recommended,

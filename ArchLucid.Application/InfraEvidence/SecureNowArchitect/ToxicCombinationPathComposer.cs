@@ -9,7 +9,8 @@ internal static class ToxicCombinationPathComposer
     public static IReadOnlyList<ToxicCombinationCandidate> Compose(
         IReadOnlyList<ToxicCombinationPathSnapshot> reachabilityPaths,
         IReadOnlyList<ToxicCombinationPathSnapshot> privilegePaths,
-        IReadOnlyDictionary<string, PrivilegePathEdge> egressBySubnetArmId)
+        IReadOnlyDictionary<string, PrivilegePathEdge> egressBySubnetArmId,
+        Func<ToxicCombinationPathSnapshot, ToxicCombinationPathSnapshot, bool>? includePair = null)
     {
         ArgumentNullException.ThrowIfNull(reachabilityPaths);
         ArgumentNullException.ThrowIfNull(privilegePaths);
@@ -26,6 +27,8 @@ internal static class ToxicCombinationPathComposer
         {
             foreach (ToxicCombinationPathSnapshot privilegePath in privilegePaths)
             {
+                if (includePair is not null && !includePair(reachabilityPath, privilegePath))
+                    continue;
                 if (!TryResolveSharedAsset(reachabilityPath, privilegePath, out string sharedAssetNodeId))
                 {
                     continue;

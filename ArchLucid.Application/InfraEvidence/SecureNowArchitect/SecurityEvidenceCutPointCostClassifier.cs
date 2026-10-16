@@ -34,6 +34,11 @@ public static class SecurityEvidenceCutPointCostClassifier
 
         if (hop.EdgeType.Equals(SecureNowArchitectConstants.UnrestrictedEgressHopEdgeType, StringComparison.OrdinalIgnoreCase)
             || hop.EdgeType.Equals(SecureNowArchitectConstants.InsufficientEvidenceNsgHopEdgeType, StringComparison.OrdinalIgnoreCase)
+            || hop.EdgeType.Equals(SecureNowArchitectConstants.InsufficientEvidenceDnsHopEdgeType, StringComparison.OrdinalIgnoreCase)
+            || hop.EdgeType.Equals(
+                SecureNowArchitectConstants.InsufficientEvidenceNetworkEdgeControlHopEdgeType,
+                StringComparison.OrdinalIgnoreCase)
+            || hop.EdgeType.Equals(GraphEdgeTypes.CanReach, StringComparison.OrdinalIgnoreCase)
             || hop.EdgeType.Equals(GraphEdgeTypes.Protects, StringComparison.OrdinalIgnoreCase)
             || hop.EdgeType.Equals(GraphEdgeTypes.AppliesTo, StringComparison.OrdinalIgnoreCase)
             || hop.EdgeType.Equals(GraphEdgeTypes.ConnectsTo, StringComparison.OrdinalIgnoreCase))

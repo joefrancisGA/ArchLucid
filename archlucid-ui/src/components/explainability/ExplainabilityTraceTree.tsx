@@ -13,6 +13,7 @@ import {
 import {
   findingConfidenceExplanation,
   findingEvidenceCountPlainLine,
+  formatFindingExplainabilityPolicyRuleDisplay,
 } from "@/lib/findings/finding-explainability-summary";
 import type { FindingExplainability } from "@/types/explanation";
 import { normalizeFindingConfidenceLevel } from "@/types/explanation";
@@ -192,7 +193,7 @@ export function ExplainabilityTraceTree(props: ExplainabilityTraceTreeProps) {
         ) : (
           <ul className="m-0 list-disc space-y-1 pl-5">
             {rules.map((rule, index) => (
-              <li key={`${rule}-${index}`}>{rule}</li>
+              <li key={`${rule}-${index}`}>{formatFindingExplainabilityPolicyRuleDisplay(rule)}</li>
             ))}
           </ul>
         )}

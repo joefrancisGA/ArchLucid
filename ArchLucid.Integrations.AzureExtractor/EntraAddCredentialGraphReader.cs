@@ -360,9 +360,7 @@ public sealed class EntraAddCredentialGraphReader(
                     continue;
                 }
 
-                if (!appRoleId.Equals(
-                        AzureInventoryMicrosoftGraphWellKnown.ApplicationReadWriteAllAppRoleId,
-                        StringComparison.OrdinalIgnoreCase))
+                if (!AzureInventoryMicrosoftGraphWellKnown.IsCollectedPrivilegePathGraphAppRoleId(appRoleId))
                 {
                     continue;
                 }

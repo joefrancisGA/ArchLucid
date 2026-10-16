@@ -2133,7 +2133,7 @@ export function DiagramsWorkbenchClient() {
               {infraDiagramModeJobCaptionBlock(diagramTypePickerValue)}
             </div>
             {selectedSnapshot != null ? (
-              <div className="col-start-1 flex min-w-0 flex-col gap-1" data-testid="infra-diagrams-snapshot-id-readout">
+              <div className="col-start-1 flex min-w-0 flex-col gap-2" data-testid="infra-diagrams-snapshot-id-readout">
                 <div className="flex items-start gap-2">
                   <span className={cn("font-mono text-xs break-all text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                     {selectedSnapshot.snapshotId}
@@ -2252,7 +2252,7 @@ export function DiagramsWorkbenchClient() {
               {infraDiagramModeJobCaptionBlock(diagramTypePickerValue)}
             </div>
             {selectedSnapshot != null ? (
-              <div className="col-start-1 flex min-w-0 flex-col gap-1" data-testid="infra-diagrams-snapshot-id-readout">
+              <div className="col-start-1 flex min-w-0 flex-col gap-2" data-testid="infra-diagrams-snapshot-id-readout">
                 <div className="flex items-start gap-2">
                   <span className={cn("font-mono text-xs break-all text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                     {selectedSnapshot.snapshotId}
@@ -2750,7 +2750,7 @@ export function DiagramsWorkbenchClient() {
         <EnterpriseCompactEmptyState
           title={
             dataFlowEdgeCountUnknown
-              ? "Edge count not returned"
+              ? "Edge count was not stored"
               : dataFlowHasNoResourcesOrConnections
                 ? "This data-flow canvas has no resources and no connections."
                 : dataFlowHasNoConnections
@@ -2759,7 +2759,7 @@ export function DiagramsWorkbenchClient() {
           }
           description={
             dataFlowEdgeCountUnknown
-              ? "Diagram metrics were not returned for this snapshot — an empty canvas does not mean zero edges."
+              ? "Diagram metrics were not stored for this snapshot — an empty canvas does not mean zero edges."
               : dataFlowHasNoResourcesOrConnections
                 ? "This data-flow canvas has no resources and no connections."
                 : dataFlowHasNoConnections

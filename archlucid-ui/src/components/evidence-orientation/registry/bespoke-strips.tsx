@@ -48,12 +48,13 @@ import {
   TROUBLESHOOTING_HELP_SOURCES,
   TROUBLESHOOTING_HELP_SOURCES_INTRO,
 } from "@/lib/troubleshooting-help-evidence-copy";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
 import {
   USERS_AND_ROLES_HELP_AS_OF_APPLICABILITY,
   USERS_AND_ROLES_HELP_AS_OF_LABEL,
-  USERS_AND_ROLES_HELP_CLAIM_DISCIPLINE,
-  USERS_AND_ROLES_HELP_SOURCES,
-  USERS_AND_ROLES_HELP_SOURCES_INTRO,
+  resolveUsersAndRolesHelpClaimDiscipline,
+  resolveUsersAndRolesHelpSources,
+  resolveUsersAndRolesHelpSourcesIntro,
 } from "@/lib/users-and-roles-help-evidence-copy";
 
 export function AzurePermissionsHelpEvidenceOrientationStrip(): React.JSX.Element {
@@ -265,13 +266,17 @@ export function TroubleshootingHelpEvidenceOrientationStrip(): React.JSX.Element
   );
 }
 
-export function UsersAndRolesHelpEvidenceOrientationStrip(): React.JSX.Element {
+export function UsersAndRolesHelpEvidenceOrientationStrip(props: {
+  readonly productLineId?: ProductLineId;
+}): React.JSX.Element {
+  const productLineId = props.productLineId ?? "architecture";
+
   return (
     <EvidenceOrientationStripShell testId="users-and-roles-help-orientation">
       <EvidenceOrientationClaimCallout
         testId="users-and-roles-help-claim-discipline"
         stripSlug="users-and-roles-help"
-        body={USERS_AND_ROLES_HELP_CLAIM_DISCIPLINE}
+        body={resolveUsersAndRolesHelpClaimDiscipline(productLineId)}
       />
 
       <EvidenceOrientationMetaLine
@@ -284,8 +289,8 @@ export function UsersAndRolesHelpEvidenceOrientationStrip(): React.JSX.Element {
         testId="users-and-roles-help-sources"
         headingId="users-and-roles-help-sources-heading"
         title={HELP_DILIGENCE_ARTIFACT_INDEX_TITLE}
-        intro={USERS_AND_ROLES_HELP_SOURCES_INTRO}
-        links={USERS_AND_ROLES_HELP_SOURCES}
+        intro={resolveUsersAndRolesHelpSourcesIntro(productLineId)}
+        links={resolveUsersAndRolesHelpSources(productLineId)}
         layout="columns"
       />
     </EvidenceOrientationStripShell>

@@ -58,6 +58,9 @@ public static class GraphEdgeTypes
     /// <summary>Principal may add a credential and sign in as the target application (book Ch. 4 §4.3 <c>canAddCredential</c>).</summary>
     public const string CanAddCredential = "CAN_ADD_CREDENTIAL";
 
+    /// <summary>Principal may grant a role or directory permission that creates downstream access (book Ch. 4 §4.4).</summary>
+    public const string CanGrantRole = "CAN_GRANT_ROLE";
+
     public const string RoutesTo = "ROUTES_TO";
 
     /// <summary>CI federated credential adapter edge (SA-19); emitted when optional ZIP sibling is present.</summary>
@@ -71,6 +74,9 @@ public static class GraphEdgeTypes
 
     /// <summary>MI + RBAC composed authorization hop (AX-DE-03); not confirmed data-plane traffic.</summary>
     public const string MayAccess = "MAY_ACCESS";
+
+    /// <summary>Derived network reachability between a position/workload and an endpoint (book Ch. 5–7 <c>canReach</c>).</summary>
+    public const string CanReach = "CAN_REACH";
 }
 
 /// <summary>

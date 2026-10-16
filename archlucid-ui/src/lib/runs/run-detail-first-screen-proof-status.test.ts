@@ -94,14 +94,15 @@ describe("buildRunDetailFirstScreenProofSummary", () => {
     const summary = buildRunDetailFirstScreenProofSummary(null);
 
     expect(summary.governedCoverageLabel).toBe("Governed coverage was not stored.");
+    expect(summary.proofPacketLabel).toBe("Proof completeness was not stored.");
   });
 
-  it("returns 'Not available' when isAvailable is false", () => {
+  it("labels unavailable governed coverage without implying a stored metric", () => {
     const summary = buildRunDetailFirstScreenProofSummary({
       governedFindingCoverage: { isAvailable: false },
     });
 
-    expect(summary.governedCoverageLabel).toBe("Not available");
+    expect(summary.governedCoverageLabel).toBe("Governed coverage was not available.");
   });
 
   it("formats governed coverage correctly when metric is present", () => {

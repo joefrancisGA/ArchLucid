@@ -17,5 +17,11 @@ export function secureNowQuestionAnswerLabel(answerCode: string): string {
     return "Stored answer was not on this question";
   }
 
-  return ANSWER_LABELS[trimmed] ?? trimmed;
+  const label = ANSWER_LABELS[trimmed];
+
+  if (label === undefined) {
+    return `Answer code ${trimmed} has no reviewer label.`;
+  }
+
+  return label;
 }

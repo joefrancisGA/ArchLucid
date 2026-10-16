@@ -22,6 +22,8 @@ public static class AzureInventoryRelationshipAssociationTypes
 
     public const string VmssToSubnet = "vmssToSubnet";
 
+    public const string VmssToManagedCluster = "vmssToManagedCluster";
+
     public const string DatabricksWorkspaceToSubnet = "databricksWorkspaceToSubnet";
 
     public const string NicToNsg = "nicToNsg";
@@ -131,6 +133,10 @@ public static class AzureInventoryRelationshipAssociationTypes
 
     public const string RecoveryServicesReplicates = "recoveryServicesReplicates";
 
+    public const string NetworkSecurityPerimeterToResource = "networkSecurityPerimeterToResource";
+
+    public const string MonitorPrivateLinkScopeToScopedResource = "monitorPrivateLinkScopeToScopedResource";
+
     private static readonly AzureInventoryRelationshipAssociationTypeDefinition[] Catalog =
     [
         Observed(NicToSubnet, AzureInventoryRelationshipArmKind.NetworkInterface, AzureInventoryRelationshipArmKind.Subnet, "CONNECTS_TO", "inventory-nic-subnet"),
@@ -140,6 +146,7 @@ public static class AzureInventoryRelationshipAssociationTypes
         Inferred(NsgAllowRule, AzureInventoryRelationshipArmKind.Subnet, AzureInventoryRelationshipArmKind.StorageAccount, "ROUTES_TO", "inventory-nsg-allow-rule", ProvenanceKind.DeterministicInference),
         Observed(VmToNic, AzureInventoryRelationshipArmKind.VirtualMachine, AzureInventoryRelationshipArmKind.NetworkInterface, "CONNECTS_TO", "inventory-vm-nic"),
         Observed(VmssToSubnet, AzureInventoryRelationshipArmKind.VirtualMachineScaleSet, AzureInventoryRelationshipArmKind.Subnet, "CONNECTS_TO", "inventory-vmss-subnet"),
+        Observed(VmssToManagedCluster, AzureInventoryRelationshipArmKind.VirtualMachineScaleSet, AzureInventoryRelationshipArmKind.Compute, "CONNECTS_TO", "inventory-node-pool"),
         Observed(DatabricksWorkspaceToSubnet, AzureInventoryRelationshipArmKind.DatabricksWorkspace, AzureInventoryRelationshipArmKind.Subnet, "CONNECTS_TO", "inventory-databricks-workspace-subnet"),
         Observed(NicToNsg, AzureInventoryRelationshipArmKind.NetworkInterface, AzureInventoryRelationshipArmKind.NetworkSecurityGroup, "APPLIES_TO", "inventory-nic-nsg"),
         Observed(SubnetToNsg, AzureInventoryRelationshipArmKind.Subnet, AzureInventoryRelationshipArmKind.NetworkSecurityGroup, "APPLIES_TO", "inventory-subnet-nsg"),
@@ -207,6 +214,18 @@ public static class AzureInventoryRelationshipAssociationTypes
             AzureInventoryRelationshipArmKind.VirtualMachine,
             "PROTECTS",
             "inventory-recovery-services-replicates"),
+        Observed(
+            NetworkSecurityPerimeterToResource,
+            AzureInventoryRelationshipArmKind.NetworkSecurityPerimeter,
+            AzureInventoryRelationshipArmKind.LinkedServiceTarget,
+            "PROTECTS",
+            "inventory-nsp-association"),
+        Observed(
+            MonitorPrivateLinkScopeToScopedResource,
+            AzureInventoryRelationshipArmKind.MonitorPrivateLinkScope,
+            AzureInventoryRelationshipArmKind.LinkedServiceTarget,
+            "CONNECTS_TO",
+            "inventory-ampls-scoped-resource"),
     ];
 
     private static readonly Dictionary<string, AzureInventoryRelationshipAssociationTypeDefinition> Lookup =

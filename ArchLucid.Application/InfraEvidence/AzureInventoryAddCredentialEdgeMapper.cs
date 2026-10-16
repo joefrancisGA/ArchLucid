@@ -29,6 +29,8 @@ public static class AzureInventoryAddCredentialEdgeMapper
 
         Dictionary<string, string> appIdToServicePrincipalObjectId = BuildAppIdToServicePrincipalMap(applicationRegistrations);
         List<string> servicePrincipalNodeIds = BuildDistinctServicePrincipalNodeIds(applicationRegistrations);
+        HashSet<string> appRoleAssignmentReadWriteAllPrincipalNodeIds =
+            BuildAppRoleAssignmentReadWriteAllPrincipalNodeIds(graphAppRoleAssignments);
 
         foreach (AzureInventoryApplicationOwnerRow owner in applicationOwners)
         {
@@ -78,6 +80,11 @@ public static class AzureInventoryAddCredentialEdgeMapper
         foreach (AzureInventoryGraphAppRoleAssignmentRow assignment in graphAppRoleAssignments)
         {
             if (!IsApplicationReadWriteAllOnMicrosoftGraph(assignment))
+            {
+                continue;
+            }
+
+            if (appRoleAssignmentReadWriteAllPrincipalNodeIds.Contains(assignment.PrincipalNodeId))
             {
                 continue;
             }
@@ -139,6 +146,26 @@ public static class AzureInventoryAddCredentialEdgeMapper
         }
 
         return assignment.RoleDefinitionId.Trim();
+    }
+
+    private static HashSet<string> BuildAppRoleAssignmentReadWriteAllPrincipalNodeIds(
+        IReadOnlyList<AzureInventoryGraphAppRoleAssignmentRow> graphAppRoleAssignments)
+    {
+        HashSet<string> principalNodeIds = new(StringComparer.OrdinalIgnoreCase);
+
+        foreach (AzureInventoryGraphAppRoleAssignmentRow assignment in graphAppRoleAssignments)
+        {
+            if (!assignment.AppRoleId.Equals(
+                    AzureInventoryMicrosoftGraphWellKnown.AppRoleAssignmentReadWriteAllAppRoleId,
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            principalNodeIds.Add(assignment.PrincipalNodeId);
+        }
+
+        return principalNodeIds;
     }
 
     private static bool IsApplicationReadWriteAllOnMicrosoftGraph(AzureInventoryGraphAppRoleAssignmentRow assignment)

@@ -7,9 +7,13 @@ export type PackagePrintBreadcrumbProps = {
   readonly backHref: string;
 };
 
+export function resolvePackagePrintBreadcrumbReviewTitle(reviewTitle: string): string {
+  return reviewTitle.trim().length > 0 ? reviewTitle.trim() : "Review title was not stored.";
+}
+
 /** Core review trail for package print (APR). */
 export function PackagePrintBreadcrumb(props: PackagePrintBreadcrumbProps): React.JSX.Element {
-  const reviewTitle = props.reviewTitle.trim() || "Review";
+  const reviewTitle = resolvePackagePrintBreadcrumbReviewTitle(props.reviewTitle);
 
   return (
     <OperatorPageBreadcrumb

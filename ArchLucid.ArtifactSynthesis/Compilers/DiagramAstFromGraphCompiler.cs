@@ -235,6 +235,9 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
             DiagramStoredHiddenPathShortcutApplier.Apply(ast, graph, nodeIdMap);
             InventoryDiagramIndirectRelationshipApplier.Apply(ast, graph, nodeIdMap);
             InventoryDiagramContainerImageRelationshipApplier.Apply(ast);
+            InventoryDiagramNodePoolRelationshipApplier.Apply(ast);
+            InventoryDiagramNetworkSecurityPerimeterRelationshipApplier.Apply(ast);
+            InventoryDiagramMonitorPrivateLinkScopeRelationshipApplier.Apply(ast);
             InventoryDiagramPrivateAccessRelationshipApplier.Apply(ast, graph, nodeIdMap, retainNetworkDetailNodes);
             InventoryDiagramHiddenPublicIpMarkApplier.Apply(ast, graph, nodeIdMap, retainNetworkDetailNodes);
             InventoryDiagramDefaultRouteRelationshipApplier.Apply(ast, graph, nodeIdMap);

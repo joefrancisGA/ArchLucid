@@ -5,6 +5,28 @@ namespace ArchLucid.Persistence.InfraEvidence;
 
 public interface ISecurityEvidencePathRepository
 {
+    async Task<IReadOnlyList<SecurityEvidencePathWithHops>> ListWithHopsBySnapshotAsync(
+        ProjectSnapshotScopeKey scope,
+        CancellationToken cancellationToken = default)
+    {
+        IReadOnlyList<SecurityEvidencePathRecord> paths = await ListBySnapshotAsync(scope, cancellationToken);
+        List<SecurityEvidencePathWithHops> result = [];
+        foreach (SecurityEvidencePathRecord path in paths)
+            result.Add(new(path, await ListHopsByPathInScopeAsync(scope.Project, path.PathId, cancellationToken)));
+        return result;
+    }
+
+    /// <summary>Returns results in input order, including entries deduplicated by canonical hash.</summary>
+    async Task<IReadOnlyList<SecurityEvidencePathInsertResult>> InsertBatchIfNotExistsAsync(
+        IReadOnlyList<SecurityEvidencePathWithHops> paths,
+        CancellationToken cancellationToken = default)
+    {
+        List<SecurityEvidencePathInsertResult> result = [];
+        foreach (SecurityEvidencePathWithHops path in paths)
+            result.Add(await InsertIfNotExistsAsync(path.Path, path.Hops, cancellationToken));
+        return result;
+    }
+
     Task<SecurityEvidencePathRecord?> TryGetByIdAsync(
         Guid tenantId,
         Guid pathId,

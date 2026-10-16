@@ -70,22 +70,20 @@ public sealed class AzureInventorySnapshotMaterializer(
             List<AzureInventoryUnknownResourceWrite> unknowns = [];
             List<AzureInventoryRoleAssignmentWrite> roleAssignments = [];
             List<AzureInventoryDiagnosticConfigurationWrite> diagnostics = [];
+            IReadOnlyDictionary<string, CloudResourceIdentityRecord> identities =
+                await cloudResourceIdentityDirectory.UpsertSnapshotBatchAsync(
+                    scope, CloudProvider.Azure, snapshotId,
+                    inventory.Resources.Select(row => new CloudResourceIdentitySnapshotWrite(
+                        ArmResourceIdNormalizer.Normalize(row.AzureResourceId), row.ResourceType,
+                        header.SubscriptionId, row.ResourceGroup, row.Location, row.Name)).ToList(),
+                    cancellationToken);
+
             // Canonical evidence must retain imported resources independently of diagram visibility.
             // Diagram consumers apply AzureInventoryVisibleSnapshotProjection when rendering.
             foreach (AzureExtractorExtendedResourceRow row in inventory.Resources)
             {
                 string normalizedArmId = ArmResourceIdNormalizer.Normalize(row.AzureResourceId);
-                CloudResourceIdentityRecord identity = await cloudResourceIdentityDirectory.UpsertOnSnapshotAsync(
-                    scope,
-                    CloudProvider.Azure,
-                    normalizedArmId,
-                    snapshotId,
-                    row.ResourceType,
-                    header.SubscriptionId,
-                    row.ResourceGroup,
-                    row.Location,
-                    row.Name,
-                    cancellationToken);
+                CloudResourceIdentityRecord identity = identities[normalizedArmId];
 
                 Guid resourceRowId = Guid.NewGuid();
 

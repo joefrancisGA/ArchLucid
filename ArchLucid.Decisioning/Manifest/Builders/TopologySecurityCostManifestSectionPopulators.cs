@@ -180,13 +180,15 @@ public sealed class CostManifestSectionPopulator : IManifestSectionPopulator
             if (!string.IsNullOrWhiteSpace(payload.CostRisk))
                 manifest.Cost.CostRisks.Add(payload.CostRisk);
 
-            string budgetLabel = string.IsNullOrWhiteSpace(payload.BudgetName) ? "default" : payload.BudgetName;
+            string budgetLabel = string.IsNullOrWhiteSpace(payload.BudgetName)
+                ? "Budget name was not stored."
+                : payload.BudgetName.Trim();
             string capText = payload.MaxMonthlyCost.HasValue
                 ? payload.MaxMonthlyCost.Value.ToString("N0", CultureInfo.InvariantCulture)
-                : "unspecified";
+                : "Monthly cap was not stored.";
 
             manifest.Assumptions.Add(
-                $"Preferred: Cost targets align with budget '{budgetLabel}' (monthly cap {capText}, risk {payload.CostRisk}).");
+                $"Preferred: Cost targets align with budget {budgetLabel} (monthly cap {capText}, risk {payload.CostRisk}).");
         }
     }
 }

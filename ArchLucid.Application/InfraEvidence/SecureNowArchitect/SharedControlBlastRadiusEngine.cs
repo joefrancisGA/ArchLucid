@@ -31,8 +31,9 @@ public sealed class SharedControlBlastRadiusEngine(
             return Failed("ActorId is required.");
         }
 
-        AzureInventorySnapshotDetailReadModel? snapshot =
-            await snapshotRepository.TryGetSnapshotDetailAsync(scope, snapshotId, cancellationToken);
+        SecureNowAnalysisSnapshot? analysisSnapshot =
+            await SecureNowAnalysisRun.LoadAsync(snapshotRepository, scope, snapshotId, cancellationToken);
+        AzureInventorySnapshotDetailReadModel? snapshot = analysisSnapshot?.Snapshot;
 
         if (snapshot is null)
         {
@@ -40,7 +41,7 @@ public sealed class SharedControlBlastRadiusEngine(
         }
 
         IReadOnlyList<SharedControlBlastRadiusCandidate> candidates =
-            SharedControlBlastRadiusEnumerator.Enumerate(snapshot, new SharedControlBlastRadiusEngineOptions());
+            SharedControlBlastRadiusEnumerator.Enumerate(snapshot, new SharedControlBlastRadiusEngineOptions(), analysisSnapshot);
 
         if (candidates.Count == 0)
         {

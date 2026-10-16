@@ -89,9 +89,20 @@ export function findingTraceCompletenessPlainEnglish(ratioPct: number): string {
   return "Minimal — sparse trace fields; use as a prompt to inspect evidence, not as a settled conclusion.";
 }
 
+/** Operator-facing policy rule id from explainability payloads (unspecified → honesty). */
+export function formatFindingExplainabilityPolicyRuleDisplay(ruleId: string | null | undefined): string {
+  const trimmed = ruleId?.trim() ?? "";
+
+  if (trimmed.length === 0 || trimmed.toLowerCase() === "unspecified") {
+    return "Policy rule was not stored.";
+  }
+
+  return trimmed;
+}
+
 export function findingEvidenceCountPlainLine(evidenceRefs: readonly string[] | undefined | null): string {
   if (evidenceRefs === null || evidenceRefs === undefined) {
-    return "Sources not returned for this finding.";
+    return "Sources were not stored for this finding.";
   }
 
   const n = evidenceRefs.length;
@@ -196,7 +207,7 @@ export type FindingConfidenceExplanationInput = {
 
 function evidenceSourceClause(count: number | null): string {
   if (count === null) {
-    return "supporting sources were not returned";
+    return "supporting sources were not stored";
   }
 
   if (count <= 0) {

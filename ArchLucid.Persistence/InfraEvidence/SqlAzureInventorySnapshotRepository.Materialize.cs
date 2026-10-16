@@ -4,6 +4,7 @@ using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Configuration;
 using ArchLucid.Persistence.Connections;
+using ArchLucid.Persistence.Sql;
 
 using Dapper;
 
@@ -28,7 +29,7 @@ public sealed partial class SqlAzureInventorySnapshotRepository
         if (conn is not SqlConnection sqlConn)
             throw new InvalidOperationException("Snapshot materialize requires SqlConnection.");
 
-        using IDbTransaction tx = sqlConn.BeginTransaction();
+        using SqlTransaction tx = sqlConn.BeginTransaction();
 
         try
         {
@@ -78,308 +79,142 @@ public sealed partial class SqlAzureInventorySnapshotRepository
                     commandTimeout: DapperCommandTimeoutSeconds.Report,
                     cancellationToken: cancellationToken));
 
-            if (writeRequest.Resources.Count > 0)
-            {
-                const string insertResource = """
-                                              INSERT INTO dbo.AzureInventoryResources
-                                              (
-                                                  ResourceRowId, SnapshotId, TenantId, CloudResourceId, AzureResourceId,
-                                                  ResourceType, Region, ResourceGroup, SubscriptionId, ParentResourceId,
-                                                  SourceEvidenceReference
-                                              )
-                                              VALUES
-                                              (
-                                                  @ResourceRowId, @SnapshotId, @TenantId, @CloudResourceId, @AzureResourceId,
-                                                  @ResourceType, @Region, @ResourceGroup, @SubscriptionId, @ParentResourceId,
-                                                  @SourceEvidenceReference
-                                              );
-                                              """;
-
-                foreach (AzureInventoryResourceRecord resource in writeRequest.Resources)
+            await SqlBufferedBulkCopy.WriteAsync(
+                sqlConn, tx, "dbo.AzureInventoryResources",
+                writeRequest.Resources.Select(resource => new
                 {
-                    await sqlConn.ExecuteAsync(
-                        new CommandDefinition(
-                            insertResource,
-                            new
-                            {
-                                resource.ResourceRowId,
-                                resource.SnapshotId,
-                                resource.TenantId,
-                                resource.CloudResourceId,
-                                resource.AzureResourceId,
-                                resource.ResourceType,
-                                resource.Region,
-                                resource.ResourceGroup,
-                                resource.SubscriptionId,
-                                resource.ParentResourceId,
-                                resource.SourceEvidenceReference,
-                            },
-                            transaction: tx,
-                            commandTimeout: DapperCommandTimeoutSeconds.Report,
-                            cancellationToken: cancellationToken));
-                }
-            }
+                    resource.ResourceRowId,
+                    resource.SnapshotId,
+                    resource.TenantId,
+                    resource.CloudResourceId,
+                    resource.AzureResourceId,
+                    resource.ResourceType,
+                    resource.Region,
+                    resource.ResourceGroup,
+                    resource.SubscriptionId,
+                    resource.ParentResourceId,
+                    resource.SourceEvidenceReference,
+                }),
+                cancellationToken);
 
-            if (writeRequest.Properties.Count > 0)
-            {
-                const string insertProperty = """
-                                              INSERT INTO dbo.AzureInventoryResourceProperties
-                                              (PropertyRowId, SnapshotId, TenantId, ResourceRowId, PropertyKey, PropertyValue, IsRedacted)
-                                              VALUES
-                                              (@PropertyRowId, @SnapshotId, @TenantId, @ResourceRowId, @PropertyKey, @PropertyValue, @IsRedacted);
-                                              """;
-
-                foreach (AzureInventoryResourcePropertyWrite property in writeRequest.Properties)
+            await SqlBufferedBulkCopy.WriteAsync(
+                sqlConn, tx, "dbo.AzureInventoryResourceProperties",
+                writeRequest.Properties.Select(property => new
                 {
-                    await sqlConn.ExecuteAsync(
-                        new CommandDefinition(
-                            insertProperty,
-                            new
-                            {
-                                PropertyRowId = Guid.NewGuid(),
-                                SnapshotId = snapshotId,
-                                scope.TenantId,
-                                property.ResourceRowId,
-                                property.PropertyKey,
-                                property.PropertyValue,
-                                property.IsRedacted,
-                            },
-                            transaction: tx,
-                            commandTimeout: DapperCommandTimeoutSeconds.Report,
-                            cancellationToken: cancellationToken));
-                }
-            }
+                    PropertyRowId = Guid.NewGuid(),
+                    SnapshotId = snapshotId,
+                    scope.TenantId,
+                    property.ResourceRowId,
+                    property.PropertyKey,
+                    property.PropertyValue,
+                    property.IsRedacted,
+                }),
+                cancellationToken);
 
-            if (writeRequest.Tags.Count > 0)
-            {
-                const string insertTag = """
-                                         INSERT INTO dbo.AzureInventoryTags
-                                         (TagRowId, SnapshotId, TenantId, ResourceRowId, TagKey, TagValue)
-                                         VALUES
-                                         (@TagRowId, @SnapshotId, @TenantId, @ResourceRowId, @TagKey, @TagValue);
-                                         """;
-
-                foreach (AzureInventoryTagWrite tag in writeRequest.Tags)
+            await SqlBufferedBulkCopy.WriteAsync(
+                sqlConn, tx, "dbo.AzureInventoryTags",
+                writeRequest.Tags.Select(tag => new
                 {
-                    await sqlConn.ExecuteAsync(
-                        new CommandDefinition(
-                            insertTag,
-                            new
-                            {
-                                TagRowId = Guid.NewGuid(),
-                                SnapshotId = snapshotId,
-                                scope.TenantId,
-                                tag.ResourceRowId,
-                                tag.TagKey,
-                                tag.TagValue,
-                            },
-                            transaction: tx,
-                            commandTimeout: DapperCommandTimeoutSeconds.Report,
-                            cancellationToken: cancellationToken));
-                }
-            }
+                    TagRowId = Guid.NewGuid(),
+                    SnapshotId = snapshotId,
+                    scope.TenantId,
+                    tag.ResourceRowId,
+                    tag.TagKey,
+                    tag.TagValue,
+                }),
+                cancellationToken);
 
-            if (writeRequest.Relationships.Count > 0)
-            {
-                const string insertRelationship = """
-                                                  INSERT INTO dbo.AzureInventoryResourceRelationships
-                                                  (
-                                                      RelationshipRowId, SnapshotId, TenantId, FromAzureResourceId,
-                                                      ToAzureResourceId, RelationshipType, ProvenanceKind, Confidence, InferenceSource
-                                                  )
-                                                  VALUES
-                                                  (
-                                                      @RelationshipRowId, @SnapshotId, @TenantId, @FromAzureResourceId,
-                                                      @ToAzureResourceId, @RelationshipType, @ProvenanceKind, @Confidence, @InferenceSource
-                                                  );
-                                                  """;
-
-                foreach (AzureInventoryResourceRelationshipWrite relationship in writeRequest.Relationships)
+            await SqlBufferedBulkCopy.WriteAsync(
+                sqlConn, tx, "dbo.AzureInventoryResourceRelationships",
+                writeRequest.Relationships.Select(relationship => new
                 {
-                    await sqlConn.ExecuteAsync(
-                        new CommandDefinition(
-                            insertRelationship,
-                            new
-                            {
-                                RelationshipRowId = Guid.NewGuid(),
-                                SnapshotId = snapshotId,
-                                scope.TenantId,
-                                relationship.FromAzureResourceId,
-                                relationship.ToAzureResourceId,
-                                relationship.RelationshipType,
-                                ProvenanceKind = (int)relationship.ProvenanceKind,
-                                relationship.Confidence,
-                                relationship.InferenceSource,
-                            },
-                            transaction: tx,
-                            commandTimeout: DapperCommandTimeoutSeconds.Report,
-                            cancellationToken: cancellationToken));
-                }
-            }
+                    RelationshipRowId = Guid.NewGuid(),
+                    SnapshotId = snapshotId,
+                    scope.TenantId,
+                    relationship.FromAzureResourceId,
+                    relationship.ToAzureResourceId,
+                    relationship.RelationshipType,
+                    ProvenanceKind = (int)relationship.ProvenanceKind,
+                    relationship.Confidence,
+                    relationship.InferenceSource,
+                }),
+                cancellationToken);
 
-            if (writeRequest.AdfExternalSources.Count > 0)
-            {
-                const string insertExternalSource = """
-                                                    INSERT INTO dbo.AzureInventoryAdfExternalSources
-                                                    (
-                                                        ExternalSourceRowId, SnapshotId, TenantId, ExternalNodeKey,
-                                                        LinkedServiceName, LinkedServiceType, TargetHost, FactoryResourceId,
-                                                        IntegrationRuntimeName, HostInKeyVault, KeyVaultResourceId
-                                                    )
-                                                    VALUES
-                                                    (
-                                                        @ExternalSourceRowId, @SnapshotId, @TenantId, @ExternalNodeKey,
-                                                        @LinkedServiceName, @LinkedServiceType, @TargetHost, @FactoryResourceId,
-                                                        @IntegrationRuntimeName, @HostInKeyVault, @KeyVaultResourceId
-                                                    );
-                                                    """;
-
-                foreach (AzureInventoryAdfExternalSourceWrite source in writeRequest.AdfExternalSources)
+            await SqlBufferedBulkCopy.WriteAsync(
+                sqlConn, tx, "dbo.AzureInventoryAdfExternalSources",
+                writeRequest.AdfExternalSources.Select(source => new
                 {
-                    await sqlConn.ExecuteAsync(
-                        new CommandDefinition(
-                            insertExternalSource,
-                            new
-                            {
-                                ExternalSourceRowId = Guid.NewGuid(),
-                                SnapshotId = snapshotId,
-                                scope.TenantId,
-                                source.ExternalNodeKey,
-                                source.LinkedServiceName,
-                                source.LinkedServiceType,
-                                source.TargetHost,
-                                source.FactoryResourceId,
-                                source.IntegrationRuntimeName,
-                                source.HostInKeyVault,
-                                source.KeyVaultResourceId,
-                            },
-                            transaction: tx,
-                            commandTimeout: DapperCommandTimeoutSeconds.Report,
-                            cancellationToken: cancellationToken));
-                }
-            }
+                    ExternalSourceRowId = Guid.NewGuid(),
+                    SnapshotId = snapshotId,
+                    scope.TenantId,
+                    source.ExternalNodeKey,
+                    source.LinkedServiceName,
+                    source.LinkedServiceType,
+                    source.TargetHost,
+                    source.FactoryResourceId,
+                    source.IntegrationRuntimeName,
+                    source.HostInKeyVault,
+                    source.KeyVaultResourceId,
+                }),
+                cancellationToken);
 
-            if (writeRequest.RoleAssignments.Count > 0)
-            {
-                const string insertRoleAssignment = """
-                                                    INSERT INTO dbo.AzureInventoryRoleAssignments
-                                                    (RoleAssignmentRowId, SnapshotId, TenantId, Scope, PrincipalId, RoleDefinitionId, RoleDefinitionName, PimEligibilityKind, SourceEvidenceReference)
-                                                    VALUES
-                                                    (@RoleAssignmentRowId, @SnapshotId, @TenantId, @Scope, @PrincipalId, @RoleDefinitionId, @RoleDefinitionName, @PimEligibilityKind, @SourceEvidenceReference);
-                                                    """;
-
-                foreach (AzureInventoryRoleAssignmentWrite roleAssignment in writeRequest.RoleAssignments)
+            await SqlBufferedBulkCopy.WriteAsync(
+                sqlConn, tx, "dbo.AzureInventoryRoleAssignments",
+                writeRequest.RoleAssignments.Select(roleAssignment => new
                 {
-                    await sqlConn.ExecuteAsync(
-                        new CommandDefinition(
-                            insertRoleAssignment,
-                            new
-                            {
-                                RoleAssignmentRowId = Guid.NewGuid(),
-                                SnapshotId = snapshotId,
-                                scope.TenantId,
-                                roleAssignment.Scope,
-                                roleAssignment.PrincipalId,
-                                roleAssignment.RoleDefinitionId,
-                                roleAssignment.RoleDefinitionName,
-                                roleAssignment.PimEligibilityKind,
-                                roleAssignment.SourceEvidenceReference,
-                            },
-                            transaction: tx,
-                            commandTimeout: DapperCommandTimeoutSeconds.Report,
-                            cancellationToken: cancellationToken));
-                }
-            }
+                    RoleAssignmentRowId = Guid.NewGuid(),
+                    SnapshotId = snapshotId,
+                    scope.TenantId,
+                    roleAssignment.Scope,
+                    roleAssignment.PrincipalId,
+                    roleAssignment.RoleDefinitionId,
+                    roleAssignment.RoleDefinitionName,
+                    roleAssignment.PimEligibilityKind,
+                    roleAssignment.SourceEvidenceReference,
+                }),
+                cancellationToken);
 
-            if (writeRequest.Diagnostics.Count > 0)
-            {
-                const string insertDiagnostic = """
-                                                INSERT INTO dbo.AzureInventoryDiagnosticConfigurations
-                                                (DiagnosticRowId, SnapshotId, TenantId, TargetAzureResourceId, DiagnosticName, WorkspaceResourceId, SourceEvidenceReference)
-                                                VALUES
-                                                (@DiagnosticRowId, @SnapshotId, @TenantId, @TargetAzureResourceId, @DiagnosticName, @WorkspaceResourceId, @SourceEvidenceReference);
-                                                """;
-
-                foreach (AzureInventoryDiagnosticConfigurationWrite diagnostic in writeRequest.Diagnostics)
+            await SqlBufferedBulkCopy.WriteAsync(
+                sqlConn, tx, "dbo.AzureInventoryDiagnosticConfigurations",
+                writeRequest.Diagnostics.Select(diagnostic => new
                 {
-                    await sqlConn.ExecuteAsync(
-                        new CommandDefinition(
-                            insertDiagnostic,
-                            new
-                            {
-                                DiagnosticRowId = Guid.NewGuid(),
-                                SnapshotId = snapshotId,
-                                scope.TenantId,
-                                diagnostic.TargetAzureResourceId,
-                                diagnostic.DiagnosticName,
-                                diagnostic.WorkspaceResourceId,
-                                diagnostic.SourceEvidenceReference,
-                            },
-                            transaction: tx,
-                            commandTimeout: DapperCommandTimeoutSeconds.Report,
-                            cancellationToken: cancellationToken));
-                }
-            }
+                    DiagnosticRowId = Guid.NewGuid(),
+                    SnapshotId = snapshotId,
+                    scope.TenantId,
+                    diagnostic.TargetAzureResourceId,
+                    diagnostic.DiagnosticName,
+                    diagnostic.WorkspaceResourceId,
+                    diagnostic.SourceEvidenceReference,
+                }),
+                cancellationToken);
 
-            if (writeRequest.UnknownResources.Count > 0)
-            {
-                const string insertUnknown = """
-                                             INSERT INTO dbo.AzureInventoryUnknownResources
-                                             (UnknownResourceRowId, SnapshotId, TenantId, AzureResourceId, ResourceType, ResourceGroup, CappedPropertiesJson, SourceEvidenceReference)
-                                             VALUES
-                                             (@UnknownResourceRowId, @SnapshotId, @TenantId, @AzureResourceId, @ResourceType, @ResourceGroup, @CappedPropertiesJson, @SourceEvidenceReference);
-                                             """;
-
-                foreach (AzureInventoryUnknownResourceWrite unknown in writeRequest.UnknownResources)
+            await SqlBufferedBulkCopy.WriteAsync(
+                sqlConn, tx, "dbo.AzureInventoryUnknownResources",
+                writeRequest.UnknownResources.Select(unknown => new
                 {
-                    await sqlConn.ExecuteAsync(
-                        new CommandDefinition(
-                            insertUnknown,
-                            new
-                            {
-                                UnknownResourceRowId = Guid.NewGuid(),
-                                SnapshotId = snapshotId,
-                                scope.TenantId,
-                                unknown.AzureResourceId,
-                                unknown.ResourceType,
-                                unknown.ResourceGroup,
-                                unknown.CappedPropertiesJson,
-                                unknown.SourceEvidenceReference,
-                            },
-                            transaction: tx,
-                            commandTimeout: DapperCommandTimeoutSeconds.Report,
-                            cancellationToken: cancellationToken));
-                }
-            }
+                    UnknownResourceRowId = Guid.NewGuid(),
+                    SnapshotId = snapshotId,
+                    scope.TenantId,
+                    unknown.AzureResourceId,
+                    unknown.ResourceType,
+                    unknown.ResourceGroup,
+                    unknown.CappedPropertiesJson,
+                    unknown.SourceEvidenceReference,
+                }),
+                cancellationToken);
 
-            if (writeRequest.DefenderSummaries.Count > 0)
-            {
-                const string insertDefenderSummary = """
-                                                     INSERT INTO dbo.AzureInventoryDefenderSummaries
-                                                     (DefenderSummaryRowId, SnapshotId, TenantId, ResourceId, SecureScore, SourceEvidenceReference)
-                                                     VALUES
-                                                     (@DefenderSummaryRowId, @SnapshotId, @TenantId, @ResourceId, @SecureScore, @SourceEvidenceReference);
-                                                     """;
-
-                foreach (AzureInventoryDefenderSummaryWrite defenderSummary in writeRequest.DefenderSummaries)
+            await SqlBufferedBulkCopy.WriteAsync(
+                sqlConn, tx, "dbo.AzureInventoryDefenderSummaries",
+                writeRequest.DefenderSummaries.Select(defenderSummary => new
                 {
-                    await sqlConn.ExecuteAsync(
-                        new CommandDefinition(
-                            insertDefenderSummary,
-                            new
-                            {
-                                DefenderSummaryRowId = Guid.NewGuid(),
-                                SnapshotId = snapshotId,
-                                scope.TenantId,
-                                defenderSummary.ResourceId,
-                                defenderSummary.SecureScore,
-                                defenderSummary.SourceEvidenceReference,
-                            },
-                            transaction: tx,
-                            commandTimeout: DapperCommandTimeoutSeconds.Report,
-                            cancellationToken: cancellationToken));
-                }
-            }
+                    DefenderSummaryRowId = Guid.NewGuid(),
+                    SnapshotId = snapshotId,
+                    scope.TenantId,
+                    defenderSummary.ResourceId,
+                    defenderSummary.SecureScore,
+                    defenderSummary.SourceEvidenceReference,
+                }),
+                cancellationToken);
 
             tx.Commit();
         }

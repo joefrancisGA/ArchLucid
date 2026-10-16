@@ -417,7 +417,7 @@ if (-not ([string]::IsNullOrWhiteSpace($SubscriptionId)))
     }
 }
 
-$scriptVersion = "0.4.8"
+$scriptVersion = "0.4.11"
 $schemaVersion = 2
 $collectionTimestamp = (Get-Date).ToUniversalTime().ToString("o")
 $azProfile = Get-Module Az.Resources
@@ -454,6 +454,9 @@ try
     $resources = @($resources) | Where-Object { $_.resourceType -ne "Microsoft.KeyVault/vaults/secrets" }
 
     Expand-ArchLucidAzureContainerImageAndRegistryProperties `
+        -InventoryResources @($resources)
+
+    Expand-ArchLucidAzureManagedClusterAndVmssProperties `
         -InventoryResources @($resources)
 
     [object]$aksImageResult = Add-ArchLucidAzureAksWorkloadImageProperties `

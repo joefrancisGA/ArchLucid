@@ -15,27 +15,23 @@ internal static class InventoryPrivilegePathGraph
         GraphEdgeTypes.CanAssume,
         GraphEdgeTypes.CanControlCode,
         GraphEdgeTypes.CanAddCredential,
+        GraphEdgeTypes.CanGrantRole,
+        GraphEdgeTypes.CanReach,
         GraphEdgeTypes.FederatesAs,
         GraphEdgeTypes.MemberOf,
     ];
 
-    public static InventoryPrivilegePathGraphSnapshot Build(AzureInventorySnapshotDetailReadModel snapshot)
+    public static InventoryPrivilegePathGraphSnapshot Build(
+        AzureInventorySnapshotDetailReadModel snapshot,
+        SecureNowAnalysisSnapshot? analysisSnapshot = null)
     {
         ArgumentNullException.ThrowIfNull(snapshot);
 
         Dictionary<string, List<PrivilegePathEdge>> outgoing = new(StringComparer.OrdinalIgnoreCase);
-        Dictionary<string, AzureInventoryResourceRecord> resourcesByArmId =
-            snapshot.Resources.ToDictionary(static resource => resource.AzureResourceId, StringComparer.OrdinalIgnoreCase);
-
-        Dictionary<Guid, List<AzureInventoryTagReadModel>> tagsByResourceRowId =
-            snapshot.Tags
-                .GroupBy(static tag => tag.ResourceRowId)
-                .ToDictionary(static group => group.Key, static group => group.ToList());
-
-        Dictionary<Guid, List<AzureInventoryResourcePropertyReadModel>> propertiesByResourceRowId =
-            snapshot.Properties
-                .GroupBy(static property => property.ResourceRowId)
-                .ToDictionary(static group => group.Key, static group => group.ToList());
+        SecureNowAnalysisSnapshot indexes = analysisSnapshot ?? new SecureNowAnalysisSnapshot(snapshot);
+        IReadOnlyDictionary<string, AzureInventoryResourceRecord> resourcesByArmId = indexes.ResourcesByArmId;
+        IReadOnlyDictionary<Guid, IReadOnlyList<AzureInventoryTagReadModel>> tagsByResourceRowId = indexes.TagsByResourceRowId;
+        IReadOnlyDictionary<Guid, IReadOnlyList<AzureInventoryResourcePropertyReadModel>> propertiesByResourceRowId = indexes.PropertiesByResourceRowId;
 
         Dictionary<(string PrincipalId, string Scope), List<AzureInventoryRoleAssignmentReadModel>> assignmentsByPrincipalScope =
             snapshot.RoleAssignments
@@ -118,6 +114,8 @@ internal static class InventoryPrivilegePathGraph
                 });
         }
 
+        InventoryPrivilegePathCanReachAppender.Append(snapshot, outgoing);
+
         return new InventoryPrivilegePathGraphSnapshot
         {
             OutgoingEdges = outgoing,
@@ -131,14 +129,14 @@ internal static class InventoryPrivilegePathGraph
     public static bool IsScopeTaggedProduction(
         string scopeArmId,
         IReadOnlyDictionary<string, AzureInventoryResourceRecord> resourcesByArmId,
-        IReadOnlyDictionary<Guid, List<AzureInventoryTagReadModel>> tagsByResourceRowId)
+        IReadOnlyDictionary<Guid, IReadOnlyList<AzureInventoryTagReadModel>> tagsByResourceRowId)
     {
         if (!resourcesByArmId.TryGetValue(scopeArmId, out AzureInventoryResourceRecord? resource))
         {
             return false;
         }
 
-        if (!tagsByResourceRowId.TryGetValue(resource.ResourceRowId, out List<AzureInventoryTagReadModel>? tags))
+        if (!tagsByResourceRowId.TryGetValue(resource.ResourceRowId, out IReadOnlyList<AzureInventoryTagReadModel>? tags))
         {
             return false;
         }
@@ -163,7 +161,7 @@ internal static class InventoryPrivilegePathGraph
 
     private static Dictionary<string, string> BuildManagedIdentityPrincipalMap(
         IReadOnlyDictionary<string, AzureInventoryResourceRecord> resourcesByArmId,
-        IReadOnlyDictionary<Guid, List<AzureInventoryResourcePropertyReadModel>> propertiesByResourceRowId)
+        IReadOnlyDictionary<Guid, IReadOnlyList<AzureInventoryResourcePropertyReadModel>> propertiesByResourceRowId)
     {
         Dictionary<string, string> map = new(StringComparer.OrdinalIgnoreCase);
 
@@ -174,7 +172,7 @@ internal static class InventoryPrivilegePathGraph
                 continue;
             }
 
-            if (!propertiesByResourceRowId.TryGetValue(resource.ResourceRowId, out List<AzureInventoryResourcePropertyReadModel>? properties))
+            if (!propertiesByResourceRowId.TryGetValue(resource.ResourceRowId, out IReadOnlyList<AzureInventoryResourcePropertyReadModel>? properties))
             {
                 continue;
             }
@@ -241,7 +239,7 @@ internal static class InventoryPrivilegePathGraph
             : (relationship.ProvenanceKind, relationship.InferenceSource);
     }
 
-    private static void AddEdge(
+    internal static void AddEdge(
         Dictionary<string, List<PrivilegePathEdge>> outgoing,
         PrivilegePathEdge edge)
     {
@@ -281,17 +279,17 @@ internal sealed class InventoryPrivilegePathGraphSnapshot
         init;
     } = new Dictionary<string, AzureInventoryResourceRecord>();
 
-    public IReadOnlyDictionary<Guid, List<AzureInventoryTagReadModel>> TagsByResourceRowId
+    public IReadOnlyDictionary<Guid, IReadOnlyList<AzureInventoryTagReadModel>> TagsByResourceRowId
     {
         get;
         init;
-    } = new Dictionary<Guid, List<AzureInventoryTagReadModel>>();
+    } = new Dictionary<Guid, IReadOnlyList<AzureInventoryTagReadModel>>();
 
-    public IReadOnlyDictionary<Guid, List<AzureInventoryResourcePropertyReadModel>> PropertiesByResourceRowId
+    public IReadOnlyDictionary<Guid, IReadOnlyList<AzureInventoryResourcePropertyReadModel>> PropertiesByResourceRowId
     {
         get;
         init;
-    } = new Dictionary<Guid, List<AzureInventoryResourcePropertyReadModel>>();
+    } = new Dictionary<Guid, IReadOnlyList<AzureInventoryResourcePropertyReadModel>>();
 
     public IReadOnlyDictionary<string, string> ManagedIdentityPrincipalByArmId
     {

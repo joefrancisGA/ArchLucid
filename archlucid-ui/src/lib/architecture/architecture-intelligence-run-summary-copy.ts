@@ -6,7 +6,9 @@ export type ArchitectureIntelligenceRunTechnicalDetail = {
   readonly value: string;
 };
 
-const OMITTED_COUNT_LABEL = "Not returned";
+const OMITTED_STRUCTURED_ELEMENT_COUNT_LABEL = "Not returned";
+
+const OMITTED_FINDING_COUNT_LABEL = "Finding count was not stored.";
 
 function resolveIntegrityPassedFindingCount(result: ClosedLoopReasoningResult): number | null {
   if (result.integrityPassedFindingIds === undefined || result.integrityPassedFindingIds === null) {
@@ -34,7 +36,7 @@ export function formatArchitectureIntelligenceRunHeadline(
   const findingCount = resolveIntegrityPassedFindingCount(result);
 
   if (findingCount === null) {
-    return "Analysis complete · Finding count not returned";
+    return "Analysis complete · Finding count was not stored.";
   }
 
   if (options?.assertedTrailEmpty === true) {
@@ -74,11 +76,11 @@ export function listArchitectureIntelligenceRunTechnicalDetails(
   const details: ArchitectureIntelligenceRunTechnicalDetail[] = [
     {
       label: "Structured details parsed",
-      value: elementCount === null ? OMITTED_COUNT_LABEL : String(elementCount),
+      value: elementCount === null ? OMITTED_STRUCTURED_ELEMENT_COUNT_LABEL : String(elementCount),
     },
     {
       label: "Findings passed evidence checks",
-      value: findingCount === null ? OMITTED_COUNT_LABEL : String(findingCount),
+      value: findingCount === null ? OMITTED_FINDING_COUNT_LABEL : String(findingCount),
     },
     {
       label: "Result source",

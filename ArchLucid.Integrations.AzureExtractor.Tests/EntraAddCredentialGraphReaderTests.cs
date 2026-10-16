@@ -40,6 +40,95 @@ public sealed class EntraAddCredentialGraphReaderTests
     }
 
     [Fact]
+    public async Task TryReadSnapshotAsync_retains_all_privilege_path_graph_app_role_ids()
+    {
+        const string grantorPrincipalId = "eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee";
+
+        HttpClient httpClient = CreateHttpClient(request =>
+        {
+            string path = request.RequestUri!.AbsolutePath;
+
+            if (path.Equals("/v1.0/applications", StringComparison.OrdinalIgnoreCase))
+            {
+                return JsonResponse("""{ "value": [] }""");
+            }
+
+            if (path.Contains("/roleManagement/directory/roleAssignments", StringComparison.OrdinalIgnoreCase))
+            {
+                return JsonResponse("""{ "value": [] }""");
+            }
+
+            if (path.Equals("/v1.0/servicePrincipals", StringComparison.OrdinalIgnoreCase))
+            {
+                return JsonResponse(
+                    $$"""
+                    {
+                      "value": [
+                        {
+                          "id": "graph-sp-id",
+                          "appId": "{{AzureInventoryMicrosoftGraphWellKnown.ServicePrincipalAppId}}"
+                        }
+                      ]
+                    }
+                    """);
+            }
+
+            if (path.Contains("/appRoleAssignedTo", StringComparison.OrdinalIgnoreCase))
+            {
+                return JsonResponse(
+                    $$"""
+                    {
+                      "value": [
+                        {
+                          "principalId": "{{grantorPrincipalId}}",
+                          "appRoleId": "{{AzureInventoryMicrosoftGraphWellKnown.ApplicationReadWriteAllAppRoleId}}",
+                          "resourceId": "graph-sp-id"
+                        },
+                        {
+                          "principalId": "{{grantorPrincipalId}}",
+                          "appRoleId": "{{AzureInventoryMicrosoftGraphWellKnown.RoleManagementReadWriteDirectoryAppRoleId}}",
+                          "resourceId": "graph-sp-id"
+                        },
+                        {
+                          "principalId": "{{grantorPrincipalId}}",
+                          "appRoleId": "{{AzureInventoryMicrosoftGraphWellKnown.AppRoleAssignmentReadWriteAllAppRoleId}}",
+                          "resourceId": "graph-sp-id"
+                        },
+                        {
+                          "principalId": "{{grantorPrincipalId}}",
+                          "appRoleId": "00000000-0000-0000-0000-000000000099",
+                          "resourceId": "graph-sp-id"
+                        }
+                      ]
+                    }
+                    """);
+            }
+
+            return new HttpResponseMessage(HttpStatusCode.NotFound);
+        });
+
+        EntraAddCredentialGraphReader sut = new(httpClient, NullLogger<EntraAddCredentialGraphReader>.Instance);
+
+        EntraAddCredentialGraphReadResult result = await sut.TryReadSnapshotAsync(
+            new StubTokenCredential(),
+            maxPaginationRequests: 8,
+            maxApplicationOwnerRequests: 8,
+            CancellationToken.None);
+
+        Assert.Equal(3, result.GraphAppRoleAssignments.Count);
+        Assert.Contains(
+            result.GraphAppRoleAssignments,
+            row => row.AppRoleId.Equals(
+                AzureInventoryMicrosoftGraphWellKnown.RoleManagementReadWriteDirectoryAppRoleId,
+                StringComparison.OrdinalIgnoreCase));
+        Assert.Contains(
+            result.GraphAppRoleAssignments,
+            row => row.AppRoleId.Equals(
+                AzureInventoryMicrosoftGraphWellKnown.AppRoleAssignmentReadWriteAllAppRoleId,
+                StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
     public async Task TryReadSnapshotAsync_collects_owner_registration_and_directory_role()
     {
         HttpClient httpClient = CreateHttpClient(request =>

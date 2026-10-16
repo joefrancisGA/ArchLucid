@@ -64,7 +64,7 @@ export function presentOpenQuestionEntityCount(
   section: ReturnType<typeof parseArchitectureGeneratedContent>["sections"][number] | undefined,
 ): string {
   if (section === undefined) {
-    return "Not returned";
+    return "Open question count was not stored.";
   }
 
   if (section.entities == null) {
@@ -328,7 +328,7 @@ export function ArchitectureCreatedClarificationsPanel(
 
       {openQuestions !== undefined && (openQuestions.entities === undefined || openQuestions.entities === null) ? (
         <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-          Open question entities not returned ({presentOpenQuestionEntityCount(openQuestions)}).
+          Open question entities were not stored ({presentOpenQuestionEntityCount(openQuestions)}).
         </p>
       ) : null}
 

@@ -16,6 +16,7 @@ import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { evidenceAbsenceFindingLabel } from "@/lib/evidence-absence-finding-copy";
 import { buildReviewDetailTabHref } from "@/lib/review-detail-workspace-tabs";
 import { deriveTrustEvidenceReadiness } from "@/lib/trust-evidence-readiness";
+import { formatTraceCompletenessDisplayLabel } from "@/lib/trust-evidence-display";
 import { splitTrustEvidenceDetail } from "@/lib/trust-evidence-technical-detail";
 import {
   resolveTrustEvidenceDiagnosticsApiPath,
@@ -221,7 +222,8 @@ export function RunTrustEvidenceCardSection(props: {
                   : "Top finding evidence chain"}
               </p>
               <p className={cn("m-0 mt-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
-                Trace completeness: <strong>{card.topFinding.traceCompletenessLabel}</strong>
+                Trace completeness:{" "}
+                <strong>{formatTraceCompletenessDisplayLabel(card.topFinding.traceCompletenessLabel)}</strong>
               </p>
               {topFindingPointers.display ? (
                 <p className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>

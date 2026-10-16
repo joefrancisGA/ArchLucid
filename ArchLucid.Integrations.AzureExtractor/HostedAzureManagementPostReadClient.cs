@@ -375,14 +375,20 @@ public sealed class HostedAzureManagementPostReadClient(
         }
 
         string? provisioningState = TryReadString(properties, "provisioningState");
-        string? logResult = TryReadString(properties, "logResult");
 
-        if (string.Equals(provisioningState, "Succeeded", StringComparison.OrdinalIgnoreCase))
+        if (!string.Equals(provisioningState, "Succeeded", StringComparison.OrdinalIgnoreCase))
         {
-            return logResult ?? string.Empty;
+            return null;
         }
 
-        return null;
+        if (!properties.TryGetProperty("logs", out JsonElement logsElement))
+        {
+            return null;
+        }
+
+        return logsElement.ValueKind is JsonValueKind.String
+            ? logsElement.GetString() ?? string.Empty
+            : string.Empty;
     }
 
     private static bool IsAksCommandTerminal(JsonElement root)
@@ -429,7 +435,14 @@ public sealed class HostedAzureManagementPostReadClient(
             return null;
         }
 
-        return uri.AbsoluteUri;
+        if (uri.Query.Contains("api-version=", StringComparison.OrdinalIgnoreCase))
+        {
+            return uri.AbsoluteUri;
+        }
+
+        string separator = string.IsNullOrEmpty(uri.Query) ? "?" : "&";
+
+        return $"{uri.AbsoluteUri}{separator}api-version={ContainerServiceApiVersion}";
     }
 
     private static HostedAzurePolicyComplianceDocument CreateEmptyPolicyCompliance(

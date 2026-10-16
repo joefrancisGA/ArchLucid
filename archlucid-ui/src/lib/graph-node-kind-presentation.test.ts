@@ -34,4 +34,10 @@ describe("graph-node-kind-presentation", () => {
     expect(resolveGraphNodeKindBuyerLabel("UnknownKind")).toBe("UnknownKind");
     expect(resolveGraphNodeKindBuyerLabel("")).toBe("Node kind was not stored.");
   });
+
+  it("labels uncategorized legend bucket as Other type (P-17)", () => {
+    const defaultEntry = GRAPH_NODE_KIND_LEGEND_ENTRIES.find((entry) => entry.key === "default");
+
+    expect(defaultEntry?.label).toBe("Other type");
+  });
 });

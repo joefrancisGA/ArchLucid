@@ -39,7 +39,10 @@ internal static class ReachabilityPathMaterializer
 
     private static PathConfidenceBand MapConfidenceBand(PrivilegePathEdge hop)
     {
-        if (hop.EdgeType == SecureNowArchitectConstants.InsufficientEvidenceNsgHopEdgeType)
+        if (hop.EdgeType == SecureNowArchitectConstants.InsufficientEvidenceNsgHopEdgeType
+            || hop.EdgeType == SecureNowArchitectConstants.InsufficientEvidenceDnsHopEdgeType
+            || hop.EdgeType == SecureNowArchitectConstants.InsufficientEvidenceCustomDnsResolverHopEdgeType
+            || hop.EdgeType == SecureNowArchitectConstants.InsufficientEvidenceNetworkEdgeControlHopEdgeType)
         {
             return PathConfidenceBand.InsufficientEvidence;
         }
@@ -68,6 +71,26 @@ internal static class ReachabilityPathMaterializer
         if (hop.EdgeType == SecureNowArchitectConstants.InsufficientEvidenceNsgHopEdgeType)
         {
             return SecureNowArchitectConstants.InsufficientEvidenceNsgHopEdgeType;
+        }
+
+        if (hop.EdgeType == SecureNowArchitectConstants.InsufficientEvidenceDnsHopEdgeType)
+        {
+            return SecureNowArchitectConstants.InsufficientEvidenceDnsHopEdgeType;
+        }
+
+        if (hop.EdgeType == SecureNowArchitectConstants.InsufficientEvidenceCustomDnsResolverHopEdgeType)
+        {
+            return SecureNowArchitectConstants.InsufficientEvidenceCustomDnsResolverHopEdgeType;
+        }
+
+        if (hop.EdgeType == SecureNowArchitectConstants.InsufficientEvidenceNetworkEdgeControlHopEdgeType)
+        {
+            return SecureNowArchitectConstants.InsufficientEvidenceNetworkEdgeControlHopEdgeType;
+        }
+
+        if (hop.InferenceSource == GraphEdgeInferenceSources.InventoryPeReachableTarget)
+        {
+            return GraphEdgeInferenceSources.InventoryPeReachableTarget;
         }
 
         if (hop.EdgeType == SecureNowArchitectConstants.PublicNetworkAccessHopEdgeType)

@@ -1,15 +1,31 @@
-> **Scope:** Paste-ready prompts for the SecureNow Home review of 2026-10-12. Internal engineering only. Prompts only — do not implement from this index. Run every prompt on Composer 2.5 slow (`composer-2.5`), not a fast-tier slug.
+> **Scope:** Paste-ready prompts for the SecureNow Home review of 2026-10-12. Internal engineering only. Prompt archive — **SN-HOME-01–06** are **shipped** on trunk; do not greenfield from this index. Run every prompt on Composer 2.5 slow (`composer-2.5`), not a fast-tier slug.
 > **Paste-ready files:** [`.cursor/prompts/securenow-home-00-index.md`](../../.cursor/prompts/securenow-home-00-index.md)
 
 # SecureNow Home work summary — Luna prompts
 
-**Created:** 2026-10-12 · **Status:** ready to paste · **Audience:** Composer 2.5 slow (`composer-2.5`)
+**Created:** 2026-10-12 · **Updated:** 2026-10-15 · **Status:** **SN-HOME-01–06 shipped** on trunk (prompt files remain for regression reference). **Audience:** Composer 2.5 slow (`composer-2.5`)
 
-SecureNow Home is a directory. The title area does not say which environment is in scope or how fresh the collection is. The lead still talks about inventory workbenches, then claims all seven destinations are on the hub. The hub shows five groups and many links. Row labels disagree with the sidebar, and "Ask about your environment" is cut off. Several summaries describe the machinery ("advisory-only execute honesty", "explainable correspondence rows", "effective ARC-AMPE rules").
+SecureNow Home (`InfrastructureOverviewClient` with `secureNowHome`) now opens with a short lead, an environment context line, a **Your work** count strip, then the five grouped directory sections. Use scoped bugfix rows only; do not re-run this set as greenfield.
 
-Paste **one** prompt per session. Do not implement from this index.
+## Trunk implementation (where to look)
 
-## Comments from the review
+| ID | Primary UI / lib |
+|----|------------------|
+| **SN-HOME-01** | `governance-infrastructure-copy.ts` (`SECURENOW_HOME_PAGE_LEAD`, `SECURENOW_HOME_CLAIM_DISCIPLINE`); `InfrastructureOverviewClient.tsx` |
+| **SN-HOME-02** | `SecureNowHomeEnvironmentContext.tsx` |
+| **SN-HOME-03** | `SecureNowHomeWorkSummary.tsx` |
+| **SN-HOME-04** | `securenow-*-home-copy.ts`; `securenow-home-outcome-copy.test.ts` |
+| **SN-HOME-05** | `SidebarNavLink.tsx`; `route-titles.ts` |
+| **SN-HOME-06** | `SecureNowHomeDestinationSection.tsx` |
+
+Vitest: `InfrastructureOverviewClient.securenow.test.tsx`, `InfrastructureOverviewClient.home-context.test.tsx`, `SecureNowHomeEnvironmentContext.test.tsx`, `SecureNowHomeWorkSummary.test.tsx`, `SecureNowHomeDestinationSection.test.tsx`, `route-titles.test.ts`, `SidebarNavLink.test.tsx`.
+
+## Shipped deltas vs original prompt text
+
+- **SN-HOME-03:** Trunk appends `· {n} checks failed` on the **Awaiting verification** row **and** adds a separate **Checks failed** link row to `/security/remediation-instances?status=VerificationFailed` (handoff-style deep link). The prompt described only the suffix.
+- **SN-HOME-01:** **UHG** edition omits the generic claim-discipline sentence on SecureNow Home (`InfrastructureOverviewClient.securenow.test.tsx`).
+
+## Comments from the review (historical)
 
 | # | Comment | Decision | Prompt |
 |---|---------|----------|--------|
@@ -22,13 +38,7 @@ Paste **one** prompt per session. Do not implement from this index.
 | 7 | The "All seven destinations" sentence is false on this page | Agree | **SN-HOME-01** |
 | 8 | Stronger primary actions, 14–16px body, shorter descriptions, stop repeating Destination / Summary | Agree on the directory chrome. Disagree on a new type size | **SN-HOME-06** (headers and body token). Shorter descriptions are **SN-HOME-04**. Primary actions are **SN-HOME-03** |
 
-## Why two comments are not prompts
-
-**Three extra actions.** The same review says the useful page is a compact work summary followed by this directory. Review my findings, Explore resources, and Track remediation are already the counted links in **SN-HOME-03** and the first rows of Findings, Environment, and Remediation. A second row of those three links is another directory.
-
-**14–16px body.** Operator body type is 13px (`OPERATOR_TYPE_SCALE.body`, TB-119). A Home-only 14–16px size would fork that scale. **SN-HOME-06** uses the body token for directory summaries and removes the repeated column headers. It does not edit the scale.
-
-## Prompts
+## Prompt archive
 
 | ID | Prompt | Depends on | Intent |
 |----|--------|------------|--------|
@@ -40,16 +50,11 @@ Paste **one** prompt per session. Do not implement from this index.
 | **SN-HOME-06** | [securenow-home-06-compact-directory.md](../../.cursor/prompts/securenow-home-06-compact-directory.md) | — | Repeated Destination / Summary headers leave the visual page. Summaries use the body token |
 | **SN-HOME-HOLD** | [securenow-home-hold.md](../../.cursor/prompts/securenow-home-hold.md) | — | Forbidden scope |
 
-**SN-HOME-02** before **SN-HOME-03**. Every other prompt can run alone.
-
-## Settled reading
+## Settled reading (unchanged intent)
 
 - SecureNow Home keeps the five groups in sidebar order. These prompts add a context line and a work list above that directory.
 - Counts come from calls the product already makes: assigned-to-me count, remediation factory summary, snapshot list, and the newest snapshot's diff list. No new API.
-- `criticalExposureCount` is already on the factory summary response. The UI mapper drops it today. **SN-HOME-03** passes it through. It does not invent a Critical-plus-High total.
-- Awaiting verification is `ChangeImplemented`. `VerificationFailed` is a clause on the same row. `Executed` is not included.
 - The seven-destinations sentence stays on the Architecture infrastructure overview, which lists seven workbench rows.
-- Generic SecureNow Home does not say ARC-AMPE. A `uhg` edition may name it on Frameworks when that edition module is already present.
 - SN-MENU-04's three posture tiles are replaced by **SN-HOME-02** and **SN-HOME-03**. Do not build both.
 - Tenant name stays off this page. Snapshot summaries identify a subscription, not a tenant.
 

@@ -63,7 +63,7 @@ function identityForNeighborhoodKind(kind: string | null): { readonly id: string
   const trimmed = kind.trim();
 
   if (trimmed.length === 0) {
-    return { id: "unspecified", heading: "Other" };
+    return { id: "unspecified", heading: "Neighborhood kind was not stored." };
   }
 
   return { id: trimmed, heading: trimmed };

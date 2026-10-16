@@ -18,7 +18,7 @@ import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { useCollectionRunsQuery, useTriggerCollectionRunMutation } from "@/hooks/use-collection-runs-query";
 import {
   formatCollectionRunDuration,
-  parseCollectionRunSubscriptions,
+  formatCollectionRunSubscriptionsLabel,
   resolveCollectionAgentHealth,
 } from "@/lib/collection-agent-presentation";
 import type { CollectionRun } from "@/lib/collection-runs-api";
@@ -65,13 +65,24 @@ function collectionRunStatusKind(status: CollectionRun["status"]): "ready" | "ne
   }
 }
 
-function collectionRunStatusLabel(status: CollectionRun["status"]): string {
-  return status ?? "Unknown";
+export function collectionRunStatusLabel(status: CollectionRun["status"]): string {
+  if (status === null || status === undefined) {
+    return "Capture status was not stored.";
+  }
+
+  return status;
+}
+
+export function collectionRunStartedUtcDisplay(startedUtc: string | undefined): string {
+  if (startedUtc === undefined) {
+    return "Start time was not stored.";
+  }
+
+  return formatIsoUtcForDisplay(startedUtc);
 }
 
 function CollectionRunRow({ run }: { readonly run: CollectionRun }): React.JSX.Element {
   const [expanded, setExpanded] = useState(false);
-  const subscriptions = parseCollectionRunSubscriptions(run);
   const hasError = run.errorSummary !== null && run.errorSummary !== undefined && run.errorSummary.trim().length > 0;
 
   return (
@@ -87,15 +98,15 @@ function CollectionRunRow({ run }: { readonly run: CollectionRun }): React.JSX.E
           }
         }}
       >
-        <EnterpriseTableCell>{run.startedUtc === undefined ? "Unknown" : formatIsoUtcForDisplay(run.startedUtc)}</EnterpriseTableCell>
+        <EnterpriseTableCell>{collectionRunStartedUtcDisplay(run.startedUtc)}</EnterpriseTableCell>
         <EnterpriseTableCell>{formatCollectionRunDuration(run)}</EnterpriseTableCell>
         <EnterpriseTableCell>
           <StatusTag kind={collectionRunStatusKind(run.status)} label={collectionRunStatusLabel(run.status)} />
         </EnterpriseTableCell>
-        <EnterpriseTableCell>{subscriptions.length === 0 ? "Not recorded" : subscriptions.length}</EnterpriseTableCell>
+        <EnterpriseTableCell>{formatCollectionRunSubscriptionsLabel(run)}</EnterpriseTableCell>
         <EnterpriseTableCell>
           {run.importedSnapshotId === null || run.importedSnapshotId === undefined ? (
-            "Not imported"
+            "Imported snapshot was not stored."
           ) : (
             <Link
               href={`${SECURENOW_INFRASTRUCTURE_DRIFT_PATH}?snapshotId=${encodeURIComponent(run.importedSnapshotId)}`}

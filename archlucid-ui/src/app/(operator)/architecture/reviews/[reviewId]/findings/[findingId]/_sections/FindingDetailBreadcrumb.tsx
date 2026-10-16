@@ -7,9 +7,13 @@ export type FindingDetailBreadcrumbProps = {
   readonly findingTitle: string;
 };
 
+export function resolveFindingDetailBreadcrumbTitle(findingTitle: string): string {
+  return findingTitle.trim().length > 0 ? findingTitle.trim() : "Finding title was not stored.";
+}
+
 /** Core review trail for finding detail (RRF). */
 export function FindingDetailBreadcrumb(props: FindingDetailBreadcrumbProps): React.JSX.Element {
-  const findingTitle = props.findingTitle.trim() || "Finding";
+  const findingTitle = resolveFindingDetailBreadcrumbTitle(props.findingTitle);
 
   return (
     <OperatorPageBreadcrumb

@@ -32,7 +32,7 @@ public sealed class PathRankingEngine(
             return Failed("ActorId is required.");
         }
 
-        IReadOnlyList<SecurityEvidencePathRecord> paths = await pathRepository.ListBySnapshotAsync(
+        IReadOnlyList<SecurityEvidencePathWithHops> paths = await pathRepository.ListWithHopsBySnapshotAsync(
             ProjectSnapshotScopeKey.Create(scope.ToProjectScopeKey(), snapshotId),
             cancellationToken);
 
@@ -59,8 +59,9 @@ public sealed class PathRankingEngine(
 
         DefenderSecureScoreOrdinalBand subscriptionDefenderBand = DefenderSecureScoreOrdinalBand.Unknown;
 
-        AzureInventorySnapshotDetailReadModel? snapshot =
-            await snapshotRepository.TryGetSnapshotDetailAsync(scope, snapshotId, cancellationToken);
+        SecureNowAnalysisSnapshot? analysisSnapshot =
+            await SecureNowAnalysisRun.LoadAsync(snapshotRepository, scope, snapshotId, cancellationToken);
+        AzureInventorySnapshotDetailReadModel? snapshot = analysisSnapshot?.Snapshot;
 
         if (snapshot is not null)
         {
@@ -69,10 +70,10 @@ public sealed class PathRankingEngine(
 
         List<(SecurityEvidencePathRecord Path, SecurityEvidencePathRankEvaluation Evaluation)> evaluated = [];
 
-        foreach (SecurityEvidencePathRecord path in paths)
+        foreach (SecurityEvidencePathWithHops item in paths)
         {
-            IReadOnlyList<SecurityEvidencePathHopRecord> hops =
-                await pathRepository.ListHopsByPathInScopeAsync(scope.ToProjectScopeKey(), path.PathId, cancellationToken);
+            SecurityEvidencePathRecord path = item.Path;
+            IReadOnlyList<SecurityEvidencePathHopRecord> hops = item.Hops;
 
             SecurityEvidencePathRankEvaluation evaluation =
                 SecurityEvidencePathRankCalculator.Evaluate(

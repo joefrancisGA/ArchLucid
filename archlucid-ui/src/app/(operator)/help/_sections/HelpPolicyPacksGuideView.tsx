@@ -24,9 +24,9 @@ import {
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import {
   POLICY_PACKS_HELP_CANONICAL_PATH,
-  POLICY_PACKS_HELP_CLAIM_DISCIPLINE,
   POLICY_PACKS_HELP_CLAIM_HEADING_ID,
   POLICY_PACKS_HELP_PRIMARY_ACTION,
+  resolvePolicyPacksHelpClaimDiscipline,
 } from "@/lib/policy/policy-packs-help-evidence-copy";
 import {
   policyPacksHelpDiagramSource,
@@ -87,7 +87,7 @@ export function HelpPolicyPacksGuideView(props: HelpPolicyPacksGuideViewProps): 
           subtitle={entry.summary}
           navHref={POLICY_PACKS_HELP_CANONICAL_PATH}
           headingLevel="h1"
-          claimDiscipline={POLICY_PACKS_HELP_CLAIM_DISCIPLINE}
+          claimDiscipline={resolvePolicyPacksHelpClaimDiscipline(productLineId)}
           claimDisciplineTestId={POLICY_PACKS_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID}
           actions={<HelpPolicyPacksHeaderActions entry={entry} />}
         />

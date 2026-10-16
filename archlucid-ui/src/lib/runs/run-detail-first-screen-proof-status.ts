@@ -84,7 +84,7 @@ function roiBasisLabel(payload: PilotRunDeltasProofSummaryJson | null): string {
 
 function proofPacketLabel(readiness: ReturnType<typeof describeSponsorProofReadiness>): string {
   if (readiness === null) {
-    return "Unknown — proof completeness not returned";
+    return "Proof completeness was not stored.";
   }
 
   return `${readiness.title}`;
@@ -110,7 +110,7 @@ function governedCoverageLabel(
   }
 
   if (!coverage.isAvailable) {
-    return "Not available";
+    return "Governed coverage was not available.";
   }
 
   const governedCount = coverage.governedCount;

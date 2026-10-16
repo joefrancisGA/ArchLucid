@@ -1,4 +1,5 @@
-/** Standards & rules resolution hub and its help topic. */
+/** Standards & rules resolution hub and its help topic.
+ *  SecureNow Category-1 overrides: `securenow-contextual-help-overrides.ts` (SH-06). */
 
 import type { PageContextualHelpRow } from "@/lib/contextual-help/types";
 import { GOVERNANCE_FINDINGS_PATH, GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";

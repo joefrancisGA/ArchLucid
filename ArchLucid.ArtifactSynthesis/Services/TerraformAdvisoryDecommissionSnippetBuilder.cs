@@ -50,6 +50,6 @@ public static class TerraformAdvisoryDecommissionSnippetBuilder
         if (option.Length > 0 && option.Contains('.'))
             return option;
 
-        return "(unspecified — validate against extractor manifest)";
+        return "Terraform address was not stored.";
     }
 }

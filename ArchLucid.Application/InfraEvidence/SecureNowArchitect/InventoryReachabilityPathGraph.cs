@@ -15,28 +15,33 @@ internal static class InventoryReachabilityPathGraph
         GraphEdgeTypes.Contains,
     ];
 
-    public static InventoryReachabilityPathGraphSnapshot Build(AzureInventorySnapshotDetailReadModel snapshot)
+    public static InventoryReachabilityPathGraphSnapshot Build(
+        AzureInventorySnapshotDetailReadModel snapshot,
+        SecureNowAnalysisSnapshot? analysisSnapshot = null)
     {
         ArgumentNullException.ThrowIfNull(snapshot);
 
         Dictionary<string, List<PrivilegePathEdge>> outgoing = new(StringComparer.OrdinalIgnoreCase);
-        Dictionary<string, AzureInventoryResourceRecord> resourcesByArmId =
-            snapshot.Resources.ToDictionary(static resource => resource.AzureResourceId, StringComparer.OrdinalIgnoreCase);
-
-        Dictionary<Guid, List<AzureInventoryTagReadModel>> tagsByResourceRowId =
-            snapshot.Tags
-                .GroupBy(static tag => tag.ResourceRowId)
-                .ToDictionary(static group => group.Key, static group => group.ToList());
-
-        Dictionary<Guid, List<AzureInventoryResourcePropertyReadModel>> propertiesByResourceRowId =
-            snapshot.Properties
-                .GroupBy(static property => property.ResourceRowId)
-                .ToDictionary(static group => group.Key, static group => group.ToList());
+        SecureNowAnalysisSnapshot indexes = analysisSnapshot ?? new SecureNowAnalysisSnapshot(snapshot);
+        IReadOnlyDictionary<string, AzureInventoryResourceRecord> resourcesByArmId = indexes.ResourcesByArmId;
+        IReadOnlyDictionary<Guid, IReadOnlyList<AzureInventoryTagReadModel>> tagsByResourceRowId = indexes.TagsByResourceRowId;
+        IReadOnlyDictionary<Guid, IReadOnlyList<AzureInventoryResourcePropertyReadModel>> propertiesByResourceRowId = indexes.PropertiesByResourceRowId;
 
         HashSet<string> subnetsWithNsgAllowRule = new(StringComparer.OrdinalIgnoreCase);
         HashSet<string> publicIpArmIds = new(StringComparer.OrdinalIgnoreCase);
         HashSet<string> publicNetworkAccessArmIds = new(StringComparer.OrdinalIgnoreCase);
         HashSet<string> privateEndpointOnlyArmIds = new(StringComparer.OrdinalIgnoreCase);
+        List<AzureInventoryVnetCustomDnsResourceProperties> virtualNetworkProperties = [];
+
+        AzureInventoryPrivateEndpointDnsJoinIndex dnsJoinIndex =
+            AzureInventoryPrivateEndpointDnsJoinIndex.Build(
+                snapshot.Relationships.Select(static relationship =>
+                    new AzureInventoryRelationshipArmTriple(
+                        relationship.FromAzureResourceId,
+                        relationship.ToAzureResourceId,
+                        relationship.InferenceSource)));
+
+        Dictionary<string, AzureInventoryReachabilityResourceProperties> reachabilityResourcesByArmId = new(StringComparer.OrdinalIgnoreCase);
 
         foreach (AzureInventoryResourceRecord resource in resourcesByArmId.Values)
         {
@@ -45,24 +50,38 @@ internal static class InventoryReachabilityPathGraph
                 publicIpArmIds.Add(resource.AzureResourceId);
             }
 
-            if (!propertiesByResourceRowId.TryGetValue(resource.ResourceRowId, out List<AzureInventoryResourcePropertyReadModel>? properties))
+            Dictionary<string, string> propertyBag = BuildPropertyBag(
+                resource.ResourceRowId,
+                propertiesByResourceRowId);
+
+            reachabilityResourcesByArmId[resource.AzureResourceId] = new AzureInventoryReachabilityResourceProperties
+            {
+                ResourceType = resource.ResourceType,
+                Properties = propertyBag,
+            };
+
+            if (resource.ResourceType.Contains("virtualNetworks", StringComparison.OrdinalIgnoreCase)
+                && !resource.AzureResourceId.Contains("/subnets/", StringComparison.OrdinalIgnoreCase))
+            {
+                virtualNetworkProperties.Add(new AzureInventoryVnetCustomDnsResourceProperties
+                {
+                    AzureResourceId = resource.AzureResourceId,
+                    ResourceType = resource.ResourceType,
+                    Properties = propertyBag,
+                });
+            }
+
+            if (propertyBag.Count == 0)
             {
                 continue;
             }
 
-            bool hasPrivateEndpoint = properties.Any(static property =>
-                property.PropertyKey.Contains("privateEndpointConnections", StringComparison.OrdinalIgnoreCase));
-
-            bool publicAccessEnabled = properties.Any(static property =>
-                property.PropertyKey.Contains("enablePublicNetworkAccess", StringComparison.OrdinalIgnoreCase)
-                && property.PropertyValue?.Equals("true", StringComparison.OrdinalIgnoreCase) == true);
-
-            if (publicAccessEnabled)
+            if (AzureInventoryPublicNetworkAccessResolver.IsPublicNetworkAccessEnabled(propertyBag))
             {
                 publicNetworkAccessArmIds.Add(resource.AzureResourceId);
             }
 
-            if (hasPrivateEndpoint && !publicAccessEnabled)
+            if (AzureInventoryPublicNetworkAccessResolver.IsPrivateEndpointOnlyExposure(propertyBag))
             {
                 privateEndpointOnlyArmIds.Add(resource.AzureResourceId);
             }
@@ -88,6 +107,7 @@ internal static class InventoryReachabilityPathGraph
                     ToNodeId = relationship.ToAzureResourceId,
                     EdgeType = relationship.RelationshipType,
                     ProvenanceKind = relationship.ProvenanceKind,
+                    InferenceSource = relationship.InferenceSource,
                     RoleName = null,
                 });
         }
@@ -106,6 +126,18 @@ internal static class InventoryReachabilityPathGraph
                 });
         }
 
+        AzureInventoryVnetCustomDnsIndex customDnsIndex =
+            AzureInventoryVnetCustomDnsIndex.Build(virtualNetworkProperties);
+
+        AzureInventoryReachabilityEdgeControlIndex edgeControlIndex =
+            AzureInventoryReachabilityEdgeControlIndex.Build(
+                snapshot.Relationships.Select(static relationship =>
+                    new AzureInventoryRelationshipArmTriple(
+                        relationship.FromAzureResourceId,
+                        relationship.ToAzureResourceId,
+                        relationship.InferenceSource)),
+                reachabilityResourcesByArmId);
+
         return new InventoryReachabilityPathGraphSnapshot
         {
             OutgoingEdges = outgoing,
@@ -115,8 +147,34 @@ internal static class InventoryReachabilityPathGraph
             PublicIpArmIds = publicIpArmIds,
             PublicNetworkAccessArmIds = publicNetworkAccessArmIds,
             PrivateEndpointOnlyArmIds = privateEndpointOnlyArmIds,
+            PrivateIntegratedComputeArmIds = dnsJoinIndex.ComputeToVnetArmId.Keys.ToHashSet(StringComparer.OrdinalIgnoreCase),
+            DnsJoinIndex = dnsJoinIndex,
+            CustomDnsIndex = customDnsIndex,
+            EdgeControlIndex = edgeControlIndex,
         };
     }
+
+    public static bool IsEdgeApplianceNode(
+        string nodeId,
+        IReadOnlyDictionary<string, AzureInventoryResourceRecord> resourcesByArmId)
+    {
+        if (!resourcesByArmId.TryGetValue(nodeId, out AzureInventoryResourceRecord? resource))
+        {
+            return nodeId.Contains("applicationGateways", StringComparison.OrdinalIgnoreCase)
+                   || nodeId.Contains("frontDoors", StringComparison.OrdinalIgnoreCase)
+                   || nodeId.Contains("azureFirewalls", StringComparison.OrdinalIgnoreCase);
+        }
+
+        return resource.ResourceType.Contains("applicationGateways", StringComparison.OrdinalIgnoreCase)
+               || resource.ResourceType.Contains("frontDoors", StringComparison.OrdinalIgnoreCase)
+               || resource.ResourceType.Contains("azureFirewalls", StringComparison.OrdinalIgnoreCase);
+    }
+
+    public static bool IsPeReachablePrivateHop(PrivilegePathEdge hop) =>
+        string.Equals(
+            hop.InferenceSource,
+            GraphEdgeInferenceSources.InventoryPeReachableTarget,
+            StringComparison.OrdinalIgnoreCase);
 
     public static bool IsReachabilityAsset(string? resourceType)
     {
@@ -134,6 +192,30 @@ internal static class InventoryReachabilityPathGraph
 
     public static bool IsSubnetNode(string nodeId) =>
         nodeId.Contains("/subnets/", StringComparison.OrdinalIgnoreCase);
+
+    private static Dictionary<string, string> BuildPropertyBag(
+        Guid resourceRowId,
+        IReadOnlyDictionary<Guid, IReadOnlyList<AzureInventoryResourcePropertyReadModel>> propertiesByResourceRowId)
+    {
+        Dictionary<string, string> propertyBag = new(StringComparer.OrdinalIgnoreCase);
+
+        if (!propertiesByResourceRowId.TryGetValue(resourceRowId, out IReadOnlyList<AzureInventoryResourcePropertyReadModel>? properties))
+        {
+            return propertyBag;
+        }
+
+        foreach (AzureInventoryResourcePropertyReadModel property in properties)
+        {
+            if (string.IsNullOrWhiteSpace(property.PropertyKey))
+            {
+                continue;
+            }
+
+            propertyBag[property.PropertyKey] = property.PropertyValue ?? string.Empty;
+        }
+
+        return propertyBag;
+    }
 
     private static void AddEdge(
         Dictionary<string, List<PrivilegePathEdge>> outgoing,
@@ -163,11 +245,11 @@ internal sealed class InventoryReachabilityPathGraphSnapshot
         init;
     } = new Dictionary<string, AzureInventoryResourceRecord>();
 
-    public IReadOnlyDictionary<Guid, List<AzureInventoryTagReadModel>> TagsByResourceRowId
+    public IReadOnlyDictionary<Guid, IReadOnlyList<AzureInventoryTagReadModel>> TagsByResourceRowId
     {
         get;
         init;
-    } = new Dictionary<Guid, List<AzureInventoryTagReadModel>>();
+    } = new Dictionary<Guid, IReadOnlyList<AzureInventoryTagReadModel>>();
 
     public IReadOnlySet<string> SubnetsWithNsgAllowRule
     {
@@ -192,4 +274,28 @@ internal sealed class InventoryReachabilityPathGraphSnapshot
         get;
         init;
     } = new HashSet<string>();
+
+    public IReadOnlySet<string> PrivateIntegratedComputeArmIds
+    {
+        get;
+        init;
+    } = new HashSet<string>();
+
+    public AzureInventoryPrivateEndpointDnsJoinIndex? DnsJoinIndex
+    {
+        get;
+        init;
+    }
+
+    public AzureInventoryVnetCustomDnsIndex? CustomDnsIndex
+    {
+        get;
+        init;
+    }
+
+    public AzureInventoryReachabilityEdgeControlIndex? EdgeControlIndex
+    {
+        get;
+        init;
+    }
 }

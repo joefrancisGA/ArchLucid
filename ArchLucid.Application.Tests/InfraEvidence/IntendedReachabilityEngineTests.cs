@@ -90,6 +90,277 @@ public sealed class IntendedReachabilityEngineTests
     }
 
     [Fact]
+    public void Enumerate_storage_publicNetworkAccess_enabled_produces_internet_exposure_path()
+    {
+        Guid storageRowId = Guid.NewGuid();
+        AzureInventorySnapshotDetailReadModel snapshot = new()
+        {
+            Header = CreateHeader(),
+            Resources =
+            [
+                Resource(StorageArm, "Microsoft.Storage/storageAccounts", storageRowId),
+            ],
+            Properties =
+            [
+                new AzureInventoryResourcePropertyReadModel
+                {
+                    ResourceRowId = storageRowId,
+                    PropertyKey = "publicNetworkAccess",
+                    PropertyValue = "Enabled",
+                },
+            ],
+        };
+
+        InventoryReachabilityPathGraphSnapshot graph = InventoryReachabilityPathGraph.Build(snapshot);
+        IReadOnlyList<ReachabilityPathCandidate> candidates =
+            IntendedReachabilityPathEnumerator.Enumerate(graph, new PrivilegePathEngineOptions());
+
+        ReachabilityPathCandidate candidate = candidates.Should().ContainSingle().Subject;
+        candidate.Hops[0].FromNodeId.Should().Be(SecureNowArchitectConstants.InternetPublicExposureNodeId);
+        candidate.Hops[0].EdgeType.Should().Be(SecureNowArchitectConstants.PublicNetworkAccessHopEdgeType);
+        candidate.TerminalAssetNodeId.Should().Be(StorageArm);
+    }
+
+    [Fact]
+    public void Enumerate_pe_reachable_target_produces_private_intended_path_from_app()
+    {
+        const string vnetArm =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet1";
+        const string subnetArm = $"{vnetArm}/subnets/app";
+        const string appArm =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Web/sites/app1";
+        const string peArm =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/privateEndpoints/pe1";
+        const string zoneArm =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/privateDnsZones/privatelink.database.windows.net";
+
+        AzureInventorySnapshotDetailReadModel snapshot = new()
+        {
+            Header = CreateHeader(),
+            Resources =
+            [
+                Resource(appArm, "Microsoft.Web/sites"),
+                Resource(SqlArm, "Microsoft.Sql/servers"),
+                Resource(peArm, "Microsoft.Network/privateEndpoints"),
+                Resource(zoneArm, "Microsoft.Network/privateDnsZones"),
+            ],
+            Relationships =
+            [
+                Observed(appArm, subnetArm, GraphEdgeInferenceSources.InventoryAppServiceSubnet),
+                Observed(peArm, SqlArm, GraphEdgeInferenceSources.InventoryPrivateEndpoint),
+                Observed(peArm, zoneArm, GraphEdgeInferenceSources.InventoryPeDnsZoneGroup),
+                Observed(zoneArm, vnetArm, GraphEdgeInferenceSources.InventoryPrivateDnsVnet),
+                Derived(appArm, SqlArm, GraphEdgeInferenceSources.InventoryPeReachableTarget),
+            ],
+        };
+
+        InventoryReachabilityPathGraphSnapshot graph = InventoryReachabilityPathGraph.Build(snapshot);
+        IReadOnlyList<ReachabilityPathCandidate> candidates =
+            IntendedReachabilityPathEnumerator.Enumerate(graph, new PrivilegePathEngineOptions());
+
+        ReachabilityPathCandidate candidate = candidates.Should().ContainSingle().Subject;
+        candidate.Hops[0].FromNodeId.Should().Be(appArm);
+        candidate.Hops.Should().Contain(hop =>
+            hop.InferenceSource == GraphEdgeInferenceSources.InventoryPeReachableTarget);
+        candidate.HasInsufficientEvidenceHop.Should().BeFalse();
+        candidate.TerminalAssetNodeId.Should().Be(SqlArm);
+    }
+
+    [Fact]
+    public void Enumerate_custom_vnet_dns_on_private_path_appends_insufficient_hop()
+    {
+        const string vnetArm =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet1";
+        const string subnetArm = $"{vnetArm}/subnets/app";
+        const string appArm =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Web/sites/app1";
+        const string peArm =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/privateEndpoints/pe1";
+        const string zoneArm =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/privateDnsZones/privatelink.database.windows.net";
+        Guid vnetRowId = Guid.NewGuid();
+
+        AzureInventorySnapshotDetailReadModel snapshot = new()
+        {
+            Header = CreateHeader(),
+            Resources =
+            [
+                Resource(vnetArm, "Microsoft.Network/virtualNetworks", vnetRowId),
+                Resource(appArm, "Microsoft.Web/sites"),
+                Resource(SqlArm, "Microsoft.Sql/servers"),
+                Resource(peArm, "Microsoft.Network/privateEndpoints"),
+                Resource(zoneArm, "Microsoft.Network/privateDnsZones"),
+            ],
+            Properties =
+            [
+                new AzureInventoryResourcePropertyReadModel
+                {
+                    ResourceRowId = vnetRowId,
+                    PropertyKey = "dhcpOptions",
+                    PropertyValue = """{"dnsServers":["10.0.0.4"]}""",
+                },
+            ],
+            Relationships =
+            [
+                Observed(appArm, subnetArm, GraphEdgeInferenceSources.InventoryAppServiceSubnet),
+                Observed(peArm, SqlArm, GraphEdgeInferenceSources.InventoryPrivateEndpoint),
+                Observed(peArm, zoneArm, GraphEdgeInferenceSources.InventoryPeDnsZoneGroup),
+                Observed(zoneArm, vnetArm, GraphEdgeInferenceSources.InventoryPrivateDnsVnet),
+                Derived(appArm, SqlArm, GraphEdgeInferenceSources.InventoryPeReachableTarget),
+            ],
+        };
+
+        InventoryReachabilityPathGraphSnapshot graph = InventoryReachabilityPathGraph.Build(snapshot);
+        IReadOnlyList<ReachabilityPathCandidate> candidates =
+            IntendedReachabilityPathEnumerator.Enumerate(graph, new PrivilegePathEngineOptions());
+
+        ReachabilityPathCandidate candidate = candidates.Should().ContainSingle().Subject;
+        candidate.HasInsufficientEvidenceHop.Should().BeTrue();
+        candidate.Hops[^1].EdgeType.Should().Be(
+            SecureNowArchitectConstants.InsufficientEvidenceCustomDnsResolverHopEdgeType);
+    }
+
+    [Fact]
+    public void Enumerate_missing_dns_join_appends_insufficient_evidence_hop()
+    {
+        const string vnetArm =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet1";
+        const string subnetArm = $"{vnetArm}/subnets/app";
+        const string appArm =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Web/sites/app1";
+        const string peArm =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/privateEndpoints/pe1";
+
+        AzureInventorySnapshotDetailReadModel snapshot = new()
+        {
+            Header = CreateHeader(),
+            Resources =
+            [
+                Resource(appArm, "Microsoft.Web/sites"),
+                Resource(SqlArm, "Microsoft.Sql/servers"),
+                Resource(peArm, "Microsoft.Network/privateEndpoints"),
+            ],
+            Relationships =
+            [
+                Observed(appArm, subnetArm, GraphEdgeInferenceSources.InventoryAppServiceSubnet),
+                Observed(peArm, SqlArm, GraphEdgeInferenceSources.InventoryPrivateEndpoint),
+                Observed(appArm, SqlArm, GraphEdgeInferenceSources.InventoryServiceConnectorLink),
+            ],
+        };
+
+        InventoryReachabilityPathGraphSnapshot graph = InventoryReachabilityPathGraph.Build(snapshot);
+        IReadOnlyList<ReachabilityPathCandidate> candidates =
+            IntendedReachabilityPathEnumerator.Enumerate(graph, new PrivilegePathEngineOptions());
+
+        ReachabilityPathCandidate candidate = candidates.Should().ContainSingle().Subject;
+        candidate.HasInsufficientEvidenceHop.Should().BeTrue();
+        candidate.Hops[^1].EdgeType.Should().Be(SecureNowArchitectConstants.InsufficientEvidenceDnsHopEdgeType);
+    }
+
+    [Fact]
+    public void Enumerate_subnet_with_forced_tunnel_route_appends_edge_control_insufficient_hop()
+    {
+        const string routeTableArm =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/routeTables/rt1";
+        Guid routeTableRowId = Guid.NewGuid();
+        Guid storageRowId = Guid.NewGuid();
+
+        AzureInventorySnapshotDetailReadModel baseSnapshot = BuildPublicStoragePathSnapshot(includeNsgRoute: true);
+        List<AzureInventoryResourceRecord> resources = [..baseSnapshot.Resources];
+        resources.Add(Resource(routeTableArm, "Microsoft.Network/routeTables", routeTableRowId));
+        List<AzureInventoryResourcePropertyReadModel> properties = [..baseSnapshot.Properties];
+        properties.Add(new AzureInventoryResourcePropertyReadModel
+        {
+            ResourceRowId = routeTableRowId,
+            PropertyKey = "inventory.policy.route.0.addressPrefix",
+            PropertyValue = "0.0.0.0/0",
+        });
+        properties.Add(new AzureInventoryResourcePropertyReadModel
+        {
+            ResourceRowId = routeTableRowId,
+            PropertyKey = "inventory.policy.route.0.nextHopType",
+            PropertyValue = "VirtualNetworkGateway",
+        });
+        List<AzureInventoryResourceRelationshipReadModel> relationships = [..baseSnapshot.Relationships];
+        relationships.Add(Observed(SubnetArm, routeTableArm, GraphEdgeInferenceSources.InventorySubnetRouteTable));
+
+        AzureInventorySnapshotDetailReadModel snapshot = new()
+        {
+            Header = baseSnapshot.Header,
+            Resources = resources,
+            Properties = properties,
+            Relationships = relationships,
+        };
+
+        InventoryReachabilityPathGraphSnapshot graph = InventoryReachabilityPathGraph.Build(snapshot);
+        IReadOnlyList<ReachabilityPathCandidate> candidates =
+            IntendedReachabilityPathEnumerator.Enumerate(graph, new PrivilegePathEngineOptions());
+
+        ReachabilityPathCandidate candidate = candidates.Should().ContainSingle().Subject;
+        candidate.HasInsufficientEvidenceHop.Should().BeTrue();
+        candidate.Hops[^1].EdgeType.Should().Be(
+            SecureNowArchitectConstants.InsufficientEvidenceNetworkEdgeControlHopEdgeType);
+    }
+
+    [Fact]
+    public void Enumerate_public_asset_behind_agw_without_traversing_agw_appends_edge_control_hop()
+    {
+        const string agwArm =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/applicationGateways/agw1";
+        Guid storageRowId = Guid.NewGuid();
+
+        AzureInventorySnapshotDetailReadModel snapshot = new()
+        {
+            Header = CreateHeader(),
+            Resources =
+            [
+                Resource(agwArm, "Microsoft.Network/applicationGateways"),
+                Resource(StorageArm, "Microsoft.Storage/storageAccounts", storageRowId),
+            ],
+            Properties =
+            [
+                new AzureInventoryResourcePropertyReadModel
+                {
+                    ResourceRowId = storageRowId,
+                    PropertyKey = "publicNetworkAccess",
+                    PropertyValue = "Enabled",
+                },
+            ],
+            Relationships =
+            [
+                Observed(agwArm, StorageArm, GraphEdgeInferenceSources.InventoryAgwBackend),
+            ],
+        };
+
+        InventoryReachabilityPathGraphSnapshot graph = InventoryReachabilityPathGraph.Build(snapshot);
+        IReadOnlyList<ReachabilityPathCandidate> candidates =
+            IntendedReachabilityPathEnumerator.Enumerate(graph, new PrivilegePathEngineOptions());
+
+        ReachabilityPathCandidate candidate = candidates.Should().ContainSingle().Subject;
+        candidate.HasInsufficientEvidenceHop.Should().BeTrue();
+        candidate.Hops[^1].EdgeType.Should().Be(
+            SecureNowArchitectConstants.InsufficientEvidenceNetworkEdgeControlHopEdgeType);
+    }
+
+    [Fact]
+    public async Task RunAsync_without_nsg_sets_path_confidence_to_insufficient_evidence()
+    {
+        ScopeContext scope = CreateScope();
+        AzureInventorySnapshotDetailReadModel snapshot = BuildPublicStoragePathSnapshot(includeNsgRoute: false);
+        InMemorySecurityEvidencePathRepository pathRepository = new();
+        IntendedReachabilityEngine sut = CreateEngine(
+            snapshot,
+            scope,
+            pathRepository,
+            new InMemoryOperationalSecurityFindingRepository());
+
+        await sut.RunAsync(scope, SnapshotId, SecureNowArchitectConstants.SystemActorId, CancellationToken.None);
+
+        pathRepository.StoredPaths.Should().ContainSingle().Which.PathConfidenceBand
+            .Should().Be(PathConfidenceBand.InsufficientEvidence);
+    }
+
+    [Fact]
     public void Enumerate_private_endpoint_only_sql_produces_no_internet_paths()
     {
         AzureInventorySnapshotDetailReadModel snapshot = BuildPrivateEndpointSqlSnapshot();
@@ -259,6 +530,32 @@ public sealed class IntendedReachabilityEngineTests
             ],
         };
     }
+
+    private static AzureInventoryResourceRelationshipReadModel Observed(
+        string from,
+        string to,
+        string inferenceSource) =>
+        new()
+        {
+            FromAzureResourceId = from,
+            ToAzureResourceId = to,
+            RelationshipType = GraphEdgeTypes.ConnectsTo,
+            ProvenanceKind = ProvenanceKind.ObservedFact,
+            InferenceSource = inferenceSource,
+        };
+
+    private static AzureInventoryResourceRelationshipReadModel Derived(
+        string from,
+        string to,
+        string inferenceSource) =>
+        new()
+        {
+            FromAzureResourceId = from,
+            ToAzureResourceId = to,
+            RelationshipType = GraphEdgeTypes.ConnectsTo,
+            ProvenanceKind = ProvenanceKind.DerivedFact,
+            InferenceSource = inferenceSource,
+        };
 
     private static AzureInventoryResourceRecord Resource(
         string armId,

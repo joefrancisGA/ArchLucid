@@ -44,6 +44,20 @@ const basePayload = {
 };
 
 describe("FindingInspectView review terminology", () => {
+  it("labels missing manifest version without Not returned (P-15)", () => {
+    render(
+      <FindingInspectView
+        runId="run-1"
+        decodedFindingId="finding-1"
+        payload={basePayload}
+        failure={null}
+      />,
+    );
+
+    expect(screen.getByText("Review record version was not stored.")).toBeInTheDocument();
+    expect(screen.queryByText("Not returned")).not.toBeInTheDocument();
+  });
+
   it("uses review vocabulary with runId bridge when URL runId mismatches payload", () => {
     render(
       <FindingInspectView

@@ -37,6 +37,7 @@ import {
   resolveGettingStartedHelpQuickStartCopy,
   resolveGettingStartedHelpQuickStartTitle,
   resolveGettingStartedHelpTechnicalTerms,
+  resolveGettingStartedHelpWorkflowSectionIntro,
   resolveGettingStartedHelpWorkflowSectionTitle,
   resolveGettingStartedHelpWorkflowStepsForProductLine,
 } from "@/lib/getting-started-help-guide-content";
@@ -266,7 +267,7 @@ export function HelpGettingStartedGuideView(props: HelpGettingStartedGuideViewPr
         }
         showContextualHelp={!buyerPolishedShell}
       />
-      {buyerPolishedShell || isWorkingMode ? null : (
+      {buyerPolishedShell || isWorkingMode || secureNowShell ? null : (
         <PilotGuideGettingStartedFirstReviewVocabularyRail currentSurfaceId="getting-started" />
       )}
       <GettingStartedHelpClaimDisciplineStrip />
@@ -395,7 +396,7 @@ export function HelpGettingStartedGuideView(props: HelpGettingStartedGuideViewPr
           <section aria-labelledby="what-happens-during-a-review" className="space-y-4">
             <HelpSectionHeading id="what-happens-during-a-review">{workflowSectionTitle}</HelpSectionHeading>
             <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
-              Follow this path from evidence intake through shareable outputs.
+              {resolveGettingStartedHelpWorkflowSectionIntro(productLine)}
             </p>
             <ol className="m-0 list-none space-y-0 p-0" data-testid="getting-started-workflow-stepper">
               {workflowSteps.map((step, index) => {

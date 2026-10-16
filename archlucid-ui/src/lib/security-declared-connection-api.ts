@@ -8,17 +8,35 @@ import type {
 
 const BASE_PATH = "/api/proxy/v1/operational-security/declared-connections";
 
+function parseRelationshipType(
+  value: unknown,
+): SecurityDeclaredConnectionRelationshipType | undefined {
+  if (value === "ConnectsTo" || value === "DependsOn") {
+    return value;
+  }
+
+  return undefined;
+}
+
+function parseStatus(value: unknown): SecurityDeclaredConnectionStatus | undefined {
+  if (value === "Active" || value === "Expired" || value === "Revoked") {
+    return value;
+  }
+
+  return undefined;
+}
+
 function mapRow(raw: Record<string, unknown>): SecurityDeclaredConnectionRow {
   return {
     connectionId: typeof raw.connectionId === "string" ? raw.connectionId : "",
     fromCloudResourceId: typeof raw.fromCloudResourceId === "string" ? raw.fromCloudResourceId : "",
     toCloudResourceId: typeof raw.toCloudResourceId === "string" ? raw.toCloudResourceId : "",
-    relationshipType: (typeof raw.relationshipType === "string" ? raw.relationshipType : "ConnectsTo") as SecurityDeclaredConnectionRelationshipType,
+    relationshipType: parseRelationshipType(raw.relationshipType),
     rationale: typeof raw.rationale === "string" ? raw.rationale : "",
     evidenceReference: typeof raw.evidenceReference === "string" ? raw.evidenceReference : null,
     expirationUtc: typeof raw.expirationUtc === "string" ? raw.expirationUtc : "",
-    status: (typeof raw.status === "string" ? raw.status : "Active") as SecurityDeclaredConnectionStatus,
-    provenanceKind: typeof raw.provenanceKind === "string" ? raw.provenanceKind : "HumanAssertion",
+    status: parseStatus(raw.status),
+    provenanceKind: typeof raw.provenanceKind === "string" ? raw.provenanceKind : undefined,
     createdUtc: typeof raw.createdUtc === "string" ? raw.createdUtc : "",
     updatedUtc: typeof raw.updatedUtc === "string" ? raw.updatedUtc : "",
   };

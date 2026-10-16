@@ -1,7 +1,11 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { CollectionAgentPageClient } from "@/app/(operator)/infrastructure/collection-agent/CollectionAgentPageClient";
+import {
+  CollectionAgentPageClient,
+  collectionRunStartedUtcDisplay,
+  collectionRunStatusLabel,
+} from "@/app/(operator)/infrastructure/collection-agent/CollectionAgentPageClient";
 
 const useCollectionRunsQueryMock = vi.fn();
 const useTriggerCollectionRunMutationMock = vi.fn();
@@ -29,6 +33,14 @@ function successfulRun() {
     zipSha256: null,
   };
 }
+
+describe("collection agent omission copy (P-16, P-17)", () => {
+  it("labels missing capture status and start time without Unknown", () => {
+    expect(collectionRunStatusLabel(undefined)).toBe("Capture status was not stored.");
+    expect(collectionRunStartedUtcDisplay(undefined)).toBe("Start time was not stored.");
+    expect(collectionRunStatusLabel("Running")).toBe("Running");
+  });
+});
 
 describe("CollectionAgentPageClient", () => {
   beforeEach(() => {

@@ -6,12 +6,12 @@ export type SecurityDeclaredConnectionRow = {
   readonly connectionId: string;
   readonly fromCloudResourceId: string;
   readonly toCloudResourceId: string;
-  readonly relationshipType: SecurityDeclaredConnectionRelationshipType;
+  readonly relationshipType?: SecurityDeclaredConnectionRelationshipType;
   readonly rationale: string;
   readonly evidenceReference: string | null;
   readonly expirationUtc: string;
-  readonly status: SecurityDeclaredConnectionStatus;
-  readonly provenanceKind: string;
+  readonly status?: SecurityDeclaredConnectionStatus;
+  readonly provenanceKind?: string;
   readonly createdUtc: string;
   readonly updatedUtc: string;
 };

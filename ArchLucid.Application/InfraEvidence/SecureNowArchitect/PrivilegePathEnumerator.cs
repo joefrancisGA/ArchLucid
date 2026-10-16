@@ -8,10 +8,21 @@ internal static class PrivilegePathEnumerator
 {
     public static IReadOnlyList<PrivilegePathCandidate> Enumerate(
         InventoryPrivilegePathGraphSnapshot graph,
-        PrivilegePathEngineOptions options)
+        PrivilegePathEngineOptions options,
+        SecureNowArchitectEngineRunScope? runScope = null)
     {
         ArgumentNullException.ThrowIfNull(graph);
         ArgumentNullException.ThrowIfNull(options);
+
+        SecureNowArchitectTraversalNeighborhood? neighborhood = runScope is { IsFullEstate: false }
+            ? new(graph.OutgoingEdges, graph.ResourcesByArmId, runScope.SeedCloudResourceIds, options.MaxDepth)
+            : null;
+        IReadOnlyDictionary<string, Guid> resourceIds = neighborhood is null
+            ? new Dictionary<string, Guid>()
+            : graph.ResourcesByArmId.Values
+                .Where(resource => resource.CloudResourceId is Guid id && id != Guid.Empty)
+                .ToDictionary(resource => resource.AzureResourceId, resource => resource.CloudResourceId!.Value,
+                    StringComparer.OrdinalIgnoreCase);
 
         List<PrivilegePathCandidate> results = [];
         HashSet<string> seenPathSignatures = new(StringComparer.Ordinal);
@@ -20,7 +31,8 @@ internal static class PrivilegePathEnumerator
             .Where(static nodeId => nodeId.StartsWith(AzureInventoryPrincipalNodeId.Prefix, StringComparison.Ordinal)
                 || !nodeId.StartsWith("azure-ad://", StringComparison.Ordinal));
 
-        foreach (string startNode in startNodes.OrderBy(static node => node, StringComparer.OrdinalIgnoreCase))
+        foreach (string startNode in startNodes.Where(node => neighborhood is null || neighborhood.CanReachSeed(node))
+                     .OrderBy(static node => node, StringComparer.OrdinalIgnoreCase))
         {
             if (results.Count >= options.MaxPaths)
             {
@@ -34,7 +46,8 @@ internal static class PrivilegePathEnumerator
                 [],
                 new HashSet<string>(StringComparer.OrdinalIgnoreCase) { startNode },
                 results,
-                seenPathSignatures);
+                seenPathSignatures, neighborhood, runScope, resourceIds,
+                neighborhood?.TouchesSeed(startNode) == true);
         }
 
         return results;
@@ -47,7 +60,11 @@ internal static class PrivilegePathEnumerator
         List<PrivilegePathEdge> path,
         HashSet<string> visited,
         List<PrivilegePathCandidate> results,
-        HashSet<string> seenPathSignatures)
+        HashSet<string> seenPathSignatures,
+        SecureNowArchitectTraversalNeighborhood? neighborhood,
+        SecureNowArchitectEngineRunScope? runScope,
+        IReadOnlyDictionary<string, Guid> resourceIds,
+        bool touchedSeed)
     {
         if (path.Count >= options.MaxDepth || results.Count >= options.MaxPaths)
         {
@@ -73,6 +90,9 @@ internal static class PrivilegePathEnumerator
                 continue;
             }
 
+            if (neighborhood is not null && !touchedSeed && !neighborhood.CanReachSeed(edge.ToNodeId))
+                continue;
+
             fanOut++;
             List<PrivilegePathEdge> nextPath = [.. path, edge];
             HashSet<string> nextVisited = [.. visited, edge.ToNodeId];
@@ -81,7 +101,9 @@ internal static class PrivilegePathEnumerator
             {
                 string signature = BuildPathSignature(candidate.Hops);
 
-                if (seenPathSignatures.Add(signature))
+                if ((runScope is null || runScope.IsFullEstate
+                    || SecureNowArchitectNeighborhoodFilter.CandidateTouchesSeeds(candidate, runScope.SeedCloudResourceIds, resourceIds))
+                    && seenPathSignatures.Add(signature))
                 {
                     results.Add(candidate);
                 }
@@ -94,7 +116,8 @@ internal static class PrivilegePathEnumerator
                 nextPath,
                 nextVisited,
                 results,
-                seenPathSignatures);
+                seenPathSignatures, neighborhood, runScope, resourceIds,
+                touchedSeed || neighborhood?.TouchesSeed(edge.ToNodeId) == true);
         }
     }
 
@@ -111,6 +134,13 @@ internal static class PrivilegePathEnumerator
         }
 
         PrivilegePathEdge lastHop = hops[^1];
+
+        if (lastHop.EdgeType == GraphEdgeTypes.CanGrantRole
+            && IsGlobalAdminElevationGrantRole(lastHop.InferenceSource))
+        {
+            return TryFinalizeGrantRoleElevationPath(graph, hops, lastHop, out candidate);
+        }
+
         bool hasHasRole = hops.Any(static hop => hop.EdgeType == GraphEdgeTypes.HasRole);
         bool endsWithAction = lastHop.EdgeType is GraphEdgeTypes.CanRead or GraphEdgeTypes.CanWrite;
 
@@ -277,6 +307,19 @@ internal static class PrivilegePathEnumerator
                 actionEdge = descendantControlToData;
                 return true;
             }
+
+            PrivilegePathEdge? appSettingsCredentialRead = fromEdges
+                .Where(edge =>
+                    edge.EdgeType == GraphEdgeTypes.CanRead
+                    && IsAppSettingsConnectionStringConversion(edge.InferenceSource))
+                .OrderBy(static edge => edge.ToNodeId, StringComparer.OrdinalIgnoreCase)
+                .FirstOrDefault();
+
+            if (appSettingsCredentialRead is not null)
+            {
+                actionEdge = appSettingsCredentialRead;
+                return true;
+            }
         }
 
         if (graph.OutgoingEdges.TryGetValue(hasRoleHop.ToNodeId, out List<PrivilegePathEdge>? toEdges))
@@ -425,7 +468,7 @@ internal static class PrivilegePathEnumerator
 
         resourceType = resource.ResourceType;
 
-        if (!graph.PropertiesByResourceRowId.TryGetValue(resource.ResourceRowId, out List<AzureInventoryResourcePropertyReadModel>? properties))
+        if (!graph.PropertiesByResourceRowId.TryGetValue(resource.ResourceRowId, out IReadOnlyList<AzureInventoryResourcePropertyReadModel>? properties))
         {
             return new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         }
@@ -476,7 +519,13 @@ internal static class PrivilegePathEnumerator
 
     private static bool HasInsufficientEvidenceHop(IReadOnlyList<PrivilegePathEdge> hops) =>
         hops.Any(static hop => hop.EdgeType == "unknown-role-actions")
-        || hops.Any(static hop => hop.InferenceSource == GraphEdgeInferenceSources.PimEligibilityUnknown);
+        || hops.Any(static hop => hop.InferenceSource == GraphEdgeInferenceSources.PimEligibilityUnknown)
+        || hops.Any(static hop =>
+            hop.EdgeType == GraphEdgeTypes.CanReach
+            && string.Equals(
+                hop.InferenceSource,
+                SecureNowArchitectConstants.InsufficientEvidenceDnsHopEdgeType,
+                StringComparison.OrdinalIgnoreCase));
 
     private static bool IsControlToDataInferenceSource(string? inferenceSource)
     {
@@ -496,5 +545,114 @@ internal static class PrivilegePathEnumerator
             + GraphEdgeInferenceSources.InferenceSourceQualifierSeparator;
 
         return inferenceSource.StartsWith(prefix, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool IsAppSettingsConnectionStringConversion(string? inferenceSource)
+    {
+        if (!GraphEdgeInferenceSources.TrySplitQualifier(inferenceSource, out string baseSource, out string? qualifier))
+        {
+            return false;
+        }
+
+        return baseSource.Equals(GraphEdgeInferenceSources.InventoryControlToDataConversion, StringComparison.OrdinalIgnoreCase)
+            && string.Equals(qualifier, "app-settings-connection-string", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool IsGlobalAdminElevationGrantRole(string? inferenceSource)
+    {
+        if (!GraphEdgeInferenceSources.TrySplitQualifier(inferenceSource, out string baseSource, out string? qualifier))
+        {
+            return false;
+        }
+
+        return baseSource.Equals(GraphEdgeInferenceSources.InventoryGrantRole, StringComparison.OrdinalIgnoreCase)
+            && string.Equals(
+                qualifier,
+                AzureInventoryGrantRoleInferenceQualifiers.GlobalAdminElevation,
+                StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool TryFinalizeGrantRoleElevationPath(
+        InventoryPrivilegePathGraphSnapshot graph,
+        IReadOnlyList<PrivilegePathEdge> hops,
+        PrivilegePathEdge elevationHop,
+        out PrivilegePathCandidate candidate)
+    {
+        candidate = null!;
+
+        const string ownerRoleName = "Owner";
+        string elevationScope = ArmResourceIdNormalizer.Normalize(elevationHop.ToNodeId);
+
+        foreach (KeyValuePair<string, AzureInventoryResourceRecord> resourceEntry in graph.ResourcesByArmId
+                     .OrderBy(static entry => entry.Key, StringComparer.OrdinalIgnoreCase))
+        {
+            if (!AzureInventoryControlToDataConversionResolver.RoleAssignmentScopeAppliesToResource(
+                    elevationScope,
+                    resourceEntry.Key))
+            {
+                continue;
+            }
+
+            string? resourceType = resourceEntry.Value.ResourceType;
+            IReadOnlyDictionary<string, string> properties =
+                ReadResourceProperties(graph, resourceEntry.Key, ref resourceType);
+
+            if (string.IsNullOrWhiteSpace(resourceType))
+            {
+                resourceType = InferResourceTypeFromArmId(resourceEntry.Key);
+            }
+
+            AzureInventoryControlToDataConversionResult conversion =
+                AzureInventoryControlToDataConversionResolver.ResolveForResource(
+                    ownerRoleName,
+                    resourceType,
+                    properties);
+
+            if (!conversion.HasPermission)
+            {
+                continue;
+            }
+
+            string normalizedResourceArmId = ArmResourceIdNormalizer.Normalize(resourceEntry.Key);
+            string actionEdgeType = conversion.Permission is AzureInventoryDerivedDataPlanePermission.Write
+                or AzureInventoryDerivedDataPlanePermission.ReadAndWrite
+                ? GraphEdgeTypes.CanWrite
+                : GraphEdgeTypes.CanRead;
+
+            List<PrivilegePathEdge> hopsWithAction = [.. hops];
+            hopsWithAction.Add(new PrivilegePathEdge
+            {
+                FromNodeId = elevationHop.FromNodeId,
+                ToNodeId = normalizedResourceArmId,
+                EdgeType = actionEdgeType,
+                ProvenanceKind = ProvenanceKind.DerivedFact,
+                InferenceSource = string.IsNullOrWhiteSpace(conversion.InferenceQualifier)
+                    ? GraphEdgeInferenceSources.InventoryControlToDataConversion
+                    : GraphEdgeInferenceSources.WithQualifier(
+                        GraphEdgeInferenceSources.InventoryControlToDataConversion,
+                        conversion.InferenceQualifier!),
+                RoleName = ownerRoleName,
+            });
+
+            candidate = new PrivilegePathCandidate
+            {
+                Hops = hopsWithAction,
+                TerminalScopeNodeId = normalizedResourceArmId,
+                EffectiveRoleName = ownerRoleName,
+                HasInsufficientEvidenceHop = HasInsufficientEvidenceHop(hopsWithAction),
+                TerminalCloudResourceId = resourceEntry.Value.CloudResourceId,
+                TerminalResourceType = resourceEntry.Value.ResourceType ?? resourceType,
+                ScopeTaggedProduction = InventoryPrivilegePathGraph.IsScopeTaggedProduction(
+                    resourceEntry.Key,
+                    graph.ResourcesByArmId,
+                    graph.TagsByResourceRowId),
+                IsFederatedDeploymentPath = IsFederatedDeploymentPath(hopsWithAction),
+                IsGroupNestedPath = IsGroupNestedPath(hopsWithAction),
+            };
+
+            return true;
+        }
+
+        return false;
     }
 }

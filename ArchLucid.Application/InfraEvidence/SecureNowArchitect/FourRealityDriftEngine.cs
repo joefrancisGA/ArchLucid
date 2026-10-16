@@ -42,8 +42,9 @@ public sealed class FourRealityDriftEngine(
             return Failed("ActorId is required.");
         }
 
-        AzureInventorySnapshotDetailReadModel? currentSnapshot =
-            await snapshotRepository.TryGetSnapshotDetailAsync(scope, snapshotId, cancellationToken);
+        SecureNowAnalysisSnapshot? analysisSnapshot =
+            await SecureNowAnalysisRun.LoadAsync(snapshotRepository, scope, snapshotId, cancellationToken);
+        AzureInventorySnapshotDetailReadModel? currentSnapshot = analysisSnapshot?.Snapshot;
 
         if (currentSnapshot is null)
         {
@@ -64,7 +65,7 @@ public sealed class FourRealityDriftEngine(
 
             if (priorSnapshotId is Guid priorId && priorId != Guid.Empty)
             {
-                priorSnapshot = await snapshotRepository.TryGetSnapshotDetailAsync(scope, priorId, cancellationToken);
+                priorSnapshot = (await SecureNowAnalysisRun.LoadAsync(snapshotRepository, scope, priorId, cancellationToken))?.Snapshot;
 
                 AzureInventoryDiffSummaryRecord? diffSummary =
                     await diffRepository.TryGetBySnapshotPairAsync(scope, priorId, snapshotId, cancellationToken);

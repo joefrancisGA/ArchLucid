@@ -430,7 +430,8 @@ public sealed class SponsorRoiSummaryServiceExtendedTests
     public async Task BuildHistoryAsync_pro_rates_savings_by_real_and_simulator_run_counts()
     {
         // Regression guard for TB-239 — mixed-mode history must not present simulator-only totals as buyer-realized savings.
-        DateTime monthUtc = new(2026, 4, 15, 0, 0, 0, DateTimeKind.Utc);
+        // Stay inside the six-month history window; a fixed April 2026 stamp falls outside it after October 2026.
+        DateTime monthUtc = TimeProvider.System.UtcNowDateTime().AddMonths(-1);
         Guid[] runIds =
         [
             Guid.Parse("11111111111111111111111111111111"),

@@ -115,7 +115,10 @@ public sealed class AzureInventoryRelationshipAssociationTypesTests
     [InlineData("eventHubCapture")]
     [InlineData("avdSessionHostToVm")]
     [InlineData("vmssToSubnet")]
+    [InlineData("vmssToManagedCluster")]
     [InlineData("databricksWorkspaceToSubnet")]
+    [InlineData("networkSecurityPerimeterToResource")]
+    [InlineData("monitorPrivateLinkScopeToScopedResource")]
     public void New_association_types_are_known_members(string associationType)
     {
         AzureInventoryRelationshipAssociationTypes.IsKnown(associationType).Should().BeTrue();
