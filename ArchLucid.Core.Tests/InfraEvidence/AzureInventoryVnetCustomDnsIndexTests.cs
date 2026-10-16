@@ -69,4 +69,45 @@ public sealed class AzureInventoryVnetCustomDnsIndexTests
         index.VnetUsesCustomDns(VnetArm).Should().BeTrue(
             "flattened custom DNS must not be ignored when dhcpOptions JSON lists only the Azure default resolver");
     }
+
+    [Fact]
+    public void VnetUsesCustomDns_true_when_custom_dns_is_on_subnet_resource_row()
+    {
+        string subnetArm = $"{VnetArm}/subnets/app";
+
+        AzureInventoryVnetCustomDnsIndex index = AzureInventoryVnetCustomDnsIndex.Build(
+        [
+            new AzureInventoryVnetCustomDnsResourceProperties
+            {
+                AzureResourceId = subnetArm,
+                ResourceType = "Microsoft.Network/virtualNetworks/subnets",
+                Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                {
+                    ["dhcpOptions"] = """{"dnsServers":["10.0.0.4"]}""",
+                },
+            },
+        ]);
+
+        index.VnetUsesCustomDns(VnetArm).Should().BeTrue(
+            "custom DNS on a subnet inventory row must attribute to the parent virtual network");
+    }
+
+    [Fact]
+    public void VnetUsesCustomDns_true_when_flat_dns_servers_list_default_and_custom_resolvers()
+    {
+        AzureInventoryVnetCustomDnsIndex index = AzureInventoryVnetCustomDnsIndex.Build(
+        [
+            new AzureInventoryVnetCustomDnsResourceProperties
+            {
+                AzureResourceId = VnetArm,
+                ResourceType = "Microsoft.Network/virtualNetworks",
+                Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                {
+                    ["dhcpOptions.dnsServers"] = "168.63.129.16,10.0.0.4",
+                },
+            },
+        ]);
+
+        index.VnetUsesCustomDns(VnetArm).Should().BeTrue();
+    }
 }

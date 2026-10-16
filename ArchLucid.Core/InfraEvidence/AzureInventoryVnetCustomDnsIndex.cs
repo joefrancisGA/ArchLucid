@@ -31,11 +31,20 @@ public sealed class AzureInventoryVnetCustomDnsIndex
                 continue;
             }
 
-            if (TryReadCustomDnsServers(vnet.Properties, out IReadOnlyList<string> dnsServers)
-                && dnsServers.Any(server => !IsAzureDefaultDnsServer(server)))
+            if (!TryReadCustomDnsServers(vnet.Properties, out IReadOnlyList<string> dnsServers)
+                || !dnsServers.Any(server => !IsAzureDefaultDnsServer(server)))
             {
-                customDnsVnets.Add(ArmResourceIdNormalizer.Normalize(vnet.AzureResourceId));
+                continue;
             }
+
+            string indexedVnetArmId = ResolveIndexedVnetArmId(vnet.AzureResourceId);
+
+            if (string.IsNullOrWhiteSpace(indexedVnetArmId))
+            {
+                continue;
+            }
+
+            customDnsVnets.Add(indexedVnetArmId);
         }
 
         return new AzureInventoryVnetCustomDnsIndex(customDnsVnets);
@@ -116,6 +125,25 @@ public sealed class AzureInventoryVnetCustomDnsIndex
 
     private static bool IsAzureDefaultDnsServer(string server) =>
         string.Equals(server.Trim(), AzureDefaultDnsServer, StringComparison.OrdinalIgnoreCase);
+
+    private static string ResolveIndexedVnetArmId(string azureResourceId)
+    {
+        string normalizedArmId = ArmResourceIdNormalizer.Normalize(azureResourceId);
+
+        if (!normalizedArmId.Contains("/subnets/", StringComparison.OrdinalIgnoreCase))
+        {
+            return normalizedArmId;
+        }
+
+        string? parentVnetArmId = AzureInventorySubnetArmIdHelper.TryResolveVnetArmIdFromSubnetArmId(normalizedArmId);
+
+        if (string.IsNullOrWhiteSpace(parentVnetArmId))
+        {
+            return string.Empty;
+        }
+
+        return ArmResourceIdNormalizer.Normalize(parentVnetArmId);
+    }
 }
 
 public sealed class AzureInventoryVnetCustomDnsResourceProperties
