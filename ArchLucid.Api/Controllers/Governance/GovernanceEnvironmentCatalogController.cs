@@ -4,6 +4,7 @@ using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Http;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
+using ArchLucid.Application.Common;
 using ArchLucid.Application.Governance;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Audit;
@@ -33,6 +34,7 @@ namespace ArchLucid.Api.Controllers.Governance;
 public sealed partial class GovernanceEnvironmentCatalogController(
     IScopeContextProvider scopeProvider,
     IGovernanceEnvironmentCatalogService catalogService,
+    IActorContext actorContext,
     IAuditService auditService,
     ITenantRepository tenantRepository,
     IAuthorityQueryService authorityQueryService,
@@ -54,11 +56,23 @@ public sealed partial class GovernanceEnvironmentCatalogController(
     private readonly IGovernanceEnvironmentCatalogService _catalogService =
         catalogService ?? throw new ArgumentNullException(nameof(catalogService));
 
+    private readonly IActorContext _actorContext =
+        actorContext ?? throw new ArgumentNullException(nameof(actorContext));
+
     private readonly IAuditService _auditService =
         auditService ?? throw new ArgumentNullException(nameof(auditService));
 
     private readonly ITenantRepository _tenantRepository =
         tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
+
+    private (string ActorUserId, string ActorUserName) GetAuditActorFields()
+    {
+        // AuditService replaces ActorUserId with NameIdentifier unless ExplicitActor is set.
+        string actorUserId = _actorContext.GetActorId();
+        string actorUserName = User?.Identity?.Name ?? actorUserId;
+
+        return (actorUserId, actorUserName);
+    }
 
     /// <summary>Returns the effective environment catalog for the current scope.</summary>
     [HttpGet]
@@ -164,10 +178,15 @@ public sealed partial class GovernanceEnvironmentCatalogController(
 
             if (!isIdenticalRetry)
             {
+                (string actorUserId, string actorUserName) = GetAuditActorFields();
+
                 await _auditService.LogAsync(
                     new AuditEvent
                     {
                         EventType = AuditEventTypes.GovernanceEnvironmentCatalogReplaced,
+                        ExplicitActor = true,
+                        ActorUserId = actorUserId,
+                        ActorUserName = actorUserName,
                         DataJson = JsonSerializer.Serialize(new
                         {
                             scope.TenantId,

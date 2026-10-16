@@ -1,5 +1,14 @@
 > **Scope:**
 
+2026-10-16 seed hunt (seed→hit): `api-governance-tenancy-controllers` — promoted `GovernanceEnvironmentCatalogController.Replace` logging `GovernanceEnvironmentCatalogReplaced` without `ExplicitActor` or `IActorContext`, so durable actor correlation used raw `NameIdentifier` instead of canonical `jwt:{tid}:{oid}` keys (parity gap vs settings/model catalog fixes); inject `IActorContext`, `GetAuditActorFields()`, `ExplicitActor = true` on catalog replace audit; regression `Replace_sets_explicit_actor_for_stable_actor_user_id_when_display_differs`; `GovernanceEnvironmentCatalogController` + audit tests 11/11; seeded five follow-on `(candidate)` rows.
+
+- (candidate) `GovernanceResolutionController.Resolve` — resolution/conflict audits rely on HTTP actor enrichment only — locus: `LogAsync` without explicit actor; input: parity with environment catalog.
+- (candidate) `GovernancePreCommitSimulationController` — pre-commit simulation audit without explicit actor — locus: post-simulation `LogAsync`; input: jwt actor key parity.
+- (candidate) `GovernanceController.ApprovalRequests` batch review — idempotency replay audit actor parity — locus: batch approve path; input: repeated batch submit with same idempotency key.
+- (candidate) `AdminAgentModelCatalogController.ImportFaithfulnessHarness` — harness import passes display-only actor parameter — locus: route actor string; input: audit already uses `IActorContext` in recorder (cheap-disproof).
+- (candidate) `GovernanceController.LogGovernanceApprovalRequestedAuditAsync` — duplicate submit with same idempotency key skips controller audit on replay — locus: idempotency filter; input: confirm expected vs missing replay audit.
+
+
 2026-10-16 seed hunt (seed→hit): `archlucid-core` — promoted `AzureInventoryVnetPeeringParser.ParsePeerings` returning empty when hosted `virtualNetworkPeerings` JSON is a string scalar wrapping the peering array (whole-collection double-encoding), while load balancer pool JSON already recurses on root string scalars; recurse `ParsePeerings` when document root is a string scalar; regression `EnumerateRemoteVnetIds_reads_remote_when_peerings_json_is_string_scalar_wrapping_peering_array`; vnet peering parser tests 19/19; seeded five follow-on `(candidate)` rows.
 
 - (candidate) `AzureInventoryRouteTableRouteParser` — explicit flattened route row as JSON string scalar wrapping route object — locus: flattened route collection rows; input: parity with pool/peering row unwrap.
