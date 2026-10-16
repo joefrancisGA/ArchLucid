@@ -1,5 +1,13 @@
 > **Scope:**
 
+2026-10-16 seed hunt (seed→hit): `api-governance-tenancy-controllers` — promoted `AdminAgentModelCatalogController.Upsert` logging model catalog create/update audits with display-only `User.Identity.Name` on both `ActorUserId` and `ActorUserName` without `ExplicitActor` (parity gap vs `SettingsController`); inject `IActorContext`, `GetAuditActorFields()`, `ExplicitActor = true`; regression `Upsert_sets_explicit_actor_for_stable_actor_user_id_when_display_differs`; `AdminAgentModelCatalogControllerAuditTests` 1/1; seeded five follow-on `(candidate)` rows.
+
+- (candidate) `AdminAzureOpenAiConnectionController` — connection upsert/delete audits use display-only actor without `ExplicitActor` — locus: BYO connection admin routes; input: display differs from jwt actor key.
+- (candidate) `GovernanceController.ApprovalRequests` batch review — idempotency replay audit actor parity — locus: batch approve path; input: repeated batch submit with same idempotency key.
+- (candidate) `GovernanceWorkflowIntegrationEventSupport` — manifest-promoted integration event publisher absent — locus: promote persist stage; input: verify intentional omission vs gap.
+- (candidate) `GovernanceController.LogGovernanceApprovalRequestedAuditAsync` — duplicate submit with same idempotency key skips controller audit on replay — locus: idempotency filter + logging guard; input: confirm expected vs missing replay audit.
+- (candidate) `GovernanceController.SubmitApprovalRequest` — `requestedBy` persisted column vs jwt actor key drift — locus: `GovernanceController.ApprovalRequests.Create.cs`; input: display name distinct from actor key.
+
 2026-10-16 seed hunt (seed→hit): `archlucid-core` — promoted explicit flattened `inventory.policy.route.*.nextHop` reference blobs ignored because `ParseExplicitRouteProperties` only read `.nextHopArmId`, so NR-02 flattened route tables that mirror ARM `nextHop` linkage missed virtual-appliance next hops; add `RouteNextHopReferenceSuffix`, index collection, and `TryParseFlattenedNextHopArmId` fallback through `TryParseFlattenedArmIdValue`; regression `Parse_reads_next_hop_arm_id_when_explicit_flattened_next_hop_reference_object_is_on_next_hop_key`; route-table + LB backend core tests 46/46; seeded five follow-on `(candidate)` rows.
 
 - (candidate) `AzureInventoryRouteTableRouteParser.TryParseFlattenedArmIdValue` — double-encoded JSON string scalar for flattened `nextHopArmId` — locus: property value quoted twice; input: `JsonSerializer.Serialize` twice.
