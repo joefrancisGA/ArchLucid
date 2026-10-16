@@ -86,6 +86,10 @@ public sealed class GovernanceWorkflowSubmitStage(
         ArgumentException.ThrowIfNullOrWhiteSpace(targetEnvironment);
         ArgumentException.ThrowIfNullOrWhiteSpace(requestedBy);
 
+        string resolvedRequestedByActorKey = string.IsNullOrWhiteSpace(requestedByActorKey)
+            ? requestedBy
+            : requestedByActorKey;
+
         manifestVersion = manifestVersion.Trim();
         sourceEnvironment = sourceEnvironment.Trim();
         targetEnvironment = targetEnvironment.Trim();
@@ -124,7 +128,7 @@ public sealed class GovernanceWorkflowSubmitStage(
             TargetEnvironment = targetEnvironment,
             Status = GovernanceApprovalStatus.Submitted,
             RequestedBy = requestedBy,
-            RequestedByActorKey = requestedByActorKey,
+            RequestedByActorKey = resolvedRequestedByActorKey,
             RequestComment = requestComment,
             RequestedUtc = TimeProvider.System.UtcNowDateTime(),
             SlaDeadlineUtc = ComputeSlaDeadlineUtc()
@@ -135,6 +139,7 @@ public sealed class GovernanceWorkflowSubmitStage(
         {
             await _auditSupport.LogDryRunValidationAttemptedForApprovalRequestAsync(
                 requestedBy,
+                resolvedRequestedByActorKey,
                 runId,
                 manifestVersion,
                 sourceEnvironment,

@@ -149,6 +149,35 @@ public sealed class GovernanceWorkflowAuditSupportTests
     }
 
     [Fact]
+    public async Task LogDryRunValidationAttemptedForApprovalRequestAsync_sets_explicit_actor_for_stable_requested_by_actor_key()
+    {
+        const string displayName = "Pat Operator";
+        const string actorKey = "jwt:11111111-2222-3333-4444-555555555555:aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee";
+        AuditEvent? captured = null;
+        Mock<IAuditService> auditService = new();
+        auditService
+            .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Callback<AuditEvent, CancellationToken>((auditEvent, _) => captured = auditEvent)
+            .Returns(Task.CompletedTask);
+
+        GovernanceWorkflowAuditSupport support = CreateSupport(auditService.Object);
+
+        await support.LogDryRunValidationAttemptedForApprovalRequestAsync(
+            displayName,
+            actorKey,
+            "99999999-9999-9999-9999-999999999999",
+            "1",
+            "dev",
+            "test",
+            CancellationToken.None);
+
+        captured.Should().NotBeNull();
+        captured!.ExplicitActor.Should().BeTrue();
+        captured.ActorUserId.Should().Be(actorKey);
+        captured.ActorUserName.Should().Be(displayName);
+    }
+
+    [Fact]
     public async Task LogDryRunValidationAttemptedForPromotionAsync_sets_explicit_actor_for_stable_promoted_by()
     {
         const string actorKey = "jwt:11111111-2222-3333-4444-555555555555:aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee";
