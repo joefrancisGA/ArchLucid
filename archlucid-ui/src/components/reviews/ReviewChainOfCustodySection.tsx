@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import type { ReactElement } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
@@ -69,9 +69,11 @@ export function ReviewChainOfCustodySection({
         : ruleSetId
       : "Default policy pack";
   const pathname = usePathname() ?? "/";
-  const [openSectionKey, setOpenSectionKeyState] = useState(() =>
-    parseReviewChainOfCustodySectionKeyFromSearch(null),
+  const searchParams = useSearchParams();
+  const urlOpenSectionKey = parseReviewChainOfCustodySectionKeyFromSearch(
+    searchParams.get(REVIEW_CHAIN_OF_CUSTODY_SECTION_KEY_PARAM),
   );
+  const [openSectionKey, setOpenSectionKeyState] = useState(urlOpenSectionKey);
   const openSectionKeyRef = useRef(openSectionKey);
   openSectionKeyRef.current = openSectionKey;
 
@@ -121,6 +123,15 @@ export function ReviewChainOfCustodySection({
       window.removeEventListener("popstate", syncOpenSectionKeyFromUrl);
     };
   }, []);
+
+  useEffect(() => {
+    if (openSectionKeyRef.current === urlOpenSectionKey) {
+      return;
+    }
+
+    openSectionKeyRef.current = urlOpenSectionKey;
+    setOpenSectionKeyState(urlOpenSectionKey);
+  }, [urlOpenSectionKey]);
 
   const isSectionOpen = (sectionKey: string, defaultOpen: boolean): boolean => {
     if (openSectionKey.length > 0) {
