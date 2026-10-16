@@ -322,19 +322,7 @@ public static class AzureInventoryLoadBalancerBackendTrafficResolver
 
     private static string? TryReadBackendPoolReferenceId(JsonElement poolReference)
     {
-        if (poolReference.ValueKind is JsonValueKind.String)
-        {
-            return poolReference.GetString();
-        }
-
-        if (poolReference.ValueKind is JsonValueKind.Object
-            && TryGetPropertyIgnoreCase(poolReference, "id", out JsonElement idElement)
-            && idElement.ValueKind is JsonValueKind.String)
-        {
-            return idElement.GetString();
-        }
-
-        return null;
+        return AzureInventoryNetworkInterfaceIpConfigurationReferenceReader.TryReadArmId(poolReference);
     }
 
     private static bool TryGetBackendAddressPoolPropertiesBag(JsonElement pool, out JsonElement poolProperties)
