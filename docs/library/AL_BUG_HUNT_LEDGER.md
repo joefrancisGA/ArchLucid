@@ -1,5 +1,14 @@
 > **Scope:**
 
+2026-10-16 seed hunt (seed→hit): `api-governance-tenancy-controllers` — promoted ledger candidate `AgentModelCatalogEvaluationRecorder` logging `ModelCatalogEvaluationRecorded` with display-only `actorUserId` on both audit columns and no `ExplicitActor`, so durable actor correlation missed canonical `jwt:{tid}:{oid}` keys (parity gap vs catalog upsert); inject `IActorContext`, set `ExplicitActor = true` with `GetActorId()` / `GetActor()`; controller `RecordEvaluation` uses `GetAuditActorFields()` for the non-empty actor parameter; regression `RecordTaskEvaluationAsync_sets_explicit_actor_for_stable_actor_user_id_when_display_differs`; `AgentModelCatalogEvaluationRecorderTests` 2/2; seeded five follow-on `(candidate)` rows.
+
+- (candidate) `GovernanceEnvironmentCatalogController.Replace` — `GovernanceEnvironmentCatalogReplaced` audit omits `ExplicitActor` and `IActorContext` actor fields — locus: catalog replace success path; input: display differs from jwt actor key.
+- (candidate) `GovernanceResolutionController.Resolve` — resolution/conflict audits rely on HTTP actor enrichment only — locus: `LogAsync` without explicit actor; input: parity with environment catalog.
+- (candidate) `GovernancePreCommitSimulationController` — pre-commit simulation audit without explicit actor — locus: post-simulation `LogAsync`; input: jwt actor key parity.
+- (candidate) `GovernanceController.ApprovalRequests` batch review — idempotency replay audit actor parity — locus: batch approve path; input: repeated batch submit with same idempotency key.
+- (candidate) `AdminAgentModelCatalogController.ImportFaithfulnessHarness` — passes display-only actor into recorder parameter while audit now uses `IActorContext` — locus: harness import route; input: confirm audit parity end-to-end.
+
+
 2026-10-16 seed hunt (seed→hit): `archlucid-core` — promoted `TryGetBackendAddressPoolPropertiesBag` enumerating properties on `backendAddressPools[]` elements that are JSON string scalars wrapping full pool objects (per-element double-encoding), throwing or skipping LB/AGW backend resolution; unwrap pool rows via `AzureExtractorJsonObjectElement.TryUnwrapObject` in `AzureInventoryLoadBalancerBackendTrafficResolver` and `AzureInventoryLoadBalancerBackendParentArmIdResolver`; regressions `ResolveLoadBalancerBackends_reads_backend_when_pool_array_element_is_json_string_scalar_wrapping_pool_object` and `ResolveFromBackendAddressPoolsJson_reads_backend_when_pool_array_element_is_json_string_scalar_wrapping_pool_object`; LB backend + parent resolver tests 34/34; seeded five follow-on `(candidate)` rows.
 
 - (candidate) `AzureInventoryVnetPeeringParser.TryReadRemoteVnetId` — peering row as JSON string scalar wrapping peering object — locus: `EnumerateRemoteVnetIds` element loop; input: parity with pool row unwrap.

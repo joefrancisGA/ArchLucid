@@ -151,7 +151,7 @@ public sealed class AdminAgentModelCatalogController(
             return this.BadRequestProblem("EvaluationState is invalid.", ProblemTypes.ValidationFailed);
         }
 
-        string actor = User?.Identity?.Name ?? "admin";
+        (_, string actorUserName) = GetAuditActorFields();
 
         try
         {
@@ -161,7 +161,7 @@ public sealed class AdminAgentModelCatalogController(
                     taskType,
                     evaluationState,
                     request.EvidenceJson,
-                    actor,
+                    actorUserName,
                     cancellationToken)
                 .ConfigureAwait(false);
 

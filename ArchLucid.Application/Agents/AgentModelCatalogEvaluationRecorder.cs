@@ -1,3 +1,4 @@
+using ArchLucid.Application.Common;
 using ArchLucid.Core.Agents;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Persistence.Ports;
@@ -23,7 +24,8 @@ public sealed class AgentModelCatalogEvaluationRecorder(
     IAgentModelCatalogRepository catalogRepository,
     IAgentModelCatalogCacheInvalidator cacheInvalidator,
     IAuditService auditService,
-    IScopeContextProvider scopeContextProvider) : IAgentModelCatalogEvaluationRecorder
+    IScopeContextProvider scopeContextProvider,
+    IActorContext actorContext) : IAgentModelCatalogEvaluationRecorder
 {
     private readonly IAgentModelCatalogRepository _catalogRepository =
         catalogRepository ?? throw new ArgumentNullException(nameof(catalogRepository));
@@ -36,6 +38,9 @@ public sealed class AgentModelCatalogEvaluationRecorder(
 
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+
+    private readonly IActorContext _actorContext =
+        actorContext ?? throw new ArgumentNullException(nameof(actorContext));
 
     public async Task<AgentModelCatalogRow> RecordTaskEvaluationAsync(
         string aliasId,
@@ -84,13 +89,16 @@ public sealed class AgentModelCatalogEvaluationRecorder(
         _cacheInvalidator.Invalidate();
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        string actorUserIdForAudit = _actorContext.GetActorId();
+        string actorUserNameForAudit = _actorContext.GetActor();
 
         await _auditService.LogAsync(
             new AuditEvent
             {
                 EventType = AuditEventTypes.ModelCatalogEvaluationRecorded,
-                ActorUserId = actorUserId,
-                ActorUserName = actorUserId,
+                ExplicitActor = true,
+                ActorUserId = actorUserIdForAudit,
+                ActorUserName = actorUserNameForAudit,
                 TenantId = scope.TenantId,
                 WorkspaceId = scope.WorkspaceId,
                 ProjectId = scope.ProjectId,
