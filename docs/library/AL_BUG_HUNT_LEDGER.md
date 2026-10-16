@@ -1,5 +1,14 @@
 > **Scope:**
 
+2026-10-16 seed hunt (dry): `archlucid-core` — cheap-disproof closed ledger candidates without code changes: `routes` / `virtualNetworkPeerings` JSON double-encoded at root (recursive string-scalar unwrap already handles); explicit flattened row blobs as flat objects or string-scalar-wrapped flat objects (`TryParseRouteFromFlattenedRowBlob` + `TryParseRouteFromRouteElement`); characterization tests `Parse_reads_routes_when_routes_json_is_double_encoded_string_scalar_at_root`, `EnumerateRemoteVnetIds_reads_remote_when_peerings_json_is_double_encoded_string_scalar_at_root`, `Parse_reads_explicit_flattened_route_when_row_blob_is_flat_route_object_without_properties_bag`, `Parse_reads_explicit_flattened_route_when_row_blob_is_string_scalar_wrapping_flat_route_object`; route-table + vnet peering parser tests 39/39; seeded five follow-on `(candidate)` rows.
+
+- (candidate) `AzureInventoryLoadBalancerBackendTrafficResolver.BuildLoadBalancerPortByPoolId` — PascalCase `BackendPort` / `BackendAddressPool` on rule JSON — locus: `TryReadBackendPort`; input: `(valid-no-repro)` unless repro found.
+- (candidate) `AzureInventoryRouteTableRouteParser.TryParseFlattenedArmIdValue` — malformed JSON blob containing `/subscriptions/` substring — locus: `NormalizeArmId` fallback; input: `(valid-no-repro)` unless repro found.
+- (candidate) `AzureInventoryRouteTableRouteParser.Parse` — explicit suffix fields whitespace-only while row blob has route — locus: suffix vs blob precedence; input: empty suffix should fall back to blob (likely already covered).
+- (candidate) `AzureInventoryVnetPeeringParser.ParsePeerings` — peering row bare ARM string scalar (not JSON object) — locus: `TryReadRemoteVnetId` string branch; input: already supported.
+- (candidate) `AzureInventoryLoadBalancerBackendTrafficResolver` — `loadBalancingRules` root double-encoded string scalar — locus: `BuildLoadBalancerPortByPoolId`; input: parity with `routes` root recursion.
+
+
 2026-10-16 seed hunt (seed→hit): `archlucid-core` — promoted explicit flattened `inventory.policy.route.{index}` row blobs stored as JSON string scalars wrapping full route objects (per-row double-encoding) ignored because `CollectExplicitRouteIndexes` only indexed suffixed keys (`.addressPrefix`, etc.); index bare row keys, parse row JSON via `TryParseRouteFromFlattenedRowBlob` + existing `TryParseRouteFromRouteElement`; regression `Parse_reads_explicit_flattened_route_when_row_is_json_string_scalar_wrapping_route_object`; route-table parser tests 16/16; seeded five follow-on `(candidate)` rows.
 
 - (candidate) `AzureInventoryRouteTableRouteParser.Parse` — `routes` JSON double-encoded twice at root — locus: nested root string recursion; input: cheap-disproof (already recursive).

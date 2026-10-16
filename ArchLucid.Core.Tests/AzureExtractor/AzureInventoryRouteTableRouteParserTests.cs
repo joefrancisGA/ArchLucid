@@ -392,4 +392,78 @@ public sealed class AzureInventoryRouteTableRouteParserTests
         routes[0].AddressPrefix.Should().Be("10.0.0.0/8");
         routes[0].NextHopType.Should().Be("VirtualNetworkGateway");
     }
+
+    [Fact]
+    public void Parse_reads_routes_when_routes_json_is_double_encoded_string_scalar_at_root()
+    {
+        string innerRoutes =
+            """
+            [
+              {
+                "properties": {
+                  "addressPrefix": "0.0.0.0/0",
+                  "nextHopType": "VirtualNetworkGateway"
+                }
+              }
+            ]
+            """;
+        string routesJson = JsonSerializer.Serialize(JsonSerializer.Serialize(innerRoutes));
+
+        Dictionary<string, string> properties = new(StringComparer.Ordinal)
+        {
+            ["routes"] = routesJson,
+        };
+
+        IReadOnlyList<AzureInventoryRouteTableRoute> routes = AzureInventoryRouteTableRouteParser.Parse(properties);
+
+        routes.Should().ContainSingle();
+        routes[0].NextHopType.Should().Be("VirtualNetworkGateway");
+    }
+
+    [Fact]
+    public void Parse_reads_explicit_flattened_route_when_row_blob_is_flat_route_object_without_properties_bag()
+    {
+        string routePrefix = $"{InventoryDiagramNodeRelationshipPropertyKeys.RoutePrefix}0";
+
+        Dictionary<string, string> properties = new(StringComparer.Ordinal)
+        {
+            [routePrefix] =
+                """
+                {
+                  "addressPrefix": "10.1.0.0/16",
+                  "nextHopType": "Internet"
+                }
+                """,
+        };
+
+        IReadOnlyList<AzureInventoryRouteTableRoute> routes = AzureInventoryRouteTableRouteParser.Parse(properties);
+
+        routes.Should().ContainSingle();
+        routes[0].AddressPrefix.Should().Be("10.1.0.0/16");
+        routes[0].NextHopType.Should().Be("Internet");
+    }
+
+    [Fact]
+    public void Parse_reads_explicit_flattened_route_when_row_blob_is_string_scalar_wrapping_flat_route_object()
+    {
+        string routePrefix = $"{InventoryDiagramNodeRelationshipPropertyKeys.RoutePrefix}0";
+        string flatRoute =
+            """
+            {
+              "addressPrefix": "10.2.0.0/24",
+              "nextHopType": "VirtualNetworkGateway"
+            }
+            """;
+
+        Dictionary<string, string> properties = new(StringComparer.Ordinal)
+        {
+            [routePrefix] = JsonSerializer.Serialize(flatRoute),
+        };
+
+        IReadOnlyList<AzureInventoryRouteTableRoute> routes = AzureInventoryRouteTableRouteParser.Parse(properties);
+
+        routes.Should().ContainSingle();
+        routes[0].AddressPrefix.Should().Be("10.2.0.0/24");
+        routes[0].NextHopType.Should().Be("VirtualNetworkGateway");
+    }
 }
