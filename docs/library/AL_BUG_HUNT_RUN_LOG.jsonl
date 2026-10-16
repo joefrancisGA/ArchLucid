@@ -1,8 +1,3 @@
-{"at":"2026-09-16T05:59:04.233024Z","zoneId":"topology-proposal-merge","outcome":"hit"}
-{"at":"2026-09-16T06:00:08.2898243Z","zoneId":"context-ingestion","outcome":"hit"}
-{"at":"2026-09-16T06:00:12.595682Z","zoneId":"core-costing","outcome":"seed-only"}
-{"at":"2026-09-16T06:00:16.1947013Z","zoneId":"tenant-data-export","outcome":"seed-only"}
-{"at":"2026-09-16T06:00:19.3697152Z","zoneId":"persistence-identity","outcome":"seed-only"}
 {"at":"2026-09-16T06:01:59.7126435Z","zoneId":"topology-proposal-merge","outcome":"hit"}
 {"at":"2026-09-16T06:02:03.4020697Z","zoneId":"context-ingestion","outcome":"seed-only"}
 {"at":"2026-09-16T06:02:06.8183068Z","zoneId":"core-costing","outcome":"seed-only"}
@@ -7685,3 +7680,4 @@
 {"at":"2026-10-16T05:53:58.7473066Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared","paths":["@(archlucid-ui/src/components/reviews/ReviewWorkspaceMoreTabsMenu.tsx,archlucid-ui/src/components/reviews/ReviewWorkspaceMoreTabsMenu.test.tsx)"]}
 {"at":"2026-10-16T05:55:33.3668933Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared","paths":["@(archlucid-ui/src/components/reviews/use-review-detail-workspace-room-elicitation.ts,archlucid-ui/src/components/reviews/use-review-detail-workspace-room-elicitation.url-sync.test.ts)"]}
 {"at":"2026-10-16T05:57:28.5830173Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared","paths":["@(archlucid-ui/src/components/reviews/ReviewAgentExecutionLogSection.tsx,archlucid-ui/src/components/reviews/ReviewAgentExecutionLogSection.url-sync.test.tsx)"]}
+{"at":"2026-10-16T06:01:38.9883695Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared","paths":["@(archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/_sections/ReviewPackageSponsorHandoffStrip.tsx,archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/_sections/ReviewPackageSponsorHandoffStrip.url-sync.test.tsx)"]}
