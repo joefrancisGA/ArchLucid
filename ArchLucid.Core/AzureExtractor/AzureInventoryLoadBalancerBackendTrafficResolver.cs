@@ -187,12 +187,12 @@ public static class AzureInventoryLoadBalancerBackendTrafficResolver
                     });
             }
 
-            if (rulesRoot.ValueKind is not JsonValueKind.Array)
+            if (!AzureExtractorJsonArrayRoot.TryCloneRows(rulesRoot, out JsonElement[] rules))
             {
                 return portByPoolId;
             }
 
-            foreach (JsonElement rule in rulesRoot.EnumerateArray())
+            foreach (JsonElement rule in rules)
             {
                 if (!TryGetPropertyIgnoreCase(rule, "properties", out JsonElement ruleProperties)
                     || ruleProperties.ValueKind is not JsonValueKind.Object)
