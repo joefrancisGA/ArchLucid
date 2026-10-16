@@ -28,8 +28,11 @@ public static class AgentExplainabilityTraceValidator
         ArgumentNullException.ThrowIfNull(sourceFinding);
 
         List<string> errors = [];
+        TraceCompletenessScore completeness = ExplainabilityTraceCompletenessAnalyzer.AnalyzeFinding(mappedFinding);
 
-        if (mappedFinding.Trace is null)
+        // Finding.Trace coalesces JSON/object-initializer null to an empty object; treat that as missing.
+
+        if (mappedFinding.Trace is null || completeness.PopulatedFieldCount == 0)
         {
             errors.Add("ExplainabilityTrace is required on agent-mapped findings.");
 
@@ -37,7 +40,6 @@ public static class AgentExplainabilityTraceValidator
         }
 
         ExplainabilityTrace trace = mappedFinding.Trace;
-        TraceCompletenessScore completeness = ExplainabilityTraceCompletenessAnalyzer.AnalyzeFinding(mappedFinding);
 
         if (sourceFinding.EvidenceRefs.Count == 0)
         {

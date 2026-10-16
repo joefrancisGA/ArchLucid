@@ -152,6 +152,7 @@ internal static class DraftNewCommandAdmitStage
         }
 
         // DraftAdmissionResponse coalesces JSON null draft to an empty object; empty DraftId means no body.
+
         if (admission.Value.Draft is null || admission.Value.Draft.DraftId == Guid.Empty)
         {
             await error.WriteLineAsync(

@@ -43,6 +43,7 @@ public sealed class AgentTypeJsonConverter : JsonConverter<AgentType>
 
         // default(AgentType) is 0 and is not a pipeline role. Findings and results often omit
         // SourceAgent/AgentType; persist topology so clone/merge JSON round-trips instead of throwing.
+
         if (value == default)
         {
             writer.WriteStringValue(AgentTypeKeys.Topology);
