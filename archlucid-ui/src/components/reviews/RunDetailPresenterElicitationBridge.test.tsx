@@ -237,6 +237,33 @@ describe("RunDetailPresenterElicitationBridge (FD-01)", () => {
     expect(screen.queryByTestId("review-room-elicitation-panel")).toBeNull();
   });
 
+  it("follows roomElicitation query changes without a popstate event", () => {
+    searchParamsMock.value = new URLSearchParams("reviewTab=overview");
+    window.history.replaceState({}, "", "/architecture/reviews/run-a?reviewTab=overview");
+
+    const { rerender } = render(
+      <RunDetailPresenterElicitationBridge
+        runId={RUN_ID}
+        architectureRequestId="draft-1"
+        panels={panels}
+      />,
+    );
+
+    expect(screen.queryByTestId("review-room-elicitation-panel")).toBeNull();
+
+    searchParamsMock.value = new URLSearchParams("reviewTab=overview&roomElicitation=1");
+    window.history.replaceState({}, "", "/architecture/reviews/run-a?reviewTab=overview&roomElicitation=1");
+    rerender(
+      <RunDetailPresenterElicitationBridge
+        runId={RUN_ID}
+        architectureRequestId="draft-1"
+        panels={panels}
+      />,
+    );
+
+    expect(screen.getByTestId("review-room-elicitation-panel")).toBeInTheDocument();
+  });
+
   it("shows the room panel when Room writes roomElicitation without a popstate event", () => {
     searchParamsMock.value = new URLSearchParams("reviewTab=overview");
     window.history.replaceState({}, "", "/architecture/reviews/run-a?reviewTab=overview");
