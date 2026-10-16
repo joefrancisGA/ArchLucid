@@ -301,12 +301,17 @@ public static class AzureInventoryLoadBalancerBackendTrafficResolver
 
     private static string? TryReadPoolId(JsonElement pool)
     {
-        if (TryGetPropertyIgnoreCase(pool, "id", out JsonElement idElement) && idElement.ValueKind is JsonValueKind.String)
+        if (!AzureExtractorJsonObjectElement.TryUnwrapObject(pool, out JsonElement poolElement))
         {
-            return idElement.GetString();
+            return null;
         }
 
-        return null;
+        if (!TryGetPropertyIgnoreCase(poolElement, "id", out JsonElement idElement))
+        {
+            return null;
+        }
+
+        return AzureInventoryNetworkInterfaceIpConfigurationReferenceReader.TryReadArmId(idElement);
     }
 
     private static string? TryReadBackendPoolReferenceId(JsonElement poolReference)

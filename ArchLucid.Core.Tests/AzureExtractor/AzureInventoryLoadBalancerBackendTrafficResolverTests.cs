@@ -460,6 +460,58 @@ public sealed class AzureInventoryLoadBalancerBackendTrafficResolverTests
     }
 
     [Fact]
+    public void ResolveLoadBalancerBackends_reads_rule_port_when_backend_address_pool_id_is_json_string_scalar_wrapping_id_object()
+    {
+        string poolIdScalar = JsonSerializer.Serialize(new { id = PoolId });
+
+        GraphNode loadBalancer = new()
+        {
+            NodeId = "lb1",
+            NodeType = "resource",
+            Label = "lb1",
+            Properties = new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["backendAddressPools"] =
+                    $$"""
+                    [
+                      {
+                        "id": {{JsonSerializer.Serialize(poolIdScalar)}},
+                        "properties": {
+                          "loadBalancerBackendAddresses": [
+                            {
+                              "name": "addr1",
+                              "properties": {
+                                "networkInterfaceIPConfiguration": { "id": "{{NicIpConfigurationId}}" }
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                    """,
+                ["loadBalancingRules"] =
+                    $$"""
+                    [
+                      {
+                        "properties": {
+                          "backendPort": 443,
+                          "backendAddressPool": { "id": "{{PoolId}}" }
+                        }
+                      }
+                    ]
+                    """,
+            },
+        };
+
+        IReadOnlyList<AzureInventoryLoadBalancerBackendTrafficResolver.BackendTarget> targets =
+            AzureInventoryLoadBalancerBackendTrafficResolver.ResolveLoadBalancerBackends(loadBalancer);
+
+        AzureInventoryLoadBalancerBackendTrafficResolver.BackendTarget target = targets.Should().ContainSingle().Subject;
+        target.TargetArmId.Should().Be(NicId.ToLowerInvariant());
+        target.RulePort.Should().Be(443);
+    }
+
+    [Fact]
     public void ResolveLoadBalancerBackends_reads_rule_port_when_rules_json_is_string_scalar_wrapping_array()
     {
         string innerRules =
