@@ -12,6 +12,25 @@ public sealed class AzureInventoryVnetCustomDnsIndexTests
         "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet1";
 
     [Fact]
+    public void VnetUsesCustomDns_true_when_dhcpOptions_json_lists_scalar_dns_server_string()
+    {
+        AzureInventoryVnetCustomDnsIndex index = AzureInventoryVnetCustomDnsIndex.Build(
+        [
+            new AzureInventoryVnetCustomDnsResourceProperties
+            {
+                AzureResourceId = VnetArm,
+                ResourceType = "Microsoft.Network/virtualNetworks",
+                Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                {
+                    ["dhcpOptions"] = """{"dnsServers":"10.0.0.4"}""",
+                },
+            },
+        ]);
+
+        index.VnetUsesCustomDns(VnetArm).Should().BeTrue();
+    }
+
+    [Fact]
     public void VnetUsesCustomDns_true_when_dhcpOptions_lists_non_azure_server()
     {
         AzureInventoryVnetCustomDnsIndex index = AzureInventoryVnetCustomDnsIndex.Build(

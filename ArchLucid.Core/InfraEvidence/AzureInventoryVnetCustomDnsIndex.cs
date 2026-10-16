@@ -96,23 +96,33 @@ public sealed class AzureInventoryVnetCustomDnsIndex
         {
             using JsonDocument document = JsonDocument.Parse(json);
 
-            if (!document.RootElement.TryGetProperty("dnsServers", out JsonElement serversElement)
-                || serversElement.ValueKind is not JsonValueKind.Array)
+            if (!document.RootElement.TryGetProperty("dnsServers", out JsonElement serversElement))
             {
                 return false;
             }
 
-            foreach (JsonElement serverElement in serversElement.EnumerateArray())
+            if (serversElement.ValueKind is JsonValueKind.String)
             {
-                if (serverElement.ValueKind == JsonValueKind.String)
+                AppendDnsServersFromDelimitedString(serversElement.GetString(), dnsServers);
+            }
+            else if (serversElement.ValueKind is JsonValueKind.Array)
+            {
+                foreach (JsonElement serverElement in serversElement.EnumerateArray())
                 {
-                    string? server = serverElement.GetString();
-
-                    if (!string.IsNullOrWhiteSpace(server))
+                    if (serverElement.ValueKind == JsonValueKind.String)
                     {
-                        dnsServers.Add(server.Trim());
+                        string? server = serverElement.GetString();
+
+                        if (!string.IsNullOrWhiteSpace(server))
+                        {
+                            dnsServers.Add(server.Trim());
+                        }
                     }
                 }
+            }
+            else
+            {
+                return false;
             }
         }
         catch (JsonException)
@@ -121,6 +131,19 @@ public sealed class AzureInventoryVnetCustomDnsIndex
         }
 
         return dnsServers.Count > 0;
+    }
+
+    private static void AppendDnsServersFromDelimitedString(string? servers, List<string> dnsServers)
+    {
+        if (string.IsNullOrWhiteSpace(servers))
+        {
+            return;
+        }
+
+        foreach (string server in servers.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+        {
+            dnsServers.Add(server);
+        }
     }
 
     private static bool IsAzureDefaultDnsServer(string server) =>
