@@ -230,7 +230,7 @@ public static class TopologyProposalConsensusMerger
         $"{ResolveServiceIdentity(service)}|{service.ServiceType}|{service.RuntimePlatform}";
 
     private static string DatastoreKey(ManifestDatastore datastore) =>
-        $"{ResolveDatastoreIdentity(datastore)}|{datastore.DatastoreType}";
+        $"{ResolveDatastoreIdentity(datastore)}|{datastore.DatastoreType}|{datastore.RuntimePlatform}";
 
     private static string ResolveServiceIdentity(ManifestService service)
     {
