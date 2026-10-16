@@ -88,13 +88,17 @@ public sealed class GovernanceWorkflowAuditSupport(
 
     public AuditEvent CreateGovernanceManifestPromotedAuditEvent(
         GovernancePromotionRecord record,
-        string promotedBy)
+        string promotedByDisplay,
+        string promotedByActorKey)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(promotedByDisplay);
+        ArgumentException.ThrowIfNullOrWhiteSpace(promotedByActorKey);
+
         ScopeContext durableScope = _scopeContextProvider.GetCurrentScope();
         AuditEvent auditEvent = durableScope.CreateAuditEvent(
             AuditEventTypes.GovernanceManifestPromoted,
-            promotedBy,
-            promotedBy,
+            promotedByActorKey,
+            promotedByDisplay,
             JsonSerializer.Serialize(
                 new
                 {

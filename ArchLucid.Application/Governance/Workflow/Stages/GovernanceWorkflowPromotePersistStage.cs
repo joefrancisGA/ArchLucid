@@ -58,7 +58,10 @@ public sealed class GovernanceWorkflowPromotePersistStage(
 
         await using IArchLucidUnitOfWork uow = await _unitOfWorkFactory.CreateAsync(cancellationToken);
         Guid? promotedRunId = Guid.TryParse(record.RunId, out Guid promotedRunGuid) ? promotedRunGuid : null;
-        AuditEvent governancePromoted = _auditSupport.CreateGovernanceManifestPromotedAuditEvent(record, validated.PromotedBy);
+        AuditEvent governancePromoted = _auditSupport.CreateGovernanceManifestPromotedAuditEvent(
+            record,
+            validated.PromotedByDisplay,
+            validated.PromotedBy);
         governancePromoted.RunId = promotedRunId;
         string durableAuditOperationLabel =
             $"GovernanceManifestPromoted:{LogSanitizer.Sanitize(record.PromotionRecordId)}";

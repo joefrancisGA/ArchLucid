@@ -25,6 +25,7 @@ public sealed class GovernanceWorkflowAuditSupportTests
     [Fact]
     public void CreateGovernanceManifestPromotedAuditEvent_sets_explicit_actor_for_stable_promoted_by()
     {
+        const string displayName = "Pat Operator";
         const string actorKey = "jwt:11111111-2222-3333-4444-555555555555:aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee";
         GovernanceWorkflowAuditSupport support = CreateSupport();
         GovernancePromotionRecord record = new()
@@ -36,11 +37,11 @@ public sealed class GovernanceWorkflowAuditSupportTests
             TargetEnvironment = "test",
         };
 
-        AuditEvent auditEvent = support.CreateGovernanceManifestPromotedAuditEvent(record, actorKey);
+        AuditEvent auditEvent = support.CreateGovernanceManifestPromotedAuditEvent(record, displayName, actorKey);
 
         auditEvent.ExplicitActor.Should().BeTrue();
         auditEvent.ActorUserId.Should().Be(actorKey);
-        auditEvent.ActorUserName.Should().Be(actorKey);
+        auditEvent.ActorUserName.Should().Be(displayName);
     }
 
     [Fact]
