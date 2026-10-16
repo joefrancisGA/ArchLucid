@@ -1,3 +1,4 @@
+using ArchLucid.Core.AzureExtractor;
 using ArchLucid.Integrations.AzureExtractor;
 
 using Microsoft.Extensions.Logging.Abstractions;
@@ -16,14 +17,15 @@ public sealed class HostedAzureAksWorkloadImageCollectorTests
     {
         Mock<IHostedAzureManagementPostReadClient> client = new();
         client
-            .Setup(postClient => postClient.TryRunAksWorkloadImageCommandAsync(
+            .Setup(postClient => postClient.RunAksWorkloadImageCommandAsync(
                 It.IsAny<string>(),
                 It.IsAny<string>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(
-                "acraephidevwus001.azurecr.io/app:1\r\n"
-                + "acraephidevwus001.azurecr.io/app:1\n"
-                + "mcr.microsoft.com/oss/kubernetes/pause:3.6\n");
+                HostedAzureAksRunCommandResult.SucceededWithLogs(
+                    "acraephidevwus001.azurecr.io/app:1\r\n"
+                    + "acraephidevwus001.azurecr.io/app:1\n"
+                    + "mcr.microsoft.com/oss/kubernetes/pause:3.6\n"));
 
         HostedAzureArmResourceRecord cluster = CreateCluster();
 
@@ -50,11 +52,11 @@ public sealed class HostedAzureAksWorkloadImageCollectorTests
     {
         Mock<IHostedAzureManagementPostReadClient> client = new();
         client
-            .Setup(postClient => postClient.TryRunAksWorkloadImageCommandAsync(
+            .Setup(postClient => postClient.RunAksWorkloadImageCommandAsync(
                 It.IsAny<string>(),
                 It.IsAny<string>(),
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync(string.Empty);
+            .ReturnsAsync(HostedAzureAksRunCommandResult.SucceededWithLogs(string.Empty));
 
         HostedAzureAksWorkloadImageCollectResult result =
             await HostedAzureAksWorkloadImageCollector.CollectAsync(
@@ -73,11 +75,14 @@ public sealed class HostedAzureAksWorkloadImageCollectorTests
     {
         Mock<IHostedAzureManagementPostReadClient> client = new();
         client
-            .Setup(postClient => postClient.TryRunAksWorkloadImageCommandAsync(
+            .Setup(postClient => postClient.RunAksWorkloadImageCommandAsync(
                 It.IsAny<string>(),
                 It.IsAny<string>(),
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync((string?)null);
+            .ReturnsAsync(
+                HostedAzureAksRunCommandResult.Failed(
+                    HostedAzureAksRunCommandStatus.InsufficientRbac,
+                    403));
 
         HostedAzureAksWorkloadImageCollectResult result =
             await HostedAzureAksWorkloadImageCollector.CollectAsync(
@@ -89,7 +94,9 @@ public sealed class HostedAzureAksWorkloadImageCollectorTests
 
         Assert.Empty(result.EnrichedResources);
         Assert.Contains(
-            "aks-workload-images-not-collected-hosted",
+            AzureInventoryAksWorkloadImageCollectionWarnings.FormatHostedWarning(
+                AzureInventoryAksWorkloadImageCollectionWarnings.ReasonInsufficientRbac,
+                "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.ContainerService/managedClusters/aks"),
             result.CollectionWarnings);
     }
 

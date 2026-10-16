@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
 
-import { INFRA_EVIDENCE_DIAGRAM_LEGEND_PROBABLE } from "@/lib/infra-evidence/infra-evidence-diagram-copy";
 import { buildInfraEvidencePngReadingStripLines } from "@/lib/infra-evidence/infra-evidence-png-reading-strip";
 
 describe("infra-evidence-png-reading-strip", () => {
@@ -26,7 +25,7 @@ describe("infra-evidence-png-reading-strip", () => {
     });
 
     expect(lines).toContain("This diagram shows what may connect. It is not observed traffic.");
-    expect(lines).toContain(INFRA_EVIDENCE_DIAGRAM_LEGEND_PROBABLE);
+    expect(lines).toContain("Dashed — probable authorization or declared wiring (RBAC / ADF; not runtime traffic)");
   });
 
   it("omits the data-flow job from network exports", () => {

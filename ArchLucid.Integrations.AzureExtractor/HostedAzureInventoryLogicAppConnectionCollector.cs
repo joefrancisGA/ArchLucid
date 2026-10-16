@@ -38,7 +38,7 @@ public static class HostedAzureInventoryLogicAppConnectionCollector
             {
                 try
                 {
-                    JsonElement? workflowResource = await armReadClient.TryGetArmResourceJsonAsync(
+                    (int statusCode, JsonElement? workflowResource) = await armReadClient.ReadArmResourceWithStatusAsync(
                         accessToken,
                         resource.ResourceId.Trim(),
                         LogicAppApiVersion,
@@ -54,6 +54,30 @@ public static class HostedAzureInventoryLogicAppConnectionCollector
                         {
                             AddConnection(connection, rows, seenKeys);
                         }
+
+                        continue;
+                    }
+
+                    if (statusCode is 401 or 403)
+                    {
+                        AddCollectionFailureRow(
+                            rows,
+                            seenKeys,
+                            resource.ResourceId.Trim(),
+                            resource.Name,
+                            AzureInventoryLogicAppConnectionCollectionWarnings.ReasonInsufficientPermission);
+
+                        continue;
+                    }
+
+                    if (statusCode > 0)
+                    {
+                        AddCollectionFailureRow(
+                            rows,
+                            seenKeys,
+                            resource.ResourceId.Trim(),
+                            resource.Name,
+                            AzureInventoryLogicAppConnectionCollectionWarnings.MapHttpStatusToReason(statusCode));
                     }
                 }
                 catch (Exception ex) when (ex is not OperationCanceledException)
@@ -65,6 +89,13 @@ public static class HostedAzureInventoryLogicAppConnectionCollector
                             "Hosted Azure extractor skipped Logic App workflow {WorkflowId}.",
                             resource.ResourceId);
                     }
+
+                    AddCollectionFailureRow(
+                        rows,
+                        seenKeys,
+                        resource.ResourceId.Trim(),
+                        resource.Name,
+                        AzureInventoryLogicAppConnectionCollectionWarnings.ReasonError);
                 }
 
                 continue;
@@ -142,6 +173,35 @@ public static class HostedAzureInventoryLogicAppConnectionCollector
         {
             rows.Add(connection);
         }
+    }
+
+    private static void AddCollectionFailureRow(
+        List<AzureInventoryLogicAppConnectionRow> rows,
+        HashSet<string> seenKeys,
+        string workflowResourceId,
+        string workflowName,
+        string reason)
+    {
+        string warningCode = AzureInventoryLogicAppConnectionCollectionWarnings.Format(reason, workflowResourceId);
+        string key = $"{workflowResourceId}|_collection|{warningCode}";
+
+        if (!seenKeys.Add(key))
+        {
+            return;
+        }
+
+        rows.Add(new AzureInventoryLogicAppConnectionRow
+        {
+            WorkflowResourceId = workflowResourceId,
+            WorkflowName = workflowName,
+            ConnectionName = "_collection",
+            CollectionStatus = reason.Equals(
+                AzureInventoryLogicAppConnectionCollectionWarnings.ReasonInsufficientPermission,
+                StringComparison.OrdinalIgnoreCase)
+                ? AzureInventoryAdfLinkedServiceCollectionStatus.Forbidden
+                : AzureInventoryAdfLinkedServiceCollectionStatus.MalformedPayload,
+            WarningCode = warningCode,
+        });
     }
 }
 

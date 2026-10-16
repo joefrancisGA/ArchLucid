@@ -1,3 +1,5 @@
+using ArchLucid.Core.AzureExtractor;
+
 using Microsoft.Extensions.Logging;
 
 namespace ArchLucid.Integrations.AzureExtractor;
@@ -5,8 +7,6 @@ namespace ArchLucid.Integrations.AzureExtractor;
 public static class HostedAzureAksWorkloadImageCollector
 {
     private const string ManagedClusterResourceType = "Microsoft.ContainerService/managedClusters";
-    private const string WarningCode = "aks-workload-images-not-collected-hosted";
-
     public static async Task<HostedAzureAksWorkloadImageCollectResult> CollectAsync(
         IHostedAzureManagementPostReadClient postReadClient,
         string accessToken,
@@ -24,20 +24,28 @@ public static class HostedAzureAksWorkloadImageCollector
 
         foreach (HostedAzureArmResourceRecord cluster in resources.Where(IsManagedCluster))
         {
-            string? commandOutput = await postReadClient
-                .TryRunAksWorkloadImageCommandAsync(
+            HostedAzureAksRunCommandResult commandResult = await postReadClient
+                .RunAksWorkloadImageCommandAsync(
                     accessToken,
                     cluster.ResourceId,
                     cancellationToken)
                 .ConfigureAwait(false);
 
-            if (commandOutput is null)
+            if (commandResult.Status is not HostedAzureAksRunCommandStatus.Succeeded)
             {
-                warnings.Add(WarningCode);
+                warnings.Add(
+                    AzureInventoryAksWorkloadImageCollectionWarnings.FormatHostedWarning(
+                        MapStatusToReason(commandResult.Status),
+                        cluster.ResourceId));
                 continue;
             }
 
-            IReadOnlyList<string> images = ParseImages(commandOutput);
+            if (string.IsNullOrWhiteSpace(commandResult.Logs))
+            {
+                continue;
+            }
+
+            IReadOnlyList<string> images = ParseImages(commandResult.Logs);
 
             if (images.Count == 0)
             {
@@ -66,6 +74,26 @@ public static class HostedAzureAksWorkloadImageCollector
         return resource.ResourceType.Equals(
             ManagedClusterResourceType,
             StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static string MapStatusToReason(HostedAzureAksRunCommandStatus status)
+    {
+        return status switch
+        {
+            HostedAzureAksRunCommandStatus.InsufficientRbac =>
+                AzureInventoryAksWorkloadImageCollectionWarnings.ReasonInsufficientRbac,
+            HostedAzureAksRunCommandStatus.MissingLogs =>
+                AzureInventoryAksWorkloadImageCollectionWarnings.ReasonMissingLogs,
+            HostedAzureAksRunCommandStatus.RunCommandFailed =>
+                AzureInventoryAksWorkloadImageCollectionWarnings.ReasonRunCommandFailed,
+            HostedAzureAksRunCommandStatus.HttpError =>
+                AzureInventoryAksWorkloadImageCollectionWarnings.ReasonHttpError,
+            HostedAzureAksRunCommandStatus.PollTimeout =>
+                AzureInventoryAksWorkloadImageCollectionWarnings.ReasonPollTimeout,
+            HostedAzureAksRunCommandStatus.Error =>
+                AzureInventoryAksWorkloadImageCollectionWarnings.ReasonError,
+            _ => AzureInventoryAksWorkloadImageCollectionWarnings.ReasonUnavailable,
+        };
     }
 
     private static IReadOnlyList<string> ParseImages(string commandOutput)

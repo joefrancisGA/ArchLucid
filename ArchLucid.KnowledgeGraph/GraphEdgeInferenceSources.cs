@@ -84,6 +84,12 @@ public static class GraphEdgeInferenceSources
 
     public const string InventoryAksServiceLoadBalancer = "inventory-aks-service-lb";
 
+    public const string InventoryFabricCapacityWorkspace = "inventory-fabric-capacity-workspace";
+
+    public const string InventoryStaticSiteBackend = "inventory-static-site-backend";
+
+    public const string InventoryDiagnosticSettingStorage = "inventory-diagnostic-setting-storage";
+
     public const string InventoryServiceConnectorLink = "inventory-service-connector-link";
 
     public const string InventorySynapseLinkedService = "inventory-synapse-linked-service";
