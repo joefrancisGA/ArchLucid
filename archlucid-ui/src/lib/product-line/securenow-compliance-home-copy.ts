@@ -5,10 +5,11 @@ import {
 } from "@/lib/governance/governance-route-paths";
 import type { SecureNowHomeDestinationRow } from "@/lib/product-line/securenow-home-destination-rows";
 import { SECURENOW_NAV_LABELS } from "@/lib/product-line/securenow-nav-labels";
+import { secureNowTitleCase } from "@/lib/product-line/securenow-title-case";
 
 export const SECURENOW_COMPLIANCE_HOME_SECTION_HEADING = "Compliance" as const;
 
-export const SECURENOW_COMPLIANCE_NAV_GROUP_LABEL = "ARC-AMPE compliance" as const;
+export const SECURENOW_COMPLIANCE_NAV_GROUP_LABEL = secureNowTitleCase("ARC-AMPE compliance");
 
 export const SECURENOW_COMPLIANCE_HOME_SECTION_LEAD =
   "Choose frameworks, inspect effective rules, and trace controls to evidence." as const;

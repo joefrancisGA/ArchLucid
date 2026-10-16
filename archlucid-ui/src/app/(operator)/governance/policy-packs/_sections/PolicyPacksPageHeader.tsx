@@ -2,8 +2,10 @@
 
 import Link from "next/link";
 
-import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
+import { GOVERNANCE_POLICY_PACKS_PATH, SECURENOW_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
+import { resolveSecureNowPageHeading } from "@/lib/product-line/securenow-page-heading";
 import { RefreshButton } from "@/components/ui/refresh-button";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -31,6 +33,8 @@ export type PolicyPacksPageHeaderProps = {
 
 /** Shared `/governance/policy-packs` hero — title, lead, contextual help, refresh, and resolution shortcut. */
 export function PolicyPacksPageHeader(props: PolicyPacksPageHeaderProps): React.JSX.Element {
+  const { productLine } = useProductLine();
+  const pageTitle = resolveSecureNowPageHeading(productLine, POLICY_PACKS_PAGE_TITLE, SECURENOW_POLICY_PACKS_PATH);
   const freshnessLabel = props.refreshing
     ? POLICY_PACKS_ACTION_REFRESHING
     : operatorFreshnessMetadataWithClockLabel({
@@ -42,7 +46,7 @@ export function PolicyPacksPageHeader(props: PolicyPacksPageHeaderProps): React.
   return (
     <OperatorPageHeader
       navHref={GOVERNANCE_POLICY_PACKS_PATH}
-      title={POLICY_PACKS_PAGE_TITLE}
+      title={pageTitle}
       titleTestId="policy-packs-page-title"
       subtitle={props.subtitle}
       claimDiscipline={POLICY_PACKS_HUB_CLAIM_DISCIPLINE}

@@ -148,7 +148,7 @@ describe("operator-nav-labels", () => {
       title: OPERATOR_NAV_LINK_LABELS.cloudConnections,
     };
 
-    expect(resolveNavLinkPresentation(source, false, false, false, "security").label).toBe("Azure connections");
+    expect(resolveNavLinkPresentation(source, false, false, false, "security").label).toBe("Azure Connections");
     expect(resolveNavLinkPresentation(source, false, false, false, "architecture").label).toBe("Cloud connections");
   });
 

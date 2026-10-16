@@ -10,7 +10,8 @@ import { SECURENOW_NAV_LABELS } from "@/lib/product-line/securenow-nav-labels";
 
 import type { SecureNowHomeDestinationRow } from "@/lib/product-line/securenow-home-destination-rows";
 
-export const SECURENOW_INFRASTRUCTURE_DRIFT_LABEL = "Changes & drift" as const;
+export const SECURENOW_INFRASTRUCTURE_DRIFT_LABEL =
+  SECURENOW_NAV_LABELS[SECURENOW_INFRASTRUCTURE_DRIFT_PATH] ?? "Changes & Drift";
 
 export const SECURENOW_INFRASTRUCTURE_HOME_SECTION_HEADING = "Environment" as const;
 

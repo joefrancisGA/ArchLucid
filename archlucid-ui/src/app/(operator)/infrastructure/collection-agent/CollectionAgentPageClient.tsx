@@ -28,6 +28,10 @@ import { formatRelativeTime } from "@/lib/relative-time";
 import {
   SECURENOW_COLLECTION_AGENT_PATH,
 } from "@/lib/product-line/securenow-collection-agent-route";
+import { SECURENOW_NAV_LABELS } from "@/lib/product-line/securenow-nav-labels";
+
+const COLLECTION_AGENT_PAGE_TITLE =
+  SECURENOW_NAV_LABELS[SECURENOW_COLLECTION_AGENT_PATH] ?? "Collection Agent";
 import { SECURENOW_INFRASTRUCTURE_DRIFT_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
 import { OPERATOR_LINK, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
@@ -161,7 +165,7 @@ export function CollectionAgentPageClient(): React.JSX.Element {
 
     return (
       <OperatorPageContainer variant="workflow" className={cn("px-1 py-4 sm:px-0", OPERATOR_LAYOUT.sectionStack)}>
-        <OperatorPageHeader title="Collection agent" subtitle="Whether scheduled collection is running and what it found." />
+        <OperatorPageHeader title={COLLECTION_AGENT_PAGE_TITLE} subtitle="Whether scheduled collection is running and what it found." />
         <div role="alert" className="rounded-md border border-rose-300 bg-rose-50 p-4 text-rose-950 dark:border-rose-700 dark:bg-rose-950/30 dark:text-rose-100">
           {failure.message}
         </div>
@@ -173,7 +177,7 @@ export function CollectionAgentPageClient(): React.JSX.Element {
     <OperatorPageContainer variant="workflow" className={cn("px-1 py-4 sm:px-0", OPERATOR_LAYOUT.sectionStack)}>
       <OperatorPageHeader
         navHref={SECURENOW_COLLECTION_AGENT_PATH}
-        title="Collection agent"
+        title={COLLECTION_AGENT_PAGE_TITLE}
         subtitle="Whether scheduled collection is running and what it found."
         actions={
           <button

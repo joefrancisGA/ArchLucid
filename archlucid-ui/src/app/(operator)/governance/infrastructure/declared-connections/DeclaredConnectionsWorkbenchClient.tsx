@@ -61,11 +61,15 @@ import {
   GOVERNANCE_INFRASTRUCTURE_DECLARED_CONNECTIONS_PRIMARY_CONTENT_ID,
   GOVERNANCE_INFRASTRUCTURE_DECLARED_CONNECTIONS_SKIP_LINK_LABEL,
 } from "@/lib/governance/governance-infrastructure-copy";
-import { GOVERNANCE_INFRASTRUCTURE_DECLARED_CONNECTIONS_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
+import {
+  GOVERNANCE_INFRASTRUCTURE_DECLARED_CONNECTIONS_PATH,
+  SECURENOW_INFRASTRUCTURE_DECLARED_CONNECTIONS_PATH,
+} from "@/lib/governance/governance-infrastructure-route-paths";
 import { formatIsoUtcForDisplay } from "@/lib/format-iso-utc";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { infrastructureResourcesPathForProductLine } from "@/lib/product-line/securenow-infrastructure-resources-route";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
+import { resolveSecureNowPageHeading } from "@/lib/product-line/securenow-page-heading";
 import {
   createSecurityDeclaredConnection,
   listSecurityDeclaredConnections,
@@ -127,6 +131,11 @@ function statusTagKind(status: ReturnType<typeof resolveDeclaredConnectionDispla
 export function DeclaredConnectionsWorkbenchClient() {
   const { productLine } = useProductLine();
   const pathname = usePathname() ?? GOVERNANCE_INFRASTRUCTURE_DECLARED_CONNECTIONS_PATH;
+  const pageTitle = resolveSecureNowPageHeading(
+    productLine,
+    GOVERNANCE_INFRASTRUCTURE_DECLARED_CONNECTIONS_PAGE_TITLE,
+    SECURENOW_INFRASTRUCTURE_DECLARED_CONNECTIONS_PATH,
+  );
   const router = useRouter();
   const searchParams = useSearchParams();
   const resourcesPath = infrastructureResourcesPathForProductLine(productLine);
@@ -351,7 +360,7 @@ export function DeclaredConnectionsWorkbenchClient() {
 
       <OperatorPageHeader
         navHref={GOVERNANCE_INFRASTRUCTURE_DECLARED_CONNECTIONS_PATH}
-        title={GOVERNANCE_INFRASTRUCTURE_DECLARED_CONNECTIONS_PAGE_TITLE}
+        title={pageTitle}
         subtitle={GOVERNANCE_INFRASTRUCTURE_DECLARED_CONNECTIONS_PAGE_LEAD}
         claimDiscipline={GOVERNANCE_INFRASTRUCTURE_DECLARED_CONNECTIONS_CLAIM_DISCIPLINE}
         claimDisciplineTestId="infra-declared-connections-claim-discipline"

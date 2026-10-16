@@ -56,9 +56,9 @@ describe("getRouteTitle — static routes", () => {
     productLineState.current = "security";
 
     expect(getRouteTitle("/infrastructure/resources", "security")).toBe("Resources");
-    expect(getRouteTitle("/infrastructure/ask", "security")).toBe("Ask about your environment");
-    expect(getRouteTitle("/security/assigned-to-me", "security")).toBe("My findings");
-    expect(getRouteTitle("/security/remediation-instances", "security")).toBe("Remediation tracker");
+    expect(getRouteTitle("/infrastructure/ask", "security")).toBe("Ask About Your Environment");
+    expect(getRouteTitle("/security/assigned-to-me", "security")).toBe("My Findings");
+    expect(getRouteTitle("/security/remediation-instances", "security")).toBe("Remediation Tracker");
   });
 
   it("keeps Architecture resource explorer on the operator label", () => {
