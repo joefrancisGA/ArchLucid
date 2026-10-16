@@ -1625,9 +1625,6 @@
             "type": "string"
           }
         },
-        "required": [
-          "request"
-        ],
         "type": "object"
       },
       "AgentEvidencePackageResponse": {
@@ -2509,9 +2506,7 @@
         ],
         "type": "object"
       },
-      "AgentOutputQualityGateOutcome": {
-        "type": "integer"
-      },
+      "AgentOutputQualityGateOutcome": {},
       "AgentOutputSemanticScore": {
         "properties": {
           "agentResultEmbeddingFaithfulnessMeanCosine": {
@@ -15807,13 +15802,7 @@
         },
         "type": "object"
       },
-      "FindingClassification": {
-        "enum": [
-          "DecisionGradeFinding",
-          "ChecklistCoverage",
-          null
-        ]
-      },
+      "FindingClassification": {},
       "FindingConfidenceLevel": {},
       "FindingCorrelationMethod": {
         "enum": [
@@ -16241,9 +16230,6 @@
       "FindingInsightSignalStatusResponse": {
         "properties": {
           "kinds": {
-            "items": {
-              "$ref": "#/components/schemas/FindingInsightSignalKind"
-            },
             "type": "array"
           }
         },
@@ -16687,15 +16673,7 @@
         },
         "type": "object"
       },
-      "FindingSemanticSupportBand": {
-        "enum": [
-          "Supported",
-          "Unchecked",
-          "Unsupported",
-          "NotScored",
-          null
-        ]
-      },
+      "FindingSemanticSupportBand": {},
       "FindingSeverity": {
         "enum": [
           "Info",
@@ -17418,12 +17396,7 @@
           }
         },
         "required": [
-          "datastores",
-          "governance",
-          "metadata",
-          "relationships",
           "runId",
-          "services",
           "systemName"
         ],
         "type": "object"
@@ -25057,6 +25030,9 @@
               "number",
               "string"
             ]
+          },
+          "committedRunsInventoryTruncated": {
+            "type": "boolean"
           },
           "committedRunsTimeline": {
             "items": {

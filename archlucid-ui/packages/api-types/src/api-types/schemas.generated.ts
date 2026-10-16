@@ -466,7 +466,7 @@ export interface components {
             patterns?: components["schemas"]["PatternEvidence"][];
             policies?: components["schemas"]["PolicyEvidence"][];
             priorManifest?: null | components["schemas"]["PriorManifestEvidence"];
-            request: components["schemas"]["RequestEvidence"];
+            request?: components["schemas"]["RequestEvidence"];
             requestId?: string;
             runId?: string;
             serviceCatalog?: components["schemas"]["ServiceCatalogEvidence"][];
@@ -4568,7 +4568,6 @@ export interface components {
             /** Format: uuid */
             threadId?: null | string;
         };
-        /** @enum {unknown} */
         FindingClassification: "DecisionGradeFinding" | "ChecklistCoverage" | null;
         FindingConfidenceLevel: "High" | "Medium" | "Low" | null;
         /** @enum {string} */
@@ -4677,7 +4676,7 @@ export interface components {
         /** @enum {string} */
         FindingInsightSignalKind: "DidNotThinkOfThat" | "Expected" | "DismissAsChecklist";
         FindingInsightSignalStatusResponse: {
-            kinds?: components["schemas"]["FindingInsightSignalKind"][];
+            kinds?: unknown[];
         };
         FindingInspectEvidenceItem: {
             artifactId?: null | string;
@@ -4777,8 +4776,7 @@ export interface components {
             /** Format: uuid */
             runId?: string;
         };
-        /** @enum {unknown} */
-        FindingSemanticSupportBand: "Supported" | "Unchecked" | "Unsupported" | "NotScored" | null;
+        FindingSemanticSupportBand: unknown;
         /** @enum {string} */
         FindingSeverity: "Info" | "Warning" | "Error" | "Critical";
         FindingTraceCompletenessScore: {
@@ -4978,13 +4976,13 @@ export interface components {
             reReviewTriggered?: boolean;
         };
         GoldenManifest: {
-            datastores: components["schemas"]["ManifestDatastore"][];
+            datastores?: components["schemas"]["ManifestDatastore"][];
             diagramSemantics?: components["schemas"]["ManifestDiagramSemanticOverlay"];
-            governance: components["schemas"]["ManifestGovernance"];
-            metadata: components["schemas"]["ManifestMetadata"];
-            relationships: components["schemas"]["ManifestRelationship"][];
+            governance?: components["schemas"]["ManifestGovernance"];
+            metadata?: components["schemas"]["ManifestMetadata"];
+            relationships?: components["schemas"]["ManifestRelationship"][];
             runId: string;
-            services: components["schemas"]["ManifestService"][];
+            services?: components["schemas"]["ManifestService"][];
             systemName: string;
         };
         GovernanceApprovalBatchReviewRequest: {
@@ -7215,7 +7213,7 @@ export interface components {
             isDemoTenant?: boolean;
             isSampleRun?: boolean;
             /** Format: int32 */
-            llmCallCount?: number;
+            llmCallCount?: null | number;
             llmCallCountResolved?: boolean;
             /** Format: date-time */
             manifestCommittedUtc?: null | string;
@@ -7276,6 +7274,7 @@ export interface components {
             auditExportTruncated?: boolean;
             /** Format: double */
             averagePipelineCompletionSeconds?: null | number | string;
+            committedRunsInventoryTruncated?: boolean;
             committedRunsTimeline?: components["schemas"]["PilotValueReportRunTimelinePoint"][];
             /** Format: int32 */
             comparisonOrDriftDetections?: number;
@@ -8027,7 +8026,7 @@ export interface components {
             evidenceCompleteness?: string;
             findingsBySeverityPresent?: boolean;
             /** Format: int32 */
-            llmCallCount?: number;
+            llmCallCount?: null | number;
             llmCallCountResolved?: boolean;
             proofSendability?: string;
             publishingTier?: string;
@@ -8157,7 +8156,7 @@ export interface components {
         RecentPilotRunDeltaSummaryResponse: {
             isDemoTenant?: boolean;
             /** Format: int32 */
-            llmCallCount?: number;
+            llmCallCount?: null | number;
             llmCallCountResolved?: boolean;
             /** Format: date-time */
             manifestCommittedUtc?: null | string;
