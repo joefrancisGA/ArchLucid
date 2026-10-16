@@ -52,6 +52,16 @@ describe("buildUnfinishedWorkRailItems (TB-2209)", () => {
     ).toEqual([]);
   });
 
+  it("sanitizes blank draft titles on the rail", () => {
+    const items = buildUnfinishedWorkRailItems({
+      drafts: [draft({ draftId: "arch-blank", displayName: "   " })],
+      runs: [],
+      incompleteWizards: [],
+    });
+
+    expect(items[0]?.title).toBe("System name was not stored");
+  });
+
   it("maps architecture drafts with draft status", () => {
     const items = buildUnfinishedWorkRailItems({
       drafts: [draft({ draftId: "arch-1", displayName: "Retail API" })],

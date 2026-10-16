@@ -193,6 +193,11 @@ const HelpGovernanceInfrastructureDriftGuideView = dynamic(() =>
     (module) => module.HelpGovernanceInfrastructureDriftGuideView,
   ),
 );
+const HelpGovernanceInfrastructureResourcesGuideView = dynamic(() =>
+  import("@/app/(operator)/help/_sections/HelpGovernanceInfrastructureResourcesGuideView").then(
+    (module) => module.HelpGovernanceInfrastructureResourcesGuideView,
+  ),
+);
 const HelpGovernanceApprovalGuideView = dynamic(() =>
   import("@/app/(operator)/help/_sections/HelpGovernanceApprovalGuideView").then((module) => module.HelpGovernanceApprovalGuideView),
 );
@@ -406,6 +411,9 @@ export function tryResolveOperateHelpTopicView(
   }
   if (loaded.entry.slug === "governance-infrastructure-drift") {
     return <HelpGovernanceInfrastructureDriftGuideView entry={loaded.entry} />;
+  }
+  if (loaded.entry.slug === "governance-infrastructure-resources") {
+    return <HelpGovernanceInfrastructureResourcesGuideView entry={loaded.entry} />;
   }
   if (loaded.entry.slug === "governance-approval") {
     return <HelpGovernanceApprovalGuideView entry={loaded.entry} />;

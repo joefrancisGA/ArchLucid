@@ -1,7 +1,11 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { RunAgentResultsSummaryCard } from "@/components/runs/RunAgentResultsSummaryCard";
+import {
+  AGENT_EXECUTION_OUTCOME_NOT_STORED_LABEL,
+  RunAgentResultsSummaryCard,
+} from "@/components/runs/RunAgentResultsSummaryCard";
+import { AGENT_TYPE_NOT_STORED_LABEL } from "@/lib/agent-type-buyer-label";
 
 const executeArchitectureRunSelectiveInFlight = vi.fn();
 const routerRefresh = vi.fn();
@@ -54,6 +58,20 @@ describe("RunAgentResultsSummaryCard", () => {
     expect(screen.getByTestId("run-agent-result-row-result-1")).toHaveTextContent("1 claim");
     expect(screen.getByTestId("run-agent-result-row-result-1")).toHaveTextContent("1 finding");
     expect(screen.getByTestId("run-agent-result-row-result-1")).toHaveTextContent("2 evidence refs");
+  });
+
+  it("labels missing agent type and outcome without guessing", () => {
+    render(
+      <RunAgentResultsSummaryCard
+        results={[]}
+        agentExecutionOutcomes={[{ agentType: null, outcome: null, taskId: "t-1" }]}
+      />,
+    );
+
+    expect(screen.getByTestId("run-agent-outcome-row-unknown")).toHaveTextContent(AGENT_TYPE_NOT_STORED_LABEL);
+    expect(screen.getByTestId("run-agent-outcome-row-unknown")).toHaveTextContent(
+      `Outcome: ${AGENT_EXECUTION_OUTCOME_NOT_STORED_LABEL}`,
+    );
   });
 
   it("prefers outcome matrix when agentExecutionOutcomes are present (TB-937)", () => {

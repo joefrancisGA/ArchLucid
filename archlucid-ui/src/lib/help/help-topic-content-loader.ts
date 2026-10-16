@@ -70,6 +70,7 @@ export const HELP_APP_GUIDED_TOPIC_SLUGS = [
   "findings",
   "governance-approval",
   "governance-infrastructure-drift",
+  "governance-infrastructure-resources",
   "cli-usage",
   "glossary",
   "users-and-roles",

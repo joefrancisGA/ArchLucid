@@ -11,3 +11,6 @@ export const ARCHITECTURE_IDENTITY_DESK_OPEN_QUESTIONS_LABEL = ARCHITECTURE_OPEN
 
 export const ARCHITECTURE_IDENTITY_DESK_OPEN_QUESTIONS_EMPTY =
   "No open questions recorded on the current architecture draft." as const;
+
+export const ARCHITECTURE_IDENTITY_DESK_OPEN_QUESTIONS_NOT_STORED =
+  "Open questions were not stored." as const;

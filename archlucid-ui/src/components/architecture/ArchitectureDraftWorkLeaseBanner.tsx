@@ -54,11 +54,11 @@ export function ArchitectureDraftWorkLeaseBanner(
     ? ARCHITECTURE_DRAFT_WORK_LEASE_LOST_BODY
     : ARCHITECTURE_DRAFT_WORK_LEASE_HELD_BY_OTHER_BODY;
 
-  const holderLabel = props.holderActorOid?.trim() || "Another architect";
-  const expiresLabel =
-    props.expiresUtc && props.expiresUtc.length > 0
-      ? new Date(props.expiresUtc).toLocaleString()
-      : null;
+  const holderTrimmed = props.holderActorOid?.trim() ?? "";
+  const holderLabel =
+    holderTrimmed.length > 0 ? holderTrimmed : "Holder was not stored.";
+  const expiresTrimmed = props.expiresUtc?.trim() ?? "";
+  const expiresLabel = expiresTrimmed.length > 0 ? new Date(expiresTrimmed).toLocaleString() : null;
 
   return (
     <>
@@ -75,7 +75,9 @@ export function ArchitectureDraftWorkLeaseBanner(
         {!props.leaseLost ? (
           <p className={cn("mt-2 text-sm text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
             Holder: {holderLabel}
-            {expiresLabel !== null ? ` · lease expires about ${expiresLabel}` : null}
+            {expiresLabel !== null
+              ? ` · lease expires about ${expiresLabel}`
+              : " · Lease expiration was not stored."}
           </p>
         ) : null}
         {props.stealError !== null ? (

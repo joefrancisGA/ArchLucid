@@ -1,4 +1,5 @@
 import type { SponsorReadinessStatus } from "@/lib/architecture/architecture-sponsor-readiness";
+import { UNTITLED_ARCHITECTURE_LABEL } from "@/lib/architecture/architecture-draft-status";
 import { formatConversationListDate } from "@/lib/locale-datetime";
 
 export type BuildArchitectureSponsorDraftInput = {
@@ -65,7 +66,7 @@ export function buildArchitectureSponsorShareMarkdown(input: BuildArchitectureSp
     "> **Known gaps:**",
     ...gapLines.map((line) => `> ${line.replace(/^- /, "")}`),
     "",
-    `# ${input.architectureName}`,
+    `# ${input.architectureName.trim().length > 0 ? input.architectureName.trim() : UNTITLED_ARCHITECTURE_LABEL}`,
     "",
     "## Architecture overview",
     input.architectureOverview.trim().length > 0

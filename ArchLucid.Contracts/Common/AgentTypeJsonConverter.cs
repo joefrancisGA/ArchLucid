@@ -37,15 +37,19 @@ public sealed class AgentTypeJsonConverter : JsonConverter<AgentType>
         throw new JsonException($"Unknown agent type value '{raw}'.");
     }
 
-    public override void Write(Utf8JsonWriter writer, AgentType value, JsonSerializerOptions options) =>
-        writer.WriteStringValue(AgentTypeKeys.FromEnum(DefinedOrTopology(value)));
-
-    /// <summary>
-    ///     <see cref="AgentType" /> is 1-based, so unset DTO fields are 0. Persist/clone JSON cannot emit that
-    ///     sentinel; coerce to Topology so round-trip stays on a defined key.
-    /// </summary>
-    private static AgentType DefinedOrTopology(AgentType value)
+    public override void Write(Utf8JsonWriter writer, AgentType value, JsonSerializerOptions options)
     {
-        return Enum.IsDefined(value) ? value : AgentType.Topology;
+        ArgumentNullException.ThrowIfNull(writer);
+
+        // default(AgentType) is 0 and is not a pipeline role. Findings and results often omit
+        // SourceAgent/AgentType; persist topology so clone/merge JSON round-trips instead of throwing.
+
+        if (value == default)
+        {
+            writer.WriteStringValue(AgentTypeKeys.Topology);
+            return;
+        }
+
+        writer.WriteStringValue(AgentTypeKeys.FromEnum(value));
     }
 }

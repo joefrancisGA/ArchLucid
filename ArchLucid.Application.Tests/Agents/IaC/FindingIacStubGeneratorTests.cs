@@ -40,6 +40,7 @@ public sealed class FindingIacStubGeneratorTests
             [
                 new ArchitectureFinding
                 {
+                    SourceAgent = AgentType.Topology,
                     FindingId = "finding-1",
                     Message = "Use private endpoints.",
                     Category = "Network",
@@ -48,6 +49,7 @@ public sealed class FindingIacStubGeneratorTests
                 },
                 new ArchitectureFinding
                 {
+                    SourceAgent = AgentType.Topology,
                     FindingId = "finding-2",
                     Message = "No evidence should skip generation.",
                     Category = "General",
@@ -113,6 +115,7 @@ public sealed class FindingIacStubGeneratorTests
             [
                 new ArchitectureFinding
                 {
+                    SourceAgent = AgentType.Topology,
                     FindingId = "finding-muted",
                     Message = "Muted finding should not generate IaC.",
                     Category = "Network",
@@ -123,6 +126,7 @@ public sealed class FindingIacStubGeneratorTests
                 },
                 new ArchitectureFinding
                 {
+                    SourceAgent = AgentType.Topology,
                     FindingId = "finding-active",
                     Message = "Active finding should still generate IaC.",
                     Category = "Network",
@@ -197,6 +201,7 @@ public sealed class FindingIacStubGeneratorTests
             [
                 new ArchitectureFinding
                 {
+                    SourceAgent = AgentType.Topology,
                     FindingId = "finding-muted",
                     Message = "Relationally muted finding should not generate IaC.",
                     Category = "Network",
@@ -205,6 +210,7 @@ public sealed class FindingIacStubGeneratorTests
                 },
                 new ArchitectureFinding
                 {
+                    SourceAgent = AgentType.Topology,
                     FindingId = "finding-active",
                     Message = "Active finding should still generate IaC.",
                     Category = "Network",
@@ -294,6 +300,7 @@ public sealed class FindingIacStubGeneratorTests
             [
                 new ArchitectureFinding
                 {
+                    SourceAgent = AgentType.Topology,
                     FindingId = "finding-prose-only",
                     Message = "Consider improving security.",
                     Category = "General",
@@ -302,6 +309,7 @@ public sealed class FindingIacStubGeneratorTests
                 },
                 new ArchitectureFinding
                 {
+                    SourceAgent = AgentType.Topology,
                     FindingId = "finding-typed",
                     Message = "Private endpoint required for storage.",
                     Category = "Network",

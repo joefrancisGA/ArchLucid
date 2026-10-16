@@ -1,14 +1,34 @@
 import type { ClosedLoopReasoningResult } from "@/lib/architecture/architecture-intelligence-api";
 
+export const ARCHITECTURE_INTELLIGENCE_FINDING_SEVERITY_NOT_STORED = "Severity was not stored." as const;
+
+export const ARCHITECTURE_INTELLIGENCE_FINDING_TITLE_NOT_STORED = "Finding title was not stored." as const;
+
+export const ARCHITECTURE_INTELLIGENCE_FINDING_CONCLUSION_NOT_STORED = "Conclusion was not stored." as const;
+
 export type ArchitectureIntelligenceFindingPreview = {
   readonly findingId: string;
   readonly title: string;
-  readonly severity: string;
-  readonly conclusion: string;
+  readonly severity: string | null;
+  readonly conclusion: string | null;
   readonly integrityPassed: boolean;
 };
 
+export type IntegrityPassedFindingIdsPresence =
+  | { readonly kind: "omitted" }
+  | { readonly kind: "stored"; readonly count: number };
+
 const DEFAULT_INLINE_FINDING_LIMIT = 3;
+
+export function resolveIntegrityPassedFindingIdsPresence(
+  result: ClosedLoopReasoningResult,
+): IntegrityPassedFindingIdsPresence {
+  if (result.integrityPassedFindingIds === undefined || result.integrityPassedFindingIds === null) {
+    return { kind: "omitted" };
+  }
+
+  return { kind: "stored", count: result.integrityPassedFindingIds.length };
+}
 
 export function flattenArchitectureIntelligenceFindings(
   result: ClosedLoopReasoningResult,
@@ -18,13 +38,20 @@ export function flattenArchitectureIntelligenceFindings(
   return (result.specialistReviews ?? []).flatMap((review) =>
     (review.findings ?? []).map((finding, index) => {
       const findingId = finding.findingId?.trim() || `${finding.title ?? "finding"}-${index}`;
-      const title = finding.title?.trim() || "Untitled finding";
-      const conclusion = finding.conclusion?.trim() || finding.rationale?.trim() || "";
+      const titleTrimmed = finding.title?.trim() ?? "";
+      const title =
+        titleTrimmed.length > 0 ? titleTrimmed : ARCHITECTURE_INTELLIGENCE_FINDING_TITLE_NOT_STORED;
+      const severityTrimmed = finding.severity?.trim() ?? "";
+      const severity = severityTrimmed.length > 0 ? severityTrimmed : null;
+      const conclusionTrimmed =
+        finding.conclusion?.trim() || finding.rationale?.trim() || "";
+      const conclusion =
+        conclusionTrimmed.length > 0 ? conclusionTrimmed : ARCHITECTURE_INTELLIGENCE_FINDING_CONCLUSION_NOT_STORED;
 
       return {
         findingId,
         title,
-        severity: finding.severity?.trim() || "Medium",
+        severity,
         conclusion,
         integrityPassed: integritySet.has(findingId),
       };
@@ -48,10 +75,14 @@ export function listIntegrityPassedFindingPreviews(
 }
 
 export function countIntegrityPassedFindings(result: ClosedLoopReasoningResult): number {
-  const integrityCount = result.integrityPassedFindingIds?.length ?? 0;
+  const presence = resolveIntegrityPassedFindingIdsPresence(result);
 
-  if (integrityCount > 0) {
-    return integrityCount;
+  if (presence.kind === "omitted") {
+    return flattenArchitectureIntelligenceFindings(result).filter((finding) => finding.integrityPassed).length;
+  }
+
+  if (presence.count > 0) {
+    return presence.count;
   }
 
   return flattenArchitectureIntelligenceFindings(result).filter((finding) => finding.integrityPassed).length;

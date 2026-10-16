@@ -205,6 +205,7 @@ public sealed class AgentExecutionTraceProjectionMapperTests
             new AgentExecutionTrace
             {
                 TraceId = traceId,
+                AgentType = AgentType.Topology,
             },
             ContractJson.Default);
 }

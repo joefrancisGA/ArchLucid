@@ -125,12 +125,34 @@ export const PAGE_HELP_TOPIC_ROWS_OPERATOR_SECURITY: readonly PageHelpTopicRow[]
     topic: { label: OPERATOR_NAV_LINK_LABELS.infrastructureDiagramReconcile },
   },
   {
+    prefix: `${SECURENOW_INFRASTRUCTURE_RESOURCES_PATH}/`,
+    topic: {
+      slug: "governance-infrastructure-resources",
+      label: OPERATOR_NAV_LINK_LABELS.infrastructureResources,
+    },
+  },
+  {
+    prefix: `${GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH}/`,
+    topic: {
+      slug: "governance-infrastructure-resources",
+      label: OPERATOR_NAV_LINK_LABELS.infrastructureResources,
+    },
+  },
+  {
     prefix: SECURENOW_INFRASTRUCTURE_RESOURCES_PATH,
-    topic: { label: OPERATOR_NAV_LINK_LABELS.infrastructureResources },
+    exactMatchOnly: true,
+    topic: {
+      slug: "governance-infrastructure-resources",
+      label: OPERATOR_NAV_LINK_LABELS.infrastructureResources,
+    },
   },
   {
     prefix: GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH,
-    topic: { label: OPERATOR_NAV_LINK_LABELS.infrastructureResources },
+    exactMatchOnly: true,
+    topic: {
+      slug: "governance-infrastructure-resources",
+      label: OPERATOR_NAV_LINK_LABELS.infrastructureResources,
+    },
   },
   {
     prefix: SECURENOW_INFRASTRUCTURE_ASK_PATH,

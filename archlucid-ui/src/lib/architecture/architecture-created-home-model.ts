@@ -1,4 +1,5 @@
 import { ARCHITECTURE_DEFINITION_STATUS_LABELS } from "@/lib/architecture/architecture-created-home-copy";
+import { UNTITLED_ARCHITECTURE_LABEL } from "@/lib/architecture/architecture-draft-status";
 import type { ArchitectureCreationHandoffSnapshot } from "@/lib/architecture/architecture-creation-handoff";
 
 import {
@@ -63,7 +64,8 @@ export function buildArchitectureCreatedHomeModel(
 
   return {
     runId: input.runId,
-    architectureName: input.architectureName.trim().length > 0 ? input.architectureName.trim() : "Untitled architecture",
+    architectureName:
+      input.architectureName.trim().length > 0 ? input.architectureName.trim() : UNTITLED_ARCHITECTURE_LABEL,
     lifecycleLabel: input.workspaceStatus.label === "Analysis in progress" ? "Assessment in progress" : input.workspaceStatus.label,
     lifecycleStatusTagKind: input.workspaceStatus.statusTagKind,
     ownerLabel: input.ownerLabel,

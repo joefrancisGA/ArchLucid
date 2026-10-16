@@ -162,6 +162,24 @@ describe("architecture-sponsor-preliminary-draft", () => {
     expect(watermark.notApproved).toBe(true);
   });
 
+  it("uses system-name omission for blank architecture headings", () => {
+    const markdown = buildArchitectureSponsorShareMarkdown({
+      runId: "run-1",
+      architectureName: " ",
+      architectureOverview: "Overview",
+      businessOutcome: "Outcome",
+      ownerLabel: "owner@example.com",
+      knownGaps: [],
+      confidentialityLabel: "Internal",
+      generatedAtIso: "2026-07-11T12:00:00.000Z",
+      readinessStatus: "preliminary-only",
+      siteOrigin: "https://app.archlucid.test",
+    });
+
+    expect(markdown).toContain("# System name was not stored");
+    expect(markdown).not.toMatch(/^# \s*$/m);
+  });
+
   it("uses omission copy for missing sponsor draft fields and preserves stored values", () => {
     const markdown = buildArchitectureSponsorShareMarkdown({
       runId: "run-1",

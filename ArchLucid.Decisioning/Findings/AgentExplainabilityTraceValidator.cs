@@ -28,9 +28,10 @@ public static class AgentExplainabilityTraceValidator
         ArgumentNullException.ThrowIfNull(sourceFinding);
 
         List<string> errors = [];
-        TraceCompletenessScore completeness = ExplainabilityTraceCompletenessAnalyzer.AnalyzeFinding(mappedFinding);
 
-        if (IsAbsentExplainabilityTrace(mappedFinding.Trace, completeness))
+        // Finding.Trace coalesces null to an empty object; treat that as missing too.
+
+        if (ExplainabilityTraceCompletenessAnalyzer.IsMissingOrEmpty(mappedFinding.Trace))
         {
             errors.Add("ExplainabilityTrace is required on agent-mapped findings.");
 
@@ -38,6 +39,7 @@ public static class AgentExplainabilityTraceValidator
         }
 
         ExplainabilityTrace trace = mappedFinding.Trace;
+        TraceCompletenessScore completeness = ExplainabilityTraceCompletenessAnalyzer.AnalyzeFinding(mappedFinding);
 
         if (sourceFinding.EvidenceRefs.Count == 0)
         {
@@ -103,14 +105,4 @@ public static class AgentExplainabilityTraceValidator
             errors.Add("ExplainabilityTrace.DecisionsTaken must record the agent outcome path.");
     }
 
-    /// <summary>
-    ///     <see cref="Finding.Trace" /> coalesces JSON/object-initializer null to an empty object, so a missing
-    ///     trace arrives as populated-field-count 0 rather than a null reference.
-    /// </summary>
-    private static bool IsAbsentExplainabilityTrace(
-        ExplainabilityTrace? trace,
-        TraceCompletenessScore completeness)
-    {
-        return trace is null || completeness.PopulatedFieldCount == 0;
-    }
 }

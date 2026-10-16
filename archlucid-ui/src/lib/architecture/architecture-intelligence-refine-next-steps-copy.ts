@@ -12,6 +12,11 @@ export const ARCHITECTURE_INTELLIGENCE_REFINE_OPEN_FULL_LAB_LABEL = "Open full a
 export const ARCHITECTURE_INTELLIGENCE_REFINE_ZERO_FINDINGS_HINT =
   "No evidence-backed findings were returned. Add constraints or refine the overview, then start analysis again.";
 
+export const ARCHITECTURE_INTELLIGENCE_FINDING_COUNT_NOT_STORED = "Finding count was not stored." as const;
+
+export const ARCHITECTURE_INTELLIGENCE_FINDINGS_PREVIEW_REVIEW_LINK_NOT_STORED =
+  "Review link was not stored." as const;
+
 export const ARCHITECTURE_INTELLIGENCE_FINDINGS_PREVIEW_HEADING = "Evidence-backed findings";
 
 export const ARCHITECTURE_INTELLIGENCE_FINDINGS_PREVIEW_SHOW_ALL_LABEL = "View all findings in architecture intelligence";

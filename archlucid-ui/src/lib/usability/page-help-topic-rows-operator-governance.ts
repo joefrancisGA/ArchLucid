@@ -27,6 +27,7 @@ import {
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PATH,
   GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH,
   GOVERNANCE_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH,
+  GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH,
   GOVERNANCE_INFRASTRUCTURE_PATH,
   GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PATH,
   GOVERNANCE_INFRASTRUCTURE_TERRAFORM_PATH,
@@ -116,6 +117,21 @@ export const PAGE_HELP_TOPIC_ROWS_OPERATOR_GOVERNANCE: readonly PageHelpTopicRow
   {
     prefix: GOVERNANCE_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH,
     topic: { slug: "cloud-connections-azure", label: OPERATOR_NAV_LINK_LABELS.extractUpload },
+  },
+  {
+    prefix: `${GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH}/`,
+    topic: {
+      slug: "governance-infrastructure-resources",
+      label: OPERATOR_NAV_LINK_LABELS.infrastructureResources,
+    },
+  },
+  {
+    prefix: GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH,
+    exactMatchOnly: true,
+    topic: {
+      slug: "governance-infrastructure-resources",
+      label: OPERATOR_NAV_LINK_LABELS.infrastructureResources,
+    },
   },
   {
     prefix: GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH,

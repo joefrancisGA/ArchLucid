@@ -151,6 +151,8 @@ internal static class DraftNewCommandAdmitStage
             return (null, CliExitCode.OperationFailed);
         }
 
+        // DraftAdmissionResponse.Draft coalesces null to an empty object; empty DraftId is the missing body.
+
         if (IsMissingDraftBody(admission.Value.Draft))
         {
             await error.WriteLineAsync(

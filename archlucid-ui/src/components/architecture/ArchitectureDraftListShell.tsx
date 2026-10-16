@@ -88,7 +88,7 @@ function ArchitectureHubFilterChip(props: {
       ? props.option.label
       : countKnown
         ? `${props.option.label} (${props.count})`
-        : `${props.option.label} (Not returned)`;
+        : `${props.option.label} (count was not stored)`;
 
   return (
     <span className="inline-flex">
