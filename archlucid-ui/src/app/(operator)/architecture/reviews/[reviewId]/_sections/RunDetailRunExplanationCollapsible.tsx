@@ -1,8 +1,8 @@
 "use client";
 
 import type { ReactElement } from "react";
-import { useCallback, useEffect, useState } from "react";
-import { usePathname } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
 
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
@@ -24,17 +24,25 @@ import { RunDecisionExplainabilitySection } from "@/components/runs/RunDecisionE
 import type { RunDecisionExplainabilityModel } from "@/lib/runs/run-decision-explainability-from-detail";
 import { cn } from "@/lib/utils";
 import {
+  RUN_ASSESSMENT_NARRATIVE_OPEN_PARAM,
   parseRunAssessmentNarrativeOpenFromSearch,
-  runAssessmentNarrativeHrefFromSearch} from "@/lib/reviews/run-assessment-narrative-url";
+  runAssessmentNarrativeHrefFromSearch,
+} from "@/lib/reviews/run-assessment-narrative-url";
 import {
+  RUN_COVERAGE_CURATION_OPEN_PARAM,
   parseRunCoverageCurationOpenFromSearch,
-  runCoverageCurationDisclosureHrefFromSearch} from "@/lib/reviews/run-coverage-curation-disclosure-url";
+  runCoverageCurationDisclosureHrefFromSearch,
+} from "@/lib/reviews/run-coverage-curation-disclosure-url";
 import {
+  RUN_FINDING_EXPLAINABILITY_OPEN_PARAM,
   parseRunFindingExplainabilityOpenFromSearch,
-  runFindingExplainabilityDisclosureHrefFromSearch} from "@/lib/reviews/run-finding-explainability-disclosure-url";
+  runFindingExplainabilityDisclosureHrefFromSearch,
+} from "@/lib/reviews/run-finding-explainability-disclosure-url";
 import {
+  RUN_IMPACT_ANALYSIS_OPEN_PARAM,
   parseRunImpactAnalysisOpenFromSearch,
-  runImpactAnalysisDisclosureHrefFromSearch} from "@/lib/reviews/run-impact-analysis-disclosure-url";
+  runImpactAnalysisDisclosureHrefFromSearch,
+} from "@/lib/reviews/run-impact-analysis-disclosure-url";
 import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
 
 import { RunDetailSponsorModeExplanationCard } from "./RunDetailSponsorModeExplanationCard";
@@ -111,18 +119,31 @@ export function RunDetailRunExplanationCollapsible(
     structuralExecutionMode,
     parentArchitectureId} = props;
   const pathname = usePathname() ?? "/";
-  const [assessmentNarrativeOpen, setAssessmentNarrativeOpenState] = useState(() =>
-    parseRunAssessmentNarrativeOpenFromSearch(null),
+  const searchParams = useSearchParams();
+  const urlAssessmentNarrativeOpen = parseRunAssessmentNarrativeOpenFromSearch(
+    searchParams.get(RUN_ASSESSMENT_NARRATIVE_OPEN_PARAM),
   );
-  const [coverageCurationOpen, setCoverageCurationOpenState] = useState(() =>
-    parseRunCoverageCurationOpenFromSearch(null),
+  const urlCoverageCurationOpen = parseRunCoverageCurationOpenFromSearch(
+    searchParams.get(RUN_COVERAGE_CURATION_OPEN_PARAM),
   );
-  const [impactAnalysisOpen, setImpactAnalysisOpenState] = useState(() =>
-    parseRunImpactAnalysisOpenFromSearch(null),
+  const urlImpactAnalysisOpen = parseRunImpactAnalysisOpenFromSearch(
+    searchParams.get(RUN_IMPACT_ANALYSIS_OPEN_PARAM),
   );
-  const [findingExplainabilityOpen, setFindingExplainabilityOpenState] = useState(() =>
-    parseRunFindingExplainabilityOpenFromSearch(null),
+  const urlFindingExplainabilityOpen = parseRunFindingExplainabilityOpenFromSearch(
+    searchParams.get(RUN_FINDING_EXPLAINABILITY_OPEN_PARAM),
   );
+  const [assessmentNarrativeOpen, setAssessmentNarrativeOpenState] = useState(urlAssessmentNarrativeOpen);
+  const assessmentNarrativeOpenRef = useRef(assessmentNarrativeOpen);
+  assessmentNarrativeOpenRef.current = assessmentNarrativeOpen;
+  const [coverageCurationOpen, setCoverageCurationOpenState] = useState(urlCoverageCurationOpen);
+  const coverageCurationOpenRef = useRef(coverageCurationOpen);
+  coverageCurationOpenRef.current = coverageCurationOpen;
+  const [impactAnalysisOpen, setImpactAnalysisOpenState] = useState(urlImpactAnalysisOpen);
+  const impactAnalysisOpenRef = useRef(impactAnalysisOpen);
+  impactAnalysisOpenRef.current = impactAnalysisOpen;
+  const [findingExplainabilityOpen, setFindingExplainabilityOpenState] = useState(urlFindingExplainabilityOpen);
+  const findingExplainabilityOpenRef = useRef(findingExplainabilityOpen);
+  findingExplainabilityOpenRef.current = findingExplainabilityOpen;
   const findingTitlesById = buildFindingTitlesById(quickDecisionFindings);
   const explanationBlockedReason = explainRunBlockedReason(explanationFailure);
   const showCoverageAndCuration = hasFindingsSnapshotInsightDensityContent(insightDensityView);
@@ -143,14 +164,15 @@ export function RunDetailRunExplanationCollapsible(
 
   const setAssessmentNarrativeOpen = useCallback(
     (open: boolean) => {
-      if (assessmentNarrativeOpen === open) {
+      if (assessmentNarrativeOpenRef.current === open) {
         return;
       }
 
+      assessmentNarrativeOpenRef.current = open;
       setAssessmentNarrativeOpenState(open);
       syncAssessmentNarrativeOpenToUrl(open);
     },
-    [assessmentNarrativeOpen, syncAssessmentNarrativeOpenToUrl],
+    [syncAssessmentNarrativeOpenToUrl],
   );
 
   const syncCoverageCurationOpenToUrl = useCallback(
@@ -165,14 +187,15 @@ export function RunDetailRunExplanationCollapsible(
 
   const setCoverageCurationOpen = useCallback(
     (open: boolean) => {
-      if (coverageCurationOpen === open) {
+      if (coverageCurationOpenRef.current === open) {
         return;
       }
 
+      coverageCurationOpenRef.current = open;
       setCoverageCurationOpenState(open);
       syncCoverageCurationOpenToUrl(open);
     },
-    [coverageCurationOpen, syncCoverageCurationOpenToUrl],
+    [syncCoverageCurationOpenToUrl],
   );
 
   const syncImpactAnalysisOpenToUrl = useCallback(
@@ -187,14 +210,15 @@ export function RunDetailRunExplanationCollapsible(
 
   const setImpactAnalysisOpen = useCallback(
     (open: boolean) => {
-      if (impactAnalysisOpen === open) {
+      if (impactAnalysisOpenRef.current === open) {
         return;
       }
 
+      impactAnalysisOpenRef.current = open;
       setImpactAnalysisOpenState(open);
       syncImpactAnalysisOpenToUrl(open);
     },
-    [impactAnalysisOpen, syncImpactAnalysisOpenToUrl],
+    [syncImpactAnalysisOpenToUrl],
   );
 
   const syncFindingExplainabilityOpenToUrl = useCallback(
@@ -209,40 +233,56 @@ export function RunDetailRunExplanationCollapsible(
 
   const setFindingExplainabilityOpen = useCallback(
     (open: boolean) => {
-      if (findingExplainabilityOpen === open) {
+      if (findingExplainabilityOpenRef.current === open) {
         return;
       }
 
+      findingExplainabilityOpenRef.current = open;
       setFindingExplainabilityOpenState(open);
       syncFindingExplainabilityOpenToUrl(open);
     },
-    [findingExplainabilityOpen, syncFindingExplainabilityOpenToUrl],
+    [syncFindingExplainabilityOpenToUrl],
   );
 
   useEffect(() => {
     const syncDisclosuresFromUrl = (): void => {
       const params = new URLSearchParams(window.location.search);
 
-      setAssessmentNarrativeOpenState((current) => {
-        const next = parseRunAssessmentNarrativeOpenFromSearch(params.get("runAssessmentNarrativeOpen"));
+      const nextAssessmentNarrativeOpen = parseRunAssessmentNarrativeOpenFromSearch(
+        params.get(RUN_ASSESSMENT_NARRATIVE_OPEN_PARAM),
+      );
 
-        return current === next ? current : next;
-      });
-      setCoverageCurationOpenState((current) => {
-        const next = parseRunCoverageCurationOpenFromSearch(params.get("runCoverageCurationOpen"));
+      if (assessmentNarrativeOpenRef.current !== nextAssessmentNarrativeOpen) {
+        assessmentNarrativeOpenRef.current = nextAssessmentNarrativeOpen;
+        setAssessmentNarrativeOpenState(nextAssessmentNarrativeOpen);
+      }
 
-        return current === next ? current : next;
-      });
-      setImpactAnalysisOpenState((current) => {
-        const next = parseRunImpactAnalysisOpenFromSearch(params.get("runImpactAnalysisOpen"));
+      const nextCoverageCurationOpen = parseRunCoverageCurationOpenFromSearch(
+        params.get(RUN_COVERAGE_CURATION_OPEN_PARAM),
+      );
 
-        return current === next ? current : next;
-      });
-      setFindingExplainabilityOpenState((current) => {
-        const next = parseRunFindingExplainabilityOpenFromSearch(params.get("runFindingExplainabilityOpen"));
+      if (coverageCurationOpenRef.current !== nextCoverageCurationOpen) {
+        coverageCurationOpenRef.current = nextCoverageCurationOpen;
+        setCoverageCurationOpenState(nextCoverageCurationOpen);
+      }
 
-        return current === next ? current : next;
-      });
+      const nextImpactAnalysisOpen = parseRunImpactAnalysisOpenFromSearch(
+        params.get(RUN_IMPACT_ANALYSIS_OPEN_PARAM),
+      );
+
+      if (impactAnalysisOpenRef.current !== nextImpactAnalysisOpen) {
+        impactAnalysisOpenRef.current = nextImpactAnalysisOpen;
+        setImpactAnalysisOpenState(nextImpactAnalysisOpen);
+      }
+
+      const nextFindingExplainabilityOpen = parseRunFindingExplainabilityOpenFromSearch(
+        params.get(RUN_FINDING_EXPLAINABILITY_OPEN_PARAM),
+      );
+
+      if (findingExplainabilityOpenRef.current !== nextFindingExplainabilityOpen) {
+        findingExplainabilityOpenRef.current = nextFindingExplainabilityOpen;
+        setFindingExplainabilityOpenState(nextFindingExplainabilityOpen);
+      }
     };
 
     syncDisclosuresFromUrl();
@@ -252,6 +292,33 @@ export function RunDetailRunExplanationCollapsible(
       window.removeEventListener("popstate", syncDisclosuresFromUrl);
     };
   }, []);
+
+  useEffect(() => {
+    if (assessmentNarrativeOpenRef.current !== urlAssessmentNarrativeOpen) {
+      assessmentNarrativeOpenRef.current = urlAssessmentNarrativeOpen;
+      setAssessmentNarrativeOpenState(urlAssessmentNarrativeOpen);
+    }
+
+    if (coverageCurationOpenRef.current !== urlCoverageCurationOpen) {
+      coverageCurationOpenRef.current = urlCoverageCurationOpen;
+      setCoverageCurationOpenState(urlCoverageCurationOpen);
+    }
+
+    if (impactAnalysisOpenRef.current !== urlImpactAnalysisOpen) {
+      impactAnalysisOpenRef.current = urlImpactAnalysisOpen;
+      setImpactAnalysisOpenState(urlImpactAnalysisOpen);
+    }
+
+    if (findingExplainabilityOpenRef.current !== urlFindingExplainabilityOpen) {
+      findingExplainabilityOpenRef.current = urlFindingExplainabilityOpen;
+      setFindingExplainabilityOpenState(urlFindingExplainabilityOpen);
+    }
+  }, [
+    urlAssessmentNarrativeOpen,
+    urlCoverageCurationOpen,
+    urlFindingExplainabilityOpen,
+    urlImpactAnalysisOpen,
+  ]);
 
   return (
     <section id="run-explanation" className="scroll-mt-24 space-y-4">
