@@ -7678,3 +7678,4 @@
 {"at":"2026-10-16T20:49:25.2653508Z","zoneId":"archlucid-core","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Core/AzureExtractor/AzureInventoryRouteTableRouteParser.cs"]}
 {"at":"2026-10-16T20:53:18.7604195Z","zoneId":"archlucid-core","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Core/AzureExtractor/AzureInventoryApplicationGatewayBackendAddressReader.cs"]}
 {"at":"2026-10-16T20:56:54.3524416Z","zoneId":"archlucid-core","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Core/AzureExtractor/AzureInventoryLoadBalancerBackendTrafficResolver.cs"]}
+{"at":"2026-10-16T21:06:14.7271290Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Agents/ExternalSubprocessorEngineAcknowledgmentService.cs","ArchLucid.Api/Controllers/Admin/SettingsController.Engines.cs"]}
