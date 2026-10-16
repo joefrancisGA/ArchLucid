@@ -9,6 +9,8 @@ public sealed class AzureInventoryVnetCustomDnsIndex
 {
     private const string AzureDefaultDnsServer = "168.63.129.16";
 
+    private const string FlattenedDnsServersIndexedKeyPrefix = "dhcpOptions.dnsServers.";
+
     private readonly HashSet<string> _vnetArmIdsWithCustomDns;
 
     private AzureInventoryVnetCustomDnsIndex(HashSet<string> vnetArmIdsWithCustomDns) =>
@@ -77,6 +79,8 @@ public sealed class AzureInventoryVnetCustomDnsIndex
                 }
             }
         }
+
+        AppendDnsServersFromIndexedFlattenedKeys(properties, mergedServers);
 
         if (mergedServers.Count == 0)
         {
@@ -215,6 +219,34 @@ public sealed class AzureInventoryVnetCustomDnsIndex
         propertyValue = null;
 
         return false;
+    }
+
+    private static void AppendDnsServersFromIndexedFlattenedKeys(
+        IReadOnlyDictionary<string, string> properties,
+        List<string> mergedServers)
+    {
+        foreach ((string propertyKey, string value) in properties)
+        {
+
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                continue;
+            }
+
+            if (!propertyKey.StartsWith(FlattenedDnsServersIndexedKeyPrefix, StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            string indexSegment = propertyKey[FlattenedDnsServersIndexedKeyPrefix.Length..];
+
+            if (string.IsNullOrWhiteSpace(indexSegment))
+            {
+                continue;
+            }
+
+            mergedServers.Add(value.Trim());
+        }
     }
 
     private static void AppendDnsServersFromDelimitedString(string? servers, List<string> dnsServers)
