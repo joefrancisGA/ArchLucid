@@ -31,6 +31,24 @@ public sealed class AzureInventoryPrivateEndpointDnsJoinIndexTests
     }
 
     [Fact]
+    public void ComputeToVnetArmId_values_are_normalized_when_subnet_arm_id_has_extra_slash_before_subnets_segment()
+    {
+        string vnet = BuildVnet("vnet-a");
+        string subnet = $"{vnet}//subnets/subnet-a";
+        string app = BuildWebApp("orders-api");
+
+        AzureInventoryPrivateEndpointDnsJoinIndex index = AzureInventoryPrivateEndpointDnsJoinIndex.Build(
+        [
+            Triple(app, subnet, GraphEdgeInferenceSources.InventoryAppServiceSubnet),
+        ]);
+
+        index.ComputeToVnetArmId.Should().ContainKey(ArmResourceIdNormalizer.Normalize(app));
+        index.ComputeToVnetArmId[ArmResourceIdNormalizer.Normalize(app)]
+            .Should()
+            .Be(ArmResourceIdNormalizer.Normalize(vnet));
+    }
+
+    [Fact]
     public void HasPeReachableTarget_true_when_materialized_edge_present()
     {
         string vnet = BuildVnet("vnet-a");

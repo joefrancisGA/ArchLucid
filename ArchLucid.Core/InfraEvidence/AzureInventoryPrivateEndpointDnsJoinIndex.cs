@@ -127,7 +127,8 @@ public sealed class AzureInventoryPrivateEndpointDnsJoinIndex
                 continue;
             }
 
-            computeToVnet[appArmId] = vnetArmId;
+            computeToVnet[ArmResourceIdNormalizer.Normalize(appArmId)] =
+                ArmResourceIdNormalizer.Normalize(vnetArmId);
         }
 
         foreach ((string vmArmId, string nicArmId) in vmToNic)
@@ -144,7 +145,8 @@ public sealed class AzureInventoryPrivateEndpointDnsJoinIndex
                 continue;
             }
 
-            computeToVnet[vmArmId] = vnetArmId;
+            computeToVnet[ArmResourceIdNormalizer.Normalize(vmArmId)] =
+                ArmResourceIdNormalizer.Normalize(vnetArmId);
         }
 
         return computeToVnet;
