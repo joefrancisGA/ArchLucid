@@ -194,12 +194,7 @@ public static class AzureInventoryLoadBalancerBackendParentArmIdResolver
 
     private static string? TryReadNetworkInterfaceIpConfigurationReference(JsonElement reference)
     {
-        if (reference.ValueKind is JsonValueKind.String)
-        {
-            return reference.GetString();
-        }
-
-        return TryReadDirectId(reference);
+        return AzureInventoryNetworkInterfaceIpConfigurationReferenceReader.TryReadArmId(reference);
     }
 
     private static bool TryGetPropertyIgnoreCase(
