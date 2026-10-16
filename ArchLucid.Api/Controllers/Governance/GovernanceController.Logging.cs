@@ -67,6 +67,7 @@ public sealed partial class GovernanceController
                     manifestVersion = request.ManifestVersion?.Trim(),
                     sourceEnvironment = request.SourceEnvironment?.Trim(),
                     targetEnvironment = request.TargetEnvironment?.Trim(),
+                    requestedBy = actorUserName,
                     requestedByActorKey = actorUserId,
                 })
             },
