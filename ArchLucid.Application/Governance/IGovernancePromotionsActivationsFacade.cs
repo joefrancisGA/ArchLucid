@@ -25,6 +25,7 @@ public interface IGovernancePromotionsActivationsFacade
         string manifestVersion,
         string environment,
         string activatedBy,
+        string? activatedByDisplay,
         CancellationToken ct);
 
     Task<IReadOnlyList<GovernanceApprovalRequest>> ListApprovalRequestsByRunIdAsync(

@@ -98,6 +98,13 @@ public sealed class GovernanceWorkflowService(IGovernanceWorkflowFacade workflow
         string manifestVersion,
         string environment,
         string activatedBy,
+        string? activatedByDisplay = null,
         CancellationToken cancellationToken = default) =>
-        _workflowFacade.ActivateAsync(runId, manifestVersion, environment, activatedBy, cancellationToken);
+        _workflowFacade.ActivateAsync(
+            runId,
+            manifestVersion,
+            environment,
+            activatedBy,
+            activatedByDisplay,
+            cancellationToken);
 }

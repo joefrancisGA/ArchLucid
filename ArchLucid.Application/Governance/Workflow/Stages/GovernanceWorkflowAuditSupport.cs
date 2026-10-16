@@ -117,13 +117,17 @@ public sealed class GovernanceWorkflowAuditSupport(
 
     public AuditEvent CreateGovernanceEnvironmentActivatedAuditEvent(
         GovernanceEnvironmentActivation activation,
-        string activatedBy)
+        string activatedByDisplay,
+        string activatedByActorKey)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(activatedByDisplay);
+        ArgumentException.ThrowIfNullOrWhiteSpace(activatedByActorKey);
+
         ScopeContext durableScope = _scopeContextProvider.GetCurrentScope();
         AuditEvent auditEvent = durableScope.CreateAuditEvent(
             AuditEventTypes.GovernanceEnvironmentActivated,
-            activatedBy,
-            activatedBy,
+            activatedByActorKey,
+            activatedByDisplay,
             JsonSerializer.Serialize(
                 new
                 {
@@ -131,7 +135,8 @@ public sealed class GovernanceWorkflowAuditSupport(
                     runId = activation.RunId,
                     manifestVersion = activation.ManifestVersion,
                     environment = activation.Environment,
-                    activatedBy
+                    activatedBy = activatedByDisplay,
+                    activatedByActorKey
                 },
                 AuditJsonSerializationOptions.Instance));
         auditEvent.ExplicitActor = true;

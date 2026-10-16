@@ -210,6 +210,7 @@ public sealed partial class GovernanceController
                 request.ManifestVersion,
                 request.Environment,
                 actorContext.GetActorId(),
+                actorContext.GetActor(),
                 cancellationToken);
 
             return Ok(result);

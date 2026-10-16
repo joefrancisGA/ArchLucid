@@ -53,5 +53,6 @@ public interface IGovernanceWorkflowFacade
         string manifestVersion,
         string environment,
         string activatedBy,
+        string? activatedByDisplay = null,
         CancellationToken cancellationToken = default);
 }
