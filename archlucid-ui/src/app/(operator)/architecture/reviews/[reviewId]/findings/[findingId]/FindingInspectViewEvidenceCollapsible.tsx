@@ -1,10 +1,11 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState, type ReactElement, type ReactNode } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import {
+  FINDING_VIEW_EVIDENCE_OPEN_PARAM,
   findingViewEvidenceDisclosureHrefFromSearch,
   parseFindingViewEvidenceOpenFromSearch,
 } from "@/lib/findings/finding-view-evidence-disclosure-url";
@@ -19,6 +20,8 @@ export function FindingInspectViewEvidenceCollapsible({
   children,
 }: FindingInspectViewEvidenceCollapsibleProps): ReactElement {
   const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const urlOpen = parseFindingViewEvidenceOpenFromSearch(searchParams.get(FINDING_VIEW_EVIDENCE_OPEN_PARAM));
   const readOpenFromUrl = (): boolean =>
     parseFindingViewEvidenceOpenFromSearch(
       new URLSearchParams(typeof window === "undefined" ? "" : window.location.search).get("findingViewEvidenceOpen"),
@@ -69,6 +72,15 @@ export function FindingInspectViewEvidenceCollapsible({
       window.removeEventListener("popstate", syncOpenFromUrl);
     };
   }, []);
+
+  useEffect(() => {
+    if (openRef.current === urlOpen) {
+      return;
+    }
+
+    openRef.current = urlOpen;
+    setOpenState(urlOpen);
+  }, [urlOpen]);
 
   return (
     <CollapsibleSection
