@@ -1,5 +1,14 @@
 > **Scope:**
 
+2026-10-16 seed hunt (seed→hit): `api-governance-tenancy-controllers` — promoted `GovernanceResolutionController.Resolve` logging `GovernanceResolutionExecuted` / `GovernanceConflictDetected` without `ExplicitActor` or `IActorContext`, so durable actor correlation missed canonical `jwt:{tid}:{oid}` keys; inject `IActorContext`, `GetAuditActorFields()`, `ExplicitActor = true` on both audit events; regression `Resolve_sets_explicit_actor_for_stable_actor_user_id_when_display_differs`; `GovernanceResolutionController` unit + audit tests 4/4 (SQL integration baseline excluded); seeded five follow-on `(candidate)` rows.
+
+- (candidate) `GovernancePreCommitSimulationController` — pre-commit simulation audit without explicit actor — locus: post-simulation `LogAsync`; input: jwt actor key parity.
+- (candidate) `GovernanceController.ApprovalRequests` batch review — idempotency replay audit actor parity — locus: batch approve path; input: repeated batch submit with same idempotency key.
+- (candidate) `GovernanceController.LogGovernanceApprovalRequestedAuditAsync` — duplicate submit with same idempotency key skips controller audit on replay — locus: idempotency filter; input: confirm expected vs missing replay audit.
+- (candidate) `GovernanceResolutionController.Resolve` — conflict audit second `LogAsync` when conflicts present — locus: conflict branch; input: mirror explicit actor on both events (covered by shared locals).
+- (candidate) `TenancyController` routes — display-only actor on mutating audits without `ExplicitActor` — locus: tenancy mutation controllers; input: scan for parity gaps vs governance fixes.
+
+
 2026-10-16 seed hunt (seed→hit): `api-governance-tenancy-controllers` — promoted `GovernanceEnvironmentCatalogController.Replace` logging `GovernanceEnvironmentCatalogReplaced` without `ExplicitActor` or `IActorContext`, so durable actor correlation used raw `NameIdentifier` instead of canonical `jwt:{tid}:{oid}` keys (parity gap vs settings/model catalog fixes); inject `IActorContext`, `GetAuditActorFields()`, `ExplicitActor = true` on catalog replace audit; regression `Replace_sets_explicit_actor_for_stable_actor_user_id_when_display_differs`; `GovernanceEnvironmentCatalogController` + audit tests 11/11; seeded five follow-on `(candidate)` rows.
 
 - (candidate) `GovernanceResolutionController.Resolve` — resolution/conflict audits rely on HTTP actor enrichment only — locus: `LogAsync` without explicit actor; input: parity with environment catalog.
