@@ -173,6 +173,45 @@ public sealed class AzureInventoryVnetCustomDnsIndexTests
     }
 
     [Fact]
+    public void VnetUsesCustomDns_false_when_flat_dns_servers_is_json_array_of_only_azure_default()
+    {
+        AzureInventoryVnetCustomDnsIndex index = AzureInventoryVnetCustomDnsIndex.Build(
+        [
+            new AzureInventoryVnetCustomDnsResourceProperties
+            {
+                AzureResourceId = VnetArm,
+                ResourceType = "Microsoft.Network/virtualNetworks",
+                Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                {
+                    ["dhcpOptions.dnsServers"] = """["168.63.129.16"]""",
+                },
+            },
+        ]);
+
+        index.VnetUsesCustomDns(VnetArm).Should().BeFalse(
+            "flattened dhcpOptions.dnsServers JSON arrays must not be comma-split into bracketed pseudo-addresses");
+    }
+
+    [Fact]
+    public void VnetUsesCustomDns_true_when_flat_dns_servers_is_json_array_with_custom_resolver()
+    {
+        AzureInventoryVnetCustomDnsIndex index = AzureInventoryVnetCustomDnsIndex.Build(
+        [
+            new AzureInventoryVnetCustomDnsResourceProperties
+            {
+                AzureResourceId = VnetArm,
+                ResourceType = "Microsoft.Network/virtualNetworks",
+                Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                {
+                    ["dhcpOptions.dnsServers"] = """["10.0.0.4"]""",
+                },
+            },
+        ]);
+
+        index.VnetUsesCustomDns(VnetArm).Should().BeTrue();
+    }
+
+    [Fact]
     public void VnetUsesCustomDns_true_when_flat_dns_servers_list_default_and_custom_resolvers()
     {
         AzureInventoryVnetCustomDnsIndex index = AzureInventoryVnetCustomDnsIndex.Build(

@@ -65,9 +65,16 @@ public sealed class AzureInventoryVnetCustomDnsIndex
         if (properties.TryGetValue("dhcpOptions.dnsServers", out string? flatServers)
             && !string.IsNullOrWhiteSpace(flatServers))
         {
-            foreach (string server in flatServers.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+            if (TryParseDnsServersFromJson(flatServers, out List<string> fromFlatJson))
             {
-                mergedServers.Add(server);
+                mergedServers.AddRange(fromFlatJson);
+            }
+            else
+            {
+                foreach (string server in flatServers.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+                {
+                    mergedServers.Add(server);
+                }
             }
         }
 
