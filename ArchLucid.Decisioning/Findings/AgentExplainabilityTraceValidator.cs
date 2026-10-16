@@ -104,4 +104,5 @@ public static class AgentExplainabilityTraceValidator
         if (!completeness.HasDecisionsTaken)
             errors.Add("ExplainabilityTrace.DecisionsTaken must record the agent outcome path.");
     }
+
 }
