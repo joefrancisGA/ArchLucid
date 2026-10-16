@@ -274,13 +274,23 @@ public static class AzureInventoryLoadBalancerBackendTrafficResolver
 
     private static string? TryReadNestedNetworkInterfaceIpConfigurationId(JsonElement address)
     {
-        if (!TryGetPropertyIgnoreCase(address, "properties", out JsonElement properties)
-            || properties.ValueKind is not JsonValueKind.Object
-            || !TryGetPropertyIgnoreCase(properties, "networkInterfaceIPConfiguration", out JsonElement reference))
+        if (TryGetPropertyIgnoreCase(address, "properties", out JsonElement properties)
+            && properties.ValueKind is JsonValueKind.Object
+            && TryGetPropertyIgnoreCase(properties, "networkInterfaceIPConfiguration", out JsonElement nestedReference))
         {
-            return null;
+            return TryReadNetworkInterfaceIpConfigurationReference(nestedReference);
         }
 
+        if (TryGetPropertyIgnoreCase(address, "networkInterfaceIPConfiguration", out JsonElement flatReference))
+        {
+            return TryReadNetworkInterfaceIpConfigurationReference(flatReference);
+        }
+
+        return null;
+    }
+
+    private static string? TryReadNetworkInterfaceIpConfigurationReference(JsonElement reference)
+    {
         if (reference.ValueKind is JsonValueKind.String)
         {
             return reference.GetString();
