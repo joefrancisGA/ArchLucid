@@ -81,6 +81,10 @@ Each implementation prompt ends **before commit**. The owner looks, then says wh
 | 29 | `node-relationship-29-likely-lines.md` | `nr/29-likely-lines` |
 | 30 | `node-relationship-30-plate-component-count.md` | `nr/30-plate-component-count` |
 | 31 | `node-relationship-31-collect-stored-proof.md` | `nr/31-collect-stored-proof` |
+| 40 | `node-relationship-40-fabric-capacity.md` | `nr/40-fabric-capacity` |
+| 41 | `node-relationship-41-logic-app-connections.md` | `nr/41-logic-app-connections` |
+| 42 | `node-relationship-42-static-web-app.md` | `nr/42-static-web-app` |
+| 43 | `node-relationship-43-diagnostic-storage.md` | `nr/43-diagnostic-storage` |
 
 ## Stored connectivity (NR-17–NR-31)
 

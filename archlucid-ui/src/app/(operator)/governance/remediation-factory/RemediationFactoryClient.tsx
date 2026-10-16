@@ -49,6 +49,8 @@ import { useOperatorRelativeFreshnessNowMs } from "@/hooks/use-operator-relative
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens-shell-typography";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { assignedToMeFindingsPathForProductLine } from "@/lib/product-line/securenow-assigned-to-me-route";
+import { SECURENOW_REMEDIATION_FACTORY_PATH } from "@/lib/governance/governance-route-paths";
+import { resolveSecureNowPageHeading } from "@/lib/product-line/securenow-page-heading";
 import { remediationFactoryPathForProductLine } from "@/lib/product-line/securenow-remediation-factory-route";
 import {
   formatSecurityEvidencePathConfidenceBandLabel,
@@ -429,6 +431,11 @@ export function RemediationFactoryClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const navHref = remediationFactoryPathForProductLine(productLine);
+  const pageTitle = resolveSecureNowPageHeading(
+    productLine,
+    OPERATOR_NAV_LINK_LABELS.remediationFactory,
+    SECURENOW_REMEDIATION_FACTORY_PATH,
+  );
   const openFindingsHref = assignedToMeFindingsPathForProductLine(productLine);
   const {
     findingId: selectedFindingId,
@@ -612,7 +619,7 @@ export function RemediationFactoryClient() {
 
       <OperatorPageHeader
         navHref={navHref}
-        title={OPERATOR_NAV_LINK_LABELS.remediationFactory}
+        title={pageTitle}
         titleTestId="remediation-factory-page-title"
         subtitle="Explainable prioritization, wave planning, and executive metrics. Advisory only — no cloud apply."
         subtitleTestId="remediation-factory-page-lead"

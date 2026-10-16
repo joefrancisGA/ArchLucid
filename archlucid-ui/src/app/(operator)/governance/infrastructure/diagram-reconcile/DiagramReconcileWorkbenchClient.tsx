@@ -165,7 +165,12 @@ import {
   GOVERNANCE_INFRASTRUCTURE_TERRAFORM_SCOPE_SCOPED_LABEL,
   formatGovernanceInfrastructureInlineActionError,
 } from "@/lib/governance/governance-infrastructure-copy";
-import { GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
+import {
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH,
+  SECURENOW_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH,
+} from "@/lib/governance/governance-infrastructure-route-paths";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
+import { resolveSecureNowPageHeading } from "@/lib/product-line/securenow-page-heading";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { cn } from "@/lib/utils";
 import { showSuccess } from "@/lib/toast";
@@ -298,9 +303,15 @@ const cnField =
 
 export function DiagramReconcileWorkbenchClient() {
   const buyerPolishedShell = useProductionEvalChrome();
+  const { productLine } = useProductLine();
   const operatorScope = useEffectiveOperatorScopeRecord();
   const router = useRouter();
   const pathname = usePathname() ?? "";
+  const pageTitle = resolveSecureNowPageHeading(
+    productLine,
+    GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PAGE_TITLE,
+    SECURENOW_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH,
+  );
   const searchParams = useSearchParams();
   const urlRunId = parseDiagramReconcileRunIdFromSearch(searchParams.get(DIAGRAM_RECONCILE_RUN_ID_PARAM));
   const workbenchMode = parseDiagramReconcileCompareModeFromSearch(
@@ -1496,7 +1507,7 @@ export function DiagramReconcileWorkbenchClient() {
 
       <OperatorPageHeader
         navHref={GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH}
-        title={GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PAGE_TITLE}
+        title={pageTitle}
         subtitle={GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PAGE_LEAD}
         claimDiscipline={GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_CLAIM_DISCIPLINE}
         claimDisciplineTestId="infra-diagram-reconcile-claim-discipline"

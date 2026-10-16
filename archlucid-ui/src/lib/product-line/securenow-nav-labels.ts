@@ -1,6 +1,8 @@
 import type { NavLinkItem } from "@/lib/nav-config.types";
+import { SECURENOW_COLLECTION_AGENT_PATH } from "@/lib/product-line/securenow-collection-agent-route";
+import { secureNowTitleCase } from "@/lib/product-line/securenow-title-case";
 
-export const SECURENOW_NAV_LABELS: Readonly<Record<string, string>> = {
+const SECURENOW_NAV_LABELS_RAW: Readonly<Record<string, string>> = {
   "/": "Home",
   "/security/assigned-to-me": "My findings",
   "/compliance/findings": "All findings",
@@ -20,10 +22,21 @@ export const SECURENOW_NAV_LABELS: Readonly<Record<string, string>> = {
   "/infrastructure/declared-connections": "Declared connections",
   "/administration/connection-status": "Connection status",
   "/infrastructure/extract-upload": "Manual upload",
+  [SECURENOW_COLLECTION_AGENT_PATH]: "Collection agent",
   "/integrations/jira": "Jira",
   "/integrations/servicenow": "ServiceNow",
-  "/integrations/teams": "Microsoft Teams",
+  "/integrations/teams": "Teams",
 };
+
+function buildSecureNowNavLabels(): Readonly<Record<string, string>> {
+  const labels = Object.fromEntries(
+    Object.entries(SECURENOW_NAV_LABELS_RAW).map(([href, label]) => [href, secureNowTitleCase(label)]),
+  );
+
+  return Object.freeze(labels);
+}
+
+export const SECURENOW_NAV_LABELS: Readonly<Record<string, string>> = buildSecureNowNavLabels();
 
 const SECURENOW_NAV_TOOLTIPS: Readonly<Record<string, string>> = {
   "/": "Your security posture at a glance.",

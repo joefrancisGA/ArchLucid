@@ -29,6 +29,7 @@ import { InfraEvidenceDiagramLegend } from "@/components/infra-evidence/InfraEvi
 import { OperatorMutationInlineError } from "@/components/operator/OperatorMutationInlineError";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
@@ -204,6 +205,8 @@ import {
   DESIGN_TOKENS,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
+import { SECURENOW_INFRASTRUCTURE_DIAGRAMS_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
+import { resolveSecureNowPageHeading } from "@/lib/product-line/securenow-page-heading";
 import {
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_SNAPSHOTS_BODY,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_SNAPSHOTS_TITLE,
@@ -419,8 +422,14 @@ function FallbackCard(props: {
 export function DiagramsWorkbenchClient() {
   const buyerPolishedShell = useProductionEvalChrome();
   const { ianaTimeZoneId } = useIanaTimeZonePreference();
+  const { productLine } = useProductLine();
   const router = useRouter();
   const pathname = usePathname() ?? "";
+  const pageTitle = resolveSecureNowPageHeading(
+    productLine,
+    GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_TITLE,
+    SECURENOW_INFRASTRUCTURE_DIAGRAMS_PATH,
+  );
   const searchParams = useSearchParams();
   const urlSnapshotId = parseInfraDiagramsSnapshotIdFromSearch(searchParams.get(INFRA_DIAGRAMS_SNAPSHOT_ID_PARAM));
   const urlCloudResourceId = parseInfraDiagramsCloudResourceIdFromSearch(
@@ -1901,7 +1910,7 @@ export function DiagramsWorkbenchClient() {
 
       <OperatorPageHeader
         navHref={pathname}
-        title={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_TITLE}
+        title={pageTitle}
         subtitle={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_LEAD}
         titleTestId="infra-diagrams-page-title"
         metadata={<DiagramsBreadcrumb />}
