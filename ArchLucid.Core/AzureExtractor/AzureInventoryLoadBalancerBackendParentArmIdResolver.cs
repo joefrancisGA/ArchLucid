@@ -34,12 +34,12 @@ public static class AzureInventoryLoadBalancerBackendParentArmIdResolver
                 return ResolveFromBackendAddressPoolsJson(nestedPoolsJson);
             }
 
-            if (poolsRoot.ValueKind is not JsonValueKind.Array)
+            if (!AzureExtractorJsonArrayRoot.TryCloneRows(poolsRoot, out JsonElement[] pools))
             {
                 return parentArmIds;
             }
 
-            foreach (JsonElement pool in poolsRoot.EnumerateArray())
+            foreach (JsonElement pool in pools)
             {
                 if (!TryGetPropertyIgnoreCase(pool, "properties", out JsonElement properties)
                     || properties.ValueKind is not JsonValueKind.Object)

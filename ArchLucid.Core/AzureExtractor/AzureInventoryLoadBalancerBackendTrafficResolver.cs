@@ -48,12 +48,12 @@ public static class AzureInventoryLoadBalancerBackendTrafficResolver
                 return ParseLoadBalancerBackendTargets(nestedPoolsJson, portByPoolId);
             }
 
-            if (poolsRoot.ValueKind is not JsonValueKind.Array)
+            if (!AzureExtractorJsonArrayRoot.TryCloneRows(poolsRoot, out JsonElement[] pools))
             {
                 return targets;
             }
 
-            foreach (JsonElement pool in poolsRoot.EnumerateArray())
+            foreach (JsonElement pool in pools)
             {
                 string? poolId = TryReadPoolId(pool);
                 int? rulePort = null;
@@ -115,12 +115,12 @@ public static class AzureInventoryLoadBalancerBackendTrafficResolver
                 return ParseApplicationGatewayBackendTargets(nestedPoolsJson);
             }
 
-            if (poolsRoot.ValueKind is not JsonValueKind.Array)
+            if (!AzureExtractorJsonArrayRoot.TryCloneRows(poolsRoot, out JsonElement[] pools))
             {
                 return targets;
             }
 
-            foreach (JsonElement pool in poolsRoot.EnumerateArray())
+            foreach (JsonElement pool in pools)
             {
                 if (!TryGetPropertyIgnoreCase(pool, "properties", out JsonElement properties)
                     || properties.ValueKind is not JsonValueKind.Object)
