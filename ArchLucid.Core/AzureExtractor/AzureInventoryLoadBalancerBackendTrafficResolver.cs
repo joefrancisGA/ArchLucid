@@ -418,7 +418,12 @@ public static class AzureInventoryLoadBalancerBackendTrafficResolver
 
     private static string? TryReadApplicationGatewayBackendArmId(JsonElement address)
     {
-        if (!TryGetApplicationGatewayAddressPropertiesBag(address, out JsonElement properties))
+        if (!AzureExtractorJsonObjectElement.TryUnwrapObject(address, out JsonElement addressElement))
+        {
+            return null;
+        }
+
+        if (!TryGetApplicationGatewayAddressPropertiesBag(addressElement, out JsonElement properties))
         {
             return null;
         }

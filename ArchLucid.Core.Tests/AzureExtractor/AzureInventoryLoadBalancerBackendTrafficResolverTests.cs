@@ -572,6 +572,48 @@ public sealed class AzureInventoryLoadBalancerBackendTrafficResolverTests
     }
 
     [Fact]
+    public void ResolveApplicationGatewayBackends_reads_backend_when_address_element_is_json_string_scalar()
+    {
+        string addressObjectJson =
+            $$"""
+            {
+              "properties": {
+                "backendResourceId": "{{NicId}}"
+              }
+            }
+            """;
+
+        GraphNode applicationGateway = new()
+        {
+            NodeId = "agw1",
+            NodeType = "resource",
+            Label = "agw1",
+            Properties = new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["backendAddressPools"] =
+                    $$"""
+                    [
+                      {
+                        "properties": {
+                          "backendAddresses": [
+                            {{JsonSerializer.Serialize(addressObjectJson)}}
+                          ]
+                        }
+                      }
+                    ]
+                    """,
+            },
+        };
+
+        IReadOnlyList<AzureInventoryLoadBalancerBackendTrafficResolver.BackendTarget> targets =
+            AzureInventoryLoadBalancerBackendTrafficResolver.ResolveApplicationGatewayBackends(applicationGateway);
+
+        AzureInventoryLoadBalancerBackendTrafficResolver.BackendTarget target = targets.Should().ContainSingle().Subject;
+        target.TargetArmId.Should().Be(NicId.ToLowerInvariant());
+        target.RulePort.Should().BeNull();
+    }
+
+    [Fact]
     public void ResolveApplicationGatewayBackends_reads_backend_resource_when_address_row_is_flat_without_properties_wrapper()
     {
         GraphNode applicationGateway = new()
