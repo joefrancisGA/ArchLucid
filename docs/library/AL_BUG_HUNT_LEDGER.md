@@ -1,5 +1,13 @@
 > **Scope:**
 
+2026-10-16 seed hunt (seed→hit): `api-governance-tenancy-controllers` — promoted `SettingsController` admin settings mutation audits using `User.Identity.Name` (or `"admin"`) for both `ActorUserId` and `ActorUserName` without `ExplicitActor`, breaking stable jwt actor correlation on durable tenant-admin settings audits (parity gap vs `TenantHomepageSettingsController` / `TenantCostSettingsController`); inject `IActorContext`, centralize `GetAuditActorFields()`, set `ExplicitActor = true` on all settings `IAuditService` audit events; regression `PutModelExecutionProfile_sets_explicit_actor_for_stable_actor_user_id_when_display_differs`; `SettingsControllerModelExecutionProfileTests` 3/3; seeded five follow-on `(candidate)` rows.
+
+- (candidate) `SettingsController.PostExternalSubprocessorAcknowledgment` — passes display-only `actor` into `RecordWorkspaceAcknowledgmentAsync` without actor-key threading — locus: external-subprocessor acknowledgment; input: display differs from jwt actor key.
+- (candidate) `AdminAgentModelCatalogController` / `AdminAzureOpenAiConnectionController` — mutation audits use `User.Identity.Name` for `ActorUserId` without `ExplicitActor` — locus: admin LLM connection/catalog routes; input: parity with `SettingsController` fix pattern.
+- (candidate) `GovernanceController.ApprovalRequests` batch review — idempotency replay audit actor parity — locus: batch approve path; input: repeated batch submit with same idempotency key.
+- (candidate) `GovernanceWorkflowIntegrationEventSupport` — manifest-promoted integration event publisher absent (only promotion-activated outbox exists) — locus: promote persist stage; input: verify intentional omission vs gap.
+- (candidate) `GovernanceController.LogGovernanceApprovalRequestedAuditAsync` — duplicate submit with same idempotency key skips controller audit on replay — locus: idempotency filter + logging guard; input: confirm expected vs missing replay audit.
+
 2026-10-16 seed hunt (seed→hit): `api-governance-tenancy-controllers` — promoted `GovernanceController.LogGovernanceApprovalRequestedAuditAsync` omitting `requestedBy` display name from `GovernanceApprovalRequested` audit `DataJson` while workflow submit/dry-run audits embed both `requestedBy` and `requestedByActorKey`; add `requestedBy = actorUserName` for durable JSON parity; regression `SubmitApprovalRequest_includes_requested_by_display_name_in_audit_data_json`; scoped SubmitApprovalRequest audit tests 19/19; seeded five follow-on `(candidate)` rows.
 
 - (candidate) `GovernanceWorkflowIntegrationEventSupport` — manifest-promoted integration event publisher missing from workflow support — locus: promotion outbox; input: verify intentional omission vs gap.
