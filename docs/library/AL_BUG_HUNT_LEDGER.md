@@ -1,5 +1,13 @@
 > **Scope:**
 
+2026-10-16 seed hunt (seed→hit): `archlucid-core` — promoted `AzureInventoryLoadBalancerBackendTrafficResolver.TryReadPoolId` reading only string-valued pool `id` properties, so hosted `backendAddressPools[]` rows with JSON string-scalar-wrapped `{ "id": "..." }` pool ids missed `portByPoolId` lookup and backends resolved without `RulePort`; unwrap pool rows and resolve `id` via `AzureInventoryNetworkInterfaceIpConfigurationReferenceReader.TryReadArmId`; cheap-disproof closed double-encoded flattened `nextHopArmId` / `.nextHop` scalar paths and flat AGW `backendResourceId` reference objects (already handled); regression `ResolveLoadBalancerBackends_reads_rule_port_when_backend_address_pool_id_is_json_string_scalar_wrapping_id_object`; route-table + LB backend core tests 47/47; seeded five follow-on `(candidate)` rows.
+
+- (candidate) `AzureInventoryLoadBalancerBackendTrafficResolver.TryReadPoolId` — pool row as JSON string scalar wrapping full pool object — locus: `TryUnwrapObject` on pool element; input: entire pool double-encoded.
+- (candidate) `AzureInventoryLoadBalancerBackendParentArmIdResolver` — pool `id` reference shapes parity with traffic resolver — locus: parent ARM id collection; input: mirror `TryReadPoolId` fix if shared.
+- (candidate) `AzureInventoryRouteTableRouteParser.TryParseFlattenedArmIdValue` — malformed JSON blob containing `/subscriptions/` substring — locus: `NormalizeArmId` fallback; input: conservative null vs false positive.
+- (candidate) `AzureInventoryVnetPeeringParser.TryReadRemoteVnetIdFromObject` — remote vnet JSON string scalar wrapping id object — locus: peering remote reference; input: parity with route/LB readers.
+- (candidate) `AzureInventoryLoadBalancerBackendTrafficResolver.BuildLoadBalancerPortByPoolId` — PascalCase `BackendPort` / `BackendAddressPool` — locus: case-insensitive reads; input: `(valid-no-repro)`.
+
 2026-10-16 seed hunt (seed→hit): `api-governance-tenancy-controllers` — promoted `AdminAzureOpenAiConnectionController` upsert/delete audits using display-only `User.Identity.Name` for both actor columns without `ExplicitActor` (parity gap vs `SettingsController` / model catalog fix); inject `IActorContext`, `GetAuditActorFields()`, `ExplicitActor = true` on connection upsert and remove audits; regressions `Upsert_sets_explicit_actor_for_stable_actor_user_id_when_display_differs` and `Delete_sets_explicit_actor_for_stable_actor_user_id_when_display_differs`; `AdminAzureOpenAiConnectionControllerAuditTests` 2/2; seeded five follow-on `(candidate)` rows.
 
 - (candidate) `GovernanceController.ApprovalRequests` batch review — idempotency replay audit actor parity — locus: batch approve path; input: repeated batch submit with same idempotency key.
