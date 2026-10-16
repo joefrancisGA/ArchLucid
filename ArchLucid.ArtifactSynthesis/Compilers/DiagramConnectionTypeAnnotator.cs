@@ -1,15 +1,15 @@
 using ArchLucid.ArtifactSynthesis.Models;
-using ArchLucid.KnowledgeGraph;
 using ArchLucid.KnowledgeGraph.Inventory;
 
 namespace ArchLucid.ArtifactSynthesis.Compilers;
 
 /// <summary>
-///     Labels blank or generic VNet-to-VNet connectors as peering. Executive VNet pairs are peering
-///     when a stored edge exists; the compiler does not invent extra pairs here.
+///     Labels blank VNet-to-VNet connectors when no relationship verb was stored. Stored verbs are left unchanged.
 /// </summary>
 internal static class DiagramConnectionTypeAnnotator
 {
+    public const string RelationshipNotStoredLabel = "Relationship was not stored";
+
     public static void Annotate(DiagramAst ast)
     {
         ArgumentNullException.ThrowIfNull(ast);
@@ -36,26 +36,13 @@ internal static class DiagramConnectionTypeAnnotator
                 continue;
             }
 
-            if (!ShouldReplaceWithPeering(edge.Label))
+            if (!string.IsNullOrWhiteSpace(edge.Label))
             {
                 continue;
             }
 
-            edge.Label = "peering";
+            edge.Label = RelationshipNotStoredLabel;
         }
-    }
-
-    private static bool ShouldReplaceWithPeering(string? label)
-    {
-        if (string.IsNullOrWhiteSpace(label))
-        {
-            return true;
-        }
-
-        string trimmed = label.Trim();
-
-        return string.Equals(trimmed, "connects", StringComparison.OrdinalIgnoreCase)
-            || string.Equals(trimmed, GraphEdgeTypes.ConnectsTo, StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool IsVirtualNetwork(DiagramNode node)

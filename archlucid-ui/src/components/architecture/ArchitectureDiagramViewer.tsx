@@ -1378,8 +1378,10 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
         >
           <p className="m-0">
             {clickFocus.memberNames !== undefined
-              ? clickFocus.name
-              : `Showing connections for ${clickFocus.name}.`}
+              ? clickFocus.name.length > 0
+                ? clickFocus.name
+                : "Resource name was not stored."
+              : `Showing connections for ${clickFocus.name.trim().length > 0 ? clickFocus.name : "Resource name was not stored."}.`}
           </p>
           {focusedNodeConnectionHint !== null ? (
             <p className="m-0 mt-1">{focusedNodeConnectionHint}</p>

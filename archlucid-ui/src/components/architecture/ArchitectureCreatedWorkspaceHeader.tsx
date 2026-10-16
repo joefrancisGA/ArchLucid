@@ -125,9 +125,9 @@ export function ArchitectureCreatedWorkspaceHeader(
         </h1>
         <div className="flex flex-wrap items-center gap-2">
           <StatusTag kind={model.lifecycleStatusTagKind} label={model.lifecycleLabel} />
-          {!buyerPolishedShell && model.ownerLabel !== null ? (
+          {!buyerPolishedShell ? (
             <span className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-              Owner: {model.ownerLabel}
+              {model.ownerLabel !== null ? `Owner: ${model.ownerLabel}` : "Owner was not stored."}
             </span>
           ) : null}
           {!buyerPolishedShell ? (

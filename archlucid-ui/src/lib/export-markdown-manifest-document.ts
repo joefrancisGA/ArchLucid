@@ -247,6 +247,8 @@ export function formatManifestDocumentShape(m: Record<string, unknown>): string 
           );
         } else if (c.controlName === null || c.controlName === undefined) {
           lines.push("- Control name was not stored.");
+        } else if (c.controlName === "") {
+          lines.push("- Control name was stored empty.");
         }
       }
     }
@@ -351,6 +353,15 @@ export function formatManifestDocumentShape(m: Record<string, unknown>): string 
       const missingRelId = r.relationshipId === null || r.relationshipId === undefined;
       const src = normalizeInlineText(r.sourceId);
       const tgt = normalizeInlineText(r.targetId);
+
+      if (r.description === "" && r.sourceId === "" && r.targetId === "") {
+        lines.push(
+          `- Relationship description was stored empty.${relId ? ` (\`${relId}\`)` : ""}${missingRelId ? " Relationship id was not stored." : ""}`,
+        );
+
+        continue;
+      }
+
       const parts = [
         src ?? (r.sourceId === null || r.sourceId === undefined ? "Source was not stored" : null),
         tgt ?? (r.targetId === null || r.targetId === undefined ? "Target was not stored" : null),
@@ -393,6 +404,9 @@ export function formatManifestDocumentShape(m: Record<string, unknown>): string 
       } else if (d.title === null || d.title === undefined) {
         lines.push("#### Decision title was not stored.");
         lines.push("");
+      } else if (d.title === "") {
+        lines.push("#### Decision title was stored empty.");
+        lines.push("");
       } else {
         lines.push("####");
         lines.push("");
@@ -400,6 +414,8 @@ export function formatManifestDocumentShape(m: Record<string, unknown>): string 
 
       if (d.decisionId === null || d.decisionId === undefined) {
         lines.push("- Decision id was not stored.");
+      } else if (d.decisionId === "") {
+        lines.push("- Decision id was stored empty.");
       } else if (did) {
         lines.push(`- **Decision id:** \`${did}\``);
       }
@@ -408,10 +424,14 @@ export function formatManifestDocumentShape(m: Record<string, unknown>): string 
         lines.push(`- **Category:** ${category}`);
       } else if (d.category === null || d.category === undefined) {
         lines.push("- Decision category was not stored.");
+      } else if (d.category === "") {
+        lines.push("- Decision category was stored empty.");
       }
 
       if (d.selectedOption === null || d.selectedOption === undefined) {
         lines.push("- Selected option was not stored.");
+      } else if (d.selectedOption === "") {
+        lines.push("- Selected option was stored empty.");
       } else if (option) {
         lines.push(`- **Selected option:** ${option}`);
       }
@@ -495,6 +515,8 @@ export function formatManifestDocumentShape(m: Record<string, unknown>): string 
           );
         } else if (c.controlName === null || c.controlName === undefined) {
           lines.push("- Control name was not stored.");
+        } else if (c.controlName === "") {
+          lines.push("- Control name was stored empty.");
         }
       }
 

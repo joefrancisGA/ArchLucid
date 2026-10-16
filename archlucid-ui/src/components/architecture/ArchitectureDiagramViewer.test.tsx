@@ -372,6 +372,35 @@ describe('ArchitectureDiagramViewer', () => {
     });
   });
 
+  it('labels blank node names in connection focus status', async () => {
+    const forestLayoutSvg = [
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 120">',
+      '  <g class="node" id="node-blank" transform="translate(10,20)"><title></title><rect class="node-card" width="40" height="20"/></g>',
+      '  <g class="edge" data-from="blank" data-to="other"><title>used by</title><path d="M50 30L60 30"/></g>',
+      '</svg>',
+    ].join('');
+
+    render(
+      <ArchitectureDiagramViewer
+        mermaidSource={'flowchart TD\n  a["A"] --> b["B"]'}
+        layoutSvg={forestLayoutSvg}
+        outline={{ nodes: [], edges: [] }}
+        textAlternative="Inventory topology"
+        viewportAriaLabel="Inventory topology"
+      />,
+    );
+
+    const host = await screen.findByTestId('architecture-diagram-svg-host');
+
+    fireEvent.click(host.querySelector('#node-blank')!);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('diagram-click-focus-status')).toHaveTextContent(
+        'Showing connections for Resource name was not stored.',
+      );
+    });
+  });
+
   it('reports connector clicks and dims other connectors when selected', async () => {
     const onSelectConnector = vi.fn();
     const forestLayoutSvg = [
