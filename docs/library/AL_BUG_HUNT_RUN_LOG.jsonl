@@ -7830,3 +7830,4 @@
 {"at":"2026-10-16T03:24:13.1021374Z","zoneId":"archlucid-core","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Core/AzureExtractor/AzureInventoryRouteTableRouteParser.cs"]}
 {"at":"2026-10-16T03:30:10.2205492Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Governance/GovernanceMutationCorrectionService.cs"]}
 {"at":"2026-10-16T03:34:51.9988587Z","zoneId":"archlucid-core","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Core/AzureExtractor/AzureInventoryRouteTableRouteParser.cs"]}
+{"at":"2026-10-16T03:39:09.4599380Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Governance/ExecuteTimeGovernanceScopeCaptureService.cs"]}
