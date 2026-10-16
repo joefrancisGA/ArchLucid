@@ -63,8 +63,7 @@ public static class AzureInventoryLoadBalancerBackendTrafficResolver
                     portByPoolId.TryGetValue(ArmResourceIdNormalizer.Normalize(poolId), out rulePort);
                 }
 
-                if (!TryGetPropertyIgnoreCase(pool, "properties", out JsonElement properties)
-                    || properties.ValueKind is not JsonValueKind.Object)
+                if (!TryGetBackendAddressPoolPropertiesBag(pool, out JsonElement properties))
                 {
                     continue;
                 }
@@ -122,8 +121,7 @@ public static class AzureInventoryLoadBalancerBackendTrafficResolver
 
             foreach (JsonElement pool in pools)
             {
-                if (!TryGetPropertyIgnoreCase(pool, "properties", out JsonElement properties)
-                    || properties.ValueKind is not JsonValueKind.Object)
+                if (!TryGetBackendAddressPoolPropertiesBag(pool, out JsonElement properties))
                 {
                     continue;
                 }
@@ -316,6 +314,31 @@ public static class AzureInventoryLoadBalancerBackendTrafficResolver
         }
 
         return null;
+    }
+
+    private static bool TryGetBackendAddressPoolPropertiesBag(JsonElement pool, out JsonElement poolProperties)
+    {
+        if (TryGetPropertyIgnoreCase(pool, "properties", out JsonElement nested)
+            && nested.ValueKind is JsonValueKind.Object)
+        {
+            poolProperties = nested;
+
+            return true;
+        }
+
+        if (pool.ValueKind is JsonValueKind.Object
+            && (TryGetPropertyIgnoreCase(pool, "backendIPConfigurations", out _)
+                || TryGetPropertyIgnoreCase(pool, "loadBalancerBackendAddresses", out _)
+                || TryGetPropertyIgnoreCase(pool, "backendAddresses", out _)))
+        {
+            poolProperties = pool;
+
+            return true;
+        }
+
+        poolProperties = default;
+
+        return false;
     }
 
     /// <summary>

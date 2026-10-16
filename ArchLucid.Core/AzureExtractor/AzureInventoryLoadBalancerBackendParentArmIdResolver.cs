@@ -41,8 +41,7 @@ public static class AzureInventoryLoadBalancerBackendParentArmIdResolver
 
             foreach (JsonElement pool in pools)
             {
-                if (!TryGetPropertyIgnoreCase(pool, "properties", out JsonElement properties)
-                    || properties.ValueKind is not JsonValueKind.Object)
+                if (!TryGetBackendAddressPoolPropertiesBag(pool, out JsonElement properties))
                 {
                     continue;
                 }
@@ -97,6 +96,30 @@ public static class AzureInventoryLoadBalancerBackendParentArmIdResolver
                 parentArmIds.Add(normalized);
             }
         }
+    }
+
+    private static bool TryGetBackendAddressPoolPropertiesBag(JsonElement pool, out JsonElement poolProperties)
+    {
+        if (TryGetPropertyIgnoreCase(pool, "properties", out JsonElement nested)
+            && nested.ValueKind is JsonValueKind.Object)
+        {
+            poolProperties = nested;
+
+            return true;
+        }
+
+        if (pool.ValueKind is JsonValueKind.Object
+            && (TryGetPropertyIgnoreCase(pool, "backendIPConfigurations", out _)
+                || TryGetPropertyIgnoreCase(pool, "loadBalancerBackendAddresses", out _)))
+        {
+            poolProperties = pool;
+
+            return true;
+        }
+
+        poolProperties = default;
+
+        return false;
     }
 
     private static string? TryReadDirectId(JsonElement configuration)
