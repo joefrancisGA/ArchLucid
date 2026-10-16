@@ -7672,3 +7672,4 @@
 {"at":"2026-10-16T20:12:12.5148996Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Governance/GovernanceController.Logging.cs"]}
 {"at":"2026-10-16T20:16:36.9385988Z","zoneId":"archlucid-core","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Core/AzureExtractor/AzureInventoryLoadBalancerBackendParentArmIdResolver.cs"]}
 {"at":"2026-10-16T20:21:55.9339825Z","zoneId":"archlucid-core","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Core/AzureExtractor/AzureInventoryNetworkInterfaceIpConfigurationReferenceReader.cs"]}
+{"at":"2026-10-16T20:29:06.1469712Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Governance/GovernanceController.Logging.cs"]}
