@@ -37,6 +37,30 @@ public sealed class AzureInventoryRouteTableRouteParserTests
     }
 
     [Fact]
+    public void Parse_reads_next_hop_type_when_routes_json_uses_pascal_case_property_name()
+    {
+        Dictionary<string, string> properties = new(StringComparer.Ordinal)
+        {
+            ["routes"] =
+                """
+                [
+                  {
+                    "properties": {
+                      "addressPrefix": "0.0.0.0/0",
+                      "NextHopType": "VirtualNetworkGateway"
+                    }
+                  }
+                ]
+                """,
+        };
+
+        IReadOnlyList<AzureInventoryRouteTableRoute> routes = AzureInventoryRouteTableRouteParser.Parse(properties);
+
+        routes.Should().ContainSingle();
+        routes[0].NextHopType.Should().Be("VirtualNetworkGateway");
+    }
+
+    [Fact]
     public void Parse_reads_next_hop_arm_id_when_nested_object_uses_pascal_case_id_property()
     {
         const string nvaArmId =

@@ -141,7 +141,7 @@ public static class AzureInventoryRouteTableRouteParser
 
     private static string? TryReadString(JsonElement element, string propertyName)
     {
-        if (!element.TryGetProperty(propertyName, out JsonElement value)
+        if (!TryGetPropertyIgnoreCase(element, propertyName, out JsonElement value)
             || value.ValueKind is not JsonValueKind.String)
         {
             return null;
@@ -154,7 +154,7 @@ public static class AzureInventoryRouteTableRouteParser
 
     private static string? TryReadNestedArmId(JsonElement propertiesElement, string propertyName)
     {
-        if (!propertiesElement.TryGetProperty(propertyName, out JsonElement valueElement))
+        if (!TryGetPropertyIgnoreCase(propertiesElement, propertyName, out JsonElement valueElement))
         {
             return null;
         }
@@ -192,5 +192,28 @@ public static class AzureInventoryRouteTableRouteParser
         }
 
         return ArmResourceIdNormalizer.Normalize(armId);
+    }
+
+    private static bool TryGetPropertyIgnoreCase(
+        JsonElement element,
+        string propertyName,
+        out JsonElement value)
+    {
+        foreach (JsonProperty property in element.EnumerateObject())
+        {
+
+            if (!property.Name.Equals(propertyName, StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            value = property.Value;
+
+            return true;
+        }
+
+        value = default;
+
+        return false;
     }
 }
