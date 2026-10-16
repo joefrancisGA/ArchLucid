@@ -82,7 +82,7 @@ describe("CollectionAgentPageClient", () => {
 
     render(<CollectionAgentPageClient />);
 
-    expect(screen.getByRole("heading", { name: "Collection agent" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Collection Agent" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Run now" })).toBeEnabled();
     expect(screen.getByLabelText("Status: Ready")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "View changes" })).toHaveAttribute(

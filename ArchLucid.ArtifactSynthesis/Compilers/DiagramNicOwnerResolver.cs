@@ -70,13 +70,23 @@ internal static class DiagramNicOwnerResolver
         ArgumentNullException.ThrowIfNull(edge);
 
         if (string.Equals(edge.EdgeType, AzureInventoryRelationshipAssociationTypes.NicToSubnet, StringComparison.OrdinalIgnoreCase)
-            || string.Equals(edge.Label, AzureInventoryRelationshipAssociationTypes.NicToSubnet, StringComparison.OrdinalIgnoreCase))
+            || string.Equals(edge.Label, AzureInventoryRelationshipAssociationTypes.NicToSubnet, StringComparison.OrdinalIgnoreCase)
+            || string.Equals(edge.EdgeType, AzureInventoryRelationshipAssociationTypes.AppServiceToSubnet, StringComparison.OrdinalIgnoreCase)
+            || string.Equals(edge.Label, AzureInventoryRelationshipAssociationTypes.AppServiceToSubnet, StringComparison.OrdinalIgnoreCase)
+            || string.Equals(edge.EdgeType, AzureInventoryRelationshipAssociationTypes.PeToSubnet, StringComparison.OrdinalIgnoreCase)
+            || string.Equals(edge.Label, AzureInventoryRelationshipAssociationTypes.PeToSubnet, StringComparison.OrdinalIgnoreCase))
         {
             return true;
         }
 
-        return string.Equals(edge.InferenceSource, GraphEdgeInferenceSources.InventoryNicSubnet, StringComparison.OrdinalIgnoreCase)
-            && string.Equals(edge.EdgeType, GraphEdgeTypes.ConnectsTo, StringComparison.OrdinalIgnoreCase);
+        if (string.Equals(edge.InferenceSource, GraphEdgeInferenceSources.InventoryNicSubnet, StringComparison.OrdinalIgnoreCase)
+            && string.Equals(edge.EdgeType, GraphEdgeTypes.ConnectsTo, StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
+        return string.Equals(edge.InferenceSource, GraphEdgeInferenceSources.InventoryAppServiceSubnet, StringComparison.OrdinalIgnoreCase)
+            || string.Equals(edge.InferenceSource, GraphEdgeInferenceSources.InventoryPeSubnet, StringComparison.OrdinalIgnoreCase);
     }
 
     public static bool IsNetworkInterfaceNode(GraphNode node)

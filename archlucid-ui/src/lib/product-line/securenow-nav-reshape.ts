@@ -54,7 +54,9 @@ import { SECURENOW_INFRASTRUCTURE_DRIFT_LABEL } from "@/lib/product-line/securen
 import {
   applySecureNowNavLabel,
   applySecureNowNavTooltip,
+  SECURENOW_NAV_LABELS,
 } from "@/lib/product-line/securenow-nav-labels";
+import { secureNowTitleCase } from "@/lib/product-line/securenow-title-case";
 
 export const SECURENOW_HOME_NAV_GROUP_ID = "securenow-home" as const;
 export const SECURENOW_FINDINGS_NAV_GROUP_ID = "securenow-findings" as const;
@@ -64,7 +66,8 @@ export const SECURENOW_COMPLIANCE_NAV_GROUP_ID = "securenow-compliance" as const
 export const SECURENOW_DATA_SOURCES_NAV_GROUP_ID = "securenow-data-sources" as const;
 export const SECURENOW_INTEGRATION_NAV_GROUP_ID = "securenow-integrations" as const;
 export const SECURENOW_INTEGRATION_NAV_GROUP_LABEL = "Integrations" as const;
-export const SECURENOW_AZURE_CONNECTIONS_NAV_LABEL = "Azure connections" as const;
+export const SECURENOW_AZURE_CONNECTIONS_NAV_LABEL =
+  SECURENOW_NAV_LABELS[CLOUD_CONNECTIONS_PATH] ?? "Azure Connections";
 
 /** SecureNow Security shell — pilot Home is filtered out before reshape, so inject it here. */
 export const SECURENOW_SECURITY_HOME_LINK: NavLinkItem = {
@@ -118,7 +121,7 @@ export const SECURENOW_DATA_SOURCES_NAV_HREFS: readonly string[] = [
 
 export const SECURENOW_COLLECTION_AGENT_NAV_LINK: NavLinkItem = {
   href: SECURENOW_COLLECTION_AGENT_PATH,
-  label: "Collection agent",
+  label: SECURENOW_NAV_LABELS[SECURENOW_COLLECTION_AGENT_PATH] ?? "Collection Agent",
   title: "Whether scheduled collection is running and what it found.",
   icon: Activity,
   tier: "extended",
@@ -386,7 +389,7 @@ export function reshapeNavGroupsForSecureNow(
     reshaped.push(
       buildSecureNowNavGroup(
         SECURENOW_DATA_SOURCES_NAV_GROUP_ID,
-        "Data sources",
+        secureNowTitleCase("Data sources"),
         "Where SecureNow's evidence comes from.",
         dataSourceLinks,
         sourceGroup,

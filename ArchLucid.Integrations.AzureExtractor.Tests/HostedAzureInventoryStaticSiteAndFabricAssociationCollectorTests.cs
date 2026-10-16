@@ -12,6 +12,7 @@ using Xunit;
 namespace ArchLucid.Integrations.AzureExtractor.Tests;
 
 [Trait("Category", "Unit")]
+[Trait("Suite", "Integrations.AzureExtractor")]
 public sealed class HostedAzureInventoryStaticSiteAndFabricAssociationCollectorTests
 {
     private const string StaticSiteId =

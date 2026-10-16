@@ -96,7 +96,7 @@ describe("SecureNowHomeWorkSummary", () => {
 
     expect(await screen.findByText("3 with critical exposure")).toBeInTheDocument();
     expect(await screen.findByText("6 changes since the previous collection")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "My findings" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "My Findings" })).toHaveAttribute(
       "href",
       "/security/assigned-to-me",
     );
@@ -104,7 +104,7 @@ describe("SecureNowHomeWorkSummary", () => {
     const links = screen.getAllByRole("link").map((link) => link.textContent);
 
     expect(links).toEqual([
-      "My findings",
+      "My Findings",
       "Highest-priority findings",
       "Recent changes",
       "Awaiting verification",
@@ -169,7 +169,7 @@ describe("SecureNowHomeWorkSummary", () => {
     renderSummary();
 
     expect(await screen.findAllByText("Factory summary unavailable")).toHaveLength(2);
-    expect(screen.getByRole("link", { name: "My findings" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "My Findings" })).toBeInTheDocument();
   });
 
   it("says there is no comparison when the newest snapshot has no diff", async () => {
