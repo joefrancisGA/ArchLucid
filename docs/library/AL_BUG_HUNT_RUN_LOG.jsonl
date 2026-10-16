@@ -7661,3 +7661,4 @@
 {"at":"2026-10-16T19:20:28.0967022Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-16T19:28:23.4871665Z","zoneId":"saml-jwt-bearer","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-16T19:32:06.9401884Z","zoneId":"archlucid-core","outcome":"hit","productLine":"archlucid-shared"}
+{"at": "2026-10-16T19:37:40.3889372Z", "zoneId": "archlucid-core", "outcome": "hit", "productLine": "archlucid-shared", "paths": ["ArchLucid.Core/AzureExtractor/AzureInventoryLoadBalancerBackendTrafficResolver.cs", "ArchLucid.Core/AzureExtractor/AzureInventoryLoadBalancerBackendParentArmIdResolver.cs"]}
