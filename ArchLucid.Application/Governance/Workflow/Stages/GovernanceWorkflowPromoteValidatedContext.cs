@@ -9,6 +9,8 @@ public sealed class GovernanceWorkflowPromoteValidatedContext
     public required string SourceEnvironment { get; init; }
     public required string TargetEnvironment { get; init; }
     public required string PromotedBy { get; init; }
+
+    public required string PromotedByDisplay { get; init; }
     public required GovernancePromotionRecord Record { get; init; }
     public GovernanceApprovalRequest? ProdApprovalToMarkPromoted { get; init; }
     public bool DryRun { get; init; }

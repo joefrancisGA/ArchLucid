@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { Share2, Users } from "lucide-react";
-import { usePathname } from "next/navigation";
-import { useCallback, useEffect, useState, type ReactElement, type SetStateAction } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useRef, useState, type ReactElement, type SetStateAction } from "react";
 
 import { buildReviewMeetingPacketSteps, type ReviewMeetingPacketStep } from "@/components/reviews/ReviewMeetingPacketButton";
 import { ShareableReviewLinkButton } from "@/components/usability/ShareableReviewLinkButton";
@@ -20,8 +20,10 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { formatWhyDisabledCtaMessage, type WhyDisabledCtaReason } from "@/lib/why-disabled-cta";
 import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
 import {
+  REVIEW_HEADER_SHARE_MENU_OPEN_PARAM,
   parseReviewHeaderShareMenuOpenFromSearch,
-  reviewHeaderShareMenuHrefFromSearch} from "@/lib/reviews/review-header-share-menu-url";
+  reviewHeaderShareMenuHrefFromSearch,
+} from "@/lib/reviews/review-header-share-menu-url";
 import { cn } from "@/lib/utils";
 import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 import { showError } from "@/lib/toast";
@@ -41,9 +43,13 @@ export type ReviewHeaderShareMenuProps = {
 /** Consolidated share and export affordances on the review detail header. */
 export function ReviewHeaderShareMenu(props: ReviewHeaderShareMenuProps): ReactElement {
   const pathname = usePathname() ?? `/architecture/reviews/${props.runId}`;
-  const [open, setOpenState] = useState(() =>
-    parseReviewHeaderShareMenuOpenFromSearch(null),
+  const searchParams = useSearchParams();
+  const urlShareMenuOpen = parseReviewHeaderShareMenuOpenFromSearch(
+    searchParams.get(REVIEW_HEADER_SHARE_MENU_OPEN_PARAM),
   );
+  const [open, setOpenState] = useState(urlShareMenuOpen);
+  const openRef = useRef(open);
+  openRef.current = open;
   const [exportBusyStepId, setExportBusyStepId] = useState<string | null>(null);
 
   const syncShareMenuOpenToUrl = useCallback(
@@ -58,28 +64,32 @@ export function ReviewHeaderShareMenu(props: ReviewHeaderShareMenuProps): ReactE
 
   const setOpen = useCallback(
     (value: SetStateAction<boolean>) => {
-      setOpenState((current) => {
-        const next = typeof value === "function" ? value(current) : value;
+      const current = openRef.current;
+      const next = typeof value === "function" ? value(current) : value;
 
-        if (next !== current) {
-          syncShareMenuOpenToUrl(next);
-        }
+      if (openRef.current === next) {
+        return;
+      }
 
-        return next;
-      });
+      openRef.current = next;
+      setOpenState(next);
+      syncShareMenuOpenToUrl(next);
     },
     [syncShareMenuOpenToUrl],
   );
 
   useEffect(() => {
     const syncShareMenuOpenFromUrl = (): void => {
-      setOpenState((current) => {
-        const next = parseReviewHeaderShareMenuOpenFromSearch(
-          new URLSearchParams(window.location.search).get("shareMenuOpen"),
-        );
+      const next = parseReviewHeaderShareMenuOpenFromSearch(
+        new URLSearchParams(window.location.search).get(REVIEW_HEADER_SHARE_MENU_OPEN_PARAM),
+      );
 
-        return current === next ? current : next;
-      });
+      if (openRef.current === next) {
+        return;
+      }
+
+      openRef.current = next;
+      setOpenState(next);
     };
 
     syncShareMenuOpenFromUrl();
@@ -89,6 +99,16 @@ export function ReviewHeaderShareMenu(props: ReviewHeaderShareMenuProps): ReactE
       window.removeEventListener("popstate", syncShareMenuOpenFromUrl);
     };
   }, []);
+
+  useEffect(() => {
+    if (openRef.current === urlShareMenuOpen) {
+      return;
+    }
+
+    openRef.current = urlShareMenuOpen;
+    setOpenState(urlShareMenuOpen);
+  }, [urlShareMenuOpen]);
+
   const inviteHref = buildInviteReviewerHref(props.runId, props.parentArchitectureId);
   const exportSteps = buildReviewMeetingPacketSteps({
     runId: props.runId,

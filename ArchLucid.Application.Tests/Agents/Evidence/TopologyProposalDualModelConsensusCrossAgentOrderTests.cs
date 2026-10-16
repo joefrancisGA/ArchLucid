@@ -198,6 +198,110 @@ public sealed class TopologyProposalDualModelConsensusCrossAgentOrderTests
             "empty consensus intersection means no topology endpoints remain for sibling relationship validation");
     }
 
+    [Fact]
+    public async Task EnrichAsync_keeps_sibling_relationships_to_declared_non_topology_endpoints_after_consensus()
+    {
+        AgentTopologyProposal primaryTopology = new()
+        {
+            SourceAgent = AgentType.Topology,
+            AddedServices =
+            [
+                new ManifestService
+                {
+                    ServiceName = "api",
+                    ServiceId = "svc-api",
+                    ServiceType = ServiceType.Api,
+                    RuntimePlatform = RuntimePlatform.AppService,
+                },
+                new ManifestService
+                {
+                    ServiceName = "worker",
+                    ServiceId = "svc-worker",
+                    ServiceType = ServiceType.Worker,
+                    RuntimePlatform = RuntimePlatform.AppService,
+                },
+            ],
+        };
+
+        AgentTopologyProposal secondaryTopology = new()
+        {
+            SourceAgent = AgentType.Topology,
+            AddedServices =
+            [
+                new ManifestService
+                {
+                    ServiceName = "api",
+                    ServiceId = "svc-api",
+                    ServiceType = ServiceType.Api,
+                    RuntimePlatform = RuntimePlatform.AppService,
+                },
+            ],
+        };
+
+        AgentTopologyProposal criticProposal = new()
+        {
+            SourceAgent = AgentType.Critic,
+            AddedServices =
+            [
+                new ManifestService
+                {
+                    ServiceName = "audit-log",
+                    ServiceId = "svc-audit-log",
+                    ServiceType = ServiceType.Worker,
+                    RuntimePlatform = RuntimePlatform.AppService,
+                },
+            ],
+            AddedRelationships =
+            [
+                new ManifestRelationship
+                {
+                    SourceId = "svc-audit-log",
+                    TargetId = "svc-api",
+                    RelationshipType = RelationshipType.Calls,
+                },
+            ],
+        };
+
+        List<AgentResult> results =
+        [
+            new AgentResult
+            {
+                RunId = "run-1",
+                TaskId = "topology-task",
+                AgentType = AgentType.Topology,
+                ProposedChanges = primaryTopology,
+            },
+            new AgentResult
+            {
+                RunId = "run-1",
+                TaskId = "critic-task",
+                AgentType = AgentType.Critic,
+                ProposedChanges = criticProposal,
+            },
+        ];
+
+        CrossAgentProposalConsistencyEnricher crossAgent = new();
+        await crossAgent.EnrichAsync(
+            "run-1",
+            new ArchitectureRequest { RequestId = "req", Description = new string('x', 12) },
+            new AgentEvidencePackage(),
+            results,
+            CancellationToken.None);
+
+        TopologyProposalDualModelConsensusEnricher consensus = CreateConsensusEnricher(secondaryTopology);
+        await consensus.EnrichAsync(
+            "run-1",
+            new ArchitectureRequest { RequestId = "req", Description = new string('x', 12) },
+            new AgentEvidencePackage(),
+            results,
+            CancellationToken.None);
+
+        AgentTopologyProposal criticAfter = (AgentTopologyProposal)results[1].ProposedChanges!;
+        criticAfter.AddedRelationships.Should().ContainSingle(
+            "critic-declared endpoints must remain valid after consensus drops unrelated topology services");
+        criticAfter.AddedRelationships![0].TargetId.Should().Be("svc-api");
+    }
+
     private static TopologyProposalDualModelConsensusEnricher CreateConsensusEnricher(
         AgentTopologyProposal secondaryTopology)
     {

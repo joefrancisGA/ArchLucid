@@ -89,6 +89,7 @@ public sealed class GovernanceWorkflowFacade(
         string? notes,
         bool dryRun = false,
         bool verbosePromotionValidationErrors = false,
+        string? promotedByDisplay = null,
         CancellationToken cancellationToken = default) =>
         _promoteStage.PromoteAsync(
             runId,
@@ -100,6 +101,7 @@ public sealed class GovernanceWorkflowFacade(
             notes,
             dryRun,
             verbosePromotionValidationErrors,
+            promotedByDisplay,
             cancellationToken);
 
     /// <inheritdoc />
@@ -108,6 +110,13 @@ public sealed class GovernanceWorkflowFacade(
         string manifestVersion,
         string environment,
         string activatedBy,
+        string? activatedByDisplay = null,
         CancellationToken cancellationToken = default) =>
-        _activateStage.ActivateAsync(runId, manifestVersion, environment, activatedBy, cancellationToken);
+        _activateStage.ActivateAsync(
+            runId,
+            manifestVersion,
+            environment,
+            activatedBy,
+            activatedByDisplay,
+            cancellationToken);
 }

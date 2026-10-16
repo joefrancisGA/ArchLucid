@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import type { ReactElement } from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 
 import { DecisionReceiptExportButton } from "@/components/draft-intake/DecisionReceiptExportButton";
 import { ArtifactListTable } from "@/components/ArtifactListTable";
@@ -49,6 +49,7 @@ import {
   RUN_DETAIL_DELIVERABLES_INTRO,
 } from "@/lib/runs/run-detail-deliverables-copy";
 import {
+  RUN_DELIVERABLES_OPEN_PARAM,
   parseRunDeliverablesOpenFromSearch,
   runDetailDeliverablesDisclosureHrefFromSearch,
 } from "@/lib/runs/run-detail-deliverables-disclosure-url";
@@ -131,13 +132,18 @@ export function RunDetailArtifactsExportsSection(
     feasibilityVerdictOverride,
   );
   const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
   const deliverablesSectionDefaultOpen =
     deliverablesDefaultOpen ?? !buyerPolishedArtifactTable;
+  const urlDeliverablesOpen = parseRunDeliverablesOpenFromSearch(
+    searchParams.get(RUN_DELIVERABLES_OPEN_PARAM),
+  );
+  const resolvedDeliverablesOpen = urlDeliverablesOpen ?? deliverablesSectionDefaultOpen;
   const readDeliverablesOpenFromUrl = (): boolean | null =>
     parseRunDeliverablesOpenFromSearch(
-      new URLSearchParams(window.location.search).get("runDeliverablesOpen"),
+      new URLSearchParams(window.location.search).get(RUN_DELIVERABLES_OPEN_PARAM),
     );
-  const [deliverablesOpen, setDeliverablesOpenState] = useState(deliverablesSectionDefaultOpen);
+  const [deliverablesOpen, setDeliverablesOpenState] = useState(resolvedDeliverablesOpen);
   const deliverablesOpenRef = useRef(deliverablesOpen);
   deliverablesOpenRef.current = deliverablesOpen;
   const sealedManifestVersion = manifestSummarySealedVersionForCopyGuard(manifestSummaryForUi ?? manifestSummary);
@@ -191,6 +197,17 @@ export function RunDetailArtifactsExportsSection(
       window.removeEventListener("popstate", syncDeliverablesOpenFromUrl);
     };
   }, [deliverablesSectionDefaultOpen]);
+
+  useEffect(() => {
+    const next = urlDeliverablesOpen ?? deliverablesSectionDefaultOpen;
+
+    if (deliverablesOpenRef.current === next) {
+      return;
+    }
+
+    deliverablesOpenRef.current = next;
+    setDeliverablesOpenState(next);
+  }, [deliverablesSectionDefaultOpen, urlDeliverablesOpen]);
 
   const [bundleBusy, setBundleBusy] = useState(false);
   const [reviewExportBusy, setReviewExportBusy] = useState(false);

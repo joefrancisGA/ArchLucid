@@ -1,8 +1,8 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { useCallback, useEffect, useRef, useState, type SetStateAction } from "react";
-import { usePathname } from "next/navigation";
+import { useCallback, useEffect, useMemo, useRef, useState, type SetStateAction } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
 
 import { FindingAskInlinePanel } from "@/components/findings/FindingAskInlinePanel";
 import { FindingDidNotThinkOfThatButton } from "@/components/findings/FindingDidNotThinkOfThatButton";
@@ -34,9 +34,7 @@ type ActionsDisclosureState = {
   technicalAuditOpen: boolean;
 };
 
-function readActionsDisclosureStateFromWindow(): ActionsDisclosureState {
-  const params = new URLSearchParams(typeof window === "undefined" ? "" : window.location.search);
-
+function readActionsDisclosureStateFromParams(params: URLSearchParams): ActionsDisclosureState {
   return {
     exportOpen: parseFindingExportOpenFromSearch(params.get("findingExportOpen")),
     technicalIdsOpen: parseFindingTechnicalIdsOpenFromSearch(params.get("findingTechnicalIdsOpen")),
@@ -44,10 +42,22 @@ function readActionsDisclosureStateFromWindow(): ActionsDisclosureState {
   };
 }
 
+function readActionsDisclosureStateFromWindow(): ActionsDisclosureState {
+  return readActionsDisclosureStateFromParams(
+    new URLSearchParams(typeof window === "undefined" ? "" : window.location.search),
+  );
+}
+
 /** Finding detail actions and footers. */
 export function FindingDetailActions({ presentation }: Props) {
   const { model, graphEvidenceHref, linkedManifestHref, transparencyTrail } = presentation;
   const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const searchParamsString = searchParams.toString();
+  const urlActionsState = useMemo(
+    () => readActionsDisclosureStateFromParams(searchParams),
+    [searchParamsString],
+  );
   const [actionsState, setActionsState] = useState<ActionsDisclosureState>(() => readActionsDisclosureStateFromWindow());
   const actionsStateRef = useRef(actionsState);
   actionsStateRef.current = actionsState;
@@ -139,6 +149,21 @@ export function FindingDetailActions({ presentation }: Props) {
       window.removeEventListener("popstate", syncFromUrl);
     };
   }, []);
+
+  useEffect(() => {
+    const next = urlActionsState;
+
+    if (
+      actionsStateRef.current.exportOpen === next.exportOpen
+      && actionsStateRef.current.technicalIdsOpen === next.technicalIdsOpen
+      && actionsStateRef.current.technicalAuditOpen === next.technicalAuditOpen
+    ) {
+      return;
+    }
+
+    actionsStateRef.current = next;
+    setActionsState(next);
+  }, [urlActionsState]);
 
   return (
     <>

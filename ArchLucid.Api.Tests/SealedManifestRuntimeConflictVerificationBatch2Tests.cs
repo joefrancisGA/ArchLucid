@@ -232,6 +232,7 @@ public sealed class SealedManifestRuntimeConflictVerificationBatch2Tests
                 null,
                 true,
                 false,
+                It.IsAny<string?>(),
                 It.IsAny<CancellationToken>()))
             .ThrowsAsync(SealedConflict);
         GovernanceController sut = BuildGovernanceController(workflow);
@@ -260,6 +261,7 @@ public sealed class SealedManifestRuntimeConflictVerificationBatch2Tests
                 "1",
                 "dev",
                 It.IsAny<string>(),
+                It.IsAny<string?>(),
                 It.IsAny<CancellationToken>()))
             .ThrowsAsync(SealedConflict);
         GovernanceController sut = BuildGovernanceController(workflow);

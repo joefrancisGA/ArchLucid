@@ -13,5 +13,6 @@ public interface IGovernanceWorkflowActivateStage
         string manifestVersion,
         string environment,
         string activatedBy,
+        string? activatedByDisplay,
         CancellationToken cancellationToken);
 }

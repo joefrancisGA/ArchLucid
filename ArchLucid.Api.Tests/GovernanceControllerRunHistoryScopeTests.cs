@@ -1718,9 +1718,10 @@ public sealed class GovernanceControllerRunHistoryScopeTests
                 null,
                 true,
                 false,
+                It.IsAny<string?>(),
                 It.IsAny<CancellationToken>()))
-            .Callback<string, string, string, string, string, string?, string?, bool, bool, CancellationToken>(
-                (_, _, _, _, promotedBy, _, _, _, _, _) => capturedPromotedBy = promotedBy)
+            .Callback<string, string, string, string, string, string?, string?, bool, bool, string?, CancellationToken>(
+                (_, _, _, _, promotedBy, _, _, _, _, _, _) => capturedPromotedBy = promotedBy)
             .ReturnsAsync(
                 new GovernancePromotionRecord
                 {
@@ -1776,9 +1777,10 @@ public sealed class GovernanceControllerRunHistoryScopeTests
                 "1",
                 "test",
                 It.IsAny<string>(),
+                It.IsAny<string?>(),
                 It.IsAny<CancellationToken>()))
-            .Callback<string, string, string, string, CancellationToken>(
-                (_, _, _, activatedBy, _) => capturedActivatedBy = activatedBy)
+            .Callback<string, string, string, string, string?, CancellationToken>(
+                (_, _, _, activatedBy, _, _) => capturedActivatedBy = activatedBy)
             .ReturnsAsync(
                 new GovernanceEnvironmentActivation
                 {
@@ -2421,6 +2423,7 @@ public sealed class GovernanceControllerRunHistoryScopeTests
                 "  ",
                 "test",
                 It.IsAny<string>(),
+                It.IsAny<string?>(),
                 It.IsAny<CancellationToken>()))
             .ThrowsAsync(new ArgumentException("ManifestVersion is required.", nameof(CreateGovernanceActivationRequest.ManifestVersion)));
 
@@ -2501,6 +2504,7 @@ public sealed class GovernanceControllerRunHistoryScopeTests
                 null,
                 true,
                 false,
+                It.IsAny<string?>(),
                 It.IsAny<CancellationToken>()))
             .ThrowsAsync(new InvalidOperationException(
                 "Promotion must follow an allowed environment transition. 'dev' → 'prod' is not permitted."));

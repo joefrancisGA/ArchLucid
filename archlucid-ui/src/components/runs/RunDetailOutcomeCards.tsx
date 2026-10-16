@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
@@ -36,10 +36,12 @@ import {
 } from "./RunDetailPackageStatusStrip";
 import {
   parseRunDetailOutcomeDecisionKeyOpenFromSearch,
+  RUN_DETAIL_OUTCOME_DECISION_KEY_OPEN_PARAM,
   runDetailOutcomeDecisionKeyDisclosureHrefFromSearch,
 } from "@/lib/runs/run-detail-outcome-decision-key-disclosure-url";
 import {
   parseRunDetailOutcomeMonitoredRiskOpenFromSearch,
+  RUN_DETAIL_OUTCOME_MONITORED_RISK_OPEN_PARAM,
   runDetailOutcomeMonitoredRiskDisclosureHrefFromSearch,
 } from "@/lib/runs/run-detail-outcome-monitored-risk-disclosure-url";
 
@@ -103,6 +105,13 @@ export function RunDetailOutcomeCards({
   pagePrimaryOwnedElsewhere = false,
 }: RunDetailOutcomeCardsProps) {
   const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const urlMonitoredRiskOpen = parseRunDetailOutcomeMonitoredRiskOpenFromSearch(
+    searchParams.get(RUN_DETAIL_OUTCOME_MONITORED_RISK_OPEN_PARAM),
+  );
+  const urlDecisionKeyOpen = parseRunDetailOutcomeDecisionKeyOpenFromSearch(
+    searchParams.get(RUN_DETAIL_OUTCOME_DECISION_KEY_OPEN_PARAM),
+  );
   const [monitoredRiskOpen, setMonitoredRiskOpenState] = useState(() =>
     parseRunDetailOutcomeMonitoredRiskOpenFromSearch(null),
   );
@@ -163,7 +172,7 @@ export function RunDetailOutcomeCards({
   useEffect(() => {
     const syncDisclosureOpenFromUrl = (): void => {
       const nextMonitoredRiskOpen = parseRunDetailOutcomeMonitoredRiskOpenFromSearch(
-        new URLSearchParams(window.location.search).get("runDetailOutcomeMonitoredRiskOpen"),
+        new URLSearchParams(window.location.search).get(RUN_DETAIL_OUTCOME_MONITORED_RISK_OPEN_PARAM),
       );
 
       if (monitoredRiskOpenRef.current !== nextMonitoredRiskOpen) {
@@ -172,7 +181,7 @@ export function RunDetailOutcomeCards({
       }
 
       const nextDecisionKeyOpen = parseRunDetailOutcomeDecisionKeyOpenFromSearch(
-        new URLSearchParams(window.location.search).get("runDetailOutcomeDecisionKeyOpen"),
+        new URLSearchParams(window.location.search).get(RUN_DETAIL_OUTCOME_DECISION_KEY_OPEN_PARAM),
       );
 
       if (decisionKeyOpenRef.current !== nextDecisionKeyOpen) {
@@ -188,6 +197,24 @@ export function RunDetailOutcomeCards({
       window.removeEventListener("popstate", syncDisclosureOpenFromUrl);
     };
   }, []);
+
+  useEffect(() => {
+    if (monitoredRiskOpenRef.current === urlMonitoredRiskOpen) {
+      return;
+    }
+
+    monitoredRiskOpenRef.current = urlMonitoredRiskOpen;
+    setMonitoredRiskOpenState(urlMonitoredRiskOpen);
+  }, [urlMonitoredRiskOpen]);
+
+  useEffect(() => {
+    if (decisionKeyOpenRef.current === urlDecisionKeyOpen) {
+      return;
+    }
+
+    decisionKeyOpenRef.current = urlDecisionKeyOpen;
+    setDecisionKeyOpenState(urlDecisionKeyOpen);
+  }, [urlDecisionKeyOpen]);
 
   const supplementaryNavLinkClass =
     pagePrimaryOwnedElsewhere === true ? OPERATOR_LINK.optional : OPERATOR_LINK.nav;

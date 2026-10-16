@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import type { WizardEvidenceUploadTrackState } from "@/components/wizard/steps/WizardPostCreateEvidenceUploadPanel";
 import type { ApiProblemDetails } from "@/lib/api-problem";
@@ -49,22 +49,33 @@ export function useNewRunWizardPendingEvidence(options: PendingEvidenceOptions) 
   const [evidenceUploadState, setEvidenceUploadState] = useState<WizardEvidenceUploadTrackState>("idle");
   const [evidenceUploadProgressPercent, setEvidenceUploadProgressPercent] = useState<number | null>(null);
   const [evidenceUploadError, setEvidenceUploadError] = useState<PendingEvidenceUploadFailure | null>(null);
+  const inventoryPlatformDetectionGenerationRef = useRef(0);
+  const pendingEvidenceUploadGenerationRef = useRef(0);
 
   const handlePendingEvidenceFileChange = useCallback(
     (file: File | null) => {
+      pendingEvidenceUploadGenerationRef.current += 1;
       setPendingEvidenceFile(file);
 
       if (file === null) {
+        inventoryPlatformDetectionGenerationRef.current += 1;
         setPendingInventoryPlatform(null);
         setInventoryPlatformDetectionPending(false);
 
         return;
       }
 
+      const detectionGeneration = inventoryPlatformDetectionGenerationRef.current + 1;
+      inventoryPlatformDetectionGenerationRef.current = detectionGeneration;
+      setPendingInventoryPlatform(null);
       setInventoryPlatformDetectionPending(true);
 
       void (async () => {
         const platform = await detectTier1InventoryPlatformFromFile(file);
+
+        if (inventoryPlatformDetectionGenerationRef.current !== detectionGeneration) {
+          return;
+        }
 
         setInventoryPlatformDetectionPending(false);
 
@@ -82,6 +93,7 @@ export function useNewRunWizardPendingEvidence(options: PendingEvidenceOptions) 
   );
 
   const clearPendingEvidence = useCallback(() => {
+    pendingEvidenceUploadGenerationRef.current += 1;
     setPendingEvidenceFile(null);
     setPendingInventoryPlatform(null);
     setInventoryPlatformDetectionPending(false);
@@ -99,6 +111,8 @@ export function useNewRunWizardPendingEvidence(options: PendingEvidenceOptions) 
       if (!hasInventory && !hasDocuments) {
         return;
       }
+
+      const uploadGeneration = pendingEvidenceUploadGenerationRef.current;
 
       setEvidenceUploadState("uploading");
       setEvidenceUploadError(null);
@@ -118,6 +132,12 @@ export function useNewRunWizardPendingEvidence(options: PendingEvidenceOptions) 
           );
 
           if (!inventoryResult.ok) {
+            if (pendingEvidenceUploadGenerationRef.current !== uploadGeneration) {
+              setEvidenceUploadState("idle");
+
+              return;
+            }
+
             setEvidenceUploadState("failed");
             setEvidenceUploadProgressPercent(null);
             setEvidenceUploadError({
@@ -125,6 +145,12 @@ export function useNewRunWizardPendingEvidence(options: PendingEvidenceOptions) 
               problem: inventoryResult.problem,
               correlationId: inventoryResult.correlationId,
             });
+
+            return;
+          }
+
+          if (pendingEvidenceUploadGenerationRef.current !== uploadGeneration) {
+            setEvidenceUploadState("idle");
 
             return;
           }
@@ -137,6 +163,12 @@ export function useNewRunWizardPendingEvidence(options: PendingEvidenceOptions) 
           const documentResult = await uploadWizardPendingDocumentEvidence(runIdValue, documentFiles);
 
           if (!documentResult.ok) {
+            if (pendingEvidenceUploadGenerationRef.current !== uploadGeneration) {
+              setEvidenceUploadState("idle");
+
+              return;
+            }
+
             setEvidenceUploadState("failed");
             setEvidenceUploadProgressPercent(null);
             setEvidenceUploadError({
@@ -148,12 +180,30 @@ export function useNewRunWizardPendingEvidence(options: PendingEvidenceOptions) 
             return;
           }
 
+          if (pendingEvidenceUploadGenerationRef.current !== uploadGeneration) {
+            setEvidenceUploadState("idle");
+
+            return;
+          }
+
           setPendingDocumentFiles([]);
+        }
+
+        if (pendingEvidenceUploadGenerationRef.current !== uploadGeneration) {
+          setEvidenceUploadState("idle");
+
+          return;
         }
 
         setEvidenceUploadState("success");
         setEvidenceUploadProgressPercent(null);
       } catch (error: unknown) {
+        if (pendingEvidenceUploadGenerationRef.current !== uploadGeneration) {
+          setEvidenceUploadState("idle");
+
+          return;
+        }
+
         setEvidenceUploadState("failed");
         setEvidenceUploadProgressPercent(null);
         setEvidenceUploadError({

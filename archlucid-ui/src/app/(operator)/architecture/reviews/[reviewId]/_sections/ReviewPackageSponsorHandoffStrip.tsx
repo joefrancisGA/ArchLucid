@@ -3,7 +3,7 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
@@ -46,6 +46,7 @@ import {
 import type { ManifestSummary, RunSummary, RunTrustEvidenceCard } from "@/types/authority";
 import {
   parseReviewPackageSponsorHandoffMoreExportsOpenFromSearch,
+  REVIEW_PACKAGE_SPONSOR_HANDOFF_MORE_EXPORTS_OPEN_PARAM,
   reviewPackageSponsorHandoffMoreExportsDisclosureHrefFromSearch,
 } from "@/lib/reviews/review-package-sponsor-handoff-more-exports-disclosure-url";
 
@@ -76,9 +77,11 @@ export function ReviewPackageSponsorHandoffStrip(
     ? Math.max(0, Math.trunc(props.lowExtractionConfidenceCount!))
     : 0;
   const pathname = usePathname() ?? `/architecture/reviews/${props.runId}`;
-  const [moreExportsOpen, setMoreExportsOpenState] = useState(() =>
-    parseReviewPackageSponsorHandoffMoreExportsOpenFromSearch(null),
+  const searchParams = useSearchParams();
+  const urlMoreExportsOpen = parseReviewPackageSponsorHandoffMoreExportsOpenFromSearch(
+    searchParams.get(REVIEW_PACKAGE_SPONSOR_HANDOFF_MORE_EXPORTS_OPEN_PARAM),
   );
+  const [moreExportsOpen, setMoreExportsOpenState] = useState(urlMoreExportsOpen);
   const moreExportsOpenRef = useRef(moreExportsOpen);
   moreExportsOpenRef.current = moreExportsOpen;
   const [docxExportBusy, setDocxExportBusy] = useState(false);
@@ -129,7 +132,7 @@ export function ReviewPackageSponsorHandoffStrip(
   useEffect(() => {
     const syncMoreExportsOpenFromUrl = (): void => {
       const nextOpen = parseReviewPackageSponsorHandoffMoreExportsOpenFromSearch(
-        new URLSearchParams(window.location.search).get("reviewPackageSponsorHandoffMoreExportsOpen"),
+        new URLSearchParams(window.location.search).get(REVIEW_PACKAGE_SPONSOR_HANDOFF_MORE_EXPORTS_OPEN_PARAM),
       );
 
       if (moreExportsOpenRef.current === nextOpen) {
@@ -147,6 +150,15 @@ export function ReviewPackageSponsorHandoffStrip(
       window.removeEventListener("popstate", syncMoreExportsOpenFromUrl);
     };
   }, []);
+
+  useEffect(() => {
+    if (moreExportsOpenRef.current === urlMoreExportsOpen) {
+      return;
+    }
+
+    moreExportsOpenRef.current = urlMoreExportsOpen;
+    setMoreExportsOpenState(urlMoreExportsOpen);
+  }, [urlMoreExportsOpen]);
 
   return (
     <section

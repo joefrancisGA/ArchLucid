@@ -22,6 +22,7 @@ public sealed class GovernanceWorkflowPromoteStage(
         string? notes,
         bool dryRun,
         bool verbosePromotionValidationErrors,
+        string? promotedByDisplay,
         CancellationToken cancellationToken)
     {
         GovernanceWorkflowPromoteValidatedContext validated = await _validateStage.ValidateAsync(
@@ -34,6 +35,7 @@ public sealed class GovernanceWorkflowPromoteStage(
             notes,
             dryRun,
             verbosePromotionValidationErrors,
+            promotedByDisplay,
             cancellationToken);
 
         return await _persistStage.PersistAsync(validated, cancellationToken);

@@ -134,6 +134,7 @@ public sealed class GovernanceControllerDryRunTests
                 null,
                 true,
                 false,
+                It.IsAny<string?>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(
                 new GovernancePromotionRecord

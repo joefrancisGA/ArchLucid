@@ -1083,6 +1083,12 @@ internal static class ConfigurationSensitiveConfigPathMatcher
             return true;
 
         if (fragment.Equals("Secret", StringComparison.OrdinalIgnoreCase)
+            && fragmentIndex == 0
+            && segment.Length == fragment.Length + 1
+            && (segment[fragment.Length] == 's' || segment[fragment.Length] == 'S'))
+            return true;
+
+        if (fragment.Equals("Secret", StringComparison.OrdinalIgnoreCase)
             && fragmentIndex + fragment.Length < segment.Length
             && (segment.Slice(fragmentIndex + fragment.Length).StartsWith("less", StringComparison.OrdinalIgnoreCase)
                 || segment.Slice(fragmentIndex + fragment.Length).StartsWith("free", StringComparison.OrdinalIgnoreCase)

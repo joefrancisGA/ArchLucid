@@ -48,6 +48,7 @@ public sealed class GovernancePromotionsActivationsFacade(
         string? notes,
         bool dryRun,
         bool verbosePromotionValidationErrors,
+        string? promotedByDisplay,
         CancellationToken ct)
     {
         string normalizedRunId = await GovernanceRunScope.RequireScopedRunIdAsync(
@@ -89,6 +90,7 @@ public sealed class GovernancePromotionsActivationsFacade(
             notes,
             dryRun,
             verbosePromotionValidationErrors,
+            promotedByDisplay,
             ct);
     }
 
@@ -98,6 +100,7 @@ public sealed class GovernancePromotionsActivationsFacade(
         string manifestVersion,
         string environment,
         string activatedBy,
+        string? activatedByDisplay,
         CancellationToken ct)
     {
         string normalizedRunId = await GovernanceRunScope.RequireScopedRunIdAsync(
@@ -111,6 +114,7 @@ public sealed class GovernancePromotionsActivationsFacade(
             manifestVersion,
             environment,
             activatedBy,
+            activatedByDisplay,
             ct);
     }
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import type { ReactElement } from "react";
 
 import { ArchitectureCreatedFindingsEvidenceOrientationStrip } from "@/components/architecture/ArchitectureCreatedFindingsEvidenceOrientationStrip";
@@ -113,8 +113,15 @@ export type RunDetailFindingsWorkspaceProps = {
 /** Findings list with workspace toolbar filters for the review detail page. */
 export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProps): ReactElement {
   const pathname = usePathname() ?? "";
+  const searchParams = useSearchParams();
   const { isWorkingMode } = useWorkspaceMode();
   const architectWorkspaceChrome = useArchitectWorkspaceChrome();
+  const urlClassificationBand = parseReviewFindingsClassificationBandFromSearch(
+    searchParams.get(REVIEW_FINDINGS_CLASSIFICATION_BAND_PARAM),
+  );
+  const urlListView =
+    parseReviewFindingsListViewFromSearch(searchParams.get(REVIEW_FINDINGS_LIST_VIEW_PARAM))
+    ?? defaultReviewFindingsListView(architectWorkspaceChrome);
   const parentArchitectureId = props.parentArchitectureId?.trim() ?? "";
   const workingInstrument =
     isWorkingMode && parentArchitectureId.length > 0
@@ -186,6 +193,10 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
     };
   }, []);
 
+  useEffect(() => {
+    setClassificationBandState((current) => (current === urlClassificationBand ? current : urlClassificationBand));
+  }, [urlClassificationBand]);
+
   const [listView, setListViewState] = useState(() => defaultReviewFindingsListView(architectWorkspaceChrome));
 
   useEffect(() => {
@@ -221,6 +232,10 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
       window.removeEventListener("popstate", syncListViewFromUrl);
     };
   }, [architectWorkspaceChrome]);
+
+  useEffect(() => {
+    setListViewState((current) => (current === urlListView ? current : urlListView));
+  }, [urlListView]);
 
   const useDenseTable = listView === "table" && architectWorkspaceChrome;
 

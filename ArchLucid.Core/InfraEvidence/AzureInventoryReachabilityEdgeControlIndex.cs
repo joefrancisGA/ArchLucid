@@ -50,6 +50,9 @@ public sealed class AzureInventoryReachabilityEdgeControlIndex
         ArgumentNullException.ThrowIfNull(relationships);
         ArgumentNullException.ThrowIfNull(resourcesByArmId);
 
+        IReadOnlyDictionary<string, AzureInventoryReachabilityResourceProperties> normalizedResourcesByArmId =
+            NormalizeReachabilityResourceIndex(resourcesByArmId);
+
         Dictionary<string, string> subnetToRouteTable = BuildSubnetToRouteTableMap(relationships);
         HashSet<string> subnetsWithUnmodeledEdgeRoute = new(StringComparer.OrdinalIgnoreCase);
         HashSet<string> assetsBehindApplicationGateway = new(StringComparer.OrdinalIgnoreCase);
@@ -57,12 +60,12 @@ public sealed class AzureInventoryReachabilityEdgeControlIndex
 
         foreach ((string subnetArmId, string routeTableArmId) in subnetToRouteTable)
         {
-            if (!resourcesByArmId.TryGetValue(routeTableArmId, out AzureInventoryReachabilityResourceProperties? routeTable))
+            if (!normalizedResourcesByArmId.TryGetValue(routeTableArmId, out AzureInventoryReachabilityResourceProperties? routeTable))
             {
                 continue;
             }
 
-            if (RouteTableRequiresUnmodeledEdgeControl(routeTable.Properties, resourcesByArmId))
+            if (RouteTableRequiresUnmodeledEdgeControl(routeTable.Properties, normalizedResourcesByArmId))
             {
                 subnetsWithUnmodeledEdgeRoute.Add(subnetArmId);
             }
@@ -135,6 +138,20 @@ public sealed class AzureInventoryReachabilityEdgeControlIndex
         }
 
         return false;
+    }
+
+    private static Dictionary<string, AzureInventoryReachabilityResourceProperties> NormalizeReachabilityResourceIndex(
+        IReadOnlyDictionary<string, AzureInventoryReachabilityResourceProperties> resourcesByArmId)
+    {
+        Dictionary<string, AzureInventoryReachabilityResourceProperties> normalized =
+            new(StringComparer.OrdinalIgnoreCase);
+
+        foreach (KeyValuePair<string, AzureInventoryReachabilityResourceProperties> entry in resourcesByArmId)
+        {
+            normalized[ArmResourceIdNormalizer.Normalize(entry.Key)] = entry.Value;
+        }
+
+        return normalized;
     }
 
     private static Dictionary<string, string> BuildSubnetToRouteTableMap(

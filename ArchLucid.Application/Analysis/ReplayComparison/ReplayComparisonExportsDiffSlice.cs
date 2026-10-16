@@ -73,10 +73,18 @@ public sealed class ReplayComparisonExportsDiffSlice(IExportRecordDiffService ex
         string exportType = record.ExportType.Trim();
         string templateProfile = record.TemplateProfile?.Trim() ?? string.Empty;
         string format = record.Format?.Trim() ?? string.Empty;
-        string compareRunId = record.CompareRunId?.Trim() ?? string.Empty;
+        string compareRunId = NormalizeCompareRunIdForPairing(record.CompareRunId);
         string compareManifestVersion = record.CompareManifestVersion?.Trim() ?? string.Empty;
 
         return $"{exportType}|{templateProfile}|{format}|{compareRunId}|{compareManifestVersion}";
+    }
+
+    private static string NormalizeCompareRunIdForPairing(string? compareRunId)
+    {
+        if (string.IsNullOrWhiteSpace(compareRunId))
+            return string.Empty;
+
+        return AnalysisRunIdCanonicalization.CanonicalRunIdForPersistence(compareRunId.Trim());
     }
 
     private static string DescribeExportPairingKey(string pairingKey, int index, int pairCount)

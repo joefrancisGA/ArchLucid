@@ -3,7 +3,7 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { MessageCircleQuestion } from "lucide-react";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState, type ReactElement } from "react";
 
 import { AskAssistantMessageBody } from "@/components/AskAssistantMessageBody";
@@ -23,9 +23,12 @@ import type { ApiProblemDetails } from "@/lib/api-problem";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
 import {
+  REVIEW_ASK_DOCK_OPEN_PARAM,
+  REVIEW_ASK_DOCK_THREAD_PARAM,
   parseReviewAskDockOpenFromSearch,
   parseReviewAskDockThreadIdFromSearch,
-  reviewAskDockHrefFromSearch} from "@/lib/reviews/review-ask-dock-url";
+  reviewAskDockHrefFromSearch,
+} from "@/lib/reviews/review-ask-dock-url";
 import { formatWhyDisabledCtaMessage, type WhyDisabledCtaReason } from "@/lib/why-disabled-cta";
 
 const DEFAULT_REVIEW_QUESTION =
@@ -48,7 +51,16 @@ type AskTurn = {
 export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
   const runId = props.runId.trim();
   const pathname = usePathname() ?? `/architecture/reviews/${encodeURIComponent(runId)}`;
-  const [open, setOpenState] = useState(false);
+  const searchParams = useSearchParams();
+  const urlAskDockOpen = parseReviewAskDockOpenFromSearch(
+    searchParams.get(REVIEW_ASK_DOCK_OPEN_PARAM),
+  );
+  const urlAskThreadId = parseReviewAskDockThreadIdFromSearch(
+    searchParams.get(REVIEW_ASK_DOCK_THREAD_PARAM),
+  );
+  const [open, setOpenState] = useState(urlAskDockOpen);
+  const openRef = useRef(open);
+  openRef.current = open;
   const [question, setQuestion] = useState(DEFAULT_REVIEW_QUESTION);
   const [turns, setTurns] = useState<AskTurn[]>([]);
   const [threadId, setThreadIdState] = useState<string | null>(null);
@@ -79,14 +91,15 @@ export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
 
   const setOpen = useCallback(
     (nextOpen: boolean) => {
-      if (open === nextOpen) {
+      if (openRef.current === nextOpen) {
         return;
       }
 
+      openRef.current = nextOpen;
       setOpenState(nextOpen);
       syncAskDockToUrl(nextOpen, threadId);
     },
-    [open, syncAskDockToUrl, threadId],
+    [syncAskDockToUrl, threadId],
   );
 
   const setThreadId = useCallback(
@@ -118,7 +131,13 @@ export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
       }
 
       disabledCleanupAttemptedRef.current = false;
-      setOpenState((current) => (current === urlAskDockOpen ? current : urlAskDockOpen));
+
+      if (openRef.current === urlAskDockOpen) {
+        return;
+      }
+
+      openRef.current = urlAskDockOpen;
+      setOpenState(urlAskDockOpen);
 
       if (urlAskThreadId.length > 0) {
         setThreadIdState((current) => (current === urlAskThreadId ? current : urlAskThreadId));
@@ -132,6 +151,30 @@ export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
       window.removeEventListener("popstate", syncAskDockFromUrl);
     };
   }, [askDockDisabled, syncAskDockToUrl]);
+
+  useEffect(() => {
+    if (askDockDisabled) {
+      if (urlAskDockOpen && !disabledCleanupAttemptedRef.current) {
+        disabledCleanupAttemptedRef.current = true;
+        openRef.current = false;
+        setOpenState(false);
+        syncAskDockToUrl(false, null);
+      }
+
+      return;
+    }
+
+    disabledCleanupAttemptedRef.current = false;
+
+    if (openRef.current !== urlAskDockOpen) {
+      openRef.current = urlAskDockOpen;
+      setOpenState(urlAskDockOpen);
+    }
+
+    if (urlAskThreadId.length > 0) {
+      setThreadIdState((current) => (current === urlAskThreadId ? current : urlAskThreadId));
+    }
+  }, [askDockDisabled, syncAskDockToUrl, urlAskDockOpen, urlAskThreadId]);
 
   const submitQuestion = useCallback(async (): Promise<void> => {
     const trimmed = question.trim();

@@ -2,12 +2,14 @@
 
 import type { ReactNode } from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 
 import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import {
+  RUN_DETAIL_OUTCOME_CARDS_OPEN_PARAM,
   parseRunDetailOutcomeCardsOpenFromSearch,
-  runDetailOutcomeCardsDisclosureHrefFromSearch} from "@/lib/runs/run-detail-outcome-cards-disclosure-url";
+  runDetailOutcomeCardsDisclosureHrefFromSearch,
+} from "@/lib/runs/run-detail-outcome-cards-disclosure-url";
 
 type RunDetailDetailedOutcomeCardsDisclosureProps = {
   readonly children: ReactNode;
@@ -17,9 +19,11 @@ export function RunDetailDetailedOutcomeCardsDisclosure(
   props: RunDetailDetailedOutcomeCardsDisclosureProps,
 ): React.JSX.Element {
   const pathname = usePathname() ?? "/";
-  const [open, setOpenState] = useState(() =>
-    parseRunDetailOutcomeCardsOpenFromSearch(null),
+  const searchParams = useSearchParams();
+  const urlOpen = parseRunDetailOutcomeCardsOpenFromSearch(
+    searchParams.get(RUN_DETAIL_OUTCOME_CARDS_OPEN_PARAM),
   );
+  const [open, setOpenState] = useState(urlOpen);
   const openRef = useRef(open);
   openRef.current = open;
 
@@ -49,7 +53,7 @@ export function RunDetailDetailedOutcomeCardsDisclosure(
   useEffect(() => {
     const syncOpenFromUrl = (): void => {
       const next = parseRunDetailOutcomeCardsOpenFromSearch(
-        new URLSearchParams(window.location.search).get("runDetailOutcomeCardsOpen"),
+        new URLSearchParams(window.location.search).get(RUN_DETAIL_OUTCOME_CARDS_OPEN_PARAM),
       );
 
       if (openRef.current === next) {
@@ -67,6 +71,15 @@ export function RunDetailDetailedOutcomeCardsDisclosure(
       window.removeEventListener("popstate", syncOpenFromUrl);
     };
   }, []);
+
+  useEffect(() => {
+    if (openRef.current === urlOpen) {
+      return;
+    }
+
+    openRef.current = urlOpen;
+    setOpenState(urlOpen);
+  }, [urlOpen]);
 
   return (
     <details

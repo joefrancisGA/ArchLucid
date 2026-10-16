@@ -28,6 +28,20 @@ public sealed class AzureInventoryRuntimeIdentityReaderTests
     }
 
     [Fact]
+    public void TryReadSystemAssignedPrincipalId_reads_pascal_case_principal_id_property()
+    {
+        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["identity"] = """{"type":"SystemAssigned","PrincipalId":"aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"}""",
+        };
+
+        AzureInventoryRuntimeIdentityReader.TryReadSystemAssignedPrincipalId(properties, out string principalId)
+            .Should().BeTrue();
+        principalId.Should().Be("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
+        AzureInventoryRuntimeIdentityReader.HasRuntimeIdentity(properties).Should().BeTrue();
+    }
+
+    [Fact]
     public void HasUserAssignedIdentity_detects_a_nested_identity_resource()
     {
         Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)

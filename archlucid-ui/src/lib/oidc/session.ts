@@ -31,8 +31,8 @@ import {
 } from "@/lib/oidc/bff-session-sync";
 import { isSafeReturnPath } from "@/lib/navigation/safe-return-path";
 import {
-  normalizeNumericOidcHintString,
   normalizeOidcConfigurationString,
+  parseOidcEpochMsHint,
   stripOAuthInvisibleFormatChars,
 } from "@/lib/oidc/oauth-callback-messages";
 import { resolveExpiresInSeconds } from "@/lib/oidc/resolve-expires-in-seconds";
@@ -347,7 +347,7 @@ export function consumePostSignInReturnUrl(): string | null {
 
 function getExpiresAtMs(): number {
   const raw = readSessionKey(OIDC_EXPIRES_AT_MS_KEY) ?? "0";
-  const parsed = Number(normalizeNumericOidcHintString(raw));
+  const parsed = parseOidcEpochMsHint(raw);
 
   return Number.isFinite(parsed) ? parsed : 0;
 }

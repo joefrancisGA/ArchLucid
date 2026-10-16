@@ -3,7 +3,7 @@
 import { cn } from "@/lib/utils";
 import type { ReactElement } from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import type { ReviewRunEngineProvenance } from "@/lib/review-engine-provenance-display";
@@ -13,6 +13,7 @@ import {
   formatReviewEngineRunTimestamp,
 } from "@/lib/review-engine-provenance-display";
 import {
+  RUN_ENGINE_PROVENANCE_OPEN_PARAM,
   parseRunEngineProvenanceOpenFromSearch,
   runEngineProvenanceDisclosureHrefFromSearch,
 } from "@/lib/runs/run-engine-provenance-disclosure-url";
@@ -38,9 +39,11 @@ function ProvenanceField(props: { readonly label: string; readonly value: string
 export function RunDetailEngineProvenanceRow(props: RunDetailEngineProvenanceRowProps): ReactElement {
   const { provenance } = props;
   const pathname = usePathname() ?? "/";
-  const [open, setOpenState] = useState(() =>
-    parseRunEngineProvenanceOpenFromSearch(null),
+  const searchParams = useSearchParams();
+  const urlEngineProvenanceOpen = parseRunEngineProvenanceOpenFromSearch(
+    searchParams.get(RUN_ENGINE_PROVENANCE_OPEN_PARAM),
   );
+  const [open, setOpenState] = useState(urlEngineProvenanceOpen);
   const openRef = useRef(open);
   openRef.current = open;
   const engineLabel = provenance.modelAliasId
@@ -74,7 +77,7 @@ export function RunDetailEngineProvenanceRow(props: RunDetailEngineProvenanceRow
   useEffect(() => {
     const syncOpenFromUrl = (): void => {
       const nextOpen = parseRunEngineProvenanceOpenFromSearch(
-        new URLSearchParams(window.location.search).get("runEngineProvenanceOpen"),
+        new URLSearchParams(window.location.search).get(RUN_ENGINE_PROVENANCE_OPEN_PARAM),
       );
 
       if (openRef.current === nextOpen) {
@@ -92,6 +95,15 @@ export function RunDetailEngineProvenanceRow(props: RunDetailEngineProvenanceRow
       window.removeEventListener("popstate", syncOpenFromUrl);
     };
   }, []);
+
+  useEffect(() => {
+    if (openRef.current === urlEngineProvenanceOpen) {
+      return;
+    }
+
+    openRef.current = urlEngineProvenanceOpen;
+    setOpenState(urlEngineProvenanceOpen);
+  }, [urlEngineProvenanceOpen]);
 
   return (
     <CollapsibleSection title="Engine & model" open={open} onToggle={setOpen}>

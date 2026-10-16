@@ -2,8 +2,8 @@
 
 import { cn } from "@/lib/utils";
 import type { ReactElement } from "react";
-import { useCallback, useEffect, useState } from "react";
-import { usePathname } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { RunTraceViewerLink } from "@/components/runs/RunTraceViewerLink";
@@ -16,11 +16,15 @@ import {
   pipelineStageOutcomeLabel} from "@/lib/map-pipeline-stage-outcome-status";
 import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
 import {
+  RUN_PIPELINE_STAGES_OPEN_PARAM,
   parseRunPipelineStagesOpenFromSearch,
-  runPipelineStagesDisclosureHrefFromSearch} from "@/lib/runs/run-pipeline-stages-disclosure-url";
+  runPipelineStagesDisclosureHrefFromSearch,
+} from "@/lib/runs/run-pipeline-stages-disclosure-url";
 import {
+  RUN_PIPELINE_STAGES_TECHNICAL_OPEN_PARAM,
   parseRunPipelineStagesTechnicalOpenFromSearch,
-  runPipelineStagesTechnicalDisclosureHrefFromSearch} from "@/lib/runs/run-pipeline-stages-technical-disclosure-url";
+  runPipelineStagesTechnicalDisclosureHrefFromSearch,
+} from "@/lib/runs/run-pipeline-stages-technical-disclosure-url";
 import type { StageTimelineSummary } from "@/types/stage-timeline";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
@@ -33,12 +37,19 @@ export function RunDetailPipelineStagesSection({
   stageTimeline,
   otelTraceId}: RunDetailPipelineStagesSectionProps): ReactElement | null {
   const pathname = usePathname() ?? "/";
-  const [open, setOpenState] = useState(() =>
-    parseRunPipelineStagesOpenFromSearch(null),
+  const searchParams = useSearchParams();
+  const urlPipelineStagesOpen = parseRunPipelineStagesOpenFromSearch(
+    searchParams.get(RUN_PIPELINE_STAGES_OPEN_PARAM),
   );
-  const [technicalOpen, setTechnicalOpenState] = useState(() =>
-    parseRunPipelineStagesTechnicalOpenFromSearch(null),
+  const urlPipelineStagesTechnicalOpen = parseRunPipelineStagesTechnicalOpenFromSearch(
+    searchParams.get(RUN_PIPELINE_STAGES_TECHNICAL_OPEN_PARAM),
   );
+  const [open, setOpenState] = useState(urlPipelineStagesOpen);
+  const openRef = useRef(open);
+  openRef.current = open;
+  const [technicalOpen, setTechnicalOpenState] = useState(urlPipelineStagesTechnicalOpen);
+  const technicalOpenRef = useRef(technicalOpen);
+  technicalOpenRef.current = technicalOpen;
 
   const syncOpenToUrl = useCallback(
     (detailsOpen: boolean) => {
@@ -52,14 +63,15 @@ export function RunDetailPipelineStagesSection({
 
   const setOpen = useCallback(
     (detailsOpen: boolean) => {
-      if (open === detailsOpen) {
+      if (openRef.current === detailsOpen) {
         return;
       }
 
+      openRef.current = detailsOpen;
       setOpenState(detailsOpen);
       syncOpenToUrl(detailsOpen);
     },
-    [open, syncOpenToUrl],
+    [syncOpenToUrl],
   );
 
   const syncTechnicalOpenToUrl = useCallback(
@@ -74,32 +86,35 @@ export function RunDetailPipelineStagesSection({
 
   const setTechnicalOpen = useCallback(
     (detailsOpen: boolean) => {
-      if (technicalOpen === detailsOpen) {
+      if (technicalOpenRef.current === detailsOpen) {
         return;
       }
 
+      technicalOpenRef.current = detailsOpen;
       setTechnicalOpenState(detailsOpen);
       syncTechnicalOpenToUrl(detailsOpen);
     },
-    [syncTechnicalOpenToUrl, technicalOpen],
+    [syncTechnicalOpenToUrl],
   );
 
   useEffect(() => {
     const syncOpenFromUrl = (): void => {
-      setOpenState((current) => {
-        const next = parseRunPipelineStagesOpenFromSearch(
-          new URLSearchParams(window.location.search).get("runPipelineStagesOpen"),
-        );
+      const nextOpen = parseRunPipelineStagesOpenFromSearch(
+        new URLSearchParams(window.location.search).get(RUN_PIPELINE_STAGES_OPEN_PARAM),
+      );
+      const nextTechnicalOpen = parseRunPipelineStagesTechnicalOpenFromSearch(
+        new URLSearchParams(window.location.search).get(RUN_PIPELINE_STAGES_TECHNICAL_OPEN_PARAM),
+      );
 
-        return current === next ? current : next;
-      });
-      setTechnicalOpenState((current) => {
-        const next = parseRunPipelineStagesTechnicalOpenFromSearch(
-          new URLSearchParams(window.location.search).get("runPipelineStagesTechnicalOpen"),
-        );
+      if (openRef.current !== nextOpen) {
+        openRef.current = nextOpen;
+        setOpenState(nextOpen);
+      }
 
-        return current === next ? current : next;
-      });
+      if (technicalOpenRef.current !== nextTechnicalOpen) {
+        technicalOpenRef.current = nextTechnicalOpen;
+        setTechnicalOpenState(nextTechnicalOpen);
+      }
     };
 
     syncOpenFromUrl();
@@ -109,6 +124,18 @@ export function RunDetailPipelineStagesSection({
       window.removeEventListener("popstate", syncOpenFromUrl);
     };
   }, []);
+
+  useEffect(() => {
+    if (openRef.current !== urlPipelineStagesOpen) {
+      openRef.current = urlPipelineStagesOpen;
+      setOpenState(urlPipelineStagesOpen);
+    }
+
+    if (technicalOpenRef.current !== urlPipelineStagesTechnicalOpen) {
+      technicalOpenRef.current = urlPipelineStagesTechnicalOpen;
+      setTechnicalOpenState(urlPipelineStagesTechnicalOpen);
+    }
+  }, [urlPipelineStagesOpen, urlPipelineStagesTechnicalOpen]);
 
   if (stageTimeline.length === 0) {
     return null;

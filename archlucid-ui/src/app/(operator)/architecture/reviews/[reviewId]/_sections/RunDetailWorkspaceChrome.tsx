@@ -24,7 +24,7 @@ import {
   ReviewObjectSentence,
 } from "@/components/reviews/ReviewJourneyStrip";
 import { ReviewVocabularyRail } from "@/components/reviews/ReviewVocabularyRail";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { useReviewsListReturnNavHref } from "@/hooks/use-reviews-list-return-nav-href";
@@ -44,8 +44,10 @@ import {
 import { whyDisabledReviewHeaderActions } from "@/lib/why-disabled-cta";
 import type { RunDetailWorkspaceStatus } from "@/lib/run-detail-workspace-derive";
 import {
+  RUN_DETAIL_RECORD_METADATA_OPEN_PARAM,
   parseRunDetailRecordMetadataOpenFromSearch,
-  runDetailRecordMetadataHrefFromSearch} from "@/lib/runs/run-detail-record-metadata-url";
+  runDetailRecordMetadataHrefFromSearch,
+} from "@/lib/runs/run-detail-record-metadata-url";
 import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 
 type ReviewMetadataField = {
@@ -185,6 +187,10 @@ function shouldShowReviewRecordMetadata(
 /** Customer-facing review header — title and review identity without repeating sponsor metrics. */
 export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): React.JSX.Element {
   const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const urlRecordMetadataOpen = parseRunDetailRecordMetadataOpenFromSearch(
+    searchParams.get(RUN_DETAIL_RECORD_METADATA_OPEN_PARAM),
+  );
   const { isWorkingMode } = useWorkspaceMode();
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const h1Title = clampReviewWorkspaceH1Title(props.h1Title);
@@ -199,7 +205,7 @@ export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): 
     runId: props.runId,
     filter: "all",
     isWorkingMode});
-  const [recordMetadataOpen, setRecordMetadataOpenState] = useState(false);
+  const [recordMetadataOpen, setRecordMetadataOpenState] = useState(urlRecordMetadataOpen);
   const recordMetadataOpenRef = useRef(recordMetadataOpen);
   recordMetadataOpenRef.current = recordMetadataOpen;
 
@@ -229,7 +235,7 @@ export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): 
   useEffect(() => {
     const syncRecordMetadataOpenFromUrl = (): void => {
       const nextOpen = parseRunDetailRecordMetadataOpenFromSearch(
-        new URLSearchParams(window.location.search).get("runRecordMetaOpen"),
+        new URLSearchParams(window.location.search).get(RUN_DETAIL_RECORD_METADATA_OPEN_PARAM),
       );
 
       if (recordMetadataOpenRef.current === nextOpen) {
@@ -247,6 +253,16 @@ export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): 
       window.removeEventListener("popstate", syncRecordMetadataOpenFromUrl);
     };
   }, []);
+
+  useEffect(() => {
+    if (recordMetadataOpenRef.current === urlRecordMetadataOpen) {
+      return;
+    }
+
+    recordMetadataOpenRef.current = urlRecordMetadataOpen;
+    setRecordMetadataOpenState(urlRecordMetadataOpen);
+  }, [urlRecordMetadataOpen]);
+
   const metadataContext = deriveReviewRecordMetadataContext(props.signedReviewRecordId);
   const absentReasons = resolveReviewMetadataAbsentReasons(metadataContext);
   const collapseMetadataFieldSet = buildCollapseMetadataFields(props, absentReasons);

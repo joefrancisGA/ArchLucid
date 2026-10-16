@@ -12,5 +12,6 @@ public interface IGovernanceWorkflowPromoteValidateStage
         string? notes,
         bool dryRun,
         bool verbosePromotionValidationErrors,
+        string? promotedByDisplay,
         CancellationToken cancellationToken);
 }
