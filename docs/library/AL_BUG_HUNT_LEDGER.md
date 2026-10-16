@@ -1,5 +1,14 @@
 > **Scope:**
 
+2026-10-16 seed hunt (seed→hit): `api-governance-tenancy-controllers` — promoted `GovernancePreCommitSimulationController.SimulateAsync` logging `GovernancePreCommitSimulationEvaluated` without `ExplicitActor` or `IActorContext`, so durable actor correlation missed canonical `jwt:{tid}:{oid}` keys; inject `IActorContext`, `GetAuditActorFields()`, `ExplicitActor = true` on simulation audit; regression `Simulate_sets_explicit_actor_for_stable_actor_user_id_when_display_differs`; `GovernancePreCommitSimulationController` tests 25/25; seeded five follow-on `(candidate)` rows.
+
+- (candidate) `GovernanceController.ApprovalRequests` batch review — idempotency replay audit actor parity — locus: batch approve path; input: repeated batch submit with same idempotency key.
+- (candidate) `GovernanceController.LogGovernanceApprovalRequestedAuditAsync` — duplicate submit with same idempotency key skips controller audit on replay — locus: idempotency filter; input: confirm expected vs missing replay audit.
+- (candidate) `GovernanceEnvironmentCatalogController` — replace catalog audit on idempotent replay — locus: `Replace` idempotency; input: actor parity on replay.
+- (candidate) `TenancyController` — workspace switch audit explicit actor — locus: tenancy mutation audits; input: scan remaining `LogAsync` without `ExplicitActor`.
+- (candidate) `GovernanceController` run-history export audit — locus: export/download audit events; input: `ExplicitActor` parity with resolution controller.
+
+
 2026-10-16 seed hunt (seed→hit): `archlucid-core` — promoted `loadBalancerBackendAddresses[]` elements stored as JSON string scalars containing bare NIC ipConfiguration ARM ids; `TryResolveCollectionElement` rejected string rows when `nestedAddress` was true and `TryReadNestedNetworkInterfaceIpConfigurationId` only read object shapes, so Standard LB backend targets were dropped; accept string collection elements for nested pools and treat string address rows as ipConfiguration references; regressions `ResolveLoadBalancerBackends_reads_backend_when_load_balancer_backend_address_is_json_string_scalar_arm_id` and `ResolveFromBackendAddressPoolsJson_reads_backend_when_load_balancer_backend_address_is_json_string_scalar_arm_id`; LB backend resolver tests 36/36; seeded five follow-on `(candidate)` rows.
 
 - (candidate) `AzureInventoryLoadBalancerBackendTrafficResolver.BuildLoadBalancerPortByPoolId` — `loadBalancingRules` root double-encoded string scalar — locus: root recursion; input: cheap-disproof (already recursive).

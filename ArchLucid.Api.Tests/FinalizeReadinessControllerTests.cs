@@ -198,6 +198,7 @@ public sealed class FinalizeReadinessControllerTests
             Mock.Of<IPreCommitGovernanceGate>(),
             Mock.Of<IPreFinalizeChecklistService>(),
             finalizeReadinessService,
+            Mock.Of<ArchLucid.Application.Common.IActorContext>(),
             Mock.Of<ArchLucid.Core.Audit.IAuditService>(),
             runRepository,
             scopeProvider.Object,

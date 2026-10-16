@@ -2,6 +2,7 @@ using ArchLucid.Api.Controllers.Governance;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Validators;
+using ArchLucid.Application.Common;
 using ArchLucid.Application.Governance;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance;
@@ -633,6 +634,7 @@ public sealed class GovernancePreCommitSimulationControllerTests
             gate ?? Mock.Of<IPreCommitGovernanceGate>(),
             checklistService ?? Mock.Of<IPreFinalizeChecklistService>(),
             finalizeReadinessService ?? Mock.Of<IFinalizeReadinessService>(),
+            Mock.Of<IActorContext>(),
             Mock.Of<IAuditService>(),
             runRepository ?? Mock.Of<IRunRepository>(),
             scopeProvider ?? scopeMock.Object,
