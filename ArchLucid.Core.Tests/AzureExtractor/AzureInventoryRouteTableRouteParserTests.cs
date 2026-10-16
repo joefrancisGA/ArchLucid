@@ -192,6 +192,25 @@ public sealed class AzureInventoryRouteTableRouteParserTests
     }
 
     [Fact]
+    public void Parse_reads_routes_when_route_element_is_json_string_scalar()
+    {
+        Dictionary<string, string> properties = new(StringComparer.Ordinal)
+        {
+            ["routes"] =
+                """
+                [
+                  "{\"properties\":{\"addressPrefix\":\"0.0.0.0/0\",\"nextHopType\":\"VirtualNetworkGateway\"}}"
+                ]
+                """,
+        };
+
+        IReadOnlyList<AzureInventoryRouteTableRoute> routes = AzureInventoryRouteTableRouteParser.Parse(properties);
+
+        routes.Should().ContainSingle();
+        routes[0].NextHopType.Should().Be("VirtualNetworkGateway");
+    }
+
+    [Fact]
     public void Parse_reads_explicit_flattened_route_when_only_next_hop_type_key_is_present()
     {
         string routePrefix = $"{InventoryDiagramNodeRelationshipPropertyKeys.RoutePrefix}0";

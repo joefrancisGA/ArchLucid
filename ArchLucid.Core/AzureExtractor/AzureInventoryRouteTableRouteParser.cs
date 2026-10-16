@@ -188,18 +188,14 @@ public static class AzureInventoryRouteTableRouteParser
 
             foreach (JsonElement routeElement in routesRoot.EnumerateArray())
             {
-                if (!TryResolveRoutePropertiesElement(routeElement, out JsonElement propertiesElement))
+
+                if (!TryParseRouteFromRouteElement(routeElement, out AzureInventoryRouteTableRoute route)
+                    || !RouteHasReachableContent(route))
                 {
                     continue;
                 }
 
-                routes.Add(new AzureInventoryRouteTableRoute
-                {
-                    AddressPrefix = TryReadString(propertiesElement, "addressPrefix"),
-                    NextHopType = TryReadString(propertiesElement, "nextHopType"),
-                    NextHopIpAddress = TryReadString(propertiesElement, "nextHopIpAddress"),
-                    NextHopArmId = TryReadNestedArmId(propertiesElement, "nextHop"),
-                });
+                routes.Add(route);
             }
         }
         catch (JsonException)
@@ -243,6 +239,47 @@ public static class AzureInventoryRouteTableRouteParser
         }
 
         return null;
+    }
+
+    private static bool TryParseRouteFromRouteElement(JsonElement routeElement, out AzureInventoryRouteTableRoute route)
+    {
+        route = new AzureInventoryRouteTableRoute();
+
+        if (routeElement.ValueKind is JsonValueKind.String)
+        {
+            string? nestedRouteJson = routeElement.GetString();
+
+            if (string.IsNullOrWhiteSpace(nestedRouteJson))
+            {
+                return false;
+            }
+
+            try
+            {
+                using JsonDocument nestedDocument = JsonDocument.Parse(nestedRouteJson);
+
+                return TryParseRouteFromRouteElement(nestedDocument.RootElement, out route);
+            }
+            catch (JsonException)
+            {
+                return false;
+            }
+        }
+
+        if (!TryResolveRoutePropertiesElement(routeElement, out JsonElement propertiesElement))
+        {
+            return false;
+        }
+
+        route = new AzureInventoryRouteTableRoute
+        {
+            AddressPrefix = TryReadString(propertiesElement, "addressPrefix"),
+            NextHopType = TryReadString(propertiesElement, "nextHopType"),
+            NextHopIpAddress = TryReadString(propertiesElement, "nextHopIpAddress"),
+            NextHopArmId = TryReadNestedArmId(propertiesElement, "nextHop"),
+        };
+
+        return true;
     }
 
     private static bool TryResolveRoutePropertiesElement(
