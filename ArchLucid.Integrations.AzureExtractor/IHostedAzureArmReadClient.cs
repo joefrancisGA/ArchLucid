@@ -183,4 +183,14 @@ public interface IHostedAzureArmReadClient
         string accessToken,
         string vaultResourceId,
         CancellationToken cancellationToken);
+
+    /// <summary>
+    ///     GET a child collection under one ARM resource, returning HTTP status for fail-soft collectors (NR-40 / NR-42).
+    /// </summary>
+    Task<HostedAzureArmChildCollectionReadResult> ListChildResourcesWithStatusAsync(
+        string accessToken,
+        string parentResourceId,
+        string childSegment,
+        string apiVersion,
+        CancellationToken cancellationToken);
 }
