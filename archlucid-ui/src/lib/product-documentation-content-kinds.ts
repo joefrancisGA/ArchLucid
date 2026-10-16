@@ -95,6 +95,8 @@ export const PRODUCT_DOCUMENTATION_CONTENT_KIND_BY_SLUG: Readonly<
   "governance-infrastructure-terraform": "product-help",
   "governance-infrastructure-diagrams": "product-help",
   "governance-infrastructure-diagram-reconcile": "product-help",
+  "governance-infrastructure-ask": "product-help",
+  "governance-infrastructure-remediation": "product-help",
   "integration-readiness": "product-help",
   "azure-boards": "product-help",
   "users-and-roles": "product-help",

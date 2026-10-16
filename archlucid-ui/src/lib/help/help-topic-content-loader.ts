@@ -74,6 +74,8 @@ export const HELP_APP_GUIDED_TOPIC_SLUGS = [
   "governance-infrastructure-terraform",
   "governance-infrastructure-diagrams",
   "governance-infrastructure-diagram-reconcile",
+  "governance-infrastructure-ask",
+  "governance-infrastructure-remediation",
   "cli-usage",
   "glossary",
   "users-and-roles",

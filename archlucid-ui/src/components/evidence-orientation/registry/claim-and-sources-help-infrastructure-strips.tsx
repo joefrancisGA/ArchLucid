@@ -42,6 +42,22 @@ import {
   GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_HELP_SOURCES_INTRO,
 } from "@/lib/governance/governance-infrastructure-diagram-reconcile-help-evidence-copy";
 import { GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_HELP_CLAIM_HEADING_ID } from "@/lib/governance/governance-infrastructure-diagram-reconcile-help-guide-content";
+import {
+  GOVERNANCE_INFRASTRUCTURE_ASK_HELP_CLAIM_DISCIPLINE,
+  GOVERNANCE_INFRASTRUCTURE_ASK_HELP_CLAIM_DISCIPLINE_HEADING,
+  GOVERNANCE_INFRASTRUCTURE_ASK_HELP_FOLLOW_UPS_TITLE,
+  GOVERNANCE_INFRASTRUCTURE_ASK_HELP_SOURCES,
+  GOVERNANCE_INFRASTRUCTURE_ASK_HELP_SOURCES_INTRO,
+} from "@/lib/governance/governance-infrastructure-ask-help-evidence-copy";
+import { GOVERNANCE_INFRASTRUCTURE_ASK_HELP_CLAIM_HEADING_ID } from "@/lib/governance/governance-infrastructure-ask-help-guide-content";
+import {
+  GOVERNANCE_INFRASTRUCTURE_REMEDIATION_HELP_CLAIM_DISCIPLINE,
+  GOVERNANCE_INFRASTRUCTURE_REMEDIATION_HELP_CLAIM_DISCIPLINE_HEADING,
+  GOVERNANCE_INFRASTRUCTURE_REMEDIATION_HELP_FOLLOW_UPS_TITLE,
+  GOVERNANCE_INFRASTRUCTURE_REMEDIATION_HELP_SOURCES,
+  GOVERNANCE_INFRASTRUCTURE_REMEDIATION_HELP_SOURCES_INTRO,
+} from "@/lib/governance/governance-infrastructure-remediation-help-evidence-copy";
+import { GOVERNANCE_INFRASTRUCTURE_REMEDIATION_HELP_CLAIM_HEADING_ID } from "@/lib/governance/governance-infrastructure-remediation-help-guide-content";
 
 export function GovernanceInfrastructureDriftHelpEvidenceOrientationStrip(
   props: { readonly readingBodyClassName?: string } = {},
@@ -127,6 +143,42 @@ export function GovernanceInfrastructureDiagramReconcileHelpEvidenceOrientationS
       sourcesTitle={GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_HELP_SOURCES_INTRO}
       sources={GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_HELP_SOURCES}
+      sourcesHeadingId="where-to-go-next"
+      readingBodyClassName={props.readingBodyClassName ?? HELP_PAGE_LAYOUT.readingBody}
+    />
+  );
+}
+
+export function GovernanceInfrastructureAskHelpEvidenceOrientationStrip(
+  props: { readonly readingBodyClassName?: string } = {},
+): React.JSX.Element {
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="help-governance-infrastructure-ask"
+      claim={GOVERNANCE_INFRASTRUCTURE_ASK_HELP_CLAIM_DISCIPLINE}
+      claimHeading={GOVERNANCE_INFRASTRUCTURE_ASK_HELP_CLAIM_DISCIPLINE_HEADING}
+      claimHeadingId={GOVERNANCE_INFRASTRUCTURE_ASK_HELP_CLAIM_HEADING_ID}
+      sourcesTitle={GOVERNANCE_INFRASTRUCTURE_ASK_HELP_FOLLOW_UPS_TITLE}
+      sourcesIntro={GOVERNANCE_INFRASTRUCTURE_ASK_HELP_SOURCES_INTRO}
+      sources={GOVERNANCE_INFRASTRUCTURE_ASK_HELP_SOURCES}
+      sourcesHeadingId="where-to-go-next"
+      readingBodyClassName={props.readingBodyClassName ?? HELP_PAGE_LAYOUT.readingBody}
+    />
+  );
+}
+
+export function GovernanceInfrastructureRemediationHelpEvidenceOrientationStrip(
+  props: { readonly readingBodyClassName?: string } = {},
+): React.JSX.Element {
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="help-governance-infrastructure-remediation"
+      claim={GOVERNANCE_INFRASTRUCTURE_REMEDIATION_HELP_CLAIM_DISCIPLINE}
+      claimHeading={GOVERNANCE_INFRASTRUCTURE_REMEDIATION_HELP_CLAIM_DISCIPLINE_HEADING}
+      claimHeadingId={GOVERNANCE_INFRASTRUCTURE_REMEDIATION_HELP_CLAIM_HEADING_ID}
+      sourcesTitle={GOVERNANCE_INFRASTRUCTURE_REMEDIATION_HELP_FOLLOW_UPS_TITLE}
+      sourcesIntro={GOVERNANCE_INFRASTRUCTURE_REMEDIATION_HELP_SOURCES_INTRO}
+      sources={GOVERNANCE_INFRASTRUCTURE_REMEDIATION_HELP_SOURCES}
       sourcesHeadingId="where-to-go-next"
       readingBodyClassName={props.readingBodyClassName ?? HELP_PAGE_LAYOUT.readingBody}
     />

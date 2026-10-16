@@ -156,11 +156,17 @@ export const PAGE_HELP_TOPIC_ROWS_OPERATOR_GOVERNANCE: readonly PageHelpTopicRow
   },
   {
     prefix: GOVERNANCE_INFRASTRUCTURE_ASK_PATH,
-    topic: { label: GOVERNANCE_INFRASTRUCTURE_ASK_PAGE_TITLE },
+    topic: {
+      slug: "governance-infrastructure-ask",
+      label: GOVERNANCE_INFRASTRUCTURE_ASK_PAGE_TITLE,
+    },
   },
   {
     prefix: GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PATH,
-    topic: { label: GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PAGE_TITLE },
+    topic: {
+      slug: "governance-infrastructure-remediation",
+      label: GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PAGE_TITLE,
+    },
   },
   {
     prefix: GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH,
