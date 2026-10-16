@@ -227,6 +227,7 @@ public sealed class GovernanceWorkflowAuditSupport(
             new
             {
                 workflow = "approvalRequest",
+                runId,
                 manifestVersion,
                 sourceEnvironment,
                 targetEnvironment,
@@ -267,6 +268,7 @@ public sealed class GovernanceWorkflowAuditSupport(
             new
             {
                 workflow = "promotion",
+                runId,
                 manifestVersion,
                 sourceEnvironment,
                 targetEnvironment,

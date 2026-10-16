@@ -315,6 +315,61 @@ public sealed class GovernanceWorkflowAuditSupportTests
     }
 
     [Fact]
+    public async Task LogDryRunValidationAttemptedForPromotionAsync_includes_run_id_in_data_json()
+    {
+        const string runId = "44444444-4444-4444-4444-444444444444";
+        AuditEvent? captured = null;
+        Mock<IAuditService> auditService = new();
+        auditService
+            .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Callback<AuditEvent, CancellationToken>((auditEvent, _) => captured = auditEvent)
+            .Returns(Task.CompletedTask);
+
+        GovernanceWorkflowAuditSupport support = CreateSupport(auditService.Object);
+
+        await support.LogDryRunValidationAttemptedForPromotionAsync(
+            "Pat Operator",
+            "jwt:11111111-2222-3333-4444-555555555555:aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+            runId,
+            "1",
+            "dev",
+            "test",
+            null,
+            CancellationToken.None);
+
+        captured.Should().NotBeNull();
+        using JsonDocument document = JsonDocument.Parse(captured!.DataJson);
+        document.RootElement.GetProperty("runId").GetString().Should().Be(runId);
+    }
+
+    [Fact]
+    public async Task LogDryRunValidationAttemptedForApprovalRequestAsync_includes_run_id_in_data_json()
+    {
+        const string runId = "99999999-9999-9999-9999-999999999999";
+        AuditEvent? captured = null;
+        Mock<IAuditService> auditService = new();
+        auditService
+            .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Callback<AuditEvent, CancellationToken>((auditEvent, _) => captured = auditEvent)
+            .Returns(Task.CompletedTask);
+
+        GovernanceWorkflowAuditSupport support = CreateSupport(auditService.Object);
+
+        await support.LogDryRunValidationAttemptedForApprovalRequestAsync(
+            "Pat Operator",
+            "jwt:11111111-2222-3333-4444-555555555555:aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+            runId,
+            "1",
+            "dev",
+            "test",
+            CancellationToken.None);
+
+        captured.Should().NotBeNull();
+        using JsonDocument document = JsonDocument.Parse(captured!.DataJson);
+        document.RootElement.GetProperty("runId").GetString().Should().Be(runId);
+    }
+
+    [Fact]
     public async Task LogDryRunValidationAttemptedForApprovalRequestAsync_includes_requested_by_actor_key_in_data_json()
     {
         const string displayName = "Pat Operator";
