@@ -197,6 +197,46 @@ public sealed class AzureInventoryReachabilityEdgeControlIndexTests
     }
 
     [Fact]
+    public void SubnetRequiresEdgeControlEvidence_true_when_routes_json_is_string_scalar_wrapping_route_array()
+    {
+        string vnet = BuildVnet("vnet");
+        string subnet = BuildSubnet(vnet, "app");
+        string routeTable = BuildRouteTable("routes");
+        string innerRoutes =
+            """
+            [
+              {
+                "properties": {
+                  "addressPrefix": "0.0.0.0/0",
+                  "nextHopType": "VirtualNetworkGateway"
+                }
+              }
+            ]
+            """;
+
+        Dictionary<string, AzureInventoryReachabilityResourceProperties> resources =
+            new(StringComparer.OrdinalIgnoreCase)
+            {
+                [routeTable] = new AzureInventoryReachabilityResourceProperties
+                {
+                    ResourceType = "Microsoft.Network/routeTables",
+                    Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["routes"] = System.Text.Json.JsonSerializer.Serialize(innerRoutes),
+                    },
+                },
+            };
+
+        AzureInventoryReachabilityEdgeControlIndex index = AzureInventoryReachabilityEdgeControlIndex.Build(
+        [
+            new AzureInventoryRelationshipArmTriple(subnet, routeTable, "inventory-subnet-route-table"),
+        ], resources);
+
+        index.SubnetRequiresEdgeControlEvidence(subnet).Should().BeTrue(
+            "double-encoded routes JSON strings must still surface VNet gateway edge-control routes");
+    }
+
+    [Fact]
     public void SubnetRequiresEdgeControlEvidence_true_when_routes_json_uses_pascal_case_properties_bag()
     {
         string vnet = BuildVnet("vnet");

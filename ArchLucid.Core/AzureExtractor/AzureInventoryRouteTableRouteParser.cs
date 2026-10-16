@@ -73,13 +73,26 @@ public static class AzureInventoryRouteTableRouteParser
         try
         {
             using JsonDocument document = JsonDocument.Parse(routesJson);
+            JsonElement routesRoot = document.RootElement;
 
-            if (document.RootElement.ValueKind is not JsonValueKind.Array)
+            if (routesRoot.ValueKind is JsonValueKind.String)
+            {
+                string? nestedRoutesJson = routesRoot.GetString();
+
+                if (string.IsNullOrWhiteSpace(nestedRoutesJson))
+                {
+                    return routes;
+                }
+
+                return ParseRoutesJson(nestedRoutesJson);
+            }
+
+            if (routesRoot.ValueKind is not JsonValueKind.Array)
             {
                 return routes;
             }
 
-            foreach (JsonElement routeElement in document.RootElement.EnumerateArray())
+            foreach (JsonElement routeElement in routesRoot.EnumerateArray())
             {
                 if (!TryGetPropertyIgnoreCase(routeElement, "properties", out JsonElement propertiesElement)
                     || propertiesElement.ValueKind is not JsonValueKind.Object)

@@ -1,3 +1,5 @@
+using System.Text.Json;
+
 using ArchLucid.Core.AzureExtractor;
 
 using FluentAssertions;
@@ -86,6 +88,33 @@ public sealed class AzureInventoryRouteTableRouteParserTests
 
         routes.Should().ContainSingle();
         routes[0].NextHopArmId.Should().Be(nvaArmId.ToLowerInvariant());
+    }
+
+    [Fact]
+    public void Parse_reads_routes_when_routes_json_is_string_scalar_wrapping_route_array()
+    {
+        string innerRoutes =
+            """
+            [
+              {
+                "properties": {
+                  "addressPrefix": "0.0.0.0/0",
+                  "nextHopType": "VirtualNetworkGateway"
+                }
+              }
+            ]
+            """;
+
+        Dictionary<string, string> properties = new(StringComparer.Ordinal)
+        {
+            ["routes"] = JsonSerializer.Serialize(innerRoutes),
+        };
+
+        IReadOnlyList<AzureInventoryRouteTableRoute> routes = AzureInventoryRouteTableRouteParser.Parse(properties);
+
+        routes.Should().ContainSingle();
+        routes[0].AddressPrefix.Should().Be("0.0.0.0/0");
+        routes[0].NextHopType.Should().Be("VirtualNetworkGateway");
     }
 
     [Fact]
