@@ -137,6 +137,8 @@ public static class AzureInventoryRelationshipAssociationTypes
 
     public const string MonitorPrivateLinkScopeToScopedResource = "monitorPrivateLinkScopeToScopedResource";
 
+    public const string ManagedClusterToLoadBalancer = "managedClusterToLoadBalancer";
+
     private static readonly AzureInventoryRelationshipAssociationTypeDefinition[] Catalog =
     [
         Observed(NicToSubnet, AzureInventoryRelationshipArmKind.NetworkInterface, AzureInventoryRelationshipArmKind.Subnet, "CONNECTS_TO", "inventory-nic-subnet"),
@@ -226,6 +228,12 @@ public static class AzureInventoryRelationshipAssociationTypes
             AzureInventoryRelationshipArmKind.LinkedServiceTarget,
             "CONNECTS_TO",
             "inventory-ampls-scoped-resource"),
+        Observed(
+            ManagedClusterToLoadBalancer,
+            AzureInventoryRelationshipArmKind.Compute,
+            AzureInventoryRelationshipArmKind.LoadBalancer,
+            "CONNECTS_TO",
+            "inventory-aks-service-lb"),
     ];
 
     private static readonly Dictionary<string, AzureInventoryRelationshipAssociationTypeDefinition> Lookup =

@@ -241,6 +241,7 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
             InventoryDiagramPrivateAccessRelationshipApplier.Apply(ast, graph, nodeIdMap, retainNetworkDetailNodes);
             InventoryDiagramHiddenPublicIpMarkApplier.Apply(ast, graph, nodeIdMap, retainNetworkDetailNodes);
             InventoryDiagramDefaultRouteRelationshipApplier.Apply(ast, graph, nodeIdMap);
+            InventoryDiagramKubernetesServiceLoadBalancerRelationshipApplier.Apply(ast);
             InventoryDiagramLoadBalancerBackendRelationshipApplier.Apply(ast, graph, nodeIdMap);
             InventoryDiagramVnetPeeringRelationshipApplier.Apply(ast, graph, nodeIdMap, mode);
             InventoryDiagramExternalTargetApplier.Apply(ast, graph, nodeIdMap, mode);

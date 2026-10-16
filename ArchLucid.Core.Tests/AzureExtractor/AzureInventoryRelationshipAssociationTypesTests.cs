@@ -119,6 +119,7 @@ public sealed class AzureInventoryRelationshipAssociationTypesTests
     [InlineData("databricksWorkspaceToSubnet")]
     [InlineData("networkSecurityPerimeterToResource")]
     [InlineData("monitorPrivateLinkScopeToScopedResource")]
+    [InlineData("managedClusterToLoadBalancer")]
     public void New_association_types_are_known_members(string associationType)
     {
         AzureInventoryRelationshipAssociationTypes.IsKnown(associationType).Should().BeTrue();

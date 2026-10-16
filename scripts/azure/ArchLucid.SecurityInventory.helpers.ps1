@@ -1748,6 +1748,11 @@ function Get-ArchLucidAzureNetworkAssociationCompanionRows
         }
     }
 
+    Add-ArchLucidManagedClusterToLoadBalancerCompanionRows `
+        -Rows $rows `
+        -Seen $seen `
+        -InventoryResources @($InventoryResources)
+
     [object[]]$nsgAllowRuleRows = @(Get-ArchLucidAzureNsgAllowRuleCompanionRows -InventoryResources @($InventoryResources))
 
     foreach ($nsgAllowRuleRow in @($nsgAllowRuleRows))
@@ -1808,6 +1813,266 @@ function Add-ArchLucidNetworkAssociationRow
     }
 
     [void]$Rows.Add($row)
+}
+
+function Get-ArchLucidArmResourceGroupNameFromResourceId
+{
+    param(
+        [Parameter(Mandatory = $true)]
+        [string] $ResourceId
+    )
+
+    [string]$normalized = "$ResourceId".Trim()
+    [string]$marker = '/resourceGroups/'
+
+    if ([string]::IsNullOrWhiteSpace($normalized)) { return $null }
+
+    [int]$markerIndex = $normalized.IndexOf($marker, [System.StringComparison]::OrdinalIgnoreCase)
+
+    if ($markerIndex -lt 0) { return $null }
+
+    [int]$rgStart = $markerIndex + $marker.Length
+    [int]$rgEnd = $normalized.IndexOf('/', $rgStart)
+
+    if ($rgEnd -lt 0) { return $null }
+
+    return $normalized.Substring($rgStart, $rgEnd - $rgStart)
+}
+
+function Get-ArchLucidManagedClusterNameFromResourceId
+{
+    param(
+        [Parameter(Mandatory = $true)]
+        [string] $ResourceId
+    )
+
+    [string]$normalized = "$ResourceId".Trim().TrimEnd('/')
+
+    if ([string]::IsNullOrWhiteSpace($normalized)) { return $null }
+
+    [int]$lastSlash = $normalized.LastIndexOf('/')
+
+    if ($lastSlash -lt 0 -or $lastSlash -ge ($normalized.Length - 1)) { return $null }
+
+    return $normalized.Substring($lastSlash + 1)
+}
+
+function Get-ArchLucidInventoryResourceTagValue
+{
+    param(
+        [object] $Tags,
+
+        [Parameter(Mandatory = $true)]
+        [string] $TagName
+    )
+
+    if ($null -eq $Tags) { return '' }
+
+    if ($Tags -is [System.Collections.IDictionary])
+    {
+        foreach ($key in @($Tags.Keys))
+        {
+            if ($key.Equals($TagName, [System.StringComparison]::OrdinalIgnoreCase))
+            {
+                return "$( $Tags[$key] )".Trim()
+            }
+        }
+
+        return ''
+    }
+
+    foreach ($property in @($Tags.PSObject.Properties))
+    {
+        if ($property.Name.Equals($TagName, [System.StringComparison]::OrdinalIgnoreCase))
+        {
+            return "$( $property.Value )".Trim()
+        }
+    }
+
+    return ''
+}
+
+function Test-ArchLucidKubernetesLoadBalancerClusterOwnership
+{
+    param(
+        [object] $LoadBalancerTags,
+
+        [Parameter(Mandatory = $true)]
+        [string] $ManagedClusterName,
+
+        [Parameter(Mandatory = $true)]
+        [string] $ManagedClusterResourceId
+    )
+
+    [string]$clusterName = "$ManagedClusterName".Trim()
+    [string]$clusterId = "$ManagedClusterResourceId".Trim().TrimEnd('/').ToLowerInvariant()
+
+    if ([string]::IsNullOrWhiteSpace($clusterName) -or [string]::IsNullOrWhiteSpace($clusterId))
+    {
+        return $false
+    }
+
+    [string]$kubernetesClusterNameTag = 'kubernetes.io/cluster-name'
+    [string]$aksManagedClusterNameTag = 'aks-managed-cluster-name'
+
+    [string]$kubernetesTagValue = Get-ArchLucidInventoryResourceTagValue -Tags $LoadBalancerTags -TagName $kubernetesClusterNameTag
+    [string]$aksTagValue = Get-ArchLucidInventoryResourceTagValue -Tags $LoadBalancerTags -TagName $aksManagedClusterNameTag
+
+    if (-not [string]::IsNullOrWhiteSpace($kubernetesTagValue))
+    {
+        if ($kubernetesTagValue.Equals($clusterName, [System.StringComparison]::OrdinalIgnoreCase) `
+            -or $kubernetesTagValue.Trim().TrimEnd('/').ToLowerInvariant().Equals($clusterId, [System.StringComparison]::OrdinalIgnoreCase))
+        {
+            return $true
+        }
+    }
+
+    if (-not [string]::IsNullOrWhiteSpace($aksTagValue) `
+        -and $aksTagValue.Equals($clusterName, [System.StringComparison]::OrdinalIgnoreCase))
+    {
+        return $true
+    }
+
+    return $false
+}
+
+function Add-ArchLucidManagedClusterToLoadBalancerCompanionRows
+{
+    param(
+        [System.Collections.IList] $Rows,
+        [hashtable] $Seen,
+
+        [Parameter(Mandatory = $true)]
+        [object[]] $InventoryResources
+    )
+
+    [System.Collections.ArrayList]$clusters = [System.Collections.ArrayList]::new()
+    [System.Collections.ArrayList]$loadBalancers = [System.Collections.ArrayList]::new()
+
+    foreach ($resource in @($InventoryResources))
+    {
+        if ($null -eq $resource) { continue }
+
+        [string]$resourceType = "$( $resource.resourceType )".Trim()
+
+        if ($resourceType -like '*managedClusters*')
+        {
+            [void]$clusters.Add($resource)
+            continue
+        }
+
+        if ($resourceType -like '*loadBalancers*')
+        {
+            [void]$loadBalancers.Add($resource)
+        }
+    }
+
+    if ($clusters.Count -eq 0 -or $loadBalancers.Count -eq 0) { return }
+
+    foreach ($cluster in @($clusters))
+    {
+        [string]$clusterId = "$( $cluster.resourceId )".Trim()
+        [string]$clusterName = Get-ArchLucidManagedClusterNameFromResourceId -ResourceId $clusterId
+        [string]$nodeResourceGroup = Get-ArchLucidInventoryPropertyStringValue `
+            -Properties $cluster.properties `
+            -PropertyName 'nodeResourceGroup'
+
+        if ([string]::IsNullOrWhiteSpace($clusterId) `
+            -or [string]::IsNullOrWhiteSpace($clusterName) `
+            -or [string]::IsNullOrWhiteSpace($nodeResourceGroup))
+        {
+            continue
+        }
+
+        foreach ($loadBalancer in @($loadBalancers))
+        {
+            [string]$loadBalancerId = "$( $loadBalancer.resourceId )".Trim()
+            [string]$loadBalancerResourceGroup = Get-ArchLucidArmResourceGroupNameFromResourceId -ResourceId $loadBalancerId
+
+            if ([string]::IsNullOrWhiteSpace($loadBalancerId) -or [string]::IsNullOrWhiteSpace($loadBalancerResourceGroup))
+            {
+                continue
+            }
+
+            if (-not $loadBalancerResourceGroup.Equals($nodeResourceGroup.Trim(), [System.StringComparison]::OrdinalIgnoreCase))
+            {
+                continue
+            }
+
+            if (-not (Test-ArchLucidKubernetesLoadBalancerClusterOwnership `
+                    -LoadBalancerTags $loadBalancer.tags `
+                    -ManagedClusterName $clusterName `
+                    -ManagedClusterResourceId $clusterId))
+            {
+                continue
+            }
+
+            Add-ArchLucidNetworkAssociationRow `
+                -Rows $Rows `
+                -Seen $Seen `
+                -FromResourceId $clusterId `
+                -ToResourceId $loadBalancerId `
+                -AssociationType 'managedClusterToLoadBalancer'
+        }
+    }
+}
+
+function Add-ArchLucidLoadBalancerBackendPropertiesFromFacts
+{
+    param(
+        [Parameter(Mandatory = $true)]
+        [object[]] $Resources,
+
+        [object[]] $LoadBalancerPropertyFacts = @()
+    )
+
+    [hashtable]$resourcesById = @{}
+
+    foreach ($resource in @($Resources))
+    {
+        if ($null -eq $resource) { continue }
+
+        [string]$resourceId = "$( $resource.resourceId )".Trim()
+
+        if ([string]::IsNullOrWhiteSpace($resourceId)) { continue }
+
+        $resourcesById[$resourceId.ToLowerInvariant()] = $resource
+    }
+
+    foreach ($fact in @($LoadBalancerPropertyFacts))
+    {
+        if ($null -eq $fact) { continue }
+
+        [string]$resourceId = "$( $fact.resourceId )".Trim()
+        [string]$backendAddressPools = "$( $fact.backendAddressPools )".Trim()
+        [string]$loadBalancingRules = "$( $fact.loadBalancingRules )".Trim()
+
+        if ([string]::IsNullOrWhiteSpace($resourceId)) { continue }
+
+        if (-not $resourcesById.ContainsKey($resourceId.ToLowerInvariant()))
+        {
+            continue
+        }
+
+        $resource = $resourcesById[$resourceId.ToLowerInvariant()]
+
+        if ($null -eq $resource.properties)
+        {
+            $resource.properties = @{}
+        }
+
+        if (-not [string]::IsNullOrWhiteSpace($backendAddressPools) `
+            -and -not $resource.properties.ContainsKey('backendAddressPools'))
+        {
+            $resource.properties['backendAddressPools'] = $backendAddressPools
+        }
+
+        if (-not [string]::IsNullOrWhiteSpace($loadBalancingRules) `
+            -and -not $resource.properties.ContainsKey('loadBalancingRules'))
+        {
+            $resource.properties['loadBalancingRules'] = $loadBalancingRules
+        }
+    }
 }
 
 function Add-ArchLucidPublicIpIpConfigurationPropertiesFromFacts

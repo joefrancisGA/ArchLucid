@@ -14,7 +14,7 @@ Describe 'ArchLucid.ResourceGraph.RelationshipQueries.helpers.ps1' {
     It 'projects type on each ARG relationship query' {
         $specs = @(Get-ArchLucidArgNetworkAssociationQuerySpecs)
 
-        $specs.Count | Should -Be 10
+        $specs.Count | Should -Be 13
         foreach ($spec in $specs)
         {
             $spec.Query | Should -Match 'project id, type'
@@ -42,6 +42,7 @@ Describe 'ArchLucid.ResourceGraph.RelationshipQueries.helpers.ps1' {
 
         $resourceGraphParameters.Keys | Should -Contain 'FirewallSubnetFacts'
         $resourceGraphParameters.Keys | Should -Contain 'VirtualNetworkSubnetFacts'
+        $resourceGraphParameters.Keys | Should -Contain 'LoadBalancerPropertyFacts'
         $nicParameters.Keys | Should -Not -Contain 'FirewallSubnetFacts'
         $nicParameters.Keys | Should -Not -Contain 'VirtualNetworkSubnetFacts'
     }
@@ -798,5 +799,53 @@ Describe 'ArchLucid.ResourceGraph.RelationshipQueries.helpers.ps1' {
         $warnings.Count | Should -BeGreaterThan 0
         ($warnings | Out-String) | Should -Match 'networkInterface'
         ($warnings | Out-String) | Should -Match 'simulated page-two failure'
+    }
+
+    It 'emits lbToBackend and load balancer property facts from Standard pool backend addresses' {
+        $rows = [System.Collections.ArrayList]::new()
+        $seen = @{}
+        $facts = [System.Collections.ArrayList]::new()
+        $loadBalancerId = '/subscriptions/sub/resourceGroups/MC_rg/providers/Microsoft.Network/loadBalancers/kubernetes'
+        $vmssNicIpConfigurationId = '/subscriptions/sub/resourceGroups/MC_rg/providers/Microsoft.Compute/virtualMachineScaleSets/aks-agentpool/virtualMachines/0/networkInterfaces/aks-agentpool-nic/ipConfigurations/ipconfig1'
+        $vmssNicId = '/subscriptions/sub/resourceGroups/MC_rg/providers/Microsoft.Compute/virtualMachineScaleSets/aks-agentpool/virtualMachines/0/networkInterfaces/aks-agentpool-nic'
+        $backendAddressPoolsJson = @"
+[
+  {
+    "properties": {
+      "loadBalancerBackendAddresses": [
+        {
+          "properties": {
+            "networkInterfaceIPConfiguration": { "id": "$vmssNicIpConfigurationId" }
+          }
+        }
+      ]
+    }
+  }
+]
+"@
+
+        Add-ArchLucidArgNetworkAssociationRowsFromLoadBalancerRecord `
+            -Rows $rows `
+            -Seen $seen `
+            -LoadBalancerResourceId $loadBalancerId `
+            -BackendAddressPoolsJson $backendAddressPoolsJson `
+            -LoadBalancingRulesJson '[]' `
+            -LoadBalancerPropertyFacts $facts
+
+        @($rows | Where-Object { $_.associationType -eq 'lbToBackend' }).Count | Should -Be 1
+        @($rows | Where-Object { $_.associationType -eq 'lbToBackend' })[0].toResourceId | Should -Be $vmssNicId
+        $facts.Count | Should -Be 1
+        $facts[0].resourceId | Should -Be $loadBalancerId
+        $facts[0].backendAddressPools | Should -Not -BeNullOrEmpty
+    }
+
+    It 'includes load balancer ARG query with backend pools and rules' {
+        $spec = @(Get-ArchLucidArgNetworkAssociationQuerySpecs |
+            Where-Object { $_.Kind -eq 'loadBalancer' })
+
+        $spec.Count | Should -Be 1
+        $spec[0].Query | Should -Match 'microsoft.network/loadbalancers'
+        $spec[0].Query | Should -Match 'backendAddressPools'
+        $spec[0].Query | Should -Match 'loadBalancingRules'
     }
 }

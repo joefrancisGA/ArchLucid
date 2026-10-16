@@ -44,6 +44,8 @@ internal static class HostedAzureInventoryNetworkAssociationBuilder
             AddPeDnsZoneGroupAssociations(resource, rows, keys);
         }
 
+        AddManagedClusterToLoadBalancerAssociations(resources, rows, keys);
+
         return rows;
     }
 
@@ -372,59 +374,105 @@ internal static class HostedAzureInventoryNetworkAssociationBuilder
             return;
         }
 
-        try
+        foreach (string backendResourceId in AzureInventoryLoadBalancerBackendParentArmIdResolver.ResolveFromBackendAddressPoolsJson(
+                     backendPoolsJson))
         {
-            using JsonDocument document = JsonDocument.Parse(backendPoolsJson);
+            AddRow(
+                rows,
+                keys,
+                resource.ResourceId,
+                backendResourceId,
+                AzureInventoryRelationshipAssociationTypes.LbToBackend);
+        }
+    }
 
-            if (document.RootElement.ValueKind is not JsonValueKind.Array)
+    private static void AddManagedClusterToLoadBalancerAssociations(
+        IReadOnlyList<HostedAzureArmResourceRecord> resources,
+        List<HostedAzureArmNetworkAssociationRecord> rows,
+        HashSet<string> keys)
+    {
+        List<HostedAzureArmResourceRecord> clusters = resources
+            .Where(resource => resource.ResourceType.Contains("managedClusters", StringComparison.OrdinalIgnoreCase))
+            .ToList();
+
+        List<HostedAzureArmResourceRecord> loadBalancers = resources
+            .Where(resource => resource.ResourceType.Contains("loadBalancers", StringComparison.OrdinalIgnoreCase))
+            .ToList();
+
+        if (clusters.Count == 0 || loadBalancers.Count == 0)
+        {
+            return;
+        }
+
+        foreach (HostedAzureArmResourceRecord cluster in clusters)
+        {
+            string? nodeResourceGroup = TryReadProperty(cluster.Properties, "nodeResourceGroup");
+
+            if (string.IsNullOrWhiteSpace(nodeResourceGroup))
             {
-                return;
+                continue;
             }
 
-            foreach (JsonElement pool in document.RootElement.EnumerateArray())
+            string? clusterName = AzureInventoryKubernetesClusterLoadBalancerOwnership.TryReadManagedClusterNameFromResourceId(
+                cluster.ResourceId);
+
+            if (string.IsNullOrWhiteSpace(clusterName))
             {
-                if (!pool.TryGetProperty("properties", out JsonElement properties)
-                    || properties.ValueKind is not JsonValueKind.Object
-                    || !properties.TryGetProperty("backendIPConfigurations", out JsonElement configurations)
-                    || configurations.ValueKind is not JsonValueKind.Array)
+                continue;
+            }
+
+            foreach (HostedAzureArmResourceRecord loadBalancer in loadBalancers)
+            {
+                if (!ResourceGroupNamesMatch(loadBalancer.ResourceId, nodeResourceGroup))
                 {
                     continue;
                 }
 
-                foreach (JsonElement configuration in configurations.EnumerateArray())
+                if (!AzureInventoryKubernetesClusterLoadBalancerOwnership.LoadBalancerTagsIndicateClusterOwnership(
+                        loadBalancer.Tags,
+                        clusterName,
+                        cluster.ResourceId))
                 {
-                    if (!configuration.TryGetProperty("id", out JsonElement idElement)
-                        || idElement.ValueKind is not JsonValueKind.String)
-                    {
-                        continue;
-                    }
-
-                    string? ipConfigurationId = idElement.GetString();
-
-                    if (string.IsNullOrWhiteSpace(ipConfigurationId))
-                    {
-                        continue;
-                    }
-
-                    string? backendResourceId = TryResolveAssociatedResourceFromIpConfiguration(ipConfigurationId);
-
-                    if (string.IsNullOrWhiteSpace(backendResourceId))
-                    {
-                        continue;
-                    }
-
-                    AddRow(
-                        rows,
-                        keys,
-                        resource.ResourceId,
-                        backendResourceId,
-                        AzureInventoryRelationshipAssociationTypes.LbToBackend);
+                    continue;
                 }
+
+                AddRow(
+                    rows,
+                    keys,
+                    cluster.ResourceId,
+                    loadBalancer.ResourceId,
+                    AzureInventoryRelationshipAssociationTypes.ManagedClusterToLoadBalancer);
             }
         }
-        catch (JsonException)
+    }
+
+    private static bool ResourceGroupNamesMatch(string loadBalancerResourceId, string nodeResourceGroupName)
+    {
+        if (string.IsNullOrWhiteSpace(loadBalancerResourceId) || string.IsNullOrWhiteSpace(nodeResourceGroupName))
         {
+            return false;
         }
+
+        const string marker = "/resourceGroups/";
+
+        int markerIndex = loadBalancerResourceId.IndexOf(marker, StringComparison.OrdinalIgnoreCase);
+
+        if (markerIndex < 0)
+        {
+            return false;
+        }
+
+        int rgStart = markerIndex + marker.Length;
+        int rgEnd = loadBalancerResourceId.IndexOf('/', rgStart);
+
+        if (rgEnd < 0)
+        {
+            return false;
+        }
+
+        string loadBalancerResourceGroup = loadBalancerResourceId[rgStart..rgEnd];
+
+        return loadBalancerResourceGroup.Equals(nodeResourceGroupName.Trim(), StringComparison.OrdinalIgnoreCase);
     }
 
     private static void AddPrivateDnsLinkAssociations(

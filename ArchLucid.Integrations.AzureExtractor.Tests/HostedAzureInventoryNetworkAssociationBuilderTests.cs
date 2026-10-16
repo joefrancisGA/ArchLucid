@@ -677,6 +677,107 @@ public sealed class HostedAzureInventoryNetworkAssociationBuilderTests
     }
 
     [Fact]
+    public void Build_emits_managed_cluster_to_load_balancer_when_tags_match_node_resource_group()
+    {
+        const string clusterId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.ContainerService/managedClusters/myaks";
+        const string taggedLoadBalancerId =
+            "/subscriptions/sub/resourceGroups/MC_rg_aks/providers/Microsoft.Network/loadBalancers/kubernetes";
+        const string untaggedLoadBalancerId =
+            "/subscriptions/sub/resourceGroups/MC_rg_aks/providers/Microsoft.Network/loadBalancers/other";
+
+        HostedAzureArmResourceRecord cluster = new(
+            ResourceType: "Microsoft.ContainerService/managedClusters",
+            ResourceId: clusterId,
+            Name: "myaks",
+            Location: "westus",
+            Sku: null,
+            Tags: null,
+            Properties: new Dictionary<string, object?>
+            {
+                ["nodeResourceGroup"] = "MC_rg_aks",
+            });
+
+        HostedAzureArmResourceRecord taggedLoadBalancer = new(
+            ResourceType: "Microsoft.Network/loadBalancers",
+            ResourceId: taggedLoadBalancerId,
+            Name: "kubernetes",
+            Location: "westus",
+            Sku: null,
+            Tags: new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                [AzureInventoryKubernetesClusterLoadBalancerOwnership.KubernetesClusterNameTag] = "myaks",
+            },
+            Properties: new Dictionary<string, object?>());
+
+        HostedAzureArmResourceRecord untaggedLoadBalancer = new(
+            ResourceType: "Microsoft.Network/loadBalancers",
+            ResourceId: untaggedLoadBalancerId,
+            Name: "other",
+            Location: "westus",
+            Sku: null,
+            Tags: null,
+            Properties: new Dictionary<string, object?>());
+
+        IReadOnlyList<HostedAzureArmNetworkAssociationRecord> associations =
+            HostedAzureInventoryNetworkAssociationBuilder.Build([cluster, taggedLoadBalancer, untaggedLoadBalancer]);
+
+        HostedAzureArmNetworkAssociationRecord clusterToLoadBalancer = Assert.Single(
+            associations,
+            row => row.AssociationType == AzureInventoryRelationshipAssociationTypes.ManagedClusterToLoadBalancer);
+        Assert.Equal(clusterId, clusterToLoadBalancer.FromResourceId);
+        Assert.Equal(taggedLoadBalancerId, clusterToLoadBalancer.ToResourceId);
+    }
+
+    [Fact]
+    public void Build_emits_lb_to_backend_for_standard_pool_backend_addresses()
+    {
+        const string loadBalancerId =
+            "/subscriptions/sub/resourceGroups/MC_rg/providers/Microsoft.Network/loadBalancers/kubernetes";
+        const string vmssNicId =
+            "/subscriptions/sub/resourceGroups/MC_rg/providers/Microsoft.Compute/virtualMachineScaleSets/aks-agentpool/virtualMachines/0/networkInterfaces/aks-agentpool-nic";
+        const string vmssNicIpConfigurationId =
+            "/subscriptions/sub/resourceGroups/MC_rg/providers/Microsoft.Compute/virtualMachineScaleSets/aks-agentpool/virtualMachines/0/networkInterfaces/aks-agentpool-nic/ipConfigurations/ipconfig1";
+
+        string poolsJson =
+            $$"""
+            [
+              {
+                "properties": {
+                  "loadBalancerBackendAddresses": [
+                    {
+                      "properties": {
+                        "networkInterfaceIPConfiguration": { "id": "{{vmssNicIpConfigurationId}}" }
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+            """;
+
+        HostedAzureArmResourceRecord loadBalancer = new(
+            ResourceType: "Microsoft.Network/loadBalancers",
+            ResourceId: loadBalancerId,
+            Name: "kubernetes",
+            Location: "westus",
+            Sku: null,
+            Tags: null,
+            Properties: new Dictionary<string, object?>
+            {
+                ["backendAddressPools"] = poolsJson,
+            });
+
+        IReadOnlyList<HostedAzureArmNetworkAssociationRecord> associations =
+            HostedAzureInventoryNetworkAssociationBuilder.Build([loadBalancer]);
+
+        Assert.Single(associations);
+        Assert.Equal(AzureInventoryRelationshipAssociationTypes.LbToBackend, associations[0].AssociationType);
+        Assert.Equal(loadBalancerId, associations[0].FromResourceId);
+        Assert.Equal(vmssNicId, associations[0].ToResourceId, ignoreCase: true);
+    }
+
+    [Fact]
     public void Build_emits_firewall_to_subnet_from_flattened_subnet_ids()
     {
         const string firewallId =

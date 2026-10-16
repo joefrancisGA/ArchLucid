@@ -596,6 +596,104 @@ function Get-ArchLucidNetworkSecurityPerimeterIdFromAssociationResourceId
     return $normalized.Substring(0, $segmentIndex)
 }
 
+function Add-ArchLucidArgNetworkAssociationRowsFromLoadBalancerRecord
+{
+    param(
+        [System.Collections.IList] $Rows,
+        [hashtable] $Seen,
+        [string] $LoadBalancerResourceId,
+        [object] $BackendAddressPoolsJson,
+        [object] $LoadBalancingRulesJson,
+        [System.Collections.IList] $LoadBalancerPropertyFacts = $null
+    )
+
+    [string]$loadBalancerId = "$LoadBalancerResourceId".Trim()
+
+    if ([string]::IsNullOrWhiteSpace($loadBalancerId)) { return }
+
+    [string]$poolsJson = ConvertTo-ArchLucidArgJsonString -Value $BackendAddressPoolsJson
+    [string]$rulesJson = ConvertTo-ArchLucidArgJsonString -Value $LoadBalancingRulesJson
+
+    if ($null -ne $LoadBalancerPropertyFacts)
+    {
+        [void]$LoadBalancerPropertyFacts.Add([ordered]@{
+            resourceId = $loadBalancerId
+            backendAddressPools = $poolsJson
+            loadBalancingRules = $rulesJson
+        })
+    }
+
+    foreach ($pool in @(ConvertFrom-ArchLucidArgJsonArray $BackendAddressPoolsJson))
+    {
+        [object]$poolProperties = Get-ArchLucidArgNestedProperty $pool 'properties'
+
+        foreach ($ipConfig in @(ConvertFrom-ArchLucidArgJsonArray (Get-ArchLucidArgNestedProperty $poolProperties 'backendIPConfigurations')))
+        {
+            [object]$ipConfigIdRef = Get-ArchLucidArgNestedProperty $ipConfig 'id'
+            [string]$ipConfigurationId = "$ipConfigIdRef".Trim()
+            Add-ArchLucidLoadBalancerBackendAssociationRowFromIpConfiguration `
+                -Rows $Rows `
+                -Seen $Seen `
+                -LoadBalancerResourceId $loadBalancerId `
+                -IpConfigurationId $ipConfigurationId
+        }
+
+        foreach ($address in @(ConvertFrom-ArchLucidArgJsonArray (Get-ArchLucidArgNestedProperty $poolProperties 'loadBalancerBackendAddresses')))
+        {
+            [object]$addressProperties = Get-ArchLucidArgNestedProperty $address 'properties'
+            [object]$nicIpConfigRef = Get-ArchLucidArgNestedProperty $addressProperties 'networkInterfaceIPConfiguration'
+            [string]$ipConfigurationId = "$( $(Get-ArchLucidArgNestedProperty $nicIpConfigRef 'id') )".Trim()
+
+            if ([string]::IsNullOrWhiteSpace($ipConfigurationId))
+            {
+                $ipConfigurationId = "$nicIpConfigRef".Trim()
+            }
+
+            Add-ArchLucidLoadBalancerBackendAssociationRowFromIpConfiguration `
+                -Rows $Rows `
+                -Seen $Seen `
+                -LoadBalancerResourceId $loadBalancerId `
+                -IpConfigurationId $ipConfigurationId
+        }
+    }
+}
+
+function Add-ArchLucidLoadBalancerBackendAssociationRowFromIpConfiguration
+{
+    param(
+        [System.Collections.IList] $Rows,
+        [hashtable] $Seen,
+        [string] $LoadBalancerResourceId,
+        [string] $IpConfigurationId
+    )
+
+    [string]$ipConfigurationId = "$IpConfigurationId".Trim()
+
+    if ([string]::IsNullOrWhiteSpace($ipConfigurationId)) { return }
+
+    [string]$backendResourceId = Resolve-ArchLucidAssociatedResourceFromIpConfiguration -IpConfigurationId $ipConfigurationId
+
+    if ([string]::IsNullOrWhiteSpace($backendResourceId)) { return }
+
+    Add-ArchLucidNetworkAssociationRow `
+        -Rows $Rows `
+        -Seen $Seen `
+        -FromResourceId $LoadBalancerResourceId `
+        -ToResourceId $backendResourceId `
+        -AssociationType 'lbToBackend'
+}
+
+function ConvertTo-ArchLucidArgJsonString
+{
+    param([object] $Value)
+
+    if ($null -eq $Value) { return '' }
+
+    if ($Value -is [string]) { return "$Value".Trim() }
+
+    return (ConvertTo-Json -InputObject $Value -Depth 100 -Compress)
+}
+
 function Get-ArchLucidMonitorPrivateLinkScopeIdFromScopedResourceId
 {
     param(
@@ -750,6 +848,10 @@ function Get-ArchLucidArgNetworkAssociationQuerySpecs
             Kind = 'monitorPrivateLinkScopeScopedResource'
             Query = "Resources | where type =~ 'microsoft.insights/privatelinkscopes/scopedresources' $rgFilter | project id, type, linkedResourceId = tostring(properties.linkedResourceId), kind = tostring(properties.kind)"
         }
+        [pscustomobject]@{
+            Kind = 'loadBalancer'
+            Query = "Resources | where type =~ 'microsoft.network/loadbalancers' $rgFilter | project id, type, tags, backendAddressPools = properties.backendAddressPools, loadBalancingRules = properties.loadBalancingRules"
+        }
     )
 }
 
@@ -803,7 +905,9 @@ function Get-ArchLucidAzureNetworkAssociationRowsViaResourceGraph
 
         [System.Collections.IList] $FirewallSubnetFacts = $null,
 
-        [System.Collections.IList] $VirtualNetworkSubnetFacts = $null
+        [System.Collections.IList] $VirtualNetworkSubnetFacts = $null,
+
+        [System.Collections.IList] $LoadBalancerPropertyFacts = $null
     )
 
     if (-not (Get-Module -ListAvailable -Name Az.ResourceGraph))
@@ -818,6 +922,7 @@ function Get-ArchLucidAzureNetworkAssociationRowsViaResourceGraph
     [System.Collections.ArrayList]$routeTableFacts = [System.Collections.ArrayList]::new()
     if ($null -eq $FirewallSubnetFacts) { $FirewallSubnetFacts = [System.Collections.ArrayList]::new() }
     if ($null -eq $VirtualNetworkSubnetFacts) { $VirtualNetworkSubnetFacts = [System.Collections.ArrayList]::new() }
+    if ($null -eq $LoadBalancerPropertyFacts) { $LoadBalancerPropertyFacts = [System.Collections.ArrayList]::new() }
     [hashtable]$seen = @{}
 
     foreach ($spec in @(Get-ArchLucidArgNetworkAssociationQuerySpecs -ResourceGroupScope $ResourceGroupScope))
@@ -951,6 +1056,15 @@ function Get-ArchLucidAzureNetworkAssociationRowsViaResourceGraph
                             -ScopedResourceId $resourceId `
                             -LinkedResourceId "$( $Row.linkedResourceId )".Trim() `
                             -Kind "$( $Row.kind )".Trim()
+                    }
+                    'loadBalancer' {
+                        Add-ArchLucidArgNetworkAssociationRowsFromLoadBalancerRecord `
+                            -Rows $rows `
+                            -Seen $seen `
+                            -LoadBalancerResourceId $resourceId `
+                            -BackendAddressPoolsJson $Row.backendAddressPools `
+                            -LoadBalancingRulesJson $Row.loadBalancingRules `
+                            -LoadBalancerPropertyFacts $LoadBalancerPropertyFacts
                     }
                 }
             }

@@ -82,6 +82,8 @@ public static class GraphEdgeInferenceSources
 
     public const string InventoryAmplsScopedResource = "inventory-ampls-scoped-resource";
 
+    public const string InventoryAksServiceLoadBalancer = "inventory-aks-service-lb";
+
     public const string InventoryServiceConnectorLink = "inventory-service-connector-link";
 
     public const string InventorySynapseLinkedService = "inventory-synapse-linked-service";
