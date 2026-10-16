@@ -22499,6 +22499,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 
 - (candidate) `AzureInventoryLoadBalancerBackendTrafficResolver` — `networkInterfaceIPConfiguration` provided as JSON string scalar ARM id not read — locus: `AddIpConfigurationTargets` nested address path; input: string-scalar ip configuration reference on `loadBalancerBackendAddresses`.
+- (candidate) `AzureInventoryLoadBalancerBackendTrafficResolver` — flat `backendIPConfigurations` rows with ip config id at configuration root (no `{ "id": ... }` object) — locus: `TryReadDirectId`; input: string-scalar ip configuration reference on direct NIC pool member.
+- (candidate) `AzureInventoryLoadBalancerBackendParentArmIdResolver` — flat `loadBalancerBackendAddresses` under flat pool bag (both without `properties` wrappers) — locus: combined flat pool + flat address; input: end-to-end hosted projection.
+- (candidate) `AzureInventoryLoadBalancerBackendTrafficResolver` — `backendAddressPool` string-scalar pool id on flattened rule row — locus: `TryReadBackendPoolReferenceId`; input: cheap-disproof if already handled.
+- (candidate) `AzureInventoryLoadBalancerBackendTrafficResolver` — double-encoded `backendAddressPools` string scalar wrapping flat pool object — locus: pool string unwrap + `TryGetBackendAddressPoolPropertiesBag`; input: nested flat pool JSON.
+- (candidate) `AzureInventoryLoadBalancerBackendTrafficResolver` — PascalCase `NetworkInterfaceIPConfiguration` on flat address row — locus: flat address read; input: case-insensitive cheap-disproof.
 - (candidate) `AzureInventoryLoadBalancerBackendTrafficResolver` — flat pool bag with only `backendIPConfigurations` (no Standard SKU addresses) — locus: `TryGetBackendAddressPoolPropertiesBag`; input: classic NIC pool flat projection.
 - (candidate) `AzureInventoryLoadBalancerBackendParentArmIdResolver` — flat pool object root without array wrapper plus flat properties bag — locus: `TryCloneRows` + properties bag; input: combined single-object pool shapes.
 - (candidate) `AzureInventoryLoadBalancerBackendTrafficResolver` — flat rule + flat pool in same graph node — locus: end-to-end resolve; input: hosted LB resource bag with both flattenings (regression guard).
