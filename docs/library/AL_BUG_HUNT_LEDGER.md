@@ -1,3 +1,4 @@
+2026-10-16 seed hunt (seed→hit): `archlucid-core` — promoted `AzureInventoryRouteTableRouteParser.Parse` ignoring PascalCase `Routes` flattened property key on route tables (routes JSON never read); case-insensitive `routes` property lookup; regressions `Parse_reads_routes_when_flattened_property_key_uses_pascal_case_routes` and `SubnetRequiresEdgeControlEvidence_true_when_routes_property_key_uses_pascal_case`; 20 scoped route/reachability tests passed; seeded five follow-on `(candidate)` rows.
 2026-10-16 seed hunt (seed→hit): `api-governance-tenancy-controllers` — promoted `GovernanceWorkflowAuditSupport.LogSelfApprovalBlockedAsync` omitting `ExplicitActor` and using reviewer display name for `ActorUserId`, so segregation-of-duties block audits were rewritten to `ClaimTypes.NameIdentifier`; use `reviewedByActorKey` for audit identity, display name on `ActorUserName`, set `ExplicitActor = true`; regression `LogSelfApprovalBlockedAsync_sets_explicit_actor_for_stable_reviewer_actor_key`; `GovernanceWorkflowAuditSupportTests` 6/6; seeded five follow-on `(candidate)` rows.
 2026-10-16 seed hunt (seed→hit): `archlucid-core` — promoted `AzureInventoryRouteTableRouteParser.ParseRoutesJson` skipping routes when route fields sit on the route element without a `properties` bag (flattened inventory projection); resolve nested `properties` or fall back to the route object when route fields are present; regressions `Parse_reads_routes_when_route_fields_are_on_route_element_without_properties_bag` and `SubnetRequiresEdgeControlEvidence_true_when_routes_json_lists_route_fields_without_properties_bag`; 18 scoped route/reachability tests passed; seeded five follow-on `(candidate)` rows.
 2026-10-16 seed hunt (seed→hit): `api-governance-tenancy-controllers` — promoted `GovernanceWorkflowAuditSupport.CreateGovernanceApprovalSubmittedAuditEvent` omitting `ExplicitActor` and using display `requestedBy` for `ActorUserId`, so durable submit audits were rewritten to `ClaimTypes.NameIdentifier` instead of `RequestedByActorKey`; use jwt actor key for audit identity, display name on `ActorUserName`, set `ExplicitActor = true`; regression `CreateGovernanceApprovalSubmittedAuditEvent_sets_explicit_actor_for_stable_requested_by_actor_key`; `GovernanceWorkflowAuditSupportTests` 5/5; scoped Governance/Tenancy controller filter 143 passed, 18 SQL integration failures (Linux VM baseline); seeded five follow-on `(candidate)` rows.
@@ -22094,6 +22095,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ---
 
 ## Zone: archlucid-core
+2026-10-16 seed hunt (seed→hit): promoted PascalCase `Routes` flattened property key on route tables; 20 scoped route/reachability tests passed.
+
 2026-10-16 seed hunt (seed→hit): promoted flattened routes JSON without `properties` wrapper; 18 scoped route/reachability tests passed.
 
 2026-10-16 seed hunt (seed→hit): promoted double-encoded `routes` JSON string scalar; 16 scoped route/reachability tests passed.
@@ -22213,6 +22216,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
+- (candidate) `AzureInventoryVnetCustomDnsIndex.TryParseDnsServersFromJson` — numeric JSON elements in `dnsServers` arrays skipped — locus: `AppendDnsServersFromJsonArray`; input: mixed-type dhcpOptions projection.
+- (candidate) `AzureInventoryPrivateEndpointDnsJoinIndex.BuildComputeToVnetMap` — resolved VNet ARM ids not passed through `ArmResourceIdNormalizer` — locus: `computeToVnet` values; input: subnet-derived vnet id with trailing slash.
+- (candidate) `AzureInventoryReachabilityEdgeControlIndex.AssetDeclaredBehindApplicationGateway` — AGW backend relationship `FromAzureResourceId` not normalized at ingest — locus: index build; input: padded AGW ARM id on backend triple.
+- (candidate) `AzureInventoryRouteTableRouteParser.ParseExplicitRouteProperties` — explicit flattened route keys with non-numeric index segments skipped — locus: index extraction; input: inventory.policy.route keys from hosted extract.
+- (candidate) `AzureInventoryVnetCustomDnsIndex.TryGetPropertyIgnoreCase` — flattened `dhcpOptions` property key casing — locus: property bag reads; input: PascalCase `DhcpOptions` on VNet inventory rows.
+
+- [x] (proven) `AzureInventoryRouteTableRouteParser.Parse` — PascalCase `Routes` flattened property key ignored — **hit 2026-10-16 seed hunt:** case-insensitive `routes` property lookup; regressions `Parse_reads_routes_when_flattened_property_key_uses_pascal_case_routes` and `SubnetRequiresEdgeControlEvidence_true_when_routes_property_key_uses_pascal_case`.
 - (candidate) `AzureInventoryVnetCustomDnsIndex.TryParseDnsServersFromJson` — numeric JSON elements in `dnsServers` arrays skipped — locus: `AppendDnsServersFromJsonArray`; input: mixed-type dhcpOptions projection.
 - (candidate) `AzureInventoryPrivateEndpointDnsJoinIndex.BuildComputeToVnetMap` — resolved VNet ARM ids not passed through `ArmResourceIdNormalizer` before zone-link `Contains` — locus: `computeToVnet` values; input: subnet-derived vnet id with trailing slash vs normalized zone link.
 - (candidate) `AzureInventoryReachabilityEdgeControlIndex.AssetDeclaredBehindApplicationGateway` — AGW backend `FromAzureResourceId` outer whitespace before normalization — locus: relationship ingest; input: `inventory-agw-backend` triple with padded from id.
