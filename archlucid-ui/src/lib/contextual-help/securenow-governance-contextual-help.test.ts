@@ -10,6 +10,7 @@ import {
   SECURENOW_INFRASTRUCTURE_RESOURCES_PATH,
   GOVERNANCE_INFRASTRUCTURE_TERRAFORM_PATH,
   SECURENOW_INFRASTRUCTURE_DIAGRAMS_PATH,
+  SECURENOW_INFRASTRUCTURE_TERRAFORM_PATH,
 } from "@/lib/governance/governance-infrastructure-route-paths";
 import {
   SECURENOW_REMEDIATION_FACTORY_PATH,
@@ -27,7 +28,7 @@ describe("SecureNow governance contextual help rows", () => {
     expect(entry?.whatIsThisPage).not.toContain("Approval");
     expect(entry?.whatToDoNextAction?.href).not.toContain("approval-queue");
     expect(pageHelpTopicForPathname(SECURENOW_REMEDIATION_FACTORY_PATH, "security")?.slug).toBe(
-      "remediation-factory",
+      "security-evidence-paths",
     );
   });
 
@@ -97,9 +98,17 @@ describe("SecureNow governance contextual help rows", () => {
     expect(terraform?.whatIsThisPage).not.toContain("Approval");
     expect(resources?.whatIsThisPage).toContain("Resource explorer");
     expect(hub?.whatIsThisPage).toContain("Resource evidence hub");
+    expect(pageHelpTopicForPathname(GOVERNANCE_INFRASTRUCTURE_TERRAFORM_PATH, "security")?.slug).toBe(
+      "governance-infrastructure-terraform",
+    );
+    expect(pageHelpTopicForPathname(SECURENOW_INFRASTRUCTURE_TERRAFORM_PATH, "security")?.slug).toBe(
+      "governance-infrastructure-terraform",
+    );
     expect(pageHelpTopicForPathname(GOVERNANCE_INFRASTRUCTURE_TERRAFORM_PATH, "security")?.slug).not.toBe(
       "cloud-connections",
     );
+    expect(terraform?.whatToDoNext).not.toMatch(/start a review/i);
+    expect(terraform?.whatToDoNextAction?.href).not.toContain("approval-queue");
     expect(pageHelpTopicForPathname(SECURENOW_INFRASTRUCTURE_RESOURCES_PATH, "security")?.slug).toBe(
       "governance-infrastructure-resources",
     );

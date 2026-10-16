@@ -102,11 +102,17 @@ export const PAGE_HELP_TOPIC_ROWS_OPERATOR_SECURITY: readonly PageHelpTopicRow[]
   },
   {
     prefix: SECURENOW_INFRASTRUCTURE_TERRAFORM_PATH,
-    topic: { label: OPERATOR_NAV_LINK_LABELS.infrastructureTerraform },
+    topic: {
+      slug: "governance-infrastructure-terraform",
+      label: OPERATOR_NAV_LINK_LABELS.infrastructureTerraform,
+    },
   },
   {
     prefix: GOVERNANCE_INFRASTRUCTURE_TERRAFORM_PATH,
-    topic: { label: OPERATOR_NAV_LINK_LABELS.infrastructureTerraform },
+    topic: {
+      slug: "governance-infrastructure-terraform",
+      label: OPERATOR_NAV_LINK_LABELS.infrastructureTerraform,
+    },
   },
   {
     prefix: SECURENOW_INFRASTRUCTURE_DIAGRAMS_PATH,

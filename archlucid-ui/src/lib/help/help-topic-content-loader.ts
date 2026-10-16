@@ -71,6 +71,7 @@ export const HELP_APP_GUIDED_TOPIC_SLUGS = [
   "governance-approval",
   "governance-infrastructure-drift",
   "governance-infrastructure-resources",
+  "governance-infrastructure-terraform",
   "cli-usage",
   "glossary",
   "users-and-roles",
