@@ -50,12 +50,25 @@ function deriveArchitecturePriority(findings: readonly QuickDecisionFinding[]): 
   return severityBadgeLabel(highest);
 }
 
+function resolveArchitectureWorkItemOwnerLabel(ownerLabel: string | null): string {
+  if (ownerLabel === null) {
+    return "Work item owner was not stored.";
+  }
+
+  if (ownerLabel.trim().length === 0) {
+    return "Work item owner was stored empty.";
+  }
+
+  return ownerLabel.trim();
+}
+
 function mapFindingLines(findings: readonly QuickDecisionFinding[]): ArchitectureWorkItemFindingLine[] {
   const sorted = [...findings].sort((left, right) => compareFindingSeverity(left.severityValue, right.severityValue));
 
   return sorted.slice(0, MAX_FINDING_LINES).map((finding) => ({
     findingId: finding.findingId,
-    title: finding.title,
+    title:
+      finding.title.trim().length > 0 ? finding.title.trim() : "Finding title was not stored.",
     severityLabel: severityBadgeLabel(finding.severityValue),
     recommendedAction:
       finding.recommendation.trim().length > 0
@@ -93,10 +106,7 @@ export function buildArchitectureWorkItemPreview(
     title,
     description,
     priority: deriveArchitecturePriority(input.findings),
-    owner:
-      input.ownerLabel === null || (input.ownerLabel.length > 0 && input.ownerLabel.trim().length === 0)
-        ? "Work item owner was not stored."
-        : input.ownerLabel.trim(),
+    owner: resolveArchitectureWorkItemOwnerLabel(input.ownerLabel),
     findingsIncluded: mapFindingLines(input.findings),
     sourceArchitectureLink: architectureReviewUrl(input.siteOrigin, input.runId),
   };

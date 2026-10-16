@@ -19,6 +19,42 @@ public sealed class DiagramConnectionTypeAnnotatorTests
     }
 
     [Fact]
+    public void Annotate_labels_blank_non_virtual_network_connector()
+    {
+        DiagramAst ast = new()
+        {
+            Nodes =
+            [
+                new DiagramNode
+                {
+                    NodeId = "storage",
+                    Label = "storage",
+                    ArmResourceType = "Microsoft.Storage/storageAccounts",
+                },
+                new DiagramNode
+                {
+                    NodeId = "app",
+                    Label = "app",
+                    ArmResourceType = "Microsoft.Web/sites",
+                },
+            ],
+            Edges =
+            [
+                new DiagramEdge
+                {
+                    FromNodeId = "app",
+                    ToNodeId = "storage",
+                    Label = string.Empty,
+                },
+            ],
+        };
+
+        DiagramConnectionTypeAnnotator.Annotate(ast);
+
+        ast.Edges.Single().Label.Should().Be(DiagramConnectionTypeAnnotator.RelationshipNotStoredLabel);
+    }
+
+    [Fact]
     public void Annotate_leaves_stored_connects_and_peering_verbs_unchanged()
     {
         DiagramAst connectsAst = CreateVirtualNetworkPairAst(label: "connects");

@@ -1,4 +1,4 @@
-import { coerceComplianceRuleKey, inferPolicyPackDisplayNameFromComplianceRuleKey } from "@/lib/policy/policy-pack-rule-key-prefix-catalog";
+import { coerceComplianceRuleKey } from "@/lib/policy/policy-pack-rule-key-prefix-catalog";
 import { firstRecommendationSentence, severityBadgeLabel, type QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 
 import type { GovernanceFindingQueueRow } from "@/app/(operator)/governance/findings/governance-finding-queue-row";
@@ -45,7 +45,7 @@ function resolveRuleLabel(input: FindingDerivationInput): string | null {
   const ruleId = nonEmpty(input.ruleId);
 
   if (ruleId !== null) {
-    return inferPolicyPackDisplayNameFromComplianceRuleKey(ruleId) ?? ruleId;
+    return ruleId;
   }
 
   return nonEmpty(input.categoryLabel);

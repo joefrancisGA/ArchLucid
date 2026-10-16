@@ -89,7 +89,7 @@ describe("finding-derivation-sentence (TB-2154)", () => {
   it("derives from governance queue rows and skips decision rows", () => {
     const findingResult = findingDerivationFromGovernanceQueueRow(sampleGovernanceRow());
 
-    expect(findingResult?.sentence).toContain("Security Architecture Baseline");
+    expect(findingResult?.sentence).toContain('Policy rule "sec-base-010"');
     expect(findingResult?.sentence).toContain("2 cited evidence references");
 
     expect(

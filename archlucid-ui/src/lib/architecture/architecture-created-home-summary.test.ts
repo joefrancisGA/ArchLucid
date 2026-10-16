@@ -2,7 +2,9 @@ import { describe, expect, it } from "vitest";
 
 import {
   ARCHITECTURE_CREATED_BUSINESS_PURPOSE_NOT_STORED,
+  ARCHITECTURE_CREATED_KEY_INTEGRATIONS_NOT_STORED,
   ARCHITECTURE_CREATED_MAJOR_SYSTEMS_NOT_STORED,
+  ARCHITECTURE_CREATED_PRIMARY_USERS_NOT_STORED,
   buildSummaryFields,
 } from "@/lib/architecture/architecture-created-home-summary";
 import type { BuildArchitectureCreatedHomeModelInput } from "@/lib/architecture/architecture-created-home-summary";
@@ -40,6 +42,14 @@ describe("buildSummaryFields (al-polish P-04, P-05)", () => {
     expect(fields).toContainEqual({
       label: "Major systems",
       value: ARCHITECTURE_CREATED_MAJOR_SYSTEMS_NOT_STORED,
+    });
+    expect(fields).toContainEqual({
+      label: "Primary users",
+      value: ARCHITECTURE_CREATED_PRIMARY_USERS_NOT_STORED,
+    });
+    expect(fields).toContainEqual({
+      label: "Key integrations",
+      value: ARCHITECTURE_CREATED_KEY_INTEGRATIONS_NOT_STORED,
     });
     expect(fields.some((field) => field.value.includes("Payments platform"))).toBe(false);
     expect(fields.some((field) => field.value.includes("long overview"))).toBe(false);

@@ -38,6 +38,12 @@ describe("buildFindingCausalMiniChain (TB-2217)", () => {
     expect(FINDING_CAUSAL_RECOMMENDATION_MISSING).toBe("Recommendation was not stored");
   });
 
+  it("shows the stored rule key when only rule id is present", () => {
+    const chain = buildFindingCausalMiniChain({ ruleId: "hipaa-164-312" });
+
+    expect(chain.steps[0]?.value).toBe("hipaa-164-312 · Rule name was not stored.");
+  });
+
   it("preserves a stored zero evidence reference count", () => {
     const chain = buildFindingCausalMiniChain({ evidenceRefCount: 0 });
 

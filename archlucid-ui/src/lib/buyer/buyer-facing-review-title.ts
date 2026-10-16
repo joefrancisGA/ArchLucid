@@ -77,5 +77,5 @@ export function buyerFacingReviewTitleFromSummary(run: RunSummary): string {
     }
   }
 
-  return "Untitled review";
+  return "Review title was not stored.";
 }

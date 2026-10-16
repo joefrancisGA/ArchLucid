@@ -82,6 +82,18 @@ describe("InferenceQuestionnairePanel", () => {
     expect(screen.getByText("Question text was not stored")).toBeInTheDocument();
   });
 
+  it("shows source and target host with not-stored copy when missing", async () => {
+    vi.mocked(operatorInferredConnectionApi.listInferenceQuestionnaireItems).mockResolvedValue({
+      ...questionnaireResponse,
+      items: [{ ...questionnaireResponse.items[0], fromLabel: null, toHost: null }],
+    });
+
+    render(<InferenceQuestionnairePanel snapshotId="snapshot-1" />);
+
+    expect(await screen.findByText("Source resource was not stored.")).toBeInTheDocument();
+    expect(screen.getByText("Target host was not stored.")).toBeInTheDocument();
+  });
+
   it("labels stored-empty rule and question text", async () => {
     vi.mocked(operatorInferredConnectionApi.listInferenceQuestionnaireItems).mockResolvedValue({
       ...questionnaireResponse,

@@ -46,6 +46,12 @@ export const ARCHITECTURE_CREATED_BUSINESS_PURPOSE_NOT_STORED =
 export const ARCHITECTURE_CREATED_MAJOR_SYSTEMS_NOT_STORED =
   "Major systems were not stored." as const;
 
+export const ARCHITECTURE_CREATED_PRIMARY_USERS_NOT_STORED =
+  "Primary users were not stored." as const;
+
+export const ARCHITECTURE_CREATED_KEY_INTEGRATIONS_NOT_STORED =
+  "Key integrations were not stored." as const;
+
 export const DEFAULT_GAP_ASSERTION: ArchitectureGapAssertionFlags = {
   businessOutcome: true,
   peopleAndSystems: true,
@@ -101,12 +107,13 @@ export function buildSummaryFields(input: BuildArchitectureCreatedHomeModelInput
 
   fields.push({ label: ARCHITECTURE_SUMMARY_LABELS.businessPurpose, value: businessPurpose });
 
-  if (humans.length > 0) {
-    fields.push({
-      label: ARCHITECTURE_SUMMARY_LABELS.primaryUsers,
-      value: humans.slice(0, 4).join(", "),
-    });
-  }
+  fields.push({
+    label: ARCHITECTURE_SUMMARY_LABELS.primaryUsers,
+    value:
+      humans.length > 0
+        ? humans.slice(0, 4).join(", ")
+        : ARCHITECTURE_CREATED_PRIMARY_USERS_NOT_STORED,
+  });
 
   if (systems.length > 0) {
     fields.push({
@@ -120,12 +127,13 @@ export function buildSummaryFields(input: BuildArchitectureCreatedHomeModelInput
     });
   }
 
-  if (integrations.length > 0) {
-    fields.push({
-      label: ARCHITECTURE_SUMMARY_LABELS.keyIntegrations,
-      value: integrations.slice(0, 4).join(", "),
-    });
-  }
+  fields.push({
+    label: ARCHITECTURE_SUMMARY_LABELS.keyIntegrations,
+    value:
+      integrations.length > 0
+        ? integrations.slice(0, 4).join(", ")
+        : ARCHITECTURE_CREATED_KEY_INTEGRATIONS_NOT_STORED,
+  });
 
-  return fields.slice(0, 4);
+  return fields;
 }

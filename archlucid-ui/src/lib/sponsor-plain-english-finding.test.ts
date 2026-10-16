@@ -33,7 +33,7 @@ describe("sponsor-plain-english-finding (TB-2192)", () => {
       residualRisk: null,
     });
 
-    expect(result.headline).toBe("Architecture review finding");
+    expect(result.headline).toBe("Finding title was not stored.");
     expect(result.plainEnglish).toContain("still needs a human resolve decision");
     expect(result.plainEnglish).toContain(
       "No export-ready finding summary was supplied beyond severity and related notes.",

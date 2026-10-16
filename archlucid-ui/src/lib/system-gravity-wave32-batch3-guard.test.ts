@@ -124,7 +124,9 @@ describe("system-gravity wave 32 batch 3 ratchets (ADR 0098)", () => {
       },
     ];
 
-    expect(resolveSystemNotJobWorkingPrimaryListTitle(siblings[0]!, siblings)).toBe("Untitled review");
+    expect(resolveSystemNotJobWorkingPrimaryListTitle(siblings[0]!, siblings)).toBe(
+      "Review title was not stored.",
+    );
     expect(resolveSystemNotJobWorkingPrimaryListTitle(siblings[0]!, siblings)).not.toContain("248324");
   });
 

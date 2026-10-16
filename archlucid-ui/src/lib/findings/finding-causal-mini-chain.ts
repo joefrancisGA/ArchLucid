@@ -1,4 +1,6 @@
-import { coerceComplianceRuleKey, inferPolicyPackDisplayNameFromComplianceRuleKey } from "@/lib/policy/policy-pack-rule-key-prefix-catalog";
+import { coerceComplianceRuleKey } from "@/lib/policy/policy-pack-rule-key-prefix-catalog";
+
+export const FINDING_CAUSAL_RULE_NAME_NOT_STORED = "Rule name was not stored.";
 import { firstRecommendationSentence, type QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import { parseFindingWireDerivationFields } from "@/lib/findings/finding-derivation-sentence";
 
@@ -47,7 +49,7 @@ function resolveRuleValue(input: FindingCausalMiniChainInput): string | null {
   const ruleId = nonEmpty(input.ruleId);
 
   if (ruleId !== null) {
-    return inferPolicyPackDisplayNameFromComplianceRuleKey(ruleId) ?? ruleId;
+    return `${ruleId} · ${FINDING_CAUSAL_RULE_NAME_NOT_STORED}`;
   }
 
   return null;
