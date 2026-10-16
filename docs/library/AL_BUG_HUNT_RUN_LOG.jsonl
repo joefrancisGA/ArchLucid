@@ -7639,3 +7639,4 @@
 {"at":"2026-10-16T17:34:01.5274743Z","zoneId":"decisioning","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Decisioning/Analysis/WorkloadConditionedRequirementExpectationResolver.cs"]}
 {"at":"2026-10-16T17:38:52.7851148Z","zoneId":"decisioning","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Decisioning/Analysis/DeclarationPremiseConflictClassifier.cs"]}
 {"at":"2026-10-16T17:43:14.7532349Z","zoneId":"decisioning","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Decisioning/Analysis/DecisioningTextTokenMatcher.cs"]}
+{"at":"2026-10-16T17:47:37.9394721Z","zoneId":"decisioning","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Decisioning/Analysis/DecisioningTextTokenMatcher.cs"]}
