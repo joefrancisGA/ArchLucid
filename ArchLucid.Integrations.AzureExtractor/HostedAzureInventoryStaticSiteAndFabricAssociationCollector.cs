@@ -15,7 +15,7 @@ public static class HostedAzureInventoryStaticSiteAndFabricAssociationCollector
     private const string FabricCapacityApiVersion = "2024-05-01";
 
     public static async Task<HostedAzureInventoryStaticSiteAndFabricAssociationCollectResult> CollectAsync(
-        GetOnlyHostedAzureArmReadClient armReadClient,
+        IHostedAzureArmReadClient armReadClient,
         string accessToken,
         IReadOnlyList<HostedAzureArmResourceRecord> resources,
         ILogger logger,
@@ -72,7 +72,7 @@ public static class HostedAzureInventoryStaticSiteAndFabricAssociationCollector
     }
 
     private static async Task CollectStaticSiteBackendsAsync(
-        GetOnlyHostedAzureArmReadClient armReadClient,
+        IHostedAzureArmReadClient armReadClient,
         string accessToken,
         HostedAzureArmResourceRecord staticSite,
         List<HostedAzureArmNetworkAssociationRecord> associations,
@@ -131,7 +131,7 @@ public static class HostedAzureInventoryStaticSiteAndFabricAssociationCollector
     }
 
     private static async Task CollectFabricWorkspacesAsync(
-        GetOnlyHostedAzureArmReadClient armReadClient,
+        IHostedAzureArmReadClient armReadClient,
         string accessToken,
         HostedAzureArmResourceRecord capacity,
         List<HostedAzureArmNetworkAssociationRecord> associations,
