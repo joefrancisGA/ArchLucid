@@ -1,6 +1,6 @@
 "use client";
 
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { cn } from "@/lib/utils";
@@ -9,8 +9,10 @@ import type { RunDetailFirstScreenProofSummary } from "@/lib/runs/run-detail-fir
 import { runDetailFirstScreenProofDispositionClass } from "@/lib/runs/run-detail-first-screen-proof-status";
 import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import {
+  RUN_DETAIL_FIRST_SCREEN_PROOF_OPEN_PARAM,
   parseRunDetailFirstScreenProofOpenFromSearch,
-  runDetailFirstScreenProofDisclosureHrefFromSearch} from "@/lib/runs/run-detail-first-screen-proof-disclosure-url";
+  runDetailFirstScreenProofDisclosureHrefFromSearch,
+} from "@/lib/runs/run-detail-first-screen-proof-disclosure-url";
 import { PROOF_CONFIDENCE_FIELD_LABEL } from "@/lib/proof-confidence-taxonomy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
@@ -22,9 +24,11 @@ type RunDetailFirstScreenProofStatusProps = {
 export function RunDetailFirstScreenProofStatus(props: RunDetailFirstScreenProofStatusProps): React.JSX.Element {
   const { summary } = props;
   const pathname = usePathname() ?? "/";
-  const [proofDetailsOpen, setProofDetailsOpenState] = useState(() =>
-    parseRunDetailFirstScreenProofOpenFromSearch(null),
+  const searchParams = useSearchParams();
+  const urlProofDetailsOpen = parseRunDetailFirstScreenProofOpenFromSearch(
+    searchParams.get(RUN_DETAIL_FIRST_SCREEN_PROOF_OPEN_PARAM),
   );
+  const [proofDetailsOpen, setProofDetailsOpenState] = useState(urlProofDetailsOpen);
   const proofDetailsOpenRef = useRef(proofDetailsOpen);
   proofDetailsOpenRef.current = proofDetailsOpen;
   const primaryBullet = summary.whySafeToSendBullets[0] ?? null;
@@ -56,7 +60,7 @@ export function RunDetailFirstScreenProofStatus(props: RunDetailFirstScreenProof
   useEffect(() => {
     const syncProofDetailsOpenFromUrl = (): void => {
       const next = parseRunDetailFirstScreenProofOpenFromSearch(
-        new URLSearchParams(window.location.search).get("runDetailFirstScreenProofOpen"),
+        new URLSearchParams(window.location.search).get(RUN_DETAIL_FIRST_SCREEN_PROOF_OPEN_PARAM),
       );
 
       if (proofDetailsOpenRef.current === next) {
@@ -74,6 +78,15 @@ export function RunDetailFirstScreenProofStatus(props: RunDetailFirstScreenProof
       window.removeEventListener("popstate", syncProofDetailsOpenFromUrl);
     };
   }, []);
+
+  useEffect(() => {
+    if (proofDetailsOpenRef.current === urlProofDetailsOpen) {
+      return;
+    }
+
+    proofDetailsOpenRef.current = urlProofDetailsOpen;
+    setProofDetailsOpenState(urlProofDetailsOpen);
+  }, [urlProofDetailsOpen]);
 
   return (
     <section
