@@ -1,3 +1,4 @@
+2026-10-16 seed hunt (seed→hit): `ui-review-detail-workspace` — promoted `RunDetailAuthorityChainSection` syncing `runAuditIdentifiersOpen` only from `popstate`, so Next.js soft navigation left the audit identifiers disclosure closed; reconcile from `useSearchParams`; regression `follows runAuditIdentifiersOpen query changes without a popstate event`; `RunDetailAuthorityChainSection` vitest 4/4; seeded five follow-on `(candidate)` rows.
 2026-10-16 seed hunt (seed→hit): `ui-review-detail-workspace` — promoted `ReviewAskDock` syncing `askDock` / `askThread` only from `popstate`, so Next.js soft navigation left the ask dock dialog closed; reconcile from `useSearchParams`; regression `follows askDock query changes without a popstate event`; `ReviewAskDock` vitest 4/4; seeded five follow-on `(candidate)` rows.
 2026-10-16 seed hunt (seed→hit): `ui-review-detail-workspace` — promoted `ReviewMeetingPacketButton` syncing `meetingPacketOpen` only from `popstate`, so Next.js soft navigation left the meeting packet dialog closed; reconcile from `useSearchParams`; regression `follows meetingPacketOpen query changes without a popstate event`; `ReviewMeetingPacketButton` vitest 2/2; seeded five follow-on `(candidate)` rows.
 2026-10-16 seed hunt (seed→hit): `ui-review-detail-workspace` — promoted `ReviewPackageSponsorHandoffStrip` syncing `reviewPackageSponsorHandoffMoreExportsOpen` only from `popstate`, so Next.js soft navigation left the more sponsor exports disclosure closed; reconcile from `useSearchParams`; regression `follows reviewPackageSponsorHandoffMoreExportsOpen query changes without a popstate event`; `ReviewPackageSponsorHandoffStrip` vitest 5/5; seeded five follow-on `(candidate)` rows.
@@ -39991,6 +39992,8 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 ---
 
 ## Zone: ui-review-detail-workspace
+2026-10-16 seed hunt (seed→hit): promoted authority chain audit identifiers `runAuditIdentifiersOpen` soft-navigation sync; 4/4 RunDetailAuthorityChainSection vitest tests.
+
 2026-10-16 seed hunt (seed→hit): promoted ask dock `askDock` / `askThread` soft-navigation sync; 4/4 ReviewAskDock vitest tests.
 
 2026-10-16 seed hunt (seed→hit): promoted meeting packet dialog `meetingPacketOpen` soft-navigation sync; 2/2 meeting packet vitest tests.
@@ -40008,7 +40011,12 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 
 - [x] (proven) `ReviewMeetingPacketButton` — `meetingPacketOpen` ignored on Next.js soft navigation — **hit 2026-10-16 seed hunt:** reconcile dialog open from `useSearchParams`; regression `follows meetingPacketOpen query changes without a popstate event`.
 - [x] (proven) `ReviewAskDock` — `askDock` / `askThread` ignored on Next.js soft navigation — **hit 2026-10-16 seed hunt:** reconcile open and thread from `useSearchParams`; regression `follows askDock query changes without a popstate event`.
-- (candidate) `RunDetailAuthorityChainSection` — `runDetailAuthorityChainAuditIdentifiersOpen` sync only on `popstate` — locus: authority chain audit identifiers disclosure; input: soft navigation opens disclosure query flag.
+- [x] (proven) `RunDetailAuthorityChainSection` — `runAuditIdentifiersOpen` ignored on Next.js soft navigation — **hit 2026-10-16 seed hunt:** reconcile disclosure open from `useSearchParams`; regression `follows runAuditIdentifiersOpen query changes without a popstate event`.
+- (candidate) `RunDetailWorkspaceChrome` — `runDetailRecordMetadataOpen` sync only on `popstate` — locus: workspace chrome record metadata panel; input: soft navigation with metadata open param.
+- (candidate) `RunDetailWorkspaceStickyActions` — technical detail disclosure open flag sync only on `popstate` — locus: sticky actions technical detail; input: client navigation sets open query without `popstate`.
+- (candidate) `RunDetailProvenanceSummaryCard` — identifier disclosure URL open sync only on `popstate` — locus: provenance summary identifiers; input: soft navigation opens identifiers panel.
+- (candidate) `ReviewAskDock` — closing dock when `askDock` cleared without `popstate` — locus: ask dock dialog; input: Link removes open flag on soft navigation.
+- (candidate) `RunDetailPipelineTimelineSection` — pipeline timeline disclosure open sync only on `popstate` — locus: pipeline timeline section; input: soft navigation sets timeline open query.
 - (candidate) `RunDetailWorkspaceChrome` — `runDetailRecordMetadataOpen` sync only on `popstate` — locus: workspace chrome record metadata panel; input: soft navigation with metadata open param.
 - (candidate) `RunDetailWorkspaceStickyActions` — technical detail disclosure open flag sync only on `popstate` — locus: sticky actions technical detail; input: client navigation sets open query without `popstate`.
 - (candidate) `RunDetailProvenanceSummaryCard` — identifier disclosure URL open sync only on `popstate` — locus: provenance summary identifiers; input: soft navigation opens identifiers panel.

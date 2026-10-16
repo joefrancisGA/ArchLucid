@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import type { ReactElement } from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
@@ -18,6 +18,7 @@ import { CanonicalObjectSecondaryViewStrip } from "@/components/usability/Canoni
 import { buildCanonicalObjectSecondaryView } from "@/lib/canonical-object-home-registry";
 import { signedRecordDetailPath } from "@/lib/signed-records-paths";
 import {
+  RUN_AUDIT_IDENTIFIERS_OPEN_PARAM,
   parseRunAuditIdentifiersOpenFromSearch,
   runAuditIdentifiersDisclosureHrefFromSearch,
 } from "@/lib/runs/run-audit-identifiers-disclosure-url";
@@ -75,9 +76,11 @@ export function resolveDecisionTraceIdLabel(decisionTraceId: string | null | und
 export function RunDetailAuthorityChainSection(props: RunDetailAuthorityChainSectionProps): ReactElement {
   const { run, manifestId } = props;
   const pathname = usePathname() ?? "/";
-  const [auditIdentifiersOpen, setAuditIdentifiersOpenState] = useState(() =>
-    parseRunAuditIdentifiersOpenFromSearch(null),
+  const searchParams = useSearchParams();
+  const urlAuditIdentifiersOpen = parseRunAuditIdentifiersOpenFromSearch(
+    searchParams.get(RUN_AUDIT_IDENTIFIERS_OPEN_PARAM),
   );
+  const [auditIdentifiersOpen, setAuditIdentifiersOpenState] = useState(urlAuditIdentifiersOpen);
   const auditIdentifiersOpenRef = useRef(auditIdentifiersOpen);
   auditIdentifiersOpenRef.current = auditIdentifiersOpen;
   const { vocabulary } = useGovernanceMode();
@@ -118,7 +121,7 @@ export function RunDetailAuthorityChainSection(props: RunDetailAuthorityChainSec
   useEffect(() => {
     const syncAuditIdentifiersOpenFromUrl = (): void => {
       const nextOpen = parseRunAuditIdentifiersOpenFromSearch(
-        new URLSearchParams(window.location.search).get("runAuditIdentifiersOpen"),
+        new URLSearchParams(window.location.search).get(RUN_AUDIT_IDENTIFIERS_OPEN_PARAM),
       );
 
       if (auditIdentifiersOpenRef.current === nextOpen) {
@@ -136,6 +139,15 @@ export function RunDetailAuthorityChainSection(props: RunDetailAuthorityChainSec
       window.removeEventListener("popstate", syncAuditIdentifiersOpenFromUrl);
     };
   }, []);
+
+  useEffect(() => {
+    if (auditIdentifiersOpenRef.current === urlAuditIdentifiersOpen) {
+      return;
+    }
+
+    auditIdentifiersOpenRef.current = urlAuditIdentifiersOpen;
+    setAuditIdentifiersOpenState(urlAuditIdentifiersOpen);
+  }, [urlAuditIdentifiersOpen]);
 
   return (
     <section id="authority-chain" className="scroll-mt-24">
