@@ -8,6 +8,7 @@ import {
   GOVERNANCE_INFRASTRUCTURE_PATH,
   GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH,
   SECURENOW_INFRASTRUCTURE_RESOURCES_PATH,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PATH,
   GOVERNANCE_INFRASTRUCTURE_TERRAFORM_PATH,
   SECURENOW_INFRASTRUCTURE_DIAGRAMS_PATH,
   SECURENOW_INFRASTRUCTURE_TERRAFORM_PATH,
@@ -81,7 +82,21 @@ describe("SecureNow governance contextual help rows", () => {
     const entry = contextualHelpForPathname(SECURENOW_INFRASTRUCTURE_DIAGRAMS_PATH, { productLineId: "security" });
 
     expect(entry?.whatIsThisPage).toContain(GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_TITLE);
+    expect(entry?.whatIsThisPage).toContain("inventory");
     expect(entry?.whatIsThisPage).not.toContain("Approval");
+    expect(entry?.whatIsThisPage).not.toMatch(/architecture.review/i);
+    expect(pageHelpTopicForPathname(SECURENOW_INFRASTRUCTURE_DIAGRAMS_PATH, "security")?.slug).toBe(
+      "governance-infrastructure-diagrams",
+    );
+    expect(pageHelpTopicForPathname(GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PATH, "security")?.slug).toBe(
+      "governance-infrastructure-diagrams",
+    );
+    expect(pageHelpTopicForPathname(SECURENOW_INFRASTRUCTURE_DIAGRAMS_PATH, "security")?.slug).not.toBe(
+      "cloud-connections",
+    );
+    expect(pageHelpTopicForPathname(SECURENOW_INFRASTRUCTURE_DIAGRAMS_PATH, "security")?.slug).not.toBe(
+      "architecture-intelligence",
+    );
     expect(pageHelpTopicForPathname(SECURENOW_INFRASTRUCTURE_DIAGRAMS_PATH, "security")?.label).toBe(
       GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_TITLE,
     );

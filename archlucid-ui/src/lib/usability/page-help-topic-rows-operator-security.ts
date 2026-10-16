@@ -31,7 +31,10 @@ import {
   SECURENOW_INFRASTRUCTURE_RESOURCES_PATH,
   SECURENOW_INFRASTRUCTURE_TERRAFORM_PATH,
 } from "@/lib/governance/governance-infrastructure-route-paths";
-import { GOVERNANCE_INFRASTRUCTURE_DRIFT_PAGE_TITLE } from "@/lib/governance/governance-infrastructure-copy";
+import {
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_TITLE,
+  GOVERNANCE_INFRASTRUCTURE_DRIFT_PAGE_TITLE,
+} from "@/lib/governance/governance-infrastructure-copy";
 import { GOVERNANCE_APPROVAL_HELP_TOPIC_LABEL } from "@/lib/governance/governance-approval-help-evidence-copy";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { FINDINGS_HELP_TOPIC_LABEL } from "@/lib/findings/findings-help-evidence-copy";
@@ -116,11 +119,17 @@ export const PAGE_HELP_TOPIC_ROWS_OPERATOR_SECURITY: readonly PageHelpTopicRow[]
   },
   {
     prefix: SECURENOW_INFRASTRUCTURE_DIAGRAMS_PATH,
-    topic: { label: OPERATOR_NAV_LINK_LABELS.infrastructureDiagrams },
+    topic: {
+      slug: "governance-infrastructure-diagrams",
+      label: GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_TITLE,
+    },
   },
   {
     prefix: GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PATH,
-    topic: { label: OPERATOR_NAV_LINK_LABELS.infrastructureDiagrams },
+    topic: {
+      slug: "governance-infrastructure-diagrams",
+      label: GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_TITLE,
+    },
   },
   {
     prefix: SECURENOW_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH,

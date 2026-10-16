@@ -146,7 +146,10 @@ export const PAGE_HELP_TOPIC_ROWS_OPERATOR_GOVERNANCE: readonly PageHelpTopicRow
   },
   {
     prefix: GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PATH,
-    topic: { label: GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_TITLE },
+    topic: {
+      slug: "governance-infrastructure-diagrams",
+      label: GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_TITLE,
+    },
   },
   {
     prefix: GOVERNANCE_INFRASTRUCTURE_ASK_PATH,
