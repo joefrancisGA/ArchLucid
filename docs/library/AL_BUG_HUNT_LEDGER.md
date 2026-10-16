@@ -1,5 +1,6 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-16 seed hunt (seed→hit): `ui-review-detail-workspace` — promoted `RunDetailLastFailureCard` syncing `runLastFailureTechOpen` only from `popstate`, so Next.js soft navigation left last-failure technical details closed; reconcile from `useSearchParams`; regression `follows runLastFailureTechOpen query changes without a popstate event`; last failure card url-sync vitest 1/1; seeded five follow-on `(candidate)` rows.
 2026-10-16 seed hunt (seed→hit): `api-authority-admin-controllers` — promoted `AdminController.ArchiveRunsByIds` dereferencing `body.RunIds.Count` when JSON deserialized `runIds` as null, causing `NullReferenceException` instead of `400 ValidationFailed`; guard null like empty list; regression `ArchiveRunsByIds_returns_bad_request_when_run_ids_collection_is_null`; scoped Authority/Admin controller filter 19 passed (5 SQL integration failures on Linux VM baseline); seeded five follow-on `(candidate)` rows.
 2026-10-16 seed hunt (seed→hit): `saml-jwt-bearer` — promoted `SamlMetadataValidUntilParser.TryExtractValidUntilUtc` reading only the document root `validUntil`, so `EntitiesDescriptor` federation exports with expiry on the sole nested `EntityDescriptor` skipped operational metadata expiry checks; resolve nested single-entity `validUntil` when the root attribute is absent; regressions `TryExtractValidUntilUtc_reads_validUntil_from_single_nested_entity_descriptor` and `TryExtractValidUntilUtc_prefers_root_validUntil_on_entities_descriptor`; scoped SAML/JWT/SCIM bearer vitest/dotnet 79 passed (3 SQL integration failures on Linux VM baseline); seeded five follow-on `(candidate)` rows.
 2026-10-16 seed hunt (seed→hit): `ui-review-detail-workspace` — promoted `RunDetailPageHeader` / `BuyerSponsorBriefExports` syncing `runDetailBuyerSponsorBriefExportsOpen` only from `popstate`, so Next.js soft navigation left the sponsor brief export disclosure closed; reconcile from `useSearchParams`; regression `follows runDetailBuyerSponsorBriefExportsOpen query changes without a popstate event`; page header url-sync vitest 1/1; seeded five follow-on `(candidate)` rows.
@@ -40048,6 +40049,15 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 ---
 
 ## Zone: ui-review-detail-workspace
+2026-10-16 seed hunt (seed→hit): promoted `RunDetailLastFailureCard` `runLastFailureTechOpen` soft-navigation sync; proved and fixed; reseeded five follow-on `(candidate)` rows.
+
+- [x] (proven) `RunDetailLastFailureCard` — `runLastFailureTechOpen` ignored on Next.js soft navigation — **hit 2026-10-16 seed hunt:** reconcile technical details disclosure from `useSearchParams`; regression `follows runLastFailureTechOpen query changes without a popstate event`
+- [ ] (candidate) `RunDetailRunGovernanceDispositionActions` — `runDispDecision` confirm dialog open sync only on `popstate` — locus: governance disposition actions; input: soft navigation with disposition confirm query.
+- [ ] (candidate) `RunFindingExplainabilityTable` — explainability row expansion query sync only on `popstate` — locus: finding explainability table; input: soft navigation sets explainability open param.
+- [ ] (candidate) `RunExplanationSection` — provenance disclosure `runExplanationProvenanceOpen` sync only on `popstate` — locus: run explanation section; input: soft navigation with provenance open query on overview tab.
+- [ ] (candidate) `use-review-detail-workspace-tabs` — active workspace tab from URL sync only on `popstate` — locus: review detail tab strip; input: `router.push` changes `reviewTab` without back/forward.
+- [ ] (candidate) `ReviewWorkbenchSelectionContext` — selected finding id from URL sync only on `popstate` — locus: workbench selection provider; input: soft navigation updates `findingId` query on inspect workspace.
+
 2026-10-16 seed hunt (seed→hit): promoted operator technical disclosure `runTechnicalDetailsOpen` soft-navigation sync.
 
 2026-10-16 seed hunt (seed→hit): promoted pipeline stages disclosure soft-navigation sync.
@@ -40249,11 +40259,11 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 - **aliases:** review detail workspace; run detail page
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/; archlucid-ui/src/components/reviews/use-review-detail-workspace-; archlucid-ui/src/components/reviews/ReviewWorkspace; archlucid-ui/src/components/reviews/ReviewDetailWorkspace
 - **test-filter:** FullyQualifiedName~RunDetail|reviewId
-- **hunts:** 38
-- **bugs-found:** 29
+- **hunts:** 39
+- **bugs-found:** 30
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-09
-- **last-bug:** 2026-10-09 — Severity sort chip wrote findingsSort without changing the findings list or the selected chip
+- **last-hunt:** 2026-10-16
+- **last-bug:** 2026-10-16 — Last failure technical details ignored on soft navigation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 2026-10-08 seed hunt (seed→hit): proved `useRunDetailFindingsToolbarState` kept search, owner, and severity filter in memory across a client-side review path change, then the 250ms search and owner writers published those fields onto the next review URL. Re-read the committed URL when `pathname` changes, before those writers run. Regression `does not publish the previous review toolbar onto the next review URL`; 6 focused toolbar and last-visit vitest tests passed.

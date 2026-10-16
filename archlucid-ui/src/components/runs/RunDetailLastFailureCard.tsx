@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { ReactElement } from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 
 import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 
@@ -23,6 +23,7 @@ import {
 } from "@/lib/execution-vs-quality-outcome-copy";
 import {
   parseRunLastFailureTechOpenFromSearch,
+  RUN_LAST_FAILURE_TECH_OPEN_PARAM,
   runLastFailureTechDetailsHrefFromSearch,
 } from "@/lib/runs/run-last-failure-tech-details-url";
 
@@ -58,6 +59,8 @@ export function RunDetailLastFailureCard(props: {
   readonly hasRecoverySteps?: boolean;
 }): ReactElement | null {
   const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const searchParamTechOpen = searchParams.get(RUN_LAST_FAILURE_TECH_OPEN_PARAM);
   const summary = props.summary;
   const runId = props.runId?.trim() ?? "";
   const reRunInFlight = useReviewPipelineReRunInFlight(runId);
@@ -111,6 +114,17 @@ export function RunDetailLastFailureCard(props: {
       window.removeEventListener("popstate", syncTechnicalDetailsOpenFromUrl);
     };
   }, []);
+
+  useEffect(() => {
+    const next = parseRunLastFailureTechOpenFromSearch(searchParamTechOpen);
+
+    if (technicalDetailsOpenRef.current === next) {
+      return;
+    }
+
+    technicalDetailsOpenRef.current = next;
+    setTechnicalDetailsOpenState(next);
+  }, [searchParamTechOpen]);
 
   if (summary === null || summary === undefined) {
     return null;
