@@ -7605,3 +7605,4 @@
 {"at":"2026-10-16T06:43:57.1445462Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailSubmittedArchitectureSection.tsx"]}
 {"at":"2026-10-16T06:45:49.0842329Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/components/reviews/ReviewHeaderShareMenu.tsx"]}
 {"at":"2026-10-16T06:47:54.3518799Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/components/reviews/ReviewArchiveControl.tsx"]}
+{"at":"2026-10-16T06:49:33.4839281Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/components/reviews/ReviewCliReproduceSection.tsx"]}
