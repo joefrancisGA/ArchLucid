@@ -361,7 +361,9 @@ export function RunDetailOutcomeCards({
       </CardHeader>
       <CardContent className="space-y-1 pt-0">
         <p className="m-0 text-lg font-semibold tabular-nums text-neutral-900 dark:text-neutral-100">
-          {finiteIntegerCountDisplay(findingCountDisplay)}
+          {finiteIntegerCountDisplay(findingCountDisplay, {
+            notStoredLabel: "Finding count was not stored.",
+          })}
         </p>
         {unresolvedTrunc !== null && unresolvedTrunc > 0 ? (
           <p className={cn("mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
@@ -380,7 +382,9 @@ export function RunDetailOutcomeCards({
       </CardHeader>
       <CardContent className="pt-0">
         <p className="m-0 text-lg font-semibold tabular-nums text-neutral-900 dark:text-neutral-100">
-          {finiteIntegerCountDisplay(artifactCount)}
+          {finiteIntegerCountDisplay(artifactCount, {
+            notStoredLabel: "Artifact count was not stored.",
+          })}
         </p>
         <p className={cn("mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>Attached when the review record is finalized</p>
       </CardContent>

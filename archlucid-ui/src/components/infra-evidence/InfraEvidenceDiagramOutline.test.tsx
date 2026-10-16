@@ -912,6 +912,46 @@ describe("InfraEvidenceDiagramOutline", () => {
     );
   });
 
+  it("treats empty type, resource group, and edge label like null omission copy (P-01)", () => {
+    render(
+      <InfraEvidenceDiagramOutline
+        outline={{
+          nodes: [
+            {
+              id: "n_empty",
+              label: "orphan",
+              resourceType: "",
+              resourceGroup: "",
+              connectionState: "Unconnected",
+            },
+          ],
+          edges: [
+            {
+              from: "n_empty",
+              to: "n_empty",
+              label: "",
+              source: "observed",
+              confidenceBand: "high",
+              provenanceKind: null,
+              inferenceSource: null,
+              declaredConnectionId: null,
+            },
+          ],
+          ledgerDrops: [],
+        }}
+        defaultNodesOpen={true}
+        defaultEdgesOpen={true}
+      />,
+    );
+
+    const nodesTable = within(screen.getByTestId("infra-diagrams-unconnected-nodes-list")).getByRole("table");
+    expect(within(nodesTable).getByText("Resource type was not stored")).toBeInTheDocument();
+    expect(within(nodesTable).getByText("Resource group was not stored.")).toBeInTheDocument();
+
+    const edgesTable = within(screen.getByTestId("infra-diagrams-outline-edges-panel")).getByRole("table");
+    expect(within(edgesTable).getByText("Edge label was not stored")).toBeInTheDocument();
+  });
+
   it("renders ledger drops when mermaid outline includes them", () => {
     render(
       <InfraEvidenceDiagramOutline

@@ -1,4 +1,7 @@
 import { buildSponsorMarkdownMethodologyFooter } from "@/lib/sponsor-markdown-footer";
+
+export const SPONSOR_EVIDENCE_CONFIDENCE_EMPTY_LINE =
+  "Evidence confidence was not stored. Use the finalized review record and finding detail as the authoritative record." as const;
 import type { RunExplanationSummary } from "@/types/explanation";
 import { isDeterministicExplanationFallback } from "@/types/explanation";
 
@@ -153,7 +156,7 @@ export function buildSponsorRiskReviewMarkdown(
     "",
     evidenceParts.length > 0
       ? evidenceParts.join(" ")
-      : "Confidence metadata was not returned — use the finalized review record and finding detail as the authoritative record.",
+      : SPONSOR_EVIDENCE_CONFIDENCE_EMPTY_LINE,
     "",
     "## Prioritized findings (summary)",
     "",

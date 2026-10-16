@@ -63,4 +63,4 @@ export const ARCHITECTURE_RISK_REGISTER_GLOSSARY = [
 ] as const;
 
 /** Shown when a finding has no recorded disposition yet, so the cell never repeats the Status column. */
-export const GOVERNANCE_QUEUE_DISPOSITION_NONE_LABEL = "Not recorded";
+export const GOVERNANCE_QUEUE_DISPOSITION_NONE_LABEL = "Disposition was not stored.";

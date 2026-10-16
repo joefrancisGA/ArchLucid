@@ -24,4 +24,10 @@ describe("finiteIntegerCountDisplay", () => {
   it("can label missing counts as Not returned", () => {
     expect(finiteIntegerCountDisplay(null, { missingLabel: "not-returned" })).toBe("Not returned");
   });
+
+  it("supports field-specific not-stored labels (P-15–P-18)", () => {
+    expect(
+      finiteIntegerCountDisplay(null, { notStoredLabel: "Finding count was not stored." }),
+    ).toBe("Finding count was not stored.");
+  });
 });

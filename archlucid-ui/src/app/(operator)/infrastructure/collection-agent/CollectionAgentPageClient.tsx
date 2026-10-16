@@ -194,7 +194,7 @@ export function CollectionAgentPageClient(): React.JSX.Element {
       <section className="space-y-2" aria-labelledby="collection-agent-schedule-heading">
         <h2 id="collection-agent-schedule-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>Schedule</h2>
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-          {reportedSchedule ?? "Not reported by the collection agent"}
+          {reportedSchedule ?? "Collection schedule was not stored."}
         </p>
       </section>
 

@@ -1171,7 +1171,7 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
         .filter(Boolean);
       setClickFocus({
         id,
-        name: title.replace(/\s+—\s+Private endpoint access$/u, ''),
+        name: title,
         memberNames: memberNames.length > 0 ? memberNames : undefined,
       });
     };

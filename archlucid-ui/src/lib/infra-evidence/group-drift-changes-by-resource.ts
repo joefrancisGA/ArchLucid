@@ -167,13 +167,12 @@ export function summarizeDriftResourceGroupProperties(
   );
 
   if (uniqueProperties.size === 1) {
-    return [...uniqueProperties][0] ?? "Not recorded";
+    return [...uniqueProperties][0] ?? "Property name was not stored.";
   }
 
   if (uniqueProperties.size === 0) {
-    return "Not recorded";
+    return "Property name was not stored.";
   }
-
   return `${uniqueProperties.size} properties`;
 }
 

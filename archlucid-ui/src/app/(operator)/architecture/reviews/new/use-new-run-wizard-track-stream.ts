@@ -7,6 +7,26 @@ import { useRunSummaryStream } from "@/hooks/useRunSummaryStream";
 import { TRACK_STEP_INDEX } from "./new-run-wizard-steps";
 import type { NewRunWizardMode } from "./use-new-run-wizard-mode";
 
+function snapshotStatusWord(flag: boolean | undefined): string {
+  if (flag === true) {
+    return "ready";
+  }
+
+  if (flag === false) {
+    return "pending";
+  }
+
+  return "status was not stored";
+}
+
+function snapshotStatusPhrase(label: string, flag: boolean | undefined): string {
+  if (flag === undefined) {
+    return `${label} snapshot status was not stored`;
+  }
+
+  return `${label} ${snapshotStatusWord(flag)}`;
+}
+
 export function useNewRunWizardTrackStream(options: {
   readonly runId: string | null;
   readonly wizardMode: NewRunWizardMode;
@@ -26,7 +46,12 @@ export function useNewRunWizardTrackStream(options: {
     }
 
     if (pollSummary) {
-      return `Review ${runId} polled: context ${pollSummary.hasContextSnapshot ? "ready" : "pending"}, graph ${pollSummary.hasGraphSnapshot ? "ready" : "pending"}, findings ${pollSummary.hasFindingsSnapshot ? "ready" : "pending"}, Finalized review record ${pollSummary.hasGoldenManifest ? "ready" : "pending"}.`;
+      const manifestPhrase =
+        pollSummary.hasGoldenManifest === undefined
+          ? "Finalized review record status was not stored"
+          : `Finalized review record ${pollSummary.hasGoldenManifest ? "ready" : "pending"}`;
+
+      return `Review ${runId} polled: ${snapshotStatusPhrase("context", pollSummary.hasContextSnapshot)}, ${snapshotStatusPhrase("graph", pollSummary.hasGraphSnapshot)}, ${snapshotStatusPhrase("findings", pollSummary.hasFindingsSnapshot)}, ${manifestPhrase}.`;
     }
 
     return `Review ${runId} created; loading summary.`;

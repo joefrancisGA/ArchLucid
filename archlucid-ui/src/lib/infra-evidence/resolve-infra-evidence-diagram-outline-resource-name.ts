@@ -1,4 +1,8 @@
-import { normalizeSecureNowResourceNameForDisplay } from "@/lib/infra-evidence/format-azure-resource-display";
+import {
+  isSecureNowResourceDisplayNameMissing,
+  normalizeSecureNowResourceNameForDisplay,
+  SECURE_NOW_RESOURCE_NAME_NOT_STORED_LABEL,
+} from "@/lib/infra-evidence/format-azure-resource-display";
 import type { InfraEvidenceMermaidOutlineNode } from "@/lib/infra-evidence/parse-infra-evidence-mermaid-outline";
 
 export function resolveInfraEvidenceDiagramOutlineResourceName(
@@ -6,8 +10,8 @@ export function resolveInfraEvidenceDiagramOutlineResourceName(
 ): string {
   const label = node.label.split(" · ", 1)[0]?.trim() ?? "";
 
-  if (label.length === 0) {
-    return "Node name was not stored";
+  if (isSecureNowResourceDisplayNameMissing(label)) {
+    return SECURE_NOW_RESOURCE_NAME_NOT_STORED_LABEL;
   }
 
   // Mermaid labels sometimes already include a trailing "(type)" suffix. Strip it
@@ -16,9 +20,21 @@ export function resolveInfraEvidenceDiagramOutlineResourceName(
     const stripped = label.replace(/\s\([^)]+\)\s*$/u, "").trim();
 
     if (stripped.length > 0) {
-      return normalizeSecureNowResourceNameForDisplay(stripped);
+      const normalized = normalizeSecureNowResourceNameForDisplay(stripped);
+
+      if (isSecureNowResourceDisplayNameMissing(normalized)) {
+        return SECURE_NOW_RESOURCE_NAME_NOT_STORED_LABEL;
+      }
+
+      return normalized;
     }
   }
 
-  return normalizeSecureNowResourceNameForDisplay(label);
+  const normalized = normalizeSecureNowResourceNameForDisplay(label);
+
+  if (isSecureNowResourceDisplayNameMissing(normalized)) {
+    return SECURE_NOW_RESOURCE_NAME_NOT_STORED_LABEL;
+  }
+
+  return normalized;
 }

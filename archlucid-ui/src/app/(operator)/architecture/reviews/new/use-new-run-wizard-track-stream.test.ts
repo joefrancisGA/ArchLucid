@@ -87,6 +87,27 @@ describe("useNewRunWizardTrackStream", () => {
     });
   });
 
+  it("does not speak pending when snapshot flags are undefined (P-12)", () => {
+    useRunSummaryStream.mockReturnValue({
+      summary: {
+        runId: "run-123",
+        projectId: "p",
+        createdUtc: "2026-01-01T00:00:00.000Z",
+      },
+    });
+
+    const { result } = renderHook(() =>
+      useNewRunWizardTrackStream({
+        runId: "run-123",
+        wizardMode: "quick",
+        stepIndex: 0,
+      }),
+    );
+
+    expect(result.current.liveMessage).toContain("context snapshot status was not stored");
+    expect(result.current.liveMessage).not.toMatch(/context pending/);
+  });
+
   it("disables summary polling in full wizard before the track step when a run id already exists", () => {
     useRunSummaryStream.mockClear();
 
