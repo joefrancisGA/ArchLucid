@@ -1,5 +1,14 @@
 > **Scope:**
 
+2026-10-16 seed hunt (seed→hit): `archlucid-core` — promoted `AzureInventoryVnetPeeringParser.TryReadRemoteVnetId` treating `virtualNetworkPeerings[]` elements that are JSON string scalars wrapping full peering objects as bare ARM text via `NormalizeArmId`, dropping remote vnet linkage for per-element double-encoded hosted rows; unwrap peering rows via `AzureExtractorJsonObjectElement.TryUnwrapObject` before reading `properties.remoteVirtualNetwork`; cheap-disproof closed `loadBalancingRules[]` per-rule string-scalar wrap (already covered by `ResolveLoadBalancerBackends_reads_rule_port_when_rule_element_is_json_string_scalar`); regression `EnumerateRemoteVnetIds_reads_remote_when_peering_array_element_is_json_string_scalar_wrapping_peering_object`; vnet peering + LB backend core tests 51/51; seeded five follow-on `(candidate)` rows.
+
+- (candidate) `AzureInventoryVnetPeeringParser.TryReadPeeringState` — peering row string-scalar wrap skips `peeringState` on double-encoded rows — locus: `ParsePeerings` state read; input: parity with remote id unwrap.
+- (candidate) `AzureInventoryRouteTableRouteParser` — explicit flattened route row as JSON string scalar wrapping route object — locus: flattened route collection rows; input: parity with pool/peering row unwrap.
+- (candidate) `AzureInventoryRouteTableRouteParser.TryParseFlattenedArmIdValue` — malformed JSON blob containing `/subscriptions/` substring — locus: `NormalizeArmId` fallback; input: `(valid-no-repro)` unless repro found.
+- (candidate) `AzureInventoryLoadBalancerBackendTrafficResolver.BuildLoadBalancerPortByPoolId` — PascalCase `BackendPort` / `BackendAddressPool` — locus: case-insensitive reads; input: `(valid-no-repro)`.
+- (candidate) `AzureInventoryVnetPeeringParser.ParsePeerings` — entire peerings JSON as string scalar wrapping array — locus: root unwrap; input: parity with LB pools whole-array wrap.
+
+
 2026-10-16 seed hunt (seed→hit): `api-governance-tenancy-controllers` — promoted ledger candidate `AgentModelCatalogEvaluationRecorder` logging `ModelCatalogEvaluationRecorded` with display-only `actorUserId` on both audit columns and no `ExplicitActor`, so durable actor correlation missed canonical `jwt:{tid}:{oid}` keys (parity gap vs catalog upsert); inject `IActorContext`, set `ExplicitActor = true` with `GetActorId()` / `GetActor()`; controller `RecordEvaluation` uses `GetAuditActorFields()` for the non-empty actor parameter; regression `RecordTaskEvaluationAsync_sets_explicit_actor_for_stable_actor_user_id_when_display_differs`; `AgentModelCatalogEvaluationRecorderTests` 2/2; seeded five follow-on `(candidate)` rows.
 
 - (candidate) `GovernanceEnvironmentCatalogController.Replace` — `GovernanceEnvironmentCatalogReplaced` audit omits `ExplicitActor` and `IActorContext` actor fields — locus: catalog replace success path; input: display differs from jwt actor key.
