@@ -156,6 +156,16 @@ public sealed class HostedAzureExtractorClient(
             accessToken.Token,
             cancellationToken).ConfigureAwait(false);
 
+        HostedAzureInventoryStaticSiteAndFabricAssociationCollectResult staticSiteAndFabricAssociations =
+            await HostedAzureInventoryStaticSiteAndFabricAssociationCollector.CollectAsync(
+                _armReadClient,
+                accessToken.Token,
+                resources,
+                _logger,
+                cancellationToken).ConfigureAwait(false);
+
+        networkAssociations.AddRange(staticSiteAndFabricAssociations.Associations);
+
         HostedAzureEffectiveNetworkControlCollectResult effectiveNetworkControls = await HostedAzureEffectiveNetworkControlCollector
             .CollectAsync(_armReadClient, accessToken.Token, resources, _logger, cancellationToken)
             .ConfigureAwait(false);
@@ -193,6 +203,7 @@ public sealed class HostedAzureExtractorClient(
             collectionWarnings.Add(AzureInventoryDiagnosticCompletenessWarningCodes.PartialCollection);
         }
 
+        collectionWarnings.AddRange(staticSiteAndFabricAssociations.CollectionWarnings);
         collectionWarnings.AddRange(diagramEnrichment.CollectionWarnings);
         collectionWarnings.AddRange(aksWorkloadImageResult.CollectionWarnings);
 
@@ -410,6 +421,16 @@ public sealed class HostedAzureExtractorClient(
             accessTokenValue,
             cancellationToken).ConfigureAwait(false);
 
+        HostedAzureInventoryStaticSiteAndFabricAssociationCollectResult staticSiteAndFabricAssociations =
+            await HostedAzureInventoryStaticSiteAndFabricAssociationCollector.CollectAsync(
+                _armReadClient,
+                accessTokenValue,
+                resources,
+                _logger,
+                cancellationToken).ConfigureAwait(false);
+
+        networkAssociations.AddRange(staticSiteAndFabricAssociations.Associations);
+
         HostedAzureEffectiveNetworkControlCollectResult effectiveNetworkControls = await HostedAzureEffectiveNetworkControlCollector
             .CollectAsync(_armReadClient, accessTokenValue, resources, _logger, cancellationToken)
             .ConfigureAwait(false);
@@ -447,6 +468,7 @@ public sealed class HostedAzureExtractorClient(
             collectionWarnings.Add(AzureInventoryDiagnosticCompletenessWarningCodes.PartialCollection);
         }
 
+        collectionWarnings.AddRange(staticSiteAndFabricAssociations.CollectionWarnings);
         collectionWarnings.AddRange(diagramEnrichment.CollectionWarnings);
 
         if (request.IncludeCost)

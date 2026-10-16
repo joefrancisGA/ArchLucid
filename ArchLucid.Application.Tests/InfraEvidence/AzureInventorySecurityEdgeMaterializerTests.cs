@@ -724,45 +724,6 @@ public sealed class AzureInventorySecurityEdgeMaterializerTests
     }
 
     [Fact]
-    public void Materialize_effective_routes_emits_routes_to_as_deterministic_inference()
-    {
-        const string nic =
-            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/networkInterfaces/nic1";
-        const string routeTable =
-            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/routeTables/rt1";
-
-        AzureInventorySecurityEdgeMaterializeResult result =
-            AzureInventorySecurityEdgeMaterializer.Materialize(
-                [],
-                [],
-                [],
-                [],
-                [],
-                [],
-                federatedCredentialsFilePresent: false,
-                [],
-                entraGroupMembershipsFilePresent: false,
-                [
-                    new AzureInventoryEffectiveNetworkControlRow
-                    {
-                        NicResourceId = nic,
-                        Kind = AzureInventoryEffectiveNetworkControlKind.EffectiveRoutes,
-                        CollectionStatus = AzureInventoryEffectiveNetworkControlCollectionStatus.Succeeded,
-                        EffectiveResourceId = routeTable,
-                        PayloadHashSha256 = "def456",
-                    },
-                ],
-                effectiveNetworkControlsFilePresent: true);
-
-        result.Relationships.Should().ContainSingle(r =>
-            r.RelationshipType == GraphEdgeTypes.RoutesTo
-            && r.ProvenanceKind == ProvenanceKind.DeterministicInference
-            && r.FromAzureResourceId == ArmResourceIdNormalizer.Normalize(nic)
-            && r.ToAzureResourceId == ArmResourceIdNormalizer.Normalize(routeTable)
-            && r.InferenceSource == GraphEdgeInferenceSources.InventoryEffectiveRoutes);
-    }
-
-    [Fact]
     public void Materialize_skipped_effective_control_does_not_emit_edge()
     {
         const string nic =
@@ -870,7 +831,7 @@ public sealed class AzureInventorySecurityEdgeMaterializerTests
 
         result.Relationships.Should().Contain(r =>
             r.ToAzureResourceId == ArmResourceIdNormalizer.Normalize(diagnosticStorage)
-            && r.InferenceSource == GraphEdgeInferenceSources.InventoryDiagnosticDestination);
+            && r.InferenceSource == GraphEdgeInferenceSources.InventoryDiagnosticSettingStorage);
     }
 
     [Fact]

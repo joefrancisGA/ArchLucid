@@ -59,4 +59,5 @@ describe("resolveInfraEvidenceMermaidRenderStatusPresentation", () => {
       resolveInfraEvidenceMermaidRenderStatusPresentation({ status: "Succeeded", mermaidEmpty: true }).label,
     ).toContain("no diagram content");
   });
+
 });

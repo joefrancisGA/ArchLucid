@@ -44,6 +44,63 @@ describe("resolveInfraEvidenceCompletenessWarningPresentation", () => {
     expect(presentation.detail).toContain("Role definition /providers/Microsoft.Authorization/roleDefinitions/role-1.");
   });
 
+  it("maps AKS insufficient-rbac warnings with remediation copy", () => {
+    const clusterId =
+      "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.ContainerService/managedClusters/aks-maks";
+    const presentation = resolveInfraEvidenceCompletenessWarningPresentation(
+      `aks-workload-images-not-collected-customer-script:insufficient-rbac:${clusterId}`,
+    );
+
+    expect(presentation.title).toContain("insufficient permission");
+    expect(presentation.detail).toContain("runCommand");
+    expect(presentation.detail).toContain("aks-maks");
+    expect(presentation.detail).toContain("Pulls image from");
+  });
+
+  it("maps legacy AKS workload image warning codes", () => {
+    const presentation = resolveInfraEvidenceCompletenessWarningPresentation(
+      "aks-workload-images-not-collected-customer-script",
+    );
+
+    expect(presentation.title).toContain("AKS workload images not collected");
+    expect(presentation.detail).toContain("CustomerScript");
+  });
+
+  it("maps Logic App connection collection permission warnings", () => {
+    const workflowId =
+      "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Logic/workflows/la1";
+    const presentation = resolveInfraEvidenceCompletenessWarningPresentation(
+      `logic-app-connections-not-collected:insufficient-permission:${workflowId}`,
+    );
+
+    expect(presentation.title).toContain("Logic App");
+    expect(presentation.detail).toContain("la1");
+    expect(presentation.detail).toContain("workflows/read");
+  });
+
+  it("maps Fabric capacity assignment warnings", () => {
+    const capacityId =
+      "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Fabric/capacities/cap1";
+    const presentation = resolveInfraEvidenceCompletenessWarningPresentation(
+      `fabric-capacity-assignments-not-collected:insufficient-permission:${capacityId}`,
+    );
+
+    expect(presentation.title).toContain("Fabric");
+    expect(presentation.detail).toContain("cap1");
+    expect(presentation.detail).toContain("Hosts");
+  });
+
+  it("maps static site backend collection warnings", () => {
+    const siteId =
+      "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Web/staticSites/site1";
+    const presentation = resolveInfraEvidenceCompletenessWarningPresentation(
+      `static-site-backends-not-collected:http-error:${siteId}`,
+    );
+
+    expect(presentation.title).toContain("Static Web App");
+    expect(presentation.detail).toContain("site1");
+  });
+
   it("falls back when an unmapped role count is malformed", () => {
     const presentation = resolveInfraEvidenceCompletenessWarningPresentation(
       "rbac-role-unmapped:not-a-count:/providers/Microsoft.Authorization/roleDefinitions/role-1",

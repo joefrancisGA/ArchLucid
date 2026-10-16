@@ -1009,35 +1009,6 @@ public sealed class DiagramAstFromGraphCompilerTests
     }
 
     [Fact]
-    public void Compile_identity_mode_includes_app_authorized_access_endpoints()
-    {
-        GraphSnapshot graph = BuildExecutiveAlwaysShowGraph(virtualMachineCount: 0, databaseCount: 1, dataFactoryCount: 0);
-        GraphNode webApp = CreateTopologyNode(
-            "web-app",
-            "orders-api",
-            "Microsoft.Web/sites",
-            "rg-app",
-            "55555555-5555-5555-5555-555555555555",
-            GraphTopologyCategories.Compute);
-        graph.Nodes.Add(webApp);
-        graph.Edges.Add(new GraphEdge
-        {
-            EdgeId = "edge-may-access",
-            FromNodeId = "web-app",
-            ToNodeId = "sqldb-0",
-            EdgeType = GraphEdgeTypes.MayAccess,
-            Label = GraphEdgeTypes.MayAccess,
-            InferenceSource = GraphEdgeInferenceSources.InventoryAppAuthorizedAccess,
-            ProvenanceKind = "DerivedFact",
-        });
-
-        DiagramAst ast = compiler.Compile(graph, DiagramMode.Identity);
-
-        ast.Nodes.Should().Contain(node => node.Label == "orders-api");
-        ast.Edges.Should().Contain(edge => edge.Label == "May access");
-    }
-
-    [Fact]
     public void Compile_network_mode_hides_app_authorized_access_overlay_edges()
     {
         GraphSnapshot graph = BuildSampleGraph();

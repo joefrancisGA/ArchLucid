@@ -3,6 +3,8 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 
+using ArchLucid.Core.AzureExtractor;
+
 using Microsoft.Extensions.Logging;
 
 namespace ArchLucid.Integrations.AzureExtractor;
@@ -262,7 +264,7 @@ public sealed class HostedAzureManagementPostReadClient(
         };
     }
 
-    public async Task<string?> TryRunAksWorkloadImageCommandAsync(
+    public async Task<HostedAzureAksRunCommandResult> RunAksWorkloadImageCommandAsync(
         string accessToken,
         string clusterResourceId,
         CancellationToken cancellationToken)
@@ -290,8 +292,11 @@ public sealed class HostedAzureManagementPostReadClient(
 
             if (!response.IsSuccessStatusCode)
             {
-                LogAksCommandFailure(clusterResourceId, (int)response.StatusCode, exception: null);
-                return null;
+                int statusCode = (int)response.StatusCode;
+                LogAksCommandFailure(clusterResourceId, statusCode, exception: null);
+                return HostedAzureAksRunCommandResult.Failed(
+                    MapHttpStatusToRunCommandStatus(statusCode),
+                    statusCode);
             }
 
             await using Stream stream =
@@ -299,11 +304,12 @@ public sealed class HostedAzureManagementPostReadClient(
             using JsonDocument commandDocument =
                 await JsonDocument.ParseAsync(stream, cancellationToken: cancellationToken).ConfigureAwait(false);
 
-            string? output = TryReadAksCommandOutput(commandDocument.RootElement);
+            HostedAzureAksRunCommandResult? immediateResult =
+                TryInterpretAksCommandDocument(commandDocument.RootElement);
 
-            if (output is not null)
+            if (immediateResult is not null)
             {
-                return output;
+                return immediateResult;
             }
 
             string? commandResultUrl = TryNormalizeAksCommandResultUrl(
@@ -311,7 +317,7 @@ public sealed class HostedAzureManagementPostReadClient(
 
             if (string.IsNullOrWhiteSpace(commandResultUrl))
             {
-                return null;
+                return HostedAzureAksRunCommandResult.Failed(HostedAzureAksRunCommandStatus.Unavailable);
             }
 
             for (int poll = 0; poll < MaxAksCommandPolls; poll++)
@@ -326,8 +332,11 @@ public sealed class HostedAzureManagementPostReadClient(
 
                 if (!pollResponse.IsSuccessStatusCode)
                 {
-                    LogAksCommandFailure(clusterResourceId, (int)pollResponse.StatusCode, exception: null);
-                    return null;
+                    int statusCode = (int)pollResponse.StatusCode;
+                    LogAksCommandFailure(clusterResourceId, statusCode, exception: null);
+                    return HostedAzureAksRunCommandResult.Failed(
+                        MapHttpStatusToRunCommandStatus(statusCode),
+                        statusCode);
                 }
 
                 await using Stream pollStream =
@@ -336,37 +345,36 @@ public sealed class HostedAzureManagementPostReadClient(
                     await JsonDocument.ParseAsync(pollStream, cancellationToken: cancellationToken)
                         .ConfigureAwait(false);
 
-                output = TryReadAksCommandOutput(pollDocument.RootElement);
+                immediateResult = TryInterpretAksCommandDocument(pollDocument.RootElement);
 
-                if (output is not null)
+                if (immediateResult is not null)
                 {
-                    return output;
+                    return immediateResult;
                 }
 
                 if (IsAksCommandTerminal(pollDocument.RootElement))
                 {
-                    return null;
+                    return HostedAzureAksRunCommandResult.Failed(HostedAzureAksRunCommandStatus.RunCommandFailed);
                 }
             }
+
+            return HostedAzureAksRunCommandResult.Failed(HostedAzureAksRunCommandStatus.PollTimeout);
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
             LogAksCommandFailure(clusterResourceId, statusCode: null, ex);
+            return HostedAzureAksRunCommandResult.Failed(HostedAzureAksRunCommandStatus.Error);
         }
-
-        return null;
     }
 
-    private void LogAksCommandFailure(string clusterResourceId, int? statusCode, Exception? exception)
+    private static HostedAzureAksRunCommandStatus MapHttpStatusToRunCommandStatus(int statusCode)
     {
-        _logger.LogWarning(
-            exception,
-            "Hosted Azure extractor could not collect AKS workload images for {ClusterResourceId}. StatusCode={StatusCode}.",
-            clusterResourceId,
-            statusCode);
+        return statusCode is 401 or 403
+            ? HostedAzureAksRunCommandStatus.InsufficientRbac
+            : HostedAzureAksRunCommandStatus.HttpError;
     }
 
-    private static string? TryReadAksCommandOutput(JsonElement root)
+    private static HostedAzureAksRunCommandResult? TryInterpretAksCommandDocument(JsonElement root)
     {
         if (!root.TryGetProperty("properties", out JsonElement properties)
             || properties.ValueKind is not JsonValueKind.Object)
@@ -376,6 +384,18 @@ public sealed class HostedAzureManagementPostReadClient(
 
         string? provisioningState = TryReadString(properties, "provisioningState");
 
+        if (string.IsNullOrWhiteSpace(provisioningState))
+        {
+            return null;
+        }
+
+        if (string.Equals(provisioningState, "Failed", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(provisioningState, "Canceled", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(provisioningState, "Cancelled", StringComparison.OrdinalIgnoreCase))
+        {
+            return HostedAzureAksRunCommandResult.Failed(HostedAzureAksRunCommandStatus.RunCommandFailed);
+        }
+
         if (!string.Equals(provisioningState, "Succeeded", StringComparison.OrdinalIgnoreCase))
         {
             return null;
@@ -383,12 +403,23 @@ public sealed class HostedAzureManagementPostReadClient(
 
         if (!properties.TryGetProperty("logs", out JsonElement logsElement))
         {
-            return null;
+            return HostedAzureAksRunCommandResult.Failed(HostedAzureAksRunCommandStatus.MissingLogs);
         }
 
-        return logsElement.ValueKind is JsonValueKind.String
+        string logs = logsElement.ValueKind is JsonValueKind.String
             ? logsElement.GetString() ?? string.Empty
             : string.Empty;
+
+        return HostedAzureAksRunCommandResult.SucceededWithLogs(logs);
+    }
+
+    private void LogAksCommandFailure(string clusterResourceId, int? statusCode, Exception? exception)
+    {
+        _logger.LogWarning(
+            exception,
+            "Hosted Azure extractor could not collect AKS workload images for {ClusterResourceId}. StatusCode={StatusCode}.",
+            clusterResourceId,
+            statusCode);
     }
 
     private static bool IsAksCommandTerminal(JsonElement root)
