@@ -164,11 +164,20 @@ public static class AzureInventoryRouteTableRouteParser
             return NormalizeArmId(valueElement.GetString());
         }
 
-        if (valueElement.ValueKind is JsonValueKind.Object
-            && valueElement.TryGetProperty("id", out JsonElement idElement)
-            && idElement.ValueKind is JsonValueKind.String)
+        if (valueElement.ValueKind is JsonValueKind.Object)
         {
-            return NormalizeArmId(idElement.GetString());
+
+            foreach (JsonProperty property in valueElement.EnumerateObject())
+            {
+
+                if (!property.Name.Equals("id", StringComparison.OrdinalIgnoreCase)
+                    || property.Value.ValueKind is not JsonValueKind.String)
+                {
+                    continue;
+                }
+
+                return NormalizeArmId(property.Value.GetString());
+            }
         }
 
         return null;

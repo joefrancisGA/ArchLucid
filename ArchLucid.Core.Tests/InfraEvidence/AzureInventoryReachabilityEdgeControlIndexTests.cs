@@ -159,6 +159,51 @@ public sealed class AzureInventoryReachabilityEdgeControlIndexTests
     }
 
     [Fact]
+    public void SubnetRequiresEdgeControlEvidence_false_when_routes_json_next_hop_uses_pascal_case_id_property()
+    {
+        string vnet = BuildVnet("vnet");
+        string subnet = BuildSubnet(vnet, "app");
+        string routeTable = BuildRouteTable("routes");
+        string nva = BuildNetworkVirtualAppliance("nva");
+
+        Dictionary<string, AzureInventoryReachabilityResourceProperties> resources =
+            new(StringComparer.OrdinalIgnoreCase)
+            {
+                [routeTable] = new AzureInventoryReachabilityResourceProperties
+                {
+                    ResourceType = "Microsoft.Network/routeTables",
+                    Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["routes"] = $$"""
+                            [
+                              {
+                                "properties": {
+                                  "addressPrefix": "10.0.0.0/8",
+                                  "nextHopType": "VirtualAppliance",
+                                  "nextHop": { "Id": "{{nva}}" }
+                                }
+                              }
+                            ]
+                            """,
+                    },
+                },
+                [nva] = new AzureInventoryReachabilityResourceProperties
+                {
+                    ResourceType = "Microsoft.Network/networkVirtualAppliances",
+                    Properties = new Dictionary<string, string>(),
+                },
+            };
+
+        AzureInventoryReachabilityEdgeControlIndex index = AzureInventoryReachabilityEdgeControlIndex.Build(
+        [
+            new AzureInventoryRelationshipArmTriple(subnet, routeTable, "inventory-subnet-route-table"),
+        ], resources);
+
+        index.SubnetRequiresEdgeControlEvidence(subnet).Should().BeFalse(
+            "routes JSON nextHop objects must accept Id casing variants from ARM exports");
+    }
+
+    [Fact]
     public void AssetDeclaredBehindFrontDoor_true_for_front_door_origin_relationship()
     {
         string app = BuildWebApp("api");
