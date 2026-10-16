@@ -1,5 +1,14 @@
 > **Scope:**
 
+2026-10-16 seed hunt (seed→hit): `archlucid-core` — promoted explicit flattened `inventory.policy.route.{index}` row blobs stored as JSON string scalars wrapping full route objects (per-row double-encoding) ignored because `CollectExplicitRouteIndexes` only indexed suffixed keys (`.addressPrefix`, etc.); index bare row keys, parse row JSON via `TryParseRouteFromFlattenedRowBlob` + existing `TryParseRouteFromRouteElement`; regression `Parse_reads_explicit_flattened_route_when_row_is_json_string_scalar_wrapping_route_object`; route-table parser tests 16/16; seeded five follow-on `(candidate)` rows.
+
+- (candidate) `AzureInventoryRouteTableRouteParser.Parse` — `routes` JSON double-encoded twice at root — locus: nested root string recursion; input: cheap-disproof (already recursive).
+- (candidate) `AzureInventoryVnetPeeringParser.ParsePeerings` — peerings JSON double-encoded twice at root — locus: nested root string recursion; input: cheap-disproof (already recursive).
+- (candidate) `AzureInventoryRouteTableRouteParser.TryParseFlattenedArmIdValue` — malformed JSON blob containing `/subscriptions/` substring — locus: `NormalizeArmId` fallback; input: `(valid-no-repro)` unless repro found.
+- (candidate) `AzureInventoryLoadBalancerBackendTrafficResolver.BuildLoadBalancerPortByPoolId` — PascalCase `BackendPort` / `BackendAddressPool` — locus: case-insensitive reads; input: `(valid-no-repro)`.
+- (candidate) `AzureInventoryRouteTableRouteParser.TryParseRouteFromRouteElement` — route row blob without `properties` bag at root — locus: flat route object; input: parity with routes JSON flat rows.
+
+
 2026-10-16 seed hunt (seed→hit): `api-governance-tenancy-controllers` — promoted `GovernanceResolutionController.Resolve` logging `GovernanceResolutionExecuted` / `GovernanceConflictDetected` without `ExplicitActor` or `IActorContext`, so durable actor correlation missed canonical `jwt:{tid}:{oid}` keys; inject `IActorContext`, `GetAuditActorFields()`, `ExplicitActor = true` on both audit events; regression `Resolve_sets_explicit_actor_for_stable_actor_user_id_when_display_differs`; `GovernanceResolutionController` unit + audit tests 4/4 (SQL integration baseline excluded); seeded five follow-on `(candidate)` rows.
 
 - (candidate) `GovernancePreCommitSimulationController` — pre-commit simulation audit without explicit actor — locus: post-simulation `LogAsync`; input: jwt actor key parity.
