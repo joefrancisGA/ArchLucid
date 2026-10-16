@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import type { WizardEvidenceUploadTrackState } from "@/components/wizard/steps/WizardPostCreateEvidenceUploadPanel";
 import type { ApiProblemDetails } from "@/lib/api-problem";
@@ -49,22 +49,31 @@ export function useNewRunWizardPendingEvidence(options: PendingEvidenceOptions) 
   const [evidenceUploadState, setEvidenceUploadState] = useState<WizardEvidenceUploadTrackState>("idle");
   const [evidenceUploadProgressPercent, setEvidenceUploadProgressPercent] = useState<number | null>(null);
   const [evidenceUploadError, setEvidenceUploadError] = useState<PendingEvidenceUploadFailure | null>(null);
+  const inventoryPlatformDetectionGenerationRef = useRef(0);
 
   const handlePendingEvidenceFileChange = useCallback(
     (file: File | null) => {
       setPendingEvidenceFile(file);
 
       if (file === null) {
+        inventoryPlatformDetectionGenerationRef.current += 1;
         setPendingInventoryPlatform(null);
         setInventoryPlatformDetectionPending(false);
 
         return;
       }
 
+      const detectionGeneration = inventoryPlatformDetectionGenerationRef.current + 1;
+      inventoryPlatformDetectionGenerationRef.current = detectionGeneration;
+      setPendingInventoryPlatform(null);
       setInventoryPlatformDetectionPending(true);
 
       void (async () => {
         const platform = await detectTier1InventoryPlatformFromFile(file);
+
+        if (inventoryPlatformDetectionGenerationRef.current !== detectionGeneration) {
+          return;
+        }
 
         setInventoryPlatformDetectionPending(false);
 

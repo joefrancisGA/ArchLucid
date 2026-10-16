@@ -234,6 +234,57 @@ describe("useNewRunWizardPendingEvidence (TB-2246)", () => {
     });
   });
 
+  it("ignores stale inventory platform detection when the pending ZIP is replaced before classification finishes", async () => {
+    let resolveFirst!: (platform: "aws" | "azure" | "gcp" | null) => void;
+    const firstDetection = new Promise<"aws" | "azure" | "gcp" | null>((resolve) => {
+      resolveFirst = resolve;
+    });
+    let resolveSecond!: (platform: "aws" | "azure" | "gcp" | null) => void;
+    const secondDetection = new Promise<"aws" | "azure" | "gcp" | null>((resolve) => {
+      resolveSecond = resolve;
+    });
+
+    vi.mocked(detectTier1InventoryPlatformFromFile)
+      .mockReturnValueOnce(firstDetection)
+      .mockReturnValueOnce(secondDetection);
+
+    const onInventoryFileSelected = vi.fn();
+    const firstFile = buildAwsInventoryZipFile();
+    const secondFile = new File([firstFile], "replacement-package.zip", { type: firstFile.type });
+
+    const { result } = renderHook(() =>
+      useNewRunWizardPendingEvidence({
+        runId: null,
+        autoUploadOnCreate: false,
+        onInventoryFileSelected,
+      }),
+    );
+
+    act(() => {
+      result.current.handlePendingEvidenceFileChange(firstFile);
+      result.current.handlePendingEvidenceFileChange(secondFile);
+    });
+
+    await act(async () => {
+      resolveFirst("aws");
+      await firstDetection;
+      await Promise.resolve();
+    });
+
+    expect(onInventoryFileSelected).not.toHaveBeenCalled();
+
+    await act(async () => {
+      resolveSecond("azure");
+      await secondDetection;
+      await Promise.resolve();
+    });
+
+    await waitFor(() => {
+      expect(onInventoryFileSelected).toHaveBeenCalledTimes(1);
+      expect(onInventoryFileSelected).toHaveBeenCalledWith("azure");
+    });
+  });
+
   it("retains pending inventory selection in hook state for post-submit upload retries", async () => {
     vi.mocked(detectTier1InventoryPlatformFromFile).mockResolvedValue("aws");
 

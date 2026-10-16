@@ -1,3 +1,4 @@
+2026-10-16 thorough hunt (hit): `ui-review-intake-wizards` — proved stale asynchronous inventory ZIP platform detection could apply the first file's platform after the operator replaced the pending evidence file; generation-guarded detection now clears the prior platform and ignores superseded results; regression `ignores stale inventory platform detection when the pending ZIP is replaced before classification finishes`; cheap-disproved four open picker `(candidate)` rows (guided draft view/URL sync, query-prefill ordering, path-switch `rerun` retention, post-create session cleanup); 160 scoped `reviews/new` vitest tests passed with 71 pre-existing baseline failures.
 2026-10-16 thorough hunt (hit): `core-configuration-summary` — proved `AzureOpenAiEndpointNormalizer.EnsureTrailingSlash` appended `/` after the query on `*.cognitiveservices.azure.com` endpoints; path slash now inserted before `?`; proved `ConfigurationSensitiveConfigPathMatcher` treated the `Secrets` section segment as credential material and redacted `ArchLucid:Secrets:Provider` / `KeyVaultUri` / `KeyVaultCacheSeconds` metadata; plural `Secrets` container is now negated for the `Secret` fragment; cheap-disproved `QuickScanEffectiveLimits.Merge` identity-cap omission because anonymous enforcement reads `QuickScanSafetyOptions.Identity` via `QuickScanIdentityAbuseService` when safety is enabled; regressions `NormalizeForChatCompletions_appends_trailing_slash_to_path_before_query_on_cognitiveservices_host`, `Resolve_preserves_archlucid_secrets_section_metadata_scalars`, and `Merge_leaves_identity_limits_on_options_when_safety_enabled_because_identity_abuse_reads_safety_identity`; 1087 scoped Configuration tests passed (`RunAnalyzers=false`).
 2026-10-16 seed hunt (seed-only): `security-analyzers` — re-read `RequireAuthorizationAnalyzer`, `TenantIdentityBoundaryAnalyzer`, and `MutatingControllerAuditAnalyzer` after recent churn; no hunt-ready row promoted; cheap-disproved AL0001 symmetry gap for interface `[AllowAnonymous]` on inherited actions (`ActionHasAuthorization` already walks interface members); regression `Does_not_report_derived_controller_when_inherited_action_is_allow_anonymous_on_interface`; seeded five `(candidate)` rows; 90 scoped analyzer tests passed (`RunAnalyzers=false`).
 2026-10-16 seed hunt (seed→hit): `application-analysis` — promoted `ReplayComparisonExportsDiffSlice.BuildExportPairingKey` treating dashed vs N-format `CompareRunId` as distinct export pairing keys (false missing-export warnings on end-to-end replay); normalize via `AnalysisRunIdCanonicalization` before pairing; regression `BuildExportPairingKey_treats_equivalent_compare_run_ids_as_same_pairing_key`; cheap-disproved `ComparisonReplayManifestHashGuard` dashed run id sealed-hash skip (`Guid.TryParse` accepts both formats); 46 scoped ArchitectureAnalysis/CompareQuality/ReplayComparisonExportsDiffSlice filter tests passed.
@@ -9306,7 +9307,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **hunts:** 37
 - **bugs-found:** 22
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-09
+- **last-hunt:** 2026-10-16
 - **last-bug:** 2026-10-09 — nested local functions and expression-bodied properties bypassed ARCH006
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -19128,7 +19129,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **paths:** ArchLucid.AgentRuntime/Evaluation/
 - **test-filter:** FullyQualifiedName~Evaluation
 - **hunts:** 53
-- **bugs-found:** 31
+- **bugs-found:** 32
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-12
 - **last-bug:** 2026-10-10 — reference-case catalog stayed empty after configuration enablement
@@ -39753,7 +39754,7 @@ ABQ-09 churn hotspot; review detail route tree.
 
 ## Zone: ui-review-intake-wizards
 
-**Hunts:** 60 · **Bugs found:** 31 · **Consecutive dry hunts:** 1
+**Hunts:** 61 · **Bugs found:** 32 · **Consecutive dry hunts:** 0
 
 2026-10-09 seed hunt (seed-only): `ui-review-intake-wizards` — re-read full and quick submit orchestration, draft admission, evidence handoff, and scope-gate URL synchronization; no new hypothesis met the same-run failing-repro bar without repeating a saturated unhandled-rejection or post-create handoff class. Seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
 
@@ -39826,7 +39827,7 @@ ABQ-09 churn hotspot; review detail route tree.
 - [ ] (candidate) `ReviewsNewPathSwitcher.selectPath` — switching from guided to full wizard may leave `intakeStep` in the URL until the switcher clears guided params — locus: `ReviewsNewPathSwitcher.tsx` + `reviews-new-path-switcher-state.ts`; input: `path=detailed` while `intakeStep=1` still present until switcher runs.
 - [ ] (candidate) `useNewRunWizardLlmBudgetGate` — blocks submit on full wizard track step while quick mode bypasses the same gate — locus: `use-new-run-wizard-llm-budget-gate.ts` vs quick client wiring; input: quick spawn with exhausted monthly budget still allows rule simulation CTA.
 - [ ] (candidate) `useGuidedIntakeBriefForm` / `mergeScopeIntoBrief` — scope bullets merged into admission text may double-append on second admission attempt — locus: `use-guided-intake-brief-form.ts`; input: operator re-opens scope gate after failed admit and retries `runAdmission`.
-- [ ] (candidate) `useNewRunWizardPendingEvidence.handlePendingEvidenceFileChange` — an earlier asynchronous ZIP platform detection can apply its result after the operator replaces the selected inventory file — locus: `use-new-run-wizard-pending-evidence.ts` ~44–72; input: select a tier-1 Azure ZIP, then select a non-inventory document before the first ZIP inspection resolves.
+- [x] (proven) `useNewRunWizardPendingEvidence.handlePendingEvidenceFileChange` — superseded asynchronous ZIP platform detection — **hit 2026-10-16 thorough hunt:** same fix as picker row; regression `ignores stale inventory platform detection when the pending ZIP is replaced before classification finishes`.
 - [ ] (candidate) `useGuidedIntakeDraftCreate` — the draft-status hydration effect reads a draft without a rejection handler — locus: `use-guided-intake-draft-create.ts` ~193–202; input: restored or newly assigned `draftId` with `draftStatus === null` followed by a rejected `getDraftRequest`.
 - [ ] (candidate) `useFirstPilotIntakeSubmit.tryBuildIntakeContextDocuments` — evidence document extraction failures are converted to an empty document list and the run is still created — locus: `use-first-pilot-intake-submit.ts` ~32–40 and submit body construction; input: a reachable unreadable or unsupported architecture document selected in quick start.
 - [ ] (candidate) `useFirstPilotIntakeSubmit` — failure persisting coverage acknowledgement occurs after the review is created but leaves the created run undiscoverable by the submit flow — locus: `use-first-pilot-intake-submit.ts` ~126–140; input: successful `createArchitectureRun` followed by a rejected `persistSessionRunCoverageAcknowledgement`.
@@ -39888,7 +39889,7 @@ ABQ-09 churn hotspot; review detail route tree.
 - **aliases:** review intake; new review wizard
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/new/
 - **test-filter:** FullyQualifiedName~reviews/new
-- **hunts:** 59
+- **hunts:** 61
 - **bugs-found:** 31
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-09
@@ -39915,15 +39916,17 @@ ABQ-09 churn hotspot; review detail route tree.
 
 ABQ-09 churn hotspot; intake wizard route tree.
 
+2026-10-16 thorough hunt (hit): `useNewRunWizardPendingEvidence` stale ZIP platform detection; 160 scoped reviews/new vitest passed (71 pre-existing failures).
+
 2026-10-10 seed hunt (seed-only): reread the route’s intake, wizard-mode, synopsis, and path-switcher files; no new row met the full hunt-ready bar and no hypothesis was promoted. Seeded five bounded `(candidate)` rows. The focused `reviews/new` scope ran 225 tests: 154 passed and 71 failed on existing wizard/path-switcher/deferred-import baseline failures.
 
 ### Hypotheses
 
-- [ ] (candidate) `useGuidedIntakeDraftWorkflow` — restoring a saved guided-intake draft can apply persisted view state before current `path`/`intakeStep` URL state finishes synchronizing, so browser navigation can show a stale panel with current draft values — locus: session restore and view/step synchronization; input: restore a saved draft while navigating between guided-intake steps.
-- [ ] (candidate) `useNewRunWizardPendingEvidence` — a pending evidence retry can reuse the prior detected inventory platform while a replacement file is still being classified, so a second upload can be sent to the wrong platform endpoint — locus: pending-file/platform detection state and auto-upload effect; input: replace a pending inventory ZIP during in-flight platform detection.
-- [ ] (candidate) `useNewRunWizardQueryPrefill` — accelerator, preset, and policy-pack deeplinks can apply in an order that preserves the wrong policy references after a step or mode URL transition — locus: guarded prefill effects and reset/reapply sequence; input: deep link with `accelerator`, `preset`, `policyPackId`, and `step` together.
-- [ ] (candidate) `ReviewsNewPathSwitcher.selectPath` — switching from guided intake to templates can preserve an intake query key that changes the next wizard’s initial mode after the visible path is canonicalized — locus: path-switch query deletion set; input: switch paths with `rerun`, `baseline`, or another intake-only query key present.
-- [ ] (candidate) `useFirstPilotIntakeSubmit` — a post-create session-storage cleanup failure can report quick-start as failed after the review exists, leaving the created review without its navigation target — locus: cleanup awaited in the successful-submit branch; input: successful create with denied or quota-exhausted session storage.
+- [x] (valid-no-repro) `useGuidedIntakeDraftWorkflow` — restoring a saved guided-intake draft can apply persisted view state before current `path`/`intakeStep` URL state finishes synchronizing — **cheap-disproof 2026-10-16 thorough hunt:** session restore rewinds confirm bookmarks and URL sync rewrites `intakeStep` before hydration; regressions in `use-guided-intake-wizard.session-restore.test.ts` and `use-guided-intake-wizard.intake-step-url.test.ts`.
+- [x] (proven) `useNewRunWizardPendingEvidence` — stale asynchronous ZIP platform detection applied the prior file's platform after the operator replaced the pending inventory file — **hit 2026-10-16 thorough hunt:** generation-guarded detection clears superseded platforms; regression `ignores stale inventory platform detection when the pending ZIP is replaced before classification finishes`.
+- [x] (valid-no-repro) `useNewRunWizardQueryPrefill` — accelerator, preset, and policy-pack deeplinks can apply in an order that preserves the wrong policy references — **cheap-disproof 2026-10-16 thorough hunt:** policy pack is reapplied after accelerator/preset `reset` (2026-10-08 hit); focused prefill tests in `use-new-run-wizard-query-prefill.test.ts` cover combined deeplinks.
+- [x] (valid-no-repro) `ReviewsNewPathSwitcher.selectPath` — switching from guided intake to templates can preserve an intake-only query key — **cheap-disproof 2026-10-16 thorough hunt:** `baseline`/`preset` intentionally select the detailed wizard; `intakeStep`/`scopeGate` are deleted when leaving guided intake; `rerun` is consumed only by guided-intake prefill hooks.
+- [x] (invalid) `useFirstPilotIntakeSubmit` — post-create session-storage cleanup failure reports quick-start as failed after the review exists — **cheap-disproof 2026-10-16 thorough hunt:** `clearWizardSession` runs after `creationProgress.succeed()` and is not awaited; coverage acknowledgement failures are the guarded post-create branch; regression `clears wizard session after post-create evidence upload attempt finishes` in `use-first-pilot-intake-submit.test.ts`.
 
 - [x] (proven) `useGuidedIntakeBriefForm` — starter `preset=` overwrote `template=` / `example=` brief fields — **hit 2026-10-09 seed hunt (seed→hit):** skip starter prefill when an example template is present; regression `keeps the example template brief when a starter preset is also on the guided intake URL`.
 - [x] (proven) `useGuidedIntakeDraftCreate` — source-architecture `getDraftRequest` rejection escaped the effect, leaving the wizard without an error state and producing an unhandled rejection — **hit 2026-10-09 seed hunt:** map source-load failures through `architectureDraftBlockedReason` and set `submitError`; regression `reports a source-architecture load failure instead of leaving an unhandled rejection`.
