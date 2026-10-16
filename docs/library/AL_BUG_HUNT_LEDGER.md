@@ -1,5 +1,13 @@
 > **Scope:**
 
+2026-10-16 seed hunt (seed→hit): `archlucid-core` — promoted explicit flattened `inventory.policy.route.*.nextHop` reference blobs ignored because `ParseExplicitRouteProperties` only read `.nextHopArmId`, so NR-02 flattened route tables that mirror ARM `nextHop` linkage missed virtual-appliance next hops; add `RouteNextHopReferenceSuffix`, index collection, and `TryParseFlattenedNextHopArmId` fallback through `TryParseFlattenedArmIdValue`; regression `Parse_reads_next_hop_arm_id_when_explicit_flattened_next_hop_reference_object_is_on_next_hop_key`; route-table + LB backend core tests 46/46; seeded five follow-on `(candidate)` rows.
+
+- (candidate) `AzureInventoryRouteTableRouteParser.TryParseFlattenedArmIdValue` — double-encoded JSON string scalar for flattened `nextHopArmId` — locus: property value quoted twice; input: `JsonSerializer.Serialize` twice.
+- (candidate) `AzureInventoryRouteTableRouteParser` — explicit flattened `.nextHop` JSON string scalar wrapping id object — locus: `.nextHop` key; input: parity with `nextHopArmId` scalar fix.
+- (candidate) `AzureInventoryApplicationGatewayBackendAddressReader` — flat `backendResourceId` reference object at address root — locus: flat branch; input: cheap-disproof vs shared reader.
+- (candidate) `AzureInventoryLoadBalancerBackendTrafficResolver.BuildLoadBalancerPortByPoolId` — PascalCase `BackendPort` / `BackendAddressPool` — locus: case-insensitive reads; input: `(valid-no-repro)`.
+- (candidate) `AzureInventoryRouteTableRouteParser` — explicit flattened route index discovery when only `.nextHop` key present without type/prefix — locus: `CollectExplicitRouteIndexes`; input: already indexed via new suffix.
+
 2026-10-16 seed hunt (seed→hit): `archlucid-core` — promoted `AzureInventoryNetworkInterfaceIpConfigurationReferenceReader.TryReadDirectId` (and LB `TryReadDirectId` duplicates) treating `backendIPConfigurations[].id` JSON string scalars wrapping `{ "id": "..." }` as opaque text, so parent NIC ARM ids were not resolved for double-encoded hosted pool members; recurse `id` values through `TryReadArmId`; delegate LB resolvers to shared reader; regression `ResolveLoadBalancerBackends_reads_backend_when_backend_ip_configuration_id_is_json_string_scalar_wrapping_id_object`; route-table + LB backend + parent resolver core tests 45/45; seeded five follow-on `(candidate)` rows.
 
 - (candidate) `AzureInventoryRouteTableRouteParser` — explicit flattened `.nextHop` reference object key (not `.nextHopArmId`) — locus: `ParseExplicitRouteProperties`; input: parity with routes JSON `nextHop` property.
