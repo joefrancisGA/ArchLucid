@@ -1,3 +1,4 @@
+2026-10-16 seed hunt (seed→hit): `api-governance-tenancy-controllers` — promoted `GovernanceWorkflowAuditSupport.LogDryRunValidationAttemptedForPromotionAsync` (and approval dry-run sibling) omitting `ExplicitActor` on `GovernanceDryRunValidationAttempted` audits; set `ExplicitActor = true`; regression `LogDryRunValidationAttemptedForPromotionAsync_sets_explicit_actor_for_stable_promoted_by`; `GovernanceWorkflowAuditSupportTests` 3/3; seeded five follow-on `(candidate)` rows.
 2026-10-16 seed hunt (seed→hit): `archlucid-core` — promoted `AzureInventoryVnetCustomDnsIndex.TryReadCustomDnsServers` comma-splitting flattened `dhcpOptions.dnsServers` JSON array text (e.g. `["168.63.129.16"]`) into bracketed pseudo-addresses and falsely flagging custom DNS; parse JSON array flat values via `TryParseDnsServersFromJson`; regressions `VnetUsesCustomDns_false_when_flat_dns_servers_is_json_array_of_only_azure_default` and `VnetUsesCustomDns_true_when_flat_dns_servers_is_json_array_with_custom_resolver`; `AzureInventoryVnetCustomDnsIndexTests` 11/11; seeded five follow-on `(candidate)` rows.
 2026-10-16 seed hunt (seed→hit): `archlucid-core` — promoted `AzureInventoryComputeIdentityPrincipalIndex.TryParseIdentityPrincipalIds` ignoring PascalCase `PrincipalId` on compute `identity` JSON (principal→compute index false negative); case-insensitive property reads; regression `BuildPrincipalToComputeArmIds_reads_pascal_case_principal_id_property`; `AzureInventoryComputeIdentityPrincipalIndexTests` 2/2; seeded five follow-on `(candidate)` rows.
 2026-10-16 seed hunt (seed→hit): `api-governance-tenancy-controllers` — promoted `GovernanceWorkflowAuditSupport.CreateGovernanceManifestPromotedAuditEvent` / `CreateGovernanceEnvironmentActivatedAuditEvent` omitting `ExplicitActor`, so `AuditService` replaced `ActorUserId` with `ClaimTypes.NameIdentifier` while promotion records store jwt actor keys; set `ExplicitActor = true` on durable promotion/activation audits; regressions `CreateGovernanceManifestPromotedAuditEvent_sets_explicit_actor_for_stable_promoted_by` and `CreateGovernanceEnvironmentActivatedAuditEvent_sets_explicit_actor_for_stable_activated_by`; scoped Governance/Tenancy controller filter 143 passed, 18 SQL integration failures (Linux VM baseline); seeded five follow-on `(candidate)` rows.
@@ -35743,6 +35744,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ## Zone: api-governance-tenancy-controllers
 
+2026-10-16 seed hunt (seed→hit): promoted missing `ExplicitActor` on dry-run governance validation audits; 3/3 workflow audit support tests.
+
 2026-10-16 seed hunt (seed→hit): promoted missing `ExplicitActor` on durable promotion/activation governance audits; 2 Application workflow audit support tests; 143/161 scoped controller tests (18 SQL integration baseline).
 
 2026-10-15 seed hunt (seed→hit): promoted `GovernanceController.Promote` / `Activate` actor propagation; regressions `Promote_passes_actor_context_id_to_workflow_when_display_name_differs` and `Activate_passes_actor_context_id_to_workflow_when_display_name_differs`; 143 scoped Governance/Tenancy controller unit tests passed (18 SQL integration unavailable on Linux VM).
@@ -35773,11 +35776,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** governance controllers; tenancy controllers; retired mega-zone
 - **paths:** docs/library/AL_BUG_HUNT_LEDGER.md
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 328
+- **hunts:** 329
 - **last-hunt:** 2026-10-15
-- **bugs-found:** 523
+- **bugs-found:** 524
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-16 — promotion/activation durable audits omitted ExplicitActor
+- **last-bug:** 2026-10-16 — dry-run governance validation audits omitted ExplicitActor
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -35798,7 +35801,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - [x] (proven) `GovernanceWorkflowAuditSupport.CreateGovernanceManifestPromotedAuditEvent` / `CreateGovernanceEnvironmentActivatedAuditEvent` — durable audits omitted `ExplicitActor` — **hit 2026-10-16 seed hunt:** `ExplicitActor = true` preserves jwt actor key on `ActorUserId`; regressions in `GovernanceWorkflowAuditSupportTests`.
 - (candidate) `GovernanceController.SubmitApprovalRequest` — `requestedBy` argument to `SubmitApprovalRequestAsync` still uses `GetActor()` for the persisted `RequestedBy` display column while audits use `GetActorId()` — locus: `GovernanceController.ApprovalRequests.Create.cs`; input: operator with display name distinct from jwt actor key.
-- (candidate) `GovernanceWorkflowAuditSupport.LogDryRunValidationAttemptedForPromotionAsync` — dry-run promotion validation audits omit `ExplicitActor` — locus: `scope.CreateAuditEvent`; input: `POST /v1/governance/promotions?dryRun=true` with actor key promotedBy.
+- [x] (proven) `GovernanceWorkflowAuditSupport.LogDryRunValidationAttemptedForPromotionAsync` — dry-run validation audits omitted `ExplicitActor` — **hit 2026-10-16 seed hunt:** `ExplicitActor = true` on promotion (and approval) dry-run paths; regression `LogDryRunValidationAttemptedForPromotionAsync_sets_explicit_actor_for_stable_promoted_by`.
 - (candidate) `GovernanceController.SubmitApprovalRequest` — `requestedBy` persisted column still uses `GetActor()` display name while audits use `GetActorId()` — locus: `GovernanceController.ApprovalRequests.Create.cs`; input: approval request POST with distinct display name.
 - (candidate) `GovernanceWorkflowAuditSupport.BuildGovernanceReviewAuditEvent` — approve/reject durable audits omit `ExplicitActor` — locus: review audit builder; input: governance approval review with jwt actor key.
 - (candidate) `GovernanceWorkflowAuditSupport.CreateGovernanceApprovalSubmittedAuditEvent` — submitted durable audit omits `ExplicitActor` — locus: submit stage audit factory; input: workflow submit with actor key requestedBy.
