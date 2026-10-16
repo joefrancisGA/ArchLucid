@@ -91,6 +91,30 @@ public sealed class AzureInventoryRouteTableRouteParserTests
     }
 
     [Fact]
+    public void Parse_reads_routes_when_flattened_property_key_uses_pascal_case_routes()
+    {
+        Dictionary<string, string> properties = new(StringComparer.Ordinal)
+        {
+            ["Routes"] =
+                """
+                [
+                  {
+                    "properties": {
+                      "addressPrefix": "0.0.0.0/0",
+                      "nextHopType": "VirtualNetworkGateway"
+                    }
+                  }
+                ]
+                """,
+        };
+
+        IReadOnlyList<AzureInventoryRouteTableRoute> routes = AzureInventoryRouteTableRouteParser.Parse(properties);
+
+        routes.Should().ContainSingle();
+        routes[0].NextHopType.Should().Be("VirtualNetworkGateway");
+    }
+
+    [Fact]
     public void Parse_reads_routes_when_route_fields_are_on_route_element_without_properties_bag()
     {
         Dictionary<string, string> properties = new(StringComparer.Ordinal)

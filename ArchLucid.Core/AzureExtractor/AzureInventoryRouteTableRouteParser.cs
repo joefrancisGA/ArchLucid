@@ -21,13 +21,40 @@ public static class AzureInventoryRouteTableRouteParser
             return explicitRoutes;
         }
 
-        if (!properties.TryGetValue("routes", out string? routesJson)
-            || string.IsNullOrWhiteSpace(routesJson))
+        if (!TryGetRoutesJson(properties, out string? routesJson))
         {
             return [];
         }
 
-        return ParseRoutesJson(routesJson);
+        return ParseRoutesJson(routesJson!);
+    }
+
+    private static bool TryGetRoutesJson(
+        IReadOnlyDictionary<string, string> properties,
+        out string? routesJson)
+    {
+        if (properties.TryGetValue("routes", out routesJson) && !string.IsNullOrWhiteSpace(routesJson))
+        {
+            return true;
+        }
+
+        foreach ((string propertyKey, string propertyValue) in properties)
+        {
+
+            if (!propertyKey.Equals("routes", StringComparison.OrdinalIgnoreCase)
+                || string.IsNullOrWhiteSpace(propertyValue))
+            {
+                continue;
+            }
+
+            routesJson = propertyValue;
+
+            return true;
+        }
+
+        routesJson = null;
+
+        return false;
     }
 
     private static List<AzureInventoryRouteTableRoute> ParseExplicitRouteProperties(
