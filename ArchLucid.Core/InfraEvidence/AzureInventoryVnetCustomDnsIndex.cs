@@ -102,7 +102,7 @@ public sealed class AzureInventoryVnetCustomDnsIndex
                 AppendDnsServersFromJsonArray(root, dnsServers);
             }
             else if (root.ValueKind is JsonValueKind.Object
-                     && root.TryGetProperty("dnsServers", out JsonElement serversElement))
+                     && TryGetPropertyIgnoreCase(root, "dnsServers", out JsonElement serversElement))
             {
                 if (serversElement.ValueKind is JsonValueKind.String)
                 {
@@ -144,6 +144,29 @@ public sealed class AzureInventoryVnetCustomDnsIndex
                 }
             }
         }
+    }
+
+    private static bool TryGetPropertyIgnoreCase(
+        JsonElement element,
+        string propertyName,
+        out JsonElement value)
+    {
+        foreach (JsonProperty property in element.EnumerateObject())
+        {
+
+            if (!property.Name.Equals(propertyName, StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            value = property.Value;
+
+            return true;
+        }
+
+        value = default;
+
+        return false;
     }
 
     private static void AppendDnsServersFromDelimitedString(string? servers, List<string> dnsServers)

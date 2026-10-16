@@ -1,3 +1,4 @@
+2026-10-16 seed hunt (seed→hit): `archlucid-core` — promoted `AzureInventoryVnetCustomDnsIndex.TryParseDnsServersFromJson` ignoring PascalCase `DnsServers` in `dhcpOptions` JSON (`TryGetProperty` is case-sensitive); case-insensitive `dnsServers` lookup; regression `VnetUsesCustomDns_true_when_dhcpOptions_json_uses_pascal_case_dns_servers_property`; cheap-disproved route-table trailing-slash miss (`NormalizeReachabilityResourceIndex` already normalizes keys) and Event Grid `properties.endpoint` webhook URL (2022-06-15 documents `endpointUrl` only); `AzureInventoryVnetCustomDnsIndexTests` 8/8; seeded five follow-on `(candidate)` rows.
 2026-10-16 seed hunt (seed-only): `archlucid-core` — cheap-disproved `properties.dhcpOptions` flat key (inventory contract uses `dhcpOptions` per IntendedReachabilityEngineTests), `enablePublicNetworkAccess`=`"1"` (no collector path; only true/false strings), and substring `publicNetworkAccess` false-positive without a cited property key; added regression locks for routes-json VNG routes, routes-json modeled NVA next hops, and Front Door origin detection (`AzureInventoryReachabilityEdgeControlIndexTests` 6/6); `AzureInventoryVnetCustomDnsIndexTests` 7/7; seeded five `(candidate)` rows.
 2026-10-16 seed hunt (seed→hit): `archlucid-core` — promoted `AzureInventoryVnetCustomDnsIndex.TryParseDnsServersFromJson` throwing on bare `dhcpOptions` JSON arrays and ignoring that list shape; accept root-level arrays and object `dnsServers`; regression `VnetUsesCustomDns_true_when_dhcpOptions_json_is_bare_dns_server_array`; `AzureInventoryVnetCustomDnsIndexTests` 7/7; seeded five follow-on `(candidate)` rows.
 2026-10-16 seed hunt (seed→hit): `archlucid-core` — promoted `AzureInventoryVnetCustomDnsIndex.TryParseDnsServersFromJson` rejecting `dhcpOptions` JSON when `dnsServers` was a string scalar instead of an array; accept string and comma-separated lists; regression `VnetUsesCustomDns_true_when_dhcpOptions_json_lists_scalar_dns_server_string`; `AzureInventoryVnetCustomDnsIndexTests` 6/6; seeded five follow-on `(candidate)` rows.
@@ -12647,7 +12648,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **hunts:** 33
 - **bugs-found:** 18
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-15
+- **last-hunt:** 2026-10-16
 - **last-bug:** 2026-10-15 — help hub internal link href stripped query/hash
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -22079,6 +22080,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ---
 
 ## Zone: archlucid-core
+2026-10-16 seed hunt (seed→hit): promoted PascalCase `DnsServers` in `dhcpOptions` JSON missing custom DNS detection; case-insensitive property read; regression `VnetUsesCustomDns_true_when_dhcpOptions_json_uses_pascal_case_dns_servers_property`; 8/8 VNet DNS tests passed.
+
 2026-10-16 seed hunt (seed-only): no new hunt-ready repro; edge-control and VNet DNS cheap-disproofs; 6 edge-control + 7 VNet DNS scoped tests passed.
 
 2026-10-16 seed hunt (seed→hit): promoted bare-array `dhcpOptions` JSON for custom DNS; regression `VnetUsesCustomDns_true_when_dhcpOptions_json_is_bare_dns_server_array`.
@@ -22142,11 +22145,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models; retired mega-zone
 - **paths:** docs/library/AL_BUG_HUNT_LEDGER.md
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 478
+- **hunts:** 479
 - **last-hunt:** 2026-10-15
-- **bugs-found:** 3513
+- **bugs-found:** 3514
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-16 — bare-array dhcpOptions JSON broke custom DNS detection
+- **last-bug:** 2026-10-16 — PascalCase DnsServers in dhcpOptions JSON broke custom DNS detection
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -22194,6 +22197,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - (candidate) `AzureInventoryReachabilityEdgeControlIndex.AssetDeclaredBehindApplicationGateway` — `FromAzureResourceId` padded with outer whitespace on AGW backend relationship — locus: `Normalize` at index build; input: inventory-agw-backend triple.
 - (candidate) `AzureInventoryVnetCustomDnsIndex.TryParseDnsServersFromJson` — numeric JSON elements in `dnsServers` array skipped while flat list includes the same address — locus: array element kind handling; input: mixed-type dhcpOptions projection.
 
+- (candidate) `AzureInventoryVnetCustomDnsIndex.TryReadCustomDnsServers` — `dhcpOptions.dnsServers` flat value is a JSON array string (`["10.0.0.4"]`) rather than comma-separated — locus: flat list split; input: flattened inventory property from hosted expander.
+- (candidate) `AzureInventoryVnetCustomDnsIndex.TryParseDnsServersFromJson` — `dhcpOptions` property value is a JSON string scalar wrapping the object (`"{\"dnsServers\":[...]}"`) — locus: root `ValueKind.String`; input: double-encoded inventory projection.
+- (candidate) `AzureInventoryPrivateEndpointDnsJoinIndex.BuildComputeToVnetMap` — resolved VNet ARM ids not passed through `ArmResourceIdNormalizer` before zone-link `Contains` — locus: `computeToVnet` values; input: mixed-case subnet relationship ids from snapshot materializer.
+- (candidate) `AzureInventoryRouteTableRouteParser.ParseRoutesJson` — `nextHop` ARM id only under `Id` (PascalCase) not `id` — locus: `TryReadNestedArmId`; input: routes JSON from hosted route table export.
+- (candidate) `AzureInventoryRuntimeIdentityReader.TryReadSystemAssignedPrincipalId` — `PrincipalId` PascalCase in `identity` JSON ignored — locus: case-sensitive `TryGetProperty`; input: identity JSON casing variants from alternate ARM serializers.
+
+- [x] (proven) `AzureInventoryVnetCustomDnsIndex.TryParseDnsServersFromJson` — PascalCase `DnsServers` property in `dhcpOptions` JSON ignored — **hit 2026-10-16 seed hunt:** case-insensitive `dnsServers` lookup; regression `VnetUsesCustomDns_true_when_dhcpOptions_json_uses_pascal_case_dns_servers_property`.
 - [x] (proven) `AzureInventoryReachabilityEdgeControlIndex.Build` — reachability resource keys not normalized before virtual-appliance next-hop lookup — **hit 2026-10-16 seed hunt:** trailing-slash ARM ids missed `ContainsKey`/`TryGetValue`; normalize resource index at build; regression `SubnetRequiresEdgeControlEvidence_false_when_virtual_appliance_next_hop_is_in_snapshot`.
 - (candidate) `AzureInventoryReachabilityEdgeControlIndex.Build` — route table ARM id stored with trailing slash while subnet→route-table relationship ids are normalized — locus: `NormalizeReachabilityResourceIndex`; input: inventory snapshot with padded route table resource id.
 - [x] (proven) `AzureInventoryVnetCustomDnsIndex.TryReadCustomDnsServers` — default-only `dhcpOptions` JSON hid flattened custom DNS — **hit 2026-10-16 seed hunt:** merge JSON and `dhcpOptions.dnsServers` lists; regression `VnetUsesCustomDns_true_when_flat_dns_servers_list_custom_resolver_after_default_only_json`.

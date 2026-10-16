@@ -131,6 +131,26 @@ public sealed class AzureInventoryVnetCustomDnsIndexTests
     }
 
     [Fact]
+    public void VnetUsesCustomDns_true_when_dhcpOptions_json_uses_pascal_case_dns_servers_property()
+    {
+        AzureInventoryVnetCustomDnsIndex index = AzureInventoryVnetCustomDnsIndex.Build(
+        [
+            new AzureInventoryVnetCustomDnsResourceProperties
+            {
+                AzureResourceId = VnetArm,
+                ResourceType = "Microsoft.Network/virtualNetworks",
+                Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                {
+                    ["dhcpOptions"] = """{"DnsServers":["10.0.0.4"]}""",
+                },
+            },
+        ]);
+
+        index.VnetUsesCustomDns(VnetArm).Should().BeTrue(
+            "inventory dhcpOptions JSON must accept DnsServers casing variants from ARM exports");
+    }
+
+    [Fact]
     public void VnetUsesCustomDns_true_when_flat_dns_servers_list_default_and_custom_resolvers()
     {
         AzureInventoryVnetCustomDnsIndex index = AzureInventoryVnetCustomDnsIndex.Build(
