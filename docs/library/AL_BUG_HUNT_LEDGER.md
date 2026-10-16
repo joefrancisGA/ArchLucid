@@ -1,3 +1,4 @@
+2026-10-16 seed hunt (seed→hit): `archlucid-core` — promoted `AzureInventoryReachabilityEdgeControlIndex.Build` missing `ArmResourceIdNormalizer` on reachability resource keys so a virtual-appliance next hop present only under a trailing-slash ARM id was treated as unmodeled; normalize resource index keys at build; regression `SubnetRequiresEdgeControlEvidence_false_when_virtual_appliance_next_hop_is_in_snapshot`; cheap-disproved ledger `(candidate)` trailing unreadable `SCHEMAVERSION:on` after supported `schemaVersion` (alias scan already retains earlier supported version); seeded five follow-on `(candidate)` rows; scoped `FullyQualifiedName~ArchLucid.Core` ran 7,644 passed and 7 failed (6 invalid extra-`k` week-UOM baseline, 1 pre-existing graph projection null-collection baseline).
 2026-10-16 seed hunt (seed→hit): `ui-review-intake-wizards` — proved `useNewRunWizardPendingEvidence.uploadPendingEvidence` cleared pending inventory state when a superseded in-flight upload completed after the operator replaced the ZIP; upload generation now invalidates stale completions; regression `retains a replacement inventory file when an in-flight upload for the prior file completes`; seeded five follow-on `(candidate)` rows; 161 scoped `reviews/new` vitest tests passed with 71 pre-existing baseline failures.
 2026-10-16 seed hunt (seed→hit): stale in-flight pending evidence upload completion; 9 focused pending-evidence tests passed.
 
@@ -11018,7 +11019,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **hunts:** 33
 - **bugs-found:** 15
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-15
+- **last-hunt:** 2026-10-16
 - **last-bug:** 2026-10-14 — embedded CR/LF in weekLabel reached weekly Sponsor report template model
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -22073,6 +22074,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ---
 
 ## Zone: archlucid-core
+2026-10-16 seed hunt (seed→hit): promoted `AzureInventoryReachabilityEdgeControlIndex` reachability resource dictionary keys without `ArmResourceIdNormalizer` so modeled virtual-appliance next hops stored with a trailing-slash ARM id were misclassified as unmodeled edge control; normalize keys at build; regression `SubnetRequiresEdgeControlEvidence_false_when_virtual_appliance_next_hop_is_in_snapshot`; 7,644 Core scoped tests passed.
+
 
 2026-10-15 seed hunt (seed→hit): promoted `RunAuthorityPipelineDeadLetterDetection.TryReadSupportedSchemaVersion` trailing below-minimum `SCHEMAVERSION` alias hiding supported `schemaVersion`; regression `IsDeadLettered_returns_true_when_later_case_variant_schema_version_is_below_minimum`; 7,609 Core scoped tests passed (6 invalid week-UOM baseline failures).
 
@@ -22128,7 +22131,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **last-hunt:** 2026-10-15
 - **bugs-found:** 3513
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-15 — trailing below-minimum schemaVersion alias hid pipeline dead-letter detection
+- **last-bug:** 2026-10-16 — reachability edge-control index missed normalized virtual-appliance next hops
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -22160,9 +22163,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
+- [x] (proven) `AzureInventoryReachabilityEdgeControlIndex.Build` — reachability resource keys not normalized before virtual-appliance next-hop lookup — **hit 2026-10-16 seed hunt:** trailing-slash ARM ids missed `ContainsKey`/`TryGetValue`; normalize resource index at build; regression `SubnetRequiresEdgeControlEvidence_false_when_virtual_appliance_next_hop_is_in_snapshot`.
+- (candidate) `AzureInventoryReachabilityEdgeControlIndex.Build` — route table ARM id stored with trailing slash while subnet→route-table relationship ids are normalized — locus: `NormalizeReachabilityResourceIndex`; input: inventory snapshot with padded route table resource id.
+- (candidate) `AzureInventoryVnetCustomDnsIndex.Build` — `dhcpOptions.dnsServers` flat property ignored when `dhcpOptions` JSON parses to empty `dnsServers` array — locus: `TryReadCustomDnsServers` precedence; input: flattened extractor bag with only custom DNS in flat key.
+- (candidate) `AzureInventoryEventGridDestinationExtractor.Extract` — webhook `endpointUrl` nested only as `properties.endpoint` without `Url` suffix — locus: nested destination bag readers; input: ARM export fixture if Microsoft documents alternate property name.
+- (candidate) `ArmResourceIdNormalizer.IsDescendantOf` — ancestor id with trailing slash and child without — locus: `Normalize` on both operands; input: AGW backend relationship ids differing only by trailing slash.
+- (candidate) `AzureInventoryReachabilityEdgeControlIndex.AssetDeclaredBehindApplicationGateway` — backend web app ARM id padded with outer whitespace in relationship `ToAzureResourceId` — locus: relationship normalization at build; input: `inventory-agw-backend` triple with padded `to` id.
+
 - [x] (proven) `RunAuthorityPipelineDeadLetterDetection.TryDeserialize` — trailing empty case-variant `failureClass` hid `PipelineDeadLetter` — **hit 2026-10-14 seed hunt:** `TryGetPropertyCaseInsensitivePreferLastNonEmpty`; regression `IsDeadLettered_returns_true_when_later_case_variant_failure_class_is_empty`.
 - [x] (proven) `RunAuthorityPipelineDeadLetterDetection.TryReadSupportedSchemaVersion` — trailing below-minimum case-variant `schemaVersion` hid `PipelineDeadLetter` after an earlier supported version — **hit 2026-10-15 seed hunt (seed→hit):** scan case-insensitive aliases and keep last supported version; regression `IsDeadLettered_returns_true_when_later_case_variant_schema_version_is_below_minimum`.
-- (candidate) `RunAuthorityPipelineDeadLetterDetection.TryReadSupportedSchemaVersion` — trailing unreadable `schemaVersion` token (e.g. `"on"`) after a supported numeric alias still fails closed instead of using the earlier version — locus: alias scan; input: `{"schemaVersion":2,"SCHEMAVERSION":"on","failureClass":"PipelineDeadLetter"}`.
+- [x] (invalid) `RunAuthorityPipelineDeadLetterDetection.TryReadSupportedSchemaVersion` — trailing unreadable `schemaVersion` token after supported numeric alias — **cheap-disproof 2026-10-16 seed hunt:** alias scan skips unreadable tokens and retains earlier supported version; regression not warranted.
 - (candidate) `RunAuthorityPipelineDeadLetterDetection.TryDeserialize` — trailing empty-string `FAILURECLASS` after usable `failureClass` when a middle alias is whitespace-only array — locus: `TryGetPropertyCaseInsensitivePreferLastNonEmpty`; input: duplicate aliases with `[]` middle token.
 - (candidate) `StructuredExplanationParser` — `schemaVersion` duplicate aliases where PreferLastNonEmpty accepts boolean `true` but dead-letter reader rejects it — cross-reader parity on `LastFailureReason` vs explanation aggregate JSON.
 - (candidate) `AzureInventoryEventGridDestinationExtractor.Extract` — webhook `endpointUrl` only under `properties.endpoint` (not `endpointUrl`) for a future API shape — locus: nested destination bag; input: Event Grid list item fixture from ARM export samples.

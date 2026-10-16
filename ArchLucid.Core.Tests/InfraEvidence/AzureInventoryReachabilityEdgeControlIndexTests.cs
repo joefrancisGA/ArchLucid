@@ -40,6 +40,43 @@ public sealed class AzureInventoryReachabilityEdgeControlIndexTests
     }
 
     [Fact]
+    public void SubnetRequiresEdgeControlEvidence_false_when_virtual_appliance_next_hop_is_in_snapshot()
+    {
+        string vnet = BuildVnet("vnet");
+        string subnet = BuildSubnet(vnet, "app");
+        string routeTable = BuildRouteTable("routes");
+        string nva = BuildNetworkVirtualAppliance("nva");
+
+        Dictionary<string, AzureInventoryReachabilityResourceProperties> resources =
+            new(StringComparer.OrdinalIgnoreCase)
+            {
+                [routeTable] = new AzureInventoryReachabilityResourceProperties
+                {
+                    ResourceType = "Microsoft.Network/routeTables",
+                    Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["inventory.policy.route.0.addressPrefix"] = "10.0.0.0/8",
+                        ["inventory.policy.route.0.nextHopType"] = "VirtualAppliance",
+                        ["inventory.policy.route.0.nextHopArmId"] = nva,
+                    },
+                },
+                [nva + "/"] = new AzureInventoryReachabilityResourceProperties
+                {
+                    ResourceType = "Microsoft.Network/networkVirtualAppliances",
+                    Properties = new Dictionary<string, string>(),
+                },
+            };
+
+        AzureInventoryReachabilityEdgeControlIndex index = AzureInventoryReachabilityEdgeControlIndex.Build(
+        [
+            new AzureInventoryRelationshipArmTriple(subnet, routeTable, "inventory-subnet-route-table"),
+        ], resources);
+
+        index.SubnetRequiresEdgeControlEvidence(subnet).Should().BeFalse(
+            "a modeled virtual appliance next hop should not force indeterminate edge-control evidence");
+    }
+
+    [Fact]
     public void AssetDeclaredBehindApplicationGateway_true_for_agw_backend_relationship()
     {
         string app = BuildWebApp("api");
@@ -67,4 +104,7 @@ public sealed class AzureInventoryReachabilityEdgeControlIndexTests
 
     private static string BuildApplicationGateway(string name) =>
         $"/subscriptions/{SubscriptionId}/resourceGroups/rg/providers/Microsoft.Network/applicationGateways/{name}";
+
+    private static string BuildNetworkVirtualAppliance(string name) =>
+        $"/subscriptions/{SubscriptionId}/resourceGroups/rg/providers/Microsoft.Network/networkVirtualAppliances/{name}";
 }
