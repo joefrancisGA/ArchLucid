@@ -22497,6 +22497,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 
 - (candidate) `AzureInventoryLoadBalancerBackendTrafficResolver` — `networkInterfaceIPConfiguration` provided as JSON string scalar ARM id not read — locus: `AddIpConfigurationTargets` nested address path; input: string-scalar ip configuration reference on `loadBalancerBackendAddresses`.
+- (candidate) `AzureInventoryLoadBalancerBackendTrafficResolver` — flat pool bag with only `backendIPConfigurations` (no Standard SKU addresses) — locus: `TryGetBackendAddressPoolPropertiesBag`; input: classic NIC pool flat projection.
+- (candidate) `AzureInventoryLoadBalancerBackendParentArmIdResolver` — flat pool object root without array wrapper plus flat properties bag — locus: `TryCloneRows` + properties bag; input: combined single-object pool shapes.
+- (candidate) `AzureInventoryLoadBalancerBackendTrafficResolver` — flat rule + flat pool in same graph node — locus: end-to-end resolve; input: hosted LB resource bag with both flattenings (regression guard).
+- (candidate) `AzureInventoryLoadBalancerBackendTrafficResolver` — `backendAddressPool` string-scalar pool id on flattened rule row — locus: `TryReadBackendPoolReferenceId`; input: rule bag with string pool reference.
+- (candidate) `AzureInventoryLoadBalancerBackendTrafficResolver` — double-encoded `loadBalancingRules` string scalar wrapping flattened rule object — locus: string unwrap + `TryGetLoadBalancingRulePropertiesBag`; input: nested flat rule JSON.
 - (candidate) `AzureInventoryLoadBalancerBackendTrafficResolver` — flattened rule bag uses PascalCase `BackendPort` / `BackendAddressPool` — locus: `TryGetLoadBalancingRulePropertiesBag` + readers; input: hosted rule row with PascalCase keys (cheap-disproof via case-insensitive reads).
 - (candidate) `AzureInventoryLoadBalancerBackendTrafficResolver` — `loadBalancingRules` string scalar wrapping flattened single rule object — locus: string unwrap + `TryCloneRows`; input: double-encoded flat rule JSON.
 - (candidate) `AzureInventoryLoadBalancerBackendTrafficResolver` — `backendAddressPool` string-scalar pool id on flattened rule row — locus: `TryReadBackendPoolReferenceId`; input: rule bag with string pool reference.
