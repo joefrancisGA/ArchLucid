@@ -10,7 +10,7 @@ using Microsoft.Extensions.Primitives;
 
 namespace ArchLucid.Api.Auth.Scim;
 
-internal sealed class ScimBearerAuthenticationHandler(
+internal class ScimBearerAuthenticationHandler(
     IOptionsMonitor<AuthenticationSchemeOptions> options,
     ILoggerFactory logger,
     UrlEncoder encoder,
@@ -25,12 +25,8 @@ internal sealed class ScimBearerAuthenticationHandler(
         if (!Request.Headers.TryGetValue("Authorization", out StringValues header))
             return AuthenticateResult.Fail("Missing Authorization header.");
 
-        string raw = header.ToString();
-
-        if (!raw.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+        if (!TryReadBearerToken(header, out string token))
             return AuthenticateResult.Fail("Authorization must use Bearer scheme.");
-
-        string token = raw["Bearer ".Length..].Trim();
 
         ScimBearerAuthenticationResult? auth =
             await _authenticator.TryAuthenticateAsync(token, Context.RequestAborted);
@@ -48,5 +44,37 @@ internal sealed class ScimBearerAuthenticationHandler(
         ClaimsPrincipal principal = new(identity);
 
         return AuthenticateResult.Success(new AuthenticationTicket(principal, ScimBearerDefaults.AuthenticationScheme));
+    }
+
+    private static bool TryReadBearerToken(StringValues authorizationHeader, out string bearerToken)
+    {
+        foreach (string? headerValue in authorizationHeader)
+        {
+
+            if (string.IsNullOrWhiteSpace(headerValue))
+            {
+                continue;
+            }
+
+            if (!headerValue.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            string candidate = headerValue["Bearer ".Length..].Trim();
+
+            if (string.IsNullOrWhiteSpace(candidate))
+            {
+                continue;
+            }
+
+            bearerToken = candidate;
+
+            return true;
+        }
+
+        bearerToken = string.Empty;
+
+        return false;
     }
 }
