@@ -192,6 +192,38 @@ public sealed class GovernanceWorkflowAuditSupportTests
     }
 
     [Fact]
+    public async Task LogSelfApprovalBlockedAsync_includes_run_id_in_data_json()
+    {
+        const string runId = "88888888-8888-8888-8888-888888888888";
+        AuditEvent? captured = null;
+        Mock<IAuditService> auditService = new();
+        auditService
+            .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Callback<AuditEvent, CancellationToken>((auditEvent, _) => captured = auditEvent)
+            .Returns(Task.CompletedTask);
+
+        GovernanceWorkflowAuditSupport support = CreateSupport(auditService.Object);
+        GovernanceApprovalRequest request = new()
+        {
+            ApprovalRequestId = "apr-blocked",
+            RunId = runId,
+            RequestedBy = "Submitter",
+            RequestedByActorKey = "jwt:22222222-2222-2222-2222-222222222222:bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+        };
+
+        await support.LogSelfApprovalBlockedAsync(
+            request,
+            "apr-blocked",
+            "Pat Operator",
+            "jwt:11111111-2222-3333-4444-555555555555:aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+            CancellationToken.None);
+
+        captured.Should().NotBeNull();
+        using JsonDocument document = JsonDocument.Parse(captured!.DataJson);
+        document.RootElement.GetProperty("runId").GetString().Should().Be(runId);
+    }
+
+    [Fact]
     public async Task LogSelfApprovalBlockedAsync_sets_explicit_actor_for_stable_reviewer_actor_key()
     {
         const string displayName = "Pat Operator";
