@@ -7685,3 +7685,4 @@
 {"at":"2026-10-16T21:21:26.6372560Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Admin/AdminAgentModelCatalogController.cs"]}
 {"at":"2026-10-16T21:27:02.4262250Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Admin/AdminAzureOpenAiConnectionController.cs"]}
 {"at":"2026-10-16T21:31:31.2737580Z","zoneId":"archlucid-core","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Core/AzureExtractor/AzureInventoryLoadBalancerBackendTrafficResolver.cs"]}
+{"at":"2026-10-16T21:34:38.2172260Z","zoneId":"archlucid-core","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Core/AzureExtractor/AzureInventoryVnetPeeringParser.cs"]}
