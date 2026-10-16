@@ -234,6 +234,60 @@ describe("useNewRunWizardPendingEvidence (TB-2246)", () => {
     });
   });
 
+  it("retains a replacement inventory file when an in-flight upload for the prior file completes", async () => {
+    let resolveUpload!: (value: { ok: true }) => void;
+    const uploadPromise = new Promise<{ ok: true }>((resolve) => {
+      resolveUpload = resolve;
+    });
+
+    vi.mocked(detectTier1InventoryPlatformFromFile).mockResolvedValue("aws");
+    vi.mocked(uploadWizardPendingInventoryEvidence).mockReturnValue(uploadPromise);
+
+    const firstFile = buildAwsInventoryZipFile();
+    const replacementFile = new File([firstFile], "replacement-package.zip", { type: firstFile.type });
+
+    const onInventoryFileSelected = vi.fn();
+
+    const { result } = renderHook(() =>
+      useNewRunWizardPendingEvidence({
+        runId: "run-replace-during-upload",
+        autoUploadOnCreate: false,
+        onInventoryFileSelected,
+      }),
+    );
+
+    act(() => {
+      result.current.handlePendingEvidenceFileChange(firstFile);
+    });
+
+    await waitFor(() => {
+      expect(onInventoryFileSelected).toHaveBeenCalledWith("aws");
+    });
+
+    act(() => {
+      void result.current.uploadPendingEvidence("run-replace-during-upload");
+    });
+
+    await waitFor(() => {
+      expect(result.current.evidenceUploadState).toBe("uploading");
+    });
+
+    act(() => {
+      result.current.handlePendingEvidenceFileChange(replacementFile);
+    });
+
+    await act(async () => {
+      resolveUpload({ ok: true });
+      await uploadPromise;
+      await Promise.resolve();
+    });
+
+    await waitFor(() => {
+      expect(result.current.pendingEvidenceFile).toBe(replacementFile);
+      expect(result.current.evidenceUploadState).toBe("idle");
+    });
+  });
+
   it("ignores stale inventory platform detection when the pending ZIP is replaced before classification finishes", async () => {
     let resolveFirst!: (platform: "aws" | "azure" | "gcp" | null) => void;
     const firstDetection = new Promise<"aws" | "azure" | "gcp" | null>((resolve) => {
