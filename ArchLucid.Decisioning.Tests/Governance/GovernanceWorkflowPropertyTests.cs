@@ -205,7 +205,7 @@ public sealed class GovernanceWorkflowPropertyTests
 
         GovernanceWorkflowService sut = GovernanceWorkflowTestFactory.CreateWithActivationRepo(activationRepo, runDetail);
 
-        sut.ActivateAsync("run1", "v2", GovernanceEnvironment.Dev, "activator", CancellationToken.None).GetAwaiter().GetResult();
+        sut.ActivateAsync("run1", "v2", GovernanceEnvironment.Dev, "activator", activatedByDisplay: null, CancellationToken.None).GetAwaiter().GetResult();
 
         activationRepo.Verify(
             r => r.UpdateAsync(It.Is<GovernanceEnvironmentActivation>(a => a.IsActive == false), It.IsAny<CancellationToken>()),
