@@ -2,6 +2,8 @@ import {
   GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH,
   GOVERNANCE_FINDINGS_PATH,
   GOVERNANCE_POLICY_PACKS_PATH,
+  SECURENOW_POLICY_PACKS_PATH,
+  SECURENOW_STANDARDS_AND_RULES_PATH,
 } from "@/lib/governance/governance-route-paths";
 import { GOVERNANCE_INFRASTRUCTURE_REMEDIATION_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
 import { FINDINGS_HELP_TOPIC_LABEL } from "@/lib/findings/findings-help-evidence-copy";
@@ -9,6 +11,7 @@ import { FINDINGS_HELP_PATH } from "@/lib/findings/findings-help-route";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { CUSTOMER_INTAKE_SAMPLE_RUN_ID } from "@/lib/samples/customer-intake-modernization/definition";
 import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { isHelpSearchTopicExcludedForProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
 
 import type { HelpSearchPanelGroup, HelpSearchPanelTopic } from "@/lib/help/help-search-panel-catalog";
 
@@ -443,6 +446,23 @@ export const GOVERNANCE_TOPICS: readonly HelpSearchPanelTopic[] = [
   },
 ];
 
+export const SECURITY_GOVERNANCE_TOPICS: readonly HelpSearchPanelTopic[] = [
+  {
+    id: "policy-packs",
+    title: "Policy packs",
+    description: "Assign ARC-AMPE packs and understand effective rules for this workspace.",
+    keywords: ["policy", "packs", "compliance", "rules", "standards", "arc-ampe"],
+    action: { kind: "route", href: SECURENOW_POLICY_PACKS_PATH, helpSlug: null },
+  },
+  {
+    id: "standards-rules-help",
+    title: "Standards and rules",
+    description: "Read effective standards and rules at workspace scope.",
+    keywords: ["standards", "rules", "workspace scope", "compliance"],
+    action: { kind: "route", href: SECURENOW_STANDARDS_AND_RULES_PATH, helpSlug: "standards-and-rules" },
+  },
+];
+
 export const SETUP_TOPICS: readonly HelpSearchPanelTopic[] = [
   {
     id: "integration-readiness",
@@ -516,6 +536,65 @@ export const SETUP_TOPICS: readonly HelpSearchPanelTopic[] = [
   },
 ];
 
+export const SECURITY_SETUP_TOPICS: readonly HelpSearchPanelTopic[] = [
+  {
+    id: "integration-readiness",
+    title: "Integration readiness",
+    description: "See which Azure, Jira, ServiceNow, and Teams integrations are ready for SecureNow.",
+    keywords: ["integration", "readiness", "teams", "jira", "servicenow", "azure", "setup"],
+    action: { kind: "route", href: "/administration/connection-status", helpSlug: "integration-readiness" },
+  },
+  {
+    id: "cloud-connections",
+    title: "Cloud connections",
+    description: "Connect Azure for scheduled read-only inventory evidence collection.",
+    keywords: ["cloud", "azure", "connection", "evidence collection", "inventory"],
+    action: { kind: "route", href: "/integrations/cloud-connections", helpSlug: "cloud-connections" },
+  },
+  {
+    id: "connect-azure",
+    title: "Connect Azure securely",
+    description: "Workload identity federation, read-only roles, and connection validation.",
+    keywords: ["azure", "federation", "workload identity", "permissions"],
+    action: { kind: "route", href: inAppHelpHref("cloud-connections-azure"), helpSlug: "cloud-connections-azure" },
+  },
+  {
+    id: "azure-permissions",
+    title: "Azure permissions for cloud connections",
+    description: "Required Reader role, optional cost access, scopes, setup, and verification.",
+    keywords: ["azure", "permissions", "reader", "cost management", "iam", "roles", "scope"],
+    action: { kind: "route", href: "/help/azure-permissions", helpSlug: "azure-permissions" },
+  },
+  {
+    id: "security-trust-help",
+    title: "Security and trust",
+    description: "Assurance materials, diligence support, and links to data-handling posture.",
+    keywords: ["security", "trust", "soc", "assurance", "compliance", "privacy"],
+    action: { kind: "route", href: "/help/security-trust", helpSlug: "security-trust" },
+  },
+  {
+    id: "data-handling-help",
+    title: "Data handling and tenant isolation",
+    description: "Cloud inventory evidence flow, tenant isolation, audit lineage, and AI provider handling.",
+    keywords: ["data handling", "privacy", "isolation", "tenant", "ai provider", "portability", "deletion"],
+    action: { kind: "route", href: "/help/data-handling", helpSlug: "data-handling" },
+  },
+  {
+    id: "users-and-roles",
+    title: "Users and roles",
+    description: "Invite colleagues and assign Admin, Architect, Reader, or Auditor roles.",
+    keywords: ["users", "roles", "invite", "admin", "reader", "auditor"],
+    action: { kind: "route", href: "/help/users-and-roles", helpSlug: "users-and-roles" },
+  },
+  {
+    id: "sso-identity",
+    title: "SSO and identity",
+    description: "Optional or enforced organizational SSO, SCIM provisioning, and enterprise onboarding.",
+    keywords: ["sso", "saml", "scim", "identity", "idp", "enforcement"],
+    action: { kind: "route", href: "/help/enterprise-onboarding", helpSlug: "enterprise-onboarding" },
+  },
+];
+
 export const TROUBLESHOOTING_TOPICS: readonly HelpSearchPanelTopic[] = [
   {
     id: "troubleshoot",
@@ -568,6 +647,16 @@ export const SITUATION_TOPICS: readonly HelpSearchPanelTopic[] = [
   },
 ];
 
+export const SECURITY_SITUATION_TOPICS: readonly HelpSearchPanelTopic[] = [
+  {
+    id: "triage-assigned-findings",
+    title: "Triage assigned findings",
+    description: "Work your remediation queue and record disposition on assigned findings.",
+    keywords: ["assigned to me", "remediation", "findings", "disposition", "queue"],
+    action: { kind: "route", href: GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH, helpSlug: null },
+  },
+];
+
 export const ADVANCED_ADMIN_TOPICS: readonly HelpSearchPanelTopic[] = [
   {
     id: "admin-diagnostics",
@@ -610,8 +699,8 @@ export const HELP_SEARCH_PANEL_GROUPS: readonly HelpSearchPanelGroup[] = [
 export const HELP_SEARCH_PANEL_GROUPS_SECURITY: readonly HelpSearchPanelGroup[] = [
   { id: HELP_SEARCH_PANEL_START_HERE_GROUP_ID, heading: "Start here", topics: SECURITY_START_HERE_TOPICS },
   { id: "findings-work", heading: "Findings and remediation", topics: SECURITY_FINDINGS_WORK_TOPICS },
-  { id: "governance", heading: "Approval", topics: GOVERNANCE_TOPICS },
-  { id: "setup", heading: "Setup", topics: SETUP_TOPICS },
+  { id: "governance", heading: "Compliance", topics: SECURITY_GOVERNANCE_TOPICS },
+  { id: "setup", heading: "Setup", topics: SECURITY_SETUP_TOPICS },
   { id: "troubleshooting", heading: "Troubleshooting and support", topics: TROUBLESHOOTING_TOPICS },
 ];
 
@@ -692,11 +781,15 @@ export function collectHelpSearchPanelTopics(
     }
   }
 
-  topics.push(...SITUATION_TOPICS);
+  if (productLineId === "security") {
+    topics.push(...SECURITY_SITUATION_TOPICS);
+  } else {
+    topics.push(...SITUATION_TOPICS);
+  }
 
   if (isAdmin) {
     topics.push(...ADVANCED_ADMIN_TOPICS);
   }
 
-  return topics;
+  return topics.filter((topic) => !isHelpSearchTopicExcludedForProductLine(topic.id, productLineId));
 }

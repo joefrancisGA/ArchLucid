@@ -151,7 +151,7 @@ Paste **one** file per session from the repo root (Cloud Agent: `pwsh` + working
 | SH-22 | Integration readiness | **Shipped** |
 | SH-23 | Enterprise onboarding | **Shipped** |
 | SH-24 | Troubleshooting | **Shipped** |
-| SH-25 | Help hub + search catalog | **Partial** |
+| SH-25 | Help hub + search catalog | **Shipped** |
 | SH-26 | Infrastructure drift (Azure-only copy) | **Shipped** |
 
 ### SA — Architect plane (**SA-01–SA-22**)

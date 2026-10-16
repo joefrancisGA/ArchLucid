@@ -29,6 +29,13 @@ export const SECURENOW_EXCLUDED_HELP_TOPIC_SLUGS: readonly string[] = [
   "inhabit-the-architecture",
   "sketch-a-change",
   "which-mode-am-i-in",
+  "repeat-review-loop",
+  "pilot-guide",
+  "digests",
+  "governance-approval",
+  "evidence-trail",
+  "sponsor-report",
+  "comparison-replay",
 ];
 
 /** Help search drawer topic ids hidden in the SecureNow shell. */
@@ -54,6 +61,10 @@ export const SECURENOW_EXCLUDED_HELP_SEARCH_TOPIC_IDS: readonly string[] = [
   "inhabit-the-architecture",
   "sketch-a-change",
   "which-mode-am-i-in",
+  "governance-workflow",
+  "close-evidence-gaps",
+  "resolve-blocking-findings",
+  "review-findings",
 ];
 
 export function isSecureNowProductLine(productLineId: ProductLineId): boolean {

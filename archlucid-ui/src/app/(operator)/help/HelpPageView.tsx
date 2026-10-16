@@ -8,13 +8,14 @@ import { GlossaryProceduralHelpVocabularyRail } from "@/components/GlossaryProce
 import { ReportProblemDialogHelpHubVocabularyRail } from "@/components/ReportProblemDialogHelpHubVocabularyRail";
 import { HelpHubBuyerChrome } from "@/components/help/HelpHubBuyerChrome";
 import { HelpHubClaimOrientationStrip } from "@/components/help/HelpHubClaimOrientationStrip";
-import { HELP_HUB_CLAIM_DISCIPLINE } from "@/lib/help/help-hub-evidence-copy";
+import { resolveHelpHubClaimDiscipline } from "@/lib/help/help-hub-evidence-copy";
 import {
-  HELP_HUB_BUYER_START_HERE_HELPER,
+  helpHubBuyerStartHereHelper,
+  helpHubPageSubtitleBuyer,
   HELP_HUB_FIRST_VIEWPORT_TEST_ID,
   HELP_HUB_ORIENTATION_BOTTOM_TEST_ID,
-  HELP_HUB_PAGE_SUBTITLE_BUYER,
 } from "@/lib/help/help-hub-page-copy";
+import { FINDINGS_HELP_PATH } from "@/lib/findings/findings-help-route";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -38,33 +39,50 @@ export function HelpPageView(): React.JSX.Element {
       ? resolveSecureNowAttribution(resolveSecureNowEditionIdFromEnv())
       : null;
 
-  const richDescription = (
-    <>
-      Start with the guides below for review workflows and cloud connections. See{" "}
-      <Link
-        className={OPERATOR_BODY_INLINE_LINK_CLASS}
-        href="/help/getting-started#how-archlucid-works"
-      >
-        {howProductWorksLabel}
-      </Link>{" "}
-      for the workflow, the{" "}
-      <Link className={OPERATOR_BODY_INLINE_LINK_CLASS} href="/faq">
-        Product FAQ
-      </Link>{" "}
-      for evaluation and pricing answers, and{" "}
-      <Link className={OPERATOR_BODY_INLINE_LINK_CLASS} href="/help/data-handling">
-        data handling
-      </Link>{" "}
-      for security posture.
-    </>
-  );
+  const richDescription =
+    productLine === "security" ? (
+      <>
+        Start with the guides below for cloud evidence, findings, and connectors. See{" "}
+        <Link className={OPERATOR_BODY_INLINE_LINK_CLASS} href="/help/getting-started">
+          Getting started
+        </Link>{" "}
+        for SecureNow orientation,{" "}
+        <Link className={OPERATOR_BODY_INLINE_LINK_CLASS} href={FINDINGS_HELP_PATH}>
+          Findings
+        </Link>{" "}
+        for triage guidance, and{" "}
+        <Link className={OPERATOR_BODY_INLINE_LINK_CLASS} href="/help/data-handling">
+          data handling
+        </Link>{" "}
+        for tenant isolation and AI processing honesty.
+      </>
+    ) : (
+      <>
+        Start with the guides below for review workflows and cloud connections. See{" "}
+        <Link
+          className={OPERATOR_BODY_INLINE_LINK_CLASS}
+          href="/help/getting-started#how-archlucid-works"
+        >
+          {howProductWorksLabel}
+        </Link>{" "}
+        for the workflow, the{" "}
+        <Link className={OPERATOR_BODY_INLINE_LINK_CLASS} href="/faq">
+          Product FAQ
+        </Link>{" "}
+        for evaluation and pricing answers, and{" "}
+        <Link className={OPERATOR_BODY_INLINE_LINK_CLASS} href="/help/data-handling">
+          data handling
+        </Link>{" "}
+        for security posture.
+      </>
+    );
 
   const heading = (
     <PageHeading
       navHref="/help"
       title="Help"
-      description={buyerPolishedShell ? HELP_HUB_PAGE_SUBTITLE_BUYER : richDescription}
-      claimDiscipline={HELP_HUB_CLAIM_DISCIPLINE}
+      description={buyerPolishedShell ? helpHubPageSubtitleBuyer(productLine) : richDescription}
+      claimDiscipline={resolveHelpHubClaimDiscipline(productLine)}
       claimDisciplineTestId="help-hub-claim-discipline"
       actions={
         buyerPolishedShell ? undefined : (
@@ -90,7 +108,7 @@ export function HelpPageView(): React.JSX.Element {
         className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
         data-testid="help-hub-buyer-start-here-helper"
       >
-        {HELP_HUB_BUYER_START_HERE_HELPER}
+        {helpHubBuyerStartHereHelper(productLine)}
       </p>
     </div>
   );

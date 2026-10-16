@@ -17,6 +17,7 @@ import {
   SECURENOW_USERS_ADMIN,
   SECURENOW_USERS_AND_ROLES_HELP,
 } from "@/lib/contextual-help/securenow-contextual-help-overrides";
+import { SECURENOW_HELP_HUB_CONTEXTUAL_HELP_ENTRY } from "@/lib/contextual-help/help-topic-rows-operator";
 import { ENTERPRISE_ONBOARDING_HELP_CANONICAL_PATH } from "@/lib/enterprise-onboarding-help-evidence-copy";
 import { INTEGRATION_READINESS_HELP_CANONICAL_PATH } from "@/lib/integration-readiness-help-evidence-copy";
 import { INVITE_REVIEWER_CANONICAL_PATH } from "@/lib/invite-reviewer-evidence-copy";
@@ -99,6 +100,15 @@ describe("SecureNow help guide content", () => {
     expect(contextualHelpForPathname("/help/data-handling", { productLineId: "security" })?.whatIsThisPage).toBe(
       SECURENOW_DATA_HANDLING_HELP.whatIsThisPage,
     );
+  });
+
+  it("resolves SecureNow help hub contextual help without architect-evaluator framing", () => {
+    const hubHelp = contextualHelpForPathname("/help", { productLineId: "security" });
+
+    expect(hubHelp?.whatIsThisPage).toBe(SECURENOW_HELP_HUB_CONTEXTUAL_HELP_ENTRY.whatIsThisPage);
+    expect(hubHelp?.whatIsThisPage).not.toMatch(/architects and evaluators/i);
+    expect(hubHelp?.whatToDoNext).toContain("Security and trust");
+    expect(hubHelp?.taskSteps?.join(" ")).not.toMatch(/first-run workflow/i);
   });
 
   it("resolves SecureNow integration readiness and enterprise onboarding contextual help", () => {
