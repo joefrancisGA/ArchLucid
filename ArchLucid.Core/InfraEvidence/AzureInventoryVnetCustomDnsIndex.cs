@@ -304,7 +304,7 @@ public sealed class AzureInventoryVnetCustomDnsIndex
 
         foreach (string server in servers.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
         {
-            dnsServers.Add(server);
+            dnsServers.Add(ResolveFlattenedDnsServerValue(server));
         }
     }
 
