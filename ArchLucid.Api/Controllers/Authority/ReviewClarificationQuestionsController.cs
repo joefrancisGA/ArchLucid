@@ -114,7 +114,8 @@ public sealed partial class ReviewClarificationQuestionsController(
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
-        if (request.Answers is null)
+        // The request setter coalesces JSON null to an empty dictionary, so treat empty as missing too.
+        if (request.Answers is null || request.Answers.Count == 0)
             return this.BadRequestProblem("Answers is required.", ProblemTypes.ValidationFailed);
 
         foreach (KeyValuePair<string, string> answer in request.Answers)
