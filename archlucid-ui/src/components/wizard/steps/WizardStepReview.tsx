@@ -162,17 +162,22 @@ export function WizardStepReview(props: { readonly focusedPilotModeEnabled?: boo
           <p className={cn("mt-2 m-0 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>
             {GUIDED_INTAKE_STRUCTURED_BRIEF_REQUIRED_CAPABILITIES_LABEL}
           </p>
-          <ul className="mt-1 list-disc pl-5">
-            {(v.requiredCapabilities ?? []).map((c) => (
-              <li key={c}>{c}</li>
-            ))}
-          </ul>
           {v.requiredCapabilities === null || v.requiredCapabilities === undefined ? (
             <p className="m-0">Required capabilities were not stored.</p>
-          ) : null}
+          ) : v.requiredCapabilities.length === 0 ? (
+            <p className="m-0">Required capabilities were stored empty.</p>
+          ) : (
+            <ul className="mt-1 list-disc pl-5">
+              {v.requiredCapabilities.map((c) => (
+                <li key={c}>{c}</li>
+              ))}
+            </ul>
+          )}
           <p className={cn("mt-2 m-0 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>Assumptions</p>
           {v.assumptions === null || v.assumptions === undefined ? (
             <p className="m-0">Assumptions were not stored.</p>
+          ) : v.assumptions.length === 0 ? (
+            <p className="m-0">Assumptions were stored empty.</p>
           ) : (
             <ul className="mt-1 list-disc pl-5">
               {v.assumptions.map((c) => (

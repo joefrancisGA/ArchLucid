@@ -1,4 +1,4 @@
-import { firstRecommendationSentence } from "@/lib/quick-decision-summary-derive";
+import { firstRecommendationSentence, severityBadgeLabel } from "@/lib/quick-decision-summary-derive";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import { preferredGraphNodeIdForFindingDeepLink } from "@/lib/findings/finding-inspect-graph-evidence";
 import { graphTrailHrefWithOptionalNode } from "@/lib/graph-finding-deep-links";
@@ -20,23 +20,7 @@ export function quickDecisionRecommendationSnippet(finding: QuickDecisionFinding
 
 /** Severity wording used by ITSM / work-item payloads (coarser than the severity badge scale). */
 export function quickDecisionWorkItemSeverityLabel(severityValue: number | null): string {
-  if (severityValue === null) {
-    return "Severity was not stored";
-  }
-
-  if (severityValue >= 3) {
-    return "High";
-  }
-
-  if (severityValue === 2) {
-    return "Medium";
-  }
-
-  if (severityValue === 1) {
-    return "Low";
-  }
-
-  return "Info";
+  return severityBadgeLabel(severityValue);
 }
 
 /** Evidence navigation targets derived for a single finding row (no API calls). */

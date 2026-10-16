@@ -26,9 +26,11 @@ describe("SN-021 run id not in Working primary chrome", () => {
   it("omits run id suffix for duplicate Working list titles without start time", () => {
     const siblings = [untitledRun("851472cf-aaaa-bbbb-cccc-ddd083248324"), untitledRun("851472cf-1111-2222-3333-444083248325")];
 
-    expect(resolveSystemNotJobWorkingPrimaryListTitle(siblings[0], siblings)).toBe("Untitled review");
-    expect(resolveSystemNotJobWorkingPrimaryListTitle(siblings[1], siblings)).toBe("Untitled review");
-    expect(formatRunListTitleWithDisambiguator(siblings[0], siblings)).toBe("Untitled review · 248324");
+    expect(resolveSystemNotJobWorkingPrimaryListTitle(siblings[0], siblings)).toBe("Review title was not stored.");
+    expect(resolveSystemNotJobWorkingPrimaryListTitle(siblings[1], siblings)).toBe("Review title was not stored.");
+    expect(formatRunListTitleWithDisambiguator(siblings[0], siblings)).toBe(
+      "Review title was not stored. · 248324",
+    );
   });
 
   it("still disambiguates duplicate Working titles with relative start time", () => {
@@ -68,7 +70,7 @@ describe("SN-021 run id not in Working primary chrome", () => {
       { isWorkingMode: true },
     );
 
-    expect(row.reviewTitlePrimary).toBe("Untitled review");
+    expect(row.reviewTitlePrimary).toBe("Review title was not stored.");
     expect(row.reviewTitlePrimary).not.toContain("248324");
   });
 
@@ -82,7 +84,7 @@ describe("SN-021 run id not in Working primary chrome", () => {
       { isWorkingMode: false },
     );
 
-    expect(row.reviewTitlePrimary).toBe("Untitled review · 248324");
+    expect(row.reviewTitlePrimary).toBe("Review title was not stored. · 248324");
   });
 
   it("names ADR 0074 anchor and hub/desk inventory surfaces", () => {

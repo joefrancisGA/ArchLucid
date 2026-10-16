@@ -107,9 +107,9 @@ function ReviewsHubRecentPackagesTableHead(): React.JSX.Element {
           </span>
         </EnterpriseTableHeaderCell>
         <EnterpriseTableHeaderCell>
-          <span>Last updated</span>
+          <span>Created</span>
           <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
-            When this review was last changed in ArchLucid.
+            When this review was created. A last-updated time was not stored.
           </span>
         </EnterpriseTableHeaderCell>
         <EnterpriseTableHeaderCell className="text-right">

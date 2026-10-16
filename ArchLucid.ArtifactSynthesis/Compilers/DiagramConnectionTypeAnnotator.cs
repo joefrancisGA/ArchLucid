@@ -1,10 +1,9 @@
 using ArchLucid.ArtifactSynthesis.Models;
-using ArchLucid.KnowledgeGraph.Inventory;
 
 namespace ArchLucid.ArtifactSynthesis.Compilers;
 
 /// <summary>
-///     Labels blank VNet-to-VNet connectors when no relationship verb was stored. Stored verbs are left unchanged.
+///     Labels visible connectors when no relationship verb was stored. Stored verbs are left unchanged.
 /// </summary>
 internal static class DiagramConnectionTypeAnnotator
 {
@@ -14,24 +13,9 @@ internal static class DiagramConnectionTypeAnnotator
     {
         ArgumentNullException.ThrowIfNull(ast);
 
-        Dictionary<string, DiagramNode> nodesById = ast.Nodes.ToDictionary(
-            node => node.NodeId,
-            StringComparer.Ordinal);
-
         foreach (DiagramEdge edge in ast.Edges)
         {
             if (edge.IsLayoutOnly)
-            {
-                continue;
-            }
-
-            if (!nodesById.TryGetValue(edge.FromNodeId, out DiagramNode? fromNode)
-                || !nodesById.TryGetValue(edge.ToNodeId, out DiagramNode? toNode))
-            {
-                continue;
-            }
-
-            if (!IsVirtualNetwork(fromNode) || !IsVirtualNetwork(toNode))
             {
                 continue;
             }
@@ -43,10 +27,5 @@ internal static class DiagramConnectionTypeAnnotator
 
             edge.Label = RelationshipNotStoredLabel;
         }
-    }
-
-    private static bool IsVirtualNetwork(DiagramNode node)
-    {
-        return AzureInventoryTopologyCategory.IsVirtualNetworkArmType(node.ArmResourceType ?? string.Empty);
     }
 }

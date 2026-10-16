@@ -151,7 +151,7 @@ export function QuickDecisionWorkspacePrimaryFindingCard(
           </p>
         ) : null}
         <h3 className={cn("m-0 text-xl font-bold tracking-tight text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
-          {finding.title}
+          {finding.title.trim().length > 0 ? finding.title : "Finding title was not stored."}
         </h3>
         {finding.category == null ? (
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
@@ -161,7 +161,11 @@ export function QuickDecisionWorkspacePrimaryFindingCard(
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
             <span className="font-medium">Category:</span> {finding.category}
           </p>
-        ) : null}
+        ) : (
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            Finding category was stored empty.
+          </p>
+        )}
         <QuickDecisionFindingRationale runId={runId} finding={finding} />
         {snippet.length > 0 ? (
           <p className={cn("m-0 leading-relaxed text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>

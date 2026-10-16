@@ -49,6 +49,30 @@ function formatInferenceQuestionText(questionText: string | null | undefined): s
   return questionText;
 }
 
+function formatInferenceFromLabel(fromLabel: string | null | undefined): string {
+  if (fromLabel === null || fromLabel === undefined) {
+    return "Source resource was not stored.";
+  }
+
+  if (fromLabel.length === 0) {
+    return "Source resource was stored empty.";
+  }
+
+  return fromLabel;
+}
+
+function formatInferenceToHost(toHost: string | null | undefined): string {
+  if (toHost === null || toHost === undefined) {
+    return "Target host was not stored.";
+  }
+
+  if (toHost.length === 0) {
+    return "Target host was stored empty.";
+  }
+
+  return toHost;
+}
+
 export function InferenceQuestionnairePanel(
   props: InferenceQuestionnairePanelProps,
 ): React.JSX.Element | null {
@@ -226,6 +250,12 @@ export function InferenceQuestionnairePanel(
             </p>
             <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="inference-questionnaire-question">
               {formatInferenceQuestionText(currentItem.questionText)}
+            </p>
+            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              <span className="font-medium">Source:</span> {formatInferenceFromLabel(currentItem.fromLabel)}
+            </p>
+            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              <span className="font-medium">Target host:</span> {formatInferenceToHost(currentItem.toHost)}
             </p>
 
             {isDataPlaneQuestion ? (

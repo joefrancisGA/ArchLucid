@@ -273,6 +273,12 @@ describe("run-detail-workspace-derive", () => {
     expect(label).toBe("Evidence did not surface architecture components");
   });
 
+  it("labels an open finding with an empty title on primary concern", () => {
+    const label = derivePrimaryConcernLabel([finding(2, { title: "   " })]);
+
+    expect(label).toBe("Finding title was not stored.");
+  });
+
   it("qualifies the governance snapshot line when findings block approval", () => {
     expect(
       formatDecisionSnapshotGovernanceOutcome({ governanceDecisionLabel: "Pending", blockingFindingCount: 1 }),

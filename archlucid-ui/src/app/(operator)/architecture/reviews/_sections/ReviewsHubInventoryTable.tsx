@@ -74,9 +74,9 @@ function ReviewsHubInventoryTableHead(): React.JSX.Element {
           </span>
         </EnterpriseTableHeaderCell>
         <EnterpriseTableHeaderCell>
-          <span>Updated</span>
+          <span>Created</span>
           <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
-            The last recorded package update, not the latest Azure capture.
+            When this review was created. A last-updated time was not stored.
           </span>
         </EnterpriseTableHeaderCell>
         <EnterpriseTableHeaderCell className="text-right">

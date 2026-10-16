@@ -191,7 +191,9 @@ export function QuickDecisionWorkspaceSecondaryFindingCard(
                 {INSIGHT_DENSITY_TYPED_ENGINE_HONESTY_LINE}
               </p>
             ) : null}
-            <span className="min-w-0 flex-1 font-semibold text-al-text-primary">{finding.title}</span>
+            <span className="min-w-0 flex-1 font-semibold text-al-text-primary">
+              {finding.title.trim().length > 0 ? finding.title : "Finding title was not stored."}
+            </span>
           </div>
         </summary>
         <div className="mt-3 space-y-3 border-t border-neutral-100 pt-3 dark:border-neutral-800">

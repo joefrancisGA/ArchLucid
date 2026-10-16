@@ -66,6 +66,20 @@ describe("package-print-view (TB-2205)", () => {
     expect(line).not.toContain("0 findings");
   });
 
+  it("appends warning count omission to findings summary when warning count is missing", () => {
+    const line = buildPackagePrintFindingsSummary(summary({ findingCount: 3, warningCount: null }));
+
+    expect(line).toContain("3 findings");
+    expect(line).toContain("Warning count was not stored.");
+  });
+
+  it("does not append warning omission when warning count is stored as zero", () => {
+    const line = buildPackagePrintFindingsSummary(summary({ findingCount: 3, warningCount: 0 }));
+
+    expect(line).toContain("3 findings");
+    expect(line).not.toContain("Warning count was not stored.");
+  });
+
   it("labels omitted finding and warning counts on sponsor synopsis", () => {
     const synopsis = buildPackagePrintSponsorSynopsis(
       summary({
