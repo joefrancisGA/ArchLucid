@@ -169,13 +169,30 @@ public static class AzureInventoryLoadBalancerBackendTrafficResolver
         try
         {
             using JsonDocument document = JsonDocument.Parse(rulesJson);
+            JsonElement rulesRoot = document.RootElement;
 
-            if (document.RootElement.ValueKind is not JsonValueKind.Array)
+            if (rulesRoot.ValueKind is JsonValueKind.String)
+            {
+                string? nestedRulesJson = rulesRoot.GetString();
+
+                if (string.IsNullOrWhiteSpace(nestedRulesJson))
+                {
+                    return portByPoolId;
+                }
+
+                return BuildLoadBalancerPortByPoolId(
+                    new Dictionary<string, string>(StringComparer.Ordinal)
+                    {
+                        ["loadBalancingRules"] = nestedRulesJson,
+                    });
+            }
+
+            if (rulesRoot.ValueKind is not JsonValueKind.Array)
             {
                 return portByPoolId;
             }
 
-            foreach (JsonElement rule in document.RootElement.EnumerateArray())
+            foreach (JsonElement rule in rulesRoot.EnumerateArray())
             {
                 if (!TryGetPropertyIgnoreCase(rule, "properties", out JsonElement ruleProperties)
                     || ruleProperties.ValueKind is not JsonValueKind.Object)

@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-16 seed hunt (seed→hit): `archlucid-core` — promoted `AzureInventoryLoadBalancerBackendTrafficResolver.BuildLoadBalancerPortByPoolId` treating double-encoded `loadBalancingRules` inventory text (JSON string scalar wrapping the rules array) as non-array and leaving `RulePort` null while backends still resolve; unwrap and re-parse like `backendAddressPools`; regression `ResolveLoadBalancerBackends_reads_rule_port_when_rules_json_is_string_scalar_wrapping_array`; `AzureInventoryLoadBalancerBackendTrafficResolverTests` 5/5; seeded five follow-on `(candidate)` rows.
+
 2026-10-16 seed hunt (seed→hit): `archlucid-core` — promoted `AzureInventoryLoadBalancerBackendParentArmIdResolver.ResolveFromBackendAddressPoolsJson` ignoring `backendAddressPools` inventory text that is a JSON string scalar wrapping the pool array (empty parent ARM id list); unwrap and re-parse like route-table `routes` JSON; regression `ResolveFromBackendAddressPoolsJson_reads_pools_when_json_is_string_scalar_wrapping_pool_array`; cheap-disproof closed PascalCase `LoadBalancerBackendAddresses`, `NetworkInterfaceIPConfiguration`, and nested `Id` (already case-insensitive after prior fix); `AzureInventoryLoadBalancerBackendParentArmIdResolverTests` 3/3; seeded five follow-on `(candidate)` rows.
 
 2026-10-16 seed hunt (seed→hit): `archlucid-core` — promoted `AzureInventoryLoadBalancerBackendParentArmIdResolver.ResolveFromBackendAddressPoolsJson` ignoring PascalCase `Properties` on backend pool elements (empty parent ARM id list for hosted inventory projections); case-insensitive JSON property reads for pool `properties`, backend collections, nested `properties`, and `id`; regression `ResolveFromBackendAddressPoolsJson_reads_pascal_case_properties_bag_on_pool`; `AzureInventoryLoadBalancerBackendParentArmIdResolverTests` 2/2; seeded five follow-on `(candidate)` rows.
@@ -22473,9 +22475,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 
 
+- (candidate) `AzureInventoryLoadBalancerBackendTrafficResolver` — single `backendAddressPools` pool object (non-array root) not accepted — locus: `ParseLoadBalancerBackendTargets` root kind check; input: lone pool object without array wrapper.
+- (candidate) `AzureInventoryLoadBalancerBackendTrafficResolver` — `networkInterfaceIPConfiguration` provided as JSON string scalar ARM id not read — locus: `AddIpConfigurationTargets` nested address path; input: string-scalar ip configuration reference on `loadBalancerBackendAddresses`.
+- (candidate) `AzureInventoryLoadBalancerBackendTrafficResolver` — PascalCase `BackendPort` on load balancing rule properties skipped — locus: `TryReadBackendPort`; input: hosted rule projection with PascalCase port property name.
+- (candidate) `AzureInventoryLoadBalancerBackendTrafficResolver` — `backendAddressPool` reference uses PascalCase `Id` on pool object skipped — locus: `TryReadBackendPoolReferenceId`; input: rule row with `{ "Id": "..." }` pool reference.
+- (candidate) `AzureInventoryLoadBalancerBackendParentArmIdResolver` — single pool object JSON (non-array root) not accepted — locus: root kind check; input: lone pool object without array wrapper on parent resolver path.
 - (candidate) `AzureInventoryLoadBalancerBackendParentArmIdResolver` — `backendIPConfigurations` rows with PascalCase `Properties` on configuration element skipped — locus: direct NIC pool members; input: classic backend IP configuration projection.
 - (candidate) `AzureInventoryLoadBalancerBackendParentArmIdResolver` — `networkInterfaceIPConfiguration` provided as JSON string scalar ARM id not read — locus: nested address properties; input: string-scalar ip configuration reference.
-- (candidate) `AzureInventoryLoadBalancerBackendTrafficResolver` — same double-encoded `backendAddressPools` string scalar on load balancer resource bag — locus: pool JSON read before backend walk; input: hosted inventory double-encoding.
 - (candidate) `AzureInventoryLoadBalancerBackendParentArmIdResolver` — single pool object JSON (non-array root) not accepted — locus: root kind check; input: lone pool object without array wrapper.
 - (candidate) `AzureInventoryVnetCustomDnsIndex.ResolveFlattenedDnsServerValue` — uppercase-exponent scientific packed uint32 (`2.822734096E9`) still misclassified — locus: indexed flat DNS parse; input: verify against existing lowercase regression parity.
 

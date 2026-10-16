@@ -175,6 +175,58 @@ public sealed class AzureInventoryLoadBalancerBackendTrafficResolverTests
     }
 
     [Fact]
+    public void ResolveLoadBalancerBackends_reads_rule_port_when_rules_json_is_string_scalar_wrapping_array()
+    {
+        string innerRules =
+            $$"""
+            [
+              {
+                "properties": {
+                  "backendPort": 443,
+                  "backendAddressPool": { "id": "{{PoolId}}" }
+                }
+              }
+            ]
+            """;
+
+        GraphNode loadBalancer = new()
+        {
+            NodeId = "lb1",
+            NodeType = "resource",
+            Label = "lb1",
+            Properties = new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["backendAddressPools"] =
+                    $$"""
+                    [
+                      {
+                        "id": "{{PoolId}}",
+                        "properties": {
+                          "loadBalancerBackendAddresses": [
+                            {
+                              "name": "addr1",
+                              "properties": {
+                                "networkInterfaceIPConfiguration": { "id": "{{NicIpConfigurationId}}" }
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                    """,
+                ["loadBalancingRules"] = JsonSerializer.Serialize(innerRules),
+            },
+        };
+
+        IReadOnlyList<AzureInventoryLoadBalancerBackendTrafficResolver.BackendTarget> targets =
+            AzureInventoryLoadBalancerBackendTrafficResolver.ResolveLoadBalancerBackends(loadBalancer);
+
+        AzureInventoryLoadBalancerBackendTrafficResolver.BackendTarget target = targets.Should().ContainSingle().Subject;
+        target.TargetArmId.Should().Be(NicId.ToLowerInvariant());
+        target.RulePort.Should().Be(443);
+    }
+
+    [Fact]
     public void ResolveApplicationGatewayBackends_reads_ip_configuration_from_backend_pool()
     {
         // Application Gateway ARM pools attach NICs through backendIPConfigurations.
