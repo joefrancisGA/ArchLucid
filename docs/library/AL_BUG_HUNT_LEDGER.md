@@ -1,5 +1,14 @@
 > **Scope:**
 
+2026-10-16 thorough hunt (hit): `api-governance-stickiness` — promoted `GET /v1/governance/risk-exceptions` sealing only the latest committed run then returning active waivers whose `RunId` may reference older unsealed runs (register row guards already blocked the same shape on list reads); seal each returned waiver run before HTTP 200; regression `ListRiskExceptions_blocks_older_unsealed_waiver_run_when_latest_run_is_sealed`; fixed `BuildSut` default `ListActiveAsync` setup overwriting injected `IRiskExceptionService` mocks; API stickiness picker tests 213/213, application stickiness/digest tests 69/69; cheap-disproof closed stale assigned-to-me-count candidate (fixed prior run), decision-register/bundle row guards already present; seeded five follow-on `(candidate)` rows.
+
+- (candidate) `GovernanceStickinessController.ListRiskExceptions` — waiver with empty `RunId` — locus: row guard skip; input: finding-only waiver rows.
+- (candidate) `GovernanceStickinessController.GetFindingsRegistersBundle` — unsealed run outside maxRows page — locus: row sealing window; input: `(valid-no-repro)` unless repro.
+- (candidate) `GovernanceStickinessController.GetDecisionRegister` — row run sealing — locus: already guarded; input: cheap-disproof (add regression only if desired).
+- (candidate) `GovernancePostureController.GetPosture` — aggregated posture vs per-run register rows — locus: latest-run-only seal; input: `(valid-no-repro)` unless posture cites stale run ids.
+- (candidate) `GovernanceStickinessFacade.GetAssignedToMeFindingsCountAsync` — count vs 200-row seal window — locus: count exceeds page; input: `(valid-no-repro)` unless repro.
+
+
 2026-10-16 thorough hunt (hit): `api-governance-stickiness` — promoted `GET /v1/governance/risk-register/assigned-to-me-count` sealing only the latest committed run then returning `CountAsync` for assigned open findings, so HTTP 200 could include counts backed by older unsealed register rows (same shape as pre-fix decisions-needed summary); load assigned register page (max 200) and seal each row run before returning the count; regression `GetAssignedToMeFindingsCount_blocks_older_unsealed_register_row_when_latest_run_is_sealed`; API stickiness picker tests 206/206, application stickiness/digest tests 69/69; seeded five follow-on `(candidate)` rows.
 
 - (candidate) `GovernanceStickinessController.GetFindingsRegistersBundle` — bundle register rows beyond first page — locus: row sealing vs full register; input: unsealed run outside maxRows page.
