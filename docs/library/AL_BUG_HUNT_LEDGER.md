@@ -1,5 +1,14 @@
 > **Scope:**
 
+2026-10-16 seed hunt (seed→hit): `api-governance-tenancy-controllers` — promoted `PolicyPackDryRunRedactAuditStage.TryLogAuditAsync` and `PolicyPackGovernanceDryRunService.TryLogProposedPackDryRunAuditAsync` logging `GovernanceDryRunRequested` without `ExplicitActor`, so `AuditService` overwrote `ActorUserId` with `ClaimTypes.NameIdentifier` instead of canonical `jwt:{tid}:{oid}` keys on `GovernanceController` policy-pack dry-run routes; inject `IActorContext`, set `ExplicitActor = true` with `GetActorId()` / `GetActor()` on both audit events; regressions `EvaluateAsync_sets_explicit_actor_for_stable_actor_user_id_when_display_differs` in `PolicyPackDryRunServiceTests` and `PolicyPackGovernanceDryRunServiceTests`; policy pack dry-run suites 35/35; cheap-disproof closed prior ledger rows: tenancy `LogAsync` paths already set `ExplicitActor`, approval submit idempotency replay skips action by design (`IdempotencyFilter`), environment catalog identical replace skips duplicate audit by design (`isIdenticalRetry`); seeded five follow-on `(candidate)` rows.
+
+- (candidate) `GovernanceController.ApprovalRequests.BatchReview` — no idempotency key on batch path — locus: `POST approval-requests/batch-review`; input: safe-retry duplicate batch body vs single-item review idempotency.
+- (candidate) `GovernanceController.SubmitApprovalRequest` — idempotency replay returns cached body without re-audit — locus: `IdempotencyFilter`; input: `(valid-no-repro)` by design.
+- (candidate) `PolicyPacksController` governance simulate routes — audit actor parity on non-controller dry-run services — locus: shared `IPolicyPackGovernanceDryRunService`; input: cheap-disproof (fixed in application service).
+- (candidate) `TenantIntegrationsOperationsController` — mutating integration ops without controller `IAuditService` — locus: scan for durable audit delegation to application layer.
+- (candidate) `GovernanceController.PromotionsActivations` — promote/activate audit only in workflow support — locus: `GovernanceWorkflowAuditSupport`; input: verify `ExplicitActor` on promote/activate events.
+
+
 2026-10-16 thorough hunt (hit): `api-governance-stickiness` — promoted `GET /v1/governance/risk-exceptions` row guard sealing only `RiskExceptionRecord.RunId`, so waivers with empty run id but in-scope `FindingId` on an older unsealed authority run still returned HTTP 200; resolve finding metadata runs when `RunId` is missing and seal before response; regression `ListRiskExceptions_blocks_older_unsealed_finding_run_when_waiver_run_id_is_empty`; API stickiness picker tests 214/214, application stickiness/digest tests 69/69; cheap-disproof closed stale picker assigned-to-me-count row (fixed earlier); seeded five follow-on `(candidate)` rows.
 
 - (candidate) `GovernanceStickinessController.ListRiskExceptions` — waiver with missing finding inspect row — locus: empty finding id + empty run id; input: skip guard (no run to seal).

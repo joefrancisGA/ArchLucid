@@ -1,6 +1,7 @@
 using System.Collections.Immutable;
 
 using ArchLucid.Application;
+using ArchLucid.Application.Common;
 using ArchLucid.Application.Governance;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
@@ -112,6 +113,72 @@ public sealed class PolicyPackGovernanceDryRunServiceTests
                 It.Is<AuditEvent>(e =>
                     e.EventType == AuditEventTypes.GovernanceDryRunRequested &&
                     e.DataJson.Contains("\"workflow\":\"proposedPolicyPackContent\"", StringComparison.Ordinal)),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task EvaluateAsync_sets_explicit_actor_for_stable_actor_user_id_when_display_differs()
+    {
+        Guid runGuid = Guid.NewGuid();
+        Guid snapshotId = Guid.NewGuid();
+        InMemoryRunRepository runs = new();
+        await runs.SaveAsync(
+            new RunRecord
+            {
+                RunId = runGuid,
+                TenantId = TestScope.TenantId,
+                WorkspaceId = TestScope.WorkspaceId,
+                ScopeProjectId = TestScope.ProjectId,
+                ProjectId = "default",
+                ArchitectureRequestId = "req-dry-actor",
+                LegacyRunStatus = "ReadyForCommit",
+                FindingsSnapshotId = snapshotId,
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+            },
+            CancellationToken.None);
+
+        InMemoryFindingsSnapshotRepository findingsRepo = new();
+        await findingsRepo.SaveAsync(
+            new FindingsSnapshot
+            {
+                FindingsSnapshotId = snapshotId,
+                RunId = runGuid,
+                ContextSnapshotId = Guid.NewGuid(),
+                GraphSnapshotId = Guid.NewGuid(),
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+                Findings = [],
+            },
+            CancellationToken.None);
+
+        const string actorKey = "jwt:tenant:operator-oid";
+        Mock<IActorContext> actorContext = new();
+        actorContext.Setup(a => a.GetActorId()).Returns(actorKey);
+        actorContext.Setup(a => a.GetActor()).Returns("Operator Display");
+
+        PolicyPackGovernanceDryRunServiceTestsFixture fixture = CreateSut(
+            runs,
+            findingsRepo,
+            new InMemoryGoldenManifestRepository(),
+            Options.Create(new PreCommitGovernanceGateOptions { PreCommitGateEnabled = true }),
+            actorContext: actorContext.Object);
+
+        await fixture.Sut.EvaluateAsync(
+            "{}",
+            runGuid.ToString("N"),
+            null,
+            null,
+            null,
+            null,
+            CancellationToken.None);
+
+        fixture.Audit.Verify(
+            a => a.LogAsync(
+                It.Is<AuditEvent>(e =>
+                    e.EventType == AuditEventTypes.GovernanceDryRunRequested &&
+                    e.ExplicitActor &&
+                    e.ActorUserId == actorKey &&
+                    e.ActorUserName == "Operator Display"),
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }
@@ -747,7 +814,8 @@ public sealed class PolicyPackGovernanceDryRunServiceTests
         IOptions<FindingEvidenceLinkageFindingEngineOptions>? linkageOptions = null,
         IAuthorityQueryService? authorityQueryService = null,
         IManifestHashService? manifestHashService = null,
-        IFindingReviewTrailRepository? findingReviewTrailRepository = null)
+        IFindingReviewTrailRepository? findingReviewTrailRepository = null,
+        IActorContext? actorContext = null)
     {
         Mock<IPromptRedactor> redactor = new();
         redactor
@@ -762,6 +830,8 @@ public sealed class PolicyPackGovernanceDryRunServiceTests
         Mock<IScopeContextProvider> scope = new();
         scope.Setup(s => s.GetCurrentScope()).Returns(TestScope);
 
+        IActorContext resolvedActorContext = actorContext ?? CreateDefaultActorContext();
+
         Mock<IFindingReviewTrailRepository> trailMock = new();
         trailMock
             .Setup(t => t.ListForFindingIdsSinceUtcAsync(
@@ -773,6 +843,7 @@ public sealed class PolicyPackGovernanceDryRunServiceTests
 
         PolicyPackGovernanceDryRunService sut = new(
             scope.Object,
+            resolvedActorContext,
             runs,
             findings,
             goldenManifests,
@@ -790,5 +861,14 @@ public sealed class PolicyPackGovernanceDryRunServiceTests
             NullLogger<PolicyPackGovernanceDryRunService>.Instance);
 
         return new PolicyPackGovernanceDryRunServiceTestsFixture(sut, audit);
+    }
+
+    private static IActorContext CreateDefaultActorContext()
+    {
+        Mock<IActorContext> actorContext = new();
+        actorContext.Setup(a => a.GetActorId()).Returns("jwt:default:actor");
+        actorContext.Setup(a => a.GetActor()).Returns("Default Actor");
+
+        return actorContext.Object;
     }
 }

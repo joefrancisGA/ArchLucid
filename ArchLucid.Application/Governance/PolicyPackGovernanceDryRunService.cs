@@ -1,5 +1,6 @@
 using System.Text.Json;
 
+using ArchLucid.Application.Common;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Llm.Redaction;
@@ -33,6 +34,7 @@ namespace ArchLucid.Application.Governance;
 /// </remarks>
 public sealed class PolicyPackGovernanceDryRunService(
     IScopeContextProvider scopeContextProvider,
+    IActorContext actorContext,
     IRunRepository runRepository,
     IFindingsSnapshotRepository findingsSnapshotRepository,
     IGoldenManifestRepository goldenManifestRepository,
@@ -51,6 +53,7 @@ public sealed class PolicyPackGovernanceDryRunService(
 {
     private static readonly string[] BlockCommitOnCriticalMetadataKeys = ["governance.blockCommitOnCritical", "blockCommitOnCritical"];
     private static readonly string[] BlockCommitMinimumSeverityMetadataKeys = ["governance.blockCommitMinimumSeverity", "blockCommitMinimumSeverity"];
+    private readonly IActorContext _actorContext = actorContext ?? throw new ArgumentNullException(nameof(actorContext));
     private readonly IAuditService _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
 
     private readonly IFindingsSnapshotRepository _findingsSnapshotRepository =
@@ -272,10 +275,14 @@ public sealed class PolicyPackGovernanceDryRunService(
                     warningCount = gate.Warnings.Count
                 }
             }, AuditJsonSerializationOptions.Instance);
+        // AuditService replaces ActorUserId with NameIdentifier unless ExplicitActor is set.
         AuditEvent auditEvent = new()
         {
             EventType = AuditEventTypes.GovernanceDryRunRequested,
-            DataJson = dataJson
+            ExplicitActor = true,
+            ActorUserId = _actorContext.GetActorId(),
+            ActorUserName = _actorContext.GetActor(),
+            DataJson = dataJson,
         };
         string operationKey = proposedPolicyPackId is { } packId ? packId.ToString("D") : runKey.ToString("N");
         await DurableAuditLogRetry.TryLogAsync(ct => _auditService.LogAsync(auditEvent, ct), _logger, $"GovernanceDryRunRequested:proposed:{operationKey}",
