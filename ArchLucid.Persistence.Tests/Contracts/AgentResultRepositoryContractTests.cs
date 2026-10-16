@@ -201,6 +201,7 @@ public abstract class AgentResultRepositoryContractTests
         [
             new ArchitectureFinding
             {
+                SourceAgent = AgentType.Topology,
                 Message = "finding-one",
                 Severity = FindingSeverity.Warning,
                 IacStub = "stub",
@@ -208,6 +209,7 @@ public abstract class AgentResultRepositoryContractTests
         ];
         seeded.ProposedChanges = new AgentTopologyProposal
         {
+            SourceAgent = AgentType.Topology,
             RequiredControls = ["ctrl-one"],
             Warnings = ["warn-one"],
             AddedServices = [new ManifestService { ServiceName = "svc" }],

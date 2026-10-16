@@ -1,3 +1,5 @@
+> **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
+
 2026-10-15 seed hunt (seed→hit): `application-analysis` — promoted `ExportRecordDiffService` leaving dashed `RightRunId` on diff results when export records used mixed GUID formats (misleading summary/export copy and audit anchors); `AnalysisRunIdCanonicalization` on `ExportRecordDiffResult.LeftRunId`/`RightRunId`; regression `CompareQuality_export_record_diff_canonicalizes_run_ids_on_result`; 44 scoped ArchitectureAnalysis/CompareQuality tests passed.
 
 2026-10-15 seed hunt (seed→hit): `application-analysis` — promoted `ComparisonAuditService` persisting dashed `LeftRunId`/`RightRunId` from end-to-end reports so list/search canonical N-format lookups missed audit rows; `AnalysisRunIdCanonicalization` on persist paths; regression `CompareQuality_TryListByRunIdAsync_lists_audit_persisted_record_when_report_used_dashed_left_run_id`; 48 scoped ArchitectureAnalysis/CompareQuality/ComparisonAuditService tests passed.
@@ -35,8 +37,6 @@
 2026-10-15 seed hunt (seed→hit): `application-analysis` — promoted manifest compare `RunId` guard false reject when compare manifest uses dashed GUID format for the same run; `RunIdsReferToSameRun` on compare lineage check; regression `BuildAsync_compares_manifests_when_compare_run_id_uses_different_guid_format`; 31 scoped ArchitectureAnalysis/CompareQuality tests passed.
 
 2026-10-15 seed hunt (seed→hit): `application-analysis` — promoted `IncludeManifestCompare` accepting compare manifest from a different run; skip diff and warn when `compareManifest.RunId` ≠ primary manifest `RunId`; regression `BuildAsync_skips_manifest_diff_when_compare_manifest_run_id_mismatches_primary`; 30 scoped ArchitectureAnalysis/CompareQuality tests passed.
-
-> **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
 2026-10-15 seed hunt (seed→hit): `application-analysis` — promoted `ArchitectureAnalysisService.BuildAsync` agent compare using empty `PreloadedRunDetail.Results` without repository reload; regression `BuildAsync_loads_primary_agent_results_when_preloaded_detail_omits_results_for_agent_compare`; 29 scoped ArchitectureAnalysis/CompareQuality tests passed.
 

@@ -29,7 +29,9 @@ public static class AgentExplainabilityTraceValidator
 
         List<string> errors = [];
 
-        if (mappedFinding.Trace is null)
+        // Finding.Trace coalesces null to an empty object; treat that as missing too.
+
+        if (ExplainabilityTraceCompletenessAnalyzer.IsMissingOrEmpty(mappedFinding.Trace))
         {
             errors.Add("ExplainabilityTrace is required on agent-mapped findings.");
 

@@ -35,6 +35,7 @@ public sealed class FindingIacStubGeneratorEnrichmentPreservationTests
             [
                 new ArchitectureFinding
                 {
+                    SourceAgent = AgentType.Compliance,
                     FindingId = "finding-1",
                     Message = "Use private endpoints.",
                     Category = "Network",
@@ -116,6 +117,7 @@ public sealed class FindingIacStubGeneratorEnrichmentPreservationTests
             [
                 new ArchitectureFinding
                 {
+                    SourceAgent = AgentType.Compliance,
                     FindingId = "finding-1",
                     Message = "Use private endpoints.",
                     Category = "Network",

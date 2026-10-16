@@ -4,6 +4,30 @@ namespace ArchLucid.Decisioning.Findings;
 
 public static partial class ExplainabilityTraceCompletenessAnalyzer
 {
+    /// <summary>
+    ///     True when there is no explainability content. <see cref="Finding.Trace" /> coalesces
+    ///     null to an empty object, so callers cannot treat a missing trace as a null reference.
+    /// </summary>
+    public static bool IsMissingOrEmpty(ExplainabilityTrace? trace)
+    {
+        if (trace is null)
+            return true;
+
+        return !HasAnyMeaningfulContent(trace);
+    }
+
+    private static bool HasAnyMeaningfulContent(ExplainabilityTrace trace)
+    {
+        return ListHasMeaningfulContent(trace.GraphNodeIdsExamined)
+            || ListHasMeaningfulContent(trace.RulesApplied)
+            || ListHasMeaningfulContent(trace.DecisionsTaken)
+            || ListHasMeaningfulAlternativePaths(trace.AlternativePathsConsidered)
+            || ListHasMeaningfulContent(trace.Notes)
+            || ListHasMeaningfulContent(trace.Citations)
+            || !string.IsNullOrWhiteSpace(trace.ReasoningTrace)
+            || !string.IsNullOrWhiteSpace(trace.ReasoningTraceDigestSha256);
+    }
+
     private static TraceCompletenessScore TraceCompletenessScoreForMissingTrace(Finding finding)
     {
         List<string> missing =
