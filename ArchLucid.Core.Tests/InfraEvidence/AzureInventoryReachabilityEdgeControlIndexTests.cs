@@ -197,6 +197,44 @@ public sealed class AzureInventoryReachabilityEdgeControlIndexTests
     }
 
     [Fact]
+    public void SubnetRequiresEdgeControlEvidence_true_when_routes_json_uses_pascal_case_properties_bag()
+    {
+        string vnet = BuildVnet("vnet");
+        string subnet = BuildSubnet(vnet, "app");
+        string routeTable = BuildRouteTable("routes");
+
+        Dictionary<string, AzureInventoryReachabilityResourceProperties> resources =
+            new(StringComparer.OrdinalIgnoreCase)
+            {
+                [routeTable] = new AzureInventoryReachabilityResourceProperties
+                {
+                    ResourceType = "Microsoft.Network/routeTables",
+                    Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["routes"] = """
+                            [
+                              {
+                                "Properties": {
+                                  "addressPrefix": "0.0.0.0/0",
+                                  "nextHopType": "VirtualNetworkGateway"
+                                }
+                              }
+                            ]
+                            """,
+                    },
+                },
+            };
+
+        AzureInventoryReachabilityEdgeControlIndex index = AzureInventoryReachabilityEdgeControlIndex.Build(
+        [
+            new AzureInventoryRelationshipArmTriple(subnet, routeTable, "inventory-subnet-route-table"),
+        ], resources);
+
+        index.SubnetRequiresEdgeControlEvidence(subnet).Should().BeTrue(
+            "routes JSON must accept Properties casing variants from ARM exports");
+    }
+
+    [Fact]
     public void SubnetRequiresEdgeControlEvidence_false_when_routes_json_next_hop_uses_pascal_case_id_property()
     {
         string vnet = BuildVnet("vnet");

@@ -89,6 +89,33 @@ public sealed class AzureInventoryRouteTableRouteParserTests
     }
 
     [Fact]
+    public void Parse_reads_routes_when_route_element_uses_pascal_case_properties_bag()
+    {
+        Dictionary<string, string> properties = new(StringComparer.Ordinal)
+        {
+            ["routes"] =
+                """
+                [
+                  {
+                    "Properties": {
+                      "addressPrefix": "10.2.0.0/24",
+                      "nextHopType": "VirtualAppliance",
+                      "nextHopIpAddress": "10.0.0.5"
+                    }
+                  }
+                ]
+                """,
+        };
+
+        IReadOnlyList<AzureInventoryRouteTableRoute> routes = AzureInventoryRouteTableRouteParser.Parse(properties);
+
+        routes.Should().ContainSingle();
+        routes[0].AddressPrefix.Should().Be("10.2.0.0/24");
+        routes[0].NextHopType.Should().Be("VirtualAppliance");
+        routes[0].NextHopIpAddress.Should().Be("10.0.0.5");
+    }
+
+    [Fact]
     public void Parse_reads_explicit_flattened_route_properties_when_suffix_casing_differs()
     {
         string routePrefix = $"{InventoryDiagramNodeRelationshipPropertyKeys.RoutePrefix}0";

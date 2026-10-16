@@ -81,7 +81,7 @@ public static class AzureInventoryRouteTableRouteParser
 
             foreach (JsonElement routeElement in document.RootElement.EnumerateArray())
             {
-                if (!routeElement.TryGetProperty("properties", out JsonElement propertiesElement)
+                if (!TryGetPropertyIgnoreCase(routeElement, "properties", out JsonElement propertiesElement)
                     || propertiesElement.ValueKind is not JsonValueKind.Object)
                 {
                     continue;
