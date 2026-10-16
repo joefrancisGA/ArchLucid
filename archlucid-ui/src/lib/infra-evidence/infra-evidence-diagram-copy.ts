@@ -3,10 +3,10 @@ export const INFRA_EVIDENCE_DIAGRAM_LEGEND_HEADING = "Diagram legend";
 export const INFRA_EVIDENCE_DIAGRAM_LEGEND_OBSERVED = "Solid — observed in Azure inventory";
 
 export const INFRA_EVIDENCE_DIAGRAM_LEGEND_DECLARED =
-  "Dashed — declared (human assertion; not an ARM fact)";
+  "Declared connection — dashed; human assertion; not an ARM fact";
 
 export const INFRA_EVIDENCE_DIAGRAM_LEGEND_PROBABLE =
-  "Dashed — probable authorization or declared wiring (RBAC / ADF; not runtime traffic)";
+  "Probable authorization — dashed; RBAC / ADF wiring; not runtime traffic";
 
 export const INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED =
   "Dotted — inferred hostname or AI inference (confirm in configuration)";

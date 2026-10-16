@@ -101,6 +101,43 @@ describe("InfraEvidenceDiagramLegend", () => {
     expect(screen.queryByTestId("infra-evidence-diagram-legend-private-endpoint")).not.toBeInTheDocument();
   });
 
+  it("uses distinct declared and probable labels when both edge kinds are present", () => {
+    render(
+      <InfraEvidenceDiagramLegend
+        outline={{
+          nodes: [],
+          edges: [
+            {
+              from: "a",
+              to: "b",
+              label: "declared · connects",
+              source: "declared",
+              confidenceBand: "declared",
+              provenanceKind: "HumanAssertion",
+              inferenceSource: "human-declared-connection",
+              declaredConnectionId: "cccccccc-cccc-cccc-cccc-cccccccccccc",
+            },
+            {
+              from: "web",
+              to: "sql",
+              label: "May access",
+              source: "probable",
+              confidenceBand: "probable",
+              provenanceKind: "DerivedFact",
+              inferenceSource: "inventory-app-authorized-access",
+              declaredConnectionId: null,
+            },
+          ],
+        }}
+      />,
+    );
+
+    expect(screen.getByText(INFRA_EVIDENCE_DIAGRAM_LEGEND_DECLARED)).toBeInTheDocument();
+    expect(screen.getByText(INFRA_EVIDENCE_DIAGRAM_LEGEND_PROBABLE)).toBeInTheDocument();
+    expect(screen.getAllByTestId("infra-evidence-diagram-legend-stroke-dashed")).toHaveLength(2);
+    expect(screen.queryByText(/^Dashed —/)).not.toBeInTheDocument();
+  });
+
   it("shows probable legend row when outline contains derived authorization edges", () => {
     render(
       <InfraEvidenceDiagramLegend
