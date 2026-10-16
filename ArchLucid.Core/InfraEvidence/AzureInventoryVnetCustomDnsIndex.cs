@@ -378,6 +378,23 @@ public sealed class AzureInventoryVnetCustomDnsIndex
         return value;
     }
 
+    private static bool TryParsePackedUint32DnsAddress(string value, out uint packedAddress)
+    {
+        if (uint.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out packedAddress))
+        {
+            return true;
+        }
+
+        ReadOnlySpan<char> hex = value.AsSpan().Trim();
+
+        if (hex.StartsWith("0x", StringComparison.OrdinalIgnoreCase))
+        {
+            hex = hex[2..];
+        }
+
+        return uint.TryParse(hex, NumberStyles.AllowHexSpecifier, CultureInfo.InvariantCulture, out packedAddress);
+    }
+
     private static bool TryFormatPackedUint32DnsAddressString(string value, out string dottedAddress)
     {
         dottedAddress = string.Empty;
@@ -387,8 +404,7 @@ public sealed class AzureInventoryVnetCustomDnsIndex
             return false;
         }
 
-        if (!uint.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out uint packedAddress)
-            || packedAddress <= 255)
+        if (!TryParsePackedUint32DnsAddress(value, out uint packedAddress) || packedAddress <= 255)
         {
             return false;
         }

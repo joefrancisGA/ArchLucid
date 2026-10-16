@@ -311,6 +311,26 @@ public sealed class AzureInventoryVnetCustomDnsIndexTests
     }
 
     [Fact]
+    public void VnetUsesCustomDns_false_when_indexed_flat_dns_server_is_packed_uint32_hex_string_for_azure_default()
+    {
+        AzureInventoryVnetCustomDnsIndex index = AzureInventoryVnetCustomDnsIndex.Build(
+        [
+            new AzureInventoryVnetCustomDnsResourceProperties
+            {
+                AzureResourceId = VnetArm,
+                ResourceType = "Microsoft.Network/virtualNetworks",
+                Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                {
+                    ["dhcpOptions.dnsServers.0"] = "0xA83F8110",
+                },
+            },
+        ]);
+
+        index.VnetUsesCustomDns(VnetArm).Should().BeFalse(
+            "flattened indexed DNS values must decode hex packed uint32 strings before default-server comparison");
+    }
+
+    [Fact]
     public void VnetUsesCustomDns_false_when_indexed_dns_server_is_json_string_scalar_wrapping_azure_default()
     {
         AzureInventoryVnetCustomDnsIndex index = AzureInventoryVnetCustomDnsIndex.Build(
