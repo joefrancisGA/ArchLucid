@@ -247,7 +247,7 @@ Run **IE-01 → IE-04 → IE-02 → IE-03** before audit selectors or Mermaid-fr
 | **IDF-06** | Graphviz PNG cluster parity from `ArmResourceGroup` | IDF-03 |
 | **IDF-07** | Frame visibility ratchet | IDF-01–06 |
 | **IDF-HOLD** | No nested frames / global gap bump / IDR boxes **from IDF chats** (nesting is **IDX-05 / IDX-06**) | — |
-| **IDX-01** | Recapture nested NIC/PE/Logic App/ADF/diagnostic properties | extractor family on trunk |
+| **IDX-01** | Recapture nested NIC/PE/Logic App/ADF/diagnostic properties | **Shipped** on trunk — do not greenfield |
 | **IDX-02** | Graph-build hop compose + `(from,to,role)` dedupe for every `DiagramMode` | IDX-01 preferred |
 | **IDX-03** | Cited hops; no same-RG / single-VNet all-to-all | IDX-02 |
 | **IDX-04** | Honest verbs (`in` / `contains` / `peering` / `uses` / …) | IDX-02 (prefer IDX-03) |
