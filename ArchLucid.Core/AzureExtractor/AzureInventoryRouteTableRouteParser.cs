@@ -70,7 +70,8 @@ public static class AzureInventoryRouteTableRouteParser
                 AddressPrefix = ReadRouteProperty(properties, index, InventoryDiagramNodeRelationshipPropertyKeys.RouteAddressPrefixSuffix),
                 NextHopType = ReadRouteProperty(properties, index, InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopTypeSuffix),
                 NextHopIpAddress = ReadRouteProperty(properties, index, InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopIpAddressSuffix),
-                NextHopArmId = ReadRouteProperty(properties, index, InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopArmIdSuffix),
+                NextHopArmId = TryParseFlattenedArmIdValue(
+                    ReadRouteProperty(properties, index, InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopArmIdSuffix)),
             };
 
             if (!RouteHasReachableContent(route))
@@ -320,6 +321,42 @@ public static class AzureInventoryRouteTableRouteParser
         string? parsed = value.GetString();
 
         return string.IsNullOrWhiteSpace(parsed) ? null : parsed.Trim();
+    }
+
+    private static string? TryParseFlattenedArmIdValue(string? rawValue)
+    {
+        if (string.IsNullOrWhiteSpace(rawValue))
+        {
+            return null;
+        }
+
+        string trimmed = rawValue.Trim();
+
+        try
+        {
+            using JsonDocument document = JsonDocument.Parse(trimmed);
+            JsonElement root = document.RootElement;
+
+            if (AzureExtractorJsonObjectElement.TryUnwrapObject(root, out JsonElement objectReference))
+            {
+                string? fromObject = TryReadArmIdFromReferenceObject(objectReference);
+
+                if (!string.IsNullOrWhiteSpace(fromObject))
+                {
+                    return fromObject;
+                }
+            }
+
+            if (root.ValueKind is JsonValueKind.String)
+            {
+                return NormalizeArmId(root.GetString());
+            }
+        }
+        catch (JsonException)
+        {
+        }
+
+        return NormalizeArmId(trimmed);
     }
 
     private static string? TryReadNestedArmId(JsonElement propertiesElement, string propertyName)
