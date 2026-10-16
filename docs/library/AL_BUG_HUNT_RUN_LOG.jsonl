@@ -7607,3 +7607,4 @@
 {"at":"2026-10-16T06:47:54.3518799Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/components/reviews/ReviewArchiveControl.tsx"]}
 {"at":"2026-10-16T06:49:33.4839281Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/components/reviews/ReviewCliReproduceSection.tsx"]}
 {"at":"2026-10-16T06:51:19.1247821Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/components/reviews/ReviewChainOfCustodySection.tsx"]}
+{"at":"2026-10-16T06:52:51.4467992Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/components/reviews/SponsorRehearsalPreviewPanel.tsx"]}
