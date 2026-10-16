@@ -1,5 +1,6 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-16 seed hunt (seed→hit): `saml-jwt-bearer` — promoted `SamlMetadataValidUntilParser.TryExtractValidUntilUtc` reading only the document root `validUntil`, so `EntitiesDescriptor` federation exports with expiry on the sole nested `EntityDescriptor` skipped operational metadata expiry checks; resolve nested single-entity `validUntil` when the root attribute is absent; regressions `TryExtractValidUntilUtc_reads_validUntil_from_single_nested_entity_descriptor` and `TryExtractValidUntilUtc_prefers_root_validUntil_on_entities_descriptor`; scoped SAML/JWT/SCIM bearer vitest/dotnet 79 passed (3 SQL integration failures on Linux VM baseline); seeded five follow-on `(candidate)` rows.
 2026-10-16 seed hunt (seed→hit): `ui-review-detail-workspace` — promoted `RunDetailPageHeader` / `BuyerSponsorBriefExports` syncing `runDetailBuyerSponsorBriefExportsOpen` only from `popstate`, so Next.js soft navigation left the sponsor brief export disclosure closed; reconcile from `useSearchParams`; regression `follows runDetailBuyerSponsorBriefExportsOpen query changes without a popstate event`; page header url-sync vitest 1/1; seeded five follow-on `(candidate)` rows.
 2026-10-16 seed hunt (seed→hit): `ui-review-detail-workspace` — promoted `RunDetailOutcomeCards` syncing `runDetailOutcomeMonitoredRiskOpen` / `runDetailOutcomeDecisionKeyOpen` only from `popstate`, so Next.js soft navigation left buyer outcome disclosures stale; reconcile from `useSearchParams`; regression `follows runDetailOutcomeDecisionKeyOpen query changes without a popstate event`; outcome cards url-sync vitest 1/1; seeded five follow-on `(candidate)` rows.
 2026-10-16 seed hunt (seed→hit): `ui-review-detail-workspace` — promoted `RunDetailFindingsListViewToggle` syncing `findingsListView` only from `popstate`, so Next.js soft navigation left the table/cards toggle stale; reconcile from `useSearchParams`; regression `follows findingsListView query changes without a popstate event`; list view toggle url-sync vitest 1/1; seeded five follow-on `(candidate)` rows.
@@ -14657,11 +14658,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** SAML; trial JWT; SCIM bearer; OIDC auth stack
 - **paths:** ArchLucid.Api/Auth/; ArchLucid.Core/Auth/Saml/
 - **test-filter:** FullyQualifiedName~Saml|FullyQualifiedName~LocalTrialJwt|FullyQualifiedName~ScimBearer
-- **hunts:** 23
-- **bugs-found:** 22
+- **hunts:** 24
+- **bugs-found:** 23
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-08
-- **last-bug:** 2026-10-08 — SAML startup fetched IdP metadata from a non-HTTPS URL
+- **last-hunt:** 2026-10-16
+- **last-bug:** 2026-10-16 — SAML metadata validUntil ignored on nested EntityDescriptor under EntitiesDescriptor
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -14752,6 +14753,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-10-05 seed hunt (seed→hit): reseeded multi-`iat` step-up gap; proved and fixed; added SCIM bearer parsing and platform JWT post-config duplicate-claim candidates.
 
 2026-10-05 seed hunt (seed→hit): promoted multi-valued `auth_time` step-up gap; proved and fixed; reseeded SAML role case-dedup and oid non-GUID promotion candidates.
+
+2026-10-16 seed hunt (seed→hit): promoted `SamlMetadataValidUntilParser` nested-`EntityDescriptor` `validUntil` gap; proved and fixed; reseeded five follow-on `(candidate)` rows.
+
+- [x] (proven) `SamlMetadataValidUntilParser.TryExtractValidUntilUtc` — `EntitiesDescriptor` exports without a root `validUntil` left nested single-`EntityDescriptor` expiry invisible to diagnostics — **hit 2026-10-16 seed hunt:** read sole nested entity `validUntil` when the root attribute is absent; regressions `TryExtractValidUntilUtc_reads_validUntil_from_single_nested_entity_descriptor` and `TryExtractValidUntilUtc_prefers_root_validUntil_on_entities_descriptor`
+- [ ] (candidate) `SamlMetadataValidUntilParser.TryExtractValidUntilUtc` — multiple nested `EntityDescriptor` nodes with conflicting `validUntil` values — locus: `ResolveValidUntilAttribute` when `entities.Count > 1`; input: federation metadata listing two IdPs with different expiry timestamps; wrong outcome: silent pass or arbitrary first-entity expiry.
+- [ ] (candidate) `RecentAuthenticationEvaluator.TryGetAuthenticationInstant` — principals with only `iat` claims using `ClaimValueTypes.Integer64` and no `auth_time` — locus: `FindAll(JwtRegisteredClaimNames.Iat)` loop ~42; input: cookie or JWT principal shaped like `LocalTrialJwtIssuer` without the string `auth_time` claim; wrong outcome: step-up treats session as unauthenticated despite fresh `iat`.
+- [ ] (candidate) `ScimBearerAuthenticationHandler.HandleAuthenticateAsync` — comma-joined duplicate `Authorization` header values from proxies — locus: `header.ToString()` before Bearer parse ~28; input: `Authorization: Bearer archlucid_scim.{pub}.{sec}, Bearer archlucid_scim.{other}`; wrong outcome: authenticates with concatenated garbage token or wrong segment.
+- [ ] (candidate) `PlatformUserAuthVersionValidator.ValidateAsync` — duplicate `archlucid_auth_ver` claims with conflicting GUIDs on manually constructed principals — locus: `PlatformUserAuthVersionJwtBearerPostConfigure` `FindFirst(PlatformIdentityClaimTypes.AuthVersion)`; input: principal with stale then current auth-version claims; wrong outcome: accepts revoked stamp when `FindFirst` returns the fresh value without requiring a single distinct version.
+- [ ] (candidate) `SamlMetadataDiscoveryParser.ResolveSingleEntityDescriptor` — `EntitiesDescriptor` containing multiple `EntityDescriptor` nodes — locus: throws when `entities.Count > 1` ~157; input: multi-IdP federation metadata URL used in admin discovery wizard; wrong outcome: wizard hard-fails instead of selecting the configured issuer entity (reachability: admin metadata upload path).
 
 ---
 
