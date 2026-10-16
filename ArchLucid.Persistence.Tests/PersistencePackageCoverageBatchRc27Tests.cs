@@ -121,6 +121,7 @@ public sealed class PersistencePackageCoverageBatchRc27Tests
             ResultId = "match",
             TaskId = "t1",
             RunId = "run1",
+            AgentType = AgentType.Topology,
             Confidence = 0.5,
             CalibratedConfidence = null,
         };
@@ -129,6 +130,7 @@ public sealed class PersistencePackageCoverageBatchRc27Tests
             ResultId = "other",
             TaskId = "t2",
             RunId = "run1",
+            AgentType = AgentType.Topology,
             Confidence = 0.2,
         };
         Dictionary<string, AgentResultEnrichmentRecord> enrichments = new(StringComparer.Ordinal)
@@ -157,6 +159,7 @@ public sealed class PersistencePackageCoverageBatchRc27Tests
             ResultId = "r-json",
             TaskId = "t1",
             RunId = "run1",
+            AgentType = AgentType.Topology,
             Confidence = 0.1,
         };
         AgentResult enrichedShape = new()
@@ -164,6 +167,7 @@ public sealed class PersistencePackageCoverageBatchRc27Tests
             ResultId = "r-json",
             TaskId = "t1",
             RunId = "run1",
+            AgentType = AgentType.Topology,
             Confidence = 0.88,
             CalibratedConfidence = 0.77,
             Claims = ["enriched-claim"],
@@ -197,12 +201,14 @@ public sealed class PersistencePackageCoverageBatchRc27Tests
             ResultId = "r-json",
             TaskId = "t1",
             RunId = "run1",
+            AgentType = AgentType.Topology,
             ProposedEvidenceJson = proposedJson,
             Findings =
             [
                 new ArchitectureFinding
                 {
                     FindingId = "finding-1",
+                    SourceAgent = AgentType.Topology,
                     Message = "Use private endpoints.",
                     Category = "Network",
                     Severity = FindingSeverity.Warning,
@@ -215,11 +221,13 @@ public sealed class PersistencePackageCoverageBatchRc27Tests
             ResultId = "r-json",
             TaskId = "t1",
             RunId = "run1",
+            AgentType = AgentType.Topology,
             Findings =
             [
                 new ArchitectureFinding
                 {
                     FindingId = "finding-1",
+                    SourceAgent = AgentType.Topology,
                     Message = "Use private endpoints.",
                     Category = "Network",
                     Severity = FindingSeverity.Warning,
@@ -253,6 +261,7 @@ public sealed class PersistencePackageCoverageBatchRc27Tests
             ResultId = "r-ws",
             TaskId = "t1",
             RunId = "run1",
+            AgentType = AgentType.Topology,
             Confidence = 0.3,
         };
         Dictionary<string, AgentResultEnrichmentRecord> enrichments = new(StringComparer.Ordinal)
@@ -280,6 +289,7 @@ public sealed class PersistencePackageCoverageBatchRc27Tests
             ResultId = "r-bad",
             TaskId = "t1",
             RunId = "run1",
+            AgentType = AgentType.Topology,
         };
         Dictionary<string, AgentResultEnrichmentRecord> enrichments = new(StringComparer.Ordinal)
         {

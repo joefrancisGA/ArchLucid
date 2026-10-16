@@ -151,7 +151,9 @@ internal static class DraftNewCommandAdmitStage
             return (null, CliExitCode.OperationFailed);
         }
 
-        if (admission.Value.Draft is null)
+        // DraftAdmissionResponse.Draft coalesces null to an empty object; empty DraftId is the missing body.
+
+        if (admission.Value.Draft is null || admission.Value.Draft.DraftId == Guid.Empty)
         {
             await error.WriteLineAsync(
                 "Error admitting draft: API returned success but no draft body. The intake was not started.");
