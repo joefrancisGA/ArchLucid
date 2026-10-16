@@ -83,7 +83,7 @@ public sealed class ReviewModelAliasResolverSubprocessorAckTests
         public Task<bool> HasWorkspaceAcknowledgmentAsync(CancellationToken cancellationToken) =>
             Task.FromResult(false);
 
-        public Task RecordWorkspaceAcknowledgmentAsync(string actorUserId, CancellationToken cancellationToken) =>
+        public Task RecordWorkspaceAcknowledgmentAsync(CancellationToken cancellationToken) =>
             Task.CompletedTask;
     }
 }

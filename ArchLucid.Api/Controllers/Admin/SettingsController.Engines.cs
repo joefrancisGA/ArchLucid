@@ -150,10 +150,8 @@ public sealed partial class SettingsController
     public async Task<ActionResult<ExternalSubprocessorEngineAcknowledgmentResponse>> PostExternalSubprocessorAcknowledgment(
         CancellationToken cancellationToken)
     {
-        string actor = User?.Identity?.Name ?? "admin";
-
         await _externalSubprocessorEngineAcknowledgmentService
-            .RecordWorkspaceAcknowledgmentAsync(actor, cancellationToken)
+            .RecordWorkspaceAcknowledgmentAsync(cancellationToken)
             .ConfigureAwait(false);
 
         return Ok(new ExternalSubprocessorEngineAcknowledgmentResponse { Acknowledged = true });
