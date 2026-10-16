@@ -189,6 +189,26 @@ public sealed class ExplainabilityTraceCompletenessAnalyzerTests
     }
 
     [Fact]
+    public void IsMissingOrEmpty_true_for_null_empty_and_sentinel_only_traces()
+    {
+        ExplainabilityTraceCompletenessAnalyzer.IsMissingOrEmpty(null).Should().BeTrue();
+        ExplainabilityTraceCompletenessAnalyzer.IsMissingOrEmpty(new ExplainabilityTrace()).Should().BeTrue();
+        ExplainabilityTraceCompletenessAnalyzer.IsMissingOrEmpty(new ExplainabilityTrace
+        {
+            AlternativePathsConsidered = [ExplainabilityTraceMarkers.RuleBasedDeterministicSinglePathNote],
+        }).Should().BeTrue();
+    }
+
+    [Fact]
+    public void IsMissingOrEmpty_false_when_any_meaningful_field_is_populated()
+    {
+        ExplainabilityTraceCompletenessAnalyzer.IsMissingOrEmpty(new ExplainabilityTrace
+        {
+            Notes = ["evidence:doc:1"],
+        }).Should().BeFalse();
+    }
+
+    [Fact]
     public void AnalyzeSnapshot_zero_findings_returns_empty_by_engine()
     {
         FindingsSnapshot snapshot = new()

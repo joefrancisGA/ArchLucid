@@ -2,6 +2,7 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 
 using ArchLucid.Application.Governance;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
 
 using FluentAssertions;
@@ -144,7 +145,7 @@ public sealed class SnowflakeSecurityPolicyPackTests
         string path = Path.Combine(repoRoot, ContentRelativePath.Replace('/', Path.DirectorySeparatorChar));
         string json = File.ReadAllText(path);
 
-        return JsonSerializer.Deserialize<PolicyPackContentDocument>(json, PolicyPackJsonSerializerOptions.Default)
+        return JsonSerializer.Deserialize<PolicyPackContentDocument>(json, ContractJson.CamelCaseIgnoreNullCompact)
             ?? throw new InvalidOperationException("Invalid Snowflake Security content document JSON.");
     }
 

@@ -77,7 +77,10 @@ import { truncateExtractUploadPackageId } from "@/lib/extract-upload-accepted-pa
 import { ExtractUploadSettingsPageHeader } from "./ExtractUploadSettingsPageHeader";
 import { ExtractUploadSettingsBuyerChrome } from "./ExtractUploadSettingsBuyerChrome";
 import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
-import { extractUploadSettingsSources } from "@/lib/extract-upload-settings-evidence-copy";
+import {
+  extractUploadSettingsSources,
+  extractUploadSettingsSourcesIntro,
+} from "@/lib/extract-upload-settings-evidence-copy";
 import { shouldShowExtractUploadPackageChecklist } from "@/lib/extract-upload-package-checklist";
 import { ExtractUploadSettingsEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
@@ -159,6 +162,7 @@ function ExtractUploadSettingsPageClientInner() {
 
   const validateCommand = extractUploadValidateCliCommand(selectedPlatform, productLine);
   const orientationSources = extractUploadSettingsSources(productLine);
+  const orientationSourcesIntro = extractUploadSettingsSourcesIntro(productLine);
   const platformLabel = cloudInventoryPlatformLabel(selectedPlatform);
   const showScriptDownload = selectedPlatform === "azure";
   const reviewBindingLabel = reviewBindingStepLabel(associateRunId);
@@ -204,9 +208,17 @@ function ExtractUploadSettingsPageClientInner() {
             OPERATOR_LAYOUT.majorSectionGap,
           )}
         >
-          <ExtractUploadSettingsBuyerChrome sources={orientationSources} />
+          <ExtractUploadSettingsBuyerChrome
+            sources={orientationSources}
+            sourcesIntro={orientationSourcesIntro}
+          />
 
-          {!buyerPolishedShell ? <ExtractUploadSettingsEvidenceOrientationStrip sources={orientationSources} /> : null}
+          {!buyerPolishedShell ? (
+            <ExtractUploadSettingsEvidenceOrientationStrip
+              sources={orientationSources}
+              sourcesIntro={orientationSourcesIntro}
+            />
+          ) : null}
 
           {lastAcceptedPackage !== null ? (
             <ExtractUploadAcceptedPackagePanel record={lastAcceptedPackage} productLineId={productLine} />

@@ -100,6 +100,18 @@ describe("SecureNow governance contextual help rows", () => {
     expect(pageHelpTopicForPathname(GOVERNANCE_INFRASTRUCTURE_TERRAFORM_PATH, "security")?.slug).not.toBe(
       "cloud-connections",
     );
+    expect(pageHelpTopicForPathname(SECURENOW_INFRASTRUCTURE_RESOURCES_PATH, "security")?.slug).toBe(
+      "governance-infrastructure-resources",
+    );
+    expect(
+      pageHelpTopicForPathname(`${SECURENOW_INFRASTRUCTURE_RESOURCES_PATH}/resource-abc`, "security")?.slug,
+    ).toBe("governance-infrastructure-resources");
+    expect(pageHelpTopicForPathname(GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH, "architecture")?.slug).toBe(
+      "governance-infrastructure-resources",
+    );
+    expect(pageHelpTopicForPathname(GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH, "security")?.slug).not.toBe(
+      "cloud-connections",
+    );
   });
 
   it("uses Security extract-upload copy without architecture review CTAs", () => {

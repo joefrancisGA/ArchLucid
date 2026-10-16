@@ -151,7 +151,7 @@ internal static class DraftNewCommandAdmitStage
             return (null, CliExitCode.OperationFailed);
         }
 
-        // DraftAdmissionResponse coalesces JSON null draft to an empty object; empty DraftId means no body.
+        // DraftAdmissionResponse.Draft coalesces null to an empty object; empty DraftId is the missing body.
 
         if (admission.Value.Draft is null || admission.Value.Draft.DraftId == Guid.Empty)
         {

@@ -66,6 +66,29 @@ public sealed class AgentExplainabilityTraceValidatorTests
     }
 
     [Fact]
+    public void ValidateMappedAgentFinding_fails_when_trace_is_empty()
+    {
+        ArchitectureFinding source = new()
+        {
+            FindingId = "finding-empty-trace",
+            EvidenceRefs = ["e1"],
+        };
+
+        Finding mapped = new()
+        {
+            FindingId = source.FindingId,
+            EngineType = AgentType.Topology.ToString(),
+            Trace = new ExplainabilityTrace(),
+        };
+
+        AgentExplainabilityTraceValidationResult result =
+            AgentExplainabilityTraceValidator.ValidateMappedAgentFinding(mapped, source);
+
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().ContainSingle(error => error.Contains("ExplainabilityTrace is required", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void ValidateMappedAgentFinding_fails_when_evidence_refs_missing()
     {
         ArchitectureFinding source = new()

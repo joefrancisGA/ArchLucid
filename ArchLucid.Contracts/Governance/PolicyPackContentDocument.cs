@@ -15,9 +15,9 @@ namespace ArchLucid.Contracts.Governance;
 public class PolicyPackContentDocument
 {
     /// <summary>Compliance rules selected by persisted compliance rule id (GUID).</summary>
-    [JsonPropertyName("complianceRuleIds")]
     private List<Guid> complianceRuleIds = [];
 
+    [JsonPropertyName("complianceRuleIds")]
     public List<Guid> ComplianceRuleIds
     {
         get => complianceRuleIds;
@@ -27,9 +27,9 @@ public class PolicyPackContentDocument
     /// <summary>
     ///     String rule IDs matching file-based rule packs (e.g. <c>network-must-have-security-baseline</c>).
     /// </summary>
-    [JsonPropertyName("complianceRuleKeys")]
     private List<string> complianceRuleKeys = [];
 
+    [JsonPropertyName("complianceRuleKeys")]
     public List<string> ComplianceRuleKeys
     {
         get => complianceRuleKeys;
@@ -37,9 +37,9 @@ public class PolicyPackContentDocument
     }
 
     /// <summary>When non-empty, alert evaluation is restricted to these simple alert rules.</summary>
-    [JsonPropertyName("alertRuleIds")]
     private List<Guid> alertRuleIds = [];
 
+    [JsonPropertyName("alertRuleIds")]
     public List<Guid> AlertRuleIds
     {
         get => alertRuleIds;
@@ -47,9 +47,9 @@ public class PolicyPackContentDocument
     }
 
     /// <summary>When non-empty, restricts composite alert evaluation to these rule ids.</summary>
-    [JsonPropertyName("compositeAlertRuleIds")]
     private List<Guid> compositeAlertRuleIds = [];
 
+    [JsonPropertyName("compositeAlertRuleIds")]
     public List<Guid> CompositeAlertRuleIds
     {
         get => compositeAlertRuleIds;
@@ -57,9 +57,9 @@ public class PolicyPackContentDocument
     }
 
     /// <summary>Key/value defaults merged into advisory improvement plans (string values).</summary>
-    [JsonPropertyName("advisoryDefaults")]
     private Dictionary<string, string> advisoryDefaults = new(StringComparer.OrdinalIgnoreCase);
 
+    [JsonPropertyName("advisoryDefaults")]
     public Dictionary<string, string> AdvisoryDefaults
     {
         get => advisoryDefaults;
@@ -67,9 +67,9 @@ public class PolicyPackContentDocument
     }
 
     /// <summary>Opaque key/value metadata merged with precedence during resolution (operator / integration hooks).</summary>
-    [JsonPropertyName("metadata")]
     private Dictionary<string, string> metadata = new(StringComparer.OrdinalIgnoreCase);
 
+    [JsonPropertyName("metadata")]
     public Dictionary<string, string> Metadata
     {
         get => metadata;
@@ -82,9 +82,9 @@ public class PolicyPackContentDocument
     ///     and the expected answer kind.  Optional — existing packs without questions deserialize
     ///     to an empty list; no migration is required.
     /// </summary>
-    [JsonPropertyName("elicitationQuestions")]
     private List<ElicitationQuestion> elicitationQuestions = [];
 
+    [JsonPropertyName("elicitationQuestions")]
     public List<ElicitationQuestion> ElicitationQuestions
     {
         get => elicitationQuestions;
@@ -92,9 +92,9 @@ public class PolicyPackContentDocument
     }
 
     /// <summary>Engine types that must succeed when this pack is enabled (wave-4 suggestion 33).</summary>
-    [JsonPropertyName("requiredEngineTypes")]
     private List<string> requiredEngineTypes = [];
 
+    [JsonPropertyName("requiredEngineTypes")]
     public List<string> RequiredEngineTypes
     {
         get => requiredEngineTypes;

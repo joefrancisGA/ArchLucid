@@ -38,8 +38,6 @@
 
 2026-10-15 seed hunt (seed→hit): `application-analysis` — promoted `IncludeManifestCompare` accepting compare manifest from a different run; skip diff and warn when `compareManifest.RunId` ≠ primary manifest `RunId`; regression `BuildAsync_skips_manifest_diff_when_compare_manifest_run_id_mismatches_primary`; 30 scoped ArchitectureAnalysis/CompareQuality tests passed.
 
-> **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
-
 2026-10-15 seed hunt (seed→hit): `application-analysis` — promoted `ArchitectureAnalysisService.BuildAsync` agent compare using empty `PreloadedRunDetail.Results` without repository reload; regression `BuildAsync_loads_primary_agent_results_when_preloaded_detail_omits_results_for_agent_compare`; 29 scoped ArchitectureAnalysis/CompareQuality tests passed.
 
 2026-10-15 seed hunt (seed→hit): `application-analysis` — promoted manifest governance classifications omitted when control/tag lists empty; shared `ArchitectureManifestGovernanceExport.ShouldRender` for markdown and DOCX; regressions `GenerateMarkdown_includes_governance_classifications_when_control_lists_empty` and `GenerateDocxAsync_includes_governance_classifications_when_control_lists_empty`; 28 scoped ArchitectureAnalysis/CompareQuality tests passed.
