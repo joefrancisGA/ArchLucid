@@ -87,6 +87,16 @@ export const PRODUCT_DOCUMENTATION_REGISTRY_ENTRIES_OPERATOR_GOVERNANCE: readonl
     "releaseApplicability": "infrastructure resource explorer and evidence hub orientation",
   },
   {
+    "slug": "governance-infrastructure-terraform",
+    "title": "Advisory Terraform mapping",
+    "summary": "Review advisory Terraform addresses reconstructed from inventory snapshots before export.",
+    "audience": "operator",
+    "sourcePaths": [
+    ],
+    "lastReviewed": "2026-10-16",
+    "releaseApplicability": "infrastructure Terraform mapping workbench orientation",
+  },
+  {
     "slug": "model-governance",
     "title": "AI and model policy",
     "summary": "Workspace execution profiles, approved model aliases, and profile mappings used on reviews.",

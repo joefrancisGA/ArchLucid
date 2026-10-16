@@ -198,6 +198,11 @@ const HelpGovernanceInfrastructureResourcesGuideView = dynamic(() =>
     (module) => module.HelpGovernanceInfrastructureResourcesGuideView,
   ),
 );
+const HelpGovernanceInfrastructureTerraformGuideView = dynamic(() =>
+  import("@/app/(operator)/help/_sections/HelpGovernanceInfrastructureTerraformGuideView").then(
+    (module) => module.HelpGovernanceInfrastructureTerraformGuideView,
+  ),
+);
 const HelpGovernanceApprovalGuideView = dynamic(() =>
   import("@/app/(operator)/help/_sections/HelpGovernanceApprovalGuideView").then((module) => module.HelpGovernanceApprovalGuideView),
 );
@@ -414,6 +419,9 @@ export function tryResolveOperateHelpTopicView(
   }
   if (loaded.entry.slug === "governance-infrastructure-resources") {
     return <HelpGovernanceInfrastructureResourcesGuideView entry={loaded.entry} />;
+  }
+  if (loaded.entry.slug === "governance-infrastructure-terraform") {
+    return <HelpGovernanceInfrastructureTerraformGuideView entry={loaded.entry} />;
   }
   if (loaded.entry.slug === "governance-approval") {
     return <HelpGovernanceApprovalGuideView entry={loaded.entry} />;
