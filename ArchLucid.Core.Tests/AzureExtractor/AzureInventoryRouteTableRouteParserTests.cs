@@ -366,4 +366,30 @@ public sealed class AzureInventoryRouteTableRouteParserTests
         routes.Should().ContainSingle();
         routes[0].NextHopArmId.Should().Be(nvaArmId.ToLowerInvariant());
     }
+
+    [Fact]
+    public void Parse_reads_explicit_flattened_route_when_row_is_json_string_scalar_wrapping_route_object()
+    {
+        string routePrefix = $"{InventoryDiagramNodeRelationshipPropertyKeys.RoutePrefix}0";
+        string routeObject =
+            """
+            {
+              "properties": {
+                "addressPrefix": "10.0.0.0/8",
+                "nextHopType": "VirtualNetworkGateway"
+              }
+            }
+            """;
+
+        Dictionary<string, string> properties = new(StringComparer.Ordinal)
+        {
+            [routePrefix] = JsonSerializer.Serialize(routeObject),
+        };
+
+        IReadOnlyList<AzureInventoryRouteTableRoute> routes = AzureInventoryRouteTableRouteParser.Parse(properties);
+
+        routes.Should().ContainSingle();
+        routes[0].AddressPrefix.Should().Be("10.0.0.0/8");
+        routes[0].NextHopType.Should().Be("VirtualNetworkGateway");
+    }
 }

@@ -73,6 +73,12 @@ public static class AzureInventoryRouteTableRouteParser
                 NextHopArmId = TryParseFlattenedNextHopArmId(properties, index),
             };
 
+            if (!RouteHasReachableContent(route)
+                && TryParseRouteFromFlattenedRowBlob(properties, index, out AzureInventoryRouteTableRoute blobRoute))
+            {
+                route = blobRoute;
+            }
+
             if (!RouteHasReachableContent(route))
             {
                 continue;
@@ -96,15 +102,83 @@ public static class AzureInventoryRouteTableRouteParser
                 continue;
             }
 
-            if (!TryExtractExplicitRouteIndex(key, out string index))
+            if (TryExtractExplicitRouteIndex(key, out string index))
+            {
+                indexes.Add(index);
+
+                continue;
+            }
+
+            string routeRowKeySuffix = key[InventoryDiagramNodeRelationshipPropertyKeys.RoutePrefix.Length..];
+
+            if (!string.IsNullOrEmpty(routeRowKeySuffix) && !routeRowKeySuffix.Contains('.'))
+            {
+                indexes.Add(routeRowKeySuffix);
+            }
+        }
+
+        return indexes;
+    }
+
+    private static bool TryParseRouteFromFlattenedRowBlob(
+        IReadOnlyDictionary<string, string> properties,
+        string index,
+        out AzureInventoryRouteTableRoute route)
+    {
+        route = new AzureInventoryRouteTableRoute();
+
+        string rowKey = $"{InventoryDiagramNodeRelationshipPropertyKeys.RoutePrefix}{index}";
+
+        if (!TryReadPropertyValueIgnoreCase(properties, rowKey, out string? rowJson)
+            || string.IsNullOrWhiteSpace(rowJson))
+        {
+            return false;
+        }
+
+        try
+        {
+            using JsonDocument document = JsonDocument.Parse(rowJson);
+
+            if (!TryParseRouteFromRouteElement(document.RootElement, out route))
+            {
+                return false;
+            }
+
+            return RouteHasReachableContent(route);
+        }
+        catch (JsonException)
+        {
+            return false;
+        }
+    }
+
+    private static bool TryReadPropertyValueIgnoreCase(
+        IReadOnlyDictionary<string, string> properties,
+        string propertyKey,
+        out string? value)
+    {
+        if (properties.TryGetValue(propertyKey, out value) && !string.IsNullOrWhiteSpace(value))
+        {
+            return true;
+        }
+
+        foreach ((string key, string propertyValue) in properties)
+        {
+
+            if (!key.Equals(propertyKey, StringComparison.OrdinalIgnoreCase)
+                || string.IsNullOrWhiteSpace(propertyValue))
             {
                 continue;
             }
 
-            indexes.Add(index);
+            value = propertyValue;
+
+            return true;
         }
 
-        return indexes;
+        value = null;
+
+        return false;
     }
 
     private static bool TryExtractExplicitRouteIndex(string propertyKey, out string index)
