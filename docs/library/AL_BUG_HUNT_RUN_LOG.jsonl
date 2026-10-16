@@ -7641,3 +7641,4 @@
 {"at":"2026-10-16T17:43:14.7532349Z","zoneId":"decisioning","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Decisioning/Analysis/DecisioningTextTokenMatcher.cs"]}
 {"at":"2026-10-16T17:47:37.9394721Z","zoneId":"decisioning","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Decisioning/Analysis/DecisioningTextTokenMatcher.cs"]}
 {"at":"2026-10-16T17:55:39.8358313Z","zoneId":"topology-proposal-merge","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalGraphMerge.cs"]}
+{"at":"2026-10-16T18:00:00.8975246Z","zoneId":"topology-proposal-merge","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs"]}
