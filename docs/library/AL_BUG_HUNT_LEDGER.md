@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-16 seed hunt (seed→hit): `decisioning` — promoted `SecurityControlsDecisionStrategy` substring-matching `managed identity` in Strengthen evaluation rationales, so reachable `unmanaged identity` text false-promoted the Managed Identity control; use `DecisioningTextTokenMatcher.ContainsPattern` (parity with `ManifestGovernanceMerger`); regression `ResolveAsync_security_node_does_not_promote_managed_identity_when_strengthen_mentions_unmanaged_identity`. Picker scope 1330 passed, 14 unrelated governance compliance-tag failures (`RunAnalyzers=false`).
+
 2026-10-16 seed hunt (seed→hit): `topology-proposal-merge` — promoted `AgentTopologyProposalMergeGate.FilterGreenfieldProposals` emitting duplicate sanitized rows when the inbound greenfield batch listed the same `ResultId` twice (inventoried path already deduped); align greenfield emit with first-seen order and last-wins sanitized payload; regression `FilterValidatedProposals_emits_single_row_when_greenfield_batch_contains_duplicate_result_ids`. 1,627 scoped topology merge/consensus tests passed (`RunAnalyzers=false`).
 
 2026-10-16 seed hunt (seed→hit): `topology-proposal-merge` — promoted `TopologyProposalConsensusMerger.Merge` `disagreementCount` using post-prune relationship intersection length, inflating disagreement when both models agreed on a relationship later dropped by `PruneRelationshipsToDeclaredEndpoints`; count relationship disagreement against pre-prune `IntersectRelationships` rows; regression `Merge_reports_zero_disagreement_when_models_agree_on_relationship_pruned_for_undeclared_endpoints`. 1,626 scoped topology merge/consensus tests passed (`RunAnalyzers=false`).
@@ -19538,6 +19540,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ---
 
 ## Zone: decisioning
+2026-10-16 seed hunt (seed→hit): `SecurityControlsDecisionStrategy` unmanaged-identity false promotion; regression `ResolveAsync_security_node_does_not_promote_managed_identity_when_strengthen_mentions_unmanaged_identity`.
+
+- [x] (proven) `SecurityControlsDecisionStrategy` — Strengthen rationale `unmanaged identity` false-promoted Managed Identity — **hit 2026-10-16 seed hunt:** `ContainsPattern` for `managed identity`; regression `ResolveAsync_security_node_does_not_promote_managed_identity_when_strengthen_mentions_unmanaged_identity`.
+
 
 - **id:** decisioning
 - **status:** open

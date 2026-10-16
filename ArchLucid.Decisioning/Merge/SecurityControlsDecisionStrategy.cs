@@ -37,7 +37,7 @@ internal sealed class SecurityControlsDecisionStrategy : IDecisionStrategy
 
         bool promoteManagedIdentity = relevant.Any(e =>
             e.EvaluationType.Equals(EvalTypes.Strengthen, StringComparison.OrdinalIgnoreCase) &&
-            e.Rationale.Contains("managed identity", StringComparison.OrdinalIgnoreCase));
+            DecisioningTextTokenMatcher.ContainsPattern(e.Rationale, "managed identity"));
 
         List<string> controls = [];
 
