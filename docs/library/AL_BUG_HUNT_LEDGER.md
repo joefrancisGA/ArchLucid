@@ -1,5 +1,13 @@
 > **Scope:**
 
+2026-10-16 seed hunt (seed→hit): `archlucid-core` — promoted `AzureInventoryNetworkInterfaceIpConfigurationReferenceReader.TryReadDirectId` (and LB `TryReadDirectId` duplicates) treating `backendIPConfigurations[].id` JSON string scalars wrapping `{ "id": "..." }` as opaque text, so parent NIC ARM ids were not resolved for double-encoded hosted pool members; recurse `id` values through `TryReadArmId`; delegate LB resolvers to shared reader; regression `ResolveLoadBalancerBackends_reads_backend_when_backend_ip_configuration_id_is_json_string_scalar_wrapping_id_object`; route-table + LB backend + parent resolver core tests 45/45; seeded five follow-on `(candidate)` rows.
+
+- (candidate) `AzureInventoryRouteTableRouteParser` — explicit flattened `.nextHop` reference object key (not `.nextHopArmId`) — locus: `ParseExplicitRouteProperties`; input: parity with routes JSON `nextHop` property.
+- (candidate) `AzureInventoryRouteTableRouteParser.TryParseFlattenedArmIdValue` — double-encoded JSON string scalar for flattened `nextHopArmId` — locus: property value quoted twice; input: hosted projection edge case.
+- (candidate) `AzureInventoryApplicationGatewayBackendAddressReader` — flat `backendResourceId` reference object at address root — locus: flat branch; input: cheap-disproof vs shared reader.
+- (candidate) `AzureInventoryNetworkInterfaceIpConfigurationReferenceReader` — top-level reference string scalar whose text is bare ARM path without JSON wrapper — locus: string branch; input: already covered by existing tests.
+- (candidate) `AzureInventoryLoadBalancerBackendTrafficResolver.BuildLoadBalancerPortByPoolId` — PascalCase `BackendPort` / `BackendAddressPool` — locus: case-insensitive reads; input: `(valid-no-repro)`.
+
 2026-10-16 seed hunt (seed→hit): `archlucid-core` — promoted explicit flattened `inventory.policy.route.*.nextHopArmId` values left as raw JSON reference blobs (`{"id":"..."}`) because `ParseExplicitRouteProperties` assigned the dictionary string without `TryReadNestedArmId` parity, breaking route next-hop ARM linkage on NR-02 flattened route tables; parse via `TryParseFlattenedArmIdValue` (unwrap object / JSON string scalar / bare ARM path); regression `Parse_reads_next_hop_arm_id_when_explicit_flattened_next_hop_arm_id_is_json_string_scalar_wrapping_id_object`; route-table + LB backend core tests 33/33; seeded five follow-on `(candidate)` rows.
 
 - (candidate) `AzureInventoryRouteTableRouteParser.TryParseFlattenedArmIdValue` — flattened `nextHopArmId` as JSON string scalar wrapping reference object — locus: double-encoded scalar text; input: hosted projection quotes object twice.
