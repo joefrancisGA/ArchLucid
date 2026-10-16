@@ -61,26 +61,10 @@ public static class AzureInventoryRouteTableRouteParser
         IReadOnlyDictionary<string, string> properties)
     {
         List<AzureInventoryRouteTableRoute> routes = [];
-        HashSet<string> indexes = [];
+        HashSet<string> indexes = CollectExplicitRouteIndexes(properties);
 
-        foreach (string key in properties.Keys)
+        foreach (string index in indexes)
         {
-            if (!key.StartsWith(InventoryDiagramNodeRelationshipPropertyKeys.RoutePrefix, StringComparison.OrdinalIgnoreCase)
-                || !key.EndsWith(
-                    InventoryDiagramNodeRelationshipPropertyKeys.RouteAddressPrefixSuffix,
-                    StringComparison.OrdinalIgnoreCase))
-            {
-                continue;
-            }
-
-            string index = key[
-                InventoryDiagramNodeRelationshipPropertyKeys.RoutePrefix.Length..^InventoryDiagramNodeRelationshipPropertyKeys.RouteAddressPrefixSuffix.Length];
-
-            if (!indexes.Add(index))
-            {
-                continue;
-            }
-
             AzureInventoryRouteTableRoute route = new AzureInventoryRouteTableRoute
             {
                 AddressPrefix = ReadRouteProperty(properties, index, InventoryDiagramNodeRelationshipPropertyKeys.RouteAddressPrefixSuffix),
@@ -99,6 +83,58 @@ public static class AzureInventoryRouteTableRouteParser
 
         return routes;
     }
+
+    private static HashSet<string> CollectExplicitRouteIndexes(IReadOnlyDictionary<string, string> properties)
+    {
+        HashSet<string> indexes = [];
+
+        foreach (string key in properties.Keys)
+        {
+
+            if (!key.StartsWith(InventoryDiagramNodeRelationshipPropertyKeys.RoutePrefix, StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            if (!TryExtractExplicitRouteIndex(key, out string index))
+            {
+                continue;
+            }
+
+            indexes.Add(index);
+        }
+
+        return indexes;
+    }
+
+    private static bool TryExtractExplicitRouteIndex(string propertyKey, out string index)
+    {
+        foreach (string suffix in ExplicitRoutePropertySuffixes)
+        {
+
+            if (!propertyKey.EndsWith(suffix, StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            index = propertyKey[
+                InventoryDiagramNodeRelationshipPropertyKeys.RoutePrefix.Length..^suffix.Length];
+
+            return true;
+        }
+
+        index = string.Empty;
+
+        return false;
+    }
+
+    private static readonly string[] ExplicitRoutePropertySuffixes =
+    [
+        InventoryDiagramNodeRelationshipPropertyKeys.RouteAddressPrefixSuffix,
+        InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopTypeSuffix,
+        InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopIpAddressSuffix,
+        InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopArmIdSuffix,
+    ];
 
     private static bool RouteHasReachableContent(AzureInventoryRouteTableRoute route)
     {
