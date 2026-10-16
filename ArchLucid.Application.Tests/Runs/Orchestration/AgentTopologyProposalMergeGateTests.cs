@@ -201,6 +201,28 @@ public sealed class AgentTopologyProposalMergeGateTests
     }
 
     [Fact]
+    public void FilterValidatedProposals_emits_single_row_when_batch_contains_duplicate_result_ids()
+    {
+        GraphSnapshot graph = Graph(ComputeNode(), DataNode());
+        const string duplicateResultId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+
+        AgentResult first = TopologyResult(
+            RelationshipProposal(Relationship(relationshipType: RelationshipType.ReadsFrom)),
+            resultId: duplicateResultId);
+        AgentResult second = TopologyResult(
+            RelationshipProposal(Relationship(relationshipType: RelationshipType.WritesTo)),
+            resultId: duplicateResultId);
+
+        IReadOnlyList<AgentResult> filtered =
+            AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [first, second]);
+
+        filtered.Should().ContainSingle();
+        filtered[0].ResultId.Should().Be(duplicateResultId);
+        filtered[0].ProposedChanges!.AddedRelationships.Should().ContainSingle(relationship =>
+            relationship.RelationshipType == RelationshipType.WritesTo);
+    }
+
+    [Fact]
     public void FilterValidatedProposals_WhenInventoryExists_AllowsServicesKeyedByInventoriedNodeIds()
     {
         GraphSnapshot graph = Graph(ComputeNode());
