@@ -77,6 +77,7 @@ public sealed class GovernanceWorkflowService(IGovernanceWorkflowFacade workflow
         string? notes,
         bool dryRun = false,
         bool verbosePromotionValidationErrors = false,
+        string? promotedByDisplay = null,
         CancellationToken cancellationToken = default) =>
         _workflowFacade.PromoteAsync(
             runId,
@@ -88,6 +89,7 @@ public sealed class GovernanceWorkflowService(IGovernanceWorkflowFacade workflow
             notes,
             dryRun,
             verbosePromotionValidationErrors,
+            promotedByDisplay,
             cancellationToken);
 
     /// <inheritdoc/>

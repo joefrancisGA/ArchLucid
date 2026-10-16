@@ -45,6 +45,7 @@ public interface IGovernanceWorkflowFacade
         string? notes,
         bool dryRun = false,
         bool verbosePromotionValidationErrors = false,
+        string? promotedByDisplay = null,
         CancellationToken cancellationToken = default);
 
     Task<GovernanceEnvironmentActivation> ActivateAsync(

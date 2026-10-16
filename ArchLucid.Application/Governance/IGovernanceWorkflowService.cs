@@ -123,6 +123,7 @@ public interface IGovernanceWorkflowService
         string? notes,
         bool dryRun = false,
         bool verbosePromotionValidationErrors = false,
+        string? promotedByDisplay = null,
         CancellationToken cancellationToken = default);
 
     /// <summary>

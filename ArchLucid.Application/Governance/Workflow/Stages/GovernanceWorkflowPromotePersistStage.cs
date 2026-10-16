@@ -45,6 +45,7 @@ public sealed class GovernanceWorkflowPromotePersistStage(
         if (validated.DryRun)
         {
             await _auditSupport.LogDryRunValidationAttemptedForPromotionAsync(
+                validated.PromotedByDisplay,
                 validated.PromotedBy,
                 validated.PersistedRunId,
                 validated.ManifestVersion,

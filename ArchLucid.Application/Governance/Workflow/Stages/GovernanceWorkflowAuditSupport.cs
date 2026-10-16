@@ -233,7 +233,8 @@ public sealed class GovernanceWorkflowAuditSupport(
     }
 
     public async Task LogDryRunValidationAttemptedForPromotionAsync(
-        string promotedBy,
+        string promotedByDisplay,
+        string promotedByActorKey,
         string runId,
         string manifestVersion,
         string sourceEnvironment,
@@ -241,6 +242,9 @@ public sealed class GovernanceWorkflowAuditSupport(
         string? approvalRequestId,
         CancellationToken cancellationToken)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(promotedByDisplay);
+        ArgumentException.ThrowIfNullOrWhiteSpace(promotedByActorKey);
+
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         Guid? auditRunId = Guid.TryParse(runId, out Guid rid) ? rid : null;
         string dataJson = JsonSerializer.Serialize(
@@ -255,8 +259,8 @@ public sealed class GovernanceWorkflowAuditSupport(
             AuditJsonSerializationOptions.Instance);
         AuditEvent auditEvent = scope.CreateAuditEvent(
             AuditEventTypes.GovernanceDryRunValidationAttempted,
-            promotedBy,
-            promotedBy,
+            promotedByActorKey,
+            promotedByDisplay,
             dataJson);
         auditEvent.RunId = auditRunId;
         auditEvent.ExplicitActor = true;

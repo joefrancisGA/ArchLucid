@@ -17,6 +17,7 @@ public interface IGovernancePromotionsActivationsFacade
         string? notes,
         bool dryRun,
         bool verbosePromotionValidationErrors,
+        string? promotedByDisplay,
         CancellationToken ct);
 
     Task<GovernanceEnvironmentActivation> ActivateAsync(

@@ -180,6 +180,7 @@ public sealed class GovernanceWorkflowAuditSupportTests
     [Fact]
     public async Task LogDryRunValidationAttemptedForPromotionAsync_sets_explicit_actor_for_stable_promoted_by()
     {
+        const string displayName = "Pat Operator";
         const string actorKey = "jwt:11111111-2222-3333-4444-555555555555:aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee";
         AuditEvent? captured = null;
         Mock<IAuditService> auditService = new();
@@ -191,6 +192,7 @@ public sealed class GovernanceWorkflowAuditSupportTests
         GovernanceWorkflowAuditSupport support = CreateSupport(auditService.Object);
 
         await support.LogDryRunValidationAttemptedForPromotionAsync(
+            displayName,
             actorKey,
             "44444444-4444-4444-4444-444444444444",
             "1",
@@ -202,6 +204,7 @@ public sealed class GovernanceWorkflowAuditSupportTests
         captured.Should().NotBeNull();
         captured!.ExplicitActor.Should().BeTrue();
         captured.ActorUserId.Should().Be(actorKey);
+        captured.ActorUserName.Should().Be(displayName);
     }
 
     private static GovernanceWorkflowAuditSupport CreateSupport(IAuditService? auditService = null)

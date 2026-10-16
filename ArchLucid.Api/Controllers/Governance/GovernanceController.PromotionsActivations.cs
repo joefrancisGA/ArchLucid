@@ -93,6 +93,7 @@ public sealed partial class GovernanceController
             return sealedGuardResult;
 
         string promotedBy = actorContext.GetActorId();
+        string promotedByDisplay = actorContext.GetActor();
 
         try
         {
@@ -108,6 +109,7 @@ public sealed partial class GovernanceController
                 request.Notes,
                 dryRun,
                 verbosePromotionValidationErrors,
+                promotedByDisplay,
                 cancellationToken);
 
             if (dryRun)

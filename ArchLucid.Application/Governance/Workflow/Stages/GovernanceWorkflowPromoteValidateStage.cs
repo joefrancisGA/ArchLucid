@@ -52,6 +52,7 @@ public sealed class GovernanceWorkflowPromoteValidateStage(
         string? notes,
         bool dryRun,
         bool verbosePromotionValidationErrors,
+        string? promotedByDisplay,
         CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(runId);
@@ -138,6 +139,10 @@ public sealed class GovernanceWorkflowPromoteValidateStage(
         };
         _auditSupport.StampGovernanceScope(record);
 
+        string resolvedPromotedByDisplay = string.IsNullOrWhiteSpace(promotedByDisplay)
+            ? promotedBy
+            : promotedByDisplay.Trim();
+
         return new GovernanceWorkflowPromoteValidatedContext
         {
             PersistedRunId = persistedRunId,
@@ -145,6 +150,7 @@ public sealed class GovernanceWorkflowPromoteValidateStage(
             SourceEnvironment = sourceEnvironment,
             TargetEnvironment = targetEnvironment,
             PromotedBy = promotedBy,
+            PromotedByDisplay = resolvedPromotedByDisplay,
             Record = record,
             ProdApprovalToMarkPromoted = prodApprovalToMarkPromoted,
             DryRun = dryRun,
