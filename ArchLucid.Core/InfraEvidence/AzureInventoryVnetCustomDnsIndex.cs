@@ -95,29 +95,26 @@ public sealed class AzureInventoryVnetCustomDnsIndex
         try
         {
             using JsonDocument document = JsonDocument.Parse(json);
+            JsonElement root = document.RootElement;
 
-            if (!document.RootElement.TryGetProperty("dnsServers", out JsonElement serversElement))
+            if (root.ValueKind is JsonValueKind.Array)
             {
-                return false;
+                AppendDnsServersFromJsonArray(root, dnsServers);
             }
-
-            if (serversElement.ValueKind is JsonValueKind.String)
+            else if (root.ValueKind is JsonValueKind.Object
+                     && root.TryGetProperty("dnsServers", out JsonElement serversElement))
             {
-                AppendDnsServersFromDelimitedString(serversElement.GetString(), dnsServers);
-            }
-            else if (serversElement.ValueKind is JsonValueKind.Array)
-            {
-                foreach (JsonElement serverElement in serversElement.EnumerateArray())
+                if (serversElement.ValueKind is JsonValueKind.String)
                 {
-                    if (serverElement.ValueKind == JsonValueKind.String)
-                    {
-                        string? server = serverElement.GetString();
-
-                        if (!string.IsNullOrWhiteSpace(server))
-                        {
-                            dnsServers.Add(server.Trim());
-                        }
-                    }
+                    AppendDnsServersFromDelimitedString(serversElement.GetString(), dnsServers);
+                }
+                else if (serversElement.ValueKind is JsonValueKind.Array)
+                {
+                    AppendDnsServersFromJsonArray(serversElement, dnsServers);
+                }
+                else
+                {
+                    return false;
                 }
             }
             else
@@ -131,6 +128,22 @@ public sealed class AzureInventoryVnetCustomDnsIndex
         }
 
         return dnsServers.Count > 0;
+    }
+
+    private static void AppendDnsServersFromJsonArray(JsonElement serversElement, List<string> dnsServers)
+    {
+        foreach (JsonElement serverElement in serversElement.EnumerateArray())
+        {
+            if (serverElement.ValueKind == JsonValueKind.String)
+            {
+                string? server = serverElement.GetString();
+
+                if (!string.IsNullOrWhiteSpace(server))
+                {
+                    dnsServers.Add(server.Trim());
+                }
+            }
+        }
     }
 
     private static void AppendDnsServersFromDelimitedString(string? servers, List<string> dnsServers)

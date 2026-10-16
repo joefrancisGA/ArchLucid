@@ -1,3 +1,4 @@
+2026-10-16 seed hunt (seed→hit): `archlucid-core` — promoted `AzureInventoryVnetCustomDnsIndex.TryParseDnsServersFromJson` throwing on bare `dhcpOptions` JSON arrays and ignoring that list shape; accept root-level arrays and object `dnsServers`; regression `VnetUsesCustomDns_true_when_dhcpOptions_json_is_bare_dns_server_array`; `AzureInventoryVnetCustomDnsIndexTests` 7/7; seeded five follow-on `(candidate)` rows.
 2026-10-16 seed hunt (seed→hit): `archlucid-core` — promoted `AzureInventoryVnetCustomDnsIndex.TryParseDnsServersFromJson` rejecting `dhcpOptions` JSON when `dnsServers` was a string scalar instead of an array; accept string and comma-separated lists; regression `VnetUsesCustomDns_true_when_dhcpOptions_json_lists_scalar_dns_server_string`; `AzureInventoryVnetCustomDnsIndexTests` 6/6; seeded five follow-on `(candidate)` rows.
 2026-10-16 seed hunt (seed→hit): `archlucid-core` — promoted `AzureInventoryVnetCustomDnsIndex.Build` indexing subnet ARM ids instead of parent VNet ids when custom DNS appeared only on `Microsoft.Network/virtualNetworks/subnets` inventory rows; resolve parent VNet via `AzureInventorySubnetArmIdHelper`; regression `VnetUsesCustomDns_true_when_custom_dns_is_on_subnet_resource_row`; `AzureInventoryVnetCustomDnsIndexTests` 5/5; seeded five follow-on `(candidate)` rows.
 2026-10-16 seed hunt (seed→hit): `archlucid-core` — promoted `AzureInventoryVnetCustomDnsIndex.TryReadCustomDnsServers` returning after default-only `dhcpOptions` JSON without reading flattened `dhcpOptions.dnsServers` custom resolvers; merge JSON and flat DNS server lists; regression `VnetUsesCustomDns_true_when_flat_dns_servers_list_custom_resolver_after_default_only_json`; scoped `FullyQualifiedName~ArchLucid.Core` filter on infra DNS tests; seeded five follow-on `(candidate)` rows.
@@ -22077,6 +22078,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ---
 
 ## Zone: archlucid-core
+2026-10-16 seed hunt (seed→hit): promoted bare-array `dhcpOptions` JSON for custom DNS; regression `VnetUsesCustomDns_true_when_dhcpOptions_json_is_bare_dns_server_array`.
+
 2026-10-16 seed hunt (seed→hit): promoted scalar `dnsServers` JSON in `dhcpOptions`; regression `VnetUsesCustomDns_true_when_dhcpOptions_json_lists_scalar_dns_server_string`.
 
 2026-10-16 seed hunt (seed→hit): promoted subnet-row custom DNS not attributed to parent VNet ARM id; regression `VnetUsesCustomDns_true_when_custom_dns_is_on_subnet_resource_row`.
@@ -22140,7 +22143,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **last-hunt:** 2026-10-15
 - **bugs-found:** 3513
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-16 — scalar dnsServers JSON in dhcpOptions ignored for custom DNS
+- **last-bug:** 2026-10-16 — bare-array dhcpOptions JSON broke custom DNS detection
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -22172,6 +22175,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
+- [x] (proven) `AzureInventoryVnetCustomDnsIndex.TryParseDnsServersFromJson` — bare-array `dhcpOptions` JSON threw and dropped custom DNS — **hit 2026-10-16 seed hunt:** parse root arrays and object `dnsServers`; regression `VnetUsesCustomDns_true_when_dhcpOptions_json_is_bare_dns_server_array`.
 - [x] (proven) `AzureInventoryVnetCustomDnsIndex.TryParseDnsServersFromJson` — string-scalar `dnsServers` in `dhcpOptions` JSON ignored — **hit 2026-10-16 seed hunt:** parse string and comma-separated lists; regression `VnetUsesCustomDns_true_when_dhcpOptions_json_lists_scalar_dns_server_string`.
 - [x] (proven) `AzureInventoryVnetCustomDnsIndex.Build` — subnet inventory rows indexed by subnet ARM id so parent VNet lookups missed custom DNS — **hit 2026-10-16 seed hunt:** resolve parent VNet id via `AzureInventorySubnetArmIdHelper`; regression `VnetUsesCustomDns_true_when_custom_dns_is_on_subnet_resource_row`.
 - [x] (proven) `AzureInventoryVnetCustomDnsIndex.TryReadCustomDnsServers` — default-only `dhcpOptions` JSON short-circuited before flattened `dhcpOptions.dnsServers` — **hit 2026-10-16 seed hunt:** merge DNS server lists from both shapes; regression above.
