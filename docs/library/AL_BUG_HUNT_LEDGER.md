@@ -1,3 +1,4 @@
+2026-10-16 seed hunt (seed→hit): `archlucid-core` — promoted `AzureInventoryVnetCustomDnsIndex.TryReadCustomDnsServers` comma-splitting flattened `dhcpOptions.dnsServers` JSON array text (e.g. `["168.63.129.16"]`) into bracketed pseudo-addresses and falsely flagging custom DNS; parse JSON array flat values via `TryParseDnsServersFromJson`; regressions `VnetUsesCustomDns_false_when_flat_dns_servers_is_json_array_of_only_azure_default` and `VnetUsesCustomDns_true_when_flat_dns_servers_is_json_array_with_custom_resolver`; `AzureInventoryVnetCustomDnsIndexTests` 11/11; seeded five follow-on `(candidate)` rows.
 2026-10-16 seed hunt (seed→hit): `archlucid-core` — promoted `AzureInventoryComputeIdentityPrincipalIndex.TryParseIdentityPrincipalIds` ignoring PascalCase `PrincipalId` on compute `identity` JSON (principal→compute index false negative); case-insensitive property reads; regression `BuildPrincipalToComputeArmIds_reads_pascal_case_principal_id_property`; `AzureInventoryComputeIdentityPrincipalIndexTests` 2/2; seeded five follow-on `(candidate)` rows.
 2026-10-16 seed hunt (seed→hit): `api-governance-tenancy-controllers` — promoted `GovernanceWorkflowAuditSupport.CreateGovernanceManifestPromotedAuditEvent` / `CreateGovernanceEnvironmentActivatedAuditEvent` omitting `ExplicitActor`, so `AuditService` replaced `ActorUserId` with `ClaimTypes.NameIdentifier` while promotion records store jwt actor keys; set `ExplicitActor = true` on durable promotion/activation audits; regressions `CreateGovernanceManifestPromotedAuditEvent_sets_explicit_actor_for_stable_promoted_by` and `CreateGovernanceEnvironmentActivatedAuditEvent_sets_explicit_actor_for_stable_activated_by`; scoped Governance/Tenancy controller filter 143 passed, 18 SQL integration failures (Linux VM baseline); seeded five follow-on `(candidate)` rows.
 2026-10-16 seed hunt (seed→hit): `archlucid-core` — promoted `AzureInventoryRuntimeIdentityReader.TryReadSystemAssignedPrincipalId` ignoring PascalCase `PrincipalId` in `identity` JSON (runtime identity false negative); case-insensitive `principalId` and `userAssignedIdentities` property reads; regression `TryReadSystemAssignedPrincipalId_reads_pascal_case_principal_id_property`; `AzureInventoryRuntimeIdentityReaderTests` 4/4; seeded five follow-on `(candidate)` rows.
@@ -22085,6 +22086,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ---
 
 ## Zone: archlucid-core
+2026-10-16 seed hunt (seed→hit): promoted flat `dhcpOptions.dnsServers` JSON array comma-split false positive; regressions above; 11/11 VNet DNS tests.
+
 2026-10-16 seed hunt (seed→hit): promoted PascalCase `PrincipalId` on compute identity JSON for principal index; regression above; 2/2 compute identity index tests.
 
 2026-10-16 seed hunt (seed→hit): promoted PascalCase `PrincipalId` on `identity` JSON for runtime identity reads; regression above; 4/4 identity reader tests.
@@ -22158,11 +22161,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models; retired mega-zone
 - **paths:** docs/library/AL_BUG_HUNT_LEDGER.md
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 483
+- **hunts:** 484
 - **last-hunt:** 2026-10-15
-- **bugs-found:** 3518
+- **bugs-found:** 3519
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-16 — PascalCase PrincipalId on compute identity JSON broke principal index
+- **last-bug:** 2026-10-16 — flat dhcpOptions.dnsServers JSON array comma-split broke custom DNS detection
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -22207,15 +22210,19 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - (candidate) `AzureInventoryReachabilityEdgeControlIndex.Build` — route table ARM id stored with trailing slash while subnet→route-table relationship ids are normalized — locus: normalized resource index; input: VNet gateway route on route table keyed with trailing slash.
 - (candidate) `AzureInventoryEventGridDestinationExtractor.Extract` — webhook URL only under nested `properties.endpoint` without `Url` suffix — locus: destination properties bag; input: Event Grid ARM list export shape.
 - (candidate) `ArmResourceIdNormalizer.IsDescendantOf` — descendant and ancestor differ only by trailing slash on nested child — locus: `Normalize`; input: AGW pool member vs site resource ids.
+- (candidate) `AzureInventoryPrivateEndpointDnsJoinIndex.BuildComputeToVnetMap` — VNet ARM ids stored without `ArmResourceIdNormalizer` in `computeToVnet` values — locus: subnet parent resolution; input: mixed-case subnet ids vs zone-vnet links.
+- (candidate) `AzureInventoryReachabilityEdgeControlIndex.AssetDeclaredBehindApplicationGateway` — AGW backend `ToAzureResourceId` outer whitespace before normalization — locus: relationship ingest; input: `inventory-agw-backend` triple.
+- (candidate) `AzureInventoryRouteTableRouteParser.Parse` — explicit flattened route keys with non-numeric index segments — locus: `ParseExplicitRouteProperties`; input: inventory.policy.route keys from hosted extract.
+- (candidate) `AzureInventoryVnetCustomDnsIndex.TryParseDnsServersFromJson` — numeric JSON elements in `dnsServers` arrays skipped — locus: `AppendDnsServersFromJsonArray`; input: mixed-type dhcpOptions projection.
+- (candidate) `GovernanceWorkflowAuditSupport.LogDryRunValidationAttemptedForPromotionAsync` — dry-run promotion audits omit `ExplicitActor` — locus: workflow audit helper (cross-zone note; hunt only when picker selects governance).
+
 - (candidate) `AzureInventoryReachabilityEdgeControlIndex.AssetDeclaredBehindApplicationGateway` — `FromAzureResourceId` padded with outer whitespace on AGW backend relationship — locus: `Normalize` at index build; input: inventory-agw-backend triple.
 - (candidate) `AzureInventoryVnetCustomDnsIndex.TryParseDnsServersFromJson` — numeric JSON elements in `dnsServers` array skipped while flat list includes the same address — locus: array element kind handling; input: mixed-type dhcpOptions projection.
 
-- (candidate) `AzureInventoryVnetCustomDnsIndex.TryReadCustomDnsServers` — `dhcpOptions.dnsServers` flat value is a JSON array string (`["10.0.0.4"]`) rather than comma-separated — locus: flat list split; input: flattened inventory property from hosted expander.
 - (candidate) `AzureInventoryVnetCustomDnsIndex.TryParseDnsServersFromJson` — `dhcpOptions` property value is a JSON string scalar wrapping the object (`"{\"dnsServers\":[...]}"`) — locus: root `ValueKind.String`; input: double-encoded inventory projection.
 - (candidate) `AzureInventoryPrivateEndpointDnsJoinIndex.BuildComputeToVnetMap` — resolved VNet ARM ids not passed through `ArmResourceIdNormalizer` before zone-link `Contains` — locus: `computeToVnet` values; input: mixed-case subnet relationship ids from snapshot materializer.
 - (candidate) `AzureInventoryRuntimeIdentityReader.TryReadSystemAssignedPrincipalId` — `PrincipalId` PascalCase in `identity` JSON ignored — locus: case-sensitive `TryGetProperty`; input: identity JSON casing variants from alternate ARM serializers.
 
-- (candidate) `AzureInventoryVnetCustomDnsIndex.TryReadCustomDnsServers` — `dhcpOptions.dnsServers` flat value is JSON array text not comma-separated — locus: flat split; input: `["10.0.0.4"]` flattened property.
 - (candidate) `AzureInventoryPrivateEndpointDnsJoinIndex.BuildComputeToVnetMap` — compute VNet values not normalized — locus: `computeToVnet`; input: mixed-case subnet ids.
 - (candidate) `AzureInventoryReachabilityEdgeControlIndex.Build` — route table resource id trailing slash on relationship only — locus: `NormalizeReachabilityResourceIndex`; input: padded route table ARM id.
 
@@ -22223,6 +22230,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - (candidate) `AzureInventoryPrivateEndpointDnsJoinIndex.BuildComputeToVnetMap` — compute VNet ARM ids not normalized in map values — locus: `TryResolveVnetArmIdFromSubnetArmId` output; input: mixed-case subnet relationship ids.
 - (candidate) `AzureInventoryReachabilityEdgeControlIndex.AssetDeclaredBehindApplicationGateway` — padded whitespace on AGW backend `ToAzureResourceId` — locus: relationship normalization; input: `inventory-agw-backend` triple.
 
+- [x] (proven) `AzureInventoryVnetCustomDnsIndex.TryReadCustomDnsServers` — flattened `dhcpOptions.dnsServers` JSON array comma-split — **hit 2026-10-16 seed hunt:** parse JSON array flat values; regressions `VnetUsesCustomDns_false_when_flat_dns_servers_is_json_array_of_only_azure_default` and `VnetUsesCustomDns_true_when_flat_dns_servers_is_json_array_with_custom_resolver`.
 - [x] (proven) `AzureInventoryComputeIdentityPrincipalIndex.TryParseIdentityPrincipalIds` — PascalCase `PrincipalId` ignored — **hit 2026-10-16 seed hunt:** case-insensitive property reads; regression `BuildPrincipalToComputeArmIds_reads_pascal_case_principal_id_property`.
 - [x] (proven) `AzureInventoryRuntimeIdentityReader.TryReadSystemAssignedPrincipalId` — PascalCase `PrincipalId` in `identity` JSON ignored — **hit 2026-10-16 seed hunt:** case-insensitive property reads; regression `TryReadSystemAssignedPrincipalId_reads_pascal_case_principal_id_property`.
 - [x] (proven) `AzureInventoryVnetCustomDnsIndex.TryParseDnsServersFromJson` — JSON string scalar wrapping `dhcpOptions` object ignored — **hit 2026-10-16 seed hunt:** unwrap string and re-parse; regression `VnetUsesCustomDns_true_when_dhcpOptions_is_json_string_scalar_wrapping_object`.
