@@ -7803,3 +7803,4 @@
 {"at":"2026-10-16T01:31:14.8096091Z","zoneId":"ui-review-intake-wizards","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-16T01:35:30.1215325Z","zoneId":"ui-review-intake-wizards","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-16T01:41:18.8194165Z","zoneId":"archlucid-core","outcome":"hit","productLine":"securenow","paths":["ArchLucid.Core/InfraEvidence/AzureInventoryReachabilityEdgeControlIndex.cs"]}
+{"at":"2026-10-16T01:45:05.1899547Z","zoneId":"archlucid-core","outcome":"hit","productLine":"securenow","paths":["ArchLucid.Core/InfraEvidence/AzureInventoryVnetCustomDnsIndex.cs"]}
