@@ -7628,3 +7628,4 @@
 {"at":"2026-10-16T16:32:09.9434452Z","zoneId":"saml-jwt-bearer","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Core/Auth/Saml/SamlMetadataValidUntilParser.cs"]}
 {"at":"2026-10-16T16:42:09.3240784Z","zoneId":"api-authority-admin-controllers","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Admin/AdminController.OutboxArchive.cs"]}
 {"at":"2026-10-16T16:44:59.7129579Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/components/runs/RunDetailLastFailureCard.tsx"]}
+{"at":"2026-10-16T16:50:17.0761198Z","zoneId":"application-billing-logic","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Billing/"]}
