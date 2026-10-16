@@ -89,6 +89,26 @@ public sealed class ConfigurationEffectiveValueResolverTests
     }
 
     [Fact]
+    public void Resolve_preserves_archlucid_secrets_section_metadata_scalars()
+    {
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["ArchLucid:Secrets:Provider"] = "EnvironmentVariable",
+            ["ArchLucid:Secrets:KeyVaultUri"] = "https://example.vault.azure.net/",
+            ["ArchLucid:Secrets:KeyVaultCacheSeconds"] = "300",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        ConfigurationEffectiveValueResolver.Resolve(configuration, "ArchLucid:Secrets:Provider", isSet: true)
+            .Should().Be("EnvironmentVariable");
+        ConfigurationEffectiveValueResolver.Resolve(configuration, "ArchLucid:Secrets:KeyVaultUri", isSet: true)
+            .Should().Be("https://example.vault.azure.net/");
+        ConfigurationEffectiveValueResolver.Resolve(configuration, "ArchLucid:Secrets:KeyVaultCacheSeconds", isSet: true)
+            .Should().Be("300");
+    }
+
+    [Fact]
     public void Resolve_keeps_truncated_effective_value_well_formed_when_cut_splits_a_surrogate_pair()
     {
         // Catalog path returned by GET /v1/admin/config-summary?includeEffectiveValues=true.

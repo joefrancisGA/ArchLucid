@@ -34,6 +34,25 @@ public static class AzureOpenAiEndpointNormalizer
 
     private static string EnsureTrailingSlash(string value)
     {
+        if (!Uri.TryCreate(value, UriKind.Absolute, out Uri? uri))
+            return value.EndsWith("/", StringComparison.Ordinal) ? value : value + "/";
+
+        if (!string.IsNullOrEmpty(uri.Query))
+        {
+            string path = uri.AbsolutePath;
+
+            if (path.Length == 0 || !path.EndsWith("/", StringComparison.Ordinal))
+                path += "/";
+
+            return uri.GetLeftPart(UriPartial.Authority) + path + uri.Query;
+        }
+
+        if (!string.IsNullOrEmpty(uri.AbsolutePath)
+            && !uri.AbsolutePath.EndsWith("/", StringComparison.Ordinal))
+        {
+            return uri.GetLeftPart(UriPartial.Authority) + uri.AbsolutePath + "/";
+        }
+
         return value.EndsWith("/", StringComparison.Ordinal) ? value : value + "/";
     }
 }
