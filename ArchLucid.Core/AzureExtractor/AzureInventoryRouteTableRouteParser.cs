@@ -81,16 +81,31 @@ public static class AzureInventoryRouteTableRouteParser
                 continue;
             }
 
-            routes.Add(new AzureInventoryRouteTableRoute
+            AzureInventoryRouteTableRoute route = new AzureInventoryRouteTableRoute
             {
                 AddressPrefix = ReadRouteProperty(properties, index, InventoryDiagramNodeRelationshipPropertyKeys.RouteAddressPrefixSuffix),
                 NextHopType = ReadRouteProperty(properties, index, InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopTypeSuffix),
                 NextHopIpAddress = ReadRouteProperty(properties, index, InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopIpAddressSuffix),
                 NextHopArmId = ReadRouteProperty(properties, index, InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopArmIdSuffix),
-            });
+            };
+
+            if (!RouteHasReachableContent(route))
+            {
+                continue;
+            }
+
+            routes.Add(route);
         }
 
         return routes;
+    }
+
+    private static bool RouteHasReachableContent(AzureInventoryRouteTableRoute route)
+    {
+        return !string.IsNullOrWhiteSpace(route.AddressPrefix)
+               || !string.IsNullOrWhiteSpace(route.NextHopType)
+               || !string.IsNullOrWhiteSpace(route.NextHopIpAddress)
+               || !string.IsNullOrWhiteSpace(route.NextHopArmId);
     }
 
     private static List<AzureInventoryRouteTableRoute> ParseRoutesJson(string routesJson)

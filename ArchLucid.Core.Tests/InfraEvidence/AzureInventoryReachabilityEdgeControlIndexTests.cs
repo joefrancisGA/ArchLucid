@@ -235,6 +235,45 @@ public sealed class AzureInventoryReachabilityEdgeControlIndexTests
     }
 
     [Fact]
+    public void SubnetRequiresEdgeControlEvidence_true_when_placeholder_explicit_route_coexists_with_routes_json()
+    {
+        string vnet = BuildVnet("vnet");
+        string subnet = BuildSubnet(vnet, "app");
+        string routeTable = BuildRouteTable("routes");
+
+        Dictionary<string, AzureInventoryReachabilityResourceProperties> resources =
+            new(StringComparer.OrdinalIgnoreCase)
+            {
+                [routeTable] = new AzureInventoryReachabilityResourceProperties
+                {
+                    ResourceType = "Microsoft.Network/routeTables",
+                    Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["inventory.policy.route.0.addressPrefix"] = string.Empty,
+                        ["routes"] = """
+                            [
+                              {
+                                "properties": {
+                                  "addressPrefix": "0.0.0.0/0",
+                                  "nextHopType": "VirtualNetworkGateway"
+                                }
+                              }
+                            ]
+                            """,
+                    },
+                },
+            };
+
+        AzureInventoryReachabilityEdgeControlIndex index = AzureInventoryReachabilityEdgeControlIndex.Build(
+        [
+            new AzureInventoryRelationshipArmTriple(subnet, routeTable, "inventory-subnet-route-table"),
+        ], resources);
+
+        index.SubnetRequiresEdgeControlEvidence(subnet).Should().BeTrue(
+            "placeholder explicit route slots must not suppress routes JSON for edge-control evidence");
+    }
+
+    [Fact]
     public void SubnetRequiresEdgeControlEvidence_true_when_routes_json_lists_route_fields_without_properties_bag()
     {
         string vnet = BuildVnet("vnet");
