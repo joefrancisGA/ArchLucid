@@ -15,24 +15,45 @@ public static class AzureInventoryLoadBalancerBackendTrafficResolver
         ArgumentNullException.ThrowIfNull(loadBalancerNode);
 
         Dictionary<string, int?> portByPoolId = BuildLoadBalancerPortByPoolId(loadBalancerNode.Properties);
-        List<BackendTarget> targets = [];
 
         if (!loadBalancerNode.Properties.TryGetValue("backendAddressPools", out string? poolsJson)
             || string.IsNullOrWhiteSpace(poolsJson))
         {
-            return targets;
+            return [];
         }
+
+        return ParseLoadBalancerBackendTargets(poolsJson, portByPoolId);
+    }
+
+    private static List<BackendTarget> ParseLoadBalancerBackendTargets(
+        string poolsJson,
+        IReadOnlyDictionary<string, int?> portByPoolId)
+    {
+        List<BackendTarget> targets = [];
 
         try
         {
             using JsonDocument document = JsonDocument.Parse(poolsJson);
+            JsonElement poolsRoot = document.RootElement;
 
-            if (document.RootElement.ValueKind is not JsonValueKind.Array)
+            if (poolsRoot.ValueKind is JsonValueKind.String)
+            {
+                string? nestedPoolsJson = poolsRoot.GetString();
+
+                if (string.IsNullOrWhiteSpace(nestedPoolsJson))
+                {
+                    return targets;
+                }
+
+                return ParseLoadBalancerBackendTargets(nestedPoolsJson, portByPoolId);
+            }
+
+            if (poolsRoot.ValueKind is not JsonValueKind.Array)
             {
                 return targets;
             }
 
-            foreach (JsonElement pool in document.RootElement.EnumerateArray())
+            foreach (JsonElement pool in poolsRoot.EnumerateArray())
             {
                 string? poolId = TryReadPoolId(pool);
                 int? rulePort = null;
@@ -64,24 +85,42 @@ public static class AzureInventoryLoadBalancerBackendTrafficResolver
     {
         ArgumentNullException.ThrowIfNull(applicationGatewayNode);
 
-        List<BackendTarget> targets = [];
-
         if (!applicationGatewayNode.Properties.TryGetValue("backendAddressPools", out string? poolsJson)
             || string.IsNullOrWhiteSpace(poolsJson))
         {
-            return targets;
+            return [];
         }
+
+        return ParseApplicationGatewayBackendTargets(poolsJson);
+    }
+
+    private static List<BackendTarget> ParseApplicationGatewayBackendTargets(string poolsJson)
+    {
+        List<BackendTarget> targets = [];
 
         try
         {
             using JsonDocument document = JsonDocument.Parse(poolsJson);
+            JsonElement poolsRoot = document.RootElement;
 
-            if (document.RootElement.ValueKind is not JsonValueKind.Array)
+            if (poolsRoot.ValueKind is JsonValueKind.String)
+            {
+                string? nestedPoolsJson = poolsRoot.GetString();
+
+                if (string.IsNullOrWhiteSpace(nestedPoolsJson))
+                {
+                    return targets;
+                }
+
+                return ParseApplicationGatewayBackendTargets(nestedPoolsJson);
+            }
+
+            if (poolsRoot.ValueKind is not JsonValueKind.Array)
             {
                 return targets;
             }
 
-            foreach (JsonElement pool in document.RootElement.EnumerateArray())
+            foreach (JsonElement pool in poolsRoot.EnumerateArray())
             {
                 if (!pool.TryGetProperty("properties", out JsonElement properties)
                     || properties.ValueKind is not JsonValueKind.Object)
