@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-16 seed hunt (seed→hit): `topology-proposal-merge` — promoted `AgentTopologyProposalMergeGate.FilterGreenfieldProposals` emitting duplicate sanitized rows when the inbound greenfield batch listed the same `ResultId` twice (inventoried path already deduped); align greenfield emit with first-seen order and last-wins sanitized payload; regression `FilterValidatedProposals_emits_single_row_when_greenfield_batch_contains_duplicate_result_ids`. 1,627 scoped topology merge/consensus tests passed (`RunAnalyzers=false`).
+
 2026-10-16 seed hunt (seed→hit): `topology-proposal-merge` — promoted `TopologyProposalConsensusMerger.Merge` `disagreementCount` using post-prune relationship intersection length, inflating disagreement when both models agreed on a relationship later dropped by `PruneRelationshipsToDeclaredEndpoints`; count relationship disagreement against pre-prune `IntersectRelationships` rows; regression `Merge_reports_zero_disagreement_when_models_agree_on_relationship_pruned_for_undeclared_endpoints`. 1,626 scoped topology merge/consensus tests passed (`RunAnalyzers=false`).
 
 2026-10-16 seed hunt (seed-only): `topology-proposal-merge` — re-read merge gate, graph merge, endpoint index, edge mapper, Terraform source-id heuristics, and consensus merger; no fresh mechanism met the hunt-ready bar and no hypothesis was promoted. Cheap-disproof closed five open `(candidate)` rows (primary-first intersected datastore naming, duplicate `ResultId` last-wins sanitized payload, semantic `ConnectsTo` collapse at graph dedupe, synthetic prune on renamed datastore endpoints, datastore-category Terraform svc- alias registration). Seeded five follow-on `(candidate)` rows. 1,625 scoped topology merge/consensus tests passed (`RunAnalyzers=false`).
@@ -3467,6 +3469,10 @@
 2026-10-02 seed hunt (hit): `tenant-scoped-analyzer` — ARCH006a missed a reachable non-constant local SQL initializer when the Dapper SQL argument was only the local variable reference; the analyzer inspected `sql` but not its initializer, so `dbo.Runs` produced no warning. Added initializer-aware diagnostic text candidates and regression `ARCH006a_reports_unanalyzable_sql_when_non_const_local_variable_references_scoped_table`; 19 scoped tests passed.
 
 ## Zone: topology-proposal-merge
+2026-10-16 seed hunt (seed→hit): greenfield duplicate `ResultId` emit dedupe; regression `FilterValidatedProposals_emits_single_row_when_greenfield_batch_contains_duplicate_result_ids`.
+
+- [x] (proven) `AgentTopologyProposalMergeGate.FilterGreenfieldProposals` — duplicate `ResultId` rows duplicated sanitized output on empty graphs — **hit 2026-10-16 seed hunt:** emit dedupe matches inventoried path; regression `FilterValidatedProposals_emits_single_row_when_greenfield_batch_contains_duplicate_result_ids`.
+
 2026-10-16 seed hunt (seed→hit): proved relationship `disagreementCount` used pruned intersection; regression `Merge_reports_zero_disagreement_when_models_agree_on_relationship_pruned_for_undeclared_endpoints`.
 
 - [x] (proven) `TopologyProposalConsensusMerger.Merge` — `disagreementCount` inflated when models agreed on relationships pruned for undeclared endpoints — **hit 2026-10-16 seed hunt:** relationship disagreement uses pre-prune intersection row count; regression `Merge_reports_zero_disagreement_when_models_agree_on_relationship_pruned_for_undeclared_endpoints`.
