@@ -107,7 +107,9 @@ public sealed class GovernanceWorkflowAuditSupport(
                     manifestVersion = record.ManifestVersion,
                     sourceEnvironment = record.SourceEnvironment,
                     targetEnvironment = record.TargetEnvironment,
-                    approvalRequestId = record.ApprovalRequestId
+                    approvalRequestId = record.ApprovalRequestId,
+                    promotedBy = promotedByDisplay,
+                    promotedByActorKey
                 },
                 AuditJsonSerializationOptions.Instance));
         auditEvent.ExplicitActor = true;
