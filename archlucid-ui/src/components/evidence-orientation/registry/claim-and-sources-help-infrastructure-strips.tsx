@@ -34,6 +34,14 @@ import {
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_HELP_SOURCES_INTRO,
 } from "@/lib/governance/governance-infrastructure-diagrams-help-evidence-copy";
 import { GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_HELP_CLAIM_HEADING_ID } from "@/lib/governance/governance-infrastructure-diagrams-help-guide-content";
+import {
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_HELP_CLAIM_DISCIPLINE,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_HELP_CLAIM_DISCIPLINE_HEADING,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_HELP_FOLLOW_UPS_TITLE,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_HELP_SOURCES,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_HELP_SOURCES_INTRO,
+} from "@/lib/governance/governance-infrastructure-diagram-reconcile-help-evidence-copy";
+import { GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_HELP_CLAIM_HEADING_ID } from "@/lib/governance/governance-infrastructure-diagram-reconcile-help-guide-content";
 
 export function GovernanceInfrastructureDriftHelpEvidenceOrientationStrip(
   props: { readonly readingBodyClassName?: string } = {},
@@ -101,6 +109,24 @@ export function GovernanceInfrastructureDiagramsHelpEvidenceOrientationStrip(
       sourcesTitle={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_HELP_SOURCES_INTRO}
       sources={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_HELP_SOURCES}
+      sourcesHeadingId="where-to-go-next"
+      readingBodyClassName={props.readingBodyClassName ?? HELP_PAGE_LAYOUT.readingBody}
+    />
+  );
+}
+
+export function GovernanceInfrastructureDiagramReconcileHelpEvidenceOrientationStrip(
+  props: { readonly readingBodyClassName?: string } = {},
+): React.JSX.Element {
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="help-governance-infrastructure-diagram-reconcile"
+      claim={GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_HELP_CLAIM_DISCIPLINE}
+      claimHeading={GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_HELP_CLAIM_DISCIPLINE_HEADING}
+      claimHeadingId={GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_HELP_CLAIM_HEADING_ID}
+      sourcesTitle={GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_HELP_FOLLOW_UPS_TITLE}
+      sourcesIntro={GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_HELP_SOURCES_INTRO}
+      sources={GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_HELP_SOURCES}
       sourcesHeadingId="where-to-go-next"
       readingBodyClassName={props.readingBodyClassName ?? HELP_PAGE_LAYOUT.readingBody}
     />

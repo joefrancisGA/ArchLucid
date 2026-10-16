@@ -8,8 +8,10 @@ import {
   GOVERNANCE_INFRASTRUCTURE_PATH,
   GOVERNANCE_INFRASTRUCTURE_RESOURCES_PATH,
   SECURENOW_INFRASTRUCTURE_RESOURCES_PATH,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PATH,
   GOVERNANCE_INFRASTRUCTURE_TERRAFORM_PATH,
+  SECURENOW_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH,
   SECURENOW_INFRASTRUCTURE_DIAGRAMS_PATH,
   SECURENOW_INFRASTRUCTURE_TERRAFORM_PATH,
 } from "@/lib/governance/governance-infrastructure-route-paths";
@@ -17,7 +19,10 @@ import {
   SECURENOW_REMEDIATION_FACTORY_PATH,
   SECURENOW_REMEDIATION_PATTERNS_PATH,
 } from "@/lib/governance/governance-route-paths";
-import { GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_TITLE } from "@/lib/governance/governance-infrastructure-copy";
+import {
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PAGE_TITLE,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_TITLE,
+} from "@/lib/governance/governance-infrastructure-copy";
 import { pageHelpTopicForPathname } from "@/lib/usability/page-help-topic-map";
 
 describe("SecureNow governance contextual help rows", () => {
@@ -99,6 +104,32 @@ describe("SecureNow governance contextual help rows", () => {
     );
     expect(pageHelpTopicForPathname(SECURENOW_INFRASTRUCTURE_DIAGRAMS_PATH, "security")?.label).toBe(
       GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_TITLE,
+    );
+  });
+
+  it("does not resolve Approval copy for diagram reconcile", () => {
+    const entry = contextualHelpForPathname(SECURENOW_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH, {
+      productLineId: "security",
+    });
+
+    expect(entry?.whatIsThisPage).toContain(GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PAGE_TITLE);
+    expect(entry?.whatIsThisPage).toContain("correspondence");
+    expect(entry?.whatIsThisPage).not.toContain("Approval");
+    expect(entry?.whatIsThisPage).not.toMatch(/start a review with a diagram/i);
+    expect(pageHelpTopicForPathname(SECURENOW_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH, "security")?.slug).toBe(
+      "governance-infrastructure-diagram-reconcile",
+    );
+    expect(pageHelpTopicForPathname(GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH, "security")?.slug).toBe(
+      "governance-infrastructure-diagram-reconcile",
+    );
+    expect(pageHelpTopicForPathname(SECURENOW_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH, "security")?.slug).not.toBe(
+      "cloud-connections",
+    );
+    expect(pageHelpTopicForPathname(SECURENOW_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH, "security")?.slug).not.toBe(
+      "architecture-intelligence",
+    );
+    expect(pageHelpTopicForPathname(SECURENOW_INFRASTRUCTURE_DIAGRAM_RECONCILE_PATH, "security")?.label).toBe(
+      GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PAGE_TITLE,
     );
   });
 

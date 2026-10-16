@@ -208,6 +208,11 @@ const HelpGovernanceInfrastructureDiagramsGuideView = dynamic(() =>
     (module) => module.HelpGovernanceInfrastructureDiagramsGuideView,
   ),
 );
+const HelpGovernanceInfrastructureDiagramReconcileGuideView = dynamic(() =>
+  import("@/app/(operator)/help/_sections/HelpGovernanceInfrastructureDiagramReconcileGuideView").then(
+    (module) => module.HelpGovernanceInfrastructureDiagramReconcileGuideView,
+  ),
+);
 const HelpGovernanceApprovalGuideView = dynamic(() =>
   import("@/app/(operator)/help/_sections/HelpGovernanceApprovalGuideView").then((module) => module.HelpGovernanceApprovalGuideView),
 );
@@ -430,6 +435,9 @@ export function tryResolveOperateHelpTopicView(
   }
   if (loaded.entry.slug === "governance-infrastructure-diagrams") {
     return <HelpGovernanceInfrastructureDiagramsGuideView entry={loaded.entry} />;
+  }
+  if (loaded.entry.slug === "governance-infrastructure-diagram-reconcile") {
+    return <HelpGovernanceInfrastructureDiagramReconcileGuideView entry={loaded.entry} />;
   }
   if (loaded.entry.slug === "governance-approval") {
     return <HelpGovernanceApprovalGuideView entry={loaded.entry} />;
