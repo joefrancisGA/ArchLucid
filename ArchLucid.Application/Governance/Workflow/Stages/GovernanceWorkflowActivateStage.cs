@@ -60,6 +60,7 @@ public sealed class GovernanceWorkflowActivateStage(
         string manifestVersion,
         string environment,
         string activatedBy,
+        string? activatedByDisplay,
         CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(runId);
@@ -70,6 +71,10 @@ public sealed class GovernanceWorkflowActivateStage(
         ArgumentException.ThrowIfNullOrWhiteSpace(manifestVersion);
         ArgumentException.ThrowIfNullOrWhiteSpace(environment);
         ArgumentException.ThrowIfNullOrWhiteSpace(activatedBy);
+
+        string activatedByDisplayResolved = string.IsNullOrWhiteSpace(activatedByDisplay)
+            ? activatedBy
+            : activatedByDisplay.Trim();
 
         manifestVersion = manifestVersion.Trim();
         environment = GovernanceEnvironment.NormalizeAndValidate(environment, nameof(environment));
@@ -106,7 +111,10 @@ public sealed class GovernanceWorkflowActivateStage(
         IntegrationEventsOptions integrationOpts = _integrationEventsOptions.CurrentValue;
         bool enqueuePromotionInSqlTx = integrationOpts.TransactionalOutboxEnabled && uow.SupportsExternalTransaction;
         Guid? activationRunId = Guid.TryParse(activation.RunId, out Guid activationRunGuid) ? activationRunGuid : null;
-        AuditEvent governanceActivated = _auditSupport.CreateGovernanceEnvironmentActivatedAuditEvent(activation, activatedBy);
+        AuditEvent governanceActivated = _auditSupport.CreateGovernanceEnvironmentActivatedAuditEvent(
+            activation,
+            activatedByDisplayResolved,
+            activatedBy);
         governanceActivated.RunId = activationRunId;
         string durableAuditOperationLabel =
             $"GovernanceEnvironmentActivated:{LogSanitizer.Sanitize(activation.ActivationId)}";
@@ -127,6 +135,7 @@ public sealed class GovernanceWorkflowActivateStage(
                 {
                     await _integrationEvents.TryPublishPromotionActivatedAsync(
                         activation,
+                        activatedByDisplayResolved,
                         activatedBy,
                         uow.Connection,
                         uow.Transaction,
@@ -185,6 +194,7 @@ public sealed class GovernanceWorkflowActivateStage(
         {
             await _integrationEvents.TryPublishPromotionActivatedAsync(
                 activation,
+                activatedByDisplayResolved,
                 activatedBy,
                 null,
                 null,

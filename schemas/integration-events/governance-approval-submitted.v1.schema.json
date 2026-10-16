@@ -26,7 +26,8 @@
     "manifestVersion": { "type": "string" },
     "sourceEnvironment": { "type": "string" },
     "targetEnvironment": { "type": "string" },
-    "requestedBy": { "type": "string" }
+    "requestedBy": { "type": "string" },
+    "requestedByActorKey": { "type": "string" }
   },
   "additionalProperties": true
 }

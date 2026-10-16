@@ -17,6 +17,7 @@ public interface IGovernancePromotionsActivationsFacade
         string? notes,
         bool dryRun,
         bool verbosePromotionValidationErrors,
+        string? promotedByDisplay,
         CancellationToken ct);
 
     Task<GovernanceEnvironmentActivation> ActivateAsync(
@@ -24,6 +25,7 @@ public interface IGovernancePromotionsActivationsFacade
         string manifestVersion,
         string environment,
         string activatedBy,
+        string? activatedByDisplay,
         CancellationToken ct);
 
     Task<IReadOnlyList<GovernanceApprovalRequest>> ListApprovalRequestsByRunIdAsync(

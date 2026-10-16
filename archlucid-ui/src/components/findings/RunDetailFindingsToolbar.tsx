@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import { useMemo, useCallback, useEffect, useRef, useState } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 
 import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 
@@ -13,6 +13,7 @@ import { StatusTag } from "@/components/ui/status-tag";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { formatFindingsVisibilitySummaryLine } from "@/lib/findings/finding-confidence-filter";
 import {
+  FINDINGS_FILTER_PANEL_OPEN_PARAM,
   parseFindingsFilterPanelOpenFromSearch,
   runDetailFindingsFilterDisclosureHrefFromSearch,
 } from "@/lib/findings/run-detail-findings-filter-disclosure-url";
@@ -90,9 +91,13 @@ export type RunDetailFindingsToolbarProps = {
 export function RunDetailFindingsToolbar(props: RunDetailFindingsToolbarProps): React.JSX.Element {
   const layout = props.layout ?? "full";
   const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const urlFilterPanelOpen = parseFindingsFilterPanelOpenFromSearch(
+    searchParams.get(FINDINGS_FILTER_PANEL_OPEN_PARAM),
+  );
   const readFilterPanelOpenFromUrl = (): boolean | null =>
     parseFindingsFilterPanelOpenFromSearch(
-      new URLSearchParams(window.location.search).get("findingsFilterPanelOpen"),
+      new URLSearchParams(window.location.search).get(FINDINGS_FILTER_PANEL_OPEN_PARAM),
     );
   const [filterPanelOpen, setFilterPanelOpenState] = useState(
     () => props.findings.length > FILTER_AUTO_EXPAND_THRESHOLD,
@@ -143,6 +148,20 @@ export function RunDetailFindingsToolbar(props: RunDetailFindingsToolbarProps): 
       window.removeEventListener("popstate", syncFilterPanelOpenFromUrl);
     };
   }, [props.findings.length]);
+
+  useEffect(() => {
+    if (urlFilterPanelOpen === null) {
+      return;
+    }
+
+    if (filterPanelOpenRef.current === urlFilterPanelOpen) {
+      return;
+    }
+
+    filterPanelOpenRef.current = urlFilterPanelOpen;
+    setFilterPanelOpenState(urlFilterPanelOpen);
+  }, [urlFilterPanelOpen]);
+
   const severityCounts = useMemo(
     () => deriveFindingsToolbarSeverityCounts(props.findings),
     [props.findings],

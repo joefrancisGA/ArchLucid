@@ -1,7 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState, type ReactElement, type SetStateAction } from "react";
-import { usePathname } from "next/navigation";
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactElement, type SetStateAction } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { CopyIdButton } from "@/components/CopyIdButton";
@@ -96,6 +96,16 @@ export function FindingDetailInspectDisclosures(props: FindingDetailInspectDiscl
     citationModel,
   } = props;
   const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const searchParamsString = searchParams.toString();
+  const urlInspectState = useMemo(
+    () => readInspectDisclosureState(searchParams),
+    [searchParamsString],
+  );
+  const urlExportOpen = useMemo(
+    () => parseFindingExportOpenFromSearch(searchParams.get("findingExportOpen")),
+    [searchParamsString],
+  );
 
   const [inspectState, setInspectState] = useState<FindingDetailInspectDisclosureUrlState>(() =>
     readInspectDisclosureStateFromWindow(),
@@ -200,6 +210,28 @@ export function FindingDetailInspectDisclosures(props: FindingDetailInspectDiscl
       window.removeEventListener("popstate", syncFromUrl);
     };
   }, []);
+
+  useEffect(() => {
+    const inspectChanged = (Object.keys(urlInspectState) as (keyof FindingDetailInspectDisclosureUrlState)[]).some(
+      (key) => inspectStateRef.current[key] !== urlInspectState[key],
+    );
+
+    if (!inspectChanged) {
+      return;
+    }
+
+    inspectStateRef.current = urlInspectState;
+    setInspectState(urlInspectState);
+  }, [urlInspectState]);
+
+  useEffect(() => {
+    if (exportOpenRef.current === urlExportOpen) {
+      return;
+    }
+
+    exportOpenRef.current = urlExportOpen;
+    setExportOpenState(urlExportOpen);
+  }, [urlExportOpen]);
 
   return (
     <>

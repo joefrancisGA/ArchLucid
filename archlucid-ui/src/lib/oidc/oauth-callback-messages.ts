@@ -56,6 +56,29 @@ export function normalizeNumericOidcHintString(value: string): string {
   return value.slice(start, end);
 }
 
+const NON_DECIMAL_OIDC_NUMERIC_PREFIX = /^0[xXbBoO]/u;
+
+/** Parses epoch-ms hints from sessionStorage or BFF refresh JSON; rejects hex/binary/octal literals. */
+export function parseOidcEpochMsHint(value: string): number {
+  const normalized = normalizeNumericOidcHintString(value);
+
+  if (normalized.length === 0) {
+    return Number.NaN;
+  }
+
+  if (NON_DECIMAL_OIDC_NUMERIC_PREFIX.test(normalized)) {
+    return Number.NaN;
+  }
+
+  const parsed = Number(normalized);
+
+  if (!Number.isFinite(parsed)) {
+    return Number.NaN;
+  }
+
+  return parsed;
+}
+
 export function collapseOAuthErrorDescriptionLineBreaks(text: string): string {
   return text
     .replace(OAUTH_INVISIBLE_FORMAT_CHARS, " ")

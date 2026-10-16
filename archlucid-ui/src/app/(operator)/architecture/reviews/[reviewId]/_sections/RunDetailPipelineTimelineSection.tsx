@@ -3,8 +3,8 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import type { ReactElement } from "react";
-import { useCallback, useEffect, useState } from "react";
-import { usePathname } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
 
 import { AuthorityPipelineTimeline } from "@/components/AuthorityPipelineTimeline";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
@@ -18,8 +18,10 @@ import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { runPipelineTimelineBlockedReason } from "@/lib/runs/run-pipeline-timeline-blocked-reason";
 import { runDetailTimelinesBundleBlockedReason } from "@/lib/runs/run-detail-timelines-bundle-blocked-reason";
 import {
+  RUN_PIPELINE_TIMELINE_OPEN_PARAM,
   parseRunPipelineTimelineOpenFromSearch,
-  runPipelineTimelineDisclosureHrefFromSearch} from "@/lib/runs/run-pipeline-timeline-disclosure-url";
+  runPipelineTimelineDisclosureHrefFromSearch,
+} from "@/lib/runs/run-pipeline-timeline-disclosure-url";
 import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
 import type { PipelineTimelineItem } from "@/types/authority";
 
@@ -148,9 +150,13 @@ export function RunDetailPipelineTimelineSection(
 ): ReactElement {
   const { runId, pipelineTimelineFailure, pipelineTimelineForUi } = props;
   const pathname = usePathname() ?? "/";
-  const [open, setOpenState] = useState(() =>
-    parseRunPipelineTimelineOpenFromSearch(null),
+  const searchParams = useSearchParams();
+  const urlPipelineTimelineOpen = parseRunPipelineTimelineOpenFromSearch(
+    searchParams.get(RUN_PIPELINE_TIMELINE_OPEN_PARAM),
   );
+  const [open, setOpenState] = useState(urlPipelineTimelineOpen);
+  const openRef = useRef(open);
+  openRef.current = open;
   const auditTrailLabel = BUYER_SURFACE_VOCABULARY.auditTrail;
   const summaryLine = pipelineTimelineFailure
     ? undefined
@@ -170,25 +176,29 @@ export function RunDetailPipelineTimelineSection(
 
   const setOpen = useCallback(
     (detailsOpen: boolean) => {
-      if (open === detailsOpen) {
+      if (openRef.current === detailsOpen) {
         return;
       }
 
+      openRef.current = detailsOpen;
       setOpenState(detailsOpen);
       syncOpenToUrl(detailsOpen);
     },
-    [open, syncOpenToUrl],
+    [syncOpenToUrl],
   );
 
   useEffect(() => {
     const syncOpenFromUrl = (): void => {
-      setOpenState((current) => {
-        const next = parseRunPipelineTimelineOpenFromSearch(
-          new URLSearchParams(window.location.search).get("runPipelineTimelineOpen"),
-        );
+      const next = parseRunPipelineTimelineOpenFromSearch(
+        new URLSearchParams(window.location.search).get(RUN_PIPELINE_TIMELINE_OPEN_PARAM),
+      );
 
-        return current === next ? current : next;
-      });
+      if (openRef.current === next) {
+        return;
+      }
+
+      openRef.current = next;
+      setOpenState(next);
     };
 
     syncOpenFromUrl();
@@ -198,6 +208,15 @@ export function RunDetailPipelineTimelineSection(
       window.removeEventListener("popstate", syncOpenFromUrl);
     };
   }, []);
+
+  useEffect(() => {
+    if (openRef.current === urlPipelineTimelineOpen) {
+      return;
+    }
+
+    openRef.current = urlPipelineTimelineOpen;
+    setOpenState(urlPipelineTimelineOpen);
+  }, [urlPipelineTimelineOpen]);
 
   return (
     <section

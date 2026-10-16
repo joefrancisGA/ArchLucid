@@ -2,17 +2,19 @@
 
 import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useRef, useState, type ReactElement, type SyntheticEvent } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 
 import { FindingInspectJsonPayload } from "@/components/findings/FindingInspectJsonPayload";
 import { getFindingInspect } from "@/lib/api/findings-api";
 import { resolveProductionEvalChromeFromStorage } from "@/lib/resolve-production-eval-chrome-from-storage";
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
+  FINDING_INSPECT_REASONING_OPEN_PARAM,
   findingInspectReasoningHrefFromSearch,
   parseFindingInspectReasoningOpenFromSearch,
 } from "@/lib/findings/finding-inspect-reasoning-url";
 import {
+  FINDING_INSPECT_EVALUATION_OPEN_PARAM,
   findingInspectEvaluationDisclosureHrefFromSearch,
   parseFindingInspectEvaluationOpenFromSearch,
 } from "@/lib/findings/finding-inspect-evaluation-disclosure-url";
@@ -37,6 +39,13 @@ export function FindingInspectReasoningPayloadDetails({
   lazyLoadTypedPayload = false,
 }: FindingInspectReasoningPayloadDetailsProps): ReactElement {
   const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const urlReasoningOpen = parseFindingInspectReasoningOpenFromSearch(
+    searchParams.get(FINDING_INSPECT_REASONING_OPEN_PARAM),
+  );
+  const urlEvaluationOpen = parseFindingInspectEvaluationOpenFromSearch(
+    searchParams.get(FINDING_INSPECT_EVALUATION_OPEN_PARAM),
+  );
   const buyerPolished = resolveProductionEvalChromeFromStorage();
   const rationaleLabel = buyerPolished ? "Review rationale (technical)" : "View AI Reasoning";
   const evaluationLabel = buyerPolished ? "Structured evaluation record" : "AI Audit Inspection";
@@ -124,6 +133,24 @@ export function FindingInspectReasoningPayloadDetails({
       window.removeEventListener("popstate", syncFromUrl);
     };
   }, []);
+
+  useEffect(() => {
+    if (reasoningOpenRef.current === urlReasoningOpen) {
+      return;
+    }
+
+    reasoningOpenRef.current = urlReasoningOpen;
+    setReasoningOpenState(urlReasoningOpen);
+  }, [urlReasoningOpen]);
+
+  useEffect(() => {
+    if (evaluationOpenRef.current === urlEvaluationOpen) {
+      return;
+    }
+
+    evaluationOpenRef.current = urlEvaluationOpen;
+    setEvaluationOpenState(urlEvaluationOpen);
+  }, [urlEvaluationOpen]);
 
   const [resolvedPayload, setResolvedPayload] = useState<unknown>(typedPayload);
   const [loadState, setLoadState] = useState<"idle" | "loading" | "error" | "ready">(

@@ -131,4 +131,36 @@ public sealed class CompareQualityComparisonsApplicationServiceTests
         records!.Should().ContainSingle();
         records[0].LeftRunId.Should().Be(canonicalLeftRunId);
     }
+
+    [Fact]
+    public async Task CompareQuality_RecordEndToEndAsync_payload_run_ids_match_canonical_record_columns_when_report_uses_dashed_guids()
+    {
+        Guid leftKey = Guid.Parse("77777777-7777-7777-7777-777777777777");
+        string dashedLeftRunId = leftKey.ToString("D");
+        string canonicalLeftRunId = leftKey.ToString("N");
+
+        ComparisonRecord? captured = null;
+        Mock<IComparisonRecordRepository> repo = new();
+        repo
+            .Setup(r => r.CreateAsync(It.IsAny<ComparisonRecord>(), It.IsAny<CancellationToken>()))
+            .Callback<ComparisonRecord, CancellationToken>((record, _) => captured = record)
+            .Returns(Task.CompletedTask);
+
+        ComparisonAuditService audit = new(repo.Object, Mock.Of<IAuditService>());
+        await audit.RecordEndToEndAsync(
+            new EndToEndReplayComparisonReport
+            {
+                LeftRunId = dashedLeftRunId,
+                RightRunId = "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            },
+            "# summary",
+            CancellationToken.None);
+
+        captured.Should().NotBeNull();
+        captured!.LeftRunId.Should().Be(canonicalLeftRunId);
+
+        EndToEndReplayComparisonReport? payload = ComparisonRecordPayloadRehydrator.RehydrateEndToEnd(captured);
+        payload.Should().NotBeNull();
+        payload!.LeftRunId.Should().Be(canonicalLeftRunId);
+    }
 }

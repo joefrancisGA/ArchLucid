@@ -123,6 +123,7 @@ public interface IGovernanceWorkflowService
         string? notes,
         bool dryRun = false,
         bool verbosePromotionValidationErrors = false,
+        string? promotedByDisplay = null,
         CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -141,5 +142,6 @@ public interface IGovernanceWorkflowService
         string manifestVersion,
         string environment,
         string activatedBy,
+        string? activatedByDisplay = null,
         CancellationToken cancellationToken = default);
 }

@@ -150,7 +150,14 @@ public sealed class ExecuteTimeGovernanceScopeCaptureService(
         if (existing.Count > 0)
             return;
 
-        string actor = _actorContext.GetActor();
+        string actorDisplay = _actorContext.GetActor();
+        string actorUserId = _actorContext.GetActorId();
+
+        if (string.IsNullOrWhiteSpace(actorUserId))
+        {
+            actorUserId = actorDisplay;
+        }
+
         DateTime createdUtc = TimeProvider.System.UtcNowDateTime();
         Dictionary<Guid, ArchLucid.Contracts.Governance.PolicyPacks.PolicyPack> packsById = [];
 
@@ -180,7 +187,7 @@ public sealed class ExecuteTimeGovernanceScopeCaptureService(
                 CoverageType = Enum.Parse<CoverageType>(row.CoverageType),
                 SelectionState = Enum.Parse<CoverageSelectionState>(row.SelectionState),
                 ExclusionReason = row.ExclusionReason,
-                ActorUserId = actor,
+                ActorUserId = actorUserId,
                 CreatedUtc = createdUtc,
                 EvaluationVersion = row.EvaluationVersion
             };
@@ -214,10 +221,21 @@ public sealed class ExecuteTimeGovernanceScopeCaptureService(
     {
         try
         {
+            string actorDisplay = _actorContext.GetActor();
+            string actorUserId = _actorContext.GetActorId();
+
+            if (string.IsNullOrWhiteSpace(actorUserId))
+            {
+                actorUserId = actorDisplay;
+            }
+
             await _auditService.LogAsync(
                 new AuditEvent
                 {
                     EventType = AuditEventTypes.RunGovernanceScopeResolved,
+                    ExplicitActor = true,
+                    ActorUserId = actorUserId,
+                    ActorUserName = actorDisplay,
                     TenantId = scope.TenantId,
                     WorkspaceId = scope.WorkspaceId,
                     ProjectId = scope.ProjectId,

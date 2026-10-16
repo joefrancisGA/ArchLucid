@@ -3,7 +3,7 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import type { ReactElement } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 
@@ -43,9 +43,11 @@ export function RunDetailProvenanceSummaryCard(props: RunDetailProvenanceSummary
   const metadataContext = deriveReviewRecordMetadataContext(manifestId);
   const absentReasons = resolveProvenanceMetadataAbsentReasons(metadataContext);
   const pathname = usePathname() ?? "/";
-  const [identifiersOpen, setIdentifiersOpenState] = useState(() =>
-    parseRunDetailProvenanceIdentifiersOpenFromSearch(null),
+  const searchParams = useSearchParams();
+  const urlIdentifiersOpen = parseRunDetailProvenanceIdentifiersOpenFromSearch(
+    searchParams.get(RUN_DETAIL_PROVENANCE_IDENTIFIERS_OPEN_PARAM),
   );
+  const [identifiersOpen, setIdentifiersOpenState] = useState(urlIdentifiersOpen);
   const identifiersOpenRef = useRef(identifiersOpen);
   identifiersOpenRef.current = identifiersOpen;
 
@@ -93,6 +95,15 @@ export function RunDetailProvenanceSummaryCard(props: RunDetailProvenanceSummary
       window.removeEventListener("popstate", syncIdentifiersOpenFromUrl);
     };
   }, []);
+
+  useEffect(() => {
+    if (identifiersOpenRef.current === urlIdentifiersOpen) {
+      return;
+    }
+
+    identifiersOpenRef.current = urlIdentifiersOpen;
+    setIdentifiersOpenState(urlIdentifiersOpen);
+  }, [urlIdentifiersOpen]);
 
   const definitionLabelClass = cn("font-medium text-al-text-secondary", OPERATOR_TYPOGRAPHY.body);
   const monoValueClass = cn("mt-1 flex items-center gap-2 font-mono", OPERATOR_TYPOGRAPHY.micro);

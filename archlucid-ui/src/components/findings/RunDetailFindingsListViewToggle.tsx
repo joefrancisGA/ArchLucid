@@ -1,7 +1,7 @@
 "use client";
 
-import { usePathname } from "next/navigation";
-import { useCallback, useEffect, useRef, useState, type ReactElement } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactElement } from "react";
 
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
@@ -30,6 +30,13 @@ function readListViewFromWindow(workingMode: boolean): ReviewFindingsListViewKin
 
 export function RunDetailFindingsListViewToggle(props: RunDetailFindingsListViewToggleProps): ReactElement {
   const pathname = usePathname() ?? "";
+  const searchParams = useSearchParams();
+  const searchParamsString = searchParams.toString();
+  const urlListView = useMemo((): ReviewFindingsListViewKind => {
+    const parsed = parseReviewFindingsListViewFromSearch(searchParams.get(REVIEW_FINDINGS_LIST_VIEW_PARAM));
+
+    return parsed ?? defaultReviewFindingsListView(props.workingMode);
+  }, [searchParamsString, props.workingMode]);
   const [activeView, setActiveViewState] = useState<ReviewFindingsListViewKind>(() =>
     readListViewFromWindow(props.workingMode),
   );
@@ -72,6 +79,15 @@ export function RunDetailFindingsListViewToggle(props: RunDetailFindingsListView
       window.removeEventListener("popstate", syncViewFromUrl);
     };
   }, [props.workingMode]);
+
+  useEffect(() => {
+    if (activeViewRef.current === urlListView) {
+      return;
+    }
+
+    activeViewRef.current = urlListView;
+    setActiveViewState(urlListView);
+  }, [urlListView]);
 
   return (
     <div

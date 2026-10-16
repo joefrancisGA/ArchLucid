@@ -1,7 +1,7 @@
 "use client";
 
 import { ChevronDown } from "lucide-react";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState, type SetStateAction } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,7 @@ import type { ReviewWorkspaceLifecycle } from "@/lib/resolve-review-workspace-li
 import type { ReviewDetailTabId } from "@/lib/review-detail-workspace-tabs";
 import {
   parseReviewWorkspaceMoreTabsOpenFromSearch,
+  REVIEW_WORKSPACE_MORE_TABS_OPEN_PARAM,
   reviewWorkspaceMoreTabsHrefFromSearch,
 } from "@/lib/reviews/review-workspace-more-tabs-url";
 import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
@@ -29,9 +30,11 @@ export type ReviewWorkspaceMoreTabsMenuProps = {
 /** Secondary review workspace tabs behind a single More sections affordance. */
 export function ReviewWorkspaceMoreTabsMenu(props: ReviewWorkspaceMoreTabsMenuProps): React.JSX.Element | null {
   const pathname = usePathname() ?? "";
-  const [open, setOpenState] = useState(() =>
-    parseReviewWorkspaceMoreTabsOpenFromSearch(null),
+  const searchParams = useSearchParams();
+  const urlMoreTabsOpen = parseReviewWorkspaceMoreTabsOpenFromSearch(
+    searchParams.get(REVIEW_WORKSPACE_MORE_TABS_OPEN_PARAM),
   );
+  const [open, setOpenState] = useState(urlMoreTabsOpen);
   const openRef = useRef(open);
   openRef.current = open;
 
@@ -63,7 +66,7 @@ export function ReviewWorkspaceMoreTabsMenu(props: ReviewWorkspaceMoreTabsMenuPr
   useEffect(() => {
     const syncMoreTabsOpenFromUrl = (): void => {
       const nextOpen = parseReviewWorkspaceMoreTabsOpenFromSearch(
-        new URLSearchParams(window.location.search).get("reviewMoreTabsOpen"),
+        new URLSearchParams(window.location.search).get(REVIEW_WORKSPACE_MORE_TABS_OPEN_PARAM),
       );
 
       if (openRef.current === nextOpen) {
@@ -81,6 +84,15 @@ export function ReviewWorkspaceMoreTabsMenu(props: ReviewWorkspaceMoreTabsMenuPr
       window.removeEventListener("popstate", syncMoreTabsOpenFromUrl);
     };
   }, []);
+
+  useEffect(() => {
+    if (openRef.current === urlMoreTabsOpen) {
+      return;
+    }
+
+    openRef.current = urlMoreTabsOpen;
+    setOpenState(urlMoreTabsOpen);
+  }, [urlMoreTabsOpen]);
 
   if (props.moreTabIds.length === 0) {
     return null;

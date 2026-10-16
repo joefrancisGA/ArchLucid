@@ -3,7 +3,7 @@
 import Link from "next/link";
 import type { ReactElement } from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 
 import { RunDetailAiRefinePanel } from "@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailAiRefinePanel";
 import { AiBudgetSpendNotice } from "@/components/ai-budget/AiBudgetSpendNotice";
@@ -13,6 +13,7 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { INTERNAL_REPLAY_PATH } from "@/lib/internal-ops-route-paths";
 import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import {
+  RUN_REFINE_WITH_AI_OPEN_PARAM,
   parseRunRefineWithAiOpenFromSearch,
   runDetailRefineWithAiDisclosureHrefFromSearch,
 } from "@/lib/runs/run-detail-refine-with-ai-disclosure-url";
@@ -31,9 +32,11 @@ export function RunDetailOperatorPipelineToolsCollapsible(
 ): ReactElement {
   const { runId } = props;
   const pathname = usePathname() ?? "/";
-  const [open, setOpenState] = useState(() =>
-    parseRunRefineWithAiOpenFromSearch(null),
+  const searchParams = useSearchParams();
+  const urlRefineWithAiOpen = parseRunRefineWithAiOpenFromSearch(
+    searchParams.get(RUN_REFINE_WITH_AI_OPEN_PARAM),
   );
+  const [open, setOpenState] = useState(urlRefineWithAiOpen);
   const openRef = useRef(open);
   openRef.current = open;
 
@@ -63,7 +66,7 @@ export function RunDetailOperatorPipelineToolsCollapsible(
   useEffect(() => {
     const syncOpenFromUrl = (): void => {
       const nextOpen = parseRunRefineWithAiOpenFromSearch(
-        new URLSearchParams(window.location.search).get("runRefineWithAiOpen"),
+        new URLSearchParams(window.location.search).get(RUN_REFINE_WITH_AI_OPEN_PARAM),
       );
 
       if (openRef.current === nextOpen) {
@@ -81,6 +84,15 @@ export function RunDetailOperatorPipelineToolsCollapsible(
       window.removeEventListener("popstate", syncOpenFromUrl);
     };
   }, []);
+
+  useEffect(() => {
+    if (openRef.current === urlRefineWithAiOpen) {
+      return;
+    }
+
+    openRef.current = urlRefineWithAiOpen;
+    setOpenState(urlRefineWithAiOpen);
+  }, [urlRefineWithAiOpen]);
 
   return (
     <CollapsibleSection

@@ -367,6 +367,125 @@ public sealed class FindingIacStubGeneratorTests
     }
 
     [Fact]
+    public async Task GenerateAndPersistStubsForRunAsync_clones_rows_when_result_agent_type_missing_but_findings_declare_source_agent()
+    {
+        AgentResult result = new()
+        {
+            ResultId = "result-1",
+            TaskId = "task-1",
+            RunId = "run-1",
+            Findings =
+            [
+                new ArchitectureFinding
+                {
+                    SourceAgent = AgentType.Topology,
+                    FindingId = "finding-1",
+                    Message = "Enable soft delete on storage.",
+                    Category = "Storage",
+                    Severity = FindingSeverity.Warning,
+                    EvidenceRefs = [TypedEmissionArmRef],
+                },
+            ],
+        };
+
+        result.AgentType.Should().Be(default(AgentType));
+
+        Mock<IAgentCompletionClient> completionClient = new();
+        completionClient
+            .Setup(c => c.CompleteJsonAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                null,
+                null,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync("resource storage 'Microsoft.Storage/storageAccounts@2023-01-01' = {}");
+
+        Mock<IAgentResultRepository> resultRepository = new();
+        resultRepository
+            .Setup(r => r.GetByRunIdAsync(It.IsAny<ScopeContext>(), "run-1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync([result]);
+
+        string? persistedJson = null;
+        Mock<IAgentResultEnrichmentRepository> enrichmentRepository = new();
+        enrichmentRepository
+            .Setup(r => r.UpsertEnrichedResultJsonAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .Callback<string, string, CancellationToken>((_, json, _) => persistedJson = json)
+            .Returns(Task.CompletedTask);
+
+        FindingIacStubGenerator sut = CreateSut(
+            completionClient.Object,
+            resultRepository.Object,
+            enrichmentRepository.Object);
+
+        await sut.GenerateAndPersistStubsForRunAsync("run-1", CancellationToken.None);
+
+        persistedJson.Should().NotBeNullOrWhiteSpace();
+        AgentResult? persisted = JsonSerializer.Deserialize<AgentResult>(persistedJson!, ContractJson.Default);
+        persisted.Should().NotBeNull();
+        persisted!.AgentType.Should().Be(AgentType.Topology);
+    }
+
+    [Fact]
+    public async Task GenerateAndPersistStubsForRunAsync_clones_rows_when_findings_omit_source_agent()
+    {
+        AgentResult result = new()
+        {
+            ResultId = "result-1",
+            TaskId = "task-1",
+            RunId = "run-1",
+            AgentType = AgentType.Compliance,
+            Findings =
+            [
+                new ArchitectureFinding
+                {
+                    FindingId = "finding-1",
+                    Message = "Enable soft delete on storage.",
+                    Category = "Storage",
+                    Severity = FindingSeverity.Warning,
+                    EvidenceRefs = [TypedEmissionArmRef],
+                },
+            ],
+        };
+
+        result.Findings[0].SourceAgent.Should().Be(default(AgentType));
+
+        Mock<IAgentCompletionClient> completionClient = new();
+        completionClient
+            .Setup(c => c.CompleteJsonAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                null,
+                null,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync("resource storage 'Microsoft.Storage/storageAccounts@2023-01-01' = {}");
+
+        Mock<IAgentResultRepository> resultRepository = new();
+        resultRepository
+            .Setup(r => r.GetByRunIdAsync(It.IsAny<ScopeContext>(), "run-1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync([result]);
+
+        Mock<IAgentResultEnrichmentRepository> enrichmentRepository = new();
+        enrichmentRepository
+            .Setup(r => r.UpsertEnrichedResultJsonAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        FindingIacStubGenerator sut = CreateSut(
+            completionClient.Object,
+            resultRepository.Object,
+            enrichmentRepository.Object);
+
+        Func<Task> act = () => sut.GenerateAndPersistStubsForRunAsync("run-1", CancellationToken.None);
+
+        await act.Should().NotThrowAsync();
+    }
+
+    [Fact]
     public async Task GenerateAndPersistStubsForRunAsync_tolerates_null_findings_and_evidence_refs_on_deserialized_rows()
     {
         AgentResult result = new()

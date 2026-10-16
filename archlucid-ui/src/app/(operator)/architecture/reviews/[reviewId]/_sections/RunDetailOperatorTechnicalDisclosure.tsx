@@ -2,11 +2,12 @@
 
 import type { ReactNode, ReactElement } from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 
 import { AdvancedOptionsAccordion } from "@/components/AdvancedOptionsAccordion";
 import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import {
+  RUN_TECHNICAL_DETAILS_OPEN_PARAM,
   parseRunTechnicalDetailsOpenFromSearch,
   runDetailOperatorTechnicalDisclosureHrefFromSearch,
 } from "@/lib/runs/run-detail-operator-technical-disclosure-url";
@@ -20,9 +21,11 @@ export function RunDetailOperatorTechnicalDisclosure(
   props: RunDetailOperatorTechnicalDisclosureProps,
 ): ReactElement {
   const pathname = usePathname() ?? "/";
-  const [open, setOpenState] = useState(() =>
-    parseRunTechnicalDetailsOpenFromSearch(null),
+  const searchParams = useSearchParams();
+  const urlTechnicalDetailsOpen = parseRunTechnicalDetailsOpenFromSearch(
+    searchParams.get(RUN_TECHNICAL_DETAILS_OPEN_PARAM),
   );
+  const [open, setOpenState] = useState(urlTechnicalDetailsOpen);
   const openRef = useRef(open);
   openRef.current = open;
 
@@ -52,7 +55,7 @@ export function RunDetailOperatorTechnicalDisclosure(
   useEffect(() => {
     const syncOpenFromUrl = (): void => {
       const nextOpen = parseRunTechnicalDetailsOpenFromSearch(
-        new URLSearchParams(window.location.search).get("runTechnicalDetailsOpen"),
+        new URLSearchParams(window.location.search).get(RUN_TECHNICAL_DETAILS_OPEN_PARAM),
       );
 
       if (openRef.current === nextOpen) {
@@ -70,6 +73,15 @@ export function RunDetailOperatorTechnicalDisclosure(
       window.removeEventListener("popstate", syncOpenFromUrl);
     };
   }, []);
+
+  useEffect(() => {
+    if (openRef.current === urlTechnicalDetailsOpen) {
+      return;
+    }
+
+    openRef.current = urlTechnicalDetailsOpen;
+    setOpenState(urlTechnicalDetailsOpen);
+  }, [urlTechnicalDetailsOpen]);
 
   return (
     <div data-testid="run-detail-advanced-options">

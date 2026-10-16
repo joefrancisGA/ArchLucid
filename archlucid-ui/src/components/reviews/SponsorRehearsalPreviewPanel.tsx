@@ -1,12 +1,13 @@
 "use client";
 
 import type { ReactElement } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import {
+  SPONSOR_REHEARSAL_PREVIEW_OPEN_PARAM,
   parseSponsorRehearsalPreviewOpenFromSearch,
   sponsorRehearsalPreviewDisclosureHrefFromSearch,
 } from "@/lib/reviews/sponsor-rehearsal-preview-disclosure-url";
@@ -32,9 +33,11 @@ export function SponsorRehearsalPreviewPanel(
 ): ReactElement {
   const collapsedByDefault = props.collapsedByDefault !== false;
   const pathname = usePathname() ?? "/";
-  const [panelOpen, setPanelOpenState] = useState(() =>
-    parseSponsorRehearsalPreviewOpenFromSearch(null),
+  const searchParams = useSearchParams();
+  const urlPanelOpen = parseSponsorRehearsalPreviewOpenFromSearch(
+    searchParams.get(SPONSOR_REHEARSAL_PREVIEW_OPEN_PARAM),
   );
+  const [panelOpen, setPanelOpenState] = useState(urlPanelOpen);
   const panelOpenRef = useRef(panelOpen);
   panelOpenRef.current = panelOpen;
 
@@ -64,7 +67,7 @@ export function SponsorRehearsalPreviewPanel(
   useEffect(() => {
     const syncPanelOpenFromUrl = (): void => {
       const next = parseSponsorRehearsalPreviewOpenFromSearch(
-        new URLSearchParams(window.location.search).get("sponsorRehearsalPreviewOpen"),
+        new URLSearchParams(window.location.search).get(SPONSOR_REHEARSAL_PREVIEW_OPEN_PARAM),
       );
 
       if (panelOpenRef.current === next) {
@@ -82,6 +85,15 @@ export function SponsorRehearsalPreviewPanel(
       window.removeEventListener("popstate", syncPanelOpenFromUrl);
     };
   }, []);
+
+  useEffect(() => {
+    if (panelOpenRef.current === urlPanelOpen) {
+      return;
+    }
+
+    panelOpenRef.current = urlPanelOpen;
+    setPanelOpenState(urlPanelOpen);
+  }, [urlPanelOpen]);
 
   const preview = buildSponsorRehearsalPreview(props.input ?? {});
 

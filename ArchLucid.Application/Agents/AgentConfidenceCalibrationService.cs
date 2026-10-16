@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
@@ -51,8 +52,10 @@ public sealed class AgentConfidenceCalibrationService(
 
         foreach (AgentResult result in results)
         {
+            AgentType agentType = AgentResultEnvelopeAgentTypeResolver.ResolveAgentType(result);
+
             double calibrated = await _calibrator
-                .CalibrateAsync(result.AgentType, result.Confidence, cancellationToken)
+                .CalibrateAsync(agentType, result.Confidence, cancellationToken)
                 .ConfigureAwait(false);
 
             await _agentResultEnrichmentRepository

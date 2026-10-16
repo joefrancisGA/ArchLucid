@@ -4,12 +4,13 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { ReactElement } from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import {
+  REVIEW_CLI_REPRODUCE_OPEN_PARAM,
   parseReviewCliReproduceOpenFromSearch,
   reviewCliReproduceDisclosureHrefFromSearch,
 } from "@/lib/reviews/review-cli-reproduce-disclosure-url";
@@ -25,9 +26,11 @@ export function ReviewCliReproduceSection({
   ruleSetId,
 }: ReviewCliReproduceSectionProps): ReactElement {
   const pathname = usePathname() ?? "/";
-  const [open, setOpenState] = useState(() =>
-    parseReviewCliReproduceOpenFromSearch(null),
+  const searchParams = useSearchParams();
+  const urlCliReproduceOpen = parseReviewCliReproduceOpenFromSearch(
+    searchParams.get(REVIEW_CLI_REPRODUCE_OPEN_PARAM),
   );
+  const [open, setOpenState] = useState(urlCliReproduceOpen);
   const openRef = useRef(open);
   openRef.current = open;
   const policyFlag = ruleSetId ? ` --policy ${ruleSetId}` : "";
@@ -59,7 +62,7 @@ export function ReviewCliReproduceSection({
   useEffect(() => {
     const syncOpenFromUrl = (): void => {
       const next = parseReviewCliReproduceOpenFromSearch(
-        new URLSearchParams(window.location.search).get("reviewCliReproduceOpen"),
+        new URLSearchParams(window.location.search).get(REVIEW_CLI_REPRODUCE_OPEN_PARAM),
       );
 
       if (openRef.current === next) {
@@ -77,6 +80,15 @@ export function ReviewCliReproduceSection({
       window.removeEventListener("popstate", syncOpenFromUrl);
     };
   }, []);
+
+  useEffect(() => {
+    if (openRef.current === urlCliReproduceOpen) {
+      return;
+    }
+
+    openRef.current = urlCliReproduceOpen;
+    setOpenState(urlCliReproduceOpen);
+  }, [urlCliReproduceOpen]);
 
   return (
     <section id="cli-reproduce" className="scroll-mt-24">

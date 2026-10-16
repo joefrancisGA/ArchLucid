@@ -30,6 +30,52 @@ public sealed class GovernanceMutationCorrectionServiceTests
     };
 
     [Fact]
+    public async Task RecordAsync_sets_explicit_actor_for_stable_actor_user_id()
+    {
+        const string actorKey = "jwt:11111111-2222-3333-4444-555555555555:aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee";
+        const string runId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+        AuditEvent? captured = null;
+
+        Mock<IGovernanceApprovalRequestRepository> approvals = new();
+        approvals
+            .Setup(r => r.GetByIdAsync("apr-correction-audit", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new GovernanceApprovalRequest
+            {
+                ApprovalRequestId = "apr-correction-audit",
+                RunId = runId,
+                Status = GovernanceApprovalStatus.Approved,
+            });
+
+        Mock<IRunRepository> runs = CreateScopedRunRepository(runId);
+        Mock<IAuditService> auditService = new();
+        auditService
+            .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Callback<AuditEvent, CancellationToken>((evt, _) => captured = evt)
+            .Returns(Task.CompletedTask);
+
+        GovernanceMutationCorrectionService sut = CreateSut(
+            approvals.Object,
+            runs.Object,
+            auditService.Object);
+
+        await sut.RecordAsync(
+            new RecordGovernanceMutationCorrectionRequest
+            {
+                MutationKind = GovernanceMutationCorrectionKinds.QuickApprove,
+                SubjectId = "apr-correction-audit",
+                RunId = runId,
+                Rationale = "Correction audit actor must stay on jwt actor key.",
+            },
+            Scope,
+            actorKey,
+            CancellationToken.None);
+
+        captured.Should().NotBeNull();
+        captured!.ExplicitActor.Should().BeTrue();
+        captured.ActorUserId.Should().Be(actorKey);
+    }
+
+    [Fact]
     public async Task RecordAsync_appends_correction_audit_without_mutating_approval_row()
     {
         const string runId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";

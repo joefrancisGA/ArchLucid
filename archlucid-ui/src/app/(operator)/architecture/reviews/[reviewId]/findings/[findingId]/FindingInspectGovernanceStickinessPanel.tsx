@@ -1,8 +1,8 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { usePathname } from "next/navigation";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
@@ -34,9 +34,9 @@ export function FindingInspectGovernanceStickinessPanel(
   props: FindingInspectGovernanceStickinessPanelProps,
 ) {
   const pathname = usePathname() ?? `/architecture/reviews/${props.runId}/findings/${props.findingId}/inspect`;
-  const readUrlState = useCallback(() => {
-    const params = new URLSearchParams(typeof window === "undefined" ? "" : window.location.search);
-
+  const searchParams = useSearchParams();
+  const searchParamsString = searchParams.toString();
+  const readUrlStateFromParams = useCallback((params: URLSearchParams) => {
     return {
       govPanel: parseFindingInspectGovernancePanelFromSearch(params.get("govPanel")),
       waiverConfirm: parseFindingInspectWaiverConfirmOpenFromSearch(params.get("waiverConfirm")),
@@ -44,6 +44,15 @@ export function FindingInspectGovernanceStickinessPanel(
       dispConfirm: parseFindingInspectDispositionConfirmFromSearch(params.get("dispConfirm")),
     };
   }, []);
+  const readUrlState = useCallback(() => {
+    return readUrlStateFromParams(
+      new URLSearchParams(typeof window === "undefined" ? "" : window.location.search),
+    );
+  }, [readUrlStateFromParams]);
+  const urlStateFromSearchParams = useMemo(
+    () => readUrlStateFromParams(searchParams),
+    [readUrlStateFromParams, searchParamsString],
+  );
   const [urlState, setUrlState] = useState(readUrlState);
   const urlStateRef = useRef(urlState);
   urlStateRef.current = urlState;
@@ -99,6 +108,22 @@ export function FindingInspectGovernanceStickinessPanel(
       window.removeEventListener("popstate", syncFromUrl);
     };
   }, [readUrlState]);
+
+  useEffect(() => {
+    const next = urlStateFromSearchParams;
+
+    if (
+      urlStateRef.current.govPanel === next.govPanel
+      && urlStateRef.current.waiverConfirm === next.waiverConfirm
+      && urlStateRef.current.waiverRevokeConfirm === next.waiverRevokeConfirm
+      && urlStateRef.current.dispConfirm === next.dispConfirm
+    ) {
+      return;
+    }
+
+    urlStateRef.current = next;
+    setUrlState(next);
+  }, [urlStateFromSearchParams]);
 
   useEffect(() => {
     if (urlWaiverRevokeConfirm) {

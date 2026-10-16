@@ -1,7 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import { usePathname } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
 
 import { TransparencyTrailPanel } from "@/components/feasibility/TransparencyTrailPanel";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
@@ -9,8 +9,10 @@ import { buildInferredTrailFindingTrustLookup } from "@/lib/feasibility/format-i
 import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-finding-from-detail";
 import {
+  TRANSPARENCY_TRAIL_OPEN_PARAM,
   parseTransparencyTrailOpenFromSearch,
-  transparencyTrailHrefFromSearch} from "@/lib/reviews/transparency-trail-open-url";
+  transparencyTrailHrefFromSearch,
+} from "@/lib/reviews/transparency-trail-open-url";
 import type { ManifestFeasibilityVerdict } from "@/types/feasibility-verdict";
 
 export type RunDetailOverviewTransparencyTrailProps = {
@@ -22,12 +24,16 @@ export type RunDetailOverviewTransparencyTrailProps = {
 /** Overview transparency trail with defect callout when a completed review omits the mandatory record. */
 export function RunDetailOverviewTransparencyTrail(props: RunDetailOverviewTransparencyTrailProps) {
   const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
   const { isWorkingMode } = useWorkspaceMode();
   const trail = props.feasibilityVerdict?.transparencyTrail ?? null;
   const missingTrailDefect = props.runCompleted && trail === null;
-  const [detailsOpen, setDetailsOpenState] = useState(() =>
-    parseTransparencyTrailOpenFromSearch(null),
+  const urlDetailsOpen = parseTransparencyTrailOpenFromSearch(
+    searchParams.get(TRANSPARENCY_TRAIL_OPEN_PARAM),
   );
+  const [detailsOpen, setDetailsOpenState] = useState(urlDetailsOpen);
+  const detailsOpenRef = useRef(detailsOpen);
+  detailsOpenRef.current = detailsOpen;
 
   const syncDetailsOpenToUrl = useCallback(
     (open: boolean) => {
@@ -38,23 +44,29 @@ export function RunDetailOverviewTransparencyTrail(props: RunDetailOverviewTrans
 
   const setDetailsOpen = useCallback(
     (open: boolean) => {
-      if (detailsOpen === open) {
+      if (detailsOpenRef.current === open) {
         return;
       }
 
+      detailsOpenRef.current = open;
       setDetailsOpenState(open);
       syncDetailsOpenToUrl(open);
     },
-    [detailsOpen, syncDetailsOpenToUrl],
+    [syncDetailsOpenToUrl],
   );
 
   useEffect(() => {
     const syncDetailsOpenFromUrl = (): void => {
       const nextOpen = parseTransparencyTrailOpenFromSearch(
-        new URLSearchParams(window.location.search).get("transparencyTrailOpen"),
+        new URLSearchParams(window.location.search).get(TRANSPARENCY_TRAIL_OPEN_PARAM),
       );
 
-      setDetailsOpenState((current) => (current === nextOpen ? current : nextOpen));
+      if (detailsOpenRef.current === nextOpen) {
+        return;
+      }
+
+      detailsOpenRef.current = nextOpen;
+      setDetailsOpenState(nextOpen);
     };
 
     syncDetailsOpenFromUrl();
@@ -64,6 +76,15 @@ export function RunDetailOverviewTransparencyTrail(props: RunDetailOverviewTrans
       window.removeEventListener("popstate", syncDetailsOpenFromUrl);
     };
   }, []);
+
+  useEffect(() => {
+    if (detailsOpenRef.current === urlDetailsOpen) {
+      return;
+    }
+
+    detailsOpenRef.current = urlDetailsOpen;
+    setDetailsOpenState(urlDetailsOpen);
+  }, [urlDetailsOpen]);
 
   return (
     <TransparencyTrailPanel

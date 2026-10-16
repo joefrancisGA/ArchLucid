@@ -104,4 +104,8 @@ describe("resolveExpiresInSeconds", () => {
   it("parses a numeric string expires_in with a leading tab character", () => {
     expect(resolveExpiresInSeconds("\t3600" as unknown as number)).toBe(3600);
   });
+
+  it("maps a string false expires_in to the default lifetime", () => {
+    expect(resolveExpiresInSeconds("false" as unknown as number)).toBe(3600);
+  });
 });

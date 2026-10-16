@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import type { ReactElement } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
@@ -43,6 +43,12 @@ export function FindingInspectWhyMattersSection({
   const policyRuleId = resolvePolicyRuleIdFromInspect(payload);
   const policyRuleLabel = resolvePolicyRuleLabelFromInspect(payload, policyRuleId);
   const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const technicalRuleOpenParam = searchParams.get(FINDING_INSPECT_TECHNICAL_RULE_OPEN_PARAM);
+  const urlTechnicalRuleOpen =
+    technicalRuleOpenParam === null
+      ? null
+      : parseFindingInspectTechnicalRuleOpenFromSearch(technicalRuleOpenParam);
   const defaultTechnicalRuleOpen = variant === "inspect";
   const readTechnicalRuleOpenFromUrl = (): boolean | null => {
     const param = new URLSearchParams(typeof window === "undefined" ? "" : window.location.search).get(
@@ -107,6 +113,19 @@ export function FindingInspectWhyMattersSection({
       window.removeEventListener("popstate", syncTechnicalRuleOpenFromUrl);
     };
   }, []);
+
+  useEffect(() => {
+    if (urlTechnicalRuleOpen === null) {
+      return;
+    }
+
+    if (technicalRuleOpenRef.current === urlTechnicalRuleOpen) {
+      return;
+    }
+
+    technicalRuleOpenRef.current = urlTechnicalRuleOpen;
+    setTechnicalRuleOpenState(urlTechnicalRuleOpen);
+  }, [urlTechnicalRuleOpen]);
 
   const whyHeading =
     findingTitle.trim().length > 0 && findingTitle !== "Finding detail"

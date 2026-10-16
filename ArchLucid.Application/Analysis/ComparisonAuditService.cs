@@ -21,15 +21,17 @@ public sealed class ComparisonAuditService(IComparisonRecordRepository repositor
     {
         ArgumentNullException.ThrowIfNull(summaryMarkdown);
         ArgumentNullException.ThrowIfNull(report);
+        string leftRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForPersistence(report.LeftRunId);
+        string rightRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForPersistence(report.RightRunId);
         ComparisonRecord record = new()
         {
             ComparisonRecordId = Guid.NewGuid().ToString("N"),
             ComparisonType = ComparisonTypes.EndToEndReplay,
-            LeftRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForPersistence(report.LeftRunId),
-            RightRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForPersistence(report.RightRunId),
+            LeftRunId = leftRunId,
+            RightRunId = rightRunId,
             Format = ComparisonTypes.FormatJsonMarkdown,
             SummaryMarkdown = summaryMarkdown,
-            PayloadJson = JsonSerializer.Serialize(report, JsonOptions),
+            PayloadJson = SerializeEndToEndPayload(report, leftRunId, rightRunId),
             Notes = "Persisted end-to-end replay comparison.",
             CreatedUtc = TimeProvider.System.UtcNowDateTime()
         };
@@ -58,17 +60,19 @@ public sealed class ComparisonAuditService(IComparisonRecordRepository repositor
     {
         ArgumentNullException.ThrowIfNull(summaryMarkdown);
         ArgumentNullException.ThrowIfNull(diff);
+        string? leftRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForPersistenceOrNull(diff.LeftRunId);
+        string? rightRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForPersistenceOrNull(diff.RightRunId);
         ComparisonRecord record = new()
         {
             ComparisonRecordId = Guid.NewGuid().ToString("N"),
             ComparisonType = ComparisonTypes.ExportRecordDiff,
-            LeftRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForPersistenceOrNull(diff.LeftRunId),
-            RightRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForPersistenceOrNull(diff.RightRunId),
+            LeftRunId = leftRunId,
+            RightRunId = rightRunId,
             LeftExportRecordId = diff.LeftExportRecordId,
             RightExportRecordId = diff.RightExportRecordId,
             Format = ComparisonTypes.FormatJsonMarkdown,
             SummaryMarkdown = summaryMarkdown,
-            PayloadJson = JsonSerializer.Serialize(diff, JsonOptions),
+            PayloadJson = SerializeExportDiffPayload(diff, leftRunId, rightRunId),
             Notes = "Persisted export record diff.",
             CreatedUtc = TimeProvider.System.UtcNowDateTime()
         };
@@ -127,5 +131,49 @@ public sealed class ComparisonAuditService(IComparisonRecordRepository repositor
             return guid;
 
         return null;
+    }
+
+    private static string SerializeEndToEndPayload(
+        EndToEndReplayComparisonReport report,
+        string leftRunId,
+        string rightRunId)
+    {
+        string originalLeft = report.LeftRunId;
+        string originalRight = report.RightRunId;
+
+        try
+        {
+            report.LeftRunId = leftRunId;
+            report.RightRunId = rightRunId;
+
+            return JsonSerializer.Serialize(report, JsonOptions);
+        }
+        finally
+        {
+            report.LeftRunId = originalLeft;
+            report.RightRunId = originalRight;
+        }
+    }
+
+    private static string SerializeExportDiffPayload(
+        ExportRecordDiffResult diff,
+        string? leftRunId,
+        string? rightRunId)
+    {
+        string? originalLeft = diff.LeftRunId;
+        string? originalRight = diff.RightRunId;
+
+        try
+        {
+            diff.LeftRunId = leftRunId ?? string.Empty;
+            diff.RightRunId = rightRunId ?? string.Empty;
+
+            return JsonSerializer.Serialize(diff, JsonOptions);
+        }
+        finally
+        {
+            diff.LeftRunId = originalLeft;
+            diff.RightRunId = originalRight;
+        }
     }
 }

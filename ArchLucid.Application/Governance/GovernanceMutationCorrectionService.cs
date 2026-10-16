@@ -162,6 +162,7 @@ public sealed class GovernanceMutationCorrectionService(
                 },
                 AuditJsonSerializationOptions.Instance));
         auditEvent.RunId = auditRunId;
+        auditEvent.ExplicitActor = true;
 
         await DurableAuditLogRetry.LogOrThrowAsync(
             ct => _auditService.LogAsync(auditEvent, ct),

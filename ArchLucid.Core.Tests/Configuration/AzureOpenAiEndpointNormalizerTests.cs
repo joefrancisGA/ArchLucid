@@ -25,4 +25,14 @@ public sealed class AzureOpenAiEndpointNormalizerTests
 
         normalized.Should().Be("https://oai-archlucid-dev.openai.azure.com/");
     }
+
+    [SkippableFact]
+    public void NormalizeForChatCompletions_appends_trailing_slash_to_path_before_query_on_cognitiveservices_host()
+    {
+        string normalized = AzureOpenAiEndpointNormalizer.NormalizeForChatCompletions(
+            "https://oai-archlucid-dev.cognitiveservices.azure.com/openai?api-version=2024-02-01");
+
+        normalized.Should().Be(
+            "https://oai-archlucid-dev.cognitiveservices.azure.com/openai/?api-version=2024-02-01");
+    }
 }

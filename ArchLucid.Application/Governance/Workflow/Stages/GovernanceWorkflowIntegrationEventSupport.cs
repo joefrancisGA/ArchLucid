@@ -63,7 +63,10 @@ public sealed class GovernanceWorkflowIntegrationEventSupport(
             manifestHash,
             sourceEnvironment = request.SourceEnvironment,
             targetEnvironment = request.TargetEnvironment,
-            requestedBy = request.RequestedBy
+            requestedBy = request.RequestedBy,
+            requestedByActorKey = string.IsNullOrWhiteSpace(request.RequestedByActorKey)
+                ? request.RequestedBy
+                : request.RequestedByActorKey
         };
         string messageId = $"{request.ApprovalRequestId}:{IntegrationEventTypes.GovernanceApprovalSubmittedV1}";
         Guid? runKey = Guid.TryParse(request.RunId, out Guid rid) ? rid : null;
@@ -87,6 +90,7 @@ public sealed class GovernanceWorkflowIntegrationEventSupport(
     public async Task TryPublishApprovalApprovedAsync(
         GovernanceApprovalRequest request,
         string reviewedBy,
+        string reviewedByActorKey,
         DateTime reviewedUtc,
         string? reviewComment,
         CancellationToken cancellationToken)
@@ -106,6 +110,7 @@ public sealed class GovernanceWorkflowIntegrationEventSupport(
             sourceEnvironment = request.SourceEnvironment,
             targetEnvironment = request.TargetEnvironment,
             reviewedBy,
+            reviewedByActorKey,
             reviewedUtc,
             reviewComment
         };
@@ -131,6 +136,7 @@ public sealed class GovernanceWorkflowIntegrationEventSupport(
     public async Task TryPublishApprovalRejectedAsync(
         GovernanceApprovalRequest request,
         string reviewedBy,
+        string reviewedByActorKey,
         DateTime reviewedUtc,
         string? reviewComment,
         CancellationToken cancellationToken)
@@ -150,6 +156,7 @@ public sealed class GovernanceWorkflowIntegrationEventSupport(
             sourceEnvironment = request.SourceEnvironment,
             targetEnvironment = request.TargetEnvironment,
             reviewedBy,
+            reviewedByActorKey,
             reviewedUtc,
             reviewComment
         };
@@ -175,6 +182,7 @@ public sealed class GovernanceWorkflowIntegrationEventSupport(
     public async Task TryPublishPromotionActivatedAsync(
         GovernanceEnvironmentActivation activation,
         string activatedBy,
+        string activatedByActorKey,
         IDbConnection? connection,
         IDbTransaction? transaction,
         CancellationToken cancellationToken)
@@ -193,6 +201,9 @@ public sealed class GovernanceWorkflowIntegrationEventSupport(
             manifestHash,
             environment = activation.Environment,
             activatedBy,
+            activatedByActorKey = string.IsNullOrWhiteSpace(activatedByActorKey)
+                ? activatedBy
+                : activatedByActorKey,
             activatedUtc = activation.ActivatedUtc
         };
         string messageId = $"{activation.ActivationId}:{IntegrationEventTypes.GovernancePromotionActivatedV1}";

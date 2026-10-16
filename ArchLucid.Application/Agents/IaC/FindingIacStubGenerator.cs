@@ -1,4 +1,5 @@
 using System.Text;
+using System.Text.Json;
 using System.Text.Json.Nodes;
 
 using ArchLucid.Application.Findings;
@@ -206,8 +207,10 @@ public sealed class FindingIacStubGenerator(
 
     private static AgentResult CloneResult(AgentResult source)
     {
-        string json = System.Text.Json.JsonSerializer.Serialize(source, ContractJson.Default);
-        AgentResult? copy = System.Text.Json.JsonSerializer.Deserialize<AgentResult>(json, ContractJson.Default);
+        AgentResultEnvelopeAgentTypeResolver.EnsureFindingSourceAgents(source);
+
+        string json = JsonSerializer.Serialize(source, ContractJson.Default);
+        AgentResult? copy = JsonSerializer.Deserialize<AgentResult>(json, ContractJson.Default);
 
         if (copy is null)
             throw new InvalidOperationException("Clone produced null AgentResult.");
@@ -220,7 +223,9 @@ public sealed class FindingIacStubGenerator(
 
     private static string SerializeAgentResultForEnrichment(AgentResult result)
     {
-        JsonObject root = System.Text.Json.JsonSerializer.SerializeToNode(result, ContractJson.Default)!.AsObject();
+        AgentResultEnvelopeAgentTypeResolver.EnsureFindingSourceAgents(result);
+
+        JsonObject root = JsonSerializer.SerializeToNode(result, ContractJson.Default)!.AsObject();
 
         if (!string.IsNullOrWhiteSpace(result.ProposedEvidenceJson))
             root["proposedEvidenceJson"] = result.ProposedEvidenceJson;

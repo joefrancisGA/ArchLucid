@@ -1,6 +1,6 @@
 "use client";
 
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { Fragment, useEffect, useRef, useState } from "react";
 
 import { ReviewPresenterElicitationActions } from "@/components/reviews/ReviewPresenterElicitationActions";
@@ -58,6 +58,9 @@ export function RunDetailPresenterElicitationBridge(
 ): React.JSX.Element {
   const { architectureRequestId, parentArchitectureId, ...workspaceProps } = props;
   const pathname = usePathname() ?? "";
+  const searchParams = useSearchParams();
+  const searchParamPresenterMode = readPresenterModeFromSearchParams(searchParams);
+  const searchParamRoomElicitationMode = readRoomElicitationFromSearchParams(searchParams);
   const { isWorkingMode } = useWorkspaceMode();
   const [presenterMode, setPresenterModeState] = useState(
     () => readPresenterModesFromWindowLocation().presenterMode,
@@ -95,6 +98,18 @@ export function RunDetailPresenterElicitationBridge(
       window.removeEventListener("popstate", syncPresenterModesFromUrl);
     };
   }, []);
+
+  useEffect(() => {
+    setPresenterModeState((current) =>
+      current === searchParamPresenterMode ? current : searchParamPresenterMode,
+    );
+  }, [searchParamPresenterMode]);
+
+  useEffect(() => {
+    setRoomElicitationModeState((current) =>
+      current === searchParamRoomElicitationMode ? current : searchParamRoomElicitationMode,
+    );
+  }, [searchParamRoomElicitationMode]);
 
   useEffect(() => {
     if (!isWorkingMode || !presenterMode || resolvedParentArchitectureId.length === 0) {
