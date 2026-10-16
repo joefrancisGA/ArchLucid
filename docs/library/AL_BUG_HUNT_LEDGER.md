@@ -1,4 +1,10 @@
-> **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
+> **Scope:**
+
+- (candidate) `SamlMetadataValidUntilParser` — multiple entities where only some carry `validUntil` — locus: earliest-attribute walk; input: one entity with expiry and one without.
+- (candidate) `SamlMetadataValidUntilParser` — nested entities with unparseable `validUntil` mixed with valid timestamps — locus: parse failures skipped; input: federation metadata hygiene edge.
+- (candidate) `RecentAuthenticationEvaluator` — prefer freshest `iat` when all `auth_time` claims unparseable — locus: auth_time vs iat precedence; input: likely `(valid-no-repro)` by existing test policy.
+- (candidate) `SamlMetadataDiscoveryParser` — match configured issuer entity id when multiple `EntityDescriptor` nodes present — locus: discovery wizard; input: product enhancement not parser bug.
+- (candidate) `ScimBearerAuthenticationHandler` — non-Bearer scheme token before Bearer in header list — locus: `TryReadBearerToken` scan order; input: `Authorization: Basic x, Bearer token`. Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
 2026-10-16 thorough hunt (hit): `saml-jwt-bearer` — promoted `SamlMetadataValidUntilParser.TryExtractValidUntilUtc` returning null for federation metadata with multiple nested `EntityDescriptor` nodes, so operational diagnostics reported Pass for `metadata.validUntil` ("No root validUntil") even when an IdP signing cert was already expired; select the earliest nested `validUntil`; regression `TryExtractValidUntilUtc_returns_earliest_validUntil_when_multiple_nested_entities`; cheap-disproof closed duplicate `Authorization` SCIM header (`ScimBearerAuthenticationHandlerTests`), `RecentAuthenticationEvaluator` `iat` Integer64 without `auth_time` (existing regressions), `PlatformUserAuthVersionValidator` duplicate claim injection (validator receives single claim from JWT pipeline), and `SamlMetadataDiscoveryParser` multi-entity throw (intentional discovery guard); `SamlMetadataValidUntilParserTests` 3/3 + scoped SAML/JWT/SCIM Api tests 21/21; seeded five follow-on `(candidate)` rows.
 
