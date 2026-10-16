@@ -247,23 +247,61 @@ public sealed class AzureInventoryVnetCustomDnsIndex
             return false;
         }
 
-        if (!serverElement.TryGetUInt32(out uint packedAddress))
+        if (!TryReadPackedUint32FromNumericElement(serverElement, out uint packedAddress))
         {
-            server = serverElement.GetRawText();
+            string rawText = serverElement.GetRawText();
+
+            if (TryFormatPackedUint32DnsAddressString(rawText, out string dottedFromRaw))
+            {
+                server = dottedFromRaw;
+
+                return true;
+            }
+
+            server = rawText;
 
             return !string.IsNullOrWhiteSpace(server);
         }
 
-        server = string.Format(
+        server = FormatPackedUint32DnsAddress(packedAddress);
+
+        return true;
+    }
+
+    private static bool TryReadPackedUint32FromNumericElement(JsonElement serverElement, out uint packedAddress)
+    {
+        if (serverElement.TryGetUInt32(out packedAddress))
+        {
+            return true;
+        }
+
+        if (!serverElement.TryGetDouble(out double numericValue)
+            || numericValue < 256
+            || numericValue > uint.MaxValue)
+        {
+            return false;
+        }
+
+        double rounded = Math.Round(numericValue);
+
+        if (Math.Abs(numericValue - rounded) > 0.0001)
+        {
+            return false;
+        }
+
+        packedAddress = (uint)rounded;
+
+        return true;
+    }
+
+    private static string FormatPackedUint32DnsAddress(uint packedAddress) =>
+        string.Format(
             CultureInfo.InvariantCulture,
             "{0}.{1}.{2}.{3}",
             (packedAddress >> 24) & 0xFF,
             (packedAddress >> 16) & 0xFF,
             (packedAddress >> 8) & 0xFF,
             packedAddress & 0xFF);
-
-        return true;
-    }
 
     private static bool TryReadByteOctet(JsonElement serverElement, out int octet)
     {
@@ -409,13 +447,7 @@ public sealed class AzureInventoryVnetCustomDnsIndex
             return false;
         }
 
-        dottedAddress = string.Format(
-            CultureInfo.InvariantCulture,
-            "{0}.{1}.{2}.{3}",
-            (packedAddress >> 24) & 0xFF,
-            (packedAddress >> 16) & 0xFF,
-            (packedAddress >> 8) & 0xFF,
-            packedAddress & 0xFF);
+        dottedAddress = FormatPackedUint32DnsAddress(packedAddress);
 
         return true;
     }

@@ -1,17 +1,3 @@
-{"at":"2026-09-16T05:27:09.1141387Z","zoneId":"context-ingestion","outcome":"hit"}
-{"at":"2026-09-16T05:27:12.5986249Z","zoneId":"core-costing","outcome":"seed-only"}
-{"at":"2026-09-16T05:27:15.7297309Z","zoneId":"tenant-data-export","outcome":"seed-only"}
-{"at":"2026-09-16T05:27:18.951726Z","zoneId":"persistence-identity","outcome":"seed-only"}
-{"at":"2026-09-16T05:28:50.9521169Z","zoneId":"topology-proposal-merge","outcome":"hit"}
-{"at":"2026-09-16T05:28:54.6753162Z","zoneId":"context-ingestion","outcome":"seed-only"}
-{"at":"2026-09-16T05:28:57.928077Z","zoneId":"core-costing","outcome":"seed-only"}
-{"at":"2026-09-16T05:29:01.2742816Z","zoneId":"tenant-data-export","outcome":"seed-only"}
-{"at":"2026-09-16T05:29:04.271931Z","zoneId":"persistence-identity","outcome":"seed-only"}
-{"at":"2026-09-16T05:30:35.0157289Z","zoneId":"topology-proposal-merge","outcome":"hit"}
-{"at":"2026-09-16T05:30:38.2689474Z","zoneId":"context-ingestion","outcome":"seed-only"}
-{"at":"2026-09-16T05:30:41.1868913Z","zoneId":"core-costing","outcome":"seed-only"}
-{"at":"2026-09-16T05:30:44.2254961Z","zoneId":"tenant-data-export","outcome":"seed-only"}
-{"at":"2026-09-16T05:30:47.7876881Z","zoneId":"persistence-identity","outcome":"seed-only"}
 {"at":"2026-09-16T05:32:19.5577858Z","zoneId":"topology-proposal-merge","outcome":"hit"}
 {"at":"2026-09-16T05:32:22.8645897Z","zoneId":"context-ingestion","outcome":"seed-only"}
 {"at":"2026-09-16T05:32:25.746009Z","zoneId":"core-costing","outcome":"seed-only"}
@@ -7726,3 +7712,4 @@
 {"at":"2026-10-16T05:13:38.1914459Z","zoneId":"application-agents","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-16T05:21:34.04275Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-16T05:27:03.1361034Z","zoneId":"archlucid-core","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-16T05:31:07.9637122Z","zoneId":"archlucid-core","outcome":"hit","productLine":"archlucid-shared"}
