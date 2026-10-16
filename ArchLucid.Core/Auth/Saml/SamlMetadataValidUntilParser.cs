@@ -43,56 +43,62 @@ public static class SamlMetadataValidUntilParser
         if (root is null)
             return null;
 
-        XAttribute? rootAttribute = root.Attribute("validUntil");
-
-        if (rootAttribute is not null && !string.IsNullOrWhiteSpace(rootAttribute.Value))
-            return rootAttribute;
-
-        // Federation exports often use EntitiesDescriptor without a root validUntil while the sole nested
-        // EntityDescriptor carries the signing-metadata expiry operators expect diagnostics to honor.
         XName entityName = SamlMetadataNs + "EntityDescriptor";
 
         if (root.Name == entityName)
-            return null;
+            return TrySelectEarliestValidUntilAttribute(root.Attribute("validUntil"));
 
-        List<XElement> entities = root.Descendants(entityName).ToList();
-
-        if (entities.Count == 0)
-            return null;
-
-        if (entities.Count == 1)
-            return entities[0].Attribute("validUntil");
-
-        // Federation bundles may list multiple IdPs; operational diagnostics should honor the earliest
-        // signing-metadata expiry so any stale entity fails closed instead of reporting "no validUntil".
+        // Federation exports may carry validUntil on the container, on nested EntityDescriptor nodes, or both.
+        // Operational diagnostics should honor the earliest expiry so any stale entity fails closed.
         XAttribute? earliestAttribute = null;
         DateTimeOffset? earliestInstant = null;
 
-        foreach (XElement entity in entities)
+        ConsiderValidUntilCandidate(root.Attribute("validUntil"), ref earliestAttribute, ref earliestInstant);
+
+        foreach (XElement entity in root.Descendants(entityName))
         {
-            XAttribute? attribute = entity.Attribute("validUntil");
-
-            if (attribute is null || string.IsNullOrWhiteSpace(attribute.Value))
-            {
-                continue;
-            }
-
-            if (!DateTimeOffset.TryParse(
-                    attribute.Value,
-                    CultureInfo.InvariantCulture,
-                    DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal,
-                    out DateTimeOffset instant))
-            {
-                continue;
-            }
-
-            if (earliestInstant is null || instant < earliestInstant)
-            {
-                earliestInstant = instant;
-                earliestAttribute = attribute;
-            }
+            ConsiderValidUntilCandidate(entity.Attribute("validUntil"), ref earliestAttribute, ref earliestInstant);
         }
 
         return earliestAttribute;
+    }
+
+    private static XAttribute? TrySelectEarliestValidUntilAttribute(XAttribute? attribute)
+    {
+        if (attribute is null || string.IsNullOrWhiteSpace(attribute.Value))
+            return null;
+
+        if (!DateTimeOffset.TryParse(
+                attribute.Value,
+                CultureInfo.InvariantCulture,
+                DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal,
+                out _))
+            return null;
+
+        return attribute;
+    }
+
+    private static void ConsiderValidUntilCandidate(
+        XAttribute? attribute,
+        ref XAttribute? earliestAttribute,
+        ref DateTimeOffset? earliestInstant)
+    {
+        if (attribute is null || string.IsNullOrWhiteSpace(attribute.Value))
+            return;
+
+        if (!DateTimeOffset.TryParse(
+                attribute.Value,
+                CultureInfo.InvariantCulture,
+                DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal,
+                out DateTimeOffset instant))
+        {
+            return;
+        }
+
+        if (earliestInstant is null || instant < earliestInstant)
+        {
+            earliestInstant = instant;
+            earliestAttribute = attribute;
+        }
     }
 }
