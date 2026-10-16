@@ -275,23 +275,7 @@ public sealed class AzureInventoryVnetCustomDnsIndex
             return true;
         }
 
-        if (!serverElement.TryGetDouble(out double numericValue)
-            || numericValue < 256
-            || numericValue > uint.MaxValue)
-        {
-            return false;
-        }
-
-        double rounded = Math.Round(numericValue);
-
-        if (Math.Abs(numericValue - rounded) > 0.0001)
-        {
-            return false;
-        }
-
-        packedAddress = (uint)rounded;
-
-        return true;
+        return TryParsePackedUint32DnsAddress(serverElement.GetRawText(), out packedAddress);
     }
 
     private static string FormatPackedUint32DnsAddress(uint packedAddress) =>
@@ -430,14 +414,41 @@ public sealed class AzureInventoryVnetCustomDnsIndex
             hex = hex[2..];
         }
 
-        return uint.TryParse(hex, NumberStyles.AllowHexSpecifier, CultureInfo.InvariantCulture, out packedAddress);
+        if (uint.TryParse(hex, NumberStyles.AllowHexSpecifier, CultureInfo.InvariantCulture, out packedAddress))
+        {
+            return true;
+        }
+
+        if (!double.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out double numericValue)
+            || numericValue < 256
+            || numericValue > uint.MaxValue)
+        {
+            return false;
+        }
+
+        double rounded = Math.Round(numericValue);
+
+        if (Math.Abs(numericValue - rounded) > 0.0001)
+        {
+            return false;
+        }
+
+        packedAddress = (uint)rounded;
+
+        return true;
     }
 
     private static bool TryFormatPackedUint32DnsAddressString(string value, out string dottedAddress)
     {
         dottedAddress = string.Empty;
 
-        if (string.IsNullOrWhiteSpace(value) || value.Contains('.', StringComparison.Ordinal))
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return false;
+        }
+
+        if (value.Contains('.', StringComparison.Ordinal)
+            && value.IndexOf('e', StringComparison.OrdinalIgnoreCase) < 0)
         {
             return false;
         }
