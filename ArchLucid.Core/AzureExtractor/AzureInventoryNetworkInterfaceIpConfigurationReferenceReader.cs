@@ -26,16 +26,15 @@ public static class AzureInventoryNetworkInterfaceIpConfigurationReferenceReader
     {
         if (configuration.ValueKind is JsonValueKind.String)
         {
-            return configuration.GetString();
+            return TryReadArmId(configuration);
         }
 
-        if (!TryGetPropertyIgnoreCase(configuration, "id", out JsonElement idElement)
-            || idElement.ValueKind is not JsonValueKind.String)
+        if (TryGetPropertyIgnoreCase(configuration, "id", out JsonElement idElement))
         {
-            return null;
+            return TryReadArmId(idElement);
         }
 
-        return idElement.GetString();
+        return null;
     }
 
     private static bool TryGetPropertyIgnoreCase(

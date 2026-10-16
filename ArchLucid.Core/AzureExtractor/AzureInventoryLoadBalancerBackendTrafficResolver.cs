@@ -274,18 +274,7 @@ public static class AzureInventoryLoadBalancerBackendTrafficResolver
 
     private static string? TryReadDirectId(JsonElement configuration)
     {
-        if (configuration.ValueKind is JsonValueKind.String)
-        {
-            return configuration.GetString();
-        }
-
-        if (!TryGetPropertyIgnoreCase(configuration, "id", out JsonElement idElement)
-            || idElement.ValueKind is not JsonValueKind.String)
-        {
-            return null;
-        }
-
-        return idElement.GetString();
+        return AzureInventoryNetworkInterfaceIpConfigurationReferenceReader.TryReadArmId(configuration);
     }
 
     private static string? TryReadNestedNetworkInterfaceIpConfigurationId(JsonElement address)
