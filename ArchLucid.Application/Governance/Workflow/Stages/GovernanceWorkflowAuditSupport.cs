@@ -207,6 +207,7 @@ public sealed class GovernanceWorkflowAuditSupport(
             requestedBy,
             dataJson);
         auditEvent.RunId = auditRunId;
+        auditEvent.ExplicitActor = true;
         await DurableAuditLogRetry.TryLogAsync(
             ct => _auditService.LogAsync(auditEvent, ct),
             _logger,
@@ -241,6 +242,7 @@ public sealed class GovernanceWorkflowAuditSupport(
             promotedBy,
             dataJson);
         auditEvent.RunId = auditRunId;
+        auditEvent.ExplicitActor = true;
         await DurableAuditLogRetry.TryLogAsync(
             ct => _auditService.LogAsync(auditEvent, ct),
             _logger,

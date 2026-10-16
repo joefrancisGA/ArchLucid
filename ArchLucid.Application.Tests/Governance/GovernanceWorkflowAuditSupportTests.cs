@@ -63,13 +63,40 @@ public sealed class GovernanceWorkflowAuditSupportTests
         auditEvent.ActorUserName.Should().Be(actorKey);
     }
 
-    private static GovernanceWorkflowAuditSupport CreateSupport()
+    [Fact]
+    public async Task LogDryRunValidationAttemptedForPromotionAsync_sets_explicit_actor_for_stable_promoted_by()
+    {
+        const string actorKey = "jwt:11111111-2222-3333-4444-555555555555:aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee";
+        AuditEvent? captured = null;
+        Mock<IAuditService> auditService = new();
+        auditService
+            .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Callback<AuditEvent, CancellationToken>((auditEvent, _) => captured = auditEvent)
+            .Returns(Task.CompletedTask);
+
+        GovernanceWorkflowAuditSupport support = CreateSupport(auditService.Object);
+
+        await support.LogDryRunValidationAttemptedForPromotionAsync(
+            actorKey,
+            "44444444-4444-4444-4444-444444444444",
+            "1",
+            "dev",
+            "test",
+            null,
+            CancellationToken.None);
+
+        captured.Should().NotBeNull();
+        captured!.ExplicitActor.Should().BeTrue();
+        captured.ActorUserId.Should().Be(actorKey);
+    }
+
+    private static GovernanceWorkflowAuditSupport CreateSupport(IAuditService? auditService = null)
     {
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
 
         return new GovernanceWorkflowAuditSupport(
-            Mock.Of<IAuditService>(),
+            auditService ?? Mock.Of<IAuditService>(),
             scopeProvider.Object,
             NullLogger<GovernanceWorkflowAuditSupport>.Instance);
     }
