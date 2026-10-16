@@ -7827,3 +7827,4 @@
 {"at":"2026-10-16T03:10:56.4673185Z","zoneId":"archlucid-core","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-16T03:14:48.5793955Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-16T03:20:11.7397982Z","zoneId":"archlucid-core","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Core/AzureExtractor/AzureInventoryRouteTableRouteParser.cs"]}
+{"at":"2026-10-16T03:24:13.1021374Z","zoneId":"archlucid-core","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Core/AzureExtractor/AzureInventoryRouteTableRouteParser.cs"]}
