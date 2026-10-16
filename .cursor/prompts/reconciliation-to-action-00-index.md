@@ -25,7 +25,7 @@ Canonical wave doc: [`docs/architecture/RECONCILIATION_TO_ACTION_LUNA_PROMPTS.md
 
 ## Run order
 
-**RTA-01** and **RTA-02** are on `master` (#4511). **RTA-03** and **RTA-04** are on `cursor/rta-luna-prompts-f8f4` and are not on `master`. Land that branch before **RTA-05**. **RTA-06** after **05**. **RTA-07** after **06**. **RTA-HOLD** is not a build step.
+**RTA-01** through **RTA-07** are on `master` (#4511, #4525, #4530, #4539, #4549). Do not greenfield. **RTA-HOLD** is not a build step.
 
 Do not run two of these in one session. Each implementation prompt ends **before commit**. The owner checks the page, then says whether to commit.
 
