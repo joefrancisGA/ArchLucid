@@ -47,6 +47,7 @@ public sealed partial class GovernanceController
         string actorUserId = actorContext.GetActorId();
         string actorUserName = actorContext.GetActor();
         byte[] keyHash = ArchitectureRunIdempotencyHashing.HashIdempotencyKey(idempotencyKey);
+        Guid? auditRunId = TryParseArchitectureRunIdForAudit(request.RunId);
 
         await _auditService.LogAsync(
             new AuditEvent
@@ -58,13 +59,15 @@ public sealed partial class GovernanceController
                 TenantId = scope.TenantId,
                 WorkspaceId = scope.WorkspaceId,
                 ProjectId = scope.ProjectId,
-                RunId = TryParseArchitectureRunIdForAudit(request.RunId),
+                RunId = auditRunId,
                 DataJson = JsonSerializer.Serialize(new
                 {
+                    runId = auditRunId?.ToString("D"),
                     idempotencyKeySha256Hex = Convert.ToHexString(keyHash),
                     manifestVersion = request.ManifestVersion?.Trim(),
                     sourceEnvironment = request.SourceEnvironment?.Trim(),
-                    targetEnvironment = request.TargetEnvironment?.Trim()
+                    targetEnvironment = request.TargetEnvironment?.Trim(),
+                    requestedByActorKey = actorUserId,
                 })
             },
             cancellationToken);
