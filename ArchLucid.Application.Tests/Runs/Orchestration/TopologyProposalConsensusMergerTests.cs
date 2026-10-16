@@ -1100,4 +1100,44 @@ public sealed class TopologyProposalConsensusMergerTests
         result.MergedProposal.AddedDatastores.Should().BeEmpty();
         result.DisagreementCount.Should().BeGreaterThan(0);
     }
+
+    [Fact]
+    public void Merge_reports_zero_disagreement_when_models_agree_on_relationship_pruned_for_undeclared_endpoints()
+    {
+        ManifestRelationship relationship = new()
+        {
+            SourceId = "svc-api",
+            TargetId = "phantom-worker",
+            RelationshipType = RelationshipType.Calls,
+        };
+
+        AgentTopologyProposal primary = new()
+        {
+            SourceAgent = AgentType.Topology,
+            AddedServices =
+            [
+                new ManifestService
+                {
+                    ServiceName = "api",
+                    ServiceId = "svc-api",
+                    ServiceType = ServiceType.Api,
+                    RuntimePlatform = RuntimePlatform.AppService,
+                },
+            ],
+            AddedRelationships = [relationship],
+        };
+
+        AgentTopologyProposal secondary = new()
+        {
+            SourceAgent = AgentType.Topology,
+            AddedServices = primary.AddedServices,
+            AddedRelationships = [relationship],
+        };
+
+        TopologyProposalConsensusMergeResult result = TopologyProposalConsensusMerger.Merge(primary, secondary);
+
+        result.MergedProposal.AddedRelationships.Should().BeEmpty();
+        result.DisagreementCount.Should().Be(0);
+        result.MergedProposal.Warnings.Should().BeEmpty();
+    }
 }
