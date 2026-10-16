@@ -21,6 +21,18 @@ export type AgentExecutionOutcomeRow = {
   readonly degradationReasonCode?: string | null;
 };
 
+export const AGENT_EXECUTION_OUTCOME_NOT_STORED_LABEL = "Outcome was not stored." as const;
+
+function formatAgentExecutionOutcomeLabel(outcome: string | null | undefined): string {
+  const trimmed = outcome?.trim() ?? "";
+
+  if (trimmed.length === 0) {
+    return AGENT_EXECUTION_OUTCOME_NOT_STORED_LABEL;
+  }
+
+  return trimmed;
+}
+
 function countArray(value: readonly unknown[] | null | undefined): number {
   return Array.isArray(value) ? value.length : 0;
 }
@@ -114,7 +126,7 @@ export function RunAgentResultsSummaryCard(props: {
           <ul className="m-0 list-none space-y-2 p-0" data-testid="run-agent-execution-outcomes">
             {outcomes.map((outcome) => {
               const agentKey = (outcome.agentType ?? "unknown").trim() || "unknown";
-              const outcomeLabel = (outcome.outcome ?? "Missing").trim() || "Missing";
+              const outcomeLabel = formatAgentExecutionOutcomeLabel(outcome.outcome);
 
               return (
                 <li

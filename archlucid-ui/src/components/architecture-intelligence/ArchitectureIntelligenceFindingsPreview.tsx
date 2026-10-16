@@ -5,12 +5,15 @@ import Link from "next/link";
 import { SeverityTag } from "@/components/ui/severity-tag";
 import type { ClosedLoopReasoningResult } from "@/lib/architecture/architecture-intelligence-api";
 import {
-  countIntegrityPassedFindings,
+  ARCHITECTURE_INTELLIGENCE_FINDING_SEVERITY_NOT_STORED,
   listIntegrityPassedFindingPreviews,
+  resolveIntegrityPassedFindingIdsPresence,
 } from "@/lib/architecture/architecture-intelligence-findings";
 import { buildArchitectureIntelligenceRunHref } from "@/lib/architecture/architecture-intelligence-run-href";
 import {
+  ARCHITECTURE_INTELLIGENCE_FINDING_COUNT_NOT_STORED,
   ARCHITECTURE_INTELLIGENCE_FINDINGS_PREVIEW_HEADING,
+  ARCHITECTURE_INTELLIGENCE_FINDINGS_PREVIEW_REVIEW_LINK_NOT_STORED,
   ARCHITECTURE_INTELLIGENCE_FINDINGS_PREVIEW_SHOW_ALL_LABEL,
   ARCHITECTURE_INTELLIGENCE_REFINE_ZERO_FINDINGS_HINT,
 } from "@/lib/architecture/architecture-intelligence-refine-next-steps-copy";
@@ -28,11 +31,20 @@ export function ArchitectureIntelligenceFindingsPreview(
   props: ArchitectureIntelligenceFindingsPreviewProps,
 ): React.JSX.Element {
   const prefix = props.testIdPrefix ?? "architecture-intelligence-findings";
-  const totalPassed = countIntegrityPassedFindings(props.result);
+  const integrityIdsPresence = resolveIntegrityPassedFindingIdsPresence(props.result);
   const previews = listIntegrityPassedFindingPreviews(props.result, props.inlineLimit ?? 3);
   const runId = props.result.runId?.trim() ?? "";
   const showAllHref =
     runId.length > 0 ? buildArchitectureIntelligenceRunHref({ runId, from: "reviews" }) : null;
+
+  const emptyStateMessage =
+    integrityIdsPresence.kind === "omitted"
+      ? ARCHITECTURE_INTELLIGENCE_FINDING_COUNT_NOT_STORED
+      : integrityIdsPresence.count === 0
+        ? ARCHITECTURE_INTELLIGENCE_REFINE_ZERO_FINDINGS_HINT
+        : null;
+
+  const showFindingList = emptyStateMessage === null;
 
   return (
     <section className="space-y-2" data-testid={`${prefix}-preview`} aria-labelledby={`${prefix}-heading`}>
@@ -43,11 +55,13 @@ export function ArchitectureIntelligenceFindingsPreview(
         {ARCHITECTURE_INTELLIGENCE_FINDINGS_PREVIEW_HEADING}
       </h3>
 
-      {totalPassed === 0 ? (
+      {emptyStateMessage !== null ? (
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} role="status">
-          {ARCHITECTURE_INTELLIGENCE_REFINE_ZERO_FINDINGS_HINT}
+          {emptyStateMessage}
         </p>
-      ) : (
+      ) : null}
+
+      {showFindingList ? (
         <ul className="m-0 list-none space-y-2 p-0">
           {previews.map((finding) => (
             <li
@@ -59,9 +73,15 @@ export function ArchitectureIntelligenceFindingsPreview(
                 <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
                   {finding.title}
                 </p>
-                <SeverityTag severity={finding.severity} />
+                {finding.severity !== null ? (
+                  <SeverityTag severity={finding.severity} />
+                ) : (
+                  <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                    {ARCHITECTURE_INTELLIGENCE_FINDING_SEVERITY_NOT_STORED}
+                  </p>
+                )}
               </div>
-              {finding.conclusion.length > 0 ? (
+              {finding.conclusion !== null ? (
                 <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                   {finding.conclusion}
                 </p>
@@ -69,9 +89,9 @@ export function ArchitectureIntelligenceFindingsPreview(
             </li>
           ))}
         </ul>
-      )}
+      ) : null}
 
-      {totalPassed > 0 && showAllHref !== null ? (
+      {showFindingList && previews.length > 0 && showAllHref !== null ? (
         <p className="m-0">
           <Link
             href={showAllHref}
@@ -79,8 +99,20 @@ export function ArchitectureIntelligenceFindingsPreview(
             data-testid={`${prefix}-show-all`}
           >
             {ARCHITECTURE_INTELLIGENCE_FINDINGS_PREVIEW_SHOW_ALL_LABEL}
-            {totalPassed > previews.length ? ` (${totalPassed})` : ""}
+            {integrityIdsPresence.kind === "stored" && integrityIdsPresence.count > previews.length
+              ? ` (${integrityIdsPresence.count})`
+              : ""}
           </Link>
+        </p>
+      ) : null}
+
+      {showFindingList && previews.length > 0 && showAllHref === null ? (
+        <p
+          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          role="status"
+          data-testid={`${prefix}-review-link-not-stored`}
+        >
+          {ARCHITECTURE_INTELLIGENCE_FINDINGS_PREVIEW_REVIEW_LINK_NOT_STORED}
         </p>
       ) : null}
     </section>

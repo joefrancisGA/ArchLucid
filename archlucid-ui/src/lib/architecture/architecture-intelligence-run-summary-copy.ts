@@ -6,7 +6,7 @@ export type ArchitectureIntelligenceRunTechnicalDetail = {
   readonly value: string;
 };
 
-const OMITTED_STRUCTURED_ELEMENT_COUNT_LABEL = "Not returned";
+const OMITTED_STRUCTURED_ELEMENT_COUNT_LABEL = "Structured detail count was not stored.";
 
 const OMITTED_FINDING_COUNT_LABEL = "Finding count was not stored.";
 

@@ -27,6 +27,23 @@ describe("ArchitectureDraftWorkLeaseBanner (LW-091)", () => {
     expect(screen.queryByText(/online/i)).toBeNull();
   });
 
+  it("labels missing holder and lease expiration honestly", () => {
+    render(
+      <ArchitectureDraftWorkLeaseBanner
+        heldByOther
+        leaseLost={false}
+        holderActorOid={null}
+        expiresUtc={null}
+        stealBusy={false}
+        stealError={null}
+        onStealLease={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByText(/Holder: Holder was not stored\./)).toBeTruthy();
+    expect(screen.getByText(/Lease expiration was not stored\./)).toBeTruthy();
+  });
+
   it("renders lease-lost state", () => {
     render(
       <ArchitectureDraftWorkLeaseBanner

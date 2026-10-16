@@ -1,7 +1,10 @@
 import { resolveRunHomeStatusTag } from "@/lib/operator/run-home-status";
 import type { ArchitectureDraftRegistryEntry } from "@/lib/architecture/architecture-draft-registry";
 import { architectureDraftHasLinkedReview } from "@/lib/architecture/architecture-draft-handoff-gate";
-import { ARCHITECTURE_DRAFT_STATUS_LABELS } from "@/lib/architecture/architecture-draft-status";
+import {
+  ARCHITECTURE_DRAFT_STATUS_LABELS,
+  customerFacingArchitectureDraftTitle,
+} from "@/lib/architecture/architecture-draft-status";
 import { architectureDraftPath, REVIEWS_NEW_PATH } from "@/lib/architecture/architecture-routes";
 import {
   INHABIT_WORKING_HOME_UNFINISHED_WORK_AWAITING_DISPOSITION_STATUS,
@@ -223,7 +226,7 @@ function buildDraftItems(
       return buildRailItemBase({
         id: `architecture-draft:${entry.draftId}`,
         kind: "architecture-draft" as const,
-        title: entry.displayName.trim().length > 0 ? entry.displayName : "Untitled architecture",
+        title: customerFacingArchitectureDraftTitle(entry.displayName, entry.lastUpdatedUtc),
         href: draftPrimary?.href ?? architectureDraftPath(entry.draftId),
         statusLabel,
         statusKind: "draft",

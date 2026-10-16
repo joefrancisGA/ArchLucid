@@ -111,7 +111,7 @@ export function formatFindingsVisibilitySummaryLine(
       return null;
     }
 
-    return `Showing ${shownCount} of ${toolbarFilteredCount} — hidden count not returned`;
+    return `Showing ${shownCount} of ${toolbarFilteredCount}. Hidden finding count was not stored.`;
   }
 
   if (hiddenByConfidenceCount <= 0 && shownCount === toolbarFilteredCount) {

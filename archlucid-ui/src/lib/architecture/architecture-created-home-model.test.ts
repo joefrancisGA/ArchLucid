@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { buildArchitectureCreatedHomeModel } from "@/lib/architecture/architecture-created-home-model";
+import { UNTITLED_ARCHITECTURE_LABEL } from "@/lib/architecture/architecture-draft-status";
 
 const baseInput = {
   runId: "run-1",
@@ -35,6 +36,15 @@ describe("buildArchitectureCreatedHomeModel", () => {
     expect(model.primaryActions[0]?.label).toBe("Run initial assessment");
   });
 
+  it("labels blank architecture names as not stored", () => {
+    const model = buildArchitectureCreatedHomeModel({
+      ...baseInput,
+      architectureName: "   ",
+    });
+
+    expect(model.architectureName).toBe(UNTITLED_ARCHITECTURE_LABEL);
+  });
+
   it("prioritizes continue clarifying when important context is missing", () => {
     const model = buildArchitectureCreatedHomeModel({
       ...baseInput,
@@ -44,6 +54,7 @@ describe("buildArchitectureCreatedHomeModel", () => {
       architectureName: "",
     });
 
+    expect(model.architectureName).toBe(UNTITLED_ARCHITECTURE_LABEL);
     expect(model.definitionStatus).toBe("insufficient-context");
     expect(model.missingItems.length).toBeGreaterThan(0);
     expect(model.primaryActions.find((action) => action.primary)?.label).toBe("Continue clarifying");

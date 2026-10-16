@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { buyerLabelForAgentType } from "@/lib/agent-type-buyer-label";
+import { AGENT_TYPE_NOT_STORED_LABEL, buyerLabelForAgentType } from "@/lib/agent-type-buyer-label";
 import { ARCHITECTURE_STRUCTURE_BUYER_LABEL } from "@/lib/usability/canonical-product-terms";
 
 describe("buyerLabelForAgentType", () => {
@@ -19,8 +19,8 @@ describe("buyerLabelForAgentType", () => {
   });
 
   it("handles blank and unknown values", () => {
-    expect(buyerLabelForAgentType(null)).toBe("Agent (unknown)");
-    expect(buyerLabelForAgentType("")).toBe("Agent (unknown)");
+    expect(buyerLabelForAgentType(null)).toBe(AGENT_TYPE_NOT_STORED_LABEL);
+    expect(buyerLabelForAgentType("")).toBe(AGENT_TYPE_NOT_STORED_LABEL);
     expect(buyerLabelForAgentType("SecurityReviewer")).toBe("Agent (SecurityReviewer)");
     expect(buyerLabelForAgentType(99)).toBe("AgentType(99)");
   });
