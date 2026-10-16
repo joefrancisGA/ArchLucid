@@ -2685,7 +2685,12 @@ export function DiagramsWorkbenchClient() {
       ) : null}
 
       {selectedSnapshotId.length > 0 && !deepLinkedSnapshotMissing ? (
-      awaitingDiagramTypeSelection ? (
+      <>
+      <DiagramsWorkbenchSecureNowQuestionBarFallback
+        outline={familyFilteredOutline}
+        paintDiagramCanvas={paintDiagramCanvas}
+      />
+      {awaitingDiagramTypeSelection ? (
         <EnterpriseCompactEmptyState
           title={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_TYPE_PROMPT_TITLE}
           description={GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_TYPE_PROMPT_BODY}
@@ -2858,6 +2863,7 @@ export function DiagramsWorkbenchClient() {
             </p>
           ) : null}
           <DiagramsWorkbenchSecureNowAwareDiagramViewer
+            embedQuestionBarInViewport={paintDiagramCanvas}
             mermaidSource={displayMermaidSource}
             layoutSvg={displayLayoutSvg.length > 0 ? displayLayoutSvg : null}
             textAlternative={`Inventory diagram for snapshot ${selectedSnapshotDisplayLabel ?? selectedSnapshotId} in ${selectedModeLabel} mode.`}
@@ -2906,7 +2912,8 @@ export function DiagramsWorkbenchClient() {
             </Button>
           }
         />
-      ) : null
+      ) : null}
+      </>
       ) : null}
 
       <DiagramsClaimOrientationStrip />
@@ -2967,9 +2974,27 @@ export function DiagramsWorkbenchClient() {
   );
 }
 
+type DiagramsWorkbenchSecureNowAwareDiagramViewerProps = ArchitectureDiagramMermaidViewerProps & {
+  readonly embedQuestionBarInViewport: boolean;
+};
+
+function DiagramsWorkbenchSecureNowQuestionBarFallback(props: {
+  readonly outline: ArchitectureDiagramMermaidViewerProps["outline"];
+  readonly paintDiagramCanvas: boolean;
+}): React.JSX.Element | null {
+  const { drawerOpen } = useSecureNowQuestionQueue();
+
+  if (!drawerOpen || props.paintDiagramCanvas) {
+    return null;
+  }
+
+  return <SecureNowQuestionQueueBar outline={props.outline ?? null} />;
+}
+
 function DiagramsWorkbenchSecureNowAwareDiagramViewer(
-  props: ArchitectureDiagramMermaidViewerProps,
+  props: DiagramsWorkbenchSecureNowAwareDiagramViewerProps,
 ): React.JSX.Element {
+  const { embedQuestionBarInViewport, ...viewerProps } = props;
   const { drawerOpen, currentQuestion } = useSecureNowQuestionQueue();
   const questionSubjectNodeId = useSecureNowQuestionSubjectNodeId();
   const [questionFocusNonce, setQuestionFocusNonce] = useState(0);
@@ -2987,27 +3012,27 @@ function DiagramsWorkbenchSecureNowAwareDiagramViewer(
       return [];
     }
 
-    if (!diagramOutlineIncludesFocusResource(props.outline, questionSubjectNodeId)) {
+    if (!diagramOutlineIncludesFocusResource(viewerProps.outline, questionSubjectNodeId)) {
       return [];
     }
 
-    return resolveDiagramCameraFocusNodeIds(questionSubjectNodeId, props.outline);
-  }, [drawerOpen, props.outline, questionSubjectNodeId]);
+    return resolveDiagramCameraFocusNodeIds(questionSubjectNodeId, viewerProps.outline);
+  }, [drawerOpen, viewerProps.outline, questionSubjectNodeId]);
 
   const effectiveFocusNodeIds = questionCameraFocusNodeIds.length > 0
     ? questionCameraFocusNodeIds
-    : props.focusNodeIds;
+    : viewerProps.focusNodeIds;
   const effectiveFocusNonce = questionCameraFocusNodeIds.length > 0
     ? questionFocusNonce
-    : props.focusNonce;
+    : viewerProps.focusNonce;
 
-  const viewportHeader = drawerOpen
-    ? <SecureNowQuestionQueueBar outline={props.outline ?? null} />
+  const viewportHeader = drawerOpen && embedQuestionBarInViewport
+    ? <SecureNowQuestionQueueBar outline={viewerProps.outline ?? null} />
     : null;
 
   return (
     <ArchitectureDiagramViewer
-      {...props}
+      {...viewerProps}
       focusNodeIds={effectiveFocusNodeIds}
       focusNonce={effectiveFocusNonce}
       questionSubjectNodeId={drawerOpen ? questionSubjectNodeId : null}
