@@ -170,6 +170,7 @@ public sealed class ArchitectureKnowledgeModelAccess(
 
         // Create-time pin hashes intake only. Closed-loop persist writes κ afterward; re-pin so
         // finalize does not 409 (golden-cohort nightly: pinned ArchitectureVersionId κ drift).
+
         if (_architectureVersionKnowledgeModelPinSync is not null)
         {
             await _architectureVersionKnowledgeModelPinSync

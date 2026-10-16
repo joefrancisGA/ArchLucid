@@ -8,6 +8,7 @@ using FluentAssertions;
 namespace ArchLucid.Application.Tests.Architecture;
 
 [Trait("Category", "Unit")]
+[Trait("Suite", "Core")]
 public sealed class ArchitectureVersionContentFingerprintVerifierTests
 {
     [Fact]

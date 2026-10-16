@@ -444,6 +444,7 @@ public sealed class ArchitectureKnowledgeModelAccessTests
   }
 
   [Fact]
+  [Trait("Suite", "Core")]
   public async Task SaveForRunAsync_syncs_architecture_version_pin_after_knowledge_model_save()
   {
     Guid runId = Guid.Parse("f1f1f1f1-f1f1-f1f1-f1f1-f1f1f1f1f1f1");

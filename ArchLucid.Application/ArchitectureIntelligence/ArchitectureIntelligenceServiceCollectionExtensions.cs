@@ -127,6 +127,7 @@ internal static class ArchitectureIntelligenceServiceCollectionExtensions
         services.AddScoped<ClosedLoopArchitectureReasoningPostStageHooks>(static sp =>
         {
             IAuthorityFindingsSnapshotUpdater? authorityFindingsSnapshotUpdater = null;
+
             if (sp.GetService<IRunRepository>() is not null
                 && sp.GetService<IFindingsSnapshotRepository>() is not null)
             {

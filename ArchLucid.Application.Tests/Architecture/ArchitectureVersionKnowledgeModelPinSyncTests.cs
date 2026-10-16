@@ -17,6 +17,7 @@ using Moq;
 namespace ArchLucid.Application.Tests.Architecture;
 
 [Trait("Category", "Unit")]
+[Trait("Suite", "Core")]
 public sealed class ArchitectureVersionKnowledgeModelPinSyncTests
 {
     private static readonly ScopeContext TestScope = new()
