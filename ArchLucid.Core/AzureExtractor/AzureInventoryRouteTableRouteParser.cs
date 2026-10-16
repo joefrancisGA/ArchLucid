@@ -70,8 +70,7 @@ public static class AzureInventoryRouteTableRouteParser
                 AddressPrefix = ReadRouteProperty(properties, index, InventoryDiagramNodeRelationshipPropertyKeys.RouteAddressPrefixSuffix),
                 NextHopType = ReadRouteProperty(properties, index, InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopTypeSuffix),
                 NextHopIpAddress = ReadRouteProperty(properties, index, InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopIpAddressSuffix),
-                NextHopArmId = TryParseFlattenedArmIdValue(
-                    ReadRouteProperty(properties, index, InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopArmIdSuffix)),
+                NextHopArmId = TryParseFlattenedNextHopArmId(properties, index),
             };
 
             if (!RouteHasReachableContent(route))
@@ -135,7 +134,24 @@ public static class AzureInventoryRouteTableRouteParser
         InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopTypeSuffix,
         InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopIpAddressSuffix,
         InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopArmIdSuffix,
+        InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopReferenceSuffix,
     ];
+
+    private static string? TryParseFlattenedNextHopArmId(
+        IReadOnlyDictionary<string, string> properties,
+        string index)
+    {
+        string? fromArmIdSuffix = TryParseFlattenedArmIdValue(
+            ReadRouteProperty(properties, index, InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopArmIdSuffix));
+
+        if (!string.IsNullOrWhiteSpace(fromArmIdSuffix))
+        {
+            return fromArmIdSuffix;
+        }
+
+        return TryParseFlattenedArmIdValue(
+            ReadRouteProperty(properties, index, InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopReferenceSuffix));
+    }
 
     private static bool RouteHasReachableContent(AzureInventoryRouteTableRoute route)
     {
