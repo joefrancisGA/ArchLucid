@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState, type ReactElement } from "react";
 
 import { FindingInspectDiagramCitationPreviewDialog } from "@/components/findings/FindingInspectDiagramCitationPreviewDialog";
@@ -232,7 +232,14 @@ export function FindingInspectEvidenceSection({
   citationModel = null,
 }: FindingInspectEvidenceSectionProps): ReactElement {
   const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
   const searchParamsString = readWindowLocationSearch();
+  const urlOpenCitationArtifactId = parseFindingInspectEvidenceCitationArtifactIdFromSearch(
+    searchParams.get(FINDING_INSPECT_EVIDENCE_CITATION_ARTIFACT_ID_PARAM),
+  );
+  const urlDiagramPreviewCitation = parseDiagramCitationPreviewParam(
+    searchParams.get(FINDING_INSPECT_DIAGRAM_CITATION_PREVIEW_PARAM),
+  );
   const readOpenCitationArtifactIdFromUrl = (): string =>
     parseFindingInspectEvidenceCitationArtifactIdFromSearch(
       new URLSearchParams(typeof window === "undefined" ? "" : window.location.search).get(
@@ -321,6 +328,25 @@ export function FindingInspectEvidenceSection({
       window.removeEventListener("popstate", syncFromUrl);
     };
   }, []);
+
+  useEffect(() => {
+    if (openCitationArtifactIdRef.current === urlOpenCitationArtifactId) {
+      return;
+    }
+
+    openCitationArtifactIdRef.current = urlOpenCitationArtifactId;
+    setOpenCitationArtifactIdState(urlOpenCitationArtifactId);
+  }, [urlOpenCitationArtifactId]);
+
+  useEffect(() => {
+    if (diagramPreviewCitationRef.current === urlDiagramPreviewCitation) {
+      return;
+    }
+
+    diagramPreviewCitationRef.current = urlDiagramPreviewCitation;
+    setDiagramPreviewCitationState(urlDiagramPreviewCitation);
+  }, [urlDiagramPreviewCitation]);
+
   const buyerPolishedShell = resolveProductionEvalChromeFromStorage();
   const policy = citationModel?.policy ?? null;
   const pack = citationModel?.pack ?? null;
