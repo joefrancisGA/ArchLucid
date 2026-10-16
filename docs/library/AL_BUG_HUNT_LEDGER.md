@@ -1,3 +1,4 @@
+2026-10-16 seed hunt (seed→hit): `archlucid-core` — promoted `AzureInventoryComputeIdentityPrincipalIndex.TryParseIdentityPrincipalIds` ignoring PascalCase `PrincipalId` on compute `identity` JSON (principal→compute index false negative); case-insensitive property reads; regression `BuildPrincipalToComputeArmIds_reads_pascal_case_principal_id_property`; `AzureInventoryComputeIdentityPrincipalIndexTests` 2/2; seeded five follow-on `(candidate)` rows.
 2026-10-16 seed hunt (seed→hit): `api-governance-tenancy-controllers` — promoted `GovernanceWorkflowAuditSupport.CreateGovernanceManifestPromotedAuditEvent` / `CreateGovernanceEnvironmentActivatedAuditEvent` omitting `ExplicitActor`, so `AuditService` replaced `ActorUserId` with `ClaimTypes.NameIdentifier` while promotion records store jwt actor keys; set `ExplicitActor = true` on durable promotion/activation audits; regressions `CreateGovernanceManifestPromotedAuditEvent_sets_explicit_actor_for_stable_promoted_by` and `CreateGovernanceEnvironmentActivatedAuditEvent_sets_explicit_actor_for_stable_activated_by`; scoped Governance/Tenancy controller filter 143 passed, 18 SQL integration failures (Linux VM baseline); seeded five follow-on `(candidate)` rows.
 2026-10-16 seed hunt (seed→hit): `archlucid-core` — promoted `AzureInventoryRuntimeIdentityReader.TryReadSystemAssignedPrincipalId` ignoring PascalCase `PrincipalId` in `identity` JSON (runtime identity false negative); case-insensitive `principalId` and `userAssignedIdentities` property reads; regression `TryReadSystemAssignedPrincipalId_reads_pascal_case_principal_id_property`; `AzureInventoryRuntimeIdentityReaderTests` 4/4; seeded five follow-on `(candidate)` rows.
 2026-10-16 seed hunt (seed→hit): `archlucid-core` — promoted `AzureInventoryVnetCustomDnsIndex.TryParseDnsServersFromJson` dropping custom DNS when `dhcpOptions` inventory text is a JSON string scalar wrapping the object; unwrap and re-parse; regression `VnetUsesCustomDns_true_when_dhcpOptions_is_json_string_scalar_wrapping_object`; `AzureInventoryVnetCustomDnsIndexTests` 9/9; seeded five follow-on `(candidate)` rows.
@@ -22084,6 +22085,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ---
 
 ## Zone: archlucid-core
+2026-10-16 seed hunt (seed→hit): promoted PascalCase `PrincipalId` on compute identity JSON for principal index; regression above; 2/2 compute identity index tests.
+
 2026-10-16 seed hunt (seed→hit): promoted PascalCase `PrincipalId` on `identity` JSON for runtime identity reads; regression above; 4/4 identity reader tests.
 
 2026-10-16 seed hunt (seed→hit): promoted double-encoded `dhcpOptions` JSON string scalar; regression `VnetUsesCustomDns_true_when_dhcpOptions_is_json_string_scalar_wrapping_object`; 9/9 DNS tests.
@@ -22155,11 +22158,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models; retired mega-zone
 - **paths:** docs/library/AL_BUG_HUNT_LEDGER.md
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 482
+- **hunts:** 483
 - **last-hunt:** 2026-10-15
-- **bugs-found:** 3517
+- **bugs-found:** 3518
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-16 — PascalCase PrincipalId on identity JSON broke runtime identity reads
+- **last-bug:** 2026-10-16 — PascalCase PrincipalId on compute identity JSON broke principal index
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -22217,10 +22220,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - (candidate) `AzureInventoryReachabilityEdgeControlIndex.Build` — route table resource id trailing slash on relationship only — locus: `NormalizeReachabilityResourceIndex`; input: padded route table ARM id.
 
 - (candidate) `AzureInventoryVnetCustomDnsIndex.TryReadCustomDnsServers` — `dhcpOptions.dnsServers` flat value is JSON array text (`["10.0.0.4"]`) not comma-separated — locus: flat split; input: flattened inventory property.
-- (candidate) `AzureInventoryComputeIdentityPrincipalIndex.ReadPrincipalIds` — same PascalCase `PrincipalId` gap on compute principal index — locus: `TryReadString`; input: VM/site identity JSON.
 - (candidate) `AzureInventoryPrivateEndpointDnsJoinIndex.BuildComputeToVnetMap` — compute VNet ARM ids not normalized in map values — locus: `TryResolveVnetArmIdFromSubnetArmId` output; input: mixed-case subnet relationship ids.
 - (candidate) `AzureInventoryReachabilityEdgeControlIndex.AssetDeclaredBehindApplicationGateway` — padded whitespace on AGW backend `ToAzureResourceId` — locus: relationship normalization; input: `inventory-agw-backend` triple.
 
+- [x] (proven) `AzureInventoryComputeIdentityPrincipalIndex.TryParseIdentityPrincipalIds` — PascalCase `PrincipalId` ignored — **hit 2026-10-16 seed hunt:** case-insensitive property reads; regression `BuildPrincipalToComputeArmIds_reads_pascal_case_principal_id_property`.
 - [x] (proven) `AzureInventoryRuntimeIdentityReader.TryReadSystemAssignedPrincipalId` — PascalCase `PrincipalId` in `identity` JSON ignored — **hit 2026-10-16 seed hunt:** case-insensitive property reads; regression `TryReadSystemAssignedPrincipalId_reads_pascal_case_principal_id_property`.
 - [x] (proven) `AzureInventoryVnetCustomDnsIndex.TryParseDnsServersFromJson` — JSON string scalar wrapping `dhcpOptions` object ignored — **hit 2026-10-16 seed hunt:** unwrap string and re-parse; regression `VnetUsesCustomDns_true_when_dhcpOptions_is_json_string_scalar_wrapping_object`.
 - [x] (proven) `AzureInventoryRouteTableRouteParser.TryReadNestedArmId` — PascalCase `Id` on routes JSON `nextHop` ignored — **hit 2026-10-16 seed hunt:** case-insensitive nested `id` read; regressions `SubnetRequiresEdgeControlEvidence_false_when_routes_json_next_hop_uses_pascal_case_id_property` and `Parse_reads_next_hop_arm_id_when_nested_object_uses_pascal_case_id_property`.

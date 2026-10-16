@@ -38,7 +38,7 @@ public sealed class AzureInventoryComputeIdentityPrincipalIndexTests
     }
 
     [Fact]
-    public void BuildPrincipalToComputeArmIds_ignores_pascal_case_principal_id_property()
+    public void BuildPrincipalToComputeArmIds_reads_pascal_case_principal_id_property()
     {
         const string vmArmId =
             "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm1";
@@ -60,6 +60,8 @@ public sealed class AzureInventoryComputeIdentityPrincipalIndexTests
         Dictionary<string, List<string>> index =
             AzureInventoryComputeIdentityPrincipalIndex.BuildPrincipalToComputeArmIds(resources);
 
-        index.Should().BeEmpty();
+        index.Should().ContainKey("11111111-1111-1111-1111-111111111111");
+        index["11111111-1111-1111-1111-111111111111"].Should()
+            .Contain(ArmResourceIdNormalizer.Normalize(vmArmId));
     }
 }

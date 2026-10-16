@@ -94,7 +94,7 @@ public static class AzureInventoryComputeIdentityPrincipalIndex
                 principalIds.Add(systemAssignedPrincipalId.Trim());
             }
 
-            if (root.TryGetProperty("userAssignedIdentities", out JsonElement assigned)
+            if (TryGetPropertyIgnoreCase(root, "userAssignedIdentities", out JsonElement assigned)
                 && assigned.ValueKind is JsonValueKind.Object)
             {
                 foreach (JsonProperty property in assigned.EnumerateObject())
@@ -123,11 +123,34 @@ public static class AzureInventoryComputeIdentityPrincipalIndex
 
     private static string? TryReadString(JsonElement element, string propertyName)
     {
-        if (!element.TryGetProperty(propertyName, out JsonElement value))
+        if (!TryGetPropertyIgnoreCase(element, propertyName, out JsonElement value))
         {
             return null;
         }
 
         return value.ValueKind is JsonValueKind.String ? value.GetString() : null;
+    }
+
+    private static bool TryGetPropertyIgnoreCase(
+        JsonElement element,
+        string propertyName,
+        out JsonElement value)
+    {
+        foreach (JsonProperty property in element.EnumerateObject())
+        {
+
+            if (!property.Name.Equals(propertyName, StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            value = property.Value;
+
+            return true;
+        }
+
+        value = default;
+
+        return false;
     }
 }
