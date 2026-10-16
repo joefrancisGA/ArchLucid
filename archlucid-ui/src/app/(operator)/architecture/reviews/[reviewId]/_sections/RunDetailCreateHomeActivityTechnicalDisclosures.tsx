@@ -2,14 +2,16 @@
 
 import type { ReactNode } from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 
 import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import {
+  RUN_DETAIL_ACTIVITY_TECHNICAL_OPEN_PARAM,
   parseRunDetailActivityTechnicalOpenFromSearch,
   runDetailActivityTechnicalDisclosureHrefFromSearch,
 } from "@/lib/runs/run-detail-activity-technical-disclosure-url";
 import {
+  RUN_DETAIL_ACTIVITY_OUTCOME_METRICS_OPEN_PARAM,
   parseRunDetailActivityOutcomeMetricsOpenFromSearch,
   runDetailActivityOutcomeMetricsDisclosureHrefFromSearch,
 } from "@/lib/runs/run-detail-activity-outcome-metrics-disclosure-url";
@@ -25,14 +27,17 @@ export function RunDetailCreateHomeActivityTechnicalDisclosures(
   props: RunDetailCreateHomeActivityTechnicalDisclosuresProps,
 ): React.JSX.Element {
   const pathname = usePathname() ?? "/";
-  const [technicalOpen, setTechnicalOpenState] = useState(() =>
-    parseRunDetailActivityTechnicalOpenFromSearch(null),
+  const searchParams = useSearchParams();
+  const urlTechnicalOpen = parseRunDetailActivityTechnicalOpenFromSearch(
+    searchParams.get(RUN_DETAIL_ACTIVITY_TECHNICAL_OPEN_PARAM),
   );
+  const urlOutcomeMetricsOpen = parseRunDetailActivityOutcomeMetricsOpenFromSearch(
+    searchParams.get(RUN_DETAIL_ACTIVITY_OUTCOME_METRICS_OPEN_PARAM),
+  );
+  const [technicalOpen, setTechnicalOpenState] = useState(urlTechnicalOpen);
   const technicalOpenRef = useRef(technicalOpen);
   technicalOpenRef.current = technicalOpen;
-  const [outcomeMetricsOpen, setOutcomeMetricsOpenState] = useState(() =>
-    parseRunDetailActivityOutcomeMetricsOpenFromSearch(null),
-  );
+  const [outcomeMetricsOpen, setOutcomeMetricsOpenState] = useState(urlOutcomeMetricsOpen);
   const outcomeMetricsOpenRef = useRef(outcomeMetricsOpen);
   outcomeMetricsOpenRef.current = outcomeMetricsOpen;
 
@@ -85,7 +90,7 @@ export function RunDetailCreateHomeActivityTechnicalDisclosures(
   useEffect(() => {
     const syncTechnicalOpenFromUrl = (): void => {
       const nextOpen = parseRunDetailActivityTechnicalOpenFromSearch(
-        new URLSearchParams(window.location.search).get("runDetailActivityTechnicalOpen"),
+        new URLSearchParams(window.location.search).get(RUN_DETAIL_ACTIVITY_TECHNICAL_OPEN_PARAM),
       );
 
       if (technicalOpenRef.current === nextOpen) {
@@ -105,9 +110,18 @@ export function RunDetailCreateHomeActivityTechnicalDisclosures(
   }, []);
 
   useEffect(() => {
+    if (technicalOpenRef.current === urlTechnicalOpen) {
+      return;
+    }
+
+    technicalOpenRef.current = urlTechnicalOpen;
+    setTechnicalOpenState(urlTechnicalOpen);
+  }, [urlTechnicalOpen]);
+
+  useEffect(() => {
     const syncOutcomeMetricsOpenFromUrl = (): void => {
       const nextOpen = parseRunDetailActivityOutcomeMetricsOpenFromSearch(
-        new URLSearchParams(window.location.search).get("runDetailActivityOutcomeMetricsOpen"),
+        new URLSearchParams(window.location.search).get(RUN_DETAIL_ACTIVITY_OUTCOME_METRICS_OPEN_PARAM),
       );
 
       if (outcomeMetricsOpenRef.current === nextOpen) {
@@ -125,6 +139,15 @@ export function RunDetailCreateHomeActivityTechnicalDisclosures(
       window.removeEventListener("popstate", syncOutcomeMetricsOpenFromUrl);
     };
   }, []);
+
+  useEffect(() => {
+    if (outcomeMetricsOpenRef.current === urlOutcomeMetricsOpen) {
+      return;
+    }
+
+    outcomeMetricsOpenRef.current = urlOutcomeMetricsOpen;
+    setOutcomeMetricsOpenState(urlOutcomeMetricsOpen);
+  }, [urlOutcomeMetricsOpen]);
 
   return (
     <details
