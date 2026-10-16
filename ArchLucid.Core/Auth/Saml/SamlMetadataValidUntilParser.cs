@@ -57,9 +57,42 @@ public static class SamlMetadataValidUntilParser
 
         List<XElement> entities = root.Descendants(entityName).ToList();
 
-        if (entities.Count != 1)
+        if (entities.Count == 0)
             return null;
 
-        return entities[0].Attribute("validUntil");
+        if (entities.Count == 1)
+            return entities[0].Attribute("validUntil");
+
+        // Federation bundles may list multiple IdPs; operational diagnostics should honor the earliest
+        // signing-metadata expiry so any stale entity fails closed instead of reporting "no validUntil".
+        XAttribute? earliestAttribute = null;
+        DateTimeOffset? earliestInstant = null;
+
+        foreach (XElement entity in entities)
+        {
+            XAttribute? attribute = entity.Attribute("validUntil");
+
+            if (attribute is null || string.IsNullOrWhiteSpace(attribute.Value))
+            {
+                continue;
+            }
+
+            if (!DateTimeOffset.TryParse(
+                    attribute.Value,
+                    CultureInfo.InvariantCulture,
+                    DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal,
+                    out DateTimeOffset instant))
+            {
+                continue;
+            }
+
+            if (earliestInstant is null || instant < earliestInstant)
+            {
+                earliestInstant = instant;
+                earliestAttribute = attribute;
+            }
+        }
+
+        return earliestAttribute;
     }
 }
