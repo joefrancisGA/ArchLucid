@@ -5,7 +5,7 @@
 
 **Audience:** Francis Architecture LLC owner and coding agents scoping SecureNow work.
 
-**Last reconciled:** 2026-10-15 (marked **SH-03** shipped — SecureNow findings help + `/governance/findings` drawer). Prior 2026-10-15 (marked **SH-02** shipped — SecureNow `/help/getting-started` job-match). Prior 2026-10-15 (marked **SN-HOME-01–06** shipped on trunk — SecureNow Home work summary). Prior 2026-10-14 (marked **SN-HAND-09–10** shipped — gap 4 latest remediation attempt on Audit evidence lineage). Prior 2026-10-13 (marked **SN-HAND-05–08** shipped; gaps 1–3 baseline in `ENGINEER_ANALYST_HANDOFF.md`). Prior 2026-10-12 (added **RUR-01–RUR-03** + hold — role display name, counted plain-language `rbac-role-unmapped` warning, and a read / write / nothing question for one app and one resource; prompts only). Prior same day (added **SN-HOME-01–SN-HOME-06** + hold — SecureNow Home work summary, environment freshness, outcome copy, and visible labels; prompts only). Prior 2026-10-06 (added **SN-QQ-09** and **SN-QQ-10** — resource identity on the question card, then a readable open-question count; prompts only). Prior 2026-10-04 (added **DIC-01–DIC-05** + hold — import a customer drawing and compare it to an inventory capture without a sealed review; prompts only). Prior 2026-10-03 (added **SN-QQ-08** — map the questions controller so Diagrams stops 500ing `Unmapped API controller`; prompts only. Prior same day added **SN-QQ-07** — a failed question-queue load shows the API reason; prompts only. Prior same day added **DCU-01–DCU-05** + hold and **SN-QQ-01–SN-QQ-06** + hold; prompts only). Prior 2026-09-20 (trunk scan + prompt indexes under `.cursor/prompts/securenow-*`).
+**Last reconciled:** 2026-10-16 (trunk scan: **DIC-01–05**, **DMW-01–02**, **RUR-01–03**, **SN-QQ-01–10**, **DCU-01–05**, and **SH-01–SH-26** help job-match closed — do not greenfield). Prior 2026-10-15 (marked **SH-03** shipped — SecureNow findings help + `/governance/findings` drawer). Prior 2026-10-15 (marked **SH-02** shipped — SecureNow `/help/getting-started` job-match). Prior 2026-10-15 (marked **SN-HOME-01–06** shipped on trunk — SecureNow Home work summary). Prior 2026-10-14 (marked **SN-HAND-09–10** shipped — gap 4 latest remediation attempt on Audit evidence lineage). Prior 2026-10-13 (marked **SN-HAND-05–08** shipped; gaps 1–3 baseline in `ENGINEER_ANALYST_HANDOFF.md`). Prior 2026-10-12 (added **RUR-01–RUR-03** + hold — role display name, counted plain-language `rbac-role-unmapped` warning, and a read / write / nothing question for one app and one resource; prompts only). Prior same day (added **SN-HOME-01–SN-HOME-06** + hold — SecureNow Home work summary, environment freshness, outcome copy, and visible labels; prompts only). Prior 2026-10-06 (added **SN-QQ-09** and **SN-QQ-10** — resource identity on the question card, then a readable open-question count; prompts only). Prior 2026-10-04 (added **DIC-01–DIC-05** + hold — import a customer drawing and compare it to an inventory capture without a sealed review; prompts only). Prior 2026-10-03 (added **SN-QQ-08** — map the questions controller so Diagrams stops 500ing `Unmapped API controller`; prompts only. Prior same day added **SN-QQ-07** — a failed question-queue load shows the API reason; prompts only. Prior same day added **DCU-01–DCU-05** + hold and **SN-QQ-01–SN-QQ-06** + hold; prompts only). Prior 2026-09-20 (trunk scan + prompt indexes under `.cursor/prompts/securenow-*`).
 
 ## How to use this file
 
@@ -48,7 +48,12 @@ These waves are **closed for greenfield re-implementation**. Extend or fix with 
 | **Probable evidence on Data Flow** | **SN-PE-01–SN-PE-07** | `AzureInventoryDataFlowEvidenceCatalog`, family filter, PE DNS join (`peReachableTarget`), messaging RBAC direction, ordinal bands — **not** percents. |
 | **Runtime connections** | **SN-RT-01–SN-RT-14** (core) | Container Apps env → `app-settings-hosts.json`, parsers, SQL catalog grain, PaaS stages, RBAC allowlist, opt-in `dependency-observations.json` + `ObservedRuntime`, SQL principals companion, upload parsers, operator confirm (`HumanAssertion`), inference questionnaire API + workbench panel. **SN-RT-14** maps the operator-inferred controller so Diagrams GETs stop 500ing `Unmapped API controller`. |
 | **Architect plane** | **SA-01–SA-21** | `SecurityEvidencePath` domain, security edges, privilege/reachability/toxic/capability engines, ranking, cut points, four-reality drift, neighborhood recompute, path inspector API + UI, constrained path explanation, asset assertions, outcome metrics, honesty copy. Optional Entra group + federated-credential **inventory** companions feed SA-02/SA-03. |
-| **Help job-match (partial set)** | **SH-01**, **SH-07–SH-10**, **SH-26**, others | Product-line contextual help rows for governance/infrastructure routes; Security help hub excludes Architecture-process featured slugs (e.g. `billing-and-plans`, `first-architecture-review`). |
+| **Help job-match** | **SH-01–SH-26** | Product-line contextual help, infrastructure workbench guides, Security hub/search exclusions. Do not greenfield. Index: [securenow-help-00-index.md](../../.cursor/prompts/securenow-help-00-index.md). |
+| **Diagram import comparison** | **DIC-01–DIC-05** | Advisory snapshot compare (`/v1/infrastructure/diagram-comparisons`), confirmed mappings, connector gaps, count strip + CSV, imported-drawing overlay. Do not greenfield. |
+| **Diagram matcher warnings** | **DMW-01–DMW-02** | Usage-gated `pe-reachable-dns-link-missing`; private-link / Key Vault / storage queue-table-file host targets. Do not greenfield. |
+| **RBAC unmapped role** | **RUR-01–RUR-03** | `RoleDefinitionName` on snapshot, counted `rbac-role-unmapped` warnings, unmapped data-plane read/write/nothing questionnaire. Do not greenfield. |
+| **Subscription question queue** | **SN-QQ-01–SN-QQ-10** | Disposition store/API, hero + bar, pack questions, failure reasons, questions controller map, resource identity + neighborhood, open-count CTA. Do not greenfield. |
+| **Diagram consumption UX** | **DCU-01–DCU-05** | Connector click → evidence panel, one stroke legend, evidence-family chips, PNG reading strip, node connection hint. Do not greenfield. |
 | **Engineer–analyst handoff (gaps 4–5)** | **SN-HAND-05–SN-HAND-10** | Gap 5: verified remediation association row (identifiers only) — table, verify write, lineage read, Audit evidence + Remediation tracker UI. Gap 4: `latestRemediationAttempt` on lineage + Audit evidence spine row. Gaps 1–3 UI slices pre-existed. Do not greenfield. |
 | **SecureNow Home work summary** | **SN-HOME-01–SN-HOME-06** | Short lead, environment context line, four counted work links, outcome directory copy, wrapping sidebar labels + SecureNow route titles, compact directory tables (`SecureNowHomeEnvironmentContext`, `SecureNowHomeWorkSummary`, `SecureNowHomeDestinationSection`). Do not greenfield. |
 
@@ -64,13 +69,13 @@ Ordered for SecureNow operator value after the shipped baseline. Size is enginee
 |-----|-----|-------|--------|------|-------|
 | — | **SN-HAND-05–10** + hold | Engineer–analyst handoff (gaps 4–5) | **Shipped** | — | On trunk. Do not greenfield. Index: [`SECURENOW_ENGINEER_ANALYST_HANDOFF_LUNA_PROMPTS.md`](../architecture/SECURENOW_ENGINEER_ANALYST_HANDOFF_LUNA_PROMPTS.md). |
 | — | **SN-HOME-01–06** + hold | SecureNow Home work summary | **Shipped** | — | On trunk. Do not greenfield. Index: [`SECURENOW_HOME_WORK_SUMMARY_LUNA_PROMPTS.md`](../architecture/SECURENOW_HOME_WORK_SUMMARY_LUNA_PROMPTS.md). |
-| P1 | **DIC-01–05** + hold | Diagram import comparison | **Backlog** (prompts only) | L | Advisory compare of a structured drawing to an inventory capture, saved architect mapping, structural connector gaps, count strip and CSV, match outlines on the imported drawing. Index: [`DIAGRAM_IMPORT_COMPARISON_LUNA_PROMPTS.md`](../architecture/DIAGRAM_IMPORT_COMPARISON_LUNA_PROMPTS.md). |
-| P1 | **DMW-01–02** | Diagram matcher warnings | **Backlog** (prompts only) | S | Stop the private-endpoint DNS warning from listing every VNet-integrated app against every endpoint, and match private-link hostnames already in the snapshot. Index: [`DIAGRAM_MATCHER_WARNING_LUNA_PROMPTS.md`](../architecture/DIAGRAM_MATCHER_WARNING_LUNA_PROMPTS.md). |
-| P1 | **RUR-01–03** + hold | RBAC unmapped role | **Backlog** (prompts only) | M | Store the role display name, translate built-in roles the data-plane map already understands, show one counted plain-language warning, and ask read / write / nothing only for a managed identity on a resource in the snapshot. Do not ask whether a role can be deleted. Index: [`RBAC_UNMAPPED_ROLE_LUNA_PROMPTS.md`](../architecture/RBAC_UNMAPPED_ROLE_LUNA_PROMPTS.md). |
-| P1 | **SN-QQ-01–10** + hold | Subscription question queue | **Backlog** (prompts only) | L | One queue for diagram evidence, inference items, and pack questions. Hero only when the open count is greater than zero. Ignore expires and reopens when the evidence fingerprint changes. **SN-QQ-07** shows the API reason when that load fails. **SN-QQ-08** maps the questions controller. **SN-QQ-09** names the resource and its neighborhood. **SN-QQ-10** shows `Action needed` and outline `Review questions` on the open-count row. Index: [`SECURENOW_QUESTION_QUEUE_LUNA_PROMPTS.md`](../architecture/SECURENOW_QUESTION_QUEUE_LUNA_PROMPTS.md). |
-| P1 | **AX-DC-01–08** | Executive / Identity / Data diagram **consumption** | **Backlog** (prompts only) | L | Authorization endpoints, Probable/Inferred strokes, completeness warnings, edge inspector, hosted vs Tier-1 honesty. Hold: [`AZURE_EXTRACTOR_DIAGRAM_CONSUMPTION_HOLD.md`](../library/AZURE_EXTRACTOR_DIAGRAM_CONSUMPTION_HOLD.md). |
-| P1 | **DCU-01–05** | Diagram consumption UX (read, filter, share) | **Backlog** (prompts only) | M | Connector click opens the existing evidence panel, one stroke legend, evidence-family chips, PNG reading strip, node connection hint. Hold: [`.cursor/prompts/diagram-consumption-ux-06-hold.md`](../../.cursor/prompts/diagram-consumption-ux-06-hold.md). |
-| P1 | **SH-02–SH-06**, **SH-11–SH-25** | Help articles + search still Architecture-job mismatched | **Partial** | M–L | Resolver pattern from **SH-01** exists; article bodies and some Learn-more maps may still teach first architecture review. Index: [securenow-help-00-index.md](../../.cursor/prompts/securenow-help-00-index.md). |
+| — | **DIC-01–05** + hold | Diagram import comparison | **Shipped** | — | On trunk. Do not greenfield. Index: [`DIAGRAM_IMPORT_COMPARISON_LUNA_PROMPTS.md`](../architecture/DIAGRAM_IMPORT_COMPARISON_LUNA_PROMPTS.md). |
+| — | **DMW-01–02** | Diagram matcher warnings | **Shipped** | — | On trunk. Do not greenfield. Index: [`DIAGRAM_MATCHER_WARNING_LUNA_PROMPTS.md`](../architecture/DIAGRAM_MATCHER_WARNING_LUNA_PROMPTS.md). |
+| — | **RUR-01–03** + hold | RBAC unmapped role | **Shipped** | — | On trunk. Do not greenfield. Index: [`RBAC_UNMAPPED_ROLE_LUNA_PROMPTS.md`](../architecture/RBAC_UNMAPPED_ROLE_LUNA_PROMPTS.md). |
+| — | **SN-QQ-01–10** + hold | Subscription question queue | **Shipped** | — | On trunk. Do not greenfield. Index: [`SECURENOW_QUESTION_QUEUE_LUNA_PROMPTS.md`](../architecture/SECURENOW_QUESTION_QUEUE_LUNA_PROMPTS.md). |
+| — | **DCU-01–05** + hold | Diagram consumption UX | **Shipped** | — | On trunk. Do not greenfield. Index: [`DIAGRAM_CONSUMPTION_UX_COMPOSER_PROMPTS.md`](../architecture/DIAGRAM_CONSUMPTION_UX_COMPOSER_PROMPTS.md). |
+| — | **SH-01–SH-26** | Help job-match | **Shipped** | — | On trunk. Do not greenfield. Index: [securenow-help-00-index.md](../../.cursor/prompts/securenow-help-00-index.md). |
+| P1 | **AX-DC-01–08** + hold | Executive / Identity / Data diagram **consumption** | **Partial** | L | Core consumption on trunk (`InventoryConnectionEndpointIncluder`, Probable/Inferred strokes, completeness banner, edge detail panel, hosted Tier-1 copy, AX-DC-07 fixture). **AX-DC-01** docs close-out may still be open in [`AZURE_EXTRACTOR_TECHNICAL_BACKLOG.md`](../library/AZURE_EXTRACTOR_TECHNICAL_BACKLOG.md). Hold: [`AZURE_EXTRACTOR_DIAGRAM_CONSUMPTION_HOLD.md`](../library/AZURE_EXTRACTOR_DIAGRAM_CONSUMPTION_HOLD.md). |
 | P2 | **IE-RF** | Relationship-first topology (network associations) | **Backlog** | L | Catalog-driven associations; complements diagrams — see [`AZURE_EXTRACTOR_TECHNICAL_BACKLOG.md`](../library/AZURE_EXTRACTOR_TECHNICAL_BACKLOG.md) item 7. |
 | P2 | **Extractor parity** | Cost, Advisor, orphans, NIC/PE inventory depth | **Backlog** | M | Same extractor discipline; SecureNow inventory workbenches consume output. |
 | P2 | **IDA / IDL / IDS / IDT** | Inventory diagram layout and Graphviz forest | **Backlog** | L | Executive forest packing — see `.cursor/prompts/inventory-diagram-*-00-index.md`. Not a SecureNow-only codepath but blocks “all-day” diagram UX. |
@@ -239,22 +244,68 @@ Prompts only. Run in order. Settled scope: [`OPENAI_ASTRA_SGS_REVIEW_2026-09-27_
 | SN-VF-04 | Attested `ChangeImplemented` | **Prompts** |
 | SN-VF-05 | Workbench labels and Close affordance | **Prompts** |
 
-### SN-QQ — Subscription question queue (**SN-QQ-01–SN-QQ-10**)
+### DIC — Diagram import comparison (**DIC-01–DIC-05**)
 
-Prompts only. Run in order. Settled scope: [`../architecture/SECURENOW_QUESTION_QUEUE_LUNA_PROMPTS.md`](../architecture/SECURENOW_QUESTION_QUEUE_LUNA_PROMPTS.md). NR-12 still shows why an Unknown resource is unknown. NR-16 still paints the yellow card. This wave is the answer surface.
+Index: [`DIAGRAM_IMPORT_COMPARISON_LUNA_PROMPTS.md`](../architecture/DIAGRAM_IMPORT_COMPARISON_LUNA_PROMPTS.md). Do not implement from the index. **Shipped** on trunk.
 
 | ID | Title | Status |
 |----|-------|--------|
-| SN-QQ-01 | Disposition store and API across snapshots | **Prompts** |
-| SN-QQ-02 | Emit a question only when the answer changes the next action | **Prompts** |
-| SN-QQ-03 | Hero and one-at-a-time drawer | **Prompts** |
-| SN-QQ-04 | Outline Answer / Review shortcut | **Prompts** |
-| SN-QQ-05 | Pack questions, including questions with no node | **Prompts** |
-| SN-QQ-06 | Expiring HumanAssertion; ignore does not change the diagram | **Prompts** |
-| SN-QQ-07 | Failed load shows the API reason; a GET does not use the governance save copy | **Prompts** |
-| SN-QQ-08 | Map the questions controller so Diagrams stops 500ing `Unmapped API controller` | **Prompts** |
-| SN-QQ-09 | Name the resource, say why SecureNow is asking, and show its neighborhood | **Prompts** |
-| SN-QQ-10 | Open-question count: `Action needed`, medium helper type, outline `Review questions` | **Prompts** |
+| DIC-01 | Advisory compare without a sealed architecture review | **Shipped** |
+| DIC-02 | Saved architect mapping wins over label parser | **Shipped** |
+| DIC-03 | Structural connector gaps when both ends match | **Shipped** |
+| DIC-04 | Count strip, grouped inventory-only rows, CSV export | **Shipped** |
+| DIC-05 | Imported drawing overlay by match kind | **Shipped** |
+| DIC-HOLD | Stop list | **Hold** |
+
+### DMW — Diagram matcher warnings (**DMW-01–DMW-02**)
+
+Index: [`DIAGRAM_MATCHER_WARNING_LUNA_PROMPTS.md`](../architecture/DIAGRAM_MATCHER_WARNING_LUNA_PROMPTS.md). **Shipped** on trunk.
+
+| ID | Title | Status |
+|----|-------|--------|
+| DMW-01 | Usage-gated `pe-reachable-dns-link-missing` | **Shipped** |
+| DMW-02 | Private-link, Key Vault, and storage queue/table/file hosts | **Shipped** |
+
+### RUR — RBAC unmapped role (**RUR-01–RUR-03**)
+
+Index: [`RBAC_UNMAPPED_ROLE_LUNA_PROMPTS.md`](../architecture/RBAC_UNMAPPED_ROLE_LUNA_PROMPTS.md). **Shipped** on trunk.
+
+| ID | Title | Status |
+|----|-------|--------|
+| RUR-01 | Role display name on package and snapshot | **Shipped** |
+| RUR-02 | Counted plain-language `rbac-role-unmapped` warning | **Shipped** |
+| RUR-03 | Read / write / nothing for unmapped data-plane role | **Shipped** |
+| RUR-HOLD | Stop list | **Hold** |
+
+### DCU — Diagram consumption UX (**DCU-01–DCU-05**)
+
+Index: [`DIAGRAM_CONSUMPTION_UX_COMPOSER_PROMPTS.md`](../architecture/DIAGRAM_CONSUMPTION_UX_COMPOSER_PROMPTS.md). **Shipped** on trunk.
+
+| ID | Title | Status |
+|----|-------|--------|
+| DCU-01 | Connector click opens evidence panel | **Shipped** |
+| DCU-02 | One stroke legend | **Shipped** |
+| DCU-03 | Evidence-family chips | **Shipped** |
+| DCU-04 | PNG reading strip | **Shipped** |
+| DCU-05 | Node focus connection hint | **Shipped** |
+| DCU-HOLD | Stop list | **Hold** |
+
+### SN-QQ — Subscription question queue (**SN-QQ-01–SN-QQ-10**)
+
+Index: [`../architecture/SECURENOW_QUESTION_QUEUE_LUNA_PROMPTS.md`](../architecture/SECURENOW_QUESTION_QUEUE_LUNA_PROMPTS.md). Do not implement from the index. **Shipped** on trunk.
+
+| ID | Title | Status |
+|----|-------|--------|
+| SN-QQ-01 | Disposition store and API across snapshots | **Shipped** |
+| SN-QQ-02 | Emit a question only when the answer changes the next action | **Shipped** |
+| SN-QQ-03 | Hero and one-at-a-time drawer | **Shipped** |
+| SN-QQ-04 | Outline Answer / Review shortcut | **Shipped** |
+| SN-QQ-05 | Pack questions, including questions with no node | **Shipped** |
+| SN-QQ-06 | Expiring HumanAssertion; ignore does not change the diagram | **Shipped** |
+| SN-QQ-07 | Failed load shows the API reason; a GET does not use the governance save copy | **Shipped** |
+| SN-QQ-08 | Map the questions controller so Diagrams stops 500ing `Unmapped API controller` | **Shipped** |
+| SN-QQ-09 | Name the resource, say why SecureNow is asking, and show its neighborhood | **Shipped** |
+| SN-QQ-10 | Open-question count: `Action needed`, medium helper type, outline `Review questions` | **Shipped** |
 | SN-QQ-HOLD | Stop list | **Hold** |
 
 ### SN-HOME — SecureNow Home work summary (**SN-HOME-01–SN-HOME-06**)
