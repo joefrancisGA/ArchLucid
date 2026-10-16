@@ -38,5 +38,14 @@ public sealed class AgentTypeJsonConverter : JsonConverter<AgentType>
     }
 
     public override void Write(Utf8JsonWriter writer, AgentType value, JsonSerializerOptions options) =>
-        writer.WriteStringValue(AgentTypeKeys.FromEnum(value));
+        writer.WriteStringValue(AgentTypeKeys.FromEnum(DefinedOrTopology(value)));
+
+    /// <summary>
+    ///     <see cref="AgentType" /> is 1-based, so unset DTO fields are 0. Persist/clone JSON cannot emit that
+    ///     sentinel; coerce to Topology so round-trip stays on a defined key.
+    /// </summary>
+    private static AgentType DefinedOrTopology(AgentType value)
+    {
+        return Enum.IsDefined(value) ? value : AgentType.Topology;
+    }
 }

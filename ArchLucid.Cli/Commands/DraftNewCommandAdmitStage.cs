@@ -151,7 +151,7 @@ internal static class DraftNewCommandAdmitStage
             return (null, CliExitCode.OperationFailed);
         }
 
-        if (admission.Value.Draft is null)
+        if (IsMissingDraftBody(admission.Value.Draft))
         {
             await error.WriteLineAsync(
                 "Error admitting draft: API returned success but no draft body. The intake was not started.");
@@ -173,5 +173,14 @@ internal static class DraftNewCommandAdmitStage
             await output.WriteLineAsync("Draft admitted. Resolving MUST questions...");
 
         return (new Success(draftId), CliExitCode.Success);
+    }
+
+    /// <summary>
+    ///     <see cref="DraftAdmissionResponse.Draft" /> coalesces JSON null to an empty object, so a missing body
+    ///     arrives as <see cref="Guid.Empty" /> rather than a null reference.
+    /// </summary>
+    internal static bool IsMissingDraftBody(DraftRequestResponse? draft)
+    {
+        return draft is null || draft.DraftId == Guid.Empty;
     }
 }

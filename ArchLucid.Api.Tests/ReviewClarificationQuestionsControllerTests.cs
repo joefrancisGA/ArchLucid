@@ -87,13 +87,27 @@ public sealed class ReviewClarificationQuestionsControllerTests
     }
 
     [Fact]
-    public async Task ApplyKnowledgeModelClarificationAnswers_returns_bad_request_when_answers_collection_is_null()
+    public async Task ApplyKnowledgeModelClarificationAnswers_applies_empty_answers_when_collection_is_null()
     {
         Guid runId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
 
+        Mock<IReviewClarificationQuestionService> questions = new();
+        questions
+            .Setup(s => s.GetQuestionsAsync(Scope, runId, null, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ReviewClarificationQuestionsResponse());
+
+        Mock<IKnowledgeModelClarificationAnswerApplicator> applicator = new();
+        applicator
+            .Setup(s => s.ApplyAnswersAsync(
+                Scope,
+                runId,
+                It.IsAny<IReadOnlyDictionary<string, string>>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new KnowledgeModelClarificationApplyResult());
+
         ReviewClarificationQuestionsController controller = CreateController(
-            Mock.Of<IReviewClarificationQuestionService>(),
-            Mock.Of<IKnowledgeModelClarificationAnswerApplicator>());
+            questions.Object,
+            applicator.Object);
 
         ApplyKnowledgeModelClarificationAnswersRequest request = new() { Answers = null! };
 
@@ -102,8 +116,16 @@ public sealed class ReviewClarificationQuestionsControllerTests
             request,
             CancellationToken.None);
 
-        ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
-        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        OkObjectResult ok = action.Should().BeOfType<OkObjectResult>().Subject;
+        ok.StatusCode.Should().Be(StatusCodes.Status200OK);
+
+        applicator.Verify(
+            s => s.ApplyAnswersAsync(
+                Scope,
+                runId,
+                It.Is<IReadOnlyDictionary<string, string>>(answers => answers.Count == 0),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     [Fact]

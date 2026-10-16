@@ -144,7 +144,7 @@ public sealed class SnowflakeSecurityPolicyPackTests
         string path = Path.Combine(repoRoot, ContentRelativePath.Replace('/', Path.DirectorySeparatorChar));
         string json = File.ReadAllText(path);
 
-        return JsonSerializer.Deserialize<PolicyPackContentDocument>(json)
+        return JsonSerializer.Deserialize<PolicyPackContentDocument>(json, PolicyPackJsonSerializerOptions.Default)
             ?? throw new InvalidOperationException("Invalid Snowflake Security content document JSON.");
     }
 
