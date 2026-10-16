@@ -18,8 +18,8 @@ import { useProductLine } from "@/components/product-line/ProductLineProvider";
 import {
   INTEGRATION_READINESS_HELP_CONFIGURE_SECTION_ANCHORS,
   INTEGRATION_READINESS_HELP_DEFERRED_STATUS_LABELS_ANCHOR,
-  INTEGRATION_READINESS_HELP_FIRST_VIEWPORT_SECTION_ANCHORS,
   INTEGRATION_READINESS_HELP_FIRST_VIEWPORT_TEST_ID,
+  integrationReadinessHelpFirstViewportSectionAnchors,
   integrationReadinessHelpOverview,
   INTEGRATION_READINESS_HELP_STATUS_GLOSSARY_TITLE,
 } from "@/lib/integration-readiness-help-guide-content";
@@ -27,8 +27,8 @@ import {
   INTEGRATION_READINESS_HELP_PRIMARY_ACTION,
 } from "@/lib/integration-readiness-help-evidence-copy";
 import {
-  INTEGRATION_READINESS_HELP_RELATED_GUIDES,
-  INTEGRATION_READINESS_HELP_RELATED_HEADING,
+  integrationReadinessHelpRelatedGuides,
+  integrationReadinessHelpRelatedHeading,
   INTEGRATION_READINESS_HELP_RELATED_TEST_ID,
 } from "@/lib/integration-readiness-help-related-guides";
 import {
@@ -62,6 +62,9 @@ export function HelpIntegrationReadinessGuideView(
   const { entry, markdown } = props;
   const { productLine } = useProductLine();
   const overview = integrationReadinessHelpOverview(productLine);
+  const relatedGuides = integrationReadinessHelpRelatedGuides(productLine);
+  const relatedHeading = integrationReadinessHelpRelatedHeading(productLine);
+  const firstViewportAnchors = integrationReadinessHelpFirstViewportSectionAnchors(productLine);
   const router = useRouter();
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
@@ -98,7 +101,7 @@ export function HelpIntegrationReadinessGuideView(
 
   const firstViewportMarkdown = extractMarkdownSectionsByAnchor(
     markdown,
-    [...INTEGRATION_READINESS_HELP_FIRST_VIEWPORT_SECTION_ANCHORS],
+    [...firstViewportAnchors],
     false,
   );
   const statusGlossaryMarkdown = extractMarkdownSectionsByAnchor(
@@ -136,7 +139,7 @@ export function HelpIntegrationReadinessGuideView(
       <IntegrationReadinessHelpClaimDisciplineStrip />
 
       <div className="space-y-4" data-testid={INTEGRATION_READINESS_HELP_FIRST_VIEWPORT_TEST_ID}>
-        <IntegrationReadinessHelpEvidenceOrientationStrip />
+        <IntegrationReadinessHelpEvidenceOrientationStrip productLineId={productLine} />
 
         <section
           className="space-y-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40"
@@ -187,10 +190,10 @@ export function HelpIntegrationReadinessGuideView(
           id="help-integration-readiness-related-heading"
           className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
         >
-          {INTEGRATION_READINESS_HELP_RELATED_HEADING}
+          {relatedHeading}
         </h2>
         <ul className={cn("m-0 list-disc space-y-1 pl-5", OPERATOR_TYPOGRAPHY.body)}>
-          {INTEGRATION_READINESS_HELP_RELATED_GUIDES.map((guide) => (
+          {relatedGuides.map((guide) => (
             <li key={guide.href}>
               <Link className={cn(OPERATOR_LINK.inline, DESIGN_TOKENS.accent.link)} href={guide.href}>
                 {guide.label}

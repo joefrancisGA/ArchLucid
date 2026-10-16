@@ -24,6 +24,18 @@ export const INTEGRATION_READINESS_HELP_FIRST_VIEWPORT_SECTION_ANCHORS = [
   "reviews-and-integrations",
 ] as const;
 
+export const SECURENOW_INTEGRATION_READINESS_HELP_FIRST_VIEWPORT_SECTION_ANCHORS = [
+  "what-integration-readiness-means",
+] as const;
+
+export function integrationReadinessHelpFirstViewportSectionAnchors(
+  productLineId: ProductLineId = "architecture",
+): readonly string[] {
+  return isSecureNowProductLine(productLineId)
+    ? SECURENOW_INTEGRATION_READINESS_HELP_FIRST_VIEWPORT_SECTION_ANCHORS
+    : INTEGRATION_READINESS_HELP_FIRST_VIEWPORT_SECTION_ANCHORS;
+}
+
 export const INTEGRATION_READINESS_HELP_CONFIGURE_SECTION_ANCHORS = [
   "recommended-versus-optional",
   "where-to-configure",

@@ -27,8 +27,8 @@ import {
 import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
 import {
   ENTERPRISE_ONBOARDING_HELP_CANONICAL_PATH,
-  ENTERPRISE_ONBOARDING_HELP_CLAIM_DISCIPLINE,
   ENTERPRISE_ONBOARDING_HELP_CLAIM_HEADING_ID,
+  resolveEnterpriseOnboardingHelpClaimDiscipline,
 } from "@/lib/enterprise-onboarding-help-evidence-copy";
 import {
   ENTERPRISE_ONBOARDING_HELP_FIRST_VIEWPORT_TEST_ID,
@@ -103,7 +103,7 @@ export function HelpEnterpriseOnboardingGuideView(
           subtitle={pageSubtitle}
           navHref={ENTERPRISE_ONBOARDING_HELP_CANONICAL_PATH}
           headingLevel="h1"
-          claimDiscipline={ENTERPRISE_ONBOARDING_HELP_CLAIM_DISCIPLINE}
+          claimDiscipline={resolveEnterpriseOnboardingHelpClaimDiscipline(productLineId)}
           claimDisciplineTestId={ENTERPRISE_ONBOARDING_HELP_HEADER_CLAIM_DISCIPLINE_TEST_ID}
           actions={<HelpEnterpriseOnboardingHeaderActions entry={entry} />}
         />

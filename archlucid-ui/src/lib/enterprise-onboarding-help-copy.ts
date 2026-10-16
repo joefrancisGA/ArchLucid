@@ -1,5 +1,8 @@
-import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
-import { GOVERNANCE_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
+import { GOVERNANCE_POLICY_PACKS_PATH, SECURENOW_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
+import {
+  GOVERNANCE_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH,
+  SECURENOW_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH,
+} from "@/lib/governance/governance-infrastructure-route-paths";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { ProductLineId } from "@/lib/product-line/product-line-id";
 import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
@@ -43,12 +46,12 @@ export const SECURENOW_ENTERPRISE_ONBOARDING_HELP_PRIMARY_ACTIONS = {
   configureSso: ENTERPRISE_ONBOARDING_HELP_PRIMARY_ACTION,
   openExtractUpload: {
     label: "Extract and upload inventory",
-    href: GOVERNANCE_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH,
+    href: SECURENOW_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH,
     testId: "help-enterprise-onboarding-extract-upload",
   },
   openPolicyPacks: {
     label: "Assign policy packs",
-    href: GOVERNANCE_POLICY_PACKS_PATH,
+    href: SECURENOW_POLICY_PACKS_PATH,
     testId: "help-enterprise-onboarding-policy-packs",
   },
   openOnboardingHub: ENTERPRISE_ONBOARDING_HELP_PRIMARY_ACTIONS.openOnboardingHub,
