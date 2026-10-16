@@ -223,11 +223,43 @@ public sealed class FindingIacStubGenerator(
 
     private static void EnsureFindingSourceAgentsForJson(AgentResult result)
     {
-        if (result.AgentType == default)
+        AgentType agentType = ResolveAgentTypeForJson(result);
+
+        if (agentType == default)
             return;
 
-        EnsureFindingSourceAgentsForJson(result.Findings, result.AgentType);
-        EnsureFindingSourceAgentsForJson(result.ChecklistCoverage, result.AgentType);
+        if (result.AgentType == default)
+            result.AgentType = agentType;
+
+        EnsureFindingSourceAgentsForJson(result.Findings, agentType);
+        EnsureFindingSourceAgentsForJson(result.ChecklistCoverage, agentType);
+    }
+
+    private static AgentType ResolveAgentTypeForJson(AgentResult result)
+    {
+        if (result.AgentType != default)
+            return result.AgentType;
+
+        AgentType fromFindings = ResolveAgentTypeFromFindings(result.Findings);
+
+        if (fromFindings != default)
+            return fromFindings;
+
+        return ResolveAgentTypeFromFindings(result.ChecklistCoverage);
+    }
+
+    private static AgentType ResolveAgentTypeFromFindings(IReadOnlyList<ArchitectureFinding>? findings)
+    {
+        if (findings is null)
+            return default;
+
+        foreach (ArchitectureFinding finding in findings)
+        {
+            if (finding.SourceAgent != default)
+                return finding.SourceAgent;
+        }
+
+        return default;
     }
 
     private static void EnsureFindingSourceAgentsForJson(

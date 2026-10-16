@@ -7745,4 +7745,6 @@
 {"at":"2026-10-16T04:45:03.9892162Z","zoneId":"archlucid-core","outcome":"hit","productLine":"securenow","paths":["ArchLucid.Core/InfraEvidence/AzureInventoryPrivateEndpointDnsJoinIndex.cs"]}
 {"at":"2026-10-16T04:48:18.3926918Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Governance/Workflow/Stages/GovernanceWorkflowIntegrationEventSupport.cs"]}
 {"at":"2026-10-16T04:52:46.2506322Z","zoneId":"archlucid-core","outcome":"hit","productLine":"archlucid-shared"}
-{"at":"2026-10-16T04:58:17.5808960Z","zoneId":"application-agents","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-16T04:58:17.580896Z","zoneId":"application-agents","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-16T05:04:19.5403444Z","zoneId":"application-agents","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-16T05:08:19.7935899Z","zoneId":"application-agents","outcome":"hit","productLine":"archlucid-shared"}
