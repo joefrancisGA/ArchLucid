@@ -1,5 +1,7 @@
 > **Scope:**
 
+2026-10-16 seed hunt (seed→hit): `archlucid-core` — promoted `AzureInventoryLoadBalancerBackendTrafficResolver` / `AzureInventoryLoadBalancerBackendParentArmIdResolver` `TryReadDirectId` requiring `{ "id": "..." }` objects for `backendIPConfigurations` entries while hosted inventory stores string-scalar ip configuration ARM ids (classic NIC pool members missing from graph); accept string-scalar configuration elements; regressions `ResolveLoadBalancerBackends_reads_backend_when_backend_ip_configuration_is_string_scalar_arm_id` and `ResolveFromBackendAddressPoolsJson_reads_backend_ip_configuration_string_scalar_arm_id`; LB backend tests 18/18; seeded five follow-on `(candidate)` rows.
+
 - (candidate) `SamlMetadataValidUntilParser` — multiple entities where only some carry `validUntil` — locus: earliest-attribute walk; input: one entity with expiry and one without.
 - (candidate) `SamlMetadataValidUntilParser` — nested entities with unparseable `validUntil` mixed with valid timestamps — locus: parse failures skipped; input: federation metadata hygiene edge.
 - (candidate) `RecentAuthenticationEvaluator` — prefer freshest `iat` when all `auth_time` claims unparseable — locus: auth_time vs iat precedence; input: likely `(valid-no-repro)` by existing test policy.
