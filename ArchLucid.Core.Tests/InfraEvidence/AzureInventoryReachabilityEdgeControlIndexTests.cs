@@ -11,6 +11,43 @@ public sealed class AzureInventoryReachabilityEdgeControlIndexTests
     private const string SubscriptionId = "11111111-1111-1111-1111-111111111111";
 
     [Fact]
+    public void SubnetRequiresEdgeControlEvidence_true_for_virtual_network_gateway_route_in_routes_json()
+    {
+        string vnet = BuildVnet("vnet");
+        string subnet = BuildSubnet(vnet, "app");
+        string routeTable = BuildRouteTable("routes");
+
+        Dictionary<string, AzureInventoryReachabilityResourceProperties> resources =
+            new(StringComparer.OrdinalIgnoreCase)
+            {
+                [routeTable] = new AzureInventoryReachabilityResourceProperties
+                {
+                    ResourceType = "Microsoft.Network/routeTables",
+                    Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["routes"] = """
+                            [
+                              {
+                                "properties": {
+                                  "addressPrefix": "0.0.0.0/0",
+                                  "nextHopType": "VirtualNetworkGateway"
+                                }
+                              }
+                            ]
+                            """,
+                    },
+                },
+            };
+
+        AzureInventoryReachabilityEdgeControlIndex index = AzureInventoryReachabilityEdgeControlIndex.Build(
+        [
+            new AzureInventoryRelationshipArmTriple(subnet, routeTable, "inventory-subnet-route-table"),
+        ], resources);
+
+        index.SubnetRequiresEdgeControlEvidence(subnet).Should().BeTrue();
+    }
+
+    [Fact]
     public void SubnetRequiresEdgeControlEvidence_true_for_virtual_network_gateway_route()
     {
         string vnet = BuildVnet("vnet");
@@ -37,6 +74,51 @@ public sealed class AzureInventoryReachabilityEdgeControlIndexTests
         ], resources);
 
         index.SubnetRequiresEdgeControlEvidence(subnet).Should().BeTrue();
+    }
+
+    [Fact]
+    public void SubnetRequiresEdgeControlEvidence_false_when_routes_json_virtual_appliance_next_hop_is_in_snapshot()
+    {
+        string vnet = BuildVnet("vnet");
+        string subnet = BuildSubnet(vnet, "app");
+        string routeTable = BuildRouteTable("routes");
+        string nva = BuildNetworkVirtualAppliance("nva");
+
+        Dictionary<string, AzureInventoryReachabilityResourceProperties> resources =
+            new(StringComparer.OrdinalIgnoreCase)
+            {
+                [routeTable] = new AzureInventoryReachabilityResourceProperties
+                {
+                    ResourceType = "Microsoft.Network/routeTables",
+                    Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["routes"] = $$"""
+                            [
+                              {
+                                "properties": {
+                                  "addressPrefix": "10.0.0.0/8",
+                                  "nextHopType": "VirtualAppliance",
+                                  "nextHopIpAddress": "10.0.0.4",
+                                  "nextHop": { "id": "{{nva}}" }
+                                }
+                              }
+                            ]
+                            """,
+                    },
+                },
+                [nva] = new AzureInventoryReachabilityResourceProperties
+                {
+                    ResourceType = "Microsoft.Network/networkVirtualAppliances",
+                    Properties = new Dictionary<string, string>(),
+                },
+            };
+
+        AzureInventoryReachabilityEdgeControlIndex index = AzureInventoryReachabilityEdgeControlIndex.Build(
+        [
+            new AzureInventoryRelationshipArmTriple(subnet, routeTable, "inventory-subnet-route-table"),
+        ], resources);
+
+        index.SubnetRequiresEdgeControlEvidence(subnet).Should().BeFalse();
     }
 
     [Fact]
@@ -77,6 +159,20 @@ public sealed class AzureInventoryReachabilityEdgeControlIndexTests
     }
 
     [Fact]
+    public void AssetDeclaredBehindFrontDoor_true_for_front_door_origin_relationship()
+    {
+        string app = BuildWebApp("api");
+        string frontDoor = BuildFrontDoor("fd");
+
+        AzureInventoryReachabilityEdgeControlIndex index = AzureInventoryReachabilityEdgeControlIndex.Build(
+        [
+            new AzureInventoryRelationshipArmTriple(frontDoor, app, "inventory-front-door-origin"),
+        ], new Dictionary<string, AzureInventoryReachabilityResourceProperties>());
+
+        index.AssetDeclaredBehindFrontDoor(app).Should().BeTrue();
+    }
+
+    [Fact]
     public void AssetDeclaredBehindApplicationGateway_true_for_agw_backend_relationship()
     {
         string app = BuildWebApp("api");
@@ -104,6 +200,9 @@ public sealed class AzureInventoryReachabilityEdgeControlIndexTests
 
     private static string BuildApplicationGateway(string name) =>
         $"/subscriptions/{SubscriptionId}/resourceGroups/rg/providers/Microsoft.Network/applicationGateways/{name}";
+
+    private static string BuildFrontDoor(string name) =>
+        $"/subscriptions/{SubscriptionId}/resourceGroups/rg/providers/Microsoft.Cdn/profiles/{name}";
 
     private static string BuildNetworkVirtualAppliance(string name) =>
         $"/subscriptions/{SubscriptionId}/resourceGroups/rg/providers/Microsoft.Network/networkVirtualAppliances/{name}";

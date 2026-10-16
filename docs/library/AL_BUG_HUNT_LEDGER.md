@@ -1,3 +1,4 @@
+2026-10-16 seed hunt (seed-only): `archlucid-core` — cheap-disproved `properties.dhcpOptions` flat key (inventory contract uses `dhcpOptions` per IntendedReachabilityEngineTests), `enablePublicNetworkAccess`=`"1"` (no collector path; only true/false strings), and substring `publicNetworkAccess` false-positive without a cited property key; added regression locks for routes-json VNG routes, routes-json modeled NVA next hops, and Front Door origin detection (`AzureInventoryReachabilityEdgeControlIndexTests` 6/6); `AzureInventoryVnetCustomDnsIndexTests` 7/7; seeded five `(candidate)` rows.
 2026-10-16 seed hunt (seed→hit): `archlucid-core` — promoted `AzureInventoryVnetCustomDnsIndex.TryParseDnsServersFromJson` throwing on bare `dhcpOptions` JSON arrays and ignoring that list shape; accept root-level arrays and object `dnsServers`; regression `VnetUsesCustomDns_true_when_dhcpOptions_json_is_bare_dns_server_array`; `AzureInventoryVnetCustomDnsIndexTests` 7/7; seeded five follow-on `(candidate)` rows.
 2026-10-16 seed hunt (seed→hit): `archlucid-core` — promoted `AzureInventoryVnetCustomDnsIndex.TryParseDnsServersFromJson` rejecting `dhcpOptions` JSON when `dnsServers` was a string scalar instead of an array; accept string and comma-separated lists; regression `VnetUsesCustomDns_true_when_dhcpOptions_json_lists_scalar_dns_server_string`; `AzureInventoryVnetCustomDnsIndexTests` 6/6; seeded five follow-on `(candidate)` rows.
 2026-10-16 seed hunt (seed→hit): `archlucid-core` — promoted `AzureInventoryVnetCustomDnsIndex.Build` indexing subnet ARM ids instead of parent VNet ids when custom DNS appeared only on `Microsoft.Network/virtualNetworks/subnets` inventory rows; resolve parent VNet via `AzureInventorySubnetArmIdHelper`; regression `VnetUsesCustomDns_true_when_custom_dns_is_on_subnet_resource_row`; `AzureInventoryVnetCustomDnsIndexTests` 5/5; seeded five follow-on `(candidate)` rows.
@@ -22078,6 +22079,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ---
 
 ## Zone: archlucid-core
+2026-10-16 seed hunt (seed-only): no new hunt-ready repro; edge-control and VNet DNS cheap-disproofs; 6 edge-control + 7 VNet DNS scoped tests passed.
+
 2026-10-16 seed hunt (seed→hit): promoted bare-array `dhcpOptions` JSON for custom DNS; regression `VnetUsesCustomDns_true_when_dhcpOptions_json_is_bare_dns_server_array`.
 
 2026-10-16 seed hunt (seed→hit): promoted scalar `dnsServers` JSON in `dhcpOptions`; regression `VnetUsesCustomDns_true_when_dhcpOptions_json_lists_scalar_dns_server_string`.
@@ -22174,6 +22177,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-09-30 seed hunt (seed-only): re-read the picked zone; it still exposes only the ledger path and no source-backed candidate or hunt-ready row, so no product hypothesis was invented.
 
 ### Hypotheses
+
+- (candidate) `AzureInventoryPublicNetworkAccessResolver.IsPublicNetworkAccessEnabled` — property keys that merely contain `publicNetworkAccess` as a substring — locus: `Contains` scan; input: cited inventory property key from materializer only.
+- (candidate) `AzureInventoryReachabilityEdgeControlIndex.AssetDeclaredBehindFrontDoor` — origin ARM id matches only via `IsDescendantOf` when exact normalized id missing — locus: backend set vs descendant walk; input: nested origin profile child id.
+- (candidate) `AzureInventoryPrivateEndpointDnsJoinIndex.BuildComputeToVnetMap` — vnet ARM ids stored without `ArmResourceIdNormalizer` — locus: `computeToVnet` values; input: mixed-case subnet→vnet resolution vs zone link map.
+- (candidate) `AzureInventoryRouteTableRouteParser.Parse` — explicit flattened route keys with non-numeric index segments skipped — locus: `ParseExplicitRouteProperties` index extraction; input: inventory.policy.route keys from hosted extract.
+- (candidate) `AzureInventoryEventGridDestinationExtractor.Extract` — `WebHook` destination host read only from `endpointUrl` when ARM nests URL under `properties.endpoint` object — locus: nested destination bag; input: cited Event Grid list API fixture.
 
 - [x] (proven) `AzureInventoryVnetCustomDnsIndex.TryParseDnsServersFromJson` — bare-array `dhcpOptions` JSON threw and dropped custom DNS — **hit 2026-10-16 seed hunt:** parse root arrays and object `dnsServers`; regression `VnetUsesCustomDns_true_when_dhcpOptions_json_is_bare_dns_server_array`.
 - [x] (proven) `AzureInventoryVnetCustomDnsIndex.TryParseDnsServersFromJson` — string-scalar `dnsServers` in `dhcpOptions` JSON ignored — **hit 2026-10-16 seed hunt:** parse string and comma-separated lists; regression `VnetUsesCustomDns_true_when_dhcpOptions_json_lists_scalar_dns_server_string`.
