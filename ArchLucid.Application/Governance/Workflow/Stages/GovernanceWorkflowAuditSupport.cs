@@ -139,10 +139,15 @@ public sealed class GovernanceWorkflowAuditSupport(
         GovernanceApprovalRequest request,
         string requestedBy)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(requestedBy);
+
+        string actorKey = string.IsNullOrWhiteSpace(request.RequestedByActorKey)
+            ? requestedBy
+            : request.RequestedByActorKey;
         ScopeContext durableScope = _scopeContextProvider.GetCurrentScope();
-        return durableScope.CreateAuditEvent(
+        AuditEvent auditEvent = durableScope.CreateAuditEvent(
             AuditEventTypes.GovernanceApprovalSubmitted,
-            requestedBy,
+            actorKey,
             requestedBy,
             JsonSerializer.Serialize(
                 new
@@ -154,6 +159,9 @@ public sealed class GovernanceWorkflowAuditSupport(
                     targetEnvironment = request.TargetEnvironment
                 },
                 AuditJsonSerializationOptions.Instance));
+        auditEvent.ExplicitActor = true;
+
+        return auditEvent;
     }
 
     public AuditEvent BuildGovernanceReviewAuditEvent(
