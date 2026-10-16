@@ -475,6 +475,61 @@ public sealed class AzureInventoryLoadBalancerBackendTrafficResolverTests
     }
 
     [Fact]
+    public void ResolveLoadBalancerBackends_reads_rule_port_when_rule_element_is_json_string_scalar()
+    {
+        string ruleObjectJson =
+            $$"""
+            {
+              "properties": {
+                "backendPort": 443,
+                "backendAddressPool": { "id": "{{PoolId}}" }
+              }
+            }
+            """;
+
+        GraphNode loadBalancer = new()
+        {
+            NodeId = "lb1",
+            NodeType = "resource",
+            Label = "lb1",
+            Properties = new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["backendAddressPools"] =
+                    $$"""
+                    [
+                      {
+                        "id": "{{PoolId}}",
+                        "properties": {
+                          "loadBalancerBackendAddresses": [
+                            {
+                              "name": "addr1",
+                              "properties": {
+                                "networkInterfaceIPConfiguration": { "id": "{{NicIpConfigurationId}}" }
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                    """,
+                ["loadBalancingRules"] =
+                    $$"""
+                    [
+                      {{JsonSerializer.Serialize(ruleObjectJson)}}
+                    ]
+                    """,
+            },
+        };
+
+        IReadOnlyList<AzureInventoryLoadBalancerBackendTrafficResolver.BackendTarget> targets =
+            AzureInventoryLoadBalancerBackendTrafficResolver.ResolveLoadBalancerBackends(loadBalancer);
+
+        AzureInventoryLoadBalancerBackendTrafficResolver.BackendTarget target = targets.Should().ContainSingle().Subject;
+        target.TargetArmId.Should().Be(NicId.ToLowerInvariant());
+        target.RulePort.Should().Be(443);
+    }
+
+    [Fact]
     public void ResolveLoadBalancerBackends_reads_backend_when_backend_address_element_is_json_string_scalar()
     {
         string addressObjectJson =

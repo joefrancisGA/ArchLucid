@@ -192,7 +192,12 @@ public static class AzureInventoryLoadBalancerBackendTrafficResolver
 
             foreach (JsonElement rule in rules)
             {
-                if (!TryGetLoadBalancingRulePropertiesBag(rule, out JsonElement ruleProperties))
+                if (!AzureExtractorJsonObjectElement.TryUnwrapObject(rule, out JsonElement ruleElement))
+                {
+                    continue;
+                }
+
+                if (!TryGetLoadBalancingRulePropertiesBag(ruleElement, out JsonElement ruleProperties))
                 {
                     continue;
                 }
