@@ -97,6 +97,18 @@ public sealed class AzureInventoryVnetCustomDnsIndex
             using JsonDocument document = JsonDocument.Parse(json);
             JsonElement root = document.RootElement;
 
+            if (root.ValueKind is JsonValueKind.String)
+            {
+                string? nestedJson = root.GetString();
+
+                if (string.IsNullOrWhiteSpace(nestedJson))
+                {
+                    return false;
+                }
+
+                return TryParseDnsServersFromJson(nestedJson, out dnsServers);
+            }
+
             if (root.ValueKind is JsonValueKind.Array)
             {
                 AppendDnsServersFromJsonArray(root, dnsServers);

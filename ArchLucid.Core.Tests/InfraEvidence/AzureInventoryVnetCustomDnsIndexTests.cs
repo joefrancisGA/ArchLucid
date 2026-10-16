@@ -1,3 +1,5 @@
+using System.Text.Json;
+
 using ArchLucid.Core.InfraEvidence;
 
 using FluentAssertions;
@@ -148,6 +150,26 @@ public sealed class AzureInventoryVnetCustomDnsIndexTests
 
         index.VnetUsesCustomDns(VnetArm).Should().BeTrue(
             "inventory dhcpOptions JSON must accept DnsServers casing variants from ARM exports");
+    }
+
+    [Fact]
+    public void VnetUsesCustomDns_true_when_dhcpOptions_is_json_string_scalar_wrapping_object()
+    {
+        AzureInventoryVnetCustomDnsIndex index = AzureInventoryVnetCustomDnsIndex.Build(
+        [
+            new AzureInventoryVnetCustomDnsResourceProperties
+            {
+                AzureResourceId = VnetArm,
+                ResourceType = "Microsoft.Network/virtualNetworks",
+                Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                {
+                    ["dhcpOptions"] = JsonSerializer.Serialize("""{"dnsServers":["10.0.0.4"]}"""),
+                },
+            },
+        ]);
+
+        index.VnetUsesCustomDns(VnetArm).Should().BeTrue(
+            "double-encoded dhcpOptions JSON strings must still surface custom DNS resolvers");
     }
 
     [Fact]
