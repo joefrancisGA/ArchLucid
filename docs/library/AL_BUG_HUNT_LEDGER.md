@@ -1,5 +1,13 @@
 > **Scope:**
 
+2026-10-16 seed hunt (seed→hit): `archlucid-core` — promoted `AzureInventoryVnetPeeringParser.TryReadRemoteVnetIdFromObject` treating `remoteVirtualNetwork` JSON string scalars wrapping `{ "id": "..." }` as raw ARM text (or normalizing the JSON blob), dropping remote vnet linkage for double-encoded hosted peering rows; resolve via `AzureInventoryNetworkInterfaceIpConfigurationReferenceReader.TryReadArmId`; regression `EnumerateRemoteVnetIds_reads_remote_when_remote_virtual_network_is_json_string_scalar_wrapping_id_object`; vnet peering + route-table + LB backend core tests 52/52; seeded five follow-on `(candidate)` rows.
+
+- (candidate) `AzureInventoryLoadBalancerBackendTrafficResolver` — `backendAddressPools[]` pool row as JSON string scalar wrapping full pool object — locus: `TryGetBackendAddressPoolPropertiesBag`; input: unwrap pool before reading properties.
+- (candidate) `AzureInventoryLoadBalancerBackendParentArmIdResolver` — pool row string-scalar wrap blocks parent ARM collection — locus: same unwrap gap as traffic resolver.
+- (candidate) `AzureInventoryVnetPeeringParser.TryReadRemoteVnetId` — peering row as JSON string scalar wrapping peering object — locus: `EnumerateRemoteVnetIds` element loop; input: parity with pool row unwrap.
+- (candidate) `AzureInventoryRouteTableRouteParser.TryParseFlattenedArmIdValue` — malformed JSON blob containing `/subscriptions/` substring — locus: `NormalizeArmId` fallback; input: `(valid-no-repro)` unless repro found.
+- (candidate) `AzureInventoryLoadBalancerBackendTrafficResolver.BuildLoadBalancerPortByPoolId` — PascalCase `BackendPort` / `BackendAddressPool` — locus: case-insensitive reads; input: `(valid-no-repro)`.
+
 2026-10-16 seed hunt (seed→hit): `archlucid-core` — promoted `AzureInventoryLoadBalancerBackendTrafficResolver.TryReadPoolId` reading only string-valued pool `id` properties, so hosted `backendAddressPools[]` rows with JSON string-scalar-wrapped `{ "id": "..." }` pool ids missed `portByPoolId` lookup and backends resolved without `RulePort`; unwrap pool rows and resolve `id` via `AzureInventoryNetworkInterfaceIpConfigurationReferenceReader.TryReadArmId`; cheap-disproof closed double-encoded flattened `nextHopArmId` / `.nextHop` scalar paths and flat AGW `backendResourceId` reference objects (already handled); regression `ResolveLoadBalancerBackends_reads_rule_port_when_backend_address_pool_id_is_json_string_scalar_wrapping_id_object`; route-table + LB backend core tests 47/47; seeded five follow-on `(candidate)` rows.
 
 - (candidate) `AzureInventoryLoadBalancerBackendTrafficResolver.TryReadPoolId` — pool row as JSON string scalar wrapping full pool object — locus: `TryUnwrapObject` on pool element; input: entire pool double-encoded.
