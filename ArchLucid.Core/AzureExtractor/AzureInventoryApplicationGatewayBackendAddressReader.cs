@@ -26,10 +26,9 @@ public static class AzureInventoryApplicationGatewayBackendAddressReader
             return null;
         }
 
-        if (TryGetPropertyIgnoreCase(properties, "backendResourceId", out JsonElement resourceIdElement)
-            && resourceIdElement.ValueKind is JsonValueKind.String)
+        if (TryGetPropertyIgnoreCase(properties, "backendResourceId", out JsonElement resourceIdElement))
         {
-            return resourceIdElement.GetString();
+            return AzureInventoryNetworkInterfaceIpConfigurationReferenceReader.TryReadArmId(resourceIdElement);
         }
 
         return null;

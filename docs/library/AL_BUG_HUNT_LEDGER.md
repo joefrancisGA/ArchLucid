@@ -1,5 +1,13 @@
 > **Scope:**
 
+2026-10-16 seed hunt (seed→hit): `archlucid-core` — promoted `AzureInventoryApplicationGatewayBackendAddressReader.TryReadBackendResourceArmId` accepting only string-valued `backendResourceId` properties, skipping hosted AGW pool members where `backendResourceId` is a reference object or a JSON string scalar wrapping `{ "id": "..." }`; resolve via `AzureInventoryNetworkInterfaceIpConfigurationReferenceReader.TryReadArmId`; regressions `ResolveApplicationGatewayBackends_reads_backend_when_backend_resource_id_is_reference_object` and `ResolveApplicationGatewayBackends_reads_backend_when_backend_resource_id_is_json_string_scalar_wrapping_id_object`; LB/AGW backend core tests 29/29; seeded five follow-on `(candidate)` rows.
+
+- (candidate) `AzureInventoryLoadBalancerBackendTrafficResolver` — flat `networkInterfaceIPConfiguration` at address root as JSON string scalar wrapping id object — locus: flat branch; input: `TryReadArmId` likely already handles (cheap-disproof).
+- (candidate) `AzureInventoryApplicationGatewayBackendAddressReader` — flat `backendResourceId` at address root as reference object — locus: `TryGetAddressPropertiesBag` flat branch; input: mirror nested properties fix.
+- (candidate) `AzureInventoryLoadBalancerBackendTrafficResolver.BuildLoadBalancerPortByPoolId` — PascalCase rule fields — locus: case-insensitive reads; input: `(valid-no-repro)`.
+- (candidate) `AzureInventoryApplicationGatewayBackendAddressReader` — `backendFqdn` vs `backendIpAddress` skip semantics — locus: intentional IP-only omission.
+- (candidate) `AzureInventoryLoadBalancerBackendParentArmIdResolver` — AGW `backendResourceId` reference shapes on parent path — locus: shared reader; input: covered by reader fix.
+
 2026-10-16 seed hunt (seed→hit): `archlucid-core` — promoted `AzureInventoryRouteTableRouteParser.TryReadNestedArmId` treating `nextHop` JSON string scalars wrapping `{ "id": "..." }` as raw ARM ids (or normalizing the whole JSON blob when it contained `/subscriptions/`), dropping route next-hop ARM linkage for double-encoded hosted route rows; unwrap via `AzureExtractorJsonObjectElement.TryUnwrapObject` before reading `id`; regression `Parse_reads_next_hop_arm_id_when_next_hop_is_json_string_scalar_wrapping_id_object`; route-table + LB backend core tests 40/40; seeded five follow-on `(candidate)` rows.
 
 - (candidate) `AzureInventoryLoadBalancerBackendTrafficResolver` — flat `networkInterfaceIPConfiguration` at address root as JSON string scalar wrapping id object — locus: `TryReadNestedNetworkInterfaceIpConfigurationId` flat branch; input: confirm `AzureInventoryNetworkInterfaceIpConfigurationReferenceReader` already unwraps.
