@@ -432,4 +432,94 @@ public sealed class TenantLlmCostTopRunRankerTests
         rows.Should().ContainSingle();
         rows[0].RunId.Should().Be(reasoningRunId.ToString("N"));
     }
+
+    [Fact]
+    public async Task RankAsync_breaks_cost_and_token_ties_by_run_id_descending()
+    {
+        Guid runLower = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+        Guid runHigher = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+            WorkspaceId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
+            ProjectId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee"),
+        };
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(static provider => provider.GetCurrentScope()).Returns(scope);
+
+        Mock<IAuthorityQueryService> authority = new();
+        authority
+            .Setup(static service => service.ListRunsInScopeKeysetAsync(
+                It.IsAny<ScopeContext>(),
+                null,
+                null,
+                It.IsAny<int>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync((
+            [
+                new RunSummaryDto
+                {
+                    RunId = runLower,
+                    ProjectId = "tie-a",
+                    CreatedUtc = DateTime.UtcNow,
+                    GoldenManifestId = Guid.NewGuid(),
+                },
+                new RunSummaryDto
+                {
+                    RunId = runHigher,
+                    ProjectId = "tie-b",
+                    CreatedUtc = DateTime.UtcNow.AddMinutes(-1),
+                    GoldenManifestId = Guid.NewGuid(),
+                },
+            ],
+            false));
+
+        string lowerHex = runLower.ToString("N");
+        string higherHex = runHigher.ToString("N");
+
+        Dictionary<string, IReadOnlyList<AgentExecutionTraceLlmCostSlice>> slicesByRunId =
+            new(StringComparer.OrdinalIgnoreCase)
+            {
+                [lowerHex] =
+                [
+                    new AgentExecutionTraceLlmCostSlice
+                    {
+                        InputTokenCount = 40,
+                        OutputTokenCount = 10,
+                        ModelDeploymentName = "unpriced-model",
+                    },
+                ],
+                [higherHex] =
+                [
+                    new AgentExecutionTraceLlmCostSlice
+                    {
+                        InputTokenCount = 40,
+                        OutputTokenCount = 10,
+                        ModelDeploymentName = "unpriced-model",
+                    },
+                ],
+            };
+
+        Mock<IAgentExecutionTraceRepository> traces = new();
+        traces
+            .Setup(repository => repository.GetLlmCostSlicesByRunIdsAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<IReadOnlyCollection<string>>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(slicesByRunId);
+
+        TenantLlmCostTopRunRanker ranker = new(
+            scopeProvider.Object,
+            authority.Object,
+            traces.Object,
+            Mock.Of<ILlmCostEstimator>());
+
+        IReadOnlyList<ArchLucid.Contracts.Billing.LlmCostTopRunRowResponse> rows =
+            await ranker.RankAsync(maxRunsToScan: 5, take: 2);
+
+        rows.Should().HaveCount(2);
+        rows[0].RunId.Should().Be(higherHex);
+        rows[1].RunId.Should().Be(lowerHex);
+    }
 }
