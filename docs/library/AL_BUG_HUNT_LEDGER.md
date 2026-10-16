@@ -1,5 +1,14 @@
 > **Scope:**
 
+2026-10-16 thorough hunt (hit): `api-governance-stickiness` — promoted `GET /v1/governance/risk-register/assigned-to-me-count` sealing only the latest committed run then returning `CountAsync` for assigned open findings, so HTTP 200 could include counts backed by older unsealed register rows (same shape as pre-fix decisions-needed summary); load assigned register page (max 200) and seal each row run before returning the count; regression `GetAssignedToMeFindingsCount_blocks_older_unsealed_register_row_when_latest_run_is_sealed`; API stickiness picker tests 206/206, application stickiness/digest tests 69/69; seeded five follow-on `(candidate)` rows.
+
+- (candidate) `GovernanceStickinessController.GetFindingsRegistersBundle` — bundle register rows beyond first page — locus: row sealing vs full register; input: unsealed run outside maxRows page.
+- (candidate) `GovernanceStickinessController.GetDecisionRegister` — decision register row run sealing — locus: `EnsureRegisterRunsSealedManifestAllowedAsync`; input: parity with risk register reads.
+- (candidate) `GovernanceStickinessFacade.GetAssignedToMeFindingsCountAsync` — count exceeds assigned register page size — locus: count vs 200-row seal window; input: `(valid-no-repro)` unless repro with >200 distinct runs.
+- (candidate) `GovernanceStickinessController.GetRiskRegister` — assignedToMe false path — locus: already seals rows; input: cheap-disproof.
+- (candidate) `GovernancePostureController.GetPosture` — posture read vs register row sealing — locus: sealed manifest guard; input: scan for unsealed row exposure.
+
+
 2026-10-16 seed hunt (seed→hit): `api-governance-tenancy-controllers` — promoted `GovernancePreCommitSimulationController.SimulateAsync` logging `GovernancePreCommitSimulationEvaluated` without `ExplicitActor` or `IActorContext`, so durable actor correlation missed canonical `jwt:{tid}:{oid}` keys; inject `IActorContext`, `GetAuditActorFields()`, `ExplicitActor = true` on simulation audit; regression `Simulate_sets_explicit_actor_for_stable_actor_user_id_when_display_differs`; `GovernancePreCommitSimulationController` tests 25/25; seeded five follow-on `(candidate)` rows.
 
 - (candidate) `GovernanceController.ApprovalRequests` batch review — idempotency replay audit actor parity — locus: batch approve path; input: repeated batch submit with same idempotency key.

@@ -151,6 +151,8 @@ public sealed class GovernanceStickinessControllerTests
 
         Mock<IActorContext> actor = new();
         actor.Setup(a => a.GetActorId()).Returns("reviewer@test");
+        actor.Setup(a => a.GetActor()).Returns(string.Empty);
+        actor.Setup(a => a.TryGetSubmitterMailbox()).Returns((string?)null);
 
         Mock<IFindingDispositionService> dispositions = dispositionService ?? new Mock<IFindingDispositionService>();
         dispositions
@@ -916,6 +918,115 @@ public sealed class GovernanceStickinessControllerTests
     }
 
     [Fact]
+    public async Task GetAssignedToMeFindingsCount_blocks_older_unsealed_register_row_when_latest_run_is_sealed()
+    {
+        Guid latestRunId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+        Guid olderRunId = Guid.Parse("22222222-2222-2222-2222-222222222222");
+
+        Mock<IRunDetailQueryService> runDetails = new();
+        runDetails
+            .Setup(service => service.ListRunSummariesKeysetAsync(
+                null,
+                50,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                (
+                    new[]
+                    {
+                        new RunSummary
+                        {
+                            RunId = latestRunId.ToString("N"),
+                            Status = nameof(ArchitectureRunStatus.Committed),
+                            CreatedUtc = DateTime.UtcNow,
+                        },
+                    },
+                    false,
+                    (string?)null));
+
+        Mock<IAuthorityQueryService> authority = new();
+        authority
+            .Setup(query => query.GetRunDetailForManifestCompareAsync(
+                It.IsAny<ScopeContext>(),
+                latestRunId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new RunDetailDto
+                {
+                    Run = new RunRecord { RunId = latestRunId },
+                    GoldenManifest = new ManifestDocument
+                    {
+                        RunId = latestRunId,
+                        ManifestHash = SealedManifestHash,
+                    },
+                });
+        authority
+            .Setup(query => query.GetRunDetailForManifestCompareAsync(
+                It.IsAny<ScopeContext>(),
+                olderRunId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new RunDetailDto
+                {
+                    Run = new RunRecord { RunId = olderRunId },
+                    GoldenManifest = null,
+                });
+
+        Mock<IManifestHashService> manifestHash = new();
+        manifestHash
+            .Setup(service => service.ComputeHash(It.IsAny<ManifestDocument>()))
+            .Returns(SealedManifestHash);
+
+        Mock<IArchitectureRiskRegisterService> riskRegister = new();
+        riskRegister
+            .Setup(service => service.GetRegisterAsync(
+                Scope.TenantId,
+                Scope.WorkspaceId,
+                Scope.ProjectId,
+                It.IsAny<int>(),
+                It.Is<ArchitectureRiskRegisterListOptions?>(options =>
+                    options != null
+                    && options.OpenFindingsOnly
+                    && options.AssignedToUserIds != null
+                    && options.AssignedToUserIds.Contains("reviewer@test")),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new ArchitectureRiskRegisterResponse
+                {
+                    Entries =
+                    [
+                        new ArchitectureRiskRegisterEntry
+                        {
+                            FindingId = "finding-older",
+                            RunId = olderRunId,
+                            Title = "Older unsealed finding assigned to reviewer",
+                            Severity = "Critical",
+                            AssignedToUserId = "reviewer@test",
+                        },
+                    ],
+                });
+        riskRegister
+            .Setup(service => service.CountAsync(
+                Scope.TenantId,
+                Scope.WorkspaceId,
+                Scope.ProjectId,
+                It.IsAny<ArchitectureRiskRegisterListOptions?>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(1);
+
+        GovernanceStickinessController sut = BuildSut(
+            riskRegister: riskRegister,
+            authorityQueryService: authority.Object,
+            manifestHashService: manifestHash.Object,
+            runDetailQueryService: runDetails.Object);
+
+        IActionResult action = await sut.GetAssignedToMeFindingsCount(
+            projectId: null,
+            cancellationToken: CancellationToken.None);
+
+        action.Should().BeOfType<ObjectResult>().Which.StatusCode.Should().Be(StatusCodes.Status409Conflict);
+    }
+
+    [Fact]
     public async Task GetDecisionsNeededSummary_returns_ok_when_workspace_changes_despite_matching_empty_body_etag()
     {
         Guid tenantId = Scope.TenantId;
@@ -1556,6 +1667,15 @@ public sealed class GovernanceStickinessControllerTests
     public async Task GetAssignedToMeFindingsCount_returns_service_count()
     {
         Mock<IArchitectureRiskRegisterService> riskRegister = new();
+        riskRegister
+            .Setup(r => r.GetRegisterAsync(
+                Scope.TenantId,
+                Scope.WorkspaceId,
+                Scope.ProjectId,
+                It.IsAny<int>(),
+                It.IsAny<ArchitectureRiskRegisterListOptions?>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchitectureRiskRegisterResponse { Entries = [] });
         riskRegister
             .Setup(r => r.CountAsync(
                 Scope.TenantId,

@@ -95,6 +95,20 @@ public sealed partial class GovernanceStickinessController
 
         try
         {
+            // Count has no run id in the response. Seal the assigned register page before returning the number.
+            ArchitectureRiskRegisterResponse assignedRegister = await _facade.GetRiskRegisterAsync(
+                projectId,
+                maxRows: 200,
+                assignedToMe: true,
+                cancellationToken);
+
+            IActionResult? rowGuardResult = await EnsureRegisterRunsSealedManifestAllowedAsync(
+                (assignedRegister.Entries ?? []).Select(static entry => entry.RunId),
+                cancellationToken).ConfigureAwait(false);
+
+            if (rowGuardResult is not null)
+                return rowGuardResult;
+
             int count = await _facade.GetAssignedToMeFindingsCountAsync(projectId, cancellationToken);
 
             return Ok(new GovernanceAssignedToMeFindingsCountResponse { Count = count });
