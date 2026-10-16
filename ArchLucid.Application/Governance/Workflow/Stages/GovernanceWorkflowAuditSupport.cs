@@ -198,6 +198,9 @@ public sealed class GovernanceWorkflowAuditSupport(
                 {
                     approvalRequestId = request.ApprovalRequestId,
                     runId = request.RunId,
+                    manifestVersion = request.ManifestVersion,
+                    sourceEnvironment = request.SourceEnvironment,
+                    targetEnvironment = request.TargetEnvironment,
                     reviewedBy = reviewedByDisplay,
                     reviewedByActorKey,
                     reviewComment
