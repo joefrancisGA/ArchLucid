@@ -159,14 +159,42 @@ function formatManifestSummaryFallback(
   lines.push("## Document metadata");
   lines.push("");
 
-  if (runId) {
-    lines.push(`- **Review id:** \`${runId}\``);
+  const trimmedRunId = runId?.trim() ?? "";
+
+  if (trimmedRunId.length > 0) {
+    lines.push(`- **Review id:** \`${trimmedRunId}\``);
+  } else {
+    lines.push("Review id was not stored.");
   }
 
   lines.push(`- **Review record id:** \`${summary.manifestId}\``);
-  lines.push(`- **Status:** ${summary.status}`);
-  lines.push(`- **Policy pack:** ${summary.ruleSetId} @ ${summary.ruleSetVersion}`);
-  lines.push(`- **Review record hash:** \`${summary.manifestHash}\``);
+
+  const status = summary.status?.trim() ?? "";
+
+  if (status.length > 0) {
+    lines.push(`- **Status:** ${status}`);
+  } else {
+    lines.push("Status was not stored.");
+  }
+
+  const ruleSetId = summary.ruleSetId?.trim() ?? "";
+  const ruleSetVersion = summary.ruleSetVersion?.trim() ?? "";
+
+  if (ruleSetId.length > 0 && ruleSetVersion.length > 0) {
+    lines.push(`- **Policy pack:** ${ruleSetId} @ ${ruleSetVersion}`);
+  } else if (ruleSetId.length > 0) {
+    lines.push(`- **Policy pack:** ${ruleSetId}`);
+  } else {
+    lines.push("Policy pack was not stored.");
+  }
+
+  const manifestHash = summary.manifestHash?.trim() ?? "";
+
+  if (manifestHash.length > 0) {
+    lines.push(`- **Review record hash:** \`${manifestHash}\``);
+  } else {
+    lines.push("Review record hash was not stored.");
+  }
 
   if (summary.effectiveGovernanceAtCommit !== undefined && summary.effectiveGovernanceAtCommit !== null) {
     pushPolicyAtCommitMarkdownLines(
@@ -182,7 +210,9 @@ function formatManifestSummaryFallback(
 
   if (summary.operatorSummary === null || summary.operatorSummary === undefined) {
     lines.push("Operator summary was not stored.");
-  } else if (summary.operatorSummary) {
+  } else if (summary.operatorSummary.length === 0) {
+    lines.push("Operator summary was stored empty.");
+  } else {
     lines.push(summary.operatorSummary);
   }
 

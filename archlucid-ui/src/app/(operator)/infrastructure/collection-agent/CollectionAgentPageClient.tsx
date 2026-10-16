@@ -74,11 +74,17 @@ export function collectionRunStatusLabel(status: CollectionRun["status"]): strin
 }
 
 export function collectionRunStartedUtcDisplay(startedUtc: string | undefined): string {
-  if (startedUtc === undefined) {
+  if (startedUtc === undefined || startedUtc.trim().length === 0) {
     return "Start time was not stored.";
   }
 
-  return formatIsoUtcForDisplay(startedUtc);
+  const formatted = formatIsoUtcForDisplay(startedUtc);
+
+  if (formatted === startedUtc && Number.isNaN(Date.parse(startedUtc))) {
+    return "Start time could not be read.";
+  }
+
+  return formatted;
 }
 
 function CollectionRunRow({ run }: { readonly run: CollectionRun }): React.JSX.Element {
@@ -105,7 +111,9 @@ function CollectionRunRow({ run }: { readonly run: CollectionRun }): React.JSX.E
         </EnterpriseTableCell>
         <EnterpriseTableCell>{formatCollectionRunSubscriptionsLabel(run)}</EnterpriseTableCell>
         <EnterpriseTableCell>
-          {run.importedSnapshotId === null || run.importedSnapshotId === undefined ? (
+          {run.importedSnapshotId === null
+            || run.importedSnapshotId === undefined
+            || run.importedSnapshotId.length === 0 ? (
             "Imported snapshot was not stored."
           ) : (
             <Link

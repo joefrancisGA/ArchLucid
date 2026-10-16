@@ -3,6 +3,12 @@ import type { BulkEvidenceFileOutcome } from "@/lib/bulk-evidence-upload-outcome
 export const RUN_DETAIL_CAPTURED_EVIDENCE_UPLOADED_TIME_NOT_STORED_COPY =
   "Uploaded time was not stored." as const;
 
+export const RUN_DETAIL_CAPTURED_EVIDENCE_UPLOADED_TIME_STORED_EMPTY_COPY =
+  "Uploaded time was stored empty." as const;
+
+export const RUN_DETAIL_CAPTURED_EVIDENCE_EVIDENCE_ITEM_ID_STORED_EMPTY_COPY =
+  "Evidence item id was stored empty." as const;
+
 export const RUN_DETAIL_CAPTURED_EVIDENCE_FILE_NAME_NOT_STORED_COPY =
   "File name was not stored." as const;
 
@@ -95,13 +101,21 @@ export function writePersistedCapturedEvidenceInventory(
   }
 }
 
+function resolveCapturedEvidenceFileName(name: string): string {
+  if (name.trim().length === 0) {
+    return RUN_DETAIL_CAPTURED_EVIDENCE_FILE_NAME_NOT_STORED_COPY;
+  }
+
+  return name;
+}
+
 export function deriveCapturedEvidenceFromArtifacts(
   artifacts: readonly { readonly artifactId: string; readonly name: string; readonly createdUtc: string }[],
 ): RunDetailCreateHomeCapturedEvidenceItem[] {
   return artifacts
     .map((artifact) => ({
       key: artifact.artifactId,
-      fileName: artifact.name,
+      fileName: resolveCapturedEvidenceFileName(artifact.name),
       ingestedUtc: artifact.createdUtc,
     }))
     .sort((left, right) => left.fileName.localeCompare(right.fileName, undefined, { sensitivity: "base" }));
@@ -118,7 +132,7 @@ export function deriveCapturedEvidenceFromCatalog(
   return catalog
     .map((entry) => ({
       key: entry.evidenceItemId,
-      fileName: entry.originalFileName,
+      fileName: resolveCapturedEvidenceFileName(entry.originalFileName),
       ingestedUtc: entry.createdUtc ?? null,
       evidenceItemId: entry.evidenceItemId,
       contentType: entry.contentType ?? null,

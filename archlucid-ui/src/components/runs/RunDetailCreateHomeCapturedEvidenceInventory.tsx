@@ -26,7 +26,9 @@ import {
   RUN_DETAIL_CREATE_HOME_CAPTURED_EVIDENCE_HELPER,
 } from "@/lib/runs/run-detail-create-home-evidence-copy";
 import {
+  RUN_DETAIL_CAPTURED_EVIDENCE_EVIDENCE_ITEM_ID_STORED_EMPTY_COPY,
   RUN_DETAIL_CAPTURED_EVIDENCE_UPLOADED_TIME_NOT_STORED_COPY,
+  RUN_DETAIL_CAPTURED_EVIDENCE_UPLOADED_TIME_STORED_EMPTY_COPY,
   type RunDetailCreateHomeCapturedEvidenceItem,
 } from "@/lib/runs/run-detail-create-home-captured-evidence";
 
@@ -42,7 +44,7 @@ function formatIngestedLabel(iso: string | null): string {
   }
 
   if (iso.length === 0) {
-    return "";
+    return RUN_DETAIL_CAPTURED_EVIDENCE_UPLOADED_TIME_STORED_EMPTY_COPY;
   }
 
   const formatted = formatInstantForLocale(iso);
@@ -119,7 +121,12 @@ export function RunDetailCreateHomeCapturedEvidenceInventory(
                         openButtonRef={openButtonRef}
                       />
                     ) : (
-                      item.fileName
+                      <>
+                        {item.fileName}
+                        <span className={cn("ml-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                          {RUN_DETAIL_CAPTURED_EVIDENCE_EVIDENCE_ITEM_ID_STORED_EMPTY_COPY}
+                        </span>
+                      </>
                     )}
                   </EnterpriseTableCell>
                   <EnterpriseTableCell>{formatIngestedLabel(item.ingestedUtc)}</EnterpriseTableCell>

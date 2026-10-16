@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it } from "vitest";
 
 import {
+  RUN_DETAIL_CAPTURED_EVIDENCE_FILE_NAME_NOT_STORED_COPY,
   deriveCapturedEvidenceFromArtifacts,
   deriveCapturedEvidenceFromCatalog,
   mergeCapturedEvidenceUploadOutcomes,
@@ -50,6 +51,19 @@ describe("run-detail-create-home-captured-evidence", () => {
     ]);
 
     expect(items[0]?.ingestedUtc).toBeNull();
+  });
+
+  it("labels blank artifact and catalog file names", () => {
+    expect(
+      deriveCapturedEvidenceFromArtifacts([
+        { artifactId: "art-1", name: "", createdUtc: "2026-08-12T09:00:00Z" },
+      ])[0]?.fileName,
+    ).toBe(RUN_DETAIL_CAPTURED_EVIDENCE_FILE_NAME_NOT_STORED_COPY);
+    expect(
+      deriveCapturedEvidenceFromCatalog([
+        { evidenceItemId: "ev-1", originalFileName: "", createdUtc: "2026-08-12T11:00:00Z" },
+      ])[0]?.fileName,
+    ).toBe(RUN_DETAIL_CAPTURED_EVIDENCE_FILE_NAME_NOT_STORED_COPY);
   });
 
   it("derives catalog rows with createdUtc and evidence ids", () => {

@@ -40,7 +40,7 @@ internal static class InventoryDiagramLikelyRelationshipApplier
             string outlineSentence = isStorageHostGuess
                 ? StorageHostOutlineSentence
                 : OutlineSentence;
-            edge.Label = isStorageHostGuess ? "Likely" : OutlineSentence;
+            edge.Label = outlineSentence;
             edge.ProvenanceKind = ProvenanceKind.DeterministicInference.ToString();
 
             if (!nodesById.TryGetValue(edge.FromNodeId, out DiagramNode? sourceNode))

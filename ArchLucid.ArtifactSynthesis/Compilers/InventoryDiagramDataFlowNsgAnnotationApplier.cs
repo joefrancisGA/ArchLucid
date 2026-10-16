@@ -9,6 +9,8 @@ namespace ArchLucid.ArtifactSynthesis.Compilers;
 /// </summary>
 internal static class InventoryDiagramDataFlowNsgAnnotationApplier
 {
+    private const string RelationshipNotStoredPrefix = "Relationship was not stored";
+
     public static void Apply(
         DiagramAst ast,
         GraphSnapshot graph,
@@ -90,14 +92,7 @@ internal static class InventoryDiagramDataFlowNsgAnnotationApplier
         edge.DataFlowNsgAnnotationLabels = chipLabels;
         string annotationText = string.Join(" · ", chipLabels);
 
-        if (string.IsNullOrWhiteSpace(edge.Label))
-        {
-            edge.Label = annotationText;
-        }
-        else if (!edge.Label.Contains(annotationText, StringComparison.Ordinal))
-        {
-            edge.Label = $"{edge.Label} · {annotationText}";
-        }
+        ApplyAnnotationToEdgeLabel(edge, annotationText);
 
         return true;
     }
@@ -154,9 +149,14 @@ internal static class InventoryDiagramDataFlowNsgAnnotationApplier
 
         string annotationText = string.Join(" · ", annotation.ConnectorDisplayLabels);
 
+        ApplyAnnotationToEdgeLabel(edge, annotationText);
+    }
+
+    private static void ApplyAnnotationToEdgeLabel(DiagramEdge edge, string annotationText)
+    {
         if (string.IsNullOrWhiteSpace(edge.Label))
         {
-            edge.Label = annotationText;
+            edge.Label = $"{RelationshipNotStoredPrefix} · {annotationText}";
         }
         else if (!edge.Label.Contains(annotationText, StringComparison.Ordinal))
         {

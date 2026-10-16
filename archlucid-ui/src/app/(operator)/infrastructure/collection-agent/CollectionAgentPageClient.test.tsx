@@ -38,7 +38,27 @@ describe("collection agent omission copy (P-16, P-17)", () => {
   it("labels missing capture status and start time without Unknown", () => {
     expect(collectionRunStatusLabel(undefined)).toBe("Capture status was not stored.");
     expect(collectionRunStartedUtcDisplay(undefined)).toBe("Start time was not stored.");
+    expect(collectionRunStartedUtcDisplay("")).toBe("Start time was not stored.");
+    expect(collectionRunStartedUtcDisplay("not-a-timestamp")).toBe("Start time could not be read.");
     expect(collectionRunStatusLabel("Running")).toBe("Running");
+  });
+
+  it("does not link View changes when imported snapshot id is empty", () => {
+    useTriggerCollectionRunMutationMock.mockReturnValue({
+      error: null,
+      isPending: false,
+      mutateAsync: vi.fn(),
+    });
+    useCollectionRunsQueryMock.mockReturnValue({
+      data: [{ ...successfulRun(), importedSnapshotId: "" }],
+      isPending: false,
+      isError: false,
+    });
+
+    render(<CollectionAgentPageClient />);
+
+    expect(screen.getByText("Imported snapshot was not stored.")).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "View changes" })).not.toBeInTheDocument();
   });
 });
 

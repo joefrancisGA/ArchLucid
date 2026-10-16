@@ -11,6 +11,7 @@ import {
 import type { ArchitectureCreatedHomeModel } from "@/lib/architecture/architecture-created-home-model";
 import type { ArchitectureCreationUserAssertions } from "@/lib/architecture/architecture-structured-content-types";
 import { readArchitectureWorkspaceTabFromHref, type ArchitectureWorkspaceTabId } from "@/lib/architecture/architecture-workspace-tabs";
+import { ARCHITECTURE_CREATED_BUSINESS_PURPOSE_NOT_STORED } from "@/lib/architecture/architecture-created-home-summary";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type ArchitectureCreatedCompactFirstViewportProps = {
@@ -78,7 +79,7 @@ export function ArchitectureCreatedCompactFirstViewport(
   const compactPrimaryVariant = props.pagePrimaryOwnedElsewhere === true ? "outline" : "primary";
 
   if (mode === "context-bar") {
-    const summaryPreview = summaryFields[0]?.value ?? model.architectureName;
+    const summaryPreview = summaryFields[0]?.value ?? ARCHITECTURE_CREATED_BUSINESS_PURPOSE_NOT_STORED;
 
     return (
       <section

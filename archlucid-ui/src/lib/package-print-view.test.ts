@@ -59,6 +59,13 @@ describe("package-print-view (TB-2205)", () => {
     expect(presentation.sponsorSynopsis).toContain("Payments edge");
   });
 
+  it("includes finding count omission in findings summary when count is missing", () => {
+    const line = buildPackagePrintFindingsSummary(summary({ findingCount: null, warningCount: 0 }));
+
+    expect(line).toContain("Finding count was not stored.");
+    expect(line).not.toContain("0 findings");
+  });
+
   it("labels omitted finding and warning counts on sponsor synopsis", () => {
     const synopsis = buildPackagePrintSponsorSynopsis(
       summary({

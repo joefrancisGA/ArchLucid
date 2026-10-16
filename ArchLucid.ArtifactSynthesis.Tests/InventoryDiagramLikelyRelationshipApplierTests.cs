@@ -82,7 +82,7 @@ public sealed class InventoryDiagramLikelyRelationshipApplierTests
         InventoryDiagramLikelyRelationshipApplier.Apply(ast);
 
         ast.Edges.Should().ContainSingle();
-        ast.Edges.Single().Label.Should().Be("Likely");
+        ast.Edges.Single().Label.Should().Be(InventoryDiagramLikelyRelationshipApplier.StorageHostOutlineSentence);
         ast.Nodes[0].UnresolvedRelationshipDetails.Should()
             .Contain(InventoryDiagramLikelyRelationshipApplier.StorageHostOutlineSentence);
     }
