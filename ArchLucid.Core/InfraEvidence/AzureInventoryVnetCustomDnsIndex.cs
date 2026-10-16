@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text.Json;
 
 namespace ArchLucid.Core.InfraEvidence;
@@ -162,8 +163,16 @@ public sealed class AzureInventoryVnetCustomDnsIndex
 
     private static void AppendDnsServersFromJsonArray(JsonElement serversElement, List<string> dnsServers)
     {
+        if (TryReadDnsServersFromNumericOctetArray(serversElement, out string octetJoinedServer))
+        {
+            dnsServers.Add(octetJoinedServer);
+
+            return;
+        }
+
         foreach (JsonElement serverElement in serversElement.EnumerateArray())
         {
+
             if (serverElement.ValueKind == JsonValueKind.String)
             {
                 string? server = serverElement.GetString();
@@ -172,8 +181,101 @@ public sealed class AzureInventoryVnetCustomDnsIndex
                 {
                     dnsServers.Add(ResolveFlattenedDnsServerValue(server));
                 }
+
+                continue;
+            }
+
+            if (serverElement.ValueKind == JsonValueKind.Number
+                && TryReadDnsServerFromNumericElement(serverElement, out string numericServer))
+            {
+                dnsServers.Add(ResolveFlattenedDnsServerValue(numericServer));
             }
         }
+    }
+
+    private static bool TryReadDnsServersFromNumericOctetArray(JsonElement serversElement, out string server)
+    {
+        server = string.Empty;
+
+        if (serversElement.ValueKind is not JsonValueKind.Array)
+        {
+            return false;
+        }
+
+        List<int> octets = [];
+
+        foreach (JsonElement serverElement in serversElement.EnumerateArray())
+        {
+
+            if (serverElement.ValueKind is not JsonValueKind.Number
+                || !TryReadByteOctet(serverElement, out int octet))
+            {
+                return false;
+            }
+
+            octets.Add(octet);
+        }
+
+        if (octets.Count is not 4)
+        {
+            return false;
+        }
+
+        server = string.Format(
+            CultureInfo.InvariantCulture,
+            "{0}.{1}.{2}.{3}",
+            octets[0],
+            octets[1],
+            octets[2],
+            octets[3]);
+
+        return true;
+    }
+
+    private static bool TryReadDnsServerFromNumericElement(JsonElement serverElement, out string server)
+    {
+        server = string.Empty;
+
+        if (serverElement.ValueKind is not JsonValueKind.Number)
+        {
+            return false;
+        }
+
+        if (TryReadByteOctet(serverElement, out int loneOctet))
+        {
+            return false;
+        }
+
+        if (!serverElement.TryGetUInt32(out uint packedAddress))
+        {
+            server = serverElement.GetRawText();
+
+            return !string.IsNullOrWhiteSpace(server);
+        }
+
+        server = string.Format(
+            CultureInfo.InvariantCulture,
+            "{0}.{1}.{2}.{3}",
+            (packedAddress >> 24) & 0xFF,
+            (packedAddress >> 16) & 0xFF,
+            (packedAddress >> 8) & 0xFF,
+            packedAddress & 0xFF);
+
+        return true;
+    }
+
+    private static bool TryReadByteOctet(JsonElement serverElement, out int octet)
+    {
+        octet = 0;
+
+        if (!serverElement.TryGetInt32(out int value) || value is < 0 or > 255)
+        {
+            return false;
+        }
+
+        octet = value;
+
+        return true;
     }
 
     private static bool TryGetPropertyIgnoreCase(

@@ -351,6 +351,46 @@ public sealed class AzureInventoryVnetCustomDnsIndexTests
     }
 
     [Fact]
+    public void VnetUsesCustomDns_true_when_dhcpOptions_json_array_lists_packed_uint32_address()
+    {
+        AzureInventoryVnetCustomDnsIndex index = AzureInventoryVnetCustomDnsIndex.Build(
+        [
+            new AzureInventoryVnetCustomDnsResourceProperties
+            {
+                AzureResourceId = VnetArm,
+                ResourceType = "Microsoft.Network/virtualNetworks",
+                Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                {
+                    ["dhcpOptions"] = """{"dnsServers":[168430090]}""",
+                },
+            },
+        ]);
+
+        index.VnetUsesCustomDns(VnetArm).Should().BeTrue(
+            "mixed-type dhcpOptions projections may pack DNS servers as uint32 values");
+    }
+
+    [Fact]
+    public void VnetUsesCustomDns_true_when_dhcpOptions_json_array_lists_numeric_octets()
+    {
+        AzureInventoryVnetCustomDnsIndex index = AzureInventoryVnetCustomDnsIndex.Build(
+        [
+            new AzureInventoryVnetCustomDnsResourceProperties
+            {
+                AzureResourceId = VnetArm,
+                ResourceType = "Microsoft.Network/virtualNetworks",
+                Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                {
+                    ["dhcpOptions"] = """{"dnsServers":[10,0,0,4]}""",
+                },
+            },
+        ]);
+
+        index.VnetUsesCustomDns(VnetArm).Should().BeTrue(
+            "mixed-type dhcpOptions projections may list DNS servers as numeric octets");
+    }
+
+    [Fact]
     public void VnetUsesCustomDns_true_when_dhcpOptions_property_is_json_string_scalar_wrapping_custom_dns_address()
     {
         AzureInventoryVnetCustomDnsIndex index = AzureInventoryVnetCustomDnsIndex.Build(

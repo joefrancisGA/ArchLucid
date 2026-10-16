@@ -6393,6 +6393,13 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ### Hypotheses
 
+- [x] (proven) `AzureInventoryVnetCustomDnsIndex.AppendDnsServersFromJsonArray` — numeric JSON elements in `dnsServers` arrays skipped — **hit 2026-10-16 seed hunt:** octet-array join and uint32 packed address reads; regression `VnetUsesCustomDns_true_when_dhcpOptions_json_array_lists_numeric_octets`.
+- (candidate) `AzureInventoryVnetCustomDnsIndex.AppendDnsServersFromJsonArray` — single packed uint32 DNS address in `dnsServers` array not read — locus: numeric element handling; input: `{"dnsServers":[168430090]}` mixed-type projection.
+- (candidate) `AzureInventoryPrivateEndpointDnsJoinIndex.BuildComputeToVnetMap` — resolved VNet ARM ids not passed through `ArmResourceIdNormalizer` — locus: `computeToVnet` values; input: subnet-derived vnet id with trailing slash.
+- (candidate) `AzureInventoryRouteTableRouteParser.ParseExplicitRouteProperties` — explicit flattened route keys with non-numeric index segments skipped — locus: index extraction; input: inventory.policy.route keys from hosted extract.
+- (candidate) `AzureInventoryReachabilityEdgeControlIndex.Build` — route table ARM id stored with trailing slash while subnet→route-table relationship ids are normalized — locus: normalized resource index; input: padded route table ARM id on resource bag key.
+- (candidate) `AzureInventoryVnetCustomDnsIndex.TryParseDnsServersFromJson` — JSON string scalar wrapping `dhcpOptions` object with only default DNS still misread when nested object parse fails — locus: string recursion; input: double-encoded default-only projection.
+
 - [x] (proven) `AzureInventoryVnetCustomDnsIndex.TryParseDnsServersFromJson` — `dhcpOptions` JSON string scalar wrapping a lone DNS address ignored — **hit 2026-10-16 seed hunt:** fall back to flattened DNS value after failed nested parse; regression `VnetUsesCustomDns_true_when_dhcpOptions_property_is_json_string_scalar_wrapping_custom_dns_address`.
 - (candidate) `AzureInventoryVnetCustomDnsIndex.AppendDnsServersFromJsonArray` — numeric JSON elements in `dnsServers` arrays skipped — locus: array element kind handling; input: mixed-type dhcpOptions projection.
 - (candidate) `AzureInventoryPrivateEndpointDnsJoinIndex.BuildComputeToVnetMap` — resolved VNet ARM ids not passed through `ArmResourceIdNormalizer` — locus: `computeToVnet` values; input: subnet-derived vnet id with trailing slash.
