@@ -1779,7 +1779,8 @@ function Add-ArchLucidNetworkAssociationRow
         [string] $AssociationType,
         [string] $RuleName = $null,
         [string] $ProfileId = $null,
-        [string] $AccessMode = $null
+        [string] $AccessMode = $null,
+        [string] $Kind = $null
     )
 
     [string]$key = "$FromResourceId|$AssociationType|$ToResourceId|$RuleName"
@@ -1810,6 +1811,11 @@ function Add-ArchLucidNetworkAssociationRow
     if (-not ([string]::IsNullOrWhiteSpace($AccessMode)))
     {
         $row["accessMode"] = $AccessMode
+    }
+
+    if (-not ([string]::IsNullOrWhiteSpace($Kind)))
+    {
+        $row["kind"] = $Kind
     }
 
     [void]$Rows.Add($row)
