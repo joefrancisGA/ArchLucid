@@ -8,6 +8,7 @@ import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 
 export type ExtractUploadSettingsBuyerChromeProps = {
   readonly sources?: readonly EvidenceOrientationLink[];
+  readonly sourcesIntro?: string;
 };
 
 /** Buyer default: mount Sources orientation above the extract-upload workspace body (ADX). */
@@ -23,6 +24,7 @@ export function ExtractUploadSettingsBuyerChrome(
       <ExtractUploadSettingsEvidenceOrientationStrip
         readingBodyClassName={HELP_PAGE_LAYOUT.readingBody}
         sources={props.sources ?? EXTRACT_UPLOAD_SETTINGS_ORIENTATION_SOURCES}
+        sourcesIntro={props.sourcesIntro}
       />
     </div>
   );

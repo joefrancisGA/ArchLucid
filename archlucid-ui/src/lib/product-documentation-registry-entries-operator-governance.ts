@@ -77,6 +77,16 @@ export const PRODUCT_DOCUMENTATION_REGISTRY_ENTRIES_OPERATOR_GOVERNANCE: readonl
     "releaseApplicability": "infrastructure drift workbench orientation",
   },
   {
+    "slug": "governance-infrastructure-resources",
+    "title": "Resource explorer",
+    "summary": "Browse cloud resources, apply filters, and open the evidence hub for one resource.",
+    "audience": "operator",
+    "sourcePaths": [
+    ],
+    "lastReviewed": "2026-10-16",
+    "releaseApplicability": "infrastructure resource explorer and evidence hub orientation",
+  },
+  {
     "slug": "model-governance",
     "title": "AI and model policy",
     "summary": "Workspace execution profiles, approved model aliases, and profile mappings used on reviews.",

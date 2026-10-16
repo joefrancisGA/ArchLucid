@@ -161,15 +161,20 @@ export function BaselineSettingsEvidenceOrientationStrip(): React.JSX.Element {
 }
 
 export function ExtractUploadSettingsEvidenceOrientationStrip(
-  props: { readonly readingBodyClassName?: string; readonly sources?: readonly EvidenceOrientationLink[] } = {},
+  props: {
+    readonly readingBodyClassName?: string;
+    readonly sources?: readonly EvidenceOrientationLink[];
+    readonly sourcesIntro?: string;
+  } = {},
 ): React.JSX.Element {
   const sources = props.sources ?? EXTRACT_UPLOAD_SETTINGS_SOURCES;
+  const sourcesIntro = props.sourcesIntro ?? EXTRACT_UPLOAD_SETTINGS_SOURCES_INTRO;
 
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="extract-upload-settings"
       sourcesTitle={EXTRACT_UPLOAD_SETTINGS_FOLLOW_UPS_TITLE}
-      sourcesIntro={EXTRACT_UPLOAD_SETTINGS_SOURCES_INTRO}
+      sourcesIntro={sourcesIntro}
       sources={sources}
       sourcesHeadingId="where-to-go-next"
       readingBodyClassName={props.readingBodyClassName}

@@ -91,6 +91,7 @@ export const PRODUCT_DOCUMENTATION_CONTENT_KIND_BY_SLUG: Readonly<
   "api-contracts": "internal-runbook",
   "governance-approval": "product-help",
   "governance-infrastructure-drift": "product-help",
+  "governance-infrastructure-resources": "product-help",
   "integration-readiness": "product-help",
   "azure-boards": "product-help",
   "users-and-roles": "product-help",
