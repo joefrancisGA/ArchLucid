@@ -127,6 +127,19 @@ public sealed class AdminControllerTests
     }
 
     [Fact]
+    public async Task ArchiveRunsByIds_returns_bad_request_when_run_ids_collection_is_null()
+    {
+        AdminController controller = CreateController();
+
+        AdminArchiveRunsByIdsRequest request = new() { RunIds = null! };
+
+        IActionResult action = await controller.ArchiveRunsByIds(request, CancellationToken.None);
+
+        ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
     public async Task ListIntegrationOutboxDeadLetters_delegates_to_diagnostics()
     {
         List<IntegrationEventOutboxDeadLetterRow> rows =

@@ -1,5 +1,6 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-16 seed hunt (seed→hit): `api-authority-admin-controllers` — promoted `AdminController.ArchiveRunsByIds` dereferencing `body.RunIds.Count` when JSON deserialized `runIds` as null, causing `NullReferenceException` instead of `400 ValidationFailed`; guard null like empty list; regression `ArchiveRunsByIds_returns_bad_request_when_run_ids_collection_is_null`; scoped Authority/Admin controller filter 19 passed (5 SQL integration failures on Linux VM baseline); seeded five follow-on `(candidate)` rows.
 2026-10-16 seed hunt (seed→hit): `saml-jwt-bearer` — promoted `SamlMetadataValidUntilParser.TryExtractValidUntilUtc` reading only the document root `validUntil`, so `EntitiesDescriptor` federation exports with expiry on the sole nested `EntityDescriptor` skipped operational metadata expiry checks; resolve nested single-entity `validUntil` when the root attribute is absent; regressions `TryExtractValidUntilUtc_reads_validUntil_from_single_nested_entity_descriptor` and `TryExtractValidUntilUtc_prefers_root_validUntil_on_entities_descriptor`; scoped SAML/JWT/SCIM bearer vitest/dotnet 79 passed (3 SQL integration failures on Linux VM baseline); seeded five follow-on `(candidate)` rows.
 2026-10-16 seed hunt (seed→hit): `ui-review-detail-workspace` — promoted `RunDetailPageHeader` / `BuyerSponsorBriefExports` syncing `runDetailBuyerSponsorBriefExportsOpen` only from `popstate`, so Next.js soft navigation left the sponsor brief export disclosure closed; reconcile from `useSearchParams`; regression `follows runDetailBuyerSponsorBriefExportsOpen query changes without a popstate event`; page header url-sync vitest 1/1; seeded five follow-on `(candidate)` rows.
 2026-10-16 seed hunt (seed→hit): `ui-review-detail-workspace` — promoted `RunDetailOutcomeCards` syncing `runDetailOutcomeMonitoredRiskOpen` / `runDetailOutcomeDecisionKeyOpen` only from `popstate`, so Next.js soft navigation left buyer outcome disclosures stale; reconcile from `useSearchParams`; regression `follows runDetailOutcomeDecisionKeyOpen query changes without a popstate event`; outcome cards url-sync vitest 1/1; seeded five follow-on `(candidate)` rows.
@@ -35832,13 +35833,22 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** authority controllers; admin controllers
 - **paths:** ArchLucid.Api/Controllers/Authority/; ArchLucid.Api/Controllers/Admin/
 - **test-filter:** FullyQualifiedName~AuthorityController|FullyQualifiedName~AdminController
-- **hunts:** 61
-- **bugs-found:** 53
+- **hunts:** 62
+- **bugs-found:** 54
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-04
-- **last-bug:** 2026-10-04 — clarification answers null collection NRE
+- **last-hunt:** 2026-10-16
+- **last-bug:** 2026-10-16 — archive-by-ids null RunIds caused 500 instead of validation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-16 seed hunt (seed→hit): promoted `AdminController.ArchiveRunsByIds` null `RunIds` collection gap; proved and fixed; reseeded five follow-on `(candidate)` rows.
+
+- [x] (proven) `AdminController.ArchiveRunsByIds` — JSON `"runIds": null` dereferenced `body.RunIds.Count` and threw `NullReferenceException` instead of `400 ValidationFailed` — **hit 2026-10-16 seed hunt:** null-coalesce guard before count check; regression `ArchiveRunsByIds_returns_bad_request_when_run_ids_collection_is_null`
+- [ ] (candidate) `AdminController.SuppressIntegrationOutboxDeadLetter` — `IntegrationOutboxDeadLetterSuppressRequest` body optional fields when body is `{}` vs null — locus: `SuppressIntegrationOutboxDeadLetterAsync(outboxId, body, ...)` ~92; input: suppress without JSON body on POST; wrong outcome: unhandled null vs intentional default suppress reason.
+- [ ] (candidate) `CollectionRunsController.TriggerAsync` — `request` omitted with valid `Idempotency-Key` — locus: `request?.SubscriptionIds ?? []` ~67; input: empty body trigger; wrong outcome: silent empty subscription list vs explicit validation when SecureNow expects at least one subscription.
+- [ ] (candidate) `RunCoverageController.PutAcknowledgedCoverage` — `request.Entries` contains null row elements after JSON array with `null` entries — locus: foreach validation loop ~71; input: `[{ "policyPackId": "...", "excluded": true }, null]`; wrong outcome: `NullReferenceException` during surrogate validation instead of `400`.
+- [ ] (candidate) `AuthorityQueryController.RecordRunOperatorGovernanceDisposition` — `Disposition` enum string case / unknown value before service — locus: `RecordRunOperatorGovernanceDisposition` POST ~171; input: disposition value outside contract casing; wrong outcome: `500` from downstream `InvalidOperationException` vs `400 ValidationFailed` at controller edge.
+- [ ] (candidate) `IdentityProviderConfigurationController.ActivateAsync` — `request` with null `Issuer` after partial JSON bind — locus: activation validate path; input: `{ "protocol": "oidc", "issuer": null }`; wrong outcome: persistence or audit throws instead of validation problem.
 
 2026-10-02 seed hunt (seed-only): re-read Authority/Admin controller policy and input-boundary paths; seeded an unbounded model-catalog evaluation evidence candidate; 14 focused tests passed and 5 SQL-backed integration tests were blocked by unavailable SQL Server; no candidate promoted.
 

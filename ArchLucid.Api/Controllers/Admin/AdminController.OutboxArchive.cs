@@ -47,7 +47,7 @@ public sealed partial class AdminController
         if (body is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.ValidationFailed);
 
-        if (body.RunIds.Count == 0)
+        if (body.RunIds is null || body.RunIds.Count == 0)
             return this.BadRequestProblem("RunIds must contain at least one id.", ProblemTypes.ValidationFailed);
 
         if (body.RunIds.Count > 100)
