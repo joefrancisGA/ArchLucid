@@ -97,6 +97,16 @@ export const PRODUCT_DOCUMENTATION_REGISTRY_ENTRIES_OPERATOR_GOVERNANCE: readonl
     "releaseApplicability": "infrastructure Terraform mapping workbench orientation",
   },
   {
+    "slug": "governance-infrastructure-diagrams",
+    "title": "Inventory diagrams",
+    "summary": "Render inventory diagrams from snapshots with partitioned fallbacks and PNG export.",
+    "audience": "operator",
+    "sourcePaths": [
+    ],
+    "lastReviewed": "2026-10-16",
+    "releaseApplicability": "infrastructure diagrams workbench orientation",
+  },
+  {
     "slug": "model-governance",
     "title": "AI and model policy",
     "summary": "Workspace execution profiles, approved model aliases, and profile mappings used on reviews.",

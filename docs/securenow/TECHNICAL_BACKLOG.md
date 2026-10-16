@@ -143,7 +143,7 @@ Paste **one** file per session from the repo root (Cloud Agent: `pwsh` + working
 | SH-08 | Remediation patterns | **Shipped** |
 | SH-09 | Audit evidence lineage | **Shipped** |
 | SH-10 | Infrastructure hub | **Shipped** |
-| SH-11–SH-17 | Infrastructure workbenches | **Partial** (SH-11, SH-12, SH-17 shipped; SH-13–SH-16 articles vary) |
+| SH-11–SH-17 | Infrastructure workbenches | **Partial** (SH-11–SH-13, SH-17 shipped; SH-14–SH-16 articles vary) |
 | SH-18 | Cloud connections (Azure-only Security) | **Shipped** |
 | SH-19 | Users and roles | **Shipped** |
 | SH-20 | Billing and plans (exclude from Security hub) | **Shipped** (hub/search exclusion) |
