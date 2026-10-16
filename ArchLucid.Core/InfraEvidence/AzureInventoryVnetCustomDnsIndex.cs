@@ -163,7 +163,7 @@ public sealed class AzureInventoryVnetCustomDnsIndex
 
                 if (!string.IsNullOrWhiteSpace(server))
                 {
-                    dnsServers.Add(server.Trim());
+                    dnsServers.Add(ResolveFlattenedDnsServerValue(server));
                 }
             }
         }
