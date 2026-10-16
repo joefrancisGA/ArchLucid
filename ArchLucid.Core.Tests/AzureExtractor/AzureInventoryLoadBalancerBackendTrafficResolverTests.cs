@@ -223,6 +223,54 @@ public sealed class AzureInventoryLoadBalancerBackendTrafficResolverTests
     }
 
     [Fact]
+    public void ResolveLoadBalancerBackends_reads_rule_port_when_rule_is_flat_properties_bag_without_wrapper()
+    {
+        GraphNode loadBalancer = new()
+        {
+            NodeId = "lb1",
+            NodeType = "resource",
+            Label = "lb1",
+            Properties = new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["backendAddressPools"] =
+                    $$"""
+                    [
+                      {
+                        "id": "{{PoolId}}",
+                        "properties": {
+                          "loadBalancerBackendAddresses": [
+                            {
+                              "name": "addr1",
+                              "properties": {
+                                "networkInterfaceIPConfiguration": { "id": "{{NicIpConfigurationId}}" }
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                    """,
+                ["loadBalancingRules"] =
+                    $$"""
+                    [
+                      {
+                        "backendPort": 443,
+                        "backendAddressPool": { "id": "{{PoolId}}" }
+                      }
+                    ]
+                    """,
+            },
+        };
+
+        IReadOnlyList<AzureInventoryLoadBalancerBackendTrafficResolver.BackendTarget> targets =
+            AzureInventoryLoadBalancerBackendTrafficResolver.ResolveLoadBalancerBackends(loadBalancer);
+
+        AzureInventoryLoadBalancerBackendTrafficResolver.BackendTarget target = targets.Should().ContainSingle().Subject;
+        target.TargetArmId.Should().Be(NicId.ToLowerInvariant());
+        target.RulePort.Should().Be(443);
+    }
+
+    [Fact]
     public void ResolveLoadBalancerBackends_reads_rule_port_when_rules_json_is_single_rule_object()
     {
         GraphNode loadBalancer = new()

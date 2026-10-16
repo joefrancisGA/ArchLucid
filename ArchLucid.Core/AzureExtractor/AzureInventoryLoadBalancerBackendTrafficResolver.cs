@@ -194,8 +194,7 @@ public static class AzureInventoryLoadBalancerBackendTrafficResolver
 
             foreach (JsonElement rule in rules)
             {
-                if (!TryGetPropertyIgnoreCase(rule, "properties", out JsonElement ruleProperties)
-                    || ruleProperties.ValueKind is not JsonValueKind.Object)
+                if (!TryGetLoadBalancingRulePropertiesBag(rule, out JsonElement ruleProperties))
                 {
                     continue;
                 }
@@ -317,6 +316,33 @@ public static class AzureInventoryLoadBalancerBackendTrafficResolver
         }
 
         return null;
+    }
+
+    /// <summary>
+    /// Hosted inventory may store each rule as a full ARM resource or as a flattened properties bag only.
+    /// </summary>
+    private static bool TryGetLoadBalancingRulePropertiesBag(JsonElement rule, out JsonElement ruleProperties)
+    {
+        if (TryGetPropertyIgnoreCase(rule, "properties", out JsonElement nested)
+            && nested.ValueKind is JsonValueKind.Object)
+        {
+            ruleProperties = nested;
+
+            return true;
+        }
+
+        if (rule.ValueKind is JsonValueKind.Object
+            && (TryGetPropertyIgnoreCase(rule, "backendPort", out _)
+                || TryGetPropertyIgnoreCase(rule, "backendAddressPool", out _)))
+        {
+            ruleProperties = rule;
+
+            return true;
+        }
+
+        ruleProperties = default;
+
+        return false;
     }
 
     private static int? TryReadBackendPort(JsonElement ruleProperties)
