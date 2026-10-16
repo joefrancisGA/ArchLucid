@@ -56,13 +56,13 @@ public sealed class AzureInventoryVnetCustomDnsIndex
     {
         List<string> mergedServers = [];
 
-        if (properties.TryGetValue("dhcpOptions", out string? dhcpOptionsJson)
-            && TryParseDnsServersFromJson(dhcpOptionsJson, out List<string> fromJson))
+        if (TryGetFlattenedPropertyIgnoreCase(properties, "dhcpOptions", out string? dhcpOptionsJson)
+            && TryParseDnsServersFromJson(dhcpOptionsJson!, out List<string> fromJson))
         {
             mergedServers.AddRange(fromJson);
         }
 
-        if (properties.TryGetValue("dhcpOptions.dnsServers", out string? flatServers)
+        if (TryGetFlattenedPropertyIgnoreCase(properties, "dhcpOptions.dnsServers", out string? flatServers)
             && !string.IsNullOrWhiteSpace(flatServers))
         {
             if (TryParseDnsServersFromJson(flatServers, out List<string> fromFlatJson))
@@ -184,6 +184,35 @@ public sealed class AzureInventoryVnetCustomDnsIndex
         }
 
         value = default;
+
+        return false;
+    }
+
+    private static bool TryGetFlattenedPropertyIgnoreCase(
+        IReadOnlyDictionary<string, string> properties,
+        string propertyName,
+        out string? propertyValue)
+    {
+        if (properties.TryGetValue(propertyName, out propertyValue) && !string.IsNullOrWhiteSpace(propertyValue))
+        {
+            return true;
+        }
+
+        foreach ((string propertyKey, string value) in properties)
+        {
+
+            if (!propertyKey.Equals(propertyName, StringComparison.OrdinalIgnoreCase)
+                || string.IsNullOrWhiteSpace(value))
+            {
+                continue;
+            }
+
+            propertyValue = value;
+
+            return true;
+        }
+
+        propertyValue = null;
 
         return false;
     }

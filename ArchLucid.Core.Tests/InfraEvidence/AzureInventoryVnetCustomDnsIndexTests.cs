@@ -14,6 +14,46 @@ public sealed class AzureInventoryVnetCustomDnsIndexTests
         "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet1";
 
     [Fact]
+    public void VnetUsesCustomDns_true_when_flattened_dhcpOptions_property_key_uses_pascal_case()
+    {
+        AzureInventoryVnetCustomDnsIndex index = AzureInventoryVnetCustomDnsIndex.Build(
+        [
+            new AzureInventoryVnetCustomDnsResourceProperties
+            {
+                AzureResourceId = VnetArm,
+                ResourceType = "Microsoft.Network/virtualNetworks",
+                Properties = new Dictionary<string, string>(StringComparer.Ordinal)
+                {
+                    ["DhcpOptions"] = """{"dnsServers":["10.0.0.4"]}""",
+                },
+            },
+        ]);
+
+        index.VnetUsesCustomDns(VnetArm).Should().BeTrue(
+            "inventory must accept DhcpOptions flattened property key casing variants");
+    }
+
+    [Fact]
+    public void VnetUsesCustomDns_true_when_flat_dhcpOptions_dnsServers_key_uses_pascal_case()
+    {
+        AzureInventoryVnetCustomDnsIndex index = AzureInventoryVnetCustomDnsIndex.Build(
+        [
+            new AzureInventoryVnetCustomDnsResourceProperties
+            {
+                AzureResourceId = VnetArm,
+                ResourceType = "Microsoft.Network/virtualNetworks",
+                Properties = new Dictionary<string, string>(StringComparer.Ordinal)
+                {
+                    ["DhcpOptions.DnsServers"] = "10.0.0.4",
+                },
+            },
+        ]);
+
+        index.VnetUsesCustomDns(VnetArm).Should().BeTrue(
+            "inventory must accept DhcpOptions.DnsServers flattened property key casing variants");
+    }
+
+    [Fact]
     public void VnetUsesCustomDns_true_when_dhcpOptions_json_is_bare_dns_server_array()
     {
         AzureInventoryVnetCustomDnsIndex index = AzureInventoryVnetCustomDnsIndex.Build(
