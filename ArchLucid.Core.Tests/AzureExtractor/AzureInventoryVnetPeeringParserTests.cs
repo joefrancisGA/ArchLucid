@@ -1,3 +1,5 @@
+using System.Text.Json;
+
 using ArchLucid.Core.AzureExtractor;
 using ArchLucid.Core.InfraEvidence;
 
@@ -54,6 +56,29 @@ public sealed class AzureInventoryVnetPeeringParserTests
                 "name": "peer-to-b",
                 "properties": {
                   "remoteVirtualNetwork": { "id": "{{remoteId}}" }
+                }
+              }
+            ]
+            """;
+
+        IReadOnlyList<string> remoteIds = AzureInventoryVnetPeeringParser.EnumerateRemoteVnetIds(json);
+
+        remoteIds.Should().ContainSingle()
+            .Which.Should().Be(ArmResourceIdNormalizer.Normalize(remoteId));
+    }
+
+    [Fact]
+    public void EnumerateRemoteVnetIds_reads_remote_when_remote_virtual_network_is_json_string_scalar_wrapping_id_object()
+    {
+        const string remoteId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet-b";
+        string remoteScalar = JsonSerializer.Serialize(new { id = remoteId });
+        string json = $$"""
+            [
+              {
+                "name": "peer-to-b",
+                "properties": {
+                  "remoteVirtualNetwork": {{JsonSerializer.Serialize(remoteScalar)}}
                 }
               }
             ]

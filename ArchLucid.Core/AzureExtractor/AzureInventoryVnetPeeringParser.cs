@@ -275,19 +275,14 @@ public static class AzureInventoryVnetPeeringParser
             return null;
         }
 
-        if (remote.ValueKind is JsonValueKind.String)
+        string? armId = AzureInventoryNetworkInterfaceIpConfigurationReferenceReader.TryReadArmId(remote);
+
+        if (string.IsNullOrWhiteSpace(armId))
         {
-            return NormalizeArmId(remote.GetString());
+            return null;
         }
 
-        if (remote.ValueKind is JsonValueKind.Object
-            && remote.TryGetProperty("id", out JsonElement idElement)
-            && idElement.ValueKind is JsonValueKind.String)
-        {
-            return NormalizeArmId(idElement.GetString());
-        }
-
-        return null;
+        return NormalizeArmId(armId);
     }
 
     private static string? NormalizeArmId(string? azureResourceId)
