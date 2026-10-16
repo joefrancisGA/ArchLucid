@@ -57,7 +57,7 @@ internal static class AzureInventorySnapshotSameResourceGroupEdgeHydrator
                 continue;
             }
 
-            if (AzureInventorySnapshotCitedEdgePolicy.HasCitedEdgeFrom(edges, fromNodeId))
+            if (AzureInventorySnapshotCitedHopPredicate.HasCitedHopFrom(edges, fromNodeId))
             {
                 continue;
             }
@@ -102,7 +102,7 @@ internal static class AzureInventorySnapshotSameResourceGroupEdgeHydrator
                 continue;
             }
 
-            if (AzureInventorySnapshotCitedEdgePolicy.HasCitedEdgeFrom(edges, fromNodeId))
+            if (AzureInventorySnapshotCitedHopPredicate.HasCitedHopFrom(edges, fromNodeId))
             {
                 continue;
             }
