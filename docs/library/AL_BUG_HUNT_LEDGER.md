@@ -1,3 +1,4 @@
+2026-10-16 seed hunt (seed→hit): `application-analysis` — promoted `ReplayComparisonExportsDiffSlice.BuildExportPairingKey` treating dashed vs N-format `CompareRunId` as distinct export pairing keys (false missing-export warnings on end-to-end replay); normalize via `AnalysisRunIdCanonicalization` before pairing; regression `BuildExportPairingKey_treats_equivalent_compare_run_ids_as_same_pairing_key`; cheap-disproved `ComparisonReplayManifestHashGuard` dashed run id sealed-hash skip (`Guid.TryParse` accepts both formats); 46 scoped ArchitectureAnalysis/CompareQuality/ReplayComparisonExportsDiffSlice filter tests passed.
 2026-10-16 seed hunt (seed→hit): `ui-oidc` — promoted `getExpiresAtMs` / `parseBffExpiresAtMs` accepting hex-prefixed future `expires_at_ms` strings via `Number()` while small hex hints were treated as expired; `parseOidcEpochMsHint` rejects `0x`/`0b`/`0o` literals; regressions `treats hex-prefixed future expires_at_ms session hints as expired` and `soft-fails refresh when expires_at_ms is a hex-encoded future epoch string`; cheap-disproved four open `(candidate)` rows; regression locks `treats octal-prefixed expires_at_ms session hints as expired`, `maps a string false expires_in to the default lifetime`, `omits colon-only authorize error descriptions from invalid_request copy`, `returns empty for literal colon-only error descriptions`, and `soft-fails refresh when expires_at_ms is a whitespace-only string`; reseeded five follow-on candidates; 238 scoped `src/lib/oidc` vitest tests passed.
 2026-10-16 seed hunt (seed→hit): `application-analysis` — promoted `ComparisonAuditService` canonicalizing record `LeftRunId`/`RightRunId` but serializing dashed run ids inside `PayloadJson`, breaking verify replay parity; canonical ids written into payload snapshot before serialize (caller report restored); regression `CompareQuality_RecordEndToEndAsync_payload_run_ids_match_canonical_record_columns_when_report_uses_dashed_guids`; 45 scoped ArchitectureAnalysis/CompareQuality tests passed.
 
@@ -18400,11 +18401,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 56
-- **bugs-found:** 54
+- **hunts:** 57
+- **bugs-found:** 55
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-15
-- **last-bug:** 2026-10-15 — export replay dashed RunId career gate bypass
+- **last-hunt:** 2026-10-16
+- **last-bug:** 2026-10-16 — export pairing CompareRunId GUID format normalization
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -18426,7 +18427,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [ ] (candidate) `ArchitectureAnalysisService.BuildAsync` — `IncludeSummary` with `IncludeEvidence=false` omits evidence section in summary without explicit warning (reachable input: summary-only export request; generator intentionally omits evidence block).
 - [ ] (candidate) `MarkdownArchitectureAnalysisExportService` — manifest diff warnings section ordering differs from DOCX export (reachable input: report with warnings-only manifest diff).
 - [ ] (candidate) `ExportReplayService.ReplayAsync` — pass `PreloadedRunDetail` from resolved architecture detail into `BuildAsync` to avoid duplicate run loads (reachable input: replay with manifest sections enabled).
-- [ ] (candidate) `ComparisonReplayManifestHashGuard` — stored comparison JSON with dashed `LeftRunId`/`RightRunId` may skip sealed-hash verification (reachable input: persisted end-to-end comparison record).
+- [x] (valid-no-repro) `ComparisonReplayManifestHashGuard` — dashed run ids on stored comparison — **cheap-disproof 2026-10-16 seed hunt:** `Guid.TryParse` on replay guard paths. (reachable input: persisted end-to-end comparison record).
 
 
 2026-10-15 seed hunt (seed→hit): promoted PascalCase end-to-end comparison payloads skipping warning-only `ManifestDiff` replay cost scoring; `TryGetPropertyIgnoreCase` across payload heuristics; regression `TryEstimateAsync_pascal_case_warning_only_manifestDiff_adds_factor`; 35 scoped ArchitectureAnalysis/CompareQuality tests + 17 ComparisonReplayCostEstimator tests passed.
@@ -18643,6 +18644,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ---
 
 ## Zone: application-billing-logic
+
+- (candidate) `ReplayComparisonExportsDiffSlice.BuildExportPairingKey` — `CompareManifestVersion` differing only by outer whitespace splits pairing — locus: trim vs normalize; input: same version with padded spaces on left/right exports.
+- (candidate) `EndToEndReplayComparisonService.BuildAsync` — report `LeftRunId`/`RightRunId` echo caller format while audit columns canonicalize — locus: report assembly; input: dashed API route ids in regenerated report body.
+- (candidate) `RunExportQueryFacade` — history query uses raw `runId` without canonical lookup when lifecycle guard passes — locus: `GetByRunIdAsync`; input: dashed route id against N-format stored exports (verify `LookupKeys` parity).
+- (candidate) `CompareQualityDeltaCalculator.Build` — functional requirement coverage `min(requirements, components)` heuristic — locus: `ComputeUncoveredMandatoryRequirements`; input: FR count exceeds design coverage metric without traceability links.
+- (candidate) `ArchitectureAnalysisService.BuildAsync` — primary sealed-hash guard invoked with dashed `request.RunId` while lookups use canonical id — locus: `EnsureRunSealedManifestHashOrThrowAsync` argument; input: dashed run id on build request (verify receipt binder format expectations).
 
 - **id:** application-billing-logic
 - **status:** open
