@@ -15,15 +15,19 @@ public sealed class ItsmIntegrationHealthStatusResponse
         init;
     }
 
+    private ItsmIntegrationHealthProviderProbeResponse jira = new();
+
     public ItsmIntegrationHealthProviderProbeResponse Jira
     {
-        get;
-        init;
-    } = new();
+        get => jira;
+        init => jira = value ?? new();
+    }
+
+    private ItsmIntegrationHealthProviderProbeResponse serviceNow = new();
 
     public ItsmIntegrationHealthProviderProbeResponse ServiceNow
     {
-        get;
-        init;
-    } = new();
+        get => serviceNow;
+        init => serviceNow = value ?? new();
+    }
 }

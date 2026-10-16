@@ -24,17 +24,21 @@ public sealed class SponsorEvidencePackResponse
     ///     Same cumulative counters as <see cref="WhyArchLucidSnapshotResponse" /> — shared with
     ///     <c>GET /v1/pilots/why-archlucid-snapshot</c> and <c>GET /v1/tenant/measured-roi</c>.
     /// </summary>
+    private WhyArchLucidSnapshotResponse processInstrumentation = new();
+
     public WhyArchLucidSnapshotResponse ProcessInstrumentation
     {
-        get;
-        init;
-    } = new();
+        get => processInstrumentation;
+        init => processInstrumentation = value ?? new();
+    }
+
+    private ExplainabilityTraceCompletenessPack explainabilityTrace = new();
 
     public ExplainabilityTraceCompletenessPack ExplainabilityTrace
     {
-        get;
-        init;
-    } = new();
+        get => explainabilityTrace;
+        init => explainabilityTrace = value ?? new();
+    }
 
     /// <summary>
     ///     Proof-of-ROI deltas for <see cref="DemoRunId" /> when the run exists in scope; otherwise <see langword="null" />.
@@ -45,9 +49,11 @@ public sealed class SponsorEvidencePackResponse
         init;
     }
 
+    private SponsorEvidenceGovernanceOutcomes governanceOutcomes = new();
+
     public SponsorEvidenceGovernanceOutcomes GovernanceOutcomes
     {
-        get;
-        init;
-    } = new();
+        get => governanceOutcomes;
+        init => governanceOutcomes = value ?? new();
+    }
 }

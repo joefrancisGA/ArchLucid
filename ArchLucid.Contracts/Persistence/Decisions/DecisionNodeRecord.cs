@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Persistence.Decisions;
 
 public sealed class DecisionNodeRecord
@@ -20,11 +22,13 @@ public sealed class DecisionNodeRecord
         set;
     } = string.Empty;
 
+    private IReadOnlyList<DecisionOptionRecord> options = [];
+
     public IReadOnlyList<DecisionOptionRecord> Options
     {
-        get;
-        set;
-    } = [];
+        get => options;
+        set => options = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 
     public string? SelectedOptionId
     {
@@ -44,17 +48,21 @@ public sealed class DecisionNodeRecord
         set;
     }
 
+    private IReadOnlyList<string> supportingEvaluationIds = [];
+
     public IReadOnlyList<string> SupportingEvaluationIds
     {
-        get;
-        set;
-    } = [];
+        get => supportingEvaluationIds;
+        set => supportingEvaluationIds = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
+
+    private IReadOnlyList<string> opposingEvaluationIds = [];
 
     public IReadOnlyList<string> OpposingEvaluationIds
     {
-        get;
-        set;
-    } = [];
+        get => opposingEvaluationIds;
+        set => opposingEvaluationIds = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 
     public DateTime CreatedUtc
     {

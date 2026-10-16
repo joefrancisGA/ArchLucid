@@ -1,3 +1,8 @@
+import {
+  normalizeOidcConfigurationString,
+  stripOAuthInvisibleFormatChars,
+} from "@/lib/oidc/oauth-callback-messages";
+
 /**
  * Decode JWT payload for display only (no signature verification — server validates on API calls).
  */
@@ -37,7 +42,17 @@ export function readNonceFromPayload(payload: Record<string, unknown> | null): s
 
   const nonce = payload.nonce;
 
-  return typeof nonce === "string" && nonce.trim().length > 0 ? nonce.trim() : null;
+  if (typeof nonce !== "string") {
+    return null;
+  }
+
+  const normalized = stripOAuthInvisibleFormatChars(nonce.trim()).trim();
+
+  if (normalized.length === 0) {
+    return null;
+  }
+
+  return normalized;
 }
 
 export function pickDisplayNameFromPayload(payload: Record<string, unknown> | null): string | null {
@@ -52,8 +67,14 @@ export function pickDisplayNameFromPayload(payload: Record<string, unknown> | nu
   const sub = payload.sub;
 
   for (const candidate of [preferred, name, upn, email, sub]) {
-    if (typeof candidate === "string" && candidate.trim().length > 0) {
-      return candidate.trim();
+    if (typeof candidate !== "string") {
+      continue;
+    }
+
+    const normalized = normalizeOidcConfigurationString(candidate);
+
+    if (normalized.length > 0) {
+      return normalized;
     }
   }
 

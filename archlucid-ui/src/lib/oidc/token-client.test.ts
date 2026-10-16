@@ -1,10 +1,558 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { refreshAccessToken } from "@/lib/oidc/token-client";
+import { exchangeAuthorizationCode, refreshAccessToken } from "@/lib/oidc/token-client";
 
 describe("refreshAccessToken", () => {
   afterEach(() => {
     vi.restoreAllMocks();
+    vi.unstubAllGlobals();
+  });
+
+  it("trims surrounding whitespace from access_token in successful token responses", async () => {
+    const jwtPayload = { sub: "user-42", name: "Whitespace User" };
+    const segment = Buffer.from(JSON.stringify(jwtPayload), "utf8").toString("base64url");
+    const accessToken = `x.${segment}.y`;
+    const paddedAccessToken = `  ${accessToken}  `;
+
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () => JSON.stringify({ access_token: paddedAccessToken, token_type: "Bearer" }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    const tokens = await refreshAccessToken({
+      tokenEndpoint: "https://login.example.com/token",
+      clientId: "client",
+      refreshToken: "rt",
+    });
+
+    expect(tokens.access_token).toBe(accessToken);
+  });
+
+  it("preserves string expires_in on the parsed token object while normalizing access_token", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () =>
+        JSON.stringify({ access_token: "access-1", expires_in: "7200", token_type: "Bearer" }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    const tokens = await refreshAccessToken({
+      tokenEndpoint: "https://login.example.com/token",
+      clientId: "client",
+      refreshToken: "rt",
+    });
+
+    expect(tokens.access_token).toBe("access-1");
+    expect(tokens.expires_in).toBe("7200");
+  });
+
+  it("strips zero-width characters from access_token in successful token responses", async () => {
+    const jwtPayload = { sub: "user-42", name: "Invisible User" };
+    const segment = Buffer.from(JSON.stringify(jwtPayload), "utf8").toString("base64url");
+    const accessToken = `x.${segment}.y`;
+    const paddedAccessToken = `\u200b${accessToken}\u200b`;
+
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () => JSON.stringify({ access_token: paddedAccessToken, token_type: "Bearer" }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    const tokens = await refreshAccessToken({
+      tokenEndpoint: "https://login.example.com/token",
+      clientId: "client",
+      refreshToken: "rt",
+    });
+
+    expect(tokens.access_token).toBe(accessToken);
+  });
+
+  it("throws when a successful token response omits access_token", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () => JSON.stringify({ token_type: "Bearer" }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      refreshAccessToken({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        refreshToken: "rt",
+      }),
+    ).rejects.toThrow(/missing access_token/i);
+  });
+
+  it("rejects token endpoints that embed userinfo before calling fetch", async () => {
+    const fetchMock = vi.fn();
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      refreshAccessToken({
+        tokenEndpoint: "https://user:pass@login.example.com/token",
+        clientId: "client",
+        refreshToken: "rt",
+      }),
+    ).rejects.toThrow(/invalid token endpoint URL/i);
+
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("throws when HTTP 200 OAuth JSON includes only error_description", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () => JSON.stringify({ error_description: "hint only" }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      refreshAccessToken({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        refreshToken: "rt",
+      }),
+    ).rejects.toThrow(/hint only/i);
+  });
+
+  it("trims caller-supplied refresh token values before posting the form", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () => JSON.stringify({ access_token: "access-1" }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await refreshAccessToken({
+      tokenEndpoint: "https://login.example.com/token",
+      clientId: "client",
+      refreshToken: "  refresh-1  ",
+    });
+
+    const requestInit = fetchMock.mock.calls[0]?.[1] as { body?: URLSearchParams };
+    const posted = new URLSearchParams(requestInit.body);
+
+    expect(posted.get("refresh_token")).toBe("refresh-1");
+  });
+
+  it("trims padded client_id values before posting the form", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () => JSON.stringify({ access_token: "access-1" }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await refreshAccessToken({
+      tokenEndpoint: "https://login.example.com/token",
+      clientId: "  client-1  ",
+      refreshToken: "rt",
+    });
+
+    const requestInit = fetchMock.mock.calls[0]?.[1] as { body?: URLSearchParams };
+    const posted = new URLSearchParams(requestInit.body);
+
+    expect(posted.get("client_id")).toBe("client-1");
+  });
+
+  it("ignores non-string OAuth error fields when building token endpoint errors", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: false,
+      status: 400,
+      text: async () => JSON.stringify({ error: 403, error_description: true }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    let message = "";
+
+    try {
+      await refreshAccessToken({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        refreshToken: "rt",
+      });
+    } catch (error) {
+      message = error instanceof Error ? error.message : String(error);
+    }
+
+    expect(message).toMatch(/token endpoint error 400/i);
+    expect(message).not.toMatch(/403: true/i);
+  });
+
+  it("collapses soft hyphens in token endpoint OAuth error descriptions", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: false,
+      status: 400,
+      text: async () =>
+        JSON.stringify({
+          error: "invalid_grant",
+          error_description: "Policy\u00ADdenied",
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      refreshAccessToken({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        refreshToken: "rt",
+      }),
+    ).rejects.toThrow(/^invalid_grant: Policy denied$/);
+  });
+
+  it("omits underscore-only OAuth error codes when building token endpoint errors", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: false,
+      status: 400,
+      text: async () => JSON.stringify({ error: "___", error_description: "Session expired" }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      refreshAccessToken({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        refreshToken: "rt",
+      }),
+    ).rejects.toThrow(/^Session expired$/);
+  });
+
+  it("surfaces numeric-string OAuth error codes on token endpoint errors", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: false,
+      status: 400,
+      text: async () => JSON.stringify({ error: "403", error_description: "Forbidden" }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      refreshAccessToken({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        refreshToken: "rt",
+      }),
+    ).rejects.toThrow(/^403: Forbidden$/);
+  });
+
+  it("omits hyphen-only OAuth error_description values on token endpoint errors", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: false,
+      status: 400,
+      text: async () => JSON.stringify({ error: "invalid_grant", error_description: "---" }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      refreshAccessToken({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        refreshToken: "rt",
+      }),
+    ).rejects.toThrow(/^invalid_grant$/);
+  });
+
+  it("ignores invisible-only OAuth error_description values on token endpoint errors", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: false,
+      status: 400,
+      text: async () => JSON.stringify({ error: "invalid_grant", error_description: "\u2060" }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      refreshAccessToken({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        refreshToken: "rt",
+      }),
+    ).rejects.toThrow(/^invalid_grant$/);
+  });
+
+  it("uses only string OAuth error fields when token JSON mixes types", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () => JSON.stringify({ error: "invalid_grant", error_description: 123 }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      refreshAccessToken({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        refreshToken: "rt",
+      }),
+    ).rejects.toThrow(/^invalid_grant$/);
+  });
+
+  it("trims authorization code and PKCE fields before posting the form", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () => JSON.stringify({ access_token: "access-1" }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await exchangeAuthorizationCode({
+      tokenEndpoint: "https://login.example.com/token",
+      clientId: "client",
+      code: "  auth-code  ",
+      redirectUri: "  https://app.example/callback  ",
+      codeVerifier: "  verifier  ",
+    });
+
+    const requestInit = fetchMock.mock.calls[0]?.[1] as { body?: URLSearchParams };
+    const posted = new URLSearchParams(requestInit.body);
+
+    expect(posted.get("code")).toBe("auth-code");
+    expect(posted.get("redirect_uri")).toBe("https://app.example/callback");
+    expect(posted.get("code_verifier")).toBe("verifier");
+  });
+
+  it("strips zero-width characters from authorization code and PKCE fields before posting the form", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () => JSON.stringify({ access_token: "access-1" }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await exchangeAuthorizationCode({
+      tokenEndpoint: "https://login.example.com/token",
+      clientId: "client",
+      code: `\u200bauth-code\u200b`,
+      redirectUri: `https://app.example/callback`,
+      codeVerifier: `\u200bverifier\u200b`,
+    });
+
+    const requestInit = fetchMock.mock.calls[0]?.[1] as { body?: URLSearchParams };
+    const posted = new URLSearchParams(requestInit.body);
+
+    expect(posted.get("code")).toBe("auth-code");
+    expect(posted.get("code_verifier")).toBe("verifier");
+  });
+
+  it("omits whitespace-only refresh_token values from token responses", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () =>
+        JSON.stringify({
+          access_token: "access-1",
+          refresh_token: "   ",
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    const tokens = await refreshAccessToken({
+      tokenEndpoint: "https://login.example.com/token",
+      clientId: "client",
+      refreshToken: "rt",
+    });
+
+    expect(tokens.refresh_token).toBeUndefined();
+  });
+
+  it("omits whitespace-only id_token values from token responses", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () =>
+        JSON.stringify({
+          access_token: "access-1",
+          id_token: "   ",
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    const tokens = await refreshAccessToken({
+      tokenEndpoint: "https://login.example.com/token",
+      clientId: "client",
+      refreshToken: "rt",
+    });
+
+    expect(tokens.id_token).toBeUndefined();
+  });
+
+  it("omits zero-width-only refresh_token values from token responses", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () =>
+        JSON.stringify({
+          access_token: "access-1",
+          refresh_token: "\u200b",
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    const tokens = await refreshAccessToken({
+      tokenEndpoint: "https://login.example.com/token",
+      clientId: "client",
+      refreshToken: "rt",
+    });
+
+    expect(tokens.refresh_token).toBeUndefined();
+  });
+
+  it("truncates oversized OAuth error descriptions from the token endpoint", async () => {
+    const oversized = `${"expired ".repeat(80)}done`;
+    const fetchMock = vi.fn(async () => ({
+      ok: false,
+      status: 400,
+      text: async () =>
+        JSON.stringify({
+          error: "invalid_grant",
+          error_description: oversized,
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    let message = "";
+
+    try {
+      await refreshAccessToken({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        refreshToken: "rt",
+      });
+    } catch (error) {
+      message = error instanceof Error ? error.message : String(error);
+    }
+
+    expect(message.length).toBeLessThanOrEqual(320);
+    expect(message.endsWith("…")).toBe(true);
+  });
+
+  it("trims surrounding whitespace from optional refresh_token and id_token fields", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () =>
+        JSON.stringify({
+          access_token: "access-1",
+          refresh_token: "  refresh-1  ",
+          id_token: "  id-1  ",
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    const tokens = await refreshAccessToken({
+      tokenEndpoint: "https://login.example.com/token",
+      clientId: "client",
+      refreshToken: "rt",
+    });
+
+    expect(tokens.refresh_token).toBe("refresh-1");
+    expect(tokens.id_token).toBe("id-1");
+  });
+
+  it("collapses line breaks in OAuth error descriptions from the token endpoint", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: false,
+      status: 400,
+      text: async () =>
+        JSON.stringify({
+          error: "invalid_grant",
+          error_description: "expired\r\ninjected",
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    let message = "";
+
+    try {
+      await refreshAccessToken({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        refreshToken: "rt",
+      });
+    } catch (error) {
+      message = error instanceof Error ? error.message : String(error);
+    }
+
+    expect(message).toBe("invalid_grant: expired injected");
+    expect(message).not.toMatch(/\r|\n/u);
+  });
+
+  it("throws when the token endpoint returns an empty success body", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () => "",
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      refreshAccessToken({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        refreshToken: "rt",
+      }),
+    ).rejects.toThrow(/not valid JSON/i);
+  });
+
+  it("throws a buyer-safe error when the token endpoint returns non-JSON success bodies", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () => "<html>not json</html>",
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    let message = "";
+
+    try {
+      await refreshAccessToken({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        refreshToken: "rt",
+      });
+    } catch (error) {
+      message = error instanceof Error ? error.message : String(error);
+    }
+
+    expect(message).toBe("Token response was not valid JSON");
+    expect(message.toLowerCase()).not.toContain("html");
+  });
+
+  it("does not echo non-OAuth error response bodies in thrown errors", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: false,
+      status: 502,
+      text: async () => "<html><body>gateway failure</body></html>",
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    let message = "";
+
+    try {
+      await refreshAccessToken({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        refreshToken: "rt",
+      });
+    } catch (error) {
+      message = error instanceof Error ? error.message : String(error);
+    }
+
+    expect(message).toBe("Token endpoint error 502");
+    expect(message.toLowerCase()).not.toContain("html");
+    expect(message.toLowerCase()).not.toContain("gateway failure");
   });
 
   it("throws OAuth errors returned with HTTP 200 instead of treating them as token responses", async () => {

@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Persistence.DecisionTraces;
 
 /// <summary>
@@ -60,56 +62,72 @@ public sealed class RuleAuditTracePayload
         set;
     } = string.Empty;
 
+    private List<string> appliedRuleIds = [];
+
     public List<string> AppliedRuleIds
     {
-        get;
-        set;
-    } = [];
+        get => appliedRuleIds;
+        set => appliedRuleIds = ContractCollectionDefaults.Coalesce(value);
+    }
+
+    private List<string> acceptedFindingIds = [];
 
     public List<string> AcceptedFindingIds
     {
-        get;
-        set;
-    } = [];
+        get => acceptedFindingIds;
+        set => acceptedFindingIds = ContractCollectionDefaults.Coalesce(value);
+    }
 
     /// <summary>Findings accepted by a <c>require</c> rule action (TB-204).</summary>
+    private List<string> requiredFindingIds = [];
+
     public List<string> RequiredFindingIds
     {
-        get;
-        set;
-    } = [];
+        get => requiredFindingIds;
+        set => requiredFindingIds = ContractCollectionDefaults.Coalesce(value);
+    }
 
     /// <summary>Findings accepted by an <c>allow</c> rule action (TB-204).</summary>
+    private List<string> allowedFindingIds = [];
+
     public List<string> AllowedFindingIds
     {
-        get;
-        set;
-    } = [];
+        get => allowedFindingIds;
+        set => allowedFindingIds = ContractCollectionDefaults.Coalesce(value);
+    }
 
     /// <summary>Findings accepted by a <c>prefer</c> rule action (TB-204).</summary>
+    private List<string> preferredFindingIds = [];
+
     public List<string> PreferredFindingIds
     {
-        get;
-        set;
-    } = [];
+        get => preferredFindingIds;
+        set => preferredFindingIds = ContractCollectionDefaults.Coalesce(value);
+    }
+
+    private List<string> rejectedFindingIds = [];
 
     public List<string> RejectedFindingIds
     {
-        get;
-        set;
-    } = [];
+        get => rejectedFindingIds;
+        set => rejectedFindingIds = ContractCollectionDefaults.Coalesce(value);
+    }
+
+    private List<string> notes = [];
 
     public List<string> Notes
     {
-        get;
-        set;
-    } = [];
+        get => notes;
+        set => notes = ContractCollectionDefaults.Coalesce(value);
+    }
+
+    private List<RuleAuditTraceWarning> warnings = [];
 
     public List<RuleAuditTraceWarning> Warnings
     {
-        get;
-        set;
-    } = [];
+        get => warnings;
+        set => warnings = ContractCollectionDefaults.Coalesce(value);
+    }
 
     /// <summary>Context snapshot evaluated when the authority rule engine ran (TB-052).</summary>
     public Guid? ContextSnapshotId
@@ -133,9 +151,11 @@ public sealed class RuleAuditTracePayload
     }
 
     /// <summary>Distinct prompt templates referenced by accepted findings (TB-052).</summary>
+    private List<RuleAuditTracePromptRef> promptRefs = [];
+
     public List<RuleAuditTracePromptRef> PromptRefs
     {
-        get;
-        set;
-    } = [];
+        get => promptRefs;
+        set => promptRefs = ContractCollectionDefaults.Coalesce(value);
+    }
 }

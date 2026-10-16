@@ -3,6 +3,8 @@ using ArchLucid.Contracts.Marketing;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Notifications.Email;
 
+using FluentAssertions;
+
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 
@@ -99,6 +101,45 @@ public sealed class MarketingPricingQuoteSalesNotifierTests
         email.Verify(
             x => x.SendAsync(It.IsAny<EmailMessage>(), It.IsAny<CancellationToken>()),
             Times.Never);
+    }
+
+    [SkippableFact]
+    public async Task NotifyAsync_strips_embedded_crlf_from_public_form_fields_in_text_body()
+    {
+        const string injectedLine = "Bcc: injected@evil.test";
+        string companyWithBreak = $"Contoso\r\n{injectedLine}";
+        string messageWithBreak = $"Hello\r\n{injectedLine}";
+
+        EmailMessage? captured = null;
+        Mock<IEmailProvider> email = new();
+        email.SetupGet(x => x.ProviderName).Returns(EmailProviderNames.Smtp);
+        email
+            .Setup(x => x.SendAsync(It.IsAny<EmailMessage>(), It.IsAny<CancellationToken>()))
+            .Callback<EmailMessage, CancellationToken>((message, _) => captured = message)
+            .Returns(Task.CompletedTask);
+
+        IOptionsMonitor<EmailNotificationOptions> options = BuildOptionsMonitor(
+            new EmailNotificationOptions { PricingQuoteSalesInbox = "sales@archlucid.net" });
+
+        MarketingPricingQuoteSalesNotifier sut = new(
+            email.Object,
+            options,
+            NullLogger<MarketingPricingQuoteSalesNotifier>.Instance);
+
+        await sut.NotifyAsync(
+            SampleInsert,
+            "buyer@example.com",
+            companyWithBreak,
+            "Team",
+            messageWithBreak,
+            CancellationToken.None);
+
+        captured.Should().NotBeNull();
+        captured!.TextBody.Should().NotBeNull();
+        captured.TextBody.Should().NotContain($"\r\n{injectedLine}");
+        captured.TextBody.Should().NotContain($"\n{injectedLine}");
+        captured.TextBody.Should().Contain("Contoso");
+        captured.TextBody.Should().Contain("Hello");
     }
 
     [SkippableFact]

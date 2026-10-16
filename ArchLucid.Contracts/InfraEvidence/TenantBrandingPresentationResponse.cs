@@ -39,11 +39,13 @@ public sealed class TenantBrandingPresentationResponse
         set;
     }
 
+    private TenantBrandColorsResponse colors = new();
+
     public TenantBrandColorsResponse Colors
     {
-        get;
-        set;
-    } = new();
+        get => colors;
+        set => colors = value ?? new();
+    }
 
     public Guid? LogoAssetId
     {

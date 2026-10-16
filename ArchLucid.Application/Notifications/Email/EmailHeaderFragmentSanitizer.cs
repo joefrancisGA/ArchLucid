@@ -15,6 +15,9 @@ public static class EmailHeaderFragmentSanitizer
         return trimmed
             .Replace("\r\n", " ", StringComparison.Ordinal)
             .Replace('\r', ' ')
-            .Replace('\n', ' ');
+            .Replace('\n', ' ')
+            .Replace('\u0085', ' ')
+            .Replace('\u2028', ' ')
+            .Replace('\u2029', ' ');
     }
 }

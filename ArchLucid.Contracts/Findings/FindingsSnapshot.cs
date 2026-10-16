@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Findings;
 
 public class FindingsSnapshot
@@ -47,11 +49,13 @@ public class FindingsSnapshot
     } = FindingsSnapshotGenerationStatus.Complete;
 
     /// <summary>Engines that threw during this snapshot build (empty when all engines succeeded).</summary>
+    private List<FindingEngineFailure> engineFailures = [];
+
     public List<FindingEngineFailure> EngineFailures
     {
-        get;
-        set;
-    } = [];
+        get => engineFailures;
+        set => engineFailures = ContractCollectionDefaults.Coalesce(value);
+    }
 
     /// <summary>
     ///     Set when the host uses a no-op evaluation-confidence enricher so operators can distinguish "not run" from "computed zero".
@@ -62,25 +66,31 @@ public class FindingsSnapshot
         set;
     }
 
+    private List<Finding> findings = [];
+
     public List<Finding> Findings
     {
-        get;
-        set;
-    } = [];
+        get => findings;
+        set => findings = ContractCollectionDefaults.Coalesce(value);
+    }
 
     /// <summary>Basic hygiene observations demoted from the decision-grade findings list (TB-384).</summary>
+    private List<Finding> checklistCoverage = [];
+
     public List<Finding> ChecklistCoverage
     {
-        get;
-        set;
-    } = [];
+        get => checklistCoverage;
+        set => checklistCoverage = ContractCollectionDefaults.Coalesce(value);
+    }
 
     /// <summary>Findings the kernel refused to persist or demoted during merge (DR-02).</summary>
+    private List<WithheldFindingSummary> withheldFindings = [];
+
     public List<WithheldFindingSummary> WithheldFindings
     {
-        get;
-        set;
-    } = [];
+        get => withheldFindings;
+        set => withheldFindings = ContractCollectionDefaults.Coalesce(value);
+    }
 
     /// <summary>Insight-density demotion vs retention counts for operator UI framing (TB-385).</summary>
     public InsightDensityCurationSummary? InsightDensityCuration

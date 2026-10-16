@@ -1,3 +1,8 @@
+import { normalizeNumericOidcHintString } from "@/lib/oidc/oauth-callback-messages";
+
+/** OAuth access-token lifetimes above one year are treated as malformed provider input. */
+const MAX_PLAUSIBLE_OIDC_EXPIRES_IN_SEC = 31_536_000;
+
 /** Normalizes OIDC `expires_in` (seconds) for client hints and BFF cookie TTL parity. */
 export function resolveExpiresInSeconds(expiresIn: number | undefined): number {
   const defaultExpiresInSec = 3600;
@@ -12,19 +17,42 @@ export function resolveExpiresInSeconds(expiresIn: number | undefined): number {
     return defaultExpiresInSec;
   }
 
-  const numericExpiresIn = Number(expiresIn);
+  let numericExpiresIn: number;
+
+  if (typeof expiresIn === "string") {
+    const normalized = normalizeNumericOidcHintString(expiresIn);
+
+    if (normalized.length === 0) {
+      return defaultExpiresInSec;
+    }
+
+    numericExpiresIn = Number(normalized);
+  } else {
+    numericExpiresIn = Number(expiresIn);
+  }
 
   if (!Number.isFinite(numericExpiresIn)) {
     return defaultExpiresInSec;
   }
 
-  if (numericExpiresIn === 0) {
+  const truncatedExpiresIn = Math.trunc(numericExpiresIn);
+
+  if (truncatedExpiresIn === 0) {
     return 0;
   }
 
-  if (numericExpiresIn < 0) {
+  if (truncatedExpiresIn < 0) {
     return defaultExpiresInSec;
   }
 
-  return Math.trunc(numericExpiresIn);
+  // JSON numbers above 2^53-1 are not safe integers; do not write misleading century-long TTL hints.
+  if (!Number.isSafeInteger(truncatedExpiresIn)) {
+    return defaultExpiresInSec;
+  }
+
+  if (truncatedExpiresIn > MAX_PLAUSIBLE_OIDC_EXPIRES_IN_SEC) {
+    return defaultExpiresInSec;
+  }
+
+  return truncatedExpiresIn;
 }

@@ -68,6 +68,49 @@ public sealed class BuyerProofPackDeltasJsonFormatterTests
     }
 
     [Fact]
+    public void Serialize_when_llm_traces_unresolved_omits_llm_call_count_property()
+    {
+        PilotRunDeltasResponse response = PilotRunDeltasResponseMapper.ToResponseWithProofPackage(
+            BuildCommittedRun(),
+            BuildManifest(),
+            new PilotRunDeltas
+            {
+                RunCreatedUtc = UtcNow.AddDays(-10),
+                ManifestCommittedUtc = UtcNow.AddDays(-9),
+                LlmCallCount = 0,
+                LlmCallCountResolved = false,
+                IsDemoTenant = false,
+            },
+            CreateSnapshot(),
+            UtcNow.AddDays(-1),
+            scorecardBaselines: null,
+            freshnessEvaluationUtc: UtcNow);
+
+        response.LlmCallCount.Should().BeNull();
+        response.LlmCallCountResolved.Should().BeFalse();
+
+        string json = BuyerProofPackDeltasJsonFormatter.Serialize(response);
+
+        using JsonDocument doc = JsonDocument.Parse(json);
+        doc.RootElement.TryGetProperty("llmCallCount", out _).Should().BeFalse();
+        json.Should().NotContain("\"llmCallCount\":");
+        bool ok = BuyerProofPackCommitGuard.TryValidateDeltasJson(json, out _, out string? error);
+        ok.Should().BeTrue(error);
+    }
+
+    [Fact]
+    public void Serialize_does_not_emit_explicit_null_properties_on_buyer_zip_json()
+    {
+        PilotRunDeltasResponse response = BuildCommittedResponse(extractorCollectionTimestampUtc: UtcNow.AddDays(-1));
+
+        string json = BuyerProofPackDeltasJsonFormatter.Serialize(response);
+
+        json.Should().NotContain(":null", "buyer ZIP deltas JSON uses ignore-null contract serialization");
+        bool ok = BuyerProofPackCommitGuard.TryValidateDeltasJson(json, out _, out string? error);
+        ok.Should().BeTrue(error);
+    }
+
+    [Fact]
     public void Default_pascalCase_serialization_fails_commit_guard()
     {
         PilotRunDeltasResponse response = BuildCommittedResponse(extractorCollectionTimestampUtc: UtcNow.AddDays(-1));

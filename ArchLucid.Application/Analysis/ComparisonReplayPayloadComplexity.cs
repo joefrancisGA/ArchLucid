@@ -80,31 +80,31 @@ internal static partial class ComparisonReplayPayloadComplexity
     }
 
     private static bool LooksLikeEndToEndReport(JsonElement root) =>
-        root.TryGetProperty("runDiff", out _) || root.TryGetProperty("manifestDiff", out _) ||
-        root.TryGetProperty("agentResultDiff", out _) || root.TryGetProperty("exportDiffs", out _) ||
-        root.TryGetProperty("interpretationNotes", out _);
+        TryGetPropertyIgnoreCase(root, "runDiff", out _) || TryGetPropertyIgnoreCase(root, "manifestDiff", out _) ||
+        TryGetPropertyIgnoreCase(root, "agentResultDiff", out _) || TryGetPropertyIgnoreCase(root, "exportDiffs", out _) ||
+        TryGetPropertyIgnoreCase(root, "interpretationNotes", out _);
 
     private static bool LooksLikeExportRecordDiff(JsonElement root) =>
-        root.TryGetProperty("changedTopLevelFields", out _) && root.TryGetProperty("requestDiff", out _);
+        TryGetPropertyIgnoreCase(root, "changedTopLevelFields", out _) && TryGetPropertyIgnoreCase(root, "requestDiff", out _);
 
     private static bool ShouldScoreLegacyManifestDelta(JsonElement root) =>
-        !root.TryGetProperty("manifestDiff", out _);
+        !TryGetPropertyIgnoreCase(root, "manifestDiff", out _);
 
     private static int ScoreEndToEndReportShape(JsonElement root, ICollection<string> factors)
     {
         int bump = 0;
 
-        if (root.TryGetProperty("manifestDiff", out JsonElement manifestDiff) &&
+        if (TryGetPropertyIgnoreCase(root, "manifestDiff", out JsonElement manifestDiff) &&
             manifestDiff.ValueKind == JsonValueKind.Object)
             bump += ScoreManifestDiff(manifestDiff, factors);
 
-        if (root.TryGetProperty("agentResultDiff", out JsonElement agentResultDiff) &&
+        if (TryGetPropertyIgnoreCase(root, "agentResultDiff", out JsonElement agentResultDiff) &&
             agentResultDiff.ValueKind == JsonValueKind.Object &&
-            agentResultDiff.TryGetProperty("agentDeltas", out JsonElement deltas) &&
+            TryGetPropertyIgnoreCase(agentResultDiff, "agentDeltas", out JsonElement deltas) &&
             deltas.ValueKind == JsonValueKind.Array)
             bump += ScoreAgentResultDiff(deltas, factors);
 
-        if (root.TryGetProperty("exportDiffs", out JsonElement exportDiffs) && exportDiffs.ValueKind == JsonValueKind.Array)
+        if (TryGetPropertyIgnoreCase(root, "exportDiffs", out JsonElement exportDiffs) && exportDiffs.ValueKind == JsonValueKind.Array)
         {
             int n = exportDiffs.GetArrayLength();
 
@@ -125,8 +125,8 @@ internal static partial class ComparisonReplayPayloadComplexity
             }
         }
 
-        if (root.TryGetProperty("runDiff", out JsonElement runDiff) && runDiff.ValueKind == JsonValueKind.Object &&
-            runDiff.TryGetProperty("changedFields", out JsonElement changedFields) &&
+        if (TryGetPropertyIgnoreCase(root, "runDiff", out JsonElement runDiff) && runDiff.ValueKind == JsonValueKind.Object &&
+            TryGetPropertyIgnoreCase(runDiff, "changedFields", out JsonElement changedFields) &&
             changedFields.ValueKind == JsonValueKind.Array)
         {
             int n = changedFields.GetArrayLength();
@@ -150,7 +150,7 @@ internal static partial class ComparisonReplayPayloadComplexity
     {
         int bump = 0;
 
-        if (root.TryGetProperty("changedTopLevelFields", out JsonElement fields) && fields.ValueKind == JsonValueKind.Array)
+        if (TryGetPropertyIgnoreCase(root, "changedTopLevelFields", out JsonElement fields) && fields.ValueKind == JsonValueKind.Array)
         {
             int n = fields.GetArrayLength();
 
@@ -171,12 +171,12 @@ internal static partial class ComparisonReplayPayloadComplexity
             }
         }
 
-        if (root.TryGetProperty("requestDiff", out JsonElement requestDiff) && requestDiff.ValueKind == JsonValueKind.Object)
+        if (TryGetPropertyIgnoreCase(root, "requestDiff", out JsonElement requestDiff) && requestDiff.ValueKind == JsonValueKind.Object)
         {
-            int flags = requestDiff.TryGetProperty("changedFlags", out JsonElement cf) && cf.ValueKind == JsonValueKind.Array
+            int flags = TryGetPropertyIgnoreCase(requestDiff, "changedFlags", out JsonElement cf) && cf.ValueKind == JsonValueKind.Array
                 ? cf.GetArrayLength()
                 : 0;
-            int values = requestDiff.TryGetProperty("changedValues", out JsonElement cv) && cv.ValueKind == JsonValueKind.Array
+            int values = TryGetPropertyIgnoreCase(requestDiff, "changedValues", out JsonElement cv) && cv.ValueKind == JsonValueKind.Array
                 ? cv.GetArrayLength()
                 : 0;
             int requestSurface = flags + values;
@@ -202,7 +202,7 @@ internal static partial class ComparisonReplayPayloadComplexity
 
         foreach (string name in listPropertyNames)
         {
-            if (!obj.TryGetProperty(name, out JsonElement arr) || arr.ValueKind != JsonValueKind.Array)
+            if (!TryGetPropertyIgnoreCase(obj, name, out JsonElement arr) || arr.ValueKind != JsonValueKind.Array)
                 continue;
 
             sum += arr.GetArrayLength();
@@ -215,7 +215,7 @@ internal static partial class ComparisonReplayPayloadComplexity
     {
         count = 0;
 
-        if (!root.TryGetProperty(propertyName, out JsonElement prop))
+        if (!TryGetPropertyIgnoreCase(root, propertyName, out JsonElement prop))
             return false;
 
         if (prop.ValueKind == JsonValueKind.Array)
@@ -243,7 +243,7 @@ internal static partial class ComparisonReplayPayloadComplexity
     {
         sum = 0;
 
-        if (!root.TryGetProperty(propertyName, out JsonElement arr) || arr.ValueKind != JsonValueKind.Array ||
+        if (!TryGetPropertyIgnoreCase(root, propertyName, out JsonElement arr) || arr.ValueKind != JsonValueKind.Array ||
             arr.GetArrayLength() == 0)
             return false;
 

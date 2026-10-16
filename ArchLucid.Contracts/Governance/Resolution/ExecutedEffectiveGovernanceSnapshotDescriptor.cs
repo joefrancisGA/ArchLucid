@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Governance.Resolution;
 
 /// <summary>
@@ -29,11 +31,13 @@ public sealed class ExecutedEffectiveGovernanceSnapshotDescriptor
         set;
     }
 
+    private List<string> complianceRuleKeys = [];
+
     public List<string> ComplianceRuleKeys
     {
-        get;
-        set;
-    } = [];
+        get => complianceRuleKeys;
+        set => complianceRuleKeys = ContractCollectionDefaults.Coalesce(value);
+    }
 
     public int ConflictCount
     {
@@ -41,23 +45,29 @@ public sealed class ExecutedEffectiveGovernanceSnapshotDescriptor
         set;
     }
 
+    private List<CommittedGovernancePackAssignmentSnapshot> packAssignments = [];
+
     public List<CommittedGovernancePackAssignmentSnapshot> PackAssignments
     {
-        get;
-        set;
-    } = [];
+        get => packAssignments;
+        set => packAssignments = ContractCollectionDefaults.Coalesce(value);
+    }
+
+    private List<CommittedCoverageAssignmentSnapshot> coverageAssignments = [];
 
     public List<CommittedCoverageAssignmentSnapshot> CoverageAssignments
     {
-        get;
-        set;
-    } = [];
+        get => coverageAssignments;
+        set => coverageAssignments = ContractCollectionDefaults.Coalesce(value);
+    }
+
+    private List<NotAssessedQualityDimensionSnapshot> notAssessedQualityDimensions = [];
 
     public List<NotAssessedQualityDimensionSnapshot> NotAssessedQualityDimensions
     {
-        get;
-        set;
-    } = [];
+        get => notAssessedQualityDimensions;
+        set => notAssessedQualityDimensions = ContractCollectionDefaults.Coalesce(value);
+    }
 
     /// <summary>True when at least one pack assignment or compliance rule key was present at execute.</summary>
     public bool HasEffectivePolicy

@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Governance;
 
 /// <summary>
@@ -28,23 +30,29 @@ public sealed class PolicyPackGovernanceDryRunResult
     } = null!;
 
     /// <summary>Named checks that succeeded (human-readable).</summary>
+    private IReadOnlyList<string> passedChecks = [];
+
     public IReadOnlyList<string> PassedChecks
     {
-        get;
-        init;
-    } = [];
+        get => passedChecks;
+        init => passedChecks = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 
     /// <summary>Named checks that failed (human-readable).</summary>
+    private IReadOnlyList<string> failedChecks = [];
+
     public IReadOnlyList<string> FailedChecks
     {
-        get;
-        init;
-    } = [];
+        get => failedChecks;
+        init => failedChecks = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 
     /// <summary>Warnings copied from <see cref="PreCommitGateResult.Warnings" /> plus any additive notes.</summary>
+    private IReadOnlyList<string> warnings = [];
+
     public IReadOnlyList<string> Warnings
     {
-        get;
-        init;
-    } = [];
+        get => warnings;
+        init => warnings = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 }

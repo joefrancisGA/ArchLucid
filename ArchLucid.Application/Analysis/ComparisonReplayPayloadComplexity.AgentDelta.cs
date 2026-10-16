@@ -66,9 +66,9 @@ internal static partial class ComparisonReplayPayloadComplexity
 
     private static bool DeltaIndicatesPresenceChange(JsonElement delta)
     {
-        if (delta.TryGetProperty("leftExists", out JsonElement left) &&
+        if (TryGetPropertyIgnoreCase(delta, "leftExists", out JsonElement left) &&
             left.ValueKind is JsonValueKind.True or JsonValueKind.False &&
-            delta.TryGetProperty("rightExists", out JsonElement right) &&
+            TryGetPropertyIgnoreCase(delta, "rightExists", out JsonElement right) &&
             right.ValueKind is JsonValueKind.True or JsonValueKind.False)
             return left.GetBoolean() != right.GetBoolean();
 
@@ -85,7 +85,7 @@ internal static partial class ComparisonReplayPayloadComplexity
 
     private static double? TryReadNullableDouble(JsonElement delta, string propertyName)
     {
-        if (!delta.TryGetProperty(propertyName, out JsonElement prop) || prop.ValueKind == JsonValueKind.Null)
+        if (!TryGetPropertyIgnoreCase(delta, propertyName, out JsonElement prop) || prop.ValueKind == JsonValueKind.Null)
             return null;
 
         if (prop.TryGetDouble(out double value))

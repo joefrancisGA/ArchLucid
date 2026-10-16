@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.ProductLearning;
 
 /// <summary>
@@ -17,17 +19,23 @@ public sealed class ProductLearningAggregationSnapshot
         init;
     }
 
+    private IReadOnlyList<FeedbackAggregate> feedbackRollups = [];
+
     public IReadOnlyList<FeedbackAggregate> FeedbackRollups
     {
-        get;
-        init;
-    } = [];
+        get => feedbackRollups;
+        init => feedbackRollups = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
+
+    private IReadOnlyList<ArtifactOutcomeTrend> artifactTrends = [];
 
     public IReadOnlyList<ArtifactOutcomeTrend> ArtifactTrends
     {
-        get;
-        init;
-    } = [];
+        get => artifactTrends;
+        init => artifactTrends = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
+
+    private IReadOnlyList<FeedbackAggregate> topRejectedRevisedRollups = [];
 
     /// <summary>
     ///     Reserved: reject/revise-focused rollups are not merged into the dashboard or report pipeline in 58R
@@ -35,13 +43,15 @@ public sealed class ProductLearningAggregationSnapshot
     /// </summary>
     public IReadOnlyList<FeedbackAggregate> TopRejectedRevisedRollups
     {
-        get;
-        init;
-    } = [];
+        get => topRejectedRevisedRollups;
+        init => topRejectedRevisedRollups = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
+
+    private IReadOnlyList<RepeatedCommentTheme> repeatedCommentThemes = [];
 
     public IReadOnlyList<RepeatedCommentTheme> RepeatedCommentThemes
     {
-        get;
-        init;
-    } = [];
+        get => repeatedCommentThemes;
+        init => repeatedCommentThemes = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 }

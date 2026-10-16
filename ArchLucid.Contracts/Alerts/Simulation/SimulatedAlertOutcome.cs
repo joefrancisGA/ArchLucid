@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Alerts.Simulation;
 
 /// <summary>One row in <see cref="RuleSimulationResult.Outcomes" /> for a single run context.</summary>
@@ -81,9 +83,11 @@ public class SimulatedAlertOutcome
     } = null!;
 
     /// <summary>Additional diagnostic bullets.</summary>
+    private List<string> notes = [];
+
     public List<string> Notes
     {
-        get;
-        set;
-    } = [];
+        get => notes;
+        set => notes = ContractCollectionDefaults.Coalesce(value);
+    }
 }

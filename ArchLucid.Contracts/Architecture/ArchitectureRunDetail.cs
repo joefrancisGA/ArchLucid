@@ -1,8 +1,11 @@
+using System.Text.Json.Serialization;
+
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
-using ArchLucid.Contracts.Persistence.DecisionTraces;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
+using ArchLucid.Contracts.Persistence.DecisionTraces;
+using ArchLucid.Contracts.Serialization;
 
 namespace ArchLucid.Contracts.Architecture;
 
@@ -14,25 +17,31 @@ namespace ArchLucid.Contracts.Architecture;
 public sealed class ArchitectureRunDetail
 {
     /// <summary>Core run record including status, timestamps, and version references.</summary>
+    private ArchitectureRun run = new();
+
     public ArchitectureRun Run
     {
-        get;
-        set;
-    } = new();
+        get => run;
+        set => run = value ?? new ArchitectureRun();
+    }
 
     /// <summary>Agent tasks created for this run.</summary>
+    private List<AgentTask> tasks = [];
+
     public List<AgentTask> Tasks
     {
-        get;
-        set;
-    } = [];
+        get => tasks;
+        set => tasks = ContractCollectionDefaults.Coalesce(value);
+    }
 
     /// <summary>Agent results produced during execution.</summary>
+    private List<AgentResult> results = [];
+
     public List<AgentResult> Results
     {
-        get;
-        set;
-    } = [];
+        get => results;
+        set => results = ContractCollectionDefaults.Coalesce(value);
+    }
 
     /// <summary>
     ///     Golden manifest produced during commit, or <see langword="null" /> when the run
@@ -45,11 +54,14 @@ public sealed class ArchitectureRunDetail
     }
 
     /// <summary>Decision traces recorded during commit; empty before commit.</summary>
+    private List<DecisionTraceDto> decisionTraces = [];
+
+    [JsonConverter(typeof(DecisionTraceDtoListJsonConverter))]
     public List<DecisionTraceDto> DecisionTraces
     {
-        get;
-        set;
-    } = [];
+        get => decisionTraces;
+        set => decisionTraces = ContractCollectionDefaults.Coalesce(value);
+    }
 
     /// <summary>Summed LLM token usage and USD estimate from persisted execution traces (TB-106).</summary>
     public ArchLucid.Contracts.Runs.RunAgentLlmCostEstimateDto? AgentExecutionLlmCostEstimate

@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Findings;
 
 /// <summary>Paginated findings metadata for a committed run.</summary>
@@ -15,11 +17,13 @@ public sealed class RunFindingsListResponse
         set;
     } = "sortOrder";
 
+    private IReadOnlyList<RunFindingListItem> items = [];
+
     public IReadOnlyList<RunFindingListItem> Items
     {
-        get;
-        set;
-    } = [];
+        get => items;
+        set => items = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 
     public bool HasMore
     {

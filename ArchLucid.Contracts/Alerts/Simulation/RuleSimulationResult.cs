@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Alerts.Simulation;
 
 /// <summary>Aggregated output of <see cref="IRuleSimulationService.SimulateAsync" />.</summary>
@@ -49,16 +51,20 @@ public class RuleSimulationResult
     }
 
     /// <summary>Human-readable rollup lines.</summary>
+    private List<string> summaryNotes = [];
+
     public List<string> SummaryNotes
     {
-        get;
-        set;
-    } = [];
+        get => summaryNotes;
+        set => summaryNotes = ContractCollectionDefaults.Coalesce(value);
+    }
 
     /// <summary>Per-context detail rows.</summary>
+    private List<SimulatedAlertOutcome> outcomes = [];
+
     public List<SimulatedAlertOutcome> Outcomes
     {
-        get;
-        set;
-    } = [];
+        get => outcomes;
+        set => outcomes = ContractCollectionDefaults.Coalesce(value);
+    }
 }

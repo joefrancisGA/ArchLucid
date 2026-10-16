@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.ProductLearning.Planning;
 
 /// <summary>
@@ -18,15 +20,19 @@ public sealed class LearningPlanningReportDocument
         init;
     } = null!;
 
+    private IReadOnlyList<LearningPlanningReportThemeEntry> themes = [];
+
     public IReadOnlyList<LearningPlanningReportThemeEntry> Themes
     {
-        get;
-        init;
-    } = [];
+        get => themes;
+        init => themes = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
+
+    private IReadOnlyList<LearningPlanningReportPlanEntry> plans = [];
 
     public IReadOnlyList<LearningPlanningReportPlanEntry> Plans
     {
-        get;
-        init;
-    } = [];
+        get => plans;
+        init => plans = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 }

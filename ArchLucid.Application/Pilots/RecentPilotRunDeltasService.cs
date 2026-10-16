@@ -29,12 +29,17 @@ public sealed class RecentPilotRunDeltasService(
     {
         int requested = Math.Clamp(count, IRecentPilotRunDeltasService.MinCount, IRecentPilotRunDeltasService.MaxCount);
         IReadOnlyList<RunSummary> all = await _runDetailQueryService.ListRunSummariesAsync(cancellationToken);
-        List<RunSummary> committed = all.Where(IsCommitted).OrderByDescending(r => r.CompletedUtc ?? r.CreatedUtc).Take(requested).ToList();
+        List<RunSummary> committed = all.Where(IsCommitted).OrderByDescending(r => r.CompletedUtc ?? r.CreatedUtc).ToList();
         List<RecentPilotRunDeltaSummaryResponse> rows = [];
+
         foreach (RunSummary summary in committed)
         {
+            if (rows.Count >= requested)
+                break;
+
             cancellationToken.ThrowIfCancellationRequested();
             RecentPilotRunDeltaSummaryResponse? row = await TryProjectAsync(summary, cancellationToken);
+
             if (row is not null)
                 rows.Add(row);
         }
@@ -42,7 +47,8 @@ public sealed class RecentPilotRunDeltasService(
         double? medianFindings = ComputeMedian(rows.Select(r => (double)r.TotalFindings));
         double? medianSeconds = ComputeMedian(rows.Where(r => r.TimeToCommittedManifestTotalSeconds is { } s && double.IsFinite(s) && s >= 0)
             .Select(r => r.TimeToCommittedManifestTotalSeconds!.Value));
-        double? medianLlm = ComputeMedian(rows.Where(r => r.LlmCallCountResolved).Select(r => (double)r.LlmCallCount));
+        double? medianLlm = ComputeMedian(
+            rows.Where(r => r.LlmCallCountResolved && r.LlmCallCount is not null).Select(r => (double)r.LlmCallCount!.Value));
 
         return new RecentPilotRunDeltasResponse
         {
@@ -82,7 +88,7 @@ public sealed class RecentPilotRunDeltasService(
                 TimeToCommittedManifestTotalSeconds = deltas.TimeToCommittedManifest?.TotalSeconds,
                 TotalFindings = totalFindings,
                 TopFindingSeverity = deltas.TopFindingSeverity,
-                LlmCallCount = deltas.LlmCallCount,
+                LlmCallCount = deltas.LlmCallCountResolved ? deltas.LlmCallCount : null,
                 LlmCallCountResolved = deltas.LlmCallCountResolved,
                 IsDemoTenant = isDemo
             };

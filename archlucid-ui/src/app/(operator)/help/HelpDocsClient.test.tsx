@@ -1076,6 +1076,64 @@ describe("HelpDocsClient", () => {
     vi.unstubAllGlobals();
   });
 
+  it("preserves query strings on internal documentation link href", async () => {
+    const data = [
+      {
+        title: "Runbook network",
+        summary: "Operator runbook deep link from doc-index.",
+        category: "Operations",
+        url: "/operations/runbooks?slug=network",
+      },
+    ];
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Promise.resolve({
+          ok: true,
+          json: async () => data,
+        } as Response),
+      ),
+    );
+
+    renderWithOperatorQuery(<HelpDocsClient />);
+
+    const link = await screen.findByRole("link", { name: "Runbook network" });
+
+    expect(link).toHaveAttribute("href", "/operations/runbooks?slug=network");
+
+    vi.unstubAllGlobals();
+  });
+
+  it("preserves hash fragments on internal documentation link href", async () => {
+    const data = [
+      {
+        title: "Runbook network anchor",
+        summary: "Jump to the network section.",
+        category: "Operations",
+        url: "/operations/runbooks#network",
+      },
+    ];
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Promise.resolve({
+          ok: true,
+          json: async () => data,
+        } as Response),
+      ),
+    );
+
+    renderWithOperatorQuery(<HelpDocsClient />);
+
+    const link = await screen.findByRole("link", { name: "Runbook network anchor" });
+
+    expect(link).toHaveAttribute("href", "/operations/runbooks#network");
+
+    vi.unstubAllGlobals();
+  });
+
   it("does not duplicate fetched external doc links when two rows differ only by query string on the same https url", async () => {
     const data = [
       {

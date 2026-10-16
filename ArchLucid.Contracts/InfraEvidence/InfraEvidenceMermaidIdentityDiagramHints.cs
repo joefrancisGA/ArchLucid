@@ -1,12 +1,16 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.InfraEvidence;
 
 public sealed class InfraEvidenceMermaidIdentityDiagramHints
 {
+    private List<InfraEvidenceMermaidIdentityDiagramSuppressedArmType> inventoryFilteredIdentityArmTypes = [];
+
     public List<InfraEvidenceMermaidIdentityDiagramSuppressedArmType> InventoryFilteredIdentityArmTypes
     {
-        get;
-        set;
-    } = [];
+        get => inventoryFilteredIdentityArmTypes;
+        set => inventoryFilteredIdentityArmTypes = ContractCollectionDefaults.Coalesce(value);
+    }
 }
 
 public sealed class InfraEvidenceMermaidIdentityDiagramSuppressedArmType

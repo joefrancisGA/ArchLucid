@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Findings.Payloads;
 
 public class InventoryReconciliationFindingPayload
@@ -14,15 +16,19 @@ public class InventoryReconciliationFindingPayload
         set;
     }
 
+    private List<string> graphOnlyResourceIds = [];
+
     public List<string> GraphOnlyResourceIds
     {
-        get;
-        set;
-    } = [];
+        get => graphOnlyResourceIds;
+        set => graphOnlyResourceIds = ContractCollectionDefaults.Coalesce(value);
+    }
+
+    private List<string> inventoryOnlyResourceIds = [];
 
     public List<string> InventoryOnlyResourceIds
     {
-        get;
-        set;
-    } = [];
+        get => inventoryOnlyResourceIds;
+        set => inventoryOnlyResourceIds = ContractCollectionDefaults.Coalesce(value);
+    }
 }

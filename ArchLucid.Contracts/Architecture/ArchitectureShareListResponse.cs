@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Architecture;
 
 public sealed class ArchitectureShareListResponse
@@ -14,9 +16,11 @@ public sealed class ArchitectureShareListResponse
         set;
     }
 
+    private IReadOnlyList<ArchitectureShareResponse> shares = [];
+
     public IReadOnlyList<ArchitectureShareResponse> Shares
     {
-        get;
-        set;
-    } = [];
+        get => shares;
+        set => shares = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 }

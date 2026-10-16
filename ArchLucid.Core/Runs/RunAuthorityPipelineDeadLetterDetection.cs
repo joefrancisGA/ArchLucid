@@ -86,30 +86,51 @@ public static class RunAuthorityPipelineDeadLetterDetection
 
     private static bool TryReadSupportedSchemaVersion(JsonElement root, out int schemaVersion)
     {
-        // Last-match lookup on purpose: PreferLastNonEmpty treats JSON true as an empty poison alias
-        // (explanation-parser behavior). A sole schemaVersion:true would then look omitted and default to v1.
+        // Scan every case-variant alias: a trailing below-minimum or unreadable schemaVersion must not hide an
+        // earlier supported value (parity with failureClass PreferLastNonEmpty). PreferLastNonEmpty itself is not
+        // used here because a sole schemaVersion:true would be treated as empty and default to v1.
 
-        if (!RunExplanationAggregateJsonReader.TryGetPropertyCaseInsensitive(root, "schemaVersion", out JsonElement element))
+        bool foundAlias = false;
+        int? lastSupportedVersion = null;
+
+        foreach (JsonProperty property in root.EnumerateObject())
+        {
+
+            if (!string.Equals(property.Name, "schemaVersion", StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            foundAlias = true;
+
+            if (property.Value.ValueKind == JsonValueKind.Null)
+            {
+                lastSupportedVersion = SupportedSchemaVersion;
+
+                continue;
+            }
+
+            if (!StrictSchemaVersionReader.TryReadSchemaVersion(property.Value, out int parsedVersion))
+                continue;
+
+            if (parsedVersion >= SupportedSchemaVersion)
+                lastSupportedVersion = parsedVersion;
+        }
+
+        if (!foundAlias)
         {
             schemaVersion = SupportedSchemaVersion;
 
             return true;
         }
 
-        if (element.ValueKind == JsonValueKind.Null)
-        {
-            schemaVersion = SupportedSchemaVersion;
-
-            return true;
-        }
-
-        if (!StrictSchemaVersionReader.TryReadSchemaVersion(element, out schemaVersion))
+        if (lastSupportedVersion is not int supported)
         {
             schemaVersion = default;
 
             return false;
         }
 
-        return schemaVersion >= SupportedSchemaVersion;
+        schemaVersion = supported;
+
+        return true;
     }
 }

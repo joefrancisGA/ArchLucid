@@ -42,6 +42,13 @@ public sealed class ExecDigestEmailModel
         init;
     }
 
+    /// <summary>Governance decisions-needed markdown from <see cref="ExecDigest.ExecDigestComposition"/>.</summary>
+    public string? DecisionNeededMarkdown
+    {
+        get;
+        init;
+    }
+
     public string DashboardUrl
     {
         get;

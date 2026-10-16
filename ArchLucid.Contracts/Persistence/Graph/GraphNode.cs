@@ -1,4 +1,6 @@
-﻿namespace ArchLucid.Contracts.Persistence.Graph;
+﻿using ArchLucid.Contracts.Serialization;
+
+namespace ArchLucid.Contracts.Persistence.Graph;
 
 /// <summary>
 ///     Node in a <see cref="GraphSnapshot" />.
@@ -7,23 +9,29 @@
 /// </summary>
 public class GraphNode
 {
+    private string nodeId = string.Empty;
+
     public string NodeId
     {
-        get;
-        set;
-    } = null!;
+        get => nodeId;
+        set => nodeId = ContractCollectionDefaults.CoalesceRequired(value);
+    }
+
+    private string nodeType = string.Empty;
 
     public string NodeType
     {
-        get;
-        set;
-    } = null!;
+        get => nodeType;
+        set => nodeType = ContractCollectionDefaults.CoalesceRequired(value);
+    }
+
+    private string label = string.Empty;
 
     public string Label
     {
-        get;
-        set;
-    } = null!;
+        get => label;
+        set => label = ContractCollectionDefaults.CoalesceRequired(value);
+    }
 
     public string? Category
     {
@@ -43,11 +51,13 @@ public class GraphNode
         set;
     }
 
+    private Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase);
+
     public Dictionary<string, string> Properties
     {
-        get;
-        set;
-    } = [];
+        get => properties;
+        set => properties = ContractCollectionDefaults.CoalesceStringDictionaryOrdinalIgnoreCase(value);
+    }
 
     /// <summary>
     ///     Optional agent/heuristic narration carried into graph projection for operator explainability.

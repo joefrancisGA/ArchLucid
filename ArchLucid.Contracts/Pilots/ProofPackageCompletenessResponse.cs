@@ -91,8 +91,11 @@ public sealed class ProofPackageCompletenessResponse
         init;
     }
 
-    /// <summary>Per-run LLM completion rows counted from execution traces.</summary>
-    public int LlmCallCount
+    /// <summary>
+    ///     Per-run LLM completion rows counted from execution traces when <see cref="LlmCallCountResolved" /> is
+    ///     <see langword="true" />; otherwise <see langword="null" />.
+    /// </summary>
+    public int? LlmCallCount
     {
         get;
         init;

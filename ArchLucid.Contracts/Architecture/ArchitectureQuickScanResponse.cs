@@ -1,5 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Architecture;
 
 /// <summary>Lightweight quick-scan outcome for HTTP clients.</summary>
@@ -17,11 +19,29 @@ public sealed class ArchitectureQuickScanResponse
     [Required]
     public string Summary { get; init; } = string.Empty;
 
-    public List<ArchitectureQuickScanFindingItem> Findings { get; init; } = [];
+    private List<ArchitectureQuickScanFindingItem> findings = [];
 
-    public List<string> PositiveObservations { get; init; } = [];
+    public List<ArchitectureQuickScanFindingItem> Findings
+    {
+        get => findings;
+        init => findings = ContractCollectionDefaults.Coalesce(value);
+    }
 
-    public List<string> RecommendedNextSteps { get; init; } = [];
+    private List<string> positiveObservations = [];
+
+    public List<string> PositiveObservations
+    {
+        get => positiveObservations;
+        init => positiveObservations = ContractCollectionDefaults.Coalesce(value);
+    }
+
+    private List<string> recommendedNextSteps = [];
+
+    public List<string> RecommendedNextSteps
+    {
+        get => recommendedNextSteps;
+        init => recommendedNextSteps = ContractCollectionDefaults.Coalesce(value);
+    }
 
     public DateTime CompletedUtc { get; init; }
 

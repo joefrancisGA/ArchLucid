@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Findings;
 
 public class Finding
@@ -15,17 +17,21 @@ public class Finding
         set;
     } = Guid.NewGuid().ToString("N");
 
+    private string findingType = string.Empty;
+
     public string FindingType
     {
-        get;
-        set;
-    } = null!;
+        get => findingType;
+        set => findingType = ContractCollectionDefaults.CoalesceRequired(value);
+    }
+
+    private string category = string.Empty;
 
     public string Category
     {
-        get;
-        set;
-    } = null!;
+        get => category;
+        set => category = ContractCollectionDefaults.CoalesceRequired(value);
+    }
 
     /// <summary>
     ///     Canonical architecture pillar key from <see cref="Governance.Posture.ArchitecturePillar" />
@@ -37,11 +43,13 @@ public class Finding
         set;
     }
 
+    private string engineType = string.Empty;
+
     public string EngineType
     {
-        get;
-        set;
-    } = null!;
+        get => engineType;
+        set => engineType = ContractCollectionDefaults.CoalesceRequired(value);
+    }
 
     public FindingSeverity Severity
     {
@@ -49,42 +57,54 @@ public class Finding
         set;
     }
 
+    private string title = string.Empty;
+
     public string Title
     {
-        get;
-        set;
-    } = null!;
+        get => title;
+        set => title = ContractCollectionDefaults.CoalesceRequired(value);
+    }
+
+    private string rationale = string.Empty;
 
     public string Rationale
     {
-        get;
-        set;
-    } = null!;
+        get => rationale;
+        set => rationale = ContractCollectionDefaults.CoalesceRequired(value);
+    }
+
+    private List<string> relatedNodeIds = [];
 
     public List<string> RelatedNodeIds
     {
-        get;
-        set;
-    } = [];
+        get => relatedNodeIds;
+        set => relatedNodeIds = ContractCollectionDefaults.Coalesce(value);
+    }
 
     /// <summary>Package-resolvable citation refs for insight-density dismiss scoring (ADR 0070).</summary>
+    private List<string> evidenceRefs = [];
+
     public List<string> EvidenceRefs
     {
-        get;
-        set;
-    } = [];
+        get => evidenceRefs;
+        set => evidenceRefs = ContractCollectionDefaults.Coalesce(value);
+    }
+
+    private List<string> recommendedActions = [];
 
     public List<string> RecommendedActions
     {
-        get;
-        set;
-    } = [];
+        get => recommendedActions;
+        set => recommendedActions = ContractCollectionDefaults.Coalesce(value);
+    }
+
+    private Dictionary<string, string> properties = new();
 
     public Dictionary<string, string> Properties
     {
-        get;
-        set;
-    } = new();
+        get => properties;
+        set => properties = ContractCollectionDefaults.CoalesceDictionary(value);
+    }
 
     public object? Payload
     {
@@ -98,11 +118,13 @@ public class Finding
         set;
     }
 
+    private ExplainabilityTrace trace = new();
+
     public ExplainabilityTrace Trace
     {
-        get;
-        set;
-    } = new();
+        get => trace;
+        set => trace = value ?? new ExplainabilityTrace();
+    }
 
     /// <summary><see cref="ArchLucid.Contracts.Requests.ArchitectureRequest.RequestId" /> for the run input.</summary>
     public string? RequestInputRef

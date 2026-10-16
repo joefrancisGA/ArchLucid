@@ -20,7 +20,13 @@ export function ensureSessionId(): string {
     const existing = window.localStorage.getItem(QUICK_SCAN_SESSION_STORAGE_KEY);
 
     if (existing && existing.trim().length > 0) {
-      return existing;
+      const normalized = existing.trim();
+
+      if (normalized !== existing) {
+        window.localStorage.setItem(QUICK_SCAN_SESSION_STORAGE_KEY, normalized);
+      }
+
+      return normalized;
     }
 
     const created = crypto.randomUUID();
@@ -42,7 +48,13 @@ export function ensureBrowserId(): string {
     const existing = window.localStorage.getItem(QUICK_SCAN_BROWSER_STORAGE_KEY);
 
     if (existing && existing.trim().length > 0) {
-      return existing;
+      const normalized = existing.trim();
+
+      if (normalized !== existing) {
+        window.localStorage.setItem(QUICK_SCAN_BROWSER_STORAGE_KEY, normalized);
+      }
+
+      return normalized;
     }
 
     const created = crypto.randomUUID();

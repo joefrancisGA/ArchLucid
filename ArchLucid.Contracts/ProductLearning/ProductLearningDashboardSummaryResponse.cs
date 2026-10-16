@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.ProductLearning;
 
 /// <summary>
@@ -66,9 +68,11 @@ public sealed class ProductLearningDashboardSummaryResponse
         init;
     }
 
+    private IReadOnlyList<string> summaryNotes = [];
+
     public IReadOnlyList<string> SummaryNotes
     {
-        get;
-        init;
-    } = [];
+        get => summaryNotes;
+        init => summaryNotes = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 }

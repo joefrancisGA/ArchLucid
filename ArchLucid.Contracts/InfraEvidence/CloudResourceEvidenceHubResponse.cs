@@ -1,6 +1,7 @@
-namespace ArchLucid.Contracts.InfraEvidence;
-
 using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.Serialization;
+
+namespace ArchLucid.Contracts.InfraEvidence;
 
 public sealed class CloudResourceEvidenceHubResponse
 {
@@ -46,51 +47,67 @@ public sealed class CloudResourceEvidenceHubResponse
         set;
     }
 
+    private CloudResourceEvidenceFindingStreamPage operationalSecurityFindings = new();
+
     public CloudResourceEvidenceFindingStreamPage OperationalSecurityFindings
     {
-        get;
-        set;
-    } = new();
+        get => operationalSecurityFindings;
+        set => operationalSecurityFindings = value ?? new CloudResourceEvidenceFindingStreamPage();
+    }
+
+    private CloudResourceEvidenceFindingStreamPage architectureReviewFindings = new();
 
     public CloudResourceEvidenceFindingStreamPage ArchitectureReviewFindings
     {
-        get;
-        set;
-    } = new();
+        get => architectureReviewFindings;
+        set => architectureReviewFindings = value ?? new CloudResourceEvidenceFindingStreamPage();
+    }
+
+    private CloudResourceRemediationStreamPage remediationInstances = new();
 
     public CloudResourceRemediationStreamPage RemediationInstances
     {
-        get;
-        set;
-    } = new();
+        get => remediationInstances;
+        set => remediationInstances = value ?? new CloudResourceRemediationStreamPage();
+    }
+
+    private List<CloudResourceRbacAssignmentSummary> rbacAssignments = [];
 
     public List<CloudResourceRbacAssignmentSummary> RbacAssignments
     {
-        get;
-        set;
-    } = [];
+        get => rbacAssignments;
+        set => rbacAssignments = ContractCollectionDefaults.Coalesce(value);
+    }
+
+    private List<CloudResourceNetworkRelationshipSummary> networkRelationships = [];
 
     public List<CloudResourceNetworkRelationshipSummary> NetworkRelationships
     {
-        get;
-        set;
-    } = [];
+        get => networkRelationships;
+        set => networkRelationships = ContractCollectionDefaults.Coalesce(value);
+    }
+
+    private List<CloudResourceInventoryChangeSummary> recentChanges = [];
 
     public List<CloudResourceInventoryChangeSummary> RecentChanges
     {
-        get;
-        set;
-    } = [];
+        get => recentChanges;
+        set => recentChanges = ContractCollectionDefaults.Coalesce(value);
+    }
+
+    private CloudResourceAuditLineageLink auditLineageLink = new();
 
     public CloudResourceAuditLineageLink AuditLineageLink
     {
-        get;
-        set;
-    } = new();
+        get => auditLineageLink;
+        set => auditLineageLink = value ?? new CloudResourceAuditLineageLink();
+    }
+
+    private List<CloudResourceEvidencePointer> evidencePointers = [];
 
     public List<CloudResourceEvidencePointer> EvidencePointers
     {
-        get;
-        set;
-    } = [];
+        get => evidencePointers;
+        set => evidencePointers = ContractCollectionDefaults.Coalesce(value);
+    }
 }

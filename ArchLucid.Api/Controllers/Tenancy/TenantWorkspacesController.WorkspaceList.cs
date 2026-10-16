@@ -35,7 +35,8 @@ public sealed partial class TenantWorkspacesController
             return this.NotFoundProblem("Workspace was not found for this tenant.", ProblemTypes.ResourceNotFound);
 
         IReadOnlyList<ArchitectureProjectRecord> projects =
-            await _architectureProjectRepository.ListActiveByTenantAsync(scope.TenantId, cancellationToken);
+            await _architectureProjectRepository.ListActiveByTenantAsync(scope.TenantId, cancellationToken)
+            ?? Array.Empty<ArchitectureProjectRecord>();
 
         ILookup<Guid, ArchitectureProjectRecord> byWorkspace = projects.ToLookup(static p => p.WorkspaceId);
 

@@ -61,11 +61,21 @@ public sealed class AzureBlobCollectionRunArtifactReader(
         };
     }
 
-    private BlobContainerClient Container() =>
-        _blobServiceClient.GetBlobContainerClient(_options.ContainerName);
+    private BlobContainerClient Container()
+    {
+        string containerName = string.IsNullOrWhiteSpace(_options.ContainerName)
+            ? "securenow-collection"
+            : _options.ContainerName;
 
-    private string ManifestPrefix() =>
-        _options.Prefix.TrimEnd('/') + "/";
+        return _blobServiceClient.GetBlobContainerClient(containerName);
+    }
+
+    private string ManifestPrefix()
+    {
+        string prefix = string.IsNullOrWhiteSpace(_options.Prefix) ? "runs/" : _options.Prefix;
+
+        return prefix.TrimEnd('/') + "/";
+    }
 
     private static async Task<CollectionRunManifest?> ReadManifestAsync(
         BlobContainerClient container,

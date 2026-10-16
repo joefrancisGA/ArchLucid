@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Governance;
 
 /// <summary>
@@ -70,16 +72,20 @@ public sealed class PolicyPackDryRunResponse
     ///     Tally across <em>all</em> evaluated run ids in the request (not just the current page),
     ///     so a UI can render a stable "would have blocked N of M" headline regardless of pagination.
     /// </summary>
+    private PolicyPackDryRunDeltaCounts deltaCounts = new();
+
     public PolicyPackDryRunDeltaCounts DeltaCounts
     {
-        get;
-        init;
-    } = new();
+        get => deltaCounts;
+        init => deltaCounts = value ?? new PolicyPackDryRunDeltaCounts();
+    }
+
+    private IReadOnlyList<PolicyPackDryRunRunItem> items = [];
 
     /// <summary>Per-run dry-run results for the current page (newest first when input order is preserved).</summary>
     public IReadOnlyList<PolicyPackDryRunRunItem> Items
     {
-        get;
-        init;
-    } = [];
+        get => items;
+        init => items = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 }

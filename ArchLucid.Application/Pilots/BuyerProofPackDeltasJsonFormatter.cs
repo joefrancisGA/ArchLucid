@@ -1,5 +1,6 @@
 using System.Text.Json;
 
+using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Pilots;
 
 namespace ArchLucid.Application.Pilots;
@@ -9,15 +10,10 @@ namespace ArchLucid.Application.Pilots;
 /// </summary>
 public static class BuyerProofPackDeltasJsonFormatter
 {
-    private static readonly JsonSerializerOptions SerializerOptions = new()
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-    };
-
     public static string Serialize(PilotRunDeltasResponse response)
     {
         ArgumentNullException.ThrowIfNull(response);
 
-        return JsonSerializer.Serialize(response, SerializerOptions);
+        return JsonSerializer.Serialize(response, ContractJson.CamelCaseIgnoreNullCompact);
     }
 }

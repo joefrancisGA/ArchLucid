@@ -36,7 +36,7 @@ public sealed class ExecutionProvenanceFooterRenderer : IExecutionProvenanceFoot
                 | Field | Value |
                 | --- | --- |
                 | Mode | {modeLabel} |
-                {fallbackDetailRow}| LLM completion traces (this run) | {input.LlmCompletionTraceCount.ToString(CultureInfo.InvariantCulture)} |
+                {fallbackDetailRow}| LLM completion traces (this run) | {FormatLlmCompletionTraceCount(input)} |
                 | Azure OpenAI deployment (when known) | `{deployment}` |
 
                 _Token totals per provider are not aggregated in this report; trace count reflects persisted completion attempts._
@@ -51,4 +51,12 @@ public sealed class ExecutionProvenanceFooterRenderer : IExecutionProvenanceFoot
 
     private static bool IsOmitted(string? value) =>
         value is null || (value.Length > 0 && string.IsNullOrWhiteSpace(value));
+
+    private static string FormatLlmCompletionTraceCount(ExecutionProvenanceFooterInput input)
+    {
+        if (input.LlmCompletionTraceCount is not { } count)
+            return "_(not attested — execution trace query failed)_";
+
+        return count.ToString(CultureInfo.InvariantCulture);
+    }
 }

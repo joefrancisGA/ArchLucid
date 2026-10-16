@@ -92,7 +92,7 @@ public sealed partial class GovernanceController
         if (sealedGuardResult is not null)
             return sealedGuardResult;
 
-        string promotedBy = actorContext.GetActor();
+        string promotedBy = actorContext.GetActorId();
 
         try
         {
@@ -207,7 +207,7 @@ public sealed partial class GovernanceController
                 request.RunId,
                 request.ManifestVersion,
                 request.Environment,
-                actorContext.GetActor(),
+                actorContext.GetActorId(),
                 cancellationToken);
 
             return Ok(result);

@@ -99,9 +99,11 @@ public sealed class RecommendationLearningOperationalStatusResponse
         set;
     }
 
+    private RecommendationLearningOutcomeEligibilityBreakdown eligibility = new();
+
     public RecommendationLearningOutcomeEligibilityBreakdown Eligibility
     {
-        get;
-        set;
-    } = new();
+        get => eligibility;
+        set => eligibility = value ?? new();
+    }
 }

@@ -12,7 +12,7 @@ public static class EmailBrandingUrls
         if (string.IsNullOrWhiteSpace(operatorBaseUrl))
             return null;
 
-        string trimmedBase = operatorBaseUrl.Trim().TrimEnd('/');
+        string trimmedBase = TrimBeforeLineBreak(operatorBaseUrl.Trim().TrimEnd('/'));
 
         if (string.IsNullOrWhiteSpace(trimmedBase))
             return null;
@@ -31,22 +31,94 @@ public static class EmailBrandingUrls
         ArgumentNullException.ThrowIfNull(absoluteUrl);
 
         string trimmed = absoluteUrl.Trim();
+        int lineBreakIndex = IndexOfLineBreak(trimmed);
+
+        if (lineBreakIndex >= 0)
+        {
+            string firstLine = trimmed[..lineBreakIndex].TrimEnd();
+            int schemeDelimiter = firstLine.IndexOf("://", StringComparison.OrdinalIgnoreCase);
+            bool authorityOnlyFirstLine = schemeDelimiter >= 0 && firstLine.IndexOf('/', schemeDelimiter + 3) < 0;
+
+            if (!authorityOnlyFirstLine
+                && Uri.TryCreate(firstLine, UriKind.Absolute, out Uri? firstLineUri)
+                && !string.IsNullOrEmpty(firstLineUri.Host))
+            {
+                return RebuildAbsoluteUrlWithoutUserInfo(firstLineUri);
+            }
+
+            string? authority = TryNormalizeOperatorBaseAuthority(firstLine);
+
+            if (authority is not null)
+            {
+                int pathStart = trimmed.IndexOf('/', lineBreakIndex);
+
+                if (pathStart >= 0)
+                    return authority + trimmed[pathStart..];
+            }
+        }
 
         if (!Uri.TryCreate(trimmed, UriKind.Absolute, out Uri? uri) || string.IsNullOrEmpty(uri.Host))
             return trimmed;
 
+        return RebuildAbsoluteUrlWithoutUserInfo(uri);
+    }
+
+    private static string RebuildAbsoluteUrlWithoutUserInfo(Uri uri)
+    {
+        string decodedPath = Uri.UnescapeDataString(uri.AbsolutePath);
+        string sanitizedPath = EmailHeaderFragmentSanitizer.Sanitize(decodedPath);
+        bool pathHadLineBreaks = PathOrQueryContainsLineBreakMaterial(uri.AbsolutePath, decodedPath);
+
         UriBuilder builder = new(uri.Scheme, uri.Host, uri.Port)
         {
-            Path = uri.AbsolutePath,
+            Path = pathHadLineBreaks ? sanitizedPath : uri.AbsolutePath,
         };
 
         if (uri.Query.Length > 0)
-            builder.Query = uri.Query.StartsWith('?') ? uri.Query[1..] : uri.Query;
+        {
+            string rawQuery = uri.Query.StartsWith('?') ? uri.Query[1..] : uri.Query;
+            builder.Query = SanitizeUriQueryOrFragment(rawQuery);
+        }
 
         if (uri.Fragment.Length > 0)
-            builder.Fragment = uri.Fragment.StartsWith('#') ? uri.Fragment[1..] : uri.Fragment;
+        {
+            string rawFragment = uri.Fragment.StartsWith('#') ? uri.Fragment[1..] : uri.Fragment;
+            builder.Fragment = SanitizeUriQueryOrFragment(rawFragment);
+        }
 
         return builder.Uri.ToString();
+    }
+
+    private static string SanitizeUriQueryOrFragment(string value)
+    {
+        if (string.IsNullOrEmpty(value))
+            return value;
+
+        if (!PathOrQueryContainsLineBreakMaterial(value, Uri.UnescapeDataString(value)))
+            return value;
+
+        return EmailHeaderFragmentSanitizer.Sanitize(Uri.UnescapeDataString(value));
+    }
+
+    private static bool PathOrQueryContainsLineBreakMaterial(string encoded, string decoded)
+    {
+        if (encoded.Contains("%0D", StringComparison.OrdinalIgnoreCase)
+            || encoded.Contains("%0A", StringComparison.OrdinalIgnoreCase)
+            || encoded.Contains("%E2%80%A8", StringComparison.OrdinalIgnoreCase)
+            || encoded.Contains("%E2%80%A9", StringComparison.OrdinalIgnoreCase)
+            || encoded.Contains("%C2%85", StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
+        foreach (char character in decoded)
+        {
+
+            if (character is '\r' or '\n' or '\u0085' or '\u2028' or '\u2029')
+                return true;
+        }
+
+        return false;
     }
 
     /// <summary>
@@ -73,6 +145,34 @@ public static class EmailBrandingUrls
             return $"{authority}{relativePath}";
 
         return relativePath;
+    }
+
+    private static int IndexOfLineBreak(string value)
+    {
+        int earliest = -1;
+
+        for (int index = 0; index < value.Length; index++)
+        {
+            char character = value[index];
+
+            if (character is not ('\r' or '\n' or '\u0085' or '\u2028' or '\u2029'))
+                continue;
+
+            if (earliest < 0 || index < earliest)
+                earliest = index;
+        }
+
+        return earliest;
+    }
+
+    private static string TrimBeforeLineBreak(string value)
+    {
+        int lineBreakIndex = IndexOfLineBreak(value);
+
+        if (lineBreakIndex < 0)
+            return value;
+
+        return value[..lineBreakIndex];
     }
 
     private static string? TryExtractMalformedSchemeOnlyConcatPath(string sanitized)

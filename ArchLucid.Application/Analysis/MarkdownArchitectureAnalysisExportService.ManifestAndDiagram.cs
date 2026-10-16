@@ -67,9 +67,7 @@ public sealed partial class MarkdownArchitectureAnalysisExportService
                 sb.AppendLine();
             }
 
-            if (report.Manifest.Governance.RequiredControls.Count > 0
-                || report.Manifest.Governance.ComplianceTags.Count > 0
-                || report.Manifest.Governance.PolicyConstraints.Count > 0)
+            if (ArchitectureManifestGovernanceExport.ShouldRender(report.Manifest.Governance))
             {
                 sb.AppendLine("### Governance");
                 sb.AppendLine();

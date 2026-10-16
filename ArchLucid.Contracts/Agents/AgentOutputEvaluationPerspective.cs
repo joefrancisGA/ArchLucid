@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Agents;
 
 /// <summary>One authority view of run agent-evaluation (recorded or advisory current — TB-973).</summary>
@@ -16,11 +18,13 @@ public sealed class AgentOutputEvaluationPerspective
         init;
     }
 
+    private IReadOnlyList<AgentOutputEvaluationScore> scores = [];
+
     public IReadOnlyList<AgentOutputEvaluationScore> Scores
     {
-        get;
-        init;
-    } = [];
+        get => scores;
+        init => scores = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 
     public int TracesSkippedCount
     {

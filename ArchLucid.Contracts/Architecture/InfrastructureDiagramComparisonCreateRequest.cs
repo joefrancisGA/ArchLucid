@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Architecture;
 
 public sealed class InfrastructureDiagramComparisonCreateRequest
@@ -8,9 +10,11 @@ public sealed class InfrastructureDiagramComparisonCreateRequest
         set;
     }
 
+    private List<DiagramSourceReference> sources = [];
+
     public List<DiagramSourceReference> Sources
     {
-        get;
-        set;
-    } = [];
+        get => sources;
+        set => sources = ContractCollectionDefaults.Coalesce(value);
+    }
 }

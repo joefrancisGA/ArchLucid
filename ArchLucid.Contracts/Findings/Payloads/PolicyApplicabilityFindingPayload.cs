@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Findings.Payloads;
 
 public class PolicyApplicabilityFindingPayload
@@ -20,9 +22,11 @@ public class PolicyApplicabilityFindingPayload
         set;
     }
 
+    private List<string> applicableTopologyNodeIds = [];
+
     public List<string> ApplicableTopologyNodeIds
     {
-        get;
-        set;
-    } = [];
+        get => applicableTopologyNodeIds;
+        set => applicableTopologyNodeIds = ContractCollectionDefaults.Coalesce(value);
+    }
 }

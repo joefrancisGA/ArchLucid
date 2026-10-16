@@ -206,4 +206,50 @@ describe("useQuickScanClient", () => {
     expect(result.current.result).toEqual(REAL_ANALYSIS);
     expect(fetchMock).toHaveBeenCalledTimes(1);
   });
+
+  it("ignores stale sample responses when a newer sample request was started", async () => {
+    let resolveFirst: ((value: Response) => void) | undefined;
+    const firstSamplePromise = new Promise<Response>((resolve) => {
+      resolveFirst = resolve;
+    });
+
+    const fetchMock = vi.fn().mockImplementation((url: string) => {
+      const sourceState = new URL(url, "http://localhost").searchParams.get("sourceState");
+
+      if (sourceState === "Busy") {
+        return firstSamplePromise;
+      }
+
+      return Promise.resolve({
+        ok: true,
+        json: async () => SAMPLE_ANALYSIS,
+      });
+    });
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    const { result } = renderHook(() => useQuickScanClient());
+
+    act(() => {
+      result.current.showSampleResult("Busy");
+      result.current.showSampleResult("SampleOnly");
+    });
+
+    await waitFor(() => {
+      expect(result.current.result).toEqual(SAMPLE_ANALYSIS);
+    });
+
+    await act(async () => {
+      resolveFirst?.({
+        ok: true,
+        json: async () => ({
+          systemName: "Stale",
+          primaryEnvironment: "Azure",
+          summary: "Should not replace the newer sample.",
+        }),
+      } as Response);
+    });
+
+    expect(result.current.result).toEqual(SAMPLE_ANALYSIS);
+  });
 });

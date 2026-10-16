@@ -1,6 +1,11 @@
 namespace ArchLucid.Contracts.Persistence.TechnologyLedger;
 
+using System.Text.Json.Serialization;
+
+using ArchLucid.Contracts.Serialization;
+
 /// <summary>Approval status of a <see cref="TechnologyLedgerEntry" />.</summary>
+[JsonConverter(typeof(DefinedEnumJsonConverter<TechnologyLedgerStatus>))]
 public enum TechnologyLedgerStatus
 {
     /// <summary>User- or evidence-confirmed and authoritative for its <see cref="TechnologyLedgerEntry.Role" />.</summary>

@@ -49,6 +49,7 @@ public sealed class ExecDigestEmailDispatcher(
             throw new ArgumentException("Week label is required.", nameof(composition));
 
         string normalizedWeekLabel = composition.WeekLabel.Trim();
+        string displayWeekLabel = EmailHeaderFragmentSanitizer.Sanitize(normalizedWeekLabel);
 
         List<string> normalizedMailboxes = [];
 
@@ -84,11 +85,12 @@ public sealed class ExecDigestEmailDispatcher(
         ExecDigestEmailModel model = new()
         {
             ProductName = productName,
-            WeekLabel = normalizedWeekLabel,
-            ComplianceDriftMarkdown = composition.ComplianceDriftMarkdown,
+            WeekLabel = displayWeekLabel,
+            ComplianceDriftMarkdown = SanitizeOptionalPlainTextFragment(composition.ComplianceDriftMarkdown),
             CommittedManifestsInWeek = composition.CommittedManifestsInWeek,
             TopRuns = composition.TopManifestRuns,
-            FindingsDeltaSummary = composition.FindingsDeltaSummary,
+            FindingsDeltaSummary = EmailMultipartPlainTextLineBreakNormalizer.NormalizeOptional(composition.FindingsDeltaSummary),
+            DecisionNeededMarkdown = EmailMultipartPlainTextLineBreakNormalizer.NormalizeOptional(composition.DecisionNeededMarkdown),
             DashboardUrl = normalizedDashboardUrl,
             SponsorValueReportUrl = normalizedSponsorValueReportUrl,
             UnsubscribeUrl = normalizedUnsubscribeUrl,
@@ -102,8 +104,7 @@ public sealed class ExecDigestEmailDispatcher(
         string subjectPrefix = string.IsNullOrWhiteSpace(composition.RehearsalSubjectPrefix)
             ? string.Empty
             : EmailHeaderFragmentSanitizer.Sanitize(composition.RehearsalSubjectPrefix);
-        string subject =
-            $"{subjectPrefix}{productName} weekly digest — {EmailHeaderFragmentSanitizer.Sanitize(normalizedWeekLabel)}";
+        string subject = $"{subjectPrefix}{productName} weekly digest — {displayWeekLabel}";
 
         return await MultiRecipientEmailDispatch.TrySendToMailboxesAsync(
             tenantId,
@@ -136,5 +137,14 @@ public sealed class ExecDigestEmailDispatcher(
                 }
             },
             cancellationToken);
+    }
+
+    // Compliance drift tables are rendered in multipart plain text; strip all line breaks (same class as week-label CRLF hits).
+    private static string? SanitizeOptionalPlainTextFragment(string? value)
+    {
+        if (value is null)
+            return null;
+
+        return EmailHeaderFragmentSanitizer.Sanitize(value);
     }
 }

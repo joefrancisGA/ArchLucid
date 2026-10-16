@@ -28,6 +28,14 @@ describe("decodeJwtPayload", () => {
     expect(decodeJwtPayload("not-a-jwt")).toBeNull();
     expect(decodeJwtPayload("")).toBeNull();
   });
+
+  it("reads the second segment when the token has extra dot-separated parts", () => {
+    const payload = { sub: "u1", name: "Extra Segment" };
+    const b64 = Buffer.from(JSON.stringify(payload), "utf8").toString("base64url");
+    const jwt = `h.${b64}.sig.extra`;
+
+    expect(decodeJwtPayload(jwt)).toEqual(payload);
+  });
 });
 
 describe("readNonceFromPayload", () => {
@@ -38,6 +46,11 @@ describe("readNonceFromPayload", () => {
   it("returns null when missing", () => {
     expect(readNonceFromPayload({ sub: "x" })).toBeNull();
     expect(readNonceFromPayload(null)).toBeNull();
+  });
+
+  it("strips zero-width padding from nonce claims", () => {
+    expect(readNonceFromPayload({ nonce: "\u200bn1\u200b", sub: "x" })).toBe("n1");
+    expect(readNonceFromPayload({ nonce: "\u200b", sub: "x" })).toBeNull();
   });
 });
 
@@ -53,5 +66,10 @@ describe("pickDisplayNameFromPayload", () => {
 
   it("falls back to sub", () => {
     expect(pickDisplayNameFromPayload({ sub: "abc-123" })).toBe("abc-123");
+  });
+
+  it("strips zero-width padding from display-name claims", () => {
+    expect(pickDisplayNameFromPayload({ name: "\u200bJane Operator\u200b" })).toBe("Jane Operator");
+    expect(pickDisplayNameFromPayload({ preferred_username: "\u200b" })).toBeNull();
   });
 });

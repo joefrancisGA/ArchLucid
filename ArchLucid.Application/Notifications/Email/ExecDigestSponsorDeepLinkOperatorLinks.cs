@@ -5,7 +5,8 @@ public static class ExecDigestSponsorDeepLinkOperatorLinks
 {
     public static string BuildDashboardUrl(string? operatorBaseUrl, string token)
     {
-        string relativePath = $"/digest/sponsor?token={Uri.EscapeDataString(token)}";
+        string sanitizedToken = EmailHeaderFragmentSanitizer.Sanitize(token);
+        string relativePath = $"/digest/sponsor?token={Uri.EscapeDataString(sanitizedToken)}";
 
         string? authority = EmailBrandingUrls.TryNormalizeOperatorBaseAuthority(operatorBaseUrl);
 
@@ -17,9 +18,12 @@ public static class ExecDigestSponsorDeepLinkOperatorLinks
 
     public static string BuildRunCollateralUrl(string? operatorBaseUrl, string runIdHex, string token)
     {
-        string normalizedRunIdHex = runIdHex.Trim().Replace("-", string.Empty, StringComparison.Ordinal);
+        string normalizedRunIdHex = EmailHeaderFragmentSanitizer
+            .Sanitize(runIdHex.Trim())
+            .Replace("-", string.Empty, StringComparison.Ordinal);
+        string sanitizedToken = EmailHeaderFragmentSanitizer.Sanitize(token);
         string relativePath =
-            $"/digest/sponsor/run/{Uri.EscapeDataString(normalizedRunIdHex)}?token={Uri.EscapeDataString(token)}";
+            $"/digest/sponsor/run/{Uri.EscapeDataString(normalizedRunIdHex)}?token={Uri.EscapeDataString(sanitizedToken)}";
 
         string? authority = EmailBrandingUrls.TryNormalizeOperatorBaseAuthority(operatorBaseUrl);
 

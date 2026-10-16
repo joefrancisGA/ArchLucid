@@ -66,8 +66,8 @@ public sealed class WeeklySponsorReportEmailDispatcher(
         string normalizedIsoWeekKey = isoWeekIdempotencyKey.Trim();
         string normalizedWeekLabel = weekLabel.Trim();
         string displayWeekLabel = EmailHeaderFragmentSanitizer.Sanitize(normalizedWeekLabel);
-        string normalizedRunIdHex = runIdHex.Trim();
-        string normalizedSummaryMarkdown = summaryMarkdown.Trim();
+        string normalizedRunIdHex = EmailHeaderFragmentSanitizer.Sanitize(runIdHex.Trim());
+        string normalizedSummaryMarkdown = EmailMultipartPlainTextLineBreakNormalizer.NormalizeOptional(summaryMarkdown.Trim())!;
 
         List<string> normalizedMailboxes = [];
 

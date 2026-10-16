@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Persistence.Decisions;
 
 public sealed class AgentEvaluationRecord
@@ -38,11 +40,13 @@ public sealed class AgentEvaluationRecord
         set;
     } = string.Empty;
 
+    private List<string> evidenceRefs = [];
+
     public List<string> EvidenceRefs
     {
-        get;
-        set;
-    } = [];
+        get => evidenceRefs;
+        set => evidenceRefs = ContractCollectionDefaults.Coalesce(value);
+    }
 
     public DateTime CreatedUtc
     {

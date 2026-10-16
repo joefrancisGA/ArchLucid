@@ -1,5 +1,7 @@
 using System.Text.Json.Serialization;
 
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Architecture;
 
 /// <summary>
@@ -28,10 +30,12 @@ public sealed class FeasibilityHardCitation
     ///     <c>INV-*</c> keys when <see cref="Kind" /> is
     ///     <see cref="FeasibilityCitationKind.InvariantContradiction" /> (at least two required).
     /// </summary>
+    private List<string> invariantKeys = [];
+
     [JsonPropertyName("invariantKeys")]
     public List<string> InvariantKeys
     {
-        get;
-        set;
-    } = [];
+        get => invariantKeys;
+        set => invariantKeys = ContractCollectionDefaults.Coalesce(value);
+    }
 }

@@ -1,6 +1,11 @@
 namespace ArchLucid.Contracts.Agents;
 
+using System.Text.Json.Serialization;
+
+using ArchLucid.Contracts.Serialization;
+
 /// <summary>Per-required-agent outcome for partial-run honesty (TB-937).</summary>
+[JsonConverter(typeof(DefinedEnumJsonConverter<AgentExecutionOutcomeKind>))]
 public enum AgentExecutionOutcomeKind
 {
     /// <summary>No persisted result for this required agent type.</summary>

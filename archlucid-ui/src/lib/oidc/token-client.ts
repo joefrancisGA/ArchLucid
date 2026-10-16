@@ -1,3 +1,10 @@
+import { isSafeOidcEndpointUrl } from "@/lib/oidc/discovery";
+import {
+  isReadableOAuthErrorCode,
+  sanitizeOAuthUserFacingMessage,
+  stripOAuthInvisibleFormatChars,
+} from "@/lib/oidc/oauth-callback-messages";
+
 export type OidcTokenResponse = {
   access_token: string;
   token_type?: string;
@@ -7,19 +14,35 @@ export type OidcTokenResponse = {
   scope?: string;
 };
 
+function readOAuthErrorString(value: unknown): string {
+  if (typeof value !== "string") {
+    return "";
+  }
+
+  const trimmed = stripOAuthInvisibleFormatChars(value.trim()).trim();
+
+  if (trimmed.length === 0 || !isReadableOAuthErrorCode(trimmed)) {
+    return "";
+  }
+
+  return trimmed;
+}
+
 function errorFromOAuthJson(json: unknown): Error | null {
   if (!json || typeof json !== "object") {
     return null;
   }
 
-  const record = json as { error?: string; error_description?: string };
-  const msg = [record.error, record.error_description].filter(Boolean).join(": ");
+  const record = json as { error?: unknown; error_description?: unknown };
+  const msg = [readOAuthErrorString(record.error), readOAuthErrorString(record.error_description)]
+    .filter((part) => part.length > 0)
+    .join(": ");
 
   if (!msg) {
     return null;
   }
 
-  return new Error(msg);
+  return new Error(sanitizeOAuthUserFacingMessage(msg));
 }
 
 async function readOAuthError(res: Response, bodyText: string): Promise<Error> {
@@ -34,14 +57,29 @@ async function readOAuthError(res: Response, bodyText: string): Promise<Error> {
     /* fall through */
   }
 
-  return new Error(`Token endpoint error ${res.status}: ${bodyText.slice(0, 200)}`);
+  // Do not echo proxy/HTML error pages — callback surfaces `Error.message` to operators.
+  return new Error(`Token endpoint error ${res.status}`);
+}
+
+function trimTokenFormParams(params: Record<string, string>): Record<string, string> {
+  const trimmed: Record<string, string> = {};
+
+  for (const [key, value] of Object.entries(params)) {
+    trimmed[key] = normalizeTokenString(value);
+  }
+
+  return trimmed;
 }
 
 async function postTokenForm(
   tokenEndpoint: string,
   params: Record<string, string>,
 ): Promise<OidcTokenResponse> {
-  const body = new URLSearchParams(params);
+  if (!isSafeOidcEndpointUrl(tokenEndpoint)) {
+    throw new Error("Invalid token endpoint URL");
+  }
+
+  const body = new URLSearchParams(trimTokenFormParams(params));
   const response = await fetch(tokenEndpoint, {
     method: "POST",
     headers: {
@@ -57,14 +95,68 @@ async function postTokenForm(
     throw await readOAuthError(response, text);
   }
 
-  const parsed = JSON.parse(text) as unknown;
+  let parsed: unknown;
+
+  try {
+    parsed = JSON.parse(text) as unknown;
+  } catch {
+    throw new Error("Token response was not valid JSON");
+  }
+
   const oauthError = errorFromOAuthJson(parsed);
 
   if (oauthError) {
     throw oauthError;
   }
 
-  return parsed as OidcTokenResponse;
+  return parseOidcTokenResponse(parsed);
+}
+
+function normalizeTokenString(value: string): string {
+  return stripOAuthInvisibleFormatChars(value.trim()).trim();
+}
+
+function normalizeOptionalTokenString(value: unknown): string | undefined {
+  if (typeof value !== "string") {
+    return undefined;
+  }
+
+  const normalized = normalizeTokenString(value);
+
+  if (normalized.length === 0) {
+    return undefined;
+  }
+
+  return normalized;
+}
+
+function parseOidcTokenResponse(parsed: unknown): OidcTokenResponse {
+  if (!parsed || typeof parsed !== "object") {
+    throw new Error("Token response missing access_token");
+  }
+
+  const record = parsed as Record<string, unknown>;
+  const accessTokenRaw = record.access_token;
+
+  if (typeof accessTokenRaw !== "string") {
+    throw new Error("Token response missing access_token");
+  }
+
+  const accessToken = normalizeTokenString(accessTokenRaw);
+
+  if (accessToken.length === 0) {
+    throw new Error("Token response missing access_token");
+  }
+
+  const refreshToken = normalizeOptionalTokenString(record.refresh_token);
+  const idToken = normalizeOptionalTokenString(record.id_token);
+
+  return {
+    ...(parsed as OidcTokenResponse),
+    access_token: accessToken,
+    refresh_token: refreshToken,
+    id_token: idToken,
+  };
 }
 
 export async function exchangeAuthorizationCode(params: {

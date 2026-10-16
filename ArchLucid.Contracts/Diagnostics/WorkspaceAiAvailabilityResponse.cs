@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Diagnostics;
 
 /// <summary>Result of <c>GET /v1/diagnostics/workspace-ai-availability</c>.</summary>
@@ -16,10 +18,20 @@ public sealed class WorkspaceAiAvailabilityResponse
 
     public DateTime AsOfUtc { get; init; }
 
-    public IReadOnlyList<WorkspaceAiAvailabilityCheckRow> Checks { get; init; } =
-        Array.Empty<WorkspaceAiAvailabilityCheckRow>();
+    private IReadOnlyList<WorkspaceAiAvailabilityCheckRow> checks = [];
+
+    public IReadOnlyList<WorkspaceAiAvailabilityCheckRow> Checks
+    {
+        get => checks;
+        init => checks = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 
     /// <summary>Non-secret configuration and probe metadata for operator troubleshooting.</summary>
-    public IReadOnlyDictionary<string, string> Debug { get; init; } =
-        new Dictionary<string, string>();
+    private IReadOnlyDictionary<string, string> debug = new Dictionary<string, string>();
+
+    public IReadOnlyDictionary<string, string> Debug
+    {
+        get => debug;
+        init => debug = value ?? new Dictionary<string, string>();
+    }
 }

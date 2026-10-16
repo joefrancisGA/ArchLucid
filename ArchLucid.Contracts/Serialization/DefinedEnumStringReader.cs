@@ -40,6 +40,29 @@ internal static class DefinedEnumStringReader
         throw new JsonException(unknownValueMessage);
     }
 
+    public static bool TryReadWholeNumberInt32(JsonElement element, out int value)
+    {
+        value = default;
+
+        if (element.ValueKind != JsonValueKind.Number)
+            return false;
+
+        if (element.TryGetInt32(out value))
+            return true;
+
+        if (element.TryGetDouble(out double wholeNumber)
+            && double.IsFinite(wholeNumber)
+            && wholeNumber >= int.MinValue
+            && wholeNumber <= int.MaxValue
+            && wholeNumber == Math.Floor(wholeNumber))
+        {
+            value = (int)wholeNumber;
+            return true;
+        }
+
+        return false;
+    }
+
     public static bool TryReadDefinedOrdinal<TEnum>(
         JsonElement element,
         out TEnum value,
@@ -47,35 +70,14 @@ internal static class DefinedEnumStringReader
     {
         value = default;
 
-        if (element.ValueKind != JsonValueKind.Number)
+        if (!TryReadWholeNumberInt32(element, out int numeric))
             return false;
 
-        if (element.TryGetInt32(out int numeric))
-        {
+        if (!Enum.IsDefined(typeof(TEnum), numeric))
+            throw throwUnknownOrdinal(numeric);
 
-            if (!Enum.IsDefined(typeof(TEnum), numeric))
-                throw throwUnknownOrdinal(numeric);
-
-            value = (TEnum)(object)numeric;
-            return true;
-        }
-
-        if (element.TryGetDouble(out double wholeNumber)
-            && double.IsFinite(wholeNumber)
-            && wholeNumber >= 0
-            && wholeNumber <= int.MaxValue
-            && wholeNumber == Math.Floor(wholeNumber))
-        {
-            int ordinal = (int)wholeNumber;
-
-            if (!Enum.IsDefined(typeof(TEnum), ordinal))
-                throw throwUnknownOrdinal(ordinal);
-
-            value = (TEnum)(object)ordinal;
-            return true;
-        }
-
-        return false;
+        value = (TEnum)(object)numeric;
+        return true;
     }
 
     public static TEnum ReadNumberTokenAsDefinedOrdinal<TEnum>(
@@ -108,5 +110,31 @@ internal static class DefinedEnumStringReader
         }
 
         throw throwInvalidNumber();
+    }
+
+    public static TEnum ReadContractEnum<TEnum>(ref Utf8JsonReader reader, string valueLabel) where TEnum : struct, Enum
+    {
+        if (reader.TokenType == JsonTokenType.Number)
+            return ReadNumberTokenAsDefinedOrdinal<TEnum>(
+                ref reader,
+                ordinal => new JsonException($"Unknown {valueLabel} value '{ordinal}'."),
+                () => new JsonException($"Invalid {valueLabel} number."));
+
+        if (reader.TokenType != JsonTokenType.String)
+            throw new JsonException($"Expected string or number for {valueLabel}.");
+
+        string? raw = reader.GetString();
+
+        if (string.IsNullOrWhiteSpace(raw))
+            throw new JsonException($"{char.ToUpperInvariant(valueLabel[0])}{valueLabel[1..]} value is required.");
+
+        ThrowIfUndefinedNumericString<TEnum>(
+            raw,
+            $"Unknown {valueLabel} value '{raw}'.");
+
+        if (TryParse(raw, out TEnum parsed))
+            return parsed;
+
+        throw new JsonException($"Unknown {valueLabel} value '{raw}'.");
     }
 }

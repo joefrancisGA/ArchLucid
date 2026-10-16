@@ -81,9 +81,12 @@ public sealed class SupportProblemReportNotifier(
         }
 
         string referenceId = report.Id.ToString("D");
-        string safeActor = WebUtility.HtmlEncode(submittedByActorId);
-        string safeCorrelation = WebUtility.HtmlEncode(report.CorrelationId ?? "—");
-        string safeClientRequest = WebUtility.HtmlEncode(report.ClientRequestId ?? "—");
+        string displayActor = EmailHeaderFragmentSanitizer.Sanitize(submittedByActorId.Trim());
+        string displayCorrelation = EmailHeaderFragmentSanitizer.Sanitize(report.CorrelationId ?? "—");
+        string displayClientRequest = EmailHeaderFragmentSanitizer.Sanitize(report.ClientRequestId ?? "—");
+        string safeActor = WebUtility.HtmlEncode(displayActor);
+        string safeCorrelation = WebUtility.HtmlEncode(displayCorrelation);
+        string safeClientRequest = WebUtility.HtmlEncode(displayClientRequest);
         string subject = $"[ArchLucid] Report {referenceId}";
         string html = "<p>A new <strong>Report problem</strong> submission was received from the operator UI.</p>" +
                       $"<p><strong>Report reference:</strong> {referenceId}</p>" +
@@ -96,9 +99,9 @@ public sealed class SupportProblemReportNotifier(
         string text = "ArchLucid support problem report\n" +
                       $"Report reference: {referenceId}\n" +
                       $"Submitted (UTC): {report.CreatedUtc:O}\n" +
-                      $"Submitter actor id: {submittedByActorId}\n" +
-                      $"Correlation id: {report.CorrelationId ?? "—"}\n" +
-                      $"Client request id: {report.ClientRequestId ?? "—"}\n" +
+                      $"Submitter actor id: {displayActor}\n" +
+                      $"Correlation id: {displayCorrelation}\n" +
+                      $"Client request id: {displayClientRequest}\n" +
                       $"Redacted support bundle attached: {(supportBundleAttached ? "Yes" : "No")}\n" +
                       $"SLA: {SupportProblemReportIntakeService.SlaMessage}\n";
         EmailMessage emailMessage = new()

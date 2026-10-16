@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Governance;
 
 /// <summary>One durable manifest decision in the decision register (TB-060).</summary>
@@ -70,9 +72,11 @@ public sealed class ArchitectureDecisionRegisterEntry
         init;
     }
 
+    private IReadOnlyList<string> supportingFindingIds = [];
+
     public IReadOnlyList<string> SupportingFindingIds
     {
-        get;
-        init;
-    } = [];
+        get => supportingFindingIds;
+        init => supportingFindingIds = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 }

@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Advisory.Learning;
 
 /// <summary>Aggregated recommendation outcomes and derived weights for a scope.</summary>
@@ -27,45 +29,59 @@ public class RecommendationLearningProfile
         set;
     } = TimeProvider.System.GetUtcNow().UtcDateTime;
 
+    private List<RecommendationOutcomeStats> categoryStats = [];
+
     public List<RecommendationOutcomeStats> CategoryStats
     {
-        get;
-        set;
-    } = [];
+        get => categoryStats;
+        set => categoryStats = ContractCollectionDefaults.Coalesce(value);
+    }
+
+    private List<RecommendationOutcomeStats> urgencyStats = [];
 
     public List<RecommendationOutcomeStats> UrgencyStats
     {
-        get;
-        set;
-    } = [];
+        get => urgencyStats;
+        set => urgencyStats = ContractCollectionDefaults.Coalesce(value);
+    }
+
+    private List<RecommendationOutcomeStats> signalTypeStats = [];
 
     public List<RecommendationOutcomeStats> SignalTypeStats
     {
-        get;
-        set;
-    } = [];
+        get => signalTypeStats;
+        set => signalTypeStats = ContractCollectionDefaults.Coalesce(value);
+    }
+
+    private Dictionary<string, double> categoryWeights = new(StringComparer.OrdinalIgnoreCase);
 
     public Dictionary<string, double> CategoryWeights
     {
-        get;
-        set;
-    } = new(StringComparer.OrdinalIgnoreCase);
+        get => categoryWeights;
+        set => categoryWeights = value ?? new Dictionary<string, double>(StringComparer.OrdinalIgnoreCase);
+    }
+
+    private Dictionary<string, double> urgencyWeights = new(StringComparer.OrdinalIgnoreCase);
 
     public Dictionary<string, double> UrgencyWeights
     {
-        get;
-        set;
-    } = new(StringComparer.OrdinalIgnoreCase);
+        get => urgencyWeights;
+        set => urgencyWeights = value ?? new Dictionary<string, double>(StringComparer.OrdinalIgnoreCase);
+    }
+
+    private Dictionary<string, double> signalTypeWeights = new(StringComparer.OrdinalIgnoreCase);
 
     public Dictionary<string, double> SignalTypeWeights
     {
-        get;
-        set;
-    } = new(StringComparer.OrdinalIgnoreCase);
+        get => signalTypeWeights;
+        set => signalTypeWeights = value ?? new Dictionary<string, double>(StringComparer.OrdinalIgnoreCase);
+    }
+
+    private List<string> notes = [];
 
     public List<string> Notes
     {
-        get;
-        set;
-    } = [];
+        get => notes;
+        set => notes = ContractCollectionDefaults.Coalesce(value);
+    }
 }

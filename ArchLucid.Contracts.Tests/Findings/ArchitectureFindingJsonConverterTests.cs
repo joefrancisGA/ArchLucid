@@ -57,6 +57,27 @@ public sealed class ArchitectureFindingJsonConverterTests
     }
 
     [Fact]
+    public void Deserialize_whole_number_double_insight_density_score_maps_integer()
+    {
+        const string json = """
+                            {
+                              "severity": "Warning",
+                              "category": "Insight",
+                              "enforcementTier": "Advisory",
+                              "message": "Dense finding score from agent JSON.",
+                              "insightDensityScore": 82.0
+                            }
+                            """;
+
+        JsonSerializerOptions options = CreateOptions();
+
+        ArchitectureFinding? finding = JsonSerializer.Deserialize<ArchitectureFinding>(json, options);
+
+        finding.Should().NotBeNull();
+        finding!.InsightDensityScore.Should().Be(82);
+    }
+
+    [Fact]
     public void RoundTrip_preservesInsightDensityFields()
     {
         ArchitectureFinding finding = new()

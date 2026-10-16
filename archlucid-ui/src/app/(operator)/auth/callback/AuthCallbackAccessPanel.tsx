@@ -58,6 +58,7 @@ function containsUnsupportedAccessRequestText(form: FormState): boolean {
     form.roleTitle,
     form.cloudPlatformFocus,
     form.note,
+    form.websiteUrl,
   ].some((value) =>
     unsupportedAccessRequestTextCharacters.test(value.replace(permittedAccessRequestControlCharacters, "")),
   );
@@ -67,6 +68,8 @@ function containsUnsupportedAccessRequestText(form: FormState): boolean {
 type SubmitControl = {
   generation: number;
   inFlight: boolean;
+  /** Outstanding access-request POST count; not cleared when the operator dismisses the form mid-flight. */
+  networkInFlightCount: number;
 };
 
 export function AuthCallbackAccessPanel({ technicalDetail }: AuthCallbackAccessPanelProps): React.JSX.Element {
@@ -75,7 +78,7 @@ export function AuthCallbackAccessPanel({ technicalDetail }: AuthCallbackAccessP
   const [submitting, setSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
-  const submitControlRef = useRef<SubmitControl>({ generation: 0, inFlight: false });
+  const submitControlRef = useRef<SubmitControl>({ generation: 0, inFlight: false, networkInFlightCount: 0 });
 
   function invalidateInFlightSubmit(): void {
     submitControlRef.current.generation += 1;
@@ -101,13 +104,14 @@ export function AuthCallbackAccessPanel({ technicalDetail }: AuthCallbackAccessP
       return;
     }
 
-    if (submitControlRef.current.inFlight) {
+    if (submitControlRef.current.inFlight || submitControlRef.current.networkInFlightCount > 0) {
       return;
     }
 
     const generation = submitControlRef.current.generation + 1;
     submitControlRef.current.generation = generation;
     submitControlRef.current.inFlight = true;
+    submitControlRef.current.networkInFlightCount += 1;
     setSubmitting(true);
     setErrorMessage(null);
 
@@ -152,6 +156,8 @@ export function AuthCallbackAccessPanel({ technicalDetail }: AuthCallbackAccessP
 
       setErrorMessage(AUTH_CALLBACK_ACCESS_SUBMIT_ERROR);
     } finally {
+      submitControlRef.current.networkInFlightCount -= 1;
+
       if (generation === submitControlRef.current.generation) {
         submitControlRef.current.inFlight = false;
         setSubmitting(false);

@@ -11,6 +11,17 @@ import {
 } from "@/lib/oidc/storage-keys";
 import { readPkceState, storePkceState } from "@/lib/oidc/session";
 
+function mockOidcConfigWithRedirectUri(): void {
+  vi.doMock("@/lib/oidc/config", async (importOriginal) => {
+    const actual = await importOriginal<typeof import("@/lib/oidc/config")>();
+
+    return {
+      ...actual,
+      getOidcRedirectUri: () => "https://app.example/auth/callback",
+    };
+  });
+}
+
 describe("initiate redirect PKCE isolation", () => {
   afterEach(() => {
     sessionStorage.clear();
@@ -40,6 +51,47 @@ describe("initiate redirect PKCE isolation", () => {
     expect(sessionStorage.getItem(OIDC_GOOGLE_NONCE_KEY)).toBe("google-nonce");
   });
 
+  it("strips zero-width padding from Google OIDC env before discovery and authorize", async () => {
+    vi.stubEnv("NEXT_PUBLIC_GOOGLE_OIDC_AUTHORITY", `https://accounts.google.com\u200b`);
+    vi.stubEnv("NEXT_PUBLIC_GOOGLE_OIDC_CLIENT_ID", `google-client\u200b`);
+    vi.stubEnv("NEXT_PUBLIC_GOOGLE_OIDC_SCOPES", `openid\u200b profile email`);
+
+    const assignMock = vi.fn();
+    vi.stubGlobal("location", { assign: assignMock });
+
+    const loadDiscoveryDocument = vi.fn(async () => ({
+      issuer: "https://accounts.google.com",
+      authorization_endpoint: "https://accounts.google.com/o/oauth2/v2/auth",
+      token_endpoint: "https://oauth2.googleapis.com/token",
+    }));
+    const buildAuthorizeUrl = vi.fn(() => "https://accounts.google.com/o/oauth2/v2/auth?state=google-state");
+
+    mockOidcConfigWithRedirectUri();
+    vi.doMock("@/lib/oidc/pkce", () => ({
+      createPkcePair: vi.fn(async () => ({ verifier: "google-verifier", challenge: "challenge" })),
+      randomOpaqueState: vi.fn(() => "google-state"),
+    }));
+    vi.doMock("@/lib/oidc/discovery", () => ({
+      loadDiscoveryDocument,
+    }));
+    vi.doMock("@/lib/oidc/build-authorize-url", () => ({
+      buildAuthorizeUrl,
+    }));
+
+    const { initiateSupplementalOidcRedirect } = await import("@/lib/oidc/initiate-redirect");
+
+    await initiateSupplementalOidcRedirect("google");
+
+    expect(loadDiscoveryDocument).toHaveBeenCalledWith("https://accounts.google.com");
+    expect(buildAuthorizeUrl).toHaveBeenCalledWith(
+      expect.objectContaining({
+        clientId: "google-client",
+        scope: "openid profile email",
+      }),
+    );
+    expect(assignMock).toHaveBeenCalled();
+  });
+
   it("clears stale primary PKCE state when supplemental Google redirect succeeds", async () => {
     storePkceState("primary-state", "primary-verifier", "primary-nonce", "primary");
 
@@ -48,9 +100,7 @@ describe("initiate redirect PKCE isolation", () => {
     const assignMock = vi.fn();
     vi.stubGlobal("location", { assign: assignMock });
 
-    vi.doMock("@/lib/oidc/config", () => ({
-      getOidcRedirectUri: () => "https://app.example/auth/callback",
-    }));
+    mockOidcConfigWithRedirectUri();
     vi.doMock("@/lib/oidc/pkce", () => ({
       createPkcePair: vi.fn(async () => ({ verifier: "google-verifier", challenge: "challenge" })),
       randomOpaqueState: vi.fn(() => "google-state"),
@@ -173,9 +223,7 @@ describe("initiate redirect PKCE isolation", () => {
 
     vi.stubEnv("NEXT_PUBLIC_GOOGLE_OIDC_AUTHORITY", "https://accounts.google.com");
     vi.stubEnv("NEXT_PUBLIC_GOOGLE_OIDC_CLIENT_ID", "google-client");
-    vi.doMock("@/lib/oidc/config", () => ({
-      getOidcRedirectUri: () => "https://app.example/auth/callback",
-    }));
+    mockOidcConfigWithRedirectUri();
     vi.doMock("@/lib/oidc/pkce", () => ({
       createPkcePair: vi.fn(async () => ({ verifier: "google-verifier", challenge: "challenge" })),
       randomOpaqueState: vi.fn(() => "google-state"),
@@ -197,9 +245,7 @@ describe("initiate redirect PKCE isolation", () => {
   it("clears the post-sign-in return path when supplemental Google discovery fails after storing a return URL", async () => {
     vi.stubEnv("NEXT_PUBLIC_GOOGLE_OIDC_AUTHORITY", "https://accounts.google.com");
     vi.stubEnv("NEXT_PUBLIC_GOOGLE_OIDC_CLIENT_ID", "google-client");
-    vi.doMock("@/lib/oidc/config", () => ({
-      getOidcRedirectUri: () => "https://app.example/auth/callback",
-    }));
+    mockOidcConfigWithRedirectUri();
     vi.doMock("@/lib/oidc/pkce", () => ({
       createPkcePair: vi.fn(async () => ({ verifier: "google-verifier", challenge: "challenge" })),
       randomOpaqueState: vi.fn(() => "google-state"),

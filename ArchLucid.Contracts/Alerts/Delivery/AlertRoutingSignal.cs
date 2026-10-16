@@ -1,16 +1,35 @@
 namespace ArchLucid.Contracts.Alerts.Delivery;
 
 using ArchLucid.Contracts.Alerts;
+using ArchLucid.Contracts.Serialization;
 
 /// <summary>Normalized dimensions used when evaluating routing subscriptions for an alert.</summary>
 public sealed class AlertRoutingSignal
 {
-    public string Severity { get; init; } = null!;
+    private string severity = string.Empty;
+
+    public string Severity
+    {
+        get => severity;
+        init => severity = ContractCollectionDefaults.CoalesceRequired(value);
+    }
 
     /// <summary>Typically <see cref="AlertRecord.Category" /> (advisory, security, compliance, …).</summary>
-    public string FindingType { get; init; } = null!;
+    private string findingType = string.Empty;
 
-    public IReadOnlyList<string> Tags { get; init; } = [];
+    public string FindingType
+    {
+        get => findingType;
+        init => findingType = ContractCollectionDefaults.CoalesceRequired(value);
+    }
+
+    private IReadOnlyList<string> tags = [];
+
+    public IReadOnlyList<string> Tags
+    {
+        get => tags;
+        init => tags = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 
     public static AlertRoutingSignal FromAlert(AlertRecord alert)
     {

@@ -163,6 +163,39 @@ public sealed class MarkdownArchitectureAnalysisExportServiceTests
     }
 
     [Fact]
+    public void GenerateMarkdown_includes_governance_classifications_when_control_lists_empty()
+    {
+        ArchitectureAnalysisReport report = new()
+        {
+            Run =
+                new ArchitectureRun
+                {
+                    RunId = "a1b2c3d4e5f678901234567890abcd",
+                    RequestId = "req-1",
+                    Status = ArchitectureRunStatus.Committed
+                },
+            Manifest =
+                new GoldenManifest
+                {
+                    RunId = "a1b2c3d4e5f678901234567890abcd",
+                    SystemName = "Acme",
+                    Metadata = new ManifestMetadata { ManifestVersion = "v1" },
+                    Governance = new ManifestGovernance
+                    {
+                        RiskClassification = "High",
+                        CostClassification = "Low",
+                    },
+                },
+        };
+
+        string md = _sut.GenerateMarkdown(report);
+
+        md.Should().Contain("### Governance");
+        md.Should().Contain("Risk Classification: High");
+        md.Should().Contain("Cost Classification: Low");
+    }
+
+    [Fact]
     public void GenerateMarkdown_evidence_with_empty_nested_lists_skips_optional_bullets()
     {
         ArchitectureAnalysisReport report = new()
@@ -190,5 +223,31 @@ public sealed class MarkdownArchitectureAnalysisExportServiceTests
         md.Should().Contain("## Evidence Package");
         md.Should().Contain("At least ten characters for export body.");
         md.Should().NotContain("- Constraints:");
+    }
+
+    [Fact]
+    public void GenerateMarkdown_uses_omission_copy_for_missing_evidence_description()
+    {
+        ArchitectureAnalysisReport report = new()
+        {
+            Run = new ArchitectureRun
+            {
+                RunId = "a1b2c3d4e5f678901234567890abcd",
+                RequestId = "req-1",
+                Status = ArchitectureRunStatus.Committed,
+            },
+            Evidence = new AgentEvidencePackage
+            {
+                EvidencePackageId = "ev-1",
+                SystemName = "Sys",
+                Environment = "prod",
+                CloudProvider = "Azure",
+                Request = new RequestEvidence { Description = null! },
+            },
+        };
+
+        string md = _sut.GenerateMarkdown(report);
+
+        md.Should().Contain($"- Description: {ArchitectureEvidenceRequestExport.MissingDescriptionCopy}");
     }
 }

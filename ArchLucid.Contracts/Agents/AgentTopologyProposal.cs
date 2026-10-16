@@ -1,5 +1,6 @@
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
+using ArchLucid.Contracts.Serialization;
 
 namespace ArchLucid.Contracts.Agents;
 
@@ -20,33 +21,43 @@ public sealed class AgentTopologyProposal
         set;
     }
 
+    private List<ManifestService> addedServices = [];
+
     public List<ManifestService> AddedServices
     {
-        get;
-        set;
-    } = [];
+        get => addedServices;
+        set => addedServices = ContractCollectionDefaults.Coalesce(value);
+    }
+
+    private List<ManifestDatastore> addedDatastores = [];
 
     public List<ManifestDatastore> AddedDatastores
     {
-        get;
-        set;
-    } = [];
+        get => addedDatastores;
+        set => addedDatastores = ContractCollectionDefaults.Coalesce(value);
+    }
+
+    private List<ManifestRelationship> addedRelationships = [];
 
     public List<ManifestRelationship> AddedRelationships
     {
-        get;
-        set;
-    } = [];
+        get => addedRelationships;
+        set => addedRelationships = ContractCollectionDefaults.Coalesce(value);
+    }
+
+    private List<string> requiredControls = [];
 
     public List<string> RequiredControls
     {
-        get;
-        set;
-    } = [];
+        get => requiredControls;
+        set => requiredControls = ContractCollectionDefaults.Coalesce(value);
+    }
+
+    private List<string> warnings = [];
 
     public List<string> Warnings
     {
-        get;
-        set;
-    } = [];
+        get => warnings;
+        set => warnings = ContractCollectionDefaults.Coalesce(value);
+    }
 }

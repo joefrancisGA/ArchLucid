@@ -1,5 +1,7 @@
 using System.Text.Json.Serialization;
 
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Architecture;
 
 /// <summary>
@@ -12,7 +14,7 @@ namespace ArchLucid.Contracts.Architecture;
 ///     lowers the confidence of any finding that depends on that actor's trust boundary,
 ///     and the actor appears in the <c>Inferred[]</c> section of the trail output.
 /// </remarks>
-[JsonConverter(typeof(JsonStringEnumConverter))]
+[JsonConverter(typeof(DefinedEnumJsonConverter<ActorOrigin>))]
 public enum ActorOrigin
 {
     /// <summary>

@@ -209,6 +209,48 @@ public sealed class ComparisonReplayCostEstimatorTests
     }
 
     [SkippableFact]
+    public async Task TryEstimateAsync_pascal_case_warning_only_manifestDiff_adds_factor()
+    {
+        EndToEndReplayComparisonReport report = new()
+        {
+            LeftRunId = "a".PadRight(32, 'a'),
+            RightRunId = "b".PadRight(32, 'b'),
+            ManifestDiff = new ManifestDiffResult { Warnings = ["Manifest metadata drift only."] },
+        };
+        string payloadJson = JsonSerializer.Serialize(report);
+
+        Mock<IComparisonRecordRepository> repo = new();
+        repo.Setup(r => r.GetByIdAsync("c1", It.IsAny<CancellationToken>())).ReturnsAsync(
+            new ComparisonRecord
+            {
+                ComparisonRecordId = "c1",
+                ComparisonType = ComparisonTypes.EndToEndReplay,
+                PayloadJson = payloadJson,
+            });
+
+        ComparisonReplayCostEstimator sut = CreateSut(repo.Object);
+
+        ComparisonReplayCostEstimate? rich =
+            await sut.TryEstimateAsync("c1", "markdown", "artifact", false, CancellationToken.None);
+
+        repo.Setup(r => r.GetByIdAsync("c2", It.IsAny<CancellationToken>())).ReturnsAsync(
+            new ComparisonRecord
+            {
+                ComparisonRecordId = "c2",
+                ComparisonType = ComparisonTypes.EndToEndReplay,
+                PayloadJson = "{}",
+            });
+
+        ComparisonReplayCostEstimate? baseline =
+            await sut.TryEstimateAsync("c2", "markdown", "artifact", false, CancellationToken.None);
+
+        rich.Should().NotBeNull();
+        baseline.Should().NotBeNull();
+        rich.ApproximateRelativeScore.Should().BeGreaterThan(baseline.ApproximateRelativeScore);
+        rich.Factors.Should().Contain(f => f.Contains("warning-only", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [SkippableFact]
     public async Task TryEstimateAsync_export_record_diff_payload_with_many_changed_fields_adds_factor()
     {
         JsonSerializerOptions jsonOptions = new(JsonSerializerDefaults.Web);
@@ -239,6 +281,112 @@ public sealed class ComparisonReplayCostEstimatorTests
 
         result.Should().NotBeNull();
         result.Factors.Should().Contain(f => f.Contains("Export record", StringComparison.Ordinal));
+    }
+
+    [SkippableFact]
+    public async Task TryEstimateAsync_pascal_case_export_record_diff_payload_adds_factor()
+    {
+        ExportRecordDiffResult diff = new()
+        {
+            LeftExportRecordId = "l",
+            RightExportRecordId = "r",
+            LeftRunId = "lr",
+            RightRunId = "rr",
+            ChangedTopLevelFields = [..Enumerable.Range(1, 14).Select(static i => $"f{i}")],
+            RequestDiff = new ExportRecordRequestDiff { ChangedFlags = [..Enumerable.Repeat("flag", 12)] },
+        };
+        string payloadJson = JsonSerializer.Serialize(diff);
+
+        Mock<IComparisonRecordRepository> repo = new();
+        repo.Setup(r => r.GetByIdAsync("c1", It.IsAny<CancellationToken>())).ReturnsAsync(
+            new ComparisonRecord
+            {
+                ComparisonRecordId = "c1",
+                ComparisonType = ComparisonTypes.ExportRecordDiff,
+                PayloadJson = payloadJson,
+            });
+
+        ComparisonReplayCostEstimator sut = CreateSut(repo.Object);
+
+        ComparisonReplayCostEstimate? result =
+            await sut.TryEstimateAsync("c1", "markdown", "artifact", false, CancellationToken.None);
+
+        result.Should().NotBeNull();
+        result.Factors.Should().Contain(f => f.Contains("Export record", StringComparison.Ordinal));
+    }
+
+    [SkippableFact]
+    public async Task TryEstimateAsync_pascal_case_artifact_sizes_bytes_adds_factor()
+    {
+        const string pascalPayloadJson = """{"ArtifactSizesBytes":[600000,600000]}""";
+        const string camelPayloadJson = """{"artifactSizesBytes":[600000,600000]}""";
+
+        Mock<IComparisonRecordRepository> repo = new();
+        repo.Setup(r => r.GetByIdAsync("c1", It.IsAny<CancellationToken>())).ReturnsAsync(
+            new ComparisonRecord
+            {
+                ComparisonRecordId = "c1",
+                ComparisonType = ComparisonTypes.EndToEndReplay,
+                PayloadJson = pascalPayloadJson,
+            });
+        repo.Setup(r => r.GetByIdAsync("c2", It.IsAny<CancellationToken>())).ReturnsAsync(
+            new ComparisonRecord
+            {
+                ComparisonRecordId = "c2",
+                ComparisonType = ComparisonTypes.EndToEndReplay,
+                PayloadJson = camelPayloadJson,
+            });
+
+        ComparisonReplayCostEstimator sut = CreateSut(repo.Object);
+
+        ComparisonReplayCostEstimate? pascalCase =
+            await sut.TryEstimateAsync("c1", "markdown", "artifact", false, CancellationToken.None);
+        ComparisonReplayCostEstimate? camelCase =
+            await sut.TryEstimateAsync("c2", "markdown", "artifact", false, CancellationToken.None);
+
+        pascalCase.Should().NotBeNull();
+        camelCase.Should().NotBeNull();
+        pascalCase.ApproximateRelativeScore.Should().Be(camelCase.ApproximateRelativeScore);
+        pascalCase.Factors.Should()
+            .Contain(f => f.Contains("referenced artifact", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [SkippableFact]
+    public async Task TryEstimateAsync_pascal_case_agent_presence_delta_adds_factor()
+    {
+        const string pascalPayloadJson =
+            """{"AgentResultDiff":{"AgentDeltas":[{"LeftExists":false,"RightExists":true}]}}""";
+        const string camelPayloadJson =
+            """{"agentResultDiff":{"agentDeltas":[{"leftExists":false,"rightExists":true}]}}""";
+
+        Mock<IComparisonRecordRepository> repo = new();
+        repo.Setup(r => r.GetByIdAsync("c1", It.IsAny<CancellationToken>())).ReturnsAsync(
+            new ComparisonRecord
+            {
+                ComparisonRecordId = "c1",
+                ComparisonType = ComparisonTypes.EndToEndReplay,
+                PayloadJson = pascalPayloadJson,
+            });
+        repo.Setup(r => r.GetByIdAsync("c2", It.IsAny<CancellationToken>())).ReturnsAsync(
+            new ComparisonRecord
+            {
+                ComparisonRecordId = "c2",
+                ComparisonType = ComparisonTypes.EndToEndReplay,
+                PayloadJson = camelPayloadJson,
+            });
+
+        ComparisonReplayCostEstimator sut = CreateSut(repo.Object);
+
+        ComparisonReplayCostEstimate? pascalCase =
+            await sut.TryEstimateAsync("c1", "markdown", "artifact", false, CancellationToken.None);
+        ComparisonReplayCostEstimate? camelCase =
+            await sut.TryEstimateAsync("c2", "markdown", "artifact", false, CancellationToken.None);
+
+        pascalCase.Should().NotBeNull();
+        camelCase.Should().NotBeNull();
+        pascalCase.ApproximateRelativeScore.Should().Be(camelCase.ApproximateRelativeScore);
+        pascalCase.Factors.Should()
+            .Contain(f => f.Contains("Agent result deltas", StringComparison.OrdinalIgnoreCase));
     }
 
     [SkippableFact]

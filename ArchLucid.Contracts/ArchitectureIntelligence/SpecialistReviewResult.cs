@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.ArchitectureIntelligence;
 
 public class SpecialistReviewResult
@@ -8,15 +10,19 @@ public class SpecialistReviewResult
         set;
     }
 
+    private List<SpecialistReviewFinding> findings = [];
+
     public List<SpecialistReviewFinding> Findings
     {
-        get;
-        set;
-    } = [];
+        get => findings;
+        set => findings = ContractCollectionDefaults.Coalesce(value);
+    }
+
+    private List<string> openQuestions = [];
 
     public List<string> OpenQuestions
     {
-        get;
-        set;
-    } = [];
+        get => openQuestions;
+        set => openQuestions = ContractCollectionDefaults.Coalesce(value);
+    }
 }

@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.InfraEvidence;
 
 public sealed class SecurityEvidencePathSummaryResponse
@@ -95,17 +97,21 @@ public sealed class SecurityEvidencePathDetailResponse
         init;
     }
 
+    private IReadOnlyList<SecurityEvidencePathHopResponse> hops = [];
+
     public IReadOnlyList<SecurityEvidencePathHopResponse> Hops
     {
-        get;
-        init;
-    } = [];
+        get => hops;
+        init => hops = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
+
+    private IReadOnlyList<Guid> citingFindingIds = [];
 
     public IReadOnlyList<Guid> CitingFindingIds
     {
-        get;
-        init;
-    } = [];
+        get => citingFindingIds;
+        init => citingFindingIds = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 
     public SecurityEvidencePathWeakestHopResponse? WeakestHop
     {
@@ -113,29 +119,37 @@ public sealed class SecurityEvidencePathDetailResponse
         init;
     }
 
+    private SecurityEvidencePathExplanationTemplateResponse explanationTemplate = new();
+
     public SecurityEvidencePathExplanationTemplateResponse ExplanationTemplate
     {
-        get;
-        init;
-    } = new();
+        get => explanationTemplate;
+        init => explanationTemplate = value ?? new();
+    }
+
+    private IReadOnlyList<SecurityEvidenceCutPointSummaryResponse> relatedCutPoints = [];
 
     public IReadOnlyList<SecurityEvidenceCutPointSummaryResponse> RelatedCutPoints
     {
-        get;
-        init;
-    } = [];
+        get => relatedCutPoints;
+        init => relatedCutPoints = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
+
+    private IReadOnlyList<SecurityEvidencePathRoutingResponse> routing = [];
 
     public IReadOnlyList<SecurityEvidencePathRoutingResponse> Routing
     {
-        get;
-        init;
-    } = [];
+        get => routing;
+        init => routing = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
+
+    private IReadOnlyList<SecureNowHypothesisResponse> hypotheses = [];
 
     public IReadOnlyList<SecureNowHypothesisResponse> Hypotheses
     {
-        get;
-        init;
-    } = [];
+        get => hypotheses;
+        init => hypotheses = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 }
 
 public sealed class SecureNowHypothesisResponse
@@ -170,23 +184,29 @@ public sealed class SecureNowHypothesisResponse
         init;
     } = string.Empty;
 
+    private IReadOnlyList<Guid> citedPathIds = [];
+
     public IReadOnlyList<Guid> CitedPathIds
     {
-        get;
-        init;
-    } = [];
+        get => citedPathIds;
+        init => citedPathIds = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
+
+    private IReadOnlyList<Guid> citedFindingIds = [];
 
     public IReadOnlyList<Guid> CitedFindingIds
     {
-        get;
-        init;
-    } = [];
+        get => citedFindingIds;
+        init => citedFindingIds = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
+
+    private IReadOnlyList<string> evidenceReferences = [];
 
     public IReadOnlyList<string> EvidenceReferences
     {
-        get;
-        init;
-    } = [];
+        get => evidenceReferences;
+        init => evidenceReferences = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 
     public string? SharedDependencyNodeId
     {
@@ -194,11 +214,13 @@ public sealed class SecureNowHypothesisResponse
         init;
     }
 
+    private IReadOnlyList<string> dependentResourceIds = [];
+
     public IReadOnlyList<string> DependentResourceIds
     {
-        get;
-        init;
-    } = [];
+        get => dependentResourceIds;
+        init => dependentResourceIds = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 
     public string? SeparationDimension
     {

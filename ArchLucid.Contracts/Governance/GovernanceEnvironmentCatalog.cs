@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Governance;
 
 /// <summary>
@@ -11,9 +13,19 @@ public sealed class GovernanceEnvironmentCatalog
     /// </summary>
     public bool IsAdministratorConfigured { get; set; }
 
-    public IReadOnlyList<GovernanceEnvironmentDefinition> Environments { get; set; } =
-        Array.Empty<GovernanceEnvironmentDefinition>();
+    private IReadOnlyList<GovernanceEnvironmentDefinition> environments = [];
 
-    public IReadOnlyList<GovernanceEnvironmentTransition> Transitions { get; set; } =
-        Array.Empty<GovernanceEnvironmentTransition>();
+    public IReadOnlyList<GovernanceEnvironmentDefinition> Environments
+    {
+        get => environments;
+        set => environments = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
+
+    private IReadOnlyList<GovernanceEnvironmentTransition> transitions = [];
+
+    public IReadOnlyList<GovernanceEnvironmentTransition> Transitions
+    {
+        get => transitions;
+        set => transitions = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 }

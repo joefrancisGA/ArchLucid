@@ -251,4 +251,47 @@ public sealed class FindingRemediationAssignmentEmailDispatcherTests
         capturedModel.AssignedToQueueUrl.Should().Be("https://ops.example.test/governance/findings/assigned-to-me");
         capturedModel.LogoImageUrl.Should().Be("https://ops.example.test/logo/icon-192.png");
     }
+
+    [Fact]
+    public async Task TryDispatchAsync_strips_embedded_crlf_from_finding_title_in_template_model()
+    {
+        FindingRemediationAssignmentEmailModel? capturedModel = null;
+
+        Mock<IEmailTemplateRenderer> renderer = new();
+        renderer.Setup(r => r.RenderHtmlAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>()))
+            .Callback<string, object, CancellationToken>((_, model, _) => capturedModel = model as FindingRemediationAssignmentEmailModel)
+            .ReturnsAsync("<p>assigned</p>");
+        renderer.Setup(r => r.RenderTextAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync("assigned");
+
+        Mock<IEmailProvider> provider = new();
+        provider.SetupGet(p => p.ProviderName).Returns("test-provider");
+        provider.Setup(p => p.SendAsync(It.IsAny<EmailMessage>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IOptionsMonitor<EmailNotificationOptions>> options = new();
+        options.Setup(o => o.CurrentValue).Returns(new EmailNotificationOptions { ProductDisplayName = "ArchLucid" });
+
+        FindingRemediationAssignmentEmailDispatcher sut = new(
+            renderer.Object,
+            provider.Object,
+            new InMemorySentEmailLedger(),
+            options.Object,
+            NullLogger<FindingRemediationAssignmentEmailDispatcher>.Instance);
+
+        bool dispatched = await sut.TryDispatchAsync(
+            Guid.Parse("33333333-3333-3333-3333-333333333333"),
+            Guid.Parse("44444444-4444-4444-4444-444444444444"),
+            "finding-crlf",
+            "Open ingress\r\nBcc: injected@evil.test",
+            "assignee@example.test",
+            remediationDueUtc: null,
+            cancellationToken: CancellationToken.None);
+
+        dispatched.Should().BeTrue();
+        capturedModel.Should().NotBeNull();
+        capturedModel!.FindingTitle.Should().Be("Open ingress Bcc: injected@evil.test");
+        capturedModel.FindingTitle.Should().NotContain("\r");
+        capturedModel.FindingTitle.Should().NotContain("\n");
+    }
 }

@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Metadata;
 
 /// <summary>
@@ -105,9 +107,11 @@ public sealed class ComparisonRecord
     }
 
     /// <summary>Optional tags for filtering and grouping.</summary>
+    private List<string> tags = [];
+
     public List<string> Tags
     {
-        get;
-        set;
-    } = [];
+        get => tags;
+        set => tags = ContractCollectionDefaults.Coalesce(value);
+    }
 }

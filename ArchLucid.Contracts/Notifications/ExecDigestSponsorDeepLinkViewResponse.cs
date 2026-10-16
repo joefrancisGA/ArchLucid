@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Notifications;
 
 /// <summary>Anonymous read-only sponsor payload for digest deep links (TB-2196).</summary>
@@ -9,8 +11,13 @@ public sealed class ExecDigestSponsorDeepLinkViewResponse
 
     public int? CommittedManifestsInWeek { get; init; }
 
-    public IReadOnlyList<ExecDigestSponsorDeepLinkHighlightedRunDto> TopRuns { get; init; } =
-        Array.Empty<ExecDigestSponsorDeepLinkHighlightedRunDto>();
+    private IReadOnlyList<ExecDigestSponsorDeepLinkHighlightedRunDto> topRuns = [];
+
+    public IReadOnlyList<ExecDigestSponsorDeepLinkHighlightedRunDto> TopRuns
+    {
+        get => topRuns;
+        init => topRuns = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 
     public string? ComplianceDriftMarkdown { get; init; }
 

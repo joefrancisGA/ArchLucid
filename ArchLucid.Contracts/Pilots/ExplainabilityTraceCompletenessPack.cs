@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Pilots;
 
 /// <summary>Explainability-trace completeness for findings in the persisted <c>FindingsSnapshot</c> for the demo run.</summary>
@@ -16,11 +18,13 @@ public sealed class ExplainabilityTraceCompletenessPack
         init;
     }
 
+    private IReadOnlyList<ExplainabilityTraceEngineCompletenessPack> byEngine = [];
+
     public IReadOnlyList<ExplainabilityTraceEngineCompletenessPack> ByEngine
     {
-        get;
-        init;
-    } = [];
+        get => byEngine;
+        init => byEngine = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 }
 
 /// <summary>Per-engine aggregate for <see cref="ExplainabilityTraceCompletenessPack" />.</summary>

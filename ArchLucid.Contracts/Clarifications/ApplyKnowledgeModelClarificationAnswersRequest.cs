@@ -1,12 +1,16 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Clarifications;
 
 public sealed class ApplyKnowledgeModelClarificationAnswersRequest
 {
+    private Dictionary<string, string> answers = new(StringComparer.Ordinal);
+
     public Dictionary<string, string> Answers
     {
-        get;
-        set;
-    } = new(StringComparer.Ordinal);
+        get => answers;
+        set => answers = value ?? new Dictionary<string, string>(StringComparer.Ordinal);
+    }
 }
 
 public sealed class ApplyKnowledgeModelClarificationAnswersResponse

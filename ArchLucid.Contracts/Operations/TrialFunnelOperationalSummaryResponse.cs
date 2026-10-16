@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Operations;
 
 /// <summary>
@@ -87,11 +89,13 @@ public sealed class TrialFunnelOperationalSummaryResponse
         init;
     }
 
+    private IReadOnlyList<TrialFunnelStageMetricResponse> stages = [];
+
     public IReadOnlyList<TrialFunnelStageMetricResponse> Stages
     {
-        get;
-        init;
-    } = Array.Empty<TrialFunnelStageMetricResponse>();
+        get => stages;
+        init => stages = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 
     public TrialFunnelTimingMetricsResponse? Timing
     {
@@ -105,9 +109,11 @@ public sealed class TrialFunnelOperationalSummaryResponse
         init;
     }
 
+    private IReadOnlyList<TrialFunnelCohortRowResponse> cohortRows = [];
+
     public IReadOnlyList<TrialFunnelCohortRowResponse> CohortRows
     {
-        get;
-        init;
-    } = Array.Empty<TrialFunnelCohortRowResponse>();
+        get => cohortRows;
+        init => cohortRows = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 }

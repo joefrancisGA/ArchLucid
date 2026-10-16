@@ -28,7 +28,7 @@ public static class FirstValueReportDeltasSectionFormatter
         sb.AppendLine("| --- | --- | --- |");
         sb.AppendLine($"| Time to committed manifest | {FormatTimeToCommit(deltas)} | `RunRecord.CreatedUtc` → `GoldenManifest.CommittedUtc` |");
         sb.AppendLine($"| Findings (total) | {deltas.FindingsBySeverity.Sum(static p => p.Value)} | `ArchitectureRunDetail.Results[*].Findings` |");
-        sb.AppendLine($"| LLM calls for this run | {deltas.LlmCallCount} | `archlucid_llm_calls_per_run` (per-run trace count) |");
+        sb.AppendLine($"| LLM calls for this run | {FormatLlmCallCount(deltas)} | `archlucid_llm_calls_per_run` (per-run trace count) |");
         sb.AppendLine($"| Audit rows for this run | {FormatAuditRowCount(deltas)} | `IAuditRepository.CountFilteredAsync(RunId)` |");
         sb.AppendLine();
     }
@@ -98,5 +98,13 @@ public static class FirstValueReportDeltasSectionFormatter
         return deltas.AuditRowCountTruncated
             ? $"{deltas.AuditRowCount}+ _(query cap reached — exact count is at least this many)_"
             : deltas.AuditRowCount.ToString(CultureInfo.InvariantCulture);
+    }
+
+    private static string FormatLlmCallCount(PilotRunDeltas deltas)
+    {
+        if (!deltas.LlmCallCountResolved)
+            return "_(not attested — execution trace query failed)_";
+
+        return deltas.LlmCallCount.ToString(CultureInfo.InvariantCulture);
     }
 }

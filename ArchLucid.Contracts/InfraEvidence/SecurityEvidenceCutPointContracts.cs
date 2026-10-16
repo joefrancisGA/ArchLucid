@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.InfraEvidence;
 
 public sealed class SecurityEvidenceCutPointSummaryResponse
@@ -56,17 +58,21 @@ public sealed class SecurityEvidenceCutPointSummaryResponse
         init;
     }
 
+    private IReadOnlyList<Guid> collapsedPathIds = [];
+
     public IReadOnlyList<Guid> CollapsedPathIds
     {
-        get;
-        init;
-    } = [];
+        get => collapsedPathIds;
+        init => collapsedPathIds = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
+
+    private IReadOnlyList<string> evidenceReferences = [];
 
     public IReadOnlyList<string> EvidenceReferences
     {
-        get;
-        init;
-    } = [];
+        get => evidenceReferences;
+        init => evidenceReferences = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 
     public string? SuggestedPatternKey
     {
@@ -83,11 +89,13 @@ public sealed class SecurityEvidenceCutPointSummaryResponse
 
 public sealed class SecurityEvidencePathRankedPageResponse
 {
+    private IReadOnlyList<SecurityEvidencePathRankSummaryResponse> items = [];
+
     public IReadOnlyList<SecurityEvidencePathRankSummaryResponse> Items
     {
-        get;
-        init;
-    } = [];
+        get => items;
+        init => items = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 
     public int TotalCount
     {
@@ -107,9 +115,11 @@ public sealed class SecurityEvidencePathRankedPageResponse
         init;
     }
 
+    private IReadOnlyList<SecurityEvidenceCutPointSummaryResponse> topCutPoints = [];
+
     public IReadOnlyList<SecurityEvidenceCutPointSummaryResponse> TopCutPoints
     {
-        get;
-        init;
-    } = [];
+        get => topCutPoints;
+        init => topCutPoints = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 }

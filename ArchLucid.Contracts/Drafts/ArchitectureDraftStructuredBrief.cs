@@ -1,5 +1,7 @@
 using System.Text.Json.Serialization;
 
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Drafts;
 
 /// <summary>
@@ -29,76 +31,96 @@ public sealed class ArchitectureDraftStructuredBrief
     public static bool IsConfirmedBriefEntry(string? value) =>
         !string.IsNullOrWhiteSpace(value) && !IsUnknownConfirmSentinel(value);
 
+    private List<string> confirmedConstraints = [];
+
     [JsonPropertyName("confirmedConstraints")]
     public List<string> ConfirmedConstraints
     {
-        get;
-        set;
-    } = [];
+        get => confirmedConstraints;
+        set => confirmedConstraints = ContractCollectionDefaults.Coalesce(value);
+    }
+
+    private List<string> confirmedAssumptions = [];
 
     [JsonPropertyName("confirmedAssumptions")]
     public List<string> ConfirmedAssumptions
     {
-        get;
-        set;
-    } = [];
+        get => confirmedAssumptions;
+        set => confirmedAssumptions = ContractCollectionDefaults.Coalesce(value);
+    }
+
+    private List<string> confirmedRequiredCapabilities = [];
 
     [JsonPropertyName("confirmedRequiredCapabilities")]
     public List<string> ConfirmedRequiredCapabilities
     {
-        get;
-        set;
-    } = [];
+        get => confirmedRequiredCapabilities;
+        set => confirmedRequiredCapabilities = ContractCollectionDefaults.Coalesce(value);
+    }
 
     /// <summary>Inherited inline requirements from a prior package (TB-2350).</summary>
+    private List<string> confirmedInlineRequirements = [];
+
     [JsonPropertyName("confirmedInlineRequirements")]
     public List<string> ConfirmedInlineRequirements
     {
-        get;
-        set;
-    } = [];
+        get => confirmedInlineRequirements;
+        set => confirmedInlineRequirements = ContractCollectionDefaults.Coalesce(value);
+    }
+
+    private List<string> suggestedConstraints = [];
 
     [JsonPropertyName("suggestedConstraints")]
     public List<string> SuggestedConstraints
     {
-        get;
-        set;
-    } = [];
+        get => suggestedConstraints;
+        set => suggestedConstraints = ContractCollectionDefaults.Coalesce(value);
+    }
+
+    private List<string> suggestedAssumptions = [];
 
     [JsonPropertyName("suggestedAssumptions")]
     public List<string> SuggestedAssumptions
     {
-        get;
-        set;
-    } = [];
+        get => suggestedAssumptions;
+        set => suggestedAssumptions = ContractCollectionDefaults.Coalesce(value);
+    }
+
+    private List<string> suggestedRequiredCapabilities = [];
 
     [JsonPropertyName("suggestedRequiredCapabilities")]
     public List<string> SuggestedRequiredCapabilities
     {
-        get;
-        set;
-    } = [];
+        get => suggestedRequiredCapabilities;
+        set => suggestedRequiredCapabilities = ContractCollectionDefaults.Coalesce(value);
+    }
+
+    private List<string> deniedConstraints = [];
 
     [JsonPropertyName("deniedConstraints")]
     public List<string> DeniedConstraints
     {
-        get;
-        set;
-    } = [];
+        get => deniedConstraints;
+        set => deniedConstraints = ContractCollectionDefaults.Coalesce(value);
+    }
+
+    private List<string> deniedAssumptions = [];
 
     [JsonPropertyName("deniedAssumptions")]
     public List<string> DeniedAssumptions
     {
-        get;
-        set;
-    } = [];
+        get => deniedAssumptions;
+        set => deniedAssumptions = ContractCollectionDefaults.Coalesce(value);
+    }
+
+    private List<string> deniedRequiredCapabilities = [];
 
     [JsonPropertyName("deniedRequiredCapabilities")]
     public List<string> DeniedRequiredCapabilities
     {
-        get;
-        set;
-    } = [];
+        get => deniedRequiredCapabilities;
+        set => deniedRequiredCapabilities = ContractCollectionDefaults.Coalesce(value);
+    }
 
     /// <summary>RTO/RPO, latency, volume, cost ceiling, or qualitative targets such as defense in depth.</summary>
     [JsonPropertyName("qualityAttribute")]

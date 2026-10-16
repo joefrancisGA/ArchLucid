@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.ArchitectureIntelligence;
 
 public class ImmutableSourceArtifact
@@ -56,9 +58,11 @@ public class ImmutableSourceArtifact
         set;
     }
 
+    private Dictionary<string, string> metadata = [];
+
     public Dictionary<string, string> Metadata
     {
-        get;
-        set;
-    } = new();
+        get => metadata;
+        set => metadata = ContractCollectionDefaults.CoalesceDictionary(value);
+    }
 }

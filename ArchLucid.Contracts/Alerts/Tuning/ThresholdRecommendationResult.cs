@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Alerts.Tuning;
 
 /// <summary>Output of threshold recommendation with ranked candidates.</summary>
@@ -27,15 +29,19 @@ public class ThresholdRecommendationResult
         set;
     }
 
+    private List<string> summaryNotes = [];
+
     public List<string> SummaryNotes
     {
-        get;
-        set;
-    } = [];
+        get => summaryNotes;
+        set => summaryNotes = ContractCollectionDefaults.Coalesce(value);
+    }
+
+    private List<ThresholdCandidateEvaluation> candidates = [];
 
     public List<ThresholdCandidateEvaluation> Candidates
     {
-        get;
-        set;
-    } = [];
+        get => candidates;
+        set => candidates = ContractCollectionDefaults.Coalesce(value);
+    }
 }

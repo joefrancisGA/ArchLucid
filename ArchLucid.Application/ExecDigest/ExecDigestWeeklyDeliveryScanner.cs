@@ -114,7 +114,7 @@ public sealed class ExecDigestWeeklyDeliveryScanner(
         string isoKey = $"{isoYear}-W{isoWeek:00}";
         EmailNotificationOptions emailOptions = _emailOptionsMonitor.CurrentValue;
         string operatorBase = string.IsNullOrWhiteSpace(emailOptions.OperatorBaseUrl) ? "http://localhost:3000" : emailOptions.OperatorBaseUrl.Trim();
-        string apiBase = operatorBase.TrimEnd('/');
+        string apiBase = EmailBrandingUrls.TryNormalizeOperatorBaseAuthority(operatorBase) ?? operatorBase.TrimEnd('/');
         string token = _unsubscribeTokenFactory.CreateToken(tenantId);
         string unsubscribeUrl = $"{apiBase}/v1.0/notifications/exec-digest/unsubscribe?token={Uri.EscapeDataString(token)}";
         List<string> recipients = [];

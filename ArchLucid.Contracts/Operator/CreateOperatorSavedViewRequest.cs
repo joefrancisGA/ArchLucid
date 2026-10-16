@@ -15,11 +15,13 @@ public sealed class CreateOperatorSavedViewRequest
         set;
     } = string.Empty;
 
+    private OperatorSavedViewPayload payload = new();
+
     public OperatorSavedViewPayload Payload
     {
-        get;
-        set;
-    } = new();
+        get => payload;
+        set => payload = value ?? new();
+    }
 
     /// <summary>When true, the view is visible to all users in the tenant for the same surface.</summary>
     public bool IsShared

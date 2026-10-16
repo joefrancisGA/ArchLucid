@@ -1,3 +1,4 @@
+using ArchLucid.Application.Governance;
 using ArchLucid.Contracts.Metadata;
 
 namespace ArchLucid.Application.Analysis;
@@ -21,7 +22,10 @@ public sealed class ExportRecordDiffService : IExportRecordDiffService
 
         ExportRecordDiffResult result = new()
         {
-            LeftExportRecordId = left.ExportRecordId, RightExportRecordId = right.ExportRecordId, LeftRunId = left.RunId, RightRunId = right.RunId
+            LeftExportRecordId = left.ExportRecordId,
+            RightExportRecordId = right.ExportRecordId,
+            LeftRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForPersistence(left.RunId),
+            RightRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForPersistence(right.RunId),
         };
 
         CompareTopLevel(left, right, result);
@@ -31,7 +35,7 @@ public sealed class ExportRecordDiffService : IExportRecordDiffService
 
         result.RequestDiff = CompareRequests(leftRequest, rightRequest);
 
-        if (!string.Equals(left.RunId, right.RunId, StringComparison.OrdinalIgnoreCase))
+        if (!RunIdsEquivalent(left.RunId, right.RunId))
 
             result.Warnings.Add("The compared export records belong to different runs.");
 
@@ -89,7 +93,7 @@ public sealed class ExportRecordDiffService : IExportRecordDiffService
             right.CompareManifestVersion);
         AddIfChanged(result.ChangedTopLevelFields, "IncludedAgentResultCompare", left.IncludedAgentResultCompare,
             right.IncludedAgentResultCompare);
-        AddIfChanged(result.ChangedTopLevelFields, "CompareRunId", left.CompareRunId, right.CompareRunId);
+        AddRunIdIfChanged(result.ChangedTopLevelFields, "CompareRunId", left.CompareRunId, right.CompareRunId);
     }
 
     private static ExportRecordRequestDiff CompareRequests(
@@ -129,9 +133,27 @@ public sealed class ExportRecordDiffService : IExportRecordDiffService
             right.DeterminismIterations);
         AddIfChanged(diff.ChangedValues, "CompareManifestVersion", left.CompareManifestVersion,
             right.CompareManifestVersion);
-        AddIfChanged(diff.ChangedValues, "CompareRunId", left.CompareRunId, right.CompareRunId);
+        AddRunIdIfChanged(diff.ChangedValues, "CompareRunId", left.CompareRunId, right.CompareRunId);
 
         return diff;
+    }
+
+    private static bool RunIdsEquivalent(string left, string right) =>
+        GovernanceRunIdNormalizer.AreEquivalent(left, right);
+
+    private static void AddRunIdIfChanged(List<string> target, string fieldName, string? left, string? right)
+    {
+        if (left is null && right is null)
+            return;
+
+        if (left is null || right is null)
+        {
+            target.Add(fieldName);
+            return;
+        }
+
+        if (!RunIdsEquivalent(left, right))
+            target.Add(fieldName);
     }
 
     private static void AddIfChanged<T>(

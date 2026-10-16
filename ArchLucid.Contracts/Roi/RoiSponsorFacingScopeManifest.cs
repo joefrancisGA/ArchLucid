@@ -69,9 +69,21 @@ public sealed class RoiSponsorFacingScopeManifestDocument
 {
     public int SchemaVersion { get; init; }
 
-    public RoiSponsorFacingScopeManifestCodes Codes { get; init; } = new();
+    private RoiSponsorFacingScopeManifestCodes codes = new();
 
-    public RoiSponsorFacingScopeManifestDescriptions Descriptions { get; init; } = new();
+    public RoiSponsorFacingScopeManifestCodes Codes
+    {
+        get => codes;
+        init => codes = value ?? new();
+    }
+
+    private RoiSponsorFacingScopeManifestDescriptions descriptions = new();
+
+    public RoiSponsorFacingScopeManifestDescriptions Descriptions
+    {
+        get => descriptions;
+        init => descriptions = value ?? new();
+    }
 
     public string NonAdditivityCaveat { get; init; } = string.Empty;
 }

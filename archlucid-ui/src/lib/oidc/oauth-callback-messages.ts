@@ -3,6 +3,68 @@
  * — avoids leaking internals while staying accurate for admins.
  */
 
+const OAUTH_INVISIBLE_FORMAT_CHARS = /[\u200B-\u200D\u2060\uFEFF]/gu;
+
+export function stripOAuthInvisibleFormatChars(text: string): string {
+  return text.replace(OAUTH_INVISIBLE_FORMAT_CHARS, "");
+}
+
+/** Trims deployment configuration strings and removes zero-width format characters. */
+export function normalizeOidcConfigurationString(value: string): string {
+  return stripOAuthInvisibleFormatChars(value.trim()).trim();
+}
+
+function isOAuthInvisibleFormatChar(char: string): boolean {
+  if (char.length === 0) {
+    return false;
+  }
+
+  const code = char.charCodeAt(0);
+
+  return code === 0x200b || code === 0x200c || code === 0x200d || code === 0x2060 || code === 0xfeff;
+}
+
+/**
+ * Normalizes numeric OIDC/BFF hints (`expires_in`, `expires_at_ms`) by trimming and
+ * stripping invisible format characters at the edges only — interior ZWSP must not
+ * merge digits (e.g. `1730\u200b000` → `1730000`).
+ */
+export function normalizeNumericOidcHintString(value: string): string {
+  let start = 0;
+  let end = value.length;
+
+  while (start < end) {
+    const char = value[start];
+
+    if (!isOAuthInvisibleFormatChar(char) && char.trim().length > 0) {
+      break;
+    }
+
+    start += 1;
+  }
+
+  while (end > start) {
+    const char = value[end - 1];
+
+    if (!isOAuthInvisibleFormatChar(char) && char.trim().length > 0) {
+      break;
+    }
+
+    end -= 1;
+  }
+
+  return value.slice(start, end);
+}
+
+export function collapseOAuthErrorDescriptionLineBreaks(text: string): string {
+  return text
+    .replace(OAUTH_INVISIBLE_FORMAT_CHARS, " ")
+    // Soft hyphens are optional break points; on single-line callback copy they glue words (Policy\u00ADdenied).
+    .replace(/[\u0000-\u001F\u007F\u2028\u2029\u0085\u00AD]/gu, " ")
+    .replace(/\s+/gu, " ")
+    .trim();
+}
+
 export function decodeOAuthErrorDescription(encoded: string | null | undefined): string {
   if (encoded === null || encoded === undefined) {
     return "";
@@ -14,26 +76,90 @@ export function decodeOAuthErrorDescription(encoded: string | null | undefined):
     return "";
   }
 
+  let decoded: string;
+
   try {
-    return decodeURIComponent(trimmed.replace(/\+/g, " "));
+    decoded = collapseOAuthErrorDescriptionLineBreaks(decodeURIComponent(trimmed.replace(/\+/g, " ")));
   } catch {
-    return trimmed.replace(/\+/g, " ");
+    decoded = collapseOAuthErrorDescriptionLineBreaks(trimmed.replace(/\+/g, " "));
   }
+
+  return isReadableOAuthErrorDetail(decoded) ? decoded : "";
 }
 
 function formatErrorCodeForReading(errorCode: string): string {
-  return errorCode.replace(/_/g, " ").trim();
+  return errorCode
+    .replace(/_/g, " ")
+    .replace(OAUTH_INVISIBLE_FORMAT_CHARS, "")
+    .trim();
+}
+
+function containsReadableOAuthCharacters(text: string): boolean {
+  return /[\p{L}\p{N}]/u.test(text);
+}
+
+/** True when an OAuth `error` query/code value is not underscore/invisible padding. */
+export function isReadableOAuthErrorCode(errorCode: string): boolean {
+  const formatted = formatErrorCodeForReading(errorCode);
+
+  return formatted.length > 0 && containsReadableOAuthCharacters(formatted);
+}
+
+function isReadableOAuthErrorDetail(detail: string): boolean {
+  const formatted = formatErrorCodeForReading(detail);
+
+  return formatted.length > 0 && containsReadableOAuthCharacters(formatted);
+}
+
+const MAX_OAUTH_USER_FACING_MESSAGE_LENGTH = 280;
+
+function truncateOAuthUserFacingMessage(text: string): string {
+  if (text.length <= MAX_OAUTH_USER_FACING_MESSAGE_LENGTH) {
+    return text;
+  }
+
+  let cutIndex = MAX_OAUTH_USER_FACING_MESSAGE_LENGTH - 1;
+
+  if (cutIndex > 0) {
+    const codeUnitBeforeCut = text.charCodeAt(cutIndex - 1);
+
+    // Avoid ending operator-facing copy on a high surrogate without its pair.
+    if (codeUnitBeforeCut >= 0xd800 && codeUnitBeforeCut <= 0xdbff) {
+      cutIndex -= 1;
+    }
+  }
+
+  return `${text.slice(0, cutIndex)}…`;
+}
+
+/** Collapses line breaks and caps length for authorize-callback and token-endpoint operator copy. */
+export function sanitizeOAuthUserFacingMessage(text: string): string {
+  return truncateOAuthUserFacingMessage(collapseOAuthErrorDescriptionLineBreaks(text));
 }
 
 /** Maps standard OAuth authorize errors to actionable copy for the SPA callback route. */
+function buyerSafeAuthorizeErrorWithoutCode(detail: string): string {
+  if (detail.length > 0) {
+    return sanitizeOAuthUserFacingMessage(`Sign-in did not finish: ${detail}`);
+  }
+
+  return "We did not receive a complete response from your identity provider. Start sign-in again.";
+}
+
 export function humanizeAuthorizeCallbackError(errorCode: string, decodedDescription: string): string {
-  const normalized = errorCode.trim().toLowerCase();
-  const detail = decodedDescription.trim();
+  const normalized = stripOAuthInvisibleFormatChars(errorCode.trim()).trim().toLowerCase();
+  const sanitizedDetail = sanitizeOAuthUserFacingMessage(decodedDescription);
+  const detail = isReadableOAuthErrorDetail(sanitizedDetail) ? sanitizedDetail : "";
+  const readableCode = formatErrorCodeForReading(normalized);
+
+  if (!isReadableOAuthErrorCode(normalized)) {
+    return buyerSafeAuthorizeErrorWithoutCode(detail);
+  }
 
   switch (normalized) {
     case "access_denied":
       return detail.length > 0
-        ? `Sign-in stopped: ${detail}`
+        ? sanitizeOAuthUserFacingMessage(`Sign-in stopped: ${detail}`)
         : "You canceled sign-in or your organization declined access. Try again if that was unintentional.";
     case "login_required":
     case "interaction_required":
@@ -42,7 +168,9 @@ export function humanizeAuthorizeCallbackError(errorCode: string, decodedDescrip
       return "Your organization requires administrator consent for this app. Contact IT, then try again.";
     case "invalid_request":
       return detail.length > 0
-        ? `This sign-in request was not valid (${detail}). Try signing in again.`
+        ? sanitizeOAuthUserFacingMessage(
+            `This sign-in request was not valid (${detail}). Try signing in again.`,
+          )
         : "This sign-in request was not valid. Try signing in again.";
     case "unauthorized_client":
       return "This sign-in route is not enabled for your identity provider registration. Contact your ArchLucid account team.";
@@ -53,9 +181,11 @@ export function humanizeAuthorizeCallbackError(errorCode: string, decodedDescrip
       return "Your identity provider reported a temporary error. Wait a minute and try signing in again.";
     default:
       if (detail.length > 0) {
-        return `${formatErrorCodeForReading(normalized)}: ${detail}`;
+        return sanitizeOAuthUserFacingMessage(`${readableCode}: ${detail}`);
       }
 
-      return `Sign-in did not finish (${formatErrorCodeForReading(normalized)}). Try again, or contact support if this persists.`;
+      return sanitizeOAuthUserFacingMessage(
+        `Sign-in did not finish (${readableCode}). Try again, or contact support if this persists.`,
+      );
   }
 }

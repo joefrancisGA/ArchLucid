@@ -1,5 +1,7 @@
 using System.Text.Json.Serialization;
 
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Governance;
 
 /// <summary>
@@ -14,53 +16,65 @@ public class PolicyPackContentDocument
 {
     /// <summary>Compliance rules selected by persisted compliance rule id (GUID).</summary>
     [JsonPropertyName("complianceRuleIds")]
+    private List<Guid> complianceRuleIds = [];
+
     public List<Guid> ComplianceRuleIds
     {
-        get;
-        set;
-    } = [];
+        get => complianceRuleIds;
+        set => complianceRuleIds = ContractCollectionDefaults.Coalesce(value);
+    }
 
     /// <summary>
     ///     String rule IDs matching file-based rule packs (e.g. <c>network-must-have-security-baseline</c>).
     /// </summary>
     [JsonPropertyName("complianceRuleKeys")]
+    private List<string> complianceRuleKeys = [];
+
     public List<string> ComplianceRuleKeys
     {
-        get;
-        set;
-    } = [];
+        get => complianceRuleKeys;
+        set => complianceRuleKeys = ContractCollectionDefaults.Coalesce(value);
+    }
 
     /// <summary>When non-empty, alert evaluation is restricted to these simple alert rules.</summary>
     [JsonPropertyName("alertRuleIds")]
+    private List<Guid> alertRuleIds = [];
+
     public List<Guid> AlertRuleIds
     {
-        get;
-        set;
-    } = [];
+        get => alertRuleIds;
+        set => alertRuleIds = ContractCollectionDefaults.Coalesce(value);
+    }
 
     /// <summary>When non-empty, restricts composite alert evaluation to these rule ids.</summary>
     [JsonPropertyName("compositeAlertRuleIds")]
+    private List<Guid> compositeAlertRuleIds = [];
+
     public List<Guid> CompositeAlertRuleIds
     {
-        get;
-        set;
-    } = [];
+        get => compositeAlertRuleIds;
+        set => compositeAlertRuleIds = ContractCollectionDefaults.Coalesce(value);
+    }
 
     /// <summary>Key/value defaults merged into advisory improvement plans (string values).</summary>
     [JsonPropertyName("advisoryDefaults")]
+    private Dictionary<string, string> advisoryDefaults = new(StringComparer.OrdinalIgnoreCase);
+
     public Dictionary<string, string> AdvisoryDefaults
     {
-        get;
-        set;
-    } = new(StringComparer.OrdinalIgnoreCase);
+        get => advisoryDefaults;
+        set => advisoryDefaults = ContractCollectionDefaults.CoalesceStringDictionaryOrdinalIgnoreCase(value);
+    }
 
     /// <summary>Opaque key/value metadata merged with precedence during resolution (operator / integration hooks).</summary>
     [JsonPropertyName("metadata")]
+    private Dictionary<string, string> metadata = new(StringComparer.OrdinalIgnoreCase);
+
     public Dictionary<string, string> Metadata
     {
-        get;
-        set;
-    } = new(StringComparer.OrdinalIgnoreCase);
+        get => metadata;
+        set => metadata = ContractCollectionDefaults.CoalesceStringDictionaryOrdinalIgnoreCase(value);
+    }
 
     /// <summary>
     ///     Elicitation questions owned by this pack (ADR 0051 / R8).
@@ -69,17 +83,21 @@ public class PolicyPackContentDocument
     ///     to an empty list; no migration is required.
     /// </summary>
     [JsonPropertyName("elicitationQuestions")]
+    private List<ElicitationQuestion> elicitationQuestions = [];
+
     public List<ElicitationQuestion> ElicitationQuestions
     {
-        get;
-        set;
-    } = [];
+        get => elicitationQuestions;
+        set => elicitationQuestions = ContractCollectionDefaults.Coalesce(value);
+    }
 
     /// <summary>Engine types that must succeed when this pack is enabled (wave-4 suggestion 33).</summary>
     [JsonPropertyName("requiredEngineTypes")]
+    private List<string> requiredEngineTypes = [];
+
     public List<string> RequiredEngineTypes
     {
-        get;
-        set;
-    } = [];
+        get => requiredEngineTypes;
+        set => requiredEngineTypes = ContractCollectionDefaults.Coalesce(value);
+    }
 }

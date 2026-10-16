@@ -1,3 +1,5 @@
+import { normalizeOidcConfigurationString } from "@/lib/oidc/oauth-callback-messages";
+
 export type OidcDiscoveryDocument = {
   issuer: string;
   authorization_endpoint: string;
@@ -7,11 +9,25 @@ export type OidcDiscoveryDocument = {
 
 const discoveryPromises = new Map<string, Promise<OidcDiscoveryDocument>>();
 
+/** Rejects non-http(s) URLs and embedded userinfo credentials for OIDC endpoints and logout redirects. */
+export function isSafeOidcEndpointUrl(url: string): boolean {
+  return isHttpOrHttpsUrl(url);
+}
+
 function isHttpOrHttpsUrl(url: string): boolean {
   try {
     const parsed = new URL(url);
 
-    return parsed.protocol === "http:" || parsed.protocol === "https:";
+    if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
+      return false;
+    }
+
+    // Embedded credentials in discovery endpoints would leak into browser navigation or server refresh calls.
+    if (parsed.username.length > 0 || parsed.password.length > 0) {
+      return false;
+    }
+
+    return true;
   } catch {
     return false;
   }
@@ -23,18 +39,23 @@ function parseDiscoveryDocument(body: unknown, discoveryUrl: string): OidcDiscov
   }
 
   const record = body as Record<string, unknown>;
-  const issuer = record.issuer;
-  const authorizationEndpoint = record.authorization_endpoint;
-  const tokenEndpoint = record.token_endpoint;
+  const issuerRaw = record.issuer;
+  const authorizationEndpointRaw = record.authorization_endpoint;
+  const tokenEndpointRaw = record.token_endpoint;
 
   if (
-    typeof issuer !== "string" ||
-    issuer.trim().length === 0 ||
-    typeof authorizationEndpoint !== "string" ||
-    authorizationEndpoint.trim().length === 0 ||
-    typeof tokenEndpoint !== "string" ||
-    tokenEndpoint.trim().length === 0
+    typeof issuerRaw !== "string" ||
+    typeof authorizationEndpointRaw !== "string" ||
+    typeof tokenEndpointRaw !== "string"
   ) {
+    throw new Error(`OIDC discovery document missing required endpoints: ${discoveryUrl}`);
+  }
+
+  const issuer = normalizeOidcConfigurationString(issuerRaw);
+  const authorizationEndpoint = normalizeOidcConfigurationString(authorizationEndpointRaw);
+  const tokenEndpoint = normalizeOidcConfigurationString(tokenEndpointRaw);
+
+  if (issuer.length === 0 || authorizationEndpoint.length === 0 || tokenEndpoint.length === 0) {
     throw new Error(`OIDC discovery document missing required endpoints: ${discoveryUrl}`);
   }
 
@@ -50,24 +71,26 @@ function parseDiscoveryDocument(body: unknown, discoveryUrl: string): OidcDiscov
   }
 
   const doc: OidcDiscoveryDocument = {
-    issuer: issuer.trim(),
-    authorization_endpoint: authorizationEndpoint.trim(),
-    token_endpoint: tokenEndpoint.trim(),
+    issuer,
+    authorization_endpoint: authorizationEndpoint,
+    token_endpoint: tokenEndpoint,
   };
 
   const endSessionEndpoint = record.end_session_endpoint;
 
-  if (typeof endSessionEndpoint === "string" && endSessionEndpoint.trim().length > 0) {
-    const trimmedEndSession = endSessionEndpoint.trim();
+  if (typeof endSessionEndpoint === "string") {
+    const trimmedEndSession = normalizeOidcConfigurationString(endSessionEndpoint);
 
-    try {
-      new URL(trimmedEndSession);
+    if (trimmedEndSession.length > 0) {
+      try {
+        new URL(trimmedEndSession);
 
-      if (isHttpOrHttpsUrl(trimmedEndSession)) {
-        doc.end_session_endpoint = trimmedEndSession;
+        if (isHttpOrHttpsUrl(trimmedEndSession)) {
+          doc.end_session_endpoint = trimmedEndSession;
+        }
+      } catch {
+        /* optional logout endpoint must be a valid absolute URL */
       }
-    } catch {
-      /* optional logout endpoint must be a valid absolute URL */
     }
   }
 
@@ -75,7 +98,7 @@ function parseDiscoveryDocument(body: unknown, discoveryUrl: string): OidcDiscov
 }
 
 function discoveryUrlForAuthority(authority: string): string {
-  const trimmed = authority.trim();
+  const trimmed = normalizeOidcConfigurationString(authority);
   const withScheme = trimmed.includes("://") ? trimmed : `https://${trimmed}`;
   const parsed = new URL(withScheme);
   const pathname = parsed.pathname.replace(/\/+$/, "");

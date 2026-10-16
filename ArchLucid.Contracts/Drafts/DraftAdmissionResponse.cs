@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.Serialization;
 
 namespace ArchLucid.Contracts.Drafts;
 
@@ -24,30 +25,38 @@ public sealed class DraftAdmissionResponse
         set;
     }
 
+    private DraftRequestResponse draft = new();
+
     public DraftRequestResponse Draft
     {
-        get;
-        set;
-    } = new();
+        get => draft;
+        set => draft = value ?? new DraftRequestResponse();
+    }
 
     /// <summary>MUST-tier questions still required before submit (ADR 0051 deterministic termination).</summary>
+    private IReadOnlyList<DraftElicitationQuestion> pendingMustQuestions = [];
+
     public IReadOnlyList<DraftElicitationQuestion> PendingMustQuestions
     {
-        get;
-        set;
-    } = [];
+        get => pendingMustQuestions;
+        set => pendingMustQuestions = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 
     /// <summary>Keys of unanswered MUST questions stored on the draft document.</summary>
+    private IReadOnlyList<string> requiredMustQuestionKeys = [];
+
     public IReadOnlyList<string> RequiredMustQuestionKeys
     {
-        get;
-        set;
-    } = [];
+        get => requiredMustQuestionKeys;
+        set => requiredMustQuestionKeys = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 
     /// <summary>Typed feasibility outcome with mandatory transparency trail (ADR 0050).</summary>
+    private FeasibilityVerdict verdict = new();
+
     public FeasibilityVerdict Verdict
     {
-        get;
-        set;
-    } = new();
+        get => verdict;
+        set => verdict = value ?? new FeasibilityVerdict();
+    }
 }

@@ -30,6 +30,11 @@ import {
   syncBffSessionCookieFromTokenResponse,
 } from "@/lib/oidc/bff-session-sync";
 import { isSafeReturnPath } from "@/lib/navigation/safe-return-path";
+import {
+  normalizeNumericOidcHintString,
+  normalizeOidcConfigurationString,
+  stripOAuthInvisibleFormatChars,
+} from "@/lib/oidc/oauth-callback-messages";
 import { resolveExpiresInSeconds } from "@/lib/oidc/resolve-expires-in-seconds";
 
 export type OidcPkceFlow = "primary" | "google";
@@ -42,6 +47,10 @@ type StoredPkceState = {
 };
 
 const EXPIRY_SKEW_MS = 60_000;
+
+function normalizePkceCallbackQueryValue(value: string): string {
+  return stripOAuthInvisibleFormatChars(value.trim()).trim();
+}
 
 let refreshInFlight: Promise<void> | null = null;
 let refreshSessionGeneration = 0;
@@ -70,6 +79,22 @@ function readSessionKey(key: string): string | null {
   return value;
 }
 
+function readNormalizedIdentitySessionKey(key: string): string | null {
+  const value = readSessionKey(key);
+
+  if (value === null) {
+    return null;
+  }
+
+  const normalized = normalizeOidcConfigurationString(value);
+
+  if (normalized.length === 0) {
+    return null;
+  }
+
+  return normalized;
+}
+
 function removeOidcKeys(keys: readonly string[]): void {
   for (const key of keys) {
     sessionStorage.removeItem(key);
@@ -92,8 +117,12 @@ function persistNonSensitiveSessionHints(tokens: OidcTokenResponse, expiresAtMs:
 
   const subject = accessPayload?.sub;
 
-  if (typeof subject === "string" && subject.trim().length > 0) {
-    sessionStorage.setItem(OIDC_USER_SUBJECT_KEY, subject.trim());
+  if (typeof subject === "string") {
+    const normalizedSubject = normalizeOidcConfigurationString(subject);
+
+    if (normalizedSubject.length > 0) {
+      sessionStorage.setItem(OIDC_USER_SUBJECT_KEY, normalizedSubject);
+    }
   }
 }
 
@@ -127,20 +156,29 @@ async function syncTokenToBff(request: TokenSyncRequest): Promise<void> {
  * Token material is issued only to the HttpOnly BFF cookie; PKCE verifier/state may remain in sessionStorage.
  */
 export function persistTokenResponse(tokens: OidcTokenResponse): void {
-  if (typeof tokens.access_token !== "string" || tokens.access_token.trim().length === 0) {
+  if (typeof tokens.access_token !== "string") {
     throw new Error("OIDC token response missing access_token");
   }
+
+  const accessToken = normalizeOidcConfigurationString(tokens.access_token);
+
+  if (accessToken.length === 0) {
+    throw new Error("OIDC token response missing access_token");
+  }
+
+  const normalizedTokens: OidcTokenResponse =
+    accessToken === tokens.access_token ? tokens : { ...tokens, access_token: accessToken };
 
   const expiresInSec = resolveExpiresInSeconds(tokens.expires_in);
   const expiresAtMs = Date.now() + expiresInSec * 1000;
 
-  persistNonSensitiveSessionHints(tokens, expiresAtMs);
+  persistNonSensitiveSessionHints(normalizedTokens, expiresAtMs);
   const generationAtPersist = refreshSessionGeneration;
   latestTokenSyncGeneration = generationAtPersist;
   const request: TokenSyncRequest = {
     sequence: ++tokenSyncSequence,
     generation: generationAtPersist,
-    tokens,
+    tokens: normalizedTokens,
   };
   latestTokenSyncRequest = request;
 
@@ -208,7 +246,19 @@ function readPkceStateForFlow(flow: OidcPkceFlow): Omit<StoredPkceState, "flow">
     return null;
   }
 
-  return { state, codeVerifier, nonce };
+  const normalizedState = normalizePkceCallbackQueryValue(state);
+  const normalizedVerifier = normalizePkceCallbackQueryValue(codeVerifier);
+  const normalizedNonce = normalizePkceCallbackQueryValue(nonce);
+
+  if (normalizedState.length === 0 || normalizedVerifier.length === 0 || normalizedNonce.length === 0) {
+    return null;
+  }
+
+  return {
+    state: normalizedState,
+    codeVerifier: normalizedVerifier,
+    nonce: normalizedNonce,
+  };
 }
 
 /** PKCE OAuth state is short-lived and not an access token — safe in sessionStorage (LK-06 P2). */
@@ -236,12 +286,18 @@ export function readPkceState(flow: OidcPkceFlow = "primary"): Omit<StoredPkceSt
 }
 
 export function consumePkceState(expectedState: string): StoredPkceState | null {
+  const normalizedExpected = normalizePkceCallbackQueryValue(expectedState);
+
+  if (normalizedExpected.length === 0) {
+    return null;
+  }
+
   const flows: OidcPkceFlow[] = ["primary", "google"];
 
   for (const flow of flows) {
     const pair = readPkceStateForFlow(flow);
 
-    if (!pair || pair.state !== expectedState) {
+    if (!pair || normalizePkceCallbackQueryValue(pair.state) !== normalizedExpected) {
       continue;
     }
 
@@ -260,8 +316,10 @@ export function consumePkceState(expectedState: string): StoredPkceState | null 
  * relative path (open-redirect protection) — unsafe values are silently dropped.
  */
 export function storePostSignInReturnUrl(url: string): void {
-  if (isSafeReturnPath(url)) {
-    sessionStorage.setItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY, url);
+  const normalized = normalizeOidcConfigurationString(url);
+
+  if (isSafeReturnPath(normalized)) {
+    sessionStorage.setItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY, normalized);
   }
 }
 
@@ -278,12 +336,18 @@ export function consumePostSignInReturnUrl(): string | null {
 
   sessionStorage.removeItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY);
 
-  return isSafeReturnPath(url) ? url : null;
+  if (url === null) {
+    return null;
+  }
+
+  const normalized = normalizeOidcConfigurationString(url);
+
+  return isSafeReturnPath(normalized) ? normalized : null;
 }
 
 function getExpiresAtMs(): number {
   const raw = readSessionKey(OIDC_EXPIRES_AT_MS_KEY) ?? "0";
-  const parsed = Number(raw);
+  const parsed = Number(normalizeNumericOidcHintString(raw));
 
   return Number.isFinite(parsed) ? parsed : 0;
 }
@@ -355,7 +419,7 @@ export function readSignedInDisplayName(): string | null {
     return null;
   }
 
-  return readSessionKey(OIDC_DISPLAY_NAME_KEY);
+  return readNormalizedIdentitySessionKey(OIDC_DISPLAY_NAME_KEY);
 }
 
 export function readSignedInUserSubject(): string | null {
@@ -363,7 +427,7 @@ export function readSignedInUserSubject(): string | null {
     return null;
   }
 
-  return readSessionKey(OIDC_USER_SUBJECT_KEY);
+  return readNormalizedIdentitySessionKey(OIDC_USER_SUBJECT_KEY);
 }
 
 export function isLikelySignedIn(): boolean {

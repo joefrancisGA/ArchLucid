@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.InfraEvidence;
 
 public sealed class OperationalSecurityFindingLookupRequest
@@ -8,9 +10,11 @@ public sealed class OperationalSecurityFindingLookupRequest
         init;
     } = string.Empty;
 
+    private List<string> sourceFindingIds = [];
+
     public List<string> SourceFindingIds
     {
-        get;
-        init;
-    } = [];
+        get => sourceFindingIds;
+        init => sourceFindingIds = ContractCollectionDefaults.Coalesce(value);
+    }
 }

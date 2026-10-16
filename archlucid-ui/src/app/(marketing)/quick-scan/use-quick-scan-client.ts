@@ -37,6 +37,7 @@ export function useQuickScanClient() {
   const statusRegionId = useId();
   const resultsHeadingRef = useRef<HTMLHeadingElement>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
+  const sampleRequestGenerationRef = useRef(0);
   const [formValues, setFormValues] = useState<QuickScanFormValues>({
     systemName: "",
     primaryEnvironment: "",
@@ -106,14 +107,25 @@ export function useQuickScanClient() {
 
   const showSampleResult = useCallback(
     (sourceState: string) => {
+      const requestGeneration = ++sampleRequestGenerationRef.current;
+
       void (async () => {
         try {
           const sample = await loadSampleResult(sourceState);
+
+          if (requestGeneration !== sampleRequestGenerationRef.current) {
+            return;
+          }
+
           setResult(sample);
           setError(null);
           setStatusMessage("Showing a labeled sample Quick Scan result.");
           trackQuickScanSampleViewed(sourceState);
         } catch (sampleError: unknown) {
+          if (requestGeneration !== sampleRequestGenerationRef.current) {
+            return;
+          }
+
           const message =
             sampleError instanceof Error && sampleError.message.trim().length > 0
               ? sampleError.message

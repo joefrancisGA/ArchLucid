@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Serialization;
 
 namespace ArchLucid.Contracts.Agents;
 
@@ -34,11 +35,13 @@ public sealed class AgentOutputEvaluationScore
     }
 
     /// <summary>Expected property names missing from the root object (camelCase, as in trace JSON).</summary>
+    private IReadOnlyList<string> missingKeys = [];
+
     public IReadOnlyList<string> MissingKeys
     {
-        get;
-        set;
-    } = [];
+        get => missingKeys;
+        set => missingKeys = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 
     /// <summary>Deterministic semantic inspection of claims/findings; null when <see cref="IsJsonParseFailure" />.</summary>
     public AgentOutputSemanticScore? Semantic

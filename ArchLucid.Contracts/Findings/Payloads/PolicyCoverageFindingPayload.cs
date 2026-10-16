@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Findings.Payloads;
 
 public class PolicyCoverageFindingPayload
@@ -14,9 +16,11 @@ public class PolicyCoverageFindingPayload
         set;
     }
 
+    private List<string> uncoveredResources = [];
+
     public List<string> UncoveredResources
     {
-        get;
-        set;
-    } = [];
+        get => uncoveredResources;
+        set => uncoveredResources = ContractCollectionDefaults.Coalesce(value);
+    }
 }

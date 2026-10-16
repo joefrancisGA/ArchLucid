@@ -1,6 +1,7 @@
 using ArchLucid.Contracts.Advisory.Scheduling;
 using ArchLucid.Contracts.Alerts;
 using ArchLucid.Contracts.Alerts.Composite;
+using ArchLucid.Contracts.Serialization;
 
 namespace ArchLucid.Contracts.Alerts.Tuning;
 
@@ -31,11 +32,13 @@ public class ThresholdRecommendationRequest
         set;
     } = null!;
 
+    private List<decimal> candidateThresholds = [];
+
     public List<decimal> CandidateThresholds
     {
-        get;
-        set;
-    } = [];
+        get => candidateThresholds;
+        set => candidateThresholds = ContractCollectionDefaults.Coalesce(value);
+    }
 
     public int RecentRunCount
     {

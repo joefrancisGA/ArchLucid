@@ -223,6 +223,38 @@ public sealed class UserInvitationEmailNotifierTests
     }
 
     [SkippableFact]
+    public async Task TrySendInvitationAsync_strips_embedded_crlf_from_personal_message_in_text_body()
+    {
+        EmailMessage? sentMessage = null;
+        Mock<IEmailProvider> email = new();
+        email
+            .Setup(x => x.SendAsync(It.IsAny<EmailMessage>(), It.IsAny<CancellationToken>()))
+            .Callback<EmailMessage, CancellationToken>((message, _) => sentMessage = message)
+            .Returns(Task.CompletedTask);
+
+        UserInvitationEmailNotifier sut = new(
+            email.Object,
+            BuildOptions(new EmailNotificationOptions { ProductDisplayName = "Prod" }),
+            NullLogger<UserInvitationEmailNotifier>.Instance);
+
+        const string injectedLine = "Bcc: injected@evil.test";
+        string personalMessage = $"Welcome aboard\r\n{injectedLine}";
+
+        await sut.TrySendInvitationAsync(
+            "invitee@example.com",
+            AcceptUrl,
+            "Reader",
+            14,
+            personalMessage,
+            CancellationToken.None);
+
+        sentMessage.Should().NotBeNull();
+        sentMessage!.TextBody.Should().NotContain($"\r\n{injectedLine}");
+        sentMessage.TextBody.Should().NotContain($"\n{injectedLine}");
+        sentMessage.TextBody.Should().Contain("Welcome aboard");
+    }
+
+    [SkippableFact]
     public async Task TrySendInvitationAsync_omits_user_info_from_personal_message_markdown_link_urls()
     {
         EmailMessage? sentMessage = null;

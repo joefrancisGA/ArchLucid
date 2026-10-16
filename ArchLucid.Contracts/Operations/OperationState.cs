@@ -1,6 +1,11 @@
 namespace ArchLucid.Contracts.Operations;
 
+using System.Text.Json.Serialization;
+
+using ArchLucid.Contracts.Serialization;
+
 /// <summary>Unified long-running operation lifecycle for poll endpoints (TB-2074).</summary>
+[JsonConverter(typeof(DefinedEnumJsonConverter<OperationState>))]
 public enum OperationState
 {
   Pending = 0,

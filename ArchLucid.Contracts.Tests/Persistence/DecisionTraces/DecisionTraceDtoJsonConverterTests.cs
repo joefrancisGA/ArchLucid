@@ -75,4 +75,40 @@ public sealed class DecisionTraceDtoJsonConverterTests
 
         act.Should().Throw<JsonException>().WithMessage("*runEvent*");
     }
+
+    [Fact]
+    public void Deserialize_string_numeric_kind_maps_run_event_trace()
+    {
+        string json =
+            """
+            {"kind":"0","runEvent":{"runId":"run-1","eventType":"merge","eventDescription":"Merged findings"}}
+            """;
+
+        DecisionTraceDto? dto = JsonSerializer.Deserialize<DecisionTraceDto>(json, Options);
+
+        dto.Should().BeOfType<RunEventTraceDto>();
+    }
+
+    [Fact]
+    public void Deserialize_string_numeric_kind_out_of_range_throws()
+    {
+        string json = """{"kind":"99","runEvent":{"runId":"run-1"}}""";
+
+        Action act = () => JsonSerializer.Deserialize<DecisionTraceDto>(json, Options);
+
+        act.Should().Throw<JsonException>().WithMessage("*Unknown decision trace kind value*");
+    }
+
+    [Fact]
+    public void Deserialize_whole_number_double_kind_maps_run_event_trace()
+    {
+        string json =
+            """
+            {"kind":0.0,"runEvent":{"runId":"run-1","eventType":"merge","eventDescription":"Merged findings"}}
+            """;
+
+        DecisionTraceDto? dto = JsonSerializer.Deserialize<DecisionTraceDto>(json, Options);
+
+        dto.Should().BeOfType<RunEventTraceDto>();
+    }
 }

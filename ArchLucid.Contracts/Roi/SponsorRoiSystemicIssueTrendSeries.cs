@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Roi;
 
 /// <summary>Time series for one top systemic issue grouped by stable finding identity.</summary>
@@ -22,9 +24,11 @@ public sealed class SponsorRoiSystemicIssueTrendSeries
         set;
     } = string.Empty;
 
+    private List<SponsorRoiSystemicIssueTrendPoint> points = [];
+
     public List<SponsorRoiSystemicIssueTrendPoint> Points
     {
-        get;
-        set;
-    } = [];
+        get => points;
+        set => points = ContractCollectionDefaults.Coalesce(value);
+    }
 }

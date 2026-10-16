@@ -107,6 +107,28 @@ public sealed class DigestSlackWebhookDeliveryChannelTests
     }
 
     [Fact]
+    public async Task SendAsync_throws_when_subscription_destination_has_percent_encoded_line_breaks()
+    {
+        Mock<IChatOpsWebhookDeliveryService> delivery = new();
+        DigestSlackWebhookDeliveryChannel sut = new(delivery.Object);
+        DigestDeliveryPayload payload = CreatePayload("https://hooks.slack.com/services/digest");
+        payload.Subscription.Destination =
+            "https://hooks.slack.com/services/digest%0D%0AHost:%20injected.evil.test";
+
+        Func<Task> act = async () => await sut.SendAsync(payload, CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentException>();
+        delivery.Verify(
+            x => x.DeliverAsync(
+                It.IsAny<ChatOpsWebhookTarget>(),
+                It.IsAny<string>(),
+                It.IsAny<ChatOpsWebhookMessage>(),
+                It.IsAny<CancellationToken>(),
+                It.IsAny<WebhookPostOptions?>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task SendAsync_WhenPayloadIsNull_ThrowsArgumentNullException()
     {
         Mock<IChatOpsWebhookDeliveryService> delivery = new();

@@ -1,4 +1,7 @@
 import {
+  getGoogleOidcAuthority,
+  getGoogleOidcClientId,
+  getGoogleOidcScopes,
   getOidcAuthority,
   getOidcClientId,
   getOidcRedirectUri,
@@ -80,15 +83,15 @@ export async function initiateSupplementalOidcRedirect(
     throw new Error("Unsupported supplemental identity provider.");
   }
 
-  const authority = process.env.NEXT_PUBLIC_GOOGLE_OIDC_AUTHORITY?.trim() ?? "";
-  const clientId = process.env.NEXT_PUBLIC_GOOGLE_OIDC_CLIENT_ID?.trim() ?? "";
+  const authority = getGoogleOidcAuthority();
+  const clientId = getGoogleOidcClientId();
 
   if (authority.length === 0 || clientId.length === 0) {
     throw new Error("Google sign-in is not configured for this environment.");
   }
 
   const redirectUri = getOidcRedirectUri();
-  const scope = process.env.NEXT_PUBLIC_GOOGLE_OIDC_SCOPES?.trim() || "openid profile email";
+  const scope = getGoogleOidcScopes();
   const { verifier, challenge } = await createPkcePair();
   const state = randomOpaqueState();
   const nonce = randomOpaqueState();

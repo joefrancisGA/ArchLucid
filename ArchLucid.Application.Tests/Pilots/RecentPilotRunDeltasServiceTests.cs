@@ -189,6 +189,44 @@ public sealed class RecentPilotRunDeltasServiceTests
     }
 
     [SkippableFact]
+    public async Task GetRecentDeltasAsync_backfills_older_committed_runs_when_newest_projections_fail()
+    {
+        Mock<IRunDetailQueryService> queryService = new();
+        Mock<IPilotRunDeltaComputer> deltaComputer = new();
+
+        DateTime baseTime = new(2026, 4, 23, 10, 0, 0, DateTimeKind.Utc);
+        RunSummary olderA = BuildSummary("goodgoodgoodgoodgoodgoodgoodgggg", "req-ga", baseTime.AddHours(-2), committed: true);
+        RunSummary olderB = BuildSummary("goodgoodgoodgoodgoodgoodgoodhhhh", "req-gb", baseTime.AddHours(-3), committed: true);
+        RunSummary failNewest = BuildSummary("failfailfailfailfailfailfailffff", "req-f1", baseTime, committed: true);
+        RunSummary failOlder = BuildSummary("failfailfailfailfailfailfaileeee", "req-f2", baseTime.AddMinutes(-5), committed: true);
+
+        queryService
+            .Setup(q => q.ListRunSummariesAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync([failNewest, failOlder, olderA, olderB]);
+
+        StubDetailAndDelta(queryService, deltaComputer, olderA, findingsCount: 2, secondsToCommit: 40);
+        StubDetailAndDelta(queryService, deltaComputer, olderB, findingsCount: 4, secondsToCommit: 50);
+
+        ArchitectureRunDetail failNewestDetail = BuildDetail(failNewest);
+        ArchitectureRunDetail failOlderDetail = BuildDetail(failOlder);
+        queryService.Setup(q => q.GetRunDetailForRoiAsync(failNewest.RunId, It.IsAny<CancellationToken>())).ReturnsAsync(failNewestDetail);
+        queryService.Setup(q => q.GetRunDetailForRoiAsync(failOlder.RunId, It.IsAny<CancellationToken>())).ReturnsAsync(failOlderDetail);
+        deltaComputer
+            .Setup(d => d.ComputeAsync(failNewestDetail, It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("projection failed"));
+        deltaComputer
+            .Setup(d => d.ComputeAsync(failOlderDetail, It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("projection failed"));
+
+        RecentPilotRunDeltasService sut = BuildSut(queryService, deltaComputer);
+
+        RecentPilotRunDeltasResponse response = await sut.GetRecentDeltasAsync(2);
+
+        response.ReturnedCount.Should().Be(2);
+        response.Items.Select(i => i.RunId).Should().Equal(olderA.RunId, olderB.RunId);
+    }
+
+    [SkippableFact]
     public void ComputeMedian_OnOddSample_ReturnsMiddleValue()
     {
         double? result = RecentPilotRunDeltasService.ComputeMedian([3, 1, 2]);
@@ -210,6 +248,26 @@ public sealed class RecentPilotRunDeltasServiceTests
         double? result = RecentPilotRunDeltasService.ComputeMedian([]);
 
         result.Should().BeNull();
+    }
+
+    [SkippableFact]
+    public async Task GetRecentDeltasAsync_WhenLlmTracesUnresolved_LlmCallCountIsNullOnRow()
+    {
+        Mock<IRunDetailQueryService> queryService = new();
+        Mock<IPilotRunDeltaComputer> deltaComputer = new();
+
+        RunSummary summary = BuildSummary("goodgoodgoodgoodgoodgoodgoodaaaa", "req-A", TimeProvider.System.UtcNowDateTime(), committed: true);
+        queryService.Setup(q => q.ListRunSummariesAsync(It.IsAny<CancellationToken>())).ReturnsAsync([summary]);
+        StubDetailAndDelta(queryService, deltaComputer, summary, findingsCount: 2, secondsToCommit: 60, llmCallCount: 0, llmCallCountResolved: false);
+
+        RecentPilotRunDeltasService sut = BuildSut(queryService, deltaComputer);
+
+        RecentPilotRunDeltasResponse response = await sut.GetRecentDeltasAsync(5);
+
+        response.Items.Should().ContainSingle();
+        response.Items[0].LlmCallCountResolved.Should().BeFalse();
+        response.Items[0].LlmCallCount.Should().BeNull();
+        response.MedianLlmCallCount.Should().BeNull();
     }
 
     private static RecentPilotRunDeltasService BuildSut(

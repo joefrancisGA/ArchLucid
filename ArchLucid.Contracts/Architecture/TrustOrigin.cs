@@ -1,5 +1,7 @@
 using System.Text.Json.Serialization;
 
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Architecture;
 
 /// <summary>
@@ -11,7 +13,7 @@ namespace ArchLucid.Contracts.Architecture;
 ///     private data stores over a VPN, the other must be treated as untrusted.  Collapsing both
 ///     into a single actor silently drops a trust boundary.
 /// </remarks>
-[JsonConverter(typeof(JsonStringEnumConverter))]
+[JsonConverter(typeof(DefinedEnumJsonConverter<TrustOrigin>))]
 public enum TrustOrigin
 {
     /// <summary>

@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 
 using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Serialization;
 
 namespace ArchLucid.Contracts.Manifest;
 
@@ -76,16 +77,20 @@ public sealed class ManifestService
     } = 1;
 
     /// <summary>Governance and security controls required for this specific service.</summary>
+    private List<string> tags = [];
+
     public List<string> Tags
     {
-        get;
-        set;
-    } = [];
+        get => tags;
+        set => tags = ContractCollectionDefaults.Coalesce(value);
+    }
 
     /// <summary>Governance and security controls required for this specific service.</summary>
+    private List<string> requiredControls = [];
+
     public List<string> RequiredControls
     {
-        get;
-        set;
-    } = [];
+        get => requiredControls;
+        set => requiredControls = ContractCollectionDefaults.Coalesce(value);
+    }
 }

@@ -45,7 +45,7 @@ public sealed class DocxArchitectureAnalysisExportService(IDiagramImageRenderer 
             builder.AddParagraph($"Cloud Provider: {report.Evidence.CloudProvider}");
             builder.AddSpacer();
             builder.AddHeading("Request Context", 3);
-            builder.AddParagraph(report.Evidence.Request.Description);
+            builder.AddParagraph(ArchitectureEvidenceRequestExport.FormatDescription(report.Evidence.Request.Description));
             if (report.Evidence.Request.Constraints.Count > 0)
             {
                 builder.AddHeading("Constraints", 3);
@@ -147,9 +147,7 @@ public sealed class DocxArchitectureAnalysisExportService(IDiagramImageRenderer 
 
             ManifestGovernance governance = report.Manifest.Governance;
 
-            if (governance.RequiredControls.Count > 0
-                || governance.ComplianceTags.Count > 0
-                || governance.PolicyConstraints.Count > 0)
+            if (ArchitectureManifestGovernanceExport.ShouldRender(governance))
             {
                 builder.AddHeading("Governance", 3);
                 builder.AddBullet($"Required Controls: {string.Join(", ", governance.RequiredControls)}");

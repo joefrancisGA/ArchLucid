@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Architecture;
 
 /// <summary>
@@ -36,11 +38,13 @@ public sealed class ArchitectureSealDeltaResponse
         set;
     }
 
+    private IReadOnlyList<ArchitectureSealDeltaItem> diffs = [];
+
     public IReadOnlyList<ArchitectureSealDeltaItem> Diffs
     {
-        get;
-        set;
-    } = [];
+        get => diffs;
+        set => diffs = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 
     /// <summary>Server-owned copy forbidding treating this panel as sealed evidence.</summary>
     public string HonestyCopy

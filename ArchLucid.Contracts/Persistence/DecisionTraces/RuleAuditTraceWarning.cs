@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Persistence.DecisionTraces;
 
 /// <summary>
@@ -11,11 +13,13 @@ public sealed class RuleAuditTraceWarning
         set;
     } = string.Empty;
 
+    private List<string> missingFieldPaths = [];
+
     public List<string> MissingFieldPaths
     {
-        get;
-        set;
-    } = [];
+        get => missingFieldPaths;
+        set => missingFieldPaths = ContractCollectionDefaults.Coalesce(value);
+    }
 
     public string Severity
     {

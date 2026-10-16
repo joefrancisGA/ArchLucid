@@ -123,8 +123,9 @@ public sealed class ExportReplayService(
             }
         }
 
+        string canonicalRunId = CanonicalRunIdForLookup(record.RunId);
         ArchitectureRunDetail? architectureDetail =
-            await _runDetailQueryService.GetRunDetailAsync(record.RunId, cancellationToken);
+            await _runDetailQueryService.GetRunDetailAsync(canonicalRunId, cancellationToken);
 
         if (architectureDetail is not null)
         {
@@ -250,4 +251,7 @@ public sealed class ExportReplayService(
         string baseName = Path.GetFileNameWithoutExtension(originalFileName);
         return $"{baseName}_replay{extension}";
     }
+
+    private static string CanonicalRunIdForLookup(string runId) =>
+        Guid.TryParse(runId, out Guid guid) ? guid.ToString("N") : runId;
 }

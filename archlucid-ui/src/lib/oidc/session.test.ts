@@ -8,6 +8,8 @@ import {
   getAccessTokenForApi,
   isLikelySignedIn,
   persistTokenResponse,
+  readSignedInDisplayName,
+  readSignedInUserSubject,
   storePkceState,
   storePostSignInReturnUrl,
 } from "@/lib/oidc/session";
@@ -16,6 +18,7 @@ import {
   OIDC_DISPLAY_NAME_KEY,
   OIDC_EXPIRES_AT_MS_KEY,
   OIDC_ID_TOKEN_KEY,
+  OIDC_POST_SIGN_IN_RETURN_URL_KEY,
   OIDC_REFRESH_TOKEN_KEY,
   OIDC_USER_SUBJECT_KEY,
 } from "@/lib/oidc/storage-keys";
@@ -27,6 +30,12 @@ describe("storePostSignInReturnUrl / consumePostSignInReturnUrl", () => {
 
   it("round-trips a safe local path", () => {
     storePostSignInReturnUrl("/architecture/reviews/123");
+
+    expect(consumePostSignInReturnUrl()).toBe("/architecture/reviews/123");
+  });
+
+  it("strips zero-width characters from stored post-sign-in return paths", () => {
+    storePostSignInReturnUrl("/architecture\u200b/reviews/123");
 
     expect(consumePostSignInReturnUrl()).toBe("/architecture/reviews/123");
   });
@@ -44,6 +53,12 @@ describe("storePostSignInReturnUrl / consumePostSignInReturnUrl", () => {
 
   it("does not store an absolute external URL", () => {
     storePostSignInReturnUrl("https://evil.example/phish");
+
+    expect(consumePostSignInReturnUrl()).toBeNull();
+  });
+
+  it("returns null when legacy post-sign-in return path is zero-width-only", () => {
+    sessionStorage.setItem(OIDC_POST_SIGN_IN_RETURN_URL_KEY, "\u200b\u200b");
 
     expect(consumePostSignInReturnUrl()).toBeNull();
   });
@@ -87,6 +102,54 @@ describe("getAccessTokenForApi / isLikelySignedIn expiry parsing (LK-06 P2)", ()
     expect(getAccessTokenForApi()).toBeUndefined();
     expect(isLikelySignedIn()).toBe(false);
   });
+
+  it("parses expires_at_ms session hints after stripping zero-width padding", () => {
+    const futureMs = Date.now() + 3_600_000;
+    sessionStorage.setItem(OIDC_EXPIRES_AT_MS_KEY, `${futureMs}\u200b`);
+
+    expect(isLikelySignedIn()).toBe(true);
+  });
+
+  it("treats scientific-notation expires_at_ms session hints in the past as expired", () => {
+    sessionStorage.setItem(OIDC_EXPIRES_AT_MS_KEY, "1.73e12");
+
+    expect(isLikelySignedIn()).toBe(false);
+  });
+
+  it("does not merge digits around interior zero-width characters in expires_at_ms hints", () => {
+    const futureMs = Date.now() + 3_600_000;
+    sessionStorage.setItem(OIDC_EXPIRES_AT_MS_KEY, `${futureMs}\u200b000`);
+
+    expect(isLikelySignedIn()).toBe(false);
+  });
+
+  it("treats zero-width-only expires_at_ms session hints as expired", () => {
+    sessionStorage.setItem(OIDC_EXPIRES_AT_MS_KEY, "\u200b\u200b");
+
+    expect(isLikelySignedIn()).toBe(false);
+    expect(getAccessTokenForApi()).toBeUndefined();
+  });
+
+  it("treats comma-grouped expires_at_ms session hints as expired", () => {
+    sessionStorage.setItem(OIDC_EXPIRES_AT_MS_KEY, "1,730,000,000,000");
+
+    expect(isLikelySignedIn()).toBe(false);
+    expect(getAccessTokenForApi()).toBeUndefined();
+  });
+
+  it("treats small hex expires_at_ms session hints as expired", () => {
+    sessionStorage.setItem(OIDC_EXPIRES_AT_MS_KEY, "0x1234");
+
+    expect(isLikelySignedIn()).toBe(false);
+    expect(getAccessTokenForApi()).toBeUndefined();
+  });
+
+  it("treats binary-prefixed expires_at_ms session hints as expired", () => {
+    sessionStorage.setItem(OIDC_EXPIRES_AT_MS_KEY, "0b101");
+
+    expect(isLikelySignedIn()).toBe(false);
+    expect(getAccessTokenForApi()).toBeUndefined();
+  });
 });
 
 describe("persistTokenResponse", () => {
@@ -121,6 +184,39 @@ describe("persistTokenResponse", () => {
     expect(sessionStorage.getItem(OIDC_ACCESS_TOKEN_KEY)).toBeNull();
     expect(isLikelySignedIn()).toBe(false);
     expect(getAccessTokenForApi()).toBeUndefined();
+  });
+
+  it("rejects zero-width-only access_token values instead of writing partial session hints", () => {
+    expect(() => persistTokenResponse({ access_token: "\u200b", expires_in: 3600 })).toThrow(
+      /access_token/i,
+    );
+
+    expect(sessionStorage.getItem(OIDC_EXPIRES_AT_MS_KEY)).toBeNull();
+    expect(isLikelySignedIn()).toBe(false);
+  });
+
+  it("maps boolean false expires_in from malformed token JSON to the default lifetime", () => {
+    persistTokenResponse({ access_token: "tok", expires_in: false as unknown as number });
+
+    const expiresAtMs = Number(sessionStorage.getItem(OIDC_EXPIRES_AT_MS_KEY));
+    const expectedMin = Date.now() + 3590 * 1000;
+    const expectedMax = Date.now() + 3610 * 1000;
+
+    expect(expiresAtMs).toBeGreaterThanOrEqual(expectedMin);
+    expect(expiresAtMs).toBeLessThanOrEqual(expectedMax);
+    expect(isLikelySignedIn()).toBe(true);
+  });
+
+  it("maps boolean expires_in from malformed token JSON to the default lifetime", () => {
+    persistTokenResponse({ access_token: "tok", expires_in: true as unknown as number });
+
+    const expiresAtMs = Number(sessionStorage.getItem(OIDC_EXPIRES_AT_MS_KEY));
+    const expectedMin = Date.now() + 3590 * 1000;
+    const expectedMax = Date.now() + 3610 * 1000;
+
+    expect(expiresAtMs).toBeGreaterThanOrEqual(expectedMin);
+    expect(expiresAtMs).toBeLessThanOrEqual(expectedMax);
+    expect(isLikelySignedIn()).toBe(true);
   });
 
   it("coerces string expires_in from the token response before writing expiry", () => {
@@ -203,6 +299,42 @@ describe("persistTokenResponse", () => {
     expect(clearBffSessionCookieMock).toHaveBeenCalledTimes(1);
   });
 
+  it("returns null for zero-width-only display-name hints read from sessionStorage", () => {
+    sessionStorage.setItem(OIDC_DISPLAY_NAME_KEY, "\u200b\u200b");
+
+    expect(readSignedInDisplayName()).toBeNull();
+  });
+
+  it("returns null for zero-width-only subject hints read from sessionStorage", () => {
+    sessionStorage.setItem(OIDC_USER_SUBJECT_KEY, "\u200b");
+
+    expect(readSignedInUserSubject()).toBeNull();
+  });
+
+  it("strips zero-width padding when reading display-name hints from sessionStorage", () => {
+    sessionStorage.setItem(OIDC_DISPLAY_NAME_KEY, "\u200bJane Operator\u200b");
+
+    expect(readSignedInDisplayName()).toBe("Jane Operator");
+  });
+
+  it("strips zero-width padding when reading user subject hints from sessionStorage", () => {
+    sessionStorage.setItem(OIDC_USER_SUBJECT_KEY, "\u200buser-123\u200b");
+
+    expect(readSignedInUserSubject()).toBe("user-123");
+  });
+
+  it("does not store zero-width-only subject hints from JWT claims", () => {
+    const header = Buffer.from(JSON.stringify({ alg: "none", typ: "JWT" })).toString("base64url");
+    const payload = Buffer.from(JSON.stringify({ sub: "\u200b\u200b", exp: Math.floor(Date.now() / 1000) + 3600 })).toString(
+      "base64url",
+    );
+    const accessToken = `${header}.${payload}.sig`;
+
+    persistTokenResponse({ access_token: accessToken, expires_in: 3600 });
+
+    expect(sessionStorage.getItem(OIDC_USER_SUBJECT_KEY)).toBeNull();
+  });
+
   it("stores non-sensitive display name and subject hints from JWT claims", () => {
     const header = Buffer.from(JSON.stringify({ alg: "none", typ: "JWT" })).toString("base64url");
     const payload = Buffer.from(
@@ -265,6 +397,36 @@ describe("persistTokenResponse", () => {
     expect(bffAccessToken).toBe("newer-token");
   });
 
+  it("keeps BFF sync POST count bounded during rapid overlapping token persists", async () => {
+    const releaseByToken = new Map<string, () => void>();
+    const syncMock = vi
+      .spyOn(bffSessionSync, "syncBffSessionCookieFromTokenResponse")
+      .mockImplementation(async (tokens) => {
+        const token = tokens.access_token;
+
+        if (token.startsWith("slow-")) {
+          await new Promise<void>((resolve) => {
+            releaseByToken.set(token, resolve);
+          });
+        }
+      });
+
+    persistTokenResponse({ access_token: "slow-1", expires_in: 3600 });
+    persistTokenResponse({ access_token: "slow-2", expires_in: 3600 });
+    persistTokenResponse({ access_token: "final-token", expires_in: 3600 });
+
+    await Promise.resolve();
+    await Promise.resolve();
+
+    releaseByToken.get("slow-1")?.();
+    await Promise.resolve();
+    releaseByToken.get("slow-2")?.();
+    await vi.waitUntil(() => syncMock.mock.calls.length >= 5);
+
+    expect(syncMock.mock.calls.length).toBeLessThanOrEqual(7);
+    expect(syncMock.mock.calls.at(-1)?.[0].access_token).toBe("final-token");
+  });
+
   it("does not block a newer sync behind a hung older request", async () => {
     let bffAccessToken = "";
     const syncMock = vi
@@ -304,6 +466,45 @@ describe("consumePkceState", () => {
       nonce: "google-nonce",
       flow: "google",
     });
+    expect(consumePkceState("primary-state")).toEqual({
+      state: "primary-state",
+      codeVerifier: "primary-verifier",
+      nonce: "primary-nonce",
+      flow: "primary",
+    });
+  });
+
+  it("matches stored PKCE state when the callback state query value has surrounding whitespace", () => {
+    storePkceState("primary-state", "primary-verifier", "primary-nonce", "primary");
+
+    expect(consumePkceState("  primary-state  ")).toEqual({
+      state: "primary-state",
+      codeVerifier: "primary-verifier",
+      nonce: "primary-nonce",
+      flow: "primary",
+    });
+  });
+
+  it("rejects whitespace-only callback state values", () => {
+    storePkceState("primary-state", "primary-verifier", "primary-nonce", "primary");
+
+    expect(consumePkceState("   ")).toBeNull();
+  });
+
+  it("matches stored PKCE state when the callback state query value has zero-width padding", () => {
+    storePkceState("primary-state", "primary-verifier", "primary-nonce", "primary");
+
+    expect(consumePkceState(`\u200bprimary-state\u200b`)).toEqual({
+      state: "primary-state",
+      codeVerifier: "primary-verifier",
+      nonce: "primary-nonce",
+      flow: "primary",
+    });
+  });
+
+  it("returns normalized PKCE verifier and nonce values read from sessionStorage", () => {
+    storePkceState("primary-state", `\u200bprimary-verifier\u200b`, `\u200bprimary-nonce\u200b`, "primary");
+
     expect(consumePkceState("primary-state")).toEqual({
       state: "primary-state",
       codeVerifier: "primary-verifier",

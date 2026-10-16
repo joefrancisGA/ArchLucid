@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Compliance;
 
 public class ComplianceRulePack
@@ -14,11 +16,13 @@ public class ComplianceRulePack
         set;
     } = null!;
 
+    private string version = string.Empty;
+
     public string Version
     {
-        get;
-        set;
-    } = null!;
+        get => version;
+        set => version = ContractCollectionDefaults.CoalesceRequired(value);
+    }
 
     public string RulePackHash
     {
@@ -32,9 +36,11 @@ public class ComplianceRulePack
         set;
     } = null!;
 
+    private List<ComplianceRule> rules = [];
+
     public List<ComplianceRule> Rules
     {
-        get;
-        set;
-    } = [];
+        get => rules;
+        set => rules = ContractCollectionDefaults.Coalesce(value);
+    }
 }

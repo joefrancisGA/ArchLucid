@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Governance;
+using ArchLucid.Contracts.Serialization;
 
 namespace ArchLucid.Contracts.Governance.PolicyPacks;
 
@@ -17,7 +18,13 @@ public class PolicyPackSimulateBulkSummary
 
     public int WouldBlockCommitCount { get; set; }
 
-    public List<PolicyPackSimulateBulkRunOutcome> Results { get; set; } = [];
+    private List<PolicyPackSimulateBulkRunOutcome> results = [];
+
+    public List<PolicyPackSimulateBulkRunOutcome> Results
+    {
+        get => results;
+        set => results = ContractCollectionDefaults.Coalesce(value);
+    }
 }
 
 /// <summary>Per-run outcome for bulk simulation.</summary>

@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Admin;
 
 /// <summary>Internal operator deployment-status snapshot (no secrets).</summary>
@@ -107,11 +109,13 @@ public sealed class AdminDeploymentStatusResponse
         set;
     } = AdminDeploymentStatusValues.Unknown;
 
+    private IReadOnlyList<AdminDeploymentStatusLink> links = [];
+
     public IReadOnlyList<AdminDeploymentStatusLink> Links
     {
-        get;
-        set;
-    } = [];
+        get => links;
+        set => links = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 
     public DateTimeOffset GeneratedAtUtc
     {

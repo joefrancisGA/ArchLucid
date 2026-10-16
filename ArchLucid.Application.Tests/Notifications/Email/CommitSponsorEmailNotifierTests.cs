@@ -48,6 +48,38 @@ public sealed class CommitSponsorEmailNotifierTests
     }
 
     [SkippableFact]
+    public async Task NotifyAfterCommitAsync_omits_embedded_crlf_from_review_link_in_text_body()
+    {
+        Mock<ITenantTrialEmailContactLookup> lookup = new();
+        lookup
+            .Setup(x => x.TryResolveAdminEmailAsync(TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync("sponsor@example.com");
+
+        Mock<IEmailProvider> email = new();
+        email.Setup(x => x.ProviderName).Returns("test");
+
+        IOptionsMonitor<EmailNotificationOptions> options = BuildOptions(
+            new EmailNotificationOptions
+            {
+                ProductDisplayName = "Prod",
+                OperatorBaseUrl = "https://ops.example.test\r\nBcc: injected@evil.test",
+            });
+
+        CommitSponsorEmailNotifier sut = CreateSut(lookup.Object, email.Object, options);
+
+        await sut.NotifyAfterCommitAsync(TenantId, RunIdText, CancellationToken.None);
+
+        email.Verify(
+            x => x.SendAsync(
+                It.Is<EmailMessage>(m =>
+                    m.TextBody!.Contains("https://ops.example.test/architecture/reviews/", StringComparison.Ordinal)
+                    && !m.TextBody.Contains("\r", StringComparison.Ordinal)
+                    && !m.TextBody.Contains("injected@evil.test", StringComparison.Ordinal)),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [SkippableFact]
     public async Task NotifyAfterCommitAsync_omits_user_info_from_operator_base_url_in_review_link()
     {
         Mock<ITenantTrialEmailContactLookup> lookup = new();

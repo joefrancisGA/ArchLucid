@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Persistence.Context;
 
 public class ContextSnapshot
@@ -27,11 +29,13 @@ public class ContextSnapshot
         set;
     }
 
+    private List<CanonicalObject> canonicalObjects = [];
+
     public List<CanonicalObject> CanonicalObjects
     {
-        get;
-        set;
-    } = [];
+        get => canonicalObjects;
+        set => canonicalObjects = ContractCollectionDefaults.Coalesce(value);
+    }
 
     public string? DeltaSummary
     {
@@ -39,21 +43,27 @@ public class ContextSnapshot
         set;
     }
 
+    private List<string> warnings = [];
+
     public List<string> Warnings
     {
-        get;
-        set;
-    } = [];
+        get => warnings;
+        set => warnings = ContractCollectionDefaults.Coalesce(value);
+    }
+
+    private List<string> errors = [];
 
     public List<string> Errors
     {
-        get;
-        set;
-    } = [];
+        get => errors;
+        set => errors = ContractCollectionDefaults.Coalesce(value);
+    }
+
+    private Dictionary<string, string> sourceHashes = [];
 
     public Dictionary<string, string> SourceHashes
     {
-        get;
-        set;
-    } = new();
+        get => sourceHashes;
+        set => sourceHashes = ContractCollectionDefaults.CoalesceDictionary(value);
+    }
 }

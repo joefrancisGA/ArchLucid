@@ -3,6 +3,7 @@ using System.Text.Json.Serialization;
 
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
+using ArchLucid.Contracts.Serialization;
 
 namespace ArchLucid.Contracts.Agents;
 
@@ -105,20 +106,50 @@ public sealed class AgentResultJsonConverter : JsonConverter<AgentResult>
 
         public AgentType AgentType { get; set; }
 
-        [JsonConverter(typeof(AgentResultClaimListJsonConverter))]
-        public List<string> Claims { get; set; } = [];
+        private List<string> claims = [];
 
-        public List<string> EvidenceRefs { get; set; } = [];
+        [JsonConverter(typeof(AgentResultClaimListJsonConverter))]
+        public List<string> Claims
+        {
+            get => claims;
+            set => claims = ContractCollectionDefaults.Coalesce(value);
+        }
+
+        private List<string> evidenceRefs = [];
+
+        public List<string> EvidenceRefs
+        {
+            get => evidenceRefs;
+            set => evidenceRefs = ContractCollectionDefaults.Coalesce(value);
+        }
 
         public double Confidence { get; set; }
 
         public double? CalibratedConfidence { get; set; }
 
-        public List<ArchitectureFinding> Findings { get; set; } = [];
+        private List<ArchitectureFinding> findings = [];
 
-        public List<ArchitectureFinding> ChecklistCoverage { get; set; } = [];
+        public List<ArchitectureFinding> Findings
+        {
+            get => findings;
+            set => findings = ContractCollectionDefaults.Coalesce(value);
+        }
 
-        public List<WithheldFindingSummary> WithheldFindings { get; set; } = [];
+        private List<ArchitectureFinding> checklistCoverage = [];
+
+        public List<ArchitectureFinding> ChecklistCoverage
+        {
+            get => checklistCoverage;
+            set => checklistCoverage = ContractCollectionDefaults.Coalesce(value);
+        }
+
+        private List<WithheldFindingSummary> withheldFindings = [];
+
+        public List<WithheldFindingSummary> WithheldFindings
+        {
+            get => withheldFindings;
+            set => withheldFindings = ContractCollectionDefaults.Coalesce(value);
+        }
 
         public InsightDensityCurationSummary? InsightDensityCuration { get; set; }
 

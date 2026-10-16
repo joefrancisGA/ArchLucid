@@ -51,6 +51,7 @@ public sealed class ArchitectureAnalysisService(
         ArgumentException.ThrowIfNullOrWhiteSpace(request.RunId);
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        string primaryRunId = CanonicalRunIdForLookup(request.RunId);
 
         await ArchitectureAnalysisSealedManifestHashGuard.EnsureRunSealedManifestHashOrThrowAsync(
             request.RunId,
@@ -72,7 +73,7 @@ public sealed class ArchitectureAnalysisService(
             run = request.PreloadedRun;
         else
         {
-            primaryDetail = await runDetailQueryService.GetRunDetailAsync(request.RunId, cancellationToken) ?? throw new RunNotFoundException(request.RunId);
+            primaryDetail = await runDetailQueryService.GetRunDetailAsync(primaryRunId, cancellationToken) ?? throw new RunNotFoundException(request.RunId);
             run = primaryDetail.Run;
         }
 
@@ -80,7 +81,7 @@ public sealed class ArchitectureAnalysisService(
 
         if (request.IncludeEvidence)
         {
-            report.Evidence = await evidenceRepository.GetByRunIdAsync(request.RunId, cancellationToken);
+            report.Evidence = await evidenceRepository.GetByRunIdAsync(primaryRunId, cancellationToken);
 
             if (report.Evidence is null)
                 report.Warnings.Add("Evidence package was not found for this run.");
@@ -88,7 +89,7 @@ public sealed class ArchitectureAnalysisService(
 
         if (request.IncludeExecutionTraces)
         {
-            report.ExecutionTraces = (await traceRepository.GetByRunIdAsync(scope, request.RunId, cancellationToken)).ToList();
+            report.ExecutionTraces = (await traceRepository.GetByRunIdAsync(scope, primaryRunId, cancellationToken)).ToList();
 
             if (report.ExecutionTraces.Count == 0)
                 report.Warnings.Add("No execution traces were found for this run.");
@@ -97,13 +98,17 @@ public sealed class ArchitectureAnalysisService(
         if (request.IncludeManifest)
         {
             report.Manifest = primaryDetail?.Manifest;
+
+            if (report.Manifest is not null && !RunIdsReferToSameRun(report.Manifest.RunId, run.RunId))
+                report.Manifest = null;
+
             string manifestVersionKey = string.IsNullOrWhiteSpace(run.CurrentManifestVersion) ? $"v1-{run.RunId}" : run.CurrentManifestVersion;
 
             if (report.Manifest is null)
             {
                 report.Manifest = await unifiedGoldenManifestReader.GetByVersionAsync(manifestVersionKey, cancellationToken);
 
-                if (report.Manifest is not null && !string.Equals(report.Manifest.RunId, run.RunId, StringComparison.Ordinal))
+                if (report.Manifest is not null && !RunIdsReferToSameRun(report.Manifest.RunId, run.RunId))
                     report.Manifest = null;
             }
 
@@ -124,11 +129,18 @@ public sealed class ArchitectureAnalysisService(
                 report.Warnings.Add("Summary was requested but the manifest is unavailable; summary was not generated.");
 
         if (request.IncludeDeterminismCheck)
-            report.Determinism = await determinismCheckService.RunAsync(
-                new DeterminismCheckRequest
-                {
-                    RunId = request.RunId, Iterations = request.DeterminismIterations, ExecutionMode = ExecutionModeCurrent, CommitReplays = false
-                }, cancellationToken);
+            if (request.DeterminismIterations < 2)
+                report.Warnings.Add("Determinism check was requested but DeterminismIterations must be at least 2.");
+            else
+                report.Determinism = await determinismCheckService.RunAsync(
+                    new DeterminismCheckRequest
+                    {
+                        RunId = primaryRunId,
+                        Iterations = request.DeterminismIterations,
+                        ExecutionMode = ExecutionModeCurrent,
+                        CommitReplays = false,
+                    },
+                    cancellationToken);
 
         if (request.IncludeManifestCompare)
             if (string.IsNullOrWhiteSpace(request.CompareManifestVersion))
@@ -141,6 +153,11 @@ public sealed class ArchitectureAnalysisService(
 
                 if (compareManifest is null)
                     report.Warnings.Add($"Compare manifest '{request.CompareManifestVersion}' was not found.");
+                else if (!RunIdsReferToSameRun(compareManifest.RunId, report.Manifest.RunId))
+                {
+                    report.Warnings.Add(
+                        $"Compare manifest '{request.CompareManifestVersion}' does not belong to run '{report.Manifest.RunId}'.");
+                }
                 else
                     report.ManifestDiff = manifestDiffService.Compare(report.Manifest, compareManifest);
             }
@@ -152,22 +169,25 @@ public sealed class ArchitectureAnalysisService(
             report.Warnings.Add("Agent-result comparison was requested but CompareRunId was not provided.");
         else
         {
-            ArchitectureRunDetail? compareDetail = await runDetailQueryService.GetRunDetailAsync(request.CompareRunId, cancellationToken);
+            string compareRunId = CanonicalRunIdForLookup(request.CompareRunId);
+            ArchitectureRunDetail? compareDetail = await runDetailQueryService.GetRunDetailAsync(compareRunId, cancellationToken);
 
             if (compareDetail is null)
                 report.Warnings.Add($"Compare run '{request.CompareRunId}' was not found.");
             else
             {
                 await ArchitectureAnalysisSealedManifestHashGuard.EnsureRunSealedManifestHashOrThrowAsync(
-                    request.CompareRunId,
+                    compareRunId,
                     scope,
                     _authorityQueryService,
                     _manifestHashService,
                     cancellationToken);
 
-                IReadOnlyList<AgentResult> leftResults = primaryDetail?.Results ?? await resultRepository.GetByRunIdAsync(scope, request.RunId, cancellationToken);
+                IReadOnlyList<AgentResult> leftResults = primaryDetail is not null && primaryDetail.Results.Count > 0
+                    ? primaryDetail.Results
+                    : await resultRepository.GetByRunIdAsync(scope, primaryRunId, cancellationToken);
                 List<AgentResult> rightResults = compareDetail.Results;
-                report.AgentResultDiff = agentResultDiffService.Compare(request.RunId, leftResults, request.CompareRunId, rightResults);
+                report.AgentResultDiff = agentResultDiffService.Compare(primaryRunId, leftResults, compareRunId, rightResults);
             }
         }
 
@@ -187,4 +207,7 @@ public sealed class ArchitectureAnalysisService(
 
         return false;
     }
+
+    private static string CanonicalRunIdForLookup(string runId) =>
+        Guid.TryParse(runId, out Guid guid) ? guid.ToString("N") : runId;
 }

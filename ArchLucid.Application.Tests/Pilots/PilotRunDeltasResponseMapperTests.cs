@@ -1,4 +1,7 @@
+using System.Text.Json;
+
 using ArchLucid.Application.Pilots;
+using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
@@ -260,4 +263,75 @@ public class PilotRunDeltasResponseMapperTests
 
         response.RoiSourceFreshnessDisposition.Should().Be("HOLD");
     }
+
+    [Fact]
+    public void ToResponseWithProofPackage_when_llm_traces_unresolved_omits_llm_call_count_from_json()
+    {
+        ArchitectureRun run = new()
+        {
+            RunId = Guid.NewGuid().ToString("N"),
+            Status = ArchitectureRunStatus.Committed,
+        };
+
+        GoldenManifest manifest = new()
+        {
+            Metadata = new ManifestMetadata { ManifestVersion = "v1", CreatedUtc = DateTime.UtcNow },
+        };
+
+        PilotRunDeltas deltas = new()
+        {
+            RunCreatedUtc = DateTime.UtcNow,
+            ManifestCommittedUtc = DateTime.UtcNow,
+            LlmCallCount = 0,
+            LlmCallCountResolved = false,
+        };
+
+        ValueReportSnapshot valueReport = MinimalValueReportSnapshot();
+
+        PilotRunDeltasResponse response =
+            PilotRunDeltasResponseMapper.ToResponseWithProofPackage(run, manifest, deltas, valueReport);
+
+        response.LlmCallCountResolved.Should().BeFalse();
+        response.LlmCallCount.Should().BeNull();
+
+        string json = JsonSerializer.Serialize(response, ContractJson.Default);
+        json.Should().NotContain("\"llmCallCount\":0");
+        json.Should().NotContain("\"llmCallCount\": 0");
+    }
+
+    private static ValueReportSnapshot MinimalValueReportSnapshot() =>
+        new(
+            TenantId: Guid.NewGuid(),
+            WorkspaceId: Guid.NewGuid(),
+            ProjectId: Guid.NewGuid(),
+            PeriodFromUtc: DateTimeOffset.UtcNow,
+            PeriodToUtc: DateTimeOffset.UtcNow,
+            RunStatusRows: [],
+            RunsCompletedCount: 1,
+            ManifestsCommittedCount: 0,
+            GovernanceEventsHandledCount: 0,
+            DriftAlertEventsCaughtCount: 0,
+            EstimatedArchitectHoursSavedFromManifests: 0,
+            EstimatedArchitectHoursSavedFromGovernanceEvents: 0,
+            EstimatedArchitectHoursSavedFromDriftEvents: 0,
+            EstimatedTotalArchitectHoursSaved: 0,
+            EstimatedLlmCostForWindowUsd: 0,
+            EstimatedLlmCostMethodologyNote: "",
+            AnnualizedHoursValueUsd: 0,
+            AnnualizedLlmCostUsd: 0,
+            BaselineAnnualSubscriptionAndOpsCostUsdFromRoiModel: 0,
+            NetAnnualizedValueVersusRoiBaselineUsd: 0,
+            RoiAnnualizedPercentVersusRoiBaseline: 0,
+            TenantBaselineReviewCycleHours: null,
+            TenantBaselineReviewCycleSource: null,
+            TenantBaselineReviewCycleCapturedUtc: null,
+            MeasuredAverageReviewCycleHoursForWindow: null,
+            MeasuredReviewCycleSampleSize: 0,
+            ReviewCycleBaselineProvenance: ReviewCycleBaselineProvenance.NoMeasurementYet,
+            ReviewCycleHoursDelta: null,
+            ReviewCycleHoursDeltaPercent: null,
+            FindingFeedbackNetScore: 0,
+            FindingFeedbackVoteCount: 0,
+            TenantBaselineManualPrepHoursPerReview: null,
+            TenantBaselinePeoplePerReview: null);
 }

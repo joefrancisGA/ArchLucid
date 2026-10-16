@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.ArchitectureIntelligence;
 
 public class ExtractionFidelityCase
@@ -14,15 +16,19 @@ public class ExtractionFidelityCase
         set;
     } = null!;
 
+    private List<ArchitectureElementKind> expectedElementKinds = [];
+
     public List<ArchitectureElementKind> ExpectedElementKinds
     {
-        get;
-        set;
-    } = [];
+        get => expectedElementKinds;
+        set => expectedElementKinds = ContractCollectionDefaults.Coalesce(value);
+    }
+
+    private List<string> expectedNames = [];
 
     public List<string> ExpectedNames
     {
-        get;
-        set;
-    } = [];
+        get => expectedNames;
+        set => expectedNames = ContractCollectionDefaults.Coalesce(value);
+    }
 }

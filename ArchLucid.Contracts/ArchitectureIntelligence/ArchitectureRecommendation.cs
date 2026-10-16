@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.ArchitectureIntelligence;
 
 public class ArchitectureRecommendation
@@ -38,41 +40,53 @@ public class ArchitectureRecommendation
         set;
     } = null!;
 
+    private List<string> alternatives = [];
+
     public List<string> Alternatives
     {
-        get;
-        set;
-    } = [];
+        get => alternatives;
+        set => alternatives = ContractCollectionDefaults.Coalesce(value);
+    }
+
+    private List<RecommendationAlternative> alternativeOptions = [];
 
     public List<RecommendationAlternative> AlternativeOptions
     {
-        get;
-        set;
-    } = [];
+        get => alternativeOptions;
+        set => alternativeOptions = ContractCollectionDefaults.Coalesce(value);
+    }
+
+    private List<TradeOffObject> tradeOffs = [];
 
     public List<TradeOffObject> TradeOffs
     {
-        get;
-        set;
-    } = [];
+        get => tradeOffs;
+        set => tradeOffs = ContractCollectionDefaults.Coalesce(value);
+    }
+
+    private EffortEstimate effort = new();
 
     public EffortEstimate Effort
     {
-        get;
-        set;
-    } = new();
+        get => effort;
+        set => effort = value ?? new EffortEstimate();
+    }
+
+    private RiskReductionEstimate riskReduction = new();
 
     public RiskReductionEstimate RiskReduction
     {
-        get;
-        set;
-    } = new();
+        get => riskReduction;
+        set => riskReduction = value ?? new RiskReductionEstimate();
+    }
+
+    private List<string> dependencies = [];
 
     public List<string> Dependencies
     {
-        get;
-        set;
-    } = [];
+        get => dependencies;
+        set => dependencies = ContractCollectionDefaults.Coalesce(value);
+    }
 
     public string ValidationMethod
     {
@@ -92,9 +106,11 @@ public class ArchitectureRecommendation
         set;
     }
 
+    private ClaimProvenance provenance = new();
+
     public ClaimProvenance Provenance
     {
-        get;
-        set;
-    } = new();
+        get => provenance;
+        set => provenance = value ?? new ClaimProvenance();
+    }
 }

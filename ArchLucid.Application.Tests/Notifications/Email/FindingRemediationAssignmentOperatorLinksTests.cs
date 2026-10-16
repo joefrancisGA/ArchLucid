@@ -51,4 +51,28 @@ public sealed class FindingRemediationAssignmentOperatorLinksTests
 
         url.Should().Be("https://ops.example.test/governance/findings/assigned-to-me");
     }
+
+    [Fact]
+    public void BuildFindingInspectUrl_strips_embedded_crlf_from_finding_id_before_path_encoding()
+    {
+        Guid runId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
+        const string injectedLine = "Bcc: injected@evil.test";
+        string findingIdWithBreak = $"finding-1\r\n{injectedLine}";
+
+        string url = FindingRemediationAssignmentOperatorLinks.BuildFindingInspectUrl(
+            "https://app.example.com",
+            runId,
+            findingIdWithBreak);
+
+        string sanitizedForEmail = EmailBrandingUrls.SanitizeOperatorAbsoluteUrl(url);
+
+        sanitizedForEmail.Should().NotContain("%0D", "percent-encoded CR must not reach finding inspect hrefs");
+        sanitizedForEmail.Should().NotContain("%0A", "percent-encoded LF must not reach finding inspect hrefs");
+
+        Uri absolute = new(sanitizedForEmail);
+        string runHex = runId.ToString("N");
+        Uri.UnescapeDataString(absolute.AbsolutePath)
+            .Should()
+            .Be($"/architecture/reviews/{runHex}/findings/finding-1 {injectedLine}");
+    }
 }

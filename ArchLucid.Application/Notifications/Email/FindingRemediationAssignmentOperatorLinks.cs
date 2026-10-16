@@ -6,7 +6,7 @@ public static class FindingRemediationAssignmentOperatorLinks
     public static string BuildFindingInspectUrl(string? operatorBaseUrl, Guid runId, string findingId)
     {
         string runHex = runId.ToString("N");
-        string encodedFindingId = Uri.EscapeDataString(findingId.Trim());
+        string encodedFindingId = Uri.EscapeDataString(EmailHeaderFragmentSanitizer.Sanitize(findingId.Trim()));
         string relativePath = $"/architecture/reviews/{runHex}/findings/{encodedFindingId}";
 
         string? authority = EmailBrandingUrls.TryNormalizeOperatorBaseAuthority(operatorBaseUrl);

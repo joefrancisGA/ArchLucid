@@ -29,19 +29,71 @@ public sealed class PilotValueReportMarkdownFormatter(ExportFormatterService exp
         sb.AppendLine(
             CultureInfo.InvariantCulture,
             $"| Window (UTC) | `{_exportFormatter.FormatIso8601Utc(r.FromUtc)}` inclusive → `{_exportFormatter.FormatIso8601Utc(r.ToUtc)}` exclusive |");
-        sb.AppendLine(CultureInfo.InvariantCulture, $"| Committed runs | {r.TotalRunsCommitted} |");
-        sb.AppendLine(CultureInfo.InvariantCulture,
-            $"| Run-detail cap | {r.RunDetailCap} (truncated: {r.RunDetailsTruncated}) |");
+        if (r.CommittedRunsInventoryTruncated)
+        {
+            sb.AppendLine(
+                CultureInfo.InvariantCulture,
+                $"| Committed runs | {r.TotalRunsCommitted} (partial inventory: count may under-count in-window committed runs) |");
+        }
+        else
+        {
+            sb.AppendLine(CultureInfo.InvariantCulture, $"| Committed runs | {r.TotalRunsCommitted} |");
+        }
+
+        if (r.RunDetailsTruncated)
+        {
+            if (r.CommittedRunsTimeline.Count == 0 && r.TotalRunsCommitted > 0)
+            {
+                sb.AppendLine(
+                    CultureInfo.InvariantCulture,
+                    $"| Run-detail cap | {r.RunDetailCap} (truncated: true; 0 of newest committed runs loaded for detail) |");
+            }
+            else
+            {
+                sb.AppendLine(
+                    CultureInfo.InvariantCulture,
+                    $"| Run-detail cap | {r.RunDetailCap} (truncated: true; newest committed runs by CreatedUtc) |");
+            }
+        }
+        else
+        {
+            sb.AppendLine(CultureInfo.InvariantCulture,
+                $"| Run-detail cap | {r.RunDetailCap} (truncated: {r.RunDetailsTruncated}) |");
+        }
         sb.AppendLine(CultureInfo.InvariantCulture, $"| Audit export truncated | {r.AuditExportTruncated} |");
+        sb.AppendLine(
+            CultureInfo.InvariantCulture,
+            $"| Committed-run inventory truncated | {r.CommittedRunsInventoryTruncated} |");
+        sb.AppendLine(
+            CultureInfo.InvariantCulture,
+            $"| ROI source freshness disposition | {EscapeCell(r.RoiSourceFreshnessDisposition)} |");
         sb.AppendLine();
 
         sb.AppendLine("## Summary");
         sb.AppendLine();
         _exportFormatter.AppendMarkdownTwoColumnTableStart(sb, "Metric", "Value");
-        sb.AppendLine(CultureInfo.InvariantCulture, $"| Total findings | {r.TotalFindings} |");
-        sb.AppendLine(
-            CultureInfo.InvariantCulture,
-            $"| Avg pipeline completion | {FormatAvgSeconds(r.AveragePipelineCompletionSeconds)} |");
+
+        if (RunDetailSampleLoadedNoRows(r))
+        {
+            sb.AppendLine("| Total findings | not computed — no committed runs loaded for detail in the partial sample |");
+        }
+        else if (r.RunDetailsTruncated)
+        {
+            sb.AppendLine(
+                CultureInfo.InvariantCulture,
+                $"| Total findings | {r.TotalFindings} {PartialRunDetailSampleFragment(r.RunDetailCap)} |");
+        }
+        else
+        {
+            sb.AppendLine(CultureInfo.InvariantCulture, $"| Total findings | {r.TotalFindings} |");
+        }
+
+        string avgCompletionCell = FormatAvgSeconds(r.AveragePipelineCompletionSeconds);
+
+        if (r.RunDetailsTruncated && !RunDetailSampleLoadedNoRows(r))
+            avgCompletionCell = $"{avgCompletionCell} {PartialRunDetailSampleFragment(r.RunDetailCap)}";
+
+        sb.AppendLine(CultureInfo.InvariantCulture, $"| Avg pipeline completion | {avgCompletionCell} |");
 
         sb.AppendLine(CultureInfo.InvariantCulture,
             $"| Recommendations generated (audit) | {r.TotalRecommendationsProduced} |");
@@ -55,6 +107,21 @@ public sealed class PilotValueReportMarkdownFormatter(ExportFormatterService exp
 
         sb.AppendLine("## Findings by severity");
         sb.AppendLine();
+
+        if (RunDetailSampleLoadedNoRows(r))
+        {
+            sb.AppendLine(
+                "> Severity counts were not computed — no committed runs loaded for detail in the partial sample.");
+            sb.AppendLine();
+        }
+        else if (r.RunDetailsTruncated)
+        {
+            sb.AppendLine(
+                CultureInfo.InvariantCulture,
+                $"> Severity counts reflect a partial run-detail sample: newest {r.RunDetailCap} committed runs by CreatedUtc.");
+            sb.AppendLine();
+        }
+
         _exportFormatter.AppendMarkdownTwoColumnTableStart(sb, "Severity", "Count");
         sb.AppendLine(CultureInfo.InvariantCulture, $"| Critical | {r.FindingsBySeverity.Critical} |");
         sb.AppendLine(CultureInfo.InvariantCulture, $"| High | {r.FindingsBySeverity.High} |");
@@ -67,9 +134,27 @@ public sealed class PilotValueReportMarkdownFormatter(ExportFormatterService exp
 
         sb.AppendLine("## Agent types observed");
         sb.AppendLine();
+
+        if (r.RunDetailsTruncated && r.UniqueAgentTypes.Count > 0)
+        {
+            sb.AppendLine(
+                CultureInfo.InvariantCulture,
+                $"> Agent types listed reflect the same partial run-detail sample: newest {r.RunDetailCap} committed runs by CreatedUtc.");
+            sb.AppendLine();
+        }
+
         if (r.UniqueAgentTypes.Count == 0)
         {
-            sb.AppendLine("Agent types were not stored.");
+            if (r.RunDetailsTruncated)
+            {
+                sb.AppendLine(
+                    CultureInfo.InvariantCulture,
+                    $"No agent types appeared in the loaded run-detail sample (newest {r.RunDetailCap} committed runs by CreatedUtc); additional types may exist on runs excluded by the cap.");
+            }
+            else
+            {
+                sb.AppendLine("Agent types were not stored.");
+            }
         }
         else
         {
@@ -77,7 +162,17 @@ public sealed class PilotValueReportMarkdownFormatter(ExportFormatterService exp
         }
         sb.AppendLine();
 
-        sb.AppendLine("## Committed runs (sample loaded for detail)");
+        if (r.RunDetailsTruncated)
+        {
+            sb.AppendLine(
+                CultureInfo.InvariantCulture,
+                $"## Committed runs (sample: {r.CommittedRunsTimeline.Count} of {r.TotalRunsCommitted} in-window committed runs loaded for detail)");
+        }
+        else
+        {
+            sb.AppendLine("## Committed runs (sample loaded for detail)");
+        }
+
         sb.AppendLine();
         _exportFormatter.AppendMarkdownFourColumnTableStart(sb, "Run", "Created (UTC)", "Committed (UTC)", "System");
 
@@ -97,6 +192,12 @@ public sealed class PilotValueReportMarkdownFormatter(ExportFormatterService exp
 
         return sb.ToString();
     }
+
+    private static bool RunDetailSampleLoadedNoRows(PilotValueReport report) =>
+        report.RunDetailsTruncated && report.CommittedRunsTimeline.Count == 0 && report.TotalRunsCommitted > 0;
+
+    private static string PartialRunDetailSampleFragment(int runDetailCap) =>
+        FormattableString.Invariant($"(partial run-detail sample: newest {runDetailCap} committed runs by CreatedUtc)");
 
     private static void AppendSeverityNote(StringBuilder sb)
     {

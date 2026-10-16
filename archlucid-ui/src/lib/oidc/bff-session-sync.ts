@@ -1,3 +1,8 @@
+import { isSafeOidcEndpointUrl } from "@/lib/oidc/discovery";
+import {
+  normalizeNumericOidcHintString,
+  normalizeOidcConfigurationString,
+} from "@/lib/oidc/oauth-callback-messages";
 import { resolveExpiresInSeconds } from "@/lib/oidc/resolve-expires-in-seconds";
 import type { OidcTokenResponse } from "@/lib/oidc/token-client";
 import { applyBffCsrfHeader, readBffCsrfTokenFromDocument } from "@/lib/proxy/bff-session-csrf-client";
@@ -11,6 +16,20 @@ const BFF_SESSION_RP_LOGOUT_URL_PATH = "/api/auth/bff-session/rp-logout-url";
 
 /** Parity with `session.ts` expiry skew when accepting BFF refresh hints. */
 const BFF_REFRESH_EXPIRY_SKEW_MS = 60_000;
+
+function parseBffExpiresAtMs(raw: unknown): number {
+  if (typeof raw === "string") {
+    const normalized = normalizeNumericOidcHintString(raw);
+
+    if (normalized.length === 0) {
+      return Number.NaN;
+    }
+
+    return Number(normalized);
+  }
+
+  return Number(raw);
+}
 
 function resolveWorkingModeForBffSession(): boolean {
   if (typeof window === "undefined") {
@@ -27,17 +46,35 @@ function buildBffMutationHeaders(): Headers {
   return headers;
 }
 
+function normalizeOptionalBffTokenField(value: string | undefined): string | undefined {
+  if (value === undefined) {
+    return undefined;
+  }
+
+  const normalized = normalizeOidcConfigurationString(value);
+
+  if (normalized.length === 0) {
+    return undefined;
+  }
+
+  return normalized;
+}
+
 /** LK-06 P2: mirror OIDC token material into the HttpOnly BFF cookie (no sessionStorage tokens). */
 export async function syncBffSessionCookieFromTokenResponse(tokens: OidcTokenResponse): Promise<void> {
   if (typeof fetch === "undefined") {
     return;
   }
 
-  const accessToken = tokens.access_token?.trim() ?? "";
+  const accessToken =
+    tokens.access_token === undefined ? "" : normalizeOidcConfigurationString(tokens.access_token);
 
   if (accessToken.length === 0) {
     return;
   }
+
+  const refreshToken = normalizeOptionalBffTokenField(tokens.refresh_token);
+  const idToken = normalizeOptionalBffTokenField(tokens.id_token);
 
   try {
     await fetch(BFF_SESSION_SYNC_PATH, {
@@ -47,8 +84,8 @@ export async function syncBffSessionCookieFromTokenResponse(tokens: OidcTokenRes
       body: JSON.stringify({
         access_token: accessToken,
         expires_in: resolveExpiresInSeconds(tokens.expires_in),
-        refresh_token: tokens.refresh_token ?? undefined,
-        id_token: tokens.id_token ?? undefined,
+        refresh_token: refreshToken,
+        id_token: idToken,
         working_mode: resolveWorkingModeForBffSession(),
       }),
     });
@@ -91,8 +128,8 @@ export async function refreshBffSessionCookie(): Promise<BffSessionRefreshResult
     });
 
     if (response.ok) {
-      const body = (await response.json()) as { expires_at_ms?: number };
-      const expiresAtMs = Number(body.expires_at_ms);
+      const body = (await response.json()) as { expires_at_ms?: number | string };
+      const expiresAtMs = parseBffExpiresAtMs(body.expires_at_ms);
 
       if (Number.isFinite(expiresAtMs) && expiresAtMs > Date.now() - BFF_REFRESH_EXPIRY_SKEW_MS) {
         return { ok: true, expiresAtMs };
@@ -166,9 +203,16 @@ export async function resolveRpLogoutUrlFromBffSession(): Promise<string | null>
     }
 
     const body = (await response.json()) as { url?: string | null };
-    const url = body.url?.trim() ?? "";
+    const url =
+      body.url === null || body.url === undefined
+        ? ""
+        : normalizeOidcConfigurationString(body.url);
 
-    return url.length > 0 ? url : null;
+    if (url.length === 0 || !isSafeOidcEndpointUrl(url)) {
+      return null;
+    }
+
+    return url;
   } catch {
     return null;
   }

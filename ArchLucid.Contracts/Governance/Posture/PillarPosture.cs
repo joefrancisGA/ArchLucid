@@ -1,18 +1,24 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Governance.Posture;
 
 public sealed class PillarPosture
 {
+    private string pillarKey = string.Empty;
+
     public string PillarKey
     {
-        get;
-        init;
-    } = null!;
+        get => pillarKey;
+        init => pillarKey = ContractCollectionDefaults.CoalesceRequired(value);
+    }
+
+    private string displayName = string.Empty;
 
     public string DisplayName
     {
-        get;
-        init;
-    } = null!;
+        get => displayName;
+        init => displayName = ContractCollectionDefaults.CoalesceRequired(value);
+    }
 
     public int DisplayOrder
     {
@@ -20,21 +26,27 @@ public sealed class PillarPosture
         init;
     }
 
+    private PillarFindingAggregate findingCounts = new();
+
     public PillarFindingAggregate FindingCounts
     {
-        get;
-        init;
-    } = new();
+        get => findingCounts;
+        init => findingCounts = value ?? new PillarFindingAggregate();
+    }
+
+    private ExaminationStateResolution examination = new();
 
     public ExaminationStateResolution Examination
     {
-        get;
-        init;
-    } = null!;
+        get => examination;
+        init => examination = value ?? new ExaminationStateResolution();
+    }
+
+    private IReadOnlyList<PillarPackAssignment> packAssignments = [];
 
     public IReadOnlyList<PillarPackAssignment> PackAssignments
     {
-        get;
-        init;
-    } = [];
+        get => packAssignments;
+        init => packAssignments = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 }

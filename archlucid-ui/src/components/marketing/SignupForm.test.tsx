@@ -2141,4 +2141,475 @@ describe("SignupForm", () => {
 
     vi.unstubAllGlobals();
   });
+
+  it("sends first-touch attribution header when cookie is valid Latin1", async () => {
+    const capturedUtc = "2026-10-06T00:00:00.000Z";
+    const payload = { utm_source: "launch", capturedUtc };
+
+    document.cookie = `archlucid.firstTouch.v1=${encodeURIComponent(JSON.stringify(payload))}`;
+
+    const fetchMock = vi.fn(async () =>
+      new Response(JSON.stringify({ tenantId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa" }), {
+        status: 201,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<SignupForm />);
+    fillRequiredFields();
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeEnabled();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /Create evaluation workspace/i }));
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalled();
+    });
+
+    const [, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+    const headers = init.headers as Record<string, string>;
+    expect(headers["x-archlucid-first-touch"]).toBe(btoa(JSON.stringify(payload)));
+
+    document.cookie = "archlucid.firstTouch.v1=; Max-Age=0";
+    vi.unstubAllGlobals();
+  });
+
+  it("omits company size from register POST after switching to Prefer not to say", async () => {
+    const fetchMock = vi.fn(async () =>
+      new Response(JSON.stringify({ tenantId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa" }), {
+        status: 201,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<SignupForm />);
+    fillRequiredFields();
+
+    fireEvent.click(screen.getByText("Tell us a little more"));
+    fireEvent.click(screen.getByRole("combobox", { name: /Company size/i }));
+
+    await waitFor(() => {
+      expect(screen.getByRole("option", { name: "1-10 employees" })).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByRole("option", { name: "1-10 employees" }));
+    fireEvent.click(screen.getByRole("combobox", { name: /Company size/i }));
+
+    await waitFor(() => {
+      expect(screen.getByRole("option", { name: "Prefer not to say" })).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByRole("option", { name: "Prefer not to say" }));
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeEnabled();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /Create evaluation workspace/i }));
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalled();
+    });
+
+    const [, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+    const body = JSON.parse(String(init.body)) as Record<string, unknown>;
+    expect(body.companySize).toBeUndefined();
+
+    vi.unstubAllGlobals();
+  });
+
+  it("includes optional architecture team size in register POST body from the UI", async () => {
+    const fetchMock = vi.fn(async () =>
+      new Response(JSON.stringify({ tenantId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa" }), {
+        status: 201,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<SignupForm />);
+    fillRequiredFields();
+
+    fireEvent.click(screen.getByText("Tell us a little more"));
+    fireEvent.change(screen.getByTestId("signup-architecture-team-size"), { target: { value: "12" } });
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeEnabled();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /Create evaluation workspace/i }));
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalled();
+    });
+
+    const [, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+    const body = JSON.parse(String(init.body)) as Record<string, unknown>;
+    expect(body.architectureTeamSize).toBe(12);
+
+    vi.unstubAllGlobals();
+  });
+
+  it("shows server detail from HTTP 502 JSON register responses", async () => {
+    vi.mocked(showError).mockClear();
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Response.json({ detail: "Upstream register gateway failed." }, { status: 502 }),
+      ),
+    );
+
+    render(<SignupForm />);
+    fillRequiredFields();
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeEnabled();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /Create evaluation workspace/i }));
+
+    await waitFor(() => {
+      expect(showError).toHaveBeenCalledWith("Signup", "Upstream register gateway failed.");
+    });
+
+    vi.unstubAllGlobals();
+  });
+
+  it("signupFormSchema rejects organization name longer than 200 characters via safeParse", () => {
+    const parsed = signupFormSchema.safeParse({
+      adminEmail: "ops@example.com",
+      adminDisplayName: "Ops User",
+      organizationName: "A".repeat(201),
+    });
+
+    expect(parsed.success).toBe(false);
+  });
+
+  it("includes company size in register POST when 1-10 is selected in the UI", async () => {
+    const fetchMock = vi.fn(async () =>
+      new Response(JSON.stringify({ tenantId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa" }), {
+        status: 201,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<SignupForm />);
+    fillRequiredFields();
+
+    fireEvent.click(screen.getByText("Tell us a little more"));
+    fireEvent.click(screen.getByRole("combobox", { name: /Company size/i }));
+
+    await waitFor(() => {
+      expect(screen.getByRole("option", { name: "1-10 employees" })).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByRole("option", { name: "1-10 employees" }));
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeEnabled();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /Create evaluation workspace/i }));
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalled();
+    });
+
+    const [, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+    const body = JSON.parse(String(init.body)) as Record<string, unknown>;
+    expect(body.companySize).toBe("1-10");
+
+    vi.unstubAllGlobals();
+  });
+
+  it("persists archlucid_signup_company_size when company size is selected in the UI", async () => {
+    const setItemSpy = vi.spyOn(Storage.prototype, "setItem");
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        new Response(JSON.stringify({ tenantId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa" }), {
+          status: 201,
+          headers: { "Content-Type": "application/json" },
+        }),
+      ),
+    );
+
+    render(<SignupForm />);
+    fillRequiredFields();
+
+    fireEvent.click(screen.getByText("Tell us a little more"));
+    fireEvent.click(screen.getByRole("combobox", { name: /Company size/i }));
+
+    await waitFor(() => {
+      expect(screen.getByRole("option", { name: "51-200 employees" })).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByRole("option", { name: "51-200 employees" }));
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeEnabled();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /Create evaluation workspace/i }));
+
+    await waitFor(() => {
+      expect(setItemSpy).toHaveBeenCalledWith("archlucid_signup_company_size", "51-200");
+    });
+
+    setItemSpy.mockRestore();
+    vi.unstubAllGlobals();
+  });
+
+  it("includes Technology industryVertical in register POST from the UI", async () => {
+    const fetchMock = vi.fn(async () =>
+      new Response(JSON.stringify({ tenantId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa" }), {
+        status: 201,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<SignupForm />);
+    fillRequiredFields();
+
+    fireEvent.click(screen.getByText("Tell us a little more"));
+    fireEvent.click(screen.getByTestId("signup-industry"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("signup-industry-Technology")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId("signup-industry-Technology"));
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeEnabled();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /Create evaluation workspace/i }));
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalled();
+    });
+
+    const [, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+    const body = JSON.parse(String(init.body)) as Record<string, unknown>;
+    expect(body.industryVertical).toBe("Technology");
+    expect(body.industryVerticalOther).toBeUndefined();
+
+    vi.unstubAllGlobals();
+  });
+
+  it("records funnel signup before navigation on successful register", async () => {
+    vi.mocked(showSuccess).mockClear();
+    pushMock.mockClear();
+
+    const callOrder: string[] = [];
+    const funnelSpy = vi
+      .spyOn(firstTenantFunnelTelemetry, "recordFirstTenantFunnelEvent")
+      .mockImplementation(() => {
+        callOrder.push("funnel");
+      });
+
+    pushMock.mockImplementation(() => {
+      callOrder.push("push");
+    });
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        new Response(JSON.stringify({ tenantId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa" }), {
+          status: 201,
+          headers: { "Content-Type": "application/json" },
+        }),
+      ),
+    );
+
+    render(<SignupForm />);
+    fillRequiredFields();
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeEnabled();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /Create evaluation workspace/i }));
+
+    await waitFor(() => {
+      expect(callOrder).toEqual(["funnel", "push"]);
+    });
+
+    funnelSpy.mockRestore();
+    vi.unstubAllGlobals();
+  });
+
+  it("trims padded work email in register POST JSON on UI submit", async () => {
+    const fetchMock = vi.fn(async () =>
+      new Response(JSON.stringify({ tenantId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa" }), {
+        status: 201,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<SignupForm />);
+    fireEvent.change(screen.getByLabelText(/Work email/i), { target: { value: "  ops@example.com  " } });
+    fireEvent.change(screen.getByLabelText(/Full name/i), { target: { value: "Ops User" } });
+    fireEvent.change(screen.getByLabelText(/Organization name/i), { target: { value: "Contoso Trial Org" } });
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeEnabled();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /Create evaluation workspace/i }));
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalled();
+    });
+
+    const [, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+    const body = JSON.parse(String(init.body)) as Record<string, unknown>;
+    expect(body.adminEmail).toBe("ops@example.com");
+
+    vi.unstubAllGlobals();
+  });
+
+  it("includes trimmed industry vertical other in register POST when Other is selected in the UI", async () => {
+    const fetchMock = vi.fn(async () =>
+      new Response(JSON.stringify({ tenantId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa" }), {
+        status: 201,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<SignupForm />);
+    fillRequiredFields();
+
+    fireEvent.click(screen.getByText("Tell us a little more"));
+    fireEvent.click(screen.getByTestId("signup-industry"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("signup-industry-Other")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId("signup-industry-Other"));
+    fireEvent.change(screen.getByTestId("signup-industry-specify"), {
+      target: { value: "  Custom vertical  " },
+    });
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeEnabled();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /Create evaluation workspace/i }));
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalled();
+    });
+
+    const [, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+    const body = JSON.parse(String(init.body)) as Record<string, unknown>;
+    expect(body.industryVertical).toBe("Other");
+    expect(body.industryVerticalOther).toBe("Custom vertical");
+
+    vi.unstubAllGlobals();
+  });
+
+  it("allows register retry after a non-ok register response", async () => {
+    vi.mocked(showError).mockClear();
+    vi.mocked(showSuccess).mockClear();
+
+    let registerAttempt = 0;
+
+    const fetchMock = vi.fn(async (url: string) => {
+      if (url !== "/api/proxy/v1/register") {
+        throw new Error(`Unexpected fetch URL: ${url}`);
+      }
+
+      registerAttempt += 1;
+
+      if (registerAttempt === 1) {
+        return Response.json({ detail: "Temporary failure." }, { status: 503 });
+      }
+
+      return new Response(JSON.stringify({ tenantId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa" }), {
+        status: 201,
+        headers: { "Content-Type": "application/json" },
+      });
+    });
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    const registerFetchCount = () =>
+      fetchMock.mock.calls.filter((call) => call[0] === "/api/proxy/v1/register").length;
+
+    render(<SignupForm />);
+    fillRequiredFields();
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeEnabled();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /Create evaluation workspace/i }));
+
+    await waitFor(() => {
+      expect(showError).toHaveBeenCalledWith("Signup", "Temporary failure.");
+      expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeEnabled();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /Create evaluation workspace/i }));
+
+    await waitFor(() => {
+      expect(registerFetchCount()).toBe(2);
+      expect(showSuccess).toHaveBeenCalled();
+    });
+
+    vi.unstubAllGlobals();
+  });
+
+  it("trims padded organization and display names in register POST JSON on UI submit", async () => {
+    const fetchMock = vi.fn(async () =>
+      new Response(JSON.stringify({ tenantId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa" }), {
+        status: 201,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<SignupForm />);
+    fireEvent.change(screen.getByLabelText(/Work email/i), { target: { value: "ops@example.com" } });
+    fireEvent.change(screen.getByLabelText(/Full name/i), { target: { value: "  Ops User  " } });
+    fireEvent.change(screen.getByLabelText(/Organization name/i), { target: { value: "  Contoso Trial Org  " } });
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeEnabled();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /Create evaluation workspace/i }));
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalled();
+    });
+
+    const [, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+    const body = JSON.parse(String(init.body)) as Record<string, unknown>;
+    expect(body.adminDisplayName).toBe("Ops User");
+    expect(body.organizationName).toBe("Contoso Trial Org");
+
+    vi.unstubAllGlobals();
+  });
 });

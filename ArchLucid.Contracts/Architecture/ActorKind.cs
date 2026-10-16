@@ -1,5 +1,7 @@
 using System.Text.Json.Serialization;
 
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Architecture;
 
 /// <summary>
@@ -33,7 +35,7 @@ namespace ArchLucid.Contracts.Architecture;
 ///         </item>
 ///     </list>
 /// </remarks>
-[JsonConverter(typeof(JsonStringEnumConverter))]
+[JsonConverter(typeof(DefinedEnumJsonConverter<ActorKind>))]
 public enum ActorKind
 {
     /// <summary>The actor is a human being using the system directly.</summary>

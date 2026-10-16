@@ -1,5 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Manifest;
 
 /// <summary>
@@ -27,53 +29,65 @@ public sealed class GoldenManifest
 
     /// <summary>All resolved services included in the target architecture.</summary>
     [Required]
+    private List<ManifestService> services = [];
+
     public List<ManifestService> Services
     {
-        get;
-        set;
-    } = [];
+        get => services;
+        set => services = ContractCollectionDefaults.Coalesce(value);
+    }
 
     /// <summary>All resolved datastores included in the target architecture.</summary>
     [Required]
+    private List<ManifestDatastore> datastores = [];
+
     public List<ManifestDatastore> Datastores
     {
-        get;
-        set;
-    } = [];
+        get => datastores;
+        set => datastores = ContractCollectionDefaults.Coalesce(value);
+    }
 
     /// <summary>All resolved inter-service and service-to-datastore relationships.</summary>
     [Required]
+    private List<ManifestRelationship> relationships = [];
+
     public List<ManifestRelationship> Relationships
     {
-        get;
-        set;
-    } = [];
+        get => relationships;
+        set => relationships = ContractCollectionDefaults.Coalesce(value);
+    }
 
     /// <summary>
     ///     Governance metadata for this manifest including compliance tags, policy
     ///     constraints, required controls, and risk classification.
     /// </summary>
     [Required]
+    private ManifestGovernance governance = new();
+
     public ManifestGovernance Governance
     {
-        get;
-        set;
-    } = new();
+        get => governance;
+        set => governance = value ?? new ManifestGovernance();
+    }
 
     /// <summary>
     ///     Version, schema, and provenance metadata for this manifest snapshot.
     /// </summary>
     [Required]
+    private ManifestMetadata metadata = new();
+
     public ManifestMetadata Metadata
     {
-        get;
-        set;
-    } = new();
+        get => metadata;
+        set => metadata = value ?? new ManifestMetadata();
+    }
 
     /// <summary>Semantic diagram overlay: actors, trust, requirements, and decisions (TB-2351).</summary>
+    private ManifestDiagramSemanticOverlay diagramSemantics = new();
+
     public ManifestDiagramSemanticOverlay DiagramSemantics
     {
-        get;
-        set;
-    } = new();
+        get => diagramSemantics;
+        set => diagramSemantics = value ?? new ManifestDiagramSemanticOverlay();
+    }
 }

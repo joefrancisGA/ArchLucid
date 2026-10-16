@@ -1,30 +1,40 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.InfraEvidence;
 
 public sealed class TenantBrandingAdminStateResponse
 {
+    private TenantBrandingDraftResponse draft = new();
+
     public TenantBrandingDraftResponse Draft
     {
-        get;
-        init;
-    } = new();
+        get => draft;
+        init => draft = value ?? new TenantBrandingDraftResponse();
+    }
+
+    private TenantBrandingActiveSummaryResponse active = new();
 
     public TenantBrandingActiveSummaryResponse Active
     {
-        get;
-        init;
-    } = new();
+        get => active;
+        init => active = value ?? new TenantBrandingActiveSummaryResponse();
+    }
+
+    private TenantBrandColorsResponse productDefaults = new();
 
     public TenantBrandColorsResponse ProductDefaults
     {
-        get;
-        init;
-    } = new();
+        get => productDefaults;
+        init => productDefaults = value ?? new TenantBrandColorsResponse();
+    }
+
+    private IReadOnlyList<TenantBrandingValidationIssueResponse> validationIssues = [];
 
     public IReadOnlyList<TenantBrandingValidationIssueResponse> ValidationIssues
     {
-        get;
-        init;
-    } = [];
+        get => validationIssues;
+        init => validationIssues = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 
     public bool CanActivate
     {
@@ -347,9 +357,11 @@ public sealed class TenantBrandingActivateResponse
         init;
     }
 
+    private IReadOnlyList<TenantBrandingValidationIssueResponse> validationIssues = [];
+
     public IReadOnlyList<TenantBrandingValidationIssueResponse> ValidationIssues
     {
-        get;
-        init;
-    } = [];
+        get => validationIssues;
+        init => validationIssues = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 }

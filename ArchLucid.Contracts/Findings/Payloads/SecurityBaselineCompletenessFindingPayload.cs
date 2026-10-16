@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Findings.Payloads;
 
 public class SecurityBaselineCompletenessFindingPayload
@@ -14,29 +16,37 @@ public class SecurityBaselineCompletenessFindingPayload
         set;
     }
 
+    private List<string> expectedControlFamilies = [];
+
     public List<string> ExpectedControlFamilies
     {
-        get;
-        set;
-    } = [];
+        get => expectedControlFamilies;
+        set => expectedControlFamilies = ContractCollectionDefaults.Coalesce(value);
+    }
+
+    private List<string> presentControlFamilies = [];
 
     public List<string> PresentControlFamilies
     {
-        get;
-        set;
-    } = [];
+        get => presentControlFamilies;
+        set => presentControlFamilies = ContractCollectionDefaults.Coalesce(value);
+    }
+
+    private List<string> missingControlFamilies = [];
 
     public List<string> MissingControlFamilies
     {
-        get;
-        set;
-    } = [];
+        get => missingControlFamilies;
+        set => missingControlFamilies = ContractCollectionDefaults.Coalesce(value);
+    }
+
+    private List<SecurityBaselineCompletenessMatrixRowPayload> completenessMatrix = [];
 
     public List<SecurityBaselineCompletenessMatrixRowPayload> CompletenessMatrix
     {
-        get;
-        set;
-    } = [];
+        get => completenessMatrix;
+        set => completenessMatrix = ContractCollectionDefaults.Coalesce(value);
+    }
 }
 
 public class SecurityBaselineCompletenessMatrixRowPayload

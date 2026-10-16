@@ -1,5 +1,7 @@
 using System.ComponentModel.DataAnnotations;
+
 using ArchLucid.Contracts.Findings;
+using ArchLucid.Contracts.Serialization;
 
 namespace ArchLucid.Contracts.Architecture;
 
@@ -16,7 +18,13 @@ public sealed class QuickScanResult
     public string Summary { get; init; } = string.Empty;
 
     /// <summary>Architecture findings identified during the quick scan.</summary>
-    public List<ArchitectureFinding> Findings { get; init; } = [];
+    private List<ArchitectureFinding> findings = [];
+
+    public List<ArchitectureFinding> Findings
+    {
+        get => findings;
+        init => findings = ContractCollectionDefaults.Coalesce(value);
+    }
 
     /// <summary>UTC timestamp when this scan was completed.</summary>
     public DateTime CompletedUtc { get; init; } = TimeProvider.System.GetUtcNow().UtcDateTime;

@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Governance.Posture;
 
 public sealed class ExaminationStateResolution
@@ -8,9 +10,11 @@ public sealed class ExaminationStateResolution
         init;
     }
 
+    private string reasonText = string.Empty;
+
     public string ReasonText
     {
-        get;
-        init;
-    } = null!;
+        get => reasonText;
+        init => reasonText = ContractCollectionDefaults.CoalesceRequired(value);
+    }
 }

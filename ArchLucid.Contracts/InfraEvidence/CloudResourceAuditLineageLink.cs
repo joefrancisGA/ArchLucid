@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.InfraEvidence;
 
 public sealed class CloudResourceAuditLineageLink
@@ -50,9 +52,11 @@ public sealed class CloudResourceAuditLineageLink
         set;
     }
 
+    private IReadOnlyList<CloudResourceAuditLineageMatch> matches = [];
+
     public IReadOnlyList<CloudResourceAuditLineageMatch> Matches
     {
-        get;
-        set;
-    } = [];
+        get => matches;
+        set => matches = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 }

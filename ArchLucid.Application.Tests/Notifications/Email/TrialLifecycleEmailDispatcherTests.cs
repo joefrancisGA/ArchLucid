@@ -571,4 +571,63 @@ public sealed class TrialLifecycleEmailDispatcherTests
         capturedModel!.GettingStartedUrl.Should().Be("https://ops.example.test/welcome");
         capturedModel.LogoImageUrl.Should().Be("https://ops.example.test/logo/icon-192.png");
     }
+
+    [Fact]
+    public async Task DispatchAsync_trial_provisioned_strips_embedded_crlf_from_tenant_name_in_welcome_model()
+    {
+        Guid tenantId = Guid.Parse("64646464-6464-6464-6464-646464646464");
+        TrialWelcomeEmailModel? capturedModel = null;
+
+        Mock<ITenantRepository> tenantRepository = new();
+        tenantRepository.Setup(r => r.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new TenantRecord
+            {
+                Id = tenantId,
+                Name = "Acme\r\nBcc: injected@evil.test",
+                TrialStatus = TrialLifecycleStatus.Active,
+            });
+
+        Mock<ITenantTrialEmailContactLookup> contactLookup = new();
+        contactLookup.Setup(l => l.TryResolveAdminEmailAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync("admin@example.test");
+
+        Mock<IEmailProvider> provider = new();
+        provider.SetupGet(p => p.ProviderName).Returns("test-provider");
+        provider.Setup(p => p.SendAsync(It.IsAny<EmailMessage>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IEmailTemplateRenderer> renderer = new();
+        renderer.Setup(r => r.RenderHtmlAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>()))
+            .Callback<string, object, CancellationToken>((_, model, _) => capturedModel = model as TrialWelcomeEmailModel)
+            .ReturnsAsync("<p>ok</p>");
+        renderer.Setup(r => r.RenderTextAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync("ok");
+
+        Mock<IOptionsMonitor<EmailNotificationOptions>> options = new();
+        options.Setup(o => o.CurrentValue).Returns(new EmailNotificationOptions { ProductDisplayName = "ArchLucid" });
+
+        TrialLifecycleEmailDispatcher sut = new(
+            tenantRepository.Object,
+            contactLookup.Object,
+            renderer.Object,
+            provider.Object,
+            new InMemorySentEmailLedger(),
+            options.Object,
+            NullLogger<TrialLifecycleEmailDispatcher>.Instance);
+
+        TrialLifecycleEmailIntegrationEnvelope envelope = new()
+        {
+            TenantId = tenantId,
+            WorkspaceId = Guid.Parse("65656565-6565-6565-6565-656565656565"),
+            ProjectId = Guid.Parse("66666666-6666-6666-6666-666666666666"),
+            Trigger = TrialLifecycleEmailTrigger.TrialProvisioned,
+        };
+
+        await sut.DispatchAsync(envelope, CancellationToken.None);
+
+        capturedModel.Should().NotBeNull();
+        capturedModel!.OrganizationHint.Should().Be("Acme Bcc: injected@evil.test");
+        capturedModel.OrganizationHint.Should().NotContain("\r");
+        capturedModel.OrganizationHint.Should().NotContain("\n");
+    }
 }

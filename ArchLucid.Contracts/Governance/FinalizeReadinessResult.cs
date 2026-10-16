@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Governance;
 
 /// <summary>
@@ -26,11 +28,13 @@ public sealed class FinalizeReadinessResult
         init;
     }
 
+    private IReadOnlyList<FinalizeReadinessBlock> blocks = [];
+
     public IReadOnlyList<FinalizeReadinessBlock> Blocks
     {
-        get;
-        init;
-    } = [];
+        get => blocks;
+        init => blocks = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 
     public PreFinalizeChecklistResult Checklist
     {
@@ -44,11 +48,13 @@ public sealed class FinalizeReadinessResult
         init;
     } = null!;
 
+    private IReadOnlyList<string> scorecardBlockingReasons = [];
+
     public IReadOnlyList<string> ScorecardBlockingReasons
     {
-        get;
-        init;
-    } = [];
+        get => scorecardBlockingReasons;
+        init => scorecardBlockingReasons = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 
     public bool FinalizeQualityGateEnabled
     {

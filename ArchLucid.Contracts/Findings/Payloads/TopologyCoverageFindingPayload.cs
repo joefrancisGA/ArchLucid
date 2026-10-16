@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Findings.Payloads;
 
 public class TopologyCoverageFindingPayload
@@ -8,21 +10,27 @@ public class TopologyCoverageFindingPayload
         set;
     }
 
+    private List<string> presentCategories = [];
+
     public List<string> PresentCategories
     {
-        get;
-        set;
-    } = [];
+        get => presentCategories;
+        set => presentCategories = ContractCollectionDefaults.Coalesce(value);
+    }
+
+    private List<string> missingCategories = [];
 
     public List<string> MissingCategories
     {
-        get;
-        set;
-    } = [];
+        get => missingCategories;
+        set => missingCategories = ContractCollectionDefaults.Coalesce(value);
+    }
+
+    private List<string> expectedCategories = [];
 
     public List<string> ExpectedCategories
     {
-        get;
-        set;
-    } = [];
+        get => expectedCategories;
+        set => expectedCategories = ContractCollectionDefaults.Coalesce(value);
+    }
 }

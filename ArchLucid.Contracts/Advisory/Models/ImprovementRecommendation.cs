@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Advisory.Models;
 
 public class ImprovementRecommendation
@@ -44,23 +46,29 @@ public class ImprovementRecommendation
         set;
     } = null!;
 
+    private List<string> supportingFindingIds = [];
+
     public List<string> SupportingFindingIds
     {
-        get;
-        set;
-    } = [];
+        get => supportingFindingIds;
+        set => supportingFindingIds = ContractCollectionDefaults.Coalesce(value);
+    }
+
+    private List<string> supportingDecisionIds = [];
 
     public List<string> SupportingDecisionIds
     {
-        get;
-        set;
-    } = [];
+        get => supportingDecisionIds;
+        set => supportingDecisionIds = ContractCollectionDefaults.Coalesce(value);
+    }
+
+    private List<string> supportingArtifactIds = [];
 
     public List<string> SupportingArtifactIds
     {
-        get;
-        set;
-    } = [];
+        get => supportingArtifactIds;
+        set => supportingArtifactIds = ContractCollectionDefaults.Coalesce(value);
+    }
 
     public int PriorityScore
     {

@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Runs;
 
 /// <summary>Manifest decision row on unified run decision explainability (TB-054).</summary>
@@ -57,9 +59,11 @@ public sealed class RunManifestDecisionExplainabilityRow
         set;
     }
 
+    private IReadOnlyList<string> supportingFindingIds = [];
+
     public IReadOnlyList<string> SupportingFindingIds
     {
-        get;
-        set;
-    } = [];
+        get => supportingFindingIds;
+        set => supportingFindingIds = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 }

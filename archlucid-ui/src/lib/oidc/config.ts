@@ -1,4 +1,5 @@
 import { readNextPublicAuthMode } from "@/lib/legacy-arch-env";
+import { normalizeOidcConfigurationString } from "@/lib/oidc/oauth-callback-messages";
 
 /**
  * Public OIDC settings (Entra ID / any OIDC provider with PKCE + SPA CORS on the token endpoint).
@@ -12,18 +13,34 @@ export function isJwtAuthMode(): boolean {
 }
 
 export function getOidcAuthority(): string {
-  return process.env.NEXT_PUBLIC_OIDC_AUTHORITY?.trim() ?? "";
+  const authority = process.env.NEXT_PUBLIC_OIDC_AUTHORITY;
+
+  if (authority === undefined) {
+    return "";
+  }
+
+  return normalizeOidcConfigurationString(authority);
 }
 
 export function getOidcClientId(): string {
-  return process.env.NEXT_PUBLIC_OIDC_CLIENT_ID?.trim() ?? "";
+  const clientId = process.env.NEXT_PUBLIC_OIDC_CLIENT_ID;
+
+  if (clientId === undefined) {
+    return "";
+  }
+
+  return normalizeOidcConfigurationString(clientId);
 }
 
 export function getOidcScopes(): string {
-  const scopes = process.env.NEXT_PUBLIC_OIDC_SCOPES?.trim();
+  const scopes = process.env.NEXT_PUBLIC_OIDC_SCOPES;
 
-  if (scopes && scopes.length > 0) {
-    return scopes;
+  if (scopes !== undefined) {
+    const normalized = normalizeOidcConfigurationString(scopes);
+
+    if (normalized.length > 0) {
+      return normalized;
+    }
   }
 
   return "openid profile offline_access";
@@ -33,10 +50,14 @@ export function getOidcScopes(): string {
  * Must match a redirect URI registered on the SPA / public client. Defaults to this origin + /auth/callback.
  */
 export function getOidcRedirectUri(): string {
-  const fixed = process.env.NEXT_PUBLIC_OIDC_REDIRECT_URI?.trim();
+  const fixed = process.env.NEXT_PUBLIC_OIDC_REDIRECT_URI;
 
-  if (fixed && fixed.length > 0) {
-    return fixed;
+  if (fixed !== undefined) {
+    const normalized = normalizeOidcConfigurationString(fixed);
+
+    if (normalized.length > 0) {
+      return normalized;
+    }
   }
 
   if (typeof window !== "undefined") {
@@ -47,10 +68,14 @@ export function getOidcRedirectUri(): string {
 }
 
 export function getOidcPostLogoutRedirectUri(): string {
-  const fixed = process.env.NEXT_PUBLIC_OIDC_POST_LOGOUT_REDIRECT_URI?.trim();
+  const fixed = process.env.NEXT_PUBLIC_OIDC_POST_LOGOUT_REDIRECT_URI;
 
-  if (fixed && fixed.length > 0) {
-    return fixed;
+  if (fixed !== undefined) {
+    const normalized = normalizeOidcConfigurationString(fixed);
+
+    if (normalized.length > 0) {
+      return normalized;
+    }
   }
 
   if (typeof window !== "undefined") {
@@ -61,11 +86,37 @@ export function getOidcPostLogoutRedirectUri(): string {
 }
 
 export function getGoogleOidcAuthority(): string {
-  return process.env.NEXT_PUBLIC_GOOGLE_OIDC_AUTHORITY?.trim() ?? "";
+  const authority = process.env.NEXT_PUBLIC_GOOGLE_OIDC_AUTHORITY;
+
+  if (authority === undefined) {
+    return "";
+  }
+
+  return normalizeOidcConfigurationString(authority);
 }
 
 export function getGoogleOidcClientId(): string {
-  return process.env.NEXT_PUBLIC_GOOGLE_OIDC_CLIENT_ID?.trim() ?? "";
+  const clientId = process.env.NEXT_PUBLIC_GOOGLE_OIDC_CLIENT_ID;
+
+  if (clientId === undefined) {
+    return "";
+  }
+
+  return normalizeOidcConfigurationString(clientId);
+}
+
+export function getGoogleOidcScopes(): string {
+  const scopes = process.env.NEXT_PUBLIC_GOOGLE_OIDC_SCOPES;
+
+  if (scopes !== undefined) {
+    const normalized = normalizeOidcConfigurationString(scopes);
+
+    if (normalized.length > 0) {
+      return normalized;
+    }
+  }
+
+  return "openid profile email";
 }
 
 export function assertOidcSignInConfig(): { ok: true } | { ok: false; message: string } {

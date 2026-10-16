@@ -2,6 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Serialization;
 
 namespace ArchLucid.Contracts.Metadata;
 
@@ -123,11 +124,13 @@ public sealed class ArchitectureRun
     ///     Ordered list of agent task identifiers associated with this run.
     ///     Populated during run creation and used to track execution progress.
     /// </summary>
+    private IReadOnlyList<string> taskIds = [];
+
     public IReadOnlyList<string> TaskIds
     {
-        get;
-        set;
-    } = [];
+        get => taskIds;
+        set => taskIds = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 
     /// <summary>When <see langword="true" />, the operator pinned this run as a workspace reference architecture.</summary>
     public bool IsPinned

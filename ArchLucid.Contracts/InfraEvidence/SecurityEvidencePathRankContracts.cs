@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.InfraEvidence;
 
 public sealed class SecurityEvidencePathRankSummaryResponse
@@ -86,11 +88,13 @@ public sealed class SecurityEvidencePathRankSummaryResponse
         init;
     }
 
+    private IReadOnlyList<SecurityEvidenceCutPointSummaryResponse> relatedCutPoints = [];
+
     public IReadOnlyList<SecurityEvidenceCutPointSummaryResponse> RelatedCutPoints
     {
-        get;
-        init;
-    } = [];
+        get => relatedCutPoints;
+        init => relatedCutPoints = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 }
 
 public sealed class SecurityEvidencePathRankDetailResponse
@@ -179,11 +183,13 @@ public sealed class SecurityEvidencePathRankDetailResponse
         init;
     } = string.Empty;
 
+    private SecurityEvidencePathRankDimensionProseResponse dimensionProse = new();
+
     public SecurityEvidencePathRankDimensionProseResponse DimensionProse
     {
-        get;
-        init;
-    } = new();
+        get => dimensionProse;
+        init => dimensionProse = value ?? new();
+    }
 
     public DateTime ComputedUtc
     {

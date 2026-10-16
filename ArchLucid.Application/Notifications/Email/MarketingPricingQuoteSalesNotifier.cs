@@ -66,6 +66,10 @@ public sealed class MarketingPricingQuoteSalesNotifier(
         string safeTier = WebUtility.HtmlEncode(tierInterest);
         string safeEmail = WebUtility.HtmlEncode(workEmail);
         string safeMessage = WebUtility.HtmlEncode(message);
+        string textWorkEmail = EmailHeaderFragmentSanitizer.Sanitize(workEmail);
+        string textCompany = EmailHeaderFragmentSanitizer.Sanitize(companyName);
+        string textTier = EmailHeaderFragmentSanitizer.Sanitize(tierInterest);
+        string textMessage = EmailHeaderFragmentSanitizer.Sanitize(message);
         string subject = "ArchLucid: new pricing quote request";
         string html = "<p>A new anonymous pricing quote was submitted from <strong>archlucid.net/pricing</strong>.</p>" +
                       $"<p><strong>Request id:</strong> {insert.Id:N}</p>" + $"<p><strong>Created (UTC):</strong> {insert.CreatedUtc:O}</p>" +
@@ -73,7 +77,7 @@ public sealed class MarketingPricingQuoteSalesNotifier(
                       $"<p><strong>Tier interest:</strong> {safeTier}</p>" +
                       $"<p><strong>Message:</strong></p><pre style=\"white-space:pre-wrap\">{safeMessage}</pre>";
         string text = $"ArchLucid pricing quote request\nRequest id: {insert.Id:N}\nCreated (UTC): {insert.CreatedUtc:O}\n" +
-                      $"Work email: {workEmail}\nCompany: {companyName}\nTier: {tierInterest}\nMessage:\n{message}\n";
+                      $"Work email: {textWorkEmail}\nCompany: {textCompany}\nTier: {textTier}\nMessage:\n{textMessage}\n";
         EmailMessage email = new()
         {
             To = salesInboxForDelivery,

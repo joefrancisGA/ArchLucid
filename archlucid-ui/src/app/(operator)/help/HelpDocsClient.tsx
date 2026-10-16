@@ -141,6 +141,16 @@ function normalizeDocIndexUrlForDedupe(url: string): string {
   return decodedPath;
 }
 
+function helpDocLinkHref(url: string): string {
+  const trimmed = url.trim();
+
+  if (/^https?:\/\//i.test(trimmed) || trimmed.startsWith("//")) {
+    return normalizeDocIndexUrlForDedupe(trimmed);
+  }
+
+  return trimmed;
+}
+
 function docIndexMergeDedupeKey(url: string): string {
   const trimmed = url.trim();
 
@@ -359,7 +369,7 @@ export function HelpDocsClient() {
               {rows.map((row) => (
                 <li key={`${cat}-${row.title}-${row.url}`}>
                   <Link
-                    href={normalizeDocIndexUrlForDedupe(row.url.trim())}
+                    href={helpDocLinkHref(row.url)}
                     className={OPERATOR_LINK.inline}
                     {...linkProps(row.url)}
                   >

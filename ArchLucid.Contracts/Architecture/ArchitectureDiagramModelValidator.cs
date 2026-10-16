@@ -64,6 +64,12 @@ public static class ArchitectureDiagramModelValidator
                 failureReason = $"Structured diagram node '{node.Id}' references unknown subgraph '{node.SubgraphId}'.";
                 return false;
             }
+
+            if (!ArchitectureDiagramNodeKindRules.IsKnownKind(node.Kind))
+            {
+                failureReason = $"Structured diagram node kind '{node.Kind}' is invalid.";
+                return false;
+            }
         }
 
         foreach (ArchitectureDiagramEdgeRecord edge in model.Edges)

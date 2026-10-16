@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Alerts.Tuning;
 
 /// <summary>Decomposed heuristic score from alert noise scoring (higher <see cref="FinalScore" /> is better).</summary>
@@ -33,9 +35,11 @@ public class NoiseScoreBreakdown
         set;
     }
 
+    private List<string> notes = [];
+
     public List<string> Notes
     {
-        get;
-        set;
-    } = [];
+        get => notes;
+        set => notes = ContractCollectionDefaults.Coalesce(value);
+    }
 }

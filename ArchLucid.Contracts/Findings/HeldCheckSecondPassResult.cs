@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Findings;
 
 /// <summary>Held-check second pass outcome returned to ingest callers (DX-60).</summary>
@@ -27,11 +29,13 @@ public sealed class HeldCheckSecondPassResult
         init;
     }
 
+    private IReadOnlyList<string> unblockedEngineTypes = [];
+
     public IReadOnlyList<string> UnblockedEngineTypes
     {
-        get;
-        init;
-    } = [];
+        get => unblockedEngineTypes;
+        init => unblockedEngineTypes = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 
     public int NewDecisionGradeCount
     {

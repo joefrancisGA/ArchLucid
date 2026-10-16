@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Governance;
 
 /// <summary>
@@ -7,16 +9,20 @@ namespace ArchLucid.Contracts.Governance;
 public sealed class PolicyPackSchemaKeysResponse
 {
     /// <summary>Flat list of all configurable paths, sorted ordinally by <see cref="PolicyPackSchemaKeyDescriptor.Path" />.</summary>
+    private IReadOnlyList<PolicyPackSchemaKeyDescriptor> keys = [];
+
     public IReadOnlyList<PolicyPackSchemaKeyDescriptor> Keys
     {
-        get;
-        set;
-    } = [];
+        get => keys;
+        set => keys = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 
     /// <summary>Hierarchical view of the same keys for tree-based form builders.</summary>
+    private IReadOnlyList<PolicyPackSchemaKeyNode> tree = [];
+
     public IReadOnlyList<PolicyPackSchemaKeyNode> Tree
     {
-        get;
-        set;
-    } = [];
+        get => tree;
+        set => tree = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 }

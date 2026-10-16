@@ -1,4 +1,6 @@
-﻿namespace ArchLucid.Contracts.Persistence.Graph;
+﻿using ArchLucid.Contracts.Serialization;
+
+namespace ArchLucid.Contracts.Persistence.Graph;
 
 /// <summary>
 ///     Directed edge in a <see cref="GraphSnapshot" />.
@@ -7,29 +9,37 @@
 /// </summary>
 public class GraphEdge
 {
+    private string edgeId = string.Empty;
+
     public string EdgeId
     {
-        get;
-        set;
-    } = null!;
+        get => edgeId;
+        set => edgeId = ContractCollectionDefaults.CoalesceRequired(value);
+    }
+
+    private string fromNodeId = string.Empty;
 
     public string FromNodeId
     {
-        get;
-        set;
-    } = null!;
+        get => fromNodeId;
+        set => fromNodeId = ContractCollectionDefaults.CoalesceRequired(value);
+    }
+
+    private string toNodeId = string.Empty;
 
     public string ToNodeId
     {
-        get;
-        set;
-    } = null!;
+        get => toNodeId;
+        set => toNodeId = ContractCollectionDefaults.CoalesceRequired(value);
+    }
+
+    private string edgeType = string.Empty;
 
     public string EdgeType
     {
-        get;
-        set;
-    } = null!;
+        get => edgeType;
+        set => edgeType = ContractCollectionDefaults.CoalesceRequired(value);
+    }
 
     public string? Label
     {
@@ -74,11 +84,13 @@ public class GraphEdge
         set;
     }
 
+    private Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase);
+
     public Dictionary<string, string> Properties
     {
-        get;
-        set;
-    } = [];
+        get => properties;
+        set => properties = ContractCollectionDefaults.CoalesceStringDictionaryOrdinalIgnoreCase(value);
+    }
 
     /// <summary>
     ///     Optional inference explanation (deterministic heuristic text or propagated agent narration).

@@ -1,3 +1,4 @@
+using ArchLucid.Contracts.Serialization;
 using ArchLucid.Contracts.User;
 
 namespace ArchLucid.Contracts.Notifications;
@@ -30,11 +31,13 @@ public sealed class ExecDigestPreferencesResponse
         init;
     }
 
+    private IReadOnlyList<string> recipientEmails = [];
+
     public IReadOnlyList<string> RecipientEmails
     {
-        get;
-        init;
-    } = [];
+        get => recipientEmails;
+        init => recipientEmails = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 
     public string IanaTimeZoneId
     {

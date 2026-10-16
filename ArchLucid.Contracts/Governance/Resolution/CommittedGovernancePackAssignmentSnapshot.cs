@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Governance.Resolution;
 
 /// <summary>One policy pack assignment row captured on committed review packages.</summary>
@@ -31,10 +33,12 @@ public sealed class CommittedGovernancePackAssignmentSnapshot
         set;
     }
 
+    private List<string> complianceRuleKeys = [];
+
     /// <summary>Compliance rule keys from the assigned pack version used for evaluation matching.</summary>
     public List<string> ComplianceRuleKeys
     {
-        get;
-        set;
-    } = [];
+        get => complianceRuleKeys;
+        set => complianceRuleKeys = ContractCollectionDefaults.Coalesce(value);
+    }
 }

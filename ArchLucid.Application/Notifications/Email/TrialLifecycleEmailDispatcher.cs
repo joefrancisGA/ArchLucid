@@ -165,7 +165,8 @@ public sealed class TrialLifecycleEmailDispatcher(
         string? logoImageUrl = EmailBrandingUrls.TryBuildLogoImageUrl(baseUrl);
         if (envelope.Trigger is TrialLifecycleEmailTrigger.TrialProvisioned)
         {
-            TrialWelcomeEmailModel model = new(tenant.Name, productName, logoImageUrl);
+            string organizationHint = EmailHeaderFragmentSanitizer.Sanitize(tenant.Name.Trim());
+            TrialWelcomeEmailModel model = new(organizationHint, productName, logoImageUrl);
             return new TrialDispatchPlan(idempotencyKey, EmailTemplateIds.TrialWelcome, $"Welcome to {productName}", model);
         }
 

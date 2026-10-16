@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Billing;
 
 /// <summary>Platform-admin fleet row for estimated tenant LLM COGS and budget posture (Batch B item 18).</summary>
@@ -91,11 +93,13 @@ public sealed class AdminFleetLlmCogsRowResponse
 
 public sealed class AdminFleetLlmCogsDashboardResponse
 {
+    private List<AdminFleetLlmCogsRowResponse> rows = [];
+
     public List<AdminFleetLlmCogsRowResponse> Rows
     {
-        get;
-        init;
-    } = [];
+        get => rows;
+        init => rows = ContractCollectionDefaults.Coalesce(value);
+    }
 
     public string UtcMonth
     {

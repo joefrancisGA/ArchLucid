@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Integrations;
 
 /// <summary>Teams notifications integration page: connection row and trigger catalog.</summary>
@@ -9,9 +11,11 @@ public sealed class TeamsIncomingWebhookPageBundleResponse
         init;
     }
 
+    private IReadOnlyList<string> triggerCatalog = [];
+
     public IReadOnlyList<string> TriggerCatalog
     {
-        get;
-        init;
-    } = [];
+        get => triggerCatalog;
+        init => triggerCatalog = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
 }

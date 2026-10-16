@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Evolution;
 
 /// <summary>
@@ -24,23 +26,29 @@ public sealed class CandidateChangeSet
         init;
     } = string.Empty;
 
+    private IReadOnlyList<CandidateChangeSetStep> proposedActions = [];
+
     public IReadOnlyList<CandidateChangeSetStep> ProposedActions
     {
-        get;
-        init;
-    } = [];
+        get => proposedActions;
+        init => proposedActions = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
+
+    private IReadOnlyList<ChangeSetAffectedComponent> affectedComponents = [];
 
     public IReadOnlyList<ChangeSetAffectedComponent> AffectedComponents
     {
-        get;
-        init;
-    } = [];
+        get => affectedComponents;
+        init => affectedComponents = ContractCollectionDefaults.CoalesceReadOnly(value);
+    }
+
+    private ExpectedImpact expectedImpact = new();
 
     public ExpectedImpact ExpectedImpact
     {
-        get;
-        init;
-    } = new();
+        get => expectedImpact;
+        init => expectedImpact = value ?? new();
+    }
 
     public double? SimulationScore
     {

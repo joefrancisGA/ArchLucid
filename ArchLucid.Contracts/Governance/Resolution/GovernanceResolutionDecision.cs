@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Governance.Resolution;
 
 /// <summary>Explainability record for which policy pack version won for a logical governance item.</summary>
@@ -45,9 +47,11 @@ public class GovernanceResolutionDecision
         set;
     } = null!;
 
+    private List<GovernanceResolutionCandidate> candidates = [];
+
     public List<GovernanceResolutionCandidate> Candidates
     {
-        get;
-        set;
-    } = [];
+        get => candidates;
+        set => candidates = ContractCollectionDefaults.Coalesce(value);
+    }
 }

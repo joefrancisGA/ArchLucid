@@ -1,5 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 
+using ArchLucid.Contracts.Serialization;
+
 namespace ArchLucid.Contracts.Architecture;
 
 /// <summary>Minimal input for a single-pass architecture quick scan (no full wizard).</summary>
@@ -26,7 +28,13 @@ public sealed class ArchitectureQuickScanRequest
     public string Description { get; init; } = string.Empty;
 
     /// <summary>Optional focus areas (max three validated values).</summary>
-    public List<string> ArchitectureConcerns { get; init; } = [];
+    private List<string> architectureConcerns = [];
+
+    public List<string> ArchitectureConcerns
+    {
+        get => architectureConcerns;
+        init => architectureConcerns = ContractCollectionDefaults.Coalesce(value);
+    }
 
     /// <summary>Optional bot-challenge token when anonymous progressive CAPTCHA friction is enabled (TB-897).</summary>
     public string? BotChallengeToken { get; init; }
