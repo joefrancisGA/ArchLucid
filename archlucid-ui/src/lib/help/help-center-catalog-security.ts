@@ -58,7 +58,7 @@ const HELP_CENTER_SECURITY_DISPLAY_OVERRIDES: Readonly<Partial<Record<string, He
   "integration-readiness": {
     title: "Integration readiness",
     summary:
-      "See which notification, ticketing, and webhook integrations are ready for your SecureNow workspace.",
+      "See which Azure inventory, Jira, ServiceNow, and Teams integrations are ready for your SecureNow workspace.",
   },
   "users-and-roles": {
     title: "Users and roles",

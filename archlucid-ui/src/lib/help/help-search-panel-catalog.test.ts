@@ -298,7 +298,12 @@ describe("help-search-panel-catalog", () => {
       "authentication-sign-in",
     ]);
     expect(findingsWorkGroup?.heading).toBe("Findings and remediation");
+    expect(
+      listHelpSearchPanelGroups(false, "security").find((group) => group.id === "governance")?.heading,
+    ).toBe("Compliance");
     expect(listHelpSearchPanelGroups(false, "security").map((group) => group.id)).not.toContain("review-work");
+    expect(topicIds).not.toContain("governance-workflow");
+    expect(topicIds).not.toContain("close-evidence-gaps");
   });
 
   it("keeps architecture search groups and first-review topics for Architecture", () => {
