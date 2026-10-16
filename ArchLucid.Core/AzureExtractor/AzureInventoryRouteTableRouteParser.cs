@@ -329,6 +329,11 @@ public static class AzureInventoryRouteTableRouteParser
             return null;
         }
 
+        if (AzureExtractorJsonObjectElement.TryUnwrapObject(valueElement, out JsonElement objectReference))
+        {
+            return TryReadArmIdFromReferenceObject(objectReference);
+        }
+
         if (valueElement.ValueKind is JsonValueKind.String)
         {
             return NormalizeArmId(valueElement.GetString());
@@ -336,18 +341,24 @@ public static class AzureInventoryRouteTableRouteParser
 
         if (valueElement.ValueKind is JsonValueKind.Object)
         {
+            return TryReadArmIdFromReferenceObject(valueElement);
+        }
 
-            foreach (JsonProperty property in valueElement.EnumerateObject())
+        return null;
+    }
+
+    private static string? TryReadArmIdFromReferenceObject(JsonElement referenceObject)
+    {
+        foreach (JsonProperty property in referenceObject.EnumerateObject())
+        {
+
+            if (!property.Name.Equals("id", StringComparison.OrdinalIgnoreCase)
+                || property.Value.ValueKind is not JsonValueKind.String)
             {
-
-                if (!property.Name.Equals("id", StringComparison.OrdinalIgnoreCase)
-                    || property.Value.ValueKind is not JsonValueKind.String)
-                {
-                    continue;
-                }
-
-                return NormalizeArmId(property.Value.GetString());
+                continue;
             }
+
+            return NormalizeArmId(property.Value.GetString());
         }
 
         return null;
