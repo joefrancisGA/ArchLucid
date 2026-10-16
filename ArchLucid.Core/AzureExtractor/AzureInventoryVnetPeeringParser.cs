@@ -126,8 +126,17 @@ public static class AzureInventoryVnetPeeringParser
 
     private static string? TryReadPeeringState(JsonElement peering)
     {
-        if (peering.ValueKind is JsonValueKind.Object
-            && peering.TryGetProperty("properties", out JsonElement properties)
+        if (!AzureExtractorJsonObjectElement.TryUnwrapObject(peering, out JsonElement peeringObject))
+        {
+            if (peering.ValueKind is not JsonValueKind.Object)
+            {
+                return null;
+            }
+
+            peeringObject = peering;
+        }
+
+        if (peeringObject.TryGetProperty("properties", out JsonElement properties)
             && properties.ValueKind is JsonValueKind.Object
             && properties.TryGetProperty("peeringState", out JsonElement stateElement)
             && stateElement.ValueKind is JsonValueKind.String)
@@ -135,8 +144,7 @@ public static class AzureInventoryVnetPeeringParser
             return stateElement.GetString();
         }
 
-        if (peering.ValueKind is JsonValueKind.Object
-            && peering.TryGetProperty("peeringState", out JsonElement directState)
+        if (peeringObject.TryGetProperty("peeringState", out JsonElement directState)
             && directState.ValueKind is JsonValueKind.String)
         {
             return directState.GetString();

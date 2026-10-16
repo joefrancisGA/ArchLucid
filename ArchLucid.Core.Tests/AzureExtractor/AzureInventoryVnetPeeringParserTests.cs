@@ -118,6 +118,36 @@ public sealed class AzureInventoryVnetPeeringParserTests
     }
 
     [Fact]
+    public void ParsePeerings_reads_peering_state_when_peering_array_element_is_json_string_scalar_wrapping_peering_object()
+    {
+        const string remoteId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet-b";
+        string peeringObject =
+            $$"""
+            {
+              "name": "peer-to-b",
+              "properties": {
+                "peeringState": "Connected",
+                "remoteVirtualNetwork": { "id": "{{remoteId}}" }
+              }
+            }
+            """;
+        string json =
+            $$"""
+            [
+              {{JsonSerializer.Serialize(peeringObject)}}
+            ]
+            """;
+
+        IReadOnlyList<AzureInventoryVnetPeeringRecord> peerings = AzureInventoryVnetPeeringParser.ParsePeerings(json);
+
+        AzureInventoryVnetPeeringRecord peering = peerings.Should().ContainSingle().Subject;
+        peering.RemoteVirtualNetworkArmId.Should().Be(ArmResourceIdNormalizer.Normalize(remoteId));
+        peering.PeeringState.Should().Be("Connected");
+        AzureInventoryVnetPeeringParser.IsConnectedPeeringState(peering.PeeringState).Should().BeTrue();
+    }
+
+    [Fact]
     public void EnumerateRemoteVnetIds_skips_peerings_without_remote_id()
     {
         const string json = """
