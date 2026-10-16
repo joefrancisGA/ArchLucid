@@ -1,14 +1,16 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { OPERATOR_LAYOUT } from "@/lib/design-tokens";
 import {
+  RUN_DETAIL_WORKSPACE_DISCLOSURES_EXPANDED_PARAM,
   parseRunDetailWorkspaceDisclosuresExpandedFromSearch,
-  runDetailWorkspaceDisclosuresExpandedHrefFromSearch} from "@/lib/runs/run-detail-workspace-disclosures-expanded-disclosure-url";
+  runDetailWorkspaceDisclosuresExpandedHrefFromSearch,
+} from "@/lib/runs/run-detail-workspace-disclosures-expanded-disclosure-url";
 import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
 
 export type RunDetailWorkspaceLayoutProps = {
@@ -54,7 +56,31 @@ export function RunDetailWorkspaceDisclosureProvider(props: {
   readonly children: React.ReactNode;
 }): React.JSX.Element {
   const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const urlDisclosuresExpanded = parseRunDetailWorkspaceDisclosuresExpandedFromSearch(
+    searchParams.get(RUN_DETAIL_WORKSPACE_DISCLOSURES_EXPANDED_PARAM),
+  );
   const [revision, setRevision] = useState(0);
+
+  const applyDisclosuresExpandedFromUrl = useCallback((expandedFromUrl: boolean | null): void => {
+    if (expandedFromUrl === null) {
+      return;
+    }
+
+    const nodes = document.querySelectorAll<HTMLDetailsElement>("details[data-workspace-disclosure]");
+    let changed = false;
+
+    for (const node of nodes) {
+      if (node.open !== expandedFromUrl) {
+        node.open = expandedFromUrl;
+        changed = true;
+      }
+    }
+
+    if (changed) {
+      setRevision((value) => value + 1);
+    }
+  }, []);
 
   const syncDisclosuresExpandedToUrl = useCallback(
     (expanded: boolean) => {
@@ -90,27 +116,11 @@ export function RunDetailWorkspaceDisclosureProvider(props: {
 
   useEffect(() => {
     const syncDisclosuresExpandedFromUrl = (): void => {
-      const expandedFromUrl = parseRunDetailWorkspaceDisclosuresExpandedFromSearch(
-        new URLSearchParams(window.location.search).get("runDetailWorkspaceDisclosuresExpanded"),
+      applyDisclosuresExpandedFromUrl(
+        parseRunDetailWorkspaceDisclosuresExpandedFromSearch(
+          new URLSearchParams(window.location.search).get(RUN_DETAIL_WORKSPACE_DISCLOSURES_EXPANDED_PARAM),
+        ),
       );
-
-      if (expandedFromUrl === null) {
-        return;
-      }
-
-      const nodes = document.querySelectorAll<HTMLDetailsElement>("details[data-workspace-disclosure]");
-      let changed = false;
-
-      for (const node of nodes) {
-        if (node.open !== expandedFromUrl) {
-          node.open = expandedFromUrl;
-          changed = true;
-        }
-      }
-
-      if (changed) {
-        setRevision((value) => value + 1);
-      }
     };
 
     syncDisclosuresExpandedFromUrl();
@@ -119,7 +129,11 @@ export function RunDetailWorkspaceDisclosureProvider(props: {
     return () => {
       window.removeEventListener("popstate", syncDisclosuresExpandedFromUrl);
     };
-  }, []);
+  }, [applyDisclosuresExpandedFromUrl]);
+
+  useEffect(() => {
+    applyDisclosuresExpandedFromUrl(urlDisclosuresExpanded);
+  }, [applyDisclosuresExpandedFromUrl, urlDisclosuresExpanded]);
 
   const contextValue = useMemo(
     () => ({
