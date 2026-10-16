@@ -1,5 +1,13 @@
 > **Scope:**
 
+2026-10-16 seed hunt (seed→hit): `api-governance-tenancy-controllers` — promoted `AdminAzureOpenAiConnectionController` upsert/delete audits using display-only `User.Identity.Name` for both actor columns without `ExplicitActor` (parity gap vs `SettingsController` / model catalog fix); inject `IActorContext`, `GetAuditActorFields()`, `ExplicitActor = true` on connection upsert and remove audits; regressions `Upsert_sets_explicit_actor_for_stable_actor_user_id_when_display_differs` and `Delete_sets_explicit_actor_for_stable_actor_user_id_when_display_differs`; `AdminAzureOpenAiConnectionControllerAuditTests` 2/2; seeded five follow-on `(candidate)` rows.
+
+- (candidate) `GovernanceController.ApprovalRequests` batch review — idempotency replay audit actor parity — locus: batch approve path; input: repeated batch submit with same idempotency key.
+- (candidate) `GovernanceWorkflowIntegrationEventSupport` — manifest-promoted integration event publisher absent — locus: promote persist stage; input: verify intentional omission vs gap.
+- (candidate) `GovernanceController.LogGovernanceApprovalRequestedAuditAsync` — duplicate submit with same idempotency key skips controller audit on replay — locus: idempotency filter + logging guard; input: confirm expected vs missing replay audit.
+- (candidate) `GovernanceController.SubmitApprovalRequest` — `requestedBy` persisted column vs jwt actor key drift — locus: `GovernanceController.ApprovalRequests.Create.cs`; input: display name distinct from actor key.
+- (candidate) `AdminAgentModelCatalogController` — evaluation record path excluded from controller audit — locus: `RecordEvaluation` uses service recorder only; input: confirm service actor parity.
+
 2026-10-16 seed hunt (seed→hit): `api-governance-tenancy-controllers` — promoted `AdminAgentModelCatalogController.Upsert` logging model catalog create/update audits with display-only `User.Identity.Name` on both `ActorUserId` and `ActorUserName` without `ExplicitActor` (parity gap vs `SettingsController`); inject `IActorContext`, `GetAuditActorFields()`, `ExplicitActor = true`; regression `Upsert_sets_explicit_actor_for_stable_actor_user_id_when_display_differs`; `AdminAgentModelCatalogControllerAuditTests` 1/1; seeded five follow-on `(candidate)` rows.
 
 - (candidate) `AdminAzureOpenAiConnectionController` — connection upsert/delete audits use display-only actor without `ExplicitActor` — locus: BYO connection admin routes; input: display differs from jwt actor key.
