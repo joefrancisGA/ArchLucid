@@ -150,6 +150,21 @@ describe("getAccessTokenForApi / isLikelySignedIn expiry parsing (LK-06 P2)", ()
     expect(isLikelySignedIn()).toBe(false);
     expect(getAccessTokenForApi()).toBeUndefined();
   });
+
+  it("treats hex-prefixed future expires_at_ms session hints as expired", () => {
+    const futureMs = Date.now() + 3_600_000;
+    sessionStorage.setItem(OIDC_EXPIRES_AT_MS_KEY, `0x${futureMs.toString(16)}`);
+
+    expect(isLikelySignedIn()).toBe(false);
+    expect(getAccessTokenForApi()).toBeUndefined();
+  });
+
+  it("treats octal-prefixed expires_at_ms session hints as expired", () => {
+    sessionStorage.setItem(OIDC_EXPIRES_AT_MS_KEY, "0o123");
+
+    expect(isLikelySignedIn()).toBe(false);
+    expect(getAccessTokenForApi()).toBeUndefined();
+  });
 });
 
 describe("persistTokenResponse", () => {

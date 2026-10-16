@@ -1,3 +1,4 @@
+2026-10-16 seed hunt (seed→hit): `ui-oidc` — promoted `getExpiresAtMs` / `parseBffExpiresAtMs` accepting hex-prefixed future `expires_at_ms` strings via `Number()` while small hex hints were treated as expired; `parseOidcEpochMsHint` rejects `0x`/`0b`/`0o` literals; regressions `treats hex-prefixed future expires_at_ms session hints as expired` and `soft-fails refresh when expires_at_ms is a hex-encoded future epoch string`; cheap-disproved four open `(candidate)` rows; regression locks `treats octal-prefixed expires_at_ms session hints as expired`, `maps a string false expires_in to the default lifetime`, `omits colon-only authorize error descriptions from invalid_request copy`, `returns empty for literal colon-only error descriptions`, and `soft-fails refresh when expires_at_ms is a whitespace-only string`; reseeded five follow-on candidates; 238 scoped `src/lib/oidc` vitest tests passed.
 2026-10-16 seed hunt (seed→hit): `application-analysis` — promoted `ComparisonAuditService` canonicalizing record `LeftRunId`/`RightRunId` but serializing dashed run ids inside `PayloadJson`, breaking verify replay parity; canonical ids written into payload snapshot before serialize (caller report restored); regression `CompareQuality_RecordEndToEndAsync_payload_run_ids_match_canonical_record_columns_when_report_uses_dashed_guids`; 45 scoped ArchitectureAnalysis/CompareQuality tests passed.
 
 2026-10-15 seed hunt (seed→hit): `application-analysis` — promoted `ExportRecordDiffService` leaving dashed `RightRunId` on diff results when export records used mixed GUID formats (misleading summary/export copy and audit anchors); `AnalysisRunIdCanonicalization` on `ExportRecordDiffResult.LeftRunId`/`RightRunId`; regression `CompareQuality_export_record_diff_canonicalizes_run_ids_on_result`; 44 scoped ArchitectureAnalysis/CompareQuality tests passed.
@@ -21572,11 +21573,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 76
-- **bugs-found:** 70
+- **hunts:** 77
+- **bugs-found:** 71
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-15
-- **last-bug:** 2026-10-15 — zero-width padding on OIDC config env and authority
+- **last-hunt:** 2026-10-16
+- **last-bug:** 2026-10-16 — hex/octal/binary epoch-ms hint literals in session and BFF refresh
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -21584,6 +21585,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
+- [x] (proven) `getExpiresAtMs` / `parseBffExpiresAtMs` — hex-prefixed future `expires_at_ms` hints accepted via `Number()` — **hit 2026-10-16 seed hunt (seed→hit):** `parseOidcEpochMsHint` rejects `0x`/`0b`/`0o` literals; regressions `treats hex-prefixed future expires_at_ms session hints as expired` and `soft-fails refresh when expires_at_ms is a hex-encoded future epoch string`.
+- [x] (valid-no-repro) `getExpiresAtMs` — octal-prefixed `expires_at_ms` session hint (`0o123`) — **cheap-disproof 2026-10-16 seed hunt:** `parseOidcEpochMsHint` rejects `0o` literals; regression `treats octal-prefixed expires_at_ms session hints as expired`.
+- [x] (valid-no-repro) `resolveExpiresInSeconds` — string `"false"` `expires_in` from token JSON — **cheap-disproof 2026-10-16 seed hunt:** `Number("false")` is `NaN` → default lifetime; regression `maps a string false expires_in to the default lifetime`.
+- [x] (valid-no-repro) `humanizeAuthorizeCallbackError` — `invalid_request` with colon-only `error_description` (`:::`) — **cheap-disproof 2026-10-16 seed hunt:** `isReadableOAuthErrorDetail` omits punctuation-only detail; regression `omits colon-only authorize error descriptions from invalid_request copy`.
+- [x] (valid-no-repro) `decodeOAuthErrorDescription` — literal colon-only `error_description` (`:::`) — **cheap-disproof 2026-10-16 seed hunt:** readable-detail guard; regression `returns empty for literal colon-only error descriptions`.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — whitespace-only string `expires_at_ms` on refresh JSON — **cheap-disproof 2026-10-16 seed hunt:** `parseOidcEpochMsHint` returns `NaN`; regression `soft-fails refresh when expires_at_ms is a whitespace-only string`.
 - [x] (valid-no-repro) `syncTokenToBff` — unbounded BFF replay during burst sign-ins — **cheap-disproof 2026-10-15 thorough hunt:** three overlapping slow syncs produce at most seven POSTs and the final call uses the latest access token; regression `keeps BFF sync POST count bounded during rapid overlapping token persists`.
 - [x] (proven) `syncBffSessionCookieFromTokenResponse` — refresh and ID tokens forwarded without trim — **hit 2026-10-15 thorough hunt:** trim `refresh_token` and `id_token` before JSON body (parity with `access_token`); regression `trims whitespace from refresh_token and id_token before posting to the BFF`.
 - [x] (proven) `parseDiscoveryDocument` — HTTP(S) endpoints with embedded userinfo — **hit 2026-10-15 thorough hunt:** `isHttpOrHttpsUrl` rejects `username`/`password` on authorization and token endpoints; regression `rejects authorization endpoints that embed userinfo credentials`.
@@ -21895,11 +21902,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `humanizeAuthorizeCallbackError` — `access_denied` with colon-only `error_description` (`:::`) — **cheap-disproof 2026-10-15 seed hunt:** `isReadableOAuthErrorDetail` drops colon-only detail; regression `omits colon-only authorize error descriptions from access_denied copy`.
 - [x] (valid-no-repro) `decodeOAuthErrorDescription` — percent-encoded slash-only `error_description` (`%2F%2F`) — **cheap-disproof 2026-10-15 seed hunt:** decode boundary returns empty; regression `returns empty for percent-encoded slash-only error descriptions`.
 - [x] (valid-no-repro) `refreshBffSessionCookie` — literal `"null"` string `expires_at_ms` on refresh JSON — **cheap-disproof 2026-10-15 seed hunt:** `Number('null')` → NaN → soft-fail; regression `soft-fails refresh when expires_at_ms is the literal null string`.
-- (candidate) `getExpiresAtMs` — octal-prefixed `expires_at_ms` session hint (`0o123`) — locus: `session.ts`; input: octal literal string; wrong outcome: misleading signed-in vs expired.
-- (candidate) `resolveExpiresInSeconds` — string `"false"` `expires_in` from token JSON — locus: `resolve-expires-in-seconds.ts`; input: `"false"` scalar; wrong outcome: zero-second TTL vs default lifetime.
-- (candidate) `humanizeAuthorizeCallbackError` — `invalid_request` with colon-only `error_description` (`:::`) — locus: `oauth-callback-messages.ts`; input: punctuation-only detail on fixed branch; wrong outcome: template embeds colons.
-- (candidate) `decodeOAuthErrorDescription` — literal colon-only `error_description` (`:::`) — locus: `oauth-callback-messages.ts`; input: punctuation-only query value; wrong outcome: readable detail before humanize.
-- (candidate) `refreshBffSessionCookie` — whitespace-only string `expires_at_ms` on refresh JSON — locus: `bff-session-sync.ts`; input: `"   "`; wrong outcome: skew acceptance vs soft-fail refresh.
+ — locus: `session.ts`; input: octal literal string; wrong outcome: misleading signed-in vs expired.
+ — locus: `resolve-expires-in-seconds.ts`; input: `"false"` scalar; wrong outcome: zero-second TTL vs default lifetime.
+ — locus: `oauth-callback-messages.ts`; input: punctuation-only detail on fixed branch; wrong outcome: template embeds colons.
+ — locus: `oauth-callback-messages.ts`; input: punctuation-only query value; wrong outcome: readable detail before humanize.
+ — locus: `bff-session-sync.ts`; input: `"   "`; wrong outcome: skew acceptance vs soft-fail refresh.
 - [x] (proven) `persistTokenResponse` — a hung older token-to-BFF sync blocks a newer same-session sync, preventing the replacement session from establishing its cookie — **hit 2026-10-11 seed hunt:** the sync-order promise chain awaited every older request; concurrent sync plus latest-request replay lets the newer request proceed and converges late completions on the latest token; regression `does not block a newer sync behind a hung older request` in `session.test.ts`.
 - [x] (proven) `persistTokenResponse` — concurrent same-session token-to-BFF syncs can complete out of order, allowing an older provider response to overwrite a newer BFF cookie — **hit 2026-10-11 seed hunt:** each token response started its own asynchronous sync with no ordering guard; serialize sync writes through a recovery-safe promise chain; regression `keeps an older token sync from overwriting a newer same-session sync` in `session.test.ts`.
 - [x] (proven) `persistNonSensitiveSessionHints` — a replacement token without optional display-name or subject claims leaves the prior user's identity hints in `sessionStorage` — **hit 2026-10-11 seed hunt:** hint writes were conditional but stale keys were never removed, so a same-browser user replacement could display the previous user's name/subject; clear both hint keys before applying each token response; regression `clears stale identity hints when a replacement token has no identity claims` in `session.test.ts`.
@@ -22080,6 +22087,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-10-06 seed hunt (seed→hit): reseeded archlucid-core; proved sole model nodes/edges could retain padded `NodeId` and `EdgeType` in merged output; fixed trim on node insert and edge canonicalization; regressions above.
 
 2026-10-06 seed hunt (seed→hit): reseeded archlucid-core; proved duplicate model nodes/edges when ids and edge types differed only by whitespace; fixed model-side dedupe parity with context union; regressions above.
+
+- (candidate) `parseOidcEpochMsHint` — scientific-notation `expires_at_ms` strings that parse to a future epoch — locus: `oauth-callback-messages.ts`; input: `1.8e12` session hint; wrong outcome: signed-in gate vs decimal-only policy.
+- (candidate) `resolveExpiresInSeconds` — hex-prefixed string `expires_in` (`0x3600`) — locus: `resolve-expires-in-seconds.ts`; input: token JSON string scalar; wrong outcome: non-decimal TTL honored.
+- (candidate) `humanizeAuthorizeCallbackError` — `server_error` with colon-only `error_description` — locus: fixed branch uses detail guard; input: `:::`; wrong outcome: template embeds punctuation.
+- (candidate) `decodeOAuthErrorDescription` — percent-encoded binary-only `error_description` (`%00%00`) — locus: URI decode + readable guard; input: C0-only percent escapes; wrong outcome: non-empty detail.
+- (candidate) `refreshBffSessionCookie` — `expires_at_ms` JSON number with fractional epoch — locus: `parseBffExpiresAtMs` numeric path; input: `1730000000000.9`; wrong outcome: skew acceptance vs truncation.
 
 - **id:** archlucid-core
 - **status:** open

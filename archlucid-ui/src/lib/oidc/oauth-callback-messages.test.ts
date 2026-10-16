@@ -80,6 +80,10 @@ describe("decodeOAuthErrorDescription", () => {
     expect(decodeOAuthErrorDescription("%3A%3A")).toBe("");
   });
 
+  it("returns empty for literal colon-only error descriptions", () => {
+    expect(decodeOAuthErrorDescription(":::")).toBe("");
+  });
+
   it("returns empty for percent-encoded slash-only error descriptions", () => {
     expect(decodeOAuthErrorDescription("%2F%2F")).toBe("");
   });
@@ -262,6 +266,13 @@ describe("humanizeAuthorizeCallbackError", () => {
 
     expect(message).toBe("This sign-in request was not valid. Try signing in again.");
     expect(message).not.toContain("---");
+  });
+
+  it("omits colon-only authorize error descriptions from invalid_request copy", () => {
+    const message = humanizeAuthorizeCallbackError("invalid_request", ":::");
+
+    expect(message).toContain("not valid");
+    expect(message).not.toContain(":::");
   });
 
   it("omits plus-only authorize error descriptions from invalid_request copy", () => {

@@ -421,12 +421,42 @@ describe("refreshBffSessionCookie (LK-06 P2)", () => {
     expect(result).toEqual({ ok: false, shouldClearSession: false });
   });
 
+  it("soft-fails refresh when expires_at_ms is a hex-encoded future epoch string", async () => {
+    const futureMs = Date.now() + 3_600_000;
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({
+        ok: true,
+        json: async () => ({ expires_at_ms: `0x${futureMs.toString(16)}` }),
+      })),
+    );
+
+    const result = await refreshBffSessionCookie();
+
+    expect(result).toEqual({ ok: false, shouldClearSession: false });
+  });
+
   it("soft-fails refresh when expires_at_ms is an empty string", async () => {
     vi.stubGlobal(
       "fetch",
       vi.fn(async () => ({
         ok: true,
         json: async () => ({ expires_at_ms: "" }),
+      })),
+    );
+
+    const result = await refreshBffSessionCookie();
+
+    expect(result).toEqual({ ok: false, shouldClearSession: false });
+  });
+
+  it("soft-fails refresh when expires_at_ms is a whitespace-only string", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({
+        ok: true,
+        json: async () => ({ expires_at_ms: "   " }),
       })),
     );
 
