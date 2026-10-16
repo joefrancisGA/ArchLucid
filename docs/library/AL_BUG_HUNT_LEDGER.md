@@ -1,3 +1,4 @@
+2026-10-16 seed hunt (seed→hit): `api-governance-tenancy-controllers` — promoted `GovernanceWorkflowAuditSupport.CreateGovernanceManifestPromotedAuditEvent` / `CreateGovernanceEnvironmentActivatedAuditEvent` omitting `ExplicitActor`, so `AuditService` replaced `ActorUserId` with `ClaimTypes.NameIdentifier` while promotion records store jwt actor keys; set `ExplicitActor = true` on durable promotion/activation audits; regressions `CreateGovernanceManifestPromotedAuditEvent_sets_explicit_actor_for_stable_promoted_by` and `CreateGovernanceEnvironmentActivatedAuditEvent_sets_explicit_actor_for_stable_activated_by`; scoped Governance/Tenancy controller filter 143 passed, 18 SQL integration failures (Linux VM baseline); seeded five follow-on `(candidate)` rows.
 2026-10-16 seed hunt (seed→hit): `archlucid-core` — promoted `AzureInventoryRuntimeIdentityReader.TryReadSystemAssignedPrincipalId` ignoring PascalCase `PrincipalId` in `identity` JSON (runtime identity false negative); case-insensitive `principalId` and `userAssignedIdentities` property reads; regression `TryReadSystemAssignedPrincipalId_reads_pascal_case_principal_id_property`; `AzureInventoryRuntimeIdentityReaderTests` 4/4; seeded five follow-on `(candidate)` rows.
 2026-10-16 seed hunt (seed→hit): `archlucid-core` — promoted `AzureInventoryVnetCustomDnsIndex.TryParseDnsServersFromJson` dropping custom DNS when `dhcpOptions` inventory text is a JSON string scalar wrapping the object; unwrap and re-parse; regression `VnetUsesCustomDns_true_when_dhcpOptions_is_json_string_scalar_wrapping_object`; `AzureInventoryVnetCustomDnsIndexTests` 9/9; seeded five follow-on `(candidate)` rows.
 2026-10-16 seed hunt (seed→hit): `archlucid-core` — promoted `AzureInventoryRouteTableRouteParser.TryReadNestedArmId` ignoring PascalCase `Id` on routes JSON `nextHop` objects (modeled NVA treated as unmodeled edge control); case-insensitive `id` property read; regressions `SubnetRequiresEdgeControlEvidence_false_when_routes_json_next_hop_uses_pascal_case_id_property` and `Parse_reads_next_hop_arm_id_when_nested_object_uses_pascal_case_id_property`; attempted double-encoded `dhcpOptions` JSON string scalar (still failing repro, left `(candidate)`); `AzureInventoryReachabilityEdgeControlIndexTests` 7/7 + `AzureInventoryRouteTableRouteParserTests` 3/3; seeded five follow-on `(candidate)` rows.
@@ -13644,7 +13645,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **hunts:** 68
 - **bugs-found:** 10
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-15
+- **last-hunt:** 2026-10-16
 - **last-bug:** 2026-10-08 — positive wallet payment was acknowledged after credit failure
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -35731,6 +35732,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ## Zone: api-governance-tenancy-controllers
 
+2026-10-16 seed hunt (seed→hit): promoted missing `ExplicitActor` on durable promotion/activation governance audits; 2 Application workflow audit support tests; 143/161 scoped controller tests (18 SQL integration baseline).
+
 2026-10-15 seed hunt (seed→hit): promoted `GovernanceController.Promote` / `Activate` actor propagation; regressions `Promote_passes_actor_context_id_to_workflow_when_display_name_differs` and `Activate_passes_actor_context_id_to_workflow_when_display_name_differs`; 143 scoped Governance/Tenancy controller unit tests passed (18 SQL integration unavailable on Linux VM).
 
 2026-10-14 seed hunt (seed→hit): promoted `GovernanceController.RecordGovernanceMutationCorrection` passing `IActorContext.GetActor()` (display name) as `actorUserId` into `IGovernanceMutationCorrectionService.RecordAsync` on `POST /v1/governance/mutation-corrections`; use `GetActorId()` for stable actor correlation in mutation-correction audits; regression `RecordGovernanceMutationCorrection_passes_actor_context_id_to_service_when_display_name_differs`; 141 scoped Governance/Tenancy controller unit tests passed (18 SQL integration unavailable on Linux VM).
@@ -35759,11 +35762,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** governance controllers; tenancy controllers; retired mega-zone
 - **paths:** docs/library/AL_BUG_HUNT_LEDGER.md
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 327
+- **hunts:** 328
 - **last-hunt:** 2026-10-15
-- **bugs-found:** 522
+- **bugs-found:** 523
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-15 — promote/activate routes passed display name as promotedBy/activatedBy
+- **last-bug:** 2026-10-16 — promotion/activation durable audits omitted ExplicitActor
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -35782,8 +35785,14 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 - [x] (proven) `GovernanceController.Promote` / `Activate` — `POST /v1/governance/promotions` and `POST /v1/governance/activations` passed `GetActor()` display name as `promotedBy` / `activatedBy` into workflow persistence and promotion/activation audit builders — **hit 2026-10-15 seed hunt:** `GetActorId()`; regressions `Promote_passes_actor_context_id_to_workflow_when_display_name_differs` and `Activate_passes_actor_context_id_to_workflow_when_display_name_differs`.
 
-- (candidate) `GovernanceWorkflowAuditSupport.CreateGovernanceManifestPromotedAuditEvent` / `CreateGovernanceEnvironmentActivatedAuditEvent` — durable promotion/activation audits omit `ExplicitActor`, so `AuditService` may replace `ActorUserId` with `ClaimTypes.NameIdentifier` while `GovernancePromotionRecord.PromotedBy` stores the jwt actor key — locus: `ScopeContext.CreateAuditEvent`; input: Entra user where `NameIdentifier` ≠ `HttpActorContext.GetActorId()`.
+- [x] (proven) `GovernanceWorkflowAuditSupport.CreateGovernanceManifestPromotedAuditEvent` / `CreateGovernanceEnvironmentActivatedAuditEvent` — durable audits omitted `ExplicitActor` — **hit 2026-10-16 seed hunt:** `ExplicitActor = true` preserves jwt actor key on `ActorUserId`; regressions in `GovernanceWorkflowAuditSupportTests`.
 - (candidate) `GovernanceController.SubmitApprovalRequest` — `requestedBy` argument to `SubmitApprovalRequestAsync` still uses `GetActor()` for the persisted `RequestedBy` display column while audits use `GetActorId()` — locus: `GovernanceController.ApprovalRequests.Create.cs`; input: operator with display name distinct from jwt actor key.
+- (candidate) `GovernanceWorkflowAuditSupport.LogDryRunValidationAttemptedForPromotionAsync` — dry-run promotion validation audits omit `ExplicitActor` — locus: `scope.CreateAuditEvent`; input: `POST /v1/governance/promotions?dryRun=true` with actor key promotedBy.
+- (candidate) `GovernanceController.SubmitApprovalRequest` — `requestedBy` persisted column still uses `GetActor()` display name while audits use `GetActorId()` — locus: `GovernanceController.ApprovalRequests.Create.cs`; input: approval request POST with distinct display name.
+- (candidate) `GovernanceWorkflowAuditSupport.BuildGovernanceReviewAuditEvent` — approve/reject durable audits omit `ExplicitActor` — locus: review audit builder; input: governance approval review with jwt actor key.
+- (candidate) `GovernanceWorkflowAuditSupport.CreateGovernanceApprovalSubmittedAuditEvent` — submitted durable audit omits `ExplicitActor` — locus: submit stage audit factory; input: workflow submit with actor key requestedBy.
+- (candidate) `TenantCustomerSuccessController.PostProductFeedbackAsync` — persisted feedback submitter vs audit actor correlation — locus: feedback insert; input: product feedback POST (scope already gated).
+
 - (candidate) `GovernanceController.Approve` / `Reject` — `reviewedBy` display string stored on `GovernanceApprovalRequest.ReviewedBy` when it differs from `ReviewedByActorKey` — locus: `GovernanceWorkflowReviewStage`; input: approve route with mocked actor context.
 - (candidate) `GovernanceWorkflowAuditSupport.LogDryRunValidationAttemptedForPromotionAsync` — dry-run promotion validation audits use `promotedBy` for both audit identity fields without `ExplicitActor` — locus: dry-run branch in `GovernanceWorkflowPromotePersistStage`; input: `POST /v1/governance/promotions?dryRun=true`.
 - (candidate) `TenantCustomerSuccessController.PostProductFeedbackAsync` — audit path uses `GetActorId()` with `ExplicitActor` but persisted feedback row may still store display-only submitter when body omits mailbox — locus: feedback insert vs audit event; input: product feedback POST with foreign run id already scope-gated.
