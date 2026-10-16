@@ -5,7 +5,7 @@
 
 **Audience:** Francis Architecture LLC owner and coding agents scoping SecureNow work.
 
-**Last reconciled:** 2026-10-16 (trunk scan: **DIC-01–05**, **DMW-01–02**, **RUR-01–03**, **SN-QQ-01–10**, **DCU-01–05**, and **SH-01–SH-26** help job-match closed — do not greenfield). Prior 2026-10-15 (marked **SH-03** shipped — SecureNow findings help + `/governance/findings` drawer). Prior 2026-10-15 (marked **SH-02** shipped — SecureNow `/help/getting-started` job-match). Prior 2026-10-15 (marked **SN-HOME-01–06** shipped on trunk — SecureNow Home work summary). Prior 2026-10-14 (marked **SN-HAND-09–10** shipped — gap 4 latest remediation attempt on Audit evidence lineage). Prior 2026-10-13 (marked **SN-HAND-05–08** shipped; gaps 1–3 baseline in `ENGINEER_ANALYST_HANDOFF.md`). Prior 2026-10-12 (added **RUR-01–RUR-03** + hold — role display name, counted plain-language `rbac-role-unmapped` warning, and a read / write / nothing question for one app and one resource; prompts only). Prior same day (added **SN-HOME-01–SN-HOME-06** + hold — SecureNow Home work summary, environment freshness, outcome copy, and visible labels; prompts only). Prior 2026-10-06 (added **SN-QQ-09** and **SN-QQ-10** — resource identity on the question card, then a readable open-question count; prompts only). Prior 2026-10-04 (added **DIC-01–DIC-05** + hold — import a customer drawing and compare it to an inventory capture without a sealed review; prompts only). Prior 2026-10-03 (added **SN-QQ-08** — map the questions controller so Diagrams stops 500ing `Unmapped API controller`; prompts only. Prior same day added **SN-QQ-07** — a failed question-queue load shows the API reason; prompts only. Prior same day added **DCU-01–DCU-05** + hold and **SN-QQ-01–SN-QQ-06** + hold; prompts only). Prior 2026-09-20 (trunk scan + prompt indexes under `.cursor/prompts/securenow-*`).
+**Last reconciled:** 2026-10-16 (marked **SN-VF-01–05**, **RTA-01–07**, and **AX-DC-02–08** shipped on trunk; **MB-EH** / **MB-SB** messaging behavior shipped). Prior 2026-10-16 (trunk scan: **DIC-01–05**, **DMW-01–02**, **RUR-01–03**, **SN-QQ-01–10**, **DCU-01–05**, and **SH-01–SH-26** help job-match closed — do not greenfield). Prior 2026-10-15 (marked **SH-03** shipped — SecureNow findings help + `/governance/findings` drawer). Prior 2026-10-15 (marked **SH-02** shipped — SecureNow `/help/getting-started` job-match). Prior 2026-10-15 (marked **SN-HOME-01–06** shipped on trunk — SecureNow Home work summary). Prior 2026-10-14 (marked **SN-HAND-09–10** shipped — gap 4 latest remediation attempt on Audit evidence lineage). Prior 2026-10-13 (marked **SN-HAND-05–08** shipped; gaps 1–3 baseline in `ENGINEER_ANALYST_HANDOFF.md`). Prior 2026-10-12 (added **RUR-01–RUR-03** + hold — role display name, counted plain-language `rbac-role-unmapped` warning, and a read / write / nothing question for one app and one resource; prompts only). Prior same day (added **SN-HOME-01–SN-HOME-06** + hold — SecureNow Home work summary, environment freshness, outcome copy, and visible labels; prompts only). Prior 2026-10-06 (added **SN-QQ-09** and **SN-QQ-10** — resource identity on the question card, then a readable open-question count; prompts only). Prior 2026-10-04 (added **DIC-01–DIC-05** + hold — import a customer drawing and compare it to an inventory capture without a sealed review; prompts only). Prior 2026-10-03 (added **SN-QQ-08** — map the questions controller so Diagrams stops 500ing `Unmapped API controller`; prompts only. Prior same day added **SN-QQ-07** — a failed question-queue load shows the API reason; prompts only. Prior same day added **DCU-01–DCU-05** + hold and **SN-QQ-01–SN-QQ-06** + hold; prompts only). Prior 2026-09-20 (trunk scan + prompt indexes under `.cursor/prompts/securenow-*`).
 
 ## How to use this file
 
@@ -54,6 +54,10 @@ These waves are **closed for greenfield re-implementation**. Extend or fix with 
 | **RBAC unmapped role** | **RUR-01–RUR-03** | `RoleDefinitionName` on snapshot, counted `rbac-role-unmapped` warnings, unmapped data-plane read/write/nothing questionnaire. Do not greenfield. |
 | **Subscription question queue** | **SN-QQ-01–SN-QQ-10** | Disposition store/API, hero + bar, pack questions, failure reasons, questions controller map, resource identity + neighborhood, open-count CTA. Do not greenfield. |
 | **Diagram consumption UX** | **DCU-01–DCU-05** | Connector click → evidence panel, one stroke legend, evidence-family chips, PNG reading strip, node connection hint. Do not greenfield. |
+| **Verification honesty** | **SN-VF-01–SN-VF-05** | Chronology + `Succeeded` capture, path-analysis fail-closed, substantive postconditions, `ChangeImplemented` attestation, workbench labels. Do not greenfield. |
+| **Reconciliation to action** | **RTA-01–RTA-07** | Finding reload, security-only finding gate, documentation decisions, later-capture check, diagram fingerprint, absent subjects, sealed-path decisions. Do not greenfield. |
+| **Diagram consumption (extractor)** | **AX-DC-02–08** | Authorization endpoint inclusion, confidence strokes, completeness warnings, edge inspector, hosted Tier-1 honesty (see extractor backlog item 9). Do not greenfield. |
+| **Messaging behavior** | **MB-EH**, **MB-SB** | Event Hub / Service Bus broker verbs on visible cards. Do not greenfield. |
 | **Engineer–analyst handoff (gaps 4–5)** | **SN-HAND-05–SN-HAND-10** | Gap 5: verified remediation association row (identifiers only) — table, verify write, lineage read, Audit evidence + Remediation tracker UI. Gap 4: `latestRemediationAttempt` on lineage + Audit evidence spine row. Gaps 1–3 UI slices pre-existed. Do not greenfield. |
 | **SecureNow Home work summary** | **SN-HOME-01–SN-HOME-06** | Short lead, environment context line, four counted work links, outcome directory copy, wrapping sidebar labels + SecureNow route titles, compact directory tables (`SecureNowHomeEnvironmentContext`, `SecureNowHomeWorkSummary`, `SecureNowHomeDestinationSection`). Do not greenfield. |
 
@@ -75,7 +79,10 @@ Ordered for SecureNow operator value after the shipped baseline. Size is enginee
 | — | **SN-QQ-01–10** + hold | Subscription question queue | **Shipped** | — | On trunk. Do not greenfield. Index: [`SECURENOW_QUESTION_QUEUE_LUNA_PROMPTS.md`](../architecture/SECURENOW_QUESTION_QUEUE_LUNA_PROMPTS.md). |
 | — | **DCU-01–05** + hold | Diagram consumption UX | **Shipped** | — | On trunk. Do not greenfield. Index: [`DIAGRAM_CONSUMPTION_UX_COMPOSER_PROMPTS.md`](../architecture/DIAGRAM_CONSUMPTION_UX_COMPOSER_PROMPTS.md). |
 | — | **SH-01–SH-26** | Help job-match | **Shipped** | — | On trunk. Do not greenfield. Index: [securenow-help-00-index.md](../../.cursor/prompts/securenow-help-00-index.md). |
-| P1 | **AX-DC-01–08** + hold | Executive / Identity / Data diagram **consumption** | **Partial** | L | Core consumption on trunk (`InventoryConnectionEndpointIncluder`, Probable/Inferred strokes, completeness banner, edge detail panel, hosted Tier-1 copy, AX-DC-07 fixture). **AX-DC-01** docs close-out may still be open in [`AZURE_EXTRACTOR_TECHNICAL_BACKLOG.md`](../library/AZURE_EXTRACTOR_TECHNICAL_BACKLOG.md). Hold: [`AZURE_EXTRACTOR_DIAGRAM_CONSUMPTION_HOLD.md`](../library/AZURE_EXTRACTOR_DIAGRAM_CONSUMPTION_HOLD.md). |
+| — | **AX-DC-02–08** + hold | Executive / Identity / Data diagram **consumption** | **Shipped** | — | On trunk. Do not greenfield. Extractor index: [`AZURE_EXTRACTOR_TECHNICAL_BACKLOG.md`](../library/AZURE_EXTRACTOR_TECHNICAL_BACKLOG.md) item 9. |
+| — | **SN-VF-01–05** | Verification honesty | **Shipped** | — | On trunk. Do not greenfield. |
+| — | **RTA-01–07** + hold | Reconciliation to action | **Shipped** | — | On trunk (#4511–#4549). Do not greenfield. Index: [`RECONCILIATION_TO_ACTION_LUNA_PROMPTS.md`](../architecture/RECONCILIATION_TO_ACTION_LUNA_PROMPTS.md). |
+| — | **MB-EH**, **MB-SB** | Messaging behavior on diagrams | **Shipped** | — | On trunk. Do not greenfield. Index: [`MESSAGING_BEHAVIOR_COMPOSER_PROMPTS.md`](../architecture/MESSAGING_BEHAVIOR_COMPOSER_PROMPTS.md). |
 | P2 | **IE-RF** | Relationship-first topology (network associations) | **Backlog** | L | Catalog-driven associations; complements diagrams — see [`AZURE_EXTRACTOR_TECHNICAL_BACKLOG.md`](../library/AZURE_EXTRACTOR_TECHNICAL_BACKLOG.md) item 7. |
 | P2 | **Extractor parity** | Cost, Advisor, orphans, NIC/PE inventory depth | **Backlog** | M | Same extractor discipline; SecureNow inventory workbenches consume output. |
 | P2 | **IDA / IDL / IDS / IDT** | Inventory diagram layout and Graphviz forest | **Backlog** | L | Executive forest packing — see `.cursor/prompts/inventory-diagram-*-00-index.md`. Not a SecureNow-only codepath but blocks “all-day” diagram UX. |
@@ -234,15 +241,30 @@ Paste **one** file per session from the repo root (Cloud Agent: `pwsh` + working
 
 ### SN-VF — Verification honesty (**SN-VF-01–SN-VF-05**)
 
-Prompts only. Run in order. Settled scope: [`OPENAI_ASTRA_SGS_REVIEW_2026-09-27_AND_RESPONSE.md`](OPENAI_ASTRA_SGS_REVIEW_2026-09-27_AND_RESPONSE.md) Part 2, act-now list. Index: [`../architecture/SECURENOW_VERIFICATION_HONESTY_LUNA_PROMPTS.md`](../architecture/SECURENOW_VERIFICATION_HONESTY_LUNA_PROMPTS.md).
+Settled scope: [`OPENAI_ASTRA_SGS_REVIEW_2026-09-27_AND_RESPONSE.md`](OPENAI_ASTRA_SGS_REVIEW_2026-09-27_AND_RESPONSE.md) Part 2. Index: [`../architecture/SECURENOW_VERIFICATION_HONESTY_LUNA_PROMPTS.md`](../architecture/SECURENOW_VERIFICATION_HONESTY_LUNA_PROMPTS.md). **Shipped** on trunk.
 
 | ID | Title | Status |
 |----|-------|--------|
-| SN-VF-01 | Chronology and `Succeeded` capture | **Prompts** |
-| SN-VF-02 | Path absence requires completed analysis | **Prompts** |
-| SN-VF-03 | Substantive postcondition required | **Prompts** |
-| SN-VF-04 | Attested `ChangeImplemented` | **Prompts** |
-| SN-VF-05 | Workbench labels and Close affordance | **Prompts** |
+| SN-VF-01 | Chronology and `Succeeded` capture | **Shipped** |
+| SN-VF-02 | Path absence requires completed analysis | **Shipped** |
+| SN-VF-03 | Substantive postcondition required | **Shipped** |
+| SN-VF-04 | Attested `ChangeImplemented` | **Shipped** |
+| SN-VF-05 | Workbench labels and Close affordance | **Shipped** |
+
+### RTA — Reconciliation to action (**RTA-01–RTA-07**)
+
+Index: [`../architecture/RECONCILIATION_TO_ACTION_LUNA_PROMPTS.md`](../architecture/RECONCILIATION_TO_ACTION_LUNA_PROMPTS.md). **Shipped** on trunk.
+
+| ID | Title | Status |
+|----|-------|--------|
+| RTA-01 | Reload operational finding by natural key | **Shipped** |
+| RTA-02 | Security-only operational finding gate | **Shipped** |
+| RTA-03 | Documentation decision (not a finding) | **Shipped** |
+| RTA-04 | Later-capture decision check | **Shipped** |
+| RTA-05 | Diagram fingerprint scopes decisions | **Shipped** |
+| RTA-06 | Absent-subject decision list | **Shipped** |
+| RTA-07 | Sealed-path documentation decisions | **Shipped** |
+| RTA-HOLD | Stop list | **Hold** |
 
 ### DIC — Diagram import comparison (**DIC-01–DIC-05**)
 
