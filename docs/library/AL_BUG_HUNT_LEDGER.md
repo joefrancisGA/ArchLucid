@@ -22521,6 +22521,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 
 - (candidate) `AzureInventoryLoadBalancerBackendTrafficResolver` — `networkInterfaceIPConfiguration` provided as JSON string scalar ARM id not read — locus: `AddIpConfigurationTargets` nested address path; input: string-scalar ip configuration reference on `loadBalancerBackendAddresses`.
+- (candidate) `AzureInventoryLoadBalancerBackendTrafficResolver` — `backendIPConfigurations` entries as string scalars inside flat pool bag — locus: flat pool + string config; input: combined projection end-to-end.
+- (candidate) `AzureInventoryLoadBalancerBackendTrafficResolver` — `backendAddressPool` string-scalar pool id on flattened rule row — locus: `TryReadBackendPoolReferenceId`; input: cheap-disproof if already handled.
+- (candidate) `AzureInventoryLoadBalancerBackendParentArmIdResolver` — flat pool plus flat address plus string-scalar ip config — locus: combined hosted projection; input: regression guard.
+- (candidate) `AzureInventoryLoadBalancerBackendTrafficResolver` — Application Gateway `backendIPConfigurations` string scalars — locus: `ParseApplicationGatewayBackendTargets`; input: AGW classic NIC pool parity.
+- (candidate) `AzureInventoryLoadBalancerBackendTrafficResolver` — double-encoded `backendAddressPools` wrapping flat pool object — locus: string unwrap + `TryGetBackendAddressPoolPropertiesBag`; input: nested flat pool JSON.
 - (candidate) `AzureInventoryLoadBalancerBackendTrafficResolver` — flat `backendIPConfigurations` rows with ip config id at configuration root (no `{ "id": ... }` object) — locus: `TryReadDirectId`; input: string-scalar ip configuration reference on direct NIC pool member.
 - (candidate) `AzureInventoryLoadBalancerBackendParentArmIdResolver` — flat `loadBalancerBackendAddresses` under flat pool bag (both without `properties` wrappers) — locus: combined flat pool + flat address; input: end-to-end hosted projection.
 - (candidate) `AzureInventoryLoadBalancerBackendTrafficResolver` — `backendAddressPool` string-scalar pool id on flattened rule row — locus: `TryReadBackendPoolReferenceId`; input: cheap-disproof if already handled.
