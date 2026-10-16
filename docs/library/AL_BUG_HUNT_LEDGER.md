@@ -1,5 +1,13 @@
 > **Scope:**
 
+2026-10-16 thorough hunt (hit): `ui-review-intake-wizards` — promoted `useNewRunWizardPendingEvidence.uploadPendingEvidence` uploading document snapshots captured at upload start after the operator cleared pending PDFs during an in-flight inventory ZIP upload (mixed quick-start evidence); bump pending-evidence upload generation when `setPendingDocumentFiles` changes and read the latest document list from a ref at the document leg; regression `does_not_upload_documents_cleared_while_inventory_upload_is_in_flight`; cheap-disproof closed post-create upload without reset (`uploadPendingEvidence` invoked directly from submit), `useFirstPilotIntakeWizard` prior-run semantic counts (`cancelled` guard on `rerun=` effect cleanup), `NewRunWizardTemplateRestore` step-before-prefill automation race (product test contract), and guided intake `popstate` vs `useSearchParams` step race (existing url-sync regressions); `use-new-run-wizard-pending-evidence.test.ts` 10/10; seeded five follow-on `(candidate)` rows.
+
+- (candidate) `useNewRunWizardPendingEvidence` — document list replaced (not cleared) while inventory upload is in flight should upload the replacement set only after generation invalidation — locus: document leg after stale inventory abort; input: swap PDF file mid-upload.
+- (candidate) `useNewRunWizardSubmit` — `evidenceUploadState` remains `failed` when submit triggers a fresh `uploadPendingEvidence` after step-1 failure — locus: UI panel state vs direct upload call; input: likely display-only `(valid-no-repro)` if upload succeeds.
+- (candidate) `useFirstPilotIntakeWizard` — `inheritedSemanticSummary` not cleared when `intent=revised-clone` is removed while semantic-count fetch is unresolved — locus: effect early return when `priorRunIdForTitlePrefill` becomes null; input: drop revised-clone intent mid-fetch.
+- (candidate) `NewRunWizardTemplateRestore` — restored step index applied before query-prefill effects finish — locus: template restore vs `useNewRunWizardQueryPrefill` ordering; input: automation `data-wizard-ready` contract.
+- (candidate) `useGuidedIntakeWizard.setStep` — `popstate` vs `useSearchParams` intake step race during draft hydrate — locus: dual URL listeners; input: Back/Forward during session restore. Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
+
 2026-10-16 seed hunt (seed→hit): `archlucid-core` — promoted `AzureInventoryLoadBalancerBackendTrafficResolver` / `AzureInventoryLoadBalancerBackendParentArmIdResolver` throwing on or skipping `loadBalancerBackendAddresses` rows stored as JSON string scalars wrapping address objects (per-element double-encoded pool members); unwrap via `AzureExtractorJsonObjectElement.TryResolveCollectionElement` (parity with route-table string-scalar route elements); regressions `ResolveLoadBalancerBackends_reads_backend_when_backend_address_element_is_json_string_scalar` and `ResolveFromBackendAddressPoolsJson_reads_backend_address_element_when_json_string_scalar_wraps_object`; LB backend tests 20/20; seeded five follow-on `(candidate)` rows.
 
 - (candidate) `AzureInventoryLoadBalancerBackendTrafficResolver.BuildLoadBalancerPortByPoolId` — `loadBalancingRules` array elements as JSON string scalars wrapping rule objects — locus: rules foreach before `TryGetLoadBalancingRulePropertiesBag`; input: hosted double-encoded rule rows.
@@ -40645,6 +40653,8 @@ ABQ-09 churn hotspot; review detail route tree.
 ---
 
 ## Zone: ui-review-intake-wizards
+2026-10-16 thorough hunt (hit): promoted pending document upload generation on `setPendingDocumentFiles`; 10/10 pending-evidence tests.
+
 
 **Hunts:** 62 · **Bugs found:** 33 · **Consecutive dry hunts:** 0
 
