@@ -157,9 +157,11 @@ public sealed class HostedAzureExtractorClient(
             cancellationToken).ConfigureAwait(false);
 
         HostedAzureInventoryStaticSiteAndFabricAssociationCollectResult staticSiteAndFabricAssociations =
-            await CollectStaticSiteAndFabricAssociationsAsync(
-                resources,
+            await HostedAzureInventoryStaticSiteAndFabricAssociationCollector.CollectAsync(
+                _armReadClient,
                 accessToken.Token,
+                resources,
+                _logger,
                 cancellationToken).ConfigureAwait(false);
 
         networkAssociations.AddRange(staticSiteAndFabricAssociations.Associations);
@@ -420,9 +422,11 @@ public sealed class HostedAzureExtractorClient(
             cancellationToken).ConfigureAwait(false);
 
         HostedAzureInventoryStaticSiteAndFabricAssociationCollectResult staticSiteAndFabricAssociations =
-            await CollectStaticSiteAndFabricAssociationsAsync(
-                resources,
+            await HostedAzureInventoryStaticSiteAndFabricAssociationCollector.CollectAsync(
+                _armReadClient,
                 accessTokenValue,
+                resources,
+                _logger,
                 cancellationToken).ConfigureAwait(false);
 
         networkAssociations.AddRange(staticSiteAndFabricAssociations.Associations);
@@ -533,24 +537,6 @@ public sealed class HostedAzureExtractorClient(
     private static int CountPackagedResources(IReadOnlyList<HostedAzureArmResourceRecord> resources)
     {
         return resources.Count(static r => !AzureInventoryNeverShowArmTypes.ShouldOmitResource(r.ResourceType, r.ResourceId));
-    }
-
-    private async Task<HostedAzureInventoryStaticSiteAndFabricAssociationCollectResult> CollectStaticSiteAndFabricAssociationsAsync(
-        IReadOnlyList<HostedAzureArmResourceRecord> resources,
-        string accessToken,
-        CancellationToken cancellationToken)
-    {
-        if (_armReadClient is not GetOnlyHostedAzureArmReadClient concreteArmReadClient)
-        {
-            return new HostedAzureInventoryStaticSiteAndFabricAssociationCollectResult();
-        }
-
-        return await HostedAzureInventoryStaticSiteAndFabricAssociationCollector.CollectAsync(
-            concreteArmReadClient,
-            accessToken,
-            resources,
-            _logger,
-            cancellationToken).ConfigureAwait(false);
     }
 
     private async Task AppendAvdSessionHostAssociationsAsync(
