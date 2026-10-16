@@ -28,7 +28,7 @@ public static class AzureInventoryLoadBalancerBackendParentArmIdResolver
 
             foreach (JsonElement pool in document.RootElement.EnumerateArray())
             {
-                if (!pool.TryGetProperty("properties", out JsonElement properties)
+                if (!TryGetPropertyIgnoreCase(pool, "properties", out JsonElement properties)
                     || properties.ValueKind is not JsonValueKind.Object)
                 {
                     continue;
@@ -53,7 +53,7 @@ public static class AzureInventoryLoadBalancerBackendParentArmIdResolver
         string collectionName,
         bool nestedAddress)
     {
-        if (!poolProperties.TryGetProperty(collectionName, out JsonElement configurations)
+        if (!TryGetPropertyIgnoreCase(poolProperties, collectionName, out JsonElement configurations)
             || configurations.ValueKind is not JsonValueKind.Array)
         {
             return;
@@ -88,7 +88,7 @@ public static class AzureInventoryLoadBalancerBackendParentArmIdResolver
 
     private static string? TryReadDirectId(JsonElement configuration)
     {
-        if (!configuration.TryGetProperty("id", out JsonElement idElement)
+        if (!TryGetPropertyIgnoreCase(configuration, "id", out JsonElement idElement)
             || idElement.ValueKind is not JsonValueKind.String)
         {
             return null;
@@ -99,9 +99,9 @@ public static class AzureInventoryLoadBalancerBackendParentArmIdResolver
 
     private static string? TryReadNestedNetworkInterfaceIpConfigurationId(JsonElement address)
     {
-        if (!address.TryGetProperty("properties", out JsonElement properties)
+        if (!TryGetPropertyIgnoreCase(address, "properties", out JsonElement properties)
             || properties.ValueKind is not JsonValueKind.Object
-            || !properties.TryGetProperty("networkInterfaceIPConfiguration", out JsonElement reference))
+            || !TryGetPropertyIgnoreCase(properties, "networkInterfaceIPConfiguration", out JsonElement reference))
         {
             return null;
         }
@@ -112,5 +112,28 @@ public static class AzureInventoryLoadBalancerBackendParentArmIdResolver
         }
 
         return TryReadDirectId(reference);
+    }
+
+    private static bool TryGetPropertyIgnoreCase(
+        JsonElement element,
+        string propertyName,
+        out JsonElement value)
+    {
+        foreach (JsonProperty property in element.EnumerateObject())
+        {
+
+            if (!property.Name.Equals(propertyName, StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            value = property.Value;
+
+            return true;
+        }
+
+        value = default;
+
+        return false;
     }
 }

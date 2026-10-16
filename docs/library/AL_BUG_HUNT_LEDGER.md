@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-16 seed hunt (seed→hit): `archlucid-core` — promoted `AzureInventoryLoadBalancerBackendParentArmIdResolver.ResolveFromBackendAddressPoolsJson` ignoring PascalCase `Properties` on backend pool elements (empty parent ARM id list for hosted inventory projections); case-insensitive JSON property reads for pool `properties`, backend collections, nested `properties`, and `id`; regression `ResolveFromBackendAddressPoolsJson_reads_pascal_case_properties_bag_on_pool`; `AzureInventoryLoadBalancerBackendParentArmIdResolverTests` 2/2; seeded five follow-on `(candidate)` rows.
+
 2026-10-16 seed hunt (seed→hit): `topology-proposal-merge` — promoted `TopologyProposalRelationshipEdgeMapper.MapRelationships` silently dropping relationships when agents used an unindexed Terraform root address (`azurerm_app_service.main`) while inventory had multiple `count` instances (`…main[0]` / `…main[1]`); track ambiguous indexed instance node ids and fan out edges for unindexed root references only. Regression `MapRelationships_emits_edges_for_all_indexed_instances_when_source_uses_unindexed_root_terraform_address`; reaffirmed `MapRelationships_does_not_resolve_nonexistent_indexed_terraform_instance`. 1,607 scoped topology merge/endpoint/edge-mapper tests passed (`RunAnalyzers=false`).
 
 2026-10-16 seed hunt (seed→hit): `topology-proposal-merge` — promoted sticky `greenfieldGraph` in `AgentTopologyProposalGraphMerge.WithMergedTopologyProposals` so non-Topology agents after the first Topology materialization on an initially empty graph could still claim and materialize distinct services (e.g. Cost `svc-2` after Topology `svc-1`); treat greenfield materialization as only the first pass on an empty snapshot (`graph.Nodes.Count == 0 && added.Count == 0`). Regression `WithMergedTopologyProposals_does_not_materialize_distinct_cost_service_after_topology_on_initially_empty_graph`. 1,606 scoped topology merge/endpoint/edge-mapper tests passed (`RunAnalyzers=false`).
@@ -22366,6 +22368,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ---
 
 ## Zone: archlucid-core
+2026-10-16 seed hunt (seed→hit): promoted PascalCase `Properties` on load balancer backend pool JSON; 2/2 LB parent resolver tests.
+
 2026-10-16 seed hunt (seed→hit): promoted scientific-notation packed uint32 indexed flat DNS strings; 26/26 DNS index tests.
 
 2026-10-16 seed hunt (seed→hit): promoted scientific-notation packed uint32 in dhcpOptions JSON arrays; 25/25 DNS index tests.
@@ -22446,6 +22450,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-10-06 seed hunt (seed→hit): reseeded archlucid-core; proved sole model nodes/edges could retain padded `NodeId` and `EdgeType` in merged output; fixed trim on node insert and edge canonicalization; regressions above.
 
 2026-10-06 seed hunt (seed→hit): reseeded archlucid-core; proved duplicate model nodes/edges when ids and edge types differed only by whitespace; fixed model-side dedupe parity with context union; regressions above.
+
+
+- (candidate) `AzureInventoryLoadBalancerBackendParentArmIdResolver` — PascalCase `LoadBalancerBackendAddresses` collection name skipped — locus: pool properties bag; input: hosted `backendAddressPools` projection with PascalCase collection key.
+- (candidate) `AzureInventoryLoadBalancerBackendParentArmIdResolver` — PascalCase `BackendIPConfigurations` direct NIC references skipped — locus: pool properties bag; input: classic backend IP configuration rows with PascalCase property names.
+- (candidate) `AzureInventoryLoadBalancerBackendParentArmIdResolver` — PascalCase `NetworkInterfaceIPConfiguration` nested property skipped — locus: `loadBalancerBackendAddresses` element; input: AKS VMSS backend address JSON with PascalCase nested key.
+- (candidate) `AzureInventoryLoadBalancerBackendParentArmIdResolver` — PascalCase `Id` on `networkInterfaceIPConfiguration` object skipped — locus: nested reference object; input: backend address row with `{ "Id": "..." }`.
+- (candidate) `AzureInventoryLoadBalancerBackendParentArmIdResolver` — `backendAddressPools` JSON string scalar wrapping pool array not unwrapped — locus: root parse; input: double-encoded pool array text on load balancer resource bag.
 
 - (candidate) `parseOidcEpochMsHint` — scientific-notation `expires_at_ms` strings that parse to a future epoch — locus: `oauth-callback-messages.ts`; input: `1.8e12` session hint; wrong outcome: signed-in gate vs decimal-only policy.
 - (candidate) `resolveExpiresInSeconds` — hex-prefixed string `expires_in` (`0x3600`) — locus: `resolve-expires-in-seconds.ts`; input: token JSON string scalar; wrong outcome: non-decimal TTL honored.
