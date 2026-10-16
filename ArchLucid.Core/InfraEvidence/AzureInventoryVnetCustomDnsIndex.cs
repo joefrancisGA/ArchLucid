@@ -363,10 +363,45 @@ public sealed class AzureInventoryVnetCustomDnsIndex
     {
         if (TryUnwrapJsonStringScalar(value, out string unwrapped))
         {
-            return unwrapped;
+            value = unwrapped;
+        }
+        else
+        {
+            value = value.Trim();
         }
 
-        return value.Trim();
+        if (TryFormatPackedUint32DnsAddressString(value, out string dottedAddress))
+        {
+            return dottedAddress;
+        }
+
+        return value;
+    }
+
+    private static bool TryFormatPackedUint32DnsAddressString(string value, out string dottedAddress)
+    {
+        dottedAddress = string.Empty;
+
+        if (string.IsNullOrWhiteSpace(value) || value.Contains('.', StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        if (!uint.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out uint packedAddress)
+            || packedAddress <= 255)
+        {
+            return false;
+        }
+
+        dottedAddress = string.Format(
+            CultureInfo.InvariantCulture,
+            "{0}.{1}.{2}.{3}",
+            (packedAddress >> 24) & 0xFF,
+            (packedAddress >> 16) & 0xFF,
+            (packedAddress >> 8) & 0xFF,
+            packedAddress & 0xFF);
+
+        return true;
     }
 
     private static bool TryUnwrapJsonStringScalar(string value, out string unwrapped)

@@ -1,14 +1,3 @@
-{"at":"2026-09-16T04:48:20.1594702Z","zoneId":"persistence-identity","outcome":"seed-only"}
-{"at":"2026-09-16T04:49:56.2060112Z","zoneId":"topology-proposal-merge","outcome":"hit"}
-{"at":"2026-09-16T04:49:59.6363521Z","zoneId":"context-ingestion","outcome":"seed-only"}
-{"at":"2026-09-16T04:50:02.7232607Z","zoneId":"core-costing","outcome":"seed-only"}
-{"at":"2026-09-16T04:50:05.8632902Z","zoneId":"tenant-data-export","outcome":"seed-only"}
-{"at":"2026-09-16T04:50:08.9578403Z","zoneId":"persistence-identity","outcome":"seed-only"}
-{"at":"2026-09-16T04:51:45.9960976Z","zoneId":"topology-proposal-merge","outcome":"hit"}
-{"at":"2026-09-16T04:51:49.2930867Z","zoneId":"context-ingestion","outcome":"seed-only"}
-{"at":"2026-09-16T04:51:52.1916769Z","zoneId":"core-costing","outcome":"seed-only"}
-{"at":"2026-09-16T04:51:55.1232919Z","zoneId":"tenant-data-export","outcome":"seed-only"}
-{"at":"2026-09-16T04:51:58.0143134Z","zoneId":"persistence-identity","outcome":"seed-only"}
 {"at":"2026-09-16T04:53:31.8603293Z","zoneId":"topology-proposal-merge","outcome":"hit"}
 {"at":"2026-09-16T04:53:35.2356344Z","zoneId":"context-ingestion","outcome":"seed-only"}
 {"at":"2026-09-16T04:53:38.4716611Z","zoneId":"core-costing","outcome":"seed-only"}
@@ -7761,3 +7750,4 @@
 {"at":"2026-10-16T04:42:10.9444107Z","zoneId":"archlucid-core","outcome":"hit","productLine":"securenow","paths":["ArchLucid.Core/InfraEvidence/AzureInventoryVnetCustomDnsIndex.cs"]}
 {"at":"2026-10-16T04:45:03.9892162Z","zoneId":"archlucid-core","outcome":"hit","productLine":"securenow","paths":["ArchLucid.Core/InfraEvidence/AzureInventoryPrivateEndpointDnsJoinIndex.cs"]}
 {"at":"2026-10-16T04:48:18.3926918Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Governance/Workflow/Stages/GovernanceWorkflowIntegrationEventSupport.cs"]}
+{"at":"2026-10-16T04:52:46.2506322Z","zoneId":"archlucid-core","outcome":"hit","productLine":"archlucid-shared"}
