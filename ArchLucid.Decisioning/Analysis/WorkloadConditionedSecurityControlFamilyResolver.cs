@@ -49,12 +49,25 @@ public static class WorkloadConditionedSecurityControlFamilyResolver
 
             if (expectedCategories.Any(c =>
                     c.Equals(GraphTopologyCategories.Identity, StringComparison.OrdinalIgnoreCase))
-                || ContainsAnyKeyword(scopeTokens, "identity", "entra", "oauth", "sso", "key vault", "keyvault"))
+                || TopologyExpectedCategoryResolver.ScopeTokensContainAnyKeyword(
+                    scopeTokens,
+                    "identity",
+                    "entra",
+                    "oauth",
+                    "sso",
+                    "key vault",
+                    "keyvault"))
             {
                 expected.Add(SecurityControlFamilies.IdentityAccess);
             }
 
-            if (ContainsAnyKeyword(scopeTokens, "compliance", "regulated", "hipaa", "pci", "sox"))
+            if (TopologyExpectedCategoryResolver.ScopeTokensContainAnyKeyword(
+                    scopeTokens,
+                    "compliance",
+                    "regulated",
+                    "hipaa",
+                    "pci",
+                    "sox"))
             {
                 expected.Add(SecurityControlFamilies.DataProtection);
                 expected.Add(SecurityControlFamilies.LoggingMonitoring);
@@ -106,49 +119,82 @@ public static class WorkloadConditionedSecurityControlFamilyResolver
         securityBaselineNode.Properties.TryGetValue("controlId", out string? controlId);
         string combined = $"{controlId} {securityBaselineNode.Label}";
 
-        if (ContainsAnyKeyword(combined, "identity", "entra", "oauth", "sso", "authentication", "authorization", "iam", "rbac"))
+        if (TopologyExpectedCategoryResolver.DelimitedTextContainsAnyKeyword(
+                combined,
+                "identity",
+                "entra",
+                "oauth",
+                "sso",
+                "authentication",
+                "authorization",
+                "iam",
+                "rbac"))
+        {
             return SecurityControlFamilies.IdentityAccess;
+        }
 
-        if (ContainsAnyKeyword(combined, "network", "firewall", "segmentation", "private link", "vnet", "subnet", "nsg", "waf"))
+        if (TopologyExpectedCategoryResolver.DelimitedTextContainsAnyKeyword(
+                combined,
+                "network",
+                "firewall",
+                "segmentation",
+                "private link",
+                "vnet",
+                "subnet",
+                "nsg",
+                "waf"))
+        {
             return SecurityControlFamilies.NetworkIsolation;
+        }
 
-        if (ContainsAnyKeyword(combined, "encrypt", "tls", "ssl", "cmk", "key rotation", "at-rest"))
+        if (TopologyExpectedCategoryResolver.DelimitedTextContainsAnyKeyword(
+                combined,
+                "encrypt",
+                "tls",
+                "ssl",
+                "cmk",
+                "key rotation",
+                "at-rest"))
+        {
             return SecurityControlFamilies.Encryption;
+        }
 
-        if (ContainsAnyKeyword(combined, "backup", "retention", "data protection", "dlp", "pii", "phi"))
+        if (TopologyExpectedCategoryResolver.DelimitedTextContainsAnyKeyword(
+                combined,
+                "backup",
+                "retention",
+                "data protection",
+                "dlp",
+                "pii",
+                "phi"))
+        {
             return SecurityControlFamilies.DataProtection;
+        }
 
-        if (ContainsAnyKeyword(combined, "log", "monitor", "audit", "siem", "defender", "sentinel", "alert"))
+        if (TopologyExpectedCategoryResolver.DelimitedTextContainsAnyKeyword(
+                combined,
+                "log",
+                "monitor",
+                "audit",
+                "siem",
+                "defender",
+                "sentinel",
+                "alert"))
+        {
             return SecurityControlFamilies.LoggingMonitoring;
+        }
 
-        if (ContainsAnyKeyword(combined, "patch", "vulnerab", "baseline", "hardening", "antimalware"))
+        if (TopologyExpectedCategoryResolver.DelimitedTextContainsAnyKeyword(
+                combined,
+                "patch",
+                "vulnerab",
+                "baseline",
+                "hardening",
+                "antimalware"))
+        {
             return SecurityControlFamilies.VulnerabilityManagement;
+        }
 
         return "general";
-    }
-
-    private static bool ContainsAnyKeyword(string haystack, params string[] keywords)
-    {
-        foreach (string keyword in keywords)
-        {
-            if (haystack.Contains(keyword, StringComparison.OrdinalIgnoreCase))
-                return true;
-        }
-
-        return false;
-    }
-
-    private static bool ContainsAnyKeyword(IReadOnlyList<string> tokens, params string[] keywords)
-    {
-        foreach (string token in tokens)
-        {
-            foreach (string keyword in keywords)
-            {
-                if (token.Contains(keyword, StringComparison.OrdinalIgnoreCase))
-                    return true;
-            }
-        }
-
-        return false;
     }
 }

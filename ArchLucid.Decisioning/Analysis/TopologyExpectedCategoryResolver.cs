@@ -135,7 +135,10 @@ public static class TopologyExpectedCategoryResolver
     private static bool MentionsIdentityWorkload(IReadOnlyList<string> tokens) =>
         ContainsAnyKeyword(tokens, "identity", "entra", "key vault", "keyvault", "oauth", "sso");
 
-    private static bool ContainsAnyKeyword(IReadOnlyList<string> tokens, params string[] keywords)
+    private static bool ContainsAnyKeyword(IReadOnlyList<string> tokens, params string[] keywords) =>
+        ScopeTokensContainAnyKeyword(tokens, keywords);
+
+    internal static bool ScopeTokensContainAnyKeyword(IReadOnlyList<string> tokens, params string[] keywords)
     {
         foreach (string token in tokens)
         {
@@ -150,6 +153,24 @@ public static class TopologyExpectedCategoryResolver
                 {
                     return true;
                 }
+            }
+        }
+
+        return false;
+    }
+
+    internal static bool DelimitedTextContainsAnyKeyword(string haystack, params string[] keywords)
+    {
+        if (string.IsNullOrWhiteSpace(haystack))
+        {
+            return false;
+        }
+
+        foreach (string keyword in keywords)
+        {
+            if (TokenContainsKeyword(haystack, keyword))
+            {
+                return true;
             }
         }
 
