@@ -83,7 +83,7 @@ Do **not** draw a complete graph to “maximize edges.” Do **not** show NIC or
 
 | Prompt | Parallel? | Depends on |
 |--------|-----------|------------|
-| **IDX-01** Recapture relationship properties | First | Existing extractor family (do not re-run AX-DE as greenfield) |
+| **IDX-01** Recapture relationship properties | **Shipped** on trunk — do not greenfield | Existing extractor family (do not re-run AX-DE as greenfield) |
 | **IDX-02** Graph-build hop compose + dedupe | After 01 preferred; can start on fixtures | Shared visible projection |
 | **IDX-03** Cited hops, no all-to-all | After 02 | Composer exists so collocation can be demoted |
 | **IDX-04** Honest verbs | After 02 (prefer 03) | Edge types stable |
@@ -98,7 +98,7 @@ Do **not** draw a complete graph to “maximize edges.” Do **not** show NIC or
 | **IDX-13** Cross-mode parity ratchet | Last | 01–12 merged (or land failing tests for merged slices) |
 | **IDX-HOLD** | Not implementation | — |
 
-**IDX-01 before celebrating edge counts.** More algorithms on empty properties still yield 15 edges.
+**IDX-02** is next after **IDX-01** (shipped on trunk). More algorithms on empty properties still yield 15 edges until compose lands.
 
 **IDX-HOLD** is not implementation. Paste `inventory-diagram-excellence-14-hold.md` only if a session starts a complete graph, default NIC/PE cards, Microsoft icons, Full-subscription RBAC, ARM `dependsOn`, a second collector, or nested frames from an **IDA / IDF** chat.
 

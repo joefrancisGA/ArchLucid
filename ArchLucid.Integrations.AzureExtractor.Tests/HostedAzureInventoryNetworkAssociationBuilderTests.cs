@@ -145,6 +145,40 @@ public sealed class HostedAzureInventoryNetworkAssociationBuilderTests
     }
 
     [Fact]
+    public void Build_emits_pe_subnet_and_two_private_link_targets()
+    {
+        const string subnetId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet1/subnets/default";
+        const string targetOne =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1";
+        const string targetTwo =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Sql/servers/sql1";
+
+        HostedAzureArmResourceRecord privateEndpoint = new(
+            ResourceType: "Microsoft.Network/privateEndpoints",
+            ResourceId: "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/privateEndpoints/pe1",
+            Name: "pe1",
+            Location: "eastus",
+            Sku: null,
+            Tags: null,
+            Properties: new Dictionary<string, object?>
+            {
+                ["subnet.id"] = subnetId,
+                ["privateLinkServiceId[0]"] = targetOne,
+                ["privateLinkServiceId[1]"] = targetTwo,
+            });
+
+        IReadOnlyList<HostedAzureArmNetworkAssociationRecord> associations =
+            HostedAzureInventoryNetworkAssociationBuilder.Build([privateEndpoint]);
+
+        Assert.Equal(3, associations.Count);
+        Assert.Single(associations, row => row.AssociationType == AzureInventoryRelationshipAssociationTypes.PeToSubnet);
+        Assert.Equal(2, associations.Count(row => row.AssociationType == AzureInventoryRelationshipAssociationTypes.PrivateEndpointTarget));
+        Assert.Contains(associations, row => row.ToResourceId == targetOne);
+        Assert.Contains(associations, row => row.ToResourceId == targetTwo);
+    }
+
+    [Fact]
     public void Build_emits_private_endpoint_to_nic_association()
     {
         HostedAzureArmResourceRecord privateEndpoint = new(
