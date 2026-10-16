@@ -85,6 +85,89 @@ public sealed class DiagramCollapsedAttachmentEdgeLifterTests
     }
 
     [Fact]
+    public void Compile_data_architecture_hides_subnet_and_draws_web_app_in_vnet()
+    {
+        const string appArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Web/sites/app-edw";
+        const string subnetArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet-app/subnets/app";
+        const string vnetArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet-app";
+
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                BuildTopologyNode("app-1", appArmId, "Microsoft.Web/sites", "app-edw"),
+                BuildTopologyNode("subnet-1", subnetArmId, "Microsoft.Network/virtualNetworks/subnets", "app"),
+                BuildTopologyNode("vnet-1", vnetArmId, "Microsoft.Network/virtualNetworks", "vnet-app"),
+            ],
+            Edges =
+            [
+                new GraphEdge
+                {
+                    EdgeId = "edge-app-subnet",
+                    FromNodeId = "app-1",
+                    ToNodeId = "subnet-1",
+                    EdgeType = AzureInventoryRelationshipAssociationTypes.AppServiceToSubnet,
+                    Label = "in",
+                    InferenceSource = GraphEdgeInferenceSources.InventoryAppServiceSubnet,
+                    Weight = 1.0d,
+                },
+            ],
+        };
+
+        DiagramAst ast = compiler.Compile(graph, DiagramMode.DataArchitecture);
+
+        ast.Nodes.Should().Contain(node => node.Label == "app-edw");
+        ast.Nodes.Should().Contain(node => node.Label == "vnet-app");
+        DiagramEdgeVisibility.VisibleEdges(ast.Edges)
+            .Should()
+            .Contain(edge => string.Equals(edge.Label, "in", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public void Compile_data_flow_keeps_web_app_subnet_placement_when_app_is_a_stage_node()
+    {
+        const string appArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Web/sites/app-edw";
+        const string subnetArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet-app/subnets/app";
+        const string vnetArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet-app";
+
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                BuildTopologyNode("app-1", appArmId, "Microsoft.Web/sites", "app-edw"),
+                BuildTopologyNode("subnet-1", subnetArmId, "Microsoft.Network/virtualNetworks/subnets", "app"),
+                BuildTopologyNode("vnet-1", vnetArmId, "Microsoft.Network/virtualNetworks", "vnet-app"),
+            ],
+            Edges =
+            [
+                new GraphEdge
+                {
+                    EdgeId = "edge-app-subnet",
+                    FromNodeId = "app-1",
+                    ToNodeId = "subnet-1",
+                    EdgeType = AzureInventoryRelationshipAssociationTypes.AppServiceToSubnet,
+                    Label = "in",
+                    InferenceSource = GraphEdgeInferenceSources.InventoryAppServiceSubnet,
+                    Weight = 1.0d,
+                },
+            ],
+        };
+
+        DiagramAst ast = compiler.Compile(graph, DiagramMode.DataFlow);
+
+        ast.Nodes.Should().Contain(node => node.Label == "app-edw");
+        DiagramEdgeVisibility.VisibleEdges(ast.Edges)
+            .Should()
+            .Contain(edge => string.Equals(edge.Label, "in", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
     public void Compile_resource_group_hides_private_endpoint_unless_opted_in()
     {
         GraphSnapshot graph = BuildPrivateEndpointSqlSubnetGraph();
