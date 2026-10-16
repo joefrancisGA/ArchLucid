@@ -1,4 +1,5 @@
 using System.Text;
+using System.Text.Json;
 using System.Text.Json.Nodes;
 
 using ArchLucid.Application.Findings;
@@ -206,8 +207,10 @@ public sealed class FindingIacStubGenerator(
 
     private static AgentResult CloneResult(AgentResult source)
     {
-        string json = System.Text.Json.JsonSerializer.Serialize(source, ContractJson.Default);
-        AgentResult? copy = System.Text.Json.JsonSerializer.Deserialize<AgentResult>(json, ContractJson.Default);
+        EnsureFindingSourceAgentsForJson(source);
+
+        string json = JsonSerializer.Serialize(source, ContractJson.Default);
+        AgentResult? copy = JsonSerializer.Deserialize<AgentResult>(json, ContractJson.Default);
 
         if (copy is null)
             throw new InvalidOperationException("Clone produced null AgentResult.");
@@ -218,9 +221,34 @@ public sealed class FindingIacStubGenerator(
         return copy;
     }
 
+    private static void EnsureFindingSourceAgentsForJson(AgentResult result)
+    {
+        if (result.AgentType == default)
+            return;
+
+        EnsureFindingSourceAgentsForJson(result.Findings, result.AgentType);
+        EnsureFindingSourceAgentsForJson(result.ChecklistCoverage, result.AgentType);
+    }
+
+    private static void EnsureFindingSourceAgentsForJson(
+        IReadOnlyList<ArchitectureFinding>? findings,
+        AgentType agentType)
+    {
+        if (findings is null)
+            return;
+
+        foreach (ArchitectureFinding finding in findings)
+        {
+            if (finding.SourceAgent == default)
+                finding.SourceAgent = agentType;
+        }
+    }
+
     private static string SerializeAgentResultForEnrichment(AgentResult result)
     {
-        JsonObject root = System.Text.Json.JsonSerializer.SerializeToNode(result, ContractJson.Default)!.AsObject();
+        EnsureFindingSourceAgentsForJson(result);
+
+        JsonObject root = JsonSerializer.SerializeToNode(result, ContractJson.Default)!.AsObject();
 
         if (!string.IsNullOrWhiteSpace(result.ProposedEvidenceJson))
             root["proposedEvidenceJson"] = result.ProposedEvidenceJson;
