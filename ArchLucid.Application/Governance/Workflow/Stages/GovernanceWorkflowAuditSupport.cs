@@ -195,6 +195,7 @@ public sealed class GovernanceWorkflowAuditSupport(
                     approvalRequestId = request.ApprovalRequestId,
                     runId = request.RunId,
                     reviewedBy = reviewedByDisplay,
+                    reviewedByActorKey,
                     reviewComment
                 },
                 AuditJsonSerializationOptions.Instance));

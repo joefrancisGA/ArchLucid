@@ -1,3 +1,4 @@
+2026-10-16 seed hunt (seed→hit): `api-governance-tenancy-controllers` — promoted `GovernanceWorkflowAuditSupport.BuildGovernanceReviewAuditEvent` omitting `reviewedByActorKey` from durable approve/reject audit `DataJson` while `reviewedBy` carried display only; regression `BuildGovernanceReviewAuditEvent_includes_reviewed_by_actor_key_in_data_json`; `GovernanceWorkflowAuditSupportTests` 8/8; scoped Governance/Tenancy controller filter 143 passed, 18 SQL integration failures (Linux VM baseline); seeded five follow-on `(candidate)` rows.
 2026-10-16 seed hunt (seed→hit): `archlucid-core` — promoted `AzureInventoryVnetCustomDnsIndex.TryReadDnsServerFromNumericElement` treating scientific-notation JSON numbers in `dhcpOptions.dnsServers` arrays as opaque strings (false custom-DNS positive for `2.822734096e9` / Azure default); `TryReadPackedUint32FromNumericElement` + packed-string fallback; regression `VnetUsesCustomDns_false_when_dhcpOptions_json_array_lists_scientific_notation_packed_uint32_for_azure_default`; `AzureInventoryVnetCustomDnsIndexTests` 25/25; seeded five follow-on `(candidate)` rows.
 2026-10-16 seed hunt (seed→hit): `archlucid-core` — promoted `AzureInventoryVnetCustomDnsIndex.TryFormatPackedUint32DnsAddressString` ignoring hex packed uint32 strings in indexed `dhcpOptions.dnsServers.{n}` values (false custom-DNS positive for `0xA83F8110` / Azure default); `TryParsePackedUint32DnsAddress` strips optional `0x` prefix; regression `VnetUsesCustomDns_false_when_indexed_flat_dns_server_is_packed_uint32_hex_string_for_azure_default`; `AzureInventoryVnetCustomDnsIndexTests` 24/24; seeded five follow-on `(candidate)` rows.
 2026-10-16 seed hunt (seed→hit): `api-governance-tenancy-controllers` — promoted `GovernanceWorkflowIntegrationEventSupport.TryPublishPromotionActivatedAsync` emitting jwt actor key as sole `activatedBy` when display differs from `GetActorId()`; thread display + `activatedByActorKey` like approval events; regression `TryPublishPromotionActivatedAsync_includes_activated_by_actor_key_in_payload`; `GovernanceWorkflowIntegrationEventSupportTests` 3/3; scoped Governance/Tenancy controller filter 143 passed, 18 SQL integration failures (Linux VM baseline); seeded five follow-on `(candidate)` rows.
@@ -35937,6 +35938,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 ---
 
 ## Zone: api-governance-tenancy-controllers
+2026-10-16 seed hunt (seed→hit): promoted review audit DataJson `reviewedByActorKey`; 8/8 audit support tests.
+
 2026-10-16 seed hunt (seed→hit): promoted promotion-activated integration `activatedByActorKey`; 3/3 integration event support tests.
 
 2026-10-16 seed hunt (seed→hit): promoted approval dry-run audit jwt requested-by key; 7/7 audit support tests.

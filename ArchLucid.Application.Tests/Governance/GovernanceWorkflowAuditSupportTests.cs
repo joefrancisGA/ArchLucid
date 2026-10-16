@@ -1,3 +1,5 @@
+using System.Text.Json;
+
 using ArchLucid.Application.Governance.Workflow.Stages;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Audit;
@@ -114,6 +116,33 @@ public sealed class GovernanceWorkflowAuditSupportTests
         auditEvent.ExplicitActor.Should().BeTrue();
         auditEvent.ActorUserId.Should().Be(actorKey);
         auditEvent.ActorUserName.Should().Be(displayName);
+    }
+
+    [Fact]
+    public void BuildGovernanceReviewAuditEvent_includes_reviewed_by_actor_key_in_data_json()
+    {
+        const string displayName = "Pat Operator";
+        const string actorKey = "jwt:11111111-2222-3333-4444-555555555555:aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee";
+        GovernanceWorkflowAuditSupport support = CreateSupport();
+        GovernanceApprovalRequest request = new()
+        {
+            ApprovalRequestId = "apr-1",
+            RunId = "66666666-6666-6666-6666-666666666666",
+            ManifestVersion = "1",
+            SourceEnvironment = "dev",
+            TargetEnvironment = "test",
+        };
+
+        AuditEvent auditEvent = support.BuildGovernanceReviewAuditEvent(
+            request,
+            AuditEventTypes.GovernanceApprovalApproved,
+            displayName,
+            actorKey,
+            "approved for test");
+
+        using JsonDocument document = JsonDocument.Parse(auditEvent.DataJson);
+        document.RootElement.GetProperty("reviewedBy").GetString().Should().Be(displayName);
+        document.RootElement.GetProperty("reviewedByActorKey").GetString().Should().Be(actorKey);
     }
 
     [Fact]
