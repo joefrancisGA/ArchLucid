@@ -158,11 +158,21 @@ public static partial class DeclarationPremiseConflictClassifier
 
     private static bool IsPhrasePrefixNegated(string normalizedIntentText, int phraseStartIndex, string phrase)
     {
+        if (phraseStartIndex >= 4
+            && normalizedIntentText.AsSpan(phraseStartIndex - 4, 4).Equals("non-", StringComparison.Ordinal))
+        {
+            return true;
+        }
+
         if (!phrase.StartsWith("block ", StringComparison.Ordinal))
+        {
             return false;
+        }
 
         if (phraseStartIndex < 2)
+        {
             return false;
+        }
 
         return normalizedIntentText.AsSpan(phraseStartIndex - 2, 2)
             .Equals("un".AsSpan(), StringComparison.Ordinal);

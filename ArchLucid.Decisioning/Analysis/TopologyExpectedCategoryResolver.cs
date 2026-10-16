@@ -198,15 +198,27 @@ public static class TopologyExpectedCategoryResolver
             ['/', '.', '_', ':', ' ', '-'],
             StringSplitOptions.RemoveEmptyEntries);
 
-        foreach (string part in parts)
+        for (int partIndex = 0; partIndex < parts.Length; partIndex++)
         {
+            string part = parts[partIndex];
+
             if (part.Equals(normalizedKeyword, StringComparison.Ordinal))
             {
+                if (partIndex > 0 && parts[partIndex - 1].Equals("no", StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
                 return true;
             }
 
             if (DecisioningTextTokenMatcher.IsLongerProductToken(part, normalizedKeyword))
             {
+                if (partIndex > 0 && parts[partIndex - 1].Equals("no", StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
                 return true;
             }
         }

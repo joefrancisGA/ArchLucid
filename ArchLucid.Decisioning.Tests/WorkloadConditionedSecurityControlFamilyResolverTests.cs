@@ -94,6 +94,25 @@ public sealed class WorkloadConditionedSecurityControlFamilyResolverTests
     }
 
     [Fact]
+    public void ResolveControlFamily_WhenLabelMentionsInvulnerability_DoesNotReturnVulnerabilityManagement()
+    {
+        GraphNode node = new()
+        {
+            NodeId = "sec-1",
+            NodeType = GraphNodeTypes.SecurityBaseline,
+            Label = "Business invulnerability program charter",
+            Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["controlId"] = "org-resilience-01"
+            }
+        };
+
+        WorkloadConditionedSecurityControlFamilyResolver.ResolveControlFamily(node)
+            .Should()
+            .NotBe(SecurityControlFamilies.VulnerabilityManagement);
+    }
+
+    [Fact]
     public void ResolveControlFamily_WhenControlIdSuggestsNetwork_ReturnsNetworkIsolation()
     {
         GraphNode node = new()
