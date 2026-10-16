@@ -62,4 +62,21 @@ public sealed class AgentTypeJsonConverterTests
         unknown.Should().Throw<JsonException>()
             .WithMessage("*Unknown agent type value*");
     }
+
+    [Fact]
+    public void Write_default_agent_type_persists_topology_dispatch_key()
+    {
+        string json = JsonSerializer.Serialize(default(AgentType), Options);
+
+        json.Should().Be("\"topology\"");
+    }
+
+    [Fact]
+    public void Write_undefined_non_default_ordinal_throws()
+    {
+        Action act = () => JsonSerializer.Serialize((AgentType)99, Options);
+
+        act.Should().Throw<ArgumentOutOfRangeException>()
+            .WithParameterName("agentType");
+    }
 }

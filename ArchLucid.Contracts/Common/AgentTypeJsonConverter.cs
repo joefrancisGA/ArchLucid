@@ -37,6 +37,19 @@ public sealed class AgentTypeJsonConverter : JsonConverter<AgentType>
         throw new JsonException($"Unknown agent type value '{raw}'.");
     }
 
-    public override void Write(Utf8JsonWriter writer, AgentType value, JsonSerializerOptions options) =>
+    public override void Write(Utf8JsonWriter writer, AgentType value, JsonSerializerOptions options)
+    {
+        ArgumentNullException.ThrowIfNull(writer);
+
+        // default(AgentType) is 0 and is not a pipeline role. Findings and results often omit
+        // SourceAgent/AgentType; persist topology so clone/merge JSON round-trips instead of throwing.
+
+        if (value == default)
+        {
+            writer.WriteStringValue(AgentTypeKeys.Topology);
+            return;
+        }
+
         writer.WriteStringValue(AgentTypeKeys.FromEnum(value));
+    }
 }

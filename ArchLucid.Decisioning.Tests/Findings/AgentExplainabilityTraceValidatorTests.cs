@@ -39,8 +39,10 @@ public sealed class AgentExplainabilityTraceValidatorTests
         result.Errors.Should().BeEmpty();
     }
 
-    [Fact]
-    public void ValidateMappedAgentFinding_fails_when_trace_is_null()
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public void ValidateMappedAgentFinding_fails_when_trace_is_null(bool assignNullTrace)
     {
         ArchitectureFinding source = new()
         {
@@ -48,11 +50,12 @@ public sealed class AgentExplainabilityTraceValidatorTests
             EvidenceRefs = ["e1"],
         };
 
+        // Finding.Trace coalesces null to empty; both must fail as a missing trace.
         Finding mapped = new()
         {
             FindingId = source.FindingId,
             EngineType = AgentType.Topology.ToString(),
-            Trace = null!,
+            Trace = assignNullTrace ? null! : new ExplainabilityTrace(),
         };
 
         AgentExplainabilityTraceValidationResult result =
