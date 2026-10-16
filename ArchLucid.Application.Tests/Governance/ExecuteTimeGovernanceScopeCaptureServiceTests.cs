@@ -29,6 +29,132 @@ namespace ArchLucid.Application.Tests.Governance;
 public sealed class ExecuteTimeGovernanceScopeCaptureServiceTests
 {
     [Fact]
+    public async Task TryCaptureAndPersistAsync_stores_actor_context_id_on_coverage_rows_when_display_name_differs()
+    {
+        const string displayName = "Pat Operator";
+        const string actorKey = "jwt:11111111-2222-3333-4444-555555555555:aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee";
+        Guid tenantId = Guid.NewGuid();
+        Guid workspaceId = Guid.NewGuid();
+        Guid projectId = Guid.NewGuid();
+        Guid runId = Guid.NewGuid();
+        Guid packId = Guid.NewGuid();
+
+        ScopeContext scope = new()
+        {
+            TenantId = tenantId,
+            WorkspaceId = workspaceId,
+            ProjectId = projectId,
+        };
+
+        RunRecord header = new()
+        {
+            RunId = runId,
+            TenantId = tenantId,
+            WorkspaceId = workspaceId,
+            ScopeProjectId = projectId,
+            ProjectId = projectId.ToString("N"),
+            PinnedPolicyPackIdsJson = JsonSerializer.Serialize(
+                new[] { new PinnedPolicyPackRow(packId.ToString("D"), "2.0.0") },
+                ContractJson.CamelCaseIgnoreNullCompact),
+        };
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(scope, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(header);
+        runs
+            .Setup(r => r.UpdateAsync(It.IsAny<RunRecord>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(scope);
+
+        Mock<IEffectiveGovernanceResolver> resolver = new();
+        resolver
+            .Setup(r => r.ResolveAsync(tenantId, workspaceId, projectId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new EffectiveGovernanceResolutionResult
+            {
+                TenantId = tenantId,
+                WorkspaceId = workspaceId,
+                ProjectId = projectId,
+            });
+
+        PolicyPackAssignment assignment = new()
+        {
+            TenantId = tenantId,
+            WorkspaceId = workspaceId,
+            ProjectId = projectId,
+            PolicyPackId = packId,
+            PolicyPackVersion = "2.0.0",
+            ScopeLevel = GovernanceScopeLevel.Project,
+            IsEnabled = true,
+        };
+
+        Mock<IPolicyPackAssignmentRepository> assignments = new();
+        assignments
+            .Setup(r => r.ListByScopeAsync(tenantId, workspaceId, projectId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([assignment]);
+
+        Mock<IPolicyPackRepository> packs = new();
+        packs
+            .Setup(r => r.GetByIdsAsync(It.IsAny<IReadOnlyCollection<Guid>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new PolicyPack
+                {
+                    PolicyPackId = packId,
+                    Name = "Security Architecture Baseline",
+                    TenantId = tenantId,
+                    QualityDimension = QualityDimension.Security,
+                },
+            ]);
+
+        InMemoryCoverageAssignmentRepository coverageRepository = new();
+        Mock<IActorContext> actor = new();
+        actor.Setup(a => a.GetActor()).Returns(displayName);
+        actor.Setup(a => a.GetActorId()).Returns(actorKey);
+
+        List<AuditEvent> auditEvents = [];
+        Mock<IAuditService> auditService = new();
+        auditService
+            .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Callback<AuditEvent, CancellationToken>((auditEvent, _) => auditEvents.Add(auditEvent))
+            .Returns(Task.CompletedTask);
+
+        ExecuteTimeGovernanceScopeCaptureService sut = new(
+            runs.Object,
+            scopeProvider.Object,
+            resolver.Object,
+            assignments.Object,
+            packs.Object,
+            Mock.Of<IPolicyPackVersionRepository>(),
+            coverageRepository,
+            new CoverageAssignmentValidator(),
+            actor.Object,
+            auditService.Object,
+            NullLogger<ExecuteTimeGovernanceScopeCaptureService>.Instance);
+
+        ArchitectureRequest request = new()
+        {
+            CloudProvider = CloudProvider.Azure,
+            PolicyReferences = [],
+        };
+
+        await sut.TryCaptureAndPersistAsync(runId.ToString("N"), request, CancellationToken.None);
+
+        IReadOnlyList<CoverageAssignment> coverageRows =
+            await coverageRepository.ListByRunIdAsync(scope, runId.ToString("N"), CancellationToken.None);
+
+        coverageRows.Should().ContainSingle();
+        coverageRows[0].ActorUserId.Should().Be(actorKey);
+
+        AuditEvent scopeAudit = auditEvents.Should().ContainSingle(e => e.EventType == AuditEventTypes.RunGovernanceScopeResolved).Subject;
+        scopeAudit.ExplicitActor.Should().BeTrue();
+        scopeAudit.ActorUserId.Should().Be(actorKey);
+        scopeAudit.ActorUserName.Should().Be(displayName);
+    }
+
+    [Fact]
     public async Task TryCaptureAndPersistAsync_persists_governance_scope_json_and_audit_event()
     {
         Guid tenantId = Guid.NewGuid();
