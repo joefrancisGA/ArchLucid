@@ -349,4 +349,24 @@ public sealed class AzureInventoryVnetCustomDnsIndexTests
         index.VnetUsesCustomDns(VnetArm).Should().BeFalse(
             "scalar dnsServers strings in dhcpOptions JSON must unwrap JSON string scalars before default-server comparison");
     }
+
+    [Fact]
+    public void VnetUsesCustomDns_true_when_dhcpOptions_property_is_json_string_scalar_wrapping_custom_dns_address()
+    {
+        AzureInventoryVnetCustomDnsIndex index = AzureInventoryVnetCustomDnsIndex.Build(
+        [
+            new AzureInventoryVnetCustomDnsResourceProperties
+            {
+                AzureResourceId = VnetArm,
+                ResourceType = "Microsoft.Network/virtualNetworks",
+                Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                {
+                    ["dhcpOptions"] = "\"10.0.0.4\"",
+                },
+            },
+        ]);
+
+        index.VnetUsesCustomDns(VnetArm).Should().BeTrue(
+            "dhcpOptions JSON string scalars that wrap a single DNS address must still be read as custom DNS");
+    }
 }

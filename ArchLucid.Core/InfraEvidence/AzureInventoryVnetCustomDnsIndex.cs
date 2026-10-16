@@ -117,7 +117,14 @@ public sealed class AzureInventoryVnetCustomDnsIndex
                     return false;
                 }
 
-                return TryParseDnsServersFromJson(nestedJson, out dnsServers);
+                if (TryParseDnsServersFromJson(nestedJson, out dnsServers))
+                {
+                    return true;
+                }
+
+                dnsServers.Add(ResolveFlattenedDnsServerValue(nestedJson));
+
+                return dnsServers.Count > 0;
             }
 
             if (root.ValueKind is JsonValueKind.Array)
