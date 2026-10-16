@@ -867,6 +867,26 @@ describe('ArchitectureDiagramViewer', () => {
     expect(inkClip.className.split(/\s+/u)).toContain('overflow-hidden');
   });
 
+  it('omits stacked viewport hint copy when viewportHint is empty', async () => {
+    render(
+      <ArchitectureDiagramViewer
+        mermaidSource={'flowchart TB\n  a["A"]'}
+        textAlternative="A"
+        viewportAriaLabel="Inventory diagram for snapshot snap-1"
+        fullscreenTitle="Inventory diagram · Executive"
+        viewportControlsLayout="stacked"
+        viewportHint=""
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId('architecture-diagram-viewport-controls')).toBeInTheDocument();
+    });
+
+    expect(screen.queryByTestId('architecture-diagram-viewport-hint')).not.toBeInTheDocument();
+    expect(screen.queryByText(ARCHITECTURE_DIAGRAM_VIEWPORT_HINT)).not.toBeInTheDocument();
+  });
+
   it('keeps overlay viewport hint screen-reader only while clipping diagram ink', async () => {
     render(
       <ArchitectureDiagramViewer

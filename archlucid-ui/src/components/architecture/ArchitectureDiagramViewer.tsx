@@ -114,6 +114,8 @@ export type ArchitectureDiagramMermaidViewerProps = {
   readonly onExportableSvgMarkupChange?: (svgMarkup: string | null) => void;
   /** Overlay keeps zoom chrome on the canvas; stacked places it above the viewport. */
   readonly viewportControlsLayout?: 'stacked' | 'overlay';
+  /** When omitted, uses shared keyboard/zoom hint copy; pass empty string to hide the hint. */
+  readonly viewportHint?: string;
   /** When non-empty, camera fits the mapped union of these node ids after paint. */
   readonly focusNodeIds?: readonly string[];
   /** Increment when focus selection changes so camera refits. */
@@ -518,6 +520,7 @@ type DiagramViewportControlsOptions = {
   readonly defaultContainZoom?: number;
   readonly onResetZoom?: () => void;
   readonly surfaceToggle?: { readonly label: string; readonly onClick: () => void };
+  readonly viewportHint?: string;
 };
 
 function renderDiagramViewportControls(
@@ -547,7 +550,7 @@ function renderDiagramViewportControls(
       zoomOutLabel={ARCHITECTURE_DIAGRAM_ZOOM_OUT_LABEL}
       resetZoomLabel={ARCHITECTURE_DIAGRAM_RESET_ZOOM_LABEL}
       fitInViewLabel={ARCHITECTURE_DIAGRAM_FIT_IN_VIEW_LABEL}
-      viewportHint={ARCHITECTURE_DIAGRAM_VIEWPORT_HINT}
+      viewportHint={options?.viewportHint ?? ARCHITECTURE_DIAGRAM_VIEWPORT_HINT}
       layout={options?.layout}
       fullscreenAction={options?.fullscreenAction}
       surfaceToggle={options?.surfaceToggle}
@@ -604,6 +607,7 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
     scopeContextLine = null,
     canvasStale = false,
     viewportControlsLayout = 'overlay',
+    viewportHint,
     focusNodeIds = EMPTY_FOCUS_NODE_IDS,
     focusNonce = 0,
     questionSubjectNodeId = null,
@@ -1281,6 +1285,7 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
   const viewportControlOptions = useMemo(
     () => ({
       layout: viewportControlsLayout,
+      viewportHint,
       defaultContainZoom: defaultContainZoomRef.current,
       onResetZoom: resetToDefaultContainZoom,
       fullscreenAction: {
@@ -1298,6 +1303,7 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
       setFullscreenOpen,
       showMap,
       viewportControlsLayout,
+      viewportHint,
       zoom.zoom,
       sanitizedSvg,
     ],
