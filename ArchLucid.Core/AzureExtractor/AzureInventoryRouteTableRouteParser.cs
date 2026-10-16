@@ -94,8 +94,7 @@ public static class AzureInventoryRouteTableRouteParser
 
             foreach (JsonElement routeElement in routesRoot.EnumerateArray())
             {
-                if (!TryGetPropertyIgnoreCase(routeElement, "properties", out JsonElement propertiesElement)
-                    || propertiesElement.ValueKind is not JsonValueKind.Object)
+                if (!TryResolveRoutePropertiesElement(routeElement, out JsonElement propertiesElement))
                 {
                     continue;
                 }
@@ -150,6 +149,33 @@ public static class AzureInventoryRouteTableRouteParser
         }
 
         return null;
+    }
+
+    private static bool TryResolveRoutePropertiesElement(
+        JsonElement routeElement,
+        out JsonElement propertiesElement)
+    {
+        if (routeElement.ValueKind is not JsonValueKind.Object)
+        {
+            propertiesElement = default;
+
+            return false;
+        }
+
+        if (TryGetPropertyIgnoreCase(routeElement, "properties", out JsonElement nestedProperties)
+            && nestedProperties.ValueKind is JsonValueKind.Object)
+        {
+            propertiesElement = nestedProperties;
+
+            return true;
+        }
+
+        propertiesElement = routeElement;
+
+        return TryReadString(routeElement, "addressPrefix") is not null
+               || TryReadString(routeElement, "nextHopType") is not null
+               || TryReadString(routeElement, "nextHopIpAddress") is not null
+               || TryReadNestedArmId(routeElement, "nextHop") is not null;
     }
 
     private static string? TryReadString(JsonElement element, string propertyName)
