@@ -131,7 +131,7 @@ public static class AzureInventoryLoadBalancerBackendTrafficResolver
                 {
                     foreach (JsonElement address in addresses.EnumerateArray())
                     {
-                        string? backendArmId = TryReadApplicationGatewayBackendArmId(address);
+                        string? backendArmId = AzureInventoryApplicationGatewayBackendAddressReader.TryReadBackendResourceArmId(address);
 
                         if (string.IsNullOrWhiteSpace(backendArmId))
                         {
@@ -414,60 +414,6 @@ public static class AzureInventoryLoadBalancerBackendTrafficResolver
         }
 
         return null;
-    }
-
-    private static string? TryReadApplicationGatewayBackendArmId(JsonElement address)
-    {
-        if (!AzureExtractorJsonObjectElement.TryUnwrapObject(address, out JsonElement addressElement))
-        {
-            return null;
-        }
-
-        if (!TryGetApplicationGatewayAddressPropertiesBag(addressElement, out JsonElement properties))
-        {
-            return null;
-        }
-
-        if (TryGetPropertyIgnoreCase(properties, "backendIpAddress", out JsonElement ipElement)
-            && ipElement.ValueKind is JsonValueKind.String
-            && !string.IsNullOrWhiteSpace(ipElement.GetString()))
-        {
-            return null;
-        }
-
-        if (TryGetPropertyIgnoreCase(properties, "backendResourceId", out JsonElement resourceIdElement)
-            && resourceIdElement.ValueKind is JsonValueKind.String)
-        {
-            return resourceIdElement.GetString();
-        }
-
-        return null;
-    }
-
-    /// <summary>
-    /// Hosted inventory may store each backend address as a full ARM resource or as a flattened properties bag only.
-    /// </summary>
-    private static bool TryGetApplicationGatewayAddressPropertiesBag(JsonElement address, out JsonElement properties)
-    {
-        if (TryGetPropertyIgnoreCase(address, "properties", out JsonElement nested)
-            && nested.ValueKind is JsonValueKind.Object)
-        {
-            properties = nested;
-
-            return true;
-        }
-
-        if (address.ValueKind is JsonValueKind.Object
-            && TryGetPropertyIgnoreCase(address, "backendResourceId", out _))
-        {
-            properties = address;
-
-            return true;
-        }
-
-        properties = default;
-
-        return false;
     }
 
     private static bool TryGetPropertyIgnoreCase(

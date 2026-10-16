@@ -48,6 +48,7 @@ public static class AzureInventoryLoadBalancerBackendParentArmIdResolver
 
                 AddFromIpConfigurationCollection(parentArmIds, seen, properties, "backendIPConfigurations", nestedAddress: false);
                 AddFromIpConfigurationCollection(parentArmIds, seen, properties, "loadBalancerBackendAddresses", nestedAddress: true);
+                AddFromApplicationGatewayBackendAddresses(parentArmIds, seen, properties);
             }
         }
         catch (JsonException)
@@ -104,6 +105,35 @@ public static class AzureInventoryLoadBalancerBackendParentArmIdResolver
         }
     }
 
+    private static void AddFromApplicationGatewayBackendAddresses(
+        List<string> parentArmIds,
+        HashSet<string> seen,
+        JsonElement poolProperties)
+    {
+        if (!TryGetPropertyIgnoreCase(poolProperties, "backendAddresses", out JsonElement addresses)
+            || addresses.ValueKind is not JsonValueKind.Array)
+        {
+            return;
+        }
+
+        foreach (JsonElement address in addresses.EnumerateArray())
+        {
+            string? backendArmId = AzureInventoryApplicationGatewayBackendAddressReader.TryReadBackendResourceArmId(address);
+
+            if (string.IsNullOrWhiteSpace(backendArmId))
+            {
+                continue;
+            }
+
+            string normalized = ArmResourceIdNormalizer.Normalize(backendArmId);
+
+            if (seen.Add(normalized))
+            {
+                parentArmIds.Add(normalized);
+            }
+        }
+    }
+
     private static bool TryGetBackendAddressPoolPropertiesBag(JsonElement pool, out JsonElement poolProperties)
     {
         if (TryGetPropertyIgnoreCase(pool, "properties", out JsonElement nested)
@@ -116,7 +146,8 @@ public static class AzureInventoryLoadBalancerBackendParentArmIdResolver
 
         if (pool.ValueKind is JsonValueKind.Object
             && (TryGetPropertyIgnoreCase(pool, "backendIPConfigurations", out _)
-                || TryGetPropertyIgnoreCase(pool, "loadBalancerBackendAddresses", out _)))
+                || TryGetPropertyIgnoreCase(pool, "loadBalancerBackendAddresses", out _)
+                || TryGetPropertyIgnoreCase(pool, "backendAddresses", out _)))
         {
             poolProperties = pool;
 

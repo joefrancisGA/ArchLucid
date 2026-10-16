@@ -194,6 +194,61 @@ public sealed class AzureInventoryLoadBalancerBackendParentArmIdResolverTests
     }
 
     [Fact]
+    public void ResolveFromBackendAddressPoolsJson_reads_application_gateway_backend_addresses_backend_resource_id()
+    {
+        string poolsJson =
+            $$"""
+            [
+              {
+                "properties": {
+                  "backendAddresses": [
+                    {
+                      "properties": {
+                        "backendResourceId": "{{VmssNicId}}"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+            """;
+
+        IReadOnlyList<string> parentIds =
+            AzureInventoryLoadBalancerBackendParentArmIdResolver.ResolveFromBackendAddressPoolsJson(poolsJson);
+
+        parentIds.Should().ContainSingle().Subject.Should().Be(VmssNicId.ToLowerInvariant());
+    }
+
+    [Fact]
+    public void ResolveFromBackendAddressPoolsJson_reads_application_gateway_backend_address_when_element_is_json_string_scalar()
+    {
+        string addressObjectJson =
+            $$"""
+            {
+              "backendResourceId": "{{VmssNicId}}"
+            }
+            """;
+
+        string poolsJson =
+            $$"""
+            [
+              {
+                "properties": {
+                  "backendAddresses": [
+                    {{JsonSerializer.Serialize(addressObjectJson)}}
+                  ]
+                }
+              }
+            ]
+            """;
+
+        IReadOnlyList<string> parentIds =
+            AzureInventoryLoadBalancerBackendParentArmIdResolver.ResolveFromBackendAddressPoolsJson(poolsJson);
+
+        parentIds.Should().ContainSingle().Subject.Should().Be(VmssNicId.ToLowerInvariant());
+    }
+
+    [Fact]
     public void ResolveFromBackendAddressPoolsJson_reads_pools_when_json_is_string_scalar_wrapping_pool_array()
     {
         string inner =
