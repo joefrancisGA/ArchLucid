@@ -197,6 +197,134 @@ describe("useFirstPilotIntakeWizard prior-run prefill", () => {
     expect(result.current.inheritedPriorTitle).toBeNull();
   });
 
+  it("ignores stale prior-run semantic counts when rerun= changes before the first fetch resolves", async () => {
+    let resolveFirstCounts!: (value: {
+      actorCount: number;
+      assumptionCount: number;
+      decisionCount: number;
+      requirementCount: number;
+    }) => void;
+    const firstCountsPromise = new Promise<{
+      actorCount: number;
+      assumptionCount: number;
+      decisionCount: number;
+      requirementCount: number;
+    }>((resolve) => {
+      resolveFirstCounts = resolve;
+    });
+
+    getPriorPackageSemanticCounts.mockImplementation((runId: string) => {
+      if (runId === "run-first") {
+        return firstCountsPromise;
+      }
+
+      if (runId === "run-second") {
+        return Promise.resolve({
+          actorCount: 9,
+          assumptionCount: 0,
+          decisionCount: 0,
+          requirementCount: 0,
+        });
+      }
+
+      return Promise.resolve(null);
+    });
+
+    scopeGateSearchParamsHarness.state.query =
+      "intent=revised-clone&rerun=run-first&priorRunId=run-first";
+
+    const { result, rerender } = renderHook(() => useFirstPilotIntakeWizard({}), {
+      wrapper: ScopeGateSearchParamsRerenderHost,
+    });
+
+    scopeGateSearchParamsHarness.applyHref(
+      "/architecture/reviews/new?intent=revised-clone&rerun=run-second&priorRunId=run-second",
+    );
+    rerender();
+
+    await act(async () => {
+      resolveFirstCounts({
+        actorCount: 1,
+        assumptionCount: 0,
+        decisionCount: 0,
+        requirementCount: 0,
+      });
+      await firstCountsPromise;
+      await Promise.resolve();
+    });
+
+    await waitFor(() => {
+      expect(result.current.inheritedSemanticSummary).toContain("9 actors");
+    });
+  });
+
+  it("clears inherited semantic summary immediately when rerun= changes after prior counts loaded", async () => {
+    let resolveSecondCounts!: (value: {
+      actorCount: number;
+      assumptionCount: number;
+      decisionCount: number;
+      requirementCount: number;
+    }) => void;
+    const secondCountsPromise = new Promise<{
+      actorCount: number;
+      assumptionCount: number;
+      decisionCount: number;
+      requirementCount: number;
+    }>((resolve) => {
+      resolveSecondCounts = resolve;
+    });
+
+    getPriorPackageSemanticCounts.mockImplementation((runId: string) => {
+      if (runId === "run-first") {
+        return Promise.resolve({
+          actorCount: 1,
+          assumptionCount: 0,
+          decisionCount: 0,
+          requirementCount: 0,
+        });
+      }
+
+      if (runId === "run-second") {
+        return secondCountsPromise;
+      }
+
+      return Promise.resolve(null);
+    });
+
+    scopeGateSearchParamsHarness.state.query =
+      "intent=revised-clone&rerun=run-first&priorRunId=run-first";
+
+    const { result, rerender } = renderHook(() => useFirstPilotIntakeWizard({}), {
+      wrapper: ScopeGateSearchParamsRerenderHost,
+    });
+
+    await waitFor(() => {
+      expect(result.current.inheritedSemanticSummary).toContain("1 actor");
+    });
+
+    scopeGateSearchParamsHarness.applyHref(
+      "/architecture/reviews/new?intent=revised-clone&rerun=run-second&priorRunId=run-second",
+    );
+    rerender();
+
+    expect(result.current.inheritedSemanticSummary).toBeNull();
+
+    await act(async () => {
+      resolveSecondCounts({
+        actorCount: 4,
+        assumptionCount: 0,
+        decisionCount: 0,
+        requirementCount: 0,
+      });
+      await secondCountsPromise;
+      await Promise.resolve();
+    });
+
+    await waitFor(() => {
+      expect(result.current.inheritedSemanticSummary).toContain("4 actors");
+    });
+  });
+
   it("clears inherited semantic summary when revised-clone intent is removed after counts load", async () => {
     getPriorPackageSemanticCounts.mockResolvedValue({
       actorCount: 2,

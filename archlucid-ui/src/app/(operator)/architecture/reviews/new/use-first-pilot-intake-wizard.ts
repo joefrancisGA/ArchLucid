@@ -271,9 +271,12 @@ export function useFirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
       return;
     }
 
+    setInheritedSemanticSummary(null);
+
+    const priorRunIdForCounts = priorRunIdForTitlePrefill;
     let cancelled = false;
 
-    void getPriorPackageSemanticCounts(priorRunIdForTitlePrefill)
+    void getPriorPackageSemanticCounts(priorRunIdForCounts)
       .then((counts) => {
         if (cancelled || counts === null) {
           return;
