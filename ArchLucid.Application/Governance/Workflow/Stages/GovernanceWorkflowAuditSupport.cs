@@ -229,7 +229,9 @@ public sealed class GovernanceWorkflowAuditSupport(
                 workflow = "approvalRequest",
                 manifestVersion,
                 sourceEnvironment,
-                targetEnvironment
+                targetEnvironment,
+                requestedBy = requestedByDisplay,
+                requestedByActorKey
             },
             AuditJsonSerializationOptions.Instance);
         AuditEvent auditEvent = scope.CreateAuditEvent(
@@ -268,7 +270,9 @@ public sealed class GovernanceWorkflowAuditSupport(
                 manifestVersion,
                 sourceEnvironment,
                 targetEnvironment,
-                approvalRequestId
+                approvalRequestId,
+                promotedBy = promotedByDisplay,
+                promotedByActorKey
             },
             AuditJsonSerializationOptions.Instance);
         AuditEvent auditEvent = scope.CreateAuditEvent(

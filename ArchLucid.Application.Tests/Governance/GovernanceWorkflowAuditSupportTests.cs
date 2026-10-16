@@ -284,6 +284,65 @@ public sealed class GovernanceWorkflowAuditSupportTests
         captured.ActorUserName.Should().Be(displayName);
     }
 
+    [Fact]
+    public async Task LogDryRunValidationAttemptedForPromotionAsync_includes_promoted_by_actor_key_in_data_json()
+    {
+        const string displayName = "Pat Operator";
+        const string actorKey = "jwt:11111111-2222-3333-4444-555555555555:aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee";
+        AuditEvent? captured = null;
+        Mock<IAuditService> auditService = new();
+        auditService
+            .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Callback<AuditEvent, CancellationToken>((auditEvent, _) => captured = auditEvent)
+            .Returns(Task.CompletedTask);
+
+        GovernanceWorkflowAuditSupport support = CreateSupport(auditService.Object);
+
+        await support.LogDryRunValidationAttemptedForPromotionAsync(
+            displayName,
+            actorKey,
+            "44444444-4444-4444-4444-444444444444",
+            "1",
+            "dev",
+            "test",
+            null,
+            CancellationToken.None);
+
+        captured.Should().NotBeNull();
+        using JsonDocument document = JsonDocument.Parse(captured!.DataJson);
+        document.RootElement.GetProperty("promotedBy").GetString().Should().Be(displayName);
+        document.RootElement.GetProperty("promotedByActorKey").GetString().Should().Be(actorKey);
+    }
+
+    [Fact]
+    public async Task LogDryRunValidationAttemptedForApprovalRequestAsync_includes_requested_by_actor_key_in_data_json()
+    {
+        const string displayName = "Pat Operator";
+        const string actorKey = "jwt:11111111-2222-3333-4444-555555555555:aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee";
+        AuditEvent? captured = null;
+        Mock<IAuditService> auditService = new();
+        auditService
+            .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Callback<AuditEvent, CancellationToken>((auditEvent, _) => captured = auditEvent)
+            .Returns(Task.CompletedTask);
+
+        GovernanceWorkflowAuditSupport support = CreateSupport(auditService.Object);
+
+        await support.LogDryRunValidationAttemptedForApprovalRequestAsync(
+            displayName,
+            actorKey,
+            "99999999-9999-9999-9999-999999999999",
+            "1",
+            "dev",
+            "test",
+            CancellationToken.None);
+
+        captured.Should().NotBeNull();
+        using JsonDocument document = JsonDocument.Parse(captured!.DataJson);
+        document.RootElement.GetProperty("requestedBy").GetString().Should().Be(displayName);
+        document.RootElement.GetProperty("requestedByActorKey").GetString().Should().Be(actorKey);
+    }
+
     private static GovernanceWorkflowAuditSupport CreateSupport(IAuditService? auditService = null)
     {
         Mock<IScopeContextProvider> scopeProvider = new();
