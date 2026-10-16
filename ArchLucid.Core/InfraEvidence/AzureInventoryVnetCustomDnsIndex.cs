@@ -45,27 +45,33 @@ public sealed class AzureInventoryVnetCustomDnsIndex
         IReadOnlyDictionary<string, string> properties,
         out IReadOnlyList<string> dnsServers)
     {
-        dnsServers = [];
+        List<string> mergedServers = [];
 
         if (properties.TryGetValue("dhcpOptions", out string? dhcpOptionsJson)
             && TryParseDnsServersFromJson(dhcpOptionsJson, out List<string> fromJson))
         {
-            dnsServers = fromJson;
-
-            return dnsServers.Count > 0;
+            mergedServers.AddRange(fromJson);
         }
 
         if (properties.TryGetValue("dhcpOptions.dnsServers", out string? flatServers)
             && !string.IsNullOrWhiteSpace(flatServers))
         {
-            dnsServers = flatServers
-                .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-                .ToList();
-
-            return dnsServers.Count > 0;
+            foreach (string server in flatServers.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+            {
+                mergedServers.Add(server);
+            }
         }
 
-        return false;
+        if (mergedServers.Count == 0)
+        {
+            dnsServers = [];
+
+            return false;
+        }
+
+        dnsServers = mergedServers;
+
+        return true;
     }
 
     private static bool TryParseDnsServersFromJson(string json, out List<string> dnsServers)

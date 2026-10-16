@@ -1,3 +1,4 @@
+2026-10-16 seed hunt (seed→hit): `archlucid-core` — promoted `AzureInventoryVnetCustomDnsIndex.TryReadCustomDnsServers` returning after default-only `dhcpOptions` JSON without reading flattened `dhcpOptions.dnsServers` custom resolvers; merge JSON and flat DNS server lists; regression `VnetUsesCustomDns_true_when_flat_dns_servers_list_custom_resolver_after_default_only_json`; scoped `FullyQualifiedName~ArchLucid.Core` filter on infra DNS tests; seeded five follow-on `(candidate)` rows.
 2026-10-16 seed hunt (seed→hit): `archlucid-core` — promoted `AzureInventoryReachabilityEdgeControlIndex.Build` missing `ArmResourceIdNormalizer` on reachability resource keys so a virtual-appliance next hop present only under a trailing-slash ARM id was treated as unmodeled; normalize resource index keys at build; regression `SubnetRequiresEdgeControlEvidence_false_when_virtual_appliance_next_hop_is_in_snapshot`; cheap-disproved ledger `(candidate)` trailing unreadable `SCHEMAVERSION:on` after supported `schemaVersion` (alias scan already retains earlier supported version); seeded five follow-on `(candidate)` rows; scoped `FullyQualifiedName~ArchLucid.Core` ran 7,644 passed and 7 failed (6 invalid extra-`k` week-UOM baseline, 1 pre-existing graph projection null-collection baseline).
 2026-10-16 seed hunt (seed→hit): `ui-review-intake-wizards` — proved `useNewRunWizardPendingEvidence.uploadPendingEvidence` cleared pending inventory state when a superseded in-flight upload completed after the operator replaced the ZIP; upload generation now invalidates stale completions; regression `retains a replacement inventory file when an in-flight upload for the prior file completes`; seeded five follow-on `(candidate)` rows; 161 scoped `reviews/new` vitest tests passed with 71 pre-existing baseline failures.
 2026-10-16 seed hunt (seed→hit): stale in-flight pending evidence upload completion; 9 focused pending-evidence tests passed.
@@ -22074,6 +22075,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ---
 
 ## Zone: archlucid-core
+2026-10-16 seed hunt (seed→hit): promoted `AzureInventoryVnetCustomDnsIndex` default-only `dhcpOptions` JSON blocking flattened custom DNS; merge property sources; regression `VnetUsesCustomDns_true_when_flat_dns_servers_list_custom_resolver_after_default_only_json`.
+
 2026-10-16 seed hunt (seed→hit): promoted `AzureInventoryReachabilityEdgeControlIndex` reachability resource dictionary keys without `ArmResourceIdNormalizer` so modeled virtual-appliance next hops stored with a trailing-slash ARM id were misclassified as unmodeled edge control; normalize keys at build; regression `SubnetRequiresEdgeControlEvidence_false_when_virtual_appliance_next_hop_is_in_snapshot`; 7,644 Core scoped tests passed.
 
 
@@ -22131,7 +22134,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **last-hunt:** 2026-10-15
 - **bugs-found:** 3513
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-16 — reachability edge-control index missed normalized virtual-appliance next hops
+- **last-bug:** 2026-10-16 — VNet custom DNS index ignored flattened resolvers after default-only dhcpOptions JSON
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -22163,9 +22166,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
+- [x] (proven) `AzureInventoryVnetCustomDnsIndex.TryReadCustomDnsServers` — default-only `dhcpOptions` JSON short-circuited before flattened `dhcpOptions.dnsServers` — **hit 2026-10-16 seed hunt:** merge DNS server lists from both shapes; regression above.
+- (candidate) `AzureInventoryReachabilityEdgeControlIndex.Build` — route table ARM id stored with trailing slash while subnet→route-table relationship ids are normalized — locus: normalized resource index; input: VNet gateway route on route table keyed with trailing slash.
+- (candidate) `AzureInventoryEventGridDestinationExtractor.Extract` — webhook URL only under nested `properties.endpoint` without `Url` suffix — locus: destination properties bag; input: Event Grid ARM list export shape.
+- (candidate) `ArmResourceIdNormalizer.IsDescendantOf` — descendant and ancestor differ only by trailing slash on nested child — locus: `Normalize`; input: AGW pool member vs site resource ids.
+- (candidate) `AzureInventoryReachabilityEdgeControlIndex.AssetDeclaredBehindApplicationGateway` — `FromAzureResourceId` padded with outer whitespace on AGW backend relationship — locus: `Normalize` at index build; input: inventory-agw-backend triple.
+- (candidate) `AzureInventoryVnetCustomDnsIndex.TryParseDnsServersFromJson` — numeric JSON elements in `dnsServers` array skipped while flat list includes the same address — locus: array element kind handling; input: mixed-type dhcpOptions projection.
+
 - [x] (proven) `AzureInventoryReachabilityEdgeControlIndex.Build` — reachability resource keys not normalized before virtual-appliance next-hop lookup — **hit 2026-10-16 seed hunt:** trailing-slash ARM ids missed `ContainsKey`/`TryGetValue`; normalize resource index at build; regression `SubnetRequiresEdgeControlEvidence_false_when_virtual_appliance_next_hop_is_in_snapshot`.
 - (candidate) `AzureInventoryReachabilityEdgeControlIndex.Build` — route table ARM id stored with trailing slash while subnet→route-table relationship ids are normalized — locus: `NormalizeReachabilityResourceIndex`; input: inventory snapshot with padded route table resource id.
-- (candidate) `AzureInventoryVnetCustomDnsIndex.Build` — `dhcpOptions.dnsServers` flat property ignored when `dhcpOptions` JSON parses to empty `dnsServers` array — locus: `TryReadCustomDnsServers` precedence; input: flattened extractor bag with only custom DNS in flat key.
+- [x] (proven) `AzureInventoryVnetCustomDnsIndex.TryReadCustomDnsServers` — default-only `dhcpOptions` JSON hid flattened custom DNS — **hit 2026-10-16 seed hunt:** merge JSON and `dhcpOptions.dnsServers` lists; regression `VnetUsesCustomDns_true_when_flat_dns_servers_list_custom_resolver_after_default_only_json`.
 - (candidate) `AzureInventoryEventGridDestinationExtractor.Extract` — webhook `endpointUrl` nested only as `properties.endpoint` without `Url` suffix — locus: nested destination bag readers; input: ARM export fixture if Microsoft documents alternate property name.
 - (candidate) `ArmResourceIdNormalizer.IsDescendantOf` — ancestor id with trailing slash and child without — locus: `Normalize` on both operands; input: AGW backend relationship ids differing only by trailing slash.
 - (candidate) `AzureInventoryReachabilityEdgeControlIndex.AssetDeclaredBehindApplicationGateway` — backend web app ARM id padded with outer whitespace in relationship `ToAzureResourceId` — locus: relationship normalization at build; input: `inventory-agw-backend` triple with padded `to` id.

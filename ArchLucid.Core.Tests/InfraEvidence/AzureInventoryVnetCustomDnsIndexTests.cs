@@ -48,4 +48,25 @@ public sealed class AzureInventoryVnetCustomDnsIndexTests
 
         index.VnetUsesCustomDns(VnetArm).Should().BeFalse();
     }
+
+    [Fact]
+    public void VnetUsesCustomDns_true_when_flat_dns_servers_list_custom_resolver_after_default_only_json()
+    {
+        AzureInventoryVnetCustomDnsIndex index = AzureInventoryVnetCustomDnsIndex.Build(
+        [
+            new AzureInventoryVnetCustomDnsResourceProperties
+            {
+                AzureResourceId = VnetArm,
+                ResourceType = "Microsoft.Network/virtualNetworks",
+                Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                {
+                    ["dhcpOptions"] = """{"dnsServers":["168.63.129.16"]}""",
+                    ["dhcpOptions.dnsServers"] = "10.0.0.4",
+                },
+            },
+        ]);
+
+        index.VnetUsesCustomDns(VnetArm).Should().BeTrue(
+            "flattened custom DNS must not be ignored when dhcpOptions JSON lists only the Azure default resolver");
+    }
 }
