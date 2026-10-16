@@ -285,6 +285,7 @@ Priority routes to watch (this doc's master table): `/welcome`, `/reviews`,
 | HEF | `/help/false-hard-infeasibility` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
 | HFI | `/help/first-login-workspace` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
 | HEG | `/help/governance-infrastructure-drift` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
+| HGO | `/help/governance-infrastructure-resources` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
 | HEM | `/help/impact-preview` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
 | EIM | `/help/impact-preview-vs-architecture-envelope` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
 | HIM | `/help/improvement-planning` | 0.02% | 0 | 0 | 2 | Help topic | No | None |
