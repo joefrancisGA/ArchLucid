@@ -22489,6 +22489,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 
 - (candidate) `AzureInventoryLoadBalancerBackendTrafficResolver` — `networkInterfaceIPConfiguration` provided as JSON string scalar ARM id not read — locus: `AddIpConfigurationTargets` nested address path; input: string-scalar ip configuration reference on `loadBalancerBackendAddresses`.
+- (candidate) `AzureInventoryLoadBalancerBackendTrafficResolver` — flattened rule bag uses PascalCase `BackendPort` / `BackendAddressPool` — locus: `TryGetLoadBalancingRulePropertiesBag` + readers; input: hosted rule row with PascalCase keys (cheap-disproof via case-insensitive reads).
+- (candidate) `AzureInventoryLoadBalancerBackendTrafficResolver` — `loadBalancingRules` string scalar wrapping flattened single rule object — locus: string unwrap + `TryCloneRows`; input: double-encoded flat rule JSON.
+- (candidate) `AzureInventoryLoadBalancerBackendTrafficResolver` — `backendAddressPool` string-scalar pool id on flattened rule row — locus: `TryReadBackendPoolReferenceId`; input: rule bag with string pool reference.
+- (candidate) `AzureInventoryLoadBalancerBackendParentArmIdResolver` — pool row flattened without nested `properties` bag — locus: pool walk; input: lone pool properties bag at root (mirror rule fix if reachable).
+- (candidate) `AzureInventoryLoadBalancerBackendTrafficResolver` — `frontendPort` mistaken for `backendPort` when backend port absent — locus: `TryReadBackendPort`; input: rule with only `frontendPort` (likely valid-no-repro).
 - (candidate) `AzureInventoryLoadBalancerBackendTrafficResolver` — double-encoded `loadBalancingRules` string scalar wrapping a single rule object — locus: `BuildLoadBalancerPortByPoolId` string unwrap then root kind; input: nested object root after scalar unwrap.
 - (candidate) `AzureInventoryLoadBalancerBackendTrafficResolver` — `backendAddressPool` on rule uses string-scalar pool ARM id not read — locus: `TryReadBackendPoolReferenceId`; input: rule properties with string pool reference.
 - (candidate) `AzureInventoryLoadBalancerBackendParentArmIdResolver` — `loadBalancerBackendAddresses` entry with string-scalar `networkInterfaceIPConfiguration` already handled on traffic resolver only — locus: parent resolver nested read; input: verify parity (cheap-disproof).
