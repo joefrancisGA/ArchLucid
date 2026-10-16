@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -43,6 +43,7 @@ import {
   OPERATOR_TYPOGRAPHY} from "@/lib/design-tokens";
 import {
   parseRunDetailBuyerSponsorBriefExportsOpenFromSearch,
+  RUN_DETAIL_BUYER_SPONSOR_BRIEF_EXPORTS_OPEN_PARAM,
   runDetailBuyerSponsorBriefExportsDisclosureHrefFromSearch} from "@/lib/runs/run-detail-buyer-sponsor-brief-exports-disclosure-url";
 import type { RunSummary } from "@/types/authority";
 import type { TransparencyTrail } from "@/types/feasibility-verdict";
@@ -57,9 +58,15 @@ function BuyerSponsorBriefExports({
   manifestVersionForGuard?: string | null;
 }) {
   const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
+  const urlSponsorBriefExportsOpen = parseRunDetailBuyerSponsorBriefExportsOpenFromSearch(
+    searchParams.get(RUN_DETAIL_BUYER_SPONSOR_BRIEF_EXPORTS_OPEN_PARAM),
+  );
   const [sponsorBriefExportsOpen, setSponsorBriefExportsOpenState] = useState(() =>
     parseRunDetailBuyerSponsorBriefExportsOpenFromSearch(null),
   );
+  const sponsorBriefExportsOpenRef = useRef(sponsorBriefExportsOpen);
+  sponsorBriefExportsOpenRef.current = sponsorBriefExportsOpen;
 
   const syncSponsorBriefExportsOpenToUrl = useCallback(
     (open: boolean) => {
@@ -73,25 +80,29 @@ function BuyerSponsorBriefExports({
 
   const setSponsorBriefExportsOpen = useCallback(
     (open: boolean) => {
-      if (sponsorBriefExportsOpen === open) {
+      if (sponsorBriefExportsOpenRef.current === open) {
         return;
       }
 
+      sponsorBriefExportsOpenRef.current = open;
       setSponsorBriefExportsOpenState(open);
       syncSponsorBriefExportsOpenToUrl(open);
     },
-    [sponsorBriefExportsOpen, syncSponsorBriefExportsOpenToUrl],
+    [syncSponsorBriefExportsOpenToUrl],
   );
 
   useEffect(() => {
     const syncSponsorBriefExportsOpenFromUrl = (): void => {
-      setSponsorBriefExportsOpenState((current) => {
-        const next = parseRunDetailBuyerSponsorBriefExportsOpenFromSearch(
-          new URLSearchParams(window.location.search).get("runDetailBuyerSponsorBriefExportsOpen"),
-        );
+      const next = parseRunDetailBuyerSponsorBriefExportsOpenFromSearch(
+        new URLSearchParams(window.location.search).get(RUN_DETAIL_BUYER_SPONSOR_BRIEF_EXPORTS_OPEN_PARAM),
+      );
 
-        return current === next ? current : next;
-      });
+      if (sponsorBriefExportsOpenRef.current === next) {
+        return;
+      }
+
+      sponsorBriefExportsOpenRef.current = next;
+      setSponsorBriefExportsOpenState(next);
     };
 
     syncSponsorBriefExportsOpenFromUrl();
@@ -102,12 +113,22 @@ function BuyerSponsorBriefExports({
     };
   }, []);
 
+  useEffect(() => {
+    if (sponsorBriefExportsOpenRef.current === urlSponsorBriefExportsOpen) {
+      return;
+    }
+
+    sponsorBriefExportsOpenRef.current = urlSponsorBriefExportsOpen;
+    setSponsorBriefExportsOpenState(urlSponsorBriefExportsOpen);
+  }, [urlSponsorBriefExportsOpen]);
+
   return (
     <details
       className="text-right"
       open={sponsorBriefExportsOpen}
       onToggle={(event) => {
-        setSponsorBriefExportsOpen((event.currentTarget as HTMLDetailsElement).open);
+        event.preventDefault();
+        setSponsorBriefExportsOpen(!sponsorBriefExportsOpenRef.current);
       }}
     >
       <summary className={cn("cursor-pointer list-none marker:content-none", OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LINK.nav)}>
