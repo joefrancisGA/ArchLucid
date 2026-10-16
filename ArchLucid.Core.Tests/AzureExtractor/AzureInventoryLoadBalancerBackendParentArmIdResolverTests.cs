@@ -1,3 +1,5 @@
+using System.Text.Json;
+
 using ArchLucid.Core.AzureExtractor;
 
 using FluentAssertions;
@@ -59,6 +61,33 @@ public sealed class AzureInventoryLoadBalancerBackendParentArmIdResolverTests
               }
             ]
             """;
+
+        IReadOnlyList<string> parentIds =
+            AzureInventoryLoadBalancerBackendParentArmIdResolver.ResolveFromBackendAddressPoolsJson(poolsJson);
+
+        parentIds.Should().ContainSingle().Subject.Should().Be(VmssNicId.ToLowerInvariant());
+    }
+
+    [Fact]
+    public void ResolveFromBackendAddressPoolsJson_reads_pools_when_json_is_string_scalar_wrapping_pool_array()
+    {
+        string inner =
+            $$"""
+            [
+              {
+                "properties": {
+                  "loadBalancerBackendAddresses": [
+                    {
+                      "properties": {
+                        "networkInterfaceIPConfiguration": { "id": "{{VmssNicIpConfigurationId}}" }
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+            """;
+        string poolsJson = JsonSerializer.Serialize(inner);
 
         IReadOnlyList<string> parentIds =
             AzureInventoryLoadBalancerBackendParentArmIdResolver.ResolveFromBackendAddressPoolsJson(poolsJson);

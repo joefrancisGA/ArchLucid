@@ -1,5 +1,7 @@
 > **Scope:** Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
 
+2026-10-16 seed hunt (seed→hit): `archlucid-core` — promoted `AzureInventoryLoadBalancerBackendParentArmIdResolver.ResolveFromBackendAddressPoolsJson` ignoring `backendAddressPools` inventory text that is a JSON string scalar wrapping the pool array (empty parent ARM id list); unwrap and re-parse like route-table `routes` JSON; regression `ResolveFromBackendAddressPoolsJson_reads_pools_when_json_is_string_scalar_wrapping_pool_array`; cheap-disproof closed PascalCase `LoadBalancerBackendAddresses`, `NetworkInterfaceIPConfiguration`, and nested `Id` (already case-insensitive after prior fix); `AzureInventoryLoadBalancerBackendParentArmIdResolverTests` 3/3; seeded five follow-on `(candidate)` rows.
+
 2026-10-16 seed hunt (seed→hit): `archlucid-core` — promoted `AzureInventoryLoadBalancerBackendParentArmIdResolver.ResolveFromBackendAddressPoolsJson` ignoring PascalCase `Properties` on backend pool elements (empty parent ARM id list for hosted inventory projections); case-insensitive JSON property reads for pool `properties`, backend collections, nested `properties`, and `id`; regression `ResolveFromBackendAddressPoolsJson_reads_pascal_case_properties_bag_on_pool`; `AzureInventoryLoadBalancerBackendParentArmIdResolverTests` 2/2; seeded five follow-on `(candidate)` rows.
 
 2026-10-16 seed hunt (seed→hit): `topology-proposal-merge` — promoted `TopologyProposalRelationshipEdgeMapper.MapRelationships` silently dropping relationships when agents used an unindexed Terraform root address (`azurerm_app_service.main`) while inventory had multiple `count` instances (`…main[0]` / `…main[1]`); track ambiguous indexed instance node ids and fan out edges for unindexed root references only. Regression `MapRelationships_emits_edges_for_all_indexed_instances_when_source_uses_unindexed_root_terraform_address`; reaffirmed `MapRelationships_does_not_resolve_nonexistent_indexed_terraform_instance`. 1,607 scoped topology merge/endpoint/edge-mapper tests passed (`RunAnalyzers=false`).
@@ -22368,6 +22370,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ---
 
 ## Zone: archlucid-core
+2026-10-16 seed hunt (seed→hit): promoted double-encoded `backendAddressPools` JSON string scalar; 3/3 LB parent resolver tests.
+
 2026-10-16 seed hunt (seed→hit): promoted PascalCase `Properties` on load balancer backend pool JSON; 2/2 LB parent resolver tests.
 
 2026-10-16 seed hunt (seed→hit): promoted scientific-notation packed uint32 indexed flat DNS strings; 26/26 DNS index tests.
@@ -22451,6 +22455,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-06 seed hunt (seed→hit): reseeded archlucid-core; proved duplicate model nodes/edges when ids and edge types differed only by whitespace; fixed model-side dedupe parity with context union; regressions above.
 
+
+
+- (candidate) `AzureInventoryLoadBalancerBackendParentArmIdResolver` — `backendIPConfigurations` rows with PascalCase `Properties` on configuration element skipped — locus: direct NIC pool members; input: classic backend IP configuration projection.
+- (candidate) `AzureInventoryLoadBalancerBackendParentArmIdResolver` — `networkInterfaceIPConfiguration` provided as JSON string scalar ARM id not read — locus: nested address properties; input: string-scalar ip configuration reference.
+- (candidate) `AzureInventoryLoadBalancerBackendTrafficResolver` — same double-encoded `backendAddressPools` string scalar on load balancer resource bag — locus: pool JSON read before backend walk; input: hosted inventory double-encoding.
+- (candidate) `AzureInventoryLoadBalancerBackendParentArmIdResolver` — single pool object JSON (non-array root) not accepted — locus: root kind check; input: lone pool object without array wrapper.
+- (candidate) `AzureInventoryVnetCustomDnsIndex.ResolveFlattenedDnsServerValue` — uppercase-exponent scientific packed uint32 (`2.822734096E9`) still misclassified — locus: indexed flat DNS parse; input: verify against existing lowercase regression parity.
 
 - (candidate) `AzureInventoryLoadBalancerBackendParentArmIdResolver` — PascalCase `LoadBalancerBackendAddresses` collection name skipped — locus: pool properties bag; input: hosted `backendAddressPools` projection with PascalCase collection key.
 - (candidate) `AzureInventoryLoadBalancerBackendParentArmIdResolver` — PascalCase `BackendIPConfigurations` direct NIC references skipped — locus: pool properties bag; input: classic backend IP configuration rows with PascalCase property names.

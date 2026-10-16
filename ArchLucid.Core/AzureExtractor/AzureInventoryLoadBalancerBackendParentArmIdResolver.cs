@@ -20,13 +20,26 @@ public static class AzureInventoryLoadBalancerBackendParentArmIdResolver
         try
         {
             using JsonDocument document = JsonDocument.Parse(backendAddressPoolsJson);
+            JsonElement poolsRoot = document.RootElement;
 
-            if (document.RootElement.ValueKind is not JsonValueKind.Array)
+            if (poolsRoot.ValueKind is JsonValueKind.String)
+            {
+                string? nestedPoolsJson = poolsRoot.GetString();
+
+                if (string.IsNullOrWhiteSpace(nestedPoolsJson))
+                {
+                    return parentArmIds;
+                }
+
+                return ResolveFromBackendAddressPoolsJson(nestedPoolsJson);
+            }
+
+            if (poolsRoot.ValueKind is not JsonValueKind.Array)
             {
                 return parentArmIds;
             }
 
-            foreach (JsonElement pool in document.RootElement.EnumerateArray())
+            foreach (JsonElement pool in poolsRoot.EnumerateArray())
             {
                 if (!TryGetPropertyIgnoreCase(pool, "properties", out JsonElement properties)
                     || properties.ValueKind is not JsonValueKind.Object)
