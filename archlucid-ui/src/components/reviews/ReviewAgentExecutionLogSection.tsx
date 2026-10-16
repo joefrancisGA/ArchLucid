@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { ReactElement } from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { FieldHelpTooltip } from "@/components/FieldHelpTooltip";
@@ -22,8 +22,11 @@ import { buyerLabelForAgentType } from "@/lib/agent-type-buyer-label";
 import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import {
   parseRunAgentExecutionLogOpenFromSearch,
+  RUN_AGENT_EXECUTION_LOG_OPEN_PARAM,
   runAgentExecutionLogDisclosureHrefFromSearch,
 } from "@/lib/runs/run-agent-execution-log-disclosure-url";
+
+export const RUN_AGENT_EXECUTION_LOG_DISCLOSURE_TEST_ID = "run-agent-execution-log-disclosure";
 import type { RunDetailAgentResult } from "@/types/authority";
 import { formatAgentExecutionConfidenceLabel } from "@/lib/reviews/agent-confidence-display";
 
@@ -50,9 +53,11 @@ export function ReviewAgentExecutionLogSection({
   results,
 }: ReviewAgentExecutionLogSectionProps): ReactElement | null {
   const pathname = usePathname() ?? "/";
-  const [open, setOpenState] = useState(() =>
-    parseRunAgentExecutionLogOpenFromSearch(null),
+  const searchParams = useSearchParams();
+  const urlOpen = parseRunAgentExecutionLogOpenFromSearch(
+    searchParams.get(RUN_AGENT_EXECUTION_LOG_OPEN_PARAM),
   );
+  const [open, setOpenState] = useState(urlOpen);
   const openRef = useRef(open);
   openRef.current = open;
 
@@ -82,7 +87,7 @@ export function ReviewAgentExecutionLogSection({
   useEffect(() => {
     const syncOpenFromUrl = (): void => {
       const next = parseRunAgentExecutionLogOpenFromSearch(
-        new URLSearchParams(window.location.search).get("runAgentExecutionLogOpen"),
+        new URLSearchParams(window.location.search).get(RUN_AGENT_EXECUTION_LOG_OPEN_PARAM),
       );
 
       if (openRef.current === next) {
@@ -100,6 +105,15 @@ export function ReviewAgentExecutionLogSection({
       window.removeEventListener("popstate", syncOpenFromUrl);
     };
   }, []);
+
+  useEffect(() => {
+    if (openRef.current === urlOpen) {
+      return;
+    }
+
+    openRef.current = urlOpen;
+    setOpenState(urlOpen);
+  }, [urlOpen]);
 
   if (!results || results.length === 0) {
     return null;
@@ -123,6 +137,7 @@ export function ReviewAgentExecutionLogSection({
             title={`${sorted.length} agent${sorted.length === 1 ? "" : "s"} ran`}
             open={open}
             onToggle={setOpen}
+            sectionTestId={RUN_AGENT_EXECUTION_LOG_DISCLOSURE_TEST_ID}
           >
             <EnterpriseTable ariaLabel="Agent execution log" className={OPERATOR_TYPOGRAPHY.helper}>
               <EnterpriseTableHead>
