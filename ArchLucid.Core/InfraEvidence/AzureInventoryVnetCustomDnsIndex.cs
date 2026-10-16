@@ -163,10 +163,8 @@ public sealed class AzureInventoryVnetCustomDnsIndex
 
     private static void AppendDnsServersFromJsonArray(JsonElement serversElement, List<string> dnsServers)
     {
-        if (TryReadDnsServersFromNumericOctetArray(serversElement, out string octetJoinedServer))
+        if (TryAppendDnsServersFromNumericOctetArray(serversElement, dnsServers))
         {
-            dnsServers.Add(octetJoinedServer);
-
             return;
         }
 
@@ -193,9 +191,8 @@ public sealed class AzureInventoryVnetCustomDnsIndex
         }
     }
 
-    private static bool TryReadDnsServersFromNumericOctetArray(JsonElement serversElement, out string server)
+    private static bool TryAppendDnsServersFromNumericOctetArray(JsonElement serversElement, List<string> dnsServers)
     {
-        server = string.Empty;
 
         if (serversElement.ValueKind is not JsonValueKind.Array)
         {
@@ -216,18 +213,22 @@ public sealed class AzureInventoryVnetCustomDnsIndex
             octets.Add(octet);
         }
 
-        if (octets.Count is not 4)
+        if (octets.Count == 0 || octets.Count % 4 != 0)
         {
             return false;
         }
 
-        server = string.Format(
-            CultureInfo.InvariantCulture,
-            "{0}.{1}.{2}.{3}",
-            octets[0],
-            octets[1],
-            octets[2],
-            octets[3]);
+        for (int offset = 0; offset < octets.Count; offset += 4)
+        {
+            dnsServers.Add(
+                string.Format(
+                    CultureInfo.InvariantCulture,
+                    "{0}.{1}.{2}.{3}",
+                    octets[offset],
+                    octets[offset + 1],
+                    octets[offset + 2],
+                    octets[offset + 3]));
+        }
 
         return true;
     }

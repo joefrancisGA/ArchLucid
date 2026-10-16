@@ -7767,3 +7767,4 @@
 {"at":"2026-10-16T04:21:15.5490098Z","zoneId":"archlucid-core","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-16T04:27:29.4349215Z","zoneId":"archlucid-core","outcome":"hit","productLine":"securenow","paths":["ArchLucid.Core/InfraEvidence/AzureInventoryVnetCustomDnsIndex.cs"]}
 {"at":"2026-10-16T04:35:25.9593729Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Application/Governance/Workflow/Stages/GovernanceWorkflowIntegrationEventSupport.cs"]}
+{"at":"2026-10-16T04:42:10.9444107Z","zoneId":"archlucid-core","outcome":"hit","productLine":"securenow","paths":["ArchLucid.Core/InfraEvidence/AzureInventoryVnetCustomDnsIndex.cs"]}

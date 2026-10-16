@@ -371,6 +371,46 @@ public sealed class AzureInventoryVnetCustomDnsIndexTests
     }
 
     [Fact]
+    public void VnetUsesCustomDns_false_when_dhcpOptions_json_array_lists_numeric_octets_for_azure_default_only()
+    {
+        AzureInventoryVnetCustomDnsIndex index = AzureInventoryVnetCustomDnsIndex.Build(
+        [
+            new AzureInventoryVnetCustomDnsResourceProperties
+            {
+                AzureResourceId = VnetArm,
+                ResourceType = "Microsoft.Network/virtualNetworks",
+                Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                {
+                    ["dhcpOptions"] = """{"dnsServers":[168,63,129,16]}""",
+                },
+            },
+        ]);
+
+        index.VnetUsesCustomDns(VnetArm).Should().BeFalse(
+            "numeric octet sequences must still recognize Azure default DNS");
+    }
+
+    [Fact]
+    public void VnetUsesCustomDns_true_when_dhcpOptions_json_array_lists_two_numeric_octet_sequences()
+    {
+        AzureInventoryVnetCustomDnsIndex index = AzureInventoryVnetCustomDnsIndex.Build(
+        [
+            new AzureInventoryVnetCustomDnsResourceProperties
+            {
+                AzureResourceId = VnetArm,
+                ResourceType = "Microsoft.Network/virtualNetworks",
+                Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                {
+                    ["dhcpOptions"] = """{"dnsServers":[10,0,0,4,8,8,8,8]}""",
+                },
+            },
+        ]);
+
+        index.VnetUsesCustomDns(VnetArm).Should().BeTrue(
+            "mixed-type projections may flatten multiple DNS servers as back-to-back numeric octets");
+    }
+
+    [Fact]
     public void VnetUsesCustomDns_true_when_dhcpOptions_json_array_lists_numeric_octets()
     {
         AzureInventoryVnetCustomDnsIndex index = AzureInventoryVnetCustomDnsIndex.Build(
