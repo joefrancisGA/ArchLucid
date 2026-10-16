@@ -1,4 +1,5 @@
 using ArchLucid.Api.Controllers.Governance;
+using ArchLucid.Application.Common;
 using ArchLucid.Contracts.Governance.Resolution;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Governance.Resolution;
@@ -63,6 +64,7 @@ public sealed class GovernanceResolutionControllerTests
         GovernanceResolutionController controller = new(
             scopeProvider.Object,
             resolver.Object,
+            Mock.Of<IActorContext>(),
             audit.Object,
             tenants.Object,
             SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun(),
@@ -97,6 +99,7 @@ public sealed class GovernanceResolutionControllerTests
         GovernanceResolutionController controller = new(
             scopeProvider.Object,
             resolver.Object,
+            Mock.Of<IActorContext>(),
             audit.Object,
             tenants.Object,
             SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun(),
@@ -159,6 +162,7 @@ public sealed class GovernanceResolutionControllerTests
         GovernanceResolutionController controller = new(
             scopeProvider.Object,
             resolver.Object,
+            Mock.Of<IActorContext>(),
             audit.Object,
             tenants.Object,
             SealedManifestHashTestSupport.CreateAuthorityQueryServiceForAnyRun(),
