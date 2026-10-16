@@ -1,3 +1,4 @@
+2026-10-16 seed hunt (seed→hit): `api-governance-tenancy-controllers` — promoted `GovernanceWorkflowAuditSupport.LogDryRunValidationAttemptedForApprovalRequestAsync` logging display `requestedBy` as `ActorUserId` while `ExplicitActor` was set (stable jwt actor key not persisted on dry-run submit audits); pass `requestedByActorKey` for audit identity and display name on `ActorUserName`; regression `LogDryRunValidationAttemptedForApprovalRequestAsync_sets_explicit_actor_for_stable_requested_by_actor_key`; `GovernanceWorkflowAuditSupportTests` 7/7; seeded five follow-on `(candidate)` rows.
 2026-10-16 seed hunt (seed→hit): `archlucid-core` — promoted `AzureInventoryVnetCustomDnsIndex.TryReadCustomDnsServers` ignoring PascalCase `DhcpOptions` and `DhcpOptions.DnsServers` flattened property keys; case-insensitive flattened property lookup; regressions `VnetUsesCustomDns_true_when_flattened_dhcpOptions_property_key_uses_pascal_case` and `VnetUsesCustomDns_true_when_flat_dhcpOptions_dnsServers_key_uses_pascal_case`; `AzureInventoryVnetCustomDnsIndexTests` 13/13; seeded five follow-on `(candidate)` rows.
 2026-10-16 seed hunt (seed→hit): `archlucid-core` — promoted `AzureInventoryRouteTableRouteParser.Parse` ignoring PascalCase `Routes` flattened property key on route tables (routes JSON never read); case-insensitive `routes` property lookup; regressions `Parse_reads_routes_when_flattened_property_key_uses_pascal_case_routes` and `SubnetRequiresEdgeControlEvidence_true_when_routes_property_key_uses_pascal_case`; 20 scoped route/reachability tests passed; seeded five follow-on `(candidate)` rows.
 2026-10-16 seed hunt (seed→hit): `api-governance-tenancy-controllers` — promoted `GovernanceWorkflowAuditSupport.LogSelfApprovalBlockedAsync` omitting `ExplicitActor` and using reviewer display name for `ActorUserId`, so segregation-of-duties block audits were rewritten to `ClaimTypes.NameIdentifier`; use `reviewedByActorKey` for audit identity, display name on `ActorUserName`, set `ExplicitActor = true`; regression `LogSelfApprovalBlockedAsync_sets_explicit_actor_for_stable_reviewer_actor_key`; `GovernanceWorkflowAuditSupportTests` 6/6; seeded five follow-on `(candidate)` rows.
@@ -35800,6 +35801,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 ---
 
 ## Zone: api-governance-tenancy-controllers
+2026-10-16 seed hunt (seed→hit): promoted approval dry-run audit jwt requested-by key; 7/7 audit support tests.
+
 2026-10-16 seed hunt (seed→hit): promoted `LogSelfApprovalBlockedAsync` explicit actor + jwt reviewer key; 6/6 audit support tests.
 
 2026-10-16 seed hunt (seed→hit): promoted `CreateGovernanceApprovalSubmittedAuditEvent` explicit actor + jwt requested-by key; 5/5 audit support tests.
@@ -35938,6 +35941,13 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ### Hypotheses
 
+- (candidate) `GovernanceController.SubmitApprovalRequest` — persisted `RequestedBy` column stores `GetActor()` display name while `RequestedByActorKey` stores jwt key — locus: `GovernanceController.ApprovalRequests.Create.cs`; input: approval POST with distinct display name.
+- (candidate) `GovernanceController.Approve` / `Reject` — controller-level audit vs durable workflow audit actor parity on reject path — locus: approval review routes; input: reject with display name distinct from jwt actor key.
+- (candidate) `GovernanceWorkflowReviewStage` — `reviewedBy` display string stored on `GovernanceApprovalRequest.ReviewedBy` when it differs from `ReviewedByActorKey` — locus: review disposition persistence; input: approve route with mocked actor context.
+- (candidate) `GovernanceWorkflowAuditSupport.LogDryRunValidationAttemptedForPromotionAsync` — dry-run promotion audits use `promotedBy` for both identity fields when display differs from jwt key — locus: already uses actor id from controller; cheap-disproof unless promote path regresses.
+- (candidate) `GovernanceController.LogGovernanceApprovalRequestedAuditAsync` — idempotency replay audit actor parity on dry-run submit — locus: controller logging; input: duplicate submit with distinct display name.
+
+- [x] (proven) `GovernanceWorkflowAuditSupport.LogDryRunValidationAttemptedForApprovalRequestAsync` — dry-run approval audit used display name as `ActorUserId` — **hit 2026-10-16 seed hunt:** `requestedByActorKey` + display name; regression `LogDryRunValidationAttemptedForApprovalRequestAsync_sets_explicit_actor_for_stable_requested_by_actor_key`.
 - (candidate) `GovernanceWorkflowAuditSupport.LogDryRunValidationAttemptedForApprovalRequestAsync` — dry-run approval audits use display `requestedBy` for `ActorUserId` despite `ExplicitActor` — locus: dry-run submit branch; input: distinct display name and jwt actor key.
 - (candidate) `GovernanceController.SubmitApprovalRequest` — persisted `RequestedBy` column stores `GetActor()` display name while `RequestedByActorKey` stores jwt key — locus: `GovernanceController.ApprovalRequests.Create.cs`; input: approval POST with distinct display name.
 - (candidate) `GovernanceController.Approve` / `Reject` — controller-level audit vs durable workflow audit actor parity on reject path — locus: approval review routes; input: reject with display name distinct from jwt actor key.
