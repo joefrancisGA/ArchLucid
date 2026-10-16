@@ -30,6 +30,50 @@ public sealed class GovernanceWorkflowIntegrationEventSupportTests
     };
 
     [Fact]
+    public async Task TryPublishApprovalSubmittedAsync_includes_requested_by_actor_key_in_payload()
+    {
+        ReadOnlyMemory<byte> capturedPayload = default;
+        Mock<IIntegrationEventPublisher> publisher = new();
+        publisher
+            .Setup(p =>
+                p.PublishAsync(
+                    It.IsAny<string>(),
+                    It.IsAny<ReadOnlyMemory<byte>>(),
+                    It.IsAny<string?>(),
+                    It.IsAny<IReadOnlyDictionary<string, object>?>(),
+                    It.IsAny<CancellationToken>()))
+            .Callback((
+                string _,
+                ReadOnlyMemory<byte> payload,
+                string? _,
+                IReadOnlyDictionary<string, object>? _,
+                CancellationToken _) => capturedPayload = payload)
+            .Returns(Task.CompletedTask);
+
+        GovernanceWorkflowIntegrationEventSupport support = CreateSupport(publisher.Object);
+        const string displayName = "Pat Operator";
+        const string actorKey = "jwt:11111111-2222-3333-4444-555555555555:aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee";
+        GovernanceApprovalRequest request = new()
+        {
+            ApprovalRequestId = "approval-1",
+            RunId = "run-without-manifest-hash",
+            ManifestVersion = "1",
+            SourceEnvironment = "dev",
+            TargetEnvironment = "test",
+            RequestedBy = displayName,
+            RequestedByActorKey = actorKey,
+        };
+
+        await support.TryPublishApprovalSubmittedAsync(request, CancellationToken.None);
+
+        capturedPayload.IsEmpty.Should().BeFalse();
+        using JsonDocument document = JsonDocument.Parse(capturedPayload.ToArray());
+        JsonElement root = document.RootElement;
+        root.GetProperty("requestedBy").GetString().Should().Be(displayName);
+        root.GetProperty("requestedByActorKey").GetString().Should().Be(actorKey);
+    }
+
+    [Fact]
     public async Task TryPublishApprovalRejectedAsync_includes_reviewed_by_actor_key_in_payload()
     {
         ReadOnlyMemory<byte> capturedPayload = default;

@@ -63,7 +63,10 @@ public sealed class GovernanceWorkflowIntegrationEventSupport(
             manifestHash,
             sourceEnvironment = request.SourceEnvironment,
             targetEnvironment = request.TargetEnvironment,
-            requestedBy = request.RequestedBy
+            requestedBy = request.RequestedBy,
+            requestedByActorKey = string.IsNullOrWhiteSpace(request.RequestedByActorKey)
+                ? request.RequestedBy
+                : request.RequestedByActorKey
         };
         string messageId = $"{request.ApprovalRequestId}:{IntegrationEventTypes.GovernanceApprovalSubmittedV1}";
         Guid? runKey = Guid.TryParse(request.RunId, out Guid rid) ? rid : null;

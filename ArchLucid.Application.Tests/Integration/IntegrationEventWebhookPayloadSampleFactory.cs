@@ -118,7 +118,8 @@ internal static class IntegrationEventWebhookPayloadSampleFactory
             manifestVersion = "v1",
             sourceEnvironment = "dev",
             targetEnvironment = "test",
-            requestedBy = "user-1"
+            requestedBy = "user-1",
+            requestedByActorKey = "jwt:11111111-1111-1111-1111-111111111111:aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
         };
     }
 
