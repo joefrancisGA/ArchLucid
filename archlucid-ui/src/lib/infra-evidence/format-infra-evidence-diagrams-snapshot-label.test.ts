@@ -44,12 +44,15 @@ describe("formatInfraEvidenceDiagramsSnapshotPickerLabel", () => {
     );
   });
 
-  it("distinguishes missing architecture names from stored empty names", () => {
-    expect(formatInfraEvidenceDiagramsSnapshotPickerLabel(snapshot({ architectureName: null }))).toContain(
-      "Architecture name was not stored.",
+  it("omits architecture label when name was not captured", () => {
+    expect(formatInfraEvidenceDiagramsSnapshotPickerLabel(snapshot({ architectureName: null }))).toBe(
+      "Contoso Production · 9/10/2026, 09:45 EDT",
     );
-    expect(formatInfraEvidenceDiagramsSnapshotPickerLabel(snapshot({ architectureName: "" }))).not.toContain(
-      "Architecture name was not stored.",
+    expect(formatInfraEvidenceDiagramsSnapshotPickerLabel(snapshot({ architectureName: "" }))).toBe(
+      "Contoso Production · 9/10/2026, 09:45 EDT",
+    );
+    expect(formatInfraEvidenceDiagramsSnapshotPickerLabel(snapshot({ architectureName: "  " }))).toBe(
+      "Contoso Production · 9/10/2026, 09:45 EDT",
     );
   });
 });

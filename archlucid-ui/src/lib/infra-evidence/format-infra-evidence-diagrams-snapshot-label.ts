@@ -21,10 +21,10 @@ export function formatInfraEvidenceDiagramsSnapshotPickerLabel(
     parts.push("Subscription was not stored.");
   }
 
-  if (snapshot.architectureName == null) {
-    parts.push("Architecture name was not stored.");
-  } else if (snapshot.architectureName.length > 0) {
-    parts.push(snapshot.architectureName);
+  const architectureLabel = snapshot.architectureName?.trim() ?? "";
+
+  if (architectureLabel.length > 0) {
+    parts.push(architectureLabel);
   }
 
   parts.push(captured);
