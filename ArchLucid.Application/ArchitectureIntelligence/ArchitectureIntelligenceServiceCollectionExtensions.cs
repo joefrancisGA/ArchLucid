@@ -1,3 +1,4 @@
+using ArchLucid.Application.Architecture;
 using ArchLucid.Application.ArchitectureIntelligence.Stages;
 using ArchLucid.Contracts.ArchitectureIntelligence;
 using ArchLucid.Core.Persistence.Ports;
@@ -78,12 +79,15 @@ internal static class ArchitectureIntelligenceServiceCollectionExtensions
                 sp.GetService<IArchitectureIdentityRepository>();
             IKnowledgeModelGraphReprojector? reprojector =
                 runRepository is not null ? sp.GetService<IKnowledgeModelGraphReprojector>() : null;
+            IArchitectureVersionKnowledgeModelPinSync? architectureVersionPinSync =
+                sp.GetService<IArchitectureVersionKnowledgeModelPinSync>();
 
             return new ArchitectureKnowledgeModelAccess(
                 persistence,
                 runRepository,
                 identityRepository,
-                reprojector);
+                reprojector,
+                architectureVersionPinSync);
         });
         services.AddScoped<IKnowledgeModelGraphReprojector, KnowledgeModelGraphReprojector>();
         services.AddScoped<IExtractionFidelityBenchmark, ExtractionFidelityBenchmark>();

@@ -1,3 +1,4 @@
+using ArchLucid.Application.Architecture;
 using ArchLucid.Application.ArchitectureIntelligence;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.ArchitectureIntelligence;
@@ -440,5 +441,59 @@ public sealed class ArchitectureKnowledgeModelAccessTests
         It.IsAny<string>(),
         It.IsAny<CancellationToken>()),
       Times.Never);
+  }
+
+  [Fact]
+  public async Task SaveForRunAsync_syncs_architecture_version_pin_after_knowledge_model_save()
+  {
+    Guid runId = Guid.Parse("f1f1f1f1-f1f1-f1f1-f1f1-f1f1f1f1f1f1");
+    Guid architectureId = Guid.Parse("e2e2e2e2-e2e2-e2e2-e2e2-e2e2e2e2e2e2");
+
+    Mock<IArchitectureIntelligencePersistence> persistence = new();
+    Mock<IRunRepository> runs = new();
+    RunRecord run = new()
+    {
+      RunId = runId,
+      ArchitectureId = architectureId,
+      ArchitectureRequestId = "req-golden-cohort",
+    };
+    runs
+      .Setup(r => r.GetByIdAsync(TestScope, runId, It.IsAny<CancellationToken>()))
+      .ReturnsAsync(run);
+
+    Mock<IArchitectureVersionKnowledgeModelPinSync> pinSync = new();
+    ArchitectureKnowledgeModelAccess access = new(
+      persistence.Object,
+      runs.Object,
+      Mock.Of<IArchitectureIdentityRepository>(),
+      knowledgeModelGraphReprojector: null,
+      pinSync.Object);
+
+    ArchitectureKnowledgeModel model = new()
+    {
+      TenantId = TestScope.TenantId.ToString("D"),
+      Elements =
+      [
+        new ArchitectureModelElement
+        {
+          ElementId = "el-1",
+          Kind = ArchitectureElementKind.Component,
+          Name = "API",
+        },
+      ],
+    };
+
+    await access.SaveForRunAsync(TestScope, runId, model);
+
+    pinSync.Verify(
+      sync => sync.SyncPinnedVersionToSavedModelAsync(
+        TestScope,
+        run,
+        It.Is<ArchitectureKnowledgeModel>(saved =>
+          saved.Elements.Count == 1
+          && saved.Elements[0].Name == "API"
+          && saved.ModelId != model.ModelId),
+        It.IsAny<CancellationToken>()),
+      Times.Once);
   }
 }

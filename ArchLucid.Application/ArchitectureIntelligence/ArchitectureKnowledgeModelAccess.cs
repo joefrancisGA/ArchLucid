@@ -12,7 +12,8 @@ public sealed class ArchitectureKnowledgeModelAccess(
     IArchitectureIntelligencePersistence? persistence,
     IRunRepository? runRepository = null,
     IArchitectureIdentityRepository? architectureIdentityRepository = null,
-    IKnowledgeModelGraphReprojector? knowledgeModelGraphReprojector = null) : IArchitectureKnowledgeModelAccess
+    IKnowledgeModelGraphReprojector? knowledgeModelGraphReprojector = null,
+    IArchitectureVersionKnowledgeModelPinSync? architectureVersionKnowledgeModelPinSync = null) : IArchitectureKnowledgeModelAccess
 {
     private readonly IArchitectureIntelligencePersistence? _persistence = persistence;
 
@@ -23,6 +24,9 @@ public sealed class ArchitectureKnowledgeModelAccess(
 
     private readonly IKnowledgeModelGraphReprojector? _knowledgeModelGraphReprojector =
         knowledgeModelGraphReprojector;
+
+    private readonly IArchitectureVersionKnowledgeModelPinSync? _architectureVersionKnowledgeModelPinSync =
+        architectureVersionKnowledgeModelPinSync;
 
     public async Task<ArchitectureKnowledgeModel?> GetForRunAsync(
         ScopeContext scope,
@@ -134,32 +138,46 @@ public sealed class ArchitectureKnowledgeModelAccess(
 
         await _runRepository.UpdateAsync(run, cancellationToken).ConfigureAwait(false);
 
-        if (run.ArchitectureId is not Guid architectureId
-            || _architectureIdentityRepository is null)
-            return;
+        IArchitectureIdentityRepository? identityRepository = _architectureIdentityRepository;
+        bool architectureIdentityAvailable = false;
 
-        Guid? architectureHeadRunId = await _runRepository
-            .GetLatestRunIdForArchitectureAsync(scope, architectureId, cancellationToken)
-            .ConfigureAwait(false);
-
-        if (architectureHeadRunId == runId)
+        if (run.ArchitectureId is Guid architectureIdToAdvance
+            && architectureIdToAdvance != Guid.Empty
+            && identityRepository is not null)
         {
-            await _runRepository
-                .ClearGraphSnapshotForArchitectureAsync(scope, architectureId, cancellationToken)
+            architectureIdentityAvailable = true;
+            Guid? architectureHeadRunId = await _runRepository
+                .GetLatestRunIdForArchitectureAsync(scope, architectureIdToAdvance, cancellationToken)
                 .ConfigureAwait(false);
 
-            await RestorePreservedPipelineGraphPointerAsync(
-                    run,
-                    graphSnapshotToPreserve,
-                    cancellationToken)
-                .ConfigureAwait(false);
+            if (architectureHeadRunId == runId)
+            {
+                await _runRepository
+                    .ClearGraphSnapshotForArchitectureAsync(scope, architectureIdToAdvance, cancellationToken)
+                    .ConfigureAwait(false);
 
-            await _architectureIdentityRepository
-                .UpdateCurrentModelAsync(scope, architectureId, nextModelId, cancellationToken)
+                await RestorePreservedPipelineGraphPointerAsync(
+                        run,
+                        graphSnapshotToPreserve,
+                        cancellationToken)
+                    .ConfigureAwait(false);
+
+                await identityRepository
+                    .UpdateCurrentModelAsync(scope, architectureIdToAdvance, nextModelId, cancellationToken)
+                    .ConfigureAwait(false);
+            }
+        }
+
+        // Create-time pin hashes intake only. Closed-loop persist writes κ afterward; re-pin so
+        // finalize does not 409 (golden-cohort nightly: pinned ArchitectureVersionId κ drift).
+        if (_architectureVersionKnowledgeModelPinSync is not null)
+        {
+            await _architectureVersionKnowledgeModelPinSync
+                .SyncPinnedVersionToSavedModelAsync(scope, run, modelToSave, cancellationToken)
                 .ConfigureAwait(false);
         }
 
-        if (_knowledgeModelGraphReprojector is not null)
+        if (architectureIdentityAvailable && _knowledgeModelGraphReprojector is not null)
         {
             await _knowledgeModelGraphReprojector
                 .TryReprojectForRunAsync(scope, runId, model, cancellationToken)
