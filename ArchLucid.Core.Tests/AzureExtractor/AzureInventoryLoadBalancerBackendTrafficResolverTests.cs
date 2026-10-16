@@ -73,6 +73,56 @@ public sealed class AzureInventoryLoadBalancerBackendTrafficResolverTests
     }
 
     [Fact]
+    public void ResolveLoadBalancerBackends_reads_backend_when_pool_uses_pascal_case_properties_bag()
+    {
+        GraphNode loadBalancer = new()
+        {
+            NodeId = "lb1",
+            NodeType = "resource",
+            Label = "lb1",
+            Properties = new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["backendAddressPools"] =
+                    $$"""
+                    [
+                      {
+                        "id": "{{PoolId}}",
+                        "Properties": {
+                          "loadBalancerBackendAddresses": [
+                            {
+                              "name": "addr1",
+                              "properties": {
+                                "networkInterfaceIPConfiguration": { "id": "{{NicIpConfigurationId}}" }
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                    """,
+                ["loadBalancingRules"] =
+                    $$"""
+                    [
+                      {
+                        "properties": {
+                          "backendPort": 443,
+                          "backendAddressPool": { "id": "{{PoolId}}" }
+                        }
+                      }
+                    ]
+                    """,
+            },
+        };
+
+        IReadOnlyList<AzureInventoryLoadBalancerBackendTrafficResolver.BackendTarget> targets =
+            AzureInventoryLoadBalancerBackendTrafficResolver.ResolveLoadBalancerBackends(loadBalancer);
+
+        targets.Should().ContainSingle();
+        targets[0].TargetArmId.Should().Be(NicId.ToLowerInvariant());
+        targets[0].RulePort.Should().Be(443);
+    }
+
+    [Fact]
     public void ResolveLoadBalancerBackends_reads_backend_when_pools_json_is_string_scalar_wrapping_array()
     {
         string innerPools =

@@ -63,7 +63,7 @@ public static class AzureInventoryLoadBalancerBackendTrafficResolver
                     portByPoolId.TryGetValue(ArmResourceIdNormalizer.Normalize(poolId), out rulePort);
                 }
 
-                if (!pool.TryGetProperty("properties", out JsonElement properties)
+                if (!TryGetPropertyIgnoreCase(pool, "properties", out JsonElement properties)
                     || properties.ValueKind is not JsonValueKind.Object)
                 {
                     continue;
@@ -122,13 +122,13 @@ public static class AzureInventoryLoadBalancerBackendTrafficResolver
 
             foreach (JsonElement pool in poolsRoot.EnumerateArray())
             {
-                if (!pool.TryGetProperty("properties", out JsonElement properties)
+                if (!TryGetPropertyIgnoreCase(pool, "properties", out JsonElement properties)
                     || properties.ValueKind is not JsonValueKind.Object)
                 {
                     continue;
                 }
 
-                if (properties.TryGetProperty("backendAddresses", out JsonElement addresses)
+                if (TryGetPropertyIgnoreCase(properties, "backendAddresses", out JsonElement addresses)
                     && addresses.ValueKind is JsonValueKind.Array)
                 {
                     foreach (JsonElement address in addresses.EnumerateArray())
@@ -177,13 +177,13 @@ public static class AzureInventoryLoadBalancerBackendTrafficResolver
 
             foreach (JsonElement rule in document.RootElement.EnumerateArray())
             {
-                if (!rule.TryGetProperty("properties", out JsonElement ruleProperties)
+                if (!TryGetPropertyIgnoreCase(rule, "properties", out JsonElement ruleProperties)
                     || ruleProperties.ValueKind is not JsonValueKind.Object)
                 {
                     continue;
                 }
 
-                if (!ruleProperties.TryGetProperty("backendAddressPool", out JsonElement poolReference))
+                if (!TryGetPropertyIgnoreCase(ruleProperties, "backendAddressPool", out JsonElement poolReference))
                 {
                     continue;
                 }
@@ -218,7 +218,7 @@ public static class AzureInventoryLoadBalancerBackendTrafficResolver
         int? rulePort,
         bool nestedAddress)
     {
-        if (!poolProperties.TryGetProperty(collectionName, out JsonElement configurations)
+        if (!TryGetPropertyIgnoreCase(poolProperties, collectionName, out JsonElement configurations)
             || configurations.ValueKind is not JsonValueKind.Array)
         {
             return;
@@ -249,7 +249,7 @@ public static class AzureInventoryLoadBalancerBackendTrafficResolver
 
     private static string? TryReadDirectId(JsonElement configuration)
     {
-        if (!configuration.TryGetProperty("id", out JsonElement idElement)
+        if (!TryGetPropertyIgnoreCase(configuration, "id", out JsonElement idElement)
             || idElement.ValueKind is not JsonValueKind.String)
         {
             return null;
@@ -260,9 +260,9 @@ public static class AzureInventoryLoadBalancerBackendTrafficResolver
 
     private static string? TryReadNestedNetworkInterfaceIpConfigurationId(JsonElement address)
     {
-        if (!address.TryGetProperty("properties", out JsonElement properties)
+        if (!TryGetPropertyIgnoreCase(address, "properties", out JsonElement properties)
             || properties.ValueKind is not JsonValueKind.Object
-            || !properties.TryGetProperty("networkInterfaceIPConfiguration", out JsonElement reference))
+            || !TryGetPropertyIgnoreCase(properties, "networkInterfaceIPConfiguration", out JsonElement reference))
         {
             return null;
         }
@@ -277,7 +277,7 @@ public static class AzureInventoryLoadBalancerBackendTrafficResolver
 
     private static string? TryReadPoolId(JsonElement pool)
     {
-        if (pool.TryGetProperty("id", out JsonElement idElement) && idElement.ValueKind is JsonValueKind.String)
+        if (TryGetPropertyIgnoreCase(pool, "id", out JsonElement idElement) && idElement.ValueKind is JsonValueKind.String)
         {
             return idElement.GetString();
         }
@@ -293,7 +293,7 @@ public static class AzureInventoryLoadBalancerBackendTrafficResolver
         }
 
         if (poolReference.ValueKind is JsonValueKind.Object
-            && poolReference.TryGetProperty("id", out JsonElement idElement)
+            && TryGetPropertyIgnoreCase(poolReference, "id", out JsonElement idElement)
             && idElement.ValueKind is JsonValueKind.String)
         {
             return idElement.GetString();
@@ -304,7 +304,7 @@ public static class AzureInventoryLoadBalancerBackendTrafficResolver
 
     private static int? TryReadBackendPort(JsonElement ruleProperties)
     {
-        if (!ruleProperties.TryGetProperty("backendPort", out JsonElement backendPortElement))
+        if (!TryGetPropertyIgnoreCase(ruleProperties, "backendPort", out JsonElement backendPortElement))
         {
             return null;
         }
@@ -326,25 +326,48 @@ public static class AzureInventoryLoadBalancerBackendTrafficResolver
 
     private static string? TryReadApplicationGatewayBackendArmId(JsonElement address)
     {
-        if (!address.TryGetProperty("properties", out JsonElement properties)
+        if (!TryGetPropertyIgnoreCase(address, "properties", out JsonElement properties)
             || properties.ValueKind is not JsonValueKind.Object)
         {
             return null;
         }
 
-        if (properties.TryGetProperty("backendIpAddress", out JsonElement ipElement)
+        if (TryGetPropertyIgnoreCase(properties, "backendIpAddress", out JsonElement ipElement)
             && ipElement.ValueKind is JsonValueKind.String
             && !string.IsNullOrWhiteSpace(ipElement.GetString()))
         {
             return null;
         }
 
-        if (properties.TryGetProperty("backendResourceId", out JsonElement resourceIdElement)
+        if (TryGetPropertyIgnoreCase(properties, "backendResourceId", out JsonElement resourceIdElement)
             && resourceIdElement.ValueKind is JsonValueKind.String)
         {
             return resourceIdElement.GetString();
         }
 
         return null;
+    }
+
+    private static bool TryGetPropertyIgnoreCase(
+        JsonElement element,
+        string propertyName,
+        out JsonElement value)
+    {
+        foreach (JsonProperty property in element.EnumerateObject())
+        {
+
+            if (!property.Name.Equals(propertyName, StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            value = property.Value;
+
+            return true;
+        }
+
+        value = default;
+
+        return false;
     }
 }
