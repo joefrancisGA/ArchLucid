@@ -7691,3 +7691,4 @@
 {"at":"2026-10-16T21:48:48.8724125Z","zoneId":"archlucid-core","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Core/AzureExtractor/AzureInventoryVnetPeeringParser.cs"]}
 {"at":"2026-10-16T21:51:33.2569054Z","zoneId":"archlucid-core","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Core/AzureExtractor/AzureInventoryVnetPeeringParser.cs"]}
 {"at":"2026-10-16T21:54:15.0065060Z","zoneId":"archlucid-core","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Core/AzureExtractor/AzureInventoryVnetPeeringParser.cs"]}
+{"at":"2026-10-16T22:03:57.8805264Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Governance/GovernanceEnvironmentCatalogController.cs"]}
