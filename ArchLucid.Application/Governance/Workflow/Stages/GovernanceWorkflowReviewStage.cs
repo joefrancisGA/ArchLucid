@@ -158,9 +158,25 @@ public sealed class GovernanceWorkflowReviewStage(
         }
 
         if (string.Equals(newStatus, GovernanceApprovalStatus.Approved, StringComparison.Ordinal))
-            await _integrationEvents.TryPublishApprovalApprovedAsync(request, reviewedBy, reviewedUtc, reviewComment, cancellationToken);
+        {
+            await _integrationEvents.TryPublishApprovalApprovedAsync(
+                request,
+                reviewedBy,
+                reviewedByActorKey,
+                reviewedUtc,
+                reviewComment,
+                cancellationToken);
+        }
         else
-            await _integrationEvents.TryPublishApprovalRejectedAsync(request, reviewedBy, reviewedUtc, reviewComment, cancellationToken);
+        {
+            await _integrationEvents.TryPublishApprovalRejectedAsync(
+                request,
+                reviewedBy,
+                reviewedByActorKey,
+                reviewedUtc,
+                reviewComment,
+                cancellationToken);
+        }
 
         return reviewedRequest;
     }

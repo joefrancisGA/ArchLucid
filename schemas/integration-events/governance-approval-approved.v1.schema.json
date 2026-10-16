@@ -28,6 +28,7 @@
     "sourceEnvironment": { "type": "string" },
     "targetEnvironment": { "type": "string" },
     "reviewedBy": { "type": "string" },
+    "reviewedByActorKey": { "type": "string" },
     "reviewedUtc": { "type": "string", "format": "date-time" },
     "reviewComment": { "type": "string" }
   },

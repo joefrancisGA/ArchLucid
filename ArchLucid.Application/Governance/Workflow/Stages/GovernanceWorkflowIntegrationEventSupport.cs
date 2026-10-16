@@ -87,6 +87,7 @@ public sealed class GovernanceWorkflowIntegrationEventSupport(
     public async Task TryPublishApprovalApprovedAsync(
         GovernanceApprovalRequest request,
         string reviewedBy,
+        string reviewedByActorKey,
         DateTime reviewedUtc,
         string? reviewComment,
         CancellationToken cancellationToken)
@@ -106,6 +107,7 @@ public sealed class GovernanceWorkflowIntegrationEventSupport(
             sourceEnvironment = request.SourceEnvironment,
             targetEnvironment = request.TargetEnvironment,
             reviewedBy,
+            reviewedByActorKey,
             reviewedUtc,
             reviewComment
         };
@@ -131,6 +133,7 @@ public sealed class GovernanceWorkflowIntegrationEventSupport(
     public async Task TryPublishApprovalRejectedAsync(
         GovernanceApprovalRequest request,
         string reviewedBy,
+        string reviewedByActorKey,
         DateTime reviewedUtc,
         string? reviewComment,
         CancellationToken cancellationToken)
@@ -150,6 +153,7 @@ public sealed class GovernanceWorkflowIntegrationEventSupport(
             sourceEnvironment = request.SourceEnvironment,
             targetEnvironment = request.TargetEnvironment,
             reviewedBy,
+            reviewedByActorKey,
             reviewedUtc,
             reviewComment
         };

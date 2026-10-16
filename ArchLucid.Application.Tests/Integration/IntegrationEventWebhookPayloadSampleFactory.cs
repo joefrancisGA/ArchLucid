@@ -138,6 +138,7 @@ internal static class IntegrationEventWebhookPayloadSampleFactory
             sourceEnvironment = "dev",
             targetEnvironment = "test",
             reviewedBy = "reviewer-1",
+            reviewedByActorKey = "jwt:11111111-1111-1111-1111-111111111111:aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
             reviewedUtc = TimeProvider.System.UtcNowDateTime(),
             reviewComment = (string?)null
         };
@@ -158,6 +159,7 @@ internal static class IntegrationEventWebhookPayloadSampleFactory
             sourceEnvironment = "dev",
             targetEnvironment = "test",
             reviewedBy = "reviewer-1",
+            reviewedByActorKey = "jwt:11111111-1111-1111-1111-111111111111:aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
             reviewedUtc = TimeProvider.System.UtcNowDateTime(),
             reviewComment = "needs more evidence"
         };
