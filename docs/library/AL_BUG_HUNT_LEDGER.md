@@ -1,3 +1,4 @@
+2026-10-16 seed hunt (seed→hit): `ui-review-detail-workspace` — promoted `RunDetailPipelineStagesSection` syncing `runPipelineStagesOpen` / `runPipelineStagesTechnicalOpen` only from `popstate`, so Next.js soft navigation left pipeline stage disclosures stale; reconcile from `useSearchParams`; regression `follows runPipelineStagesOpen query changes without a popstate event`; pipeline stages vitest 1/1; seeded five follow-on `(candidate)` rows.
 2026-10-16 seed hunt (seed→hit): `ui-review-detail-workspace` — promoted `RunDetailArtifactsExportsSection` syncing `runDeliverablesOpen` only from `popstate`, so Next.js soft navigation left the deliverables disclosure closed; reconcile from `useSearchParams` with default-open fallback; regression `follows runDeliverablesOpen query changes without a popstate event`; deliverables vitest 1/1; seeded five follow-on `(candidate)` rows.
 2026-10-16 seed hunt (seed→hit): `ui-review-detail-workspace` — promoted `RunDetailOperatorPipelineToolsCollapsible` syncing `runRefineWithAiOpen` only from `popstate`, so Next.js soft navigation left the Refine with AI disclosure closed; reconcile from `useSearchParams`; regression `follows runRefineWithAiOpen query changes without a popstate event`; pipeline tools vitest 1/1; seeded five follow-on `(candidate)` rows.
 2026-10-16 seed hunt (seed→hit): `ui-review-detail-workspace` — promoted `RunDetailAdvancedAnalysisSection` syncing `runAdvancedAnalysisOpen` only from `popstate`, so Next.js soft navigation left the advanced analysis disclosure closed; reconcile from `useSearchParams`; regression `follows runAdvancedAnalysisOpen query changes without a popstate event`; advanced analysis vitest 1/1; seeded five follow-on `(candidate)` rows.
@@ -39999,6 +40000,8 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 ---
 
 ## Zone: ui-review-detail-workspace
+2026-10-16 seed hunt (seed→hit): promoted pipeline stages disclosure soft-navigation sync.
+
 2026-10-16 seed hunt (seed→hit): promoted artifacts deliverables `runDeliverablesOpen` soft-navigation sync.
 
 2026-10-16 seed hunt (seed→hit): promoted Refine with AI `runRefineWithAiOpen` soft-navigation sync.
@@ -40043,7 +40046,7 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 - (candidate) `ReviewAskDock` — closing dock when `askDock` cleared without `popstate` — locus: ask dock dialog; input: Link removes open flag on soft navigation.
 - [x] (proven) `RunDetailArtifactsExportsSection` — `runDeliverablesOpen` ignored on Next.js soft navigation — **hit 2026-10-16 seed hunt:** reconcile deliverables disclosure from `useSearchParams`; regression `follows runDeliverablesOpen query changes without a popstate event`. — locus: artifacts exports section; input: soft navigation with deliverables open query.
 - (candidate) `RunDetailRunExplanationCollapsible` — run explanation nested disclosures open sync only on `popstate` — locus: run explanation collapsible; input: soft navigation sets disclosure query flags.
-- (candidate) `RunDetailPipelineStagesSection` — pipeline stages disclosure open sync only on `popstate` — locus: pipeline stages section; input: soft navigation with stages open query.
+- [x] (proven) `RunDetailPipelineStagesSection` — `runPipelineStagesOpen` ignored on Next.js soft navigation — **hit 2026-10-16 seed hunt:** reconcile stages disclosures from `useSearchParams`; regression `follows runPipelineStagesOpen query changes without a popstate event`. — locus: pipeline stages section; input: soft navigation with stages open query.
 - (candidate) `RunDetailOperatorTechnicalDisclosure` — operator technical disclosure open sync only on `popstate` — locus: operator technical disclosure; input: soft navigation with open query param.
 - (candidate) `RunDetailWorkspaceStickyActions` — technical detail disclosure open flag sync only on `popstate` — locus: sticky actions technical detail; input: client navigation sets open query without `popstate`.
 - (candidate) `RunDetailProvenanceSummaryCard` — identifier disclosure URL open sync only on `popstate` — locus: provenance summary identifiers; input: soft navigation opens identifiers panel.
