@@ -113,6 +113,7 @@ public sealed class GovernanceWorkflowAuditSupport(
                 },
                 AuditJsonSerializationOptions.Instance));
         auditEvent.ExplicitActor = true;
+        auditEvent.RunId = TryParseGovernanceAuditRunId(record.RunId);
 
         return auditEvent;
     }
@@ -142,6 +143,7 @@ public sealed class GovernanceWorkflowAuditSupport(
                 },
                 AuditJsonSerializationOptions.Instance));
         auditEvent.ExplicitActor = true;
+        auditEvent.RunId = TryParseGovernanceAuditRunId(activation.RunId);
 
         return auditEvent;
     }
@@ -173,6 +175,7 @@ public sealed class GovernanceWorkflowAuditSupport(
                 },
                 AuditJsonSerializationOptions.Instance));
         auditEvent.ExplicitActor = true;
+        auditEvent.RunId = TryParseGovernanceAuditRunId(request.RunId);
 
         return auditEvent;
     }
@@ -330,5 +333,16 @@ public sealed class GovernanceWorkflowAuditSupport(
             selfApprovalBlocked,
             $"GovernanceSelfApprovalBlocked:{LogSanitizer.Sanitize(approvalRequestId)}",
             cancellationToken);
+    }
+
+    private static Guid? TryParseGovernanceAuditRunId(string? runId)
+    {
+
+        if (string.IsNullOrWhiteSpace(runId))
+        {
+            return null;
+        }
+
+        return Guid.TryParse(runId, out Guid runGuid) ? runGuid : null;
     }
 }

@@ -1,5 +1,13 @@
 > **Scope:**
 
+2026-10-16 seed hunt (seed→hit): `api-governance-tenancy-controllers` — promoted `GovernanceWorkflowAuditSupport.CreateGovernanceManifestPromotedAuditEvent` / `CreateGovernanceEnvironmentActivatedAuditEvent` / `CreateGovernanceApprovalSubmittedAuditEvent` leaving `AuditEvent.RunId` null while `DataJson` carried `runId` (durable governance timeline queries keyed on the column missed promotion, activation, and submit audits when stages logged the factory event without re-stamping); set `RunId` in each factory; regressions `CreateGovernanceManifestPromotedAuditEvent_sets_run_id_on_audit_event`, `CreateGovernanceEnvironmentActivatedAuditEvent_sets_run_id_on_audit_event`, and `CreateGovernanceApprovalSubmittedAuditEvent_sets_run_id_on_audit_event`; `GovernanceWorkflowAuditSupportTests` 20/20; seeded five follow-on `(candidate)` rows.
+
+- (candidate) `GovernanceController.LogGovernanceApprovalRequestedAuditAsync` — `GovernanceApprovalRequested` audit `DataJson` omits `runId` while `AuditEvent.RunId` is set — locus: idempotency submit logging; input: `POST /v1/governance/approval-requests` with idempotency key.
+- (candidate) `GovernanceController.LogGovernanceApprovalRequestedAuditAsync` — approval-request audit `DataJson` omits `requestedByActorKey` — locus: controller logging payload; input: submit with display name distinct from jwt actor key.
+- (candidate) `GovernanceWorkflowIntegrationEventSupport` — manifest-promoted integration event publisher missing from workflow support — locus: promotion outbox; input: verify intentional omission vs gap.
+- (candidate) `GovernanceController.ApprovalRequests` batch review — idempotency replay audit actor parity — locus: batch approve path; input: repeated batch submit with same idempotency key.
+- (candidate) `useFirstPilotIntakeWizard` — stale `inheritedSemanticSummary` when revised-clone intent removed mid-fetch — locus: semantic counts effect cleanup; input: drop `intent=revised-clone` while counts request pending. Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
+
 2026-10-16 thorough hunt (hit): `ui-review-intake-wizards` — promoted `useNewRunWizardPendingEvidence.uploadPendingEvidence` uploading document snapshots captured at upload start after the operator cleared pending PDFs during an in-flight inventory ZIP upload (mixed quick-start evidence); bump pending-evidence upload generation when `setPendingDocumentFiles` changes and read the latest document list from a ref at the document leg; regression `does_not_upload_documents_cleared_while_inventory_upload_is_in_flight`; cheap-disproof closed post-create upload without reset (`uploadPendingEvidence` invoked directly from submit), `useFirstPilotIntakeWizard` prior-run semantic counts (`cancelled` guard on `rerun=` effect cleanup), `NewRunWizardTemplateRestore` step-before-prefill automation race (product test contract), and guided intake `popstate` vs `useSearchParams` step race (existing url-sync regressions); `use-new-run-wizard-pending-evidence.test.ts` 10/10; seeded five follow-on `(candidate)` rows.
 
 - (candidate) `useNewRunWizardPendingEvidence` — document list replaced (not cleared) while inventory upload is in flight should upload the replacement set only after generation invalidation — locus: document leg after stale inventory abort; input: swap PDF file mid-upload.
@@ -36244,6 +36252,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 ---
 
 ## Zone: api-governance-tenancy-controllers
+2026-10-16 seed hunt (seed→hit): promoted durable governance audit factory `AuditEvent.RunId`; 20/20 audit support tests.
+
 2026-10-16 seed hunt (seed→hit): promoted manifest-promoted audit `DataJson` actor fields; 10/10 audit support tests.
 
 2026-10-16 seed hunt (seed→hit): promoted approval-submitted audit DataJson actor keys; 9/9 audit support tests.

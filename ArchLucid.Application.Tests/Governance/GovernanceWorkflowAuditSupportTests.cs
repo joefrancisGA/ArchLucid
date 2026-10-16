@@ -69,6 +69,49 @@ public sealed class GovernanceWorkflowAuditSupportTests
     }
 
     [Fact]
+    public void CreateGovernanceManifestPromotedAuditEvent_sets_run_id_on_audit_event()
+    {
+        const string runId = "44444444-4444-4444-4444-444444444444";
+        GovernanceWorkflowAuditSupport support = CreateSupport();
+        GovernancePromotionRecord record = new()
+        {
+            PromotionRecordId = "prom-1",
+            RunId = runId,
+            ManifestVersion = "1",
+            SourceEnvironment = "dev",
+            TargetEnvironment = "test",
+        };
+
+        AuditEvent auditEvent = support.CreateGovernanceManifestPromotedAuditEvent(
+            record,
+            "Pat Operator",
+            "jwt:11111111-2222-3333-4444-555555555555:aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
+
+        auditEvent.RunId.Should().Be(Guid.Parse(runId));
+    }
+
+    [Fact]
+    public void CreateGovernanceEnvironmentActivatedAuditEvent_sets_run_id_on_audit_event()
+    {
+        const string runId = "55555555-5555-5555-5555-555555555555";
+        GovernanceWorkflowAuditSupport support = CreateSupport();
+        GovernanceEnvironmentActivation activation = new()
+        {
+            ActivationId = "act-1",
+            RunId = runId,
+            ManifestVersion = "1",
+            Environment = "test",
+        };
+
+        AuditEvent auditEvent = support.CreateGovernanceEnvironmentActivatedAuditEvent(
+            activation,
+            "Pat Operator",
+            "jwt:11111111-2222-3333-4444-555555555555:aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
+
+        auditEvent.RunId.Should().Be(Guid.Parse(runId));
+    }
+
+    [Fact]
     public void CreateGovernanceEnvironmentActivatedAuditEvent_sets_explicit_actor_for_stable_activated_by()
     {
         const string displayName = "Pat Operator";
@@ -87,6 +130,27 @@ public sealed class GovernanceWorkflowAuditSupportTests
         auditEvent.ExplicitActor.Should().BeTrue();
         auditEvent.ActorUserId.Should().Be(actorKey);
         auditEvent.ActorUserName.Should().Be(displayName);
+    }
+
+    [Fact]
+    public void CreateGovernanceApprovalSubmittedAuditEvent_sets_run_id_on_audit_event()
+    {
+        const string runId = "77777777-7777-7777-7777-777777777777";
+        GovernanceWorkflowAuditSupport support = CreateSupport();
+        GovernanceApprovalRequest request = new()
+        {
+            ApprovalRequestId = "apr-2",
+            RunId = runId,
+            ManifestVersion = "1",
+            SourceEnvironment = "dev",
+            TargetEnvironment = "test",
+            RequestedBy = "Pat Operator",
+            RequestedByActorKey = "jwt:11111111-2222-3333-4444-555555555555:aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+        };
+
+        AuditEvent auditEvent = support.CreateGovernanceApprovalSubmittedAuditEvent(request, "Pat Operator");
+
+        auditEvent.RunId.Should().Be(Guid.Parse(runId));
     }
 
     [Fact]
