@@ -270,11 +270,14 @@ public sealed class GovernanceWorkflowAuditSupport(
         string reviewedByActorKey,
         CancellationToken cancellationToken)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(reviewedByDisplay);
+        ArgumentException.ThrowIfNullOrWhiteSpace(reviewedByActorKey);
+
         Guid? auditRunId = Guid.TryParse(request.RunId, out Guid runGuid) ? runGuid : null;
         ScopeContext durableScope = _scopeContextProvider.GetCurrentScope();
         AuditEvent selfApprovalBlocked = durableScope.CreateAuditEvent(
             AuditEventTypes.GovernanceSelfApprovalBlocked,
-            reviewedByDisplay,
+            reviewedByActorKey,
             reviewedByDisplay,
             JsonSerializer.Serialize(
                 new
@@ -287,6 +290,7 @@ public sealed class GovernanceWorkflowAuditSupport(
                 },
                 AuditJsonSerializationOptions.Instance));
         selfApprovalBlocked.RunId = auditRunId;
+        selfApprovalBlocked.ExplicitActor = true;
         await LogGovernanceDurableWithRetryAsync(
             selfApprovalBlocked,
             $"GovernanceSelfApprovalBlocked:{LogSanitizer.Sanitize(approvalRequestId)}",
