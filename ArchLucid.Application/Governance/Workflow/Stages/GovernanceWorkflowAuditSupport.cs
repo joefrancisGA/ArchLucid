@@ -91,7 +91,7 @@ public sealed class GovernanceWorkflowAuditSupport(
         string promotedBy)
     {
         ScopeContext durableScope = _scopeContextProvider.GetCurrentScope();
-        return durableScope.CreateAuditEvent(
+        AuditEvent auditEvent = durableScope.CreateAuditEvent(
             AuditEventTypes.GovernanceManifestPromoted,
             promotedBy,
             promotedBy,
@@ -106,6 +106,9 @@ public sealed class GovernanceWorkflowAuditSupport(
                     approvalRequestId = record.ApprovalRequestId
                 },
                 AuditJsonSerializationOptions.Instance));
+        auditEvent.ExplicitActor = true;
+
+        return auditEvent;
     }
 
     public AuditEvent CreateGovernanceEnvironmentActivatedAuditEvent(
@@ -113,7 +116,7 @@ public sealed class GovernanceWorkflowAuditSupport(
         string activatedBy)
     {
         ScopeContext durableScope = _scopeContextProvider.GetCurrentScope();
-        return durableScope.CreateAuditEvent(
+        AuditEvent auditEvent = durableScope.CreateAuditEvent(
             AuditEventTypes.GovernanceEnvironmentActivated,
             activatedBy,
             activatedBy,
@@ -127,6 +130,9 @@ public sealed class GovernanceWorkflowAuditSupport(
                     activatedBy
                 },
                 AuditJsonSerializationOptions.Instance));
+        auditEvent.ExplicitActor = true;
+
+        return auditEvent;
     }
 
     public AuditEvent CreateGovernanceApprovalSubmittedAuditEvent(
