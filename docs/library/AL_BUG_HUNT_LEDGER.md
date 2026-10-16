@@ -1,5 +1,14 @@
 > **Scope:**
 
+2026-10-16 thorough hunt (hit): `api-governance-stickiness` — promoted `GET /v1/governance/risk-exceptions` row guard sealing only `RiskExceptionRecord.RunId`, so waivers with empty run id but in-scope `FindingId` on an older unsealed authority run still returned HTTP 200; resolve finding metadata runs when `RunId` is missing and seal before response; regression `ListRiskExceptions_blocks_older_unsealed_finding_run_when_waiver_run_id_is_empty`; API stickiness picker tests 214/214, application stickiness/digest tests 69/69; cheap-disproof closed stale picker assigned-to-me-count row (fixed earlier); seeded five follow-on `(candidate)` rows.
+
+- (candidate) `GovernanceStickinessController.ListRiskExceptions` — waiver with missing finding inspect row — locus: empty finding id + empty run id; input: skip guard (no run to seal).
+- (candidate) `GovernanceStickinessController.GetFindingsRegistersBundle` — unsealed run outside maxRows page — locus: row sealing window; input: `(valid-no-repro)` unless repro.
+- (candidate) `GovernanceStickinessController.GetDecisionRegister` — row run sealing — locus: already guarded; input: cheap-disproof.
+- (candidate) `GovernancePostureController.GetPosture` — aggregated posture vs per-run register rows — locus: latest-run-only seal; input: `(valid-no-repro)`.
+- (candidate) `GovernanceStickinessFacade.GetAssignedToMeFindingsCountAsync` — count vs 200-row seal window — locus: count exceeds page; input: `(valid-no-repro)`.
+
+
 2026-10-16 thorough hunt (hit): `api-governance-stickiness` — promoted `GET /v1/governance/risk-exceptions` sealing only the latest committed run then returning active waivers whose `RunId` may reference older unsealed runs (register row guards already blocked the same shape on list reads); seal each returned waiver run before HTTP 200; regression `ListRiskExceptions_blocks_older_unsealed_waiver_run_when_latest_run_is_sealed`; fixed `BuildSut` default `ListActiveAsync` setup overwriting injected `IRiskExceptionService` mocks; API stickiness picker tests 213/213, application stickiness/digest tests 69/69; cheap-disproof closed stale assigned-to-me-count candidate (fixed prior run), decision-register/bundle row guards already present; seeded five follow-on `(candidate)` rows.
 
 - (candidate) `GovernanceStickinessController.ListRiskExceptions` — waiver with empty `RunId` — locus: row guard skip; input: finding-only waiver rows.

@@ -103,8 +103,8 @@ public sealed partial class GovernanceStickinessController
             IReadOnlyList<RiskExceptionRecord> records =
                 await _facade.ListRiskExceptionsAsync(projectId, cancellationToken);
 
-            IActionResult? rowGuardResult = await EnsureRegisterRunsSealedManifestAllowedAsync(
-                records.Select(static record => record.RunId),
+            IActionResult? rowGuardResult = await EnsureRiskExceptionRecordsSealedManifestAllowedAsync(
+                records,
                 cancellationToken).ConfigureAwait(false);
 
             if (rowGuardResult is not null)

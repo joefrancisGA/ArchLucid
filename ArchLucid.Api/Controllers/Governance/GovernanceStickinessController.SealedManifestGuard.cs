@@ -168,6 +168,57 @@ public sealed partial class GovernanceStickinessController
         return null;
     }
 
+    private async Task<IActionResult?> EnsureRiskExceptionRecordsSealedManifestAllowedAsync(
+        IReadOnlyList<RiskExceptionRecord> records,
+        CancellationToken cancellationToken)
+    {
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        HashSet<Guid> runIdsToSeal = [];
+
+        foreach (RiskExceptionRecord record in records)
+        {
+            Guid runId = record.RunId ?? Guid.Empty;
+
+            if (runId == Guid.Empty)
+            {
+
+                if (string.IsNullOrWhiteSpace(record.FindingId))
+                {
+                    continue;
+                }
+
+                FindingInspectResponse? finding = await _findingInspectReadRepository.GetInspectAsync(
+                    scope,
+                    record.FindingId.Trim(),
+                    cancellationToken,
+                    FindingInspectReadOptions.MetadataOnly);
+
+                if (finding is null || finding.RunId == Guid.Empty)
+                {
+                    continue;
+                }
+
+                runId = finding.RunId;
+            }
+
+            if (!runIdsToSeal.Add(runId))
+            {
+                continue;
+            }
+
+            IActionResult? guardResult =
+                await EnsureGovernanceDispositionRunSealedManifestAllowedAsync(runId, cancellationToken)
+                    .ConfigureAwait(false);
+
+            if (guardResult is not null)
+            {
+                return guardResult;
+            }
+        }
+
+        return null;
+    }
+
     private async Task<IActionResult?> EnsureRegisterRunsSealedManifestAllowedAsync(
         IEnumerable<Guid?> runIds,
         CancellationToken cancellationToken)
