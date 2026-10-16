@@ -7602,3 +7602,4 @@
 {"at":"2026-10-16T06:36:44.2084772Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/components/reviews/RunDetailOverviewTransparencyTrail.tsx"]}
 {"at":"2026-10-16T06:38:44.810071Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/components/reviews/RunDetailFirstScreenProofStatus.tsx"]}
 {"at":"2026-10-16T06:41:25.6276794Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailRunExplanationCollapsible.tsx"]}
+{"at":"2026-10-16T06:43:57.1445462Z","zoneId":"ui-review-detail-workspace","outcome":"hit","productLine":"archlucid-shared","paths":["archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailSubmittedArchitectureSection.tsx"]}
