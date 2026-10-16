@@ -2866,6 +2866,7 @@ export function DiagramsWorkbenchClient() {
             scopeContextLine={diagramScopeContextLine}
             canvasStale={renderInFlight}
             viewportControlsLayout="stacked"
+            viewportHint=""
             cameraMaxHeightClassName="max-h-[42rem]"
             focusNodeIds={cameraFocusNodeIds}
             focusNonce={cameraFocusNonce}
