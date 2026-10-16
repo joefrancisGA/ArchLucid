@@ -75,7 +75,7 @@ public sealed class AzureInventoryVnetCustomDnsIndex
             {
                 foreach (string server in flatServers.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
                 {
-                    mergedServers.Add(server);
+                    mergedServers.Add(ResolveFlattenedDnsServerValue(server));
                 }
             }
         }
@@ -245,7 +245,53 @@ public sealed class AzureInventoryVnetCustomDnsIndex
                 continue;
             }
 
-            mergedServers.Add(value.Trim());
+            mergedServers.Add(ResolveFlattenedDnsServerValue(value));
+        }
+    }
+
+    private static string ResolveFlattenedDnsServerValue(string value)
+    {
+        if (TryUnwrapJsonStringScalar(value, out string unwrapped))
+        {
+            return unwrapped;
+        }
+
+        return value.Trim();
+    }
+
+    private static bool TryUnwrapJsonStringScalar(string value, out string unwrapped)
+    {
+        unwrapped = value.Trim();
+
+        if (string.IsNullOrWhiteSpace(unwrapped))
+        {
+            return false;
+        }
+
+        try
+        {
+            using JsonDocument document = JsonDocument.Parse(unwrapped);
+            JsonElement root = document.RootElement;
+
+            if (root.ValueKind is not JsonValueKind.String)
+            {
+                return false;
+            }
+
+            string? nested = root.GetString();
+
+            if (string.IsNullOrWhiteSpace(nested))
+            {
+                return false;
+            }
+
+            unwrapped = nested.Trim();
+
+            return true;
+        }
+        catch (JsonException)
+        {
+            return false;
         }
     }
 
