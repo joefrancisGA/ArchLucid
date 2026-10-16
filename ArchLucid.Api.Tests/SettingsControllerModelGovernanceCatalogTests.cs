@@ -67,6 +67,7 @@ public sealed class SettingsControllerModelGovernanceCatalogTests
             Mock.Of<IExternalSubprocessorEngineAcknowledgmentService>(),
             aliasRegistry.Object,
             Mock.Of<IScopeContextProvider>(),
+            Mock.Of<ArchLucid.Application.Common.IActorContext>(),
             Mock.Of<IAuditService>(),
             Mock.Of<IAuditRepository>(),
             TimeProvider.System);

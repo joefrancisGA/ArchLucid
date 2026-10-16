@@ -1,5 +1,6 @@
 using ArchLucid.Application.Admin;
 using ArchLucid.Application.Agents;
+using ArchLucid.Application.Common;
 using ArchLucid.Application.Tenancy;
 using ArchLucid.Core.Agents;
 using ArchLucid.Core.Audit;
@@ -28,6 +29,7 @@ public sealed partial class SettingsController(
     IExternalSubprocessorEngineAcknowledgmentService externalSubprocessorEngineAcknowledgmentService,
     IAgentModelAliasRegistry agentModelAliasRegistry,
     IScopeContextProvider scopeContextProvider,
+    IActorContext actorContext,
     IAuditService auditService,
     IAuditRepository auditRepository,
     TimeProvider timeProvider) : ControllerBase
@@ -57,6 +59,9 @@ public sealed partial class SettingsController(
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
 
+    private readonly IActorContext _actorContext =
+        actorContext ?? throw new ArgumentNullException(nameof(actorContext));
+
     private readonly IAuditService _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
 
     private readonly IAuditRepository _auditRepository =
@@ -64,4 +69,13 @@ public sealed partial class SettingsController(
 
     private readonly TimeProvider _timeProvider =
         timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
+
+    private (string ActorUserId, string ActorUserName) GetAuditActorFields()
+    {
+        // AuditService replaces ActorUserId with NameIdentifier unless ExplicitActor is set.
+        string actorUserId = _actorContext.GetActorId();
+        string actorUserName = User?.Identity?.Name ?? actorUserId;
+
+        return (actorUserId, actorUserName);
+    }
 }

@@ -51,14 +51,15 @@ public sealed partial class SettingsController
             await _workspaceModelExecutionProfileService.SetAsync(profile, cancellationToken).ConfigureAwait(false);
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-        string actor = User?.Identity?.Name ?? "admin";
+        (string actorUserId, string actorUserName) = GetAuditActorFields();
 
         await _auditService.LogAsync(
             new AuditEvent
             {
                 EventType = AuditEventTypes.WorkspaceModelExecutionProfileUpdated,
-                ActorUserId = actor,
-                ActorUserName = actor,
+                ExplicitActor = true,
+                ActorUserId = actorUserId,
+                ActorUserName = actorUserName,
                 TenantId = scope.TenantId,
                 WorkspaceId = scope.WorkspaceId,
                 ProjectId = scope.ProjectId,
@@ -84,14 +85,15 @@ public sealed partial class SettingsController
             await _workspaceModelExecutionProfileService.ClearOverrideAsync(cancellationToken).ConfigureAwait(false);
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-        string actor = User?.Identity?.Name ?? "admin";
+        (string actorUserId, string actorUserName) = GetAuditActorFields();
 
         await _auditService.LogAsync(
             new AuditEvent
             {
                 EventType = AuditEventTypes.WorkspaceModelExecutionProfileOverrideCleared,
-                ActorUserId = actor,
-                ActorUserName = actor,
+                ExplicitActor = true,
+                ActorUserId = actorUserId,
+                ActorUserName = actorUserName,
                 TenantId = scope.TenantId,
                 WorkspaceId = scope.WorkspaceId,
                 ProjectId = scope.ProjectId,

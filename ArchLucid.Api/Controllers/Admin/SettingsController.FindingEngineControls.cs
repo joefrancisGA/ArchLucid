@@ -41,14 +41,15 @@ public sealed partial class SettingsController
             .ConfigureAwait(false);
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-        string actor = User?.Identity?.Name ?? "admin";
+        (string actorUserId, string actorUserName) = GetAuditActorFields();
 
         await _auditService.LogAsync(
             new AuditEvent
             {
                 EventType = AuditEventTypes.TenantFindingEngineControlsUpdated,
-                ActorUserId = actor,
-                ActorUserName = actor,
+                ExplicitActor = true,
+                ActorUserId = actorUserId,
+                ActorUserName = actorUserName,
                 TenantId = scope.TenantId,
                 WorkspaceId = scope.WorkspaceId,
                 ProjectId = scope.ProjectId,
@@ -74,14 +75,15 @@ public sealed partial class SettingsController
             await _findingEngineControlsService.ClearOverridesAsync(cancellationToken).ConfigureAwait(false);
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-        string actor = User?.Identity?.Name ?? "admin";
+        (string actorUserId, string actorUserName) = GetAuditActorFields();
 
         await _auditService.LogAsync(
             new AuditEvent
             {
                 EventType = AuditEventTypes.TenantFindingEngineControlsOverridesCleared,
-                ActorUserId = actor,
-                ActorUserName = actor,
+                ExplicitActor = true,
+                ActorUserId = actorUserId,
+                ActorUserName = actorUserName,
                 TenantId = scope.TenantId,
                 WorkspaceId = scope.WorkspaceId,
                 ProjectId = scope.ProjectId,
