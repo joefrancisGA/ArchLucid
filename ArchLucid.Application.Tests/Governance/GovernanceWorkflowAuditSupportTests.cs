@@ -92,6 +92,30 @@ public sealed class GovernanceWorkflowAuditSupportTests
     }
 
     [Fact]
+    public void CreateGovernanceApprovalSubmittedAuditEvent_includes_requested_by_actor_key_in_data_json()
+    {
+        const string displayName = "Pat Operator";
+        const string actorKey = "jwt:11111111-2222-3333-4444-555555555555:aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee";
+        GovernanceWorkflowAuditSupport support = CreateSupport();
+        GovernanceApprovalRequest request = new()
+        {
+            ApprovalRequestId = "apr-2",
+            RunId = "77777777-7777-7777-7777-777777777777",
+            ManifestVersion = "1",
+            SourceEnvironment = "dev",
+            TargetEnvironment = "test",
+            RequestedBy = displayName,
+            RequestedByActorKey = actorKey,
+        };
+
+        AuditEvent auditEvent = support.CreateGovernanceApprovalSubmittedAuditEvent(request, displayName);
+
+        using JsonDocument document = JsonDocument.Parse(auditEvent.DataJson);
+        document.RootElement.GetProperty("requestedBy").GetString().Should().Be(displayName);
+        document.RootElement.GetProperty("requestedByActorKey").GetString().Should().Be(actorKey);
+    }
+
+    [Fact]
     public void BuildGovernanceReviewAuditEvent_sets_explicit_actor_for_stable_reviewed_by_actor_key()
     {
         const string displayName = "Pat Operator";
