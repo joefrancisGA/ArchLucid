@@ -126,6 +126,17 @@ public interface IHostedAzureArmReadClient
         CancellationToken cancellationToken);
 
     /// <summary>
+    ///     GET a named child collection under one ARM resource and return HTTP status plus values
+    ///     (Static Web App linked backends, Fabric capacity workspaces).
+    /// </summary>
+    Task<HostedAzureArmChildCollectionReadResult> ListChildResourcesWithStatusAsync(
+        string accessToken,
+        string parentResourceId,
+        string childSegment,
+        string apiVersion,
+        CancellationToken cancellationToken);
+
+    /// <summary>
     ///     GET NIC effective NSG and route table (IE-RF-10). Fail-soft per control kind.
     /// </summary>
     Task<IReadOnlyList<HostedAzureArmEffectiveNetworkControlRecord>> ListEffectiveNetworkControlsForNicAsync(
@@ -182,15 +193,5 @@ public interface IHostedAzureArmReadClient
     Task<HostedAzureVaultProtectedItemListResult> ListVaultReplicationProtectedItemsAsync(
         string accessToken,
         string vaultResourceId,
-        CancellationToken cancellationToken);
-
-    /// <summary>
-    ///     GET a child collection under one ARM resource, returning HTTP status for fail-soft collectors (NR-40 / NR-42).
-    /// </summary>
-    Task<HostedAzureArmChildCollectionReadResult> ListChildResourcesWithStatusAsync(
-        string accessToken,
-        string parentResourceId,
-        string childSegment,
-        string apiVersion,
         CancellationToken cancellationToken);
 }
