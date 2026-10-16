@@ -207,7 +207,7 @@ public sealed class FindingIacStubGenerator(
 
     private static AgentResult CloneResult(AgentResult source)
     {
-        EnsureFindingSourceAgentsForJson(source);
+        AgentResultEnvelopeAgentTypeResolver.EnsureFindingSourceAgents(source);
 
         string json = JsonSerializer.Serialize(source, ContractJson.Default);
         AgentResult? copy = JsonSerializer.Deserialize<AgentResult>(json, ContractJson.Default);
@@ -221,64 +221,9 @@ public sealed class FindingIacStubGenerator(
         return copy;
     }
 
-    private static void EnsureFindingSourceAgentsForJson(AgentResult result)
-    {
-        AgentType agentType = ResolveAgentTypeForJson(result);
-
-        if (agentType == default)
-            return;
-
-        if (result.AgentType == default)
-            result.AgentType = agentType;
-
-        EnsureFindingSourceAgentsForJson(result.Findings, agentType);
-        EnsureFindingSourceAgentsForJson(result.ChecklistCoverage, agentType);
-    }
-
-    private static AgentType ResolveAgentTypeForJson(AgentResult result)
-    {
-        if (result.AgentType != default)
-            return result.AgentType;
-
-        AgentType fromFindings = ResolveAgentTypeFromFindings(result.Findings);
-
-        if (fromFindings != default)
-            return fromFindings;
-
-        return ResolveAgentTypeFromFindings(result.ChecklistCoverage);
-    }
-
-    private static AgentType ResolveAgentTypeFromFindings(IReadOnlyList<ArchitectureFinding>? findings)
-    {
-        if (findings is null)
-            return default;
-
-        foreach (ArchitectureFinding finding in findings)
-        {
-            if (finding.SourceAgent != default)
-                return finding.SourceAgent;
-        }
-
-        return default;
-    }
-
-    private static void EnsureFindingSourceAgentsForJson(
-        IReadOnlyList<ArchitectureFinding>? findings,
-        AgentType agentType)
-    {
-        if (findings is null)
-            return;
-
-        foreach (ArchitectureFinding finding in findings)
-        {
-            if (finding.SourceAgent == default)
-                finding.SourceAgent = agentType;
-        }
-    }
-
     private static string SerializeAgentResultForEnrichment(AgentResult result)
     {
-        EnsureFindingSourceAgentsForJson(result);
+        AgentResultEnvelopeAgentTypeResolver.EnsureFindingSourceAgents(result);
 
         JsonObject root = JsonSerializer.SerializeToNode(result, ContractJson.Default)!.AsObject();
 

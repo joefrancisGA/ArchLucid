@@ -1,3 +1,4 @@
+2026-10-16 seed hunt (seed→hit): `application-agents` — promoted `AgentConfidenceCalibrationService.ApplyCalibratedConfidenceForRunAsync` calling `CalibrateAsync` with default `AgentType` when enrichment rows omitted top-level `agentType` but findings declared `sourceAgent`; shared `AgentResultEnvelopeAgentTypeResolver` with IaC stub path; regression `ApplyCalibratedConfidenceForRunAsync_uses_finding_source_agent_when_envelope_agent_type_missing`; 114 scoped `Application.Tests.Agents` passed; seeded five follow-on `(candidate)` rows.
 2026-10-16 seed hunt (seed→hit): `application-agents` — promoted `FindingIacStubGenerator.CloneResult` failing when enrichment rows omitted top-level `agentType` but findings carried `sourceAgent` (default `AgentType` 0 still hit `AgentTypeJsonConverter` on serialize); `ResolveAgentTypeForJson` backfills from finding `SourceAgent` before clone/enrichment JSON; regression `GenerateAndPersistStubsForRunAsync_clones_rows_when_result_agent_type_missing_but_findings_declare_source_agent`; `FindingIacStubGeneratorTests` 7/7 + 113 scoped `Application.Tests.Agents` passed; seeded five follow-on `(candidate)` rows.
 2026-10-16 seed hunt (seed→hit): `application-agents` — promoted `FindingIacStubGenerator.CloneResult` throwing on `ContractJson` round-trip when persisted findings omitted `sourceAgent` (default `AgentType` 0 fails `AgentTypeJsonConverter`); stamp parent `AgentResult.AgentType` onto findings/checklist rows before clone and enrichment serialize; regression `GenerateAndPersistStubsForRunAsync_clones_rows_when_findings_omit_source_agent`; `FindingIacStubGeneratorTests` 6/6 + 112 scoped `Application.Tests.Agents` passed; seeded five follow-on `(candidate)` rows.
 2026-10-16 thorough hunt (hit): `application-agents` — promoted `TopologyProposalDualModelConsensusEnricher.PruneSiblingRelationshipsToConsensusTopology` dropping critic/compliance relationships whose source endpoint is declared only on the sibling agent after consensus removed unrelated topology services; union merged topology endpoint keys with each sibling proposal's declared services/datastores before pruning; regression `EnrichAsync_keeps_sibling_relationships_to_declared_non_topology_endpoints_after_consensus`; cheap-disproved Security-only sibling prune parity (same code path as Cost), diacritics catalog slug collision (pre-insert `EnsureCatalogEntryIdAvailableAsync`), and IaC stub emission gate (already `HasTypedEmission`); 111 scoped `Application.Tests.Agents` tests with 6 pre-existing `FindingIacStubGenerator` clone failures on this VM; seeded five follow-on `(candidate)` rows.
@@ -37806,11 +37807,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** application agents; agent handlers wiring
 - **paths:** ArchLucid.Application/Agents/
 - **test-filter:** FullyQualifiedName~Application.Tests.Agents
-- **hunts:** 40
-- **bugs-found:** 38
+- **hunts:** 41
+- **bugs-found:** 39
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-13
-- **last-bug:** 2026-10-13 — Empty consensus intersection sibling relationship prune
+- **last-hunt:** 2026-10-16
+- **last-bug:** 2026-10-16 — Confidence calibration missing envelope agentType
 
 2026-10-13 seed hunt (seed→hit): reseeded enricher composition after tenancy churn; proved cross-agent consistency ran before consensus so Cost kept api→worker when intersection dropped `svc-worker`; prune sibling relationships to merged topology endpoints after consensus merge; regression `EnrichAsync_prunes_sibling_relationships_when_dual_model_consensus_removes_topology_endpoint`; 109 scoped Application.Tests.Agents tests passed.
 
@@ -37925,7 +37926,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - (candidate) `FindingIacStubGenerator.ResolveAgentTypeFromFindings` — conflicting `sourceAgent` values across findings on one row pick the first only — locus: agent type resolution; input: enrichment row with topology and compliance findings on same `AgentResult`.
 - (candidate) `TopologyProposalDualModelConsensusEnricher.PruneSiblingRelationshipsToConsensusTopology` — sibling `AddedServices` still list consensus-dropped topology ids — locus: service lists after prune; input: compliance re-declares `svc-worker` removed from merged topology.
 - (candidate) `AgentCuratedEvidenceProposer` — enricher runs before structural post-process — locus: `AgentEnrichersCompositionModule` order; input: typed finding text references service dropped by brief grounding in same batch.
-- (candidate) `AgentConfidenceCalibrationService.ApplyCalibratedConfidenceForRunAsync` — calibrates with default `AgentType` when envelope missing — locus: `CalibrateAsync(result.AgentType, …)`; input: enrichment-only row missing `agentType` (parity with IaC stub path).
+- [x] (proven) `AgentConfidenceCalibrationService.ApplyCalibratedConfidenceForRunAsync` — calibrated with default `AgentType` when envelope omitted `agentType` but findings declared `sourceAgent` — **hit 2026-10-16 seed hunt:** `AgentResultEnvelopeAgentTypeResolver.ResolveAgentType`; regression `ApplyCalibratedConfidenceForRunAsync_uses_finding_source_agent_when_envelope_agent_type_missing`.
 - (candidate) `EvidenceProposalPromoter.BuildCatalogEntryId` — punctuation-only titles always mint random catalog ids — locus: empty slug branch; input: title `!!!` after trim.
 - (candidate) `FindingIacStubGenerator.GenerateAndPersistStubsForRunAsync` — relational mute flag application skipped when `runId` is not a parseable GUID, leaving muted findings eligible for stub generation on non-GUID run ids — locus: `ApplyRelationalMuteFlagsAsync`; input: alphanumeric demo run id with muted finding rows.
 
