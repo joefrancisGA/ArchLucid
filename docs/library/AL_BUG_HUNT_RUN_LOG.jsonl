@@ -7674,3 +7674,4 @@
 {"at":"2026-10-16T20:21:55.9339825Z","zoneId":"archlucid-core","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Core/AzureExtractor/AzureInventoryNetworkInterfaceIpConfigurationReferenceReader.cs"]}
 {"at":"2026-10-16T20:29:06.1469712Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Governance/GovernanceController.Logging.cs"]}
 {"at":"2026-10-16T20:37:21.1835417Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Admin/SettingsController.cs"]}
+{"at":"2026-10-16T20:46:03.2543792Z","zoneId":"saml-jwt-bearer","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Core/Auth/Saml/SamlMetadataValidUntilParser.cs"]}
