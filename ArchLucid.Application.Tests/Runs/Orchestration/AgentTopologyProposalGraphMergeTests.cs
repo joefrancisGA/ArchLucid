@@ -7448,6 +7448,59 @@ public sealed class AgentTopologyProposalGraphMergeTests
     }
 
     [Fact]
+    public void WithMergedTopologyProposals_does_not_materialize_distinct_cost_service_after_topology_on_initially_empty_graph()
+    {
+        GraphSnapshot graph = new GraphSnapshot { Nodes = [], Edges = [] };
+
+        AgentResult topology = new()
+        {
+            ResultId = "topology-1",
+            AgentType = AgentType.Topology,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Topology,
+                AddedServices =
+                [
+                    new ManifestService
+                    {
+                        ServiceName = "api",
+                        ServiceId = "svc-1",
+                        ServiceType = ServiceType.Api,
+                        RuntimePlatform = RuntimePlatform.AppService,
+                    },
+                ],
+            },
+        };
+
+        AgentResult cost = new()
+        {
+            ResultId = "cost-1",
+            AgentType = AgentType.Cost,
+            ProposedChanges = new AgentTopologyProposal
+            {
+                SourceAgent = AgentType.Cost,
+                AddedServices =
+                [
+                    new ManifestService
+                    {
+                        ServiceName = "billing-worker",
+                        ServiceId = "svc-2",
+                        ServiceType = ServiceType.Worker,
+                        RuntimePlatform = RuntimePlatform.Functions,
+                    },
+                ],
+            },
+        };
+
+        CrossAgentProposalConsistencyGate.ApplyToResults([topology, cost]);
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology, cost]);
+
+        merged.Nodes.Should().ContainSingle(n => n.NodeId == "svc-1" && n.Label == "api");
+        merged.Nodes.Should().NotContain(n => n.NodeId == "svc-2");
+    }
+
+    [Fact]
     public void WithMergedTopologyProposals_adds_edges_when_compliance_rename_overlay_service_id_has_surrounding_whitespace()
     {
         GraphSnapshot graph = Graph(ComputeNode(), DataNode());
