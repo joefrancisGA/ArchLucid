@@ -1,6 +1,6 @@
 "use client";
 
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
@@ -26,6 +26,8 @@ function readRoomElicitationFromWindowLocation(): boolean {
 
 export function useReviewDetailWorkspaceRoomElicitation(): UseReviewDetailWorkspaceRoomElicitationResult {
   const pathname = usePathname() ?? "/architecture/reviews";
+  const searchParams = useSearchParams();
+  const urlRoomElicitationActive = readRoomElicitationFromSearchParams(searchParams);
   const [roomElicitationActive, setRoomElicitationActiveState] = useState(() =>
     readRoomElicitationFromWindowLocation(),
   );
@@ -74,6 +76,15 @@ export function useReviewDetailWorkspaceRoomElicitation(): UseReviewDetailWorksp
       window.removeEventListener("popstate", syncRoomElicitationFromUrl);
     };
   }, []);
+
+  useEffect(() => {
+    if (roomElicitationActiveRef.current === urlRoomElicitationActive) {
+      return;
+    }
+
+    roomElicitationActiveRef.current = urlRoomElicitationActive;
+    setRoomElicitationActiveState(urlRoomElicitationActive);
+  }, [urlRoomElicitationActive]);
 
   const enterRoomElicitation = useCallback(() => {
     setRoomElicitation(true);
