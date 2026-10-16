@@ -110,6 +110,17 @@ vi.mock("@/hooks/use-run-summary-query", () => ({
   useRunSummaryQuery: (...args: unknown[]) => useRunSummaryQuery(...args),
 }));
 
+const getPriorPackageSemanticCounts = vi.hoisted(() => vi.fn());
+
+vi.mock("@/lib/api/draft-intake-api-crud", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/api/draft-intake-api-crud")>();
+
+  return {
+    ...actual,
+    getPriorPackageSemanticCounts: (...args: unknown[]) => getPriorPackageSemanticCounts(...args),
+  };
+});
+
 vi.mock("./use-first-pilot-intake-submit", () => ({
   useFirstPilotIntakeSubmit: () => ({
     clientValidationMessage: null,
@@ -166,6 +177,8 @@ describe("useFirstPilotIntakeWizard prior-run prefill", () => {
     capturedPersistence = null;
     scopeGateSearchParamsHarness.reset();
     useRunSummaryQuery.mockReturnValue({ data: undefined });
+    getPriorPackageSemanticCounts.mockReset();
+    getPriorPackageSemanticCounts.mockResolvedValue(null);
   });
 
   it("does not prefill the run title from orphan rerun= without revised-clone intent", async () => {
@@ -182,6 +195,31 @@ describe("useFirstPilotIntakeWizard prior-run prefill", () => {
 
     expect(result.current.runTitle).toBe("");
     expect(result.current.inheritedPriorTitle).toBeNull();
+  });
+
+  it("clears inherited semantic summary when revised-clone intent is removed after counts load", async () => {
+    getPriorPackageSemanticCounts.mockResolvedValue({
+      actorCount: 2,
+      assumptionCount: 0,
+      decisionCount: 1,
+      requirementCount: 3,
+    });
+
+    scopeGateSearchParamsHarness.state.query =
+      "intent=revised-clone&rerun=run-second-review&priorRunId=run-second-review";
+
+    const { result, rerender } = renderHook(() => useFirstPilotIntakeWizard({}), {
+      wrapper: ScopeGateSearchParamsRerenderHost,
+    });
+
+    await waitFor(() => {
+      expect(result.current.inheritedSemanticSummary).not.toBeNull();
+    });
+
+    scopeGateSearchParamsHarness.applyHref("/architecture/reviews/new");
+    rerender();
+
+    expect(result.current.inheritedSemanticSummary).toBeNull();
   });
 
   it("prefills the run title when revised-clone intent carries rerun=", async () => {

@@ -266,6 +266,8 @@ export function useFirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
 
   useEffect(() => {
     if (priorRunIdForTitlePrefill === null) {
+      setInheritedSemanticSummary(null);
+
       return;
     }
 

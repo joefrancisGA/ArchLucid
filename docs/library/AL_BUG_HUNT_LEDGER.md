@@ -1,5 +1,13 @@
 > **Scope:**
 
+2026-10-16 thorough hunt (hit): `ui-review-intake-wizards` — promoted `useFirstPilotIntakeWizard` leaving `inheritedSemanticSummary` visible after the operator navigated away from `intent=revised-clone` (prior-run semantic counts effect returned early when `priorRunIdForTitlePrefill` became null without clearing state); reset summary when revised-clone prefill is inactive; regression `clears_inherited_semantic_summary_when_revised-clone_intent_is_removed_after_counts_load`; cheap-disproof closed mixed-evidence document clear mid-upload (prior hit), submit `uploadPendingEvidence` direct call after failed quick-start (`valid-no-repro` — upload sets uploading), template-restore vs query-prefill ordering (automation contract), guided intake `popstate` step race (existing url-sync tests); `use-first-pilot-intake-wizard.test.ts` 6/6 + `use-new-run-wizard-pending-evidence.test.ts` 10/10; seeded five follow-on `(candidate)` rows.
+
+- (candidate) `useNewRunWizardPendingEvidence` — replace pending PDFs mid mixed upload should not upload removed files after operator retries — locus: generation invalidation + manual retry; input: swap PDF then complete inventory and re-upload.
+- (candidate) `useFirstPilotIntakeWizard` — stale semantic summary when `rerun=` changes while counts fetch is in flight — locus: effect cleanup on `priorRunIdForTitlePrefill` change; input: swap rerun query before resolve.
+- (candidate) `NewRunWizardTemplateRestore` — restored step index before query-prefill completes — locus: template restore vs `useNewRunWizardQueryPrefill`; input: `data-wizard-ready` automation.
+- (candidate) `useGuidedIntakeWizard.setStep` — `popstate` vs `useSearchParams` during draft hydrate — locus: dual URL listeners; input: Back/Forward during session restore.
+- (candidate) `useNewRunWizardSubmit` — failed `evidenceUploadState` display after successful post-submit `uploadPendingEvidence` — locus: panel state vs hook upload; input: step-1 failure then full wizard submit. Contributor-reference — internal defect-hunt ledger and regression evidence; not a customer-facing product guide.
+
 2026-10-16 seed hunt (seed→hit): `api-governance-tenancy-controllers` — promoted `GovernanceWorkflowAuditSupport.CreateGovernanceManifestPromotedAuditEvent` / `CreateGovernanceEnvironmentActivatedAuditEvent` / `CreateGovernanceApprovalSubmittedAuditEvent` leaving `AuditEvent.RunId` null while `DataJson` carried `runId` (durable governance timeline queries keyed on the column missed promotion, activation, and submit audits when stages logged the factory event without re-stamping); set `RunId` in each factory; regressions `CreateGovernanceManifestPromotedAuditEvent_sets_run_id_on_audit_event`, `CreateGovernanceEnvironmentActivatedAuditEvent_sets_run_id_on_audit_event`, and `CreateGovernanceApprovalSubmittedAuditEvent_sets_run_id_on_audit_event`; `GovernanceWorkflowAuditSupportTests` 20/20; seeded five follow-on `(candidate)` rows.
 
 - (candidate) `GovernanceController.LogGovernanceApprovalRequestedAuditAsync` — `GovernanceApprovalRequested` audit `DataJson` omits `runId` while `AuditEvent.RunId` is set — locus: idempotency submit logging; input: `POST /v1/governance/approval-requests` with idempotency key.
@@ -40663,6 +40671,8 @@ ABQ-09 churn hotspot; review detail route tree.
 ---
 
 ## Zone: ui-review-intake-wizards
+2026-10-16 thorough hunt (hit): promoted clear `inheritedSemanticSummary` when revised-clone intent removed; 6/6 first-pilot wizard tests.
+
 2026-10-16 thorough hunt (hit): promoted pending document upload generation on `setPendingDocumentFiles`; 10/10 pending-evidence tests.
 
 
