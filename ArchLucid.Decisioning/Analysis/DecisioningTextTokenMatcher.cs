@@ -44,7 +44,8 @@ internal static class DecisioningTextTokenMatcher
 
             if (hasBoundaryBefore
                 && hasBoundaryAfter
-                && !IsNegatedNonPrefix(haystack, index))
+                && !IsNegatedNonPrefix(haystack, index)
+                && !IsNoArticleNegation(haystack, index))
             {
                 return true;
             }
@@ -214,5 +215,15 @@ internal static class DecisioningTextTokenMatcher
 
         return tokenIndex >= 4
             && haystack.AsSpan(tokenIndex - 4, 4).Equals("non ", StringComparison.Ordinal);
+    }
+
+    private static bool IsNoArticleNegation(string haystack, int tokenIndex)
+    {
+        if (tokenIndex < 3)
+        {
+            return false;
+        }
+
+        return haystack.AsSpan(tokenIndex - 3, 3).Equals("no ".AsSpan(), StringComparison.Ordinal);
     }
 }
