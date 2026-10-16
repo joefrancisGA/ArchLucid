@@ -57,7 +57,7 @@ public static class AzureExtractorJsonObjectElement
     }
 
     /// <summary>
-    ///     Accepts object rows, string-scalar ARM ids (non-nested collections), or string-scalar wrapped JSON objects.
+    ///     Accepts object rows, string-scalar ARM ids, or string-scalar wrapped JSON objects (including nested load-balancer address rows).
     /// </summary>
     public static bool TryResolveCollectionElement(
         JsonElement configuration,
@@ -69,7 +69,7 @@ public static class AzureExtractorJsonObjectElement
             return true;
         }
 
-        if (configuration.ValueKind is JsonValueKind.String && !nestedAddress)
+        if (configuration.ValueKind is JsonValueKind.String)
         {
             configurationElement = configuration;
 

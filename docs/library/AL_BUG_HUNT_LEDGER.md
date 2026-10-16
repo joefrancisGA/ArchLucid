@@ -1,5 +1,14 @@
 > **Scope:**
 
+2026-10-16 seed hunt (seed→hit): `archlucid-core` — promoted `loadBalancerBackendAddresses[]` elements stored as JSON string scalars containing bare NIC ipConfiguration ARM ids; `TryResolveCollectionElement` rejected string rows when `nestedAddress` was true and `TryReadNestedNetworkInterfaceIpConfigurationId` only read object shapes, so Standard LB backend targets were dropped; accept string collection elements for nested pools and treat string address rows as ipConfiguration references; regressions `ResolveLoadBalancerBackends_reads_backend_when_load_balancer_backend_address_is_json_string_scalar_arm_id` and `ResolveFromBackendAddressPoolsJson_reads_backend_when_load_balancer_backend_address_is_json_string_scalar_arm_id`; LB backend resolver tests 36/36; seeded five follow-on `(candidate)` rows.
+
+- (candidate) `AzureInventoryLoadBalancerBackendTrafficResolver.BuildLoadBalancerPortByPoolId` — `loadBalancingRules` root double-encoded string scalar — locus: root recursion; input: cheap-disproof (already recursive).
+- (candidate) `AzureInventoryRouteTableRouteParser.Parse` — explicit suffix fields whitespace-only while row blob has route — locus: suffix vs blob precedence; input: cheap-disproof (whitespace suffix ignored).
+- (candidate) `AzureInventoryRouteTableRouteParser.TryParseFlattenedArmIdValue` — malformed JSON blob containing `/subscriptions/` substring — locus: `NormalizeArmId` fallback; input: `(valid-no-repro)` unless repro found.
+- (candidate) `AzureInventoryVnetPeeringParser.ParsePeerings` — peering array element bare ARM string scalar — locus: `TryReadRemoteVnetId` string branch; input: cheap-disproof (already supported).
+- (candidate) `AzureInventoryLoadBalancerBackendTrafficResolver` — PascalCase `BackendPort` on rule properties bag — locus: `TryReadBackendPort`; input: cheap-disproof (case-insensitive).
+
+
 2026-10-16 seed hunt (dry): `archlucid-core` — cheap-disproof closed ledger candidates without code changes: `routes` / `virtualNetworkPeerings` JSON double-encoded at root (recursive string-scalar unwrap already handles); explicit flattened row blobs as flat objects or string-scalar-wrapped flat objects (`TryParseRouteFromFlattenedRowBlob` + `TryParseRouteFromRouteElement`); characterization tests `Parse_reads_routes_when_routes_json_is_double_encoded_string_scalar_at_root`, `EnumerateRemoteVnetIds_reads_remote_when_peerings_json_is_double_encoded_string_scalar_at_root`, `Parse_reads_explicit_flattened_route_when_row_blob_is_flat_route_object_without_properties_bag`, `Parse_reads_explicit_flattened_route_when_row_blob_is_string_scalar_wrapping_flat_route_object`; route-table + vnet peering parser tests 39/39; seeded five follow-on `(candidate)` rows.
 
 - (candidate) `AzureInventoryLoadBalancerBackendTrafficResolver.BuildLoadBalancerPortByPoolId` — PascalCase `BackendPort` / `BackendAddressPool` on rule JSON — locus: `TryReadBackendPort`; input: `(valid-no-repro)` unless repro found.

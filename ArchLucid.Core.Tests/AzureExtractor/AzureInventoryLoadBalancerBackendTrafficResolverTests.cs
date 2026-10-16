@@ -765,6 +765,39 @@ public sealed class AzureInventoryLoadBalancerBackendTrafficResolverTests
     }
 
     [Fact]
+    public void ResolveLoadBalancerBackends_reads_backend_when_load_balancer_backend_address_is_json_string_scalar_arm_id()
+    {
+        GraphNode loadBalancer = new()
+        {
+            NodeId = "lb1",
+            NodeType = "resource",
+            Label = "lb1",
+            Properties = new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["backendAddressPools"] =
+                    $$"""
+                    [
+                      {
+                        "id": "{{PoolId}}",
+                        "properties": {
+                          "loadBalancerBackendAddresses": [
+                            {{JsonSerializer.Serialize(NicIpConfigurationId)}}
+                          ]
+                        }
+                      }
+                    ]
+                    """,
+            },
+        };
+
+        IReadOnlyList<AzureInventoryLoadBalancerBackendTrafficResolver.BackendTarget> targets =
+            AzureInventoryLoadBalancerBackendTrafficResolver.ResolveLoadBalancerBackends(loadBalancer);
+
+        targets.Should().ContainSingle();
+        targets[0].TargetArmId.Should().Be(NicId.ToLowerInvariant());
+    }
+
+    [Fact]
     public void ResolveLoadBalancerBackends_reads_backend_when_backend_address_element_is_json_string_scalar()
     {
         string addressObjectJson =

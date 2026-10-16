@@ -173,6 +173,12 @@ public static class AzureInventoryLoadBalancerBackendParentArmIdResolver
 
     private static string? TryReadNestedNetworkInterfaceIpConfigurationId(JsonElement address)
     {
+
+        if (address.ValueKind is JsonValueKind.String)
+        {
+            return TryReadNetworkInterfaceIpConfigurationReference(address);
+        }
+
         if (TryGetPropertyIgnoreCase(address, "properties", out JsonElement properties)
             && properties.ValueKind is JsonValueKind.Object
             && TryGetPropertyIgnoreCase(properties, "networkInterfaceIPConfiguration", out JsonElement nestedReference))

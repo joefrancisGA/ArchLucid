@@ -333,4 +333,26 @@ public sealed class AzureInventoryLoadBalancerBackendParentArmIdResolverTests
 
         parentIds.Should().ContainSingle().Subject.Should().Be(VmssNicId.ToLowerInvariant());
     }
+
+    [Fact]
+    public void ResolveFromBackendAddressPoolsJson_reads_backend_when_load_balancer_backend_address_is_json_string_scalar_arm_id()
+    {
+        string poolsJson =
+            $$"""
+            [
+              {
+                "properties": {
+                  "loadBalancerBackendAddresses": [
+                    {{JsonSerializer.Serialize(VmssNicIpConfigurationId)}}
+                  ]
+                }
+              }
+            ]
+            """;
+
+        IReadOnlyList<string> parentIds =
+            AzureInventoryLoadBalancerBackendParentArmIdResolver.ResolveFromBackendAddressPoolsJson(poolsJson);
+
+        parentIds.Should().ContainSingle().Subject.Should().Be(VmssNicId.ToLowerInvariant());
+    }
 }
