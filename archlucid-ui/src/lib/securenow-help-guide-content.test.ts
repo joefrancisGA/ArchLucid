@@ -278,6 +278,26 @@ describe("SecureNow help guide content", () => {
     );
   });
 
+  it("resolves assigned-to-me contextual help without tenant register or approval copy", () => {
+    const architectureAssigned = contextualHelpForPathname("/governance/findings/assigned-to-me", {
+      productLineId: "architecture",
+    });
+    const securityAssignedGovernance = contextualHelpForPathname("/governance/findings/assigned-to-me", {
+      productLineId: "security",
+    });
+    const securityAssignedShell = contextualHelpForPathname("/security/assigned-to-me", {
+      productLineId: "security",
+    });
+
+    expect(architectureAssigned?.whatIsThisPage).toContain("personal queue");
+    expect(architectureAssigned?.whatIsThisPage).not.toContain("architecture risks");
+    expect(architectureAssigned?.whatIsThisPage).not.toMatch(/approval queue/i);
+
+    expect(securityAssignedGovernance?.whatIsThisPage).toBe(SECURENOW_ASSIGNED_TO_ME_FINDINGS.whatIsThisPage);
+    expect(securityAssignedShell?.whatIsThisPage).toBe(SECURENOW_ASSIGNED_TO_ME_FINDINGS.whatIsThisPage);
+    expect(securityAssignedGovernance?.whatIsThisPage).not.toContain("architecture risks");
+  });
+
   it("uses workspace-scoped standards and rules help for SecureNow", () => {
     expect(standardsRulesHelpPageSubtitle(false, "security")).toContain("workspace scope");
     expect(standardsRulesHelpOverview("security")).not.toContain("review in scope");

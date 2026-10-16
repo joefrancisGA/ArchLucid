@@ -46,6 +46,13 @@ import {
   findingsHelpRelatedLinks,
   findingsHelpWhatIsBody,
 } from "@/lib/findings/findings-help-guide-content";
+import {
+  FINDINGS_HELP_ASSIGNED_TO_ME_SECTION_ID,
+  FINDINGS_HELP_ASSIGNED_TO_ME_SECTION_TITLE,
+  findingsHelpAssignedToMeEmptyBody,
+  findingsHelpAssignedToMeIntro,
+} from "@/lib/findings/findings-help-assigned-to-me-section";
+import { assignedToMeFindingsPathForProductLine } from "@/lib/product-line/securenow-assigned-to-me-route";
 import { FINDINGS_HELP_CANONICAL_PATH, resolveFindingsHelpClaimDiscipline } from "@/lib/findings/findings-help-evidence-copy";
 import {
   FINDINGS_HELP_FIRST_VIEWPORT_TEST_ID,
@@ -221,6 +228,9 @@ export function HelpFindingsGuideView(props: HelpFindingsGuideViewProps): React.
   const semanticSupportCopy = findingsHelpSemanticSupportCopy(productLineId);
   const provenanceNonClaim = findingsHelpProvenanceNonClaim(productLineId);
   const roleGuidance = findingsHelpRoleGuidance(productLineId);
+  const assignedToMeIntro = findingsHelpAssignedToMeIntro(productLineId);
+  const assignedToMeEmptyBody = findingsHelpAssignedToMeEmptyBody(productLineId);
+  const assignedToMeHref = assignedToMeFindingsPathForProductLine(productLineId);
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const guideHeadings = resolveGuideHeadingsForStrip(
     "findings-help",
@@ -394,6 +404,24 @@ export function HelpFindingsGuideView(props: HelpFindingsGuideViewProps): React.
                   </li>
                 ))}
               </ul>
+            </section>
+
+            <section
+              aria-labelledby={FINDINGS_HELP_ASSIGNED_TO_ME_SECTION_ID}
+              className="space-y-3 border-t border-neutral-200 pt-6 dark:border-neutral-800"
+              data-testid="help-findings-assigned-to-me"
+            >
+              <HelpSectionHeading id={FINDINGS_HELP_ASSIGNED_TO_ME_SECTION_ID}>
+                {FINDINGS_HELP_ASSIGNED_TO_ME_SECTION_TITLE}
+              </HelpSectionHeading>
+              <p className={cn("m-0 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>{assignedToMeIntro}</p>
+              <p className={cn("m-0 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>{assignedToMeEmptyBody}</p>
+              <Link
+                href={assignedToMeHref}
+                className={cn("inline-flex min-h-6 items-center py-1 font-semibold", OPERATOR_BODY_INLINE_LINK_CLASS)}
+              >
+                Open assigned to me
+              </Link>
             </section>
 
             <section
