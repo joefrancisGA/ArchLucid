@@ -3086,12 +3086,139 @@ public sealed class GetOnlyHostedAzureArmReadClientTests
         Assert.Equal(connectorId, workspace.Properties[AzureInventoryDatabricksAccessConnector.IdPropertyKey]);
     }
 
-    private sealed class RecordingHandler(Func<HttpRequestMessage, CancellationToken, Task<HttpResponseMessage>> responder)
-        : HttpMessageHandler
+    [Fact]
+    public async Task ListEffectiveNetworkControlsForNicAsync_returns_skipped_rows_when_arm_returns_not_found()
     {
+        const string nicId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/networkInterfaces/nic1";
+
+        HttpMessageHandler handler = new RecordingHandler(
+            (request, _) =>
+            {
+                Assert.Equal(HttpMethod.Get.Method, request.Method.Method);
+                Assert.Contains("effectiveNetworkSecurityGroups", request.RequestUri?.AbsoluteUri, StringComparison.OrdinalIgnoreCase);
+
+                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.NotFound));
+            },
+            (request, _) =>
+            {
+                Assert.Contains("effectiveRouteTable", request.RequestUri?.AbsoluteUri, StringComparison.OrdinalIgnoreCase);
+
+                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.NotFound));
+            });
+
+        HttpClient httpClient = new(handler);
+        GetOnlyHostedAzureArmReadClient client = new(httpClient, NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+
+        IReadOnlyList<HostedAzureArmEffectiveNetworkControlRecord> rows = await client.ListEffectiveNetworkControlsForNicAsync(
+            "token-abc",
+            nicId,
+            CancellationToken.None);
+
+        Assert.Equal(2, rows.Count);
+        Assert.All(rows, row => Assert.Equal(AzureInventoryEffectiveNetworkControlCollectionStatus.Skipped, row.CollectionStatus));
+        Assert.All(rows, row => Assert.Equal(nicId, row.NicResourceId));
+        Assert.All(rows, row => Assert.Null(row.EffectiveResourceId));
+    }
+
+    [Fact]
+    public async Task ListEffectiveNetworkControlsForNicAsync_parses_effective_nsg_and_route_table_on_success()
+    {
+        const string nicId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/networkInterfaces/nic1";
+        const string nsgId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/networkSecurityGroups/nsg1";
+        const string routeTableId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/routeTables/rt1";
+
+        const string nsgBody = """
+                               {
+                                 "value": [
+                                   {
+                                     "networkSecurityGroup": {
+                                       "id": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/networkSecurityGroups/nsg1"
+                                     }
+                                   }
+                                 ]
+                               }
+                               """;
+
+        const string routesBody = """
+                                  {
+                                    "id": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/routeTables/rt1"
+                                  }
+                                  """;
+
+        HttpMessageHandler handler = new RecordingHandler(
+            (request, _) =>
+            {
+                if (request.RequestUri?.AbsoluteUri.Contains("effectiveNetworkSecurityGroups", StringComparison.OrdinalIgnoreCase) == true)
+                {
+                    return Task.FromResult(
+                        new HttpResponseMessage(HttpStatusCode.OK)
+                        {
+                            Content = new StringContent(nsgBody),
+                        });
+                }
+
+                return Task.FromResult(
+                    new HttpResponseMessage(HttpStatusCode.OK)
+                    {
+                        Content = new StringContent(routesBody),
+                    });
+            });
+
+        HttpClient httpClient = new(handler);
+        GetOnlyHostedAzureArmReadClient client = new(httpClient, NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+
+        IReadOnlyList<HostedAzureArmEffectiveNetworkControlRecord> rows = await client.ListEffectiveNetworkControlsForNicAsync(
+            "token-abc",
+            nicId,
+            CancellationToken.None);
+
+        HostedAzureArmEffectiveNetworkControlRecord nsgRow = Assert.Single(
+            rows,
+            row => row.Kind == AzureInventoryEffectiveNetworkControlKind.EffectiveNsg);
+        Assert.Equal(AzureInventoryEffectiveNetworkControlCollectionStatus.Succeeded, nsgRow.CollectionStatus);
+        Assert.Equal(nsgId, nsgRow.EffectiveResourceId);
+        Assert.False(string.IsNullOrWhiteSpace(nsgRow.PayloadHashSha256));
+
+        HostedAzureArmEffectiveNetworkControlRecord routesRow = Assert.Single(
+            rows,
+            row => row.Kind == AzureInventoryEffectiveNetworkControlKind.EffectiveRoutes);
+        Assert.Equal(AzureInventoryEffectiveNetworkControlCollectionStatus.Succeeded, routesRow.CollectionStatus);
+        Assert.Equal(routeTableId, routesRow.EffectiveResourceId);
+    }
+
+    private sealed class RecordingHandler : HttpMessageHandler
+    {
+        private readonly Func<HttpRequestMessage, CancellationToken, Task<HttpResponseMessage>>? _repeatResponder;
+        private readonly Queue<Func<HttpRequestMessage, CancellationToken, Task<HttpResponseMessage>>>? _sequencedResponders;
+
+        public RecordingHandler(Func<HttpRequestMessage, CancellationToken, Task<HttpResponseMessage>> responder)
+        {
+            _repeatResponder = responder;
+        }
+
+        public RecordingHandler(
+            Func<HttpRequestMessage, CancellationToken, Task<HttpResponseMessage>> first,
+            Func<HttpRequestMessage, CancellationToken, Task<HttpResponseMessage>> second)
+        {
+            _sequencedResponders = new Queue<Func<HttpRequestMessage, CancellationToken, Task<HttpResponseMessage>>>([first, second]);
+        }
+
         protected override Task<HttpResponseMessage> SendAsync(
             HttpRequestMessage request,
-            CancellationToken cancellationToken) =>
-            responder(request, cancellationToken);
+            CancellationToken cancellationToken)
+        {
+            if (_sequencedResponders is { Count: > 0 } sequenced)
+            {
+                Func<HttpRequestMessage, CancellationToken, Task<HttpResponseMessage>> responder = sequenced.Dequeue();
+
+                return responder(request, cancellationToken);
+            }
+
+            return _repeatResponder!(request, cancellationToken);
+        }
     }
 }
