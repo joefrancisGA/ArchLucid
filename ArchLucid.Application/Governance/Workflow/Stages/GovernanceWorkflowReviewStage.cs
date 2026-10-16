@@ -112,7 +112,12 @@ public sealed class GovernanceWorkflowReviewStage(
         }
 
         DateTime reviewedUtc = TimeProvider.System.UtcNowDateTime();
-        AuditEvent durableAuditEvent = _auditSupport.BuildGovernanceReviewAuditEvent(request, durableAuditEventType, reviewedBy, reviewComment);
+        AuditEvent durableAuditEvent = _auditSupport.BuildGovernanceReviewAuditEvent(
+            request,
+            durableAuditEventType,
+            reviewedBy,
+            reviewedByActorKey,
+            reviewComment);
         string durableAuditOperationLabel = string.Equals(newStatus, GovernanceApprovalStatus.Approved, StringComparison.Ordinal)
             ? $"GovernanceApprovalApproved:{LogSanitizer.Sanitize(approvalRequestId)}"
             : $"GovernanceApprovalRejected:{LogSanitizer.Sanitize(approvalRequestId)}";

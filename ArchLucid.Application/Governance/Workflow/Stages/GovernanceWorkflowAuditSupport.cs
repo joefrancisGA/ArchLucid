@@ -159,25 +159,30 @@ public sealed class GovernanceWorkflowAuditSupport(
     public AuditEvent BuildGovernanceReviewAuditEvent(
         GovernanceApprovalRequest request,
         string eventType,
-        string reviewedBy,
+        string reviewedByDisplay,
+        string reviewedByActorKey,
         string? reviewComment)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(reviewedByDisplay);
+        ArgumentException.ThrowIfNullOrWhiteSpace(reviewedByActorKey);
+
         Guid? auditRunId = Guid.TryParse(request.RunId, out Guid runGuid) ? runGuid : null;
         ScopeContext durableScope = _scopeContextProvider.GetCurrentScope();
         AuditEvent auditEvent = durableScope.CreateAuditEvent(
             eventType,
-            reviewedBy,
-            reviewedBy,
+            reviewedByActorKey,
+            reviewedByDisplay,
             JsonSerializer.Serialize(
                 new
                 {
                     approvalRequestId = request.ApprovalRequestId,
                     runId = request.RunId,
-                    reviewedBy,
+                    reviewedBy = reviewedByDisplay,
                     reviewComment
                 },
                 AuditJsonSerializationOptions.Instance));
         auditEvent.RunId = auditRunId;
+        auditEvent.ExplicitActor = true;
 
         return auditEvent;
     }

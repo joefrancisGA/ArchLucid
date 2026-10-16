@@ -1,3 +1,4 @@
+2026-10-16 seed hunt (seed→hit): `api-governance-tenancy-controllers` — promoted `GovernanceWorkflowAuditSupport.BuildGovernanceReviewAuditEvent` omitting `ExplicitActor` and using display name for `ActorUserId`, so `AuditService` replaced durable approve/reject audit actors with `ClaimTypes.NameIdentifier` instead of jwt actor keys; pass `reviewedByActorKey` for audit identity, display name on `ActorUserName`, set `ExplicitActor = true`; regression `BuildGovernanceReviewAuditEvent_sets_explicit_actor_for_stable_reviewed_by_actor_key`; `GovernanceWorkflowAuditSupportTests` 4/4; scoped Governance/Tenancy controller filter 143 passed, 18 SQL integration failures (Linux VM baseline); seeded five follow-on `(candidate)` rows.
 2026-10-16 seed hunt (seed→hit): `archlucid-core` — promoted `AzureInventoryRouteTableRouteParser.ParseRoutesJson` skipping route rows when the route element uses PascalCase `Properties` (entire routes JSON ignored for edge-control evidence); case-insensitive `properties` bag lookup; regressions `Parse_reads_routes_when_route_element_uses_pascal_case_properties_bag` and `SubnetRequiresEdgeControlEvidence_true_when_routes_json_uses_pascal_case_properties_bag`; 14 scoped route/reachability tests passed; seeded five follow-on `(candidate)` rows.
 2026-10-16 seed hunt (seed→hit): `archlucid-core` — promoted `AzureInventoryRouteTableRouteParser.ParseRoutesJson` ignoring PascalCase `NextHopType` in routes JSON (VNet gateway routes missed for edge-control evidence); case-insensitive JSON property reads for route fields; regressions `SubnetRequiresEdgeControlEvidence_true_when_routes_json_uses_pascal_case_next_hop_type` and `Parse_reads_next_hop_type_when_routes_json_uses_pascal_case_property_name`; 12 scoped route/reachability tests passed; seeded five follow-on `(candidate)` rows.
 2026-10-16 seed hunt (seed→hit): `api-governance-tenancy-controllers` — promoted `GovernanceWorkflowAuditSupport.LogDryRunValidationAttemptedForPromotionAsync` (and approval dry-run sibling) omitting `ExplicitActor` on `GovernanceDryRunValidationAttempted` audits; set `ExplicitActor = true`; regression `LogDryRunValidationAttemptedForPromotionAsync_sets_explicit_actor_for_stable_promoted_by`; `GovernanceWorkflowAuditSupportTests` 3/3; seeded five follow-on `(candidate)` rows.
@@ -35757,6 +35758,8 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 ---
 
 ## Zone: api-governance-tenancy-controllers
+2026-10-16 seed hunt (seed→hit): promoted `BuildGovernanceReviewAuditEvent` explicit actor + jwt reviewed-by key; 4/4 audit support tests; 143 scoped controller tests passed.
+
 
 2026-10-16 seed hunt (seed→hit): promoted missing `ExplicitActor` on dry-run governance validation audits; 3/3 workflow audit support tests.
 
@@ -35889,6 +35892,13 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ### Hypotheses
 
+- (candidate) `GovernanceWorkflowAuditSupport.CreateGovernanceApprovalSubmittedAuditEvent` — submitted durable audit omits `ExplicitActor` and uses display `requestedBy` for `ActorUserId` — locus: submit stage audit factory; input: workflow submit with distinct display name and jwt actor key.
+- (candidate) `GovernanceWorkflowAuditSupport.LogSelfApprovalBlockedAsync` — self-approval blocked audit omits `ExplicitActor` — locus: segregation-of-duties block path; input: reviewer equals submitter with jwt actor key.
+- (candidate) `GovernanceController.SubmitApprovalRequest` — persisted `RequestedBy` column still stores `GetActor()` display name while `RequestedByActorKey` stores jwt key — locus: `GovernanceController.ApprovalRequests.Create.cs`; input: approval POST with distinct display name.
+- (candidate) `GovernanceWorkflowReviewStage` — `reviewedBy` display string stored on `GovernanceApprovalRequest.ReviewedBy` when it differs from `ReviewedByActorKey` — locus: review disposition persistence; input: approve route with mocked actor context.
+- (candidate) `GovernanceController.Approve` / `Reject` — controller-level audit vs durable workflow audit actor parity on reject path — locus: approval review routes; input: reject with display name distinct from jwt actor key.
+
+- [x] (proven) `GovernanceWorkflowAuditSupport.BuildGovernanceReviewAuditEvent` — approve/reject durable audits omitted `ExplicitActor` and used display name as `ActorUserId` — **hit 2026-10-16 seed hunt:** jwt actor key + `ExplicitActor`; regression `BuildGovernanceReviewAuditEvent_sets_explicit_actor_for_stable_reviewed_by_actor_key`.
 - [x] (proven) `TenantBaselineController.PutAsync` — baseline audit events used the sign-in display name as `ActorUserId` — **hit 2026-10-08 seed hunt:** `IActorContext.GetActorId()` for stable `ActorUserId`; regression `PutAsync_audit_uses_actor_context_id_when_display_name_differs`.
 
 - [x] (proven) `GovernancePreCommitSimulationController.TryParseRunId` / `GetChecklistAsync` / `GetReadinessAsync` / `SimulateAsync` — interior no-break space (U+00A0) inside run id failed `Guid.TryParse` after trim-only while `ValidateGovernanceRouteRunId` on submit normalized the same literal — **hit 2026-10-06 seed hunt (seed→hit):** `GovernanceRunIdNormalizer.Normalize` in `TryParseRunId`; regression `GetChecklist_accepts_run_id_with_interior_no_break_space_when_run_is_in_scope`.
