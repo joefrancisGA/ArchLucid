@@ -1,3 +1,4 @@
+2026-10-16 seed hunt (seed→hit): `ui-review-detail-workspace` — promoted `ReviewMeetingPacketButton` syncing `meetingPacketOpen` only from `popstate`, so Next.js soft navigation left the meeting packet dialog closed; reconcile from `useSearchParams`; regression `follows meetingPacketOpen query changes without a popstate event`; `ReviewMeetingPacketButton` vitest 2/2; seeded five follow-on `(candidate)` rows.
 2026-10-16 seed hunt (seed→hit): `ui-review-detail-workspace` — promoted `ReviewPackageSponsorHandoffStrip` syncing `reviewPackageSponsorHandoffMoreExportsOpen` only from `popstate`, so Next.js soft navigation left the more sponsor exports disclosure closed; reconcile from `useSearchParams`; regression `follows reviewPackageSponsorHandoffMoreExportsOpen query changes without a popstate event`; `ReviewPackageSponsorHandoffStrip` vitest 5/5; seeded five follow-on `(candidate)` rows.
 2026-10-16 seed hunt (seed→hit): `ui-review-detail-workspace` — promoted `ReviewAgentExecutionLogSection` syncing `runAgentExecutionLogOpen` only from `popstate`, so Next.js soft navigation left the agent execution log disclosure closed; reconcile from `useSearchParams`; regression `follows runAgentExecutionLogOpen query changes without a popstate event`; scoped review workspace URL-sync vitest 4/4; seeded five follow-on `(candidate)` rows.
 2026-10-16 seed hunt (seed→hit): `ui-review-detail-workspace` — promoted `useReviewDetailWorkspaceRoomElicitation` syncing `roomElicitationActive` only from `popstate`, so Next.js soft navigation with `roomElicitation=1` left the Room header button on Room off while the URL showed room mode; reconcile from `useSearchParams`; regression `follows roomElicitation query changes without a popstate event` in `use-review-detail-workspace-room-elicitation.url-sync.test.ts`; scoped review workspace URL-sync vitest 7/7; seeded five follow-on `(candidate)` rows.
@@ -39989,6 +39990,8 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 ---
 
 ## Zone: ui-review-detail-workspace
+2026-10-16 seed hunt (seed→hit): promoted meeting packet dialog `meetingPacketOpen` soft-navigation sync; 2/2 meeting packet vitest tests.
+
 2026-10-16 seed hunt (seed→hit): promoted sponsor handoff more-exports disclosure URL soft-navigation sync; 5/5 handoff strip vitest tests.
 
 2026-10-16 seed hunt (seed→hit): promoted agent execution log disclosure URL soft-navigation sync; 4/4 URL-sync vitest tests.
@@ -40000,12 +40003,17 @@ ABQ-09 churn hotspot; orchestrator/cache slice separate from architecture-recomm
 2026-10-16 seed hunt (seed→hit): promoted room elicitation soft-navigation URL sync on presenter bridge; 39 scoped workspace vitest tests.
 
 
+- [x] (proven) `ReviewMeetingPacketButton` — `meetingPacketOpen` ignored on Next.js soft navigation — **hit 2026-10-16 seed hunt:** reconcile dialog open from `useSearchParams`; regression `follows meetingPacketOpen query changes without a popstate event`.
+- (candidate) `ReviewAskDock` — `askDock` / `askThread` state sync only on `popstate` — locus: review ask dock dialog; input: soft navigation opens ask dock with thread id.
+- (candidate) `ReviewFailureTechnicalMetadataDisclosure` — verify soft-navigation parity after `useSearchParams` effect — locus: failure metadata disclosure; input: regression guard only if gap remains.
+- (candidate) `RunDetailPresenterElicitationBridge` — inhabited-architecture redirect for room mode uses `notify: false` — locus: redirect `commitHrefIfChanged`; input: room with parent architecture id.
+- (candidate) `ReviewDetailWorkspaceTabShell` — hidden tab panels still mount heavy banner chrome when URL-driven tab changes without `popstate` — locus: tab panel render; input: soft navigation between overview and findings.
+- (candidate) `ReviewWorkspaceMoreTabsMenu` — closing popover via soft navigation clearing `reviewMoreTabsOpen` — locus: more-sections menu; input: Link removes open flag without `popstate`.
 - [x] (proven) `ReviewPackageSponsorHandoffStrip` — `reviewPackageSponsorHandoffMoreExportsOpen` ignored on Next.js soft navigation — **hit 2026-10-16 seed hunt:** reconcile from `useSearchParams`; regression `follows reviewPackageSponsorHandoffMoreExportsOpen query changes without a popstate event`.
 - (candidate) `ReviewAskDock` — ask dock expansion URL param written with `notify: false` only — locus: ask dock disclosure; input: Working mode ask dock toggle vs soft navigation.
 - (candidate) `ReviewFailureTechnicalMetadataDisclosure` — verify soft-navigation parity after `useSearchParams` effect — locus: failure metadata disclosure; input: regression guard only if gap remains.
 - (candidate) `RunDetailPresenterElicitationBridge` — inhabited-architecture redirect for room mode uses `notify: false` — locus: redirect `commitHrefIfChanged`; input: room with parent architecture id.
 - (candidate) `ReviewDetailWorkspaceTabShell` — hidden tab panels still mount heavy banner chrome when URL-driven tab changes without `popstate` — locus: tab panel render; input: soft navigation between overview and findings.
-- (candidate) `ReviewMeetingPacketButton` — meeting packet disclosure URL open flag sync only on `popstate` — locus: review workspace header; input: soft navigation with packet panel open query.
 - [x] (proven) `ReviewAgentExecutionLogSection` — `runAgentExecutionLogOpen` ignored on Next.js soft navigation — **hit 2026-10-16 seed hunt:** reconcile from `useSearchParams`; regression `follows runAgentExecutionLogOpen query changes without a popstate event`.
 - (candidate) `ReviewAskDock` — ask dock expansion URL param written with `notify: false` only — locus: ask dock disclosure; input: Working mode ask dock toggle vs soft navigation.
 - (candidate) `ReviewFailureTechnicalMetadataDisclosure` — verify soft-navigation parity after `useSearchParams` effect — locus: failure metadata disclosure; input: regression guard only if gap remains.

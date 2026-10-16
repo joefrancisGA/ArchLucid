@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState, type ReactElement, type SetStateAction } from "react";
 
 import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
@@ -28,6 +28,7 @@ import {
 } from "@/lib/reviews/review-meeting-capture-export";
 import {
   parseReviewMeetingPacketOpenFromSearch,
+  REVIEW_MEETING_PACKET_OPEN_PARAM,
   reviewMeetingPacketPanelsHrefFromSearch,
 } from "@/lib/reviews/review-meeting-packet-panels-url";
 import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
@@ -106,9 +107,11 @@ export function buildReviewMeetingPacketSteps(
 /** One-click CAB / meeting packet launcher with ordered exports and deep links. */
 export function ReviewMeetingPacketButton(props: ReviewMeetingPacketButtonProps): ReactElement {
   const pathname = usePathname() ?? `/architecture/reviews/${props.runId}`;
-  const [open, setOpenState] = useState(() =>
-    parseReviewMeetingPacketOpenFromSearch(null),
+  const searchParams = useSearchParams();
+  const urlMeetingPacketOpen = parseReviewMeetingPacketOpenFromSearch(
+    searchParams.get(REVIEW_MEETING_PACKET_OPEN_PARAM),
   );
+  const [open, setOpenState] = useState(urlMeetingPacketOpen);
   const openRef = useRef(open);
   openRef.current = open;
   const [exportBusyStepId, setExportBusyStepId] = useState<string | null>(null);
@@ -149,7 +152,7 @@ export function ReviewMeetingPacketButton(props: ReviewMeetingPacketButtonProps)
   useEffect(() => {
     const syncOpenFromUrl = (): void => {
       const next = parseReviewMeetingPacketOpenFromSearch(
-        new URLSearchParams(window.location.search).get("meetingPacketOpen"),
+        new URLSearchParams(window.location.search).get(REVIEW_MEETING_PACKET_OPEN_PARAM),
       );
 
       if (openRef.current === next) {
@@ -167,6 +170,15 @@ export function ReviewMeetingPacketButton(props: ReviewMeetingPacketButtonProps)
       window.removeEventListener("popstate", syncOpenFromUrl);
     };
   }, []);
+
+  useEffect(() => {
+    if (openRef.current === urlMeetingPacketOpen) {
+      return;
+    }
+
+    openRef.current = urlMeetingPacketOpen;
+    setOpenState(urlMeetingPacketOpen);
+  }, [urlMeetingPacketOpen]);
 
   const onDownloadStep = useCallback(
     (step: ReviewMeetingPacketStep) => {
