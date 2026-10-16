@@ -240,9 +240,15 @@ public static class AzureInventoryLoadBalancerBackendTrafficResolver
 
         foreach (JsonElement configuration in configurations.EnumerateArray())
         {
+
+            if (!AzureExtractorJsonObjectElement.TryResolveCollectionElement(configuration, nestedAddress, out JsonElement configurationElement))
+            {
+                continue;
+            }
+
             string? ipConfigurationId = nestedAddress
-                ? TryReadNestedNetworkInterfaceIpConfigurationId(configuration)
-                : TryReadDirectId(configuration);
+                ? TryReadNestedNetworkInterfaceIpConfigurationId(configurationElement)
+                : TryReadDirectId(configurationElement);
 
             if (string.IsNullOrWhiteSpace(ipConfigurationId))
             {

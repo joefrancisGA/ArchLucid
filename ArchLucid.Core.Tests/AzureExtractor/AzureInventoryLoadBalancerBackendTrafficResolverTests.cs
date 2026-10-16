@@ -475,6 +475,48 @@ public sealed class AzureInventoryLoadBalancerBackendTrafficResolverTests
     }
 
     [Fact]
+    public void ResolveLoadBalancerBackends_reads_backend_when_backend_address_element_is_json_string_scalar()
+    {
+        string addressObjectJson =
+            $$"""
+            {
+              "properties": {
+                "networkInterfaceIPConfiguration": { "id": "{{NicIpConfigurationId}}" }
+              }
+            }
+            """;
+
+        GraphNode loadBalancer = new()
+        {
+            NodeId = "lb1",
+            NodeType = "resource",
+            Label = "lb1",
+            Properties = new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["backendAddressPools"] =
+                    $$"""
+                    [
+                      {
+                        "id": "{{PoolId}}",
+                        "properties": {
+                          "loadBalancerBackendAddresses": [
+                            {{JsonSerializer.Serialize(addressObjectJson)}}
+                          ]
+                        }
+                      }
+                    ]
+                    """,
+            },
+        };
+
+        IReadOnlyList<AzureInventoryLoadBalancerBackendTrafficResolver.BackendTarget> targets =
+            AzureInventoryLoadBalancerBackendTrafficResolver.ResolveLoadBalancerBackends(loadBalancer);
+
+        targets.Should().ContainSingle();
+        targets[0].TargetArmId.Should().Be(NicId.ToLowerInvariant());
+    }
+
+    [Fact]
     public void ResolveApplicationGatewayBackends_reads_ip_configuration_from_backend_pool()
     {
         // Application Gateway ARM pools attach NICs through backendIPConfigurations.

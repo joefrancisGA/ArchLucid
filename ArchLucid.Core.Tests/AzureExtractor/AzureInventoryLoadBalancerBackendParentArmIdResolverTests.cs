@@ -163,6 +163,37 @@ public sealed class AzureInventoryLoadBalancerBackendParentArmIdResolverTests
     }
 
     [Fact]
+    public void ResolveFromBackendAddressPoolsJson_reads_backend_address_element_when_json_string_scalar_wraps_object()
+    {
+        string addressObjectJson =
+            $$"""
+            {
+              "properties": {
+                "networkInterfaceIPConfiguration": { "id": "{{VmssNicIpConfigurationId}}" }
+              }
+            }
+            """;
+
+        string poolsJson =
+            $$"""
+            [
+              {
+                "properties": {
+                  "loadBalancerBackendAddresses": [
+                    {{JsonSerializer.Serialize(addressObjectJson)}}
+                  ]
+                }
+              }
+            ]
+            """;
+
+        IReadOnlyList<string> parentIds =
+            AzureInventoryLoadBalancerBackendParentArmIdResolver.ResolveFromBackendAddressPoolsJson(poolsJson);
+
+        parentIds.Should().ContainSingle().Subject.Should().Be(VmssNicId.ToLowerInvariant());
+    }
+
+    [Fact]
     public void ResolveFromBackendAddressPoolsJson_reads_pools_when_json_is_string_scalar_wrapping_pool_array()
     {
         string inner =
