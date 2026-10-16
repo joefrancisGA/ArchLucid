@@ -87,15 +87,28 @@ public static class AzureInventoryVnetPeeringParser
         try
         {
             using JsonDocument document = JsonDocument.Parse(peeringsJson);
+            JsonElement peeringsRoot = document.RootElement;
 
-            if (document.RootElement.ValueKind is not JsonValueKind.Array)
+            if (peeringsRoot.ValueKind is JsonValueKind.String)
+            {
+                string? nestedPeeringsJson = peeringsRoot.GetString();
+
+                if (string.IsNullOrWhiteSpace(nestedPeeringsJson))
+                {
+                    return [];
+                }
+
+                return ParsePeerings(nestedPeeringsJson);
+            }
+
+            if (peeringsRoot.ValueKind is not JsonValueKind.Array)
             {
                 return [];
             }
 
             List<AzureInventoryVnetPeeringRecord> peerings = [];
 
-            foreach (JsonElement peering in document.RootElement.EnumerateArray())
+            foreach (JsonElement peering in peeringsRoot.EnumerateArray())
             {
                 string? remoteVnetId = TryReadRemoteVnetId(peering);
 
