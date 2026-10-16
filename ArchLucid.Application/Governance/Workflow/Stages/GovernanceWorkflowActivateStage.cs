@@ -135,6 +135,7 @@ public sealed class GovernanceWorkflowActivateStage(
                 {
                     await _integrationEvents.TryPublishPromotionActivatedAsync(
                         activation,
+                        activatedByDisplayResolved,
                         activatedBy,
                         uow.Connection,
                         uow.Transaction,
@@ -193,6 +194,7 @@ public sealed class GovernanceWorkflowActivateStage(
         {
             await _integrationEvents.TryPublishPromotionActivatedAsync(
                 activation,
+                activatedByDisplayResolved,
                 activatedBy,
                 null,
                 null,

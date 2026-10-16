@@ -182,6 +182,7 @@ public sealed class GovernanceWorkflowIntegrationEventSupport(
     public async Task TryPublishPromotionActivatedAsync(
         GovernanceEnvironmentActivation activation,
         string activatedBy,
+        string activatedByActorKey,
         IDbConnection? connection,
         IDbTransaction? transaction,
         CancellationToken cancellationToken)
@@ -200,6 +201,9 @@ public sealed class GovernanceWorkflowIntegrationEventSupport(
             manifestHash,
             environment = activation.Environment,
             activatedBy,
+            activatedByActorKey = string.IsNullOrWhiteSpace(activatedByActorKey)
+                ? activatedBy
+                : activatedByActorKey,
             activatedUtc = activation.ActivatedUtc
         };
         string messageId = $"{activation.ActivationId}:{IntegrationEventTypes.GovernancePromotionActivatedV1}";
