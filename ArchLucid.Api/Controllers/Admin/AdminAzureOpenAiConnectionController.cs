@@ -3,6 +3,7 @@ using System.Text.Json;
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.AiProviders;
+using ArchLucid.Application.Common;
 using ArchLucid.Contracts.Admin;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
@@ -24,6 +25,7 @@ public sealed class AdminAzureOpenAiConnectionController(
     IScopeContextProvider scopeProvider,
     ITenantAzureOpenAiConnectionService connectionService,
     ITenantAzureOpenAiConnectionProbeService probeService,
+    IActorContext actorContext,
     IAuditService auditService) : ControllerBase
 {
     private readonly IScopeContextProvider _scopeProvider =
@@ -35,8 +37,20 @@ public sealed class AdminAzureOpenAiConnectionController(
     private readonly ITenantAzureOpenAiConnectionProbeService _probeService =
         probeService ?? throw new ArgumentNullException(nameof(probeService));
 
+    private readonly IActorContext _actorContext =
+        actorContext ?? throw new ArgumentNullException(nameof(actorContext));
+
     private readonly IAuditService _auditService =
         auditService ?? throw new ArgumentNullException(nameof(auditService));
+
+    private (string ActorUserId, string ActorUserName) GetAuditActorFields()
+    {
+        // AuditService replaces ActorUserId with NameIdentifier unless ExplicitActor is set.
+        string actorUserId = _actorContext.GetActorId();
+        string actorUserName = User?.Identity?.Name ?? actorUserId;
+
+        return (actorUserId, actorUserName);
+    }
 
     [HttpGet]
     [ProducesResponseType(typeof(TenantAzureOpenAiConnectionResponse), StatusCodes.Status200OK)]
@@ -80,14 +94,15 @@ public sealed class AdminAzureOpenAiConnectionController(
                 ProblemTypes.ValidationFailed);
         }
 
-        string actor = User?.Identity?.Name ?? "admin";
+        (string actorUserId, string actorUserName) = GetAuditActorFields();
 
         await _auditService.LogAsync(
             new AuditEvent
             {
                 EventType = AuditEventTypes.TenantAzureOpenAiConnectionUpserted,
-                ActorUserId = actor,
-                ActorUserName = actor,
+                ExplicitActor = true,
+                ActorUserId = actorUserId,
+                ActorUserName = actorUserName,
                 TenantId = scope.TenantId,
                 WorkspaceId = scope.WorkspaceId,
                 ProjectId = scope.ProjectId,
@@ -113,14 +128,15 @@ public sealed class AdminAzureOpenAiConnectionController(
 
         if (removed)
         {
-            string actor = User?.Identity?.Name ?? "admin";
+            (string actorUserId, string actorUserName) = GetAuditActorFields();
 
             await _auditService.LogAsync(
                 new AuditEvent
                 {
                     EventType = AuditEventTypes.TenantAzureOpenAiConnectionRemoved,
-                    ActorUserId = actor,
-                    ActorUserName = actor,
+                    ExplicitActor = true,
+                    ActorUserId = actorUserId,
+                    ActorUserName = actorUserName,
                     TenantId = scope.TenantId,
                     WorkspaceId = scope.WorkspaceId,
                     ProjectId = scope.ProjectId,
