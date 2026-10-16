@@ -7683,3 +7683,4 @@
 {"at":"2026-10-16T21:13:14.7780830Z","zoneId":"archlucid-core","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Core/AzureExtractor/AzureInventoryNetworkInterfaceIpConfigurationReferenceReader.cs"]}
 {"at":"2026-10-16T21:16:00.9835590Z","zoneId":"archlucid-core","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Core/AzureExtractor/AzureInventoryRouteTableRouteParser.cs"]}
 {"at":"2026-10-16T21:21:26.6372560Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Admin/AdminAgentModelCatalogController.cs"]}
+{"at":"2026-10-16T21:27:02.4262250Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit","productLine":"archlucid-shared","paths":["ArchLucid.Api/Controllers/Admin/AdminAzureOpenAiConnectionController.cs"]}
