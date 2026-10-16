@@ -1,13 +1,15 @@
-export const SECURENOW_ARCHITECT_METRICS_TITLE = "Architect outcome metrics" as const;
+import { secureNowTitleCase } from "@/lib/product-line/securenow-title-case";
+
+export const SECURENOW_ARCHITECT_METRICS_TITLE = secureNowTitleCase("Architect outcome metrics");
 
 export const SECURENOW_ARCHITECT_METRICS_LEAD =
   "Compare inventory snapshots for architecture outcomes (SA-11). Headline counts describe path removal and posture change — not ticket burn-down." as const;
 
-export const SECURENOW_ARCHITECT_METRICS_FROM_LABEL = "From snapshot" as const;
+export const SECURENOW_ARCHITECT_METRICS_FROM_LABEL = secureNowTitleCase("From snapshot");
 
-export const SECURENOW_ARCHITECT_METRICS_TO_LABEL = "To snapshot" as const;
+export const SECURENOW_ARCHITECT_METRICS_TO_LABEL = secureNowTitleCase("To snapshot");
 
-export const SECURENOW_ARCHITECT_METRICS_COMPARE_BUTTON = "Compare snapshots" as const;
+export const SECURENOW_ARCHITECT_METRICS_COMPARE_BUTTON = secureNowTitleCase("Compare snapshots");
 
 export const SECURENOW_ARCHITECT_METRICS_LOADING = "Loading architect outcome metrics…" as const;
 
