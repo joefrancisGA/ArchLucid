@@ -321,7 +321,14 @@ public static class AzureInventoryLoadBalancerBackendTrafficResolver
 
     private static bool TryGetBackendAddressPoolPropertiesBag(JsonElement pool, out JsonElement poolProperties)
     {
-        if (TryGetPropertyIgnoreCase(pool, "properties", out JsonElement nested)
+        if (!AzureExtractorJsonObjectElement.TryUnwrapObject(pool, out JsonElement poolElement))
+        {
+            poolProperties = default;
+
+            return false;
+        }
+
+        if (TryGetPropertyIgnoreCase(poolElement, "properties", out JsonElement nested)
             && nested.ValueKind is JsonValueKind.Object)
         {
             poolProperties = nested;
@@ -329,12 +336,12 @@ public static class AzureInventoryLoadBalancerBackendTrafficResolver
             return true;
         }
 
-        if (pool.ValueKind is JsonValueKind.Object
-            && (TryGetPropertyIgnoreCase(pool, "backendIPConfigurations", out _)
-                || TryGetPropertyIgnoreCase(pool, "loadBalancerBackendAddresses", out _)
-                || TryGetPropertyIgnoreCase(pool, "backendAddresses", out _)))
+        if (poolElement.ValueKind is JsonValueKind.Object
+            && (TryGetPropertyIgnoreCase(poolElement, "backendIPConfigurations", out _)
+                || TryGetPropertyIgnoreCase(poolElement, "loadBalancerBackendAddresses", out _)
+                || TryGetPropertyIgnoreCase(poolElement, "backendAddresses", out _)))
         {
-            poolProperties = pool;
+            poolProperties = poolElement;
 
             return true;
         }

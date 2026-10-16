@@ -1,5 +1,14 @@
 > **Scope:**
 
+2026-10-16 seed hunt (seed→hit): `archlucid-core` — promoted `TryGetBackendAddressPoolPropertiesBag` enumerating properties on `backendAddressPools[]` elements that are JSON string scalars wrapping full pool objects (per-element double-encoding), throwing or skipping LB/AGW backend resolution; unwrap pool rows via `AzureExtractorJsonObjectElement.TryUnwrapObject` in `AzureInventoryLoadBalancerBackendTrafficResolver` and `AzureInventoryLoadBalancerBackendParentArmIdResolver`; regressions `ResolveLoadBalancerBackends_reads_backend_when_pool_array_element_is_json_string_scalar_wrapping_pool_object` and `ResolveFromBackendAddressPoolsJson_reads_backend_when_pool_array_element_is_json_string_scalar_wrapping_pool_object`; LB backend + parent resolver tests 34/34; seeded five follow-on `(candidate)` rows.
+
+- (candidate) `AzureInventoryVnetPeeringParser.TryReadRemoteVnetId` — peering row as JSON string scalar wrapping peering object — locus: `EnumerateRemoteVnetIds` element loop; input: parity with pool row unwrap.
+- (candidate) `AzureInventoryLoadBalancerBackendTrafficResolver.BuildLoadBalancerPortByPoolId` — individual `loadBalancingRules[]` element as JSON string scalar wrapping rule object — locus: rule foreach before `TryUnwrapObject`; input: parity with pool row fix.
+- (candidate) `AzureInventoryRouteTableRouteParser.TryParseFlattenedArmIdValue` — malformed JSON blob containing `/subscriptions/` substring — locus: `NormalizeArmId` fallback; input: `(valid-no-repro)` unless repro found.
+- (candidate) `AzureInventoryLoadBalancerBackendTrafficResolver.BuildLoadBalancerPortByPoolId` — PascalCase `BackendPort` / `BackendAddressPool` — locus: case-insensitive reads; input: `(valid-no-repro)`.
+- (candidate) `AzureInventoryRouteTableRouteParser` — explicit flattened route row as JSON string scalar wrapping route object — locus: flattened route collection rows; input: parity with pool row unwrap.
+
+
 2026-10-16 seed hunt (seed→hit): `archlucid-core` — promoted `AzureInventoryVnetPeeringParser.TryReadRemoteVnetIdFromObject` treating `remoteVirtualNetwork` JSON string scalars wrapping `{ "id": "..." }` as raw ARM text (or normalizing the JSON blob), dropping remote vnet linkage for double-encoded hosted peering rows; resolve via `AzureInventoryNetworkInterfaceIpConfigurationReferenceReader.TryReadArmId`; regression `EnumerateRemoteVnetIds_reads_remote_when_remote_virtual_network_is_json_string_scalar_wrapping_id_object`; vnet peering + route-table + LB backend core tests 52/52; seeded five follow-on `(candidate)` rows.
 
 - (candidate) `AzureInventoryLoadBalancerBackendTrafficResolver` — `backendAddressPools[]` pool row as JSON string scalar wrapping full pool object — locus: `TryGetBackendAddressPoolPropertiesBag`; input: unwrap pool before reading properties.
