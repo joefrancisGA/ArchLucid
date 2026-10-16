@@ -418,8 +418,7 @@ public static class AzureInventoryLoadBalancerBackendTrafficResolver
 
     private static string? TryReadApplicationGatewayBackendArmId(JsonElement address)
     {
-        if (!TryGetPropertyIgnoreCase(address, "properties", out JsonElement properties)
-            || properties.ValueKind is not JsonValueKind.Object)
+        if (!TryGetApplicationGatewayAddressPropertiesBag(address, out JsonElement properties))
         {
             return null;
         }
@@ -438,6 +437,32 @@ public static class AzureInventoryLoadBalancerBackendTrafficResolver
         }
 
         return null;
+    }
+
+    /// <summary>
+    /// Hosted inventory may store each backend address as a full ARM resource or as a flattened properties bag only.
+    /// </summary>
+    private static bool TryGetApplicationGatewayAddressPropertiesBag(JsonElement address, out JsonElement properties)
+    {
+        if (TryGetPropertyIgnoreCase(address, "properties", out JsonElement nested)
+            && nested.ValueKind is JsonValueKind.Object)
+        {
+            properties = nested;
+
+            return true;
+        }
+
+        if (address.ValueKind is JsonValueKind.Object
+            && TryGetPropertyIgnoreCase(address, "backendResourceId", out _))
+        {
+            properties = address;
+
+            return true;
+        }
+
+        properties = default;
+
+        return false;
     }
 
     private static bool TryGetPropertyIgnoreCase(
