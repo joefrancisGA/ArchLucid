@@ -147,17 +147,22 @@ public static class AzureInventoryVnetPeeringParser
 
     public static string? TryReadRemoteVnetId(JsonElement peering)
     {
-        if (peering.ValueKind is JsonValueKind.String)
+        if (!AzureExtractorJsonObjectElement.TryUnwrapObject(peering, out JsonElement peeringObject))
         {
-            return NormalizeArmId(peering.GetString());
+            if (peering.ValueKind is JsonValueKind.String)
+            {
+                return NormalizeArmId(peering.GetString());
+            }
+
+            if (peering.ValueKind is not JsonValueKind.Object)
+            {
+                return null;
+            }
+
+            peeringObject = peering;
         }
 
-        if (peering.ValueKind is not JsonValueKind.Object)
-        {
-            return null;
-        }
-
-        if (peering.TryGetProperty("properties", out JsonElement properties)
+        if (peeringObject.TryGetProperty("properties", out JsonElement properties)
             && properties.ValueKind is JsonValueKind.Object)
         {
             string? nested = TryReadRemoteVnetIdFromObject(properties);
@@ -168,7 +173,7 @@ public static class AzureInventoryVnetPeeringParser
             }
         }
 
-        return TryReadRemoteVnetIdFromObject(peering);
+        return TryReadRemoteVnetIdFromObject(peeringObject);
     }
 
     public static bool HasPeeringCollectionEvidence(
