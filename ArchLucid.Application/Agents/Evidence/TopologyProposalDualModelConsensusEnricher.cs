@@ -132,7 +132,7 @@ public sealed class TopologyProposalDualModelConsensusEnricher(
         IReadOnlyList<AgentResult> results,
         AgentTopologyProposal mergedTopology)
     {
-        HashSet<string> endpointKeys = TopologyProposalRelationshipEndpointIndex.CollectKnownEndpointKeys(
+        HashSet<string> mergedTopologyEndpointKeys = TopologyProposalRelationshipEndpointIndex.CollectKnownEndpointKeys(
             mergedTopology.AddedServices ?? [],
             mergedTopology.AddedDatastores ?? []);
 
@@ -148,6 +148,15 @@ public sealed class TopologyProposalDualModelConsensusEnricher(
 
             if (relationships is null || relationships.Count == 0)
                 continue;
+
+            HashSet<string> endpointKeys = new(mergedTopologyEndpointKeys, StringComparer.OrdinalIgnoreCase);
+
+            foreach (string siblingEndpointKey in TopologyProposalRelationshipEndpointIndex.CollectKnownEndpointKeys(
+                         proposal.AddedServices ?? [],
+                         proposal.AddedDatastores ?? []))
+            {
+                endpointKeys.Add(siblingEndpointKey);
+            }
 
             List<ManifestRelationship> pruned = [];
 
