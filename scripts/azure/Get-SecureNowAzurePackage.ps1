@@ -435,7 +435,7 @@ if (-not ([string]::IsNullOrWhiteSpace($SubscriptionId)))
     }
 }
 
-$scriptVersion = "0.4.11"
+$scriptVersion = "0.4.12"
 $schemaVersion = 2
 $collectionTimestamp = (Get-Date).ToUniversalTime().ToString("o")
 $azProfile = Get-Module Az.Resources
@@ -742,6 +742,7 @@ try
         [System.Collections.ArrayList]$publicIpIpConfigurationFacts = [System.Collections.ArrayList]::new()
         [System.Collections.ArrayList]$firewallSubnetFacts = [System.Collections.ArrayList]::new()
         [System.Collections.ArrayList]$virtualNetworkSubnetFacts = [System.Collections.ArrayList]::new()
+        [System.Collections.ArrayList]$loadBalancerPropertyFacts = [System.Collections.ArrayList]::new()
 
         if (-not ([string]::IsNullOrWhiteSpace($ManagementGroupId)))
         {
@@ -752,7 +753,8 @@ try
                     -ResourceGroupScope $ResourceGroupScope `
                     -PublicIpIpConfigurationFacts $publicIpIpConfigurationFacts `
                     -FirewallSubnetFacts $firewallSubnetFacts `
-                    -VirtualNetworkSubnetFacts $virtualNetworkSubnetFacts)
+                    -VirtualNetworkSubnetFacts $virtualNetworkSubnetFacts `
+                    -LoadBalancerPropertyFacts $loadBalancerPropertyFacts)
 
                 foreach ($argRow in @($argRows))
                 {
@@ -767,7 +769,8 @@ try
                 -ResourceGroupScope $ResourceGroupScope `
                 -PublicIpIpConfigurationFacts $publicIpIpConfigurationFacts `
                 -FirewallSubnetFacts $firewallSubnetFacts `
-                -VirtualNetworkSubnetFacts $virtualNetworkSubnetFacts)
+                -VirtualNetworkSubnetFacts $virtualNetworkSubnetFacts `
+                -LoadBalancerPropertyFacts $loadBalancerPropertyFacts)
 
             foreach ($argRow in @($argRows))
             {
@@ -872,6 +875,9 @@ try
         Add-ArchLucidPublicIpIpConfigurationPropertiesFromFacts `
             -Resources @($resources) `
             -PublicIpIpConfigurationFacts @($publicIpIpConfigurationFacts)
+        Add-ArchLucidLoadBalancerBackendPropertiesFromFacts `
+            -Resources @($resources) `
+            -LoadBalancerPropertyFacts @($loadBalancerPropertyFacts)
         Write-ArchLucidResourcesJsonStream -Path $resourcesPath -Resources $resources
 
         Write-Utf8NoBom (Join-Path $staging "role-assignments.json") (ConvertTo-ArchLucidJsonArray -Items $roleAssignmentRows)

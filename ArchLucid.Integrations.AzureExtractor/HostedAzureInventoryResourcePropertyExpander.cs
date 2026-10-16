@@ -131,6 +131,7 @@ internal static class HostedAzureInventoryResourcePropertyExpander
         if (resourceType.Contains("loadBalancers", StringComparison.OrdinalIgnoreCase))
         {
             AddJsonArrayProperty(propertiesElement, properties, "backendAddressPools");
+            AddJsonArrayProperty(propertiesElement, properties, "loadBalancingRules");
             AddJsonArrayProperty(propertiesElement, properties, "frontendIPConfigurations");
         }
 
