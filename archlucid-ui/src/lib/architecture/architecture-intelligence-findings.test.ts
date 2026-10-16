@@ -1,9 +1,13 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  ARCHITECTURE_INTELLIGENCE_FINDING_CONCLUSION_NOT_STORED,
+  ARCHITECTURE_INTELLIGENCE_FINDING_SEVERITY_NOT_STORED,
+  ARCHITECTURE_INTELLIGENCE_FINDING_TITLE_NOT_STORED,
   countIntegrityPassedFindings,
   flattenArchitectureIntelligenceFindings,
   listIntegrityPassedFindingPreviews,
+  resolveIntegrityPassedFindingIdsPresence,
 } from "@/lib/architecture/architecture-intelligence-findings";
 
 describe("architecture-intelligence-findings", () => {
@@ -49,5 +53,26 @@ describe("architecture-intelligence-findings", () => {
     expect(previews).toHaveLength(1);
     expect(previews[0]?.title).toBe("Missing authentication boundary");
     expect(countIntegrityPassedFindings(sampleResult)).toBe(2);
+  });
+
+  it("labels omitted finding fields without guessing severity or title", () => {
+    const findings = flattenArchitectureIntelligenceFindings({
+      integrityPassedFindingIds: ["f1"],
+      specialistReviews: [{ findings: [{ findingId: "f1", title: " ", severity: " ", conclusion: "" }] }],
+    });
+
+    expect(findings[0]?.title).toBe(ARCHITECTURE_INTELLIGENCE_FINDING_TITLE_NOT_STORED);
+    expect(findings[0]?.severity).toBeNull();
+    expect(findings[0]?.conclusion).toBe(ARCHITECTURE_INTELLIGENCE_FINDING_CONCLUSION_NOT_STORED);
+  });
+
+  it("distinguishes omitted integrity id lists from stored empty lists", () => {
+    expect(resolveIntegrityPassedFindingIdsPresence({ integrityPassedFindingIds: undefined }).kind).toBe(
+      "omitted",
+    );
+    expect(resolveIntegrityPassedFindingIdsPresence({ integrityPassedFindingIds: [] })).toEqual({
+      kind: "stored",
+      count: 0,
+    });
   });
 });

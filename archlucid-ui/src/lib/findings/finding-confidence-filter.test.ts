@@ -95,6 +95,8 @@ describe("finding-confidence-filter", () => {
 
 describe("formatFindingsVisibilitySummaryLine", () => {
   it("labels missing hidden count honestly", () => {
-    expect(formatFindingsVisibilitySummaryLine(3, 5, undefined)).toContain("hidden count not returned");
+    expect(formatFindingsVisibilitySummaryLine(3, 5, undefined)).toBe(
+      "Showing 3 of 5. Hidden finding count was not stored.",
+    );
   });
 });

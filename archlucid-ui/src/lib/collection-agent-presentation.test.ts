@@ -72,6 +72,16 @@ describe("collection-agent-presentation", () => {
     expect(formatCollectionRunDuration(run({ finishedUtc: null, status: "Failed" }))).toBe(
       "Finish time was not stored.",
     );
+    expect(
+      formatCollectionRunDuration(
+        run({ startedUtc: undefined, finishedUtc: "2026-08-10T12:05:00.000Z" }),
+      ),
+    ).toBe("Start time was not stored.");
+    expect(
+      formatCollectionRunDuration(
+        run({ startedUtc: "not-a-date", finishedUtc: "2026-08-10T12:05:00.000Z" }),
+      ),
+    ).toBe("Duration was not stored.");
   });
 
   it("labels subscription coverage without collapsing missing, unreadable, and empty cases", () => {

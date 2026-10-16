@@ -85,6 +85,14 @@ describe("architecture-intelligence-run-summary-copy", () => {
     ]);
   });
 
+  it("labels omitted structured element counts as not stored (P-06)", () => {
+    expect(
+      listArchitectureIntelligenceRunTechnicalDetails(sampleResult({ model: undefined })).find(
+        (row) => row.label === "Structured details parsed",
+      )?.value,
+    ).toBe("Structured detail count was not stored.");
+  });
+
   it("describes fresh analysis runs in technical details", () => {
     const resultSource = listArchitectureIntelligenceRunTechnicalDetails(sampleResult()).find(
       (row) => row.label === "Result source",

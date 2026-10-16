@@ -55,10 +55,16 @@ export function formatCollectionRunDuration(run: CollectionRun): string {
     return "Finish time was not stored.";
   }
 
-  const durationMs = Date.parse(run.finishedUtc) - Date.parse(run.startedUtc ?? "");
+  const startedUtc = run.startedUtc?.trim() ?? "";
+
+  if (startedUtc.length === 0) {
+    return "Start time was not stored.";
+  }
+
+  const durationMs = Date.parse(run.finishedUtc) - Date.parse(startedUtc);
 
   if (!Number.isFinite(durationMs) || durationMs < 0) {
-    return "Duration unavailable";
+    return "Duration was not stored.";
   }
 
   const durationSeconds = Math.round(durationMs / 1000);

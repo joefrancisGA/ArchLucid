@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useArchitectureDraftQuery } from "@/hooks/use-architecture-draft-query";
 import {
   ARCHITECTURE_IDENTITY_DESK_OPEN_QUESTIONS_EMPTY,
+  ARCHITECTURE_IDENTITY_DESK_OPEN_QUESTIONS_NOT_STORED,
   ARCHITECTURE_IDENTITY_DESK_OPEN_QUESTIONS_LABEL,
   ARCHITECTURE_OPEN_QUESTIONS_HELPER,
 } from "@/lib/architecture/architecture-open-questions-copy";
@@ -36,14 +37,18 @@ export function ArchitectureIdentityDeskOpenQuestions(
     return null;
   }
 
-  const openQuestions = draftQuery.data?.document.openQuestions?.trim() ?? "";
+  const rawOpenQuestions = draftQuery.data?.document.openQuestions;
+  const openQuestionsTrimmed =
+    rawOpenQuestions === null || rawOpenQuestions === undefined ? null : rawOpenQuestions.trim();
   const openQuestionsBody = draftQuery.isLoading
     ? "Open questions are still loading."
     : draftQuery.isError
       ? "Open questions could not be loaded."
-      : openQuestions.length > 0
-        ? openQuestions
-        : ARCHITECTURE_IDENTITY_DESK_OPEN_QUESTIONS_EMPTY;
+      : openQuestionsTrimmed === null
+        ? ARCHITECTURE_IDENTITY_DESK_OPEN_QUESTIONS_NOT_STORED
+        : openQuestionsTrimmed.length > 0
+          ? openQuestionsTrimmed
+          : ARCHITECTURE_IDENTITY_DESK_OPEN_QUESTIONS_EMPTY;
 
   return (
     <section

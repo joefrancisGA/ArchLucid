@@ -26,7 +26,7 @@ export function resolveInfraEvidenceMermaidRenderStatusPresentation(input: {
     default:
       return {
         kind: "neutral",
-        label: normalized.length > 0 ? normalized : "Unknown render status",
+        label: normalized.length > 0 ? normalized : "Render status was not stored.",
       };
   }
 }

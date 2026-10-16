@@ -6,16 +6,18 @@ import {
  * Maps wire AgentType values to buyer-facing labels.
  * OpenAPI emits string AgentType; accept legacy numeric wire values during UI/API rollout.
  */
+export const AGENT_TYPE_NOT_STORED_LABEL = "Agent type was not stored." as const;
+
 export function buyerLabelForAgentType(agentType: string | number | null | undefined): string {
   if (agentType === null || agentType === undefined) {
-    return "Agent (unknown)";
+    return AGENT_TYPE_NOT_STORED_LABEL;
   }
 
   if (typeof agentType === "string") {
     const trimmed = agentType.trim();
 
     if (trimmed.length === 0) {
-      return "Agent (unknown)";
+      return AGENT_TYPE_NOT_STORED_LABEL;
     }
 
     switch (trimmed) {
