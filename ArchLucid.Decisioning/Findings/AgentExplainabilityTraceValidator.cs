@@ -30,9 +30,7 @@ public static class AgentExplainabilityTraceValidator
         List<string> errors = [];
         TraceCompletenessScore completeness = ExplainabilityTraceCompletenessAnalyzer.AnalyzeFinding(mappedFinding);
 
-        // Finding.Trace coalesces JSON/object-initializer null to an empty object; treat that as missing.
-
-        if (mappedFinding.Trace is null || completeness.PopulatedFieldCount == 0)
+        if (IsMissingExplainabilityTrace(mappedFinding, completeness))
         {
             errors.Add("ExplainabilityTrace is required on agent-mapped findings.");
 
@@ -63,6 +61,18 @@ public static class AgentExplainabilityTraceValidator
             return AgentExplainabilityTraceValidationResult.Success();
 
         return AgentExplainabilityTraceValidationResult.Failure(errors);
+    }
+
+    /// <summary>
+    ///     <see cref="Finding.Trace" /> coalesces JSON/object-initializer null to an empty
+    ///     <see cref="ExplainabilityTrace" />, so the public setter never leaves Trace null.
+    ///     A fully unpopulated trace is the coalesced equivalent of missing and must still fail.
+    /// </summary>
+    private static bool IsMissingExplainabilityTrace(
+        Finding mappedFinding,
+        TraceCompletenessScore completeness)
+    {
+        return mappedFinding.Trace is null || completeness.PopulatedFieldCount == 0;
     }
 
     private static void ValidateEvidenceAnchors(
