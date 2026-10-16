@@ -35,20 +35,31 @@ function nonEmpty(value: string | null | undefined): string | null {
   return trimmed.length > 0 ? trimmed : null;
 }
 
-function resolveRuleLabel(input: FindingDerivationInput): string | null {
+type ResolvedRulePhrase = {
+  readonly text: string;
+  readonly quotedName: boolean;
+};
+
+function resolveRulePhrase(input: FindingDerivationInput): ResolvedRulePhrase | null {
   const explicitName = nonEmpty(input.ruleName);
 
   if (explicitName !== null) {
-    return explicitName;
+    return { text: explicitName, quotedName: true };
   }
 
   const ruleId = nonEmpty(input.ruleId);
 
   if (ruleId !== null) {
-    return ruleId;
+    return { text: `Rule name was not stored. Rule id ${ruleId}`, quotedName: false };
   }
 
-  return nonEmpty(input.categoryLabel);
+  const categoryLabel = nonEmpty(input.categoryLabel);
+
+  if (categoryLabel !== null) {
+    return { text: categoryLabel, quotedName: true };
+  }
+
+  return null;
 }
 
 function evidencePhrase(input: FindingDerivationInput): string | null {
@@ -89,23 +100,30 @@ export function buildFindingDerivationSentence(input: FindingDerivationInput): F
     }
   }
 
-  const ruleLabel = resolveRuleLabel(input);
+  const rulePhrase = resolveRulePhrase(input);
   const evidence = evidencePhrase(input);
   const severityLabel = nonEmpty(input.severityLabel);
 
-  if (ruleLabel === null && evidence === null) {
+  if (rulePhrase === null && evidence === null) {
     return { sentence: FINDING_DERIVATION_NOT_AVAILABLE, synthesised: false };
   }
 
   const severitySuffix =
     severityLabel !== null ? `a ${severityLabel} severity finding` : "this finding";
 
-  if (ruleLabel !== null && evidence !== null) {
-    return assembledSentence(`Policy rule "${ruleLabel}" matched ${evidence} and produced ${severitySuffix}.`);
+  const ruleLead =
+    rulePhrase === null
+      ? null
+      : rulePhrase.quotedName
+        ? `Policy rule "${rulePhrase.text}"`
+        : rulePhrase.text;
+
+  if (ruleLead !== null && evidence !== null) {
+    return assembledSentence(`${ruleLead} matched ${evidence} and produced ${severitySuffix}.`);
   }
 
-  if (ruleLabel !== null) {
-    return assembledSentence(`Policy rule "${ruleLabel}" produced ${severitySuffix}.`);
+  if (ruleLead !== null) {
+    return assembledSentence(`${ruleLead} produced ${severitySuffix}.`);
   }
 
   if (evidence !== null) {

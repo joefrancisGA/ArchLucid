@@ -35,6 +35,9 @@ public static class DiagramArmTypeFriendlyName
         ["Microsoft.Databricks/workspaces"] = "Databricks workspace",
         ["Microsoft.PowerBIDedicated/capacities"] = "Power BI capacity",
         ["Microsoft.Fabric/capacities"] = "Fabric capacity",
+        ["Microsoft.Logic/workflows"] = "Logic App",
+        ["Microsoft.Web/connections"] = "Logic App connection",
+        ["Microsoft.Web/staticSites"] = "Static Web App",
     };
 
     public static string? TryFormat(string? armType)

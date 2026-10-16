@@ -90,6 +90,25 @@ describe("resolveInfraEvidenceCompletenessWarningPresentation", () => {
     expect(presentation.detail).toContain("Hosts");
   });
 
+  it("maps logic-app-connections-missing without raw code fallback (P-07)", () => {
+    const presentation = resolveInfraEvidenceCompletenessWarningPresentation(
+      "logic-app-connections-missing",
+    );
+
+    expect(presentation.title).toBe("Logic App API connections were not in this snapshot.");
+    expect(presentation.detail).toContain("logic-app-connections.json");
+    expect(presentation.detail).not.toBe("logic-app-connections-missing");
+  });
+
+  it("maps diagnostic-destination-unresolved without raw code fallback (P-08)", () => {
+    const presentation = resolveInfraEvidenceCompletenessWarningPresentation(
+      "diagnostic-destination-unresolved",
+    );
+
+    expect(presentation.title).toContain("diagnostic setting destination");
+    expect(presentation.detail).toBe("No diagnostic line was drawn for that destination.");
+  });
+
   it("maps static site backend collection warnings", () => {
     const siteId =
       "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Web/staticSites/site1";

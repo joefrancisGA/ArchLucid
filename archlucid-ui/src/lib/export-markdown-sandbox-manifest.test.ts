@@ -14,6 +14,19 @@ describe("formatSandboxStyleGoldenManifest", () => {
     expect(stored).toContain("- **Environment:** Production");
   });
 
+  it("labels missing summary counts when keys are present (P-20)", () => {
+    const markdown = formatSandboxStyleGoldenManifest({
+      summary: {
+        decisionCount: null,
+        unresolvedIssueCount: 2,
+      },
+    });
+
+    expect(markdown).toContain("Decision count was not stored.");
+    expect(markdown).not.toContain("Warning count was not stored.");
+    expect(markdown).toContain("- **Unresolved issues:** 2");
+  });
+
   it("distinguishes omitted and stored-empty highlight dispositions", () => {
     const omitted = formatSandboxStyleGoldenManifest({
       highlights: [{ title: "Decision", disposition: undefined }],

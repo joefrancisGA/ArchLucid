@@ -431,6 +431,23 @@ export function resolveInfraEvidenceCompletenessWarningPresentation(
     return staticSitePresentation;
   }
 
+  if (trimmed === AzureInventoryRelationshipCompletenessWarningCodes.LogicAppConnectionsMissing) {
+    return {
+      code: trimmed,
+      title: "Logic App API connections were not in this snapshot.",
+      detail:
+        "No API connection lines were drawn. Re-run collection so logic-app-connections.json is included. A missing line is not a stored finding that the workflow has no connections.",
+    };
+  }
+
+  if (trimmed === "diagnostic-destination-unresolved") {
+    return {
+      code: trimmed,
+      title: "A diagnostic setting destination was not matched in this snapshot.",
+      detail: "No diagnostic line was drawn for that destination.",
+    };
+  }
+
   return {
     code: trimmed,
     title: "Inventory completeness note",

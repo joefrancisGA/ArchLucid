@@ -79,6 +79,32 @@ describe("infra-evidence-png-reading-strip", () => {
     expect(lines.join("\n")).not.toContain("/subscriptions/sub");
   });
 
+  it("adds configuration relationship note when static site backend edges exist (P-05)", () => {
+    const lines = buildInfraEvidencePngReadingStripLines({
+      mode: "network",
+      outline: {
+        nodes: [],
+        edges: [
+          {
+            from: "site",
+            to: "api",
+            label: "Linked backend",
+            source: "observed",
+            confidenceBand: "observed",
+            provenanceKind: "ObservedFact",
+            inferenceSource: "inventory-static-site-backend",
+            declaredConnectionId: null,
+          },
+        ],
+      },
+      completenessWarnings: [],
+    });
+
+    expect(lines).toContain(
+      "Linked backends, capacity assignments, and diagnostic settings on this diagram are configuration. They are not observed traffic.",
+    );
+  });
+
   it("does not claim that a data-flow line was observed traffic", () => {
     const lines = buildInfraEvidencePngReadingStripLines({
       mode: "dataFlow",

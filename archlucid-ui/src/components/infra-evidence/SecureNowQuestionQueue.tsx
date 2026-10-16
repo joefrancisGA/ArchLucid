@@ -91,6 +91,46 @@ function openQuestionsCountLabel(count: number): string {
   return `${count} open questions`;
 }
 
+function formatSecureNowQuestionSourceLabel(source: string | null): string {
+  if (source === null) {
+    return "Question source was not stored.";
+  }
+
+  const trimmed = source.trim();
+
+  if (trimmed.length === 0) {
+    return "Question source was not stored.";
+  }
+
+  if (trimmed === "InventoryEvidence") {
+    return "Asked from inventory evidence.";
+  }
+
+  if (trimmed === "InferredConnection") {
+    return "Asked because a connection was inferred. Answering does not store a link.";
+  }
+
+  return `Question source code ${trimmed} has no reviewer label.`;
+}
+
+function formatSecureNowQuestionScopeLabel(scopeKind: string | null): string {
+  if (scopeKind === null) {
+    return "Question scope was not stored.";
+  }
+
+  const trimmed = scopeKind.trim();
+
+  if (trimmed.length === 0) {
+    return "Question scope was not stored.";
+  }
+
+  if (trimmed === "Resource") {
+    return "This resource.";
+  }
+
+  return `Question scope code ${trimmed} has no reviewer label.`;
+}
+
 export function SecureNowQuestionQueueSnapshotPromo(): React.JSX.Element | null {
   const {
     drawerOpen,
@@ -417,10 +457,10 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
                   : "Source line was not stored"}
               </p>
               <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                Source: {currentQuestion.source === null ? "Question source was not stored." : currentQuestion.source}
+                Source: {formatSecureNowQuestionSourceLabel(currentQuestion.source)}
               </p>
               <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                Scope: {currentQuestion.scopeKind === null ? "Question scope was not stored." : currentQuestion.scopeKind}
+                Scope: {formatSecureNowQuestionScopeLabel(currentQuestion.scopeKind)}
               </p>
               <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                 Subscription:{" "}

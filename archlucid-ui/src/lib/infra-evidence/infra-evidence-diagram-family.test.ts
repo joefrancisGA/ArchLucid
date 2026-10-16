@@ -36,6 +36,12 @@ describe("infra-evidence-diagram-family", () => {
     expect(resolveInfraEvidenceDiagramFamily(edge("connects", null))).toBe(INFRA_EVIDENCE_DIAGRAM_FAMILY_ALL);
   });
 
+  it("does not classify logic app connections as pipeline wiring (P-11)", () => {
+    expect(resolveInfraEvidenceDiagramFamily(edge("API connection", "inventory-logic-app-connection"))).toBe(
+      INFRA_EVIDENCE_DIAGRAM_FAMILY_ALL,
+    );
+  });
+
   it("filters only matching edges while retaining nodes", () => {
     const outline = {
       nodes: [{ id: "from", label: "from", resourceType: null, resourceGroup: null }],

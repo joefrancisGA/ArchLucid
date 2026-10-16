@@ -53,14 +53,20 @@ export function formatSandboxStyleGoldenManifest(m: Record<string, unknown>): st
 
     if (typeof decisionCount === "number") {
       lines.push(`- **Decisions recorded:** ${decisionCount}`);
+    } else if ("decisionCount" in summary) {
+      lines.push("- Decision count was not stored.");
     }
 
     if (typeof warningCount === "number") {
       lines.push(`- **Warnings:** ${warningCount}`);
+    } else if ("warningCount" in summary) {
+      lines.push("- Warning count was not stored.");
     }
 
     if (typeof unresolved === "number") {
       lines.push(`- **Unresolved issues:** ${unresolved}`);
+    } else if ("unresolvedIssueCount" in summary) {
+      lines.push("- Unresolved issue count was not stored.");
     }
 
     if (costPosture) {

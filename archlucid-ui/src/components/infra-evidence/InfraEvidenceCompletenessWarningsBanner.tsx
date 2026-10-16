@@ -8,6 +8,7 @@ import {
   snapshotIncludesTier1AppSettingHosts,
 } from "@/lib/infra-evidence/resolve-infra-evidence-completeness-warning-copy";
 import { formatInfraEvidenceCompletenessSummaryBannerLine } from "@/lib/infra-evidence/format-infra-evidence-completeness-summary-banner-line";
+import { resolveInfraEvidenceCompletenessBannerLead } from "@/lib/infra-evidence/infra-evidence-completeness-banner-lead";
 import type { InfraEvidenceMermaidCompletenessSummary } from "@/lib/infra-evidence/infra-evidence-mermaid-types";
 
 export type InfraEvidenceCompletenessWarningsBannerProps = {
@@ -38,7 +39,7 @@ export function InfraEvidenceCompletenessWarningsBanner(
         Inventory completeness warnings ({warnings.length})
       </p>
       <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
-        These warnings do not block rendering. Connection lines may be missing or weaker than the underlying authorization facts.
+        {resolveInfraEvidenceCompletenessBannerLead(warnings)}
       </p>
       {summary ? (
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>

@@ -7,7 +7,7 @@ namespace ArchLucid.ArtifactSynthesis.Compilers;
 /// <summary>Labels Fabric capacity to workspace edges (NR-40).</summary>
 internal static class InventoryDiagramFabricCapacityRelationshipApplier
 {
-    public const string Label = "Hosts";
+    public const string Label = "Assigned workspace";
 
     public static void Apply(DiagramAst ast)
     {

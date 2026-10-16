@@ -7,6 +7,7 @@ export const AzureInventoryRelationshipCompletenessWarningCodes = {
     "aks-workload-images-not-collected-customer-script",
   AksWorkloadImagesNotCollectedHosted: "aks-workload-images-not-collected-hosted",
   LogicAppConnectionsNotCollected: "logic-app-connections-not-collected",
+  LogicAppConnectionsMissing: "logic-app-connections-missing",
   FabricCapacityAssignmentsNotCollected: "fabric-capacity-assignments-not-collected",
   FabricCapacityWorkspacesOutsideInventory: "fabric-capacity-workspaces-outside-inventory",
   StaticSiteBackendsNotCollected: "static-site-backends-not-collected",
