@@ -36,6 +36,11 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
 
         List<GraphNode> topologyNodes = ApplyModeNodeFilter(graph, allTopologyNodes.ToList(), mode, options);
 
+        if (isDataArchitectureMode)
+        {
+            topologyNodes = DataFlowPlacementEndpointIncluder.Include(graph, topologyNodes);
+        }
+
         if (mode == DiagramMode.Avd)
         {
             topologyNodes = InventoryDiagramAvdViewFilter.IncludeAvdDiagramNodes(graph, topologyNodes);
@@ -63,6 +68,7 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
         if (isDataFlowMode)
         {
             topologyNodes = DataFlowEvidenceEndpointIncluder.Include(graph, topologyNodes);
+            topologyNodes = DataFlowPlacementEndpointIncluder.Include(graph, topologyNodes);
             topologyNodes = DataFlowTraversalHopEndpointIncluder.Include(graph, topologyNodes);
         }
         else if (!isSecureNowDataMode)
@@ -204,10 +210,16 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
         bool retainNetworkDetailNodes = mode == DiagramMode.ResourceGroup
             || (mode == DiagramMode.FullSubscription && options.IncludeNetworkDetails);
 
-        // Data architecture is a placement canvas: containment and movement hydrators
-        // would draw Reads from / Writes to that the mode's honesty caption forbids.
+        // Data architecture is a placement canvas: movement hydrators would draw Reads from /
+        // Writes to that the mode's honesty caption forbids. Hidden-hop compose still runs so
+        // subnet / VNet placement survives mode filters (IDX-02).
 
-        if (!isDataArchitectureMode)
+        if (isDataArchitectureMode)
+        {
+            DiagramArmParentChildEdgeHydrator.Apply(ast, graph, nodeIdMap);
+            DiagramCollapsedAttachmentEdgeLifter.Apply(ast, graph, nodeIdMap);
+        }
+        else
         {
             DiagramArmParentChildEdgeHydrator.Apply(ast, graph, nodeIdMap);
             DiagramCollapsedAttachmentEdgeLifter.Apply(ast, graph, nodeIdMap);

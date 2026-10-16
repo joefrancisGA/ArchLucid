@@ -304,6 +304,7 @@ public sealed class AzureInventorySnapshotGraphResolver(
             nodeIdByArmId,
             edges,
             edgeKeys);
+        AzureInventorySnapshotGraphEdgeRoleDeduplicator.Deduplicate(edges, edgeKeys);
 
         DateTime createdUtc = graphSnapshot.Header.CapturedUtc ?? graphSnapshot.Header.CreatedUtc;
 
