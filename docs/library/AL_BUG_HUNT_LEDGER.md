@@ -1,5 +1,14 @@
 > **Scope:**
 
+2026-10-16 seed hunt (seed→hit): `archlucid-core` — promoted `AzureInventoryVnetPeeringParser.TryReadPeeringState` reading `peeringState` only on object array elements while `TryReadRemoteVnetId` already unwraps string-scalar-wrapped peering rows, leaving `PeeringState` null and `IsConnectedPeeringState` false for double-encoded peerings that diagram appliers skip; unwrap peering rows via `AzureExtractorJsonObjectElement.TryUnwrapObject` in `TryReadPeeringState`; regression `ParsePeerings_reads_peering_state_when_peering_array_element_is_json_string_scalar_wrapping_peering_object`; vnet peering parser tests 18/18; seeded five follow-on `(candidate)` rows.
+
+- (candidate) `AzureInventoryVnetPeeringParser.ParsePeerings` — entire peerings JSON as string scalar wrapping array — locus: root `JsonDocument` parse; input: parity with LB pools whole-array wrap.
+- (candidate) `AzureInventoryRouteTableRouteParser` — explicit flattened route row as JSON string scalar wrapping route object — locus: flattened route collection rows; input: parity with pool/peering row unwrap.
+- (candidate) `AzureInventoryRouteTableRouteParser.TryParseFlattenedArmIdValue` — malformed JSON blob containing `/subscriptions/` substring — locus: `NormalizeArmId` fallback; input: `(valid-no-repro)` unless repro found.
+- (candidate) `AzureInventoryLoadBalancerBackendTrafficResolver.BuildLoadBalancerPortByPoolId` — PascalCase `BackendPort` / `BackendAddressPool` — locus: case-insensitive reads; input: `(valid-no-repro)`.
+- (candidate) `AzureInventoryRouteTableRouteParser.Parse` — `routes` property value double-encoded twice (string scalar of string scalar) — locus: nested unwrap depth; input: hosted projection edge case.
+
+
 2026-10-16 seed hunt (seed→hit): `archlucid-core` — promoted `AzureInventoryVnetPeeringParser.TryReadRemoteVnetId` treating `virtualNetworkPeerings[]` elements that are JSON string scalars wrapping full peering objects as bare ARM text via `NormalizeArmId`, dropping remote vnet linkage for per-element double-encoded hosted rows; unwrap peering rows via `AzureExtractorJsonObjectElement.TryUnwrapObject` before reading `properties.remoteVirtualNetwork`; cheap-disproof closed `loadBalancingRules[]` per-rule string-scalar wrap (already covered by `ResolveLoadBalancerBackends_reads_rule_port_when_rule_element_is_json_string_scalar`); regression `EnumerateRemoteVnetIds_reads_remote_when_peering_array_element_is_json_string_scalar_wrapping_peering_object`; vnet peering + LB backend core tests 51/51; seeded five follow-on `(candidate)` rows.
 
 - (candidate) `AzureInventoryVnetPeeringParser.TryReadPeeringState` — peering row string-scalar wrap skips `peeringState` on double-encoded rows — locus: `ParsePeerings` state read; input: parity with remote id unwrap.
