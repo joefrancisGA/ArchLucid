@@ -1,16 +1,18 @@
 "use client";
 
 import type { ReactElement } from "react";
-import { useCallback, useEffect, useState } from "react";
-import { usePathname } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { PostCommitAdvancedAnalysisHint } from "@/components/PostCommitAdvancedAnalysisHint";
 import { BUYER_TECHNICAL_APPENDIX_LABEL } from "@/lib/buyer/buyer-polish-copy";
 import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
 import {
+  RUN_ADVANCED_ANALYSIS_OPEN_PARAM,
   parseRunAdvancedAnalysisOpenFromSearch,
-  runAdvancedAnalysisDisclosureHrefFromSearch} from "@/lib/runs/run-advanced-analysis-disclosure-url";
+  runAdvancedAnalysisDisclosureHrefFromSearch,
+} from "@/lib/runs/run-advanced-analysis-disclosure-url";
 
 type RunDetailAdvancedAnalysisSectionProps = {
   readonly runId: string;
@@ -23,9 +25,13 @@ export function RunDetailAdvancedAnalysisSection(
 ): ReactElement {
   const { runId, buyerPolishedArtifactTable } = props;
   const pathname = usePathname() ?? "/";
-  const [open, setOpenState] = useState(() =>
-    parseRunAdvancedAnalysisOpenFromSearch(null),
+  const searchParams = useSearchParams();
+  const urlAdvancedAnalysisOpen = parseRunAdvancedAnalysisOpenFromSearch(
+    searchParams.get(RUN_ADVANCED_ANALYSIS_OPEN_PARAM),
   );
+  const [open, setOpenState] = useState(urlAdvancedAnalysisOpen);
+  const openRef = useRef(open);
+  openRef.current = open;
 
   const syncOpenToUrl = useCallback(
     (detailsOpen: boolean) => {
@@ -39,25 +45,29 @@ export function RunDetailAdvancedAnalysisSection(
 
   const setOpen = useCallback(
     (detailsOpen: boolean) => {
-      if (open === detailsOpen) {
+      if (openRef.current === detailsOpen) {
         return;
       }
 
+      openRef.current = detailsOpen;
       setOpenState(detailsOpen);
       syncOpenToUrl(detailsOpen);
     },
-    [open, syncOpenToUrl],
+    [syncOpenToUrl],
   );
 
   useEffect(() => {
     const syncOpenFromUrl = (): void => {
-      setOpenState((current) => {
-        const next = parseRunAdvancedAnalysisOpenFromSearch(
-          new URLSearchParams(window.location.search).get("runAdvancedAnalysisOpen"),
-        );
+      const next = parseRunAdvancedAnalysisOpenFromSearch(
+        new URLSearchParams(window.location.search).get(RUN_ADVANCED_ANALYSIS_OPEN_PARAM),
+      );
 
-        return current === next ? current : next;
-      });
+      if (openRef.current === next) {
+        return;
+      }
+
+      openRef.current = next;
+      setOpenState(next);
     };
 
     syncOpenFromUrl();
@@ -67,6 +77,15 @@ export function RunDetailAdvancedAnalysisSection(
       window.removeEventListener("popstate", syncOpenFromUrl);
     };
   }, []);
+
+  useEffect(() => {
+    if (openRef.current === urlAdvancedAnalysisOpen) {
+      return;
+    }
+
+    openRef.current = urlAdvancedAnalysisOpen;
+    setOpenState(urlAdvancedAnalysisOpen);
+  }, [urlAdvancedAnalysisOpen]);
 
   const title = buyerPolishedArtifactTable ? BUYER_TECHNICAL_APPENDIX_LABEL : "Deep dive (technical analysis)";
 
