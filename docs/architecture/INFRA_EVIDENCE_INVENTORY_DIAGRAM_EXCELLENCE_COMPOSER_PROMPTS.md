@@ -27,7 +27,8 @@
 | Subcolumn wrap splits hub star | **IDX-07e** | `Take(12)` tears hub-and-spoke across Data Flow columns |
 | Hub pipeline not in excellence filter | **IDX-07f** | Shipped — extend only |
 | Hub pipeline Mermaid export untested | **IDX-13c** | Shipped — extend only |
-| Hub pipeline Graphviz DOT untested | **IDX-13d** | Forest/Mermaid green while PNG DOT drops nodes or edges |
+| Hub pipeline Graphviz DOT untested | **IDX-13d** | Shipped — extend only |
+| Hub pipeline graph compile untested | **IDX-13e** | Hand AST ratchets green while `Compile(snapshot, DataFlow)` drops hub |
 | Singleton-RG tail | **IDX-08** | Full subscription is a postage sheet |
 | Duplicate connections | **IDX-09** | Five Office365 cards per Logic App |
 | PE flag with no UI | **IDX-10** | Operators cannot opt in; or PEs sneak on |
@@ -53,7 +54,8 @@
 | **IDX-07e** Subcolumn keeps hub component whole | After 07d | Shipped — extend only |
 | **IDX-07f** Data Flow hub pipeline ratchet | After 07e | Shipped — extend only |
 | **IDX-13c** Data Flow hub Mermaid ratchet | After 07f | Shipped — extend only |
-| **IDX-13d** Data Flow hub DOT ratchet | After 13c | Prompt only until implemented |
+| **IDX-13d** Data Flow hub DOT ratchet | After 13c | Shipped — extend only |
+| **IDX-13e** Data Flow hub graph-compile ratchet | After 13d | Prompt only until implemented |
 | **IDX-08** Singleton-RG collapse | After 06 | |
 | **IDX-09** Duplicate connection collapse | After 03 | |
 | **IDX-10** PE opt-in toggle | After 02 | |
