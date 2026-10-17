@@ -58,6 +58,7 @@ public sealed class InventoryDiagramExcellenceIdx13RatchetTests
 
         string dot = dotEmitter.Emit(ast);
         InventoryDiagramExcellenceRatchetAssertions.AssertDotContainsResourceGroupCluster(dot);
+        InventoryDiagramExcellenceRatchetAssertions.AssertDotSubscriptionClusterPolicy(dot, mode);
     }
 
     [Fact]

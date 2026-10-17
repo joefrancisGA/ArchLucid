@@ -21,7 +21,8 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
         string? FrameCellId = null,
         int DataFlowColumnIndex = -1,
         string? VnetFrameId = null,
-        bool IsFrameAnchor = false);
+        bool IsFrameAnchor = false,
+        int RoleColumnIndex = -1);
 
     private sealed record VnetPrimaryGroup(
         string NodeId,
@@ -1245,6 +1246,7 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
     {
         List<NodePlacement> placements = [];
         double columnX = 0.0d;
+        int roleColumnIndex = 0;
 
         foreach (IGrouping<int, DiagramNode> role in DiagramForestRoleClassifier
                      .Order(nodes)
@@ -1267,11 +1269,13 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
                     nodeY,
                     metrics.Width,
                     metrics.Height,
-                    metrics));
+                    metrics,
+                    RoleColumnIndex: roleColumnIndex));
                 nodeY += metrics.Height + options.NodeVerticalGap;
             }
 
             columnX += columnWidth + options.NodeHorizontalGap;
+            roleColumnIndex++;
         }
 
         return placements;
@@ -1763,6 +1767,11 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
                 string.Create(
                     CultureInfo.InvariantCulture,
                     $"translate({placement.X:0.###},{placement.Y:0.###})")));
+            if (placement.RoleColumnIndex >= 0)
+            {
+                nodeGroup.Add(new XAttribute("data-role-column", placement.RoleColumnIndex.ToString(CultureInfo.InvariantCulture)));
+            }
+
             root.Add(nodeGroup);
         }
 
