@@ -690,7 +690,7 @@ export function RemediationFactoryClient() {
       <section className="space-y-3" aria-label="Operator priority table">
         <h2 className={OPERATOR_TYPOGRAPHY.sectionTitle}>Priority queue</h2>
         <p className={OPERATOR_TYPOGRAPHY.helper} data-testid="remediation-factory-findings-audience-line">
-          These are SecureNow findings for the current inventory snapshot. They are not architecture review findings.
+          These are SecureNow findings for the current inventory snapshot.
         </p>
         {rankedQuery.isError ? (
           <StatusTag kind="needs-attention" label="Priority queue unavailable" />
