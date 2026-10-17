@@ -33,8 +33,14 @@ import {
   EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
 import { useEnterpriseTableKeyboardNav } from "@/hooks/use-enterprise-table-keyboard-nav";
+import {
+  REMEDIATION_FACTORY_ROW_ATTR,
+  useRemediationFactoryShortcuts,
+} from "@/hooks/useRemediationFactoryShortcuts";
+import { focusGovernanceFindingsQueuePathInspectPanel } from "@/hooks/use-governance-findings-queue-path-inspect-shortcuts";
 import { fetchRemediationScoreExplanation } from "@/lib/remediation-factory-api";
-import { formatRemediationPrioritySortKeyLine } from "@/lib/remediation-priority-score-display";
+import { formatRemediationPriorityWhenBand, REMEDIATION_PRIORITY_WHEN_HEADER_HELPER } from "@/lib/remediation-priority-when-band";
+import { REMEDIATION_WAVES_SECTION_ID } from "@/lib/remediation-wave-list-copy";
 import type {
   RemediationFactoryMetrics,
   RemediationPrioritizedFinding,
@@ -46,12 +52,13 @@ import {
 } from "@/hooks/use-remediation-factory-query";
 import { useSecurityEvidenceRankedPathsQuery } from "@/hooks/use-security-evidence-ranked-paths-query";
 import { useOperatorRelativeFreshnessNowMs } from "@/hooks/use-operator-relative-freshness-now-ms";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens-shell-typography";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens-shell-typography";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { assignedToMeFindingsPathForProductLine } from "@/lib/product-line/securenow-assigned-to-me-route";
 import { SECURENOW_REMEDIATION_FACTORY_PATH } from "@/lib/governance/governance-route-paths";
 import { resolveSecureNowPageHeading } from "@/lib/product-line/securenow-page-heading";
 import { remediationFactoryPathForProductLine } from "@/lib/product-line/securenow-remediation-factory-route";
+import { remediationInstancesPathForProductLine } from "@/lib/product-line/securenow-remediation-instances-route";
 import {
   formatSecurityEvidencePathConfidenceBandLabel,
   formatSecurityEvidencePathKindLabel,
@@ -94,9 +101,15 @@ import {
 } from "./remediation-factory-freshness";
 import { useRemediationFactoryUrlState } from "./use-remediation-factory-url-state";
 import {
+  REMEDIATION_FACTORY_OPEN_WAVES_LABEL,
+  REMEDIATION_FACTORY_PAGE_SUBTITLE,
   REMEDIATION_FACTORY_PRIMARY_CONTENT_ID,
   REMEDIATION_FACTORY_SKIP_LINK_LABEL,
 } from "./remediation-factory-page-copy";
+import { RemediationFactoryMetricsMeasurementDisclosure } from "./RemediationFactoryMetricsMeasurementDisclosure";
+import { RemediationPriorityReasonCell } from "./RemediationPriorityReasonCell";
+import { RemediationPriorityResourceCell } from "./RemediationPriorityResourceCell";
+import { RemediationPrioritySortKeyDisclosure } from "./RemediationPrioritySortKeyDisclosure";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 
 function ExecutiveMetricTile(props: {
@@ -154,6 +167,7 @@ function ExecutiveMetricsGrid(props: { readonly metrics: RemediationFactoryMetri
           <ExecutiveMetricTile key={tile.key} label={tile.label} presentation={tile.presentation} hint={tile.hint} />
         ))}
       </div>
+      <RemediationFactoryMetricsMeasurementDisclosure />
     </section>
   );
 }
@@ -231,6 +245,13 @@ function PriorityTable(props: {
                 Server rank when recorded; otherwise row order in this view.
               </span>
             </EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>Resource</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>
+              <span>When</span>
+              <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                {REMEDIATION_PRIORITY_WHEN_HEADER_HELPER}
+              </span>
+            </EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>
               <span>Score</span>
               <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
@@ -257,6 +278,7 @@ function PriorityTable(props: {
             <EnterpriseTableRow
               key={row.findingId}
               data-testid={`remediation-priority-row-${row.findingId}`}
+              {...{ [REMEDIATION_FACTORY_ROW_ATTR]: row.findingId }}
               data-selectable-row-index={index}
               selected={props.selectedFindingId === row.findingId}
               interactive
@@ -270,17 +292,22 @@ function PriorityTable(props: {
               onKeyDown={(event) => handleRowKeyDown(event, index)}
             >
               <EnterpriseTableCell>{row.rankOrder ?? index + 1}</EnterpriseTableCell>
+              <RemediationPriorityResourceCell findingId={row.findingId} cloudResourceId={row.cloudResourceId} />
               <EnterpriseTableCell>
-                <span className="tabular-nums">{row.totalScore.toFixed(4)}</span>
-                <p className={cn("m-0 mt-0.5 font-normal", OPERATOR_TYPOGRAPHY.micro)}>
-                  {formatRemediationPrioritySortKeyLine(row.totalScore)}
-                </p>
+                {formatRemediationPriorityWhenBand(row.rankOrder ?? index + 1)}
+              </EnterpriseTableCell>
+              <EnterpriseTableCell>
+                <RemediationPrioritySortKeyDisclosure findingId={row.findingId} totalScore={row.totalScore} />
               </EnterpriseTableCell>
               <EnterpriseTableCell>{row.controlId ?? "—"}</EnterpriseTableCell>
               <EnterpriseTableCell>
                 {row.patternKey == null ? "No pattern key recorded" : "Pattern"}
               </EnterpriseTableCell>
-              <CompareDiffExpandableValueCell value={row.explanationSummary} />
+              <RemediationPriorityReasonCell
+                findingId={row.findingId}
+                breakdownJson={row.breakdownJson}
+                explanationSummary={row.explanationSummary}
+              />
             </EnterpriseTableRow>
           ))}
         </EnterpriseTableBody>
@@ -350,6 +377,7 @@ function RankedPathsTable(props: {
             <EnterpriseTableRow
               key={row.pathId}
               data-testid={`security-evidence-ranked-path-row-${row.pathId}`}
+              {...{ [REMEDIATION_FACTORY_ROW_ATTR]: row.pathId }}
               data-selectable-row-index={index}
               selected={props.selectedPathId === row.pathId}
               interactive
@@ -454,9 +482,16 @@ export function RemediationFactoryClient() {
   const [simulatorGeneratedAt, setSimulatorGeneratedAt] = useState<Date | null>(null);
   const [simulatorError, setSimulatorError] = useState<string | null>(null);
   const pathInspectPanelRef = useRef<HTMLElement | null>(null);
-
   const ranked = rankedQuery.data ?? [];
   const rankedPaths = rankedPathsQuery.data?.items ?? [];
+  const selectedFindingIdRef = useRef(selectedFindingId);
+  const selectedPathIdRef = useRef(selectedPathId);
+  const rankedRef = useRef(ranked);
+  const rankedPathsRef = useRef(rankedPaths);
+  selectedFindingIdRef.current = selectedFindingId;
+  selectedPathIdRef.current = selectedPathId;
+  rankedRef.current = ranked;
+  rankedPathsRef.current = rankedPaths;
   const pathView = searchParams.get("pathView") ?? "all";
   const visibleRankedPaths = useMemo(() => {
     switch (pathView) {
@@ -594,7 +629,7 @@ export function RemediationFactoryClient() {
     }
   }, [rankedPathsQuery.isSuccess, selectedPathId, syncSelection, visibleRankedPaths]);
 
-  async function runSimulator(findingId: string) {
+  const runSimulator = useCallback(async (findingId: string) => {
     setSimulatorError(null);
 
     try {
@@ -606,7 +641,49 @@ export function RemediationFactoryClient() {
       setSimulatorExplanation(null);
       setSimulatorGeneratedAt(null);
     }
-  }
+  }, []);
+
+  const getNavigationAnchorRowId = useCallback(
+    () => selectedFindingIdRef.current ?? selectedPathIdRef.current,
+    [],
+  );
+
+  const onSelectRowId = useCallback(
+    (rowId: string) => {
+      if (rankedRef.current.some((row) => row.findingId === rowId)) {
+        selectFinding(rowId);
+
+        return;
+      }
+
+      if (rankedPathsRef.current.some((row) => row.pathId === rowId)) {
+        selectPath(rowId);
+      }
+    },
+    [selectFinding, selectPath],
+  );
+
+  const onFocusInspect = useCallback(() => {
+    focusGovernanceFindingsQueuePathInspectPanel(pathInspectPanelRef.current);
+  }, []);
+
+  const onExplainScore = useCallback(() => {
+    const findingId = selectedFindingIdRef.current;
+
+    if (findingId == null) {
+      return;
+    }
+
+    void runSimulator(findingId);
+  }, [runSimulator]);
+
+  useRemediationFactoryShortcuts({
+    getNavigationAnchorRowId,
+    onSelectRowId,
+    onFocusInspect,
+    onExplainScore,
+    explainEnabled: selectedFindingId != null,
+  });
 
   return (
     <div className="space-y-4 p-4" data-testid="remediation-factory-page">
@@ -621,7 +698,7 @@ export function RemediationFactoryClient() {
         navHref={navHref}
         title={pageTitle}
         titleTestId="remediation-factory-page-title"
-        subtitle="Explainable prioritization, wave planning, and executive metrics. Advisory only — no cloud apply."
+        subtitle={REMEDIATION_FACTORY_PAGE_SUBTITLE}
         subtitleTestId="remediation-factory-page-lead"
         claimDiscipline="Simulator and ranked scores are advisory — not sealed-record proof or live scanner output."
         claimDisciplineTestId="remediation-factory-claim-discipline"
@@ -689,6 +766,13 @@ export function RemediationFactoryClient() {
 
       <section className="space-y-3" aria-label="Operator priority table">
         <h2 className={OPERATOR_TYPOGRAPHY.sectionTitle}>Priority queue</h2>
+        <Link
+          href={`${remediationInstancesPathForProductLine(productLine)}#${REMEDIATION_WAVES_SECTION_ID}`}
+          className={OPERATOR_LINK.inline}
+          data-testid="remediation-factory-open-waves"
+        >
+          {REMEDIATION_FACTORY_OPEN_WAVES_LABEL}
+        </Link>
         <p className={OPERATOR_TYPOGRAPHY.helper} data-testid="remediation-factory-findings-audience-line">
           These are SecureNow findings for the current inventory snapshot.
         </p>

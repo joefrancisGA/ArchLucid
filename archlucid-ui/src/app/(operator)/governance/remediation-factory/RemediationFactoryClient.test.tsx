@@ -171,6 +171,7 @@ vi.mock("@/lib/infra-evidence/infra-evidence-remediation-api", () => ({
   fetchRemediationInstances: vi.fn(async () => []),
 }));
 
+import { COMMAND_PALETTE_REMEDIATION_FACTORY_INSPECT_EVENT } from "@/lib/remediation-factory/remediation-factory-command-palette-events";
 import { RemediationFactoryClient } from "./RemediationFactoryClient";
 import { PAGE_HELP_SHORT_TRIGGER_TEXT } from "@/components/usability/PageContextualHelpButton";
 import {
@@ -181,6 +182,7 @@ import { REMEDIATION_FACTORY_EXECUTIVE_METRICS_TITLE } from "./remediation-facto
 
 describe("RemediationFactoryClient", () => {
   beforeEach(() => {
+    Element.prototype.scrollIntoView = vi.fn();
     mockedFindingId = null;
     mockedPathId = null;
     searchParams = new URLSearchParams();
@@ -207,7 +209,7 @@ describe("RemediationFactoryClient", () => {
     render(<RemediationFactoryClient />);
 
     expect(screen.getByTestId("remediation-factory-page")).toBeInTheDocument();
-    expect(screen.getByTestId("remediation-factory-page-title")).toHaveTextContent("Remediation factory");
+    expect(screen.getByTestId("remediation-factory-page-title")).toHaveTextContent("Priorities & Waves");
     expect(screen.getByTestId("remediation-factory-claim-discipline")).toHaveTextContent("sealed-record proof");
     expect(screen.getByTestId("remediation-factory-last-refreshed")).toBeInTheDocument();
     expect(screen.getByTestId("remediation-factory-context-strip")).toBeInTheDocument();
@@ -236,6 +238,59 @@ describe("RemediationFactoryClient", () => {
     );
 
     expect(selectPath).toHaveBeenCalledWith("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+  });
+
+  it("focuses path inspect on Alt+I and the command palette inspect event", () => {
+    render(<RemediationFactoryClient />);
+
+    const panel = screen.getByTestId("security-evidence-path-inspect-panel");
+    fireEvent.keyDown(document, { key: "i", altKey: true });
+
+    expect(panel).toHaveFocus();
+
+    panel.blur();
+    window.dispatchEvent(new Event(COMMAND_PALETTE_REMEDIATION_FACTORY_INSPECT_EVENT));
+
+    expect(panel).toHaveFocus();
+  });
+
+  it("selects the next ranked finding on Alt+J", () => {
+    mockedFindingId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+    mockRankedFindingsQuery({
+      data: [
+        {
+          findingId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+          totalScore: 0.42,
+          explanationSummary: "first",
+          breakdownJson: "[]",
+          controlId: "AC-2",
+          patternKey: null,
+        },
+        {
+          findingId: "eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee",
+          totalScore: 0.2,
+          explanationSummary: "second",
+          breakdownJson: "[]",
+          controlId: "AC-3",
+          patternKey: null,
+        },
+      ],
+    });
+
+    render(<RemediationFactoryClient />);
+
+    fireEvent.keyDown(document, { key: "j", altKey: true });
+
+    expect(selectFinding).toHaveBeenCalledWith("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+  });
+
+  it("does not throw Alt+E when no finding is selected", () => {
+    render(<RemediationFactoryClient />);
+
+    expect(() => {
+      fireEvent.keyDown(document, { key: "e", altKey: true });
+    }).not.toThrow();
+    expect(selectFinding).not.toHaveBeenCalled();
   });
 
   it("clears stale findingId from the URL when the finding is missing from loaded ranked rows", async () => {
