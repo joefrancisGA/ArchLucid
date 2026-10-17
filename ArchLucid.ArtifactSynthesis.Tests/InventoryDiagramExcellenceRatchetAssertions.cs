@@ -196,4 +196,60 @@ public static class InventoryDiagramExcellenceRatchetAssertions
             .Count(line => line.Contains("subgraph ", StringComparison.Ordinal)
                 && line.Contains(clusterToken, StringComparison.Ordinal));
     }
+
+    public static void AssertRoleColumnMarkersPresent(string svg, DiagramMode mode)
+    {
+        ArgumentNullException.ThrowIfNull(svg);
+
+        if (mode is DiagramMode.DataFlow or DiagramMode.DataArchitecture)
+        {
+            CountRoleColumnMarkers(svg).Should().Be(0, "stage subgraphs keep LR layout instead of RG role columns");
+            return;
+        }
+
+        if (mode is DiagramMode.Avd or DiagramMode.BusinessContinuity)
+        {
+            return;
+        }
+
+        CountRoleColumnMarkers(svg)
+            .Should()
+            .BeGreaterThan(0, $"IDX-07 mixed RG fixture should stamp data-role-column for {mode}");
+    }
+
+    public static void AssertRoleColumnMarkersAbsent(string svg, DiagramMode mode)
+    {
+        ArgumentNullException.ThrowIfNull(svg);
+
+        CountRoleColumnMarkers(svg).Should().Be(0, mode.ToString());
+    }
+
+    public static void AssertHubSpokeHubMarkerPresent(string svg)
+    {
+        ArgumentNullException.ThrowIfNull(svg);
+
+        XDocument.Parse(svg)
+            .Descendants()
+            .Any(element => element.Attribute("data-hub-spoke")?.Value == "hub")
+            .Should()
+            .BeTrue("IDX-07 hub-spoke layout should stamp the hub node");
+    }
+
+    public static void AssertHubSpokeHubMarkerAbsent(string svg, DiagramMode mode)
+    {
+        ArgumentNullException.ThrowIfNull(svg);
+
+        XDocument.Parse(svg)
+            .Descendants()
+            .Any(element => element.Attribute("data-hub-spoke")?.Value == "hub")
+            .Should()
+            .BeFalse($"role-column layouts should not stamp hub-spoke hubs ({mode})");
+    }
+
+    private static int CountRoleColumnMarkers(string svg)
+    {
+        return XDocument.Parse(svg)
+            .Descendants()
+            .Count(element => element.Attribute("data-role-column") is not null);
+    }
 }
