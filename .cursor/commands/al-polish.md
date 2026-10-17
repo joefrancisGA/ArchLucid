@@ -120,13 +120,14 @@ The parent checks `git status --short` and `git diff --stat` against Luna's file
 
 ### Step 4 — Pull request against master
 
-When at least one item shipped, open a pull request. Skip this step when `--suggest-only` was set, the batch is empty, or Luna shipped nothing.
+When at least one item shipped, open a pull request. Skip this step when `--suggest-only` was set, the batch is empty, or the implementer shipped nothing.
 
 1. Fetch `origin/master`.
-2. Ask the user to reply with the exact branch name `cursor/al-polish-<short-topic>`, and wait for that reply before creating it from `origin/master` or running any branch-switch, commit, or push command. Do not commit on `master`.
-3. Stage only the files Luna changed for this batch. Leave unrelated dirty and untracked files unstaged, including SQL, package zips, and `next-env.d.ts` when those were already dirty and were not in Luna's file list.
-4. Commit only Luna's paths with `git commit --only -- <Luna-file-list>` so any unrelated paths staged before this run remain outside the commit. The message says why a reviewer was seeing a guessed or blank value.
-5. Push with an explicit refspec: `git push -u origin HEAD:cursor/al-polish-<short-topic>`. Do not push that commit to `master`. Do not force-push.
-6. Open the pull request with base `master` and that branch as the head.
+2. **Branch name (parent picks; do not ask unless the user named a branch in the same `/al-polish` request).** Use `.cursor/rules/delegated-branch-naming.mdc`: `cursor/al-polish-<short-topic>-4156`, where `<short-topic>` is a few kebab-case words from the batch theme (for example `first-review-honesty`). List local and remote `cursor/al-polish-*` branches first; if the name exists, extend or vary `<short-topic>` so the branch is new. If the user **did** name a branch in this invocation, use that exact name instead.
+3. Prefer a **git worktree** from `origin/master` on that branch when the main working tree has unrelated dirty files. Copy **only** the paths the implementer changed for this batch. Do not commit on `master`.
+4. Stage only those paths. Leave unrelated dirty and untracked files unstaged, including SQL, package zips, and `next-env.d.ts` when they were not in the implementer's file list.
+5. Commit with a message that says why a reviewer was seeing a guessed or blank value.
+6. Push: `git push -u origin HEAD:cursor/al-polish-<short-topic>-4156` (or the user-named branch). Do not push to `master`. Do not force-push.
+7. Open the pull request with base `master` and that branch as the head.
 
-Add the pull request URL to the report.
+Add the pull request URL and the branch name to the report.
