@@ -249,7 +249,7 @@ Run **IE-01 → IE-04 → IE-02 → IE-03** before audit selectors or Mermaid-fr
 | **IDF-HOLD** | No nested frames / global gap bump / IDR boxes **from IDF chats** (nesting is **IDX-05 / IDX-06**) | — |
 | **IDX-01** | Recapture nested NIC/PE/Logic App/ADF/diagnostic properties | **Shipped** on trunk — do not greenfield |
 | **IDX-02** | Graph-build hop compose + `(from,to,role)` dedupe for every `DiagramMode` | **Shipped** on trunk — do not greenfield |
-| **IDX-03** | Cited hops; no same-RG / single-VNet all-to-all | IDX-02 |
+| **IDX-03** | Cited hops; no same-RG / single-VNet all-to-all | **Shipped** on trunk — do not greenfield |
 | **IDX-04** | Honest verbs (`in` / `contains` / `peering` / `uses` / …) | IDX-02 (prefer IDX-03) |
 | **IDX-05** | Nested VNet → subnet frames (authorized nesting wave) | IDX-04 preferred |
 | **IDX-06** | Subscription outer frame (subscription-scoped modes only) | IDX-05 |
