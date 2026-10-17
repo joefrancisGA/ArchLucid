@@ -24,9 +24,7 @@ public sealed class InventoryDiagramExcellenceForestRatchetTests
 
     public static TheoryData<DiagramMode> PrivateEndpointHiddenByDefaultModes { get; } = new(
         RatchetModeValues
-            .Where(mode => mode is not DiagramMode.ResourceGroup
-                and not DiagramMode.DataFlow
-                and not DiagramMode.DataArchitecture)
+            .Where(mode => mode is not DiagramMode.DataFlow and not DiagramMode.DataArchitecture)
             .ToArray());
 
     [Theory]

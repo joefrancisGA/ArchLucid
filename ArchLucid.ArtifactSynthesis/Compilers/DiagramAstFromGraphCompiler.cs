@@ -654,11 +654,6 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
 
     private static bool HidePrivateEndpointCards(DiagramMode mode, DiagramAstCompileOptions options)
     {
-        if (mode == DiagramMode.ResourceGroup)
-        {
-            return false;
-        }
-
         if (mode == DiagramMode.FullSubscription && options.IncludeNetworkDetails)
         {
             return false;

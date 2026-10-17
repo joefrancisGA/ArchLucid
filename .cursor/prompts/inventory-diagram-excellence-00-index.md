@@ -87,18 +87,18 @@ Do **not** draw a complete graph to “maximize edges.” Do **not** show NIC or
 | **IDX-02** Graph-build hop compose + dedupe | **Shipped** on trunk — do not greenfield | Shared visible projection |
 | **IDX-03** Cited hops, no all-to-all | **Shipped** on trunk — do not greenfield | Composer exists so collocation can be demoted |
 | **IDX-04** Honest verbs | **Shipped** on trunk — do not greenfield | Closed verb catalog + humanizer |
-| **IDX-05** Nested VNet → subnet frames | After 04 preferred | VNet/subnet forest frames on trunk; extend only |
+| **IDX-05** Nested VNet → subnet frames | **Shipped** on trunk — extend only | VNet/subnet forest frames + membership fallback |
 | **IDX-06** Subscription outer frame | **Shipped** on trunk — do not greenfield | `sub-frame` on subscription-scoped modes |
-| **IDX-07** Role-aware packing + hubs | After 05 | Role columns + hub-spoke on trunk |
+| **IDX-07** Role-aware packing + hubs | **Shipped** on trunk — extend only | Role columns + hub-spoke in forest packer |
 | **IDX-08** Singleton-RG collapse | **Shipped** on trunk — do not greenfield | Tail rollup when ≥8 isolated singleton RGs |
 | **IDX-09** Duplicate connection collapse | **Shipped** on trunk — do not greenfield | `DiagramInventoryConnectionRollupApplier` |
-| **IDX-10** PE opt-in toggle | After 02 | Compose already uses hidden PEs |
-| **IDX-11** Completeness strip | After 01 | Capture codes exist |
-| **IDX-12** Hop-focus neighborhood / selected / RG | **Shipped** (core) on trunk — extend tests | Cited-hop BFS + hidden transit bridge |
-| **IDX-13** Cross-mode parity ratchet | Last | 01–12 merged (or land failing tests for merged slices) |
+| **IDX-10** PE opt-in toggle | **Shipped** on trunk — extend only | Workbench toggle; default off all modes incl. `ResourceGroup` |
+| **IDX-11** Completeness strip | **Shipped** on trunk — extend only | Mode-aware `CompletenessSummary` + banner |
+| **IDX-12** Hop-focus neighborhood / selected / RG | **Shipped** on trunk — extend only | Cited-hop BFS + hidden transit bridge |
+| **IDX-13** Cross-mode parity ratchet | **Shipped** on trunk — extend only | `FullyQualifiedName~InventoryDiagramExcellence` |
 | **IDX-HOLD** | Not implementation | — |
 
-**IDX-07** polish and **IDX-10–13** remain (PE toggle parity, completeness strip depth, hop-focus modes, full ratchet). **IDX-05** nested subnet layer can deepen when a mode keeps subnet nodes visible.
+**Regression guard:** `dotnet test ArchLucid.ArtifactSynthesis.Tests --filter FullyQualifiedName~InventoryDiagramExcellence` plus `ArchLucid.Application.Tests --filter FullyQualifiedName~InfraEvidenceMermaidCompleteness`. **IDX-05** subnet layer can still deepen when a mode keeps subnet nodes visible.
 
 **IDX-HOLD** is not implementation. Paste `inventory-diagram-excellence-14-hold.md` only if a session starts a complete graph, default NIC/PE cards, Microsoft icons, Full-subscription RBAC, ARM `dependsOn`, a second collector, or nested frames from an **IDA / IDF** chat.
 

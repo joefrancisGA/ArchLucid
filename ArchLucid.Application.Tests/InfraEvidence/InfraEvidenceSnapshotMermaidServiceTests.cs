@@ -550,6 +550,46 @@ public sealed class InfraEvidenceSnapshotMermaidServiceTests
     }
 
     [Fact]
+    public async Task Render_completeness_summary_is_mode_aware_for_nic_subnet_gap()
+    {
+        AzureInventorySnapshotDetailReadModel baseSnapshot = BuildSnapshot(resourceCount: 3);
+        AzureInventorySnapshotDetailReadModel snapshot = new()
+        {
+            Header = new AzureInventorySnapshotRecord
+            {
+                SnapshotId = baseSnapshot.Header.SnapshotId,
+                TenantId = baseSnapshot.Header.TenantId,
+                SubscriptionId = baseSnapshot.Header.SubscriptionId,
+                CaptureStatus = baseSnapshot.Header.CaptureStatus,
+                CompletenessWarningsJson = AzureInventorySnapshotCompletenessWarningsJson.Serialize(
+                [
+                    AzureInventoryRelationshipCompletenessWarningCodes.ArgNicSubnetMissing,
+                ]),
+            },
+            Resources = baseSnapshot.Resources,
+            Relationships = baseSnapshot.Relationships,
+        };
+
+        InMemorySnapshotRepository repository = new() { Snapshots = { [SnapshotId] = snapshot } };
+        InfraEvidenceSnapshotMermaidService service = CreateService(
+            repository,
+            new MermaidDiagramReadabilityThresholds());
+        ScopeContext scope = CreateScope();
+
+        InfraEvidenceMermaidServiceResult<InfraEvidenceMermaidRenderResponse> network =
+            await service.TryGetMermaidAsync(scope, SnapshotId, "network", null, null, cancellationToken: CancellationToken.None);
+        InfraEvidenceMermaidServiceResult<InfraEvidenceMermaidRenderResponse> identity =
+            await service.TryGetMermaidAsync(scope, SnapshotId, "identity", null, null, cancellationToken: CancellationToken.None);
+
+        network.Succeeded.Should().BeTrue();
+        identity.Succeeded.Should().BeTrue();
+        network.Value!.CompletenessSummary.Should().NotBeNull();
+        identity.Value!.CompletenessSummary.Should().NotBeNull();
+        network.Value.CompletenessSummary!.MissingClasses.Should().Contain("nicToSubnet");
+        identity.Value.CompletenessSummary!.MissingClasses.Should().NotContain("nicToSubnet");
+    }
+
+    [Fact]
     public async Task Preview_and_render_surface_persisted_completeness_warnings()
     {
         AzureInventorySnapshotDetailReadModel baseSnapshot = BuildSnapshot(resourceCount: 2);
