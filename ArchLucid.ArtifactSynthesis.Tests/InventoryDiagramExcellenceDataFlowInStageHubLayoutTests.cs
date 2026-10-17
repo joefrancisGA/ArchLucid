@@ -73,6 +73,29 @@ public sealed class InventoryDiagramExcellenceDataFlowInStageHubLayoutTests
     }
 
     [Fact]
+    public void DataFlowInStageHub_twelve_spokes_in_one_stage_stays_single_hub_subcolumn()
+    {
+        DiagramAst ast = BuildAdfTwelveStorageStageAst();
+        XDocument svg = Render(ast);
+
+        CountHubMarkers(svg).Should().Be(1);
+        svg.Descendants()
+            .Any(element => element.Attribute("data-hub-spoke")?.Value == "hub" && element.Attribute("id")?.Value == "node-adf")
+            .Should()
+            .BeTrue();
+
+        IReadOnlyList<string> spokeIds = Enumerable.Range(0, 12).Select(index => $"st{index}").ToList();
+
+        foreach (string spokeId in spokeIds)
+        {
+            svg.Descendants()
+                .Any(element => element.Attribute("id")?.Value == $"node-{spokeId}")
+                .Should()
+                .BeTrue(spokeId);
+        }
+    }
+
+    [Fact]
     public void DataFlowInStageHub_chain_with_max_degree_two_has_no_hub_marker()
     {
         DiagramAst ast = BuildChainStageAst();
@@ -93,6 +116,32 @@ public sealed class InventoryDiagramExcellenceDataFlowInStageHubLayoutTests
 
         stageOneX.Should().BeLessThan(stageTwoSpokeX);
         CrossStageEdgePathMustAvoidSpokeCards(ast, svg, "landing", "adf", ["st0", "st1", "st2", "st3"]);
+    }
+
+    private static DiagramAst BuildAdfTwelveStorageStageAst()
+    {
+        const string stageId = "stage-ingest";
+
+        List<DiagramNode> nodes =
+        [
+            Node("adf", "factory", "Microsoft.DataFactory/factories", stageId, orderKey: 0),
+            ..Enumerable.Range(0, 12).Select(index =>
+                Node($"st{index}", $"lake-{index}", "Microsoft.Storage/storageAccounts", stageId, orderKey: index + 1)),
+        ];
+        List<DiagramEdge> edges = Enumerable.Range(0, 12)
+            .Select(index => Edge("adf", $"st{index}"))
+            .ToList();
+
+        return new DiagramAst
+        {
+            Title = "Azure inventory (DataFlow)",
+            Subgraphs =
+            [
+                new DiagramSubgraph { SubgraphId = stageId, Label = "Ingest", OrderKey = 0 },
+            ],
+            Nodes = nodes,
+            Edges = edges,
+        };
     }
 
     private static DiagramAst BuildAdfFourSameStorageStageAst()
