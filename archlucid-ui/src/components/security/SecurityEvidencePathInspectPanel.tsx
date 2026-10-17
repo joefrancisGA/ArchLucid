@@ -78,6 +78,7 @@ import type {
 } from "@/lib/security-evidence-path-types";
 import { securityEvidencePathHopNodeName } from "@/lib/security-evidence-path-types";
 import { formatRemediationPrioritySortKeyLine } from "@/lib/remediation-priority-score-display";
+import { SecurityEvidencePathRankReaderDisclosures } from "@/components/security/SecurityEvidencePathRankReaderDisclosures";
 import {
   formatSecurityEvidencePathCompositeSortKeyLine,
   formatSecurityEvidencePathRankLead,
@@ -491,12 +492,7 @@ function InspectSelectionIdentityHeader(props: {
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
           Path rank {props.pathSummary.rankOrder} · {formatSecurityEvidencePathKindLabel(props.pathSummary.pathKind)}
         </p>
-        {props.pathSummary.explanationSummary.trim().length > 0 ? (
-          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{props.pathSummary.explanationSummary.trim()}</p>
-        ) : null}
-        <p className={cn("m-0 font-mono text-xs", OPERATOR_TYPOGRAPHY.helper)}>
-          {formatSecurityEvidencePathCompositeSortKeyLine(props.pathSummary.compositeSortScore)}
-        </p>
+        <SecurityEvidencePathRankReaderDisclosures rank={props.pathSummary} />
         <Link
           href={infraRemediationFindingIdDisclosureHrefFromSearch(search, !idsOpen, pathname)}
           className={OPERATOR_LINK.inline}
