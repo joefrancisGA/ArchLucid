@@ -90,6 +90,7 @@ Do **not** draw a complete graph to “maximize edges.” Do **not** show NIC or
 | **IDX-05** Nested VNet → subnet frames | **Shipped** on trunk — extend only | VNet/subnet forest frames + membership fallback |
 | **IDX-06** Subscription outer frame | **Shipped** on trunk — do not greenfield | `sub-frame` on subscription-scoped modes |
 | **IDX-07** Role-aware packing + hubs | **Shipped** on trunk — extend only | Role columns + hub-spoke in forest packer |
+| **IDX-07b** Data Flow in-stage hub | **Prompt only** — not implemented | Hub inside a Data Flow stage; stages stay left-to-right |
 | **IDX-08** Singleton-RG collapse | **Shipped** on trunk — do not greenfield | Tail rollup when ≥8 isolated singleton RGs |
 | **IDX-09** Duplicate connection collapse | **Shipped** on trunk — do not greenfield | `DiagramInventoryConnectionRollupApplier` |
 | **IDX-10** PE opt-in toggle | **Shipped** on trunk — extend only | Workbench toggle; default off all modes incl. `ResourceGroup` |
@@ -116,6 +117,7 @@ Suggested Cloud Agent branch per prompt: `cursor/inventory-diagram-excellence-<s
 | 05 | `inventory-diagram-excellence-05-nested-vnet-subnet-frames.md` | No VNet/subnet boxes; IDA-HOLD/IDF-HOLD blocked this |
 | 06 | `inventory-diagram-excellence-06-subscription-outer-frame.md` | No subscription container on subscription-scoped views |
 | 07 | `inventory-diagram-excellence-07-role-aware-packing.md` | Role-blind grids; hubs lost in columns |
+| 07b | `inventory-diagram-excellence-07b-dataflow-in-stage-hub.md` | Data Flow stage stacks a high-degree ADF instead of hub-and-spoke |
 | 08 | `inventory-diagram-excellence-08-singleton-rg-collapse.md` | Long tail of one-node RG frames |
 | 09 | `inventory-diagram-excellence-09-duplicate-connection-collapse.md` | Duplicate Logic App connector cards |
 | 10 | `inventory-diagram-excellence-10-pe-opt-in-toggle.md` | PE cards have no workbench opt-in; hops already used |
