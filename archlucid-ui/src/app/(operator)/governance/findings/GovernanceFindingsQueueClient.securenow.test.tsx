@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 import GovernanceFindingsQueueClient from "@/app/(operator)/governance/findings/GovernanceFindingsQueueClient";
@@ -136,10 +136,19 @@ vi.mock("@/components/usability/ItsmOutboundQuickActions", () => ({
 const pathInspectFindingIdRef = vi.hoisted(() => ({ current: null as string | null }));
 
 vi.mock("@/components/security/SecurityEvidencePathInspectPanel", () => ({
-  SecurityEvidencePathInspectPanel: (props: { findingId: string | null }) => {
+  SecurityEvidencePathInspectPanel: (props: {
+    findingId: string | null;
+    panelRef?: React.Ref<HTMLElement>;
+  }) => {
     pathInspectFindingIdRef.current = props.findingId;
 
-    return <section data-testid="security-evidence-path-inspect-panel" />;
+    return (
+      <section
+        ref={props.panelRef}
+        tabIndex={-1}
+        data-testid="security-evidence-path-inspect-panel"
+      />
+    );
   },
 }));
 
@@ -244,6 +253,23 @@ describe("GovernanceFindingsQueueClient SecureNow /security/assigned-to-me", () 
       "1 open finding assigned",
     );
     expect(pathInspectFindingIdRef.current).toBeNull();
+  });
+
+  it("focuses path inspect on Alt+I", async () => {
+    vi.mocked(governanceApi.getArchitectureRiskRegister).mockImplementation(async (options) => {
+      if (options?.assignedToMe === true) {
+        return { entries: [secureNowAssignedRiskRow] };
+      }
+
+      return { entries: [] };
+    });
+
+    renderSecureNowAssignedToMeQueue();
+
+    const panel = await screen.findByTestId("security-evidence-path-inspect-panel");
+    fireEvent.keyDown(document, { key: "i", altKey: true, code: "KeyI" });
+
+    expect(panel).toHaveFocus();
   });
 
   it("loads path inspect when findingId is in the assigned queue URL", async () => {

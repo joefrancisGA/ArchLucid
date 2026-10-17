@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 import GovernanceFindingsQueueClient from "@/app/(operator)/governance/findings/GovernanceFindingsQueueClient";
@@ -145,10 +145,19 @@ vi.mock("@/components/usability/ItsmOutboundQuickActions", () => ({
 const pathInspectFindingIdRef = vi.hoisted(() => ({ current: null as string | null }));
 
 vi.mock("@/components/security/SecurityEvidencePathInspectPanel", () => ({
-  SecurityEvidencePathInspectPanel: (props: { findingId: string | null }) => {
+  SecurityEvidencePathInspectPanel: (props: {
+    findingId: string | null;
+    panelRef?: React.Ref<HTMLElement>;
+  }) => {
     pathInspectFindingIdRef.current = props.findingId;
 
-    return <section data-testid="security-evidence-path-inspect-panel" />;
+    return (
+      <section
+        ref={props.panelRef}
+        tabIndex={-1}
+        data-testid="security-evidence-path-inspect-panel"
+      />
+    );
   },
 }));
 
@@ -253,6 +262,23 @@ describe("GovernanceFindingsQueueClient SecureNow /compliance/findings working m
 
     expect(await screen.findByTestId("security-evidence-path-inspect-panel")).toBeInTheDocument();
     expect(pathInspectFindingIdRef.current).toBeNull();
+  });
+
+  it("focuses path inspect on Alt+I", async () => {
+    vi.mocked(governanceApi.getArchitectureRiskRegister).mockResolvedValue({
+      entries: [complianceQueueRiskRow],
+    });
+
+    render(
+      <OperatorQueryProvider>
+        <GovernanceFindingsQueueClient />
+      </OperatorQueryProvider>,
+    );
+
+    const panel = await screen.findByTestId("security-evidence-path-inspect-panel");
+    fireEvent.keyDown(document, { key: "i", altKey: true, code: "KeyI" });
+
+    expect(panel).toHaveFocus();
   });
 
   it("loads path inspect when findingId is on the compliance findings URL", async () => {

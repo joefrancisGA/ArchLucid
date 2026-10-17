@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useCallback, useMemo, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 
 import { SecurityEvidencePathInspectPanel } from "@/components/security/SecurityEvidencePathInspectPanel";
@@ -18,6 +18,10 @@ import {
 } from "@/app/(operator)/governance/remediation-factory/remediation-factory-url-state";
 import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
+import {
+  focusGovernanceFindingsQueuePathInspectPanel,
+  useGovernanceFindingsQueuePathInspectShortcuts,
+} from "@/hooks/use-governance-findings-queue-path-inspect-shortcuts";
 
 import type { GovernanceFindingsQueueAssignedToMeShellProps } from "@/app/(operator)/governance/findings/GovernanceFindingsQueueAssignedToMeShell";
 
@@ -29,6 +33,17 @@ export function GovernanceAssignedToMePathInspectSection(
 ): React.JSX.Element | null {
   const { productLine } = useProductLine();
   const searchParams = useSearchParams();
+  const pathInspectPanelRef = useRef<HTMLElement | null>(null);
+  const secureNowFindingsDesk = isSecureNowProductLine(productLine);
+
+  const onFocusPathInspect = useCallback(() => {
+    focusGovernanceFindingsQueuePathInspectPanel(pathInspectPanelRef.current);
+  }, []);
+
+  useGovernanceFindingsQueuePathInspectShortcuts({
+    enabled: secureNowFindingsDesk,
+    onFocusPathInspect,
+  });
 
   const availableFindingIds = useMemo(
     () => governanceAssignedToMePathInspectFindingIdSet(props.rows),
@@ -47,7 +62,7 @@ export function GovernanceAssignedToMePathInspectSection(
     [availableFindingIds, props.selectedFindingIds, searchParams],
   );
 
-  if (!isSecureNowProductLine(productLine)) {
+  if (!secureNowFindingsDesk) {
     return null;
   }
 
@@ -58,7 +73,9 @@ export function GovernanceAssignedToMePathInspectSection(
   return (
     <SecurityEvidencePathInspectPanel
       findingId={pathInspectFindingId}
+      panelRef={pathInspectPanelRef}
       selectPromptPreset={selectPromptPreset}
+      showFocusPathInspectShortcutHint
     />
   );
 }
