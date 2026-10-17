@@ -7,6 +7,8 @@ import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
+import { SecurityEvidencePathRankReasonDisclosure } from "@/components/security/SecurityEvidencePathRankReasonDisclosure";
+import { SecurityEvidencePathRankSortKeyDisclosure } from "@/components/security/SecurityEvidencePathRankSortKeyDisclosure";
 import type { EnterpriseCompactEmptyStateProps } from "@/components/EnterpriseCompactEmptyState";
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
@@ -491,12 +493,20 @@ function InspectSelectionIdentityHeader(props: {
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
           Path rank {props.pathSummary.rankOrder} · {formatSecurityEvidencePathKindLabel(props.pathSummary.pathKind)}
         </p>
-        {props.pathSummary.explanationSummary.trim().length > 0 ? (
-          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{props.pathSummary.explanationSummary.trim()}</p>
-        ) : null}
-        <p className={cn("m-0 font-mono text-xs", OPERATOR_TYPOGRAPHY.helper)}>
-          {formatSecurityEvidencePathCompositeSortKeyLine(props.pathSummary.compositeSortScore)}
-        </p>
+        <SecurityEvidencePathRankReasonDisclosure
+          pathId={props.pathId ?? props.pathSummary.pathId}
+          scores={{
+            technicalExposureScore: props.pathSummary.technicalExposureScore,
+            privilegeDepthScore: props.pathSummary.privilegeDepthScore,
+            blastRadiusScore: props.pathSummary.blastRadiusScore,
+            businessConsequenceScore: props.pathSummary.businessConsequenceScore,
+          }}
+          explanationSummary={props.pathSummary.explanationSummary}
+        />
+        <SecurityEvidencePathRankSortKeyDisclosure
+          pathId={props.pathId ?? props.pathSummary.pathId}
+          compositeSortScore={props.pathSummary.compositeSortScore}
+        />
         <Link
           href={infraRemediationFindingIdDisclosureHrefFromSearch(search, !idsOpen, pathname)}
           className={OPERATOR_LINK.inline}
