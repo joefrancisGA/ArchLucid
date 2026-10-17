@@ -4,7 +4,10 @@ import { useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 
 import { SecurityEvidencePathInspectPanel } from "@/components/security/SecurityEvidencePathInspectPanel";
-import { GOVERNANCE_ASSIGNED_TO_ME_PATH_INSPECT_SELECT_PROMPT } from "@/lib/governance/governance-assigned-to-me-path-inspect-empty-states";
+import {
+  GOVERNANCE_ASSIGNED_TO_ME_PATH_INSPECT_SELECT_PROMPT,
+  GOVERNANCE_FINDINGS_QUEUE_PATH_INSPECT_SELECT_PROMPT,
+} from "@/lib/governance/governance-assigned-to-me-path-inspect-empty-states";
 import {
   governanceAssignedToMePathInspectFindingIdSet,
   resolveGovernanceAssignedToMePathInspectFindingId,
@@ -44,14 +47,18 @@ export function GovernanceAssignedToMePathInspectSection(
     [availableFindingIds, props.selectedFindingIds, searchParams],
   );
 
-  if (!props.isAssignedToMe || !isSecureNowProductLine(productLine)) {
+  if (!isSecureNowProductLine(productLine)) {
     return null;
   }
+
+  const selectPromptPreset = props.isAssignedToMe
+    ? GOVERNANCE_ASSIGNED_TO_ME_PATH_INSPECT_SELECT_PROMPT
+    : GOVERNANCE_FINDINGS_QUEUE_PATH_INSPECT_SELECT_PROMPT;
 
   return (
     <SecurityEvidencePathInspectPanel
       findingId={pathInspectFindingId}
-      selectPromptPreset={GOVERNANCE_ASSIGNED_TO_ME_PATH_INSPECT_SELECT_PROMPT}
+      selectPromptPreset={selectPromptPreset}
     />
   );
 }
