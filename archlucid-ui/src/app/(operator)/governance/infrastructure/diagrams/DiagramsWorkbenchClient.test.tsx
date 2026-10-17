@@ -825,7 +825,7 @@ describe("DiagramsWorkbenchClient", () => {
 
     const emptyState = await screen.findByTestId("infra-diagrams-empty-content");
     expect(emptyState).toHaveTextContent("Edge count was not stored");
-    expect(emptyState).not.toHaveTextContent("This data-flow canvas is empty.");
+    expect(emptyState).not.toHaveTextContent("No data-flow connections in this snapshot");
   });
 
   it("shows true-zero data-flow empty copy when metrics report zero edges", async () => {
@@ -853,7 +853,7 @@ describe("DiagramsWorkbenchClient", () => {
     render(<DiagramsWorkbenchClient />);
 
     const emptyState = await screen.findByTestId("infra-diagrams-empty-content");
-    expect(emptyState).toHaveTextContent("This data-flow canvas is empty.");
+    expect(emptyState).toHaveTextContent("No data-flow connections in this snapshot");
     expect(emptyState).toHaveTextContent("no declared connection to draw");
     expect(emptyState).not.toHaveTextContent("Edge count was not stored");
   });

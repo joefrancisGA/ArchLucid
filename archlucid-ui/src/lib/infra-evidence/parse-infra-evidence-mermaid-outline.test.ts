@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  formatInfraEvidenceOutlineProvenanceReviewerBand,
   parseInfraEvidenceMermaidOutline,
   resolveInfraEvidenceOutlineEdgeLabel,
   resolveInfraEvidenceOutlineNodeLabel,
@@ -288,5 +289,12 @@ describe("parseInfraEvidenceMermaidOutline", () => {
       connectionState: "Unknown",
       unresolvedRelationshipDetails: ["missing subnet link"],
     });
+  });
+
+  it("maps provenance tokens to reviewer bands (P-03)", () => {
+    expect(formatInfraEvidenceOutlineProvenanceReviewerBand("ObservedFact")).toBe("Observed");
+    expect(formatInfraEvidenceOutlineProvenanceReviewerBand("DerivedFact")).toBe(
+      'Provenance "DerivedFact" has no reviewer band.',
+    );
   });
 });

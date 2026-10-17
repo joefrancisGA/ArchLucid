@@ -43,7 +43,7 @@ describe("collection-agent-presentation", () => {
         [run({ status: "Failed", errorSummary: "Reader denied" })],
         Date.parse("2026-10-11T23:00:00.000Z"),
       ).label,
-    ).toBe("Blocked");
+    ).toBe("No successful run stored");
 
     expect(
       resolveCollectionAgentHealth(

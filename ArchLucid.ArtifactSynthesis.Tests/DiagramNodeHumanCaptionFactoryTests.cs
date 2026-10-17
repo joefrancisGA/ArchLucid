@@ -1,5 +1,6 @@
 using ArchLucid.ArtifactSynthesis.Layout;
 using ArchLucid.ArtifactSynthesis.Models;
+using ArchLucid.Core.AzureExtractor;
 
 using FluentAssertions;
 
@@ -72,5 +73,19 @@ public sealed class DiagramNodeHumanCaptionFactoryTests
         caption.ResourceGroupCaption.Should().BeNull();
         caption.AccessibilityTitle.Should().Be("vm-app");
         caption.AccessibilityTitle.Should().NotContain(" · ");
+    }
+
+    [Fact]
+    public void Create_appends_not_classified_for_unknown_connection_state()
+    {
+        DiagramNode node = new()
+        {
+            NodeId = "n1",
+            Label = "resource-a",
+            ConnectionState = InventoryDiagramConnectionState.Unknown,
+        };
+
+        DiagramNodeHumanCaptionFactory.Create(node).CombinedPlainText.Should()
+            .Be("resource-a · Connection state was not classified.");
     }
 }

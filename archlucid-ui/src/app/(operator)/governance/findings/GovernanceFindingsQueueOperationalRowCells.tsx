@@ -95,8 +95,7 @@ export function governanceQueueSeverityCell(
   if (buyerPolishedShell && row.recordKind === "decision") {
     return (
       <span className="text-al-text-secondary">
-        <span aria-hidden="true">—</span>
-        <span className="sr-only">Severity does not apply to recorded decision rows.</span>
+        Severity does not apply to recorded decision rows.
       </span>
     );
   }
@@ -159,6 +158,7 @@ export function GovernanceFindingsQueueOperationalRowCells(props: GovernanceFind
             <FindingDerivationLine
               derivation={findingDerivation}
               evidenceHref={evidenceTraceHref ?? evidenceChipHref}
+              evidenceRefCount={row.evidenceRefCount}
               testId={`governance-table-derivation-${row.findingId}`}
               compact
             />

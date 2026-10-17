@@ -5,10 +5,10 @@ import {
   INFRA_EVIDENCE_DIAGRAM_LEGEND_DECLARED,
   INFRA_EVIDENCE_DIAGRAM_LEGEND_HEADING,
   INFRA_EVIDENCE_DIAGRAM_LEGEND_HOSTNAME_FOOTNOTE,
-  INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED,
   INFRA_EVIDENCE_DIAGRAM_LEGEND_OBSERVED,
   INFRA_EVIDENCE_DIAGRAM_LEGEND_RESOURCE_CATEGORY,
 } from "@/lib/infra-evidence/infra-evidence-diagram-copy";
+import { resolveInfraEvidenceDiagramLegendInferredCopy } from "@/lib/infra-evidence/resolve-infra-evidence-diagram-legend-inferred-line";
 import { resolveInfraEvidenceDiagramLegendProbableLine } from "@/lib/infra-evidence/resolve-infra-evidence-diagram-legend-probable-line";
 import {
   hasInfraEvidenceInferredDiagramEdges,
@@ -73,6 +73,7 @@ export function InfraEvidenceDiagramLegend(props: InfraEvidenceDiagramLegendProp
   const accentKinds = collectInfraEvidenceDiagramAccentKinds(props.layoutSvg);
   const hasPrivateEndpointAccess = props.layoutSvg?.includes("private-endpoint-access") === true;
   const probableLegendLine = resolveInfraEvidenceDiagramLegendProbableLine(props.outline);
+  const inferredLegendCopy = resolveInfraEvidenceDiagramLegendInferredCopy(props.outline, props.mermaidSource);
   const showConnectorLegend = hasObserved || hasDeclared || hasProbable || hasInferred || hasPrivateEndpointAccess;
 
   if (!showConnectorLegend && accentKinds.length === 0) {
@@ -91,10 +92,12 @@ export function InfraEvidenceDiagramLegend(props: InfraEvidenceDiagramLegendProp
               {INFRA_EVIDENCE_DIAGRAM_LEGEND_HEADING}
             </p>
             <ul className={cn("m-0 list-disc space-y-1 pl-5 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
-              <li className="flex items-center gap-2">
-                <DiagramStrokeSample style="solid" />
-                <span>{INFRA_EVIDENCE_DIAGRAM_LEGEND_OBSERVED}</span>
-              </li>
+              {hasObserved ? (
+                <li className="flex items-center gap-2">
+                  <DiagramStrokeSample style="solid" />
+                  <span>{INFRA_EVIDENCE_DIAGRAM_LEGEND_OBSERVED}</span>
+                </li>
+              ) : null}
               {hasDeclared ? (
                 <li className="flex items-center gap-2">
                   <DiagramStrokeSample style="dashed" />
@@ -110,7 +113,7 @@ export function InfraEvidenceDiagramLegend(props: InfraEvidenceDiagramLegendProp
               {hasInferred ? (
                 <li className="flex items-center gap-2">
                   <DiagramStrokeSample style="dotted" />
-                  <span>{INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED}</span>
+                  <span>{inferredLegendCopy.legendLine}</span>
                 </li>
               ) : null}
             </ul>
@@ -125,7 +128,7 @@ export function InfraEvidenceDiagramLegend(props: InfraEvidenceDiagramLegendProp
             ) : null}
             {hasInferred ? (
               <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-                {INFRA_EVIDENCE_DIAGRAM_LEGEND_HOSTNAME_FOOTNOTE}
+                {inferredLegendCopy.footnote}
               </p>
             ) : null}
           </div>

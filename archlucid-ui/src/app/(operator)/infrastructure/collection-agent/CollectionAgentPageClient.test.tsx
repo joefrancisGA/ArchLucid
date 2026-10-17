@@ -19,7 +19,7 @@ function successfulRun() {
   return {
     agentVersion: "1.0.0",
     errorSummary: null,
-    finishedUtc: "2026-10-11T22:00:00.000Z",
+    finishedUtc: new Date(Date.now() - 60 * 60 * 1000).toISOString(),
     importedSnapshotId: "snapshot-1",
     projectId: "project",
     runId: "run-1",
@@ -58,7 +58,7 @@ describe("collection agent omission copy (P-16, P-17)", () => {
     render(<CollectionAgentPageClient />);
 
     expect(screen.getByText("Imported snapshot was not stored.")).toBeInTheDocument();
-    expect(screen.queryByRole("link", { name: "View changes" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Open drift for this snapshot" })).not.toBeInTheDocument();
   });
 });
 
@@ -85,7 +85,7 @@ describe("CollectionAgentPageClient", () => {
     expect(screen.getByRole("heading", { name: "Collection Agent" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Run now" })).toBeEnabled();
     expect(screen.getByLabelText("Status: Ready")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "View changes" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "Open drift for this snapshot" })).toHaveAttribute(
       "href",
       "/infrastructure/snapshots-drift?snapshotId=snapshot-1",
     );

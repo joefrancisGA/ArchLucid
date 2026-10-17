@@ -27,6 +27,22 @@ describe("formatSandboxStyleGoldenManifest", () => {
     expect(markdown).toContain("- **Unresolved issues:** 2");
   });
 
+  it("uses stored architecture overview and labels omitted metadata (P-08, P-09)", () => {
+    const markdown = formatSandboxStyleGoldenManifest({
+      architectureOverview: "Event-driven intake with private networking.",
+      cloudProvider: null,
+      status: null,
+      warnings: null,
+      summary: { costPosture: null, decisionCount: 1 },
+    });
+
+    expect(markdown).toContain("Event-driven intake with private networking.");
+    expect(markdown).toContain("Cloud provider was not stored.");
+    expect(markdown).toContain("Status was not stored.");
+    expect(markdown).toContain("Warnings were not stored.");
+    expect(markdown).toContain("Cost posture was not stored.");
+  });
+
   it("distinguishes omitted and stored-empty highlight dispositions", () => {
     const omitted = formatSandboxStyleGoldenManifest({
       highlights: [{ title: "Decision", disposition: undefined }],

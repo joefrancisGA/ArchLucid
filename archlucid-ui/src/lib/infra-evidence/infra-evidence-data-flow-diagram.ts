@@ -37,10 +37,19 @@ export function parseInfraDiagramsDataFlowCaptionPresentation(
   mermaidSource: string,
 ): InfraDiagramsDataFlowCaptionPresentation {
   const captions = parseInfraDiagramsDataFlowCaptionLinesFromMermaid(mermaidSource);
+  const honestyCaptions = captions.filter((caption) => !isInfraEvidenceMermaidMetadataComment(caption));
+  const metadataComments = captions.filter((caption) => isInfraEvidenceMermaidMetadataComment(caption));
+
+  if (honestyCaptions.length === 0 && mermaidSource.trim().length > 0) {
+    return {
+      honestyCaptions: [INFRA_DIAGRAMS_DATA_FLOW_HONESTY_PREFIX],
+      metadataComments,
+    };
+  }
 
   return {
-    honestyCaptions: captions.filter((caption) => !isInfraEvidenceMermaidMetadataComment(caption)),
-    metadataComments: captions.filter((caption) => isInfraEvidenceMermaidMetadataComment(caption)),
+    honestyCaptions,
+    metadataComments,
   };
 }
 

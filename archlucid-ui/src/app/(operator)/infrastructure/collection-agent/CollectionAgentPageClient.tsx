@@ -128,7 +128,7 @@ function CollectionRunRow({ run }: { readonly run: CollectionRun }): React.JSX.E
               className={cn(OPERATOR_LINK.inline, "font-medium")}
               onClick={(event) => event.stopPropagation()}
             >
-              View changes
+              Open drift for this snapshot
             </Link>
           )}
         </EnterpriseTableCell>
@@ -154,10 +154,11 @@ export function CollectionAgentPageClient(): React.JSX.Element {
   const triggerFailure = triggerMutation.error === null || triggerMutation.error === undefined
     ? null
     : toApiLoadFailure(triggerMutation.error);
-  const successfulRunLabel = health.successfulRun === null || health.successfulRun.finishedUtc === null
-    || health.successfulRun.finishedUtc === undefined
-    ? "No successful run recorded"
-    : `Last successful run ${formatRelativeTime(health.successfulRun.finishedUtc)}`;
+  const successfulRunLabel = health.successfulRun === null
+    ? "No successful run stored"
+    : health.successfulRun.finishedUtc === null || health.successfulRun.finishedUtc === undefined
+      ? "Finish time was not stored for the last successful run."
+      : `Last successful run ${formatRelativeTime(health.successfulRun.finishedUtc)}`;
 
   if (query.isPending) {
     return <p className={cn("p-6", OPERATOR_TYPOGRAPHY.body)}>Loading collection runs…</p>;

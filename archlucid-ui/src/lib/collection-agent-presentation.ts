@@ -5,7 +5,7 @@ export const COLLECTION_AGENT_EXPECTED_INTERVAL_MS = 24 * 60 * 60 * 1000;
 
 export type CollectionAgentHealth = {
   readonly kind: EnterpriseStatusKind;
-  readonly label: "Ready" | "Needs attention" | "Blocked";
+  readonly label: "Ready" | "Needs attention" | "Blocked" | "No successful run stored";
   readonly successfulRun: CollectionRun | null;
 };
 
@@ -31,7 +31,7 @@ export function resolveCollectionAgentHealth(
   const latestRun = newestRun(runs);
 
   if (successfulRun === null) {
-    return { kind: "blocked", label: "Blocked", successfulRun: null };
+    return { kind: "blocked", label: "No successful run stored", successfulRun: null };
   }
 
   if (

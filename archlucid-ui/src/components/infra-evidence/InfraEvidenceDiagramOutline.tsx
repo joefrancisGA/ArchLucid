@@ -17,7 +17,6 @@ import {
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_LEDGER_DISCLOSURE_LABEL,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_NODES_DISCLOSURE_LABEL,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_ORPHANED_SECTION,
-  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNATTACHED_NSG_LABEL,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNCONNECTED_SECTION,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_EMPTY_DETAIL,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_FILTER_LABEL,
@@ -61,7 +60,9 @@ import {
   type InfraEvidenceDiagramOutlineEdgeSortKey,
   type InfraEvidenceDiagramOutlineNodeSortKey,
 } from "@/lib/infra-evidence/infra-evidence-diagram-outline-sort";
+import { formatInfraEvidenceDiagramDropGateReasonLabel } from "@/lib/infra-evidence/format-infra-evidence-diagram-drop-gate-reason";
 import {
+  formatInfraEvidenceOutlineProvenanceReviewerBand,
   resolveInfraEvidenceOutlineNodeLabel,
   resolveInfraEvidenceOutlineEdgeLabel,
   type InfraEvidenceDiagramOutlineEdgeSource,
@@ -104,6 +105,10 @@ function resolveNodeProblem(node: InfraEvidenceMermaidOutlineNode): string {
     return "No connection state detail was stored.";
   }
 
+  if (node.connectionState === "Unknown") {
+    return GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_SECTION;
+  }
+
   const details = node.unresolvedRelationshipDetails ?? [];
 
   if (details.length > 0) {
@@ -141,14 +146,15 @@ function formatLedgerDropLabel(
   nodes: readonly InfraEvidenceMermaidOutlineNode[],
 ): string {
   const fromLabel = resolveInfraEvidenceOutlineNodeLabel(nodes, drop.from);
+  const reasonLabel = formatInfraEvidenceDiagramDropGateReasonLabel(drop.reason);
 
   if (drop.reason === "nsg-unattached") {
-    return `${GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNATTACHED_NSG_LABEL} · ${fromLabel}`;
+    return `${reasonLabel} · ${fromLabel}`;
   }
 
   const toLabel = drop.to == null || drop.to === "_" ? "Destination was not stored" : resolveInfraEvidenceOutlineNodeLabel(nodes, drop.to);
 
-  return `${drop.reason} · ${fromLabel} → ${toLabel}`;
+  return `${reasonLabel} · ${fromLabel} → ${toLabel}`;
 }
 
 type InfraEvidenceDiagramOutlineProps = {
@@ -196,7 +202,14 @@ function formatOutlineResourceType(resourceType: string | null): string {
   return formatOutlineCell(formatDiagramArmTypeFriendlyName(resourceType), "Resource type was not stored");
 }
 
-function formatOutlineEdgeSource(source: InfraEvidenceDiagramOutlineEdgeSource): string {
+function formatOutlineEdgeSource(
+  source: InfraEvidenceDiagramOutlineEdgeSource,
+  provenanceKind: string | null = null,
+): string {
+  if (source === "missing" && provenanceKind !== null && provenanceKind.trim().length > 0) {
+    return formatInfraEvidenceOutlineProvenanceReviewerBand(provenanceKind);
+  }
+
   switch (source) {
     case "missing":
       return "Confidence band was not stored";
@@ -977,7 +990,7 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
                     <tbody key={group.source} data-testid={`infra-diagrams-edge-source-${group.source}`}>
                       <tr className="border-t border-neutral-200 bg-neutral-50 dark:border-neutral-800 dark:bg-neutral-900/60">
                         <th className="px-3 py-2 text-left font-medium" colSpan={4} scope="rowgroup">
-                          {formatOutlineEdgeSource(group.source)} edges ({group.rows.length})
+                          {formatOutlineEdgeSource(group.source, group.rows[0]?.provenanceKind ?? null)} edges ({group.rows.length})
                         </th>
                       </tr>
                       {group.rows.map((edge, index) => {
@@ -1008,7 +1021,7 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
                                   setSelectedDeclaredEdge(edge);
                                 }}
                               >
-                                {formatOutlineEdgeSource(edge.source)}
+                                {formatOutlineEdgeSource(edge.source, edge.provenanceKind)}
                               </Button>
                             ) : edge.source === "observed"
                               || edge.source === "probable"
@@ -1024,10 +1037,10 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
                                   selectInventoryEdge(edge);
                                 }}
                               >
-                                {formatOutlineEdgeSource(edge.source)}
+                                {formatOutlineEdgeSource(edge.source, edge.provenanceKind)}
                               </Button>
                             ) : (
-                              formatOutlineEdgeSource(edge.source)
+                              formatOutlineEdgeSource(edge.source, edge.provenanceKind)
                             )}
                           </td>
                           <td className="px-3 py-2">
@@ -1070,7 +1083,7 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
             <ul className={cn("m-0 list-disc pl-5", OPERATOR_TYPOGRAPHY.body)}>
               {outline.dropGateRows.map((row, index) => (
                 <li key={`${row.from}-${row.to}-${row.reason}-${index}`}>
-                  {row.reason}: {resolveInfraEvidenceOutlineNodeLabel(outline.nodes, row.from)} →{" "}
+                  {formatInfraEvidenceDiagramDropGateReasonLabel(row.reason)}: {resolveInfraEvidenceOutlineNodeLabel(outline.nodes, row.from)} →{" "}
                   {row.to === "_" ? "Destination was not stored" : resolveInfraEvidenceOutlineNodeLabel(outline.nodes, row.to)}
                 </li>
               ))}

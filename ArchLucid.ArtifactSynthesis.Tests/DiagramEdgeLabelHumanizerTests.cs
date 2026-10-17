@@ -41,7 +41,7 @@ public sealed class DiagramEdgeLabelHumanizerTests
     [InlineData(AzureInventoryRelationshipAssociationTypes.NicToSubnet, "in")]
     [InlineData(AzureInventoryRelationshipAssociationTypes.AdfLinkedService, "uses")]
     [InlineData(GraphEdgeInferenceSources.InventoryLogicAppConnection, "API connection")]
-    [InlineData(GraphEdgeInferenceSources.InventoryDiagnosticSettingStorage, "Sends diagnostics to")]
+    [InlineData(GraphEdgeInferenceSources.InventoryDiagnosticSettingStorage, "Diagnostic setting names")]
     [InlineData(AzureInventoryRelationshipAssociationTypes.AdfLinkedServiceInferred, "likely · in")]
     [InlineData(AzureInventoryRelationshipAssociationTypes.AdfReadsFrom, "Reads from")]
     [InlineData(AzureInventoryRelationshipAssociationTypes.AdfWritesTo, "Writes to")]
@@ -102,9 +102,9 @@ public sealed class DiagramEdgeLabelHumanizerTests
     }
 
     [Theory]
-    [InlineData(AzureInventoryRelationshipAssociationTypes.DiagnosticToDestination, "Sends diagnostics to")]
-    [InlineData(GraphEdgeInferenceSources.InventoryDiagnosticDestination, "Sends diagnostics to")]
-    [InlineData(AzureInventoryRelationshipAssociationTypes.DiagnosticSettingToStorage, "Sends diagnostics to")]
+    [InlineData(AzureInventoryRelationshipAssociationTypes.DiagnosticToDestination, "Diagnostic setting names")]
+    [InlineData(GraphEdgeInferenceSources.InventoryDiagnosticDestination, "Diagnostic setting names")]
+    [InlineData(AzureInventoryRelationshipAssociationTypes.DiagnosticSettingToStorage, "Diagnostic setting names")]
     [InlineData(AzureInventoryRelationshipAssociationTypes.AppAuthorizedAccess, "May access")]
     [InlineData(GraphEdgeTypes.MayAccess, "May access")]
     [InlineData(AzureInventoryRelationshipAssociationTypes.EventGridToDestination, "Routes events to")]

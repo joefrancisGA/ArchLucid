@@ -14,8 +14,11 @@ export type FindingDerivationInput = {
   readonly severityLabel?: string | null;
   readonly evidenceRefCount?: number | null;
   readonly evidenceClass?: string | null;
+  readonly traceConfidenceLabel?: string | null;
   readonly reasoningSummary?: string | null;
 };
+
+const TRACE_CONFIDENCE_NOT_ARTIFACT_SUFFIX = "This is not a cited evidence artifact.";
 
 export type FindingDerivationResult = {
   readonly sentence: string;
@@ -68,8 +71,12 @@ function evidencePhrase(input: FindingDerivationInput): string | null {
       ? Math.max(0, Math.trunc(input.evidenceRefCount))
       : null;
 
-  if (count !== null && count > 0) {
-    return `${count} cited evidence reference${count === 1 ? "" : "s"}`;
+  if (count !== null) {
+    if (count > 0) {
+      return `${count} cited evidence reference${count === 1 ? "" : "s"}`;
+    }
+
+    return "0 cited evidence references";
   }
 
   const evidenceClass = nonEmpty(input.evidenceClass);
@@ -79,6 +86,16 @@ function evidencePhrase(input: FindingDerivationInput): string | null {
   }
 
   return null;
+}
+
+function traceConfidencePhrase(input: FindingDerivationInput): string | null {
+  const traceConfidence = nonEmpty(input.traceConfidenceLabel);
+
+  if (traceConfidence === null) {
+    return null;
+  }
+
+  return `Trace confidence: ${traceConfidence}. ${TRACE_CONFIDENCE_NOT_ARTIFACT_SUFFIX}`;
 }
 
 function assembledSentence(sentence: string): FindingDerivationResult {
@@ -102,9 +119,10 @@ export function buildFindingDerivationSentence(input: FindingDerivationInput): F
 
   const rulePhrase = resolveRulePhrase(input);
   const evidence = evidencePhrase(input);
+  const traceConfidence = traceConfidencePhrase(input);
   const severityLabel = nonEmpty(input.severityLabel);
 
-  if (rulePhrase === null && evidence === null) {
+  if (rulePhrase === null && evidence === null && traceConfidence === null) {
     return { sentence: FINDING_DERIVATION_NOT_AVAILABLE, synthesised: false };
   }
 
@@ -118,16 +136,24 @@ export function buildFindingDerivationSentence(input: FindingDerivationInput): F
         ? `Policy rule "${rulePhrase.text}"`
         : rulePhrase.text;
 
-  if (ruleLead !== null && evidence !== null) {
-    return assembledSentence(`${ruleLead} matched ${evidence} and produced ${severitySuffix}.`);
+  const evidenceParts = [evidence, traceConfidence].filter((part): part is string => part !== null);
+  const evidenceLead =
+    evidenceParts.length === 0
+      ? null
+      : evidenceParts.length === 1
+        ? evidenceParts[0]
+        : `${evidenceParts[0]} ${evidenceParts[1]}`;
+
+  if (ruleLead !== null && evidenceLead !== null) {
+    return assembledSentence(`${ruleLead} matched ${evidenceLead} and produced ${severitySuffix}.`);
   }
 
   if (ruleLead !== null) {
     return assembledSentence(`${ruleLead} produced ${severitySuffix}.`);
   }
 
-  if (evidence !== null) {
-    return assembledSentence(`${evidence.charAt(0).toUpperCase()}${evidence.slice(1)} supported ${severitySuffix}.`);
+  if (evidenceLead !== null) {
+    return assembledSentence(`${evidenceLead.charAt(0).toUpperCase()}${evidenceLead.slice(1)} supported ${severitySuffix}.`);
   }
 
   return { sentence: FINDING_DERIVATION_NOT_AVAILABLE, synthesised: false };
@@ -159,7 +185,7 @@ export function findingDerivationFromQuickDecisionFinding(finding: QuickDecision
     ruleId: finding.policyRuleId ?? wire.decisionRuleId,
     severityLabel: severityBadgeLabel(finding.severityValue),
     evidenceRefCount: finding.evidenceRefCount,
-    evidenceClass: nonEmpty(finding.traceConfidenceLabel),
+    traceConfidenceLabel: nonEmpty(finding.traceConfidenceLabel),
     reasoningSummary: wire.reasoningSummary,
   });
 }
@@ -180,9 +206,6 @@ export function findingDerivationFromGovernanceQueueRow(
     categoryLabel,
     severityLabel: row.severity,
     evidenceRefCount: row.evidenceRefCount,
-    evidenceClass:
-      row.traceConfidenceLevel !== null && row.traceConfidenceLevel !== undefined
-        ? `${row.traceConfidenceLevel} confidence trace`
-        : null,
+    traceConfidenceLabel: row.traceConfidenceLevel ?? null,
   });
 }
