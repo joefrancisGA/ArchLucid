@@ -224,6 +224,11 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
             DiagramArmParentChildEdgeHydrator.Apply(ast, graph, nodeIdMap);
             DiagramCollapsedAttachmentEdgeLifter.Apply(ast, graph, nodeIdMap);
             DiagramAstLayoutEdgeBuilder.AddDerivedVmVnetLayoutEdges(ast, graph, mode, nodeIdMap);
+            if (mode == DiagramMode.Network)
+            {
+                DiagramAstSubnetPlacementEdgeEnsurer.Apply(ast, graph, nodeIdMap);
+            }
+
             InventoryDiagramNodeRelationshipApplier.Apply(
                 ast,
                 graph,
@@ -570,12 +575,14 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
                 return ApplyNetworkInterfaceCollapse(
                     graph,
                     mode,
-                    DiagramNicCollapseApplier.IncludeVirtualMachinesAttachedToNetworkInterfaces(
+                    NetworkDiagramPlacementWorkloadIncluder.Include(
                         graph,
-                        IncludeInventoryConnectedVirtualMachines(
+                        DiagramNicCollapseApplier.IncludeVirtualMachinesAttachedToNetworkInterfaces(
                             graph,
-                            NetworkDiagramNodeFilter.ExcludeNetworkInterfaces(
-                                FilterByCategories(nodes, GraphTopologyCategories.Network)))));
+                            IncludeInventoryConnectedVirtualMachines(
+                                graph,
+                                NetworkDiagramNodeFilter.ExcludeNetworkInterfaces(
+                                    FilterByCategories(nodes, GraphTopologyCategories.Network))))));
             case DiagramMode.Security:
                 return ApplyNetworkInterfaceCollapse(
                     graph,
