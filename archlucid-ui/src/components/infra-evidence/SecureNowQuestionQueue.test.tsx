@@ -173,6 +173,30 @@ describe("SecureNowQuestionQueue", () => {
     expect(screen.getByText(/Expiration status was not stored/)).toBeInTheDocument();
   });
 
+  it("maps known question source and scope codes (P-16, P-17)", async () => {
+    mocks.listQuestions.mockResolvedValue([
+      { ...question, source: "InventoryEvidence", scopeKind: "Resource" },
+    ]);
+
+    render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
+    fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
+
+    expect(screen.getByText("Source: Asked from inventory evidence.")).toBeInTheDocument();
+    expect(screen.getByText("Scope: This resource.")).toBeInTheDocument();
+  });
+
+  it("labels unknown question source and scope codes (P-16, P-17)", async () => {
+    mocks.listQuestions.mockResolvedValue([
+      { ...question, source: "CustomSource", scopeKind: "Tenant" },
+    ]);
+
+    render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
+    fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
+
+    expect(screen.getByText("Source: Question source code CustomSource has no reviewer label.")).toBeInTheDocument();
+    expect(screen.getByText("Scope: Question scope code Tenant has no reviewer label.")).toBeInTheDocument();
+  });
+
   it("shows omitted question source and scope in details", async () => {
     mocks.listQuestions.mockResolvedValue([
       { ...question, source: null, scopeKind: null },

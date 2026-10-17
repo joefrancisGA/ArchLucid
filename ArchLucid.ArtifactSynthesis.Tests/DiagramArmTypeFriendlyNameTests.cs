@@ -15,6 +15,9 @@ public sealed class DiagramArmTypeFriendlyNameTests
     [InlineData("Microsoft.Storage/storageAccounts", "Storage account")]
     [InlineData("Microsoft.DataFactory/factories", "Data factory")]
     [InlineData("Microsoft.Databricks/workspaces", "Databricks workspace")]
+    [InlineData("Microsoft.Logic/workflows", "Logic App")]
+    [InlineData("Microsoft.Web/connections", "Logic App connection")]
+    [InlineData("Microsoft.Web/staticSites", "Static Web App")]
     public void TryFormat_maps_known_arm_types(string armType, string expected)
     {
         DiagramArmTypeFriendlyName.TryFormat(armType).Should().Be(expected);

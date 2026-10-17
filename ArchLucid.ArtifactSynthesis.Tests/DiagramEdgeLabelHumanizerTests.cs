@@ -40,6 +40,8 @@ public sealed class DiagramEdgeLabelHumanizerTests
     [InlineData(GraphEdgeInferenceSources.InventoryNicSubnet, "in")]
     [InlineData(AzureInventoryRelationshipAssociationTypes.NicToSubnet, "in")]
     [InlineData(AzureInventoryRelationshipAssociationTypes.AdfLinkedService, "uses")]
+    [InlineData(GraphEdgeInferenceSources.InventoryLogicAppConnection, "API connection")]
+    [InlineData(GraphEdgeInferenceSources.InventoryDiagnosticSettingStorage, "Diagnostic setting to")]
     [InlineData(AzureInventoryRelationshipAssociationTypes.AdfLinkedServiceInferred, "likely · in")]
     [InlineData(AzureInventoryRelationshipAssociationTypes.AdfReadsFrom, "Reads from")]
     [InlineData(AzureInventoryRelationshipAssociationTypes.AdfWritesTo, "Writes to")]

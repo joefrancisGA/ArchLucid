@@ -44,6 +44,17 @@ describe("buildFindingCausalMiniChain (TB-2217)", () => {
     expect(chain.steps[0]?.value).toBe("hipaa-164-312 · Rule name was not stored.");
   });
 
+  it("keeps citation count separate from trace confidence (P-09)", () => {
+    const chain = buildFindingCausalMiniChain({
+      evidenceRefCount: 2,
+      traceConfidenceLabel: "High",
+    });
+
+    expect(chain.steps[1]?.value).toContain("2 cited evidence references");
+    expect(chain.steps[1]?.value).toContain("Trace confidence: High");
+    expect(chain.steps[1]?.value).toContain("This is not a cited evidence artifact");
+  });
+
   it("preserves a stored zero evidence reference count", () => {
     const chain = buildFindingCausalMiniChain({ evidenceRefCount: 0 });
 

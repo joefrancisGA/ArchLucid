@@ -7,7 +7,7 @@ namespace ArchLucid.ArtifactSynthesis.Compilers;
 /// <summary>Labels Static Web App to linked backend edges (NR-42).</summary>
 internal static class InventoryDiagramStaticSiteRelationshipApplier
 {
-    public const string Label = "Calls";
+    public const string Label = "Linked backend";
 
     public static void Apply(DiagramAst ast)
     {

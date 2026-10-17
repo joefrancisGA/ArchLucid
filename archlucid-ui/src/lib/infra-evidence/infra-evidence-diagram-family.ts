@@ -32,7 +32,6 @@ const FAMILY_BY_INFERENCE_SOURCE: Readonly<Record<string, InfraEvidenceDiagramFa
   "inventory-app-key-vault-ref": "AuthorizedAccess",
   "inventory-event-grid-destination": "DeclaredMovement",
   "inventory-hostname-inferred-target": "InferredHostname",
-  "inventory-logic-app-connection": "DeclaredMovement",
   "inventory-observed-dependency": "ObservedRuntime",
   "inventory-operator-confirmed-connection": "HumanConfirmed",
   "inventory-pe-reachable-target": "StructuralNetworkPath",
@@ -78,6 +77,10 @@ function resolveFamilyFromLabel(label: string): InfraEvidenceDiagramFamily | nul
     || normalized === "uses"
   ) {
     return "DeclaredMovement";
+  }
+
+  if (normalized === "api connection") {
+    return INFRA_EVIDENCE_DIAGRAM_FAMILY_ALL;
   }
 
   return null;

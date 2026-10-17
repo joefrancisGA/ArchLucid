@@ -2,8 +2,9 @@ import {
   INFRA_EVIDENCE_DIAGRAM_LEGEND_DECLARED,
   INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED,
   INFRA_EVIDENCE_DIAGRAM_LEGEND_OBSERVED,
-  INFRA_EVIDENCE_DIAGRAM_LEGEND_PROBABLE,
+  INFRA_EVIDENCE_DIAGRAM_PNG_CONFIGURATION_RELATIONSHIP_NOTE,
 } from "@/lib/infra-evidence/infra-evidence-diagram-copy";
+import { resolveInfraEvidenceDiagramLegendProbableLine } from "@/lib/infra-evidence/resolve-infra-evidence-diagram-legend-probable-line";
 import {
   hasInfraEvidenceDeclaredDiagramEdges,
   hasInfraEvidenceInferredDiagramEdges,
@@ -20,6 +21,24 @@ export type InfraEvidencePngReadingStripInput = {
 
 function hasObservedEdges(outline: InfraEvidenceMermaidOutline | null | undefined): boolean {
   return outline?.edges.some((edge) => edge.source === "observed") === true;
+}
+
+const CONFIGURATION_RELATIONSHIP_INFERENCE_SOURCES = new Set([
+  "inventory-static-site-backend",
+  "inventory-fabric-capacity-workspace",
+  "inventory-diagnostic-setting-storage",
+]);
+
+function hasConfigurationRelationshipEdges(
+  outline: InfraEvidenceMermaidOutline | null | undefined,
+): boolean {
+  return (
+    outline?.edges.some((edge) => {
+      const source = edge.inferenceSource?.trim().toLowerCase() ?? "";
+
+      return CONFIGURATION_RELATIONSHIP_INFERENCE_SOURCES.has(source);
+    }) === true
+  );
 }
 
 export function buildInfraEvidencePngReadingStripLines(
@@ -47,7 +66,11 @@ export function buildInfraEvidencePngReadingStripLines(
     }
 
     if (hasInfraEvidenceProbableDiagramEdges(input.outline)) {
-      lines.push(INFRA_EVIDENCE_DIAGRAM_LEGEND_PROBABLE);
+      lines.push(resolveInfraEvidenceDiagramLegendProbableLine(input.outline));
+    }
+
+    if (hasConfigurationRelationshipEdges(input.outline)) {
+      lines.push(INFRA_EVIDENCE_DIAGRAM_PNG_CONFIGURATION_RELATIONSHIP_NOTE);
     }
 
     if (hasInfraEvidenceInferredDiagramEdges(input.outline)) {
