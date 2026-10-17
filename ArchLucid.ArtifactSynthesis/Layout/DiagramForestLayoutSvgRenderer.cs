@@ -197,7 +197,8 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
     private static bool IsVnetPrimaryTitle(string title)
     {
         return title.Contains("(FullSubscription)", StringComparison.OrdinalIgnoreCase)
-            || title.Contains("(Network)", StringComparison.OrdinalIgnoreCase);
+            || title.Contains("(Network)", StringComparison.OrdinalIgnoreCase)
+            || title.Contains("(DependencyNeighborhood)", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool IsDataInventoryTitle(string title)

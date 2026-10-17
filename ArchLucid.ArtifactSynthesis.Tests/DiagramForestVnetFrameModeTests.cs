@@ -95,9 +95,9 @@ public sealed class DiagramForestVnetFrameModeTests
             Title = "Azure inventory (Network)",
             Nodes =
             [
-                Node("vnet", "app-vnet", "Microsoft.Network/virtualNetworks", "rg-app"),
-                Node("subnet-a", "subnet-a", "Microsoft.Network/virtualNetworks/subnets", "rg-app"),
-                Node("subnet-b", "subnet-b", "Microsoft.Network/virtualNetworks/subnets", "rg-app"),
+                Vnet("vnet", "app-vnet", "/subscriptions/s/resourceGroups/rg-app/providers/Microsoft.Network/virtualNetworks/app-vnet", "rg-app"),
+                Subnet("subnet-a", "/subscriptions/s/resourceGroups/rg-app/providers/Microsoft.Network/virtualNetworks/app-vnet", "subnet-a"),
+                Subnet("subnet-b", "/subscriptions/s/resourceGroups/rg-app/providers/Microsoft.Network/virtualNetworks/app-vnet", "subnet-b"),
                 Node("vm-a", "vm-a", "Microsoft.Compute/virtualMachines", "rg-app"),
                 Node("vm-b", "vm-b", "Microsoft.Compute/virtualMachines", "rg-app"),
             ],
@@ -158,6 +158,32 @@ public sealed class DiagramForestVnetFrameModeTests
             ArmResourceId = $"/subscriptions/s/resourceGroups/{resourceGroup}/providers/{armType}/{nodeId}",
             ArmResourceGroup = resourceGroup,
             SubgraphId = subgraphId,
+        };
+    }
+
+    private static DiagramNode Vnet(string nodeId, string label, string armId, string resourceGroup)
+    {
+        return new DiagramNode
+        {
+            NodeId = nodeId,
+            Label = label,
+            NodeType = "TopologyResource",
+            ArmResourceType = "Microsoft.Network/virtualNetworks",
+            ArmResourceId = armId,
+            ArmResourceGroup = resourceGroup,
+        };
+    }
+
+    private static DiagramNode Subnet(string nodeId, string vnetArmId, string name, string resourceGroup = "rg-app")
+    {
+        return new DiagramNode
+        {
+            NodeId = nodeId,
+            Label = name,
+            NodeType = "TopologyResource",
+            ArmResourceType = "Microsoft.Network/virtualNetworks/subnets",
+            ArmResourceId = $"{vnetArmId}/subnets/{name}",
+            ArmResourceGroup = resourceGroup,
         };
     }
 

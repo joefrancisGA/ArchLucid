@@ -39,6 +39,34 @@ public sealed class DiagramForestVnetMembershipTests
     }
 
     [Fact]
+    public void Resolve_orphan_subnet_in_single_vnet_resource_group_joins_membership()
+    {
+        const string vnetArmId = "/subscriptions/s/resourceGroups/rg-app/providers/Microsoft.Network/virtualNetworks/app";
+
+        DiagramNode vnet = Node("vnet", "Microsoft.Network/virtualNetworks", vnetArmId);
+        DiagramNode subnet = Node(
+            "subnet",
+            "Microsoft.Network/virtualNetworks/subnets",
+            $"/subscriptions/s/resourceGroups/rg-app/providers/Microsoft.Network/virtualNetworks/subnets/app");
+        DiagramNode vm = Node("vm", "Microsoft.Compute/virtualMachines", "/subscriptions/s/resourceGroups/rg-app/providers/Microsoft.Compute/virtualMachines/app");
+
+        IReadOnlySet<string> members = DiagramForestVnetMembership.ResolveMembers(
+            vnet,
+            [vnet, subnet, vm],
+            [
+                new DiagramEdge
+                {
+                    FromNodeId = "vm",
+                    ToNodeId = "subnet",
+                    Label = "in",
+                    InferenceSource = GraphEdgeInferenceSources.InventoryNicSubnet,
+                },
+            ]);
+
+        members.Should().BeEquivalentTo(["vnet", "subnet", "vm"]);
+    }
+
+    [Fact]
     public void Resolve_collocation_does_not_create_vnet_members()
     {
         DiagramNode vnet = Node("vnet", "Microsoft.Network/virtualNetworks", "/vnet");

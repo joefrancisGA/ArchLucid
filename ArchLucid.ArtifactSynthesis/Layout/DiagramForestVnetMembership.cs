@@ -39,6 +39,13 @@ public static class DiagramForestVnetMembership
                     members.Add(candidate.NodeId);
                 }
             }
+        }
+
+        AttachOrphanSubnetsToSingleVnetInResourceGroup(membersByVnet, nodesById, sameResourceGroupOnly);
+
+        foreach ((string vnetId, HashSet<string> members) in membersByVnet)
+        {
+            DiagramNode vnet = nodesById[vnetId];
 
             foreach (DiagramEdge edge in edges)
             {
@@ -50,7 +57,7 @@ public static class DiagramForestVnetMembership
                 }
 
                 bool targetsVnet = string.Equals(target.NodeId, vnetId, StringComparison.Ordinal);
-                bool targetsSubnet = IsDescendantSubnet(target, vnetArmId);
+                bool targetsSubnet = members.Contains(target.NodeId) && IsSubnet(target);
                 if ((targetsVnet || targetsSubnet)
                     && IsAllowedResourceGroup(vnet, nodesById[edge.FromNodeId], sameResourceGroupOnly))
                 {
@@ -109,9 +116,51 @@ public static class DiagramForestVnetMembership
             || string.Equals(vnet.ArmResourceGroup, candidate.ArmResourceGroup, StringComparison.OrdinalIgnoreCase);
     }
 
+    private static void AttachOrphanSubnetsToSingleVnetInResourceGroup(
+        Dictionary<string, HashSet<string>> membersByVnet,
+        Dictionary<string, DiagramNode> nodesById,
+        bool sameResourceGroupOnly)
+    {
+        List<DiagramNode> vnets = nodesById.Values.Where(IsVnet).ToList();
+        HashSet<string> assignedSubnetIds = membersByVnet.Values
+            .SelectMany(members => members)
+            .Where(nodesById.ContainsKey)
+            .Where(nodeId => IsSubnet(nodesById[nodeId]))
+            .ToHashSet(StringComparer.Ordinal);
+
+        foreach (DiagramNode subnet in nodesById.Values.Where(IsSubnet))
+        {
+            if (assignedSubnetIds.Contains(subnet.NodeId))
+            {
+                continue;
+            }
+
+            List<DiagramNode> candidates = vnets
+                .Where(vnet => !sameResourceGroupOnly
+                               || string.Equals(vnet.ArmResourceGroup, subnet.ArmResourceGroup, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+
+            if (candidates.Count != 1)
+            {
+                continue;
+            }
+
+            DiagramNode vnet = candidates[0];
+            membersByVnet[vnet.NodeId].Add(subnet.NodeId);
+            assignedSubnetIds.Add(subnet.NodeId);
+        }
+    }
+
     private static bool IsVnet(DiagramNode node)
     {
         return string.Equals(node.ArmResourceType, "Microsoft.Network/virtualNetworks", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool IsSubnet(DiagramNode node)
+    {
+        return (node.ArmResourceType ?? string.Empty).Contains(
+            "Microsoft.Network/virtualNetworks/subnets",
+            StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool IsDescendantSubnet(DiagramNode candidate, string vnetArmId)
