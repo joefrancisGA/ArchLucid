@@ -25,6 +25,7 @@
 | Data Flow rollup erases that hub | **IDX-07c** | Four same-type sinks collapse to one card before hub layout |
 | Cross-stage edge into that hub throws | **IDX-07d** | Gutter route crosses spokes and forest render fails |
 | Subcolumn wrap splits hub star | **IDX-07e** | `Take(12)` tears hub-and-spoke across Data Flow columns |
+| Hub pipeline not in excellence filter | **IDX-07f** | `DataFlowInStageHub` regressions do not fail `InventoryDiagramExcellence` |
 | Singleton-RG tail | **IDX-08** | Full subscription is a postage sheet |
 | Duplicate connections | **IDX-09** | Five Office365 cards per Logic App |
 | PE flag with no UI | **IDX-10** | Operators cannot opt in; or PEs sneak on |
@@ -47,7 +48,8 @@
 | **IDX-07b** Data Flow in-stage hub | After 07 | Shipped — extend only |
 | **IDX-07c** Rollup preserves in-stage hub | After 07b | Shipped — extend only |
 | **IDX-07d** Route edges into an in-stage hub | After 07c | Shipped — extend only |
-| **IDX-07e** Subcolumn keeps hub component whole | After 07d | Prompt only until implemented |
+| **IDX-07e** Subcolumn keeps hub component whole | After 07d | Shipped — extend only |
+| **IDX-07f** Data Flow hub pipeline ratchet | After 07e | Prompt only until implemented |
 | **IDX-08** Singleton-RG collapse | After 06 | |
 | **IDX-09** Duplicate connection collapse | After 03 | |
 | **IDX-10** PE opt-in toggle | After 02 | |
