@@ -2,16 +2,15 @@ using ArchLucid.ArtifactSynthesis.Models;
 
 namespace ArchLucid.ArtifactSynthesis.Layout;
 
-/// <summary>
-/// Subscription bounding boxes are omitted for every inventory diagram type.
-/// Resource-group and virtual-network frames are unchanged.
-/// </summary>
+/// <summary>Subscription outer frame for subscription-scoped inventory modes (IDX-06).</summary>
 public static class DiagramForestSubscriptionFrameResolver
 {
     public static bool ShouldDraw(string title)
     {
         ArgumentNullException.ThrowIfNull(title);
-        return false;
+
+        return DiagramForestInventoryTitleParser.TryParseMode(title, out DiagramMode mode)
+            && DiagramForestInventoryTitleParser.IsSubscriptionScopedMode(mode);
     }
 
     public static DiagramForestNestedFrameBounds? Resolve(
@@ -31,11 +30,12 @@ public static class DiagramForestSubscriptionFrameResolver
         double maxX = placements.Max(placement => placement.X + placement.Width);
         double maxY = placements.Max(placement => placement.Y + placement.Height);
         const double pad = 28.0d;
+        string label = DiagramForestInventoryTitleParser.ResolveSubscriptionFrameLabel(title);
 
         return new DiagramForestNestedFrameBounds(
             "subscription",
-            "Subscription",
-            "subscription-frame",
+            label,
+            "sub-frame",
             minX - pad,
             minY - pad,
             maxX - minX + (pad * 2.0d),
