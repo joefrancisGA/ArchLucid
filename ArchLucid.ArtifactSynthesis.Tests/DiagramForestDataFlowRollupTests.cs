@@ -92,6 +92,48 @@ public sealed class DiagramForestDataFlowRollupTests
     }
 
     [Fact]
+    public void Apply_preserves_separate_cards_for_in_stage_hub_spoke_star()
+    {
+        const string stageId = "ingest";
+        const string factoryId = "adf";
+        List<DiagramNode> nodes =
+        [
+            new DiagramNode
+            {
+                NodeId = factoryId,
+                Label = factoryId,
+                NodeType = "TopologyResource",
+                SubgraphId = stageId,
+                OrderKey = 0,
+                ArmResourceType = "Microsoft.DataFactory/factories",
+            },
+            ..Enumerable.Range(0, 4).Select(index => new DiagramNode
+            {
+                NodeId = $"st{index}",
+                Label = $"st{index}",
+                NodeType = "TopologyResource",
+                SubgraphId = stageId,
+                OrderKey = index + 1,
+                ArmResourceType = "Microsoft.Storage/storageAccounts",
+            }),
+        ];
+        List<DiagramEdge> edges =
+        [
+            ..Enumerable.Range(0, 4).Select(index => new DiagramEdge
+            {
+                FromNodeId = factoryId,
+                ToNodeId = $"st{index}",
+                Label = "writes",
+            }),
+        ];
+
+        DiagramForestDataFlowRollup.Result result = DiagramForestDataFlowRollup.Apply(nodes, edges);
+
+        result.Nodes.Should().NotContain(node => node.IsDataFlowRollup);
+        result.Nodes.Should().HaveCount(5);
+    }
+
+    [Fact]
     public void Apply_merges_parallel_rolled_up_edges_nsg_annotations_from_all_members()
     {
         const string consumerId = "consumer-app";

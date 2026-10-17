@@ -45,6 +45,34 @@ public sealed class InventoryDiagramExcellenceDataFlowInStageHubLayoutTests
     }
 
     [Fact]
+    public void DataFlowInStageHub_four_same_storage_accounts_stay_separate_spokes()
+    {
+        DiagramAst ast = BuildAdfFourSameStorageStageAst();
+        XDocument svg = Render(ast);
+
+        CountHubMarkers(svg).Should().Be(1);
+        InventoryDiagramExcellenceRatchetAssertions.AssertRoleColumnMarkersAbsent(
+            svg.ToString(),
+            DiagramMode.DataFlow);
+
+        IReadOnlyList<string> spokeIds = ["st0", "st1", "st2", "st3"];
+        double hubX = NodeCenterX(svg, "adf");
+        double? sharedSpokeX = null;
+
+        foreach (string spokeId in spokeIds)
+        {
+            svg.Descendants()
+                .Any(element => element.Attribute("id")?.Value == $"node-{spokeId}")
+                .Should()
+                .BeTrue(spokeId);
+            double spokeX = NodeCenterX(svg, spokeId);
+            hubX.Should().BeGreaterThan(spokeX);
+            sharedSpokeX = sharedSpokeX is null ? spokeX : sharedSpokeX;
+            spokeX.Should().BeApproximately(sharedSpokeX.Value, 1.0d);
+        }
+    }
+
+    [Fact]
     public void DataFlowInStageHub_chain_with_max_degree_two_has_no_hub_marker()
     {
         DiagramAst ast = BuildChainStageAst();
@@ -64,6 +92,35 @@ public sealed class InventoryDiagramExcellenceDataFlowInStageHubLayoutTests
         double stageTwoSpokeX = NodeCenterX(svg, "sink_sql");
 
         stageOneX.Should().BeLessThan(stageTwoSpokeX);
+    }
+
+    private static DiagramAst BuildAdfFourSameStorageStageAst()
+    {
+        const string stageId = "stage-ingest";
+
+        return new DiagramAst
+        {
+            Title = "Azure inventory (DataFlow)",
+            Subgraphs =
+            [
+                new DiagramSubgraph { SubgraphId = stageId, Label = "Ingest", OrderKey = 0 },
+            ],
+            Nodes =
+            [
+                Node("adf", "factory", "Microsoft.DataFactory/factories", stageId, orderKey: 0),
+                Node("st0", "lake-0", "Microsoft.Storage/storageAccounts", stageId, orderKey: 1),
+                Node("st1", "lake-1", "Microsoft.Storage/storageAccounts", stageId, orderKey: 2),
+                Node("st2", "lake-2", "Microsoft.Storage/storageAccounts", stageId, orderKey: 3),
+                Node("st3", "lake-3", "Microsoft.Storage/storageAccounts", stageId, orderKey: 4),
+            ],
+            Edges =
+            [
+                Edge("adf", "st0"),
+                Edge("adf", "st1"),
+                Edge("adf", "st2"),
+                Edge("adf", "st3"),
+            ],
+        };
     }
 
     private static DiagramAst BuildAdfFourSinkStageAst()
