@@ -6,11 +6,21 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { assignedToMeFindingsPathForProductLine } from "@/lib/product-line/securenow-assigned-to-me-route";
 import { findingsPathForProductLine } from "@/lib/product-line/securenow-compliance-routes";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
+import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
+import {
+  governanceFindingsQueueDeskHrefFromSearch,
+  resolveGovernanceFindingsQueueDeskSelectionFromSearch,
+  resolveGovernanceFindingsQueuePathInspectFindingIdForDeskUrl,
+} from "@/lib/governance/governance-findings-queue-desk-url";
 import {
   governanceAssignedToMeBulkSelectionHrefFromSearch,
   governanceFindingsBulkSelectionHrefFromSearch,
   parseGovernanceFindingsBulkSelectionFromSearch,
 } from "@/lib/governance/governance-findings-bulk-selection-url";
+import {
+  parseRemediationFactoryFindingIdFromSearch,
+  REMEDIATION_FACTORY_FINDING_ID_PARAM,
+} from "@/app/(operator)/governance/remediation-factory/remediation-factory-url-state";
 
 export function useGovernanceFindingsQueueBulkActions(options: {
   readonly refresh: () => void;
@@ -26,25 +36,41 @@ export function useGovernanceFindingsQueueBulkActions(options: {
       : findingsPathForProductLine(productLine)
   );
   const searchParams = useSearchParams();
+  const searchString = searchParams.toString();
   const urlBulkFindingsRaw = searchParams.get("bulkFindings");
-  const urlBulkFindingIds = restrictBulkSelectionToAvailableFindings(
-    parseGovernanceFindingsBulkSelectionFromSearch(urlBulkFindingsRaw),
+  const syncSecureNowPathInspectCursor = isSecureNowProductLine(productLine);
+  const urlDeskSelection = resolveGovernanceFindingsQueueDeskSelectionFromSearch(
+    searchString,
     availableFindingIds,
   );
   const [selectedFindingIds, setSelectedFindingIdsState] = useState<ReadonlySet<string>>(
-    () => new Set(urlBulkFindingIds),
+    () => new Set(urlDeskSelection),
   );
 
   const syncBulkSelectionToUrl = useCallback(
     (findingIds: ReadonlySet<string>) => {
-      const href =
-        mode === "assigned-to-me"
-          ? governanceAssignedToMeBulkSelectionHrefFromSearch(searchParams.toString(), [...findingIds])
-          : governanceFindingsBulkSelectionHrefFromSearch(searchParams.toString(), [...findingIds], pathname);
+      const bulkFindingIds = [...findingIds];
+
+      if (!syncSecureNowPathInspectCursor) {
+        const href =
+          mode === "assigned-to-me"
+            ? governanceAssignedToMeBulkSelectionHrefFromSearch(searchString, bulkFindingIds)
+            : governanceFindingsBulkSelectionHrefFromSearch(searchString, bulkFindingIds, pathname);
+
+        router.replace(href, { scroll: false });
+
+        return;
+      }
+
+      const pathInspectFindingId = resolveGovernanceFindingsQueuePathInspectFindingIdForDeskUrl(bulkFindingIds);
+      const href = governanceFindingsQueueDeskHrefFromSearch(searchString, pathname, {
+        bulkFindingIds,
+        pathInspectFindingId,
+      });
 
       router.replace(href, { scroll: false });
     },
-    [mode, pathname, router, searchParams],
+    [mode, pathname, router, searchString, syncSecureNowPathInspectCursor],
   );
 
   const onSelectionChange = useCallback(
@@ -56,15 +82,52 @@ export function useGovernanceFindingsQueueBulkActions(options: {
   );
 
   useEffect(() => {
-    const nextSelection = restrictBulkSelectionToAvailableFindings(
-      parseGovernanceFindingsBulkSelectionFromSearch(urlBulkFindingsRaw),
-      availableFindingIds,
-    );
+    const nextSelection = syncSecureNowPathInspectCursor
+      ? resolveGovernanceFindingsQueueDeskSelectionFromSearch(searchString, availableFindingIds)
+      : restrictBulkSelectionToAvailableFindings(
+          parseGovernanceFindingsBulkSelectionFromSearch(urlBulkFindingsRaw),
+          availableFindingIds,
+        );
 
     setSelectedFindingIdsState((currentSelection) =>
       areBulkSelectionsEqual(currentSelection, nextSelection) ? currentSelection : nextSelection,
     );
-  }, [availableFindingIds, urlBulkFindingsRaw]);
+  }, [availableFindingIds, searchString, syncSecureNowPathInspectCursor, urlBulkFindingsRaw]);
+
+  useEffect(() => {
+    if (!syncSecureNowPathInspectCursor) {
+      return;
+    }
+
+    const bulkIds = parseGovernanceFindingsBulkSelectionFromSearch(urlBulkFindingsRaw);
+
+    if (bulkIds.length > 0) {
+      return;
+    }
+
+    const urlFindingId = parseRemediationFactoryFindingIdFromSearch(
+      searchParams.get(REMEDIATION_FACTORY_FINDING_ID_PARAM),
+    );
+
+    if (urlFindingId === null || !availableFindingIds.has(urlFindingId)) {
+      return;
+    }
+
+    const href = governanceFindingsQueueDeskHrefFromSearch(searchString, pathname, {
+      bulkFindingIds: [urlFindingId],
+      pathInspectFindingId: urlFindingId,
+    });
+
+    router.replace(href, { scroll: false });
+  }, [
+    availableFindingIds,
+    pathname,
+    router,
+    searchParams,
+    searchString,
+    syncSecureNowPathInspectCursor,
+    urlBulkFindingsRaw,
+  ]);
 
   const onBulkApplied = useCallback(() => {
     onSelectionChange(new Set());
