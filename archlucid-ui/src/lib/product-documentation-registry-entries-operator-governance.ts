@@ -170,7 +170,7 @@ export const PRODUCT_DOCUMENTATION_REGISTRY_ENTRIES_OPERATOR_GOVERNANCE: readonl
   {
     "slug": "security-evidence-paths",
     "title": "Security evidence paths",
-    "summary": "Read architect path summaries, confidence bands, weakest hops, and cut points in the remediation factory Path inspect panel.",
+    "summary": "Read architect path summaries, confidence bands, weakest hops, and cut points in Path inspect on remediation factory, SecureNow Findings, and Assigned to me.",
     "audience": "operator",
     "sourcePaths": [
       "docs/library/customer-facing/SECURITY_EVIDENCE_PATHS_OPERATOR_GUIDE.md",

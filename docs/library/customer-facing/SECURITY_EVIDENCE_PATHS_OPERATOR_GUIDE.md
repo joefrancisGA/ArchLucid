@@ -1,6 +1,6 @@
 # Security evidence paths (SecureNow)
 
-Read architect paths in the remediation factory **Path inspect** panel without leaving the priority queue.
+Read architect paths in the **Path inspect** panel on the remediation factory priority queue, on the SecureNow **Findings** queue (`/compliance/findings`), and on **Assigned to me** (`/security/assigned-to-me`). Select one finding row (or open a link with `findingId` in the address bar), then press **Alt+I** (Focus path inspect) to scroll to the panel.
 
 ## What the panel shows
 
