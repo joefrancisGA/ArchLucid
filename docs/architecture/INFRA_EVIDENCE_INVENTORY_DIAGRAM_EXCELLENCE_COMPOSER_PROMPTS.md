@@ -24,6 +24,7 @@
 | Data Flow stage is a vertical stack | **IDX-07b** | ADF with four sinks is not a hub inside the stage |
 | Data Flow rollup erases that hub | **IDX-07c** | Four same-type sinks collapse to one card before hub layout |
 | Cross-stage edge into that hub throws | **IDX-07d** | Gutter route crosses spokes and forest render fails |
+| Subcolumn wrap splits hub star | **IDX-07e** | `Take(12)` tears hub-and-spoke across Data Flow columns |
 | Singleton-RG tail | **IDX-08** | Full subscription is a postage sheet |
 | Duplicate connections | **IDX-09** | Five Office365 cards per Logic App |
 | PE flag with no UI | **IDX-10** | Operators cannot opt in; or PEs sneak on |
@@ -45,7 +46,8 @@
 | **IDX-07** Role-aware packing | After 05 | |
 | **IDX-07b** Data Flow in-stage hub | After 07 | Shipped — extend only |
 | **IDX-07c** Rollup preserves in-stage hub | After 07b | Shipped — extend only |
-| **IDX-07d** Route edges into an in-stage hub | After 07c | Prompt only until implemented |
+| **IDX-07d** Route edges into an in-stage hub | After 07c | Shipped — extend only |
+| **IDX-07e** Subcolumn keeps hub component whole | After 07d | Prompt only until implemented |
 | **IDX-08** Singleton-RG collapse | After 06 | |
 | **IDX-09** Duplicate connection collapse | After 03 | |
 | **IDX-10** PE opt-in toggle | After 02 | |
@@ -517,7 +519,7 @@ dotnet test ArchLucid.ArtifactSynthesis.Tests/ArchLucid.ArtifactSynthesis.Tests.
 
 # IDX-07d — Route Data Flow edges into an in-stage hub
 
-**Depends on:** IDX-07b and IDX-07c on trunk. **Branch:** a new `cursor/idx-07d-hub-edge-route-*` feature branch. **Extend only.** **Prompt only until implemented.**
+**Depends on:** IDX-07b and IDX-07c on trunk. **Extend only.** **Shipped** — do not re-prompt gap routing. Next gap is **IDX-07e**.
 
 **Paste file:** [`.cursor/prompts/inventory-diagram-excellence-07d-hub-edge-route.md`](../../.cursor/prompts/inventory-diagram-excellence-07d-hub-edge-route.md)
 
@@ -538,6 +540,33 @@ Work: implement only "What to build" in the paste file.
 
 Tests:
 dotnet test ArchLucid.ArtifactSynthesis.Tests/ArchLucid.ArtifactSynthesis.Tests.csproj --filter 'FullyQualifiedName~DataFlowEdgeRouter|FullyQualifiedName~DataFlowInStageHub'
+```
+
+---
+
+# IDX-07e — Data Flow subcolumns must not split a hub component
+
+**Depends on:** IDX-07b–07d on trunk. **Branch:** a new `cursor/idx-07e-subcolumn-keeps-hub-*` feature branch. **Extend only.** **Prompt only until implemented.**
+
+**Paste file:** [`.cursor/prompts/inventory-diagram-excellence-07e-subcolumn-keeps-hub.md`](../../.cursor/prompts/inventory-diagram-excellence-07e-subcolumn-keeps-hub.md)
+
+### Prompt (copy below)
+
+```text
+You are working in the ArchLucid repo on a FEATURE BRANCH. Goal: Data Flow subcolumn wrapping must keep each stage-local connected component intact. One factory plus twelve storage sinks in one stage stays one hub-and-spoke layout in one subcolumn even though the stage has thirteen cards. Pack whole components into batches of at most twelve nodes; a single component larger than twelve may occupy one subcolumn alone. Do not change rollup, hub geometry, edge gap routing, or other DiagramMode packing. Do not greenfield IDX-01 through IDX-13.
+
+This is NOT IDX-HOLD.
+
+Read first:
+- .cursor/prompts/inventory-diagram-excellence-00-index.md
+- .cursor/prompts/inventory-diagram-excellence-07e-subcolumn-keeps-hub.md
+
+Working-tree check before tracked edits.
+
+Work: implement only "What to build" in the paste file.
+
+Tests:
+dotnet test ArchLucid.ArtifactSynthesis.Tests/ArchLucid.ArtifactSynthesis.Tests.csproj --filter 'FullyQualifiedName~DataFlowInStageHub|FullyQualifiedName~DiagramForestDataFlowEdgeRouter|FullyQualifiedName~DiagramForestDataFlowRollup'
 ```
 
 ---
