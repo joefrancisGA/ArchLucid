@@ -215,7 +215,25 @@ describe("RemediationFactoryClient", () => {
     expect(screen.getByTestId("remediation-factory-context-strip")).toBeInTheDocument();
     expect(screen.getByText(REMEDIATION_FACTORY_EXECUTIVE_METRICS_TITLE)).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toHaveTextContent(PAGE_HELP_SHORT_TRIGGER_TEXT);
+    expect(screen.getByTestId("remediation-factory-page-lead")).toHaveTextContent(
+      "Fix these findings first. Advisory only — this page does not change Azure.",
+    );
+    expect(screen.getByTestId("remediation-factory-page-lead")).not.toHaveTextContent("wave planning");
+    expect(screen.getByTestId("remediation-factory-open-waves")).toHaveAttribute(
+      "href",
+      "/security/remediation-instances#remediation-waves",
+    );
     expect(screen.getByText("Sort key for this queue. Not a percentage.")).toBeInTheDocument();
+    expect(screen.getByText("This week, this month, or later follows the queue order. It is not a separate score.")).toBeInTheDocument();
+    const priorityRow = screen.getByTestId("remediation-priority-row-aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+    expect(priorityRow).toHaveTextContent("This row does not name a leading factor.");
+    expect(priorityRow).toHaveTextContent("This week");
+    expect(priorityRow).toHaveTextContent("Name not recorded");
+    expect(priorityRow).toHaveTextContent("Show sort key");
+    expect(priorityRow).not.toHaveTextContent("0.4200");
+    expect(priorityRow).not.toHaveTextContent("Rule=IE15-priority-v1");
+    expect(screen.getByText("SecureNow findings that are still open.")).toBeInTheDocument();
+    expect(screen.queryByText(/IE15-priority-v1/)).not.toBeInTheDocument();
     expect(screen.getByText("Evidence strength for the whole path.")).toBeInTheDocument();
     expect(screen.getByTestId("remediation-ranked-path-filters-scope")).toHaveTextContent(
       "These filters narrow the path list only.",
@@ -238,6 +256,51 @@ describe("RemediationFactoryClient", () => {
     );
 
     expect(selectPath).toHaveBeenCalledWith("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+  });
+
+  it("opens the rule line, the sort key, and how the counts are measured", () => {
+    const resourceId = "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/customerdata";
+    mockRankedFindingsQuery({
+      data: [
+        {
+          findingId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+          rankOrder: 6,
+          totalScore: 0.42,
+          explanationSummary: "Rule=IE15-priority-v1; Total=0.4200; Factors=11",
+          breakdownJson: JSON.stringify([
+            { Factor: "InternetExposure", NormalizedValue: 1, WeightedContribution: 0.1, Source: "public" },
+            { Factor: "DataSensitivity", NormalizedValue: 0.8, WeightedContribution: 0.08, Source: "customer" },
+          ]),
+          cloudResourceId: resourceId,
+          controlId: "AC-2",
+          patternKey: "storage.encrypt",
+        },
+      ],
+    });
+
+    render(<RemediationFactoryClient />);
+
+    const priorityRow = screen.getByTestId("remediation-priority-row-aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+    expect(priorityRow).toHaveTextContent("Reachable from the internet. Sensitive data.");
+    expect(priorityRow).toHaveTextContent("customerdata");
+    expect(priorityRow).toHaveTextContent("This month");
+    expect(priorityRow).toHaveTextContent("Pattern");
+    expect(priorityRow).not.toHaveTextContent(resourceId);
+
+    fireEvent.click(screen.getByTestId("remediation-priority-rule-aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"));
+    expect(priorityRow).toHaveTextContent("Rule=IE15-priority-v1; Total=0.4200; Factors=11");
+
+    fireEvent.click(screen.getByTestId("remediation-priority-sort-key-aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"));
+    expect(priorityRow).toHaveTextContent(
+      "Sort key 0.4200. Ordering only — not a percentage, probability, or live risk score.",
+    );
+
+    fireEvent.click(screen.getByTestId("remediation-priority-resource-id-aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"));
+    expect(priorityRow).toHaveTextContent(resourceId);
+
+    fireEvent.click(screen.getByTestId("remediation-metrics-measurement-disclosure"));
+    expect(screen.getByTestId("remediation-metrics-measurement-body")).toHaveTextContent("IE15-priority-v1");
+    expect(screen.getByTestId("remediation-metrics-measurement-body")).toHaveTextContent("not cloud spend");
   });
 
   it("focuses path inspect on Alt+I and the command palette inspect event", () => {
