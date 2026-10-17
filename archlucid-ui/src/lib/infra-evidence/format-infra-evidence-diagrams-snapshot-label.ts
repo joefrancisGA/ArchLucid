@@ -25,6 +25,10 @@ export function formatInfraEvidenceDiagramsSnapshotPickerLabel(
 
   if (architectureLabel.length > 0) {
     parts.push(architectureLabel);
+  } else if (snapshot.architectureName === null || snapshot.architectureName === undefined) {
+    parts.push("Architecture name was not stored.");
+  } else {
+    parts.push("Architecture name was stored empty.");
   }
 
   parts.push(captured);
