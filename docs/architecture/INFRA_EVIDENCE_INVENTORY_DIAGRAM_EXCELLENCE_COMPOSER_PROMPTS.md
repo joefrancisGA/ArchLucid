@@ -455,6 +455,33 @@ Tests: as named in the paste file (dotnet filter covering all twelve DiagramMode
 
 ---
 
+# IDX-13b — Fat-graph forest / DOT nested-frame parity
+
+**Depends on:** IDX-13 and the fat-fixture `VmToNic` fix on trunk. **Branch:** a new `cursor/idx-13b-fat-graph-dot-parity-*` feature branch. **Extend only.**
+
+**Paste file:** [`.cursor/prompts/inventory-diagram-excellence-13b-fat-graph-dot-parity.md`](../../.cursor/prompts/inventory-diagram-excellence-13b-fat-graph-dot-parity.md)
+
+### Prompt (copy below)
+
+```text
+You are working in the ArchLucid repo on a FEATURE BRANCH. Goal: compiling InventoryDiagramExcellenceSharedGraphFixture.BuildFatGraph() for Network, FullSubscription, and ResourceGroup keeps forest SVG vnet-frame and subnet-frame counts equal to Graphviz cluster_vnet_ and cluster_subnet_ counts. Network on that fat graph must keep at least one subnet-frame. If DOT is missing a cluster the forest already draws, fix the Graphviz planner. Do not delete forest frames and do not add same-RG all-to-all edges to inflate counts. Do not implement new visuals beyond that parity fix. Do not greenfield IDX-01 through IDX-12.
+
+This is NOT IDX-HOLD.
+
+Read first:
+- .cursor/prompts/inventory-diagram-excellence-00-index.md
+- .cursor/prompts/inventory-diagram-excellence-13b-fat-graph-dot-parity.md
+
+Working-tree check before tracked edits.
+
+Work: implement only "What to build" in the paste file.
+
+Tests:
+dotnet test ArchLucid.ArtifactSynthesis.Tests/ArchLucid.ArtifactSynthesis.Tests.csproj --filter 'FullyQualifiedName~InventoryDiagramExcellence|FullyQualifiedName~InventoryDiagramNetworkSubnet'
+```
+
+---
+
 # IDX-HOLD — No complete-graph, no default NIC/PE cards, no Microsoft icons, no Full-subscription RBAC
 
 **This is not implementation.** Paste [`.cursor/prompts/inventory-diagram-excellence-14-hold.md`](../../.cursor/prompts/inventory-diagram-excellence-14-hold.md) only if a session starts a complete graph, shows NIC/PE cards by default, ships Microsoft Azure product icons, dumps RBAC onto Full subscription, calls Azure at compile time, re-runs AX-DE/IDA/IDF as greenfield, or nests frames from an IDA/IDF chat.
