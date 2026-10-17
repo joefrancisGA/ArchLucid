@@ -21,8 +21,11 @@ public sealed class DiagramAstGraphvizDotEmitter : IDiagramAstGraphvizDotEmitter
             .OrderBy(subgraph => subgraph.OrderKey)
             .ThenBy(subgraph => subgraph.SubgraphId, StringComparer.Ordinal)
             .ToList();
+        // Data Flow PNG uses stage swimlanes; RG Visio frames would hide every node from stage subgraph clusters.
         IReadOnlyList<DiagramResourceGroupGraphvizClusterPlanner.ClusterPlan> resourceGroupClusters =
-            DiagramResourceGroupGraphvizClusterPlanner.Plan(ast);
+            IsDataFlowTitle(ast.Title)
+                ? Array.Empty<DiagramResourceGroupGraphvizClusterPlanner.ClusterPlan>()
+                : DiagramResourceGroupGraphvizClusterPlanner.Plan(ast);
         HashSet<string> resourceGroupClusteredNodeIds =
             DiagramResourceGroupGraphvizClusterPlanner.ResolveClusteredNodeIds(resourceGroupClusters);
         HashSet<string> allocatedClusterIds = new(StringComparer.Ordinal);

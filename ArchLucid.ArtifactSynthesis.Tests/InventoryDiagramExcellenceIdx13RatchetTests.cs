@@ -57,7 +57,7 @@ public sealed class InventoryDiagramExcellenceIdx13RatchetTests
             expectVnetMembersInAst: mode != DiagramMode.Identity);
 
         string dot = dotEmitter.Emit(ast);
-        InventoryDiagramExcellenceRatchetAssertions.AssertDotContainsResourceGroupCluster(dot);
+        InventoryDiagramExcellenceRatchetAssertions.AssertDotResourceGroupClusterPolicy(dot, mode);
         InventoryDiagramExcellenceRatchetAssertions.AssertDotSubscriptionClusterPolicy(dot, mode);
         // 0 = 0 is success when a mode filter leaves no nested frames.
         InventoryDiagramExcellenceRatchetAssertions.AssertForestAndDotNestedFrameParity(layout.Svg!, dot);

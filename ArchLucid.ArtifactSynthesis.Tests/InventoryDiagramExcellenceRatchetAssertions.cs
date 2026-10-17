@@ -127,6 +127,20 @@ public static class InventoryDiagramExcellenceRatchetAssertions
         dot.Should().Contain("subgraph cluster_rg_", "PNG/DOT should mirror RG frames from forest layout");
     }
 
+    public static void AssertDotResourceGroupClusterPolicy(string dot, DiagramMode mode)
+    {
+        ArgumentNullException.ThrowIfNull(dot);
+
+        if (mode == DiagramMode.DataFlow)
+        {
+            dot.Should().Contain("subgraph cluster_", "Data Flow DOT should emit stage swimlane clusters");
+            dot.Should().NotContain("subgraph cluster_rg_", "Data Flow DOT should not replace stages with RG frames");
+            return;
+        }
+
+        AssertDotContainsResourceGroupCluster(dot);
+    }
+
     public static void AssertDotSubscriptionClusterPolicy(string dot, DiagramMode mode)
     {
         ArgumentNullException.ThrowIfNull(dot);
@@ -138,12 +152,12 @@ public static class InventoryDiagramExcellenceRatchetAssertions
             or DiagramMode.Security
             or DiagramMode.Identity
             or DiagramMode.Data
-            or DiagramMode.DataFlow
             or DiagramMode.DataArchitecture;
 
         if (mode is DiagramMode.ResourceGroup
             or DiagramMode.SelectedResources
-            or DiagramMode.DependencyNeighborhood)
+            or DiagramMode.DependencyNeighborhood
+            or DiagramMode.DataFlow)
         {
             dot.Should().NotContain("subgraph cluster_subscription", mode.ToString());
             return;
