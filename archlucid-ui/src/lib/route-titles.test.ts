@@ -59,6 +59,7 @@ describe("getRouteTitle — static routes", () => {
     expect(getRouteTitle("/infrastructure/ask", "security")).toBe("Ask About Your Environment");
     expect(getRouteTitle("/security/assigned-to-me", "security")).toBe("My Findings");
     expect(getRouteTitle("/security/remediation-instances", "security")).toBe("Remediation Tracker");
+    expect(getRouteTitle("/security/remediation-patterns", "security")).toBe("Fix Playbooks");
   });
 
   it("keeps Architecture resource explorer on the operator label", () => {
