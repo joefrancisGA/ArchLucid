@@ -1,5 +1,7 @@
 using ArchLucid.Application.Architecture;
+using ArchLucid.Application.ArchitectureIntelligence;
 using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.ArchitectureIntelligence;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
@@ -17,7 +19,8 @@ public interface IArchitectureRunCreateIdentityLinkHook
 public sealed class ArchitectureRunCreateIdentityLinkHook(
     IArchitectureIdentityService architectureIdentityService,
     IArchitectureVersionService architectureVersionService,
-    IScopeContextProvider scopeContextProvider) : IArchitectureRunCreateIdentityLinkHook
+    IScopeContextProvider scopeContextProvider,
+    IArchitectureKnowledgeModelAccess architectureKnowledgeModelAccess) : IArchitectureRunCreateIdentityLinkHook
 {
     private readonly IArchitectureIdentityService _architectureIdentityService =
         architectureIdentityService ?? throw new ArgumentNullException(nameof(architectureIdentityService));
@@ -27,6 +30,9 @@ public sealed class ArchitectureRunCreateIdentityLinkHook(
 
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+
+    private readonly IArchitectureKnowledgeModelAccess _architectureKnowledgeModelAccess =
+        architectureKnowledgeModelAccess ?? throw new ArgumentNullException(nameof(architectureKnowledgeModelAccess));
 
     public async Task TryLinkReviewRunArchitectureIdentityAsync(
         ArchitectureRequest request,
@@ -51,8 +57,21 @@ public sealed class ArchitectureRunCreateIdentityLinkHook(
                 $"Review run architecture identity link failed for RunId={LogSanitizer.Sanitize(runId)}.");
         }
 
+        // Inline create runs closed-loop κ persist before this hook mints ArchitectureId, so
+        // SaveForRunAsync cannot re-pin. Hash the already-saved model (when present) instead of
+        // intake-only, or finalize 409s golden-cohort nightly with κ drift.
+        ArchitectureKnowledgeModel? knowledgeModel = await _architectureKnowledgeModelAccess
+            .GetForRunAsync(scope, reviewRunGuid, cancellationToken)
+            .ConfigureAwait(false);
+
         await _architectureVersionService
-            .EnsureRunVersionPinnedAsync(scope, reviewRunGuid, architectureId, request, cancellationToken: cancellationToken)
+            .EnsureRunVersionPinnedAsync(
+                scope,
+                reviewRunGuid,
+                architectureId,
+                request,
+                knowledgeModel,
+                cancellationToken)
             .ConfigureAwait(false);
     }
 

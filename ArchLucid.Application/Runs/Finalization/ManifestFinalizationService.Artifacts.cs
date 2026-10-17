@@ -6,6 +6,7 @@ using ArchLucid.Application.Governance;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Integration;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Runs.Finalization;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.DecisionTraces;
@@ -107,6 +108,11 @@ public sealed partial class ManifestFinalizationService
             request.Contract.Metadata.ManifestVersion,
             manifestHashService);
 
+        SaveContractsManifestOptions sealedKeying = ManifestFinalizationSealedHashBinder.Bind(
+            request.Keying,
+            request.ManifestModel,
+            manifestHashService);
+
         await decisionTraceRepository.SaveAsync(
             DecisionTraceRecordMapper.ToDto(request.Trace),
             cancellationToken,
@@ -124,7 +130,7 @@ public sealed partial class ManifestFinalizationService
                 return await goldenManifestRepository.SaveAsync(
                     request.Contract,
                     scope,
-                    request.Keying,
+                    sealedKeying,
                     manifestHashService,
                     cancellationToken,
                     connection,
@@ -135,7 +141,7 @@ public sealed partial class ManifestFinalizationService
             return await goldenManifestRepository.SaveAsync(
                 request.Contract,
                 scope,
-                request.Keying,
+                sealedKeying,
                 manifestHashService,
                 cancellationToken,
                 authorityPersistBody: request.ManifestModel);
@@ -146,7 +152,7 @@ public sealed partial class ManifestFinalizationService
             return await goldenManifestRepository.SaveAsync(
                 request.Contract,
                 scope,
-                request.Keying,
+                sealedKeying,
                 manifestHashService,
                 cancellationToken,
                 connection,
@@ -157,7 +163,7 @@ public sealed partial class ManifestFinalizationService
         return await goldenManifestRepository.SaveAsync(
             request.Contract,
             scope,
-            request.Keying,
+            sealedKeying,
             manifestHashService,
             cancellationToken,
             authorityPersistBody: request.ManifestModel);

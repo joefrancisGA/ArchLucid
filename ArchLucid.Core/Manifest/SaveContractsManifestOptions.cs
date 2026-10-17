@@ -74,4 +74,22 @@ public sealed class SaveContractsManifestOptions
         get;
         init;
     }
+
+    public SaveContractsManifestOptions WithPrecomputedManifestHash(string? precomputedManifestHash)
+    {
+        return new SaveContractsManifestOptions
+        {
+            ManifestId = ManifestId,
+            RunId = RunId,
+            ContextSnapshotId = ContextSnapshotId,
+            GraphSnapshotId = GraphSnapshotId,
+            FindingsSnapshotId = FindingsSnapshotId,
+            DecisionTraceId = DecisionTraceId,
+            RuleSetId = RuleSetId,
+            RuleSetVersion = RuleSetVersion,
+            RuleSetHash = RuleSetHash,
+            CreatedUtc = CreatedUtc,
+            PrecomputedManifestHash = precomputedManifestHash,
+        };
+    }
 }

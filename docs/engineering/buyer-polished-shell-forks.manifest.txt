@@ -188,8 +188,13 @@ archlucid-ui/src/app/(operator)/help/_sections/HelpGlossaryHeaderActions.tsx
 archlucid-ui/src/app/(operator)/help/_sections/HelpGlossaryPageView.tsx
 archlucid-ui/src/app/(operator)/help/_sections/HelpGovernanceApprovalGuideView.tsx
 archlucid-ui/src/app/(operator)/help/_sections/HelpGovernanceApprovalHeaderActions.tsx
+archlucid-ui/src/app/(operator)/help/_sections/HelpGovernanceInfrastructureAskGuideView.tsx
+archlucid-ui/src/app/(operator)/help/_sections/HelpGovernanceInfrastructureDiagramReconcileGuideView.tsx
+archlucid-ui/src/app/(operator)/help/_sections/HelpGovernanceInfrastructureDiagramsGuideView.tsx
 archlucid-ui/src/app/(operator)/help/_sections/HelpGovernanceInfrastructureDriftGuideView.tsx
+archlucid-ui/src/app/(operator)/help/_sections/HelpGovernanceInfrastructureRemediationGuideView.tsx
 archlucid-ui/src/app/(operator)/help/_sections/HelpGovernanceInfrastructureResourcesGuideView.tsx
+archlucid-ui/src/app/(operator)/help/_sections/HelpGovernanceInfrastructureTerraformGuideView.tsx
 archlucid-ui/src/app/(operator)/help/_sections/HelpImpactPreviewHeaderActions.tsx
 archlucid-ui/src/app/(operator)/help/_sections/HelpImprovementPlanningHeaderActions.tsx
 archlucid-ui/src/app/(operator)/help/_sections/HelpIntegrationReadinessHeaderActions.tsx

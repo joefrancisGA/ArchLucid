@@ -18,7 +18,7 @@ export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_HELP_CLAIM_DISCIPLINE_HEADING =
   "What this guide does not cover" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_HELP_CLAIM_DISCIPLINE =
-  `${GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_LEAD} ${GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PNG_BROWSER_FALLBACK_NOTE} These renders are inventory evidence — not architecture-review diagram intake or sealed review packages.`;
+  `${GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PAGE_LEAD} ${GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_PNG_BROWSER_FALLBACK_NOTE} These renders are inventory evidence — not architecture-review diagram intake or sealed architecture packages.`;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_HELP_FOLLOW_UPS_TITLE = "Where to go next" as const;
 

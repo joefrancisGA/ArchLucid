@@ -20,7 +20,7 @@ export const GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_HELP_CLAIM_DISCIPLINE_H
   "What this guide does not cover" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_HELP_CLAIM_DISCIPLINE =
-  `${GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PAGE_LEAD} ${GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_CLAIM_DISCIPLINE} ${DIAGRAM_RECONCILE_NOTES_DO_NOT_RAISE_BAND_LINE} Correspondence is operational infrastructure evidence — not architecture-review diagram intake, and reconciling or ingesting Mermaid does not seal an approved review package.`;
+  `${GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_PAGE_LEAD} ${GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_CLAIM_DISCIPLINE} ${DIAGRAM_RECONCILE_NOTES_DO_NOT_RAISE_BAND_LINE} Correspondence is operational infrastructure evidence — not architecture-review diagram intake, and reconciling or ingesting Mermaid does not seal an approved architecture package.`;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAM_RECONCILE_HELP_FOLLOW_UPS_TITLE = "Where to go next" as const;
 
