@@ -22,7 +22,8 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
         int DataFlowColumnIndex = -1,
         string? VnetFrameId = null,
         bool IsFrameAnchor = false,
-        int RoleColumnIndex = -1);
+        int RoleColumnIndex = -1,
+        bool IsHubSpokeHub = false);
 
     private sealed record VnetPrimaryGroup(
         string NodeId,
@@ -1309,7 +1310,14 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
         List<NodePlacement> placements = spokePlacements
             .Select(placement => placement with { X = (spokeColumnWidth - placement.Width) / 2.0d })
             .ToList();
-        placements.Add(new NodePlacement(hub, hubX, hubY, hubMetrics.Width, hubMetrics.Height, hubMetrics));
+        placements.Add(new NodePlacement(
+            hub,
+            hubX,
+            hubY,
+            hubMetrics.Width,
+            hubMetrics.Height,
+            hubMetrics,
+            IsHubSpokeHub: true));
 
         return placements;
     }
@@ -1770,6 +1778,11 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
             if (placement.RoleColumnIndex >= 0)
             {
                 nodeGroup.Add(new XAttribute("data-role-column", placement.RoleColumnIndex.ToString(CultureInfo.InvariantCulture)));
+            }
+
+            if (placement.IsHubSpokeHub)
+            {
+                nodeGroup.Add(new XAttribute("data-hub-spoke", "hub"));
             }
 
             root.Add(nodeGroup);
