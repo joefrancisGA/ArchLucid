@@ -113,7 +113,12 @@ export function FindingDerivationLine(props: FindingDerivationLineProps): React.
               {evidenceActionLabel}
             </Link>
           </>
-        ) : null}
+        ) : (
+          <>
+            {" "}
+            <span data-testid={`${testId}-evidence-missing`}>Evidence trail link was not stored.</span>
+          </>
+        )}
       </p>
     );
   }

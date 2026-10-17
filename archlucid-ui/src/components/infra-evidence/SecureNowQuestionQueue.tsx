@@ -50,18 +50,24 @@ function closedSecureNowQuestionAnswerLines(question: ClosedQuestionAnswerFields
     lines.push("Answer code was not stored.");
   } else if (question.answerCode.length > 0) {
     lines.push(secureNowQuestionAnswerLabel(question.answerCode));
+  } else {
+    lines.push("Answer code was stored empty.");
   }
 
   if (question.answerText === null || question.answerText === undefined) {
     lines.push("Answer text was not stored.");
   } else if (question.answerText.length > 0) {
     lines.push(question.answerText);
+  } else {
+    lines.push("Answer text was stored empty.");
   }
 
   if (question.reason === null || question.reason === undefined) {
     lines.push("Disposition reason was not stored.");
   } else if (question.reason.length > 0) {
     lines.push(question.reason);
+  } else {
+    lines.push("Disposition reason was stored empty.");
   }
 
   return lines;
@@ -222,6 +228,8 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
   const resourceOnDiagram = currentQuestion == null || resourceIdMissing || outline == null
     ? true
     : diagramOutlineIncludesFocusResource(outline, currentQuestion.resourceId);
+  const inferredConnectionQuestion =
+    currentQuestion?.source?.trim() === "InferredConnection";
 
   return (
     <div
@@ -283,7 +291,7 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
           data-testid="infra-diagrams-question-outline-not-loaded"
           role="status"
         >
-          Diagram outline was not loaded.
+          Diagram outline was not loaded, so this question is not confirmed on the diagram.
         </p>
       ) : null}
 
@@ -314,6 +322,11 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
               <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                 Not sure moves to the next question without storing an answer.
               </p>
+              {inferredConnectionQuestion ? (
+                <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                  Asked because a connection was inferred. Answering does not store a link.
+                </p>
+              ) : null}
               <div className="flex flex-wrap gap-2">
                 {currentQuestion.answerCodes?.map((answerCode) => (
                   <Button
@@ -331,13 +344,15 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
                       setDrawerAction("answer");
                     }}
                   >
-                    {secureNowQuestionAnswerLabel(answerCode)}
+                    {answerCode === "NotSure"
+                      ? "Not sure. This does not store an answer."
+                      : secureNowQuestionAnswerLabel(answerCode)}
                   </Button>
                 ))}
               </div>
               {selectedAnswer != null ? (
                 <Button type="button" size="sm" variant="primary" disabled={busy} onClick={() => void submitAction()}>
-                  Continue
+                  Save answer
                 </Button>
               ) : null}
               <div className="flex flex-wrap gap-2">

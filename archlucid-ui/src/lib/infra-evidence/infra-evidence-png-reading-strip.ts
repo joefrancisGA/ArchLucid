@@ -2,8 +2,6 @@ import {
   INFRA_EVIDENCE_DIAGRAM_LEGEND_DECLARED,
   INFRA_EVIDENCE_DIAGRAM_LEGEND_OBSERVED,
   INFRA_EVIDENCE_DIAGRAM_PNG_CONFIGURATION_RELATIONSHIP_NOTE,
-  INFRA_EVIDENCE_DIAGRAM_PNG_DATA_ARCHITECTURE_INVENTORY_NOTE,
-  INFRA_EVIDENCE_DIAGRAM_PNG_NETWORK_PLACEMENT_NOTE,
 } from "@/lib/infra-evidence/infra-evidence-diagram-copy";
 import { resolveInfraEvidenceDiagramLegendInferredCopy } from "@/lib/infra-evidence/resolve-infra-evidence-diagram-legend-inferred-line";
 import { resolveInfraEvidenceDiagramLegendProbableLine } from "@/lib/infra-evidence/resolve-infra-evidence-diagram-legend-probable-line";
@@ -50,13 +48,19 @@ export function buildInfraEvidencePngReadingStripLines(
 
   if (input.mode === null || input.mode === undefined) {
     lines.push("Diagram mode was not stored.");
+  } else if (input.mode === "") {
+    lines.push("Diagram mode was stored empty.");
   } else if (input.mode === "dataFlow") {
     lines.push("This diagram shows what may connect. It is not observed traffic.");
   } else if (input.mode === "dataArchitecture") {
-    lines.push("This diagram shows what stores data.");
-    lines.push(INFRA_EVIDENCE_DIAGRAM_PNG_DATA_ARCHITECTURE_INVENTORY_NOTE);
-  } else if (input.mode === "network") {
-    lines.push(INFRA_EVIDENCE_DIAGRAM_PNG_NETWORK_PLACEMENT_NOTE);
+    lines.push("This diagram shows what stores data. It is not observed traffic.");
+  } else if (
+    input.mode === "network" ||
+    input.mode === "executive" ||
+    input.mode === "identity" ||
+    input.mode === "data"
+  ) {
+    lines.push("This diagram shows inventory structure. It is not observed traffic.");
   }
 
   if (input.outline === null || input.outline === undefined) {

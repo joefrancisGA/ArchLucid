@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   buildFindingDerivationSentence,
+  FINDING_DERIVATION_ASSEMBLED_RULE_ONLY_PREFIX,
   FINDING_DERIVATION_NOT_AVAILABLE,
   findingDerivationFromGovernanceQueueRow,
   findingDerivationFromQuickDecisionFinding,
@@ -76,17 +77,28 @@ describe("finding-derivation-sentence (TB-2154)", () => {
     expect(result.sentence).toContain("High severity finding");
   });
 
-  it("labels zero cited evidence and trace confidence separately (P-10)", () => {
+  it("labels category-only rows without quoting the category as a rule (P-07)", () => {
     const result = buildFindingDerivationSentence({
-      ruleName: "Ingress rule",
+      categoryLabel: "Security",
       severityLabel: "High",
-      evidenceRefCount: 0,
-      traceConfidenceLabel: "Medium",
     });
 
-    expect(result.sentence).toContain("0 cited evidence references");
-    expect(result.sentence).toContain("Trace confidence: Medium");
+    expect(result.sentence).toContain("Policy area Security. Rule name was not stored.");
+    expect(result.sentence).not.toContain('Policy rule "Security"');
+  });
+
+  it("labels zero evidence refs and trace confidence separately (P-08)", () => {
+    const result = buildFindingDerivationSentence({
+      ruleName: "Ingress baseline",
+      evidenceRefCount: 0,
+      traceConfidenceLabel: "High",
+      severityLabel: "High",
+    });
+
+    expect(result.sentence).toContain("No evidence references were stored");
     expect(result.sentence).toContain("This is not a cited evidence artifact.");
+    expect(result.sentence).not.toContain("confidence trace evidence");
+    expect(result.sentence).toContain(FINDING_DERIVATION_ASSEMBLED_RULE_ONLY_PREFIX);
   });
 
   it("labels a missing rule name with the rule id (P-10)", () => {

@@ -37,7 +37,26 @@ public sealed class DiagramNodeHumanCaptionFactoryTests
             Label = "orphan",
         };
 
-        DiagramNodeHumanCaptionFactory.Create(node).CombinedPlainText.Should().Be("orphan");
+        DiagramNodeHumanCaptionFactory.Create(node).CombinedPlainText.Should().Be(
+            "orphan · Resource type was not stored");
+    }
+
+    [Fact]
+    public void Create_appends_resource_group_not_stored_when_caption_requires_group()
+    {
+        DiagramNode node = new()
+        {
+            NodeId = "vm-1",
+            Label = "vm-app",
+            ArmResourceType = "Microsoft.Compute/virtualMachines",
+            IncludeResourceGroupInCaption = true,
+            ArmResourceGroup = "   ",
+        };
+
+        DiagramNodeHumanCaption caption = DiagramNodeHumanCaptionFactory.Create(node);
+
+        caption.CombinedPlainText.Should().Contain("Resource group was not stored.");
+        caption.CombinedPlainText.Should().Contain("vm-app (Virtual machine)");
     }
 
     [Fact]
@@ -71,8 +90,7 @@ public sealed class DiagramNodeHumanCaptionFactoryTests
         DiagramNodeHumanCaption caption = DiagramNodeHumanCaptionFactory.Create(node);
 
         caption.ResourceGroupCaption.Should().BeNull();
-        caption.AccessibilityTitle.Should().Be("vm-app");
-        caption.AccessibilityTitle.Should().NotContain(" · ");
+        caption.AccessibilityTitle.Should().Be("vm-app · Resource type was not stored");
     }
 
     [Fact]
@@ -86,6 +104,6 @@ public sealed class DiagramNodeHumanCaptionFactoryTests
         };
 
         DiagramNodeHumanCaptionFactory.Create(node).CombinedPlainText.Should()
-            .Be("resource-a · Connection state was not classified.");
+            .Be("resource-a · Resource type was not stored · Connection state was not classified.");
     }
 }

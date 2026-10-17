@@ -26,4 +26,19 @@ describe("FindingDerivationLine (TB-2154)", () => {
       "/architecture/reviews/run-1/findings/finding-1/evidence-trace",
     );
   });
+
+  it("labels a missing evidence href in compact mode (P-12)", () => {
+    const derivation = buildFindingDerivationSentence({
+      ruleName: "Ingress rule",
+      severityLabel: "High",
+      evidenceRefCount: 0,
+    });
+
+    render(<FindingDerivationLine derivation={derivation} evidenceHref={null} compact testId="derivation-test" />);
+
+    expect(screen.getByTestId("derivation-test-evidence-missing")).toHaveTextContent(
+      "Evidence trail link was not stored.",
+    );
+    expect(screen.queryByTestId("derivation-test-evidence-link")).toBeNull();
+  });
 });

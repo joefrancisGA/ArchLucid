@@ -94,6 +94,11 @@ describe("collection-agent-presentation", () => {
     expect(formatCollectionRunSubscriptionsLabel(run({ subscriptionsCoveredJson: "[]" }))).toBe(
       "Subscriptions covered were stored as an empty list.",
     );
-    expect(formatCollectionRunSubscriptionsLabel(run({ subscriptionsCoveredJson: '["sub-a"]' }))).toBe("1");
+    expect(formatCollectionRunSubscriptionsLabel(run({ subscriptionsCoveredJson: '["sub-a"]' }))).toBe(
+      "1 subscription covered.",
+    );
+    expect(
+      formatCollectionRunSubscriptionsLabel(run({ subscriptionsCoveredJson: '["sub-a","sub-b","sub-c"]' })),
+    ).toBe("3 subscriptions covered.");
   });
 });

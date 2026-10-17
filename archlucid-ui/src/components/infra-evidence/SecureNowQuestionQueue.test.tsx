@@ -297,7 +297,7 @@ describe("SecureNowQuestionQueue", () => {
 
     render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
     fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
-    fireEvent.click(screen.getByRole("button", { name: "Not sure" }));
+    fireEvent.click(screen.getByRole("button", { name: "Not sure. This does not store an answer." }));
 
     await waitFor(() => expect(screen.getByText("No questions match this filter.")).toBeInTheDocument());
     expect(mocks.answerQuestion).not.toHaveBeenCalled();
@@ -324,7 +324,7 @@ describe("SecureNowQuestionQueue", () => {
     render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
     fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
     fireEvent.click(screen.getByRole("button", { name: "Yes" }));
-    fireEvent.click(screen.getByRole("button", { name: "Continue" }));
+    fireEvent.click(screen.getByRole("button", { name: "Save answer" }));
 
     await waitFor(() => {
       expect(mocks.confirmConnection).toHaveBeenCalledWith("snapshot-1", {
@@ -348,7 +348,7 @@ describe("SecureNowQuestionQueue", () => {
 
     render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
     fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
-    fireEvent.click(screen.getByRole("button", { name: "Not sure" }));
+    fireEvent.click(screen.getByRole("button", { name: "Not sure. This does not store an answer." }));
 
     expect(
       await screen.findByText("Should other-resource connect to a peer, or stand alone?"),
@@ -360,7 +360,7 @@ describe("SecureNowQuestionQueue", () => {
 
     const view = render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
     fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
-    fireEvent.click(screen.getByRole("button", { name: "Not sure" }));
+    fireEvent.click(screen.getByRole("button", { name: "Not sure. This does not store an answer." }));
 
     view.rerender(<SecureNowQuestionQueue snapshotId="snapshot-2" />);
     fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));

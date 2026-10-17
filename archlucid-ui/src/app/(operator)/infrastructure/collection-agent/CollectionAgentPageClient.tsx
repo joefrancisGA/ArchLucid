@@ -155,9 +155,9 @@ export function CollectionAgentPageClient(): React.JSX.Element {
     ? null
     : toApiLoadFailure(triggerMutation.error);
   const successfulRunLabel = health.successfulRun === null
-    ? "No successful run stored"
+    ? "No successful run recorded"
     : health.successfulRun.finishedUtc === null || health.successfulRun.finishedUtc === undefined
-      ? "Finish time was not stored for the last successful run."
+      ? "Last successful run finish time was not stored."
       : `Last successful run ${formatRelativeTime(health.successfulRun.finishedUtc)}`;
 
   if (query.isPending) {
@@ -202,7 +202,7 @@ export function CollectionAgentPageClient(): React.JSX.Element {
       <section className="space-y-2" aria-labelledby="collection-agent-health-heading">
         <h2 id="collection-agent-health-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>Collection health</h2>
         <div className="flex flex-wrap items-center gap-3">
-          <StatusTag kind={health.kind} label={health.label} />
+          {runs.length > 0 ? <StatusTag kind={health.kind} label={health.label} /> : null}
           <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{successfulRunLabel}</span>
         </div>
       </section>
@@ -210,7 +210,9 @@ export function CollectionAgentPageClient(): React.JSX.Element {
       <section className="space-y-2" aria-labelledby="collection-agent-schedule-heading">
         <h2 id="collection-agent-schedule-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>Schedule</h2>
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-          {reportedSchedule ?? "Collection schedule was not stored."}
+          {reportedSchedule
+            ? `Schedule reported on a collection run: ${reportedSchedule}`
+            : "Collection schedule was not stored."}
         </p>
       </section>
 

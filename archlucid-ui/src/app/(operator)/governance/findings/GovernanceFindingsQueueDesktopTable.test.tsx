@@ -138,6 +138,7 @@ describe("GovernanceFindingsQueueDesktopTable", () => {
 
     expect(screen.queryByRole("link", { name: "Review pending" })).toBeNull();
     expect(screen.getByText("Review pending")).toBeInTheDocument();
+    expect(screen.getByText("Review id was not stored.")).toBeInTheDocument();
   });
 
   it("marks grouped rows opened through the supplied callback", async () => {
@@ -173,15 +174,19 @@ describe("GovernanceFindingsQueueDesktopTable", () => {
     expect(renderedRows).toHaveLength(rows.length + 1);
   });
 
-  it("explains confidence is not used on decision rows", () => {
-    render(
-      <GovernanceFindingsQueueDesktopTable
-        rows={[{ ...sampleRow(0), recordKind: "decision" }]}
-        buyerPolishedShell={true}
-      />,
+  it("explains severity does not apply on decision rows in both shells (P-11)", () => {
+    const decisionRow = { ...sampleRow(0), recordKind: "decision" as const };
+
+    const { unmount } = render(
+      <GovernanceFindingsQueueDesktopTable rows={[decisionRow]} buyerPolishedShell={true} />,
     );
 
-    expect(screen.getByText("Not used on decision rows")).toBeInTheDocument();
+    expect(screen.getByText("Severity does not apply to recorded decision rows.")).toBeInTheDocument();
+    unmount();
+
+    render(<GovernanceFindingsQueueDesktopTable rows={[decisionRow]} buyerPolishedShell={false} />);
+
+    expect(screen.getByText("Severity does not apply to recorded decision rows.")).toBeInTheDocument();
   });
 
   it("preserves zero age and explains when age was not stored", () => {
