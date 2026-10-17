@@ -5,13 +5,16 @@ import { cloudInventoryPlatformLabel } from "@/lib/cloud-inventory-platform";
 import type { ProductLineId } from "@/lib/product-line/product-line-id";
 import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
 import { SECURENOW_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
-import { SECURENOW_NAV_LABELS } from "@/lib/product-line/securenow-nav-labels";
+import { resolveSecureNowPageHeading } from "@/lib/product-line/securenow-page-heading";
 import { SETTINGS_ROOT_PATH } from "@/lib/settings-admin-route-paths";
 
 export const EXTRACT_UPLOAD_SETTINGS_PAGE_TITLE = "Extract & upload" as const;
 
-export const EXTRACT_UPLOAD_SETTINGS_PAGE_TITLE_SECURENOW =
-  SECURENOW_NAV_LABELS[SECURENOW_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH] ?? "Manual Upload";
+export const EXTRACT_UPLOAD_SETTINGS_PAGE_TITLE_SECURENOW = resolveSecureNowPageHeading(
+  "security",
+  "Manual upload",
+  SECURENOW_INFRASTRUCTURE_EXTRACT_UPLOAD_PATH,
+);
 
 export const EXTRACT_UPLOAD_SETTINGS_PAGE_LOADING_SUBTITLE = "Loading extract and upload workspace…" as const;
 
