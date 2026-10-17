@@ -35,7 +35,8 @@ import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platf
 const SECURENOW_FINDINGS_QUEUE_HUB: PageContextualHelpEntry = {
   whatIsThisPage:
     "Triage open findings raised by ARC-AMPE policy packs against connected cloud inventory evidence in this workspace.",
-  whatToDoNext: "Open a finding, assign an owner, and follow the resource evidence hub or audit lineage when context is missing.",
+  whatToDoNext:
+    "Open a finding, assign an owner, and follow the resource evidence hub or audit lineage when context is missing. Select one queue row to load path inspect below the table, then press Alt+I (Focus path inspect) to jump to hops, confidence band, and cut points.",
   whyEmpty: "Rows appear after policy packs apply to connected inventory — not after security reviews finalize.",
   whereToConfigurePrerequisite: "Assign ARC-AMPE policy packs and connect Azure before expecting inventory-backed findings.",
   whatToDoNextAction: {
@@ -48,6 +49,8 @@ const SECURENOW_FINDINGS_QUEUE_HUB: PageContextualHelpEntry = {
   },
   taskSteps: [
     "Open a finding to inspect severity, evidence, and owners.",
+    "Select one findings queue row to load path inspect — ordinal confidence bands and weakest-hop callouts are advisory, not live Azure changes.",
+    "Press Alt+I (Focus path inspect) when the panel is below the fold.",
     "Assign owners or continue your assigned queue.",
     "Follow resource explorer or audit lineage when evidence context is missing.",
   ],
@@ -88,7 +91,8 @@ const SECURENOW_NOTIFICATIONS_HUB: PageContextualHelpEntry = {
 const SECURENOW_ASSIGNED_TO_ME_FINDINGS: PageContextualHelpEntry = {
   whatIsThisPage:
     "Your personal queue of open findings assigned to you for remediation and follow-up in this workspace.",
-  whatToDoNext: "Open the continue-oldest strip or a row to work the next assigned finding.",
+  whatToDoNext:
+    "Open the continue-oldest strip or a row to work the next assigned finding. Select one assigned row to load path inspect, then press Alt+I (Focus path inspect) for hops, band, and cut points.",
   whyEmpty:
     "Nothing is assigned to you yet — the queue uses the assigned-to-me register and excludes closed or other owners' rows.",
   whereToConfigurePrerequisite:
@@ -104,6 +108,7 @@ const SECURENOW_ASSIGNED_TO_ME_FINDINGS: PageContextualHelpEntry = {
   taskSteps: [
     "Use continue oldest when the strip is visible.",
     "Open a row to inspect evidence and owners.",
+    "Select one assigned row to load path inspect; use Alt+I (Focus path inspect) to focus the panel.",
     "Return to policy packs when no findings exist because packs never ran.",
   ],
 };

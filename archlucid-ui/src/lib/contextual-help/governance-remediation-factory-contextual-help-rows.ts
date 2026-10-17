@@ -13,7 +13,7 @@ const GOVERNANCE_REMEDIATION_FACTORY_HUB_CONTEXTUAL_HELP = {
   whatIsThisPage:
     "Remediation factory — explainable prioritization, executive metrics, ranked architect paths, and a priority queue of operational security findings. Advisory only — no cloud apply.",
   whatToDoNext:
-    "Compare architect outcome metrics across two inventory snapshots, select a ranked path or priority finding, then inspect hops, rank breakdown, and optional simulator explanations.",
+    "Compare architect outcome metrics across two inventory snapshots, select a ranked path or priority finding, then inspect hops, rank breakdown, and optional simulator explanations. The same path inspect panel is on SecureNow Findings and Assigned to me when you select one queue row.",
   whyEmpty: "No open operational security findings to rank and no architect paths for the current scope.",
   whereToConfigurePrerequisite:
     "Inventory snapshots from Azure connections or extract and upload must exist before architect metrics, ranked paths, and path inspect panels populate.",
@@ -27,7 +27,7 @@ const GOVERNANCE_REMEDIATION_FACTORY_HUB_CONTEXTUAL_HELP = {
   },
   taskSteps: [
     "Review executive metrics and architect outcome metrics (SA-11) — ordinal bands only, no percentage confidence.",
-    "Select a ranked architect path or priority finding row; path inspect loads hops, rank, and optional simulator explanation.",
+    "Select a ranked architect path or priority finding row; path inspect loads hops, rank, and optional simulator explanation (Alt+I focuses the panel here and on Findings / Assigned to me).",
     "Run the advisory score simulator on a finding when IE-15 ranking needs explanation — not a live scanner feed.",
     "Follow the finding or open remediation patterns when coverage gaps block automation.",
   ],
