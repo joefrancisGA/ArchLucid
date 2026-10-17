@@ -89,9 +89,10 @@ public sealed class InventoryDiagramExcellenceDataFlowInStageHubLayoutTests
 
         CountHubMarkers(svg).Should().Be(1);
         double stageOneX = NodeCenterX(svg, "landing");
-        double stageTwoSpokeX = NodeCenterX(svg, "sink_sql");
+        double stageTwoSpokeX = NodeCenterX(svg, "st0");
 
         stageOneX.Should().BeLessThan(stageTwoSpokeX);
+        CrossStageEdgePathMustAvoidSpokeCards(ast, svg, "landing", "adf", ["st0", "st1", "st2", "st3"]);
     }
 
     private static DiagramAst BuildAdfFourSameStorageStageAst()
@@ -191,15 +192,18 @@ public sealed class InventoryDiagramExcellenceDataFlowInStageHubLayoutTests
             [
                 Node("landing", "landing", "Microsoft.Storage/storageAccounts", "stage-1", 0),
                 Node("adf", "factory", "Microsoft.DataFactory/factories", "stage-2", 0),
-                Node("sink_sql", "sql-db", "Microsoft.Sql/servers/databases", "stage-2", 1),
-                Node("sink_storage", "lake", "Microsoft.Storage/storageAccounts", "stage-2", 2),
-                Node("sink_eventhub", "events", "Microsoft.EventHub/namespaces", "stage-2", 3),
+                Node("st0", "lake-0", "Microsoft.Storage/storageAccounts", "stage-2", 1),
+                Node("st1", "lake-1", "Microsoft.Storage/storageAccounts", "stage-2", 2),
+                Node("st2", "lake-2", "Microsoft.Storage/storageAccounts", "stage-2", 3),
+                Node("st3", "lake-3", "Microsoft.Storage/storageAccounts", "stage-2", 4),
             ],
             Edges =
             [
-                Edge("adf", "sink_sql"),
-                Edge("adf", "sink_storage"),
-                Edge("adf", "sink_eventhub"),
+                Edge("landing", "adf"),
+                Edge("adf", "st0"),
+                Edge("adf", "st1"),
+                Edge("adf", "st2"),
+                Edge("adf", "st3"),
             ],
         };
     }
@@ -253,5 +257,105 @@ public sealed class InventoryDiagramExcellenceDataFlowInStageHubLayoutTests
     private static DiagramEdge Edge(string fromNodeId, string toNodeId)
     {
         return new DiagramEdge { FromNodeId = fromNodeId, ToNodeId = toNodeId, Label = "writes" };
+    }
+
+    private static void CrossStageEdgePathMustAvoidSpokeCards(
+        DiagramAst ast,
+        XDocument svg,
+        string fromNodeId,
+        string toNodeId,
+        IReadOnlyList<string> spokeNodeIds)
+    {
+        DiagramForestLayoutOptions options = new();
+        DiagramForestCanvasLabelContext labelContext = DiagramForestCanvasLabelContext.Create(
+            ast.Nodes,
+            options,
+            ast.Edges,
+            isDataFlow: true);
+        DiagramForestDataFlowColumnLayout.Result layout = DiagramForestDataFlowColumnLayout.Plan(
+            ast.Nodes,
+            ast.Subgraphs,
+            options,
+            labelContext,
+            ast.Edges);
+        DiagramForestDataFlowColumnLayout.NodePlacement from = layout.Placements.Single(placement =>
+            string.Equals(placement.Node.NodeId, fromNodeId, StringComparison.Ordinal));
+        DiagramForestDataFlowColumnLayout.NodePlacement to = layout.Placements.Single(placement =>
+            string.Equals(placement.Node.NodeId, toNodeId, StringComparison.Ordinal));
+        List<DiagramResourceGroupPacker.NodePlacementBounds> bounds = layout.Placements
+            .Select(placement => new DiagramResourceGroupPacker.NodePlacementBounds(
+                placement.Node,
+                placement.X,
+                placement.Y,
+                placement.Width,
+                placement.Height,
+                FrameCellId: null))
+            .ToList();
+        DiagramForestOrthogonalEdgeRouter.RouteResult? route = DiagramForestDataFlowEdgeRouter.TryRoute(
+            from,
+            to,
+            layout.Columns,
+            bounds,
+            from.Node.NodeId,
+            to.Node.NodeId,
+            options);
+
+        route.Should().NotBeNull();
+
+        XNamespace svgNamespace = svg.Root!.Name.Namespace;
+        XElement? edgePath = svg.Descendants()
+            .FirstOrDefault(element =>
+                string.Equals(element.Name.LocalName, "g", StringComparison.Ordinal)
+                && string.Equals((string?)element.Attribute("class"), "edge", StringComparison.Ordinal)
+                && string.Equals(element.Element(svgNamespace + "title")?.Value, "writes", StringComparison.Ordinal))
+            ?.Elements()
+            .FirstOrDefault(element =>
+                string.Equals(element.Name.LocalName, "path", StringComparison.Ordinal)
+                && string.Equals((string?)element.Attribute("class"), "edge-path", StringComparison.Ordinal));
+
+        edgePath.Should().NotBeNull();
+
+        foreach (string spokeId in spokeNodeIds)
+        {
+            DiagramForestDataFlowColumnLayout.NodePlacement spoke = layout.Placements.Single(placement =>
+                string.Equals(placement.Node.NodeId, spokeId, StringComparison.Ordinal));
+            PathInteriorMustNotIntersectRect(route!, spoke, inflateBy: 1.0d).Should().BeTrue(spokeId);
+        }
+    }
+
+    private static bool PathInteriorMustNotIntersectRect(
+        DiagramForestOrthogonalEdgeRouter.RouteResult route,
+        DiagramForestDataFlowColumnLayout.NodePlacement placement,
+        double inflateBy)
+    {
+        foreach ((double x1, double y1, double x2, double y2) in route.Segments)
+        {
+            for (double t = 0.1d; t <= 0.9d; t += 0.1d)
+            {
+                double px = x1 + (t * (x2 - x1));
+                double py = y1 + (t * (y2 - y1));
+
+                if (PointInInflatedRectInterior(px, py, placement, inflateBy))
+                {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    private static bool PointInInflatedRectInterior(
+        double x,
+        double y,
+        DiagramForestDataFlowColumnLayout.NodePlacement placement,
+        double inflateBy)
+    {
+        double left = placement.X - inflateBy;
+        double top = placement.Y - inflateBy;
+        double right = placement.X + placement.Width + inflateBy;
+        double bottom = placement.Y + placement.Height + inflateBy;
+
+        return x > left && x < right && y > top && y < bottom;
     }
 }

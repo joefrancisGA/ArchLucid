@@ -50,6 +50,7 @@ internal static class DiagramForestDataFlowEdgeRouter
         double fromRightX = from.X + from.Width;
         double toLeftX = to.X;
         int columnDelta = toColumnIndex - fromColumnIndex;
+        double skyLaneY = options.Padding + (options.DataFlowSkyLaneHeight / 2.0d);
 
         if (columnDelta == 0)
         {
@@ -66,19 +67,72 @@ internal static class DiagramForestDataFlowEdgeRouter
         if (columnDelta == 1)
         {
             double gutterCenterX = ResolveColumnGutterX(orderedColumns, fromColumnIndex, options);
-            List<(double X1, double Y1, double X2, double Y2)> segments =
-            [
-                (fromRightX, fromCenterY, gutterCenterX, fromCenterY),
-                (gutterCenterX, fromCenterY, gutterCenterX, toCenterY),
-                (gutterCenterX, toCenterY, toLeftX, toCenterY),
-            ];
 
-            return ValidateAndBuild(segments, obstacles);
+            if (to.IsHubSpokeHub)
+            {
+                DiagramForestOrthogonalEdgeRouter.RouteResult? hubApproach = TryBuildHubApproachRoute(
+                    fromRightX,
+                    fromCenterY,
+                    to,
+                    gutterCenterX,
+                    options,
+                    obstacles);
+
+                if (hubApproach is not null)
+                {
+                    return hubApproach;
+                }
+
+                return TryBuildSkyLaneHubApproachRoute(
+                    fromRightX,
+                    fromCenterY,
+                    to,
+                    gutterCenterX,
+                    gutterCenterX,
+                    skyLaneY,
+                    options,
+                    obstacles,
+                    usedFallback: true);
+            }
+            else
+            {
+                List<(double X1, double Y1, double X2, double Y2)> segments =
+                [
+                    (fromRightX, fromCenterY, gutterCenterX, fromCenterY),
+                    (gutterCenterX, fromCenterY, gutterCenterX, toCenterY),
+                    (gutterCenterX, toCenterY, toLeftX, toCenterY),
+                ];
+
+                DiagramForestOrthogonalEdgeRouter.RouteResult? adjacentRoute = ValidateAndBuild(segments, obstacles);
+
+                if (adjacentRoute is not null)
+                {
+                    return adjacentRoute;
+                }
+            }
         }
 
         double sourceGutterX = ResolveColumnGutterX(orderedColumns, fromColumnIndex, options);
         double targetGutterX = ResolveColumnGutterX(orderedColumns, toColumnIndex - 1, options);
-        double skyLaneY = options.Padding + (options.DataFlowSkyLaneHeight / 2.0d);
+
+        if (to.IsHubSpokeHub)
+        {
+            DiagramForestOrthogonalEdgeRouter.RouteResult? hubSkyLane = TryBuildSkyLaneHubApproachRoute(
+                fromRightX,
+                fromCenterY,
+                to,
+                sourceGutterX,
+                targetGutterX,
+                skyLaneY,
+                options,
+                obstacles);
+
+            if (hubSkyLane is not null)
+            {
+                return hubSkyLane;
+            }
+        }
+
         List<(double X1, double Y1, double X2, double Y2)> skipSegments =
         [
             (fromRightX, fromCenterY, sourceGutterX, fromCenterY),
@@ -88,7 +142,86 @@ internal static class DiagramForestDataFlowEdgeRouter
             (targetGutterX, toCenterY, toLeftX, toCenterY),
         ];
 
-        return ValidateAndBuild(skipSegments, obstacles);
+        DiagramForestOrthogonalEdgeRouter.RouteResult? skipRoute = ValidateAndBuild(skipSegments, obstacles);
+
+        if (skipRoute is not null)
+        {
+            return skipRoute;
+        }
+
+        if (to.IsHubSpokeHub)
+        {
+            return TryBuildSkyLaneHubApproachRoute(
+                fromRightX,
+                fromCenterY,
+                to,
+                sourceGutterX,
+                targetGutterX,
+                skyLaneY,
+                options,
+                obstacles,
+                usedFallback: true);
+        }
+
+        return null;
+    }
+
+    private static DiagramForestOrthogonalEdgeRouter.RouteResult? TryBuildHubApproachRoute(
+        double fromRightX,
+        double fromCenterY,
+        DiagramForestDataFlowColumnLayout.NodePlacement hub,
+        double gutterCenterX,
+        DiagramForestLayoutOptions options,
+        IReadOnlyList<DiagramForestOrthogonalEdgeRouter.Rect> obstacles)
+    {
+        double hubCenterY = hub.Y + (hub.Height / 2.0d);
+        double hubLeftX = hub.X;
+        double hubGapX = hubLeftX - (options.NodeHorizontalGap / 2.0d);
+        List<(double X1, double Y1, double X2, double Y2)> segments =
+        [
+            (fromRightX, fromCenterY, gutterCenterX, fromCenterY),
+            (gutterCenterX, fromCenterY, hubGapX, fromCenterY),
+            (hubGapX, fromCenterY, hubGapX, hubCenterY),
+            (hubGapX, hubCenterY, hubLeftX, hubCenterY),
+        ];
+
+        return ValidateAndBuild(segments, obstacles);
+    }
+
+    private static DiagramForestOrthogonalEdgeRouter.RouteResult? TryBuildSkyLaneHubApproachRoute(
+        double fromRightX,
+        double fromCenterY,
+        DiagramForestDataFlowColumnLayout.NodePlacement hub,
+        double sourceGutterX,
+        double targetGutterX,
+        double skyLaneY,
+        DiagramForestLayoutOptions options,
+        IReadOnlyList<DiagramForestOrthogonalEdgeRouter.Rect> obstacles,
+        bool usedFallback = false)
+    {
+        double hubCenterY = hub.Y + (hub.Height / 2.0d);
+        double hubLeftX = hub.X;
+        double hubGapX = hubLeftX - (options.NodeHorizontalGap / 2.0d);
+        List<(double X1, double Y1, double X2, double Y2)> segments =
+        [
+            (fromRightX, fromCenterY, sourceGutterX, fromCenterY),
+            (sourceGutterX, fromCenterY, sourceGutterX, skyLaneY),
+            (sourceGutterX, skyLaneY, hubGapX, skyLaneY),
+            (hubGapX, skyLaneY, hubGapX, hubCenterY),
+            (hubGapX, hubCenterY, hubLeftX, hubCenterY),
+        ];
+
+        DiagramForestOrthogonalEdgeRouter.RouteResult? route = ValidateAndBuild(segments, obstacles);
+
+        if (route is null)
+        {
+            return null;
+        }
+
+        return new DiagramForestOrthogonalEdgeRouter.RouteResult(
+            route.PathData,
+            route.Segments,
+            usedFallback);
     }
 
     private static int FindColumnIndex(
