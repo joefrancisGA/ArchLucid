@@ -36,6 +36,8 @@ describe("HelpGovernanceInfrastructureDiagramsGuideView", () => {
     ).toHaveAttribute("href", "#help-governance-infrastructure-diagrams-primary-content");
     expect(screen.getAllByTestId("help-governance-infrastructure-diagrams-orientation-strip")).toHaveLength(1);
     expect(screen.getAllByText(GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_HELP_CLAIM_DISCIPLINE).length).toBeGreaterThan(0);
+    expect(GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_HELP_CLAIM_DISCIPLINE).not.toMatch(/architecture findings/i);
+    expect(GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_HELP_CLAIM_DISCIPLINE).not.toMatch(/architecture-review diagram intake/i);
     expect(screen.getByTestId("help-governance-infrastructure-diagrams-partitioned-body")).toHaveTextContent(
       /too large/i,
     );

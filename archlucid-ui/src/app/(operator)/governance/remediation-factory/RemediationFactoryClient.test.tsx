@@ -193,6 +193,16 @@ describe("RemediationFactoryClient", () => {
     mockRankedPathsQuery();
   });
 
+  it("names SecureNow findings on the priority queue without calling them architecture findings", () => {
+    render(<RemediationFactoryClient />);
+
+    const audienceLine = screen.getByTestId("remediation-factory-findings-audience-line");
+
+    expect(audienceLine).toHaveTextContent("These are SecureNow findings for the current inventory snapshot.");
+    expect(audienceLine).not.toHaveTextContent(/not architecture review findings/i);
+    expect(audienceLine).not.toHaveTextContent(/not architecture findings/i);
+  });
+
   it("renders executive cards, keyboard-selectable tables, help, context strip, and path inspect panel", () => {
     render(<RemediationFactoryClient />);
 
