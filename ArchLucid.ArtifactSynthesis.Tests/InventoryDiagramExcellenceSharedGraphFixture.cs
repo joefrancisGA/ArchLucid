@@ -82,11 +82,71 @@ public static class InventoryDiagramExcellenceSharedGraphFixture
             "Microsoft.Compute/virtualMachines",
             "noise-rg",
             GraphTopologyCategories.Compute));
+        graph.Nodes.Add(CreateTopologyNode(
+            "vnet-2",
+            "peer-vnet",
+            "Microsoft.Network/virtualNetworks",
+            "peer-rg",
+            GraphTopologyCategories.Network));
+        graph.Nodes.Add(CreateTopologyNode(
+            "workflow-1",
+            "notify",
+            "Microsoft.Logic/workflows",
+            "integration-rg",
+            GraphTopologyCategories.Compute));
+        graph.Nodes.Add(CreateTopologyNode(
+            "connection-a",
+            "Office 365",
+            "Microsoft.Web/connections",
+            "integration-rg",
+            GraphTopologyCategories.Compute));
+        graph.Nodes.Add(CreateTopologyNode(
+            "connection-b",
+            "Office 365",
+            "Microsoft.Web/connections",
+            "integration-rg",
+            GraphTopologyCategories.Compute));
+        graph.Nodes.Add(CreateTopologyNode(
+            "adf-1",
+            "etl",
+            "Microsoft.DataFactory/factories",
+            "data-rg",
+            GraphTopologyCategories.Data));
 
         graph.Edges.Add(CitedEdge("vm-1", "nic-1", AzureInventoryRelationshipAssociationTypes.NicToSubnet));
         graph.Edges.Add(CitedEdge("nic-1", "subnet-1", AzureInventoryRelationshipAssociationTypes.NicToSubnet));
         graph.Edges.Add(CitedEdge("subnet-1", "vnet-1", GraphEdgeTypes.Contains));
         graph.Edges.Add(CitedEdge("pe-1", "subnet-1", AzureInventoryRelationshipAssociationTypes.PeToSubnet));
+        graph.Edges.Add(new GraphEdge
+        {
+            EdgeId = "vnet-peering",
+            FromNodeId = "vnet-1",
+            ToNodeId = "vnet-2",
+            EdgeType = GraphEdgeTypes.PeersWith,
+            Label = GraphEdgeTypes.PeersWith,
+            Weight = 1d,
+            InferenceSource = GraphEdgeInferenceSources.InventoryVnetPeering,
+        });
+        graph.Edges.Add(new GraphEdge
+        {
+            EdgeId = "workflow-connection-a",
+            FromNodeId = "workflow-1",
+            ToNodeId = "connection-a",
+            EdgeType = "uses",
+            Label = "uses",
+            Weight = 1d,
+            InferenceSource = GraphEdgeInferenceSources.InventoryLogicAppConnection,
+        });
+        graph.Edges.Add(new GraphEdge
+        {
+            EdgeId = "workflow-connection-b",
+            FromNodeId = "workflow-1",
+            ToNodeId = "connection-b",
+            EdgeType = "uses",
+            Label = "uses",
+            Weight = 1d,
+            InferenceSource = GraphEdgeInferenceSources.InventoryLogicAppConnection,
+        });
 
         return graph;
     }
