@@ -65,6 +65,17 @@ public sealed class DiagramEdgeLabelHumanizerTests
     }
 
     [Fact]
+    public void ResolveDisplayLabel_maps_human_declared_connections_to_declared()
+    {
+        DiagramEdgeLabelHumanizer.ResolveDisplayLabel(
+                null,
+                GraphEdgeTypes.ConnectsTo,
+                GraphEdgeInferenceSources.HumanDeclaredConnection)
+            .Should()
+            .Be("declared");
+    }
+
+    [Fact]
     public void HumanizeLabel_preserves_custom_non_canonical_labels()
     {
         DiagramEdgeLabelHumanizer.HumanizeLabel("reads").Should().Be("reads");

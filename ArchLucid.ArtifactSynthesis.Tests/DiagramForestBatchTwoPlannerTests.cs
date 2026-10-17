@@ -1,6 +1,7 @@
 using ArchLucid.ArtifactSynthesis.Compilers;
 using ArchLucid.ArtifactSynthesis.Layout;
 using ArchLucid.ArtifactSynthesis.Models;
+using ArchLucid.KnowledgeGraph;
 
 using FluentAssertions;
 
@@ -56,7 +57,7 @@ public sealed class DiagramForestBatchTwoPlannerTests
     }
 
     [Fact]
-    public void Singleton_tail_planner_preserves_each_resource_group_node()
+    public void Singleton_tail_planner_collapses_isolated_singleton_groups()
     {
         List<DiagramNode> nodes =
         [
@@ -93,11 +94,59 @@ public sealed class DiagramForestBatchTwoPlannerTests
                 nodes,
                 []);
 
-        result.Nodes.Should().HaveCount(11);
-        result.Nodes.Should().NotContain(node => node.Label.StartsWith("Other resource groups", StringComparison.Ordinal));
-        result.Nodes.Should().Contain(node => node.Label == "singleton-0");
-        result.Nodes.Should().Contain(node => node.ArmResourceGroup == "rg-8");
+        result.Nodes.Should().HaveCount(3);
+        result.Nodes.Should().ContainSingle(node =>
+            node.IsCollapsedResourceGroupTail
+            && node.Label == "Other resource groups (9)");
+        result.Nodes.Should().NotContain(node => node.NodeId == "singleton-0");
         result.Nodes.Should().Contain(node => node.NodeId == "large");
+    }
+
+    [Fact]
+    public void Singleton_tail_planner_keeps_singleton_with_cited_cross_group_edge()
+    {
+        DiagramNode singleton = new()
+        {
+            NodeId = "singleton",
+            Label = "singleton",
+            ArmResourceGroup = "rg-singleton",
+            OrderKey = 0,
+        };
+        DiagramNode hub = new()
+        {
+            NodeId = "hub",
+            Label = "hub",
+            ArmResourceGroup = "rg-hub",
+            OrderKey = 1,
+        };
+        List<DiagramNode> nodes = [singleton, hub];
+
+        for (int index = 0; index < DiagramForestSingletonTailPlanner.SingletonThreshold; index++)
+        {
+            nodes.Add(new DiagramNode
+            {
+                NodeId = $"tail-{index}",
+                Label = $"tail-{index}",
+                ArmResourceGroup = $"rg-tail-{index}",
+                OrderKey = index + 2,
+            });
+        }
+
+        DiagramEdge peering = new()
+        {
+            FromNodeId = singleton.NodeId,
+            ToNodeId = hub.NodeId,
+            Label = GraphEdgeTypes.PeersWith,
+            InferenceSource = GraphEdgeInferenceSources.InventoryVnetPeering,
+        };
+
+        DiagramForestSingletonTailPlanner.Result result =
+            DiagramForestSingletonTailPlanner.Apply(
+                "Azure inventory (FullSubscription)",
+                nodes,
+                [peering]);
+
+        result.Nodes.Should().Contain(node => node.NodeId == singleton.NodeId);
     }
 
     [Theory]
