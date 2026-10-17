@@ -137,7 +137,8 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
                     placement.Height,
                     placement.Metrics,
                     FrameCellId: null,
-                    DataFlowColumnIndex: placement.ColumnIndex))
+                    DataFlowColumnIndex: placement.ColumnIndex,
+                    IsHubSpokeHub: placement.IsHubSpokeHub))
                 .ToList();
         }
         else
@@ -1288,38 +1289,22 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
         DiagramForestLayoutOptions options,
         DiagramForestCanvasLabelContext labelContext)
     {
-        DiagramNode hub = DiagramHubSpokeLayerPlanner.ResolveHub(component, visibleEdges)
-            ?? component.OrderBy(node => node.OrderKey).ThenBy(node => node.NodeId, StringComparer.Ordinal).First();
-        IReadOnlyList<DiagramNode> spokes = DiagramHubSpokeLayerPlanner.OrderSpokes(hub, component, visibleEdges);
-        List<NodePlacement> spokePlacements = [];
-        double spokeY = 0.0d;
-        double spokeColumnWidth = 0.0d;
+        DiagramForestHubSpokeInteriorLayout.InteriorBounds bounds = DiagramForestHubSpokeInteriorLayout.LayoutComponent(
+            component,
+            visibleEdges,
+            options,
+            labelContext);
 
-        foreach (DiagramNode spoke in spokes)
-        {
-            DiagramForestNodeMetrics metrics = DiagramForestNodeMetricsCalculator.Measure(spoke, options, labelContext);
-            spokePlacements.Add(new NodePlacement(spoke, 0, spokeY, metrics.Width, metrics.Height, metrics));
-            spokeColumnWidth = Math.Max(spokeColumnWidth, metrics.Width);
-            spokeY += metrics.Height + options.NodeVerticalGap;
-        }
-
-        DiagramForestNodeMetrics hubMetrics = DiagramForestNodeMetricsCalculator.Measure(hub, options, labelContext);
-        double spokeStackHeight = spokeY > 0.0d ? spokeY - options.NodeVerticalGap : hubMetrics.Height;
-        double hubY = Math.Max(0.0d, (spokeStackHeight - hubMetrics.Height) / 2.0d);
-        double hubX = spokeColumnWidth + options.NodeHorizontalGap;
-        List<NodePlacement> placements = spokePlacements
-            .Select(placement => placement with { X = (spokeColumnWidth - placement.Width) / 2.0d })
+        return bounds.Placements
+            .Select(placement => new NodePlacement(
+                placement.Node,
+                placement.LocalX,
+                placement.LocalY,
+                placement.Width,
+                placement.Height,
+                placement.Metrics,
+                IsHubSpokeHub: placement.IsHubSpokeHub))
             .ToList();
-        placements.Add(new NodePlacement(
-            hub,
-            hubX,
-            hubY,
-            hubMetrics.Width,
-            hubMetrics.Height,
-            hubMetrics,
-            IsHubSpokeHub: true));
-
-        return placements;
     }
 
     private static List<NodePlacement> LayoutTopDown(

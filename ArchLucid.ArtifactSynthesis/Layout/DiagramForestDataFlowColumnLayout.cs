@@ -1,3 +1,4 @@
+using ArchLucid.ArtifactSynthesis.Compilers;
 using ArchLucid.ArtifactSynthesis.Models;
 
 namespace ArchLucid.ArtifactSynthesis.Layout;
@@ -21,7 +22,8 @@ internal static class DiagramForestDataFlowColumnLayout
         double Width,
         double Height,
         DiagramForestNodeMetrics Metrics,
-        int ColumnIndex);
+        int ColumnIndex,
+        bool IsHubSpokeHub = false);
 
     internal sealed record Result(
         IReadOnlyList<NodePlacement> Placements,
@@ -92,33 +94,57 @@ internal static class DiagramForestDataFlowColumnLayout
 
             for (int offset = 0; offset < orderedStage.Count; offset += MaxCardsPerDataFlowSubcolumn)
             {
-                List<(DiagramNode Node, DiagramForestNodeMetrics Metrics)> sized = orderedStage
+                List<DiagramNode> stageBatch = orderedStage
                     .Skip(offset)
                     .Take(MaxCardsPerDataFlowSubcolumn)
-                    .Select(node => (
-                        Node: node,
-                        Metrics: DiagramForestNodeMetricsCalculator.Measure(node, options, labelContext)))
                     .ToList();
-                double columnWidth = sized.Count == 0
-                    ? options.UniformNodeWidth
-                    : sized.Max(item => item.Metrics.Width);
+                HashSet<string> stageBatchIds = stageBatch
+                    .Select(node => node.NodeId)
+                    .ToHashSet(StringComparer.Ordinal);
+                List<DiagramEdge> stageEdges = relevantEdges
+                    .Where(edge => stageBatchIds.Contains(edge.FromNodeId) && stageBatchIds.Contains(edge.ToNodeId))
+                    .ToList();
+                List<List<DiagramNode>> components = DiagramComponentBuilder.BuildConnectedComponents(
+                    stageBatch,
+                    stageEdges);
                 int columnIndex = columns.Count;
-                columns.Add(new ColumnInfo(stageIndex, label, columnX, columnWidth, columnIndex));
-                double nodeY = nodeTop;
+                List<DiagramForestHubSpokeInteriorLayout.InteriorBounds> componentBounds = [];
 
-                foreach ((DiagramNode node, DiagramForestNodeMetrics metrics) in sized)
+                foreach (List<DiagramNode> component in components)
                 {
-                    placements.Add(new NodePlacement(
-                        node,
-                        columnX + ((columnWidth - metrics.Width) / 2.0d),
-                        nodeY,
-                        metrics.Width,
-                        metrics.Height,
-                        metrics,
-                        columnIndex));
-                    nodeY += metrics.Height + options.NodeVerticalGap;
+                    componentBounds.Add(DiagramForestHubSpokeInteriorLayout.LayoutComponent(
+                        component,
+                        stageEdges,
+                        options,
+                        labelContext));
                 }
 
+                double columnWidth = componentBounds.Count == 0
+                    ? options.UniformNodeWidth
+                    : componentBounds.Max(bounds => bounds.Width);
+                double nodeY = nodeTop;
+
+                foreach (DiagramForestHubSpokeInteriorLayout.InteriorBounds bounds in componentBounds)
+                {
+                    double insetX = (columnWidth - bounds.Width) / 2.0d;
+
+                    foreach (DiagramForestHubSpokeInteriorLayout.InteriorPlacement interior in bounds.Placements)
+                    {
+                        placements.Add(new NodePlacement(
+                            interior.Node,
+                            columnX + insetX + interior.LocalX,
+                            nodeY + interior.LocalY,
+                            interior.Width,
+                            interior.Height,
+                            interior.Metrics,
+                            columnIndex,
+                            interior.IsHubSpokeHub));
+                    }
+
+                    nodeY += bounds.Height + options.NodeVerticalGap;
+                }
+
+                columns.Add(new ColumnInfo(stageIndex, label, columnX, columnWidth, columnIndex));
                 columnX += columnWidth + options.DataFlowColumnGutter;
             }
         }
