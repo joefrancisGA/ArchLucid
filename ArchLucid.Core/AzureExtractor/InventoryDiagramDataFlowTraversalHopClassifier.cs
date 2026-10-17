@@ -1,5 +1,4 @@
 using ArchLucid.Contracts.Persistence.Graph;
-using ArchLucid.KnowledgeGraph;
 
 namespace ArchLucid.Core.AzureExtractor;
 
@@ -89,7 +88,7 @@ public static class InventoryDiagramDataFlowTraversalHopClassifier
                 || inferenceSource.Equals("inventory-nic-nsg", StringComparison.OrdinalIgnoreCase)
                 || inferenceSource.Equals("inventory-nsg-policy-attachment", StringComparison.OrdinalIgnoreCase)
                 || inferenceSource.Equals("inventory-diagnostic-destination", StringComparison.OrdinalIgnoreCase)
-                || inferenceSource.Equals(GraphEdgeInferenceSources.InventoryDiagnosticSettingStorage, StringComparison.OrdinalIgnoreCase)
+                || inferenceSource.Equals("inventory-diagnostic-setting-storage", StringComparison.OrdinalIgnoreCase)
                 || inferenceSource.Equals("inventory-subnet-route-table", StringComparison.OrdinalIgnoreCase);
         }
 

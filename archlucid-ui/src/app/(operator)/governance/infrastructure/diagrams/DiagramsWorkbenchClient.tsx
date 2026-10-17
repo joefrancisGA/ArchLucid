@@ -573,10 +573,8 @@ export function DiagramsWorkbenchClient() {
   }, [urlIncludePrivateEndpoints]);
 
   useEffect(() => {
-    setShowNetworkDetails(
-      urlIncludeNetworkDetails || (urlMermaidMode === "full" && urlIncludePrivateEndpoints),
-    );
-  }, [urlIncludeNetworkDetails, urlIncludePrivateEndpoints, urlMermaidMode]);
+    setShowNetworkDetails(urlIncludeNetworkDetails);
+  }, [urlIncludeNetworkDetails]);
 
   useEffect(() => {
     setIncludeRecoveryServices(urlIncludeRecoveryServices);
