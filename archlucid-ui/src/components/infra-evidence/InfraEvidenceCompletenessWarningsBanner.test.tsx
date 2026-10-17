@@ -40,6 +40,27 @@ describe("InfraEvidenceCompletenessWarningsBanner", () => {
     expect(screen.queryByText(/weaker than the underlying authorization facts/)).not.toBeInTheDocument();
   });
 
+  it("renders mode-aware missing class labels from the structured summary", () => {
+    render(
+      <InfraEvidenceCompletenessWarningsBanner
+        warnings={["arg-nic-subnet-missing"]}
+        summary={{
+          mode: "network",
+          visibleNodeCount: 12,
+          visibleEdgeCount: 5,
+          connectedComponentCount: 3,
+          hiddenHopsUsedCount: 2,
+          likelyInCollocationEdgeCount: 0,
+          missingClasses: ["nicToSubnet"],
+          collectedClasses: ["inventory-nic-subnet"],
+        }}
+      />,
+    );
+
+    expect(screen.getByText(/Missing: nicToSubnet/)).toBeInTheDocument();
+    expect(screen.getByText(/\(2 from hidden attachment hops\)/)).toBeInTheDocument();
+  });
+
   it("labels missing completeness summary counts without treating them as zero", () => {
     render(
       <InfraEvidenceCompletenessWarningsBanner
