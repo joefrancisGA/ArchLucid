@@ -250,7 +250,9 @@ Run **IE-01 → IE-04 → IE-02 → IE-03** before audit selectors or Mermaid-fr
 | **IDX-01** | Recapture nested NIC/PE/Logic App/ADF/diagnostic properties | **Shipped** on trunk — do not greenfield |
 | **IDX-02** | Graph-build hop compose + `(from,to,role)` dedupe for every `DiagramMode` | **Shipped** on trunk — do not greenfield |
 | **IDX-03** | Cited hops; no same-RG / single-VNet all-to-all | **Shipped** on trunk — do not greenfield |
-| **IDX-04** | Honest verbs (`in` / `contains` / `peering` / `uses` / …) | IDX-02 (prefer IDX-03) |
+| **IDX-04** | Honest verbs (`in` / `contains` / `peering` / `uses` / …) | **Shipped** on trunk |
+| **IDX-06** | Subscription outer `sub-frame` | **Shipped** on trunk |
+| **IDX-08** | Singleton-RG tail collapse | **Shipped** on trunk |
 | **IDX-05** | Nested VNet → subnet frames (authorized nesting wave) | IDX-04 preferred |
 | **IDX-06** | Subscription outer frame (subscription-scoped modes only) | IDX-05 |
 | **IDX-07** | Role-aware packing + hubs inside frames | IDX-05 |
