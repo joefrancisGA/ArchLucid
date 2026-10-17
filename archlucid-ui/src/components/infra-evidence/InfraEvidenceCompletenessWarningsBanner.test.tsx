@@ -31,6 +31,15 @@ describe("InfraEvidenceCompletenessWarningsBanner", () => {
     expect(screen.getByText(/Role assignment scope is too broad/)).toBeInTheDocument();
   });
 
+  it("uses collection-gap lead copy for logic app missing warnings (P-18)", () => {
+    render(
+      <InfraEvidenceCompletenessWarningsBanner warnings={["logic-app-connections-missing"]} />,
+    );
+
+    expect(screen.getByText(/Some connection lines were not collected/)).toBeInTheDocument();
+    expect(screen.queryByText(/weaker than the underlying authorization facts/)).not.toBeInTheDocument();
+  });
+
   it("labels missing completeness summary counts without treating them as zero", () => {
     render(
       <InfraEvidenceCompletenessWarningsBanner

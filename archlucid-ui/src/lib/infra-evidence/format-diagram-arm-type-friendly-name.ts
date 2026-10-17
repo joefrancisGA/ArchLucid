@@ -27,6 +27,9 @@ const KNOWN_ARM_TYPE_FRIENDLY_NAMES: Readonly<Record<string, string>> = {
   "Microsoft.Databricks/workspaces": "Databricks workspace",
   "Microsoft.PowerBIDedicated/capacities": "Power BI capacity",
   "Microsoft.Fabric/capacities": "Fabric capacity",
+  "Microsoft.Logic/workflows": "Logic App",
+  "Microsoft.Web/connections": "Logic App connection",
+  "Microsoft.Web/staticSites": "Static Web App",
 };
 
 function splitCamelCase(lastSegment: string): string {

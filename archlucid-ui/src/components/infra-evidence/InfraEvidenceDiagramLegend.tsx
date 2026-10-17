@@ -7,9 +7,9 @@ import {
   INFRA_EVIDENCE_DIAGRAM_LEGEND_HOSTNAME_FOOTNOTE,
   INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED,
   INFRA_EVIDENCE_DIAGRAM_LEGEND_OBSERVED,
-  INFRA_EVIDENCE_DIAGRAM_LEGEND_PROBABLE,
   INFRA_EVIDENCE_DIAGRAM_LEGEND_RESOURCE_CATEGORY,
 } from "@/lib/infra-evidence/infra-evidence-diagram-copy";
+import { resolveInfraEvidenceDiagramLegendProbableLine } from "@/lib/infra-evidence/resolve-infra-evidence-diagram-legend-probable-line";
 import {
   hasInfraEvidenceInferredDiagramEdges,
   hasInfraEvidenceDeclaredDiagramEdges,
@@ -72,6 +72,7 @@ export function InfraEvidenceDiagramLegend(props: InfraEvidenceDiagramLegendProp
   const hasInferred = hasInfraEvidenceInferredDiagramEdges(props.outline, props.mermaidSource);
   const accentKinds = collectInfraEvidenceDiagramAccentKinds(props.layoutSvg);
   const hasPrivateEndpointAccess = props.layoutSvg?.includes("private-endpoint-access") === true;
+  const probableLegendLine = resolveInfraEvidenceDiagramLegendProbableLine(props.outline);
   const showConnectorLegend = hasObserved || hasDeclared || hasProbable || hasInferred || hasPrivateEndpointAccess;
 
   if (!showConnectorLegend && accentKinds.length === 0) {
@@ -103,7 +104,7 @@ export function InfraEvidenceDiagramLegend(props: InfraEvidenceDiagramLegendProp
               {hasProbable ? (
                 <li className="flex items-center gap-2">
                   <DiagramStrokeSample style="dashed" />
-                  <span>{INFRA_EVIDENCE_DIAGRAM_LEGEND_PROBABLE}</span>
+                  <span>{probableLegendLine}</span>
                 </li>
               ) : null}
               {hasInferred ? (

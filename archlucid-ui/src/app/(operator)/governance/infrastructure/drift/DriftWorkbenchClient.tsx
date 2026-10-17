@@ -173,13 +173,16 @@ import {
 } from "@/lib/infra-evidence/infra-evidence-drift-last-comparison-storage";
 import { partitionInfraEvidenceLaterSnapshotsForAnchor } from "@/lib/infra-evidence/infra-evidence-drift-later-snapshots";
 import { infraEvidenceSnapshotCaptureStatusTagProps } from "@/lib/infra-evidence/infra-evidence-snapshot-capture-status";
-import { GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
+import {
+  GOVERNANCE_INFRASTRUCTURE_DRIFT_PATH,
+  SECURENOW_INFRASTRUCTURE_DRIFT_PATH,
+} from "@/lib/governance/governance-infrastructure-route-paths";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { CLOUD_CONNECTIONS_PATH } from "@/lib/integrations-nav-paths";
 import { formatInventoryShowingLine } from "@/lib/inventory-showing-count";
 import { formatAbsoluteUpdatedAtTitle } from "@/lib/relative-time";
 import { OPERATOR_FORM_FIELD_LABEL_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { SECURENOW_INFRASTRUCTURE_DRIFT_LABEL } from "@/lib/product-line/securenow-infrastructure-home-copy";
+import { resolveSecureNowPageHeading } from "@/lib/product-line/securenow-page-heading";
 import {
   formatInfraEvidenceDiffLabel,
   formatInfraEvidenceSnapshotLabel,
@@ -223,8 +226,11 @@ type PendingDriftSubscriptionConfirmation =
 
 export function DriftWorkbenchClient() {
   const { productLine } = useProductLine();
-  const pageTitle =
-    productLine === "security" ? SECURENOW_INFRASTRUCTURE_DRIFT_LABEL : GOVERNANCE_INFRASTRUCTURE_DRIFT_PAGE_TITLE;
+  const pageTitle = resolveSecureNowPageHeading(
+    productLine,
+    GOVERNANCE_INFRASTRUCTURE_DRIFT_PAGE_TITLE,
+    SECURENOW_INFRASTRUCTURE_DRIFT_PATH,
+  );
   const buyerPolishedShell = useProductionEvalChrome();
   const router = useRouter();
   const pathname = usePathname() ?? "";

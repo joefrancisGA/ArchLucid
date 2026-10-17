@@ -52,6 +52,7 @@ import {
   formatInfraEvidenceMermaidApiError,
   type InfraEvidenceMermaidRenderQuery,
 } from "@/lib/infra-evidence/infra-evidence-mermaid-api";
+import { resolveDiagramOutlineUnknownNodeFilterScopeForWorkbench } from "@/lib/infra-evidence/diagram-outline-unknown-node-filter";
 import {
   INFRA_DIAGRAMS_CLOUD_RESOURCE_ID_PARAM,
   INFRA_DIAGRAMS_MERMAID_MODE_PARAM,
@@ -119,8 +120,8 @@ import {
   INFRA_EVIDENCE_DIAGRAM_LEGEND_DECLARED,
   INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED,
   INFRA_EVIDENCE_DIAGRAM_LEGEND_OBSERVED,
-  INFRA_EVIDENCE_DIAGRAM_LEGEND_PROBABLE,
 } from "@/lib/infra-evidence/infra-evidence-diagram-copy";
+import { resolveInfraEvidenceDiagramLegendProbableLine } from "@/lib/infra-evidence/resolve-infra-evidence-diagram-legend-probable-line";
 import { formatInfraEvidenceMermaidPngExportError } from "@/lib/infra-evidence/infra-evidence-mermaid-png-export-error";
 import type { InfraEvidenceSnapshotSummary } from "@/lib/infra-evidence/infra-evidence-drift-types";
 import { formatInfraEvidenceDiagramsSnapshotPickerLabel } from "@/lib/infra-evidence/format-infra-evidence-diagrams-snapshot-label";
@@ -1116,6 +1117,13 @@ export function DiagramsWorkbenchClient() {
     () => resolveDiagramCameraFocusNodeIds(appliedSeedNodeId, familyFilteredOutline),
     [appliedSeedNodeId, familyFilteredOutline],
   );
+  const unknownFilterDefaultScope = useMemo(
+    () => resolveDiagramOutlineUnknownNodeFilterScopeForWorkbench({
+      startingSeedId: appliedSeedNodeId,
+      dependencyNeighborhoodMode: selectedMode === "dependencyNeighborhood",
+    }),
+    [appliedSeedNodeId, selectedMode],
+  );
 
   const [cameraFocusNonce, setCameraFocusNonce] = useState(0);
 
@@ -1865,14 +1873,14 @@ export function DiagramsWorkbenchClient() {
       [
         `%% ${INFRA_EVIDENCE_DIAGRAM_LEGEND_OBSERVED}`,
         `%% ${INFRA_EVIDENCE_DIAGRAM_LEGEND_DECLARED}`,
-        `%% ${INFRA_EVIDENCE_DIAGRAM_LEGEND_PROBABLE}`,
+        `%% ${resolveInfraEvidenceDiagramLegendProbableLine(familyFilteredOutline)}`,
         `%% ${INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED}`,
         "",
         mermaidSource,
       ].join("\n"),
       "text/plain;charset=utf-8",
     );
-  }, [effectiveFallbackKey, mermaidExportDisabled, mermaidSource, selectedMode, selectedSnapshotId]);
+  }, [effectiveFallbackKey, familyFilteredOutline, mermaidExportDisabled, mermaidSource, selectedMode, selectedSnapshotId]);
 
   const focusSubscriptionPicker = useCallback(() => {
     document.getElementById("infra-diagrams-subscription-picker")?.focus();
@@ -2721,6 +2729,8 @@ export function DiagramsWorkbenchClient() {
             <InfraEvidenceDiagramOutline
               outline={visibleSeedCatalogOutline}
               onFocusNeighborhood={handleOutlineFocusNeighborhood}
+              startingResourceSeedId={appliedSeedNodeId.trim().length > 0 ? appliedSeedNodeId.trim() : null}
+              unknownFilterDefaultScope={unknownFilterDefaultScope}
             />
           ) : (
             <EnterpriseCompactEmptyState
@@ -2757,6 +2767,7 @@ export function DiagramsWorkbenchClient() {
               onFocusNeighborhood={handleOutlineFocusNeighborhood}
               selectedInventoryEdge={selectedInventoryEdge}
               onSelectInventoryEdge={setSelectedInventoryEdge}
+              startingResourceSeedId={appliedSeedNodeId.trim().length > 0 ? appliedSeedNodeId.trim() : null}
             />
           ) : null}
         </>
@@ -2868,7 +2879,7 @@ export function DiagramsWorkbenchClient() {
               className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
               data-testid="infra-diagrams-evidence-family-empty"
             >
-              No connectors in this family on this diagram.
+              No connectors in this family on this diagram. Connectors in other families are still listed under All.
             </p>
           ) : null}
           <DiagramsWorkbenchSecureNowAwareDiagramViewer
@@ -2908,6 +2919,8 @@ export function DiagramsWorkbenchClient() {
               onFocusNeighborhood={handleOutlineFocusNeighborhood}
               selectedInventoryEdge={selectedInventoryEdge}
               onSelectInventoryEdge={setSelectedInventoryEdge}
+              startingResourceSeedId={appliedSeedNodeId.trim().length > 0 ? appliedSeedNodeId.trim() : null}
+              unknownFilterDefaultScope={unknownFilterDefaultScope}
             />
           ) : null}
         </>

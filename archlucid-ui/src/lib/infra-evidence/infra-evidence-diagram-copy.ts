@@ -8,6 +8,24 @@ export const INFRA_EVIDENCE_DIAGRAM_LEGEND_DECLARED =
 export const INFRA_EVIDENCE_DIAGRAM_LEGEND_PROBABLE =
   "Dashed — probable authorization or declared wiring (RBAC / ADF; not runtime traffic)";
 
+export const INFRA_EVIDENCE_DIAGRAM_LEGEND_PROBABLE_WITH_LOGIC_APP =
+  "Dashed — probable authorization, declared wiring, or a Logic App API connection (not runtime traffic)";
+
+export const INFRA_EVIDENCE_DIAGRAM_PNG_CONFIGURATION_RELATIONSHIP_NOTE =
+  "Linked backends, capacity assignments, and diagnostic settings on this diagram are configuration. They are not observed traffic.";
+
+export const INFRA_EVIDENCE_INVENTORY_EDGE_PANEL_STATIC_SITE_BACKEND_HINT =
+  "Static Web App linked backend in configuration. This is not observed traffic.";
+
+export const INFRA_EVIDENCE_INVENTORY_EDGE_PANEL_FABRIC_CAPACITY_HINT =
+  "Fabric capacity workspace assignment. This is not observed query traffic.";
+
+export const INFRA_EVIDENCE_INVENTORY_EDGE_PANEL_DIAGNOSTIC_STORAGE_HINT =
+  "Diagnostic setting names this storage account. Log delivery was not observed.";
+
+export const INFRA_EVIDENCE_INVENTORY_EDGE_PANEL_LOGIC_APP_CONNECTION_HINT =
+  "Logic App API connection reference. This is not a data pipeline and not observed traffic.";
+
 export const INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED =
   "Dotted — inferred hostname or AI inference (confirm in configuration)";
 

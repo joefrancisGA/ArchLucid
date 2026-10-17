@@ -124,3 +124,20 @@ export function resolveDefaultDiagramOutlineUnknownNodeFilterScope(
 
   return "all";
 }
+
+export function resolveDiagramOutlineUnknownNodeFilterScopeForWorkbench(input: {
+  readonly startingSeedId: string | null | undefined;
+  readonly dependencyNeighborhoodMode: boolean;
+}): DiagramOutlineUnknownNodeFilterScope {
+  const trimmed = input.startingSeedId?.trim() ?? "";
+
+  if (trimmed.length === 0) {
+    return "all";
+  }
+
+  if (input.dependencyNeighborhoodMode) {
+    return "diagramNeighbor";
+  }
+
+  return "startingResourceGroup";
+}

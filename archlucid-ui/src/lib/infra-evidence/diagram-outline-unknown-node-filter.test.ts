@@ -4,6 +4,7 @@ import {
   filterDiagramOutlineUnknownNodes,
   resolveDefaultDiagramOutlineUnknownNodeFilterScope,
   resolveDiagramOutlineStartingNode,
+  resolveDiagramOutlineUnknownNodeFilterScopeForWorkbench,
 } from "@/lib/infra-evidence/diagram-outline-unknown-node-filter";
 import type { InfraEvidenceMermaidOutline } from "@/lib/infra-evidence/parse-infra-evidence-mermaid-outline";
 
@@ -20,6 +21,27 @@ describe("diagram-outline-unknown-node-filter", () => {
   it("defaults to starting resource group scope when a seed is set", () => {
     expect(resolveDefaultDiagramOutlineUnknownNodeFilterScope("seed-1")).toBe("startingResourceGroup");
     expect(resolveDefaultDiagramOutlineUnknownNodeFilterScope("")).toBe("all");
+  });
+
+  it("prefers diagram neighbors in dependency neighborhood mode when a seed is set", () => {
+    expect(
+      resolveDiagramOutlineUnknownNodeFilterScopeForWorkbench({
+        startingSeedId: "seed-1",
+        dependencyNeighborhoodMode: true,
+      }),
+    ).toBe("diagramNeighbor");
+    expect(
+      resolveDiagramOutlineUnknownNodeFilterScopeForWorkbench({
+        startingSeedId: "seed-1",
+        dependencyNeighborhoodMode: false,
+      }),
+    ).toBe("startingResourceGroup");
+    expect(
+      resolveDiagramOutlineUnknownNodeFilterScopeForWorkbench({
+        startingSeedId: "",
+        dependencyNeighborhoodMode: true,
+      }),
+    ).toBe("all");
   });
 
   it("filters unknown nodes to the starting resource group", () => {
