@@ -85,20 +85,20 @@ Do **not** draw a complete graph to “maximize edges.” Do **not** show NIC or
 |--------|-----------|------------|
 | **IDX-01** Recapture relationship properties | **Shipped** on trunk — do not greenfield | Existing extractor family (do not re-run AX-DE as greenfield) |
 | **IDX-02** Graph-build hop compose + dedupe | **Shipped** on trunk — do not greenfield | Shared visible projection |
-| **IDX-03** Cited hops, no all-to-all | After 02 | Composer exists so collocation can be demoted |
-| **IDX-04** Honest verbs | After 02 (prefer 03) | Edge types stable |
-| **IDX-05** Nested VNet → subnet frames | After 04 preferred | Verbs exist; Network still works if 04 slips |
-| **IDX-06** Subscription outer frame | After 05 | Nested packer exists so outer is one more layer |
-| **IDX-07** Role-aware packing + hubs | After 05 | Inner frames exist |
-| **IDX-08** Singleton-RG collapse | After 06 | Subscription + RG frames exist |
-| **IDX-09** Duplicate connection collapse | After 03 | Cited hops so collapse does not drop the only edge |
+| **IDX-03** Cited hops, no all-to-all | **Shipped** on trunk — do not greenfield | Composer exists so collocation can be demoted |
+| **IDX-04** Honest verbs | **Shipped** on trunk — do not greenfield | Closed verb catalog + humanizer |
+| **IDX-05** Nested VNet → subnet frames | After 04 preferred | VNet/subnet forest frames on trunk; extend only |
+| **IDX-06** Subscription outer frame | **Shipped** on trunk — do not greenfield | `sub-frame` on subscription-scoped modes |
+| **IDX-07** Role-aware packing + hubs | After 05 | Role columns + hub-spoke on trunk |
+| **IDX-08** Singleton-RG collapse | **Shipped** on trunk — do not greenfield | Tail rollup when ≥8 isolated singleton RGs |
+| **IDX-09** Duplicate connection collapse | **Shipped** on trunk — do not greenfield | `DiagramInventoryConnectionRollupApplier` |
 | **IDX-10** PE opt-in toggle | After 02 | Compose already uses hidden PEs |
 | **IDX-11** Completeness strip | After 01 | Capture codes exist |
-| **IDX-12** Hop-focus neighborhood / selected / RG | After 02+03 | Shared composer |
+| **IDX-12** Hop-focus neighborhood / selected / RG | **Shipped** (core) on trunk — extend tests | Cited-hop BFS + hidden transit bridge |
 | **IDX-13** Cross-mode parity ratchet | Last | 01–12 merged (or land failing tests for merged slices) |
 | **IDX-HOLD** | Not implementation | — |
 
-**IDX-03** is next after **IDX-02** (shipped on trunk). Cited-hop demotion still needed so collocation cannot steal placement.
+**IDX-07** polish and **IDX-10–13** remain (PE toggle parity, completeness strip depth, hop-focus modes, full ratchet). **IDX-05** nested subnet layer can deepen when a mode keeps subnet nodes visible.
 
 **IDX-HOLD** is not implementation. Paste `inventory-diagram-excellence-14-hold.md` only if a session starts a complete graph, default NIC/PE cards, Microsoft icons, Full-subscription RBAC, ARM `dependsOn`, a second collector, or nested frames from an **IDA / IDF** chat.
 

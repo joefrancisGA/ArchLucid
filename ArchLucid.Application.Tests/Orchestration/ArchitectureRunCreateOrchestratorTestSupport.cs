@@ -1,5 +1,6 @@
 using ArchLucid.Application.Tests.Architecture;
 using ArchLucid.Application.Architecture;
+using ArchLucid.Application.ArchitectureIntelligence;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Drafts;
 using ArchLucid.Application.Governance.DefaultPolicyPacks;
@@ -125,7 +126,8 @@ internal static class ArchitectureRunCreateOrchestratorTestSupport
             new ArchitectureRunCreateIdentityLinkHook(
                 architectureIdentityService,
                 Mock.Of<IArchitectureVersionService>(),
-                scopeContextProvider),
+                scopeContextProvider,
+                Mock.Of<IArchitectureKnowledgeModelAccess>()),
             scopeContextProvider);
 
         return new ArchitectureRunCreateOrchestrator(

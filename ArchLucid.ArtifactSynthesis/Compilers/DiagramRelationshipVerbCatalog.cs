@@ -100,7 +100,7 @@ internal static class DiagramRelationshipVerbCatalog
 
         if (normalized.Equals(GraphEdgeInferenceSources.HumanDeclaredConnection, StringComparison.OrdinalIgnoreCase))
         {
-            label = "connects";
+            label = "declared";
             return true;
         }
 

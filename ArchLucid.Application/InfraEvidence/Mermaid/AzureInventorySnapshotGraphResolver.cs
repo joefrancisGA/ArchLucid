@@ -305,6 +305,7 @@ public sealed class AzureInventorySnapshotGraphResolver(
             edges,
             edgeKeys);
         AzureInventorySnapshotGraphEdgeRoleDeduplicator.Deduplicate(edges, edgeKeys);
+        AzureInventorySnapshotUncitedCollocationPruner.Prune(nodes, edges, edgeKeys);
 
         DateTime createdUtc = graphSnapshot.Header.CapturedUtc ?? graphSnapshot.Header.CreatedUtc;
 

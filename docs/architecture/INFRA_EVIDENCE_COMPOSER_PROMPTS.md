@@ -248,14 +248,14 @@ Run **IE-01 → IE-04 → IE-02 → IE-03** before audit selectors or Mermaid-fr
 | **IDF-07** | Frame visibility ratchet | IDF-01–06 |
 | **IDF-HOLD** | No nested frames / global gap bump / IDR boxes **from IDF chats** (nesting is **IDX-05 / IDX-06**) | — |
 | **IDX-01** | Recapture nested NIC/PE/Logic App/ADF/diagnostic properties | **Shipped** on trunk — do not greenfield |
-| **IDX-02** | Graph-build hop compose + `(from,to,role)` dedupe for every `DiagramMode` | IDX-01 preferred |
-| **IDX-03** | Cited hops; no same-RG / single-VNet all-to-all | IDX-02 |
-| **IDX-04** | Honest verbs (`in` / `contains` / `peering` / `uses` / …) | IDX-02 (prefer IDX-03) |
-| **IDX-05** | Nested VNet → subnet frames (authorized nesting wave) | IDX-04 preferred |
-| **IDX-06** | Subscription outer frame (subscription-scoped modes only) | IDX-05 |
-| **IDX-07** | Role-aware packing + hubs inside frames | IDX-05 |
-| **IDX-08** | Singleton-RG tail collapse | IDX-06 |
-| **IDX-09** | Duplicate `Microsoft.Web/connections` collapse | IDX-03 |
+| **IDX-02** | Graph-build hop compose + `(from,to,role)` dedupe for every `DiagramMode` | **Shipped** on trunk — do not greenfield |
+| **IDX-03** | Cited hops; no same-RG / single-VNet all-to-all | **Shipped** on trunk — do not greenfield |
+| **IDX-04** | Honest verbs (`in` / `contains` / `peering` / `uses` / …) | **Shipped** on trunk |
+| **IDX-05** | Nested VNet → subnet frames (authorized nesting wave) | VNet frames on trunk; deepen subnet layer |
+| **IDX-06** | Subscription outer frame (subscription-scoped modes only) | **Shipped** on trunk |
+| **IDX-07** | Role-aware packing + hubs inside frames | Role columns + hub-spoke on trunk |
+| **IDX-08** | Singleton-RG tail collapse | **Shipped** on trunk |
+| **IDX-09** | Duplicate `Microsoft.Web/connections` collapse | **Shipped** on trunk |
 | **IDX-10** | PE opt-in toggle (`IncludePrivateEndpointNodes`, default off) | IDX-02 |
 | **IDX-11** | Mode-aware completeness strip | IDX-01 |
 | **IDX-12** | Hop-focus neighborhood / selected / resource-group | IDX-02, IDX-03 |

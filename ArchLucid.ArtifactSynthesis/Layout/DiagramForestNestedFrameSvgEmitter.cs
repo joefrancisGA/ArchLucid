@@ -26,7 +26,7 @@ public static class DiagramForestNestedFrameSvgEmitter
         {
             layer.Add(new XElement(
                 svgNamespace + "g",
-                    new XAttribute("class", $"{frame.Kind}-frame"),
+                new XAttribute("class", ResolveFrameClass(frame.Kind)),
                 new XAttribute("data-frame-id", frame.FrameId),
                 new XElement(svgNamespace + "title", SecurityElement.Escape(frame.Label) ?? string.Empty),
                 new XElement(
@@ -97,6 +97,16 @@ public static class DiagramForestNestedFrameSvgEmitter
     private static string Format(double value)
     {
         return value.ToString("0.###", CultureInfo.InvariantCulture);
+    }
+
+    private static string ResolveFrameClass(string kind)
+    {
+        if (string.Equals(kind, "subscription", StringComparison.Ordinal))
+        {
+            return "sub-frame subscription-frame";
+        }
+
+        return $"{kind}-frame";
     }
 
     private static string ResolveStroke(string kind, bool vnetPrimary)

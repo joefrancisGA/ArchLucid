@@ -14,6 +14,7 @@ using ArchLucid.Core.Integration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
+using ArchLucid.Decisioning.Services;
 using ArchLucid.Persistence.IntegrationOutbox;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
@@ -536,13 +537,121 @@ public sealed class ManifestFinalizationServiceTests
             Times.Once);
     }
 
+    [SkippableFact]
+    public async Task FinalizeAsync_legacy_reseals_stale_pipeline_hash_after_commit_time_fields()
+    {
+        Guid runId = Guid.NewGuid();
+        Guid findingsId = Guid.NewGuid();
+        Guid traceId = Guid.NewGuid();
+        ManifestHashService hasher = new();
+        ManifestDocument model = CreateMinimalManifest(runId, findingsId, traceId);
+        model.FeasibilityVerdict = new FeasibilityVerdict
+        {
+            Kind = FeasibilityVerdictKind.Feasible,
+            Summary = "Test manifest is feasible.",
+            TransparencyTrail = new TransparencyTrail(),
+        };
+        string pipelineHash = hasher.ComputeHash(model);
+        model.ArchitectureVersionId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
+        model.CreateTimeArchitectureVersionContentHashSha256 =
+            "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB";
+        model.ManifestHash = pipelineHash;
+
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid()
+        };
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(scope);
+
+        RunRecord header = new()
+        {
+            RunId = runId,
+            TenantId = scope.TenantId,
+            WorkspaceId = scope.WorkspaceId,
+            ScopeProjectId = scope.ProjectId,
+            ProjectId = "proj",
+            LegacyRunStatus = nameof(ArchitectureRunStatus.ReadyForCommit),
+            FindingsSnapshotId = findingsId
+        };
+
+        Mock<IRunRepository> runs = new();
+        runs.Setup(r => r.GetByIdAsync(scope, runId, It.IsAny<CancellationToken>())).ReturnsAsync(header);
+
+        SaveContractsManifestOptions? capturedKeying = null;
+        Mock<IGoldenManifestRepository> golden = new();
+        golden.Setup(g => g.SaveAsync(
+                It.IsAny<GoldenManifest>(),
+                scope,
+                It.IsAny<SaveContractsManifestOptions>(),
+                It.IsAny<IManifestHashService>(),
+                It.IsAny<CancellationToken>(),
+                It.IsAny<IDbConnection?>(),
+                It.IsAny<IDbTransaction?>(),
+                It.IsAny<ManifestDocument>()))
+            .Callback<GoldenManifest, ScopeContext, SaveContractsManifestOptions, IManifestHashService, CancellationToken, IDbConnection?, IDbTransaction?, ManifestDocument?>(
+                (_, _, keying, _, _, _, _, _) => capturedKeying = keying)
+            .ReturnsAsync(model);
+        golden.Setup(g => g.SupersedeUnreferencedActiveGoldenManifestsAsync(
+                scope,
+                model.ManifestId,
+                null,
+                null,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<Guid>());
+
+        Mock<IAuthorityQueryService> authority = new();
+        authority
+            .Setup(q => q.GetRunDetailForManifestCompareAsync(scope, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunDetailDto { GoldenManifest = model });
+
+        Mock<IIntegrationEventOutboxRepository> outbox = new();
+        outbox.Setup(o => o.EnqueueAsync(
+                It.IsAny<Guid?>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<ReadOnlyMemory<byte>>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        ManifestFinalizationService sut = CreateSut(
+            scopeProvider: scopeProvider.Object,
+            runRepository: runs.Object,
+            goldenManifestRepository: golden.Object,
+            manifestHashService: hasher,
+            authorityQueryService: authority.Object,
+            integrationEventOutbox: outbox.Object);
+
+        ManifestFinalizationRequest request = CreateMinimalRequest(
+            runId,
+            findingsId,
+            traceId,
+            manifestModel: model,
+            precomputedManifestHash: pipelineHash);
+
+        ManifestFinalizationResult result = await sut.FinalizeAsync(request, CancellationToken.None);
+
+        result.WasIdempotentReturn.Should().BeFalse();
+        capturedKeying.Should().NotBeNull();
+        capturedKeying!.PrecomputedManifestHash.Should().NotBe(pipelineHash);
+        capturedKeying.PrecomputedManifestHash.Should().Be(model.ManifestHash);
+        hasher.ComputeHash(model).Should().Be(model.ManifestHash);
+    }
+
     private static ManifestFinalizationRequest CreateMinimalRequest(
         Guid runId,
         Guid findingsId,
         Guid? decisionTraceId = null,
         bool skipPersistingPipelineArtifacts = false,
         ManifestDocument? manifestModel = null,
-        FindingsSnapshotGenerationStatus findingsGenerationStatus = FindingsSnapshotGenerationStatus.Complete)
+        FindingsSnapshotGenerationStatus findingsGenerationStatus = FindingsSnapshotGenerationStatus.Complete,
+        string? precomputedManifestHash = null)
     {
         Guid tid = decisionTraceId ?? Guid.NewGuid();
         DecisionTrace trace = RuleAuditTrace.From(
@@ -611,6 +720,7 @@ public sealed class ManifestFinalizationServiceTests
                 RuleSetVersion = model.RuleSetVersion,
                 RuleSetHash = model.RuleSetHash,
                 CreatedUtc = model.CreatedUtc,
+                PrecomputedManifestHash = precomputedManifestHash,
             },
             Trace = trace,
             SkipPersistingPipelineArtifacts = skipPersistingPipelineArtifacts,
