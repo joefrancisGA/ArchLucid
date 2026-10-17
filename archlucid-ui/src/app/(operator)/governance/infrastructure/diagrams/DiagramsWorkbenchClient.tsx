@@ -52,7 +52,6 @@ import {
   formatInfraEvidenceMermaidApiError,
   type InfraEvidenceMermaidRenderQuery,
 } from "@/lib/infra-evidence/infra-evidence-mermaid-api";
-import { resolveDiagramOutlineUnknownNodeFilterScopeForWorkbench } from "@/lib/infra-evidence/diagram-outline-unknown-node-filter";
 import {
   INFRA_DIAGRAMS_CLOUD_RESOURCE_ID_PARAM,
   INFRA_DIAGRAMS_MERMAID_MODE_PARAM,
@@ -1116,13 +1115,6 @@ export function DiagramsWorkbenchClient() {
   const cameraFocusNodeIds = useMemo(
     () => resolveDiagramCameraFocusNodeIds(appliedSeedNodeId, familyFilteredOutline),
     [appliedSeedNodeId, familyFilteredOutline],
-  );
-  const unknownFilterDefaultScope = useMemo(
-    () => resolveDiagramOutlineUnknownNodeFilterScopeForWorkbench({
-      startingSeedId: appliedSeedNodeId,
-      dependencyNeighborhoodMode: selectedMode === "dependencyNeighborhood",
-    }),
-    [appliedSeedNodeId, selectedMode],
   );
 
   const [cameraFocusNonce, setCameraFocusNonce] = useState(0);
@@ -2729,8 +2721,6 @@ export function DiagramsWorkbenchClient() {
             <InfraEvidenceDiagramOutline
               outline={visibleSeedCatalogOutline}
               onFocusNeighborhood={handleOutlineFocusNeighborhood}
-              startingResourceSeedId={appliedSeedNodeId.trim().length > 0 ? appliedSeedNodeId.trim() : null}
-              unknownFilterDefaultScope={unknownFilterDefaultScope}
             />
           ) : (
             <EnterpriseCompactEmptyState
@@ -2767,7 +2757,6 @@ export function DiagramsWorkbenchClient() {
               onFocusNeighborhood={handleOutlineFocusNeighborhood}
               selectedInventoryEdge={selectedInventoryEdge}
               onSelectInventoryEdge={setSelectedInventoryEdge}
-              startingResourceSeedId={appliedSeedNodeId.trim().length > 0 ? appliedSeedNodeId.trim() : null}
             />
           ) : null}
         </>
@@ -2919,8 +2908,6 @@ export function DiagramsWorkbenchClient() {
               onFocusNeighborhood={handleOutlineFocusNeighborhood}
               selectedInventoryEdge={selectedInventoryEdge}
               onSelectInventoryEdge={setSelectedInventoryEdge}
-              startingResourceSeedId={appliedSeedNodeId.trim().length > 0 ? appliedSeedNodeId.trim() : null}
-              unknownFilterDefaultScope={unknownFilterDefaultScope}
             />
           ) : null}
         </>
