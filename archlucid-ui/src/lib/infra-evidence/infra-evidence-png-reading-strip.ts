@@ -13,11 +13,58 @@ import {
 } from "@/lib/infra-evidence/parse-infra-evidence-mermaid-outline";
 import { resolveInfraEvidenceCompletenessWarningPresentation } from "@/lib/infra-evidence/resolve-infra-evidence-completeness-warning-copy";
 
+export const INFRA_EVIDENCE_PNG_SNAPSHOT_LABEL_NOT_STORED = "Snapshot label was not stored." as const;
+export const INFRA_EVIDENCE_PNG_RESOURCE_GROUP_SCOPE_NOT_STORED =
+  "Resource group scope was not stored." as const;
+export const INFRA_EVIDENCE_PNG_DEPENDENCY_NEIGHBORHOOD_SCOPE_NOT_STORED =
+  "Dependency neighborhood starting resource was not stored." as const;
+
 export type InfraEvidencePngReadingStripInput = {
   readonly mode: string | null | undefined;
   readonly outline: InfraEvidenceMermaidOutline | null | undefined;
   readonly completenessWarnings: readonly string[];
+  readonly snapshotLabel?: string | null;
+  readonly resourceGroupScopeName?: string | null;
+  readonly dependencyNeighborhoodSeedLabel?: string | null;
 };
+
+function pngSnapshotLabelLine(snapshotLabel: string | null | undefined): string {
+  const trimmed = snapshotLabel?.trim() ?? "";
+
+  if (trimmed.length === 0) {
+    return INFRA_EVIDENCE_PNG_SNAPSHOT_LABEL_NOT_STORED;
+  }
+
+  return `Snapshot: ${trimmed}`;
+}
+
+function pngResourceGroupScopeLine(resourceGroupScopeName: string | null | undefined): string | null {
+  if (resourceGroupScopeName === null || resourceGroupScopeName === undefined) {
+    return null;
+  }
+
+  const trimmed = resourceGroupScopeName.trim();
+
+  if (trimmed.length === 0) {
+    return INFRA_EVIDENCE_PNG_RESOURCE_GROUP_SCOPE_NOT_STORED;
+  }
+
+  return `Scope: resource group ${trimmed}.`;
+}
+
+function pngDependencyNeighborhoodScopeLine(seedLabel: string | null | undefined): string | null {
+  if (seedLabel === null || seedLabel === undefined) {
+    return null;
+  }
+
+  const trimmed = seedLabel.trim();
+
+  if (trimmed.length === 0) {
+    return INFRA_EVIDENCE_PNG_DEPENDENCY_NEIGHBORHOOD_SCOPE_NOT_STORED;
+  }
+
+  return `Scope: dependency neighborhood from ${trimmed}.`;
+}
 
 function hasObservedEdges(outline: InfraEvidenceMermaidOutline | null | undefined): boolean {
   return outline?.edges.some((edge) => edge.source === "observed") === true;
@@ -45,6 +92,22 @@ export function buildInfraEvidencePngReadingStripLines(
   input: InfraEvidencePngReadingStripInput,
 ): readonly string[] {
   const lines: string[] = [];
+
+  if (input.snapshotLabel !== undefined) {
+    lines.push(pngSnapshotLabelLine(input.snapshotLabel));
+  }
+
+  const resourceGroupScopeLine = pngResourceGroupScopeLine(input.resourceGroupScopeName);
+
+  if (resourceGroupScopeLine !== null) {
+    lines.push(resourceGroupScopeLine);
+  }
+
+  const dependencyScopeLine = pngDependencyNeighborhoodScopeLine(input.dependencyNeighborhoodSeedLabel);
+
+  if (dependencyScopeLine !== null) {
+    lines.push(dependencyScopeLine);
+  }
 
   if (input.mode === null || input.mode === undefined) {
     lines.push("Diagram mode was not stored.");

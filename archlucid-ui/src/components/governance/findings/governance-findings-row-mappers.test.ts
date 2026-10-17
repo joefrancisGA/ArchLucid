@@ -5,6 +5,14 @@ import { matchesRiskRegisterFilter } from "@/lib/architecture/architecture-risk-
 
 import { ARCHITECTURE_RISK_REGISTER_OWNER_NOT_STORED } from "@/lib/architecture/architecture-risk-register-csv";
 
+import {
+  GOVERNANCE_QUEUE_DECISION_STATUS_NOT_STORED,
+  GOVERNANCE_QUEUE_FINDING_STATUS_NOT_STORED,
+  GOVERNANCE_QUEUE_FINDING_TITLE_NOT_STORED,
+  GOVERNANCE_QUEUE_REVIEW_NAME_NOT_STORED,
+  GOVERNANCE_QUEUE_RULE_ID_NOT_STORED,
+  GOVERNANCE_QUEUE_SEVERITY_NOT_STORED,
+} from "./governance-findings-row-omission-copy";
 import { decisionRegisterRows, riskRegisterRows, traceRowsForRun } from "./governance-findings-row-mappers";
 
 describe("riskRegisterRows", () => {
@@ -74,7 +82,9 @@ describe("riskRegisterRows", () => {
 
     const [row] = riskRegisterRows([entry]);
 
-    expect(row?.status).toBe("");
+    expect(row?.status).toBe(GOVERNANCE_QUEUE_FINDING_STATUS_NOT_STORED);
+    expect(row?.title).toBe(GOVERNANCE_QUEUE_FINDING_TITLE_NOT_STORED);
+    expect(row?.severity).toBe(GOVERNANCE_QUEUE_SEVERITY_NOT_STORED);
     expect(() => (row === undefined ? false : matchesRiskRegisterFilter(row, "open"))).not.toThrow();
   });
 
@@ -113,15 +123,85 @@ describe("riskRegisterRows", () => {
       },
     ]);
 
-    expect(row?.severity).toBe("Severity was not stored.");
+    expect(row?.severity).toBe(GOVERNANCE_QUEUE_SEVERITY_NOT_STORED);
+    expect(row?.status).toBe(GOVERNANCE_QUEUE_DECISION_STATUS_NOT_STORED);
   });
 
-  it("uses the missing-rule label for whitespace-only trace rule ids", () => {
+  it("does not invent trace severity, status, title, or rule id (P-01–P-04)", () => {
     const rows = traceRowsForRun(
       { runId: "run-3", projectId: "project-3", createdUtc: "2026-10-11T00:00:00.000Z" },
-      [{ findingId: "finding-3", findingTitle: "Trace finding", ruleId: "   " }],
+      [
+        {
+          findingId: "finding-3",
+          findingTitle: "",
+          ruleId: "   ",
+          traceConfidenceLabel: "High confidence",
+          evidenceRefCount: 2,
+        },
+      ],
     );
 
-    expect(rows[0]?.category).toBe("Not returned");
+    expect(rows[0]?.severity).toBe(GOVERNANCE_QUEUE_SEVERITY_NOT_STORED);
+    expect(rows[0]?.status).toBe(GOVERNANCE_QUEUE_FINDING_STATUS_NOT_STORED);
+    expect(rows[0]?.title).toBe(GOVERNANCE_QUEUE_FINDING_TITLE_NOT_STORED);
+    expect(rows[0]?.category).toBe(GOVERNANCE_QUEUE_RULE_ID_NOT_STORED);
+    expect(rows[0]?.evidenceRefCount).toBe(2);
+  });
+
+  it("labels missing review names without Not returned (P-17)", () => {
+    const [riskRow] = riskRegisterRows([
+      {
+        findingId: "finding-review",
+        runId: "",
+        manifestId: "manifest-1",
+        title: "Risk",
+        severity: "High",
+        category: "Privacy",
+        statusLabel: "Open",
+        agingDays: 1,
+        isStale: false,
+        evidenceHref: "",
+      } as ArchitectureRiskRegisterEntry,
+    ]);
+
+    expect(riskRow?.runLabel).toBe(GOVERNANCE_QUEUE_REVIEW_NAME_NOT_STORED);
+  });
+
+  it("does not fake evidence ref count from href alone (P-07)", () => {
+    const [row] = riskRegisterRows([
+      {
+        findingId: "finding-evidence",
+        runId: "run-1",
+        manifestId: "manifest-1",
+        title: "Risk",
+        severity: "High",
+        category: "Privacy",
+        statusLabel: "Open",
+        agingDays: 1,
+        isStale: false,
+        evidenceHref: "/graph?runId=run-1",
+      } as ArchitectureRiskRegisterEntry,
+    ]);
+
+    expect(row?.evidenceRefCount).toBeNull();
+  });
+
+  it("labels stale risk rows with missing status (P-16)", () => {
+    const [row] = riskRegisterRows([
+      {
+        findingId: "finding-stale",
+        runId: "run-1",
+        manifestId: "manifest-1",
+        title: "Risk",
+        severity: "High",
+        category: "Privacy",
+        statusLabel: "",
+        agingDays: 1,
+        isStale: true,
+        evidenceHref: "",
+      } as ArchitectureRiskRegisterEntry,
+    ]);
+
+    expect(row?.status).toBe(`${GOVERNANCE_QUEUE_FINDING_STATUS_NOT_STORED} · stale`);
   });
 });
