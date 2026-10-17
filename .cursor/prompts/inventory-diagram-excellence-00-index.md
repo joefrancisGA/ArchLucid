@@ -102,7 +102,8 @@ Do **not** draw a complete graph to “maximize edges.” Do **not** show NIC or
 | **IDX-12** Hop-focus neighborhood / selected / RG | **Shipped** on trunk — extend only | Cited-hop BFS + hidden transit bridge |
 | **IDX-13** Cross-mode parity ratchet | **Shipped** on trunk — extend only | `FullyQualifiedName~InventoryDiagramExcellence` |
 | **IDX-13b** Fat-graph forest / DOT parity | **Shipped** on trunk — extend only | `BuildFatGraph()` + `AssertForestAndDotNestedFrameParity` |
-| **IDX-13c** Data Flow hub Mermaid ratchet | **Prompt only** — not implemented | Export Mermaid drops hub fixture nodes while forest stays green |
+| **IDX-13c** Data Flow hub Mermaid ratchet | **Shipped** on trunk — extend only | Mermaid export on hub fixture under excellence filter |
+| **IDX-13d** Data Flow hub DOT ratchet | **Prompt only** — not implemented | Graphviz PNG path drops hub nodes while forest/Mermaid stay green |
 | **IDX-HOLD** | Not implementation | — |
 
 **Regression guard:** `dotnet test ArchLucid.ArtifactSynthesis.Tests --filter FullyQualifiedName~InventoryDiagramExcellence` plus `ArchLucid.Application.Tests --filter FullyQualifiedName~InfraEvidenceMermaidCompleteness`. **IDX-05** subnet layer can still deepen when a mode keeps subnet nodes visible.
@@ -135,6 +136,7 @@ Suggested Cloud Agent branch per prompt: `cursor/inventory-diagram-excellence-<s
 | 13 | `inventory-diagram-excellence-13-cross-mode-ratchet.md` | Next agent Full-sub-only tests the rest of the enum |
 | 13b | `inventory-diagram-excellence-13b-fat-graph-dot-parity.md` | Fat graph forest frames and DOT clusters can diverge |
 | 13c | `inventory-diagram-excellence-13c-dataflow-hub-mermaid-ratchet.md` | Hub pipeline forest ratchet does not guard Mermaid export |
+| 13d | `inventory-diagram-excellence-13d-dataflow-hub-dot-ratchet.md` | Hub pipeline has no Graphviz DOT excellence ratchet |
 | HOLD | `inventory-diagram-excellence-14-hold.md` | Complete-graph / default PE / icons / RBAC dump |
 
 ## Prerequisites (do not re-implement)

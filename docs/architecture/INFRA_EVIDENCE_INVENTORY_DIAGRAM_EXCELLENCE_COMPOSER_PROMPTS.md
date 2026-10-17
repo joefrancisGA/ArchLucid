@@ -26,7 +26,8 @@
 | Cross-stage edge into that hub throws | **IDX-07d** | Gutter route crosses spokes and forest render fails |
 | Subcolumn wrap splits hub star | **IDX-07e** | `Take(12)` tears hub-and-spoke across Data Flow columns |
 | Hub pipeline not in excellence filter | **IDX-07f** | Shipped — extend only |
-| Hub pipeline Mermaid export untested | **IDX-13c** | Forest ratchet green while Export Mermaid drops nodes |
+| Hub pipeline Mermaid export untested | **IDX-13c** | Shipped — extend only |
+| Hub pipeline Graphviz DOT untested | **IDX-13d** | Forest/Mermaid green while PNG DOT drops nodes or edges |
 | Singleton-RG tail | **IDX-08** | Full subscription is a postage sheet |
 | Duplicate connections | **IDX-09** | Five Office365 cards per Logic App |
 | PE flag with no UI | **IDX-10** | Operators cannot opt in; or PEs sneak on |
@@ -51,7 +52,8 @@
 | **IDX-07d** Route edges into an in-stage hub | After 07c | Shipped — extend only |
 | **IDX-07e** Subcolumn keeps hub component whole | After 07d | Shipped — extend only |
 | **IDX-07f** Data Flow hub pipeline ratchet | After 07e | Shipped — extend only |
-| **IDX-13c** Data Flow hub Mermaid ratchet | After 07f | Prompt only until implemented |
+| **IDX-13c** Data Flow hub Mermaid ratchet | After 07f | Shipped — extend only |
+| **IDX-13d** Data Flow hub DOT ratchet | After 13c | Prompt only until implemented |
 | **IDX-08** Singleton-RG collapse | After 06 | |
 | **IDX-09** Duplicate connection collapse | After 03 | |
 | **IDX-10** PE opt-in toggle | After 02 | |
@@ -631,7 +633,7 @@ dotnet test ArchLucid.ArtifactSynthesis.Tests/ArchLucid.ArtifactSynthesis.Tests.
 
 # IDX-13c — Data Flow hub pipeline Mermaid export ratchet
 
-**Depends on:** IDX-07f on trunk. **Branch:** a new `cursor/idx-13c-dataflow-hub-mermaid-*` feature branch. **Extend only.** **Prompt only until implemented.**
+**Depends on:** IDX-07f on trunk. **Extend only.** **Shipped** — do not re-prompt Mermaid hub ratchet. Next gap is **IDX-13d** (Graphviz DOT).
 
 **Paste file:** [`.cursor/prompts/inventory-diagram-excellence-13c-dataflow-hub-mermaid-ratchet.md`](../../.cursor/prompts/inventory-diagram-excellence-13c-dataflow-hub-mermaid-ratchet.md)
 
@@ -653,6 +655,34 @@ Work: implement only "What to build" in the paste file.
 Tests:
 dotnet test ArchLucid.ArtifactSynthesis.Tests/ArchLucid.ArtifactSynthesis.Tests.csproj --filter 'FullyQualifiedName~InventoryDiagramExcellence'
 dotnet test ArchLucid.ArtifactSynthesis.Tests/ArchLucid.ArtifactSynthesis.Tests.csproj --filter 'FullyQualifiedName~MermaidDiagramRenderPipeline'
+```
+
+---
+
+# IDX-13d — Data Flow hub pipeline Graphviz DOT export ratchet
+
+**Depends on:** IDX-07f and IDX-13c on trunk. **Branch:** a new `cursor/idx-13d-dataflow-hub-dot-*` feature branch. **Extend only.** **Prompt only until implemented.**
+
+**Paste file:** [`.cursor/prompts/inventory-diagram-excellence-13d-dataflow-hub-dot-ratchet.md`](../../.cursor/prompts/inventory-diagram-excellence-13d-dataflow-hub-dot-ratchet.md)
+
+### Prompt (copy below)
+
+```text
+You are working in the ArchLucid repo on a FEATURE BRANCH. Goal: DiagramAstGraphvizDotEmitter.Emit on InventoryDiagramExcellenceDataFlowHubPipelineFixture.Build() must retain landing, adf, st0 through st11, cited edges landing to adf and adf to st0 and st11, and Data Flow stage subgraph structure in DOT. Fix Graphviz emit or cluster planning only if tests fail; do not change forest hub layout or Mermaid repair. Do not add VNet nested-frame parity on this fixture (that is IDX-13b on BuildFatGraph). Do not greenfield IDX-01 through IDX-13.
+
+This is NOT IDX-HOLD.
+
+Read first:
+- .cursor/prompts/inventory-diagram-excellence-00-index.md
+- .cursor/prompts/inventory-diagram-excellence-13d-dataflow-hub-dot-ratchet.md
+
+Working-tree check before tracked edits.
+
+Work: implement only "What to build" in the paste file.
+
+Tests:
+dotnet test ArchLucid.ArtifactSynthesis.Tests/ArchLucid.ArtifactSynthesis.Tests.csproj --filter 'FullyQualifiedName~InventoryDiagramExcellence'
+dotnet test ArchLucid.ArtifactSynthesis.Tests/ArchLucid.ArtifactSynthesis.Tests.csproj --filter 'FullyQualifiedName~DiagramAstGraphvizDotEmitter'
 ```
 
 ---
