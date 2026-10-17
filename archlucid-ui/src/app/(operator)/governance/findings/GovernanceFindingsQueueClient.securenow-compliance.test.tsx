@@ -4,6 +4,7 @@ import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import GovernanceFindingsQueueClient from "@/app/(operator)/governance/findings/GovernanceFindingsQueueClient";
 import { OperatorQueryProvider } from "@/components/operator/OperatorQueryProvider";
 import * as api from "@/lib/api";
+import * as architectureSealDeltaApi from "@/lib/api/architecture-seal-delta-api";
 import * as governanceApi from "@/lib/api/governance-stickiness-api";
 import {
   SECURENOW_FINDINGS_HELP_PAGE_SUBTITLE,
@@ -40,6 +41,10 @@ vi.mock("@/components/WorkspaceModeProvider", () => ({
 vi.mock("@/lib/api", () => ({
   getRunExplanationSummary: vi.fn().mockResolvedValue({ traces: [] }),
   listRunsByProjectPaged: vi.fn().mockResolvedValue({ items: [{ runId: "run-fallback" }] }),
+}));
+
+vi.mock("@/lib/api/architecture-seal-delta-api", () => ({
+  getArchitectureSealDelta: vi.fn().mockResolvedValue(null),
 }));
 
 vi.mock("@/lib/api/governance-stickiness-api", () => ({
@@ -137,6 +142,18 @@ vi.mock("@/components/usability/ItsmOutboundQuickActions", () => ({
   ItsmOutboundQuickActions: () => null,
 }));
 
+/** SN-FQ-04 — 2026-09-24 screenshot regression: Security must not render architecture desk copy. */
+const SN_FQ_04_FORBIDDEN_DESK_COPY: readonly string[] = [
+  "Afternoon document for this architecture",
+  "You inhabit this architecture on the desk",
+  "Open architecture desk",
+  "live Working recovery",
+  "Insight density demotes low-signal engines",
+  "Could not load changes since last seal",
+  "Track architecture risks",
+  "approved architecture reviews",
+];
+
 beforeAll(() => {
   globalThis.ResizeObserver = class {
     observe(): void {}
@@ -155,17 +172,23 @@ describe("GovernanceFindingsQueueClient SecureNow /compliance/findings working m
     vi.mocked(governanceApi.getArchitectureDecisionRegister).mockResolvedValue({ decisions: [] });
   });
 
-  it("renders SecureNow findings queue copy and ignores architecture inhabit chrome", async () => {
+  it("SN-FQ-04: locks SecureNow findings queue against architecture desk chrome", async () => {
     render(
       <OperatorQueryProvider>
         <GovernanceFindingsQueueClient />
       </OperatorQueryProvider>,
     );
 
-    expect(await screen.findByTestId("architecture-risk-register-page-title")).toHaveTextContent(
-      SECURENOW_GOVERNANCE_FINDINGS_PAGE_TITLE,
-    );
+    const pageTitle = await screen.findByTestId("architecture-risk-register-page-title");
+
+    expect(pageTitle).toHaveTextContent(SECURENOW_GOVERNANCE_FINDINGS_PAGE_TITLE);
+    expect(pageTitle).not.toHaveTextContent(/^Architecture$/i);
     expect(screen.getByText(SECURENOW_FINDINGS_HELP_PAGE_SUBTITLE)).toBeInTheDocument();
+    const visibleText = document.body.textContent ?? "";
+
+    for (const forbidden of SN_FQ_04_FORBIDDEN_DESK_COPY) {
+      expect(visibleText).not.toContain(forbidden);
+    }
     expect(screen.getByTestId("governance-findings-claim-discipline")).toHaveTextContent(
       SECURENOW_GOVERNANCE_FINDINGS_CLAIM_DISCIPLINE,
     );
@@ -179,6 +202,7 @@ describe("GovernanceFindingsQueueClient SecureNow /compliance/findings working m
     await waitFor(() => {
       expect(api.listRunsByProjectPaged).not.toHaveBeenCalled();
       expect(api.getRunExplanationSummary).not.toHaveBeenCalled();
+      expect(architectureSealDeltaApi.getArchitectureSealDelta).not.toHaveBeenCalled();
     });
   });
 
