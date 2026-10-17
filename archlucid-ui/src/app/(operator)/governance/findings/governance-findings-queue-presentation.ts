@@ -43,9 +43,10 @@ import {
   resolveSystemNotJobGovernanceFindingsClaimDiscipline,
   resolveSystemNotJobGovernanceFindingsPageSubtitle,
 } from "@/lib/system-not-job-findings-are-verbs-on-the-system";
+import { SECURENOW_ASSIGNED_TO_ME_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
 import { assignedToMeFindingsPathForProductLine } from "@/lib/product-line/securenow-assigned-to-me-route";
 import { findingsPathForProductLine } from "@/lib/product-line/securenow-compliance-routes";
-import { SECURENOW_NAV_LABELS } from "@/lib/product-line/securenow-nav-labels";
+import { resolveSecureNowPageHeading } from "@/lib/product-line/securenow-page-heading";
 import {
   type GovernanceFindingInspectHrefOptions,
   resolveGovernanceQueueAuxiliaryFindingHref,
@@ -300,9 +301,11 @@ export function resolveGovernanceFindingsPageTitle(
   options: ResolveGovernanceFindingsPresentationOptions = {},
 ): string {
   if (isAssignedToMe) {
-    return isSecureNowProductLine(options.productLineId ?? "architecture")
-      ? SECURENOW_NAV_LABELS["/security/assigned-to-me"] ?? "Assigned to me"
-      : "Assigned to me";
+    return resolveSecureNowPageHeading(
+      options.productLineId ?? "architecture",
+      "Assigned to me",
+      SECURENOW_ASSIGNED_TO_ME_FINDINGS_PATH,
+    );
   }
 
   if (isSecureNowProductLine(options.productLineId ?? "architecture")) {

@@ -175,15 +175,19 @@ public sealed class InventoryDiagramDataFlowTraversalHopProjectorTests
     }
 
     [Fact]
-    public void CollectTraversalLinks_ignores_diagnostic_setting_storage_associations()
+    public void CollectTraversalLinks_ignores_diagnostic_setting_to_storage()
     {
         GraphSnapshot graph = BuildDiagnosticSettingStorageGraph();
         IReadOnlyList<InventoryDiagramDataFlowTraversalHopLink> links =
             InventoryDiagramDataFlowTraversalHopProjector.CollectTraversalLinks(graph);
 
         links.Should().BeEmpty();
-        InventoryDiagramDataFlowTraversalHopClassifier
-            .IsExcludedTraversalAnnotation(
+        InventoryDiagramDataFlowTraversalHopClassifier.IsTraversalHopAssociation(
+                AzureInventoryRelationshipAssociationTypes.DiagnosticSettingToStorage,
+                GraphEdgeInferenceSources.InventoryDiagnosticSettingStorage)
+            .Should()
+            .BeFalse();
+        InventoryDiagramDataFlowTraversalHopClassifier.IsExcludedTraversalAnnotation(
                 AzureInventoryRelationshipAssociationTypes.DiagnosticSettingToStorage,
                 GraphEdgeInferenceSources.InventoryDiagnosticSettingStorage)
             .Should()
