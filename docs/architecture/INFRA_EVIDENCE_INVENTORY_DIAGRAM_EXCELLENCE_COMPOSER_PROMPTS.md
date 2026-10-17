@@ -23,6 +23,7 @@
 | Role-blind inner grid | **IDX-07** | Hubs lost; compute mixed with KV |
 | Data Flow stage is a vertical stack | **IDX-07b** | ADF with four sinks is not a hub inside the stage |
 | Data Flow rollup erases that hub | **IDX-07c** | Four same-type sinks collapse to one card before hub layout |
+| Cross-stage edge into that hub throws | **IDX-07d** | Gutter route crosses spokes and forest render fails |
 | Singleton-RG tail | **IDX-08** | Full subscription is a postage sheet |
 | Duplicate connections | **IDX-09** | Five Office365 cards per Logic App |
 | PE flag with no UI | **IDX-10** | Operators cannot opt in; or PEs sneak on |
@@ -43,7 +44,8 @@
 | **IDX-06** Subscription outer | After 05 | |
 | **IDX-07** Role-aware packing | After 05 | |
 | **IDX-07b** Data Flow in-stage hub | After 07 | Shipped — extend only |
-| **IDX-07c** Rollup preserves in-stage hub | After 07b | Prompt only until implemented |
+| **IDX-07c** Rollup preserves in-stage hub | After 07b | Shipped — extend only |
+| **IDX-07d** Route edges into an in-stage hub | After 07c | Prompt only until implemented |
 | **IDX-08** Singleton-RG collapse | After 06 | |
 | **IDX-09** Duplicate connection collapse | After 03 | |
 | **IDX-10** PE opt-in toggle | After 02 | |
@@ -461,7 +463,7 @@ Tests: as named in the paste file (dotnet filter covering all twelve DiagramMode
 
 # IDX-07b — Data Flow in-stage hub
 
-**Depends on:** IDX-07 hub-spoke and `data-hub-spoke="hub"` already on trunk. **Extend only.** **Shipped** — do not re-prompt hub geometry. Next gap is **IDX-07c**.
+**Depends on:** IDX-07 hub-spoke and `data-hub-spoke="hub"` already on trunk. **Extend only.** **Shipped** — do not re-prompt hub geometry. Next gap is **IDX-07d**.
 
 **Paste file:** [`.cursor/prompts/inventory-diagram-excellence-07b-dataflow-in-stage-hub.md`](../../.cursor/prompts/inventory-diagram-excellence-07b-dataflow-in-stage-hub.md)
 
@@ -488,7 +490,7 @@ dotnet test ArchLucid.ArtifactSynthesis.Tests/ArchLucid.ArtifactSynthesis.Tests.
 
 # IDX-07c — Data Flow rollup must not erase an in-stage hub
 
-**Depends on:** IDX-07b on trunk. **Branch:** a new `cursor/idx-07c-rollup-preserves-hub-*` feature branch. **Extend only.** **Prompt only until implemented.**
+**Depends on:** IDX-07b on trunk. **Extend only.** **Shipped** — do not re-prompt rollup exemption. Next gap is **IDX-07d**.
 
 **Paste file:** [`.cursor/prompts/inventory-diagram-excellence-07c-rollup-preserves-hub.md`](../../.cursor/prompts/inventory-diagram-excellence-07c-rollup-preserves-hub.md)
 
@@ -509,6 +511,33 @@ Work: implement only "What to build" in the paste file.
 
 Tests:
 dotnet test ArchLucid.ArtifactSynthesis.Tests/ArchLucid.ArtifactSynthesis.Tests.csproj --filter 'FullyQualifiedName~DataFlowInStageHub|FullyQualifiedName~DiagramForestDataFlowRollup|FullyQualifiedName~InventoryDiagramExcellenceIdx07'
+```
+
+---
+
+# IDX-07d — Route Data Flow edges into an in-stage hub
+
+**Depends on:** IDX-07b and IDX-07c on trunk. **Branch:** a new `cursor/idx-07d-hub-edge-route-*` feature branch. **Extend only.** **Prompt only until implemented.**
+
+**Paste file:** [`.cursor/prompts/inventory-diagram-excellence-07d-hub-edge-route.md`](../../.cursor/prompts/inventory-diagram-excellence-07d-hub-edge-route.md)
+
+### Prompt (copy below)
+
+```text
+You are working in the ArchLucid repo on a FEATURE BRANCH. Goal: a Data Flow edge from the previous stage into an in-stage hub must render. Approach the hub through the gap to the left of the hub so the path does not cross spoke cards. Do not throw when that edge is present. Do not move hub or spoke cards. Do not drop the edge. Do not change routing for other DiagramMode values. Do not greenfield IDX-01 through IDX-13.
+
+This is NOT IDX-HOLD.
+
+Read first:
+- .cursor/prompts/inventory-diagram-excellence-00-index.md
+- .cursor/prompts/inventory-diagram-excellence-07d-hub-edge-route.md
+
+Working-tree check before tracked edits.
+
+Work: implement only "What to build" in the paste file.
+
+Tests:
+dotnet test ArchLucid.ArtifactSynthesis.Tests/ArchLucid.ArtifactSynthesis.Tests.csproj --filter 'FullyQualifiedName~DataFlowEdgeRouter|FullyQualifiedName~DataFlowInStageHub'
 ```
 
 ---
