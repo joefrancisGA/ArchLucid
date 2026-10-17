@@ -38,5 +38,10 @@ export function formatInfraEvidenceCompletenessSummaryBannerLine(
     return [visibleNodeCount, connectedComponentCount, visibleEdgeCount].filter((part) => part.length > 0).join(" ");
   }
 
-  return `${visibleNodeCount} resources in ${connectedComponentCount} connected components. ${visibleEdgeCount} visible relationships${hiddenHops}.${collocation}`;
+  const missing =
+    summary.missingClasses && summary.missingClasses.length > 0
+      ? ` Missing: ${summary.missingClasses.join("; ")}.`
+      : "";
+
+  return `${visibleNodeCount} resources in ${connectedComponentCount} connected components. ${visibleEdgeCount} visible relationships${hiddenHops}.${collocation}${missing}`;
 }

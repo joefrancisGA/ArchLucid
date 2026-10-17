@@ -1863,15 +1863,16 @@ describe("DiagramsWorkbenchClient", () => {
     });
   });
 
-  it("uses show network details on full subscription and honors the old private-endpoint url", async () => {
+  it("shows private-endpoint toggle on full subscription and honors the legacy url flag", async () => {
     searchParams = new URLSearchParams(
       "snapshotId=11111111-1111-1111-1111-111111111111&mermaidMode=full&includePrivateEndpoints=1",
     );
     render(<DiagramsWorkbenchClient />);
 
     const networkDetails = await screen.findByTestId("infra-diagrams-show-network-details");
+    const privateEndpoints = await screen.findByTestId("infra-diagrams-show-private-endpoints");
 
-    expect(networkDetails).toBeChecked();
-    expect(screen.queryByRole("checkbox", { name: "Show private endpoints" })).not.toBeInTheDocument();
+    expect(networkDetails).not.toBeChecked();
+    expect(privateEndpoints).toBeChecked();
   });
 });

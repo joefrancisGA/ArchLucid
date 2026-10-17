@@ -892,10 +892,29 @@ public sealed class InfraEvidenceSnapshotMermaidService(
             HiddenHopsUsedCount = hiddenHopCount,
             LikelyInCollocationEdgeCount = collocationCount,
             CollectedClasses = collectedClasses.Order(StringComparer.Ordinal).ToList(),
-            MissingClasses = ResolveCompletenessWarnings(snapshot)
-                .Where(warning => warning.Contains("missing", StringComparison.OrdinalIgnoreCase))
-                .ToList(),
+            MissingClasses = FilterMissingWarningsForMode(
+                modeKey,
+                ResolveCompletenessWarnings(snapshot)),
         };
+    }
+
+    private static List<string> FilterMissingWarningsForMode(string modeKey, List<string> warnings)
+    {
+        bool identityMode = string.Equals(modeKey, "identity", StringComparison.OrdinalIgnoreCase);
+
+        return warnings
+            .Where(warning => warning.Contains("missing", StringComparison.OrdinalIgnoreCase))
+            .Where(warning =>
+            {
+                if (!identityMode)
+                {
+                    return true;
+                }
+
+                return !warning.Contains("nic", StringComparison.OrdinalIgnoreCase)
+                       && !warning.Contains("subnet", StringComparison.OrdinalIgnoreCase);
+            })
+            .ToList();
     }
 
     private static bool IsLikelyResourceGroupEdge(DiagramEdge edge)

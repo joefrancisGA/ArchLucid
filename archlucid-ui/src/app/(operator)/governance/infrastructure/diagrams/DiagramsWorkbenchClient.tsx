@@ -511,9 +511,7 @@ export function DiagramsWorkbenchClient() {
   );
   const [selectedInventoryEdge, setSelectedInventoryEdge] = useState<InfraEvidenceMermaidOutlineEdge | null>(null);
   const [showPrivateEndpoints, setShowPrivateEndpoints] = useState(urlIncludePrivateEndpoints);
-  const [showNetworkDetails, setShowNetworkDetails] = useState(
-    urlIncludeNetworkDetails || (urlMermaidMode === "full" && urlIncludePrivateEndpoints),
-  );
+  const [showNetworkDetails, setShowNetworkDetails] = useState(urlIncludeNetworkDetails);
   const [includeRecoveryServices, setIncludeRecoveryServices] = useState(urlIncludeRecoveryServices);
   const [includeCrossGroupFanOut, setIncludeCrossGroupFanOut] = useState(urlIncludeCrossGroupFanOut);
   const [showAvdAssets, setShowAvdAssets] = useState(urlIncludeAvdAssets);
@@ -1303,7 +1301,7 @@ export function DiagramsWorkbenchClient() {
       mode: selectedMode,
       seedNodeId: null,
       includeNeverShow,
-      includePrivateEndpointNodes: fullSubscription ? false : showPrivateEndpoints,
+      includePrivateEndpointNodes: showPrivateEndpoints,
       includeNetworkDetails: fullSubscription ? showNetworkDetails : false,
       includeRecoveryServices,
       includeCrossGroupFanOut,
@@ -2322,7 +2320,7 @@ export function DiagramsWorkbenchClient() {
               <span className={OPERATOR_TYPOGRAPHY.body}>Show network details</span>
             </label>
           ) : null}
-          {selectedMode !== "full" && !isInfraDiagramsResourceGroupMode(selectedMode) ? (
+          {selectedMode !== "businessContinuity" ? (
             <label className="flex items-center gap-2">
               <Checkbox
                 checked={showPrivateEndpoints}
