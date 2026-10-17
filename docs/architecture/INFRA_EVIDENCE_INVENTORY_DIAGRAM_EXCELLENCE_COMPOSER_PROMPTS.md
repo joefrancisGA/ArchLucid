@@ -455,6 +455,33 @@ Tests: as named in the paste file (dotnet filter covering all twelve DiagramMode
 
 ---
 
+# IDX-07b — Data Flow in-stage hub
+
+**Depends on:** IDX-07 hub-spoke and `data-hub-spoke="hub"` already on trunk. **Branch:** a new `cursor/idx-07b-dataflow-in-stage-hub-*` feature branch. **Extend only.** **Prompt only until implemented.**
+
+**Paste file:** [`.cursor/prompts/inventory-diagram-excellence-07b-dataflow-in-stage-hub.md`](../../.cursor/prompts/inventory-diagram-excellence-07b-dataflow-in-stage-hub.md)
+
+### Prompt (copy below)
+
+```text
+You are working in the ArchLucid repo on a FEATURE BRANCH. Goal: Data Flow keeps left-to-right stage columns, and a stage whose visible component has degree at least 3 and at least four nodes places that hub to the right of a spoke stack inside the stage. Stamp data-hub-spoke="hub". Do not stamp data-role-column on Data Flow. Do not restage Data Flow into resource-group role columns. Do not change packing for other DiagramMode values. Do not greenfield IDX-01 through IDX-13.
+
+This is NOT IDX-HOLD.
+
+Read first:
+- .cursor/prompts/inventory-diagram-excellence-00-index.md
+- .cursor/prompts/inventory-diagram-excellence-07b-dataflow-in-stage-hub.md
+
+Working-tree check before tracked edits.
+
+Work: implement only "What to build" in the paste file.
+
+Tests:
+dotnet test ArchLucid.ArtifactSynthesis.Tests/ArchLucid.ArtifactSynthesis.Tests.csproj --filter 'FullyQualifiedName~InventoryDiagramExcellenceIdx07|FullyQualifiedName~DiagramForestRoleColumn|FullyQualifiedName~DataFlowInStageHub'
+```
+
+---
+
 # IDX-13b — Fat-graph forest / DOT nested-frame parity
 
 **Depends on:** IDX-13 and the fat-fixture `VmToNic` fix on trunk. **Branch:** a new `cursor/idx-13b-fat-graph-dot-parity-*` feature branch. **Extend only.**
