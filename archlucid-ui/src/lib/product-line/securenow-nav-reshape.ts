@@ -46,6 +46,7 @@ import {
   INTEGRATIONS_TEAMS_PATH,
 } from "@/lib/integrations-nav-paths";
 import { SECURENOW_COLLECTION_AGENT_PATH } from "@/lib/product-line/securenow-collection-agent-route";
+import { resolveSecureNowPageHeading } from "@/lib/product-line/securenow-page-heading";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import type { NavGroupConfig, NavLinkItem } from "@/lib/nav-config.types";
 
@@ -121,7 +122,7 @@ export const SECURENOW_DATA_SOURCES_NAV_HREFS: readonly string[] = [
 
 export const SECURENOW_COLLECTION_AGENT_NAV_LINK: NavLinkItem = {
   href: SECURENOW_COLLECTION_AGENT_PATH,
-  label: SECURENOW_NAV_LABELS[SECURENOW_COLLECTION_AGENT_PATH] ?? "Collection Agent",
+  label: resolveSecureNowPageHeading("security", "Collection Agent", SECURENOW_COLLECTION_AGENT_PATH),
   title: "Whether scheduled collection is running and what it found.",
   icon: Activity,
   tier: "extended",
