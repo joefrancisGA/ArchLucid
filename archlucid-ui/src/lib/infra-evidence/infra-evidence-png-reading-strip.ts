@@ -1,9 +1,11 @@
 import {
   INFRA_EVIDENCE_DIAGRAM_LEGEND_DECLARED,
-  INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED,
   INFRA_EVIDENCE_DIAGRAM_LEGEND_OBSERVED,
   INFRA_EVIDENCE_DIAGRAM_PNG_CONFIGURATION_RELATIONSHIP_NOTE,
+  INFRA_EVIDENCE_DIAGRAM_PNG_DATA_ARCHITECTURE_INVENTORY_NOTE,
+  INFRA_EVIDENCE_DIAGRAM_PNG_NETWORK_PLACEMENT_NOTE,
 } from "@/lib/infra-evidence/infra-evidence-diagram-copy";
+import { resolveInfraEvidenceDiagramLegendInferredCopy } from "@/lib/infra-evidence/resolve-infra-evidence-diagram-legend-inferred-line";
 import { resolveInfraEvidenceDiagramLegendProbableLine } from "@/lib/infra-evidence/resolve-infra-evidence-diagram-legend-probable-line";
 import {
   hasInfraEvidenceDeclaredDiagramEdges,
@@ -52,6 +54,9 @@ export function buildInfraEvidencePngReadingStripLines(
     lines.push("This diagram shows what may connect. It is not observed traffic.");
   } else if (input.mode === "dataArchitecture") {
     lines.push("This diagram shows what stores data.");
+    lines.push(INFRA_EVIDENCE_DIAGRAM_PNG_DATA_ARCHITECTURE_INVENTORY_NOTE);
+  } else if (input.mode === "network") {
+    lines.push(INFRA_EVIDENCE_DIAGRAM_PNG_NETWORK_PLACEMENT_NOTE);
   }
 
   if (input.outline === null || input.outline === undefined) {
@@ -74,7 +79,7 @@ export function buildInfraEvidencePngReadingStripLines(
     }
 
     if (hasInfraEvidenceInferredDiagramEdges(input.outline)) {
-      lines.push(INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED);
+      lines.push(resolveInfraEvidenceDiagramLegendInferredCopy(input.outline).legendLine);
     }
   }
 

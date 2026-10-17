@@ -76,6 +76,19 @@ describe("finding-derivation-sentence (TB-2154)", () => {
     expect(result.sentence).toContain("High severity finding");
   });
 
+  it("labels zero cited evidence and trace confidence separately (P-10)", () => {
+    const result = buildFindingDerivationSentence({
+      ruleName: "Ingress rule",
+      severityLabel: "High",
+      evidenceRefCount: 0,
+      traceConfidenceLabel: "Medium",
+    });
+
+    expect(result.sentence).toContain("0 cited evidence references");
+    expect(result.sentence).toContain("Trace confidence: Medium");
+    expect(result.sentence).toContain("This is not a cited evidence artifact.");
+  });
+
   it("labels a missing rule name with the rule id (P-10)", () => {
     const result = buildFindingDerivationSentence({
       ruleId: "sec-base-010",

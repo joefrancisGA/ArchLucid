@@ -29,8 +29,32 @@ export const INFRA_EVIDENCE_INVENTORY_EDGE_PANEL_LOGIC_APP_CONNECTION_HINT =
 export const INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED =
   "Dotted — inferred hostname or AI inference (confirm in configuration)";
 
+export const INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED_HOSTNAME =
+  "Dotted — inferred hostname (confirm in configuration)";
+
+export const INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED_AI =
+  "Dotted — AI inference (confirm in configuration)";
+
+export const INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED_HOSTNAME_AND_AI =
+  "Dotted — inferred hostname or AI inference (confirm in configuration)";
+
 export const INFRA_EVIDENCE_DIAGRAM_LEGEND_HOSTNAME_FOOTNOTE =
   "Dotted hostname edges are inferred. They are not observed connections.";
+
+export const INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED_HOSTNAME_FOOTNOTE =
+  INFRA_EVIDENCE_DIAGRAM_LEGEND_HOSTNAME_FOOTNOTE;
+
+export const INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED_AI_FOOTNOTE =
+  "Dotted AI inference edges are inferred. They are not observed connections.";
+
+export const INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED_HOSTNAME_AND_AI_FOOTNOTE =
+  "Dotted hostname and AI inference edges are inferred. They are not observed connections.";
+
+export const INFRA_EVIDENCE_DIAGRAM_PNG_DATA_ARCHITECTURE_INVENTORY_NOTE =
+  "This diagram shows how data stores relate in inventory. It is not a data-movement map.";
+
+export const INFRA_EVIDENCE_DIAGRAM_PNG_NETWORK_PLACEMENT_NOTE =
+  "This diagram shows network placement in inventory. It does not prove reachability.";
 
 export const INFRA_EVIDENCE_DIAGRAM_LEGEND_RESOURCE_CATEGORY = "Resource category";
 

@@ -1,3 +1,4 @@
+import { INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_OBSERVED } from "@/lib/infra-evidence/infra-evidence-diagram-copy";
 import { normalizeSecureNowResourceNameForDisplay } from "@/lib/infra-evidence/format-azure-resource-display";
 import { findUnquotedMermaidCommentIndex } from "@/lib/mermaid/find-unquoted-mermaid-comment-index";
 
@@ -304,6 +305,14 @@ function emptyOutlineEdgeMetadata(): OutlineEdgeMetadata {
     inferenceSource: null,
     declaredConnectionId: null,
   };
+}
+
+export function formatInfraEvidenceOutlineProvenanceReviewerBand(provenanceKind: string): string {
+  if (provenanceKind === "ObservedFact") {
+    return INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_OBSERVED;
+  }
+
+  return `Provenance "${provenanceKind}" has no reviewer band.`;
 }
 
 function resolveOutlineEdgeSourceFromProvenance(provenanceKind: string): InfraEvidenceDiagramOutlineEdgeSource {

@@ -91,7 +91,7 @@ public static class DiagramNodeHumanCaptionFactory
         }
         else if (node.ConnectionState == InventoryDiagramConnectionState.Unknown)
         {
-            combined = $"{combined} · Connection state was not stored.";
+            combined = $"{combined} · Connection state was not classified.";
         }
 
         if (node.UnresolvedRelationshipDetails.Count > 0)

@@ -277,6 +277,16 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
         </p>
       ) : null}
 
+      {currentQuestion != null && !resourceIdMissing && outline === null ? (
+        <p
+          className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="infra-diagrams-question-outline-not-loaded"
+          role="status"
+        >
+          Diagram outline was not loaded.
+        </p>
+      ) : null}
+
       {currentQuestion != null && !resourceIdMissing && outline != null && !resourceOnDiagram ? (
         <p
           className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
@@ -301,6 +311,9 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
                   Answer choices were stored as an empty list.
                 </p>
               ) : null}
+              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                Not sure moves to the next question without storing an answer.
+              </p>
               <div className="flex flex-wrap gap-2">
                 {currentQuestion.answerCodes?.map((answerCode) => (
                   <Button

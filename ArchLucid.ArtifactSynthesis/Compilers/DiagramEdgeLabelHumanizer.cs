@@ -89,7 +89,7 @@ internal static class DiagramEdgeLabelHumanizer
 
         if (string.Equals(inferenceSource, GraphEdgeInferenceSources.InventoryDiagnosticSettingStorage, StringComparison.OrdinalIgnoreCase))
         {
-            return string.Equals(label, "Sends diagnostics to", StringComparison.OrdinalIgnoreCase);
+            return string.Equals(label, "Diagnostic setting names", StringComparison.OrdinalIgnoreCase);
         }
 
         return false;
@@ -129,7 +129,7 @@ internal static class DiagramEdgeLabelHumanizer
                 GraphEdgeInferenceSources.InventoryDiagnosticSettingStorage,
                 StringComparison.OrdinalIgnoreCase))
         {
-            return "Sends diagnostics to";
+            return "Diagnostic setting names";
         }
 
         if (TryResolveCatalogDiagramLabel(edgeType, inferenceSource, out string catalogLabel))
@@ -271,7 +271,7 @@ internal static class DiagramEdgeLabelHumanizer
 
         if (string.Equals(baseSource, GraphEdgeInferenceSources.InventoryDiagnosticDestination, StringComparison.OrdinalIgnoreCase))
         {
-            label = $"Sends diagnostics to {qualifier}";
+            label = $"Diagnostic setting names {qualifier}";
 
             return true;
         }
@@ -416,7 +416,7 @@ internal static class DiagramEdgeLabelHumanizer
         if (string.Equals(value, GraphEdgeInferenceSources.InventoryDiagnosticSettingStorage, StringComparison.OrdinalIgnoreCase)
             || string.Equals(value, AzureInventoryRelationshipAssociationTypes.DiagnosticSettingToStorage, StringComparison.OrdinalIgnoreCase))
         {
-            humanized = "Sends diagnostics to";
+            humanized = "Diagnostic setting names";
 
             return true;
         }
@@ -424,7 +424,7 @@ internal static class DiagramEdgeLabelHumanizer
         if (string.Equals(value, GraphEdgeInferenceSources.InventoryDiagnosticDestination, StringComparison.OrdinalIgnoreCase)
             || string.Equals(value, AzureInventoryRelationshipAssociationTypes.DiagnosticToDestination, StringComparison.OrdinalIgnoreCase))
         {
-            humanized = "Sends diagnostics to";
+            humanized = "Diagnostic setting names";
 
             return true;
         }

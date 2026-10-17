@@ -20,6 +20,7 @@ import { cn } from "@/lib/utils";
 export type FindingDerivationLineProps = {
   readonly derivation: FindingDerivationResult;
   readonly evidenceHref?: string | null;
+  readonly evidenceRefCount?: number | null;
   readonly testId?: string;
   readonly compact?: boolean;
 };
@@ -56,9 +57,20 @@ export function FindingDerivationLine(props: FindingDerivationLineProps): React.
     [syncFindingDerivationEvidenceOpenToUrl],
   );
 
-  const { derivation, evidenceHref, testId = "finding-derivation-line", compact = false } = props;
+  const {
+    derivation,
+    evidenceHref,
+    evidenceRefCount,
+    testId = "finding-derivation-line",
+    compact = false,
+  } = props;
   const evidenceLink =
     evidenceHref !== null && evidenceHref !== undefined && evidenceHref.trim().length > 0 ? evidenceHref : null;
+  const citedEvidenceCount =
+    typeof evidenceRefCount === "number" && Number.isFinite(evidenceRefCount)
+      ? Math.max(0, Math.trunc(evidenceRefCount))
+      : 0;
+  const evidenceActionLabel = citedEvidenceCount > 0 ? "Show evidence" : "Open finding";
   const sentence = derivation.synthesised && !derivation.sentence.startsWith(FINDING_DERIVATION_ASSEMBLED_PREFIX)
     ? `${FINDING_DERIVATION_ASSEMBLED_PREFIX} ${derivation.sentence}`
     : derivation.sentence;
@@ -98,7 +110,7 @@ export function FindingDerivationLine(props: FindingDerivationLineProps): React.
               className={cn("font-medium", OPERATOR_LINK.inline)}
               data-testid={`${testId}-evidence-link`}
             >
-              Show evidence
+              {evidenceActionLabel}
             </Link>
           </>
         ) : null}
@@ -120,7 +132,7 @@ export function FindingDerivationLine(props: FindingDerivationLineProps): React.
             setFindingDerivationEvidenceOpen(!findingDerivationEvidenceOpenRef.current);
           }}
         >
-          <summary className="cursor-pointer select-none font-medium text-al-text-primary">Show evidence</summary>
+          <summary className="cursor-pointer select-none font-medium text-al-text-primary">{evidenceActionLabel}</summary>
           <p className="m-0 mt-1">
             <Link
               href={evidenceLink}

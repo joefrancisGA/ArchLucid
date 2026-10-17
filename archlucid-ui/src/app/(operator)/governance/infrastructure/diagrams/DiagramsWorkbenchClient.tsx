@@ -2775,7 +2775,7 @@ export function DiagramsWorkbenchClient() {
               : dataFlowHasNoResourcesOrConnections
                 ? "This data-flow canvas has no resources and no connections."
                 : dataFlowHasNoConnections
-                ? "This data-flow canvas is empty."
+                ? "No data-flow connections in this snapshot"
                 : GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_CONTENT_TITLE
           }
           description={

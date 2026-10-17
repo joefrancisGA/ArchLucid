@@ -105,6 +105,30 @@ describe("infra-evidence-png-reading-strip", () => {
     );
   });
 
+  it("adds data-architecture inventory honesty for dataArchitecture mode (P-06)", () => {
+    const lines = buildInfraEvidencePngReadingStripLines({
+      mode: "dataArchitecture",
+      outline: { nodes: [], edges: [] },
+      completenessWarnings: [],
+    });
+
+    expect(lines).toContain(
+      "This diagram shows how data stores relate in inventory. It is not a data-movement map.",
+    );
+  });
+
+  it("adds network placement honesty for network mode (P-07)", () => {
+    const lines = buildInfraEvidencePngReadingStripLines({
+      mode: "network",
+      outline: { nodes: [], edges: [] },
+      completenessWarnings: [],
+    });
+
+    expect(lines).toContain(
+      "This diagram shows network placement in inventory. It does not prove reachability.",
+    );
+  });
+
   it("does not claim that a data-flow line was observed traffic", () => {
     const lines = buildInfraEvidencePngReadingStripLines({
       mode: "dataFlow",
