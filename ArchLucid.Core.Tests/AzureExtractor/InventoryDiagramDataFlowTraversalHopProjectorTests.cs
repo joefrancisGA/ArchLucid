@@ -177,19 +177,7 @@ public sealed class InventoryDiagramDataFlowTraversalHopProjectorTests
     [Fact]
     public void CollectTraversalLinks_ignores_diagnostic_setting_to_storage()
     {
-        GraphSnapshot graph = CreateGraph(
-            [
-                CreateNode("app-node", AppArmId, "Microsoft.Web/sites"),
-                CreateNode("storage-node", StorageArmId, "Microsoft.Storage/storageAccounts"),
-            ],
-            [
-                CreateEdge(
-                    "app-node",
-                    "storage-node",
-                    AzureInventoryRelationshipAssociationTypes.DiagnosticSettingToStorage,
-                    GraphEdgeInferenceSources.InventoryDiagnosticSettingStorage),
-            ]);
-
+        GraphSnapshot graph = BuildDiagnosticSettingStorageGraph();
         IReadOnlyList<InventoryDiagramDataFlowTraversalHopLink> links =
             InventoryDiagramDataFlowTraversalHopProjector.CollectTraversalLinks(graph);
 
@@ -487,6 +475,26 @@ public sealed class InventoryDiagramDataFlowTraversalHopProjectorTests
         List<GraphEdge> edges =
         [
             CreateEdge("nsg-node", "app-node", AzureInventoryRelationshipAssociationTypes.SubnetToNsg, GraphEdgeInferenceSources.InventorySubnetNsg),
+        ];
+
+        return CreateGraph(nodes, edges);
+    }
+
+    private static GraphSnapshot BuildDiagnosticSettingStorageGraph()
+    {
+        List<GraphNode> nodes =
+        [
+            CreateNode("app-node", AppArmId, "Microsoft.Web/sites"),
+            CreateNode("storage-node", StorageArmId, "Microsoft.Storage/storageAccounts"),
+        ];
+
+        List<GraphEdge> edges =
+        [
+            CreateEdge(
+                "app-node",
+                "storage-node",
+                AzureInventoryRelationshipAssociationTypes.DiagnosticSettingToStorage,
+                GraphEdgeInferenceSources.InventoryDiagnosticSettingStorage),
         ];
 
         return CreateGraph(nodes, edges);
