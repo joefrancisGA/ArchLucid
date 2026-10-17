@@ -25,14 +25,17 @@ import type { CollectionRun } from "@/lib/collection-runs-api";
 import { formatIsoUtcForDisplay } from "@/lib/format-iso-utc";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { formatRelativeTime } from "@/lib/relative-time";
+import { SECURENOW_INFRASTRUCTURE_DRIFT_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
 import {
   SECURENOW_COLLECTION_AGENT_PATH,
 } from "@/lib/product-line/securenow-collection-agent-route";
-import { SECURENOW_NAV_LABELS } from "@/lib/product-line/securenow-nav-labels";
+import { resolveSecureNowPageHeading } from "@/lib/product-line/securenow-page-heading";
 
-const COLLECTION_AGENT_PAGE_TITLE =
-  SECURENOW_NAV_LABELS[SECURENOW_COLLECTION_AGENT_PATH] ?? "Collection Agent";
-import { SECURENOW_INFRASTRUCTURE_DRIFT_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
+const COLLECTION_AGENT_PAGE_TITLE = resolveSecureNowPageHeading(
+  "security",
+  "Collection Agent",
+  SECURENOW_COLLECTION_AGENT_PATH,
+);
 import { OPERATOR_LINK, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { cn } from "@/lib/utils";
