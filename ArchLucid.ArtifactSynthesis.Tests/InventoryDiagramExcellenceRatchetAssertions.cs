@@ -126,4 +126,74 @@ public static class InventoryDiagramExcellenceRatchetAssertions
         ArgumentNullException.ThrowIfNull(dot);
         dot.Should().Contain("subgraph cluster_rg_", "PNG/DOT should mirror RG frames from forest layout");
     }
+
+    public static void AssertDotSubscriptionClusterPolicy(string dot, DiagramMode mode)
+    {
+        ArgumentNullException.ThrowIfNull(dot);
+
+        bool subscriptionScoped = mode is DiagramMode.FullSubscription
+            or DiagramMode.Executive
+            or DiagramMode.Network
+            or DiagramMode.Architecture
+            or DiagramMode.Security
+            or DiagramMode.Identity
+            or DiagramMode.Data
+            or DiagramMode.DataFlow
+            or DiagramMode.DataArchitecture;
+
+        if (mode is DiagramMode.ResourceGroup
+            or DiagramMode.SelectedResources
+            or DiagramMode.DependencyNeighborhood)
+        {
+            dot.Should().NotContain("subgraph cluster_subscription", mode.ToString());
+            return;
+        }
+
+        if (subscriptionScoped)
+        {
+            dot.Should().Contain("subgraph cluster_subscription", mode.ToString());
+        }
+    }
+
+    public static void AssertSubnetFramePolicy(string svg, DiagramMode mode)
+    {
+        ArgumentNullException.ThrowIfNull(svg);
+
+        if (mode != DiagramMode.Network)
+        {
+            return;
+        }
+
+        int subnetFrames = XDocument.Parse(svg)
+            .Descendants()
+            .Count(element => element.Attribute("class")?.Value == "subnet-frame");
+
+        subnetFrames.Should().BeGreaterThan(0, "Network mode should draw subnet frames when subnet nodes and cited members exist");
+    }
+
+    public static void AssertForestAndDotNestedFrameParity(string svg, string dot)
+    {
+        ArgumentNullException.ThrowIfNull(svg);
+        ArgumentNullException.ThrowIfNull(dot);
+
+        int vnetFrames = XDocument.Parse(svg)
+            .Descendants()
+            .Count(element => element.Attribute("class")?.Value == "vnet-frame");
+        int subnetFrames = XDocument.Parse(svg)
+            .Descendants()
+            .Count(element => element.Attribute("class")?.Value == "subnet-frame");
+
+        int dotVnetClusters = CountDotClusterLines(dot, "cluster_vnet_");
+        int dotSubnetClusters = CountDotClusterLines(dot, "cluster_subnet_");
+
+        dotVnetClusters.Should().Be(vnetFrames, "each forest VNet frame should have a matching Graphviz cluster");
+        dotSubnetClusters.Should().Be(subnetFrames, "each forest subnet frame should have a matching Graphviz cluster");
+    }
+
+    private static int CountDotClusterLines(string dot, string clusterToken)
+    {
+        return dot.Split('\n')
+            .Count(line => line.Contains("subgraph ", StringComparison.Ordinal)
+                && line.Contains(clusterToken, StringComparison.Ordinal));
+    }
 }
