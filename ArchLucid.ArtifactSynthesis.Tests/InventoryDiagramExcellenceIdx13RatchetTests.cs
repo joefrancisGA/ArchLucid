@@ -59,6 +59,9 @@ public sealed class InventoryDiagramExcellenceIdx13RatchetTests
         string dot = dotEmitter.Emit(ast);
         InventoryDiagramExcellenceRatchetAssertions.AssertDotContainsResourceGroupCluster(dot);
         InventoryDiagramExcellenceRatchetAssertions.AssertDotSubscriptionClusterPolicy(dot, mode);
+        // 0 = 0 is success when a mode filter leaves no nested frames.
+        InventoryDiagramExcellenceRatchetAssertions.AssertForestAndDotNestedFrameParity(layout.Svg!, dot);
+        InventoryDiagramExcellenceRatchetAssertions.AssertSubnetFramePolicy(layout.Svg!, mode);
     }
 
     [Fact]

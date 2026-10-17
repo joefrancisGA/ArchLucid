@@ -49,6 +49,11 @@ public sealed class DiagramAstGraphvizDotEmitter : IDiagramAstGraphvizDotEmitter
             builder.AppendLine("        penwidth=2.5;");
         }
 
+        HashSet<string> subnetMembersOutsideHomeGroup =
+            DiagramResourceGroupGraphvizClusterPlanner.ResolveSubnetMembersOutsideHomeGroup(
+                ast,
+                resourceGroupClusters);
+
         foreach (DiagramResourceGroupGraphvizClusterPlanner.ClusterPlan cluster in resourceGroupClusters)
         {
             EmitResourceGroupCluster(
@@ -56,7 +61,8 @@ public sealed class DiagramAstGraphvizDotEmitter : IDiagramAstGraphvizDotEmitter
                 cluster,
                 emitSubscriptionCluster ? 2 : 1,
                 ast,
-                allocatedClusterIds);
+                allocatedClusterIds,
+                subnetMembersOutsideHomeGroup);
         }
 
         if (emitSubscriptionCluster)
@@ -248,7 +254,8 @@ public sealed class DiagramAstGraphvizDotEmitter : IDiagramAstGraphvizDotEmitter
         DiagramResourceGroupGraphvizClusterPlanner.ClusterPlan cluster,
         int indent,
         DiagramAst ast,
-        HashSet<string> allocatedClusterIds)
+        HashSet<string> allocatedClusterIds,
+        HashSet<string> subnetMembersOutsideHomeGroup)
     {
         ArgumentNullException.ThrowIfNull(builder);
         ArgumentNullException.ThrowIfNull(cluster);
@@ -321,6 +328,7 @@ public sealed class DiagramAstGraphvizDotEmitter : IDiagramAstGraphvizDotEmitter
         foreach (DiagramNode node in cluster.Nodes
                      .Where(candidate => candidate is not null)
                      .Where(candidate => !nestedNodeIds.Contains(candidate.NodeId))
+                     .Where(candidate => !subnetMembersOutsideHomeGroup.Contains(candidate.NodeId))
                      .OrderBy(candidate => candidate.OrderKey)
                      .ThenBy(candidate => candidate.NodeId, StringComparer.Ordinal))
         {
