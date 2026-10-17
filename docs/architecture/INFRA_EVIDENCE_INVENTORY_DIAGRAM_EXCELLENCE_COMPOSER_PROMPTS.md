@@ -463,7 +463,7 @@ Tests: as named in the paste file (dotnet filter covering all twelve DiagramMode
 
 # IDX-07b — Data Flow in-stage hub
 
-**Depends on:** IDX-07 hub-spoke and `data-hub-spoke="hub"` already on trunk. **Extend only.** **Shipped** — do not re-prompt hub geometry. Next gap is **IDX-07c**.
+**Depends on:** IDX-07 hub-spoke and `data-hub-spoke="hub"` already on trunk. **Extend only.** **Shipped** — do not re-prompt hub geometry. Next gap is **IDX-07d**.
 
 **Paste file:** [`.cursor/prompts/inventory-diagram-excellence-07b-dataflow-in-stage-hub.md`](../../.cursor/prompts/inventory-diagram-excellence-07b-dataflow-in-stage-hub.md)
 
