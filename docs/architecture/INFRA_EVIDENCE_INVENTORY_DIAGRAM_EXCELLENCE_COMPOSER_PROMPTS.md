@@ -21,6 +21,7 @@
 | No VNet/subnet boxes | **IDX-05** | Network still a flat RG dump |
 | No subscription container | **IDX-06** | Multi-sub or Full has no outer |
 | Role-blind inner grid | **IDX-07** | Hubs lost; compute mixed with KV |
+| Data Flow stage is a vertical stack | **IDX-07b** | ADF with four sinks is not a hub inside the stage |
 | Singleton-RG tail | **IDX-08** | Full subscription is a postage sheet |
 | Duplicate connections | **IDX-09** | Five Office365 cards per Logic App |
 | PE flag with no UI | **IDX-10** | Operators cannot opt in; or PEs sneak on |
@@ -40,6 +41,7 @@
 | **IDX-05** Nested VNet/subnet frames | After 04 preferred | |
 | **IDX-06** Subscription outer | After 05 | |
 | **IDX-07** Role-aware packing | After 05 | |
+| **IDX-07b** Data Flow in-stage hub | After 07 | Prompt only until implemented |
 | **IDX-08** Singleton-RG collapse | After 06 | |
 | **IDX-09** Duplicate connection collapse | After 03 | |
 | **IDX-10** PE opt-in toggle | After 02 | |
