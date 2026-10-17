@@ -13,6 +13,31 @@ const WORKSPACE_METRICS_SCOPE = "Operational security · this workspace";
 
 export const REMEDIATION_FACTORY_EXECUTIVE_METRICS_TITLE = "Executive remediation metrics" as const;
 
+export const REMEDIATION_FACTORY_METRICS_MEASUREMENT_TITLE = "How these counts are measured" as const;
+
+export const REMEDIATION_FACTORY_METRICS_MEASUREMENT_BODY =
+  "Open findings uses the factory metrics count. The governance queue can count open rows differently. Risk-weighted open uses remediation prioritization rule IE15-priority-v1. Net burn is opened minus closed. It is not cloud spend." as const;
+
+export const REMEDIATION_FACTORY_OPEN_FINDINGS_HELPER = "SecureNow findings that are still open." as const;
+
+export const REMEDIATION_FACTORY_RISK_WEIGHTED_HELPER =
+  "A weighted count of those open findings. Not a percentage." as const;
+
+export const REMEDIATION_FACTORY_CRITICAL_EXPOSURE_HELPER = "Open findings marked critical." as const;
+
+export const REMEDIATION_FACTORY_NET_BURN_HELPER =
+  "Findings opened minus findings closed in seven days." as const;
+
+export const REMEDIATION_FACTORY_PATTERN_EXACT_HELPER =
+  "Share of open findings whose pattern matched exactly." as const;
+
+export const REMEDIATION_FACTORY_AUTOMATION_HELPER =
+  "Share of open findings with an automated check." as const;
+
+export const REMEDIATION_FACTORY_EXCEPTIONS_HELPER = "Risk exceptions still in force." as const;
+
+export const REMEDIATION_FACTORY_AVERAGE_AGE_HELPER = "Average age of the open findings, in days." as const;
+
 export const REMEDIATION_FACTORY_EXECUTIVE_METRICS_SCOPE =
   "Counts and percentages across open operational security findings in the current workspace scope." as const;
 
@@ -69,6 +94,7 @@ export function remediationFactoryDecimalMetricPresentation(input: {
 export function remediationFactoryPercentMetricPresentation(input: {
   readonly value: number | null | undefined;
   readonly scopeNote: string;
+  readonly plainScopeNote?: boolean;
 }): RemediationFactoryMetricPresentation {
   if (input.value === null || input.value === undefined) {
     return {
@@ -78,9 +104,14 @@ export function remediationFactoryPercentMetricPresentation(input: {
     };
   }
 
+  const scopeNote =
+    input.plainScopeNote === true
+      ? input.scopeNote
+      : `${WORKSPACE_METRICS_SCOPE}. ${REMEDIATION_FACTORY_PERCENT_POPULATION_LINE} ${input.scopeNote}`;
+
   return {
     displayValue: formatRemediationFactoryPercentDisplay(input.value),
-    scopeNote: `${WORKSPACE_METRICS_SCOPE}. ${REMEDIATION_FACTORY_PERCENT_POPULATION_LINE} ${input.scopeNote}`,
+    scopeNote,
     state: input.value === 0 ? "measuredZero" : "measured",
   };
 }
@@ -98,7 +129,7 @@ export function buildRemediationFactoryExecutiveMetricPresentations(input: {
 
   const openFindingsPresentation = remediationFactoryCountMetricPresentation({
     value: metrics?.openFindings,
-    scopeNote: `${WORKSPACE_METRICS_SCOPE}. SecureNow findings that are still open (factory metrics API).`,
+    scopeNote: REMEDIATION_FACTORY_OPEN_FINDINGS_HELPER,
     href: input.openFindingsHref,
   });
 
@@ -107,14 +138,13 @@ export function buildRemediationFactoryExecutiveMetricPresentations(input: {
       key: "open-findings",
       label: "Open findings",
       presentation: openFindingsPresentation,
-      hint: "Governance findings queue may count open rows differently — compare only when both surfaces are loaded.",
     },
     {
       key: "risk-weighted-open",
       label: "Risk-weighted open",
       presentation: remediationFactoryDecimalMetricPresentation({
         value: metrics?.riskWeightedOpen,
-        scopeNote: `${WORKSPACE_METRICS_SCOPE}. Weighted sum from prioritization rule IE15-priority-v1 — not a finding count or percentage.`,
+        scopeNote: REMEDIATION_FACTORY_RISK_WEIGHTED_HELPER,
       }),
     },
     {
@@ -122,7 +152,7 @@ export function buildRemediationFactoryExecutiveMetricPresentations(input: {
       label: "Critical exposure",
       presentation: remediationFactoryCountMetricPresentation({
         value: metrics?.criticalExposureCount,
-        scopeNote: `${WORKSPACE_METRICS_SCOPE}. Count from factory metrics — linked queue filter is critical-error severity and may differ.`,
+        scopeNote: REMEDIATION_FACTORY_CRITICAL_EXPOSURE_HELPER,
         href: buildGovernanceFindingsQueueHref({ filter: "critical-error" }),
       }),
       hint:
@@ -143,19 +173,16 @@ export function buildRemediationFactoryExecutiveMetricPresentations(input: {
       label: "Net burn (7d)",
       presentation: remediationFactoryCountMetricPresentation({
         value: metrics?.netBurn,
-        scopeNote: `${WORKSPACE_METRICS_SCOPE}. Findings opened minus remediated in the rolling 7-day window — not cloud spend. Negative means more closed than opened.`,
+        scopeNote: REMEDIATION_FACTORY_NET_BURN_HELPER,
       }),
-      hint:
-        metrics == null
-          ? undefined
-          : `7-day window · Created ${metrics.createdThisWeek} · Remediated ${metrics.remediatedThisWeek}`,
     },
     {
       key: "pattern-exact-match",
       label: "Pattern ExactMatch %",
       presentation: remediationFactoryPercentMetricPresentation({
         value: metrics?.patternCoverageExactMatchPercent,
-        scopeNote: "Pattern key exact-match rate among open findings in this metric.",
+        scopeNote: REMEDIATION_FACTORY_PATTERN_EXACT_HELPER,
+        plainScopeNote: true,
       }),
       hint: "Pattern keys appear in the priority queue when recorded — not a drill-through from this tile alone.",
     },
@@ -164,7 +191,8 @@ export function buildRemediationFactoryExecutiveMetricPresentations(input: {
       label: "Automation %",
       presentation: remediationFactoryPercentMetricPresentation({
         value: metrics?.automationPercent,
-        scopeNote: "Share of open findings with an automated check recorded in this metric.",
+        scopeNote: REMEDIATION_FACTORY_AUTOMATION_HELPER,
+        plainScopeNote: true,
       }),
     },
     {
@@ -172,7 +200,7 @@ export function buildRemediationFactoryExecutiveMetricPresentations(input: {
       label: "Exceptions active",
       presentation: remediationFactoryCountMetricPresentation({
         value: metrics?.exceptionsActive,
-        scopeNote: `${WORKSPACE_METRICS_SCOPE}. Risk exceptions still in force (current snapshot, not 7-day window).`,
+        scopeNote: REMEDIATION_FACTORY_EXCEPTIONS_HELPER,
       }),
       hint:
         metrics == null
@@ -185,7 +213,7 @@ export function buildRemediationFactoryExecutiveMetricPresentations(input: {
       presentation: remediationFactoryDecimalMetricPresentation({
         value: metrics?.averageAgeDays,
         fractionDigits: 1,
-        scopeNote: "Average age of the open findings, in days.",
+        scopeNote: REMEDIATION_FACTORY_AVERAGE_AGE_HELPER,
       }),
     },
   ];
