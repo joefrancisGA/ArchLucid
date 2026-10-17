@@ -55,5 +55,13 @@ public sealed class InventoryDiagramNetworkSubnetCompileTests
             ast.Nodes.Any(node =>
                 string.Equals(node.NodeId, edge.ToNodeId, StringComparison.Ordinal)
                 && (node.ArmResourceType ?? string.Empty).Contains("/subnets", StringComparison.OrdinalIgnoreCase)));
+
+        DiagramForestLayoutResult layout = forestRenderer.Render(ast);
+        layout.Succeeded.Should().BeTrue(layout.Error);
+        XDocument.Parse(layout.Svg!)
+            .Descendants()
+            .Count(element => element.Attribute("class")?.Value == "subnet-frame")
+            .Should()
+            .BeGreaterThan(0);
     }
 }

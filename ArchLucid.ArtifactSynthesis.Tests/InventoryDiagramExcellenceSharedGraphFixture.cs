@@ -113,7 +113,7 @@ public static class InventoryDiagramExcellenceSharedGraphFixture
             "data-rg",
             GraphTopologyCategories.Data));
 
-        graph.Edges.Add(CitedEdge("vm-1", "nic-1", AzureInventoryRelationshipAssociationTypes.NicToSubnet));
+        graph.Edges.Add(CitedEdge("vm-1", "nic-1", AzureInventoryRelationshipAssociationTypes.VmToNic));
         graph.Edges.Add(CitedEdge("nic-1", "subnet-1", AzureInventoryRelationshipAssociationTypes.NicToSubnet));
         graph.Edges.Add(CitedEdge("subnet-1", "vnet-1", GraphEdgeTypes.Contains));
         graph.Edges.Add(CitedEdge("pe-1", "subnet-1", AzureInventoryRelationshipAssociationTypes.PeToSubnet));
