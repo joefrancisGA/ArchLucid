@@ -93,7 +93,8 @@ Do **not** draw a complete graph to “maximize edges.” Do **not** show NIC or
 | **IDX-07b** Data Flow in-stage hub | **Shipped** on trunk — extend only | Hub inside a Data Flow stage; stages stay left-to-right |
 | **IDX-07c** Rollup must not erase that hub | **Shipped** on trunk — extend only | Same-type sinks in a hub component stay separate cards |
 | **IDX-07d** Route edges into that hub | **Shipped** on trunk — extend only | Cross-stage edge into a hub must not throw or cross spokes |
-| **IDX-07e** Subcolumn keeps hub component whole | **Prompt only** — not implemented | `Take(12)` splits hub stars across subcolumns |
+| **IDX-07e** Subcolumn keeps hub component whole | **Shipped** on trunk — extend only | `Take(12)` splits hub stars across subcolumns |
+| **IDX-07f** Data Flow hub pipeline ratchet | **Prompt only** — not implemented | Hub tests live outside `InventoryDiagramExcellence` filter |
 | **IDX-08** Singleton-RG collapse | **Shipped** on trunk — do not greenfield | Tail rollup when ≥8 isolated singleton RGs |
 | **IDX-09** Duplicate connection collapse | **Shipped** on trunk — do not greenfield | `DiagramInventoryConnectionRollupApplier` |
 | **IDX-10** PE opt-in toggle | **Shipped** on trunk — extend only | Workbench toggle; default off all modes incl. `ResourceGroup` |
@@ -124,6 +125,7 @@ Suggested Cloud Agent branch per prompt: `cursor/inventory-diagram-excellence-<s
 | 07c | `inventory-diagram-excellence-07c-rollup-preserves-hub.md` | Data Flow rollup collapses four same-type sinks before hub layout |
 | 07d | `inventory-diagram-excellence-07d-hub-edge-route.md` | Cross-stage edge into an in-stage hub fails the forest render |
 | 07e | `inventory-diagram-excellence-07e-subcolumn-keeps-hub.md` | Twelve-card subcolumn wrap splits hub-and-spoke components |
+| 07f | `inventory-diagram-excellence-07f-dataflow-hub-ratchet.md` | 07b–07e regressions skip the excellence test filter |
 | 08 | `inventory-diagram-excellence-08-singleton-rg-collapse.md` | Long tail of one-node RG frames |
 | 09 | `inventory-diagram-excellence-09-duplicate-connection-collapse.md` | Duplicate Logic App connector cards |
 | 10 | `inventory-diagram-excellence-10-pe-opt-in-toggle.md` | PE cards have no workbench opt-in; hops already used |
