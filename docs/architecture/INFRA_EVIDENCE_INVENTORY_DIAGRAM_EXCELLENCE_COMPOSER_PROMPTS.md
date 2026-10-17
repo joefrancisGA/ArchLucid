@@ -25,7 +25,8 @@
 | Data Flow rollup erases that hub | **IDX-07c** | Four same-type sinks collapse to one card before hub layout |
 | Cross-stage edge into that hub throws | **IDX-07d** | Gutter route crosses spokes and forest render fails |
 | Subcolumn wrap splits hub star | **IDX-07e** | `Take(12)` tears hub-and-spoke across Data Flow columns |
-| Hub pipeline not in excellence filter | **IDX-07f** | `DataFlowInStageHub` regressions do not fail `InventoryDiagramExcellence` |
+| Hub pipeline not in excellence filter | **IDX-07f** | Shipped — extend only |
+| Hub pipeline Mermaid export untested | **IDX-13c** | Forest ratchet green while Export Mermaid drops nodes |
 | Singleton-RG tail | **IDX-08** | Full subscription is a postage sheet |
 | Duplicate connections | **IDX-09** | Five Office365 cards per Logic App |
 | PE flag with no UI | **IDX-10** | Operators cannot opt in; or PEs sneak on |
@@ -49,7 +50,8 @@
 | **IDX-07c** Rollup preserves in-stage hub | After 07b | Shipped — extend only |
 | **IDX-07d** Route edges into an in-stage hub | After 07c | Shipped — extend only |
 | **IDX-07e** Subcolumn keeps hub component whole | After 07d | Shipped — extend only |
-| **IDX-07f** Data Flow hub pipeline ratchet | After 07e | Prompt only until implemented |
+| **IDX-07f** Data Flow hub pipeline ratchet | After 07e | Shipped — extend only |
+| **IDX-13c** Data Flow hub Mermaid ratchet | After 07f | Prompt only until implemented |
 | **IDX-08** Singleton-RG collapse | After 06 | |
 | **IDX-09** Duplicate connection collapse | After 03 | |
 | **IDX-10** PE opt-in toggle | After 02 | |
@@ -548,7 +550,7 @@ dotnet test ArchLucid.ArtifactSynthesis.Tests/ArchLucid.ArtifactSynthesis.Tests.
 
 # IDX-07e — Data Flow subcolumns must not split a hub component
 
-**Depends on:** IDX-07b–07d on trunk. **Branch:** a new `cursor/idx-07e-subcolumn-keeps-hub-*` feature branch. **Extend only.** **Prompt only until implemented.**
+**Depends on:** IDX-07b–07d on trunk. **Extend only.** **Shipped** — do not re-prompt subcolumn packing. Next gap is **IDX-07f** (forest ratchet) then **IDX-13c** (Mermaid).
 
 **Paste file:** [`.cursor/prompts/inventory-diagram-excellence-07e-subcolumn-keeps-hub.md`](../../.cursor/prompts/inventory-diagram-excellence-07e-subcolumn-keeps-hub.md)
 
@@ -569,6 +571,33 @@ Work: implement only "What to build" in the paste file.
 
 Tests:
 dotnet test ArchLucid.ArtifactSynthesis.Tests/ArchLucid.ArtifactSynthesis.Tests.csproj --filter 'FullyQualifiedName~DataFlowInStageHub|FullyQualifiedName~DiagramForestDataFlowEdgeRouter|FullyQualifiedName~DiagramForestDataFlowRollup'
+```
+
+---
+
+# IDX-07f — Data Flow hub pipeline excellence ratchet (forest)
+
+**Depends on:** IDX-07b–07e on trunk. **Extend only.** **Shipped** — do not re-prompt forest hub ratchet. Next gap is **IDX-13c** (Mermaid export).
+
+**Paste file:** [`.cursor/prompts/inventory-diagram-excellence-07f-dataflow-hub-ratchet.md`](../../.cursor/prompts/inventory-diagram-excellence-07f-dataflow-hub-ratchet.md)
+
+### Prompt (copy below)
+
+```text
+You are working in the ArchLucid repo on a FEATURE BRANCH. Goal: fold IDX-07b through IDX-07e into FullyQualifiedName~InventoryDiagramExcellence using InventoryDiagramExcellenceDataFlowHubPipelineFixture and InventoryDiagramExcellenceDataFlowHubPipelineRatchetTests. Forest render must succeed with one data-hub-spoke hub, fourteen cited node ids, no Data Flow rollup nodes, and cross-stage routing that avoids spoke cards. Do not change production layout unless a test fails on trunk. Do not greenfield IDX-01 through IDX-13.
+
+This is NOT IDX-HOLD.
+
+Read first:
+- .cursor/prompts/inventory-diagram-excellence-00-index.md
+- .cursor/prompts/inventory-diagram-excellence-07f-dataflow-hub-ratchet.md
+
+Working-tree check before tracked edits.
+
+Work: implement only "What to build" in the paste file.
+
+Tests:
+dotnet test ArchLucid.ArtifactSynthesis.Tests/ArchLucid.ArtifactSynthesis.Tests.csproj --filter 'FullyQualifiedName~InventoryDiagramExcellence'
 ```
 
 ---
@@ -596,6 +625,34 @@ Work: implement only "What to build" in the paste file.
 
 Tests:
 dotnet test ArchLucid.ArtifactSynthesis.Tests/ArchLucid.ArtifactSynthesis.Tests.csproj --filter 'FullyQualifiedName~InventoryDiagramExcellence|FullyQualifiedName~InventoryDiagramNetworkSubnet'
+```
+
+---
+
+# IDX-13c — Data Flow hub pipeline Mermaid export ratchet
+
+**Depends on:** IDX-07f on trunk. **Branch:** a new `cursor/idx-13c-dataflow-hub-mermaid-*` feature branch. **Extend only.** **Prompt only until implemented.**
+
+**Paste file:** [`.cursor/prompts/inventory-diagram-excellence-13c-dataflow-hub-mermaid-ratchet.md`](../../.cursor/prompts/inventory-diagram-excellence-13c-dataflow-hub-mermaid-ratchet.md)
+
+### Prompt (copy below)
+
+```text
+You are working in the ArchLucid repo on a FEATURE BRANCH. Goal: MermaidDiagramRenderPipeline must succeed on InventoryDiagramExcellenceDataFlowHubPipelineFixture.Build() and PrimaryMermaid must retain landing, adf, st0 through st11, the landing to adf cross-stage edge, and cited factory to spoke edges. Stage subgraphs must remain on the AST. Fix Mermaid repair or render only if tests fail; do not change forest hub layout. Do not retune Mermaid nodeSpacing. Do not greenfield IDX-01 through IDX-13.
+
+This is NOT IDX-HOLD.
+
+Read first:
+- .cursor/prompts/inventory-diagram-excellence-00-index.md
+- .cursor/prompts/inventory-diagram-excellence-13c-dataflow-hub-mermaid-ratchet.md
+
+Working-tree check before tracked edits.
+
+Work: implement only "What to build" in the paste file.
+
+Tests:
+dotnet test ArchLucid.ArtifactSynthesis.Tests/ArchLucid.ArtifactSynthesis.Tests.csproj --filter 'FullyQualifiedName~InventoryDiagramExcellence'
+dotnet test ArchLucid.ArtifactSynthesis.Tests/ArchLucid.ArtifactSynthesis.Tests.csproj --filter 'FullyQualifiedName~MermaidDiagramRenderPipeline'
 ```
 
 ---
