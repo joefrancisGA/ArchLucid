@@ -9,7 +9,8 @@ import type { InfraEvidenceDiffSummary } from "@/lib/infra-evidence/infra-eviden
 import { fetchRemediationFactorySummary } from "@/lib/infra-evidence/infra-evidence-remediation-api";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { SECURENOW_NAV_LABELS } from "@/lib/product-line/securenow-nav-labels";
+import { SECURENOW_ASSIGNED_TO_ME_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
+import { resolveSecureNowPageHeading } from "@/lib/product-line/securenow-page-heading";
 import { cn } from "@/lib/utils";
 
 const SNAPSHOT_PAGE_SIZE = 20;
@@ -93,7 +94,11 @@ export function SecureNowHomeWorkSummary(): React.JSX.Element {
     ? undefined
     : factorySummary.openInstancesByStatus.ChangeImplemented;
   const verificationFailures = factorySummary?.openInstancesByStatus.VerificationFailed;
-  const myFindingsLabel = SECURENOW_NAV_LABELS["/security/assigned-to-me"] ?? "My findings";
+  const myFindingsLabel = resolveSecureNowPageHeading(
+    "security",
+    "Assigned to me",
+    SECURENOW_ASSIGNED_TO_ME_FINDINGS_PATH,
+  );
   const assignedDetail = assignedQuery.isPending
     ? "Loading…"
     : knownCountDetail(assignedQuery.data, "None assigned to you", (count) => `${count} assigned to you`);
