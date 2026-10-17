@@ -208,6 +208,17 @@ describe("GovernanceFindingsQueueClient SecureNow /security/assigned-to-me", () 
     vi.mocked(governanceApi.getArchitectureRiskRegister).mockResolvedValue({ entries: [] });
   });
 
+  it("shows keyboard shortcut affordances for row navigation and path inspect", async () => {
+    renderSecureNowAssignedToMeQueue();
+
+    const shortcutRow = await screen.findByTestId("governance-assigned-to-me-shortcuts");
+
+    expect(shortcutRow).toHaveTextContent("alt+j");
+    expect(shortcutRow).toHaveTextContent("alt+k");
+    expect(shortcutRow).toHaveTextContent("alt+i");
+    expect(screen.queryByTestId("governance-findings-shortcuts")).not.toBeInTheDocument();
+  });
+
   it("shows register-only status, principal scope, and SecureNow findings queue link on empty load", async () => {
     renderSecureNowAssignedToMeQueue();
 

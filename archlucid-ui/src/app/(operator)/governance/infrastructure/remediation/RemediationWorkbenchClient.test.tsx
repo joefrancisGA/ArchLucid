@@ -122,6 +122,10 @@ describe("RemediationWorkbenchClient", () => {
     expect(primaryContent).toHaveClass("w-full");
     expect(await screen.findByTestId("infra-remediation-board")).toBeInTheDocument();
     expect(screen.getByTestId("infra-remediation-column-preflight")).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "Remediation waves" })).toBeInTheDocument();
+    expect(screen.getByText("Wave A: 2 findings in this wave.")).toBeInTheDocument();
+    expect(screen.getByText("Cap 5.")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /create wave/i })).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByTestId("infra-remediation-card-aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"));
 

@@ -120,6 +120,18 @@ export function GovernanceFindingsQueueHeader({
   const claimDisciplineTestId = isAssignedToMe
     ? "governance-assigned-to-me-claim-discipline"
     : "governance-findings-claim-discipline";
+  const secureNowProductLine = isSecureNowProductLine(productLine);
+  const findingsDeskShortcutEntries = [
+    ...FINDINGS_PAGE_SHORTCUTS.filter(
+      (entry) => operateEnabled || !["alt+1", "alt+2", "alt+3"].includes(entry.key),
+    ),
+    ...(secureNowProductLine ? GOVERNANCE_FINDINGS_QUEUE_PATH_INSPECT_PAGE_SHORTCUTS : []),
+  ];
+  const showFindingsDeskShortcutRow =
+    !isAssignedToMe || (isAssignedToMe && secureNowProductLine);
+  const findingsDeskShortcutRowTestId = isAssignedToMe
+    ? "governance-assigned-to-me-shortcuts"
+    : "governance-findings-shortcuts";
 
   return (
     <>
@@ -249,14 +261,12 @@ export function GovernanceFindingsQueueHeader({
           )
         }
       />
-      {!isAssignedToMe ? (
-        <p className={cn("m-0 mt-2 flex flex-wrap items-center gap-2", OPERATOR_TYPOGRAPHY.helper)} data-testid="governance-findings-shortcuts">
-          {[
-            ...FINDINGS_PAGE_SHORTCUTS.filter(
-              (entry) => operateEnabled || !["alt+1", "alt+2", "alt+3"].includes(entry.key),
-            ),
-            ...(isSecureNowProductLine(productLine) ? GOVERNANCE_FINDINGS_QUEUE_PATH_INSPECT_PAGE_SHORTCUTS : []),
-          ].map((entry) => (
+      {showFindingsDeskShortcutRow ? (
+        <p
+          className={cn("m-0 mt-2 flex flex-wrap items-center gap-2", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid={findingsDeskShortcutRowTestId}
+        >
+          {findingsDeskShortcutEntries.map((entry) => (
             <span key={entry.key} className="inline-flex items-center gap-1">
               {entry.label} <ShortcutHint shortcut={entry.key} />
             </span>
