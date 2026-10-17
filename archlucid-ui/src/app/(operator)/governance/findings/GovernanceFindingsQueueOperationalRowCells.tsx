@@ -92,7 +92,7 @@ export function governanceQueueSeverityCell(
   buyerPolishedShell: boolean,
   severityMeaning?: string,
 ): ReactElement {
-  if (buyerPolishedShell && row.recordKind === "decision") {
+  if (row.recordKind === "decision") {
     return (
       <span className="text-al-text-secondary">
         Severity does not apply to recorded decision rows.
@@ -224,7 +224,10 @@ export function GovernanceFindingsQueueOperationalRowCells(props: GovernanceFind
             {row.runLabel}
           </Link>
         ) : (
-          row.runLabel
+          <span className="space-y-0.5">
+            <span className="block">{row.runLabel}</span>
+            <span className={cn("block", OPERATOR_TYPOGRAPHY.helper)}>Review id was not stored.</span>
+          </span>
         )}
       </EnterpriseTableCell>
       <EnterpriseTableCell className={GOVERNANCE_FINDINGS_QUEUE_SEVERITY_STICKY_CLASS}>

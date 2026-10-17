@@ -54,7 +54,7 @@ describe("infra-evidence-png-reading-strip", () => {
       completenessWarnings: [],
     });
     expect(emptyEdges).not.toContain("Diagram outline was not stored.");
-    expect(emptyEdges).not.toContain("Diagram mode was not stored.");
+    expect(emptyEdges).toContain("Diagram mode was stored empty.");
 
     const nullMode = buildInfraEvidencePngReadingStripLines({
       mode: null,
@@ -105,28 +105,21 @@ describe("infra-evidence-png-reading-strip", () => {
     );
   });
 
-  it("adds data-architecture inventory honesty for dataArchitecture mode (P-06)", () => {
-    const lines = buildInfraEvidencePngReadingStripLines({
+  it("adds data-architecture and inventory-structure mode sentences (P-06)", () => {
+    const dataArchitecture = buildInfraEvidencePngReadingStripLines({
       mode: "dataArchitecture",
       outline: { nodes: [], edges: [] },
       completenessWarnings: [],
     });
-
-    expect(lines).toContain(
-      "This diagram shows how data stores relate in inventory. It is not a data-movement map.",
-    );
-  });
-
-  it("adds network placement honesty for network mode (P-07)", () => {
-    const lines = buildInfraEvidencePngReadingStripLines({
+    const network = buildInfraEvidencePngReadingStripLines({
       mode: "network",
       outline: { nodes: [], edges: [] },
       completenessWarnings: [],
     });
 
-    expect(lines).toContain(
-      "This diagram shows network placement in inventory. It does not prove reachability.",
-    );
+    expect(dataArchitecture).toContain("This diagram shows what stores data. It is not observed traffic.");
+    expect(network).toContain("This diagram shows inventory structure. It is not observed traffic.");
+    expect(network).not.toContain("This diagram shows what may connect.");
   });
 
   it("does not claim that a data-flow line was observed traffic", () => {

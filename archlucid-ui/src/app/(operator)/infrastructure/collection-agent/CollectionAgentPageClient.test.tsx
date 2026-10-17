@@ -73,6 +73,19 @@ describe("CollectionAgentPageClient", () => {
     });
   });
 
+  it("labels a successful run with missing finish time (P-17)", () => {
+    useCollectionRunsQueryMock.mockReturnValue({
+      data: [{ ...successfulRun(), finishedUtc: null }],
+      isPending: false,
+      isError: false,
+    });
+
+    render(<CollectionAgentPageClient />);
+
+    expect(screen.getByText("Last successful run finish time was not stored.")).toBeInTheDocument();
+    expect(screen.queryByText("No successful run recorded")).not.toBeInTheDocument();
+  });
+
   it("shows collection health and links an imported snapshot to Changes & drift", () => {
     useCollectionRunsQueryMock.mockReturnValue({
       data: [successfulRun()],
@@ -100,7 +113,7 @@ describe("CollectionAgentPageClient", () => {
 
     render(<CollectionAgentPageClient />);
 
-    expect(screen.getByText("Daily at 02:00 UTC")).toBeInTheDocument();
+    expect(screen.getByText("Schedule reported on a collection run: Daily at 02:00 UTC")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Run now" })).toBeDisabled();
     expect(screen.getAllByRole("row")[1]).toHaveTextContent("Running");
   });
@@ -142,6 +155,7 @@ describe("CollectionAgentPageClient", () => {
     const { rerender } = render(<CollectionAgentPageClient />);
 
     expect(screen.getByText("No collection runs yet.")).toBeInTheDocument();
+    expect(screen.queryByLabelText("Status: Blocked")).not.toBeInTheDocument();
     expect(screen.queryByRole("table")).not.toBeInTheDocument();
 
     useCollectionRunsQueryMock.mockReturnValue({

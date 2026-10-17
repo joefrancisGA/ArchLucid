@@ -6,6 +6,9 @@ namespace ArchLucid.ArtifactSynthesis.Layout;
 
 public static class DiagramNodeHumanCaptionFactory
 {
+    public const string ResourceTypeNotStoredCaption = "Resource type was not stored";
+    public const string ResourceGroupNotStoredCaption = "Resource group was not stored.";
+
     public static string? TryFormatDataFlowTypeCaption(DiagramNode node)
     {
         ArgumentNullException.ThrowIfNull(node);
@@ -64,6 +67,11 @@ public static class DiagramNodeHumanCaptionFactory
             ? resourceName
             : $"{resourceName} ({typeCaption})";
 
+        if (!node.IsDataFlowRollup && string.IsNullOrWhiteSpace(typeCaption))
+        {
+            combined = $"{combined} · {ResourceTypeNotStoredCaption}";
+        }
+
         if (node.ParentAttachmentDetails.Count > 0)
         {
             combined = $"{combined} · {string.Join(" · ", node.ParentAttachmentDetails)}";
@@ -106,9 +114,11 @@ public static class DiagramNodeHumanCaptionFactory
         string? resourceGroupCaption = string.IsNullOrWhiteSpace(node.ArmResourceGroup)
             ? null
             : node.ArmResourceGroup.Trim();
-        if (node.IncludeResourceGroupInCaption && resourceGroupCaption is not null)
+        if (node.IncludeResourceGroupInCaption)
         {
-            combined = $"{combined} · {resourceGroupCaption}";
+            combined = resourceGroupCaption is not null
+                ? $"{combined} · {resourceGroupCaption}"
+                : $"{combined} · {ResourceGroupNotStoredCaption}";
         }
         string accessibilityTitle = string.IsNullOrWhiteSpace(resourceGroupCaption)
             ? combined

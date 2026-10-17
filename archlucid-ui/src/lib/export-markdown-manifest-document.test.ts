@@ -109,7 +109,7 @@ describe("formatManifestDocumentShape component breakdown", () => {
 
     expect(missingRoot).toContain("Requirements were not stored.");
     expect(missingCovered).toContain("Covered requirements were not stored.");
-    expect(emptyCovered).not.toContain("Covered requirements were not stored.");
+    expect(emptyCovered).toContain("Covered requirements were stored as an empty list.");
   });
 
   it("labels omitted mandatory constraints and security controls", () => {
@@ -120,5 +120,24 @@ describe("formatManifestDocumentShape component breakdown", () => {
 
     expect(markdown).toContain("Mandatory constraints were not stored.");
     expect(markdown).toContain("Security controls were not stored.");
+  });
+
+  it("labels stored-empty service names and security controls (P-09)", () => {
+    const markdown = formatManifestDocumentShape({
+      topology: {
+        services: [{ serviceName: "", serviceId: "svc-1" }],
+        datastores: [],
+        relationships: [],
+        resources: null,
+      },
+      security: { controls: [], gaps: [] },
+      requirements: { covered: [], uncovered: [] },
+      decisions: [],
+    });
+
+    expect(markdown).toContain("Service name was stored empty.");
+    expect(markdown).not.toContain("**null**");
+    expect(markdown).toContain("Resources were not stored.");
+    expect(markdown).toContain("Security controls were stored as an empty list.");
   });
 });

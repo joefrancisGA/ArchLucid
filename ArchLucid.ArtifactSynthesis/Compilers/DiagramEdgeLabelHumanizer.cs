@@ -28,7 +28,10 @@ internal static class DiagramEdgeLabelHumanizer
                 continue;
             }
 
-            edge.Label = ResolveDisplayLabel(edge.Label, edge.InferenceSource, edge.InferenceSource);
+            string resolvedLabel = ResolveDisplayLabel(edge.Label, edge.InferenceSource, edge.InferenceSource);
+            edge.Label = string.IsNullOrWhiteSpace(resolvedLabel)
+                ? DiagramConnectionTypeAnnotator.RelationshipNotStoredLabel
+                : resolvedLabel;
         }
     }
 
@@ -166,7 +169,17 @@ internal static class DiagramEdgeLabelHumanizer
             return fromType;
         }
 
-        return HumanizeLabel(inferenceSource);
+        if (!string.IsNullOrWhiteSpace(inferenceSource))
+        {
+            string fromInference = HumanizeLabel(inferenceSource);
+
+            if (!string.IsNullOrWhiteSpace(fromInference))
+            {
+                return fromInference;
+            }
+        }
+
+        return DiagramConnectionTypeAnnotator.RelationshipNotStoredLabel;
     }
 
     private static bool TryResolveAuthorizedAccessLabel(

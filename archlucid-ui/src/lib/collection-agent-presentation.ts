@@ -124,7 +124,9 @@ export function formatCollectionRunSubscriptionsLabel(run: CollectionRun): strin
       return "Subscriptions covered were stored as an empty list.";
 
     case "listed":
-      return String(presentation.subscriptions.length);
+      return presentation.subscriptions.length === 1
+        ? "1 subscription covered."
+        : `${presentation.subscriptions.length} subscriptions covered.`;
 
     default: {
       const _exhaustive: never = presentation;

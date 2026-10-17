@@ -11,7 +11,7 @@ import { StatusTag } from "@/components/ui/status-tag";
 import {
   EnterpriseTableCell,
 } from "@/components/ui/enterprise-table";
-import { DESIGN_TOKENS, OPERATOR_LINK } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { findingDerivationFromGovernanceQueueRow } from "@/lib/findings/finding-derivation-sentence";
 import { governanceQueueStatusTagKind } from "@/components/governance/findings/governance-findings-buyer-labels";
 import {
@@ -124,7 +124,10 @@ export function GovernanceFindingsQueueAssignedToMeRowCells(props: GovernanceFin
             {row.runLabel}
           </Link>
         ) : (
-          row.runLabel
+          <span className="space-y-0.5">
+            <span className="block">{row.runLabel}</span>
+            <span className={cn("block", OPERATOR_TYPOGRAPHY.helper)}>Review id was not stored.</span>
+          </span>
         )}
       </EnterpriseTableCell>
       <EnterpriseTableCell className={GOVERNANCE_FINDINGS_QUEUE_SEVERITY_STICKY_CLASS}>

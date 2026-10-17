@@ -167,7 +167,13 @@ function formatManifestSummaryFallback(
     lines.push("Review id was not stored.");
   }
 
-  lines.push(`- **Review record id:** \`${summary.manifestId}\``);
+  const manifestId = summary.manifestId?.trim() ?? "";
+
+  if (manifestId.length > 0) {
+    lines.push(`- **Review record id:** \`${manifestId}\``);
+  } else {
+    lines.push("Review record id was not stored.");
+  }
 
   const status = summary.status?.trim() ?? "";
 
@@ -184,6 +190,7 @@ function formatManifestSummaryFallback(
     lines.push(`- **Policy pack:** ${ruleSetId} @ ${ruleSetVersion}`);
   } else if (ruleSetId.length > 0) {
     lines.push(`- **Policy pack:** ${ruleSetId}`);
+    lines.push("Policy pack version was not stored.");
   } else {
     lines.push("Policy pack was not stored.");
   }
@@ -202,7 +209,7 @@ function formatManifestSummaryFallback(
       lines,
     );
   } else {
-    lines.push("");
+    lines.push("Policy at commit was not stored.");
   }
 
   lines.push("## Objectives");

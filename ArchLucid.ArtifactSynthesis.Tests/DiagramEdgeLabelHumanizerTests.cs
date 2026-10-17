@@ -82,6 +82,14 @@ public sealed class DiagramEdgeLabelHumanizerTests
     }
 
     [Fact]
+    public void ResolveDisplayLabel_returns_relationship_not_stored_when_inputs_are_blank()
+    {
+        DiagramEdgeLabelHumanizer.ResolveDisplayLabel(null, null, null)
+            .Should()
+            .Be("Relationship was not stored");
+    }
+
+    [Fact]
     public void ResolveDisplayLabel_maps_event_hub_may_publish_and_qualified_capture()
     {
         DiagramEdgeLabelHumanizer.ResolveDisplayLabel(

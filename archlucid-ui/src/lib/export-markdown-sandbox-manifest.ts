@@ -2,10 +2,12 @@ import { isRecord, normalizeInlineText } from "./export-markdown-text";
 
 export function formatSandboxStyleGoldenManifest(m: Record<string, unknown>): string {
   const lines: string[] = [];
+  const systemName = normalizeInlineText(m.systemName);
   const title =
-    normalizeInlineText(m.systemName) ??
-    normalizeInlineText(m.manifestVersion) ??
-    "Committed architecture review record";
+    systemName ??
+    (m.systemName === null || m.systemName === undefined
+      ? "System name was not stored."
+      : "System name was stored empty.");
   const env = normalizeInlineText(m.environment);
   const cloud = normalizeInlineText(m.cloudProvider);
   const status = normalizeInlineText(m.status);
@@ -30,12 +32,14 @@ export function formatSandboxStyleGoldenManifest(m: Record<string, unknown>): st
 
     if (m.environment === null || m.environment === undefined) {
       lines.push("- Environment was not stored.");
+    } else if (typeof m.environment === "string" && m.environment.length === 0) {
+      lines.push("- Environment was stored empty.");
     } else if (typeof m.environment === "string") {
       lines.push(`- **Environment:** ${env ?? ""}`);
     }
 
     if (m.cloudProvider === null || m.cloudProvider === undefined) {
-      lines.push("- Cloud provider was not stored.");
+      lines.push("- Cloud was not stored.");
     } else if (cloud) {
       lines.push(`- **Cloud:** ${cloud}`);
     } else if (typeof m.cloudProvider === "string") {
@@ -134,6 +138,9 @@ export function formatSandboxStyleGoldenManifest(m: Record<string, unknown>): st
       if (hTitle) {
         lines.push(`### ${hTitle}`);
         lines.push("");
+      } else if (h.title === null || h.title === undefined) {
+        lines.push("Highlight title was not stored.");
+        lines.push("");
       }
 
       if (hid) {
@@ -146,6 +153,8 @@ export function formatSandboxStyleGoldenManifest(m: Record<string, unknown>): st
 
       if (h.disposition === null || h.disposition === undefined) {
         lines.push("- Disposition was not stored.");
+      } else if (typeof h.disposition === "string" && h.disposition.length === 0) {
+        lines.push("- Disposition was stored empty.");
       } else if (typeof h.disposition === "string") {
         lines.push(`- **Disposition:** ${disposition ?? ""}`);
       }
