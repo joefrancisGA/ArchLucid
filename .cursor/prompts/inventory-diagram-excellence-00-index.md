@@ -96,7 +96,7 @@ Do **not** draw a complete graph to “maximize edges.” Do **not** show NIC or
 | **IDX-11** Completeness strip | **Shipped** on trunk — extend only | Mode-aware `CompletenessSummary` + banner |
 | **IDX-12** Hop-focus neighborhood / selected / RG | **Shipped** on trunk — extend only | Cited-hop BFS + hidden transit bridge |
 | **IDX-13** Cross-mode parity ratchet | **Shipped** on trunk — extend only | `FullyQualifiedName~InventoryDiagramExcellence` |
-| **IDX-13b** Fat-graph forest / DOT parity | **Next paste** — extend only | `BuildFatGraph()` + `AssertForestAndDotNestedFrameParity` |
+| **IDX-13b** Fat-graph forest / DOT parity | **Shipped** on trunk — extend only | `BuildFatGraph()` + `AssertForestAndDotNestedFrameParity` |
 | **IDX-HOLD** | Not implementation | — |
 
 **Regression guard:** `dotnet test ArchLucid.ArtifactSynthesis.Tests --filter FullyQualifiedName~InventoryDiagramExcellence` plus `ArchLucid.Application.Tests --filter FullyQualifiedName~InfraEvidenceMermaidCompleteness`. **IDX-05** subnet layer can still deepen when a mode keeps subnet nodes visible.
