@@ -793,9 +793,30 @@ public sealed class AzureInventorySecurityEdgeMaterializerTests
         const string diagnosticStorage =
             "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/diagstore";
 
+        AzureExtractorExtendedResourceRow ownerStorage = new()
+        {
+            AzureResourceId = storageAccount,
+            ResourceType = "Microsoft.Storage/storageAccounts",
+            Name = "sa1",
+        };
+
+        AzureExtractorExtendedResourceRow diagnosticStorageResource = new()
+        {
+            AzureResourceId = diagnosticStorage,
+            ResourceType = "Microsoft.Storage/storageAccounts",
+            Name = "diagstore",
+        };
+
+        AzureExtractorExtendedResourceRow workspaceResource = new()
+        {
+            AzureResourceId = workspace,
+            ResourceType = "Microsoft.OperationalInsights/workspaces",
+            Name = "log1",
+        };
+
         AzureInventorySecurityEdgeMaterializeResult result =
             AzureInventorySecurityEdgeMaterializer.Materialize(
-                [],
+                [ownerStorage, diagnosticStorageResource, workspaceResource],
                 [],
                 [],
                 [],
@@ -831,6 +852,109 @@ public sealed class AzureInventorySecurityEdgeMaterializerTests
 
         result.Relationships.Should().Contain(r =>
             r.ToAzureResourceId == ArmResourceIdNormalizer.Normalize(diagnosticStorage)
+            && r.InferenceSource == GraphEdgeInferenceSources.InventoryDiagnosticSettingStorage);
+
+        result.Relationships.Count(r =>
+                r.InferenceSource == GraphEdgeInferenceSources.InventoryDiagnosticSettingStorage)
+            .Should()
+            .Be(1);
+    }
+
+    [Fact]
+    public void Materialize_diagnostic_storage_edge_skipped_when_storage_not_inventoried()
+    {
+        const string keyVault =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.KeyVault/vaults/kv1";
+        const string diagnosticStorage =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/diagstore";
+
+        AzureExtractorExtendedResourceRow keyVaultResource = new()
+        {
+            AzureResourceId = keyVault,
+            ResourceType = "Microsoft.KeyVault/vaults",
+            Name = "kv1",
+        };
+
+        AzureInventorySecurityEdgeMaterializeResult result =
+            AzureInventorySecurityEdgeMaterializer.Materialize(
+                [keyVaultResource],
+                [],
+                [],
+                [],
+                [
+                    ParseJson($$"""
+                                {
+                                  "targetResourceId": "{{keyVault}}",
+                                  "name": "diag-storage",
+                                  "storageAccountId": "{{diagnosticStorage}}"
+                                }
+                                """),
+                ],
+                [],
+                federatedCredentialsFilePresent: false,
+                [],
+                entraGroupMembershipsFilePresent: false,
+                [],
+                effectiveNetworkControlsFilePresent: false);
+
+        result.Relationships.Should().NotContain(r =>
+            r.InferenceSource == GraphEdgeInferenceSources.InventoryDiagnosticSettingStorage);
+    }
+
+    [Fact]
+    public void Materialize_duplicate_diagnostic_storage_settings_collapse_to_one_edge()
+    {
+        const string keyVault =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.KeyVault/vaults/kv1";
+        const string diagnosticStorage =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/diagstore";
+
+        AzureExtractorExtendedResourceRow keyVaultResource = new()
+        {
+            AzureResourceId = keyVault,
+            ResourceType = "Microsoft.KeyVault/vaults",
+            Name = "kv1",
+        };
+
+        AzureExtractorExtendedResourceRow diagnosticStorageResource = new()
+        {
+            AzureResourceId = diagnosticStorage,
+            ResourceType = "Microsoft.Storage/storageAccounts",
+            Name = "diagstore",
+        };
+
+        AzureInventorySecurityEdgeMaterializeResult result =
+            AzureInventorySecurityEdgeMaterializer.Materialize(
+                [keyVaultResource, diagnosticStorageResource],
+                [],
+                [],
+                [],
+                [
+                    ParseJson($$"""
+                                {
+                                  "targetResourceId": "{{keyVault}}",
+                                  "name": "diag-a",
+                                  "storageAccountId": "{{diagnosticStorage}}"
+                                }
+                                """),
+                    ParseJson($$"""
+                                {
+                                  "targetResourceId": "{{keyVault}}",
+                                  "name": "diag-b",
+                                  "storageAccountId": "{{diagnosticStorage}}"
+                                }
+                                """),
+                ],
+                [],
+                federatedCredentialsFilePresent: false,
+                [],
+                entraGroupMembershipsFilePresent: false,
+                [],
+                effectiveNetworkControlsFilePresent: false);
+
+        result.Relationships.Should().ContainSingle(r =>
+            r.FromAzureResourceId == ArmResourceIdNormalizer.Normalize(keyVault)
+            && r.ToAzureResourceId == ArmResourceIdNormalizer.Normalize(diagnosticStorage)
             && r.InferenceSource == GraphEdgeInferenceSources.InventoryDiagnosticSettingStorage);
     }
 
