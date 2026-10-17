@@ -37,6 +37,8 @@ import { resolveGovernanceFindingsClaimDiscipline } from "@/app/(operator)/gover
 import { resolvePageCapabilityBoundary } from "@/lib/page-capability-boundary";
 import { GOVERNANCE_ARCHITECTURE_FINDINGS_AUDIENCE_LINE } from "@/lib/governance/governance-findings-evidence-copy";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
+import { GOVERNANCE_FINDINGS_QUEUE_PATH_INSPECT_PAGE_SHORTCUTS } from "@/lib/governance/governance-findings-queue-path-inspect-page-shortcuts";
+import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
 import { FINDINGS_PAGE_SHORTCUTS } from "@/lib/shortcut-registry";
 
 export type GovernanceFindingsQueueHeaderProps = {
@@ -249,7 +251,12 @@ export function GovernanceFindingsQueueHeader({
       />
       {!isAssignedToMe ? (
         <p className={cn("m-0 mt-2 flex flex-wrap items-center gap-2", OPERATOR_TYPOGRAPHY.helper)} data-testid="governance-findings-shortcuts">
-          {FINDINGS_PAGE_SHORTCUTS.filter((entry) => operateEnabled || !["alt+1", "alt+2", "alt+3"].includes(entry.key)).map((entry) => (
+          {[
+            ...FINDINGS_PAGE_SHORTCUTS.filter(
+              (entry) => operateEnabled || !["alt+1", "alt+2", "alt+3"].includes(entry.key),
+            ),
+            ...(isSecureNowProductLine(productLine) ? GOVERNANCE_FINDINGS_QUEUE_PATH_INSPECT_PAGE_SHORTCUTS : []),
+          ].map((entry) => (
             <span key={entry.key} className="inline-flex items-center gap-1">
               {entry.label} <ShortcutHint shortcut={entry.key} />
             </span>

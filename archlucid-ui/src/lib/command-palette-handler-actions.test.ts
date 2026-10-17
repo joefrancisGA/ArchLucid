@@ -45,6 +45,21 @@ describe("command-palette-handler-actions (LI-07 / WD-05)", () => {
     expect(actions.some((action) => action.id === "action-undo-mutation")).toBe(false);
   });
 
+  it("exposes focus path inspect on SecureNow findings desk routes", () => {
+    const complianceFindings = resolveVisibleCommandPaletteHandlerActions("/compliance/findings");
+    const assignedToMe = resolveVisibleCommandPaletteHandlerActions("/security/assigned-to-me");
+    const architectureFindings = resolveVisibleCommandPaletteHandlerActions("/governance/findings");
+    const inspectAction = COMMAND_PALETTE_HANDLER_ACTIONS.find(
+      (action) => action.id === "action-governance-findings-path-inspect",
+    );
+
+    expect(inspectAction?.label).toBe("Focus path inspect");
+    expect(inspectAction?.searchValue).toContain("alt+i");
+    expect(complianceFindings.map((action) => action.id)).toContain("action-governance-findings-path-inspect");
+    expect(assignedToMe.map((action) => action.id)).toContain("action-governance-findings-path-inspect");
+    expect(architectureFindings.map((action) => action.id)).not.toContain("action-governance-findings-path-inspect");
+  });
+
   it("exposes finding triage actions on findings desk routes", () => {
     const reviewFindings = resolveVisibleCommandPaletteHandlerActions(
       "/architecture/reviews/abc/findings/f-1",

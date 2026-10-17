@@ -8,6 +8,7 @@ import { RESOURCES_EXPLORER_PAGE_SHORTCUTS } from "@/lib/infra-evidence/infra-ev
 import { REMEDIATION_WORKBENCH_PAGE_SHORTCUTS } from "@/lib/infra-evidence/infra-evidence-remediation-page-shortcuts";
 import { TERRAFORM_WORKBENCH_PAGE_SHORTCUTS } from "@/lib/infra-evidence/infra-evidence-terraform-page-shortcuts";
 import { EVIDENCE_GRAPH_PAGE_SHORTCUTS } from "@/lib/evidence-graph-page-shortcuts";
+import { GOVERNANCE_FINDINGS_QUEUE_PATH_INSPECT_PAGE_SHORTCUTS } from "@/lib/governance/governance-findings-queue-path-inspect-page-shortcuts";
 import { EXTRACT_UPLOAD_PAGE_SHORTCUTS } from "@/lib/shortcut-registry";
 
 export type HelpPageShortcutEntry = {
@@ -34,4 +35,5 @@ export const HELP_PAGE_SHORTCUT_GROUPS: readonly HelpPageShortcutGroup[] = [
   { label: "Remediation", entries: REMEDIATION_WORKBENCH_PAGE_SHORTCUTS },
   { label: "Terraform mapping", entries: TERRAFORM_WORKBENCH_PAGE_SHORTCUTS },
   { label: "Audit evidence lineage", entries: AUDIT_EVIDENCE_CONTROL_LINEAGE_PAGE_SHORTCUTS },
+  { label: "SecureNow findings desk", entries: GOVERNANCE_FINDINGS_QUEUE_PATH_INSPECT_PAGE_SHORTCUTS },
 ];

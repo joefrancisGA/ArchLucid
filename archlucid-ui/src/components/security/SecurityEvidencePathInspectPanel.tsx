@@ -10,6 +10,7 @@ import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmpty
 import type { EnterpriseCompactEmptyStateProps } from "@/components/EnterpriseCompactEmptyState";
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
+import { ShortcutHint } from "@/components/ShortcutHint";
 import { OperatorAdvisorySimulatorProvenanceBlock } from "@/components/usability/OperatorAdvisorySimulatorProvenanceBlock";
 import { OperatorErrorRecoveryContract } from "@/components/usability/OperatorErrorRecoveryContract";
 import {
@@ -586,6 +587,7 @@ export function SecurityEvidencePathInspectPanel(props: {
   readonly selectedPathSummary?: SecurityEvidencePathRankSummary | null;
   readonly hasInventoryRows?: boolean;
   readonly selectPromptPreset?: EnterpriseCompactEmptyStateProps;
+  readonly showFocusPathInspectShortcutHint?: boolean;
 }) {
   const selectedFinding = props.selectedFinding ?? props.selectedFindingSummary;
   const selectedPath = props.selectedPath ?? props.selectedPathSummary;
@@ -674,7 +676,17 @@ export function SecurityEvidencePathInspectPanel(props: {
       data-testid="security-evidence-path-inspect-panel"
     >
       <header className="space-y-1">
-        <h2 className={OPERATOR_TYPOGRAPHY.sectionTitle}>{SECURENOW_PATH_INSPECT_PANEL_TITLE}</h2>
+        <div className="flex flex-wrap items-center gap-2">
+          <h2 className={OPERATOR_TYPOGRAPHY.sectionTitle}>{SECURENOW_PATH_INSPECT_PANEL_TITLE}</h2>
+          {props.showFocusPathInspectShortcutHint ? (
+            <span
+              className={cn("inline-flex items-center gap-1", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="security-evidence-path-inspect-focus-shortcut-hint"
+            >
+              Focus <ShortcutHint shortcut="alt+i" />
+            </span>
+          ) : null}
+        </div>
         <p className={OPERATOR_TYPOGRAPHY.helper}>{SECURENOW_PATH_INSPECT_PANEL_LEAD}</p>
         {subjectLabel != null ? (
           <p
