@@ -52,8 +52,9 @@ import {
 import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens-shell-typography";
 import { errorRecoveryContractForScenario } from "@/lib/error-recovery-contract-copy";
-import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
+import { GOVERNANCE_AUDIT_PATH, SECURENOW_REMEDIATION_PATTERNS_PATH } from "@/lib/governance/governance-route-paths";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
+import { resolveSecureNowPageHeading } from "@/lib/product-line/securenow-page-heading";
 import { formatInstantForLocale } from "@/lib/locale-datetime";
 import { operatorFreshnessMetadataWithClockLabel } from "@/lib/operator/operator-last-refreshed-label";
 import { remediationInstancesPathForProductLine } from "@/lib/product-line/securenow-remediation-instances-route";
@@ -367,6 +368,11 @@ function VersionHistoryTable(props: {
 export function RemediationPatternsClient() {
   const { productLine } = useProductLine();
   const navHref = remediationPatternsPathForProductLine(productLine);
+  const pageTitle = resolveSecureNowPageHeading(
+    productLine,
+    OPERATOR_NAV_LINK_LABELS.remediationPatterns,
+    SECURENOW_REMEDIATION_PATTERNS_PATH,
+  );
   const pathname = usePathname() ?? navHref;
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -812,7 +818,7 @@ export function RemediationPatternsClient() {
       <RemediationPatternsGuards yamlDraft={yamlDraft} />
       <OperatorPageHeader
         navHref={navHref}
-        title={OPERATOR_NAV_LINK_LABELS.remediationPatterns}
+        title={pageTitle}
         subtitle="Create, review, and approve governed remediation patterns."
         claimDiscipline={REMEDIATION_PATTERNS_CLAIM_DISCIPLINE}
         claimDisciplineTestId="remediation-patterns-claim-discipline"
