@@ -89,7 +89,7 @@ internal static class DiagramEdgeLabelHumanizer
 
         if (string.Equals(inferenceSource, GraphEdgeInferenceSources.InventoryDiagnosticSettingStorage, StringComparison.OrdinalIgnoreCase))
         {
-            return string.Equals(label, "Diagnostic setting to", StringComparison.OrdinalIgnoreCase);
+            return string.Equals(label, "Sends diagnostics to", StringComparison.OrdinalIgnoreCase);
         }
 
         return false;
@@ -129,7 +129,7 @@ internal static class DiagramEdgeLabelHumanizer
                 GraphEdgeInferenceSources.InventoryDiagnosticSettingStorage,
                 StringComparison.OrdinalIgnoreCase))
         {
-            return "Diagnostic setting to";
+            return "Sends diagnostics to";
         }
 
         if (TryResolveCatalogDiagramLabel(edgeType, inferenceSource, out string catalogLabel))
@@ -416,7 +416,7 @@ internal static class DiagramEdgeLabelHumanizer
         if (string.Equals(value, GraphEdgeInferenceSources.InventoryDiagnosticSettingStorage, StringComparison.OrdinalIgnoreCase)
             || string.Equals(value, AzureInventoryRelationshipAssociationTypes.DiagnosticSettingToStorage, StringComparison.OrdinalIgnoreCase))
         {
-            humanized = "Diagnostic setting to";
+            humanized = "Sends diagnostics to";
 
             return true;
         }

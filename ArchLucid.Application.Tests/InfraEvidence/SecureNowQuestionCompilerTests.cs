@@ -84,6 +84,7 @@ public sealed class SecureNowQuestionCompilerTests
                         ResourceType = "Microsoft.DataFactory/factories",
                     },
                 ]),
+            [],
             [
                 new SecureNowDiagramQuestionCandidate
                 {
@@ -121,6 +122,7 @@ public sealed class SecureNowQuestionCompilerTests
                         ResourceType = "Microsoft.Web/sites",
                     },
                 ]),
+            [],
             [
                 new SecureNowDiagramQuestionCandidate
                 {
@@ -145,6 +147,7 @@ public sealed class SecureNowQuestionCompilerTests
         IReadOnlyList<SecureNowQuestionRecord> questions = new SecureNowQuestionCompiler().Compile(
             Scope,
             CreateSnapshot(),
+            [],
             [],
             [
                 new OperatorInferredConnectionRecord
@@ -177,6 +180,7 @@ public sealed class SecureNowQuestionCompilerTests
             Scope,
             CreateSnapshot(),
             [],
+            [],
             [
                 new OperatorInferredConnectionRecord
                 {
@@ -202,6 +206,7 @@ public sealed class SecureNowQuestionCompilerTests
         IReadOnlyList<SecureNowQuestionRecord> questions = new SecureNowQuestionCompiler().Compile(
             Scope,
             CreateSnapshot(),
+            [],
             [],
             [
                 new OperatorInferredConnectionRecord
@@ -255,6 +260,7 @@ public sealed class SecureNowQuestionCompilerTests
         IReadOnlyList<SecureNowQuestionRecord> questions = compiler.Compile(
             Scope,
             snapshot,
+            [],
             [
                 new SecureNowDiagramQuestionCandidate
                 {
@@ -293,6 +299,7 @@ public sealed class SecureNowQuestionCompilerTests
         IReadOnlyList<SecureNowQuestionRecord> questions = compiler.Compile(
             Scope,
             snapshot,
+            [],
             [
                 new SecureNowDiagramQuestionCandidate
                 {
@@ -310,6 +317,55 @@ public sealed class SecureNowQuestionCompilerTests
     }
 
     [Fact]
+    public void Pack_questions_are_ordered_before_inferred_proposals()
+    {
+        const string vmArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/avd01";
+
+        IReadOnlyList<SecureNowQuestionRecord> questions = new SecureNowQuestionCompiler().Compile(
+            Scope,
+            CreateSnapshot(
+                [
+                    new AzureInventoryResourceRecord
+                    {
+                        AzureResourceId = vmArmId,
+                        ResourceType = "Microsoft.Compute/virtualMachines",
+                    },
+                ]),
+            [
+                new SecureNowPackQuestionCandidate
+                {
+                    ResourceId = vmArmId,
+                    QuestionKey = "uhg-avd-vm-not-in-host-pool@v1",
+                    QuestionText = "Is this virtual machine still a session host that should be registered?",
+                    ReasonText = "not registered",
+                    ScopeKind = SecureNowQuestionScopeKind.Resource,
+                    AnswerCodes = ["Register", "Retire", "NotASessionHost"],
+                    ResourceType = "Microsoft.Compute/virtualMachines",
+                },
+            ],
+            [],
+            [
+                new OperatorInferredConnectionRecord
+                {
+                    ConnectionId = Guid.NewGuid(),
+                    SnapshotId = SnapshotId,
+                    Status = OperatorInferredConnectionStatus.Proposed,
+                    Source = OperatorInferredConnectionSource.Questionnaire,
+                    RuleName = "Unresolved host",
+                    QuestionText = "Should this host connect?",
+                    FromArmId = vmArmId,
+                    ToArmId = "/subscriptions/sub/target",
+                },
+            ],
+            []);
+
+        questions.Should().HaveCount(2);
+        questions[0].Source.Should().Be(SecureNowQuestionSource.PolicyPack);
+        questions[1].Source.Should().Be(SecureNowQuestionSource.InferredConnection);
+    }
+
+    [Fact]
     public void Distinct_proposed_inferred_connections_with_the_same_rule_emit_separate_questions()
     {
         const string fromArmId = "/subscriptions/sub/resource";
@@ -319,6 +375,7 @@ public sealed class SecureNowQuestionCompilerTests
         IReadOnlyList<SecureNowQuestionRecord> questions = new SecureNowQuestionCompiler().Compile(
             Scope,
             CreateSnapshot(),
+            [],
             [],
             [
                 new OperatorInferredConnectionRecord
@@ -355,6 +412,7 @@ public sealed class SecureNowQuestionCompilerTests
         new SecureNowQuestionCompiler().Compile(
             Scope,
             CreateSnapshot(),
+            [],
             candidates,
             [],
             []);

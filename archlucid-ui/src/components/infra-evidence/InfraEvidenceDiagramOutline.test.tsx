@@ -721,6 +721,50 @@ describe("InfraEvidenceDiagramOutline", () => {
     expect(within(unknownSection).queryByRole("button", { name: /save/i })).toBeNull();
   });
 
+  it("narrows unknown rows to the starting resource group by default", () => {
+    const unknownOutline: InfraEvidenceMermaidOutline = {
+      nodes: [
+        {
+          id: "n_seed",
+          label: "storage-seed",
+          seedNodeId: "graph-seed-id",
+          resourceGroup: "anly-aib-nprd-hi",
+          connectionState: "Unknown",
+        },
+        {
+          id: "n_same_rg",
+          label: "same-rg-peer",
+          resourceGroup: "anly-aib-nprd-hi",
+          connectionState: "Unknown",
+        },
+        {
+          id: "n_other_rg",
+          label: "adf-edw",
+          resourceGroup: "anly-edw-dev-readonly-hi",
+          connectionState: "Unknown",
+        },
+      ],
+      edges: [],
+    };
+
+    render(
+      <InfraEvidenceDiagramOutline
+        outline={unknownOutline}
+        defaultNodesOpen={true}
+        startingResourceSeedId="graph-seed-id"
+      />,
+    );
+
+    const unknownSection = screen.getByTestId("infra-diagrams-unknown-nodes-list");
+
+    expect(within(unknownSection).getByText("same-rg-peer")).toBeTruthy();
+    expect(within(unknownSection).queryByText("adf-edw")).toBeNull();
+    expect(screen.getByTestId("infra-diagrams-unknown-filter-summary")).toHaveTextContent(
+      "Showing 2 of 3 unknown resources.",
+    );
+    expect(within(unknownSection).getByText("Connection state recorded as unknown (2 of 3)")).toBeTruthy();
+  });
+
   it("shows unresolved relationship details on unknown rows", () => {
     const unknownOutline: InfraEvidenceMermaidOutline = {
       nodes: [

@@ -1,7 +1,11 @@
 using System.Text.Json;
 using System.Text.RegularExpressions;
 
+using ArchLucid.Application.InfraEvidence.Mermaid;
+using ArchLucid.Contracts.Governance;
+using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.InfraEvidence;
 using ArchLucid.Persistence.Serialization;
@@ -13,9 +17,12 @@ public sealed class SecureNowQuestionDispositionService(
     ISecureNowQuestionDispositionRepository dispositionRepository,
     IAzureInventorySnapshotRepository snapshotRepository,
     IAuditService auditService,
-    IOperatorInferredConnectionRepository? inferredConnectionRepository = null) : ISecureNowQuestionDispositionService
+    IOperatorInferredConnectionRepository? inferredConnectionRepository = null,
+    IEffectiveGovernanceLoader? effectiveGovernanceLoader = null,
+    IAzureInventorySnapshotGraphResolver? graphResolver = null) : ISecureNowQuestionDispositionService
 {
     private readonly SecureNowQuestionCompiler questionCompiler = new();
+    private readonly SecureNowPackQuestionCandidateBuilder packQuestionCandidateBuilder = new();
     private static readonly TimeSpan MaximumDispositionLifetime = TimeSpan.FromDays(90);
     private const int MaximumQuestionKeyLength = 256;
     private static readonly Regex VersionedQuestionKey = new(
@@ -62,7 +69,41 @@ public sealed class SecureNowQuestionDispositionService(
 
         IReadOnlyList<SecureNowDiagramQuestionCandidate> candidates =
             BuildDiagramCandidates(snapshot);
-        return questionCompiler.Compile(scope, snapshot, candidates, inferred, dispositions);
+        IReadOnlyList<SecureNowPackQuestionCandidate> packCandidates =
+            await BuildPackCandidatesAsync(scope, snapshotId, snapshot, cancellationToken);
+
+        return questionCompiler.Compile(
+            scope,
+            snapshot,
+            packCandidates,
+            candidates,
+            inferred,
+            dispositions);
+    }
+
+    private async Task<IReadOnlyList<SecureNowPackQuestionCandidate>> BuildPackCandidatesAsync(
+        ScopeContext scope,
+        Guid snapshotId,
+        AzureInventorySnapshotDetailReadModel snapshot,
+        CancellationToken cancellationToken)
+    {
+        if (effectiveGovernanceLoader is null || graphResolver is null)
+            return [];
+
+        PolicyPackContentDocument effectiveContent = await effectiveGovernanceLoader.LoadEffectiveContentAsync(
+            scope.TenantId,
+            scope.WorkspaceId,
+            scope.ProjectId,
+            cancellationToken);
+
+        AzureInventorySnapshotGraphResolveResult graphResult =
+            await graphResolver.TryResolveGraphAsync(scope, snapshotId, cancellationToken: cancellationToken);
+        GraphSnapshot? graph = graphResult.Succeeded ? graphResult.Graph : null;
+
+        return packQuestionCandidateBuilder.Build(
+            effectiveContent,
+            graph,
+            snapshot.Header.SubscriptionId!);
     }
 
     public async Task<IReadOnlyList<SecureNowQuestionDispositionRecord>> ListAsync(

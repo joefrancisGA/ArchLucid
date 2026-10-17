@@ -16,7 +16,7 @@ import { StatusTag } from "@/components/ui/status-tag";
 import { Textarea } from "@/components/ui/textarea";
 import { PageContextualHelpButton, PAGE_HELP_SHORT_TRIGGER_TEXT } from "@/components/usability/PageContextualHelpButton";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
-import { SECURENOW_NAV_LABELS } from "@/lib/product-line/securenow-nav-labels";
+import { resolveSecureNowPageHeading } from "@/lib/product-line/securenow-page-heading";
 import { useProductionDeskChrome, useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { CTA_WIDTH, DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { fetchInfraEvidenceSnapshots } from "@/lib/infra-evidence/infra-evidence-drift-api";
@@ -115,7 +115,10 @@ import {
   GOVERNANCE_INFRASTRUCTURE_ASK_UNSCOPED_TITLE,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OPEN_ACTION,
 } from "@/lib/governance/governance-infrastructure-copy";
-import { GOVERNANCE_INFRASTRUCTURE_ASK_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
+import {
+  GOVERNANCE_INFRASTRUCTURE_ASK_PATH,
+  SECURENOW_INFRASTRUCTURE_ASK_PATH,
+} from "@/lib/governance/governance-infrastructure-route-paths";
 import { infrastructureResourcesPathForProductLine } from "@/lib/product-line/securenow-infrastructure-resources-route";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { cn } from "@/lib/utils";
@@ -147,10 +150,11 @@ export function InfrastructureAskClient({ presentation = "page" }: Infrastructur
   const buyerPolishedShell = useProductionEvalChrome();
   const workingDeskChrome = useProductionDeskChrome();
   const { productLine } = useProductLine();
-  const pageTitle =
-    productLine === "security"
-      ? SECURENOW_NAV_LABELS["/infrastructure/ask"] ?? GOVERNANCE_INFRASTRUCTURE_ASK_PAGE_TITLE
-      : GOVERNANCE_INFRASTRUCTURE_ASK_PAGE_TITLE;
+  const pageTitle = resolveSecureNowPageHeading(
+    productLine,
+    GOVERNANCE_INFRASTRUCTURE_ASK_PAGE_TITLE,
+    SECURENOW_INFRASTRUCTURE_ASK_PATH,
+  );
   const resourcesPath = useMemo(
     () => infrastructureResourcesPathForProductLine(productLine),
     [productLine],

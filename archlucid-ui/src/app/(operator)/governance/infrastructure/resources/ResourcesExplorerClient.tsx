@@ -77,9 +77,10 @@ import {
   GOVERNANCE_INFRASTRUCTURE_RESOURCES_SORT_PAGE_LOCAL_DISCLOSURE,
   GOVERNANCE_INFRASTRUCTURE_RESOURCES_WORK_MARKERS_KEY_LABEL,
 } from "@/lib/governance/governance-infrastructure-copy";
+import { SECURENOW_INFRASTRUCTURE_RESOURCES_PATH } from "@/lib/governance/governance-infrastructure-route-paths";
 import { infrastructureResourcesPathForProductLine } from "@/lib/product-line/securenow-infrastructure-resources-route";
+import { resolveSecureNowPageHeading } from "@/lib/product-line/securenow-page-heading";
 import { useProductLine } from "@/components/product-line/ProductLineProvider";
-import { SECURENOW_NAV_LABELS } from "@/lib/product-line/securenow-nav-labels";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 import {
@@ -130,10 +131,11 @@ export function ResourcesExplorerClient() {
   useProductionEvalChrome();
   const { productLine } = useProductLine();
   const resourcesPath = infrastructureResourcesPathForProductLine(productLine);
-  const pageTitle =
-    productLine === "security"
-      ? SECURENOW_NAV_LABELS["/infrastructure/resources"] ?? GOVERNANCE_INFRASTRUCTURE_RESOURCES_PAGE_TITLE
-      : GOVERNANCE_INFRASTRUCTURE_RESOURCES_PAGE_TITLE;
+  const pageTitle = resolveSecureNowPageHeading(
+    productLine,
+    GOVERNANCE_INFRASTRUCTURE_RESOURCES_PAGE_TITLE,
+    SECURENOW_INFRASTRUCTURE_RESOURCES_PATH,
+  );
   const router = useRouter();
   const pathname = usePathname() ?? "";
   const searchParams = useSearchParams();

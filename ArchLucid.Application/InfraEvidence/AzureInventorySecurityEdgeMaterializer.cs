@@ -961,11 +961,20 @@ public static class AzureInventorySecurityEdgeMaterializer
             {
                 if (IsStorageAccountArmId(destinationArmId) && storageDefinition is not null)
                 {
+                    string normalizedStorageAccountId = ArmResourceIdNormalizer.Normalize(destinationArmId);
+
+                    if (inventoriedArmIds.Count > 0
+                        && (!inventoriedArmIds.Contains(normalizedTargetId)
+                            || !inventoriedArmIds.Contains(normalizedStorageAccountId)))
+                    {
+                        continue;
+                    }
+
                     AddRelationship(
                         relationships,
                         relationshipKeys,
                         normalizedTargetId,
-                        ArmResourceIdNormalizer.Normalize(destinationArmId),
+                        normalizedStorageAccountId,
                         storageDefinition.DefaultGraphEdgeType,
                         storageDefinition.DefaultProvenanceKind,
                         ObservedFactConfidence,
