@@ -128,7 +128,7 @@ function mockRankedPathsQuery(overrides: Record<string, unknown> = {}) {
           businessConsequenceScore: null,
           confidenceBandScore: 0.6,
           compositeSortScore: 0.8123,
-          explanationSummary: "Top ranked architect path.",
+          explanationSummary: "SA09-rank-v1: PrivilegePath path ranks by weighted dimensions.",
           pathKind: "PrivilegePath",
           pathConfidenceBand: "HighlyLikely",
           computedUtc: "2026-01-01T00:00:00Z",
@@ -241,9 +241,12 @@ describe("RemediationFactoryClient", () => {
     expect(screen.getByTestId("remediation-priority-row-aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa")).toBeInTheDocument();
     expect(screen.getByText(SECURENOW_PATH_RANKED_PATHS_TITLE)).toBeInTheDocument();
     expect(screen.getByTestId("securenow-architect-outcome-metrics-panel")).toBeInTheDocument();
-    expect(
-      screen.getByTestId("security-evidence-ranked-path-row-bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
-    ).toBeInTheDocument();
+    const pathRow = screen.getByTestId("security-evidence-ranked-path-row-bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+    expect(pathRow).toBeInTheDocument();
+    expect(pathRow).toHaveTextContent("Exposed on the network. Deep privilege.");
+    expect(pathRow).toHaveTextContent("Show sort key");
+    expect(pathRow).not.toHaveTextContent("0.8123");
+    expect(pathRow).not.toHaveTextContent("SA09-rank-v1");
     expect(screen.getByText("Simulator — not a live scanner feed")).toBeInTheDocument();
     expect(screen.getByText(SECURENOW_PATH_INSPECT_PANEL_TITLE)).toBeInTheDocument();
 
@@ -301,6 +304,21 @@ describe("RemediationFactoryClient", () => {
     fireEvent.click(screen.getByTestId("remediation-metrics-measurement-disclosure"));
     expect(screen.getByTestId("remediation-metrics-measurement-body")).toHaveTextContent("IE15-priority-v1");
     expect(screen.getByTestId("remediation-metrics-measurement-body")).toHaveTextContent("not cloud spend");
+  });
+
+  it("opens the path rule line and sort key", () => {
+    render(<RemediationFactoryClient />);
+
+    const pathRow = screen.getByTestId("security-evidence-ranked-path-row-bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+    expect(pathRow).toHaveTextContent("Exposed on the network. Deep privilege.");
+
+    fireEvent.click(screen.getByTestId("security-evidence-path-rank-rule-bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"));
+    expect(pathRow).toHaveTextContent("SA09-rank-v1: PrivilegePath path ranks by weighted dimensions.");
+
+    fireEvent.click(screen.getByTestId("security-evidence-path-rank-sort-key-bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"));
+    expect(pathRow).toHaveTextContent(
+      "Composite sort key 0.8123. Ordering only — not a percentage, probability, or live risk score.",
+    );
   });
 
   it("focuses path inspect on Alt+I and the command palette inspect event", () => {

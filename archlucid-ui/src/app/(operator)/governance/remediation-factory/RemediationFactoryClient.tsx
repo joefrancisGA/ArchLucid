@@ -5,11 +5,12 @@ import { useCallback, useEffect, useMemo, useRef, useState, type KeyboardEvent }
 import { useRouter, useSearchParams } from "next/navigation";
 
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
-import { CompareDiffExpandableValueCell } from "@/components/compare/CompareDiffExpandableValueCell";
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { OperatorPageFreshnessMetadata } from "@/components/operator/OperatorPageFreshnessMetadata";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { SecurityEvidencePathInspectPanel } from "@/components/security/SecurityEvidencePathInspectPanel";
+import { SecurityEvidencePathRankReasonCell } from "@/components/security/SecurityEvidencePathRankReasonCell";
+import { SecurityEvidencePathRankSortKeyDisclosure } from "@/components/security/SecurityEvidencePathRankSortKeyDisclosure";
 import { OperatorErrorRecoveryContract } from "@/components/usability/OperatorErrorRecoveryContract";
 import {
   SecureNowArchitectOutcomeMetricsPanel,
@@ -398,8 +399,13 @@ function RankedPathsTable(props: {
                   label={formatSecurityEvidencePathConfidenceBandLabel(row.pathConfidenceBand)}
                 />
               </EnterpriseTableCell>
-              <EnterpriseTableCell>{row.compositeSortScore.toFixed(4)}</EnterpriseTableCell>
-              <CompareDiffExpandableValueCell value={row.explanationSummary} />
+              <EnterpriseTableCell>
+                <SecurityEvidencePathRankSortKeyDisclosure
+                  pathId={row.pathId}
+                  compositeSortScore={row.compositeSortScore}
+                />
+              </EnterpriseTableCell>
+              <SecurityEvidencePathRankReasonCell rank={row} />
             </EnterpriseTableRow>
           ))}
         </EnterpriseTableBody>
