@@ -7,7 +7,8 @@ using ArchLucid.KnowledgeGraph.Inventory;
 namespace ArchLucid.ArtifactSynthesis.Compilers;
 
 /// <summary>
-///     Emits visible VNet↔VNet peering edges when the graph stored peering JSON but no <c>PEERS_WITH</c> row.
+///     Emits visible VNet↔VNet peering edges when the graph stored peering JSON but no <c>PEERS_WITH</c> row,
+///     and keeps already-drawn VNet pairs labeled as peering when the stored edge type was blank.
 /// </summary>
 internal static class ExecutiveVnetPeeringEdgeBuilder
 {
@@ -88,6 +89,43 @@ internal static class ExecutiveVnetPeeringEdgeBuilder
                 });
             }
         }
+
+        RelabelBlankVirtualNetworkPairEdges(ast);
+    }
+
+    private static void RelabelBlankVirtualNetworkPairEdges(DiagramAst ast)
+    {
+        Dictionary<string, DiagramNode> nodesById = ast.Nodes
+            .GroupBy(node => node.NodeId, StringComparer.Ordinal)
+            .ToDictionary(group => group.Key, group => group.First(), StringComparer.Ordinal);
+
+        foreach (DiagramEdge edge in DiagramEdgeVisibility.VisibleEdges(ast.Edges))
+        {
+            if (!string.IsNullOrWhiteSpace(edge.Label))
+            {
+                continue;
+            }
+
+            if (!IsVirtualNetworkNode(nodesById, edge.FromNodeId)
+                || !IsVirtualNetworkNode(nodesById, edge.ToNodeId))
+            {
+                continue;
+            }
+
+            edge.Label = "peering";
+        }
+    }
+
+    private static bool IsVirtualNetworkNode(
+        IReadOnlyDictionary<string, DiagramNode> nodesById,
+        string nodeId)
+    {
+        if (!nodesById.TryGetValue(nodeId, out DiagramNode? node))
+        {
+            return false;
+        }
+
+        return AzureInventoryTopologyCategory.IsVirtualNetworkArmType(node.ArmResourceType ?? string.Empty);
     }
 
     private static string CanonicalPairKey(string fromNodeId, string toNodeId)
