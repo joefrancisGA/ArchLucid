@@ -175,6 +175,38 @@ public sealed class InventoryDiagramDataFlowTraversalHopProjectorTests
     }
 
     [Fact]
+    public void CollectTraversalLinks_ignores_diagnostic_setting_to_storage()
+    {
+        GraphSnapshot graph = CreateGraph(
+            [
+                CreateNode("app-node", AppArmId, "Microsoft.Web/sites"),
+                CreateNode("storage-node", StorageArmId, "Microsoft.Storage/storageAccounts"),
+            ],
+            [
+                CreateEdge(
+                    "app-node",
+                    "storage-node",
+                    AzureInventoryRelationshipAssociationTypes.DiagnosticSettingToStorage,
+                    GraphEdgeInferenceSources.InventoryDiagnosticSettingStorage),
+            ]);
+
+        IReadOnlyList<InventoryDiagramDataFlowTraversalHopLink> links =
+            InventoryDiagramDataFlowTraversalHopProjector.CollectTraversalLinks(graph);
+
+        links.Should().BeEmpty();
+        InventoryDiagramDataFlowTraversalHopClassifier.IsTraversalHopAssociation(
+                AzureInventoryRelationshipAssociationTypes.DiagnosticSettingToStorage,
+                GraphEdgeInferenceSources.InventoryDiagnosticSettingStorage)
+            .Should()
+            .BeFalse();
+        InventoryDiagramDataFlowTraversalHopClassifier.IsExcludedTraversalAnnotation(
+                AzureInventoryRelationshipAssociationTypes.DiagnosticSettingToStorage,
+                GraphEdgeInferenceSources.InventoryDiagnosticSettingStorage)
+            .Should()
+            .BeTrue();
+    }
+
+    [Fact]
     public void CollectTraversalLinks_projects_firewall_to_application_and_ingestion_cards_on_its_subnet()
     {
         GraphNode factory = CreateNode("factory-node", FactoryArmId, "Microsoft.DataFactory/factories");
