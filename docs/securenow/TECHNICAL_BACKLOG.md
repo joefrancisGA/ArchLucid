@@ -99,7 +99,7 @@ Ordered for SecureNow operator value after the shipped baseline. Size is enginee
 | **SN-RT-ops** | Hosted auto-pull includes new companions by default | **Backlog** | When operators expect LAW/SQL principal companions without Tier-1 flags — document in runbook first. |
 | **SN-PE-regression** | Golden fixtures for new association types | **Partial** | Add AST tests when AX-DE catalog grows — do not reopen SN-PE collection. |
 | **SA-19/SA-20** | Entra Graph + CI federated **adapters** fail-soft | **Partial** | Inventory files exist; Graph forbidden → warnings. Deep adapter work only on owner row. |
-| **SA-16+** | Path workbench polish (factory queue ↔ inspector) | **Shipped** | Core inspector, URL selection cursor, and Alt+I focus shared across remediation factory, SecureNow Findings, and Assigned to me. |
+| **SA-16+** | Path workbench polish (factory queue ↔ inspector) | **Shipped** | Core inspector, `findingId` URL cursor, Alt+I + command palette, header shortcut rows, and `SECURENOW_PATH_INSPECT_WORKBENCH.md` across remediation factory, SecureNow Findings, and Assigned to me. |
 
 ---
 
