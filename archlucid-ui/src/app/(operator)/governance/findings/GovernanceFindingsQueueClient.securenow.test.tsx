@@ -133,6 +133,16 @@ vi.mock("@/components/usability/ItsmOutboundQuickActions", () => ({
   ItsmOutboundQuickActions: () => null,
 }));
 
+const pathInspectFindingIdRef = vi.hoisted(() => ({ current: null as string | null }));
+
+vi.mock("@/components/security/SecurityEvidencePathInspectPanel", () => ({
+  SecurityEvidencePathInspectPanel: (props: { findingId: string | null }) => {
+    pathInspectFindingIdRef.current = props.findingId;
+
+    return <section data-testid="security-evidence-path-inspect-panel" />;
+  },
+}));
+
 beforeAll(() => {
   globalThis.ResizeObserver = class {
     observe(): void {}
@@ -151,9 +161,33 @@ function renderSecureNowAssignedToMeQueue(): ReturnType<typeof render> {
   );
 }
 
+const secureNowAssignedRiskRow = {
+  runId: "run-secure-1",
+  runLabel: "Intake review",
+  manifestId: "manifest-1",
+  findingId: "finding-secure-1",
+  title: "Exposed storage endpoint",
+  severity: "High",
+  category: "Network",
+  statusLabel: "Open",
+  ownerUserId: "owner@contoso.com",
+  latestDisposition: null,
+  agingDays: 3,
+  waiverExpiresAtUtc: null,
+  lastReviewedUtc: null,
+  revisitDueUtc: "2026-09-01T00:00:00.000Z",
+  isStale: false,
+  evidenceHref: "/graph?runId=run-secure-1",
+  humanReviewStatus: null,
+  itsmLinkedTicketsSummary: null,
+  systemName: "Intake",
+  resourceId: "storage-1",
+};
+
 describe("GovernanceFindingsQueueClient SecureNow /security/assigned-to-me", () => {
   beforeEach(() => {
     searchParamsState.query = "";
+    pathInspectFindingIdRef.current = null;
     resetOperatorQueryClientForTests();
     vi.mocked(operatorScopeStorage.readOperatorScopeFromStorage).mockReturnValue({
       tenantId: "tenant-1",
@@ -192,6 +226,42 @@ describe("GovernanceFindingsQueueClient SecureNow /security/assigned-to-me", () 
     renderSecureNowAssignedToMeQueue();
 
     expect(await screen.findByTestId("governance-findings-active-filter-chips")).toBeInTheDocument();
+  });
+
+  it("renders path inspect on the assigned queue for SecureNow", async () => {
+    vi.mocked(governanceApi.getArchitectureRiskRegister).mockImplementation(async (options) => {
+      if (options?.assignedToMe === true) {
+        return { entries: [secureNowAssignedRiskRow] };
+      }
+
+      return { entries: [] };
+    });
+
+    renderSecureNowAssignedToMeQueue();
+
+    expect(await screen.findByTestId("security-evidence-path-inspect-panel")).toBeInTheDocument();
+    expect(await screen.findByTestId("governance-assigned-to-me-queue-status")).toHaveTextContent(
+      "1 open finding assigned",
+    );
+    expect(pathInspectFindingIdRef.current).toBeNull();
+  });
+
+  it("loads path inspect when findingId is in the assigned queue URL", async () => {
+    searchParamsState.query = "findingId=finding-secure-1";
+    vi.mocked(governanceApi.getArchitectureRiskRegister).mockImplementation(async (options) => {
+      if (options?.assignedToMe === true) {
+        return { entries: [secureNowAssignedRiskRow] };
+      }
+
+      return { entries: [] };
+    });
+
+    renderSecureNowAssignedToMeQueue();
+
+    expect(await screen.findByTestId("security-evidence-path-inspect-panel")).toBeInTheDocument();
+    await waitFor(() => {
+      expect(pathInspectFindingIdRef.current).toBe("finding-secure-1");
+    });
   });
 
   it("keeps orientation sources inside SecureNow navigation", async () => {
