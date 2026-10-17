@@ -45,7 +45,7 @@ internal static class NetworkDiagramNodeFilter
             .ToList();
     }
 
-    private static bool IsPrivateEndpointResource(GraphNode node)
+    internal static bool IsPrivateEndpointResource(GraphNode node)
     {
         string armType = DiagramAstGraphNodeClassifier.ReadArmType(node);
         string armId = DiagramAstGraphNodeClassifier.ReadArmId(node);
