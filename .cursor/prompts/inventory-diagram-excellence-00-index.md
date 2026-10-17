@@ -94,7 +94,7 @@ Do **not** draw a complete graph to “maximize edges.” Do **not** show NIC or
 | **IDX-09** Duplicate connection collapse | **Shipped** on trunk — do not greenfield | `DiagramInventoryConnectionRollupApplier` |
 | **IDX-10** PE opt-in toggle | After 02 | Compose already uses hidden PEs |
 | **IDX-11** Completeness strip | After 01 | Capture codes exist |
-| **IDX-12** Hop-focus neighborhood / selected / RG | After 02+03 | Shared composer |
+| **IDX-12** Hop-focus neighborhood / selected / RG | **Shipped** (core) on trunk — extend tests | Cited-hop BFS + hidden transit bridge |
 | **IDX-13** Cross-mode parity ratchet | Last | 01–12 merged (or land failing tests for merged slices) |
 | **IDX-HOLD** | Not implementation | — |
 

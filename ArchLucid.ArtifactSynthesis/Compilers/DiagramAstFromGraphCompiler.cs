@@ -837,9 +837,12 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
     {
         foreach (GraphEdge edge in graph.Edges)
         {
-            if (edge.InferenceSource?.Equals(
-                    GraphEdgeInferenceSources.InventoryResourceGroupCollocation,
-                    StringComparison.OrdinalIgnoreCase) == true)
+            if (edge.Weight < DiagramAstFromGraphCompilerConstants.MinimumEdgeWeight)
+            {
+                continue;
+            }
+
+            if (!InventoryDiagramIndirectRelationshipResolver.IsCitedEdge(edge))
             {
                 continue;
             }
@@ -871,103 +874,19 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
         }
 
         HashSet<string> nodeIds = nodes.Select(node => node.NodeId).ToHashSet(StringComparer.Ordinal);
-        Dictionary<string, List<string>> adjacency = nodeIds.ToDictionary(
-            nodeId => nodeId,
-            _ => new List<string>(),
-            StringComparer.Ordinal);
-
-        foreach (GraphEdge edge in graph.Edges)
-        {
-            if (edge.Weight < DiagramAstFromGraphCompilerConstants.MinimumEdgeWeight)
-            {
-                continue;
-            }
-
-            if (!adjacency.ContainsKey(edge.FromNodeId) || !adjacency.ContainsKey(edge.ToNodeId))
-            {
-                continue;
-            }
-
-            adjacency[edge.FromNodeId].Add(edge.ToNodeId);
-            adjacency[edge.ToNodeId].Add(edge.FromNodeId);
-        }
-
-        AddParentInventoryAdjacency(nodes, adjacency);
-
-        HashSet<string> visited = new(StringComparer.Ordinal);
-        Queue<(string NodeId, int Depth)> queue = new();
-        queue.Enqueue((resolvedSeedNodeId, 0));
-        visited.Add(resolvedSeedNodeId);
-
-        while (queue.Count > 0)
-        {
-            (string nodeId, int depth) = queue.Dequeue();
-
-            if (depth >= options.NeighborhoodDepth)
-            {
-                continue;
-            }
-
-            if (!adjacency.TryGetValue(nodeId, out List<string>? neighbors))
-            {
-                continue;
-            }
-
-            foreach (string neighbor in neighbors)
-            {
-                if (visited.Add(neighbor))
-                {
-                    queue.Enqueue((neighbor, depth + 1));
-                }
-            }
-        }
+        Dictionary<string, HashSet<string>> adjacency =
+            DiagramHopFocusGraphAdjacencyBuilder.Build(graph, nodeIds);
+        HashSet<string> visited = DiagramHopFocusGraphAdjacencyBuilder.CollectReachable(
+            adjacency,
+            resolvedSeedNodeId,
+            options.NeighborhoodDepth);
 
         return nodes
             .Where(node => visited.Contains(node.NodeId))
+            .Where(node => !DiagramHopFocusGraphAdjacencyBuilder.IsHiddenTransitNode(node))
             .ToList();
     }
 
-    private static void AddParentInventoryAdjacency(
-        List<GraphNode> nodes,
-        Dictionary<string, List<string>> adjacency)
-    {
-        Dictionary<string, string> nodeIdByArmId = new(StringComparer.OrdinalIgnoreCase);
-
-        foreach (GraphNode node in nodes)
-        {
-            string armId = DiagramAstGraphNodeClassifier.ReadArmId(node);
-
-            if (string.IsNullOrWhiteSpace(armId) || nodeIdByArmId.ContainsKey(armId))
-            {
-                continue;
-            }
-
-            nodeIdByArmId[armId] = node.NodeId;
-        }
-
-        foreach (GraphNode node in nodes)
-        {
-            if (node.Properties is null
-                || !node.Properties.TryGetValue("arm.parentId", out string? parentId)
-                || string.IsNullOrWhiteSpace(parentId))
-            {
-                continue;
-            }
-
-            if (!nodeIdByArmId.TryGetValue(parentId, out string? parentNodeId))
-            {
-                continue;
-            }
-
-            if (!adjacency.ContainsKey(parentNodeId) || !adjacency.ContainsKey(node.NodeId))
-            {
-                continue;
-            }
-
-            adjacency[parentNodeId].Add(node.NodeId);
-            adjacency[node.NodeId].Add(parentNodeId);
-        }
-    }
 
     private static List<GraphNode> ApplyDataFlowFilter(List<GraphNode> nodes)
     {
