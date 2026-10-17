@@ -142,6 +142,16 @@ vi.mock("@/components/usability/ItsmOutboundQuickActions", () => ({
   ItsmOutboundQuickActions: () => null,
 }));
 
+const pathInspectFindingIdRef = vi.hoisted(() => ({ current: null as string | null }));
+
+vi.mock("@/components/security/SecurityEvidencePathInspectPanel", () => ({
+  SecurityEvidencePathInspectPanel: (props: { findingId: string | null }) => {
+    pathInspectFindingIdRef.current = props.findingId;
+
+    return <section data-testid="security-evidence-path-inspect-panel" />;
+  },
+}));
+
 /** SN-FQ-04 — 2026-09-24 screenshot regression: Security must not render architecture desk copy. */
 const SN_FQ_04_FORBIDDEN_DESK_COPY: readonly string[] = [
   "Afternoon document for this architecture",
@@ -164,9 +174,33 @@ beforeAll(() => {
   } as unknown as typeof ResizeObserver;
 });
 
+const complianceQueueRiskRow = {
+  runId: "run-compliance-1",
+  runLabel: "Intake review",
+  manifestId: "manifest-1",
+  findingId: "finding-compliance-1",
+  title: "Public storage exposure",
+  severity: "High",
+  category: "Network",
+  statusLabel: "Open",
+  ownerUserId: "owner@contoso.com",
+  latestDisposition: null,
+  agingDays: 2,
+  waiverExpiresAtUtc: null,
+  lastReviewedUtc: null,
+  revisitDueUtc: "2026-09-01T00:00:00.000Z",
+  isStale: false,
+  evidenceHref: "/graph?runId=run-compliance-1",
+  humanReviewStatus: null,
+  itsmLinkedTicketsSummary: null,
+  systemName: "Intake",
+  resourceId: "storage-1",
+};
+
 describe("GovernanceFindingsQueueClient SecureNow /compliance/findings working mode", () => {
   beforeEach(() => {
     searchParamsState.query = "architectureId=customer-intake";
+    pathInspectFindingIdRef.current = null;
     resetOperatorQueryClientForTests();
     vi.mocked(governanceApi.getArchitectureRiskRegister).mockResolvedValue({ entries: [] });
     vi.mocked(governanceApi.getArchitectureDecisionRegister).mockResolvedValue({ decisions: [] });
@@ -203,6 +237,39 @@ describe("GovernanceFindingsQueueClient SecureNow /compliance/findings working m
       expect(api.listRunsByProjectPaged).not.toHaveBeenCalled();
       expect(api.getRunExplanationSummary).not.toHaveBeenCalled();
       expect(architectureSealDeltaApi.getArchitectureSealDelta).not.toHaveBeenCalled();
+    });
+  });
+
+  it("renders path inspect on the SecureNow findings queue", async () => {
+    vi.mocked(governanceApi.getArchitectureRiskRegister).mockResolvedValue({
+      entries: [complianceQueueRiskRow],
+    });
+
+    render(
+      <OperatorQueryProvider>
+        <GovernanceFindingsQueueClient />
+      </OperatorQueryProvider>,
+    );
+
+    expect(await screen.findByTestId("security-evidence-path-inspect-panel")).toBeInTheDocument();
+    expect(pathInspectFindingIdRef.current).toBeNull();
+  });
+
+  it("loads path inspect when findingId is on the compliance findings URL", async () => {
+    searchParamsState.query = "architectureId=customer-intake&findingId=finding-compliance-1";
+    vi.mocked(governanceApi.getArchitectureRiskRegister).mockResolvedValue({
+      entries: [complianceQueueRiskRow],
+    });
+
+    render(
+      <OperatorQueryProvider>
+        <GovernanceFindingsQueueClient />
+      </OperatorQueryProvider>,
+    );
+
+    expect(await screen.findByTestId("security-evidence-path-inspect-panel")).toBeInTheDocument();
+    await waitFor(() => {
+      expect(pathInspectFindingIdRef.current).toBe("finding-compliance-1");
     });
   });
 
