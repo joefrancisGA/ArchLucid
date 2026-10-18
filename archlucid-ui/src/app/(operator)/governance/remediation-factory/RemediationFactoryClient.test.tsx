@@ -49,6 +49,8 @@ vi.mock("@/app/(operator)/governance/remediation-factory/use-remediation-factory
 const useRemediationRankedFindingsQueryMock = vi.hoisted(() => vi.fn());
 const useRemediationFactoryMetricsQueryMock = vi.hoisted(() => vi.fn());
 const useSecurityEvidenceRankedPathsQueryMock = vi.hoisted(() => vi.fn());
+const fetchRemediationScoreExplanationMock = vi.hoisted(() => vi.fn());
+
 const useSecurityEvidencePathReportQueryMock = vi.hoisted(() =>
   vi.fn(() => ({
     isLoading: false,
@@ -63,6 +65,10 @@ const useSecurityEvidencePathReportQueryMock = vi.hoisted(() =>
     },
   })),
 );
+
+vi.mock("@/lib/remediation-factory-api", () => ({
+  fetchRemediationScoreExplanation: (...args: unknown[]) => fetchRemediationScoreExplanationMock(...args),
+}));
 
 vi.mock("@/hooks/use-remediation-factory-query", () => ({
   useRemediationRankedFindingsQuery: () => useRemediationRankedFindingsQueryMock(),
@@ -227,6 +233,7 @@ describe("RemediationFactoryClient", () => {
     selectFinding.mockReset();
     selectPath.mockReset();
     syncSelection.mockReset();
+    fetchRemediationScoreExplanationMock.mockReset();
     mockRankedFindingsQuery();
     mockMetricsQuery();
     mockRankedPathsQuery();
@@ -364,6 +371,145 @@ describe("RemediationFactoryClient", () => {
     expect(pathRow).toHaveTextContent(
       "Composite sort key 0.8123. Ordering only — not a percentage, probability, or live risk score.",
     );
+  });
+
+  it("focuses path inspect when a top cut point highlights a path", () => {
+    const collapsedPathId = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb";
+    mockRankedPathsQuery({
+      data: {
+        items: [
+          {
+            pathId: collapsedPathId,
+            snapshotId: "cccccccc-cccc-cccc-cccc-cccccccccccc",
+            rankOrder: 1,
+            ruleVersion: "SA-09-v1",
+            technicalExposureScore: 0.9,
+            privilegeDepthScore: 0.8,
+            blastRadiusScore: 0.7,
+            businessConsequenceScore: null,
+            confidenceBandScore: 0.6,
+            compositeSortScore: 0.8123,
+            explanationSummary: "SA09-rank-v1: PrivilegePath path ranks by weighted dimensions.",
+            pathKind: "PrivilegePath",
+            pathConfidenceBand: "HighlyLikely",
+            computedUtc: "2026-01-01T00:00:00Z",
+            relatedCutPoints: [],
+          },
+        ],
+        totalCount: 1,
+        page: 1,
+        pageSize: 25,
+        topCutPoints: [
+          {
+            cutPointId: "cut-1",
+            cutKind: "Node",
+            cutOrder: 1,
+            fromNodeLabel: "mi-worker",
+            toNodeLabel: null,
+            edgeType: null,
+            explanationSummary: "SA10-cut-v1: removing node mi-worker collapses 1 ranked path(s).",
+            suggestedPatternKey: null,
+            operationalCostClass: "RoleAssignment",
+            pathsCollapsedCount: 1,
+            leverageScore: 1,
+            collapsedPathIds: [collapsedPathId],
+          },
+        ],
+      },
+    });
+
+    render(<RemediationFactoryClient />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Highlight path" }));
+
+    expect(selectPath).toHaveBeenCalledWith(collapsedPathId);
+  });
+
+  it("shows ranked path pagination when the server reports more than one page", () => {
+    mockRankedPathsQuery({
+      data: {
+        items: [
+          {
+            pathId: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+            snapshotId: "cccccccc-cccc-cccc-cccc-cccccccccccc",
+            rankOrder: 1,
+            ruleVersion: "SA-09-v1",
+            technicalExposureScore: 0.9,
+            privilegeDepthScore: 0.8,
+            blastRadiusScore: 0.7,
+            businessConsequenceScore: null,
+            confidenceBandScore: 0.6,
+            compositeSortScore: 0.8123,
+            explanationSummary: "SA09-rank-v1",
+            pathKind: "PrivilegePath",
+            pathConfidenceBand: "HighlyLikely",
+            computedUtc: "2026-01-01T00:00:00Z",
+            relatedCutPoints: [],
+          },
+        ],
+        totalCount: 30,
+        page: 1,
+        pageSize: 25,
+        topCutPoints: [],
+      },
+    });
+
+    render(<RemediationFactoryClient />);
+
+    expect(screen.getByTestId("remediation-ranked-paths-pagination")).toHaveTextContent("30");
+    expect(screen.getByTestId("remediation-factory-ranked-paths-next-page")).toBeEnabled();
+    expect(screen.getByTestId("remediation-factory-ranked-paths-prev-page")).toBeDisabled();
+  });
+
+  it("clears simulator output when the selected finding changes", async () => {
+    mockedFindingId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+    fetchRemediationScoreExplanationMock.mockResolvedValue({
+      findingId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+      totalScore: 0.42,
+      factors: [],
+      ruleVersion: "IE15-priority-v1",
+    });
+    mockRankedFindingsQuery({
+      data: [
+        {
+          findingId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+          totalScore: 0.42,
+          explanationSummary: "first",
+          breakdownJson: "[]",
+          controlId: "AC-2",
+          patternKey: null,
+        },
+        {
+          findingId: "eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee",
+          totalScore: 0.2,
+          explanationSummary: "second",
+          breakdownJson: "[]",
+          controlId: "AC-3",
+          patternKey: null,
+        },
+      ],
+    });
+
+    selectFinding.mockImplementation((findingId: string) => {
+      mockedFindingId = findingId;
+    });
+
+    const view = render(<RemediationFactoryClient />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Explain selected score" }));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("remediation-simulator-output")).toBeInTheDocument();
+    });
+
+    fireEvent.click(
+      screen.getByTestId("remediation-priority-row-eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee"),
+    );
+    view.rerender(<RemediationFactoryClient />);
+
+    await waitFor(() => {
+      expect(screen.queryByTestId("remediation-simulator-output")).not.toBeInTheDocument();
+    });
   });
 
   it("focuses path inspect on Alt+I and the command palette inspect event", () => {
