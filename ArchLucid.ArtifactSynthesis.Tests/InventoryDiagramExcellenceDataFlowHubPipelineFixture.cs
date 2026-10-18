@@ -31,7 +31,7 @@ public static class InventoryDiagramExcellenceDataFlowHubPipelineFixture
             Subgraphs =
             [
                 new DiagramSubgraph { SubgraphId = StageSourceId, Label = "Source", OrderKey = 0 },
-                new DiagramSubgraph { SubgraphId = StageTransformId, Label = "Transform", OrderKey = 1 },
+                new DiagramSubgraph { SubgraphId = StageTransformId, Label = "Ingestion", OrderKey = 1 },
             ],
             Nodes = nodes,
             Edges = edges,

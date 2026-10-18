@@ -30,7 +30,7 @@ public sealed class InventoryDiagramExcellenceDataFlowHubPipelineDotRatchetTests
         dot.Should().Contain("cluster_stage_source", "Data Flow source stage should compile to a DOT cluster");
         dot.Should().Contain("cluster_stage_transform", "Data Flow transform stage should compile to a DOT cluster");
         dot.Should().Contain("label=\"Source\"");
-        dot.Should().Contain("label=\"Transform\"");
+        dot.Should().Contain("label=\"Ingestion\"");
 
         AssertDirectedEdge(dot, InventoryDiagramExcellenceDataFlowHubPipelineFixture.LandingNodeId, InventoryDiagramExcellenceDataFlowHubPipelineFixture.FactoryNodeId);
         AssertDirectedEdge(dot, InventoryDiagramExcellenceDataFlowHubPipelineFixture.FactoryNodeId, "st0");
