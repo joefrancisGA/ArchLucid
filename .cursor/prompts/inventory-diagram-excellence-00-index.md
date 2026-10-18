@@ -105,7 +105,7 @@ Do **not** draw a complete graph to “maximize edges.” Do **not** show NIC or
 | **IDX-13c** Data Flow hub Mermaid ratchet | **Shipped** on trunk — extend only | Mermaid export on hub fixture under excellence filter |
 | **IDX-13d** Data Flow hub DOT ratchet | **Shipped** on trunk — extend only | Graphviz DOT on hub fixture; stage clusters for Data Flow |
 | **IDX-13e** Data Flow hub graph-compile ratchet | **Shipped** on trunk — extend only | `Compile(snapshot, DataFlow)` on hub graph fixture under excellence filter |
-| **IDX-13f** Data Flow hub service Mermaid ratchet | **Prompt only** — not implemented | Workbench Mermaid service can drop the hub graph while compile tests stay green |
+| **IDX-13f** Data Flow hub service Mermaid ratchet | **Shipped** on trunk — extend only | `TryGetMermaidAsync` dataFlow on hub graph fixture |
 | **IDX-13g** Data Flow hub compile forest routing | **Shipped** on trunk — extend only | Compile ratchet missing cross-stage route vs spoke cards |
 | **IDX-HOLD** | Not implementation | — |
 
