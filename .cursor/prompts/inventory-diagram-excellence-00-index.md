@@ -88,6 +88,7 @@ Do **not** draw a complete graph to “maximize edges.” Do **not** show NIC or
 | **IDX-03** Cited hops, no all-to-all | **Shipped** on trunk — do not greenfield | Composer exists so collocation can be demoted |
 | **IDX-04** Honest verbs | **Shipped** on trunk — do not greenfield | Closed verb catalog + humanizer |
 | **IDX-05** Nested VNet → subnet frames | **Shipped** on trunk — extend only | VNet/subnet forest frames + membership fallback |
+| **IDX-05b** Nested subnet excellence ratchet | **Shipped** on trunk — extend only | Network/peeled-subnet compile tests outside excellence filter |
 | **IDX-06** Subscription outer frame | **Shipped** on trunk — do not greenfield | `sub-frame` on subscription-scoped modes |
 | **IDX-07** Role-aware packing + hubs | **Shipped** on trunk — extend only | Role columns + hub-spoke in forest packer |
 | **IDX-07b** Data Flow in-stage hub | **Shipped** on trunk — extend only | Hub inside a Data Flow stage; stages stay left-to-right |
@@ -158,6 +159,10 @@ Singleton-tail, connection rollup, PE opt-in, completeness, hop-focus, cross-mod
 
 `dotnet test ArchLucid.ArtifactSynthesis.Tests --filter FullyQualifiedName~FatGraphForestDotParityRatchet`
 
+`dotnet test ArchLucid.ArtifactSynthesis.Tests --filter FullyQualifiedName~InventoryDiagramExcellenceNestedSubnetNetworkCompileRatchet`
+
+`dotnet test ArchLucid.ArtifactSynthesis.Tests --filter FullyQualifiedName~InventoryDiagramExcellencePeeledSubnetVnetFrameRatchet`
+
 `cd archlucid-ui && npm test -- inventory-diagram-excellence-workbench.ratchet`
 
 `cd archlucid-ui && npm test -- inventory-diagram-excellence-cross-mode-ui-wave-manifest`
@@ -181,6 +186,7 @@ Suggested Cloud Agent branch per prompt: `cursor/inventory-diagram-excellence-<s
 | 03 | `inventory-diagram-excellence-03-cited-hops.md` | Same-RG / single-VNet all-to-all and cross-RG guesses |
 | 04 | `inventory-diagram-excellence-04-honest-verbs.md` | Every remaining edge reads as `connects` |
 | 05 | `inventory-diagram-excellence-05-nested-vnet-subnet-frames.md` | No VNet/subnet boxes; IDA-HOLD/IDF-HOLD blocked this |
+| 05b | `inventory-diagram-excellence-05b-nested-subnet-excellence-ratchet.md` | Network/peeled-subnet compile not under excellence filter |
 | 06 | `inventory-diagram-excellence-06-subscription-outer-frame.md` | No subscription container on subscription-scoped views |
 | 07 | `inventory-diagram-excellence-07-role-aware-packing.md` | Role-blind grids; hubs lost in columns |
 | 07b | `inventory-diagram-excellence-07b-dataflow-in-stage-hub.md` | Data Flow stage stacks a high-degree ADF instead of hub-and-spoke |
