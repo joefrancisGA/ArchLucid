@@ -104,7 +104,7 @@ Do **not** draw a complete graph to “maximize edges.” Do **not** show NIC or
 | **IDX-13b** Fat-graph forest / DOT parity | **Shipped** on trunk — extend only | `BuildFatGraph()` + `AssertForestAndDotNestedFrameParity` |
 | **IDX-13c** Data Flow hub Mermaid ratchet | **Shipped** on trunk — extend only | Mermaid export on hub fixture under excellence filter |
 | **IDX-13d** Data Flow hub DOT ratchet | **Shipped** on trunk — extend only | Graphviz DOT on hub fixture; stage clusters for Data Flow |
-| **IDX-13e** Data Flow hub graph-compile ratchet | **Prompt only** — not implemented | Hand AST hub tests green while graph compile drops pipeline |
+| **IDX-13e** Data Flow hub graph-compile ratchet | **Shipped** on trunk — extend only | `Compile(snapshot, DataFlow)` on hub graph fixture under excellence filter |
 | **IDX-HOLD** | Not implementation | — |
 
 **Regression guard:** `dotnet test ArchLucid.ArtifactSynthesis.Tests --filter FullyQualifiedName~InventoryDiagramExcellence` plus `ArchLucid.Application.Tests --filter FullyQualifiedName~InfraEvidenceMermaidCompleteness`. **IDX-05** subnet layer can still deepen when a mode keeps subnet nodes visible.

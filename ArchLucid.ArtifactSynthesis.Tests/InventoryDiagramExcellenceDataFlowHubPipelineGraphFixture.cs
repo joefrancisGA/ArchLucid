@@ -43,7 +43,7 @@ public static class InventoryDiagramExcellenceDataFlowHubPipelineGraphFixture
         }
 
         graph.Edges.Add(CreateAdfReadsFromEdge("edge_landing_read", FactoryGraphNodeId, LandingGraphNodeId));
-        graph.Edges.Add(CreateForwardPipelineEdge("edge_landing_to_factory", LandingGraphNodeId, FactoryGraphNodeId));
+        graph.Edges.Add(CreateAdfWritesToEdge("edge_landing_to_factory", LandingGraphNodeId, FactoryGraphNodeId));
 
         foreach (int index in Enumerable.Range(0, 12))
         {
@@ -108,20 +108,6 @@ public static class InventoryDiagramExcellenceDataFlowHubPipelineGraphFixture
     }
 
     private static GraphEdge CreateAdfWritesToEdge(string edgeId, string fromNodeId, string toNodeId)
-    {
-        return new GraphEdge
-        {
-            EdgeId = edgeId,
-            FromNodeId = fromNodeId,
-            ToNodeId = toNodeId,
-            EdgeType = AzureInventoryRelationshipAssociationTypes.AdfWritesTo,
-            Label = AzureInventoryRelationshipAssociationTypes.AdfWritesTo,
-            Weight = 1,
-            InferenceSource = GraphEdgeInferenceSources.InventoryAdfWritesTo,
-        };
-    }
-
-    private static GraphEdge CreateForwardPipelineEdge(string edgeId, string fromNodeId, string toNodeId)
     {
         return new GraphEdge
         {
