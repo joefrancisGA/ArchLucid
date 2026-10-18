@@ -12,7 +12,7 @@ import {
   EnterpriseTableHeaderCell,
   EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens-shell-typography";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens-shell-typography";
 import type { SecurityEvidencePathAttackPathReport } from "@/lib/security-evidence-path-types";
 import { cn } from "@/lib/utils";
 
@@ -34,7 +34,7 @@ export function RemediationFactoryAttackPathReportSection(props: {
     readonly isFetching: boolean;
     readonly isSuccess: boolean;
     readonly refetch: () => Promise<unknown>;
-    readonly data: SecurityEvidencePathAttackPathReport | undefined;
+    readonly data: SecurityEvidencePathAttackPathReport | null | undefined;
   };
   readonly selectedPathId: string | null;
   readonly onSelectPath: (pathId: string) => void;
@@ -162,7 +162,7 @@ function UnevaluatedPathLinks(props: {
         <Link
           key={pathId}
           href={`#path-${pathId}`}
-          className={cn(OPERATOR_TYPOGRAPHY.link, "font-mono text-xs")}
+          className={cn(OPERATOR_LINK.inline, "font-mono text-xs")}
           onClick={(event) => {
             event.preventDefault();
             props.onSelectPath(pathId);
