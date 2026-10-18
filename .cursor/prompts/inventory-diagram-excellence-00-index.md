@@ -136,6 +136,7 @@ Do **not** draw a complete graph to “maximize edges.” Do **not** show NIC or
 | **IDX-14a** Cross-mode excellence wave closeout | **Shipped** on trunk — extend only | Index lacks cross-mode (08b–13z) complete subsection + Vitest guard |
 | **IDX-14b** Subnet nested-frame deepening closeout | **Shipped** on trunk — extend only | Index lacks IDX-05b complete subsection + Vitest guard |
 | **IDX-14c** Singleton-RG tail deepening closeout | **Shipped** on trunk — extend only | Index lacks IDX-08b–08c complete subsection + Vitest guard |
+| **IDX-14e** Private endpoint opt-in deepening closeout | **Shipped** on trunk — extend only | Index lacks IDX-10b complete subsection + Vitest guard |
 | **IDX-HOLD** | Not implementation | — |
 
 ### Data Flow hub pipeline wave (IDX-07f–13u) — complete
@@ -171,6 +172,16 @@ Forest tail collapse, hop-focus skip rules, cited cross-RG singleton visibility,
 `cd archlucid-ui && npm test -- inventory-diagram-excellence-singleton-tail-wave-closeout`
 
 Next **IDX-08** work is **extend-only** (regression fixes on subscription-scoped tail rollup).
+
+### Private endpoint opt-in deepening (IDX-10b) — complete
+
+DataFlow/DataArchitecture default-off PE compile, Full subscription Mermaid export without PE arm types, and Network opt-in PE nodes are excellence-ratcheted. Run the private-endpoint slice:
+
+`dotnet test ArchLucid.ArtifactSynthesis.Tests --filter FullyQualifiedName~InventoryDiagramExcellencePrivateEndpoint`
+
+`cd archlucid-ui && npm test -- inventory-diagram-excellence-private-endpoint-wave-closeout`
+
+Next **IDX-10** work is **extend-only** (regression fixes on workbench PE toggle and compile flag).
 
 ### Cross-mode excellence wave (IDX-08b–13z) — complete
 
@@ -257,6 +268,7 @@ Suggested Cloud Agent branch per prompt: `cursor/inventory-diagram-excellence-<s
 | 14a | `inventory-diagram-excellence-14a-cross-mode-wave-closeout.md` | Cross-mode slice not documented complete in index |
 | 14b | `inventory-diagram-excellence-14b-subnet-wave-closeout.md` | IDX-05b subnet slice not documented complete in index |
 | 14c | `inventory-diagram-excellence-14c-singleton-tail-wave-closeout.md` | IDX-08b–08c singleton tail slice not documented complete in index |
+| 14e | `inventory-diagram-excellence-14e-private-endpoint-wave-closeout.md` | IDX-10b PE opt-in slice not documented complete in index |
 | HOLD | `inventory-diagram-excellence-14-hold.md` | Complete-graph / default PE / icons / RBAC dump |
 
 ## Prerequisites (do not re-implement)
