@@ -803,7 +803,7 @@ export function RemediationPatternsClient() {
           <div className="flex flex-wrap items-center gap-2">
             <Button
               type="button"
-              variant="default"
+              variant={patterns.length === 0 && !listQuery.isLoading ? "outline" : "default"}
               data-testid="remediation-patterns-header-import-button"
               onClick={() => openImportPanel(true)}
             >
@@ -891,16 +891,6 @@ export function RemediationPatternsClient() {
                 variant: "primary",
               },
             ]}
-            footer={
-              <Button
-                type="button"
-                variant="outline"
-                data-testid="remediation-patterns-empty-import-button"
-                onClick={() => openImportPanel(true)}
-              >
-                Open YAML import
-              </Button>
-            }
             testId="remediation-patterns-empty"
           />
         ) : showFilteredRegistryEmpty ? (
