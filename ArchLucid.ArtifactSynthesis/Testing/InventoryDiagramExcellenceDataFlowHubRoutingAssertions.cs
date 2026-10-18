@@ -1,15 +1,15 @@
 using System.Xml.Linq;
 
 using ArchLucid.ArtifactSynthesis.Layout;
-using ArchLucid.ArtifactSynthesis.Mermaid;
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.ArtifactSynthesis.Renderers;
+
 using FluentAssertions;
 
-namespace ArchLucid.ArtifactSynthesis.Tests;
+namespace ArchLucid.ArtifactSynthesis.Testing;
 
-/// <summary>Shared Data Flow cross-stage edge checks for hub pipeline tests.</summary>
-public static class InventoryDiagramExcellenceDataFlowHubRoutingAssertions
+/// <summary>Shared Data Flow cross-stage edge checks for hub pipeline tests (IDX-07f / 13g / 13i).</summary>
+internal static class InventoryDiagramExcellenceDataFlowHubRoutingAssertions
 {
     public static void AssertCrossStageRouteAvoidsSpokeCards(
         DiagramAst ast,

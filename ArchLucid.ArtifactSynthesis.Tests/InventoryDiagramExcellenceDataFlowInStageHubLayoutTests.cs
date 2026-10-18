@@ -4,6 +4,7 @@ using System.Xml.Linq;
 
 using ArchLucid.ArtifactSynthesis.Layout;
 using ArchLucid.ArtifactSynthesis.Models;
+using ArchLucid.ArtifactSynthesis.Testing;
 
 using FluentAssertions;
 
