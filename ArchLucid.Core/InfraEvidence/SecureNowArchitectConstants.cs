@@ -49,6 +49,9 @@ public static class SecureNowArchitectConstants
     /// <summary>Azure Firewall, App Gateway, Front Door, NVA, or gateway hop not fully evaluable (SA-05 / Ch. 7).</summary>
     public const string InsufficientEvidenceNetworkEdgeControlHopEdgeType = "network-edge-control-not-collected-or-unverified";
 
+    /// <summary>Network-edge control allow hop from stored control-plane rules (SN-APR-05).</summary>
+    public const string NetworkEdgeControlAllowedHopEdgeType = "network-edge-control-allowed";
+
     public const string PublicNetworkAccessHopEdgeType = "public-network-access";
 
     public const string UnrestrictedEgressHopEdgeType = "unrestricted-egress";

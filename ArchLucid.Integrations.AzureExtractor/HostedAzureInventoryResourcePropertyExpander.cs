@@ -126,6 +126,7 @@ internal static class HostedAzureInventoryResourcePropertyExpander
         if (resourceType.Contains("applicationGateways", StringComparison.OrdinalIgnoreCase))
         {
             AddJsonArrayProperty(propertiesElement, properties, "backendAddressPools");
+            AddJsonArrayProperty(propertiesElement, properties, "frontendIPConfigurations");
         }
 
         if (resourceType.Contains("loadBalancers", StringComparison.OrdinalIgnoreCase))
@@ -708,6 +709,8 @@ properties["definition"] = AzureExtractorSensitivePropertyRedactor.RedactStructu
         Dictionary<string, object?> properties)
     {
         AddJsonArrayProperty(propertiesElement, properties, "ipConfigurations");
+        AddJsonArrayProperty(propertiesElement, properties, "networkRuleCollections");
+        AddJsonArrayProperty(propertiesElement, properties, "applicationRuleCollections");
         AddFirewallIpConfigurationSubnetIds(propertiesElement, properties);
         AddFirewallManagementSubnetId(propertiesElement, properties);
     }
