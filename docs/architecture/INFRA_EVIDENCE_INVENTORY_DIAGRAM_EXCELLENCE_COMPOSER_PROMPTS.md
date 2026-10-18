@@ -45,6 +45,7 @@
 | Singleton tail skips excellence filter | **IDX-08b** | Shipped — extend only |
 | Duplicate connections | **IDX-09** | Five Office365 cards per Logic App |
 | PE flag with no UI | **IDX-10** | Operators cannot opt in; or PEs sneak on |
+| PE opt-in gaps in excellence filter | **IDX-10b** | Shipped — extend only |
 | Generic completeness banner | **IDX-11** | Walkthrough 247 / 232 / 15 unexplained |
 | Neighborhood is a crop | **IDX-12** | Selected / RG / neighborhood ignore hops |
 | Full-sub-only tests | **IDX-13** | Other eleven modes regress |
