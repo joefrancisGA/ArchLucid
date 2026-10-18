@@ -50,6 +50,7 @@
 | Workbench ratchet tests not UI manifest-guarded | **IDX-13z** | Shipped — extend only |
 | Cross-mode slice not index-closeout | **IDX-14a** | Shipped — extend only |
 | Subnet 05b slice not index-closeout | **IDX-14b** | Shipped — extend only |
+| Singleton tail 08b–08c slice not index-closeout | **IDX-14c** | Shipped — extend only |
 | Singleton-RG tail | **IDX-08** | Full subscription is a postage sheet |
 | Singleton tail skips excellence filter | **IDX-08b** | Shipped — extend only |
 | Collapsed tail label helpers skip excellence filter | **IDX-08c** | Shipped — extend only |
@@ -104,6 +105,7 @@
 | **IDX-13z** Cross-mode UI wave manifest (Vitest) | After 13y | Shipped — extend only |
 | **IDX-14a** Cross-mode excellence wave closeout | After 13z | Shipped — extend only |
 | **IDX-14b** Subnet nested-frame deepening closeout | After 05b | Shipped — extend only |
+| **IDX-14c** Singleton-RG tail deepening closeout | After 08c | Shipped — extend only |
 | **IDX-08** Singleton-RG collapse | After 06 | |
 | **IDX-08b** Singleton-RG tail excellence ratchet | After 08 | Shipped — extend only |
 | **IDX-08c** Collapsed singleton tail label excellence ratchet | After 08b | Shipped — extend only |
