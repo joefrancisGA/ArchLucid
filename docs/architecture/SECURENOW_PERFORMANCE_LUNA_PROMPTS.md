@@ -21,7 +21,9 @@ Paste **one** prompt per session. Do not implement from this index.
 | **SN-PERF-16** | [securenow-performance-16-snapshot-header-sql.md](../../.cursor/prompts/securenow-performance-16-snapshot-header-sql.md) | **09** (shipped) | One header SQL text for lookup and `QueryMultiple` |
 | **SN-PERF-HOLD** | [securenow-performance-hold.md](../../.cursor/prompts/securenow-performance-hold.md) | — | Forbidden scope |
 
-**01–05**, **06–10**, and **12** are shipped. **06–10** and **12** have no paste file. **11**, **13**, **14**, and **16** can run in parallel. Run **15** after **11** if **11** is not on `master` yet, so both call one resource-list method.
+**01–05**, **06–10**, **12**, and **17–19** are shipped. **06–10**, **12**, and **17–19** have no paste file. **11**, **13**, **14**, and **16** can run in parallel. Run **15** after **11** if **11** is not on `master` yet, so both call one resource-list method.
+
+**17** loads the snapshot header for question list and ownership. **18** loads ranked-path headers and cut points in batch. **19** counts architect outcome findings and exceptions in SQL.
 
 ## Settled reading
 
