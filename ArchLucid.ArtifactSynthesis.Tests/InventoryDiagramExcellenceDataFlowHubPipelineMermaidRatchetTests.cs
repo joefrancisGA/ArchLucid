@@ -2,6 +2,7 @@ using ArchLucid.ArtifactSynthesis.Compilers;
 using ArchLucid.ArtifactSynthesis.Mermaid;
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.ArtifactSynthesis.Renderers;
+using ArchLucid.ArtifactSynthesis.Testing;
 
 using FluentAssertions;
 
@@ -45,6 +46,8 @@ public sealed class InventoryDiagramExcellenceDataFlowHubPipelineMermaidRatchetT
         AssertDirectedEdge(mermaid, InventoryDiagramExcellenceDataFlowHubPipelineFixture.LandingNodeId, InventoryDiagramExcellenceDataFlowHubPipelineFixture.FactoryNodeId);
         AssertDirectedEdge(mermaid, InventoryDiagramExcellenceDataFlowHubPipelineFixture.FactoryNodeId, "st0");
         AssertDirectedEdge(mermaid, InventoryDiagramExcellenceDataFlowHubPipelineFixture.FactoryNodeId, "st11");
+
+        InventoryDiagramExcellenceDataFlowHubPipelineMermaidStageLabelAssertions.AssertStageLabels(mermaid);
     }
 
     private static void AssertDirectedEdge(string mermaid, string fromNodeId, string toNodeId)
