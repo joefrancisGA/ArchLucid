@@ -341,7 +341,7 @@ describe("DiagramsWorkbenchClient", () => {
     const modePicker = await screen.findByTestId("infra-diagrams-mode-picker");
 
     expect(within(modePicker).getByRole("option", {
-      name: "Full subscription — backbone resources; attachments may be hidden",
+      name: "Full subscription — backbone resources; some components may be hidden",
     })).toHaveValue("full");
   });
 
