@@ -34,6 +34,10 @@ export function RemediationFactoryAttackPathReportSection(props: {
     readonly isFetching: boolean;
     readonly isSuccess: boolean;
     readonly refetch: () => Promise<unknown>;
+    /**
+     * TanStack Query data is `TData | undefined`. The report fetch returns `null`
+     * for an empty snapshot id, so live `useQuery` results include `null`.
+     */
     readonly data: SecurityEvidencePathAttackPathReport | null | undefined;
   };
   readonly selectedPathId: string | null;
