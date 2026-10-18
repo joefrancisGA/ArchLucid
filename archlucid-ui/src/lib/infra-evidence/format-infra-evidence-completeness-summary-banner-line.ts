@@ -19,13 +19,13 @@ export function formatInfraEvidenceCompletenessSummaryBannerLine(
   const visibleEdgeCount = formatCompletenessCount(summary.visibleEdgeCount, "Visible relationship count");
   const hiddenHops =
     summary.hiddenHopsUsedCount === null
-      ? ""
+      ? " Hidden attachment hop count was not stored."
       : summary.hiddenHopsUsedCount > 0
         ? ` (${summary.hiddenHopsUsedCount} from hidden attachment hops)`
         : "";
   const collocation =
     summary.likelyInCollocationEdgeCount === null
-      ? ""
+      ? " Likely-in collocation count was not stored."
       : summary.likelyInCollocationEdgeCount > 0
         ? ` ${summary.likelyInCollocationEdgeCount} likely-in collocation edges.`
         : "";
