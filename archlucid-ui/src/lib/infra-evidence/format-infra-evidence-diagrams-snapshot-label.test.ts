@@ -20,7 +20,7 @@ function snapshot(overrides: Partial<InfraEvidenceSnapshotSummary> = {}): InfraE
 describe("formatInfraEvidenceDiagramsSnapshotPickerLabel", () => {
   it("leads with the Azure subscription display name in Eastern Time using military time", () => {
     expect(formatInfraEvidenceDiagramsSnapshotPickerLabel(snapshot())).toBe(
-      "Contoso Production · Payments · 9/10/2026, 09:45 EDT",
+      "Contoso Production · 9/10/2026, 09:45 EDT · 889 resources",
     );
   });
 
@@ -28,13 +28,13 @@ describe("formatInfraEvidenceDiagramsSnapshotPickerLabel", () => {
     const unlabeled = snapshot({ subscriptionName: null, subscriptionId: null });
 
     expect(formatInfraEvidenceDiagramsSnapshotPickerLabel(unlabeled)).toBe(
-      "Subscription was not stored. · Payments · 9/10/2026, 09:45 EDT",
+      "Subscription was not stored. · 9/10/2026, 09:45 EDT · 889 resources",
     );
   });
 
   it("follows the operator IANA preference", () => {
     expect(formatInfraEvidenceDiagramsSnapshotPickerLabel(snapshot(), "America/Chicago")).toBe(
-      "Contoso Production · Payments · 9/10/2026, 08:45 CDT",
+      "Contoso Production · 9/10/2026, 08:45 CDT · 889 resources",
     );
   });
 
@@ -44,15 +44,22 @@ describe("formatInfraEvidenceDiagramsSnapshotPickerLabel", () => {
     );
   });
 
-  it("labels missing or empty architecture names in the picker (P-10)", () => {
-    expect(formatInfraEvidenceDiagramsSnapshotPickerLabel(snapshot({ architectureName: null }))).toBe(
-      "Contoso Production · Architecture name was not stored. · 9/10/2026, 09:45 EDT",
-    );
-    expect(formatInfraEvidenceDiagramsSnapshotPickerLabel(snapshot({ architectureName: "" }))).toBe(
-      "Contoso Production · Architecture name was stored empty. · 9/10/2026, 09:45 EDT",
-    );
-    expect(formatInfraEvidenceDiagramsSnapshotPickerLabel(snapshot({ architectureName: "  " }))).toBe(
-      "Contoso Production · Architecture name was stored empty. · 9/10/2026, 09:45 EDT",
-    );
+  it("omits UUID-only subscription ids when no display name was stored", () => {
+    expect(
+      formatInfraEvidenceDiagramsSnapshotPickerLabel(
+        snapshot({ subscriptionName: null, subscriptionId: "0966098b-4d6c-4f09-af1b-965bc2a2ad1d" }),
+      ),
+    ).toBe("9/10/2026, 09:45 EDT · 889 resources");
+  });
+
+  it("never surfaces ArchLucid architecture names in the picker (P-10)", () => {
+    const withName = formatInfraEvidenceDiagramsSnapshotPickerLabel(snapshot({ architectureName: "Payments" }));
+    const withoutName = formatInfraEvidenceDiagramsSnapshotPickerLabel(snapshot({ architectureName: null }));
+    const emptyName = formatInfraEvidenceDiagramsSnapshotPickerLabel(snapshot({ architectureName: "  " }));
+
+    expect(withName).toBe("Contoso Production · 9/10/2026, 09:45 EDT · 889 resources");
+    expect(withoutName).toBe(withName);
+    expect(emptyName).toBe(withName);
+    expect(withName).not.toMatch(/architecture/i);
   });
 });
