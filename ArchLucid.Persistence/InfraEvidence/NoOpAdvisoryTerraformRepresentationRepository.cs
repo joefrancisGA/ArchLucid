@@ -11,6 +11,13 @@ public sealed class NoOpAdvisoryTerraformRepresentationRepository : IAdvisoryTer
         CancellationToken cancellationToken = default)
         => Task.FromResult<IReadOnlyList<AdvisoryTerraformResourceMappingRecord>>([]);
 
+    public Task<AdvisoryTerraformResourceMappingRecord?> TryGetMappingByCloudResourceIdAsync(
+        ScopeContext scope,
+        Guid snapshotId,
+        Guid cloudResourceId,
+        CancellationToken cancellationToken = default)
+        => Task.FromResult<AdvisoryTerraformResourceMappingRecord?>(null);
+
     public Task ReplaceMappingsAsync(
         ScopeContext scope,
         Guid snapshotId,

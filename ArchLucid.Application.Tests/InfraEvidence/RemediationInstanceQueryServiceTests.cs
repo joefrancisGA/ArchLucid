@@ -116,6 +116,46 @@ public sealed class RemediationInstanceQueryServiceTests
     }
 
     [Fact]
+    public async Task ListInstancesAsync_batches_finding_reads_for_shared_findings()
+    {
+        Guid sharedFindingId = Guid.Parse("77777777-7777-7777-7777-777777777777");
+        Mock<IRemediationInstanceRepository> repository = new();
+        repository
+            .Setup(repo => repo.ListByScopeAsync(It.IsAny<ProjectScopeKey>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                CreateInstance(Guid.Parse("11111111-1111-1111-1111-111111111111"), CloudResourceId, sharedFindingId),
+                CreateInstance(Guid.Parse("22222222-2222-2222-2222-222222222222"), CloudResourceId, sharedFindingId),
+            ]);
+
+        Mock<IOperationalSecurityFindingRepository> findingRepository = new();
+        findingRepository
+            .Setup(repo => repo.ListByIdsInScopeAsync(
+                It.IsAny<ProjectScopeKey>(),
+                It.Is<IReadOnlyList<Guid>>(ids => ids.Count == 1 && ids[0] == sharedFindingId),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        RemediationInstanceQueryService service = CreateService(
+            repository.Object,
+            findingRepository: findingRepository.Object);
+
+        IReadOnlyList<RemediationInstanceSummary> instances =
+            await service.ListInstancesAsync(Scope, cloudResourceId: null, findingId: null, CancellationToken.None);
+
+        instances.Should().HaveCount(2);
+        findingRepository.Verify(
+            repo => repo.TryGetByIdInScopeAsync(It.IsAny<ProjectScopeKey>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+        findingRepository.Verify(
+            repo => repo.ListByIdsInScopeAsync(
+                It.IsAny<ProjectScopeKey>(),
+                It.IsAny<IReadOnlyList<Guid>>(),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
     public async Task ListInstancesAsync_with_findingId_and_cloudResourceId_excludes_other_resources()
     {
         Guid otherResourceId = Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff");
@@ -134,16 +174,27 @@ public sealed class RemediationInstanceQueryServiceTests
 
     private static RemediationInstanceQueryService CreateService(
         IRemediationInstanceRepository repository,
-        IVerifiedRemediationControlAssociationRepository? associationRepository = null) =>
-        new(
+        IVerifiedRemediationControlAssociationRepository? associationRepository = null,
+        IOperationalSecurityFindingRepository? findingRepository = null)
+    {
+        Mock<IOperationalSecurityFindingRepository> findingRepositoryMock = new();
+        findingRepositoryMock
+            .Setup(repo => repo.ListByIdsInScopeAsync(
+                It.IsAny<ProjectScopeKey>(),
+                It.IsAny<IReadOnlyList<Guid>>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        return new RemediationInstanceQueryService(
             new ProjectScopedRemediationInstanceRepositoryAdapter(repository),
             new ProjectScopedOperationalSecurityFindingRepositoryAdapter(
-                new Mock<IOperationalSecurityFindingRepository>().Object),
+                findingRepository ?? findingRepositoryMock.Object),
             new Mock<IRemediationPatternMatchRepository>().Object,
             new Mock<IAuditManualEvidenceRepository>().Object,
             new Mock<IAuthorityQueryService>().Object,
             new Mock<IManifestHashService>().Object,
             associationRepository ?? new InMemoryVerifiedRemediationControlAssociationRepository());
+    }
 
     private static RemediationInstanceRecord CreateInstance(Guid instanceId, Guid? cloudResourceId, Guid? findingId = null) =>
         new()

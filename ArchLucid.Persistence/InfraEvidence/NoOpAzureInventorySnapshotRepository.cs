@@ -79,4 +79,32 @@ public sealed class NoOpAzureInventorySnapshotRepository : IAzureInventorySnapsh
         {
             Outcome = AzureInventorySnapshotDeleteOutcome.NotFound,
         });
+
+    public Task<IReadOnlyList<AzureInventoryResourcePropertyReadModel>> ListResourcePropertiesByResourceRowIdAsync(
+        ScopeContext scope,
+        Guid snapshotId,
+        Guid resourceRowId,
+        CancellationToken cancellationToken = default)
+        => Task.FromResult<IReadOnlyList<AzureInventoryResourcePropertyReadModel>>([]);
+
+    public Task<IReadOnlyList<AzureInventoryTagReadModel>> ListResourceTagsByResourceRowIdAsync(
+        ScopeContext scope,
+        Guid snapshotId,
+        Guid resourceRowId,
+        CancellationToken cancellationToken = default)
+        => Task.FromResult<IReadOnlyList<AzureInventoryTagReadModel>>([]);
+
+    public Task<IReadOnlyList<AzureInventoryResourceRelationshipReadModel>> ListRelationshipsTouchingAzureResourceIdAsync(
+        ScopeContext scope,
+        Guid snapshotId,
+        string azureResourceId,
+        CancellationToken cancellationToken = default)
+        => Task.FromResult<IReadOnlyList<AzureInventoryResourceRelationshipReadModel>>([]);
+
+    public Task<IReadOnlyList<AzureInventoryRoleAssignmentReadModel>> ListRoleAssignmentsForAzureResourceScopeAsync(
+        ScopeContext scope,
+        Guid snapshotId,
+        string azureResourceId,
+        CancellationToken cancellationToken = default)
+        => Task.FromResult<IReadOnlyList<AzureInventoryRoleAssignmentReadModel>>([]);
 }

@@ -18,6 +18,11 @@ public interface IProjectScopedOperationalSecurityFindingRepository
         Guid findingId,
         CancellationToken cancellationToken = default);
 
+    Task<IReadOnlyList<OperationalSecurityFindingRecord>> ListByIdsInScopeAsync(
+        ProjectScopeKey scope,
+        IReadOnlyList<Guid> findingIds,
+        CancellationToken cancellationToken = default);
+
     Task<IReadOnlyList<OperationalSecurityFindingRecord>> ListByScopeAsync(
         ProjectScopeKey scope,
         OperationalSecurityFindingStatus? status,

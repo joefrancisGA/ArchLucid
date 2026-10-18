@@ -19,9 +19,14 @@ Paste **one** prompt per session. Do not implement from this index.
 | **SN-PERF-14** | [securenow-performance-14-inspector-finding-ids.md](../../.cursor/prompts/securenow-performance-14-inspector-finding-ids.md) | **06** (shipped) | One finding-id read per snapshot for path detail |
 | **SN-PERF-15** | [securenow-performance-15-snapshot-inventory-rows.md](../../.cursor/prompts/securenow-performance-15-snapshot-inventory-rows.md) | **11** when both are open | Inventory rows from resources, not full snapshot detail |
 | **SN-PERF-16** | [securenow-performance-16-snapshot-header-sql.md](../../.cursor/prompts/securenow-performance-16-snapshot-header-sql.md) | **09** (shipped) | One header SQL text for lookup and `QueryMultiple` |
+| **SN-PERF-20** | — | — | Evidence hub resource slice (no full snapshot detail) |
+| **SN-PERF-21** | — | — | Evidence hub terraform mapping and recent changes per resource |
+| **SN-PERF-22** | — | — | Remediation preflight production tag from resource + tags |
+| **SN-PERF-23** | — | — | Remediation instance list batched sealed-manifest checks |
+| **SN-PERF-24** | — | — | Snapshot list batched reconciliation run seal checks |
 | **SN-PERF-HOLD** | [securenow-performance-hold.md](../../.cursor/prompts/securenow-performance-hold.md) | — | Forbidden scope |
 
-**01–05**, **06–10**, and **12** are shipped. **06–10** and **12** have no paste file. **11**, **13**, **14**, and **16** can run in parallel. Run **15** after **11** if **11** is not on `master` yet, so both call one resource-list method.
+**01–05**, **06–10**, **12**, and **20–24** are shipped. **06–10** and **12** have no paste file. **11**, **13**, **14**, and **16** can run in parallel. Run **15** after **11** if **11** is not on `master` yet, so both call one resource-list method.
 
 ## Settled reading
 

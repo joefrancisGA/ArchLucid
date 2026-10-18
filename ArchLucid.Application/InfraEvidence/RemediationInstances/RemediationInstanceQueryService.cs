@@ -230,17 +230,14 @@ public sealed class RemediationInstanceQueryService(
             instances = await instanceRepository.ListByScopeAsync(scope.ToProjectScopeKey(), cancellationToken);
         }
 
-        foreach (RemediationInstanceRecord instance in instances)
-        {
-            await RemediationInstanceSealedManifestHashGuard.EnsureFindingLinkedRunSealedManifestHashOrThrowAsync(
-                instance.FindingId,
-                scope,
-                findingRepository,
-                _auditManualEvidenceRepository,
-                _authorityQueryService,
-                _manifestHashService,
-                cancellationToken);
-        }
+        await RemediationInstanceSealedManifestHashGuard.EnsureDistinctFindingLinkedRunsSealedManifestHashOrThrowAsync(
+            instances.Select(instance => instance.FindingId).ToList(),
+            scope,
+            findingRepository,
+            _auditManualEvidenceRepository,
+            _authorityQueryService,
+            _manifestHashService,
+            cancellationToken);
 
         return instances
             .OrderByDescending(item => item.UpdatedUtc)

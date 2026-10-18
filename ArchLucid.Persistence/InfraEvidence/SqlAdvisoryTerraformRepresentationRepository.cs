@@ -52,6 +52,55 @@ public sealed class SqlAdvisoryTerraformRepresentationRepository(ISqlConnectionF
             .ToList();
     }
 
+    public async Task<AdvisoryTerraformResourceMappingRecord?> TryGetMappingByCloudResourceIdAsync(
+        ScopeContext scope,
+        Guid snapshotId,
+        Guid cloudResourceId,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        if (snapshotId == Guid.Empty || cloudResourceId == Guid.Empty)
+            return null;
+
+        const string sql = """
+                           SELECT TOP (1) MappingId, SnapshotId, CloudResourceId, AzureResourceId, TerraformAddress,
+                                  CategoryFolder, GenerationMethod, UncertaintyNotes
+                           FROM dbo.AdvisoryTerraformResourceMappings
+                           WHERE TenantId = @TenantId
+                             AND SnapshotId = @SnapshotId
+                             AND CloudResourceId = @CloudResourceId;
+                           """;
+
+        using IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        MappingRow? row = await conn.QuerySingleOrDefaultAsync<MappingRow>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    scope.TenantId,
+                    SnapshotId = snapshotId,
+                    CloudResourceId = cloudResourceId,
+                },
+                cancellationToken: cancellationToken));
+
+        if (row is null)
+            return null;
+
+        return new AdvisoryTerraformResourceMappingRecord
+        {
+            MappingId = row.MappingId,
+            SnapshotId = snapshotId,
+            CloudResourceId = row.CloudResourceId,
+            AzureResourceId = row.AzureResourceId,
+            TerraformAddress = row.TerraformAddress,
+            CategoryFolder = row.CategoryFolder,
+            GenerationMethod = (AdvisoryTerraformGenerationMethod)row.GenerationMethod,
+            UncertaintyNotes = row.UncertaintyNotes,
+        };
+    }
+
     public async Task ReplaceMappingsAsync(
         ScopeContext scope,
         Guid snapshotId,
