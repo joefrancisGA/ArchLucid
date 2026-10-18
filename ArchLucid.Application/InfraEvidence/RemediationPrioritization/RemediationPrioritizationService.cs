@@ -134,43 +134,59 @@ public sealed class RemediationPrioritizationService(
             OperationalSecurityFindingStatus.Open,
             cancellationToken);
 
+        if (findings.Count == 0)
+            return [];
+
         DateTime utcNow = TimeProvider.System.UtcNowDateTime();
-        List<RemediationPrioritizedFinding> ranked = [];
         IReadOnlyDictionary<RemediationRiskFactor, decimal> weights = await GetWeightsAsync(scope, cancellationToken);
         IReadOnlyList<OperationalSecurityExceptionRecord> scopedExceptions =
             await exceptionRepository.ListByScopeAsync(projectScope, cancellationToken);
         IReadOnlyDictionary<Guid, RemediationPatternMatchResultRecord> activeMatchesByFindingId =
             await matchRepository.ListActiveMatchesByOpenFindingInScopeAsync(projectScope, cancellationToken);
-        RemediationPrioritizationRunContext runContext = new()
-        {
-            ScopedExceptions = scopedExceptions,
-            ActiveMatchesByFindingId = activeMatchesByFindingId,
-        };
+
+        IReadOnlyList<Guid> findingIds = findings.Select(item => item.FindingId).ToList();
+        IReadOnlyList<OperationalSecurityFindingMetadataRecord> metadataRows =
+            await findingRepository.ListMetadataByFindingIdsInScopeAsync(projectScope, findingIds, cancellationToken);
+
+        ILookup<Guid, OperationalSecurityFindingMetadataRecord> metadataByFindingId =
+            metadataRows.ToLookup(item => item.FindingId);
+
+        List<RemediationPatternVersionKey> versionKeys = activeMatchesByFindingId.Values
+            .Select(match => new RemediationPatternVersionKey(match.PatternId, match.PatternVersion))
+            .Distinct()
+            .ToList();
+
+        IReadOnlyList<RemediationPatternVersionRecord> versionRecords =
+            await patternRepository.TryGetVersionsAsync(scope.TenantId, versionKeys, cancellationToken);
+
+        Dictionary<RemediationPatternVersionKey, RemediationPatternVersionRecord> versionsByKey =
+            versionRecords.ToDictionary(item => new RemediationPatternVersionKey(item.PatternId, item.Version));
+
+        List<RemediationPrioritizationScoreMutation> scoreMutations = [];
+        List<RemediationPrioritizedFinding> ranked = [];
 
         foreach (OperationalSecurityFindingRecord finding in findings)
         {
-            RemediationRiskScoreResult score = await ComputeScoreAsync(
-                projectScope,
+            activeMatchesByFindingId.TryGetValue(finding.FindingId, out RemediationPatternMatchResultRecord? match);
+
+            RemediationRiskScoreResult score = ComputeScore(
                 finding,
+                metadataByFindingId[finding.FindingId].ToList(),
                 utcNow,
                 weights,
-                runContext,
-                cancellationToken);
+                scopedExceptions,
+                match,
+                versionsByKey);
 
-            await prioritizationRepository.UpsertScoreInScopeAsync(
-                projectScope,
-                new RemediationPrioritizationScoreMutation
-                {
-                    FindingId = finding.FindingId,
-                    TotalScore = score.TotalScore,
-                    BreakdownJson = score.BreakdownJson,
-                    ExplanationSummary = score.ExplanationSummary,
-                    RuleVersion = RemediationPrioritizationConstants.RuleVersion,
-                    ComputedUtc = utcNow,
-                },
-                cancellationToken);
-
-            runContext.ActiveMatchesByFindingId.TryGetValue(finding.FindingId, out RemediationPatternMatchResultRecord? match);
+            scoreMutations.Add(new RemediationPrioritizationScoreMutation
+            {
+                FindingId = finding.FindingId,
+                TotalScore = score.TotalScore,
+                BreakdownJson = score.BreakdownJson,
+                ExplanationSummary = score.ExplanationSummary,
+                RuleVersion = RemediationPrioritizationConstants.RuleVersion,
+                ComputedUtc = utcNow,
+            });
 
             ranked.Add(new RemediationPrioritizedFinding
             {
@@ -183,6 +199,8 @@ public sealed class RemediationPrioritizationService(
                 PatternKey = match?.PatternKey,
             });
         }
+
+        await prioritizationRepository.UpsertScoresInScopeAsync(projectScope, scoreMutations, cancellationToken);
 
         return ranked
             .OrderByDescending(item => item.TotalScore)
@@ -334,6 +352,55 @@ public sealed class RemediationPrioritizationService(
                     && item.Status == OperationalSecurityExceptionStatus.Active
                     && item.ExpirationUtc > asOfUtc)
                 ?.CompensatingControls;
+        }
+
+        return RemediationRiskScoreEvaluator.Evaluate(
+            finding,
+            metadata,
+            hasActiveException,
+            compensatingControls,
+            automationLevel,
+            patternHasRollback,
+            weights);
+    }
+
+    private static RemediationRiskScoreResult ComputeScore(
+        OperationalSecurityFindingRecord finding,
+        IReadOnlyList<OperationalSecurityFindingMetadataRecord> metadata,
+        DateTime asOfUtc,
+        IReadOnlyDictionary<RemediationRiskFactor, decimal> weights,
+        IReadOnlyList<OperationalSecurityExceptionRecord> scopedExceptions,
+        RemediationPatternMatchResultRecord? match,
+        IReadOnlyDictionary<RemediationPatternVersionKey, RemediationPatternVersionRecord> versionsByKey)
+    {
+        bool hasActiveException = scopedExceptions.Any(item =>
+            item.FindingId == finding.FindingId
+            && item.Status == OperationalSecurityExceptionStatus.Active
+            && item.ExpirationUtc > asOfUtc);
+
+        string? compensatingControls = null;
+        RemediationAutomationLevel? automationLevel = null;
+        bool patternHasRollback = false;
+
+        if (hasActiveException)
+        {
+            compensatingControls = scopedExceptions
+                .FirstOrDefault(item =>
+                    item.FindingId == finding.FindingId
+                    && item.Status == OperationalSecurityExceptionStatus.Active
+                    && item.ExpirationUtc > asOfUtc)
+                ?.CompensatingControls;
+        }
+
+        if (match is not null
+            && versionsByKey.TryGetValue(
+                new RemediationPatternVersionKey(match.PatternId, match.PatternVersion),
+                out RemediationPatternVersionRecord? version))
+        {
+            automationLevel = version.AutomationLevel;
+
+            if (RemediationInstanceGuard.TryParsePatternContent(version, out RemediationPatternVersionContent? content, out _))
+                patternHasRollback = content?.Rollback is not null;
         }
 
         return RemediationRiskScoreEvaluator.Evaluate(

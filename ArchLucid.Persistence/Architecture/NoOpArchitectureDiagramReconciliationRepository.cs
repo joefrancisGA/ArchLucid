@@ -37,4 +37,16 @@ public sealed class NoOpArchitectureDiagramReconciliationRepository : IArchitect
 
         return Task.FromResult<IReadOnlyList<Guid>>([]);
     }
+
+    public Task<IReadOnlyList<ArchitectureDiagramReconciliationPersistRecord>> ListBySnapshotAsync(
+        Guid tenantId,
+        Guid snapshotId,
+        CancellationToken cancellationToken = default)
+    {
+        _ = tenantId;
+        _ = snapshotId;
+        _ = cancellationToken;
+
+        return Task.FromResult<IReadOnlyList<ArchitectureDiagramReconciliationPersistRecord>>([]);
+    }
 }

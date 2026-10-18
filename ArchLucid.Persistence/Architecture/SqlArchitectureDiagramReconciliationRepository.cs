@@ -95,4 +95,35 @@ public sealed class SqlArchitectureDiagramReconciliationRepository(ISqlConnectio
 
         return rows.ToList();
     }
+
+    public async Task<IReadOnlyList<ArchitectureDiagramReconciliationPersistRecord>> ListBySnapshotAsync(
+        Guid tenantId,
+        Guid snapshotId,
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+            SELECT
+                ReconciliationId,
+                TenantId,
+                RunId,
+                SnapshotId,
+                ResultJson,
+                CreatedUtc,
+                UpdatedUtc
+            FROM dbo.ArchitectureDiagramReconciliations
+            WHERE TenantId = @TenantId AND SnapshotId = @SnapshotId
+            ORDER BY RunId;
+            """;
+
+        using System.Data.IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        IEnumerable<ArchitectureDiagramReconciliationPersistRecord> rows =
+            await connection.QueryAsync<ArchitectureDiagramReconciliationPersistRecord>(
+                new CommandDefinition(
+                    sql,
+                    new { TenantId = tenantId, SnapshotId = snapshotId },
+                    cancellationToken: cancellationToken));
+
+        return rows.ToList();
+    }
 }
