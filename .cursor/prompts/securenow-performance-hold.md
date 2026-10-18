@@ -23,6 +23,10 @@ Do not build any of the following while implementing SN-PERF prompts:
 - Changing `RemediationFactoryMetrics` JSON fields or rounding in **SN-PERF-13**.
 - Rewriting hypothesis rules in **SN-PERF-14**.
 - Splitting canonical snapshot detail back into two round trips in **SN-PERF-16**.
+- Changing evidence-hub JSON fields or dropping the child-scope role-assignment match in **SN-PERF-20**.
+- Changing how the hub picks the prior snapshot or the diff summary in **SN-PERF-21**.
+- Changing preflight blocker text, or switching verification off full snapshot detail, in **SN-PERF-22**.
+- Turning a sealed-manifest throw into a skip in **SN-PERF-23** or **SN-PERF-24**.
 - A new finding engine, a numeric confidence percent, or a change to rank weights.
 - First Load JS work from **PP-01–PP-03**.
 - Hiding a review workspace tab behind More.
