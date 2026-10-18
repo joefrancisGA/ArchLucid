@@ -8,7 +8,7 @@ using Dapper;
 
 namespace ArchLucid.Persistence.InfraEvidence;
 
-public sealed class SqlRemediationInstanceRepository(ISqlConnectionFactory connectionFactory)
+public sealed partial class SqlRemediationInstanceRepository(ISqlConnectionFactory connectionFactory)
     : IRemediationInstanceRepository
 {
     public async Task InsertInstanceAsync(RemediationInstanceRecord instance, CancellationToken cancellationToken = default)
