@@ -14,6 +14,7 @@ public sealed class InfraEvidenceSnapshotMermaidDataFlowHubPipelineTraitGuardTes
         nameof(InfraEvidenceSnapshotMermaidDataFlowHubPipelineRatchetTests),
         nameof(InfraEvidenceSnapshotMermaidDataFlowHubPipelinePngRatchetTests),
         nameof(InfraEvidenceSnapshotMermaidDataFlowHubPipelineTraitGuardTests),
+        nameof(InfraEvidenceSnapshotMermaidDataFlowHubPipelineWaveManifestTests),
     ];
 
     [Fact]

@@ -335,7 +335,7 @@ export function InferenceQuestionnairePanel(
                   onChange={(event) => setSelectedCatalog(event.target.value)}
                   data-testid="inference-questionnaire-catalog"
                 >
-                  <option value="">Select a database</option>
+                  <option value="">Database name was not stored.</option>
                   {currentItem.toCatalog != null ? (
                     <option value={currentItem.toCatalog}>{currentItem.toCatalog}</option>
                   ) : null}

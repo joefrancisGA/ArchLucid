@@ -86,30 +86,6 @@ function EvidenceExcerptBody({ text }: { readonly text: string }): ReactElement 
   return <span className={cn("font-mono text-al-text-primary", OPERATOR_TYPOGRAPHY.micro)}>{text}</span>;
 }
 
-function DemoEvidenceScaffold(props: {
-  readonly reviewContextHref: string;
-}): ReactElement {
-  return (
-    <ul className={cn("mt-2 list-none space-y-3 p-0", OPERATOR_TYPOGRAPHY.body)}>
-      <li className="rounded-md border border-neutral-200 bg-white/80 p-3 dark:border-neutral-700 dark:bg-neutral-900/60">
-        <p className="m-0 font-medium text-neutral-900 dark:text-neutral-100">Claims intake API schema</p>
-        <p className="m-0 mt-2 leading-relaxed text-neutral-800 dark:text-neutral-200">
-          Request schema includes unredacted member ID and date of birth fields referenced by the adjudication
-          subgraph.
-        </p>
-        <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-          Linked in the evidence trail and Finalized review record for this review.
-        </p>
-        <div className="mt-2">
-          <Link href={props.reviewContextHref} className={OPERATOR_LINK.optional}>
-            Open cited evidence
-          </Link>
-        </div>
-      </li>
-    </ul>
-  );
-}
-
 function EvidenceCitationList(props: {
   readonly evidence: FindingInspectEvidence[];
   readonly reviewContextHref: string;
@@ -129,7 +105,7 @@ function EvidenceCitationList(props: {
 
   if (evidence.length === 0) {
     return (
-      <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>No related graph citations on file.</p>
+      <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>No evidence citations were stored.</p>
     );
   }
 
@@ -384,11 +360,9 @@ export function FindingInspectEvidenceSection({
       ) : null}
 
       {evidence.length === 0 ? (
-        demoFillGaps ? (
-          <DemoEvidenceScaffold reviewContextHref={reviewContextHref} />
-        ) : (
-          <EvidenceCitationList {...citationListProps} />
-        )
+        <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+          No evidence citations were stored.
+        </p>
       ) : (
         <EvidenceCitationList {...citationListProps} />
       )}

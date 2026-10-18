@@ -82,10 +82,17 @@ public sealed class SecurityEvidencePathInspectorQueryService(
         IReadOnlyList<SecurityEvidencePathRoutingRecord> routingRows =
             await routingRepository.ListByPathIdInScopeAsync(scope.ToProjectScopeKey(), pathId, cancellationToken);
 
-        IReadOnlyList<SecurityEvidencePathRecord> snapshotPaths =
-            await pathRepository.ListBySnapshotAsync(
-                ProjectSnapshotScopeKey.Create(scope.ToProjectScopeKey(), path.SnapshotId),
-                cancellationToken);
+        IReadOnlyList<SecurityEvidencePathWithHops> snapshotPathsWithHops = await pathRepository.ListWithHopsBySnapshotAsync(
+            ProjectSnapshotScopeKey.Create(scope.ToProjectScopeKey(), path.SnapshotId),
+            cancellationToken);
+
+        Dictionary<Guid, IReadOnlyList<SecurityEvidencePathHopRecord>> hopsByPathId = snapshotPathsWithHops
+            .ToDictionary(item => item.Path.PathId, item => item.Hops);
+        hopsByPathId[path.PathId] = hops;
+
+        List<SecurityEvidencePathRecord> snapshotPaths = snapshotPathsWithHops
+            .Select(item => item.Path)
+            .ToList();
 
         if (!snapshotPaths.Any(candidate => candidate.PathId == path.PathId))
         {
@@ -99,13 +106,7 @@ public sealed class SecurityEvidencePathInspectorQueryService(
 
         foreach (SecurityEvidencePathRecord snapshotPath in snapshotPaths)
         {
-            IReadOnlyList<SecurityEvidencePathHopRecord> snapshotHops =
-                snapshotPath.PathId == path.PathId
-                    ? hops
-                    : await pathRepository.ListHopsByPathInScopeAsync(
-                        scope.ToProjectScopeKey(),
-                        snapshotPath.PathId,
-                        cancellationToken);
+            IReadOnlyList<SecurityEvidencePathHopRecord> snapshotHops = hopsByPathId[snapshotPath.PathId];
             IReadOnlyList<Guid> snapshotFindingIds =
                 snapshotPath.PathId == path.PathId
                     ? citingFindingIds

@@ -1079,7 +1079,7 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
                 </table>
                 {edgeRows.length === 0 ? (
                   <p className={cn("m-0 px-3 py-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-                    No edges parsed from the Mermaid source.
+                    No edges were parsed from this diagram source. That is not a stored finding that the architecture has no relationships.
                   </p>
                 ) : null}
               </div>

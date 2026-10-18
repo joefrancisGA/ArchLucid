@@ -36,6 +36,11 @@ public static class DiagramEdgeProvenanceDisplayLabelBuilder
             return $"likely · {trimmedVerb}";
         }
 
+        if (visualKind == DiagramEdgeVisualKind.Unclassified)
+        {
+            return "Provenance was not stored.";
+        }
+
         return trimmedVerb;
     }
 }
