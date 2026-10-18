@@ -84,6 +84,15 @@ public interface IProjectScopedRemediationInstanceRepository
         ProjectScopeKey scope,
         CancellationToken cancellationToken = default);
 
+    Task<IReadOnlyDictionary<string, int>> CountOpenInstancesByStatusInScopeAsync(
+        ProjectScopeKey scope,
+        CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyDictionary<Guid, RemediationInstanceRecord>> ListLatestApprovedByFindingIdsInScopeAsync(
+        ProjectScopeKey scope,
+        IReadOnlyCollection<Guid> findingIds,
+        CancellationToken cancellationToken = default);
+
     Task<(IReadOnlyList<RemediationInstanceRecord> Items, int TotalCount)> ListByCloudResourceIdPagedInScopeAsync(
         ProjectScopeKey scope,
         Guid cloudResourceId,

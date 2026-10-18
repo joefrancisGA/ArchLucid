@@ -161,4 +161,20 @@ describe("FindingInspectEvidenceSection", () => {
     expect(screen.queryByText("Line range was not stored.")).not.toBeInTheDocument();
     expect(screen.queryByText("Evidence artifact id was not stored.")).not.toBeInTheDocument();
   });
+
+  it("does not render demo citation scaffold when evidence is empty (P-09)", () => {
+    render(
+      <FindingInspectEvidenceSection
+        runId="run-1"
+        demoFillGaps={true}
+        reviewContextHref="/architecture/reviews/run-1"
+        reviewContextLabel="Open review"
+        evidence={[]}
+      />,
+    );
+
+    expect(screen.getByText("No evidence citations were stored.")).toBeInTheDocument();
+    expect(screen.queryByText("Claims intake API schema")).not.toBeInTheDocument();
+    expect(screen.queryByText("Open cited evidence")).not.toBeInTheDocument();
+  });
 });

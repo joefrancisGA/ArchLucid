@@ -185,6 +185,10 @@ public sealed partial class DocxExportService(
             WordDocumentBuilder.AddBodyText(body, "Selected patterns:");
             WordDocumentBuilder.AddBulletList(body, manifest.Topology.SelectedPatterns.Select(SanitizeArtifactText));
         }
+        else
+        {
+            WordDocumentBuilder.AddBodyText(body, "No selected patterns were recorded.");
+        }
 
         foreach (string gap in manifest.Topology.Gaps)
             WordDocumentBuilder.AddBodyText(body, $"Gap: {SanitizeArtifactText(gap)}");
@@ -284,7 +288,7 @@ public sealed partial class DocxExportService(
         {
             WordDocumentBuilder.AddHeading(body, "Unresolved Issues");
             if (manifest.UnresolvedIssues.Items.Count == 0)
-                WordDocumentBuilder.AddBodyText(body, "No unresolved issues.");
+                WordDocumentBuilder.AddBodyText(body, "No unresolved issues were recorded.");
             else
                 WordDocumentBuilder.AddIssuesTable(body, manifest.UnresolvedIssues.Items);
             WordDocumentBuilder.AddSpacer(body);

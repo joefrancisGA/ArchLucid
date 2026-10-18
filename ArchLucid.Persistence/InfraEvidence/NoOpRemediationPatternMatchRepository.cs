@@ -1,3 +1,4 @@
+using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.InfraEvidence;
 
 namespace ArchLucid.Persistence.InfraEvidence;
@@ -25,6 +26,11 @@ public sealed class NoOpRemediationPatternMatchRepository : IRemediationPatternM
         Guid findingId,
         CancellationToken cancellationToken = default)
         => Task.FromResult<RemediationPatternMatchResultRecord?>(null);
+
+    public Task<IReadOnlyList<RemediationPatternMatchResultRecord>> ListActiveMatchesForOpenFindingsInScopeAsync(
+        ProjectScopeKey scope,
+        CancellationToken cancellationToken = default) =>
+        Task.FromResult<IReadOnlyList<RemediationPatternMatchResultRecord>>([]);
 
     public Task<IReadOnlyList<RemediationPatternMatchResultRecord>> ListByFindingAsync(
         Guid tenantId,

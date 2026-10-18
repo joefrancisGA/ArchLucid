@@ -40,15 +40,17 @@ public sealed partial class DeterministicExplanationService
             if (d.ChangeType == "Modified")
 
                 list.Add(
-                    $"Decision '{d.DecisionKey}' changed from '{d.BaseValue ?? "—"}' to '{d.TargetValue ?? "—"}'.");
+                    $"Decision '{d.DecisionKey}' changed from '{FormatComparisonStoredValue(d.BaseValue, isPrior: true)}' to '{FormatComparisonStoredValue(d.TargetValue, isPrior: false)}'.");
 
             else if (d.ChangeType == "Added")
 
-                list.Add($"Decision '{d.DecisionKey}' added (selected: '{d.TargetValue ?? "—"}').");
+                list.Add(
+                    $"Decision '{d.DecisionKey}' added (selected: '{FormatComparisonStoredValue(d.TargetValue, isPrior: false)}').");
 
             else if (d.ChangeType == "Removed")
 
-                list.Add($"Decision '{d.DecisionKey}' removed (was '{d.BaseValue ?? "—"}').");
+                list.Add(
+                    $"Decision '{d.DecisionKey}' removed (was '{FormatComparisonStoredValue(d.BaseValue, isPrior: true)}').");
 
         list.AddRange(c.RequirementChanges.Take(30).Select(r => $"Requirement '{r.RequirementName}': {r.ChangeType}."));
 
@@ -111,20 +113,37 @@ public sealed partial class DeterministicExplanationService
             parts.Add("cost posture changed");
 
         return parts.Count == 0
-            ? "No material differences detected between manifests."
+            ? "The comparison lists were empty."
             : "Between runs: " + string.Join("; ", parts) + ".";
     }
 
     private static string BuildComparisonNarrativeFallback(ComparisonResult c, List<string> majorChanges)
     {
+        bool hasHighlights = c.SummaryHighlights.Any(static x => !string.IsNullOrWhiteSpace(x));
+        bool hasMajorChanges = majorChanges.Any(static x => !string.IsNullOrWhiteSpace(x));
+
         List<string> lines =
-        [
-            "The target run differs from the base run in the areas summarized below.",
-            string.Join(" ", c.SummaryHighlights)
-        ];
+            hasHighlights || hasMajorChanges
+                ?
+                [
+                    "The target run differs from the base run in the areas summarized below.",
+                    string.Join(" ", c.SummaryHighlights)
+                ]
+                : ["A difference summary was not stored."];
+
         lines.AddRange(majorChanges.Take(15));
 
         return string.Join("\n\n", lines.Where(x => !string.IsNullOrWhiteSpace(x)));
+    }
+
+    private static string FormatComparisonStoredValue(string? value, bool isPrior)
+    {
+        if (!string.IsNullOrWhiteSpace(value))
+        {
+            return value.Trim();
+        }
+
+        return isPrior ? "Prior value was not stored." : "Selected value was not stored.";
     }
 
     [UsedImplicitly]

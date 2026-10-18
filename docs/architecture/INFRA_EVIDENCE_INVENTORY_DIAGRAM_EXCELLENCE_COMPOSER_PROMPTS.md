@@ -39,9 +39,15 @@
 | Hub PNG path missing Mermaid stage labels | **IDX-13p** | Shipped — extend only |
 | Hub ratchets split Mermaid vs forest stage labels | **IDX-13q** | Shipped — extend only |
 | Hand hub stage labels asserted thrice | **IDX-13r** | Shipped — extend only |
+| Hub Application tests duplicate service wiring | **IDX-13s** | Shipped — extend only |
+| Hub ratchets lack unified trait filter | **IDX-13t** | Shipped — extend only |
+| Hub sub-wave ratchets not manifest-guarded | **IDX-13u** | Shipped — extend only |
 | Singleton-RG tail | **IDX-08** | Full subscription is a postage sheet |
+| Singleton tail skips excellence filter | **IDX-08b** | Shipped — extend only |
 | Duplicate connections | **IDX-09** | Five Office365 cards per Logic App |
+| Connection rollup skips excellence filter | **IDX-09b** | Shipped — extend only |
 | PE flag with no UI | **IDX-10** | Operators cannot opt in; or PEs sneak on |
+| PE opt-in gaps in excellence filter | **IDX-10b** | Shipped — extend only |
 | Generic completeness banner | **IDX-11** | Walkthrough 247 / 232 / 15 unexplained |
 | Neighborhood is a crop | **IDX-12** | Selected / RG / neighborhood ignore hops |
 | Full-sub-only tests | **IDX-13** | Other eleven modes regress |
@@ -76,8 +82,13 @@
 | **IDX-13p** Data Flow hub PNG Mermaid stage labels | After 13o | Shipped — extend only |
 | **IDX-13q** Data Flow hub export stage label bundle | After 13p | Shipped — extend only |
 | **IDX-13r** Data Flow hub stage label dedupe | After 13q | Shipped — extend only |
+| **IDX-13s** Data Flow hub service test factory | After 13r | Shipped — extend only |
+| **IDX-13t** Data Flow hub pipeline trait guard | After 13s | Shipped — extend only |
+| **IDX-13u** Data Flow hub pipeline wave manifest | After 13t | Shipped — extend only |
 | **IDX-08** Singleton-RG collapse | After 06 | |
+| **IDX-08b** Singleton-RG tail excellence ratchet | After 08 | Shipped — extend only |
 | **IDX-09** Duplicate connection collapse | After 03 | |
+| **IDX-09b** Duplicate connection excellence ratchet | After 09 | Shipped — extend only |
 | **IDX-10** PE opt-in toggle | After 02 | |
 | **IDX-11** Completeness strip | After 01 | |
 | **IDX-12** Hop-focus modes | After 02+03 | |

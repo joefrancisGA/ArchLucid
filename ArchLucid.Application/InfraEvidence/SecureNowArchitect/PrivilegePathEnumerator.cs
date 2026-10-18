@@ -47,12 +47,14 @@ internal static class PrivilegePathEnumerator
                 break;
             }
 
+            List<PrivilegePathEdge> pathBuffer = [];
+            HashSet<string> visited = new(StringComparer.OrdinalIgnoreCase) { startNode };
             DepthFirstSearch(
                 graph,
                 options,
                 startNode,
-                [],
-                new HashSet<string>(StringComparer.OrdinalIgnoreCase) { startNode },
+                pathBuffer,
+                visited,
                 results,
                 seenPathSignatures, neighborhood, runScope, resourceIds,
                 neighborhood?.TouchesSeed(startNode) == true,
@@ -108,7 +110,7 @@ internal static class PrivilegePathEnumerator
 
         int fanOut = 0;
 
-        foreach (PrivilegePathEdge edge in edges.OrderBy(static candidate => candidate.EdgeType, StringComparer.Ordinal))
+        foreach (PrivilegePathEdge edge in edges)
         {
             if (SecurityEvidencePathSearchLimitGuard.StopForFanOut(
                     limits,
@@ -135,10 +137,10 @@ internal static class PrivilegePathEnumerator
                 continue;
 
             fanOut++;
-            List<PrivilegePathEdge> nextPath = [.. path, edge];
-            HashSet<string> nextVisited = [.. visited, edge.ToNodeId];
+            path.Add(edge);
+            visited.Add(edge.ToNodeId);
 
-            if (TryFinalizePath(graph, nextPath, out PrivilegePathCandidate? candidate))
+            if (TryFinalizePath(graph, path, out PrivilegePathCandidate? candidate))
             {
                 string signature = BuildPathSignature(candidate.Hops);
 
@@ -154,12 +156,15 @@ internal static class PrivilegePathEnumerator
                 graph,
                 options,
                 edge.ToNodeId,
-                nextPath,
-                nextVisited,
+                path,
+                visited,
                 results,
                 seenPathSignatures, neighborhood, runScope, resourceIds,
                 touchedSeed || neighborhood?.TouchesSeed(edge.ToNodeId) == true,
                 limits);
+
+            path.RemoveAt(path.Count - 1);
+            visited.Remove(edge.ToNodeId);
         }
     }
 
@@ -207,7 +212,7 @@ internal static class PrivilegePathEnumerator
 
             candidate = new PrivilegePathCandidate
             {
-                Hops = hops,
+                Hops = [..hops],
                 TerminalScopeNodeId = scopeNodeId,
                 EffectiveRoleName = roleName,
                 HasInsufficientEvidenceHop = HasInsufficientEvidenceHop(hops),
@@ -263,7 +268,7 @@ internal static class PrivilegePathEnumerator
 
         candidate = new PrivilegePathCandidate
         {
-            Hops = hopsWithInsufficient,
+            Hops = [..hopsWithInsufficient],
             TerminalScopeNodeId = hasRoleHop.ToNodeId,
             EffectiveRoleName = mappedRole,
             HasInsufficientEvidenceHop = HasInsufficientEvidenceHop(hopsWithInsufficient),
@@ -300,7 +305,7 @@ internal static class PrivilegePathEnumerator
 
         candidate = new PrivilegePathCandidate
         {
-            Hops = hopsWithAction,
+            Hops = [..hopsWithAction],
             TerminalScopeNodeId = actionEdge.ToNodeId,
             EffectiveRoleName = mappedRole,
             HasInsufficientEvidenceHop = HasInsufficientEvidenceHop(hopsWithAction),
@@ -409,7 +414,7 @@ internal static class PrivilegePathEnumerator
 
         candidate = new PrivilegePathCandidate
         {
-            Hops = hopsWithAction,
+            Hops = [..hopsWithAction],
             TerminalScopeNodeId = hasRoleHop.ToNodeId,
             EffectiveRoleName = mappedRole,
             HasInsufficientEvidenceHop = HasInsufficientEvidenceHop(hopsWithAction),
@@ -481,7 +486,7 @@ internal static class PrivilegePathEnumerator
 
         candidate = new PrivilegePathCandidate
         {
-            Hops = hopsWithAction,
+            Hops = [..hopsWithAction],
             TerminalScopeNodeId = scopeNodeId,
             EffectiveRoleName = mappedRole,
             HasInsufficientEvidenceHop = HasInsufficientEvidenceHop(hopsWithAction),
@@ -678,7 +683,7 @@ internal static class PrivilegePathEnumerator
 
             candidate = new PrivilegePathCandidate
             {
-                Hops = hopsWithAction,
+                Hops = [..hopsWithAction],
                 TerminalScopeNodeId = normalizedResourceArmId,
                 EffectiveRoleName = ownerRoleName,
                 HasInsufficientEvidenceHop = HasInsufficientEvidenceHop(hopsWithAction),

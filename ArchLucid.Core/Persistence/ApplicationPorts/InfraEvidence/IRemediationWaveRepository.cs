@@ -77,6 +77,23 @@ public interface IRemediationWaveRepository
             ? []
             : await ListMembersByWaveAsync(scope.TenantId, waveId, cancellationToken);
     }
+
+    async Task<IReadOnlyDictionary<Guid, int>> CountMembersByWaveInScopeAsync(
+        ProjectScopeKey scope,
+        CancellationToken cancellationToken = default)
+    {
+        IReadOnlyList<RemediationWaveRecord> waves = await ListByScopeAsync(scope, cancellationToken);
+        Dictionary<Guid, int> counts = new();
+
+        foreach (RemediationWaveRecord wave in waves)
+        {
+            IReadOnlyList<RemediationWaveMemberRecord> members =
+                await ListMembersByWaveInScopeAsync(scope, wave.WaveId, cancellationToken);
+            counts[wave.WaveId] = members.Count;
+        }
+
+        return counts;
+    }
 }
 
 public sealed record RemediationWaveCreateMutation

@@ -96,8 +96,11 @@ Do **not** draw a complete graph to “maximize edges.” Do **not** show NIC or
 | **IDX-07e** Subcolumn keeps hub component whole | **Shipped** on trunk — extend only | `Take(12)` splits hub stars across subcolumns |
 | **IDX-07f** Data Flow hub pipeline ratchet | **Shipped** on trunk — extend only | Forest hub pipeline under `InventoryDiagramExcellence` filter |
 | **IDX-08** Singleton-RG collapse | **Shipped** on trunk — do not greenfield | Tail rollup when ≥8 isolated singleton RGs |
+| **IDX-08b** Singleton-RG tail excellence ratchet | **Shipped** on trunk — extend only | IDX-08 planner not under `InventoryDiagramExcellence` filter |
 | **IDX-09** Duplicate connection collapse | **Shipped** on trunk — do not greenfield | `DiagramInventoryConnectionRollupApplier` |
+| **IDX-09b** Duplicate connection excellence ratchet | **Shipped** on trunk — extend only | Connection rollup not under `InventoryDiagramExcellence` filter |
 | **IDX-10** PE opt-in toggle | **Shipped** on trunk — extend only | Workbench toggle; default off all modes incl. `ResourceGroup` |
+| **IDX-10b** PE opt-in excellence ratchet | **Shipped** on trunk — extend only | Data canvases + Mermaid export PE gaps outside dedicated excellence tests |
 | **IDX-11** Completeness strip | **Shipped** on trunk — extend only | Mode-aware `CompletenessSummary` + banner |
 | **IDX-12** Hop-focus neighborhood / selected / RG | **Shipped** on trunk — extend only | Cited-hop BFS + hidden transit bridge |
 | **IDX-13** Cross-mode parity ratchet | **Shipped** on trunk — extend only | `FullyQualifiedName~InventoryDiagramExcellence` |
@@ -118,9 +121,22 @@ Do **not** draw a complete graph to “maximize edges.” Do **not** show NIC or
 | **IDX-13p** Data Flow hub PNG Mermaid stage labels | **Shipped** on trunk — extend only | PNG export ratchet skips Mermaid stage copy on paired render |
 | **IDX-13q** Data Flow hub export stage label bundle | **Shipped** on trunk — extend only | Hub ratchets call Mermaid/forest stage helpers separately |
 | **IDX-13r** Data Flow hub stage label dedupe | **Shipped** on trunk — extend only | Hand Mermaid/forest ratchets duplicate 13q paired stage asserts |
+| **IDX-13s** Data Flow hub service test factory | **Shipped** on trunk — extend only | Application hub Mermaid/PNG tests duplicate service wiring |
+| **IDX-13t** Data Flow hub pipeline trait guard | **Shipped** on trunk — extend only | Hub ratchets lack unified `DataFlowHubPipeline` filter across test projects |
+| **IDX-13u** Data Flow hub pipeline wave manifest | **Shipped** on trunk — extend only | Hub sub-wave ratchet classes can be deleted without CI failure |
 | **IDX-HOLD** | Not implementation | — |
 
-**Regression guard:** `dotnet test ArchLucid.ArtifactSynthesis.Tests --filter FullyQualifiedName~InventoryDiagramExcellence` plus `ArchLucid.Application.Tests --filter FullyQualifiedName~InfraEvidenceMermaidCompleteness`. **IDX-05** subnet layer can still deepen when a mode keeps subnet nodes visible.
+### Data Flow hub pipeline wave (IDX-07f–13u) — complete
+
+Forest, Mermaid, DOT, graph compile, snapshot Mermaid service, PNG export, stage labels, trait filter, and manifest guards are covered. Run the hub slice:
+
+`dotnet test ArchLucid.ArtifactSynthesis.Tests --filter InventoryDiagramExcellence=DataFlowHubPipeline`
+
+`dotnet test ArchLucid.Application.Tests --filter InventoryDiagramExcellence=DataFlowHubPipeline`
+
+Next hub work is **extend-only** (regression fixes). Pick **IDX-08**, **IDX-13** cross-mode, or **IDX-HOLD** for new scope.
+
+**Regression guard:** `dotnet test ArchLucid.ArtifactSynthesis.Tests --filter FullyQualifiedName~InventoryDiagramExcellence` plus `ArchLucid.Application.Tests --filter FullyQualifiedName~InfraEvidenceMermaidCompleteness`. Data Flow hub pipeline slice (both projects): `dotnet test ArchLucid.ArtifactSynthesis.Tests --filter InventoryDiagramExcellence=DataFlowHubPipeline` and `dotnet test ArchLucid.Application.Tests --filter InventoryDiagramExcellence=DataFlowHubPipeline`. **IDX-05** subnet layer can still deepen when a mode keeps subnet nodes visible.
 
 **IDX-HOLD** is not implementation. Paste `inventory-diagram-excellence-14-hold.md` only if a session starts a complete graph, default NIC/PE cards, Microsoft icons, Full-subscription RBAC, ARM `dependsOn`, a second collector, or nested frames from an **IDA / IDF** chat.
 
@@ -143,8 +159,11 @@ Suggested Cloud Agent branch per prompt: `cursor/inventory-diagram-excellence-<s
 | 07e | `inventory-diagram-excellence-07e-subcolumn-keeps-hub.md` | Twelve-card subcolumn wrap splits hub-and-spoke components |
 | 07f | `inventory-diagram-excellence-07f-dataflow-hub-ratchet.md` | 07b–07e regressions skip the excellence test filter |
 | 08 | `inventory-diagram-excellence-08-singleton-rg-collapse.md` | Long tail of one-node RG frames |
+| 08b | `inventory-diagram-excellence-08b-singleton-tail-excellence-ratchet.md` | Singleton tail not in excellence filter |
 | 09 | `inventory-diagram-excellence-09-duplicate-connection-collapse.md` | Duplicate Logic App connector cards |
+| 09b | `inventory-diagram-excellence-09b-duplicate-connection-excellence-ratchet.md` | Connection rollup not in excellence filter |
 | 10 | `inventory-diagram-excellence-10-pe-opt-in-toggle.md` | PE cards have no workbench opt-in; hops already used |
+| 10b | `inventory-diagram-excellence-10b-private-endpoint-excellence-ratchet.md` | DataFlow/DataArchitecture + Mermaid PE opt-in not excellence-ratcheted |
 | 11 | `inventory-diagram-excellence-11-completeness-strip.md` | Generic banner; walkthrough counts unexplained |
 | 12 | `inventory-diagram-excellence-12-hop-focus-modes.md` | Neighborhood / selected / RG still feel like a crop of Full |
 | 13 | `inventory-diagram-excellence-13-cross-mode-ratchet.md` | Next agent Full-sub-only tests the rest of the enum |
@@ -165,6 +184,9 @@ Suggested Cloud Agent branch per prompt: `cursor/inventory-diagram-excellence-<s
 | 13p | `inventory-diagram-excellence-13p-dataflow-hub-png-mermaid-stage-labels.md` | PNG export ratchet omits Mermaid stage labels |
 | 13q | `inventory-diagram-excellence-13q-dataflow-hub-export-stage-label-bundle.md` | Hub ratchets do not bundle Mermaid + forest stage labels |
 | 13r | `inventory-diagram-excellence-13r-dataflow-hub-stage-label-dedupe.md` | Hand hub ratchets duplicate paired stage-label coverage |
+| 13s | `inventory-diagram-excellence-13s-dataflow-hub-service-test-factory.md` | Hub service/PNG Application tests duplicate wiring |
+| 13t | `inventory-diagram-excellence-13t-dataflow-hub-pipeline-trait-guard.md` | Hub ratchets missing cross-project trait filter |
+| 13u | `inventory-diagram-excellence-13u-dataflow-hub-wave-manifest.md` | Hub ratchet classes not manifest-guarded |
 | HOLD | `inventory-diagram-excellence-14-hold.md` | Complete-graph / default PE / icons / RBAC dump |
 
 ## Prerequisites (do not re-implement)

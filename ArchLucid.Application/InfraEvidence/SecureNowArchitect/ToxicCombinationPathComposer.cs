@@ -21,12 +21,69 @@ internal static class ToxicCombinationPathComposer
             return [];
         }
 
+        Dictionary<Guid, ToxicCombinationPathSnapshot> privilegeByPathId = privilegePaths
+            .ToDictionary(path => path.Path.PathId);
+        Dictionary<string, List<ToxicCombinationPathSnapshot>> privilegePathsByNode =
+            new(StringComparer.OrdinalIgnoreCase);
+        Dictionary<Guid, List<ToxicCombinationPathSnapshot>> privilegePathsByCloudResourceId = new();
+
+        foreach (ToxicCombinationPathSnapshot privilegePath in privilegePaths)
+        {
+            foreach (string nodeId in privilegePath.NodeIds)
+            {
+                if (!privilegePathsByNode.TryGetValue(nodeId, out List<ToxicCombinationPathSnapshot>? byNode))
+                {
+                    byNode = [];
+                    privilegePathsByNode[nodeId] = byNode;
+                }
+
+                byNode.Add(privilegePath);
+            }
+
+            if (privilegePath.TerminalCloudResourceId is Guid cloudResourceId)
+            {
+                if (!privilegePathsByCloudResourceId.TryGetValue(cloudResourceId, out List<ToxicCombinationPathSnapshot>? byCloud))
+                {
+                    byCloud = [];
+                    privilegePathsByCloudResourceId[cloudResourceId] = byCloud;
+                }
+
+                byCloud.Add(privilegePath);
+            }
+        }
+
         Dictionary<string, ToxicCombinationCandidate> bestByReachabilityAsset = new(StringComparer.Ordinal);
 
         foreach (ToxicCombinationPathSnapshot reachabilityPath in reachabilityPaths)
         {
-            foreach (ToxicCombinationPathSnapshot privilegePath in privilegePaths)
+            HashSet<Guid> relevantPrivilegePathIds = new();
+
+            foreach (string nodeId in reachabilityPath.NodeIds)
             {
+                if (!privilegePathsByNode.TryGetValue(nodeId, out List<ToxicCombinationPathSnapshot>? byNode))
+                {
+                    continue;
+                }
+
+                foreach (ToxicCombinationPathSnapshot privilegePath in byNode)
+                {
+                    relevantPrivilegePathIds.Add(privilegePath.Path.PathId);
+                }
+            }
+
+            if (reachabilityPath.TerminalCloudResourceId is Guid terminalCloudResourceId
+                && privilegePathsByCloudResourceId.TryGetValue(terminalCloudResourceId, out List<ToxicCombinationPathSnapshot>? byCloud))
+            {
+                foreach (ToxicCombinationPathSnapshot privilegePath in byCloud)
+                {
+                    relevantPrivilegePathIds.Add(privilegePath.Path.PathId);
+                }
+            }
+
+            foreach (Guid privilegePathId in relevantPrivilegePathIds)
+            {
+                ToxicCombinationPathSnapshot privilegePath = privilegeByPathId[privilegePathId];
+
                 if (includePair is not null && !includePair(reachabilityPath, privilegePath))
                     continue;
                 if (!TryResolveSharedAsset(reachabilityPath, privilegePath, out string sharedAssetNodeId))

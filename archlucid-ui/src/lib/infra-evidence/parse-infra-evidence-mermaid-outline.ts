@@ -334,7 +334,11 @@ function resolveOutlineEdgeSourceFromProvenance(provenanceKind: string): InfraEv
     return "inferred";
   }
 
-  return "observed";
+  if (normalized === "observedfact") {
+    return "observed";
+  }
+
+  return "missing";
 }
 
 function parseOutlineEdgeMetadata(comment: string): OutlineEdgeMetadata {

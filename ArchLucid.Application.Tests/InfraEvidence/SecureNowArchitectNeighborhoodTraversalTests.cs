@@ -140,4 +140,16 @@ public sealed class SecureNowArchitectNeighborhoodTraversalTests
 
     private static Dictionary<string, AzureInventoryResourceRecord> Resources(params AzureInventoryResourceRecord[] resources) =>
         resources.ToDictionary(resource => resource.AzureResourceId, StringComparer.OrdinalIgnoreCase);
+
+    [Fact]
+    public void Legacy_seed_suffix_index_matches_prefixed_nodes_without_scanning_every_seed()
+    {
+        AzureInventoryResourceRecord changed = Resource("z-changed");
+        string seedArmId = changed.AzureResourceId;
+        SecureNowArchitectLegacySeedSuffixIndex index = new([seedArmId]);
+
+        index.MatchesLegacyPrefixedNode($"legacy-prefix:{seedArmId}").Should().BeTrue();
+        index.MatchesLegacyPrefixedNode("storageAccounts/z-changed").Should().BeTrue();
+        index.MatchesLegacyPrefixedNode("unrelated-node").Should().BeFalse();
+    }
 }

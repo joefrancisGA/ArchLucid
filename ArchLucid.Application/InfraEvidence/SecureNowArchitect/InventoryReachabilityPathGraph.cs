@@ -146,6 +146,8 @@ internal static class InventoryReachabilityPathGraph
                 reachabilityRelationships,
                 reachabilityResourcesByArmId);
 
+        PrivilegePathGraphEdgeSorter.SortOutgoingEdges(outgoing);
+
         return new InventoryReachabilityPathGraphSnapshot
         {
             OutgoingEdges = outgoing,

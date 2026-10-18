@@ -93,21 +93,17 @@ public sealed class SecureNowArchitectMetricsQueryService(
         Guid snapshotId,
         CancellationToken cancellationToken)
     {
-        IReadOnlyList<SecurityEvidencePathRecord> paths = await pathRepository.ListBySnapshotAsync(
+        IReadOnlyList<SecurityEvidencePathWithHops> pathsWithHops = await pathRepository.ListWithHopsBySnapshotAsync(
             ProjectSnapshotScopeKey.Create(scope.ToProjectScopeKey(), snapshotId),
             cancellationToken);
 
+        List<SecurityEvidencePathRecord> paths = [];
         Dictionary<Guid, IReadOnlyList<SecurityEvidencePathHopRecord>> hopsByPathId = new();
 
-        foreach (SecurityEvidencePathRecord path in paths)
+        foreach (SecurityEvidencePathWithHops pathWithHops in pathsWithHops)
         {
-            IReadOnlyList<SecurityEvidencePathHopRecord> hops =
-                await pathRepository.ListHopsByPathInScopeAsync(
-                    scope.ToProjectScopeKey(),
-                    path.PathId,
-                    cancellationToken);
-
-            hopsByPathId[path.PathId] = hops;
+            paths.Add(pathWithHops.Path);
+            hopsByPathId[pathWithHops.Path.PathId] = pathWithHops.Hops;
         }
 
         return new SecureNowArchitectOutcomeMetricsSnapshotData
