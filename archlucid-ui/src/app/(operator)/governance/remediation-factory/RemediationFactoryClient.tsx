@@ -109,7 +109,6 @@ import {
 import { useRemediationFactoryUrlState } from "./use-remediation-factory-url-state";
 import {
   REMEDIATION_FACTORY_OPEN_WAVES_LABEL,
-  REMEDIATION_FACTORY_PAGE_SUBTITLE,
   REMEDIATION_FACTORY_PRIMARY_CONTENT_ID,
   REMEDIATION_FACTORY_SKIP_LINK_LABEL,
 } from "./remediation-factory-page-copy";
@@ -735,10 +734,6 @@ export function RemediationFactoryClient() {
         navHref={navHref}
         title={pageTitle}
         titleTestId="remediation-factory-page-title"
-        subtitle={REMEDIATION_FACTORY_PAGE_SUBTITLE}
-        subtitleTestId="remediation-factory-page-lead"
-        claimDiscipline="Simulator and ranked scores are advisory — not sealed-record proof or live scanner output."
-        claimDisciplineTestId="remediation-factory-claim-discipline"
         actions={
           <div className="flex flex-wrap items-center gap-2">
             <PageContextualHelpButton triggerText={PAGE_HELP_SHORT_TRIGGER_TEXT} />
