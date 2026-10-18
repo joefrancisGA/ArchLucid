@@ -41,6 +41,7 @@
 | Hand hub stage labels asserted thrice | **IDX-13r** | Shipped — extend only |
 | Hub Application tests duplicate service wiring | **IDX-13s** | Shipped — extend only |
 | Singleton-RG tail | **IDX-08** | Full subscription is a postage sheet |
+| Singleton tail skips excellence filter | **IDX-08b** | Shipped — extend only |
 | Duplicate connections | **IDX-09** | Five Office365 cards per Logic App |
 | PE flag with no UI | **IDX-10** | Operators cannot opt in; or PEs sneak on |
 | Generic completeness banner | **IDX-11** | Walkthrough 247 / 232 / 15 unexplained |
@@ -79,6 +80,7 @@
 | **IDX-13r** Data Flow hub stage label dedupe | After 13q | Shipped — extend only |
 | **IDX-13s** Data Flow hub service test factory | After 13r | Shipped — extend only |
 | **IDX-08** Singleton-RG collapse | After 06 | |
+| **IDX-08b** Singleton-RG tail excellence ratchet | After 08 | Shipped — extend only |
 | **IDX-09** Duplicate connection collapse | After 03 | |
 | **IDX-10** PE opt-in toggle | After 02 | |
 | **IDX-11** Completeness strip | After 01 | |
