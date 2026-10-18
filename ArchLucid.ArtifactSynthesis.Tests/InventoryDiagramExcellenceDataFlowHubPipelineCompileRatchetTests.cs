@@ -75,6 +75,8 @@ public sealed class InventoryDiagramExcellenceDataFlowHubPipelineCompileRatchetT
             factoryNodeId,
             spokeNodeIds);
 
+        InventoryDiagramExcellenceDataFlowHubPipelineForestStageLabelAssertions.AssertStageLabels(svg);
+
         MermaidDiagramRenderResult mermaid = await mermaidPipeline.RenderAsync(new MermaidDiagramRenderRequest { Ast = ast });
         mermaid.Status.Should().Be(MermaidDiagramRenderStatus.Succeeded);
         string mermaidText = mermaid.PrimaryMermaid!;
@@ -94,6 +96,8 @@ public sealed class InventoryDiagramExcellenceDataFlowHubPipelineCompileRatchetT
             InventoryDiagramExcellenceDataFlowHubPipelineGraphFixture.FactoryGraphNodeId);
         AssertMermaidDirectedEdge(mermaidText, InventoryDiagramExcellenceDataFlowHubPipelineGraphFixture.FactoryGraphNodeId, "st0");
         AssertMermaidDirectedEdge(mermaidText, InventoryDiagramExcellenceDataFlowHubPipelineGraphFixture.FactoryGraphNodeId, "st11");
+
+        InventoryDiagramExcellenceDataFlowHubPipelineMermaidStageLabelAssertions.AssertStageLabels(mermaidText);
 
         string dot = dotEmitter.Emit(ast);
         InventoryDiagramExcellenceDataFlowHubPipelineCompiledDotAssertions.AssertHubPipelineDot(dot);

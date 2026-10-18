@@ -4,7 +4,7 @@ using FluentAssertions;
 
 namespace ArchLucid.ArtifactSynthesis.Testing;
 
-/// <summary>Mermaid stage swimlane labels for the Data Flow hub pipeline (IDX-13l).</summary>
+/// <summary>Mermaid stage swimlane labels for the Data Flow hub pipeline (IDX-13l / IDX-13n).</summary>
 internal static class InventoryDiagramExcellenceDataFlowHubPipelineMermaidStageLabelAssertions
 {
     public static void AssertStageLabels(string mermaid)
