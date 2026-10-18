@@ -34,6 +34,19 @@ public interface IRemediationPrioritizationRepository
             },
             cancellationToken);
 
+    async Task UpsertScoresInScopeAsync(
+        ProjectScopeKey scope,
+        IReadOnlyList<RemediationPrioritizationScoreMutation> mutations,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(mutations);
+
+        foreach (RemediationPrioritizationScoreMutation mutation in mutations)
+        {
+            await UpsertScoreInScopeAsync(scope, mutation, cancellationToken);
+        }
+    }
+
     Task<RemediationPrioritizationScoreRecord?> TryGetScoreAsync(
         Guid tenantId,
         Guid findingId,

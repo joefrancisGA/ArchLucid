@@ -30,6 +30,9 @@ public sealed class RemediationInstanceService(
     private readonly IVerifiedRemediationControlAssociationRepository _associationRepository =
         associationRepository ?? throw new ArgumentNullException(nameof(associationRepository));
 
+    private readonly ISecurityEvidencePathRepository _pathRepository =
+        pathRepository ?? throw new ArgumentNullException(nameof(pathRepository));
+
     public async Task<RemediationInstanceOperationResult> CreateFromMatchAsync(
         ScopeContext scope,
         Guid findingId,
@@ -519,10 +522,10 @@ public sealed class RemediationInstanceService(
         if (instance.ChangeImplementedUtc is null)
             return Failed("Change implementation attestation time is required before verification.");
 
-        AzureInventorySnapshotDetailReadModel? executionSnapshot =
-            await snapshotRepository.TryGetSnapshotDetailAsync(scope, instance.ExecutionSnapshotId.Value, cancellationToken);
+        AzureInventorySnapshotRecord? executionHeader =
+            await snapshotRepository.TryGetBySnapshotIdAsync(scope, instance.ExecutionSnapshotId.Value, cancellationToken);
 
-        if (executionSnapshot is null)
+        if (executionHeader is null)
             return Failed("Execution inventory snapshot was not found.");
 
         RemediationPatternVersionRecord? version = await LoadFrozenVersionAsync(scope.TenantId, instance, cancellationToken);
@@ -534,7 +537,12 @@ public sealed class RemediationInstanceService(
             return Failed(parseError ?? "Invalid remediation pattern content.");
 
         AzureInventorySnapshotDetailReadModel? verificationSnapshot =
-            await snapshotRepository.TryGetSnapshotDetailAsync(scope, verificationSnapshotId, cancellationToken);
+            await RemediationInstanceVerificationSnapshotReader.TryLoadVerificationSnapshotAsync(
+                snapshotRepository,
+                scope,
+                verificationSnapshotId,
+                instance.CloudResourceId,
+                cancellationToken);
 
         if (verificationSnapshot is null)
             return Failed("Verification inventory snapshot was not found.");
@@ -546,16 +554,11 @@ public sealed class RemediationInstanceService(
 
         if (pathNarrative is not null)
         {
-            IReadOnlyList<SecurityEvidencePathRecord> verificationPaths =
-                await pathRepository.ListBySnapshotAsync(
-                    ProjectSnapshotScopeKey.Create(scope.ToProjectScopeKey(), verificationSnapshot.Header.SnapshotId),
-                    cancellationToken);
-
             pathVerificationContext = new RemediationPathVerificationContext
             {
                 PathAnalysisCompleted = false,
                 SourcePathCanonicalHash = Convert.FromHexString(pathNarrative.CanonicalHopHashHex),
-                VerificationSnapshotPaths = verificationPaths,
+                VerificationSnapshotPaths = [],
             };
         }
 
@@ -564,7 +567,7 @@ public sealed class RemediationInstanceService(
             content!,
             verificationSnapshot,
             instance.ExecutionSnapshotId.Value,
-            executionSnapshot.Header.CapturedUtc,
+            executionHeader.CapturedUtc,
             pathNarrative,
             pathVerificationContext,
             changeImplementedUtc: instance.ChangeImplementedUtc);

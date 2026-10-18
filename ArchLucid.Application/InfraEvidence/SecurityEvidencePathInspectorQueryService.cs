@@ -90,49 +90,50 @@ public sealed class SecurityEvidencePathInspectorQueryService(
         IReadOnlyList<SecurityEvidencePathRoutingRecord> routingRows =
             await routingRepository.ListByPathIdInScopeAsync(scope.ToProjectScopeKey(), pathId, cancellationToken);
 
-        IReadOnlyList<SecurityEvidencePathWithHops> snapshotPathsWithHops = await pathRepository.ListWithHopsBySnapshotAsync(
-            ProjectSnapshotScopeKey.Create(scope.ToProjectScopeKey(), path.SnapshotId),
-            cancellationToken);
+        ProjectSnapshotScopeKey snapshotScope =
+            ProjectSnapshotScopeKey.Create(scope.ToProjectScopeKey(), path.SnapshotId);
 
-        Dictionary<Guid, IReadOnlyList<SecurityEvidencePathHopRecord>> hopsByPathId = snapshotPathsWithHops
-            .ToDictionary(item => item.Path.PathId, item => item.Hops);
-        hopsByPathId[path.PathId] = hops;
+        IReadOnlyList<SecurityEvidencePathWithHops> fanOutPathsWithHops =
+            await pathRepository.ListSharedControlFanOutHopsBySnapshotAsync(snapshotScope, cancellationToken);
 
-        List<SecurityEvidencePathRecord> snapshotPaths = snapshotPathsWithHops
-            .Select(item => item.Path)
-            .ToList();
+        List<SecureNowHypothesisResponse> hypotheses = [];
 
-        if (!snapshotPaths.Any(candidate => candidate.PathId == path.PathId))
+        hypotheses.AddRange(
+            SecureNowHypothesisAnalyzer.AnalyzeDiagnosticHypothesesForPath(path, hops, citingFindingIds));
+
+        List<(SecurityEvidencePathRecord Path, IReadOnlyList<SecurityEvidencePathHopRecord> Hops)> commonModePaths = [];
+        Dictionary<Guid, IReadOnlyList<Guid>> findingIdsByPath = new()
         {
-            snapshotPaths = [path, .. snapshotPaths];
+            [path.PathId] = citingFindingIds,
+        };
+
+        foreach (SecurityEvidencePathWithHops fanOutPath in fanOutPathsWithHops)
+        {
+            if (!findingIdsByPath.ContainsKey(fanOutPath.Path.PathId))
+            {
+                findingIdsByPath[fanOutPath.Path.PathId] = await ResolveFindingIdsForPathAsync(
+                    findingIdsBySnapshot,
+                    fanOutPath.Path.PathId,
+                    projectScope,
+                    cancellationToken);
+            }
+
+            commonModePaths.Add((fanOutPath.Path, fanOutPath.Hops));
         }
 
-        List<(
-            SecurityEvidencePathRecord Path,
-            IReadOnlyList<SecurityEvidencePathHopRecord> Hops)> pathEvidence = [];
-        Dictionary<Guid, IReadOnlyList<Guid>> findingIdsByPath = [];
-
-        foreach (SecurityEvidencePathRecord snapshotPath in snapshotPaths)
+        if (!commonModePaths.Any(item => item.Path.PathId == path.PathId))
         {
-            IReadOnlyList<SecurityEvidencePathHopRecord> snapshotHops = hopsByPathId[snapshotPath.PathId];
-            IReadOnlyList<Guid> snapshotFindingIds =
-                snapshotPath.PathId == path.PathId
-                    ? citingFindingIds
-                    : await ResolveFindingIdsForPathAsync(
-                        findingIdsBySnapshot,
-                        snapshotPath.PathId,
-                        projectScope,
-                        cancellationToken);
-
-            pathEvidence.Add((snapshotPath, snapshotHops));
-            findingIdsByPath[snapshotPath.PathId] = snapshotFindingIds;
+            commonModePaths.Add((path, hops.Where(hop =>
+                    hop.EdgeType.Equals(
+                        SecureNowArchitectConstants.SharedControlFanOutHopEdgeType,
+                        StringComparison.OrdinalIgnoreCase))
+                .ToList()));
         }
 
-        IReadOnlyList<SecureNowHypothesisResponse> hypotheses =
+        hypotheses.AddRange(
             SecureNowHypothesisAnalyzer
-                .Analyze(pathEvidence, findingIdsByPath)
-                .Where(hypothesis => hypothesis.CitedPathIds.Contains(path.PathId))
-                .ToList();
+                .AnalyzeCommonModeDependencies(commonModePaths)
+                .Where(hypothesis => hypothesis.CitedPathIds.Contains(path.PathId)));
 
         return new SecurityEvidencePathDetailResponse
         {

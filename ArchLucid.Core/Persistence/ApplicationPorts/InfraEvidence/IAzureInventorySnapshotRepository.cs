@@ -109,6 +109,21 @@ public interface IAzureInventorySnapshotRepository
         string azureResourceId,
         CancellationToken cancellationToken = default) =>
         Task.FromResult<IReadOnlyList<AzureInventoryRoleAssignmentReadModel>>([]);
+
+    Task<AzureInventorySnapshotDetailReadModel?> TryGetAdvisoryTerraformVisibleSnapshotAsync(
+        ScopeContext scope,
+        Guid snapshotId,
+        CancellationToken cancellationToken = default) =>
+        TryGetSnapshotDetailAsync(scope, snapshotId, cancellationToken);
+
+    Task<(IReadOnlyList<AzureInventoryResourceRecord> Resources, IReadOnlyList<AzureInventoryResourcePropertyReadModel> Properties)>
+        ListResourcesAndPropertiesByCloudResourceIdsAsync(
+            ScopeContext scope,
+            Guid snapshotId,
+            IReadOnlyList<Guid> cloudResourceIds,
+            CancellationToken cancellationToken = default) =>
+        Task.FromResult<(IReadOnlyList<AzureInventoryResourceRecord>, IReadOnlyList<AzureInventoryResourcePropertyReadModel>)>(
+            ([], []));
 }
 
 public sealed class AzureInventorySnapshotMaterializeWriteRequest

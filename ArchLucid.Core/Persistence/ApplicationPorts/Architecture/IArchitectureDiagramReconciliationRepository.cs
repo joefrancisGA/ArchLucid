@@ -15,6 +15,11 @@ public interface IArchitectureDiagramReconciliationRepository
         Guid snapshotId,
         CancellationToken cancellationToken = default);
 
+    Task<IReadOnlyList<ArchitectureDiagramReconciliationPersistRecord>> ListBySnapshotAsync(
+        Guid tenantId,
+        Guid snapshotId,
+        CancellationToken cancellationToken = default);
+
     async Task<IReadOnlyList<ArchitectureDiagramReconciliationSnapshotRunRecord>> ListRunIdsBySnapshotIdsAsync(
         Guid tenantId,
         IReadOnlyList<Guid> snapshotIds,

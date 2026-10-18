@@ -146,4 +146,18 @@ public sealed class DeclaredConnectionEnrichedAzureInventorySnapshotRepository(
         string azureResourceId,
         CancellationToken cancellationToken = default) =>
         inner.ListRoleAssignmentsForAzureResourceScopeAsync(scope, snapshotId, azureResourceId, cancellationToken);
+
+    public Task<AzureInventorySnapshotDetailReadModel?> TryGetAdvisoryTerraformVisibleSnapshotAsync(
+        ScopeContext scope,
+        Guid snapshotId,
+        CancellationToken cancellationToken = default) =>
+        inner.TryGetAdvisoryTerraformVisibleSnapshotAsync(scope, snapshotId, cancellationToken);
+
+    public Task<(IReadOnlyList<AzureInventoryResourceRecord> Resources, IReadOnlyList<AzureInventoryResourcePropertyReadModel> Properties)>
+        ListResourcesAndPropertiesByCloudResourceIdsAsync(
+            ScopeContext scope,
+            Guid snapshotId,
+            IReadOnlyList<Guid> cloudResourceIds,
+            CancellationToken cancellationToken = default) =>
+        inner.ListResourcesAndPropertiesByCloudResourceIdsAsync(scope, snapshotId, cloudResourceIds, cancellationToken);
 }

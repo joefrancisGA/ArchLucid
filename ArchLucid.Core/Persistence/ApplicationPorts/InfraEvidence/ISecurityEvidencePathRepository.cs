@@ -104,4 +104,9 @@ public interface ISecurityEvidencePathRepository
     Task<IReadOnlyList<SecurityEvidencePathRecord>> ListBySnapshotAsync(
         ProjectSnapshotScopeKey scope,
         CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyList<SecurityEvidencePathWithHops>> ListSharedControlFanOutHopsBySnapshotAsync(
+        ProjectSnapshotScopeKey scope,
+        CancellationToken cancellationToken = default) =>
+        Task.FromResult<IReadOnlyList<SecurityEvidencePathWithHops>>([]);
 }

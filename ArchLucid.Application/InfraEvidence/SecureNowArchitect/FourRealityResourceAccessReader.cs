@@ -9,6 +9,32 @@ namespace ArchLucid.Application.InfraEvidence.SecureNowArchitect;
 internal static class FourRealityResourceAccessReader
 {
     public static IReadOnlyDictionary<string, string> BuildPropertyBag(
+        IReadOnlyList<AzureInventoryResourcePropertyReadModel> properties,
+        Guid resourceRowId)
+    {
+        ArgumentNullException.ThrowIfNull(properties);
+
+        Dictionary<string, string> bag = new(StringComparer.OrdinalIgnoreCase);
+
+        foreach (AzureInventoryResourcePropertyReadModel property in properties)
+        {
+            if (property.ResourceRowId != resourceRowId)
+            {
+                continue;
+            }
+
+            if (string.IsNullOrWhiteSpace(property.PropertyKey) || string.IsNullOrWhiteSpace(property.PropertyValue))
+            {
+                continue;
+            }
+
+            bag[property.PropertyKey] = property.PropertyValue.Trim();
+        }
+
+        return bag;
+    }
+
+    public static IReadOnlyDictionary<string, string> BuildPropertyBag(
         AzureInventorySnapshotDetailReadModel snapshot,
         Guid cloudResourceId)
     {
@@ -22,25 +48,7 @@ internal static class FourRealityResourceAccessReader
             return new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         }
 
-        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase);
-
-        foreach (AzureInventoryResourcePropertyReadModel property in snapshot.Properties)
-        {
-
-            if (property.ResourceRowId != resource.ResourceRowId)
-            {
-                continue;
-            }
-
-            if (string.IsNullOrWhiteSpace(property.PropertyKey) || string.IsNullOrWhiteSpace(property.PropertyValue))
-            {
-                continue;
-            }
-
-            properties[property.PropertyKey] = property.PropertyValue.Trim();
-        }
-
-        return properties;
+        return BuildPropertyBag(snapshot.Properties, resource.ResourceRowId);
     }
 
     public static FourRealityAccessPosture ReadObservedPosture(IReadOnlyDictionary<string, string> properties)
