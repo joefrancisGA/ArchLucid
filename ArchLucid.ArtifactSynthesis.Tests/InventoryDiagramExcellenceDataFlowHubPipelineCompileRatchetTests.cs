@@ -96,14 +96,8 @@ public sealed class InventoryDiagramExcellenceDataFlowHubPipelineCompileRatchetT
         AssertMermaidDirectedEdge(mermaidText, InventoryDiagramExcellenceDataFlowHubPipelineGraphFixture.FactoryGraphNodeId, "st11");
 
         string dot = dotEmitter.Emit(ast);
-        dot.Should().Contain("cluster_data_flow_stage_source");
-        dot.Should().Contain("cluster_data_flow_stage_ingestion");
-        dot.Should().Contain("label=\"Source\"");
-        dot.Should().Contain("label=\"Ingestion\"");
-
-        AssertDotDirectedEdge(dot, InventoryDiagramExcellenceDataFlowHubPipelineGraphFixture.LandingGraphNodeId, InventoryDiagramExcellenceDataFlowHubPipelineGraphFixture.FactoryGraphNodeId);
-        AssertDotDirectedEdge(dot, InventoryDiagramExcellenceDataFlowHubPipelineGraphFixture.FactoryGraphNodeId, "st0");
-        AssertDotDirectedEdge(dot, InventoryDiagramExcellenceDataFlowHubPipelineGraphFixture.FactoryGraphNodeId, "st11");
+        InventoryDiagramExcellenceDataFlowHubPipelineCompiledDotAssertions.AssertHubPipelineDot(dot);
+        InventoryDiagramExcellenceDataFlowHubPipelineCompiledDotAssertions.AssertHubPipelineDotUsesStableStageClusterIds(dot);
     }
 
     private static void AssertMermaidDirectedEdge(string mermaid, string fromNodeId, string toNodeId)
@@ -121,18 +115,4 @@ public sealed class InventoryDiagramExcellenceDataFlowHubPipelineCompileRatchetT
         found.Should().BeTrue($"expected Mermaid edge {from} → {to}");
     }
 
-    private static void AssertDotDirectedEdge(string dot, string fromNodeId, string toNodeId)
-    {
-        string fromQuoted = GraphvizIdEscaper.QuoteIdentifier(MermaidIdSanitizer.Sanitize(fromNodeId));
-        string toQuoted = GraphvizIdEscaper.QuoteIdentifier(MermaidIdSanitizer.Sanitize(toNodeId));
-
-        bool found = dot
-            .Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-            .Any(line =>
-                line.Contains(fromQuoted, StringComparison.Ordinal)
-                && line.Contains(toQuoted, StringComparison.Ordinal)
-                && line.Contains("->", StringComparison.Ordinal));
-
-        found.Should().BeTrue($"expected DOT edge {fromNodeId} → {toNodeId}");
-    }
 }
