@@ -82,6 +82,21 @@ public sealed class InfraEvidenceSnapshotMermaidDataFlowHubPipelineRatchetTests
             .Count(element => element.Attribute("data-hub-spoke")?.Value == "hub")
             .Should()
             .Be(1);
+
+        DiagramAstFromGraphCompiler compiler = new();
+        DiagramAst compiledAst = compiler.Compile(graph, DiagramMode.DataFlow);
+        string landingNodeId = MermaidIdSanitizer.Sanitize(InventoryDiagramExcellenceDataFlowHubPipelineGraphFixture.LandingGraphNodeId);
+        string factoryNodeId = MermaidIdSanitizer.Sanitize(InventoryDiagramExcellenceDataFlowHubPipelineGraphFixture.FactoryGraphNodeId);
+        IReadOnlyList<string> spokeNodeIds = InventoryDiagramExcellenceDataFlowHubPipelineGraphFixture.SpokeGraphNodeIds()
+            .Select(MermaidIdSanitizer.Sanitize)
+            .ToList();
+
+        InventoryDiagramExcellenceDataFlowHubRoutingAssertions.AssertCrossStageRouteAvoidsSpokeCards(
+            compiledAst,
+            layoutSvg,
+            landingNodeId,
+            factoryNodeId,
+            spokeNodeIds);
     }
 
     private static void AssertMermaidDirectedEdge(string mermaid, string fromNodeId, string toNodeId)
