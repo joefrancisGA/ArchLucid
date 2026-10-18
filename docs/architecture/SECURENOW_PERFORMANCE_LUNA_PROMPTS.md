@@ -1,4 +1,4 @@
-> **Scope:** Paste-ready prompts for SecureNow read-path costs. **SN-PERF-01–05** are shipped. **SN-PERF-11**, **13–16**, and **20–24** are paste sets. Internal engineering only. Prompts only — do not implement from this index.
+> **Scope:** Paste-ready prompts for SecureNow read-path costs. **SN-PERF-01–05** are shipped. **SN-PERF-11**, **13–16**, **20–24**, and **25–29** are paste sets. Internal engineering only. Prompts only — do not implement from this index.
 > **Paste-ready files:** [`.cursor/prompts/securenow-performance-00-index.md`](../../.cursor/prompts/securenow-performance-00-index.md)
 
 # SecureNow performance — Luna prompts
@@ -24,9 +24,14 @@ Paste **one** prompt per session. Do not implement from this index.
 | **SN-PERF-22** | [securenow-performance-22-preflight-resource-tags.md](../../.cursor/prompts/securenow-performance-22-preflight-resource-tags.md) | — | Preflight production tag from one resource and its tags |
 | **SN-PERF-23** | [securenow-performance-23-instance-list-seal-batch.md](../../.cursor/prompts/securenow-performance-23-instance-list-seal-batch.md) | — | Instance list seal-checks distinct findings and runs |
 | **SN-PERF-24** | [securenow-performance-24-snapshot-list-seal-batch.md](../../.cursor/prompts/securenow-performance-24-snapshot-list-seal-batch.md) | — | Snapshot list seal-checks distinct cited runs |
+| **SN-PERF-25** | [securenow-performance-25-rank-findings-batch.md](../../.cursor/prompts/securenow-performance-25-rank-findings-batch.md) | — | Rank open findings with batched metadata, versions, and scores |
+| **SN-PERF-26** | [securenow-performance-26-verification-resource-slice.md](../../.cursor/prompts/securenow-performance-26-verification-resource-slice.md) | **22** leaves verification alone | Verification uses headers and one resource, not two full snapshots |
+| **SN-PERF-27** | [securenow-performance-27-four-reality-prior-slice.md](../../.cursor/prompts/securenow-performance-27-four-reality-prior-slice.md) | — | Prior snapshot and diff changes limited to path resources |
+| **SN-PERF-28** | [securenow-performance-28-terraform-visible-resources.md](../../.cursor/prompts/securenow-performance-28-terraform-visible-resources.md) | — | Terraform mappings from visible resources, not eight grids |
+| **SN-PERF-29** | [securenow-performance-29-path-detail-hypothesis-hops.md](../../.cursor/prompts/securenow-performance-29-path-detail-hypothesis-hops.md) | **14** (shipped) | Path detail hypotheses without every hop on the snapshot |
 | **SN-PERF-HOLD** | [securenow-performance-hold.md](../../.cursor/prompts/securenow-performance-hold.md) | — | Forbidden scope |
 
-**01–05**, **06–10**, **12**, and **17–19** are shipped. **06–10**, **12**, and **17–19** have no paste file. **11**, **13**, **14**, and **16** can run in parallel. Run **15** after **11** if **11** is not on `master` yet, so both call one resource-list method. **20** and **21** can run in parallel. **22**, **23**, and **24** do not depend on **20**.
+**01–05**, **06–10**, **12**, and **17–19** are shipped. **06–10**, **12**, and **17–19** have no paste file. **11**, **13**, **14**, and **16** can run in parallel. Run **15** after **11** if **11** is not on `master` yet, so both call one resource-list method. **20** and **21** can run in parallel. **22**, **23**, and **24** do not depend on **20**. **25**, **27**, **28**, and **29** can run in parallel. **26** follows **22** so verification is not edited in the preflight session.
 
 **17** loads the snapshot header for question list and ownership. **18** loads ranked-path headers and cut points in batch. **19** counts architect outcome findings and exceptions in SQL.
 
@@ -44,9 +49,13 @@ Paste **one** prompt per session. Do not implement from this index.
 - **SN-PERF-16** does not add a round trip. It removes a duplicated statement.
 - **SN-PERF-20** does not change hub JSON. It stops loading the other resources’ grids.
 - **SN-PERF-21** does not change which diff is chosen. It filters mappings and changes to one cloud resource.
-- **SN-PERF-22** does not change verification. Verification still loads two full snapshots.
+- **SN-PERF-22** does not change verification. Verification is **SN-PERF-26**.
 - **SN-PERF-23** and **SN-PERF-24** stay fail-closed. A sealed run still throws.
-- Question compile, analysis, and diagram reconciliation still need a full snapshot. They are not in **20–24**.
+- **SN-PERF-25** does not change score JSON or rank order. `GetExplanationAsync` stays per finding.
+- **SN-PERF-27** keeps the current snapshot load. Only the prior snapshot and the unfiltered change list move.
+- **SN-PERF-28** keeps the same visible resource set, including private-link NIC omission.
+- **SN-PERF-29** does not change hypothesis copy. List and the engines still use `ListWithHopsBySnapshotAsync`.
+- Question compile still loads a full snapshot. It is not in **25–29**.
 
 ## Do not pull into these sessions
 
