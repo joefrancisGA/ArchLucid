@@ -27,6 +27,7 @@ namespace ArchLucid.Application.Tests.InfraEvidence;
 
 [Trait("Category", "Unit")]
 [Trait("Suite", "Application")]
+[Trait("InventoryDiagramExcellence", "DataFlowHubPipeline")]
 public sealed class InfraEvidenceSnapshotMermaidDataFlowHubPipelineRatchetTests
 {
     private static readonly Guid SnapshotId = Guid.Parse("cccccccc-dddd-eeee-ffff-111111111111");
