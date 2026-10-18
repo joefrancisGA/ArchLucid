@@ -30,6 +30,21 @@ public interface IOperationalSecurityExceptionRepository
         Guid tenantId,
         CancellationToken cancellationToken = default);
 
+    async Task<int> CountExpiredBetweenInScopeAsync(
+        ProjectScopeKey scope,
+        DateTime windowStartUtc,
+        DateTime windowEndUtc,
+        CancellationToken cancellationToken = default)
+    {
+        IReadOnlyList<OperationalSecurityExceptionRecord> rows =
+            await ListByScopeAsync(scope, cancellationToken);
+
+        return rows.Count(item =>
+            item.Status == OperationalSecurityExceptionStatus.Expired
+            && item.ExpirationUtc > windowStartUtc
+            && item.ExpirationUtc <= windowEndUtc);
+    }
+
     async Task<IReadOnlyList<OperationalSecurityExceptionRecord>> ListByScopeAsync(
         ProjectScopeKey scope,
         CancellationToken cancellationToken = default)

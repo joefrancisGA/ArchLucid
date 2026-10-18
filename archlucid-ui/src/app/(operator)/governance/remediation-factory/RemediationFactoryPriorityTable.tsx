@@ -50,7 +50,12 @@ export function RemediationFactoryPriorityTable(props: {
                 {REMEDIATION_PRIORITY_WHEN_HEADER_HELPER}
               </span>
             </EnterpriseTableHeaderCell>
-            <EnterpriseTableHeaderCell>Score</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>
+              <span>Score</span>
+              <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                Sort key for this queue. Not a percentage.
+              </span>
+            </EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>
               <span>Control</span>
               <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
@@ -92,7 +97,10 @@ export function RemediationFactoryPriorityTable(props: {
                 </EnterpriseTableCell>
                 <EnterpriseTableCell>{row.controlId ?? "—"}</EnterpriseTableCell>
                 <EnterpriseTableCell>
-                  <RemediationFactoryPatternKeyCell patternKey={row.patternKey} />
+                  <RemediationFactoryPatternKeyCell
+                    patternKey={row.patternKey}
+                    emptyLabel="Name not recorded"
+                  />
                 </EnterpriseTableCell>
                 <RemediationPriorityReasonCell
                   findingId={row.findingId}

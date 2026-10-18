@@ -86,6 +86,7 @@ Ordered for SecureNow operator value after the shipped baseline. Size is enginee
 | P1 | **SN-PERF-01–05** + hold | Home counts, snapshot round trip, path-search buffer, neighborhood suffix index, toxic pair index | **Shipped** | M | Index: [`SECURENOW_PERFORMANCE_LUNA_PROMPTS.md`](../architecture/SECURENOW_PERFORMANCE_LUNA_PROMPTS.md). |
 | P1 | **SN-PERF-06–10**, **12** | Batched path hops, factory match batch, prioritization prefetch, snapshot header batch, question graph reuse, wave instance lookup | **Shipped** | M | In code. No paste file. Do not greenfield. |
 | P1 | **SN-PERF-11**, **13–16** | Unchanged drift resources, factory aggregates, inspector finding ids, inventory rows, shared header SQL | **Backlog** | M | Paste one file per session. Index: [`SECURENOW_PERFORMANCE_LUNA_PROMPTS.md`](../architecture/SECURENOW_PERFORMANCE_LUNA_PROMPTS.md). |
+| P1 | **SN-PERF-17–19** | Question header lookup, ranked-path batch, architect outcome counts | **Shipped** | M | In code. No paste file. Do not greenfield. |
 | P1 | **SN-PERF-20–24** | Evidence-hub resource slice, hub terraform and changes, preflight tags, instance-list seal batch, snapshot-list seal batch | **Backlog** | M | Prompts only. Do not implement from the index. |
 | P2 | **IE-RF** | Relationship-first topology (network associations) | **Backlog** | L | Catalog-driven associations; complements diagrams — see [`AZURE_EXTRACTOR_TECHNICAL_BACKLOG.md`](../library/AZURE_EXTRACTOR_TECHNICAL_BACKLOG.md) item 7. |
 | P2 | **Extractor parity** | Cost, Advisor, orphans, NIC/PE inventory depth | **Backlog** | M | Same extractor discipline; SecureNow inventory workbenches consume output. |
@@ -385,6 +386,9 @@ Index: [`SECURENOW_PERFORMANCE_LUNA_PROMPTS.md`](../architecture/SECURENOW_PERFO
 | SN-PERF-14 | Inspector finding ids in one snapshot read | **Shipped** |
 | SN-PERF-15 | Snapshot inventory rows without full detail | **Shipped** |
 | SN-PERF-16 | Shared snapshot header SQL | **Shipped** |
+| SN-PERF-17 | Question list and ownership use snapshot header | **Shipped** |
+| SN-PERF-18 | Ranked path page loads headers and cut points in batch | **Shipped** |
+| SN-PERF-19 | Architect outcome counts skip full finding and exception lists | **Shipped** |
 | SN-PERF-20 | Evidence hub loads one resource slice | **Backlog** |
 | SN-PERF-21 | Evidence hub terraform mapping and recent changes for one resource | **Backlog** |
 | SN-PERF-22 | Preflight production tag from one resource | **Backlog** |

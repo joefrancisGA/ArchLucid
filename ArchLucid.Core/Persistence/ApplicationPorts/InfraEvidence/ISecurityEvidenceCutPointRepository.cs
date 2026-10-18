@@ -19,6 +19,27 @@ public interface ISecurityEvidenceCutPointRepository
         CancellationToken cancellationToken = default) =>
         ListByPathIdAsync(scope.TenantId, pathId, cancellationToken);
 
+    async Task<IReadOnlyList<SecurityEvidenceCutPointRecord>> ListBySnapshotsInScopeAsync(
+        ProjectScopeKey scope,
+        IReadOnlyCollection<Guid> snapshotIds,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        ArgumentNullException.ThrowIfNull(snapshotIds);
+
+        List<SecurityEvidenceCutPointRecord> cutPoints = [];
+
+        foreach (Guid snapshotId in snapshotIds.Where(id => id != Guid.Empty).Distinct())
+        {
+            IReadOnlyList<SecurityEvidenceCutPointRecord> rows = await ListBySnapshotAsync(
+                ProjectSnapshotScopeKey.Create(scope, snapshotId),
+                cancellationToken);
+            cutPoints.AddRange(rows);
+        }
+
+        return cutPoints;
+    }
+
     Task ReplaceCutPointsForSnapshotAsync(
         Guid tenantId,
         Guid snapshotId,
