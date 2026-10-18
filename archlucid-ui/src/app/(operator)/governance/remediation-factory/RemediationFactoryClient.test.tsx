@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const selectFinding = vi.fn();
@@ -423,6 +423,45 @@ describe("RemediationFactoryClient", () => {
     fireEvent.click(screen.getByRole("button", { name: "Highlight path" }));
 
     expect(selectPath).toHaveBeenCalledWith(collapsedPathId);
+    expect(screen.getByTestId("security-evidence-path-inspect-panel")).toHaveFocus();
+  });
+
+  it("focuses path inspect when the attack path report selects a vulnerable path", () => {
+    const pathId = "dddddddd-dddd-dddd-dddd-dddddddddddd";
+    const pathSummary = {
+      pathId,
+      snapshotId: "cccccccc-cccc-cccc-cccc-cccccccccccc",
+      rankOrder: 1,
+      ruleVersion: "SA-09-v1",
+      technicalExposureScore: 0.9,
+      privilegeDepthScore: 0.8,
+      blastRadiusScore: 0.7,
+      businessConsequenceScore: null,
+      confidenceBandScore: 0.6,
+      compositeSortScore: 0.8123,
+      explanationSummary: "SA09-rank-v1: PrivilegePath path ranks by weighted dimensions.",
+      pathKind: "PrivilegePath",
+      pathConfidenceBand: "HighlyLikely",
+      computedUtc: "2026-01-01T00:00:00Z",
+      relatedCutPoints: [],
+    };
+
+    mockPathReportQuery({
+      data: {
+        snapshotId: "cccccccc-cccc-cccc-cccc-cccccccccccc",
+        vulnerableAttackPaths: [pathSummary],
+        unevaluatedGroups: [],
+      },
+    });
+
+    render(<RemediationFactoryClient />);
+
+    const report = screen.getByTestId("attack-path-report-section");
+
+    fireEvent.click(within(report).getByTestId(`security-evidence-ranked-path-row-${pathId}`));
+
+    expect(selectPath).toHaveBeenCalledWith(pathId);
+    expect(screen.getByTestId("security-evidence-path-inspect-panel")).toHaveFocus();
   });
 
   it("shows ranked path pagination when the server reports more than one page", () => {
