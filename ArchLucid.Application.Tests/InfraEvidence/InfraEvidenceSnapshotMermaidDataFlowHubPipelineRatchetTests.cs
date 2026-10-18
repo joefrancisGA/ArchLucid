@@ -17,6 +17,8 @@ using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Architecture;
 
+using System.Xml.Linq;
+
 using FluentAssertions;
 
 using Moq;
@@ -71,6 +73,15 @@ public sealed class InfraEvidenceSnapshotMermaidDataFlowHubPipelineRatchetTests
             "st11");
 
         mermaid.Should().NotContain("privateEndpoint", "PE cards must stay off when includePrivateEndpointNodes is false");
+
+        result.Value.LayoutEngine.Should().Be("inventory-forest");
+        result.Value.LayoutSvg.Should().NotBeNullOrWhiteSpace();
+
+        XDocument layoutSvg = XDocument.Parse(result.Value.LayoutSvg!);
+        layoutSvg.Descendants()
+            .Count(element => element.Attribute("data-hub-spoke")?.Value == "hub")
+            .Should()
+            .Be(1);
     }
 
     private static void AssertMermaidDirectedEdge(string mermaid, string fromNodeId, string toNodeId)
