@@ -35,4 +35,13 @@ describe("formatInfraEvidenceCompletenessSummaryBannerLine", () => {
 
     expect(line).toContain("(2 from hidden attachment hops)");
   });
+
+  it("labels null hidden-hop and collocation counts as not stored (P-19)", () => {
+    const line = formatInfraEvidenceCompletenessSummaryBannerLine(
+      summary({ hiddenHopsUsedCount: null, likelyInCollocationEdgeCount: null }),
+    );
+
+    expect(line).toContain("Hidden attachment hop count was not stored.");
+    expect(line).toContain("Likely-in collocation count was not stored.");
+  });
 });

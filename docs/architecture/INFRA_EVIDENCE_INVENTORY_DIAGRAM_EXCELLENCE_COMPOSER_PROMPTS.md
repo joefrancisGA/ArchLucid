@@ -19,6 +19,7 @@
 | Same-RG / single-VNet clique | **IDX-03** | Canvas looks busy and false |
 | Labels say `connects` | **IDX-04** | Peering = placement = identity |
 | No VNet/subnet boxes | **IDX-05** | Network still a flat RG dump |
+| Network/peeled-subnet compile skips excellence filter | **IDX-05b** | Shipped — extend only |
 | No subscription container | **IDX-06** | Multi-sub or Full has no outer |
 | Role-blind inner grid | **IDX-07** | Hubs lost; compute mixed with KV |
 | Data Flow stage is a vertical stack | **IDX-07b** | ADF with four sinks is not a hub inside the stage |
@@ -45,6 +46,9 @@
 | Cross-mode ratchets not manifest-guarded | **IDX-13v** | Shipped — extend only |
 | Cross-mode ratchets tagged hub pipeline trait | **IDX-13w** | Shipped — extend only |
 | Workbench PE default / completeness strip | **IDX-13x** | Shipped — extend only |
+| Fat graph forest/DOT parity not named | **IDX-13y** | Shipped — extend only |
+| Workbench ratchet tests not UI manifest-guarded | **IDX-13z** | Shipped — extend only |
+| Cross-mode slice not index-closeout | **IDX-14a** | Shipped — extend only |
 | Singleton-RG tail | **IDX-08** | Full subscription is a postage sheet |
 | Singleton tail skips excellence filter | **IDX-08b** | Shipped — extend only |
 | Duplicate connections | **IDX-09** | Five Office365 cards per Logic App |
@@ -67,6 +71,7 @@
 | **IDX-03** Cited hops | After 02 | |
 | **IDX-04** Honest verbs | After 02 (prefer 03) | |
 | **IDX-05** Nested VNet/subnet frames | After 04 preferred | |
+| **IDX-05b** Nested subnet excellence ratchet | After 05 compile path on trunk | Shipped — extend only |
 | **IDX-06** Subscription outer | After 05 | |
 | **IDX-07** Role-aware packing | After 05 | |
 | **IDX-07b** Data Flow in-stage hub | After 07 | Shipped — extend only |
@@ -93,6 +98,9 @@
 | **IDX-13v** Cross-mode excellence wave manifest | After 11b + 12b + 13 | Shipped — extend only |
 | **IDX-13w** Cross-mode trait isolation guard | After 13v | Shipped — extend only |
 | **IDX-13x** Workbench excellence ratchet (Vitest) | After 13w | Shipped — extend only |
+| **IDX-13y** Fat-graph forest / DOT parity ratchet | After 13x | Shipped — extend only |
+| **IDX-13z** Cross-mode UI wave manifest (Vitest) | After 13y | Shipped — extend only |
+| **IDX-14a** Cross-mode excellence wave closeout | After 13z | Shipped — extend only |
 | **IDX-08** Singleton-RG collapse | After 06 | |
 | **IDX-08b** Singleton-RG tail excellence ratchet | After 08 | Shipped — extend only |
 | **IDX-09** Duplicate connection collapse | After 03 | |

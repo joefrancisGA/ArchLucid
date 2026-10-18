@@ -12,7 +12,8 @@ import {
 } from "@/components/architecture/ArchitectureDiagramViewer";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { CopyIdButton } from "@/components/CopyIdButton";
-import { SponsorExportSendHonestyStrip } from "@/components/exports/SponsorExportSendHonestyStrip";
+import { InfraDiagramsExportHonestyStrip } from "@/components/infra-evidence/InfraDiagramsExportHonestyStrip";
+import { PageShortcutsDisclosure } from "@/components/usability/PageShortcutsDisclosure";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import {
   SecureNowQuestionQueueBar,
@@ -273,6 +274,9 @@ import { cn } from "@/lib/utils";
 import { DiagramsBreadcrumb } from "./DiagramsBreadcrumb";
 import { DiagramsClaimOrientationStrip } from "./DiagramsClaimOrientationStrip";
 import { useDiagramsWorkbenchShortcuts } from "./use-diagrams-workbench-shortcuts";
+import { diagramsWorkbenchPageShortcutsDisclosureEntries } from "./diagrams-workbench-page-shortcuts-disclosure";
+import { InfraDiagramsSnapshotPickerOptions } from "./InfraDiagramsSnapshotPickerOptions";
+import { resolveInfraDiagramsExportDisabledReason } from "@/lib/infra-evidence/resolve-infra-diagrams-export-disabled-reason";
 
 function resolveInfraDiagramsRenderStatusAnnouncement(status: string | null): string {
   if (status === null) {
@@ -316,7 +320,7 @@ function resolveInfraDiagramsModeLabel(mode: string, fallbackKey: string, resour
       return `Resource group · ${resourceGroupName}`;
     }
 
-    return "Pick a Resource Group";
+    return "Resource group name was not stored.";
   }
 
   if (fallbackKey.length > 0) {
@@ -329,7 +333,7 @@ function resolveInfraDiagramsModeLabel(mode: string, fallbackKey: string, resour
 }
 
 const INFRA_DIAGRAM_DATA_FLOW_READING_CARD_CAPTION_REST =
-  "The first line is the name. The next line is the type. When a store has no consumer, the status line says No consumer found; when it does, Used by N. Factory, host, and runtime lines describe a Data Factory link. A title that is a count, such as 6 storage accounts, opens the list of names. Click that card again to close the list.";
+  "The first line is the name. The next line is the type. When a store has no diagram neighbor on this view, the status line says No diagram neighbor on this view.; when it does, the line names how many diagram neighbors this view drew. Factory, host, and runtime lines describe a Data Factory link. A title that is a count, such as 6 storage accounts, opens the list of names. Click that card again to close the list.";
 
 const EVIDENCE_FAMILY_FILTER_MODES = new Set(["dataFlow", "executive", "identity", "data"]);
 
@@ -912,6 +916,100 @@ export function DiagramsWorkbenchClient() {
     || resourceGroupPickerAwaitingSelection;
   const mermaidExportDisabled = exportsDisabled || !paintDiagramCanvas;
 
+  const pngExportDisabledReason = useMemo(
+    () =>
+      exportsDisabled
+        ? resolveInfraDiagramsExportDisabledReason({
+            exportBusy,
+            renderInFlight,
+            selectedSnapshotId,
+            deepLinkedSnapshotMissing,
+            diagramsSubscriptionChosen,
+            diagramTypeSelected,
+            dependencyNeighborhoodAwaitingSeed,
+            resourceGroupPickerAwaitingSelection,
+            paintDiagramCanvas,
+            forMermaidExport: false,
+          })
+        : null,
+    [
+      dependencyNeighborhoodAwaitingSeed,
+      deepLinkedSnapshotMissing,
+      diagramTypeSelected,
+      diagramsSubscriptionChosen,
+      exportBusy,
+      exportsDisabled,
+      paintDiagramCanvas,
+      renderInFlight,
+      resourceGroupPickerAwaitingSelection,
+      selectedSnapshotId,
+    ],
+  );
+
+  const mermaidExportDisabledReason = useMemo(
+    () =>
+      mermaidExportDisabled
+        ? resolveInfraDiagramsExportDisabledReason({
+            exportBusy,
+            renderInFlight,
+            selectedSnapshotId,
+            deepLinkedSnapshotMissing,
+            diagramsSubscriptionChosen,
+            diagramTypeSelected,
+            dependencyNeighborhoodAwaitingSeed,
+            resourceGroupPickerAwaitingSelection,
+            paintDiagramCanvas,
+            forMermaidExport: true,
+          })
+        : null,
+    [
+      dependencyNeighborhoodAwaitingSeed,
+      deepLinkedSnapshotMissing,
+      diagramTypeSelected,
+      diagramsSubscriptionChosen,
+      exportBusy,
+      mermaidExportDisabled,
+      paintDiagramCanvas,
+      renderInFlight,
+      resourceGroupPickerAwaitingSelection,
+      selectedSnapshotId,
+    ],
+  );
+
+  const snapshotResolvedForWorkbench = useMemo(
+    () =>
+      !loadingSnapshots
+      && selectedSnapshot != null
+      && selectedSnapshot.snapshotId === selectedSnapshotId
+      && !deepLinkedSnapshotMissing
+      && selectedSnapshotVisibleInSubscriptionFilter,
+    [
+      deepLinkedSnapshotMissing,
+      loadingSnapshots,
+      selectedSnapshot,
+      selectedSnapshotId,
+      selectedSnapshotVisibleInSubscriptionFilter,
+    ],
+  );
+
+  const completenessWarningsScopeLine = useMemo(() => {
+    if (selectedSnapshot == null) {
+      return null;
+    }
+
+    const subscriptionLabel =
+      subscriptionFilterOptions.find((option) => option.value === selectedSubscriptionFilter)?.label
+      ?? selectedSnapshot.subscriptionName?.trim()
+      ?? "Subscription not labeled";
+
+    return `Subscription ${subscriptionLabel} · Snapshot ${formatSnapshotPickerLabel(selectedSnapshot)}`;
+  }, [
+    formatSnapshotPickerLabel,
+    selectedSnapshot,
+    selectedSubscriptionFilter,
+    subscriptionFilterOptions,
+  ]);
+
   const renderStatus = renderResult?.status ?? activeModePreview?.status ?? "";
 
   const completenessWarnings = useMemo(
@@ -1362,8 +1460,13 @@ export function DiagramsWorkbenchClient() {
 
           if (resolvedSnapshotId.length > 0) {
             const linkedSnapshot = items.find((snapshot) => snapshot.snapshotId === resolvedSnapshotId) ?? null;
+            const resolvedSubscriptionFilter = resolveInfraDiagramsSubscriptionFilterForSnapshot(linkedSnapshot);
 
-            setSelectedSubscriptionFilter(resolveInfraDiagramsSubscriptionFilterForSnapshot(linkedSnapshot));
+            setSelectedSubscriptionFilter(resolvedSubscriptionFilter);
+
+            if (urlSubscriptionFilter.length === 0 && resolvedSubscriptionFilter.length > 0) {
+              syncUrlRef.current({ subscriptionFilter: resolvedSubscriptionFilter });
+            }
           } else if (urlSubscriptionFilter.length > 0) {
             const subscriptionKnown = buildInfraDiagramsSubscriptionFilterOptions(items).some(
               (option) => option.value === urlSubscriptionFilter,
@@ -1400,9 +1503,15 @@ export function DiagramsWorkbenchClient() {
     const linkedSnapshot = snapshots.find((snapshot) => snapshot.snapshotId === urlSnapshotId) ?? null;
 
     if (linkedSnapshot != null) {
-      setSelectedSubscriptionFilter(resolveInfraDiagramsSubscriptionFilterForSnapshot(linkedSnapshot));
+      const resolvedSubscriptionFilter = resolveInfraDiagramsSubscriptionFilterForSnapshot(linkedSnapshot);
+
+      setSelectedSubscriptionFilter(resolvedSubscriptionFilter);
+
+      if (urlSubscriptionFilter.length === 0 && resolvedSubscriptionFilter.length > 0) {
+        syncUrlRef.current({ subscriptionFilter: resolvedSubscriptionFilter });
+      }
     }
-  }, [snapshots, urlSnapshotId]);
+  }, [snapshots, urlSnapshotId, urlSubscriptionFilter]);
 
   const applySubscriptionFilterChange = useCallback(
     (nextSubscriptionFilter: string) => {
@@ -1942,9 +2051,7 @@ export function DiagramsWorkbenchClient() {
         data-testid="infra-diagrams-primary-content"
       >
       <SecureNowQuestionQueueProvider
-        snapshotId={
-          selectedSnapshotId.length > 0 && !deepLinkedSnapshotMissing ? selectedSnapshotId : ""
-        }
+        snapshotId={snapshotResolvedForWorkbench ? selectedSnapshotId : ""}
       >
       <InfraEvidenceSelectionAnnouncer message={selectionAnnouncement} testId="infra-diagrams-selection-announcer" />
 
@@ -1956,12 +2063,18 @@ export function DiagramsWorkbenchClient() {
         />
       ) : null}
 
-      {selectedSnapshotId.length > 0 && !deepLinkedSnapshotMissing ? (
+      {snapshotResolvedForWorkbench ? (
         <InfraEvidenceCompletenessWarningsBanner
           warnings={completenessWarnings}
           summary={completenessSummary}
+          scopeLine={completenessWarningsScopeLine}
         />
       ) : null}
+
+      <PageShortcutsDisclosure
+        testId="infra-diagrams-page-shortcuts"
+        entries={diagramsWorkbenchPageShortcutsDisclosureEntries()}
+      />
 
       {selectedSnapshotId.length > 0 && !deepLinkedSnapshotMissing ? (
         <OperatorInferredConnectionsPanel snapshotId={selectedSnapshotId} />
@@ -2061,7 +2174,7 @@ export function DiagramsWorkbenchClient() {
             <div
               className={cn(
                 "col-span-full grid min-w-0 gap-2",
-                showResourceGroupDropdown ? "md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]" : "md:max-w-md",
+                showResourceGroupDropdown ? "md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]" : "",
               )}
             >
               <div className="grid min-w-0 gap-2">
@@ -2121,20 +2234,15 @@ export function DiagramsWorkbenchClient() {
                 value={selectedSnapshotVisibleInSubscriptionFilter ? selectedSnapshotId : ""}
                 onChange={(event) => handleSnapshotChange(event.target.value)}
               >
-                {visibleSnapshots.length === 0 ? (
-                  <option value="">No snapshots available</option>
-                ) : (
-                  <>
-                    {selectedSnapshotId.length === 0 || !selectedSnapshotVisibleInSubscriptionFilter ? (
-                      <option value="">Select a snapshot</option>
-                    ) : null}
-                    {visibleSnapshots.map((snapshot) => (
-                      <option key={snapshot.snapshotId} value={snapshot.snapshotId}>
-                        {formatSnapshotPickerLabel(snapshot)}
-                      </option>
-                    ))}
-                  </>
-                )}
+                <InfraDiagramsSnapshotPickerOptions
+                  loadingSnapshots={loadingSnapshots}
+                  diagramsSubscriptionChosen={diagramsSubscriptionChosen}
+                  snapshotsEmpty={snapshots.length === 0}
+                  visibleSnapshots={visibleSnapshots}
+                  selectedSnapshotId={selectedSnapshotId}
+                  selectedSnapshotVisibleInSubscriptionFilter={selectedSnapshotVisibleInSubscriptionFilter}
+                  formatSnapshotPickerLabel={formatSnapshotPickerLabel}
+                />
               </select>
             </div>
             <div className="grid min-w-0 gap-2">
@@ -2170,7 +2278,7 @@ export function DiagramsWorkbenchClient() {
                   <CopyIdButton value={selectedSnapshot.snapshotId} aria-label="Copy snapshot id" />
                 </div>
                 <StatusTag {...infraEvidenceSnapshotCaptureStatusTagProps(selectedSnapshot.captureStatus)} />
-                <SecureNowQuestionQueueSnapshotPromo />
+                <SecureNowQuestionQueueSnapshotPromo compact />
               </div>
             ) : null}
           </>
@@ -2179,7 +2287,7 @@ export function DiagramsWorkbenchClient() {
             <div
               className={cn(
                 "col-span-full grid min-w-0 gap-2",
-                showResourceGroupDropdown ? "md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]" : "md:max-w-md",
+                showResourceGroupDropdown ? "md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]" : "",
               )}
             >
               <div className="flex min-w-0 flex-col gap-1">
@@ -2241,20 +2349,15 @@ export function DiagramsWorkbenchClient() {
                 value={selectedSnapshotVisibleInSubscriptionFilter ? selectedSnapshotId : ""}
                 onChange={(event) => handleSnapshotChange(event.target.value)}
               >
-                {visibleSnapshots.length === 0 ? (
-                  <option value="">No snapshots available</option>
-                ) : (
-                  <>
-                    {selectedSnapshotId.length === 0 || !selectedSnapshotVisibleInSubscriptionFilter ? (
-                      <option value="">Select a snapshot</option>
-                    ) : null}
-                    {visibleSnapshots.map((snapshot) => (
-                      <option key={snapshot.snapshotId} value={snapshot.snapshotId}>
-                        {formatSnapshotPickerLabel(snapshot)}
-                      </option>
-                    ))}
-                  </>
-                )}
+                <InfraDiagramsSnapshotPickerOptions
+                  loadingSnapshots={loadingSnapshots}
+                  diagramsSubscriptionChosen={diagramsSubscriptionChosen}
+                  snapshotsEmpty={snapshots.length === 0}
+                  visibleSnapshots={visibleSnapshots}
+                  selectedSnapshotId={selectedSnapshotId}
+                  selectedSnapshotVisibleInSubscriptionFilter={selectedSnapshotVisibleInSubscriptionFilter}
+                  formatSnapshotPickerLabel={formatSnapshotPickerLabel}
+                />
               </select>
             </div>
             <div className="flex min-w-0 flex-col gap-1">
@@ -2289,7 +2392,7 @@ export function DiagramsWorkbenchClient() {
                   <CopyIdButton value={selectedSnapshot.snapshotId} aria-label="Copy snapshot id" />
                 </div>
                 <StatusTag {...infraEvidenceSnapshotCaptureStatusTagProps(selectedSnapshot.captureStatus)} />
-                <SecureNowQuestionQueueSnapshotPromo />
+                <SecureNowQuestionQueueSnapshotPromo compact />
               </div>
             ) : null}
           </>
@@ -2370,10 +2473,10 @@ export function DiagramsWorkbenchClient() {
               <Checkbox
                 checked={showAvdAssets}
                 data-testid="infra-diagrams-show-avd-assets"
-                aria-label="Show AVD Assets"
+                aria-label="Show AVD assets"
                 onCheckedChange={handleShowAvdAssetsToggle}
               />
-              <span className={OPERATOR_TYPOGRAPHY.body}>Show AVD Assets</span>
+              <span className={OPERATOR_TYPOGRAPHY.body}>Show AVD assets</span>
             </label>
           ) : null}
           {diagramWalkthrough != null ? (
@@ -2650,29 +2753,59 @@ export function DiagramsWorkbenchClient() {
       ) : null}
 
       <section className={cn("flex flex-col gap-3", cnCard)} aria-label="Diagram export actions" data-testid="infra-diagrams-export">
-        <SponsorExportSendHonestyStrip testIdPrefix="infra-diagrams-export" />
+        <InfraDiagramsExportHonestyStrip />
+        <InfraEvidenceWorkbenchBuildProvenanceStrip testId="infra-diagrams-build-provenance-limitation" />
         <div className="flex flex-wrap items-start justify-between gap-3">
-          <div className="flex flex-wrap items-center gap-2">
-            <Button
-              type="button"
-              variant="default"
-              data-testid="infra-diagrams-export-png"
-              disabled={exportsDisabled}
-              aria-describedby={pngExportError != null ? "infra-diagrams-png-export-error" : undefined}
-              onClick={() => void runPngExport()}
-            >
-              {exportBusy ? <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" /> : null}
-              Export PNG{tenantBrandActive ? " (branded)" : ""}
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              data-testid="infra-diagrams-export-mmd"
-              disabled={mermaidExportDisabled}
-              onClick={runMermaidExport}
-            >
-              Export Mermaid
-            </Button>
+          <div className="flex min-w-0 flex-col gap-2">
+            <div className="flex flex-wrap items-center gap-2">
+              <Button
+                type="button"
+                variant="default"
+                data-testid="infra-diagrams-export-png"
+                disabled={exportsDisabled}
+                aria-describedby={
+                  pngExportError != null
+                    ? "infra-diagrams-png-export-error"
+                    : pngExportDisabledReason != null
+                      ? "infra-diagrams-export-png-disabled-reason"
+                      : undefined
+                }
+                onClick={() => void runPngExport()}
+              >
+                {exportBusy ? <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" /> : null}
+                Export PNG{tenantBrandActive ? " (branded)" : ""}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                data-testid="infra-diagrams-export-mmd"
+                disabled={mermaidExportDisabled}
+                aria-describedby={
+                  mermaidExportDisabledReason != null ? "infra-diagrams-export-mmd-disabled-reason" : undefined
+                }
+                onClick={runMermaidExport}
+              >
+                Export Mermaid
+              </Button>
+            </div>
+            {pngExportDisabledReason != null ? (
+              <p
+                id="infra-diagrams-export-png-disabled-reason"
+                className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                data-testid="infra-diagrams-export-png-disabled-reason"
+              >
+                {pngExportDisabledReason}
+              </p>
+            ) : null}
+            {mermaidExportDisabledReason != null ? (
+              <p
+                id="infra-diagrams-export-mmd-disabled-reason"
+                className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                data-testid="infra-diagrams-export-mmd-disabled-reason"
+              >
+                {mermaidExportDisabledReason}
+              </p>
+            ) : null}
           </div>
         </div>
         {pngExportError != null ? (
@@ -2692,14 +2825,14 @@ export function DiagramsWorkbenchClient() {
         ) : null}
       </section>
 
-      {selectedSnapshotId.length > 0 ? (
+      {snapshotResolvedForWorkbench ? (
         <div className={cn("flex flex-wrap items-center gap-2", cnCard)} aria-label="Diagram follow-up links">
           <Link
             className={OPERATOR_BODY_INLINE_LINK_CLASS}
             data-testid="infra-diagrams-open-ask"
             href={buildInfrastructureAskHandoffHref(pathname, searchParams.toString(), {
               cloudResourceId: urlCloudResourceId.length > 0 ? urlCloudResourceId : undefined,
-              snapshotId: selectedSnapshotId,
+              snapshotId: selectedSnapshot?.snapshotId ?? selectedSnapshotId,
               seedNodeId:
                 selectedMode === "dependencyNeighborhood" && appliedSeedNodeId.trim().length > 0
                   ? appliedSeedNodeId.trim()
@@ -2952,7 +3085,6 @@ export function DiagramsWorkbenchClient() {
       ) : null}
 
       <DiagramsClaimOrientationStrip />
-        <InfraEvidenceWorkbenchBuildProvenanceStrip testId="infra-diagrams-build-provenance-limitation" />
       </SecureNowQuestionQueueProvider>
       </main>
 
