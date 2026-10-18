@@ -76,6 +76,10 @@ import { cn } from "@/lib/utils";
 
 import { RemediationFactoryAttackPathReportSection } from "./RemediationFactoryAttackPathReportSection";
 import { RemediationFactoryContextStrip } from "./RemediationFactoryContextStrip";
+import {
+  resolveAttackPathReportSnapshotId,
+  shouldShowAttackPathReportRankedSnapshotHint,
+} from "./resolve-attack-path-report-snapshot-id";
 
 const PATH_VIEWS = [
   { value: "all", label: "All paths" },
@@ -484,7 +488,30 @@ export function RemediationFactoryClient() {
   const nowMs = useOperatorRelativeFreshnessNowMs();
   const rankedQuery = useRemediationRankedFindingsQuery();
   const rankedPathsQuery = useSecurityEvidenceRankedPathsQuery();
-  const reportSnapshotId = urlState.toSnapshotId ?? urlState.fromSnapshotId;
+  const reportSnapshotId = useMemo(
+    () =>
+      resolveAttackPathReportSnapshotId(
+        urlState.toSnapshotId,
+        urlState.fromSnapshotId,
+        rankedPathsQuery.data?.items ?? [],
+        rankedPathsQuery.isLoading,
+      ),
+    [
+      urlState.toSnapshotId,
+      urlState.fromSnapshotId,
+      rankedPathsQuery.data?.items,
+      rankedPathsQuery.isLoading,
+    ],
+  );
+  const showAttackPathReportRankedSnapshotHint = useMemo(
+    () =>
+      shouldShowAttackPathReportRankedSnapshotHint(
+        urlState.toSnapshotId,
+        urlState.fromSnapshotId,
+        rankedPathsQuery.data?.items ?? [],
+      ),
+    [urlState.toSnapshotId, urlState.fromSnapshotId, rankedPathsQuery.data?.items],
+  );
   const attackPathReportQuery = useSecurityEvidencePathReportQuery(reportSnapshotId);
   const metricsQuery = useRemediationFactoryMetricsQuery();
   const [outcomeQueryState, setOutcomeQueryState] = useState<SecureNowArchitectOutcomeQueryState | null>(null);
@@ -779,6 +806,12 @@ export function RemediationFactoryClient() {
         reportQuery={attackPathReportQuery}
         selectedPathId={selectedPathId}
         onSelectPath={selectPath}
+        awaitingRankedSnapshot={
+          urlState.toSnapshotId === null
+          && urlState.fromSnapshotId === null
+          && rankedPathsQuery.isLoading
+        }
+        showRankedSnapshotHint={showAttackPathReportRankedSnapshotHint}
       />
 
       <section className="space-y-3" aria-label="Operator priority table">

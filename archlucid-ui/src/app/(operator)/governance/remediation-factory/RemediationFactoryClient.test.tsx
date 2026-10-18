@@ -49,7 +49,20 @@ vi.mock("@/app/(operator)/governance/remediation-factory/use-remediation-factory
 const useRemediationRankedFindingsQueryMock = vi.hoisted(() => vi.fn());
 const useRemediationFactoryMetricsQueryMock = vi.hoisted(() => vi.fn());
 const useSecurityEvidenceRankedPathsQueryMock = vi.hoisted(() => vi.fn());
-const useSecurityEvidencePathReportQueryMock = vi.hoisted(() => vi.fn());
+const useSecurityEvidencePathReportQueryMock = vi.hoisted(() =>
+  vi.fn(() => ({
+    isLoading: false,
+    isFetching: false,
+    isSuccess: true,
+    isError: false,
+    refetch: vi.fn(),
+    data: {
+      snapshotId: "cccccccc-cccc-cccc-cccc-cccccccccccc",
+      vulnerableAttackPaths: [],
+      unevaluatedGroups: [],
+    },
+  })),
+);
 
 vi.mock("@/hooks/use-remediation-factory-query", () => ({
   useRemediationRankedFindingsQuery: () => useRemediationRankedFindingsQueryMock(),
@@ -61,7 +74,10 @@ vi.mock("@/hooks/use-security-evidence-ranked-paths-query", () => ({
 }));
 
 vi.mock("@/hooks/use-security-evidence-path-report-query", () => ({
-  useSecurityEvidencePathReportQuery: () => useSecurityEvidencePathReportQueryMock(),
+  useSecurityEvidencePathReportQuery: (snapshotId: string | null) => {
+    useSecurityEvidencePathReportQueryMock(snapshotId);
+    return useSecurityEvidencePathReportQueryMock();
+  },
 }));
 
 function mockRankedFindingsQuery(overrides: Record<string, unknown> = {}) {
@@ -115,7 +131,7 @@ function mockMetricsQuery() {
 }
 
 function mockPathReportQuery(overrides: Record<string, unknown> = {}) {
-  useSecurityEvidencePathReportQueryMock.mockReturnValue({
+  useSecurityEvidencePathReportQueryMock.mockImplementation(() => ({
     isLoading: false,
     isFetching: false,
     isSuccess: true,
@@ -127,7 +143,7 @@ function mockPathReportQuery(overrides: Record<string, unknown> = {}) {
       unevaluatedGroups: [],
     },
     ...overrides,
-  });
+  }));
 }
 
 function mockRankedPathsQuery(overrides: Record<string, unknown> = {}) {
@@ -215,6 +231,16 @@ describe("RemediationFactoryClient", () => {
     mockMetricsQuery();
     mockRankedPathsQuery();
     mockPathReportQuery();
+  });
+
+  it("loads the attack path report from the first ranked path when no snapshot pair is selected", () => {
+    useSecurityEvidencePathReportQueryMock.mockClear();
+    mockRankedPathsQuery();
+    render(<RemediationFactoryClient />);
+
+    expect(useSecurityEvidencePathReportQueryMock).toHaveBeenCalledWith(
+      "cccccccc-cccc-cccc-cccc-cccccccccccc",
+    );
   });
 
   it("names SecureNow findings on the priority queue without calling them architecture findings", () => {

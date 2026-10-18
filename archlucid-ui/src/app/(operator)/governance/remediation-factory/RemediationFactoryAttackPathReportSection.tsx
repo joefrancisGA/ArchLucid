@@ -17,6 +17,10 @@ import type { SecurityEvidencePathAttackPathReport } from "@/lib/security-eviden
 import { cn } from "@/lib/utils";
 
 import { RemediationFactoryRankedPathsTable } from "./RemediationFactoryRankedPathsTable";
+import {
+  ATTACK_PATH_REPORT_NO_SNAPSHOT,
+  ATTACK_PATH_REPORT_RANKED_SNAPSHOT_HINT,
+} from "./resolve-attack-path-report-snapshot-id";
 
 const REPORT_LEAD =
   "Vulnerable means the recorded band is Confirmed, Highly likely, or Probable. This page does not claim exploitability or observed traffic.";
@@ -42,15 +46,23 @@ export function RemediationFactoryAttackPathReportSection(props: {
   };
   readonly selectedPathId: string | null;
   readonly onSelectPath: (pathId: string) => void;
+  readonly awaitingRankedSnapshot: boolean;
+  readonly showRankedSnapshotHint: boolean;
 }) {
   if (props.snapshotId === null) {
     return (
       <section className="space-y-2" aria-label="Attack path report" data-testid="attack-path-report-section">
         <h2 className={OPERATOR_TYPOGRAPHY.sectionTitle}>Attack path report</h2>
         <p className={OPERATOR_TYPOGRAPHY.helper}>{REPORT_LEAD}</p>
-        <p className={OPERATOR_TYPOGRAPHY.helper} data-testid="attack-path-report-snapshot-required">
-          Select a snapshot pair above to load the attack path report for that inventory snapshot.
-        </p>
+        {props.awaitingRankedSnapshot ? (
+          <p className={OPERATOR_TYPOGRAPHY.helper} data-testid="attack-path-report-awaiting-ranked">
+            Loading attack path report…
+          </p>
+        ) : (
+          <p className={OPERATOR_TYPOGRAPHY.helper} data-testid="attack-path-report-snapshot-required">
+            {ATTACK_PATH_REPORT_NO_SNAPSHOT}
+          </p>
+        )}
       </section>
     );
   }
@@ -60,6 +72,11 @@ export function RemediationFactoryAttackPathReportSection(props: {
       <header className="space-y-1">
         <h2 className={OPERATOR_TYPOGRAPHY.sectionTitle}>Attack path report</h2>
         <p className={OPERATOR_TYPOGRAPHY.helper}>{REPORT_LEAD}</p>
+        {props.showRankedSnapshotHint ? (
+          <p className={OPERATOR_TYPOGRAPHY.helper} data-testid="attack-path-report-ranked-snapshot-hint">
+            {ATTACK_PATH_REPORT_RANKED_SNAPSHOT_HINT}
+          </p>
+        ) : null}
       </header>
 
       {props.reportQuery.isLoading ? (
