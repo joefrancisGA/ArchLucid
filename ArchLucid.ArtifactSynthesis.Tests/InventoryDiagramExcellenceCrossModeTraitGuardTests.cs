@@ -13,6 +13,7 @@ public sealed class InventoryDiagramExcellenceCrossModeTraitGuardTests
         nameof(InventoryDiagramExcellenceIdx13ModeRatchetTests),
         nameof(InventoryDiagramExcellenceForestRatchetTests),
         nameof(InventoryDiagramExcellenceNestedFrameParityTests),
+        nameof(InventoryDiagramExcellenceFatGraphForestDotParityRatchetTests),
         nameof(InventoryDiagramExcellenceSingletonTailRatchetTests),
         nameof(InventoryDiagramExcellenceDuplicateConnectionRatchetTests),
         nameof(InventoryDiagramExcellencePrivateEndpointOptInRatchetTests),
