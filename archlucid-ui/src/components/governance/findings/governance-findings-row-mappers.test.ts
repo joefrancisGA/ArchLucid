@@ -74,7 +74,7 @@ describe("riskRegisterRows", () => {
 
     const [row] = riskRegisterRows([entry]);
 
-    expect(row?.status).toBe("");
+    expect(row?.status).toBe("Finding status was not stored.");
     expect(() => (row === undefined ? false : matchesRiskRegisterFilter(row, "open"))).not.toThrow();
   });
 
@@ -122,6 +122,6 @@ describe("riskRegisterRows", () => {
       [{ findingId: "finding-3", findingTitle: "Trace finding", ruleId: "   " }],
     );
 
-    expect(rows[0]?.category).toBe("Not returned");
+    expect(rows[0]?.category).toBe("Rule id was not stored.");
   });
 });

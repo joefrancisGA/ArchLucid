@@ -494,17 +494,26 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
                 Subscription:{" "}
                 {currentQuestion.subscriptionId === null
                   ? "Subscription id was not stored."
-                  : currentQuestion.subscriptionId}
+                  : currentQuestion.subscriptionId.trim().length === 0
+                    ? "Subscription id was stored empty."
+                    : currentQuestion.subscriptionId}
               </p>
               <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                 {currentQuestion.expirationUtc === null || currentQuestion.expirationUtc === undefined
                   ? "Expiration was not stored."
-                  : currentQuestion.expirationUtc}
+                  : currentQuestion.expirationUtc.trim().length === 0
+                    ? "Expiration was stored empty."
+                    : currentQuestion.expirationUtc}
                 {currentQuestion.isExpired === null
                   ? " · Expiration status was not stored."
                   : currentQuestion.isExpired
                     ? " · Expired"
                     : ""}
+              </p>
+              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                {currentQuestion.evidenceFingerprint.trim().length > 0
+                  ? `Evidence fingerprint: ${currentQuestion.evidenceFingerprint}`
+                  : "Evidence fingerprint was not stored."}
               </p>
             </div>
           </CollapsibleSection>

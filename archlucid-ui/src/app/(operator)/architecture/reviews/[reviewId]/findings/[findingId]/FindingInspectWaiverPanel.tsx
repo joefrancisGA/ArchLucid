@@ -89,7 +89,13 @@ export function FindingInspectWaiverPanel(props: FindingInspectWaiverPanelProps)
         </p>
         {activeWaiver ? (
           <p className="m-0 text-neutral-700 dark:text-neutral-300">
-            Active waiver expires {activeWaiver.expiresAtUtc}  —  owner {activeWaiver.ownerUserId}
+            {activeWaiver.expiresAtUtc === null || activeWaiver.expiresAtUtc.trim().length === 0
+              ? "Waiver expiration was not stored."
+              : `Active waiver expires ${activeWaiver.expiresAtUtc}`}
+            {" "}
+            {activeWaiver.ownerUserId === null || activeWaiver.ownerUserId.trim().length === 0
+              ? "Waiver owner was not stored."
+              : `— owner ${activeWaiver.ownerUserId}`}
           </p>
         ) : (
           <>

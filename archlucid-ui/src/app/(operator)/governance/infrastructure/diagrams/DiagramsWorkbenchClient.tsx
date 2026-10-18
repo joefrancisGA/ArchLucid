@@ -279,6 +279,10 @@ function resolveInfraDiagramsRenderStatusAnnouncement(status: string | null): st
     return "Render status was not stored.";
   }
 
+  if (status.trim().length === 0) {
+    return "Render status was stored empty.";
+  }
+
   const normalized = status.trim().toLowerCase();
 
   if (normalized === "loading") {
@@ -297,7 +301,7 @@ function resolveInfraDiagramsRenderStatusAnnouncement(status: string | null): st
     return "Diagram partitioned — pick a view";
   }
 
-  return status;
+  return `Render status ${status} has no reviewer label.`;
 }
 
 const cnCard =
@@ -794,7 +798,7 @@ export function DiagramsWorkbenchClient() {
     }
 
     if (selectedSnapshotId.length > 0) {
-      return selectedSnapshotId;
+      return `Snapshot label was not stored. Selected id ${selectedSnapshotId}`;
     }
 
     return null;
@@ -1817,6 +1821,7 @@ export function DiagramsWorkbenchClient() {
         mode: selectedMode,
         outline: familyFilteredOutline,
         completenessWarnings,
+        snapshotLabel: selectedSnapshotDisplayLabel,
       };
 
       if (tooLargeForBrowser) {

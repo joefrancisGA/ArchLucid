@@ -17,6 +17,7 @@ export type InfraEvidencePngReadingStripInput = {
   readonly mode: string | null | undefined;
   readonly outline: InfraEvidenceMermaidOutline | null | undefined;
   readonly completenessWarnings: readonly string[];
+  readonly snapshotLabel?: string | null | undefined;
 };
 
 function hasObservedEdges(outline: InfraEvidenceMermaidOutline | null | undefined): boolean {
@@ -46,6 +47,14 @@ export function buildInfraEvidencePngReadingStripLines(
 ): readonly string[] {
   const lines: string[] = [];
 
+  const snapshotLabel = input.snapshotLabel?.trim() ?? "";
+
+  if (snapshotLabel.length > 0) {
+    lines.push(snapshotLabel);
+  } else if (input.snapshotLabel !== undefined) {
+    lines.push("Snapshot label was not stored.");
+  }
+
   if (input.mode === null || input.mode === undefined) {
     lines.push("Diagram mode was not stored.");
   } else if (input.mode === "") {
@@ -61,6 +70,10 @@ export function buildInfraEvidencePngReadingStripLines(
     input.mode === "data"
   ) {
     lines.push("This diagram shows inventory structure. It is not observed traffic.");
+  } else if (input.mode === "resourceGroup" || input.mode === "dependencyNeighborhood") {
+    lines.push("This diagram shows inventory scope. It is not observed traffic.");
+  } else if (input.mode.trim().length > 0) {
+    lines.push(`Diagram mode ${input.mode} has no reviewer sentence. It is not observed traffic.`);
   }
 
   if (input.outline === null || input.outline === undefined) {
