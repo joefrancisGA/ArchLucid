@@ -48,4 +48,35 @@ public sealed class DeterministicExplanationServiceTests
         r.HighLevelSummary.Should().NotBeNullOrWhiteSpace();
         r.Narrative.Should().NotBeNullOrWhiteSpace();
     }
+
+    [SkippableFact]
+    public void ExtractMajorChanges_uses_not_stored_copy_for_null_decision_values()
+    {
+        DeterministicExplanationService sut = new(NullLogger<DeterministicExplanationService>.Instance);
+        ComparisonResult comparison = new()
+        {
+            DecisionChanges =
+            [
+                new DecisionDelta { ChangeType = "Modified", DecisionKey = "k", BaseValue = null, TargetValue = null }
+            ]
+        };
+
+        List<string> lines = sut.ExtractMajorChanges(comparison);
+
+        lines.Should().ContainSingle().Which.Should().ContainAll(
+            "Prior value was not stored.",
+            "Selected value was not stored.");
+    }
+
+    [SkippableFact]
+    public void BuildComparisonExplanation_empty_lists_use_empty_comparison_copy()
+    {
+        DeterministicExplanationService sut = new(NullLogger<DeterministicExplanationService>.Instance);
+        ComparisonResult comparison = new();
+
+        ComparisonExplanationResult r = sut.BuildComparisonExplanation(comparison, [], null);
+
+        r.HighLevelSummary.Should().Be("The comparison lists were empty.");
+        r.Narrative.Should().Contain("A difference summary was not stored.");
+    }
 }

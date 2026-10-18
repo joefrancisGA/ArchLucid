@@ -79,6 +79,30 @@ describe("infra-evidence-png-reading-strip", () => {
     expect(lines.join("\n")).not.toContain("/subscriptions/sub");
   });
 
+  it("does not claim observed inventory for edges without ObservedFact provenance (P-01)", () => {
+    const lines = buildInfraEvidencePngReadingStripLines({
+      mode: "network",
+      outline: {
+        nodes: [],
+        edges: [
+          {
+            from: "a",
+            to: "b",
+            label: "connects",
+            source: "observed",
+            confidenceBand: "observed",
+            provenanceKind: "NotAFact",
+            inferenceSource: null,
+            declaredConnectionId: null,
+          },
+        ],
+      },
+      completenessWarnings: [],
+    });
+
+    expect(lines).not.toContain("Solid — observed in Azure inventory");
+  });
+
   it("adds configuration relationship note when static site backend edges exist (P-05)", () => {
     const lines = buildInfraEvidencePngReadingStripLines({
       mode: "network",

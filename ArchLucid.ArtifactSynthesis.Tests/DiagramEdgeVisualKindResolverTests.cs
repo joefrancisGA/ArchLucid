@@ -42,11 +42,19 @@ public sealed class DiagramEdgeVisualKindResolverTests
     }
 
     [Fact]
-    public void From_null_provenance_and_inference_returns_observed()
+    public void From_null_provenance_and_inference_returns_unclassified()
     {
         DiagramEdgeVisualKindResolver.From(null, null)
             .Should()
-            .Be(DiagramEdgeVisualKind.Observed);
+            .Be(DiagramEdgeVisualKind.Unclassified);
+    }
+
+    [Fact]
+    public void From_unrecognized_provenance_returns_unclassified()
+    {
+        DiagramEdgeVisualKindResolver.From("NotAFact", null)
+            .Should()
+            .Be(DiagramEdgeVisualKind.Unclassified);
     }
 
     [Fact]
@@ -63,5 +71,13 @@ public sealed class DiagramEdgeVisualKindResolverTests
         DiagramEdgeVisualKindResolver.From("DeterministicInference", GraphEdgeInferenceSources.InventoryHostnameInferredTarget)
             .Should()
             .Be(DiagramEdgeVisualKind.Inferred);
+    }
+
+    [Fact]
+    public void Build_unclassified_provenance_label_is_not_stored_sentence()
+    {
+        DiagramEdgeProvenanceDisplayLabelBuilder.Build("connects", DiagramEdgeVisualKind.Unclassified)
+            .Should()
+            .Be("Provenance was not stored.");
     }
 }

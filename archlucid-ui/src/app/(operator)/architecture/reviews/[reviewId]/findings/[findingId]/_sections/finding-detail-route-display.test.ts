@@ -37,15 +37,13 @@ describe("finding-detail-route-display buyer summary copy", () => {
     expect(buyerFindingNextStepCopy(null, "sensitive-data-minimization-risk")).toContain("ingress classification");
   });
 
-  it("derives compact decision summary for PHI showcase finding id", () => {
+  it("does not invent owner, status, or monitoring for PHI showcase finding id without payload (P-13–P-14, P-20)", () => {
     const summary = deriveFindingDecisionSummary(null, "sensitive-data-minimization-risk");
 
-    expect(summary.severity).toBeTruthy();
-    expect(summary.disposition).toContain("monitoring");
-    expect(summary.businessImpact).toContain("Non-blocking");
-    expect(summary.requiredMonitoring.length).toBeGreaterThan(0);
+    expect(summary.disposition).toBe("Status was not stored");
+    expect(summary.riskOwner).toBe("Risk owner was not stored");
+    expect(summary.requiredMonitoring).toBe("No recommended action recorded for this finding.");
     expect(summary.nextReview).toBe(resolveBuyerShowcaseResidualRiskNextReviewIso(new Date("2026-08-22T12:00:00Z")));
-    expect(summary.riskOwner.length).toBeGreaterThan(0);
   });
 
   it("uses showcase next review when persisted remediation due is in the past", () => {

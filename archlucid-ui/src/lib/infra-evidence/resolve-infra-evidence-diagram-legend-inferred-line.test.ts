@@ -4,6 +4,7 @@ import {
   INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED_AI,
   INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED_HOSTNAME,
   INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED_HOSTNAME_AND_AI,
+  INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED_SOURCE_UNKNOWN,
 } from "@/lib/infra-evidence/infra-evidence-diagram-copy";
 import { resolveInfraEvidenceDiagramLegendInferredCopy } from "@/lib/infra-evidence/resolve-infra-evidence-diagram-legend-inferred-line";
 
@@ -76,5 +77,25 @@ describe("resolveInfraEvidenceDiagramLegendInferredCopy (P-05)", () => {
     });
 
     expect(copy.legendLine).toBe(INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED_HOSTNAME_AND_AI);
+  });
+
+  it("uses inference-source-unknown copy for generic inferred edges (P-02)", () => {
+    const copy = resolveInfraEvidenceDiagramLegendInferredCopy({
+      nodes: [],
+      edges: [
+        {
+          from: "a",
+          to: "b",
+          label: "inferred",
+          source: "inferred",
+          confidenceBand: "inferred",
+          provenanceKind: "DeterministicInference",
+          inferenceSource: "inventory-app-authorized-access",
+          declaredConnectionId: null,
+        },
+      ],
+    });
+
+    expect(copy.legendLine).toBe(INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED_SOURCE_UNKNOWN);
   });
 });
