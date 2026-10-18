@@ -17,6 +17,7 @@ public sealed class InventoryDiagramExcellenceDataFlowHubPipelineTraitGuardTests
         nameof(InventoryDiagramExcellenceDataFlowHubPipelineHandExportStageLabelRatchetTests),
         nameof(InventoryDiagramExcellenceDataFlowHubPipelineStageLabelParityTests),
         nameof(InventoryDiagramExcellenceDataFlowHubPipelineTraitGuardTests),
+        nameof(InventoryDiagramExcellenceDataFlowHubPipelineWaveManifestTests),
     ];
 
     [Fact]
