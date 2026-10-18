@@ -138,6 +138,7 @@ Do **not** draw a complete graph to “maximize edges.” Do **not** show NIC or
 | **IDX-14c** Singleton-RG tail deepening closeout | **Shipped** on trunk — extend only | Index lacks IDX-08b–08c complete subsection + Vitest guard |
 | **IDX-14d** Duplicate connection deepening closeout | **Shipped** on trunk — extend only | Index lacks IDX-09b complete subsection + Vitest guard |
 | **IDX-14e** Private endpoint opt-in deepening closeout | **Shipped** on trunk — extend only | Index lacks IDX-10b complete subsection + Vitest guard |
+| **IDX-14g** Hop-focus deepening closeout | **Shipped** on trunk — extend only | Index lacks IDX-12b complete subsection + Vitest guard |
 | **IDX-HOLD** | Not implementation | — |
 
 ### Data Flow hub pipeline wave (IDX-07f–13u) — complete
@@ -193,6 +194,16 @@ DataFlow/DataArchitecture default-off PE compile, Full subscription Mermaid expo
 `cd archlucid-ui && npm test -- inventory-diagram-excellence-private-endpoint-wave-closeout`
 
 Next **IDX-10** work is **extend-only** (regression fixes on workbench PE toggle and compile flag).
+
+### Hop-focus deepening (IDX-12b) — complete
+
+Neighborhood, selected-resource, and resource-group hop-focus compile (cited VNet visibility, unrelated VM omission, transit bridge rules) are excellence-ratcheted. Run the hop-focus slice:
+
+`dotnet test ArchLucid.ArtifactSynthesis.Tests --filter FullyQualifiedName~InventoryDiagramExcellenceHopFocus`
+
+`cd archlucid-ui && npm test -- inventory-diagram-excellence-hop-focus-wave-closeout`
+
+Next **IDX-12** work is **extend-only** (regression fixes on neighborhood / selected / RG focus modes).
 
 ### Cross-mode excellence wave (IDX-08b–13z) — complete
 
@@ -281,6 +292,7 @@ Suggested Cloud Agent branch per prompt: `cursor/inventory-diagram-excellence-<s
 | 14c | `inventory-diagram-excellence-14c-singleton-tail-wave-closeout.md` | IDX-08b–08c singleton tail slice not documented complete in index |
 | 14d | `inventory-diagram-excellence-14d-duplicate-connection-wave-closeout.md` | IDX-09b duplicate connection slice not documented complete in index |
 | 14e | `inventory-diagram-excellence-14e-private-endpoint-wave-closeout.md` | IDX-10b PE opt-in slice not documented complete in index |
+| 14g | `inventory-diagram-excellence-14g-hop-focus-wave-closeout.md` | IDX-12b hop-focus slice not documented complete in index |
 | HOLD | `inventory-diagram-excellence-14-hold.md` | Complete-graph / default PE / icons / RBAC dump |
 
 ## Prerequisites (do not re-implement)
