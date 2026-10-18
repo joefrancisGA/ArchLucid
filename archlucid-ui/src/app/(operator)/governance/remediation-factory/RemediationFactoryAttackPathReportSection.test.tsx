@@ -37,6 +37,8 @@ describe("RemediationFactoryAttackPathReportSection", () => {
         snapshotId={snapshotId}
         selectedPathId={null}
         onSelectPath={onSelectPath}
+        awaitingRankedSnapshot={false}
+        showRankedSnapshotHint={false}
         reportQuery={{
           isLoading: false,
           isError: false,
@@ -71,6 +73,8 @@ describe("RemediationFactoryAttackPathReportSection", () => {
         snapshotId={snapshotId}
         selectedPathId={null}
         onSelectPath={vi.fn()}
+        awaitingRankedSnapshot={false}
+        showRankedSnapshotHint={false}
         reportQuery={{
           isLoading: false,
           isError: false,
@@ -108,6 +112,8 @@ describe("RemediationFactoryAttackPathReportSection", () => {
         snapshotId={snapshotId}
         selectedPathId={null}
         onSelectPath={vi.fn()}
+        awaitingRankedSnapshot={false}
+        showRankedSnapshotHint={false}
         reportQuery={{
           isLoading: false,
           isError: false,
@@ -144,6 +150,8 @@ describe("RemediationFactoryAttackPathReportSection", () => {
         snapshotId={snapshotId}
         selectedPathId={null}
         onSelectPath={vi.fn()}
+        awaitingRankedSnapshot={false}
+        showRankedSnapshotHint={false}
         reportQuery={{
           isLoading: false,
           isError: false,
@@ -182,6 +190,8 @@ describe("RemediationFactoryAttackPathReportSection", () => {
         snapshotId={snapshotId}
         selectedPathId={null}
         onSelectPath={onSelectPath}
+        awaitingRankedSnapshot={false}
+        showRankedSnapshotHint={false}
         reportQuery={{
           isLoading: false,
           isError: false,
