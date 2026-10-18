@@ -15,23 +15,34 @@ public interface IArchitectureDiagramReconciliationRepository
         Guid snapshotId,
         CancellationToken cancellationToken = default);
 
-    async Task<IReadOnlyList<ArchitectureDiagramReconciliationPersistRecord>> ListBySnapshotAsync(
+    Task<IReadOnlyList<ArchitectureDiagramReconciliationPersistRecord>> ListBySnapshotAsync(
         Guid tenantId,
         Guid snapshotId,
+        CancellationToken cancellationToken = default);
+
+    async Task<IReadOnlyList<ArchitectureDiagramReconciliationSnapshotRunRecord>> ListRunIdsBySnapshotIdsAsync(
+        Guid tenantId,
+        IReadOnlyList<Guid> snapshotIds,
         CancellationToken cancellationToken = default)
     {
-        IReadOnlyList<Guid> runIds = await ListRunIdsBySnapshotAsync(tenantId, snapshotId, cancellationToken);
-        List<ArchitectureDiagramReconciliationPersistRecord> records = [];
+        ArgumentNullException.ThrowIfNull(snapshotIds);
 
-        foreach (Guid runId in runIds)
+        List<ArchitectureDiagramReconciliationSnapshotRunRecord> results = [];
+
+        foreach (Guid snapshotId in snapshotIds.Where(id => id != Guid.Empty).Distinct())
         {
-            ArchitectureDiagramReconciliationPersistRecord? record =
-                await TryGetByRunAndSnapshotAsync(tenantId, runId, snapshotId, cancellationToken);
+            IReadOnlyList<Guid> runIds = await ListRunIdsBySnapshotAsync(tenantId, snapshotId, cancellationToken);
 
-            if (record is not null)
-                records.Add(record);
+            foreach (Guid runId in runIds.Where(id => id != Guid.Empty))
+            {
+                results.Add(new ArchitectureDiagramReconciliationSnapshotRunRecord
+                {
+                    SnapshotId = snapshotId,
+                    RunId = runId,
+                });
+            }
         }
 
-        return records;
+        return results;
     }
 }

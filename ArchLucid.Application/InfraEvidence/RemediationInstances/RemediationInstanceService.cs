@@ -159,11 +159,44 @@ public sealed class RemediationInstanceService(
         if (version is null)
             return Failed("Frozen remediation pattern version was not found.");
 
-        AzureInventorySnapshotDetailReadModel? snapshot =
-            await snapshotRepository.TryGetSnapshotDetailAsync(scope, inventorySnapshotId, cancellationToken);
+        AzureInventorySnapshotRecord? snapshotHeader =
+            await snapshotRepository.TryGetBySnapshotIdAsync(scope, inventorySnapshotId, cancellationToken);
 
-        if (snapshot is null)
+        if (snapshotHeader is null)
             return Failed("Inventory snapshot was not found.");
+
+        AzureInventoryResourceRecord? preflightResource = null;
+        IReadOnlyList<AzureInventoryTagReadModel> preflightTags = [];
+
+        if (instance.CloudResourceId is Guid preflightCloudResourceId && preflightCloudResourceId != Guid.Empty)
+        {
+            (IReadOnlyList<AzureInventoryResourceRecord> Items, int TotalCount)? pagedResources =
+                await snapshotRepository.ListResourcesBySnapshotIdPagedAsync(
+                    scope,
+                    inventorySnapshotId,
+                    1,
+                    1,
+                    preflightCloudResourceId,
+                    cancellationToken);
+
+            preflightResource = pagedResources?.Items.FirstOrDefault();
+
+            if (preflightResource is not null)
+            {
+                preflightTags = await snapshotRepository.ListResourceTagsByResourceRowIdAsync(
+                    scope,
+                    inventorySnapshotId,
+                    preflightResource.ResourceRowId,
+                    cancellationToken);
+            }
+        }
+
+        AzureInventorySnapshotDetailReadModel snapshot = new()
+        {
+            Header = snapshotHeader,
+            Resources = preflightResource is null ? [] : [preflightResource],
+            Tags = preflightTags.ToList(),
+        };
 
         RemediationPatternMatchResultRecord? activeMatch =
             await matchRepository.TryGetActiveMatchInScopeAsync(scope.ToProjectScopeKey(), instance.FindingId, cancellationToken);

@@ -1,4 +1,4 @@
-> **Scope:** Paste-ready prompts for SecureNow read-path costs. **SN-PERF-01–05** are shipped. **SN-PERF-11**, **13–16**, **20–24** are paste sets. **SN-PERF-25–29** shipped 2026-10-18 (wave 6). Internal engineering only. Prompts only — do not implement from this index.
+> **Scope:** Paste-ready prompts for SecureNow read-path costs. **SN-PERF-01–05** are shipped. **SN-PERF-11**, **13–16** are paste sets. **SN-PERF-20–29** shipped 2026-10-18 (waves 5–6). Internal engineering only. Prompts only — do not implement from this index.
 > **Paste-ready files:** [`.cursor/prompts/securenow-performance-00-index.md`](../../.cursor/prompts/securenow-performance-00-index.md)
 
 # SecureNow performance — Luna prompts

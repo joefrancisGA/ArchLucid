@@ -89,6 +89,27 @@ public interface IAzureInventorySnapshotRepository
         CancellationToken cancellationToken = default) =>
         Task.FromResult<IReadOnlyList<AzureInventoryResourcePropertyReadModel>>([]);
 
+    Task<IReadOnlyList<AzureInventoryTagReadModel>> ListResourceTagsByResourceRowIdAsync(
+        ScopeContext scope,
+        Guid snapshotId,
+        Guid resourceRowId,
+        CancellationToken cancellationToken = default) =>
+        Task.FromResult<IReadOnlyList<AzureInventoryTagReadModel>>([]);
+
+    Task<IReadOnlyList<AzureInventoryResourceRelationshipReadModel>> ListRelationshipsTouchingAzureResourceIdAsync(
+        ScopeContext scope,
+        Guid snapshotId,
+        string azureResourceId,
+        CancellationToken cancellationToken = default) =>
+        Task.FromResult<IReadOnlyList<AzureInventoryResourceRelationshipReadModel>>([]);
+
+    Task<IReadOnlyList<AzureInventoryRoleAssignmentReadModel>> ListRoleAssignmentsForAzureResourceScopeAsync(
+        ScopeContext scope,
+        Guid snapshotId,
+        string azureResourceId,
+        CancellationToken cancellationToken = default) =>
+        Task.FromResult<IReadOnlyList<AzureInventoryRoleAssignmentReadModel>>([]);
+
     Task<AzureInventorySnapshotDetailReadModel?> TryGetAdvisoryTerraformVisibleSnapshotAsync(
         ScopeContext scope,
         Guid snapshotId,

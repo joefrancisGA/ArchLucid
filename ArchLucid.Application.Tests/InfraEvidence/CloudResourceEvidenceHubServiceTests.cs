@@ -26,10 +26,18 @@ namespace ArchLucid.Application.Tests.InfraEvidence;
 [Trait("Suite", "Application")]
 public sealed class CloudResourceEvidenceHubServiceTests
 {
+    private static ScopeContext CreateScope(Guid? tenantId = null) =>
+        new()
+        {
+            TenantId = tenantId ?? Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+
     [Fact]
     public async Task TryGetHubAsync_unknown_cloud_resource_returns_not_found()
     {
-        ScopeContext scope = new() { TenantId = Guid.NewGuid() };
+        ScopeContext scope = CreateScope();
         FakeCloudResourceIdentityDirectory identityDirectory = new();
 
         CloudResourceEvidenceHubService service = CreateService(identityDirectory);
@@ -48,7 +56,7 @@ public sealed class CloudResourceEvidenceHubServiceTests
     public async Task TryGetHubAsync_wrong_tenant_returns_not_found()
     {
         Guid cloudResourceId = Guid.NewGuid();
-        ScopeContext scope = new() { TenantId = Guid.NewGuid() };
+        ScopeContext scope = CreateScope();
 
         FakeCloudResourceIdentityDirectory identityDirectory = new();
         identityDirectory.Records[cloudResourceId] = new CloudResourceIdentityRecord
@@ -81,7 +89,7 @@ public sealed class CloudResourceEvidenceHubServiceTests
         Guid tenantId = Guid.NewGuid();
         Guid snapshotId = Guid.NewGuid();
         Guid runId = Guid.NewGuid();
-        ScopeContext scope = new() { TenantId = tenantId };
+        ScopeContext scope = CreateScope(tenantId);
 
         const string externalResourceId =
             "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm-1";
@@ -198,12 +206,191 @@ public sealed class CloudResourceEvidenceHubServiceTests
     }
 
     [Fact]
+    public async Task TryGetHubAsync_loads_only_requested_resource_slice_without_full_snapshot_detail()
+    {
+        Guid cloudResourceId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaa01");
+        Guid otherCloudResourceId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaa02");
+        Guid tenantId = Guid.NewGuid();
+        Guid snapshotId = Guid.NewGuid();
+        ScopeContext scope = CreateScope(tenantId);
+
+        const string externalResourceId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm-target";
+
+        const string otherExternalResourceId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm-other";
+
+        Guid targetResourceRowId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbb1");
+        Guid otherResourceRowId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbb2");
+
+        FakeCloudResourceIdentityDirectory identityDirectory = new();
+        identityDirectory.Records[cloudResourceId] = new CloudResourceIdentityRecord
+        {
+            CloudResourceId = cloudResourceId,
+            TenantId = tenantId,
+            WorkspaceId = scope.WorkspaceId,
+            ProjectId = scope.ProjectId,
+            Provider = CloudProvider.Azure,
+            ExternalResourceIdNormalized = externalResourceId,
+            LastSeenSnapshotId = snapshotId,
+            SubscriptionOrAccountId = "sub",
+        };
+
+        Mock<IAzureInventorySnapshotRepository> snapshotRepository = new();
+        snapshotRepository
+            .Setup(repo => repo.TryGetSnapshotDetailAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new AzureInventorySnapshotDetailReadModel());
+        snapshotRepository
+            .Setup(repo => repo.ListResourcesBySnapshotIdPagedAsync(
+                scope,
+                snapshotId,
+                1,
+                1,
+                cloudResourceId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            (
+                new List<AzureInventoryResourceRecord>
+                {
+                    new()
+                    {
+                        ResourceRowId = targetResourceRowId,
+                        SnapshotId = snapshotId,
+                        TenantId = tenantId,
+                        CloudResourceId = cloudResourceId,
+                        AzureResourceId = externalResourceId,
+                        ResourceType = "Microsoft.Compute/virtualMachines",
+                    },
+                },
+                1));
+        snapshotRepository
+            .Setup(repo => repo.ListResourcePropertiesByResourceRowIdAsync(
+                scope,
+                snapshotId,
+                targetResourceRowId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new AzureInventoryResourcePropertyReadModel
+                {
+                    ResourceRowId = targetResourceRowId,
+                    PropertyKey = "vmSize",
+                    PropertyValue = "Standard_D2s_v3",
+                    IsRedacted = false,
+                },
+            ]);
+        snapshotRepository
+            .Setup(repo => repo.ListResourceTagsByResourceRowIdAsync(
+                scope,
+                snapshotId,
+                targetResourceRowId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new AzureInventoryTagReadModel
+                {
+                    ResourceRowId = targetResourceRowId,
+                    TagKey = "env",
+                    TagValue = "dev",
+                },
+            ]);
+        snapshotRepository
+            .Setup(repo => repo.ListResourcesBySnapshotIdAsync(scope, snapshotId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new AzureInventoryResourceRecord
+                {
+                    ResourceRowId = targetResourceRowId,
+                    AzureResourceId = externalResourceId,
+                    ResourceType = "Microsoft.Compute/virtualMachines",
+                },
+                new AzureInventoryResourceRecord
+                {
+                    ResourceRowId = otherResourceRowId,
+                    CloudResourceId = otherCloudResourceId,
+                    AzureResourceId = otherExternalResourceId,
+                    ResourceType = "Microsoft.Compute/virtualMachines",
+                },
+            ]);
+        snapshotRepository
+            .Setup(repo => repo.ListRelationshipsTouchingAzureResourceIdAsync(
+                scope,
+                snapshotId,
+                externalResourceId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new AzureInventoryResourceRelationshipReadModel
+                {
+                    FromAzureResourceId = externalResourceId,
+                    ToAzureResourceId = otherExternalResourceId,
+                    RelationshipType = "connectedTo",
+                },
+            ]);
+        snapshotRepository
+            .Setup(repo => repo.ListRoleAssignmentsForAzureResourceScopeAsync(
+                scope,
+                snapshotId,
+                externalResourceId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new AzureInventoryRoleAssignmentReadModel
+                {
+                    Scope = externalResourceId + "/nested",
+                    PrincipalId = "principal-1",
+                    RoleDefinitionId = "role-1",
+                },
+            ]);
+
+        Mock<IAdvisoryTerraformRepresentationRepository> terraformRepository = new();
+        terraformRepository
+            .Setup(repo => repo.TryGetMappingByCloudResourceIdAsync(
+                scope,
+                snapshotId,
+                cloudResourceId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new AdvisoryTerraformResourceMappingRecord
+            {
+                CloudResourceId = cloudResourceId,
+                TerraformAddress = "azurerm_virtual_machine.vm_target",
+                GenerationMethod = AdvisoryTerraformGenerationMethod.SnapshotReconstruction,
+            });
+
+        CloudResourceEvidenceHubService hubService = CreateService(
+            identityDirectory,
+            snapshotRepository: snapshotRepository.Object,
+            terraformRepository: terraformRepository.Object);
+
+        CloudResourceEvidenceHubQueryResult result = await hubService.TryGetHubAsync(
+            scope,
+            cloudResourceId,
+            new CloudResourceEvidenceHubQuery { SnapshotId = snapshotId },
+            CancellationToken.None);
+
+        result.Succeeded.Should().BeTrue();
+        result.Hub!.CurrentConfiguration.Should().NotBeNull();
+        result.Hub.CurrentConfiguration!.Properties.Should().ContainKey("vmSize");
+        result.Hub.CurrentConfiguration.Tags.Should().ContainKey("env");
+        result.Hub.NetworkRelationships.Should().ContainSingle();
+        result.Hub.RbacAssignments.Should().ContainSingle();
+        result.Hub.TerraformAddress.Should().Be("azurerm_virtual_machine.vm_target");
+
+        snapshotRepository.Verify(
+            repo => repo.TryGetSnapshotDetailAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+        terraformRepository.Verify(
+            repo => repo.ListMappingsBySnapshotIdAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task TryGetHubAsync_uses_paged_operational_findings_by_cloud_resource_id()
     {
         Guid cloudResourceId = Guid.NewGuid();
         Guid otherCloudResourceId = Guid.NewGuid();
         Guid tenantId = Guid.NewGuid();
-        ScopeContext scope = new() { TenantId = tenantId };
+        ScopeContext scope = CreateScope(tenantId);
 
         FakeCloudResourceIdentityDirectory identityDirectory = new();
         identityDirectory.Records[cloudResourceId] = new CloudResourceIdentityRecord
@@ -279,13 +466,15 @@ public sealed class CloudResourceEvidenceHubServiceTests
         FakeCloudResourceIdentityDirectory identityDirectory,
         FakeOperationalSecurityFindingRepository? operationalRepository = null,
         IAuthorityQueryService? authorityQueryService = null,
-        IManifestHashService? manifestHashService = null)
+        IManifestHashService? manifestHashService = null,
+        IAzureInventorySnapshotRepository? snapshotRepository = null,
+        IAdvisoryTerraformRepresentationRepository? terraformRepository = null)
     {
         operationalRepository ??= new FakeOperationalSecurityFindingRepository();
 
-        Mock<IAzureInventorySnapshotRepository> snapshotRepository = new();
+        Mock<IAzureInventorySnapshotRepository> snapshotRepositoryMock = new();
         Mock<IAzureInventoryDiffRepository> diffRepository = new();
-        Mock<IAdvisoryTerraformRepresentationRepository> terraformRepository = new();
+        Mock<IAdvisoryTerraformRepresentationRepository> terraformRepositoryMock = new();
         Mock<IDiagramInfrastructureReconciliationService> diagramReconciliation = new();
         Mock<IProjectScopedRemediationInstanceRepository> remediationRepository = new();
         Mock<IAuthorityQueryService> authorityQuery = new();
@@ -298,6 +487,22 @@ public sealed class CloudResourceEvidenceHubServiceTests
                 It.IsAny<Guid>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(Array.Empty<Guid>());
+        reconciliationRepository
+            .Setup(repo => repo.ListRunIdsBySnapshotIdsAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<IReadOnlyList<Guid>>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<ArchitectureDiagramReconciliationSnapshotRunRecord>());
+
+        snapshotRepositoryMock
+            .Setup(repo => repo.ListResourcesBySnapshotIdPagedAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<Guid>(),
+                It.IsAny<int>(),
+                It.IsAny<int>(),
+                It.IsAny<Guid?>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(((IReadOnlyList<AzureInventoryResourceRecord>, int)?)null);
 
         auditLineageResolver
             .Setup(resolver => resolver.ResolveAsync(
@@ -326,18 +531,19 @@ public sealed class CloudResourceEvidenceHubServiceTests
                 operationalRepository.TenantId = row.TenantId;
         });
 
-        terraformRepository
-            .Setup(repo => repo.ListMappingsBySnapshotIdAsync(
+        terraformRepositoryMock
+            .Setup(repo => repo.TryGetMappingByCloudResourceIdAsync(
                 It.IsAny<ScopeContext>(),
                 It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync([]);
+            .ReturnsAsync((AdvisoryTerraformResourceMappingRecord?)null);
 
         return new CloudResourceEvidenceHubService(
             identityDirectory,
-            snapshotRepository.Object,
+            snapshotRepository ?? snapshotRepositoryMock.Object,
             diffRepository.Object,
-            terraformRepository.Object,
+            terraformRepository ?? terraformRepositoryMock.Object,
             diagramReconciliation.Object,
             new ProjectScopedOperationalSecurityFindingRepositoryAdapter(operationalRepository),
             remediationRepository.Object,

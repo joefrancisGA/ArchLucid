@@ -84,8 +84,29 @@ public sealed class NoOpAzureInventorySnapshotRepository : IAzureInventorySnapsh
         ScopeContext scope,
         Guid snapshotId,
         Guid resourceRowId,
-        CancellationToken cancellationToken = default) =>
-        Task.FromResult<IReadOnlyList<AzureInventoryResourcePropertyReadModel>>([]);
+        CancellationToken cancellationToken = default)
+        => Task.FromResult<IReadOnlyList<AzureInventoryResourcePropertyReadModel>>([]);
+
+    public Task<IReadOnlyList<AzureInventoryTagReadModel>> ListResourceTagsByResourceRowIdAsync(
+        ScopeContext scope,
+        Guid snapshotId,
+        Guid resourceRowId,
+        CancellationToken cancellationToken = default)
+        => Task.FromResult<IReadOnlyList<AzureInventoryTagReadModel>>([]);
+
+    public Task<IReadOnlyList<AzureInventoryResourceRelationshipReadModel>> ListRelationshipsTouchingAzureResourceIdAsync(
+        ScopeContext scope,
+        Guid snapshotId,
+        string azureResourceId,
+        CancellationToken cancellationToken = default)
+        => Task.FromResult<IReadOnlyList<AzureInventoryResourceRelationshipReadModel>>([]);
+
+    public Task<IReadOnlyList<AzureInventoryRoleAssignmentReadModel>> ListRoleAssignmentsForAzureResourceScopeAsync(
+        ScopeContext scope,
+        Guid snapshotId,
+        string azureResourceId,
+        CancellationToken cancellationToken = default)
+        => Task.FromResult<IReadOnlyList<AzureInventoryRoleAssignmentReadModel>>([]);
 
     public Task<AzureInventorySnapshotDetailReadModel?> TryGetAdvisoryTerraformVisibleSnapshotAsync(
         ScopeContext scope,

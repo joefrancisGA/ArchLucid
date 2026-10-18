@@ -338,6 +338,42 @@ public sealed class SqlAuditManualEvidenceRepository(ISqlConnectionFactory conne
         return rows.Select(MapArchitectureLink).ToList();
     }
 
+    public async Task<IReadOnlyList<AuditArchitectureEvidenceLinkRecord>> ListArchitectureLinksByAssessmentIdsAsync(
+        Guid tenantId,
+        IReadOnlyList<Guid> assessmentIds,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(assessmentIds);
+
+        if (assessmentIds.Count == 0)
+            return [];
+
+        List<Guid> distinctAssessmentIds = assessmentIds
+            .Where(id => id != Guid.Empty)
+            .Distinct()
+            .ToList();
+
+        if (distinctAssessmentIds.Count == 0)
+            return [];
+
+        const string sql = """
+                           SELECT LinkId, TenantId, AssessmentId, ControlId, RequirementId, RunId, GoldenManifestId, LinkedBy, LinkedUtc
+                           FROM dbo.AuditArchitectureEvidenceLinks
+                           WHERE TenantId = @TenantId AND AssessmentId IN @AssessmentIds
+                           ORDER BY AssessmentId, LinkedUtc DESC;
+                           """;
+
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        IEnumerable<ArchitectureLinkRow> rows = await conn.QueryAsync<ArchitectureLinkRow>(
+            new CommandDefinition(
+                sql,
+                new { TenantId = tenantId, AssessmentIds = distinctAssessmentIds },
+                cancellationToken: cancellationToken));
+
+        return rows.Select(MapArchitectureLink).ToList();
+    }
+
     public async Task<IReadOnlyList<AuditArchitectureEvidenceLinkRecord>> ListArchitectureLinksByAssessmentInScopeAsync(
         ProjectScopeKey scope,
         Guid assessmentId,

@@ -46,6 +46,22 @@ public interface IAzureInventoryDiffRepository
             .ToList();
     }
 
+    async Task<IReadOnlyList<AzureInventoryChangeRecord>> ListChangesByDiffAndCloudResourceAsync(
+        ScopeContext scope,
+        Guid diffId,
+        Guid cloudResourceId,
+        int take,
+        CancellationToken cancellationToken = default)
+    {
+        if (diffId == Guid.Empty || cloudResourceId == Guid.Empty || take <= 0)
+            return [];
+
+        (IReadOnlyList<AzureInventoryChangeRecord> items, _) =
+            await ListChangesByDiffIdPagedAsync(scope, diffId, 1, take, cloudResourceId, cancellationToken);
+
+        return items;
+    }
+
     Task<IReadOnlyList<AzureInventoryDiffSummaryRecord>> ListDiffsBySnapshotIdAsync(
         ScopeContext scope,
         Guid snapshotId,

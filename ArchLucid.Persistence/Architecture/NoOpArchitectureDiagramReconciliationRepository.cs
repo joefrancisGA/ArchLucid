@@ -8,7 +8,6 @@ public sealed class NoOpArchitectureDiagramReconciliationRepository : IArchitect
     {
         _ = record;
         _ = cancellationToken;
-
         return Task.CompletedTask;
     }
 
@@ -22,7 +21,6 @@ public sealed class NoOpArchitectureDiagramReconciliationRepository : IArchitect
         _ = runId;
         _ = snapshotId;
         _ = cancellationToken;
-
         return Task.FromResult<ArchitectureDiagramReconciliationPersistRecord?>(null);
     }
 
