@@ -1,10 +1,5 @@
-using ArchLucid.Application.Graphviz;
-using ArchLucid.Application.InfraEvidence.Branding;
 using ArchLucid.Application.InfraEvidence.Mermaid;
 using ArchLucid.ArtifactSynthesis.Compilers;
-using ArchLucid.ArtifactSynthesis.Graphviz;
-using ArchLucid.ArtifactSynthesis.Interfaces;
-using ArchLucid.ArtifactSynthesis.Layout;
 using ArchLucid.ArtifactSynthesis.Mermaid;
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.ArtifactSynthesis.Renderers;
@@ -13,35 +8,29 @@ using ArchLucid.Contracts.InfraEvidence;
 using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.Core.Diagrams;
 using ArchLucid.Core.InfraEvidence;
-using ArchLucid.Core.Scoping;
-using ArchLucid.Decisioning.Interfaces;
-using ArchLucid.Persistence.Architecture;
 
 using System.Xml.Linq;
 
 using FluentAssertions;
 
-using Moq;
-
 namespace ArchLucid.Application.Tests.InfraEvidence;
 
 [Trait("Category", "Unit")]
 [Trait("Suite", "Application")]
+[Trait("InventoryDiagramExcellence", "DataFlowHubPipeline")]
 public sealed class InfraEvidenceSnapshotMermaidDataFlowHubPipelineRatchetTests
 {
-    private static readonly Guid SnapshotId = Guid.Parse("cccccccc-dddd-eeee-ffff-111111111111");
-
     [Fact]
     public async Task InfraEvidenceSnapshotMermaidDataFlowHubPipelineRatchet_data_flow_mode_keeps_hub_pipeline_mermaid()
     {
         GraphSnapshot graph = InventoryDiagramExcellenceDataFlowHubPipelineGraphFixture.Build();
-        InfraEvidenceSnapshotMermaidService service = CreateServiceWithGraph(graph);
-        ScopeContext scope = CreateScope();
+        InfraEvidenceSnapshotMermaidService service = InfraEvidenceSnapshotMermaidDataFlowHubPipelineServiceTestFactory.CreateService(graph);
+        ScopeContext scope = InfraEvidenceSnapshotMermaidDataFlowHubPipelineServiceTestFactory.CreateScope();
 
         InfraEvidenceMermaidServiceResult<InfraEvidenceMermaidRenderResponse> result =
             await service.TryGetMermaidAsync(
                 scope,
-                SnapshotId,
+                InfraEvidenceSnapshotMermaidDataFlowHubPipelineServiceTestFactory.SnapshotId,
                 "dataFlow",
                 null,
                 null,
@@ -114,128 +103,5 @@ public sealed class InfraEvidenceSnapshotMermaidDataFlowHubPipelineRatchetTests
                 && (line.Contains("-->", StringComparison.Ordinal) || line.Contains("-.->", StringComparison.Ordinal)));
 
         found.Should().BeTrue($"expected Mermaid edge {from} → {to}");
-    }
-
-    private static InfraEvidenceSnapshotMermaidService CreateServiceWithGraph(GraphSnapshot graph)
-    {
-        Mock<IBrandedDiagramExportService> brandedDiagramExportService = new();
-        brandedDiagramExportService
-            .Setup(service => service.DecorateMermaidSourceForExportAsync(
-                It.IsAny<Guid>(),
-                It.IsAny<string>(),
-                It.IsAny<BrandingDisplayContext>(),
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync((Guid _, string source, BrandingDisplayContext _, CancellationToken _) => source);
-
-        return new InfraEvidenceSnapshotMermaidService(
-            new FixedGraphResolver(graph),
-            CreateInventoryRenderOrchestrator(),
-            CreateFallbackSetBuilder(),
-            brandedDiagramExportService.Object,
-            new NullDiagramImageRenderer(),
-            new DiagramAstGraphvizDotEmitter(),
-            new DiagramForestLayoutSvgRenderer(),
-            new NullGraphvizLayoutRenderer(),
-            new NoOpArchitectureDiagramReconciliationRepository(),
-            Mock.Of<IAuthorityQueryService>(),
-            Mock.Of<IManifestHashService>(),
-            new MermaidDiagramReadabilityThresholds());
-    }
-
-    private static MermaidDiagramInventoryRenderOrchestrator CreateInventoryRenderOrchestrator()
-    {
-        DiagramAstFromGraphCompiler compiler = new();
-
-        MermaidDiagramRenderPipeline pipeline = new(
-            new MermaidDiagramRenderer(),
-            new MermaidDiagramComplexityAnalyzer(),
-            new MermaidDiagramDeterministicRepairer(),
-            new MermaidDiagramStructuralValidator(),
-            new MermaidDiagramSemanticIntegrityGuard(),
-            new MermaidDiagramFallbackSetBuilder(
-                compiler,
-                new MermaidDiagramRenderer(),
-                new MermaidDiagramComplexityAnalyzer(),
-                new MermaidDiagramDeterministicRepairer(),
-                new MermaidDiagramStructuralValidator(),
-                new DiagramPeelCatalogDefaultProvider()));
-
-        return new MermaidDiagramInventoryRenderOrchestrator(
-            compiler,
-            pipeline,
-            new DiagramPeelCatalogDefaultProvider(),
-            new MermaidDiagramRenderer(),
-            new MermaidDiagramComplexityAnalyzer(),
-            new MermaidDiagramDeterministicRepairer(),
-            new MermaidDiagramStructuralValidator());
-    }
-
-    private static MermaidDiagramFallbackSetBuilder CreateFallbackSetBuilder()
-    {
-        DiagramAstFromGraphCompiler compiler = new();
-
-        return new MermaidDiagramFallbackSetBuilder(
-            compiler,
-            new MermaidDiagramRenderer(),
-            new MermaidDiagramComplexityAnalyzer(),
-            new MermaidDiagramDeterministicRepairer(),
-            new MermaidDiagramStructuralValidator(),
-            new DiagramPeelCatalogDefaultProvider());
-    }
-
-    private static ScopeContext CreateScope()
-    {
-        return new ScopeContext
-        {
-            TenantId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"),
-            WorkspaceId = Guid.NewGuid(),
-            ProjectId = Guid.NewGuid(),
-        };
-    }
-
-    private sealed class FixedGraphResolver(GraphSnapshot graph) : IAzureInventorySnapshotGraphResolver
-    {
-        public Task<AzureInventorySnapshotGraphResolveResult> TryResolveGraphAsync(
-            ScopeContext scope,
-            Guid snapshotId,
-            bool includeNeverShowArmTypes = false,
-            bool retainIdentityDiagramArmTypes = false,
-            CancellationToken cancellationToken = default)
-        {
-            ArgumentNullException.ThrowIfNull(scope);
-
-            return Task.FromResult(new AzureInventorySnapshotGraphResolveResult
-            {
-                Succeeded = true,
-                Graph = graph,
-            });
-        }
-    }
-
-    private sealed class NullDiagramImageRenderer : IDiagramImageRenderer
-    {
-        public Task<byte[]?> RenderMermaidPngAsync(string mermaidDiagram, CancellationToken cancellationToken = default)
-            => Task.FromResult<byte[]?>(null);
-    }
-
-    private sealed class NullGraphvizLayoutRenderer : IGraphvizLayoutRenderer
-    {
-        public Task<GraphvizLayoutRenderResult> RenderSvgAsync(string dot, CancellationToken cancellationToken = default)
-        {
-            return Task.FromResult(new GraphvizLayoutRenderResult
-            {
-                Succeeded = false,
-                Error = "Graphviz unavailable in unit tests.",
-            });
-        }
-
-        public Task<GraphvizLayoutRenderResult> RenderPngAsync(string dot, CancellationToken cancellationToken = default)
-        {
-            return Task.FromResult(new GraphvizLayoutRenderResult
-            {
-                Succeeded = false,
-                Error = "Graphviz unavailable in unit tests.",
-            });
-        }
     }
 }
