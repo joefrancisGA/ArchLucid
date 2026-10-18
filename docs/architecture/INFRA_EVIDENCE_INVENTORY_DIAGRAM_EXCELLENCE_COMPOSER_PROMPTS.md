@@ -36,6 +36,8 @@
 | Hub forest SVG missing stage headers | **IDX-13m** | Shipped — extend only |
 | Hub compile ratchet missing stage labels | **IDX-13n** | Shipped — extend only |
 | Hub PNG path missing layout stage headers | **IDX-13o** | Shipped — extend only |
+| Hub PNG path missing Mermaid stage labels | **IDX-13p** | Shipped — extend only |
+| Hub ratchets split Mermaid vs forest stage labels | **IDX-13q** | Shipped — extend only |
 | Singleton-RG tail | **IDX-08** | Full subscription is a postage sheet |
 | Duplicate connections | **IDX-09** | Five Office365 cards per Logic App |
 | PE flag with no UI | **IDX-10** | Operators cannot opt in; or PEs sneak on |
@@ -70,6 +72,8 @@
 | **IDX-13m** Data Flow hub forest stage labels | After 13l | Shipped — extend only |
 | **IDX-13n** Data Flow hub compile stage labels | After 13m | Shipped — extend only |
 | **IDX-13o** Data Flow hub PNG layout stage labels | After 13j | Shipped — extend only |
+| **IDX-13p** Data Flow hub PNG Mermaid stage labels | After 13o | Shipped — extend only |
+| **IDX-13q** Data Flow hub export stage label bundle | After 13p | Shipped — extend only |
 | **IDX-08** Singleton-RG collapse | After 06 | |
 | **IDX-09** Duplicate connection collapse | After 03 | |
 | **IDX-10** PE opt-in toggle | After 02 | |

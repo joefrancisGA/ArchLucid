@@ -2,6 +2,7 @@ import { DEFAULT_IANA_TIME_ZONE_ID } from "@/lib/default-iana-time-zone";
 import { formatInstantInPreferredTimeZoneMilitary } from "@/lib/locale-datetime";
 import type { InfraEvidenceSnapshotSummary } from "@/lib/infra-evidence/infra-evidence-drift-types";
 import { formatInfraEvidenceSubscriptionLabel } from "@/lib/infra-evidence/format-infra-evidence-snapshot-label";
+import { isUuidLike } from "@/lib/resolve-governance-finding-resource-group";
 
 /** Capture label for diagrams snapshot picker options in the operator's preferred zone. */
 export function formatInfraEvidenceDiagramsSnapshotPickerLabel(
@@ -15,21 +16,14 @@ export function formatInfraEvidenceDiagramsSnapshotPickerLabel(
   const subscription = formatInfraEvidenceSubscriptionLabel(snapshot.subscriptionName, snapshot.subscriptionId);
   const parts: string[] = [];
 
-  if (subscription != null) {
+  if (subscription != null && !isUuidLike(subscription)) {
     parts.push(subscription);
   } else if (snapshot.subscriptionName == null && snapshot.subscriptionId == null) {
     parts.push("Subscription was not stored.");
   }
 
-  if (snapshot.architectureName === null || snapshot.architectureName === undefined) {
-    parts.push("Architecture name was not stored.");
-  } else if (snapshot.architectureName.trim().length === 0) {
-    parts.push("Architecture name was stored empty.");
-  } else {
-    parts.push(snapshot.architectureName.trim());
-  }
-
   parts.push(captured);
+  parts.push(`${snapshot.resourceCount} resources`);
 
   return parts.join(" · ");
 }

@@ -487,7 +487,9 @@ export function RemediationFactoryClient() {
   } = useRemediationFactoryUrlState(productLine);
   const nowMs = useOperatorRelativeFreshnessNowMs();
   const rankedQuery = useRemediationRankedFindingsQuery();
-  const rankedPathsQuery = useSecurityEvidenceRankedPathsQuery();
+  const [rankedPathsPage, setRankedPathsPage] = useState(1);
+  const rankedPathsPageSize = 25;
+  const rankedPathsQuery = useSecurityEvidenceRankedPathsQuery(rankedPathsPage, rankedPathsPageSize);
   const reportSnapshotId = useMemo(
     () =>
       resolveAttackPathReportSnapshotId(
@@ -518,6 +520,7 @@ export function RemediationFactoryClient() {
   const [simulatorExplanation, setSimulatorExplanation] = useState<RemediationPrioritizationExplanation | null>(null);
   const [simulatorGeneratedAt, setSimulatorGeneratedAt] = useState<Date | null>(null);
   const [simulatorError, setSimulatorError] = useState<string | null>(null);
+  const [simulatorFindingId, setSimulatorFindingId] = useState<string | null>(null);
   const pathInspectPanelRef = useRef<HTMLElement | null>(null);
   const ranked = rankedQuery.data ?? [];
   const rankedPaths = rankedPathsQuery.data?.items ?? [];
@@ -530,6 +533,11 @@ export function RemediationFactoryClient() {
   rankedRef.current = ranked;
   rankedPathsRef.current = rankedPaths;
   const pathView = searchParams.get("pathView") ?? "all";
+
+  useEffect(() => {
+    setRankedPathsPage(1);
+  }, [pathView]);
+
   const visibleRankedPaths = useMemo(() => {
     switch (pathView) {
       case "public-exposure":
@@ -542,6 +550,16 @@ export function RemediationFactoryClient() {
         return rankedPaths;
     }
   }, [pathView, rankedPaths]);
+  const rankedPathsPaginationLine = useMemo(() => {
+    const totalCount = rankedPathsQuery.data?.totalCount ?? rankedPaths.length;
+
+    if (totalCount === 0) {
+      return null;
+    }
+
+    return `Showing page ${rankedPathsPage} (${rankedPaths.length} rows) of ${totalCount} ranked paths.`;
+  }, [rankedPaths.length, rankedPathsPage, rankedPathsQuery.data?.totalCount]);
+
   const rankedPathsComputedLine = useMemo(() => {
     if (rankedPaths.length === 0) {
       return null;
@@ -659,8 +677,16 @@ export function RemediationFactoryClient() {
     }
   }, [rankedPathsQuery.isSuccess, selectedPathId, syncSelection, visibleRankedPaths]);
 
+  useEffect(() => {
+    setSimulatorError(null);
+    setSimulatorExplanation(null);
+    setSimulatorGeneratedAt(null);
+    setSimulatorFindingId(null);
+  }, [selectedFindingId]);
+
   const runSimulator = useCallback(async (findingId: string) => {
     setSimulatorError(null);
+    setSimulatorFindingId(findingId);
 
     try {
       const explanation = await fetchRemediationScoreExplanation(findingId);
@@ -670,6 +696,7 @@ export function RemediationFactoryClient() {
       setSimulatorError("Could not load score explanation.");
       setSimulatorExplanation(null);
       setSimulatorGeneratedAt(null);
+      setSimulatorFindingId(null);
     }
   }, []);
 
@@ -911,6 +938,38 @@ export function RemediationFactoryClient() {
             <p className={OPERATOR_TYPOGRAPHY.helper} data-testid="remediation-ranked-paths-computed">
               {rankedPathsComputedLine}
             </p>
+            {rankedPathsPaginationLine !== null ? (
+              <p className={OPERATOR_TYPOGRAPHY.helper} data-testid="remediation-ranked-paths-pagination">
+                {rankedPathsPaginationLine}
+              </p>
+            ) : null}
+            {(rankedPathsQuery.data?.totalCount ?? 0) > rankedPathsPageSize ? (
+              <div className="flex flex-wrap items-center gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  disabled={rankedPathsPage <= 1 || rankedPathsQuery.isFetching}
+                  onClick={() => setRankedPathsPage((page) => Math.max(1, page - 1))}
+                  data-testid="remediation-factory-ranked-paths-prev-page"
+                >
+                  Previous page
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  disabled={
+                    rankedPathsPage * rankedPathsPageSize >= (rankedPathsQuery.data?.totalCount ?? 0)
+                    || rankedPathsQuery.isFetching
+                  }
+                  onClick={() => setRankedPathsPage((page) => page + 1)}
+                  data-testid="remediation-factory-ranked-paths-next-page"
+                >
+                  Next page
+                </Button>
+              </div>
+            ) : null}
             {visibleRankedPaths.length === 0 ? (
               <EnterpriseCompactEmptyState {...REMEDIATION_FACTORY_RANKED_PATHS_EMPTY} />
             ) : (
@@ -924,11 +983,45 @@ export function RemediationFactoryClient() {
         ) : visibleRankedPaths.length === 0 ? (
           <EnterpriseCompactEmptyState {...REMEDIATION_FACTORY_RANKED_PATHS_EMPTY} />
         ) : (
-          <RankedPathsTable
-            rows={visibleRankedPaths}
-            selectedPathId={selectedPathId}
-            onSelect={selectPath}
-          />
+          <>
+            {rankedPathsPaginationLine !== null ? (
+              <p className={OPERATOR_TYPOGRAPHY.helper} data-testid="remediation-ranked-paths-pagination">
+                {rankedPathsPaginationLine}
+              </p>
+            ) : null}
+            {(rankedPathsQuery.data?.totalCount ?? 0) > rankedPathsPageSize ? (
+              <div className="flex flex-wrap items-center gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  disabled={rankedPathsPage <= 1 || rankedPathsQuery.isFetching}
+                  onClick={() => setRankedPathsPage((page) => Math.max(1, page - 1))}
+                  data-testid="remediation-factory-ranked-paths-prev-page"
+                >
+                  Previous page
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  disabled={
+                    rankedPathsPage * rankedPathsPageSize >= (rankedPathsQuery.data?.totalCount ?? 0)
+                    || rankedPathsQuery.isFetching
+                  }
+                  onClick={() => setRankedPathsPage((page) => page + 1)}
+                  data-testid="remediation-factory-ranked-paths-next-page"
+                >
+                  Next page
+                </Button>
+              </div>
+            ) : null}
+            <RankedPathsTable
+              rows={visibleRankedPaths}
+              selectedPathId={selectedPathId}
+              onSelect={selectPath}
+            />
+          </>
         )}
       </section>
 
@@ -971,7 +1064,9 @@ export function RemediationFactoryClient() {
           </>
         )}
         {simulatorError ? <StatusTag kind="needs-attention" label={simulatorError} /> : null}
-        {simulatorExplanation != null && simulatorGeneratedAt != null ? (
+        {simulatorExplanation != null
+          && simulatorGeneratedAt != null
+          && simulatorFindingId === selectedFindingId ? (
           <RemediationSimulatorOutput explanation={simulatorExplanation} generatedAt={simulatorGeneratedAt} />
         ) : null}
       </section>
