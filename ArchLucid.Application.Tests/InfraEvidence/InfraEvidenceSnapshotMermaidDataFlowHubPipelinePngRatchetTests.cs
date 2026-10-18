@@ -73,9 +73,11 @@ public sealed class InfraEvidenceSnapshotMermaidDataFlowHubPipelinePngRatchetTes
                 cancellationToken: CancellationToken.None);
 
         layoutResult.Succeeded.Should().BeTrue(layoutResult.ErrorMessage);
-        layoutResult.Value!.LayoutSvg.Should().NotBeNullOrWhiteSpace();
+        layoutResult.Value!.Mermaid.Should().NotBeNullOrWhiteSpace();
+        layoutResult.Value.LayoutSvg.Should().NotBeNullOrWhiteSpace();
 
-        InventoryDiagramExcellenceDataFlowHubPipelineForestStageLabelAssertions.AssertStageLabels(
+        InventoryDiagramExcellenceDataFlowHubPipelineExportStageLabelAssertions.AssertAll(
+            layoutResult.Value.Mermaid,
             XDocument.Parse(layoutResult.Value.LayoutSvg!));
     }
 
