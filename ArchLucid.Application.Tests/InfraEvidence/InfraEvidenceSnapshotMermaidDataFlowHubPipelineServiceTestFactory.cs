@@ -133,6 +133,21 @@ internal static class InfraEvidenceSnapshotMermaidDataFlowHubPipelineServiceTest
                 Graph = graph,
             });
         }
+
+        public AzureInventorySnapshotGraphResolveResult ResolveGraphFromSnapshot(
+            AzureInventorySnapshotDetailReadModel snapshot,
+            bool includeNeverShowArmTypes = false,
+            bool retainIdentityDiagramArmTypes = false)
+        {
+            ArgumentNullException.ThrowIfNull(snapshot);
+
+            return new AzureInventorySnapshotGraphResolveResult
+            {
+                Succeeded = true,
+                Graph = graph,
+                Snapshot = snapshot,
+            };
+        }
     }
 
     private sealed class NullDiagramImageRenderer : IDiagramImageRenderer

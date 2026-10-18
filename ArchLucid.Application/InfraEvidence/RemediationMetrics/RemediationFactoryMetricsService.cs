@@ -183,22 +183,12 @@ public sealed class RemediationFactoryMetricsService(
 
         int netBurn = createdThisWeek - remediatedThisWeek;
 
-        int exactMatchCount = 0;
-        int matchedFindings = 0;
+        IReadOnlyDictionary<Guid, RemediationPatternMatchResultRecord> activeMatchesByFindingId =
+            await matchRepository.ListActiveMatchesByOpenFindingInScopeAsync(projectScope, cancellationToken);
 
-        foreach (OperationalSecurityFindingRecord finding in openFindings)
-        {
-            RemediationPatternMatchResultRecord? match =
-                await matchRepository.TryGetActiveMatchInScopeAsync(projectScope, finding.FindingId, cancellationToken);
-
-            if (match is null)
-                continue;
-
-            matchedFindings++;
-
-            if (match.MatchKind == RemediationPatternMatchKind.ExactMatch)
-                exactMatchCount++;
-        }
+        int matchedFindings = activeMatchesByFindingId.Count;
+        int exactMatchCount = activeMatchesByFindingId.Values.Count(match =>
+            match.MatchKind == RemediationPatternMatchKind.ExactMatch);
 
         decimal patternCoverage = matchedFindings == 0
             ? 0m

@@ -84,22 +84,22 @@ public sealed class FourRealityDriftEngine(
         DiagramInfrastructureReconciliationResult? diagramReconciliation =
             await TryLoadDiagramReconciliationAsync(scope, snapshotId, cancellationToken);
 
-        IReadOnlyList<SecurityEvidencePathRecord> privilegePaths = await pathRepository.ListBySnapshotAsync(
+        IReadOnlyList<SecurityEvidencePathWithHops> pathsWithHops = await pathRepository.ListWithHopsBySnapshotAsync(
             ProjectSnapshotScopeKey.Create(scope.ToProjectScopeKey(), snapshotId),
             cancellationToken);
 
-        List<SecurityEvidencePathRecord> sourcePaths = privilegePaths
-            .Where(path => path.PathKind is PathKind.Privilege or PathKind.IntendedReachability)
-            .ToList();
-
+        List<SecurityEvidencePathRecord> sourcePaths = [];
         Dictionary<Guid, IReadOnlyList<SecurityEvidencePathHopRecord>> hopsByPathId = new();
 
-        foreach (SecurityEvidencePathRecord sourcePath in sourcePaths)
+        foreach (SecurityEvidencePathWithHops pathWithHops in pathsWithHops)
         {
-            IReadOnlyList<SecurityEvidencePathHopRecord> hops =
-                await pathRepository.ListHopsByPathAsync(scope.TenantId, sourcePath.PathId, cancellationToken);
+            if (pathWithHops.Path.PathKind is not (PathKind.Privilege or PathKind.IntendedReachability))
+            {
+                continue;
+            }
 
-            hopsByPathId[sourcePath.PathId] = hops;
+            sourcePaths.Add(pathWithHops.Path);
+            hopsByPathId[pathWithHops.Path.PathId] = pathWithHops.Hops;
         }
 
         IReadOnlyList<FourRealityDriftCandidate> candidates = FourRealityDriftAnalyzer.Analyze(

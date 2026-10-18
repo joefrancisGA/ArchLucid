@@ -46,6 +46,16 @@ public sealed class AzureInventorySnapshotGraphResolver(
             };
         }
 
+        return ResolveGraphFromSnapshot(snapshot, includeNeverShowArmTypes, retainIdentityDiagramArmTypes);
+    }
+
+    public AzureInventorySnapshotGraphResolveResult ResolveGraphFromSnapshot(
+        AzureInventorySnapshotDetailReadModel snapshot,
+        bool includeNeverShowArmTypes = false,
+        bool retainIdentityDiagramArmTypes = false)
+    {
+        ArgumentNullException.ThrowIfNull(snapshot);
+
         GraphSnapshot graph = BuildGraph(snapshot, includeNeverShowArmTypes, retainIdentityDiagramArmTypes);
 
         return new AzureInventorySnapshotGraphResolveResult

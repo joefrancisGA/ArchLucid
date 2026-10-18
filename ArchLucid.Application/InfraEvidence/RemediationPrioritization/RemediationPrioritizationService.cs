@@ -137,6 +137,15 @@ public sealed class RemediationPrioritizationService(
         DateTime utcNow = TimeProvider.System.UtcNowDateTime();
         List<RemediationPrioritizedFinding> ranked = [];
         IReadOnlyDictionary<RemediationRiskFactor, decimal> weights = await GetWeightsAsync(scope, cancellationToken);
+        IReadOnlyList<OperationalSecurityExceptionRecord> scopedExceptions =
+            await exceptionRepository.ListByScopeAsync(projectScope, cancellationToken);
+        IReadOnlyDictionary<Guid, RemediationPatternMatchResultRecord> activeMatchesByFindingId =
+            await matchRepository.ListActiveMatchesByOpenFindingInScopeAsync(projectScope, cancellationToken);
+        RemediationPrioritizationRunContext runContext = new()
+        {
+            ScopedExceptions = scopedExceptions,
+            ActiveMatchesByFindingId = activeMatchesByFindingId,
+        };
 
         foreach (OperationalSecurityFindingRecord finding in findings)
         {
@@ -145,6 +154,7 @@ public sealed class RemediationPrioritizationService(
                 finding,
                 utcNow,
                 weights,
+                runContext,
                 cancellationToken);
 
             await prioritizationRepository.UpsertScoreInScopeAsync(
@@ -160,8 +170,7 @@ public sealed class RemediationPrioritizationService(
                 },
                 cancellationToken);
 
-            RemediationPatternMatchResultRecord? match =
-                await matchRepository.TryGetActiveMatchInScopeAsync(projectScope, finding.FindingId, cancellationToken);
+            runContext.ActiveMatchesByFindingId.TryGetValue(finding.FindingId, out RemediationPatternMatchResultRecord? match);
 
             ranked.Add(new RemediationPrioritizedFinding
             {
@@ -201,6 +210,7 @@ public sealed class RemediationPrioritizationService(
             finding,
             utcNow,
             weights,
+            runContext: null,
             cancellationToken);
 
         return new RemediationPrioritizationExplanation
@@ -275,6 +285,7 @@ public sealed class RemediationPrioritizationService(
         OperationalSecurityFindingRecord finding,
         DateTime asOfUtc,
         IReadOnlyDictionary<RemediationRiskFactor, decimal> weights,
+        RemediationPrioritizationRunContext? runContext,
         CancellationToken cancellationToken)
     {
         IReadOnlyList<OperationalSecurityFindingMetadataRecord> metadata =
@@ -290,8 +301,9 @@ public sealed class RemediationPrioritizationService(
         RemediationAutomationLevel? automationLevel = null;
         bool patternHasRollback = false;
 
-        RemediationPatternMatchResultRecord? match =
-            await matchRepository.TryGetActiveMatchInScopeAsync(scope, finding.FindingId, cancellationToken);
+        RemediationPatternMatchResultRecord? match = runContext is null
+            ? await matchRepository.TryGetActiveMatchInScopeAsync(scope, finding.FindingId, cancellationToken)
+            : runContext.ActiveMatchesByFindingId.GetValueOrDefault(finding.FindingId);
 
         if (match is not null)
         {
@@ -312,8 +324,9 @@ public sealed class RemediationPrioritizationService(
 
         if (hasActiveException)
         {
-            IReadOnlyList<OperationalSecurityExceptionRecord> exceptions =
-                await exceptionRepository.ListByScopeAsync(scope, cancellationToken);
+            IReadOnlyList<OperationalSecurityExceptionRecord> exceptions = runContext is null
+                ? await exceptionRepository.ListByScopeAsync(scope, cancellationToken)
+                : runContext.ScopedExceptions;
 
             compensatingControls = exceptions
                 .FirstOrDefault(item =>
@@ -331,5 +344,20 @@ public sealed class RemediationPrioritizationService(
             automationLevel,
             patternHasRollback,
             weights);
+    }
+
+    private sealed class RemediationPrioritizationRunContext
+    {
+        public required IReadOnlyList<OperationalSecurityExceptionRecord> ScopedExceptions
+        {
+            get;
+            init;
+        }
+
+        public required IReadOnlyDictionary<Guid, RemediationPatternMatchResultRecord> ActiveMatchesByFindingId
+        {
+            get;
+            init;
+        }
     }
 }

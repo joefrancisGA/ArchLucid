@@ -407,6 +407,61 @@ public sealed class SqlRemediationInstanceRepository(ISqlConnectionFactory conne
         return rows.Select(MapInstance).ToList();
     }
 
+    public async Task<IReadOnlyDictionary<Guid, RemediationInstanceRecord>> ListLatestApprovedByFindingIdsInScopeAsync(
+        ProjectScopeKey scope,
+        IReadOnlyCollection<Guid> findingIds,
+        CancellationToken cancellationToken = default)
+    {
+        if (findingIds.Count == 0)
+        {
+            return new Dictionary<Guid, RemediationInstanceRecord>();
+        }
+
+        const string sql = """
+                           SELECT InstanceId, TenantId, WorkspaceId, ProjectId, FindingId, PatternId, PatternVersionId,
+                                  PatternKey, FrozenPatternVersion, AutomationLevel, Status, CloudResourceId, PathId,
+                                  PathNarrativeJson, AssessmentId, ControlId, PreflightSnapshotId, ExecutionSnapshotId,
+                                  VerificationSnapshotId, WaveId, PreflightResultJson, VerificationResultJson,
+                                  CreatedByActorKey, ApprovedByActorKey, CreatedUtc, UpdatedUtc, ApprovedUtc,
+                                  ExecutedUtc, ChangeImplementedUtc, VerifiedUtc, ClosedUtc
+                           FROM dbo.RemediationInstances
+                           WHERE TenantId = @TenantId
+                             AND WorkspaceId = @WorkspaceId
+                             AND ProjectId = @ProjectId
+                             AND Status = @ApprovedStatus
+                             AND FindingId IN @FindingIds
+                           ORDER BY FindingId, UpdatedUtc DESC;
+                           """;
+
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        IEnumerable<InstanceRow> rows = await conn.QueryAsync<InstanceRow>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    scope.TenantId,
+                    scope.WorkspaceId,
+                    scope.ProjectId,
+                    ApprovedStatus = (int)RemediationInstanceStatus.Approved,
+                    FindingIds = findingIds,
+                },
+                cancellationToken: cancellationToken));
+
+        Dictionary<Guid, RemediationInstanceRecord> latestByFinding = new();
+
+        foreach (InstanceRow row in rows)
+        {
+            RemediationInstanceRecord instance = MapInstance(row);
+
+            if (!latestByFinding.ContainsKey(instance.FindingId))
+            {
+                latestByFinding[instance.FindingId] = instance;
+            }
+        }
+
+        return latestByFinding;
+    }
+
     public async Task<IReadOnlyDictionary<string, int>> CountOpenInstancesByStatusInScopeAsync(
         ProjectScopeKey scope,
         CancellationToken cancellationToken = default)

@@ -37,33 +37,30 @@ public sealed class SecurityEvidencePathRoutingSyncService(
             return;
         }
 
-        IReadOnlyList<SecurityEvidencePathRecord> paths = await pathRepository.ListBySnapshotAsync(
+        IReadOnlyList<SecurityEvidencePathWithHops> pathsWithHops = await pathRepository.ListWithHopsBySnapshotAsync(
             ProjectSnapshotScopeKey.Create(scope.ToProjectScopeKey(), snapshotId),
             cancellationToken);
 
-        if (paths.Count == 0)
+        if (pathsWithHops.Count == 0)
         {
             return;
         }
 
         DateTime utcNow = TimeProvider.System.UtcNowDateTime();
 
-        foreach (SecurityEvidencePathRecord path in paths)
+        foreach (SecurityEvidencePathWithHops pathWithHops in pathsWithHops)
         {
-            IReadOnlyList<SecurityEvidencePathHopRecord> hops =
-                await pathRepository.ListHopsByPathInScopeAsync(scope.ToProjectScopeKey(), path.PathId, cancellationToken);
-
             IReadOnlyList<SecurityEvidencePathRoutingRecord> routingRows =
                 SecurityEvidencePathRoutingMaterializer.MaterializeFromSnapshotTags(
                     scope.TenantId,
-                    path.PathId,
-                    hops,
+                    pathWithHops.Path.PathId,
+                    pathWithHops.Hops,
                     snapshot,
                     utcNow);
 
             await routingRepository.ReplaceRoutingForPathInScopeAsync(
                 scope.ToProjectScopeKey(),
-                path.PathId,
+                pathWithHops.Path.PathId,
                 routingRows,
                 cancellationToken);
         }

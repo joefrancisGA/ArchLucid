@@ -55,6 +55,7 @@ public sealed class ProjectScopeSqlPushdownBoundaryTests
         yield return [typeof(ISecurityEvidencePathRoutingRepository), typeof(SqlSecurityEvidencePathRoutingRepository), "ReplaceRoutingForPathInScopeAsync"];
         yield return [typeof(IRemediationInstanceRepository), typeof(SqlRemediationInstanceRepository), "ListByScopeAsync"];
         yield return [typeof(IRemediationInstanceRepository), typeof(SqlRemediationInstanceRepository), "CountOpenInstancesByStatusInScopeAsync"];
+        yield return [typeof(IRemediationInstanceRepository), typeof(SqlRemediationInstanceRepository), "ListLatestApprovedByFindingIdsInScopeAsync"];
         yield return [typeof(IRemediationInstanceRepository), typeof(SqlRemediationInstanceRepository), "ListEvidenceByInstanceInScopeAsync"];
         yield return [typeof(IRemediationInstanceRepository), typeof(SqlRemediationInstanceRepository), "ListByCloudResourceIdPagedInScopeAsync"];
         yield return [typeof(IRemediationInstanceRepository), typeof(SqlRemediationInstanceRepository), "ListByFindingIdInScopeAsync"];
@@ -73,6 +74,7 @@ public sealed class ProjectScopeSqlPushdownBoundaryTests
         yield return [typeof(IRemediationPatternMatchRepository), typeof(SqlRemediationPatternMatchRepository), "InsertMatchResultInScopeAsync"];
         yield return [typeof(IRemediationPatternMatchRepository), typeof(SqlRemediationPatternMatchRepository), "InsertConflictInScopeAsync"];
         yield return [typeof(IRemediationPatternMatchRepository), typeof(SqlRemediationPatternMatchRepository), "TryGetActiveMatchInScopeAsync"];
+        yield return [typeof(IRemediationPatternMatchRepository), typeof(SqlRemediationPatternMatchRepository), "ListActiveMatchesForOpenFindingsInScopeAsync"];
         yield return [typeof(IRemediationPatternMatchRepository), typeof(SqlRemediationPatternMatchRepository), "ListByFindingInScopeAsync"];
         yield return [typeof(IRemediationPatternMatchRepository), typeof(SqlRemediationPatternMatchRepository), "ListConflictsByFindingInScopeAsync"];
         yield return [typeof(IRemediationPrioritizationRepository), typeof(SqlRemediationPrioritizationRepository), "UpsertScoreInScopeAsync"];
