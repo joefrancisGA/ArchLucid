@@ -131,9 +131,12 @@ internal static class DiagramDataFlowCaptionBuilder
 
 internal static class DiagramDataFlowStageSubgraphPlanner
 {
-    public static IReadOnlyList<DiagramSubgraph> PlanSubgraphs(IReadOnlyList<GraphNode> nodes)
+    public static IReadOnlyList<DiagramSubgraph> PlanSubgraphs(
+        IReadOnlyList<GraphNode> nodes,
+        IReadOnlyDictionary<string, string> stageOverrides)
     {
         ArgumentNullException.ThrowIfNull(nodes);
+        ArgumentNullException.ThrowIfNull(stageOverrides);
 
         List<DiagramSubgraph> subgraphs = [];
         int order = 0;
@@ -142,7 +145,7 @@ internal static class DiagramDataFlowStageSubgraphPlanner
         {
             bool hasNodes = nodes.Any(node =>
                 AzureInventoryDataFlowStageNames.EqualsStage(
-                    InventoryDataFlowStageResolver.Resolve(node),
+                    DiagramDataFlowEffectiveStageResolver.ResolveStage(node, stageOverrides),
                     stage));
 
             if (!hasNodes)
@@ -161,12 +164,16 @@ internal static class DiagramDataFlowStageSubgraphPlanner
         return subgraphs;
     }
 
-    public static string? ResolveSubgraphId(GraphNode node, IReadOnlyList<DiagramSubgraph> subgraphs)
+    public static string? ResolveSubgraphId(
+        GraphNode node,
+        IReadOnlyList<DiagramSubgraph> subgraphs,
+        IReadOnlyDictionary<string, string> stageOverrides)
     {
         ArgumentNullException.ThrowIfNull(node);
         ArgumentNullException.ThrowIfNull(subgraphs);
+        ArgumentNullException.ThrowIfNull(stageOverrides);
 
-        string? stage = InventoryDataFlowStageResolver.Resolve(node);
+        string? stage = DiagramDataFlowEffectiveStageResolver.ResolveStage(node, stageOverrides);
 
         if (string.IsNullOrWhiteSpace(stage))
         {
