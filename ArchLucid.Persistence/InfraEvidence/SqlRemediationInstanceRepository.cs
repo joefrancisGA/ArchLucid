@@ -407,6 +407,43 @@ public sealed class SqlRemediationInstanceRepository(ISqlConnectionFactory conne
         return rows.Select(MapInstance).ToList();
     }
 
+    public async Task<IReadOnlyDictionary<string, int>> CountOpenInstancesByStatusInScopeAsync(
+        ProjectScopeKey scope,
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+                           SELECT Status, COUNT(1) AS InstanceCount
+                           FROM dbo.RemediationInstances
+                           WHERE TenantId = @TenantId
+                             AND WorkspaceId = @WorkspaceId
+                             AND ProjectId = @ProjectId
+                             AND Status <> @ClosedStatus
+                           GROUP BY Status;
+                           """;
+
+        using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        IEnumerable<StatusCountRow> rows = await conn.QueryAsync<StatusCountRow>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    scope.TenantId,
+                    scope.WorkspaceId,
+                    scope.ProjectId,
+                    ClosedStatus = (int)RemediationInstanceStatus.Closed,
+                },
+                cancellationToken: cancellationToken));
+
+        Dictionary<string, int> counts = new(StringComparer.Ordinal);
+
+        foreach (StatusCountRow row in rows)
+        {
+            counts[((RemediationInstanceStatus)row.Status).ToString()] = row.InstanceCount;
+        }
+
+        return counts;
+    }
+
     public async Task<(IReadOnlyList<RemediationInstanceRecord> Items, int TotalCount)> ListByCloudResourceIdPagedAsync(
         Guid tenantId,
         Guid cloudResourceId,
@@ -674,6 +711,21 @@ public sealed class SqlRemediationInstanceRepository(ISqlConnectionFactory conne
             CorrelationId = row.CorrelationId,
             CreatedUtc = row.CreatedUtc,
         };
+
+    private sealed class StatusCountRow
+    {
+        public int Status
+        {
+            get;
+            init;
+        }
+
+        public int InstanceCount
+        {
+            get;
+            init;
+        }
+    }
 
     private sealed class InstanceRow
     {

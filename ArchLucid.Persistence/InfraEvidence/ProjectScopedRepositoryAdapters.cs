@@ -53,6 +53,11 @@ public sealed class ProjectScopedRemediationInstanceRepositoryAdapter(
     public Task<IReadOnlyList<RemediationInstanceRecord>> ListByScopeAsync(ProjectScopeKey scope, CancellationToken cancellationToken = default) =>
         inner.ListByScopeAsync(scope, cancellationToken);
 
+    public Task<IReadOnlyDictionary<string, int>> CountOpenInstancesByStatusInScopeAsync(
+        ProjectScopeKey scope,
+        CancellationToken cancellationToken = default) =>
+        inner.CountOpenInstancesByStatusInScopeAsync(scope, cancellationToken);
+
     public Task<(IReadOnlyList<RemediationInstanceRecord> Items, int TotalCount)> ListByCloudResourceIdPagedInScopeAsync(ProjectScopeKey scope, Guid cloudResourceId, int page, int pageSize, CancellationToken cancellationToken = default) =>
         inner.ListByCloudResourceIdPagedInScopeAsync(scope, cloudResourceId, page, pageSize, cancellationToken);
 

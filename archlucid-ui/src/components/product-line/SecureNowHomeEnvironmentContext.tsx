@@ -21,12 +21,6 @@ const SNAPSHOT_PAGE_SIZE = 20;
 const CLOUD_CONNECTIONS_HREF = "/integrations/cloud-connections";
 const DRIFT_HREF = "/infrastructure/snapshots-drift";
 
-function newestSnapshot(snapshots: readonly InfraEvidenceSnapshotSummary[]): InfraEvidenceSnapshotSummary | null {
-  return [...snapshots]
-    .filter((snapshot) => snapshot.capturedUtc !== null && snapshot.capturedUtc.trim().length > 0)
-    .sort((left, right) => Date.parse(right.capturedUtc ?? "") - Date.parse(left.capturedUtc ?? ""))[0] ?? null;
-}
-
 function subscriptionPhrase(snapshots: readonly InfraEvidenceSnapshotSummary[]): string | null {
   const subscriptions = [...new Set(
     snapshots
@@ -110,7 +104,7 @@ export function SecureNowHomeEnvironmentContext(): React.JSX.Element {
   }
 
   const snapshotRows = snapshotsQuery.data?.items ?? [];
-  const snapshot = newestSnapshot(snapshotRows);
+  const snapshot = snapshotRows[0] ?? null;
 
   if (snapshot === null) {
     return (

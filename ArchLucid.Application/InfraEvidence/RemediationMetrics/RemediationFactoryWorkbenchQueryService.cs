@@ -79,27 +79,23 @@ public sealed class RemediationFactoryWorkbenchQueryService(
 
         RemediationFactoryMetrics metrics = await metricsService.GetMetricsAsync(scope, cancellationToken);
 
-        IReadOnlyList<RemediationInstanceRecord> instances =
-            await instanceRepository.ListByScopeAsync(scope.ToProjectScopeKey(), cancellationToken);
-
-        Dictionary<string, int> openInstancesByStatus = instances
-            .Where(item => item.Status != RemediationInstanceStatus.Closed)
-            .GroupBy(item => item.Status.ToString())
-            .ToDictionary(group => group.Key, group => group.Count());
+        ProjectScopeKey projectScope = scope.ToProjectScopeKey();
+        IReadOnlyDictionary<string, int> openInstancesByStatus =
+            await instanceRepository.CountOpenInstancesByStatusInScopeAsync(projectScope, cancellationToken);
 
         IReadOnlyList<RemediationWaveRecord> waves = await waveService.ListWavesAsync(scope, cancellationToken);
+        IReadOnlyDictionary<Guid, int> memberCounts =
+            await waveService.GetMemberCountsByScopeAsync(scope, cancellationToken);
         List<RemediationWaveProgressSummary> waveSummaries = [];
 
         foreach (RemediationWaveRecord wave in waves.OrderByDescending(item => item.UpdatedUtc))
         {
-            RemediationWaveDetail? detail = await waveService.GetWaveAsync(scope, wave.WaveId, cancellationToken);
-
             waveSummaries.Add(new RemediationWaveProgressSummary
             {
                 WaveId = wave.WaveId,
                 Name = wave.Name,
                 Status = wave.Status,
-                MemberCount = detail?.Members.Count ?? 0,
+                MemberCount = memberCounts.TryGetValue(wave.WaveId, out int memberCount) ? memberCount : 0,
                 TargetSize = wave.TargetSize,
             });
         }
