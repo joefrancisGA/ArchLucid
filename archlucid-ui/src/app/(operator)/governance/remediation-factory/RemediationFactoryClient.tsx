@@ -846,7 +846,7 @@ export function RemediationFactoryClient() {
         isSuccess={rankedPathsQuery.isSuccess}
         refetch={() => rankedPathsQuery.refetch()}
         selectedPathId={selectedPathId}
-        onSelectPath={selectPath}
+        onSelectPath={onSelectCutPointPath}
       />
 
       <section className="space-y-3" aria-label="Operator priority table">

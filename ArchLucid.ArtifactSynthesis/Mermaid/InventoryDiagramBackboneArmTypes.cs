@@ -15,7 +15,7 @@ internal static class InventoryDiagramBackboneArmTypes
     public const string ViewMarker = "al-view=backbone-keep";
     public const string TitleSuffix = DiagramAstFromGraphCompilerConstants.BackboneKeepTitleSuffix;
     public const string Caption =
-        "This diagram keeps virtual machines, databases, networks, and other backbone resources. Attachment and platform resources are hidden. Pick a Resource Group to see every resource in one group.";
+        "This diagram keeps virtual machines, databases, networks, and other backbone resources. Some components are hidden. Pick a Resource Group to see every resource in one group.";
 
     /// <summary>
     /// Extra never-peel types beyond the SQL catalog seed. Kept in code so existing
