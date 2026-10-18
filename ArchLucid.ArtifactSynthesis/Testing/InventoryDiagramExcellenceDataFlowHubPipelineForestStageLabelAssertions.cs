@@ -6,7 +6,7 @@ using FluentAssertions;
 
 namespace ArchLucid.ArtifactSynthesis.Testing;
 
-/// <summary>Forest LayoutSvg stage column labels for the Data Flow hub pipeline (IDX-13m / IDX-13o).</summary>
+/// <summary>Forest LayoutSvg stage column labels for the Data Flow hub pipeline (IDX-13m / IDX-13n / IDX-13o).</summary>
 internal static class InventoryDiagramExcellenceDataFlowHubPipelineForestStageLabelAssertions
 {
     public static void AssertStageLabels(XDocument layoutSvg)
