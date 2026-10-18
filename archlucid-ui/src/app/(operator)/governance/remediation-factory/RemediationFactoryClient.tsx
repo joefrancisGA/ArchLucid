@@ -725,7 +725,7 @@ export function RemediationFactoryClient() {
     focusGovernanceFindingsQueuePathInspectPanel(pathInspectPanelRef.current);
   }, []);
 
-  const onSelectCutPointPath = useCallback(
+  const onSelectPathAndFocusInspect = useCallback(
     (pathId: string) => {
       selectPath(pathId);
       focusGovernanceFindingsQueuePathInspectPanel(pathInspectPanelRef.current);
@@ -830,7 +830,7 @@ export function RemediationFactoryClient() {
         snapshotId={reportSnapshotId}
         reportQuery={attackPathReportQuery}
         selectedPathId={selectedPathId}
-        onSelectPath={selectPath}
+        onSelectPath={onSelectPathAndFocusInspect}
         awaitingRankedSnapshot={
           urlState.toSnapshotId === null
           && urlState.fromSnapshotId === null
@@ -847,7 +847,7 @@ export function RemediationFactoryClient() {
         isSuccess={rankedPathsQuery.isSuccess}
         refetch={() => rankedPathsQuery.refetch()}
         selectedPathId={selectedPathId}
-        onSelectPath={onSelectCutPointPath}
+        onSelectPath={onSelectPathAndFocusInspect}
       />
 
       <section className="space-y-3" aria-label="Operator priority table">
