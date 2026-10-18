@@ -218,6 +218,9 @@ export function FindingKeyboardTriageHost(props: FindingKeyboardTriageHostProps)
     mutationsEnabled: canMutate,
     onFindingFocus: workbenchSelection?.setSelectedFindingId,
     defaultFocusFirstFinding: props.defaultFocusFirstFinding === true,
+    getQueueAnchorFindingId: () => workbenchSelection?.selectedFindingId ?? null,
+    getPathInspectPanel: () =>
+      document.querySelector<HTMLElement>('[data-testid="security-evidence-path-inspect-panel"]'),
   });
 
   useEffect(() => {

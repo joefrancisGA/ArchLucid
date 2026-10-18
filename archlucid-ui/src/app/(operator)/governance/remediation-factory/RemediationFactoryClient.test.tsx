@@ -274,6 +274,12 @@ describe("RemediationFactoryClient", () => {
     expect(screen.getByTestId("remediation-factory-page-shortcuts-entry-alt-e")).toHaveTextContent(
       "Explain selected score",
     );
+    const rankedPathShortcuts = screen.getByTestId("remediation-factory-ranked-path-queue-shortcuts");
+    expect(rankedPathShortcuts).toHaveTextContent("alt+j");
+    expect(rankedPathShortcuts).toHaveTextContent("alt+k");
+    expect(rankedPathShortcuts).toHaveTextContent("alt+i");
+    expect(rankedPathShortcuts).toHaveTextContent("alt+o");
+    expect(rankedPathShortcuts).toHaveTextContent("alt+q");
     expect(screen.getByText(REMEDIATION_FACTORY_EXECUTIVE_METRICS_TITLE)).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toHaveTextContent(PAGE_HELP_SHORT_TRIGGER_TEXT);
     expect(screen.getByTestId("remediation-factory-open-waves")).toHaveAttribute(

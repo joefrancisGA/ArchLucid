@@ -129,6 +129,9 @@ Do **not** draw a complete graph to “maximize edges.” Do **not** show NIC or
 | **IDX-13v** Cross-mode excellence wave manifest | **Shipped** on trunk — extend only | Cross-mode ratchet classes (08b–13, completeness) can be deleted without CI failure |
 | **IDX-13w** Cross-mode trait isolation guard | **Shipped** on trunk — extend only | Cross-mode ratchets tagged `DataFlowHubPipeline` shrink the hub slice filter |
 | **IDX-13x** Workbench excellence ratchet (Vitest) | **Shipped** on trunk — extend only | PE default + completeness `missingClasses` not under backend excellence filter |
+| **IDX-13y** Fat-graph forest / DOT parity ratchet | **Shipped** on trunk — extend only | IDX-13b hero modes lack named `BuildFatGraph()` forest/DOT parity class |
+| **IDX-13z** Cross-mode UI wave manifest (Vitest) | **Shipped** on trunk — extend only | Workbench excellence ratchet tests deletable without CI failure |
+| **IDX-14a** Cross-mode excellence wave closeout | **Shipped** on trunk — extend only | Index lacks cross-mode (08b–13z) complete subsection + Vitest guard |
 | **IDX-HOLD** | Not implementation | — |
 
 ### Data Flow hub pipeline wave (IDX-07f–13u) — complete
@@ -139,7 +142,29 @@ Forest, Mermaid, DOT, graph compile, snapshot Mermaid service, PNG export, stage
 
 `dotnet test ArchLucid.Application.Tests --filter InventoryDiagramExcellence=DataFlowHubPipeline`
 
-Next hub work is **extend-only** (regression fixes). Cross-mode slice (08b–13x): `FullyQualifiedName~CrossModeWaveManifest`, `FullyQualifiedName~CrossModeTraitGuard` (both .NET projects), and `cd archlucid-ui && npm test -- inventory-diagram-excellence-workbench.ratchet`. Pick **IDX-08**, **IDX-13** cross-mode deepening, or **IDX-HOLD** for new scope.
+Next hub work is **extend-only** (regression fixes).
+
+### Cross-mode excellence wave (IDX-08b–13z) — complete
+
+Singleton-tail, connection rollup, PE opt-in, completeness, hop-focus, cross-mode parity, fat-graph forest/DOT parity, backend manifest + trait guards, workbench Vitest ratchet, and UI manifest guards are covered. Run the cross-mode slice:
+
+`dotnet test ArchLucid.ArtifactSynthesis.Tests --filter FullyQualifiedName~CrossModeWaveManifest`
+
+`dotnet test ArchLucid.Application.Tests --filter FullyQualifiedName~CrossModeWaveManifest`
+
+`dotnet test ArchLucid.ArtifactSynthesis.Tests --filter FullyQualifiedName~CrossModeTraitGuard`
+
+`dotnet test ArchLucid.Application.Tests --filter FullyQualifiedName~CrossModeTraitGuard`
+
+`dotnet test ArchLucid.ArtifactSynthesis.Tests --filter FullyQualifiedName~FatGraphForestDotParityRatchet`
+
+`cd archlucid-ui && npm test -- inventory-diagram-excellence-workbench.ratchet`
+
+`cd archlucid-ui && npm test -- inventory-diagram-excellence-cross-mode-ui-wave-manifest`
+
+`cd archlucid-ui && npm test -- inventory-diagram-excellence-cross-mode-wave-closeout`
+
+Next cross-mode work is **extend-only** (regression fixes). Pick **IDX-05** when a mode keeps subnet nodes visible, **IDX-08** / **IDX-13** base deepening, or **IDX-HOLD** for new scope.
 
 **Regression guard:** `dotnet test ArchLucid.ArtifactSynthesis.Tests --filter FullyQualifiedName~InventoryDiagramExcellence` plus `ArchLucid.Application.Tests --filter FullyQualifiedName~InfraEvidenceMermaidCompleteness` and `FullyQualifiedName~InventoryDiagramExcellenceCompleteness`. Data Flow hub pipeline slice (both projects): `dotnet test ArchLucid.ArtifactSynthesis.Tests --filter InventoryDiagramExcellence=DataFlowHubPipeline` and `dotnet test ArchLucid.Application.Tests --filter InventoryDiagramExcellence=DataFlowHubPipeline`. **IDX-05** subnet layer can still deepen when a mode keeps subnet nodes visible.
 
@@ -197,6 +222,9 @@ Suggested Cloud Agent branch per prompt: `cursor/inventory-diagram-excellence-<s
 | 13v | `inventory-diagram-excellence-13v-cross-mode-wave-manifest.md` | Cross-mode ratchet classes not manifest-guarded |
 | 13w | `inventory-diagram-excellence-13w-cross-mode-trait-guard.md` | Cross-mode ratchets carry hub `DataFlowHubPipeline` trait |
 | 13x | `inventory-diagram-excellence-13x-workbench-excellence-ratchet.md` | Workbench PE default + completeness strip not excellence-ratcheted |
+| 13y | `inventory-diagram-excellence-13y-fat-graph-forest-dot-parity-ratchet.md` | Fat graph forest/DOT parity not in dedicated excellence class |
+| 13z | `inventory-diagram-excellence-13z-cross-mode-ui-wave-manifest.md` | Workbench excellence ratchet not UI manifest-guarded |
+| 14a | `inventory-diagram-excellence-14a-cross-mode-wave-closeout.md` | Cross-mode slice not documented complete in index |
 | HOLD | `inventory-diagram-excellence-14-hold.md` | Complete-graph / default PE / icons / RBAC dump |
 
 ## Prerequisites (do not re-implement)

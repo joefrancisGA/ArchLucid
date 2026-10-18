@@ -26,9 +26,11 @@ describe("InfraEvidenceCompletenessWarningsBanner", () => {
     expect(banner.className).not.toMatch(/amber/);
     expect(banner.className).toContain("bg-al-surface-raised");
     expect(screen.getByTestId("infra-evidence-completeness-warnings-details")).toBeInTheDocument();
-    expect(screen.getByText("Inventory completeness warnings (2)")).toBeInTheDocument();
-    expect(screen.getByText(/App setting hostnames not collected on hosted pull/)).toBeInTheDocument();
-    expect(screen.getByText(/Role assignment scope is too broad/)).toBeInTheDocument();
+    expect(screen.getByTestId("infra-evidence-completeness-warnings-count-tag")).toHaveTextContent(
+      "2 completeness warnings",
+    );
+    expect(screen.getAllByText(/App setting hostnames not collected on hosted pull/).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Role assignment scope is too broad/).length).toBeGreaterThan(0);
   });
 
   it("uses collection-gap lead copy for logic app missing warnings (P-18)", () => {
