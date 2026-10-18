@@ -57,6 +57,6 @@ describe("DiagramsWorkbenchClient working mode", () => {
     expect(screen.getByTestId("infra-diagrams-breadcrumb")).toBeInTheDocument();
     expect(screen.queryByTestId("infra-diagrams-scope-status")).not.toBeInTheDocument();
     expect(screen.queryByTestId("page-contextual-help-button")).not.toBeInTheDocument();
-    expect(screen.queryByTestId("infra-diagrams-page-shortcuts")).not.toBeInTheDocument();
+    expect(screen.getByTestId("infra-diagrams-page-shortcuts")).toBeInTheDocument();
   });
 });
