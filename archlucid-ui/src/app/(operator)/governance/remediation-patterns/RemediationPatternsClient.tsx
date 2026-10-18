@@ -198,7 +198,6 @@ function PatternContentReviewPanel(props: {
   readonly approvedVersion: RemediationPatternVersionRecord | null;
   readonly onContentViewed: () => void;
 }) {
-  const panelRef = useRef<HTMLDivElement>(null);
   const activeContent = formatRemediationPatternVersionContent(props.activeVersion.contentJson);
   const approvedContent = formatRemediationPatternVersionContent(props.approvedVersion?.contentJson);
   const diffLines =
@@ -206,32 +205,8 @@ function PatternContentReviewPanel(props: {
       ? diffRemediationPatternContent(approvedContent, activeContent)
       : [];
 
-  useEffect(() => {
-    const node = panelRef.current;
-
-    if (node === null || typeof IntersectionObserver === "undefined") {
-      return;
-    }
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries.some((entry) => entry.isIntersecting)) {
-          props.onContentViewed();
-        }
-      },
-      { threshold: 0.2 },
-    );
-
-    observer.observe(node);
-
-    return () => {
-      observer.disconnect();
-    };
-  }, [props]);
-
   return (
     <section
-      ref={panelRef}
       className="space-y-2 rounded border border-border bg-card p-4"
       aria-label="Pattern version content"
       data-testid="remediation-pattern-version-content-panel"
@@ -430,7 +405,7 @@ export function RemediationPatternsClient() {
   const freshnessLabel = operatorFreshnessMetadataWithClockLabel({
     prefix: REMEDIATION_PATTERNS_LAST_REFRESHED_PREFIX,
     lastRefreshedAt: refreshing ? null : lastRefreshedAt,
-    refreshingLabel: REMEDIATION_PATTERNS_REFRESHING_LABEL,
+    refreshingLabel: refreshing ? REMEDIATION_PATTERNS_REFRESHING_LABEL : null,
   });
 
   const staleCue = remediationPatternsDataStaleCue(lastRefreshedAt, nowMs);
