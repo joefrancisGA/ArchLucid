@@ -81,6 +81,24 @@ public static class InventoryDiagramOrphanedStateClassifier
                 [InventoryDiagramConnectionPostureCatalog.LogicAppConnectionNotCitedDetail]);
         }
 
+        if (AzureInventoryMonitorPrivateLinkScopeResourceTypes.IsScopeResourceType(armResourceType))
+        {
+            return InventoryDiagramConnectionStateResult.WithUnresolvedDetails(
+                [InventoryDiagramConnectionPostureCatalog.PrivateLinkScopeNoScopedResourceDetail]);
+        }
+
+        if (armResourceType.Equals("Microsoft.Network/natGateways", StringComparison.OrdinalIgnoreCase))
+        {
+            return InventoryDiagramConnectionStateResult.WithUnresolvedDetails(
+                [InventoryDiagramConnectionPostureCatalog.NatGatewayNoStoredSubnetDetail]);
+        }
+
+        if (AzureInventoryDatabricksAccessConnector.IsAccessConnectorType(armResourceType))
+        {
+            return InventoryDiagramConnectionStateResult.WithUnresolvedDetails(
+                [InventoryDiagramConnectionPostureCatalog.AccessConnectorNoWorkspaceCitationDetail]);
+        }
+
         if (TryClassifyUnconnected(armResourceType)
             || InventoryDiagramSharedServiceCatalog.IsSharedService(armResourceType))
         {
