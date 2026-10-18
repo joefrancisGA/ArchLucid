@@ -83,6 +83,8 @@ public sealed class InfraEvidenceSnapshotMermaidDataFlowHubPipelineRatchetTests
             .Should()
             .Be(1);
 
+        InventoryDiagramExcellenceDataFlowHubPipelineForestStageLabelAssertions.AssertStageLabels(layoutSvg);
+
         DiagramAstFromGraphCompiler compiler = new();
         DiagramAst compiledAst = compiler.Compile(graph, DiagramMode.DataFlow);
         string landingNodeId = MermaidIdSanitizer.Sanitize(InventoryDiagramExcellenceDataFlowHubPipelineGraphFixture.LandingGraphNodeId);
