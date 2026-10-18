@@ -47,6 +47,7 @@
 | Workbench PE default / completeness strip | **IDX-13x** | Shipped — extend only |
 | Fat graph forest/DOT parity not named | **IDX-13y** | Shipped — extend only |
 | Workbench ratchet tests not UI manifest-guarded | **IDX-13z** | Shipped — extend only |
+| Cross-mode slice not index-closeout | **IDX-14a** | Shipped — extend only |
 | Singleton-RG tail | **IDX-08** | Full subscription is a postage sheet |
 | Singleton tail skips excellence filter | **IDX-08b** | Shipped — extend only |
 | Duplicate connections | **IDX-09** | Five Office365 cards per Logic App |
@@ -97,6 +98,7 @@
 | **IDX-13x** Workbench excellence ratchet (Vitest) | After 13w | Shipped — extend only |
 | **IDX-13y** Fat-graph forest / DOT parity ratchet | After 13x | Shipped — extend only |
 | **IDX-13z** Cross-mode UI wave manifest (Vitest) | After 13y | Shipped — extend only |
+| **IDX-14a** Cross-mode excellence wave closeout | After 13z | Shipped — extend only |
 | **IDX-08** Singleton-RG collapse | After 06 | |
 | **IDX-08b** Singleton-RG tail excellence ratchet | After 08 | Shipped — extend only |
 | **IDX-09** Duplicate connection collapse | After 03 | |
