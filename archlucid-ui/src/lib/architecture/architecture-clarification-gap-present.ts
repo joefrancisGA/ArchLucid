@@ -17,14 +17,18 @@ export function formatClarificationGapSourceLabel(
 }
 
 export function formatGapCapturedAtLabel(utc: string | null): string | null {
-  if (utc === null || utc.trim().length === 0) {
-    return null;
+  if (utc === null) {
+    return "Captured time was not stored.";
+  }
+
+  if (utc.length === 0 || utc.trim().length === 0) {
+    return "Captured time was stored empty.";
   }
 
   const parsed = new Date(utc);
 
   if (Number.isNaN(parsed.getTime())) {
-    return null;
+    return "Captured time could not be read.";
   }
 
   // Clock-only label has no shared formatter; pinned to UTC with the zone shown so the
@@ -68,6 +72,6 @@ export function clarificationGapImpactCopy(item: ArchitectureMissingItem): strin
       return "Findings and readiness signals are still being generated.";
 
     default:
-      return "Resolving this gap improves assessment confidence.";
+      return "Gap impact was not stored.";
   }
 }

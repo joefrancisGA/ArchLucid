@@ -116,11 +116,15 @@ public sealed partial class DocxExportService
         WordDocumentBuilder.AddHeading(body, "Major Changes (structured)", DocxStyleIds.Heading2);
         WordDocumentBuilder.AddBulletList(
             body,
-            e.MajorChanges.Count > 0 ? e.MajorChanges.Select(SanitizeArtifactText) : ["(none)"]);
+            e.MajorChanges.Count > 0
+                ? e.MajorChanges.Select(SanitizeArtifactText)
+                : ["No major changes were recorded."]);
         WordDocumentBuilder.AddHeading(body, "Key Tradeoffs (AI)", DocxStyleIds.Heading2);
         WordDocumentBuilder.AddBulletList(
             body,
-            e.KeyTradeoffs.Count > 0 ? e.KeyTradeoffs.Select(SanitizeArtifactText) : ["(none)"]);
+            e.KeyTradeoffs.Count > 0
+                ? e.KeyTradeoffs.Select(SanitizeArtifactText)
+                : ["No key tradeoffs were recorded."]);
         WordDocumentBuilder.AddHeading(body, "Detailed Explanation", DocxStyleIds.Heading2);
         WordDocumentBuilder.AddMultilineBodyText(body, SanitizeArtifactText(e.Narrative));
         WordDocumentBuilder.AddSpacer(body, 2);
@@ -128,7 +132,7 @@ public sealed partial class DocxExportService
 
     private static string FormatOptional(string? v)
     {
-        return v is null ? "Compared value was not stored" : v;
+        return DocxManifestFieldPresentation.FormatComparedOptionalValue(v);
     }
 
     private static string FormatCost(decimal? v)

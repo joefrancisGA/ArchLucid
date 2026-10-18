@@ -26,4 +26,21 @@ describe("InfraEvidenceInventoryEdgeDetailPanel (P-15)", () => {
     expect(screen.getByText(/Static Web App linked backend in configuration/)).toBeInTheDocument();
     expect(screen.queryByText("inventory-static-site-backend")).not.toBeInTheDocument();
   });
+
+  it("labels stored empty provenance and inference source", () => {
+    render(
+      <InfraEvidenceInventoryEdgeDetailPanel
+        edge={{
+          ...edge("inventory-custom-edge"),
+          provenanceKind: "",
+          inferenceSource: "",
+          confidenceBand: "observed",
+        }}
+        onClose={() => undefined}
+      />,
+    );
+
+    expect(screen.getByText("Provenance was stored empty.")).toBeInTheDocument();
+    expect(screen.getByText("Inference source was stored empty.")).toBeInTheDocument();
+  });
 });

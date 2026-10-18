@@ -50,6 +50,6 @@ describe("RunDetailSubmittedArchitectureSection narrative rendering", () => {
       />,
     );
 
-    expect(screen.getByText("Open the Evidence tab to view submitted documents and diagrams.")).toBeInTheDocument();
+    expect(screen.getByText("Submitted architecture text was stored empty.")).toBeInTheDocument();
   });
 });

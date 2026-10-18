@@ -170,7 +170,8 @@ public sealed class DiagramAstGraphvizDotEmitterTests
         string dot = emitter.Emit(ast);
 
         dot.Should().Contain("Group label was not stored");
-        dot.Should().Contain("label=\" \"");
+        dot.Should().Contain("Group label was stored empty.");
+        dot.Should().NotContain("label=\" \"");
     }
 
     [Fact]

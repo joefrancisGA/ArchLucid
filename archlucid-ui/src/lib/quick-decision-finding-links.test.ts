@@ -41,6 +41,12 @@ describe("quickDecisionRecommendationSnippet", () => {
       QUICK_DECISION_RECOMMENDATION_FALLBACK,
     );
   });
+
+  it("labels whitespace recommendations as stored empty", () => {
+    expect(quickDecisionRecommendationSnippet(finding({ recommendation: " " }))).toBe(
+      "Recommended action was stored empty.",
+    );
+  });
 });
 
 describe("quickDecisionWorkItemSeverityLabel", () => {

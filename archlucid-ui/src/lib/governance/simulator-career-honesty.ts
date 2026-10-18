@@ -1,6 +1,7 @@
 import type { EnterpriseStatusKind } from "@/lib/design-tokens";
 import {
   FINDING_SEMANTIC_SUPPORT_BAND_LABELS,
+  normalizeFindingSemanticSupportBand,
   resolveDecisionGradeSemanticSupportBand,
   semanticSupportBandShortReason,
   semanticSupportBandStatusTagKind,
@@ -149,14 +150,26 @@ export function presentDecisionGradeSemanticSupportBand(input: {
   if (input.wireBand === "") {
     return {
       displayBand: "NotScored",
-      label: "",
-      reason: "",
+      label: "Semantic support band was stored empty.",
+      reason: "The record stored an empty semantic support value.",
       statusTagKind: "neutral",
       isRehearsalPresentation: false,
     };
   }
 
-  const resolvedBand = resolveDecisionGradeSemanticSupportBand(input.wireBand);
+  const normalizedBand = normalizeFindingSemanticSupportBand(input.wireBand);
+
+  if (normalizedBand === null && typeof input.wireBand === "string" && input.wireBand.trim().length > 0) {
+    return {
+      displayBand: "NotScored",
+      label: "Semantic support band was not recognized.",
+      reason: "The stored semantic support value is not a known band.",
+      statusTagKind: "neutral",
+      isRehearsalPresentation: false,
+    };
+  }
+
+  const resolvedBand = normalizedBand ?? resolveDecisionGradeSemanticSupportBand(input.wireBand);
 
   if (!shouldPresentSemanticSupportBandAsRehearsal(input.structuralExecutionMode)) {
     return {

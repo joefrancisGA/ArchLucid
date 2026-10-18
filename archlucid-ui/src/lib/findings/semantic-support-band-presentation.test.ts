@@ -37,7 +37,8 @@ describe("semantic support band presentation (AS-061)", () => {
   it("does not explain a missing wire band using the NotScored reason", () => {
     expect(semanticSupportBandInspectDetailFromWireBand(null)).toBe("Semantic support band was not stored.");
     expect(semanticSupportBandInspectDetailFromWireBand("NotScored")).toMatch(/not scored|exempt/i);
-    expect(semanticSupportBandInspectDetailFromWireBand("")).toBe("");
+    expect(semanticSupportBandInspectDetailFromWireBand("")).toBe("Semantic support band was stored empty.");
+    expect(semanticSupportBandInspectDetailFromWireBand("Foo")).toBe("Semantic support band was not recognized.");
   });
 
   it("maps typed payload bands without importing a client module", () => {

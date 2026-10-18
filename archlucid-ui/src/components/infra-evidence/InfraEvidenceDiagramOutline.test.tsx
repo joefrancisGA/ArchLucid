@@ -245,6 +245,47 @@ describe("InfraEvidenceDiagramOutline", () => {
     ]);
   });
 
+  it("does not label unknown provenance tokens as Observed (P-01)", () => {
+    const unknownProvenanceOutline: InfraEvidenceMermaidOutline = {
+      nodes: [
+        {
+          id: "n_a",
+          label: "app",
+          resourceType: "Microsoft.Web/sites",
+          resourceGroup: "rg-app",
+        },
+        {
+          id: "n_b",
+          label: "sql",
+          resourceType: "Microsoft.Sql/servers",
+          resourceGroup: "rg-data",
+        },
+      ],
+      edges: [
+        {
+          from: "n_a",
+          to: "n_b",
+          label: "connects",
+          source: "observed",
+          confidenceBand: "observed",
+          provenanceKind: "NotAFact",
+          inferenceSource: null,
+          declaredConnectionId: null,
+        },
+      ],
+    };
+
+    render(
+      <InfraEvidenceDiagramOutline
+        outline={unknownProvenanceOutline}
+        defaultNodesOpen={true}
+        defaultEdgesOpen={true}
+      />,
+    );
+
+    expect(screen.getByText('Provenance "NotAFact" has no reviewer band.')).toBeInTheDocument();
+  });
+
   it("shows peering for unlabeled VNet-to-VNet edges", () => {
     const peeringOutline: InfraEvidenceMermaidOutline = {
       nodes: [

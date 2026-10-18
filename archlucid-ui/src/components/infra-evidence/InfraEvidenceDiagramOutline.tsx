@@ -212,8 +212,16 @@ function formatOutlineEdgeSource(
   source: InfraEvidenceDiagramOutlineEdgeSource,
   provenanceKind: string | null = null,
 ): string {
-  if (source === "missing" && provenanceKind !== null && provenanceKind.trim().length > 0) {
-    return formatInfraEvidenceOutlineProvenanceReviewerBand(provenanceKind);
+  if (provenanceKind !== null && provenanceKind.trim().length > 0) {
+    const normalized = provenanceKind.trim().toLowerCase();
+
+    if (normalized !== "observedfact" && source === "observed") {
+      return formatInfraEvidenceOutlineProvenanceReviewerBand(provenanceKind);
+    }
+
+    if (source === "missing") {
+      return formatInfraEvidenceOutlineProvenanceReviewerBand(provenanceKind);
+    }
   }
 
   switch (source) {
