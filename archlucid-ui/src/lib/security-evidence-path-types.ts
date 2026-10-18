@@ -35,6 +35,9 @@ export type SecurityEvidencePathCutPoint = {
   explanationSummary: string;
   suggestedPatternKey: string | null;
   operationalCostClass: string;
+  pathsCollapsedCount: number;
+  leverageScore: number | null;
+  collapsedPathIds: ReadonlyArray<string>;
 };
 
 export type SecurityEvidencePathRoutingRow = {

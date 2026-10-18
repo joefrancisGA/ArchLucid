@@ -80,6 +80,9 @@ function mapExplanationTemplate(raw: Record<string, unknown> | null | undefined)
 }
 
 function mapCutPoint(raw: Record<string, unknown>): SecurityEvidencePathCutPoint {
+  const collapsedPathIdsRaw = Array.isArray(raw.collapsedPathIds) ? raw.collapsedPathIds : [];
+  const leverageRaw = raw.leverageScore;
+
   return {
     cutPointId: String(raw.cutPointId ?? ""),
     cutKind: String(raw.cutKind ?? ""),
@@ -90,6 +93,9 @@ function mapCutPoint(raw: Record<string, unknown>): SecurityEvidencePathCutPoint
     explanationSummary: String(raw.explanationSummary ?? ""),
     suggestedPatternKey: raw.suggestedPatternKey != null ? String(raw.suggestedPatternKey) : null,
     operationalCostClass: String(raw.operationalCostClass ?? ""),
+    pathsCollapsedCount: finiteNumberOrDefault(raw.pathsCollapsedCount, 0),
+    leverageScore: finiteNumberOrNull(leverageRaw),
+    collapsedPathIds: collapsedPathIdsRaw.map((id) => String(id)),
   };
 }
 

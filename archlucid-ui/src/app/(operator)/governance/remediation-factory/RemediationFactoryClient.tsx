@@ -75,6 +75,7 @@ import { formatIsoUtcForDisplay } from "@/lib/format-iso-utc";
 import { cn } from "@/lib/utils";
 
 import { RemediationFactoryAttackPathReportSection } from "./RemediationFactoryAttackPathReportSection";
+import { RemediationFactoryTopCutPointsSection } from "./RemediationFactoryTopCutPointsSection";
 import { RemediationFactoryContextStrip } from "./RemediationFactoryContextStrip";
 import {
   resolveAttackPathReportSnapshotId,
@@ -99,7 +100,6 @@ import {
   buildRemediationFactoryExecutiveMetricPresentations,
   REMEDIATION_FACTORY_EXECUTIVE_METRICS_SCOPE,
   REMEDIATION_FACTORY_EXECUTIVE_METRICS_TITLE,
-  type RemediationFactoryMetricPresentation,
 } from "./remediation-factory-metric-presentation";
 import {
   remediationFactoryDataStaleCue,
@@ -113,46 +113,11 @@ import {
   REMEDIATION_FACTORY_SKIP_LINK_LABEL,
 } from "./remediation-factory-page-copy";
 import { RemediationFactoryMetricsMeasurementDisclosure } from "./RemediationFactoryMetricsMeasurementDisclosure";
+import { RemediationFactoryPatternKeyCell } from "./RemediationFactoryPatternKeyCell";
 import { RemediationPriorityReasonCell } from "./RemediationPriorityReasonCell";
 import { RemediationPriorityResourceCell } from "./RemediationPriorityResourceCell";
 import { RemediationPrioritySortKeyDisclosure } from "./RemediationPrioritySortKeyDisclosure";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
-
-function ExecutiveMetricTile(props: {
-  readonly label: string;
-  readonly presentation: RemediationFactoryMetricPresentation;
-  readonly hint?: string;
-}) {
-  const content = (
-    <>
-      <p className={OPERATOR_TYPOGRAPHY.helper}>{props.label}</p>
-      <p className={OPERATOR_TYPOGRAPHY.dataValue}>{props.presentation.displayValue}</p>
-      <p className={OPERATOR_TYPOGRAPHY.helper}>{props.presentation.scopeNote}</p>
-      {props.hint ? <p className={OPERATOR_TYPOGRAPHY.helper}>{props.hint}</p> : null}
-      {props.presentation.state === "notMeasured" ? (
-        <StatusTag kind="draft" label="Not measured" />
-      ) : null}
-    </>
-  );
-
-  if (props.presentation.href !== undefined && props.presentation.href.length > 0) {
-    return (
-      <Link
-        href={props.presentation.href}
-        className="block rounded border border-border bg-card p-4 no-underline transition hover:border-neutral-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--al-accent-interactive)] focus-visible:ring-offset-2"
-        data-testid={`remediation-metric-${props.label}`}
-      >
-        {content}
-      </Link>
-    );
-  }
-
-  return (
-    <div className="rounded border border-border bg-card p-4" data-testid={`remediation-metric-${props.label}`}>
-      {content}
-    </div>
-  );
-}
 
 function ExecutiveMetricsGrid(props: { readonly metrics: RemediationFactoryMetrics; readonly openFindingsHref: string }) {
   const tiles = buildRemediationFactoryExecutiveMetricPresentations({
@@ -168,11 +133,44 @@ function ExecutiveMetricsGrid(props: { readonly metrics: RemediationFactoryMetri
         </h2>
         <p className={OPERATOR_TYPOGRAPHY.helper}>{REMEDIATION_FACTORY_EXECUTIVE_METRICS_SCOPE}</p>
       </header>
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        {tiles.map((tile) => (
-          <ExecutiveMetricTile key={tile.key} label={tile.label} presentation={tile.presentation} hint={tile.hint} />
-        ))}
-      </div>
+      <EnterpriseTable ariaLabel="Executive remediation metrics">
+        <EnterpriseTableHead>
+          <EnterpriseTableRow>
+            <EnterpriseTableHeaderCell>Metric</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell className="text-right">Value</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>What it measures</EnterpriseTableHeaderCell>
+          </EnterpriseTableRow>
+        </EnterpriseTableHead>
+        <EnterpriseTableBody>
+          {tiles.map((tile) => {
+            const href = tile.presentation.href;
+            const metricLabel =
+              href !== undefined && href.length > 0 ? (
+                <Link href={href} className={OPERATOR_LINK.inline}>
+                  {tile.label}
+                </Link>
+              ) : (
+                tile.label
+              );
+
+            return (
+              <EnterpriseTableRow key={tile.key} data-testid={`remediation-metric-${tile.label}`}>
+                <EnterpriseTableCell>{metricLabel}</EnterpriseTableCell>
+                <EnterpriseTableCell className="text-right tabular-nums">
+                  <span className={OPERATOR_TYPOGRAPHY.dataValue}>{tile.presentation.displayValue}</span>
+                  {tile.presentation.state === "notMeasured" ? (
+                    <StatusTag kind="draft" label="Not measured" />
+                  ) : null}
+                </EnterpriseTableCell>
+                <EnterpriseTableCell>
+                  <p className={OPERATOR_TYPOGRAPHY.helper}>{tile.presentation.scopeNote}</p>
+                  {tile.hint ? <p className={OPERATOR_TYPOGRAPHY.helper}>{tile.hint}</p> : null}
+                </EnterpriseTableCell>
+              </EnterpriseTableRow>
+            );
+          })}
+        </EnterpriseTableBody>
+      </EnterpriseTable>
       <RemediationFactoryMetricsMeasurementDisclosure />
     </section>
   );
@@ -307,7 +305,10 @@ function PriorityTable(props: {
               </EnterpriseTableCell>
               <EnterpriseTableCell>{row.controlId ?? "—"}</EnterpriseTableCell>
               <EnterpriseTableCell>
-                {row.patternKey == null ? "No pattern key recorded" : "Pattern"}
+                <RemediationFactoryPatternKeyCell
+                  patternKey={row.patternKey}
+                  emptyLabel="No pattern key recorded"
+                />
               </EnterpriseTableCell>
               <RemediationPriorityReasonCell
                 findingId={row.findingId}
@@ -623,13 +624,6 @@ export function RemediationFactoryClient() {
   }, [ranked, selectedFinding, selectedPath]);
 
   useEffect(() => {
-    if (selectedFindingId != null || selectedPathId != null) {
-      pathInspectPanelRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-      pathInspectPanelRef.current?.focus();
-    }
-  }, [selectedFindingId, selectedPathId]);
-
-  useEffect(() => {
     if (!rankedQuery.isSuccess || selectedFindingId === null) {
       return;
     }
@@ -767,7 +761,7 @@ export function RemediationFactoryClient() {
         }
       />
 
-      <main
+      <div
         id={REMEDIATION_FACTORY_PRIMARY_CONTENT_ID}
         className="scroll-mt-24 space-y-4"
         data-testid="remediation-factory-primary-content"
@@ -807,6 +801,17 @@ export function RemediationFactoryClient() {
           && rankedPathsQuery.isLoading
         }
         showRankedSnapshotHint={showAttackPathReportRankedSnapshotHint}
+      />
+
+      <RemediationFactoryTopCutPointsSection
+        cutPoints={rankedPathsQuery.data?.topCutPoints ?? []}
+        isLoading={rankedPathsQuery.isLoading}
+        isError={rankedPathsQuery.isError}
+        isFetching={rankedPathsQuery.isFetching}
+        isSuccess={rankedPathsQuery.isSuccess}
+        refetch={() => rankedPathsQuery.refetch()}
+        selectedPathId={selectedPathId}
+        onSelectPath={selectPath}
       />
 
       <section className="space-y-3" aria-label="Operator priority table">
@@ -962,7 +967,7 @@ export function RemediationFactoryClient() {
           <RemediationSimulatorOutput explanation={simulatorExplanation} generatedAt={simulatorGeneratedAt} />
         ) : null}
       </section>
-      </main>
+      </div>
     </div>
   );
 }

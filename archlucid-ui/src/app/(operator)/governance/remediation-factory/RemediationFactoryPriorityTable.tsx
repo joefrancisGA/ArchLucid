@@ -15,6 +15,7 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens-shell-typography";
 import { formatRemediationPriorityWhenBand, REMEDIATION_PRIORITY_WHEN_HEADER_HELPER } from "@/lib/remediation-priority-when-band";
 import { cn } from "@/lib/utils";
 
+import { RemediationFactoryPatternKeyCell } from "./RemediationFactoryPatternKeyCell";
 import { RemediationPriorityReasonCell } from "./RemediationPriorityReasonCell";
 import { RemediationPriorityResourceCell } from "./RemediationPriorityResourceCell";
 import { RemediationPrioritySortKeyDisclosure } from "./RemediationPrioritySortKeyDisclosure";
@@ -90,7 +91,9 @@ export function RemediationFactoryPriorityTable(props: {
                   <RemediationPrioritySortKeyDisclosure findingId={row.findingId} totalScore={row.totalScore} />
                 </EnterpriseTableCell>
                 <EnterpriseTableCell>{row.controlId ?? "—"}</EnterpriseTableCell>
-                <EnterpriseTableCell>{row.patternKey == null ? "—" : "Pattern"}</EnterpriseTableCell>
+                <EnterpriseTableCell>
+                  <RemediationFactoryPatternKeyCell patternKey={row.patternKey} />
+                </EnterpriseTableCell>
                 <RemediationPriorityReasonCell
                   findingId={row.findingId}
                   breakdownJson={row.breakdownJson}

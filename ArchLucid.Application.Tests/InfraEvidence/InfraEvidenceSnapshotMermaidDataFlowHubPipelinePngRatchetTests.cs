@@ -9,12 +9,15 @@ using ArchLucid.ArtifactSynthesis.Mermaid;
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.ArtifactSynthesis.Renderers;
 using ArchLucid.ArtifactSynthesis.Testing;
+using ArchLucid.Contracts.InfraEvidence;
 using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.Core.Diagrams;
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Architecture;
+
+using System.Xml.Linq;
 
 using FluentAssertions;
 
@@ -58,6 +61,22 @@ public sealed class InfraEvidenceSnapshotMermaidDataFlowHubPipelinePngRatchetTes
 
         capturingRenderer.LastDot.Should().NotBeNullOrWhiteSpace("inventory-forest PNG must emit Graphviz DOT from RepairedAst");
         InventoryDiagramExcellenceDataFlowHubPipelineCompiledDotAssertions.AssertHubPipelineDot(capturingRenderer.LastDot!);
+
+        InfraEvidenceMermaidServiceResult<InfraEvidenceMermaidRenderResponse> layoutResult =
+            await service.TryGetMermaidAsync(
+                scope,
+                SnapshotId,
+                "dataFlow",
+                null,
+                null,
+                includePrivateEndpointNodes: false,
+                cancellationToken: CancellationToken.None);
+
+        layoutResult.Succeeded.Should().BeTrue(layoutResult.ErrorMessage);
+        layoutResult.Value!.LayoutSvg.Should().NotBeNullOrWhiteSpace();
+
+        InventoryDiagramExcellenceDataFlowHubPipelineForestStageLabelAssertions.AssertStageLabels(
+            XDocument.Parse(layoutResult.Value.LayoutSvg!));
     }
 
     private static InfraEvidenceSnapshotMermaidService CreateServiceWithGraph(
