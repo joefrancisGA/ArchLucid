@@ -136,6 +136,7 @@ Do **not** draw a complete graph to “maximize edges.” Do **not** show NIC or
 | **IDX-14a** Cross-mode excellence wave closeout | **Shipped** on trunk — extend only | Index lacks cross-mode (08b–13z) complete subsection + Vitest guard |
 | **IDX-14b** Subnet nested-frame deepening closeout | **Shipped** on trunk — extend only | Index lacks IDX-05b complete subsection + Vitest guard |
 | **IDX-14c** Singleton-RG tail deepening closeout | **Shipped** on trunk — extend only | Index lacks IDX-08b–08c complete subsection + Vitest guard |
+| **IDX-14f** Completeness summary deepening closeout | **Shipped** on trunk — extend only | Index lacks IDX-11b complete subsection + Vitest guard |
 | **IDX-HOLD** | Not implementation | — |
 
 ### Data Flow hub pipeline wave (IDX-07f–13u) — complete
@@ -171,6 +172,16 @@ Forest tail collapse, hop-focus skip rules, cited cross-RG singleton visibility,
 `cd archlucid-ui && npm test -- inventory-diagram-excellence-singleton-tail-wave-closeout`
 
 Next **IDX-08** work is **extend-only** (regression fixes on subscription-scoped tail rollup).
+
+### Completeness summary deepening (IDX-11b) — complete
+
+Mode-aware completeness summaries (network vs identity missing classes, hidden hops, Data Flow logicAppConnections) are excellence-ratcheted in Application tests. Run the completeness slice:
+
+`dotnet test ArchLucid.Application.Tests --filter FullyQualifiedName~InventoryDiagramExcellenceCompleteness`
+
+`cd archlucid-ui && npm test -- inventory-diagram-excellence-completeness-wave-closeout`
+
+Next **IDX-11** work is **extend-only** (regression fixes on walkthrough counts and banner copy).
 
 ### Cross-mode excellence wave (IDX-08b–13z) — complete
 
@@ -257,6 +268,7 @@ Suggested Cloud Agent branch per prompt: `cursor/inventory-diagram-excellence-<s
 | 14a | `inventory-diagram-excellence-14a-cross-mode-wave-closeout.md` | Cross-mode slice not documented complete in index |
 | 14b | `inventory-diagram-excellence-14b-subnet-wave-closeout.md` | IDX-05b subnet slice not documented complete in index |
 | 14c | `inventory-diagram-excellence-14c-singleton-tail-wave-closeout.md` | IDX-08b–08c singleton tail slice not documented complete in index |
+| 14f | `inventory-diagram-excellence-14f-completeness-wave-closeout.md` | IDX-11b completeness slice not documented complete in index |
 | HOLD | `inventory-diagram-excellence-14-hold.md` | Complete-graph / default PE / icons / RBAC dump |
 
 ## Prerequisites (do not re-implement)
