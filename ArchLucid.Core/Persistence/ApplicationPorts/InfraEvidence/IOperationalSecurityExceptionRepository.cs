@@ -115,6 +115,31 @@ public interface IOperationalSecurityExceptionRepository
 
         await RevokeAsync(scope.TenantId, mutation.ExceptionId, mutation.RevokedByActorKey, mutation.RevokedUtc, cancellationToken);
     }
+
+    async Task<RemediationFactoryExceptionMetricsAggregate> GetFactoryExceptionMetricsAggregateInScopeAsync(
+        ProjectScopeKey scope,
+        DateTime utcNow,
+        TimeSpan expiringSoonWindow,
+        CancellationToken cancellationToken = default)
+    {
+        IReadOnlyList<OperationalSecurityExceptionRecord> exceptions =
+            await ListByScopeAsync(scope, cancellationToken);
+
+        int exceptionsActive = exceptions.Count(item => item.Status == OperationalSecurityExceptionStatus.Active);
+        int exceptionsExpired = exceptions.Count(item => item.Status == OperationalSecurityExceptionStatus.Expired);
+
+        int exceptionsExpiringSoon = exceptions.Count(item =>
+            item.Status == OperationalSecurityExceptionStatus.Active
+            && item.ExpirationUtc <= utcNow.Add(expiringSoonWindow)
+            && item.ExpirationUtc > utcNow);
+
+        return new RemediationFactoryExceptionMetricsAggregate
+        {
+            ExceptionsActive = exceptionsActive,
+            ExceptionsExpired = exceptionsExpired,
+            ExceptionsExpiringSoon = exceptionsExpiringSoon,
+        };
+    }
 }
 
 public sealed record OperationalSecurityExceptionRevokeMutation

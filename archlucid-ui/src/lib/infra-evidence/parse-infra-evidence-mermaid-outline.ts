@@ -430,6 +430,19 @@ export function hasInfraEvidenceProbableDiagramEdges(
   return /al-provenance=DerivedFact/iu.test(source);
 }
 
+export function hasInfraEvidenceUnclassifiedDiagramEdges(
+  outline: InfraEvidenceMermaidOutline | null,
+  layoutSvg?: string | null,
+): boolean {
+  if (outline != null && outline.edges.some((edge) => edge.source === "missing")) {
+    return true;
+  }
+
+  const svg = layoutSvg?.trim() ?? "";
+
+  return svg.length > 0 && /stroke-dasharray\s*=\s*["']2\s+2["']/iu.test(svg);
+}
+
 export function hasInfraEvidenceInferredDiagramEdges(
   outline: InfraEvidenceMermaidOutline | null,
   mermaidSource?: string | null,
@@ -643,7 +656,9 @@ export function resolveInfraEvidenceOutlineNodeLabel(
     return "Endpoint was not in this diagram outline";
   }
 
-  if (match.label.trim().length === 0) {
+  const trimmedLabel = match.label.trim();
+
+  if (trimmedLabel.length === 0 || trimmedLabel === "—" || trimmedLabel === "-") {
     return "Node name was not stored";
   }
 

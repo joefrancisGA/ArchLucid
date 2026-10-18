@@ -29,7 +29,7 @@ import {
   SECURENOW_ARCHITECT_METRICS_LOADING,
   SECURENOW_ARCHITECT_METRICS_PRIVILEGED_NODES_REDUCED,
   SECURENOW_ARCHITECT_METRICS_REMEDIATION_RECURRENCE,
-  SECURENOW_ARCHITECT_METRICS_RULE_VERSION_PREFIX,
+  formatSecureNowArchitectMetricsRuleVersionExplanation,
   SECURENOW_ARCHITECT_METRICS_SUPPORTING_OPEN_FINDINGS,
   SECURENOW_ARCHITECT_METRICS_TITLE,
   SECURENOW_ARCHITECT_METRICS_TO_LABEL,
@@ -563,7 +563,7 @@ export function SecureNowArchitectOutcomeMetricsPanel(props: SecureNowArchitectO
           ) : (
             <>
               <p className={OPERATOR_TYPOGRAPHY.helper}>
-                {SECURENOW_ARCHITECT_METRICS_RULE_VERSION_PREFIX}: {metricsQuery.data.ruleVersion}
+                {formatSecureNowArchitectMetricsRuleVersionExplanation(metricsQuery.data.ruleVersion)}
               </p>
               <OutcomeMetricsGrid metrics={metricsQuery.data} comparisonDenominator={comparisonDenominator} />
             </>

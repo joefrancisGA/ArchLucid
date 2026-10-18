@@ -52,6 +52,15 @@ describe("parseInfraEvidenceMermaidOutline", () => {
     );
   });
 
+  it("treats an em dash node label as a missing name (P-05)", () => {
+    expect(
+      resolveInfraEvidenceOutlineNodeLabel(
+        [{ id: "n1", label: "—", resourceType: null, resourceGroup: null, seedNodeId: null }],
+        "n1",
+      ),
+    ).toBe("Node name was not stored");
+  });
+
   it("prefers metadata seed ids over mermaid node hashes", () => {
     expect(
       resolveInfraEvidenceOutlineSeedNodeId({

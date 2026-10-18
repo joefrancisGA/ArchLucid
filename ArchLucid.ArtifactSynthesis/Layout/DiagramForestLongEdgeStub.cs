@@ -113,10 +113,11 @@ internal static class DiagramForestLongEdgeStub
             return [];
         }
 
-        string relationship = edge.Label?.Trim().ToLowerInvariant() ?? string.Empty;
+        string relationship = edge.Label?.Trim() ?? string.Empty;
+
         if (relationship.Length == 0)
         {
-            relationship = "connector";
+            relationship = "Relationship was not stored";
         }
 
         string sourceChip = ChipText(sourceEnd: true, FormatPartnerLabel(targetLabel));

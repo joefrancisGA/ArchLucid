@@ -554,7 +554,7 @@ function resolvePathInspectSubjectLabel(input: {
   if (input.selectedFinding != null) {
     const rankHint = input.selectedFinding.controlId ?? input.selectedFinding.patternKey ?? input.selectedFinding.findingId;
 
-    return `Finding ${rankHint} · rank ${input.selectedFinding.rankOrder ?? "Rank was not stored"} · control ${input.selectedFinding.controlId ?? "Control was not stored"} · pattern ${input.selectedFinding.patternKey ?? "Pattern was not stored"}`;
+    return `Finding ${rankHint} · rank ${input.selectedFinding.rankOrder ?? "Rank was not stored"} · control ${input.selectedFinding.controlId ?? "Control id was not stored"} · pattern ${input.selectedFinding.patternKey ?? "Pattern was not stored"}`;
   }
 
   if (input.selectedPath != null) {

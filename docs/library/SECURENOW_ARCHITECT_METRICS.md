@@ -40,7 +40,7 @@ Requires ReadAuthority. Both snapshots must belong to the current tenant workspa
 - Auto-selects the two newest snapshots as **from** / **to** when at least two exist.
 - Calls `GET /v1/operational-security/architect-metrics?fromSnapshotId=&toSnapshotId=` on **Compare**.
 - Renders headline fields as ordinal cards (no `%` confidence).
-- Shows `SA11-metrics-v1` rule version for audit parity.
+- Shows a plain-language SA-11 metrics specification provenance line (mapped from API `ruleVersion`, e.g. `SA11-metrics-v1`).
 
 Copy: `securenow-architect-metrics-copy.ts` · API client: `securenow-architect-metrics-api.ts`.
 

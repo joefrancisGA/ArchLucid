@@ -1,11 +1,12 @@
 import {
   INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED_AI,
+  INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED_AI_FOOTNOTE,
   INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED_HOSTNAME,
   INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED_HOSTNAME_AND_AI,
-  INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED_HOSTNAME_FOOTNOTE,
-  INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED_AI_FOOTNOTE,
   INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED_HOSTNAME_AND_AI_FOOTNOTE,
+  INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED_HOSTNAME_FOOTNOTE,
   INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED_SOURCE_UNKNOWN,
+  INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED_SOURCE_UNKNOWN_FOOTNOTE,
 } from "@/lib/infra-evidence/infra-evidence-diagram-copy";
 import type {
   InfraEvidenceMermaidOutline,
@@ -20,13 +21,7 @@ export type InfraEvidenceDiagramLegendInferredCopy = {
 function isHostnameInferredEdge(edge: InfraEvidenceMermaidOutlineEdge): boolean {
   const inference = edge.inferenceSource?.trim().toLowerCase() ?? "";
 
-  if (inference.includes("hostname")) {
-    return true;
-  }
-
-  const provenance = edge.provenanceKind?.trim().toLowerCase() ?? "";
-
-  return edge.source === "inferred" && provenance === "deterministicinference";
+  return inference.includes("hostname");
 }
 
 function isAiInferredEdge(edge: InfraEvidenceMermaidOutlineEdge): boolean {
@@ -89,8 +84,15 @@ export function resolveInfraEvidenceDiagramLegendInferredCopy(
     };
   }
 
+  if (hasHostname) {
+    return {
+      legendLine: INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED_HOSTNAME,
+      footnote: INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED_HOSTNAME_FOOTNOTE,
+    };
+  }
+
   return {
     legendLine: INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED_SOURCE_UNKNOWN,
-    footnote: INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED_HOSTNAME_FOOTNOTE,
+    footnote: INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED_SOURCE_UNKNOWN_FOOTNOTE,
   };
 }
