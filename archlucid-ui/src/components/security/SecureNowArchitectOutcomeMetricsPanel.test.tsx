@@ -151,14 +151,20 @@ describe("SecureNowArchitectOutcomeMetricsPanel", () => {
       hasUrlSnapshotPair: true,
     });
 
-    expect(screen.getByTestId("securenow-architect-metrics-snapshot-baseline")).toHaveTextContent(
-      "From is the baseline. To is the snapshot you compare against.",
-    );
+    expect(screen.queryByTestId("securenow-architect-metrics-snapshot-identity")).not.toBeInTheDocument();
     expect(screen.getByTestId("securenow-architect-outcome-metrics-grid")).toBeInTheDocument();
     expect(screen.getByText(SECURENOW_ARCHITECT_METRICS_CRITICAL_PATHS_REMOVED)).toBeInTheDocument();
     expect(screen.getByTestId("securenow-architect-metric-Critical/high paths removed")).toHaveTextContent("+3");
     expect(screen.getByTestId("securenow-architect-metrics-provenance")).toBeInTheDocument();
-    expect(screen.getByText(/SA11-metrics-v1/)).toBeInTheDocument();
+    expect(screen.getByTestId("securenow-architect-metrics-provenance")).toHaveTextContent("Contoso");
+    expect(screen.getByTestId("securenow-architect-metrics-provenance")).not.toHaveTextContent(
+      "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+    );
+    expect(
+      screen.getByText(
+        /These snapshot-comparison headline numbers were calculated with the SA-11 architect metrics specification, version 1\./,
+      ),
+    ).toBeInTheDocument();
   });
 
   it("auto-requests compare when a complete snapshot pair is restored from URL state", () => {

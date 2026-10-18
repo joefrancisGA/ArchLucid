@@ -1,7 +1,5 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
@@ -13,9 +11,9 @@ import { OperatorErrorRecoveryContract } from "@/components/usability/OperatorEr
 import { useInfraEvidenceSnapshotsQuery } from "@/hooks/use-infra-evidence-snapshots-query";
 import { useSecureNowArchitectOutcomeMetricsQuery } from "@/hooks/use-securenow-architect-metrics-query";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens-shell-typography";
-import { formatIsoUtcForDisplay, parseIsoUtcMs } from "@/lib/format-iso-utc";
+import { parseIsoUtcMs } from "@/lib/format-iso-utc";
 import type { InfraEvidenceSnapshotSummary } from "@/lib/infra-evidence/infra-evidence-drift-types";
-import { operatorLastRefreshedClockLabel } from "@/lib/operator/operator-last-refreshed-label";
+import { formatInfraEvidenceSnapshotLabel } from "@/lib/infra-evidence/format-infra-evidence-snapshot-label";
 import {
   SECURENOW_ARCHITECT_METRICS_BLAST_RADIUS_PATHS_REMOVED,
   SECURENOW_ARCHITECT_METRICS_COMPARE_BUTTON,
@@ -29,16 +27,12 @@ import {
   SECURENOW_ARCHITECT_METRICS_LOADING,
   SECURENOW_ARCHITECT_METRICS_PRIVILEGED_NODES_REDUCED,
   SECURENOW_ARCHITECT_METRICS_REMEDIATION_RECURRENCE,
-  SECURENOW_ARCHITECT_METRICS_RULE_VERSION_PREFIX,
+  formatSecureNowArchitectMetricsRuleVersionExplanation,
   SECURENOW_ARCHITECT_METRICS_SUPPORTING_OPEN_FINDINGS,
   SECURENOW_ARCHITECT_METRICS_TITLE,
   SECURENOW_ARCHITECT_METRICS_TO_LABEL,
 } from "@/lib/product-line/securenow-architect-metrics-copy";
 import { remediationFactoryArchitectMetricsErrorRecovery } from "@/lib/remediation-factory/remediation-factory-error-recovery";
-import {
-  parseRemediationFactorySnapshotIdentityDisclosureOpenFromSearch,
-  remediationFactorySnapshotIdentityDisclosureHrefFromSearch,
-} from "@/lib/remediation-factory/remediation-factory-snapshot-identity-disclosure-url";
 import type { SecureNowArchitectOutcomeMetrics } from "@/lib/securenow-architect-metrics-types";
 import { cn } from "@/lib/utils";
 
@@ -54,16 +48,6 @@ export type SecureNowArchitectOutcomeQueryState = {
   readonly outcomeFetching: boolean;
   readonly refetchAll: () => void;
 };
-
-function formatSnapshotOptionLabel(snapshot: InfraEvidenceSnapshotSummary): string {
-  const shortId = snapshot.snapshotId.slice(0, 8);
-  const captured =
-    snapshot.capturedUtc != null && snapshot.capturedUtc.trim().length > 0
-      ? operatorLastRefreshedClockLabel(new Date(snapshot.capturedUtc))
-      : "unknown time";
-
-  return `${shortId}… · ${captured} UTC · ${snapshot.resourceCount} resources`;
-}
 
 function sortSnapshotsNewestFirst(
   snapshots: ReadonlyArray<InfraEvidenceSnapshotSummary>,
@@ -218,68 +202,6 @@ function OutcomeMetricsGrid(props: {
         <OutcomeMetricTile key={tile.label} label={tile.label} presentation={tile.presentation} />
       ))}
     </section>
-  );
-}
-
-function SnapshotIdentityDisclosure(props: {
-  readonly fromSnapshot: InfraEvidenceSnapshotSummary | undefined;
-  readonly toSnapshot: InfraEvidenceSnapshotSummary | undefined;
-}) {
-  const pathname = usePathname() ?? "/governance/remediation-factory";
-  const searchParams = useSearchParams();
-  const search = searchParams.toString();
-  const open = parseRemediationFactorySnapshotIdentityDisclosureOpenFromSearch(
-    searchParams.get("remediationFactorySnapshotIdentityOpen"),
-  );
-
-  return (
-    <div className="space-y-2" data-testid="securenow-architect-metrics-snapshot-identity">
-      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="securenow-architect-metrics-snapshot-baseline">
-        From is the baseline. To is the snapshot you compare against.
-      </p>
-      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="securenow-architect-metrics-scope-line">
-        {props.fromSnapshot != null ? `From: ${formatSnapshotOptionLabel(props.fromSnapshot)}` : "From: not selected"}
-        {" · "}
-        {props.toSnapshot != null ? `To: ${formatSnapshotOptionLabel(props.toSnapshot)}` : "To: not selected"}
-      </p>
-      <Link
-        href={remediationFactorySnapshotIdentityDisclosureHrefFromSearch(search, !open, pathname)}
-        className="text-al-link text-sm underline-offset-2 hover:underline"
-        scroll={false}
-      >
-        {open ? "Hide snapshot identifiers" : "Show snapshot identifiers"}
-      </Link>
-      {open ? (
-        <dl className={cn("m-0 space-y-2 rounded border border-border p-3", OPERATOR_TYPOGRAPHY.helper)}>
-          {props.fromSnapshot != null ? (
-            <div>
-              <dt className="font-medium text-foreground">From snapshot</dt>
-              <dd className="m-0 font-mono text-xs">{props.fromSnapshot.snapshotId}</dd>
-              <dd className="m-0">
-                Captured {operatorLastRefreshedClockLabel(new Date(props.fromSnapshot.capturedUtc ?? ""))} ·{" "}
-                {props.fromSnapshot.resourceCount} resources
-              </dd>
-              <div className="mt-1">
-                <CopyIdButton value={props.fromSnapshot.snapshotId} aria-label="Copy from snapshot ID" />
-              </div>
-            </div>
-          ) : null}
-          {props.toSnapshot != null ? (
-            <div>
-              <dt className="font-medium text-foreground">To snapshot</dt>
-              <dd className="m-0 font-mono text-xs">{props.toSnapshot.snapshotId}</dd>
-              <dd className="m-0">
-                Captured {operatorLastRefreshedClockLabel(new Date(props.toSnapshot.capturedUtc ?? ""))} ·{" "}
-                {props.toSnapshot.resourceCount} resources
-              </dd>
-              <div className="mt-1">
-                <CopyIdButton value={props.toSnapshot.snapshotId} aria-label="Copy to snapshot ID" />
-              </div>
-            </div>
-          ) : null}
-        </dl>
-      ) : null}
-    </div>
   );
 }
 
@@ -474,7 +396,7 @@ export function SecureNowArchitectOutcomeMetricsPanel(props: SecureNowArchitectO
               >
                 {sortedSnapshots.map((snapshot) => (
                   <option key={`from-${snapshot.snapshotId}`} value={snapshot.snapshotId}>
-                    {formatSnapshotOptionLabel(snapshot)}
+                    {formatInfraEvidenceSnapshotLabel(snapshot)}
                   </option>
                 ))}
               </select>
@@ -489,7 +411,7 @@ export function SecureNowArchitectOutcomeMetricsPanel(props: SecureNowArchitectO
               >
                 {sortedSnapshots.map((snapshot) => (
                   <option key={`to-${snapshot.snapshotId}`} value={snapshot.snapshotId}>
-                    {formatSnapshotOptionLabel(snapshot)}
+                    {formatInfraEvidenceSnapshotLabel(snapshot)}
                   </option>
                 ))}
               </select>
@@ -511,30 +433,18 @@ export function SecureNowArchitectOutcomeMetricsPanel(props: SecureNowArchitectO
             </Button>
           </div>
 
-          <SnapshotIdentityDisclosure fromSnapshot={fromSnapshot} toSnapshot={toSnapshot} />
-
           {fromSnapshot != null && toSnapshot != null ? (
             <div
               className="space-y-1 rounded border border-border bg-muted/20 p-3"
               data-testid="securenow-architect-metrics-provenance"
             >
               <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
-                From snapshot{" "}
-                <span className="font-mono">{fromSnapshot.snapshotId}</span>
+                From snapshot: {formatInfraEvidenceSnapshotLabel(fromSnapshot)}
                 <CopyIdButton value={fromSnapshot.snapshotId} aria-label="Copy from snapshot ID" />
-                {" · "}
-                {fromSnapshot.capturedUtc != null
-                  ? formatIsoUtcForDisplay(fromSnapshot.capturedUtc)
-                  : "Capture time unknown"}
               </p>
               <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
-                To snapshot{" "}
-                <span className="font-mono">{toSnapshot.snapshotId}</span>
+                To snapshot: {formatInfraEvidenceSnapshotLabel(toSnapshot)}
                 <CopyIdButton value={toSnapshot.snapshotId} aria-label="Copy to snapshot ID" />
-                {" · "}
-                {toSnapshot.capturedUtc != null
-                  ? formatIsoUtcForDisplay(toSnapshot.capturedUtc)
-                  : "Capture time unknown"}
               </p>
             </div>
           ) : null}
@@ -563,7 +473,7 @@ export function SecureNowArchitectOutcomeMetricsPanel(props: SecureNowArchitectO
           ) : (
             <>
               <p className={OPERATOR_TYPOGRAPHY.helper}>
-                {SECURENOW_ARCHITECT_METRICS_RULE_VERSION_PREFIX}: {metricsQuery.data.ruleVersion}
+                {formatSecureNowArchitectMetricsRuleVersionExplanation(metricsQuery.data.ruleVersion)}
               </p>
               <OutcomeMetricsGrid metrics={metricsQuery.data} comparisonDenominator={comparisonDenominator} />
             </>
