@@ -62,6 +62,19 @@ public sealed class InventoryDiagramExcellenceDataFlowHubPipelineCompileRatchetT
 
         InventoryDiagramExcellenceRatchetAssertions.AssertRoleColumnMarkersAbsent(forest.Svg!, DiagramMode.DataFlow);
 
+        string landingNodeId = MermaidIdSanitizer.Sanitize(InventoryDiagramExcellenceDataFlowHubPipelineGraphFixture.LandingGraphNodeId);
+        string factoryNodeId = MermaidIdSanitizer.Sanitize(InventoryDiagramExcellenceDataFlowHubPipelineGraphFixture.FactoryGraphNodeId);
+        IReadOnlyList<string> spokeNodeIds = InventoryDiagramExcellenceDataFlowHubPipelineGraphFixture.SpokeGraphNodeIds()
+            .Select(MermaidIdSanitizer.Sanitize)
+            .ToList();
+
+        InventoryDiagramExcellenceDataFlowHubRoutingAssertions.AssertCrossStageRouteAvoidsSpokeCards(
+            ast,
+            svg,
+            landingNodeId,
+            factoryNodeId,
+            spokeNodeIds);
+
         MermaidDiagramRenderResult mermaid = await mermaidPipeline.RenderAsync(new MermaidDiagramRenderRequest { Ast = ast });
         mermaid.Status.Should().Be(MermaidDiagramRenderStatus.Succeeded);
         string mermaidText = mermaid.PrimaryMermaid!;

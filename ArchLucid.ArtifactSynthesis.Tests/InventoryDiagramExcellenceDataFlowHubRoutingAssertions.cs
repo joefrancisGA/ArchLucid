@@ -1,8 +1,9 @@
 using System.Xml.Linq;
 
 using ArchLucid.ArtifactSynthesis.Layout;
+using ArchLucid.ArtifactSynthesis.Mermaid;
 using ArchLucid.ArtifactSynthesis.Models;
-
+using ArchLucid.ArtifactSynthesis.Renderers;
 using FluentAssertions;
 
 namespace ArchLucid.ArtifactSynthesis.Tests;
@@ -16,10 +17,12 @@ public static class InventoryDiagramExcellenceDataFlowHubRoutingAssertions
         string fromNodeId,
         string toNodeId,
         IReadOnlyList<string> spokeNodeIds,
-        string edgeLabel = "writes")
+        string? edgeLabel = null)
     {
         ArgumentNullException.ThrowIfNull(ast);
         ArgumentNullException.ThrowIfNull(svg);
+
+        string resolvedEdgeLabel = edgeLabel ?? ResolveForestEdgeSvgTitle(ast, fromNodeId, toNodeId);
 
         DiagramForestLayoutOptions options = new();
         DiagramForestCanvasLabelContext labelContext = DiagramForestCanvasLabelContext.Create(
@@ -62,7 +65,7 @@ public static class InventoryDiagramExcellenceDataFlowHubRoutingAssertions
             .FirstOrDefault(element =>
                 string.Equals(element.Name.LocalName, "g", StringComparison.Ordinal)
                 && string.Equals((string?)element.Attribute("class"), "edge", StringComparison.Ordinal)
-                && string.Equals(element.Element(svgNamespace + "title")?.Value, edgeLabel, StringComparison.Ordinal))
+                && string.Equals(element.Element(svgNamespace + "title")?.Value, resolvedEdgeLabel, StringComparison.Ordinal))
             ?.Elements()
             .FirstOrDefault(element =>
                 string.Equals(element.Name.LocalName, "path", StringComparison.Ordinal)
@@ -112,5 +115,21 @@ public static class InventoryDiagramExcellenceDataFlowHubRoutingAssertions
         double bottom = placement.Y + placement.Height + inflateBy;
 
         return x > left && x < right && y > top && y < bottom;
+    }
+
+    private static string ResolveForestEdgeSvgTitle(DiagramAst ast, string fromNodeId, string toNodeId)
+    {
+        DiagramEdge? edge = ast.Edges.FirstOrDefault(candidate =>
+            string.Equals(candidate.FromNodeId, fromNodeId, StringComparison.Ordinal)
+            && string.Equals(candidate.ToNodeId, toNodeId, StringComparison.Ordinal));
+
+        if (edge is null || string.IsNullOrWhiteSpace(edge.Label))
+        {
+            return "writes";
+        }
+
+        string label = MermaidDiagramRenderer.EscapeLabel(edge.Label).Trim().ToLowerInvariant();
+
+        return label.Length == 0 ? "writes" : label;
     }
 }
