@@ -108,6 +108,7 @@ Do **not** draw a complete graph to “maximize edges.” Do **not** show NIC or
 | **IDX-13f** Data Flow hub service Mermaid ratchet | **Shipped** on trunk — extend only | `TryGetMermaidAsync` dataFlow on hub graph fixture |
 | **IDX-13g** Data Flow hub compile forest routing | **Shipped** on trunk — extend only | Compile ratchet missing cross-stage route vs spoke cards |
 | **IDX-13h** Data Flow hub service forest layout | **Shipped** on trunk — extend only | Service Mermaid ratchet does not guard inventory-forest `LayoutSvg` hub marker |
+| **IDX-13i** Data Flow hub service forest routing | **Shipped** on trunk — extend only | Service `LayoutSvg` missing cross-stage route vs spoke cards |
 | **IDX-HOLD** | Not implementation | — |
 
 **Regression guard:** `dotnet test ArchLucid.ArtifactSynthesis.Tests --filter FullyQualifiedName~InventoryDiagramExcellence` plus `ArchLucid.Application.Tests --filter FullyQualifiedName~InfraEvidenceMermaidCompleteness`. **IDX-05** subnet layer can still deepen when a mode keeps subnet nodes visible.
@@ -145,6 +146,7 @@ Suggested Cloud Agent branch per prompt: `cursor/inventory-diagram-excellence-<s
 | 13f | `inventory-diagram-excellence-13f-dataflow-hub-service-mermaid.md` | Hub graph compile ratchet does not guard the snapshot Mermaid service |
 | 13g | `inventory-diagram-excellence-13g-dataflow-hub-compile-routing.md` | Graph compile hub ratchet skips cross-stage forest routing |
 | 13h | `inventory-diagram-excellence-13h-dataflow-hub-service-forest.md` | Service path does not ratchet inventory-forest hub layout |
+| 13i | `inventory-diagram-excellence-13i-dataflow-hub-service-forest-routing.md` | Service forest layout ratchet skips cross-stage routing |
 | HOLD | `inventory-diagram-excellence-14-hold.md` | Complete-graph / default PE / icons / RBAC dump |
 
 ## Prerequisites (do not re-implement)
