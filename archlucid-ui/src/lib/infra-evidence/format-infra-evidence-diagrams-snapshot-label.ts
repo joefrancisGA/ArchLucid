@@ -21,14 +21,12 @@ export function formatInfraEvidenceDiagramsSnapshotPickerLabel(
     parts.push("Subscription was not stored.");
   }
 
-  const architectureLabel = snapshot.architectureName?.trim() ?? "";
-
-  if (architectureLabel.length > 0) {
-    parts.push(architectureLabel);
-  } else if (snapshot.architectureName === null || snapshot.architectureName === undefined) {
+  if (snapshot.architectureName === null || snapshot.architectureName === undefined) {
     parts.push("Architecture name was not stored.");
-  } else {
+  } else if (snapshot.architectureName.trim().length === 0) {
     parts.push("Architecture name was stored empty.");
+  } else {
+    parts.push(snapshot.architectureName.trim());
   }
 
   parts.push(captured);

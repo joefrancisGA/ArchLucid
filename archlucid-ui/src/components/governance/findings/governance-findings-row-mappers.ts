@@ -118,7 +118,7 @@ export function decisionRegisterRows(entries: ArchitectureDecisionRegisterEntry[
     const decisionId = entry.decisionId.trim();
     const runId = (entry.runId ?? "").trim();
     const manifestId = (entry.manifestId ?? "").trim();
-    const titleRaw = (entry.title ?? entry.selectedOption ?? "").trim();
+    const titleRaw = (entry.title ?? "").trim();
     const categoryRaw = (entry.category ?? "").trim();
     const rationale = (entry.rationale ?? "").trim();
     const selectedOption = (entry.selectedOption ?? "").trim();

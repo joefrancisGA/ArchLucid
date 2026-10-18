@@ -125,7 +125,6 @@ import { resolveInfraEvidenceDiagramLegendProbableLine } from "@/lib/infra-evide
 import { formatInfraEvidenceMermaidPngExportError } from "@/lib/infra-evidence/infra-evidence-mermaid-png-export-error";
 import type { InfraEvidenceSnapshotSummary } from "@/lib/infra-evidence/infra-evidence-drift-types";
 import { formatInfraEvidenceDiagramsSnapshotPickerLabel } from "@/lib/infra-evidence/format-infra-evidence-diagrams-snapshot-label";
-import { INFRA_EVIDENCE_PNG_SNAPSHOT_LABEL_NOT_STORED } from "@/lib/infra-evidence/infra-evidence-png-reading-strip";
 import { infraEvidenceSnapshotCaptureStatusTagProps } from "@/lib/infra-evidence/infra-evidence-snapshot-capture-status";
 import {
   buildInfraDiagramsSubscriptionFilterOptions,
@@ -280,6 +279,10 @@ function resolveInfraDiagramsRenderStatusAnnouncement(status: string | null): st
     return "Render status was not stored.";
   }
 
+  if (status.trim().length === 0) {
+    return "Render status was stored empty.";
+  }
+
   const normalized = status.trim().toLowerCase();
 
   if (normalized === "loading") {
@@ -298,7 +301,7 @@ function resolveInfraDiagramsRenderStatusAnnouncement(status: string | null): st
     return "Diagram partitioned — pick a view";
   }
 
-  return status;
+  return `Render status ${status} has no reviewer label.`;
 }
 
 const cnCard =
@@ -795,7 +798,7 @@ export function DiagramsWorkbenchClient() {
     }
 
     if (selectedSnapshotId.length > 0) {
-      return INFRA_EVIDENCE_PNG_SNAPSHOT_LABEL_NOT_STORED;
+      return `Snapshot label was not stored. Selected id ${selectedSnapshotId}`;
     }
 
     return null;

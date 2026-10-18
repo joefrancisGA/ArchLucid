@@ -94,18 +94,35 @@ export function collectionRunStartedUtcDisplay(startedUtc: string | undefined): 
   return formatted;
 }
 
+function resolveCollectionRunErrorSummaryPresentation(run: CollectionRun): string | null {
+  if (run.status !== "Failed" && run.status !== "Rejected" && run.status !== "PartiallySucceeded") {
+    return null;
+  }
+
+  if (run.errorSummary === null || run.errorSummary === undefined) {
+    return "Error summary was not stored.";
+  }
+
+  if (run.errorSummary.trim().length === 0) {
+    return "Error summary was stored empty.";
+  }
+
+  return run.errorSummary;
+}
+
 function CollectionRunRow({ run }: { readonly run: CollectionRun }): React.JSX.Element {
   const [expanded, setExpanded] = useState(false);
-  const hasError = run.errorSummary !== null && run.errorSummary !== undefined && run.errorSummary.trim().length > 0;
+  const errorPresentation = resolveCollectionRunErrorSummaryPresentation(run);
+  const expandable = errorPresentation !== null;
 
   return (
     <>
       <EnterpriseTableRow
-        interactive={hasError}
-        aria-expanded={hasError ? expanded : undefined}
-        onClick={hasError ? () => setExpanded((current) => !current) : undefined}
+        interactive={expandable}
+        aria-expanded={expandable ? expanded : undefined}
+        onClick={expandable ? () => setExpanded((current) => !current) : undefined}
         onKeyDown={(event) => {
-          if (hasError && (event.key === "Enter" || event.key === " ")) {
+          if (expandable && (event.key === "Enter" || event.key === " ")) {
             event.preventDefault();
             setExpanded((current) => !current);
           }
@@ -133,10 +150,10 @@ function CollectionRunRow({ run }: { readonly run: CollectionRun }): React.JSX.E
           )}
         </EnterpriseTableCell>
       </EnterpriseTableRow>
-      {expanded ? (
+      {expanded && errorPresentation !== null ? (
         <EnterpriseTableRow>
           <EnterpriseTableCell colSpan={5}>
-            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{run.errorSummary}</p>
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{errorPresentation}</p>
           </EnterpriseTableCell>
         </EnterpriseTableRow>
       ) : null}
@@ -246,7 +263,7 @@ export function CollectionAgentPageClient(): React.JSX.Element {
             </EnterpriseTableBody>
           </EnterpriseTable>
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-            Select a failed or rejected run to see its error summary.
+            Select a failed, rejected, or partial run to expand its error summary when one was stored.
           </p>
         </section>
       )}
