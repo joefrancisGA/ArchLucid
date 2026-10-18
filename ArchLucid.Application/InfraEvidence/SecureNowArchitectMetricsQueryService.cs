@@ -47,15 +47,22 @@ public sealed class SecureNowArchitectMetricsQueryService(
             await LoadSnapshotPathsAsync(scope, toSnapshotId, cancellationToken);
 
         ProjectScopeKey projectScope = scope.ToProjectScopeKey();
+        DateTime windowStart = SecureNowArchitectOutcomeMetricsCalculator.SnapshotAnchorUtc(fromSnapshot);
+        DateTime windowEnd = SecureNowArchitectOutcomeMetricsCalculator.SnapshotAnchorUtc(toSnapshot);
 
-        IReadOnlyList<OperationalSecurityExceptionRecord> scopedExceptions =
-            await exceptionRepository.ListByScopeAsync(projectScope, cancellationToken);
+        int openFindings = await findingRepository.CountOpenOrRecurredInScopeAsync(projectScope, cancellationToken);
 
-        IReadOnlyList<OperationalSecurityFindingRecord> scopedFindings =
-            await findingRepository.ListByScopeAsync(projectScope, status: null, cancellationToken);
+        int exceptionsExpired = await exceptionRepository.CountExpiredBetweenInScopeAsync(
+            projectScope,
+            windowStart,
+            windowEnd,
+            cancellationToken);
 
-        int openFindings = scopedFindings.Count(item =>
-            item.Status is OperationalSecurityFindingStatus.Open or OperationalSecurityFindingStatus.Recurred);
+        int recurrenceCount = await findingRepository.CountOutcomeRecurrencePairsInScopeAsync(
+            projectScope,
+            windowStart,
+            windowEnd,
+            cancellationToken);
 
         SecureNowArchitectOutcomeMetricsResult metrics = SecureNowArchitectOutcomeMetricsCalculator.Calculate(
             new SecureNowArchitectOutcomeMetricsInputs
@@ -64,8 +71,6 @@ public sealed class SecureNowArchitectMetricsQueryService(
                 ToSnapshot = toSnapshot,
                 FromPaths = fromPaths,
                 ToPaths = toPaths,
-                Exceptions = scopedExceptions,
-                Findings = scopedFindings,
                 OpenFindingsCount = openFindings,
             });
 
@@ -79,8 +84,8 @@ public sealed class SecureNowArchitectMetricsQueryService(
             UnrestrictedEgressCapabilityPathsReduced = metrics.UnrestrictedEgressCapabilityPathsReduced,
             AssertedCrownJewelExposurePathsRemoved = metrics.AssertedCrownJewelExposurePathsRemoved,
             SharedControlBlastRadiusPathsRemoved = metrics.SharedControlBlastRadiusPathsRemoved,
-            ExceptionsExpired = metrics.ExceptionsExpired,
-            RemediationRecurrenceCount = metrics.RemediationRecurrenceCount,
+            ExceptionsExpired = exceptionsExpired,
+            RemediationRecurrenceCount = recurrenceCount,
             SupportingOperationalMetrics = new SecureNowArchitectSupportingOperationalMetricsResponse
             {
                 OpenFindings = openFindings,

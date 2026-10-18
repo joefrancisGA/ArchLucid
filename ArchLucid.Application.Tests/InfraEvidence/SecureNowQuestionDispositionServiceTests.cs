@@ -482,6 +482,21 @@ public async Task Foreign_snapshot_cannot_read_or_write()
     {
         Mock<IAzureInventorySnapshotRepository> snapshots = new();
         snapshots
+            .Setup(item => item.TryGetBySnapshotIdAsync(
+                Scope,
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                (ScopeContext _, Guid _, CancellationToken _) => snapshotOwned
+                    ? new AzureInventorySnapshotRecord
+                    {
+                        SubscriptionId = "sub-1",
+                        TenantId = Scope.TenantId,
+                        WorkspaceId = Scope.WorkspaceId,
+                        ProjectId = Scope.ProjectId,
+                    }
+                    : null);
+        snapshots
             .Setup(item => item.TryGetSnapshotDetailAsync(
                 Scope,
                 It.IsAny<Guid>(),

@@ -32,6 +32,30 @@ public interface ISecurityEvidencePathRepository
         Guid pathId,
         CancellationToken cancellationToken = default);
 
+    async Task<IReadOnlyList<SecurityEvidencePathRecord>> ListByIdsInScopeAsync(
+        ProjectScopeKey scope,
+        IReadOnlyCollection<Guid> pathIds,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        ArgumentNullException.ThrowIfNull(pathIds);
+
+        List<SecurityEvidencePathRecord> paths = [];
+
+        foreach (Guid pathId in pathIds.Distinct())
+        {
+            SecurityEvidencePathRecord? path =
+                await TryGetByIdInScopeAsync(scope, pathId, cancellationToken);
+
+            if (path is not null)
+            {
+                paths.Add(path);
+            }
+        }
+
+        return paths;
+    }
+
     async Task<SecurityEvidencePathRecord?> TryGetByIdInScopeAsync(
         ProjectScopeKey scope,
         Guid pathId,

@@ -20,6 +20,8 @@ public sealed class ProjectScopeSqlPushdownBoundaryTests
         yield return [typeof(IOperationalSecurityFindingRepository), typeof(SqlOperationalSecurityFindingRepository), "ListMetadataByFindingInScopeAsync"];
         yield return [typeof(IOperationalSecurityFindingRepository), typeof(SqlOperationalSecurityFindingRepository), "ListByCloudResourceIdPagedInScopeAsync"];
         yield return [typeof(IOperationalSecurityFindingRepository), typeof(SqlOperationalSecurityFindingRepository), "ListFindingIdsByPathIdInScopeAsync"];
+        yield return [typeof(IOperationalSecurityFindingRepository), typeof(SqlOperationalSecurityFindingRepository), "CountOpenOrRecurredInScopeAsync"];
+        yield return [typeof(IOperationalSecurityFindingRepository), typeof(SqlOperationalSecurityFindingRepository), "CountOutcomeRecurrencePairsInScopeAsync"];
         yield return [typeof(IOperationalSecurityFindingRepository), typeof(SqlOperationalSecurityFindingRepository), "ListObservationsByFindingInScopeAsync"];
         yield return [typeof(ISecurityDeclaredConnectionRepository), typeof(SqlSecurityDeclaredConnectionRepository), "TryGetByIdInScopeAsync"];
         yield return [typeof(ISecurityDeclaredConnectionRepository), typeof(SqlSecurityDeclaredConnectionRepository), "ListByScopeAsync"];
@@ -45,11 +47,14 @@ public sealed class ProjectScopeSqlPushdownBoundaryTests
         yield return [typeof(IOperationalSecurityExceptionRepository), typeof(SqlOperationalSecurityExceptionRepository), "MarkExpiryProcessedInScopeAsync"];
         yield return [typeof(IOperationalSecurityExceptionRepository), typeof(SqlOperationalSecurityExceptionRepository), "RevokeInScopeAsync"];
         yield return [typeof(IOperationalSecurityExceptionRepository), typeof(SqlOperationalSecurityExceptionRepository), "HasActiveExceptionForFindingInScopeAsync"];
+        yield return [typeof(IOperationalSecurityExceptionRepository), typeof(SqlOperationalSecurityExceptionRepository), "CountExpiredBetweenInScopeAsync"];
+        yield return [typeof(ISecurityEvidencePathRepository), typeof(SqlSecurityEvidencePathRepository), "ListByIdsInScopeAsync"];
         yield return [typeof(ISecurityEvidencePathRepository), typeof(SqlSecurityEvidencePathRepository), "ListHopsByPathInScopeAsync"];
         yield return [typeof(ISecurityEvidencePathRepository), typeof(SqlSecurityEvidencePathRepository), "TryGetByIdInScopeAsync"];
         yield return [typeof(ISecurityEvidencePathRankRepository), typeof(SqlSecurityEvidencePathRankRepository), "TryGetRankInScopeAsync"];
         yield return [typeof(ISecurityEvidencePathRankRepository), typeof(SqlSecurityEvidencePathRankRepository), "ReplaceRanksForSnapshotInScopeAsync"];
         yield return [typeof(ISecurityEvidenceCutPointRepository), typeof(SqlSecurityEvidenceCutPointRepository), "ListByPathIdInScopeAsync"];
+        yield return [typeof(ISecurityEvidenceCutPointRepository), typeof(SqlSecurityEvidenceCutPointRepository), "ListBySnapshotsInScopeAsync"];
         yield return [typeof(ISecurityEvidenceCutPointRepository), typeof(SqlSecurityEvidenceCutPointRepository), "ReplaceCutPointsForSnapshotInScopeAsync"];
         yield return [typeof(ISecurityEvidencePathRoutingRepository), typeof(SqlSecurityEvidencePathRoutingRepository), "ListByPathIdInScopeAsync"];
         yield return [typeof(ISecurityEvidencePathRoutingRepository), typeof(SqlSecurityEvidencePathRoutingRepository), "ReplaceRoutingForPathInScopeAsync"];
