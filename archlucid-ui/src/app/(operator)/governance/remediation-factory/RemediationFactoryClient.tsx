@@ -5,7 +5,8 @@ import { useCallback, useEffect, useMemo, useRef, useState, type KeyboardEvent }
 import { useRouter, useSearchParams } from "next/navigation";
 
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
-import { CompareDiffExpandableValueCell } from "@/components/compare/CompareDiffExpandableValueCell";
+import { SecurityEvidencePathRankReasonDisclosure } from "@/components/security/SecurityEvidencePathRankReasonDisclosure";
+import { SecurityEvidencePathRankSortKeyDisclosure } from "@/components/security/SecurityEvidencePathRankSortKeyDisclosure";
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { OperatorPageFreshnessMetadata } from "@/components/operator/OperatorPageFreshnessMetadata";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
@@ -398,8 +399,24 @@ function RankedPathsTable(props: {
                   label={formatSecurityEvidencePathConfidenceBandLabel(row.pathConfidenceBand)}
                 />
               </EnterpriseTableCell>
-              <EnterpriseTableCell>{row.compositeSortScore.toFixed(4)}</EnterpriseTableCell>
-              <CompareDiffExpandableValueCell value={row.explanationSummary} />
+              <EnterpriseTableCell>
+                <SecurityEvidencePathRankSortKeyDisclosure
+                  pathId={row.pathId}
+                  compositeSortScore={row.compositeSortScore}
+                />
+              </EnterpriseTableCell>
+              <EnterpriseTableCell>
+                <SecurityEvidencePathRankReasonDisclosure
+                  pathId={row.pathId}
+                  scores={{
+                    technicalExposureScore: row.technicalExposureScore,
+                    privilegeDepthScore: row.privilegeDepthScore,
+                    blastRadiusScore: row.blastRadiusScore,
+                    businessConsequenceScore: row.businessConsequenceScore,
+                  }}
+                  explanationSummary={row.explanationSummary}
+                />
+              </EnterpriseTableCell>
             </EnterpriseTableRow>
           ))}
         </EnterpriseTableBody>
