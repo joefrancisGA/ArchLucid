@@ -1,4 +1,4 @@
-> **Scope:** Paste-ready prompts for SecureNow read-path costs. **SN-PERF-01–05** are shipped. **SN-PERF-11** and **13–16** are the next paste set. Internal engineering only. Prompts only — do not implement from this index.
+> **Scope:** Paste-ready prompts for SecureNow read-path costs. **SN-PERF-01–05** are shipped. **SN-PERF-11**, **13–16**, and **20–24** are paste sets. Internal engineering only. Prompts only — do not implement from this index.
 > **Paste-ready files:** [`.cursor/prompts/securenow-performance-00-index.md`](../../.cursor/prompts/securenow-performance-00-index.md)
 
 # SecureNow performance — Luna prompts
@@ -19,9 +19,14 @@ Paste **one** prompt per session. Do not implement from this index.
 | **SN-PERF-14** | [securenow-performance-14-inspector-finding-ids.md](../../.cursor/prompts/securenow-performance-14-inspector-finding-ids.md) | **06** (shipped) | One finding-id read per snapshot for path detail |
 | **SN-PERF-15** | [securenow-performance-15-snapshot-inventory-rows.md](../../.cursor/prompts/securenow-performance-15-snapshot-inventory-rows.md) | **11** when both are open | Inventory rows from resources, not full snapshot detail |
 | **SN-PERF-16** | [securenow-performance-16-snapshot-header-sql.md](../../.cursor/prompts/securenow-performance-16-snapshot-header-sql.md) | **09** (shipped) | One header SQL text for lookup and `QueryMultiple` |
+| **SN-PERF-20** | [securenow-performance-20-evidence-hub-resource-slice.md](../../.cursor/prompts/securenow-performance-20-evidence-hub-resource-slice.md) | — | Hub configuration, RBAC, and relationships for one resource |
+| **SN-PERF-21** | [securenow-performance-21-evidence-hub-satellites.md](../../.cursor/prompts/securenow-performance-21-evidence-hub-satellites.md) | — | One terraform mapping and one resource’s recent changes |
+| **SN-PERF-22** | [securenow-performance-22-preflight-resource-tags.md](../../.cursor/prompts/securenow-performance-22-preflight-resource-tags.md) | — | Preflight production tag from one resource and its tags |
+| **SN-PERF-23** | [securenow-performance-23-instance-list-seal-batch.md](../../.cursor/prompts/securenow-performance-23-instance-list-seal-batch.md) | — | Instance list seal-checks distinct findings and runs |
+| **SN-PERF-24** | [securenow-performance-24-snapshot-list-seal-batch.md](../../.cursor/prompts/securenow-performance-24-snapshot-list-seal-batch.md) | — | Snapshot list seal-checks distinct cited runs |
 | **SN-PERF-HOLD** | [securenow-performance-hold.md](../../.cursor/prompts/securenow-performance-hold.md) | — | Forbidden scope |
 
-**01–05**, **06–10**, and **12** are shipped. **06–10** and **12** have no paste file. **11**, **13**, **14**, and **16** can run in parallel. Run **15** after **11** if **11** is not on `master` yet, so both call one resource-list method.
+**01–05**, **06–10**, and **12** are shipped. **06–10** and **12** have no paste file. **11**, **13**, **14**, and **16** can run in parallel. Run **15** after **11** if **11** is not on `master` yet, so both call one resource-list method. **20** and **21** can run in parallel. **22**, **23**, and **24** do not depend on **20**.
 
 ## Settled reading
 
@@ -35,6 +40,11 @@ Paste **one** prompt per session. Do not implement from this index.
 - **SN-PERF-13** does not change factory JSON. It changes how the numbers are loaded.
 - **SN-PERF-14** does not change hypothesis copy.
 - **SN-PERF-16** does not add a round trip. It removes a duplicated statement.
+- **SN-PERF-20** does not change hub JSON. It stops loading the other resources’ grids.
+- **SN-PERF-21** does not change which diff is chosen. It filters mappings and changes to one cloud resource.
+- **SN-PERF-22** does not change verification. Verification still loads two full snapshots.
+- **SN-PERF-23** and **SN-PERF-24** stay fail-closed. A sealed run still throws.
+- Question compile, analysis, and diagram reconciliation still need a full snapshot. They are not in **20–24**.
 
 ## Do not pull into these sessions
 

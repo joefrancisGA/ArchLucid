@@ -2,7 +2,7 @@
      Origin: 2026-10-18 source review of Home and the architect engines.
      Prompts only. Do not implement from this index. -->
 
-# SecureNow performance — prompt index (SN-PERF-01–05, 11, 13–16)
+# SecureNow performance — prompt index (SN-PERF-01–05, 11, 13–16, 20–24)
 
 **Do not implement from this index.** Paste **one** numbered file per session.
 
@@ -22,6 +22,11 @@ Copy-paste docs index: [`docs/architecture/SECURENOW_PERFORMANCE_LUNA_PROMPTS.md
 | 14 | **SN-PERF-14** | Path inspector loads citing finding ids once per snapshot. |
 | 15 | **SN-PERF-15** | Snapshot inventory rows use the resource list. Reuse **SN-PERF-11**’s read when it exists. |
 | 16 | **SN-PERF-16** | Snapshot header SQL is one statement shared by lookup and detail. |
+| 20 | **SN-PERF-20** | Evidence hub loads one resource’s properties, tags, relationships, and role assignments. |
+| 21 | **SN-PERF-21** | Evidence hub loads one terraform mapping and one resource’s recent changes. |
+| 22 | **SN-PERF-22** | Preflight production tag reads one resource and its tags. |
+| 23 | **SN-PERF-23** | Instance list seal-checks distinct findings, assessments, and runs. |
+| 24 | **SN-PERF-24** | Snapshot list seal-checks distinct cited runs for the page. |
 | — | **SN-PERF-HOLD** | Stop list. Paste only when a session drifts. |
 
-**01–05** are shipped. **06–10** and **12** are shipped in code and have no paste file; do not rewrite them. **11** is independent. **15** should follow **11** when both are open, so they share one resource read. **13**, **14**, and **16** are independent of **11**.
+**01–05** are shipped. **06–10** and **12** are shipped in code and have no paste file; do not rewrite them. **11** is independent. **15** should follow **11** when both are open, so they share one resource read. **13**, **14**, and **16** are independent of **11**. **20** and **21** can run in parallel. **22**, **23**, and **24** are independent of **20**.
