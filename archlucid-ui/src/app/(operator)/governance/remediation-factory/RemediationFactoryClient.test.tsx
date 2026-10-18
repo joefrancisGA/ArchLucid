@@ -258,15 +258,12 @@ describe("RemediationFactoryClient", () => {
 
     expect(screen.getByTestId("remediation-factory-page")).toBeInTheDocument();
     expect(screen.getByTestId("remediation-factory-page-title")).toHaveTextContent("Priorities & Waves");
-    expect(screen.getByTestId("remediation-factory-claim-discipline")).toHaveTextContent("sealed-record proof");
+    expect(screen.queryByTestId("remediation-factory-claim-discipline")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("remediation-factory-page-lead")).not.toBeInTheDocument();
     expect(screen.getByTestId("remediation-factory-last-refreshed")).toBeInTheDocument();
     expect(screen.getByTestId("remediation-factory-context-strip")).toBeInTheDocument();
     expect(screen.getByText(REMEDIATION_FACTORY_EXECUTIVE_METRICS_TITLE)).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toHaveTextContent(PAGE_HELP_SHORT_TRIGGER_TEXT);
-    expect(screen.getByTestId("remediation-factory-page-lead")).toHaveTextContent(
-      "Fix these findings first. Advisory only — this page does not change Azure.",
-    );
-    expect(screen.getByTestId("remediation-factory-page-lead")).not.toHaveTextContent("wave planning");
     expect(screen.getByTestId("remediation-factory-open-waves")).toHaveAttribute(
       "href",
       "/security/remediation-instances#remediation-waves",

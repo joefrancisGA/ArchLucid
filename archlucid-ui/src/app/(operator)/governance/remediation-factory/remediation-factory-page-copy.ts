@@ -2,7 +2,4 @@ export const REMEDIATION_FACTORY_PRIMARY_CONTENT_ID = "remediation-factory-prima
 
 export const REMEDIATION_FACTORY_SKIP_LINK_LABEL = "Skip to remediation factory" as const;
 
-export const REMEDIATION_FACTORY_PAGE_SUBTITLE =
-  "Fix these findings first. Advisory only — this page does not change Azure." as const;
-
 export const REMEDIATION_FACTORY_OPEN_WAVES_LABEL = "Open remediation waves" as const;
