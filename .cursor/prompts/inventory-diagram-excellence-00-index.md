@@ -116,6 +116,7 @@ Do **not** draw a complete graph to “maximize edges.” Do **not** show NIC or
 | **IDX-13n** Data Flow hub compile stage labels | **Shipped** on trunk — extend only | Graph-compile ratchet skips Mermaid/forest stage copy |
 | **IDX-13o** Data Flow hub PNG layout stage labels | **Shipped** on trunk — extend only | PNG export ratchet skips forest stage headers on `LayoutSvg` |
 | **IDX-13p** Data Flow hub PNG Mermaid stage labels | **Shipped** on trunk — extend only | PNG export ratchet skips Mermaid stage copy on paired render |
+| **IDX-13q** Data Flow hub export stage label bundle | **Shipped** on trunk — extend only | Hub ratchets call Mermaid/forest stage helpers separately |
 | **IDX-HOLD** | Not implementation | — |
 
 **Regression guard:** `dotnet test ArchLucid.ArtifactSynthesis.Tests --filter FullyQualifiedName~InventoryDiagramExcellence` plus `ArchLucid.Application.Tests --filter FullyQualifiedName~InfraEvidenceMermaidCompleteness`. **IDX-05** subnet layer can still deepen when a mode keeps subnet nodes visible.
@@ -161,6 +162,7 @@ Suggested Cloud Agent branch per prompt: `cursor/inventory-diagram-excellence-<s
 | 13n | `inventory-diagram-excellence-13n-dataflow-hub-compile-stage-labels.md` | Compile hub ratchet omits stage labels on Mermaid/forest |
 | 13o | `inventory-diagram-excellence-13o-dataflow-hub-png-layout-stage-labels.md` | PNG export ratchet omits forest stage headers |
 | 13p | `inventory-diagram-excellence-13p-dataflow-hub-png-mermaid-stage-labels.md` | PNG export ratchet omits Mermaid stage labels |
+| 13q | `inventory-diagram-excellence-13q-dataflow-hub-export-stage-label-bundle.md` | Hub ratchets do not bundle Mermaid + forest stage labels |
 | HOLD | `inventory-diagram-excellence-14-hold.md` | Complete-graph / default PE / icons / RBAC dump |
 
 ## Prerequisites (do not re-implement)
