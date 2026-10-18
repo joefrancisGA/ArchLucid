@@ -85,6 +85,9 @@ Each implementation prompt ends **before commit**. The owner looks, then says wh
 | 41 | `node-relationship-41-logic-app-connections.md` | `nr/41-logic-app-connections` |
 | 42 | `node-relationship-42-static-web-app.md` | `nr/42-static-web-app` |
 | 43 | `node-relationship-43-diagnostic-storage.md` | `nr/43-diagnostic-storage` |
+| 44 | `node-relationship-44-data-factory-stands-alone.md` | `nr/44-data-factory-stands-alone` |
+| 45 | `node-relationship-45-logic-app-connection-citation.md` | `nr/45-logic-app-connection-citation` |
+| 46 | `node-relationship-46-unmodeled-connection-posture.md` | `nr/46-unmodeled-connection-posture` |
 
 ## Stored connectivity (NR-17–NR-31)
 
@@ -111,3 +114,15 @@ Owner design, 2026-10-05. Edit a numbered file before pasting. Do not implement 
 | **Collect** | Reader collection stores linked services and single-resource role assignments. App settings are not read. | **NR-31** |
 
 Run **18**, then **19**, then **20**. **21** follows **19**. **22** follows **20**. **23** follows **20**. **24** follows **19**. **25** and **26** follow **20**. **27** follows **24**, **25**, and **26**. **28** can follow **18**. **29** follows **18**. **30** follows **20** and **29**. **31** follows **28** and **29**, after a recollection is acceptable. Do not paste two of these in one session.
+
+## Unclassified connection state (NR-44–NR-46)
+
+Owner look, 2026-10-18. The outline says `Connection state was not classified.` for Data Factory, Logic App connection, Components, and Service rows that have no cited edge. Paste one file. Do not implement from this section.
+
+| Step | What the outline does | Prompt |
+|------|----------------------|--------|
+| **Data Factory** | No stored link is **Stands alone** with `No stored Data Factory link yet.` A factory that already has an edge stays connected. | **NR-44** |
+| **Logic App connection** | A workflow citation keeps the connection connected. No citation is **Stands alone** with `No workflow in this snapshot cites this connection.` | **NR-45** |
+| **Not modeled** | Application Insights and API Management say `Connection posture is not modeled for this resource type.` They are not stands-alone. | **NR-46** |
+
+**NR-44**, **NR-45**, and **NR-46** may run in any order after NR-05 and NR-11. **NR-45** also follows NR-41. **NR-46** also follows NR-12. Do not paste two of these in one session.

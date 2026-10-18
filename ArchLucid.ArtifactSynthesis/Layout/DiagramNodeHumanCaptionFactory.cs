@@ -97,7 +97,8 @@ public static class DiagramNodeHumanCaptionFactory
         {
             combined = $"{combined} · Stands alone";
         }
-        else if (node.ConnectionState == InventoryDiagramConnectionState.Unknown)
+        else if (node.ConnectionState == InventoryDiagramConnectionState.Unknown
+            && node.UnresolvedRelationshipDetails.Count == 0)
         {
             combined = $"{combined} · Connection state was not classified.";
         }

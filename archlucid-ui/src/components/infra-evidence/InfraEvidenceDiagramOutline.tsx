@@ -106,6 +106,12 @@ function resolveNodeProblem(node: InfraEvidenceMermaidOutlineNode): string {
   }
 
   if (node.connectionState === "Unknown") {
+    const unknownDetails = node.unresolvedRelationshipDetails ?? [];
+
+    if (unknownDetails.length > 0) {
+      return unknownDetails.join(" ");
+    }
+
     return GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_SECTION;
   }
 
