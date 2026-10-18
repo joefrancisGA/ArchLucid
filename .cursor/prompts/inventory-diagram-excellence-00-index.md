@@ -100,6 +100,7 @@ Do **not** draw a complete graph to “maximize edges.” Do **not** show NIC or
 | **IDX-09** Duplicate connection collapse | **Shipped** on trunk — do not greenfield | `DiagramInventoryConnectionRollupApplier` |
 | **IDX-10** PE opt-in toggle | **Shipped** on trunk — extend only | Workbench toggle; default off all modes incl. `ResourceGroup` |
 | **IDX-11** Completeness strip | **Shipped** on trunk — extend only | Mode-aware `CompletenessSummary` + banner |
+| **IDX-11b** Completeness excellence ratchet | **Shipped** on trunk — extend only | Completeness builder not under `InventoryDiagramExcellence` filter |
 | **IDX-12** Hop-focus neighborhood / selected / RG | **Shipped** on trunk — extend only | Cited-hop BFS + hidden transit bridge |
 | **IDX-13** Cross-mode parity ratchet | **Shipped** on trunk — extend only | `FullyQualifiedName~InventoryDiagramExcellence` |
 | **IDX-13b** Fat-graph forest / DOT parity | **Shipped** on trunk — extend only | `BuildFatGraph()` + `AssertForestAndDotNestedFrameParity` |
@@ -123,7 +124,7 @@ Do **not** draw a complete graph to “maximize edges.” Do **not** show NIC or
 | **IDX-13t** Data Flow hub pipeline trait guard | **Shipped** on trunk — extend only | Hub ratchets lack unified `DataFlowHubPipeline` filter across test projects |
 | **IDX-HOLD** | Not implementation | — |
 
-**Regression guard:** `dotnet test ArchLucid.ArtifactSynthesis.Tests --filter FullyQualifiedName~InventoryDiagramExcellence` plus `ArchLucid.Application.Tests --filter FullyQualifiedName~InfraEvidenceMermaidCompleteness`. Data Flow hub pipeline slice (both projects): `dotnet test ArchLucid.ArtifactSynthesis.Tests --filter InventoryDiagramExcellence=DataFlowHubPipeline` and `dotnet test ArchLucid.Application.Tests --filter InventoryDiagramExcellence=DataFlowHubPipeline`. **IDX-05** subnet layer can still deepen when a mode keeps subnet nodes visible.
+**Regression guard:** `dotnet test ArchLucid.ArtifactSynthesis.Tests --filter FullyQualifiedName~InventoryDiagramExcellence` plus `ArchLucid.Application.Tests --filter FullyQualifiedName~InfraEvidenceMermaidCompleteness` and `FullyQualifiedName~InventoryDiagramExcellenceCompleteness`. Data Flow hub pipeline slice (both projects): `dotnet test ArchLucid.ArtifactSynthesis.Tests --filter InventoryDiagramExcellence=DataFlowHubPipeline` and `dotnet test ArchLucid.Application.Tests --filter InventoryDiagramExcellence=DataFlowHubPipeline`. **IDX-05** subnet layer can still deepen when a mode keeps subnet nodes visible.
 
 **IDX-HOLD** is not implementation. Paste `inventory-diagram-excellence-14-hold.md` only if a session starts a complete graph, default NIC/PE cards, Microsoft icons, Full-subscription RBAC, ARM `dependsOn`, a second collector, or nested frames from an **IDA / IDF** chat.
 
@@ -150,6 +151,7 @@ Suggested Cloud Agent branch per prompt: `cursor/inventory-diagram-excellence-<s
 | 09 | `inventory-diagram-excellence-09-duplicate-connection-collapse.md` | Duplicate Logic App connector cards |
 | 10 | `inventory-diagram-excellence-10-pe-opt-in-toggle.md` | PE cards have no workbench opt-in; hops already used |
 | 11 | `inventory-diagram-excellence-11-completeness-strip.md` | Generic banner; walkthrough counts unexplained |
+| 11b | `inventory-diagram-excellence-11b-completeness-excellence-ratchet.md` | Completeness summary not in excellence filter |
 | 12 | `inventory-diagram-excellence-12-hop-focus-modes.md` | Neighborhood / selected / RG still feel like a crop of Full |
 | 13 | `inventory-diagram-excellence-13-cross-mode-ratchet.md` | Next agent Full-sub-only tests the rest of the enum |
 | 13b | `inventory-diagram-excellence-13b-fat-graph-dot-parity.md` | Fat graph forest frames and DOT clusters can diverge |

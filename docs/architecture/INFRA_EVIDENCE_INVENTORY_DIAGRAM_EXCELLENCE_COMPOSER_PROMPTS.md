@@ -46,6 +46,7 @@
 | Duplicate connections | **IDX-09** | Five Office365 cards per Logic App |
 | PE flag with no UI | **IDX-10** | Operators cannot opt in; or PEs sneak on |
 | Generic completeness banner | **IDX-11** | Walkthrough 247 / 232 / 15 unexplained |
+| Completeness skips excellence filter | **IDX-11b** | Shipped — extend only |
 | Neighborhood is a crop | **IDX-12** | Selected / RG / neighborhood ignore hops |
 | Full-sub-only tests | **IDX-13** | Other eleven modes regress |
 | Complete-graph / icons / RBAC dump | **IDX-HOLD** | Honesty + license |
@@ -86,6 +87,7 @@
 | **IDX-09** Duplicate connection collapse | After 03 | |
 | **IDX-10** PE opt-in toggle | After 02 | |
 | **IDX-11** Completeness strip | After 01 | |
+| **IDX-11b** Completeness excellence ratchet | After 11 | Shipped — extend only |
 | **IDX-12** Hop-focus modes | After 02+03 | |
 | **IDX-13** Cross-mode ratchet | Last | 01–12 |
 | **IDX-HOLD** | Not implementation | — |
