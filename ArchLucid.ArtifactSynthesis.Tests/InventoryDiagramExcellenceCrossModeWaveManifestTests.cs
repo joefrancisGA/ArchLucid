@@ -19,6 +19,7 @@ public sealed class InventoryDiagramExcellenceCrossModeWaveManifestTests
         nameof(InventoryDiagramExcellencePeeledSubnetVnetFrameRatchetTests),
         nameof(InventoryDiagramExcellenceFatGraphForestDotParityRatchetTests),
         nameof(InventoryDiagramExcellenceSingletonTailRatchetTests),
+        nameof(InventoryDiagramExcellenceCollapsedSingletonTailLabelsRatchetTests),
         nameof(InventoryDiagramExcellenceDuplicateConnectionRatchetTests),
         nameof(InventoryDiagramExcellencePrivateEndpointOptInRatchetTests),
         nameof(InventoryDiagramExcellenceHopFocusRatchetTests),

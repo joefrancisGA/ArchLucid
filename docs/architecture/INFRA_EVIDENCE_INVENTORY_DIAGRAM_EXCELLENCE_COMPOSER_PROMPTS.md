@@ -52,6 +52,7 @@
 | Subnet 05b slice not index-closeout | **IDX-14b** | Shipped — extend only |
 | Singleton-RG tail | **IDX-08** | Full subscription is a postage sheet |
 | Singleton tail skips excellence filter | **IDX-08b** | Shipped — extend only |
+| Collapsed tail label helpers skip excellence filter | **IDX-08c** | Shipped — extend only |
 | Duplicate connections | **IDX-09** | Five Office365 cards per Logic App |
 | Connection rollup skips excellence filter | **IDX-09b** | Shipped — extend only |
 | PE flag with no UI | **IDX-10** | Operators cannot opt in; or PEs sneak on |
@@ -105,6 +106,7 @@
 | **IDX-14b** Subnet nested-frame deepening closeout | After 05b | Shipped — extend only |
 | **IDX-08** Singleton-RG collapse | After 06 | |
 | **IDX-08b** Singleton-RG tail excellence ratchet | After 08 | Shipped — extend only |
+| **IDX-08c** Collapsed singleton tail label excellence ratchet | After 08b | Shipped — extend only |
 | **IDX-09** Duplicate connection collapse | After 03 | |
 | **IDX-09b** Duplicate connection excellence ratchet | After 09 | Shipped — extend only |
 | **IDX-10** PE opt-in toggle | After 02 | |
