@@ -9,6 +9,7 @@ using FluentAssertions;
 namespace ArchLucid.ArtifactSynthesis.Tests;
 
 [Trait("Category", "Unit")]
+[Trait("InventoryDiagramExcellence", "DataFlowHubPipeline")]
 public sealed class InventoryDiagramExcellenceDataFlowHubPipelineRatchetTests
 {
     private readonly DiagramForestLayoutSvgRenderer renderer = new();
