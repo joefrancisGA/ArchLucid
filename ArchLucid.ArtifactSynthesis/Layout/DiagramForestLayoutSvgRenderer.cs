@@ -1891,12 +1891,16 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
                     StringComparison.Ordinal);
             string kind = isRollup ? "other" : targetVnets.Count > 1 ? "shared" : "remainder";
             string id = isRollup ? "other-resource-groups" : $"{kind}:{frameId}";
+            DiagramNode? neighborhoodAnchor = members.FirstOrDefault()?.Node;
+            string neighborhoodTitle = isRollup
+                ? members[0].Node.Label
+                : neighborhoodAnchor is null
+                    ? frameId
+                    : DiagramForestCollapsedSingletonTailLabels.ResolveResourceGroupCaption(neighborhoodAnchor, frameId);
             NeighborhoodMetadata cell = CreateNeighborhood(
                 id,
                 kind,
-                isRollup
-                    ? members[0].Node.Label
-                    : members.FirstOrDefault()?.Node.ArmResourceGroup ?? frameId,
+                neighborhoodTitle,
                 members,
                 [frameId]);
             neighborhoods.Add(cell);
@@ -2058,7 +2062,10 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
                 new XAttribute("id", neighborhood.Id),
                 new XAttribute("kind", neighborhood.Kind),
                 new XAttribute("title", neighborhood.Title),
-                new XAttribute("resource-count", neighborhood.Members.Count));
+                new XAttribute(
+                    "resource-count",
+                    DiagramForestCollapsedSingletonTailLabels.ResolveNeighborhoodResourceCount(
+                        neighborhood.Members.Select(member => member.Node).ToList())));
             foreach (NodePlacement member in neighborhood.Members)
             {
                 element.Add(new XElement(
