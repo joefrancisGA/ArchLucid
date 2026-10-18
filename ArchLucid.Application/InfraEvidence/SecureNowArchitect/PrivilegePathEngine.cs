@@ -12,14 +12,16 @@ public sealed class PrivilegePathEngine(
     IAzureInventorySnapshotRepository snapshotRepository,
     ISecurityEvidencePathRepository pathRepository,
     IOperationalSecurityFindingIngestService findingIngestService,
-    ILogger<PrivilegePathEngine> logger) : IPrivilegePathEngine
+    ILogger<PrivilegePathEngine> logger,
+    ISecurityEvidencePathSearchCoverageRepository searchCoverageRepository) : IPrivilegePathEngine
 {
     public async Task<PrivilegePathEngineResult> RunAsync(
         ScopeContext scope,
         Guid snapshotId,
         string actorId,
         CancellationToken cancellationToken = default,
-        SecureNowArchitectEngineRunScope? runScope = null)
+        SecureNowArchitectEngineRunScope? runScope = null,
+        PrivilegePathEngineOptions? options = null)
     {
         ArgumentNullException.ThrowIfNull(scope);
 
@@ -43,8 +45,19 @@ public sealed class PrivilegePathEngine(
         }
 
         InventoryPrivilegePathGraphSnapshot graph = InventoryPrivilegePathGraph.Build(snapshot, analysisSnapshot);
-        IReadOnlyList<PrivilegePathCandidate> candidates =
-            PrivilegePathEnumerator.Enumerate(graph, new PrivilegePathEngineOptions(), runScope);
+        PrivilegePathEngineOptions resolvedOptions = options ?? new PrivilegePathEngineOptions();
+        PrivilegePathEnumerationResult enumeration = PrivilegePathEnumerator.EnumerateWithLimits(
+            graph,
+            resolvedOptions,
+            runScope);
+        await SecurityEvidencePathSearchCoverageRecorder.ReplaceAsync(
+            searchCoverageRepository,
+            scope,
+            snapshotId,
+            SecurityEvidencePathSearchEngineNames.Privilege,
+            enumeration.LimitHits,
+            cancellationToken);
+        IReadOnlyList<PrivilegePathCandidate> candidates = enumeration.Candidates;
 
         if (candidates.Count == 0)
         {

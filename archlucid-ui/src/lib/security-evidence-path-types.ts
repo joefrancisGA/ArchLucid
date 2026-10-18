@@ -102,6 +102,22 @@ export type SecurityEvidencePathRankedPage = {
   topCutPoints: ReadonlyArray<SecurityEvidencePathCutPoint>;
 };
 
+export type SecurityEvidencePathReportUnevaluatedGroup = {
+  reasonCode: string;
+  whyText: string;
+  pathCount: number | null;
+  pathIds: ReadonlyArray<string>;
+  engineName: string | null;
+  limitValue: number | null;
+  pathsEmitted: number | null;
+};
+
+export type SecurityEvidencePathAttackPathReport = {
+  snapshotId: string;
+  vulnerableAttackPaths: ReadonlyArray<SecurityEvidencePathRankSummary>;
+  unevaluatedGroups: ReadonlyArray<SecurityEvidencePathReportUnevaluatedGroup>;
+};
+
 export type SecurityEvidencePathRankDetail = {
   pathId: string;
   snapshotId: string;

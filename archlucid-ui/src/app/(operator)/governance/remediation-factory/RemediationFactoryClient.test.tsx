@@ -49,6 +49,7 @@ vi.mock("@/app/(operator)/governance/remediation-factory/use-remediation-factory
 const useRemediationRankedFindingsQueryMock = vi.hoisted(() => vi.fn());
 const useRemediationFactoryMetricsQueryMock = vi.hoisted(() => vi.fn());
 const useSecurityEvidenceRankedPathsQueryMock = vi.hoisted(() => vi.fn());
+const useSecurityEvidencePathReportQueryMock = vi.hoisted(() => vi.fn());
 
 vi.mock("@/hooks/use-remediation-factory-query", () => ({
   useRemediationRankedFindingsQuery: () => useRemediationRankedFindingsQueryMock(),
@@ -57,6 +58,10 @@ vi.mock("@/hooks/use-remediation-factory-query", () => ({
 
 vi.mock("@/hooks/use-security-evidence-ranked-paths-query", () => ({
   useSecurityEvidenceRankedPathsQuery: () => useSecurityEvidenceRankedPathsQueryMock(),
+}));
+
+vi.mock("@/hooks/use-security-evidence-path-report-query", () => ({
+  useSecurityEvidencePathReportQuery: () => useSecurityEvidencePathReportQueryMock(),
 }));
 
 function mockRankedFindingsQuery(overrides: Record<string, unknown> = {}) {
@@ -106,6 +111,22 @@ function mockMetricsQuery() {
       topPatternKeys: [],
     },
     isError: false,
+  });
+}
+
+function mockPathReportQuery(overrides: Record<string, unknown> = {}) {
+  useSecurityEvidencePathReportQueryMock.mockReturnValue({
+    isLoading: false,
+    isFetching: false,
+    isSuccess: true,
+    isError: false,
+    refetch: vi.fn(),
+    data: {
+      snapshotId: "cccccccc-cccc-cccc-cccc-cccccccccccc",
+      vulnerableAttackPaths: [],
+      unevaluatedGroups: [],
+    },
+    ...overrides,
   });
 }
 
@@ -193,6 +214,7 @@ describe("RemediationFactoryClient", () => {
     mockRankedFindingsQuery();
     mockMetricsQuery();
     mockRankedPathsQuery();
+    mockPathReportQuery();
   });
 
   it("names SecureNow findings on the priority queue without calling them architecture findings", () => {

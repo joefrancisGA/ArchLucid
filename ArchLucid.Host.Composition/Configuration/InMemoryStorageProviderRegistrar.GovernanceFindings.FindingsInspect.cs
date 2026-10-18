@@ -98,6 +98,7 @@ internal sealed partial class InMemoryStorageProviderRegistrar
         services.AddSingleton<IProjectScopedOperationalSecurityFindingRepository>(static sp =>
             new ProjectScopedOperationalSecurityFindingRepositoryAdapter(sp.GetRequiredService<IOperationalSecurityFindingRepository>()));
         services.AddSingleton<ISecurityEvidencePathRepository, NoOpSecurityEvidencePathRepository>();
+        services.AddSingleton<ISecurityEvidencePathSearchCoverageRepository, NoOpSecurityEvidencePathSearchCoverageRepository>();
         services.AddSingleton<ISecurityEvidencePathExplanationRepository, NoOpSecurityEvidencePathExplanationRepository>();
         services.AddSingleton<ISecurityEvidencePathRankRepository, NoOpSecurityEvidencePathRankRepository>();
         services.AddSingleton<ISecurityEvidenceCutPointRepository, NoOpSecurityEvidenceCutPointRepository>();

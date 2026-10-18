@@ -496,7 +496,8 @@ public sealed class PrivilegePathEngineTests
             snapshotRepository.Object,
             pathRepository,
             ingestService,
-            NullLogger<PrivilegePathEngine>.Instance);
+            NullLogger<PrivilegePathEngine>.Instance,
+            new NoOpSecurityEvidencePathSearchCoverageRepository());
     }
 
     private static OperationalSecurityFindingIngestService CreateIngestService(

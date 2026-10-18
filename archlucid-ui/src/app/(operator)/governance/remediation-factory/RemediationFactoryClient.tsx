@@ -52,6 +52,7 @@ import {
   useRemediationRankedFindingsQuery,
 } from "@/hooks/use-remediation-factory-query";
 import { useSecurityEvidenceRankedPathsQuery } from "@/hooks/use-security-evidence-ranked-paths-query";
+import { useSecurityEvidencePathReportQuery } from "@/hooks/use-security-evidence-path-report-query";
 import { useOperatorRelativeFreshnessNowMs } from "@/hooks/use-operator-relative-freshness-now-ms";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens-shell-typography";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
@@ -73,6 +74,7 @@ import {
 import { formatIsoUtcForDisplay } from "@/lib/format-iso-utc";
 import { cn } from "@/lib/utils";
 
+import { RemediationFactoryAttackPathReportSection } from "./RemediationFactoryAttackPathReportSection";
 import { RemediationFactoryContextStrip } from "./RemediationFactoryContextStrip";
 
 const PATH_VIEWS = [
@@ -482,6 +484,8 @@ export function RemediationFactoryClient() {
   const nowMs = useOperatorRelativeFreshnessNowMs();
   const rankedQuery = useRemediationRankedFindingsQuery();
   const rankedPathsQuery = useSecurityEvidenceRankedPathsQuery();
+  const reportSnapshotId = urlState.toSnapshotId ?? urlState.fromSnapshotId;
+  const attackPathReportQuery = useSecurityEvidencePathReportQuery(reportSnapshotId);
   const metricsQuery = useRemediationFactoryMetricsQuery();
   const [outcomeQueryState, setOutcomeQueryState] = useState<SecureNowArchitectOutcomeQueryState | null>(null);
   const [simulatorExplanation, setSimulatorExplanation] = useState<RemediationPrioritizationExplanation | null>(null);
@@ -768,6 +772,13 @@ export function RemediationFactoryClient() {
         onSnapshotPairChange={urlState.setSnapshotPair}
         onQueryStateChange={setOutcomeQueryState}
         snapshotsEmptyPreset={REMEDIATION_FACTORY_ARCHITECT_SNAPSHOTS_EMPTY}
+      />
+
+      <RemediationFactoryAttackPathReportSection
+        snapshotId={reportSnapshotId}
+        reportQuery={attackPathReportQuery}
+        selectedPathId={selectedPathId}
+        onSelectPath={selectPath}
       />
 
       <section className="space-y-3" aria-label="Operator priority table">

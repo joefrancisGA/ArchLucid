@@ -83,6 +83,7 @@ internal sealed partial class SqlStorageProviderRegistrar
         services.AddScoped<IProjectScopedOperationalSecurityFindingRepository>(static sp =>
             new ProjectScopedOperationalSecurityFindingRepositoryAdapter(sp.GetRequiredService<IOperationalSecurityFindingRepository>()));
         services.AddScoped<ISecurityEvidencePathRepository, SqlSecurityEvidencePathRepository>();
+        services.AddScoped<ISecurityEvidencePathSearchCoverageRepository, SqlSecurityEvidencePathSearchCoverageRepository>();
         services.AddScoped<ISecurityEvidencePathRankRepository, SqlSecurityEvidencePathRankRepository>();
         services.AddScoped<ISecurityEvidenceCutPointRepository, SqlSecurityEvidenceCutPointRepository>();
         services.AddScoped<ISecurityEvidencePathRoutingRepository, SqlSecurityEvidencePathRoutingRepository>();

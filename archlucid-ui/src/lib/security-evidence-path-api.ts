@@ -1,6 +1,7 @@
 import { proxyJsonGet, proxyJsonPost } from "@/lib/proxy-json-client";
 import type {
   OperationalSecurityFindingDetail,
+  SecurityEvidencePathAttackPathReport,
   SecurityEvidencePathCutPoint,
   SecurityEvidencePathDetail,
   SecurityEvidencePathExplanation,
@@ -10,6 +11,7 @@ import type {
   SecurityEvidencePathRankDetail,
   SecurityEvidencePathRankedPage,
   SecurityEvidencePathRankSummary,
+  SecurityEvidencePathReportUnevaluatedGroup,
   SecurityEvidencePathRoutingRow,
   SecurityEvidencePathWeakestHop,
 } from "@/lib/security-evidence-path-types";
@@ -207,6 +209,51 @@ export async function fetchOperationalSecurityFindingDetail(
     findingId: String(findingRaw.findingId ?? findingId),
     pathId: findingRaw.pathId != null ? String(findingRaw.pathId) : null,
     title: findingRaw.title != null ? String(findingRaw.title) : null,
+  };
+}
+
+function mapUnevaluatedGroup(raw: Record<string, unknown>): SecurityEvidencePathReportUnevaluatedGroup {
+  const pathIdsRaw = Array.isArray(raw.pathIds) ? raw.pathIds : [];
+
+  return {
+    reasonCode: String(raw.reasonCode ?? ""),
+    whyText: String(raw.whyText ?? ""),
+    pathCount: raw.pathCount == null ? null : finiteNumberOrNull(raw.pathCount),
+    pathIds: pathIdsRaw.map((item) => String(item)),
+    engineName: raw.engineName != null ? String(raw.engineName) : null,
+    limitValue: raw.limitValue == null ? null : finiteNumberOrNull(raw.limitValue),
+    pathsEmitted: raw.pathsEmitted == null ? null : finiteNumberOrNull(raw.pathsEmitted),
+  };
+}
+
+export async function fetchSecurityEvidencePathAttackPathReport(
+  snapshotId: string,
+): Promise<SecurityEvidencePathAttackPathReport | null> {
+  const trimmed = snapshotId.trim();
+
+  if (trimmed.length === 0) {
+    return null;
+  }
+
+  const query = new URLSearchParams({ snapshotId: trimmed });
+  const raw = await proxyJsonGet<Record<string, unknown>>(`${PATHS_PATH}/report?${query.toString()}`);
+  const mappedSnapshotId = String(raw.snapshotId ?? trimmed).trim();
+
+  if (mappedSnapshotId.length === 0) {
+    return null;
+  }
+
+  const vulnerableRaw = Array.isArray(raw.vulnerableAttackPaths) ? raw.vulnerableAttackPaths : [];
+  const unevaluatedRaw = Array.isArray(raw.unevaluatedGroups) ? raw.unevaluatedGroups : [];
+
+  return {
+    snapshotId: mappedSnapshotId,
+    vulnerableAttackPaths: vulnerableRaw
+      .filter((item): item is Record<string, unknown> => typeof item === "object" && item !== null)
+      .map(mapRankSummary),
+    unevaluatedGroups: unevaluatedRaw
+      .filter((item): item is Record<string, unknown> => typeof item === "object" && item !== null)
+      .map(mapUnevaluatedGroup),
   };
 }
 

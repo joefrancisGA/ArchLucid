@@ -43,6 +43,7 @@ public sealed class OperationalSecurityPathsControllerTests
         OperationalSecurityPathsController controller = new(
             queryService.Object,
             rankQueryService.Object,
+            Mock.Of<ISecurityEvidencePathReportQueryService>(),
             Mock.Of<ISecurityEvidencePathExplanationService>(),
             scopeProvider.Object)
         {
@@ -88,6 +89,7 @@ public sealed class OperationalSecurityPathsControllerTests
         OperationalSecurityPathsController controller = new(
             queryService.Object,
             rankQueryService.Object,
+            Mock.Of<ISecurityEvidencePathReportQueryService>(),
             Mock.Of<ISecurityEvidencePathExplanationService>(),
             scopeProvider.Object)
         {
@@ -115,5 +117,34 @@ public sealed class OperationalSecurityPathsControllerTests
                 50,
                 It.IsAny<CancellationToken>()),
             Times.Once);
+    }
+
+    [Fact]
+    public async Task GetAttackPathReport_returns_not_found_when_snapshot_missing()
+    {
+        Guid snapshotId = Guid.Parse("22222222-2222-2222-2222-222222222222");
+
+        Mock<ISecurityEvidencePathReportQueryService> reportQueryService = new();
+        reportQueryService
+            .Setup(service => service.TryGetReportAsync(Scope, snapshotId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((SecurityEvidencePathReportResponse?)null);
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(Scope);
+
+        OperationalSecurityPathsController controller = new(
+            Mock.Of<ISecurityEvidencePathInspectorQueryService>(),
+            Mock.Of<ISecurityEvidencePathRankQueryService>(),
+            reportQueryService.Object,
+            Mock.Of<ISecurityEvidencePathExplanationService>(),
+            scopeProvider.Object)
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
+        };
+
+        IActionResult result = await controller.GetAttackPathReport(snapshotId, CancellationToken.None);
+
+        result.Should().BeOfType<ObjectResult>()
+            .Which.StatusCode.Should().Be(StatusCodes.Status404NotFound);
     }
 }
