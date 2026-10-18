@@ -115,8 +115,12 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
             includedEdges = DiagramRecoveryServicesIncluder.IncludeEdges(graph, includedEdges, includedNodeIds);
         }
 
+        IReadOnlyDictionary<string, string> dataFlowStageOverrides = isDataFlowMode
+            ? DiagramDataFlowEffectiveStageResolver.BuildStageOverrides(topologyNodes, includedEdges)
+            : new Dictionary<string, string>(StringComparer.Ordinal);
+
         IReadOnlyList<DiagramSubgraph> subgraphs = isDataFlowMode
-            ? DiagramDataFlowStageSubgraphPlanner.PlanSubgraphs(topologyNodes)
+            ? DiagramDataFlowStageSubgraphPlanner.PlanSubgraphs(topologyNodes, dataFlowStageOverrides)
             : isDataArchitectureMode
                 ? DiagramDataArchitectureTypeGroupPlanner.PlanSubgraphs(topologyNodes)
                 : subgraphPlanner.PlanSubgraphs(topologyNodes);
@@ -141,7 +145,13 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
             string mermaidNodeId = MermaidIdSanitizer.Sanitize(node.NodeId);
             nodeIdMap[node.NodeId] = mermaidNodeId;
 
-            DiagramNode diagramNode = BuildDiagramNode(node, mermaidNodeId, subgraphs, mode, order++);
+            DiagramNode diagramNode = BuildDiagramNode(
+                node,
+                mermaidNodeId,
+                subgraphs,
+                mode,
+                order++,
+                dataFlowStageOverrides);
 
             if (policyQuestionableNodes.TryGetValue(node.NodeId, out DiagramQuestionableAttention? policyAttention))
             {
@@ -380,7 +390,8 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
         string mermaidNodeId,
         IReadOnlyList<DiagramSubgraph> subgraphs,
         DiagramMode mode,
-        int orderKey)
+        int orderKey,
+        IReadOnlyDictionary<string, string> dataFlowStageOverrides)
     {
         // Rollup nodes ("+N more databases") are not real resources: no seed, so the outline
         // does not offer Focus neighborhood on them, and no ARM metadata to humanize.
@@ -388,7 +399,10 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
 
         string? subgraphId = mode switch
         {
-            DiagramMode.DataFlow => DiagramDataFlowStageSubgraphPlanner.ResolveSubgraphId(node, subgraphs),
+            DiagramMode.DataFlow => DiagramDataFlowStageSubgraphPlanner.ResolveSubgraphId(
+                node,
+                subgraphs,
+                dataFlowStageOverrides),
             DiagramMode.DataArchitecture => DiagramDataArchitectureTypeGroupPlanner.ResolveSubgraphId(node, subgraphs),
             _ => subgraphPlanner.ResolveSubgraphId(node, subgraphs),
         };
