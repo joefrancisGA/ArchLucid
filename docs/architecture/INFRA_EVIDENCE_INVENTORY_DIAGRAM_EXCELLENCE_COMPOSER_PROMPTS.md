@@ -29,6 +29,7 @@
 | Hub pipeline Mermaid export untested | **IDX-13c** | Shipped — extend only |
 | Hub pipeline Graphviz DOT untested | **IDX-13d** | Shipped — extend only |
 | Hub pipeline graph compile untested | **IDX-13e** | Shipped — extend only |
+| Hub pipeline snapshot Mermaid service untested | **IDX-13f** | Shipped — extend only |
 | Singleton-RG tail | **IDX-08** | Full subscription is a postage sheet |
 | Duplicate connections | **IDX-09** | Five Office365 cards per Logic App |
 | PE flag with no UI | **IDX-10** | Operators cannot opt in; or PEs sneak on |
@@ -56,6 +57,7 @@
 | **IDX-13c** Data Flow hub Mermaid ratchet | After 07f | Shipped — extend only |
 | **IDX-13d** Data Flow hub DOT ratchet | After 13c | Shipped — extend only |
 | **IDX-13e** Data Flow hub graph-compile ratchet | After 13d | Shipped — extend only |
+| **IDX-13f** Data Flow hub service Mermaid ratchet | After 13e | Shipped — extend only |
 | **IDX-08** Singleton-RG collapse | After 06 | |
 | **IDX-09** Duplicate connection collapse | After 03 | |
 | **IDX-10** PE opt-in toggle | After 02 | |
@@ -685,6 +687,35 @@ Work: implement only "What to build" in the paste file.
 Tests:
 dotnet test ArchLucid.ArtifactSynthesis.Tests/ArchLucid.ArtifactSynthesis.Tests.csproj --filter 'FullyQualifiedName~InventoryDiagramExcellence'
 dotnet test ArchLucid.ArtifactSynthesis.Tests/ArchLucid.ArtifactSynthesis.Tests.csproj --filter 'FullyQualifiedName~DiagramAstGraphvizDotEmitter'
+```
+
+---
+
+# IDX-13f — Data Flow hub pipeline service Mermaid ratchet
+
+**Depends on:** IDX-13e on trunk. **Branch:** a new `cursor/idx-13f-dataflow-hub-service-mermaid-*` feature branch. **Extend only.** **Shipped** — do not re-prompt unless extending.
+
+**Paste file:** [`.cursor/prompts/inventory-diagram-excellence-13f-dataflow-hub-service-mermaid.md`](../../.cursor/prompts/inventory-diagram-excellence-13f-dataflow-hub-service-mermaid.md)
+
+### Prompt (copy below)
+
+```text
+You are working in the ArchLucid repo on a FEATURE BRANCH. Goal: InfraEvidenceSnapshotMermaidService.TryGetMermaidAsync for mode dataFlow must succeed when the graph resolver returns InventoryDiagramExcellenceDataFlowHubPipelineGraphFixture.Build(), and the Mermaid must keep landing, adf, st0, and st11 plus directed edges landing to adf, adf to st0, and adf to st11. Share that fixture by moving it to internal ArtifactSynthesis with InternalsVisibleTo for Application.Tests. Do not copy the builder. Do not call Azure. Do not change forest hub layout. Do not retune Mermaid nodeSpacing. Do not greenfield IDX-01 through IDX-13e.
+
+This is NOT IDX-HOLD.
+
+Read first:
+- .cursor/prompts/inventory-diagram-excellence-00-index.md
+- .cursor/prompts/inventory-diagram-excellence-13f-dataflow-hub-service-mermaid.md
+
+Working-tree check before tracked edits.
+
+Work: implement only "What to build" in the paste file.
+
+Tests:
+dotnet test ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj --filter 'FullyQualifiedName~InfraEvidenceSnapshotMermaidDataFlowHubPipelineRatchet'
+dotnet test ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj --filter 'FullyQualifiedName~Data_flow_mode_probable_evidence_contract'
+dotnet test ArchLucid.ArtifactSynthesis.Tests/ArchLucid.ArtifactSynthesis.Tests.csproj --filter 'FullyQualifiedName~InventoryDiagramExcellence'
 ```
 
 ---
