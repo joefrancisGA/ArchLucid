@@ -49,6 +49,7 @@
 | PE flag with no UI | **IDX-10** | Operators cannot opt in; or PEs sneak on |
 | PE opt-in gaps in excellence filter | **IDX-10b** | Shipped — extend only |
 | Generic completeness banner | **IDX-11** | Walkthrough 247 / 232 / 15 unexplained |
+| Completeness skips excellence filter | **IDX-11b** | Shipped — extend only |
 | Neighborhood is a crop | **IDX-12** | Selected / RG / neighborhood ignore hops |
 | Hop-focus skips excellence filter | **IDX-12b** | Shipped — extend only |
 | Full-sub-only tests | **IDX-13** | Other eleven modes regress |
@@ -92,6 +93,7 @@
 | **IDX-09b** Duplicate connection excellence ratchet | After 09 | Shipped — extend only |
 | **IDX-10** PE opt-in toggle | After 02 | |
 | **IDX-11** Completeness strip | After 01 | |
+| **IDX-11b** Completeness excellence ratchet | After 11 | Shipped — extend only |
 | **IDX-12** Hop-focus modes | After 02+03 | |
 | **IDX-12b** Hop-focus excellence ratchet | After 12 | Shipped — extend only |
 | **IDX-13** Cross-mode ratchet | Last | 01–12 |
