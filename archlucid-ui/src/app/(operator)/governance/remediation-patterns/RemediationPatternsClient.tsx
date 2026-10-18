@@ -75,6 +75,10 @@ import {
   resolveRemediationPatternsLastRefreshedAt,
 } from "@/lib/remediation-pattern-freshness";
 import {
+  readRemediationPatternImportPanelOpenFromSession,
+  writeRemediationPatternImportPanelOpenToSession,
+} from "@/lib/remediation-pattern-import-panel-session";
+import {
   approveRemediationPatternVersion,
   importRemediationPatternYaml,
   submitRemediationPatternVersion,
@@ -419,12 +423,24 @@ export function RemediationPatternsClient() {
   );
 
   const openImportPanel = useCallback((focusTextarea = true) => {
+    writeRemediationPatternImportPanelOpenToSession(true);
     setImportPanelOpen(true);
 
     if (focusTextarea) {
       window.requestAnimationFrame(() => {
         yamlInputRef.current?.focus();
       });
+    }
+  }, []);
+
+  const closeImportPanel = useCallback(() => {
+    writeRemediationPatternImportPanelOpenToSession(false);
+    setImportPanelOpen(false);
+  }, []);
+
+  useEffect(() => {
+    if (readRemediationPatternImportPanelOpenFromSession()) {
+      setImportPanelOpen(true);
     }
   }, []);
 
@@ -1194,7 +1210,7 @@ export function RemediationPatternsClient() {
               variant="outline"
               size="sm"
               data-testid="remediation-pattern-import-panel-close"
-              onClick={() => setImportPanelOpen(false)}
+              onClick={closeImportPanel}
             >
               Close
             </Button>
