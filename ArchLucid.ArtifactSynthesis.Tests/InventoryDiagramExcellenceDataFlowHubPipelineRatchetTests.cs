@@ -44,6 +44,8 @@ public sealed class InventoryDiagramExcellenceDataFlowHubPipelineRatchetTests
             InventoryDiagramExcellenceDataFlowHubPipelineFixture.LandingNodeId,
             InventoryDiagramExcellenceDataFlowHubPipelineFixture.FactoryNodeId,
             InventoryDiagramExcellenceDataFlowHubPipelineFixture.SpokeNodeIds());
+
+        InventoryDiagramExcellenceDataFlowHubPipelineForestStageLabelAssertions.AssertStageLabels(svg);
     }
 
     private static int CountHubMarkers(XDocument svg)
