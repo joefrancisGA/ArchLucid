@@ -2,6 +2,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
+import { REMEDIATION_FACTORY_PATH_INSPECT_PANEL_ID } from "@/app/(operator)/governance/remediation-factory/remediation-factory-page-copy";
 import { SecurityEvidencePathInspectPanel } from "@/components/security/SecurityEvidencePathInspectPanel";
 import {
   SECURENOW_PATH_INSPECT_EMPTY_NO_PATH,
@@ -571,5 +572,55 @@ describe("SecurityEvidencePathInspectPanel", () => {
 
     expect(screen.getByText("Highly likely")).toBeInTheDocument();
     expect(screen.queryByTestId("security-evidence-path-inspect-empty")).not.toBeInTheDocument();
+  });
+
+  it("puts an optional id on the path inspect section", () => {
+    vi.mocked(useOperationalSecurityFindingDetailQuery).mockReturnValue({
+      data: undefined,
+      isLoading: false,
+      isError: false,
+    } as ReturnType<typeof useOperationalSecurityFindingDetailQuery>);
+    vi.mocked(useSecurityEvidencePathDetailQuery).mockReturnValue({
+      data: undefined,
+      isLoading: false,
+      isError: false,
+    } as ReturnType<typeof useSecurityEvidencePathDetailQuery>);
+    vi.mocked(useSecurityEvidencePathRankQuery).mockReturnValue({
+      data: undefined,
+      isLoading: false,
+      isError: false,
+    } as ReturnType<typeof useSecurityEvidencePathRankQuery>);
+
+    renderPanel(null, { id: REMEDIATION_FACTORY_PATH_INSPECT_PANEL_ID });
+
+    expect(screen.getByTestId("security-evidence-path-inspect-panel")).toHaveAttribute(
+      "id",
+      "remediation-factory-path-inspect",
+    );
+  });
+
+  it("omits the factory panel id when no id is passed", () => {
+    vi.mocked(useOperationalSecurityFindingDetailQuery).mockReturnValue({
+      data: undefined,
+      isLoading: false,
+      isError: false,
+    } as ReturnType<typeof useOperationalSecurityFindingDetailQuery>);
+    vi.mocked(useSecurityEvidencePathDetailQuery).mockReturnValue({
+      data: undefined,
+      isLoading: false,
+      isError: false,
+    } as ReturnType<typeof useSecurityEvidencePathDetailQuery>);
+    vi.mocked(useSecurityEvidencePathRankQuery).mockReturnValue({
+      data: undefined,
+      isLoading: false,
+      isError: false,
+    } as ReturnType<typeof useSecurityEvidencePathRankQuery>);
+
+    renderPanel(null);
+
+    expect(screen.getByTestId("security-evidence-path-inspect-panel")).not.toHaveAttribute(
+      "id",
+      REMEDIATION_FACTORY_PATH_INSPECT_PANEL_ID,
+    );
   });
 });

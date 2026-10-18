@@ -109,6 +109,7 @@ import {
 import { useRemediationFactoryUrlState } from "./use-remediation-factory-url-state";
 import {
   REMEDIATION_FACTORY_OPEN_WAVES_LABEL,
+  REMEDIATION_FACTORY_PATH_INSPECT_PANEL_ID,
   REMEDIATION_FACTORY_PRIMARY_CONTENT_ID,
   REMEDIATION_FACTORY_SKIP_LINK_LABEL,
 } from "./remediation-factory-page-copy";
@@ -925,6 +926,7 @@ export function RemediationFactoryClient() {
       </section>
 
       <SecurityEvidencePathInspectPanel
+        id={REMEDIATION_FACTORY_PATH_INSPECT_PANEL_ID}
         findingId={selectedFindingId}
         pathIdOverride={selectedPathId}
         panelRef={pathInspectPanelRef}

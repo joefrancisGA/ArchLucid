@@ -569,6 +569,7 @@ function resolvePathInspectSubjectLabel(input: {
 }
 
 export function SecurityEvidencePathInspectPanel(props: {
+  readonly id?: string;
   readonly findingId: string | null;
   readonly pathIdOverride?: string | null;
   readonly panelRef?: Ref<HTMLElement | null>;
@@ -657,6 +658,7 @@ export function SecurityEvidencePathInspectPanel(props: {
 
   return (
     <section
+      id={props.id}
       ref={props.panelRef}
       tabIndex={-1}
       className={cn(

@@ -216,6 +216,7 @@ import {
   SECURENOW_PATH_RANKED_PATHS_TITLE,
 } from "@/lib/product-line/securenow-path-inspect-copy";
 import { REMEDIATION_FACTORY_EXECUTIVE_METRICS_TITLE } from "./remediation-factory-metric-presentation";
+import { REMEDIATION_FACTORY_PATH_INSPECT_PANEL_ID } from "./remediation-factory-page-copy";
 
 describe("RemediationFactoryClient", () => {
   beforeEach(() => {
@@ -370,6 +371,7 @@ describe("RemediationFactoryClient", () => {
     render(<RemediationFactoryClient />);
 
     const panel = screen.getByTestId("security-evidence-path-inspect-panel");
+    expect(panel).toHaveAttribute("id", REMEDIATION_FACTORY_PATH_INSPECT_PANEL_ID);
     fireEvent.keyDown(document, { key: "i", altKey: true });
 
     expect(panel).toHaveFocus();

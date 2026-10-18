@@ -1,9 +1,13 @@
-import { fetchItsmIntegrationHealth, type ItsmIntegrationHealthResponse } from "@/lib/api/itsm-outbound-api";
 import {
   fetchAzureBoardsSettings,
   isAzureBoardsNativeCreateReady,
+  type AzureBoardsOutboundSettingsResponse,
 } from "@/lib/api/azure-boards-api";
+import { fetchItsmIntegrationHealth, type ItsmIntegrationHealthResponse } from "@/lib/api/itsm-outbound-api";
 import { isItsmNativeCreateDefaultPathReady } from "@/lib/itsm/itsm-native-create-readiness";
+import type { ProductLineId } from "@/lib/product-line/product-line-id";
+import { resolveProductLineId } from "@/lib/product-line/resolve-product-line-id";
+import { isSecureNowProductLine } from "@/lib/product-line/securenow-cloud-platform-policy";
 
 export type ItsmNativeCreateReadiness = {
   deploymentEnabled: boolean;
@@ -19,63 +23,125 @@ export const INITIAL_ITSM_NATIVE_CREATE_READINESS: ItsmNativeCreateReadiness = {
   azureBoardsReady: false,
 };
 
-let cachedReadiness: ItsmNativeCreateReadiness | undefined;
-let inFlightReadiness: Promise<ItsmNativeCreateReadiness> | undefined;
+type ItsmReadinessProbes = {
+  readonly healthResult: PromiseSettledResult<ItsmIntegrationHealthResponse>;
+  readonly azureSettingsResult: PromiseSettledResult<AzureBoardsOutboundSettingsResponse> | null;
+};
 
-async function loadItsmNativeCreateReadiness(): Promise<ItsmNativeCreateReadiness> {
-  try {
-    const [healthResult, azureSettingsResult] = await Promise.allSettled([
-      fetchItsmIntegrationHealth(),
-      fetchAzureBoardsSettings(),
-    ]);
-    const health = healthResult.status === "fulfilled" ? healthResult.value : null;
+const readinessCache = new Map<ProductLineId, ItsmNativeCreateReadiness>();
+const readinessInFlight = new Map<ProductLineId, Promise<ItsmNativeCreateReadiness>>();
 
-    if (health === null) {
-      throw healthResult.status === "rejected" ? healthResult.reason : new Error("itsm-health-unavailable");
-    }
+// Azure Boards settings are architecture-only. A Security caller is rejected with 403 by the product-line gate.
+function shouldLoadAzureBoardsSettings(productLine: ProductLineId): boolean {
+  return !isSecureNowProductLine(productLine);
+}
 
-    const deploymentEnabled = health.nativeEnabled === true;
-    let azureBoardsReady = false;
+function resolveAzureBoardsReady(
+  deploymentEnabled: boolean,
+  azureSettingsResult: PromiseSettledResult<AzureBoardsOutboundSettingsResponse> | null,
+): boolean {
+  if (!deploymentEnabled || azureSettingsResult === null || azureSettingsResult.status !== "fulfilled") {
+    return false;
+  }
 
-    if (deploymentEnabled && azureSettingsResult.status === "fulfilled") {
-      azureBoardsReady = isAzureBoardsNativeCreateReady(azureSettingsResult.value);
-    }
+  return isAzureBoardsNativeCreateReady(azureSettingsResult.value);
+}
 
-    const defaultPathReady =
-      deploymentEnabled
-      && (isItsmNativeCreateDefaultPathReady(health) || azureBoardsReady);
+async function probeItsmNativeCreateReadiness(productLine: ProductLineId): Promise<ItsmReadinessProbes> {
+  if (!shouldLoadAzureBoardsSettings(productLine)) {
+    const [healthResult] = await Promise.allSettled([fetchItsmIntegrationHealth()]);
 
-    cachedReadiness = {
-      deploymentEnabled,
-      defaultPathReady,
-      health,
-      azureBoardsReady,
-    };
-  } catch {
-    cachedReadiness = {
-      deploymentEnabled: false,
-      defaultPathReady: false,
-      health: null,
-      azureBoardsReady: false,
+    return {
+      healthResult,
+      azureSettingsResult: null,
     };
   }
 
-  return cachedReadiness;
+  const [healthResult, azureSettingsResult] = await Promise.allSettled([
+    fetchItsmIntegrationHealth(),
+    fetchAzureBoardsSettings(),
+  ]);
+
+  return {
+    healthResult,
+    azureSettingsResult,
+  };
+}
+
+function readinessFromHealth(
+  health: ItsmIntegrationHealthResponse,
+  azureSettingsResult: PromiseSettledResult<AzureBoardsOutboundSettingsResponse> | null,
+): ItsmNativeCreateReadiness {
+  const deploymentEnabled = health.nativeEnabled === true;
+  const azureBoardsReady = resolveAzureBoardsReady(deploymentEnabled, azureSettingsResult);
+  const defaultPathReady =
+    deploymentEnabled
+    && (isItsmNativeCreateDefaultPathReady(health) || azureBoardsReady);
+
+  return {
+    deploymentEnabled,
+    defaultPathReady,
+    health,
+    azureBoardsReady,
+  };
+}
+
+function closedItsmNativeCreateReadiness(): ItsmNativeCreateReadiness {
+  return {
+    deploymentEnabled: false,
+    defaultPathReady: false,
+    health: null,
+    azureBoardsReady: false,
+  };
+}
+
+async function loadItsmNativeCreateReadiness(productLine: ProductLineId): Promise<ItsmNativeCreateReadiness> {
+  try {
+    const probes = await probeItsmNativeCreateReadiness(productLine);
+    const health = probes.healthResult.status === "fulfilled" ? probes.healthResult.value : null;
+
+    if (health === null) {
+      const reason = probes.healthResult.status === "rejected"
+        ? probes.healthResult.reason
+        : new Error("itsm-health-unavailable");
+
+      throw reason;
+    }
+
+    const readiness = readinessFromHealth(health, probes.azureSettingsResult);
+    readinessCache.set(productLine, readiness);
+
+    return readiness;
+  } catch {
+    const readiness = closedItsmNativeCreateReadiness();
+    readinessCache.set(productLine, readiness);
+
+    return readiness;
+  }
 }
 
 /** Resolves deployment flag + probe readiness for native create default path (TB-387 + Tier 2 #6). Fails closed on errors. */
-export async function resolveItsmNativeCreateReadiness(): Promise<ItsmNativeCreateReadiness> {
-  if (cachedReadiness !== undefined) {
-    return cachedReadiness;
+export async function resolveItsmNativeCreateReadiness(
+  productLine: ProductLineId = resolveProductLineId(),
+): Promise<ItsmNativeCreateReadiness> {
+  const cached = readinessCache.get(productLine);
+
+  if (cached !== undefined) {
+    return cached;
   }
 
-  if (inFlightReadiness === undefined) {
-    inFlightReadiness = loadItsmNativeCreateReadiness().finally(() => {
-      inFlightReadiness = undefined;
-    });
+  const inFlight = readinessInFlight.get(productLine);
+
+  if (inFlight !== undefined) {
+    return inFlight;
   }
 
-  return inFlightReadiness;
+  const pending = loadItsmNativeCreateReadiness(productLine).finally(() => {
+    readinessInFlight.delete(productLine);
+  });
+  readinessInFlight.set(productLine, pending);
+
+  return pending;
 }
 
 /** Resolves whether one-click Jira/ServiceNow create is the default operator path. Fails closed on errors. */
@@ -87,6 +153,6 @@ export async function resolveItsmNativeCreateEnabled(): Promise<boolean> {
 
 /** Clears the module cache (tests). */
 export function resetItsmNativeCreateEnabledCacheForTests(): void {
-  cachedReadiness = undefined;
-  inFlightReadiness = undefined;
+  readinessCache.clear();
+  readinessInFlight.clear();
 }
