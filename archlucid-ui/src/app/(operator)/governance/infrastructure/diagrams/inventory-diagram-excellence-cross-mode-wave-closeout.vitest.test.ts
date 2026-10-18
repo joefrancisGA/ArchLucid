@@ -13,8 +13,6 @@ const requiredIndexFilterTokens: readonly string[] = [
   "FullyQualifiedName~CrossModeWaveManifest",
   "FullyQualifiedName~CrossModeTraitGuard",
   "FullyQualifiedName~FatGraphForestDotParityRatchet",
-  "FullyQualifiedName~InventoryDiagramExcellenceNestedSubnetNetworkCompileRatchet",
-  "FullyQualifiedName~InventoryDiagramExcellencePeeledSubnetVnetFrameRatchet",
   "inventory-diagram-excellence-workbench.ratchet",
   "inventory-diagram-excellence-cross-mode-ui-wave-manifest",
   "inventory-diagram-excellence-cross-mode-wave-closeout",
