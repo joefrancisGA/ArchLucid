@@ -65,6 +65,26 @@ public interface IAuditManualEvidenceRepository
         Guid assessmentId,
         CancellationToken cancellationToken = default);
 
+    async Task<IReadOnlyList<AuditArchitectureEvidenceLinkRecord>> ListArchitectureLinksByAssessmentIdsAsync(
+        Guid tenantId,
+        IReadOnlyList<Guid> assessmentIds,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(assessmentIds);
+
+        List<AuditArchitectureEvidenceLinkRecord> results = [];
+
+        foreach (Guid assessmentId in assessmentIds.Where(id => id != Guid.Empty).Distinct())
+        {
+            IReadOnlyList<AuditArchitectureEvidenceLinkRecord> links =
+                await ListArchitectureLinksByAssessmentAsync(tenantId, assessmentId, cancellationToken);
+
+            results.AddRange(links);
+        }
+
+        return results;
+    }
+
     Task<IReadOnlyList<AuditArchitectureEvidenceLinkRecord>> ListArchitectureLinksByAssessmentInScopeAsync(
         ProjectScopeKey scope,
         Guid assessmentId,

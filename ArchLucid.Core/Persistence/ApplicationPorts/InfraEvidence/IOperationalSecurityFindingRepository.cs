@@ -52,6 +52,27 @@ public interface IOperationalSecurityFindingRepository
             : null;
     }
 
+    async Task<IReadOnlyList<OperationalSecurityFindingRecord>> ListByIdsInScopeAsync(
+        ProjectScopeKey scope,
+        IReadOnlyList<Guid> findingIds,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(findingIds);
+
+        List<OperationalSecurityFindingRecord> results = [];
+
+        foreach (Guid findingId in findingIds.Where(id => id != Guid.Empty).Distinct())
+        {
+            OperationalSecurityFindingRecord? finding =
+                await TryGetByIdInScopeAsync(scope, findingId, cancellationToken);
+
+            if (finding is not null)
+                results.Add(finding);
+        }
+
+        return results;
+    }
+
     Task<IReadOnlyList<OperationalSecurityFindingRecord>> ListByTenantAsync(
         Guid tenantId,
         OperationalSecurityFindingStatus? status,

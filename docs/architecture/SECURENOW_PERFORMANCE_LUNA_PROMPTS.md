@@ -1,4 +1,4 @@
-> **Scope:** Paste-ready prompts for SecureNow read-path costs. **SN-PERF-01–05** are shipped. **SN-PERF-11**, **13–16**, **20–24**, and **25–29** are paste sets. Internal engineering only. Prompts only — do not implement from this index.
+> **Scope:** Paste-ready prompts for SecureNow read-path costs. **SN-PERF-01–05**, **06–10**, **12**, **17–19**, and **20–24** are shipped on this branch. **SN-PERF-11**, **13–16**, and **25–29** are paste sets for extend-only or next-wave work. Internal engineering only. Prompts only — do not implement from this index.
 > **Paste-ready files:** [`.cursor/prompts/securenow-performance-00-index.md`](../../.cursor/prompts/securenow-performance-00-index.md)
 
 # SecureNow performance — Luna prompts
@@ -31,7 +31,7 @@ Paste **one** prompt per session. Do not implement from this index.
 | **SN-PERF-29** | [securenow-performance-29-path-detail-hypothesis-hops.md](../../.cursor/prompts/securenow-performance-29-path-detail-hypothesis-hops.md) | **14** (shipped) | Path detail hypotheses without every hop on the snapshot |
 | **SN-PERF-HOLD** | [securenow-performance-hold.md](../../.cursor/prompts/securenow-performance-hold.md) | — | Forbidden scope |
 
-**01–05**, **06–10**, **12**, and **17–19** are shipped. **06–10**, **12**, and **17–19** have no paste file. **11**, **13**, **14**, and **16** can run in parallel. Run **15** after **11** if **11** is not on `master` yet, so both call one resource-list method. **20** and **21** can run in parallel. **22**, **23**, and **24** do not depend on **20**. **25**, **27**, **28**, and **29** can run in parallel. **26** follows **22** so verification is not edited in the preflight session.
+**01–05**, **06–10**, **12**, **17–19**, and **20–24** are shipped. **06–10**, **12**, and **17–19** have no paste file. **11**, **13**, **14**, and **16** can run in parallel. Run **15** after **11** if **11** is not on `master` yet, so both call one resource-list method. **20** and **21** can run in parallel. **22**, **23**, and **24** do not depend on **20**. **25**, **27**, **28**, and **29** can run in parallel. **26** follows **22** so verification is not edited in the preflight session.
 
 **17** loads the snapshot header for question list and ownership. **18** loads ranked-path headers and cut points in batch. **19** counts architect outcome findings and exceptions in SQL.
 

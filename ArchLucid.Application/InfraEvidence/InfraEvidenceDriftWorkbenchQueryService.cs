@@ -1,3 +1,4 @@
+using ArchLucid.Application.Governance;
 using ArchLucid.Application.InfraEvidence.Mermaid;
 using ArchLucid.Core.AzureExtractor;
 using ArchLucid.Core.Pagination;
@@ -44,12 +45,26 @@ public sealed class InfraEvidenceDriftWorkbenchQueryService(
         (IReadOnlyList<AzureInventorySnapshotRecord> items, int totalCount) =
             await _snapshotRepository.ListSnapshotsAsync(scope, page, pageSize, subscriptionId, cancellationToken);
 
-        foreach (AzureInventorySnapshotRecord snapshot in items)
+        IReadOnlyList<Guid> snapshotIds = items
+            .Select(snapshot => snapshot.SnapshotId)
+            .ToList();
+
+        IReadOnlyList<ArchitectureDiagramReconciliationSnapshotRunRecord> snapshotRuns =
+            await _reconciliationRepository.ListRunIdsBySnapshotIdsAsync(
+                scope.TenantId,
+                snapshotIds,
+                cancellationToken);
+
+        HashSet<Guid> distinctRunIds = snapshotRuns
+            .Select(row => row.RunId)
+            .Where(runId => runId != Guid.Empty)
+            .ToHashSet();
+
+        foreach (Guid runId in distinctRunIds)
         {
-            await InfraEvidenceSnapshotSealedManifestHashGuard.EnsureRunCitedSnapshotSealedOrThrowAsync(
+            await GovernanceDispositionSealedManifestGuard.EnsureRunSealedManifestHashOrThrowAsync(
+                runId,
                 scope,
-                snapshot.SnapshotId,
-                _reconciliationRepository,
                 _authorityQueryService,
                 _manifestHashService,
                 cancellationToken);
