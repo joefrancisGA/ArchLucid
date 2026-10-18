@@ -113,6 +113,7 @@ import {
   REMEDIATION_FACTORY_SKIP_LINK_LABEL,
 } from "./remediation-factory-page-copy";
 import { RemediationFactoryMetricsMeasurementDisclosure } from "./RemediationFactoryMetricsMeasurementDisclosure";
+import { RemediationFactoryPatternKeyCell } from "./RemediationFactoryPatternKeyCell";
 import { RemediationPriorityReasonCell } from "./RemediationPriorityReasonCell";
 import { RemediationPriorityResourceCell } from "./RemediationPriorityResourceCell";
 import { RemediationPrioritySortKeyDisclosure } from "./RemediationPrioritySortKeyDisclosure";
@@ -304,7 +305,10 @@ function PriorityTable(props: {
               </EnterpriseTableCell>
               <EnterpriseTableCell>{row.controlId ?? "—"}</EnterpriseTableCell>
               <EnterpriseTableCell>
-                {row.patternKey == null ? "No pattern key recorded" : "Pattern"}
+                <RemediationFactoryPatternKeyCell
+                  patternKey={row.patternKey}
+                  emptyLabel="No pattern key recorded"
+                />
               </EnterpriseTableCell>
               <RemediationPriorityReasonCell
                 findingId={row.findingId}
@@ -620,13 +624,6 @@ export function RemediationFactoryClient() {
   }, [ranked, selectedFinding, selectedPath]);
 
   useEffect(() => {
-    if (selectedFindingId != null || selectedPathId != null) {
-      pathInspectPanelRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-      pathInspectPanelRef.current?.focus();
-    }
-  }, [selectedFindingId, selectedPathId]);
-
-  useEffect(() => {
     if (!rankedQuery.isSuccess || selectedFindingId === null) {
       return;
     }
@@ -764,7 +761,7 @@ export function RemediationFactoryClient() {
         }
       />
 
-      <main
+      <div
         id={REMEDIATION_FACTORY_PRIMARY_CONTENT_ID}
         className="scroll-mt-24 space-y-4"
         data-testid="remediation-factory-primary-content"
@@ -970,7 +967,7 @@ export function RemediationFactoryClient() {
           <RemediationSimulatorOutput explanation={simulatorExplanation} generatedAt={simulatorGeneratedAt} />
         ) : null}
       </section>
-      </main>
+      </div>
     </div>
   );
 }
