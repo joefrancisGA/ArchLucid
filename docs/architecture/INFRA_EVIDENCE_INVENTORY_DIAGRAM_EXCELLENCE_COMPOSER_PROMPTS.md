@@ -53,6 +53,7 @@
 | Singleton tail 08b–08c slice not index-closeout | **IDX-14c** | Shipped — extend only |
 | Duplicate connection 09b slice not index-closeout | **IDX-14d** | Shipped — extend only |
 | PE opt-in 10b slice not index-closeout | **IDX-14e** | Shipped — extend only |
+| Completeness 11b slice not index-closeout | **IDX-14f** | Shipped — extend only |
 | Singleton-RG tail | **IDX-08** | Full subscription is a postage sheet |
 | Singleton tail skips excellence filter | **IDX-08b** | Shipped — extend only |
 | Collapsed tail label helpers skip excellence filter | **IDX-08c** | Shipped — extend only |
@@ -110,6 +111,7 @@
 | **IDX-14c** Singleton-RG tail deepening closeout | After 08c | Shipped — extend only |
 | **IDX-14d** Duplicate connection deepening closeout | After 09b | Shipped — extend only |
 | **IDX-14e** Private endpoint opt-in deepening closeout | After 10b | Shipped — extend only |
+| **IDX-14f** Completeness summary deepening closeout | After 11b | Shipped — extend only |
 | **IDX-08** Singleton-RG collapse | After 06 | |
 | **IDX-08b** Singleton-RG tail excellence ratchet | After 08 | Shipped — extend only |
 | **IDX-08c** Collapsed singleton tail label excellence ratchet | After 08b | Shipped — extend only |
