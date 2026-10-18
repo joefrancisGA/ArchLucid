@@ -10,7 +10,8 @@ public interface IPrivilegePathEngine
         Guid snapshotId,
         string actorId,
         CancellationToken cancellationToken = default,
-        SecureNowArchitectEngineRunScope? runScope = null);
+        SecureNowArchitectEngineRunScope? runScope = null,
+        PrivilegePathEngineOptions? options = null);
 }
 
 public sealed class PrivilegePathEngineResult

@@ -10806,6 +10806,32 @@ END;
 
 GO
 
+IF OBJECT_ID(N'dbo.SecurityEvidencePathSearchCoverage', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.SecurityEvidencePathSearchCoverage
+    (
+        SearchCoverageId UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_SecurityEvidencePathSearchCoverage PRIMARY KEY CLUSTERED,
+        TenantId         UNIQUEIDENTIFIER NOT NULL,
+        WorkspaceId      UNIQUEIDENTIFIER NOT NULL,
+        ProjectId        UNIQUEIDENTIFIER NOT NULL,
+        SnapshotId       UNIQUEIDENTIFIER NOT NULL,
+        EngineName       NVARCHAR(64)     NOT NULL,
+        LimitKind        NVARCHAR(32)     NOT NULL,
+        LimitValue       INT              NOT NULL,
+        PathsEmitted     INT              NOT NULL,
+        CreatedUtc       DATETIME2        NOT NULL,
+        CONSTRAINT FK_SecurityEvidencePathSearchCoverage_Snapshots
+            FOREIGN KEY (SnapshotId) REFERENCES dbo.AzureInventorySnapshots (SnapshotId),
+        CONSTRAINT UQ_SecurityEvidencePathSearchCoverage_Engine_Limit
+            UNIQUE (TenantId, SnapshotId, EngineName, LimitKind)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_SecurityEvidencePathSearchCoverage_Scope_Snapshot
+        ON dbo.SecurityEvidencePathSearchCoverage (TenantId, WorkspaceId, ProjectId, SnapshotId);
+END;
+
+GO
+
 IF OBJECT_ID(N'dbo.OperationalSecurityFindings', N'U') IS NOT NULL
    AND COL_LENGTH(N'dbo.OperationalSecurityFindings', N'PathId') IS NULL
 BEGIN

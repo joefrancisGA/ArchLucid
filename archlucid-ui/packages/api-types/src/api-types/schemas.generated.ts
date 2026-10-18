@@ -10404,6 +10404,24 @@ export interface components {
             /** Format: int32 */
             totalCount?: number;
         };
+        SecurityEvidencePathReportResponse: {
+            /** Format: uuid */
+            snapshotId?: string;
+            unevaluatedGroups?: components["schemas"]["SecurityEvidencePathReportUnevaluatedGroupResponse"][];
+            vulnerableAttackPaths?: components["schemas"]["SecurityEvidencePathRankSummaryResponse"][];
+        };
+        SecurityEvidencePathReportUnevaluatedGroupResponse: {
+            engineName?: null | string;
+            /** Format: int32 */
+            limitValue?: null | number;
+            /** Format: int32 */
+            pathCount?: null | number;
+            pathIds?: string[];
+            /** Format: int32 */
+            pathsEmitted?: null | number;
+            reasonCode?: string;
+            whyText?: string;
+        };
         SecurityEvidencePathRoutingResponse: {
             displayName?: null | string;
             principalId?: null | string;

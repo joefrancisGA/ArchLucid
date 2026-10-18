@@ -27,6 +27,7 @@ namespace ArchLucid.Api.Controllers.OperationalSecurity;
 public sealed class OperationalSecurityPathsController(
     ISecurityEvidencePathInspectorQueryService pathInspectorQueryService,
     ISecurityEvidencePathRankQueryService pathRankQueryService,
+    ISecurityEvidencePathReportQueryService pathReportQueryService,
     ISecurityEvidencePathExplanationService pathExplanationService,
     IScopeContextProvider scopeProvider) : ControllerBase
 {
@@ -61,6 +62,36 @@ public sealed class OperationalSecurityPathsController(
             cancellationToken);
 
         return Ok(response);
+    }
+
+    [HttpGet("report")]
+    [ProducesResponseType(typeof(SecurityEvidencePathReportResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetAttackPathReport(
+        [FromQuery] Guid snapshotId,
+        CancellationToken cancellationToken = default)
+    {
+        if (snapshotId == Guid.Empty)
+        {
+            return this.BadRequestProblem("snapshotId is required.", ProblemTypes.ValidationFailed);
+        }
+
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+
+        SecurityEvidencePathReportResponse? report = await pathReportQueryService.TryGetReportAsync(
+            scope,
+            snapshotId,
+            cancellationToken);
+
+        if (report is null)
+        {
+            return this.NotFoundProblem(
+                "Azure inventory snapshot was not found.",
+                ProblemTypes.ResourceNotFound);
+        }
+
+        return Ok(report);
     }
 
     [HttpGet("ranked")]

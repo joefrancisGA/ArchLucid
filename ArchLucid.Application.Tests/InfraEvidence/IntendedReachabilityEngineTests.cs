@@ -596,7 +596,8 @@ public sealed class IntendedReachabilityEngineTests
             snapshotRepository.Object,
             pathRepository,
             ingestService,
-            NullLogger<IntendedReachabilityEngine>.Instance);
+            NullLogger<IntendedReachabilityEngine>.Instance,
+            new NoOpSecurityEvidencePathSearchCoverageRepository());
     }
 
     private static AzureInventorySnapshotRecord CreateHeader() =>

@@ -9,10 +9,17 @@ internal static class IntendedReachabilityPathEnumerator
     public static IReadOnlyList<ReachabilityPathCandidate> Enumerate(
         InventoryReachabilityPathGraphSnapshot graph,
         PrivilegePathEngineOptions options,
+        SecureNowArchitectEngineRunScope? runScope = null) =>
+        EnumerateWithLimits(graph, options, runScope).Candidates;
+
+    internal static ReachabilityPathEnumerationResult EnumerateWithLimits(
+        InventoryReachabilityPathGraphSnapshot graph,
+        PrivilegePathEngineOptions options,
         SecureNowArchitectEngineRunScope? runScope = null)
     {
         ArgumentNullException.ThrowIfNull(graph);
         ArgumentNullException.ThrowIfNull(options);
+        SecurityEvidencePathSearchLimitTracker limits = new();
 
         SecureNowArchitectTraversalNeighborhood? neighborhood = runScope is { IsFullEstate: false }
             ? new(graph.OutgoingEdges, graph.ResourcesByArmId, runScope.SeedCloudResourceIds, options.MaxDepth)
@@ -38,6 +45,7 @@ internal static class IntendedReachabilityPathEnumerator
         {
             if (results.Count >= options.MaxPaths)
             {
+                limits.RecordMaxPaths();
                 break;
             }
 
@@ -49,10 +57,17 @@ internal static class IntendedReachabilityPathEnumerator
                 new HashSet<string>(StringComparer.OrdinalIgnoreCase) { startNode },
                 results,
                 seenPathSignatures, neighborhood, runScope, resourceIds,
-                neighborhood?.TouchesSeed(startNode) == true);
+                neighborhood?.TouchesSeed(startNode) == true,
+                limits);
         }
 
-        return results;
+        limits.SetPathsEmitted(results.Count);
+
+        return new ReachabilityPathEnumerationResult
+        {
+            Candidates = results,
+            LimitHits = limits.ToHits(options),
+        };
     }
 
     private static void DepthFirstSearch(
@@ -66,9 +81,24 @@ internal static class IntendedReachabilityPathEnumerator
         SecureNowArchitectTraversalNeighborhood? neighborhood,
         SecureNowArchitectEngineRunScope? runScope,
         IReadOnlyDictionary<string, Guid> resourceIds,
-        bool touchedSeed)
+        bool touchedSeed,
+        SecurityEvidencePathSearchLimitTracker limits)
     {
-        if (path.Count >= options.MaxDepth || results.Count >= options.MaxPaths)
+        if (SecurityEvidencePathSearchLimitGuard.StopForDepth(
+                limits,
+                options,
+                path.Count,
+                graph.OutgoingEdges,
+                currentNode,
+                visited)
+            || SecurityEvidencePathSearchLimitGuard.StopForPathCap(
+                limits,
+                options,
+                results.Count,
+                graph.OutgoingEdges.TryGetValue(currentNode, out List<PrivilegePathEdge>? cappedEdges)
+                    ? cappedEdges
+                    : [],
+                visited))
         {
             return;
         }
@@ -94,7 +124,18 @@ internal static class IntendedReachabilityPathEnumerator
 
         foreach (PrivilegePathEdge edge in edges.OrderBy(static candidate => candidate.EdgeType, StringComparer.Ordinal))
         {
-            if (fanOut >= options.MaxFanOutPerNode)
+            if (SecurityEvidencePathSearchLimitGuard.StopForFanOut(
+                    limits,
+                    options,
+                    fanOut,
+                    edges,
+                    visited)
+                || SecurityEvidencePathSearchLimitGuard.StopForPathCap(
+                    limits,
+                    options,
+                    results.Count,
+                    edges,
+                    visited))
             {
                 break;
             }
@@ -119,7 +160,8 @@ internal static class IntendedReachabilityPathEnumerator
                 nextVisited,
                 results,
                 seenPathSignatures, neighborhood, runScope, resourceIds,
-                touchedSeed || neighborhood?.TouchesSeed(edge.ToNodeId) == true);
+                touchedSeed || neighborhood?.TouchesSeed(edge.ToNodeId) == true,
+                limits);
         }
     }
 

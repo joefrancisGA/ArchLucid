@@ -17,6 +17,16 @@ SecureNow describes **configuration paths**, not observed traffic or auditor con
 - Missing network hops are omitted from the sentence instead of inventing a network segment.
 - The desk does not claim data exfiltration, compliance attestation, or live **apply to Azure** actions from this panel.
 
+## Attack path report
+
+On [Priorities & waves](/security/remediation-factory), the **Attack path report** sits above the priority queue for the selected inventory snapshot.
+
+- **Vulnerable attack paths** lists privilege, can reach (intended reachability), and toxic-combination paths whose band is Confirmed, Highly likely, or Probable.
+- **Could not be fully evaluated** lists insufficient evidence paths (grouped by the recorded gap), control-plane paths with no observed traffic, and rows where path search stopped at a cap. The reason on each row is the limit of the evidence, not a finding that the path is safe.
+- Capability paths (may access), shared-control blast radius, and four-reality drift stay on the ranked architect paths table below the report.
+
+The report does not claim exploitability, observed traffic, or a percentage.
+
 ## Where to go next
 
 - Open an **advisory remediation instance** from the panel when one exists for the selected finding.
