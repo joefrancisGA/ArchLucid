@@ -1174,6 +1174,12 @@ public sealed class RemediationInstanceServiceTests
             CancellationToken cancellationToken = default) =>
             Task.FromResult(ActiveMatch);
 
+        public Task<IReadOnlyList<RemediationPatternMatchResultRecord>> ListActiveMatchesForOpenFindingsInScopeAsync(
+            ProjectScopeKey scope,
+            CancellationToken cancellationToken = default) =>
+            Task.FromResult<IReadOnlyList<RemediationPatternMatchResultRecord>>(
+                ActiveMatch is null ? [] : [ActiveMatch]);
+
         public Task<IReadOnlyList<RemediationPatternMatchResultRecord>> ListByFindingAsync(
             Guid tenantId,
             Guid findingId,

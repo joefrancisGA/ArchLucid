@@ -47,6 +47,24 @@ public interface IRemediationPatternMatchRepository
         CancellationToken cancellationToken = default) =>
         TryGetActiveMatchAsync(scope.TenantId, findingId, cancellationToken);
 
+    async Task<IReadOnlyDictionary<Guid, RemediationPatternMatchResultRecord>> ListActiveMatchesByOpenFindingInScopeAsync(
+        ProjectScopeKey scope,
+        CancellationToken cancellationToken = default)
+    {
+        Dictionary<Guid, RemediationPatternMatchResultRecord> matches = new();
+
+        foreach (RemediationPatternMatchResultRecord match in await ListActiveMatchesForOpenFindingsInScopeAsync(scope, cancellationToken))
+        {
+            matches[match.FindingId] = match;
+        }
+
+        return matches;
+    }
+
+    Task<IReadOnlyList<RemediationPatternMatchResultRecord>> ListActiveMatchesForOpenFindingsInScopeAsync(
+        ProjectScopeKey scope,
+        CancellationToken cancellationToken = default);
+
     Task<IReadOnlyList<RemediationPatternMatchResultRecord>> ListByFindingAsync(
         Guid tenantId,
         Guid findingId,

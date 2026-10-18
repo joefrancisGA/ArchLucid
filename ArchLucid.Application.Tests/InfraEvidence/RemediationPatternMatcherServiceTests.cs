@@ -326,6 +326,12 @@ public sealed class RemediationPatternMatcherServiceTests
         public Task<RemediationPatternMatchResultRecord?> TryGetActiveMatchAsync(Guid tenantId, Guid findingId, CancellationToken cancellationToken = default) =>
             Task.FromResult(ActiveMatches.FirstOrDefault(row => row.TenantId == tenantId && row.FindingId == findingId));
 
+        public Task<IReadOnlyList<RemediationPatternMatchResultRecord>> ListActiveMatchesForOpenFindingsInScopeAsync(
+            ProjectScopeKey scope,
+            CancellationToken cancellationToken = default) =>
+            Task.FromResult<IReadOnlyList<RemediationPatternMatchResultRecord>>(
+                ActiveMatches.Where(row => row.TenantId == scope.TenantId).ToList());
+
         public Task<IReadOnlyList<RemediationPatternMatchResultRecord>> ListByFindingAsync(Guid tenantId, Guid findingId, CancellationToken cancellationToken = default) =>
             Task.FromResult<IReadOnlyList<RemediationPatternMatchResultRecord>>(ActiveMatches.Where(row => row.TenantId == tenantId && row.FindingId == findingId).ToList());
 

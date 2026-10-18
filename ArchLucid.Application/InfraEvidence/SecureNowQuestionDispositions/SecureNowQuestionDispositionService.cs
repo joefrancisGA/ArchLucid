@@ -97,7 +97,7 @@ public sealed class SecureNowQuestionDispositionService(
             cancellationToken);
 
         AzureInventorySnapshotGraphResolveResult graphResult =
-            await graphResolver.TryResolveGraphAsync(scope, snapshotId, cancellationToken: cancellationToken);
+            graphResolver.ResolveGraphFromSnapshot(snapshot);
         GraphSnapshot? graph = graphResult.Succeeded ? graphResult.Graph : null;
 
         return packQuestionCandidateBuilder.Build(

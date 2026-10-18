@@ -91,6 +91,28 @@ public interface IRemediationInstanceRepository
             .ToList();
     }
 
+    async Task<IReadOnlyDictionary<Guid, RemediationInstanceRecord>> ListLatestApprovedByFindingIdsInScopeAsync(
+        ProjectScopeKey scope,
+        IReadOnlyCollection<Guid> findingIds,
+        CancellationToken cancellationToken = default)
+    {
+        if (findingIds.Count == 0)
+        {
+            return new Dictionary<Guid, RemediationInstanceRecord>();
+        }
+
+        HashSet<Guid> wantedFindingIds = findingIds.ToHashSet();
+        IReadOnlyList<RemediationInstanceRecord> rows = await ListByScopeAsync(scope, cancellationToken);
+
+        return rows
+            .Where(row => wantedFindingIds.Contains(row.FindingId)
+                && row.Status == RemediationInstanceStatus.Approved)
+            .GroupBy(row => row.FindingId)
+            .ToDictionary(
+                group => group.Key,
+                group => group.OrderByDescending(row => row.UpdatedUtc).First());
+    }
+
     async Task<IReadOnlyDictionary<string, int>> CountOpenInstancesByStatusInScopeAsync(
         ProjectScopeKey scope,
         CancellationToken cancellationToken = default)
