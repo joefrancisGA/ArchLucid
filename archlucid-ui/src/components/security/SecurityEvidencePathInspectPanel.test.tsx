@@ -58,6 +58,79 @@ function renderPanel(
 }
 
 describe("SecurityEvidencePathInspectPanel", () => {
+  it("shows the path rank reader sentence on the identity header", () => {
+    vi.mocked(useOperationalSecurityFindingDetailQuery).mockReturnValue({
+      data: undefined,
+      isLoading: false,
+      isError: false,
+    } as ReturnType<typeof useOperationalSecurityFindingDetailQuery>);
+    vi.mocked(useSecurityEvidencePathDetailQuery).mockReturnValue({
+      data: {
+        pathId: "path-1",
+        snapshotId: "snapshot-1",
+        pathKind: "PrivilegePath",
+        pathConfidenceBand: "HighlyLikely",
+        weakestHopOrdinal: 1,
+        weakestHopReason: "Gap",
+        hops: [],
+        weakestHop: null,
+        explanationTemplate: {
+          actor: null,
+          identity: null,
+          network: null,
+          asset: null,
+          weakControl: null,
+          proposedChange: "",
+          verify: "",
+          architectSentence: null,
+        },
+        relatedCutPoints: [],
+        routing: [],
+      },
+      isLoading: false,
+      isError: false,
+    } as ReturnType<typeof useSecurityEvidencePathDetailQuery>);
+    vi.mocked(useSecurityEvidencePathRankQuery).mockReturnValue({
+      data: undefined,
+      isLoading: false,
+      isError: false,
+    } as ReturnType<typeof useSecurityEvidencePathRankQuery>);
+
+    renderPanel(null, {
+      pathIdOverride: "path-1",
+      selectedPath: {
+        pathId: "path-1",
+        snapshotId: "snapshot-1",
+        rankOrder: 1,
+        ruleVersion: "SA-09-v1",
+        technicalExposureScore: 0.9,
+        privilegeDepthScore: 0.8,
+        blastRadiusScore: 0.1,
+        businessConsequenceScore: null,
+        confidenceBandScore: 0.6,
+        compositeSortScore: 0.8123,
+        explanationSummary: "SA09-rank-v1: stored summary for disclosure.",
+        pathKind: "PrivilegePath",
+        pathConfidenceBand: "HighlyLikely",
+        computedUtc: "2026-01-01T00:00:00Z",
+        relatedCutPoints: [],
+      },
+    });
+
+    const identity = screen.getByTestId("security-evidence-path-inspect-identity");
+    expect(identity).toHaveTextContent("Exposed on the network. Deep privilege.");
+    expect(identity).not.toHaveTextContent("SA09-rank-v1");
+    expect(identity).not.toHaveTextContent("0.8123");
+
+    fireEvent.click(screen.getByTestId("security-evidence-path-rank-rule-path-1"));
+    expect(identity).toHaveTextContent("SA09-rank-v1: stored summary for disclosure.");
+
+    fireEvent.click(screen.getByTestId("security-evidence-path-rank-sort-key-path-1"));
+    expect(identity).toHaveTextContent(
+      "Composite sort key 0.8123. Ordering only — not a percentage, probability, or live risk score.",
+    );
+  });
+
   it("shows subject identity and compact empty copy when nothing is selected", () => {
     vi.mocked(useOperationalSecurityFindingDetailQuery).mockReturnValue({
       data: undefined,
@@ -272,9 +345,10 @@ describe("SecurityEvidencePathInspectPanel", () => {
     expect(screen.queryByText(/\d+%/)).not.toBeInTheDocument();
     expect(screen.getByTestId("security-evidence-path-cut-points")).toBeInTheDocument();
     expect(screen.getByText("Where you could break this path.")).toBeInTheDocument();
-    expect(screen.getByTestId("security-evidence-path-rank-lead")).toHaveTextContent(
-      "High privilege depth with public exposure.",
+    expect(screen.getByTestId("security-evidence-path-rank-reader-path-1")).toHaveTextContent(
+      "Exposed on the network. Wide blast radius.",
     );
+    expect(screen.getByTestId("security-evidence-path-rank")).not.toHaveTextContent("0.7123");
     expect(screen.getByTestId("security-evidence-path-band-weakest-hop-limit")).toBeInTheDocument();
     expect(screen.getByTestId("security-evidence-path-routing")).toBeInTheDocument();
     expect(screen.getByTestId("security-evidence-path-decision-readiness")).toHaveTextContent("Verify evidence before action");

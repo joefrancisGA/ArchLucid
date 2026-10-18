@@ -73,6 +73,29 @@ public sealed class InventoryDiagramExcellenceDataFlowInStageHubLayoutTests
     }
 
     [Fact]
+    public void DataFlowInStageHub_twelve_spokes_in_one_stage_stays_single_hub_subcolumn()
+    {
+        DiagramAst ast = BuildAdfTwelveStorageStageAst();
+        XDocument svg = Render(ast);
+
+        CountHubMarkers(svg).Should().Be(1);
+        svg.Descendants()
+            .Any(element => element.Attribute("data-hub-spoke")?.Value == "hub" && element.Attribute("id")?.Value == "node-adf")
+            .Should()
+            .BeTrue();
+
+        IReadOnlyList<string> spokeIds = Enumerable.Range(0, 12).Select(index => $"st{index}").ToList();
+
+        foreach (string spokeId in spokeIds)
+        {
+            svg.Descendants()
+                .Any(element => element.Attribute("id")?.Value == $"node-{spokeId}")
+                .Should()
+                .BeTrue(spokeId);
+        }
+    }
+
+    [Fact]
     public void DataFlowInStageHub_chain_with_max_degree_two_has_no_hub_marker()
     {
         DiagramAst ast = BuildChainStageAst();
@@ -93,6 +116,32 @@ public sealed class InventoryDiagramExcellenceDataFlowInStageHubLayoutTests
 
         stageOneX.Should().BeLessThan(stageTwoSpokeX);
         CrossStageEdgePathMustAvoidSpokeCards(ast, svg, "landing", "adf", ["st0", "st1", "st2", "st3"]);
+    }
+
+    private static DiagramAst BuildAdfTwelveStorageStageAst()
+    {
+        const string stageId = "stage-ingest";
+
+        List<DiagramNode> nodes =
+        [
+            Node("adf", "factory", "Microsoft.DataFactory/factories", stageId, orderKey: 0),
+            ..Enumerable.Range(0, 12).Select(index =>
+                Node($"st{index}", $"lake-{index}", "Microsoft.Storage/storageAccounts", stageId, orderKey: index + 1)),
+        ];
+        List<DiagramEdge> edges = Enumerable.Range(0, 12)
+            .Select(index => Edge("adf", $"st{index}"))
+            .ToList();
+
+        return new DiagramAst
+        {
+            Title = "Azure inventory (DataFlow)",
+            Subgraphs =
+            [
+                new DiagramSubgraph { SubgraphId = stageId, Label = "Ingest", OrderKey = 0 },
+            ],
+            Nodes = nodes,
+            Edges = edges,
+        };
     }
 
     private static DiagramAst BuildAdfFourSameStorageStageAst()
@@ -266,96 +315,11 @@ public sealed class InventoryDiagramExcellenceDataFlowInStageHubLayoutTests
         string toNodeId,
         IReadOnlyList<string> spokeNodeIds)
     {
-        DiagramForestLayoutOptions options = new();
-        DiagramForestCanvasLabelContext labelContext = DiagramForestCanvasLabelContext.Create(
-            ast.Nodes,
-            options,
-            ast.Edges,
-            isDataFlow: true);
-        DiagramForestDataFlowColumnLayout.Result layout = DiagramForestDataFlowColumnLayout.Plan(
-            ast.Nodes,
-            ast.Subgraphs,
-            options,
-            labelContext,
-            ast.Edges);
-        DiagramForestDataFlowColumnLayout.NodePlacement from = layout.Placements.Single(placement =>
-            string.Equals(placement.Node.NodeId, fromNodeId, StringComparison.Ordinal));
-        DiagramForestDataFlowColumnLayout.NodePlacement to = layout.Placements.Single(placement =>
-            string.Equals(placement.Node.NodeId, toNodeId, StringComparison.Ordinal));
-        List<DiagramResourceGroupPacker.NodePlacementBounds> bounds = layout.Placements
-            .Select(placement => new DiagramResourceGroupPacker.NodePlacementBounds(
-                placement.Node,
-                placement.X,
-                placement.Y,
-                placement.Width,
-                placement.Height,
-                FrameCellId: null))
-            .ToList();
-        DiagramForestOrthogonalEdgeRouter.RouteResult? route = DiagramForestDataFlowEdgeRouter.TryRoute(
-            from,
-            to,
-            layout.Columns,
-            bounds,
-            from.Node.NodeId,
-            to.Node.NodeId,
-            options);
-
-        route.Should().NotBeNull();
-
-        XNamespace svgNamespace = svg.Root!.Name.Namespace;
-        XElement? edgePath = svg.Descendants()
-            .FirstOrDefault(element =>
-                string.Equals(element.Name.LocalName, "g", StringComparison.Ordinal)
-                && string.Equals((string?)element.Attribute("class"), "edge", StringComparison.Ordinal)
-                && string.Equals(element.Element(svgNamespace + "title")?.Value, "writes", StringComparison.Ordinal))
-            ?.Elements()
-            .FirstOrDefault(element =>
-                string.Equals(element.Name.LocalName, "path", StringComparison.Ordinal)
-                && string.Equals((string?)element.Attribute("class"), "edge-path", StringComparison.Ordinal));
-
-        edgePath.Should().NotBeNull();
-
-        foreach (string spokeId in spokeNodeIds)
-        {
-            DiagramForestDataFlowColumnLayout.NodePlacement spoke = layout.Placements.Single(placement =>
-                string.Equals(placement.Node.NodeId, spokeId, StringComparison.Ordinal));
-            PathInteriorMustNotIntersectRect(route!, spoke, inflateBy: 1.0d).Should().BeTrue(spokeId);
-        }
-    }
-
-    private static bool PathInteriorMustNotIntersectRect(
-        DiagramForestOrthogonalEdgeRouter.RouteResult route,
-        DiagramForestDataFlowColumnLayout.NodePlacement placement,
-        double inflateBy)
-    {
-        foreach ((double x1, double y1, double x2, double y2) in route.Segments)
-        {
-            for (double t = 0.1d; t <= 0.9d; t += 0.1d)
-            {
-                double px = x1 + (t * (x2 - x1));
-                double py = y1 + (t * (y2 - y1));
-
-                if (PointInInflatedRectInterior(px, py, placement, inflateBy))
-                {
-                    return false;
-                }
-            }
-        }
-
-        return true;
-    }
-
-    private static bool PointInInflatedRectInterior(
-        double x,
-        double y,
-        DiagramForestDataFlowColumnLayout.NodePlacement placement,
-        double inflateBy)
-    {
-        double left = placement.X - inflateBy;
-        double top = placement.Y - inflateBy;
-        double right = placement.X + placement.Width + inflateBy;
-        double bottom = placement.Y + placement.Height + inflateBy;
-
-        return x > left && x < right && y > top && y < bottom;
+        InventoryDiagramExcellenceDataFlowHubRoutingAssertions.AssertCrossStageRouteAvoidsSpokeCards(
+            ast,
+            svg,
+            fromNodeId,
+            toNodeId,
+            spokeNodeIds);
     }
 }

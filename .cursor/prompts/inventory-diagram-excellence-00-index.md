@@ -93,7 +93,8 @@ Do **not** draw a complete graph to “maximize edges.” Do **not** show NIC or
 | **IDX-07b** Data Flow in-stage hub | **Shipped** on trunk — extend only | Hub inside a Data Flow stage; stages stay left-to-right |
 | **IDX-07c** Rollup must not erase that hub | **Shipped** on trunk — extend only | Same-type sinks in a hub component stay separate cards |
 | **IDX-07d** Route edges into that hub | **Shipped** on trunk — extend only | Cross-stage edge into a hub must not throw or cross spokes |
-| **IDX-07e** Subcolumn keeps hub component whole | **Prompt only** — not implemented | `Take(12)` splits hub stars across subcolumns |
+| **IDX-07e** Subcolumn keeps hub component whole | **Shipped** on trunk — extend only | `Take(12)` splits hub stars across subcolumns |
+| **IDX-07f** Data Flow hub pipeline ratchet | **Shipped** on trunk — extend only | Forest hub pipeline under `InventoryDiagramExcellence` filter |
 | **IDX-08** Singleton-RG collapse | **Shipped** on trunk — do not greenfield | Tail rollup when ≥8 isolated singleton RGs |
 | **IDX-09** Duplicate connection collapse | **Shipped** on trunk — do not greenfield | `DiagramInventoryConnectionRollupApplier` |
 | **IDX-10** PE opt-in toggle | **Shipped** on trunk — extend only | Workbench toggle; default off all modes incl. `ResourceGroup` |
@@ -101,6 +102,12 @@ Do **not** draw a complete graph to “maximize edges.” Do **not** show NIC or
 | **IDX-12** Hop-focus neighborhood / selected / RG | **Shipped** on trunk — extend only | Cited-hop BFS + hidden transit bridge |
 | **IDX-13** Cross-mode parity ratchet | **Shipped** on trunk — extend only | `FullyQualifiedName~InventoryDiagramExcellence` |
 | **IDX-13b** Fat-graph forest / DOT parity | **Shipped** on trunk — extend only | `BuildFatGraph()` + `AssertForestAndDotNestedFrameParity` |
+| **IDX-13c** Data Flow hub Mermaid ratchet | **Shipped** on trunk — extend only | Mermaid export on hub fixture under excellence filter |
+| **IDX-13d** Data Flow hub DOT ratchet | **Shipped** on trunk — extend only | Graphviz DOT on hub fixture; stage clusters for Data Flow |
+| **IDX-13e** Data Flow hub graph-compile ratchet | **Shipped** on trunk — extend only | `Compile(snapshot, DataFlow)` on hub graph fixture under excellence filter |
+| **IDX-13f** Data Flow hub service Mermaid ratchet | **Shipped** on trunk — extend only | `TryGetMermaidAsync` dataFlow on hub graph fixture |
+| **IDX-13g** Data Flow hub compile forest routing | **Shipped** on trunk — extend only | Compile ratchet missing cross-stage route vs spoke cards |
+| **IDX-13h** Data Flow hub service forest layout | **Shipped** on trunk — extend only | Service Mermaid ratchet does not guard inventory-forest `LayoutSvg` hub marker |
 | **IDX-HOLD** | Not implementation | — |
 
 **Regression guard:** `dotnet test ArchLucid.ArtifactSynthesis.Tests --filter FullyQualifiedName~InventoryDiagramExcellence` plus `ArchLucid.Application.Tests --filter FullyQualifiedName~InfraEvidenceMermaidCompleteness`. **IDX-05** subnet layer can still deepen when a mode keeps subnet nodes visible.
@@ -124,6 +131,7 @@ Suggested Cloud Agent branch per prompt: `cursor/inventory-diagram-excellence-<s
 | 07c | `inventory-diagram-excellence-07c-rollup-preserves-hub.md` | Data Flow rollup collapses four same-type sinks before hub layout |
 | 07d | `inventory-diagram-excellence-07d-hub-edge-route.md` | Cross-stage edge into an in-stage hub fails the forest render |
 | 07e | `inventory-diagram-excellence-07e-subcolumn-keeps-hub.md` | Twelve-card subcolumn wrap splits hub-and-spoke components |
+| 07f | `inventory-diagram-excellence-07f-dataflow-hub-ratchet.md` | 07b–07e regressions skip the excellence test filter |
 | 08 | `inventory-diagram-excellence-08-singleton-rg-collapse.md` | Long tail of one-node RG frames |
 | 09 | `inventory-diagram-excellence-09-duplicate-connection-collapse.md` | Duplicate Logic App connector cards |
 | 10 | `inventory-diagram-excellence-10-pe-opt-in-toggle.md` | PE cards have no workbench opt-in; hops already used |
@@ -131,6 +139,12 @@ Suggested Cloud Agent branch per prompt: `cursor/inventory-diagram-excellence-<s
 | 12 | `inventory-diagram-excellence-12-hop-focus-modes.md` | Neighborhood / selected / RG still feel like a crop of Full |
 | 13 | `inventory-diagram-excellence-13-cross-mode-ratchet.md` | Next agent Full-sub-only tests the rest of the enum |
 | 13b | `inventory-diagram-excellence-13b-fat-graph-dot-parity.md` | Fat graph forest frames and DOT clusters can diverge |
+| 13c | `inventory-diagram-excellence-13c-dataflow-hub-mermaid-ratchet.md` | Hub pipeline forest ratchet does not guard Mermaid export |
+| 13d | `inventory-diagram-excellence-13d-dataflow-hub-dot-ratchet.md` | Hub pipeline has no Graphviz DOT excellence ratchet |
+| 13e | `inventory-diagram-excellence-13e-dataflow-hub-compile-ratchet.md` | Hub pipeline only tested via hand-built AST, not graph compile |
+| 13f | `inventory-diagram-excellence-13f-dataflow-hub-service-mermaid.md` | Hub graph compile ratchet does not guard the snapshot Mermaid service |
+| 13g | `inventory-diagram-excellence-13g-dataflow-hub-compile-routing.md` | Graph compile hub ratchet skips cross-stage forest routing |
+| 13h | `inventory-diagram-excellence-13h-dataflow-hub-service-forest.md` | Service path does not ratchet inventory-forest hub layout |
 | HOLD | `inventory-diagram-excellence-14-hold.md` | Complete-graph / default PE / icons / RBAC dump |
 
 ## Prerequisites (do not re-implement)

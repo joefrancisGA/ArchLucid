@@ -122,6 +122,32 @@ describe("infra-evidence-png-reading-strip", () => {
     expect(network).not.toContain("This diagram shows what may connect.");
   });
 
+  it("adds snapshot and scope lines for PNG exports (P-08–P-09)", () => {
+    const lines = buildInfraEvidencePngReadingStripLines({
+      mode: "network",
+      outline: { nodes: [], edges: [] },
+      completenessWarnings: [],
+      snapshotLabel: "Contoso Production · 9/10/2026, 09:45 EDT",
+      resourceGroupScopeName: "rg-network",
+      dependencyNeighborhoodSeedLabel: "",
+    });
+
+    expect(lines[0]).toBe("Snapshot: Contoso Production · 9/10/2026, 09:45 EDT");
+    expect(lines).toContain("Scope: resource group rg-network.");
+    expect(lines).toContain("Dependency neighborhood starting resource was not stored.");
+  });
+
+  it("labels a missing snapshot line without inventing a capture time", () => {
+    const lines = buildInfraEvidencePngReadingStripLines({
+      mode: "network",
+      outline: { nodes: [], edges: [] },
+      completenessWarnings: [],
+      snapshotLabel: "   ",
+    });
+
+    expect(lines[0]).toBe("Snapshot label was not stored.");
+  });
+
   it("does not claim that a data-flow line was observed traffic", () => {
     const lines = buildInfraEvidencePngReadingStripLines({
       mode: "dataFlow",

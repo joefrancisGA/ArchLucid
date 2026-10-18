@@ -5,11 +5,12 @@ import { useCallback, useEffect, useMemo, useRef, useState, type KeyboardEvent }
 import { useRouter, useSearchParams } from "next/navigation";
 
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
-import { CompareDiffExpandableValueCell } from "@/components/compare/CompareDiffExpandableValueCell";
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { OperatorPageFreshnessMetadata } from "@/components/operator/OperatorPageFreshnessMetadata";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { SecurityEvidencePathInspectPanel } from "@/components/security/SecurityEvidencePathInspectPanel";
+import { SecurityEvidencePathRankReasonCell } from "@/components/security/SecurityEvidencePathRankReasonCell";
+import { SecurityEvidencePathRankSortKeyDisclosure } from "@/components/security/SecurityEvidencePathRankSortKeyDisclosure";
 import { OperatorErrorRecoveryContract } from "@/components/usability/OperatorErrorRecoveryContract";
 import {
   SecureNowArchitectOutcomeMetricsPanel,
@@ -51,6 +52,7 @@ import {
   useRemediationRankedFindingsQuery,
 } from "@/hooks/use-remediation-factory-query";
 import { useSecurityEvidenceRankedPathsQuery } from "@/hooks/use-security-evidence-ranked-paths-query";
+import { useSecurityEvidencePathReportQuery } from "@/hooks/use-security-evidence-path-report-query";
 import { useOperatorRelativeFreshnessNowMs } from "@/hooks/use-operator-relative-freshness-now-ms";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens-shell-typography";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
@@ -72,7 +74,12 @@ import {
 import { formatIsoUtcForDisplay } from "@/lib/format-iso-utc";
 import { cn } from "@/lib/utils";
 
+import { RemediationFactoryAttackPathReportSection } from "./RemediationFactoryAttackPathReportSection";
 import { RemediationFactoryContextStrip } from "./RemediationFactoryContextStrip";
+import {
+  resolveAttackPathReportSnapshotId,
+  shouldShowAttackPathReportRankedSnapshotHint,
+} from "./resolve-attack-path-report-snapshot-id";
 
 const PATH_VIEWS = [
   { value: "all", label: "All paths" },
@@ -398,8 +405,13 @@ function RankedPathsTable(props: {
                   label={formatSecurityEvidencePathConfidenceBandLabel(row.pathConfidenceBand)}
                 />
               </EnterpriseTableCell>
-              <EnterpriseTableCell>{row.compositeSortScore.toFixed(4)}</EnterpriseTableCell>
-              <CompareDiffExpandableValueCell value={row.explanationSummary} />
+              <EnterpriseTableCell>
+                <SecurityEvidencePathRankSortKeyDisclosure
+                  pathId={row.pathId}
+                  compositeSortScore={row.compositeSortScore}
+                />
+              </EnterpriseTableCell>
+              <SecurityEvidencePathRankReasonCell rank={row} />
             </EnterpriseTableRow>
           ))}
         </EnterpriseTableBody>
@@ -476,6 +488,31 @@ export function RemediationFactoryClient() {
   const nowMs = useOperatorRelativeFreshnessNowMs();
   const rankedQuery = useRemediationRankedFindingsQuery();
   const rankedPathsQuery = useSecurityEvidenceRankedPathsQuery();
+  const reportSnapshotId = useMemo(
+    () =>
+      resolveAttackPathReportSnapshotId(
+        urlState.toSnapshotId,
+        urlState.fromSnapshotId,
+        rankedPathsQuery.data?.items ?? [],
+        rankedPathsQuery.isLoading,
+      ),
+    [
+      urlState.toSnapshotId,
+      urlState.fromSnapshotId,
+      rankedPathsQuery.data?.items,
+      rankedPathsQuery.isLoading,
+    ],
+  );
+  const showAttackPathReportRankedSnapshotHint = useMemo(
+    () =>
+      shouldShowAttackPathReportRankedSnapshotHint(
+        urlState.toSnapshotId,
+        urlState.fromSnapshotId,
+        rankedPathsQuery.data?.items ?? [],
+      ),
+    [urlState.toSnapshotId, urlState.fromSnapshotId, rankedPathsQuery.data?.items],
+  );
+  const attackPathReportQuery = useSecurityEvidencePathReportQuery(reportSnapshotId);
   const metricsQuery = useRemediationFactoryMetricsQuery();
   const [outcomeQueryState, setOutcomeQueryState] = useState<SecureNowArchitectOutcomeQueryState | null>(null);
   const [simulatorExplanation, setSimulatorExplanation] = useState<RemediationPrioritizationExplanation | null>(null);
@@ -762,6 +799,19 @@ export function RemediationFactoryClient() {
         onSnapshotPairChange={urlState.setSnapshotPair}
         onQueryStateChange={setOutcomeQueryState}
         snapshotsEmptyPreset={REMEDIATION_FACTORY_ARCHITECT_SNAPSHOTS_EMPTY}
+      />
+
+      <RemediationFactoryAttackPathReportSection
+        snapshotId={reportSnapshotId}
+        reportQuery={attackPathReportQuery}
+        selectedPathId={selectedPathId}
+        onSelectPath={selectPath}
+        awaitingRankedSnapshot={
+          urlState.toSnapshotId === null
+          && urlState.fromSnapshotId === null
+          && rankedPathsQuery.isLoading
+        }
+        showRankedSnapshotHint={showAttackPathReportRankedSnapshotHint}
       />
 
       <section className="space-y-3" aria-label="Operator priority table">

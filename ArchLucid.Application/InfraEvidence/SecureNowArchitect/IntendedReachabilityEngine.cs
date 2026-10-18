@@ -11,14 +11,16 @@ public sealed class IntendedReachabilityEngine(
     IAzureInventorySnapshotRepository snapshotRepository,
     ISecurityEvidencePathRepository pathRepository,
     IOperationalSecurityFindingIngestService findingIngestService,
-    ILogger<IntendedReachabilityEngine> logger) : IIntendedReachabilityEngine
+    ILogger<IntendedReachabilityEngine> logger,
+    ISecurityEvidencePathSearchCoverageRepository searchCoverageRepository) : IIntendedReachabilityEngine
 {
     public async Task<PrivilegePathEngineResult> RunAsync(
         ScopeContext scope,
         Guid snapshotId,
         string actorId,
         CancellationToken cancellationToken = default,
-        SecureNowArchitectEngineRunScope? runScope = null)
+        SecureNowArchitectEngineRunScope? runScope = null,
+        PrivilegePathEngineOptions? options = null)
     {
         ArgumentNullException.ThrowIfNull(scope);
 
@@ -42,8 +44,19 @@ public sealed class IntendedReachabilityEngine(
         }
 
         InventoryReachabilityPathGraphSnapshot graph = InventoryReachabilityPathGraph.Build(snapshot, analysisSnapshot);
-        IReadOnlyList<ReachabilityPathCandidate> candidates =
-            IntendedReachabilityPathEnumerator.Enumerate(graph, new PrivilegePathEngineOptions(), runScope);
+        PrivilegePathEngineOptions resolvedOptions = options ?? new PrivilegePathEngineOptions();
+        ReachabilityPathEnumerationResult enumeration = IntendedReachabilityPathEnumerator.EnumerateWithLimits(
+            graph,
+            resolvedOptions,
+            runScope);
+        await SecurityEvidencePathSearchCoverageRecorder.ReplaceAsync(
+            searchCoverageRepository,
+            scope,
+            snapshotId,
+            SecurityEvidencePathSearchEngineNames.IntendedReachability,
+            enumeration.LimitHits,
+            cancellationToken);
+        IReadOnlyList<ReachabilityPathCandidate> candidates = enumeration.Candidates;
 
         if (candidates.Count == 0)
         {

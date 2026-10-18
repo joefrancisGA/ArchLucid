@@ -185,7 +185,8 @@ public sealed class SecureNowArchitectTwoSnapshotGoldenFixtureTests
             snapshotRepository.Object,
             pathRepository,
             ingestService,
-            NullLogger<PrivilegePathEngine>.Instance);
+            NullLogger<PrivilegePathEngine>.Instance,
+            new NoOpSecurityEvidencePathSearchCoverageRepository());
 
         PrivilegePathEngineResult result = await engine.RunAsync(
             scope,

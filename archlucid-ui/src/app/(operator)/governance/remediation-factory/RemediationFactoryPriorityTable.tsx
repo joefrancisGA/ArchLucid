@@ -12,9 +12,12 @@ import {
 import { StatusTag } from "@/components/ui/status-tag";
 import type { RemediationPrioritizedFinding } from "@/lib/remediation-factory-types";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens-shell-typography";
+import { formatRemediationPriorityWhenBand, REMEDIATION_PRIORITY_WHEN_HEADER_HELPER } from "@/lib/remediation-priority-when-band";
 import { cn } from "@/lib/utils";
 
-import { RemediationFactoryTableSummaryCell } from "./RemediationFactoryTableSummaryCell";
+import { RemediationPriorityReasonCell } from "./RemediationPriorityReasonCell";
+import { RemediationPriorityResourceCell } from "./RemediationPriorityResourceCell";
+import { RemediationPrioritySortKeyDisclosure } from "./RemediationPrioritySortKeyDisclosure";
 
 export function RemediationFactoryPriorityTable(props: {
   readonly rows: ReadonlyArray<RemediationPrioritizedFinding>;
@@ -37,6 +40,13 @@ export function RemediationFactoryPriorityTable(props: {
               <span>Rank</span>
               <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
                 1 is the first finding in this queue.
+              </span>
+            </EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>Resource</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>
+              <span>When</span>
+              <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                {REMEDIATION_PRIORITY_WHEN_HEADER_HELPER}
               </span>
             </EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>Score</EnterpriseTableHeaderCell>
@@ -74,12 +84,18 @@ export function RemediationFactoryPriorityTable(props: {
                     {selected ? <StatusTag kind="ready" label="Inspecting" /> : null}
                   </span>
                 </EnterpriseTableCell>
-                <EnterpriseTableCell className="tabular-nums">{row.totalScore.toFixed(4)}</EnterpriseTableCell>
+                <RemediationPriorityResourceCell findingId={row.findingId} cloudResourceId={row.cloudResourceId} />
+                <EnterpriseTableCell>{formatRemediationPriorityWhenBand(rankOrder)}</EnterpriseTableCell>
+                <EnterpriseTableCell>
+                  <RemediationPrioritySortKeyDisclosure findingId={row.findingId} totalScore={row.totalScore} />
+                </EnterpriseTableCell>
                 <EnterpriseTableCell>{row.controlId ?? "—"}</EnterpriseTableCell>
                 <EnterpriseTableCell>{row.patternKey == null ? "—" : "Pattern"}</EnterpriseTableCell>
-                <EnterpriseTableCell>
-                  <RemediationFactoryTableSummaryCell rowKey={row.findingId} summary={row.explanationSummary} />
-                </EnterpriseTableCell>
+                <RemediationPriorityReasonCell
+                  findingId={row.findingId}
+                  breakdownJson={row.breakdownJson}
+                  explanationSummary={row.explanationSummary}
+                />
               </EnterpriseTableInteractiveRow>
             );
           })}

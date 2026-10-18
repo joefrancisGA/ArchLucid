@@ -91,22 +91,27 @@ internal static class DiagramForestDataFlowColumnLayout
                 ? resolvedStageIndex
                 : notStagedIndex;
             string label = ResolveColumnLabel(stageIndex, orderedSubgraphs, notStagedIndex);
+            HashSet<string> stageNodeIds = orderedStage
+                .Select(node => node.NodeId)
+                .ToHashSet(StringComparer.Ordinal);
+            List<DiagramEdge> stageEdges = relevantEdges
+                .Where(edge => stageNodeIds.Contains(edge.FromNodeId) && stageNodeIds.Contains(edge.ToNodeId))
+                .ToList();
+            List<List<DiagramNode>> stageSubcolumnBatches = PackStageIntoSubcolumnBatches(
+                orderedStage,
+                stageEdges);
 
-            for (int offset = 0; offset < orderedStage.Count; offset += MaxCardsPerDataFlowSubcolumn)
+            foreach (List<DiagramNode> stageBatch in stageSubcolumnBatches)
             {
-                List<DiagramNode> stageBatch = orderedStage
-                    .Skip(offset)
-                    .Take(MaxCardsPerDataFlowSubcolumn)
-                    .ToList();
                 HashSet<string> stageBatchIds = stageBatch
                     .Select(node => node.NodeId)
                     .ToHashSet(StringComparer.Ordinal);
-                List<DiagramEdge> stageEdges = relevantEdges
+                List<DiagramEdge> batchEdges = stageEdges
                     .Where(edge => stageBatchIds.Contains(edge.FromNodeId) && stageBatchIds.Contains(edge.ToNodeId))
                     .ToList();
                 List<List<DiagramNode>> components = DiagramComponentBuilder.BuildConnectedComponents(
                     stageBatch,
-                    stageEdges);
+                    batchEdges);
                 int columnIndex = columns.Count;
                 List<DiagramForestHubSpokeInteriorLayout.InteriorBounds> componentBounds = [];
 
@@ -114,7 +119,7 @@ internal static class DiagramForestDataFlowColumnLayout
                 {
                     componentBounds.Add(DiagramForestHubSpokeInteriorLayout.LayoutComponent(
                         component,
-                        stageEdges,
+                        batchEdges,
                         options,
                         labelContext));
                 }
@@ -150,6 +155,64 @@ internal static class DiagramForestDataFlowColumnLayout
         }
 
         return new Result(placements, columns);
+    }
+
+    private static List<List<DiagramNode>> PackStageIntoSubcolumnBatches(
+        IReadOnlyList<DiagramNode> orderedStage,
+        IReadOnlyList<DiagramEdge> stageEdges)
+    {
+        if (orderedStage.Count == 0)
+        {
+            return [];
+        }
+
+        List<List<DiagramNode>> stageComponents = DiagramComponentBuilder.BuildConnectedComponents(
+            orderedStage,
+            stageEdges);
+        Dictionary<string, int> stageOrderIndex = orderedStage
+            .Select((node, index) => new { node.NodeId, Index = index })
+            .ToDictionary(item => item.NodeId, item => item.Index, StringComparer.Ordinal);
+        List<List<DiagramNode>> orderedComponents = stageComponents
+            .OrderBy(component => component.Min(node => stageOrderIndex[node.NodeId]))
+            .ThenBy(component => component[0].NodeId, StringComparer.Ordinal)
+            .ToList();
+        List<List<DiagramNode>> batches = [];
+        List<DiagramNode> currentBatch = [];
+        int currentBatchNodeCount = 0;
+
+        foreach (List<DiagramNode> component in orderedComponents)
+        {
+            if (component.Count > MaxCardsPerDataFlowSubcolumn)
+            {
+                if (currentBatch.Count > 0)
+                {
+                    batches.Add(currentBatch);
+                    currentBatch = [];
+                    currentBatchNodeCount = 0;
+                }
+
+                batches.Add(component.ToList());
+                continue;
+            }
+
+            if (currentBatchNodeCount > 0
+                && currentBatchNodeCount + component.Count > MaxCardsPerDataFlowSubcolumn)
+            {
+                batches.Add(currentBatch);
+                currentBatch = [];
+                currentBatchNodeCount = 0;
+            }
+
+            currentBatch.AddRange(component);
+            currentBatchNodeCount += component.Count;
+        }
+
+        if (currentBatch.Count > 0)
+        {
+            batches.Add(currentBatch);
+        }
+
+        return batches;
     }
 
     private static List<List<DiagramNode>> ApplyColumnCrossingOrder(

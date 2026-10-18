@@ -1821,7 +1821,18 @@ export function DiagramsWorkbenchClient() {
         mode: selectedMode,
         outline: familyFilteredOutline,
         completenessWarnings,
-        snapshotLabel: selectedSnapshotDisplayLabel,
+        snapshotLabel:
+          selectedSnapshot != null
+            ? formatSnapshotPickerLabel(selectedSnapshot)
+            : selectedSnapshotId.length > 0
+              ? selectedSnapshotId
+              : null,
+        ...(isInfraDiagramsResourceGroupMode(selectedMode)
+          ? { resourceGroupScopeName: selectedResourceGroupName }
+          : {}),
+        ...(selectedMode === "dependencyNeighborhood"
+          ? { dependencyNeighborhoodSeedLabel: appliedSeedNodeId }
+          : {}),
       };
 
       if (tooLargeForBrowser) {

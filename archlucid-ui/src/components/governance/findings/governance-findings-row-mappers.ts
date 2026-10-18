@@ -29,29 +29,33 @@ import {
   GOVERNANCE_QUEUE_SEVERITY_NOT_STORED,
 } from "@/components/governance/findings/governance-findings-row-omission-copy";
 
+function resolveGovernanceQueueReviewLabel(systemName: string, runId: string): string {
+  if (systemName.length > 0) {
+    return systemName;
+  }
+
+  if (runId.length > 0) {
+    return runId;
+  }
+
+  return GOVERNANCE_QUEUE_REVIEW_NAME_NOT_STORED;
+}
+
+function resolveRiskRegisterQueueStatus(statusLabel: string, isStale: boolean): string {
+  const trimmed = statusLabel.trim();
+
+  if (trimmed.length === 0) {
+    return isStale ? `${GOVERNANCE_QUEUE_FINDING_STATUS_NOT_STORED} · stale` : GOVERNANCE_QUEUE_FINDING_STATUS_NOT_STORED;
+  }
+
+  return isStale ? `${trimmed} · stale` : trimmed;
+}
+
 function formatRiskRegisterQueueOwner(ownerUserId: string | null | undefined): string {
   const trimmed = ownerUserId?.trim() ?? "";
 
   if (trimmed.length === 0) {
     return ARCHITECTURE_RISK_REGISTER_OWNER_NOT_STORED;
-  }
-
-  return trimmed;
-}
-
-function formatRiskRegisterQueueStatus(statusLabel: string, isStale: boolean): string {
-  const trimmed = statusLabel.trim();
-
-  if (trimmed.length === 0) {
-    if (isStale) {
-      return `${GOVERNANCE_QUEUE_FINDING_STATUS_NOT_STORED} Marked stale.`;
-    }
-
-    return GOVERNANCE_QUEUE_FINDING_STATUS_NOT_STORED;
-  }
-
-  if (isStale) {
-    return `${trimmed} · stale`;
   }
 
   return trimmed;
@@ -72,22 +76,19 @@ export function riskRegisterRows(entries: ArchitectureRiskRegisterEntry[]): Gove
       entry.latestDisposition !== null && entry.latestDisposition !== undefined
         ? `Latest disposition: ${entry.latestDisposition}. Owner: ${formatRiskRegisterQueueOwner(entry.ownerUserId)}.`
         : "Open evidence trace to record disposition or a time-bounded waiver.";
-    const runLabel =
-      systemName.length > 0
-        ? systemName
-        : runId.length > 0
-          ? runId
-          : GOVERNANCE_QUEUE_REVIEW_NAME_NOT_STORED;
+    const runLabel = resolveGovernanceQueueReviewLabel(systemName, runId);
+    const resolvedTitle = title.length > 0 ? title : GOVERNANCE_QUEUE_FINDING_TITLE_NOT_STORED;
+    const resolvedSeverity = severity.length > 0 ? severity : GOVERNANCE_QUEUE_SEVERITY_NOT_STORED;
 
     return {
       runId,
       runLabel,
       manifestId: (entry.manifestId ?? "").trim(),
       findingId,
-      title: title.length > 0 ? title : GOVERNANCE_QUEUE_FINDING_TITLE_NOT_STORED,
-      severity: severity.length > 0 ? severity : GOVERNANCE_QUEUE_SEVERITY_NOT_STORED,
+      title: resolvedTitle,
+      severity: resolvedSeverity,
       category,
-      status: formatRiskRegisterQueueStatus(statusLabel, entry.isStale),
+      status: resolveRiskRegisterQueueStatus(statusLabel, entry.isStale),
       recommended,
       recordKind: "finding",
       traceConfidenceLevel: null,
@@ -118,9 +119,9 @@ export function decisionRegisterRows(entries: ArchitectureDecisionRegisterEntry[
     const runId = (entry.runId ?? "").trim();
     const manifestId = (entry.manifestId ?? "").trim();
     const titleRaw = (entry.title ?? "").trim();
+    const categoryRaw = (entry.category ?? "").trim();
     const rationale = (entry.rationale ?? "").trim();
     const selectedOption = (entry.selectedOption ?? "").trim();
-    const categoryRaw = (entry.category ?? "").trim();
     const recommended =
       rationale.length > 0
         ? rationale
@@ -130,7 +131,7 @@ export function decisionRegisterRows(entries: ArchitectureDecisionRegisterEntry[
 
     return {
       runId,
-      runLabel: runId.length > 0 ? runId : GOVERNANCE_QUEUE_REVIEW_NAME_NOT_STORED,
+      runLabel: resolveGovernanceQueueReviewLabel("", runId),
       manifestId,
       findingId: decisionId,
       title: titleRaw.length > 0 ? titleRaw : GOVERNANCE_QUEUE_DECISION_TITLE_NOT_STORED,
@@ -179,7 +180,7 @@ export function traceRowsForRun(run: RunSummary, traces: FindingTraceConfidenceD
           typeof t.evidenceRefCount === "number" && Number.isFinite(t.evidenceRefCount)
             ? Math.trunc(t.evidenceRefCount)
             : null,
-        policyRuleId: ruleHint.length > 0 ? coerceComplianceRuleKey(ruleHint) : null,
+        policyRuleId: coerceComplianceRuleKey(ruleHint),
         classification: t.classification ?? null,
         treatment:
           typeof t.treatment === "number" && Number.isFinite(t.treatment) ? Math.trunc(t.treatment) : null,
