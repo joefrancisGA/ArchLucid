@@ -129,6 +129,7 @@ Do **not** draw a complete graph to “maximize edges.” Do **not** show NIC or
 | **IDX-13v** Cross-mode excellence wave manifest | **Shipped** on trunk — extend only | Cross-mode ratchet classes (08b–13, completeness) can be deleted without CI failure |
 | **IDX-13w** Cross-mode trait isolation guard | **Shipped** on trunk — extend only | Cross-mode ratchets tagged `DataFlowHubPipeline` shrink the hub slice filter |
 | **IDX-13x** Workbench excellence ratchet (Vitest) | **Shipped** on trunk — extend only | PE default + completeness `missingClasses` not under backend excellence filter |
+| **IDX-13z** Cross-mode UI wave manifest (Vitest) | **Shipped** on trunk — extend only | Workbench excellence ratchet tests deletable without CI failure |
 | **IDX-HOLD** | Not implementation | — |
 
 ### Data Flow hub pipeline wave (IDX-07f–13u) — complete
@@ -139,7 +140,7 @@ Forest, Mermaid, DOT, graph compile, snapshot Mermaid service, PNG export, stage
 
 `dotnet test ArchLucid.Application.Tests --filter InventoryDiagramExcellence=DataFlowHubPipeline`
 
-Next hub work is **extend-only** (regression fixes). Cross-mode slice (08b–13x): `FullyQualifiedName~CrossModeWaveManifest`, `FullyQualifiedName~CrossModeTraitGuard` (both .NET projects), and `cd archlucid-ui && npm test -- inventory-diagram-excellence-workbench.ratchet`. Pick **IDX-08**, **IDX-13** cross-mode deepening, or **IDX-HOLD** for new scope.
+Next hub work is **extend-only** (regression fixes). Cross-mode slice (08b–13z): `FullyQualifiedName~CrossModeWaveManifest`, `FullyQualifiedName~CrossModeTraitGuard` (both .NET projects), `npm test -- inventory-diagram-excellence-workbench.ratchet`, and `npm test -- inventory-diagram-excellence-cross-mode-ui-wave-manifest`. Pick **IDX-08**, **IDX-13** cross-mode deepening, or **IDX-HOLD** for new scope.
 
 **Regression guard:** `dotnet test ArchLucid.ArtifactSynthesis.Tests --filter FullyQualifiedName~InventoryDiagramExcellence` plus `ArchLucid.Application.Tests --filter FullyQualifiedName~InfraEvidenceMermaidCompleteness` and `FullyQualifiedName~InventoryDiagramExcellenceCompleteness`. Data Flow hub pipeline slice (both projects): `dotnet test ArchLucid.ArtifactSynthesis.Tests --filter InventoryDiagramExcellence=DataFlowHubPipeline` and `dotnet test ArchLucid.Application.Tests --filter InventoryDiagramExcellence=DataFlowHubPipeline`. **IDX-05** subnet layer can still deepen when a mode keeps subnet nodes visible.
 
@@ -197,6 +198,7 @@ Suggested Cloud Agent branch per prompt: `cursor/inventory-diagram-excellence-<s
 | 13v | `inventory-diagram-excellence-13v-cross-mode-wave-manifest.md` | Cross-mode ratchet classes not manifest-guarded |
 | 13w | `inventory-diagram-excellence-13w-cross-mode-trait-guard.md` | Cross-mode ratchets carry hub `DataFlowHubPipeline` trait |
 | 13x | `inventory-diagram-excellence-13x-workbench-excellence-ratchet.md` | Workbench PE default + completeness strip not excellence-ratcheted |
+| 13z | `inventory-diagram-excellence-13z-cross-mode-ui-wave-manifest.md` | Workbench excellence ratchet not UI manifest-guarded |
 | HOLD | `inventory-diagram-excellence-14-hold.md` | Complete-graph / default PE / icons / RBAC dump |
 
 ## Prerequisites (do not re-implement)
