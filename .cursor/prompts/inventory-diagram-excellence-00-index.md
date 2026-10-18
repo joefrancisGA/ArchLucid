@@ -117,9 +117,11 @@ Do **not** draw a complete graph to “maximize edges.” Do **not** show NIC or
 | **IDX-13o** Data Flow hub PNG layout stage labels | **Shipped** on trunk — extend only | PNG export ratchet skips forest stage headers on `LayoutSvg` |
 | **IDX-13p** Data Flow hub PNG Mermaid stage labels | **Shipped** on trunk — extend only | PNG export ratchet skips Mermaid stage copy on paired render |
 | **IDX-13q** Data Flow hub export stage label bundle | **Shipped** on trunk — extend only | Hub ratchets call Mermaid/forest stage helpers separately |
+| **IDX-13r** Data Flow hub stage label dedupe | **Shipped** on trunk — extend only | Hand Mermaid/forest ratchets duplicate 13q paired stage asserts |
+| **IDX-13s** Data Flow hub service test factory | **Shipped** on trunk — extend only | Application hub Mermaid/PNG tests duplicate service wiring |
 | **IDX-HOLD** | Not implementation | — |
 
-**Regression guard:** `dotnet test ArchLucid.ArtifactSynthesis.Tests --filter FullyQualifiedName~InventoryDiagramExcellence` plus `ArchLucid.Application.Tests --filter FullyQualifiedName~InfraEvidenceMermaidCompleteness`. **IDX-05** subnet layer can still deepen when a mode keeps subnet nodes visible.
+**Regression guard:** `dotnet test ArchLucid.ArtifactSynthesis.Tests --filter FullyQualifiedName~InventoryDiagramExcellence` plus `ArchLucid.Application.Tests --filter FullyQualifiedName~InfraEvidenceMermaidCompleteness`. Hub pipeline Application slice: `dotnet test ArchLucid.Application.Tests --filter InventoryDiagramExcellence=DataFlowHubPipeline`. **IDX-05** subnet layer can still deepen when a mode keeps subnet nodes visible.
 
 **IDX-HOLD** is not implementation. Paste `inventory-diagram-excellence-14-hold.md` only if a session starts a complete graph, default NIC/PE cards, Microsoft icons, Full-subscription RBAC, ARM `dependsOn`, a second collector, or nested frames from an **IDA / IDF** chat.
 
@@ -163,6 +165,8 @@ Suggested Cloud Agent branch per prompt: `cursor/inventory-diagram-excellence-<s
 | 13o | `inventory-diagram-excellence-13o-dataflow-hub-png-layout-stage-labels.md` | PNG export ratchet omits forest stage headers |
 | 13p | `inventory-diagram-excellence-13p-dataflow-hub-png-mermaid-stage-labels.md` | PNG export ratchet omits Mermaid stage labels |
 | 13q | `inventory-diagram-excellence-13q-dataflow-hub-export-stage-label-bundle.md` | Hub ratchets do not bundle Mermaid + forest stage labels |
+| 13r | `inventory-diagram-excellence-13r-dataflow-hub-stage-label-dedupe.md` | Hand hub ratchets duplicate paired stage-label coverage |
+| 13s | `inventory-diagram-excellence-13s-dataflow-hub-service-test-factory.md` | Hub service/PNG Application tests duplicate wiring |
 | HOLD | `inventory-diagram-excellence-14-hold.md` | Complete-graph / default PE / icons / RBAC dump |
 
 ## Prerequisites (do not re-implement)
