@@ -12,7 +12,7 @@ using Microsoft.Data.SqlClient;
 
 namespace ArchLucid.Persistence.InfraEvidence;
 
-public sealed class SqlAzureInventoryDiffRepository(ISqlConnectionFactory connectionFactory) : IAzureInventoryDiffRepository
+public sealed partial class SqlAzureInventoryDiffRepository(ISqlConnectionFactory connectionFactory) : IAzureInventoryDiffRepository
 {
     public async Task<AzureInventoryDiffSummaryRecord?> TryGetByDiffIdAsync(
         ScopeContext scope,

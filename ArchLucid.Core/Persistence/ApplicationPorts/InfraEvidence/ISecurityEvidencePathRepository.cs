@@ -154,4 +154,9 @@ public interface ISecurityEvidencePathRepository
 
         return rows;
     }
+
+    Task<IReadOnlyList<SecurityEvidencePathWithHops>> ListSharedControlFanOutHopsBySnapshotAsync(
+        ProjectSnapshotScopeKey scope,
+        CancellationToken cancellationToken = default) =>
+        Task.FromResult<IReadOnlyList<SecurityEvidencePathWithHops>>([]);
 }

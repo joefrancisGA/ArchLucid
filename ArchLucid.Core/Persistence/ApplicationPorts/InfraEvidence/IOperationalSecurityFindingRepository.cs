@@ -223,6 +223,26 @@ public interface IOperationalSecurityFindingRepository
         CancellationToken cancellationToken = default) =>
         ListMetadataByFindingAsync(scope.TenantId, findingId, cancellationToken);
 
+    async Task<IReadOnlyList<OperationalSecurityFindingMetadataRecord>> ListMetadataByFindingIdsInScopeAsync(
+        ProjectScopeKey scope,
+        IReadOnlyList<Guid> findingIds,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(findingIds);
+
+        List<OperationalSecurityFindingMetadataRecord> metadata = [];
+
+        foreach (Guid findingId in findingIds.Where(id => id != Guid.Empty).Distinct())
+        {
+            IReadOnlyList<OperationalSecurityFindingMetadataRecord> rows =
+                await ListMetadataByFindingInScopeAsync(scope, findingId, cancellationToken);
+
+            metadata.AddRange(rows);
+        }
+
+        return metadata;
+    }
+
     Task<IReadOnlyList<OperationalSecurityFindingObservationRecord>> ListObservationsByFindingAsync(
         Guid tenantId,
         Guid findingId,

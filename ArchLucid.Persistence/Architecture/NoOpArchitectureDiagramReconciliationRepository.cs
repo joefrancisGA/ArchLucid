@@ -8,7 +8,6 @@ public sealed class NoOpArchitectureDiagramReconciliationRepository : IArchitect
     {
         _ = record;
         _ = cancellationToken;
-
         return Task.CompletedTask;
     }
 
@@ -22,7 +21,6 @@ public sealed class NoOpArchitectureDiagramReconciliationRepository : IArchitect
         _ = runId;
         _ = snapshotId;
         _ = cancellationToken;
-
         return Task.FromResult<ArchitectureDiagramReconciliationPersistRecord?>(null);
     }
 
@@ -36,6 +34,18 @@ public sealed class NoOpArchitectureDiagramReconciliationRepository : IArchitect
         _ = cancellationToken;
 
         return Task.FromResult<IReadOnlyList<Guid>>([]);
+    }
+
+    public Task<IReadOnlyList<ArchitectureDiagramReconciliationPersistRecord>> ListBySnapshotAsync(
+        Guid tenantId,
+        Guid snapshotId,
+        CancellationToken cancellationToken = default)
+    {
+        _ = tenantId;
+        _ = snapshotId;
+        _ = cancellationToken;
+
+        return Task.FromResult<IReadOnlyList<ArchitectureDiagramReconciliationPersistRecord>>([]);
     }
 
     public Task<IReadOnlyList<ArchitectureDiagramReconciliationSnapshotRunRecord>> ListRunIdsBySnapshotIdsAsync(

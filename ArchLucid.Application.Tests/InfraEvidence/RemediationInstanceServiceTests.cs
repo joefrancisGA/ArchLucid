@@ -1313,8 +1313,13 @@ public sealed class RemediationInstanceServiceTests
         public Task<AzureInventorySnapshotRecord?> TryGetBySnapshotIdAsync(
             ScopeContext scope,
             Guid snapshotId,
-            CancellationToken cancellationToken = default) =>
-            Task.FromResult<AzureInventorySnapshotRecord?>(null);
+            CancellationToken cancellationToken = default)
+        {
+            if (Snapshots.TryGetValue(snapshotId, out AzureInventorySnapshotDetailReadModel? snapshot))
+                return Task.FromResult<AzureInventorySnapshotRecord?>(snapshot.Header);
+
+            return Task.FromResult<AzureInventorySnapshotRecord?>(null);
+        }
 
         public Task<AzureInventorySnapshotDetailReadModel?> TryGetCanonicalSnapshotDetailAsync(
             ScopeContext scope,
@@ -1356,8 +1361,33 @@ public sealed class RemediationInstanceServiceTests
             int page,
             int pageSize,
             Guid? cloudResourceId = null,
-            CancellationToken cancellationToken = default) =>
-            Task.FromResult<(IReadOnlyList<AzureInventoryResourceRecord>, int)?>(null);
+            CancellationToken cancellationToken = default)
+        {
+            if (!Snapshots.TryGetValue(snapshotId, out AzureInventorySnapshotDetailReadModel? snapshot))
+                return Task.FromResult<(IReadOnlyList<AzureInventoryResourceRecord>, int)?>(null);
+
+            IEnumerable<AzureInventoryResourceRecord> resources = snapshot.Resources;
+
+            if (cloudResourceId is Guid resourceId && resourceId != Guid.Empty)
+                resources = resources.Where(item => item.CloudResourceId == resourceId);
+
+            IReadOnlyList<AzureInventoryResourceRecord> items = resources.Take(pageSize).ToList();
+
+            return Task.FromResult<(IReadOnlyList<AzureInventoryResourceRecord>, int)?>((items, items.Count));
+        }
+
+        public Task<IReadOnlyList<AzureInventoryResourcePropertyReadModel>> ListResourcePropertiesByResourceRowIdAsync(
+            ScopeContext scope,
+            Guid snapshotId,
+            Guid resourceRowId,
+            CancellationToken cancellationToken = default)
+        {
+            if (!Snapshots.TryGetValue(snapshotId, out AzureInventorySnapshotDetailReadModel? snapshot))
+                return Task.FromResult<IReadOnlyList<AzureInventoryResourcePropertyReadModel>>([]);
+
+            return Task.FromResult<IReadOnlyList<AzureInventoryResourcePropertyReadModel>>(
+                snapshot.Properties.Where(item => item.ResourceRowId == resourceRowId).ToList());
+        }
 
         public Task<AzureInventorySnapshotDeleteResult> TryDeleteSnapshotAsync(
             ScopeContext scope,

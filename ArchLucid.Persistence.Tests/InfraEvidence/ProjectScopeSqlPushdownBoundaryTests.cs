@@ -19,6 +19,7 @@ public sealed class ProjectScopeSqlPushdownBoundaryTests
         yield return [typeof(IOperationalSecurityFindingRepository), typeof(SqlOperationalSecurityFindingRepository), "UpdateInScopeAsync"];
         yield return [typeof(IOperationalSecurityFindingRepository), typeof(SqlOperationalSecurityFindingRepository), "ListByScopeAsync"];
         yield return [typeof(IOperationalSecurityFindingRepository), typeof(SqlOperationalSecurityFindingRepository), "ListMetadataByFindingInScopeAsync"];
+        yield return [typeof(IOperationalSecurityFindingRepository), typeof(SqlOperationalSecurityFindingRepository), "ListMetadataByFindingIdsInScopeAsync"];
         yield return [typeof(IOperationalSecurityFindingRepository), typeof(SqlOperationalSecurityFindingRepository), "ListByCloudResourceIdPagedInScopeAsync"];
         yield return [typeof(IOperationalSecurityFindingRepository), typeof(SqlOperationalSecurityFindingRepository), "ListFindingIdsByPathIdInScopeAsync"];
         yield return [typeof(IOperationalSecurityFindingRepository), typeof(SqlOperationalSecurityFindingRepository), "ListFindingIdsBySnapshotInScopeAsync"];
@@ -89,6 +90,7 @@ public sealed class ProjectScopeSqlPushdownBoundaryTests
         yield return [typeof(IRemediationPatternMatchRepository), typeof(SqlRemediationPatternMatchRepository), "ListByFindingInScopeAsync"];
         yield return [typeof(IRemediationPatternMatchRepository), typeof(SqlRemediationPatternMatchRepository), "ListConflictsByFindingInScopeAsync"];
         yield return [typeof(IRemediationPrioritizationRepository), typeof(SqlRemediationPrioritizationRepository), "UpsertScoreInScopeAsync"];
+        yield return [typeof(IRemediationPrioritizationRepository), typeof(SqlRemediationPrioritizationRepository), "UpsertScoresInScopeAsync"];
         yield return [typeof(IAuditAssessmentRepository), typeof(SqlAuditAssessmentRepository), "InsertInScopeAsync"];
         yield return [typeof(IAuditAssessmentRepository), typeof(SqlAuditAssessmentRepository), "TryGetByIdInScopeAsync"];
         yield return [typeof(IAuditAssessmentRepository), typeof(SqlAuditAssessmentRepository), "UpdateStatusInScopeAsync"];

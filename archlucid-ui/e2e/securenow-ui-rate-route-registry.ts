@@ -19,7 +19,7 @@ export const SECURENOW_UI_RATE_ROUTES: readonly SecureNowUiRateRouteEntry[] = [
   { slug: "infrastructure-resources", href: "/infrastructure/resources", section: "operator" },
   { slug: "infrastructure-declared-connections", href: "/infrastructure/declared-connections", section: "operator" },
   { slug: "infrastructure-ask", href: "/infrastructure/ask", section: "operator" },
-  { slug: "infrastructure-extract-upload", href: "/infrastructure/extract-upload", section: "operator" },
+  { slug: "infrastructure-manual-upload", href: "/infrastructure/manual-upload", section: "operator" },
   { slug: "integrations-cloud-connections", href: "/integrations/cloud-connections", section: "operator" },
   { slug: "integrations-cloud-connections-azure", href: "/integrations/cloud-connections/azure", section: "operator" },
   { slug: "integrations-jira", href: "/integrations/jira", section: "operator" },

@@ -133,4 +133,19 @@ public sealed class NoOpAzureInventorySnapshotRepository : IAzureInventorySnapsh
         IReadOnlyList<Guid> resourceRowIds,
         CancellationToken cancellationToken = default) =>
         Task.FromResult<IReadOnlyList<AzureInventoryTagReadModel>>([]);
+
+    public Task<AzureInventorySnapshotDetailReadModel?> TryGetAdvisoryTerraformVisibleSnapshotAsync(
+        ScopeContext scope,
+        Guid snapshotId,
+        CancellationToken cancellationToken = default) =>
+        TryGetSnapshotDetailAsync(scope, snapshotId, cancellationToken);
+
+    public Task<(IReadOnlyList<AzureInventoryResourceRecord> Resources, IReadOnlyList<AzureInventoryResourcePropertyReadModel> Properties)>
+        ListResourcesAndPropertiesByCloudResourceIdsAsync(
+            ScopeContext scope,
+            Guid snapshotId,
+            IReadOnlyList<Guid> cloudResourceIds,
+            CancellationToken cancellationToken = default) =>
+        Task.FromResult<(IReadOnlyList<AzureInventoryResourceRecord>, IReadOnlyList<AzureInventoryResourcePropertyReadModel>)>(
+            ([], []));
 }
