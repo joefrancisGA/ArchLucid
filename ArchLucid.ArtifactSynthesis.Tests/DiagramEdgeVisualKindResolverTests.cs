@@ -80,4 +80,20 @@ public sealed class DiagramEdgeVisualKindResolverTests
             .Should()
             .Be("Provenance was not stored.");
     }
+
+    [Fact]
+    public void Build_inferred_empty_verb_uses_relationship_omission_sentence()
+    {
+        DiagramEdgeProvenanceDisplayLabelBuilder.Build("  ", DiagramEdgeVisualKind.Inferred)
+            .Should()
+            .Be("Relationship verb was not stored.");
+    }
+
+    [Fact]
+    public void Build_probable_verb_gets_probable_prefix()
+    {
+        DiagramEdgeProvenanceDisplayLabelBuilder.Build("connects", DiagramEdgeVisualKind.Probable)
+            .Should()
+            .Be("probable · connects");
+    }
 }

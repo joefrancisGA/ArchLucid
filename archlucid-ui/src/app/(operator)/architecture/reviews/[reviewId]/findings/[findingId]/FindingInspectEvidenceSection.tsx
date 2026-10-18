@@ -56,8 +56,18 @@ function evidenceCitationTitle(row: FindingInspectEvidence): string {
   return "Evidence excerpt was not stored.";
 }
 
-function evidenceLinkLabel(row: FindingInspectEvidence, fallbackLabel: string): string {
+const FINDING_INSPECT_EVIDENCE_LINK_NOT_STORED = "Evidence link was not stored." as const;
+
+function evidenceLinkLabel(
+  row: FindingInspectEvidence,
+  fallbackLabel: string,
+  hasDiagramCitation: boolean,
+): string {
   const artifact = row.artifactId?.trim() ?? "";
+
+  if (artifact.length > 0 && !hasDiagramCitation) {
+    return FINDING_INSPECT_EVIDENCE_LINK_NOT_STORED;
+  }
 
   if (artifact.length > 0) {
     return `Open ${artifact}`;
@@ -124,7 +134,9 @@ function EvidenceCitationList(props: {
                 props.pathname,
               )
             : (citationRow?.href ?? reviewContextHref);
-        const linkLabel = citationRow?.label ?? evidenceLinkLabel(row, reviewContextLabel);
+        const linkLabel =
+          citationRow?.label
+          ?? evidenceLinkLabel(row, reviewContextLabel, diagramCitation !== null);
         const citationSlug = evidenceCitationSlug(row, idx);
         const citationOpen = props.openCitationArtifactId === citationSlug;
 
@@ -150,14 +162,18 @@ function EvidenceCitationList(props: {
                 <div className={cn("mt-1 space-y-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                   {row.lineRange === null || row.lineRange === undefined ? (
                     <p className="m-0">Line range was not stored.</p>
-                  ) : row.lineRange ? (
+                  ) : row.lineRange.length === 0 ? (
+                    <p className="m-0">Line range was stored empty.</p>
+                  ) : (
                     <p className="m-0">Lines: {row.lineRange}</p>
-                  ) : null}
+                  )}
                   {row.artifactId === null || row.artifactId === undefined ? (
                     <p className="m-0 font-mono">Evidence artifact id was not stored.</p>
-                  ) : row.artifactId ? (
+                  ) : row.artifactId.length === 0 ? (
+                    <p className="m-0 font-mono">Evidence artifact id was stored empty.</p>
+                  ) : (
                     <p className="m-0 font-mono">Artifact id: {row.artifactId}</p>
-                  ) : null}
+                  )}
                 </div>
               </details>
             ) : (
@@ -166,18 +182,28 @@ function EvidenceCitationList(props: {
                   <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                     Line range was not stored.
                   </p>
-                ) : row.lineRange ? (
-                  <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Lines: {row.lineRange}</p>
-                ) : null}
+                ) : row.lineRange.length === 0 ? (
+                  <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                    Line range was stored empty.
+                  </p>
+                ) : (
+                  <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                    Lines: {row.lineRange}
+                  </p>
+                )}
                 {row.artifactId === null || row.artifactId === undefined ? (
                   <p className={cn("m-0 mt-1 font-mono text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                     Evidence artifact id was not stored.
                   </p>
-                ) : row.artifactId ? (
+                ) : row.artifactId.length === 0 ? (
+                  <p className={cn("m-0 mt-1 font-mono text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                    Evidence artifact id was stored empty.
+                  </p>
+                ) : (
                   <p className={cn("m-0 mt-1 font-mono text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                     Artifact id: {row.artifactId}
                   </p>
-                ) : null}
+                )}
               </>
             )}
             <div className="mt-2">

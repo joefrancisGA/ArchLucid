@@ -288,6 +288,7 @@ export function InferenceQuestionnairePanel(
                     variant={choice === "nothing" ? "primary" : "outline"}
                     onClick={() => setChoice("nothing")}
                     data-testid="inference-questionnaire-nothing"
+                    aria-label="Nothing dismisses this question. It does not store a data-plane role."
                   >
                     Nothing
                   </Button>
@@ -319,6 +320,7 @@ export function InferenceQuestionnairePanel(
                 variant={choice === "skip" ? "primary" : "outline"}
                 onClick={() => setChoice("skip")}
                 data-testid="inference-questionnaire-skip"
+                aria-label="Skip is not saved. This question stays unanswered."
               >
                 Skip
               </Button>

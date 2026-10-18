@@ -1,6 +1,7 @@
 import {
   INFRA_EVIDENCE_DIAGRAM_LEGEND_DECLARED,
   INFRA_EVIDENCE_DIAGRAM_LEGEND_OBSERVED,
+  INFRA_EVIDENCE_DIAGRAM_LEGEND_UNCLASSIFIED_PROVENANCE,
   INFRA_EVIDENCE_DIAGRAM_PNG_CONFIGURATION_RELATIONSHIP_NOTE,
 } from "@/lib/infra-evidence/infra-evidence-diagram-copy";
 import { resolveInfraEvidenceDiagramLegendInferredCopy } from "@/lib/infra-evidence/resolve-infra-evidence-diagram-legend-inferred-line";
@@ -9,6 +10,7 @@ import {
   hasInfraEvidenceDeclaredDiagramEdges,
   hasInfraEvidenceInferredDiagramEdges,
   hasInfraEvidenceProbableDiagramEdges,
+  hasInfraEvidenceUnclassifiedDiagramEdges,
   type InfraEvidenceMermaidOutline,
 } from "@/lib/infra-evidence/parse-infra-evidence-mermaid-outline";
 import { resolveInfraEvidenceCompletenessWarningPresentation } from "@/lib/infra-evidence/resolve-infra-evidence-completeness-warning-copy";
@@ -26,6 +28,7 @@ export type InfraEvidencePngReadingStripInput = {
   readonly snapshotLabel?: string | null;
   readonly resourceGroupScopeName?: string | null;
   readonly dependencyNeighborhoodSeedLabel?: string | null;
+  readonly layoutSvg?: string | null;
 };
 
 function pngSnapshotLabelLine(snapshotLabel: string | null | undefined): string {
@@ -130,6 +133,10 @@ export function buildInfraEvidencePngReadingStripLines(
     input.mode === "data"
   ) {
     lines.push("This diagram shows inventory structure. It is not observed traffic.");
+  } else {
+    lines.push(
+      `Diagram mode was stored as ${input.mode}. It is not one of the labeled inventory modes.`,
+    );
   }
 
   if (input.outline === null || input.outline === undefined) {
@@ -154,6 +161,10 @@ export function buildInfraEvidencePngReadingStripLines(
     if (hasInfraEvidenceInferredDiagramEdges(input.outline)) {
       lines.push(resolveInfraEvidenceDiagramLegendInferredCopy(input.outline).legendLine);
     }
+
+    if (hasInfraEvidenceUnclassifiedDiagramEdges(input.outline, null)) {
+      lines.push(INFRA_EVIDENCE_DIAGRAM_LEGEND_UNCLASSIFIED_PROVENANCE);
+    }
   }
 
   if (input.completenessWarnings.length > 0) {
@@ -168,7 +179,9 @@ export function buildInfraEvidencePngReadingStripLines(
     lines.push(...warningTitles.map((title) => `Warning: ${title}`));
 
     if (input.completenessWarnings.length > warningTitles.length) {
-      lines.push(`Warning: and ${input.completenessWarnings.length - warningTitles.length} more.`);
+      const omitted = input.completenessWarnings.length - warningTitles.length;
+
+      lines.push(`${omitted} additional warnings were not listed on this strip.`);
     }
   }
 
