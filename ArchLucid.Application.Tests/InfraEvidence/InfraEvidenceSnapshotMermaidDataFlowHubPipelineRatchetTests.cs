@@ -74,6 +74,8 @@ public sealed class InfraEvidenceSnapshotMermaidDataFlowHubPipelineRatchetTests
 
         mermaid.Should().NotContain("privateEndpoint", "PE cards must stay off when includePrivateEndpointNodes is false");
 
+        InventoryDiagramExcellenceDataFlowHubPipelineMermaidStageLabelAssertions.AssertStageLabels(mermaid);
+
         result.Value.LayoutEngine.Should().Be("inventory-forest");
         result.Value.LayoutSvg.Should().NotBeNullOrWhiteSpace();
 

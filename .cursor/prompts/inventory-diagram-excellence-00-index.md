@@ -111,6 +111,7 @@ Do **not** draw a complete graph to “maximize edges.” Do **not** show NIC or
 | **IDX-13i** Data Flow hub service forest routing | **Shipped** on trunk — extend only | Service `LayoutSvg` missing cross-stage route vs spoke cards |
 | **IDX-13j** Data Flow hub service PNG DOT ratchet | **Shipped** on trunk — extend only | `TryExportPngAsync` Graphviz DOT on hub graph unguarded |
 | **IDX-13k** Data Flow hub hand Ingestion label | **Shipped** on trunk — extend only | Hand AST second stage still labeled `Transform` vs compile `Ingestion` |
+| **IDX-13l** Data Flow hub Mermaid stage labels | **Shipped** on trunk — extend only | Hub Mermaid ratchets skip `Source` / `Ingestion` swimlane copy |
 | **IDX-HOLD** | Not implementation | — |
 
 **Regression guard:** `dotnet test ArchLucid.ArtifactSynthesis.Tests --filter FullyQualifiedName~InventoryDiagramExcellence` plus `ArchLucid.Application.Tests --filter FullyQualifiedName~InfraEvidenceMermaidCompleteness`. **IDX-05** subnet layer can still deepen when a mode keeps subnet nodes visible.
@@ -151,6 +152,7 @@ Suggested Cloud Agent branch per prompt: `cursor/inventory-diagram-excellence-<s
 | 13i | `inventory-diagram-excellence-13i-dataflow-hub-service-forest-routing.md` | Service forest layout ratchet skips cross-stage routing |
 | 13j | `inventory-diagram-excellence-13j-dataflow-hub-service-png-dot.md` | Service PNG export DOT on hub graph unguarded |
 | 13k | `inventory-diagram-excellence-13k-dataflow-hub-hand-ingestion-label.md` | Hand hub fixture `Transform` label diverges from compile `Ingestion` |
+| 13l | `inventory-diagram-excellence-13l-dataflow-hub-mermaid-stage-labels.md` | Hub Mermaid export omits Source/Ingestion stage labels |
 | HOLD | `inventory-diagram-excellence-14-hold.md` | Complete-graph / default PE / icons / RBAC dump |
 
 ## Prerequisites (do not re-implement)
