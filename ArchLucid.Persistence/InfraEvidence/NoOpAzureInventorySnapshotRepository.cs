@@ -108,6 +108,32 @@ public sealed class NoOpAzureInventorySnapshotRepository : IAzureInventorySnapsh
         CancellationToken cancellationToken = default)
         => Task.FromResult<IReadOnlyList<AzureInventoryRoleAssignmentReadModel>>([]);
 
+    public Task<AzureInventoryDefenderBandContextReadModel?> TryGetDefenderBandContextAsync(
+        ScopeContext scope,
+        Guid snapshotId,
+        CancellationToken cancellationToken = default)
+        => Task.FromResult<AzureInventoryDefenderBandContextReadModel?>(null);
+
+    public Task<IReadOnlyList<AzureInventoryResourceRecord>?> ListResourceVisibilityRowsBySnapshotIdAsync(
+        ScopeContext scope,
+        Guid snapshotId,
+        CancellationToken cancellationToken = default) =>
+        ListResourcesBySnapshotIdAsync(scope, snapshotId, cancellationToken);
+
+    public Task<IReadOnlyList<AzureInventoryResourceRecord>> ListResourcesByCloudResourceIdsAsync(
+        ScopeContext scope,
+        Guid snapshotId,
+        IReadOnlyList<Guid> cloudResourceIds,
+        CancellationToken cancellationToken = default) =>
+        Task.FromResult<IReadOnlyList<AzureInventoryResourceRecord>>([]);
+
+    public Task<IReadOnlyList<AzureInventoryTagReadModel>> ListTagsByResourceRowIdsAsync(
+        ScopeContext scope,
+        Guid snapshotId,
+        IReadOnlyList<Guid> resourceRowIds,
+        CancellationToken cancellationToken = default) =>
+        Task.FromResult<IReadOnlyList<AzureInventoryTagReadModel>>([]);
+
     public Task<AzureInventorySnapshotDetailReadModel?> TryGetAdvisoryTerraformVisibleSnapshotAsync(
         ScopeContext scope,
         Guid snapshotId,

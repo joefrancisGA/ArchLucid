@@ -238,14 +238,14 @@ public sealed class CloudResourceEvidenceHubService(
         CloudResourceCurrentConfigurationSection currentConfiguration =
             MapCurrentConfiguration(snapshotId, resourceRow, properties, tags);
 
-        IReadOnlyList<AzureInventoryResourceRecord>? allResources =
-            await snapshotRepository.ListResourcesBySnapshotIdAsync(scope, snapshotId, cancellationToken);
+        IReadOnlyList<AzureInventoryResourceRecord>? visibilityRows =
+            await snapshotRepository.ListResourceVisibilityRowsBySnapshotIdAsync(scope, snapshotId, cancellationToken);
 
-        HashSet<string> visibleArmIds = allResources is null
+        HashSet<string> visibleArmIds = visibilityRows is null
             ? AzureInventoryVisibleSnapshotProjection.BuildVisibleArmIdSet(
                 AzureInventoryVisibleSnapshotProjection.FilterVisibleResources([]))
             : AzureInventoryVisibleSnapshotProjection.BuildVisibleArmIdSet(
-                AzureInventoryVisibleSnapshotProjection.FilterVisibleResources(allResources));
+                AzureInventoryVisibleSnapshotProjection.FilterVisibleResources(visibilityRows));
 
         IReadOnlyList<AzureInventoryResourceRelationshipReadModel> touchingRelationships =
             await snapshotRepository.ListRelationshipsTouchingAzureResourceIdAsync(

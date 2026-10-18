@@ -295,7 +295,7 @@ public sealed class CloudResourceEvidenceHubServiceTests
                 },
             ]);
         snapshotRepository
-            .Setup(repo => repo.ListResourcesBySnapshotIdAsync(scope, snapshotId, It.IsAny<CancellationToken>()))
+            .Setup(repo => repo.ListResourceVisibilityRowsBySnapshotIdAsync(scope, snapshotId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(
             [
                 new AzureInventoryResourceRecord

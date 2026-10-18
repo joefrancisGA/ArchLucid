@@ -112,15 +112,12 @@ public static class RemediationInstanceSealedManifestHashGuard
 
         HashSet<Guid> distinctRunIds = assessmentRunIds.Values.ToHashSet();
 
-        foreach (Guid runId in distinctRunIds)
-        {
-            await GovernanceDispositionSealedManifestGuard.EnsureRunSealedManifestHashOrThrowAsync(
-                runId,
-                scope,
-                authorityQueryService,
-                manifestHashService,
-                cancellationToken);
-        }
+        await GovernanceDispositionSealedManifestGuard.EnsureDistinctRunsSealedManifestHashOrThrowAsync(
+            distinctRunIds.ToList(),
+            scope,
+            authorityQueryService,
+            manifestHashService,
+            cancellationToken);
     }
 
     public static async Task EnsureFindingLinkedRunSealedManifestHashOrThrowAsync(

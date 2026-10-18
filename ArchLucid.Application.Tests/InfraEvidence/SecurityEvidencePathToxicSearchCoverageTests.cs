@@ -124,6 +124,7 @@ public sealed class SecurityEvidencePathToxicSearchCoverageTests
             SnapshotId,
             [],
             [],
+            [],
             [coverage]);
 
         SecurityEvidencePathReportUnevaluatedGroupResponse group = report.UnevaluatedGroups

@@ -110,16 +110,27 @@ public sealed class CutPointAnalysisEngine(
         Guid snapshotId,
         CancellationToken cancellationToken)
     {
-        SecureNowAnalysisSnapshot? analysisSnapshot =
-            await SecureNowAnalysisRun.LoadAsync(snapshotRepository, scope, snapshotId, cancellationToken);
-        AzureInventorySnapshotDetailReadModel? snapshot = analysisSnapshot?.Snapshot;
+        IReadOnlyList<AzureInventoryResourceRecord>? resources =
+            await snapshotRepository.ListResourcesBySnapshotIdAsync(scope, snapshotId, cancellationToken);
 
-        if (snapshot is null)
+        if (resources is null)
         {
             return new Dictionary<Guid, string?>();
         }
 
-        return analysisSnapshot!.ResourceTypesByCloudResourceId;
+        Dictionary<Guid, string?> lookup = new();
+
+        foreach (AzureInventoryResourceRecord resource in resources)
+        {
+            if (resource.CloudResourceId is not Guid cloudResourceId || cloudResourceId == Guid.Empty)
+            {
+                continue;
+            }
+
+            lookup[cloudResourceId] = resource.ResourceType;
+        }
+
+        return lookup;
     }
 
     private static CutPointAnalysisEngineResult Failed(string message) =>

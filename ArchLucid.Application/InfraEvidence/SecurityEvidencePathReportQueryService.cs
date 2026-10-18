@@ -33,8 +33,11 @@ public sealed class SecurityEvidencePathReportQueryService(
 
         ProjectSnapshotScopeKey snapshotScope = ProjectSnapshotScopeKey.Create(scope.ToProjectScopeKey(), snapshotId);
 
-        IReadOnlyList<SecurityEvidencePathWithHops> pathsWithHops =
-            await pathRepository.ListWithHopsBySnapshotAsync(snapshotScope, cancellationToken);
+        IReadOnlyList<SecurityEvidencePathRecord> paths =
+            await pathRepository.ListBySnapshotAsync(snapshotScope, cancellationToken);
+
+        IReadOnlyList<SecurityEvidencePathHopEdgeTypeReadModel> hopEdgeTypes =
+            await pathRepository.ListHopEdgeTypesBySnapshotAsync(snapshotScope, cancellationToken);
 
         IReadOnlyList<SecurityEvidencePathRankRecord> ranks =
             await rankRepository.ListBySnapshotAsync(snapshotScope, cancellationToken);
@@ -44,7 +47,8 @@ public sealed class SecurityEvidencePathReportQueryService(
 
         return SecurityEvidencePathReportAssembler.Assemble(
             snapshotId,
-            pathsWithHops,
+            paths,
+            hopEdgeTypes,
             ranks,
             searchCoverage);
     }

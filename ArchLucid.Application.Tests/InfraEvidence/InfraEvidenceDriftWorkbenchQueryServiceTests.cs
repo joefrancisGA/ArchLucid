@@ -61,19 +61,23 @@ public sealed class InfraEvidenceDriftWorkbenchQueryServiceTests
 
         Mock<IAuthorityQueryService> authorityQuery = new();
         authorityQuery
-            .Setup(service => service.GetRunDetailForManifestCompareAsync(
+            .Setup(service => service.ListRunManifestCompareSlicesAsync(
                 Scope,
-                sharedRunId,
+                It.Is<IReadOnlyList<Guid>>(ids => ids.Count == 1 && ids[0] == sharedRunId),
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new RunDetailDto
-            {
-                Run = new RunRecord { RunId = sharedRunId },
-                GoldenManifest = new ArchLucid.Core.Manifest.ManifestDocument
+            .ReturnsAsync(
+            [
+                new RunManifestCompareSliceDto
                 {
                     RunId = sharedRunId,
-                    ManifestHash = ArchLucid.TestSupport.SealedManifest.SealedManifestHashTestSupport.DefaultHash,
+                    Run = new RunRecord { RunId = sharedRunId },
+                    GoldenManifest = new ArchLucid.Core.Manifest.ManifestDocument
+                    {
+                        RunId = sharedRunId,
+                        ManifestHash = ArchLucid.TestSupport.SealedManifest.SealedManifestHashTestSupport.DefaultHash,
+                    },
                 },
-            });
+            ]);
 
         InfraEvidenceDriftWorkbenchQueryService service = new(
             snapshotRepository.Object,
@@ -96,6 +100,18 @@ public sealed class InfraEvidenceDriftWorkbenchQueryServiceTests
             repo => repo.ListRunIdsBySnapshotIdsAsync(
                 Scope.TenantId,
                 It.IsAny<IReadOnlyList<Guid>>(),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+        authorityQuery.Verify(
+            service => service.GetRunDetailForManifestCompareAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+        authorityQuery.Verify(
+            service => service.ListRunManifestCompareSlicesAsync(
+                Scope,
+                It.Is<IReadOnlyList<Guid>>(ids => ids.Count == 1 && ids[0] == sharedRunId),
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }
