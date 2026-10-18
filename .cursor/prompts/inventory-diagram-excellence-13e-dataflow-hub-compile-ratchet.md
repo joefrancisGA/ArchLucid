@@ -27,7 +27,7 @@ Workbench and `InfraEvidenceSnapshotMermaidService` never see the test-only AST 
 - `ArchLucid.ArtifactSynthesis.Tests/InventoryDiagramExcellenceDataFlowHubPipelineRatchetTests.cs` — forest; `…MermaidRatchetTests.cs`; `…DotRatchetTests.cs` — reuse assertion helpers where possible (`InventoryDiagramExcellenceRatchetAssertions`, `InventoryDiagramExcellenceDataFlowHubRoutingAssertions`).
 - `ArchLucid.ArtifactSynthesis.Tests/DiagramAstFromGraphCompilerTests.cs` — `BuildDataFlowMvpGraph`, `AddDataFlowEdge`, `CreateTopologyNode` patterns for movement edges and stage placement.
 - `ArchLucid.ArtifactSynthesis/Compilers/DiagramAstFromGraphCompiler.cs` — compile filters and Data Flow stage planner (fix here only when compile ratchet fails).
-- `ArchLucid.Application.Tests/InfraEvidence/InfraEvidenceSnapshotMermaidServiceTests.cs` — optional **follow-up** (not required in this prompt): service-level test only if you can reuse the same graph fixture without Azure HTTP.
+- `ArchLucid.Application.Tests/InfraEvidence/InfraEvidenceSnapshotMermaidServiceTests.cs` — service path is **IDX-13f**, not this prompt.
 
 ## What to build
 
