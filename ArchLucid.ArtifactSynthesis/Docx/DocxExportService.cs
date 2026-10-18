@@ -85,6 +85,71 @@ public sealed partial class DocxExportService(
         return LlmArtifactFreeTextSanitizer.Sanitize(text ?? string.Empty);
     }
 
+    private static string FormatTopologyResourceLine(string? resource)
+    {
+        string formatted = DocxManifestFieldPresentation.FormatManifestTableCell(resource, "Resource");
+
+        if (formatted.Contains("was not stored", StringComparison.Ordinal)
+            || formatted.Contains("stored empty", StringComparison.Ordinal))
+        {
+            return formatted;
+        }
+
+        return $"Resource: {SanitizeArtifactText(resource)}";
+    }
+
+    private static string FormatTopologyGapLine(string? gap)
+    {
+        string formatted = DocxManifestFieldPresentation.FormatManifestTableCell(gap, "Gap text");
+
+        if (formatted.Contains("was not stored", StringComparison.Ordinal)
+            || formatted.Contains("stored empty", StringComparison.Ordinal))
+        {
+            return formatted;
+        }
+
+        return $"Gap: {SanitizeArtifactText(gap)}";
+    }
+
+    private static string FormatSecurityGapLine(string? gap)
+    {
+        string formatted = DocxManifestFieldPresentation.FormatManifestTableCell(gap, "Security gap");
+
+        if (formatted.Contains("was not stored", StringComparison.Ordinal)
+            || formatted.Contains("stored empty", StringComparison.Ordinal))
+        {
+            return formatted;
+        }
+
+        return $"Security gap: {SanitizeArtifactText(gap)}";
+    }
+
+    private static string FormatComplianceGapLine(string? gap)
+    {
+        string formatted = DocxManifestFieldPresentation.FormatManifestTableCell(gap, "Compliance gap");
+
+        if (formatted.Contains("was not stored", StringComparison.Ordinal)
+            || formatted.Contains("stored empty", StringComparison.Ordinal))
+        {
+            return formatted;
+        }
+
+        return $"Compliance gap: {SanitizeArtifactText(gap)}";
+    }
+
+    private static string FormatCostNoteLine(string? note)
+    {
+        string formatted = DocxManifestFieldPresentation.FormatManifestTableCell(note, "Cost note");
+
+        if (formatted.Contains("was not stored", StringComparison.Ordinal)
+            || formatted.Contains("stored empty", StringComparison.Ordinal))
+        {
+            return formatted;
+        }
+
+        return $"Cost note: {SanitizeArtifactText(note)}";
+    }
+
     /// <summary>Empty findings aligned with the manifest when the export request has no persisted snapshot.</summary>
     private static FindingsSnapshot CreateFallbackFindings(ManifestDocument manifest)
     {
@@ -175,7 +240,7 @@ public sealed partial class DocxExportService(
         if (manifest.Topology.Resources.Count > 0)
 
             foreach (string resource in manifest.Topology.Resources)
-                WordDocumentBuilder.AddBodyText(body, $"Resource: {SanitizeArtifactText(resource)}");
+                WordDocumentBuilder.AddBodyText(body, FormatTopologyResourceLine(resource));
 
         else
             WordDocumentBuilder.AddBodyText(body, "No concrete topology resources were recorded.");
@@ -191,7 +256,7 @@ public sealed partial class DocxExportService(
         }
 
         foreach (string gap in manifest.Topology.Gaps)
-            WordDocumentBuilder.AddBodyText(body, $"Gap: {SanitizeArtifactText(gap)}");
+            WordDocumentBuilder.AddBodyText(body, FormatTopologyGapLine(gap));
         WordDocumentBuilder.AddSpacer(body);
 
         WordDocumentBuilder.AddHeading(body, "Security Posture");
@@ -216,7 +281,7 @@ public sealed partial class DocxExportService(
         }
 
         foreach (string gap in manifest.Security.Gaps)
-            WordDocumentBuilder.AddBodyText(body, $"Security gap: {SanitizeArtifactText(gap)}");
+            WordDocumentBuilder.AddBodyText(body, FormatSecurityGapLine(gap));
         WordDocumentBuilder.AddSpacer(body);
 
         if (request.IncludeComplianceSection)
@@ -231,10 +296,10 @@ public sealed partial class DocxExportService(
                 List<(string ControlId, string ControlName, string AppliesToCategory, string Status)> compRows =
                     manifest.Compliance.Controls
                         .Select(c => (
-                            SanitizeArtifactText(c.ControlId),
-                            SanitizeArtifactText(c.ControlName),
-                            SanitizeArtifactText(c.AppliesToCategory),
-                            SanitizeArtifactText(c.Status)))
+                            DocxManifestFieldPresentation.FormatManifestTableCell(c.ControlId, "Control id"),
+                            DocxManifestFieldPresentation.FormatManifestTableCell(c.ControlName, "Control name"),
+                            DocxManifestFieldPresentation.FormatManifestTableCell(c.AppliesToCategory, "Category"),
+                            DocxManifestFieldPresentation.FormatManifestTableCell(c.Status, "Status")))
                         .ToList();
                 WordDocumentBuilder.AddFourColumnTable(
                     body,
@@ -243,7 +308,7 @@ public sealed partial class DocxExportService(
             }
 
             foreach (string gap in manifest.Compliance.Gaps)
-                WordDocumentBuilder.AddBodyText(body, $"Compliance gap: {SanitizeArtifactText(gap)}");
+                WordDocumentBuilder.AddBodyText(body, FormatComplianceGapLine(gap));
             WordDocumentBuilder.AddSpacer(body);
         }
 
@@ -256,7 +321,7 @@ public sealed partial class DocxExportService(
             WordDocumentBuilder.AddBodyText(body, $"Cost risk: {SanitizeArtifactText(risk)}");
 
         foreach (string note in manifest.Cost.Notes)
-            WordDocumentBuilder.AddBodyText(body, $"Cost note: {SanitizeArtifactText(note)}");
+            WordDocumentBuilder.AddBodyText(body, FormatCostNoteLine(note));
         WordDocumentBuilder.AddSpacer(body);
 
         WordDocumentBuilder.AddHeading(body, "Assumptions");

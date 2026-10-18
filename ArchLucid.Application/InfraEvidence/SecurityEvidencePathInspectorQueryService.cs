@@ -71,8 +71,16 @@ public sealed class SecurityEvidencePathInspectorQueryService(
         IReadOnlyList<SecurityEvidencePathHopRecord> hops =
             await pathRepository.ListHopsByPathInScopeAsync(scope.ToProjectScopeKey(), pathId, cancellationToken);
 
-        IReadOnlyList<Guid> citingFindingIds =
-            await findingRepository.ListFindingIdsByPathIdInScopeAsync(scope.ToProjectScopeKey(), pathId, cancellationToken);
+        ProjectScopeKey projectScope = scope.ToProjectScopeKey();
+
+        IReadOnlyDictionary<Guid, IReadOnlyList<Guid>> findingIdsBySnapshot =
+            await findingRepository.ListFindingIdsBySnapshotInScopeAsync(projectScope, path.SnapshotId, cancellationToken);
+
+        IReadOnlyList<Guid> citingFindingIds = await ResolveFindingIdsForPathAsync(
+            findingIdsBySnapshot,
+            pathId,
+            projectScope,
+            cancellationToken);
 
         SecurityEvidencePathHopRecord? weakestHopRecord = hops.FirstOrDefault(hop => hop.HopOrdinal == path.WeakestHopOrdinal);
 
@@ -110,9 +118,10 @@ public sealed class SecurityEvidencePathInspectorQueryService(
             IReadOnlyList<Guid> snapshotFindingIds =
                 snapshotPath.PathId == path.PathId
                     ? citingFindingIds
-                    : await findingRepository.ListFindingIdsByPathIdInScopeAsync(
-                        scope.ToProjectScopeKey(),
+                    : await ResolveFindingIdsForPathAsync(
+                        findingIdsBySnapshot,
                         snapshotPath.PathId,
+                        projectScope,
                         cancellationToken);
 
             pathEvidence.Add((snapshotPath, snapshotHops));
@@ -144,6 +153,20 @@ public sealed class SecurityEvidencePathInspectorQueryService(
             Routing = routingRows.Select(MapRouting).ToList(),
             Hypotheses = hypotheses,
         };
+    }
+
+    private async Task<IReadOnlyList<Guid>> ResolveFindingIdsForPathAsync(
+        IReadOnlyDictionary<Guid, IReadOnlyList<Guid>> findingIdsBySnapshot,
+        Guid pathId,
+        ProjectScopeKey projectScope,
+        CancellationToken cancellationToken)
+    {
+        if (findingIdsBySnapshot.TryGetValue(pathId, out IReadOnlyList<Guid>? batchedIds))
+        {
+            return batchedIds;
+        }
+
+        return await findingRepository.ListFindingIdsByPathIdInScopeAsync(projectScope, pathId, cancellationToken);
     }
 
     private static SecurityEvidencePathRoutingResponse MapRouting(SecurityEvidencePathRoutingRecord row) =>

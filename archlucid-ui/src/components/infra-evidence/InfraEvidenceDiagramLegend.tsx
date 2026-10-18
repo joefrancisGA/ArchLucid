@@ -6,7 +6,9 @@ import {
   INFRA_EVIDENCE_DIAGRAM_LEGEND_HEADING,
   INFRA_EVIDENCE_DIAGRAM_LEGEND_HOSTNAME_FOOTNOTE,
   INFRA_EVIDENCE_DIAGRAM_LEGEND_OBSERVED,
+  INFRA_EVIDENCE_DIAGRAM_LEGEND_PRIVATE_ENDPOINT,
   INFRA_EVIDENCE_DIAGRAM_LEGEND_RESOURCE_CATEGORY,
+  INFRA_EVIDENCE_DIAGRAM_LEGEND_UNCLASSIFIED_PROVENANCE,
 } from "@/lib/infra-evidence/infra-evidence-diagram-copy";
 import { resolveInfraEvidenceDiagramLegendInferredCopy } from "@/lib/infra-evidence/resolve-infra-evidence-diagram-legend-inferred-line";
 import { resolveInfraEvidenceDiagramLegendProbableLine } from "@/lib/infra-evidence/resolve-infra-evidence-diagram-legend-probable-line";
@@ -14,6 +16,7 @@ import {
   hasInfraEvidenceInferredDiagramEdges,
   hasInfraEvidenceDeclaredDiagramEdges,
   hasInfraEvidenceProbableDiagramEdges,
+  hasInfraEvidenceUnclassifiedDiagramEdges,
   type InfraEvidenceMermaidOutline,
 } from "@/lib/infra-evidence/parse-infra-evidence-mermaid-outline";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -70,11 +73,13 @@ export function InfraEvidenceDiagramLegend(props: InfraEvidenceDiagramLegendProp
   const hasDeclared = hasInfraEvidenceDeclaredDiagramEdges(props.outline, props.mermaidSource);
   const hasProbable = hasInfraEvidenceProbableDiagramEdges(props.outline, props.mermaidSource);
   const hasInferred = hasInfraEvidenceInferredDiagramEdges(props.outline, props.mermaidSource);
+  const hasUnclassified = hasInfraEvidenceUnclassifiedDiagramEdges(props.outline, props.layoutSvg);
   const accentKinds = collectInfraEvidenceDiagramAccentKinds(props.layoutSvg);
   const hasPrivateEndpointAccess = props.layoutSvg?.includes("private-endpoint-access") === true;
   const probableLegendLine = resolveInfraEvidenceDiagramLegendProbableLine(props.outline);
   const inferredLegendCopy = resolveInfraEvidenceDiagramLegendInferredCopy(props.outline, props.mermaidSource);
-  const showConnectorLegend = hasObserved || hasDeclared || hasProbable || hasInferred || hasPrivateEndpointAccess;
+  const showConnectorLegend =
+    hasObserved || hasDeclared || hasProbable || hasInferred || hasUnclassified || hasPrivateEndpointAccess;
 
   if (!showConnectorLegend && accentKinds.length === 0) {
     return null;
@@ -116,6 +121,12 @@ export function InfraEvidenceDiagramLegend(props: InfraEvidenceDiagramLegendProp
                   <span>{inferredLegendCopy.legendLine}</span>
                 </li>
               ) : null}
+              {hasUnclassified ? (
+                <li className="flex items-center gap-2">
+                  <DiagramStrokeSample style="dashed" />
+                  <span>{INFRA_EVIDENCE_DIAGRAM_LEGEND_UNCLASSIFIED_PROVENANCE}</span>
+                </li>
+              ) : null}
             </ul>
             {hasPrivateEndpointAccess ? (
               <div
@@ -123,7 +134,7 @@ export function InfraEvidenceDiagramLegend(props: InfraEvidenceDiagramLegendProp
                 data-testid="infra-evidence-diagram-legend-private-endpoint"
               >
                 <PrivateEndpointAccessGlyph />
-                <span>Private endpoint</span>
+                <span>{INFRA_EVIDENCE_DIAGRAM_LEGEND_PRIVATE_ENDPOINT}</span>
               </div>
             ) : null}
             {hasInferred ? (

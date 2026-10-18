@@ -76,39 +76,29 @@ public sealed class InfraEvidenceDriftWorkbenchQueryServiceTests
 
         Mock<IAzureInventorySnapshotRepository> snapshotRepository = new();
         snapshotRepository
-            .Setup(repo => repo.TryGetSnapshotDetailAsync(Scope, snapshotId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new AzureInventorySnapshotDetailReadModel
-            {
-                Header = new AzureInventorySnapshotRecord
+            .Setup(repo => repo.ListResourcesBySnapshotIdAsync(Scope, snapshotId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new AzureInventoryResourceRecord
                 {
+                    ResourceRowId = resourceRowId,
                     SnapshotId = snapshotId,
                     TenantId = Scope.TenantId,
-                    SubscriptionId = "sub",
-                    CaptureStatus = AzureInventoryCaptureStatus.Succeeded,
+                    CloudResourceId = cloudResourceId,
+                    AzureResourceId =
+                        "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/publicIPAddresses/gw",
+                    ResourceType = "Microsoft.Network/publicIPAddresses",
                 },
-                Resources =
-                [
-                    new AzureInventoryResourceRecord
-                    {
-                        ResourceRowId = resourceRowId,
-                        SnapshotId = snapshotId,
-                        TenantId = Scope.TenantId,
-                        CloudResourceId = cloudResourceId,
-                        AzureResourceId =
-                            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/publicIPAddresses/gw",
-                        ResourceType = "Microsoft.Network/publicIPAddresses",
-                    },
-                    new AzureInventoryResourceRecord
-                    {
-                        ResourceRowId = Guid.NewGuid(),
-                        SnapshotId = snapshotId,
-                        TenantId = Scope.TenantId,
-                        AzureResourceId =
-                            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.OperationsManagement/solutions/Security",
-                        ResourceType = "Microsoft.OperationsManagement/solutions",
-                    },
-                ],
-            });
+                new AzureInventoryResourceRecord
+                {
+                    ResourceRowId = Guid.NewGuid(),
+                    SnapshotId = snapshotId,
+                    TenantId = Scope.TenantId,
+                    AzureResourceId =
+                        "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.OperationsManagement/solutions/Security",
+                    ResourceType = "Microsoft.OperationsManagement/solutions",
+                },
+            ]);
 
         InfraEvidenceDriftWorkbenchQueryService service = CreateService(snapshotRepository: snapshotRepository.Object);
 
@@ -165,51 +155,41 @@ public sealed class InfraEvidenceDriftWorkbenchQueryServiceTests
             ChangeType = AzureInventoryChangeType.ResourceAdded,
         };
 
-        AzureInventorySnapshotDetailReadModel snapshotDetail = new()
-        {
-            Header = new AzureInventorySnapshotRecord
+        IReadOnlyList<AzureInventoryResourceRecord> snapshotResources =
+        [
+            new AzureInventoryResourceRecord
             {
+                ResourceRowId = Guid.NewGuid(),
                 SnapshotId = snapshotAId,
                 TenantId = Scope.TenantId,
-                SubscriptionId = "sub",
-                CaptureStatus = AzureInventoryCaptureStatus.Succeeded,
+                AzureResourceId = unchangedArmId,
+                ResourceType = "Microsoft.Storage/storageAccounts",
             },
-            Resources =
-            [
-                new AzureInventoryResourceRecord
-                {
-                    ResourceRowId = Guid.NewGuid(),
-                    SnapshotId = snapshotAId,
-                    TenantId = Scope.TenantId,
-                    AzureResourceId = unchangedArmId,
-                    ResourceType = "Microsoft.Storage/storageAccounts",
-                },
-                new AzureInventoryResourceRecord
-                {
-                    ResourceRowId = Guid.NewGuid(),
-                    SnapshotId = snapshotAId,
-                    TenantId = Scope.TenantId,
-                    AzureResourceId = changedArmId,
-                    ResourceType = "Microsoft.Compute/virtualMachines",
-                },
-                new AzureInventoryResourceRecord
-                {
-                    ResourceRowId = Guid.NewGuid(),
-                    SnapshotId = snapshotAId,
-                    TenantId = Scope.TenantId,
-                    AzureResourceId = omittedSolutionArmId,
-                    ResourceType = string.Empty,
-                },
-                new AzureInventoryResourceRecord
-                {
-                    ResourceRowId = Guid.NewGuid(),
-                    SnapshotId = snapshotAId,
-                    TenantId = Scope.TenantId,
-                    AzureResourceId = omittedLinkArmId,
-                    ResourceType = "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
-                },
-            ],
-        };
+            new AzureInventoryResourceRecord
+            {
+                ResourceRowId = Guid.NewGuid(),
+                SnapshotId = snapshotAId,
+                TenantId = Scope.TenantId,
+                AzureResourceId = changedArmId,
+                ResourceType = "Microsoft.Compute/virtualMachines",
+            },
+            new AzureInventoryResourceRecord
+            {
+                ResourceRowId = Guid.NewGuid(),
+                SnapshotId = snapshotAId,
+                TenantId = Scope.TenantId,
+                AzureResourceId = omittedSolutionArmId,
+                ResourceType = string.Empty,
+            },
+            new AzureInventoryResourceRecord
+            {
+                ResourceRowId = Guid.NewGuid(),
+                SnapshotId = snapshotAId,
+                TenantId = Scope.TenantId,
+                AzureResourceId = omittedLinkArmId,
+                ResourceType = "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
+            },
+        ];
 
         Mock<IAzureInventoryDiffRepository> diffRepository = new();
         diffRepository
@@ -221,11 +201,11 @@ public sealed class InfraEvidenceDriftWorkbenchQueryServiceTests
 
         Mock<IAzureInventorySnapshotRepository> snapshotRepository = new();
         snapshotRepository
-            .Setup(repo => repo.TryGetSnapshotDetailAsync(Scope, snapshotAId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(snapshotDetail);
+            .Setup(repo => repo.ListResourcesBySnapshotIdAsync(Scope, snapshotAId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(snapshotResources);
         snapshotRepository
-            .Setup(repo => repo.TryGetSnapshotDetailAsync(Scope, snapshotBId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(snapshotDetail);
+            .Setup(repo => repo.ListResourcesBySnapshotIdAsync(Scope, snapshotBId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(snapshotResources);
 
         InfraEvidenceDriftWorkbenchQueryService service = CreateService(
             snapshotRepository: snapshotRepository.Object,
@@ -257,6 +237,9 @@ public sealed class InfraEvidenceDriftWorkbenchQueryServiceTests
                 It.IsAny<int>(),
                 It.IsAny<Guid?>(),
                 It.IsAny<CancellationToken>()),
+            Times.Never);
+        snapshotRepository.Verify(
+            repo => repo.TryGetSnapshotDetailAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
             Times.Never);
     }
 

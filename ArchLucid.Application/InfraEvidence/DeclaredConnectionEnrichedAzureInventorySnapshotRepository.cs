@@ -107,6 +107,12 @@ public sealed class DeclaredConnectionEnrichedAzureInventorySnapshotRepository(
         CancellationToken cancellationToken = default) =>
         inner.ListResourcesBySnapshotIdPagedAsync(scope, snapshotId, page, pageSize, cloudResourceId, cancellationToken);
 
+    public Task<IReadOnlyList<AzureInventoryResourceRecord>?> ListResourcesBySnapshotIdAsync(
+        ScopeContext scope,
+        Guid snapshotId,
+        CancellationToken cancellationToken = default) =>
+        inner.ListResourcesBySnapshotIdAsync(scope, snapshotId, cancellationToken);
+
     public Task<AzureInventorySnapshotDeleteResult> TryDeleteSnapshotAsync(
         ScopeContext scope,
         Guid snapshotId,

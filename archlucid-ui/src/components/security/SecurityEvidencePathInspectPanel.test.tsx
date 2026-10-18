@@ -328,7 +328,7 @@ describe("SecurityEvidencePathInspectPanel", () => {
       "Rank was not stored",
     );
     expect(screen.getByTestId("security-evidence-path-inspect-subject")).toHaveTextContent(
-      "Control was not stored",
+      "Control id was not stored",
     );
     expect(screen.getByTestId("security-evidence-path-routing")).toHaveTextContent("Owner was not stored");
     expect(screen.getByTestId("security-evidence-path-rank-dimension-blastRadius")).toHaveTextContent(

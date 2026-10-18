@@ -379,12 +379,12 @@ Index: [`SECURENOW_PERFORMANCE_LUNA_PROMPTS.md`](../architecture/SECURENOW_PERFO
 | SN-PERF-08 | Prioritization prefetches exceptions and matches | **Shipped** |
 | SN-PERF-09 | Snapshot header and grids in one round trip | **Shipped** |
 | SN-PERF-10 | Question graph from the loaded snapshot | **Shipped** |
-| SN-PERF-11 | Unchanged drift rows from resources only | **Backlog** |
+| SN-PERF-11 | Unchanged drift rows from resources only | **Shipped** |
 | SN-PERF-12 | Wave create loads approved instances by finding id | **Shipped** |
-| SN-PERF-13 | Factory metrics from grouped SQL | **Backlog** |
-| SN-PERF-14 | Inspector finding ids in one snapshot read | **Backlog** |
-| SN-PERF-15 | Snapshot inventory rows without full detail | **Backlog** |
-| SN-PERF-16 | Shared snapshot header SQL | **Backlog** |
+| SN-PERF-13 | Factory metrics from grouped SQL | **Shipped** |
+| SN-PERF-14 | Inspector finding ids in one snapshot read | **Shipped** |
+| SN-PERF-15 | Snapshot inventory rows without full detail | **Shipped** |
+| SN-PERF-16 | Shared snapshot header SQL | **Shipped** |
 | SN-PERF-20 | Evidence hub loads one resource slice | **Backlog** |
 | SN-PERF-21 | Evidence hub terraform mapping and recent changes for one resource | **Backlog** |
 | SN-PERF-22 | Preflight production tag from one resource | **Backlog** |

@@ -9,7 +9,7 @@ using Dapper;
 
 namespace ArchLucid.Persistence.InfraEvidence;
 
-public sealed class SqlOperationalSecurityFindingRepository(ISqlConnectionFactory connectionFactory)
+public sealed partial class SqlOperationalSecurityFindingRepository(ISqlConnectionFactory connectionFactory)
     : IOperationalSecurityFindingRepository
 {
     public async Task<OperationalSecurityFindingRecord?> TryGetByNaturalKeyAsync(
