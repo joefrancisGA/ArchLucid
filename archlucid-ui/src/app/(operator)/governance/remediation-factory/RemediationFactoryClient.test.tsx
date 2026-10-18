@@ -366,6 +366,57 @@ describe("RemediationFactoryClient", () => {
     );
   });
 
+  it("selects a collapsed path when a top cut point highlights a path", () => {
+    mockRankedPathsQuery({
+      data: {
+        items: [
+          {
+            pathId: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+            snapshotId: "cccccccc-cccc-cccc-cccc-cccccccccccc",
+            rankOrder: 1,
+            ruleVersion: "SA-09-v1",
+            technicalExposureScore: 0.9,
+            privilegeDepthScore: 0.8,
+            blastRadiusScore: 0.7,
+            businessConsequenceScore: null,
+            confidenceBandScore: 0.6,
+            compositeSortScore: 0.8123,
+            explanationSummary: "SA09-rank-v1: PrivilegePath path ranks by weighted dimensions.",
+            pathKind: "PrivilegePath",
+            pathConfidenceBand: "HighlyLikely",
+            computedUtc: "2026-01-01T00:00:00Z",
+            relatedCutPoints: [],
+          },
+        ],
+        totalCount: 1,
+        page: 1,
+        pageSize: 25,
+        topCutPoints: [
+          {
+            cutPointId: "cut-1",
+            cutKind: "Node",
+            cutOrder: 1,
+            fromNodeLabel: "mi-worker",
+            toNodeLabel: null,
+            edgeType: null,
+            explanationSummary: "SA10-cut-v1: removing node mi-worker collapses 3 ranked path(s).",
+            suggestedPatternKey: null,
+            operationalCostClass: "RoleAssignment",
+            pathsCollapsedCount: 3,
+            leverageScore: 9,
+            collapsedPathIds: ["bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"],
+          },
+        ],
+      },
+    });
+
+    render(<RemediationFactoryClient />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Highlight path" }));
+
+    expect(selectPath).toHaveBeenCalledWith("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+  });
+
   it("focuses path inspect on Alt+I and the command palette inspect event", () => {
     render(<RemediationFactoryClient />);
 

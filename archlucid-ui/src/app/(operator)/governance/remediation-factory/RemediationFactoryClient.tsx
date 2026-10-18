@@ -697,6 +697,14 @@ export function RemediationFactoryClient() {
     focusGovernanceFindingsQueuePathInspectPanel(pathInspectPanelRef.current);
   }, []);
 
+  const onSelectCutPointPath = useCallback(
+    (pathId: string) => {
+      selectPath(pathId);
+      focusGovernanceFindingsQueuePathInspectPanel(pathInspectPanelRef.current);
+    },
+    [selectPath],
+  );
+
   const onExplainScore = useCallback(() => {
     const findingId = selectedFindingIdRef.current;
 
@@ -811,7 +819,7 @@ export function RemediationFactoryClient() {
         isSuccess={rankedPathsQuery.isSuccess}
         refetch={() => rankedPathsQuery.refetch()}
         selectedPathId={selectedPathId}
-        onSelectPath={selectPath}
+        onSelectPath={onSelectCutPointPath}
       />
 
       <section className="space-y-3" aria-label="Operator priority table">

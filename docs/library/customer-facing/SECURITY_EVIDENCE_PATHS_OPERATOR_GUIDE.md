@@ -27,6 +27,12 @@ On [Priorities & waves](/security/remediation-factory), the **Attack path report
 
 The report does not claim exploitability, observed traffic, or a percentage.
 
+## Highest-leverage cut points
+
+On the same page, **Highest-leverage cut points** lists SA-10 choke points for the current ranked paths (up to ten). Each row explains how many ranked paths would collapse if that node or edge were removed, and may suggest an approved remediation pattern when exactly one match exists.
+
+Use **Highlight path** to select a collapsed path and open **Path inspect** for hop evidence. Cut points are advisory; nothing applies to Azure from this page.
+
 ## Where to go next
 
 - Open an **advisory remediation instance** from the panel when one exists for the selected finding.
