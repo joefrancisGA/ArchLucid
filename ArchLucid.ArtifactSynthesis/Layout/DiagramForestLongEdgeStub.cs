@@ -177,6 +177,10 @@ internal static class DiagramForestLongEdgeStub
         {
             pathAttributes.Add(new XAttribute("stroke-dasharray", "1 3"));
         }
+        else if (visualKind == DiagramEdgeVisualKind.Unclassified)
+        {
+            pathAttributes.Add(new XAttribute("stroke-dasharray", "2 2"));
+        }
 
         return new XElement(
             svgNamespace + "g",

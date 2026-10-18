@@ -66,8 +66,14 @@ function pngDependencyNeighborhoodScopeLine(seedLabel: string | null | undefined
   return `Scope: dependency neighborhood from ${trimmed}.`;
 }
 
-function hasObservedEdges(outline: InfraEvidenceMermaidOutline | null | undefined): boolean {
-  return outline?.edges.some((edge) => edge.source === "observed") === true;
+function hasStoredObservedFactEdges(outline: InfraEvidenceMermaidOutline | null | undefined): boolean {
+  return (
+    outline?.edges.some(
+      (edge) =>
+        edge.source === "observed"
+        && (edge.provenanceKind?.trim().toLowerCase() ?? "") === "observedfact",
+    ) === true
+  );
 }
 
 const CONFIGURATION_RELATIONSHIP_INFERENCE_SOURCES = new Set([
@@ -128,7 +134,7 @@ export function buildInfraEvidencePngReadingStripLines(
 
   if (input.outline === null || input.outline === undefined) {
     lines.push("Diagram outline was not stored.");
-  } else if (hasObservedEdges(input.outline)) {
+  } else if (hasStoredObservedFactEdges(input.outline)) {
     lines.push(INFRA_EVIDENCE_DIAGRAM_LEGEND_OBSERVED);
   }
 

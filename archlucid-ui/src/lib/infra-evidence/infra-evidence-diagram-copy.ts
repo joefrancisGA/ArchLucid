@@ -32,6 +32,9 @@ export const INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED =
 export const INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED_HOSTNAME =
   "Dotted — inferred hostname (confirm in configuration)";
 
+export const INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED_SOURCE_UNKNOWN =
+  "Dotted — inferred (inference source was not stored).";
+
 export const INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED_AI =
   "Dotted — AI inference (confirm in configuration)";
 

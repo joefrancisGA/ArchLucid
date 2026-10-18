@@ -9,8 +9,6 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { CopyIdButton } from "@/components/CopyIdButton";
-import { BUYER_SHOWCASE_POLICY_PACK_LABEL } from "@/lib/buyer/buyer-polish-copy";
-import { resolveProductionEvalChromeFromStorage } from "@/lib/resolve-production-eval-chrome-from-storage";
 import { findingDetailHeadingTitle } from "@/lib/findings/finding-display-from-inspect";
 import { policyPacksRuleHref } from "@/lib/policy/policy-packs-deep-link";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -139,14 +137,9 @@ export function FindingInspectWhyMattersSection({
         <p className={cn("m-0 mt-2 leading-relaxed text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
           {whyThisMattersNarrative}
         </p>
-      ) : demoFillGaps ? (
-        <p className={cn("m-0 mt-2 leading-relaxed text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-          Sensitive fields (PHI) are carried through the intake path into downstream services. The finalized review
-          package documents where patient identifiers stop and how monitoring validates ongoing minimization.
-        </p>
       ) : (
         <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-          — (no dedicated rationale on file; see primary rule and evidence below.)
+          Why-this-matters rationale was not stored.
         </p>
       )}
       <dl className={cn("mt-3 space-y-2 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
@@ -165,11 +158,6 @@ export function FindingInspectWhyMattersSection({
                 policyRuleLabel
               )}
             </dd>
-          </div>
-        ) : resolveProductionEvalChromeFromStorage() ? (
-          <div>
-            <dt className="font-medium text-neutral-600 dark:text-neutral-400">Primary rule</dt>
-            <dd className="m-0 mt-1">{BUYER_SHOWCASE_POLICY_PACK_LABEL} — PHI minimization at intake</dd>
           </div>
         ) : (
           <div>
