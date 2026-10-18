@@ -15,6 +15,8 @@ public sealed class InventoryDiagramExcellenceCrossModeWaveManifestTests
         nameof(InventoryDiagramExcellenceIdx13ModeRatchetTests),
         nameof(InventoryDiagramExcellenceForestRatchetTests),
         nameof(InventoryDiagramExcellenceNestedFrameParityTests),
+        nameof(InventoryDiagramExcellenceNestedSubnetNetworkCompileRatchetTests),
+        nameof(InventoryDiagramExcellencePeeledSubnetVnetFrameRatchetTests),
         nameof(InventoryDiagramExcellenceFatGraphForestDotParityRatchetTests),
         nameof(InventoryDiagramExcellenceSingletonTailRatchetTests),
         nameof(InventoryDiagramExcellenceDuplicateConnectionRatchetTests),

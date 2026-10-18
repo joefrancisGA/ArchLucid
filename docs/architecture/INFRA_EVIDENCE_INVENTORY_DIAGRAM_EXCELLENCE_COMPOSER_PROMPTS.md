@@ -19,6 +19,7 @@
 | Same-RG / single-VNet clique | **IDX-03** | Canvas looks busy and false |
 | Labels say `connects` | **IDX-04** | Peering = placement = identity |
 | No VNet/subnet boxes | **IDX-05** | Network still a flat RG dump |
+| Network/peeled-subnet compile skips excellence filter | **IDX-05b** | Shipped — extend only |
 | No subscription container | **IDX-06** | Multi-sub or Full has no outer |
 | Role-blind inner grid | **IDX-07** | Hubs lost; compute mixed with KV |
 | Data Flow stage is a vertical stack | **IDX-07b** | ADF with four sinks is not a hub inside the stage |
@@ -70,6 +71,7 @@
 | **IDX-03** Cited hops | After 02 | |
 | **IDX-04** Honest verbs | After 02 (prefer 03) | |
 | **IDX-05** Nested VNet/subnet frames | After 04 preferred | |
+| **IDX-05b** Nested subnet excellence ratchet | After 05 compile path on trunk | Shipped — extend only |
 | **IDX-06** Subscription outer | After 05 | |
 | **IDX-07** Role-aware packing | After 05 | |
 | **IDX-07b** Data Flow in-stage hub | After 07 | Shipped — extend only |
