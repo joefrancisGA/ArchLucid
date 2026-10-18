@@ -98,9 +98,19 @@ internal static class InventoryDiagramOrphanedStateApplier
 
             diagramNode.ConnectionState = InventoryDiagramConnectionState.Unknown;
             diagramNode.ConnectionStateMessage = null;
-            diagramNode.UnresolvedRelationshipDetails = MergeUnresolvedRelationshipDetails(
+            List<string> unknownDetails = MergeUnresolvedRelationshipDetails(
                 diagramNode.UnresolvedRelationshipDetails,
                 result.UnresolvedRelationshipDetails);
+
+            if (InventoryDiagramConnectionPostureCatalog.IsUnmodeledConnectionPosture(ReadArmType(graphNode))
+                && !unknownDetails.Contains(
+                    InventoryDiagramConnectionPostureCatalog.PostureNotModeledDetail,
+                    StringComparer.Ordinal))
+            {
+                unknownDetails.Add(InventoryDiagramConnectionPostureCatalog.PostureNotModeledDetail);
+            }
+
+            diagramNode.UnresolvedRelationshipDetails = unknownDetails;
         }
     }
 

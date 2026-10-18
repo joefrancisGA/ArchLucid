@@ -69,6 +69,18 @@ public static class InventoryDiagramOrphanedStateClassifier
                 ["No stored registry link yet."]);
         }
 
+        if (armResourceType.Equals("Microsoft.DataFactory/factories", StringComparison.OrdinalIgnoreCase))
+        {
+            return InventoryDiagramConnectionStateResult.WithUnresolvedDetails(
+                [InventoryDiagramConnectionPostureCatalog.DataFactoryNoStoredLinkDetail]);
+        }
+
+        if (armResourceType.Equals("Microsoft.Web/connections", StringComparison.OrdinalIgnoreCase))
+        {
+            return InventoryDiagramConnectionStateResult.WithUnresolvedDetails(
+                [InventoryDiagramConnectionPostureCatalog.LogicAppConnectionNotCitedDetail]);
+        }
+
         if (TryClassifyUnconnected(armResourceType)
             || InventoryDiagramSharedServiceCatalog.IsSharedService(armResourceType))
         {
