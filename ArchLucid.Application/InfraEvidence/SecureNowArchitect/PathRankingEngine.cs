@@ -59,13 +59,12 @@ public sealed class PathRankingEngine(
 
         DefenderSecureScoreOrdinalBand subscriptionDefenderBand = DefenderSecureScoreOrdinalBand.Unknown;
 
-        SecureNowAnalysisSnapshot? analysisSnapshot =
-            await SecureNowAnalysisRun.LoadAsync(snapshotRepository, scope, snapshotId, cancellationToken);
-        AzureInventorySnapshotDetailReadModel? snapshot = analysisSnapshot?.Snapshot;
+        AzureInventoryDefenderBandContextReadModel? defenderContext =
+            await snapshotRepository.TryGetDefenderBandContextAsync(scope, snapshotId, cancellationToken);
 
-        if (snapshot is not null)
+        if (defenderContext is not null)
         {
-            subscriptionDefenderBand = DefenderSnapshotContextResolver.ResolveSubscriptionBand(snapshot);
+            subscriptionDefenderBand = DefenderBandContextResolver.ResolveSubscriptionBand(defenderContext);
         }
 
         List<(SecurityEvidencePathRecord Path, SecurityEvidencePathRankEvaluation Evaluation)> evaluated = [];

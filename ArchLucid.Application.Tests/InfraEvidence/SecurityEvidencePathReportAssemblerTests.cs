@@ -85,6 +85,7 @@ public sealed class SecurityEvidencePathReportAssemblerTests
             SnapshotId,
             [],
             [],
+            [],
             [coverage]);
 
         SecurityEvidencePathReportUnevaluatedGroupResponse? searchStopped = report.UnevaluatedGroups
@@ -99,24 +100,18 @@ public sealed class SecurityEvidencePathReportAssemblerTests
 
     private static SecurityEvidencePathReportResponse AssembleSample()
     {
-        List<SecurityEvidencePathWithHops> paths =
+        List<SecurityEvidencePathRecord> paths =
         [
-            CreatePath(ConfirmedPathId, PathKind.Privilege, PathConfidenceBand.Confirmed, []),
-            CreatePath(
-                PossiblePathId,
-                PathKind.IntendedReachability,
-                PathConfidenceBand.Possible,
-                [CreateHop(SecureNowArchitectConstants.PublicNetworkAccessHopEdgeType)]),
-            CreatePath(
-                NsgInsufficientPathId,
-                PathKind.Privilege,
-                PathConfidenceBand.InsufficientEvidence,
-                [CreateHop(SecureNowArchitectConstants.InsufficientEvidenceNsgHopEdgeType)]),
-            CreatePath(
-                CapabilityPathId,
-                PathKind.CapabilityToFlow,
-                PathConfidenceBand.Probable,
-                []),
+            CreatePathRecord(ConfirmedPathId, PathKind.Privilege, PathConfidenceBand.Confirmed),
+            CreatePathRecord(PossiblePathId, PathKind.IntendedReachability, PathConfidenceBand.Possible),
+            CreatePathRecord(NsgInsufficientPathId, PathKind.Privilege, PathConfidenceBand.InsufficientEvidence),
+            CreatePathRecord(CapabilityPathId, PathKind.CapabilityToFlow, PathConfidenceBand.Probable),
+        ];
+
+        List<SecurityEvidencePathHopEdgeTypeReadModel> hopEdgeTypes =
+        [
+            new() { PathId = PossiblePathId, EdgeType = SecureNowArchitectConstants.PublicNetworkAccessHopEdgeType },
+            new() { PathId = NsgInsufficientPathId, EdgeType = SecureNowArchitectConstants.InsufficientEvidenceNsgHopEdgeType },
         ];
 
         List<SecurityEvidencePathRankRecord> ranks =
@@ -127,38 +122,23 @@ public sealed class SecurityEvidencePathReportAssemblerTests
             CreateRank(CapabilityPathId, 4),
         ];
 
-        return SecurityEvidencePathReportAssembler.Assemble(SnapshotId, paths, ranks, []);
+        return SecurityEvidencePathReportAssembler.Assemble(SnapshotId, paths, hopEdgeTypes, ranks, []);
     }
 
-    private static SecurityEvidencePathWithHops CreatePath(
+    private static SecurityEvidencePathRecord CreatePathRecord(
         Guid pathId,
         PathKind kind,
-        PathConfidenceBand band,
-        IReadOnlyList<SecurityEvidencePathHopRecord> hops) =>
-        new(
-            new SecurityEvidencePathRecord
-            {
-                PathId = pathId,
-                SnapshotId = SnapshotId,
-                PathKind = kind,
-                PathConfidenceBand = band,
-                WeakestHopOrdinal = hops.Count == 0 ? 1 : hops[0].HopOrdinal,
-                WeakestHopReason = "test",
-                CreatedUtc = DateTime.UtcNow,
-                UpdatedUtc = DateTime.UtcNow,
-            },
-            hops);
-
-    private static SecurityEvidencePathHopRecord CreateHop(string edgeType) =>
+        PathConfidenceBand band) =>
         new()
         {
-            HopOrdinal = 1,
-            FromNodeId = "from",
-            ToNodeId = "to",
-            EdgeType = edgeType,
-            ProvenanceKind = ProvenanceKind.ObservedFact,
-            HopConfidenceBand = PathConfidenceBand.InsufficientEvidence,
-            EvidenceReference = "ref",
+            PathId = pathId,
+            SnapshotId = SnapshotId,
+            PathKind = kind,
+            PathConfidenceBand = band,
+            WeakestHopOrdinal = 1,
+            WeakestHopReason = "test",
+            CreatedUtc = DateTime.UtcNow,
+            UpdatedUtc = DateTime.UtcNow,
         };
 
     private static SecurityEvidencePathRankRecord CreateRank(Guid pathId, int rankOrder) =>

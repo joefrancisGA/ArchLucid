@@ -16,17 +16,25 @@ internal static class SecurityEvidencePathReportAssembler
 
     public static SecurityEvidencePathReportResponse Assemble(
         Guid snapshotId,
-        IReadOnlyList<SecurityEvidencePathWithHops> pathsWithHops,
+        IReadOnlyList<SecurityEvidencePathRecord> paths,
+        IReadOnlyList<SecurityEvidencePathHopEdgeTypeReadModel> hopEdgeTypes,
         IReadOnlyList<SecurityEvidencePathRankRecord> ranks,
         IReadOnlyList<SecurityEvidencePathSearchCoverageRecord> searchCoverageRows)
     {
-        ArgumentNullException.ThrowIfNull(pathsWithHops);
+        ArgumentNullException.ThrowIfNull(paths);
+        ArgumentNullException.ThrowIfNull(hopEdgeTypes);
         ArgumentNullException.ThrowIfNull(ranks);
         ArgumentNullException.ThrowIfNull(searchCoverageRows);
 
-        Dictionary<Guid, SecurityEvidencePathWithHops> attackPaths = pathsWithHops
-            .Where(entry => IsAttackPathKind(entry.Path.PathKind))
-            .ToDictionary(entry => entry.Path.PathId);
+        Dictionary<Guid, IReadOnlyList<string>> edgeTypesByPathId = hopEdgeTypes
+            .GroupBy(row => row.PathId)
+            .ToDictionary(
+                group => group.Key,
+                group => (IReadOnlyList<string>)group.Select(row => row.EdgeType).ToList());
+
+        Dictionary<Guid, SecurityEvidencePathRecord> attackPaths = paths
+            .Where(path => IsAttackPathKind(path.PathKind))
+            .ToDictionary(path => path.PathId);
 
         List<SecurityEvidencePathRankSummaryResponse> vulnerable = [];
 
@@ -34,7 +42,7 @@ internal static class SecurityEvidencePathReportAssembler
                      .Where(rank => rank.SnapshotId == snapshotId && attackPaths.ContainsKey(rank.PathId))
                      .OrderBy(rank => rank.RankOrder))
         {
-            SecurityEvidencePathRecord path = attackPaths[rank.PathId].Path;
+            SecurityEvidencePathRecord path = attackPaths[rank.PathId];
 
             if (!IsVulnerableBand(path.PathConfidenceBand))
             {
@@ -45,7 +53,7 @@ internal static class SecurityEvidencePathReportAssembler
         }
 
         List<SecurityEvidencePathReportUnevaluatedGroupResponse> unevaluated = [];
-        AppendInsufficientEvidenceGroups(unevaluated, attackPaths);
+        AppendInsufficientEvidenceGroups(unevaluated, attackPaths, edgeTypesByPathId);
         AppendControlPlaneOnlyGroup(unevaluated, attackPaths);
         AppendSearchStoppedGroups(unevaluated, searchCoverageRows);
 
@@ -59,10 +67,11 @@ internal static class SecurityEvidencePathReportAssembler
 
     private static void AppendInsufficientEvidenceGroups(
         List<SecurityEvidencePathReportUnevaluatedGroupResponse> groups,
-        Dictionary<Guid, SecurityEvidencePathWithHops> attackPaths)
+        Dictionary<Guid, SecurityEvidencePathRecord> attackPaths,
+        IReadOnlyDictionary<Guid, IReadOnlyList<string>> edgeTypesByPathId)
     {
-        List<SecurityEvidencePathWithHops> insufficientPaths = attackPaths.Values
-            .Where(entry => entry.Path.PathConfidenceBand == PathConfidenceBand.InsufficientEvidence)
+        List<SecurityEvidencePathRecord> insufficientPaths = attackPaths.Values
+            .Where(path => path.PathConfidenceBand == PathConfidenceBand.InsufficientEvidence)
             .ToList();
 
         if (insufficientPaths.Count == 0)
@@ -76,13 +85,17 @@ internal static class SecurityEvidencePathReportAssembler
         {
             List<Guid> pathIds = [];
 
-            foreach (SecurityEvidencePathWithHops entry in insufficientPaths)
+            foreach (SecurityEvidencePathRecord path in insufficientPaths)
             {
-
-                if (entry.Hops.Any(hop => string.Equals(hop.EdgeType, reasonCode, StringComparison.Ordinal)))
+                if (!edgeTypesByPathId.TryGetValue(path.PathId, out IReadOnlyList<string>? edgeTypes))
                 {
-                    pathIds.Add(entry.Path.PathId);
-                    assignedToEdgeGroup.Add(entry.Path.PathId);
+                    continue;
+                }
+
+                if (edgeTypes.Any(edgeType => string.Equals(edgeType, reasonCode, StringComparison.Ordinal)))
+                {
+                    pathIds.Add(path.PathId);
+                    assignedToEdgeGroup.Add(path.PathId);
                 }
             }
 
@@ -101,8 +114,8 @@ internal static class SecurityEvidencePathReportAssembler
         }
 
         List<Guid> unspecifiedPathIds = insufficientPaths
-            .Where(entry => !assignedToEdgeGroup.Contains(entry.Path.PathId))
-            .Select(entry => entry.Path.PathId)
+            .Where(path => !assignedToEdgeGroup.Contains(path.PathId))
+            .Select(path => path.PathId)
             .ToList();
 
         if (unspecifiedPathIds.Count == 0)
@@ -122,11 +135,11 @@ internal static class SecurityEvidencePathReportAssembler
 
     private static void AppendControlPlaneOnlyGroup(
         List<SecurityEvidencePathReportUnevaluatedGroupResponse> groups,
-        Dictionary<Guid, SecurityEvidencePathWithHops> attackPaths)
+        Dictionary<Guid, SecurityEvidencePathRecord> attackPaths)
     {
         List<Guid> pathIds = attackPaths.Values
-            .Where(entry => entry.Path.PathConfidenceBand == PathConfidenceBand.Possible)
-            .Select(entry => entry.Path.PathId)
+            .Where(path => path.PathConfidenceBand == PathConfidenceBand.Possible)
+            .Select(path => path.PathId)
             .ToList();
 
         if (pathIds.Count == 0)

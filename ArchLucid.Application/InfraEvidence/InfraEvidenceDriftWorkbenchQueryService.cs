@@ -60,15 +60,12 @@ public sealed class InfraEvidenceDriftWorkbenchQueryService(
             .Where(runId => runId != Guid.Empty)
             .ToHashSet();
 
-        foreach (Guid runId in distinctRunIds)
-        {
-            await GovernanceDispositionSealedManifestGuard.EnsureRunSealedManifestHashOrThrowAsync(
-                runId,
-                scope,
-                _authorityQueryService,
-                _manifestHashService,
-                cancellationToken);
-        }
+        await GovernanceDispositionSealedManifestGuard.EnsureDistinctRunsSealedManifestHashOrThrowAsync(
+            distinctRunIds.ToList(),
+            scope,
+            _authorityQueryService,
+            _manifestHashService,
+            cancellationToken);
 
         return PagedResponseBuilder.FromDatabasePage(items, totalCount, page, pageSize);
     }
