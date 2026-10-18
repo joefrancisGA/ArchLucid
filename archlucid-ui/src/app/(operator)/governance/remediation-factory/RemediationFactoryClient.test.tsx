@@ -423,6 +423,7 @@ describe("RemediationFactoryClient", () => {
     fireEvent.click(screen.getByRole("button", { name: "Highlight path" }));
 
     expect(selectPath).toHaveBeenCalledWith(collapsedPathId);
+    expect(screen.getByTestId("security-evidence-path-inspect-panel")).toHaveFocus();
   });
 
   it("shows ranked path pagination when the server reports more than one page", () => {
