@@ -33,6 +33,31 @@ On the same page, **Highest-leverage cut points** lists SA-10 choke points for t
 
 Use **Highlight path** to select a collapsed path and open **Path inspect** for hop evidence. Cut points are advisory; nothing applies to Azure from this page.
 
+## Executive remediation metrics
+
+On [Priorities & waves](/security/remediation-factory), the **Executive remediation metrics** grid summarizes open operational security findings in the current workspace. Each tile shows a count or share with a short helper that describes what is in scope.
+
+## How these counts are measured {#how-these-counts-are-measured}
+
+Open findings uses the factory metrics count. The governance queue can count open rows differently. Risk-weighted open uses remediation prioritization rule IE15-priority-v1. Net burn is opened minus closed. It is not cloud spend.
+
+## Architect outcome metrics (SA-11) {#architect-outcome-metrics}
+
+Rule version **SA11-metrics-v1**.
+
+Select an earlier **From snapshot** and a later **To snapshot**, then press **Compare snapshots**. Headline deltas describe architecture outcomes — path removal and posture change — not ticket burn-down. Ordinal bands only; no percentage confidence on these cards.
+
+| Headline metric | What changed between snapshots |
+| --- | --- |
+| Critical/high paths removed | Paths in the earlier snapshot with confidence band Confirmed or Highly likely whose canonical path fingerprint is absent in the later snapshot |
+| Privileged identity nodes reduced | Non-negative drop in distinct managed-identity nodes referenced on paths |
+| Unrestricted egress paths reduced | Capability-to-flow paths with unrestricted egress in the earlier snapshot whose fingerprint is absent in the later snapshot |
+| Crown jewel exposure paths removed | Paths linked to a crown jewel assertion in the earlier snapshot whose fingerprint is absent in the later snapshot |
+
+A path is **removed** when its canonical path fingerprint exists in the earlier snapshot set and is missing from the later set. Band improvement alone does not count as removal.
+
+**Supporting: open findings** is operational context on the panel, not a headline architecture outcome.
+
 ## Where to go next
 
 - Open an **advisory remediation instance** from the panel when one exists for the selected finding.
