@@ -7,6 +7,7 @@ using FluentAssertions;
 namespace ArchLucid.ArtifactSynthesis.Tests;
 
 [Trait("Category", "Unit")]
+[Trait("InventoryDiagramExcellence", "DataFlowHubPipeline")]
 public sealed class InventoryDiagramExcellenceDataFlowHubPipelineDotRatchetTests
 {
     private readonly DiagramAstGraphvizDotEmitter emitter = new();
