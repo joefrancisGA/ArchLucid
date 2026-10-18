@@ -70,6 +70,22 @@ describe("ArchitectureStructuredSectionView", () => {
     );
 
     expect(screen.getByText("Detail was not stored.")).toBeInTheDocument();
+    expect(screen.getByText("Detail was stored empty.")).toBeInTheDocument();
     expect(screen.getByText("Empty")).toBeInTheDocument();
+  });
+
+  it("labels a stored empty entity heading", () => {
+    render(
+      <ArchitectureStructuredSectionView
+        section={{
+          ...assertedSection,
+          entities: [{ label: "", detail: "Still described.", provenance: "asserted" }],
+        }}
+        defaultOpen
+        correctionHref={null}
+      />,
+    );
+
+    expect(screen.getByText("Item label was stored empty.")).toBeInTheDocument();
   });
 });

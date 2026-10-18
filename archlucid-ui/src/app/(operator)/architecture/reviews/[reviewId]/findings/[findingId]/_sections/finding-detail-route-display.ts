@@ -30,6 +30,7 @@ export type FindingDecisionSummary = {
 
 const NO_RECOMMENDED_ACTION_RECORDED = "No recommended action recorded for this finding.";
 const REMEDIATION_DUE_NOT_STORED = "Remediation due date was not stored.";
+const REMEDIATION_DUE_STORED_EMPTY = "Remediation due date was stored empty.";
 const RISK_OWNER_NOT_ASSIGNED = "Risk owner was not stored";
 const STATUS_NOT_STORED = "Status was not stored";
 const SEVERITY_NOT_STORED = "Severity was not stored";
@@ -138,7 +139,7 @@ export function formatFindingRemediationDueLabel(remediationDueUtc: string | nul
   const trimmed = remediationDueUtc.trim();
 
   if (trimmed.length === 0) {
-    return "";
+    return REMEDIATION_DUE_STORED_EMPTY;
   }
 
   const parsed = new Date(trimmed);

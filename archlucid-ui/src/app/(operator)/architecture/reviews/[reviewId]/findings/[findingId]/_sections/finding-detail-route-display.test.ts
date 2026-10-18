@@ -90,8 +90,13 @@ describe("finding-detail-route-display buyer summary copy", () => {
     expect(resolveFindingNextReviewLabel(emptyPayload({ remediationDueUtc: null }), "generic-finding")).toBe(
       "Remediation due date was not stored.",
     );
-    expect(resolveFindingNextReviewLabel(emptyPayload({ remediationDueUtc: "" }), "generic-finding")).toBe("");
-    expect(formatFindingRemediationDueLabel("")).toBe("");
+    expect(resolveFindingNextReviewLabel(emptyPayload({ remediationDueUtc: "" }), "generic-finding")).toBe(
+      "Remediation due date was stored empty.",
+    );
+    expect(resolveFindingNextReviewLabel(emptyPayload({ remediationDueUtc: " " }), "generic-finding")).toBe(
+      "Remediation due date was stored empty.",
+    );
+    expect(formatFindingRemediationDueLabel("")).toBe("Remediation due date was stored empty.");
   });
 
   it("does not invent an impacted area for an ordinary finding", () => {

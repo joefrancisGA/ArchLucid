@@ -114,13 +114,15 @@ export function semanticSupportBandInspectDetailFromWireBand(rawBand: unknown): 
   }
 
   if (rawBand === "") {
-    return "";
+    return "Semantic support band was stored empty.";
   }
 
   const band = normalizeFindingSemanticSupportBand(rawBand);
 
   if (band === null) {
-    return "";
+    return typeof rawBand === "string" && rawBand.trim().length > 0
+      ? "Semantic support band was not recognized."
+      : "";
   }
 
   return semanticSupportBandInspectDetail(band);

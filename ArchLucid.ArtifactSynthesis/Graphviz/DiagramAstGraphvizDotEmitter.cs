@@ -186,9 +186,8 @@ public sealed class DiagramAstGraphvizDotEmitter : IDiagramAstGraphvizDotEmitter
 
         string indentText = new(' ', indent * 4);
         string clusterId = AllocateClusterId(subgraph.SubgraphId, allocatedClusterIds);
-        string clusterLabel = subgraph.Label is null
-            ? GraphvizIdEscaper.QuoteLabel("Group label was not stored")
-            : GraphvizIdEscaper.QuoteLabel(subgraph.Label);
+        string clusterLabel = GraphvizIdEscaper.QuoteLabel(
+            DiagramSubgraphLabelFormatter.FormatForDiagram(subgraph.Label));
 
         builder.AppendLine($"{indentText}subgraph {clusterId} {{");
         builder.AppendLine($"{indentText}    label={clusterLabel};");

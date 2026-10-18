@@ -150,16 +150,16 @@ public sealed partial class DocxExportService(
             List<(string Name, string Status, string Mandatory, string Notes)> reqRows = [];
             foreach (RequirementCoverageItem item in manifest.Requirements.Covered)
                 reqRows.Add((
-                    SanitizeArtifactText(item.RequirementName),
-                    SanitizeArtifactText(item.CoverageStatus),
+                    DocxManifestFieldPresentation.FormatManifestTableCell(item.RequirementName, "Requirement name"),
+                    DocxManifestFieldPresentation.FormatManifestTableCell(item.CoverageStatus, "Coverage status"),
                     item.IsMandatory ? "Yes" : "No",
-                    SanitizeArtifactText(item.RequirementText)));
+                    DocxManifestFieldPresentation.FormatManifestTableCell(item.RequirementText, "Requirement text")));
             foreach (RequirementCoverageItem item in manifest.Requirements.Uncovered)
                 reqRows.Add((
-                    SanitizeArtifactText(item.RequirementName),
-                    SanitizeArtifactText(item.CoverageStatus),
+                    DocxManifestFieldPresentation.FormatManifestTableCell(item.RequirementName, "Requirement name"),
+                    DocxManifestFieldPresentation.FormatManifestTableCell(item.CoverageStatus, "Coverage status"),
                     item.IsMandatory ? "Yes" : "No",
-                    SanitizeArtifactText(item.RequirementText)));
+                    DocxManifestFieldPresentation.FormatManifestTableCell(item.RequirementText, "Requirement text")));
 
             if (reqRows.Count == 0)
                 WordDocumentBuilder.AddBodyText(body, "No requirements were recorded.");
@@ -200,10 +200,10 @@ public sealed partial class DocxExportService(
             List<(string ControlId, string ControlName, string Status, string Impact)> secRows = manifest.Security
                 .Controls
                 .Select(c => (
-                    SanitizeArtifactText(c.ControlId),
-                    SanitizeArtifactText(c.ControlName),
-                    SanitizeArtifactText(c.Status),
-                    SanitizeArtifactText(c.Impact)))
+                    DocxManifestFieldPresentation.FormatManifestTableCell(c.ControlId, "Control id"),
+                    DocxManifestFieldPresentation.FormatManifestTableCell(c.ControlName, "Control name"),
+                    DocxManifestFieldPresentation.FormatManifestTableCell(c.Status, "Control status"),
+                    DocxManifestFieldPresentation.FormatManifestTableCell(c.Impact, "Impact")))
                 .ToList();
             WordDocumentBuilder.AddFourColumnTable(
                 body,
@@ -299,13 +299,21 @@ public sealed partial class DocxExportService(
 
             foreach (ImprovementRecommendation recommendation in improvementPlan.Recommendations.Take(10))
             {
-                WordDocumentBuilder.AddBodyText(body,
-                    SanitizeArtifactText($"{recommendation.Title} [{recommendation.Urgency}]"));
-                WordDocumentBuilder.AddBodyText(body, SanitizeArtifactText($"Rationale: {recommendation.Rationale}"));
-                WordDocumentBuilder.AddBodyText(body,
-                    SanitizeArtifactText($"Suggested Action: {recommendation.SuggestedAction}"));
-                WordDocumentBuilder.AddBodyText(body,
-                    SanitizeArtifactText($"Expected Impact: {recommendation.ExpectedImpact}"));
+                string titleLine =
+                    $"{DocxManifestFieldPresentation.FormatManifestTableCell(recommendation.Title, "Improvement title")} [{DocxManifestFieldPresentation.FormatManifestTableCell(recommendation.Urgency, "Urgency")}]";
+                WordDocumentBuilder.AddBodyText(body, SanitizeArtifactText(titleLine));
+                WordDocumentBuilder.AddBodyText(
+                    body,
+                    SanitizeArtifactText(
+                        $"Rationale: {DocxManifestFieldPresentation.FormatManifestTableCell(recommendation.Rationale, "Rationale")}"));
+                WordDocumentBuilder.AddBodyText(
+                    body,
+                    SanitizeArtifactText(
+                        $"Suggested Action: {DocxManifestFieldPresentation.FormatManifestTableCell(recommendation.SuggestedAction, "Suggested action")}"));
+                WordDocumentBuilder.AddBodyText(
+                    body,
+                    SanitizeArtifactText(
+                        $"Expected Impact: {DocxManifestFieldPresentation.FormatManifestTableCell(recommendation.ExpectedImpact, "Expected impact")}"));
                 WordDocumentBuilder.AddSpacer(body);
             }
 
@@ -320,9 +328,9 @@ public sealed partial class DocxExportService(
         {
             List<(string Category, string Title, string SelectedOption)> decRows = manifest.Decisions
                 .Select(d => (
-                    SanitizeArtifactText(d.Category),
-                    SanitizeArtifactText(d.Title),
-                    SanitizeArtifactText(d.SelectedOption)))
+                    DocxManifestFieldPresentation.FormatManifestTableCell(d.Category, "Decision category"),
+                    DocxManifestFieldPresentation.FormatManifestTableCell(d.Title, "Decision title"),
+                    DocxManifestFieldPresentation.FormatManifestTableCell(d.SelectedOption, "Selected option")))
                 .ToList();
             WordDocumentBuilder.AddThreeColumnTable(
                 body,
