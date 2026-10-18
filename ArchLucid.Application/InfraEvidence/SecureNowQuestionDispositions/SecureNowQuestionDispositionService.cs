@@ -113,16 +113,16 @@ public sealed class SecureNowQuestionDispositionService(
     {
         ArgumentNullException.ThrowIfNull(scope);
 
-        AzureInventorySnapshotDetailReadModel? snapshot =
-            await snapshotRepository.TryGetSnapshotDetailAsync(scope, snapshotId, cancellationToken);
-        if (snapshot is null || string.IsNullOrWhiteSpace(snapshot.Header.SubscriptionId))
+        AzureInventorySnapshotRecord? snapshot =
+            await snapshotRepository.TryGetBySnapshotIdAsync(scope, snapshotId, cancellationToken);
+        if (snapshot is null || string.IsNullOrWhiteSpace(snapshot.SubscriptionId))
             return [];
 
         DateTime now = TimeProvider.System.UtcNowDateTime();
         IReadOnlyList<SecureNowQuestionDispositionRecord> records =
             await dispositionRepository.ListByTenantAndSubscriptionAsync(
                 scope.TenantId,
-                Normalize(snapshot.Header.SubscriptionId),
+                Normalize(snapshot.SubscriptionId),
                 cancellationToken);
 
         return records
@@ -319,11 +319,11 @@ public sealed class SecureNowQuestionDispositionService(
         if (snapshotId == Guid.Empty)
             return false;
 
-        AzureInventorySnapshotDetailReadModel? snapshot =
-            await snapshotRepository.TryGetSnapshotDetailAsync(scope, snapshotId, cancellationToken);
+        AzureInventorySnapshotRecord? snapshot =
+            await snapshotRepository.TryGetBySnapshotIdAsync(scope, snapshotId, cancellationToken);
         return snapshot is not null
                && string.Equals(
-                   Normalize(snapshot.Header.SubscriptionId),
+                   Normalize(snapshot.SubscriptionId),
                    Normalize(subscriptionId),
                    StringComparison.Ordinal);
     }

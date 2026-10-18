@@ -189,6 +189,29 @@ public interface IOperationalSecurityFindingRepository
         };
     }
 
+    async Task<int> CountOpenOrRecurredInScopeAsync(
+        ProjectScopeKey scope,
+        CancellationToken cancellationToken = default)
+    {
+        IReadOnlyList<OperationalSecurityFindingRecord> findings =
+            await ListByScopeAsync(scope, status: null, cancellationToken);
+
+        return findings.Count(item =>
+            item.Status is OperationalSecurityFindingStatus.Open or OperationalSecurityFindingStatus.Recurred);
+    }
+
+    async Task<int> CountOutcomeRecurrencePairsInScopeAsync(
+        ProjectScopeKey scope,
+        DateTime windowStartUtc,
+        DateTime windowEndUtc,
+        CancellationToken cancellationToken = default)
+    {
+        IReadOnlyList<OperationalSecurityFindingRecord> findings =
+            await ListByScopeAsync(scope, status: null, cancellationToken);
+
+        return SecureNowOutcomeRecurrenceCounter.Count(findings, windowStartUtc, windowEndUtc);
+    }
+
     Task<IReadOnlyList<OperationalSecurityFindingMetadataRecord>> ListMetadataByFindingAsync(
         Guid tenantId,
         Guid findingId,

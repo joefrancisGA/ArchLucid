@@ -14,6 +14,7 @@ public sealed class InventoryDiagramExcellenceCrossModeWaveManifestApplicationTe
     [
         nameof(InventoryDiagramExcellenceCompletenessSummaryRatchetTests),
         nameof(InventoryDiagramExcellenceCrossModeWaveManifestApplicationTests),
+        nameof(InventoryDiagramExcellenceCrossModeTraitGuardApplicationTests),
     ];
 
     [Fact]
