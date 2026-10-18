@@ -172,10 +172,6 @@ Singleton-tail, connection rollup, PE opt-in, completeness, hop-focus, cross-mod
 
 `dotnet test ArchLucid.ArtifactSynthesis.Tests --filter FullyQualifiedName~FatGraphForestDotParityRatchet`
 
-`dotnet test ArchLucid.ArtifactSynthesis.Tests --filter FullyQualifiedName~InventoryDiagramExcellenceNestedSubnetNetworkCompileRatchet`
-
-`dotnet test ArchLucid.ArtifactSynthesis.Tests --filter FullyQualifiedName~InventoryDiagramExcellencePeeledSubnetVnetFrameRatchet`
-
 `cd archlucid-ui && npm test -- inventory-diagram-excellence-workbench.ratchet`
 
 `cd archlucid-ui && npm test -- inventory-diagram-excellence-cross-mode-ui-wave-manifest`
