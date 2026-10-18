@@ -2,10 +2,10 @@ using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.Core.AzureExtractor;
 using ArchLucid.KnowledgeGraph;
 
-namespace ArchLucid.ArtifactSynthesis.Tests;
+namespace ArchLucid.ArtifactSynthesis.Testing;
 
-/// <summary>GraphSnapshot for IDX-13e — compiles to the same hub pipeline shape as the hand AST fixture.</summary>
-public static class InventoryDiagramExcellenceDataFlowHubPipelineGraphFixture
+/// <summary>GraphSnapshot for IDX-13e / IDX-13f — compiles to the same hub pipeline shape as the hand AST fixture.</summary>
+internal static class InventoryDiagramExcellenceDataFlowHubPipelineGraphFixture
 {
     public const string LandingGraphNodeId = "landing";
     public const string FactoryGraphNodeId = "adf";
@@ -19,7 +19,7 @@ public static class InventoryDiagramExcellenceDataFlowHubPipelineGraphFixture
             GraphSnapshotId = Guid.NewGuid(),
             ContextSnapshotId = Guid.NewGuid(),
             RunId = Guid.NewGuid(),
-            CreatedUtc = DateTime.UtcNow,
+            CreatedUtc = new DateTime(2026, 10, 18, 0, 0, 0, DateTimeKind.Utc),
         };
 
         graph.Nodes.Add(CreateTopologyNode(
