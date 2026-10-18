@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import type { EnterpriseCompactEmptyStateProps } from "@/components/EnterpriseCompactEmptyState";
@@ -302,6 +302,12 @@ export function SecureNowArchitectOutcomeMetricsPanel(props: SecureNowArchitectO
   const [internalToSnapshotId, setInternalToSnapshotId] = useState<string>("");
   const [compareRequested, setCompareRequested] = useState(false);
   const awaitingManualCompareRef = useRef(false);
+  const defaultControlledPairAppliedRef = useRef(false);
+  const onSnapshotPairChangeRef = useRef(props.onSnapshotPairChange);
+  const onQueryStateChangeRef = useRef(props.onQueryStateChange);
+
+  onSnapshotPairChangeRef.current = props.onSnapshotPairChange;
+  onQueryStateChangeRef.current = props.onQueryStateChange;
 
   const controlled = props.onSnapshotPairChange !== undefined;
   const fromSnapshotId = controlled ? (props.fromSnapshotId ?? "") : internalFromSnapshotId;
@@ -318,19 +324,10 @@ export function SecureNowArchitectOutcomeMetricsPanel(props: SecureNowArchitectO
   }, [controlled, sortedSnapshots]);
 
   useEffect(() => {
-    if (!controlled || props.hasUrlSnapshotPair === true || sortedSnapshots.length < 2) {
-      return;
+    if (sortedSnapshots.length < 2) {
+      defaultControlledPairAppliedRef.current = false;
     }
-
-    const defaultPair = resolveDefaultSnapshotPair(sortedSnapshots);
-
-    if (defaultPair == null) {
-      return;
-    }
-
-    props.onSnapshotPairChange?.(defaultPair);
-    setCompareRequested(true);
-  }, [controlled, props.hasUrlSnapshotPair, props.onSnapshotPairChange, sortedSnapshots]);
+  }, [sortedSnapshots.length]);
 
   useEffect(() => {
     if (!controlled || sortedSnapshots.length < 2) {
@@ -341,14 +338,25 @@ export function SecureNowArchitectOutcomeMetricsPanel(props: SecureNowArchitectO
     const to = (props.toSnapshotId ?? "").trim();
 
     if (from.length === 0 && to.length === 0) {
+      if (defaultControlledPairAppliedRef.current) {
+        return;
+      }
+
+      const defaultPair = resolveDefaultSnapshotPair(sortedSnapshots);
+
+      if (defaultPair == null) {
+        return;
+      }
+
+      defaultControlledPairAppliedRef.current = true;
       awaitingManualCompareRef.current = false;
-      props.onSnapshotPairChange?.({
-        fromSnapshotId: sortedSnapshots[1]?.snapshotId ?? "",
-        toSnapshotId: sortedSnapshots[0]?.snapshotId ?? "",
-      });
+      onSnapshotPairChangeRef.current?.(defaultPair);
       setCompareRequested(true);
+
       return;
     }
+
+    defaultControlledPairAppliedRef.current = true;
 
     const pairIsValid =
       from.length > 0
@@ -360,7 +368,7 @@ export function SecureNowArchitectOutcomeMetricsPanel(props: SecureNowArchitectO
     if (pairIsValid && !awaitingManualCompareRef.current) {
       setCompareRequested(true);
     }
-  }, [controlled, props.fromSnapshotId, props.toSnapshotId, props.onSnapshotPairChange, sortedSnapshots]);
+  }, [controlled, props.fromSnapshotId, props.toSnapshotId, sortedSnapshots]);
 
   useEffect(() => {
     if (props.hasUrlSnapshotPair === true) {
@@ -382,27 +390,31 @@ export function SecureNowArchitectOutcomeMetricsPanel(props: SecureNowArchitectO
     compareRequested && !pairInverted,
   );
 
-  const refetchAll = useMemo(
-    () => () => {
-      void snapshotsQuery.refetch();
-      void metricsQuery.refetch();
-    },
-    [metricsQuery, snapshotsQuery],
-  );
+  const refetchSnapshots = snapshotsQuery.refetch;
+  const refetchOutcomeMetrics = metricsQuery.refetch;
+
+  const refetchAll = useCallback(() => {
+    void refetchSnapshots();
+    void refetchOutcomeMetrics();
+  }, [refetchOutcomeMetrics, refetchSnapshots]);
+
+  const refetchAllRef = useRef(refetchAll);
+
+  refetchAllRef.current = refetchAll;
 
   useEffect(() => {
-    props.onQueryStateChange?.({
+    onQueryStateChangeRef.current?.({
       snapshotsUpdatedAt: snapshotsQuery.dataUpdatedAt,
       snapshotsFetching: snapshotsQuery.isFetching,
       outcomeUpdatedAt: metricsQuery.dataUpdatedAt,
       outcomeFetching: metricsQuery.isFetching,
-      refetchAll,
+      refetchAll: () => {
+        refetchAllRef.current();
+      },
     });
   }, [
     metricsQuery.dataUpdatedAt,
     metricsQuery.isFetching,
-    props.onQueryStateChange,
-    refetchAll,
     snapshotsQuery.dataUpdatedAt,
     snapshotsQuery.isFetching,
   ]);
