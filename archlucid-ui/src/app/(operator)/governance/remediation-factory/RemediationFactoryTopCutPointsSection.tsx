@@ -74,9 +74,17 @@ export function RemediationFactoryTopCutPointsSection(props: {
       >
         <h2 className={OPERATOR_TYPOGRAPHY.sectionTitle}>{REMEDIATION_FACTORY_TOP_CUT_POINTS_TITLE}</h2>
         <OperatorErrorRecoveryContract
-          title="Cut points unavailable"
-          onRetry={() => void props.refetch()}
+          presentation={{
+            whatFailed: "Top cut points did not load.",
+            whatIsIntact: "The priority queue and ranked paths on this page are unchanged.",
+            nextStep: "Retry the load. This does not change Azure.",
+          }}
+          testId="remediation-top-cut-points-error-recovery"
+        />
+        <RefreshButton
           busy={props.isFetching}
+          label="Refresh cut points"
+          onClick={() => void props.refetch()}
         />
       </section>
     );
@@ -94,7 +102,11 @@ export function RemediationFactoryTopCutPointsSection(props: {
     >
       <div className="flex flex-wrap items-center gap-2">
         <h2 className={OPERATOR_TYPOGRAPHY.sectionTitle}>{REMEDIATION_FACTORY_TOP_CUT_POINTS_TITLE}</h2>
-        <RefreshButton busy={props.isFetching} onClick={() => void props.refetch()} />
+        <RefreshButton
+          busy={props.isFetching}
+          label="Refresh cut points"
+          onClick={() => void props.refetch()}
+        />
       </div>
       <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{REMEDIATION_FACTORY_TOP_CUT_POINTS_LEAD}</p>
 
